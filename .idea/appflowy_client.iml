@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="CPP_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/af_protobuf/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/af_protobuf/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/af_protobuf/build" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_style/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_style/build" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_style/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_logger/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_logger/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_logger/build" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/build" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_sdk/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_sdk/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_sdk/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_sdk/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_sdk/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_sdk/build" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/infra/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/infra/build" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/infra/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_protobuf/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_protobuf/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_protobuf/build" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Dart SDK" level="project" />
+    <orderEntry type="library" name="Dart Packages" level="project" />
+  </component>
+</module>

@@ -1,0 +1,81 @@
+[tasks.rust_env_setup]
+dependencies = ["rustup", "add_targets", "rust_tools"]
+description = "Setup the rust env"
+
+[tasks.rustup]
+script = [
+  """
+  sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+	curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
+	echo 'export PATH="$$HOME/.cargo/bin:$$PATH"' >> ~/.bash_profile
+	source ~/.bash_profile
+  """,
+]
+script_runner = "@shell"
+
+[tasks.add_compile_targets]
+script = [
+  """
+  rustup target add aarch64-linux-android
+  rustup target add arm-linux-androideabi
+  rustup target add armv7-linux-androideabi
+  rustup target add i686-linux-android
+  rustup target add aarch64-apple-ios
+  rustup target add x86_64-apple-ios
+  rustup target add x86_64-apple-darwin
+  """,
+]
+script_runner = "@shell"
+
+[tasks.rust_tools]
+script = [
+  """
+  # cargo install clog-cli --force
+#  cargo install cargo-cache
+  rustup component add rustfmt
+  cargo install ripgrep
+  cargo install rusty-hook
+  cargo install cargo-expand
+  """,
+]
+script_runner = "@shell"
+
+[tasks.fmt]
+args = ["fmt", "--", "--emit=files"]
+command = "cargo"
+install_crate = "rustfmt"
+[tasks.rust_commit_hook]
+script = [
+  """
+  manifest_path=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/scripts/tool/rust-tool/Cargo.toml
+  cargo run --manifest-path ${manifest_path} hook --commit --path=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib
+  """,
+]
+script_runner = "@shell"
+
+[tasks.reset_db]
+script = [
+  """
+  tool=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/scripts/tool/rust-tool/Cargo.toml
+  cargo run --manifest-path ${tool} db --reset
+  """,
+]
+script_runner = "@shell"
+
+[tasks.plantuml]
+script = ["""
+  brew cask install java
+  brew install graphviz
+  """]
+script_runner = "@shell"
+
+# For the system Java wrappers to find this JDK, symlink it with
+#   sudo ln -sfn /Users/weidongfu/Documents/tools/homebrew/opt/openjdk/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk.jdk
+# This is a beta version of openjdk for Apple Silicon
+# (openjdk 16 preview).
+
+# openjdk is keg-only, which means it was not symlinked into /Users/weidongfu/Documents/tools/homebrew,
+# because it shadows the macOS `java` wrapper.
+
+# If you need to have openjdk first in your PATH run:
+#   echo 'export PATH="/Users/weidongfu/Documents/tools/homebrew/opt/openjdk/bin:$PATH"' >> ~/.zshrc

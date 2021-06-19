@@ -1,0 +1,8 @@
+[tasks.setup-diesel]
+script = [
+    """
+  brew install sqlite3
+  cargo install diesel_cli --no-default-features --features sqlite
+  """,
+]
+script_runner = "@shell"

@@ -1,0 +1,25 @@
+[tasks.freeze_setup]
+script = [
+  """
+  flutter clean
+  flutter pub get
+  flutter pub run build_runner build --delete-conflicting-outputs
+  """,
+]
+script_runner = "@shell"
+
+[tasks.freeze_watch]
+script = [
+  """
+  flutter pub run build_runner watch
+  """,
+]
+script_runner = "@shell"
+
+[tasks.add_platform]
+description = "Add platform support"
+script = ["""
+  flutter create --template=plugin --platforms=${@} .
+  """]
+script_runner = "@shell"
+
