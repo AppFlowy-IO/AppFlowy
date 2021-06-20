@@ -2,6 +2,7 @@
 <module type="CPP_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/rust-lib/flowy-ast/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/af_protobuf/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/af_protobuf/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/af_protobuf/build" />
@@ -26,6 +27,7 @@
       <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_protobuf/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_protobuf/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_protobuf/build" />
+      <excludeFolder url="file://$MODULE_DIR$/rust-lib/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

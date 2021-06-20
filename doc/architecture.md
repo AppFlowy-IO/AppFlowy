@@ -167,27 +167,65 @@ The AppFlowy Client consists of lots of modules. Each of them follows the DDD de
 to communication with other module.
 
 ```
-     Client
-    ┌──────────────────────────────────────────────────────────────────────────────────────────────────────┐
-    │                                                                                                      │
-    │   User                                 Editor                   Setting                              │
-    │  ┌───────────────────┐                ┌───────────────────┐    ┌───────────────────┐                 │
-    │  │ presentation      │   Dependency   │ presentation      │    │ presentation      │                 │
-    │  │                   │   Injection    │                   │    │                   │                 │
-    │  │ application       ├───────────────▶│ application       │    │ application       │                 │
-    │  │                   │◀───────────────│                   │    │                   │    ◉  ◉  ◉      │
-    │  │ domain            │                │ domain            │    │ domain            │                 │
-    │  │                   │                │                   │    │                   │                 │
-    │  │ Infrastructure    │                │ Infrastructure    │    │ Infrastructure    │                 │
-    │  └───────────────────┘                └───────────────────┘    └───────────────────┘                 │
-    │            ▲                                                             │                           │
-    │            │                       Dependency Injection                  │                           │
-    │            └─────────────────────────────────────────────────────────────┘                           │
-    │                                                                                                      │
-    └──────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+   Client
+  ┌──────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │                                                                                                      │
+  │   Module A                             Module B                 Module C                             │
+  │  ┌───────────────────┐                ┌───────────────────┐    ┌───────────────────┐                 │
+  │  │ presentation      │   Dependency   │ presentation      │    │ presentation      │                 │
+  │  │                   │   Injection    │                   │    │                   │                 │
+  │  │ application       ├───────────────▶│ application       │    │ application       │                 │
+  │  │                   │◀───────────────│                   │    │                   │    ◉  ◉  ◉      │
+  │  │ domain            │                │ domain            │    │ domain            │                 │
+  │  │                   │                │                   │    │                   │                 │
+  │  │ Infrastructure    │                │ Infrastructure    │    │ Infrastructure    │                 │
+  │  └───────────────────┘                └───────────────────┘    └───────────────────┘                 │
+  │            ▲                                                             │                           │
+  │            │                       Dependency Injection                  │                           │
+  │            └─────────────────────────────────────────────────────────────┘                           │
+  │                                                                                                      │
+  └──────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 Let's dig it how can I construct each module. I take `User` module for demonstration.
 
+```
 
+     presentation            Application                      domain                           Infrastructure
+
+                  │
+                                              │                                  │
+                     7                                 Data Model
+       ┌──────────────────────────────┐       │       ┌────────────────────────┐ │         ┌───────────────────────────┐
+       │          │                   │               │ ┌─────────────┐        │    ┌─────▶│ Repository implementation │
+       ▼             Bloc             │         2.1   │ │  Aggregate  │        │ │  │      └───────────────────────────┘
+┌─────────────┐   │ ┌─────────────────┴─────┐         │ └─────────────┘        │    │                    │  4
+│   Widget    │     │ ┌────────┐ ┌────────┐ │ │       │ ┌────────┐             │ │  │                    ▼
+└─────────────┘   │ │ │ Event  │ │ State  │ │───┬────▶│ │ Entity │             │    │         ┌─────────────────────┐
+       │            │ └────────┘ └────────┘ │ │ │     │ └────────┘             │ │  │         │    Unit of Work     │
+       │          │ └──────▲────────────────┘   │     │ ┌─────────────────┐    │    │         └─────────────────────┘
+       │                   │                  │ │     │ │  Value Object   │    │ │  │                    │  5
+       └──────────┼────────┘                    │     │ └─────────────────┘    │    │                    ▼
+             1                                │ │     └────────────────────────┘ │  │         ┌─────────────────────┐
+                  │                             │                  ◈                │         │ Persistence Service │
+                                              │ │                  │ contain     │  │         └─────────────────────┘
+                  │                             │       ┌────────────────────┐      │
+                                              │ │       │      Service       │   │  │
+                  │                             │       └────────────────────┘      │
+                                              │   2.2                            │  │
+                  │                             │    ┌───────────────────────┐      │
+                                              │ └───▶│ Repository interface  │   │  │
+                  │                                  └───────────────────────┘      │
+                                              │                  │               │  │
+                  │                                              │          3       │
+                                              │                  └───────────────┼──┘
+```
+
+
+1.  Send event using the bloc. The bloc does not know about the `Widget`. It should communicate through events.
+2.  The bloc dispatching the event to the appropriate handler of the `Domain`
+    1. Conversion between, DTO (Data Transfer Object) to domain model and Domain Model to DTO.
+    2.  Handling the business logic using the repository interface
+3.  Repository are used to store the domain model data and calls respective service to finish the jobs.
 # Event-Driven
