@@ -1,38 +1,22 @@
-# AppFlowy client
-
-* The Big Picture
-    * Introduce
-    * Goals
-    * Cross-platform
-
-* Getting started
-    * Build
-    * Running
-    
-* Contributing
-    * First steps
-    * Opening issues
-    * Participating in discussions
-    * Finding something to work on
-    * Open your PR
-    * Review Process
-    * Getting more involved
-        * Organization membership
-        * Contributor
-        * Maintainer
-
-## The Big Picture
-
-### Introduce
-
-### Goals
-
-### Cross-platform
+[![Version](https://img.shields.io/badge/rustc-1.46+-ab6000.svg)](https://blog.rust-lang.org/2020/03/12/Rust-1.46.html)
+![Apache 2.0 licensed](https://img.shields.io/crates/l/actix-web.svg)
 
 
-## Getting Started
-Read the [architecture doc](doc/architecture.md) before you started.
+# what is AppFlowy?
+
+## Features
+
+## Documentation
+
+* [**Getting Started**](doc/getting_started.md)
+* [**Roadmap**](doc/roadmap.md)
+* [**Deep Dive AppFlowy**](doc/architecture.md)
 
 ## Contributing
-Read the [architecture doc](doc/architecture.md) before you started.
+Read the [Contributing Doc](doc/contribute.md) before you want to contribute.
 
+## Social Media
+* Slack
+
+## License
+AppFlowy is under the Apache 2.0 license. See the [LICENSE](/LICENSE) file for details.
