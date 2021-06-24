@@ -1,7 +1,8 @@
-use crate::error::Error;
-use crate::request::FlowyRequest;
-use crate::response::FlowyResponseBuilder;
-use crate::response::Responder;
+use crate::{
+    error::Error,
+    request::FlowyRequest,
+    response::{FlowyResponseBuilder, Responder},
+};
 use std::future::Future;
 
 #[derive(Clone, Copy)]
@@ -48,19 +49,13 @@ impl FlowyResponse {
 
 impl Responder for FlowyResponse {
     #[inline]
-    fn respond_to(self, _: &FlowyRequest) -> FlowyResponse {
-        self
-    }
+    fn respond_to(self, _: &FlowyRequest) -> FlowyResponse { self }
 }
 
 impl std::convert::Into<ResponseData> for String {
-    fn into(self) -> ResponseData {
-        ResponseData::Bytes(self.into_bytes())
-    }
+    fn into(self) -> ResponseData { ResponseData::Bytes(self.into_bytes()) }
 }
 
 impl std::convert::Into<ResponseData> for &str {
-    fn into(self) -> ResponseData {
-        self.to_string().into()
-    }
+    fn into(self) -> ResponseData { self.to_string().into() }
 }

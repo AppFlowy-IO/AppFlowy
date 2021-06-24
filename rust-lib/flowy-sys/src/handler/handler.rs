@@ -1,6 +1,6 @@
 use crate::error::Error;
 use crate::payload::Payload;
-use crate::request::FlowyRequest;
+use crate::request::{FlowyRequest, FromRequest};
 use crate::response::{FlowyResponse, Responder};
 use crate::service::{Service, ServiceFactory, ServiceRequest, ServiceResponse};
 use crate::util::ready::*;
@@ -18,13 +18,6 @@ where
     R::Output: Responder,
 {
     fn call(&self, param: T) -> R;
-}
-
-pub trait FromRequest: Sized {
-    type Error: Into<Error>;
-    type Future: Future<Output = Result<Self, Self::Error>>;
-
-    fn from_request(req: &FlowyRequest, payload: &mut Payload) -> Self::Future;
 }
 
 pub struct HandlerService<H, T, R>
@@ -87,7 +80,6 @@ where
     }
 }
 
-/// HandlerService is both it's ServiceFactory and Service Type.
 impl<H, T, R> Service<ServiceRequest> for HandlerService<H, T, R>
 where
     H: Handler<T, R>,
@@ -247,3 +239,5 @@ mod m {
     tuple_from_req!(TupleFromRequest4, (0, A), (1, B), (2, C), (3, D));
     tuple_from_req!(TupleFromRequest5, (0, A), (1, B), (2, C), (3, D), (4, E));
 }
+
+

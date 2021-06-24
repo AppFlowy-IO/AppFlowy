@@ -28,6 +28,13 @@ pub struct ServiceRequest {
 }
 
 impl ServiceRequest {
+
+    pub fn new(req: FlowyRequest, payload: Payload) -> Self {
+        Self {
+            req, payload,
+        }
+    }
+
     #[inline]
     pub fn into_parts(self) -> (FlowyRequest, Payload) {
         (self.req, self.payload)

@@ -6,7 +6,6 @@ match_block_trailing_comma = true
 normalize_comments = true
 wrap_comments = true
 merge_imports = true
-reorder_impl_items = true
 use_field_init_shorthand = true
 use_try_shorthand = true
 normalize_doc_attributes = true
