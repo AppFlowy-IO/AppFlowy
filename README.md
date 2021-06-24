@@ -12,6 +12,7 @@
 * [**Roadmap**](doc/roadmap.md)
 * [**Deep Dive AppFlowy**](doc/architecture.md)
 
+
 ## Contributing
 Read the [Contributing Doc](doc/contribute.md) before you want to contribute.
 

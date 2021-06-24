@@ -1,0 +1,7 @@
+[workspace]
+members = [
+  "flowy-sys",
+]
+
+[profile.dev]
+split-debuginfo = "unpacked"
