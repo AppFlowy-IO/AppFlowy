@@ -1,19 +1,19 @@
-use crate::error::Error;
-use crate::response::{FlowyResponse, ResponseData, StatusCode};
+use crate::{
+    error::SystemError,
+    response::{data::ResponseData, FlowyResponse, StatusCode},
+};
 
 macro_rules! static_response {
     ($name:ident, $status:expr) => {
         #[allow(non_snake_case, missing_docs)]
-        pub fn $name() -> FlowyResponseBuilder {
-            FlowyResponseBuilder::new($status)
-        }
+        pub fn $name() -> FlowyResponseBuilder { FlowyResponseBuilder::new($status) }
     };
 }
 
 pub struct FlowyResponseBuilder<T = ResponseData> {
     pub data: T,
     pub status: StatusCode,
-    pub error: Option<Error>,
+    pub error: Option<SystemError>,
 }
 
 impl FlowyResponseBuilder {
@@ -30,7 +30,7 @@ impl FlowyResponseBuilder {
         self
     }
 
-    pub fn error(mut self, error: Option<Error>) -> Self {
+    pub fn error(mut self, error: Option<SystemError>) -> Self {
         self.error = error;
         self
     }

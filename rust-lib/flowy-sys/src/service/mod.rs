@@ -1,7 +1,7 @@
 mod boxed;
-mod dispatch;
 mod handler;
+mod service;
 
 pub use boxed::*;
-pub use dispatch::*;
 pub use handler::*;
+pub use service::*;

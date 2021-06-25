@@ -1,16 +1,20 @@
-use crate::error::Error;
-use crate::payload::Payload;
-use crate::request::{FlowyRequest, FromRequest};
-use crate::response::{FlowyResponse, Responder};
-use crate::service::{Service, ServiceFactory, ServiceRequest, ServiceResponse};
-use crate::util::ready::*;
+use std::{
+    future::Future,
+    marker::PhantomData,
+    pin::Pin,
+    task::{Context, Poll},
+};
+
 use futures_core::ready;
-use paste::paste;
 use pin_project::pin_project;
-use std::future::Future;
-use std::marker::PhantomData;
-use std::pin::Pin;
-use std::task::{Context, Poll};
+
+use crate::{
+    error::SystemError,
+    request::{payload::Payload, FlowyRequest, FromRequest},
+    response::{FlowyResponse, Responder},
+    service::{Service, ServiceFactory, ServiceRequest, ServiceResponse},
+    util::ready::*,
+};
 
 pub trait Handler<T, R>: Clone + 'static
 where
@@ -69,15 +73,12 @@ where
     R::Output: Responder,
 {
     type Response = ServiceResponse;
-    type Error = Error;
+    type Error = SystemError;
     type Service = Self;
-    type InitError = ();
     type Config = ();
-    type Future = Ready<Result<Self::Service, ()>>;
+    type Future = Ready<Result<Self::Service, Self::Error>>;
 
-    fn new_service(&self, _: ()) -> Self::Future {
-        ready(Ok(self.clone()))
-    }
+    fn new_service(&self, _: ()) -> Self::Future { ready(Ok(self.clone())) }
 }
 
 impl<H, T, R> Service<ServiceRequest> for HandlerService<H, T, R>
@@ -88,7 +89,7 @@ where
     R::Output: Responder,
 {
     type Response = ServiceResponse;
-    type Error = Error;
+    type Error = SystemError;
     type Future = HandlerServiceFuture<H, T, R>;
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
@@ -117,9 +118,7 @@ where
     R: Future,
     R::Output: Responder,
 {
-    // Error type in this future is a placeholder type.
-    // all instances of error must be converted to ServiceResponse and return in Ok.
-    type Output = Result<ServiceResponse, Error>;
+    type Output = Result<ServiceResponse, SystemError>;
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         loop {
@@ -130,20 +129,21 @@ where
                             let fut = handle.call(item);
                             let state = HandlerServiceFuture::Handle(fut, req.take());
                             self.as_mut().set(state);
-                        }
+                        },
                         Err(err) => {
                             let req = req.take().unwrap();
-                            let res = FlowyResponse::from_error(err.into());
+                            let system_err: SystemError = err.into();
+                            let res: FlowyResponse = system_err.into();
                             return Poll::Ready(Ok(ServiceResponse::new(req, res)));
-                        }
+                        },
                     };
-                }
+                },
                 HandlerServiceProj::Handle(fut, req) => {
                     let res = ready!(fut.poll(cx));
                     let req = req.take().unwrap();
                     let res = res.respond_to(&req);
                     return Poll::Ready(Ok(ServiceResponse::new(req, res)));
-                }
+                },
             }
         }
     }
@@ -175,7 +175,7 @@ macro_rules! tuple_from_req ({$tuple_type:ident, $(($n:tt, $T:ident)),+} => {
         #[allow(unused_parens)]
         impl<$($T: FromRequest + 'static),+> FromRequest for ($($T,)+)
         {
-            type Error = Error;
+            type Error = SystemError;
             type Future = $tuple_type<$($T),+>;
 
             fn from_request(req: &FlowyRequest, payload: &mut Payload) -> Self::Future {
@@ -196,7 +196,7 @@ macro_rules! tuple_from_req ({$tuple_type:ident, $(($n:tt, $T:ident)),+} => {
 
         impl<$($T: FromRequest),+> Future for $tuple_type<$($T),+>
         {
-            type Output = Result<($($T,)+), Error>;
+            type Output = Result<($($T,)+), SystemError>;
 
             fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
                 let mut this = self.project();
@@ -233,11 +233,10 @@ factory_tuple! { A B C D E }
 #[rustfmt::skip]
 mod m {
     use super::*;
+
     tuple_from_req!(TupleFromRequest1, (0, A));
     tuple_from_req!(TupleFromRequest2, (0, A), (1, B));
     tuple_from_req!(TupleFromRequest3, (0, A), (1, B), (2, C));
     tuple_from_req!(TupleFromRequest4, (0, A), (1, B), (2, C), (3, D));
     tuple_from_req!(TupleFromRequest5, (0, A), (1, B), (2, C), (3, D), (4, E));
 }
-
-

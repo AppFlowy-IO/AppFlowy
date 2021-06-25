@@ -1,24 +1,11 @@
 use crate::{
-    error::Error,
-    payload::Payload,
-    request::FlowyRequest,
-    response::{FlowyResponse, Responder},
     service::{Service, ServiceFactory, ServiceRequest, ServiceResponse},
     util::ready::*,
-};
-use futures_core::ready;
-use paste::paste;
-use pin_project::pin_project;
-use std::{
-    future::Future,
-    marker::PhantomData,
-    pin::Pin,
-    task::{Context, Poll},
 };
 
 use futures_core::future::LocalBoxFuture;
 
-pub fn factory<SF, Req>(factory: SF) -> BoxServiceFactory<SF::Config, Req, SF::Response, SF::Error, SF::InitError>
+pub fn factory<SF, Req>(factory: SF) -> BoxServiceFactory<SF::Config, Req, SF::Response, SF::Error>
 where
     SF: ServiceFactory<Req> + 'static,
     Req: 'static,
@@ -26,38 +13,34 @@ where
     SF::Service: 'static,
     SF::Future: 'static,
     SF::Error: 'static,
-    SF::InitError: 'static,
 {
     BoxServiceFactory(Box::new(FactoryWrapper(factory)))
 }
 
-pub struct BoxServiceFactory<Cfg, Req, Res, Err, InitErr>(Inner<Cfg, Req, Res, Err, InitErr>);
-impl<C, Req, Res, Err, InitErr> ServiceFactory<Req> for BoxServiceFactory<C, Req, Res, Err, InitErr>
+pub struct BoxServiceFactory<Cfg, Req, Res, Err>(Inner<Cfg, Req, Res, Err>);
+impl<Cfg, Req, Res, Err> ServiceFactory<Req> for BoxServiceFactory<Cfg, Req, Res, Err>
 where
     Req: 'static,
     Res: 'static,
     Err: 'static,
-    InitErr: 'static,
 {
     type Response = Res;
     type Error = Err;
     type Service = BoxService<Req, Res, Err>;
-    type InitError = InitErr;
-    type Config = C;
-    type Future = LocalBoxFuture<'static, Result<Self::Service, InitErr>>;
+    type Config = Cfg;
+    type Future = LocalBoxFuture<'static, Result<Self::Service, Self::Error>>;
 
-    fn new_service(&self, cfg: C) -> Self::Future { self.0.new_service(cfg) }
+    fn new_service(&self, cfg: Cfg) -> Self::Future { self.0.new_service(cfg) }
 }
 
-type Inner<C, Req, Res, Err, InitErr> = Box<
+type Inner<Cfg, Req, Res, Err> = Box<
     dyn ServiceFactory<
         Req,
-        Config = C,
+        Config = Cfg,
         Response = Res,
         Error = Err,
-        InitError = InitErr,
         Service = BoxService<Req, Res, Err>,
-        Future = LocalBoxFuture<'static, Result<BoxService<Req, Res, Err>, InitErr>>,
+        Future = LocalBoxFuture<'static, Result<BoxService<Req, Res, Err>, Err>>,
     >,
 >;
 
@@ -106,13 +89,12 @@ where
 
 struct FactoryWrapper<SF>(SF);
 
-impl<SF, Req, Cfg, Res, Err, InitErr> ServiceFactory<Req> for FactoryWrapper<SF>
+impl<SF, Req, Cfg, Res, Err> ServiceFactory<Req> for FactoryWrapper<SF>
 where
     Req: 'static,
     Res: 'static,
     Err: 'static,
-    InitErr: 'static,
-    SF: ServiceFactory<Req, Config = Cfg, Response = Res, Error = Err, InitError = InitErr>,
+    SF: ServiceFactory<Req, Config = Cfg, Response = Res, Error = Err>,
     SF::Future: 'static,
     SF::Service: 'static,
     <SF::Service as Service<Req>>::Future: 'static,
@@ -120,12 +102,11 @@ where
     type Response = Res;
     type Error = Err;
     type Service = BoxService<Req, Res, Err>;
-    type InitError = InitErr;
     type Config = Cfg;
-    type Future = LocalBoxFuture<'static, Result<Self::Service, Self::InitError>>;
+    type Future = LocalBoxFuture<'static, Result<Self::Service, Self::Error>>;
 
     fn new_service(&self, cfg: Cfg) -> Self::Future {
         let f = self.0.new_service(cfg);
-        Box::pin(async { f.await.map(|s| Box::new(ServiceWrapper::new(s)) as _) })
+        Box::pin(async { f.await.map(|s| Box::new(ServiceWrapper::new(s)) as Self::Service) })
     }
 }

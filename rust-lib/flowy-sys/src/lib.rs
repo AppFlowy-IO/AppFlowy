@@ -1,7 +1,6 @@
 mod data;
 mod error;
-mod handler;
-mod payload;
+mod module;
 mod request;
 mod response;
 mod service;
