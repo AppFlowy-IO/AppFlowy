@@ -1,12 +1,13 @@
 use crate::{
-    module::{Command, Module},
+    module::{Command, CommandServiceFactory, Module},
     request::FlowyRequest,
     response::FlowyResponse,
     rt::Runtime,
+    service::BoxServiceFactory,
 };
 use futures_core::{future::LocalBoxFuture, ready, task::Context};
 use futures_util::{future, pin_mut};
-use std::{cell::RefCell, future::Future, io, sync::Arc};
+use std::{cell::RefCell, collections::HashMap, future::Future, io, sync::Arc};
 use tokio::{
     macros::support::{Pin, Poll},
     sync::{
@@ -21,7 +22,7 @@ thread_local!(
 
 pub struct FlowySystem {
     resp_tx: UnboundedSender<FlowyResponse>,
-    modules: Vec<Module>,
+    sender_map: HashMap<Command, UnboundedSender<FlowyRequest>>,
 }
 
 impl FlowySystem {
@@ -37,30 +38,25 @@ impl FlowySystem {
 
         let mut system = Self {
             resp_tx: resp_tx.clone(),
-            modules: vec![],
+            sender_map: HashMap::default(),
         };
 
         let factory = module_factory(resp_tx.clone());
         factory.into_iter().for_each(|m| {
+            system.sender_map.extend(m.service_sender_map());
             runtime.spawn(m);
-            // system.add_module(m);
         });
 
         FlowySystem::set_current(system);
-
         let runner = SystemRunner { rt: runtime, stop_rx };
         runner
     }
 
     pub fn handle_command(&self, cmd: Command, request: FlowyRequest) {
-        self.modules.iter().for_each(|m| {
-            if m.can_handle(&cmd) {
-                m.handle(request.clone());
-            }
-        })
+        if let Some(sender) = self.sender_map.get(&cmd) {
+            sender.send(request);
+        }
     }
-
-    pub fn add_module(&mut self, module: Module) { self.modules.push(module); }
 
     #[doc(hidden)]
     pub fn set_current(sys: FlowySystem) {
@@ -91,7 +87,7 @@ impl Future for SystemController {
             match ready!(Pin::new(&mut self.resp_rx).poll_recv(cx)) {
                 None => return Poll::Ready(()),
                 Some(resp) => {
-                    // FFI
+                    // FF
                     println!("Receive response: {:?}", resp);
                 },
             }

@@ -37,7 +37,7 @@ pub type CommandServiceFactory = BoxServiceFactory<(), ServiceRequest, ServiceRe
 pub struct Module {
     name: String,
     data: DataContainer,
-    factory_map: HashMap<Command, CommandServiceFactory>,
+    service_map: HashMap<Command, CommandServiceFactory>,
     req_tx: UnboundedSender<FlowyRequest>,
     req_rx: UnboundedReceiver<FlowyRequest>,
     resp_tx: UnboundedSender<FlowyResponse>,
@@ -49,7 +49,7 @@ impl Module {
         Self {
             name: "".to_owned(),
             data: DataContainer::new(),
-            factory_map: HashMap::new(),
+            service_map: HashMap::new(),
             req_tx,
             req_rx,
             resp_tx,
@@ -74,11 +74,11 @@ impl Module {
         R: Future + 'static,
         R::Output: Responder + 'static,
     {
-        self.factory_map.insert(command, factory(HandlerService::new(handler)));
+        self.service_map.insert(command, factory(HandlerService::new(handler)));
         self
     }
 
-    pub fn can_handle(&self, cmd: &Command) -> bool { self.factory_map.contains_key(cmd) }
+    pub fn can_handle(&self, cmd: &Command) -> bool { self.service_map.contains_key(cmd) }
 
     pub fn req_tx(&self) -> UnboundedSender<FlowyRequest> { self.req_tx.clone() }
 
@@ -90,6 +90,13 @@ impl Module {
             },
         }
     }
+
+    pub fn service_sender_map(&self) -> HashMap<Command, UnboundedSender<FlowyRequest>> {
+        self.service_map
+            .keys()
+            .map(|key| (key.clone(), self.req_tx()))
+            .collect::<HashMap<_, _>>()
+    }
 }
 
 impl Future for Module {
@@ -98,7 +105,7 @@ impl Future for Module {
         loop {
             match ready!(Pin::new(&mut self.req_rx).poll_recv(cx)) {
                 None => return Poll::Ready(()),
-                Some(request) => match self.factory_map.get(request.get_cmd()) {
+                Some(request) => match self.service_map.get(request.get_cmd()) {
                     Some(factory) => {
                         let fut = ModuleServiceFuture {
                             request,
