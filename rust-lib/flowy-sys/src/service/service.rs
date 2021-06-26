@@ -42,4 +42,6 @@ pub struct ServiceResponse<T = ResponseData> {
 
 impl<T> ServiceResponse<T> {
     pub fn new(request: FlowyRequest, response: FlowyResponse<T>) -> Self { ServiceResponse { request, response } }
+
+    pub fn into_parts(self) -> (FlowyRequest, FlowyResponse<T>) { (self.request, self.response) }
 }

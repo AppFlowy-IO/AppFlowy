@@ -125,8 +125,8 @@ where
             match self.as_mut().project() {
                 HandlerServiceProj::Extract(fut, req, handle) => {
                     match ready!(fut.poll(cx)) {
-                        Ok(item) => {
-                            let fut = handle.call(item);
+                        Ok(params) => {
+                            let fut = handle.call(params);
                             let state = HandlerServiceFuture::Handle(fut, req.take());
                             self.as_mut().set(state);
                         },

@@ -7,16 +7,23 @@ use crate::{
 };
 use std::hash::Hash;
 
+#[derive(Clone, Debug)]
 pub struct FlowyRequest {
     id: String,
+    cmd: String,
 }
 
 impl FlowyRequest {
-    pub fn get_id(&self) -> &str { &self.id }
+    pub fn new(cmd: String) -> FlowyRequest {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            cmd,
+        }
+    }
 }
 
-impl std::default::Default for FlowyRequest {
-    fn default() -> Self { Self { id: "".to_string() } }
+impl FlowyRequest {
+    pub fn get_cmd(&self) -> &str { &self.cmd }
 }
 
 pub trait FromRequest: Sized {
