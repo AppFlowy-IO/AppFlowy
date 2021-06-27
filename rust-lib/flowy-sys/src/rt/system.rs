@@ -20,8 +20,10 @@ thread_local!(
     static CURRENT: RefCell<Option<Arc<FlowySystem>>> = RefCell::new(None);
 );
 
-enum SystemCommand {
+#[derive(Debug)]
+pub enum SystemCommand {
     Exit(i8),
+    EventResponse(EventResponse),
 }
 
 pub struct FlowySystem {
@@ -30,28 +32,26 @@ pub struct FlowySystem {
 }
 
 impl FlowySystem {
-    pub fn construct<F>(module_factory: F) -> SystemRunner
+    pub fn construct<F>(module_factory: F, response_tx: Option<UnboundedSender<EventResponse>>) -> SystemRunner
     where
-        F: FnOnce(UnboundedSender<EventResponse>) -> Vec<Module>,
+        F: FnOnce(UnboundedSender<SystemCommand>) -> Vec<Module>,
     {
         let runtime = Runtime::new().unwrap();
-        let (resp_tx, resp_rx) = unbounded_channel::<EventResponse>();
-
         let (sys_tx, sys_rx) = unbounded_channel::<SystemCommand>();
         let (stop_tx, stop_rx) = oneshot::channel();
 
-        runtime.spawn(SystemFFI { resp_rx });
         runtime.spawn(SystemController {
             stop_tx: Some(stop_tx),
             sys_rx,
+            response_tx,
         });
 
         let mut system = Self {
-            sys_tx,
+            sys_tx: sys_tx.clone(),
             forward_map: HashMap::default(),
         };
 
-        let factory = module_factory(resp_tx.clone());
+        let factory = module_factory(sys_tx.clone());
         factory.into_iter().for_each(|m| {
             system.forward_map.extend(m.forward_map());
             runtime.spawn(m);
@@ -63,9 +63,16 @@ impl FlowySystem {
     }
 
     pub fn sink(&self, event: Event, request: EventRequest) -> Result<(), SystemError> {
-        log::trace!("Sink event: {}", event);
+        log::debug!("Sink event: {}", event);
         let _ = self.forward_map.get(&event)?.send(request)?;
         Ok(())
+    }
+
+    pub fn request_tx(&self, event: Event) -> Option<UnboundedSender<EventRequest>> {
+        match self.forward_map.get(&event) {
+            Some(tx) => Some(tx.clone()),
+            None => None,
+        }
     }
 
     pub fn stop(&self) {
@@ -92,27 +99,10 @@ impl FlowySystem {
     }
 }
 
-struct SystemFFI {
-    resp_rx: UnboundedReceiver<EventResponse>,
-}
-
-impl Future for SystemFFI {
-    type Output = ();
-    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        loop {
-            match ready!(Pin::new(&mut self.resp_rx).poll_recv(cx)) {
-                None => return Poll::Ready(()),
-                Some(resp) => {
-                    log::trace!("Response: {:?}", resp);
-                },
-            }
-        }
-    }
-}
-
 struct SystemController {
     stop_tx: Option<oneshot::Sender<i8>>,
     sys_rx: UnboundedReceiver<SystemCommand>,
+    response_tx: Option<UnboundedSender<EventResponse>>,
 }
 
 impl Future for SystemController {
@@ -125,6 +115,17 @@ impl Future for SystemController {
                     SystemCommand::Exit(code) => {
                         if let Some(tx) = self.stop_tx.take() {
                             let _ = tx.send(code);
+                        }
+                    },
+                    SystemCommand::EventResponse(resp) => {
+                        log::debug!("Response: {:?}", resp);
+                        if let Some(tx) = &self.response_tx {
+                            match tx.send(resp) {
+                                Ok(_) => {},
+                                Err(e) => {
+                                    log::error!("Response tx send fail: {:?}", e);
+                                },
+                            }
                         }
                     },
                 },

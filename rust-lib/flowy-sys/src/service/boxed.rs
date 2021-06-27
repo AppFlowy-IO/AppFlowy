@@ -13,6 +13,17 @@ where
     BoxServiceFactory(Box::new(FactoryWrapper(factory)))
 }
 
+type Inner<Cfg, Req, Res, Err> = Box<
+    dyn ServiceFactory<
+        Req,
+        Config = Cfg,
+        Response = Res,
+        Error = Err,
+        Service = BoxService<Req, Res, Err>,
+        Future = LocalBoxFuture<'static, Result<BoxService<Req, Res, Err>, Err>>,
+    >,
+>;
+
 pub struct BoxServiceFactory<Cfg, Req, Res, Err>(Inner<Cfg, Req, Res, Err>);
 impl<Cfg, Req, Res, Err> ServiceFactory<Req> for BoxServiceFactory<Cfg, Req, Res, Err>
 where
@@ -28,17 +39,6 @@ where
 
     fn new_service(&self, cfg: Cfg) -> Self::Future { self.0.new_service(cfg) }
 }
-
-type Inner<Cfg, Req, Res, Err> = Box<
-    dyn ServiceFactory<
-        Req,
-        Config = Cfg,
-        Response = Res,
-        Error = Err,
-        Service = BoxService<Req, Res, Err>,
-        Future = LocalBoxFuture<'static, Result<BoxService<Req, Res, Err>, Err>>,
-    >,
->;
 
 pub type BoxService<Req, Res, Err> =
     Box<dyn Service<Req, Response = Res, Error = Err, Future = LocalBoxFuture<'static, Result<Res, Err>>>>;

@@ -8,8 +8,10 @@ use crate::{
 };
 
 use crate::{
+    error::InternalError,
     request::{payload::Payload, EventRequest},
-    response::EventResponse,
+    response::{EventResponse, EventResponseBuilder},
+    rt::SystemCommand,
     service::{factory, BoxServiceFactory, HandlerService},
 };
 use futures_core::{future::LocalBoxFuture, ready};
@@ -18,6 +20,7 @@ use std::{
     collections::HashMap,
     future::Future,
     pin::Pin,
+    rc::Rc,
     task::{Context, Poll},
 };
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
@@ -28,22 +31,22 @@ pub type EventServiceFactory = BoxServiceFactory<(), ServiceRequest, ServiceResp
 pub struct Module {
     name: String,
     data: DataContainer,
-    service_map: HashMap<Event, EventServiceFactory>,
+    service_map: Rc<HashMap<Event, EventServiceFactory>>,
     req_tx: UnboundedSender<EventRequest>,
     req_rx: UnboundedReceiver<EventRequest>,
-    resp_tx: UnboundedSender<EventResponse>,
+    sys_tx: UnboundedSender<SystemCommand>,
 }
 
 impl Module {
-    pub fn new(resp_tx: UnboundedSender<EventResponse>) -> Self {
+    pub fn new(sys_tx: UnboundedSender<SystemCommand>) -> Self {
         let (req_tx, req_rx) = unbounded_channel::<EventRequest>();
         Self {
             name: "".to_owned(),
             data: DataContainer::new(),
-            service_map: HashMap::new(),
+            service_map: Rc::new(HashMap::new()),
             req_tx,
             req_rx,
-            resp_tx,
+            sys_tx,
         }
     }
 
@@ -68,14 +71,16 @@ impl Module {
             log::error!("Duplicate Event: {}", &event);
         }
 
-        self.service_map.insert(event, factory(HandlerService::new(handler)));
+        Rc::get_mut(&mut self.service_map)
+            .unwrap()
+            .insert(event, factory(HandlerService::new(handler)));
         self
     }
 
     pub fn req_tx(&self) -> UnboundedSender<EventRequest> { self.req_tx.clone() }
 
     pub fn handle(&self, request: EventRequest) {
-        log::trace!("Module: {} receive request: {:?}", self.name, request);
+        log::debug!("Module: {} receive request: {:?}", self.name, request);
         match self.req_tx.send(request) {
             Ok(_) => {},
             Err(e) => {
@@ -98,30 +103,72 @@ impl Future for Module {
         loop {
             match ready!(Pin::new(&mut self.req_rx).poll_recv(cx)) {
                 None => return Poll::Ready(()),
-                Some(request) => match self.service_map.get(request.get_event()) {
-                    Some(factory) => {
-                        let fut = ModuleServiceFuture {
-                            request,
-                            fut: factory.new_service(()),
-                        };
-                        let resp_tx = self.resp_tx.clone();
+                Some(request) => {
+                    let mut service = self.new_service(request.get_id().to_string());
+                    if let Ok(service) = ready!(Pin::new(&mut service).poll(cx)) {
+                        log::trace!("Spawn module service for request {}", request.get_id());
                         tokio::task::spawn_local(async move {
-                            let resp = fut.await.unwrap_or_else(|_e| panic!());
-                            if let Err(e) = resp_tx.send(resp) {
-                                log::error!("{:?}", e);
-                            }
+                            let _ = service.call(request).await;
                         });
-                    },
-                    None => {
-                        log::error!("Event: {} handler not found", request.get_event());
-                    },
+                    }
                 },
             }
         }
     }
 }
 
+impl ServiceFactory<EventRequest> for Module {
+    type Response = ();
+    type Error = SystemError;
+    type Service = BoxService<EventRequest, Self::Response, Self::Error>;
+    type Config = String;
+    type Future = LocalBoxFuture<'static, Result<Self::Service, Self::Error>>;
+
+    fn new_service(&self, cfg: Self::Config) -> Self::Future {
+        log::trace!("Create module service for request {}", cfg);
+        let sys_tx = self.sys_tx.clone();
+        let service_map = self.service_map.clone();
+        Box::pin(async move {
+            let service = ModuleService { service_map, sys_tx };
+            let module_service = Box::new(service) as Self::Service;
+            Ok(module_service)
+        })
+    }
+}
+
+pub struct ModuleService {
+    service_map: Rc<HashMap<Event, EventServiceFactory>>,
+    sys_tx: UnboundedSender<SystemCommand>,
+}
+
+impl Service<EventRequest> for ModuleService {
+    type Response = ();
+    type Error = SystemError;
+    type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
+
+    fn call(&self, request: EventRequest) -> Self::Future {
+        log::trace!("Call module service for request {}", request.get_id());
+        match self.service_map.get(request.get_event()) {
+            Some(factory) => {
+                let fut = ModuleServiceFuture {
+                    request,
+                    fut: factory.new_service(()),
+                };
+
+                let sys_tx = self.sys_tx.clone();
+                Box::pin(async move {
+                    let resp = fut.await.unwrap_or_else(|e| e.into());
+                    sys_tx.send(SystemCommand::EventResponse(resp));
+                    Ok(())
+                })
+            },
+            None => Box::pin(async { Err(InternalError::new("".to_string()).into()) }),
+        }
+    }
+}
+
 type BoxModuleService = BoxService<ServiceRequest, ServiceResponse, SystemError>;
+
 #[pin_project]
 pub struct ModuleServiceFuture {
     request: EventRequest,
@@ -136,7 +183,7 @@ impl Future for ModuleServiceFuture {
         loop {
             let service = ready!(self.as_mut().project().fut.poll(cx))?;
             let req = ServiceRequest::new(self.as_mut().request.clone(), Payload::None);
-            log::trace!("Call service to handle request {:?}", self.request);
+            log::debug!("Call service to handle request {:?}", self.request);
             let (_, resp) = ready!(Pin::new(&mut service.call(req)).poll(cx))?.into_parts();
             return Poll::Ready(Ok(resp));
         }
@@ -149,24 +196,22 @@ mod tests {
     use crate::rt::Runtime;
     use futures_util::{future, pin_mut};
     use tokio::sync::mpsc::unbounded_channel;
-
     pub async fn hello_service() -> String { "hello".to_string() }
-
     #[test]
     fn test() {
         let mut runtime = Runtime::new().unwrap();
         runtime.block_on(async {
-            let (resp_tx, mut resp_rx) = unbounded_channel::<EventResponse>();
+            let (sys_tx, mut sys_rx) = unbounded_channel::<SystemCommand>();
             let event = "hello".to_string();
-            let mut module = Module::new(resp_tx).event(event.clone(), hello_service);
+            let mut module = Module::new(sys_tx).event(event.clone(), hello_service);
             let req_tx = module.req_tx();
             let mut event = async move {
                 let request = EventRequest::new(event.clone());
                 req_tx.send(request).unwrap();
 
-                match resp_rx.recv().await {
-                    Some(resp) => {
-                        log::info!("{}", resp);
+                match sys_rx.recv().await {
+                    Some(cmd) => {
+                        log::info!("{:?}", cmd);
                     },
                     None => panic!(""),
                 }

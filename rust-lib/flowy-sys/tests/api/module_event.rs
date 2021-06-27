@@ -12,12 +12,15 @@ fn test() {
     let no_params_command = "no params".to_string();
     let one_params_command = "one params".to_string();
     let two_params_command = "two params".to_string();
-    FlowySystem::construct(|tx| {
-        vec![Module::new(tx.clone())
-            .event(no_params_command.clone(), no_params)
-            .event(one_params_command.clone(), one_params)
-            .event(two_params_command.clone(), two_params)]
-    })
+    FlowySystem::construct(
+        |tx| {
+            vec![Module::new(tx.clone())
+                .event(no_params_command.clone(), no_params)
+                .event(one_params_command.clone(), one_params)
+                .event(two_params_command.clone(), two_params)]
+        },
+        None,
+    )
     .spawn(async {
         let request = EventRequest::new(no_params_command.clone());
         FlowySystem::current().sink(no_params_command, request);
