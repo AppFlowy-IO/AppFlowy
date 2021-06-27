@@ -1,8 +1,4 @@
-use crate::{
-    service::{Service, ServiceFactory, ServiceRequest, ServiceResponse},
-    util::ready::*,
-};
-
+use crate::service::{Service, ServiceFactory};
 use futures_core::future::LocalBoxFuture;
 
 pub fn factory<SF, Req>(factory: SF) -> BoxServiceFactory<SF::Config, Req, SF::Response, SF::Error>
@@ -47,6 +43,7 @@ type Inner<Cfg, Req, Res, Err> = Box<
 pub type BoxService<Req, Res, Err> =
     Box<dyn Service<Req, Response = Res, Error = Err, Future = LocalBoxFuture<'static, Result<Res, Err>>>>;
 
+#[allow(dead_code)]
 pub fn service<S, Req>(service: S) -> BoxService<Req, S::Response, S::Error>
 where
     S: Service<Req> + 'static,

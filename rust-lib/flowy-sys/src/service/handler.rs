@@ -10,8 +10,8 @@ use pin_project::pin_project;
 
 use crate::{
     error::SystemError,
-    request::{payload::Payload, FlowyRequest, FromRequest},
-    response::{FlowyResponse, Responder},
+    request::{payload::Payload, EventRequest, FromRequest},
+    response::{EventResponse, Responder},
     service::{Service, ServiceFactory, ServiceRequest, ServiceResponse},
     util::ready::*,
 };
@@ -107,8 +107,8 @@ where
     R: Future,
     R::Output: Responder,
 {
-    Extract(#[pin] T::Future, Option<FlowyRequest>, H),
-    Handle(#[pin] R, Option<FlowyRequest>),
+    Extract(#[pin] T::Future, Option<EventRequest>, H),
+    Handle(#[pin] R, Option<EventRequest>),
 }
 
 impl<F, T, R> Future for HandlerServiceFuture<F, T, R>
@@ -133,7 +133,7 @@ where
                         Err(err) => {
                             let req = req.take().unwrap();
                             let system_err: SystemError = err.into();
-                            let res: FlowyResponse = system_err.into();
+                            let res: EventResponse = system_err.into();
                             return Poll::Ready(Ok(ServiceResponse::new(req, res)));
                         },
                     };
@@ -178,7 +178,7 @@ macro_rules! tuple_from_req ({$tuple_type:ident, $(($n:tt, $T:ident)),+} => {
             type Error = SystemError;
             type Future = $tuple_type<$($T),+>;
 
-            fn from_request(req: &FlowyRequest, payload: &mut Payload) -> Self::Future {
+            fn from_request(req: &EventRequest, payload: &mut Payload) -> Self::Future {
                 $tuple_type {
                     items: <($(Option<$T>,)+)>::default(),
                     futs: FromRequestFutures($($T::from_request(req, payload),)+),

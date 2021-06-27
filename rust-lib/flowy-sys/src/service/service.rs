@@ -1,8 +1,8 @@
 use std::future::Future;
 
 use crate::{
-    request::{payload::Payload, FlowyRequest},
-    response::{data::ResponseData, FlowyResponse},
+    request::{payload::Payload, EventRequest},
+    response::EventResponse,
 };
 
 pub trait Service<Request> {
@@ -24,24 +24,24 @@ pub trait ServiceFactory<Request> {
 }
 
 pub struct ServiceRequest {
-    req: FlowyRequest,
+    req: EventRequest,
     payload: Payload,
 }
 
 impl ServiceRequest {
-    pub fn new(req: FlowyRequest, payload: Payload) -> Self { Self { req, payload } }
+    pub fn new(req: EventRequest, payload: Payload) -> Self { Self { req, payload } }
 
     #[inline]
-    pub fn into_parts(self) -> (FlowyRequest, Payload) { (self.req, self.payload) }
+    pub fn into_parts(self) -> (EventRequest, Payload) { (self.req, self.payload) }
 }
 
-pub struct ServiceResponse<T = ResponseData> {
-    request: FlowyRequest,
-    response: FlowyResponse<T>,
+pub struct ServiceResponse {
+    request: EventRequest,
+    response: EventResponse,
 }
 
-impl<T> ServiceResponse<T> {
-    pub fn new(request: FlowyRequest, response: FlowyResponse<T>) -> Self { ServiceResponse { request, response } }
+impl ServiceResponse {
+    pub fn new(request: EventRequest, response: EventResponse) -> Self { ServiceResponse { request, response } }
 
-    pub fn into_parts(self) -> (FlowyRequest, FlowyResponse<T>) { (self.request, self.response) }
+    pub fn into_parts(self) -> (EventRequest, EventResponse) { (self.request, self.response) }
 }

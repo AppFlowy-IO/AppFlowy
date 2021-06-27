@@ -1,30 +1,31 @@
 use crate::{
     error::SystemError,
-    request::FlowyRequest,
+    request::EventRequest,
     response::{data::ResponseData, Responder},
 };
-use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
+use serde::{Deserialize, Serialize, Serializer};
+
 use std::{fmt, fmt::Formatter};
 
-#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum StatusCode {
-    Success,
-    Error,
+    Ok,
+    Err,
 }
 
-#[skip_serializing_none]
-#[derive(Serialize, Deserialize, Debug)]
-pub struct FlowyResponse<T = ResponseData> {
-    pub data: T,
+// serde user guide: https://serde.rs/field-attrs.html
+#[derive(Serialize, Debug)]
+pub struct EventResponse {
+    #[serde(serialize_with = "serialize_data")]
+    pub data: ResponseData,
     pub status: StatusCode,
-    #[serde(skip)]
+    #[serde(serialize_with = "serialize_error")]
     pub error: Option<SystemError>,
 }
 
-impl FlowyResponse {
+impl EventResponse {
     pub fn new(status: StatusCode) -> Self {
-        FlowyResponse {
+        EventResponse {
             data: ResponseData::None,
             status,
             error: None,
@@ -32,7 +33,7 @@ impl FlowyResponse {
     }
 }
 
-impl std::fmt::Display for FlowyResponse {
+impl std::fmt::Display for EventResponse {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match serde_json::to_string(self) {
             Ok(json) => f.write_fmt(format_args!("{:?}", json))?,
@@ -42,7 +43,27 @@ impl std::fmt::Display for FlowyResponse {
     }
 }
 
-impl Responder for FlowyResponse {
+impl Responder for EventResponse {
     #[inline]
-    fn respond_to(self, _: &FlowyRequest) -> FlowyResponse { self }
+    fn respond_to(self, _: &EventRequest) -> EventResponse { self }
+}
+
+fn serialize_error<S>(error: &Option<SystemError>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    match error {
+        Some(e) => serializer.serialize_str(&format!("{:?}", e)),
+        None => serializer.serialize_str(""),
+    }
+}
+
+fn serialize_data<S>(data: &ResponseData, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    match data {
+        ResponseData::Bytes(bytes) => serializer.serialize_str(&format!("{} bytes", bytes.len())),
+        ResponseData::None => serializer.serialize_str(""),
+    }
 }

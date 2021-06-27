@@ -1,6 +1,6 @@
 use crate::{
     error::SystemError,
-    request::{payload::Payload, FlowyRequest, FromRequest},
+    request::{payload::Payload, EventRequest, FromRequest},
     util::ready::Ready,
 };
 use std::{ops::Deref, sync::Arc};
@@ -32,5 +32,5 @@ impl<T: ?Sized + 'static> FromRequest for ModuleData<T> {
     type Future = Ready<Result<Self, SystemError>>;
 
     #[inline]
-    fn from_request(req: &FlowyRequest, _: &mut Payload) -> Self::Future { unimplemented!() }
+    fn from_request(_req: &EventRequest, _: &mut Payload) -> Self::Future { unimplemented!() }
 }

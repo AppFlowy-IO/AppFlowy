@@ -1,12 +1,12 @@
 use crate::{
-    module::{Command, CommandServiceFactory, Module},
-    request::FlowyRequest,
-    response::FlowyResponse,
-    rt::Runtime,
-    service::BoxServiceFactory,
+    module::{Event, Module},
+    request::EventRequest,
+    response::EventResponse,
+    rt::runtime::Runtime,
 };
-use futures_core::{future::LocalBoxFuture, ready, task::Context};
-use futures_util::{future, pin_mut};
+use futures_core::{ready, task::Context};
+
+use crate::error::{InternalError, SystemError};
 use std::{cell::RefCell, collections::HashMap, future::Future, io, sync::Arc};
 use tokio::{
     macros::support::{Pin, Poll},
@@ -20,30 +20,40 @@ thread_local!(
     static CURRENT: RefCell<Option<Arc<FlowySystem>>> = RefCell::new(None);
 );
 
+enum SystemCommand {
+    Exit(i8),
+}
+
 pub struct FlowySystem {
-    resp_tx: UnboundedSender<FlowyResponse>,
-    sender_map: HashMap<Command, UnboundedSender<FlowyRequest>>,
+    sys_tx: UnboundedSender<SystemCommand>,
+    forward_map: HashMap<Event, UnboundedSender<EventRequest>>,
 }
 
 impl FlowySystem {
     pub fn construct<F>(module_factory: F) -> SystemRunner
     where
-        F: FnOnce(UnboundedSender<FlowyResponse>) -> Vec<Module>,
+        F: FnOnce(UnboundedSender<EventResponse>) -> Vec<Module>,
     {
         let runtime = Runtime::new().unwrap();
-        let (resp_tx, mut resp_rx) = unbounded_channel::<FlowyResponse>();
+        let (resp_tx, resp_rx) = unbounded_channel::<EventResponse>();
+
+        let (sys_tx, sys_rx) = unbounded_channel::<SystemCommand>();
         let (stop_tx, stop_rx) = oneshot::channel();
-        let controller = SystemController { resp_rx, stop_tx };
-        runtime.spawn(controller);
+
+        runtime.spawn(SystemFFI { resp_rx });
+        runtime.spawn(SystemController {
+            stop_tx: Some(stop_tx),
+            sys_rx,
+        });
 
         let mut system = Self {
-            resp_tx: resp_tx.clone(),
-            sender_map: HashMap::default(),
+            sys_tx,
+            forward_map: HashMap::default(),
         };
 
         let factory = module_factory(resp_tx.clone());
         factory.into_iter().for_each(|m| {
-            system.sender_map.extend(m.service_sender_map());
+            system.forward_map.extend(m.forward_map());
             runtime.spawn(m);
         });
 
@@ -52,9 +62,18 @@ impl FlowySystem {
         runner
     }
 
-    pub fn handle_command(&self, cmd: Command, request: FlowyRequest) {
-        if let Some(sender) = self.sender_map.get(&cmd) {
-            sender.send(request);
+    pub fn sink(&self, event: Event, request: EventRequest) -> Result<(), SystemError> {
+        log::trace!("Sink event: {}", event);
+        let _ = self.forward_map.get(&event)?.send(request)?;
+        Ok(())
+    }
+
+    pub fn stop(&self) {
+        match self.sys_tx.send(SystemCommand::Exit(0)) {
+            Ok(_) => {},
+            Err(e) => {
+                log::error!("Stop system error: {}", e);
+            },
         }
     }
 
@@ -71,24 +90,43 @@ impl FlowySystem {
             None => panic!("System is not running"),
         })
     }
-
-    pub(crate) fn resp_tx(&self) -> UnboundedSender<FlowyResponse> { self.resp_tx.clone() }
 }
 
-struct SystemController {
-    resp_rx: UnboundedReceiver<FlowyResponse>,
-    stop_tx: oneshot::Sender<i32>,
+struct SystemFFI {
+    resp_rx: UnboundedReceiver<EventResponse>,
 }
 
-impl Future for SystemController {
+impl Future for SystemFFI {
     type Output = ();
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         loop {
             match ready!(Pin::new(&mut self.resp_rx).poll_recv(cx)) {
                 None => return Poll::Ready(()),
                 Some(resp) => {
-                    // FF
-                    println!("Receive response: {:?}", resp);
+                    log::trace!("Response: {:?}", resp);
+                },
+            }
+        }
+    }
+}
+
+struct SystemController {
+    stop_tx: Option<oneshot::Sender<i8>>,
+    sys_rx: UnboundedReceiver<SystemCommand>,
+}
+
+impl Future for SystemController {
+    type Output = ();
+    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        loop {
+            match ready!(Pin::new(&mut self.sys_rx).poll_recv(cx)) {
+                None => return Poll::Ready(()),
+                Some(cmd) => match cmd {
+                    SystemCommand::Exit(code) => {
+                        if let Some(tx) = self.stop_tx.take() {
+                            let _ = tx.send(code);
+                        }
+                    },
                 },
             }
         }
@@ -97,7 +135,7 @@ impl Future for SystemController {
 
 pub struct SystemRunner {
     rt: Runtime,
-    stop_rx: oneshot::Receiver<i32>,
+    stop_rx: oneshot::Receiver<i8>,
 }
 
 impl SystemRunner {
@@ -124,30 +162,5 @@ impl SystemRunner {
     {
         self.rt.spawn(future);
         self
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    pub async fn hello_service() -> String { "hello".to_string() }
-
-    #[test]
-    fn test() {
-        let command = "Hello".to_string();
-
-        FlowySystem::construct(|tx| {
-            vec![
-                Module::new(tx.clone()).event(command.clone(), hello_service),
-                // Module::new(tx.clone()).event(command.clone(), hello_service),
-            ]
-        })
-        .spawn(async {
-            let request = FlowyRequest::new(command.clone());
-            FlowySystem::current().handle_command(command, request);
-        })
-        .run()
-        .unwrap();
     }
 }
