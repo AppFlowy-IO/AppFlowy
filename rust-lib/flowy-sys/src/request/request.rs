@@ -10,6 +10,7 @@ use crate::{
 pub struct EventRequest {
     id: String,
     event: String,
+    data: Option<Vec<u8>>,
 }
 
 impl EventRequest {
@@ -17,12 +18,17 @@ impl EventRequest {
         Self {
             id: uuid::Uuid::new_v4().to_string(),
             event,
+            data: None,
         }
     }
-}
 
-impl EventRequest {
+    pub fn data(mut self, data: Vec<u8>) -> Self {
+        self.data = Some(data);
+        self
+    }
+
     pub fn get_event(&self) -> &str { &self.event }
+
     pub fn get_id(&self) -> &str { &self.id }
 }
 

@@ -11,7 +11,9 @@ mod util;
 
 #[cfg(feature = "dart_ffi")]
 mod dart_ffi;
+mod stream;
+mod system;
 
 pub mod prelude {
-    pub use crate::{error::*, module::*, request::*, response::*, rt::*};
+    pub use crate::{error::*, module::*, request::*, response::*, rt::*, stream::*};
 }
