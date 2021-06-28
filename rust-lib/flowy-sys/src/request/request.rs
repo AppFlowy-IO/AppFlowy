@@ -30,6 +30,8 @@ impl EventRequest {
     pub fn get_event(&self) -> &str { &self.event }
 
     pub fn get_id(&self) -> &str { &self.id }
+
+    pub fn from_data(data: Vec<u8>) -> Self { unimplemented!() }
 }
 
 pub trait FromRequest: Sized {

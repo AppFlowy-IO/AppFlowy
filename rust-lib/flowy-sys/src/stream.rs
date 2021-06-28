@@ -4,7 +4,7 @@ use crate::{
     request::EventRequest,
     response::EventResponse,
     service::{BoxService, Service, ServiceFactory},
-    system::ModuleMap,
+    system::ModuleServiceMap,
 };
 use futures_core::{future::LocalBoxFuture, ready, task::Context};
 use std::{collections::HashMap, future::Future, rc::Rc};
@@ -13,7 +13,7 @@ use tokio::{
     sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender},
 };
 
-pub type BoxStreamCallback<T> = Box<dyn FnOnce(T, EventResponse) + 'static>;
+pub type BoxStreamCallback<T> = Box<dyn FnOnce(T, EventResponse) + 'static + Send + Sync>;
 pub struct StreamData<T>
 where
     T: 'static,
@@ -37,22 +37,26 @@ pub struct CommandStream<T>
 where
     T: 'static,
 {
-    module_map: ModuleMap,
-    pub data_tx: UnboundedSender<StreamData<T>>,
+    module_map: Option<ModuleServiceMap>,
+    data_tx: UnboundedSender<StreamData<T>>,
     data_rx: UnboundedReceiver<StreamData<T>>,
 }
 
 impl<T> CommandStream<T> {
-    pub fn new(module_map: ModuleMap) -> Self {
+    pub fn new() -> Self {
         let (data_tx, data_rx) = unbounded_channel::<StreamData<T>>();
         Self {
-            module_map,
+            module_map: None,
             data_tx,
             data_rx,
         }
     }
 
     pub fn send(&self, data: StreamData<T>) { let _ = self.data_tx.send(data); }
+
+    pub fn module_service_map(&mut self, map: ModuleServiceMap) { self.module_map = Some(map) }
+
+    pub fn tx(&self) -> UnboundedSender<StreamData<T>> { self.data_tx.clone() }
 }
 
 impl<T> Future for CommandStream<T>
@@ -87,14 +91,14 @@ where
     type Future = LocalBoxFuture<'static, Result<Self::Service, Self::Error>>;
 
     fn new_service(&self, _cfg: Self::Config) -> Self::Future {
-        let module_map = self.module_map.clone();
+        let module_map = self.module_map.as_ref().unwrap().clone();
         let service = Box::new(CommandStreamService { module_map });
         Box::pin(async move { Ok(service as Self::Service) })
     }
 }
 
 pub struct CommandStreamService {
-    module_map: ModuleMap,
+    module_map: ModuleServiceMap,
 }
 
 impl<T> Service<StreamData<T>> for CommandStreamService
@@ -118,12 +122,18 @@ where
                         let service_fut = fut.await?.call(request);
                         service_fut.await
                     },
-                    None => Err(InternalError::new("".to_owned()).into()),
+                    None => {
+                        let msg = format!("Can not find the module to handle the request:{:?}", request);
+                        Err(InternalError::new(msg).into())
+                    },
                 }
             };
 
-            let resp = result().await.unwrap();
-            (data.callback)(data.config, resp);
+            match result().await {
+                Ok(resp) => (data.callback)(data.config, resp),
+                Err(e) => log::error!("{:?}", e),
+            }
+
             Ok(())
         };
         Box::pin(fut)

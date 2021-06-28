@@ -10,7 +10,7 @@ mod service;
 mod util;
 
 #[cfg(feature = "dart_ffi")]
-mod dart_ffi;
+pub mod dart_ffi;
 mod stream;
 mod system;
 
