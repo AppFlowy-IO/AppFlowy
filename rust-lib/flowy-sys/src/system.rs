@@ -1,10 +1,7 @@
 use crate::{
-    error::SystemError,
     module::{Event, Module},
-    request::EventRequest,
-    response::EventResponse,
     rt::Runtime,
-    stream::{CommandStream, CommandStreamService, StreamData},
+    stream::CommandStreamFuture,
 };
 use futures_core::{ready, task::Context};
 use std::{cell::RefCell, collections::HashMap, future::Future, io, rc::Rc, sync::Arc};
@@ -23,19 +20,19 @@ thread_local!(
 #[derive(Debug)]
 pub enum SystemCommand {
     Exit(i8),
-    Response(EventResponse),
 }
 
-pub type ModuleServiceMap = Rc<HashMap<Event, Rc<Module>>>;
+pub type ModuleMap = Rc<HashMap<Event, Rc<Module>>>;
 pub struct FlowySystem {
     sys_cmd_tx: UnboundedSender<SystemCommand>,
-    module_map: ModuleServiceMap,
 }
 
 impl FlowySystem {
-    pub fn construct<F, T>(module_factory: F, mut stream: CommandStream<T>) -> SystemRunner
+    pub fn construct<F, S, T>(module_factory: F, stream_factory: S) -> SystemRunner
     where
         F: FnOnce() -> Vec<Module>,
+        S: FnOnce(ModuleMap) -> CommandStreamFuture<T>,
+        T: 'static,
     {
         let runtime = Runtime::new().unwrap();
         let (sys_cmd_tx, sys_cmd_rx) = unbounded_channel::<SystemCommand>();
@@ -47,25 +44,18 @@ impl FlowySystem {
         });
 
         let factory = module_factory();
-        let mut module_service_map = HashMap::new();
+        let mut module_map = HashMap::new();
         factory.into_iter().for_each(|m| {
             let events = m.events();
             let rc_module = Rc::new(m);
             events.into_iter().for_each(|e| {
-                module_service_map.insert(e, rc_module.clone());
+                module_map.insert(e, rc_module.clone());
             });
         });
 
-        let mut system = Self {
-            sys_cmd_tx: sys_cmd_tx.clone(),
-            module_map: Rc::new(HashMap::default()),
-        };
-
-        let map = Rc::new(module_service_map);
-        system.module_map = map.clone();
-        stream.module_service_map(map.clone());
-
-        runtime.spawn(stream);
+        let system = Self { sys_cmd_tx };
+        let stream_fut = stream_factory(Rc::new(module_map));
+        runtime.spawn(stream_fut);
 
         FlowySystem::set_current(system);
         let runner = SystemRunner { rt: runtime, stop_rx };
@@ -80,8 +70,6 @@ impl FlowySystem {
             },
         }
     }
-
-    pub fn module_map(&self) -> ModuleServiceMap { self.module_map.clone() }
 
     #[doc(hidden)]
     pub fn set_current(sys: FlowySystem) {
@@ -114,9 +102,6 @@ impl Future for SystemController {
                         if let Some(tx) = self.stop_tx.take() {
                             let _ = tx.send(code);
                         }
-                    },
-                    SystemCommand::Response(resp) => {
-                        log::debug!("Response: {:?}", resp);
                     },
                 },
             }

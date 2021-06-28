@@ -1,4 +1,4 @@
-/// bindings for `libflowy_ffi`
+/// bindings for `libdart_ffi`
 
 import 'dart:ffi';
 import 'dart:io';
@@ -14,9 +14,9 @@ final DynamicLibrary dl = _dl;
 DynamicLibrary _open() {
   if (is_tester()) {
     return DynamicLibrary.open(
-        '${Directory.systemTemp.path}/app_flowy/libflowy_ffi.dylib');
+        '${Directory.systemTemp.path}/app_flowy/libdart_ffi.dylib');
   } else {
-    if (Platform.isAndroid) return DynamicLibrary.open('libflowy_ffi.so');
+    if (Platform.isAndroid) return DynamicLibrary.open('libdart_ffi.so');
     if (Platform.isMacOS) return DynamicLibrary.executable();
     if (Platform.isIOS) return DynamicLibrary.executable();
     throw UnsupportedError('This platform is not supported.');
@@ -44,92 +44,6 @@ typedef _invoke_async_Dart = void Function(
   Pointer<Uint8> input,
   int len,
 );
-
-/// C function `command_sync`.
-Pointer<Uint8> sync_command(
-  Pointer<Uint8> input,
-  int len,
-) {
-  return _invoke_sync(input, len);
-}
-
-final _invoke_sync_Dart _invoke_sync =
-    _dl.lookupFunction<_invoke_sync_C, _invoke_sync_Dart>('sync_command');
-typedef _invoke_sync_C = Pointer<Uint8> Function(
-  Pointer<Uint8> input,
-  Uint64 len,
-);
-typedef _invoke_sync_Dart = Pointer<Uint8> Function(
-  Pointer<Uint8> input,
-  int len,
-);
-
-/// C function `async_query`.
-void async_query(
-  int port,
-  Pointer<Uint8> input,
-  int len,
-) {
-  _invoke_async_query(port, input, len);
-}
-
-final _invoke_async_query_Dart _invoke_async_query =
-    _dl.lookupFunction<_invoke_async_query_C, _invoke_async_query_Dart>(
-        'async_query');
-typedef _invoke_async_query_C = Void Function(
-  Int64 port,
-  Pointer<Uint8> input,
-  Uint64 len,
-);
-typedef _invoke_async_query_Dart = void Function(
-  int port,
-  Pointer<Uint8> input,
-  int len,
-);
-
-/// C function `free_rust`.
-void free_rust(
-  Pointer<Uint8> input,
-  int len,
-) {
-  _free_rust(input, len);
-}
-
-final _free_rust_Dart _free_rust =
-    _dl.lookupFunction<_free_rust_C, _free_rust_Dart>('free_rust');
-typedef _free_rust_C = Void Function(
-  Pointer<Uint8> input,
-  Uint64 len,
-);
-typedef _free_rust_Dart = void Function(
-  Pointer<Uint8> input,
-  int len,
-);
-
-/// C function `init_stream`.
-int init_stream(int port) {
-  return _init_stream(port);
-}
-
-final _init_stream_Dart _init_stream =
-    _dl.lookupFunction<_init_stream_C, _init_stream_Dart>('init_stream');
-
-typedef _init_stream_C = Int32 Function(
-  Int64 port,
-);
-typedef _init_stream_Dart = int Function(
-  int port,
-);
-
-/// C function `init_logger`.
-int init_logger() {
-  return _init_logger();
-}
-
-final _init_logger_Dart _init_logger =
-    _dl.lookupFunction<_init_logger_C, _init_logger_Dart>('init_logger');
-typedef _init_logger_C = Int64 Function();
-typedef _init_logger_Dart = int Function();
 
 /// C function `init_sdk`.
 int init_sdk(
@@ -172,22 +86,6 @@ typedef _store_dart_post_cobject_C = Void Function(
 );
 typedef _store_dart_post_cobject_Dart = void Function(
   Pointer<NativeFunction<Int8 Function(Int64, Pointer<Dart_CObject>)>> ptr,
-);
-
-/// C function `setup_logger`.
-void setup_logger(
-  Pointer ptr,
-) {
-  _setup_logger(ptr);
-}
-
-final _setup_logger_Dart _setup_logger =
-    _dl.lookupFunction<_setup_logger_C, _setup_logger_Dart>('setup_logger');
-typedef _setup_logger_C = Void Function(
-  Pointer ptr,
-);
-typedef _setup_logger_Dart = void Function(
-  Pointer ptr,
 );
 
 bool is_tester() {

@@ -11,7 +11,6 @@ use crate::{
     error::InternalError,
     request::{payload::Payload, EventRequest},
     response::EventResponse,
-    rt::SystemCommand,
     service::{factory, BoxServiceFactory, HandlerService},
 };
 use futures_core::{future::LocalBoxFuture, ready};
@@ -21,7 +20,6 @@ use std::{
     future::Future,
     pin::Pin,
     rc::Rc,
-    sync::Arc,
     task::{Context, Poll},
 };
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};

@@ -2,19 +2,23 @@ use crate::{
     request::EventRequest,
     response::{EventResponse, EventResponseBuilder, StatusCode},
 };
+use dyn_clone::DynClone;
 use std::{fmt, option::NoneError};
 use tokio::sync::mpsc::error::SendError;
 
-pub trait Error: fmt::Debug + fmt::Display {
+pub trait Error: fmt::Debug + fmt::Display + DynClone {
     fn status_code(&self) -> StatusCode;
 
     fn as_response(&self) -> EventResponse { EventResponse::new(self.status_code()) }
 }
 
+dyn_clone::clone_trait_object!(Error);
+
 impl<T: Error + 'static> From<T> for SystemError {
     fn from(err: T) -> SystemError { SystemError { inner: Box::new(err) } }
 }
 
+#[derive(Clone)]
 pub struct SystemError {
     inner: Box<dyn Error>,
 }
@@ -37,15 +41,13 @@ impl std::error::Error for SystemError {
     fn cause(&self) -> Option<&dyn std::error::Error> { None }
 }
 
-impl<T> From<SendError<T>> for SystemError
-where
-    T: fmt::Display + fmt::Debug + 'static,
-{
-    fn from(err: SendError<T>) -> Self { InternalError { inner: err }.into() }
-}
-
 impl From<SendError<EventRequest>> for SystemError {
-    fn from(err: SendError<EventRequest>) -> Self { InternalError { inner: err }.into() }
+    fn from(err: SendError<EventRequest>) -> Self {
+        InternalError {
+            inner: format!("{}", err),
+        }
+        .into()
+    }
 }
 
 impl From<NoneError> for SystemError {
@@ -61,31 +63,32 @@ impl From<SystemError> for EventResponse {
     fn from(err: SystemError) -> Self { err.inner_error().as_response() }
 }
 
-pub struct InternalError<T> {
+#[derive(Clone)]
+pub struct InternalError<T: Clone> {
     inner: T,
 }
 
-impl<T> InternalError<T> {
+impl<T: Clone> InternalError<T> {
     pub fn new(inner: T) -> Self { InternalError { inner } }
 }
 
 impl<T> fmt::Debug for InternalError<T>
 where
-    T: fmt::Debug + 'static,
+    T: fmt::Debug + 'static + Clone,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { fmt::Debug::fmt(&self.inner, f) }
 }
 
 impl<T> fmt::Display for InternalError<T>
 where
-    T: fmt::Display + 'static,
+    T: fmt::Debug + fmt::Display + 'static + Clone,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { fmt::Display::fmt(&self.inner, f) }
 }
 
 impl<T> Error for InternalError<T>
 where
-    T: fmt::Debug + fmt::Display + 'static,
+    T: fmt::Debug + fmt::Display + 'static + Clone,
 {
     fn status_code(&self) -> StatusCode { StatusCode::Err }
 

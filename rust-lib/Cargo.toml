@@ -1,6 +1,8 @@
 [workspace]
 members = [
   "flowy-sys",
+  "flowy-sdk",
+  "dart-ffi",
 ]
 
 [profile.dev]

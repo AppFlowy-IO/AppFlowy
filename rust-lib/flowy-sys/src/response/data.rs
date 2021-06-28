@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::{fmt, fmt::Formatter};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum ResponseData {
     Bytes(Vec<u8>),
     None,

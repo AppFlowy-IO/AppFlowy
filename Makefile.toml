@@ -1,0 +1,75 @@
+extend = [
+    { path = "scripts/makefile/desktop.toml" },
+]
+
+[env]
+CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
+CARGO_MAKE_CRATE_FS_NAME = "dart_ffi"
+CARGO_MAKE_CRATE_NAME = "dart-ffi"
+DEV = true
+LIB_OUT_DIR = "debug"
+RELEASE = false
+TARGET_OS = "unknown"
+
+[tasks.setup-crate-type]
+private = true
+script = [
+    """
+      toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
+      crate_type = set ""
+      os = get_env TARGET_OS
+      is_android = eq ${os} "android"
+      is_ios = eq ${os} "ios"
+      is_macos = eq ${os} "macos"
+      is_pad = eq ${os} "pad"
+
+      if ${is_android}
+        crate_type = set "cdylib"
+      elseif ${is_ios}
+        crate_type = set "staticlib"
+      elseif ${is_macos}
+        crate_type = set "cdylib"
+      elseif ${is_pad}
+        crate_type = set "cdylib"
+      else
+        crate_type = set "rlib"
+      end
+
+      val = replace ${toml} "rlib" ${crate_type}
+      result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
+      assert ${result}
+      """,
+]
+script_runner = "@duckscript"
+
+
+[tasks.restore-crate-type]
+private = true
+script = [
+    """
+      toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
+      crate_type = set ""
+      os = get_env TARGET_OS
+      is_android = eq ${os} "android"
+      is_ios = eq ${os} "ios"
+      is_macos = eq ${os} "macos"
+      is_pad = eq ${os} "pad"
+
+      if ${is_android}
+        crate_type = set "cdylib"
+      elseif ${is_ios}
+        crate_type = set "staticlib"
+      elseif ${is_macos}
+        crate_type = set "cdylib"
+      elseif ${is_pad}
+        crate_type = set "cdylib"
+      else
+        crate_type = set "rlib"
+      end
+
+      val = replace ${toml} ${crate_type} "rlib"
+      result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
+      assert ${result}
+      """,
+]
+script_runner = "@duckscript"

@@ -1,0 +1,27 @@
+[package]
+name = "dart-ffi"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "dart_ffi"
+# this value will change depending on the target os
+# for iOS it would be `rlib`
+# for Macos it would be `rlib`
+# for android it would be `c-dylib`
+# default rlib
+crate-type = ["rlib"]
+
+
+[dependencies]
+allo-isolate = {version = "^0.1", features = ["catch-unwind",]}
+byteorder = {version = "1.3.4"}
+ffi-support = {version = "0.4.2"}
+protobuf = {version = "2.20.0"}
+lazy_static = {version = "1.4.0"}
+tokio = { version = "1", features = ["sync"] }
+log = "0.4.14"
+
+flowy-sys = {path = "../flowy-sys"}
+flowy-sdk = {path = "../flowy-sdk"}

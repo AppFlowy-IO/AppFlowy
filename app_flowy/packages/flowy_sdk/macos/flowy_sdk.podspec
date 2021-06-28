@@ -20,5 +20,5 @@ A new flutter plugin project.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
   s.swift_version = '5.0'
   # s.static_framework = true
-  s.vendored_libraries = "libflowy_ffi.dylib"
+  s.vendored_libraries = "libdart_ffi.dylib"
 end

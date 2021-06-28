@@ -1,7 +1,7 @@
 
 [tasks.desktop]
 category = "Build"
-dependencies = ["cqrs_gen", "desktop-debug", "desktop-release", "post-desktop"]
+dependencies = ["desktop-debug", "desktop-release", "post-desktop"]
 description = "Build desktop targets"
 
 [tasks.desktop-debug]
@@ -18,16 +18,14 @@ private = true
 run_task = "desktop-build"
 
 [tasks.desktop-build]
-# args = ["build", "--target", "${DESKTOP_TARGET}"]
 category = "Build"
-# command = "cargo"
 condition = { platforms = ["mac"], env_true = ["DEV"] }
 dependencies = ["export-env", "setup-crate-type-macos"]
 description = "Build desktop targets."
 script = [
   """
     cd rust-lib/
-    cargo build --package=flowy-ffi --target ${DESKTOP_TARGET}
+    cargo build --package=dart-ffi --target ${DESKTOP_TARGET}
     cd ../
   """,
 ]
@@ -37,12 +35,13 @@ condition = { platforms = ["mac"] }
 dependencies = ["restore-crate-type"]
 script = [
   """
+    echo ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}
     cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/x86_64-apple-darwin/${LIB_OUT_DIR}/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib \
-    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/flutter-lib/packages/flowy_sdk/macos/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib
+    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages/flowy_sdk/macos/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib
   """,
   """
     cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h \
-    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/flutter-lib/packages/flowy_sdk/macos/Classes/binding.h
+    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages/flowy_sdk/macos/Classes/binding.h
   """,
 ]
 script_runner = "@duckscript"
@@ -55,13 +54,6 @@ run_task = "setup-crate-type"
 [tasks.export-env]
 script = [
   """
-# Try to fix the issue
-# ld: warning: dylib (/Users/vedon/Documents/Private/RustProject/App-Flowy/app_flowy/flutter-lib/packages/flowy_sdk/macos/libflowy_ffi.dylib) was built for newer macOS version (10.15) than being linked (10.11)
-# ld: warning: dylib (/Users/vedon/Documents/Private/RustProject/App-Flowy/app_flowy/flutter-lib/packages/flowy_sdk/macos/libflowy_ffi.dylib) was built for newer macOS version (10.15) than being linked (10.11)
-#   https://users.rust-lang.org/t/compile-rust-binary-for-older-versions-of-mac-osx/38695/3
-#   https://stackoverflow.com/questions/43216273/object-file-was-built-for-newer-osx-version-than-being-linked
-
-
   export MACOSX_DEPLOYMENT_TARGET=10.11
   """,
 ]
@@ -71,7 +63,7 @@ script_runner = "@shell"
 condition = { platforms = ["mac"] }
 script = [
   """
-    target_path = set ${TMPDIR}/app_flowy/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib
+    target_path = set ${TMPDIR}/appflowy_client/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib
     echo "remove old dylib"
     rm ${target_path}
     echo "copy new dylib to system"
@@ -91,13 +83,3 @@ script = [
 script_runner = "@shell"
 
 
-[tasks.cqrs_gen]
-script = [
-  """
-  manifest_path=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/scripts/tool/rust-tool/Cargo.toml
-  cqrs_file=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-store/src/entities/command.rs
-  output_file=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/flutter-lib/packages/flowy_sdk/lib/cqrs/auto_gen.dart
-  cargo run --manifest-path ${manifest_path} flutter --cqrs=${cqrs_file} --output=${output_file}
-  """,
-]
-script_runner = "@shell"

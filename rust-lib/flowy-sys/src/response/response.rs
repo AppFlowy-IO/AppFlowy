@@ -14,7 +14,7 @@ pub enum StatusCode {
 }
 
 // serde user guide: https://serde.rs/field-attrs.html
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct EventResponse {
     #[serde(serialize_with = "serialize_data")]
     pub data: ResponseData,
