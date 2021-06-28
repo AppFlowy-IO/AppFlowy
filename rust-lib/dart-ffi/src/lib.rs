@@ -1,3 +1,7 @@
+mod c;
+
+use crate::c::forget_rust;
+use flowy_sdk::*;
 use flowy_sys::prelude::*;
 use std::{cell::RefCell, ffi::CStr, os::raw::c_char};
 
@@ -21,26 +25,12 @@ pub extern "C" fn async_command(port: i64, input: *const u8, len: usize) {
     async_send(stream_data);
 }
 
+#[no_mangle]
+pub extern "C" fn sync_command(input: *const u8, len: usize) -> *const u8 {
+    let bytes = unsafe { std::slice::from_raw_parts(input, len) }.to_vec();
+    forget_rust(bytes)
+}
+
 #[inline(never)]
 #[no_mangle]
 pub extern "C" fn link_me_please() {}
-
-thread_local!(
-    static STREAM_SENDER: RefCell<Option<CommandStream<i64>>> = RefCell::new(None);
-);
-
-pub fn sync_send(data: StreamData<i64>) -> EventResponse {
-    STREAM_SENDER.with(|cell| match &*cell.borrow() {
-        Some(stream) => stream.sync_send(data),
-        None => panic!(""),
-    })
-}
-
-pub fn async_send(data: StreamData<i64>) {
-    STREAM_SENDER.with(|cell| match &*cell.borrow() {
-        Some(stream) => {
-            stream.async_send(data);
-        },
-        None => panic!(""),
-    });
-}

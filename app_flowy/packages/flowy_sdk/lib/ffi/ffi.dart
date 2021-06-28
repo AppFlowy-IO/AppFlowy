@@ -45,6 +45,26 @@ typedef _invoke_async_Dart = void Function(
   int len,
 );
 
+
+/// C function `command_sync`.
+Pointer<Uint8> sync_command(
+    Pointer<Uint8> input,
+    int len,
+    ) {
+  return _invoke_sync(input, len);
+}
+
+final _invoke_sync_Dart _invoke_sync =
+_dl.lookupFunction<_invoke_sync_C, _invoke_sync_Dart>('sync_command');
+typedef _invoke_sync_C = Pointer<Uint8> Function(
+    Pointer<Uint8> input,
+    Uint64 len,
+    );
+typedef _invoke_sync_Dart = Pointer<Uint8> Function(
+    Pointer<Uint8> input,
+    int len,
+    );
+
 /// C function `init_sdk`.
 int init_sdk(
   Pointer<ffi.Utf8> path,
