@@ -34,3 +34,14 @@ where
         }
     }
 }
+
+// #[cfg(feature = "use_serde")]
+// impl<T> Responder for T
+// where
+//     T: serde::Serialize,
+// {
+//     fn respond_to(self, request: &EventRequest) -> EventResponse {
+//         let bytes = bincode::serialize(&self).unwrap();
+//         EventResponseBuilder::Ok().data(bytes).build()
+//     }
+// }

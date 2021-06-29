@@ -6,6 +6,9 @@ use dyn_clone::DynClone;
 use std::{fmt, option::NoneError};
 use tokio::sync::mpsc::error::SendError;
 
+#[cfg(feature = "use_serde")]
+use serde::{Deserialize, Serialize, Serializer};
+
 pub trait Error: fmt::Debug + fmt::Display + DynClone {
     fn status_code(&self) -> StatusCode;
 
@@ -93,4 +96,14 @@ where
     fn status_code(&self) -> StatusCode { StatusCode::Err }
 
     fn as_response(&self) -> EventResponse { EventResponseBuilder::Err().data(format!("{}", self.inner)).build() }
+}
+
+#[cfg(feature = "use_serde")]
+impl Serialize for SystemError {
+    fn serialize<S>(&self, serializer: S) -> Result<<S as Serializer>::Ok, <S as Serializer>::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&format!("{}", self))
+    }
 }

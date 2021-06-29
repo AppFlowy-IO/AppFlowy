@@ -3,23 +3,24 @@ use crate::{
     request::EventRequest,
     response::{data::ResponseData, Responder},
 };
-use serde::{Deserialize, Serialize, Serializer};
 
+#[cfg(feature = "use_serde")]
+use serde::{Deserialize, Serialize, Serializer};
 use std::{fmt, fmt::Formatter};
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "use_serde", derive(Serialize, Deserialize))]
 pub enum StatusCode {
     Ok,
     Err,
 }
 
 // serde user guide: https://serde.rs/field-attrs.html
-#[derive(Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "use_serde", derive(Serialize))]
 pub struct EventResponse {
-    #[serde(serialize_with = "serialize_data")]
     pub data: ResponseData,
     pub status: StatusCode,
-    #[serde(serialize_with = "serialize_error")]
     pub error: Option<SystemError>,
 }
 
@@ -35,10 +36,17 @@ impl EventResponse {
 
 impl std::fmt::Display for EventResponse {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match serde_json::to_string(self) {
-            Ok(json) => f.write_fmt(format_args!("{:?}", json))?,
-            Err(e) => f.write_fmt(format_args!("{:?}", e))?,
+        f.write_fmt(format_args!("Status_Code: {:?}", self.status))?;
+
+        match &self.data {
+            ResponseData::Bytes(b) => f.write_fmt(format_args!("Data: {} bytes", b.len()))?,
+            ResponseData::None => f.write_fmt(format_args!("Data: Empty"))?,
         }
+        match &self.error {
+            Some(e) => f.write_fmt(format_args!("Error: {:?}", e))?,
+            None => {},
+        }
+
         Ok(())
     }
 }
@@ -48,6 +56,7 @@ impl Responder for EventResponse {
     fn respond_to(self, _: &EventRequest) -> EventResponse { self }
 }
 
+#[cfg(feature = "use_serde")]
 fn serialize_error<S>(error: &Option<SystemError>, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
@@ -58,6 +67,9 @@ where
     }
 }
 
+// #[cfg_attr(feature = "use_serde", #[serde(serialize_with =
+// "serialize_data")])]
+#[cfg(feature = "use_serde")]
 fn serialize_data<S>(data: &ResponseData, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,

@@ -1,8 +1,10 @@
 use bytes::{Buf, Bytes};
+#[cfg(feature = "use_serde")]
 use serde::{Deserialize, Serialize};
 use std::{fmt, fmt::Formatter};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "use_serde", derive(Serialize, Deserialize))]
 pub enum ResponseData {
     Bytes(Vec<u8>),
     None,
@@ -27,6 +29,10 @@ impl std::convert::Into<ResponseData> for &'_ String {
 
 impl std::convert::Into<ResponseData> for Bytes {
     fn into(self) -> ResponseData { ResponseData::Bytes(self.bytes().to_vec()) }
+}
+
+impl std::convert::Into<ResponseData> for Vec<u8> {
+    fn into(self) -> ResponseData { ResponseData::Bytes(self) }
 }
 
 impl std::convert::Into<ResponseData> for &str {

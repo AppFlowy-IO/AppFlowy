@@ -6,7 +6,7 @@ use crate::{
     system::ModuleMap,
 };
 use futures_core::{future::LocalBoxFuture, ready, task::Context};
-use std::{future::Future, hash::Hash};
+use std::future::Future;
 use tokio::{
     macros::support::{Pin, Poll},
     sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender},
