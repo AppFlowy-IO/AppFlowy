@@ -1,3 +1,4 @@
+use bytes::{Buf, Bytes};
 use serde::{Deserialize, Serialize};
 use std::{fmt, fmt::Formatter};
 
@@ -18,6 +19,14 @@ impl std::fmt::Display for ResponseData {
 
 impl std::convert::Into<ResponseData> for String {
     fn into(self) -> ResponseData { ResponseData::Bytes(self.into_bytes()) }
+}
+
+impl std::convert::Into<ResponseData> for &'_ String {
+    fn into(self) -> ResponseData { ResponseData::Bytes(self.to_owned().into_bytes()) }
+}
+
+impl std::convert::Into<ResponseData> for Bytes {
+    fn into(self) -> ResponseData { ResponseData::Bytes(self.bytes().to_vec()) }
 }
 
 impl std::convert::Into<ResponseData> for &str {

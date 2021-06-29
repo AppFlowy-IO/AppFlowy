@@ -1,2 +1,2 @@
 mod helper;
-mod module_event;
+mod module;

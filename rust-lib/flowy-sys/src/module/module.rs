@@ -17,14 +17,22 @@ use futures_core::{future::LocalBoxFuture, ready};
 use pin_project::pin_project;
 use std::{
     collections::HashMap,
+    fmt::{Debug, Display},
     future::Future,
+    hash::Hash,
     pin::Pin,
     rc::Rc,
     task::{Context, Poll},
 };
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 
-pub type Event = String;
+#[derive(PartialEq, Eq, Hash, Debug, Clone)]
+pub struct Event(String);
+
+impl<T: Display + Eq + Hash + Debug + Clone> std::convert::From<T> for Event {
+    fn from(t: T) -> Self { Event(format!("{}", t)) }
+}
+
 pub type EventServiceFactory = BoxServiceFactory<(), ServiceRequest, ServiceResponse, SystemError>;
 
 pub struct Module {
@@ -57,15 +65,17 @@ impl Module {
         self
     }
 
-    pub fn event<H, T, R>(mut self, event: Event, handler: H) -> Self
+    pub fn event<E, H, T, R>(mut self, event: E, handler: H) -> Self
     where
         H: Handler<T, R>,
         T: FromRequest + 'static,
         R: Future + 'static,
         R::Output: Responder + 'static,
+        E: Eq + Hash + Debug + Clone + Display,
     {
+        let event: Event = event.into();
         if self.service_map.contains_key(&event) {
-            log::error!("Duplicate Event: {}", &event);
+            log::error!("Duplicate Event: {:?}", &event);
         }
 
         Rc::get_mut(&mut self.service_map)

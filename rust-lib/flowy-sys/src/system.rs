@@ -4,7 +4,7 @@ use crate::{
     stream::CommandSenderRunner,
 };
 use futures_core::{ready, task::Context};
-use std::{cell::RefCell, collections::HashMap, future::Future, io, rc::Rc, sync::Arc};
+use std::{cell::RefCell, collections::HashMap, fmt::Debug, future::Future, io, rc::Rc, sync::Arc};
 use tokio::{
     macros::support::{Pin, Poll},
     sync::{
@@ -30,6 +30,7 @@ pub struct FlowySystem {
 impl FlowySystem {
     pub fn construct<F, S, T>(module_factory: F, sender_factory: S) -> SystemRunner
     where
+        // E: Into<Event<E>> + Eq + Hash + Debug + Clone + 'static,
         F: FnOnce() -> Vec<Module>,
         S: FnOnce(ModuleMap) -> CommandSenderRunner<T>,
         T: 'static,

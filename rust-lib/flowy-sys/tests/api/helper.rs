@@ -1,9 +1,5 @@
 use flowy_sys::prelude::{CommandData, CommandSender, CommandSenderRunner, EventResponse, FlowySystem, Module};
-use std::{
-    cell::RefCell,
-    sync::{Once, RwLock},
-    task::Context,
-};
+use std::{cell::RefCell, sync::Once};
 
 #[allow(dead_code)]
 pub fn setup_env() {

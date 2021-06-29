@@ -2,22 +2,30 @@ use std::future::Future;
 
 use crate::{
     error::SystemError,
+    module::Event,
     request::payload::Payload,
     util::ready::{ready, Ready},
+};
+use std::{
+    fmt::{Debug, Display},
+    hash::Hash,
 };
 
 #[derive(Clone, Debug)]
 pub struct EventRequest {
     id: String,
-    event: String,
+    event: Event,
     data: Option<Vec<u8>>,
 }
 
 impl EventRequest {
-    pub fn new(event: String) -> EventRequest {
+    pub fn new<E>(event: E) -> EventRequest
+    where
+        E: Eq + Hash + Debug + Clone + Display,
+    {
         Self {
             id: uuid::Uuid::new_v4().to_string(),
-            event,
+            event: event.into(),
             data: None,
         }
     }
@@ -27,7 +35,7 @@ impl EventRequest {
         self
     }
 
-    pub fn get_event(&self) -> &str { &self.event }
+    pub fn get_event(&self) -> &Event { &self.event }
 
     pub fn get_id(&self) -> &str { &self.id }
 

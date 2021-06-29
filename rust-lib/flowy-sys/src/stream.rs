@@ -6,7 +6,7 @@ use crate::{
     system::ModuleMap,
 };
 use futures_core::{future::LocalBoxFuture, ready, task::Context};
-use std::future::Future;
+use std::{future::Future, hash::Hash};
 use tokio::{
     macros::support::{Pin, Poll},
     sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender},
@@ -38,7 +38,10 @@ struct CommandSenderService {
     module_map: ModuleMap,
 }
 
-impl<T: 'static> Service<CommandData<T>> for CommandSenderService {
+impl<T> Service<CommandData<T>> for CommandSenderService
+where
+    T: 'static,
+{
     type Response = EventResponse;
     type Error = SystemError;
     type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
@@ -109,7 +112,10 @@ where
 
 service_factor_impl!(CommandSender);
 
-impl<T> CommandSender<T> {
+impl<T> CommandSender<T>
+where
+    T: 'static,
+{
     pub fn new(module_map: ModuleMap) -> Self {
         let (data_tx, data_rx) = unbounded_channel::<CommandData<T>>();
         Self {
@@ -135,14 +141,20 @@ impl<T> CommandSender<T> {
     pub fn take_data_rx(&mut self) -> UnboundedReceiver<CommandData<T>> { self.data_rx.take().unwrap() }
 }
 
-pub struct CommandSenderRunner<T: 'static> {
+pub struct CommandSenderRunner<T>
+where
+    T: 'static,
+{
     module_map: ModuleMap,
     data_rx: UnboundedReceiver<CommandData<T>>,
 }
 
 service_factor_impl!(CommandSenderRunner);
 
-impl<T: 'static> CommandSenderRunner<T> {
+impl<T> CommandSenderRunner<T>
+where
+    T: 'static,
+{
     pub fn new(module_map: ModuleMap, data_rx: UnboundedReceiver<CommandData<T>>) -> Self {
         Self { module_map, data_rx }
     }
