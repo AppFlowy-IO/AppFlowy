@@ -20,7 +20,7 @@ fn test_init() {
 
     init_system(modules, || {
         let request = EventRequest::new(no_params_command);
-        let stream_data = StreamData::new(1, Some(request)).with_callback(Box::new(|_config, response| {
+        let stream_data = CommandData::new(1, Some(request)).with_callback(Box::new(|_config, response| {
             log::info!("async resp: {:?}", response);
         }));
 

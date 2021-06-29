@@ -1,7 +1,7 @@
 use crate::{
     module::{Event, Module},
     rt::Runtime,
-    stream::CommandStreamFuture,
+    stream::CommandSenderRunner,
 };
 use futures_core::{ready, task::Context};
 use std::{cell::RefCell, collections::HashMap, future::Future, io, rc::Rc, sync::Arc};
@@ -28,10 +28,10 @@ pub struct FlowySystem {
 }
 
 impl FlowySystem {
-    pub fn construct<F, S, T>(module_factory: F, stream_factory: S) -> SystemRunner
+    pub fn construct<F, S, T>(module_factory: F, sender_factory: S) -> SystemRunner
     where
         F: FnOnce() -> Vec<Module>,
-        S: FnOnce(ModuleMap) -> CommandStreamFuture<T>,
+        S: FnOnce(ModuleMap) -> CommandSenderRunner<T>,
         T: 'static,
     {
         let runtime = Runtime::new().unwrap();
@@ -54,8 +54,8 @@ impl FlowySystem {
         });
 
         let system = Self { sys_cmd_tx };
-        let stream_fut = stream_factory(Rc::new(module_map));
-        runtime.spawn(stream_fut);
+        let sender_runner = sender_factory(Rc::new(module_map));
+        runtime.spawn(sender_runner);
 
         FlowySystem::set_current(system);
         let runner = SystemRunner { rt: runtime, stop_rx };
