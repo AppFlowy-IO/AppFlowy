@@ -1,0 +1,14 @@
+[package]
+name = "flowy-log"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tracing = { version = "0.1", features = ["log"] }
+tracing-log = "0.1.1"
+tracing-futures = "0.2.4"
+tracing-subscriber = { version = "0.2.12", features = ["registry", "env-filter"] }
+tracing-bunyan-formatter = "0.2.2"
+log = "0.4.14"

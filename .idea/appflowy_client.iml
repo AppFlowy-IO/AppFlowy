@@ -8,6 +8,7 @@
       <sourceFolder url="file://$MODULE_DIR$/rust-lib/flowy-sys/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/rust-lib/flowy-sys/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/rust-lib/dart-ffi/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/rust-lib/flowy-log/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/rust-lib/flowy-sdk/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/af_protobuf/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/af_protobuf/.dart_tool" />
