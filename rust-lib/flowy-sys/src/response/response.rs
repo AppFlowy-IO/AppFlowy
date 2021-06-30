@@ -8,11 +8,11 @@ use crate::{
 use serde::{Deserialize, Serialize, Serializer};
 use std::{fmt, fmt::Formatter};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "use_serde", derive(Serialize, Deserialize))]
 pub enum StatusCode {
-    Ok,
-    Err,
+    Ok  = 0,
+    Err = 1,
 }
 
 // serde user guide: https://serde.rs/field-attrs.html

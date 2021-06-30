@@ -12,12 +12,25 @@ use std::convert::TryInto;
         name = %data.name
     )
 )]
-pub async fn user_check(data: In<UserData>) -> Out<UserData> { panic!("") }
+pub async fn user_check(data: In<UserData>) -> Result<Out<UserStatus>, String> {
+    let user: User = data.into_inner().try_into()?;
+
+    Ok(UserStatus { is_login: false }.into())
+}
+
+#[derive(serde::Serialize)]
+pub struct UserStatus {
+    is_login: bool,
+}
 
 #[derive(Debug, serde::Deserialize, serde::Serialize)]
 pub struct UserData {
     name: String,
     email: String,
+}
+
+impl UserData {
+    pub fn new(name: String, email: String) -> Self { Self { name, email } }
 }
 
 impl TryInto<User> for UserData {

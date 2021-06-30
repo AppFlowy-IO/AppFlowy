@@ -7,7 +7,7 @@ use std::{fmt, option::NoneError};
 use tokio::sync::mpsc::error::SendError;
 
 #[cfg(feature = "use_serde")]
-use serde::{Deserialize, Serialize, Serializer};
+use serde::{Serialize, Serializer};
 
 pub trait Error: fmt::Debug + fmt::Display + DynClone {
     fn status_code(&self) -> StatusCode;
@@ -18,7 +18,11 @@ pub trait Error: fmt::Debug + fmt::Display + DynClone {
 dyn_clone::clone_trait_object!(Error);
 
 impl<T: Error + 'static> From<T> for SystemError {
-    fn from(err: T) -> SystemError { SystemError { inner: Box::new(err) } }
+    fn from(err: T) -> SystemError {
+        SystemError {
+            inner: Box::new(err),
+        }
+    }
 }
 
 #[derive(Clone)]
@@ -62,6 +66,10 @@ impl From<NoneError> for SystemError {
     }
 }
 
+impl From<String> for SystemError {
+    fn from(s: String) -> Self { InternalError { inner: s }.into() }
+}
+
 impl From<SystemError> for EventResponse {
     fn from(err: SystemError) -> Self { err.inner_error().as_response() }
 }
@@ -95,7 +103,14 @@ where
 {
     fn status_code(&self) -> StatusCode { StatusCode::Err }
 
-    fn as_response(&self) -> EventResponse { EventResponseBuilder::Err().data(format!("{}", self.inner)).build() }
+    fn as_response(&self) -> EventResponse {
+        let error = InternalError {
+            inner: format!("{}", self.inner),
+        }
+        .into();
+
+        EventResponseBuilder::Err().error(error).build()
+    }
 }
 
 #[cfg(feature = "use_serde")]

@@ -1,5 +1,13 @@
 mod domain;
 mod error;
-mod event;
+pub mod event;
 mod handlers;
 pub mod module;
+
+pub mod prelude {
+    pub use crate::{
+        domain::*,
+        event::{UserEvent::*, *},
+        handlers::auth::*,
+    };
+}

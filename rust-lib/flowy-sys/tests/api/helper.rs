@@ -1,4 +1,4 @@
-use flowy_sys::prelude::{EventResponse, FlowySystem, Module, Sender, SenderData, SenderRunner};
+use flowy_sys::prelude::{EventResponse, FlowySystem, Module, Sender, SenderRequest, SenderRunner};
 use std::{cell::RefCell, sync::Once};
 
 #[allow(dead_code)]
@@ -10,24 +10,18 @@ pub fn setup_env() {
     });
 }
 
-pub struct ExecutorAction {
-    command: String,
-}
-
-pub struct FlowySystemExecutor {}
-
 thread_local!(
     static SENDER: RefCell<Option<Sender<i64>>> = RefCell::new(None);
 );
 
-pub fn sync_send(data: SenderData<i64>) -> EventResponse {
+pub fn sync_send(data: SenderRequest<i64>) -> EventResponse {
     SENDER.with(|cell| match &*cell.borrow() {
         Some(stream) => stream.sync_send(data),
         None => panic!(""),
     })
 }
 
-pub fn async_send(data: SenderData<i64>) {
+pub fn async_send(data: SenderRequest<i64>) {
     SENDER.with(|cell| match &*cell.borrow() {
         Some(stream) => {
             stream.async_send(data);

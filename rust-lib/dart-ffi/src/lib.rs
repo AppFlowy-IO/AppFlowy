@@ -13,23 +13,37 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
     return 1;
 }
 
+pub struct FFICommand {
+    event: String,
+    payload: Vec<u8>,
+}
+
+impl FFICommand {
+    pub fn from_bytes(bytes: Vec<u8>) -> Self { unimplemented!() }
+
+    pub fn from_u8_pointer(pointer: *const u8, len: usize) -> Self {
+        let bytes = unsafe { std::slice::from_raw_parts(pointer, len) }.to_vec();
+        unimplemented!()
+    }
+}
+
 #[no_mangle]
 pub extern "C" fn async_command(port: i64, input: *const u8, len: usize) {
-    let bytes = unsafe { std::slice::from_raw_parts(input, len) }.to_vec();
-    let payload = SenderPayload::from_data(bytes);
+    let FFICommand { event, payload } = FFICommand::from_u8_pointer(input, len);
 
-    let stream_data = SenderData::new(port, payload).callback(Box::new(|_config, response| {
-        log::info!("async resp: {:?}", response);
-    }));
+    let mut request = SenderRequest::new(port, event).callback(|_, resp| {
+        log::info!("async resp: {:?}", resp);
+    });
 
-    async_send(stream_data);
+    if !payload.is_empty() {
+        request = request.payload(Payload::Bytes(bytes));
+    }
+
+    async_send(request);
 }
 
 #[no_mangle]
-pub extern "C" fn sync_command(input: *const u8, len: usize) -> *const u8 {
-    let bytes = unsafe { std::slice::from_raw_parts(input, len) }.to_vec();
-    forget_rust(bytes)
-}
+pub extern "C" fn sync_command(input: *const u8, len: usize) -> *const u8 { unimplemented!() }
 
 #[inline(never)]
 #[no_mangle]

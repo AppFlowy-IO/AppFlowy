@@ -10,15 +10,12 @@ fn test_init() {
     let modules = vec![Module::new().event(event, hello)];
 
     init_system(modules, move || {
-        let payload = SenderPayload::new(event);
-
-        let stream_data = SenderData::new(1, payload).callback(Box::new(|_config, response| {
+        let request = SenderRequest::new(1, event).callback(|_config, response| {
             log::info!("async resp: {:?}", response);
-        }));
+        });
 
-        let resp = sync_send(stream_data);
+        let resp = sync_send(request);
         log::info!("sync resp: {:?}", resp);
-
         stop_system();
     });
 }

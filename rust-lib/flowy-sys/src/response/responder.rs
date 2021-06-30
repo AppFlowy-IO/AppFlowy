@@ -13,7 +13,9 @@ pub trait Responder {
 macro_rules! impl_responder {
     ($res: ty) => {
         impl Responder for $res {
-            fn respond_to(self, _: &EventRequest) -> EventResponse { EventResponseBuilder::Ok().data(self).build() }
+            fn respond_to(self, _: &EventRequest) -> EventResponse {
+                EventResponseBuilder::Ok().data(self).build()
+            }
         }
     };
 }
@@ -63,6 +65,14 @@ where
     }
 }
 
+#[cfg(feature = "use_serde")]
+impl<T> std::convert::From<T> for Out<T>
+where
+    T: serde::Serialize,
+{
+    fn from(val: T) -> Self { Out(val) }
+}
+
 #[cfg(feature = "use_protobuf")]
 impl<T> Responder for Out<T>
 where
@@ -72,4 +82,12 @@ where
         let bytes: Vec<u8> = self.write_to_bytes().unwrap();
         EventResponseBuilder::Ok().data(bytes).build()
     }
+}
+
+#[cfg(feature = "use_protobuf")]
+impl<T> std::convert::From<T> for Out<T>
+where
+    T: ::protobuf::Message,
+{
+    fn from(val: T) -> Self { Out(val) }
 }

@@ -30,8 +30,8 @@ impl EventResponseBuilder {
         self
     }
 
-    pub fn error(mut self, error: Option<SystemError>) -> Self {
-        self.error = error;
+    pub fn error(mut self, error: SystemError) -> Self {
+        self.error = Some(error);
         self
     }
 

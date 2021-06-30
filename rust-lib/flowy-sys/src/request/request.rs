@@ -3,14 +3,14 @@ use std::future::Future;
 use crate::{
     error::{InternalError, SystemError},
     module::Event,
-    request::{payload::Payload, PayloadError},
+    request::payload::Payload,
     response::Responder,
     util::ready::{ready, Ready},
 };
-use bytes::Bytes;
-use futures_core::{ready, Stream};
+
+use futures_core::ready;
 use std::{
-    fmt::{Debug, Display},
+    fmt::Debug,
     hash::Hash,
     ops,
     pin::Pin,
@@ -57,13 +57,19 @@ impl FromRequest for String {
 
     fn from_request(req: &EventRequest, payload: &mut Payload) -> Self::Future {
         match &payload {
-            Payload::None => ready(Err(unexpected_none_payload())),
+            Payload::None => ready(Err(unexpected_none_payload(req))),
             Payload::Bytes(buf) => ready(Ok(String::from_utf8_lossy(buf).into_owned())),
         }
     }
 }
 
-fn unexpected_none_payload() -> SystemError { InternalError::new("Expected string but request had data").into() }
+fn unexpected_none_payload(request: &EventRequest) -> SystemError {
+    log::warn!(
+        "Event: {:?} expected payload but payload is empty",
+        &request.event
+    );
+    InternalError::new("Expected payload but payload is empty").into()
+}
 
 #[doc(hidden)]
 impl<T> FromRequest for Result<T, T::Error>
@@ -126,7 +132,7 @@ where
     #[inline]
     fn from_request(req: &EventRequest, payload: &mut Payload) -> Self::Future {
         match payload {
-            Payload::None => ready(Err(unexpected_none_payload())),
+            Payload::None => ready(Err(unexpected_none_payload(req))),
             Payload::Bytes(bytes) => {
                 let data: T = bincode::deserialize(bytes).unwrap();
                 ready(Ok(In(data)))
@@ -146,7 +152,7 @@ where
     #[inline]
     fn from_request(req: &EventRequest, payload: &mut Payload) -> Self::Future {
         match payload {
-            Payload::None => ready(Err(unexpected_none_payload())),
+            Payload::None => ready(Err(unexpected_none_payload(req))),
             Payload::Bytes(bytes) => {
                 let data: T = ::protobuf::Message::parse_from_bytes(bytes).unwrap();
                 ready(Ok(In(data)))

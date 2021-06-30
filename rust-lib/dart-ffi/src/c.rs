@@ -1,5 +1,4 @@
 use byteorder::{BigEndian, ByteOrder};
-use flowy_protobuf::ResponsePacket;
 use std::mem::{forget, size_of};
 
 pub fn forget_rust(buf: Vec<u8>) -> *const u8 {
