@@ -4,6 +4,7 @@ use crate::{
     response::{EventResponse, EventResponseBuilder},
 };
 use bytes::Bytes;
+use std::ops;
 
 pub trait Responder {
     fn respond_to(self, req: &EventRequest) -> EventResponse;
@@ -35,13 +36,40 @@ where
     }
 }
 
-// #[cfg(feature = "use_serde")]
-// impl<T> Responder for T
-// where
-//     T: serde::Serialize,
-// {
-//     fn respond_to(self, request: &EventRequest) -> EventResponse {
-//         let bytes = bincode::serialize(&self).unwrap();
-//         EventResponseBuilder::Ok().data(bytes).build()
-//     }
-// }
+pub struct Out<T>(pub T);
+
+impl<T> Out<T> {
+    pub fn into_inner(self) -> T { self.0 }
+}
+
+impl<T> ops::Deref for Out<T> {
+    type Target = T;
+
+    fn deref(&self) -> &T { &self.0 }
+}
+
+impl<T> ops::DerefMut for Out<T> {
+    fn deref_mut(&mut self) -> &mut T { &mut self.0 }
+}
+
+#[cfg(feature = "use_serde")]
+impl<T> Responder for Out<T>
+where
+    T: serde::Serialize,
+{
+    fn respond_to(self, request: &EventRequest) -> EventResponse {
+        let bytes: Vec<u8> = bincode::serialize(&self.0).unwrap();
+        EventResponseBuilder::Ok().data(bytes).build()
+    }
+}
+
+#[cfg(feature = "use_protobuf")]
+impl<T> Responder for Out<T>
+where
+    T: ::protobuf::Message,
+{
+    fn respond_to(self, _request: &EventRequest) -> EventResponse {
+        let bytes: Vec<u8> = self.write_to_bytes().unwrap();
+        EventResponseBuilder::Ok().data(bytes).build()
+    }
+}

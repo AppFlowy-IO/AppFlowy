@@ -16,9 +16,9 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
 #[no_mangle]
 pub extern "C" fn async_command(port: i64, input: *const u8, len: usize) {
     let bytes = unsafe { std::slice::from_raw_parts(input, len) }.to_vec();
-    let request = EventRequest::from_data(bytes);
+    let payload = SenderPayload::from_data(bytes);
 
-    let stream_data = CommandData::new(port, Some(request)).with_callback(Box::new(|_config, response| {
+    let stream_data = SenderData::new(port, payload).callback(Box::new(|_config, response| {
         log::info!("async resp: {:?}", response);
     }));
 

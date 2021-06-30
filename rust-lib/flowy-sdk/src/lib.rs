@@ -18,15 +18,13 @@ pub fn init_modules() -> Vec<Module> {
 pub fn init_system<F>(modules: Vec<Module>) {
     FlowySystem::construct(
         || modules,
-        |module_map| {
-            let mut stream = CommandSender::<i64>::new(module_map.clone());
-            let runner = CommandSenderRunner::new(module_map, stream.take_data_rx());
+        |module_map, runtime| {
+            let mut sender = Sender::<i64>::new(module_map.clone());
+            runtime.spawn(SenderRunner::new(module_map, sender.take_rx()));
 
-            CMD_SENDER.with(|cell| {
-                *cell.borrow_mut() = Some(stream);
+            SENDER.with(|cell| {
+                *cell.borrow_mut() = Some(sender);
             });
-
-            runner
         },
     )
     .run()
@@ -34,18 +32,18 @@ pub fn init_system<F>(modules: Vec<Module>) {
 }
 
 thread_local!(
-    static CMD_SENDER: RefCell<Option<CommandSender<i64>>> = RefCell::new(None);
+    static SENDER: RefCell<Option<Sender<i64>>> = RefCell::new(None);
 );
 
-pub fn sync_send(data: CommandData<i64>) -> EventResponse {
-    CMD_SENDER.with(|cell| match &*cell.borrow() {
+pub fn sync_send(data: SenderData<i64>) -> EventResponse {
+    SENDER.with(|cell| match &*cell.borrow() {
         Some(stream) => stream.sync_send(data),
         None => panic!(""),
     })
 }
 
-pub fn async_send(data: CommandData<i64>) {
-    CMD_SENDER.with(|cell| match &*cell.borrow() {
+pub fn async_send(data: SenderData<i64>) {
+    SENDER.with(|cell| match &*cell.borrow() {
         Some(stream) => {
             stream.async_send(data);
         },

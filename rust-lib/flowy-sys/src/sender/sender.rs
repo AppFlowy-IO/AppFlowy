@@ -1,7 +1,9 @@
 use crate::{
     error::{InternalError, SystemError},
-    request::EventRequest,
+    module::{Event, ModuleRequest},
+    request::{EventRequest, Payload},
     response::EventResponse,
+    sender::{SenderData, SenderPayload},
     service::{BoxService, Service, ServiceFactory},
     system::ModuleMap,
 };
@@ -15,30 +17,30 @@ use tokio::{
 macro_rules! service_factor_impl {
     ($name:ident) => {
         #[allow(non_snake_case, missing_docs)]
-        impl<T> ServiceFactory<CommandData<T>> for $name<T>
+        impl<T> ServiceFactory<SenderData<T>> for $name<T>
         where
             T: 'static,
         {
             type Response = EventResponse;
             type Error = SystemError;
-            type Service = BoxService<CommandData<T>, Self::Response, Self::Error>;
-            type Config = ();
+            type Service = BoxService<SenderData<T>, Self::Response, Self::Error>;
+            type Context = ();
             type Future = LocalBoxFuture<'static, Result<Self::Service, Self::Error>>;
 
-            fn new_service(&self, _cfg: Self::Config) -> Self::Future {
+            fn new_service(&self, _cfg: Self::Context) -> Self::Future {
                 let module_map = self.module_map.clone();
-                let service = Box::new(CommandSenderService { module_map });
+                let service = Box::new(SenderService { module_map });
                 Box::pin(async move { Ok(service as Self::Service) })
             }
         }
     };
 }
 
-struct CommandSenderService {
+struct SenderService {
     module_map: ModuleMap,
 }
 
-impl<T> Service<CommandData<T>> for CommandSenderService
+impl<T> Service<SenderData<T>> for SenderService
 where
     T: 'static,
 {
@@ -46,15 +48,22 @@ where
     type Error = SystemError;
     type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
 
-    fn call(&self, mut data: CommandData<T>) -> Self::Future {
+    fn call(&self, data: SenderData<T>) -> Self::Future {
         let module_map = self.module_map.clone();
-        let request = data.request.take().unwrap();
+        let SenderData {
+            config,
+            payload,
+            callback,
+        } = data;
+
+        let event = payload.event.clone();
+        let request = payload.into();
+
         let fut = async move {
             let result = {
-                match module_map.get(request.get_event()) {
+                match module_map.get(&event) {
                     Some(module) => {
-                        let config = request.get_id().to_owned();
-                        let fut = module.new_service(config);
+                        let fut = module.new_service(());
                         let service_fut = fut.await?.call(request);
                         service_fut.await
                     },
@@ -66,8 +75,8 @@ where
             };
 
             let response = result.unwrap_or_else(|e| e.into());
-            if let Some(callback) = data.callback {
-                callback(data.config, response.clone());
+            if let Some(callback) = callback {
+                callback(config, response.clone());
             }
 
             Ok(response)
@@ -76,48 +85,23 @@ where
     }
 }
 
-pub type BoxStreamCallback<T> = Box<dyn FnOnce(T, EventResponse) + 'static + Send + Sync>;
-pub struct CommandData<T>
-where
-    T: 'static,
-{
-    config: T,
-    request: Option<EventRequest>,
-    callback: Option<BoxStreamCallback<T>>,
-}
-
-impl<T> CommandData<T> {
-    pub fn new(config: T, request: Option<EventRequest>) -> Self {
-        Self {
-            config,
-            request,
-            callback: None,
-        }
-    }
-
-    pub fn with_callback(mut self, callback: BoxStreamCallback<T>) -> Self {
-        self.callback = Some(callback);
-        self
-    }
-}
-
-pub struct CommandSender<T>
+pub struct Sender<T>
 where
     T: 'static,
 {
     module_map: ModuleMap,
-    data_tx: UnboundedSender<CommandData<T>>,
-    data_rx: Option<UnboundedReceiver<CommandData<T>>>,
+    data_tx: UnboundedSender<SenderData<T>>,
+    data_rx: Option<UnboundedReceiver<SenderData<T>>>,
 }
 
-service_factor_impl!(CommandSender);
+service_factor_impl!(Sender);
 
-impl<T> CommandSender<T>
+impl<T> Sender<T>
 where
     T: 'static,
 {
     pub fn new(module_map: ModuleMap) -> Self {
-        let (data_tx, data_rx) = unbounded_channel::<CommandData<T>>();
+        let (data_tx, data_rx) = unbounded_channel::<SenderData<T>>();
         Self {
             module_map,
             data_tx,
@@ -125,9 +109,9 @@ where
         }
     }
 
-    pub fn async_send(&self, data: CommandData<T>) { let _ = self.data_tx.send(data); }
+    pub fn async_send(&self, data: SenderData<T>) { let _ = self.data_tx.send(data); }
 
-    pub fn sync_send(&self, data: CommandData<T>) -> EventResponse {
+    pub fn sync_send(&self, data: SenderData<T>) -> EventResponse {
         let factory = self.new_service(());
 
         futures::executor::block_on(async {
@@ -136,31 +120,29 @@ where
         })
     }
 
-    pub fn tx(&self) -> UnboundedSender<CommandData<T>> { self.data_tx.clone() }
-
-    pub fn take_data_rx(&mut self) -> UnboundedReceiver<CommandData<T>> { self.data_rx.take().unwrap() }
+    pub fn take_rx(&mut self) -> UnboundedReceiver<SenderData<T>> { self.data_rx.take().unwrap() }
 }
 
-pub struct CommandSenderRunner<T>
+pub struct SenderRunner<T>
 where
     T: 'static,
 {
     module_map: ModuleMap,
-    data_rx: UnboundedReceiver<CommandData<T>>,
+    data_rx: UnboundedReceiver<SenderData<T>>,
 }
 
-service_factor_impl!(CommandSenderRunner);
+service_factor_impl!(SenderRunner);
 
-impl<T> CommandSenderRunner<T>
+impl<T> SenderRunner<T>
 where
     T: 'static,
 {
-    pub fn new(module_map: ModuleMap, data_rx: UnboundedReceiver<CommandData<T>>) -> Self {
+    pub fn new(module_map: ModuleMap, data_rx: UnboundedReceiver<SenderData<T>>) -> Self {
         Self { module_map, data_rx }
     }
 }
 
-impl<T> Future for CommandSenderRunner<T>
+impl<T> Future for SenderRunner<T>
 where
     T: 'static,
 {

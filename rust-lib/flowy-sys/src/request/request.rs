@@ -3,45 +3,36 @@ use std::future::Future;
 use crate::{
     error::{InternalError, SystemError},
     module::Event,
-    request::payload::Payload,
+    request::{payload::Payload, PayloadError},
+    response::Responder,
     util::ready::{ready, Ready},
 };
-use futures_core::ready;
+use bytes::Bytes;
+use futures_core::{ready, Stream};
 use std::{
     fmt::{Debug, Display},
     hash::Hash,
+    ops,
     pin::Pin,
     task::{Context, Poll},
 };
+
 #[derive(Clone, Debug)]
 pub struct EventRequest {
-    id: String,
-    event: Event,
-    data: Option<Vec<u8>>,
+    pub(crate) id: String,
+    pub(crate) event: Event,
 }
 
 impl EventRequest {
     pub fn new<E>(event: E) -> EventRequest
     where
-        E: Eq + Hash + Debug + Clone + Display,
+        E: Into<Event>,
     {
         Self {
             id: uuid::Uuid::new_v4().to_string(),
             event: event.into(),
-            data: None,
         }
     }
-
-    pub fn data(mut self, data: Vec<u8>) -> Self {
-        self.data = Some(data);
-        self
-    }
-
-    pub fn get_event(&self) -> &Event { &self.event }
-
-    pub fn get_id(&self) -> &str { &self.id }
-
-    pub fn from_data(_data: Vec<u8>) -> Self { unimplemented!() }
 }
 
 pub trait FromRequest: Sized {
@@ -64,13 +55,15 @@ impl FromRequest for String {
     type Error = SystemError;
     type Future = Ready<Result<Self, Self::Error>>;
 
-    fn from_request(req: &EventRequest, _payload: &mut Payload) -> Self::Future {
-        match &req.data {
-            None => ready(Err(InternalError::new("Expected string but request had data").into())),
-            Some(buf) => ready(Ok(String::from_utf8_lossy(buf).into_owned())),
+    fn from_request(req: &EventRequest, payload: &mut Payload) -> Self::Future {
+        match &payload {
+            Payload::None => ready(Err(unexpected_none_payload())),
+            Payload::Bytes(buf) => ready(Ok(String::from_utf8_lossy(buf).into_owned())),
         }
     }
 }
+
+fn unexpected_none_payload() -> SystemError { InternalError::new("Expected string but request had data").into() }
 
 #[doc(hidden)]
 impl<T> FromRequest for Result<T, T::Error>
@@ -103,5 +96,61 @@ where
         let this = self.project();
         let res = ready!(this.fut.poll(cx));
         Poll::Ready(Ok(res))
+    }
+}
+
+pub struct In<T>(pub T);
+
+impl<T> In<T> {
+    pub fn into_inner(self) -> T { self.0 }
+}
+
+impl<T> ops::Deref for In<T> {
+    type Target = T;
+
+    fn deref(&self) -> &T { &self.0 }
+}
+
+impl<T> ops::DerefMut for In<T> {
+    fn deref_mut(&mut self) -> &mut T { &mut self.0 }
+}
+
+#[cfg(feature = "use_serde")]
+impl<T> FromRequest for In<T>
+where
+    T: serde::de::DeserializeOwned + 'static,
+{
+    type Error = SystemError;
+    type Future = Ready<Result<Self, SystemError>>;
+
+    #[inline]
+    fn from_request(req: &EventRequest, payload: &mut Payload) -> Self::Future {
+        match payload {
+            Payload::None => ready(Err(unexpected_none_payload())),
+            Payload::Bytes(bytes) => {
+                let data: T = bincode::deserialize(bytes).unwrap();
+                ready(Ok(In(data)))
+            },
+        }
+    }
+}
+
+#[cfg(feature = "use_protobuf")]
+impl<T> FromRequest for In<T>
+where
+    T: ::protobuf::Message + 'static,
+{
+    type Error = SystemError;
+    type Future = Ready<Result<Self, SystemError>>;
+
+    #[inline]
+    fn from_request(req: &EventRequest, payload: &mut Payload) -> Self::Future {
+        match payload {
+            Payload::None => ready(Err(unexpected_none_payload())),
+            Payload::Bytes(bytes) => {
+                let data: T = ::protobuf::Message::parse_from_bytes(bytes).unwrap();
+                ready(Ok(In(data)))
+            },
+        }
     }
 }

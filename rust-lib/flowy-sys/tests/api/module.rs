@@ -10,8 +10,9 @@ fn test_init() {
     let modules = vec![Module::new().event(event, hello)];
 
     init_system(modules, move || {
-        let request = EventRequest::new(event);
-        let stream_data = CommandData::new(1, Some(request)).with_callback(Box::new(|_config, response| {
+        let payload = SenderPayload::new(event);
+
+        let stream_data = SenderData::new(1, payload).callback(Box::new(|_config, response| {
             log::info!("async resp: {:?}", response);
         }));
 

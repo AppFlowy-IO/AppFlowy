@@ -5,8 +5,9 @@ use futures::Stream;
 
 pub enum PayloadError {}
 
-pub type PayloadStream = Pin<Box<dyn Stream<Item = Result<Bytes, PayloadError>>>>;
-pub enum Payload<S = PayloadStream> {
+// TODO: support stream data
+#[derive(Clone, Debug)]
+pub enum Payload {
     None,
-    Stream(S),
+    Bytes(Vec<u8>),
 }

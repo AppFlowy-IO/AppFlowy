@@ -75,7 +75,7 @@ where
     type Response = ServiceResponse;
     type Error = SystemError;
     type Service = Self;
-    type Config = ();
+    type Context = ();
     type Future = Ready<Result<Self::Service, Self::Error>>;
 
     fn new_service(&self, _: ()) -> Self::Future { ready(Ok(self.clone())) }
@@ -139,10 +139,10 @@ where
                     };
                 },
                 HandlerServiceProj::Handle(fut, req) => {
-                    let res = ready!(fut.poll(cx));
+                    let result = ready!(fut.poll(cx));
                     let req = req.take().unwrap();
-                    let res = res.respond_to(&req);
-                    return Poll::Ready(Ok(ServiceResponse::new(req, res)));
+                    let resp = result.respond_to(&req);
+                    return Poll::Ready(Ok(ServiceResponse::new(req, resp)));
                 },
             }
         }

@@ -17,10 +17,10 @@ pub trait ServiceFactory<Request> {
     type Response;
     type Error;
     type Service: Service<Request, Response = Self::Response, Error = Self::Error>;
-    type Config;
+    type Context;
     type Future: Future<Output = Result<Self::Service, Self::Error>>;
 
-    fn new_service(&self, cfg: Self::Config) -> Self::Future;
+    fn new_service(&self, cfg: Self::Context) -> Self::Future;
 }
 
 pub struct ServiceRequest {

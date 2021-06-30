@@ -1,7 +1,7 @@
 use crate::service::{Service, ServiceFactory};
 use futures_core::future::LocalBoxFuture;
 
-pub fn factory<SF, Req>(factory: SF) -> BoxServiceFactory<SF::Config, Req, SF::Response, SF::Error>
+pub fn factory<SF, Req>(factory: SF) -> BoxServiceFactory<SF::Context, Req, SF::Response, SF::Error>
 where
     SF: ServiceFactory<Req> + 'static,
     Req: 'static,
@@ -16,7 +16,7 @@ where
 type Inner<Cfg, Req, Res, Err> = Box<
     dyn ServiceFactory<
         Req,
-        Config = Cfg,
+        Context = Cfg,
         Response = Res,
         Error = Err,
         Service = BoxService<Req, Res, Err>,
@@ -34,7 +34,7 @@ where
     type Response = Res;
     type Error = Err;
     type Service = BoxService<Req, Res, Err>;
-    type Config = Cfg;
+    type Context = Cfg;
     type Future = LocalBoxFuture<'static, Result<Self::Service, Self::Error>>;
 
     fn new_service(&self, cfg: Cfg) -> Self::Future { self.0.new_service(cfg) }
@@ -91,7 +91,7 @@ where
     Req: 'static,
     Res: 'static,
     Err: 'static,
-    SF: ServiceFactory<Req, Config = Cfg, Response = Res, Error = Err>,
+    SF: ServiceFactory<Req, Context = Cfg, Response = Res, Error = Err>,
     SF::Future: 'static,
     SF::Service: 'static,
     <SF::Service as Service<Req>>::Future: 'static,
@@ -99,7 +99,7 @@ where
     type Response = Res;
     type Error = Err;
     type Service = BoxService<Req, Res, Err>;
-    type Config = Cfg;
+    type Context = Cfg;
     type Future = LocalBoxFuture<'static, Result<Self::Service, Self::Error>>;
 
     fn new_service(&self, cfg: Cfg) -> Self::Future {
