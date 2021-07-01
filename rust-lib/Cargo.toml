@@ -5,6 +5,8 @@ members = [
   "dart-ffi",
   "flowy-log",
   "flowy-user",
+  "flowy-ast",
+
 ]
 
 [profile.dev]
