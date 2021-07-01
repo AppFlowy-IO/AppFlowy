@@ -1,13 +1,11 @@
 use crate::{
     request::EventRequest,
-    response::{EventResponse, EventResponseBuilder, StatusCode},
+    response::{EventResponse, ResponseBuilder, StatusCode},
 };
 use dyn_clone::DynClone;
+use serde::{Serialize, Serializer};
 use std::{fmt, option::NoneError};
 use tokio::sync::mpsc::error::SendError;
-
-#[cfg(feature = "use_serde")]
-use serde::{Serialize, Serializer};
 
 pub trait Error: fmt::Debug + fmt::Display + DynClone {
     fn status_code(&self) -> StatusCode;
@@ -109,11 +107,10 @@ where
         }
         .into();
 
-        EventResponseBuilder::Err().error(error).build()
+        ResponseBuilder::Err().error(error).build()
     }
 }
 
-#[cfg(feature = "use_serde")]
 impl Serialize for SystemError {
     fn serialize<S>(&self, serializer: S) -> Result<<S as Serializer>::Ok, <S as Serializer>::Error>
     where

@@ -8,6 +8,7 @@ use crate::{
     util::ready::{ready, Ready},
 };
 
+use crate::response::{EventResponse, ResponseBuilder};
 use futures_core::ready;
 use std::{
     fmt::Debug,
@@ -105,24 +106,24 @@ where
     }
 }
 
-pub struct In<T>(pub T);
+pub struct Data<T>(pub T);
 
-impl<T> In<T> {
+impl<T> Data<T> {
     pub fn into_inner(self) -> T { self.0 }
 }
 
-impl<T> ops::Deref for In<T> {
+impl<T> ops::Deref for Data<T> {
     type Target = T;
 
     fn deref(&self) -> &T { &self.0 }
 }
 
-impl<T> ops::DerefMut for In<T> {
+impl<T> ops::DerefMut for Data<T> {
     fn deref_mut(&mut self) -> &mut T { &mut self.0 }
 }
 
 #[cfg(feature = "use_serde")]
-impl<T> FromRequest for In<T>
+impl<T> FromRequest for Data<T>
 where
     T: serde::de::DeserializeOwned + 'static,
 {
@@ -135,16 +136,20 @@ where
             Payload::None => ready(Err(unexpected_none_payload(req))),
             Payload::Bytes(bytes) => {
                 let data: T = bincode::deserialize(bytes).unwrap();
-                ready(Ok(In(data)))
+                ready(Ok(Data(data)))
             },
         }
     }
 }
 
-#[cfg(feature = "use_protobuf")]
-impl<T> FromRequest for In<T>
+pub trait FromBytes: Sized {
+    fn parse_from_bytes(bytes: &Vec<u8>) -> Result<Self, SystemError>;
+}
+
+#[cfg(not(feature = "use_serde"))]
+impl<T> FromRequest for Data<T>
 where
-    T: ::protobuf::Message + 'static,
+    T: FromBytes + 'static,
 {
     type Error = SystemError;
     type Future = Ready<Result<Self, SystemError>>;
@@ -154,8 +159,8 @@ where
         match payload {
             Payload::None => ready(Err(unexpected_none_payload(req))),
             Payload::Bytes(bytes) => {
-                let data: T = ::protobuf::Message::parse_from_bytes(bytes).unwrap();
-                ready(Ok(In(data)))
+                let data = T::parse_from_bytes(bytes).unwrap();
+                ready(Ok(Data(data)))
             },
         }
     }

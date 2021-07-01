@@ -7,7 +7,7 @@ edition = "2018"
 
 [dependencies]
 derive_more = {version = "0.99", features = ["display"]}
-flowy-sys = { path = "../flowy-sys", features = ["use_serde"] }
+flowy-sys = { path = "../flowy-sys" }
 flowy-log = { path = "../flowy-log" }
 tracing = { version = "0.1", features = ["log"] }
 bytes = "0.5"

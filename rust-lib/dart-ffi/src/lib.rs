@@ -36,7 +36,7 @@ pub extern "C" fn async_command(port: i64, input: *const u8, len: usize) {
     });
 
     if !payload.is_empty() {
-        request = request.payload(Payload::Bytes(bytes));
+        request = request.payload(Payload::Bytes(payload));
     }
 
     async_send(request);

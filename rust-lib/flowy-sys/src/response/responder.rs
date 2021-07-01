@@ -1,7 +1,7 @@
 use crate::{
     error::SystemError,
-    request::EventRequest,
-    response::{EventResponse, EventResponseBuilder},
+    request::{Data, EventRequest},
+    response::{EventResponse, ResponseBuilder},
 };
 use bytes::Bytes;
 use std::ops;
@@ -14,7 +14,7 @@ macro_rules! impl_responder {
     ($res: ty) => {
         impl Responder for $res {
             fn respond_to(self, _: &EventRequest) -> EventResponse {
-                EventResponseBuilder::Ok().data(self).build()
+                ResponseBuilder::Ok().data(self).build()
             }
         }
     };
@@ -38,56 +38,46 @@ where
     }
 }
 
-pub struct Out<T>(pub T);
-
-impl<T> Out<T> {
-    pub fn into_inner(self) -> T { self.0 }
-}
-
-impl<T> ops::Deref for Out<T> {
-    type Target = T;
-
-    fn deref(&self) -> &T { &self.0 }
-}
-
-impl<T> ops::DerefMut for Out<T> {
-    fn deref_mut(&mut self) -> &mut T { &mut self.0 }
+pub trait ToBytes {
+    fn into_bytes(self) -> Result<Vec<u8>, SystemError>;
 }
 
 #[cfg(feature = "use_serde")]
-impl<T> Responder for Out<T>
+impl<T> Responder for Data<T>
 where
     T: serde::Serialize,
-{
-    fn respond_to(self, request: &EventRequest) -> EventResponse {
-        let bytes: Vec<u8> = bincode::serialize(&self.0).unwrap();
-        EventResponseBuilder::Ok().data(bytes).build()
-    }
-}
-
-#[cfg(feature = "use_serde")]
-impl<T> std::convert::From<T> for Out<T>
-where
-    T: serde::Serialize,
-{
-    fn from(val: T) -> Self { Out(val) }
-}
-
-#[cfg(feature = "use_protobuf")]
-impl<T> Responder for Out<T>
-where
-    T: ::protobuf::Message,
 {
     fn respond_to(self, _request: &EventRequest) -> EventResponse {
-        let bytes: Vec<u8> = self.write_to_bytes().unwrap();
-        EventResponseBuilder::Ok().data(bytes).build()
+        let bytes: Vec<u8> = bincode::serialize(&self.0).unwrap();
+        ResponseBuilder::Ok().data(bytes).build()
     }
 }
 
-#[cfg(feature = "use_protobuf")]
-impl<T> std::convert::From<T> for Out<T>
+#[cfg(feature = "use_serde")]
+impl<T> std::convert::From<T> for Data<T>
 where
-    T: ::protobuf::Message,
+    T: serde::Serialize,
 {
-    fn from(val: T) -> Self { Out(val) }
+    fn from(val: T) -> Self { Data(val) }
+}
+
+#[cfg(not(feature = "use_serde"))]
+impl<T> Responder for Data<T>
+where
+    T: ToBytes,
+{
+    fn respond_to(self, _request: &EventRequest) -> EventResponse {
+        match self.into_inner().into_bytes() {
+            Ok(bytes) => ResponseBuilder::Ok().data(bytes.to_vec()).build(),
+            Err(e) => e.into(),
+        }
+    }
+}
+
+#[cfg(not(feature = "use_serde"))]
+impl<T> std::convert::From<T> for Data<T>
+where
+    T: ToBytes,
+{
+    fn from(val: T) -> Self { Data(val) }
 }

@@ -22,6 +22,8 @@ protobuf = {version = "2.20.0"}
 lazy_static = {version = "1.4.0"}
 tokio = { version = "1", features = ["sync"] }
 log = "0.4.14"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = {version = "1.0"}
 
 flowy-sys = {path = "../flowy-sys"}
 flowy-sdk = {path = "../flowy-sdk"}

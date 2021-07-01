@@ -6,19 +6,19 @@ use crate::{
 macro_rules! static_response {
     ($name:ident, $status:expr) => {
         #[allow(non_snake_case, missing_docs)]
-        pub fn $name() -> EventResponseBuilder { EventResponseBuilder::new($status) }
+        pub fn $name() -> ResponseBuilder { ResponseBuilder::new($status) }
     };
 }
 
-pub struct EventResponseBuilder<T = ResponseData> {
+pub struct ResponseBuilder<T = ResponseData> {
     pub data: T,
     pub status: StatusCode,
     pub error: Option<SystemError>,
 }
 
-impl EventResponseBuilder {
+impl ResponseBuilder {
     pub fn new(status: StatusCode) -> Self {
-        EventResponseBuilder {
+        ResponseBuilder {
             data: ResponseData::None,
             status,
             error: None,

@@ -1,10 +1,9 @@
 use bytes::{Buf, Bytes};
-#[cfg(feature = "use_serde")]
 use serde::{Deserialize, Serialize};
 use std::{fmt, fmt::Formatter};
 
 #[derive(Debug, Clone)]
-#[cfg_attr(feature = "use_serde", derive(Serialize, Deserialize))]
+// #[cfg_attr(feature = "use_serde", derive(Serialize, Deserialize))]
 pub enum ResponseData {
     Bytes(Vec<u8>),
     None,

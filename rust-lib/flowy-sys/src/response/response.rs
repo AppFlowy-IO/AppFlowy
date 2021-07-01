@@ -4,12 +4,12 @@ use crate::{
     response::{data::ResponseData, Responder},
 };
 
-#[cfg(feature = "use_serde")]
+use crate::request::Data;
 use serde::{Deserialize, Serialize, Serializer};
 use std::{fmt, fmt::Formatter};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-#[cfg_attr(feature = "use_serde", derive(Serialize, Deserialize))]
+// #[cfg_attr(feature = "use_serde", derive(Serialize, Deserialize))]
 pub enum StatusCode {
     Ok  = 0,
     Err = 1,
@@ -17,7 +17,7 @@ pub enum StatusCode {
 
 // serde user guide: https://serde.rs/field-attrs.html
 #[derive(Debug, Clone)]
-#[cfg_attr(feature = "use_serde", derive(Serialize))]
+// #[cfg_attr(feature = "use_serde", derive(Serialize))]
 pub struct EventResponse {
     pub data: ResponseData,
     pub status: StatusCode,
@@ -78,4 +78,11 @@ where
         ResponseData::Bytes(bytes) => serializer.serialize_str(&format!("{} bytes", bytes.len())),
         ResponseData::None => serializer.serialize_str(""),
     }
+}
+
+pub fn response_ok<T, E>(data: T) -> Result<Data<T>, E>
+where
+    E: Into<SystemError>,
+{
+    Ok(Data(data))
 }
