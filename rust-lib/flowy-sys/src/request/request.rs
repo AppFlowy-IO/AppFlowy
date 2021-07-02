@@ -4,15 +4,13 @@ use crate::{
     error::{InternalError, SystemError},
     module::Event,
     request::payload::Payload,
-    response::Responder,
     util::ready::{ready, Ready},
 };
 
-use crate::response::{EventResponse, ResponseBuilder};
+
 use futures_core::ready;
 use std::{
     fmt::Debug,
-    hash::Hash,
     ops,
     pin::Pin,
     task::{Context, Poll},
@@ -135,8 +133,11 @@ where
         match payload {
             Payload::None => ready(Err(unexpected_none_payload(req))),
             Payload::Bytes(bytes) => {
-                let data: T = bincode::deserialize(bytes).unwrap();
-                ready(Ok(Data(data)))
+                let s = String::from_utf8_lossy(bytes);
+                match serde_json::from_str(s.as_ref()) {
+                    Ok(data) => ready(Ok(Data(data))),
+                    Err(e) => ready(Err(InternalError::new(format!("{:?}", e)).into())),
+                }
             },
         }
     }

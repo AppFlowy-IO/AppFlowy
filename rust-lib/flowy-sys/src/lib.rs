@@ -8,9 +8,9 @@ mod rt;
 mod service;
 mod util;
 
-mod sender;
+mod dispatch;
 mod system;
 
 pub mod prelude {
-    pub use crate::{error::*, module::*, request::*, response::*, rt::*, sender::*};
+    pub use crate::{dispatch::*, error::*, module::*, request::*, response::*, rt::*};
 }

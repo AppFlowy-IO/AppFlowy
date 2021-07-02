@@ -5,7 +5,7 @@ use crate::{
 };
 
 use crate::request::Data;
-use serde::{Deserialize, Serialize, Serializer};
+
 use std::{fmt, fmt::Formatter};
 
 #[derive(Clone, Debug, Eq, PartialEq)]

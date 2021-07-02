@@ -7,7 +7,7 @@ use serde::{Serialize, Serializer};
 use std::{fmt, option::NoneError};
 use tokio::sync::mpsc::error::SendError;
 
-pub trait Error: fmt::Debug + fmt::Display + DynClone {
+pub trait Error: fmt::Debug + fmt::Display + DynClone + Send + Sync {
     fn status_code(&self) -> StatusCode;
 
     fn as_response(&self) -> EventResponse { EventResponse::new(self.status_code()) }
@@ -83,21 +83,21 @@ impl<T: Clone> InternalError<T> {
 
 impl<T> fmt::Debug for InternalError<T>
 where
-    T: fmt::Debug + 'static + Clone,
+    T: fmt::Debug + 'static + Clone + Send + Sync,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { fmt::Debug::fmt(&self.inner, f) }
 }
 
 impl<T> fmt::Display for InternalError<T>
 where
-    T: fmt::Debug + fmt::Display + 'static + Clone,
+    T: fmt::Debug + fmt::Display + 'static + Clone + Send + Sync,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { fmt::Display::fmt(&self.inner, f) }
 }
 
 impl<T> Error for InternalError<T>
 where
-    T: fmt::Debug + fmt::Display + 'static + Clone,
+    T: fmt::Debug + fmt::Display + 'static + Clone + Send + Sync,
 {
     fn status_code(&self) -> StatusCode { StatusCode::Err }
 

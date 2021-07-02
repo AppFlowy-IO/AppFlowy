@@ -4,7 +4,7 @@ use crate::{
     response::{EventResponse, ResponseBuilder},
 };
 use bytes::Bytes;
-use std::ops;
+
 
 pub trait Responder {
     fn respond_to(self, req: &EventRequest) -> EventResponse;

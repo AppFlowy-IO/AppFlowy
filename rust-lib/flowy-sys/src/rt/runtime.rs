@@ -1,5 +1,5 @@
-use std::{future::Future, io, thread};
-use thread_id;
+use crate::util::tokio_default_runtime;
+use std::{future::Future, io};
 use tokio::{runtime, task::LocalSet};
 
 #[derive(Debug)]
@@ -10,26 +10,7 @@ pub struct Runtime {
 
 impl Runtime {
     pub fn new() -> io::Result<Runtime> {
-        let rt = runtime::Builder::new_multi_thread()
-            .thread_name("flowy-sys")
-            .enable_io()
-            .enable_time()
-            .on_thread_start(move || {
-                log::trace!(
-                    "{:?} thread started: thread_id= {}",
-                    thread::current(),
-                    thread_id::get()
-                );
-            })
-            .on_thread_stop(move || {
-                log::trace!(
-                    "{:?} thread stopping: thread_id= {}",
-                    thread::current(),
-                    thread_id::get(),
-                );
-            })
-            .build()?;
-
+        let rt = tokio_default_runtime()?;
         Ok(Runtime {
             rt,
             local: LocalSet::new(),

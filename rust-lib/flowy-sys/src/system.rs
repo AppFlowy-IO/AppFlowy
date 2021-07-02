@@ -1,9 +1,9 @@
 use crate::{
-    module::{Event, Module},
+    module::{as_module_map, Module, ModuleMap},
     rt::Runtime,
 };
 use futures_core::{ready, task::Context};
-use std::{cell::RefCell, collections::HashMap, fmt::Debug, future::Future, io, rc::Rc, sync::Arc};
+use std::{cell::RefCell, fmt::Debug, future::Future, io, sync::Arc};
 use tokio::{
     macros::support::{Pin, Poll},
     sync::{
@@ -21,7 +21,6 @@ pub enum SystemCommand {
     Exit(i8),
 }
 
-pub type ModuleMap = Rc<HashMap<Event, Rc<Module>>>;
 pub struct FlowySystem {
     sys_cmd_tx: UnboundedSender<SystemCommand>,
 }
@@ -32,7 +31,7 @@ impl FlowySystem {
         F: FnOnce() -> Vec<Module>,
         S: FnOnce(ModuleMap, &Runtime),
     {
-        let runtime = Runtime::new().unwrap();
+        let runtime = Arc::new(Runtime::new().unwrap());
         let (sys_cmd_tx, sys_cmd_rx) = unbounded_channel::<SystemCommand>();
         let (stop_tx, stop_rx) = oneshot::channel();
 
@@ -41,21 +40,15 @@ impl FlowySystem {
             sys_cmd_rx,
         });
 
-        let factory = module_factory();
-        let mut module_map = HashMap::new();
-        factory.into_iter().for_each(|m| {
-            let events = m.events();
-            let rc_module = Rc::new(m);
-            events.into_iter().for_each(|e| {
-                module_map.insert(e, rc_module.clone());
-            });
-        });
+        let module_map = as_module_map(module_factory());
+        sender_factory(module_map.clone(), &runtime);
 
         let system = Self { sys_cmd_tx };
-        sender_factory(Rc::new(module_map), &runtime);
-
         FlowySystem::set_current(system);
-        let runner = SystemRunner { rt: runtime, stop_rx };
+        let runner = SystemRunner {
+            rt: runtime,
+            stop_rx,
+        };
         runner
     }
 
@@ -107,7 +100,7 @@ impl Future for SystemController {
 }
 
 pub struct SystemRunner {
-    rt: Runtime,
+    rt: Arc<Runtime>,
     stop_rx: oneshot::Receiver<i8>,
 }
 

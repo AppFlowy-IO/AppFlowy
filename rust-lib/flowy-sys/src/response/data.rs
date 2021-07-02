@@ -1,5 +1,5 @@
-use bytes::{Buf, Bytes};
-use serde::{Deserialize, Serialize};
+use bytes::{Bytes};
+
 use std::{fmt, fmt::Formatter};
 
 #[derive(Debug, Clone)]
@@ -27,7 +27,10 @@ impl std::convert::Into<ResponseData> for &'_ String {
 }
 
 impl std::convert::Into<ResponseData> for Bytes {
-    fn into(self) -> ResponseData { ResponseData::Bytes(self.bytes().to_vec()) }
+    fn into(self) -> ResponseData {
+        // Opti(nathan): do not copy the bytes?
+        ResponseData::Bytes(self.as_ref().to_vec())
+    }
 }
 
 impl std::convert::Into<ResponseData> for Vec<u8> {

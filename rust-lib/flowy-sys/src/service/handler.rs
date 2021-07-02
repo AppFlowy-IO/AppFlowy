@@ -16,9 +16,9 @@ use crate::{
     util::ready::*,
 };
 
-pub trait Handler<T, R>: Clone + 'static
+pub trait Handler<T, R>: Clone + 'static + Sync + Send
 where
-    R: Future,
+    R: Future + Send + Sync,
     R::Output: Responder,
 {
     fn call(&self, param: T) -> R;
@@ -28,7 +28,7 @@ pub struct HandlerService<H, T, R>
 where
     H: Handler<T, R>,
     T: FromRequest,
-    R: Future,
+    R: Future + Sync + Send,
     R::Output: Responder,
 {
     handler: H,
@@ -39,7 +39,7 @@ impl<H, T, R> HandlerService<H, T, R>
 where
     H: Handler<T, R>,
     T: FromRequest,
-    R: Future,
+    R: Future + Sync + Send,
     R::Output: Responder,
 {
     pub fn new(handler: H) -> Self {
@@ -54,7 +54,7 @@ impl<H, T, R> Clone for HandlerService<H, T, R>
 where
     H: Handler<T, R>,
     T: FromRequest,
-    R: Future,
+    R: Future + Sync + Send,
     R::Output: Responder,
 {
     fn clone(&self) -> Self {
@@ -69,7 +69,7 @@ impl<F, T, R> ServiceFactory<ServiceRequest> for HandlerService<F, T, R>
 where
     F: Handler<T, R>,
     T: FromRequest,
-    R: Future,
+    R: Future + Send + Sync,
     R::Output: Responder,
 {
     type Response = ServiceResponse;
@@ -85,7 +85,7 @@ impl<H, T, R> Service<ServiceRequest> for HandlerService<H, T, R>
 where
     H: Handler<T, R>,
     T: FromRequest,
-    R: Future,
+    R: Future + Sync + Send,
     R::Output: Responder,
 {
     type Response = ServiceResponse;
@@ -104,7 +104,7 @@ pub enum HandlerServiceFuture<H, T, R>
 where
     H: Handler<T, R>,
     T: FromRequest,
-    R: Future,
+    R: Future + Sync + Send,
     R::Output: Responder,
 {
     Extract(#[pin] T::Future, Option<EventRequest>, H),
@@ -115,7 +115,7 @@ impl<F, T, R> Future for HandlerServiceFuture<F, T, R>
 where
     F: Handler<T, R>,
     T: FromRequest,
-    R: Future,
+    R: Future + Sync + Send,
     R::Output: Responder,
 {
     type Output = Result<ServiceResponse, SystemError>;
@@ -151,8 +151,8 @@ where
 
 macro_rules! factory_tuple ({ $($param:ident)* } => {
     impl<Func, $($param,)* Res> Handler<($($param,)*), Res> for Func
-    where Func: Fn($($param),*) -> Res + Clone + 'static,
-          Res: Future,
+    where Func: Fn($($param),*) -> Res + Clone + 'static + Sync + Send,
+          Res: Future + Sync + Send,
           Res::Output: Responder,
     {
         #[allow(non_snake_case)]

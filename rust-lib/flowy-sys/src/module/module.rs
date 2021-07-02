@@ -4,13 +4,11 @@ use std::{
     future::Future,
     hash::Hash,
     pin::Pin,
-    rc::Rc,
     task::{Context, Poll},
 };
 
-use futures_core::{future::LocalBoxFuture, ready};
+use futures_core::ready;
 use pin_project::pin_project;
-use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 
 use crate::{
     error::{InternalError, SystemError},
@@ -29,6 +27,21 @@ use crate::{
         ServiceResponse,
     },
 };
+use futures_core::future::BoxFuture;
+use std::sync::Arc;
+
+pub type ModuleMap = Arc<HashMap<Event, Arc<Module>>>;
+pub(crate) fn as_module_map(modules: Vec<Module>) -> ModuleMap {
+    let mut module_map = HashMap::new();
+    modules.into_iter().for_each(|m| {
+        let events = m.events();
+        let module = Arc::new(m);
+        events.into_iter().for_each(|e| {
+            module_map.insert(e, module.clone());
+        });
+    });
+    Arc::new(module_map)
+}
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone)]
 pub struct Event(String);
@@ -42,20 +55,15 @@ pub type EventServiceFactory = BoxServiceFactory<(), ServiceRequest, ServiceResp
 pub struct Module {
     name: String,
     data: DataContainer,
-    service_map: Rc<HashMap<Event, EventServiceFactory>>,
-    req_tx: UnboundedSender<ModuleRequest>,
-    req_rx: UnboundedReceiver<ModuleRequest>,
+    service_map: Arc<HashMap<Event, EventServiceFactory>>,
 }
 
 impl Module {
     pub fn new() -> Self {
-        let (req_tx, req_rx) = unbounded_channel::<ModuleRequest>();
         Self {
             name: "".to_owned(),
             data: DataContainer::new(),
-            service_map: Rc::new(HashMap::new()),
-            req_tx,
-            req_rx,
+            service_map: Arc::new(HashMap::new()),
         }
     }
 
@@ -64,7 +72,7 @@ impl Module {
         self
     }
 
-    pub fn data<D: 'static>(mut self, data: D) -> Self {
+    pub fn data<D: 'static + Send + Sync>(mut self, data: D) -> Self {
         self.data.insert(ModuleData::new(data));
         self
     }
@@ -72,8 +80,9 @@ impl Module {
     pub fn event<E, H, T, R>(mut self, event: E, handler: H) -> Self
     where
         H: Handler<T, R>,
-        T: FromRequest + 'static,
-        R: Future + 'static,
+        T: FromRequest + 'static + Send + Sync,
+        <T as FromRequest>::Future: Sync + Send,
+        R: Future + 'static + Send + Sync,
         R::Output: Responder + 'static,
         E: Eq + Hash + Debug + Clone + Display,
     {
@@ -82,39 +91,17 @@ impl Module {
             log::error!("Duplicate Event: {:?}", &event);
         }
 
-        Rc::get_mut(&mut self.service_map)
+        Arc::get_mut(&mut self.service_map)
             .unwrap()
             .insert(event, factory(HandlerService::new(handler)));
         self
     }
 
-    pub fn forward_map(&self) -> HashMap<Event, UnboundedSender<ModuleRequest>> {
+    pub fn events(&self) -> Vec<Event> {
         self.service_map
             .keys()
-            .map(|key| (key.clone(), self.req_tx.clone()))
-            .collect::<HashMap<_, _>>()
-    }
-
-    pub fn events(&self) -> Vec<Event> { self.service_map.keys().map(|key| key.clone()).collect::<Vec<_>>() }
-}
-
-impl Future for Module {
-    type Output = ();
-    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        loop {
-            match ready!(Pin::new(&mut self.req_rx).poll_recv(cx)) {
-                None => return Poll::Ready(()),
-                Some(request) => {
-                    let mut service = self.new_service(());
-                    if let Ok(service) = ready!(Pin::new(&mut service).poll(cx)) {
-                        log::trace!("Spawn module service for request {}", request.id());
-                        tokio::task::spawn_local(async move {
-                            let _ = service.call(request).await;
-                        });
-                    }
-                },
-            }
-        }
+            .map(|key| key.clone())
+            .collect::<Vec<_>>()
     }
 }
 
@@ -140,13 +127,13 @@ impl ModuleRequest {
         self
     }
 
-    pub(crate) fn into_parts(self) -> (EventRequest, Payload) { (self.inner, self.payload) }
-
-    pub(crate) fn into_service_request(self) -> ServiceRequest { ServiceRequest::new(self.inner, self.payload) }
-
     pub(crate) fn id(&self) -> &str { &self.inner.id }
 
     pub(crate) fn event(&self) -> &Event { &self.inner.event }
+}
+
+impl std::convert::Into<ServiceRequest> for ModuleRequest {
+    fn into(self) -> ServiceRequest { ServiceRequest::new(self.inner, self.payload) }
 }
 
 impl ServiceFactory<ModuleRequest> for Module {
@@ -154,9 +141,9 @@ impl ServiceFactory<ModuleRequest> for Module {
     type Error = SystemError;
     type Service = BoxService<ModuleRequest, Self::Response, Self::Error>;
     type Context = ();
-    type Future = LocalBoxFuture<'static, Result<Self::Service, Self::Error>>;
+    type Future = BoxFuture<'static, Result<Self::Service, Self::Error>>;
 
-    fn new_service(&self, cfg: Self::Context) -> Self::Future {
+    fn new_service(&self, _cfg: Self::Context) -> Self::Future {
         let service_map = self.service_map.clone();
         Box::pin(async move {
             let service = ModuleService { service_map };
@@ -167,13 +154,13 @@ impl ServiceFactory<ModuleRequest> for Module {
 }
 
 pub struct ModuleService {
-    service_map: Rc<HashMap<Event, EventServiceFactory>>,
+    service_map: Arc<HashMap<Event, EventServiceFactory>>,
 }
 
 impl Service<ModuleRequest> for ModuleService {
     type Response = EventResponse;
     type Error = SystemError;
-    type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
+    type Future = BoxFuture<'static, Result<Self::Response, Self::Error>>;
 
     fn call(&self, request: ModuleRequest) -> Self::Future {
         log::trace!("Call module service for request {}", &request.id());
@@ -183,8 +170,7 @@ impl Service<ModuleRequest> for ModuleService {
                 let fut = ModuleServiceFuture {
                     fut: Box::pin(async {
                         let service = service_fut.await?;
-                        let request = request.into_service_request();
-                        service.call(request).await
+                        service.call(request.into()).await
                     }),
                 };
                 Box::pin(async move { Ok(fut.await.unwrap_or_else(|e| e.into())) })
@@ -200,7 +186,7 @@ impl Service<ModuleRequest> for ModuleService {
 #[pin_project]
 pub struct ModuleServiceFuture {
     #[pin]
-    fut: LocalBoxFuture<'static, Result<ServiceResponse, SystemError>>,
+    fut: BoxFuture<'static, Result<ServiceResponse, SystemError>>,
 }
 
 impl Future for ModuleServiceFuture {
