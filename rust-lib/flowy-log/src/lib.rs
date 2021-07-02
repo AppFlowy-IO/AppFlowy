@@ -4,10 +4,13 @@ use tracing_log::LogTracer;
 use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
 
 pub fn init_log(name: &str, env_filter: &str) -> std::result::Result<(), String> {
-    let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(env_filter.to_owned()));
+    let env_filter =
+        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(env_filter.to_owned()));
     let formatting_layer = BunyanFormattingLayer::new(name.to_owned(), std::io::stdout);
+
     let subscriber = tracing_subscriber::fmt()
         .with_target(false)
+        .with_writer(std::io::stdout)
         .with_thread_ids(false)
         .with_target(false)
         .compact()

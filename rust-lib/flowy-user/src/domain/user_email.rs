@@ -22,7 +22,7 @@ mod tests {
     use super::*;
     use claim::assert_err;
     use fake::{faker::internet::en::SafeEmail, Fake};
-    use quickcheck::Gen;
+    
 
     #[test]
     fn empty_string_is_rejected() {

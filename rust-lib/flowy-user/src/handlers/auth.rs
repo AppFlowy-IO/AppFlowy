@@ -1,5 +1,5 @@
 use crate::domain::{User, UserEmail, UserName};
-use bytes::Bytes;
+
 use flowy_sys::prelude::{response_ok, Data, FromBytes, ResponseResult, SystemError, ToBytes};
 use std::convert::TryInto;
 
@@ -13,7 +13,7 @@ use std::convert::TryInto;
     )
 )]
 pub async fn user_check(data: Data<UserData>) -> ResponseResult<UserStatus, String> {
-    let user: User = data.into_inner().try_into()?;
+    let _user: User = data.into_inner().try_into()?;
 
     response_ok(UserStatus { is_login: false })
 }
@@ -24,7 +24,7 @@ pub struct UserStatus {
 }
 
 impl FromBytes for UserData {
-    fn parse_from_bytes(bytes: &Vec<u8>) -> Result<UserData, SystemError> { unimplemented!() }
+    fn parse_from_bytes(_bytes: &Vec<u8>) -> Result<UserData, SystemError> { unimplemented!() }
 }
 
 impl ToBytes for UserStatus {

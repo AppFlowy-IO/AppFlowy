@@ -1,6 +1,7 @@
 use super::helper::*;
 use flowy_sys::prelude::*;
 use flowy_user::prelude::*;
+use tokio::time::{sleep, Duration};
 
 #[test]
 fn auth_check_no_payload() {
@@ -8,19 +9,14 @@ fn auth_check_no_payload() {
         assert_eq!(resp.status, StatusCode::Err);
     };
 
-    FlowySDKTester::new(AuthCheck).callback(callback).run();
+    let resp = FlowySDKTester::new(AuthCheck).sync_send();
 }
 
-#[test]
-fn auth_check_with_user_name_email_payload() {
-    let callback = |_, resp: EventResponse| {
-        assert_eq!(resp.status, StatusCode::Ok);
-    };
-
+#[tokio::test]
+async fn auth_check_with_user_name_email_payload() {
     let user_data = UserData::new("jack".to_owned(), "helloworld@gmail.com".to_owned());
 
     FlowySDKTester::new(AuthCheck)
         .bytes_payload(user_data)
-        .callback(callback)
-        .run();
+        .sync_send();
 }

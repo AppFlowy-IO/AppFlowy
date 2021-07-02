@@ -6,7 +6,7 @@ members = [
   "flowy-log",
   "flowy-user",
   "flowy-ast",
-
+  "flowy-derive",
 ]
 
 [profile.dev]

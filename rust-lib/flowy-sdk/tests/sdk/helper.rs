@@ -8,30 +8,18 @@ use std::{
 };
 
 static INIT: Once = Once::new();
-pub fn run_test_system<F>(f: F)
-where
-    F: FnOnce() + 'static,
-{
+#[allow(dead_code)]
+
+pub fn init_system() {
     INIT.call_once(|| {
-        flowy_log::init_log("flowy", "Debug").unwrap();
+        FlowySDK::init_log();
     });
 
-    let mut runner = init_system(build_modules());
-    runner = runner.spawn(async {
-        f();
-        FlowySystem::current().stop();
-    });
-
-    log::info!("🔥🔥🔥 System start running");
-    match runner.run() {
-        Ok(_) => {},
-        Err(e) => log::error!("System run fail with error: {:?}", e),
-    }
+    FlowySDK::init("123");
 }
 
 pub struct FlowySDKTester {
-    request: SenderRequest<i64>,
-    callback: Option<BoxStreamCallback<i64>>,
+    request: DispatchRequest<i64>,
 }
 
 impl FlowySDKTester {
@@ -40,8 +28,7 @@ impl FlowySDKTester {
         E: Eq + Hash + Debug + Clone + Display,
     {
         Self {
-            request: SenderRequest::new(1, event),
-            callback: None,
+            request: DispatchRequest::new(1, event),
         }
     }
 
@@ -65,21 +52,17 @@ impl FlowySDKTester {
         self
     }
 
-    #[allow(dead_code)]
-    pub fn callback<F>(mut self, callback: F) -> Self
-    where
-        F: FnOnce(i64, EventResponse) + 'static + Send + Sync,
-    {
-        self.request = self.request.callback(|config, response| {
-            dbg!(&response);
-            callback(config, response);
-        });
-        self
+    pub async fn async_send(self) -> EventResponse {
+        init_system();
+        let resp = async_send(self.request).await.unwrap();
+        dbg!(&resp);
+        resp
     }
 
-    pub fn run(self) {
-        run_test_system(move || {
-            async_send(self.request);
-        });
+    pub fn sync_send(self) -> EventResponse {
+        init_system();
+        let resp = sync_send(self.request).unwrap();
+        dbg!(&resp);
+        resp
     }
 }
