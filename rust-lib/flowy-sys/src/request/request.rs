@@ -116,34 +116,56 @@ impl<T> ops::DerefMut for Data<T> {
     fn deref_mut(&mut self) -> &mut T { &mut self.0 }
 }
 
-#[cfg(feature = "use_serde")]
-impl<T> FromRequest for Data<T>
-where
-    T: serde::de::DeserializeOwned + 'static,
-{
-    type Error = SystemError;
-    type Future = Ready<Result<Self, SystemError>>;
-
-    #[inline]
-    fn from_request(req: &EventRequest, payload: &mut Payload) -> Self::Future {
-        match payload {
-            Payload::None => ready(Err(unexpected_none_payload(req))),
-            Payload::Bytes(bytes) => {
-                let s = String::from_utf8_lossy(bytes);
-                match serde_json::from_str(s.as_ref()) {
-                    Ok(data) => ready(Ok(Data(data))),
-                    Err(e) => ready(Err(InternalError::new(format!("{:?}", e)).into())),
-                }
-            },
-        }
-    }
-}
+// #[cfg(feature = "use_serde")]
+// impl<T> FromRequest for Data<T>
+// where
+//     T: serde::de::DeserializeOwned + 'static,
+// {
+//     type Error = SystemError;
+//     type Future = Ready<Result<Self, SystemError>>;
+//
+//     #[inline]
+//     fn from_request(req: &EventRequest, payload: &mut Payload) ->
+// Self::Future {         match payload {
+//             Payload::None => ready(Err(unexpected_none_payload(req))),
+//             Payload::Bytes(bytes) => {
+//                 let s = String::from_utf8_lossy(bytes);
+//                 match serde_json::from_str(s.as_ref()) {
+//                     Ok(data) => ready(Ok(Data(data))),
+//                     Err(e) => ready(Err(InternalError::new(format!("{:?}",
+// e)).into())),                 }
+//             },
+//         }
+//     }
+// }
 
 pub trait FromBytes: Sized {
     fn parse_from_bytes(bytes: &Vec<u8>) -> Result<Self, SystemError>;
 }
 
 #[cfg(not(feature = "use_serde"))]
+impl<T> FromBytes for T
+where
+    // https://stackoverflow.com/questions/62871045/tryfromu8-trait-bound-in-trait
+    T: for<'a> std::convert::TryFrom<&'a Vec<u8>, Error = SystemError>,
+{
+    fn parse_from_bytes(bytes: &Vec<u8>) -> Result<Self, SystemError> { T::try_from(bytes) }
+}
+
+#[cfg(feature = "use_serde")]
+impl<T> FromBytes for T
+where
+    T: serde::de::DeserializeOwned + 'static,
+{
+    fn parse_from_bytes(bytes: &Vec<u8>) -> Result<Self, SystemError> {
+        let s = String::from_utf8_lossy(bytes);
+        match serde_json::from_str::<T>(s.as_ref()) {
+            Ok(data) => Ok(data),
+            Err(e) => InternalError::new(format!("{:?}", e)).into(),
+        }
+    }
+}
+
 impl<T> FromRequest for Data<T>
 where
     T: FromBytes + 'static,
@@ -155,9 +177,9 @@ where
     fn from_request(req: &EventRequest, payload: &mut Payload) -> Self::Future {
         match payload {
             Payload::None => ready(Err(unexpected_none_payload(req))),
-            Payload::Bytes(bytes) => {
-                let data = T::parse_from_bytes(bytes).unwrap();
-                ready(Ok(Data(data)))
+            Payload::Bytes(bytes) => match T::parse_from_bytes(bytes) {
+                Ok(data) => ready(Ok(Data(data))),
+                Err(e) => ready(Err(InternalError::new(format!("{:?}", e)).into())),
             },
         }
     }

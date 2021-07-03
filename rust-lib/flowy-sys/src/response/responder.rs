@@ -1,10 +1,10 @@
+#[allow(unused_imports)]
+use crate::error::{InternalError, SystemError};
 use crate::{
-    error::SystemError,
     request::{Data, EventRequest},
     response::{EventResponse, ResponseBuilder},
 };
 use bytes::Bytes;
-
 
 pub trait Responder {
     fn respond_to(self, req: &EventRequest) -> EventResponse;
@@ -42,26 +42,27 @@ pub trait ToBytes {
     fn into_bytes(self) -> Result<Vec<u8>, SystemError>;
 }
 
+#[cfg(not(feature = "use_serde"))]
+impl<T> ToBytes for T
+where
+    T: std::convert::TryInto<Vec<u8>, Error = SystemError>,
+{
+    fn into_bytes(self) -> Result<Vec<u8>, SystemError> { self.try_into() }
+}
+
 #[cfg(feature = "use_serde")]
-impl<T> Responder for Data<T>
+impl<T> ToBytes for T
 where
     T: serde::Serialize,
 {
-    fn respond_to(self, _request: &EventRequest) -> EventResponse {
-        let bytes: Vec<u8> = bincode::serialize(&self.0).unwrap();
-        ResponseBuilder::Ok().data(bytes).build()
+    fn into_bytes(self) -> Result<Vec<u8>, SystemError> {
+        match serde_json::to_string(&self.0) {
+            Ok(s) => Ok(s.into_bytes()),
+            Err(e) => InternalError::new(format!("{:?}", e)).into(),
+        }
     }
 }
 
-#[cfg(feature = "use_serde")]
-impl<T> std::convert::From<T> for Data<T>
-where
-    T: serde::Serialize,
-{
-    fn from(val: T) -> Self { Data(val) }
-}
-
-#[cfg(not(feature = "use_serde"))]
 impl<T> Responder for Data<T>
 where
     T: ToBytes,
@@ -74,7 +75,6 @@ where
     }
 }
 
-#[cfg(not(feature = "use_serde"))]
 impl<T> std::convert::From<T> for Data<T>
 where
     T: ToBytes,

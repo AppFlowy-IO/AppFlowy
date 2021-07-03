@@ -99,7 +99,7 @@ pub fn generate_hashmap_ty_info<'a>(
         ident: &path_segment.ident,
         ty,
         primitive_ty: PrimitiveTy::Map(MapInfo::new(key, value)),
-        bracket_ty_info,
+        bracket_ty_info: bracket_ty_info,
     });
 }
 

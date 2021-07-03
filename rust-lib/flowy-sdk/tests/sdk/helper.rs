@@ -33,35 +33,36 @@ pub struct EventTester {
 }
 
 impl EventTester {
-    pub fn new<E>(event: E, payload: Payload) -> Self
+    pub fn new<E, P>(event: E, payload: P) -> Self
     where
         E: Eq + Hash + Debug + Clone + Display,
+        P: std::convert::Into<Payload>,
     {
         init_sdk();
         Self {
-            request: DispatchRequest::new(event, payload),
+            request: DispatchRequest::new(event, payload.into()),
         }
     }
 
-    #[allow(dead_code)]
-    pub fn bytes_payload<T>(mut self, payload: T) -> Self
-    where
-        T: serde::Serialize,
-    {
-        let bytes: Vec<u8> = bincode::serialize(&payload).unwrap();
-        self.request = self.request.payload(Payload::Bytes(bytes));
-        self
-    }
-
-    #[allow(dead_code)]
-    pub fn protobuf_payload<T>(mut self, payload: T) -> Self
-    where
-        T: ::protobuf::Message,
-    {
-        let bytes: Vec<u8> = payload.write_to_bytes().unwrap();
-        self.request = self.request.payload(Payload::Bytes(bytes));
-        self
-    }
+    // #[allow(dead_code)]
+    // pub fn bytes_payload<T>(mut self, payload: T) -> Self
+    // where
+    //     T: serde::Serialize,
+    // {
+    //     let bytes: Vec<u8> = bincode::serialize(&payload).unwrap();
+    //     self.request = self.request.payload(Payload::Bytes(bytes));
+    //     self
+    // }
+    //
+    // #[allow(dead_code)]
+    // pub fn protobuf_payload<T>(mut self, payload: T) -> Self
+    // where
+    //     T: ::protobuf::Message,
+    // {
+    //     let bytes: Vec<u8> = payload.write_to_bytes().unwrap();
+    //     self.request = self.request.payload(Payload::Bytes(bytes));
+    //     self
+    // }
 
     #[allow(dead_code)]
     pub async fn async_send(self) -> EventResponse {
