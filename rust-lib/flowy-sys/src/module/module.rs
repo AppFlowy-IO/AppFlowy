@@ -164,8 +164,6 @@ impl Service<ModuleRequest> for ModuleService {
     type Error = SystemError;
     type Future = BoxFuture<'static, Result<Self::Response, Self::Error>>;
 
-    // #[cfg_attr(feature = "use_tracing", xxx)]
-    #[tracing::instrument(name = "Module Service", level = "debug", skip(self))]
     fn call(&self, request: ModuleRequest) -> Self::Future {
         match self.service_map.get(&request.event()) {
             Some(factory) => {

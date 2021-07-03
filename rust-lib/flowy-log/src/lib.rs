@@ -13,19 +13,16 @@ pub struct FlowyLogBuilder {
     name: String,
     env_filter: String,
     directory: String,
-    file_appender: RollingFileAppender,
 }
 
 impl FlowyLogBuilder {
     pub fn new(name: &str, directory: impl AsRef<Path>) -> Self {
         let directory = directory.as_ref().to_str().unwrap().to_owned();
-        let local_file_name = format!("{}.log", name);
-        let file_appender = tracing_appender::rolling::hourly(directory.clone(), local_file_name);
+
         FlowyLogBuilder {
             name: name.to_owned(),
             env_filter: "Info".to_owned(),
             directory,
-            file_appender,
         }
     }
 
@@ -37,29 +34,36 @@ impl FlowyLogBuilder {
     pub fn build(self) -> std::result::Result<(), String> {
         let env_filter = EnvFilter::new(self.env_filter);
 
-        let (non_blocking, _guard) = tracing_appender::non_blocking(self.file_appender);
-
-        let formatting_layer = BunyanFormattingLayer::new(self.name, std::io::stdout);
-
         let mut subscriber = tracing_subscriber::fmt()
             .with_target(false)
             .with_max_level(tracing::Level::TRACE)
-            .with_writer(std::io::stdout)
+            .with_writer(std::io::stderr)
             .with_thread_ids(false)
             .with_target(false)
             // .with_writer(non_blocking)
             .compact()
             .finish()
-            .with(env_filter)
-            .with(JsonStorageLayer)
-            .with(formatting_layer);
+            .with(env_filter);
 
+        if cfg!(feature = "use_bunyan") {
+            let formatting_layer = BunyanFormattingLayer::new(self.name.clone(), std::io::stdout);
+
+            let local_file_name = format!("{}.log", &self.name);
+            let file_appender =
+                tracing_appender::rolling::daily(self.directory.clone(), local_file_name);
+            let (non_blocking, _guard) = tracing_appender::non_blocking(file_appender);
+
+            let _ = set_global_default(subscriber.with(JsonStorageLayer).with(formatting_layer))
+                .map_err(|e| format!("{:?}", e))?;
+        } else {
+            let _ = set_global_default(subscriber).map_err(|e| format!("{:?}", e))?;
+        }
         let _ = LogTracer::builder()
             .with_max_level(LevelFilter::Trace)
             .init()
             .map_err(|e| format!("{:?}", e))
             .unwrap();
-        let _ = set_global_default(subscriber).map_err(|e| format!("{:?}", e))?;
+
         Ok(())
     }
 }

@@ -82,7 +82,7 @@ where
         },
         Err(e) => {
             if let Some(msg) = e.downcast_ref::<&str>() {
-                log::error!("[FFI]: ❌ {:?}", msg);
+                log::error!("[FFI]: {:?}", msg);
             } else {
                 log::error!("[FFI]: allo_isolate post panic");
             }

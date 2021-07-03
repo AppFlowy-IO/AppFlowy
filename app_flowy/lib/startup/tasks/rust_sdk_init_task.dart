@@ -17,15 +17,15 @@ class RustSDKInitTask extends LaunchTask {
 
     Bloc.observer = ApplicationBlocObserver();
 
+    Directory directory = await getApplicationDocumentsDirectory();
+    final documentPath = directory.path;
+    final flowySandbox = Directory('$documentPath/flowy');
     switch (context.env) {
       case IntegrationEnv.dev:
-        await context.getIt<FlowySDK>().init(Directory('./temp/flowy_dev'));
+        // await context.getIt<FlowySDK>().init(Directory('./temp/flowy_dev'));
+        await context.getIt<FlowySDK>().init(flowySandbox);
         break;
       case IntegrationEnv.pro:
-        Directory directory = await getApplicationDocumentsDirectory();
-        final documentPath = directory.path;
-
-        final flowySandbox = Directory('$documentPath/flowy');
         await context.getIt<FlowySDK>().init(flowySandbox);
         break;
       default:

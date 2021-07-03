@@ -162,6 +162,14 @@ impl Service<DispatchRequest> for DispatchService {
     type Error = SystemError;
     type Future = BoxFuture<'static, Result<Self::Response, Self::Error>>;
 
+    #[cfg_attr(
+        feature = "use_tracing",
+        tracing::instrument(
+            name = "DispatchService",
+            level = "debug",
+            skip(self, dispatch_request)
+        )
+    )]
     fn call(&self, dispatch_request: DispatchRequest) -> Self::Future {
         let module_map = self.module_map.clone();
         let (request, callback) = dispatch_request.into_parts();

@@ -67,8 +67,6 @@ where
     }
 }
 
-// #[cfg_attr(feature = "use_serde", #[serde(serialize_with =
-// "serialize_data")])]
 #[cfg(feature = "use_serde")]
 fn serialize_data<S>(data: &ResponseData, serializer: S) -> Result<S::Ok, S::Error>
 where

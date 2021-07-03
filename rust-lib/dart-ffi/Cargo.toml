@@ -27,7 +27,7 @@ serde_json = {version = "1.0"}
 
 flowy-sys = {path = "../flowy-sys"}
 flowy-sdk = {path = "../flowy-sdk"}
-flowy-log = {path = "../flowy-log"}
+
 
 #[features]
 #use_serde = ["bincode"]
