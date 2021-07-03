@@ -1,5 +1,6 @@
 use std::{
     collections::HashMap,
+    fmt,
     fmt::{Debug, Display},
     future::Future,
     hash::Hash,
@@ -53,7 +54,7 @@ impl<T: Display + Eq + Hash + Debug + Clone> std::convert::From<T> for Event {
 pub type EventServiceFactory = BoxServiceFactory<(), ServiceRequest, ServiceResponse, SystemError>;
 
 pub struct Module {
-    name: String,
+    pub name: String,
     data: DataContainer,
     service_map: Arc<HashMap<Event, EventServiceFactory>>,
 }
@@ -112,24 +113,25 @@ pub struct ModuleRequest {
 }
 
 impl ModuleRequest {
-    pub fn new<E>(event: E) -> Self
+    pub fn new<E>(event: E, id: String, payload: Payload) -> Self
     where
         E: Into<Event>,
     {
         Self {
-            inner: EventRequest::new(event),
-            payload: Payload::None,
+            inner: EventRequest::new(event, id),
+            payload,
         }
-    }
-
-    pub fn payload(mut self, payload: Payload) -> Self {
-        self.payload = payload;
-        self
     }
 
     pub(crate) fn id(&self) -> &str { &self.inner.id }
 
     pub(crate) fn event(&self) -> &Event { &self.inner.event }
+}
+
+impl std::fmt::Display for ModuleRequest {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}:{:?}", self.inner.id, self.inner.event)
+    }
 }
 
 impl std::convert::Into<ServiceRequest> for ModuleRequest {
@@ -162,8 +164,9 @@ impl Service<ModuleRequest> for ModuleService {
     type Error = SystemError;
     type Future = BoxFuture<'static, Result<Self::Response, Self::Error>>;
 
+    // #[cfg_attr(feature = "use_tracing", xxx)]
+    #[tracing::instrument(name = "Module Service", level = "debug", skip(self))]
     fn call(&self, request: ModuleRequest) -> Self::Future {
-        log::trace!("Call module service for request {}", &request.id());
         match self.service_map.get(&request.event()) {
             Some(factory) => {
                 let service_fut = factory.new_service(());

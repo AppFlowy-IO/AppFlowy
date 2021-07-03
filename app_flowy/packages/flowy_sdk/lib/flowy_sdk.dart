@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'dart:ffi';
+import 'ffi/adaptor.dart';
 import 'ffi/ffi.dart' as ffi;
 import 'package:ffi/ffi.dart';
 
@@ -16,12 +17,13 @@ class FlowySDK {
 
   const FlowySDK();
 
-  void dispose() {
-
-  }
+  void dispose() {}
 
   Future<void> init(Directory sdkDir) async {
     ffi.store_dart_post_cobject(NativeApi.postCObject);
+
     ffi.init_sdk(sdkDir.path.toNativeUtf8());
+    final resp = await FFIAdaptor.asyncRequest();
+    print(resp);
   }
 }

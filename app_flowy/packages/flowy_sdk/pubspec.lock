@@ -204,13 +204,6 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
-  flowy_protobuf:
-    dependency: "direct main"
-    description:
-      path: "../flowy_protobuf"
-      relative: true
-    source: path
-    version: "0.0.1"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -354,13 +347,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.5.0"
-  protobuf:
-    dependency: transitive
-    description:
-      name: protobuf
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.1.0"
   pub_semver:
     dependency: transitive
     description:

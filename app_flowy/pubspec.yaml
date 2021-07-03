@@ -31,8 +31,6 @@ dependencies:
     sdk: flutter
   flowy_sdk:
     path: packages/flowy_sdk
-  flowy_protobuf:
-    path: packages/flowy_protobuf
   flowy_style:
     path: packages/flowy_style
   

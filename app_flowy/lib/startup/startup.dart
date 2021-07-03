@@ -25,7 +25,7 @@ class App {
     resolveDependencies(env);
 
     // add task
-    // getIt<AppLauncher>().addTask(RustSDKInitTask());
+    getIt<AppLauncher>().addTask(RustSDKInitTask());
     getIt<AppLauncher>().addTask(AppWidgetTask());
 
     // execute the tasks

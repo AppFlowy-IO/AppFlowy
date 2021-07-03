@@ -92,24 +92,10 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "6.1.1"
-  fixnum:
-    dependency: transitive
-    description:
-      name: fixnum
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.10.11"
   flowy_logger:
     dependency: transitive
     description:
       path: "../../flowy_logger"
-      relative: true
-    source: path
-    version: "0.0.1"
-  flowy_protobuf:
-    dependency: transitive
-    description:
-      path: "../../flowy_protobuf"
       relative: true
     source: path
     version: "0.0.1"
@@ -215,13 +201,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.2.1"
-  protobuf:
-    dependency: transitive
-    description:
-      name: protobuf
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.1.0"
   sky_engine:
     dependency: transitive
     description: flutter

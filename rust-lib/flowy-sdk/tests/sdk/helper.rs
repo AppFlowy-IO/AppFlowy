@@ -3,32 +3,42 @@ pub use flowy_sdk::*;
 use flowy_sys::prelude::*;
 use std::{
     fmt::{Debug, Display},
+    fs,
     hash::Hash,
     sync::Once,
 };
 
 static INIT: Once = Once::new();
-#[allow(dead_code)]
+pub fn init_sdk() {
+    let root_dir = root_dir();
 
-pub fn init_system() {
     INIT.call_once(|| {
-        FlowySDK::init_log();
+        FlowySDK::init_log(&root_dir);
     });
-
-    FlowySDK::init("123");
+    FlowySDK::init(&root_dir);
 }
 
-pub struct FlowySDKTester {
-    request: DispatchRequest<i64>,
+fn root_dir() -> String {
+    let mut path = fs::canonicalize(".").unwrap();
+    path.push("tests/temp/flowy/");
+    let path_str = path.to_str().unwrap().to_string();
+    if !std::path::Path::new(&path).exists() {
+        std::fs::create_dir_all(path).unwrap();
+    }
+    path_str
 }
 
-impl FlowySDKTester {
+pub struct EventTester {
+    request: DispatchRequest,
+}
+
+impl EventTester {
     pub fn new<E>(event: E) -> Self
     where
         E: Eq + Hash + Debug + Clone + Display,
     {
         Self {
-            request: DispatchRequest::new(1, event),
+            request: DispatchRequest::new(event),
         }
     }
 
@@ -52,16 +62,18 @@ impl FlowySDKTester {
         self
     }
 
+    #[allow(dead_code)]
     pub async fn async_send(self) -> EventResponse {
-        init_system();
-        let resp = async_send(self.request).await.unwrap();
+        init_sdk();
+        let resp = async_send(self.request).await;
         dbg!(&resp);
         resp
     }
 
+    #[allow(dead_code)]
     pub fn sync_send(self) -> EventResponse {
-        init_system();
-        let resp = sync_send(self.request).unwrap();
+        init_sdk();
+        let resp = sync_send(self.request);
         dbg!(&resp);
         resp
     }

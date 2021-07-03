@@ -232,13 +232,6 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
-  flowy_protobuf:
-    dependency: "direct main"
-    description:
-      path: "packages/flowy_protobuf"
-      relative: true
-    source: path
-    version: "0.0.1"
   flowy_sdk:
     dependency: "direct main"
     description:
@@ -501,13 +494,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.2.1"
-  protobuf:
-    dependency: transitive
-    description:
-      name: protobuf
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.0"
   provider:
     dependency: transitive
     description:

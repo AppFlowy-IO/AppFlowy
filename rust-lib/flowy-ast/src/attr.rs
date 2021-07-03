@@ -262,7 +262,7 @@ pub struct ASTEnumAttrVariant {
 }
 
 impl ASTEnumAttrVariant {
-    pub fn from_ast(cx: &Ctxt, variant: &syn::Variant) -> Self {
+    pub fn from_ast(_cx: &Ctxt, variant: &syn::Variant) -> Self {
         let name = variant.ident.to_string();
         let mut value = String::new();
         if variant.discriminant.is_some() {

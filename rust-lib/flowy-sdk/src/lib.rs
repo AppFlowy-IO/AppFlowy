@@ -6,19 +6,17 @@ use module::build_modules;
 pub struct FlowySDK {}
 
 impl FlowySDK {
-    pub fn init_log() { flowy_log::init_log("flowy", "Debug").unwrap(); }
+    pub fn init_log(directory: &str) { flowy_log::init_log("flowy", directory, "Debug").unwrap(); }
 
     pub fn init(path: &str) {
-        log::info!("🔥 System start running");
-        log::debug!("🔥 Root path: {}", path);
+        log::info!("🔥 Start running");
+        tracing::info!("🔥 Root path: {}", path);
         EventDispatch::construct(|| build_modules());
     }
 }
 
-pub async fn async_send(data: DispatchRequest<i64>) -> Result<EventResponse, SystemError> {
-    EventDispatch::async_send(data).await
+pub async fn async_send(request: DispatchRequest) -> EventResponse {
+    EventDispatch::async_send(request).await
 }
 
-pub fn sync_send(data: DispatchRequest<i64>) -> Result<EventResponse, SystemError> {
-    EventDispatch::sync_send(data)
-}
+pub fn sync_send(request: DispatchRequest) -> EventResponse { EventDispatch::sync_send(request) }

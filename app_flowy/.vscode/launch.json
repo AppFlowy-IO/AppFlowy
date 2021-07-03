@@ -9,6 +9,7 @@
             "request": "launch",
             "program": "${workspaceRoot}/lib/main.dart",
             "type": "dart",
+            // "preLaunchTask": "build rust sdk"
         },
         {
             "name": "app_flowy (profile mode)",

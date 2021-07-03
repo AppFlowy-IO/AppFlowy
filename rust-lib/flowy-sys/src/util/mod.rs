@@ -6,7 +6,7 @@ pub mod ready;
 
 pub(crate) fn tokio_default_runtime() -> io::Result<tokio::runtime::Runtime> {
     runtime::Builder::new_multi_thread()
-        .thread_name("flowy-sys")
+        .thread_name("flowy-rt")
         .enable_io()
         .enable_time()
         .on_thread_start(move || {

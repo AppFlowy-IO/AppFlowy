@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ffi';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:isolates/isolates.dart';
@@ -5,7 +6,7 @@ import 'package:isolates/isolates.dart';
 import 'package:isolates/ports.dart';
 import 'package:ffi/ffi.dart';
 
-import 'package:flowy_protobuf/model/grpc.pb.dart';
+// ignore: unused_import
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:typed_data';
@@ -22,9 +23,25 @@ class FFIAdaptorException implements Exception {
   FFIAdaptorException(this.type);
 }
 
+class FFICommand {
+  final String event;
+  final Uint8List payload;
+  FFICommand(this.event, this.payload);
+
+  Map<String, dynamic> toJson() => {
+        'event': event,
+        'payload': payload,
+      };
+}
+
 class FFIAdaptor {
-  static Completer<Uint8List> asyncRequest(RequestPacket request) {
-    Uint8List bytes = request.writeToBuffer();
+  static Completer<Uint8List> asyncRequest() {
+    // final command = FFICommand(
+    //     "AuthCheck", Uint8List.fromList(utf8.encode("this is payload")));
+
+    final command = FFICommand("AuthCheck", Uint8List(0));
+
+    Uint8List bytes = Uint8List.fromList(utf8.encode(jsonEncode(command)));
 
     assert(bytes.isEmpty == false);
     if (bytes.isEmpty) {
@@ -43,4 +60,3 @@ class FFIAdaptor {
     return completer;
   }
 }
-

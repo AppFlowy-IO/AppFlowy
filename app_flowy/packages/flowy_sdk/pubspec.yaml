@@ -16,8 +16,6 @@ dependencies:
   isolates: ^3.0.3+8
   flowy_logger:
     path: ../flowy_logger
-  flowy_protobuf:
-    path: ../flowy_protobuf
   infra:
     path: ../infra
   dartz: '0.10.0-nullsafety.2'

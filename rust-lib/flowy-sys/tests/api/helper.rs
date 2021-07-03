@@ -10,14 +10,13 @@ pub fn setup_env() {
     });
 }
 
-pub async fn async_send(data: DispatchRequest<i64>) -> Result<EventResponse, SystemError> {
-    EventDispatch::async_send(data).await
+pub async fn async_send(request: DispatchRequest) -> EventResponse {
+    EventDispatch::async_send(request).await
 }
 
-pub fn init_system<F>(module_factory: F)
+pub fn init_dispatch<F>(module_factory: F)
 where
     F: FnOnce() -> Vec<Module>,
 {
-    let system = EventDispatch::new(module_factory);
-    EventDispatch::set_current(system);
+    EventDispatch::construct(module_factory);
 }

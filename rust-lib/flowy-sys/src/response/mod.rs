@@ -1,8 +1,9 @@
 pub use builder::*;
+pub use data::*;
 pub use responder::*;
 pub use response::*;
 
 mod builder;
-pub mod data;
+mod data;
 mod responder;
 mod response;

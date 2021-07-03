@@ -7,7 +7,6 @@ use crate::{
     util::ready::{ready, Ready},
 };
 
-
 use futures_core::ready;
 use std::{
     fmt::Debug,
@@ -23,12 +22,12 @@ pub struct EventRequest {
 }
 
 impl EventRequest {
-    pub fn new<E>(event: E) -> EventRequest
+    pub fn new<E>(event: E, id: String) -> EventRequest
     where
         E: Into<Event>,
     {
         Self {
-            id: uuid::Uuid::new_v4().to_string(),
+            id,
             event: event.into(),
         }
     }
@@ -63,11 +62,8 @@ impl FromRequest for String {
 }
 
 fn unexpected_none_payload(request: &EventRequest) -> SystemError {
-    log::warn!(
-        "Event: {:?} expected payload but payload is empty",
-        &request.event
-    );
-    InternalError::new("Expected payload but payload is empty").into()
+    log::warn!("{:?} expected payload", &request.event);
+    InternalError::new("Expected payload").into()
 }
 
 #[doc(hidden)]
