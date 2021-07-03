@@ -1,6 +1,7 @@
 use crate::{
     error::SystemError,
-    response::{data::ResponseData, EventResponse, StatusCode},
+    request::Payload,
+    response::{EventResponse, StatusCode},
 };
 
 macro_rules! static_response {
@@ -10,8 +11,8 @@ macro_rules! static_response {
     };
 }
 
-pub struct ResponseBuilder<T = ResponseData> {
-    pub data: T,
+pub struct ResponseBuilder<T = Payload> {
+    pub payload: T,
     pub status: StatusCode,
     pub error: Option<SystemError>,
 }
@@ -19,14 +20,14 @@ pub struct ResponseBuilder<T = ResponseData> {
 impl ResponseBuilder {
     pub fn new(status: StatusCode) -> Self {
         ResponseBuilder {
-            data: ResponseData::None,
+            payload: Payload::None,
             status,
             error: None,
         }
     }
 
-    pub fn data<D: std::convert::Into<ResponseData>>(mut self, data: D) -> Self {
-        self.data = data.into();
+    pub fn data<D: std::convert::Into<Payload>>(mut self, data: D) -> Self {
+        self.payload = data.into();
         self
     }
 
@@ -37,8 +38,8 @@ impl ResponseBuilder {
 
     pub fn build(self) -> EventResponse {
         EventResponse {
-            data: self.data,
-            status: self.status,
+            payload: self.payload,
+            status_code: self.status,
             error: self.error,
         }
     }

@@ -1,6 +1,6 @@
 mod c;
 
-use crate::c::forget_rust;
+use crate::c::{extend_front_four_bytes_into_bytes, forget_rust};
 use flowy_sdk::*;
 use flowy_sys::prelude::*;
 use lazy_static::lazy_static;
@@ -25,22 +25,18 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
 
 #[no_mangle]
 pub extern "C" fn async_command(port: i64, input: *const u8, len: usize) {
-    let FFICommand { event, payload } = FFICommand::from_u8_pointer(input, len);
-    let mut request = DispatchRequest::new(event);
+    let mut request: DispatchRequest = FFIRequest::from_u8_pointer(input, len).into();
     log::trace!(
         "[FFI]: {} Async Event: {:?} with {} port",
         &request.id,
         &request.event,
         port
     );
-    if !payload.is_empty() {
-        request = request.payload(Payload::Bytes(payload));
-    }
 
     request = request.callback(Box::new(move |resp: EventResponse| {
-        let bytes = match resp.data {
-            ResponseData::Bytes(bytes) => bytes,
-            ResponseData::None => vec![],
+        let bytes = match resp.payload {
+            Payload::Bytes(bytes) => bytes,
+            Payload::None => vec![],
         };
         log::trace!("[FFI]: Post data to dart through {} port", port);
         Box::pin(spawn_future(async { bytes }, port))
@@ -50,24 +46,40 @@ pub extern "C" fn async_command(port: i64, input: *const u8, len: usize) {
 }
 
 #[no_mangle]
-pub extern "C" fn sync_command(input: *const u8, len: usize) -> *const u8 { unimplemented!() }
+pub extern "C" fn sync_command(input: *const u8, len: usize) -> *const u8 {
+    let mut request: DispatchRequest = FFIRequest::from_u8_pointer(input, len).into();
+    log::trace!("[FFI]: {} Sync Event: {:?}", &request.id, &request.event,);
+    let response = EventDispatch::sync_send(request);
+
+    // FFIResponse {  }
+    let response_bytes = vec![];
+    let result = extend_front_four_bytes_into_bytes(&response_bytes);
+    forget_rust(result)
+}
 
 #[inline(never)]
 #[no_mangle]
 pub extern "C" fn link_me_please() {}
 
 #[derive(serde::Deserialize)]
-pub struct FFICommand {
+pub struct FFIRequest {
     event: String,
     payload: Vec<u8>,
 }
 
-impl FFICommand {
+impl FFIRequest {
     pub fn from_u8_pointer(pointer: *const u8, len: usize) -> Self {
         let bytes = unsafe { std::slice::from_raw_parts(pointer, len) }.to_vec();
-        let command: FFICommand = serde_json::from_slice(&bytes).unwrap();
-        command
+        let request: FFIRequest = serde_json::from_slice(&bytes).unwrap();
+        request
     }
+}
+
+#[derive(serde::Serialize)]
+pub struct FFIResponse {
+    event: String,
+    payload: Vec<u8>,
+    error: String,
 }
 
 #[inline(always)]
@@ -87,5 +99,17 @@ where
                 log::error!("[FFI]: allo_isolate post panic");
             }
         },
+    }
+}
+
+impl std::convert::From<FFIRequest> for DispatchRequest {
+    fn from(ffi_request: FFIRequest) -> Self {
+        let payload = if !ffi_request.payload.is_empty() {
+            Payload::Bytes(ffi_request.payload)
+        } else {
+            Payload::None
+        };
+        let mut request = DispatchRequest::new(ffi_request.event, payload);
+        request
     }
 }

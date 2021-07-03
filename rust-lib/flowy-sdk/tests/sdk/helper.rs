@@ -33,12 +33,13 @@ pub struct EventTester {
 }
 
 impl EventTester {
-    pub fn new<E>(event: E) -> Self
+    pub fn new<E>(event: E, payload: Payload) -> Self
     where
         E: Eq + Hash + Debug + Clone + Display,
     {
+        init_sdk();
         Self {
-            request: DispatchRequest::new(event),
+            request: DispatchRequest::new(event, payload),
         }
     }
 
@@ -64,7 +65,6 @@ impl EventTester {
 
     #[allow(dead_code)]
     pub async fn async_send(self) -> EventResponse {
-        init_sdk();
         let resp = async_send(self.request).await;
         dbg!(&resp);
         resp
@@ -72,7 +72,6 @@ impl EventTester {
 
     #[allow(dead_code)]
     pub fn sync_send(self) -> EventResponse {
-        init_sdk();
         let resp = sync_send(self.request);
         dbg!(&resp);
         resp

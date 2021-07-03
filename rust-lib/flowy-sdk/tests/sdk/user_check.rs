@@ -7,7 +7,7 @@ use tokio::time::{sleep, Duration};
 #[should_panic]
 fn auth_check_no_payload() {
     let resp = EventTester::new(AuthCheck).sync_send();
-    assert_eq!(resp.status, StatusCode::Ok);
+    assert_eq!(resp.status_code, StatusCode::Ok);
 }
 
 #[tokio::test]

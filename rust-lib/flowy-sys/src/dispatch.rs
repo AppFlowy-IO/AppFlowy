@@ -16,12 +16,8 @@ use std::{
     future::Future,
     hash::Hash,
     sync::RwLock,
-    thread::JoinHandle,
 };
-use tokio::{
-    macros::support::{Pin, Poll},
-    task::JoinError,
-};
+use tokio::macros::support::{Pin, Poll};
 
 lazy_static! {
     pub static ref EVENT_DISPATCH: RwLock<Option<EventDispatch>> = RwLock::new(None);
@@ -119,21 +115,16 @@ pub struct DispatchRequest {
 }
 
 impl DispatchRequest {
-    pub fn new<E>(event: E) -> Self
+    pub fn new<E>(event: E, payload: Payload) -> Self
     where
         E: Eq + Hash + Debug + Clone + Display,
     {
         Self {
-            payload: Payload::None,
+            payload,
             event: event.into(),
             id: uuid::Uuid::new_v4().to_string(),
             callback: None,
         }
-    }
-
-    pub fn payload(mut self, payload: Payload) -> Self {
-        self.payload = payload;
-        self
     }
 
     pub fn callback(mut self, callback: BoxFutureCallback) -> Self {
