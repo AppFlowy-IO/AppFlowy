@@ -116,7 +116,7 @@ impl<'a> ASTField<'a> {
         let mut bracket_inner_ty = None;
         let mut bracket_ty = None;
         let mut bracket_category = Some(BracketCategory::Other);
-        match parse_ty(&field.ty) {
+        match parse_ty(cx, &field.ty) {
             Some(inner) => {
                 match inner.primitive_ty {
                     PrimitiveTy::Map(map_info) => {
@@ -130,6 +130,9 @@ impl<'a> ASTField<'a> {
                     },
                     PrimitiveTy::Opt => {
                         bracket_category = Some(BracketCategory::Opt);
+                    },
+                    PrimitiveTy::Other => {
+                        bracket_category = Some(BracketCategory::Other);
                     },
                 }
 

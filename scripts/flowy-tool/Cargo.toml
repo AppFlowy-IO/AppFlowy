@@ -1,0 +1,22 @@
+[package]
+name = "flowy-tool"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = "2.33.3"
+walkdir = "2.3.1"
+syn = { version = "1.0.60", features = ["extra-traits", "parsing", "derive", "full"]}
+tera = { version = "1.5.0" }
+log = "0.4.11"
+env_logger = "0.8.2"
+shell = { git="https://github.com/google/rust-shell.git"}
+flowy-ast = { path = "../../rust-lib/flowy-ast" }
+console = "0.14.0"
+fancy-regex = "0.5.0"
+lazy_static = "1.4.0"
+phf = { version = "0.8.0", features = ["macros"] }
+similar = "1.2.2"
+dialoguer = "0.8.0"

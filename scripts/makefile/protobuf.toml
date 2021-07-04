@@ -1,0 +1,29 @@
+
+[tasks.pb]
+dependencies = ["gen_pb_file", "gen_rust_pb"]
+
+[tasks.gen_pb_file]
+script = [
+    """
+    pb_gen_bin=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/scripts/flowy-tool/Cargo.toml
+    rust_source=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/
+
+    build_cache=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-derive/src/derive_cache/derive_cache.rs
+    proto_file_output=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-protobuf/define
+    rust_mod_dir=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-protobuf/src/
+    flutter_mod_dir=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/flutter-lib/packages/flowy_protobuf/lib/
+
+    cargo run --manifest-path ${pb_gen_bin} pb-gen --rust_source=${rust_source}  --build_cache=${build_cache} --proto_file_output=${proto_file_output} --rust_mod_dir=${rust_mod_dir} --flutter_mod_dir=${flutter_mod_dir}
+    """,
+]
+script_runner = "@shell"
+
+[tasks.gen_rust_pb]
+script = [
+    """
+    protoc --rust_out=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-protobuf/src/model \
+    --proto_path=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-protobuf/define \
+    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-protobuf/define/*.proto
+    """,
+]
+script_runner = "@shell"

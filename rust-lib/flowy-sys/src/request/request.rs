@@ -116,29 +116,6 @@ impl<T> ops::DerefMut for Data<T> {
     fn deref_mut(&mut self) -> &mut T { &mut self.0 }
 }
 
-// #[cfg(feature = "use_serde")]
-// impl<T> FromRequest for Data<T>
-// where
-//     T: serde::de::DeserializeOwned + 'static,
-// {
-//     type Error = SystemError;
-//     type Future = Ready<Result<Self, SystemError>>;
-//
-//     #[inline]
-//     fn from_request(req: &EventRequest, payload: &mut Payload) ->
-// Self::Future {         match payload {
-//             Payload::None => ready(Err(unexpected_none_payload(req))),
-//             Payload::Bytes(bytes) => {
-//                 let s = String::from_utf8_lossy(bytes);
-//                 match serde_json::from_str(s.as_ref()) {
-//                     Ok(data) => ready(Ok(Data(data))),
-//                     Err(e) => ready(Err(InternalError::new(format!("{:?}",
-// e)).into())),                 }
-//             },
-//         }
-//     }
-// }
-
 pub trait FromBytes: Sized {
     fn parse_from_bytes(bytes: &Vec<u8>) -> Result<Self, SystemError>;
 }
