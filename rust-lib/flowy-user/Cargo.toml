@@ -10,7 +10,6 @@ derive_more = {version = "0.99", features = ["display"]}
 flowy-sys = { path = "../flowy-sys" }
 flowy-log = { path = "../flowy-log" }
 flowy-derive = { path = "../flowy-derive" }
-flowy-protobuf = { path = "../flowy-protobuf" }
 tracing = { version = "0.1", features = ["log"] }
 bytes = "1.0"
 serde = { version = "1.0", features = ["derive"] }

@@ -1,3 +1,5 @@
+use std::fs::OpenOptions;
+use std::io::Write;
 use walkdir::WalkDir;
 
 #[derive(Clone)]
@@ -29,7 +31,7 @@ impl CrateInfo {
         dir
     }
 
-    pub fn crate_mod_file(&self) -> String {
+    pub fn proto_model_mod_file(&self) -> String {
         format!("{}/mod.rs", self.proto_struct_output_dir())
     }
 
@@ -43,6 +45,30 @@ impl CrateInfo {
 impl CrateProtoInfo {
     pub fn from_crate_info(inner: CrateInfo, files: Vec<FileProtoInfo>) -> Self {
         Self { files, inner }
+    }
+
+    pub fn create_crate_mod_file(&self) {
+        // mod model;
+        // pub use model::*;
+        let mod_file_path = format!("{}/mod.rs", self.inner.protobuf_crate_name());
+        let content = r#"
+mod model;
+pub use model::*;
+        "#;
+        match OpenOptions::new()
+            .create(true)
+            .write(true)
+            .append(false)
+            .truncate(true)
+            .open(&mod_file_path)
+        {
+            Ok(ref mut file) => {
+                file.write_all(content.as_bytes()).unwrap();
+            }
+            Err(err) => {
+                panic!("Failed to open protobuf mod file: {}", err);
+            }
+        }
     }
 }
 

@@ -23,6 +23,8 @@ impl ProtoGen {
 
         run_protoc(&crate_proto_infos);
 
+        write_protobuf_crate_mod_file(&crate_proto_infos);
+
         write_derive_meta(&crate_proto_infos, self.derive_meta_dir.as_ref());
 
         write_rust_crate_protobuf(&crate_proto_infos);
@@ -45,7 +47,7 @@ fn write_proto_files(crate_infos: &Vec<CrateProtoInfo>) {
 
 fn write_rust_crate_protobuf(crate_infos: &Vec<CrateProtoInfo>) {
     for crate_info in crate_infos {
-        let mod_path = crate_info.inner.crate_mod_file();
+        let mod_path = crate_info.inner.proto_model_mod_file();
         match OpenOptions::new()
             .create(true)
             .write(true)
@@ -79,10 +81,6 @@ fn write_rust_crate_protobuf(crate_infos: &Vec<CrateProtoInfo>) {
 }
 
 fn run_protoc(crate_infos: &Vec<CrateProtoInfo>) {
-    // protoc --rust_out=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-protobuf/src/model \
-    // --proto_path=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-protobuf/define \
-    // ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-protobuf/define/*.proto
-
     for crate_info in crate_infos {
         let rust_out = crate_info.inner.proto_struct_output_dir();
         let proto_path = crate_info.inner.proto_file_output_dir();
@@ -93,9 +91,19 @@ fn run_protoc(crate_infos: &Vec<CrateProtoInfo>) {
             .filter(|e| is_proto_file(e))
             .map(|e| e.path().to_str().unwrap().to_string())
         {
-            cmd_lib::run_cmd! {
+            if cmd_lib::run_cmd! {
                 protoc --rust_out=${rust_out} --proto_path=${proto_path} ${proto_file}
+            }
+            .is_err()
+            {
+                panic!("Create protobuf rust struct fail")
             };
         }
+    }
+}
+
+fn write_protobuf_crate_mod_file(crate_infos: &Vec<CrateProtoInfo>) {
+    for crate_info in crate_infos {
+        crate_info.create_crate_mod_file();
     }
 }

@@ -25,7 +25,7 @@ pub fn make_de_token_steam(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStrea
         impl std::convert::TryFrom<&Vec<u8>> for #struct_ident {
             type Error = String;
             fn try_from(bytes: &Vec<u8>) -> Result<Self, Self::Error> {
-                let result: ::protobuf::ProtobufResult<flowy_protobuf::#pb_ty> = ::protobuf::Message::parse_from_bytes(bytes);
+                let result: ::protobuf::ProtobufResult<crate::protobuf::#pb_ty> = ::protobuf::Message::parse_from_bytes(bytes);
                 match result {
                     Ok(mut pb) => {
                         #struct_ident::try_from(&mut pb)
@@ -35,9 +35,9 @@ pub fn make_de_token_steam(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStrea
             }
         }
 
-        impl std::convert::TryFrom<&mut flowy_protobuf::#pb_ty> for #struct_ident {
+        impl std::convert::TryFrom<&mut crate::protobuf::#pb_ty> for #struct_ident {
             type Error = String;
-            fn try_from(pb: &mut flowy_protobuf::#pb_ty) -> Result<Self, Self::Error> {
+            fn try_from(pb: &mut crate::protobuf::#pb_ty) -> Result<Self, Self::Error> {
                 let mut o = Self::default();
                 #(#build_take_fields)*
                 Ok(o)
