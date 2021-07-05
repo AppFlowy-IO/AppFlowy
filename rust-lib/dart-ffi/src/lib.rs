@@ -1,6 +1,11 @@
 mod c;
+mod model;
+mod protobuf;
 
-use crate::c::{extend_front_four_bytes_into_bytes, forget_rust};
+use crate::{
+    c::{extend_front_four_bytes_into_bytes, forget_rust},
+    protobuf::FFIRequest,
+};
 use flowy_sdk::*;
 use flowy_sys::prelude::*;
 use lazy_static::lazy_static;
@@ -60,27 +65,6 @@ pub extern "C" fn sync_command(input: *const u8, len: usize) -> *const u8 {
 #[inline(never)]
 #[no_mangle]
 pub extern "C" fn link_me_please() {}
-
-#[derive(serde::Deserialize)]
-pub struct FFIRequest {
-    event: String,
-    payload: Vec<u8>,
-}
-
-impl FFIRequest {
-    pub fn from_u8_pointer(pointer: *const u8, len: usize) -> Self {
-        let bytes = unsafe { std::slice::from_raw_parts(pointer, len) }.to_vec();
-        let request: FFIRequest = serde_json::from_slice(&bytes).unwrap();
-        request
-    }
-}
-
-#[derive(serde::Serialize)]
-pub struct FFIResponse {
-    event: String,
-    payload: Vec<u8>,
-    error: String,
-}
 
 #[inline(always)]
 async fn spawn_future<F>(future: F, port: i64)

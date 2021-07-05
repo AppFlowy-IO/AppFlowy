@@ -15,7 +15,9 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         "HashMap" => TypeCategory::Map,
         "u8" => TypeCategory::Bytes,
         "String" => TypeCategory::Str,
-        "User"
+        "FFIRequest"
+        | "FFIResponse"
+        | "User"
         | "UserSignUpParams"
         | "UserSignUpRequest"
         | "UserSignUpResult"

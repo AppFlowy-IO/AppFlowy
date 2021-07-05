@@ -8,8 +8,6 @@ use walkdir::WalkDir;
 
 pub struct ProtoGen {
     pub(crate) rust_source_dir: String,
-    pub(crate) proto_file_output_dir: String,
-    pub(crate) rust_mod_dir: String,
     pub(crate) flutter_mod_dir: String,
     pub(crate) derive_meta_dir: String,
 }

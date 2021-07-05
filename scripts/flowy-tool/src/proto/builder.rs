@@ -1,5 +1,6 @@
 use crate::proto::ProtoGen;
 
+#[allow(dead_code)]
 pub struct ProtoGenBuilder {
     rust_source_dir: Option<String>,
     proto_file_output_dir: Option<String>,
@@ -47,8 +48,6 @@ impl ProtoGenBuilder {
     pub fn build(self) -> ProtoGen {
         ProtoGen {
             rust_source_dir: self.rust_source_dir.unwrap(),
-            proto_file_output_dir: self.proto_file_output_dir.unwrap(),
-            rust_mod_dir: self.rust_mod_dir.unwrap(),
             flutter_mod_dir: self.flutter_mod_dir.unwrap(),
             derive_meta_dir: self.derive_meta_dir.unwrap(),
         }

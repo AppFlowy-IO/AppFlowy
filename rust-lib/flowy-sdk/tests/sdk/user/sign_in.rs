@@ -6,7 +6,7 @@ use std::convert::{TryFrom, TryInto};
 #[test]
 fn sign_in_without_password() {
     let params = UserSignInParams {
-        email: "appflowy@gmail.com".to_string(),
+        email: "annie@appflowy.io".to_string(),
         password: "".to_string(),
     };
     let bytes: Vec<u8> = params.try_into().unwrap();

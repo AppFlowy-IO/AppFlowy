@@ -1,10 +1,11 @@
+mod config;
 mod proto;
 mod util;
 
 use clap::{App, Arg};
 
 fn main() {
-    std::env::set_var("RUST_LOG", "Debug");
+    std::env::set_var("RUST_LOG", "Info");
     env_logger::init();
 
     let matches = app().get_matches();

@@ -1,0 +1,6 @@
+syntax = "proto3";
+message FFIResponse {
+    string event = 1;
+    bytes payload = 2;
+    string error = 3;
+}

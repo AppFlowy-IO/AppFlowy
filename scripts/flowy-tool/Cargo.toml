@@ -21,3 +21,5 @@ lazy_static = "1.4.0"
 phf = { version = "0.8.0", features = ["macros"] }
 similar = "1.2.2"
 dialoguer = "0.8.0"
+toml = "0.5.8"
+serde = { version = "1.0", features = ["derive"] }

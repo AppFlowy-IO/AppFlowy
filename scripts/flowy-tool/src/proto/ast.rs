@@ -10,19 +10,23 @@ pub fn parse_crate_protobuf(root: &str) -> Vec<CrateProtoInfo> {
     domains_info
         .into_iter()
         .map(|crate_info| {
-            let files = parse_files_protobuf(&crate_info);
+            let proto_output_dir = crate_info.proto_file_output_dir();
+            let files = crate_info
+                .proto_crate_paths
+                .iter()
+                .map(|proto_crate_path| parse_files_protobuf(proto_crate_path, &proto_output_dir))
+                .flatten()
+                .collect::<Vec<FileProtoInfo>>();
+
             CrateProtoInfo::from_crate_info(crate_info, files)
         })
         .collect::<Vec<CrateProtoInfo>>()
 }
 
-fn parse_files_protobuf(crate_info: &CrateInfo) -> Vec<FileProtoInfo> {
+fn parse_files_protobuf(proto_crate_path: &str, proto_output_dir: &str) -> Vec<FileProtoInfo> {
     let mut gen_proto_vec: Vec<FileProtoInfo> = vec![];
-    let root = crate_info.domain_path.as_str();
-    let proto_output_dir = crate_info.proto_file_output_dir();
-
     // file_stem https://doc.rust-lang.org/std/path/struct.Path.html#method.file_stem
-    for (path, file_name) in WalkDir::new(root)
+    for (path, file_name) in WalkDir::new(proto_crate_path)
         .into_iter()
         .filter_entry(|e| !is_hidden(e))
         .filter_map(|e| e.ok())
