@@ -5,20 +5,22 @@ use flowy_ast::*;
 use syn::Item;
 use walkdir::WalkDir;
 
-pub fn parse_crate_protobuf(root: &str, proto_output_dir: &str) -> Vec<CrateProtoInfo> {
-    log::info!("Generate proto file from {}", root);
+pub fn parse_crate_protobuf(root: &str) -> Vec<CrateProtoInfo> {
     let domains_info = get_crate_domain_directory(root);
     domains_info
-        .iter()
-        .map(|domain| {
-            let files = parse_files_protobuf(&domain.path, proto_output_dir);
-            CrateProtoInfo::new(&domain, files)
+        .into_iter()
+        .map(|crate_info| {
+            let files = parse_files_protobuf(&crate_info);
+            CrateProtoInfo::from_crate_info(crate_info, files)
         })
         .collect::<Vec<CrateProtoInfo>>()
 }
 
-fn parse_files_protobuf(root: &str, proto_output_dir: &str) -> Vec<FileProtoInfo> {
+fn parse_files_protobuf(crate_info: &CrateInfo) -> Vec<FileProtoInfo> {
     let mut gen_proto_vec: Vec<FileProtoInfo> = vec![];
+    let root = crate_info.domain_path.as_str();
+    let proto_output_dir = crate_info.proto_file_output_dir();
+
     // file_stem https://doc.rust-lang.org/std/path/struct.Path.html#method.file_stem
     for (path, file_name) in WalkDir::new(root)
         .into_iter()
@@ -41,7 +43,7 @@ fn parse_files_protobuf(root: &str, proto_output_dir: &str) -> Vec<FileProtoInfo
         let structs = get_ast_structs(&ast);
 
         // println!("😁 {} - {}", path, file_name);
-        let proto_file_path = format!("{}/{}.proto", proto_output_dir, &file_name);
+        let proto_file_path = format!("{}/{}.proto", &proto_output_dir, &file_name);
         let mut proto_file_content = parse_or_init_proto_file(proto_file_path.as_ref());
 
         structs.iter().for_each(|s| {

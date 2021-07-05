@@ -11,17 +11,18 @@ fn main() {
 
     if let Some(ref matches) = matches.subcommand_matches("pb-gen") {
         let rust_source = matches.value_of("rust_source").unwrap();
-        let build_cache = matches.value_of("build_cache").unwrap();
+        let derive_meta = matches.value_of("derive_meta").unwrap();
         let rust_mod_dir = matches.value_of("rust_mod_dir").unwrap();
         let flutter_mod_dir = matches.value_of("flutter_mod_dir").unwrap();
         let proto_file_output = matches.value_of("proto_file_output").unwrap();
 
-        proto::ProtoGen::new()
+        proto::ProtoGenBuilder::new()
             .set_rust_source_dir(rust_source)
-            .set_build_cache_dir(build_cache)
+            .set_derive_meta_dir(derive_meta)
             .set_rust_mod_dir(rust_mod_dir)
             .set_flutter_mod_dir(flutter_mod_dir)
             .set_proto_file_output_dir(proto_file_output)
+            .build()
             .gen();
     }
 }
@@ -38,11 +39,11 @@ pub fn app<'a, 'b>() -> App<'a, 'b> {
                     Arg::with_name("rust_source")
                         .long("rust_source")
                         .value_name("DIRECTORY")
-                        .help("The directory to the rust code"),
+                        .help("Directory of the cargo workspace"),
                 )
                 .arg(
-                    Arg::with_name("build_cache")
-                        .long("build_cache")
+                    Arg::with_name("derive_meta")
+                        .long("derive_meta")
                         .value_name("PATH")
                         .help("Caching information used by flowy-derive"),
                 )

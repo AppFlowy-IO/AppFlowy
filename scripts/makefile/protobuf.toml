@@ -1,19 +1,30 @@
 
 [tasks.pb]
-dependencies = ["gen_pb_file", "gen_rust_pb"]
+dependencies = ["gen_pb_file"]
 
 [tasks.gen_pb_file]
 script = [
     """
     pb_gen_bin=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/scripts/flowy-tool/Cargo.toml
     rust_source=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/
+    rust_lib=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib
+    flutter_lib=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages
 
-    build_cache=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-derive/src/derive_cache/derive_cache.rs
-    proto_file_output=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-protobuf/define
-    rust_mod_dir=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-protobuf/src/
-    flutter_mod_dir=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/flutter-lib/packages/flowy_protobuf/lib/
+    rust_flowy_protobuf=${rust_lib}/flowy-protobuf
+    flutter_flowy_protobuf=${flutter_lib}/flowy_protobuf
 
-    cargo run --manifest-path ${pb_gen_bin} pb-gen --rust_source=${rust_source}  --build_cache=${build_cache} --proto_file_output=${proto_file_output} --rust_mod_dir=${rust_mod_dir} --flutter_mod_dir=${flutter_mod_dir}
+    derive_meta=${rust_lib}/flowy-derive/src/derive_cache/derive_cache.rs
+    proto_file_output=${rust_flowy_protobuf}/define
+    rust_mod_dir=${rust_flowy_protobuf}/src/
+    flutter_mod_dir=${flutter_flowy_protobuf}/src/
+
+    cargo run \
+     --manifest-path ${pb_gen_bin} pb-gen \
+     --rust_source=${rust_source} \
+     --derive_meta=${derive_meta} \
+     --proto_file_output=${proto_file_output} \
+     --rust_mod_dir=${rust_mod_dir} \
+     --flutter_mod_dir=${flutter_mod_dir}
     """,
 ]
 script_runner = "@shell"

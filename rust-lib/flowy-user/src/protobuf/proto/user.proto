@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+message App {
+    string id = 1;
+    string workspace_id = 2;
+    string name = 3;
+}
