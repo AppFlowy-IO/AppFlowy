@@ -1,4 +1,3 @@
-use flowy_sdk::module::build_modules;
 pub use flowy_sdk::*;
 use flowy_sys::prelude::*;
 use std::{

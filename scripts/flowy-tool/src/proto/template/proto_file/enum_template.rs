@@ -1,6 +1,6 @@
 use crate::proto::ast::FlowyEnum;
 use crate::util::get_tera;
-use tera::{Context, Tera};
+use tera::Context;
 
 pub struct EnumTemplate {
     context: Context,

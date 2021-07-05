@@ -1,7 +1,7 @@
 use crate::util::get_tera;
 use flowy_ast::*;
 use phf::phf_map;
-use tera::{Context, Tera};
+use tera::Context;
 
 // Protobuf data type : https://developers.google.com/protocol-buffers/docs/proto3
 static RUST_TYPE_MAP: phf::Map<&'static str, &'static str> = phf_map! {

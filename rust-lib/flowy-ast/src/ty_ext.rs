@@ -52,7 +52,7 @@ pub fn parse_ty<'a>(ctxt: &Ctxt, ty: &'a syn::Type) -> Option<TyInfo<'a>> {
             None => return None,
         };
 
-        let is_option = seg.ident == "Option";
+        let _is_option = seg.ident == "Option";
 
         return if let syn::PathArguments::AngleBracketed(ref bracketed) = seg.arguments {
             match seg.ident.to_string().as_ref() {

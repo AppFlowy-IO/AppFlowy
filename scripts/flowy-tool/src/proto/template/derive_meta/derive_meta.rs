@@ -2,7 +2,7 @@ use crate::proto::helper::{CrateProtoInfo, FileProtoInfo};
 use crate::util::{get_tera, read_file};
 use std::fs::OpenOptions;
 use std::io::Write;
-use tera::{Context, Tera};
+use tera::Context;
 
 pub struct ProtobufDeriveMeta {
     context: Context,

@@ -1,13 +1,10 @@
 use log::LevelFilter;
 use std::path::Path;
-use tracing::{subscriber::set_global_default, Level};
-use tracing_appender::rolling::RollingFileAppender;
+use tracing::subscriber::set_global_default;
+
 use tracing_bunyan_formatter::{BunyanFormattingLayer, JsonStorageLayer};
 use tracing_log::LogTracer;
-use tracing_subscriber::{
-    layer::{Layered, SubscriberExt},
-    EnvFilter,
-};
+use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
 
 pub struct FlowyLogBuilder {
     name: String,
@@ -34,7 +31,7 @@ impl FlowyLogBuilder {
     pub fn build(self) -> std::result::Result<(), String> {
         let env_filter = EnvFilter::new(self.env_filter);
 
-        let mut subscriber = tracing_subscriber::fmt()
+        let subscriber = tracing_subscriber::fmt()
             .with_target(false)
             .with_max_level(tracing::Level::TRACE)
             .with_writer(std::io::stderr)
@@ -51,7 +48,7 @@ impl FlowyLogBuilder {
             let local_file_name = format!("{}.log", &self.name);
             let file_appender =
                 tracing_appender::rolling::daily(self.directory.clone(), local_file_name);
-            let (non_blocking, _guard) = tracing_appender::non_blocking(file_appender);
+            let (_non_blocking, _guard) = tracing_appender::non_blocking(file_appender);
 
             let _ = set_global_default(subscriber.with(JsonStorageLayer).with(formatting_layer))
                 .map_err(|e| format!("{:?}", e))?;

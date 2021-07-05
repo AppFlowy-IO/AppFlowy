@@ -4,7 +4,7 @@ use crate::c::{extend_front_four_bytes_into_bytes, forget_rust};
 use flowy_sdk::*;
 use flowy_sys::prelude::*;
 use lazy_static::lazy_static;
-use std::{cell::RefCell, ffi::CStr, future::Future, os::raw::c_char};
+use std::{ffi::CStr, future::Future, os::raw::c_char};
 
 lazy_static! {
     pub static ref FFI_RUNTIME: tokio::runtime::Runtime =
@@ -47,9 +47,9 @@ pub extern "C" fn async_command(port: i64, input: *const u8, len: usize) {
 
 #[no_mangle]
 pub extern "C" fn sync_command(input: *const u8, len: usize) -> *const u8 {
-    let mut request: DispatchRequest = FFIRequest::from_u8_pointer(input, len).into();
+    let request: DispatchRequest = FFIRequest::from_u8_pointer(input, len).into();
     log::trace!("[FFI]: {} Sync Event: {:?}", &request.id, &request.event,);
-    let response = EventDispatch::sync_send(request);
+    let _response = EventDispatch::sync_send(request);
 
     // FFIResponse {  }
     let response_bytes = vec![];
@@ -89,7 +89,7 @@ where
 {
     let isolate = allo_isolate::Isolate::new(port);
     match isolate.catch_unwind(future).await {
-        Ok(success) => {
+        Ok(_success) => {
             log::trace!("[FFI]: Post data to dart success");
         },
         Err(e) => {
@@ -109,7 +109,7 @@ impl std::convert::From<FFIRequest> for DispatchRequest {
         } else {
             Payload::None
         };
-        let mut request = DispatchRequest::new(ffi_request.event, payload);
+        let request = DispatchRequest::new(ffi_request.event, payload);
         request
     }
 }

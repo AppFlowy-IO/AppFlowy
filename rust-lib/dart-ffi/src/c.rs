@@ -1,5 +1,5 @@
 use byteorder::{BigEndian, ByteOrder};
-use std::mem::{forget, size_of};
+use std::mem::forget;
 
 pub fn forget_rust(buf: Vec<u8>) -> *const u8 {
     let ptr = buf.as_ptr();

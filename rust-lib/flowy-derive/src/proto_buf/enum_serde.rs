@@ -5,7 +5,7 @@ use proc_macro2::TokenStream;
 pub fn make_enum_token_stream(_ctxt: &Ctxt, cont: &ASTContainer) -> Option<TokenStream> {
     let enum_ident = &cont.ident;
     let pb_enum = cont.attrs.pb_enum_type()?;
-    let build_to_pb_enum = cont.data.all_idents().map(|i| {
+    let _build_to_pb_enum = cont.data.all_idents().map(|i| {
         let token_stream: TokenStream = quote! {
             #enum_ident::#i => #pb_enum::#i,
         };

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+message UserSignUpParams {
+    string email = 1;
+    string name = 2;
+    string password = 3;
+}
+message UserSignUpRequest {
+    string email = 1;
+    string name = 2;
+    string password = 3;
+}
+message UserSignUpResult {
+    bool is_success = 1;
+}

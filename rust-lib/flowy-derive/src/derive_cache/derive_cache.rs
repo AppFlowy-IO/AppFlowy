@@ -16,7 +16,12 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         "u8" => TypeCategory::Bytes,
         "String" => TypeCategory::Str,
         "User"
-        | "UserCheck"
+        | "UserSignUpParams"
+        | "UserSignUpRequest"
+        | "UserSignUpResult"
+        | "UserSignInParams"
+        | "UserSignInRequest"
+        | "UserSignInResult"
         => TypeCategory::Protobuf,
 
         "Option" => TypeCategory::Opt,

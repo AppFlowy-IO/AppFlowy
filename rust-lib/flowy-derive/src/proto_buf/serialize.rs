@@ -12,7 +12,7 @@ pub fn make_se_token_stream(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStre
         .filter(|f| !f.attrs.skip_serializing())
         .flat_map(|field| se_token_stream_for_field(&ctxt, &field, false));
 
-    let build_set_fields = ast
+    let _build_set_fields = ast
         .data
         .all_fields()
         .filter(|f| !f.attrs.skip_serializing())

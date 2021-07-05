@@ -1,10 +1,9 @@
 use crate::proto::ast::*;
 use crate::proto::helper::*;
 use crate::{proto::template::*, util::*};
-use flowy_ast::*;
-use shell::*;
+
 use std::{fs::OpenOptions, io::Write};
-use syn::Item;
+
 use walkdir::WalkDir;
 
 pub struct ProtoGen {

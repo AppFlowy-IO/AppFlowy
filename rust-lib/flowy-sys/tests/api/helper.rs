@@ -1,5 +1,5 @@
 use flowy_sys::prelude::*;
-use std::{cell::RefCell, sync::Once};
+use std::sync::Once;
 
 #[allow(dead_code)]
 pub fn setup_env() {
