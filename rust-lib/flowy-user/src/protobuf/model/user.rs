@@ -24,80 +24,27 @@
 // const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_22_1;
 
 #[derive(PartialEq,Clone,Default)]
-pub struct App {
+pub struct User {
     // message fields
-    pub id: ::std::string::String,
-    pub workspace_id: ::std::string::String,
     pub name: ::std::string::String,
+    pub email: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a App {
-    fn default() -> &'a App {
-        <App as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a User {
+    fn default() -> &'a User {
+        <User as ::protobuf::Message>::default_instance()
     }
 }
 
-impl App {
-    pub fn new() -> App {
+impl User {
+    pub fn new() -> User {
         ::std::default::Default::default()
     }
 
-    // string id = 1;
-
-
-    pub fn get_id(&self) -> &str {
-        &self.id
-    }
-    pub fn clear_id(&mut self) {
-        self.id.clear();
-    }
-
-    // Param is passed by value, moved
-    pub fn set_id(&mut self, v: ::std::string::String) {
-        self.id = v;
-    }
-
-    // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
-    pub fn mut_id(&mut self) -> &mut ::std::string::String {
-        &mut self.id
-    }
-
-    // Take field
-    pub fn take_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.id, ::std::string::String::new())
-    }
-
-    // string workspace_id = 2;
-
-
-    pub fn get_workspace_id(&self) -> &str {
-        &self.workspace_id
-    }
-    pub fn clear_workspace_id(&mut self) {
-        self.workspace_id.clear();
-    }
-
-    // Param is passed by value, moved
-    pub fn set_workspace_id(&mut self, v: ::std::string::String) {
-        self.workspace_id = v;
-    }
-
-    // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
-    pub fn mut_workspace_id(&mut self) -> &mut ::std::string::String {
-        &mut self.workspace_id
-    }
-
-    // Take field
-    pub fn take_workspace_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.workspace_id, ::std::string::String::new())
-    }
-
-    // string name = 3;
+    // string name = 1;
 
 
     pub fn get_name(&self) -> &str {
@@ -122,9 +69,35 @@ impl App {
     pub fn take_name(&mut self) -> ::std::string::String {
         ::std::mem::replace(&mut self.name, ::std::string::String::new())
     }
+
+    // string email = 2;
+
+
+    pub fn get_email(&self) -> &str {
+        &self.email
+    }
+    pub fn clear_email(&mut self) {
+        self.email.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_email(&mut self, v: ::std::string::String) {
+        self.email = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_email(&mut self) -> &mut ::std::string::String {
+        &mut self.email
+    }
+
+    // Take field
+    pub fn take_email(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.email, ::std::string::String::new())
+    }
 }
 
-impl ::protobuf::Message for App {
+impl ::protobuf::Message for User {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -134,13 +107,10 @@ impl ::protobuf::Message for App {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.id)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.name)?;
                 },
                 2 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.workspace_id)?;
-                },
-                3 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.name)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.email)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -154,14 +124,11 @@ impl ::protobuf::Message for App {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.id.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.id);
-        }
-        if !self.workspace_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(2, &self.workspace_id);
-        }
         if !self.name.is_empty() {
-            my_size += ::protobuf::rt::string_size(3, &self.name);
+            my_size += ::protobuf::rt::string_size(1, &self.name);
+        }
+        if !self.email.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.email);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -169,14 +136,11 @@ impl ::protobuf::Message for App {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.id.is_empty() {
-            os.write_string(1, &self.id)?;
-        }
-        if !self.workspace_id.is_empty() {
-            os.write_string(2, &self.workspace_id)?;
-        }
         if !self.name.is_empty() {
-            os.write_string(3, &self.name)?;
+            os.write_string(1, &self.name)?;
+        }
+        if !self.email.is_empty() {
+            os.write_string(2, &self.email)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -208,8 +172,8 @@ impl ::protobuf::Message for App {
         Self::descriptor_static()
     }
 
-    fn new() -> App {
-        App::new()
+    fn new() -> User {
+        User::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -217,69 +181,269 @@ impl ::protobuf::Message for App {
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "id",
-                |m: &App| { &m.id },
-                |m: &mut App| { &mut m.id },
-            ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "workspace_id",
-                |m: &App| { &m.workspace_id },
-                |m: &mut App| { &mut m.workspace_id },
-            ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "name",
-                |m: &App| { &m.name },
-                |m: &mut App| { &mut m.name },
+                |m: &User| { &m.name },
+                |m: &mut User| { &mut m.name },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<App>(
-                "App",
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "email",
+                |m: &User| { &m.email },
+                |m: &mut User| { &mut m.email },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<User>(
+                "User",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static App {
-        static instance: ::protobuf::rt::LazyV2<App> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(App::new)
+    fn default_instance() -> &'static User {
+        static instance: ::protobuf::rt::LazyV2<User> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(User::new)
     }
 }
 
-impl ::protobuf::Clear for App {
+impl ::protobuf::Clear for User {
     fn clear(&mut self) {
-        self.id.clear();
-        self.workspace_id.clear();
         self.name.clear();
+        self.email.clear();
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for App {
+impl ::std::fmt::Debug for User {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for App {
+impl ::protobuf::reflect::ProtobufValue for User {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct UserCheck {
+    // message fields
+    pub name: ::std::string::String,
+    pub email: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a UserCheck {
+    fn default() -> &'a UserCheck {
+        <UserCheck as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl UserCheck {
+    pub fn new() -> UserCheck {
+        ::std::default::Default::default()
+    }
+
+    // string name = 1;
+
+
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+    pub fn clear_name(&mut self) {
+        self.name.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_name(&mut self, v: ::std::string::String) {
+        self.name = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_name(&mut self) -> &mut ::std::string::String {
+        &mut self.name
+    }
+
+    // Take field
+    pub fn take_name(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.name, ::std::string::String::new())
+    }
+
+    // string email = 2;
+
+
+    pub fn get_email(&self) -> &str {
+        &self.email
+    }
+    pub fn clear_email(&mut self) {
+        self.email.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_email(&mut self, v: ::std::string::String) {
+        self.email = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_email(&mut self) -> &mut ::std::string::String {
+        &mut self.email
+    }
+
+    // Take field
+    pub fn take_email(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.email, ::std::string::String::new())
+    }
+}
+
+impl ::protobuf::Message for UserCheck {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.name)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.email)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.name.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.name);
+        }
+        if !self.email.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.email);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.name.is_empty() {
+            os.write_string(1, &self.name)?;
+        }
+        if !self.email.is_empty() {
+            os.write_string(2, &self.email)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> UserCheck {
+        UserCheck::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "name",
+                |m: &UserCheck| { &m.name },
+                |m: &mut UserCheck| { &mut m.name },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "email",
+                |m: &UserCheck| { &m.email },
+                |m: &mut UserCheck| { &mut m.email },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<UserCheck>(
+                "UserCheck",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static UserCheck {
+        static instance: ::protobuf::rt::LazyV2<UserCheck> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(UserCheck::new)
+    }
+}
+
+impl ::protobuf::Clear for UserCheck {
+    fn clear(&mut self) {
+        self.name.clear();
+        self.email.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for UserCheck {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for UserCheck {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\nuser.proto\"L\n\x03App\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\
-    !\n\x0cworkspace_id\x18\x02\x20\x01(\tR\x0bworkspaceId\x12\x12\n\x04name\
-    \x18\x03\x20\x01(\tR\x04nameJ\xcf\x01\n\x06\x12\x04\0\0\x06\x01\n\x08\n\
-    \x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x06\x01\n\n\n\x03\
-    \x04\0\x01\x12\x03\x02\x08\x0b\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\
-    \x12\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\
-    \0\x01\x12\x03\x03\x0b\r\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x10\x11\
-    \n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x1c\n\x0c\n\x05\x04\0\x02\x01\
-    \x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x0b\x17\
-    \n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x1a\x1b\n\x0b\n\x04\x04\0\x02\
-    \x02\x12\x03\x05\x04\x14\n\x0c\n\x05\x04\0\x02\x02\x05\x12\x03\x05\x04\n\
-    \n\x0c\n\x05\x04\0\x02\x02\x01\x12\x03\x05\x0b\x0f\n\x0c\n\x05\x04\0\x02\
-    \x02\x03\x12\x03\x05\x12\x13b\x06proto3\
+    \n\nuser.proto\"0\n\x04User\x12\x12\n\x04name\x18\x01\x20\x01(\tR\x04nam\
+    e\x12\x14\n\x05email\x18\x02\x20\x01(\tR\x05email\"5\n\tUserCheck\x12\
+    \x12\n\x04name\x18\x01\x20\x01(\tR\x04name\x12\x14\n\x05email\x18\x02\
+    \x20\x01(\tR\x05emailJ\x9e\x02\n\x06\x12\x04\0\0\t\x01\n\x08\n\x01\x0c\
+    \x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\0\
+    \x01\x12\x03\x02\x08\x0c\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x14\n\
+    \x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\
+    \x12\x03\x03\x0b\x0f\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x12\x13\n\
+    \x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x15\n\x0c\n\x05\x04\0\x02\x01\
+    \x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x0b\x10\
+    \n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x13\x14\n\n\n\x02\x04\x01\x12\
+    \x04\x06\0\t\x01\n\n\n\x03\x04\x01\x01\x12\x03\x06\x08\x11\n\x0b\n\x04\
+    \x04\x01\x02\0\x12\x03\x07\x04\x14\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\
+    \x07\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x07\x0b\x0f\n\x0c\n\x05\
+    \x04\x01\x02\0\x03\x12\x03\x07\x12\x13\n\x0b\n\x04\x04\x01\x02\x01\x12\
+    \x03\x08\x04\x15\n\x0c\n\x05\x04\x01\x02\x01\x05\x12\x03\x08\x04\n\n\x0c\
+    \n\x05\x04\x01\x02\x01\x01\x12\x03\x08\x0b\x10\n\x0c\n\x05\x04\x01\x02\
+    \x01\x03\x12\x03\x08\x13\x14b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

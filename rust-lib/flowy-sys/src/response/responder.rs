@@ -39,15 +39,15 @@ where
 }
 
 pub trait ToBytes {
-    fn into_bytes(self) -> Result<Vec<u8>, SystemError>;
+    fn into_bytes(self) -> Result<Vec<u8>, String>;
 }
 
-#[cfg(not(feature = "use_serde"))]
+#[cfg(feature = "use_protobuf")]
 impl<T> ToBytes for T
 where
-    T: std::convert::TryInto<Vec<u8>, Error = SystemError>,
+    T: std::convert::TryInto<Vec<u8>, Error = String>,
 {
-    fn into_bytes(self) -> Result<Vec<u8>, SystemError> { self.try_into() }
+    fn into_bytes(self) -> Result<Vec<u8>, String> { self.try_into() }
 }
 
 #[cfg(feature = "use_serde")]
@@ -55,10 +55,10 @@ impl<T> ToBytes for T
 where
     T: serde::Serialize,
 {
-    fn into_bytes(self) -> Result<Vec<u8>, SystemError> {
+    fn into_bytes(self) -> Result<Vec<u8>, String> {
         match serde_json::to_string(&self.0) {
             Ok(s) => Ok(s.into_bytes()),
-            Err(e) => InternalError::new(format!("{:?}", e)).into(),
+            Err(e) => Err(format!("{:?}", e)),
         }
     }
 }
@@ -70,7 +70,10 @@ where
     fn respond_to(self, _request: &EventRequest) -> EventResponse {
         match self.into_inner().into_bytes() {
             Ok(bytes) => ResponseBuilder::Ok().data(bytes.to_vec()).build(),
-            Err(e) => e.into(),
+            Err(e) => {
+                let system_err: SystemError = InternalError::new(format!("{:?}", e)).into();
+                system_err.into()
+            },
         }
     }
 }

@@ -1,7 +1,7 @@
 use unicode_segmentation::UnicodeSegmentation;
 
 #[derive(Debug)]
-pub struct UserName(String);
+pub struct UserName(pub String);
 
 impl UserName {
     pub fn parse(s: String) -> Result<UserName, String> {

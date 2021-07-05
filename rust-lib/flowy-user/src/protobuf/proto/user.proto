@@ -1,7 +1,10 @@
 syntax = "proto3";
 
-message App {
-    string id = 1;
-    string workspace_id = 2;
-    string name = 3;
+message User {
+    string name = 1;
+    string email = 2;
+}
+message UserCheck {
+    string name = 1;
+    string email = 2;
 }

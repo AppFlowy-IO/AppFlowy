@@ -1,7 +1,7 @@
 use validator::validate_email;
 
 #[derive(Debug)]
-pub struct UserEmail(String);
+pub struct UserEmail(pub String);
 
 impl UserEmail {
     pub fn parse(s: String) -> Result<UserEmail, String> {
@@ -22,7 +22,6 @@ mod tests {
     use super::*;
     use claim::assert_err;
     use fake::{faker::internet::en::SafeEmail, Fake};
-    
 
     #[test]
     fn empty_string_is_rejected() {

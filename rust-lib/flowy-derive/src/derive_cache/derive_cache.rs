@@ -15,7 +15,8 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         "HashMap" => TypeCategory::Map,
         "u8" => TypeCategory::Bytes,
         "String" => TypeCategory::Str,
-        "App"
+        "User"
+        | "UserCheck"
         => TypeCategory::Protobuf,
 
         "Option" => TypeCategory::Opt,

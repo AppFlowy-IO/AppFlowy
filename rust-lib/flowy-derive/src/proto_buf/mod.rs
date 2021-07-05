@@ -1,7 +1,13 @@
 mod deserialize;
 mod enum_serde;
+mod serialize;
 mod util;
-use crate::proto_buf::{deserialize::make_de_token_steam, enum_serde::make_enum_token_stream};
+
+use crate::proto_buf::{
+    deserialize::make_de_token_steam,
+    enum_serde::make_enum_token_stream,
+    serialize::make_se_token_stream,
+};
 use flowy_ast::*;
 use proc_macro2::TokenStream;
 
@@ -17,6 +23,11 @@ pub fn expand_derive(input: &syn::DeriveInput) -> Result<TokenStream, Vec<syn::E
     let de_token_stream = make_de_token_steam(&ctxt, &cont);
     if de_token_stream.is_some() {
         token_stream.extend(de_token_stream.unwrap());
+    }
+
+    let se_token_stream = make_se_token_stream(&ctxt, &cont);
+    if se_token_stream.is_some() {
+        token_stream.extend(se_token_stream.unwrap());
     }
 
     ctxt.check()?;
