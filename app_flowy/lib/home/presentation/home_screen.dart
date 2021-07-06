@@ -28,7 +28,7 @@ List<Widget> buildPagesWidget(PageContext pageContext) {
     if (pageType == pageContext.pageType) {
       return pageType.builder(pageContext);
     } else {
-      return BlankPage(context: BlankPageContext());
+      return const BlankPage(context: BlankPageContext());
     }
   }).toList();
 }

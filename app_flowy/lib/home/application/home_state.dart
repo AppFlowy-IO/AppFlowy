@@ -12,7 +12,7 @@ abstract class HomeState implements _$HomeState {
   factory HomeState.initial() => HomeState(
         isLoading: false,
         showMenu: true,
-        pageContext: BlankPageContext(),
+        pageContext: const BlankPageContext(),
         editContext: none(),
       );
 }

@@ -24,7 +24,7 @@ impl ProtoGen {
         // FIXME: ignore unchanged file to reduce time cost
         let flutter_package = FlutterProtobufInfo::new(self.flutter_package_lib.as_ref());
         run_flutter_protoc(&crate_proto_infos, &flutter_package);
-        write_flutter_protobuf_package_mod_file(&flutter_package);
+        write_flutter_protobuf_package_mod_file(&crate_proto_infos, &flutter_package);
     }
 }
 
@@ -72,7 +72,10 @@ fn write_rust_crate_mod_file(crate_infos: &Vec<CrateProtoInfo>) {
     }
 }
 
-fn write_flutter_protobuf_package_mod_file(package_info: &FlutterProtobufInfo) {
+fn write_flutter_protobuf_package_mod_file(
+    crate_infos: &Vec<CrateProtoInfo>,
+    package_info: &FlutterProtobufInfo,
+) {
     let mod_path = package_info.mod_file_path();
     let model_dir = package_info.model_dir();
     match OpenOptions::new()
@@ -85,14 +88,19 @@ fn write_flutter_protobuf_package_mod_file(package_info: &FlutterProtobufInfo) {
         Ok(ref mut file) => {
             let mut mod_file_content = String::new();
             mod_file_content.push_str("// Auto-generated, do not edit \n");
-            walk_dir(
-                model_dir.as_ref(),
-                |e| e.file_type().is_dir() == false,
-                |_, name| {
-                    let c = format!("export 'protobuf/{}.pb.dart';\n", &name);
-                    mod_file_content.push_str(c.as_ref());
-                },
-            );
+
+            for crate_info in crate_infos {
+                let mod_path = crate_info.inner.proto_model_mod_file();
+                walk_dir(
+                    crate_info.inner.proto_file_output_dir().as_ref(),
+                    |e| e.file_type().is_dir() == false,
+                    |_, name| {
+                        let c = format!("export 'protobuf/{}.pb.dart';\n", &name);
+                        mod_file_content.push_str(c.as_ref());
+                    },
+                );
+            }
+
             file.write_all(mod_file_content.as_bytes()).unwrap();
             file.flush().unwrap();
         }

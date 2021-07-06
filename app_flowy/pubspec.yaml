@@ -56,8 +56,9 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner:
-  freezed: '>=0.14.2'
   flutter_lints: ^1.0.0
+  freezed: '>=0.14.2'
+  
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
