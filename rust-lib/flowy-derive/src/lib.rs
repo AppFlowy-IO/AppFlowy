@@ -1,5 +1,4 @@
 // https://docs.rs/syn/1.0.48/syn/struct.DeriveInput.html
-#![feature(str_split_once)]
 extern crate proc_macro;
 
 use proc_macro::TokenStream;

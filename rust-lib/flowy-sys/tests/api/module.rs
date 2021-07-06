@@ -9,7 +9,7 @@ async fn test_init() {
     let event = "1";
     init_dispatch(|| vec![Module::new().event(event, hello)]);
 
-    let request = DispatchRequest::new(event, Payload::None);
+    let request = DispatchRequest::new(event);
     let resp = async_send(request).await;
     dbg!(&resp);
 }

@@ -93,7 +93,7 @@ impl std::convert::From<FFIRequest> for DispatchRequest {
         } else {
             Payload::None
         };
-        let request = DispatchRequest::new(ffi_request.event, payload);
+        let request = DispatchRequest::new(ffi_request.event).payload(payload);
         request
     }
 }

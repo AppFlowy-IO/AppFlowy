@@ -1,0 +1,17 @@
+[package]
+name = "flowy-test"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+flowy-sdk = { path = "../flowy-sdk"}
+flowy-sys = { path = "../flowy-sys"}
+
+serde = { version = "1.0", features = ["derive"] }
+bincode = { version = "1.3"}
+protobuf = {version = "2.24.1"}
+claim = "0.5.0"
+tokio = { version = "1", features = ["full"]}
+futures-util = "0.3.15"

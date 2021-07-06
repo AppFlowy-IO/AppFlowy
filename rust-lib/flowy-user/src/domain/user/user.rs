@@ -1,6 +1,5 @@
 use crate::domain::{UserEmail, UserName, UserPassword};
 use flowy_derive::ProtoBuf;
-use std::convert::TryInto;
 
 #[derive(ProtoBuf, Default)]
 pub struct User {

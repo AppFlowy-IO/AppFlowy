@@ -1,6 +1,7 @@
 use crate::{
+    data::Data,
     error::SystemError,
-    request::{Data, EventRequest, Payload},
+    request::{EventRequest, Payload},
     response::Responder,
 };
 use std::{fmt, fmt::Formatter};
@@ -50,6 +51,8 @@ impl Responder for EventResponse {
     #[inline]
     fn respond_to(self, _: &EventRequest) -> EventResponse { self }
 }
+
+pub type ResponseResult<T, E> = std::result::Result<Data<T>, E>;
 
 pub fn response_ok<T, E>(data: T) -> Result<Data<T>, E>
 where

@@ -1,7 +1,7 @@
 #[allow(unused_imports)]
 use crate::error::{InternalError, SystemError};
 use crate::{
-    request::{Data, EventRequest},
+    request::EventRequest,
     response::{EventResponse, ResponseBuilder},
 };
 use bytes::Bytes;
@@ -61,26 +61,4 @@ where
             Err(e) => Err(format!("{:?}", e)),
         }
     }
-}
-
-impl<T> Responder for Data<T>
-where
-    T: ToBytes,
-{
-    fn respond_to(self, _request: &EventRequest) -> EventResponse {
-        match self.into_inner().into_bytes() {
-            Ok(bytes) => ResponseBuilder::Ok().data(bytes.to_vec()).build(),
-            Err(e) => {
-                let system_err: SystemError = InternalError::new(format!("{:?}", e)).into();
-                system_err.into()
-            },
-        }
-    }
-}
-
-impl<T> std::convert::From<T> for Data<T>
-where
-    T: ToBytes,
-{
-    fn from(val: T) -> Self { Data(val) }
 }

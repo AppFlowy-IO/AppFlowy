@@ -5,10 +5,14 @@ pub struct UserEmail(pub String);
 
 impl UserEmail {
     pub fn parse(s: String) -> Result<UserEmail, String> {
+        if s.trim().is_empty() {
+            return Err(format!("Email can not be empty or whitespace"));
+        }
+
         if validate_email(&s) {
             Ok(Self(s))
         } else {
-            Err(format!("{} is not a valid subscriber email.", s))
+            Err(format!("{} is not a valid email.", s))
         }
     }
 }

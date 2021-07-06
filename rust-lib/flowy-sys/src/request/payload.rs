@@ -38,6 +38,16 @@ impl std::convert::Into<Payload> for Vec<u8> {
     fn into(self) -> Payload { Payload::Bytes(self) }
 }
 
+// = note: conflicting implementation in crate `core`:
+// - impl<T, U> TryInto<U> for T where U: TryFrom<T>;
+//
+// impl std::convert::TryInto<Payload> for Vec<u8> {
+//     type Error = String;
+//     fn try_into(self) -> Result<Payload, Self::Error> {
+//         Ok(Payload::Bytes(self))
+//     }
+// }
+
 impl std::convert::Into<Payload> for &str {
     fn into(self) -> Payload { self.to_string().into() }
 }

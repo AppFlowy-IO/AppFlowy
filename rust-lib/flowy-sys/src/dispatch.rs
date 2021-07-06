@@ -12,6 +12,7 @@ use futures_util::task::Context;
 use lazy_static::lazy_static;
 use pin_project::pin_project;
 use std::{
+    convert::TryInto,
     fmt::{Debug, Display},
     future::Future,
     hash::Hash,
@@ -115,16 +116,31 @@ pub struct DispatchRequest {
 }
 
 impl DispatchRequest {
-    pub fn new<E>(event: E, payload: Payload) -> Self
+    pub fn new<E>(event: E) -> Self
     where
         E: Eq + Hash + Debug + Clone + Display,
     {
         Self {
-            payload,
+            payload: Payload::None,
             event: event.into(),
             id: uuid::Uuid::new_v4().to_string(),
             callback: None,
         }
+    }
+
+    pub fn payload<P>(mut self, payload: P) -> Self
+    where
+        P: TryInto<Payload, Error = String>,
+    {
+        let payload = match payload.try_into() {
+            Ok(payload) => payload,
+            Err(e) => {
+                log::error!("{}", e);
+                Payload::None
+            },
+        };
+        self.payload = payload;
+        self
     }
 
     pub fn callback(mut self, callback: BoxFutureCallback) -> Self {
