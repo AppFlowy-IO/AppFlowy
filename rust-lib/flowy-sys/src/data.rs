@@ -95,15 +95,27 @@ where
     T: FromBytes,
 {
     type Error = String;
+    fn try_from(payload: &Payload) -> Result<Data<T>, Self::Error> { parse_payload(payload) }
+}
 
-    fn try_from(payload: &Payload) -> Result<Data<T>, Self::Error> {
-        match payload {
-            Payload::None => Err(format!("Expected payload")),
-            Payload::Bytes(bytes) => match T::parse_from_bytes(bytes) {
-                Ok(data) => Ok(Data(data)),
-                Err(e) => Err(e),
-            },
-        }
+impl<T> std::convert::TryFrom<Payload> for Data<T>
+where
+    T: FromBytes,
+{
+    type Error = String;
+    fn try_from(payload: Payload) -> Result<Data<T>, Self::Error> { parse_payload(&payload) }
+}
+
+fn parse_payload<T>(payload: &Payload) -> Result<Data<T>, String>
+where
+    T: FromBytes,
+{
+    match payload {
+        Payload::None => Err(format!("Expected payload")),
+        Payload::Bytes(bytes) => match T::parse_from_bytes(&bytes) {
+            Ok(data) => Ok(Data(data)),
+            Err(e) => Err(e),
+        },
     }
 }
 

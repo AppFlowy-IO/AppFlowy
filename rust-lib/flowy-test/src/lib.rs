@@ -42,8 +42,9 @@ fn root_dir() -> String {
 }
 
 pub struct EventTester {
-    request: DispatchRequest,
+    request: Option<DispatchRequest>,
     assert_status_code: Option<StatusCode>,
+    response: Option<EventResponse>,
 }
 
 impl EventTester {
@@ -54,8 +55,9 @@ impl EventTester {
         init_sdk();
         let request = DispatchRequest::new(event);
         Self {
-            request,
+            request: Some(request),
             assert_status_code: None,
+            response: None,
         }
     }
 
@@ -63,7 +65,9 @@ impl EventTester {
     where
         P: ToBytes,
     {
-        self.request = self.request.payload(Data(payload));
+        let mut request = self.request.take().unwrap();
+        request = request.payload(Data(payload));
+        self.request = Some(request);
         self
     }
 
@@ -73,26 +77,32 @@ impl EventTester {
     }
 
     #[allow(dead_code)]
-    pub async fn async_send<R>(self) -> R
-    where
-        R: FromBytes,
-    {
-        let resp = async_send(self.request).await;
+    pub async fn async_send(mut self) -> Self {
+        let resp = async_send(self.request.take().unwrap()).await;
+        if let Some(ref status_code) = self.assert_status_code {
+            assert_eq!(&resp.status_code, status_code)
+        }
         dbg!(&resp);
-        data_from_response(&resp)
+        self.response = Some(resp);
+        self
     }
 
-    pub fn sync_send<R>(self) -> R
+    pub fn sync_send(mut self) -> Self {
+        let resp = sync_send(self.request.take().unwrap());
+        if let Some(ref status_code) = self.assert_status_code {
+            assert_eq!(&resp.status_code, status_code)
+        }
+        dbg!(&resp);
+        self.response = Some(resp);
+        self
+    }
+
+    pub fn parse<R>(self) -> R
     where
         R: FromBytes,
     {
-        let resp = sync_send(self.request);
-        if let Some(status_code) = self.assert_status_code {
-            assert_eq!(resp.status_code, status_code)
-        }
-
-        dbg!(&resp);
-        data_from_response(&resp)
+        let response = self.response.unwrap();
+        <Data<R>>::try_from(response.payload).unwrap().into_inner()
     }
 }
 
