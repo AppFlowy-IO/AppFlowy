@@ -18,6 +18,21 @@ fn sign_in_without_password() {
 
 #[test]
 #[should_panic]
+fn sign_in_with_invalid_password() {
+    let params = UserSignInParams {
+        email: "annie@appflowy.io".to_string(),
+        password: "123".to_string(),
+    };
+
+    let result = EventTester::new(SignIn)
+        .payload(params)
+        .assert_status_code(StatusCode::Err)
+        .sync_send::<UserSignInResult>();
+    dbg!(&result);
+}
+
+#[test]
+#[should_panic]
 fn sign_in_without_email() {
     let params = UserSignInParams {
         email: "".to_string(),
