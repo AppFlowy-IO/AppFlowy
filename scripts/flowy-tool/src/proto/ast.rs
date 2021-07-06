@@ -1,13 +1,17 @@
+use crate::proto::crate_info::*;
 use crate::proto::helper::*;
 use crate::proto::template::{EnumTemplate, StructTemplate};
 use crate::util::*;
+use fancy_regex::Regex;
 use flowy_ast::*;
+use lazy_static::lazy_static;
+use std::{fs::File, io::Read, path::Path};
 use syn::Item;
 use walkdir::WalkDir;
 
 pub fn parse_crate_protobuf(root: &str) -> Vec<CrateProtoInfo> {
-    let domains_info = get_crate_domain_directory(root);
-    domains_info
+    let crate_infos = parse_crate_info_from_path(root);
+    crate_infos
         .into_iter()
         .map(|crate_info| {
             let proto_output_dir = crate_info.proto_file_output_dir();
@@ -45,8 +49,6 @@ fn parse_files_protobuf(proto_crate_path: &str, proto_output_dir: &str) -> Vec<F
         let ast =
             syn::parse_file(read_file(&path).unwrap().as_ref()).expect("Unable to parse file");
         let structs = get_ast_structs(&ast);
-
-        // println!("😁 {} - {}", path, file_name);
         let proto_file_path = format!("{}/{}.proto", &proto_output_dir, &file_name);
         let mut proto_file_content = parse_or_init_proto_file(proto_file_path.as_ref());
 
@@ -153,10 +155,6 @@ pub struct Struct<'a> {
     pub name: String,
     pub fields: Vec<ASTField<'a>>,
 }
-
-use fancy_regex::Regex;
-use lazy_static::lazy_static;
-use std::{fs::File, io::Read, path::Path};
 
 lazy_static! {
     static ref SYNTAX_REGEX: Regex = Regex::new("syntax.*;").unwrap();

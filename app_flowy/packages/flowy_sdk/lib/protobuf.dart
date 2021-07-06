@@ -1,3 +1,4 @@
+// Auto-generated, do not edit 
 export 'protobuf/sign_in.pbjson.pb.dart';
 export 'protobuf/sign_in.pb.pb.dart';
 export 'protobuf/ffi_response.pbjson.pb.dart';

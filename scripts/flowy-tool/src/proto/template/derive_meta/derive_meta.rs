@@ -1,4 +1,4 @@
-use crate::proto::helper::{CrateProtoInfo, FileProtoInfo};
+use crate::proto::crate_info::{CrateProtoInfo, FileProtoInfo};
 use crate::util::{get_tera, read_file};
 use std::fs::OpenOptions;
 use std::io::Write;

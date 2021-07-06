@@ -1,3 +1,4 @@
+// Auto-generated, do not edit 
 
 mod ffi_response; 
 pub use ffi_response::*; 

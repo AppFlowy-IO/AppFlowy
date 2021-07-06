@@ -1,10 +1,8 @@
 use crate::proto::ast::*;
+use crate::proto::crate_info::*;
 use crate::proto::helper::*;
 use crate::{proto::template::*, util::*};
-
 use std::{fs::OpenOptions, io::Write};
-
-use std::fs::File;
 use walkdir::WalkDir;
 
 pub struct ProtoGen {
@@ -18,15 +16,15 @@ impl ProtoGen {
         let crate_proto_infos = parse_crate_protobuf(self.rust_source_dir.as_ref());
         write_proto_files(&crate_proto_infos);
 
+        // FIXME: ignore unchanged file to reduce time cost
         run_rust_protoc(&crate_proto_infos);
         write_rust_crate_mod_file(&crate_proto_infos);
-
-        let package_root = self.flutter_package_lib.as_ref();
-        let model_dir = format!("{}/protobuf", package_root);
-        run_flutter_protoc(&crate_proto_infos, model_dir.as_ref());
-        write_flutter_crate_mod_file(package_root, model_dir.as_ref());
-
         write_derive_meta(&crate_proto_infos, self.derive_meta_dir.as_ref());
+
+        // FIXME: ignore unchanged file to reduce time cost
+        let flutter_package = FlutterProtobufInfo::new(self.flutter_package_lib.as_ref());
+        run_flutter_protoc(&crate_proto_infos, &flutter_package);
+        write_flutter_protobuf_package_mod_file(&flutter_package);
     }
 }
 
@@ -74,8 +72,9 @@ fn write_rust_crate_mod_file(crate_infos: &Vec<CrateProtoInfo>) {
     }
 }
 
-fn write_flutter_crate_mod_file(package_root: &str, model_dir: &str) {
-    let mod_path = format!("{}/protobuf.dart", package_root);
+fn write_flutter_protobuf_package_mod_file(package_info: &FlutterProtobufInfo) {
+    let mod_path = package_info.mod_file_path();
+    let model_dir = package_info.model_dir();
     match OpenOptions::new()
         .create(true)
         .write(true)
@@ -87,7 +86,7 @@ fn write_flutter_crate_mod_file(package_root: &str, model_dir: &str) {
             let mut mod_file_content = String::new();
             mod_file_content.push_str("// Auto-generated, do not edit \n");
             walk_dir(
-                model_dir,
+                model_dir.as_ref(),
                 |e| e.file_type().is_dir() == false,
                 |_, name| {
                     let c = format!("export 'protobuf/{}.pb.dart';\n", &name);
@@ -125,8 +124,8 @@ fn run_rust_protoc(crate_infos: &Vec<CrateProtoInfo>) {
     }
 }
 
-fn run_flutter_protoc(crate_infos: &Vec<CrateProtoInfo>, model_dir: &str) {
-    create_dir_if_not_exist(model_dir.as_ref());
+fn run_flutter_protoc(crate_infos: &Vec<CrateProtoInfo>, package_info: &FlutterProtobufInfo) {
+    let model_dir = package_info.model_dir();
     for crate_info in crate_infos {
         let proto_path = crate_info.inner.proto_file_output_dir();
         walk_dir(

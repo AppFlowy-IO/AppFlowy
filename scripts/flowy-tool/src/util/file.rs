@@ -40,15 +40,16 @@ pub fn save_content_to_file_with_diff_prompt(content: &str, output_file: &str, f
         };
         if new_content != old_content {
             print_diff(old_content.clone(), new_content.clone());
-            if force_write {
-                write_to_file()
-            } else {
-                if Confirm::new().with_prompt("Override?").interact().unwrap() {
-                    write_to_file()
-                } else {
-                    log::info!("never mind then :(");
-                }
-            }
+            write_to_file()
+            // if force_write {
+            //     write_to_file()
+            // } else {
+            //     if Confirm::new().with_prompt("Override?").interact().unwrap() {
+            //         write_to_file()
+            //     } else {
+            //         log::info!("never mind then :(");
+            //     }
+            // }
         }
     } else {
         match OpenOptions::new()
