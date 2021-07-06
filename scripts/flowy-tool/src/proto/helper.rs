@@ -22,24 +22,18 @@ impl CrateInfo {
 
     pub fn proto_file_output_dir(&self) -> String {
         let dir = format!("{}/proto", self.protobuf_crate_name());
-        self.create_file_if_not_exist(dir.as_ref());
+        create_dir_if_not_exist(dir.as_ref());
         dir
     }
 
     pub fn proto_struct_output_dir(&self) -> String {
         let dir = format!("{}/model", self.protobuf_crate_name());
-        self.create_file_if_not_exist(dir.as_ref());
+        create_dir_if_not_exist(dir.as_ref());
         dir
     }
 
     pub fn proto_model_mod_file(&self) -> String {
         format!("{}/mod.rs", self.proto_struct_output_dir())
-    }
-
-    fn create_file_if_not_exist(&self, dir: &str) {
-        if !std::path::Path::new(&dir).exists() {
-            std::fs::create_dir_all(&dir).unwrap();
-        }
     }
 }
 
@@ -133,4 +127,10 @@ pub fn is_hidden(entry: &walkdir::DirEntry) -> bool {
         .to_str()
         .map(|s| s.starts_with("."))
         .unwrap_or(false)
+}
+
+pub fn create_dir_if_not_exist(dir: &str) {
+    if !std::path::Path::new(&dir).exists() {
+        std::fs::create_dir_all(&dir).unwrap();
+    }
 }

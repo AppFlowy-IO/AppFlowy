@@ -10,31 +10,14 @@ script = [
     rust_lib=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib
     flutter_lib=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages
 
-    rust_flowy_protobuf=${rust_lib}/flowy-protobuf
-    flutter_flowy_protobuf=${flutter_lib}/flowy_protobuf
-
     derive_meta=${rust_lib}/flowy-derive/src/derive_cache/derive_cache.rs
-    proto_file_output=${rust_flowy_protobuf}/define
-    rust_mod_dir=${rust_flowy_protobuf}/src/
-    flutter_mod_dir=${flutter_flowy_protobuf}/src/
+    flutter_package_lib=${flutter_lib}/flowy_sdk/lib
 
     cargo run \
      --manifest-path ${pb_gen_bin} pb-gen \
      --rust_source=${rust_source} \
      --derive_meta=${derive_meta} \
-     --proto_file_output=${proto_file_output} \
-     --rust_mod_dir=${rust_mod_dir} \
-     --flutter_mod_dir=${flutter_mod_dir}
-    """,
-]
-script_runner = "@shell"
-
-[tasks.gen_rust_pb]
-script = [
-    """
-    protoc --rust_out=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-protobuf/src/model \
-    --proto_path=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-protobuf/define \
-    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-protobuf/define/*.proto
+     --flutter_package_lib=${flutter_package_lib}
     """,
 ]
 script_runner = "@shell"
