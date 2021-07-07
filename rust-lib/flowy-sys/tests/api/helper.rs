@@ -10,10 +10,6 @@ pub fn setup_env() {
     });
 }
 
-pub async fn async_send(request: DispatchRequest) -> EventResponse {
-    EventDispatch::async_send(request).await
-}
-
 pub fn init_dispatch<F>(module_factory: F)
 where
     F: FnOnce() -> Vec<Module>,

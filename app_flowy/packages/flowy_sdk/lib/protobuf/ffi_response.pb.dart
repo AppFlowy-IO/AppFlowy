@@ -9,29 +9,33 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
+import 'ffi_response.pbenum.dart';
+
+export 'ffi_response.pbenum.dart';
+
 class FFIResponse extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FFIResponse', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'event')
-    ..a<$core.List<$core.int>>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'payload', $pb.PbFieldType.OY)
-    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'error')
+    ..a<$core.List<$core.int>>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'payload', $pb.PbFieldType.OY)
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'error')
+    ..e<FFIStatusCode>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'code', $pb.PbFieldType.OE, defaultOrMaker: FFIStatusCode.Unknown, valueOf: FFIStatusCode.valueOf, enumValues: FFIStatusCode.values)
     ..hasRequiredFields = false
   ;
 
   FFIResponse._() : super();
   factory FFIResponse({
-    $core.String? event,
     $core.List<$core.int>? payload,
     $core.String? error,
+    FFIStatusCode? code,
   }) {
     final _result = create();
-    if (event != null) {
-      _result.event = event;
-    }
     if (payload != null) {
       _result.payload = payload;
     }
     if (error != null) {
       _result.error = error;
+    }
+    if (code != null) {
+      _result.code = code;
     }
     return _result;
   }
@@ -57,30 +61,30 @@ class FFIResponse extends $pb.GeneratedMessage {
   static FFIResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get event => $_getSZ(0);
+  $core.List<$core.int> get payload => $_getN(0);
   @$pb.TagNumber(1)
-  set event($core.String v) { $_setString(0, v); }
+  set payload($core.List<$core.int> v) { $_setBytes(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasEvent() => $_has(0);
+  $core.bool hasPayload() => $_has(0);
   @$pb.TagNumber(1)
-  void clearEvent() => clearField(1);
+  void clearPayload() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.List<$core.int> get payload => $_getN(1);
+  $core.String get error => $_getSZ(1);
   @$pb.TagNumber(2)
-  set payload($core.List<$core.int> v) { $_setBytes(1, v); }
+  set error($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasPayload() => $_has(1);
+  $core.bool hasError() => $_has(1);
   @$pb.TagNumber(2)
-  void clearPayload() => clearField(2);
+  void clearError() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get error => $_getSZ(2);
+  FFIStatusCode get code => $_getN(2);
   @$pb.TagNumber(3)
-  set error($core.String v) { $_setString(2, v); }
+  set code(FFIStatusCode v) { setField(3, v); }
   @$pb.TagNumber(3)
-  $core.bool hasError() => $_has(2);
+  $core.bool hasCode() => $_has(2);
   @$pb.TagNumber(3)
-  void clearError() => clearField(3);
+  void clearCode() => clearField(3);
 }
 

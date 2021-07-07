@@ -1,7 +1,12 @@
 syntax = "proto3";
 
 message FFIResponse {
-    string event = 1;
-    bytes payload = 2;
-    string error = 3;
+    bytes payload = 1;
+    string error = 2;
+    FFIStatusCode code = 3;
+}
+enum FFIStatusCode {
+    Unknown = 0;
+    Ok = 1;
+    Err = 2;
 }

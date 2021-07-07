@@ -15,8 +15,4 @@ impl FlowySDK {
     }
 }
 
-pub async fn async_send(request: DispatchRequest) -> EventResponse {
-    EventDispatch::async_send(request).await
-}
-
 pub fn sync_send(request: DispatchRequest) -> EventResponse { EventDispatch::sync_send(request) }

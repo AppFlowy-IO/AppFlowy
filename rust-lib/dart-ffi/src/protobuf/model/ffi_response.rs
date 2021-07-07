@@ -26,9 +26,9 @@
 #[derive(PartialEq,Clone,Default)]
 pub struct FFIResponse {
     // message fields
-    pub event: ::std::string::String,
     pub payload: ::std::vec::Vec<u8>,
     pub error: ::std::string::String,
+    pub code: FFIStatusCode,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -45,33 +45,7 @@ impl FFIResponse {
         ::std::default::Default::default()
     }
 
-    // string event = 1;
-
-
-    pub fn get_event(&self) -> &str {
-        &self.event
-    }
-    pub fn clear_event(&mut self) {
-        self.event.clear();
-    }
-
-    // Param is passed by value, moved
-    pub fn set_event(&mut self, v: ::std::string::String) {
-        self.event = v;
-    }
-
-    // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
-    pub fn mut_event(&mut self) -> &mut ::std::string::String {
-        &mut self.event
-    }
-
-    // Take field
-    pub fn take_event(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.event, ::std::string::String::new())
-    }
-
-    // bytes payload = 2;
+    // bytes payload = 1;
 
 
     pub fn get_payload(&self) -> &[u8] {
@@ -97,7 +71,7 @@ impl FFIResponse {
         ::std::mem::replace(&mut self.payload, ::std::vec::Vec::new())
     }
 
-    // string error = 3;
+    // string error = 2;
 
 
     pub fn get_error(&self) -> &str {
@@ -122,6 +96,21 @@ impl FFIResponse {
     pub fn take_error(&mut self) -> ::std::string::String {
         ::std::mem::replace(&mut self.error, ::std::string::String::new())
     }
+
+    // .FFIStatusCode code = 3;
+
+
+    pub fn get_code(&self) -> FFIStatusCode {
+        self.code
+    }
+    pub fn clear_code(&mut self) {
+        self.code = FFIStatusCode::Unknown;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_code(&mut self, v: FFIStatusCode) {
+        self.code = v;
+    }
 }
 
 impl ::protobuf::Message for FFIResponse {
@@ -134,13 +123,13 @@ impl ::protobuf::Message for FFIResponse {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.event)?;
-                },
-                2 => {
                     ::protobuf::rt::read_singular_proto3_bytes_into(wire_type, is, &mut self.payload)?;
                 },
-                3 => {
+                2 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.error)?;
+                },
+                3 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.code, 3, &mut self.unknown_fields)?
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -154,14 +143,14 @@ impl ::protobuf::Message for FFIResponse {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.event.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.event);
-        }
         if !self.payload.is_empty() {
-            my_size += ::protobuf::rt::bytes_size(2, &self.payload);
+            my_size += ::protobuf::rt::bytes_size(1, &self.payload);
         }
         if !self.error.is_empty() {
-            my_size += ::protobuf::rt::string_size(3, &self.error);
+            my_size += ::protobuf::rt::string_size(2, &self.error);
+        }
+        if self.code != FFIStatusCode::Unknown {
+            my_size += ::protobuf::rt::enum_size(3, self.code);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -169,14 +158,14 @@ impl ::protobuf::Message for FFIResponse {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.event.is_empty() {
-            os.write_string(1, &self.event)?;
-        }
         if !self.payload.is_empty() {
-            os.write_bytes(2, &self.payload)?;
+            os.write_bytes(1, &self.payload)?;
         }
         if !self.error.is_empty() {
-            os.write_string(3, &self.error)?;
+            os.write_string(2, &self.error)?;
+        }
+        if self.code != FFIStatusCode::Unknown {
+            os.write_enum(3, ::protobuf::ProtobufEnum::value(&self.code))?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -216,11 +205,6 @@ impl ::protobuf::Message for FFIResponse {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "event",
-                |m: &FFIResponse| { &m.event },
-                |m: &mut FFIResponse| { &mut m.event },
-            ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBytes>(
                 "payload",
                 |m: &FFIResponse| { &m.payload },
@@ -230,6 +214,11 @@ impl ::protobuf::Message for FFIResponse {
                 "error",
                 |m: &FFIResponse| { &m.error },
                 |m: &mut FFIResponse| { &mut m.error },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<FFIStatusCode>>(
+                "code",
+                |m: &FFIResponse| { &m.code },
+                |m: &mut FFIResponse| { &mut m.code },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<FFIResponse>(
                 "FFIResponse",
@@ -247,9 +236,9 @@ impl ::protobuf::Message for FFIResponse {
 
 impl ::protobuf::Clear for FFIResponse {
     fn clear(&mut self) {
-        self.event.clear();
         self.payload.clear();
         self.error.clear();
+        self.code = FFIStatusCode::Unknown;
         self.unknown_fields.clear();
     }
 }
@@ -266,20 +255,82 @@ impl ::protobuf::reflect::ProtobufValue for FFIResponse {
     }
 }
 
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
+pub enum FFIStatusCode {
+    Unknown = 0,
+    Ok = 1,
+    Err = 2,
+}
+
+impl ::protobuf::ProtobufEnum for FFIStatusCode {
+    fn value(&self) -> i32 {
+        *self as i32
+    }
+
+    fn from_i32(value: i32) -> ::std::option::Option<FFIStatusCode> {
+        match value {
+            0 => ::std::option::Option::Some(FFIStatusCode::Unknown),
+            1 => ::std::option::Option::Some(FFIStatusCode::Ok),
+            2 => ::std::option::Option::Some(FFIStatusCode::Err),
+            _ => ::std::option::Option::None
+        }
+    }
+
+    fn values() -> &'static [Self] {
+        static values: &'static [FFIStatusCode] = &[
+            FFIStatusCode::Unknown,
+            FFIStatusCode::Ok,
+            FFIStatusCode::Err,
+        ];
+        values
+    }
+
+    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<FFIStatusCode>("FFIStatusCode", file_descriptor_proto())
+        })
+    }
+}
+
+impl ::std::marker::Copy for FFIStatusCode {
+}
+
+impl ::std::default::Default for FFIStatusCode {
+    fn default() -> Self {
+        FFIStatusCode::Unknown
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for FFIStatusCode {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
+    }
+}
+
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x12ffi_response.proto\"S\n\x0bFFIResponse\x12\x14\n\x05event\x18\x01\
-    \x20\x01(\tR\x05event\x12\x18\n\x07payload\x18\x02\x20\x01(\x0cR\x07payl\
-    oad\x12\x14\n\x05error\x18\x03\x20\x01(\tR\x05errorJ\xcf\x01\n\x06\x12\
-    \x04\0\0\x06\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\
-    \x02\0\x06\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x13\n\x0b\n\x04\x04\0\
-    \x02\0\x12\x03\x03\x04\x15\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\
-    \n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\x10\n\x0c\n\x05\x04\0\x02\0\
-    \x03\x12\x03\x03\x13\x14\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x16\n\
-    \x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\t\n\x0c\n\x05\x04\0\x02\x01\
-    \x01\x12\x03\x04\n\x11\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x14\x15\
-    \n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x04\x15\n\x0c\n\x05\x04\0\x02\x02\
-    \x05\x12\x03\x05\x04\n\n\x0c\n\x05\x04\0\x02\x02\x01\x12\x03\x05\x0b\x10\
-    \n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05\x13\x14b\x06proto3\
+    \n\x12ffi_response.proto\"a\n\x0bFFIResponse\x12\x18\n\x07payload\x18\
+    \x01\x20\x01(\x0cR\x07payload\x12\x14\n\x05error\x18\x02\x20\x01(\tR\x05\
+    error\x12\"\n\x04code\x18\x03\x20\x01(\x0e2\x0e.FFIStatusCodeR\x04code*-\
+    \n\rFFIStatusCode\x12\x0b\n\x07Unknown\x10\0\x12\x06\n\x02Ok\x10\x01\x12\
+    \x07\n\x03Err\x10\x02J\xe2\x02\n\x06\x12\x04\0\0\x0b\x01\n\x08\n\x01\x0c\
+    \x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x06\x01\n\n\n\x03\x04\0\
+    \x01\x12\x03\x02\x08\x13\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x16\n\
+    \x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\t\n\x0c\n\x05\x04\0\x02\0\x01\
+    \x12\x03\x03\n\x11\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x14\x15\n\x0b\
+    \n\x04\x04\0\x02\x01\x12\x03\x04\x04\x15\n\x0c\n\x05\x04\0\x02\x01\x05\
+    \x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x0b\x10\n\
+    \x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x13\x14\n\x0b\n\x04\x04\0\x02\
+    \x02\x12\x03\x05\x04\x1b\n\x0c\n\x05\x04\0\x02\x02\x06\x12\x03\x05\x04\
+    \x11\n\x0c\n\x05\x04\0\x02\x02\x01\x12\x03\x05\x12\x16\n\x0c\n\x05\x04\0\
+    \x02\x02\x03\x12\x03\x05\x19\x1a\n\n\n\x02\x05\0\x12\x04\x07\0\x0b\x01\n\
+    \n\n\x03\x05\0\x01\x12\x03\x07\x05\x12\n\x0b\n\x04\x05\0\x02\0\x12\x03\
+    \x08\x04\x10\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\x08\x04\x0b\n\x0c\n\x05\
+    \x05\0\x02\0\x02\x12\x03\x08\x0e\x0f\n\x0b\n\x04\x05\0\x02\x01\x12\x03\t\
+    \x04\x0b\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\t\x04\x06\n\x0c\n\x05\x05\
+    \0\x02\x01\x02\x12\x03\t\t\n\n\x0b\n\x04\x05\0\x02\x02\x12\x03\n\x04\x0c\
+    \n\x0c\n\x05\x05\0\x02\x02\x01\x12\x03\n\x04\x07\n\x0c\n\x05\x05\0\x02\
+    \x02\x02\x12\x03\n\n\x0bb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

@@ -259,7 +259,7 @@ packages:
     source: hosted
     version: "7.0.1"
   flutter_lints:
-    dependency: "direct main"
+    dependency: "direct dev"
     description:
       name: flutter_lints
       url: "https://pub.dartlang.org"

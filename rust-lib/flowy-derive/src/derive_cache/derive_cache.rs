@@ -25,6 +25,9 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "UserSignInRequest"
         | "UserSignInResult"
         => TypeCategory::Protobuf,
+        "FFIStatusCode"
+        | "UserEvent"
+        => TypeCategory::Enum,
 
         "Option" => TypeCategory::Opt,
         _ => TypeCategory::Primitive,

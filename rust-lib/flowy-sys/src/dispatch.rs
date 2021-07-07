@@ -46,7 +46,14 @@ impl EventDispatch {
         *(EVENT_DISPATCH.write().unwrap()) = Some(dispatch);
     }
 
-    pub fn async_send(request: DispatchRequest) -> DispatchFuture {
+    pub fn async_send<Req, Callback>(request: Req, callback: Callback) -> DispatchFuture
+    where
+        Req: std::convert::Into<DispatchRequest>,
+        Callback: FnOnce(EventResponse) -> BoxFuture<'static, ()> + 'static + Send + Sync,
+    {
+        let mut request = request.into();
+        request.callback = Some(Box::new(callback));
+
         match EVENT_DISPATCH.read() {
             Ok(dispatch) => {
                 let dispatch = dispatch.as_ref().unwrap();
@@ -81,7 +88,13 @@ impl EventDispatch {
     }
 
     pub fn sync_send(request: DispatchRequest) -> EventResponse {
-        futures::executor::block_on(async { EventDispatch::async_send(request).await })
+        futures::executor::block_on(async {
+            EventDispatch::async_send(request, |response| {
+                dbg!(&response);
+                Box::pin(async {})
+            })
+            .await
+        })
     }
 }
 
@@ -130,16 +143,9 @@ impl DispatchRequest {
 
     pub fn payload<P>(mut self, payload: P) -> Self
     where
-        P: TryInto<Payload, Error = String>,
+        P: Into<Payload>,
     {
-        let payload = match payload.try_into() {
-            Ok(payload) => payload,
-            Err(e) => {
-                log::error!("{}", e);
-                Payload::None
-            },
-        };
-        self.payload = payload;
+        self.payload = payload.into();
         self
     }
 

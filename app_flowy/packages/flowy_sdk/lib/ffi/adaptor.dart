@@ -5,7 +5,6 @@ import 'package:isolates/isolates.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:isolates/ports.dart';
 import 'package:ffi/ffi.dart';
-
 // ignore: unused_import
 import 'package:flutter/services.dart';
 import 'dart:async';

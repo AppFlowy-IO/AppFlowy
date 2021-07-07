@@ -60,7 +60,7 @@ fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream>
             let ty = ty_info.ty;
             Some(quote! {
                 if pb.#has_func() {
-                    let enum_de_from_pb = #ty::try_from(&mut pb.#get_func()).unwrap();
+                    let enum_de_from_pb = #ty::try_from(&pb.#get_func()).unwrap();
                     o.#member = Some(enum_de_from_pb);
                 }
             })
@@ -122,7 +122,7 @@ fn token_stream_for_field(
         TypeCategory::Enum => {
             let ty = ty_info.ty;
             Some(quote! {
-                let enum_de_from_pb = #ty::try_from(&mut pb.#member).unwrap();
+                let enum_de_from_pb = #ty::try_from(&pb.#member).unwrap();
                  o.#member = enum_de_from_pb;
 
             })

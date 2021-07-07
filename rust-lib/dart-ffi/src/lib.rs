@@ -1,10 +1,11 @@
 mod c;
 mod model;
 mod protobuf;
+mod util;
 
 use crate::{
     c::{extend_front_four_bytes_into_bytes, forget_rust},
-    protobuf::FFIRequest,
+    model::{FFIRequest, FFIResponse},
 };
 use flowy_sdk::*;
 use flowy_sys::prelude::*;
@@ -30,7 +31,7 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
 
 #[no_mangle]
 pub extern "C" fn async_command(port: i64, input: *const u8, len: usize) {
-    let mut request: DispatchRequest = FFIRequest::from_u8_pointer(input, len).into();
+    let request: DispatchRequest = FFIRequest::from_u8_pointer(input, len).into();
     log::trace!(
         "[FFI]: {} Async Event: {:?} with {} port",
         &request.id,
@@ -38,16 +39,10 @@ pub extern "C" fn async_command(port: i64, input: *const u8, len: usize) {
         port
     );
 
-    request = request.callback(Box::new(move |resp: EventResponse| {
-        let bytes = match resp.payload {
-            Payload::Bytes(bytes) => bytes,
-            Payload::None => vec![],
-        };
+    let _ = EventDispatch::async_send(request, move |resp: EventResponse| {
         log::trace!("[FFI]: Post data to dart through {} port", port);
-        Box::pin(spawn_future(async { bytes }, port))
-    }));
-
-    let _ = EventDispatch::async_send(request);
+        Box::pin(post_to_flutter(resp, port))
+    });
 }
 
 #[no_mangle]
@@ -66,13 +61,17 @@ pub extern "C" fn sync_command(input: *const u8, len: usize) -> *const u8 {
 #[no_mangle]
 pub extern "C" fn link_me_please() {}
 
+use flowy_sys::prelude::ToBytes;
 #[inline(always)]
-async fn spawn_future<F>(future: F, port: i64)
-where
-    F: Future<Output = Vec<u8>> + Send + 'static,
-{
+async fn post_to_flutter(response: EventResponse, port: i64) {
     let isolate = allo_isolate::Isolate::new(port);
-    match isolate.catch_unwind(future).await {
+    match isolate
+        .catch_unwind(async {
+            let ffi_resp = FFIResponse::from(response);
+            ffi_resp.into_bytes().unwrap()
+        })
+        .await
+    {
         Ok(_success) => {
             log::trace!("[FFI]: Post data to dart success");
         },
@@ -83,17 +82,5 @@ where
                 log::error!("[FFI]: allo_isolate post panic");
             }
         },
-    }
-}
-
-impl std::convert::From<FFIRequest> for DispatchRequest {
-    fn from(ffi_request: FFIRequest) -> Self {
-        let payload = if !ffi_request.payload.is_empty() {
-            Payload::Bytes(ffi_request.payload)
-        } else {
-            Payload::None
-        };
-        let request = DispatchRequest::new(ffi_request.event).payload(payload);
-        request
     }
 }

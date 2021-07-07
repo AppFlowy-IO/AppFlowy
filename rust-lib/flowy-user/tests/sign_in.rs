@@ -1,5 +1,5 @@
 use flowy_test::prelude::*;
-use flowy_user::prelude::*;
+use flowy_user::prelude::{event::UserEvent::*, *};
 
 #[test]
 fn sign_in_with_invalid_email() {

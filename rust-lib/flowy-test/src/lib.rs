@@ -66,7 +66,8 @@ impl EventTester {
         P: ToBytes,
     {
         let mut request = self.request.take().unwrap();
-        request = request.payload(Data(payload));
+        let bytes = payload.into_bytes().unwrap();
+        request = request.payload(bytes);
         self.request = Some(request);
         self
     }
@@ -78,7 +79,9 @@ impl EventTester {
 
     #[allow(dead_code)]
     pub async fn async_send(mut self) -> Self {
-        let resp = async_send(self.request.take().unwrap()).await;
+        let resp =
+            EventDispatch::async_send(self.request.take().unwrap(), |_| Box::pin(async {})).await;
+
         if let Some(ref status_code) = self.assert_status_code {
             assert_eq!(&resp.status_code, status_code)
         }

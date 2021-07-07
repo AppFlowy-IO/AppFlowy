@@ -58,7 +58,7 @@ fn se_token_stream_for_field(ctxt: &Ctxt, field: &ASTField, _take: bool) -> Opti
                 let set_func = format_ident!("set_{}", ident.to_string());
                 Some(quote! {
                     match self.#member {
-                        Some(ref s) => { pb.#set_func(s.to_protobuf()) }
+                        Some(ref s) => { pb.#set_func(s.try_into().unwrap()) }
                         None => {}
                     }
                 })
@@ -98,7 +98,7 @@ fn gen_token_stream(
             }
         },
         TypeCategory::Protobuf => Some(
-            quote! { pb.#member =  ::protobuf::SingularPtrField::some(self.#member.to_protobuf()); },
+            quote! { pb.#member =  ::protobuf::SingularPtrField::some(self.#member.try_into().unwrap()); },
         ),
         TypeCategory::Opt => {
             gen_token_stream(ctxt, member, ty_info.bracket_ty_info.unwrap().ty, true)
@@ -109,7 +109,7 @@ fn gen_token_stream(
             // flowy_protobuf::#pb_enum_ident::from_i32(self.#member.value()).unwrap();
             // })
             Some(quote! {
-                pb.#member = self.#member.to_protobuf();
+                pb.#member = self.#member.try_into().unwrap();
             })
         },
         _ => Some(quote! { pb.#member = self.#member; }),
@@ -124,7 +124,7 @@ fn token_stream_for_vec(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type) -> Op
             pb.#member = ::protobuf::RepeatedField::from_vec(
                 self.#member
                 .iter()
-                .map(|m| m.to_protobuf())
+                .map(|m| m.try_into().unwrap())
                 .collect());
         }),
         TypeCategory::Bytes => Some(quote! { pb.#member = self.#member.clone(); }),
@@ -146,7 +146,7 @@ fn token_stream_for_map(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type) -> Op
             Some(quote! {
                 let mut m: std::collections::HashMap<String, #flowy_protobuf::#value_type> = std::collections::HashMap::new();
                 self.#member.iter().for_each(|(k,v)| {
-                    m.insert(k.clone(), v.to_protobuf());
+                    m.insert(k.clone(), v.try_into().unwrap());
                 });
                 pb.#member = m;
             })

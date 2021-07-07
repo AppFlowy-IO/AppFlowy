@@ -1,13 +1,14 @@
 use flowy_derive::ProtoBuf;
+use flowy_sys::prelude::DispatchRequest;
 use std::convert::TryFrom;
 
 #[derive(Default, ProtoBuf)]
 pub struct FFIRequest {
     #[pb(index = 1)]
-    event: String,
+    pub(crate) event: String,
 
     #[pb(index = 2)]
-    payload: Vec<u8>,
+    pub(crate) payload: Vec<u8>,
 }
 
 impl FFIRequest {
@@ -16,4 +17,8 @@ impl FFIRequest {
         let request: FFIRequest = FFIRequest::try_from(&bytes).unwrap();
         request
     }
+}
+
+impl std::convert::Into<DispatchRequest> for FFIRequest {
+    fn into(self) -> DispatchRequest { DispatchRequest::new(self.event).payload(self.payload) }
 }

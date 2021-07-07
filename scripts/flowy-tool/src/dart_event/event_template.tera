@@ -1,0 +1,72 @@
+{%- if index == 0 %}
+{{ imported_dart_files }}
+{%- endif -%}
+
+class {{ command_request_struct_ident }} {
+{%- if has_request_deserializer %}
+    {{ request_deserializer }} body;
+{%- else %}
+    Uint8List? body;
+{%- endif %}
+
+{%- if has_request_deserializer %}
+    {{ command_request_struct_ident }}(this.body);
+{%- else %}
+    {{ command_request_struct_ident }}();
+{%- endif %}
+    Future<Either<{{ response_deserializer }}, FlowyError>> send() {
+      final command = Command.{{ command_ident }};
+      var request = RequestPacket.create()
+      ..command = command
+      ..id = uuid();
+
+{%- if has_request_deserializer  %}
+      return protobufToBytes(body).fold(
+        (req_bytes) {
+          request.body = req_bytes;
+          return {{ async_cqrs_type }}(request).then((response) {
+            {%- if has_response_deserializer  %}
+            try {
+              if (response.hasErr()) {
+                return right(FlowyError.from(response));
+              } else {
+                final pb = {{ response_deserializer }}.fromBuffer(response.body);
+                return left(pb);
+              }
+
+            } catch (e, s) {
+              final error = FlowyError.fromError('error: ${e.runtimeType}. Stack trace: $s', StatusCode.ProtobufDeserializeError);
+              return right(error);
+            }
+            {%- else %}
+            return left(response);
+            {%- endif %}
+          });
+        },
+        (err) => Future(() {
+            final error = FlowyError.fromError(err, StatusCode.ProtobufSerializeError);
+            return right(error);
+        }),
+      );
+{%- else %}
+      return {{ async_cqrs_type }}(request).then((response) {
+        {%- if has_response_deserializer  %}
+        try {
+          if (response.hasErr()) {
+            return right(FlowyError.from(response));
+          } else {
+            final pb = {{ response_deserializer }}.fromBuffer(response.body);
+            return left(pb);
+          }
+        } catch (e, s) {
+          final error = FlowyError.fromError('error: ${e.runtimeType}. Stack trace: $s', StatusCode.ProtobufDeserializeError);
+          return right(error);
+        }
+        {%- else %}
+        return left(response);
+        {%- endif %}
+
+      });
+{%- endif %}
+    }
+}

@@ -24,7 +24,7 @@ pub fn parse_crate_config_from(entry: &walkdir::DirEntry) -> Option<CrateConfig>
     let folder_name = path.file_stem().unwrap().to_str().unwrap().to_string();
     let config_path = format!("{}/Flowy.toml", crate_path);
 
-    if std::path::Path::new(&config_path).exists() {
+    if !std::path::Path::new(&config_path).exists() {
         return None;
     }
 

@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+enum UserEvent {
+    AuthCheck = 0;
+    SignIn = 1;
+    SignUp = 2;
+    SignOut = 3;
+}

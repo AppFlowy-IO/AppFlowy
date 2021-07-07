@@ -13,8 +13,9 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          getIt<WelcomeBloc>()..add(const WelcomeEvent.check()),
+      create: (context) {
+        return getIt<WelcomeBloc>()..add(const WelcomeEvent.check());
+      },
       child: Scaffold(
         body: BlocListener<WelcomeBloc, WelcomeState>(
           listener: (context, state) {
