@@ -53,10 +53,10 @@ dependencies:
   cupertino_icons: ^1.0.2
 
 dev_dependencies:
+  flutter_lints: ^1.0.0
   flutter_test:
     sdk: flutter
   build_runner:
-  flutter_lints: ^1.0.0
   freezed: '>=0.14.2'
   
 
