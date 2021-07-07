@@ -14,6 +14,11 @@ pub const SKIP_SERIALIZING: Symbol = Symbol("skip_serializing"); //#[pb(skip_ser
 pub const PB_STRUCT: Symbol = Symbol("struct"); //#[pb(struct="some struct")]
 pub const PB_ENUM: Symbol = Symbol("enum"); //#[pb(enum="some enum")]
 
+pub const EVENT_INPUT: Symbol = Symbol("input");
+pub const EVENT_OUTPUT: Symbol = Symbol("output");
+pub const EVENT_IGNORE: Symbol = Symbol("ignore");
+pub const EVENT: Symbol = Symbol("event");
+
 impl PartialEq<Symbol> for Ident {
     fn eq(&self, word: &Symbol) -> bool { self == word.0 }
 }

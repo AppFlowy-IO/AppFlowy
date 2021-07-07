@@ -1,4 +1,4 @@
-use crate::proto::crate_info::{CrateProtoInfo, FileProtoInfo};
+use crate::proto::proto_info::{CrateProtoInfo, ProtoFile};
 use crate::util::{get_tera, read_file};
 use std::fs::OpenOptions;
 use std::io::Write;
@@ -40,7 +40,7 @@ pub fn write_derive_meta(crate_infos: &Vec<CrateProtoInfo>, derive_meta_dir: &st
         .iter()
         .map(|ref crate_info| &crate_info.files)
         .flatten()
-        .collect::<Vec<&FileProtoInfo>>();
+        .collect::<Vec<&ProtoFile>>();
 
     let structs: Vec<String> = file_proto_infos
         .iter()

@@ -7,9 +7,10 @@ extern crate quote;
 mod ast;
 mod attr;
 mod ctxt;
+
+pub mod event_ast;
 pub mod symbol;
 pub mod ty_ext;
-
 pub use self::{symbol::*, ty_ext::*};
 pub use ast::*;
 pub use attr::*;

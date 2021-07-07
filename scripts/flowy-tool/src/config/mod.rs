@@ -3,6 +3,7 @@ use std::fs;
 #[derive(serde::Deserialize)]
 pub struct FlowyConfig {
     pub proto_crates: Vec<String>,
+    pub event_files: Vec<String>,
 }
 
 impl FlowyConfig {

@@ -1,5 +1,5 @@
 use console::Style;
-use dialoguer::Confirm;
+
 use similar::{ChangeTag, TextDiff};
 use std::{
     fs::{File, OpenOptions},
@@ -7,6 +7,7 @@ use std::{
     path::Path,
 };
 use tera::Tera;
+use walkdir::WalkDir;
 
 pub fn read_file(path: &str) -> Option<String> {
     let mut file = File::open(path).expect("Unable to open file");
@@ -20,7 +21,7 @@ pub fn read_file(path: &str) -> Option<String> {
     }
 }
 
-pub fn save_content_to_file_with_diff_prompt(content: &str, output_file: &str, force_write: bool) {
+pub fn save_content_to_file_with_diff_prompt(content: &str, output_file: &str, _force_write: bool) {
     if Path::new(output_file).exists() {
         let old_content = read_file(output_file).unwrap();
         let new_content = content.to_owned();
@@ -104,5 +105,52 @@ pub fn get_tera(directory: &str) -> Tera {
             log::error!("Parsing error(s): {}", e);
             ::std::process::exit(1);
         }
+    }
+}
+
+pub fn is_crate_dir(e: &walkdir::DirEntry) -> bool {
+    let cargo = e.path().file_stem().unwrap().to_str().unwrap().to_string();
+    cargo == "Cargo".to_string()
+}
+
+pub fn is_proto_file(e: &walkdir::DirEntry) -> bool {
+    if e.path().extension().is_none() {
+        return false;
+    }
+    let ext = e.path().extension().unwrap().to_str().unwrap().to_string();
+    ext == "proto".to_string()
+}
+
+pub fn is_hidden(entry: &walkdir::DirEntry) -> bool {
+    entry
+        .file_name()
+        .to_str()
+        .map(|s| s.starts_with("."))
+        .unwrap_or(false)
+}
+
+pub fn create_dir_if_not_exist(dir: &str) {
+    if !std::path::Path::new(&dir).exists() {
+        std::fs::create_dir_all(&dir).unwrap();
+    }
+}
+
+pub(crate) fn walk_dir<F1, F2>(dir: &str, filter: F2, mut path_and_name: F1)
+where
+    F1: FnMut(String, String),
+    F2: Fn(&walkdir::DirEntry) -> bool,
+{
+    for (path, name) in WalkDir::new(dir)
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .filter(|e| filter(e))
+        .map(|e| {
+            (
+                e.path().to_str().unwrap().to_string(),
+                e.path().file_stem().unwrap().to_str().unwrap().to_string(),
+            )
+        })
+    {
+        path_and_name(path, name);
     }
 }

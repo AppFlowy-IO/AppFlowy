@@ -256,13 +256,21 @@ pub enum Default {
 }
 
 #[derive(Debug, Clone)]
+pub struct EventAttrs {
+    input: Option<syn::Path>,
+    output: Option<syn::Path>,
+    pub ignore: bool,
+}
+
+#[derive(Debug, Clone)]
 pub struct ASTEnumAttrVariant {
     pub name: String,
     pub value: String,
+    pub event_attrs: EventAttrs,
 }
 
 impl ASTEnumAttrVariant {
-    pub fn from_ast(_cx: &Ctxt, variant: &syn::Variant) -> Self {
+    pub fn from_ast(ctxt: &Ctxt, variant: &syn::Variant) -> Self {
         let name = variant.ident.to_string();
         let mut value = String::new();
         if variant.discriminant.is_some() {
@@ -278,8 +286,70 @@ impl ASTEnumAttrVariant {
                 _ => {},
             }
         }
-        ASTEnumAttrVariant { name, value }
+        let mut event_attrs = EventAttrs {
+            input: None,
+            output: None,
+            ignore: false,
+        };
+        variant.attrs.iter().for_each(|attr| match get_meta_items(ctxt, attr) {
+            Ok(meta_items) => {
+                for meta_item in meta_items {
+                    match &meta_item {
+                        Meta(NameValue(name_value)) => {
+                            if name_value.path == EVENT_INPUT {
+                                if let syn::Lit::Str(s) = &name_value.lit {
+                                    let input_type = parse_lit_str(s)
+                                        .map_err(|_| {
+                                            ctxt.error_spanned_by(
+                                                s,
+                                                format!("failed to parse request deserializer {:?}", s.value()),
+                                            )
+                                        })
+                                        .unwrap();
+                                    event_attrs.input = Some(input_type);
+                                }
+                            }
+
+                            if name_value.path == EVENT_OUTPUT {
+                                if let syn::Lit::Str(s) = &name_value.lit {
+                                    let output_type = parse_lit_str(s)
+                                        .map_err(|_| {
+                                            ctxt.error_spanned_by(
+                                                s,
+                                                format!("failed to parse response deserializer {:?}", s.value()),
+                                            )
+                                        })
+                                        .unwrap();
+                                    event_attrs.output = Some(output_type);
+                                }
+                            }
+                        },
+                        Meta(Path(word)) => {
+                            if word == EVENT_IGNORE && attr.path == EVENT {
+                                event_attrs.ignore = true;
+                            }
+                        },
+                        Lit(s) => {
+                            ctxt.error_spanned_by(s, "unexpected type in cqrs container attribute");
+                        },
+                        _ => {
+                            ctxt.error_spanned_by(meta_item, "unexpected type in cqrs container attribute");
+                        },
+                    }
+                }
+            },
+            Err(_) => {},
+        });
+        ASTEnumAttrVariant {
+            name,
+            value,
+            event_attrs,
+        }
     }
+
+    pub fn event_input(&self) -> Option<syn::Path> { self.event_attrs.input.clone() }
+
+    pub fn event_output(&self) -> Option<syn::Path> { self.event_attrs.output.clone() }
 }
 
 pub fn get_meta_items(cx: &Ctxt, attr: &syn::Attribute) -> Result<Vec<syn::NestedMeta>, ()> {

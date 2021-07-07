@@ -1,5 +1,4 @@
-use crate::proto::crate_info::*;
-use crate::proto::helper::*;
+use crate::proto::proto_info::*;
 use crate::proto::template::{EnumTemplate, StructTemplate};
 use crate::util::*;
 use fancy_regex::Regex;
@@ -16,19 +15,19 @@ pub fn parse_crate_protobuf(root: &str) -> Vec<CrateProtoInfo> {
         .map(|crate_info| {
             let proto_output_dir = crate_info.proto_file_output_dir();
             let files = crate_info
-                .proto_crate_paths
+                .proto_paths
                 .iter()
                 .map(|proto_crate_path| parse_files_protobuf(proto_crate_path, &proto_output_dir))
                 .flatten()
-                .collect::<Vec<FileProtoInfo>>();
+                .collect::<Vec<ProtoFile>>();
 
             CrateProtoInfo::from_crate_info(crate_info, files)
         })
         .collect::<Vec<CrateProtoInfo>>()
 }
 
-fn parse_files_protobuf(proto_crate_path: &str, proto_output_dir: &str) -> Vec<FileProtoInfo> {
-    let mut gen_proto_vec: Vec<FileProtoInfo> = vec![];
+fn parse_files_protobuf(proto_crate_path: &str, proto_output_dir: &str) -> Vec<ProtoFile> {
+    let mut gen_proto_vec: Vec<ProtoFile> = vec![];
     // file_stem https://doc.rust-lang.org/std/path/struct.Path.html#method.file_stem
     for (path, file_name) in WalkDir::new(proto_crate_path)
         .into_iter()
@@ -78,7 +77,7 @@ fn parse_files_protobuf(proto_crate_path: &str, proto_output_dir: &str) -> Vec<F
         });
 
         if !enums.is_empty() || !structs.is_empty() {
-            let info = FileProtoInfo {
+            let info = ProtoFile {
                 file_name: file_name.clone(),
                 structs: structs.iter().map(|s| s.name.clone()).collect(),
                 enums: enums.iter().map(|e| e.name.clone()).collect(),

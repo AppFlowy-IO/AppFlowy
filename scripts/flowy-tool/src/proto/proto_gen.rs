@@ -1,9 +1,7 @@
 use crate::proto::ast::*;
-use crate::proto::crate_info::*;
-use crate::proto::helper::*;
+use crate::proto::proto_info::*;
 use crate::{proto::template::*, util::*};
 use std::{fs::OpenOptions, io::Write};
-use walkdir::WalkDir;
 
 pub struct ProtoGen {
     pub(crate) rust_source_dir: String,
@@ -77,7 +75,7 @@ fn write_flutter_protobuf_package_mod_file(
     package_info: &FlutterProtobufInfo,
 ) {
     let mod_path = package_info.mod_file_path();
-    let model_dir = package_info.model_dir();
+    let _model_dir = package_info.model_dir();
     match OpenOptions::new()
         .create(true)
         .write(true)
@@ -90,7 +88,7 @@ fn write_flutter_protobuf_package_mod_file(
             mod_file_content.push_str("// Auto-generated, do not edit \n");
 
             for crate_info in crate_infos {
-                let mod_path = crate_info.inner.proto_model_mod_file();
+                let _mod_path = crate_info.inner.proto_model_mod_file();
                 walk_dir(
                     crate_info.inner.proto_file_output_dir().as_ref(),
                     |e| e.file_type().is_dir() == false,
@@ -149,25 +147,5 @@ fn run_flutter_protoc(crate_infos: &Vec<CrateProtoInfo>, package_info: &FlutterP
                 };
             },
         );
-    }
-}
-
-fn walk_dir<F1, F2>(dir: &str, filter: F2, mut path_and_name: F1)
-where
-    F1: FnMut(String, String),
-    F2: Fn(&walkdir::DirEntry) -> bool,
-{
-    for (path, name) in WalkDir::new(dir)
-        .into_iter()
-        .filter_map(|e| e.ok())
-        .filter(|e| filter(e))
-        .map(|e| {
-            (
-                e.path().to_str().unwrap().to_string(),
-                e.path().file_stem().unwrap().to_str().unwrap().to_string(),
-            )
-        })
-    {
-        path_and_name(path, name);
     }
 }

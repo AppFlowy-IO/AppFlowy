@@ -1,8 +1,7 @@
 mod ast;
 mod builder;
-mod crate_info;
-mod helper;
 mod proto_gen;
+mod proto_info;
 mod template;
 
 pub use builder::*;

@@ -1,4 +1,5 @@
 mod config;
+mod dart_event;
 mod proto;
 mod util;
 
@@ -21,6 +22,17 @@ fn main() {
             .set_flutter_package_lib(flutter_package_lib)
             .build()
             .gen();
+    }
+
+    if let Some(ref matches) = matches.subcommand_matches("dart-event") {
+        let rust_source = matches.value_of("rust_source").unwrap().to_string();
+        let output_dir = matches.value_of("output").unwrap().to_string();
+
+        let code_gen = dart_event::DartEventCodeGen {
+            rust_source,
+            output_dir,
+        };
+        code_gen.gen();
     }
 }
 
@@ -47,6 +59,21 @@ pub fn app<'a, 'b>() -> App<'a, 'b> {
                 .arg(
                     Arg::with_name("flutter_package_lib")
                         .long("flutter_package_lib")
+                        .value_name("DIRECTORY"),
+                ),
+        )
+        .subcommand(
+            App::new("dart-event")
+                .about("Generate the codes that sending events from rust ast")
+                .arg(
+                    Arg::with_name("rust_source")
+                        .long("rust_source")
+                        .value_name("DIRECTORY")
+                        .help("Directory of the cargo workspace"),
+                )
+                .arg(
+                    Arg::with_name("output")
+                        .long("output")
                         .value_name("DIRECTORY"),
                 ),
         );
