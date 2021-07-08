@@ -1,5 +1,5 @@
+use flowy_dispatch::prelude::*;
 pub use flowy_sdk::*;
-use flowy_sys::prelude::*;
 use std::{
     convert::TryFrom,
     fmt::{Debug, Display},
@@ -11,7 +11,7 @@ use std::{
 
 pub mod prelude {
     pub use crate::EventTester;
-    pub use flowy_sys::prelude::*;
+    pub use flowy_dispatch::prelude::*;
     pub use std::convert::TryFrom;
 }
 

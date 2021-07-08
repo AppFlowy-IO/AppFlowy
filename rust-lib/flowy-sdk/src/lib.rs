@@ -1,7 +1,7 @@
 pub mod module;
 pub use module::*;
 
-use flowy_sys::prelude::*;
+use flowy_dispatch::prelude::*;
 use module::build_modules;
 pub struct FlowySDK {}
 

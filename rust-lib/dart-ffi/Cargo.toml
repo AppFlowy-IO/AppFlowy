@@ -25,7 +25,7 @@ log = "0.4.14"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = {version = "1.0"}
 
-flowy-sys = {path = "../flowy-sys"}
+flowy-dispatch = {path = "../flowy-dispatch"}
 flowy-sdk = {path = "../flowy-sdk"}
 flowy-derive = {path = "../flowy-derive"}
 

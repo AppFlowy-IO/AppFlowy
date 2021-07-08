@@ -16,7 +16,6 @@ condition = { env_true = ["RELEASE"] }
 env = { DESKTOP_TARGET = "x86_64-apple-darwin" }
 private = true
 run_task = "desktop-build"
-
 [tasks.desktop-build]
 category = "Build"
 condition = { platforms = ["mac"], env_true = ["DEV"] }

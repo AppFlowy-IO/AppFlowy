@@ -1,5 +1,5 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_sys::prelude::{EventResponse, Payload, StatusCode};
+use flowy_dispatch::prelude::{EventResponse, Payload, StatusCode};
 
 #[derive(ProtoBuf_Enum, Clone, Copy)]
 pub enum FFIStatusCode {

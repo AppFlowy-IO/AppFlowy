@@ -3,9 +3,9 @@ export 'package:async/async.dart';
 import 'dart:io';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/dispatch/flowy_error.dart';
 import 'package:flutter/services.dart';
 import 'dart:ffi';
+import 'dispatch/error.dart';
 import 'ffi/ffi.dart' as ffi;
 import 'package:ffi/ffi.dart';
 

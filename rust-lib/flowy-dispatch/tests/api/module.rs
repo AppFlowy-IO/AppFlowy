@@ -1,5 +1,5 @@
 use crate::helper::*;
-use flowy_sys::prelude::*;
+use flowy_dispatch::prelude::*;
 
 pub async fn hello() -> String { "say hello".to_string() }
 

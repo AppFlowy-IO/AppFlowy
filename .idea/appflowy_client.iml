@@ -5,8 +5,8 @@
       <sourceFolder url="file://$MODULE_DIR$/rust-lib/flowy-ast/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/rust-lib/flowy-derive/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/rust-lib/flowy-derive/tests" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/rust-lib/flowy-sys/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/rust-lib/flowy-sys/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/rust-lib/flowy-dispatch/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/rust-lib/flowy-dispatch/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/rust-lib/dart-ffi/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/rust-lib/flowy-log/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/rust-lib/flowy-sdk/src" isTestSource="false" />

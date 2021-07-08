@@ -7,8 +7,12 @@
 
 ## 🎯 Goals of the System
 
+
+
 ## 🤔 Some Design Considerations
+
 ## 📜 High Level Design
+
 ## 📚 Component Design
     
 ### 📕 Component 1

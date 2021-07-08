@@ -1,6 +1,6 @@
 [workspace]
 members = [
-  "flowy-sys",
+  "flowy-dispatch",
   "flowy-sdk",
   "dart-ffi",
   "flowy-log",

@@ -28,7 +28,7 @@ impl EventDispatch {
         F: FnOnce() -> Vec<Module>,
     {
         let modules = module_factory();
-        log::debug!("{}", module_info(&modules));
+        log::trace!("{}", module_info(&modules));
         let module_map = as_module_map(modules);
         let runtime = tokio_default_runtime().unwrap();
         let dispatch = EventDispatch {
@@ -50,11 +50,7 @@ impl EventDispatch {
                 let dispatch = dispatch.as_ref().unwrap();
                 let module_map = dispatch.module_map.clone();
                 let service = Box::new(DispatchService { module_map });
-                log::trace!(
-                    "{}: dispatch {:?} to runtime",
-                    &request.id(),
-                    &request.event()
-                );
+                log::trace!("Async event: {:?}", &request.event());
                 let service_ctx = DispatchContext {
                     request,
                     callback: Some(Box::new(callback)),
@@ -77,8 +73,8 @@ impl EventDispatch {
             },
 
             Err(e) => {
-                let msg = format!("Dispatch runtime error: {:?}", e);
-                log::trace!("{}", msg);
+                let msg = format!("EVENT_DISPATCH read failed. {:?}", e);
+                log::error!("{}", msg);
                 DispatchFuture {
                     fut: Box::pin(async { InternalError::new(msg).as_response() }),
                 }
@@ -88,11 +84,7 @@ impl EventDispatch {
 
     pub fn sync_send(request: ModuleRequest) -> EventResponse {
         futures::executor::block_on(async {
-            EventDispatch::async_send(request, |response| {
-                dbg!(&response);
-                Box::pin(async {})
-            })
-            .await
+            EventDispatch::async_send(request, |_| Box::pin(async {})).await
         })
     }
 }
@@ -154,20 +146,11 @@ impl Service<DispatchContext> for DispatchService {
                 match module_map.get(&request.event()) {
                     Some(module) => {
                         let fut = module.new_service(());
-                        log::trace!(
-                            "{}: handle event: {:?} by {}",
-                            request.id(),
-                            request.event(),
-                            module.name
-                        );
                         let service_fut = fut.await?.call(request);
                         service_fut.await
                     },
                     None => {
-                        let msg = format!(
-                            "Can not find the module to handle the request:{:?}",
-                            request
-                        );
+                        let msg = format!("Can not find the event handler. {:?}", request);
                         log::trace!("{}", msg);
                         Err(InternalError::new(msg).into())
                     },

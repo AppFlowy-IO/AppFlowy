@@ -1,5 +1,5 @@
 use crate::domain::user::*;
-use flowy_sys::prelude::*;
+use flowy_dispatch::prelude::*;
 use std::convert::TryInto;
 
 // tracing instrument 👉🏻 https://docs.rs/tracing/0.1.26/tracing/attr.instrument.html

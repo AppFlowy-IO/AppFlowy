@@ -1,5 +1,5 @@
 use flowy_derive::ProtoBuf;
-use flowy_sys::prelude::ModuleRequest;
+use flowy_dispatch::prelude::ModuleRequest;
 use std::convert::TryFrom;
 
 #[derive(Default, ProtoBuf)]

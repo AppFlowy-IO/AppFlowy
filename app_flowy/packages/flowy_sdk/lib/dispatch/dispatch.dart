@@ -1,7 +1,5 @@
 import 'dart:ffi';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_logger/flowy_logger.dart';
-import 'package:flowy_sdk/dispatch/flowy_error.dart';
 import 'package:flowy_sdk/protobuf/ffi_response.pb.dart';
 import 'package:isolates/isolates.dart';
 import 'package:isolates/ports.dart';
@@ -13,6 +11,8 @@ import 'dart:typed_data';
 import 'package:flowy_sdk/ffi/ffi.dart' as ffi;
 import 'package:flowy_sdk/protobuf.dart';
 import 'package:protobuf/protobuf.dart';
+
+import 'error.dart';
 
 part 'code_gen.dart';
 
@@ -97,30 +97,4 @@ Either<Uint8List, FlowyError> paramsToBytes<T extends GeneratedMessage>(
   } catch (e, s) {
     return right(FlowyError.fromError('${e.runtimeType}. Stack trace: $s'));
   }
-}
-
-class StackTraceError {
-  Object error;
-  StackTrace trace;
-  StackTraceError(
-    this.error,
-    this.trace,
-  );
-
-  FlowyError toFlowyError() {
-    Log.error('${error.runtimeType}\n');
-    Log.error('Stack trace \n $trace');
-    return FlowyError.fromError('${error.runtimeType}. Stack trace: $trace');
-  }
-
-  String toString() {
-    return '${error.runtimeType}. Stack trace: $trace';
-  }
-}
-
-FFIResponse error_response(FFIRequest request, StackTraceError error) {
-  var response = FFIResponse();
-  response.code = FFIStatusCode.Err;
-  response.error = error.toString();
-  return response;
 }

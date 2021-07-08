@@ -1,7 +1,4 @@
-use crate::{
-    module::{as_module_map, Module, ModuleMap},
-    rt::Runtime,
-};
+use crate::module::{as_module_map, Module, ModuleMap};
 use futures_core::{ready, task::Context};
 use std::{cell::RefCell, fmt::Debug, future::Future, io, sync::Arc};
 use tokio::{
@@ -125,5 +122,39 @@ impl SystemRunner {
     pub fn spawn<F: Future<Output = ()> + 'static>(self, future: F) -> Self {
         self.rt.spawn(future);
         self
+    }
+}
+
+use crate::util::tokio_default_runtime;
+use tokio::{runtime, task::LocalSet};
+
+#[derive(Debug)]
+pub struct Runtime {
+    local: LocalSet,
+    rt: runtime::Runtime,
+}
+
+impl Runtime {
+    pub fn new() -> io::Result<Runtime> {
+        let rt = tokio_default_runtime()?;
+        Ok(Runtime {
+            rt,
+            local: LocalSet::new(),
+        })
+    }
+
+    pub fn spawn<F>(&self, future: F) -> &Self
+    where
+        F: Future<Output = ()> + 'static,
+    {
+        self.local.spawn_local(future);
+        self
+    }
+
+    pub fn block_on<F>(&self, f: F) -> F::Output
+    where
+        F: Future + 'static,
+    {
+        self.local.block_on(&self.rt, f)
     }
 }

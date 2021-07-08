@@ -7,8 +7,8 @@ use crate::{
     c::{extend_front_four_bytes_into_bytes, forget_rust},
     model::{FFIRequest, FFIResponse},
 };
+use flowy_dispatch::prelude::*;
 use flowy_sdk::*;
-use flowy_sys::prelude::*;
 use lazy_static::lazy_static;
 use std::{ffi::CStr, os::raw::c_char};
 
@@ -65,7 +65,7 @@ pub extern "C" fn sync_command(input: *const u8, len: usize) -> *const u8 {
 #[no_mangle]
 pub extern "C" fn link_me_please() {}
 
-use flowy_sys::prelude::ToBytes;
+use flowy_dispatch::prelude::ToBytes;
 #[inline(always)]
 async fn post_to_flutter(response: EventResponse, port: i64) {
     let isolate = allo_isolate::Isolate::new(port);
