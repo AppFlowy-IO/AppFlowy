@@ -89,7 +89,7 @@ pub fn print_diff(old_content: String, new_content: String) {
 }
 
 pub fn get_tera(directory: &str) -> Tera {
-    let mut root = "./scripts/flowy-tool/src/proto/template/".to_owned();
+    let mut root = "./scripts/flowy-tool/src/".to_owned();
     root.push_str(directory);
 
     let root_absolute_path = std::fs::canonicalize(root)

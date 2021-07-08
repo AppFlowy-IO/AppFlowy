@@ -42,7 +42,7 @@ fn root_dir() -> String {
 }
 
 pub struct EventTester {
-    request: Option<DispatchRequest>,
+    request: Option<ModuleRequest>,
     assert_status_code: Option<StatusCode>,
     response: Option<EventResponse>,
 }
@@ -53,7 +53,7 @@ impl EventTester {
         E: Eq + Hash + Debug + Clone + Display,
     {
         init_sdk();
-        let request = DispatchRequest::new(event);
+        let request = ModuleRequest::new(event);
         Self {
             request: Some(request),
             assert_status_code: None,
@@ -91,7 +91,8 @@ impl EventTester {
     }
 
     pub fn sync_send(mut self) -> Self {
-        let resp = sync_send(self.request.take().unwrap());
+        let resp = EventDispatch::sync_send(self.request.take().unwrap());
+
         if let Some(ref status_code) = self.assert_status_code {
             assert_eq!(&resp.status_code, status_code)
         }
@@ -107,12 +108,4 @@ impl EventTester {
         let response = self.response.unwrap();
         <Data<R>>::try_from(response.payload).unwrap().into_inner()
     }
-}
-
-fn data_from_response<R>(response: &EventResponse) -> R
-where
-    R: FromBytes,
-{
-    let result = <Data<R>>::try_from(&response.payload).unwrap().into_inner();
-    result
 }

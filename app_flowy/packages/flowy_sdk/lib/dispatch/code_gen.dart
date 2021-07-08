@@ -1,33 +1,46 @@
 /// Auto gen code from rust ast, do not edit
 part of 'dispatch.dart';
 
-class UserEventSignIn {
-  UserSignInParams payload;
+class UserEventAuthCheck {
+  UserSignInParams params;
+  UserEventAuthCheck(this.params);
 
-  UserEventSignIn(this.payload);
   Future<Either<UserSignInResult, FlowyError>> send() {
-    var request = FFIRequest.create()..event = UserEvent.SignIn.toString();
-    return protobufToBytes(payload).fold(
-      (payload) {
-        request.payload = payload;
-        return Dispatch.asyncRequest(request).then((response) {
-          try {
-            if (response.code != FFIStatusCode.Ok) {
-              return right(FlowyError.from(response));
-            } else {
-              final pb = UserSignInResult.fromBuffer(response.payload);
-              return left(pb);
-            }
-          } catch (e, s) {
-            final error =
-                FlowyError.fromError('${e.runtimeType}. Stack trace: $s');
-            return right(error);
-          }
-        });
+    return paramsToBytes(params).fold(
+      (bytes) {
+        final request = FFIRequest.create()
+          ..event = UserEvent.AuthCheck.toString()
+          ..payload = bytes;
+
+        return Dispatch.asyncRequest(request)
+            .then((bytesResult) => bytesResult.fold(
+                  (bytes) => left(UserSignInResult.fromBuffer(bytes)),
+                  (error) => right(error),
+                ));
       },
-      (err) => Future(() {
-        return right(FlowyError.fromError(err));
-      }),
+      (err) => Future(() => right(err)),
+    );
+  }
+}
+
+class UserEventSignIn {
+  UserSignInParams params;
+  UserEventSignIn(this.params);
+
+  Future<Either<UserSignInResult, FlowyError>> send() {
+    return paramsToBytes(params).fold(
+      (bytes) {
+        final request = FFIRequest.create()
+          ..event = UserEvent.SignIn.toString()
+          ..payload = bytes;
+
+        return Dispatch.asyncRequest(request)
+            .then((bytesResult) => bytesResult.fold(
+                  (bytes) => left(UserSignInResult.fromBuffer(bytes)),
+                  (error) => right(error),
+                ));
+      },
+      (err) => Future(() => right(err)),
     );
   }
 }

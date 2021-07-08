@@ -14,5 +14,3 @@ impl FlowySDK {
         EventDispatch::construct(|| build_modules());
     }
 }
-
-pub fn sync_send(request: DispatchRequest) -> EventResponse { EventDispatch::sync_send(request) }

@@ -84,7 +84,7 @@ impl StructTemplate {
 
     pub fn render(&mut self) -> Option<String> {
         self.context.insert("fields", &self.fields);
-        let tera = get_tera("proto_file");
+        let tera = get_tera("proto/template/proto_file");
         match tera.render("struct.tera", &self.context) {
             Ok(r) => Some(r),
             Err(e) => {

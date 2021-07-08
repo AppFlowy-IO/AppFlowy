@@ -100,6 +100,7 @@ pub fn parse_event_crate(event_crate: &DartEventCrate) -> Vec<EventASTContext> {
 
 pub fn ast_to_event_render_ctx(ast: &Vec<EventASTContext>) -> Vec<EventRenderContext> {
     ast.iter()
+        .filter(|event_ast| event_ast.event_input.is_some() && event_ast.event_output.is_some())
         .map(|event_ast| EventRenderContext {
             input_deserializer: event_ast
                 .event_input

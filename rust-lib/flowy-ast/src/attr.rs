@@ -353,7 +353,7 @@ impl ASTEnumAttrVariant {
 }
 
 pub fn get_meta_items(cx: &Ctxt, attr: &syn::Attribute) -> Result<Vec<syn::NestedMeta>, ()> {
-    if attr.path != PB_ATTRS {
+    if attr.path != PB_ATTRS && attr.path != EVENT {
         return Ok(Vec::new());
     }
 
@@ -361,10 +361,11 @@ pub fn get_meta_items(cx: &Ctxt, attr: &syn::Attribute) -> Result<Vec<syn::Neste
     match attr.parse_meta() {
         Ok(List(meta)) => Ok(meta.nested.into_iter().collect()),
         Ok(other) => {
-            cx.error_spanned_by(other, "expected #[pb(...)]");
+            cx.error_spanned_by(other, "expected #[pb(...)] or or #[event(...)]");
             Err(())
         },
         Err(err) => {
+            cx.error_spanned_by(attr, "attribute must be str, e.g. #[pb(xx = \"xxx\")]");
             cx.syn_error(err);
             Err(())
         },

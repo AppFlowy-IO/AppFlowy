@@ -113,19 +113,27 @@ pub struct ModuleRequest {
 }
 
 impl ModuleRequest {
-    pub fn new<E>(event: E, id: String, payload: Payload) -> Self
+    pub fn new<E>(event: E) -> Self
     where
         E: Into<Event>,
     {
         Self {
-            inner: EventRequest::new(event, id),
-            payload,
+            inner: EventRequest::new(event, uuid::Uuid::new_v4().to_string()),
+            payload: Payload::None,
         }
     }
 
-    pub(crate) fn id(&self) -> &str { &self.inner.id }
+    pub fn payload<P>(mut self, payload: P) -> Self
+    where
+        P: Into<Payload>,
+    {
+        self.payload = payload.into();
+        self
+    }
 
-    pub(crate) fn event(&self) -> &Event { &self.inner.event }
+    pub fn id(&self) -> &str { &self.inner.id }
+
+    pub fn event(&self) -> &Event { &self.inner.event }
 }
 
 impl std::fmt::Display for ModuleRequest {

@@ -10,7 +10,7 @@ use crate::{
 use flowy_sdk::*;
 use flowy_sys::prelude::*;
 use lazy_static::lazy_static;
-use std::{ffi::CStr, future::Future, os::raw::c_char};
+use std::{ffi::CStr, os::raw::c_char};
 
 lazy_static! {
     pub static ref FFI_RUNTIME: tokio::runtime::Runtime =
@@ -31,11 +31,11 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
 
 #[no_mangle]
 pub extern "C" fn async_command(port: i64, input: *const u8, len: usize) {
-    let request: DispatchRequest = FFIRequest::from_u8_pointer(input, len).into();
+    let request: ModuleRequest = FFIRequest::from_u8_pointer(input, len).into();
     log::trace!(
         "[FFI]: {} Async Event: {:?} with {} port",
-        &request.id,
-        &request.event,
+        &request.id(),
+        &request.event(),
         port
     );
 
@@ -47,8 +47,12 @@ pub extern "C" fn async_command(port: i64, input: *const u8, len: usize) {
 
 #[no_mangle]
 pub extern "C" fn sync_command(input: *const u8, len: usize) -> *const u8 {
-    let request: DispatchRequest = FFIRequest::from_u8_pointer(input, len).into();
-    log::trace!("[FFI]: {} Sync Event: {:?}", &request.id, &request.event,);
+    let request: ModuleRequest = FFIRequest::from_u8_pointer(input, len).into();
+    log::trace!(
+        "[FFI]: {} Sync Event: {:?}",
+        &request.id(),
+        &request.event(),
+    );
     let _response = EventDispatch::sync_send(request);
 
     // FFIResponse {  }

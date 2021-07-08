@@ -26,29 +26,48 @@ class DispatchException implements Exception {
 }
 
 class Dispatch {
-  static Future<FFIResponse> asyncRequest(FFIRequest request) {
-    try {
-      return _asyncRequest(request).future.then((value) {
-        try {
-          final response = FFIResponse.fromBuffer(value);
-          return Future.microtask(() => response);
-        } catch (e, s) {
-          Log.error('FlowyFFI asyncRequest error: ${e.runtimeType}\n');
-          Log.error('Stack trace \n $s');
-          final response = error_response(request, "${e.runtimeType}");
-          return Future.microtask(() => response);
-        }
-      });
-    } catch (e, s) {
-      Log.error('FlowyFFI asyncRequest error: ${e.runtimeType}\n');
-      Log.error('Stack trace \n $s');
-      final response = error_response(request, "${e.runtimeType}");
-      return Future.microtask(() => response);
-    }
+  static Future<Either<Uint8List, FlowyError>> asyncRequest(
+      FFIRequest request) {
+    // FFIRequest => Rust SDK
+    final bytesFuture = _sendToRust(request);
+
+    // Rust SDK => FFIResponse
+    final responseFuture = _extractResponse(bytesFuture);
+
+    // FFIResponse's payload is the bytes of the Response object
+    final payloadFuture = _extractPayload(responseFuture);
+
+    return payloadFuture;
   }
 }
 
-Completer<Uint8List> _asyncRequest(FFIRequest request) {
+Future<Either<Uint8List, FlowyError>> _extractPayload(
+    Future<Either<FFIResponse, FlowyError>> responseFuture) {
+  return responseFuture.then((response) {
+    return response.fold(
+      (l) => left(Uint8List.fromList(l.payload)),
+      (r) => right(r),
+    );
+  });
+}
+
+Future<Either<FFIResponse, FlowyError>> _extractResponse(
+    Completer<Uint8List> bytesFuture) {
+  return bytesFuture.future.then((bytes) {
+    try {
+      final response = FFIResponse.fromBuffer(bytes);
+      if (response.code != FFIStatusCode.Ok) {
+        return right(FlowyError.from(response));
+      }
+
+      return left(response);
+    } catch (e, s) {
+      return right(StackTraceError(e, s).toFlowyError());
+    }
+  });
+}
+
+Completer<Uint8List> _sendToRust(FFIRequest request) {
   Uint8List bytes = request.writeToBuffer();
   assert(bytes.isEmpty == false);
   if (bytes.isEmpty) {
@@ -67,14 +86,7 @@ Completer<Uint8List> _asyncRequest(FFIRequest request) {
   return completer;
 }
 
-FFIResponse error_response(FFIRequest request, String message) {
-  var response = FFIResponse();
-  response.code = FFIStatusCode.Err;
-  response.error = "${request.event}: ${message}";
-  return response;
-}
-
-Either<Uint8List, String> protobufToBytes<T extends GeneratedMessage>(
+Either<Uint8List, FlowyError> paramsToBytes<T extends GeneratedMessage>(
     T? message) {
   try {
     if (message != null) {
@@ -83,6 +95,32 @@ Either<Uint8List, String> protobufToBytes<T extends GeneratedMessage>(
       return left(Uint8List.fromList([]));
     }
   } catch (e, s) {
-    return right('FlowyFFI error: ${e.runtimeType}. Stack trace: $s');
+    return right(FlowyError.fromError('${e.runtimeType}. Stack trace: $s'));
   }
+}
+
+class StackTraceError {
+  Object error;
+  StackTrace trace;
+  StackTraceError(
+    this.error,
+    this.trace,
+  );
+
+  FlowyError toFlowyError() {
+    Log.error('${error.runtimeType}\n');
+    Log.error('Stack trace \n $trace');
+    return FlowyError.fromError('${error.runtimeType}. Stack trace: $trace');
+  }
+
+  String toString() {
+    return '${error.runtimeType}. Stack trace: $trace';
+  }
+}
+
+FFIResponse error_response(FFIRequest request, StackTraceError error) {
+  var response = FFIResponse();
+  response.code = FFIStatusCode.Err;
+  response.error = error.toString();
+  return response;
 }

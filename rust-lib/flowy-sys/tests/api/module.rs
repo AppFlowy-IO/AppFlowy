@@ -9,14 +9,11 @@ async fn test_init() {
     let event = "1";
     init_dispatch(|| vec![Module::new().event(event, hello)]);
 
-    let request = DispatchRequest::new(event);
-    let _ = EventDispatch::async_send(
-        request,
-        Some(|resp| {
-            Box::pin(async move {
-                dbg!(&resp);
-            })
-        }),
-    )
+    let request = ModuleRequest::new(event);
+    let _ = EventDispatch::async_send(request, |resp| {
+        Box::pin(async move {
+            dbg!(&resp);
+        })
+    })
     .await;
 }

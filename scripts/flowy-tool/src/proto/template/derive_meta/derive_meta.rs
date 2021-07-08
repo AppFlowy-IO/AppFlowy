@@ -24,7 +24,7 @@ impl ProtobufDeriveMeta {
         self.context.insert("names", &self.structs);
         self.context.insert("enums", &self.enums);
 
-        let tera = get_tera("derive_meta");
+        let tera = get_tera("proto/template/derive_meta");
         match tera.render("derive_meta.tera", &self.context) {
             Ok(r) => Some(r),
             Err(e) => {

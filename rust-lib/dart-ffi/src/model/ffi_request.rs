@@ -1,5 +1,5 @@
 use flowy_derive::ProtoBuf;
-use flowy_sys::prelude::DispatchRequest;
+use flowy_sys::prelude::ModuleRequest;
 use std::convert::TryFrom;
 
 #[derive(Default, ProtoBuf)]
@@ -19,6 +19,6 @@ impl FFIRequest {
     }
 }
 
-impl std::convert::Into<DispatchRequest> for FFIRequest {
-    fn into(self) -> DispatchRequest { DispatchRequest::new(self.event).payload(self.payload) }
+impl std::convert::Into<ModuleRequest> for FFIRequest {
+    fn into(self) -> ModuleRequest { ModuleRequest::new(self.event).payload(self.payload) }
 }
