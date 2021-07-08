@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-cd flutter-lib
+
 if [[ `git status --porcelain` ]]; then
   printf "\e[31;1m%s\e[0m\n" 'This script needs to run against committed code only. Please commit or stash you changes.'
   exit 1
