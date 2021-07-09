@@ -1,5 +1,6 @@
-import 'package:flowy_editor/rendering/box.dart';
 import 'package:flutter/rendering.dart';
+
+import '../rendering/box.dart';
 
 /* -------------------------------- Baseline -------------------------------- */
 
@@ -11,8 +12,7 @@ class RenderBaselineProxy extends RenderProxyBox {
   )   : _prototypePainter = TextPainter(
           text: TextSpan(text: ' ', style: textStyle),
           textDirection: TextDirection.ltr,
-          strutStyle:
-              StrutStyle.fromTextStyle(textStyle, forceStrutHeight: true),
+          strutStyle: StrutStyle.fromTextStyle(textStyle, forceStrutHeight: true),
         ),
         super(child);
 
@@ -55,16 +55,12 @@ class RenderEmbedProxy extends RenderProxyBox implements RenderContentProxyBox {
   @override
   List<TextBox> getBoxesForSelection(TextSelection textSelection) {
     if (!textSelection.isCollapsed) {
-      return <TextBox>[
-        TextBox.fromLTRBD(0, 0, size.width, size.height, TextDirection.ltr)
-      ];
+      return <TextBox>[TextBox.fromLTRBD(0, 0, size.width, size.height, TextDirection.ltr)];
     }
 
     final left = textSelection.extentOffset == 0 ? 0.0 : size.width;
     final right = textSelection.extentOffset == 0 ? 0.0 : size.width;
-    return <TextBox>[
-      TextBox.fromLTRBD(left, 0, right, size.height, TextDirection.ltr)
-    ];
+    return <TextBox>[TextBox.fromLTRBD(left, 0, right, size.height, TextDirection.ltr)];
   }
 
   @override
@@ -82,8 +78,7 @@ class RenderEmbedProxy extends RenderProxyBox implements RenderContentProxyBox {
   }
 
   @override
-  TextRange getWordBoundary(TextPosition position) =>
-      const TextRange(start: 0, end: 1);
+  TextRange getWordBoundary(TextPosition position) => const TextRange(start: 0, end: 1);
 
   @override
   double getPreferredLineHeight() => size.height;
@@ -91,8 +86,7 @@ class RenderEmbedProxy extends RenderProxyBox implements RenderContentProxyBox {
 
 /* ---------------------------- Paragraph / Text ---------------------------- */
 
-class RenderParagraphProxy extends RenderProxyBox
-    implements RenderContentProxyBox {
+class RenderParagraphProxy extends RenderProxyBox implements RenderContentProxyBox {
   RenderParagraphProxy(
     RenderParagraph? child,
     TextStyle textStyle,
@@ -194,25 +188,20 @@ class RenderParagraphProxy extends RenderProxyBox
       child!.getOffsetForCaret(position, caretPrototype!);
 
   @override
-  TextPosition getPositionForOffset(Offset offset) =>
-      child!.getPositionForOffset(offset);
+  TextPosition getPositionForOffset(Offset offset) => child!.getPositionForOffset(offset);
 
   @override
-  double? getFullHeightForCaret(TextPosition position) =>
-      child!.getFullHeightForCaret(position);
+  double? getFullHeightForCaret(TextPosition position) => child!.getFullHeightForCaret(position);
 
   @override
-  TextRange getWordBoundary(TextPosition position) =>
-      child!.getWordBoundary(position);
+  TextRange getWordBoundary(TextPosition position) => child!.getWordBoundary(position);
 
   @override
-  List<TextBox> getBoxesForSelection(TextSelection selection) =>
-      child!.getBoxesForSelection(selection);
+  List<TextBox> getBoxesForSelection(TextSelection selection) => child!.getBoxesForSelection(selection);
 
   @override
   void performLayout() {
     super.performLayout();
-    _prototypePainter.layout(
-        minWidth: constraints.minWidth, maxWidth: constraints.maxWidth);
+    _prototypePainter.layout(minWidth: constraints.minWidth, maxWidth: constraints.maxWidth);
   }
 }

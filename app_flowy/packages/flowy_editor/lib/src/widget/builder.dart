@@ -63,9 +63,7 @@ class EditorTextSelectionGestureDetectorBuilder {
     getRenderEditor()!.handleTapDown(details);
 
     final kind = details.kind;
-    shouldShowSelectionToolbar = kind == null ||
-        kind == PointerDeviceKind.touch ||
-        kind == PointerDeviceKind.stylus;
+    shouldShowSelectionToolbar = kind == null || kind == PointerDeviceKind.touch || kind == PointerDeviceKind.stylus;
   }
 
   void onTapUp(TapUpDetails details) {
@@ -119,8 +117,7 @@ class EditorTextSelectionGestureDetectorBuilder {
     );
   }
 
-  void onDragSelectionUpdate(
-      DragStartDetails startDetails, DragUpdateDetails updateDetails) {
+  void onDragSelectionUpdate(DragStartDetails startDetails, DragUpdateDetails updateDetails) {
     getRenderEditor()!.selectPositionAt(
       startDetails.globalPosition,
       updateDetails.globalPosition,
@@ -135,8 +132,7 @@ class EditorTextSelectionGestureDetectorBuilder {
       onTapUp: onTapUp,
       onTapDown: onTapDown,
       onTapCancel: onTapCancel,
-      onForcePressStart:
-          delegate.getForcePressEnabled() ? onForcePressStart : null,
+      onForcePressStart: delegate.getForcePressEnabled() ? onForcePressStart : null,
       onForcePressEnd: delegate.getForcePressEnabled() ? onForcePressEnd : null,
       onLongPressStart: onLongPressStart,
       onLongPressMoveUpdate: onLongPressMoveUpdate,
@@ -163,8 +159,7 @@ class EmbedBuilder {
       case kImageTypeKey:
         return _generateImageEmbed(context, node);
       default:
-        throw UnimplementedError(
-            'Embeddable type "${node.value.type}" is not supported by default embed '
+        throw UnimplementedError('Embeddable type "${node.value.type}" is not supported by default embed '
             'builder of QuillEditor. You must pass your own builder function to '
             'embedBuilder property of QuillEditor or QuillField widgets.');
     }

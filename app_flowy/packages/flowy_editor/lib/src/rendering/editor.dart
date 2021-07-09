@@ -1,10 +1,10 @@
 import 'dart:math' as math;
 
-import 'package:flowy_editor/widget/selection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+import '../widget/selection.dart';
 import '../model/document/node/container.dart' as node;
 import '../model/document/document.dart';
 import 'box.dart';
@@ -25,8 +25,7 @@ abstract class RenderAbstractEditor {
 
   TextPosition getPositionForOffset(Offset offset);
 
-  List<TextSelectionPoint> getEndpointsForSelection(
-      TextSelection textSelection);
+  List<TextSelectionPoint> getEndpointsForSelection(TextSelection textSelection);
 
   void handleTapDown(TapDownDetails details);
 
@@ -43,15 +42,12 @@ abstract class RenderAbstractEditor {
 
 /* ------------------------------ Container Box ----------------------------- */
 
-class EditableContainerParentData
-    extends ContainerBoxParentData<RenderEditableBox> {}
+class EditableContainerParentData extends ContainerBoxParentData<RenderEditableBox> {}
 
 class RenderEditableContainerBox extends RenderBox
     with
-        ContainerRenderObjectMixin<RenderEditableBox,
-            EditableContainerParentData>,
-        RenderBoxContainerDefaultsMixin<RenderEditableBox,
-            EditableContainerParentData> {
+        ContainerRenderObjectMixin<RenderEditableBox, EditableContainerParentData>,
+        RenderBoxContainerDefaultsMixin<RenderEditableBox, EditableContainerParentData> {
   RenderEditableContainerBox(
     List<RenderEditableBox>? children,
     this.textDirection,
@@ -165,9 +161,7 @@ class RenderEditableContainerBox extends RenderBox
 
     var mainAxisExtent = _resolvedPadding!.top;
     var child = firstChild;
-    final innerConstraints =
-        BoxConstraints.tightFor(width: constraints.maxWidth)
-            .deflate(_resolvedPadding!);
+    final innerConstraints = BoxConstraints.tightFor(width: constraints.maxWidth).deflate(_resolvedPadding!);
     while (child != null) {
       child.layout(innerConstraints, parentUsesSize: true);
       final childParentData = (child.parentData as EditableContainerParentData)
@@ -208,11 +202,8 @@ class RenderEditableContainerBox extends RenderBox
   double computeMinIntrinsicWidth(double height) {
     _resolvePadding();
     return _getIntrinsicCrossAxis((child) {
-      final childHeight = math.max<double>(
-          0, height - _resolvedPadding!.top + _resolvedPadding!.bottom);
-      return child.getMinIntrinsicWidth(childHeight) +
-          _resolvedPadding!.left +
-          _resolvedPadding!.right;
+      final childHeight = math.max<double>(0, height - _resolvedPadding!.top + _resolvedPadding!.bottom);
+      return child.getMinIntrinsicWidth(childHeight) + _resolvedPadding!.left + _resolvedPadding!.right;
     });
   }
 
@@ -220,11 +211,8 @@ class RenderEditableContainerBox extends RenderBox
   double computeMaxIntrinsicWidth(double height) {
     _resolvePadding();
     return _getIntrinsicCrossAxis((child) {
-      final childHeight = math.max<double>(
-          0, height - _resolvedPadding!.top + _resolvedPadding!.bottom);
-      return child.getMaxIntrinsicWidth(childHeight) +
-          _resolvedPadding!.left +
-          _resolvedPadding!.right;
+      final childHeight = math.max<double>(0, height - _resolvedPadding!.top + _resolvedPadding!.bottom);
+      return child.getMaxIntrinsicWidth(childHeight) + _resolvedPadding!.left + _resolvedPadding!.right;
     });
   }
 
@@ -232,11 +220,8 @@ class RenderEditableContainerBox extends RenderBox
   double computeMinIntrinsicHeight(double width) {
     _resolvePadding();
     return _getIntrinsicMainAxis((child) {
-      final childWidth = math.max<double>(
-          0, width - _resolvedPadding!.left + _resolvedPadding!.right);
-      return child.getMinIntrinsicHeight(childWidth) +
-          _resolvedPadding!.top +
-          _resolvedPadding!.bottom;
+      final childWidth = math.max<double>(0, width - _resolvedPadding!.left + _resolvedPadding!.right);
+      return child.getMinIntrinsicHeight(childWidth) + _resolvedPadding!.top + _resolvedPadding!.bottom;
     });
   }
 
@@ -244,26 +229,21 @@ class RenderEditableContainerBox extends RenderBox
   double computeMaxIntrinsicHeight(double width) {
     _resolvePadding();
     return _getIntrinsicMainAxis((child) {
-      final childWidth = math.max<double>(
-          0, width - _resolvedPadding!.left + _resolvedPadding!.right);
-      return child.getMaxIntrinsicHeight(childWidth) +
-          _resolvedPadding!.top +
-          _resolvedPadding!.bottom;
+      final childWidth = math.max<double>(0, width - _resolvedPadding!.left + _resolvedPadding!.right);
+      return child.getMaxIntrinsicHeight(childWidth) + _resolvedPadding!.top + _resolvedPadding!.bottom;
     });
   }
 
   @override
   double? computeDistanceToActualBaseline(TextBaseline baseline) {
     _resolvePadding();
-    return defaultComputeDistanceToFirstActualBaseline(baseline)! +
-        _resolvedPadding!.top;
+    return defaultComputeDistanceToFirstActualBaseline(baseline)! + _resolvedPadding!.top;
   }
 }
 
 /* ------------------------------ Render Editor ----------------------------- */
 
-class RenderEditor extends RenderEditableContainerBox
-    implements RenderAbstractEditor {
+class RenderEditor extends RenderEditableContainerBox implements RenderAbstractEditor {
   RenderEditor(
     List<RenderEditableBox>? children,
     TextDirection textDirection,
@@ -287,8 +267,7 @@ class RenderEditor extends RenderEditableContainerBox
   TextSelectionChangeHandler onSelectionChanged;
   Document _document;
   TextSelection _selection;
-  final ValueNotifier<bool> _selectionStartInViewport =
-      ValueNotifier<bool>(true);
+  final ValueNotifier<bool> _selectionStartInViewport = ValueNotifier<bool>(true);
   final ValueNotifier<bool> _selectionEndInViewport = ValueNotifier<bool>(true);
   bool _hasFocus = false;
   LayerLink _startHandleLayerLink;
@@ -297,8 +276,7 @@ class RenderEditor extends RenderEditableContainerBox
 
   Document get document => _document;
 
-  ValueListenable<bool> get selectionStartInViewport =>
-      _selectionStartInViewport;
+  ValueListenable<bool> get selectionStartInViewport => _selectionStartInViewport;
 
   ValueListenable<bool> get selectionEndInViewport => _selectionEndInViewport;
 
@@ -352,8 +330,7 @@ class RenderEditor extends RenderEditableContainerBox
   }
 
   @override
-  List<TextSelectionPoint> getEndpointsForSelection(
-      TextSelection textSelection) {
+  List<TextSelectionPoint> getEndpointsForSelection(TextSelection textSelection) {
     if (textSelection.isCollapsed) {
       final child = childAtPosition(textSelection.extent);
       final localPosition = TextPosition(
@@ -363,9 +340,7 @@ class RenderEditor extends RenderEditableContainerBox
       final parentData = child.parentData as BoxParentData;
       return [
         TextSelectionPoint(
-          Offset(0, child.preferredLineHeight(localPosition)) +
-              localOffset +
-              parentData.offset,
+          Offset(0, child.preferredLineHeight(localPosition)) + localOffset + parentData.offset,
           null,
         )
       ];
@@ -382,8 +357,7 @@ class RenderEditor extends RenderEditableContainerBox
     assert(baseChild != null);
 
     final baseParentData = baseChild!.parentData as BoxParentData;
-    final baseSelection =
-        localSelection(baseChild.container, textSelection, true);
+    final baseSelection = localSelection(baseChild.container, textSelection, true);
     var basePoint = baseChild.getBaseEndpointForSelection(baseSelection);
     basePoint = TextSelectionPoint(
       basePoint.point + baseParentData.offset,
@@ -401,10 +375,8 @@ class RenderEditor extends RenderEditableContainerBox
     assert(extentChild != null);
 
     final extentParentData = extentChild!.parentData as BoxParentData;
-    final extentSelection =
-        localSelection(extentChild.container, textSelection, true);
-    var extentPoint =
-        extentChild.getExtentEndpointForSelection(extentSelection);
+    final extentSelection = localSelection(extentChild.container, textSelection, true);
+    var extentPoint = extentChild.getExtentEndpointForSelection(extentSelection);
     extentPoint = TextSelectionPoint(
       extentPoint.point + extentParentData.offset,
       extentPoint.direction,
@@ -499,8 +471,7 @@ class RenderEditor extends RenderEditableContainerBox
       affinity: position.affinity,
     );
     final localWord = child.getWordBoundary(localPosition);
-    final word = TextRange(
-        start: localWord.start + nodeOffset, end: localWord.end + nodeOffset);
+    final word = TextRange(start: localWord.start + nodeOffset, end: localWord.end + nodeOffset);
     if (position.offset >= word.end) {
       return TextSelection.fromPosition(position);
     }
@@ -523,24 +494,20 @@ class RenderEditor extends RenderEditableContainerBox
       end: localWord.end + nodeOffset,
     );
     if (position.offset - word.start <= 1) {
-      _handleSelectionChange(
-          TextSelection.collapsed(offset: word.start), cause);
+      _handleSelectionChange(TextSelection.collapsed(offset: word.start), cause);
     } else {
       _handleSelectionChange(
-        TextSelection.collapsed(
-            offset: word.end, affinity: TextAffinity.upstream),
+        TextSelection.collapsed(offset: word.end, affinity: TextAffinity.upstream),
         cause,
       );
     }
   }
 
   @override
-  void selectWordsInRange(
-      Offset from, Offset? to, SelectionChangedCause cause) {
+  void selectWordsInRange(Offset from, Offset? to, SelectionChangedCause cause) {
     final firstPosition = getPositionForOffset(from);
     final firstWord = selectWordAtPosition(firstPosition);
-    final lastWord =
-        to == null ? firstWord : selectWordAtPosition(getPositionForOffset(to));
+    final lastWord = to == null ? firstWord : selectWordAtPosition(getPositionForOffset(to));
 
     _handleSelectionChange(
         TextSelection(
@@ -567,8 +534,7 @@ class RenderEditor extends RenderEditableContainerBox
   /// The offset is the distance from the top of the editor and is the minimum
   /// from the current scroll position until [selection] becomes visible.
   /// Returns null if [selection] is already visible.
-  double? getOffsetToRevealCursor(
-      double viewportHeight, double scrollOffset, double offsetInViewport) {
+  double? getOffsetToRevealCursor(double viewportHeight, double scrollOffset, double offsetInViewport) {
     final endpoints = getEndpointsForSelection(_selection);
     final endpoint = endpoints.first;
     final child = childAtPosition(_selection.extent);
@@ -577,13 +543,8 @@ class RenderEditor extends RenderEditableContainerBox
     final lineHeight = child.preferredLineHeight(
       TextPosition(offset: _selection.extentOffset - child.container.offset),
     );
-    final caretTop = endpoint.point.dy -
-        lineHeight -
-        kMargin +
-        offsetInViewport +
-        scrollBottomInset;
-    final caretBottom =
-        endpoint.point.dy + kMargin + offsetInViewport + scrollBottomInset;
+    final caretTop = endpoint.point.dy - lineHeight - kMargin + offsetInViewport + scrollBottomInset;
+    final caretBottom = endpoint.point.dy + kMargin + offsetInViewport + scrollBottomInset;
     double? dy;
     if (caretTop < scrollOffset) {
       dy = caretTop;
@@ -598,21 +559,15 @@ class RenderEditor extends RenderEditableContainerBox
 
   // Util
 
-  void _handleSelectionChange(
-      TextSelection nextSelection, SelectionChangedCause cause) {
-    final focusingEmpty = nextSelection.baseOffset == 0 &&
-        nextSelection.extentOffset == 0 &&
-        !_hasFocus;
-    if (nextSelection == _selection &&
-        cause != SelectionChangedCause.keyboard &&
-        !focusingEmpty) {
+  void _handleSelectionChange(TextSelection nextSelection, SelectionChangedCause cause) {
+    final focusingEmpty = nextSelection.baseOffset == 0 && nextSelection.extentOffset == 0 && !_hasFocus;
+    if (nextSelection == _selection && cause != SelectionChangedCause.keyboard && !focusingEmpty) {
       return;
     }
     onSelectionChanged(nextSelection, cause);
   }
 
-  void _paintHandleLayers(
-      PaintingContext context, List<TextSelectionPoint> endpoints) {
+  void _paintHandleLayers(PaintingContext context, List<TextSelectionPoint> endpoints) {
     var startPoint = endpoints[0].point;
     startPoint = Offset(
       startPoint.dx.clamp(0.0, size.width),

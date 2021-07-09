@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flowy_editor/flowy_editor.dart';
-import 'package:flowy_editor/service/controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

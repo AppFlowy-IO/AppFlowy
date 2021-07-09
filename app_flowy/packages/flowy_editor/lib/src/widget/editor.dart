@@ -2,7 +2,6 @@ import 'dart:io' as io;
 import 'dart:convert';
 import 'dart:ui';
 
-import 'package:flowy_editor/widget/image_viewer_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -11,6 +10,7 @@ import 'package:string_validator/string_validator.dart';
 import '../widget/raw_editor.dart';
 import '../widget/builder.dart';
 import '../widget/proxy.dart';
+import '../widget/image_viewer_screen.dart';
 import '../model/document/attribute.dart';
 import '../model/document/document.dart';
 import '../model/document/node/embed.dart';

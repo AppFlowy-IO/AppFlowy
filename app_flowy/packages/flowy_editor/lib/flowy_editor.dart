@@ -1,8 +1,9 @@
 library flowy_editor;
 
-export 'widget/editor.dart';
-export 'widget/builder.dart';
-export 'widget/toolbar.dart';
-export 'widget/flowy_toolbar.dart';
-export 'service/style.dart';
-export 'model/document/document.dart';
+export 'src/widget/editor.dart';
+export 'src/widget/builder.dart';
+export 'src/widget/toolbar.dart';
+export 'src/widget/flowy_toolbar.dart';
+export 'src/service/style.dart';
+export 'src/service/controller.dart';
+export 'src/model/document/document.dart';
