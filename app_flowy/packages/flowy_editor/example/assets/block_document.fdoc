@@ -9,6 +9,14 @@
       "insert":"\n"
    },
    {
+      "insert": {
+         "flutter_logo": ""
+      },
+      "attributes":{
+         "size": 50.0
+      }
+   },
+   {
     "insert":"\n"
    }
 ]
