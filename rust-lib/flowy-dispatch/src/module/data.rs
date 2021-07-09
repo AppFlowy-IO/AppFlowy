@@ -1,9 +1,9 @@
 use crate::{
-    error::SystemError,
+    error::{InternalError, SystemError},
     request::{payload::Payload, EventRequest, FromRequest},
-    util::ready::Ready,
+    util::ready::{ready, Ready},
 };
-use std::{ops::Deref, sync::Arc};
+use std::{any::type_name, ops::Deref, sync::Arc};
 
 pub struct ModuleData<T: ?Sized + Send + Sync>(Arc<T>);
 
@@ -47,5 +47,13 @@ where
     type Future = Ready<Result<Self, SystemError>>;
 
     #[inline]
-    fn from_request(_req: &EventRequest, _: &mut Payload) -> Self::Future { unimplemented!() }
+    fn from_request(req: &EventRequest, _: &mut Payload) -> Self::Future {
+        if let Some(data) = req.module_data::<ModuleData<T>>() {
+            ready(Ok(data.clone()))
+        } else {
+            let msg = format!("Failed to get the module data(type: {})", type_name::<T>());
+            log::error!("{}", msg,);
+            ready(Err(InternalError::new(msg).into()))
+        }
+    }
 }

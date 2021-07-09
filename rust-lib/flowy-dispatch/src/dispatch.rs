@@ -49,7 +49,7 @@ impl EventDispatch {
                 let dispatch = dispatch.as_ref().unwrap();
                 let module_map = dispatch.module_map.clone();
                 let service = Box::new(DispatchService { module_map });
-                log::trace!("Async event: {:?}", &request.event());
+                log::trace!("Async event: {:?}", &request.event);
                 let service_ctx = DispatchContext {
                     request,
                     callback: Some(Box::new(callback)),
@@ -142,7 +142,7 @@ impl Service<DispatchContext> for DispatchService {
 
         Box::pin(async move {
             let result = {
-                match module_map.get(&request.event()) {
+                match module_map.get(&request.event) {
                     Some(module) => {
                         let fut = module.new_service(());
                         let service_fut = fut.await?.call(request);

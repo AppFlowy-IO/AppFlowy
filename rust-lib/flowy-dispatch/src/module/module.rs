@@ -13,7 +13,7 @@ use pin_project::pin_project;
 
 use crate::{
     error::{InternalError, SystemError},
-    module::{container::DataContainer, ModuleData},
+    module::{container::ModuleDataMap, ModuleData},
     request::{payload::Payload, EventRequest, FromRequest},
     response::{EventResponse, Responder},
     service::{
@@ -55,7 +55,7 @@ pub type EventServiceFactory = BoxServiceFactory<(), ServiceRequest, ServiceResp
 
 pub struct Module {
     pub name: String,
-    module_data: DataContainer,
+    module_data: Arc<ModuleDataMap>,
     service_map: Arc<HashMap<Event, EventServiceFactory>>,
 }
 
@@ -63,7 +63,7 @@ impl Module {
     pub fn new() -> Self {
         Self {
             name: "".to_owned(),
-            module_data: DataContainer::new(),
+            module_data: Arc::new(ModuleDataMap::new()),
             service_map: Arc::new(HashMap::new()),
         }
     }
@@ -74,7 +74,10 @@ impl Module {
     }
 
     pub fn data<D: 'static + Send + Sync>(mut self, data: D) -> Self {
-        self.module_data.insert(ModuleData::new(data));
+        Arc::get_mut(&mut self.module_data)
+            .unwrap()
+            .insert(ModuleData::new(data));
+
         self
     }
 
@@ -108,8 +111,9 @@ impl Module {
 
 #[derive(Debug)]
 pub struct ModuleRequest {
-    inner: EventRequest,
-    payload: Payload,
+    pub(crate) id: String,
+    pub(crate) event: Event,
+    pub(crate) payload: Payload,
 }
 
 impl ModuleRequest {
@@ -118,7 +122,8 @@ impl ModuleRequest {
         E: Into<Event>,
     {
         Self {
-            inner: EventRequest::new(event, uuid::Uuid::new_v4().to_string()),
+            id: uuid::Uuid::new_v4().to_string(),
+            event: event.into(),
             payload: Payload::None,
         }
     }
@@ -130,20 +135,12 @@ impl ModuleRequest {
         self.payload = payload.into();
         self
     }
-
-    pub fn id(&self) -> &str { &self.inner.id }
-
-    pub fn event(&self) -> &Event { &self.inner.event }
 }
 
 impl std::fmt::Display for ModuleRequest {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}:{:?}", self.inner.id, self.inner.event)
+        write!(f, "{}:{:?}", self.id, self.event)
     }
-}
-
-impl std::convert::Into<ServiceRequest> for ModuleRequest {
-    fn into(self) -> ServiceRequest { ServiceRequest::new(self.inner, self.payload) }
 }
 
 impl ServiceFactory<ModuleRequest> for Module {
@@ -155,8 +152,12 @@ impl ServiceFactory<ModuleRequest> for Module {
 
     fn new_service(&self, _cfg: Self::Context) -> Self::Future {
         let service_map = self.service_map.clone();
+        let module_data = self.module_data.clone();
         Box::pin(async move {
-            let service = ModuleService { service_map };
+            let service = ModuleService {
+                service_map,
+                module_data,
+            };
             let module_service = Box::new(service) as Self::Service;
             Ok(module_service)
         })
@@ -165,6 +166,7 @@ impl ServiceFactory<ModuleRequest> for Module {
 
 pub struct ModuleService {
     service_map: Arc<HashMap<Event, EventServiceFactory>>,
+    module_data: Arc<ModuleDataMap>,
 }
 
 impl Service<ModuleRequest> for ModuleService {
@@ -173,13 +175,18 @@ impl Service<ModuleRequest> for ModuleService {
     type Future = BoxFuture<'static, Result<Self::Response, Self::Error>>;
 
     fn call(&self, request: ModuleRequest) -> Self::Future {
-        match self.service_map.get(&request.event()) {
+        let ModuleRequest { id, event, payload } = request;
+        let module_data = self.module_data.clone();
+        let request = EventRequest::new(id.clone(), event, module_data);
+
+        match self.service_map.get(&request.event) {
             Some(factory) => {
                 let service_fut = factory.new_service(());
                 let fut = ModuleServiceFuture {
                     fut: Box::pin(async {
                         let service = service_fut.await?;
-                        service.call(request.into()).await
+                        let service_req = ServiceRequest::new(request, payload);
+                        service.call(service_req).await
                     }),
                 };
                 Box::pin(async move { Ok(fut.await.unwrap_or_else(|e| e.into())) })

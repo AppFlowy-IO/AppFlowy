@@ -2,33 +2,48 @@ use std::future::Future;
 
 use crate::{
     error::{InternalError, SystemError},
-    module::Event,
+    module::{Event, ModuleDataMap},
     request::payload::Payload,
     util::ready::{ready, Ready},
 };
-
+use derivative::*;
 use futures_core::ready;
 use std::{
     fmt::Debug,
     pin::Pin,
+    sync::Arc,
     task::{Context, Poll},
 };
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Derivative)]
 pub struct EventRequest {
     pub(crate) id: String,
     pub(crate) event: Event,
+    #[derivative(Debug = "ignore")]
+    pub(crate) module_data: Arc<ModuleDataMap>,
 }
 
 impl EventRequest {
-    pub fn new<E>(event: E, id: String) -> EventRequest
+    pub fn new<E>(id: String, event: E, module_data: Arc<ModuleDataMap>) -> EventRequest
     where
         E: Into<Event>,
     {
         Self {
             id,
             event: event.into(),
+            module_data,
         }
+    }
+
+    pub fn module_data<T: 'static>(&self) -> Option<&T>
+    where
+        T: Send + Sync,
+    {
+        if let Some(data) = self.module_data.get::<T>() {
+            return Some(data);
+        }
+
+        None
     }
 }
 
