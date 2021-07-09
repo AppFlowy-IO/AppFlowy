@@ -1,6 +1,6 @@
-use crate::domain::user::*;
+use crate::domain::{user::*, user_session::UserSession};
 use flowy_dispatch::prelude::*;
-use std::convert::TryInto;
+use std::{convert::TryInto, sync::Arc};
 
 // tracing instrument 👉🏻 https://docs.rs/tracing/0.1.26/tracing/attr.instrument.html
 #[tracing::instrument(
@@ -19,12 +19,15 @@ pub async fn user_sign_in(data: Data<SignInRequest>) -> ResponseResult<SignInRes
 
 #[tracing::instrument(
     name = "user_sign_up",
-    skip(data),
+    skip(data, session),
     fields(
     email = %data.email,
     )
 )]
-pub async fn user_sign_up(data: Data<SignUpRequest>) -> ResponseResult<SignUpResponse, String> {
+pub async fn user_sign_up(
+    data: Data<SignUpRequest>,
+    session: ModuleData<Arc<UserSession>>,
+) -> ResponseResult<SignUpResponse, String> {
     let _params: SignUpParams = data.into_inner().try_into()?;
     // TODO: user sign up
 

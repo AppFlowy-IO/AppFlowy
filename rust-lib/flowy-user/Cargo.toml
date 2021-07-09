@@ -10,7 +10,8 @@ derive_more = {version = "0.99", features = ["display"]}
 flowy-dispatch = { path = "../flowy-dispatch" }
 flowy-log = { path = "../flowy-log" }
 flowy-derive = { path = "../flowy-derive" }
-flowy-db = { path = "../flowy-db" }
+flowy-database = { path = "../flowy-database" }
+flowy-sqlite = { path = "../flowy-sqlite" }
 
 tracing = { version = "0.1", features = ["log"] }
 bytes = "1.0"

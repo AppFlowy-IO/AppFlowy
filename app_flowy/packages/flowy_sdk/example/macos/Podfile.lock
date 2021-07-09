@@ -1,5 +1,5 @@
 PODS:
-  - flowy_infra (0.0.1):
+  - flowy_sqlite (0.0.1):
     - FlutterMacOS
   - flowy_sdk (0.0.1):
     - FlutterMacOS
@@ -9,15 +9,15 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
-  - flowy_infra (from `Flutter/ephemeral/.symlinks/plugins/flowy_infra/macos`)
+  - flowy_sqlite (from `Flutter/ephemeral/.symlinks/plugins/flowy_sqlite/macos`)
   - flowy_sdk (from `Flutter/ephemeral/.symlinks/plugins/flowy_sdk/macos`)
   - FlutterMacOS (from `Flutter/ephemeral/.symlinks/flutter/darwin-x64`)
   - path_provider (from `Flutter/ephemeral/.symlinks/plugins/path_provider/macos`)
   - path_provider_macos (from `Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos`)
 
 EXTERNAL SOURCES:
-  flowy_infra:
-    :path: Flutter/ephemeral/.symlinks/plugins/flowy_infra/macos
+  flowy_sqlite:
+    :path: Flutter/ephemeral/.symlinks/plugins/flowy_sqlite/macos
   flowy_sdk:
     :path: Flutter/ephemeral/.symlinks/plugins/flowy_sdk/macos
   FlutterMacOS:
@@ -28,7 +28,7 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos
 
 SPEC CHECKSUMS:
-  flowy_infra: 6638deea1ca0baeef75156d16236123d4703161d
+  flowy_sqlite: 6638deea1ca0baeef75156d16236123d4703161d
   flowy_sdk: 12d2c047ed260a0aa8788a0b9616da46e2312025
   FlutterMacOS: 15bea8a44d2fa024068daa0140371c020b4b6ff9
   path_provider: e0848572d1d38b9a7dd099e79cf83f5b7e2cde9f

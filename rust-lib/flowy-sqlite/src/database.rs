@@ -1,6 +1,6 @@
 use crate::{
     errors::*,
-    sqlite::pool::{ConnectionManager, ConnectionPool, PoolConfig},
+    pool::{ConnectionManager, ConnectionPool, PoolConfig},
 };
 use r2d2::PooledConnection;
 
@@ -8,6 +8,8 @@ pub struct DataBase {
     uri: String,
     pool: ConnectionPool,
 }
+
+pub type DBConnection = PooledConnection<ConnectionManager>;
 
 impl DataBase {
     pub fn new(dir: &str, name: &str, pool_config: PoolConfig) -> Result<Self> {
@@ -18,7 +20,7 @@ impl DataBase {
 
     pub fn get_uri(&self) -> &str { &self.uri }
 
-    pub fn get_conn(&self) -> Result<PooledConnection<ConnectionManager>> {
+    pub fn get_connection(&self) -> Result<DBConnection> {
         let conn = self.pool.get()?;
         Ok(conn)
     }
