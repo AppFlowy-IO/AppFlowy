@@ -1,34 +1,46 @@
 PODS:
+  - flowy_editor (0.0.1):
+    - FlutterMacOS
   - flowy_sdk (0.0.1):
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
   - path_provider_macos (0.0.1):
     - FlutterMacOS
+  - url_launcher_macos (0.0.1):
+    - FlutterMacOS
   - window_size (0.0.2):
     - FlutterMacOS
 
 DEPENDENCIES:
+  - flowy_editor (from `Flutter/ephemeral/.symlinks/plugins/flowy_editor/macos`)
   - flowy_sdk (from `Flutter/ephemeral/.symlinks/plugins/flowy_sdk/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - path_provider_macos (from `Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos`)
+  - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
   - window_size (from `Flutter/ephemeral/.symlinks/plugins/window_size/macos`)
 
 EXTERNAL SOURCES:
+  flowy_editor:
+    :path: Flutter/ephemeral/.symlinks/plugins/flowy_editor/macos
   flowy_sdk:
     :path: Flutter/ephemeral/.symlinks/plugins/flowy_sdk/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
   path_provider_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos
+  url_launcher_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos
   window_size:
     :path: Flutter/ephemeral/.symlinks/plugins/window_size/macos
 
 SPEC CHECKSUMS:
+  flowy_editor: 26060a984848e6afac1f6a4455511f4114119d8d
   flowy_sdk: c302ac0a22dea596db0df8073b9637b2bf2ff6fd
   FlutterMacOS: 57701585bf7de1b3fc2bb61f6378d73bbdea8424
   path_provider_macos: a0a3fd666cb7cd0448e936fb4abad4052961002b
+  url_launcher_macos: 45af3d61de06997666568a7149c1be98b41c95d4
   window_size: 339dafa0b27a95a62a843042038fa6c3c48de195
 
 PODFILE CHECKSUM: 6eac6b3292e5142cfc23bdeb71848a40ec51c14c
 
-COCOAPODS: 1.10.1
+COCOAPODS: 1.9.3

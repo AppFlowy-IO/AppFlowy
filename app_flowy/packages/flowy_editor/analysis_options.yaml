@@ -1,0 +1,8 @@
+include: package:pedantic/analysis_options.yaml
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+
+
+# https://dart.dev/guides/language/analysis-options
