@@ -28,10 +28,10 @@ class FlowySDK {
 
     ffi.init_sdk(sdkDir.path.toNativeUtf8());
 
-    final params = UserSignInParams.create();
+    final params = SignInRequest.create();
     params.email = "nathan.fu@gmail.com";
     params.password = "Helloworld!2";
-    Either<UserSignInResult, FlowyError> resp =
+    Either<SignInResponse, FlowyError> resp =
         await UserEventSignIn(params).send();
 
     resp.fold(
