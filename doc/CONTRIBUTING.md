@@ -18,7 +18,6 @@ Consult the Table of Contents below, and jump to the desired section.
 - [Code of Conduct](#code-of-conduct)
 
 
-
 ## Sign the CLA Agreement
 
 TODO

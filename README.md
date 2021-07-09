@@ -8,13 +8,13 @@
 
 ## Documentation
 
-* [**Getting Started**](doc/getting_started.md)
-* [**Roadmap**](doc/roadmap.md)
-* [**Deep Dive AppFlowy**](doc/architecture.md)
+* [**Getting Started**](doc/GETTING_STARTED.md)
+* [**Roadmap**](doc/ROADMAP.md)
+* [**Deep Dive AppFlowy**](doc/APPFLOWY_SYSTEM_DESIGN.md)
 
 
 ## Contributing
-Read the [Contributing Doc](doc/contribute.md) before you want to contribute.
+Read the [Contributing Doc](doc/CONTRIBUTING.md) before you want to contribute.
 
 ## Social Media
 * Slack (to be determined)
