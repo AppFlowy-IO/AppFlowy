@@ -1,78 +1,38 @@
-import 'dart:convert';
-import 'dart:io' as io;
-
+import 'package:flowy_editor/src/widget/embed_builder/logo_builder.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:string_validator/string_validator.dart';
 
+import '../widget/embed_builder/image_builder.dart';
 import '../model/document/node/leaf.dart' show Embed;
 
 abstract class EmbedWidgetBuilder {
+  const EmbedWidgetBuilder();
+
   bool canHandle(String type);
 
   Widget? buildeWidget(BuildContext context, Embed node);
 }
 
 /* ---------------------------------- Embed --------------------------------- */
-
-class EmbedBuilder {
-  static const kImageTypeKey = 'image';
+class EmbedBaseProvider {
   static const kFlutterLogoTypeKey = 'flutter_logo';
 
-  static const builtInTypes = [kImageTypeKey, kFlutterLogoTypeKey];
+  static const builtInProviders = <EmbedWidgetBuilder>[
+    ImageEmbedBuilder(),
+    LogoEmbedBuilder(),
+  ];
 
-  static Widget defaultBuilder(BuildContext context, Embed node) {
-    assert(!kIsWeb, 'Please provide EmbedBuilder for Web');
-    switch (node.value.type) {
-      case kImageTypeKey:
-        return _generateImageEmbed(context, node);
-      case kFlutterLogoTypeKey:
-        return _generateFlutterLogoEmbed(context, node);
-      default:
-        return Align(
-          alignment: Alignment.center,
-          child: _UnsupportedHintBlock(node),
-        );
+  static Widget buildEmbedWidget(BuildContext context, Embed node) {
+    Widget? result;
+    for (final builder in builtInProviders) {
+      if (builder.canHandle(node.value.type)) {
+        result = builder.buildeWidget(context, node);
+        if (result != null) {
+          break;
+        }
+      }
     }
-  }
-
-  // Generator
-
-  static Widget _generateImageEmbed(BuildContext context, Embed node) {
-    final imageUrl = standardizeImageUrl(node.value.data);
-    return imageUrl.startsWith('http')
-        ? Image.network(imageUrl)
-        : isBase64(imageUrl)
-            ? Image.memory(base64.decode(imageUrl))
-            : Image.file(io.File(imageUrl));
-  }
-
-  static Widget _generateFlutterLogoEmbed(BuildContext context, Embed node) {
-    final size = node.style.attributes['size'];
-    var logoSize = size != null ? size.value as double? ?? 100.0 : 100.0;
-    return Align(
-      alignment: Alignment.center,
-      child: Container(
-        width: logoSize,
-        height: logoSize,
-        color: Colors.red,
-        child: GestureDetector(
-          onTap: () {
-            print('Flutter logo tapped');
-          },
-          child: FlutterLogo(size: logoSize),
-        ),
-      ),
-    );
-  }
-
-  // Helper
-
-  static String standardizeImageUrl(String url) {
-    if (url.contains('base64')) {
-      return url.split(',')[1];
-    }
-    return url;
+    return result ?? Align(alignment: Alignment.center, child: _UnsupportedHintBlock(node));
   }
 }
 

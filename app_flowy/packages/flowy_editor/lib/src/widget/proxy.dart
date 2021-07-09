@@ -22,8 +22,7 @@ class BaselineProxy extends SingleChildRenderObjectWidget {
   }
 
   @override
-  void updateRenderObject(
-      BuildContext context, covariant RenderBaselineProxy renderObject) {
+  void updateRenderObject(BuildContext context, covariant RenderBaselineProxy renderObject) {
     renderObject
       ..textStyle = textStyle!
       ..padding = padding!;
@@ -38,8 +37,7 @@ class EmbedProxy extends SingleChildRenderObjectWidget {
   const EmbedProxy(Widget child) : super(child: child);
 
   @override
-  RenderEmbedProxy createRenderObject(BuildContext context) =>
-      RenderEmbedProxy(null);
+  RenderEmbedProxy createRenderObject(BuildContext context) => RenderEmbedProxy(null);
 }
 
 /* ---------------------------------- Text ---------------------------------- */
@@ -82,8 +80,7 @@ class RichTextProxy extends SingleChildRenderObjectWidget {
   }
 
   @override
-  void updateRenderObject(
-      BuildContext context, covariant RenderParagraphProxy renderObject) {
+  void updateRenderObject(BuildContext context, covariant RenderParagraphProxy renderObject) {
     renderObject
       ..textStyle = textStyle
       ..textAlign = textAlign

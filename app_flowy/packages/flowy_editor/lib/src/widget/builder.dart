@@ -1,12 +1,6 @@
-import 'dart:convert';
-import 'dart:io' as io;
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:string_validator/string_validator.dart';
 
-import '../model/document/node/leaf.dart';
 import '../widget/raw_editor.dart';
 import '../widget/selection.dart';
 import '../rendering/editor.dart';

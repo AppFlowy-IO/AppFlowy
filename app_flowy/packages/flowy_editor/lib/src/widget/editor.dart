@@ -1,22 +1,18 @@
-import 'dart:io' as io;
-import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:string_validator/string_validator.dart';
 
 import '../widget/raw_editor.dart';
 import '../widget/builder.dart';
+import '../widget/embed.dart';
 import '../widget/proxy.dart';
-import '../widget/image_viewer_screen.dart';
 import '../model/document/attribute.dart';
 import '../model/document/document.dart';
-import '../model/document/node/embed.dart';
 import '../model/document/node/line.dart';
 import '../model/document/node/container.dart' as container_node;
-import '../model/document/node/leaf.dart' as leaf;
+import '../model/document/node/leaf.dart' show Leaf;
 import '../service/controller.dart';
 import '../service/cursor.dart';
 import '../service/style.dart';
@@ -61,13 +57,13 @@ class FlowyEditor extends StatefulWidget {
     this.textCapitalization = TextCapitalization.sentences,
     this.keyboardAppearance = Brightness.light,
     this.scrollPhysics,
-    this.embedBuilder = EmbedBuilder.defaultBuilder,
     this.onLaunchUrl,
     this.onTapDown,
     this.onTapUp,
     this.onLongPressStart,
     this.onLongPressMoveUpdate,
     this.onLongPressEnd,
+    this.embedProvider = EmbedBaseProvider.buildEmbedWidget,
   });
 
   factory FlowyEditor.basic({
@@ -105,7 +101,7 @@ class FlowyEditor extends StatefulWidget {
   final TextCapitalization textCapitalization;
   final Brightness keyboardAppearance;
   final ScrollPhysics? scrollPhysics;
-  final EmbedBuilderFuncion embedBuilder;
+  final EmbedBuilderFuncion embedProvider;
 
   // Callback
 
@@ -222,7 +218,7 @@ class _FlowyEditorState extends State<FlowyEditor> implements EditorTextSelectio
         widget.keyboardAppearance,
         widget.enableInteractiveSelection,
         widget.scrollPhysics,
-        widget.embedBuilder,
+        widget.embedProvider,
       ),
     );
   }
@@ -429,7 +425,7 @@ class _FlowyEditorSelectionGestureDetectorBuilder extends EditorTextSelectionGes
     }
 
     // Link
-    final segment = segmentResult.node as leaf.Leaf;
+    final segment = segmentResult.node as Leaf;
     if (segment.style.containsKey(Attribute.link.key)) {
       var launchUrl = getEditor()!.widget.onLaunchUrl;
       launchUrl ??= _launchUrl;
@@ -440,27 +436,6 @@ class _FlowyEditorSelectionGestureDetectorBuilder extends EditorTextSelectionGes
           link = 'https://$link';
         }
         launchUrl(link);
-      }
-      return false;
-    }
-
-    // Image
-    if (getEditor()!.widget.readOnly && segment.value is BlockEmbed) {
-      final blockEmbed = segment.value as BlockEmbed;
-      if (blockEmbed.type == 'image') {
-        final imageUrl = EmbedBuilder.standardizeImageUrl(blockEmbed.data);
-        Navigator.push(
-          getEditor()!.context,
-          MaterialPageRoute(builder: (context) {
-            return ImageTapWrapper(
-              imageProvider: imageUrl.startsWith('http')
-                  ? NetworkImage(imageUrl)
-                  : isBase64(imageUrl)
-                      ? Image.memory(base64.decode(imageUrl)) as ImageProvider<Object>?
-                      : FileImage(io.File(imageUrl)),
-            );
-          }),
-        );
       }
       return false;
     }

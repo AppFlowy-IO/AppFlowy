@@ -13,7 +13,18 @@
          "flutter_logo": ""
       },
       "attributes":{
-         "size": 50.0
+         "size": 200.0
+      }
+   },
+   {
+      "insert":"\n"
+   },
+   {
+      "insert": {
+         "test_block_type": "test_data"
+      },
+      "attributes":{
+         
       }
    },
    {
