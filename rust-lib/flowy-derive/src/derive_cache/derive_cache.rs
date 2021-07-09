@@ -18,15 +18,14 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         "FFIRequest"
         | "FFIResponse"
         | "User"
-        | "UserSignUpParams"
-        | "UserSignUpRequest"
-        | "UserSignUpResult"
-        | "UserSignInParams"
-        | "UserSignInRequest"
-        | "UserSignInResult"
+        | "SignUpRequest"
+        | "SignUpParams"
+        | "SignUpResponse"
+        | "SignInRequest"
+        | "SignInParams"
+        | "SignInResponse"
         => TypeCategory::Protobuf,
         "FFIStatusCode"
-        | "UserEvent"
         => TypeCategory::Enum,
 
         "Option" => TypeCategory::Opt,

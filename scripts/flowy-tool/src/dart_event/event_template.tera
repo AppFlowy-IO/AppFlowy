@@ -3,11 +3,11 @@
 {%- endif -%}
 
 class {{ event_class }} {
-    {{ input_deserializer }} params;
-    {{ event_class }}(this.params);
+    {{ input_deserializer }} request;
+    {{ event_class }}(this.request);
 
     Future<Either<{{ output_deserializer }}, FlowyError>> send() {
-    return paramsToBytes(params).fold(
+    return requestToBytes(request).fold(
         (bytes) {
           final request = FFIRequest.create()
             ..event = {{ event }}.toString()

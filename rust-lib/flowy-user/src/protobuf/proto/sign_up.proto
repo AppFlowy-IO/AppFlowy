@@ -1,15 +1,15 @@
 syntax = "proto3";
 
-message UserSignUpParams {
+message SignUpRequest {
     string email = 1;
     string name = 2;
     string password = 3;
 }
-message UserSignUpRequest {
+message SignUpParams {
     string email = 1;
     string name = 2;
     string password = 3;
 }
-message UserSignUpResult {
+message SignUpResponse {
     bool is_success = 1;
 }

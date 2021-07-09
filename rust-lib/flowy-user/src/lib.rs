@@ -1,5 +1,6 @@
 mod domain;
 mod error;
+pub mod event;
 mod handlers;
 pub mod module;
 mod protobuf;

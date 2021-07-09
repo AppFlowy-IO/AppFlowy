@@ -111,7 +111,7 @@ where
     T: FromBytes,
 {
     match payload {
-        Payload::None => Err(format!("Expected payload")),
+        Payload::None => Err(format!("Parse fail, expected payload")),
         Payload::Bytes(bytes) => match T::parse_from_bytes(&bytes) {
             Ok(data) => Ok(Data(data)),
             Err(e) => Err(e),

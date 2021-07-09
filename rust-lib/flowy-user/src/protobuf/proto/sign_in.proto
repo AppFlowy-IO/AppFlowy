@@ -1,13 +1,13 @@
 syntax = "proto3";
 
-message UserSignInParams {
+message SignInRequest {
     string email = 1;
     string password = 2;
 }
-message UserSignInRequest {
+message SignInParams {
     string email = 1;
     string password = 2;
 }
-message UserSignInResult {
+message SignInResponse {
     bool is_success = 1;
 }

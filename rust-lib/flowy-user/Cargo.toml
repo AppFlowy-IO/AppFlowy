@@ -27,3 +27,5 @@ quickcheck_macros = "0.9.1"
 fake = "~2.3.0"
 claim = "0.4.0"
 flowy-test = { path = "../flowy-test" }
+tokio = { version = "1", features = ["full"] }
+futures = "0.3.15"

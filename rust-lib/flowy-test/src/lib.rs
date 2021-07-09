@@ -7,6 +7,7 @@ use std::{
     hash::Hash,
     path::PathBuf,
     sync::Once,
+    thread,
 };
 
 pub mod prelude {
@@ -21,8 +22,8 @@ pub fn init_sdk() {
 
     INIT.call_once(|| {
         FlowySDK::init_log(&root_dir);
+        FlowySDK::init(&root_dir);
     });
-    FlowySDK::init(&root_dir);
 }
 
 fn root_dir() -> String {
@@ -42,7 +43,7 @@ fn root_dir() -> String {
 }
 
 pub struct EventTester {
-    request: Option<ModuleRequest>,
+    inner_request: Option<ModuleRequest>,
     assert_status_code: Option<StatusCode>,
     response: Option<EventResponse>,
 }
@@ -53,22 +54,26 @@ impl EventTester {
         E: Eq + Hash + Debug + Clone + Display,
     {
         init_sdk();
-        let request = ModuleRequest::new(event);
+        log::trace!(
+            "{:?} thread started: thread_id= {}",
+            thread::current(),
+            thread_id::get()
+        );
         Self {
-            request: Some(request),
+            inner_request: Some(ModuleRequest::new(event)),
             assert_status_code: None,
             response: None,
         }
     }
 
-    pub fn payload<P>(mut self, payload: P) -> Self
+    pub fn request<P>(mut self, request: P) -> Self
     where
         P: ToBytes,
     {
-        let mut request = self.request.take().unwrap();
-        let bytes = payload.into_bytes().unwrap();
-        request = request.payload(bytes);
-        self.request = Some(request);
+        let mut inner_request = self.inner_request.take().unwrap();
+        let bytes = request.into_bytes().unwrap();
+        inner_request = inner_request.payload(bytes);
+        self.inner_request = Some(inner_request);
         self
     }
 
@@ -77,26 +82,25 @@ impl EventTester {
         self
     }
 
+    pub fn assert_error(mut self) -> Self {
+        self.assert_status_code = Some(StatusCode::Err);
+        self
+    }
+
     #[allow(dead_code)]
     pub async fn async_send(mut self) -> Self {
         let resp =
-            EventDispatch::async_send(self.request.take().unwrap(), |_| Box::pin(async {})).await;
+            EventDispatch::async_send(self.inner_request.take().unwrap(), |_| Box::pin(async {}))
+                .await;
 
-        if let Some(ref status_code) = self.assert_status_code {
-            assert_eq!(&resp.status_code, status_code)
-        }
-        dbg!(&resp);
+        check(&resp, &self.assert_status_code);
         self.response = Some(resp);
         self
     }
 
     pub fn sync_send(mut self) -> Self {
-        let resp = EventDispatch::sync_send(self.request.take().unwrap());
-
-        if let Some(ref status_code) = self.assert_status_code {
-            assert_eq!(&resp.status_code, status_code)
-        }
-        dbg!(&resp);
+        let resp = EventDispatch::sync_send(self.inner_request.take().unwrap());
+        check(&resp, &self.assert_status_code);
         self.response = Some(resp);
         self
     }
@@ -107,5 +111,14 @@ impl EventTester {
     {
         let response = self.response.unwrap();
         <Data<R>>::try_from(response.payload).unwrap().into_inner()
+    }
+}
+
+fn check(response: &EventResponse, status_code: &Option<StatusCode>) {
+    if let Some(ref status_code) = status_code {
+        if &response.status_code != status_code {
+            eprintln!("{:#?}", response);
+        }
+        assert_eq!(&response.status_code, status_code)
     }
 }

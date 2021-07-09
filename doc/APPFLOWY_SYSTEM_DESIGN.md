@@ -52,6 +52,10 @@ Here are the event flow:
 
 The event flow will be discussed in two parts: the frontend implemented in flutter and the FlowySDK implemented in Rust.
 
+#### FlowySDK
+
+
+
 #### Frontend
 The Frontend follows the DDD design pattern, you can recap from [**here**](DOMAIN_DRIVEN_DESIGN.md).
 ```
@@ -65,7 +69,5 @@ The Frontend follows the DDD design pattern, you can recap from [**here**](DOMAI
                                   │ Repository C │────┘
                                   └──────────────┘
 ```
-
-#### FlowySDK
 
 

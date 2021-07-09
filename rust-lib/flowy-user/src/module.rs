@@ -1,5 +1,6 @@
-use crate::{domain::event::UserEvent, handlers::*};
 use flowy_dispatch::prelude::*;
+
+use crate::{event::UserEvent, handlers::*};
 
 pub fn create() -> Module {
     Module::new()

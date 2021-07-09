@@ -3,7 +3,7 @@ use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
 
 #[derive(ProtoBuf, Default)]
-pub struct UserSignUpParams {
+pub struct SignUpRequest {
     #[pb(index = 1)]
     pub email: String,
 
@@ -13,14 +13,14 @@ pub struct UserSignUpParams {
     #[pb(index = 3)]
     pub password: String,
 }
-impl TryInto<UserSignUpRequest> for UserSignUpParams {
+impl TryInto<SignUpParams> for SignUpRequest {
     type Error = String;
 
-    fn try_into(self) -> Result<UserSignUpRequest, Self::Error> {
+    fn try_into(self) -> Result<SignUpParams, Self::Error> {
         let email = UserEmail::parse(self.email)?;
         let name = UserName::parse(self.name)?;
         let password = UserPassword::parse(self.password)?;
-        Ok(UserSignUpRequest {
+        Ok(SignUpParams {
             email: email.0,
             name: name.0,
             password: password.0,
@@ -29,7 +29,7 @@ impl TryInto<UserSignUpRequest> for UserSignUpParams {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct UserSignUpRequest {
+pub struct SignUpParams {
     #[pb(index = 1)]
     pub email: String,
 
@@ -40,12 +40,12 @@ pub struct UserSignUpRequest {
     pub password: String,
 }
 
-#[derive(ProtoBuf, Default)]
-pub struct UserSignUpResult {
+#[derive(ProtoBuf, Debug, Default)]
+pub struct SignUpResponse {
     #[pb(index = 1)]
     pub is_success: bool,
 }
 
-impl UserSignUpResult {
+impl SignUpResponse {
     pub fn new(is_success: bool) -> Self { Self { is_success } }
 }

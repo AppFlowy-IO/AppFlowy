@@ -6,8 +6,8 @@
 // ignore_for_file: annotate_overrides,camel_case_types,unnecessary_const,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type,unnecessary_this,prefer_final_fields
 
 import 'dart:core' as $core;
-const UserSignUpParams$json = const {
-  '1': 'UserSignUpParams',
+const SignUpRequest$json = const {
+  '1': 'SignUpRequest',
   '2': const [
     const {'1': 'email', '3': 1, '4': 1, '5': 9, '10': 'email'},
     const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
@@ -15,8 +15,8 @@ const UserSignUpParams$json = const {
   ],
 };
 
-const UserSignUpRequest$json = const {
-  '1': 'UserSignUpRequest',
+const SignUpParams$json = const {
+  '1': 'SignUpParams',
   '2': const [
     const {'1': 'email', '3': 1, '4': 1, '5': 9, '10': 'email'},
     const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
@@ -24,8 +24,8 @@ const UserSignUpRequest$json = const {
   ],
 };
 
-const UserSignUpResult$json = const {
-  '1': 'UserSignUpResult',
+const SignUpResponse$json = const {
+  '1': 'SignUpResponse',
   '2': const [
     const {'1': 'is_success', '3': 1, '4': 1, '5': 8, '10': 'isSuccess'},
   ],

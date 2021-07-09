@@ -15,3 +15,5 @@ protobuf = {version = "2.24.1"}
 claim = "0.5.0"
 tokio = { version = "1", features = ["full"]}
 futures-util = "0.3.15"
+thread-id = "3.3.0"
+log = "0.4"

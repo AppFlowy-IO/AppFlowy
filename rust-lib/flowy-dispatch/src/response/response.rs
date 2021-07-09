@@ -4,6 +4,7 @@ use crate::{
     request::{EventRequest, Payload},
     response::Responder,
 };
+use derivative::*;
 use std::{fmt, fmt::Formatter};
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
@@ -13,8 +14,9 @@ pub enum StatusCode {
 }
 
 // serde user guide: https://serde.rs/field-attrs.html
-#[derive(Debug, Clone, serde::Serialize)]
+#[derive(Debug, Clone, serde::Serialize, Derivative)]
 pub struct EventResponse {
+    #[derivative(Debug = "ignore")]
     pub payload: Payload,
     pub status_code: StatusCode,
     pub error: Option<SystemError>,

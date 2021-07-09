@@ -35,7 +35,6 @@ impl EventDispatch {
             module_map,
             runtime,
         };
-
         *(EVENT_DISPATCH.write().unwrap()) = Some(dispatch);
     }
 
@@ -65,7 +64,7 @@ impl EventDispatch {
                 DispatchFuture {
                     fut: Box::pin(async move {
                         join_handle.await.unwrap_or_else(|e| {
-                            InternalError::new(format!("Dispatch join error: {:?}", e))
+                            InternalError::new(format!("EVENT_DISPATCH join error: {:?}", e))
                                 .as_response()
                         })
                     }),

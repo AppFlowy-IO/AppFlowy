@@ -55,7 +55,7 @@ pub type EventServiceFactory = BoxServiceFactory<(), ServiceRequest, ServiceResp
 
 pub struct Module {
     pub name: String,
-    data: DataContainer,
+    module_data: DataContainer,
     service_map: Arc<HashMap<Event, EventServiceFactory>>,
 }
 
@@ -63,7 +63,7 @@ impl Module {
     pub fn new() -> Self {
         Self {
             name: "".to_owned(),
-            data: DataContainer::new(),
+            module_data: DataContainer::new(),
             service_map: Arc::new(HashMap::new()),
         }
     }
@@ -74,7 +74,7 @@ impl Module {
     }
 
     pub fn data<D: 'static + Send + Sync>(mut self, data: D) -> Self {
-        self.data.insert(ModuleData::new(data));
+        self.module_data.insert(ModuleData::new(data));
         self
     }
 

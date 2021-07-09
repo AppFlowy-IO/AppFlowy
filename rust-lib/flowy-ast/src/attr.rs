@@ -135,6 +135,7 @@ impl<'c, T> ASTAttr<'c, T> {
 }
 
 pub struct ASTAttrField {
+    #[allow(dead_code)]
     name: String,
     pb_index: Option<syn::LitInt>,
     pb_one_of: bool,

@@ -10,12 +10,10 @@ use std::convert::TryInto;
         email = %data.email,
     )
 )]
-pub async fn user_sign_in(
-    data: Data<UserSignInParams>,
-) -> ResponseResult<UserSignInResult, String> {
-    let _request: UserSignInRequest = data.into_inner().try_into()?;
-
-    let response = UserSignInResult::new(true);
+pub async fn user_sign_in(data: Data<SignInRequest>) -> ResponseResult<SignInResponse, String> {
+    let _params: SignInParams = data.into_inner().try_into()?;
+    // TODO: user sign in
+    let response = SignInResponse::new(true);
     response_ok(response)
 }
 
@@ -26,11 +24,10 @@ pub async fn user_sign_in(
     email = %data.email,
     )
 )]
-pub async fn user_sign_up(
-    data: Data<UserSignUpParams>,
-) -> ResponseResult<UserSignUpResult, String> {
-    let _request: UserSignUpRequest = data.into_inner().try_into()?;
+pub async fn user_sign_up(data: Data<SignUpRequest>) -> ResponseResult<SignUpResponse, String> {
+    let _params: SignUpParams = data.into_inner().try_into()?;
+    // TODO: user sign up
 
-    let response = UserSignUpResult::new(true);
-    response_ok(response)
+    let fake_resp = SignUpResponse::new(true);
+    response_ok(fake_resp)
 }

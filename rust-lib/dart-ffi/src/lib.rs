@@ -25,6 +25,8 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
     let c_str: &CStr = unsafe { CStr::from_ptr(path) };
     let path: &str = c_str.to_str().unwrap();
     FlowySDK::init_log(path);
+
+    log::info!("🔥 FlowySDK start running");
     FlowySDK::init(path);
     return 1;
 }

@@ -86,7 +86,7 @@ Completer<Uint8List> _sendToRust(FFIRequest request) {
   return completer;
 }
 
-Either<Uint8List, FlowyError> paramsToBytes<T extends GeneratedMessage>(
+Either<Uint8List, FlowyError> requestToBytes<T extends GeneratedMessage>(
     T? message) {
   try {
     if (message != null) {

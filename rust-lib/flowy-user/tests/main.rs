@@ -1,1 +1,1 @@
-mod sign_in;
+mod auth;

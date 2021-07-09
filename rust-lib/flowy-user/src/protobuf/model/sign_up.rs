@@ -24,7 +24,7 @@
 // const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_22_1;
 
 #[derive(PartialEq,Clone,Default)]
-pub struct UserSignUpParams {
+pub struct SignUpRequest {
     // message fields
     pub email: ::std::string::String,
     pub name: ::std::string::String,
@@ -34,14 +34,14 @@ pub struct UserSignUpParams {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a UserSignUpParams {
-    fn default() -> &'a UserSignUpParams {
-        <UserSignUpParams as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a SignUpRequest {
+    fn default() -> &'a SignUpRequest {
+        <SignUpRequest as ::protobuf::Message>::default_instance()
     }
 }
 
-impl UserSignUpParams {
-    pub fn new() -> UserSignUpParams {
+impl SignUpRequest {
+    pub fn new() -> SignUpRequest {
         ::std::default::Default::default()
     }
 
@@ -124,7 +124,7 @@ impl UserSignUpParams {
     }
 }
 
-impl ::protobuf::Message for UserSignUpParams {
+impl ::protobuf::Message for SignUpRequest {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -208,8 +208,8 @@ impl ::protobuf::Message for UserSignUpParams {
         Self::descriptor_static()
     }
 
-    fn new() -> UserSignUpParams {
-        UserSignUpParams::new()
+    fn new() -> SignUpRequest {
+        SignUpRequest::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -218,34 +218,34 @@ impl ::protobuf::Message for UserSignUpParams {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "email",
-                |m: &UserSignUpParams| { &m.email },
-                |m: &mut UserSignUpParams| { &mut m.email },
+                |m: &SignUpRequest| { &m.email },
+                |m: &mut SignUpRequest| { &mut m.email },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "name",
-                |m: &UserSignUpParams| { &m.name },
-                |m: &mut UserSignUpParams| { &mut m.name },
+                |m: &SignUpRequest| { &m.name },
+                |m: &mut SignUpRequest| { &mut m.name },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "password",
-                |m: &UserSignUpParams| { &m.password },
-                |m: &mut UserSignUpParams| { &mut m.password },
+                |m: &SignUpRequest| { &m.password },
+                |m: &mut SignUpRequest| { &mut m.password },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<UserSignUpParams>(
-                "UserSignUpParams",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<SignUpRequest>(
+                "SignUpRequest",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static UserSignUpParams {
-        static instance: ::protobuf::rt::LazyV2<UserSignUpParams> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(UserSignUpParams::new)
+    fn default_instance() -> &'static SignUpRequest {
+        static instance: ::protobuf::rt::LazyV2<SignUpRequest> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(SignUpRequest::new)
     }
 }
 
-impl ::protobuf::Clear for UserSignUpParams {
+impl ::protobuf::Clear for SignUpRequest {
     fn clear(&mut self) {
         self.email.clear();
         self.name.clear();
@@ -254,20 +254,20 @@ impl ::protobuf::Clear for UserSignUpParams {
     }
 }
 
-impl ::std::fmt::Debug for UserSignUpParams {
+impl ::std::fmt::Debug for SignUpRequest {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for UserSignUpParams {
+impl ::protobuf::reflect::ProtobufValue for SignUpRequest {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct UserSignUpRequest {
+pub struct SignUpParams {
     // message fields
     pub email: ::std::string::String,
     pub name: ::std::string::String,
@@ -277,14 +277,14 @@ pub struct UserSignUpRequest {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a UserSignUpRequest {
-    fn default() -> &'a UserSignUpRequest {
-        <UserSignUpRequest as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a SignUpParams {
+    fn default() -> &'a SignUpParams {
+        <SignUpParams as ::protobuf::Message>::default_instance()
     }
 }
 
-impl UserSignUpRequest {
-    pub fn new() -> UserSignUpRequest {
+impl SignUpParams {
+    pub fn new() -> SignUpParams {
         ::std::default::Default::default()
     }
 
@@ -367,7 +367,7 @@ impl UserSignUpRequest {
     }
 }
 
-impl ::protobuf::Message for UserSignUpRequest {
+impl ::protobuf::Message for SignUpParams {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -451,8 +451,8 @@ impl ::protobuf::Message for UserSignUpRequest {
         Self::descriptor_static()
     }
 
-    fn new() -> UserSignUpRequest {
-        UserSignUpRequest::new()
+    fn new() -> SignUpParams {
+        SignUpParams::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -461,34 +461,34 @@ impl ::protobuf::Message for UserSignUpRequest {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "email",
-                |m: &UserSignUpRequest| { &m.email },
-                |m: &mut UserSignUpRequest| { &mut m.email },
+                |m: &SignUpParams| { &m.email },
+                |m: &mut SignUpParams| { &mut m.email },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "name",
-                |m: &UserSignUpRequest| { &m.name },
-                |m: &mut UserSignUpRequest| { &mut m.name },
+                |m: &SignUpParams| { &m.name },
+                |m: &mut SignUpParams| { &mut m.name },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "password",
-                |m: &UserSignUpRequest| { &m.password },
-                |m: &mut UserSignUpRequest| { &mut m.password },
+                |m: &SignUpParams| { &m.password },
+                |m: &mut SignUpParams| { &mut m.password },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<UserSignUpRequest>(
-                "UserSignUpRequest",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<SignUpParams>(
+                "SignUpParams",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static UserSignUpRequest {
-        static instance: ::protobuf::rt::LazyV2<UserSignUpRequest> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(UserSignUpRequest::new)
+    fn default_instance() -> &'static SignUpParams {
+        static instance: ::protobuf::rt::LazyV2<SignUpParams> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(SignUpParams::new)
     }
 }
 
-impl ::protobuf::Clear for UserSignUpRequest {
+impl ::protobuf::Clear for SignUpParams {
     fn clear(&mut self) {
         self.email.clear();
         self.name.clear();
@@ -497,20 +497,20 @@ impl ::protobuf::Clear for UserSignUpRequest {
     }
 }
 
-impl ::std::fmt::Debug for UserSignUpRequest {
+impl ::std::fmt::Debug for SignUpParams {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for UserSignUpRequest {
+impl ::protobuf::reflect::ProtobufValue for SignUpParams {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct UserSignUpResult {
+pub struct SignUpResponse {
     // message fields
     pub is_success: bool,
     // special fields
@@ -518,14 +518,14 @@ pub struct UserSignUpResult {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a UserSignUpResult {
-    fn default() -> &'a UserSignUpResult {
-        <UserSignUpResult as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a SignUpResponse {
+    fn default() -> &'a SignUpResponse {
+        <SignUpResponse as ::protobuf::Message>::default_instance()
     }
 }
 
-impl UserSignUpResult {
-    pub fn new() -> UserSignUpResult {
+impl SignUpResponse {
+    pub fn new() -> SignUpResponse {
         ::std::default::Default::default()
     }
 
@@ -545,7 +545,7 @@ impl UserSignUpResult {
     }
 }
 
-impl ::protobuf::Message for UserSignUpResult {
+impl ::protobuf::Message for SignUpResponse {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -615,8 +615,8 @@ impl ::protobuf::Message for UserSignUpResult {
         Self::descriptor_static()
     }
 
-    fn new() -> UserSignUpResult {
-        UserSignUpResult::new()
+    fn new() -> SignUpResponse {
+        SignUpResponse::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -625,73 +625,73 @@ impl ::protobuf::Message for UserSignUpResult {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
                 "is_success",
-                |m: &UserSignUpResult| { &m.is_success },
-                |m: &mut UserSignUpResult| { &mut m.is_success },
+                |m: &SignUpResponse| { &m.is_success },
+                |m: &mut SignUpResponse| { &mut m.is_success },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<UserSignUpResult>(
-                "UserSignUpResult",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<SignUpResponse>(
+                "SignUpResponse",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static UserSignUpResult {
-        static instance: ::protobuf::rt::LazyV2<UserSignUpResult> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(UserSignUpResult::new)
+    fn default_instance() -> &'static SignUpResponse {
+        static instance: ::protobuf::rt::LazyV2<SignUpResponse> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(SignUpResponse::new)
     }
 }
 
-impl ::protobuf::Clear for UserSignUpResult {
+impl ::protobuf::Clear for SignUpResponse {
     fn clear(&mut self) {
         self.is_success = false;
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for UserSignUpResult {
+impl ::std::fmt::Debug for SignUpResponse {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for UserSignUpResult {
+impl ::protobuf::reflect::ProtobufValue for SignUpResponse {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\rsign_up.proto\"X\n\x10UserSignUpParams\x12\x14\n\x05email\x18\x01\
-    \x20\x01(\tR\x05email\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\
-    \x1a\n\x08password\x18\x03\x20\x01(\tR\x08password\"Y\n\x11UserSignUpReq\
-    uest\x12\x14\n\x05email\x18\x01\x20\x01(\tR\x05email\x12\x12\n\x04name\
-    \x18\x02\x20\x01(\tR\x04name\x12\x1a\n\x08password\x18\x03\x20\x01(\tR\
-    \x08password\"1\n\x10UserSignUpResult\x12\x1d\n\nis_success\x18\x01\x20\
-    \x01(\x08R\tisSuccessJ\xdb\x03\n\x06\x12\x04\0\0\x0e\x01\n\x08\n\x01\x0c\
-    \x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x06\x01\n\n\n\x03\x04\0\
-    \x01\x12\x03\x02\x08\x18\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x15\n\
-    \x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\
-    \x12\x03\x03\x0b\x10\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x13\x14\n\
-    \x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x14\n\x0c\n\x05\x04\0\x02\x01\
-    \x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x0b\x0f\
-    \n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x12\x13\n\x0b\n\x04\x04\0\x02\
-    \x02\x12\x03\x05\x04\x18\n\x0c\n\x05\x04\0\x02\x02\x05\x12\x03\x05\x04\n\
-    \n\x0c\n\x05\x04\0\x02\x02\x01\x12\x03\x05\x0b\x13\n\x0c\n\x05\x04\0\x02\
-    \x02\x03\x12\x03\x05\x16\x17\n\n\n\x02\x04\x01\x12\x04\x07\0\x0b\x01\n\n\
-    \n\x03\x04\x01\x01\x12\x03\x07\x08\x19\n\x0b\n\x04\x04\x01\x02\0\x12\x03\
-    \x08\x04\x15\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x08\x04\n\n\x0c\n\x05\
-    \x04\x01\x02\0\x01\x12\x03\x08\x0b\x10\n\x0c\n\x05\x04\x01\x02\0\x03\x12\
-    \x03\x08\x13\x14\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\t\x04\x14\n\x0c\n\
-    \x05\x04\x01\x02\x01\x05\x12\x03\t\x04\n\n\x0c\n\x05\x04\x01\x02\x01\x01\
-    \x12\x03\t\x0b\x0f\n\x0c\n\x05\x04\x01\x02\x01\x03\x12\x03\t\x12\x13\n\
-    \x0b\n\x04\x04\x01\x02\x02\x12\x03\n\x04\x18\n\x0c\n\x05\x04\x01\x02\x02\
-    \x05\x12\x03\n\x04\n\n\x0c\n\x05\x04\x01\x02\x02\x01\x12\x03\n\x0b\x13\n\
-    \x0c\n\x05\x04\x01\x02\x02\x03\x12\x03\n\x16\x17\n\n\n\x02\x04\x02\x12\
-    \x04\x0c\0\x0e\x01\n\n\n\x03\x04\x02\x01\x12\x03\x0c\x08\x18\n\x0b\n\x04\
-    \x04\x02\x02\0\x12\x03\r\x04\x18\n\x0c\n\x05\x04\x02\x02\0\x05\x12\x03\r\
-    \x04\x08\n\x0c\n\x05\x04\x02\x02\0\x01\x12\x03\r\t\x13\n\x0c\n\x05\x04\
-    \x02\x02\0\x03\x12\x03\r\x16\x17b\x06proto3\
+    \n\rsign_up.proto\"U\n\rSignUpRequest\x12\x14\n\x05email\x18\x01\x20\x01\
+    (\tR\x05email\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x1a\n\
+    \x08password\x18\x03\x20\x01(\tR\x08password\"T\n\x0cSignUpParams\x12\
+    \x14\n\x05email\x18\x01\x20\x01(\tR\x05email\x12\x12\n\x04name\x18\x02\
+    \x20\x01(\tR\x04name\x12\x1a\n\x08password\x18\x03\x20\x01(\tR\x08passwo\
+    rd\"/\n\x0eSignUpResponse\x12\x1d\n\nis_success\x18\x01\x20\x01(\x08R\ti\
+    sSuccessJ\xdb\x03\n\x06\x12\x04\0\0\x0e\x01\n\x08\n\x01\x0c\x12\x03\0\0\
+    \x12\n\n\n\x02\x04\0\x12\x04\x02\0\x06\x01\n\n\n\x03\x04\0\x01\x12\x03\
+    \x02\x08\x15\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x15\n\x0c\n\x05\x04\
+    \0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\
+    \x0b\x10\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x13\x14\n\x0b\n\x04\x04\
+    \0\x02\x01\x12\x03\x04\x04\x14\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\
+    \x04\n\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x0b\x0f\n\x0c\n\x05\x04\
+    \0\x02\x01\x03\x12\x03\x04\x12\x13\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\
+    \x04\x18\n\x0c\n\x05\x04\0\x02\x02\x05\x12\x03\x05\x04\n\n\x0c\n\x05\x04\
+    \0\x02\x02\x01\x12\x03\x05\x0b\x13\n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\
+    \x05\x16\x17\n\n\n\x02\x04\x01\x12\x04\x07\0\x0b\x01\n\n\n\x03\x04\x01\
+    \x01\x12\x03\x07\x08\x14\n\x0b\n\x04\x04\x01\x02\0\x12\x03\x08\x04\x15\n\
+    \x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x08\x04\n\n\x0c\n\x05\x04\x01\x02\0\
+    \x01\x12\x03\x08\x0b\x10\n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\x08\x13\
+    \x14\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\t\x04\x14\n\x0c\n\x05\x04\x01\
+    \x02\x01\x05\x12\x03\t\x04\n\n\x0c\n\x05\x04\x01\x02\x01\x01\x12\x03\t\
+    \x0b\x0f\n\x0c\n\x05\x04\x01\x02\x01\x03\x12\x03\t\x12\x13\n\x0b\n\x04\
+    \x04\x01\x02\x02\x12\x03\n\x04\x18\n\x0c\n\x05\x04\x01\x02\x02\x05\x12\
+    \x03\n\x04\n\n\x0c\n\x05\x04\x01\x02\x02\x01\x12\x03\n\x0b\x13\n\x0c\n\
+    \x05\x04\x01\x02\x02\x03\x12\x03\n\x16\x17\n\n\n\x02\x04\x02\x12\x04\x0c\
+    \0\x0e\x01\n\n\n\x03\x04\x02\x01\x12\x03\x0c\x08\x16\n\x0b\n\x04\x04\x02\
+    \x02\0\x12\x03\r\x04\x18\n\x0c\n\x05\x04\x02\x02\0\x05\x12\x03\r\x04\x08\
+    \n\x0c\n\x05\x04\x02\x02\0\x01\x12\x03\r\t\x13\n\x0c\n\x05\x04\x02\x02\0\
+    \x03\x12\x03\r\x16\x17b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

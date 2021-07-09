@@ -14,6 +14,7 @@ thread_local!(
 );
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub enum SystemCommand {
     Exit(i8),
 }
@@ -23,6 +24,7 @@ pub struct FlowySystem {
 }
 
 impl FlowySystem {
+    #[allow(dead_code)]
     pub fn construct<F, S>(module_factory: F, sender_factory: S) -> SystemRunner
     where
         F: FnOnce() -> Vec<Module>,
@@ -49,6 +51,7 @@ impl FlowySystem {
         runner
     }
 
+    #[allow(dead_code)]
     pub fn stop(&self) {
         match self.sys_cmd_tx.send(SystemCommand::Exit(0)) {
             Ok(_) => {},
@@ -58,13 +61,14 @@ impl FlowySystem {
         }
     }
 
-    #[doc(hidden)]
+    #[allow(dead_code)]
     pub fn set_current(sys: FlowySystem) {
         CURRENT.with(|cell| {
             *cell.borrow_mut() = Some(Arc::new(sys));
         })
     }
 
+    #[allow(dead_code)]
     pub fn current() -> Arc<FlowySystem> {
         CURRENT.with(|cell| match *cell.borrow() {
             Some(ref sys) => sys.clone(),
@@ -102,6 +106,7 @@ pub struct SystemRunner {
 }
 
 impl SystemRunner {
+    #[allow(dead_code)]
     pub fn run(self) -> io::Result<()> {
         let SystemRunner { rt, stop_rx } = self;
         match rt.block_on(stop_rx) {
@@ -119,6 +124,7 @@ impl SystemRunner {
         }
     }
 
+    #[allow(dead_code)]
     pub fn spawn<F: Future<Output = ()> + 'static>(self, future: F) -> Self {
         self.rt.spawn(future);
         self
@@ -135,6 +141,7 @@ pub struct Runtime {
 }
 
 impl Runtime {
+    #[allow(dead_code)]
     pub fn new() -> io::Result<Runtime> {
         let rt = tokio_default_runtime()?;
         Ok(Runtime {
@@ -143,6 +150,7 @@ impl Runtime {
         })
     }
 
+    #[allow(dead_code)]
     pub fn spawn<F>(&self, future: F) -> &Self
     where
         F: Future<Output = ()> + 'static,
@@ -151,6 +159,7 @@ impl Runtime {
         self
     }
 
+    #[allow(dead_code)]
     pub fn block_on<F>(&self, f: F) -> F::Output
     where
         F: Future + 'static,
