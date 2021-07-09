@@ -1,0 +1,5 @@
+# For documentation on how to configure this file,
+# see diesel.rs/guides/configuring-diesel-cli
+
+[print_schema]
+file = "src/schema.rs"

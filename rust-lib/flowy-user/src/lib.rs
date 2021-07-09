@@ -1,5 +1,5 @@
 mod domain;
-mod error;
+mod errors;
 pub mod event;
 mod handlers;
 pub mod module;
