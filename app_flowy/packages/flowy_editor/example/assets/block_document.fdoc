@@ -1,0 +1,14 @@
+[
+   {
+      "insert":"This is a checkbox"
+   },
+   {
+      "attributes":{
+         "list":"checked"
+      },
+      "insert":"\n"
+   },
+   {
+    "insert":"\n"
+   }
+]
