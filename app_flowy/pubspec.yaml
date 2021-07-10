@@ -33,6 +33,8 @@ dependencies:
     path: packages/flowy_sdk
   flowy_style:
     path: packages/flowy_style
+  flowy_editor:
+    path: packages/flowy_editor
   
   #  third party packages
   time: '>=2.0.0'
