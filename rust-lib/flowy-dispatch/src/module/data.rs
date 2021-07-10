@@ -1,5 +1,5 @@
 use crate::{
-    error::{InternalError, SystemError},
+    errors::{DispatchError, InternalError},
     request::{payload::Payload, EventRequest, FromRequest},
     util::ready::{ready, Ready},
 };
@@ -43,15 +43,18 @@ impl<T> FromRequest for ModuleData<T>
 where
     T: ?Sized + Send + Sync + 'static,
 {
-    type Error = SystemError;
-    type Future = Ready<Result<Self, SystemError>>;
+    type Error = DispatchError;
+    type Future = Ready<Result<Self, DispatchError>>;
 
     #[inline]
     fn from_request(req: &EventRequest, _: &mut Payload) -> Self::Future {
         if let Some(data) = req.module_data::<ModuleData<T>>() {
             ready(Ok(data.clone()))
         } else {
-            let msg = format!("Failed to get the module data(type: {})", type_name::<T>());
+            let msg = format!(
+                "Failed to get the module data of type: {}",
+                type_name::<T>()
+            );
             log::error!("{}", msg,);
             ready(Err(InternalError::new(msg).into()))
         }

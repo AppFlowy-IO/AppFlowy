@@ -1,5 +1,5 @@
 use flowy_dispatch::prelude::Module;
-use flowy_user::prelude::user_session::{UserSession, UserSessionConfig};
+use flowy_user::prelude::{UserSession, UserSessionBuilder, UserSessionConfig};
 use std::sync::Arc;
 
 pub struct ModuleConfig {
@@ -7,8 +7,6 @@ pub struct ModuleConfig {
 }
 
 pub fn build_modules(config: ModuleConfig) -> Vec<Module> {
-    let user_config = UserSessionConfig::new(&config.root);
-    let user_session = Arc::new(UserSession::new(user_config));
-
-    vec![flowy_user::module::create(user_session)]
+    let user_session = UserSessionBuilder::new().root_dir(&config.root).build();
+    vec![flowy_user::module::create(Arc::new(user_session))]
 }

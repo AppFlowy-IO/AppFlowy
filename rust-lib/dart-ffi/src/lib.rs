@@ -36,8 +36,8 @@ pub extern "C" fn async_command(port: i64, input: *const u8, len: usize) {
     let request: ModuleRequest = FFIRequest::from_u8_pointer(input, len).into();
     log::trace!(
         "[FFI]: {} Async Event: {:?} with {} port",
-        &request.id(),
-        &request.event(),
+        &request.id,
+        &request.event,
         port
     );
 
@@ -50,11 +50,7 @@ pub extern "C" fn async_command(port: i64, input: *const u8, len: usize) {
 #[no_mangle]
 pub extern "C" fn sync_command(input: *const u8, len: usize) -> *const u8 {
     let request: ModuleRequest = FFIRequest::from_u8_pointer(input, len).into();
-    log::trace!(
-        "[FFI]: {} Sync Event: {:?}",
-        &request.id(),
-        &request.event(),
-    );
+    log::trace!("[FFI]: {} Sync Event: {:?}", &request.id, &request.event,);
     let _response = EventDispatch::sync_send(request);
 
     // FFIResponse {  }

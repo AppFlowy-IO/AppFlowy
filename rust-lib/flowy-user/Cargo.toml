@@ -12,6 +12,7 @@ flowy-log = { path = "../flowy-log" }
 flowy-derive = { path = "../flowy-derive" }
 flowy-database = { path = "../flowy-database" }
 flowy-sqlite = { path = "../flowy-sqlite" }
+flowy-infra = { path = "../flowy-infra" }
 
 tracing = { version = "0.1", features = ["log"] }
 bytes = "1.0"
@@ -23,6 +24,8 @@ log = "0.4.14"
 protobuf = {version = "2.18.0"}
 lazy_static = "1.4.0"
 fancy-regex = "0.5.0"
+diesel = {version = "1.4.7", features = ["sqlite"]}
+diesel_derives = {version = "1.4.1", features = ["sqlite"]}
 
 [dev-dependencies]
 quickcheck = "0.9.2"

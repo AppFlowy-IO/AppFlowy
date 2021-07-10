@@ -1,5 +1,5 @@
 use crate::{
-    error::{InternalError, SystemError},
+    errors::{DispatchError, InternalError},
     request::{unexpected_none_payload, EventRequest, FromRequest, Payload},
     response::{EventResponse, Responder, ResponseBuilder, ToBytes},
     util::ready::{ready, Ready},
@@ -53,8 +53,8 @@ impl<T> FromRequest for Data<T>
 where
     T: FromBytes + 'static,
 {
-    type Error = SystemError;
-    type Future = Ready<Result<Self, SystemError>>;
+    type Error = DispatchError;
+    type Future = Ready<Result<Self, DispatchError>>;
 
     #[inline]
     fn from_request(req: &EventRequest, payload: &mut Payload) -> Self::Future {
@@ -76,7 +76,7 @@ where
         match self.into_inner().into_bytes() {
             Ok(bytes) => ResponseBuilder::Ok().data(bytes.to_vec()).build(),
             Err(e) => {
-                let system_err: SystemError = InternalError::new(format!("{:?}", e)).into();
+                let system_err: DispatchError = InternalError::new(format!("{:?}", e)).into();
                 system_err.into()
             },
         }

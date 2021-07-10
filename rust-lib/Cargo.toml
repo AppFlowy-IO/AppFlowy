@@ -8,8 +8,9 @@ members = [
   "flowy-ast",
   "flowy-derive",
   "flowy-test",
-    "flowy-sqlite",
-    "flowy-database",
+  "flowy-sqlite",
+  "flowy-database",
+  "flowy-infra",
 ]
 
 [profile.dev]

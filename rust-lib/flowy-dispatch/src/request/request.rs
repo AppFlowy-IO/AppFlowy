@@ -1,7 +1,7 @@
 use std::future::Future;
 
 use crate::{
-    error::{InternalError, SystemError},
+    errors::{DispatchError, InternalError},
     module::{Event, ModuleDataMap},
     request::payload::Payload,
     util::ready::{ready, Ready},
@@ -48,7 +48,7 @@ impl EventRequest {
 }
 
 pub trait FromRequest: Sized {
-    type Error: Into<SystemError>;
+    type Error: Into<DispatchError>;
     type Future: Future<Output = Result<Self, Self::Error>>;
 
     fn from_request(req: &EventRequest, payload: &mut Payload) -> Self::Future;
@@ -56,15 +56,15 @@ pub trait FromRequest: Sized {
 
 #[doc(hidden)]
 impl FromRequest for () {
-    type Error = SystemError;
-    type Future = Ready<Result<(), SystemError>>;
+    type Error = DispatchError;
+    type Future = Ready<Result<(), DispatchError>>;
 
     fn from_request(_req: &EventRequest, _payload: &mut Payload) -> Self::Future { ready(Ok(())) }
 }
 
 #[doc(hidden)]
 impl FromRequest for String {
-    type Error = SystemError;
+    type Error = DispatchError;
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn from_request(req: &EventRequest, payload: &mut Payload) -> Self::Future {
@@ -75,7 +75,7 @@ impl FromRequest for String {
     }
 }
 
-pub fn unexpected_none_payload(request: &EventRequest) -> SystemError {
+pub fn unexpected_none_payload(request: &EventRequest) -> DispatchError {
     log::warn!("{:?} expected payload", &request.event);
     InternalError::new("Expected payload").into()
 }
@@ -85,7 +85,7 @@ impl<T> FromRequest for Result<T, T::Error>
 where
     T: FromRequest,
 {
-    type Error = SystemError;
+    type Error = DispatchError;
     type Future = FromRequestFuture<T::Future>;
 
     fn from_request(req: &EventRequest, payload: &mut Payload) -> Self::Future {
@@ -105,7 +105,7 @@ impl<Fut, T, E> Future for FromRequestFuture<Fut>
 where
     Fut: Future<Output = Result<T, E>>,
 {
-    type Output = Result<Result<T, E>, SystemError>;
+    type Output = Result<Result<T, E>, DispatchError>;
 
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         let this = self.project();

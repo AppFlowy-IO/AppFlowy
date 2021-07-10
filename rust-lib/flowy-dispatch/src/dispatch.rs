@@ -1,5 +1,5 @@
 use crate::{
-    error::{Error, InternalError, SystemError},
+    errors::{DispatchError, Error, InternalError},
     module::{as_module_map, Module, ModuleMap, ModuleRequest},
     response::EventResponse,
     service::{Service, ServiceFactory},
@@ -129,7 +129,7 @@ pub(crate) struct DispatchService {
 
 impl Service<DispatchContext> for DispatchService {
     type Response = EventResponse;
-    type Error = SystemError;
+    type Error = DispatchError;
     type Future = BoxFuture<'static, Result<Self::Response, Self::Error>>;
 
     #[cfg_attr(

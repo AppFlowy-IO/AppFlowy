@@ -12,7 +12,7 @@ use futures_core::ready;
 use pin_project::pin_project;
 
 use crate::{
-    error::{InternalError, SystemError},
+    errors::{DispatchError, InternalError},
     module::{container::ModuleDataMap, ModuleData},
     request::{payload::Payload, EventRequest, FromRequest},
     response::{EventResponse, Responder},
@@ -51,7 +51,8 @@ impl<T: Display + Eq + Hash + Debug + Clone> std::convert::From<T> for Event {
     fn from(t: T) -> Self { Event(format!("{}", t)) }
 }
 
-pub type EventServiceFactory = BoxServiceFactory<(), ServiceRequest, ServiceResponse, SystemError>;
+pub type EventServiceFactory =
+    BoxServiceFactory<(), ServiceRequest, ServiceResponse, DispatchError>;
 
 pub struct Module {
     pub name: String,
@@ -111,8 +112,8 @@ impl Module {
 
 #[derive(Debug)]
 pub struct ModuleRequest {
-    pub(crate) id: String,
-    pub(crate) event: Event,
+    pub id: String,
+    pub event: Event,
     pub(crate) payload: Payload,
 }
 
@@ -145,7 +146,7 @@ impl std::fmt::Display for ModuleRequest {
 
 impl ServiceFactory<ModuleRequest> for Module {
     type Response = EventResponse;
-    type Error = SystemError;
+    type Error = DispatchError;
     type Service = BoxService<ModuleRequest, Self::Response, Self::Error>;
     type Context = ();
     type Future = BoxFuture<'static, Result<Self::Service, Self::Error>>;
@@ -171,7 +172,7 @@ pub struct ModuleService {
 
 impl Service<ModuleRequest> for ModuleService {
     type Response = EventResponse;
-    type Error = SystemError;
+    type Error = DispatchError;
     type Future = BoxFuture<'static, Result<Self::Response, Self::Error>>;
 
     fn call(&self, request: ModuleRequest) -> Self::Future {
@@ -196,17 +197,14 @@ impl Service<ModuleRequest> for ModuleService {
     }
 }
 
-// type BoxModuleService = BoxService<ServiceRequest, ServiceResponse,
-// SystemError>;
-
 #[pin_project]
 pub struct ModuleServiceFuture {
     #[pin]
-    fut: BoxFuture<'static, Result<ServiceResponse, SystemError>>,
+    fut: BoxFuture<'static, Result<ServiceResponse, DispatchError>>,
 }
 
 impl Future for ModuleServiceFuture {
-    type Output = Result<EventResponse, SystemError>;
+    type Output = Result<EventResponse, DispatchError>;
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         loop {

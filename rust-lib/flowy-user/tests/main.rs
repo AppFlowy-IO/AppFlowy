@@ -1,1 +1,1 @@
-mod auth;
+mod auth_test;

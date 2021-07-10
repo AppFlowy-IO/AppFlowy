@@ -4,16 +4,21 @@ use crate::{
 };
 use r2d2::PooledConnection;
 
-pub struct DataBase {
+pub struct Database {
     uri: String,
     pool: ConnectionPool,
 }
 
 pub type DBConnection = PooledConnection<ConnectionManager>;
 
-impl DataBase {
+impl Database {
     pub fn new(dir: &str, name: &str, pool_config: PoolConfig) -> Result<Self> {
         let uri = db_file_uri(dir, name);
+
+        if !std::path::PathBuf::from(dir).exists() {
+            log::error!("Create database failed. {} not exists", &dir);
+        }
+
         let pool = ConnectionPool::new(pool_config, &uri)?;
         Ok(Self { uri, pool })
     }

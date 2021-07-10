@@ -1,6 +1,6 @@
 #![feature(try_trait)]
 
-mod error;
+mod errors;
 mod module;
 mod request;
 mod response;
@@ -11,6 +11,8 @@ mod data;
 mod dispatch;
 mod system;
 
+pub use errors::Error;
+
 pub mod prelude {
-    pub use crate::{data::*, dispatch::*, error::*, module::*, request::*, response::*};
+    pub use crate::{data::*, dispatch::*, errors::*, module::*, request::*, response::*};
 }

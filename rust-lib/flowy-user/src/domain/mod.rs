@@ -1,4 +1,3 @@
 pub use user::*;
+pub mod tables;
 pub mod user;
-pub mod user_db;
-pub mod user_session;

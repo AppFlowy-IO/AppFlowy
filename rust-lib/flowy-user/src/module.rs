@@ -1,10 +1,6 @@
 use flowy_dispatch::prelude::*;
 
-use crate::{
-    domain::{user_db::*, user_session::UserSession},
-    event::UserEvent,
-    handlers::*,
-};
+use crate::{event::UserEvent, handlers::*, services::user_session::UserSession};
 use std::sync::Arc;
 
 pub fn create(user_session: Arc<UserSession>) -> Module {

@@ -18,6 +18,7 @@
       <sourceFolder url="file://$MODULE_DIR$/rust-lib/flowy-user/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/rust-lib/flowy-database/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/rust-lib/flowy-sqlite/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/rust-lib/flowy-infra/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/af_protobuf/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/af_protobuf/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/af_protobuf/build" />

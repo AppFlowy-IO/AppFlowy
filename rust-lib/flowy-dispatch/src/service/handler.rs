@@ -9,7 +9,7 @@ use futures_core::ready;
 use pin_project::pin_project;
 
 use crate::{
-    error::SystemError,
+    errors::DispatchError,
     request::{payload::Payload, EventRequest, FromRequest},
     response::{EventResponse, Responder},
     service::{Service, ServiceFactory, ServiceRequest, ServiceResponse},
@@ -73,7 +73,7 @@ where
     R::Output: Responder,
 {
     type Response = ServiceResponse;
-    type Error = SystemError;
+    type Error = DispatchError;
     type Service = Self;
     type Context = ();
     type Future = Ready<Result<Self::Service, Self::Error>>;
@@ -89,7 +89,7 @@ where
     R::Output: Responder,
 {
     type Response = ServiceResponse;
-    type Error = SystemError;
+    type Error = DispatchError;
     type Future = HandlerServiceFuture<H, T, R>;
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
@@ -118,7 +118,7 @@ where
     R: Future + Sync + Send,
     R::Output: Responder,
 {
-    type Output = Result<ServiceResponse, SystemError>;
+    type Output = Result<ServiceResponse, DispatchError>;
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         loop {
@@ -132,7 +132,7 @@ where
                         },
                         Err(err) => {
                             let req = req.take().unwrap();
-                            let system_err: SystemError = err.into();
+                            let system_err: DispatchError = err.into();
                             let res: EventResponse = system_err.into();
                             return Poll::Ready(Ok(ServiceResponse::new(req, res)));
                         },
@@ -175,7 +175,7 @@ macro_rules! tuple_from_req ({$tuple_type:ident, $(($n:tt, $T:ident)),+} => {
         #[allow(unused_parens)]
         impl<$($T: FromRequest + 'static),+> FromRequest for ($($T,)+)
         {
-            type Error = SystemError;
+            type Error = DispatchError;
             type Future = $tuple_type<$($T),+>;
 
             fn from_request(req: &EventRequest, payload: &mut Payload) -> Self::Future {
@@ -196,7 +196,7 @@ macro_rules! tuple_from_req ({$tuple_type:ident, $(($n:tt, $T:ident)),+} => {
 
         impl<$($T: FromRequest),+> Future for $tuple_type<$($T),+>
         {
-            type Output = Result<($($T,)+), SystemError>;
+            type Output = Result<($($T,)+), DispatchError>;
 
             fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
                 let mut this = self.project();

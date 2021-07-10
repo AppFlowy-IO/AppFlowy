@@ -1,5 +1,5 @@
 #[allow(unused_imports)]
-use crate::error::{InternalError, SystemError};
+use crate::errors::{DispatchError, InternalError};
 use crate::{
     request::EventRequest,
     response::{EventResponse, ResponseBuilder},
@@ -28,7 +28,7 @@ impl_responder!(Bytes);
 impl<T, E> Responder for Result<T, E>
 where
     T: Responder,
-    E: Into<SystemError>,
+    E: Into<DispatchError>,
 {
     fn respond_to(self, request: &EventRequest) -> EventResponse {
         match self {

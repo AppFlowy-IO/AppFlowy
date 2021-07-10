@@ -115,12 +115,7 @@ impl ManageConnection for ConnectionManager {
     type Connection = SqliteConnection;
     type Error = crate::Error;
 
-    fn connect(&self) -> Result<Self::Connection> {
-        if !std::path::PathBuf::from(&self.db_uri).exists() {
-            log::error!("db file not exists");
-        }
-        Ok(SqliteConnection::establish(&self.db_uri)?)
-    }
+    fn connect(&self) -> Result<Self::Connection> { Ok(SqliteConnection::establish(&self.db_uri)?) }
 
     fn is_valid(&self, conn: &mut Self::Connection) -> Result<()> {
         Ok(conn.execute("SELECT 1").map(|_| ())?)

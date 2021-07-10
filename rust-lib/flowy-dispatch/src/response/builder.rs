@@ -1,5 +1,5 @@
 use crate::{
-    error::SystemError,
+    errors::DispatchError,
     request::Payload,
     response::{EventResponse, StatusCode},
 };
@@ -14,7 +14,7 @@ macro_rules! static_response {
 pub struct ResponseBuilder<T = Payload> {
     pub payload: T,
     pub status: StatusCode,
-    pub error: Option<SystemError>,
+    pub error: Option<DispatchError>,
 }
 
 impl ResponseBuilder {
@@ -31,7 +31,7 @@ impl ResponseBuilder {
         self
     }
 
-    pub fn error(mut self, error: SystemError) -> Self {
+    pub fn error(mut self, error: DispatchError) -> Self {
         self.error = Some(error);
         self
     }

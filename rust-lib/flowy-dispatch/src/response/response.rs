@@ -1,6 +1,6 @@
 use crate::{
     data::Data,
-    error::SystemError,
+    errors::DispatchError,
     request::{EventRequest, Payload},
     response::Responder,
 };
@@ -19,7 +19,7 @@ pub struct EventResponse {
     #[derivative(Debug = "ignore")]
     pub payload: Payload,
     pub status_code: StatusCode,
-    pub error: Option<SystemError>,
+    pub error: Option<DispatchError>,
 }
 
 impl EventResponse {
@@ -58,7 +58,7 @@ pub type ResponseResult<T, E> = std::result::Result<Data<T>, E>;
 
 pub fn response_ok<T, E>(data: T) -> Result<Data<T>, E>
 where
-    E: Into<SystemError>,
+    E: Into<DispatchError>,
 {
     Ok(Data(data))
 }

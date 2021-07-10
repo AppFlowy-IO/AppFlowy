@@ -9,9 +9,10 @@ import 'dart:core' as $core;
 const User$json = const {
   '1': 'User',
   '2': const [
-    const {'1': 'name', '3': 1, '4': 1, '5': 9, '10': 'name'},
-    const {'1': 'email', '3': 2, '4': 1, '5': 9, '10': 'email'},
-    const {'1': 'password', '3': 3, '4': 1, '5': 9, '10': 'password'},
+    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+    const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
+    const {'1': 'email', '3': 3, '4': 1, '5': 9, '10': 'email'},
+    const {'1': 'password', '3': 4, '4': 1, '5': 9, '10': 'password'},
   ],
 };
 
