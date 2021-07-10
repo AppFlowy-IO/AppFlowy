@@ -60,6 +60,9 @@
       <excludeFolder url="file://$MODULE_DIR$/app_flowy/macos/Flutter/ephemeral/.symlinks/plugins/window_size/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/app_flowy/macos/Flutter/ephemeral/.symlinks/plugins/window_size/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/scripts/flowy-tool/target" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_editor/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_editor/build" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_editor/.pub" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

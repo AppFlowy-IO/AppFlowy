@@ -47,14 +47,19 @@ pub fn make_de_token_steam(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStrea
     .into();
 
     Some(de_token_stream)
+    // None
 }
 
 fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream> {
     let member = &field.member;
     let ident = get_member_ident(ctxt, member)?;
     let ty_info = parse_ty(ctxt, &field.ty)?;
+    let bracketed_ty_info = ty_info.bracket_ty_info.as_ref().as_ref();
+
     let has_func = format_ident!("has_{}", ident.to_string());
-    match ident_category(ty_info.ident) {
+    // eprintln!("😁{:#?}", ty_info.primitive_ty);
+    // eprintln!("{:#?}", ty_info.bracket_ty_info);
+    match ident_category(bracketed_ty_info.unwrap().ident) {
         TypeCategory::Enum => {
             let get_func = format_ident!("get_{}", ident.to_string());
             let ty = ty_info.ty;
@@ -65,7 +70,6 @@ fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream>
                 }
             })
         },
-
         TypeCategory::Primitive => {
             let get_func = format_ident!("get_{}", ident.to_string());
             Some(quote! {
@@ -74,14 +78,21 @@ fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream>
                 }
             })
         },
+        TypeCategory::Str => {
+            let take_func = format_ident!("take_{}", ident.to_string());
+            Some(quote! {
+                if pb.#has_func() {
+                    o.#member=Some(pb.#take_func());
+                }
+            })
+        },
         _ => {
             let take_func = format_ident!("take_{}", ident.to_string());
             let ty = ty_info.ty;
-
             Some(quote! {
                 if pb.#has_func() {
-                    let struct_de_from_pb = #ty::try_from(&mut pb.#take_func()).unwrap();
-                    o.#member=Some(struct_de_from_pb);
+                    let val = #ty::try_from(&mut pb.#take_func()).unwrap();
+                    o.#member=Some(val);
                 }
             })
         },

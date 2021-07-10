@@ -1,5 +1,5 @@
 use flowy_dispatch::prelude::Module;
-use flowy_user::prelude::{UserSession, UserSessionBuilder, UserSessionConfig};
+use flowy_user::prelude::UserSessionBuilder;
 use std::sync::Arc;
 
 pub struct ModuleConfig {

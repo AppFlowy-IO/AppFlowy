@@ -51,3 +51,29 @@ pub fn expand_enum_derive(input: &syn::DeriveInput) -> Result<TokenStream, Vec<s
     ctxt.check()?;
     Ok(token_stream)
 }
+// #[macro_use]
+// macro_rules! impl_try_for_primitive_type {
+//     ($target:ident) => {
+//         impl std::convert::TryFrom<&$target> for $target {
+//             type Error = String;
+//             fn try_from(val: &$target) -> Result<Self, Self::Error> {
+// Ok(val.clone()) }         }
+//
+//         impl std::convert::TryInto<$target> for $target {
+//             type Error = String;
+//
+//             fn try_into(self) -> Result<Self, Self::Error> { Ok(self) }
+//         }
+//     };
+// }
+//
+// impl_try_for_primitive_type!(String);
+// impl_try_for_primitive_type!(i64);
+// impl_try_for_primitive_type!(i32);
+// impl_try_for_primitive_type!(i16);
+// impl_try_for_primitive_type!(u64);
+// impl_try_for_primitive_type!(u32);
+// impl_try_for_primitive_type!(u16);
+// impl_try_for_primitive_type!(bool);
+// impl_try_for_primitive_type!(f64);
+// impl_try_for_primitive_type!(f32);

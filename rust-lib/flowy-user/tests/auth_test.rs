@@ -9,7 +9,7 @@ fn sign_up_success() {
         password: valid_password(),
     };
 
-    let response = EventTester::new(SignUp).request(request).sync_send();
+    let _response = EventTester::new(SignUp).request(request).sync_send();
     // .parse::<SignUpResponse>();
     // dbg!(&response);
 }

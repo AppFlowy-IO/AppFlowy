@@ -12,11 +12,11 @@ pub fn make_se_token_stream(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStre
         .filter(|f| !f.attrs.skip_serializing())
         .flat_map(|field| se_token_stream_for_field(&ctxt, &field, false));
 
-    let _build_set_fields = ast
-        .data
-        .all_fields()
-        .filter(|f| !f.attrs.skip_serializing())
-        .flat_map(|field| se_token_stream_for_field(&ctxt, &field, false));
+    // let _build_set_fields = ast
+    //     .data
+    //     .all_fields()
+    //     .filter(|f| !f.attrs.skip_serializing())
+    //     .flat_map(|field| se_token_stream_for_field(&ctxt, &field, false));
 
     let se_token_stream: TokenStream = quote! {
 
@@ -58,7 +58,7 @@ fn se_token_stream_for_field(ctxt: &Ctxt, field: &ASTField, _take: bool) -> Opti
                 let set_func = format_ident!("set_{}", ident.to_string());
                 Some(quote! {
                     match self.#member {
-                        Some(ref s) => { pb.#set_func(s.try_into().unwrap()) }
+                        Some(ref s) => { pb.#set_func(s.clone()) }
                         None => {}
                     }
                 })

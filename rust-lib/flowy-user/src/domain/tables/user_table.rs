@@ -1,4 +1,3 @@
-use crate::domain::{UserEmail, UserName, UserPassword};
 use flowy_database::schema::user_table;
 use flowy_derive::ProtoBuf;
 

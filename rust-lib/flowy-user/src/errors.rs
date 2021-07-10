@@ -1,6 +1,5 @@
 use derive_more::Display;
-use flowy_dispatch::prelude::{DispatchError, EventResponse, ResponseBuilder, StatusCode};
-use std::{io, sync::PoisonError};
+use flowy_dispatch::prelude::DispatchError;
 
 #[derive(Debug, Clone, Display)]
 pub enum UserError {

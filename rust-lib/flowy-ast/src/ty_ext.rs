@@ -58,7 +58,7 @@ pub fn parse_ty<'a>(ctxt: &Ctxt, ty: &'a syn::Type) -> Option<TyInfo<'a>> {
             match seg.ident.to_string().as_ref() {
                 "HashMap" => generate_hashmap_ty_info(ctxt, ty, seg, bracketed),
                 "Vec" => generate_vec_ty_info(ctxt, seg, bracketed),
-                "Option" => generate_option_ty_info(ty, seg),
+                "Option" => generate_option_ty_info(ctxt, ty, seg, bracketed),
                 _ => {
                     panic!("Unsupported ty")
                 },
@@ -113,15 +113,19 @@ pub fn generate_hashmap_ty_info<'a>(
 }
 
 fn generate_option_ty_info<'a>(
+    ctxt: &Ctxt,
     ty: &'a syn::Type,
     path_segment: &'a PathSegment,
+    bracketed: &'a AngleBracketedGenericArguments,
 ) -> Option<TyInfo<'a>> {
     assert_eq!(path_segment.ident.to_string(), "Option".to_string());
+    let types = parse_bracketed(bracketed);
+    let bracket_ty_info = Box::new(parse_ty(ctxt, &types[0]));
     return Some(TyInfo {
         ident: &path_segment.ident,
         ty,
         primitive_ty: PrimitiveTy::Opt,
-        bracket_ty_info: Box::new(None),
+        bracket_ty_info,
     });
 }
 
