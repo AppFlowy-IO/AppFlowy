@@ -40,6 +40,10 @@ impl std::convert::Into<Payload> for Bytes {
     }
 }
 
+impl std::convert::Into<Payload> for () {
+    fn into(self) -> Payload { Payload::None }
+}
+
 impl std::convert::Into<Payload> for Vec<u8> {
     fn into(self) -> Payload { Payload::Bytes(self) }
 }

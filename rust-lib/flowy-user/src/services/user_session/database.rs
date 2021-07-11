@@ -39,7 +39,7 @@ impl UserDB {
         Ok(())
     }
 
-    pub(crate) fn close_user_db(&mut self) -> Result<(), UserError> {
+    pub(crate) fn close_user_db(&self) -> Result<(), UserError> {
         INIT_FLAG.store(false, Ordering::SeqCst);
 
         let mut write_guard = DB

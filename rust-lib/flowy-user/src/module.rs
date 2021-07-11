@@ -10,4 +10,5 @@ pub fn create(user_session: Arc<UserSession>) -> Module {
         .event(UserEvent::SignIn, user_sign_in)
         .event(UserEvent::SignUp, user_sign_up)
         .event(UserEvent::GetStatus, user_get_status)
+        .event(UserEvent::SignOut, user_sign_out)
 }

@@ -39,9 +39,13 @@ pub async fn user_sign_up(
 }
 
 pub async fn user_get_status(
-    user_id: String,
     session: ModuleData<Arc<UserSession>>,
 ) -> ResponseResult<UserDetail, String> {
-    let user_detail = session.get_user_status(&user_id).await?;
+    let user_detail = session.current_user_detail().await?;
     response_ok(user_detail)
+}
+
+pub async fn user_sign_out(session: ModuleData<Arc<UserSession>>) -> Result<(), String> {
+    let _ = session.sign_out().await?;
+    Ok(())
 }

@@ -1,4 +1,4 @@
-use crate::services::user_session::{register::MockUserServer, UserSession, UserSessionConfig};
+use crate::services::user_session::{user_server::MockUserServer, UserSession, UserSessionConfig};
 
 pub struct UserSessionBuilder {
     config: Option<UserSessionConfig>,

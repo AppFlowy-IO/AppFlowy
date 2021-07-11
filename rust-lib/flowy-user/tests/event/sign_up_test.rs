@@ -1,8 +1,10 @@
 use crate::helper::*;
 use flowy_test::prelude::*;
 use flowy_user::{event::UserEvent::*, prelude::*};
+use serial_test::*;
 
 #[test]
+#[serial]
 fn sign_up_success() {
     let request = SignUpRequest {
         email: valid_email(),

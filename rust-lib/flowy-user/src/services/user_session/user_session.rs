@@ -13,7 +13,7 @@ use crate::{
     errors::UserError,
     services::user_session::{
         database::UserDB,
-        register::{UserServer, *},
+        user_server::{UserServer, *},
     },
     sql_tables::User,
 };
@@ -61,21 +61,40 @@ impl UserSession {
         self.save_user(user)
     }
 
-    pub fn sign_out(&self) -> Result<(), UserError> {
+    pub async fn sign_out(&self) -> Result<(), UserError> {
+        let user_id = self.current_user_id()?;
+        let conn = self.get_db_connection()?;
+        let affected =
+            diesel::delete(dsl::user_table.filter(dsl::id.eq(&user_id))).execute(&*conn)?;
+
+        match self.server.sign_out(&user_id) {
+            Ok(_) => {},
+            Err(_) => {},
+        }
+        let _ = self.database.close_user_db()?;
         let _ = set_current_user_id(None)?;
-        // TODO: close the db
-        unimplemented!()
+        // debug_assert_eq!(affected, 1);
+
+        Ok(())
     }
 
-    pub async fn get_user_status(&self, user_id: &str) -> Result<UserDetail, UserError> {
-        let user_id = UserId::parse(user_id.to_owned()).map_err(|e| UserError::Auth(e))?;
+    pub async fn current_user_detail(&self) -> Result<UserDetail, UserError> {
+        let user_id = self.current_user_id()?;
         let conn = self.get_db_connection()?;
 
         let user = dsl::user_table
-            .filter(user_table::id.eq(user_id.as_ref()))
+            .filter(user_table::id.eq(&user_id))
             .first::<User>(&*conn)?;
 
-        // TODO: getting user detail from remote
+        match self.server.get_user_info(&user_id) {
+            Ok(_user_detail) => {
+                // TODO: post latest user_detail to upper layer
+            },
+            Err(_e) => {
+                // log::debug!("Get user details failed. {:?}", e);
+            },
+        }
+
         Ok(UserDetail::from(user))
     }
 
@@ -96,4 +115,45 @@ impl UserSession {
 
         Ok(user)
     }
+
+    fn current_user_id(&self) -> Result<String, UserError> {
+        match KVStore::get_str(USER_ID_DISK_CACHE_KEY) {
+            None => Err(UserError::Auth("No login user found".to_owned())),
+            Some(user_id) => Ok(user_id),
+        }
+    }
+}
+
+const USER_ID_DISK_CACHE_KEY: &str = "user_id";
+lazy_static! {
+    pub static ref CURRENT_USER_ID: RwLock<Option<String>> = RwLock::new(None);
+}
+pub(crate) fn get_current_user_id() -> Result<Option<String>, UserError> {
+    let read_guard = CURRENT_USER_ID
+        .read()
+        .map_err(|e| UserError::Auth(format!("Read current user id failed. {:?}", e)))?;
+
+    let mut user_id = (*read_guard).clone();
+    // explicitly drop the read_guard in case of dead lock
+    drop(read_guard);
+
+    if user_id.is_none() {
+        user_id = KVStore::get_str(USER_ID_DISK_CACHE_KEY);
+        *(CURRENT_USER_ID.write().unwrap()) = user_id.clone();
+    }
+
+    Ok(user_id)
+}
+
+pub(crate) fn set_current_user_id(user_id: Option<String>) -> Result<(), UserError> {
+    KVStore::set_str(
+        USER_ID_DISK_CACHE_KEY,
+        user_id.clone().unwrap_or("".to_owned()),
+    );
+
+    let mut current_user_id = CURRENT_USER_ID
+        .write()
+        .map_err(|e| UserError::Auth(format!("Write current user id failed. {:?}", e)))?;
+    *current_user_id = user_id;
+    Ok(())
 }

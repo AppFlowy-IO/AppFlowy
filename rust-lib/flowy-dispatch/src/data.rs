@@ -1,7 +1,8 @@
 use crate::{
+    byte_trait::*,
     errors::{DispatchError, InternalError},
     request::{unexpected_none_payload, EventRequest, FromRequest, Payload},
-    response::{EventResponse, Responder, ResponseBuilder, ToBytes},
+    response::{EventResponse, Responder, ResponseBuilder},
     util::ready::{ready, Ready},
 };
 use std::ops;
@@ -20,33 +21,6 @@ impl<T> ops::Deref for Data<T> {
 
 impl<T> ops::DerefMut for Data<T> {
     fn deref_mut(&mut self) -> &mut T { &mut self.0 }
-}
-
-pub trait FromBytes: Sized {
-    fn parse_from_bytes(bytes: &Vec<u8>) -> Result<Self, String>;
-}
-
-#[cfg(feature = "use_protobuf")]
-impl<T> FromBytes for T
-where
-    // https://stackoverflow.com/questions/62871045/tryfromu8-trait-bound-in-trait
-    T: for<'a> std::convert::TryFrom<&'a Vec<u8>, Error = String>,
-{
-    fn parse_from_bytes(bytes: &Vec<u8>) -> Result<Self, String> { T::try_from(bytes) }
-}
-
-#[cfg(feature = "use_serde")]
-impl<T> FromBytes for T
-where
-    T: serde::de::DeserializeOwned + 'static,
-{
-    fn parse_from_bytes(bytes: &Vec<u8>) -> Result<Self, String> {
-        let s = String::from_utf8_lossy(bytes);
-        match serde_json::from_str::<T>(s.as_ref()) {
-            Ok(data) => Ok(data),
-            Err(e) => Err(format!("{:?}", e)),
-        }
-    }
 }
 
 impl<T> FromRequest for Data<T>
@@ -81,13 +55,6 @@ where
             },
         }
     }
-}
-
-impl<T> std::convert::From<T> for Data<T>
-where
-    T: ToBytes,
-{
-    fn from(val: T) -> Self { Data(val) }
 }
 
 impl<T> std::convert::TryFrom<&Payload> for Data<T>
@@ -130,4 +97,8 @@ where
         let bytes = inner.into_bytes()?;
         Ok(Payload::Bytes(bytes))
     }
+}
+
+impl ToBytes for Data<String> {
+    fn into_bytes(self) -> Result<Vec<u8>, String> { Ok(self.0.into_bytes()) }
 }
