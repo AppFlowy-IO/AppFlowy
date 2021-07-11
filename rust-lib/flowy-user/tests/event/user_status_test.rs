@@ -1,8 +1,10 @@
 use crate::helper::*;
 use flowy_test::prelude::*;
 use flowy_user::{event::UserEvent::*, prelude::*};
+use serial_test::*;
 #[test]
 #[should_panic]
+#[serial]
 fn user_status_not_found_before_login() {
     let _ = EventTester::new(SignOut).sync_send();
     let _ = EventTester::new(GetStatus)
@@ -11,6 +13,7 @@ fn user_status_not_found_before_login() {
 }
 
 #[test]
+#[serial]
 fn user_status_did_found_after_login() {
     let _ = EventTester::new(SignOut).sync_send();
     let request = SignInRequest {

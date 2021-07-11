@@ -10,7 +10,7 @@ use std::sync::RwLock;
 
 use crate::{
     entities::{SignInParams, SignUpParams, UserDetail, UserId},
-    errors::UserError,
+    errors::{ErrorBuilder, UserError, UserErrorCode},
     services::user_session::{
         database::UserDB,
         user_server::{UserServer, *},
@@ -64,8 +64,7 @@ impl UserSession {
     pub async fn sign_out(&self) -> Result<(), UserError> {
         let user_id = self.current_user_id()?;
         let conn = self.get_db_connection()?;
-        let affected =
-            diesel::delete(dsl::user_table.filter(dsl::id.eq(&user_id))).execute(&*conn)?;
+        let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&user_id))).execute(&*conn)?;
 
         match self.server.sign_out(&user_id) {
             Ok(_) => {},
@@ -73,7 +72,6 @@ impl UserSession {
         }
         let _ = self.database.close_user_db()?;
         let _ = set_current_user_id(None)?;
-        // debug_assert_eq!(affected, 1);
 
         Ok(())
     }
@@ -100,7 +98,7 @@ impl UserSession {
 
     pub fn get_db_connection(&self) -> Result<DBConnection, UserError> {
         match get_current_user_id()? {
-            None => Err(UserError::Auth("User is not login yet".to_owned())),
+            None => Err(ErrorBuilder::new(UserErrorCode::UserNotLoginYet).build()),
             Some(user_id) => self.database.get_connection(&user_id),
         }
     }
@@ -109,7 +107,7 @@ impl UserSession {
 impl UserSession {
     fn save_user(&self, user: User) -> Result<User, UserError> {
         let conn = self.get_db_connection()?;
-        let result = diesel::insert_into(user_table::table)
+        let _ = diesel::insert_into(user_table::table)
             .values(user.clone())
             .execute(&*conn)?;
 
@@ -118,7 +116,7 @@ impl UserSession {
 
     fn current_user_id(&self) -> Result<String, UserError> {
         match KVStore::get_str(USER_ID_DISK_CACHE_KEY) {
-            None => Err(UserError::Auth("No login user found".to_owned())),
+            None => Err(ErrorBuilder::new(UserErrorCode::UserNotLoginYet).build()),
             Some(user_id) => Ok(user_id),
         }
     }
@@ -129,9 +127,11 @@ lazy_static! {
     pub static ref CURRENT_USER_ID: RwLock<Option<String>> = RwLock::new(None);
 }
 pub(crate) fn get_current_user_id() -> Result<Option<String>, UserError> {
-    let read_guard = CURRENT_USER_ID
-        .read()
-        .map_err(|e| UserError::Auth(format!("Read current user id failed. {:?}", e)))?;
+    let read_guard = CURRENT_USER_ID.read().map_err(|e| {
+        ErrorBuilder::new(UserErrorCode::ReadCurrentIdFailed)
+            .error(e)
+            .build()
+    })?;
 
     let mut user_id = (*read_guard).clone();
     // explicitly drop the read_guard in case of dead lock
@@ -151,9 +151,11 @@ pub(crate) fn set_current_user_id(user_id: Option<String>) -> Result<(), UserErr
         user_id.clone().unwrap_or("".to_owned()),
     );
 
-    let mut current_user_id = CURRENT_USER_ID
-        .write()
-        .map_err(|e| UserError::Auth(format!("Write current user id failed. {:?}", e)))?;
+    let mut current_user_id = CURRENT_USER_ID.write().map_err(|e| {
+        ErrorBuilder::new(UserErrorCode::WriteCurrentIdFailed)
+            .error(e)
+            .build()
+    })?;
     *current_user_id = user_id;
     Ok(())
 }

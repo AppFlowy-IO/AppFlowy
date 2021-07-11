@@ -1,4 +1,7 @@
-use crate::entities::{UserEmail, UserPassword};
+use crate::{
+    entities::{UserEmail, UserPassword},
+    errors::{UserError, *},
+};
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
 
@@ -21,11 +24,19 @@ pub struct SignInParams {
 }
 
 impl TryInto<SignInParams> for SignInRequest {
-    type Error = String;
+    type Error = UserError;
 
     fn try_into(self) -> Result<SignInParams, Self::Error> {
-        let email = UserEmail::parse(self.email)?;
-        let password = UserPassword::parse(self.password)?;
+        let email = UserEmail::parse(self.email).map_err(|e| {
+            ErrorBuilder::new(UserErrorCode::EmailInvalid)
+                .msg(e)
+                .build()
+        })?;
+        let password = UserPassword::parse(self.password).map_err(|e| {
+            ErrorBuilder::new(UserErrorCode::PasswordInvalid)
+                .msg(e)
+                .build()
+        })?;
 
         Ok(SignInParams {
             email: email.0,

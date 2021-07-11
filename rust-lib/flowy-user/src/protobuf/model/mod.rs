@@ -12,5 +12,8 @@ pub use sign_in::*;
 mod user_table; 
 pub use user_table::*; 
 
+mod errors; 
+pub use errors::*; 
+
 mod event; 
 pub use event::*; 

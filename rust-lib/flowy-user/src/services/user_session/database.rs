@@ -1,4 +1,4 @@
-use crate::errors::UserError;
+use crate::errors::{ErrorBuilder, UserError, UserErrorCode};
 use flowy_database::{DBConnection, Database};
 use lazy_static::lazy_static;
 use std::{
@@ -27,12 +27,17 @@ impl UserDB {
     fn open_user_db(&self, user_id: &str) -> Result<(), UserError> {
         INIT_FLAG.store(true, Ordering::SeqCst);
         let dir = format!("{}/{}", self.db_dir, user_id);
-        let db =
-            flowy_database::init(&dir).map_err(|e| UserError::Database(format!("😁{:?}", e)))?;
+        let db = flowy_database::init(&dir).map_err(|e| {
+            ErrorBuilder::new(UserErrorCode::DatabaseInitFailed)
+                .error(e)
+                .build()
+        })?;
 
-        let mut user_db = DB
-            .write()
-            .map_err(|e| UserError::Database(format!("Open user db failed. {:?}", e)))?;
+        let mut user_db = DB.write().map_err(|e| {
+            ErrorBuilder::new(UserErrorCode::DatabaseWriteLocked)
+                .error(e)
+                .build()
+        })?;
         *(user_db) = Some(db);
 
         set_user_id(Some(user_id.to_owned()));
@@ -42,9 +47,12 @@ impl UserDB {
     pub(crate) fn close_user_db(&self) -> Result<(), UserError> {
         INIT_FLAG.store(false, Ordering::SeqCst);
 
-        let mut write_guard = DB
-            .write()
-            .map_err(|e| UserError::Database(format!("Close user db failed. {:?}", e)))?;
+        let mut write_guard = DB.write().map_err(|e| {
+            ErrorBuilder::new(UserErrorCode::DatabaseWriteLocked)
+                .msg(format!("Close user db failed. {:?}", e))
+                .build()
+        })?;
+
         *write_guard = None;
         set_user_id(None);
 
@@ -64,17 +72,22 @@ impl UserDB {
                     thread_user_id, user_id
                 );
                 log::error!("{}", msg);
-                return Err(UserError::Database(msg));
+
+                return Err(ErrorBuilder::new(UserErrorCode::DatabaseUserDidNotMatch)
+                    .msg(msg)
+                    .build());
             }
         }
 
-        let read_guard = DB
-            .read()
-            .map_err(|e| UserError::Database(format!("Get user db connection fail. {:?}", e)))?;
+        let read_guard = DB.read().map_err(|e| {
+            ErrorBuilder::new(UserErrorCode::DatabaseReadLocked)
+                .error(e)
+                .build()
+        })?;
         match read_guard.as_ref() {
-            None => Err(UserError::Database(
-                "Database is not initialization".to_owned(),
-            )),
+            None => Err(ErrorBuilder::new(UserErrorCode::DatabaseInitFailed)
+                .msg("Database is not initialization")
+                .build()),
             Some(database) => Ok(database.get_connection()?),
         }
     }

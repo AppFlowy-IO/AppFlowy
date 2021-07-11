@@ -1,11 +1,16 @@
 use crate::helper::*;
 use flowy_test::prelude::*;
-use flowy_user::{event::UserEvent::*, prelude::*};
+use flowy_user::{
+    errors::{UserError, UserErrorCode},
+    event::UserEvent::*,
+    prelude::*,
+};
 use serial_test::*;
 
 #[test]
 #[serial]
 fn sign_in_success() {
+    let _ = EventTester::new(SignOut).sync_send();
     let request = SignInRequest {
         email: valid_email(),
         password: valid_password(),
@@ -26,10 +31,14 @@ fn sign_in_with_invalid_email() {
             password: valid_password(),
         };
 
-        let _ = EventTester::new(SignIn)
-            .request(request)
-            .assert_error()
-            .sync_send();
+        assert_eq!(
+            EventTester::new(SignIn)
+                .request(request)
+                .sync_send()
+                .parse::<UserError>()
+                .code,
+            UserErrorCode::EmailInvalid
+        );
     }
 }
 
@@ -41,9 +50,13 @@ fn sign_in_with_invalid_password() {
             password,
         };
 
-        let _ = EventTester::new(SignIn)
-            .request(request)
-            .assert_error()
-            .sync_send();
+        assert_eq!(
+            EventTester::new(SignIn)
+                .request(request)
+                .sync_send()
+                .parse::<UserError>()
+                .code,
+            UserErrorCode::PasswordInvalid
+        );
     }
 }

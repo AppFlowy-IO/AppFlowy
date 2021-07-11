@@ -7,7 +7,7 @@ use serde::{Serialize, Serializer};
 use std::{fmt, option::NoneError};
 use tokio::sync::mpsc::error::SendError;
 
-pub trait Error: fmt::Debug + fmt::Display + DynClone + Send + Sync {
+pub trait Error: fmt::Debug + DynClone + Send + Sync {
     fn as_response(&self) -> EventResponse { EventResponse::new(StatusCode::Err) }
 }
 
@@ -31,7 +31,7 @@ impl DispatchError {
 }
 
 impl fmt::Display for DispatchError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { fmt::Display::fmt(&self.inner, f) }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { write!(f, "{:?}", &self.inner) }
 }
 
 impl fmt::Debug for DispatchError {

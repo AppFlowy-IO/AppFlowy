@@ -1,5 +1,5 @@
 pub mod entities;
-mod errors;
+pub mod errors;
 pub mod event;
 mod handlers;
 pub mod module;

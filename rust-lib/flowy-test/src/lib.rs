@@ -113,6 +113,7 @@ impl EventTester {
         if response.status_code == StatusCode::Err {
             dbg!(&response);
         }
+
         <Data<R>>::try_from(response.payload).unwrap().into_inner()
     }
 }

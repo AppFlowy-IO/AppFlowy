@@ -25,6 +25,7 @@ impl_responder!(String);
 impl_responder!(&'_ String);
 impl_responder!(Bytes);
 impl_responder!(());
+impl_responder!(Vec<u8>);
 
 impl<T, E> Responder for Result<T, E>
 where

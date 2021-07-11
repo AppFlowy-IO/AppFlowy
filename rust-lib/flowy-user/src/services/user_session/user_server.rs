@@ -1,6 +1,6 @@
 use crate::{
     entities::{SignInParams, SignUpParams, UserDetail},
-    errors::UserError,
+    errors::{ErrorBuilder, UserError, UserErrorCode},
     sql_tables::User,
 };
 use std::sync::RwLock;
@@ -37,10 +37,10 @@ impl UserServer for MockUserServer {
     }
 
     fn get_user_info(&self, user_id: &str) -> Result<UserDetail, UserError> {
-        Err(UserError::Auth("WIP".to_owned()))
+        Err(ErrorBuilder::new(UserErrorCode::Unknown).build())
     }
 
     fn sign_out(&self, user_id: &str) -> Result<(), UserError> {
-        Err(UserError::Auth("WIP".to_owned()))
+        Err(ErrorBuilder::new(UserErrorCode::Unknown).build())
     }
 }

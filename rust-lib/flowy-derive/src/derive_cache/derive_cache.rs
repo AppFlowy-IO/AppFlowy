@@ -24,10 +24,12 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "SignUpResponse"
         | "SignInRequest"
         | "SignInParams"
+        | "UserError"
         => TypeCategory::Protobuf,
         "FFIStatusCode"
         | "UserStatus"
         | "UserEvent"
+        | "UserErrorCode"
         => TypeCategory::Enum,
 
         "Option" => TypeCategory::Opt,

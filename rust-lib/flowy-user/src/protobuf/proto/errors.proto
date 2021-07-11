@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+message UserError {
+    UserErrorCode code = 1;
+    string msg = 2;
+}
+enum UserErrorCode {
+    Unknown = 0;
+    DatabaseInitFailed = 1;
+    DatabaseWriteLocked = 2;
+    DatabaseReadLocked = 3;
+    DatabaseUserDidNotMatch = 4;
+    DatabaseInternalError = 5;
+    UserNotLoginYet = 10;
+    ReadCurrentIdFailed = 11;
+    WriteCurrentIdFailed = 12;
+    EmailInvalid = 20;
+    PasswordInvalid = 21;
+    UserNameInvalid = 22;
+}
