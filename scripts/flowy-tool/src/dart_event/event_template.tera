@@ -3,24 +3,46 @@
 {%- endif -%}
 
 class {{ event_class }} {
-    {{ input_deserializer }} request;
-    {{ event_class }}(this.request);
+{%- if has_input  %}
+     {{ input_deserializer }} request;
+     {{ event_class }}(this.request);
+{%- else %}
+    {{ event_class }}();
+{%- endif %}
 
     Future<Either<{{ output_deserializer }}, FlowyError>> send() {
-    return requestToBytes(request).fold(
-        (bytes) {
-          final request = FFIRequest.create()
-            ..event = {{ event }}.toString()
-            ..payload = bytes;
 
-          return Dispatch.asyncRequest(request)
-              .then((bytesResult) => bytesResult.fold(
-                    (bytes) => left({{ output_deserializer }}.fromBuffer(bytes)),
-                    (error) => right(error),
-                  ));
-        },
-        (err) => Future(() => right(err)),
-        );
+{%- if has_input  %}
+     return requestToBytes(request).fold(
+         (bytes) {
+            final request = FFIRequest.create()
+             ..event = {{ event }}.toString()
+             ..payload = bytes;
+
+           return Dispatch.asyncRequest(request)
+               .then((bytesResult) => bytesResult.fold(
+                 (bytes) => left({{ output_deserializer }}.fromBuffer(bytes)),
+                 (error) => right(error),
+               ));
+         },
+         (err) => Future(() => right(err)),
+       );
+{%- else %}
+     final request = FFIRequest.create()
+        ..event = {{ event }}.toString();
+        {%- if has_input  %}
+        ..payload = bytes;
+        {%- endif %}
+
+     return Dispatch.asyncRequest(request).then((bytesResult) => bytesResult.fold(
+     {%- if has_output  %}
+        (bytes) => left({{ output_deserializer }}.fromBuffer(bytes)),
+     {%- else %}
+        (bytes) => left(bytes),
+     {%- endif %}
+        (error) => right(error),
+      ));
+{%- endif %}
     }
 }
 

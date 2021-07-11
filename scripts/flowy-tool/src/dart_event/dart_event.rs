@@ -100,24 +100,23 @@ pub fn parse_event_crate(event_crate: &DartEventCrate) -> Vec<EventASTContext> {
 
 pub fn ast_to_event_render_ctx(ast: &Vec<EventASTContext>) -> Vec<EventRenderContext> {
     ast.iter()
-        .filter(|event_ast| event_ast.event_input.is_some() && event_ast.event_output.is_some())
-        .map(|event_ast| EventRenderContext {
-            input_deserializer: event_ast
-                .event_input
-                .as_ref()
-                .unwrap()
-                .get_ident()
-                .unwrap()
-                .to_string(),
-            output_deserializer: event_ast
-                .event_output
-                .as_ref()
-                .unwrap()
-                .get_ident()
-                .unwrap()
-                .to_string(),
-            event: event_ast.event.to_string(),
-            event_ty: event_ast.event_ty.to_string(),
+        .map(|event_ast| {
+            let input_deserializer = match event_ast.event_input {
+                Some(ref event_input) => Some(event_input.get_ident().unwrap().to_string()),
+                None => None,
+            };
+
+            let output_deserializer = match event_ast.event_output {
+                Some(ref event_output) => Some(event_output.get_ident().unwrap().to_string()),
+                None => None,
+            };
+
+            return EventRenderContext {
+                input_deserializer,
+                output_deserializer,
+                event: event_ast.event.to_string(),
+                event_ty: event_ast.event_ty.to_string(),
+            };
         })
         .collect::<Vec<EventRenderContext>>()
 }

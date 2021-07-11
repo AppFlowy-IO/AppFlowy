@@ -1,2 +1,2 @@
 proto_crates = ["src/kv"]
-event_files = [""]
+event_files = []
