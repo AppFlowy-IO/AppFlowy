@@ -12,4 +12,8 @@ cargo install cargo-cache
 
 #protobuf code gen env
 brew install protobuf@3.13
+brew tap dart-lang/dart
+brew install dart
+pub global activate protoc_plugin
+
 cargo install --version 2.20.0 protobuf-codegen

@@ -1,7 +1,4 @@
-use crate::services::{
-    register::MockUserRegister,
-    user_session::{UserSession, UserSessionConfig},
-};
+use crate::services::user_session::{register::MockUserServer, UserSession, UserSessionConfig};
 
 pub struct UserSessionBuilder {
     config: Option<UserSessionConfig>,
@@ -17,7 +14,7 @@ impl UserSessionBuilder {
 
     pub fn build(mut self) -> UserSession {
         let config = self.config.take().unwrap();
-        let register = MockUserRegister {};
+        let register = MockUserServer {};
         UserSession::new(config, register)
     }
 }

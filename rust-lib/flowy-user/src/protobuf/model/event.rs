@@ -25,7 +25,7 @@
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum UserEvent {
-    AuthCheck = 0,
+    GetStatus = 0,
     SignIn = 1,
     SignUp = 2,
     SignOut = 3,
@@ -38,7 +38,7 @@ impl ::protobuf::ProtobufEnum for UserEvent {
 
     fn from_i32(value: i32) -> ::std::option::Option<UserEvent> {
         match value {
-            0 => ::std::option::Option::Some(UserEvent::AuthCheck),
+            0 => ::std::option::Option::Some(UserEvent::GetStatus),
             1 => ::std::option::Option::Some(UserEvent::SignIn),
             2 => ::std::option::Option::Some(UserEvent::SignUp),
             3 => ::std::option::Option::Some(UserEvent::SignOut),
@@ -48,7 +48,7 @@ impl ::protobuf::ProtobufEnum for UserEvent {
 
     fn values() -> &'static [Self] {
         static values: &'static [UserEvent] = &[
-            UserEvent::AuthCheck,
+            UserEvent::GetStatus,
             UserEvent::SignIn,
             UserEvent::SignUp,
             UserEvent::SignOut,
@@ -69,7 +69,7 @@ impl ::std::marker::Copy for UserEvent {
 
 impl ::std::default::Default for UserEvent {
     fn default() -> Self {
-        UserEvent::AuthCheck
+        UserEvent::GetStatus
     }
 }
 
@@ -80,7 +80,7 @@ impl ::protobuf::reflect::ProtobufValue for UserEvent {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0bevent.proto*?\n\tUserEvent\x12\r\n\tAuthCheck\x10\0\x12\n\n\x06Sig\
+    \n\x0bevent.proto*?\n\tUserEvent\x12\r\n\tGetStatus\x10\0\x12\n\n\x06Sig\
     nIn\x10\x01\x12\n\n\x06SignUp\x10\x02\x12\x0b\n\x07SignOut\x10\x03J\xce\
     \x01\n\x06\x12\x04\0\0\x07\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\
     \x05\0\x12\x04\x02\0\x07\x01\n\n\n\x03\x05\0\x01\x12\x03\x02\x05\x0e\n\

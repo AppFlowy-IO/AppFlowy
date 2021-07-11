@@ -8,6 +8,3 @@ message SignInParams {
     string email = 1;
     string password = 2;
 }
-message SignInResponse {
-    bool is_success = 1;
-}

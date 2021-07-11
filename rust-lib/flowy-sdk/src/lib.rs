@@ -10,7 +10,9 @@ impl FlowySDK {
     pub fn init_log(directory: &str) { flowy_log::init_log("flowy", directory, "Debug").unwrap(); }
 
     pub fn init(path: &str) {
-        tracing::trace!("🔥 Root path: {}", path);
+        tracing::info!("🔥 Root path: {}", path);
+
+        flowy_infra::kv::KVStore::init(path);
 
         let config = ModuleConfig {
             root: path.to_string(),

@@ -1,5 +1,8 @@
 // Auto-generated, do not edit 
 
+mod user_status; 
+pub use user_status::*; 
+
 mod sign_up; 
 pub use sign_up::*; 
 

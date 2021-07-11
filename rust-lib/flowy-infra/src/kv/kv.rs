@@ -4,7 +4,11 @@ use diesel::{Connection, SqliteConnection};
 use flowy_derive::ProtoBuf;
 use flowy_sqlite::{DBConnection, Database, PoolConfig};
 use lazy_static::lazy_static;
-use std::{path::Path, sync::RwLock};
+use std::{
+    path::Path,
+    sync::{PoisonError, RwLock, RwLockWriteGuard},
+};
+
 const DB_NAME: &str = "kv.db";
 lazy_static! {
     pub static ref KV_HOLDER: RwLock<KVStore> = RwLock::new(KVStore::new());
@@ -17,58 +21,51 @@ pub struct KVStore {
 impl KVStore {
     fn new() -> Self { KVStore { database: None } }
 
-    pub fn init(&mut self, root: &str) -> Result<(), String> {
+    pub fn set(item: KeyValue) -> Result<(), String> {
+        let conn = get_connection()?;
+        let _ = diesel::replace_into(kv_table::table)
+            .values(&item)
+            .execute(&*conn)
+            .map_err(|e| format!("{:?}", e))?;
+
+        Ok(())
+    }
+
+    pub fn get(key: &str) -> Result<KeyValue, String> {
+        let conn = get_connection()?;
+        let item = dsl::kv_table
+            .filter(kv_table::key.eq(key))
+            .first::<KeyValue>(&*conn)
+            .map_err(|e| format!("{:?}", e))?;
+        Ok(item)
+    }
+
+    #[allow(dead_code)]
+    pub fn remove(key: &str) -> Result<(), String> {
+        let conn = get_connection()?;
+        let sql = dsl::kv_table.filter(kv_table::key.eq(key));
+        let _ = diesel::delete(sql)
+            .execute(&*conn)
+            .map_err(|e| format!("{:?}", e))?;
+        Ok(())
+    }
+
+    pub fn init(root: &str) -> Result<(), String> {
         if !Path::new(root).exists() {
-            return Err(format!("{} not exists", root));
+            return Err(format!("Init KVStore failed. {} not exists", root));
         }
 
         let pool_config = PoolConfig::default();
         let database = Database::new(root, DB_NAME, pool_config).unwrap();
         let conn = database.get_connection().unwrap();
         SqliteConnection::execute(&*conn, KV_SQL).unwrap();
-        self.database = Some(database);
+
+        let mut store = KV_HOLDER
+            .write()
+            .map_err(|e| format!("KVStore write failed: {:?}", e))?;
+        store.database = Some(database);
 
         Ok(())
-    }
-
-    pub fn set(item: KeyValue) -> Result<(), String> {
-        match get_connection() {
-            Ok(conn) => {
-                let _ = diesel::insert_into(kv_table::table)
-                    .values(&item)
-                    .execute(&*conn)
-                    .map_err(|e| format!("{:?}", e))?;
-
-                Ok(())
-            },
-            Err(e) => Err(e),
-        }
-    }
-
-    #[allow(dead_code)]
-    pub fn remove(key: &str) -> Result<(), String> {
-        match get_connection() {
-            Ok(conn) => {
-                let _ = diesel::delete(dsl::kv_table.filter(kv_table::key.eq(key)))
-                    .execute(&*conn)
-                    .map_err(|e| format!("{:?}", e))?;
-                Ok(())
-            },
-            Err(e) => Err(e),
-        }
-    }
-
-    pub fn get(key: &str) -> Result<KeyValue, String> {
-        match get_connection() {
-            Ok(conn) => {
-                let item = dsl::kv_table
-                    .filter(kv_table::key.eq(key))
-                    .first::<KeyValue>(&*conn)
-                    .map_err(|e| format!("{:?}", e))?;
-                Ok(item)
-            },
-            Err(e) => Err(e),
-        }
     }
 }
 
@@ -142,9 +139,7 @@ fn get_connection() -> Result<DBConnection, String> {
     }
 }
 
-#[derive(
-    PartialEq, Clone, Debug, ProtoBuf, Default, Queryable, Identifiable, Insertable, AsChangeset,
-)]
+#[derive(Clone, Debug, ProtoBuf, Default, Queryable, Identifiable, Insertable, AsChangeset)]
 #[table_name = "kv_table"]
 #[primary_key(key)]
 pub struct KeyValue {
@@ -173,16 +168,27 @@ impl KeyValue {
     }
 }
 
-#[derive(ProtoBuf, Default, Debug)]
-pub struct KeyValueQuery {
-    #[pb(index = 1)]
-    key: String,
-}
+#[cfg(test)]
+mod tests {
+    use crate::kv::KVStore;
 
-impl KeyValueQuery {
-    pub fn new(key: &str) -> Self {
-        let mut query = KeyValueQuery::default();
-        query.key = key.to_string();
-        query
+    #[test]
+    fn kv_store_test() {
+        let dir = "./temp/";
+        if !std::path::Path::new(dir).exists() {
+            std::fs::create_dir_all(dir).unwrap();
+        }
+
+        KVStore::init(dir);
+
+        KVStore::set_str("1", "hello".to_string());
+        assert_eq!(KVStore::get_str("1").unwrap(), "hello");
+
+        assert_eq!(KVStore::get_str("2"), None);
+
+        KVStore::set_bool("1", true);
+        assert_eq!(KVStore::get_bool("1").unwrap(), true);
+
+        assert_eq!(KVStore::get_bool("2"), None);
     }
 }

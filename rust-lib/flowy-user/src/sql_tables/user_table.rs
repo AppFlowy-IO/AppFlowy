@@ -8,10 +8,10 @@ pub struct User {
     pub(crate) id: String,
 
     #[pb(index = 2)]
-    name: String,
+    pub(crate) name: String,
 
     #[pb(index = 3)]
-    email: String,
+    pub(crate) email: String,
 
     #[pb(index = 4)]
     password: String,

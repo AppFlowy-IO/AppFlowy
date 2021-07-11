@@ -435,165 +435,6 @@ impl ::protobuf::reflect::ProtobufValue for KeyValue {
     }
 }
 
-#[derive(PartialEq,Clone,Default)]
-pub struct KeyValueQuery {
-    // message fields
-    pub key: ::std::string::String,
-    // special fields
-    pub unknown_fields: ::protobuf::UnknownFields,
-    pub cached_size: ::protobuf::CachedSize,
-}
-
-impl<'a> ::std::default::Default for &'a KeyValueQuery {
-    fn default() -> &'a KeyValueQuery {
-        <KeyValueQuery as ::protobuf::Message>::default_instance()
-    }
-}
-
-impl KeyValueQuery {
-    pub fn new() -> KeyValueQuery {
-        ::std::default::Default::default()
-    }
-
-    // string key = 1;
-
-
-    pub fn get_key(&self) -> &str {
-        &self.key
-    }
-    pub fn clear_key(&mut self) {
-        self.key.clear();
-    }
-
-    // Param is passed by value, moved
-    pub fn set_key(&mut self, v: ::std::string::String) {
-        self.key = v;
-    }
-
-    // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
-    pub fn mut_key(&mut self) -> &mut ::std::string::String {
-        &mut self.key
-    }
-
-    // Take field
-    pub fn take_key(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.key, ::std::string::String::new())
-    }
-}
-
-impl ::protobuf::Message for KeyValueQuery {
-    fn is_initialized(&self) -> bool {
-        true
-    }
-
-    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        while !is.eof()? {
-            let (field_number, wire_type) = is.read_tag_unpack()?;
-            match field_number {
-                1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.key)?;
-                },
-                _ => {
-                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
-                },
-            };
-        }
-        ::std::result::Result::Ok(())
-    }
-
-    // Compute sizes of nested messages
-    #[allow(unused_variables)]
-    fn compute_size(&self) -> u32 {
-        let mut my_size = 0;
-        if !self.key.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.key);
-        }
-        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
-        self.cached_size.set(my_size);
-        my_size
-    }
-
-    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.key.is_empty() {
-            os.write_string(1, &self.key)?;
-        }
-        os.write_unknown_fields(self.get_unknown_fields())?;
-        ::std::result::Result::Ok(())
-    }
-
-    fn get_cached_size(&self) -> u32 {
-        self.cached_size.get()
-    }
-
-    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
-        &self.unknown_fields
-    }
-
-    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
-        &mut self.unknown_fields
-    }
-
-    fn as_any(&self) -> &dyn (::std::any::Any) {
-        self as &dyn (::std::any::Any)
-    }
-    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
-        self as &mut dyn (::std::any::Any)
-    }
-    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
-        self
-    }
-
-    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
-        Self::descriptor_static()
-    }
-
-    fn new() -> KeyValueQuery {
-        KeyValueQuery::new()
-    }
-
-    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
-        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
-        descriptor.get(|| {
-            let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "key",
-                |m: &KeyValueQuery| { &m.key },
-                |m: &mut KeyValueQuery| { &mut m.key },
-            ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<KeyValueQuery>(
-                "KeyValueQuery",
-                fields,
-                file_descriptor_proto()
-            )
-        })
-    }
-
-    fn default_instance() -> &'static KeyValueQuery {
-        static instance: ::protobuf::rt::LazyV2<KeyValueQuery> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(KeyValueQuery::new)
-    }
-}
-
-impl ::protobuf::Clear for KeyValueQuery {
-    fn clear(&mut self) {
-        self.key.clear();
-        self.unknown_fields.clear();
-    }
-}
-
-impl ::std::fmt::Debug for KeyValueQuery {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::protobuf::text_format::fmt(self, f)
-    }
-}
-
-impl ::protobuf::reflect::ProtobufValue for KeyValueQuery {
-    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
-        ::protobuf::reflect::ReflectValueRef::Message(self)
-    }
-}
-
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x08kv.proto\"\xf1\x01\n\x08KeyValue\x12\x10\n\x03key\x18\x01\x20\x01(\
     \tR\x03key\x12\x1d\n\tstr_value\x18\x02\x20\x01(\tH\0R\x08strValue\x12\
@@ -601,31 +442,27 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     _value\x18\x04\x20\x01(\x01H\x02R\nfloatValue\x12\x1f\n\nbool_value\x18\
     \x05\x20\x01(\x08H\x03R\tboolValueB\x12\n\x10one_of_str_valueB\x12\n\x10\
     one_of_int_valueB\x14\n\x12one_of_float_valueB\x13\n\x11one_of_bool_valu\
-    e\"!\n\rKeyValueQuery\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03keyJ\xf8\
-    \x03\n\x06\x12\x04\0\0\x0b\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\
-    \x04\0\x12\x04\x02\0\x08\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x10\n\
-    \x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x13\n\x0c\n\x05\x04\0\x02\0\x05\
-    \x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\x0e\n\x0c\
-    \n\x05\x04\0\x02\0\x03\x12\x03\x03\x11\x12\n\x0b\n\x04\x04\0\x08\0\x12\
-    \x03\x04\x044\n\x0c\n\x05\x04\0\x08\0\x01\x12\x03\x04\n\x1a\n\x0b\n\x04\
-    \x04\0\x02\x01\x12\x03\x04\x1d2\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\
-    \x04\x1d#\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04$-\n\x0c\n\x05\x04\0\
-    \x02\x01\x03\x12\x03\x0401\n\x0b\n\x04\x04\0\x08\x01\x12\x03\x05\x043\n\
-    \x0c\n\x05\x04\0\x08\x01\x01\x12\x03\x05\n\x1a\n\x0b\n\x04\x04\0\x02\x02\
-    \x12\x03\x05\x1d1\n\x0c\n\x05\x04\0\x02\x02\x05\x12\x03\x05\x1d\"\n\x0c\
-    \n\x05\x04\0\x02\x02\x01\x12\x03\x05#,\n\x0c\n\x05\x04\0\x02\x02\x03\x12\
-    \x03\x05/0\n\x0b\n\x04\x04\0\x08\x02\x12\x03\x06\x048\n\x0c\n\x05\x04\0\
-    \x08\x02\x01\x12\x03\x06\n\x1c\n\x0b\n\x04\x04\0\x02\x03\x12\x03\x06\x1f\
-    6\n\x0c\n\x05\x04\0\x02\x03\x05\x12\x03\x06\x1f%\n\x0c\n\x05\x04\0\x02\
-    \x03\x01\x12\x03\x06&1\n\x0c\n\x05\x04\0\x02\x03\x03\x12\x03\x0645\n\x0b\
-    \n\x04\x04\0\x08\x03\x12\x03\x07\x044\n\x0c\n\x05\x04\0\x08\x03\x01\x12\
-    \x03\x07\n\x1b\n\x0b\n\x04\x04\0\x02\x04\x12\x03\x07\x1e2\n\x0c\n\x05\
-    \x04\0\x02\x04\x05\x12\x03\x07\x1e\"\n\x0c\n\x05\x04\0\x02\x04\x01\x12\
-    \x03\x07#-\n\x0c\n\x05\x04\0\x02\x04\x03\x12\x03\x0701\n\n\n\x02\x04\x01\
-    \x12\x04\t\0\x0b\x01\n\n\n\x03\x04\x01\x01\x12\x03\t\x08\x15\n\x0b\n\x04\
-    \x04\x01\x02\0\x12\x03\n\x04\x13\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\n\
-    \x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\n\x0b\x0e\n\x0c\n\x05\x04\
-    \x01\x02\0\x03\x12\x03\n\x11\x12b\x06proto3\
+    eJ\xa9\x03\n\x06\x12\x04\0\0\x08\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\
+    \n\x02\x04\0\x12\x04\x02\0\x08\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\
+    \x10\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x13\n\x0c\n\x05\x04\0\x02\0\
+    \x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\x0e\n\
+    \x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x11\x12\n\x0b\n\x04\x04\0\x08\0\
+    \x12\x03\x04\x044\n\x0c\n\x05\x04\0\x08\0\x01\x12\x03\x04\n\x1a\n\x0b\n\
+    \x04\x04\0\x02\x01\x12\x03\x04\x1d2\n\x0c\n\x05\x04\0\x02\x01\x05\x12\
+    \x03\x04\x1d#\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04$-\n\x0c\n\x05\
+    \x04\0\x02\x01\x03\x12\x03\x0401\n\x0b\n\x04\x04\0\x08\x01\x12\x03\x05\
+    \x043\n\x0c\n\x05\x04\0\x08\x01\x01\x12\x03\x05\n\x1a\n\x0b\n\x04\x04\0\
+    \x02\x02\x12\x03\x05\x1d1\n\x0c\n\x05\x04\0\x02\x02\x05\x12\x03\x05\x1d\
+    \"\n\x0c\n\x05\x04\0\x02\x02\x01\x12\x03\x05#,\n\x0c\n\x05\x04\0\x02\x02\
+    \x03\x12\x03\x05/0\n\x0b\n\x04\x04\0\x08\x02\x12\x03\x06\x048\n\x0c\n\
+    \x05\x04\0\x08\x02\x01\x12\x03\x06\n\x1c\n\x0b\n\x04\x04\0\x02\x03\x12\
+    \x03\x06\x1f6\n\x0c\n\x05\x04\0\x02\x03\x05\x12\x03\x06\x1f%\n\x0c\n\x05\
+    \x04\0\x02\x03\x01\x12\x03\x06&1\n\x0c\n\x05\x04\0\x02\x03\x03\x12\x03\
+    \x0645\n\x0b\n\x04\x04\0\x08\x03\x12\x03\x07\x044\n\x0c\n\x05\x04\0\x08\
+    \x03\x01\x12\x03\x07\n\x1b\n\x0b\n\x04\x04\0\x02\x04\x12\x03\x07\x1e2\n\
+    \x0c\n\x05\x04\0\x02\x04\x05\x12\x03\x07\x1e\"\n\x0c\n\x05\x04\0\x02\x04\
+    \x01\x12\x03\x07#-\n\x0c\n\x05\x04\0\x02\x04\x03\x12\x03\x0701b\x06proto\
+    3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

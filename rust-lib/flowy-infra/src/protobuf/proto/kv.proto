@@ -7,6 +7,3 @@ message KeyValue {
     oneof one_of_float_value { double float_value = 4; };
     oneof one_of_bool_value { bool bool_value = 5; };
 }
-message KeyValueQuery {
-    string key = 1;
-}

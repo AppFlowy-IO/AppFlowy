@@ -23,10 +23,3 @@ const KeyValue$json = const {
   ],
 };
 
-const KeyValueQuery$json = const {
-  '1': 'KeyValueQuery',
-  '2': const [
-    const {'1': 'key', '3': 1, '4': 1, '5': 9, '10': 'key'},
-  ],
-};
-

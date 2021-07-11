@@ -1,20 +1,23 @@
-use crate::{domain::user::*, services::user_session::UserSession};
+use crate::{entities::*, services::user_session::UserSession};
 use flowy_dispatch::prelude::*;
 use std::{convert::TryInto, sync::Arc};
 
 // tracing instrument 👉🏻 https://docs.rs/tracing/0.1.26/tracing/attr.instrument.html
 #[tracing::instrument(
     name = "user_sign_in",
-    skip(data),
+    skip(data, session),
     fields(
         email = %data.email,
     )
 )]
-pub async fn user_sign_in(data: Data<SignInRequest>) -> ResponseResult<SignInResponse, String> {
-    let _params: SignInParams = data.into_inner().try_into()?;
-    // TODO: user sign in
-    let response = SignInResponse::new(true);
-    response_ok(response)
+pub async fn user_sign_in(
+    data: Data<SignInRequest>,
+    session: ModuleData<Arc<UserSession>>,
+) -> ResponseResult<UserDetail, String> {
+    let params: SignInParams = data.into_inner().try_into()?;
+    let user = session.sign_in(params).await?;
+    let user_detail = UserDetail::from(user);
+    response_ok(user_detail)
 }
 
 #[tracing::instrument(
@@ -28,12 +31,17 @@ pub async fn user_sign_in(data: Data<SignInRequest>) -> ResponseResult<SignInRes
 pub async fn user_sign_up(
     data: Data<SignUpRequest>,
     session: ModuleData<Arc<UserSession>>,
-) -> ResponseResult<SignUpResponse, String> {
+) -> ResponseResult<UserDetail, String> {
     let params: SignUpParams = data.into_inner().try_into()?;
-    // TODO: user sign up
+    let user = session.sign_up(params).await?;
+    let user_detail = UserDetail::from(user);
+    response_ok(user_detail)
+}
 
-    let _user = session.sign_up(params)?;
-
-    let fake_resp = SignUpResponse::new(true);
-    response_ok(fake_resp)
+pub async fn user_get_status(
+    user_id: String,
+    session: ModuleData<Arc<UserSession>>,
+) -> ResponseResult<UserDetail, String> {
+    let user_detail = session.get_user_status(&user_id).await?;
+    response_ok(user_detail)
 }

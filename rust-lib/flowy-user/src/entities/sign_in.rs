@@ -1,4 +1,4 @@
-use crate::domain::{UserEmail, UserPassword};
+use crate::entities::{UserEmail, UserPassword};
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
 
@@ -32,14 +32,4 @@ impl TryInto<SignInParams> for SignInRequest {
             password: password.0,
         })
     }
-}
-
-#[derive(ProtoBuf, Default, Debug)]
-pub struct SignInResponse {
-    #[pb(index = 1)]
-    pub is_success: bool,
-}
-
-impl SignInResponse {
-    pub fn new(is_success: bool) -> Self { Self { is_success } }
 }

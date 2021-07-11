@@ -16,18 +16,18 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         "u8" => TypeCategory::Bytes,
         "String" => TypeCategory::Str,
         "KeyValue"
-        | "KeyValueQuery"
         | "FFIRequest"
         | "FFIResponse"
-        | "User"
+        | "UserDetail"
         | "SignUpRequest"
         | "SignUpParams"
         | "SignUpResponse"
         | "SignInRequest"
         | "SignInParams"
-        | "SignInResponse"
         => TypeCategory::Protobuf,
         "FFIStatusCode"
+        | "UserStatus"
+        | "UserEvent"
         => TypeCategory::Enum,
 
         "Option" => TypeCategory::Opt,
