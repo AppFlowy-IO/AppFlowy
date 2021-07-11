@@ -14,6 +14,3 @@ pub use user_table::*;
 
 mod event; 
 pub use event::*; 
-
-mod user; 
-pub use user::*; 

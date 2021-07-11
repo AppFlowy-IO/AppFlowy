@@ -31,8 +31,7 @@ class FlowySDK {
     final params = SignInRequest.create();
     params.email = "nathan.fu@gmail.com";
     params.password = "Helloworld!2";
-    Either<SignInResponse, FlowyError> resp =
-        await UserEventSignIn(params).send();
+    Either<UserDetail, FlowyError> resp = await UserEventSignIn(params).send();
 
     resp.fold(
       (result) {

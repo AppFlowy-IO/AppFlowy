@@ -6,7 +6,7 @@ class UserEventSignIn {
     SignInRequest request;
     UserEventSignIn(this.request);
 
-    Future<Either<SignInResponse, FlowyError>> send() {
+    Future<Either<UserDetail, FlowyError>> send() {
     return requestToBytes(request).fold(
         (bytes) {
           final request = FFIRequest.create()
@@ -15,7 +15,7 @@ class UserEventSignIn {
 
           return Dispatch.asyncRequest(request)
               .then((bytesResult) => bytesResult.fold(
-                    (bytes) => left(SignInResponse.fromBuffer(bytes)),
+                    (bytes) => left(UserDetail.fromBuffer(bytes)),
                     (error) => right(error),
                   ));
         },
@@ -28,7 +28,7 @@ class UserEventSignUp {
     SignUpRequest request;
     UserEventSignUp(this.request);
 
-    Future<Either<SignUpResponse, FlowyError>> send() {
+    Future<Either<UserDetail, FlowyError>> send() {
     return requestToBytes(request).fold(
         (bytes) {
           final request = FFIRequest.create()
@@ -37,7 +37,7 @@ class UserEventSignUp {
 
           return Dispatch.asyncRequest(request)
               .then((bytesResult) => bytesResult.fold(
-                    (bytes) => left(SignUpResponse.fromBuffer(bytes)),
+                    (bytes) => left(UserDetail.fromBuffer(bytes)),
                     (error) => right(error),
                   ));
         },
