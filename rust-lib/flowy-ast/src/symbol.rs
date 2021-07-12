@@ -18,6 +18,7 @@ pub const EVENT_INPUT: Symbol = Symbol("input");
 pub const EVENT_OUTPUT: Symbol = Symbol("output");
 pub const EVENT_IGNORE: Symbol = Symbol("ignore");
 pub const EVENT: Symbol = Symbol("event");
+pub const EVENT_ERR: Symbol = Symbol("event_err");
 
 impl PartialEq<Symbol> for Ident {
     fn eq(&self, word: &Symbol) -> bool { self == word.0 }

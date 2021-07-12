@@ -78,13 +78,6 @@ impl flowy_dispatch::Error for UserError {
     }
 }
 
-macro_rules! static_error {
-    ($name:ident, $status:expr) => {
-        #[allow(non_snake_case, missing_docs)]
-        pub fn $name() -> ErrorBuilder { ErrorBuilder::new($status) }
-    };
-}
-
 pub struct ErrorBuilder {
     pub code: UserErrorCode,
     pub msg: Option<String>,

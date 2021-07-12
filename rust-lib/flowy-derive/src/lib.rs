@@ -29,7 +29,7 @@ pub fn derive_proto_buf_enum(input: TokenStream) -> TokenStream {
         .into()
 }
 
-#[proc_macro_derive(Flowy_Event, attributes(event))]
+#[proc_macro_derive(Flowy_Event, attributes(event, event_err))]
 pub fn derive_dart_event(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     dart_event::expand_enum_derive(&input)

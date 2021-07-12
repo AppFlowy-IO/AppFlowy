@@ -29,7 +29,7 @@ impl<'a> ASTContainer<'a> {
             },
             syn::Data::Enum(data) => {
                 // https://docs.rs/syn/1.0.48/syn/struct.DataEnum.html
-                ASTData::Enum(enum_from_ast(cx, &data.variants))
+                ASTData::Enum(enum_from_ast(cx, &data.variants, &ast.attrs))
             },
         };
 
@@ -209,11 +209,12 @@ pub fn struct_from_ast<'a>(cx: &Ctxt, fields: &'a syn::Fields) -> (ASTStyle, Vec
 pub fn enum_from_ast<'a>(
     cx: &Ctxt,
     variants: &'a Punctuated<syn::Variant, Token![,]>,
+    enum_attrs: &Vec<syn::Attribute>,
 ) -> Vec<ASTEnumVariant<'a>> {
     variants
         .iter()
         .flat_map(|variant| {
-            let attrs = attr::ASTEnumAttrVariant::from_ast(cx, variant);
+            let attrs = attr::ASTEnumAttrVariant::from_ast(cx, variant, enum_attrs);
 
             let (style, fields) = struct_from_ast(cx, &variant.fields);
             Some(ASTEnumVariant {

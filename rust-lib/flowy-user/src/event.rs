@@ -2,6 +2,7 @@ use derive_more::Display;
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
+#[event_err = "UserError"]
 pub enum UserEvent {
     #[display(fmt = "GetStatus")]
     #[event(output = "UserDetail")]
@@ -13,6 +14,6 @@ pub enum UserEvent {
     #[event(input = "SignUpRequest", output = "UserDetail")]
     SignUp    = 2,
     #[display(fmt = "SignOut")]
-    #[event()]
+    #[event(passthrough)]
     SignOut   = 3,
 }
