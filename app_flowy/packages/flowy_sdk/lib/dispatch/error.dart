@@ -1,5 +1,4 @@
-import 'package:flowy_logger/flowy_logger.dart';
-import 'package:flowy_sdk/protobuf/ffi_request.pb.dart';
+import 'package:flowy_sdk/protobuf/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/ffi_response.pb.dart';
 
 class FlowyError {
@@ -28,11 +27,13 @@ class FlowyError {
   }
 
   factory FlowyError.from(FFIResponse resp) {
-    return FlowyError(statusCode: resp.code, error: resp.error);
+    return FlowyError(statusCode: resp.code, error: "");
   }
 
-  factory FlowyError.fromError(String error) {
-    return FlowyError(statusCode: FFIStatusCode.Err, error: error);
+  UserError userErrorFromFlowyError() {
+    return UserError.create()
+      ..code = UserErrorCode.Unknown
+      ..msg = this.toString();
   }
 }
 
@@ -44,20 +45,11 @@ class StackTraceError {
     this.trace,
   );
 
-  FlowyError toFlowyError() {
-    Log.error('${error.runtimeType}\n');
-    Log.error('Stack trace \n $trace');
-    return FlowyError.fromError('${error.runtimeType}. Stack trace: $trace');
+  FlowyError asFlowyError() {
+    return FlowyError(statusCode: FFIStatusCode.Err, error: this.toString());
   }
 
   String toString() {
     return '${error.runtimeType}. Stack trace: $trace';
   }
-}
-
-FFIResponse error_response(FFIRequest request, StackTraceError error) {
-  var response = FFIResponse();
-  response.code = FFIStatusCode.Err;
-  response.error = error.toString();
-  return response;
 }

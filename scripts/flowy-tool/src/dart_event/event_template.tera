@@ -10,23 +10,19 @@ class {{ event_class }} {
     {{ event_class }}();
 {%- endif %}
 
-    Future<Either<{{ output_deserializer }}, FlowyError>> send() {
+    Future<Either<{{ output_deserializer }}, {{ error_deserializer }}>> send() {
 
 {%- if has_input  %}
-     return requestToBytes(request).fold(
-         (bytes) {
-            final request = FFIRequest.create()
-             ..event = {{ event }}.toString()
-             ..payload = bytes;
+    final request = FFIRequest.create()
+          ..event = {{ event }}.toString()
+          ..payload = requestToBytes(this.request);
 
-           return Dispatch.asyncRequest(request)
-               .then((bytesResult) => bytesResult.fold(
-                 (bytes) => left({{ output_deserializer }}.fromBuffer(bytes)),
-                 (error) => right(error),
-               ));
-         },
-         (err) => Future(() => right(err)),
-       );
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+          (okBytes) => left({{ output_deserializer }}.fromBuffer(okBytes)),
+          (errBytes) => right({{ error_deserializer }}.fromBuffer(errBytes)),
+        ));
+
 {%- else %}
      final request = FFIRequest.create()
         ..event = {{ event }}.toString();
@@ -36,11 +32,11 @@ class {{ event_class }} {
 
      return Dispatch.asyncRequest(request).then((bytesResult) => bytesResult.fold(
      {%- if has_output  %}
-        (bytes) => left({{ output_deserializer }}.fromBuffer(bytes)),
+        (okBytes) => left({{ output_deserializer }}.fromBuffer(okBytes)),
      {%- else %}
         (bytes) => left(bytes),
      {%- endif %}
-        (error) => right(error),
+        (errBytes) => right({{ error_deserializer }}.fromBuffer(errBytes)),
       ));
 {%- endif %}
     }

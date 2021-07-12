@@ -3,7 +3,6 @@ use crate::{
     errors::{ErrorBuilder, UserError, UserErrorCode},
     sql_tables::User,
 };
-use std::sync::RwLock;
 
 pub trait UserServer {
     fn sign_up(&self, params: SignUpParams) -> Result<User, UserError>;
@@ -36,11 +35,11 @@ impl UserServer for MockUserServer {
         ))
     }
 
-    fn get_user_info(&self, user_id: &str) -> Result<UserDetail, UserError> {
+    fn get_user_info(&self, _user_id: &str) -> Result<UserDetail, UserError> {
         Err(ErrorBuilder::new(UserErrorCode::Unknown).build())
     }
 
-    fn sign_out(&self, user_id: &str) -> Result<(), UserError> {
+    fn sign_out(&self, _user_id: &str) -> Result<(), UserError> {
         Err(ErrorBuilder::new(UserErrorCode::Unknown).build())
     }
 }

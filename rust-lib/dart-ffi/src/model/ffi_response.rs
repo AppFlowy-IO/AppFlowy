@@ -18,9 +18,6 @@ pub struct FFIResponse {
     payload: Vec<u8>,
 
     #[pb(index = 2)]
-    error: String,
-
-    #[pb(index = 3)]
     code: FFIStatusCode,
 }
 
@@ -31,20 +28,11 @@ impl std::convert::From<EventResponse> for FFIResponse {
             Payload::None => vec![],
         };
 
-        let error = match resp.error {
-            Some(e) => format!("{}", e),
-            None => "".to_owned(),
-        };
-
         let code = match resp.status_code {
             StatusCode::Ok => FFIStatusCode::Ok,
             StatusCode::Err => FFIStatusCode::Err,
         };
 
-        FFIResponse {
-            payload,
-            error,
-            code,
-        }
+        FFIResponse { payload, code }
     }
 }

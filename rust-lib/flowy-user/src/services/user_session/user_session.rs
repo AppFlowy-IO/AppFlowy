@@ -9,7 +9,7 @@ use lazy_static::lazy_static;
 use std::sync::RwLock;
 
 use crate::{
-    entities::{SignInParams, SignUpParams, UserDetail, UserId},
+    entities::{SignInParams, SignUpParams, UserDetail},
     errors::{ErrorBuilder, UserError, UserErrorCode},
     services::user_session::{
         database::UserDB,

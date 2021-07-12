@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/services.dart';
 import 'dart:ffi';
-import 'dispatch/error.dart';
 import 'ffi/ffi.dart' as ffi;
 import 'package:ffi/ffi.dart';
 
@@ -31,7 +30,7 @@ class FlowySDK {
     final params = SignInRequest.create();
     params.email = "nathan.fu@gmail.com";
     params.password = "Helloworld!2";
-    Either<UserDetail, FlowyError> resp = await UserEventSignIn(params).send();
+    Either<UserDetail, UserError> resp = await UserEventSignIn(params).send();
 
     resp.fold(
       (result) {

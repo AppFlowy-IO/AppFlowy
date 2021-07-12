@@ -2,8 +2,7 @@ syntax = "proto3";
 
 message FFIResponse {
     bytes payload = 1;
-    string error = 2;
-    FFIStatusCode code = 3;
+    FFIStatusCode code = 2;
 }
 enum FFIStatusCode {
     Unknown = 0;

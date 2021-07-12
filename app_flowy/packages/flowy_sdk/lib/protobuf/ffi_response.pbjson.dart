@@ -19,8 +19,7 @@ const FFIResponse$json = const {
   '1': 'FFIResponse',
   '2': const [
     const {'1': 'payload', '3': 1, '4': 1, '5': 12, '10': 'payload'},
-    const {'1': 'error', '3': 2, '4': 1, '5': 9, '10': 'error'},
-    const {'1': 'code', '3': 3, '4': 1, '5': 14, '6': '.FFIStatusCode', '10': 'code'},
+    const {'1': 'code', '3': 2, '4': 1, '5': 14, '6': '.FFIStatusCode', '10': 'code'},
   ],
 };
 

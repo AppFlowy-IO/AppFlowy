@@ -1,7 +1,7 @@
 use flowy_dispatch::prelude::*;
 pub use flowy_sdk::*;
 use std::{
-    convert::{TryFrom, TryInto},
+    convert::TryFrom,
     fmt::{Debug, Display},
     fs,
     hash::Hash,

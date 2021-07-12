@@ -129,13 +129,14 @@ pub fn get_ast_structs(ast: &syn::File) -> Vec<Struct> {
 pub fn get_ast_enums(ast: &syn::File) -> Vec<FlowyEnum> {
     let mut flowy_enums: Vec<FlowyEnum> = vec![];
     let ctxt = Ctxt::new();
+    let enum_attrs = &ast.attrs;
     ast.items.iter().for_each(|item| {
         // https://docs.rs/syn/1.0.54/syn/enum.Item.html
         match item {
             Item::Enum(item_enum) => {
                 flowy_enums.push(FlowyEnum {
                     name: item_enum.ident.to_string(),
-                    attrs: flowy_ast::enum_from_ast(&ctxt, &item_enum.variants),
+                    attrs: flowy_ast::enum_from_ast(&ctxt, &item_enum.variants, enum_attrs),
                 });
             }
             _ => {}

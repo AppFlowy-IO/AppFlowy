@@ -6,6 +6,7 @@ pub struct EventASTContext {
     pub event_request_struct: syn::Ident,
     pub event_input: Option<syn::Path>,
     pub event_output: Option<syn::Path>,
+    pub event_error: String,
 }
 
 impl EventASTContext {
@@ -23,6 +24,7 @@ impl EventASTContext {
 
         let event_input = variant.event_input();
         let event_output = variant.event_output();
+        let event_error = variant.event_error();
 
         EventASTContext {
             event,
@@ -30,6 +32,7 @@ impl EventASTContext {
             event_request_struct,
             event_input,
             event_output,
+            event_error,
         }
     }
 }

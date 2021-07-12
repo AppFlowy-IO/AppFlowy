@@ -5,7 +5,6 @@ use syn::{
     self,
     parse::{self, Parse},
     Meta::{List, NameValue, Path},
-    NestedMeta,
     NestedMeta::{Lit, Meta},
 };
 
@@ -300,6 +299,8 @@ impl ASTEnumAttrVariant {
     pub fn event_input(&self) -> Option<syn::Path> { self.event_attrs.input.clone() }
 
     pub fn event_output(&self) -> Option<syn::Path> { self.event_attrs.output.clone() }
+
+    pub fn event_error(&self) -> String { self.event_attrs.error_ty.as_ref().unwrap().clone() }
 }
 
 fn get_event_attrs_from(

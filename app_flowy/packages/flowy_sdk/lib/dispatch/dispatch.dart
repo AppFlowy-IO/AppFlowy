@@ -1,5 +1,6 @@
 import 'dart:ffi';
 import 'package:dartz/dartz.dart';
+import 'package:flowy_logger/flowy_logger.dart';
 import 'package:flowy_sdk/protobuf/ffi_response.pb.dart';
 import 'package:isolates/isolates.dart';
 import 'package:isolates/ports.dart';
@@ -26,8 +27,7 @@ class DispatchException implements Exception {
 }
 
 class Dispatch {
-  static Future<Either<Uint8List, FlowyError>> asyncRequest(
-      FFIRequest request) {
+  static Future<Either<Uint8List, Uint8List>> asyncRequest(FFIRequest request) {
     // FFIRequest => Rust SDK
     final bytesFuture = _sendToRust(request);
 
@@ -41,12 +41,18 @@ class Dispatch {
   }
 }
 
-Future<Either<Uint8List, FlowyError>> _extractPayload(
+Future<Either<Uint8List, Uint8List>> _extractPayload(
     Future<Either<FFIResponse, FlowyError>> responseFuture) {
-  return responseFuture.then((response) {
-    return response.fold(
-      (l) => left(Uint8List.fromList(l.payload)),
-      (r) => right(r),
+  return responseFuture.then((result) {
+    return result.fold(
+      (response) {
+        if (response.code == FFIStatusCode.Ok) {
+          return left(Uint8List.fromList(response.payload));
+        } else {
+          return right(Uint8List.fromList(response.payload));
+        }
+      },
+      (error) => right(emptyBytes()),
     );
   });
 }
@@ -56,13 +62,11 @@ Future<Either<FFIResponse, FlowyError>> _extractResponse(
   return bytesFuture.future.then((bytes) {
     try {
       final response = FFIResponse.fromBuffer(bytes);
-      if (response.code != FFIStatusCode.Ok) {
-        return right(FlowyError.from(response));
-      }
-
       return left(response);
     } catch (e, s) {
-      return right(StackTraceError(e, s).toFlowyError());
+      final error = StackTraceError(e, s);
+      Log.error('Deserialize response failed. ${error.toString()}');
+      return right(error.asFlowyError());
     }
   });
 }
@@ -86,15 +90,20 @@ Completer<Uint8List> _sendToRust(FFIRequest request) {
   return completer;
 }
 
-Either<Uint8List, FlowyError> requestToBytes<T extends GeneratedMessage>(
-    T? message) {
+Uint8List requestToBytes<T extends GeneratedMessage>(T? message) {
   try {
     if (message != null) {
-      return left(message.writeToBuffer());
+      return message.writeToBuffer();
     } else {
-      return left(Uint8List.fromList([]));
+      return emptyBytes();
     }
   } catch (e, s) {
-    return right(FlowyError.fromError('${e.runtimeType}. Stack trace: $s'));
+    final error = StackTraceError(e, s);
+    Log.error('Serial request failed. ${error.toString()}');
+    return emptyBytes();
   }
+}
+
+Uint8List emptyBytes() {
+  return Uint8List.fromList([]);
 }

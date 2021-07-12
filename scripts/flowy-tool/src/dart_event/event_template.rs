@@ -13,6 +13,7 @@ part of 'dispatch.dart';
 pub struct EventRenderContext {
     pub input_deserializer: Option<String>,
     pub output_deserializer: Option<String>,
+    pub error_deserializer: String,
     pub event: String,
     pub event_ty: String,
 }
@@ -49,6 +50,9 @@ impl EventTemplate {
             None => self.tera_context.insert("output_deserializer", "Uint8List"),
             Some(ref output) => self.tera_context.insert("output_deserializer", output),
         }
+
+        self.tera_context
+            .insert("error_deserializer", &ctx.error_deserializer);
 
         let tera = get_tera("dart_event");
         match tera.render("event_template.tera", &self.tera_context) {

@@ -6,7 +6,7 @@ use flowy_sqlite::{DBConnection, Database, PoolConfig};
 use lazy_static::lazy_static;
 use std::{
     path::Path,
-    sync::{PoisonError, RwLock, RwLockWriteGuard},
+    sync::{RwLock, RwLockWriteGuard},
 };
 
 const DB_NAME: &str = "kv.db";

@@ -16,23 +16,18 @@ export 'ffi_response.pbenum.dart';
 class FFIResponse extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FFIResponse', createEmptyInstance: create)
     ..a<$core.List<$core.int>>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'payload', $pb.PbFieldType.OY)
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'error')
-    ..e<FFIStatusCode>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'code', $pb.PbFieldType.OE, defaultOrMaker: FFIStatusCode.Unknown, valueOf: FFIStatusCode.valueOf, enumValues: FFIStatusCode.values)
+    ..e<FFIStatusCode>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'code', $pb.PbFieldType.OE, defaultOrMaker: FFIStatusCode.Unknown, valueOf: FFIStatusCode.valueOf, enumValues: FFIStatusCode.values)
     ..hasRequiredFields = false
   ;
 
   FFIResponse._() : super();
   factory FFIResponse({
     $core.List<$core.int>? payload,
-    $core.String? error,
     FFIStatusCode? code,
   }) {
     final _result = create();
     if (payload != null) {
       _result.payload = payload;
-    }
-    if (error != null) {
-      _result.error = error;
     }
     if (code != null) {
       _result.code = code;
@@ -70,21 +65,12 @@ class FFIResponse extends $pb.GeneratedMessage {
   void clearPayload() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get error => $_getSZ(1);
+  FFIStatusCode get code => $_getN(1);
   @$pb.TagNumber(2)
-  set error($core.String v) { $_setString(1, v); }
+  set code(FFIStatusCode v) { setField(2, v); }
   @$pb.TagNumber(2)
-  $core.bool hasError() => $_has(1);
+  $core.bool hasCode() => $_has(1);
   @$pb.TagNumber(2)
-  void clearError() => clearField(2);
-
-  @$pb.TagNumber(3)
-  FFIStatusCode get code => $_getN(2);
-  @$pb.TagNumber(3)
-  set code(FFIStatusCode v) { setField(3, v); }
-  @$pb.TagNumber(3)
-  $core.bool hasCode() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearCode() => clearField(3);
+  void clearCode() => clearField(2);
 }
 

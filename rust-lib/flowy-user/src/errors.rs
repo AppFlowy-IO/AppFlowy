@@ -1,6 +1,6 @@
 use derive_more::Display;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_dispatch::prelude::{DispatchError, EventResponse, ResponseBuilder};
+use flowy_dispatch::prelude::{EventResponse, ResponseBuilder};
 use std::convert::TryInto;
 
 #[derive(Debug, Default, Clone, ProtoBuf)]

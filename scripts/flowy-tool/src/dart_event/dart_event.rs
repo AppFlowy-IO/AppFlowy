@@ -74,13 +74,13 @@ pub fn parse_event_crate(event_crate: &DartEventCrate) -> Vec<EventASTContext> {
             let file_path = format!("{}/{}", event_crate.crate_path, event_file);
             let file_content = read_file(file_path.as_ref()).unwrap();
             let ast = syn::parse_file(file_content.as_ref()).expect("Unable to parse file");
-
             ast.items
                 .iter()
                 .map(|item| match item {
                     Item::Enum(item_enum) => {
                         let ctxt = Ctxt::new();
-                        let attrs = flowy_ast::enum_from_ast(&ctxt, &item_enum.variants);
+                        let attrs =
+                            flowy_ast::enum_from_ast(&ctxt, &item_enum.variants, &item_enum.attrs);
                         ctxt.check().unwrap();
                         attrs
                             .iter()
@@ -114,6 +114,7 @@ pub fn ast_to_event_render_ctx(ast: &Vec<EventASTContext>) -> Vec<EventRenderCon
             return EventRenderContext {
                 input_deserializer,
                 output_deserializer,
+                error_deserializer: event_ast.event_error.clone(),
                 event: event_ast.event.to_string(),
                 event_ty: event_ast.event_ty.to_string(),
             };
