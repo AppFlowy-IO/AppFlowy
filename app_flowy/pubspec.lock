@@ -197,6 +197,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.3"
+  expandable:
+    dependency: "direct main"
+    description:
+      name: expandable
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.1.4"
   fake_async:
     dependency: transitive
     description:
@@ -233,7 +240,7 @@ packages:
     source: path
     version: "0.0.1"
   flowy_logger:
-    dependency: transitive
+    dependency: "direct main"
     description:
       path: "packages/flowy_logger"
       relative: true
@@ -401,6 +408,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.1"
+  lint:
+    dependency: transitive
+    description:
+      name: lint
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.5.3"
   lints:
     dependency: transitive
     description:
@@ -599,6 +613,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.1"
+  sized_context:
+    dependency: "direct main"
+    description:
+      name: sized_context
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0+1"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -653,6 +674,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.0"
+  styled_widget:
+    dependency: "direct main"
+    description:
+      name: styled_widget
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.1+2"
   term_glyph:
     dependency: transitive
     description:
@@ -702,6 +730,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.3.0"
+  universal_platform:
+    dependency: transitive
+    description:
+      name: universal_platform
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0+1"
   url_launcher:
     dependency: transitive
     description:

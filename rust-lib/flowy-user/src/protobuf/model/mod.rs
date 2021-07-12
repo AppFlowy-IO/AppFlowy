@@ -1,8 +1,5 @@
 // Auto-generated, do not edit 
 
-mod user_status; 
-pub use user_status::*; 
-
 mod sign_up; 
 pub use sign_up::*; 
 
@@ -14,6 +11,9 @@ pub use user_table::*;
 
 mod errors; 
 pub use errors::*; 
+
+mod user_detail; 
+pub use user_detail::*; 
 
 mod event; 
 pub use event::*; 

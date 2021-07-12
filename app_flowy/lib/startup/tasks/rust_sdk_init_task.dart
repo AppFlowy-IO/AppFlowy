@@ -12,7 +12,7 @@ class RustSDKInitTask extends LaunchTask {
   LaunchTaskType get type => LaunchTaskType.dataProcessing;
 
   @override
-  void initialize(LaunchContext context) async {
+  Future<void> initialize(LaunchContext context) async {
     WidgetsFlutterBinding.ensureInitialized();
 
     Bloc.observer = ApplicationBlocObserver();
@@ -31,6 +31,8 @@ class RustSDKInitTask extends LaunchTask {
       default:
         assert(false, 'Unsupported env');
     }
+
+    return Future(() => {});
   }
 }
 

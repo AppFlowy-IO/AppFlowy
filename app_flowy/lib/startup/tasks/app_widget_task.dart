@@ -10,10 +10,12 @@ class AppWidgetTask extends LaunchTask {
   LaunchTaskType get type => LaunchTaskType.appLauncher;
 
   @override
-  void initialize(LaunchContext context) {
+  Future<void> initialize(LaunchContext context) {
     final widget = context.getIt<AppFactory>().create();
     final app = AppWidget(child: widget);
     runApp(app);
+
+    return Future(() => {});
   }
 }
 

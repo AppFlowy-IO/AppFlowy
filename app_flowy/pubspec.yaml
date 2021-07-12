@@ -35,6 +35,8 @@ dependencies:
     path: packages/flowy_style
   flowy_editor:
     path: packages/flowy_editor
+  flowy_logger:
+    path: packages/flowy_logger
   
   #  third party packages
   time: '>=2.0.0'
@@ -48,6 +50,9 @@ dependencies:
       url: git://github.com/google/flutter-desktop-embedding.git
       path: plugins/window_size
       ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
+  sized_context: ^1.0.0+1
+  styled_widget: '>=0.3.1'
+  expandable: ^4.1.4
 
 
   # The following adds the Cupertino Icons font to your application.

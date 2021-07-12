@@ -17,6 +17,9 @@ dependencies:
   textstyle_extensions: '2.0.0-nullsafety'
   animations: ^2.0.0
   dartz: '0.10.0-nullsafety.2'
+  provider: ^5.0.0
+  styled_widget: '>=0.3.1'
+  equatable: '>=2.0.2'
 
 dev_dependencies:
   flutter_test:

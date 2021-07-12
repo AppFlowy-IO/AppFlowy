@@ -16,12 +16,8 @@ final _privateConstructorUsedError = UnsupportedError(
 class _$WelcomeEventTearOff {
   const _$WelcomeEventTearOff();
 
-  _Check check() {
-    return const _Check();
-  }
-
-  _AuthCheck authCheck() {
-    return const _AuthCheck();
+  _GetUser getUser() {
+    return const _GetUser();
   }
 }
 
@@ -32,27 +28,23 @@ const $WelcomeEvent = _$WelcomeEventTearOff();
 mixin _$WelcomeEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() check,
-    required TResult Function() authCheck,
+    required TResult Function() getUser,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? check,
-    TResult Function()? authCheck,
+    TResult Function()? getUser,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_Check value) check,
-    required TResult Function(_AuthCheck value) authCheck,
+    required TResult Function(_GetUser value) getUser,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_Check value)? check,
-    TResult Function(_AuthCheck value)? authCheck,
+    TResult Function(_GetUser value)? getUser,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -75,34 +67,34 @@ class _$WelcomeEventCopyWithImpl<$Res> implements $WelcomeEventCopyWith<$Res> {
 }
 
 /// @nodoc
-abstract class _$CheckCopyWith<$Res> {
-  factory _$CheckCopyWith(_Check value, $Res Function(_Check) then) =
-      __$CheckCopyWithImpl<$Res>;
+abstract class _$GetUserCopyWith<$Res> {
+  factory _$GetUserCopyWith(_GetUser value, $Res Function(_GetUser) then) =
+      __$GetUserCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class __$CheckCopyWithImpl<$Res> extends _$WelcomeEventCopyWithImpl<$Res>
-    implements _$CheckCopyWith<$Res> {
-  __$CheckCopyWithImpl(_Check _value, $Res Function(_Check) _then)
-      : super(_value, (v) => _then(v as _Check));
+class __$GetUserCopyWithImpl<$Res> extends _$WelcomeEventCopyWithImpl<$Res>
+    implements _$GetUserCopyWith<$Res> {
+  __$GetUserCopyWithImpl(_GetUser _value, $Res Function(_GetUser) _then)
+      : super(_value, (v) => _then(v as _GetUser));
 
   @override
-  _Check get _value => super._value as _Check;
+  _GetUser get _value => super._value as _GetUser;
 }
 
 /// @nodoc
 
-class _$_Check implements _Check {
-  const _$_Check();
+class _$_GetUser implements _GetUser {
+  const _$_GetUser();
 
   @override
   String toString() {
-    return 'WelcomeEvent.check()';
+    return 'WelcomeEvent.getUser()';
   }
 
   @override
   bool operator ==(dynamic other) {
-    return identical(this, other) || (other is _Check);
+    return identical(this, other) || (other is _GetUser);
   }
 
   @override
@@ -111,21 +103,19 @@ class _$_Check implements _Check {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() check,
-    required TResult Function() authCheck,
+    required TResult Function() getUser,
   }) {
-    return check();
+    return getUser();
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? check,
-    TResult Function()? authCheck,
+    TResult Function()? getUser,
     required TResult orElse(),
   }) {
-    if (check != null) {
-      return check();
+    if (getUser != null) {
+      return getUser();
     }
     return orElse();
   }
@@ -133,112 +123,26 @@ class _$_Check implements _Check {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_Check value) check,
-    required TResult Function(_AuthCheck value) authCheck,
+    required TResult Function(_GetUser value) getUser,
   }) {
-    return check(this);
+    return getUser(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_Check value)? check,
-    TResult Function(_AuthCheck value)? authCheck,
+    TResult Function(_GetUser value)? getUser,
     required TResult orElse(),
   }) {
-    if (check != null) {
-      return check(this);
+    if (getUser != null) {
+      return getUser(this);
     }
     return orElse();
   }
 }
 
-abstract class _Check implements WelcomeEvent {
-  const factory _Check() = _$_Check;
-}
-
-/// @nodoc
-abstract class _$AuthCheckCopyWith<$Res> {
-  factory _$AuthCheckCopyWith(
-          _AuthCheck value, $Res Function(_AuthCheck) then) =
-      __$AuthCheckCopyWithImpl<$Res>;
-}
-
-/// @nodoc
-class __$AuthCheckCopyWithImpl<$Res> extends _$WelcomeEventCopyWithImpl<$Res>
-    implements _$AuthCheckCopyWith<$Res> {
-  __$AuthCheckCopyWithImpl(_AuthCheck _value, $Res Function(_AuthCheck) _then)
-      : super(_value, (v) => _then(v as _AuthCheck));
-
-  @override
-  _AuthCheck get _value => super._value as _AuthCheck;
-}
-
-/// @nodoc
-
-class _$_AuthCheck implements _AuthCheck {
-  const _$_AuthCheck();
-
-  @override
-  String toString() {
-    return 'WelcomeEvent.authCheck()';
-  }
-
-  @override
-  bool operator ==(dynamic other) {
-    return identical(this, other) || (other is _AuthCheck);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() check,
-    required TResult Function() authCheck,
-  }) {
-    return authCheck();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? check,
-    TResult Function()? authCheck,
-    required TResult orElse(),
-  }) {
-    if (authCheck != null) {
-      return authCheck();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_Check value) check,
-    required TResult Function(_AuthCheck value) authCheck,
-  }) {
-    return authCheck(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_Check value)? check,
-    TResult Function(_AuthCheck value)? authCheck,
-    required TResult orElse(),
-  }) {
-    if (authCheck != null) {
-      return authCheck(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _AuthCheck implements WelcomeEvent {
-  const factory _AuthCheck() = _$_AuthCheck;
+abstract class _GetUser implements WelcomeEvent {
+  const factory _GetUser() = _$_GetUser;
 }
 
 /// @nodoc

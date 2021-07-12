@@ -1,6 +1,6 @@
 import 'package:app_flowy/startup/launch.dart';
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/welcome/infrastructure/deps_impl.dart';
+import 'package:app_flowy/welcome/infrastructure/interface_impl.dart';
 import 'package:flowy_sdk/flowy_sdk.dart';
 import 'package:get_it/get_it.dart';
 

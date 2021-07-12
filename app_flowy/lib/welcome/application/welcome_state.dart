@@ -7,6 +7,6 @@ abstract class WelcomeState implements _$WelcomeState {
   }) = _WelcomeState;
 
   factory WelcomeState.initial() => const WelcomeState(
-        auth: AuthState.unauthenticated(),
+        auth: AuthState.initial(),
       );
 }

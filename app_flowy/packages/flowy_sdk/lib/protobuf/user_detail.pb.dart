@@ -1,6 +1,6 @@
 ///
 //  Generated code. Do not modify.
-//  source: user_status.proto
+//  source: user_detail.proto
 //
 // @dart = 2.12
 // ignore_for_file: annotate_overrides,camel_case_types,unnecessary_const,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type,unnecessary_this,prefer_final_fields
@@ -9,9 +9,9 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-import 'user_status.pbenum.dart';
+import 'user_detail.pbenum.dart';
 
-export 'user_status.pbenum.dart';
+export 'user_detail.pbenum.dart';
 
 class UserDetail extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UserDetail', createEmptyInstance: create)

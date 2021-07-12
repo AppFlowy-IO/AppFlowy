@@ -16,7 +16,7 @@ enum LaunchTaskType {
 /// some nonresident indispensable task in app launching task.
 abstract class LaunchTask {
   LaunchTaskType get type => LaunchTaskType.dataProcessing;
-  void initialize(LaunchContext context);
+  Future<void> initialize(LaunchContext context);
 }
 
 class AppLauncher {
@@ -30,10 +30,10 @@ class AppLauncher {
     tasks.add(task);
   }
 
-  void launch() {
+  void launch() async {
     final context = LaunchContext(getIt, env);
     for (var task in tasks) {
-      task.initialize(context);
+      await task.initialize(context);
     }
   }
 }

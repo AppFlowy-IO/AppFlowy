@@ -11,10 +11,10 @@ pub struct User {
     pub(crate) name: String,
 
     #[pb(index = 3)]
-    pub(crate) email: String,
+    password: String,
 
     #[pb(index = 4)]
-    password: String,
+    pub(crate) email: String,
 }
 
 impl User {
