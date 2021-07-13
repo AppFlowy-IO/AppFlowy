@@ -1,6 +1,7 @@
 use crate::proto::ast::*;
 use crate::proto::proto_info::*;
 use crate::{proto::template::*, util::*};
+use std::path::Path;
 use std::{fs::OpenOptions, io::Write};
 
 pub struct ProtoGen {
@@ -130,9 +131,6 @@ fn run_rust_protoc(crate_infos: &Vec<CrateProtoInfo>) {
         crate_info.create_crate_mod_file();
     }
 }
-
-use std::path::Path;
-use std::process::Command;
 
 fn run_flutter_protoc(crate_infos: &Vec<CrateProtoInfo>, package_info: &FlutterProtobufInfo) {
     let model_dir = package_info.model_dir();

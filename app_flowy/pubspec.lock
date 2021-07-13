@@ -253,13 +253,6 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
-  flowy_logger:
-    dependency: "direct main"
-    description:
-      path: "packages/flowy_logger"
-      relative: true
-    source: path
-    version: "0.0.1"
   flowy_sdk:
     dependency: "direct main"
     description:
@@ -779,6 +772,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.0"
+  uuid:
+    dependency: transitive
+    description:
+      name: uuid
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.4"
   vector_math:
     dependency: transitive
     description:

@@ -1,14 +1,10 @@
 import 'package:app_flowy/home/application/home_bloc.dart';
 import 'package:app_flowy/home/application/watcher/home_watcher_bloc.dart';
 import 'package:app_flowy/home/domain/page_context.dart';
-import 'package:app_flowy/home/presentation/widgets/blank_page.dart';
-import 'package:app_flowy/home/presentation/widgets/edit_pannel/edit_pannel.dart';
-import 'package:app_flowy/home/presentation/widgets/edit_pannel/pannel_animation.dart';
-import 'package:app_flowy/home/presentation/widgets/home_top_bar.dart';
-import 'package:app_flowy/home/presentation/widgets/menu/home_menu.dart';
+import 'package:app_flowy/home/presentation/widgets/prelude.dart';
 import 'package:app_flowy/startup/startup.dart';
-import 'package:flowy_infra_ui/styles/styled_container.dart';
-import 'package:flowy_logger/flowy_logger.dart';
+import 'package:flowy_infra/flowy_logger.dart';
+import 'package:flowy_infra_ui/style_widget/styled_container.dart';
 import 'package:flowy_sdk/protobuf/user_detail.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

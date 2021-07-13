@@ -14,10 +14,10 @@ dependencies:
   ffi: ^1.0.0
   isolates: ^3.0.3+8
   protobuf: "2.0.0"
-  flowy_logger:
-    path: ../flowy_logger
   dartz: '0.10.0-nullsafety.2'
   freezed_annotation: ^0.14.1
+  flowy_infra:
+    path: ../flowy_infra
     
 dev_dependencies:
   flutter_test:

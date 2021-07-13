@@ -10,14 +10,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  time: '>=2.0.0'
+  uuid: ">=2.2.2"
+  textstyle_extensions: '2.0.0-nullsafety'
+  logger: ^1.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^1.0.0
-  time: '>=2.0.0'
-  uuid: ">=2.2.2"
-  textstyle_extensions: '2.0.0-nullsafety'
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -33,8 +33,6 @@ dependencies:
     path: packages/flowy_sdk
   flowy_editor:
     path: packages/flowy_editor
-  flowy_logger:
-    path: packages/flowy_logger
   flowy_infra_ui:
     path: packages/flowy_infra_ui
   flowy_infra:

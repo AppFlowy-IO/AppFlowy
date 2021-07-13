@@ -5,7 +5,7 @@ import 'package:bloc/bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flowy_sdk/flowy_sdk.dart';
 import 'package:flutter/material.dart';
-import 'package:flowy_logger/flowy_logger.dart';
+import 'package:flowy_infra/flowy_logger.dart';
 
 class RustSDKInitTask extends LaunchTask {
   @override

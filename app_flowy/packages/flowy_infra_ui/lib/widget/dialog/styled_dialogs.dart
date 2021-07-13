@@ -1,4 +1,4 @@
-import 'package:flowy_infra_ui/styles/scrolling/styled_list.dart';
+import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra/theme.dart';
