@@ -30,7 +30,6 @@ impl ProtoGen {
 fn write_proto_files(crate_infos: &Vec<CrateProtoInfo>) {
     for crate_info in crate_infos {
         let dir = crate_info.inner.proto_file_output_dir();
-        remove_everything_in_dir(dir.as_str());
         crate_info.files.iter().for_each(|info| {
             let proto_file_path = format!("{}/{}.proto", dir, &info.file_name);
             save_content_to_file_with_diff_prompt(
@@ -76,36 +75,35 @@ fn write_flutter_protobuf_package_mod_file(
     crate_infos: &Vec<CrateProtoInfo>,
     package_info: &FlutterProtobufInfo,
 ) {
-    let mod_path = package_info.mod_file_path();
-    let _model_dir = package_info.model_dir();
-    match OpenOptions::new()
-        .create(true)
-        .write(true)
-        .append(false)
-        .truncate(true)
-        .open(&mod_path)
-    {
-        Ok(ref mut file) => {
-            let mut mod_file_content = String::new();
-            mod_file_content.push_str("// Auto-generated, do not edit \n");
+    let model_dir = package_info.model_dir();
+    for crate_info in crate_infos {
+        let mod_path = crate_info.flutter_mod_file(model_dir.as_str());
+        match OpenOptions::new()
+            .create(true)
+            .write(true)
+            .append(false)
+            .truncate(true)
+            .open(&mod_path)
+        {
+            Ok(ref mut file) => {
+                let mut mod_file_content = String::new();
+                mod_file_content.push_str("// Auto-generated, do not edit \n");
 
-            for crate_info in crate_infos {
-                let _mod_path = crate_info.inner.proto_model_mod_file();
                 walk_dir(
                     crate_info.inner.proto_file_output_dir().as_ref(),
                     |e| e.file_type().is_dir() == false,
                     |_, name| {
-                        let c = format!("export 'protobuf/{}.pb.dart';\n", &name);
+                        let c = format!("export './{}.pb.dart';\n", &name);
                         mod_file_content.push_str(c.as_ref());
                     },
                 );
-            }
 
-            file.write_all(mod_file_content.as_bytes()).unwrap();
-            file.flush().unwrap();
-        }
-        Err(err) => {
-            panic!("Failed to open file: {}", err);
+                file.write_all(mod_file_content.as_bytes()).unwrap();
+                file.flush().unwrap();
+            }
+            Err(err) => {
+                panic!("Failed to open file: {}", err);
+            }
         }
     }
 }
@@ -134,17 +132,21 @@ fn run_rust_protoc(crate_infos: &Vec<CrateProtoInfo>) {
 
 fn run_flutter_protoc(crate_infos: &Vec<CrateProtoInfo>, package_info: &FlutterProtobufInfo) {
     let model_dir = package_info.model_dir();
-    let removed_dir = format!("{}/", model_dir);
-    remove_everything_in_dir(removed_dir.as_str());
+    if !Path::new(&model_dir).exists() {
+        std::fs::create_dir_all(&model_dir).unwrap();
+    }
 
     for crate_info in crate_infos {
         let proto_path = crate_info.inner.proto_file_output_dir();
+        let crate_module_dir = crate_info.flutter_mod_dir(model_dir.as_str());
+        remove_everything_in_dir(crate_module_dir.as_str());
+
         walk_dir(
             proto_path.as_ref(),
             |e| is_proto_file(e),
             |proto_file, _| {
                 if cmd_lib::run_cmd! {
-                    protoc --dart_out=${model_dir} --proto_path=${proto_path} ${proto_file}
+                    protoc --dart_out=${crate_module_dir} --proto_path=${proto_path} ${proto_file}
                 }
                 .is_err()
                 {
@@ -156,16 +158,14 @@ fn run_flutter_protoc(crate_infos: &Vec<CrateProtoInfo>, package_info: &FlutterP
 }
 
 fn remove_everything_in_dir(dir: &str) {
-    if !Path::new(dir).exists() {
+    if Path::new(dir).exists() {
         if cmd_lib::run_cmd! {
             rm -rf ${dir}
-            mkdir ${dir}
         }
         .is_err()
         {
             panic!("Reset protobuf directory failed")
         };
-    } else {
-        std::fs::create_dir_all(dir).unwrap();
     }
+    std::fs::create_dir_all(dir).unwrap();
 }

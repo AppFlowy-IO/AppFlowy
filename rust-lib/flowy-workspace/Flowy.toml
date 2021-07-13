@@ -1,0 +1,6 @@
+
+#proto_crates = ["src/entities", "src/event.rs", "src/errors.rs"]
+#event_files = ["src/event.rs"]
+
+proto_crates = []
+event_files = []

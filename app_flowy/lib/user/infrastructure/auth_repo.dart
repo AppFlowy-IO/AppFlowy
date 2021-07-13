@@ -1,9 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/sign_in.pb.dart';
-import 'package:flowy_sdk/protobuf/sign_up.pb.dart';
-import 'package:flowy_sdk/protobuf/user_detail.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 
 class AuthRepository {
   Future<Either<UserDetail, UserError>> signIn(

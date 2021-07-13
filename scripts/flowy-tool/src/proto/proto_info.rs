@@ -36,6 +36,16 @@ pub use model::*;
             }
         }
     }
+
+    pub fn flutter_mod_dir(&self, root: &str) -> String {
+        let crate_module_dir = format!("{}/{}", root, self.inner.folder_name);
+        crate_module_dir
+    }
+
+    pub fn flutter_mod_file(&self, root: &str) -> String {
+        let crate_module_dir = format!("{}/{}/protobuf.dart", root, self.inner.folder_name);
+        crate_module_dir
+    }
 }
 
 #[derive(Clone, Debug)]

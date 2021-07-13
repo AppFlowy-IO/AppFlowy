@@ -1,5 +1,4 @@
-import 'package:flowy_sdk/protobuf/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/user_detail.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:dartz/dartz.dart';
 
 abstract class IAuth {

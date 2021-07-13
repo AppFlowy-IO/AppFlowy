@@ -1,0 +1,19 @@
+[package]
+name = "flowy-workspace"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+flowy-dispatch = { path = "../flowy-dispatch" }
+flowy-log = { path = "../flowy-log" }
+flowy-derive = { path = "../flowy-derive" }
+flowy-database = { path = "../flowy-database" }
+flowy-sqlite = { path = "../flowy-sqlite" }
+flowy-infra = { path = "../flowy-infra" }
+
+protobuf = {version = "2.18.0"}
+diesel = {version = "1.4.7", features = ["sqlite"]}
+diesel_derives = {version = "1.4.1", features = ["sqlite"]}
+lazy_static = "1.4.0"

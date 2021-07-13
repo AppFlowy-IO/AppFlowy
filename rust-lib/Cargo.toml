@@ -11,6 +11,7 @@ members = [
   "flowy-sqlite",
   "flowy-database",
   "flowy-infra",
+  "flowy-workspace",
 ]
 
 [profile.dev]

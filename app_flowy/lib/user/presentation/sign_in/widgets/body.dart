@@ -5,8 +5,7 @@ import 'package:app_flowy/user/presentation/sign_in/widgets/background.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
-import 'package:flowy_sdk/protobuf/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/user_detail.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

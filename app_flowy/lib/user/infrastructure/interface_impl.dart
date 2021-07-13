@@ -1,7 +1,6 @@
 import 'package:app_flowy/user/application/sign_in/sign_in_bloc.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/user_detail.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:get_it/get_it.dart';
 
 import 'package:app_flowy/user/domain/interface.dart';

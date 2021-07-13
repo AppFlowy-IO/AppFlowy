@@ -1,5 +1,4 @@
-import 'package:flowy_sdk/protobuf/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/ffi_response.pb.dart';
+import 'package:flowy_sdk/protobuf/dart-ffi/protobuf.dart';
 
 class FlowyError {
   late FFIStatusCode _statusCode;
@@ -28,12 +27,6 @@ class FlowyError {
 
   factory FlowyError.from(FFIResponse resp) {
     return FlowyError(statusCode: resp.code, error: "");
-  }
-
-  UserError userErrorFromFlowyError() {
-    return UserError.create()
-      ..code = UserErrorCode.Unknown
-      ..msg = this.toString();
   }
 }
 

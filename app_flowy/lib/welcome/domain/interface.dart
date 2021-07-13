@@ -1,4 +1,4 @@
-import 'package:flowy_sdk/protobuf/user_detail.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/widgets.dart';
 
 import 'auth_state.dart';

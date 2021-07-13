@@ -8,7 +8,7 @@ import 'package:app_flowy/welcome/application/welcome_bloc.dart';
 import 'package:app_flowy/welcome/domain/auth_state.dart';
 import 'package:app_flowy/welcome/domain/interface.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/user_detail.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';

@@ -59,7 +59,7 @@ pub fn save_content_to_file_with_diff_prompt(content: &str, output_file: &str, _
             .open(output_file)
         {
             Ok(ref mut file) => file.write_all(content.as_bytes()).unwrap(),
-            Err(err) => panic!("Open or create file fail: {}", err),
+            Err(err) => panic!("Open or create to {} fail: {}", output_file, err),
         }
     }
 }

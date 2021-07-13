@@ -5,7 +5,7 @@ import 'package:app_flowy/home/presentation/widgets/prelude.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:flowy_infra/flowy_logger.dart';
 import 'package:flowy_infra_ui/style_widget/styled_container.dart';
-import 'package:flowy_sdk/protobuf/user_detail.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';

@@ -1,7 +1,7 @@
 import 'dart:ffi';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/flowy_logger.dart';
-import 'package:flowy_sdk/protobuf/ffi_response.pb.dart';
+import 'package:flowy_sdk/protobuf/dart-ffi/ffi_response.pb.dart';
 import 'package:isolates/isolates.dart';
 import 'package:isolates/ports.dart';
 import 'package:ffi/ffi.dart';
@@ -10,7 +10,10 @@ import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:flowy_sdk/ffi.dart' as ffi;
-import 'package:flowy_sdk/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
+import 'package:flowy_sdk/protobuf/dart-ffi/protobuf.dart';
+// ignore: unused_import
+import 'package:flowy_sdk/protobuf/flowy-infra/protobuf.dart';
 import 'package:protobuf/protobuf.dart';
 
 import 'error.dart';
