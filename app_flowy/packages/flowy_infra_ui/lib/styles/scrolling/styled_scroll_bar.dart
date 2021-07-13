@@ -1,8 +1,7 @@
 import 'dart:math';
-
-import 'package:flowy_style/mouse_hover_builder.dart';
-import 'package:flowy_style/size.dart';
-import 'package:flowy_style/theme.dart';
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/widget/mouse_hover_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';

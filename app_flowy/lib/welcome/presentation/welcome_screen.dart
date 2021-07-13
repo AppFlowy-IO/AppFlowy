@@ -2,11 +2,11 @@ import 'package:app_flowy/welcome/domain/interface.dart';
 import 'package:app_flowy/welcome/domain/auth_state.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/welcome/application/welcome_bloc.dart';
+import 'package:flowy_infra_ui/widget/route/animation.dart';
 import 'package:flowy_logger/flowy_logger.dart';
-import 'package:flowy_style/route/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flowy_style/time/prelude.dart';
+import 'package:flowy_infra/time/prelude.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({Key? key}) : super(key: key);

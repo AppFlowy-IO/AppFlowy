@@ -1,7 +1,7 @@
 import 'package:app_flowy/home/application/home_bloc.dart';
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/time/duration.dart';
 import 'package:flutter/material.dart';
-import 'package:flowy_style/time/duration.dart';
-import 'package:flowy_style/size.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:sized_context/sized_context.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

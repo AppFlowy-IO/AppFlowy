@@ -1,6 +1,6 @@
+import 'package:flowy_infra/color.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:infra/color.dart';
 
 enum ThemeType {
   light,

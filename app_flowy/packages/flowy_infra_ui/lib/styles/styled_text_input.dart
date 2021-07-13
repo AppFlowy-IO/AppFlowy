@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:math' as math;
-import 'package:flowy_style/size.dart';
-import 'package:flowy_style/text_style.dart';
-import 'package:flowy_style/theme.dart';
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/text_style.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';

@@ -1,4 +1,4 @@
-import 'package:flowy_style/size.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 
 class StyledImageIcon extends StatelessWidget {

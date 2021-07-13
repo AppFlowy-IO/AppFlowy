@@ -1,10 +1,10 @@
-import 'package:flowy_style/buttons/ok_cancel_button.dart';
-import 'package:flowy_style/dialog/dialog_size.dart';
-import 'package:flowy_style/scrolling/styled_list.dart';
-import 'package:flowy_style/size.dart';
-import 'package:flowy_style/spacing.dart';
-import 'package:flowy_style/text_style.dart';
-import 'package:flowy_style/theme.dart';
+import 'package:flowy_infra_ui/styles/scrolling/styled_list.dart';
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/text_style.dart';
+import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/widget/buttons/ok_cancel_button.dart';
+import 'package:flowy_infra_ui/widget/dialog/dialog_size.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 // ignore: import_of_legacy_library_into_null_safe

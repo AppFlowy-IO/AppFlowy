@@ -16,8 +16,6 @@ dependencies:
   protobuf: "2.0.0"
   flowy_logger:
     path: ../flowy_logger
-  infra:
-    path: ../infra
   dartz: '0.10.0-nullsafety.2'
   freezed_annotation: ^0.14.1
     

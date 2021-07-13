@@ -7,9 +7,9 @@ import 'package:app_flowy/home/presentation/widgets/edit_pannel/pannel_animation
 import 'package:app_flowy/home/presentation/widgets/home_top_bar.dart';
 import 'package:app_flowy/home/presentation/widgets/menu/home_menu.dart';
 import 'package:app_flowy/startup/startup.dart';
+import 'package:flowy_infra_ui/styles/styled_container.dart';
 import 'package:flowy_logger/flowy_logger.dart';
 import 'package:flowy_sdk/protobuf/user_detail.pb.dart';
-import 'package:flowy_style/styled_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';

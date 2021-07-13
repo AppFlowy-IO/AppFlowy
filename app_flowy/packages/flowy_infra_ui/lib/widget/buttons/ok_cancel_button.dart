@@ -1,8 +1,7 @@
-import 'package:flowy_style/size.dart';
-import 'package:flowy_style/spacing.dart';
-import 'package:flowy_style/strings.dart';
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/strings.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
-
 import 'primary_button.dart';
 import 'secondary_button.dart';
 

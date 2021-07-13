@@ -1,4 +1,4 @@
-import 'package:flowy_style/text_field_container.dart';
+import 'package:flowy_infra_ui/widget/text_field_container.dart';
 import 'package:flutter/material.dart';
 
 class RoundedInputField extends StatelessWidget {

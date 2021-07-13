@@ -2,7 +2,7 @@ import 'package:app_flowy/home/application/menu/menu_bloc.dart';
 import 'package:app_flowy/home/domain/page_context.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_style/size.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../home_sizes.dart';

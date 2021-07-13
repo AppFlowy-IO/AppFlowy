@@ -1,5 +1,5 @@
 import 'package:app_flowy/startup/startup.dart';
-import 'package:flowy_style/theme.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:window_size/window_size.dart';

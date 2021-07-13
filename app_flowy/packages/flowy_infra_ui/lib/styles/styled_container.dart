@@ -1,4 +1,4 @@
-import 'package:flowy_style/time/duration.dart';
+import 'package:flowy_infra/time/duration.dart';
 import 'package:flutter/material.dart';
 
 class StyledContainer extends StatelessWidget {

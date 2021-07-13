@@ -1,4 +1,4 @@
-name: flowy_style
+name: flowy_infra_ui
 description: A new Flutter package project.
 version: 0.0.1
 homepage:
@@ -11,20 +11,20 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  infra:
-    path: ../infra
-  time: '>=2.0.0'
   textstyle_extensions: '2.0.0-nullsafety'
-  animations: ^2.0.0
   dartz: '0.10.0-nullsafety.2'
   provider: ^5.0.0
   styled_widget: '>=0.3.1'
   equatable: '>=2.0.2'
+  animations: ^2.0.0
+  flowy_infra:
+    path: ../flowy_infra
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^1.0.0
+  
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

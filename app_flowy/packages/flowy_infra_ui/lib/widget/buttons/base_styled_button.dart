@@ -1,6 +1,6 @@
-import 'package:flowy_style/size.dart';
-import 'package:flowy_style/text_style.dart';
-import 'package:flowy_style/theme.dart';
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/text_style.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';

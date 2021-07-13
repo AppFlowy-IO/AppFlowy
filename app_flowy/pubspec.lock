@@ -21,7 +21,7 @@ packages:
       name: animations
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.0"
+    version: "2.0.1"
   args:
     dependency: transitive
     description:
@@ -239,6 +239,20 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  flowy_infra:
+    dependency: "direct main"
+    description:
+      path: "packages/flowy_infra"
+      relative: true
+    source: path
+    version: "0.0.1"
+  flowy_infra_ui:
+    dependency: "direct main"
+    description:
+      path: "packages/flowy_infra_ui"
+      relative: true
+    source: path
+    version: "0.0.1"
   flowy_logger:
     dependency: "direct main"
     description:
@@ -250,13 +264,6 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/flowy_sdk"
-      relative: true
-    source: path
-    version: "0.0.1"
-  flowy_style:
-    dependency: "direct main"
-    description:
-      path: "packages/flowy_style"
       relative: true
     source: path
     version: "0.0.1"
@@ -373,13 +380,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.0"
-  infra:
-    dependency: transitive
-    description:
-      path: "packages/infra"
-      relative: true
-    source: path
-    version: "0.0.1"
   io:
     dependency: transitive
     description:
@@ -779,13 +779,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.0"
-  uuid:
-    dependency: transitive
-    description:
-      name: uuid
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "3.0.4"
   vector_math:
     dependency: transitive
     description:
