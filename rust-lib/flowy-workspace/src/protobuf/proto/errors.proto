@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+message WorkspaceError {
+    WorkspaceErrorCode code = 1;
+    string msg = 2;
+}
+enum WorkspaceErrorCode {
+    Unknown = 0;
+    WorkspaceNameInvalid = 1;
+    WorkspaceIdInvalid = 2;
+    AppColorStyleInvalid = 3;
+    DatabaseInternalError = 5;
+}

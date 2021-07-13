@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+message UpdateWorkspaceRequest {
+    string id = 1;
+    string name = 2;
+    string desc = 3;
+}

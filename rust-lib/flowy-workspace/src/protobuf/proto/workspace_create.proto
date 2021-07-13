@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message CreateWorkspaceRequest {
+    string name = 1;
+    string desc = 2;
+}

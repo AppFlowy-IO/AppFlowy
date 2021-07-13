@@ -16,6 +16,11 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         "u8" => TypeCategory::Bytes,
         "String" => TypeCategory::Str,
         "KeyValue"
+        | "CreateAppRequest"
+        | "ColorStyle"
+        | "UpdateWorkspaceRequest"
+        | "CreateWorkspaceRequest"
+        | "WorkspaceError"
         | "FFIRequest"
         | "FFIResponse"
         | "UserDetail"
@@ -26,7 +31,8 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "SignInParams"
         | "UserError"
         => TypeCategory::Protobuf,
-        "FFIStatusCode"
+        "WorkspaceErrorCode"
+        | "FFIStatusCode"
         | "UserStatus"
         | "UserEvent"
         | "UserErrorCode"

@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+message CreateAppRequest {
+    string workspace_id = 1;
+    string name = 2;
+    string desc = 3;
+    ColorStyle color_style = 4;
+}
+message ColorStyle {
+    string theme_color = 1;
+}

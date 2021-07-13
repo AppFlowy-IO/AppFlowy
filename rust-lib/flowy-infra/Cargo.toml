@@ -15,3 +15,4 @@ flowy-sqlite = { path = "../flowy-sqlite"}
 lazy_static = "1.4.0"
 protobuf = {version = "2.18.0"}
 log = "0.4.14"
+chrono = "0.4.19"

@@ -1,6 +1,6 @@
 use crate::{
     entities::{UserEmail, UserPassword},
-    errors::{UserError, *},
+    errors::*,
 };
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;

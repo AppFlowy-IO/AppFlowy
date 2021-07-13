@@ -11,3 +11,4 @@ pub mod kv;
 mod protobuf;
 
 pub fn uuid() -> String { uuid::Uuid::new_v4().to_string() }
+pub fn timestamp() -> i64 { chrono::Utc::now().timestamp() }
