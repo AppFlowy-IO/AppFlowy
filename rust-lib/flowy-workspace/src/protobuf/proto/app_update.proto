@@ -1,0 +1,10 @@
+syntax = "proto3";
+import "app_create.proto";
+
+message UpdateAppRequest {
+    string app_id = 1;
+    oneof one_of_workspace_id { string workspace_id = 2; };
+    oneof one_of_name { string name = 3; };
+    oneof one_of_desc { string desc = 4; };
+    oneof one_of_color_style { ColorStyle color_style = 5; };
+}

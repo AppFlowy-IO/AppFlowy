@@ -2,6 +2,6 @@ syntax = "proto3";
 
 message UpdateWorkspaceRequest {
     string id = 1;
-    string name = 2;
-    string desc = 3;
+    oneof one_of_name { string name = 2; };
+    oneof one_of_desc { string desc = 3; };
 }

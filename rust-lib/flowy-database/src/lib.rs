@@ -38,3 +38,7 @@ where
     let msg = format!("{:?}", e);
     io::Error::new(io::ErrorKind::NotConnected, msg)
 }
+
+pub trait UserDatabaseConnection {
+    fn get_connection(&self) -> Result<DBConnection, String>;
+}

@@ -56,8 +56,8 @@ impl WorkspaceChangeset {
     pub fn new(params: UpdateWorkspaceParams) -> Self {
         WorkspaceChangeset {
             id: params.id,
-            name: Some(params.name),
-            desc: Some(params.desc),
+            name: params.name,
+            desc: params.desc,
         }
     }
 }

@@ -3,9 +3,12 @@
 //  source: sign_up.proto
 //
 // @dart = 2.12
-// ignore_for_file: annotate_overrides,camel_case_types,unnecessary_const,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type,unnecessary_this,prefer_final_fields
+// ignore_for_file: annotate_overrides,camel_case_types,unnecessary_const,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type,unnecessary_this,prefer_final_fields,deprecated_member_use_from_same_package
 
 import 'dart:core' as $core;
+import 'dart:convert' as $convert;
+import 'dart:typed_data' as $typed_data;
+@$core.Deprecated('Use signUpRequestDescriptor instead')
 const SignUpRequest$json = const {
   '1': 'SignUpRequest',
   '2': const [
@@ -15,6 +18,9 @@ const SignUpRequest$json = const {
   ],
 };
 
+/// Descriptor for `SignUpRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List signUpRequestDescriptor = $convert.base64Decode('Cg1TaWduVXBSZXF1ZXN0EhQKBWVtYWlsGAEgASgJUgVlbWFpbBISCgRuYW1lGAIgASgJUgRuYW1lEhoKCHBhc3N3b3JkGAMgASgJUghwYXNzd29yZA==');
+@$core.Deprecated('Use signUpParamsDescriptor instead')
 const SignUpParams$json = const {
   '1': 'SignUpParams',
   '2': const [
@@ -24,6 +30,9 @@ const SignUpParams$json = const {
   ],
 };
 
+/// Descriptor for `SignUpParams`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List signUpParamsDescriptor = $convert.base64Decode('CgxTaWduVXBQYXJhbXMSFAoFZW1haWwYASABKAlSBWVtYWlsEhIKBG5hbWUYAiABKAlSBG5hbWUSGgoIcGFzc3dvcmQYAyABKAlSCHBhc3N3b3Jk');
+@$core.Deprecated('Use signUpResponseDescriptor instead')
 const SignUpResponse$json = const {
   '1': 'SignUpResponse',
   '2': const [
@@ -31,3 +40,5 @@ const SignUpResponse$json = const {
   ],
 };
 
+/// Descriptor for `SignUpResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List signUpResponseDescriptor = $convert.base64Decode('Cg5TaWduVXBSZXNwb25zZRIdCgppc19zdWNjZXNzGAEgASgIUglpc1N1Y2Nlc3M=');

@@ -1,4 +1,8 @@
-use crate::{impl_sql_binary_expression, sql_tables::workspace::Workspace};
+use crate::{
+    entities::app::{ColorStyle, CreateAppParams, UpdateAppParams},
+    impl_sql_binary_expression,
+    sql_tables::workspace::Workspace,
+};
 use diesel::sql_types::Binary;
 use flowy_database::schema::{app_table, app_table::dsl};
 use flowy_infra::{timestamp, uuid};
@@ -31,10 +35,36 @@ pub(crate) struct App {
     pub version: i64,
 }
 
+impl App {
+    pub fn new(params: CreateAppParams) -> Self {
+        let app_id = uuid();
+        let time = timestamp();
+        Self {
+            id: app_id,
+            workspace_id: params.workspace_id,
+            name: params.name,
+            desc: params.desc,
+            color_style: params.color_style.into(),
+            last_view_id: None,
+            modified_time: time,
+            create_time: time,
+            version: 0,
+        }
+    }
+}
+
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug, Default, FromSqlRow, AsExpression)]
 #[sql_type = "Binary"]
 pub(crate) struct ColorStyleCol {
     pub(crate) theme_color: String,
+}
+
+impl std::convert::From<ColorStyle> for ColorStyleCol {
+    fn from(s: ColorStyle) -> Self {
+        Self {
+            theme_color: s.theme_color,
+        }
+    }
 }
 
 impl std::convert::TryInto<Vec<u8>> for &ColorStyleCol {
@@ -54,3 +84,23 @@ impl std::convert::TryFrom<&[u8]> for ColorStyleCol {
 }
 
 impl_sql_binary_expression!(ColorStyleCol);
+
+#[derive(AsChangeset, Identifiable, Default, Debug)]
+#[table_name = "app_table"]
+pub struct AppChangeset {
+    pub id: String,
+    pub workspace_id: Option<String>,
+    pub name: Option<String>,
+    pub desc: Option<String>,
+}
+
+impl AppChangeset {
+    pub fn new(params: UpdateAppParams) -> Self {
+        AppChangeset {
+            id: params.app_id,
+            workspace_id: params.workspace_id,
+            name: params.name,
+            desc: params.desc,
+        }
+    }
+}

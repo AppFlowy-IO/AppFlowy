@@ -11,6 +11,8 @@ flowy-log = { path = "../flowy-log" }
 #flowy-log = { path = "../flowy-log", features = ["use_bunyan"] }
 flowy-user = { path = "../flowy-user" }
 flowy-infra = { path = "../flowy-infra" }
+flowy-workspace = { path = "../flowy-workspace" }
+flowy-database = { path = "../flowy-database" }
 tracing = { version = "0.1" }
 log = "0.4.14"
 

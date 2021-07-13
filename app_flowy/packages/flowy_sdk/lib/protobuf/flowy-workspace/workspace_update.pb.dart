@@ -9,8 +9,28 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
+enum UpdateWorkspaceRequest_OneOfName {
+  name, 
+  notSet
+}
+
+enum UpdateWorkspaceRequest_OneOfDesc {
+  desc, 
+  notSet
+}
+
 class UpdateWorkspaceRequest extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, UpdateWorkspaceRequest_OneOfName> _UpdateWorkspaceRequest_OneOfNameByTag = {
+    2 : UpdateWorkspaceRequest_OneOfName.name,
+    0 : UpdateWorkspaceRequest_OneOfName.notSet
+  };
+  static const $core.Map<$core.int, UpdateWorkspaceRequest_OneOfDesc> _UpdateWorkspaceRequest_OneOfDescByTag = {
+    3 : UpdateWorkspaceRequest_OneOfDesc.desc,
+    0 : UpdateWorkspaceRequest_OneOfDesc.notSet
+  };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UpdateWorkspaceRequest', createEmptyInstance: create)
+    ..oo(0, [2])
+    ..oo(1, [3])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
@@ -55,6 +75,12 @@ class UpdateWorkspaceRequest extends $pb.GeneratedMessage {
   @$core.pragma('dart2js:noInline')
   static UpdateWorkspaceRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UpdateWorkspaceRequest>(create);
   static UpdateWorkspaceRequest? _defaultInstance;
+
+  UpdateWorkspaceRequest_OneOfName whichOneOfName() => _UpdateWorkspaceRequest_OneOfNameByTag[$_whichOneof(0)]!;
+  void clearOneOfName() => clearField($_whichOneof(0));
+
+  UpdateWorkspaceRequest_OneOfDesc whichOneOfDesc() => _UpdateWorkspaceRequest_OneOfDescByTag[$_whichOneof(1)]!;
+  void clearOneOfDesc() => clearField($_whichOneof(1));
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);

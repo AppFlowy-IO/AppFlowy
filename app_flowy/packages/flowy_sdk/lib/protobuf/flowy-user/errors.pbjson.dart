@@ -3,9 +3,12 @@
 //  source: errors.proto
 //
 // @dart = 2.12
-// ignore_for_file: annotate_overrides,camel_case_types,unnecessary_const,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type,unnecessary_this,prefer_final_fields
+// ignore_for_file: annotate_overrides,camel_case_types,unnecessary_const,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type,unnecessary_this,prefer_final_fields,deprecated_member_use_from_same_package
 
 import 'dart:core' as $core;
+import 'dart:convert' as $convert;
+import 'dart:typed_data' as $typed_data;
+@$core.Deprecated('Use userErrorCodeDescriptor instead')
 const UserErrorCode$json = const {
   '1': 'UserErrorCode',
   '2': const [
@@ -24,6 +27,9 @@ const UserErrorCode$json = const {
   ],
 };
 
+/// Descriptor for `UserErrorCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List userErrorCodeDescriptor = $convert.base64Decode('Cg1Vc2VyRXJyb3JDb2RlEgsKB1Vua25vd24QABIWChJEYXRhYmFzZUluaXRGYWlsZWQQARIXChNEYXRhYmFzZVdyaXRlTG9ja2VkEAISFgoSRGF0YWJhc2VSZWFkTG9ja2VkEAMSGwoXRGF0YWJhc2VVc2VyRGlkTm90TWF0Y2gQBBIZChVEYXRhYmFzZUludGVybmFsRXJyb3IQBRITCg9Vc2VyTm90TG9naW5ZZXQQChIXChNSZWFkQ3VycmVudElkRmFpbGVkEAsSGAoUV3JpdGVDdXJyZW50SWRGYWlsZWQQDBIQCgxFbWFpbEludmFsaWQQFBITCg9QYXNzd29yZEludmFsaWQQFRITCg9Vc2VyTmFtZUludmFsaWQQFg==');
+@$core.Deprecated('Use userErrorDescriptor instead')
 const UserError$json = const {
   '1': 'UserError',
   '2': const [
@@ -32,3 +38,5 @@ const UserError$json = const {
   ],
 };
 
+/// Descriptor for `UserError`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List userErrorDescriptor = $convert.base64Decode('CglVc2VyRXJyb3ISIgoEY29kZRgBIAEoDjIOLlVzZXJFcnJvckNvZGVSBGNvZGUSEAoDbXNnGAIgASgJUgNtc2c=');

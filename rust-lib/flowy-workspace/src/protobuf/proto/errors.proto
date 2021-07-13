@@ -9,5 +9,7 @@ enum WorkspaceErrorCode {
     WorkspaceNameInvalid = 1;
     WorkspaceIdInvalid = 2;
     AppColorStyleInvalid = 3;
-    DatabaseInternalError = 5;
+    AppIdInvalid = 4;
+    DatabaseConnectionFail = 5;
+    DatabaseInternalError = 6;
 }

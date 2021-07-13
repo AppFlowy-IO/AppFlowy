@@ -1,4 +1,7 @@
-use crate::{derive_cache::TypeCategory, proto_buf::util::ident_category};
+use crate::{
+    derive_cache::TypeCategory,
+    proto_buf::util::{get_member_ident, ident_category},
+};
 use flowy_ast::*;
 use proc_macro2::TokenStream;
 
@@ -11,12 +14,6 @@ pub fn make_se_token_stream(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStre
         .all_fields()
         .filter(|f| !f.attrs.skip_serializing())
         .flat_map(|field| se_token_stream_for_field(&ctxt, &field, false));
-
-    // let _build_set_fields = ast
-    //     .data
-    //     .all_fields()
-    //     .filter(|f| !f.attrs.skip_serializing())
-    //     .flat_map(|field| se_token_stream_for_field(&ctxt, &field, false));
 
     let se_token_stream: TokenStream = quote! {
 
@@ -52,24 +49,33 @@ fn se_token_stream_for_field(ctxt: &Ctxt, field: &ASTField, _take: bool) -> Opti
         let member = &field.member;
         Some(quote! { pb.#member=self.#func(); })
     } else if field.attrs.is_one_of() {
-        let member = &field.member;
-        match &field.member {
-            syn::Member::Named(ref ident) => {
-                let set_func = format_ident!("set_{}", ident.to_string());
-                Some(quote! {
-                    match self.#member {
-                        Some(ref s) => { pb.#set_func(s.clone()) }
-                        None => {}
-                    }
-                })
-            },
-            _ => {
-                ctxt.error_spanned_by(member, format!("Unsupported member, get member ident fail"));
-                None
-            },
-        }
+        token_stream_for_one_of(ctxt, field)
     } else {
         gen_token_stream(ctxt, &field.member, &field.ty, false)
+    }
+}
+
+fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream> {
+    let member = &field.member;
+    let ident = get_member_ident(ctxt, member)?;
+    let ty_info = parse_ty(ctxt, &field.ty)?;
+    let bracketed_ty_info = ty_info.bracket_ty_info.as_ref().as_ref();
+
+    let set_func = format_ident!("set_{}", ident.to_string());
+
+    match ident_category(bracketed_ty_info.unwrap().ident) {
+        TypeCategory::Protobuf => Some(quote! {
+            match self.#member {
+                Some(s) => { pb.#set_func(s.try_into().unwrap()) }
+                None => {}
+            }
+        }),
+        _ => Some(quote! {
+            match self.#member {
+                Some(ref s) => { pb.#set_func(s.clone()) }
+                None => {}
+            }
+        }),
     }
 }
 

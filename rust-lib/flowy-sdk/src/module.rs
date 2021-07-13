@@ -1,5 +1,7 @@
+use flowy_database::{DBConnection, UserDatabaseConnection};
 use flowy_dispatch::prelude::Module;
-use flowy_user::prelude::UserSessionBuilder;
+use flowy_user::prelude::*;
+use flowy_workspace::prelude::*;
 use std::sync::Arc;
 
 pub struct ModuleConfig {
@@ -7,6 +9,9 @@ pub struct ModuleConfig {
 }
 
 pub fn build_modules(config: ModuleConfig) -> Vec<Module> {
-    let user_session = UserSessionBuilder::new().root_dir(&config.root).build();
-    vec![flowy_user::module::create(Arc::new(user_session))]
+    let user_session = Arc::new(UserSessionBuilder::new().root_dir(&config.root).build());
+
+    let workspace_controller = WorkspaceController::new(user_session.clone());
+
+    vec![flowy_user::module::create(user_session)]
 }

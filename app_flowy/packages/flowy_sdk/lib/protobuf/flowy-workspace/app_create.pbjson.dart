@@ -3,9 +3,12 @@
 //  source: app_create.proto
 //
 // @dart = 2.12
-// ignore_for_file: annotate_overrides,camel_case_types,unnecessary_const,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type,unnecessary_this,prefer_final_fields
+// ignore_for_file: annotate_overrides,camel_case_types,unnecessary_const,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type,unnecessary_this,prefer_final_fields,deprecated_member_use_from_same_package
 
 import 'dart:core' as $core;
+import 'dart:convert' as $convert;
+import 'dart:typed_data' as $typed_data;
+@$core.Deprecated('Use createAppRequestDescriptor instead')
 const CreateAppRequest$json = const {
   '1': 'CreateAppRequest',
   '2': const [
@@ -16,6 +19,9 @@ const CreateAppRequest$json = const {
   ],
 };
 
+/// Descriptor for `CreateAppRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List createAppRequestDescriptor = $convert.base64Decode('ChBDcmVhdGVBcHBSZXF1ZXN0EiEKDHdvcmtzcGFjZV9pZBgBIAEoCVILd29ya3NwYWNlSWQSEgoEbmFtZRgCIAEoCVIEbmFtZRISCgRkZXNjGAMgASgJUgRkZXNjEiwKC2NvbG9yX3N0eWxlGAQgASgLMgsuQ29sb3JTdHlsZVIKY29sb3JTdHlsZQ==');
+@$core.Deprecated('Use colorStyleDescriptor instead')
 const ColorStyle$json = const {
   '1': 'ColorStyle',
   '2': const [
@@ -23,3 +29,5 @@ const ColorStyle$json = const {
   ],
 };
 
+/// Descriptor for `ColorStyle`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List colorStyleDescriptor = $convert.base64Decode('CgpDb2xvclN0eWxlEh8KC3RoZW1lX2NvbG9yGAEgASgJUgp0aGVtZUNvbG9y');

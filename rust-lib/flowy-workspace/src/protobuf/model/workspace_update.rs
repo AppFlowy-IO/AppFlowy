@@ -27,8 +27,9 @@
 pub struct UpdateWorkspaceRequest {
     // message fields
     pub id: ::std::string::String,
-    pub name: ::std::string::String,
-    pub desc: ::std::string::String,
+    // message oneof groups
+    pub one_of_name: ::std::option::Option<UpdateWorkspaceRequest_oneof_one_of_name>,
+    pub one_of_desc: ::std::option::Option<UpdateWorkspaceRequest_oneof_one_of_desc>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -38,6 +39,16 @@ impl<'a> ::std::default::Default for &'a UpdateWorkspaceRequest {
     fn default() -> &'a UpdateWorkspaceRequest {
         <UpdateWorkspaceRequest as ::protobuf::Message>::default_instance()
     }
+}
+
+#[derive(Clone,PartialEq,Debug)]
+pub enum UpdateWorkspaceRequest_oneof_one_of_name {
+    name(::std::string::String),
+}
+
+#[derive(Clone,PartialEq,Debug)]
+pub enum UpdateWorkspaceRequest_oneof_one_of_desc {
+    desc(::std::string::String),
 }
 
 impl UpdateWorkspaceRequest {
@@ -75,52 +86,98 @@ impl UpdateWorkspaceRequest {
 
 
     pub fn get_name(&self) -> &str {
-        &self.name
+        match self.one_of_name {
+            ::std::option::Option::Some(UpdateWorkspaceRequest_oneof_one_of_name::name(ref v)) => v,
+            _ => "",
+        }
     }
     pub fn clear_name(&mut self) {
-        self.name.clear();
+        self.one_of_name = ::std::option::Option::None;
+    }
+
+    pub fn has_name(&self) -> bool {
+        match self.one_of_name {
+            ::std::option::Option::Some(UpdateWorkspaceRequest_oneof_one_of_name::name(..)) => true,
+            _ => false,
+        }
     }
 
     // Param is passed by value, moved
     pub fn set_name(&mut self, v: ::std::string::String) {
-        self.name = v;
+        self.one_of_name = ::std::option::Option::Some(UpdateWorkspaceRequest_oneof_one_of_name::name(v))
     }
 
     // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
     pub fn mut_name(&mut self) -> &mut ::std::string::String {
-        &mut self.name
+        if let ::std::option::Option::Some(UpdateWorkspaceRequest_oneof_one_of_name::name(_)) = self.one_of_name {
+        } else {
+            self.one_of_name = ::std::option::Option::Some(UpdateWorkspaceRequest_oneof_one_of_name::name(::std::string::String::new()));
+        }
+        match self.one_of_name {
+            ::std::option::Option::Some(UpdateWorkspaceRequest_oneof_one_of_name::name(ref mut v)) => v,
+            _ => panic!(),
+        }
     }
 
     // Take field
     pub fn take_name(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.name, ::std::string::String::new())
+        if self.has_name() {
+            match self.one_of_name.take() {
+                ::std::option::Option::Some(UpdateWorkspaceRequest_oneof_one_of_name::name(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            ::std::string::String::new()
+        }
     }
 
     // string desc = 3;
 
 
     pub fn get_desc(&self) -> &str {
-        &self.desc
+        match self.one_of_desc {
+            ::std::option::Option::Some(UpdateWorkspaceRequest_oneof_one_of_desc::desc(ref v)) => v,
+            _ => "",
+        }
     }
     pub fn clear_desc(&mut self) {
-        self.desc.clear();
+        self.one_of_desc = ::std::option::Option::None;
+    }
+
+    pub fn has_desc(&self) -> bool {
+        match self.one_of_desc {
+            ::std::option::Option::Some(UpdateWorkspaceRequest_oneof_one_of_desc::desc(..)) => true,
+            _ => false,
+        }
     }
 
     // Param is passed by value, moved
     pub fn set_desc(&mut self, v: ::std::string::String) {
-        self.desc = v;
+        self.one_of_desc = ::std::option::Option::Some(UpdateWorkspaceRequest_oneof_one_of_desc::desc(v))
     }
 
     // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
     pub fn mut_desc(&mut self) -> &mut ::std::string::String {
-        &mut self.desc
+        if let ::std::option::Option::Some(UpdateWorkspaceRequest_oneof_one_of_desc::desc(_)) = self.one_of_desc {
+        } else {
+            self.one_of_desc = ::std::option::Option::Some(UpdateWorkspaceRequest_oneof_one_of_desc::desc(::std::string::String::new()));
+        }
+        match self.one_of_desc {
+            ::std::option::Option::Some(UpdateWorkspaceRequest_oneof_one_of_desc::desc(ref mut v)) => v,
+            _ => panic!(),
+        }
     }
 
     // Take field
     pub fn take_desc(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.desc, ::std::string::String::new())
+        if self.has_desc() {
+            match self.one_of_desc.take() {
+                ::std::option::Option::Some(UpdateWorkspaceRequest_oneof_one_of_desc::desc(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            ::std::string::String::new()
+        }
     }
 }
 
@@ -137,10 +194,16 @@ impl ::protobuf::Message for UpdateWorkspaceRequest {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.id)?;
                 },
                 2 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.name)?;
+                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    self.one_of_name = ::std::option::Option::Some(UpdateWorkspaceRequest_oneof_one_of_name::name(is.read_string()?));
                 },
                 3 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.desc)?;
+                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    self.one_of_desc = ::std::option::Option::Some(UpdateWorkspaceRequest_oneof_one_of_desc::desc(is.read_string()?));
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -157,11 +220,19 @@ impl ::protobuf::Message for UpdateWorkspaceRequest {
         if !self.id.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.id);
         }
-        if !self.name.is_empty() {
-            my_size += ::protobuf::rt::string_size(2, &self.name);
+        if let ::std::option::Option::Some(ref v) = self.one_of_name {
+            match v {
+                &UpdateWorkspaceRequest_oneof_one_of_name::name(ref v) => {
+                    my_size += ::protobuf::rt::string_size(2, &v);
+                },
+            };
         }
-        if !self.desc.is_empty() {
-            my_size += ::protobuf::rt::string_size(3, &self.desc);
+        if let ::std::option::Option::Some(ref v) = self.one_of_desc {
+            match v {
+                &UpdateWorkspaceRequest_oneof_one_of_desc::desc(ref v) => {
+                    my_size += ::protobuf::rt::string_size(3, &v);
+                },
+            };
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -172,11 +243,19 @@ impl ::protobuf::Message for UpdateWorkspaceRequest {
         if !self.id.is_empty() {
             os.write_string(1, &self.id)?;
         }
-        if !self.name.is_empty() {
-            os.write_string(2, &self.name)?;
+        if let ::std::option::Option::Some(ref v) = self.one_of_name {
+            match v {
+                &UpdateWorkspaceRequest_oneof_one_of_name::name(ref v) => {
+                    os.write_string(2, v)?;
+                },
+            };
         }
-        if !self.desc.is_empty() {
-            os.write_string(3, &self.desc)?;
+        if let ::std::option::Option::Some(ref v) = self.one_of_desc {
+            match v {
+                &UpdateWorkspaceRequest_oneof_one_of_desc::desc(ref v) => {
+                    os.write_string(3, v)?;
+                },
+            };
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -221,15 +300,15 @@ impl ::protobuf::Message for UpdateWorkspaceRequest {
                 |m: &UpdateWorkspaceRequest| { &m.id },
                 |m: &mut UpdateWorkspaceRequest| { &mut m.id },
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+            fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
                 "name",
-                |m: &UpdateWorkspaceRequest| { &m.name },
-                |m: &mut UpdateWorkspaceRequest| { &mut m.name },
+                UpdateWorkspaceRequest::has_name,
+                UpdateWorkspaceRequest::get_name,
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+            fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
                 "desc",
-                |m: &UpdateWorkspaceRequest| { &m.desc },
-                |m: &mut UpdateWorkspaceRequest| { &mut m.desc },
+                UpdateWorkspaceRequest::has_desc,
+                UpdateWorkspaceRequest::get_desc,
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<UpdateWorkspaceRequest>(
                 "UpdateWorkspaceRequest",
@@ -248,8 +327,8 @@ impl ::protobuf::Message for UpdateWorkspaceRequest {
 impl ::protobuf::Clear for UpdateWorkspaceRequest {
     fn clear(&mut self) {
         self.id.clear();
-        self.name.clear();
-        self.desc.clear();
+        self.one_of_name = ::std::option::Option::None;
+        self.one_of_desc = ::std::option::Option::None;
         self.unknown_fields.clear();
     }
 }
@@ -267,20 +346,22 @@ impl ::protobuf::reflect::ProtobufValue for UpdateWorkspaceRequest {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x16workspace_update.proto\"P\n\x16UpdateWorkspaceRequest\x12\x0e\n\
-    \x02id\x18\x01\x20\x01(\tR\x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\
-    \x04name\x12\x12\n\x04desc\x18\x03\x20\x01(\tR\x04descJ\xcf\x01\n\x06\
-    \x12\x04\0\0\x06\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\
-    \x04\x02\0\x06\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x1e\n\x0b\n\x04\
-    \x04\0\x02\0\x12\x03\x03\x04\x12\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\
-    \x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\r\n\x0c\n\x05\x04\0\
-    \x02\0\x03\x12\x03\x03\x10\x11\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\
-    \x14\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\
-    \x02\x01\x01\x12\x03\x04\x0b\x0f\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\
-    \x04\x12\x13\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x04\x14\n\x0c\n\x05\
-    \x04\0\x02\x02\x05\x12\x03\x05\x04\n\n\x0c\n\x05\x04\0\x02\x02\x01\x12\
-    \x03\x05\x0b\x0f\n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05\x12\x13b\x06p\
-    roto3\
+    \n\x16workspace_update.proto\"r\n\x16UpdateWorkspaceRequest\x12\x0e\n\
+    \x02id\x18\x01\x20\x01(\tR\x02id\x12\x14\n\x04name\x18\x02\x20\x01(\tH\0\
+    R\x04name\x12\x14\n\x04desc\x18\x03\x20\x01(\tH\x01R\x04descB\r\n\x0bone\
+    _of_nameB\r\n\x0bone_of_descJ\x85\x02\n\x06\x12\x04\0\0\x06\x01\n\x08\n\
+    \x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x06\x01\n\n\n\x03\
+    \x04\0\x01\x12\x03\x02\x08\x1e\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\
+    \x12\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\
+    \0\x01\x12\x03\x03\x0b\r\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x10\x11\
+    \n\x0b\n\x04\x04\0\x08\0\x12\x03\x04\x04*\n\x0c\n\x05\x04\0\x08\0\x01\
+    \x12\x03\x04\n\x15\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x18(\n\x0c\n\
+    \x05\x04\0\x02\x01\x05\x12\x03\x04\x18\x1e\n\x0c\n\x05\x04\0\x02\x01\x01\
+    \x12\x03\x04\x1f#\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04&'\n\x0b\n\
+    \x04\x04\0\x08\x01\x12\x03\x05\x04*\n\x0c\n\x05\x04\0\x08\x01\x01\x12\
+    \x03\x05\n\x15\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x18(\n\x0c\n\x05\
+    \x04\0\x02\x02\x05\x12\x03\x05\x18\x1e\n\x0c\n\x05\x04\0\x02\x02\x01\x12\
+    \x03\x05\x1f#\n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05&'b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

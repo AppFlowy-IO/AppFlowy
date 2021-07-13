@@ -14,13 +14,17 @@ class WorkspaceErrorCode extends $pb.ProtobufEnum {
   static const WorkspaceErrorCode WorkspaceNameInvalid = WorkspaceErrorCode._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceNameInvalid');
   static const WorkspaceErrorCode WorkspaceIdInvalid = WorkspaceErrorCode._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceIdInvalid');
   static const WorkspaceErrorCode AppColorStyleInvalid = WorkspaceErrorCode._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppColorStyleInvalid');
-  static const WorkspaceErrorCode DatabaseInternalError = WorkspaceErrorCode._(5, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DatabaseInternalError');
+  static const WorkspaceErrorCode AppIdInvalid = WorkspaceErrorCode._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppIdInvalid');
+  static const WorkspaceErrorCode DatabaseConnectionFail = WorkspaceErrorCode._(5, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DatabaseConnectionFail');
+  static const WorkspaceErrorCode DatabaseInternalError = WorkspaceErrorCode._(6, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DatabaseInternalError');
 
   static const $core.List<WorkspaceErrorCode> values = <WorkspaceErrorCode> [
     Unknown,
     WorkspaceNameInvalid,
     WorkspaceIdInvalid,
     AppColorStyleInvalid,
+    AppIdInvalid,
+    DatabaseConnectionFail,
     DatabaseInternalError,
   ];
 

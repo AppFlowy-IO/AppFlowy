@@ -3,6 +3,7 @@ use flowy_database::{
     schema::{user_table, user_table::dsl},
     DBConnection,
     ExpressionMethods,
+    UserDatabaseConnection,
 };
 use flowy_infra::kv::KVStore;
 use lazy_static::lazy_static;
@@ -119,6 +120,12 @@ impl UserSession {
             None => Err(ErrorBuilder::new(UserErrorCode::UserNotLoginYet).build()),
             Some(user_id) => Ok(user_id),
         }
+    }
+}
+
+impl UserDatabaseConnection for UserSession {
+    fn get_connection(&self) -> Result<DBConnection, String> {
+        self.get_db_connection().map_err(|e| format!("{:?}", e))
     }
 }
 

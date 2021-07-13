@@ -3,9 +3,12 @@
 //  source: ffi_response.proto
 //
 // @dart = 2.12
-// ignore_for_file: annotate_overrides,camel_case_types,unnecessary_const,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type,unnecessary_this,prefer_final_fields
+// ignore_for_file: annotate_overrides,camel_case_types,unnecessary_const,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type,unnecessary_this,prefer_final_fields,deprecated_member_use_from_same_package
 
 import 'dart:core' as $core;
+import 'dart:convert' as $convert;
+import 'dart:typed_data' as $typed_data;
+@$core.Deprecated('Use fFIStatusCodeDescriptor instead')
 const FFIStatusCode$json = const {
   '1': 'FFIStatusCode',
   '2': const [
@@ -15,6 +18,9 @@ const FFIStatusCode$json = const {
   ],
 };
 
+/// Descriptor for `FFIStatusCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List fFIStatusCodeDescriptor = $convert.base64Decode('Cg1GRklTdGF0dXNDb2RlEgsKB1Vua25vd24QABIGCgJPaxABEgcKA0VychAC');
+@$core.Deprecated('Use fFIResponseDescriptor instead')
 const FFIResponse$json = const {
   '1': 'FFIResponse',
   '2': const [
@@ -23,3 +29,5 @@ const FFIResponse$json = const {
   ],
 };
 
+/// Descriptor for `FFIResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List fFIResponseDescriptor = $convert.base64Decode('CgtGRklSZXNwb25zZRIYCgdwYXlsb2FkGAEgASgMUgdwYXlsb2FkEiIKBGNvZGUYAiABKA4yDi5GRklTdGF0dXNDb2RlUgRjb2Rl');

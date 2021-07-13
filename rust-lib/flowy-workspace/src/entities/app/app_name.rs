@@ -4,7 +4,7 @@ pub struct AppName(pub String);
 impl AppName {
     pub fn parse(s: String) -> Result<AppName, String> {
         if s.trim().is_empty() {
-            return Err(format!("Workspace can not be empty or whitespace"));
+            return Err(format!("App name can not be empty or whitespace"));
         }
 
         Ok(Self(s))

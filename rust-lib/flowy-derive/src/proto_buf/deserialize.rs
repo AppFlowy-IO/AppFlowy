@@ -88,7 +88,7 @@ fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream>
         },
         _ => {
             let take_func = format_ident!("take_{}", ident.to_string());
-            let ty = ty_info.ty;
+            let ty = bracketed_ty_info.unwrap().ty;
             Some(quote! {
                 if pb.#has_func() {
                     let val = #ty::try_from(&mut pb.#take_func()).unwrap();

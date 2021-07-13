@@ -18,6 +18,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         "KeyValue"
         | "CreateAppRequest"
         | "ColorStyle"
+        | "UpdateAppRequest"
         | "UpdateWorkspaceRequest"
         | "CreateWorkspaceRequest"
         | "WorkspaceError"

@@ -13,7 +13,7 @@ pub struct WorkspaceError {
 }
 
 impl WorkspaceError {
-    fn new(code: WorkspaceErrorCode, msg: &str) -> Self {
+    pub fn new(code: WorkspaceErrorCode, msg: &str) -> Self {
         Self {
             code,
             msg: msg.to_owned(),
@@ -35,8 +35,14 @@ pub enum WorkspaceErrorCode {
     #[display(fmt = "App color style format error")]
     AppColorStyleInvalid = 3,
 
+    #[display(fmt = "App id is invalid")]
+    AppIdInvalid         = 4,
+
+    #[display(fmt = "Get database connection failed")]
+    DatabaseConnectionFail = 5,
+
     #[display(fmt = "Database internal error")]
-    DatabaseInternalError = 5,
+    DatabaseInternalError = 6,
 }
 
 impl std::default::Default for WorkspaceErrorCode {

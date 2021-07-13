@@ -3,9 +3,12 @@
 //  source: user_detail.proto
 //
 // @dart = 2.12
-// ignore_for_file: annotate_overrides,camel_case_types,unnecessary_const,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type,unnecessary_this,prefer_final_fields
+// ignore_for_file: annotate_overrides,camel_case_types,unnecessary_const,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type,unnecessary_this,prefer_final_fields,deprecated_member_use_from_same_package
 
 import 'dart:core' as $core;
+import 'dart:convert' as $convert;
+import 'dart:typed_data' as $typed_data;
+@$core.Deprecated('Use userStatusDescriptor instead')
 const UserStatus$json = const {
   '1': 'UserStatus',
   '2': const [
@@ -15,6 +18,9 @@ const UserStatus$json = const {
   ],
 };
 
+/// Descriptor for `UserStatus`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List userStatusDescriptor = $convert.base64Decode('CgpVc2VyU3RhdHVzEgsKB1Vua25vd24QABIJCgVMb2dpbhABEgsKB0V4cGlyZWQQAg==');
+@$core.Deprecated('Use userDetailDescriptor instead')
 const UserDetail$json = const {
   '1': 'UserDetail',
   '2': const [
@@ -24,3 +30,5 @@ const UserDetail$json = const {
   ],
 };
 
+/// Descriptor for `UserDetail`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List userDetailDescriptor = $convert.base64Decode('CgpVc2VyRGV0YWlsEhQKBWVtYWlsGAEgASgJUgVlbWFpbBISCgRuYW1lGAIgASgJUgRuYW1lEiMKBnN0YXR1cxgDIAEoDjILLlVzZXJTdGF0dXNSBnN0YXR1cw==');
