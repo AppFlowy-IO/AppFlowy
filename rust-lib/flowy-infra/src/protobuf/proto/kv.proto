@@ -1,5 +1,4 @@
 syntax = "proto3";
-
 message KeyValue {
     string key = 1;
     oneof one_of_str_value { string str_value = 2; };

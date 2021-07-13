@@ -29,6 +29,7 @@ impl ProtoGen {
 fn write_proto_files(crate_infos: &Vec<CrateProtoInfo>) {
     for crate_info in crate_infos {
         let dir = crate_info.inner.proto_file_output_dir();
+        remove_everything_in_dir(dir.as_str());
         crate_info.files.iter().for_each(|info| {
             let proto_file_path = format!("{}/{}.proto", dir, &info.file_name);
             save_content_to_file_with_diff_prompt(
@@ -130,8 +131,14 @@ fn run_rust_protoc(crate_infos: &Vec<CrateProtoInfo>) {
     }
 }
 
+use std::path::Path;
+use std::process::Command;
+
 fn run_flutter_protoc(crate_infos: &Vec<CrateProtoInfo>, package_info: &FlutterProtobufInfo) {
     let model_dir = package_info.model_dir();
+    let removed_dir = format!("{}/", model_dir);
+    remove_everything_in_dir(removed_dir.as_str());
+
     for crate_info in crate_infos {
         let proto_path = crate_info.inner.proto_file_output_dir();
         walk_dir(
@@ -147,5 +154,20 @@ fn run_flutter_protoc(crate_infos: &Vec<CrateProtoInfo>, package_info: &FlutterP
                 };
             },
         );
+    }
+}
+
+fn remove_everything_in_dir(dir: &str) {
+    if !Path::new(dir).exists() {
+        if cmd_lib::run_cmd! {
+            rm -rf ${dir}
+            mkdir ${dir}
+        }
+        .is_err()
+        {
+            panic!("Reset protobuf directory failed")
+        };
+    } else {
+        std::fs::create_dir_all(dir).unwrap();
     }
 }

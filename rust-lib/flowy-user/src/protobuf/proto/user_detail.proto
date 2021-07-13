@@ -1,4 +1,5 @@
 syntax = "proto3";
+
 message UserDetail {
     string email = 1;
     string name = 2;
