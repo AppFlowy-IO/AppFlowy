@@ -53,12 +53,12 @@ class UserEventSignUp {
 class UserEventSignOut {
     UserEventSignOut();
 
-    Future<Either<Uint8List, UserError>> send() {
+    Future<Either<Unit, UserError>> send() {
      final request = FFIRequest.create()
         ..event = UserEvent.SignOut.toString();
 
      return Dispatch.asyncRequest(request).then((bytesResult) => bytesResult.fold(
-        (bytes) => left(bytes),
+        (bytes) => left(unit),
         (errBytes) => right(UserError.fromBuffer(errBytes)),
       ));
     }

@@ -6,4 +6,6 @@ abstract class IAuth {
   Future<Either<UserDetail, UserError>> signIn(String? email, String? password);
   Future<Either<UserDetail, UserError>> signUp(
       String? name, String? password, String? email);
+
+  Future<Either<Unit, UserError>> signOut();
 }

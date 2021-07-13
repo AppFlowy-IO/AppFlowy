@@ -36,4 +36,9 @@ class AuthImpl extends IAuth {
       String? name, String? password, String? email) {
     return repo.signUp(name: name, password: password, email: email);
   }
+
+  @override
+  Future<Either<Unit, UserError>> signOut() {
+    return repo.signOut();
+  }
 }

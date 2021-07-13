@@ -34,7 +34,7 @@ class {{ event_class }} {
      {%- if has_output  %}
         (okBytes) => left({{ output_deserializer }}.fromBuffer(okBytes)),
      {%- else %}
-        (bytes) => left(bytes),
+        (bytes) => left(unit),
      {%- endif %}
         (errBytes) => right({{ error_deserializer }}.fromBuffer(errBytes)),
       ));

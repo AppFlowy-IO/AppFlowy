@@ -27,4 +27,8 @@ class AuthRepository {
 
     return UserEventSignUp(request).send();
   }
+
+  Future<Either<Unit, UserError>> signOut() {
+    return UserEventSignOut().send();
+  }
 }
