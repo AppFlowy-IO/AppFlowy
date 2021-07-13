@@ -78,6 +78,9 @@
       <excludeFolder url="file://$MODULE_DIR$/app_flowy/macos/Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/example/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/app_flowy/macos/Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/example/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/app_flowy/macos/Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_infra/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_infra/build" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_infra/.pub" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
