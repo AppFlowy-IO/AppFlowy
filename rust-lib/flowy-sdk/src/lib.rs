@@ -1,10 +1,7 @@
 mod flowy_server;
 pub mod module;
 
-use crate::{
-    flowy_server::{ArcFlowyServer, MockFlowyServer},
-    user_server::MockUserServer,
-};
+use crate::flowy_server::{ArcFlowyServer, MockFlowyServer};
 use flowy_dispatch::prelude::*;
 use module::build_modules;
 pub use module::*;
@@ -32,7 +29,7 @@ impl FlowySDK {
         FlowySDK::init_log(&self.root);
 
         tracing::info!("🔥 Root path: {}", self.root);
-        flowy_infra::kv::KVStore::init(path);
+        flowy_infra::kv::KVStore::init(&self.root);
         FlowySDK::init_modules(&self.root, self.server);
     }
 

@@ -1,7 +1,7 @@
 use flowy_dispatch::prelude::Module;
 use flowy_user::prelude::*;
 
-use crate::{flowy_server::ArcFlowyServer, user_server::MockUserServer};
+use crate::flowy_server::{ArcFlowyServer, MockFlowyServer};
 use flowy_database::DBConnection;
 use flowy_user::errors::UserError;
 use flowy_workspace::prelude::*;
@@ -15,7 +15,7 @@ pub fn build_modules(config: ModuleConfig, server: ArcFlowyServer) -> Vec<Module
     let user_session = Arc::new(
         UserSessionBuilder::new()
             .root_dir(&config.root)
-            .build(config.server),
+            .build(Arc::new(MockFlowyServer {})),
     );
 
     let workspace_user_impl = Arc::new(WorkspaceUserImpl {

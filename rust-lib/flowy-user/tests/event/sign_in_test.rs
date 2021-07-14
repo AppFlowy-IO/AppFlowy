@@ -6,13 +6,14 @@ use serial_test::*;
 #[test]
 #[serial]
 fn sign_in_success() {
-    let _ = UserEventTester::new(SignOut).sync_send();
     let request = SignInRequest {
         email: valid_email(),
         password: valid_password(),
     };
 
-    let response = UserEventTester::new(SignIn)
+    let response = UserTestBuilder::new()
+        .logout()
+        .event(SignIn)
         .request(request)
         .sync_send()
         .parse::<UserDetail>();
@@ -28,7 +29,8 @@ fn sign_in_with_invalid_email() {
         };
 
         assert_eq!(
-            UserEventTester::new(SignIn)
+            UserTestBuilder::new()
+                .event(SignIn)
                 .request(request)
                 .sync_send()
                 .error()
@@ -47,7 +49,8 @@ fn sign_in_with_invalid_password() {
         };
 
         assert_eq!(
-            UserEventTester::new(SignIn)
+            UserTestBuilder::new()
+                .event(SignIn)
                 .request(request)
                 .sync_send()
                 .error()

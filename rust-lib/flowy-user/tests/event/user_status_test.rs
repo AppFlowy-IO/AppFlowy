@@ -1,5 +1,4 @@
 use crate::helper::*;
-
 use flowy_user::{errors::UserErrorCode, event::UserEvent::*, prelude::*};
 use serial_test::*;
 
@@ -7,8 +6,9 @@ use serial_test::*;
 #[should_panic]
 #[serial]
 fn user_status_not_found_before_login() {
-    let _ = UserEventTester::new(SignOut).sync_send();
-    let _ = UserEventTester::new(GetStatus)
+    let _ = UserTestBuilder::new()
+        .logout()
+        .event(GetStatus)
         .sync_send()
         .parse::<UserDetail>();
 }
@@ -16,19 +16,21 @@ fn user_status_not_found_before_login() {
 #[test]
 #[serial]
 fn user_status_did_found_after_login() {
-    let _ = UserEventTester::new(SignOut).sync_send();
     let request = SignInRequest {
         email: valid_email(),
         password: valid_password(),
     };
 
-    let response = UserEventTester::new(SignIn)
+    let response = UserTestBuilder::new()
+        .logout()
+        .event(SignIn)
         .request(request)
         .sync_send()
         .parse::<UserDetail>();
     dbg!(&response);
 
-    let _ = UserEventTester::new(GetStatus)
+    let _ = UserTestBuilder::new()
+        .event(GetStatus)
         .sync_send()
         .parse::<UserDetail>();
 }
@@ -36,20 +38,7 @@ fn user_status_did_found_after_login() {
 #[test]
 #[serial]
 fn user_update_with_invalid_email() {
-    let _ = UserEventTester::new(SignOut).sync_send();
-    let request = SignInRequest {
-        email: valid_email(),
-        password: valid_password(),
-    };
-
-    let _ = UserEventTester::new(SignIn)
-        .request(request)
-        .sync_send()
-        .parse::<UserDetail>();
-
-    let user_detail = UserEventTester::new(GetStatus)
-        .sync_send()
-        .parse::<UserDetail>();
+    let user_detail = UserTestBuilder::new().login().user_detail.unwrap();
 
     for email in invalid_email_test_case() {
         let request = UpdateUserRequest {
@@ -61,7 +50,8 @@ fn user_update_with_invalid_email() {
         };
 
         assert_eq!(
-            UserEventTester::new(UpdateUser)
+            UserTestBuilder::new()
+                .event(UpdateUser)
                 .request(request)
                 .sync_send()
                 .error()

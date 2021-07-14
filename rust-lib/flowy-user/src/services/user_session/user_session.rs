@@ -7,7 +7,7 @@ use flowy_database::{
 };
 use flowy_infra::kv::KVStore;
 use lazy_static::lazy_static;
-use std::sync::RwLock;
+use std::sync::{Arc, RwLock};
 
 use crate::{
     entities::{SignInParams, SignUpParams, UpdateUserParams, UserDetail},
@@ -31,11 +31,11 @@ impl UserSessionConfig {
 pub struct UserSession {
     database: UserDB,
     config: UserSessionConfig,
-    server: Box<dyn UserServer + Send + Sync>,
+    server: Arc<dyn UserServer + Send + Sync>,
 }
 
 impl UserSession {
-    pub fn new<R>(config: UserSessionConfig, server: R) -> Self
+    pub fn new<R>(config: UserSessionConfig, server: Arc<R>) -> Self
     where
         R: 'static + UserServer + Send + Sync,
     {
@@ -43,7 +43,7 @@ impl UserSession {
         Self {
             database: db,
             config,
-            server: Box::new(server),
+            server,
         }
     }
 

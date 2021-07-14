@@ -1,5 +1,10 @@
 use flowy_dispatch::prelude::*;
 pub use flowy_sdk::*;
+use flowy_user::{
+    errors::UserError,
+    event::UserEvent::{SignIn, SignOut},
+    prelude::*,
+};
 use std::{
     convert::TryFrom,
     fmt::{Debug, Display},
@@ -12,7 +17,7 @@ use std::{
 };
 
 pub mod prelude {
-    pub use crate::EventTester;
+    pub use crate::Tester;
     pub use flowy_dispatch::prelude::*;
     pub use std::convert::TryFrom;
 }
@@ -42,18 +47,82 @@ fn root_dir() -> String {
     root_dir
 }
 
-pub trait TesterConfig {
-    fn auto_sign_in() -> bool { false }
+pub struct TestBuilder<Error> {
+    login: Option<bool>,
+    inner: Option<Tester<Error>>,
+    pub user_detail: Option<UserDetail>,
 }
 
-pub struct EventTester<Error> {
+impl<Error> TestBuilder<Error>
+where
+    Error: FromBytes + Debug,
+{
+    pub fn new() -> Self {
+        TestBuilder::<Error> {
+            login: None,
+            inner: None,
+            user_detail: None,
+        }
+    }
+
+    pub fn login(mut self) -> Self {
+        let user_detail = new_user_after_login();
+        self.user_detail = Some(user_detail);
+        self
+    }
+
+    pub fn logout(self) -> Self {
+        init_sdk();
+        let _ = EventDispatch::sync_send(ModuleRequest::new(SignOut));
+        self
+    }
+
+    pub fn event<E>(mut self, event: E) -> Self
+    where
+        E: Eq + Hash + Debug + Clone + Display,
+    {
+        self.inner = Some(Tester::<Error>::new(event));
+        self
+    }
+
+    pub fn request<P>(mut self, request: P) -> Self
+    where
+        P: ToBytes,
+    {
+        let mut inner = self.inner.unwrap();
+        self.inner = Some(inner.request(request));
+        self
+    }
+
+    pub fn sync_send(mut self) -> Self {
+        let inner = self.inner.take().unwrap();
+        self.inner = Some(inner.sync_send());
+        self
+    }
+
+    pub fn parse<R>(mut self) -> R
+    where
+        R: FromBytes,
+    {
+        let inner = self.inner.take().unwrap();
+        inner.parse::<R>()
+    }
+
+    pub fn error(mut self) -> Error {
+        let inner = self.inner.take().unwrap();
+        inner.error()
+    }
+}
+
+pub struct Tester<Error> {
     inner_request: Option<ModuleRequest>,
     assert_status_code: Option<StatusCode>,
     response: Option<EventResponse>,
     err_phantom: PhantomData<Error>,
+    user_detail: Option<UserDetail>,
 }
 
-impl<Error> EventTester<Error>
+impl<Error> Tester<Error>
 where
     Error: FromBytes + Debug,
 {
@@ -73,6 +142,7 @@ where
             assert_status_code: None,
             response: None,
             err_phantom: PhantomData,
+            user_detail: None,
         }
     }
 
@@ -97,7 +167,6 @@ where
         self
     }
 
-    #[allow(dead_code)]
     pub async fn async_send(mut self) -> Self {
         let resp =
             EventDispatch::async_send(self.inner_request.take().unwrap(), |_| Box::pin(async {}))
@@ -148,3 +217,23 @@ fn check(response: &EventResponse, status_code: &Option<StatusCode>) {
         assert_eq!(&response.status_code, status_code)
     }
 }
+
+fn new_user_after_login() -> UserDetail {
+    init_sdk();
+    let _ = EventDispatch::sync_send(ModuleRequest::new(SignOut));
+    let request = SignInRequest {
+        email: valid_email(),
+        password: valid_password(),
+    };
+
+    let user_detail = Tester::<UserError>::new(SignIn)
+        .request(request)
+        .sync_send()
+        .parse::<UserDetail>();
+
+    user_detail
+}
+
+pub(crate) fn valid_email() -> String { "annie@appflowy.io".to_string() }
+
+pub(crate) fn valid_password() -> String { "HelloWorld!123".to_string() }

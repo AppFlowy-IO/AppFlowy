@@ -12,7 +12,8 @@ fn workspace_create_success() {
         desc: "".to_owned(),
     };
 
-    let response = WorkspaceEventTester::new(CreateWorkspace)
+    let response = WorkspaceTestBuilder::new()
+        .event(CreateWorkspace)
         .request(request)
         .sync_send()
         .parse::<WorkspaceDetail>();
@@ -28,7 +29,8 @@ fn workspace_create_with_invalid_name_test() {
         };
 
         assert_eq!(
-            WorkspaceEventTester::new(CreateWorkspace)
+            WorkspaceTestBuilder::new()
+                .event(CreateWorkspace)
                 .request(request)
                 .sync_send()
                 .error()

@@ -8,6 +8,7 @@ edition = "2018"
 [dependencies]
 flowy-sdk = { path = "../flowy-sdk"}
 flowy-dispatch = { path = "../flowy-dispatch"}
+flowy-user = { path = "../flowy-user"}
 
 serde = { version = "1.0", features = ["derive"] }
 bincode = { version = "1.3"}

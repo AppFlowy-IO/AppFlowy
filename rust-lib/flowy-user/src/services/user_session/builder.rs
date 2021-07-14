@@ -1,4 +1,5 @@
 use crate::services::user_session::{user_server::UserServer, UserSession, UserSessionConfig};
+use std::sync::Arc;
 
 pub struct UserSessionBuilder {
     config: Option<UserSessionConfig>,
@@ -12,7 +13,7 @@ impl UserSessionBuilder {
         self
     }
 
-    pub fn build<S>(mut self, server: S) -> UserSession
+    pub fn build<S>(mut self, server: Arc<S>) -> UserSession
     where
         S: 'static + UserServer + Send + Sync,
     {
