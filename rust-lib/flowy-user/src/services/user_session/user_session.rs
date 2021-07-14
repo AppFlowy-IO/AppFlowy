@@ -10,13 +10,10 @@ use lazy_static::lazy_static;
 use std::sync::RwLock;
 
 use crate::{
-    entities::{SignInParams, SignUpParams, UserDetail},
+    entities::{SignInParams, SignUpParams, UpdateUserParams, UserDetail},
     errors::{ErrorBuilder, UserError, UserErrorCode},
-    services::user_session::{
-        database::UserDB,
-        user_server::{UserServer, *},
-    },
-    sql_tables::User,
+    services::user_session::{database::UserDB, user_server::UserServer},
+    sql_tables::{User, UserChangeset},
 };
 
 pub struct UserSessionConfig {
@@ -38,7 +35,7 @@ pub struct UserSession {
 }
 
 impl UserSession {
-    pub fn new<R>(config: UserSessionConfig, register: R) -> Self
+    pub fn new<R>(config: UserSessionConfig, server: R) -> Self
     where
         R: 'static + UserServer + Send + Sync,
     {
@@ -46,7 +43,7 @@ impl UserSession {
         Self {
             database: db,
             config,
-            server: Box::new(register),
+            server: Box::new(server),
         }
     }
 
@@ -77,7 +74,16 @@ impl UserSession {
         Ok(())
     }
 
-    pub async fn current_user_detail(&self) -> Result<UserDetail, UserError> {
+    pub async fn update_user(&self, params: UpdateUserParams) -> Result<UserDetail, UserError> {
+        let changeset = UserChangeset::new(params);
+        let conn = self.get_db_connection()?;
+        diesel_update_table!(user_table, changeset, conn);
+
+        let user_detail = self.current_user_detail()?;
+        Ok(user_detail)
+    }
+
+    pub fn current_user_detail(&self) -> Result<UserDetail, UserError> {
         let user_id = self.current_user_id()?;
         let conn = self.get_db_connection()?;
 
@@ -98,10 +104,21 @@ impl UserSession {
     }
 
     pub fn get_db_connection(&self) -> Result<DBConnection, UserError> {
-        match get_current_user_id()? {
-            None => Err(ErrorBuilder::new(UserErrorCode::UserNotLoginYet).build()),
-            Some(user_id) => self.database.get_connection(&user_id),
-        }
+        let user_id = get_current_user_id()?;
+        self.database.get_connection(&user_id)
+    }
+
+    #[allow(dead_code)]
+    pub fn get_current_workspace(&self) -> Result<String, UserError> {
+        let user_id = get_current_user_id()?;
+        let conn = self.get_db_connection()?;
+
+        let workspace = dsl::user_table
+            .filter(user_table::id.eq(&user_id))
+            .select(user_table::workspace)
+            .first::<String>(&*conn)?;
+
+        Ok(workspace)
     }
 }
 
@@ -133,7 +150,8 @@ const USER_ID_DISK_CACHE_KEY: &str = "user_id";
 lazy_static! {
     pub static ref CURRENT_USER_ID: RwLock<Option<String>> = RwLock::new(None);
 }
-pub(crate) fn get_current_user_id() -> Result<Option<String>, UserError> {
+
+pub(crate) fn get_current_user_id() -> Result<String, UserError> {
     let read_guard = CURRENT_USER_ID.read().map_err(|e| {
         ErrorBuilder::new(UserErrorCode::ReadCurrentIdFailed)
             .error(e)
@@ -149,7 +167,14 @@ pub(crate) fn get_current_user_id() -> Result<Option<String>, UserError> {
         *(CURRENT_USER_ID.write().unwrap()) = user_id.clone();
     }
 
-    Ok(user_id)
+    if user_id.is_none() {
+        return Err(ErrorBuilder::new(UserErrorCode::UserNotLoginYet).build());
+    }
+
+    match user_id {
+        None => Err(ErrorBuilder::new(UserErrorCode::UserNotLoginYet).build()),
+        Some(user_id) => Ok(user_id),
+    }
 }
 
 pub(crate) fn set_current_user_id(user_id: Option<String>) -> Result<(), UserError> {

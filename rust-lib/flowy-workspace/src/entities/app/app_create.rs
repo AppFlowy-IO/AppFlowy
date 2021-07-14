@@ -1,7 +1,7 @@
 use crate::{
     entities::{
-        app::{app_color_style::AppColorStyle, app_name::AppName},
-        workspace::WorkspaceId,
+        app::parser::{AppColorStyle, AppName},
+        workspace::parser::WorkspaceId,
     },
     errors::*,
 };
@@ -65,4 +65,19 @@ impl TryInto<CreateAppParams> for CreateAppRequest {
             color_style: color_style.0,
         })
     }
+}
+
+#[derive(ProtoBuf, Default, Debug)]
+pub struct AppDetail {
+    #[pb(index = 1)]
+    pub id: String,
+
+    #[pb(index = 2)]
+    pub workspace_id: String,
+
+    #[pb(index = 3)]
+    pub name: String,
+
+    #[pb(index = 4)]
+    pub desc: String,
 }

@@ -14,22 +14,30 @@ impl std::default::Default for UserStatus {
 #[derive(ProtoBuf, Default, Debug)]
 pub struct UserDetail {
     #[pb(index = 1)]
-    pub email: String,
+    pub id: String,
 
     #[pb(index = 2)]
-    pub name: String,
+    pub email: String,
 
     #[pb(index = 3)]
+    pub name: String,
+
+    #[pb(index = 4)]
     pub status: UserStatus,
+
+    #[pb(index = 5)]
+    pub workspace: String,
 }
 
 use crate::sql_tables::User;
 impl std::convert::From<User> for UserDetail {
     fn from(user: User) -> Self {
         UserDetail {
+            id: user.id,
             email: user.email,
             name: user.name,
             status: UserStatus::Login,
+            workspace: user.workspace,
         }
     }
 }

@@ -7,8 +7,9 @@ pub fn create(user_session: Arc<UserSession>) -> Module {
     Module::new()
         .name("Flowy-User")
         .data(user_session)
-        .event(UserEvent::SignIn, user_sign_in)
-        .event(UserEvent::SignUp, user_sign_up)
-        .event(UserEvent::GetStatus, user_get_status)
-        .event(UserEvent::SignOut, user_sign_out)
+        .event(UserEvent::SignIn, user_sign_in_handler)
+        .event(UserEvent::SignUp, user_sign_up_handler)
+        .event(UserEvent::GetStatus, user_get_status_handler)
+        .event(UserEvent::SignOut, sign_out_handler)
+        .event(UserEvent::UpdateUser, update_user_handler)
 }

@@ -14,12 +14,14 @@ class UserEvent extends $pb.ProtobufEnum {
   static const UserEvent SignIn = UserEvent._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'SignIn');
   static const UserEvent SignUp = UserEvent._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'SignUp');
   static const UserEvent SignOut = UserEvent._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'SignOut');
+  static const UserEvent UpdateUser = UserEvent._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UpdateUser');
 
   static const $core.List<UserEvent> values = <UserEvent> [
     GetStatus,
     SignIn,
     SignUp,
     SignOut,
+    UpdateUser,
   ];
 
   static final $core.Map<$core.int, UserEvent> _byValue = $pb.ProtobufEnum.initByValue(values);

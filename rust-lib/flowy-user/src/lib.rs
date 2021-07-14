@@ -11,5 +11,5 @@ pub mod sql_tables;
 extern crate flowy_database;
 
 pub mod prelude {
-    pub use crate::{entities::*, handlers::auth_handler::*, services::user_session::*};
+    pub use crate::{entities::*, handlers::*, services::user_session::*};
 }

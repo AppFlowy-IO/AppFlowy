@@ -18,6 +18,7 @@ table! {
         name -> Text,
         password -> Text,
         email -> Text,
+        workspace -> Text,
     }
 }
 

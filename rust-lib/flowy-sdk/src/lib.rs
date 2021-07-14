@@ -1,27 +1,52 @@
+mod flowy_server;
 pub mod module;
-pub use module::*;
 
+use crate::{
+    flowy_server::{ArcFlowyServer, MockFlowyServer},
+    user_server::MockUserServer,
+};
 use flowy_dispatch::prelude::*;
 use module::build_modules;
-use std::sync::atomic::{AtomicBool, Ordering};
+pub use module::*;
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc,
+};
 
 static INIT_LOG: AtomicBool = AtomicBool::new(false);
-pub struct FlowySDK {}
+pub struct FlowySDK {
+    root: String,
+    server: ArcFlowyServer,
+}
 
 impl FlowySDK {
-    pub fn init_log(directory: &str) {
+    pub fn new(root: &str) -> Self {
+        let server = Arc::new(MockFlowyServer {});
+        Self {
+            root: root.to_owned(),
+            server,
+        }
+    }
+
+    pub fn construct(self) {
+        FlowySDK::init_log(&self.root);
+
+        tracing::info!("🔥 Root path: {}", self.root);
+        flowy_infra::kv::KVStore::init(path);
+        FlowySDK::init_modules(&self.root, self.server);
+    }
+
+    fn init_log(directory: &str) {
         if !INIT_LOG.load(Ordering::SeqCst) {
             INIT_LOG.store(true, Ordering::SeqCst);
             flowy_log::init_log("flowy", directory, "Debug").unwrap();
         }
     }
 
-    pub fn init(path: &str) {
-        tracing::info!("🔥 Root path: {}", path);
-        flowy_infra::kv::KVStore::init(path);
+    fn init_modules(root: &str, server: ArcFlowyServer) {
         let config = ModuleConfig {
-            root: path.to_string(),
+            root: root.to_owned(),
         };
-        EventDispatch::construct(|| build_modules(config));
+        EventDispatch::construct(|| build_modules(config, server));
     }
 }

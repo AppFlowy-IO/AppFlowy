@@ -147,3 +147,92 @@ class ColorStyle extends $pb.GeneratedMessage {
   void clearThemeColor() => clearField(1);
 }
 
+class AppDetail extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'AppDetail', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspaceId')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
+    ..hasRequiredFields = false
+  ;
+
+  AppDetail._() : super();
+  factory AppDetail({
+    $core.String? id,
+    $core.String? workspaceId,
+    $core.String? name,
+    $core.String? desc,
+  }) {
+    final _result = create();
+    if (id != null) {
+      _result.id = id;
+    }
+    if (workspaceId != null) {
+      _result.workspaceId = workspaceId;
+    }
+    if (name != null) {
+      _result.name = name;
+    }
+    if (desc != null) {
+      _result.desc = desc;
+    }
+    return _result;
+  }
+  factory AppDetail.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory AppDetail.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  AppDetail clone() => AppDetail()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  AppDetail copyWith(void Function(AppDetail) updates) => super.copyWith((message) => updates(message as AppDetail)) as AppDetail; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static AppDetail create() => AppDetail._();
+  AppDetail createEmptyInstance() => create();
+  static $pb.PbList<AppDetail> createRepeated() => $pb.PbList<AppDetail>();
+  @$core.pragma('dart2js:noInline')
+  static AppDetail getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AppDetail>(create);
+  static AppDetail? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get id => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set id($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get workspaceId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set workspaceId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasWorkspaceId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearWorkspaceId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get name => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set name($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasName() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearName() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get desc => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set desc($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasDesc() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearDesc() => clearField(4);
+}
+

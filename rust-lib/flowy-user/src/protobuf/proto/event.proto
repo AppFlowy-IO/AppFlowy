@@ -5,4 +5,5 @@ enum UserEvent {
     SignIn = 1;
     SignUp = 2;
     SignOut = 3;
+    UpdateUser = 4;
 }

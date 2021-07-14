@@ -10,9 +10,9 @@ macro_rules! impl_sql_binary_expression {
             ) -> diesel::serialize::Result {
                 let bytes: Vec<u8> = self.try_into().map_err(|e| format!("{:?}", e))?;
                 diesel::serialize::ToSql::<
-                                                        diesel::sql_types::Binary,
-                                                        diesel::sqlite::Sqlite,
-                                                    >::to_sql(&bytes, out)
+                                                                        diesel::sql_types::Binary,
+                                                                        diesel::sqlite::Sqlite,
+                                                                    >::to_sql(&bytes, out)
 
                 // match self.try_into() {
                 //     Ok(bytes) => diesel::serialize::ToSql::<

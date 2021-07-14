@@ -1,5 +1,5 @@
 use crate::{
-    entities::{UserEmail, UserName, UserPassword},
+    entities::parser::*,
     errors::{ErrorBuilder, UserError, UserErrorCode},
 };
 use flowy_derive::ProtoBuf;

@@ -4,4 +4,5 @@ export './sign_in.pb.dart';
 export './user_table.pb.dart';
 export './errors.pb.dart';
 export './user_detail.pb.dart';
+export './user_update.pb.dart';
 export './event.pb.dart';

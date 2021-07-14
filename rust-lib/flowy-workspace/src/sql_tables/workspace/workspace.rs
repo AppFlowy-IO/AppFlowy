@@ -1,8 +1,5 @@
-use crate::{
-    entities::workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceDetail},
-    sql_tables::app::App,
-};
-use flowy_database::schema::{workspace_table, workspace_table::dsl};
+use crate::entities::workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceDetail};
+use flowy_database::schema::workspace_table;
 use flowy_infra::{timestamp, uuid};
 use serde::{Deserialize, Serialize};
 

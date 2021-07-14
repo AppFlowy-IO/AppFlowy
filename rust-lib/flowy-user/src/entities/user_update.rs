@@ -1,0 +1,106 @@
+use crate::{
+    entities::parser::*,
+    errors::{ErrorBuilder, UserError, UserErrorCode},
+};
+use flowy_derive::ProtoBuf;
+use std::convert::TryInto;
+
+#[derive(ProtoBuf, Default)]
+pub struct UpdateUserRequest {
+    #[pb(index = 1)]
+    pub id: String,
+
+    #[pb(index = 2, one_of)]
+    pub name: Option<String>,
+
+    #[pb(index = 3, one_of)]
+    pub email: Option<String>,
+
+    #[pb(index = 4, one_of)]
+    pub workspace: Option<String>,
+
+    #[pb(index = 5, one_of)]
+    pub password: Option<String>,
+}
+
+pub struct UpdateUserParams {
+    pub id: String,
+    pub name: Option<String>,
+    pub email: Option<String>,
+    pub workspace: Option<String>,
+    pub password: Option<String>,
+}
+
+impl TryInto<UpdateUserParams> for UpdateUserRequest {
+    type Error = UserError;
+
+    fn try_into(self) -> Result<UpdateUserParams, Self::Error> {
+        let id = UserId::parse(self.id)
+            .map_err(|e| {
+                ErrorBuilder::new(UserErrorCode::UserIdInvalid)
+                    .msg(e)
+                    .build()
+            })?
+            .0;
+
+        let name = match self.name {
+            None => None,
+            Some(name) => Some(
+                UserName::parse(name)
+                    .map_err(|e| {
+                        ErrorBuilder::new(UserErrorCode::UserNameInvalid)
+                            .msg(e)
+                            .build()
+                    })?
+                    .0,
+            ),
+        };
+
+        let email = match self.email {
+            None => None,
+            Some(email) => Some(
+                UserEmail::parse(email)
+                    .map_err(|e| {
+                        ErrorBuilder::new(UserErrorCode::EmailInvalid)
+                            .msg(e)
+                            .build()
+                    })?
+                    .0,
+            ),
+        };
+
+        let workspace = match self.workspace {
+            None => None,
+            Some(workspace) => Some(
+                UserWorkspace::parse(workspace)
+                    .map_err(|e| {
+                        ErrorBuilder::new(UserErrorCode::UserWorkspaceInvalid)
+                            .msg(e)
+                            .build()
+                    })?
+                    .0,
+            ),
+        };
+
+        let password = match self.password {
+            None => None,
+            Some(password) => Some(
+                UserPassword::parse(password)
+                    .map_err(|e| {
+                        ErrorBuilder::new(UserErrorCode::PasswordInvalid)
+                            .msg(e)
+                            .build()
+                    })?
+                    .0,
+            ),
+        };
+
+        Ok(UpdateUserParams {
+            id,
+            name,
+            email,
+            workspace,
+            password,
+        })
+    }
+}

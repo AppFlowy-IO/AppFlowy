@@ -6,14 +6,17 @@ use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 pub enum UserEvent {
     #[display(fmt = "GetStatus")]
     #[event(output = "UserDetail")]
-    GetStatus = 0,
+    GetStatus  = 0,
     #[display(fmt = "SignIn")]
     #[event(input = "SignInRequest", output = "UserDetail")]
-    SignIn    = 1,
+    SignIn     = 1,
     #[display(fmt = "SignUp")]
     #[event(input = "SignUpRequest", output = "UserDetail")]
-    SignUp    = 2,
+    SignUp     = 2,
     #[display(fmt = "SignOut")]
     #[event(passthrough)]
-    SignOut   = 3,
+    SignOut    = 3,
+    #[display(fmt = "UpdateUser")]
+    #[event(input = "UpdateUserRequest", output = "UserDetail")]
+    UpdateUser = 4,
 }

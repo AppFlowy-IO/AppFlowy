@@ -1,7 +1,4 @@
-use crate::{
-    entities::{UserEmail, UserPassword},
-    errors::*,
-};
+use crate::{entities::parser::*, errors::*};
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
 

@@ -15,19 +15,26 @@ export 'user_detail.pbenum.dart';
 
 class UserDetail extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UserDetail', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'email')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
-    ..e<UserStatus>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: UserStatus.Unknown, valueOf: UserStatus.valueOf, enumValues: UserStatus.values)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'email')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
+    ..e<UserStatus>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: UserStatus.Unknown, valueOf: UserStatus.valueOf, enumValues: UserStatus.values)
+    ..aOS(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspace')
     ..hasRequiredFields = false
   ;
 
   UserDetail._() : super();
   factory UserDetail({
+    $core.String? id,
     $core.String? email,
     $core.String? name,
     UserStatus? status,
+    $core.String? workspace,
   }) {
     final _result = create();
+    if (id != null) {
+      _result.id = id;
+    }
     if (email != null) {
       _result.email = email;
     }
@@ -36,6 +43,9 @@ class UserDetail extends $pb.GeneratedMessage {
     }
     if (status != null) {
       _result.status = status;
+    }
+    if (workspace != null) {
+      _result.workspace = workspace;
     }
     return _result;
   }
@@ -61,30 +71,48 @@ class UserDetail extends $pb.GeneratedMessage {
   static UserDetail? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get email => $_getSZ(0);
+  $core.String get id => $_getSZ(0);
   @$pb.TagNumber(1)
-  set email($core.String v) { $_setString(0, v); }
+  set id($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasEmail() => $_has(0);
+  $core.bool hasId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearEmail() => clearField(1);
+  void clearId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get name => $_getSZ(1);
+  $core.String get email => $_getSZ(1);
   @$pb.TagNumber(2)
-  set name($core.String v) { $_setString(1, v); }
+  set email($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasName() => $_has(1);
+  $core.bool hasEmail() => $_has(1);
   @$pb.TagNumber(2)
-  void clearName() => clearField(2);
+  void clearEmail() => clearField(2);
 
   @$pb.TagNumber(3)
-  UserStatus get status => $_getN(2);
+  $core.String get name => $_getSZ(2);
   @$pb.TagNumber(3)
-  set status(UserStatus v) { setField(3, v); }
+  set name($core.String v) { $_setString(2, v); }
   @$pb.TagNumber(3)
-  $core.bool hasStatus() => $_has(2);
+  $core.bool hasName() => $_has(2);
   @$pb.TagNumber(3)
-  void clearStatus() => clearField(3);
+  void clearName() => clearField(3);
+
+  @$pb.TagNumber(4)
+  UserStatus get status => $_getN(3);
+  @$pb.TagNumber(4)
+  set status(UserStatus v) { setField(4, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasStatus() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearStatus() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get workspace => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set workspace($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasWorkspace() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearWorkspace() => clearField(5);
 }
 

@@ -15,5 +15,8 @@ pub use errors::*;
 mod user_detail; 
 pub use user_detail::*; 
 
+mod user_update; 
+pub use user_update::*; 
+
 mod event; 
 pub use event::*; 

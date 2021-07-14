@@ -1,4 +1,4 @@
-use crate::{entities::workspace::workspace_name::WorkspaceName, errors::*};
+use crate::{entities::workspace::parser::*, errors::*};
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
 

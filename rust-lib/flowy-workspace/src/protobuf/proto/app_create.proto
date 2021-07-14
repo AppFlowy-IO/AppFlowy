@@ -9,3 +9,9 @@ message CreateAppRequest {
 message ColorStyle {
     string theme_color = 1;
 }
+message AppDetail {
+    string id = 1;
+    string workspace_id = 2;
+    string name = 3;
+    string desc = 4;
+}

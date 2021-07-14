@@ -22,8 +22,7 @@ pub fn init_sdk() {
     let root_dir = root_dir();
 
     INIT.call_once(|| {
-        FlowySDK::init_log(&root_dir);
-        FlowySDK::init(&root_dir);
+        FlowySDK::new(&root_dir).construct();
     });
 }
 
@@ -43,16 +42,20 @@ fn root_dir() -> String {
     root_dir
 }
 
-pub struct EventTester<ErrType> {
+pub trait TesterConfig {
+    fn auto_sign_in() -> bool { false }
+}
+
+pub struct EventTester<Error> {
     inner_request: Option<ModuleRequest>,
     assert_status_code: Option<StatusCode>,
     response: Option<EventResponse>,
-    phantom: PhantomData<ErrType>,
+    err_phantom: PhantomData<Error>,
 }
 
-impl<ErrType> EventTester<ErrType>
+impl<Error> EventTester<Error>
 where
-    ErrType: FromBytes + Debug,
+    Error: FromBytes + Debug,
 {
     pub fn new<E>(event: E) -> Self
     where
@@ -64,11 +67,12 @@ where
             thread::current(),
             thread_id::get()
         );
+
         Self {
             inner_request: Some(ModuleRequest::new(event)),
             assert_status_code: None,
             response: None,
-            phantom: PhantomData,
+            err_phantom: PhantomData,
         }
     }
 
@@ -117,7 +121,7 @@ where
     {
         let response = self.response.unwrap();
         if response.status_code == StatusCode::Err {
-            let error = <Data<ErrType>>::try_from(response.payload)
+            let error = <Data<Error>>::try_from(response.payload)
                 .unwrap()
                 .into_inner();
             dbg!(&error);
@@ -127,10 +131,10 @@ where
         }
     }
 
-    pub fn error(self) -> ErrType {
+    pub fn error(self) -> Error {
         let response = self.response.unwrap();
         assert_eq!(response.status_code, StatusCode::Err);
-        <Data<ErrType>>::try_from(response.payload)
+        <Data<Error>>::try_from(response.payload)
             .unwrap()
             .into_inner()
     }

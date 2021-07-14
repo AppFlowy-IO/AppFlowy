@@ -49,6 +49,10 @@ pub enum UserErrorCode {
     PasswordInvalid      = 21,
     #[display(fmt = "User is invalid")]
     UserNameInvalid      = 22,
+    #[display(fmt = "User workspace is invalid")]
+    UserWorkspaceInvalid = 23,
+    #[display(fmt = "User id is invalid")]
+    UserIdInvalid        = 24,
 }
 
 impl std::default::Default for UserErrorCode {

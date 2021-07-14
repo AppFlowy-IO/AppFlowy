@@ -17,4 +17,6 @@ enum UserErrorCode {
     EmailInvalid = 20;
     PasswordInvalid = 21;
     UserNameInvalid = 22;
+    UserWorkspaceInvalid = 23;
+    UserIdInvalid = 24;
 }

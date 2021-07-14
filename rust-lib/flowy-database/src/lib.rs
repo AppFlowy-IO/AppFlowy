@@ -1,6 +1,9 @@
 pub mod schema;
 
 #[macro_use]
+pub mod macros;
+
+#[macro_use]
 extern crate diesel;
 pub use diesel::*;
 
@@ -16,6 +19,11 @@ pub use flowy_sqlite::{DBConnection, Database};
 use diesel_migrations::*;
 use flowy_sqlite::{Error, PoolConfig};
 use std::{fmt::Debug, io, path::Path};
+
+pub mod prelude {
+    pub use super::UserDatabaseConnection;
+    pub use diesel::{query_dsl::*, ExpressionMethods, RunQueryDsl};
+}
 
 embed_migrations!("../flowy-database/migrations/");
 pub const DB_NAME: &str = "flowy-database.db";

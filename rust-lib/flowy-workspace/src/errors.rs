@@ -43,6 +43,9 @@ pub enum WorkspaceErrorCode {
 
     #[display(fmt = "Database internal error")]
     DatabaseInternalError = 6,
+
+    #[display(fmt = "User internal error")]
+    UserInternalError    = 10,
 }
 
 impl std::default::Default for WorkspaceErrorCode {

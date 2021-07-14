@@ -17,6 +17,7 @@ class WorkspaceErrorCode extends $pb.ProtobufEnum {
   static const WorkspaceErrorCode AppIdInvalid = WorkspaceErrorCode._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppIdInvalid');
   static const WorkspaceErrorCode DatabaseConnectionFail = WorkspaceErrorCode._(5, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DatabaseConnectionFail');
   static const WorkspaceErrorCode DatabaseInternalError = WorkspaceErrorCode._(6, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DatabaseInternalError');
+  static const WorkspaceErrorCode UserInternalError = WorkspaceErrorCode._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserInternalError');
 
   static const $core.List<WorkspaceErrorCode> values = <WorkspaceErrorCode> [
     Unknown,
@@ -26,6 +27,7 @@ class WorkspaceErrorCode extends $pb.ProtobufEnum {
     AppIdInvalid,
     DatabaseConnectionFail,
     DatabaseInternalError,
+    UserInternalError,
   ];
 
   static final $core.Map<$core.int, WorkspaceErrorCode> _byValue = $pb.ProtobufEnum.initByValue(values);

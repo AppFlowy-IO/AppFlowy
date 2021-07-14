@@ -24,11 +24,13 @@ const UserErrorCode$json = const {
     const {'1': 'EmailInvalid', '2': 20},
     const {'1': 'PasswordInvalid', '2': 21},
     const {'1': 'UserNameInvalid', '2': 22},
+    const {'1': 'UserWorkspaceInvalid', '2': 23},
+    const {'1': 'UserIdInvalid', '2': 24},
   ],
 };
 
 /// Descriptor for `UserErrorCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List userErrorCodeDescriptor = $convert.base64Decode('Cg1Vc2VyRXJyb3JDb2RlEgsKB1Vua25vd24QABIWChJEYXRhYmFzZUluaXRGYWlsZWQQARIXChNEYXRhYmFzZVdyaXRlTG9ja2VkEAISFgoSRGF0YWJhc2VSZWFkTG9ja2VkEAMSGwoXRGF0YWJhc2VVc2VyRGlkTm90TWF0Y2gQBBIZChVEYXRhYmFzZUludGVybmFsRXJyb3IQBRITCg9Vc2VyTm90TG9naW5ZZXQQChIXChNSZWFkQ3VycmVudElkRmFpbGVkEAsSGAoUV3JpdGVDdXJyZW50SWRGYWlsZWQQDBIQCgxFbWFpbEludmFsaWQQFBITCg9QYXNzd29yZEludmFsaWQQFRITCg9Vc2VyTmFtZUludmFsaWQQFg==');
+final $typed_data.Uint8List userErrorCodeDescriptor = $convert.base64Decode('Cg1Vc2VyRXJyb3JDb2RlEgsKB1Vua25vd24QABIWChJEYXRhYmFzZUluaXRGYWlsZWQQARIXChNEYXRhYmFzZVdyaXRlTG9ja2VkEAISFgoSRGF0YWJhc2VSZWFkTG9ja2VkEAMSGwoXRGF0YWJhc2VVc2VyRGlkTm90TWF0Y2gQBBIZChVEYXRhYmFzZUludGVybmFsRXJyb3IQBRITCg9Vc2VyTm90TG9naW5ZZXQQChIXChNSZWFkQ3VycmVudElkRmFpbGVkEAsSGAoUV3JpdGVDdXJyZW50SWRGYWlsZWQQDBIQCgxFbWFpbEludmFsaWQQFBITCg9QYXNzd29yZEludmFsaWQQFRITCg9Vc2VyTmFtZUludmFsaWQQFhIYChRVc2VyV29ya3NwYWNlSW52YWxpZBAXEhEKDVVzZXJJZEludmFsaWQQGA==');
 @$core.Deprecated('Use userErrorDescriptor instead')
 const UserError$json = const {
   '1': 'UserError',

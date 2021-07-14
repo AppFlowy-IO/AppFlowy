@@ -1,3 +1,3 @@
-mod user_table;
+mod user;
 
-pub use user_table::*;
+pub use user::*;

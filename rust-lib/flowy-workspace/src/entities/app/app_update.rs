@@ -1,7 +1,10 @@
 use crate::{
     entities::{
-        app::{app_color_style::AppColorStyle, app_id::AppId, app_name::AppName, ColorStyle},
-        workspace::WorkspaceId,
+        app::{
+            parser::{AppColorStyle, AppId, AppName},
+            ColorStyle,
+        },
+        workspace::parser::WorkspaceId,
     },
     errors::{ErrorBuilder, WorkspaceError, WorkspaceErrorCode},
 };

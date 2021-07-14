@@ -16,8 +16,9 @@ const UserEvent$json = const {
     const {'1': 'SignIn', '2': 1},
     const {'1': 'SignUp', '2': 2},
     const {'1': 'SignOut', '2': 3},
+    const {'1': 'UpdateUser', '2': 4},
   ],
 };
 
 /// Descriptor for `UserEvent`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List userEventDescriptor = $convert.base64Decode('CglVc2VyRXZlbnQSDQoJR2V0U3RhdHVzEAASCgoGU2lnbkluEAESCgoGU2lnblVwEAISCwoHU2lnbk91dBAD');
+final $typed_data.Uint8List userEventDescriptor = $convert.base64Decode('CglVc2VyRXZlbnQSDQoJR2V0U3RhdHVzEAASCgoGU2lnbkluEAESCgoGU2lnblVwEAISCwoHU2lnbk91dBADEg4KClVwZGF0ZVVzZXIQBA==');

@@ -10,7 +10,7 @@ use std::{convert::TryInto, sync::Arc};
         email = %data.email,
     )
 )]
-pub async fn user_sign_in(
+pub async fn user_sign_in_handler(
     data: Data<SignInRequest>,
     session: ModuleData<Arc<UserSession>>,
 ) -> ResponseResult<UserDetail, UserError> {
@@ -28,7 +28,7 @@ pub async fn user_sign_in(
         name = %data.name,
     )
 )]
-pub async fn user_sign_up(
+pub async fn user_sign_up_handler(
     data: Data<SignUpRequest>,
     session: ModuleData<Arc<UserSession>>,
 ) -> ResponseResult<UserDetail, UserError> {
@@ -36,16 +36,4 @@ pub async fn user_sign_up(
     let user = session.sign_up(params).await?;
     let user_detail = UserDetail::from(user);
     response_ok(user_detail)
-}
-
-pub async fn user_get_status(
-    session: ModuleData<Arc<UserSession>>,
-) -> ResponseResult<UserDetail, UserError> {
-    let user_detail = session.current_user_detail().await?;
-    response_ok(user_detail)
-}
-
-pub async fn user_sign_out(session: ModuleData<Arc<UserSession>>) -> Result<(), UserError> {
-    let _ = session.sign_out().await?;
-    Ok(())
 }

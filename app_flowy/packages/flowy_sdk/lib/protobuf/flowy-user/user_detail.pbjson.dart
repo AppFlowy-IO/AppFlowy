@@ -24,11 +24,13 @@ final $typed_data.Uint8List userStatusDescriptor = $convert.base64Decode('CgpVc2
 const UserDetail$json = const {
   '1': 'UserDetail',
   '2': const [
-    const {'1': 'email', '3': 1, '4': 1, '5': 9, '10': 'email'},
-    const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
-    const {'1': 'status', '3': 3, '4': 1, '5': 14, '6': '.UserStatus', '10': 'status'},
+    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+    const {'1': 'email', '3': 2, '4': 1, '5': 9, '10': 'email'},
+    const {'1': 'name', '3': 3, '4': 1, '5': 9, '10': 'name'},
+    const {'1': 'status', '3': 4, '4': 1, '5': 14, '6': '.UserStatus', '10': 'status'},
+    const {'1': 'workspace', '3': 5, '4': 1, '5': 9, '10': 'workspace'},
   ],
 };
 
 /// Descriptor for `UserDetail`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List userDetailDescriptor = $convert.base64Decode('CgpVc2VyRGV0YWlsEhQKBWVtYWlsGAEgASgJUgVlbWFpbBISCgRuYW1lGAIgASgJUgRuYW1lEiMKBnN0YXR1cxgDIAEoDjILLlVzZXJTdGF0dXNSBnN0YXR1cw==');
+final $typed_data.Uint8List userDetailDescriptor = $convert.base64Decode('CgpVc2VyRGV0YWlsEg4KAmlkGAEgASgJUgJpZBIUCgVlbWFpbBgCIAEoCVIFZW1haWwSEgoEbmFtZRgDIAEoCVIEbmFtZRIjCgZzdGF0dXMYBCABKA4yCy5Vc2VyU3RhdHVzUgZzdGF0dXMSHAoJd29ya3NwYWNlGAUgASgJUgl3b3Jrc3BhY2U=');

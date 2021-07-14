@@ -1,9 +1,8 @@
-use crate::{
-    entities::workspace::{workspace_id::WorkspaceId, workspace_name::WorkspaceName},
-    errors::*,
-};
-use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
+
+use flowy_derive::ProtoBuf;
+
+use crate::{entities::workspace::parser::*, errors::*};
 
 #[derive(ProtoBuf, Default)]
 pub struct UpdateWorkspaceRequest {

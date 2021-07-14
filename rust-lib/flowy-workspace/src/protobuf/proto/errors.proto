@@ -12,4 +12,5 @@ enum WorkspaceErrorCode {
     AppIdInvalid = 4;
     DatabaseConnectionFail = 5;
     DatabaseInternalError = 6;
+    UserInternalError = 10;
 }

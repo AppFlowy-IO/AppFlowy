@@ -1,10 +1,10 @@
 use crate::{
-    entities::app::{ColorStyle, CreateAppParams, UpdateAppParams},
+    entities::app::{AppDetail, ColorStyle, CreateAppParams, UpdateAppParams},
     impl_sql_binary_expression,
     sql_tables::workspace::Workspace,
 };
 use diesel::sql_types::Binary;
-use flowy_database::schema::{app_table, app_table::dsl};
+use flowy_database::schema::app_table;
 use flowy_infra::{timestamp, uuid};
 use serde::{Deserialize, Serialize, __private::TryFrom};
 use std::convert::TryInto;
@@ -101,6 +101,17 @@ impl AppChangeset {
             workspace_id: params.workspace_id,
             name: params.name,
             desc: params.desc,
+        }
+    }
+}
+
+impl std::convert::Into<AppDetail> for App {
+    fn into(self) -> AppDetail {
+        AppDetail {
+            id: self.id,
+            workspace_id: self.workspace_id,
+            name: self.name,
+            desc: self.desc,
         }
     }
 }
