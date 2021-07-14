@@ -9,6 +9,9 @@ pub use workspace_update::*;
 mod app_create; 
 pub use app_create::*; 
 
+mod event; 
+pub use event::*; 
+
 mod workspace_create; 
 pub use workspace_create::*; 
 

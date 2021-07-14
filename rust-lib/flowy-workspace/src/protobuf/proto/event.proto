@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+enum WorkspaceEvent {
+    CreateWorkspace = 0;
+}

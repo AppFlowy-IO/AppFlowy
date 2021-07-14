@@ -1,5 +1,5 @@
 use crate::{
-    entities::workspace::{CreateWorkspaceParams, UpdateWorkspaceParams},
+    entities::workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceDetail},
     sql_tables::app::App,
 };
 use flowy_database::schema::{workspace_table, workspace_table::dsl};
@@ -58,6 +58,16 @@ impl WorkspaceChangeset {
             id: params.id,
             name: params.name,
             desc: params.desc,
+        }
+    }
+}
+
+impl std::convert::Into<WorkspaceDetail> for Workspace {
+    fn into(self) -> WorkspaceDetail {
+        WorkspaceDetail {
+            id: self.id,
+            name: self.name,
+            desc: self.desc,
         }
     }
 }

@@ -39,6 +39,6 @@ where
     io::Error::new(io::ErrorKind::NotConnected, msg)
 }
 
-pub trait UserDatabaseConnection {
+pub trait UserDatabaseConnection: Send + Sync {
     fn get_connection(&self) -> Result<DBConnection, String>;
 }

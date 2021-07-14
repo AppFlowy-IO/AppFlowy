@@ -5,10 +5,10 @@ use std::convert::TryInto;
 #[derive(ProtoBuf, Default)]
 pub struct CreateWorkspaceRequest {
     #[pb(index = 1)]
-    name: String,
+    pub name: String,
 
     #[pb(index = 2)]
-    desc: String,
+    pub desc: String,
 }
 
 pub struct CreateWorkspaceParams {
@@ -31,4 +31,16 @@ impl TryInto<CreateWorkspaceParams> for CreateWorkspaceRequest {
             desc: self.desc,
         })
     }
+}
+
+#[derive(ProtoBuf, Default, Debug)]
+pub struct WorkspaceDetail {
+    #[pb(index = 1)]
+    pub id: String,
+
+    #[pb(index = 2)]
+    pub name: String,
+
+    #[pb(index = 3)]
+    pub desc: String,
 }

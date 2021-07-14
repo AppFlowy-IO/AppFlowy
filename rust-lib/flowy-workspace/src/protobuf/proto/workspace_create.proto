@@ -4,3 +4,8 @@ message CreateWorkspaceRequest {
     string name = 1;
     string desc = 2;
 }
+message WorkspaceDetail {
+    string id = 1;
+    string name = 2;
+    string desc = 3;
+}

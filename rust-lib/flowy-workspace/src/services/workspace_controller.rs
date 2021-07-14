@@ -35,14 +35,19 @@ pub struct WorkspaceController {
 impl WorkspaceController {
     pub fn new(db: Arc<dyn UserDatabaseConnection>) -> Self { Self { db } }
 
-    pub fn save_workspace(&self, params: CreateWorkspaceParams) -> Result<(), WorkspaceError> {
+    pub fn save_workspace(
+        &self,
+        params: CreateWorkspaceParams,
+    ) -> Result<WorkspaceDetail, WorkspaceError> {
         let workspace = Workspace::new(params);
         let conn = self.get_connection()?;
+        let detail: WorkspaceDetail = workspace.clone().into();
+
         let _ = diesel::insert_into(workspace_table::table)
             .values(workspace)
             .execute(&*conn)?;
 
-        Ok(())
+        Ok(detail)
     }
 
     pub fn update_workspace(&self, params: UpdateWorkspaceParams) -> Result<(), WorkspaceError> {

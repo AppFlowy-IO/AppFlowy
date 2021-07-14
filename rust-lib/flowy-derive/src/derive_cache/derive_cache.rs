@@ -21,6 +21,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "UpdateAppRequest"
         | "UpdateWorkspaceRequest"
         | "CreateWorkspaceRequest"
+        | "WorkspaceDetail"
         | "WorkspaceError"
         | "FFIRequest"
         | "FFIResponse"
@@ -32,7 +33,8 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "SignInParams"
         | "UserError"
         => TypeCategory::Protobuf,
-        "WorkspaceErrorCode"
+        "WorkspaceEvent"
+        | "WorkspaceErrorCode"
         | "FFIStatusCode"
         | "UserStatus"
         | "UserEvent"

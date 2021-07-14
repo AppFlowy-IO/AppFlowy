@@ -10,8 +10,10 @@ pub struct ModuleConfig {
 
 pub fn build_modules(config: ModuleConfig) -> Vec<Module> {
     let user_session = Arc::new(UserSessionBuilder::new().root_dir(&config.root).build());
+    let controller = Arc::new(WorkspaceController::new(user_session.clone()));
 
-    let workspace_controller = WorkspaceController::new(user_session.clone());
-
-    vec![flowy_user::module::create(user_session)]
+    vec![
+        flowy_user::module::create(user_session),
+        flowy_workspace::module::create(controller),
+    ]
 }
