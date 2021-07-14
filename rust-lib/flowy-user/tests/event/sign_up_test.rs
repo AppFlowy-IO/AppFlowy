@@ -6,14 +6,14 @@ use serial_test::*;
 #[test]
 #[serial]
 fn sign_up_success() {
-    let _ = EventTester::new(SignOut).sync_send();
+    let _ = UserEventTester::new(SignOut).sync_send();
     let request = SignUpRequest {
         email: valid_email(),
         name: valid_name(),
         password: valid_password(),
     };
 
-    let _response = EventTester::new(SignUp).request(request).sync_send();
+    let _response = UserEventTester::new(SignUp).request(request).sync_send();
     // .parse::<SignUpResponse>();
     // dbg!(&response);
 }
@@ -28,10 +28,10 @@ fn sign_up_with_invalid_email() {
         };
 
         assert_eq!(
-            EventTester::new(SignUp)
+            UserEventTester::new(SignUp)
                 .request(request)
                 .sync_send()
-                .parse::<UserError>()
+                .error()
                 .code,
             UserErrorCode::EmailInvalid
         );
@@ -47,10 +47,10 @@ fn sign_up_with_invalid_password() {
         };
 
         assert_eq!(
-            EventTester::new(SignUp)
+            UserEventTester::new(SignUp)
                 .request(request)
                 .sync_send()
-                .parse::<UserError>()
+                .error()
                 .code,
             UserErrorCode::PasswordInvalid
         );

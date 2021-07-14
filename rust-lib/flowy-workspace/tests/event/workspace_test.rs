@@ -1,4 +1,4 @@
-use flowy_test::EventTester;
+use crate::helper::WorkspaceEventTester;
 use flowy_workspace::{
     entities::workspace::{CreateWorkspaceRequest, WorkspaceDetail},
     event::WorkspaceEvent::*,
@@ -6,13 +6,14 @@ use flowy_workspace::{
 };
 
 #[test]
+#[should_panic]
 fn workspace_create_test() {
     let request = CreateWorkspaceRequest {
-        name: "123workspace".to_owned(),
+        name: "".to_owned(),
         desc: "".to_owned(),
     };
 
-    let response = EventTester::new(CreateWorkspace)
+    let response = WorkspaceEventTester::new(CreateWorkspace)
         .request(request)
         .sync_send()
         .parse::<WorkspaceDetail>();

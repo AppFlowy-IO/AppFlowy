@@ -5,6 +5,7 @@ use std::{
     fmt::{Debug, Display},
     fs,
     hash::Hash,
+    marker::PhantomData,
     path::PathBuf,
     sync::Once,
     thread,
@@ -42,13 +43,17 @@ fn root_dir() -> String {
     root_dir
 }
 
-pub struct EventTester {
+pub struct EventTester<ErrType> {
     inner_request: Option<ModuleRequest>,
     assert_status_code: Option<StatusCode>,
     response: Option<EventResponse>,
+    phantom: PhantomData<ErrType>,
 }
 
-impl EventTester {
+impl<ErrType> EventTester<ErrType>
+where
+    ErrType: FromBytes + Debug,
+{
     pub fn new<E>(event: E) -> Self
     where
         E: Eq + Hash + Debug + Clone + Display,
@@ -63,6 +68,7 @@ impl EventTester {
             inner_request: Some(ModuleRequest::new(event)),
             assert_status_code: None,
             response: None,
+            phantom: PhantomData,
         }
     }
 
@@ -111,10 +117,22 @@ impl EventTester {
     {
         let response = self.response.unwrap();
         if response.status_code == StatusCode::Err {
-            dbg!(&response);
+            let error = <Data<ErrType>>::try_from(response.payload)
+                .unwrap()
+                .into_inner();
+            dbg!(&error);
+            panic!("")
+        } else {
+            <Data<R>>::try_from(response.payload).unwrap().into_inner()
         }
+    }
 
-        <Data<R>>::try_from(response.payload).unwrap().into_inner()
+    pub fn error(self) -> ErrType {
+        let response = self.response.unwrap();
+        assert_eq!(response.status_code, StatusCode::Err);
+        <Data<ErrType>>::try_from(response.payload)
+            .unwrap()
+            .into_inner()
     }
 }
 
