@@ -47,7 +47,7 @@ pub enum UserErrorCode {
     EmailInvalid         = 20,
     #[display(fmt = "Password format is not correct")]
     PasswordInvalid      = 21,
-    #[display(fmt = "User is invalid")]
+    #[display(fmt = "User name is invalid")]
     UserNameInvalid      = 22,
     #[display(fmt = "User workspace is invalid")]
     UserWorkspaceInvalid = 23,

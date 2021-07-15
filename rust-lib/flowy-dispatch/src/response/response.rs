@@ -1,11 +1,12 @@
 use crate::{
+    byte_trait::FromBytes,
     data::Data,
-    errors::DispatchError,
+    errors::{DispatchError, InternalError},
     request::{EventRequest, Payload},
     response::Responder,
 };
 use derivative::*;
-use std::{fmt, fmt::Formatter};
+use std::{convert::TryFrom, fmt, fmt::Formatter};
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 pub enum StatusCode {
@@ -28,6 +29,24 @@ impl EventResponse {
             payload: Payload::None,
             status_code,
             error: None,
+        }
+    }
+
+    pub fn parse<T, E>(self) -> Result<Result<T, E>, DispatchError>
+    where
+        T: FromBytes,
+        E: FromBytes,
+    {
+        if self.status_code == StatusCode::Err {
+            match <Data<E>>::try_from(self.payload) {
+                Ok(err) => Ok(Err(err.into_inner())),
+                Err(e) => Err(InternalError::new(e).into()),
+            }
+        } else {
+            match <Data<T>>::try_from(self.payload) {
+                Ok(a) => Ok(Ok(a.into_inner())),
+                Err(e) => Err(InternalError::new(e).into()),
+            }
         }
     }
 }

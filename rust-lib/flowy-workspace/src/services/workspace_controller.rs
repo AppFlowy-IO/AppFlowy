@@ -21,6 +21,8 @@ impl WorkspaceController {
             .values(workspace)
             .execute(&*conn)?;
 
+        self.user.set_current_workspace(&detail.id);
+
         Ok(detail)
     }
 

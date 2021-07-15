@@ -112,6 +112,18 @@ where
         let inner = self.inner.take().unwrap();
         inner.error()
     }
+
+    pub fn assert_error(mut self) -> Self {
+        let inner = self.inner.take().unwrap();
+        self.inner = Some(inner.assert_error());
+        self
+    }
+
+    pub fn assert_success(mut self) -> Self {
+        let inner = self.inner.take().unwrap();
+        self.inner = Some(inner.assert_success());
+        self
+    }
 }
 
 pub struct Tester<Error> {
@@ -167,11 +179,17 @@ where
         self
     }
 
+    pub fn assert_success(mut self) -> Self {
+        self.assert_status_code = Some(StatusCode::Ok);
+        self
+    }
+
     pub async fn async_send(mut self) -> Self {
+        assert_eq!(self.inner_request.is_some(), true, "must set event");
+
         let resp =
             EventDispatch::async_send(self.inner_request.take().unwrap(), |_| Box::pin(async {}))
                 .await;
-
         check(&resp, &self.assert_status_code);
         self.response = Some(resp);
         self
@@ -189,14 +207,10 @@ where
         R: FromBytes,
     {
         let response = self.response.unwrap();
-        if response.status_code == StatusCode::Err {
-            let error = <Data<Error>>::try_from(response.payload)
-                .unwrap()
-                .into_inner();
-            dbg!(&error);
-            panic!("")
-        } else {
-            <Data<R>>::try_from(response.payload).unwrap().into_inner()
+        match response.parse::<R, Error>() {
+            Ok(Ok(data)) => data,
+            Ok(Err(e)) => panic!("parse failed: {:?}", e),
+            Err(e) => panic!("Internal error: {:?}", e),
         }
     }
 

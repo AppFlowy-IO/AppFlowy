@@ -12,9 +12,12 @@ use std::sync::{Arc, RwLock};
 use crate::{
     entities::{SignInParams, SignUpParams, UpdateUserParams, UserDetail},
     errors::{ErrorBuilder, UserError, UserErrorCode},
+    event::UserEvent::GetStatus,
     services::user_session::{database::UserDB, user_server::UserServer},
     sql_tables::{User, UserChangeset},
 };
+use flowy_dispatch::prelude::{Data, EventDispatch, ModuleRequest};
+use std::convert::TryFrom;
 
 pub struct UserSessionConfig {
     root_dir: String,
@@ -108,8 +111,27 @@ impl UserSession {
         self.database.get_connection(&user_id)
     }
 
+    pub fn set_current_workspace() {
+        unimplemented!()
+
+        // let request = SignInRequest {
+        //     email: valid_email(),
+        //     password: valid_password(),
+        // };
+        //
+        // let user_detail = Tester::<UserError>::new(SignIn)
+        //     .request(request)
+        //     .sync_send()
+        //     .parse::<UserDetail>();
+        //
+        // user_detail
+    }
+
     #[allow(dead_code)]
     pub fn get_current_workspace(&self) -> Result<String, UserError> {
+        // let response = EventDispatch::sync_send(ModuleRequest::new(GetStatus));
+        // let user_detail =
+        // <Data<UserDetail>>::try_from(response.payload).unwrap().into_inner();
         let user_id = get_current_user_id()?;
         let conn = self.get_db_connection()?;
 
