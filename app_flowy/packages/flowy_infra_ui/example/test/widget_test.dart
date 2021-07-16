@@ -18,8 +18,12 @@ void main() {
     // Verify that platform version is retrieved.
     expect(
       find.byWidgetPredicate(
+<<<<<<< HEAD
         (Widget widget) =>
             widget is Text && widget.data!.startsWith('Running on:'),
+=======
+        (Widget widget) => widget is Text && widget.data!.startsWith('Running on:'),
+>>>>>>> [infra_ui][keyboard] Bump infra_ui to 1.20.0 and fix compiling issues
       ),
       findsOneWidget,
     );

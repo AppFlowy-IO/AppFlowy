@@ -1,5 +1,5 @@
-import 'package:example/keyboard/keyboard_screen.dart';
 import 'package:flutter/material.dart';
+import '../keyboard/keyboard_screen.dart';
 import 'demo_item.dart';
 
 class HomeScreen extends StatelessWidget {
