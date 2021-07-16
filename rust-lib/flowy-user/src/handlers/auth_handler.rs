@@ -15,7 +15,7 @@ pub async fn user_sign_in_handler(
     session: ModuleData<Arc<UserSession>>,
 ) -> ResponseResult<UserDetail, UserError> {
     let params: SignInParams = data.into_inner().try_into()?;
-    let user = session.sign_in(params).await?;
+    let user = session.sign_in(params)?;
     let user_detail = UserDetail::from(user);
     response_ok(user_detail)
 }
@@ -33,7 +33,7 @@ pub async fn user_sign_up_handler(
     session: ModuleData<Arc<UserSession>>,
 ) -> ResponseResult<UserDetail, UserError> {
     let params: SignUpParams = data.into_inner().try_into()?;
-    let user = session.sign_up(params).await?;
+    let user = session.sign_up(params)?;
     let user_detail = UserDetail::from(user);
     response_ok(user_detail)
 }

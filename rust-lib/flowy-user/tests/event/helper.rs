@@ -1,4 +1,4 @@
-use flowy_test::{TestBuilder, Tester};
+use flowy_test::prelude::TestBuilder;
 use flowy_user::errors::UserError;
 
 pub type UserTestBuilder = TestBuilder<UserError>;

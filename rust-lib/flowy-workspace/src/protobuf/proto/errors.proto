@@ -13,4 +13,5 @@ enum WorkspaceErrorCode {
     DatabaseConnectionFail = 5;
     DatabaseInternalError = 6;
     UserInternalError = 10;
+    UserNotLoginYet = 11;
 }

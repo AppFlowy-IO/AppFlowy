@@ -3,7 +3,7 @@ use flowy_user::prelude::*;
 
 use crate::flowy_server::{ArcFlowyServer, MockFlowyServer};
 use flowy_database::DBConnection;
-use flowy_user::errors::UserError;
+
 use flowy_workspace::prelude::*;
 use std::sync::Arc;
 
@@ -11,7 +11,7 @@ pub struct ModuleConfig {
     pub root: String,
 }
 
-pub fn build_modules(config: ModuleConfig, server: ArcFlowyServer) -> Vec<Module> {
+pub fn build_modules(config: ModuleConfig, _server: ArcFlowyServer) -> Vec<Module> {
     let user_session = Arc::new(
         UserSessionBuilder::new()
             .root_dir(&config.root)
@@ -33,14 +33,15 @@ pub struct WorkspaceUserImpl {
 }
 
 impl WorkspaceUser for WorkspaceUserImpl {
-    fn set_current_workspace(&self, id: &str) { unimplemented!() }
+    fn set_current_workspace(&self, id: &str) { UserSession::set_current_workspace(id); }
 
     fn get_current_workspace(&self) -> Result<String, WorkspaceError> {
-        self.user_session.get_current_workspace().map_err(|e| {
-            ErrorBuilder::new(WorkspaceErrorCode::UserInternalError)
+        let user_detail = self.user_session.user_detail().map_err(|e| {
+            ErrorBuilder::new(WorkspaceErrorCode::UserNotLoginYet)
                 .error(e)
                 .build()
-        })
+        })?;
+        Ok(user_detail.id)
     }
 
     fn db_connection(&self) -> Result<DBConnection, WorkspaceError> {

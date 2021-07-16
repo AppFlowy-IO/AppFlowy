@@ -11,9 +11,11 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 class WorkspaceEvent extends $pb.ProtobufEnum {
   static const WorkspaceEvent CreateWorkspace = WorkspaceEvent._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateWorkspace');
+  static const WorkspaceEvent GetWorkspaceUserDetail = WorkspaceEvent._(100, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetWorkspaceUserDetail');
 
   static const $core.List<WorkspaceEvent> values = <WorkspaceEvent> [
     CreateWorkspace,
+    GetWorkspaceUserDetail,
   ];
 
   static final $core.Map<$core.int, WorkspaceEvent> _byValue = $pb.ProtobufEnum.initByValue(values);

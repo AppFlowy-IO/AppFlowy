@@ -1,5 +1,5 @@
 use crate::helper::*;
-use flowy_user::{errors::UserErrorCode, event::UserEvent::*, prelude::*};
+use flowy_user::{event::UserEvent::*, prelude::*};
 use serial_test::*;
 
 #[test]

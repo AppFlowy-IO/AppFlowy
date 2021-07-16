@@ -6,7 +6,7 @@ use crate::{
     handlers::create_workspace,
     services::{AppController, WorkspaceController},
 };
-use flowy_database::{DBConnection, UserDatabaseConnection};
+use flowy_database::DBConnection;
 use std::sync::Arc;
 
 pub trait WorkspaceUser: Send + Sync {

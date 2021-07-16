@@ -46,6 +46,9 @@ pub enum WorkspaceErrorCode {
 
     #[display(fmt = "User internal error")]
     UserInternalError    = 10,
+
+    #[display(fmt = "User not login yet")]
+    UserNotLoginYet      = 11,
 }
 
 impl std::default::Default for WorkspaceErrorCode {

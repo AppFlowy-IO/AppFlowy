@@ -1,4 +1,4 @@
-use flowy_test::TestBuilder;
+use flowy_test::prelude::TestBuilder;
 use flowy_workspace::errors::WorkspaceError;
 
 pub type WorkspaceTestBuilder = TestBuilder<WorkspaceError>;

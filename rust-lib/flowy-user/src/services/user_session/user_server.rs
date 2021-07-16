@@ -1,9 +1,8 @@
 use crate::{
     entities::{SignInParams, SignUpParams, UserDetail},
-    errors::{ErrorBuilder, UserError, UserErrorCode},
+    errors::UserError,
     sql_tables::User,
 };
-use flowy_infra::uuid;
 
 pub trait UserServer {
     fn sign_up(&self, params: SignUpParams) -> Result<User, UserError>;
