@@ -5,7 +5,7 @@ abstract class ListItem {}
 abstract class DemoItem extends ListItem {
   String buildTitle();
 
-  void handleTap();
+  void handleTap(BuildContext context);
 }
 
 class SectionHeaderItem extends ListItem {

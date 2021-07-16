@@ -1,11 +1,13 @@
-import 'package:example/home/demo_item.dart';
+import 'package:example/keyboard/keyboard_screen.dart';
 import 'package:flutter/material.dart';
+import 'demo_item.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
   static List<ListItem> items = [
     SectionHeaderItem('Widget Demos'),
+    KeyboardItem(),
   ];
 
   @override
@@ -30,7 +32,7 @@ class HomeScreen extends StatelessWidget {
           } else if (item is DemoItem) {
             return ListTile(
               title: Text(item.buildTitle()),
-              onTap: item.handleTap,
+              onTap: () => item.handleTap(context),
             );
           }
           return const ListTile(
