@@ -2,7 +2,7 @@
 # See https://dart.dev/tools/pub/glossary#lockfile
 packages:
   animations:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: animations
       url: "https://pub.dartlang.org"
@@ -57,15 +57,22 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.1"
-  dartz:
+  cupertino_icons:
     dependency: "direct main"
+    description:
+      name: cupertino_icons
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.3"
+  dartz:
+    dependency: transitive
     description:
       name: dartz
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.10.0-nullsafety.2"
   equatable:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: equatable
       url: "https://pub.dartlang.org"
@@ -79,9 +86,16 @@ packages:
     source: hosted
     version: "1.2.0"
   flowy_infra:
+    dependency: transitive
+    description:
+      path: "../../flowy_infra"
+      relative: true
+    source: path
+    version: "0.0.1"
+  flowy_infra_ui:
     dependency: "direct main"
     description:
-      path: "../flowy_infra"
+      path: ".."
       relative: true
     source: path
     version: "0.0.1"
@@ -152,7 +166,7 @@ packages:
     source: hosted
     version: "1.8.0"
   provider:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: provider
       url: "https://pub.dartlang.org"
@@ -192,7 +206,7 @@ packages:
     source: hosted
     version: "1.1.0"
   styled_widget:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: styled_widget
       url: "https://pub.dartlang.org"
@@ -213,7 +227,7 @@ packages:
     source: hosted
     version: "0.3.0"
   textstyle_extensions:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: textstyle_extensions
       url: "https://pub.dartlang.org"
