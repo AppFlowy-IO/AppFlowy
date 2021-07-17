@@ -29,7 +29,7 @@ impl FlowySDK {
         FlowySDK::init_log(&self.root);
 
         tracing::info!("🔥 Root path: {}", self.root);
-        flowy_infra::kv::KVStore::init(&self.root);
+        let _ = flowy_infra::kv::KVStore::init(&self.root);
         FlowySDK::init_modules(&self.root, self.server);
     }
 

@@ -1,7 +1,4 @@
-use flowy_test::prelude::TestBuilder;
-use flowy_user::errors::UserError;
-
-pub type UserTestBuilder = TestBuilder<UserError>;
+pub use flowy_test::builder::UserTestBuilder;
 
 pub(crate) fn invalid_email_test_case() -> Vec<String> {
     // https://gist.github.com/cjaoude/fd9910626629b53c4d25

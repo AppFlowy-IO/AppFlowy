@@ -1,10 +1,3 @@
-use crate::{init_sdk, tester::Tester};
-use flowy_dispatch::prelude::*;
-use flowy_user::{
-    entities::{SignInRequest, UserDetail},
-    errors::UserError,
-    event::UserEvent::{SignIn, SignOut},
-};
 use std::{fs, path::PathBuf};
 
 pub fn root_dir() -> String {
@@ -21,21 +14,6 @@ pub fn root_dir() -> String {
         std::fs::create_dir_all(&root_dir).unwrap();
     }
     root_dir
-}
-
-pub fn new_user_after_login() -> UserDetail {
-    init_sdk();
-    let _ = EventDispatch::sync_send(ModuleRequest::new(SignOut));
-    let request = SignInRequest {
-        email: valid_email(),
-        password: valid_password(),
-    };
-
-    let mut tester = Tester::<UserError>::new(SignIn);
-    tester.set_request(request);
-    tester.sync_send();
-
-    tester.parse::<UserDetail>()
 }
 
 pub(crate) fn valid_email() -> String { "annie@appflowy.io".to_string() }

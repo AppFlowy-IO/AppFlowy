@@ -1,7 +1,14 @@
-use crate::init_sdk;
+use crate::{
+    helper::{valid_email, valid_password},
+    init_sdk,
+};
 use flowy_dispatch::prelude::*;
 pub use flowy_sdk::*;
-use flowy_user::prelude::*;
+use flowy_user::{
+    errors::UserError,
+    event::UserEvent::{SignIn, SignOut},
+    prelude::*,
+};
 use std::{
     convert::TryFrom,
     fmt::{Debug, Display},
@@ -89,32 +96,6 @@ where
     }
 }
 
-pub struct RandomUserTester<Error> {
-    context: TesterContext,
-    err_phantom: PhantomData<Error>,
-}
-
-impl<Error> RandomUserTester<Error>
-where
-    Error: FromBytes + Debug,
-{
-    pub fn new() -> Self {
-        Self {
-            context: TesterContext::default(),
-            err_phantom: PhantomData,
-        }
-    }
-}
-
-impl<Error> TesterTrait for RandomUserTester<Error>
-where
-    Error: FromBytes + Debug,
-{
-    type Error = Error;
-
-    fn context(&mut self) -> &mut TesterContext { &mut self.context }
-}
-
 pub struct TesterContext {
     request: Option<ModuleRequest>,
     status_code: StatusCode,
@@ -140,12 +121,20 @@ pub trait TesterTrait {
 
     fn assert_success(&mut self) { self.context().status_code = StatusCode::Ok; }
 
+    fn set_event<E>(&mut self, event: E)
+    where
+        E: Eq + Hash + Debug + Clone + Display,
+    {
+        init_sdk();
+        self.context().request = Some(ModuleRequest::new(event));
+    }
+
     fn set_payload<P>(&mut self, payload: P)
     where
         P: ToBytes,
     {
         let bytes = payload.into_bytes().unwrap();
-        let mut module_request = self.context().request.take().unwrap();
+        let module_request = self.context().request.take().unwrap();
         self.context().request = Some(module_request.payload(bytes));
     }
 
@@ -172,5 +161,24 @@ pub trait TesterTrait {
         <Data<Self::Error>>::try_from(response.payload)
             .unwrap()
             .into_inner()
+    }
+
+    fn login(&self) -> UserDetail {
+        init_sdk();
+        let _ = EventDispatch::sync_send(ModuleRequest::new(SignOut));
+        let request = SignInRequest {
+            email: valid_email(),
+            password: valid_password(),
+        };
+
+        let mut tester = Tester::<UserError>::new(SignIn);
+        tester.set_request(request);
+        tester.sync_send();
+        tester.parse::<UserDetail>()
+    }
+
+    fn logout(&self) {
+        init_sdk();
+        let _ = EventDispatch::sync_send(ModuleRequest::new(SignOut));
     }
 }
