@@ -1,5 +1,7 @@
 pub use flowy_test::builder::UserTestBuilder;
 
+pub use flowy_test::prelude::{random_valid_email, valid_password};
+
 pub(crate) fn invalid_email_test_case() -> Vec<String> {
     // https://gist.github.com/cjaoude/fd9910626629b53c4d25
     vec![
@@ -34,9 +36,5 @@ pub(crate) fn invalid_password_test_case() -> Vec<String> {
         .map(|s| s.to_string())
         .collect::<Vec<_>>()
 }
-
-pub(crate) fn valid_email() -> String { "annie@appflowy.io".to_string() }
-
-pub(crate) fn valid_password() -> String { "HelloWorld!123".to_string() }
 
 pub(crate) fn valid_name() -> String { "AppFlowy".to_string() }

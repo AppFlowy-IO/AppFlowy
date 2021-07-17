@@ -6,7 +6,7 @@ use serial_test::*;
 #[serial]
 fn sign_in_success() {
     let request = SignInRequest {
-        email: valid_email(),
+        email: random_valid_email(),
         password: valid_password(),
     };
 
@@ -43,7 +43,7 @@ fn sign_in_with_invalid_email() {
 fn sign_in_with_invalid_password() {
     for password in invalid_password_test_case() {
         let request = SignInRequest {
-            email: valid_email(),
+            email: random_valid_email(),
             password,
         };
 

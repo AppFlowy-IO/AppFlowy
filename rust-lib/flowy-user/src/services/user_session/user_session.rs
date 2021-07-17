@@ -143,7 +143,7 @@ impl UserSession {
     }
 }
 
-fn current_user_id() -> Result<String, UserError> {
+pub fn current_user_id() -> Result<String, UserError> {
     match KVStore::get_str(USER_ID_DISK_CACHE_KEY) {
         None => Err(ErrorBuilder::new(UserErrorCode::UserNotLoginYet).build()),
         Some(user_id) => Ok(user_id),

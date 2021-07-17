@@ -1,3 +1,4 @@
+use flowy_infra::uuid;
 use std::{fs, path::PathBuf};
 
 pub fn root_dir() -> String {
@@ -16,6 +17,8 @@ pub fn root_dir() -> String {
     root_dir
 }
 
-pub(crate) fn valid_email() -> String { "annie@appflowy.io".to_string() }
+pub fn random_valid_email() -> String { format!("{}@appflowy.io", uuid()) }
 
-pub(crate) fn valid_password() -> String { "HelloWorld!123".to_string() }
+pub fn valid_email() -> String { "annie@appflowy.io".to_string() }
+
+pub fn valid_password() -> String { "HelloWorld!123".to_string() }

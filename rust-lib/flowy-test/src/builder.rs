@@ -5,7 +5,10 @@ use std::{
     hash::Hash,
 };
 
-use crate::tester::{TesterContext, TesterTrait};
+use crate::{
+    helper::valid_email,
+    tester::{TesterContext, TesterTrait},
+};
 use flowy_user::errors::UserError;
 use flowy_workspace::errors::WorkspaceError;
 use std::marker::PhantomData;
@@ -114,7 +117,9 @@ where
 {
     type Error = Error;
 
-    fn context(&mut self) -> &mut TesterContext { &mut self.context }
+    fn mut_context(&mut self) -> &mut TesterContext { &mut self.context }
+
+    fn context(&self) -> &TesterContext { &self.context }
 }
 
 pub struct FixedUserTester<Error> {
@@ -128,7 +133,7 @@ where
 {
     pub fn new() -> Self {
         Self {
-            context: TesterContext::default(),
+            context: TesterContext::new(valid_email()),
             err_phantom: PhantomData,
         }
     }
@@ -140,5 +145,7 @@ where
 {
     type Error = Error;
 
-    fn context(&mut self) -> &mut TesterContext { &mut self.context }
+    fn mut_context(&mut self) -> &mut TesterContext { &mut self.context }
+
+    fn context(&self) -> &TesterContext { &self.context }
 }

@@ -17,7 +17,7 @@ fn user_status_get_failed_before_login() {
 #[serial]
 fn user_status_get_success_after_login() {
     let request = SignInRequest {
-        email: valid_email(),
+        email: random_valid_email(),
         password: valid_password(),
     };
 

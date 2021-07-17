@@ -10,14 +10,13 @@ pub type ArcFlowyServer = std::sync::Arc<dyn FlowyServer>;
 
 pub trait FlowyServer: UserServer {}
 
-pub struct MockFlowyServer {}
+pub struct FlowyServerMocker {}
 
-impl FlowyServer for MockFlowyServer {}
+impl FlowyServer for FlowyServerMocker {}
 
-impl UserServer for MockFlowyServer {
+impl UserServer for FlowyServerMocker {
     fn sign_up(&self, params: SignUpParams) -> Result<User, UserError> {
-        // let user_id = "9527".to_owned();
-        let user_id = uuid();
+        let user_id = params.email.clone();
         Ok(User::new(
             user_id,
             params.name,
@@ -27,7 +26,7 @@ impl UserServer for MockFlowyServer {
     }
 
     fn sign_in(&self, params: SignInParams) -> Result<User, UserError> {
-        let user_id = uuid();
+        let user_id = params.email.clone();
         Ok(User::new(
             user_id,
             "".to_owned(),

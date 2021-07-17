@@ -7,7 +7,7 @@ use serial_test::*;
 fn sign_up_success() {
     let _ = UserTestBuilder::new().event(SignOut).sync_send();
     let request = SignUpRequest {
-        email: valid_email(),
+        email: random_valid_email(),
         name: valid_name(),
         password: valid_password(),
     };
@@ -44,7 +44,7 @@ fn sign_up_with_invalid_email() {
 fn sign_up_with_invalid_password() {
     for password in invalid_password_test_case() {
         let request = SignUpRequest {
-            email: valid_email(),
+            email: random_valid_email(),
             name: valid_name(),
             password,
         };

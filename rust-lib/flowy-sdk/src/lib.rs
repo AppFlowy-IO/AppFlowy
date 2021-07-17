@@ -1,7 +1,7 @@
 mod flowy_server;
 pub mod module;
 
-use crate::flowy_server::{ArcFlowyServer, MockFlowyServer};
+pub use crate::flowy_server::{ArcFlowyServer, FlowyServerMocker};
 use flowy_dispatch::prelude::*;
 use module::build_modules;
 pub use module::*;
@@ -18,19 +18,21 @@ pub struct FlowySDK {
 
 impl FlowySDK {
     pub fn new(root: &str) -> Self {
-        let server = Arc::new(MockFlowyServer {});
+        let server = Arc::new(FlowyServerMocker {});
         Self {
             root: root.to_owned(),
             server,
         }
     }
 
-    pub fn construct(self) {
-        FlowySDK::init_log(&self.root);
+    pub fn construct(self) { FlowySDK::construct_with(&self.root, self.server.clone()) }
 
-        tracing::info!("🔥 Root path: {}", self.root);
-        let _ = flowy_infra::kv::KVStore::init(&self.root);
-        FlowySDK::init_modules(&self.root, self.server);
+    pub fn construct_with(root: &str, server: ArcFlowyServer) {
+        FlowySDK::init_log(root);
+
+        tracing::info!("🔥 Root path: {}", root);
+        let _ = flowy_infra::kv::KVStore::init(root);
+        FlowySDK::init_modules(root, server);
     }
 
     fn init_log(directory: &str) {
