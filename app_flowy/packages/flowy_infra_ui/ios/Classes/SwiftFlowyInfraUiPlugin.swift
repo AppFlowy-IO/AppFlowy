@@ -6,6 +6,8 @@ public class SwiftFlowyInfraUiPlugin: NSObject, FlutterPlugin {
     enum Constant {
         static let infraUIMethodChannelName = "flowy_infra_ui_method"
         static let infraUIKeyboardEventChannelName = "flowy_infra_ui_event/keyboard"
+
+        static let infraUIMethodGetPlatformVersion = "getPlatformVersion"
     }
 
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -26,8 +28,10 @@ public class SwiftFlowyInfraUiPlugin: NSObject, FlutterPlugin {
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
+        case Constant.infraUIMethodGetPlatformVersion:
+            result("iOS " + UIDevice.current.systemVersion)
         default:
-            assertionFailure("Unsupported method \(call.method)")
+            result(FlutterMethodNotImplemented)
         }
     }
 
