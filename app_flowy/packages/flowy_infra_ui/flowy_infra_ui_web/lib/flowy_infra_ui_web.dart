@@ -1,5 +1,6 @@
 library flowy_infra_ui_web;
 
+import 'dart:html' as html show window;
 import 'package:flowy_infra_ui_platform_interface/flowy_infra_ui_platform_interface.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
@@ -18,6 +19,7 @@ class FlowyInfraUIPlugin extends FlowyInfraUIPlatform {
 
   @override
   Future<String?> getPlatformVersion() async {
-    return 'Web: unknow version';
+    final version = html.window.navigator.userAgent;
+    return Future.value(version);
   }
 }

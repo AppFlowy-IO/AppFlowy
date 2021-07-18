@@ -16,13 +16,13 @@
 
 namespace {
 
-class FlowyInfraUiPlugin : public flutter::Plugin {
+class FlowyInfraUIPlugin : public flutter::Plugin {
  public:
   static void RegisterWithRegistrar(flutter::PluginRegistrarWindows *registrar);
 
-  FlowyInfraUiPlugin();
+  FlowyInfraUIPlugin();
 
-  virtual ~FlowyInfraUiPlugin();
+  virtual ~FlowyInfraUIPlugin();
 
  private:
   // Called when a method is called on this plugin's channel from Dart.
@@ -32,14 +32,14 @@ class FlowyInfraUiPlugin : public flutter::Plugin {
 };
 
 // static
-void FlowyInfraUiPlugin::RegisterWithRegistrar(
+void FlowyInfraUIPlugin::RegisterWithRegistrar(
     flutter::PluginRegistrarWindows *registrar) {
   auto channel =
       std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
           registrar->messenger(), "flowy_infra_ui",
           &flutter::StandardMethodCodec::GetInstance());
 
-  auto plugin = std::make_unique<FlowyInfraUiPlugin>();
+  auto plugin = std::make_unique<FlowyInfraUIPlugin>();
 
   channel->SetMethodCallHandler(
       [plugin_pointer = plugin.get()](const auto &call, auto result) {
@@ -49,11 +49,11 @@ void FlowyInfraUiPlugin::RegisterWithRegistrar(
   registrar->AddPlugin(std::move(plugin));
 }
 
-FlowyInfraUiPlugin::FlowyInfraUiPlugin() {}
+FlowyInfraUIPlugin::FlowyInfraUIPlugin() {}
 
-FlowyInfraUiPlugin::~FlowyInfraUiPlugin() {}
+FlowyInfraUIPlugin::~FlowyInfraUIPlugin() {}
 
-void FlowyInfraUiPlugin::HandleMethodCall(
+void FlowyInfraUIPlugin::HandleMethodCall(
     const flutter::MethodCall<flutter::EncodableValue> &method_call,
     std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
   if (method_call.method_name().compare("getPlatformVersion") == 0) {
@@ -74,9 +74,9 @@ void FlowyInfraUiPlugin::HandleMethodCall(
 
 }  // namespace
 
-void FlowyInfraUiPluginRegisterWithRegistrar(
+void FlowyInfraUIPluginRegisterWithRegistrar(
     FlutterDesktopPluginRegistrarRef registrar) {
-  FlowyInfraUiPlugin::RegisterWithRegistrar(
+  FlowyInfraUIPlugin::RegisterWithRegistrar(
       flutter::PluginRegistrarManager::GetInstance()
           ->GetRegistrar<flutter::PluginRegistrarWindows>(registrar));
 }

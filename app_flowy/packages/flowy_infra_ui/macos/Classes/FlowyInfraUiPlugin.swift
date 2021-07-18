@@ -1,10 +1,10 @@
 import Cocoa
 import FlutterMacOS
 
-public class FlowyInfraUiPlugin: NSObject, FlutterPlugin {
+public class FlowyInfraUIPlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "flowy_infra_ui", binaryMessenger: registrar.messenger)
-    let instance = FlowyInfraUiPlugin()
+    let instance = FlowyInfraUIPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
 

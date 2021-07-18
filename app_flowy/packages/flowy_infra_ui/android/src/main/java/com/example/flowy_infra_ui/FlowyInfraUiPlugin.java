@@ -15,8 +15,8 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 
-/** FlowyInfraUiPlugin */
-public class FlowyInfraUiPlugin implements FlutterPlugin, ActivityAware, MethodCallHandler {
+/** FlowyInfraUIPlugin */
+public class FlowyInfraUIPlugin implements FlutterPlugin, ActivityAware, MethodCallHandler {
 
   // MARK: - Constant
   public static final String INFRA_UI_METHOD_CHANNEL_NAME = "flowy_infra_ui_method";

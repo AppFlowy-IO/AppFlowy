@@ -1,7 +1,7 @@
 import Flutter
 import UIKit
 
-public class SwiftFlowyInfraUiPlugin: NSObject, FlutterPlugin {
+public class SwiftFlowyInfraUIPlugin: NSObject, FlutterPlugin {
 
     enum Constant {
         static let infraUIMethodChannelName = "flowy_infra_ui_method"
@@ -11,7 +11,7 @@ public class SwiftFlowyInfraUiPlugin: NSObject, FlutterPlugin {
     }
 
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let instance = SwiftFlowyInfraUiPlugin()
+        let instance = SwiftFlowyInfraUIPlugin()
 
         let methodChannel = FlutterMethodChannel(
             name: Constant.infraUIMethodChannelName,

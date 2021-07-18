@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../flowy_infra_ui_platform_interface.dart';
 
-// ignore: constant_identifier_names
+// ignore_for_file: constant_identifier_names
 const INFRA_UI_METHOD_CHANNEL_NAME = 'flowy_infra_ui_method';
 const INFRA_UI_KEYBOARD_EVENT_CHANNEL_NAME = 'flowy_infra_ui_event/keyboard';
 const INFRA_UI_METHOD_GET_PLATFORM_VERSION = 'getPlatformVersion';
