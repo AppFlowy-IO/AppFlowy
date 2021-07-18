@@ -1,4 +1,4 @@
-name: keyboard_platform_interface
+name: flowy_infra_ui_platform_interface
 description: A new Flutter package project.
 version: 0.0.1
 homepage:
@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-    
+
   plugin_platform_interface: ^2.0.0
 
 dev_dependencies:

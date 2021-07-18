@@ -50,6 +50,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.0"
+  flowy_infra_ui_platform_interface:
+    dependency: "direct main"
+    description:
+      path: "../flowy_infra_ui_platform_interface"
+      relative: true
+    source: path
+    version: "0.0.1"
   flutter:
     dependency: transitive
     description: flutter
@@ -79,13 +86,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.6.3"
-  keyboard_platform_interface:
-    dependency: "direct main"
-    description:
-      path: "../keyboard_platform_interface"
-      relative: true
-    source: path
-    version: "0.0.1"
   lints:
     dependency: transitive
     description:

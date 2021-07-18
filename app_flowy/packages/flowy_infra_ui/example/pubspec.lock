@@ -99,6 +99,20 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  flowy_infra_ui_platform_interface:
+    dependency: transitive
+    description:
+      path: "../flowy_infra_ui_platform_interface"
+      relative: true
+    source: path
+    version: "0.0.1"
+  flowy_infra_ui_web:
+    dependency: transitive
+    description:
+      path: "../flowy_infra_ui_web"
+      relative: true
+    source: path
+    version: "0.0.1"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -177,6 +191,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.8.0"
+  plugin_platform_interface:
+    dependency: transitive
+    description:
+      name: plugin_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.1"
   provider:
     dependency: "direct main"
     description:

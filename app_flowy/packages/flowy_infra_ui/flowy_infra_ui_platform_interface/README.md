@@ -1,4 +1,4 @@
-# keyboard_web
+# flowy_infra_ui_platform_interface
 
 A new Flutter package project.
 

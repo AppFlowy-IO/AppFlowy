@@ -4,9 +4,9 @@
 
 #include "generated_plugin_registrant.h"
 
-#include <flowy_infra_ui/flowy_infra_ui_plugin.h>
+#include <flowy_infra_ui/flowy_infra_u_i_plugin.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
-  FlowyInfraUiPluginRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("FlowyInfraUiPlugin"));
+  FlowyInfraUIPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("FlowyInfraUIPlugin"));
 }
