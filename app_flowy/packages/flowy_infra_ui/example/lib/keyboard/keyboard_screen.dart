@@ -45,8 +45,15 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 36),
             child: Center(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Keyboard Visible: $_isKeyboardVisible'),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    child: Text(
+                      'Keyboard Visible: $_isKeyboardVisible',
+                      style: const TextStyle(fontSize: 24.0),
+                    ),
+                  ),
                   TextField(
                     style: const TextStyle(fontSize: 20),
                     controller: TextEditingController(text: 'Test'),
