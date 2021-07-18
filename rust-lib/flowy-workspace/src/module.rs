@@ -7,10 +7,11 @@ use crate::{
     services::{AppController, WorkspaceController},
 };
 use flowy_database::DBConnection;
+use futures_core::future::BoxFuture;
 use std::sync::Arc;
 
 pub trait WorkspaceUser: Send + Sync {
-    fn set_current_workspace(&self, id: &str);
+    fn set_current_workspace(&self, id: &str) -> BoxFuture<()>;
     fn get_current_workspace(&self) -> Result<String, WorkspaceError>;
     fn db_connection(&self) -> Result<DBConnection, WorkspaceError>;
 }

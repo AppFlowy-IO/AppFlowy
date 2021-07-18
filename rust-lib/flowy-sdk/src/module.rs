@@ -1,11 +1,10 @@
-use flowy_dispatch::prelude::Module;
-use flowy_user::prelude::*;
-
 use crate::flowy_server::{ArcFlowyServer, FlowyServerMocker};
 use flowy_database::DBConnection;
-
+use flowy_dispatch::prelude::Module;
+use flowy_user::{errors::UserError, prelude::*};
 use flowy_workspace::prelude::*;
-use std::sync::Arc;
+use futures_core::future::BoxFuture;
+use std::{pin::Pin, sync::Arc};
 
 pub struct ModuleConfig {
     pub root: String,
@@ -33,7 +32,18 @@ pub struct WorkspaceUserImpl {
 }
 
 impl WorkspaceUser for WorkspaceUserImpl {
-    fn set_current_workspace(&self, id: &str) { UserSession::set_current_workspace(id); }
+    fn set_current_workspace(&self, workspace_id: &str) -> BoxFuture<()> {
+        let user_session = self.user_session.clone();
+        let workspace_id = workspace_id.to_owned();
+        Box::pin(async move {
+            match user_session.set_current_workspace(&workspace_id).await {
+                Ok(_) => {},
+                Err(e) => {
+                    log::error!("Set current workspace error: {:?}", e);
+                },
+            }
+        })
+    }
 
     fn get_current_workspace(&self) -> Result<String, WorkspaceError> {
         let user_detail = self.user_session.user_detail().map_err(|e| {

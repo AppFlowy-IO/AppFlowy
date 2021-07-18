@@ -34,6 +34,7 @@ pub struct UserSession {
     database: UserDB,
     config: UserSessionConfig,
     server: Arc<dyn UserServer + Send + Sync>,
+    user_id: RwLock<Option<String>>,
 }
 
 impl UserSession {
@@ -46,28 +47,30 @@ impl UserSession {
             database: db,
             config,
             server,
+            user_id: RwLock::new(None),
         }
     }
 
     pub fn get_db_connection(&self) -> Result<DBConnection, UserError> {
-        let user_id = get_current_user_id()?;
+        let user_id = self.get_user_id()?;
         self.database.get_connection(&user_id)
     }
 
     pub fn sign_in(&self, params: SignInParams) -> Result<User, UserError> {
         let user = self.server.sign_in(params)?;
-        let _ = set_current_user_id(Some(user.id.clone()))?;
+        let _ = self.set_user_id(Some(user.id.clone()))?;
+
         self.save_user(user)
     }
 
     pub fn sign_up(&self, params: SignUpParams) -> Result<User, UserError> {
         let user = self.server.sign_up(params)?;
-        let _ = set_current_user_id(Some(user.id.clone()))?;
+        let _ = self.set_user_id(Some(user.id.clone()))?;
         self.save_user(user)
     }
 
     pub fn sign_out(&self) -> Result<(), UserError> {
-        let user_id = current_user_id()?;
+        let user_id = self.get_user_id()?;
         let conn = self.get_db_connection()?;
         let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&user_id))).execute(&*conn)?;
 
@@ -76,7 +79,7 @@ impl UserSession {
             Err(_) => {},
         }
         let _ = self.database.close_user_db(&user_id)?;
-        let _ = set_current_user_id(None)?;
+        let _ = self.set_user_id(None)?;
 
         Ok(())
     }
@@ -100,7 +103,7 @@ impl UserSession {
     }
 
     pub fn user_detail(&self) -> Result<UserDetail, UserError> {
-        let user_id = current_user_id()?;
+        let user_id = self.get_user_id()?;
         let conn = self.get_db_connection()?;
 
         let user = dsl::user_table
@@ -118,16 +121,49 @@ impl UserSession {
 
         Ok(UserDetail::from(user))
     }
-}
 
-impl UserSession {
-    pub async fn set_current_workspace(workspace: &str) -> Result<(), UserError> {
-        let user_id = current_user_id()?;
+    pub fn set_user_id(&self, user_id: Option<String>) -> Result<(), UserError> {
+        log::trace!("Set user id: {:?}", user_id);
+        KVStore::set_str(USER_ID_CACHE_KEY, user_id.clone().unwrap_or("".to_owned()));
+        match self.user_id.write() {
+            Ok(mut write_guard) => {
+                *write_guard = user_id;
+                Ok(())
+            },
+            Err(e) => Err(ErrorBuilder::new(UserErrorCode::WriteCurrentIdFailed)
+                .error(e)
+                .build()),
+        }
+    }
+
+    pub fn get_user_id(&self) -> Result<String, UserError> {
+        let read_guard = self.user_id.read().map_err(|e| {
+            ErrorBuilder::new(UserErrorCode::ReadCurrentIdFailed)
+                .error(e)
+                .build()
+        })?;
+
+        let mut user_id = (*read_guard).clone();
+        drop(read_guard);
+
+        if user_id.is_none() {
+            user_id = KVStore::get_str(USER_ID_CACHE_KEY);
+            self.set_user_id(user_id.clone());
+        }
+
+        match user_id {
+            None => Err(ErrorBuilder::new(UserErrorCode::UserNotLoginYet).build()),
+            Some(user_id) => Ok(user_id),
+        }
+    }
+
+    pub async fn set_current_workspace(&self, workspace_id: &str) -> Result<(), UserError> {
+        let user_id = self.get_user_id()?;
         let payload: Vec<u8> = UpdateUserRequest {
             id: user_id,
             name: None,
             email: None,
-            workspace: Some(workspace.to_owned()),
+            workspace: Some(workspace_id.to_owned()),
             password: None,
         }
         .into_bytes()
@@ -144,7 +180,7 @@ impl UserSession {
 }
 
 pub fn current_user_id() -> Result<String, UserError> {
-    match KVStore::get_str(USER_ID_DISK_CACHE_KEY) {
+    match KVStore::get_str(USER_ID_CACHE_KEY) {
         None => Err(ErrorBuilder::new(UserErrorCode::UserNotLoginYet).build()),
         Some(user_id) => Ok(user_id),
     }
@@ -156,48 +192,4 @@ impl UserDatabaseConnection for UserSession {
     }
 }
 
-const USER_ID_DISK_CACHE_KEY: &str = "user_id";
-lazy_static! {
-    pub static ref CURRENT_USER_ID: RwLock<Option<String>> = RwLock::new(None);
-}
-
-pub(crate) fn get_current_user_id() -> Result<String, UserError> {
-    let read_guard = CURRENT_USER_ID.read().map_err(|e| {
-        ErrorBuilder::new(UserErrorCode::ReadCurrentIdFailed)
-            .error(e)
-            .build()
-    })?;
-
-    let mut user_id = (*read_guard).clone();
-    // explicitly drop the read_guard in case of dead lock
-    drop(read_guard);
-
-    if user_id.is_none() {
-        user_id = KVStore::get_str(USER_ID_DISK_CACHE_KEY);
-        *(CURRENT_USER_ID.write().unwrap()) = user_id.clone();
-    }
-
-    if user_id.is_none() {
-        return Err(ErrorBuilder::new(UserErrorCode::UserNotLoginYet).build());
-    }
-
-    match user_id {
-        None => Err(ErrorBuilder::new(UserErrorCode::UserNotLoginYet).build()),
-        Some(user_id) => Ok(user_id),
-    }
-}
-
-pub(crate) fn set_current_user_id(user_id: Option<String>) -> Result<(), UserError> {
-    KVStore::set_str(
-        USER_ID_DISK_CACHE_KEY,
-        user_id.clone().unwrap_or("".to_owned()),
-    );
-
-    let mut current_user_id = CURRENT_USER_ID.write().map_err(|e| {
-        ErrorBuilder::new(UserErrorCode::WriteCurrentIdFailed)
-            .error(e)
-            .build()
-    })?;
-    *current_user_id = user_id;
-    Ok(())
-}
+const USER_ID_CACHE_KEY: &str = "user_id";

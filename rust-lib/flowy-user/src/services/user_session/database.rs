@@ -28,7 +28,11 @@ impl UserDB {
     }
 
     fn open_user_db(&self, user_id: &str) -> Result<(), UserError> {
-        set_user_db_init(true, user_id);
+        if user_id.is_empty() {
+            return Err(ErrorBuilder::new(UserErrorCode::DatabaseInitFailed)
+                .msg("user id is empty")
+                .build());
+        }
 
         let dir = format!("{}/{}", self.db_dir, user_id);
         let db = flowy_database::init(&dir).map_err(|e| {
@@ -48,21 +52,20 @@ impl UserDB {
     }
 
     pub(crate) fn close_user_db(&self, user_id: &str) -> Result<(), UserError> {
-        set_user_db_init(false, user_id);
-
         let mut db_map = DB_MAP.write().map_err(|e| {
             ErrorBuilder::new(UserErrorCode::DatabaseWriteLocked)
                 .msg(format!("Close user db failed. {:?}", e))
                 .build()
         })?;
-
+        set_user_db_init(false, user_id);
         db_map.remove(user_id);
         Ok(())
     }
 
     pub(crate) fn get_connection(&self, user_id: &str) -> Result<DBConnection, UserError> {
         if !is_user_db_init(user_id) {
-            let _ = self.open_user_db(user_id);
+            let _ = self.open_user_db(user_id)?;
+            set_user_db_init(true, user_id);
         }
 
         let db_map = DB_MAP.read().map_err(|e| {
@@ -73,7 +76,7 @@ impl UserDB {
 
         match db_map.get(user_id) {
             None => Err(ErrorBuilder::new(UserErrorCode::DatabaseInitFailed)
-                .msg("Database is not initialization")
+                .msg("Get connection failed. The database is not initialization")
                 .build()),
             Some(database) => Ok(database.get_connection()?),
         }
@@ -86,10 +89,8 @@ lazy_static! {
 
 static INIT_FLAG_MAP: Lazy<Mutex<HashMap<String, bool>>> = Lazy::new(|| Mutex::new(HashMap::new()));
 fn set_user_db_init(is_init: bool, user_id: &str) {
-    INIT_FLAG_MAP
-        .lock()
-        .entry(user_id.to_owned())
-        .or_insert_with(|| is_init);
+    let mut flag_map = INIT_FLAG_MAP.lock();
+    flag_map.insert(user_id.to_owned(), is_init);
 }
 
 fn is_user_db_init(user_id: &str) -> bool {

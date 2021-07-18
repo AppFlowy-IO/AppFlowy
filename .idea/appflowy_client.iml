@@ -86,6 +86,9 @@
       <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_infra_ui/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_infra_ui/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_infra_ui/build" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_infra_ui/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_infra_ui/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/app_flowy/packages/flowy_infra_ui/example/.pub" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
