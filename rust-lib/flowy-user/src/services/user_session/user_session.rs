@@ -75,7 +75,7 @@ impl UserSession {
             Ok(_) => {},
             Err(_) => {},
         }
-        let _ = self.database.close_user_db()?;
+        let _ = self.database.close_user_db(&user_id)?;
         let _ = set_current_user_id(None)?;
 
         Ok(())
