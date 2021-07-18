@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../home/home_screen.dart';
+import 'home/home_screen.dart';
 
 void main() {
   runApp(const ExampleApp());
@@ -10,13 +10,9 @@ class ExampleApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< HEAD
-    return const MaterialApp();
-=======
     return const MaterialApp(
       title: "Flowy Infra Title",
       home: HomeScreen(),
     );
->>>>>>> [infra_ui][keyboard] (WIP) Add demo proj for infra ui
   }
 }

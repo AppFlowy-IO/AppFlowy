@@ -10,14 +10,6 @@ dependencies:
   flutter:
     sdk: flutter
 
-<<<<<<< HEAD
-=======
-  cupertino_icons: ^1.0.2
-<<<<<<< HEAD
-  provider: ^5.0.0
->>>>>>> [infra_ui][keyboard] (WIP) Add demo proj for infra ui
-=======
->>>>>>> [infra_ui] Integrate keyboard detector to example proj
   flowy_infra_ui:
     path: ../
 

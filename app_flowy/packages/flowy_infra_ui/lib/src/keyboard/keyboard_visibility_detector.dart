@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flowy_infra_ui_platform_interface/flowy_infra_ui_platform_interface.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class KeyboardVisibilityDetector extends StatefulWidget {
   const KeyboardVisibilityDetector({
@@ -13,10 +12,6 @@ class KeyboardVisibilityDetector extends StatefulWidget {
 
   final Widget child;
   final void Function(bool)? onKeyboardVisibilityChange;
-
-  static bool isKeyboardVisible(BuildContext context) {
-    return context.read<_KeyboardVisibilityDetectorInheritedWidget>().isKeyboardVisible;
-  }
 
   @override
   _KeyboardVisibilityDetectorState createState() => _KeyboardVisibilityDetectorState();

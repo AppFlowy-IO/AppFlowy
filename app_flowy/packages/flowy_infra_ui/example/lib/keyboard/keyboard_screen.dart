@@ -27,6 +27,7 @@ class KeyboardScreen extends StatefulWidget {
 
 class _KeyboardScreenState extends State<KeyboardScreen> {
   bool _isKeyboardVisible = false;
+  final TextEditingController _controller = TextEditingController(text: 'Hello Flowy');
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +57,7 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
                   ),
                   TextField(
                     style: const TextStyle(fontSize: 20),
-                    controller: TextEditingController(text: 'Test'),
+                    controller: _controller,
                   ),
                 ],
               ),
