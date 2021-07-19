@@ -11,17 +11,19 @@ use crate::{
 };
 use flowy_user::errors::UserError;
 use flowy_workspace::errors::WorkspaceError;
-use std::marker::PhantomData;
+use std::{marker::PhantomData, sync::Once};
+static INIT: Once = Once::new();
 
 pub type WorkspaceTestBuilder = TestBuilder<FixedUserTester<WorkspaceError>>;
 impl WorkspaceTestBuilder {
     pub fn new() -> Self {
-        let builder = Self {
+        let mut builder = Self {
             tester: Box::new(FixedUserTester::<WorkspaceError>::new()),
             user_detail: None,
         };
 
-        builder.login_if_need()
+        INIT.call_once(|| builder.login_if_need());
+        builder
     }
 }
 
@@ -36,7 +38,7 @@ impl UserTestBuilder {
         builder
     }
 
-    pub fn reset(mut self) -> Self { self.logout().login() }
+    pub fn reset(mut self) -> Self { self.login() }
 }
 
 pub struct TestBuilder<T: TesterTrait> {
@@ -54,14 +56,13 @@ where
         self
     }
 
-    pub fn login_if_need(mut self) -> Self {
+    pub fn login_if_need(&mut self) {
         let user_detail = self.tester.login_if_need();
         self.user_detail = Some(user_detail);
-        self
     }
 
     pub fn logout(self) -> Self {
-        self.tester.logout();
+        // self.tester.logout();
         self
     }
 

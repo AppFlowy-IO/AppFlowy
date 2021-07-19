@@ -22,6 +22,16 @@ fn workspace_create_success() {
 
 #[test]
 fn workspace_get_detail_success() {
+    let user_workspace = WorkspaceTestBuilder::new()
+        .event(GetWorkspaceDetail)
+        .sync_send()
+        .parse::<UserWorkspaceDetail>();
+
+    dbg!(&user_workspace);
+}
+
+#[test]
+fn workspace_create_and_then_get_detail_success() {
     let request = CreateWorkspaceRequest {
         name: "Team A".to_owned(),
         desc: "Team A Description".to_owned(),
@@ -61,21 +71,24 @@ fn workspace_create_with_invalid_name_test() {
     }
 }
 
-// #[test]
-// fn workspace_update_with_invalid_name_test() {
-//     for name in invalid_workspace_name_test_case() {
-//         let request = CreateWorkspaceRequest {
-//             name,
-//             desc: "".to_owned(),
-//         };
-//
-//         assert_eq!(
-//             WorkspaceEventTester::new(CreateWorkspace)
-//                 .request(request)
-//                 .sync_send()
-//                 .error()
-//                 .code,
-//             WorkspaceErrorCode::WorkspaceNameInvalid
-//         )
-//     }
-// }
+#[test]
+fn workspace_update_with_invalid_name_test() {
+    for name in invalid_workspace_name_test_case() {
+        let request = CreateWorkspaceRequest {
+            name,
+            desc: "".to_owned(),
+        };
+
+        assert_eq!(
+            WorkspaceTestBuilder::new()
+                .event(CreateWorkspace)
+                .request(request)
+                .sync_send()
+                .error()
+                .code,
+            WorkspaceErrorCode::WorkspaceNameInvalid
+        )
+    }
+}
+
+// TODO 1) delete workspace, but can't delete the last workspace

@@ -3,7 +3,6 @@ mod flowy_server;
 pub mod module;
 
 pub use crate::flowy_server::{ArcFlowyServer, FlowyServerMocker};
-use deps_resolve::*;
 use flowy_dispatch::prelude::*;
 use module::build_modules;
 pub use module::*;

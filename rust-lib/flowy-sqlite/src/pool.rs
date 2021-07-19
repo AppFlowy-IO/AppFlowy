@@ -1,4 +1,4 @@
-use crate::{conn_ext::*, errors::*, pragma::*};
+use crate::{errors::*, pragma::*};
 use diesel::{connection::Connection, SqliteConnection};
 use r2d2::{CustomizeConnection, ManageConnection, Pool};
 use scheduled_thread_pool::ScheduledThreadPool;

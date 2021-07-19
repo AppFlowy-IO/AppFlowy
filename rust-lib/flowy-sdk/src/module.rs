@@ -1,11 +1,9 @@
 use crate::flowy_server::{ArcFlowyServer, FlowyServerMocker};
-use flowy_database::DBConnection;
-use flowy_dispatch::prelude::{DispatchFuture, Module};
+use flowy_dispatch::prelude::Module;
 use flowy_user::prelude::*;
 use flowy_workspace::prelude::*;
 
 use crate::deps_resolve::WorkspaceUserImpl;
-use flowy_workspace::entities::workspace::UserWorkspace;
 use std::sync::Arc;
 
 pub struct ModuleConfig {

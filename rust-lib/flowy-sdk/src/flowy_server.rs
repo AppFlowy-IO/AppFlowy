@@ -1,8 +1,14 @@
+use flowy_dispatch::prelude::{DispatchFuture, EventDispatch, ModuleRequest, ToBytes};
 use flowy_user::{
     entities::{SignInParams, SignUpParams, UserDetail},
     errors::{ErrorBuilder, UserError, UserErrorCode},
     prelude::UserServer,
     sql_tables::UserTable,
+};
+use flowy_workspace::{
+    entities::workspace::{CreateWorkspaceRequest, WorkspaceDetail},
+    errors::WorkspaceError,
+    event::WorkspaceEvent::CreateWorkspace,
 };
 
 pub type ArcFlowyServer = std::sync::Arc<dyn FlowyServer>;
@@ -34,11 +40,40 @@ impl UserServer for FlowyServerMocker {
         ))
     }
 
+    fn sign_out(&self, _user_id: &str) -> Result<(), UserError> {
+        Err(ErrorBuilder::new(UserErrorCode::Unknown).build())
+    }
+
     fn get_user_info(&self, _user_id: &str) -> Result<UserDetail, UserError> {
         Err(ErrorBuilder::new(UserErrorCode::Unknown).build())
     }
 
-    fn sign_out(&self, _user_id: &str) -> Result<(), UserError> {
-        Err(ErrorBuilder::new(UserErrorCode::Unknown).build())
+    fn create_workspace(
+        &self,
+        name: &str,
+        desc: &str,
+        _user_id: &str,
+    ) -> DispatchFuture<Result<(), UserError>> {
+        let payload: Vec<u8> = CreateWorkspaceRequest {
+            name: name.to_string(),
+            desc: desc.to_string(),
+        }
+        .into_bytes()
+        .unwrap();
+
+        let request = ModuleRequest::new(CreateWorkspace).payload(payload);
+        DispatchFuture {
+            fut: Box::pin(async move {
+                let _ = EventDispatch::async_send(request)
+                    .await
+                    .parse::<WorkspaceDetail, WorkspaceError>()
+                    .map_err(|e| {
+                        ErrorBuilder::new(UserErrorCode::CreateDefaultWorkspaceFailed)
+                            .error(e)
+                            .build()
+                    })?;
+                Ok(())
+            }),
+        }
     }
 }

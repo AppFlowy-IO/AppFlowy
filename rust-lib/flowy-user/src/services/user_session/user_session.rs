@@ -18,6 +18,10 @@ use crate::{
 };
 use flowy_dispatch::prelude::{EventDispatch, ModuleRequest, ToBytes};
 
+const DEFAULT_WORKSPACE_NAME: &'static str = "My workspace";
+const DEFAULT_WORKSPACE_DESC: &'static str = "This is your first workspace";
+const DEFAULT_WORKSPACE: &'static str = "Default_Workspace";
+
 pub struct UserSessionConfig {
     root_dir: String,
 }
@@ -56,17 +60,25 @@ impl UserSession {
         self.database.get_connection(&user_id)
     }
 
-    pub fn sign_in(&self, params: SignInParams) -> Result<UserTable, UserError> {
+    pub async fn sign_in(&self, params: SignInParams) -> Result<UserTable, UserError> {
         let user = self.server.sign_in(params)?;
         let _ = self.set_user_id(Some(user.id.clone()))?;
 
-        self.save_user(user)
+        let user_table = self.save_user(user)?;
+        let _ = self
+            .create_default_workspace_if_need(&user_table.id)
+            .await?;
+        Ok(user_table)
     }
 
-    pub fn sign_up(&self, params: SignUpParams) -> Result<UserTable, UserError> {
+    pub async fn sign_up(&self, params: SignUpParams) -> Result<UserTable, UserError> {
         let user = self.server.sign_up(params)?;
         let _ = self.set_user_id(Some(user.id.clone()))?;
-        self.save_user(user)
+        let user_table = self.save_user(user)?;
+        let _ = self
+            .create_default_workspace_if_need(&user_table.id)
+            .await?;
+        Ok(user_table)
     }
 
     pub fn sign_out(&self) -> Result<(), UserError> {
@@ -147,7 +159,7 @@ impl UserSession {
 
         if user_id.is_none() {
             user_id = KVStore::get_str(USER_ID_CACHE_KEY);
-            self.set_user_id(user_id.clone());
+            let _ = self.set_user_id(user_id.clone())?;
         }
 
         match user_id {
@@ -168,6 +180,21 @@ impl UserSession {
             .await
             .parse::<UserDetail, UserError>()
             .unwrap()?;
+        Ok(())
+    }
+
+    async fn create_default_workspace_if_need(&self, user_id: &str) -> Result<(), UserError> {
+        let key = format!("{}{}", user_id, DEFAULT_WORKSPACE);
+        if KVStore::get_bool(&key).unwrap_or(false) {
+            return Ok(());
+        }
+
+        KVStore::set_bool(&key, true);
+        log::debug!("Create user:{} default workspace", user_id);
+        let _ = self
+            .server
+            .create_workspace(DEFAULT_WORKSPACE_NAME, DEFAULT_WORKSPACE_DESC, user_id)
+            .await?;
         Ok(())
     }
 }

@@ -3,14 +3,13 @@ use flowy_user::{event::UserEvent::*, prelude::*};
 use serial_test::*;
 
 #[test]
-#[should_panic]
 #[serial]
 fn user_status_get_failed_before_login() {
-    let _ = UserTestBuilder::new()
+    let a = UserTestBuilder::new()
         .logout()
         .event(GetStatus)
-        .sync_send()
-        .parse::<UserDetail>();
+        .assert_error()
+        .sync_send();
 }
 
 #[test]

@@ -5,7 +5,6 @@ use serial_test::*;
 #[test]
 #[serial]
 fn sign_up_success() {
-    let _ = UserTestBuilder::new().event(SignOut).sync_send();
     let request = SignUpRequest {
         email: random_valid_email(),
         name: valid_name(),
@@ -17,8 +16,6 @@ fn sign_up_success() {
         .event(SignUp)
         .request(request)
         .sync_send();
-    // .parse::<SignUpResponse>();
-    // dbg!(&response);
 }
 
 #[test]

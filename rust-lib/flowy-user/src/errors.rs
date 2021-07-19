@@ -53,6 +53,8 @@ pub enum UserErrorCode {
     UserWorkspaceInvalid = 23,
     #[display(fmt = "User id is invalid")]
     UserIdInvalid        = 24,
+    #[display(fmt = "Create user default workspace failed")]
+    CreateDefaultWorkspaceFailed = 25,
 }
 
 impl std::default::Default for UserErrorCode {
@@ -66,9 +68,38 @@ impl std::convert::From<flowy_database::result::Error> for UserError {
             .build()
     }
 }
-
+use diesel::result::DatabaseErrorKind;
 impl std::convert::From<flowy_sqlite::Error> for UserError {
     fn from(error: flowy_sqlite::Error) -> Self {
+        // match error.kind() {
+        //     ErrorKind::Msg(_) => {},
+        //     ErrorKind::R2D2(_) => {},
+        //     ErrorKind::Migrations(_) => {},
+        //     ErrorKind::Diesel(diesel_err) => match diesel_err {
+        //         Error::InvalidCString(_) => {},
+        //         Error::DatabaseError(kind, _) => {
+        //             match kind {
+        //                 DatabaseErrorKind::UniqueViolation => {
+        //
+        //                 }
+        //                 _ => {}
+        //             }
+        //
+        //         },
+        //         Error::NotFound => {},
+        //         Error::QueryBuilderError(_) => {},
+        //         Error::DeserializationError(_) => {},
+        //         Error::SerializationError(_) => {},
+        //         Error::RollbackTransaction => {},
+        //         Error::AlreadyInTransaction => {},
+        //         Error::__Nonexhaustive => {},
+        //     },
+        //     ErrorKind::Connection(_) => {},
+        //     ErrorKind::Io(_) => {},
+        //     ErrorKind::UnknownMigrationExists(_) => {},
+        //     ErrorKind::__Nonexhaustive { .. } => {},
+        // }
+
         ErrorBuilder::new(UserErrorCode::UserDatabaseInternalError)
             .error(error)
             .build()

@@ -26,4 +26,5 @@ pub fn create(user: Arc<dyn WorkspaceUser>) -> Module {
         .data(app_controller)
         .event(WorkspaceEvent::CreateWorkspace, create_workspace)
         .event(WorkspaceEvent::GetWorkspaceDetail, get_workspace_detail)
+        .event(WorkspaceEvent::CreateApp, create_app)
 }

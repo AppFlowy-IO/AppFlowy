@@ -1,7 +1,7 @@
 use crate::{
     errors::{DispatchError, Error, InternalError},
     module::{as_module_map, Module, ModuleMap, ModuleRequest},
-    response::{EventResponse, Responder},
+    response::EventResponse,
     service::{Service, ServiceFactory},
     util::tokio_default_runtime,
 };

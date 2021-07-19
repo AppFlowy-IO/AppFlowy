@@ -1,4 +1,3 @@
-use crate::byte_trait::ToBytes;
 use bytes::Bytes;
 use std::{fmt, fmt::Formatter};
 

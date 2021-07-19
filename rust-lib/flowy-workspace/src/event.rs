@@ -11,4 +11,8 @@ pub enum WorkspaceEvent {
     #[display(fmt = "Get user's workspace detail")]
     #[event(output = "UserWorkspaceDetail")]
     GetWorkspaceDetail = 1,
+
+    #[display(fmt = "Create app")]
+    #[event(input = "CreateAppRequest", output = "AppDetail")]
+    CreateApp          = 101,
 }

@@ -19,4 +19,5 @@ enum UserErrorCode {
     UserNameInvalid = 22;
     UserWorkspaceInvalid = 23;
     UserIdInvalid = 24;
+    CreateDefaultWorkspaceFailed = 25;
 }

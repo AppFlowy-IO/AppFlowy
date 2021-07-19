@@ -14,8 +14,9 @@ const WorkspaceEvent$json = const {
   '2': const [
     const {'1': 'CreateWorkspace', '2': 0},
     const {'1': 'GetWorkspaceDetail', '2': 1},
+    const {'1': 'CreateApp', '2': 101},
   ],
 };
 
 /// Descriptor for `WorkspaceEvent`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List workspaceEventDescriptor = $convert.base64Decode('Cg5Xb3Jrc3BhY2VFdmVudBITCg9DcmVhdGVXb3Jrc3BhY2UQABIWChJHZXRXb3Jrc3BhY2VEZXRhaWwQAQ==');
+final $typed_data.Uint8List workspaceEventDescriptor = $convert.base64Decode('Cg5Xb3Jrc3BhY2VFdmVudBITCg9DcmVhdGVXb3Jrc3BhY2UQABIWChJHZXRXb3Jrc3BhY2VEZXRhaWwQARINCglDcmVhdGVBcHAQZQ==');
