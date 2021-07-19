@@ -1,4 +1,3 @@
-use flowy_infra::uuid;
 use flowy_user::{
     entities::{SignInParams, SignUpParams, UserDetail},
     errors::{ErrorBuilder, UserError, UserErrorCode},

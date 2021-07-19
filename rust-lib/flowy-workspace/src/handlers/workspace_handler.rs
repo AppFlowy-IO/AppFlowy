@@ -1,10 +1,10 @@
 use crate::{
     entities::workspace::{CreateWorkspaceParams, CreateWorkspaceRequest, WorkspaceDetail},
     errors::WorkspaceError,
-    services::{save_workspace, WorkspaceController},
+    services::WorkspaceController,
 };
-use flowy_dispatch::prelude::{response_ok, Data, EventResponse, ModuleData, ResponseResult};
-use std::{convert::TryInto, pin::Pin, sync::Arc};
+use flowy_dispatch::prelude::{response_ok, Data, ModuleData, ResponseResult};
+use std::{convert::TryInto, sync::Arc};
 
 pub async fn create_workspace(
     data: Data<CreateWorkspaceRequest>,
@@ -12,6 +12,16 @@ pub async fn create_workspace(
 ) -> ResponseResult<WorkspaceDetail, WorkspaceError> {
     let controller = controller.get_ref().clone();
     let params: CreateWorkspaceParams = data.into_inner().try_into()?;
-    let detail = save_workspace(controller, params).await?;
+    let detail = controller.save_workspace(params).await?;
+    response_ok(detail)
+}
+
+pub async fn workspace_user(
+    data: Data<CreateWorkspaceRequest>,
+    controller: ModuleData<Arc<WorkspaceController>>,
+) -> ResponseResult<WorkspaceDetail, WorkspaceError> {
+    let controller = controller.get_ref().clone();
+    let params: CreateWorkspaceParams = data.into_inner().try_into()?;
+    let detail = controller.save_workspace(params).await?;
     response_ok(detail)
 }

@@ -14,7 +14,6 @@ use std::{
     fmt::{Debug, Display},
     hash::Hash,
     sync::Arc,
-    thread,
 };
 
 pub struct TesterContext {

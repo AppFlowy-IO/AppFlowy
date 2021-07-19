@@ -3,16 +3,16 @@ use flowy_dispatch::prelude::*;
 use crate::{
     errors::WorkspaceError,
     event::WorkspaceEvent,
-    handlers::create_workspace,
     services::{AppController, WorkspaceController},
 };
 use flowy_database::DBConnection;
-use futures_core::future::BoxFuture;
+
+use crate::handlers::*;
 use std::sync::Arc;
 
 pub trait WorkspaceUser: Send + Sync {
-    fn set_current_workspace(&self, id: &str) -> BoxFuture<()>;
-    fn get_current_workspace(&self) -> Result<String, WorkspaceError>;
+    fn set_workspace(&self, id: &str) -> DispatchFuture<Result<(), WorkspaceError>>;
+    fn get_workspace(&self) -> Result<String, WorkspaceError>;
     fn db_connection(&self) -> Result<DBConnection, WorkspaceError>;
 }
 
@@ -25,4 +25,5 @@ pub fn create(user: Arc<dyn WorkspaceUser>) -> Module {
         .data(workspace_controller)
         .data(app_controller)
         .event(WorkspaceEvent::CreateWorkspace, create_workspace)
+        .event(WorkspaceEvent::GetWorkspaceUserDetail, workspace_user)
 }

@@ -16,10 +16,11 @@ use std::marker::PhantomData;
 pub type WorkspaceTestBuilder = TestBuilder<FixedUserTester<WorkspaceError>>;
 impl WorkspaceTestBuilder {
     pub fn new() -> Self {
-        Self {
+        let builder = Self {
             tester: Box::new(FixedUserTester::<WorkspaceError>::new()),
             user_detail: None,
-        }
+        };
+        builder.login()
     }
 }
 

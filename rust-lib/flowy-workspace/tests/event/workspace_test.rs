@@ -13,7 +13,6 @@ fn workspace_create_success() {
     };
 
     let response = WorkspaceTestBuilder::new()
-        .login()
         .event(CreateWorkspace)
         .request(request)
         .sync_send()

@@ -11,3 +11,5 @@ Cargo.lock
 **/**/*.log*
 **/**/temp
 bin/
+
+.idea

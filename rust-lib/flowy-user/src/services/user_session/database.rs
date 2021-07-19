@@ -3,14 +3,7 @@ use flowy_database::{DBConnection, Database};
 use lazy_static::lazy_static;
 use once_cell::sync::Lazy;
 use parking_lot::Mutex;
-use std::{
-    cell::RefCell,
-    collections::HashMap,
-    sync::{
-        atomic::{AtomicBool, Ordering},
-        RwLock,
-    },
-};
+use std::{collections::HashMap, sync::RwLock};
 
 lazy_static! {
     static ref DB: RwLock<Option<Database>> = RwLock::new(None);

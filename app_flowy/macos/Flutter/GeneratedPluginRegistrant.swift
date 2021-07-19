@@ -14,7 +14,7 @@ import window_size
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   FlowyEditorPlugin.register(with: registry.registrar(forPlugin: "FlowyEditorPlugin"))
-  FlowyInfraUiPlugin.register(with: registry.registrar(forPlugin: "FlowyInfraUiPlugin"))
+  FlowyInfraUIPlugin.register(with: registry.registrar(forPlugin: "FlowyInfraUIPlugin"))
   FlowySdkPlugin.register(with: registry.registrar(forPlugin: "FlowySdkPlugin"))
   PathProviderPlugin.register(with: registry.registrar(forPlugin: "PathProviderPlugin"))
   UrlLauncherPlugin.register(with: registry.registrar(forPlugin: "UrlLauncherPlugin"))

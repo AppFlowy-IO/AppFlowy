@@ -6,7 +6,7 @@ use flowy_database::{
     UserDatabaseConnection,
 };
 use flowy_infra::kv::KVStore;
-use lazy_static::lazy_static;
+
 use std::sync::{Arc, RwLock};
 
 use crate::{
@@ -159,15 +159,10 @@ impl UserSession {
 
     pub async fn set_current_workspace(&self, workspace_id: &str) -> Result<(), UserError> {
         let user_id = self.get_user_id()?;
-        let payload: Vec<u8> = UpdateUserRequest {
-            id: user_id,
-            name: None,
-            email: None,
-            workspace: Some(workspace_id.to_owned()),
-            password: None,
-        }
-        .into_bytes()
-        .unwrap();
+        let payload: Vec<u8> = UpdateUserRequest::new(&user_id)
+            .workspace(workspace_id)
+            .into_bytes()
+            .unwrap();
 
         let request = ModuleRequest::new(UpdateUser).payload(payload);
         let _user_detail = EventDispatch::async_send(request)
