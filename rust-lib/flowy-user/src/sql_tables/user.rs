@@ -3,7 +3,7 @@ use flowy_database::schema::user_table;
 
 #[derive(Clone, Default, Queryable, Identifiable, Insertable)]
 #[table_name = "user_table"]
-pub struct User {
+pub struct UserTable {
     pub(crate) id: String,
     pub(crate) name: String,
     pub(crate) password: String,
@@ -11,7 +11,7 @@ pub struct User {
     pub(crate) workspace: String,
 }
 
-impl User {
+impl UserTable {
     pub fn new(id: String, name: String, email: String, password: String) -> Self {
         Self {
             id,
@@ -30,7 +30,7 @@ impl User {
 
 #[derive(AsChangeset, Identifiable, Default, Debug)]
 #[table_name = "user_table"]
-pub struct UserChangeset {
+pub struct UserTableChangeset {
     pub id: String,
     pub workspace: Option<String>,
     pub name: Option<String>,
@@ -38,9 +38,9 @@ pub struct UserChangeset {
     pub password: Option<String>,
 }
 
-impl UserChangeset {
+impl UserTableChangeset {
     pub fn new(params: UpdateUserParams) -> Self {
-        UserChangeset {
+        UserTableChangeset {
             id: params.id,
             workspace: params.workspace,
             name: params.name,

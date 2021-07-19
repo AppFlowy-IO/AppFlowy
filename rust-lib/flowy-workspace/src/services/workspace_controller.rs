@@ -16,7 +16,7 @@ impl WorkspaceController {
         &self,
         params: CreateWorkspaceParams,
     ) -> Result<WorkspaceDetail, WorkspaceError> {
-        let workspace = Workspace::new(params);
+        let workspace = WorkspaceTable::new(params);
         let detail: WorkspaceDetail = workspace.clone().into();
 
         let _ = diesel::insert_into(workspace_table::table)
@@ -31,14 +31,14 @@ impl WorkspaceController {
     pub fn get_workspace(
         &self,
         workspace_id: &str,
-    ) -> DispatchFuture<Result<Workspace, WorkspaceError>> {
+    ) -> DispatchFuture<Result<WorkspaceTable, WorkspaceError>> {
         let user = self.user.clone();
         let workspace_id = workspace_id.to_owned();
         DispatchFuture {
             fut: Box::pin(async move {
                 let workspace = dsl::workspace_table
                     .filter(workspace_table::id.eq(&workspace_id))
-                    .first::<Workspace>(&*(user.db_connection()?))?;
+                    .first::<WorkspaceTable>(&*(user.db_connection()?))?;
 
                 // TODO: fetch workspace from remote server
                 Ok(workspace)
@@ -47,7 +47,7 @@ impl WorkspaceController {
     }
 
     pub fn update_workspace(&self, params: UpdateWorkspaceParams) -> Result<(), WorkspaceError> {
-        let changeset = WorkspaceChangeset::new(params);
+        let changeset = WorkspaceTableChangeset::new(params);
         let conn = self.user.db_connection()?;
         diesel_update_table!(workspace_table, changeset, conn);
 

@@ -29,9 +29,9 @@ pub struct UserDetail {
     pub workspace: String,
 }
 
-use crate::sql_tables::User;
-impl std::convert::From<User> for UserDetail {
-    fn from(user: User) -> Self {
+use crate::sql_tables::UserTable;
+impl std::convert::From<UserTable> for UserDetail {
+    fn from(user: UserTable) -> Self {
         UserDetail {
             id: user.id,
             email: user.email,

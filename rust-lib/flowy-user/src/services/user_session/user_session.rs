@@ -14,7 +14,7 @@ use crate::{
     errors::{ErrorBuilder, UserError, UserErrorCode},
     event::UserEvent::*,
     services::user_session::{database::UserDB, user_server::UserServer},
-    sql_tables::{User, UserChangeset},
+    sql_tables::{UserTable, UserTableChangeset},
 };
 use flowy_dispatch::prelude::{EventDispatch, ModuleRequest, ToBytes};
 
@@ -56,14 +56,14 @@ impl UserSession {
         self.database.get_connection(&user_id)
     }
 
-    pub fn sign_in(&self, params: SignInParams) -> Result<User, UserError> {
+    pub fn sign_in(&self, params: SignInParams) -> Result<UserTable, UserError> {
         let user = self.server.sign_in(params)?;
         let _ = self.set_user_id(Some(user.id.clone()))?;
 
         self.save_user(user)
     }
 
-    pub fn sign_up(&self, params: SignUpParams) -> Result<User, UserError> {
+    pub fn sign_up(&self, params: SignUpParams) -> Result<UserTable, UserError> {
         let user = self.server.sign_up(params)?;
         let _ = self.set_user_id(Some(user.id.clone()))?;
         self.save_user(user)
@@ -84,7 +84,7 @@ impl UserSession {
         Ok(())
     }
 
-    fn save_user(&self, user: User) -> Result<User, UserError> {
+    fn save_user(&self, user: UserTable) -> Result<UserTable, UserError> {
         let conn = self.get_db_connection()?;
         let _ = diesel::insert_into(user_table::table)
             .values(user.clone())
@@ -94,7 +94,7 @@ impl UserSession {
     }
 
     pub fn update_user(&self, params: UpdateUserParams) -> Result<UserDetail, UserError> {
-        let changeset = UserChangeset::new(params);
+        let changeset = UserTableChangeset::new(params);
         let conn = self.get_db_connection()?;
         diesel_update_table!(user_table, changeset, conn);
 
@@ -106,7 +106,7 @@ impl UserSession {
         let user_id = self.get_user_id()?;
         let user = dsl::user_table
             .filter(user_table::id.eq(&user_id))
-            .first::<User>(&*(self.get_db_connection()?))?;
+            .first::<UserTable>(&*(self.get_db_connection()?))?;
 
         match self.server.get_user_info(&user_id) {
             Ok(_user_detail) => {

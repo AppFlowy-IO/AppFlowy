@@ -15,7 +15,7 @@ impl AppController {
     pub fn new(user: Arc<dyn WorkspaceUser>) -> Self { Self { user } }
 
     pub fn save_app(&self, params: CreateAppParams) -> Result<AppDetail, WorkspaceError> {
-        let app = App::new(params);
+        let app = AppTable::new(params);
         let conn = self.user.db_connection()?;
 
         let detail: AppDetail = app.clone().into();
@@ -26,7 +26,7 @@ impl AppController {
     }
 
     pub fn update_app(&self, params: UpdateAppParams) -> Result<(), WorkspaceError> {
-        let changeset = AppChangeset::new(params);
+        let changeset = AppTableChangeset::new(params);
         let conn = self.user.db_connection()?;
         diesel_update_table!(app_table, changeset, conn);
         Ok(())

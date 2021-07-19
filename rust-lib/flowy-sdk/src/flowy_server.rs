@@ -2,7 +2,7 @@ use flowy_user::{
     entities::{SignInParams, SignUpParams, UserDetail},
     errors::{ErrorBuilder, UserError, UserErrorCode},
     prelude::UserServer,
-    sql_tables::User,
+    sql_tables::UserTable,
 };
 
 pub type ArcFlowyServer = std::sync::Arc<dyn FlowyServer>;
@@ -14,9 +14,9 @@ pub struct FlowyServerMocker {}
 impl FlowyServer for FlowyServerMocker {}
 
 impl UserServer for FlowyServerMocker {
-    fn sign_up(&self, params: SignUpParams) -> Result<User, UserError> {
+    fn sign_up(&self, params: SignUpParams) -> Result<UserTable, UserError> {
         let user_id = params.email.clone();
-        Ok(User::new(
+        Ok(UserTable::new(
             user_id,
             params.name,
             params.email,
@@ -24,9 +24,9 @@ impl UserServer for FlowyServerMocker {
         ))
     }
 
-    fn sign_in(&self, params: SignInParams) -> Result<User, UserError> {
+    fn sign_in(&self, params: SignInParams) -> Result<UserTable, UserError> {
         let user_id = params.email.clone();
-        Ok(User::new(
+        Ok(UserTable::new(
             user_id,
             "".to_owned(),
             params.email,
