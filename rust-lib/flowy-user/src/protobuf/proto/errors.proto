@@ -6,11 +6,11 @@ message UserError {
 }
 enum UserErrorCode {
     Unknown = 0;
-    DatabaseInitFailed = 1;
-    DatabaseWriteLocked = 2;
-    DatabaseReadLocked = 3;
-    DatabaseUserDidNotMatch = 4;
-    DatabaseInternalError = 5;
+    UserDatabaseInitFailed = 1;
+    UserDatabaseWriteLocked = 2;
+    UserDatabaseReadLocked = 3;
+    UserDatabaseDidNotMatch = 4;
+    UserDatabaseInternalError = 5;
     UserNotLoginYet = 10;
     ReadCurrentIdFailed = 11;
     WriteCurrentIdFailed = 12;

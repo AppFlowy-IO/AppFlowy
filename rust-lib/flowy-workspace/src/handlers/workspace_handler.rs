@@ -1,5 +1,11 @@
 use crate::{
-    entities::workspace::{CreateWorkspaceParams, CreateWorkspaceRequest, WorkspaceDetail},
+    entities::workspace::{
+        CreateWorkspaceParams,
+        CreateWorkspaceRequest,
+        UserWorkspace,
+        UserWorkspaceDetail,
+        WorkspaceDetail,
+    },
     errors::WorkspaceError,
     services::WorkspaceController,
 };
@@ -16,12 +22,9 @@ pub async fn create_workspace(
     response_ok(detail)
 }
 
-pub async fn workspace_user(
-    data: Data<CreateWorkspaceRequest>,
+pub async fn get_workspace_detail(
     controller: ModuleData<Arc<WorkspaceController>>,
-) -> ResponseResult<WorkspaceDetail, WorkspaceError> {
-    let controller = controller.get_ref().clone();
-    let params: CreateWorkspaceParams = data.into_inner().try_into()?;
-    let detail = controller.save_workspace(params).await?;
-    response_ok(detail)
+) -> ResponseResult<UserWorkspaceDetail, WorkspaceError> {
+    let user_workspace = controller.get_user_workspace_detail().await?;
+    response_ok(user_workspace)
 }

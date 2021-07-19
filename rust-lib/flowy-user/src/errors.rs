@@ -26,15 +26,15 @@ pub enum UserErrorCode {
     #[display(fmt = "Unknown")]
     Unknown              = 0,
     #[display(fmt = "Database init failed")]
-    DatabaseInitFailed   = 1,
+    UserDatabaseInitFailed = 1,
     #[display(fmt = "Get database write lock failed")]
-    DatabaseWriteLocked  = 2,
+    UserDatabaseWriteLocked = 2,
     #[display(fmt = "Get database read lock failed")]
-    DatabaseReadLocked   = 3,
+    UserDatabaseReadLocked = 3,
     #[display(fmt = "Opening database is not belonging to the current user")]
-    DatabaseUserDidNotMatch = 4,
+    UserDatabaseDidNotMatch = 4,
     #[display(fmt = "Database internal error")]
-    DatabaseInternalError = 5,
+    UserDatabaseInternalError = 5,
 
     #[display(fmt = "User not login yet")]
     UserNotLoginYet      = 10,
@@ -61,7 +61,7 @@ impl std::default::Default for UserErrorCode {
 
 impl std::convert::From<flowy_database::result::Error> for UserError {
     fn from(error: flowy_database::result::Error) -> Self {
-        ErrorBuilder::new(UserErrorCode::DatabaseInternalError)
+        ErrorBuilder::new(UserErrorCode::UserDatabaseInternalError)
             .error(error)
             .build()
     }
@@ -69,7 +69,7 @@ impl std::convert::From<flowy_database::result::Error> for UserError {
 
 impl std::convert::From<flowy_sqlite::Error> for UserError {
     fn from(error: flowy_sqlite::Error) -> Self {
-        ErrorBuilder::new(UserErrorCode::DatabaseInternalError)
+        ErrorBuilder::new(UserErrorCode::UserDatabaseInternalError)
             .error(error)
             .build()
     }

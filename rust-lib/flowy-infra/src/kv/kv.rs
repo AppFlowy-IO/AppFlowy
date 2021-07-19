@@ -18,22 +18,21 @@ pub struct KVStore {
 impl KVStore {
     fn new() -> Self { KVStore { database: None } }
 
-    pub fn set(item: KeyValue) -> Result<(), String> {
-        let conn = get_connection()?;
+    fn set(item: KeyValue) -> Result<(), String> {
         let _ = diesel::replace_into(kv_table::table)
             .values(&item)
-            .execute(&*conn)
-            .map_err(|e| format!("{:?}", e))?;
+            .execute(&*(get_connection()?))
+            .map_err(|e| format!("KV set error: {:?}", e))?;
 
         Ok(())
     }
 
-    pub fn get(key: &str) -> Result<KeyValue, String> {
+    fn get(key: &str) -> Result<KeyValue, String> {
         let conn = get_connection()?;
         let item = dsl::kv_table
             .filter(kv_table::key.eq(key))
             .first::<KeyValue>(&*conn)
-            .map_err(|e| format!("{:?}", e))?;
+            .map_err(|e| format!("KV get error: {:?}", e))?;
         Ok(item)
     }
 
@@ -43,7 +42,7 @@ impl KVStore {
         let sql = dsl::kv_table.filter(kv_table::key.eq(key));
         let _ = diesel::delete(sql)
             .execute(&*conn)
-            .map_err(|e| format!("{:?}", e))?;
+            .map_err(|e| format!("KV remove error: {:?}", e))?;
         Ok(())
     }
 
@@ -125,7 +124,7 @@ fn get_connection() -> Result<DBConnection, String> {
                 .as_ref()
                 .expect("KVStore is not init")
                 .get_connection()
-                .map_err(|e| format!("{:?}", e))?;
+                .map_err(|e| format!("KVStore error: {:?}", e))?;
             Ok(conn)
         },
         Err(e) => {

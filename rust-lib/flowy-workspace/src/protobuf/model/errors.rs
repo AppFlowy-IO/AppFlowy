@@ -221,7 +221,7 @@ pub enum WorkspaceErrorCode {
     AppColorStyleInvalid = 3,
     AppIdInvalid = 4,
     DatabaseConnectionFail = 5,
-    DatabaseInternalError = 6,
+    WorkspaceDatabaseError = 6,
     UserInternalError = 10,
     UserNotLoginYet = 11,
 }
@@ -239,7 +239,7 @@ impl ::protobuf::ProtobufEnum for WorkspaceErrorCode {
             3 => ::std::option::Option::Some(WorkspaceErrorCode::AppColorStyleInvalid),
             4 => ::std::option::Option::Some(WorkspaceErrorCode::AppIdInvalid),
             5 => ::std::option::Option::Some(WorkspaceErrorCode::DatabaseConnectionFail),
-            6 => ::std::option::Option::Some(WorkspaceErrorCode::DatabaseInternalError),
+            6 => ::std::option::Option::Some(WorkspaceErrorCode::WorkspaceDatabaseError),
             10 => ::std::option::Option::Some(WorkspaceErrorCode::UserInternalError),
             11 => ::std::option::Option::Some(WorkspaceErrorCode::UserNotLoginYet),
             _ => ::std::option::Option::None
@@ -254,7 +254,7 @@ impl ::protobuf::ProtobufEnum for WorkspaceErrorCode {
             WorkspaceErrorCode::AppColorStyleInvalid,
             WorkspaceErrorCode::AppIdInvalid,
             WorkspaceErrorCode::DatabaseConnectionFail,
-            WorkspaceErrorCode::DatabaseInternalError,
+            WorkspaceErrorCode::WorkspaceDatabaseError,
             WorkspaceErrorCode::UserInternalError,
             WorkspaceErrorCode::UserNotLoginYet,
         ];
@@ -287,11 +287,11 @@ impl ::protobuf::reflect::ProtobufValue for WorkspaceErrorCode {
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x0cerrors.proto\"K\n\x0eWorkspaceError\x12'\n\x04code\x18\x01\x20\x01\
     (\x0e2\x13.WorkspaceErrorCodeR\x04code\x12\x10\n\x03msg\x18\x02\x20\x01(\
-    \tR\x03msg*\xe2\x01\n\x12WorkspaceErrorCode\x12\x0b\n\x07Unknown\x10\0\
+    \tR\x03msg*\xe3\x01\n\x12WorkspaceErrorCode\x12\x0b\n\x07Unknown\x10\0\
     \x12\x18\n\x14WorkspaceNameInvalid\x10\x01\x12\x16\n\x12WorkspaceIdInval\
     id\x10\x02\x12\x18\n\x14AppColorStyleInvalid\x10\x03\x12\x10\n\x0cAppIdI\
-    nvalid\x10\x04\x12\x1a\n\x16DatabaseConnectionFail\x10\x05\x12\x19\n\x15\
-    DatabaseInternalError\x10\x06\x12\x15\n\x11UserInternalError\x10\n\x12\
+    nvalid\x10\x04\x12\x1a\n\x16DatabaseConnectionFail\x10\x05\x12\x1a\n\x16\
+    WorkspaceDatabaseError\x10\x06\x12\x15\n\x11UserInternalError\x10\n\x12\
     \x13\n\x0fUserNotLoginYet\x10\x0bJ\xa1\x04\n\x06\x12\x04\0\0\x10\x01\n\
     \x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\
     \n\x03\x04\0\x01\x12\x03\x02\x08\x16\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\
@@ -313,8 +313,8 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x03\x0b\x04\x10\n\x0c\n\x05\x05\0\x02\x04\x02\x12\x03\x0b\x13\x14\n\x0b\
     \n\x04\x05\0\x02\x05\x12\x03\x0c\x04\x1f\n\x0c\n\x05\x05\0\x02\x05\x01\
     \x12\x03\x0c\x04\x1a\n\x0c\n\x05\x05\0\x02\x05\x02\x12\x03\x0c\x1d\x1e\n\
-    \x0b\n\x04\x05\0\x02\x06\x12\x03\r\x04\x1e\n\x0c\n\x05\x05\0\x02\x06\x01\
-    \x12\x03\r\x04\x19\n\x0c\n\x05\x05\0\x02\x06\x02\x12\x03\r\x1c\x1d\n\x0b\
+    \x0b\n\x04\x05\0\x02\x06\x12\x03\r\x04\x1f\n\x0c\n\x05\x05\0\x02\x06\x01\
+    \x12\x03\r\x04\x1a\n\x0c\n\x05\x05\0\x02\x06\x02\x12\x03\r\x1d\x1e\n\x0b\
     \n\x04\x05\0\x02\x07\x12\x03\x0e\x04\x1b\n\x0c\n\x05\x05\0\x02\x07\x01\
     \x12\x03\x0e\x04\x15\n\x0c\n\x05\x05\0\x02\x07\x02\x12\x03\x0e\x18\x1a\n\
     \x0b\n\x04\x05\0\x02\x08\x12\x03\x0f\x04\x19\n\x0c\n\x05\x05\0\x02\x08\

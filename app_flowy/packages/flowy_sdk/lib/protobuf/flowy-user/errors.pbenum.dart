@@ -11,11 +11,11 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 class UserErrorCode extends $pb.ProtobufEnum {
   static const UserErrorCode Unknown = UserErrorCode._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unknown');
-  static const UserErrorCode DatabaseInitFailed = UserErrorCode._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DatabaseInitFailed');
-  static const UserErrorCode DatabaseWriteLocked = UserErrorCode._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DatabaseWriteLocked');
-  static const UserErrorCode DatabaseReadLocked = UserErrorCode._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DatabaseReadLocked');
-  static const UserErrorCode DatabaseUserDidNotMatch = UserErrorCode._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DatabaseUserDidNotMatch');
-  static const UserErrorCode DatabaseInternalError = UserErrorCode._(5, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DatabaseInternalError');
+  static const UserErrorCode UserDatabaseInitFailed = UserErrorCode._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseInitFailed');
+  static const UserErrorCode UserDatabaseWriteLocked = UserErrorCode._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseWriteLocked');
+  static const UserErrorCode UserDatabaseReadLocked = UserErrorCode._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseReadLocked');
+  static const UserErrorCode UserDatabaseDidNotMatch = UserErrorCode._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseDidNotMatch');
+  static const UserErrorCode UserDatabaseInternalError = UserErrorCode._(5, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseInternalError');
   static const UserErrorCode UserNotLoginYet = UserErrorCode._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNotLoginYet');
   static const UserErrorCode ReadCurrentIdFailed = UserErrorCode._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ReadCurrentIdFailed');
   static const UserErrorCode WriteCurrentIdFailed = UserErrorCode._(12, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WriteCurrentIdFailed');
@@ -27,11 +27,11 @@ class UserErrorCode extends $pb.ProtobufEnum {
 
   static const $core.List<UserErrorCode> values = <UserErrorCode> [
     Unknown,
-    DatabaseInitFailed,
-    DatabaseWriteLocked,
-    DatabaseReadLocked,
-    DatabaseUserDidNotMatch,
-    DatabaseInternalError,
+    UserDatabaseInitFailed,
+    UserDatabaseWriteLocked,
+    UserDatabaseReadLocked,
+    UserDatabaseDidNotMatch,
+    UserDatabaseInternalError,
     UserNotLoginYet,
     ReadCurrentIdFailed,
     WriteCurrentIdFailed,

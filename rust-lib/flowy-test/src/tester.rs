@@ -6,7 +6,7 @@ use flowy_dispatch::prelude::*;
 pub use flowy_sdk::*;
 use flowy_user::{
     errors::UserError,
-    event::UserEvent::{SignIn, SignOut},
+    event::UserEvent::{GetStatus, SignIn, SignOut},
     prelude::*,
 };
 use std::{
@@ -99,7 +99,6 @@ pub trait TesterTrait {
 
     fn login(&self) -> UserDetail {
         init_test_sdk(self.context().server.clone());
-        self.logout();
         let payload = SignInRequest {
             email: self.context().user_email.clone(),
             password: valid_password(),
@@ -114,6 +113,17 @@ pub trait TesterTrait {
             .unwrap();
 
         user_detail
+    }
+
+    fn login_if_need(&self) -> UserDetail {
+        init_test_sdk(self.context().server.clone());
+        match EventDispatch::sync_send(ModuleRequest::new(GetStatus))
+            .parse::<UserDetail, UserError>()
+            .unwrap()
+        {
+            Ok(user_detail) => user_detail,
+            Err(e) => self.login(),
+        }
     }
 
     fn logout(&self) {

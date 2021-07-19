@@ -23,3 +23,4 @@ similar = "1.2.2"
 dialoguer = "0.8.0"
 toml = "0.5.8"
 serde = { version = "1.0", features = ["derive"] }
+pathdiff = "0.2.0"

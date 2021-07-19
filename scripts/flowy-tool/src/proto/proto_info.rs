@@ -88,6 +88,7 @@ impl ProtobufCrate {
 
 #[derive(Debug)]
 pub struct ProtoFile {
+    pub file_path: String,
     pub file_name: String,
     pub structs: Vec<String>,
     pub enums: Vec<String>,
@@ -121,6 +122,7 @@ impl FlutterProtobufInfo {
         model_dir
     }
 
+    #[allow(dead_code)]
     pub fn mod_file_path(&self) -> String {
         let mod_file_path = format!("{}/protobuf.dart", self.package_path);
         mod_file_path

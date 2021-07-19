@@ -1,7 +1,9 @@
+mod deps_resolve;
 mod flowy_server;
 pub mod module;
 
 pub use crate::flowy_server::{ArcFlowyServer, FlowyServerMocker};
+use deps_resolve::*;
 use flowy_dispatch::prelude::*;
 use module::build_modules;
 pub use module::*;
@@ -31,7 +33,10 @@ impl FlowySDK {
         FlowySDK::init_log(root);
 
         tracing::info!("🔥 Root path: {}", root);
-        let _ = flowy_infra::kv::KVStore::init(root);
+        match flowy_infra::kv::KVStore::init(root) {
+            Ok(_) => {},
+            Err(e) => tracing::error!("Init kv store failedL: {}", e),
+        }
         FlowySDK::init_modules(root, server);
     }
 

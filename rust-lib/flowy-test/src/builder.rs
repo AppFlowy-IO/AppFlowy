@@ -20,18 +20,23 @@ impl WorkspaceTestBuilder {
             tester: Box::new(FixedUserTester::<WorkspaceError>::new()),
             user_detail: None,
         };
-        builder.login()
+
+        builder.login_if_need()
     }
 }
 
 pub type UserTestBuilder = TestBuilder<RandomUserTester<UserError>>;
 impl UserTestBuilder {
     pub fn new() -> Self {
-        Self {
+        let builder = Self {
             tester: Box::new(RandomUserTester::<UserError>::new()),
             user_detail: None,
-        }
+        };
+
+        builder
     }
+
+    pub fn reset(mut self) -> Self { self.logout().login() }
 }
 
 pub struct TestBuilder<T: TesterTrait> {
@@ -45,6 +50,12 @@ where
 {
     pub fn login(mut self) -> Self {
         let user_detail = self.tester.login();
+        self.user_detail = Some(user_detail);
+        self
+    }
+
+    pub fn login_if_need(mut self) -> Self {
+        let user_detail = self.tester.login_if_need();
         self.user_detail = Some(user_detail);
         self
     }

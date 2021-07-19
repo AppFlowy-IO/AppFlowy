@@ -11,7 +11,7 @@ enum WorkspaceErrorCode {
     AppColorStyleInvalid = 3;
     AppIdInvalid = 4;
     DatabaseConnectionFail = 5;
-    DatabaseInternalError = 6;
+    WorkspaceDatabaseError = 6;
     UserInternalError = 10;
     UserNotLoginYet = 11;
 }

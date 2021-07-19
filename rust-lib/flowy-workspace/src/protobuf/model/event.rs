@@ -26,7 +26,7 @@
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum WorkspaceEvent {
     CreateWorkspace = 0,
-    GetWorkspaceUserDetail = 100,
+    GetWorkspaceDetail = 1,
 }
 
 impl ::protobuf::ProtobufEnum for WorkspaceEvent {
@@ -37,7 +37,7 @@ impl ::protobuf::ProtobufEnum for WorkspaceEvent {
     fn from_i32(value: i32) -> ::std::option::Option<WorkspaceEvent> {
         match value {
             0 => ::std::option::Option::Some(WorkspaceEvent::CreateWorkspace),
-            100 => ::std::option::Option::Some(WorkspaceEvent::GetWorkspaceUserDetail),
+            1 => ::std::option::Option::Some(WorkspaceEvent::GetWorkspaceDetail),
             _ => ::std::option::Option::None
         }
     }
@@ -45,7 +45,7 @@ impl ::protobuf::ProtobufEnum for WorkspaceEvent {
     fn values() -> &'static [Self] {
         static values: &'static [WorkspaceEvent] = &[
             WorkspaceEvent::CreateWorkspace,
-            WorkspaceEvent::GetWorkspaceUserDetail,
+            WorkspaceEvent::GetWorkspaceDetail,
         ];
         values
     }
@@ -74,14 +74,14 @@ impl ::protobuf::reflect::ProtobufValue for WorkspaceEvent {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0bevent.proto*A\n\x0eWorkspaceEvent\x12\x13\n\x0fCreateWorkspace\x10\
-    \0\x12\x1a\n\x16GetWorkspaceUserDetail\x10dJ|\n\x06\x12\x04\0\0\x05\x01\
-    \n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x05\0\x12\x04\x02\0\x05\x01\n\
-    \n\n\x03\x05\0\x01\x12\x03\x02\x05\x13\n\x0b\n\x04\x05\0\x02\0\x12\x03\
-    \x03\x04\x18\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\x03\x04\x13\n\x0c\n\x05\
-    \x05\0\x02\0\x02\x12\x03\x03\x16\x17\n\x0b\n\x04\x05\0\x02\x01\x12\x03\
-    \x04\x04!\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\x04\x04\x1a\n\x0c\n\x05\
-    \x05\0\x02\x01\x02\x12\x03\x04\x1d\x20b\x06proto3\
+    \n\x0bevent.proto*=\n\x0eWorkspaceEvent\x12\x13\n\x0fCreateWorkspace\x10\
+    \0\x12\x16\n\x12GetWorkspaceDetail\x10\x01J|\n\x06\x12\x04\0\0\x05\x01\n\
+    \x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x05\0\x12\x04\x02\0\x05\x01\n\n\
+    \n\x03\x05\0\x01\x12\x03\x02\x05\x13\n\x0b\n\x04\x05\0\x02\0\x12\x03\x03\
+    \x04\x18\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\x03\x04\x13\n\x0c\n\x05\x05\
+    \0\x02\0\x02\x12\x03\x03\x16\x17\n\x0b\n\x04\x05\0\x02\x01\x12\x03\x04\
+    \x04\x1b\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\x04\x04\x16\n\x0c\n\x05\
+    \x05\0\x02\x01\x02\x12\x03\x04\x19\x1ab\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

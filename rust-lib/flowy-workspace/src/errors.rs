@@ -42,7 +42,7 @@ pub enum WorkspaceErrorCode {
     DatabaseConnectionFail = 5,
 
     #[display(fmt = "Database internal error")]
-    DatabaseInternalError = 6,
+    WorkspaceDatabaseError = 6,
 
     #[display(fmt = "User internal error")]
     UserInternalError    = 10,
@@ -57,15 +57,7 @@ impl std::default::Default for WorkspaceErrorCode {
 
 impl std::convert::From<flowy_database::result::Error> for WorkspaceError {
     fn from(error: flowy_database::result::Error) -> Self {
-        ErrorBuilder::new(WorkspaceErrorCode::DatabaseInternalError)
-            .error(error)
-            .build()
-    }
-}
-
-impl std::convert::From<flowy_sqlite::Error> for WorkspaceError {
-    fn from(error: flowy_sqlite::Error) -> Self {
-        ErrorBuilder::new(WorkspaceErrorCode::DatabaseInternalError)
+        ErrorBuilder::new(WorkspaceErrorCode::WorkspaceDatabaseError)
             .error(error)
             .build()
     }

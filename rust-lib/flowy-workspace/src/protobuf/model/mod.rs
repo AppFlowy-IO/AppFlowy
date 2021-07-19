@@ -12,6 +12,9 @@ pub use app_create::*;
 mod event; 
 pub use event::*; 
 
+mod workspace_user_detail; 
+pub use workspace_user_detail::*; 
+
 mod workspace_create; 
 pub use workspace_create::*; 
 

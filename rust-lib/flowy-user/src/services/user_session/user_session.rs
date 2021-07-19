@@ -104,11 +104,9 @@ impl UserSession {
 
     pub fn user_detail(&self) -> Result<UserDetail, UserError> {
         let user_id = self.get_user_id()?;
-        let conn = self.get_db_connection()?;
-
         let user = dsl::user_table
             .filter(user_table::id.eq(&user_id))
-            .first::<User>(&*conn)?;
+            .first::<User>(&*(self.get_db_connection()?))?;
 
         match self.server.get_user_info(&user_id) {
             Ok(_user_detail) => {
@@ -137,14 +135,15 @@ impl UserSession {
     }
 
     pub fn get_user_id(&self) -> Result<String, UserError> {
-        let read_guard = self.user_id.read().map_err(|e| {
-            ErrorBuilder::new(UserErrorCode::ReadCurrentIdFailed)
-                .error(e)
-                .build()
-        })?;
+        let mut user_id = {
+            let read_guard = self.user_id.read().map_err(|e| {
+                ErrorBuilder::new(UserErrorCode::ReadCurrentIdFailed)
+                    .error(e)
+                    .build()
+            })?;
 
-        let mut user_id = (*read_guard).clone();
-        drop(read_guard);
+            (*read_guard).clone()
+        };
 
         if user_id.is_none() {
             user_id = KVStore::get_str(USER_ID_CACHE_KEY);
@@ -165,11 +164,10 @@ impl UserSession {
             .unwrap();
 
         let request = ModuleRequest::new(UpdateUser).payload(payload);
-        let _user_detail = EventDispatch::async_send(request)
+        let _ = EventDispatch::async_send(request)
             .await
             .parse::<UserDetail, UserError>()
-            .unwrap()
-            .unwrap();
+            .unwrap()?;
         Ok(())
     }
 }

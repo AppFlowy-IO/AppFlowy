@@ -1,0 +1,11 @@
+syntax = "proto3";
+import "workspace_create.proto";
+
+message UserWorkspace {
+    string owner = 1;
+    string workspace_id = 2;
+}
+message UserWorkspaceDetail {
+    string owner = 1;
+    WorkspaceDetail workspace = 2;
+}

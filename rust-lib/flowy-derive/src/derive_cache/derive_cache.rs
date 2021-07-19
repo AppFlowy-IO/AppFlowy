@@ -23,6 +23,8 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "UpdateWorkspaceRequest"
         | "CreateWorkspaceRequest"
         | "WorkspaceDetail"
+        | "UserWorkspace"
+        | "UserWorkspaceDetail"
         | "WorkspaceError"
         | "FFIRequest"
         | "FFIResponse"

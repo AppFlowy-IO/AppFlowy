@@ -13,11 +13,11 @@ const UserErrorCode$json = const {
   '1': 'UserErrorCode',
   '2': const [
     const {'1': 'Unknown', '2': 0},
-    const {'1': 'DatabaseInitFailed', '2': 1},
-    const {'1': 'DatabaseWriteLocked', '2': 2},
-    const {'1': 'DatabaseReadLocked', '2': 3},
-    const {'1': 'DatabaseUserDidNotMatch', '2': 4},
-    const {'1': 'DatabaseInternalError', '2': 5},
+    const {'1': 'UserDatabaseInitFailed', '2': 1},
+    const {'1': 'UserDatabaseWriteLocked', '2': 2},
+    const {'1': 'UserDatabaseReadLocked', '2': 3},
+    const {'1': 'UserDatabaseDidNotMatch', '2': 4},
+    const {'1': 'UserDatabaseInternalError', '2': 5},
     const {'1': 'UserNotLoginYet', '2': 10},
     const {'1': 'ReadCurrentIdFailed', '2': 11},
     const {'1': 'WriteCurrentIdFailed', '2': 12},
@@ -30,7 +30,7 @@ const UserErrorCode$json = const {
 };
 
 /// Descriptor for `UserErrorCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List userErrorCodeDescriptor = $convert.base64Decode('Cg1Vc2VyRXJyb3JDb2RlEgsKB1Vua25vd24QABIWChJEYXRhYmFzZUluaXRGYWlsZWQQARIXChNEYXRhYmFzZVdyaXRlTG9ja2VkEAISFgoSRGF0YWJhc2VSZWFkTG9ja2VkEAMSGwoXRGF0YWJhc2VVc2VyRGlkTm90TWF0Y2gQBBIZChVEYXRhYmFzZUludGVybmFsRXJyb3IQBRITCg9Vc2VyTm90TG9naW5ZZXQQChIXChNSZWFkQ3VycmVudElkRmFpbGVkEAsSGAoUV3JpdGVDdXJyZW50SWRGYWlsZWQQDBIQCgxFbWFpbEludmFsaWQQFBITCg9QYXNzd29yZEludmFsaWQQFRITCg9Vc2VyTmFtZUludmFsaWQQFhIYChRVc2VyV29ya3NwYWNlSW52YWxpZBAXEhEKDVVzZXJJZEludmFsaWQQGA==');
+final $typed_data.Uint8List userErrorCodeDescriptor = $convert.base64Decode('Cg1Vc2VyRXJyb3JDb2RlEgsKB1Vua25vd24QABIaChZVc2VyRGF0YWJhc2VJbml0RmFpbGVkEAESGwoXVXNlckRhdGFiYXNlV3JpdGVMb2NrZWQQAhIaChZVc2VyRGF0YWJhc2VSZWFkTG9ja2VkEAMSGwoXVXNlckRhdGFiYXNlRGlkTm90TWF0Y2gQBBIdChlVc2VyRGF0YWJhc2VJbnRlcm5hbEVycm9yEAUSEwoPVXNlck5vdExvZ2luWWV0EAoSFwoTUmVhZEN1cnJlbnRJZEZhaWxlZBALEhgKFFdyaXRlQ3VycmVudElkRmFpbGVkEAwSEAoMRW1haWxJbnZhbGlkEBQSEwoPUGFzc3dvcmRJbnZhbGlkEBUSEwoPVXNlck5hbWVJbnZhbGlkEBYSGAoUVXNlcldvcmtzcGFjZUludmFsaWQQFxIRCg1Vc2VySWRJbnZhbGlkEBg=');
 @$core.Deprecated('Use userErrorDescriptor instead')
 const UserError$json = const {
   '1': 'UserError',

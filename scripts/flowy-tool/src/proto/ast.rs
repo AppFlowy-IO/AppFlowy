@@ -78,6 +78,7 @@ fn parse_files_protobuf(proto_crate_path: &str, proto_output_dir: &str) -> Vec<P
 
         if !enums.is_empty() || !structs.is_empty() {
             let info = ProtoFile {
+                file_path: path.clone(),
                 file_name: file_name.clone(),
                 structs: structs.iter().map(|s| s.name.clone()).collect(),
                 enums: enums.iter().map(|e| e.name.clone()).collect(),

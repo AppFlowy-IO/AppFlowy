@@ -154,3 +154,14 @@ where
         path_and_name(path, name);
     }
 }
+
+#[allow(dead_code)]
+pub fn suffix_relative_to_path(path: &str, base: &str) -> String {
+    let base = Path::new(base);
+    let path = Path::new(path);
+    path.strip_prefix(base)
+        .unwrap()
+        .to_str()
+        .unwrap()
+        .to_owned()
+}

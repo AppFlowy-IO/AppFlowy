@@ -99,14 +99,14 @@ impl EventDispatch {
 }
 
 #[pin_project]
-pub struct DispatchFuture<T: Responder + Send + Sync> {
+pub struct DispatchFuture<T: Send + Sync> {
     #[pin]
     pub fut: Pin<Box<dyn Future<Output = T> + Sync + Send>>,
 }
 
 impl<T> Future for DispatchFuture<T>
 where
-    T: Responder + Send + Sync,
+    T: Send + Sync,
 {
     type Output = T;
 

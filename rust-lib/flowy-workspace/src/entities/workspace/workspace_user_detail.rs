@@ -1,6 +1,20 @@
-pub struct WorkspaceUserQueryRequest {
-    fetch_owner: bool,
-    fetch_all: bool,
+use crate::entities::workspace::WorkspaceDetail;
+use flowy_derive::ProtoBuf;
+
+#[derive(ProtoBuf, Default, Debug)]
+pub struct UserWorkspace {
+    #[pb(index = 1)]
+    pub owner: String,
+
+    #[pb(index = 2)]
+    pub workspace_id: String,
 }
 
-pub struct WorkspaceUserDetail {}
+#[derive(ProtoBuf, Default, Debug)]
+pub struct UserWorkspaceDetail {
+    #[pb(index = 1)]
+    pub owner: String,
+
+    #[pb(index = 2)]
+    pub workspace: WorkspaceDetail,
+}

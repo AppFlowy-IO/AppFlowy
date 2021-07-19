@@ -18,14 +18,14 @@ const WorkspaceErrorCode$json = const {
     const {'1': 'AppColorStyleInvalid', '2': 3},
     const {'1': 'AppIdInvalid', '2': 4},
     const {'1': 'DatabaseConnectionFail', '2': 5},
-    const {'1': 'DatabaseInternalError', '2': 6},
+    const {'1': 'WorkspaceDatabaseError', '2': 6},
     const {'1': 'UserInternalError', '2': 10},
     const {'1': 'UserNotLoginYet', '2': 11},
   ],
 };
 
 /// Descriptor for `WorkspaceErrorCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List workspaceErrorCodeDescriptor = $convert.base64Decode('ChJXb3Jrc3BhY2VFcnJvckNvZGUSCwoHVW5rbm93bhAAEhgKFFdvcmtzcGFjZU5hbWVJbnZhbGlkEAESFgoSV29ya3NwYWNlSWRJbnZhbGlkEAISGAoUQXBwQ29sb3JTdHlsZUludmFsaWQQAxIQCgxBcHBJZEludmFsaWQQBBIaChZEYXRhYmFzZUNvbm5lY3Rpb25GYWlsEAUSGQoVRGF0YWJhc2VJbnRlcm5hbEVycm9yEAYSFQoRVXNlckludGVybmFsRXJyb3IQChITCg9Vc2VyTm90TG9naW5ZZXQQCw==');
+final $typed_data.Uint8List workspaceErrorCodeDescriptor = $convert.base64Decode('ChJXb3Jrc3BhY2VFcnJvckNvZGUSCwoHVW5rbm93bhAAEhgKFFdvcmtzcGFjZU5hbWVJbnZhbGlkEAESFgoSV29ya3NwYWNlSWRJbnZhbGlkEAISGAoUQXBwQ29sb3JTdHlsZUludmFsaWQQAxIQCgxBcHBJZEludmFsaWQQBBIaChZEYXRhYmFzZUNvbm5lY3Rpb25GYWlsEAUSGgoWV29ya3NwYWNlRGF0YWJhc2VFcnJvchAGEhUKEVVzZXJJbnRlcm5hbEVycm9yEAoSEwoPVXNlck5vdExvZ2luWWV0EAs=');
 @$core.Deprecated('Use workspaceErrorDescriptor instead')
 const WorkspaceError$json = const {
   '1': 'WorkspaceError',
