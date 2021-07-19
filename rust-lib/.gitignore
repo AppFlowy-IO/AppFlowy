@@ -12,4 +12,4 @@ Cargo.lock
 **/**/temp
 bin/
 
-.idea
+.idea/
