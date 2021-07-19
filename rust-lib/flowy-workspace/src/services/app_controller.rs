@@ -1,5 +1,5 @@
 use crate::{
-    entities::app::{AppDetail, CreateAppParams, *},
+    entities::app::{App, CreateAppParams, *},
     errors::*,
     module::WorkspaceUser,
     sql_tables::app::*,
@@ -14,15 +14,15 @@ pub struct AppController {
 impl AppController {
     pub fn new(user: Arc<dyn WorkspaceUser>) -> Self { Self { user } }
 
-    pub fn save_app(&self, params: CreateAppParams) -> Result<AppDetail, WorkspaceError> {
-        let app = AppTable::new(params);
+    pub fn save_app(&self, params: CreateAppParams) -> Result<App, WorkspaceError> {
+        let app_table = AppTable::new(params);
         let conn = self.user.db_connection()?;
 
-        let detail: AppDetail = app.clone().into();
+        let app: App = app_table.clone().into();
         let _ = diesel::insert_into(app_table::table)
-            .values(app)
+            .values(app_table)
             .execute(&*conn)?;
-        Ok(detail)
+        Ok(app)
     }
 
     pub fn update_app(&self, params: UpdateAppParams) -> Result<(), WorkspaceError> {

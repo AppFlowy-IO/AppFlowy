@@ -1,7 +1,7 @@
 use flowy_test::builder::WorkspaceTestBuilder;
 use flowy_workspace::{
     entities::{
-        app::{AppDetail, CreateAppRequest},
+        app::{App, CreateAppRequest},
         workspace::UserWorkspaceDetail,
     },
     event::WorkspaceEvent::{CreateApp, GetWorkspaceDetail},
@@ -25,7 +25,7 @@ fn app_create_success() {
         .event(CreateApp)
         .request(request)
         .sync_send()
-        .parse::<AppDetail>();
+        .parse::<App>();
 
     dbg!(&app_detail);
 }

@@ -7,5 +7,5 @@ message UserWorkspace {
 }
 message UserWorkspaceDetail {
     string owner = 1;
-    WorkspaceDetail workspace = 2;
+    Workspace workspace = 2;
 }

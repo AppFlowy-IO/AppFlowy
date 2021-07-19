@@ -225,7 +225,7 @@ impl ::protobuf::reflect::ProtobufValue for CreateWorkspaceRequest {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct WorkspaceDetail {
+pub struct Workspace {
     // message fields
     pub id: ::std::string::String,
     pub name: ::std::string::String,
@@ -235,14 +235,14 @@ pub struct WorkspaceDetail {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a WorkspaceDetail {
-    fn default() -> &'a WorkspaceDetail {
-        <WorkspaceDetail as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a Workspace {
+    fn default() -> &'a Workspace {
+        <Workspace as ::protobuf::Message>::default_instance()
     }
 }
 
-impl WorkspaceDetail {
-    pub fn new() -> WorkspaceDetail {
+impl Workspace {
+    pub fn new() -> Workspace {
         ::std::default::Default::default()
     }
 
@@ -325,7 +325,7 @@ impl WorkspaceDetail {
     }
 }
 
-impl ::protobuf::Message for WorkspaceDetail {
+impl ::protobuf::Message for Workspace {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -409,8 +409,8 @@ impl ::protobuf::Message for WorkspaceDetail {
         Self::descriptor_static()
     }
 
-    fn new() -> WorkspaceDetail {
-        WorkspaceDetail::new()
+    fn new() -> Workspace {
+        Workspace::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -419,34 +419,34 @@ impl ::protobuf::Message for WorkspaceDetail {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "id",
-                |m: &WorkspaceDetail| { &m.id },
-                |m: &mut WorkspaceDetail| { &mut m.id },
+                |m: &Workspace| { &m.id },
+                |m: &mut Workspace| { &mut m.id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "name",
-                |m: &WorkspaceDetail| { &m.name },
-                |m: &mut WorkspaceDetail| { &mut m.name },
+                |m: &Workspace| { &m.name },
+                |m: &mut Workspace| { &mut m.name },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "desc",
-                |m: &WorkspaceDetail| { &m.desc },
-                |m: &mut WorkspaceDetail| { &mut m.desc },
+                |m: &Workspace| { &m.desc },
+                |m: &mut Workspace| { &mut m.desc },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<WorkspaceDetail>(
-                "WorkspaceDetail",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<Workspace>(
+                "Workspace",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static WorkspaceDetail {
-        static instance: ::protobuf::rt::LazyV2<WorkspaceDetail> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(WorkspaceDetail::new)
+    fn default_instance() -> &'static Workspace {
+        static instance: ::protobuf::rt::LazyV2<Workspace> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(Workspace::new)
     }
 }
 
-impl ::protobuf::Clear for WorkspaceDetail {
+impl ::protobuf::Clear for Workspace {
     fn clear(&mut self) {
         self.id.clear();
         self.name.clear();
@@ -455,13 +455,13 @@ impl ::protobuf::Clear for WorkspaceDetail {
     }
 }
 
-impl ::std::fmt::Debug for WorkspaceDetail {
+impl ::std::fmt::Debug for Workspace {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for WorkspaceDetail {
+impl ::protobuf::reflect::ProtobufValue for Workspace {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -470,26 +470,26 @@ impl ::protobuf::reflect::ProtobufValue for WorkspaceDetail {
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x16workspace_create.proto\"@\n\x16CreateWorkspaceRequest\x12\x12\n\
     \x04name\x18\x01\x20\x01(\tR\x04name\x12\x12\n\x04desc\x18\x02\x20\x01(\
-    \tR\x04desc\"I\n\x0fWorkspaceDetail\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\
-    \x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x12\n\x04desc\
-    \x18\x03\x20\x01(\tR\x04descJ\xd5\x02\n\x06\x12\x04\0\0\n\x01\n\x08\n\
-    \x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\
-    \x04\0\x01\x12\x03\x02\x08\x1e\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\
-    \x14\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\
-    \0\x01\x12\x03\x03\x0b\x0f\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x12\
-    \x13\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x14\n\x0c\n\x05\x04\0\x02\
-    \x01\x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x0b\
-    \x0f\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x12\x13\n\n\n\x02\x04\x01\
-    \x12\x04\x06\0\n\x01\n\n\n\x03\x04\x01\x01\x12\x03\x06\x08\x17\n\x0b\n\
-    \x04\x04\x01\x02\0\x12\x03\x07\x04\x12\n\x0c\n\x05\x04\x01\x02\0\x05\x12\
-    \x03\x07\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x07\x0b\r\n\x0c\n\
-    \x05\x04\x01\x02\0\x03\x12\x03\x07\x10\x11\n\x0b\n\x04\x04\x01\x02\x01\
-    \x12\x03\x08\x04\x14\n\x0c\n\x05\x04\x01\x02\x01\x05\x12\x03\x08\x04\n\n\
-    \x0c\n\x05\x04\x01\x02\x01\x01\x12\x03\x08\x0b\x0f\n\x0c\n\x05\x04\x01\
-    \x02\x01\x03\x12\x03\x08\x12\x13\n\x0b\n\x04\x04\x01\x02\x02\x12\x03\t\
-    \x04\x14\n\x0c\n\x05\x04\x01\x02\x02\x05\x12\x03\t\x04\n\n\x0c\n\x05\x04\
-    \x01\x02\x02\x01\x12\x03\t\x0b\x0f\n\x0c\n\x05\x04\x01\x02\x02\x03\x12\
-    \x03\t\x12\x13b\x06proto3\
+    \tR\x04desc\"C\n\tWorkspace\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\
+    \x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x12\n\x04desc\x18\x03\
+    \x20\x01(\tR\x04descJ\xd5\x02\n\x06\x12\x04\0\0\n\x01\n\x08\n\x01\x0c\
+    \x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\0\
+    \x01\x12\x03\x02\x08\x1e\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x14\n\
+    \x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\
+    \x12\x03\x03\x0b\x0f\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x12\x13\n\
+    \x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x14\n\x0c\n\x05\x04\0\x02\x01\
+    \x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x0b\x0f\
+    \n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x12\x13\n\n\n\x02\x04\x01\x12\
+    \x04\x06\0\n\x01\n\n\n\x03\x04\x01\x01\x12\x03\x06\x08\x11\n\x0b\n\x04\
+    \x04\x01\x02\0\x12\x03\x07\x04\x12\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\
+    \x07\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x07\x0b\r\n\x0c\n\x05\
+    \x04\x01\x02\0\x03\x12\x03\x07\x10\x11\n\x0b\n\x04\x04\x01\x02\x01\x12\
+    \x03\x08\x04\x14\n\x0c\n\x05\x04\x01\x02\x01\x05\x12\x03\x08\x04\n\n\x0c\
+    \n\x05\x04\x01\x02\x01\x01\x12\x03\x08\x0b\x0f\n\x0c\n\x05\x04\x01\x02\
+    \x01\x03\x12\x03\x08\x12\x13\n\x0b\n\x04\x04\x01\x02\x02\x12\x03\t\x04\
+    \x14\n\x0c\n\x05\x04\x01\x02\x02\x05\x12\x03\t\x04\n\n\x0c\n\x05\x04\x01\
+    \x02\x02\x01\x12\x03\t\x0b\x0f\n\x0c\n\x05\x04\x01\x02\x02\x03\x12\x03\t\
+    \x12\x13b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

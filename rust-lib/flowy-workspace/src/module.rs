@@ -7,7 +7,7 @@ use crate::{
 };
 use flowy_database::DBConnection;
 
-use crate::{entities::workspace::UserWorkspace, handlers::*};
+use crate::{entities::workspace::UserWorkspace, handlers::*, services::ViewController};
 use std::sync::Arc;
 
 pub trait WorkspaceUser: Send + Sync {
@@ -19,12 +19,15 @@ pub trait WorkspaceUser: Send + Sync {
 pub fn create(user: Arc<dyn WorkspaceUser>) -> Module {
     let workspace_controller = Arc::new(WorkspaceController::new(user.clone()));
     let app_controller = Arc::new(AppController::new(user.clone()));
+    let view_controller = Arc::new(ViewController::new(user.clone()));
 
     Module::new()
         .name("Flowy-Workspace")
         .data(workspace_controller)
         .data(app_controller)
+        .data(view_controller)
         .event(WorkspaceEvent::CreateWorkspace, create_workspace)
         .event(WorkspaceEvent::GetWorkspaceDetail, get_workspace_detail)
         .event(WorkspaceEvent::CreateApp, create_app)
+        .event(WorkspaceEvent::CreateView, create_view)
 }

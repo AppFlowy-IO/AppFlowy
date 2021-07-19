@@ -9,9 +9,12 @@ enum WorkspaceErrorCode {
     WorkspaceNameInvalid = 1;
     WorkspaceIdInvalid = 2;
     AppColorStyleInvalid = 3;
-    AppIdInvalid = 4;
-    DatabaseConnectionFail = 5;
-    WorkspaceDatabaseError = 6;
-    UserInternalError = 10;
-    UserNotLoginYet = 11;
+    AppIdInvalid = 10;
+    AppNameInvalid = 11;
+    ViewNameInvalid = 20;
+    ViewThumbnailName = 21;
+    DatabaseConnectionFail = 100;
+    WorkspaceDatabaseError = 101;
+    UserInternalError = 102;
+    UserNotLoginYet = 103;
 }

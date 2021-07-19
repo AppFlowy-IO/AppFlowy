@@ -15,12 +15,12 @@ impl WorkspaceController {
     pub async fn save_workspace(
         &self,
         params: CreateWorkspaceParams,
-    ) -> Result<WorkspaceDetail, WorkspaceError> {
-        let workspace = WorkspaceTable::new(params);
-        let detail: WorkspaceDetail = workspace.clone().into();
+    ) -> Result<Workspace, WorkspaceError> {
+        let workspace_table = WorkspaceTable::new(params);
+        let detail: Workspace = workspace_table.clone().into();
 
         let _ = diesel::insert_into(workspace_table::table)
-            .values(workspace)
+            .values(workspace_table)
             .execute(&*(self.user.db_connection()?))?;
 
         let _ = self.user.set_cur_workspace_id(&detail.id).await?;

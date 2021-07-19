@@ -6,7 +6,7 @@ use flowy_user::{
     sql_tables::UserTable,
 };
 use flowy_workspace::{
-    entities::workspace::{CreateWorkspaceRequest, WorkspaceDetail},
+    entities::workspace::{CreateWorkspaceRequest, Workspace},
     errors::WorkspaceError,
     event::WorkspaceEvent::CreateWorkspace,
 };
@@ -66,7 +66,7 @@ impl UserServer for FlowyServerMocker {
             fut: Box::pin(async move {
                 let _ = EventDispatch::async_send(request)
                     .await
-                    .parse::<WorkspaceDetail, WorkspaceError>()
+                    .parse::<Workspace, WorkspaceError>()
                     .map_err(|e| {
                         ErrorBuilder::new(UserErrorCode::CreateDefaultWorkspaceFailed)
                             .error(e)

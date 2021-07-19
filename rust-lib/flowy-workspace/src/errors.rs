@@ -36,19 +36,28 @@ pub enum WorkspaceErrorCode {
     AppColorStyleInvalid = 3,
 
     #[display(fmt = "App id is invalid")]
-    AppIdInvalid         = 4,
+    AppIdInvalid         = 10,
+
+    #[display(fmt = "App name is invalid")]
+    AppNameInvalid       = 11,
+
+    #[display(fmt = "View name is invalid")]
+    ViewNameInvalid      = 20,
+
+    #[display(fmt = "Thumbnail of the view is invalid")]
+    ViewThumbnailName    = 21,
 
     #[display(fmt = "Get database connection failed")]
-    DatabaseConnectionFail = 5,
+    DatabaseConnectionFail = 100,
 
     #[display(fmt = "Database internal error")]
-    WorkspaceDatabaseError = 6,
+    WorkspaceDatabaseError = 101,
 
     #[display(fmt = "User internal error")]
-    UserInternalError    = 10,
+    UserInternalError    = 102,
 
     #[display(fmt = "User not login yet")]
-    UserNotLoginYet      = 11,
+    UserNotLoginYet      = 103,
 }
 
 impl std::default::Default for WorkspaceErrorCode {

@@ -228,7 +228,7 @@ impl ::protobuf::reflect::ProtobufValue for UserWorkspace {
 pub struct UserWorkspaceDetail {
     // message fields
     pub owner: ::std::string::String,
-    pub workspace: ::protobuf::SingularPtrField<super::workspace_create::WorkspaceDetail>,
+    pub workspace: ::protobuf::SingularPtrField<super::workspace_create::Workspace>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -271,11 +271,11 @@ impl UserWorkspaceDetail {
         ::std::mem::replace(&mut self.owner, ::std::string::String::new())
     }
 
-    // .WorkspaceDetail workspace = 2;
+    // .Workspace workspace = 2;
 
 
-    pub fn get_workspace(&self) -> &super::workspace_create::WorkspaceDetail {
-        self.workspace.as_ref().unwrap_or_else(|| <super::workspace_create::WorkspaceDetail as ::protobuf::Message>::default_instance())
+    pub fn get_workspace(&self) -> &super::workspace_create::Workspace {
+        self.workspace.as_ref().unwrap_or_else(|| <super::workspace_create::Workspace as ::protobuf::Message>::default_instance())
     }
     pub fn clear_workspace(&mut self) {
         self.workspace.clear();
@@ -286,13 +286,13 @@ impl UserWorkspaceDetail {
     }
 
     // Param is passed by value, moved
-    pub fn set_workspace(&mut self, v: super::workspace_create::WorkspaceDetail) {
+    pub fn set_workspace(&mut self, v: super::workspace_create::Workspace) {
         self.workspace = ::protobuf::SingularPtrField::some(v);
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_workspace(&mut self) -> &mut super::workspace_create::WorkspaceDetail {
+    pub fn mut_workspace(&mut self) -> &mut super::workspace_create::Workspace {
         if self.workspace.is_none() {
             self.workspace.set_default();
         }
@@ -300,8 +300,8 @@ impl UserWorkspaceDetail {
     }
 
     // Take field
-    pub fn take_workspace(&mut self) -> super::workspace_create::WorkspaceDetail {
-        self.workspace.take().unwrap_or_else(|| super::workspace_create::WorkspaceDetail::new())
+    pub fn take_workspace(&mut self) -> super::workspace_create::Workspace {
+        self.workspace.take().unwrap_or_else(|| super::workspace_create::Workspace::new())
     }
 }
 
@@ -401,7 +401,7 @@ impl ::protobuf::Message for UserWorkspaceDetail {
                 |m: &UserWorkspaceDetail| { &m.owner },
                 |m: &mut UserWorkspaceDetail| { &mut m.owner },
             ));
-            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<super::workspace_create::WorkspaceDetail>>(
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<super::workspace_create::Workspace>>(
                 "workspace",
                 |m: &UserWorkspaceDetail| { &m.workspace },
                 |m: &mut UserWorkspaceDetail| { &mut m.workspace },
@@ -443,24 +443,24 @@ impl ::protobuf::reflect::ProtobufValue for UserWorkspaceDetail {
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x1bworkspace_user_detail.proto\x1a\x16workspace_create.proto\"H\n\rUs\
     erWorkspace\x12\x14\n\x05owner\x18\x01\x20\x01(\tR\x05owner\x12!\n\x0cwo\
-    rkspace_id\x18\x02\x20\x01(\tR\x0bworkspaceId\"[\n\x13UserWorkspaceDetai\
-    l\x12\x14\n\x05owner\x18\x01\x20\x01(\tR\x05owner\x12.\n\tworkspace\x18\
-    \x02\x20\x01(\x0b2\x10.WorkspaceDetailR\tworkspaceJ\xa9\x02\n\x06\x12\
-    \x04\0\0\n\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\t\n\x02\x03\0\x12\x03\
-    \x01\0\x20\n\n\n\x02\x04\0\x12\x04\x03\0\x06\x01\n\n\n\x03\x04\0\x01\x12\
-    \x03\x03\x08\x15\n\x0b\n\x04\x04\0\x02\0\x12\x03\x04\x04\x15\n\x0c\n\x05\
-    \x04\0\x02\0\x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\
-    \x04\x0b\x10\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x04\x13\x14\n\x0b\n\x04\
-    \x04\0\x02\x01\x12\x03\x05\x04\x1c\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\
-    \x05\x04\n\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x05\x0b\x17\n\x0c\n\x05\
-    \x04\0\x02\x01\x03\x12\x03\x05\x1a\x1b\n\n\n\x02\x04\x01\x12\x04\x07\0\n\
-    \x01\n\n\n\x03\x04\x01\x01\x12\x03\x07\x08\x1b\n\x0b\n\x04\x04\x01\x02\0\
-    \x12\x03\x08\x04\x15\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x08\x04\n\n\
-    \x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x08\x0b\x10\n\x0c\n\x05\x04\x01\x02\
-    \0\x03\x12\x03\x08\x13\x14\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\t\x04\"\n\
-    \x0c\n\x05\x04\x01\x02\x01\x06\x12\x03\t\x04\x13\n\x0c\n\x05\x04\x01\x02\
-    \x01\x01\x12\x03\t\x14\x1d\n\x0c\n\x05\x04\x01\x02\x01\x03\x12\x03\t\x20\
-    !b\x06proto3\
+    rkspace_id\x18\x02\x20\x01(\tR\x0bworkspaceId\"U\n\x13UserWorkspaceDetai\
+    l\x12\x14\n\x05owner\x18\x01\x20\x01(\tR\x05owner\x12(\n\tworkspace\x18\
+    \x02\x20\x01(\x0b2\n.WorkspaceR\tworkspaceJ\xa9\x02\n\x06\x12\x04\0\0\n\
+    \x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\t\n\x02\x03\0\x12\x03\x01\0\x20\n\
+    \n\n\x02\x04\0\x12\x04\x03\0\x06\x01\n\n\n\x03\x04\0\x01\x12\x03\x03\x08\
+    \x15\n\x0b\n\x04\x04\0\x02\0\x12\x03\x04\x04\x15\n\x0c\n\x05\x04\0\x02\0\
+    \x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x04\x0b\x10\n\
+    \x0c\n\x05\x04\0\x02\0\x03\x12\x03\x04\x13\x14\n\x0b\n\x04\x04\0\x02\x01\
+    \x12\x03\x05\x04\x1c\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x05\x04\n\n\
+    \x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x05\x0b\x17\n\x0c\n\x05\x04\0\x02\
+    \x01\x03\x12\x03\x05\x1a\x1b\n\n\n\x02\x04\x01\x12\x04\x07\0\n\x01\n\n\n\
+    \x03\x04\x01\x01\x12\x03\x07\x08\x1b\n\x0b\n\x04\x04\x01\x02\0\x12\x03\
+    \x08\x04\x15\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x08\x04\n\n\x0c\n\x05\
+    \x04\x01\x02\0\x01\x12\x03\x08\x0b\x10\n\x0c\n\x05\x04\x01\x02\0\x03\x12\
+    \x03\x08\x13\x14\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\t\x04\x1c\n\x0c\n\
+    \x05\x04\x01\x02\x01\x06\x12\x03\t\x04\r\n\x0c\n\x05\x04\x01\x02\x01\x01\
+    \x12\x03\t\x0e\x17\n\x0c\n\x05\x04\x01\x02\x01\x03\x12\x03\t\x1a\x1bb\
+    \x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

@@ -4,7 +4,7 @@ use crate::{
         CreateWorkspaceRequest,
         UserWorkspace,
         UserWorkspaceDetail,
-        WorkspaceDetail,
+        Workspace,
     },
     errors::WorkspaceError,
     services::WorkspaceController,
@@ -15,7 +15,7 @@ use std::{convert::TryInto, sync::Arc};
 pub async fn create_workspace(
     data: Data<CreateWorkspaceRequest>,
     controller: ModuleData<Arc<WorkspaceController>>,
-) -> ResponseResult<WorkspaceDetail, WorkspaceError> {
+) -> ResponseResult<Workspace, WorkspaceError> {
     let controller = controller.get_ref().clone();
     let params: CreateWorkspaceParams = data.into_inner().try_into()?;
     let detail = controller.save_workspace(params).await?;

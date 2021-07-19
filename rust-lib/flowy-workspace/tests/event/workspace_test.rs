@@ -1,6 +1,6 @@
 use crate::helper::*;
 use flowy_workspace::{
-    entities::workspace::{CreateWorkspaceRequest, UserWorkspaceDetail, WorkspaceDetail},
+    entities::workspace::{CreateWorkspaceRequest, UserWorkspaceDetail, Workspace},
     event::WorkspaceEvent::*,
     prelude::*,
 };
@@ -16,7 +16,7 @@ fn workspace_create_success() {
         .event(CreateWorkspace)
         .request(request)
         .sync_send()
-        .parse::<WorkspaceDetail>();
+        .parse::<Workspace>();
     dbg!(&response);
 }
 
@@ -41,7 +41,7 @@ fn workspace_create_and_then_get_detail_success() {
         .event(CreateWorkspace)
         .request(request)
         .sync_send()
-        .parse::<WorkspaceDetail>();
+        .parse::<Workspace>();
 
     let user_workspace = WorkspaceTestBuilder::new()
         .event(GetWorkspaceDetail)

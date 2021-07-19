@@ -1,5 +1,5 @@
 use crate::{
-    entities::app::{AppDetail, ColorStyle, CreateAppParams, UpdateAppParams},
+    entities::app::{App, ColorStyle, CreateAppParams, UpdateAppParams},
     impl_sql_binary_expression,
     sql_tables::workspace::WorkspaceTable,
 };
@@ -9,20 +9,9 @@ use flowy_infra::{timestamp, uuid};
 use serde::{Deserialize, Serialize, __private::TryFrom};
 use std::convert::TryInto;
 
-#[derive(
-    PartialEq,
-    Serialize,
-    Deserialize,
-    Clone,
-    Debug,
-    Queryable,
-    Identifiable,
-    Insertable,
-    Associations,
-)]
+#[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
 #[belongs_to(WorkspaceTable, foreign_key = "workspace_id")]
 #[table_name = "app_table"]
-#[serde(tag = "type")]
 pub(crate) struct AppTable {
     pub id: String,
     pub workspace_id: String, // equal to #[belongs_to(Workspace, foreign_key = "workspace_id")].
@@ -105,9 +94,9 @@ impl AppTableChangeset {
     }
 }
 
-impl std::convert::Into<AppDetail> for AppTable {
-    fn into(self) -> AppDetail {
-        AppDetail {
+impl std::convert::Into<App> for AppTable {
+    fn into(self) -> App {
+        App {
             id: self.id,
             workspace_id: self.workspace_id,
             name: self.name,

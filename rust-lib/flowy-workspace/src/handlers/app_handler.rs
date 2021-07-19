@@ -1,5 +1,5 @@
 use crate::{
-    entities::app::{AppDetail, CreateAppParams, CreateAppRequest},
+    entities::app::{App, CreateAppParams, CreateAppRequest},
     errors::WorkspaceError,
     services::AppController,
 };
@@ -9,7 +9,7 @@ use std::{convert::TryInto, sync::Arc};
 pub async fn create_app(
     data: Data<CreateAppRequest>,
     controller: ModuleData<Arc<AppController>>,
-) -> ResponseResult<AppDetail, WorkspaceError> {
+) -> ResponseResult<App, WorkspaceError> {
     let params: CreateAppParams = data.into_inner().try_into()?;
     let detail = controller.save_app(params)?;
     response_ok(detail)

@@ -41,7 +41,7 @@ impl TryInto<CreateAppParams> for CreateAppRequest {
 
     fn try_into(self) -> Result<CreateAppParams, Self::Error> {
         let name = AppName::parse(self.name).map_err(|e| {
-            ErrorBuilder::new(WorkspaceErrorCode::WorkspaceNameInvalid)
+            ErrorBuilder::new(WorkspaceErrorCode::AppNameInvalid)
                 .msg(e)
                 .build()
         })?;
@@ -68,7 +68,7 @@ impl TryInto<CreateAppParams> for CreateAppRequest {
 }
 
 #[derive(ProtoBuf, Default, Debug)]
-pub struct AppDetail {
+pub struct App {
     #[pb(index = 1)]
     pub id: String,
 

@@ -75,14 +75,14 @@ class UserWorkspace extends $pb.GeneratedMessage {
 class UserWorkspaceDetail extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UserWorkspaceDetail', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'owner')
-    ..aOM<$0.WorkspaceDetail>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspace', subBuilder: $0.WorkspaceDetail.create)
+    ..aOM<$0.Workspace>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspace', subBuilder: $0.Workspace.create)
     ..hasRequiredFields = false
   ;
 
   UserWorkspaceDetail._() : super();
   factory UserWorkspaceDetail({
     $core.String? owner,
-    $0.WorkspaceDetail? workspace,
+    $0.Workspace? workspace,
   }) {
     final _result = create();
     if (owner != null) {
@@ -124,14 +124,14 @@ class UserWorkspaceDetail extends $pb.GeneratedMessage {
   void clearOwner() => clearField(1);
 
   @$pb.TagNumber(2)
-  $0.WorkspaceDetail get workspace => $_getN(1);
+  $0.Workspace get workspace => $_getN(1);
   @$pb.TagNumber(2)
-  set workspace($0.WorkspaceDetail v) { setField(2, v); }
+  set workspace($0.Workspace v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasWorkspace() => $_has(1);
   @$pb.TagNumber(2)
   void clearWorkspace() => clearField(2);
   @$pb.TagNumber(2)
-  $0.WorkspaceDetail ensureWorkspace() => $_ensure(1);
+  $0.Workspace ensureWorkspace() => $_ensure(1);
 }
 

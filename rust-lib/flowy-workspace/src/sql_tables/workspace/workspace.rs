@@ -1,11 +1,9 @@
-use crate::entities::workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceDetail};
+use crate::entities::workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, Workspace};
 use flowy_database::schema::workspace_table;
 use flowy_infra::{timestamp, uuid};
-use serde::{Deserialize, Serialize};
 
-#[derive(PartialEq, Clone, Serialize, Deserialize, Debug, Queryable, Identifiable, Insertable)]
+#[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable)]
 #[table_name = "workspace_table"]
-#[serde(tag = "type")]
 pub struct WorkspaceTable {
     pub id: String,
     pub name: String,
@@ -59,9 +57,9 @@ impl WorkspaceTableChangeset {
     }
 }
 
-impl std::convert::Into<WorkspaceDetail> for WorkspaceTable {
-    fn into(self) -> WorkspaceDetail {
-        WorkspaceDetail {
+impl std::convert::Into<Workspace> for WorkspaceTable {
+    fn into(self) -> Workspace {
+        Workspace {
             id: self.id,
             name: self.name,
             desc: self.desc,
