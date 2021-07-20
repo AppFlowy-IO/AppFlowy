@@ -1,4 +1,5 @@
 // Auto-generated, do not edit 
+export './app_query.pb.dart';
 export './errors.pb.dart';
 export './workspace_update.pb.dart';
 export './app_create.pb.dart';

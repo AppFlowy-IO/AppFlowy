@@ -16,9 +16,13 @@ pub enum WorkspaceEvent {
     #[event(input = "QueryWorkspaceRequest", output = "Workspace")]
     GetWorkspace    = 2,
 
-    #[display(fmt = "Create app")]
+    #[display(fmt = "Create app information")]
     #[event(input = "CreateAppRequest", output = "App")]
     CreateApp       = 101,
+
+    #[display(fmt = "Get app information")]
+    #[event(input = "QueryAppRequest", output = "App")]
+    GetApp          = 102,
 
     #[display(fmt = "Create view")]
     #[event(input = "CreateViewRequest", output = "View")]

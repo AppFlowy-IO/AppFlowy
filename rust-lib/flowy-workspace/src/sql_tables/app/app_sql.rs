@@ -47,10 +47,17 @@ impl AppTableSql {
 
     pub(crate) fn read_views_belong_to_app(
         &self,
-        app_table: &AppTable,
+        app_id: &str,
     ) -> Result<Vec<ViewTable>, WorkspaceError> {
         let conn = self.database.db_connection()?;
-        let views = ViewTable::belonging_to(app_table).load::<ViewTable>(&*conn)?;
+
+        let views = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
+            let app_table: AppTable = dsl::app_table
+                .filter(app_table::id.eq(app_id))
+                .first::<AppTable>(&*(conn))?;
+            let views = ViewTable::belonging_to(&app_table).load::<ViewTable>(&*conn)?;
+            Ok(views)
+        })?;
 
         Ok(views)
     }

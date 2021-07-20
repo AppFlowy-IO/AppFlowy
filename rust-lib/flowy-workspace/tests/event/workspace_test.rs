@@ -13,13 +13,13 @@ use serial_test::*;
 fn workspace_create_success() { let _ = create_workspace("First workspace", ""); }
 
 #[test]
-fn workspace_get_detail_success() {
-    let user_workspace = WorkspaceTestBuilder::new()
+fn workspace_get_success() {
+    let workspace = WorkspaceTestBuilder::new()
         .event(GetCurWorkspace)
         .sync_send()
         .parse::<Workspace>();
 
-    dbg!(&user_workspace);
+    dbg!(&workspace);
 }
 
 #[test]

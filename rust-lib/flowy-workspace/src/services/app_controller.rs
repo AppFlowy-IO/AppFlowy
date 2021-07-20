@@ -39,17 +39,21 @@ impl AppController {
         Ok(app)
     }
 
+    pub async fn get_app(&self, app_id: &str) -> Result<App, WorkspaceError> {
+        let app_table = self.get_app_table(app_id).await?;
+        Ok(app_table.into())
+    }
+
     pub fn update_app(&self, params: UpdateAppParams) -> Result<(), WorkspaceError> {
         let changeset = AppTableChangeset::new(params);
         let _ = self.sql.update_app_table(changeset)?;
         Ok(())
     }
 
-    pub async fn get_cur_views(&self, app_id: &str) -> Result<Vec<View>, WorkspaceError> {
-        let app_table = self.get_app_table(app_id).await?;
+    pub async fn get_views(&self, app_id: &str) -> Result<Vec<View>, WorkspaceError> {
         let views = self
             .sql
-            .read_views_belong_to_app(&app_table)?
+            .read_views_belong_to_app(app_id)?
             .into_iter()
             .map(|view_table| view_table.into())
             .collect::<Vec<View>>();

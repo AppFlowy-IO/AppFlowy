@@ -1,6 +1,7 @@
 use crate::{
     entities::{
         app::parser::{AppColorStyle, AppName},
+        view::RepeatedView,
         workspace::parser::WorkspaceId,
     },
     errors::*,
@@ -81,6 +82,9 @@ pub struct App {
 
     #[pb(index = 4)]
     pub desc: String,
+
+    #[pb(index = 5)]
+    pub views: RepeatedView,
 }
 
 #[derive(Debug, Default, ProtoBuf)]

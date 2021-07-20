@@ -1,12 +1,13 @@
 use crate::{
     entities::{app::parser::AppId, view::parser::*},
     errors::{ErrorBuilder, WorkspaceError, WorkspaceErrorCode},
+    impl_def_and_def_mut,
     sql_tables::view::ViewType,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use std::convert::TryInto;
 
-#[derive(Debug, ProtoBuf_Enum)]
+#[derive(PartialEq, Debug, ProtoBuf_Enum)]
 pub enum ViewTypeIdentifier {
     Docs = 0,
 }
@@ -85,7 +86,7 @@ impl TryInto<CreateViewParams> for CreateViewRequest {
     }
 }
 
-#[derive(ProtoBuf, Default, Debug)]
+#[derive(PartialEq, ProtoBuf, Default, Debug)]
 pub struct View {
     #[pb(index = 1)]
     pub id: String,
@@ -102,3 +103,11 @@ pub struct View {
     #[pb(index = 5)]
     pub view_type: ViewTypeIdentifier,
 }
+
+#[derive(PartialEq, Debug, Default, ProtoBuf)]
+pub struct RepeatedView {
+    #[pb(index = 1)]
+    pub items: Vec<View>,
+}
+
+impl_def_and_def_mut!(RepeatedView, View);

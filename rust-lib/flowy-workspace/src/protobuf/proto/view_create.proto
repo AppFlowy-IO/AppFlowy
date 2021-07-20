@@ -14,6 +14,9 @@ message View {
     string desc = 4;
     ViewTypeIdentifier view_type = 5;
 }
+message RepeatedView {
+    repeated View items = 1;
+}
 enum ViewTypeIdentifier {
     Docs = 0;
 }

@@ -9,6 +9,8 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
+import 'view_create.pb.dart' as $0;
+
 class CreateAppRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateAppRequest', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspaceId')
@@ -153,6 +155,7 @@ class App extends $pb.GeneratedMessage {
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspaceId')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
+    ..aOM<$0.RepeatedView>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'views', subBuilder: $0.RepeatedView.create)
     ..hasRequiredFields = false
   ;
 
@@ -162,6 +165,7 @@ class App extends $pb.GeneratedMessage {
     $core.String? workspaceId,
     $core.String? name,
     $core.String? desc,
+    $0.RepeatedView? views,
   }) {
     final _result = create();
     if (id != null) {
@@ -175,6 +179,9 @@ class App extends $pb.GeneratedMessage {
     }
     if (desc != null) {
       _result.desc = desc;
+    }
+    if (views != null) {
+      _result.views = views;
     }
     return _result;
   }
@@ -234,6 +241,17 @@ class App extends $pb.GeneratedMessage {
   $core.bool hasDesc() => $_has(3);
   @$pb.TagNumber(4)
   void clearDesc() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $0.RepeatedView get views => $_getN(4);
+  @$pb.TagNumber(5)
+  set views($0.RepeatedView v) { setField(5, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasViews() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearViews() => clearField(5);
+  @$pb.TagNumber(5)
+  $0.RepeatedView ensureViews() => $_ensure(4);
 }
 
 class RepeatedApp extends $pb.GeneratedMessage {

@@ -16,6 +16,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         "u8" => TypeCategory::Bytes,
         "String" => TypeCategory::Str,
         "KeyValue"
+        | "QueryAppRequest"
         | "CreateAppRequest"
         | "ColorStyle"
         | "App"
@@ -28,6 +29,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "CurrentWorkspace"
         | "CreateViewRequest"
         | "View"
+        | "RepeatedView"
         | "WorkspaceError"
         | "FFIRequest"
         | "FFIResponse"

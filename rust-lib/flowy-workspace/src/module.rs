@@ -45,5 +45,6 @@ pub fn create(user: Arc<dyn WorkspaceUser>, database: Arc<dyn WorkspaceDatabase>
         .event(WorkspaceEvent::GetCurWorkspace, get_cur_workspace)
         .event(WorkspaceEvent::GetWorkspace, get_workspace)
         .event(WorkspaceEvent::CreateApp, create_app)
+        .event(WorkspaceEvent::GetApp, get_app)
         .event(WorkspaceEvent::CreateView, create_view)
 }

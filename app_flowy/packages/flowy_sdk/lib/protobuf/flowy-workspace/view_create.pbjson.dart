@@ -49,3 +49,13 @@ const View$json = const {
 
 /// Descriptor for `View`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List viewDescriptor = $convert.base64Decode('CgRWaWV3Eg4KAmlkGAEgASgJUgJpZBIVCgZhcHBfaWQYAiABKAlSBWFwcElkEhIKBG5hbWUYAyABKAlSBG5hbWUSEgoEZGVzYxgEIAEoCVIEZGVzYxIwCgl2aWV3X3R5cGUYBSABKA4yEy5WaWV3VHlwZUlkZW50aWZpZXJSCHZpZXdUeXBl');
+@$core.Deprecated('Use repeatedViewDescriptor instead')
+const RepeatedView$json = const {
+  '1': 'RepeatedView',
+  '2': const [
+    const {'1': 'items', '3': 1, '4': 3, '5': 11, '6': '.View', '10': 'items'},
+  ],
+};
+
+/// Descriptor for `RepeatedView`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List repeatedViewDescriptor = $convert.base64Decode('CgxSZXBlYXRlZFZpZXcSGwoFaXRlbXMYASADKAsyBS5WaWV3UgVpdGVtcw==');

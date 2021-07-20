@@ -1,7 +1,7 @@
 pub use flowy_test::builder::WorkspaceTestBuilder;
 use flowy_workspace::{
-    entities::{app::*, workspace::*},
-    event::WorkspaceEvent::{CreateApp, CreateWorkspace, GetWorkspace},
+    entities::{app::*, view::*, workspace::*},
+    event::WorkspaceEvent::*,
 };
 
 pub(crate) fn invalid_workspace_name_test_case() -> Vec<String> {
@@ -50,4 +50,24 @@ pub fn get_workspace(request: QueryWorkspaceRequest) -> Workspace {
         .parse::<Workspace>();
 
     workspace
+}
+
+pub fn get_app(request: QueryAppRequest) -> App {
+    let app = WorkspaceTestBuilder::new()
+        .event(GetApp)
+        .request(request)
+        .sync_send()
+        .parse::<App>();
+
+    app
+}
+
+pub fn create_view(request: CreateViewRequest) -> View {
+    let view = WorkspaceTestBuilder::new()
+        .event(CreateView)
+        .request(request)
+        .sync_send()
+        .parse::<View>();
+
+    view
 }

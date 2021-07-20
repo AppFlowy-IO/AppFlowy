@@ -1,5 +1,8 @@
 use crate::{
-    entities::app::{App, ColorStyle, CreateAppParams, UpdateAppParams},
+    entities::{
+        app::{App, ColorStyle, CreateAppParams, UpdateAppParams},
+        view::RepeatedView,
+    },
     impl_sql_binary_expression,
     sql_tables::workspace::WorkspaceTable,
 };
@@ -101,6 +104,7 @@ impl std::convert::Into<App> for AppTable {
             workspace_id: self.workspace_id,
             name: self.name,
             desc: self.desc,
+            views: RepeatedView::default(),
         }
     }
 }
