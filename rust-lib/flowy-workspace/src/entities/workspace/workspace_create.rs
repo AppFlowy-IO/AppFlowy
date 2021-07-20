@@ -34,7 +34,7 @@ impl TryInto<CreateWorkspaceParams> for CreateWorkspaceRequest {
 }
 
 #[derive(ProtoBuf, Default, Debug)]
-pub struct WorkspaceDetail {
+pub struct Workspace {
     #[pb(index = 1)]
     pub id: String,
 

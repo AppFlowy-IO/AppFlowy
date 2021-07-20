@@ -14,10 +14,14 @@ class WorkspaceErrorCode extends $pb.ProtobufEnum {
   static const WorkspaceErrorCode WorkspaceNameInvalid = WorkspaceErrorCode._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceNameInvalid');
   static const WorkspaceErrorCode WorkspaceIdInvalid = WorkspaceErrorCode._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceIdInvalid');
   static const WorkspaceErrorCode AppColorStyleInvalid = WorkspaceErrorCode._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppColorStyleInvalid');
-  static const WorkspaceErrorCode AppIdInvalid = WorkspaceErrorCode._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppIdInvalid');
-  static const WorkspaceErrorCode DatabaseConnectionFail = WorkspaceErrorCode._(5, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DatabaseConnectionFail');
-  static const WorkspaceErrorCode DatabaseInternalError = WorkspaceErrorCode._(6, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DatabaseInternalError');
-  static const WorkspaceErrorCode UserInternalError = WorkspaceErrorCode._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserInternalError');
+  static const WorkspaceErrorCode AppIdInvalid = WorkspaceErrorCode._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppIdInvalid');
+  static const WorkspaceErrorCode AppNameInvalid = WorkspaceErrorCode._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppNameInvalid');
+  static const WorkspaceErrorCode ViewNameInvalid = WorkspaceErrorCode._(20, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewNameInvalid');
+  static const WorkspaceErrorCode ViewThumbnailName = WorkspaceErrorCode._(21, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewThumbnailName');
+  static const WorkspaceErrorCode DatabaseConnectionFail = WorkspaceErrorCode._(100, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DatabaseConnectionFail');
+  static const WorkspaceErrorCode WorkspaceDatabaseError = WorkspaceErrorCode._(101, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceDatabaseError');
+  static const WorkspaceErrorCode UserInternalError = WorkspaceErrorCode._(102, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserInternalError');
+  static const WorkspaceErrorCode UserNotLoginYet = WorkspaceErrorCode._(103, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNotLoginYet');
 
   static const $core.List<WorkspaceErrorCode> values = <WorkspaceErrorCode> [
     Unknown,
@@ -25,9 +29,13 @@ class WorkspaceErrorCode extends $pb.ProtobufEnum {
     WorkspaceIdInvalid,
     AppColorStyleInvalid,
     AppIdInvalid,
+    AppNameInvalid,
+    ViewNameInvalid,
+    ViewThumbnailName,
     DatabaseConnectionFail,
-    DatabaseInternalError,
+    WorkspaceDatabaseError,
     UserInternalError,
+    UserNotLoginYet,
   ];
 
   static final $core.Map<$core.int, WorkspaceErrorCode> _byValue = $pb.ProtobufEnum.initByValue(values);

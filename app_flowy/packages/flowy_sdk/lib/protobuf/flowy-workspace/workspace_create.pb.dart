@@ -70,16 +70,16 @@ class CreateWorkspaceRequest extends $pb.GeneratedMessage {
   void clearDesc() => clearField(2);
 }
 
-class WorkspaceDetail extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'WorkspaceDetail', createEmptyInstance: create)
+class Workspace extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Workspace', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
     ..hasRequiredFields = false
   ;
 
-  WorkspaceDetail._() : super();
-  factory WorkspaceDetail({
+  Workspace._() : super();
+  factory Workspace({
     $core.String? id,
     $core.String? name,
     $core.String? desc,
@@ -96,26 +96,26 @@ class WorkspaceDetail extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory WorkspaceDetail.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory WorkspaceDetail.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Workspace.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Workspace.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  WorkspaceDetail clone() => WorkspaceDetail()..mergeFromMessage(this);
+  Workspace clone() => Workspace()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  WorkspaceDetail copyWith(void Function(WorkspaceDetail) updates) => super.copyWith((message) => updates(message as WorkspaceDetail)) as WorkspaceDetail; // ignore: deprecated_member_use
+  Workspace copyWith(void Function(Workspace) updates) => super.copyWith((message) => updates(message as Workspace)) as Workspace; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static WorkspaceDetail create() => WorkspaceDetail._();
-  WorkspaceDetail createEmptyInstance() => create();
-  static $pb.PbList<WorkspaceDetail> createRepeated() => $pb.PbList<WorkspaceDetail>();
+  static Workspace create() => Workspace._();
+  Workspace createEmptyInstance() => create();
+  static $pb.PbList<Workspace> createRepeated() => $pb.PbList<Workspace>();
   @$core.pragma('dart2js:noInline')
-  static WorkspaceDetail getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<WorkspaceDetail>(create);
-  static WorkspaceDetail? _defaultInstance;
+  static Workspace getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Workspace>(create);
+  static Workspace? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);

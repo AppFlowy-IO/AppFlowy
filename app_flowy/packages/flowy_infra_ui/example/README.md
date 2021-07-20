@@ -1,6 +1,6 @@
-# example
+# flowy_infra_ui_example
 
-A new Flutter project.
+Demonstrates how to use the flowy_infra_ui plugin.
 
 ## Getting Started
 

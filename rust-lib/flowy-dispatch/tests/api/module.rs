@@ -10,7 +10,7 @@ async fn test_init() {
     init_dispatch(|| vec![Module::new().event(event, hello)]);
 
     let request = ModuleRequest::new(event);
-    let _ = EventDispatch::async_send(request, |resp| {
+    let _ = EventDispatch::async_send_with_callback(request, |resp| {
         Box::pin(async move {
             dbg!(&resp);
         })

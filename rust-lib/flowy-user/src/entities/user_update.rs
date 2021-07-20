@@ -23,6 +23,35 @@ pub struct UpdateUserRequest {
     pub password: Option<String>,
 }
 
+impl UpdateUserRequest {
+    pub fn new(id: &str) -> Self {
+        Self {
+            id: id.to_owned(),
+            ..Default::default()
+        }
+    }
+
+    pub fn name(mut self, name: &str) -> Self {
+        self.name = Some(name.to_owned());
+        self
+    }
+
+    pub fn email(mut self, email: &str) -> Self {
+        self.email = Some(email.to_owned());
+        self
+    }
+
+    pub fn workspace(mut self, workspace: &str) -> Self {
+        self.workspace = Some(workspace.to_owned());
+        self
+    }
+
+    pub fn password(mut self, password: &str) -> Self {
+        self.password = Some(password.to_owned());
+        self
+    }
+}
+
 pub struct UpdateUserParams {
     pub id: String,
     pub name: Option<String>,

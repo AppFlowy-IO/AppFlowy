@@ -6,18 +6,21 @@ use flowy_database::{
     UserDatabaseConnection,
 };
 use flowy_infra::kv::KVStore;
-use lazy_static::lazy_static;
+
 use std::sync::{Arc, RwLock};
 
 use crate::{
-    entities::{SignInParams, SignUpParams, UpdateUserParams, UserDetail},
+    entities::{SignInParams, SignUpParams, UpdateUserParams, UpdateUserRequest, UserDetail},
     errors::{ErrorBuilder, UserError, UserErrorCode},
-    event::UserEvent::GetStatus,
+    event::UserEvent::*,
     services::user_session::{database::UserDB, user_server::UserServer},
-    sql_tables::{User, UserChangeset},
+    sql_tables::{UserTable, UserTableChangeset},
 };
-use flowy_dispatch::prelude::{Data, EventDispatch, ModuleRequest};
-use std::convert::TryFrom;
+use flowy_dispatch::prelude::{EventDispatch, ModuleRequest, ToBytes};
+
+const DEFAULT_WORKSPACE_NAME: &'static str = "My workspace";
+const DEFAULT_WORKSPACE_DESC: &'static str = "This is your first workspace";
+const DEFAULT_WORKSPACE: &'static str = "Default_Workspace";
 
 pub struct UserSessionConfig {
     root_dir: String,
@@ -35,6 +38,7 @@ pub struct UserSession {
     database: UserDB,
     config: UserSessionConfig,
     server: Arc<dyn UserServer + Send + Sync>,
+    user_id: RwLock<Option<String>>,
 }
 
 impl UserSession {
@@ -47,23 +51,38 @@ impl UserSession {
             database: db,
             config,
             server,
+            user_id: RwLock::new(None),
         }
     }
 
-    pub async fn sign_in(&self, params: SignInParams) -> Result<User, UserError> {
+    pub fn get_db_connection(&self) -> Result<DBConnection, UserError> {
+        let user_id = self.get_user_id()?;
+        self.database.get_connection(&user_id)
+    }
+
+    pub async fn sign_in(&self, params: SignInParams) -> Result<UserTable, UserError> {
         let user = self.server.sign_in(params)?;
-        let _ = set_current_user_id(Some(user.id.clone()))?;
-        self.save_user(user)
+        let _ = self.set_user_id(Some(user.id.clone()))?;
+
+        let user_table = self.save_user(user)?;
+        let _ = self
+            .create_default_workspace_if_need(&user_table.id)
+            .await?;
+        Ok(user_table)
     }
 
-    pub async fn sign_up(&self, params: SignUpParams) -> Result<User, UserError> {
+    pub async fn sign_up(&self, params: SignUpParams) -> Result<UserTable, UserError> {
         let user = self.server.sign_up(params)?;
-        let _ = set_current_user_id(Some(user.id.clone()))?;
-        self.save_user(user)
+        let _ = self.set_user_id(Some(user.id.clone()))?;
+        let user_table = self.save_user(user)?;
+        let _ = self
+            .create_default_workspace_if_need(&user_table.id)
+            .await?;
+        Ok(user_table)
     }
 
-    pub async fn sign_out(&self) -> Result<(), UserError> {
-        let user_id = self.current_user_id()?;
+    pub fn sign_out(&self) -> Result<(), UserError> {
+        let user_id = self.get_user_id()?;
         let conn = self.get_db_connection()?;
         let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&user_id))).execute(&*conn)?;
 
@@ -71,28 +90,35 @@ impl UserSession {
             Ok(_) => {},
             Err(_) => {},
         }
-        let _ = self.database.close_user_db()?;
-        let _ = set_current_user_id(None)?;
+        let _ = self.database.close_user_db(&user_id)?;
+        let _ = self.set_user_id(None)?;
 
         Ok(())
     }
 
-    pub async fn update_user(&self, params: UpdateUserParams) -> Result<UserDetail, UserError> {
-        let changeset = UserChangeset::new(params);
+    fn save_user(&self, user: UserTable) -> Result<UserTable, UserError> {
+        let conn = self.get_db_connection()?;
+        let _ = diesel::insert_into(user_table::table)
+            .values(user.clone())
+            .execute(&*conn)?;
+
+        Ok(user)
+    }
+
+    pub fn update_user(&self, params: UpdateUserParams) -> Result<UserDetail, UserError> {
+        let changeset = UserTableChangeset::new(params);
         let conn = self.get_db_connection()?;
         diesel_update_table!(user_table, changeset, conn);
 
-        let user_detail = self.current_user_detail()?;
+        let user_detail = self.user_detail()?;
         Ok(user_detail)
     }
 
-    pub fn current_user_detail(&self) -> Result<UserDetail, UserError> {
-        let user_id = self.current_user_id()?;
-        let conn = self.get_db_connection()?;
-
+    pub fn user_detail(&self) -> Result<UserDetail, UserError> {
+        let user_id = self.get_user_id()?;
         let user = dsl::user_table
             .filter(user_table::id.eq(&user_id))
-            .first::<User>(&*conn)?;
+            .first::<UserTable>(&*(self.get_db_connection()?))?;
 
         match self.server.get_user_info(&user_id) {
             Ok(_user_detail) => {
@@ -106,59 +132,77 @@ impl UserSession {
         Ok(UserDetail::from(user))
     }
 
-    pub fn get_db_connection(&self) -> Result<DBConnection, UserError> {
-        let user_id = get_current_user_id()?;
-        self.database.get_connection(&user_id)
+    pub fn set_user_id(&self, user_id: Option<String>) -> Result<(), UserError> {
+        log::trace!("Set user id: {:?}", user_id);
+        KVStore::set_str(USER_ID_CACHE_KEY, user_id.clone().unwrap_or("".to_owned()));
+        match self.user_id.write() {
+            Ok(mut write_guard) => {
+                *write_guard = user_id;
+                Ok(())
+            },
+            Err(e) => Err(ErrorBuilder::new(UserErrorCode::WriteCurrentIdFailed)
+                .error(e)
+                .build()),
+        }
     }
 
-    pub fn set_current_workspace() {
-        unimplemented!()
+    pub fn get_user_id(&self) -> Result<String, UserError> {
+        let mut user_id = {
+            let read_guard = self.user_id.read().map_err(|e| {
+                ErrorBuilder::new(UserErrorCode::ReadCurrentIdFailed)
+                    .error(e)
+                    .build()
+            })?;
 
-        // let request = SignInRequest {
-        //     email: valid_email(),
-        //     password: valid_password(),
-        // };
-        //
-        // let user_detail = Tester::<UserError>::new(SignIn)
-        //     .request(request)
-        //     .sync_send()
-        //     .parse::<UserDetail>();
-        //
-        // user_detail
-    }
+            (*read_guard).clone()
+        };
 
-    #[allow(dead_code)]
-    pub fn get_current_workspace(&self) -> Result<String, UserError> {
-        // let response = EventDispatch::sync_send(ModuleRequest::new(GetStatus));
-        // let user_detail =
-        // <Data<UserDetail>>::try_from(response.payload).unwrap().into_inner();
-        let user_id = get_current_user_id()?;
-        let conn = self.get_db_connection()?;
+        if user_id.is_none() {
+            user_id = KVStore::get_str(USER_ID_CACHE_KEY);
+            let _ = self.set_user_id(user_id.clone())?;
+        }
 
-        let workspace = dsl::user_table
-            .filter(user_table::id.eq(&user_id))
-            .select(user_table::workspace)
-            .first::<String>(&*conn)?;
-
-        Ok(workspace)
-    }
-}
-
-impl UserSession {
-    fn save_user(&self, user: User) -> Result<User, UserError> {
-        let conn = self.get_db_connection()?;
-        let _ = diesel::insert_into(user_table::table)
-            .values(user.clone())
-            .execute(&*conn)?;
-
-        Ok(user)
-    }
-
-    fn current_user_id(&self) -> Result<String, UserError> {
-        match KVStore::get_str(USER_ID_DISK_CACHE_KEY) {
+        match user_id {
             None => Err(ErrorBuilder::new(UserErrorCode::UserNotLoginYet).build()),
             Some(user_id) => Ok(user_id),
         }
+    }
+
+    pub async fn set_current_workspace(&self, workspace_id: &str) -> Result<(), UserError> {
+        let user_id = self.get_user_id()?;
+        let payload: Vec<u8> = UpdateUserRequest::new(&user_id)
+            .workspace(workspace_id)
+            .into_bytes()
+            .unwrap();
+
+        let request = ModuleRequest::new(UpdateUser).payload(payload);
+        let _ = EventDispatch::async_send(request)
+            .await
+            .parse::<UserDetail, UserError>()
+            .unwrap()?;
+        Ok(())
+    }
+
+    async fn create_default_workspace_if_need(&self, user_id: &str) -> Result<(), UserError> {
+        let key = format!("{}{}", user_id, DEFAULT_WORKSPACE);
+        if KVStore::get_bool(&key).unwrap_or(false) {
+            return Ok(());
+        }
+
+        KVStore::set_bool(&key, true);
+        log::debug!("Create user:{} default workspace", user_id);
+        let _ = self
+            .server
+            .create_workspace(DEFAULT_WORKSPACE_NAME, DEFAULT_WORKSPACE_DESC, user_id)
+            .await?;
+        Ok(())
+    }
+}
+
+pub fn current_user_id() -> Result<String, UserError> {
+    match KVStore::get_str(USER_ID_CACHE_KEY) {
+        None => Err(ErrorBuilder::new(UserErrorCode::UserNotLoginYet).build()),
+        Some(user_id) => Ok(user_id),
     }
 }
 
@@ -168,48 +212,4 @@ impl UserDatabaseConnection for UserSession {
     }
 }
 
-const USER_ID_DISK_CACHE_KEY: &str = "user_id";
-lazy_static! {
-    pub static ref CURRENT_USER_ID: RwLock<Option<String>> = RwLock::new(None);
-}
-
-pub(crate) fn get_current_user_id() -> Result<String, UserError> {
-    let read_guard = CURRENT_USER_ID.read().map_err(|e| {
-        ErrorBuilder::new(UserErrorCode::ReadCurrentIdFailed)
-            .error(e)
-            .build()
-    })?;
-
-    let mut user_id = (*read_guard).clone();
-    // explicitly drop the read_guard in case of dead lock
-    drop(read_guard);
-
-    if user_id.is_none() {
-        user_id = KVStore::get_str(USER_ID_DISK_CACHE_KEY);
-        *(CURRENT_USER_ID.write().unwrap()) = user_id.clone();
-    }
-
-    if user_id.is_none() {
-        return Err(ErrorBuilder::new(UserErrorCode::UserNotLoginYet).build());
-    }
-
-    match user_id {
-        None => Err(ErrorBuilder::new(UserErrorCode::UserNotLoginYet).build()),
-        Some(user_id) => Ok(user_id),
-    }
-}
-
-pub(crate) fn set_current_user_id(user_id: Option<String>) -> Result<(), UserError> {
-    KVStore::set_str(
-        USER_ID_DISK_CACHE_KEY,
-        user_id.clone().unwrap_or("".to_owned()),
-    );
-
-    let mut current_user_id = CURRENT_USER_ID.write().map_err(|e| {
-        ErrorBuilder::new(UserErrorCode::WriteCurrentIdFailed)
-            .error(e)
-            .build()
-    })?;
-    *current_user_id = user_id;
-    Ok(())
-}
+const USER_ID_CACHE_KEY: &str = "user_id";

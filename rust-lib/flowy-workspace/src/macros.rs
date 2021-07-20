@@ -9,25 +9,7 @@ macro_rules! impl_sql_binary_expression {
                 out: &mut diesel::serialize::Output<W, diesel::sqlite::Sqlite>,
             ) -> diesel::serialize::Result {
                 let bytes: Vec<u8> = self.try_into().map_err(|e| format!("{:?}", e))?;
-                diesel::serialize::ToSql::<
-                                                                        diesel::sql_types::Binary,
-                                                                        diesel::sqlite::Sqlite,
-                                                                    >::to_sql(&bytes, out)
-
-                // match self.try_into() {
-                //     Ok(bytes) => diesel::serialize::ToSql::<
-                //         diesel::sql_types::Binary,
-                //         diesel::sqlite::Sqlite,
-                //     >::to_sql(&bytes, out),
-                //     Err(e) => {
-                //         log::error!(
-                //             "{:?} serialize to bytes fail. {:?}",
-                //             std::any::type_name::<$target>(),
-                //             e
-                //         );
-                //         panic!();
-                //     },
-                // }
+                diesel::serialize::ToSql::<diesel::sql_types::Binary,diesel::sqlite::Sqlite,>::to_sql(&bytes, out)
             }
         }
         // https://docs.diesel.rs/src/diesel/sqlite/types/mod.rs.html#30-33
@@ -60,6 +42,40 @@ macro_rules! impl_sql_binary_expression {
                         panic!();
                     },
                 }
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! impl_sql_integer_expression {
+    ($target:ident) => {
+        use diesel::{
+            deserialize,
+            deserialize::FromSql,
+            serialize,
+            serialize::{Output, ToSql},
+        };
+        use std::io::Write;
+
+        impl<DB> ToSql<Integer, DB> for $target
+        where
+            DB: diesel::backend::Backend,
+            i32: ToSql<Integer, DB>,
+        {
+            fn to_sql<W: Write>(&self, out: &mut Output<W, DB>) -> serialize::Result {
+                (*self as i32).to_sql(out)
+            }
+        }
+
+        impl<DB> FromSql<Integer, DB> for $target
+        where
+            DB: diesel::backend::Backend,
+            i32: FromSql<Integer, DB>,
+        {
+            fn from_sql(bytes: Option<&DB::RawValue>) -> deserialize::Result<Self> {
+                let smaill_int = i32::from_sql(bytes)?;
+                Ok($target::from(smaill_int))
             }
         }
     };

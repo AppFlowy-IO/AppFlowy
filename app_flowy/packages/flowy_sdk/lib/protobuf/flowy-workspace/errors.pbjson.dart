@@ -16,15 +16,19 @@ const WorkspaceErrorCode$json = const {
     const {'1': 'WorkspaceNameInvalid', '2': 1},
     const {'1': 'WorkspaceIdInvalid', '2': 2},
     const {'1': 'AppColorStyleInvalid', '2': 3},
-    const {'1': 'AppIdInvalid', '2': 4},
-    const {'1': 'DatabaseConnectionFail', '2': 5},
-    const {'1': 'DatabaseInternalError', '2': 6},
-    const {'1': 'UserInternalError', '2': 10},
+    const {'1': 'AppIdInvalid', '2': 10},
+    const {'1': 'AppNameInvalid', '2': 11},
+    const {'1': 'ViewNameInvalid', '2': 20},
+    const {'1': 'ViewThumbnailName', '2': 21},
+    const {'1': 'DatabaseConnectionFail', '2': 100},
+    const {'1': 'WorkspaceDatabaseError', '2': 101},
+    const {'1': 'UserInternalError', '2': 102},
+    const {'1': 'UserNotLoginYet', '2': 103},
   ],
 };
 
 /// Descriptor for `WorkspaceErrorCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List workspaceErrorCodeDescriptor = $convert.base64Decode('ChJXb3Jrc3BhY2VFcnJvckNvZGUSCwoHVW5rbm93bhAAEhgKFFdvcmtzcGFjZU5hbWVJbnZhbGlkEAESFgoSV29ya3NwYWNlSWRJbnZhbGlkEAISGAoUQXBwQ29sb3JTdHlsZUludmFsaWQQAxIQCgxBcHBJZEludmFsaWQQBBIaChZEYXRhYmFzZUNvbm5lY3Rpb25GYWlsEAUSGQoVRGF0YWJhc2VJbnRlcm5hbEVycm9yEAYSFQoRVXNlckludGVybmFsRXJyb3IQCg==');
+final $typed_data.Uint8List workspaceErrorCodeDescriptor = $convert.base64Decode('ChJXb3Jrc3BhY2VFcnJvckNvZGUSCwoHVW5rbm93bhAAEhgKFFdvcmtzcGFjZU5hbWVJbnZhbGlkEAESFgoSV29ya3NwYWNlSWRJbnZhbGlkEAISGAoUQXBwQ29sb3JTdHlsZUludmFsaWQQAxIQCgxBcHBJZEludmFsaWQQChISCg5BcHBOYW1lSW52YWxpZBALEhMKD1ZpZXdOYW1lSW52YWxpZBAUEhUKEVZpZXdUaHVtYm5haWxOYW1lEBUSGgoWRGF0YWJhc2VDb25uZWN0aW9uRmFpbBBkEhoKFldvcmtzcGFjZURhdGFiYXNlRXJyb3IQZRIVChFVc2VySW50ZXJuYWxFcnJvchBmEhMKD1VzZXJOb3RMb2dpbllldBBn');
 @$core.Deprecated('Use workspaceErrorDescriptor instead')
 const WorkspaceError$json = const {
   '1': 'WorkspaceError',

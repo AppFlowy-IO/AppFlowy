@@ -1,12 +1,10 @@
-use crate::entities::workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceDetail};
+use crate::entities::workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, Workspace};
 use flowy_database::schema::workspace_table;
 use flowy_infra::{timestamp, uuid};
-use serde::{Deserialize, Serialize};
 
-#[derive(PartialEq, Clone, Serialize, Deserialize, Debug, Queryable, Identifiable, Insertable)]
+#[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable)]
 #[table_name = "workspace_table"]
-#[serde(tag = "type")]
-pub struct Workspace {
+pub struct WorkspaceTable {
     pub id: String,
     pub name: String,
     pub desc: String,
@@ -16,20 +14,20 @@ pub struct Workspace {
     pub version: i64,
 }
 
-impl Workspace {
+impl WorkspaceTable {
     #[allow(dead_code)]
     pub fn new(params: CreateWorkspaceParams) -> Self {
-        let mut workspace = Workspace::default();
+        let mut workspace = WorkspaceTable::default();
         workspace.name = params.name;
         workspace.desc = params.desc;
         workspace
     }
 }
 
-impl std::default::Default for Workspace {
+impl std::default::Default for WorkspaceTable {
     fn default() -> Self {
         let time = timestamp();
-        Workspace {
+        WorkspaceTable {
             id: uuid(),
             name: String::default(),
             desc: String::default(),
@@ -43,15 +41,15 @@ impl std::default::Default for Workspace {
 
 #[derive(AsChangeset, Identifiable, Clone, Default, Debug)]
 #[table_name = "workspace_table"]
-pub struct WorkspaceChangeset {
+pub struct WorkspaceTableChangeset {
     pub id: String,
     pub name: Option<String>,
     pub desc: Option<String>,
 }
 
-impl WorkspaceChangeset {
+impl WorkspaceTableChangeset {
     pub fn new(params: UpdateWorkspaceParams) -> Self {
-        WorkspaceChangeset {
+        WorkspaceTableChangeset {
             id: params.id,
             name: params.name,
             desc: params.desc,
@@ -59,9 +57,9 @@ impl WorkspaceChangeset {
     }
 }
 
-impl std::convert::Into<WorkspaceDetail> for Workspace {
-    fn into(self) -> WorkspaceDetail {
-        WorkspaceDetail {
+impl std::convert::Into<Workspace> for WorkspaceTable {
+    fn into(self) -> Workspace {
+        Workspace {
             id: self.id,
             name: self.name,
             desc: self.desc,

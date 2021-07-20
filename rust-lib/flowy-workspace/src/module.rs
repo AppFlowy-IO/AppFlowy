@@ -3,25 +3,31 @@ use flowy_dispatch::prelude::*;
 use crate::{
     errors::WorkspaceError,
     event::WorkspaceEvent,
-    handlers::create_workspace,
     services::{AppController, WorkspaceController},
 };
-use flowy_database::{DBConnection, UserDatabaseConnection};
+use flowy_database::DBConnection;
+
+use crate::{entities::workspace::UserWorkspace, handlers::*, services::ViewController};
 use std::sync::Arc;
 
 pub trait WorkspaceUser: Send + Sync {
-    fn set_current_workspace(&self, id: &str);
-    fn get_current_workspace(&self) -> Result<String, WorkspaceError>;
+    fn set_cur_workspace_id(&self, id: &str) -> DispatchFuture<Result<(), WorkspaceError>>;
+    fn get_cur_workspace(&self) -> DispatchFuture<Result<UserWorkspace, WorkspaceError>>;
     fn db_connection(&self) -> Result<DBConnection, WorkspaceError>;
 }
 
 pub fn create(user: Arc<dyn WorkspaceUser>) -> Module {
     let workspace_controller = Arc::new(WorkspaceController::new(user.clone()));
     let app_controller = Arc::new(AppController::new(user.clone()));
+    let view_controller = Arc::new(ViewController::new(user.clone()));
 
     Module::new()
         .name("Flowy-Workspace")
         .data(workspace_controller)
         .data(app_controller)
+        .data(view_controller)
         .event(WorkspaceEvent::CreateWorkspace, create_workspace)
+        .event(WorkspaceEvent::GetWorkspaceDetail, get_workspace_detail)
+        .event(WorkspaceEvent::CreateApp, create_app)
+        .event(WorkspaceEvent::CreateView, create_view)
 }

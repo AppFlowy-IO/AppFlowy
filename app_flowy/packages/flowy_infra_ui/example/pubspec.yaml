@@ -1,8 +1,7 @@
-name: example
-description: A new Flutter project.
+name: flowy_infra_ui_example
+description: Demonstrates how to use the flowy_infra_ui plugin.
 
-publish_to: 'none'
-version: 1.0.0+1
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -11,10 +10,10 @@ dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: ^1.0.2
-
   flowy_infra_ui:
     path: ../
+
+  cupertino_icons: ^1.0.2
 
 dev_dependencies:
   flutter_test:

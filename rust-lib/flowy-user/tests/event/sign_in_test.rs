@@ -1,5 +1,4 @@
 use crate::helper::*;
-
 use flowy_user::{errors::UserErrorCode, event::UserEvent::*, prelude::*};
 use serial_test::*;
 
@@ -7,7 +6,7 @@ use serial_test::*;
 #[serial]
 fn sign_in_success() {
     let request = SignInRequest {
-        email: valid_email(),
+        email: random_valid_email(),
         password: valid_password(),
     };
 
@@ -21,6 +20,7 @@ fn sign_in_success() {
 }
 
 #[test]
+#[serial]
 fn sign_in_with_invalid_email() {
     for email in invalid_email_test_case() {
         let request = SignInRequest {
@@ -41,10 +41,11 @@ fn sign_in_with_invalid_email() {
 }
 
 #[test]
+#[serial]
 fn sign_in_with_invalid_password() {
     for password in invalid_password_test_case() {
         let request = SignInRequest {
-            email: valid_email(),
+            email: random_valid_email(),
             password,
         };
 

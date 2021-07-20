@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'home/home_screen.dart';
 
 void main() {
   runApp(const ExampleApp());
@@ -9,6 +10,9 @@ class ExampleApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp();
+    return const MaterialApp(
+      title: "Flowy Infra Title",
+      home: HomeScreen(),
+    );
   }
 }

@@ -1,6 +1,8 @@
 PODS:
   - flowy_editor (0.0.1):
     - FlutterMacOS
+  - flowy_infra_ui (0.0.1):
+    - FlutterMacOS
   - flowy_sdk (0.0.1):
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
@@ -13,6 +15,7 @@ PODS:
 
 DEPENDENCIES:
   - flowy_editor (from `Flutter/ephemeral/.symlinks/plugins/flowy_editor/macos`)
+  - flowy_infra_ui (from `Flutter/ephemeral/.symlinks/plugins/flowy_infra_ui/macos`)
   - flowy_sdk (from `Flutter/ephemeral/.symlinks/plugins/flowy_sdk/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - path_provider_macos (from `Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos`)
@@ -22,6 +25,8 @@ DEPENDENCIES:
 EXTERNAL SOURCES:
   flowy_editor:
     :path: Flutter/ephemeral/.symlinks/plugins/flowy_editor/macos
+  flowy_infra_ui:
+    :path: Flutter/ephemeral/.symlinks/plugins/flowy_infra_ui/macos
   flowy_sdk:
     :path: Flutter/ephemeral/.symlinks/plugins/flowy_sdk/macos
   FlutterMacOS:
@@ -35,6 +40,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   flowy_editor: 26060a984848e6afac1f6a4455511f4114119d8d
+  flowy_infra_ui: 9d5021b1610fe0476eb1191bf7cd41c4a4138d8f
   flowy_sdk: c302ac0a22dea596db0df8073b9637b2bf2ff6fd
   FlutterMacOS: 57701585bf7de1b3fc2bb61f6378d73bbdea8424
   path_provider_macos: a0a3fd666cb7cd0448e936fb4abad4052961002b

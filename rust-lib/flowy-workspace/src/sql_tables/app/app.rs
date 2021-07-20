@@ -1,7 +1,7 @@
 use crate::{
-    entities::app::{AppDetail, ColorStyle, CreateAppParams, UpdateAppParams},
+    entities::app::{App, ColorStyle, CreateAppParams, UpdateAppParams},
     impl_sql_binary_expression,
-    sql_tables::workspace::Workspace,
+    sql_tables::workspace::WorkspaceTable,
 };
 use diesel::sql_types::Binary;
 use flowy_database::schema::app_table;
@@ -9,21 +9,10 @@ use flowy_infra::{timestamp, uuid};
 use serde::{Deserialize, Serialize, __private::TryFrom};
 use std::convert::TryInto;
 
-#[derive(
-    PartialEq,
-    Serialize,
-    Deserialize,
-    Clone,
-    Debug,
-    Queryable,
-    Identifiable,
-    Insertable,
-    Associations,
-)]
-#[belongs_to(Workspace, foreign_key = "workspace_id")]
+#[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
+#[belongs_to(WorkspaceTable, foreign_key = "workspace_id")]
 #[table_name = "app_table"]
-#[serde(tag = "type")]
-pub(crate) struct App {
+pub(crate) struct AppTable {
     pub id: String,
     pub workspace_id: String, // equal to #[belongs_to(Workspace, foreign_key = "workspace_id")].
     pub name: String,
@@ -35,7 +24,7 @@ pub(crate) struct App {
     pub version: i64,
 }
 
-impl App {
+impl AppTable {
     pub fn new(params: CreateAppParams) -> Self {
         let app_id = uuid();
         let time = timestamp();
@@ -87,16 +76,16 @@ impl_sql_binary_expression!(ColorStyleCol);
 
 #[derive(AsChangeset, Identifiable, Default, Debug)]
 #[table_name = "app_table"]
-pub struct AppChangeset {
+pub struct AppTableChangeset {
     pub id: String,
     pub workspace_id: Option<String>,
     pub name: Option<String>,
     pub desc: Option<String>,
 }
 
-impl AppChangeset {
+impl AppTableChangeset {
     pub fn new(params: UpdateAppParams) -> Self {
-        AppChangeset {
+        AppTableChangeset {
             id: params.app_id,
             workspace_id: params.workspace_id,
             name: params.name,
@@ -105,9 +94,9 @@ impl AppChangeset {
     }
 }
 
-impl std::convert::Into<AppDetail> for App {
-    fn into(self) -> AppDetail {
-        AppDetail {
+impl std::convert::Into<App> for AppTable {
+    fn into(self) -> App {
+        App {
             id: self.id,
             workspace_id: self.workspace_id,
             name: self.name,

@@ -1,0 +1,22 @@
+PODS:
+  - flowy_infra_ui (0.0.1):
+    - FlutterMacOS
+  - FlutterMacOS (1.0.0)
+
+DEPENDENCIES:
+  - flowy_infra_ui (from `Flutter/ephemeral/.symlinks/plugins/flowy_infra_ui/macos`)
+  - FlutterMacOS (from `Flutter/ephemeral`)
+
+EXTERNAL SOURCES:
+  flowy_infra_ui:
+    :path: Flutter/ephemeral/.symlinks/plugins/flowy_infra_ui/macos
+  FlutterMacOS:
+    :path: Flutter/ephemeral
+
+SPEC CHECKSUMS:
+  flowy_infra_ui: 9d5021b1610fe0476eb1191bf7cd41c4a4138d8f
+  FlutterMacOS: 57701585bf7de1b3fc2bb61f6378d73bbdea8424
+
+PODFILE CHECKSUM: 6eac6b3292e5142cfc23bdeb71848a40ec51c14c
+
+COCOAPODS: 1.9.3

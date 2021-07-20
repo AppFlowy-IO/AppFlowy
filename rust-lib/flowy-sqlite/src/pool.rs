@@ -1,6 +1,6 @@
-use crate::errors::*;
+use crate::{errors::*, pragma::*};
 use diesel::{connection::Connection, SqliteConnection};
-use r2d2::{ManageConnection, Pool};
+use r2d2::{CustomizeConnection, ManageConnection, Pool};
 use scheduled_thread_pool::ScheduledThreadPool;
 use std::{
     sync::{
@@ -34,10 +34,12 @@ impl ConnectionPool {
         let manager = ConnectionManager::new(uri);
         let thread_pool = DB_POOL.clone();
         let config = Arc::new(config);
+        let customizer_config = DatabaseCustomizerConfig::default();
 
         let pool = r2d2::Pool::builder()
             .thread_pool(thread_pool)
             .min_idle(Some(config.min_idle))
+            .connection_customizer(Box::new(DatabaseCustomizer::new(customizer_config)))
             .max_size(config.max_size)
             .max_lifetime(None)
             .connection_timeout(config.connection_timeout)
@@ -126,4 +128,49 @@ impl ManageConnection for ConnectionManager {
 
 impl ConnectionManager {
     pub fn new<S: Into<String>>(uri: S) -> Self { ConnectionManager { db_uri: uri.into() } }
+}
+
+#[derive(Debug)]
+pub struct DatabaseCustomizerConfig {
+    pub(crate) journal_mode: SQLiteJournalMode,
+    pub(crate) synchronous: SQLiteSynchronous,
+    pub(crate) busy_timeout: i32,
+    pub(crate) secure_delete: bool,
+}
+
+impl Default for DatabaseCustomizerConfig {
+    fn default() -> Self {
+        Self {
+            journal_mode: SQLiteJournalMode::WAL,
+            synchronous: SQLiteSynchronous::NORMAL,
+            busy_timeout: 5000,
+            secure_delete: true,
+        }
+    }
+}
+
+#[derive(Debug)]
+struct DatabaseCustomizer {
+    config: DatabaseCustomizerConfig,
+}
+
+impl DatabaseCustomizer {
+    fn new(config: DatabaseCustomizerConfig) -> Self
+    where
+        Self: Sized,
+    {
+        Self { config }
+    }
+}
+
+impl CustomizeConnection<SqliteConnection, crate::Error> for DatabaseCustomizer {
+    fn on_acquire(&self, conn: &mut SqliteConnection) -> Result<()> {
+        conn.pragma_set_busy_timeout(self.config.busy_timeout)?;
+        if self.config.journal_mode != SQLiteJournalMode::WAL {
+            conn.pragma_set_journal_mode(self.config.journal_mode, None)?;
+        }
+        conn.pragma_set_synchronous(self.config.synchronous, None)?;
+
+        Ok(())
+    }
 }

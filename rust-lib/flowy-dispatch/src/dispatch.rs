@@ -38,7 +38,17 @@ impl EventDispatch {
         *(EVENT_DISPATCH.write().unwrap()) = Some(dispatch);
     }
 
-    pub fn async_send<Req, Callback>(request: Req, callback: Callback) -> DispatchFuture
+    pub fn async_send<Req>(request: Req) -> DispatchFuture<EventResponse>
+    where
+        Req: std::convert::Into<ModuleRequest>,
+    {
+        EventDispatch::async_send_with_callback(request, |_| Box::pin(async {}))
+    }
+
+    pub fn async_send_with_callback<Req, Callback>(
+        request: Req,
+        callback: Callback,
+    ) -> DispatchFuture<EventResponse>
     where
         Req: std::convert::Into<ModuleRequest>,
         Callback: FnOnce(EventResponse) -> BoxFuture<'static, ()> + 'static + Send + Sync,
@@ -83,19 +93,22 @@ impl EventDispatch {
 
     pub fn sync_send(request: ModuleRequest) -> EventResponse {
         futures::executor::block_on(async {
-            EventDispatch::async_send(request, |_| Box::pin(async {})).await
+            EventDispatch::async_send_with_callback(request, |_| Box::pin(async {})).await
         })
     }
 }
 
 #[pin_project]
-pub struct DispatchFuture {
+pub struct DispatchFuture<T: Send + Sync> {
     #[pin]
-    fut: BoxFuture<'static, EventResponse>,
+    pub fut: Pin<Box<dyn Future<Output = T> + Sync + Send>>,
 }
 
-impl Future for DispatchFuture {
-    type Output = EventResponse;
+impl<T> Future for DispatchFuture<T>
+where
+    T: Send + Sync,
+{
+    type Output = T;
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         let this = self.as_mut().project();

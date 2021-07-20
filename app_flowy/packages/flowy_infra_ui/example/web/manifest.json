@@ -1,11 +1,11 @@
 {
-    "name": "example",
-    "short_name": "example",
+    "name": "flowy_infra_ui_example",
+    "short_name": "flowy_infra_ui_example",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Demonstrates how to use the flowy_infra_ui plugin.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

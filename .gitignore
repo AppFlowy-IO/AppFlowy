@@ -10,3 +10,4 @@ Cargo.lock
 **/*.rs.bk
 **/target/
 **/*.db
+.idea/

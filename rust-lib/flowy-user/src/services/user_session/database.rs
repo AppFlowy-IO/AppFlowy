@@ -1,13 +1,9 @@
 use crate::errors::{ErrorBuilder, UserError, UserErrorCode};
 use flowy_database::{DBConnection, Database};
 use lazy_static::lazy_static;
-use std::{
-    cell::RefCell,
-    sync::{
-        atomic::{AtomicBool, Ordering},
-        RwLock,
-    },
-};
+use once_cell::sync::Lazy;
+use parking_lot::Mutex;
+use std::{collections::HashMap, sync::RwLock};
 
 lazy_static! {
     static ref DB: RwLock<Option<Database>> = RwLock::new(None);
@@ -25,85 +21,78 @@ impl UserDB {
     }
 
     fn open_user_db(&self, user_id: &str) -> Result<(), UserError> {
-        INIT_FLAG.store(true, Ordering::SeqCst);
+        if user_id.is_empty() {
+            return Err(ErrorBuilder::new(UserErrorCode::UserDatabaseInitFailed)
+                .msg("user id is empty")
+                .build());
+        }
+
         let dir = format!("{}/{}", self.db_dir, user_id);
         let db = flowy_database::init(&dir).map_err(|e| {
-            ErrorBuilder::new(UserErrorCode::DatabaseInitFailed)
+            log::error!("flowy_database::init failed, {:?}", e);
+            ErrorBuilder::new(UserErrorCode::UserDatabaseInitFailed)
                 .error(e)
                 .build()
         })?;
 
-        let mut user_db = DB.write().map_err(|e| {
-            ErrorBuilder::new(UserErrorCode::DatabaseWriteLocked)
+        let mut db_map = DB_MAP.write().map_err(|e| {
+            ErrorBuilder::new(UserErrorCode::UserDatabaseWriteLocked)
                 .error(e)
                 .build()
         })?;
-        *(user_db) = Some(db);
 
-        set_user_id(Some(user_id.to_owned()));
+        db_map.insert(user_id.to_owned(), db);
         Ok(())
     }
 
-    pub(crate) fn close_user_db(&self) -> Result<(), UserError> {
-        INIT_FLAG.store(false, Ordering::SeqCst);
-
-        let mut write_guard = DB.write().map_err(|e| {
-            ErrorBuilder::new(UserErrorCode::DatabaseWriteLocked)
+    pub(crate) fn close_user_db(&self, user_id: &str) -> Result<(), UserError> {
+        let mut db_map = DB_MAP.write().map_err(|e| {
+            ErrorBuilder::new(UserErrorCode::UserDatabaseWriteLocked)
                 .msg(format!("Close user db failed. {:?}", e))
                 .build()
         })?;
-
-        *write_guard = None;
-        set_user_id(None);
-
+        set_user_db_init(false, user_id);
+        db_map.remove(user_id);
         Ok(())
     }
 
     pub(crate) fn get_connection(&self, user_id: &str) -> Result<DBConnection, UserError> {
-        if !INIT_FLAG.load(Ordering::SeqCst) {
-            let _ = self.open_user_db(user_id);
+        if !is_user_db_init(user_id) {
+            let _ = self.open_user_db(user_id)?;
+            set_user_db_init(true, user_id);
         }
 
-        let thread_user_id = get_user_id();
-        if thread_user_id.is_some() {
-            if thread_user_id != Some(user_id.to_owned()) {
-                let msg = format!(
-                    "Database owner does not match. origin: {:?}, current: {}",
-                    thread_user_id, user_id
-                );
-                log::error!("{}", msg);
-
-                return Err(ErrorBuilder::new(UserErrorCode::DatabaseUserDidNotMatch)
-                    .msg(msg)
-                    .build());
-            }
-        }
-
-        let read_guard = DB.read().map_err(|e| {
-            ErrorBuilder::new(UserErrorCode::DatabaseReadLocked)
+        let db_map = DB_MAP.read().map_err(|e| {
+            ErrorBuilder::new(UserErrorCode::UserDatabaseReadLocked)
                 .error(e)
                 .build()
         })?;
-        match read_guard.as_ref() {
-            None => Err(ErrorBuilder::new(UserErrorCode::DatabaseInitFailed)
-                .msg("Database is not initialization")
+
+        match db_map.get(user_id) {
+            None => Err(ErrorBuilder::new(UserErrorCode::UserDatabaseInitFailed)
+                .msg("Get connection failed. The database is not initialization")
                 .build()),
             Some(database) => Ok(database.get_connection()?),
         }
     }
 }
 
-thread_local! {
-    static USER_ID: RefCell<Option<String>> = RefCell::new(None);
+lazy_static! {
+    static ref DB_MAP: RwLock<HashMap<String, Database>> = RwLock::new(HashMap::new());
 }
-fn set_user_id(user_id: Option<String>) {
-    USER_ID.with(|id| {
-        *id.borrow_mut() = user_id;
-    });
-}
-fn get_user_id() -> Option<String> { USER_ID.with(|id| id.borrow().clone()) }
 
-static INIT_FLAG: AtomicBool = AtomicBool::new(false);
+static INIT_FLAG_MAP: Lazy<Mutex<HashMap<String, bool>>> = Lazy::new(|| Mutex::new(HashMap::new()));
+fn set_user_db_init(is_init: bool, user_id: &str) {
+    let mut flag_map = INIT_FLAG_MAP.lock();
+    flag_map.insert(user_id.to_owned(), is_init);
+}
+
+fn is_user_db_init(user_id: &str) -> bool {
+    match INIT_FLAG_MAP.lock().get(user_id) {
+        None => false,
+        Some(flag) => flag.clone(),
+    }
+}
 
 #[cfg(test)]
 mod tests {

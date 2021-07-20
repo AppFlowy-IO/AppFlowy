@@ -40,7 +40,7 @@ pub extern "C" fn async_command(port: i64, input: *const u8, len: usize) {
         port
     );
 
-    let _ = EventDispatch::async_send(request, move |resp: EventResponse| {
+    let _ = EventDispatch::async_send_with_callback(request, move |resp: EventResponse| {
         log::trace!("[FFI]: Post data to dart through {} port", port);
         Box::pin(post_to_flutter(resp, port))
     });
