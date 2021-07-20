@@ -6,17 +6,21 @@ use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 pub enum WorkspaceEvent {
     #[display(fmt = "Create workspace")]
     #[event(input = "CreateSpaceRequest", output = "WorkspaceDetail")]
-    CreateWorkspace    = 0,
+    CreateWorkspace = 0,
 
-    #[display(fmt = "Get user's workspace detail")]
-    #[event(output = "UserWorkspaceDetail")]
-    GetWorkspaceDetail = 1,
+    #[display(fmt = "Get user's current workspace")]
+    #[event(output = "Workspace")]
+    GetCurWorkspace = 1,
+
+    #[display(fmt = "Get user's workspace")]
+    #[event(input = "QueryWorkspaceRequest", output = "Workspace")]
+    GetWorkspace    = 2,
 
     #[display(fmt = "Create app")]
     #[event(input = "CreateAppRequest", output = "App")]
-    CreateApp          = 101,
+    CreateApp       = 101,
 
     #[display(fmt = "Create view")]
     #[event(input = "CreateViewRequest", output = "View")]
-    CreateView         = 201,
+    CreateView      = 201,
 }

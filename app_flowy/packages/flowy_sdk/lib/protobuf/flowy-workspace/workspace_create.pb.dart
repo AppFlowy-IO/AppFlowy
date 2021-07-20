@@ -9,6 +9,8 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
+import 'app_create.pb.dart' as $0;
+
 class CreateWorkspaceRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateWorkspaceRequest', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
@@ -75,6 +77,7 @@ class Workspace extends $pb.GeneratedMessage {
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
+    ..aOM<$0.RepeatedApp>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'apps', subBuilder: $0.RepeatedApp.create)
     ..hasRequiredFields = false
   ;
 
@@ -83,6 +86,7 @@ class Workspace extends $pb.GeneratedMessage {
     $core.String? id,
     $core.String? name,
     $core.String? desc,
+    $0.RepeatedApp? apps,
   }) {
     final _result = create();
     if (id != null) {
@@ -93,6 +97,9 @@ class Workspace extends $pb.GeneratedMessage {
     }
     if (desc != null) {
       _result.desc = desc;
+    }
+    if (apps != null) {
+      _result.apps = apps;
     }
     return _result;
   }
@@ -143,5 +150,16 @@ class Workspace extends $pb.GeneratedMessage {
   $core.bool hasDesc() => $_has(2);
   @$pb.TagNumber(3)
   void clearDesc() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $0.RepeatedApp get apps => $_getN(3);
+  @$pb.TagNumber(4)
+  set apps($0.RepeatedApp v) { setField(4, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasApps() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearApps() => clearField(4);
+  @$pb.TagNumber(4)
+  $0.RepeatedApp ensureApps() => $_ensure(3);
 }
 

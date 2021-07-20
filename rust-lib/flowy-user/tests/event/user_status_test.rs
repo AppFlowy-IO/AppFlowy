@@ -5,7 +5,7 @@ use serial_test::*;
 #[test]
 #[serial]
 fn user_status_get_failed_before_login() {
-    let a = UserTestBuilder::new()
+    let _a = UserTestBuilder::new()
         .logout()
         .event(GetStatus)
         .assert_error()

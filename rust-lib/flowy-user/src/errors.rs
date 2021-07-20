@@ -68,7 +68,7 @@ impl std::convert::From<flowy_database::result::Error> for UserError {
             .build()
     }
 }
-use diesel::result::DatabaseErrorKind;
+
 impl std::convert::From<flowy_sqlite::Error> for UserError {
     fn from(error: flowy_sqlite::Error) -> Self {
         // match error.kind() {

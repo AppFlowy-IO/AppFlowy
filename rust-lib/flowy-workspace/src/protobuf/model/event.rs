@@ -26,7 +26,8 @@
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum WorkspaceEvent {
     CreateWorkspace = 0,
-    GetWorkspaceDetail = 1,
+    GetCurWorkspace = 1,
+    GetWorkspace = 2,
     CreateApp = 101,
     CreateView = 201,
 }
@@ -39,7 +40,8 @@ impl ::protobuf::ProtobufEnum for WorkspaceEvent {
     fn from_i32(value: i32) -> ::std::option::Option<WorkspaceEvent> {
         match value {
             0 => ::std::option::Option::Some(WorkspaceEvent::CreateWorkspace),
-            1 => ::std::option::Option::Some(WorkspaceEvent::GetWorkspaceDetail),
+            1 => ::std::option::Option::Some(WorkspaceEvent::GetCurWorkspace),
+            2 => ::std::option::Option::Some(WorkspaceEvent::GetWorkspace),
             101 => ::std::option::Option::Some(WorkspaceEvent::CreateApp),
             201 => ::std::option::Option::Some(WorkspaceEvent::CreateView),
             _ => ::std::option::Option::None
@@ -49,7 +51,8 @@ impl ::protobuf::ProtobufEnum for WorkspaceEvent {
     fn values() -> &'static [Self] {
         static values: &'static [WorkspaceEvent] = &[
             WorkspaceEvent::CreateWorkspace,
-            WorkspaceEvent::GetWorkspaceDetail,
+            WorkspaceEvent::GetCurWorkspace,
+            WorkspaceEvent::GetWorkspace,
             WorkspaceEvent::CreateApp,
             WorkspaceEvent::CreateView,
         ];
@@ -80,19 +83,22 @@ impl ::protobuf::reflect::ProtobufValue for WorkspaceEvent {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0bevent.proto*]\n\x0eWorkspaceEvent\x12\x13\n\x0fCreateWorkspace\x10\
-    \0\x12\x16\n\x12GetWorkspaceDetail\x10\x01\x12\r\n\tCreateApp\x10e\x12\
-    \x0f\n\nCreateView\x10\xc9\x01J\xce\x01\n\x06\x12\x04\0\0\x07\x01\n\x08\
-    \n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x05\0\x12\x04\x02\0\x07\x01\n\n\n\
-    \x03\x05\0\x01\x12\x03\x02\x05\x13\n\x0b\n\x04\x05\0\x02\0\x12\x03\x03\
-    \x04\x18\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\x03\x04\x13\n\x0c\n\x05\x05\
-    \0\x02\0\x02\x12\x03\x03\x16\x17\n\x0b\n\x04\x05\0\x02\x01\x12\x03\x04\
-    \x04\x1b\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\x04\x04\x16\n\x0c\n\x05\
-    \x05\0\x02\x01\x02\x12\x03\x04\x19\x1a\n\x0b\n\x04\x05\0\x02\x02\x12\x03\
-    \x05\x04\x14\n\x0c\n\x05\x05\0\x02\x02\x01\x12\x03\x05\x04\r\n\x0c\n\x05\
-    \x05\0\x02\x02\x02\x12\x03\x05\x10\x13\n\x0b\n\x04\x05\0\x02\x03\x12\x03\
-    \x06\x04\x15\n\x0c\n\x05\x05\0\x02\x03\x01\x12\x03\x06\x04\x0e\n\x0c\n\
-    \x05\x05\0\x02\x03\x02\x12\x03\x06\x11\x14b\x06proto3\
+    \n\x0bevent.proto*l\n\x0eWorkspaceEvent\x12\x13\n\x0fCreateWorkspace\x10\
+    \0\x12\x13\n\x0fGetCurWorkspace\x10\x01\x12\x10\n\x0cGetWorkspace\x10\
+    \x02\x12\r\n\tCreateApp\x10e\x12\x0f\n\nCreateView\x10\xc9\x01J\xf7\x01\
+    \n\x06\x12\x04\0\0\x08\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x05\
+    \0\x12\x04\x02\0\x08\x01\n\n\n\x03\x05\0\x01\x12\x03\x02\x05\x13\n\x0b\n\
+    \x04\x05\0\x02\0\x12\x03\x03\x04\x18\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\
+    \x03\x04\x13\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x03\x16\x17\n\x0b\n\x04\
+    \x05\0\x02\x01\x12\x03\x04\x04\x18\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\
+    \x04\x04\x13\n\x0c\n\x05\x05\0\x02\x01\x02\x12\x03\x04\x16\x17\n\x0b\n\
+    \x04\x05\0\x02\x02\x12\x03\x05\x04\x15\n\x0c\n\x05\x05\0\x02\x02\x01\x12\
+    \x03\x05\x04\x10\n\x0c\n\x05\x05\0\x02\x02\x02\x12\x03\x05\x13\x14\n\x0b\
+    \n\x04\x05\0\x02\x03\x12\x03\x06\x04\x14\n\x0c\n\x05\x05\0\x02\x03\x01\
+    \x12\x03\x06\x04\r\n\x0c\n\x05\x05\0\x02\x03\x02\x12\x03\x06\x10\x13\n\
+    \x0b\n\x04\x05\0\x02\x04\x12\x03\x07\x04\x15\n\x0c\n\x05\x05\0\x02\x04\
+    \x01\x12\x03\x07\x04\x0e\n\x0c\n\x05\x05\0\x02\x04\x02\x12\x03\x07\x11\
+    \x14b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

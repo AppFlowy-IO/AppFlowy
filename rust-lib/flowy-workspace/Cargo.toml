@@ -27,3 +27,4 @@ unicode-segmentation = "1.7.1"
 
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }
+serial_test = "0.5.1"

@@ -44,3 +44,13 @@ const App$json = const {
 
 /// Descriptor for `App`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List appDescriptor = $convert.base64Decode('CgNBcHASDgoCaWQYASABKAlSAmlkEiEKDHdvcmtzcGFjZV9pZBgCIAEoCVILd29ya3NwYWNlSWQSEgoEbmFtZRgDIAEoCVIEbmFtZRISCgRkZXNjGAQgASgJUgRkZXNj');
+@$core.Deprecated('Use repeatedAppDescriptor instead')
+const RepeatedApp$json = const {
+  '1': 'RepeatedApp',
+  '2': const [
+    const {'1': 'items', '3': 1, '4': 3, '5': 11, '6': '.App', '10': 'items'},
+  ],
+};
+
+/// Descriptor for `RepeatedApp`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List repeatedAppDescriptor = $convert.base64Decode('CgtSZXBlYXRlZEFwcBIaCgVpdGVtcxgBIAMoCzIELkFwcFIFaXRlbXM=');

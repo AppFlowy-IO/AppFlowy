@@ -1,51 +1,36 @@
-// use crate::sql_tables::workspace::Workspace;
-//
-// #[derive(Default, Debug, ProtoBuf)]
-// pub struct WorkspaceDetail {
-//     #[pb(index = 1)]
-//     pub workspace: Workspace,
-//
-//     #[pb(index = 2)]
-//     pub apps: Vec<App>,
-// }
+use crate::{entities::workspace::parser::*, errors::*};
+use flowy_derive::ProtoBuf;
+use std::convert::TryInto;
 
-// use crate::entities::{RepeatedApp, Workspace};
-// use flowy_derive::ProtoBuf;
-// use flowy_traits::cqrs::Identifiable;
-//
-// #[derive(ProtoBuf, Default, Debug)]
-// pub struct WorkspaceQuery {
-//     #[pb(index = 1)]
-//     pub workspace_id: String,
-//
-//     #[pb(index = 2)]
-//     pub read_apps: bool,
-// }
-//
-// impl WorkspaceQuery {
-//     pub fn read_workspace(workspace_id: &str) -> Self {
-//         WorkspaceQuery {
-//             workspace_id: workspace_id.to_string(),
-//             read_apps: false,
-//         }
-//     }
-//
-//     pub fn read_apps(workspace_id: &str) -> Self {
-//         WorkspaceQuery {
-//             workspace_id: workspace_id.to_string(),
-//             read_apps: true,
-//         }
-//     }
-// }
-//
-// #[derive(Default, Debug, ProtoBuf)]
-// pub struct WorkspaceQueryResult {
-//     #[pb(index = 1, oneof)]
-//     pub workspace: Option<Workspace>,
-//
-//     #[pb(index = 2, oneof)]
-//     pub apps: Option<RepeatedApp>,
-//
-//     #[pb(index = 100)]
-//     pub error: String,
-// }
+#[derive(Default, ProtoBuf)]
+pub struct QueryWorkspaceRequest {
+    #[pb(index = 1)]
+    pub workspace_id: String,
+
+    #[pb(index = 2)]
+    pub read_apps: bool,
+}
+
+pub struct QueryWorkspaceParams {
+    pub workspace_id: String,
+    pub read_apps: bool,
+}
+
+impl TryInto<QueryWorkspaceParams> for QueryWorkspaceRequest {
+    type Error = WorkspaceError;
+
+    fn try_into(self) -> Result<QueryWorkspaceParams, Self::Error> {
+        let workspace_id = WorkspaceId::parse(self.workspace_id)
+            .map_err(|e| {
+                ErrorBuilder::new(WorkspaceErrorCode::WorkspaceIdInvalid)
+                    .msg(e)
+                    .build()
+            })?
+            .0;
+
+        Ok(QueryWorkspaceParams {
+            workspace_id,
+            read_apps: self.read_apps,
+        })
+    }
+}

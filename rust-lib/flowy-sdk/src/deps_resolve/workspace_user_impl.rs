@@ -2,9 +2,9 @@ use flowy_database::DBConnection;
 use flowy_dispatch::prelude::DispatchFuture;
 use flowy_user::prelude::UserSession;
 use flowy_workspace::{
-    entities::workspace::UserWorkspace,
+    entities::workspace::CurrentWorkspace,
     errors::{ErrorBuilder, WorkspaceError, WorkspaceErrorCode},
-    module::WorkspaceUser,
+    module::{WorkspaceDatabase, WorkspaceUser},
 };
 use std::sync::Arc;
 
@@ -35,7 +35,7 @@ impl WorkspaceUser for WorkspaceUserImpl {
         }
     }
 
-    fn get_cur_workspace(&self) -> DispatchFuture<Result<UserWorkspace, WorkspaceError>> {
+    fn get_cur_workspace(&self) -> DispatchFuture<Result<CurrentWorkspace, WorkspaceError>> {
         let user_session = self.user_session.clone();
         DispatchFuture {
             fut: Box::pin(async move {
@@ -45,14 +45,20 @@ impl WorkspaceUser for WorkspaceUserImpl {
                         .build()
                 })?;
 
-                Ok(UserWorkspace {
+                Ok(CurrentWorkspace {
                     owner: user_detail.email,
                     workspace_id: user_detail.workspace,
                 })
             }),
         }
     }
+}
 
+pub struct WorkspaceDatabaseImpl {
+    pub(crate) user_session: Arc<UserSession>,
+}
+
+impl WorkspaceDatabase for WorkspaceDatabaseImpl {
     fn db_connection(&self) -> Result<DBConnection, WorkspaceError> {
         self.user_session.get_db_connection().map_err(|e| {
             ErrorBuilder::new(WorkspaceErrorCode::DatabaseConnectionFail)

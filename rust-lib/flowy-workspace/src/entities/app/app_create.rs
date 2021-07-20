@@ -4,6 +4,7 @@ use crate::{
         workspace::parser::WorkspaceId,
     },
     errors::*,
+    impl_def_and_def_mut,
 };
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
@@ -67,7 +68,7 @@ impl TryInto<CreateAppParams> for CreateAppRequest {
     }
 }
 
-#[derive(ProtoBuf, Default, Debug)]
+#[derive(PartialEq, ProtoBuf, Default, Debug)]
 pub struct App {
     #[pb(index = 1)]
     pub id: String,
@@ -81,3 +82,11 @@ pub struct App {
     #[pb(index = 4)]
     pub desc: String,
 }
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct RepeatedApp {
+    #[pb(index = 1)]
+    pub items: Vec<App>,
+}
+
+impl_def_and_def_mut!(RepeatedApp, App);

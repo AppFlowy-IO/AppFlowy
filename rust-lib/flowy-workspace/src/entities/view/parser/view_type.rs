@@ -1,5 +1,4 @@
 use crate::{entities::view::ViewTypeIdentifier, sql_tables::view::ViewType};
-use unicode_segmentation::UnicodeSegmentation;
 
 #[derive(Debug)]
 pub struct ViewTypeCheck(pub ViewType);

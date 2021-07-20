@@ -4,7 +4,7 @@ use crate::{
     sql_tables::app::AppTable,
 };
 use diesel::sql_types::Integer;
-use flowy_database::schema::{view_table, view_table::dsl};
+use flowy_database::schema::view_table;
 use flowy_infra::{timestamp, uuid};
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]

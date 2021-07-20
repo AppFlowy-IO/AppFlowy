@@ -1,4 +1,7 @@
-use crate::entities::workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, Workspace};
+use crate::entities::{
+    app::RepeatedApp,
+    workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, Workspace},
+};
 use flowy_database::schema::workspace_table;
 use flowy_infra::{timestamp, uuid};
 
@@ -63,6 +66,7 @@ impl std::convert::Into<Workspace> for WorkspaceTable {
             id: self.id,
             name: self.name,
             desc: self.desc,
+            apps: RepeatedApp::default(),
         }
     }
 }

@@ -129,7 +129,7 @@ fn token_stream_for_vec(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type) -> Op
         TypeCategory::Protobuf => Some(quote! {
             pb.#member = ::protobuf::RepeatedField::from_vec(
                 self.#member
-                .iter()
+                .into_iter()
                 .map(|m| m.try_into().unwrap())
                 .collect());
         }),

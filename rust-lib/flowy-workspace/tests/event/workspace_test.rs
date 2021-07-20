@@ -1,54 +1,54 @@
 use crate::helper::*;
 use flowy_workspace::{
-    entities::workspace::{CreateWorkspaceRequest, UserWorkspaceDetail, Workspace},
+    entities::{
+        app::{App, CreateAppRequest},
+        workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest, Workspace},
+    },
     event::WorkspaceEvent::*,
     prelude::*,
 };
+use serial_test::*;
 
 #[test]
-fn workspace_create_success() {
-    let request = CreateWorkspaceRequest {
-        name: "123".to_owned(),
-        desc: "".to_owned(),
-    };
-
-    let response = WorkspaceTestBuilder::new()
-        .event(CreateWorkspace)
-        .request(request)
-        .sync_send()
-        .parse::<Workspace>();
-    dbg!(&response);
-}
+fn workspace_create_success() { let _ = create_workspace("First workspace", ""); }
 
 #[test]
 fn workspace_get_detail_success() {
     let user_workspace = WorkspaceTestBuilder::new()
-        .event(GetWorkspaceDetail)
+        .event(GetCurWorkspace)
         .sync_send()
-        .parse::<UserWorkspaceDetail>();
+        .parse::<Workspace>();
 
     dbg!(&user_workspace);
 }
 
 #[test]
-fn workspace_create_and_then_get_detail_success() {
-    let request = CreateWorkspaceRequest {
-        name: "Team A".to_owned(),
-        desc: "Team A Description".to_owned(),
+fn workspace_create_and_then_get_workspace_success() {
+    let workspace = create_workspace(
+        "Workspace A",
+        "workspace_create_and_then_get_workspace_success",
+    );
+    let request = QueryWorkspaceRequest {
+        workspace_id: workspace.id.clone(),
+        read_apps: false,
     };
 
-    let workspace = WorkspaceTestBuilder::new()
-        .event(CreateWorkspace)
-        .request(request)
-        .sync_send()
-        .parse::<Workspace>();
+    let workspace_from_db = get_workspace(request);
+    assert_eq!(workspace.name, workspace_from_db.name);
+}
 
-    let user_workspace = WorkspaceTestBuilder::new()
-        .event(GetWorkspaceDetail)
-        .sync_send()
-        .parse::<UserWorkspaceDetail>();
+#[test]
+fn workspace_create_with_apps_success() {
+    let workspace = create_workspace("Workspace B", "");
+    let app = create_app("App A", "", &workspace.id);
 
-    assert_eq!(workspace.name, user_workspace.workspace.name);
+    let query_workspace_request = QueryWorkspaceRequest {
+        workspace_id: workspace.id.clone(),
+        read_apps: true,
+    };
+
+    let workspace_from_db = get_workspace(query_workspace_request);
+    assert_eq!(&app, workspace_from_db.apps.first_or_crash());
 }
 
 #[test]

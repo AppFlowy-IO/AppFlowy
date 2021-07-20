@@ -1,4 +1,10 @@
-use crate::{entities::workspace::parser::*, errors::*};
+use crate::{
+    entities::{
+        app::{App, RepeatedApp},
+        workspace::parser::*,
+    },
+    errors::*,
+};
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
 
@@ -43,4 +49,7 @@ pub struct Workspace {
 
     #[pb(index = 3)]
     pub desc: String,
+
+    #[pb(index = 4)]
+    pub apps: RepeatedApp,
 }

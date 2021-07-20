@@ -15,3 +15,6 @@ message App {
     string name = 3;
     string desc = 4;
 }
+message RepeatedApp {
+    repeated App items = 1;
+}

@@ -22,7 +22,7 @@ use std::{fmt::Debug, io, path::Path};
 
 pub mod prelude {
     pub use super::UserDatabaseConnection;
-    pub use diesel::{query_dsl::*, ExpressionMethods, RunQueryDsl};
+    pub use diesel::{query_dsl::*, BelongingToDsl, ExpressionMethods, RunQueryDsl};
 }
 
 embed_migrations!("../flowy-database/migrations/");

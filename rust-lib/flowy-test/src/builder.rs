@@ -38,7 +38,7 @@ impl UserTestBuilder {
         builder
     }
 
-    pub fn reset(mut self) -> Self { self.login() }
+    pub fn reset(self) -> Self { self.login() }
 }
 
 pub struct TestBuilder<T: TesterTrait> {

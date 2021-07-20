@@ -122,7 +122,7 @@ pub trait TesterTrait {
             .unwrap()
         {
             Ok(user_detail) => user_detail,
-            Err(e) => self.login(),
+            Err(_e) => self.login(),
         }
     }
 

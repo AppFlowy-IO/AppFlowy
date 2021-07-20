@@ -1,9 +1,8 @@
 use crate::flowy_server::{ArcFlowyServer, FlowyServerMocker};
 use flowy_dispatch::prelude::Module;
 use flowy_user::prelude::*;
-use flowy_workspace::prelude::*;
 
-use crate::deps_resolve::WorkspaceUserImpl;
+use crate::deps_resolve::{WorkspaceDatabaseImpl, WorkspaceUserImpl};
 use std::sync::Arc;
 
 pub struct ModuleConfig {
@@ -21,8 +20,12 @@ pub fn build_modules(config: ModuleConfig, _server: ArcFlowyServer) -> Vec<Modul
         user_session: user_session.clone(),
     });
 
+    let workspace_data_impl = Arc::new(WorkspaceDatabaseImpl {
+        user_session: user_session.clone(),
+    });
+
     vec![
         flowy_user::module::create(user_session),
-        flowy_workspace::module::create(workspace_user_impl),
+        flowy_workspace::module::create(workspace_user_impl, workspace_data_impl),
     ]
 }

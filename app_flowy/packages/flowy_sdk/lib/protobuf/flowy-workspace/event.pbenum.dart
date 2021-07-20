@@ -11,13 +11,15 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 class WorkspaceEvent extends $pb.ProtobufEnum {
   static const WorkspaceEvent CreateWorkspace = WorkspaceEvent._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateWorkspace');
-  static const WorkspaceEvent GetWorkspaceDetail = WorkspaceEvent._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetWorkspaceDetail');
+  static const WorkspaceEvent GetCurWorkspace = WorkspaceEvent._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetCurWorkspace');
+  static const WorkspaceEvent GetWorkspace = WorkspaceEvent._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetWorkspace');
   static const WorkspaceEvent CreateApp = WorkspaceEvent._(101, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateApp');
   static const WorkspaceEvent CreateView = WorkspaceEvent._(201, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateView');
 
   static const $core.List<WorkspaceEvent> values = <WorkspaceEvent> [
     CreateWorkspace,
-    GetWorkspaceDetail,
+    GetCurWorkspace,
+    GetWorkspace,
     CreateApp,
     CreateView,
   ];

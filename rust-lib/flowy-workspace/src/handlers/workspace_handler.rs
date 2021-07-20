@@ -1,11 +1,5 @@
 use crate::{
-    entities::workspace::{
-        CreateWorkspaceParams,
-        CreateWorkspaceRequest,
-        UserWorkspace,
-        UserWorkspaceDetail,
-        Workspace,
-    },
+    entities::{app::RepeatedApp, workspace::*},
     errors::WorkspaceError,
     services::WorkspaceController,
 };
@@ -22,9 +16,24 @@ pub async fn create_workspace(
     response_ok(detail)
 }
 
-pub async fn get_workspace_detail(
+pub async fn get_cur_workspace(
     controller: ModuleData<Arc<WorkspaceController>>,
-) -> ResponseResult<UserWorkspaceDetail, WorkspaceError> {
-    let user_workspace = controller.get_user_workspace_detail().await?;
-    response_ok(user_workspace)
+) -> ResponseResult<Workspace, WorkspaceError> {
+    let workspace = controller.get_cur_workspace().await?;
+    response_ok(workspace)
+}
+
+pub async fn get_workspace(
+    data: Data<QueryWorkspaceRequest>,
+    controller: ModuleData<Arc<WorkspaceController>>,
+) -> ResponseResult<Workspace, WorkspaceError> {
+    let params: QueryWorkspaceParams = data.into_inner().try_into()?;
+    let mut workspace = controller.get_workspace(&params.workspace_id).await?;
+
+    if params.read_apps {
+        let apps = controller.get_apps(&params.workspace_id).await?;
+        workspace.apps = RepeatedApp { items: apps };
+    }
+
+    response_ok(workspace)
 }
