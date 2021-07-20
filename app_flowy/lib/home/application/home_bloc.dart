@@ -29,8 +29,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       dismissEditPannel: (value) async* {
         yield state.copyWith(editContext: none());
       },
-      showMenu: (e) async* {
-        yield state.copyWith(showMenu: e.isShow);
+      forceCollapse: (e) async* {
+        yield state.copyWith(forceCollapse: e.forceCollapse);
       },
     );
   }

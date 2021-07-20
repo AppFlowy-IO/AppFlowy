@@ -19,8 +19,10 @@ impl EnumTemplate {
     pub fn set_message_enum(&mut self, flowy_enum: &FlowyEnum) {
         self.context.insert("enum_name", &flowy_enum.name);
         flowy_enum.attrs.iter().for_each(|item| {
-            self.items
-                .push(format!("{} = {};", item.attrs.name, item.attrs.value))
+            self.items.push(format!(
+                "{} = {};",
+                item.attrs.enum_item_name, item.attrs.value
+            ))
         })
     }
 

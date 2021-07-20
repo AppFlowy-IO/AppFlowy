@@ -33,7 +33,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
     yield state.copyWith(pageContext: some(e.context));
   }
 
-  Stream<MenuState> _performActionOnCreateApp(_CreateApp e) async* {
+  Stream<MenuState> _performActionOnCreateApp(_CreateApp val) async* {
     yield state;
   }
 

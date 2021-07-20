@@ -12,6 +12,7 @@ import 'dart:typed_data';
 import 'package:flowy_sdk/ffi.dart' as ffi;
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:flowy_sdk/protobuf/dart-ffi/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/protobuf.dart';
 // ignore: unused_import
 import 'package:flowy_sdk/protobuf/flowy-infra/protobuf.dart';
 import 'package:protobuf/protobuf.dart';

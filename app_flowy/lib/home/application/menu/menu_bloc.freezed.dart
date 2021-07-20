@@ -26,8 +26,10 @@ class _$MenuEventTearOff {
     );
   }
 
-  _CreateApp createApp() {
-    return const _CreateApp();
+  _CreateApp createApp(String appName) {
+    return _CreateApp(
+      appName,
+    );
   }
 }
 
@@ -40,14 +42,14 @@ mixin _$MenuEvent {
   TResult when<TResult extends Object?>({
     required TResult Function() collapse,
     required TResult Function(PageContext context) openPage,
-    required TResult Function() createApp,
+    required TResult Function(String appName) createApp,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? collapse,
     TResult Function(PageContext context)? openPage,
-    TResult Function()? createApp,
+    TResult Function(String appName)? createApp,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -122,7 +124,7 @@ class _$Collapse implements Collapse {
   TResult when<TResult extends Object?>({
     required TResult Function() collapse,
     required TResult Function(PageContext context) openPage,
-    required TResult Function() createApp,
+    required TResult Function(String appName) createApp,
   }) {
     return collapse();
   }
@@ -132,7 +134,7 @@ class _$Collapse implements Collapse {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? collapse,
     TResult Function(PageContext context)? openPage,
-    TResult Function()? createApp,
+    TResult Function(String appName)? createApp,
     required TResult orElse(),
   }) {
     if (collapse != null) {
@@ -234,7 +236,7 @@ class _$_OpenPage implements _OpenPage {
   TResult when<TResult extends Object?>({
     required TResult Function() collapse,
     required TResult Function(PageContext context) openPage,
-    required TResult Function() createApp,
+    required TResult Function(String appName) createApp,
   }) {
     return openPage(context);
   }
@@ -244,7 +246,7 @@ class _$_OpenPage implements _OpenPage {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? collapse,
     TResult Function(PageContext context)? openPage,
-    TResult Function()? createApp,
+    TResult Function(String appName)? createApp,
     required TResult orElse(),
   }) {
     if (openPage != null) {
@@ -292,6 +294,7 @@ abstract class _$CreateAppCopyWith<$Res> {
   factory _$CreateAppCopyWith(
           _CreateApp value, $Res Function(_CreateApp) then) =
       __$CreateAppCopyWithImpl<$Res>;
+  $Res call({String appName});
 }
 
 /// @nodoc
@@ -302,34 +305,58 @@ class __$CreateAppCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
 
   @override
   _CreateApp get _value => super._value as _CreateApp;
+
+  @override
+  $Res call({
+    Object? appName = freezed,
+  }) {
+    return _then(_CreateApp(
+      appName == freezed
+          ? _value.appName
+          : appName // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
 }
 
 /// @nodoc
 
 class _$_CreateApp implements _CreateApp {
-  const _$_CreateApp();
+  const _$_CreateApp(this.appName);
+
+  @override
+  final String appName;
 
   @override
   String toString() {
-    return 'MenuEvent.createApp()';
+    return 'MenuEvent.createApp(appName: $appName)';
   }
 
   @override
   bool operator ==(dynamic other) {
-    return identical(this, other) || (other is _CreateApp);
+    return identical(this, other) ||
+        (other is _CreateApp &&
+            (identical(other.appName, appName) ||
+                const DeepCollectionEquality().equals(other.appName, appName)));
   }
 
   @override
-  int get hashCode => runtimeType.hashCode;
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(appName);
+
+  @JsonKey(ignore: true)
+  @override
+  _$CreateAppCopyWith<_CreateApp> get copyWith =>
+      __$CreateAppCopyWithImpl<_CreateApp>(this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() collapse,
     required TResult Function(PageContext context) openPage,
-    required TResult Function() createApp,
+    required TResult Function(String appName) createApp,
   }) {
-    return createApp();
+    return createApp(appName);
   }
 
   @override
@@ -337,11 +364,11 @@ class _$_CreateApp implements _CreateApp {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? collapse,
     TResult Function(PageContext context)? openPage,
-    TResult Function()? createApp,
+    TResult Function(String appName)? createApp,
     required TResult orElse(),
   }) {
     if (createApp != null) {
-      return createApp();
+      return createApp(appName);
     }
     return orElse();
   }
@@ -372,7 +399,12 @@ class _$_CreateApp implements _CreateApp {
 }
 
 abstract class _CreateApp implements MenuEvent {
-  const factory _CreateApp() = _$_CreateApp;
+  const factory _CreateApp(String appName) = _$_CreateApp;
+
+  String get appName => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  _$CreateAppCopyWith<_CreateApp> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc

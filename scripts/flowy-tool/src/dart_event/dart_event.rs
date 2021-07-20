@@ -79,8 +79,12 @@ pub fn parse_event_crate(event_crate: &DartEventCrate) -> Vec<EventASTContext> {
                 .map(|item| match item {
                     Item::Enum(item_enum) => {
                         let ctxt = Ctxt::new();
-                        let attrs =
-                            flowy_ast::enum_from_ast(&ctxt, &item_enum.variants, &item_enum.attrs);
+                        let attrs = flowy_ast::enum_from_ast(
+                            &ctxt,
+                            &item_enum.ident,
+                            &item_enum.variants,
+                            &item_enum.attrs,
+                        );
                         ctxt.check().unwrap();
                         attrs
                             .iter()

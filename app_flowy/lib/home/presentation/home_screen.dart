@@ -29,10 +29,12 @@ class HomeScreen extends StatelessWidget {
       child: Scaffold(
         key: HomeScreen.scaffoldKey,
         body: BlocBuilder<HomeBloc, HomeState>(
+          buildWhen: (previous, current) => previous != current,
           builder: (context, state) {
             return StyledContainer(
               Theme.of(context).colorScheme.background,
-              child: _buildBody(state),
+              child: _buildBody(
+                  state, context.read<HomeBloc>().state.forceCollapse),
             );
           },
         ),
@@ -40,10 +42,10 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBody(HomeState state) {
+  Widget _buildBody(HomeState state, bool forceCollapse) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        final layout = HomeLayout(context, constraints);
+        final layout = HomeLayout(context, constraints, forceCollapse);
         const homePage = HomePage();
         final menu = _buildHomeMenu(
           layout: layout,
@@ -76,7 +78,7 @@ class HomeScreen extends StatelessWidget {
         );
       },
       isCollapseChanged: (isCollapse) {
-        homeBloc.add(HomeEvent.showMenu(!isCollapse));
+        homeBloc.add(HomeEvent.forceCollapse(isCollapse));
       },
     );
     homeMenu = RepaintBoundary(child: homeMenu);

@@ -22,9 +22,9 @@ class _$HomeEventTearOff {
     );
   }
 
-  _ShowMenu showMenu(bool isShow) {
-    return _ShowMenu(
-      isShow,
+  _ForceCollapse forceCollapse(bool forceCollapse) {
+    return _ForceCollapse(
+      forceCollapse,
     );
   }
 
@@ -53,7 +53,7 @@ mixin _$HomeEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(bool isLoading) showLoading,
-    required TResult Function(bool isShow) showMenu,
+    required TResult Function(bool forceCollapse) forceCollapse,
     required TResult Function(PageContext context) setPage,
     required TResult Function(EditPannelContext editContext) setEditPannel,
     required TResult Function() dismissEditPannel,
@@ -62,7 +62,7 @@ mixin _$HomeEvent {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(bool isLoading)? showLoading,
-    TResult Function(bool isShow)? showMenu,
+    TResult Function(bool forceCollapse)? forceCollapse,
     TResult Function(PageContext context)? setPage,
     TResult Function(EditPannelContext editContext)? setEditPannel,
     TResult Function()? dismissEditPannel,
@@ -72,7 +72,7 @@ mixin _$HomeEvent {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_ShowLoading value) showLoading,
-    required TResult Function(_ShowMenu value) showMenu,
+    required TResult Function(_ForceCollapse value) forceCollapse,
     required TResult Function(SetCurrentPage value) setPage,
     required TResult Function(_ShowEditPannel value) setEditPannel,
     required TResult Function(_DismissEditPannel value) dismissEditPannel,
@@ -81,7 +81,7 @@ mixin _$HomeEvent {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_ShowLoading value)? showLoading,
-    TResult Function(_ShowMenu value)? showMenu,
+    TResult Function(_ForceCollapse value)? forceCollapse,
     TResult Function(SetCurrentPage value)? setPage,
     TResult Function(_ShowEditPannel value)? setEditPannel,
     TResult Function(_DismissEditPannel value)? dismissEditPannel,
@@ -171,7 +171,7 @@ class _$_ShowLoading implements _ShowLoading {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(bool isLoading) showLoading,
-    required TResult Function(bool isShow) showMenu,
+    required TResult Function(bool forceCollapse) forceCollapse,
     required TResult Function(PageContext context) setPage,
     required TResult Function(EditPannelContext editContext) setEditPannel,
     required TResult Function() dismissEditPannel,
@@ -183,7 +183,7 @@ class _$_ShowLoading implements _ShowLoading {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(bool isLoading)? showLoading,
-    TResult Function(bool isShow)? showMenu,
+    TResult Function(bool forceCollapse)? forceCollapse,
     TResult Function(PageContext context)? setPage,
     TResult Function(EditPannelContext editContext)? setEditPannel,
     TResult Function()? dismissEditPannel,
@@ -199,7 +199,7 @@ class _$_ShowLoading implements _ShowLoading {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_ShowLoading value) showLoading,
-    required TResult Function(_ShowMenu value) showMenu,
+    required TResult Function(_ForceCollapse value) forceCollapse,
     required TResult Function(SetCurrentPage value) setPage,
     required TResult Function(_ShowEditPannel value) setEditPannel,
     required TResult Function(_DismissEditPannel value) dismissEditPannel,
@@ -211,7 +211,7 @@ class _$_ShowLoading implements _ShowLoading {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_ShowLoading value)? showLoading,
-    TResult Function(_ShowMenu value)? showMenu,
+    TResult Function(_ForceCollapse value)? forceCollapse,
     TResult Function(SetCurrentPage value)? setPage,
     TResult Function(_ShowEditPannel value)? setEditPannel,
     TResult Function(_DismissEditPannel value)? dismissEditPannel,
@@ -234,29 +234,31 @@ abstract class _ShowLoading implements HomeEvent {
 }
 
 /// @nodoc
-abstract class _$ShowMenuCopyWith<$Res> {
-  factory _$ShowMenuCopyWith(_ShowMenu value, $Res Function(_ShowMenu) then) =
-      __$ShowMenuCopyWithImpl<$Res>;
-  $Res call({bool isShow});
+abstract class _$ForceCollapseCopyWith<$Res> {
+  factory _$ForceCollapseCopyWith(
+          _ForceCollapse value, $Res Function(_ForceCollapse) then) =
+      __$ForceCollapseCopyWithImpl<$Res>;
+  $Res call({bool forceCollapse});
 }
 
 /// @nodoc
-class __$ShowMenuCopyWithImpl<$Res> extends _$HomeEventCopyWithImpl<$Res>
-    implements _$ShowMenuCopyWith<$Res> {
-  __$ShowMenuCopyWithImpl(_ShowMenu _value, $Res Function(_ShowMenu) _then)
-      : super(_value, (v) => _then(v as _ShowMenu));
+class __$ForceCollapseCopyWithImpl<$Res> extends _$HomeEventCopyWithImpl<$Res>
+    implements _$ForceCollapseCopyWith<$Res> {
+  __$ForceCollapseCopyWithImpl(
+      _ForceCollapse _value, $Res Function(_ForceCollapse) _then)
+      : super(_value, (v) => _then(v as _ForceCollapse));
 
   @override
-  _ShowMenu get _value => super._value as _ShowMenu;
+  _ForceCollapse get _value => super._value as _ForceCollapse;
 
   @override
   $Res call({
-    Object? isShow = freezed,
+    Object? forceCollapse = freezed,
   }) {
-    return _then(_ShowMenu(
-      isShow == freezed
-          ? _value.isShow
-          : isShow // ignore: cast_nullable_to_non_nullable
+    return _then(_ForceCollapse(
+      forceCollapse == freezed
+          ? _value.forceCollapse
+          : forceCollapse // ignore: cast_nullable_to_non_nullable
               as bool,
     ));
   }
@@ -264,58 +266,59 @@ class __$ShowMenuCopyWithImpl<$Res> extends _$HomeEventCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$_ShowMenu implements _ShowMenu {
-  const _$_ShowMenu(this.isShow);
+class _$_ForceCollapse implements _ForceCollapse {
+  const _$_ForceCollapse(this.forceCollapse);
 
   @override
-  final bool isShow;
+  final bool forceCollapse;
 
   @override
   String toString() {
-    return 'HomeEvent.showMenu(isShow: $isShow)';
+    return 'HomeEvent.forceCollapse(forceCollapse: $forceCollapse)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _ShowMenu &&
-            (identical(other.isShow, isShow) ||
-                const DeepCollectionEquality().equals(other.isShow, isShow)));
+        (other is _ForceCollapse &&
+            (identical(other.forceCollapse, forceCollapse) ||
+                const DeepCollectionEquality()
+                    .equals(other.forceCollapse, forceCollapse)));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(isShow);
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(forceCollapse);
 
   @JsonKey(ignore: true)
   @override
-  _$ShowMenuCopyWith<_ShowMenu> get copyWith =>
-      __$ShowMenuCopyWithImpl<_ShowMenu>(this, _$identity);
+  _$ForceCollapseCopyWith<_ForceCollapse> get copyWith =>
+      __$ForceCollapseCopyWithImpl<_ForceCollapse>(this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(bool isLoading) showLoading,
-    required TResult Function(bool isShow) showMenu,
+    required TResult Function(bool forceCollapse) forceCollapse,
     required TResult Function(PageContext context) setPage,
     required TResult Function(EditPannelContext editContext) setEditPannel,
     required TResult Function() dismissEditPannel,
   }) {
-    return showMenu(isShow);
+    return forceCollapse(this.forceCollapse);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(bool isLoading)? showLoading,
-    TResult Function(bool isShow)? showMenu,
+    TResult Function(bool forceCollapse)? forceCollapse,
     TResult Function(PageContext context)? setPage,
     TResult Function(EditPannelContext editContext)? setEditPannel,
     TResult Function()? dismissEditPannel,
     required TResult orElse(),
   }) {
-    if (showMenu != null) {
-      return showMenu(isShow);
+    if (forceCollapse != null) {
+      return forceCollapse(this.forceCollapse);
     }
     return orElse();
   }
@@ -324,37 +327,37 @@ class _$_ShowMenu implements _ShowMenu {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_ShowLoading value) showLoading,
-    required TResult Function(_ShowMenu value) showMenu,
+    required TResult Function(_ForceCollapse value) forceCollapse,
     required TResult Function(SetCurrentPage value) setPage,
     required TResult Function(_ShowEditPannel value) setEditPannel,
     required TResult Function(_DismissEditPannel value) dismissEditPannel,
   }) {
-    return showMenu(this);
+    return forceCollapse(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_ShowLoading value)? showLoading,
-    TResult Function(_ShowMenu value)? showMenu,
+    TResult Function(_ForceCollapse value)? forceCollapse,
     TResult Function(SetCurrentPage value)? setPage,
     TResult Function(_ShowEditPannel value)? setEditPannel,
     TResult Function(_DismissEditPannel value)? dismissEditPannel,
     required TResult orElse(),
   }) {
-    if (showMenu != null) {
-      return showMenu(this);
+    if (forceCollapse != null) {
+      return forceCollapse(this);
     }
     return orElse();
   }
 }
 
-abstract class _ShowMenu implements HomeEvent {
-  const factory _ShowMenu(bool isShow) = _$_ShowMenu;
+abstract class _ForceCollapse implements HomeEvent {
+  const factory _ForceCollapse(bool forceCollapse) = _$_ForceCollapse;
 
-  bool get isShow => throw _privateConstructorUsedError;
+  bool get forceCollapse => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  _$ShowMenuCopyWith<_ShowMenu> get copyWith =>
+  _$ForceCollapseCopyWith<_ForceCollapse> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -423,7 +426,7 @@ class _$SetCurrentPage implements SetCurrentPage {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(bool isLoading) showLoading,
-    required TResult Function(bool isShow) showMenu,
+    required TResult Function(bool forceCollapse) forceCollapse,
     required TResult Function(PageContext context) setPage,
     required TResult Function(EditPannelContext editContext) setEditPannel,
     required TResult Function() dismissEditPannel,
@@ -435,7 +438,7 @@ class _$SetCurrentPage implements SetCurrentPage {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(bool isLoading)? showLoading,
-    TResult Function(bool isShow)? showMenu,
+    TResult Function(bool forceCollapse)? forceCollapse,
     TResult Function(PageContext context)? setPage,
     TResult Function(EditPannelContext editContext)? setEditPannel,
     TResult Function()? dismissEditPannel,
@@ -451,7 +454,7 @@ class _$SetCurrentPage implements SetCurrentPage {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_ShowLoading value) showLoading,
-    required TResult Function(_ShowMenu value) showMenu,
+    required TResult Function(_ForceCollapse value) forceCollapse,
     required TResult Function(SetCurrentPage value) setPage,
     required TResult Function(_ShowEditPannel value) setEditPannel,
     required TResult Function(_DismissEditPannel value) dismissEditPannel,
@@ -463,7 +466,7 @@ class _$SetCurrentPage implements SetCurrentPage {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_ShowLoading value)? showLoading,
-    TResult Function(_ShowMenu value)? showMenu,
+    TResult Function(_ForceCollapse value)? forceCollapse,
     TResult Function(SetCurrentPage value)? setPage,
     TResult Function(_ShowEditPannel value)? setEditPannel,
     TResult Function(_DismissEditPannel value)? dismissEditPannel,
@@ -551,7 +554,7 @@ class _$_ShowEditPannel implements _ShowEditPannel {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(bool isLoading) showLoading,
-    required TResult Function(bool isShow) showMenu,
+    required TResult Function(bool forceCollapse) forceCollapse,
     required TResult Function(PageContext context) setPage,
     required TResult Function(EditPannelContext editContext) setEditPannel,
     required TResult Function() dismissEditPannel,
@@ -563,7 +566,7 @@ class _$_ShowEditPannel implements _ShowEditPannel {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(bool isLoading)? showLoading,
-    TResult Function(bool isShow)? showMenu,
+    TResult Function(bool forceCollapse)? forceCollapse,
     TResult Function(PageContext context)? setPage,
     TResult Function(EditPannelContext editContext)? setEditPannel,
     TResult Function()? dismissEditPannel,
@@ -579,7 +582,7 @@ class _$_ShowEditPannel implements _ShowEditPannel {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_ShowLoading value) showLoading,
-    required TResult Function(_ShowMenu value) showMenu,
+    required TResult Function(_ForceCollapse value) forceCollapse,
     required TResult Function(SetCurrentPage value) setPage,
     required TResult Function(_ShowEditPannel value) setEditPannel,
     required TResult Function(_DismissEditPannel value) dismissEditPannel,
@@ -591,7 +594,7 @@ class _$_ShowEditPannel implements _ShowEditPannel {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_ShowLoading value)? showLoading,
-    TResult Function(_ShowMenu value)? showMenu,
+    TResult Function(_ForceCollapse value)? forceCollapse,
     TResult Function(SetCurrentPage value)? setPage,
     TResult Function(_ShowEditPannel value)? setEditPannel,
     TResult Function(_DismissEditPannel value)? dismissEditPannel,
@@ -655,7 +658,7 @@ class _$_DismissEditPannel implements _DismissEditPannel {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(bool isLoading) showLoading,
-    required TResult Function(bool isShow) showMenu,
+    required TResult Function(bool forceCollapse) forceCollapse,
     required TResult Function(PageContext context) setPage,
     required TResult Function(EditPannelContext editContext) setEditPannel,
     required TResult Function() dismissEditPannel,
@@ -667,7 +670,7 @@ class _$_DismissEditPannel implements _DismissEditPannel {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(bool isLoading)? showLoading,
-    TResult Function(bool isShow)? showMenu,
+    TResult Function(bool forceCollapse)? forceCollapse,
     TResult Function(PageContext context)? setPage,
     TResult Function(EditPannelContext editContext)? setEditPannel,
     TResult Function()? dismissEditPannel,
@@ -683,7 +686,7 @@ class _$_DismissEditPannel implements _DismissEditPannel {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_ShowLoading value) showLoading,
-    required TResult Function(_ShowMenu value) showMenu,
+    required TResult Function(_ForceCollapse value) forceCollapse,
     required TResult Function(SetCurrentPage value) setPage,
     required TResult Function(_ShowEditPannel value) setEditPannel,
     required TResult Function(_DismissEditPannel value) dismissEditPannel,
@@ -695,7 +698,7 @@ class _$_DismissEditPannel implements _DismissEditPannel {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_ShowLoading value)? showLoading,
-    TResult Function(_ShowMenu value)? showMenu,
+    TResult Function(_ForceCollapse value)? forceCollapse,
     TResult Function(SetCurrentPage value)? setPage,
     TResult Function(_ShowEditPannel value)? setEditPannel,
     TResult Function(_DismissEditPannel value)? dismissEditPannel,
@@ -718,12 +721,12 @@ class _$HomeStateTearOff {
 
   _HomeState call(
       {required bool isLoading,
-      required bool showMenu,
+      required bool forceCollapse,
       required PageContext pageContext,
       required Option<EditPannelContext> editContext}) {
     return _HomeState(
       isLoading: isLoading,
-      showMenu: showMenu,
+      forceCollapse: forceCollapse,
       pageContext: pageContext,
       editContext: editContext,
     );
@@ -736,7 +739,7 @@ const $HomeState = _$HomeStateTearOff();
 /// @nodoc
 mixin _$HomeState {
   bool get isLoading => throw _privateConstructorUsedError;
-  bool get showMenu => throw _privateConstructorUsedError;
+  bool get forceCollapse => throw _privateConstructorUsedError;
   PageContext get pageContext => throw _privateConstructorUsedError;
   Option<EditPannelContext> get editContext =>
       throw _privateConstructorUsedError;
@@ -752,7 +755,7 @@ abstract class $HomeStateCopyWith<$Res> {
       _$HomeStateCopyWithImpl<$Res>;
   $Res call(
       {bool isLoading,
-      bool showMenu,
+      bool forceCollapse,
       PageContext pageContext,
       Option<EditPannelContext> editContext});
 }
@@ -768,7 +771,7 @@ class _$HomeStateCopyWithImpl<$Res> implements $HomeStateCopyWith<$Res> {
   @override
   $Res call({
     Object? isLoading = freezed,
-    Object? showMenu = freezed,
+    Object? forceCollapse = freezed,
     Object? pageContext = freezed,
     Object? editContext = freezed,
   }) {
@@ -777,9 +780,9 @@ class _$HomeStateCopyWithImpl<$Res> implements $HomeStateCopyWith<$Res> {
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
               as bool,
-      showMenu: showMenu == freezed
-          ? _value.showMenu
-          : showMenu // ignore: cast_nullable_to_non_nullable
+      forceCollapse: forceCollapse == freezed
+          ? _value.forceCollapse
+          : forceCollapse // ignore: cast_nullable_to_non_nullable
               as bool,
       pageContext: pageContext == freezed
           ? _value.pageContext
@@ -801,7 +804,7 @@ abstract class _$HomeStateCopyWith<$Res> implements $HomeStateCopyWith<$Res> {
   @override
   $Res call(
       {bool isLoading,
-      bool showMenu,
+      bool forceCollapse,
       PageContext pageContext,
       Option<EditPannelContext> editContext});
 }
@@ -818,7 +821,7 @@ class __$HomeStateCopyWithImpl<$Res> extends _$HomeStateCopyWithImpl<$Res>
   @override
   $Res call({
     Object? isLoading = freezed,
-    Object? showMenu = freezed,
+    Object? forceCollapse = freezed,
     Object? pageContext = freezed,
     Object? editContext = freezed,
   }) {
@@ -827,9 +830,9 @@ class __$HomeStateCopyWithImpl<$Res> extends _$HomeStateCopyWithImpl<$Res>
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
               as bool,
-      showMenu: showMenu == freezed
-          ? _value.showMenu
-          : showMenu // ignore: cast_nullable_to_non_nullable
+      forceCollapse: forceCollapse == freezed
+          ? _value.forceCollapse
+          : forceCollapse // ignore: cast_nullable_to_non_nullable
               as bool,
       pageContext: pageContext == freezed
           ? _value.pageContext
@@ -848,14 +851,14 @@ class __$HomeStateCopyWithImpl<$Res> extends _$HomeStateCopyWithImpl<$Res>
 class _$_HomeState implements _HomeState {
   const _$_HomeState(
       {required this.isLoading,
-      required this.showMenu,
+      required this.forceCollapse,
       required this.pageContext,
       required this.editContext});
 
   @override
   final bool isLoading;
   @override
-  final bool showMenu;
+  final bool forceCollapse;
   @override
   final PageContext pageContext;
   @override
@@ -863,7 +866,7 @@ class _$_HomeState implements _HomeState {
 
   @override
   String toString() {
-    return 'HomeState(isLoading: $isLoading, showMenu: $showMenu, pageContext: $pageContext, editContext: $editContext)';
+    return 'HomeState(isLoading: $isLoading, forceCollapse: $forceCollapse, pageContext: $pageContext, editContext: $editContext)';
   }
 
   @override
@@ -873,9 +876,9 @@ class _$_HomeState implements _HomeState {
             (identical(other.isLoading, isLoading) ||
                 const DeepCollectionEquality()
                     .equals(other.isLoading, isLoading)) &&
-            (identical(other.showMenu, showMenu) ||
+            (identical(other.forceCollapse, forceCollapse) ||
                 const DeepCollectionEquality()
-                    .equals(other.showMenu, showMenu)) &&
+                    .equals(other.forceCollapse, forceCollapse)) &&
             (identical(other.pageContext, pageContext) ||
                 const DeepCollectionEquality()
                     .equals(other.pageContext, pageContext)) &&
@@ -888,7 +891,7 @@ class _$_HomeState implements _HomeState {
   int get hashCode =>
       runtimeType.hashCode ^
       const DeepCollectionEquality().hash(isLoading) ^
-      const DeepCollectionEquality().hash(showMenu) ^
+      const DeepCollectionEquality().hash(forceCollapse) ^
       const DeepCollectionEquality().hash(pageContext) ^
       const DeepCollectionEquality().hash(editContext);
 
@@ -901,14 +904,14 @@ class _$_HomeState implements _HomeState {
 abstract class _HomeState implements HomeState {
   const factory _HomeState(
       {required bool isLoading,
-      required bool showMenu,
+      required bool forceCollapse,
       required PageContext pageContext,
       required Option<EditPannelContext> editContext}) = _$_HomeState;
 
   @override
   bool get isLoading => throw _privateConstructorUsedError;
   @override
-  bool get showMenu => throw _privateConstructorUsedError;
+  bool get forceCollapse => throw _privateConstructorUsedError;
   @override
   PageContext get pageContext => throw _privateConstructorUsedError;
   @override

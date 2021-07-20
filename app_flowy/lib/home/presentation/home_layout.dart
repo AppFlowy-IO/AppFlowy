@@ -17,7 +17,8 @@ class HomeLayout {
   late double homePageROffset;
   late Duration animDuration;
 
-  HomeLayout(BuildContext context, BoxConstraints homeScreenConstraint) {
+  HomeLayout(BuildContext context, BoxConstraints homeScreenConstraint,
+      bool forceCollapse) {
     final homeBlocState = context.read<HomeBloc>().state;
 
     showEditPannel = homeBlocState.editContext.isSome();
@@ -27,12 +28,11 @@ class HomeLayout {
       menuWidth = Sizes.sideBarLg;
     }
 
-    // if (menuBlocState.isCollapse) {
-    //   showMenu = false;
-    // } else {
-    //   showMenu = context.widthPx > PageBreaks.TabletPortrait;
-    // }
-    showMenu = context.widthPx > PageBreaks.tabletPortrait;
+    if (forceCollapse) {
+      showMenu = false;
+    } else {
+      showMenu = context.widthPx > PageBreaks.tabletPortrait;
+    }
 
     homePageLOffset = showMenu ? menuWidth : 0.0;
     animDuration = .35.seconds;
