@@ -22,7 +22,20 @@ class IAppImpl extends IApp {
       {required String appId,
       required String name,
       String? desc,
-      required ViewTypeIdentifier viewType}) {
+      required ViewType viewType}) {
     return repo.createView(appId, name, desc ?? "", viewType);
+  }
+
+  @override
+  void startWatching(
+      {AppAddViewCallback? addViewCallback,
+      AppUpdatedCallback? updatedCallback}) {
+    repo.startWatching(
+        addViewCallback: addViewCallback, updatedCallback: updatedCallback);
+  }
+
+  @override
+  Future<void> stopWatching() async {
+    await repo.close();
   }
 }

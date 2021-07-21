@@ -21,6 +21,26 @@ class IWorkspaceImpl extends IWorkspace {
   @override
   Future<Either<List<App>, WorkspaceError>> getApps(
       {required String workspaceId}) {
-    return repo.getApps(workspaceId: workspaceId);
+    return repo
+        .getWorkspace(workspaceId: workspaceId, readApps: true)
+        .then((result) {
+      return result.fold(
+        (workspace) => left(workspace.apps.items),
+        (error) => right(error),
+      );
+    });
+  }
+
+  @override
+  void startWatching(
+      {WorkspaceAddAppCallback? addAppCallback,
+      WorkspaceUpdatedCallback? updatedCallback}) {
+    repo.startWatching(
+        addAppCallback: addAppCallback, updatedCallback: updatedCallback);
+  }
+
+  @override
+  Future<void> stopWatching() async {
+    await repo.close();
   }
 }

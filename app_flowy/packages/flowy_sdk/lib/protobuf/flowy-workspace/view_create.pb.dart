@@ -29,7 +29,7 @@ class CreateViewRequest extends $pb.GeneratedMessage {
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'thumbnail')
-    ..e<ViewTypeIdentifier>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewType', $pb.PbFieldType.OE, defaultOrMaker: ViewTypeIdentifier.Docs, valueOf: ViewTypeIdentifier.valueOf, enumValues: ViewTypeIdentifier.values)
+    ..e<ViewType>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewType', $pb.PbFieldType.OE, defaultOrMaker: ViewType.Docs, valueOf: ViewType.valueOf, enumValues: ViewType.values)
     ..hasRequiredFields = false
   ;
 
@@ -39,7 +39,7 @@ class CreateViewRequest extends $pb.GeneratedMessage {
     $core.String? name,
     $core.String? desc,
     $core.String? thumbnail,
-    ViewTypeIdentifier? viewType,
+    ViewType? viewType,
   }) {
     final _result = create();
     if (appId != null) {
@@ -120,9 +120,9 @@ class CreateViewRequest extends $pb.GeneratedMessage {
   void clearThumbnail() => clearField(4);
 
   @$pb.TagNumber(5)
-  ViewTypeIdentifier get viewType => $_getN(4);
+  ViewType get viewType => $_getN(4);
   @$pb.TagNumber(5)
-  set viewType(ViewTypeIdentifier v) { setField(5, v); }
+  set viewType(ViewType v) { setField(5, v); }
   @$pb.TagNumber(5)
   $core.bool hasViewType() => $_has(4);
   @$pb.TagNumber(5)
@@ -135,7 +135,7 @@ class View extends $pb.GeneratedMessage {
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'appId')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
-    ..e<ViewTypeIdentifier>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewType', $pb.PbFieldType.OE, defaultOrMaker: ViewTypeIdentifier.Docs, valueOf: ViewTypeIdentifier.valueOf, enumValues: ViewTypeIdentifier.values)
+    ..e<ViewType>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewType', $pb.PbFieldType.OE, defaultOrMaker: ViewType.Docs, valueOf: ViewType.valueOf, enumValues: ViewType.values)
     ..hasRequiredFields = false
   ;
 
@@ -145,7 +145,7 @@ class View extends $pb.GeneratedMessage {
     $core.String? appId,
     $core.String? name,
     $core.String? desc,
-    ViewTypeIdentifier? viewType,
+    ViewType? viewType,
   }) {
     final _result = create();
     if (id != null) {
@@ -223,9 +223,9 @@ class View extends $pb.GeneratedMessage {
   void clearDesc() => clearField(4);
 
   @$pb.TagNumber(5)
-  ViewTypeIdentifier get viewType => $_getN(4);
+  ViewType get viewType => $_getN(4);
   @$pb.TagNumber(5)
-  set viewType(ViewTypeIdentifier v) { setField(5, v); }
+  set viewType(ViewType v) { setField(5, v); }
   @$pb.TagNumber(5)
   $core.bool hasViewType() => $_has(4);
   @$pb.TagNumber(5)

@@ -16,8 +16,12 @@ final _privateConstructorUsedError = UnsupportedError(
 class _$AppEventTearOff {
   const _$AppEventTearOff();
 
-  AppsReceived appsReceived(Either<List<App>, WorkspaceError> appsOrFail) {
-    return AppsReceived(
+  _Initial initial() {
+    return const _Initial();
+  }
+
+  ViewsReceived viewsReceived(Either<List<View>, WorkspaceError> appsOrFail) {
+    return ViewsReceived(
       appsOrFail,
     );
   }
@@ -28,36 +32,33 @@ const $AppEvent = _$AppEventTearOff();
 
 /// @nodoc
 mixin _$AppEvent {
-  Either<List<App>, WorkspaceError> get appsOrFail =>
-      throw _privateConstructorUsedError;
-
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(Either<List<App>, WorkspaceError> appsOrFail)
-        appsReceived,
+    required TResult Function() initial,
+    required TResult Function(Either<List<View>, WorkspaceError> appsOrFail)
+        viewsReceived,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
-        appsReceived,
+    TResult Function()? initial,
+    TResult Function(Either<List<View>, WorkspaceError> appsOrFail)?
+        viewsReceived,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(AppsReceived value) appsReceived,
+    required TResult Function(_Initial value) initial,
+    required TResult Function(ViewsReceived value) viewsReceived,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(AppsReceived value)? appsReceived,
+    TResult Function(_Initial value)? initial,
+    TResult Function(ViewsReceived value)? viewsReceived,
     required TResult orElse(),
   }) =>
-      throw _privateConstructorUsedError;
-
-  @JsonKey(ignore: true)
-  $AppEventCopyWith<AppEvent> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -65,7 +66,6 @@ mixin _$AppEvent {
 abstract class $AppEventCopyWith<$Res> {
   factory $AppEventCopyWith(AppEvent value, $Res Function(AppEvent) then) =
       _$AppEventCopyWithImpl<$Res>;
-  $Res call({Either<List<App>, WorkspaceError> appsOrFail});
 }
 
 /// @nodoc
@@ -75,69 +75,141 @@ class _$AppEventCopyWithImpl<$Res> implements $AppEventCopyWith<$Res> {
   final AppEvent _value;
   // ignore: unused_field
   final $Res Function(AppEvent) _then;
-
-  @override
-  $Res call({
-    Object? appsOrFail = freezed,
-  }) {
-    return _then(_value.copyWith(
-      appsOrFail: appsOrFail == freezed
-          ? _value.appsOrFail
-          : appsOrFail // ignore: cast_nullable_to_non_nullable
-              as Either<List<App>, WorkspaceError>,
-    ));
-  }
 }
 
 /// @nodoc
-abstract class $AppsReceivedCopyWith<$Res> implements $AppEventCopyWith<$Res> {
-  factory $AppsReceivedCopyWith(
-          AppsReceived value, $Res Function(AppsReceived) then) =
-      _$AppsReceivedCopyWithImpl<$Res>;
-  @override
-  $Res call({Either<List<App>, WorkspaceError> appsOrFail});
+abstract class _$InitialCopyWith<$Res> {
+  factory _$InitialCopyWith(_Initial value, $Res Function(_Initial) then) =
+      __$InitialCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class _$AppsReceivedCopyWithImpl<$Res> extends _$AppEventCopyWithImpl<$Res>
-    implements $AppsReceivedCopyWith<$Res> {
-  _$AppsReceivedCopyWithImpl(
-      AppsReceived _value, $Res Function(AppsReceived) _then)
-      : super(_value, (v) => _then(v as AppsReceived));
+class __$InitialCopyWithImpl<$Res> extends _$AppEventCopyWithImpl<$Res>
+    implements _$InitialCopyWith<$Res> {
+  __$InitialCopyWithImpl(_Initial _value, $Res Function(_Initial) _then)
+      : super(_value, (v) => _then(v as _Initial));
 
   @override
-  AppsReceived get _value => super._value as AppsReceived;
-
-  @override
-  $Res call({
-    Object? appsOrFail = freezed,
-  }) {
-    return _then(AppsReceived(
-      appsOrFail == freezed
-          ? _value.appsOrFail
-          : appsOrFail // ignore: cast_nullable_to_non_nullable
-              as Either<List<App>, WorkspaceError>,
-    ));
-  }
+  _Initial get _value => super._value as _Initial;
 }
 
 /// @nodoc
 
-class _$AppsReceived implements AppsReceived {
-  const _$AppsReceived(this.appsOrFail);
-
-  @override
-  final Either<List<App>, WorkspaceError> appsOrFail;
+class _$_Initial implements _Initial {
+  const _$_Initial();
 
   @override
   String toString() {
-    return 'AppEvent.appsReceived(appsOrFail: $appsOrFail)';
+    return 'AppEvent.initial()';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) || (other is _Initial);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function(Either<List<View>, WorkspaceError> appsOrFail)
+        viewsReceived,
+  }) {
+    return initial();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(Either<List<View>, WorkspaceError> appsOrFail)?
+        viewsReceived,
+    required TResult orElse(),
+  }) {
+    if (initial != null) {
+      return initial();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_Initial value) initial,
+    required TResult Function(ViewsReceived value) viewsReceived,
+  }) {
+    return initial(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
+    TResult Function(ViewsReceived value)? viewsReceived,
+    required TResult orElse(),
+  }) {
+    if (initial != null) {
+      return initial(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _Initial implements AppEvent {
+  const factory _Initial() = _$_Initial;
+}
+
+/// @nodoc
+abstract class $ViewsReceivedCopyWith<$Res> {
+  factory $ViewsReceivedCopyWith(
+          ViewsReceived value, $Res Function(ViewsReceived) then) =
+      _$ViewsReceivedCopyWithImpl<$Res>;
+  $Res call({Either<List<View>, WorkspaceError> appsOrFail});
+}
+
+/// @nodoc
+class _$ViewsReceivedCopyWithImpl<$Res> extends _$AppEventCopyWithImpl<$Res>
+    implements $ViewsReceivedCopyWith<$Res> {
+  _$ViewsReceivedCopyWithImpl(
+      ViewsReceived _value, $Res Function(ViewsReceived) _then)
+      : super(_value, (v) => _then(v as ViewsReceived));
+
+  @override
+  ViewsReceived get _value => super._value as ViewsReceived;
+
+  @override
+  $Res call({
+    Object? appsOrFail = freezed,
+  }) {
+    return _then(ViewsReceived(
+      appsOrFail == freezed
+          ? _value.appsOrFail
+          : appsOrFail // ignore: cast_nullable_to_non_nullable
+              as Either<List<View>, WorkspaceError>,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$ViewsReceived implements ViewsReceived {
+  const _$ViewsReceived(this.appsOrFail);
+
+  @override
+  final Either<List<View>, WorkspaceError> appsOrFail;
+
+  @override
+  String toString() {
+    return 'AppEvent.viewsReceived(appsOrFail: $appsOrFail)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is AppsReceived &&
+        (other is ViewsReceived &&
             (identical(other.appsOrFail, appsOrFail) ||
                 const DeepCollectionEquality()
                     .equals(other.appsOrFail, appsOrFail)));
@@ -149,27 +221,29 @@ class _$AppsReceived implements AppsReceived {
 
   @JsonKey(ignore: true)
   @override
-  $AppsReceivedCopyWith<AppsReceived> get copyWith =>
-      _$AppsReceivedCopyWithImpl<AppsReceived>(this, _$identity);
+  $ViewsReceivedCopyWith<ViewsReceived> get copyWith =>
+      _$ViewsReceivedCopyWithImpl<ViewsReceived>(this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(Either<List<App>, WorkspaceError> appsOrFail)
-        appsReceived,
+    required TResult Function() initial,
+    required TResult Function(Either<List<View>, WorkspaceError> appsOrFail)
+        viewsReceived,
   }) {
-    return appsReceived(appsOrFail);
+    return viewsReceived(appsOrFail);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
-        appsReceived,
+    TResult Function()? initial,
+    TResult Function(Either<List<View>, WorkspaceError> appsOrFail)?
+        viewsReceived,
     required TResult orElse(),
   }) {
-    if (appsReceived != null) {
-      return appsReceived(appsOrFail);
+    if (viewsReceived != null) {
+      return viewsReceived(appsOrFail);
     }
     return orElse();
   }
@@ -177,34 +251,34 @@ class _$AppsReceived implements AppsReceived {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(AppsReceived value) appsReceived,
+    required TResult Function(_Initial value) initial,
+    required TResult Function(ViewsReceived value) viewsReceived,
   }) {
-    return appsReceived(this);
+    return viewsReceived(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(AppsReceived value)? appsReceived,
+    TResult Function(_Initial value)? initial,
+    TResult Function(ViewsReceived value)? viewsReceived,
     required TResult orElse(),
   }) {
-    if (appsReceived != null) {
-      return appsReceived(this);
+    if (viewsReceived != null) {
+      return viewsReceived(this);
     }
     return orElse();
   }
 }
 
-abstract class AppsReceived implements AppEvent {
-  const factory AppsReceived(Either<List<App>, WorkspaceError> appsOrFail) =
-      _$AppsReceived;
+abstract class ViewsReceived implements AppEvent {
+  const factory ViewsReceived(Either<List<View>, WorkspaceError> appsOrFail) =
+      _$ViewsReceived;
 
-  @override
-  Either<List<App>, WorkspaceError> get appsOrFail =>
+  Either<List<View>, WorkspaceError> get appsOrFail =>
       throw _privateConstructorUsedError;
-  @override
   @JsonKey(ignore: true)
-  $AppsReceivedCopyWith<AppsReceived> get copyWith =>
+  $ViewsReceivedCopyWith<ViewsReceived> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -213,9 +287,11 @@ class _$AppStateTearOff {
   const _$AppStateTearOff();
 
   _AppState call(
-      {required Option<List<App>> apps,
+      {required bool isLoading,
+      required Option<List<App>> apps,
       required Either<Unit, WorkspaceError> successOrFailure}) {
     return _AppState(
+      isLoading: isLoading,
       apps: apps,
       successOrFailure: successOrFailure,
     );
@@ -227,6 +303,7 @@ const $AppState = _$AppStateTearOff();
 
 /// @nodoc
 mixin _$AppState {
+  bool get isLoading => throw _privateConstructorUsedError;
   Option<List<App>> get apps => throw _privateConstructorUsedError;
   Either<Unit, WorkspaceError> get successOrFailure =>
       throw _privateConstructorUsedError;
@@ -241,7 +318,9 @@ abstract class $AppStateCopyWith<$Res> {
   factory $AppStateCopyWith(AppState value, $Res Function(AppState) then) =
       _$AppStateCopyWithImpl<$Res>;
   $Res call(
-      {Option<List<App>> apps, Either<Unit, WorkspaceError> successOrFailure});
+      {bool isLoading,
+      Option<List<App>> apps,
+      Either<Unit, WorkspaceError> successOrFailure});
 }
 
 /// @nodoc
@@ -254,10 +333,15 @@ class _$AppStateCopyWithImpl<$Res> implements $AppStateCopyWith<$Res> {
 
   @override
   $Res call({
+    Object? isLoading = freezed,
     Object? apps = freezed,
     Object? successOrFailure = freezed,
   }) {
     return _then(_value.copyWith(
+      isLoading: isLoading == freezed
+          ? _value.isLoading
+          : isLoading // ignore: cast_nullable_to_non_nullable
+              as bool,
       apps: apps == freezed
           ? _value.apps
           : apps // ignore: cast_nullable_to_non_nullable
@@ -276,7 +360,9 @@ abstract class _$AppStateCopyWith<$Res> implements $AppStateCopyWith<$Res> {
       __$AppStateCopyWithImpl<$Res>;
   @override
   $Res call(
-      {Option<List<App>> apps, Either<Unit, WorkspaceError> successOrFailure});
+      {bool isLoading,
+      Option<List<App>> apps,
+      Either<Unit, WorkspaceError> successOrFailure});
 }
 
 /// @nodoc
@@ -290,10 +376,15 @@ class __$AppStateCopyWithImpl<$Res> extends _$AppStateCopyWithImpl<$Res>
 
   @override
   $Res call({
+    Object? isLoading = freezed,
     Object? apps = freezed,
     Object? successOrFailure = freezed,
   }) {
     return _then(_AppState(
+      isLoading: isLoading == freezed
+          ? _value.isLoading
+          : isLoading // ignore: cast_nullable_to_non_nullable
+              as bool,
       apps: apps == freezed
           ? _value.apps
           : apps // ignore: cast_nullable_to_non_nullable
@@ -309,8 +400,13 @@ class __$AppStateCopyWithImpl<$Res> extends _$AppStateCopyWithImpl<$Res>
 /// @nodoc
 
 class _$_AppState implements _AppState {
-  const _$_AppState({required this.apps, required this.successOrFailure});
+  const _$_AppState(
+      {required this.isLoading,
+      required this.apps,
+      required this.successOrFailure});
 
+  @override
+  final bool isLoading;
   @override
   final Option<List<App>> apps;
   @override
@@ -318,13 +414,16 @@ class _$_AppState implements _AppState {
 
   @override
   String toString() {
-    return 'AppState(apps: $apps, successOrFailure: $successOrFailure)';
+    return 'AppState(isLoading: $isLoading, apps: $apps, successOrFailure: $successOrFailure)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other is _AppState &&
+            (identical(other.isLoading, isLoading) ||
+                const DeepCollectionEquality()
+                    .equals(other.isLoading, isLoading)) &&
             (identical(other.apps, apps) ||
                 const DeepCollectionEquality().equals(other.apps, apps)) &&
             (identical(other.successOrFailure, successOrFailure) ||
@@ -335,6 +434,7 @@ class _$_AppState implements _AppState {
   @override
   int get hashCode =>
       runtimeType.hashCode ^
+      const DeepCollectionEquality().hash(isLoading) ^
       const DeepCollectionEquality().hash(apps) ^
       const DeepCollectionEquality().hash(successOrFailure);
 
@@ -346,9 +446,12 @@ class _$_AppState implements _AppState {
 
 abstract class _AppState implements AppState {
   const factory _AppState(
-      {required Option<List<App>> apps,
+      {required bool isLoading,
+      required Option<List<App>> apps,
       required Either<Unit, WorkspaceError> successOrFailure}) = _$_AppState;
 
+  @override
+  bool get isLoading => throw _privateConstructorUsedError;
   @override
   Option<List<App>> get apps => throw _privateConstructorUsedError;
   @override

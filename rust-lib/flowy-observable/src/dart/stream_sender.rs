@@ -14,7 +14,7 @@ impl RustStreamSender {
     fn new() -> Self { Self { isolate: None } }
 
     fn inner_set_port(&mut self, port: i64) {
-        log::debug!("Setup rust to flutter stream with port {}", port);
+        log::info!("Setup rust to flutter stream with port {}", port);
         self.isolate = Some(allo_isolate::Isolate::new(port));
     }
 

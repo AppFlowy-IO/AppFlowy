@@ -9,24 +9,26 @@
 import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
-class WorkspaceObservableType extends $pb.ProtobufEnum {
-  static const WorkspaceObservableType Unknown = WorkspaceObservableType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unknown');
-  static const WorkspaceObservableType WorkspaceUpdated = WorkspaceObservableType._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceUpdated');
-  static const WorkspaceObservableType AppDescUpdated = WorkspaceObservableType._(20, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppDescUpdated');
-  static const WorkspaceObservableType AppViewsUpdated = WorkspaceObservableType._(21, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppViewsUpdated');
-  static const WorkspaceObservableType ViewUpdated = WorkspaceObservableType._(30, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewUpdated');
+class WorkspaceObservable extends $pb.ProtobufEnum {
+  static const WorkspaceObservable Unknown = WorkspaceObservable._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unknown');
+  static const WorkspaceObservable WorkspaceUpdateDesc = WorkspaceObservable._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceUpdateDesc');
+  static const WorkspaceObservable WorkspaceAddApp = WorkspaceObservable._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceAddApp');
+  static const WorkspaceObservable AppUpdateDesc = WorkspaceObservable._(20, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppUpdateDesc');
+  static const WorkspaceObservable AppAddView = WorkspaceObservable._(21, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppAddView');
+  static const WorkspaceObservable ViewUpdateDesc = WorkspaceObservable._(30, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewUpdateDesc');
 
-  static const $core.List<WorkspaceObservableType> values = <WorkspaceObservableType> [
+  static const $core.List<WorkspaceObservable> values = <WorkspaceObservable> [
     Unknown,
-    WorkspaceUpdated,
-    AppDescUpdated,
-    AppViewsUpdated,
-    ViewUpdated,
+    WorkspaceUpdateDesc,
+    WorkspaceAddApp,
+    AppUpdateDesc,
+    AppAddView,
+    ViewUpdateDesc,
   ];
 
-  static final $core.Map<$core.int, WorkspaceObservableType> _byValue = $pb.ProtobufEnum.initByValue(values);
-  static WorkspaceObservableType? valueOf($core.int value) => _byValue[value];
+  static final $core.Map<$core.int, WorkspaceObservable> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static WorkspaceObservable? valueOf($core.int value) => _byValue[value];
 
-  const WorkspaceObservableType._($core.int v, $core.String n) : super(v, n);
+  const WorkspaceObservable._($core.int v, $core.String n) : super(v, n);
 }
 

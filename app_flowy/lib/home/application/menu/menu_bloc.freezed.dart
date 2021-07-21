@@ -16,20 +16,30 @@ final _privateConstructorUsedError = UnsupportedError(
 class _$MenuEventTearOff {
   const _$MenuEventTearOff();
 
+  _Initial initial() {
+    return const _Initial();
+  }
+
   Collapse collapse() {
     return const Collapse();
   }
 
-  _OpenPage openPage(PageContext context) {
-    return _OpenPage(
+  OpenPage openPage(PageContext context) {
+    return OpenPage(
       context,
     );
   }
 
-  _CreateApp createApp(String name, {String? desc}) {
-    return _CreateApp(
+  CreateApp createApp(String name, {String? desc}) {
+    return CreateApp(
       name,
       desc: desc,
+    );
+  }
+
+  AppsReceived appsReceived(Either<List<App>, WorkspaceError> appsOrFail) {
+    return AppsReceived(
+      appsOrFail,
     );
   }
 }
@@ -41,31 +51,41 @@ const $MenuEvent = _$MenuEventTearOff();
 mixin _$MenuEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
+    required TResult Function() initial,
     required TResult Function() collapse,
     required TResult Function(PageContext context) openPage,
     required TResult Function(String name, String? desc) createApp,
+    required TResult Function(Either<List<App>, WorkspaceError> appsOrFail)
+        appsReceived,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
     TResult Function()? collapse,
     TResult Function(PageContext context)? openPage,
     TResult Function(String name, String? desc)? createApp,
+    TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
+        appsReceived,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
+    required TResult Function(_Initial value) initial,
     required TResult Function(Collapse value) collapse,
-    required TResult Function(_OpenPage value) openPage,
-    required TResult Function(_CreateApp value) createApp,
+    required TResult Function(OpenPage value) openPage,
+    required TResult Function(CreateApp value) createApp,
+    required TResult Function(AppsReceived value) appsReceived,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
     TResult Function(Collapse value)? collapse,
-    TResult Function(_OpenPage value)? openPage,
-    TResult Function(_CreateApp value)? createApp,
+    TResult Function(OpenPage value)? openPage,
+    TResult Function(CreateApp value)? createApp,
+    TResult Function(AppsReceived value)? appsReceived,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -84,6 +104,103 @@ class _$MenuEventCopyWithImpl<$Res> implements $MenuEventCopyWith<$Res> {
   final MenuEvent _value;
   // ignore: unused_field
   final $Res Function(MenuEvent) _then;
+}
+
+/// @nodoc
+abstract class _$InitialCopyWith<$Res> {
+  factory _$InitialCopyWith(_Initial value, $Res Function(_Initial) then) =
+      __$InitialCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$InitialCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
+    implements _$InitialCopyWith<$Res> {
+  __$InitialCopyWithImpl(_Initial _value, $Res Function(_Initial) _then)
+      : super(_value, (v) => _then(v as _Initial));
+
+  @override
+  _Initial get _value => super._value as _Initial;
+}
+
+/// @nodoc
+
+class _$_Initial implements _Initial {
+  const _$_Initial();
+
+  @override
+  String toString() {
+    return 'MenuEvent.initial()';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) || (other is _Initial);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() collapse,
+    required TResult Function(PageContext context) openPage,
+    required TResult Function(String name, String? desc) createApp,
+    required TResult Function(Either<List<App>, WorkspaceError> appsOrFail)
+        appsReceived,
+  }) {
+    return initial();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? collapse,
+    TResult Function(PageContext context)? openPage,
+    TResult Function(String name, String? desc)? createApp,
+    TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
+        appsReceived,
+    required TResult orElse(),
+  }) {
+    if (initial != null) {
+      return initial();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_Initial value) initial,
+    required TResult Function(Collapse value) collapse,
+    required TResult Function(OpenPage value) openPage,
+    required TResult Function(CreateApp value) createApp,
+    required TResult Function(AppsReceived value) appsReceived,
+  }) {
+    return initial(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
+    TResult Function(Collapse value)? collapse,
+    TResult Function(OpenPage value)? openPage,
+    TResult Function(CreateApp value)? createApp,
+    TResult Function(AppsReceived value)? appsReceived,
+    required TResult orElse(),
+  }) {
+    if (initial != null) {
+      return initial(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _Initial implements MenuEvent {
+  const factory _Initial() = _$_Initial;
 }
 
 /// @nodoc
@@ -123,9 +240,12 @@ class _$Collapse implements Collapse {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
+    required TResult Function() initial,
     required TResult Function() collapse,
     required TResult Function(PageContext context) openPage,
     required TResult Function(String name, String? desc) createApp,
+    required TResult Function(Either<List<App>, WorkspaceError> appsOrFail)
+        appsReceived,
   }) {
     return collapse();
   }
@@ -133,9 +253,12 @@ class _$Collapse implements Collapse {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
     TResult Function()? collapse,
     TResult Function(PageContext context)? openPage,
     TResult Function(String name, String? desc)? createApp,
+    TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
+        appsReceived,
     required TResult orElse(),
   }) {
     if (collapse != null) {
@@ -147,9 +270,11 @@ class _$Collapse implements Collapse {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
+    required TResult Function(_Initial value) initial,
     required TResult Function(Collapse value) collapse,
-    required TResult Function(_OpenPage value) openPage,
-    required TResult Function(_CreateApp value) createApp,
+    required TResult Function(OpenPage value) openPage,
+    required TResult Function(CreateApp value) createApp,
+    required TResult Function(AppsReceived value) appsReceived,
   }) {
     return collapse(this);
   }
@@ -157,9 +282,11 @@ class _$Collapse implements Collapse {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
     TResult Function(Collapse value)? collapse,
-    TResult Function(_OpenPage value)? openPage,
-    TResult Function(_CreateApp value)? createApp,
+    TResult Function(OpenPage value)? openPage,
+    TResult Function(CreateApp value)? createApp,
+    TResult Function(AppsReceived value)? appsReceived,
     required TResult orElse(),
   }) {
     if (collapse != null) {
@@ -174,26 +301,26 @@ abstract class Collapse implements MenuEvent {
 }
 
 /// @nodoc
-abstract class _$OpenPageCopyWith<$Res> {
-  factory _$OpenPageCopyWith(_OpenPage value, $Res Function(_OpenPage) then) =
-      __$OpenPageCopyWithImpl<$Res>;
+abstract class $OpenPageCopyWith<$Res> {
+  factory $OpenPageCopyWith(OpenPage value, $Res Function(OpenPage) then) =
+      _$OpenPageCopyWithImpl<$Res>;
   $Res call({PageContext context});
 }
 
 /// @nodoc
-class __$OpenPageCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
-    implements _$OpenPageCopyWith<$Res> {
-  __$OpenPageCopyWithImpl(_OpenPage _value, $Res Function(_OpenPage) _then)
-      : super(_value, (v) => _then(v as _OpenPage));
+class _$OpenPageCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
+    implements $OpenPageCopyWith<$Res> {
+  _$OpenPageCopyWithImpl(OpenPage _value, $Res Function(OpenPage) _then)
+      : super(_value, (v) => _then(v as OpenPage));
 
   @override
-  _OpenPage get _value => super._value as _OpenPage;
+  OpenPage get _value => super._value as OpenPage;
 
   @override
   $Res call({
     Object? context = freezed,
   }) {
-    return _then(_OpenPage(
+    return _then(OpenPage(
       context == freezed
           ? _value.context
           : context // ignore: cast_nullable_to_non_nullable
@@ -204,8 +331,8 @@ class __$OpenPageCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$_OpenPage implements _OpenPage {
-  const _$_OpenPage(this.context);
+class _$OpenPage implements OpenPage {
+  const _$OpenPage(this.context);
 
   @override
   final PageContext context;
@@ -218,7 +345,7 @@ class _$_OpenPage implements _OpenPage {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _OpenPage &&
+        (other is OpenPage &&
             (identical(other.context, context) ||
                 const DeepCollectionEquality().equals(other.context, context)));
   }
@@ -229,15 +356,18 @@ class _$_OpenPage implements _OpenPage {
 
   @JsonKey(ignore: true)
   @override
-  _$OpenPageCopyWith<_OpenPage> get copyWith =>
-      __$OpenPageCopyWithImpl<_OpenPage>(this, _$identity);
+  $OpenPageCopyWith<OpenPage> get copyWith =>
+      _$OpenPageCopyWithImpl<OpenPage>(this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
+    required TResult Function() initial,
     required TResult Function() collapse,
     required TResult Function(PageContext context) openPage,
     required TResult Function(String name, String? desc) createApp,
+    required TResult Function(Either<List<App>, WorkspaceError> appsOrFail)
+        appsReceived,
   }) {
     return openPage(context);
   }
@@ -245,9 +375,12 @@ class _$_OpenPage implements _OpenPage {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
     TResult Function()? collapse,
     TResult Function(PageContext context)? openPage,
     TResult Function(String name, String? desc)? createApp,
+    TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
+        appsReceived,
     required TResult orElse(),
   }) {
     if (openPage != null) {
@@ -259,9 +392,11 @@ class _$_OpenPage implements _OpenPage {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
+    required TResult Function(_Initial value) initial,
     required TResult Function(Collapse value) collapse,
-    required TResult Function(_OpenPage value) openPage,
-    required TResult Function(_CreateApp value) createApp,
+    required TResult Function(OpenPage value) openPage,
+    required TResult Function(CreateApp value) createApp,
+    required TResult Function(AppsReceived value) appsReceived,
   }) {
     return openPage(this);
   }
@@ -269,9 +404,11 @@ class _$_OpenPage implements _OpenPage {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
     TResult Function(Collapse value)? collapse,
-    TResult Function(_OpenPage value)? openPage,
-    TResult Function(_CreateApp value)? createApp,
+    TResult Function(OpenPage value)? openPage,
+    TResult Function(CreateApp value)? createApp,
+    TResult Function(AppsReceived value)? appsReceived,
     required TResult orElse(),
   }) {
     if (openPage != null) {
@@ -281,38 +418,37 @@ class _$_OpenPage implements _OpenPage {
   }
 }
 
-abstract class _OpenPage implements MenuEvent {
-  const factory _OpenPage(PageContext context) = _$_OpenPage;
+abstract class OpenPage implements MenuEvent {
+  const factory OpenPage(PageContext context) = _$OpenPage;
 
   PageContext get context => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  _$OpenPageCopyWith<_OpenPage> get copyWith =>
+  $OpenPageCopyWith<OpenPage> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class _$CreateAppCopyWith<$Res> {
-  factory _$CreateAppCopyWith(
-          _CreateApp value, $Res Function(_CreateApp) then) =
-      __$CreateAppCopyWithImpl<$Res>;
+abstract class $CreateAppCopyWith<$Res> {
+  factory $CreateAppCopyWith(CreateApp value, $Res Function(CreateApp) then) =
+      _$CreateAppCopyWithImpl<$Res>;
   $Res call({String name, String? desc});
 }
 
 /// @nodoc
-class __$CreateAppCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
-    implements _$CreateAppCopyWith<$Res> {
-  __$CreateAppCopyWithImpl(_CreateApp _value, $Res Function(_CreateApp) _then)
-      : super(_value, (v) => _then(v as _CreateApp));
+class _$CreateAppCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
+    implements $CreateAppCopyWith<$Res> {
+  _$CreateAppCopyWithImpl(CreateApp _value, $Res Function(CreateApp) _then)
+      : super(_value, (v) => _then(v as CreateApp));
 
   @override
-  _CreateApp get _value => super._value as _CreateApp;
+  CreateApp get _value => super._value as CreateApp;
 
   @override
   $Res call({
     Object? name = freezed,
     Object? desc = freezed,
   }) {
-    return _then(_CreateApp(
+    return _then(CreateApp(
       name == freezed
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -327,8 +463,8 @@ class __$CreateAppCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$_CreateApp implements _CreateApp {
-  const _$_CreateApp(this.name, {this.desc});
+class _$CreateApp implements CreateApp {
+  const _$CreateApp(this.name, {this.desc});
 
   @override
   final String name;
@@ -343,7 +479,7 @@ class _$_CreateApp implements _CreateApp {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _CreateApp &&
+        (other is CreateApp &&
             (identical(other.name, name) ||
                 const DeepCollectionEquality().equals(other.name, name)) &&
             (identical(other.desc, desc) ||
@@ -358,15 +494,18 @@ class _$_CreateApp implements _CreateApp {
 
   @JsonKey(ignore: true)
   @override
-  _$CreateAppCopyWith<_CreateApp> get copyWith =>
-      __$CreateAppCopyWithImpl<_CreateApp>(this, _$identity);
+  $CreateAppCopyWith<CreateApp> get copyWith =>
+      _$CreateAppCopyWithImpl<CreateApp>(this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
+    required TResult Function() initial,
     required TResult Function() collapse,
     required TResult Function(PageContext context) openPage,
     required TResult Function(String name, String? desc) createApp,
+    required TResult Function(Either<List<App>, WorkspaceError> appsOrFail)
+        appsReceived,
   }) {
     return createApp(name, desc);
   }
@@ -374,9 +513,12 @@ class _$_CreateApp implements _CreateApp {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
     TResult Function()? collapse,
     TResult Function(PageContext context)? openPage,
     TResult Function(String name, String? desc)? createApp,
+    TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
+        appsReceived,
     required TResult orElse(),
   }) {
     if (createApp != null) {
@@ -388,9 +530,11 @@ class _$_CreateApp implements _CreateApp {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
+    required TResult Function(_Initial value) initial,
     required TResult Function(Collapse value) collapse,
-    required TResult Function(_OpenPage value) openPage,
-    required TResult Function(_CreateApp value) createApp,
+    required TResult Function(OpenPage value) openPage,
+    required TResult Function(CreateApp value) createApp,
+    required TResult Function(AppsReceived value) appsReceived,
   }) {
     return createApp(this);
   }
@@ -398,9 +542,11 @@ class _$_CreateApp implements _CreateApp {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
     TResult Function(Collapse value)? collapse,
-    TResult Function(_OpenPage value)? openPage,
-    TResult Function(_CreateApp value)? createApp,
+    TResult Function(OpenPage value)? openPage,
+    TResult Function(CreateApp value)? createApp,
+    TResult Function(AppsReceived value)? appsReceived,
     required TResult orElse(),
   }) {
     if (createApp != null) {
@@ -410,13 +556,145 @@ class _$_CreateApp implements _CreateApp {
   }
 }
 
-abstract class _CreateApp implements MenuEvent {
-  const factory _CreateApp(String name, {String? desc}) = _$_CreateApp;
+abstract class CreateApp implements MenuEvent {
+  const factory CreateApp(String name, {String? desc}) = _$CreateApp;
 
   String get name => throw _privateConstructorUsedError;
   String? get desc => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  _$CreateAppCopyWith<_CreateApp> get copyWith =>
+  $CreateAppCopyWith<CreateApp> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $AppsReceivedCopyWith<$Res> {
+  factory $AppsReceivedCopyWith(
+          AppsReceived value, $Res Function(AppsReceived) then) =
+      _$AppsReceivedCopyWithImpl<$Res>;
+  $Res call({Either<List<App>, WorkspaceError> appsOrFail});
+}
+
+/// @nodoc
+class _$AppsReceivedCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
+    implements $AppsReceivedCopyWith<$Res> {
+  _$AppsReceivedCopyWithImpl(
+      AppsReceived _value, $Res Function(AppsReceived) _then)
+      : super(_value, (v) => _then(v as AppsReceived));
+
+  @override
+  AppsReceived get _value => super._value as AppsReceived;
+
+  @override
+  $Res call({
+    Object? appsOrFail = freezed,
+  }) {
+    return _then(AppsReceived(
+      appsOrFail == freezed
+          ? _value.appsOrFail
+          : appsOrFail // ignore: cast_nullable_to_non_nullable
+              as Either<List<App>, WorkspaceError>,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$AppsReceived implements AppsReceived {
+  const _$AppsReceived(this.appsOrFail);
+
+  @override
+  final Either<List<App>, WorkspaceError> appsOrFail;
+
+  @override
+  String toString() {
+    return 'MenuEvent.appsReceived(appsOrFail: $appsOrFail)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is AppsReceived &&
+            (identical(other.appsOrFail, appsOrFail) ||
+                const DeepCollectionEquality()
+                    .equals(other.appsOrFail, appsOrFail)));
+  }
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(appsOrFail);
+
+  @JsonKey(ignore: true)
+  @override
+  $AppsReceivedCopyWith<AppsReceived> get copyWith =>
+      _$AppsReceivedCopyWithImpl<AppsReceived>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() collapse,
+    required TResult Function(PageContext context) openPage,
+    required TResult Function(String name, String? desc) createApp,
+    required TResult Function(Either<List<App>, WorkspaceError> appsOrFail)
+        appsReceived,
+  }) {
+    return appsReceived(appsOrFail);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? collapse,
+    TResult Function(PageContext context)? openPage,
+    TResult Function(String name, String? desc)? createApp,
+    TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
+        appsReceived,
+    required TResult orElse(),
+  }) {
+    if (appsReceived != null) {
+      return appsReceived(appsOrFail);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_Initial value) initial,
+    required TResult Function(Collapse value) collapse,
+    required TResult Function(OpenPage value) openPage,
+    required TResult Function(CreateApp value) createApp,
+    required TResult Function(AppsReceived value) appsReceived,
+  }) {
+    return appsReceived(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
+    TResult Function(Collapse value)? collapse,
+    TResult Function(OpenPage value)? openPage,
+    TResult Function(CreateApp value)? createApp,
+    TResult Function(AppsReceived value)? appsReceived,
+    required TResult orElse(),
+  }) {
+    if (appsReceived != null) {
+      return appsReceived(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class AppsReceived implements MenuEvent {
+  const factory AppsReceived(Either<List<App>, WorkspaceError> appsOrFail) =
+      _$AppsReceived;
+
+  Either<List<App>, WorkspaceError> get appsOrFail =>
+      throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $AppsReceivedCopyWith<AppsReceived> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -427,10 +705,12 @@ class _$MenuStateTearOff {
   _MenuState call(
       {required bool isCollapse,
       required Option<PageContext> pageContext,
+      required Option<List<App>> apps,
       required Either<Unit, WorkspaceError> successOrFailure}) {
     return _MenuState(
       isCollapse: isCollapse,
       pageContext: pageContext,
+      apps: apps,
       successOrFailure: successOrFailure,
     );
   }
@@ -443,6 +723,7 @@ const $MenuState = _$MenuStateTearOff();
 mixin _$MenuState {
   bool get isCollapse => throw _privateConstructorUsedError;
   Option<PageContext> get pageContext => throw _privateConstructorUsedError;
+  Option<List<App>> get apps => throw _privateConstructorUsedError;
   Either<Unit, WorkspaceError> get successOrFailure =>
       throw _privateConstructorUsedError;
 
@@ -458,6 +739,7 @@ abstract class $MenuStateCopyWith<$Res> {
   $Res call(
       {bool isCollapse,
       Option<PageContext> pageContext,
+      Option<List<App>> apps,
       Either<Unit, WorkspaceError> successOrFailure});
 }
 
@@ -473,6 +755,7 @@ class _$MenuStateCopyWithImpl<$Res> implements $MenuStateCopyWith<$Res> {
   $Res call({
     Object? isCollapse = freezed,
     Object? pageContext = freezed,
+    Object? apps = freezed,
     Object? successOrFailure = freezed,
   }) {
     return _then(_value.copyWith(
@@ -484,6 +767,10 @@ class _$MenuStateCopyWithImpl<$Res> implements $MenuStateCopyWith<$Res> {
           ? _value.pageContext
           : pageContext // ignore: cast_nullable_to_non_nullable
               as Option<PageContext>,
+      apps: apps == freezed
+          ? _value.apps
+          : apps // ignore: cast_nullable_to_non_nullable
+              as Option<List<App>>,
       successOrFailure: successOrFailure == freezed
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
@@ -501,6 +788,7 @@ abstract class _$MenuStateCopyWith<$Res> implements $MenuStateCopyWith<$Res> {
   $Res call(
       {bool isCollapse,
       Option<PageContext> pageContext,
+      Option<List<App>> apps,
       Either<Unit, WorkspaceError> successOrFailure});
 }
 
@@ -517,6 +805,7 @@ class __$MenuStateCopyWithImpl<$Res> extends _$MenuStateCopyWithImpl<$Res>
   $Res call({
     Object? isCollapse = freezed,
     Object? pageContext = freezed,
+    Object? apps = freezed,
     Object? successOrFailure = freezed,
   }) {
     return _then(_MenuState(
@@ -528,6 +817,10 @@ class __$MenuStateCopyWithImpl<$Res> extends _$MenuStateCopyWithImpl<$Res>
           ? _value.pageContext
           : pageContext // ignore: cast_nullable_to_non_nullable
               as Option<PageContext>,
+      apps: apps == freezed
+          ? _value.apps
+          : apps // ignore: cast_nullable_to_non_nullable
+              as Option<List<App>>,
       successOrFailure: successOrFailure == freezed
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
@@ -542,6 +835,7 @@ class _$_MenuState implements _MenuState {
   const _$_MenuState(
       {required this.isCollapse,
       required this.pageContext,
+      required this.apps,
       required this.successOrFailure});
 
   @override
@@ -549,11 +843,13 @@ class _$_MenuState implements _MenuState {
   @override
   final Option<PageContext> pageContext;
   @override
+  final Option<List<App>> apps;
+  @override
   final Either<Unit, WorkspaceError> successOrFailure;
 
   @override
   String toString() {
-    return 'MenuState(isCollapse: $isCollapse, pageContext: $pageContext, successOrFailure: $successOrFailure)';
+    return 'MenuState(isCollapse: $isCollapse, pageContext: $pageContext, apps: $apps, successOrFailure: $successOrFailure)';
   }
 
   @override
@@ -566,6 +862,8 @@ class _$_MenuState implements _MenuState {
             (identical(other.pageContext, pageContext) ||
                 const DeepCollectionEquality()
                     .equals(other.pageContext, pageContext)) &&
+            (identical(other.apps, apps) ||
+                const DeepCollectionEquality().equals(other.apps, apps)) &&
             (identical(other.successOrFailure, successOrFailure) ||
                 const DeepCollectionEquality()
                     .equals(other.successOrFailure, successOrFailure)));
@@ -576,6 +874,7 @@ class _$_MenuState implements _MenuState {
       runtimeType.hashCode ^
       const DeepCollectionEquality().hash(isCollapse) ^
       const DeepCollectionEquality().hash(pageContext) ^
+      const DeepCollectionEquality().hash(apps) ^
       const DeepCollectionEquality().hash(successOrFailure);
 
   @JsonKey(ignore: true)
@@ -588,12 +887,15 @@ abstract class _MenuState implements MenuState {
   const factory _MenuState(
       {required bool isCollapse,
       required Option<PageContext> pageContext,
+      required Option<List<App>> apps,
       required Either<Unit, WorkspaceError> successOrFailure}) = _$_MenuState;
 
   @override
   bool get isCollapse => throw _privateConstructorUsedError;
   @override
   Option<PageContext> get pageContext => throw _privateConstructorUsedError;
+  @override
+  Option<List<App>> get apps => throw _privateConstructorUsedError;
   @override
   Either<Unit, WorkspaceError> get successOrFailure =>
       throw _privateConstructorUsedError;

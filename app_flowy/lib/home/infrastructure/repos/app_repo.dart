@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:app_flowy/home/domain/i_app.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/flowy_logger.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
@@ -11,13 +12,10 @@ import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pbenum.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 
-typedef AppUpdatedCallback = void Function(String name, String desc);
-typedef ViewUpdatedCallback = void Function(List<View> views);
-
 class AppRepository {
   StreamSubscription<ObservableSubject>? _subscription;
-  ViewUpdatedCallback? _viewUpdatedCallback;
-  AppUpdatedCallback? _appUpdatedCallback;
+  AppAddViewCallback? _addViewCallback;
+  AppUpdatedCallback? _updatedCallback;
   String appId;
   AppRepository({
     required this.appId,
@@ -32,7 +30,7 @@ class AppRepository {
   }
 
   Future<Either<View, WorkspaceError>> createView(
-      String appId, String name, String desc, ViewTypeIdentifier viewType) {
+      String appId, String name, String desc, ViewType viewType) {
     final request = CreateViewRequest.create()
       ..appId = appId
       ..name = name
@@ -56,42 +54,42 @@ class AppRepository {
   }
 
   void startWatching(
-      {ViewUpdatedCallback? viewUpdatedCallback,
-      AppUpdatedCallback? appUpdatedCallback}) {
-    _viewUpdatedCallback = viewUpdatedCallback;
-    _appUpdatedCallback = appUpdatedCallback;
+      {AppAddViewCallback? addViewCallback,
+      AppUpdatedCallback? updatedCallback}) {
+    _addViewCallback = addViewCallback;
+    _updatedCallback = updatedCallback;
     _subscription = RustStreamReceiver.listen((observable) {
       if (observable.subjectId != appId) {
         return;
       }
 
-      final ty = WorkspaceObservableType.valueOf(observable.ty);
+      final ty = WorkspaceObservable.valueOf(observable.ty);
       if (ty != null) {
         _handleObservableType(ty);
       }
     });
   }
 
-  void _handleObservableType(WorkspaceObservableType ty) {
+  void _handleObservableType(WorkspaceObservable ty) {
     switch (ty) {
-      case WorkspaceObservableType.ViewUpdated:
-        if (_viewUpdatedCallback == null) {
+      case WorkspaceObservable.AppAddView:
+        if (_addViewCallback == null) {
           return;
         }
         getViews(appId: appId).then((result) {
           result.fold(
-            (views) => _viewUpdatedCallback!(views),
-            (error) => Log.error(error),
+            (views) => _addViewCallback!(left(views)),
+            (error) => _addViewCallback!(right(error)),
           );
         });
         break;
-      case WorkspaceObservableType.AppDescUpdated:
-        if (_appUpdatedCallback == null) {
+      case WorkspaceObservable.AppUpdateDesc:
+        if (_updatedCallback == null) {
           return;
         }
         getAppDesc().then((result) {
           result.fold(
-            (app) => _appUpdatedCallback!(app.name, app.desc),
+            (app) => _updatedCallback!(app.name, app.desc),
             (error) => Log.error(error),
           );
         });

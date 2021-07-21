@@ -36,7 +36,7 @@ impl AppController {
         let app_table = AppTable::new(params);
         let app: App = app_table.clone().into();
         let _ = self.sql.write_app_table(app_table)?;
-        send_observable(&app.workspace_id, WorkspaceObservableType::WorkspaceUpdated);
+        send_observable(&app.workspace_id, WorkspaceObservable::WorkspaceAddApp);
         Ok(app)
     }
 
@@ -49,7 +49,7 @@ impl AppController {
         let changeset = AppTableChangeset::new(params);
         let app_id = changeset.id.clone();
         let _ = self.sql.update_app_table(changeset)?;
-        send_observable(&app_id, WorkspaceObservableType::AppDescUpdated);
+        send_observable(&app_id, WorkspaceObservable::AppUpdateDesc);
         Ok(())
     }
 

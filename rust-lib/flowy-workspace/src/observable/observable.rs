@@ -4,26 +4,30 @@ use flowy_observable::{dart::RustStreamSender, entities::ObservableSubject};
 const OBSERVABLE_CATEGORY: &'static str = "Workspace";
 
 #[derive(ProtoBuf_Enum, Debug)]
-pub(crate) enum WorkspaceObservableType {
-    Unknown          = 0,
-    WorkspaceUpdated = 10,
-    AppDescUpdated   = 20,
-    AppViewsUpdated  = 21,
-    ViewUpdated      = 30,
+pub(crate) enum WorkspaceObservable {
+    Unknown             = 0,
+
+    WorkspaceUpdateDesc = 10,
+    WorkspaceAddApp     = 11,
+
+    AppUpdateDesc       = 20,
+    AppAddView          = 21,
+
+    ViewUpdateDesc      = 30,
 }
 
-impl std::default::Default for WorkspaceObservableType {
-    fn default() -> Self { WorkspaceObservableType::Unknown }
+impl std::default::Default for WorkspaceObservable {
+    fn default() -> Self { WorkspaceObservable::Unknown }
 }
 
 pub(crate) struct ObservableSender {
-    ty: WorkspaceObservableType,
+    ty: WorkspaceObservable,
     subject_id: String,
     payload: Option<Vec<u8>>,
 }
 
 impl ObservableSender {
-    pub(crate) fn new(subject_id: &str, ty: WorkspaceObservableType) -> Self {
+    pub(crate) fn new(subject_id: &str, ty: WorkspaceObservable) -> Self {
         Self {
             subject_id: subject_id.to_owned(),
             ty,
@@ -60,11 +64,11 @@ impl ObservableSender {
     }
 }
 
-pub(crate) fn send_observable(id: &str, ty: WorkspaceObservableType) {
+pub(crate) fn send_observable(id: &str, ty: WorkspaceObservable) {
     ObservableSender::new(id, ty).send();
 }
 
-pub(crate) fn send_observable_with_payload<T>(id: &str, ty: WorkspaceObservableType, payload: T)
+pub(crate) fn send_observable_with_payload<T>(id: &str, ty: WorkspaceObservable, payload: T)
 where
     T: ToBytes,
 {

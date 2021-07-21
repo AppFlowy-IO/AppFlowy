@@ -9,6 +9,7 @@ use crate::{
 use flowy_dispatch::prelude::{response_ok, Data, ModuleData, ResponseResult};
 use std::{convert::TryInto, sync::Arc};
 
+#[tracing::instrument(name = "create_app", skip(data, controller))]
 pub async fn create_app(
     data: Data<CreateAppRequest>,
     controller: ModuleData<Arc<AppController>>,
@@ -18,6 +19,7 @@ pub async fn create_app(
     response_ok(detail)
 }
 
+#[tracing::instrument(name = "get_app", skip(data, controller))]
 pub async fn get_app(
     data: Data<QueryAppRequest>,
     controller: ModuleData<Arc<AppController>>,

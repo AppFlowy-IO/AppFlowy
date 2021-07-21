@@ -1,5 +1,5 @@
 use crate::{
-    entities::view::{CreateViewParams, View, ViewTypeIdentifier},
+    entities::view::{CreateViewParams, View, ViewType},
     impl_sql_integer_expression,
     sql_tables::app::AppTable,
 };
@@ -18,7 +18,7 @@ pub(crate) struct ViewTable {
     pub modified_time: i64,
     pub create_time: i64,
     pub thumbnail: String,
-    pub view_type: ViewType,
+    pub view_type: ViewTableType,
     pub version: i64,
 }
 
@@ -43,7 +43,7 @@ impl ViewTable {
 impl std::convert::Into<View> for ViewTable {
     fn into(self) -> View {
         let view_type = match self.view_type {
-            ViewType::Docs => ViewTypeIdentifier::Docs,
+            ViewTableType::Docs => ViewType::Docs,
         };
 
         View {
@@ -79,28 +79,28 @@ impl ViewTableChangeset {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash, FromSqlRow, AsExpression)]
 #[repr(i32)]
 #[sql_type = "Integer"]
-pub enum ViewType {
+pub enum ViewTableType {
     Docs = 0,
 }
 
-impl std::default::Default for ViewType {
-    fn default() -> Self { ViewType::Docs }
+impl std::default::Default for ViewTableType {
+    fn default() -> Self { ViewTableType::Docs }
 }
 
-impl std::convert::From<i32> for ViewType {
+impl std::convert::From<i32> for ViewTableType {
     fn from(value: i32) -> Self {
         match value {
-            0 => ViewType::Docs,
+            0 => ViewTableType::Docs,
             o => {
                 log::error!("Unsupported view type {}, fallback to ViewType::Docs", o);
-                ViewType::Docs
+                ViewTableType::Docs
             },
         }
     }
 }
 
-impl ViewType {
+impl ViewTableType {
     pub fn value(&self) -> i32 { *self as i32 }
 }
 
-impl_sql_integer_expression!(ViewType);
+impl_sql_integer_expression!(ViewTableType);

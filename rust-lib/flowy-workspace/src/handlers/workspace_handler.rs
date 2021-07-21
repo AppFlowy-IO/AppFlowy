@@ -6,6 +6,7 @@ use crate::{
 use flowy_dispatch::prelude::{response_ok, Data, ModuleData, ResponseResult};
 use std::{convert::TryInto, sync::Arc};
 
+#[tracing::instrument(name = "create_workspace", skip(data, controller))]
 pub async fn create_workspace(
     data: Data<CreateWorkspaceRequest>,
     controller: ModuleData<Arc<WorkspaceController>>,
@@ -16,6 +17,7 @@ pub async fn create_workspace(
     response_ok(detail)
 }
 
+#[tracing::instrument(name = "get_cur_workspace", skip(controller))]
 pub async fn get_cur_workspace(
     controller: ModuleData<Arc<WorkspaceController>>,
 ) -> ResponseResult<Workspace, WorkspaceError> {
@@ -23,6 +25,7 @@ pub async fn get_cur_workspace(
     response_ok(workspace)
 }
 
+#[tracing::instrument(name = "get_workspace", skip(data, controller))]
 pub async fn get_workspace(
     data: Data<QueryWorkspaceRequest>,
     controller: ModuleData<Arc<WorkspaceController>>,

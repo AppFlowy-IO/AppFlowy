@@ -2,18 +2,18 @@ use crate::{
     entities::{app::parser::AppId, view::parser::*},
     errors::{ErrorBuilder, WorkspaceError, WorkspaceErrorCode},
     impl_def_and_def_mut,
-    sql_tables::view::ViewType,
+    sql_tables::view::ViewTableType,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use std::convert::TryInto;
 
 #[derive(PartialEq, Debug, ProtoBuf_Enum)]
-pub enum ViewTypeIdentifier {
+pub enum ViewType {
     Docs = 0,
 }
 
-impl std::default::Default for ViewTypeIdentifier {
-    fn default() -> Self { ViewTypeIdentifier::Docs }
+impl std::default::Default for ViewType {
+    fn default() -> Self { ViewType::Docs }
 }
 
 #[derive(Default, ProtoBuf)]
@@ -31,7 +31,7 @@ pub struct CreateViewRequest {
     pub thumbnail: Option<String>,
 
     #[pb(index = 5)]
-    pub view_type: ViewTypeIdentifier,
+    pub view_type: ViewType,
 }
 
 pub struct CreateViewParams {
@@ -39,7 +39,7 @@ pub struct CreateViewParams {
     pub name: String,
     pub desc: String,
     pub thumbnail: String,
-    pub view_type: ViewType,
+    pub view_type: ViewTableType,
 }
 
 impl TryInto<CreateViewParams> for CreateViewRequest {
@@ -101,7 +101,7 @@ pub struct View {
     pub desc: String,
 
     #[pb(index = 5)]
-    pub view_type: ViewTypeIdentifier,
+    pub view_type: ViewType,
 }
 
 #[derive(PartialEq, Debug, Default, ProtoBuf)]

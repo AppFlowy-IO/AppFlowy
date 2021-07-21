@@ -19,17 +19,20 @@ import 'package:textstyle_extensions/textstyle_extensions.dart';
 class HomeMenu extends StatelessWidget {
   final Function(Option<PageContext>) pageContextChanged;
   final Function(bool) isCollapseChanged;
+  final String workspaceId;
 
   const HomeMenu(
       {Key? key,
       required this.pageContextChanged,
-      required this.isCollapseChanged})
+      required this.isCollapseChanged,
+      required this.workspaceId})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<MenuBloc>(),
+      create: (context) =>
+          getIt<MenuBloc>(param1: workspaceId)..add(const MenuEvent.initial()),
       child: MultiBlocListener(
         listeners: [
           BlocListener<MenuBloc, MenuState>(

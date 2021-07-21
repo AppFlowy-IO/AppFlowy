@@ -14,11 +14,14 @@ class HomeDepsResolver {
         (appId, _) => AppRepository(appId: appId));
 
     //Interface implementation
-    getIt.registerFactory<IApp>(() => IAppImpl(repo: getIt<AppRepository>()));
-    getIt.registerFactory<IWorkspace>(
-        () => IWorkspaceImpl(repo: getIt<WorkspaceRepository>()));
+    getIt.registerFactoryParam<IApp, String, void>(
+        (appId, _) => IAppImpl(repo: getIt<AppRepository>(param1: appId)));
+
+    getIt.registerFactoryParam<IWorkspace, String, void>((workspacId, _) =>
+        IWorkspaceImpl(repo: getIt<WorkspaceRepository>(param1: workspacId)));
 
     //Bloc
-    getIt.registerFactory<MenuBloc>(() => MenuBloc(getIt<IWorkspace>()));
+    getIt.registerFactoryParam<MenuBloc, String, void>(
+        (workspaceId, _) => MenuBloc(getIt<IWorkspace>(param1: workspaceId)));
   }
 }

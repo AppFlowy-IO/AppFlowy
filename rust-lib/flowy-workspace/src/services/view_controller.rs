@@ -2,6 +2,7 @@ use crate::{
     entities::view::{CreateViewParams, View},
     errors::WorkspaceError,
     module::WorkspaceDatabase,
+    observable::{send_observable, WorkspaceObservable},
     sql_tables::view::{ViewTable, ViewTableSql},
 };
 use std::sync::Arc;
@@ -21,6 +22,7 @@ impl ViewController {
         let view: View = view_table.clone().into();
         let _ = self.sql.write_view_table(view_table)?;
 
+        send_observable(&view.id, WorkspaceObservable::AppAddView);
         Ok(view)
     }
 }

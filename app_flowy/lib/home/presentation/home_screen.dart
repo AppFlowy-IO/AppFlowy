@@ -80,6 +80,7 @@ class HomeScreen extends StatelessWidget {
       isCollapseChanged: (isCollapse) {
         homeBloc.add(HomeEvent.forceCollapse(isCollapse));
       },
+      workspaceId: userDetail.workspace,
     );
     homeMenu = RepaintBoundary(child: homeMenu);
     homeMenu = FocusTraversalGroup(child: homeMenu);

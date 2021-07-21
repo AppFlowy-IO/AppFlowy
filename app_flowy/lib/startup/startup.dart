@@ -14,7 +14,7 @@ abstract class AppFactory {
   Widget create();
 }
 
-class App {
+class Application {
   static void run(AppFactory f) {
     // Specify the evn
     const env = IntegrationEnv.dev;

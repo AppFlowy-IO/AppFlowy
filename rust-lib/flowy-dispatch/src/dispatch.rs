@@ -155,6 +155,7 @@ impl Service<DispatchContext> for DispatchService {
 
         Box::pin(async move {
             let result = {
+                // print_module_map_info(&module_map);
                 match module_map.get(&request.event) {
                     Some(module) => {
                         let fut = module.new_service(());
@@ -163,7 +164,7 @@ impl Service<DispatchContext> for DispatchService {
                     },
                     None => {
                         let msg = format!("Can not find the event handler. {:?}", request);
-                        log::trace!("{}", msg);
+                        log::error!("{}", msg);
                         Err(InternalError::new(msg).into())
                     },
                 }
@@ -180,10 +181,18 @@ impl Service<DispatchContext> for DispatchService {
     }
 }
 
+#[allow(dead_code)]
 fn module_info(modules: &Vec<Module>) -> String {
     let mut info = format!("{} modules loaded\n", modules.len());
     for module in modules {
         info.push_str(&format!("-> {} loaded \n", module.name));
     }
     info
+}
+
+#[allow(dead_code)]
+fn print_module_map_info(module_map: &ModuleMap) {
+    module_map.iter().for_each(|(k, v)| {
+        log::info!("Event: {:?} module: {:?}", k, v.name);
+    })
 }

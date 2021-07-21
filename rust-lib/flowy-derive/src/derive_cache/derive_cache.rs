@@ -43,10 +43,10 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "SignInParams"
         | "UserError"
         => TypeCategory::Protobuf,
-        "ViewTypeIdentifier"
+        "ViewType"
         | "WorkspaceEvent"
         | "WorkspaceErrorCode"
-        | "WorkspaceObservableType"
+        | "WorkspaceObservable"
         | "FFIStatusCode"
         | "UserStatus"
         | "UserEvent"

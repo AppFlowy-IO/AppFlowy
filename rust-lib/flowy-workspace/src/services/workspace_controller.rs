@@ -2,6 +2,7 @@ use crate::{
     entities::{app::App, workspace::*},
     errors::*,
     module::{WorkspaceDatabase, WorkspaceUser},
+    observable::{send_observable, WorkspaceObservable},
     services::AppController,
     sql_tables::workspace::{WorkspaceSql, WorkspaceTable, WorkspaceTableChangeset},
 };
@@ -42,8 +43,10 @@ impl WorkspaceController {
 
     pub fn update_workspace(&self, params: UpdateWorkspaceParams) -> Result<(), WorkspaceError> {
         let changeset = WorkspaceTableChangeset::new(params);
+        let workspace_id = changeset.id.clone();
         let _ = self.sql.update_workspace(changeset)?;
 
+        send_observable(&workspace_id, WorkspaceObservable::WorkspaceUpdateDesc);
         Ok(())
     }
 
