@@ -57,8 +57,9 @@ class HomeMenu extends StatelessWidget {
           const MenuTopBar(),
           Expanded(child: Container()),
           NewAppButton(
-            createAppCallback: (appName) =>
-                context.read<MenuBloc>().add(MenuEvent.createApp(appName)),
+            createAppCallback: (appName) => context
+                .read<MenuBloc>()
+                .add(MenuEvent.createApp(appName, desc: "")),
           ),
         ],
       ).padding(horizontal: Insets.sm),

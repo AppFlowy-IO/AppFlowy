@@ -1,4 +1,4 @@
-import 'package:app_flowy/user/domain/interface.dart';
+import 'package:app_flowy/user/domain/i_auth.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';

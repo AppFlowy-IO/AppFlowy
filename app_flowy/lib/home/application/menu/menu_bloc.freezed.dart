@@ -26,9 +26,10 @@ class _$MenuEventTearOff {
     );
   }
 
-  _CreateApp createApp(String appName) {
+  _CreateApp createApp(String name, {String? desc}) {
     return _CreateApp(
-      appName,
+      name,
+      desc: desc,
     );
   }
 }
@@ -42,14 +43,14 @@ mixin _$MenuEvent {
   TResult when<TResult extends Object?>({
     required TResult Function() collapse,
     required TResult Function(PageContext context) openPage,
-    required TResult Function(String appName) createApp,
+    required TResult Function(String name, String? desc) createApp,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? collapse,
     TResult Function(PageContext context)? openPage,
-    TResult Function(String appName)? createApp,
+    TResult Function(String name, String? desc)? createApp,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -124,7 +125,7 @@ class _$Collapse implements Collapse {
   TResult when<TResult extends Object?>({
     required TResult Function() collapse,
     required TResult Function(PageContext context) openPage,
-    required TResult Function(String appName) createApp,
+    required TResult Function(String name, String? desc) createApp,
   }) {
     return collapse();
   }
@@ -134,7 +135,7 @@ class _$Collapse implements Collapse {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? collapse,
     TResult Function(PageContext context)? openPage,
-    TResult Function(String appName)? createApp,
+    TResult Function(String name, String? desc)? createApp,
     required TResult orElse(),
   }) {
     if (collapse != null) {
@@ -236,7 +237,7 @@ class _$_OpenPage implements _OpenPage {
   TResult when<TResult extends Object?>({
     required TResult Function() collapse,
     required TResult Function(PageContext context) openPage,
-    required TResult Function(String appName) createApp,
+    required TResult Function(String name, String? desc) createApp,
   }) {
     return openPage(context);
   }
@@ -246,7 +247,7 @@ class _$_OpenPage implements _OpenPage {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? collapse,
     TResult Function(PageContext context)? openPage,
-    TResult Function(String appName)? createApp,
+    TResult Function(String name, String? desc)? createApp,
     required TResult orElse(),
   }) {
     if (openPage != null) {
@@ -294,7 +295,7 @@ abstract class _$CreateAppCopyWith<$Res> {
   factory _$CreateAppCopyWith(
           _CreateApp value, $Res Function(_CreateApp) then) =
       __$CreateAppCopyWithImpl<$Res>;
-  $Res call({String appName});
+  $Res call({String name, String? desc});
 }
 
 /// @nodoc
@@ -308,13 +309,18 @@ class __$CreateAppCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
 
   @override
   $Res call({
-    Object? appName = freezed,
+    Object? name = freezed,
+    Object? desc = freezed,
   }) {
     return _then(_CreateApp(
-      appName == freezed
-          ? _value.appName
-          : appName // ignore: cast_nullable_to_non_nullable
+      name == freezed
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
               as String,
+      desc: desc == freezed
+          ? _value.desc
+          : desc // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -322,27 +328,33 @@ class __$CreateAppCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
 /// @nodoc
 
 class _$_CreateApp implements _CreateApp {
-  const _$_CreateApp(this.appName);
+  const _$_CreateApp(this.name, {this.desc});
 
   @override
-  final String appName;
+  final String name;
+  @override
+  final String? desc;
 
   @override
   String toString() {
-    return 'MenuEvent.createApp(appName: $appName)';
+    return 'MenuEvent.createApp(name: $name, desc: $desc)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other is _CreateApp &&
-            (identical(other.appName, appName) ||
-                const DeepCollectionEquality().equals(other.appName, appName)));
+            (identical(other.name, name) ||
+                const DeepCollectionEquality().equals(other.name, name)) &&
+            (identical(other.desc, desc) ||
+                const DeepCollectionEquality().equals(other.desc, desc)));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(appName);
+      runtimeType.hashCode ^
+      const DeepCollectionEquality().hash(name) ^
+      const DeepCollectionEquality().hash(desc);
 
   @JsonKey(ignore: true)
   @override
@@ -354,9 +366,9 @@ class _$_CreateApp implements _CreateApp {
   TResult when<TResult extends Object?>({
     required TResult Function() collapse,
     required TResult Function(PageContext context) openPage,
-    required TResult Function(String appName) createApp,
+    required TResult Function(String name, String? desc) createApp,
   }) {
-    return createApp(appName);
+    return createApp(name, desc);
   }
 
   @override
@@ -364,11 +376,11 @@ class _$_CreateApp implements _CreateApp {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? collapse,
     TResult Function(PageContext context)? openPage,
-    TResult Function(String appName)? createApp,
+    TResult Function(String name, String? desc)? createApp,
     required TResult orElse(),
   }) {
     if (createApp != null) {
-      return createApp(appName);
+      return createApp(name, desc);
     }
     return orElse();
   }
@@ -399,9 +411,10 @@ class _$_CreateApp implements _CreateApp {
 }
 
 abstract class _CreateApp implements MenuEvent {
-  const factory _CreateApp(String appName) = _$_CreateApp;
+  const factory _CreateApp(String name, {String? desc}) = _$_CreateApp;
 
-  String get appName => throw _privateConstructorUsedError;
+  String get name => throw _privateConstructorUsedError;
+  String? get desc => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   _$CreateAppCopyWith<_CreateApp> get copyWith =>
       throw _privateConstructorUsedError;
@@ -412,10 +425,13 @@ class _$MenuStateTearOff {
   const _$MenuStateTearOff();
 
   _MenuState call(
-      {required bool isCollapse, required Option<PageContext> pageContext}) {
+      {required bool isCollapse,
+      required Option<PageContext> pageContext,
+      required Either<Unit, WorkspaceError> successOrFailure}) {
     return _MenuState(
       isCollapse: isCollapse,
       pageContext: pageContext,
+      successOrFailure: successOrFailure,
     );
   }
 }
@@ -427,6 +443,8 @@ const $MenuState = _$MenuStateTearOff();
 mixin _$MenuState {
   bool get isCollapse => throw _privateConstructorUsedError;
   Option<PageContext> get pageContext => throw _privateConstructorUsedError;
+  Either<Unit, WorkspaceError> get successOrFailure =>
+      throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $MenuStateCopyWith<MenuState> get copyWith =>
@@ -437,7 +455,10 @@ mixin _$MenuState {
 abstract class $MenuStateCopyWith<$Res> {
   factory $MenuStateCopyWith(MenuState value, $Res Function(MenuState) then) =
       _$MenuStateCopyWithImpl<$Res>;
-  $Res call({bool isCollapse, Option<PageContext> pageContext});
+  $Res call(
+      {bool isCollapse,
+      Option<PageContext> pageContext,
+      Either<Unit, WorkspaceError> successOrFailure});
 }
 
 /// @nodoc
@@ -452,6 +473,7 @@ class _$MenuStateCopyWithImpl<$Res> implements $MenuStateCopyWith<$Res> {
   $Res call({
     Object? isCollapse = freezed,
     Object? pageContext = freezed,
+    Object? successOrFailure = freezed,
   }) {
     return _then(_value.copyWith(
       isCollapse: isCollapse == freezed
@@ -462,6 +484,10 @@ class _$MenuStateCopyWithImpl<$Res> implements $MenuStateCopyWith<$Res> {
           ? _value.pageContext
           : pageContext // ignore: cast_nullable_to_non_nullable
               as Option<PageContext>,
+      successOrFailure: successOrFailure == freezed
+          ? _value.successOrFailure
+          : successOrFailure // ignore: cast_nullable_to_non_nullable
+              as Either<Unit, WorkspaceError>,
     ));
   }
 }
@@ -472,7 +498,10 @@ abstract class _$MenuStateCopyWith<$Res> implements $MenuStateCopyWith<$Res> {
           _MenuState value, $Res Function(_MenuState) then) =
       __$MenuStateCopyWithImpl<$Res>;
   @override
-  $Res call({bool isCollapse, Option<PageContext> pageContext});
+  $Res call(
+      {bool isCollapse,
+      Option<PageContext> pageContext,
+      Either<Unit, WorkspaceError> successOrFailure});
 }
 
 /// @nodoc
@@ -488,6 +517,7 @@ class __$MenuStateCopyWithImpl<$Res> extends _$MenuStateCopyWithImpl<$Res>
   $Res call({
     Object? isCollapse = freezed,
     Object? pageContext = freezed,
+    Object? successOrFailure = freezed,
   }) {
     return _then(_MenuState(
       isCollapse: isCollapse == freezed
@@ -498,6 +528,10 @@ class __$MenuStateCopyWithImpl<$Res> extends _$MenuStateCopyWithImpl<$Res>
           ? _value.pageContext
           : pageContext // ignore: cast_nullable_to_non_nullable
               as Option<PageContext>,
+      successOrFailure: successOrFailure == freezed
+          ? _value.successOrFailure
+          : successOrFailure // ignore: cast_nullable_to_non_nullable
+              as Either<Unit, WorkspaceError>,
     ));
   }
 }
@@ -505,16 +539,21 @@ class __$MenuStateCopyWithImpl<$Res> extends _$MenuStateCopyWithImpl<$Res>
 /// @nodoc
 
 class _$_MenuState implements _MenuState {
-  const _$_MenuState({required this.isCollapse, required this.pageContext});
+  const _$_MenuState(
+      {required this.isCollapse,
+      required this.pageContext,
+      required this.successOrFailure});
 
   @override
   final bool isCollapse;
   @override
   final Option<PageContext> pageContext;
+  @override
+  final Either<Unit, WorkspaceError> successOrFailure;
 
   @override
   String toString() {
-    return 'MenuState(isCollapse: $isCollapse, pageContext: $pageContext)';
+    return 'MenuState(isCollapse: $isCollapse, pageContext: $pageContext, successOrFailure: $successOrFailure)';
   }
 
   @override
@@ -526,14 +565,18 @@ class _$_MenuState implements _MenuState {
                     .equals(other.isCollapse, isCollapse)) &&
             (identical(other.pageContext, pageContext) ||
                 const DeepCollectionEquality()
-                    .equals(other.pageContext, pageContext)));
+                    .equals(other.pageContext, pageContext)) &&
+            (identical(other.successOrFailure, successOrFailure) ||
+                const DeepCollectionEquality()
+                    .equals(other.successOrFailure, successOrFailure)));
   }
 
   @override
   int get hashCode =>
       runtimeType.hashCode ^
       const DeepCollectionEquality().hash(isCollapse) ^
-      const DeepCollectionEquality().hash(pageContext);
+      const DeepCollectionEquality().hash(pageContext) ^
+      const DeepCollectionEquality().hash(successOrFailure);
 
   @JsonKey(ignore: true)
   @override
@@ -544,12 +587,16 @@ class _$_MenuState implements _MenuState {
 abstract class _MenuState implements MenuState {
   const factory _MenuState(
       {required bool isCollapse,
-      required Option<PageContext> pageContext}) = _$_MenuState;
+      required Option<PageContext> pageContext,
+      required Either<Unit, WorkspaceError> successOrFailure}) = _$_MenuState;
 
   @override
   bool get isCollapse => throw _privateConstructorUsedError;
   @override
   Option<PageContext> get pageContext => throw _privateConstructorUsedError;
+  @override
+  Either<Unit, WorkspaceError> get successOrFailure =>
+      throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
   _$MenuStateCopyWith<_MenuState> get copyWith =>

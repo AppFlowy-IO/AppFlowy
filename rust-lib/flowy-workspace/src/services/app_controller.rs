@@ -5,6 +5,7 @@ use crate::{
     },
     errors::*,
     module::{WorkspaceDatabase, WorkspaceUser},
+    observable::*,
     services::ViewController,
     sql_tables::app::{AppTable, AppTableChangeset, AppTableSql},
 };
@@ -35,7 +36,7 @@ impl AppController {
         let app_table = AppTable::new(params);
         let app: App = app_table.clone().into();
         let _ = self.sql.write_app_table(app_table)?;
-
+        send_observable(&app.workspace_id, ObservableType::WorkspaceDidUpdate);
         Ok(app)
     }
 
@@ -46,7 +47,9 @@ impl AppController {
 
     pub fn update_app(&self, params: UpdateAppParams) -> Result<(), WorkspaceError> {
         let changeset = AppTableChangeset::new(params);
+        let app_id = changeset.id.clone();
         let _ = self.sql.update_app_table(changeset)?;
+        send_observable(&app_id, ObservableType::AppDidUpdate);
         Ok(())
     }
 

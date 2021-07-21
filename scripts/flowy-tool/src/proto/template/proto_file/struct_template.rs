@@ -1,6 +1,7 @@
 use crate::util::get_tera;
 use flowy_ast::*;
 use phf::phf_map;
+use syn::__private::quote::__private::Ident;
 use tera::Context;
 
 // Protobuf data type : https://developers.google.com/protocol-buffers/docs/proto3
@@ -47,10 +48,24 @@ impl StructTemplate {
 
         match field.bracket_category {
             Some(ref category) => match category {
-                BracketCategory::Opt => self.fields.push(format!(
-                    "oneof one_of_{} {{ {} {} = {}; }};",
-                    name, mapped_ty, name, index
-                )),
+                BracketCategory::Opt => match &field.bracket_inner_ty {
+                    None => {}
+                    Some(inner_ty) => match inner_ty.to_string().as_str() {
+                        //TODO: support hashmap or something else wrapped by Option
+                        "Vec" => {
+                            self.fields.push(format!(
+                                "oneof one_of_{} {{ bytes {} = {}; }};",
+                                name, name, index
+                            ));
+                        }
+                        _ => {
+                            self.fields.push(format!(
+                                "oneof one_of_{} {{ {} {} = {}; }};",
+                                name, mapped_ty, name, index
+                            ));
+                        }
+                    },
+                },
                 BracketCategory::Map((k, v)) => {
                     let key: &str = k;
                     let value: &str = v;
@@ -65,6 +80,7 @@ impl StructTemplate {
                 }
                 BracketCategory::Vec => {
                     let bracket_ty: &str = &field.bracket_ty.as_ref().unwrap().to_string();
+                    // Vec<u8>
                     if mapped_ty == "u8" && bracket_ty == "Vec" {
                         self.fields.push(format!("bytes {} = {};", name, index))
                     } else {

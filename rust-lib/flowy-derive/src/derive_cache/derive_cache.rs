@@ -15,7 +15,8 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         "HashMap" => TypeCategory::Map,
         "u8" => TypeCategory::Bytes,
         "String" => TypeCategory::Str,
-        "KeyValue"
+        "ObservableSubject"
+        | "KeyValue"
         | "QueryAppRequest"
         | "CreateAppRequest"
         | "ColorStyle"
@@ -45,6 +46,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         "ViewTypeIdentifier"
         | "WorkspaceEvent"
         | "WorkspaceErrorCode"
+        | "ObservableType"
         | "FFIStatusCode"
         | "UserStatus"
         | "UserEvent"

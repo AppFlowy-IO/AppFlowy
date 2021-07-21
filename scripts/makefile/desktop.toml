@@ -34,7 +34,7 @@ condition = { platforms = ["mac"] }
 dependencies = ["restore-crate-type"]
 script = [
   """
-    echo "🚀 🚀 🚀 Copy Flowy-SDK to flutter"
+    echo "🚀 🚀 🚀  Flowy-SDK build success"
     cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/x86_64-apple-darwin/${LIB_OUT_DIR}/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib \
     ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages/flowy_sdk/macos/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib
   """,

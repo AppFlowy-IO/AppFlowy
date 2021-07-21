@@ -1,22 +1,7 @@
-import 'package:app_flowy/user/application/sign_in/sign_in_bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
-import 'package:get_it/get_it.dart';
-
-import 'package:app_flowy/user/domain/interface.dart';
-import 'package:app_flowy/user/infrastructure/auth_repo.dart';
-
-class UserDepsResolver {
-  static Future<void> resolve(GetIt getIt) async {
-    getIt.registerLazySingleton<AuthRepository>(() => AuthRepository());
-
-    //Interface implementation
-    getIt.registerFactory<IAuth>(() => AuthImpl(repo: getIt<AuthRepository>()));
-
-    //Bloc
-    getIt.registerFactory<SignInBloc>(() => SignInBloc(getIt<IAuth>()));
-  }
-}
+import 'package:app_flowy/user/domain/i_auth.dart';
+import 'package:app_flowy/user/infrastructure/repos/auth_repo.dart';
 
 class AuthImpl extends IAuth {
   AuthRepository repo;

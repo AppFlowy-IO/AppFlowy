@@ -12,6 +12,7 @@ flowy-derive = { path = "../flowy-derive" }
 flowy-database = { path = "../flowy-database" }
 flowy-sqlite = { path = "../flowy-sqlite" }
 flowy-infra = { path = "../flowy-infra" }
+flowy-observable = { path = "../flowy-observable" }
 protobuf = {version = "2.18.0"}
 log = "0.4.14"
 diesel = {version = "1.4.7", features = ["sqlite"]}

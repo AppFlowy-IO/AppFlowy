@@ -28,6 +28,7 @@ serde_json = {version = "1.0"}
 flowy-dispatch = {path = "../flowy-dispatch"}
 flowy-sdk = {path = "../flowy-sdk"}
 flowy-derive = {path = "../flowy-derive"}
+flowy-observable = {path = "../flowy-observable", features = ["dart"]}
 
 
 #[features]

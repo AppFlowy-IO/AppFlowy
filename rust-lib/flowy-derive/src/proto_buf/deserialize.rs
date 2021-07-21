@@ -86,6 +86,15 @@ fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream>
                 }
             })
         },
+        TypeCategory::Array => {
+            let take_func = format_ident!("take_{}", ident.to_string());
+            let ty = bracketed_ty_info.unwrap().ty;
+            Some(quote! {
+                if pb.#has_func() {
+                    o.#member=Some(pb.#take_func());
+                }
+            })
+        },
         _ => {
             let take_func = format_ident!("take_{}", ident.to_string());
             let ty = bracketed_ty_info.unwrap().ty;

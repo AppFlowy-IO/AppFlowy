@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+message ObservableSubject {
+    string category = 1;
+    int32 ty = 2;
+    string subject_id = 3;
+    oneof one_of_subject_payload { bytes subject_payload = 4; };
+}

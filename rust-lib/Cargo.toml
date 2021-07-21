@@ -12,6 +12,7 @@ members = [
   "flowy-database",
   "flowy-infra",
   "flowy-workspace",
+  "flowy-observable",
 ]
 
 [profile.dev]
