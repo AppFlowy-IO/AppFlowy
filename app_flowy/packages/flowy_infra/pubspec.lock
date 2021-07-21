@@ -7,7 +7,7 @@ packages:
       name: async
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.7.0"
+    version: "2.6.1"
   boolean_selector:
     dependency: transitive
     description:
@@ -28,7 +28,7 @@ packages:
       name: charcode
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.3.1"
+    version: "1.2.0"
   clock:
     dependency: transitive
     description:
@@ -101,7 +101,7 @@ packages:
       name: meta
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.4.0"
+    version: "1.3.0"
   path:
     dependency: transitive
     description:
@@ -155,7 +155,7 @@ packages:
       name: test_api
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.1"
+    version: "0.3.0"
   textstyle_extensions:
     dependency: "direct main"
     description:
