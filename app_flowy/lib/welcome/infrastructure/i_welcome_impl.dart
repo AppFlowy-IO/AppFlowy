@@ -1,6 +1,3 @@
-import 'package:app_flowy/home/application/edit_pannel/edit_pannel_bloc.dart';
-import 'package:app_flowy/home/application/home_bloc.dart';
-
 import 'package:app_flowy/home/presentation/home_screen.dart';
 import 'package:app_flowy/user/presentation/sign_in/sign_in_screen.dart';
 import 'package:app_flowy/welcome/domain/auth_state.dart';

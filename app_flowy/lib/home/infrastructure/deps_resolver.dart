@@ -7,8 +7,8 @@ import 'package:get_it/get_it.dart';
 
 class HomeDepsResolver {
   static Future<void> resolve(GetIt getIt) async {
-    getIt.registerLazySingleton<WorkspaceRepository>(
-        () => WorkspaceRepository());
+    getIt.registerFactoryParam<WorkspaceRepository, String, void>(
+        (workspaceId, _) => WorkspaceRepository(workspaceId: workspaceId));
 
     getIt.registerFactoryParam<AppRepository, String, void>(
         (appId, _) => AppRepository(appId: appId));
