@@ -46,7 +46,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         "ViewTypeIdentifier"
         | "WorkspaceEvent"
         | "WorkspaceErrorCode"
-        | "ObservableType"
+        | "WorkspaceObservableType"
         | "FFIStatusCode"
         | "UserStatus"
         | "UserEvent"

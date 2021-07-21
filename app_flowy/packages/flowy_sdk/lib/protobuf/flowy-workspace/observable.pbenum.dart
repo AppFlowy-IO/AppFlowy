@@ -9,20 +9,24 @@
 import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
-class ObservableType extends $pb.ProtobufEnum {
-  static const ObservableType Unknown = ObservableType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unknown');
-  static const ObservableType WorkspaceDidUpdate = ObservableType._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceDidUpdate');
-  static const ObservableType AppDidUpdate = ObservableType._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppDidUpdate');
+class WorkspaceObservableType extends $pb.ProtobufEnum {
+  static const WorkspaceObservableType Unknown = WorkspaceObservableType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unknown');
+  static const WorkspaceObservableType WorkspaceUpdated = WorkspaceObservableType._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceUpdated');
+  static const WorkspaceObservableType AppDescUpdated = WorkspaceObservableType._(20, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppDescUpdated');
+  static const WorkspaceObservableType AppViewsUpdated = WorkspaceObservableType._(21, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppViewsUpdated');
+  static const WorkspaceObservableType ViewUpdated = WorkspaceObservableType._(30, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewUpdated');
 
-  static const $core.List<ObservableType> values = <ObservableType> [
+  static const $core.List<WorkspaceObservableType> values = <WorkspaceObservableType> [
     Unknown,
-    WorkspaceDidUpdate,
-    AppDidUpdate,
+    WorkspaceUpdated,
+    AppDescUpdated,
+    AppViewsUpdated,
+    ViewUpdated,
   ];
 
-  static final $core.Map<$core.int, ObservableType> _byValue = $pb.ProtobufEnum.initByValue(values);
-  static ObservableType? valueOf($core.int value) => _byValue[value];
+  static final $core.Map<$core.int, WorkspaceObservableType> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static WorkspaceObservableType? valueOf($core.int value) => _byValue[value];
 
-  const ObservableType._($core.int v, $core.String n) : super(v, n);
+  const WorkspaceObservableType._($core.int v, $core.String n) : super(v, n);
 }
 

@@ -1,7 +1,9 @@
 syntax = "proto3";
 
-enum ObservableType {
+enum WorkspaceObservableType {
     Unknown = 0;
-    WorkspaceDidUpdate = 10;
-    AppDidUpdate = 11;
+    WorkspaceUpdated = 10;
+    AppDescUpdated = 20;
+    AppViewsUpdated = 21;
+    ViewUpdated = 30;
 }

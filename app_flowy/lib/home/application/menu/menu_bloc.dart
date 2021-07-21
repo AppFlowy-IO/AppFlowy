@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:app_flowy/home/domain/i_app.dart';
+import 'package:app_flowy/home/domain/i_workspace.dart';
 import 'package:app_flowy/home/domain/page_context.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
@@ -11,8 +11,8 @@ part 'menu_state.dart';
 part 'menu_bloc.freezed.dart';
 
 class MenuBloc extends Bloc<MenuEvent, MenuState> {
-  final IApp iAppImpl;
-  MenuBloc(this.iAppImpl) : super(MenuState.initial());
+  final IWorkspace iWorkspaceImpl;
+  MenuBloc(this.iWorkspaceImpl) : super(MenuState.initial());
 
   @override
   Stream<MenuState> mapEventToState(
@@ -37,7 +37,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
   }
 
   Stream<MenuState> _performActionOnCreateApp(_CreateApp event) async* {
-    await iAppImpl
+    await iWorkspaceImpl
         .createApp(name: event.name, desc: event.desc)
         .then((result) async* {
       result.fold(
