@@ -29,7 +29,7 @@ class CreateViewRequest extends $pb.GeneratedMessage {
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'thumbnail')
-    ..e<ViewType>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewType', $pb.PbFieldType.OE, defaultOrMaker: ViewType.Docs, valueOf: ViewType.valueOf, enumValues: ViewType.values)
+    ..e<ViewType>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewType', $pb.PbFieldType.OE, defaultOrMaker: ViewType.Blank, valueOf: ViewType.valueOf, enumValues: ViewType.values)
     ..hasRequiredFields = false
   ;
 
@@ -135,7 +135,7 @@ class View extends $pb.GeneratedMessage {
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'appId')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
-    ..e<ViewType>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewType', $pb.PbFieldType.OE, defaultOrMaker: ViewType.Docs, valueOf: ViewType.valueOf, enumValues: ViewType.values)
+    ..e<ViewType>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewType', $pb.PbFieldType.OE, defaultOrMaker: ViewType.Blank, valueOf: ViewType.valueOf, enumValues: ViewType.values)
     ..hasRequiredFields = false
   ;
 

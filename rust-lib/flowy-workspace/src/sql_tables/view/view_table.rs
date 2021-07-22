@@ -43,7 +43,7 @@ impl ViewTable {
 impl std::convert::Into<View> for ViewTable {
     fn into(self) -> View {
         let view_type = match self.view_type {
-            ViewTableType::Docs => ViewType::Docs,
+            ViewTableType::Docs => ViewType::Doc,
         };
 
         View {

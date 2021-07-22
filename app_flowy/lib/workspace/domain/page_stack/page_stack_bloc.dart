@@ -19,14 +19,14 @@ class PageStackBloc extends Bloc<PageStackEvent, PageStackState> {
 
 @freezed
 abstract class PageStackEvent with _$PageStackEvent {
-  const factory PageStackEvent.setContext(PageContext newContext) =
+  const factory PageStackEvent.setContext(HomeStackContext newContext) =
       NewPageContext;
 }
 
 @freezed
 abstract class PageStackState implements _$PageStackState {
   const factory PageStackState({
-    required PageContext pageContext,
+    required HomeStackContext pageContext,
   }) = _PageStackState;
 
   factory PageStackState.initial() => const PageStackState(

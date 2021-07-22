@@ -12,12 +12,13 @@ import 'dart:typed_data' as $typed_data;
 const ViewType$json = const {
   '1': 'ViewType',
   '2': const [
-    const {'1': 'Docs', '2': 0},
+    const {'1': 'Blank', '2': 0},
+    const {'1': 'Doc', '2': 1},
   ],
 };
 
 /// Descriptor for `ViewType`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List viewTypeDescriptor = $convert.base64Decode('CghWaWV3VHlwZRIICgREb2NzEAA=');
+final $typed_data.Uint8List viewTypeDescriptor = $convert.base64Decode('CghWaWV3VHlwZRIJCgVCbGFuaxAAEgcKA0RvYxAB');
 @$core.Deprecated('Use createViewRequestDescriptor instead')
 const CreateViewRequest$json = const {
   '1': 'CreateViewRequest',

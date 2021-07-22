@@ -20,7 +20,7 @@ import 'package:textstyle_extensions/textstyle_extensions.dart';
 import 'app_list.dart';
 
 class HomeMenu extends StatelessWidget {
-  final Function(PageContext?) pageContextChanged;
+  final Function(HomeStackContext?) pageContextChanged;
   final Function(bool) isCollapseChanged;
   final String workspaceId;
 

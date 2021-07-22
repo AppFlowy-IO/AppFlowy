@@ -9,11 +9,12 @@ use std::convert::TryInto;
 
 #[derive(PartialEq, Debug, ProtoBuf_Enum)]
 pub enum ViewType {
-    Docs = 0,
+    Blank = 0,
+    Doc   = 1,
 }
 
 impl std::default::Default for ViewType {
-    fn default() -> Self { ViewType::Docs }
+    fn default() -> Self { ViewType::Blank }
 }
 
 #[derive(Default, ProtoBuf)]

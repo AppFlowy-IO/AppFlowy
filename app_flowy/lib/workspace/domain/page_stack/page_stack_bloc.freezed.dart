@@ -16,7 +16,7 @@ final _privateConstructorUsedError = UnsupportedError(
 class _$PageStackEventTearOff {
   const _$PageStackEventTearOff();
 
-  NewPageContext setContext(PageContext newContext) {
+  NewPageContext setContext(HomeStackContext newContext) {
     return NewPageContext(
       newContext,
     );
@@ -28,16 +28,16 @@ const $PageStackEvent = _$PageStackEventTearOff();
 
 /// @nodoc
 mixin _$PageStackEvent {
-  PageContext get newContext => throw _privateConstructorUsedError;
+  HomeStackContext get newContext => throw _privateConstructorUsedError;
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(PageContext newContext) setContext,
+    required TResult Function(HomeStackContext newContext) setContext,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(PageContext newContext)? setContext,
+    TResult Function(HomeStackContext newContext)? setContext,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -63,7 +63,7 @@ abstract class $PageStackEventCopyWith<$Res> {
   factory $PageStackEventCopyWith(
           PageStackEvent value, $Res Function(PageStackEvent) then) =
       _$PageStackEventCopyWithImpl<$Res>;
-  $Res call({PageContext newContext});
+  $Res call({HomeStackContext newContext});
 }
 
 /// @nodoc
@@ -83,7 +83,7 @@ class _$PageStackEventCopyWithImpl<$Res>
       newContext: newContext == freezed
           ? _value.newContext
           : newContext // ignore: cast_nullable_to_non_nullable
-              as PageContext,
+              as HomeStackContext,
     ));
   }
 }
@@ -95,7 +95,7 @@ abstract class $NewPageContextCopyWith<$Res>
           NewPageContext value, $Res Function(NewPageContext) then) =
       _$NewPageContextCopyWithImpl<$Res>;
   @override
-  $Res call({PageContext newContext});
+  $Res call({HomeStackContext newContext});
 }
 
 /// @nodoc
@@ -117,7 +117,7 @@ class _$NewPageContextCopyWithImpl<$Res>
       newContext == freezed
           ? _value.newContext
           : newContext // ignore: cast_nullable_to_non_nullable
-              as PageContext,
+              as HomeStackContext,
     ));
   }
 }
@@ -128,7 +128,7 @@ class _$NewPageContext implements NewPageContext {
   const _$NewPageContext(this.newContext);
 
   @override
-  final PageContext newContext;
+  final HomeStackContext newContext;
 
   @override
   String toString() {
@@ -156,7 +156,7 @@ class _$NewPageContext implements NewPageContext {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(PageContext newContext) setContext,
+    required TResult Function(HomeStackContext newContext) setContext,
   }) {
     return setContext(newContext);
   }
@@ -164,7 +164,7 @@ class _$NewPageContext implements NewPageContext {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(PageContext newContext)? setContext,
+    TResult Function(HomeStackContext newContext)? setContext,
     required TResult orElse(),
   }) {
     if (setContext != null) {
@@ -195,10 +195,10 @@ class _$NewPageContext implements NewPageContext {
 }
 
 abstract class NewPageContext implements PageStackEvent {
-  const factory NewPageContext(PageContext newContext) = _$NewPageContext;
+  const factory NewPageContext(HomeStackContext newContext) = _$NewPageContext;
 
   @override
-  PageContext get newContext => throw _privateConstructorUsedError;
+  HomeStackContext get newContext => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
   $NewPageContextCopyWith<NewPageContext> get copyWith =>
@@ -209,7 +209,7 @@ abstract class NewPageContext implements PageStackEvent {
 class _$PageStackStateTearOff {
   const _$PageStackStateTearOff();
 
-  _PageStackState call({required PageContext pageContext}) {
+  _PageStackState call({required HomeStackContext pageContext}) {
     return _PageStackState(
       pageContext: pageContext,
     );
@@ -221,7 +221,7 @@ const $PageStackState = _$PageStackStateTearOff();
 
 /// @nodoc
 mixin _$PageStackState {
-  PageContext get pageContext => throw _privateConstructorUsedError;
+  HomeStackContext get pageContext => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $PageStackStateCopyWith<PageStackState> get copyWith =>
@@ -233,7 +233,7 @@ abstract class $PageStackStateCopyWith<$Res> {
   factory $PageStackStateCopyWith(
           PageStackState value, $Res Function(PageStackState) then) =
       _$PageStackStateCopyWithImpl<$Res>;
-  $Res call({PageContext pageContext});
+  $Res call({HomeStackContext pageContext});
 }
 
 /// @nodoc
@@ -253,7 +253,7 @@ class _$PageStackStateCopyWithImpl<$Res>
       pageContext: pageContext == freezed
           ? _value.pageContext
           : pageContext // ignore: cast_nullable_to_non_nullable
-              as PageContext,
+              as HomeStackContext,
     ));
   }
 }
@@ -265,7 +265,7 @@ abstract class _$PageStackStateCopyWith<$Res>
           _PageStackState value, $Res Function(_PageStackState) then) =
       __$PageStackStateCopyWithImpl<$Res>;
   @override
-  $Res call({PageContext pageContext});
+  $Res call({HomeStackContext pageContext});
 }
 
 /// @nodoc
@@ -287,7 +287,7 @@ class __$PageStackStateCopyWithImpl<$Res>
       pageContext: pageContext == freezed
           ? _value.pageContext
           : pageContext // ignore: cast_nullable_to_non_nullable
-              as PageContext,
+              as HomeStackContext,
     ));
   }
 }
@@ -298,7 +298,7 @@ class _$_PageStackState implements _PageStackState {
   const _$_PageStackState({required this.pageContext});
 
   @override
-  final PageContext pageContext;
+  final HomeStackContext pageContext;
 
   @override
   String toString() {
@@ -325,11 +325,11 @@ class _$_PageStackState implements _PageStackState {
 }
 
 abstract class _PageStackState implements PageStackState {
-  const factory _PageStackState({required PageContext pageContext}) =
+  const factory _PageStackState({required HomeStackContext pageContext}) =
       _$_PageStackState;
 
   @override
-  PageContext get pageContext => throw _privateConstructorUsedError;
+  HomeStackContext get pageContext => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
   _$PageStackStateCopyWith<_PageStackState> get copyWith =>

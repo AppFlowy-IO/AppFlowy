@@ -37,7 +37,7 @@ fn app_create_with_view_and_then_get_success() {
         name: "View A".to_string(),
         desc: "".to_string(),
         thumbnail: None,
-        view_type: ViewType::Docs,
+        view_type: ViewType::Doc,
     };
 
     let request_b = CreateViewRequest {
@@ -45,7 +45,7 @@ fn app_create_with_view_and_then_get_success() {
         name: "View B".to_string(),
         desc: "".to_string(),
         thumbnail: None,
-        view_type: ViewType::Docs,
+        view_type: ViewType::Doc,
     };
 
     let view_a = create_view(request_a);

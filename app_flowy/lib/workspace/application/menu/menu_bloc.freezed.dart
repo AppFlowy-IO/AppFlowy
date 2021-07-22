@@ -24,7 +24,7 @@ class _$MenuEventTearOff {
     return const Collapse();
   }
 
-  OpenPage openPage(PageContext context) {
+  OpenPage openPage(HomeStackContext context) {
     return OpenPage(
       context,
     );
@@ -47,7 +47,7 @@ mixin _$MenuEvent {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() collapse,
-    required TResult Function(PageContext context) openPage,
+    required TResult Function(HomeStackContext context) openPage,
     required TResult Function(String name, String? desc) createApp,
   }) =>
       throw _privateConstructorUsedError;
@@ -55,7 +55,7 @@ mixin _$MenuEvent {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
-    TResult Function(PageContext context)? openPage,
+    TResult Function(HomeStackContext context)? openPage,
     TResult Function(String name, String? desc)? createApp,
     required TResult orElse(),
   }) =>
@@ -133,7 +133,7 @@ class _$_Initial implements _Initial {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() collapse,
-    required TResult Function(PageContext context) openPage,
+    required TResult Function(HomeStackContext context) openPage,
     required TResult Function(String name, String? desc) createApp,
   }) {
     return initial();
@@ -144,7 +144,7 @@ class _$_Initial implements _Initial {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
-    TResult Function(PageContext context)? openPage,
+    TResult Function(HomeStackContext context)? openPage,
     TResult Function(String name, String? desc)? createApp,
     required TResult orElse(),
   }) {
@@ -224,7 +224,7 @@ class _$Collapse implements Collapse {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() collapse,
-    required TResult Function(PageContext context) openPage,
+    required TResult Function(HomeStackContext context) openPage,
     required TResult Function(String name, String? desc) createApp,
   }) {
     return collapse();
@@ -235,7 +235,7 @@ class _$Collapse implements Collapse {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
-    TResult Function(PageContext context)? openPage,
+    TResult Function(HomeStackContext context)? openPage,
     TResult Function(String name, String? desc)? createApp,
     required TResult orElse(),
   }) {
@@ -280,7 +280,7 @@ abstract class Collapse implements MenuEvent {
 abstract class $OpenPageCopyWith<$Res> {
   factory $OpenPageCopyWith(OpenPage value, $Res Function(OpenPage) then) =
       _$OpenPageCopyWithImpl<$Res>;
-  $Res call({PageContext context});
+  $Res call({HomeStackContext context});
 }
 
 /// @nodoc
@@ -300,7 +300,7 @@ class _$OpenPageCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
       context == freezed
           ? _value.context
           : context // ignore: cast_nullable_to_non_nullable
-              as PageContext,
+              as HomeStackContext,
     ));
   }
 }
@@ -311,7 +311,7 @@ class _$OpenPage implements OpenPage {
   const _$OpenPage(this.context);
 
   @override
-  final PageContext context;
+  final HomeStackContext context;
 
   @override
   String toString() {
@@ -340,7 +340,7 @@ class _$OpenPage implements OpenPage {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() collapse,
-    required TResult Function(PageContext context) openPage,
+    required TResult Function(HomeStackContext context) openPage,
     required TResult Function(String name, String? desc) createApp,
   }) {
     return openPage(context);
@@ -351,7 +351,7 @@ class _$OpenPage implements OpenPage {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
-    TResult Function(PageContext context)? openPage,
+    TResult Function(HomeStackContext context)? openPage,
     TResult Function(String name, String? desc)? createApp,
     required TResult orElse(),
   }) {
@@ -389,9 +389,9 @@ class _$OpenPage implements OpenPage {
 }
 
 abstract class OpenPage implements MenuEvent {
-  const factory OpenPage(PageContext context) = _$OpenPage;
+  const factory OpenPage(HomeStackContext context) = _$OpenPage;
 
-  PageContext get context => throw _privateConstructorUsedError;
+  HomeStackContext get context => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $OpenPageCopyWith<OpenPage> get copyWith =>
       throw _privateConstructorUsedError;
@@ -472,7 +472,7 @@ class _$CreateApp implements CreateApp {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() collapse,
-    required TResult Function(PageContext context) openPage,
+    required TResult Function(HomeStackContext context) openPage,
     required TResult Function(String name, String? desc) createApp,
   }) {
     return createApp(name, desc);
@@ -483,7 +483,7 @@ class _$CreateApp implements CreateApp {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
-    TResult Function(PageContext context)? openPage,
+    TResult Function(HomeStackContext context)? openPage,
     TResult Function(String name, String? desc)? createApp,
     required TResult orElse(),
   }) {
@@ -538,7 +538,7 @@ class _$MenuStateTearOff {
       {required bool isCollapse,
       required Option<List<App>> apps,
       required Either<Unit, WorkspaceError> successOrFailure,
-      PageContext? pageContext}) {
+      HomeStackContext? pageContext}) {
     return _MenuState(
       isCollapse: isCollapse,
       apps: apps,
@@ -557,7 +557,7 @@ mixin _$MenuState {
   Option<List<App>> get apps => throw _privateConstructorUsedError;
   Either<Unit, WorkspaceError> get successOrFailure =>
       throw _privateConstructorUsedError;
-  PageContext? get pageContext => throw _privateConstructorUsedError;
+  HomeStackContext? get pageContext => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $MenuStateCopyWith<MenuState> get copyWith =>
@@ -572,7 +572,7 @@ abstract class $MenuStateCopyWith<$Res> {
       {bool isCollapse,
       Option<List<App>> apps,
       Either<Unit, WorkspaceError> successOrFailure,
-      PageContext? pageContext});
+      HomeStackContext? pageContext});
 }
 
 /// @nodoc
@@ -606,7 +606,7 @@ class _$MenuStateCopyWithImpl<$Res> implements $MenuStateCopyWith<$Res> {
       pageContext: pageContext == freezed
           ? _value.pageContext
           : pageContext // ignore: cast_nullable_to_non_nullable
-              as PageContext?,
+              as HomeStackContext?,
     ));
   }
 }
@@ -621,7 +621,7 @@ abstract class _$MenuStateCopyWith<$Res> implements $MenuStateCopyWith<$Res> {
       {bool isCollapse,
       Option<List<App>> apps,
       Either<Unit, WorkspaceError> successOrFailure,
-      PageContext? pageContext});
+      HomeStackContext? pageContext});
 }
 
 /// @nodoc
@@ -656,7 +656,7 @@ class __$MenuStateCopyWithImpl<$Res> extends _$MenuStateCopyWithImpl<$Res>
       pageContext: pageContext == freezed
           ? _value.pageContext
           : pageContext // ignore: cast_nullable_to_non_nullable
-              as PageContext?,
+              as HomeStackContext?,
     ));
   }
 }
@@ -677,7 +677,7 @@ class _$_MenuState implements _MenuState {
   @override
   final Either<Unit, WorkspaceError> successOrFailure;
   @override
-  final PageContext? pageContext;
+  final HomeStackContext? pageContext;
 
   @override
   String toString() {
@@ -720,7 +720,7 @@ abstract class _MenuState implements MenuState {
       {required bool isCollapse,
       required Option<List<App>> apps,
       required Either<Unit, WorkspaceError> successOrFailure,
-      PageContext? pageContext}) = _$_MenuState;
+      HomeStackContext? pageContext}) = _$_MenuState;
 
   @override
   bool get isCollapse => throw _privateConstructorUsedError;
@@ -730,7 +730,7 @@ abstract class _MenuState implements MenuState {
   Either<Unit, WorkspaceError> get successOrFailure =>
       throw _privateConstructorUsedError;
   @override
-  PageContext? get pageContext => throw _privateConstructorUsedError;
+  HomeStackContext? get pageContext => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
   _$MenuStateCopyWith<_MenuState> get copyWith =>

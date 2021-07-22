@@ -18,5 +18,6 @@ message RepeatedView {
     repeated View items = 1;
 }
 enum ViewType {
-    Docs = 0;
+    Blank = 0;
+    Doc = 1;
 }

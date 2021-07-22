@@ -133,7 +133,7 @@ class AppHeader extends StatelessWidget {
 
   List<PopupMenuEntry> menuItemBuilder() {
     return ViewType.values
-        // .where((element) => element != ViewType.ViewTypeUnknown)
+        .where((element) => element != ViewType.Blank)
         .map((ty) {
       return PopupMenuItem<ViewType>(
           value: ty,

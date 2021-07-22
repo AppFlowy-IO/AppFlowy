@@ -1,20 +1,18 @@
 import 'package:app_flowy/workspace/domain/page_stack/page_stack_bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:app_flowy/workspace/presentation/widgets/blank_page.dart';
 import 'package:app_flowy/workspace/presentation/widgets/fading_index_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/prelude.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-List<PageType> pages = PageType.values.toList();
-enum PageType {
-  blank,
-}
+List<ViewType> pages = ViewType.values.toList();
 
-abstract class PageContext extends Equatable {
-  final PageType pageType;
-  final String pageTitle;
-  const PageContext(this.pageType, {required this.pageTitle});
+abstract class HomeStackContext extends Equatable {
+  final ViewType type;
+  final String title;
+  const HomeStackContext({required this.type, required this.title});
 }
 
 class HomePageStack {
@@ -22,12 +20,11 @@ class HomePageStack {
   HomePageStack();
 
   String title() {
-    return _bloc.state.pageContext.pageTitle;
+    return _bloc.state.pageContext.title;
   }
 
-  void setPageContext(PageContext? newContext) {
-    _bloc
-        .add(PageStackEvent.setContext(newContext ?? const BlankPageContext()));
+  void setPageContext(HomeStackContext? newContext) {
+    _bloc.add(PageStackEvent.setContext(newContext ?? BlankPageContext()));
   }
 
   Widget stackTopBar() {
@@ -36,7 +33,7 @@ class HomePageStack {
       child: BlocBuilder<PageStackBloc, PageStackState>(
         builder: (context, state) {
           return HomeTopBar(
-            title: state.pageContext.pageTitle,
+            title: state.pageContext.title,
           );
         },
       ),
@@ -50,7 +47,7 @@ class HomePageStack {
         builder: (context, state) {
           final pageContext = state.pageContext;
           return FadingIndexedStack(
-            index: pages.indexOf(pageContext.pageType),
+            index: pages.indexOf(pageContext.type),
             children: buildPagesWidget(pageContext),
           );
         },
@@ -59,26 +56,31 @@ class HomePageStack {
   }
 }
 
-List<Widget> buildPagesWidget(PageContext pageContext) {
-  return PageType.values.map((pageType) {
-    if (pageType == pageContext.pageType) {
-      return pageType.builder(pageContext);
+List<Widget> buildPagesWidget(HomeStackContext pageContext) {
+  return ViewType.values.map((viewType) {
+    if (viewType == pageContext.type) {
+      return viewType.builderDisplayWidget(pageContext);
     } else {
       return const BlankPage(context: BlankPageContext());
     }
   }).toList();
 }
 
-extension PageTypeExtension on PageType {
-  HomeStackPage builder(PageContext context) {
+extension PageTypeExtension on ViewType {
+  HomeStackWidget builderDisplayWidget(HomeStackContext context) {
     switch (this) {
-      case PageType.blank:
-        return BlankPage(context: context);
+      case ViewType.Blank:
+        return BlankPage(context: context as BlankPageContext);
+      case ViewType.Doc:
+        return BlankPage(context: context as BlankPageContext);
+      default:
+        return BlankPage(context: context as BlankPageContext);
     }
   }
 }
 
-abstract class HomeStackPage extends StatefulWidget {
-  final PageContext pageContext;
-  const HomeStackPage({Key? key, required this.pageContext}) : super(key: key);
+abstract class HomeStackWidget extends StatefulWidget {
+  final HomeStackContext pageContext;
+  const HomeStackWidget({Key? key, required this.pageContext})
+      : super(key: key);
 }
