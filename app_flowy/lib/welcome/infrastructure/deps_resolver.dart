@@ -1,6 +1,6 @@
-import 'package:app_flowy/home/application/edit_pannel/edit_pannel_bloc.dart';
-import 'package:app_flowy/home/application/home_bloc.dart';
-import 'package:app_flowy/home/application/watcher/home_watcher_bloc.dart';
+import 'package:app_flowy/workspace/application/edit_pannel/edit_pannel_bloc.dart';
+import 'package:app_flowy/workspace/application/home_bloc.dart';
+import 'package:app_flowy/workspace/application/watcher/home_watcher_bloc.dart';
 import 'package:app_flowy/welcome/application/welcome_bloc.dart';
 import 'package:app_flowy/welcome/infrastructure/i_welcome_impl.dart';
 import 'package:get_it/get_it.dart';

@@ -1,7 +1,7 @@
-import 'package:app_flowy/home/presentation/home_screen.dart';
 import 'package:app_flowy/user/presentation/sign_in/sign_in_screen.dart';
 import 'package:app_flowy/welcome/domain/auth_state.dart';
 import 'package:app_flowy/welcome/domain/i_welcome.dart';
+import 'package:app_flowy/workspace/presentation/home/home_screen.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';

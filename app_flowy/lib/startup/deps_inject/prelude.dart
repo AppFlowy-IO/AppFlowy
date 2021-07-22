@@ -1,4 +1,4 @@
-import 'package:app_flowy/home/infrastructure/deps_resolver.dart';
+import 'package:app_flowy/workspace/infrastructure/deps_resolver.dart';
 import 'package:app_flowy/startup/launch.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/infrastructure/deps_resolver.dart';
