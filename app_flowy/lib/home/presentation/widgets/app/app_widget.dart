@@ -1,4 +1,5 @@
 import 'package:app_flowy/home/application/app/app_bloc.dart';
+import 'package:app_flowy/home/application/app/app_watch_bloc.dart';
 import 'package:app_flowy/home/presentation/widgets/menu/menu_size.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:expandable/expandable.dart';
@@ -15,23 +16,40 @@ class AppWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // return MultiBlocProvider(
-    //   providers: [
-    //     BlocProvider<AppBloc>(create: (context) => getIt<AppBloc>()),
-    //   ],
-    //   child: BlocBuilder<AppBloc, AppState>(
-    //     builder: (context, state) {
-    //       // final child = state.map(
-    //       //   initial: (_) => const CircularProgressIndicator.adaptive(),
-    //       //   loadViews: (s) => ViewList(s.views),
-    //       //   successOrFailure: (s) => FlowyErrorPage(s.error),
-    //       // );
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AppBloc>(
+            create: (context) => getIt<AppBloc>(param1: app.id)),
+        BlocProvider<AppWatchBloc>(
+            create: (context) => getIt<AppWatchBloc>(param1: app.id)),
+      ],
+      child: BlocBuilder<AppWatchBloc, AppWatchState>(
+        builder: (context, state) {
+          final child = state.map(
+            initial: (_) => BlocBuilder<AppBloc, AppState>(
+              builder: (context, state) {
+                return Container();
+              },
+            ),
+            loadViews: (s) {
+              return Container();
+              // final child = state.map(
+              //   initial: (_) => const CircularProgressIndicator.adaptive(),
+              //   loadViews: (s) => ViewList(s.views),
+              //   successOrFailure: (s) => FlowyErrorPage(s.error),
+              // );
 
-    //       return expandableWrapper(context, Container());
-    //     },
-    //   ),
-    // );
-    return Container();
+              // return expandableWrapper(context, Container());
+            },
+            loadFail: (s) {
+              return FlowyErrorPage(s.error.toString());
+            },
+          );
+
+          return expandableWrapper(context, child);
+        },
+      ),
+    );
   }
 
   ExpandableNotifier expandableWrapper(BuildContext context, Widget child) {

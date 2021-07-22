@@ -77,9 +77,13 @@ class HomeMenu extends StatelessWidget {
   Widget _renderAppList(BuildContext context) {
     return BlocBuilder<MenuWatchBloc, MenuWatchState>(
       builder: (context, state) => state.map(
-        initial: (_) => AppList(apps: context.read<MenuBloc>().state.apps),
-        loadApps: (event) => AppList(apps: some(event.apps)),
-        loadFail: (error) => FlowyErrorPage(error.toString()),
+        initial: (_) => BlocBuilder<MenuBloc, MenuState>(
+          builder: (context, state) {
+            return AppList(apps: state.apps);
+          },
+        ),
+        loadApps: (s) => AppList(apps: some(s.apps)),
+        loadFail: (s) => FlowyErrorPage(s.error.toString()),
       ),
     );
   }

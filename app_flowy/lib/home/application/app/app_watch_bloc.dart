@@ -15,7 +15,7 @@ class AppWatchBloc extends Bloc<AppWatchEvent, AppWatchState> {
   Stream<AppWatchState> mapEventToState(
     AppWatchEvent event,
   ) async* {
-    yield* event.map(started: (_) {
+    yield* event.map(started: (_) async* {
       watcher.startWatching(
         addViewCallback: (viewsOrFail) => _handleViewsOrFail(viewsOrFail),
       );

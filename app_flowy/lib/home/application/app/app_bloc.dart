@@ -16,12 +16,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     AppEvent event,
   ) async* {
     yield* event.map(
-      initial: (e) async* {
-        iAppImpl.startWatching(
-          updatedCallback: (name, desc) {},
-          addViewCallback: (views) {},
-        );
-      },
+      initial: (e) async* {},
       viewsReceived: (e) async* {
         yield state;
       },
