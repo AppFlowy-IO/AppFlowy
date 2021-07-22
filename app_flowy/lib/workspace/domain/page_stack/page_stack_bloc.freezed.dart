@@ -16,9 +16,9 @@ final _privateConstructorUsedError = UnsupportedError(
 class _$PageStackEventTearOff {
   const _$PageStackEventTearOff();
 
-  NewPageContext setContext(HomeStackContext newContext) {
+  NewPageContext setStackView(HomeStackView newStackView) {
     return NewPageContext(
-      newContext,
+      newStackView,
     );
   }
 }
@@ -28,27 +28,27 @@ const $PageStackEvent = _$PageStackEventTearOff();
 
 /// @nodoc
 mixin _$PageStackEvent {
-  HomeStackContext get newContext => throw _privateConstructorUsedError;
+  HomeStackView get newStackView => throw _privateConstructorUsedError;
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(HomeStackContext newContext) setContext,
+    required TResult Function(HomeStackView newStackView) setStackView,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(HomeStackContext newContext)? setContext,
+    TResult Function(HomeStackView newStackView)? setStackView,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(NewPageContext value) setContext,
+    required TResult Function(NewPageContext value) setStackView,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(NewPageContext value)? setContext,
+    TResult Function(NewPageContext value)? setStackView,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -63,7 +63,7 @@ abstract class $PageStackEventCopyWith<$Res> {
   factory $PageStackEventCopyWith(
           PageStackEvent value, $Res Function(PageStackEvent) then) =
       _$PageStackEventCopyWithImpl<$Res>;
-  $Res call({HomeStackContext newContext});
+  $Res call({HomeStackView newStackView});
 }
 
 /// @nodoc
@@ -77,13 +77,13 @@ class _$PageStackEventCopyWithImpl<$Res>
 
   @override
   $Res call({
-    Object? newContext = freezed,
+    Object? newStackView = freezed,
   }) {
     return _then(_value.copyWith(
-      newContext: newContext == freezed
-          ? _value.newContext
-          : newContext // ignore: cast_nullable_to_non_nullable
-              as HomeStackContext,
+      newStackView: newStackView == freezed
+          ? _value.newStackView
+          : newStackView // ignore: cast_nullable_to_non_nullable
+              as HomeStackView,
     ));
   }
 }
@@ -95,7 +95,7 @@ abstract class $NewPageContextCopyWith<$Res>
           NewPageContext value, $Res Function(NewPageContext) then) =
       _$NewPageContextCopyWithImpl<$Res>;
   @override
-  $Res call({HomeStackContext newContext});
+  $Res call({HomeStackView newStackView});
 }
 
 /// @nodoc
@@ -111,13 +111,13 @@ class _$NewPageContextCopyWithImpl<$Res>
 
   @override
   $Res call({
-    Object? newContext = freezed,
+    Object? newStackView = freezed,
   }) {
     return _then(NewPageContext(
-      newContext == freezed
-          ? _value.newContext
-          : newContext // ignore: cast_nullable_to_non_nullable
-              as HomeStackContext,
+      newStackView == freezed
+          ? _value.newStackView
+          : newStackView // ignore: cast_nullable_to_non_nullable
+              as HomeStackView,
     ));
   }
 }
@@ -125,28 +125,28 @@ class _$NewPageContextCopyWithImpl<$Res>
 /// @nodoc
 
 class _$NewPageContext implements NewPageContext {
-  const _$NewPageContext(this.newContext);
+  const _$NewPageContext(this.newStackView);
 
   @override
-  final HomeStackContext newContext;
+  final HomeStackView newStackView;
 
   @override
   String toString() {
-    return 'PageStackEvent.setContext(newContext: $newContext)';
+    return 'PageStackEvent.setStackView(newStackView: $newStackView)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other is NewPageContext &&
-            (identical(other.newContext, newContext) ||
+            (identical(other.newStackView, newStackView) ||
                 const DeepCollectionEquality()
-                    .equals(other.newContext, newContext)));
+                    .equals(other.newStackView, newStackView)));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(newContext);
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(newStackView);
 
   @JsonKey(ignore: true)
   @override
@@ -156,19 +156,19 @@ class _$NewPageContext implements NewPageContext {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(HomeStackContext newContext) setContext,
+    required TResult Function(HomeStackView newStackView) setStackView,
   }) {
-    return setContext(newContext);
+    return setStackView(newStackView);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(HomeStackContext newContext)? setContext,
+    TResult Function(HomeStackView newStackView)? setStackView,
     required TResult orElse(),
   }) {
-    if (setContext != null) {
-      return setContext(newContext);
+    if (setStackView != null) {
+      return setStackView(newStackView);
     }
     return orElse();
   }
@@ -176,29 +176,29 @@ class _$NewPageContext implements NewPageContext {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(NewPageContext value) setContext,
+    required TResult Function(NewPageContext value) setStackView,
   }) {
-    return setContext(this);
+    return setStackView(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(NewPageContext value)? setContext,
+    TResult Function(NewPageContext value)? setStackView,
     required TResult orElse(),
   }) {
-    if (setContext != null) {
-      return setContext(this);
+    if (setStackView != null) {
+      return setStackView(this);
     }
     return orElse();
   }
 }
 
 abstract class NewPageContext implements PageStackEvent {
-  const factory NewPageContext(HomeStackContext newContext) = _$NewPageContext;
+  const factory NewPageContext(HomeStackView newStackView) = _$NewPageContext;
 
   @override
-  HomeStackContext get newContext => throw _privateConstructorUsedError;
+  HomeStackView get newStackView => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
   $NewPageContextCopyWith<NewPageContext> get copyWith =>
@@ -209,9 +209,9 @@ abstract class NewPageContext implements PageStackEvent {
 class _$PageStackStateTearOff {
   const _$PageStackStateTearOff();
 
-  _PageStackState call({required HomeStackContext pageContext}) {
+  _PageStackState call({required HomeStackView stackView}) {
     return _PageStackState(
-      pageContext: pageContext,
+      stackView: stackView,
     );
   }
 }
@@ -221,7 +221,7 @@ const $PageStackState = _$PageStackStateTearOff();
 
 /// @nodoc
 mixin _$PageStackState {
-  HomeStackContext get pageContext => throw _privateConstructorUsedError;
+  HomeStackView get stackView => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $PageStackStateCopyWith<PageStackState> get copyWith =>
@@ -233,7 +233,7 @@ abstract class $PageStackStateCopyWith<$Res> {
   factory $PageStackStateCopyWith(
           PageStackState value, $Res Function(PageStackState) then) =
       _$PageStackStateCopyWithImpl<$Res>;
-  $Res call({HomeStackContext pageContext});
+  $Res call({HomeStackView stackView});
 }
 
 /// @nodoc
@@ -247,13 +247,13 @@ class _$PageStackStateCopyWithImpl<$Res>
 
   @override
   $Res call({
-    Object? pageContext = freezed,
+    Object? stackView = freezed,
   }) {
     return _then(_value.copyWith(
-      pageContext: pageContext == freezed
-          ? _value.pageContext
-          : pageContext // ignore: cast_nullable_to_non_nullable
-              as HomeStackContext,
+      stackView: stackView == freezed
+          ? _value.stackView
+          : stackView // ignore: cast_nullable_to_non_nullable
+              as HomeStackView,
     ));
   }
 }
@@ -265,7 +265,7 @@ abstract class _$PageStackStateCopyWith<$Res>
           _PageStackState value, $Res Function(_PageStackState) then) =
       __$PageStackStateCopyWithImpl<$Res>;
   @override
-  $Res call({HomeStackContext pageContext});
+  $Res call({HomeStackView stackView});
 }
 
 /// @nodoc
@@ -281,13 +281,13 @@ class __$PageStackStateCopyWithImpl<$Res>
 
   @override
   $Res call({
-    Object? pageContext = freezed,
+    Object? stackView = freezed,
   }) {
     return _then(_PageStackState(
-      pageContext: pageContext == freezed
-          ? _value.pageContext
-          : pageContext // ignore: cast_nullable_to_non_nullable
-              as HomeStackContext,
+      stackView: stackView == freezed
+          ? _value.stackView
+          : stackView // ignore: cast_nullable_to_non_nullable
+              as HomeStackView,
     ));
   }
 }
@@ -295,28 +295,28 @@ class __$PageStackStateCopyWithImpl<$Res>
 /// @nodoc
 
 class _$_PageStackState implements _PageStackState {
-  const _$_PageStackState({required this.pageContext});
+  const _$_PageStackState({required this.stackView});
 
   @override
-  final HomeStackContext pageContext;
+  final HomeStackView stackView;
 
   @override
   String toString() {
-    return 'PageStackState(pageContext: $pageContext)';
+    return 'PageStackState(stackView: $stackView)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other is _PageStackState &&
-            (identical(other.pageContext, pageContext) ||
+            (identical(other.stackView, stackView) ||
                 const DeepCollectionEquality()
-                    .equals(other.pageContext, pageContext)));
+                    .equals(other.stackView, stackView)));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(pageContext);
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(stackView);
 
   @JsonKey(ignore: true)
   @override
@@ -325,11 +325,11 @@ class _$_PageStackState implements _PageStackState {
 }
 
 abstract class _PageStackState implements PageStackState {
-  const factory _PageStackState({required HomeStackContext pageContext}) =
+  const factory _PageStackState({required HomeStackView stackView}) =
       _$_PageStackState;
 
   @override
-  HomeStackContext get pageContext => throw _privateConstructorUsedError;
+  HomeStackView get stackView => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
   _$PageStackStateCopyWith<_PageStackState> get copyWith =>

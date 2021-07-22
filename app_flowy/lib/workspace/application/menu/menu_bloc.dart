@@ -36,7 +36,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
   }
 
   Stream<MenuState> _performActionOnOpenPage(OpenPage e) async* {
-    yield state.copyWith(pageContext: e.context);
+    yield state.copyWith(stackView: e.stackView);
   }
 
   Stream<MenuState> _performActionOnCreateApp(CreateApp event) async* {
@@ -65,7 +65,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
 abstract class MenuEvent with _$MenuEvent {
   const factory MenuEvent.initial() = _Initial;
   const factory MenuEvent.collapse() = Collapse;
-  const factory MenuEvent.openPage(HomeStackContext context) = OpenPage;
+  const factory MenuEvent.openPage(HomeStackView stackView) = OpenPage;
   const factory MenuEvent.createApp(String name, {String? desc}) = CreateApp;
 }
 
@@ -75,7 +75,7 @@ abstract class MenuState implements _$MenuState {
     required bool isCollapse,
     required Option<List<App>> apps,
     required Either<Unit, WorkspaceError> successOrFailure,
-    HomeStackContext? pageContext,
+    HomeStackView? stackView,
   }) = _MenuState;
 
   factory MenuState.initial() => MenuState(

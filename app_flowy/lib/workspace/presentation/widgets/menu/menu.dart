@@ -20,7 +20,7 @@ import 'package:textstyle_extensions/textstyle_extensions.dart';
 import 'app_list.dart';
 
 class HomeMenu extends StatelessWidget {
-  final Function(HomeStackContext?) pageContextChanged;
+  final Function(HomeStackView?) pageContextChanged;
   final Function(bool) isCollapseChanged;
   final String workspaceId;
 
@@ -45,8 +45,8 @@ class HomeMenu extends StatelessWidget {
       child: MultiBlocListener(
         listeners: [
           BlocListener<MenuBloc, MenuState>(
-            listenWhen: (p, c) => p.pageContext != c.pageContext,
-            listener: (context, state) => pageContextChanged(state.pageContext),
+            listenWhen: (p, c) => p.stackView != c.stackView,
+            listener: (context, state) => pageContextChanged(state.stackView),
           ),
           BlocListener<MenuBloc, MenuState>(
             listenWhen: (p, c) => p.isCollapse != c.isCollapse,

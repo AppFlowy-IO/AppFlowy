@@ -1,3 +1,5 @@
+import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 
@@ -10,7 +12,7 @@ class ViewWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-        onTap: _handleTapOnView(context),
+        onTap: _openView(context),
         child: Container(
           height: 30,
           child: buildContent(),
@@ -33,14 +35,10 @@ class ViewWidget extends StatelessWidget {
     );
   }
 
-  Function() _handleTapOnView(BuildContext context) {
+  Function() _openView(BuildContext context) {
     return () {
-      // if (view.id.startsWith('doc')) {
-      //   context.read<MenuBloc>().add(MenuEvent.openPage(DocPageContext(view)));
-      //   return;
-      // }
-
-      // context.read<MenuBloc>().add(MenuEvent.openPage(GridPageContext(view)));
+      final stackView = stackViewFromView(view);
+      getIt<HomePageStack>().setStackView(stackView);
     };
   }
 }

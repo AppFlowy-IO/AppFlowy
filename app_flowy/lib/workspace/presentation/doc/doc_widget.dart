@@ -2,7 +2,7 @@ import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 
-class DocPageContext extends HomeStackContext {
+class DocPageContext extends HomeStackView {
   final View view;
   DocPageContext(this.view)
       : super(
@@ -15,8 +15,8 @@ class DocPageContext extends HomeStackContext {
 }
 
 class DocPage extends HomeStackWidget {
-  const DocPage({Key? key, required DocPageContext context})
-      : super(key: key, pageContext: context);
+  const DocPage({Key? key, required DocPageContext stackView})
+      : super(key: key, stackView: stackView);
 
   @override
   _DocPageState createState() => _DocPageState();
@@ -25,9 +25,9 @@ class DocPage extends HomeStackWidget {
 class _DocPageState extends State<DocPage> {
   @override
   Widget build(BuildContext context) {
-    assert(widget.pageContext is DocPageContext);
+    assert(widget.stackView is DocPageContext);
 
-    final context = widget.pageContext as DocPageContext;
+    final context = widget.stackView as DocPageContext;
     final filename = _extractFilename(context.view.id);
     return Container();
   }

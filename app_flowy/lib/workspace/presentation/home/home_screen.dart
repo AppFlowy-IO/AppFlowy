@@ -69,7 +69,7 @@ class HomeScreen extends StatelessWidget {
     final homeBloc = context.read<HomeBloc>();
     Widget homeMenu = HomeMenu(
       pageContextChanged: (pageContext) {
-        getIt<HomePageStack>().setPageContext(pageContext);
+        getIt<HomePageStack>().setStackView(pageContext);
       },
       isCollapseChanged: (isCollapse) {
         homeBloc.add(HomeEvent.forceCollapse(isCollapse));
