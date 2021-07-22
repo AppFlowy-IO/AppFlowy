@@ -12,16 +12,16 @@ class AppWidgetTask extends LaunchTask {
   @override
   Future<void> initialize(LaunchContext context) {
     final widget = context.getIt<AppFactory>().create();
-    final app = AppWidget(child: widget);
+    final app = ApplicationWidget(child: widget);
     runApp(app);
 
     return Future(() => {});
   }
 }
 
-class AppWidget extends StatelessWidget {
+class ApplicationWidget extends StatelessWidget {
   final Widget child;
-  const AppWidget({
+  const ApplicationWidget({
     Key? key,
     required this.child,
   }) : super(key: key);

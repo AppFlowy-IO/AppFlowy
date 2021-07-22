@@ -36,12 +36,6 @@ class _$MenuEventTearOff {
       desc: desc,
     );
   }
-
-  AppsReceived appsReceived(Either<List<App>, WorkspaceError> appsOrFail) {
-    return AppsReceived(
-      appsOrFail,
-    );
-  }
 }
 
 /// @nodoc
@@ -55,8 +49,6 @@ mixin _$MenuEvent {
     required TResult Function() collapse,
     required TResult Function(PageContext context) openPage,
     required TResult Function(String name, String? desc) createApp,
-    required TResult Function(Either<List<App>, WorkspaceError> appsOrFail)
-        appsReceived,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -65,8 +57,6 @@ mixin _$MenuEvent {
     TResult Function()? collapse,
     TResult Function(PageContext context)? openPage,
     TResult Function(String name, String? desc)? createApp,
-    TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
-        appsReceived,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -76,7 +66,6 @@ mixin _$MenuEvent {
     required TResult Function(Collapse value) collapse,
     required TResult Function(OpenPage value) openPage,
     required TResult Function(CreateApp value) createApp,
-    required TResult Function(AppsReceived value) appsReceived,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -85,7 +74,6 @@ mixin _$MenuEvent {
     TResult Function(Collapse value)? collapse,
     TResult Function(OpenPage value)? openPage,
     TResult Function(CreateApp value)? createApp,
-    TResult Function(AppsReceived value)? appsReceived,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -147,8 +135,6 @@ class _$_Initial implements _Initial {
     required TResult Function() collapse,
     required TResult Function(PageContext context) openPage,
     required TResult Function(String name, String? desc) createApp,
-    required TResult Function(Either<List<App>, WorkspaceError> appsOrFail)
-        appsReceived,
   }) {
     return initial();
   }
@@ -160,8 +146,6 @@ class _$_Initial implements _Initial {
     TResult Function()? collapse,
     TResult Function(PageContext context)? openPage,
     TResult Function(String name, String? desc)? createApp,
-    TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
-        appsReceived,
     required TResult orElse(),
   }) {
     if (initial != null) {
@@ -177,7 +161,6 @@ class _$_Initial implements _Initial {
     required TResult Function(Collapse value) collapse,
     required TResult Function(OpenPage value) openPage,
     required TResult Function(CreateApp value) createApp,
-    required TResult Function(AppsReceived value) appsReceived,
   }) {
     return initial(this);
   }
@@ -189,7 +172,6 @@ class _$_Initial implements _Initial {
     TResult Function(Collapse value)? collapse,
     TResult Function(OpenPage value)? openPage,
     TResult Function(CreateApp value)? createApp,
-    TResult Function(AppsReceived value)? appsReceived,
     required TResult orElse(),
   }) {
     if (initial != null) {
@@ -244,8 +226,6 @@ class _$Collapse implements Collapse {
     required TResult Function() collapse,
     required TResult Function(PageContext context) openPage,
     required TResult Function(String name, String? desc) createApp,
-    required TResult Function(Either<List<App>, WorkspaceError> appsOrFail)
-        appsReceived,
   }) {
     return collapse();
   }
@@ -257,8 +237,6 @@ class _$Collapse implements Collapse {
     TResult Function()? collapse,
     TResult Function(PageContext context)? openPage,
     TResult Function(String name, String? desc)? createApp,
-    TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
-        appsReceived,
     required TResult orElse(),
   }) {
     if (collapse != null) {
@@ -274,7 +252,6 @@ class _$Collapse implements Collapse {
     required TResult Function(Collapse value) collapse,
     required TResult Function(OpenPage value) openPage,
     required TResult Function(CreateApp value) createApp,
-    required TResult Function(AppsReceived value) appsReceived,
   }) {
     return collapse(this);
   }
@@ -286,7 +263,6 @@ class _$Collapse implements Collapse {
     TResult Function(Collapse value)? collapse,
     TResult Function(OpenPage value)? openPage,
     TResult Function(CreateApp value)? createApp,
-    TResult Function(AppsReceived value)? appsReceived,
     required TResult orElse(),
   }) {
     if (collapse != null) {
@@ -366,8 +342,6 @@ class _$OpenPage implements OpenPage {
     required TResult Function() collapse,
     required TResult Function(PageContext context) openPage,
     required TResult Function(String name, String? desc) createApp,
-    required TResult Function(Either<List<App>, WorkspaceError> appsOrFail)
-        appsReceived,
   }) {
     return openPage(context);
   }
@@ -379,8 +353,6 @@ class _$OpenPage implements OpenPage {
     TResult Function()? collapse,
     TResult Function(PageContext context)? openPage,
     TResult Function(String name, String? desc)? createApp,
-    TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
-        appsReceived,
     required TResult orElse(),
   }) {
     if (openPage != null) {
@@ -396,7 +368,6 @@ class _$OpenPage implements OpenPage {
     required TResult Function(Collapse value) collapse,
     required TResult Function(OpenPage value) openPage,
     required TResult Function(CreateApp value) createApp,
-    required TResult Function(AppsReceived value) appsReceived,
   }) {
     return openPage(this);
   }
@@ -408,7 +379,6 @@ class _$OpenPage implements OpenPage {
     TResult Function(Collapse value)? collapse,
     TResult Function(OpenPage value)? openPage,
     TResult Function(CreateApp value)? createApp,
-    TResult Function(AppsReceived value)? appsReceived,
     required TResult orElse(),
   }) {
     if (openPage != null) {
@@ -504,8 +474,6 @@ class _$CreateApp implements CreateApp {
     required TResult Function() collapse,
     required TResult Function(PageContext context) openPage,
     required TResult Function(String name, String? desc) createApp,
-    required TResult Function(Either<List<App>, WorkspaceError> appsOrFail)
-        appsReceived,
   }) {
     return createApp(name, desc);
   }
@@ -517,8 +485,6 @@ class _$CreateApp implements CreateApp {
     TResult Function()? collapse,
     TResult Function(PageContext context)? openPage,
     TResult Function(String name, String? desc)? createApp,
-    TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
-        appsReceived,
     required TResult orElse(),
   }) {
     if (createApp != null) {
@@ -534,7 +500,6 @@ class _$CreateApp implements CreateApp {
     required TResult Function(Collapse value) collapse,
     required TResult Function(OpenPage value) openPage,
     required TResult Function(CreateApp value) createApp,
-    required TResult Function(AppsReceived value) appsReceived,
   }) {
     return createApp(this);
   }
@@ -546,7 +511,6 @@ class _$CreateApp implements CreateApp {
     TResult Function(Collapse value)? collapse,
     TResult Function(OpenPage value)? openPage,
     TResult Function(CreateApp value)? createApp,
-    TResult Function(AppsReceived value)? appsReceived,
     required TResult orElse(),
   }) {
     if (createApp != null) {
@@ -563,138 +527,6 @@ abstract class CreateApp implements MenuEvent {
   String? get desc => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $CreateAppCopyWith<CreateApp> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class $AppsReceivedCopyWith<$Res> {
-  factory $AppsReceivedCopyWith(
-          AppsReceived value, $Res Function(AppsReceived) then) =
-      _$AppsReceivedCopyWithImpl<$Res>;
-  $Res call({Either<List<App>, WorkspaceError> appsOrFail});
-}
-
-/// @nodoc
-class _$AppsReceivedCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
-    implements $AppsReceivedCopyWith<$Res> {
-  _$AppsReceivedCopyWithImpl(
-      AppsReceived _value, $Res Function(AppsReceived) _then)
-      : super(_value, (v) => _then(v as AppsReceived));
-
-  @override
-  AppsReceived get _value => super._value as AppsReceived;
-
-  @override
-  $Res call({
-    Object? appsOrFail = freezed,
-  }) {
-    return _then(AppsReceived(
-      appsOrFail == freezed
-          ? _value.appsOrFail
-          : appsOrFail // ignore: cast_nullable_to_non_nullable
-              as Either<List<App>, WorkspaceError>,
-    ));
-  }
-}
-
-/// @nodoc
-
-class _$AppsReceived implements AppsReceived {
-  const _$AppsReceived(this.appsOrFail);
-
-  @override
-  final Either<List<App>, WorkspaceError> appsOrFail;
-
-  @override
-  String toString() {
-    return 'MenuEvent.appsReceived(appsOrFail: $appsOrFail)';
-  }
-
-  @override
-  bool operator ==(dynamic other) {
-    return identical(this, other) ||
-        (other is AppsReceived &&
-            (identical(other.appsOrFail, appsOrFail) ||
-                const DeepCollectionEquality()
-                    .equals(other.appsOrFail, appsOrFail)));
-  }
-
-  @override
-  int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(appsOrFail);
-
-  @JsonKey(ignore: true)
-  @override
-  $AppsReceivedCopyWith<AppsReceived> get copyWith =>
-      _$AppsReceivedCopyWithImpl<AppsReceived>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() initial,
-    required TResult Function() collapse,
-    required TResult Function(PageContext context) openPage,
-    required TResult Function(String name, String? desc) createApp,
-    required TResult Function(Either<List<App>, WorkspaceError> appsOrFail)
-        appsReceived,
-  }) {
-    return appsReceived(appsOrFail);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? initial,
-    TResult Function()? collapse,
-    TResult Function(PageContext context)? openPage,
-    TResult Function(String name, String? desc)? createApp,
-    TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
-        appsReceived,
-    required TResult orElse(),
-  }) {
-    if (appsReceived != null) {
-      return appsReceived(appsOrFail);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_Initial value) initial,
-    required TResult Function(Collapse value) collapse,
-    required TResult Function(OpenPage value) openPage,
-    required TResult Function(CreateApp value) createApp,
-    required TResult Function(AppsReceived value) appsReceived,
-  }) {
-    return appsReceived(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_Initial value)? initial,
-    TResult Function(Collapse value)? collapse,
-    TResult Function(OpenPage value)? openPage,
-    TResult Function(CreateApp value)? createApp,
-    TResult Function(AppsReceived value)? appsReceived,
-    required TResult orElse(),
-  }) {
-    if (appsReceived != null) {
-      return appsReceived(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class AppsReceived implements MenuEvent {
-  const factory AppsReceived(Either<List<App>, WorkspaceError> appsOrFail) =
-      _$AppsReceived;
-
-  Either<List<App>, WorkspaceError> get appsOrFail =>
-      throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $AppsReceivedCopyWith<AppsReceived> get copyWith =>
       throw _privateConstructorUsedError;
 }
 

@@ -4,9 +4,6 @@ import 'package:app_flowy/home/presentation/widgets/blank_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:dartz/dartz.dart';
-
-part 'home_event.dart';
-part 'home_state.dart';
 part 'home_bloc.freezed.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
@@ -39,4 +36,35 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   Future<void> close() {
     return super.close();
   }
+}
+
+@freezed
+abstract class HomeEvent with _$HomeEvent {
+  const factory HomeEvent.showLoading(bool isLoading) = _ShowLoading;
+  const factory HomeEvent.forceCollapse(bool forceCollapse) = _ForceCollapse;
+
+  //page
+  const factory HomeEvent.setPage(PageContext context) = SetCurrentPage;
+
+  //edit pannel
+  const factory HomeEvent.setEditPannel(EditPannelContext editContext) =
+      _ShowEditPannel;
+  const factory HomeEvent.dismissEditPannel() = _DismissEditPannel;
+}
+
+@freezed
+abstract class HomeState implements _$HomeState {
+  const factory HomeState({
+    required bool isLoading,
+    required bool forceCollapse,
+    required PageContext pageContext,
+    required Option<EditPannelContext> editContext,
+  }) = _HomeState;
+
+  factory HomeState.initial() => HomeState(
+        isLoading: false,
+        forceCollapse: false,
+        pageContext: const BlankPageContext(),
+        editContext: none(),
+      );
 }

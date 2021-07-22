@@ -288,11 +288,11 @@ class _$AppStateTearOff {
 
   _AppState call(
       {required bool isLoading,
-      required Option<List<App>> apps,
+      required Option<List<View>> views,
       required Either<Unit, WorkspaceError> successOrFailure}) {
     return _AppState(
       isLoading: isLoading,
-      apps: apps,
+      views: views,
       successOrFailure: successOrFailure,
     );
   }
@@ -304,7 +304,7 @@ const $AppState = _$AppStateTearOff();
 /// @nodoc
 mixin _$AppState {
   bool get isLoading => throw _privateConstructorUsedError;
-  Option<List<App>> get apps => throw _privateConstructorUsedError;
+  Option<List<View>> get views => throw _privateConstructorUsedError;
   Either<Unit, WorkspaceError> get successOrFailure =>
       throw _privateConstructorUsedError;
 
@@ -319,7 +319,7 @@ abstract class $AppStateCopyWith<$Res> {
       _$AppStateCopyWithImpl<$Res>;
   $Res call(
       {bool isLoading,
-      Option<List<App>> apps,
+      Option<List<View>> views,
       Either<Unit, WorkspaceError> successOrFailure});
 }
 
@@ -334,7 +334,7 @@ class _$AppStateCopyWithImpl<$Res> implements $AppStateCopyWith<$Res> {
   @override
   $Res call({
     Object? isLoading = freezed,
-    Object? apps = freezed,
+    Object? views = freezed,
     Object? successOrFailure = freezed,
   }) {
     return _then(_value.copyWith(
@@ -342,10 +342,10 @@ class _$AppStateCopyWithImpl<$Res> implements $AppStateCopyWith<$Res> {
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
               as bool,
-      apps: apps == freezed
-          ? _value.apps
-          : apps // ignore: cast_nullable_to_non_nullable
-              as Option<List<App>>,
+      views: views == freezed
+          ? _value.views
+          : views // ignore: cast_nullable_to_non_nullable
+              as Option<List<View>>,
       successOrFailure: successOrFailure == freezed
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
@@ -361,7 +361,7 @@ abstract class _$AppStateCopyWith<$Res> implements $AppStateCopyWith<$Res> {
   @override
   $Res call(
       {bool isLoading,
-      Option<List<App>> apps,
+      Option<List<View>> views,
       Either<Unit, WorkspaceError> successOrFailure});
 }
 
@@ -377,7 +377,7 @@ class __$AppStateCopyWithImpl<$Res> extends _$AppStateCopyWithImpl<$Res>
   @override
   $Res call({
     Object? isLoading = freezed,
-    Object? apps = freezed,
+    Object? views = freezed,
     Object? successOrFailure = freezed,
   }) {
     return _then(_AppState(
@@ -385,10 +385,10 @@ class __$AppStateCopyWithImpl<$Res> extends _$AppStateCopyWithImpl<$Res>
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
               as bool,
-      apps: apps == freezed
-          ? _value.apps
-          : apps // ignore: cast_nullable_to_non_nullable
-              as Option<List<App>>,
+      views: views == freezed
+          ? _value.views
+          : views // ignore: cast_nullable_to_non_nullable
+              as Option<List<View>>,
       successOrFailure: successOrFailure == freezed
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
@@ -402,19 +402,19 @@ class __$AppStateCopyWithImpl<$Res> extends _$AppStateCopyWithImpl<$Res>
 class _$_AppState implements _AppState {
   const _$_AppState(
       {required this.isLoading,
-      required this.apps,
+      required this.views,
       required this.successOrFailure});
 
   @override
   final bool isLoading;
   @override
-  final Option<List<App>> apps;
+  final Option<List<View>> views;
   @override
   final Either<Unit, WorkspaceError> successOrFailure;
 
   @override
   String toString() {
-    return 'AppState(isLoading: $isLoading, apps: $apps, successOrFailure: $successOrFailure)';
+    return 'AppState(isLoading: $isLoading, views: $views, successOrFailure: $successOrFailure)';
   }
 
   @override
@@ -424,8 +424,8 @@ class _$_AppState implements _AppState {
             (identical(other.isLoading, isLoading) ||
                 const DeepCollectionEquality()
                     .equals(other.isLoading, isLoading)) &&
-            (identical(other.apps, apps) ||
-                const DeepCollectionEquality().equals(other.apps, apps)) &&
+            (identical(other.views, views) ||
+                const DeepCollectionEquality().equals(other.views, views)) &&
             (identical(other.successOrFailure, successOrFailure) ||
                 const DeepCollectionEquality()
                     .equals(other.successOrFailure, successOrFailure)));
@@ -435,7 +435,7 @@ class _$_AppState implements _AppState {
   int get hashCode =>
       runtimeType.hashCode ^
       const DeepCollectionEquality().hash(isLoading) ^
-      const DeepCollectionEquality().hash(apps) ^
+      const DeepCollectionEquality().hash(views) ^
       const DeepCollectionEquality().hash(successOrFailure);
 
   @JsonKey(ignore: true)
@@ -447,13 +447,13 @@ class _$_AppState implements _AppState {
 abstract class _AppState implements AppState {
   const factory _AppState(
       {required bool isLoading,
-      required Option<List<App>> apps,
+      required Option<List<View>> views,
       required Either<Unit, WorkspaceError> successOrFailure}) = _$_AppState;
 
   @override
   bool get isLoading => throw _privateConstructorUsedError;
   @override
-  Option<List<App>> get apps => throw _privateConstructorUsedError;
+  Option<List<View>> get views => throw _privateConstructorUsedError;
   @override
   Either<Unit, WorkspaceError> get successOrFailure =>
       throw _privateConstructorUsedError;

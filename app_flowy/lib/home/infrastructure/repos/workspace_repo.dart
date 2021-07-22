@@ -12,12 +12,9 @@ import 'package:flowy_sdk/protobuf/flowy-workspace/workspace_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/workspace_query.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 
-class WorkspaceRepository {
-  StreamSubscription<ObservableSubject>? _subscription;
-  WorkspaceAddAppCallback? _addAppCallback;
-  WorkspaceUpdatedCallback? _updatedCallback;
+class WorkspaceRepo {
   String workspaceId;
-  WorkspaceRepository({
+  WorkspaceRepo({
     required this.workspaceId,
   });
 
@@ -39,7 +36,7 @@ class WorkspaceRepository {
   }
 
   Future<Either<Workspace, WorkspaceError>> getWorkspace(
-      {required String workspaceId, bool readApps = false}) {
+      {bool readApps = false}) {
     final request = QueryWorkspaceRequest.create()
       ..workspaceId = workspaceId
       ..readApps = readApps;
@@ -50,6 +47,20 @@ class WorkspaceRepository {
         (error) => right(error),
       );
     });
+  }
+}
+
+class WorkspaceWatchRepo {
+  StreamSubscription<ObservableSubject>? _subscription;
+  WorkspaceAddAppCallback? _addAppCallback;
+  WorkspaceUpdatedCallback? _updatedCallback;
+  final String workspaceId;
+  late WorkspaceRepo _repo;
+
+  WorkspaceWatchRepo({
+    required this.workspaceId,
+  }) {
+    _repo = WorkspaceRepo(workspaceId: workspaceId);
   }
 
   void startWatching(
@@ -76,7 +87,7 @@ class WorkspaceRepository {
         if (_updatedCallback == null) {
           return;
         }
-        getWorkspace(workspaceId: workspaceId).then((result) {
+        _repo.getWorkspace().then((result) {
           result.fold(
             (workspace) => _updatedCallback!(workspace.name, workspace.desc),
             (error) => Log.error(error),
@@ -87,7 +98,7 @@ class WorkspaceRepository {
         if (_addAppCallback == null) {
           return;
         }
-        getWorkspace(workspaceId: workspaceId, readApps: true).then((result) {
+        _repo.getWorkspace(readApps: true).then((result) {
           result.fold(
             (workspace) => _addAppCallback!(left(workspace.apps.items)),
             (error) => _addAppCallback!(right(error)),

@@ -7,7 +7,7 @@ import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 export 'package:app_flowy/home/domain/i_workspace.dart';
 
 class IWorkspaceImpl extends IWorkspace {
-  WorkspaceRepository repo;
+  WorkspaceRepo repo;
   IWorkspaceImpl({
     required this.repo,
   });
@@ -19,17 +19,21 @@ class IWorkspaceImpl extends IWorkspace {
   }
 
   @override
-  Future<Either<List<App>, WorkspaceError>> getApps(
-      {required String workspaceId}) {
-    return repo
-        .getWorkspace(workspaceId: workspaceId, readApps: true)
-        .then((result) {
+  Future<Either<List<App>, WorkspaceError>> getApps() {
+    return repo.getWorkspace(readApps: true).then((result) {
       return result.fold(
         (workspace) => left(workspace.apps.items),
         (error) => right(error),
       );
     });
   }
+}
+
+class IWorkspaceWatchImpl extends IWorkspaceWatch {
+  WorkspaceWatchRepo repo;
+  IWorkspaceWatchImpl({
+    required this.repo,
+  });
 
   @override
   void startWatching(

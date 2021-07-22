@@ -1,7 +1,9 @@
 import 'package:app_flowy/home/application/menu/menu_bloc.dart';
+import 'package:app_flowy/home/application/menu/menu_watch.dart';
 import 'package:app_flowy/home/domain/page_context.dart';
+import 'package:app_flowy/home/presentation/home_sizes.dart';
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/startup/tasks/app_widget_task.dart';
+import 'package:app_flowy/startup/tasks/application_task.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/text_style.dart';
@@ -9,12 +11,13 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/styled_text_input.dart';
 import 'package:flowy_infra_ui/widget/buttons/ok_cancel_button.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
+import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../home_sizes.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:textstyle_extensions/textstyle_extensions.dart';
+import 'app_list.dart';
 
 class HomeMenu extends StatelessWidget {
   final Function(Option<PageContext>) pageContextChanged;
@@ -30,9 +33,15 @@ class HomeMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          getIt<MenuBloc>(param1: workspaceId)..add(const MenuEvent.initial()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<MenuBloc>(
+            create: (context) => getIt<MenuBloc>(param1: workspaceId)
+              ..add(const MenuEvent.initial())),
+        BlocProvider(
+            create: (context) => getIt<MenuWatchBloc>(param1: workspaceId)
+              ..add(const MenuWatchEvent.started())),
+      ],
       child: MultiBlocListener(
         listeners: [
           BlocListener<MenuBloc, MenuState>(
@@ -58,14 +67,27 @@ class HomeMenu extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           const MenuTopBar(),
-          Expanded(child: Container()),
-          NewAppButton(
-            createAppCallback: (appName) => context
-                .read<MenuBloc>()
-                .add(MenuEvent.createApp(appName, desc: "")),
-          ),
+          _renderAppList(context),
+          _renderNewButton(context),
         ],
       ).padding(horizontal: Insets.sm),
+    );
+  }
+
+  Widget _renderAppList(BuildContext context) {
+    return BlocBuilder<MenuWatchBloc, MenuWatchState>(
+      builder: (context, state) => state.map(
+        initial: (_) => AppList(apps: context.read<MenuBloc>().state.apps),
+        loadApps: (event) => AppList(apps: some(event.apps)),
+        loadFail: (error) => FlowyErrorPage(error.toString()),
+      ),
+    );
+  }
+
+  Widget _renderNewButton(BuildContext context) {
+    return NewAppButton(
+      createAppCallback: (appName) =>
+          context.read<MenuBloc>().add(MenuEvent.createApp(appName, desc: "")),
     );
   }
 }

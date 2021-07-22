@@ -9,9 +9,10 @@ abstract class IWorkspace {
   Future<Either<App, WorkspaceError>> createApp(
       {required String name, String? desc});
 
-  Future<Either<List<App>, WorkspaceError>> getApps(
-      {required String workspaceId});
+  Future<Either<List<App>, WorkspaceError>> getApps();
+}
 
+abstract class IWorkspaceWatch {
   void startWatching(
       {WorkspaceAddAppCallback? addAppCallback,
       WorkspaceUpdatedCallback? updatedCallback});

@@ -25,6 +25,13 @@ class IAppImpl extends IApp {
       required ViewType viewType}) {
     return repo.createView(appId, name, desc ?? "", viewType);
   }
+}
+
+class IAppWatchImpl extends IAppWatch {
+  AppWatchRepository repo;
+  IAppWatchImpl({
+    required this.repo,
+  });
 
   @override
   void startWatching(

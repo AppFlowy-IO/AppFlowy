@@ -7,8 +7,7 @@ import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-part 'menu_event.dart';
-part 'menu_state.dart';
+
 part 'menu_bloc.freezed.dart';
 
 class MenuBloc extends Bloc<MenuEvent, MenuState> {
@@ -21,12 +20,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
   ) async* {
     yield* event.map(
       initial: (value) async* {
-        iWorkspaceImpl.startWatching(addAppCallback: (appsOrFail) {
-          appsOrFail.fold(
-            (apps) => add(MenuEvent.appsReceived(left(apps))),
-            (error) => add(MenuEvent.appsReceived(right(error))),
-          );
-        });
+        yield* _fetchApps();
       },
       collapse: (e) async* {
         final isCollapse = state.isCollapse;
@@ -37,12 +31,6 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
       },
       createApp: (CreateApp event) async* {
         yield* _performActionOnCreateApp(event);
-      },
-      appsReceived: (AppsReceived value) async* {
-        yield value.appsOrFail.fold(
-          (apps) => state.copyWith(apps: some(apps)),
-          (error) => state.copyWith(successOrFailure: right(error)),
-        );
       },
     );
   }
@@ -64,8 +52,36 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
     });
   }
 
-  @override
-  Future<void> close() {
-    return super.close();
+  Stream<MenuState> _fetchApps() async* {
+    final appsOrFail = await iWorkspaceImpl.getApps();
+    yield appsOrFail.fold(
+      (apps) => state.copyWith(apps: some(apps)),
+      (error) => state.copyWith(successOrFailure: right(error)),
+    );
   }
+}
+
+@freezed
+abstract class MenuEvent with _$MenuEvent {
+  const factory MenuEvent.initial() = _Initial;
+  const factory MenuEvent.collapse() = Collapse;
+  const factory MenuEvent.openPage(PageContext context) = OpenPage;
+  const factory MenuEvent.createApp(String name, {String? desc}) = CreateApp;
+}
+
+@freezed
+abstract class MenuState implements _$MenuState {
+  const factory MenuState({
+    required bool isCollapse,
+    required Option<PageContext> pageContext,
+    required Option<List<App>> apps,
+    required Either<Unit, WorkspaceError> successOrFailure,
+  }) = _MenuState;
+
+  factory MenuState.initial() => MenuState(
+        isCollapse: false,
+        pageContext: none(),
+        apps: none(),
+        successOrFailure: left(unit),
+      );
 }

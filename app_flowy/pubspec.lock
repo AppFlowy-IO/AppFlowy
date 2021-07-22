@@ -203,7 +203,7 @@ packages:
       name: expandable
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.1.4"
+    version: "5.0.1"
   fake_async:
     dependency: transitive
     description:

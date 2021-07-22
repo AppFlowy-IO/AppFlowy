@@ -13,7 +13,9 @@ abstract class IApp {
       required String name,
       String? desc,
       required ViewType viewType});
+}
 
+abstract class IAppWatch {
   void startWatching(
       {AppAddViewCallback? addViewCallback,
       AppUpdatedCallback? updatedCallback});

@@ -1,7 +1,9 @@
-// ignore: import_of_legacy_library_into_null_safe
-import 'package:app_flowy/home/presentation/widgets/menu/hom_menu_size.dart';
+import 'package:app_flowy/home/application/app/app_bloc.dart';
+import 'package:app_flowy/home/presentation/widgets/menu/menu_size.dart';
+import 'package:app_flowy/startup/startup.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +15,22 @@ class AppWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // return MultiBlocProvider(
+    //   providers: [
+    //     BlocProvider<AppBloc>(create: (context) => getIt<AppBloc>()),
+    //   ],
+    //   child: BlocBuilder<AppBloc, AppState>(
+    //     builder: (context, state) {
+    //       // final child = state.map(
+    //       //   initial: (_) => const CircularProgressIndicator.adaptive(),
+    //       //   loadViews: (s) => ViewList(s.views),
+    //       //   successOrFailure: (s) => FlowyErrorPage(s.error),
+    //       // );
+
+    //       return expandableWrapper(context, Container());
+    //     },
+    //   ),
+    // );
     return Container();
   }
 
@@ -38,6 +56,7 @@ class AppWidget extends StatelessWidget {
                   padding: EdgeInsets.only(left: Sizes.iconMed),
                   child: child,
                 ),
+                collapsed: const Text("close"),
               ),
             ],
           ),

@@ -10,39 +10,44 @@ import 'package:flowy_infra_ui/widget/error_page.dart';
 
 import 'app_widget.dart';
 
+// class AppList extends StatelessWidget {
+//   const AppList({Key? key}) : super(key: key);
+//   @override
+//   Widget build(BuildContext context) {
+//     return MultiBlocProvider(
+//       providers: [
+//         BlocProvider(
+//           create: (context) => getIt<AppBloc>()..add(const AppEvent.initial()),
+//         ),
+//       ],
+//       child: BlocBuilder<AppBloc, AppState>(
+//         buildWhen: (p, c) => p.apps != c.apps,
+//         builder: (context, state) {
+//           Log.info('AppList build');
+//           if (state.isLoading) {
+//             return const Center(
+//               child: CircularProgressIndicator.adaptive(),
+//             );
+//           }
+
+//           return state.apps.fold(
+//             () => state.successOrFailure.fold(
+//               (_) => const Text('You have no apps, create one?'),
+//               (error) => FlowyErrorPage(error.toString()),
+//             ),
+//             (apps) => _buildBody(apps),
+//           );
+//         },
+//       ),
+//     );
+//   }
+
 class AppList extends StatelessWidget {
-  const AppList({Key? key}) : super(key: key);
+  final List<App> apps;
+  const AppList({required this.apps, Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => getIt<AppBloc>()..add(const AppEvent.initial()),
-        ),
-      ],
-      child: BlocBuilder<AppBloc, AppState>(
-        buildWhen: (p, c) => p.apps != c.apps,
-        builder: (context, state) {
-          Log.info('AppList build');
-          if (state.isLoading) {
-            return const Center(
-              child: CircularProgressIndicator.adaptive(),
-            );
-          }
-
-          return state.apps.fold(
-            () => state.successOrFailure.fold(
-              (_) => const Text('You have no apps, create one?'),
-              (error) => FlowyErrorPage(error.toString()),
-            ),
-            (apps) => _buildBody(apps),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildBody(List<App> apps) {
     return ExpandableTheme(
         data: const ExpandableThemeData(
           iconColor: Colors.blue,
@@ -55,4 +60,18 @@ class AppList extends StatelessWidget {
           ),
         ));
   }
+
+  // Widget _buildBody(List<App> apps) {
+  //   return ExpandableTheme(
+  //       data: const ExpandableThemeData(
+  //         iconColor: Colors.blue,
+  //         useInkWell: true,
+  //       ),
+  //       child: Expanded(
+  //         child: ListView(
+  //           physics: const BouncingScrollPhysics(),
+  //           children: apps.map((app) => AppWidget(app)).toList(),
+  //         ),
+  //       ));
+  // }
 }

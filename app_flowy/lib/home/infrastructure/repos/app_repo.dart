@@ -13,9 +13,6 @@ import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pbenum.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 
 class AppRepository {
-  StreamSubscription<ObservableSubject>? _subscription;
-  AppAddViewCallback? _addViewCallback;
-  AppUpdatedCallback? _updatedCallback;
   String appId;
   AppRepository({
     required this.appId,
@@ -52,6 +49,19 @@ class AppRepository {
       );
     });
   }
+}
+
+class AppWatchRepository {
+  StreamSubscription<ObservableSubject>? _subscription;
+  AppAddViewCallback? _addViewCallback;
+  AppUpdatedCallback? _updatedCallback;
+  String appId;
+  late AppRepository _repo;
+  AppWatchRepository({
+    required this.appId,
+  }) {
+    _repo = AppRepository(appId: appId);
+  }
 
   void startWatching(
       {AppAddViewCallback? addViewCallback,
@@ -76,7 +86,7 @@ class AppRepository {
         if (_addViewCallback == null) {
           return;
         }
-        getViews(appId: appId).then((result) {
+        _repo.getViews(appId: appId).then((result) {
           result.fold(
             (views) => _addViewCallback!(left(views)),
             (error) => _addViewCallback!(right(error)),
@@ -87,7 +97,7 @@ class AppRepository {
         if (_updatedCallback == null) {
           return;
         }
-        getAppDesc().then((result) {
+        _repo.getAppDesc().then((result) {
           result.fold(
             (app) => _updatedCallback!(app.name, app.desc),
             (error) => Log.error(error),
