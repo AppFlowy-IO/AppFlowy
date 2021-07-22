@@ -1,6 +1,6 @@
 import 'package:app_flowy/home/application/home_bloc.dart';
 import 'package:app_flowy/home/application/watcher/home_watcher_bloc.dart';
-import 'package:app_flowy/home/domain/page_context.dart';
+import 'package:app_flowy/home/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/home/presentation/widgets/prelude.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:flowy_infra/flowy_logger.dart';
@@ -11,7 +11,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 import 'home_layout.dart';
-import 'widgets/fading_index_stack.dart';
 
 class HomeScreen extends StatelessWidget {
   static GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
@@ -70,12 +69,7 @@ class HomeScreen extends StatelessWidget {
     final homeBloc = context.read<HomeBloc>();
     Widget homeMenu = HomeMenu(
       pageContextChanged: (pageContext) {
-        pageContext.fold(
-          () => homeBloc.add(const HomeEvent.setPage(BlankPageContext())),
-          (pageContext) {
-            homeBloc.add(HomeEvent.setPage(pageContext));
-          },
-        );
+        getIt<HomePageStack>().setPageContext(pageContext);
       },
       isCollapseChanged: (isCollapse) {
         homeBloc.add(HomeEvent.forceCollapse(isCollapse));
@@ -142,25 +136,6 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-extension PageTypeExtension on PageType {
-  HomeStackPage builder(PageContext context) {
-    switch (this) {
-      case PageType.blank:
-        return BlankPage(context: context);
-    }
-  }
-}
-
-List<Widget> buildPagesWidget(PageContext pageContext) {
-  return PageType.values.map((pageType) {
-    if (pageType == pageContext.pageType) {
-      return pageType.builder(pageContext);
-    } else {
-      return const BlankPage(context: BlankPageContext());
-    }
-  }).toList();
-}
-
 class HomePage extends StatelessWidget {
   static GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
   // final Size size;
@@ -171,40 +146,44 @@ class HomePage extends StatelessWidget {
     Log.info('HomePage build');
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
-      children: const [
-        HomeTopBar(),
-        HomeIndexStack(),
+      children: [
+        getIt<HomePageStack>().stackTopBar(),
+        Expanded(
+          child: Container(
+            color: Colors.white,
+            child: FocusTraversalGroup(
+              child: getIt<HomePageStack>().stackWidget(),
+            ),
+          ),
+        ),
       ],
     );
   }
 }
 
-class HomeIndexStack extends StatelessWidget {
-  const HomeIndexStack({Key? key}) : super(key: key);
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<HomeBloc, HomeState>(
-      buildWhen: (p, c) {
-        if (p.pageContext != c.pageContext) {
-          Log.info(
-              'PageContext switch from ${p.pageContext.pageType} to ${c.pageContext.pageType}');
-        }
-        return p.pageContext != c.pageContext;
-      },
-      builder: (context, state) {
-        final pageContext = context.read<HomeBloc>().state.pageContext;
-        return Expanded(
-          child: Container(
-            color: Colors.white,
-            child: FocusTraversalGroup(
-              child: FadingIndexedStack(
-                index: pages.indexOf(pageContext.pageType),
-                children: buildPagesWidget(pageContext),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
+// class HomeIndexStack extends StatelessWidget {
+//   const HomeIndexStack({Key? key}) : super(key: key);
+//   @override
+//   Widget build(BuildContext context) {
+//     return BlocBuilder<HomeBloc, HomeState>(
+//       buildWhen: (p, c) {
+//         if (p.pageContext != c.pageContext) {
+//           Log.info(
+//               'PageContext switch from ${p.pageContext.pageType} to ${c.pageContext.pageType}');
+//         }
+//         return p.pageContext != c.pageContext;
+//       },
+//       builder: (context, state) {
+//         final pageContext = context.read<HomeBloc>().state.pageContext;
+//         return Expanded(
+//           child: Container(
+//             color: Colors.white,
+//             child: FocusTraversalGroup(
+//               child: getIt<FlowyHomeIndexStack>().indexStack(pageContext),
+//             ),
+//           ),
+//         );
+//       },
+//     );
+//   }
+// }

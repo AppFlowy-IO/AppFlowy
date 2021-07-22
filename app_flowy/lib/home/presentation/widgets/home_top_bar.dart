@@ -1,11 +1,9 @@
-import 'package:app_flowy/home/application/home_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../home_sizes.dart';
 
 class HomeTopBar extends StatelessWidget {
-  const HomeTopBar({Key? key}) : super(key: key);
+  final String title;
+  const HomeTopBar({Key? key, required this.title}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +13,7 @@ class HomeTopBar extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          HomeTitle(),
+          HomeTitle(title: title),
         ],
       ),
     );
@@ -23,18 +21,19 @@ class HomeTopBar extends StatelessWidget {
 }
 
 class HomeTitle extends StatelessWidget {
+  final String title;
   final _editingController = TextEditingController(
     text: '',
   );
 
   HomeTitle({
     Key? key,
+    required this.title,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    _editingController.text =
-        context.read<HomeBloc>().state.pageContext.pageTitle;
+    _editingController.text = title;
 
     return Expanded(
       child: TextField(

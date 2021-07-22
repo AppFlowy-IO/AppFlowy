@@ -2,6 +2,7 @@ import 'package:app_flowy/home/application/app/app_bloc.dart';
 import 'package:app_flowy/home/application/app/app_watch_bloc.dart';
 import 'package:app_flowy/home/application/menu/menu_bloc.dart';
 import 'package:app_flowy/home/application/menu/menu_watch.dart';
+import 'package:app_flowy/home/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/home/infrastructure/i_app_impl.dart';
 import 'package:app_flowy/home/infrastructure/i_workspace_impl.dart';
 import 'package:app_flowy/home/infrastructure/repos/app_repo.dart';
@@ -10,6 +11,9 @@ import 'package:get_it/get_it.dart';
 
 class HomeDepsResolver {
   static Future<void> resolve(GetIt getIt) async {
+    //
+    getIt.registerLazySingleton<HomePageStack>(() => HomePageStack());
+
     //App
     getIt.registerFactoryParam<AppRepository, String, void>(
         (appId, _) => AppRepository(appId: appId));

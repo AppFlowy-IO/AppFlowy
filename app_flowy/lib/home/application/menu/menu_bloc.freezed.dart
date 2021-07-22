@@ -536,14 +536,14 @@ class _$MenuStateTearOff {
 
   _MenuState call(
       {required bool isCollapse,
-      required Option<PageContext> pageContext,
       required Option<List<App>> apps,
-      required Either<Unit, WorkspaceError> successOrFailure}) {
+      required Either<Unit, WorkspaceError> successOrFailure,
+      PageContext? pageContext}) {
     return _MenuState(
       isCollapse: isCollapse,
-      pageContext: pageContext,
       apps: apps,
       successOrFailure: successOrFailure,
+      pageContext: pageContext,
     );
   }
 }
@@ -554,10 +554,10 @@ const $MenuState = _$MenuStateTearOff();
 /// @nodoc
 mixin _$MenuState {
   bool get isCollapse => throw _privateConstructorUsedError;
-  Option<PageContext> get pageContext => throw _privateConstructorUsedError;
   Option<List<App>> get apps => throw _privateConstructorUsedError;
   Either<Unit, WorkspaceError> get successOrFailure =>
       throw _privateConstructorUsedError;
+  PageContext? get pageContext => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $MenuStateCopyWith<MenuState> get copyWith =>
@@ -570,9 +570,9 @@ abstract class $MenuStateCopyWith<$Res> {
       _$MenuStateCopyWithImpl<$Res>;
   $Res call(
       {bool isCollapse,
-      Option<PageContext> pageContext,
       Option<List<App>> apps,
-      Either<Unit, WorkspaceError> successOrFailure});
+      Either<Unit, WorkspaceError> successOrFailure,
+      PageContext? pageContext});
 }
 
 /// @nodoc
@@ -586,19 +586,15 @@ class _$MenuStateCopyWithImpl<$Res> implements $MenuStateCopyWith<$Res> {
   @override
   $Res call({
     Object? isCollapse = freezed,
-    Object? pageContext = freezed,
     Object? apps = freezed,
     Object? successOrFailure = freezed,
+    Object? pageContext = freezed,
   }) {
     return _then(_value.copyWith(
       isCollapse: isCollapse == freezed
           ? _value.isCollapse
           : isCollapse // ignore: cast_nullable_to_non_nullable
               as bool,
-      pageContext: pageContext == freezed
-          ? _value.pageContext
-          : pageContext // ignore: cast_nullable_to_non_nullable
-              as Option<PageContext>,
       apps: apps == freezed
           ? _value.apps
           : apps // ignore: cast_nullable_to_non_nullable
@@ -607,6 +603,10 @@ class _$MenuStateCopyWithImpl<$Res> implements $MenuStateCopyWith<$Res> {
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
               as Either<Unit, WorkspaceError>,
+      pageContext: pageContext == freezed
+          ? _value.pageContext
+          : pageContext // ignore: cast_nullable_to_non_nullable
+              as PageContext?,
     ));
   }
 }
@@ -619,9 +619,9 @@ abstract class _$MenuStateCopyWith<$Res> implements $MenuStateCopyWith<$Res> {
   @override
   $Res call(
       {bool isCollapse,
-      Option<PageContext> pageContext,
       Option<List<App>> apps,
-      Either<Unit, WorkspaceError> successOrFailure});
+      Either<Unit, WorkspaceError> successOrFailure,
+      PageContext? pageContext});
 }
 
 /// @nodoc
@@ -636,19 +636,15 @@ class __$MenuStateCopyWithImpl<$Res> extends _$MenuStateCopyWithImpl<$Res>
   @override
   $Res call({
     Object? isCollapse = freezed,
-    Object? pageContext = freezed,
     Object? apps = freezed,
     Object? successOrFailure = freezed,
+    Object? pageContext = freezed,
   }) {
     return _then(_MenuState(
       isCollapse: isCollapse == freezed
           ? _value.isCollapse
           : isCollapse // ignore: cast_nullable_to_non_nullable
               as bool,
-      pageContext: pageContext == freezed
-          ? _value.pageContext
-          : pageContext // ignore: cast_nullable_to_non_nullable
-              as Option<PageContext>,
       apps: apps == freezed
           ? _value.apps
           : apps // ignore: cast_nullable_to_non_nullable
@@ -657,6 +653,10 @@ class __$MenuStateCopyWithImpl<$Res> extends _$MenuStateCopyWithImpl<$Res>
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
               as Either<Unit, WorkspaceError>,
+      pageContext: pageContext == freezed
+          ? _value.pageContext
+          : pageContext // ignore: cast_nullable_to_non_nullable
+              as PageContext?,
     ));
   }
 }
@@ -666,22 +666,22 @@ class __$MenuStateCopyWithImpl<$Res> extends _$MenuStateCopyWithImpl<$Res>
 class _$_MenuState implements _MenuState {
   const _$_MenuState(
       {required this.isCollapse,
-      required this.pageContext,
       required this.apps,
-      required this.successOrFailure});
+      required this.successOrFailure,
+      this.pageContext});
 
   @override
   final bool isCollapse;
   @override
-  final Option<PageContext> pageContext;
-  @override
   final Option<List<App>> apps;
   @override
   final Either<Unit, WorkspaceError> successOrFailure;
+  @override
+  final PageContext? pageContext;
 
   @override
   String toString() {
-    return 'MenuState(isCollapse: $isCollapse, pageContext: $pageContext, apps: $apps, successOrFailure: $successOrFailure)';
+    return 'MenuState(isCollapse: $isCollapse, apps: $apps, successOrFailure: $successOrFailure, pageContext: $pageContext)';
   }
 
   @override
@@ -691,23 +691,23 @@ class _$_MenuState implements _MenuState {
             (identical(other.isCollapse, isCollapse) ||
                 const DeepCollectionEquality()
                     .equals(other.isCollapse, isCollapse)) &&
-            (identical(other.pageContext, pageContext) ||
-                const DeepCollectionEquality()
-                    .equals(other.pageContext, pageContext)) &&
             (identical(other.apps, apps) ||
                 const DeepCollectionEquality().equals(other.apps, apps)) &&
             (identical(other.successOrFailure, successOrFailure) ||
                 const DeepCollectionEquality()
-                    .equals(other.successOrFailure, successOrFailure)));
+                    .equals(other.successOrFailure, successOrFailure)) &&
+            (identical(other.pageContext, pageContext) ||
+                const DeepCollectionEquality()
+                    .equals(other.pageContext, pageContext)));
   }
 
   @override
   int get hashCode =>
       runtimeType.hashCode ^
       const DeepCollectionEquality().hash(isCollapse) ^
-      const DeepCollectionEquality().hash(pageContext) ^
       const DeepCollectionEquality().hash(apps) ^
-      const DeepCollectionEquality().hash(successOrFailure);
+      const DeepCollectionEquality().hash(successOrFailure) ^
+      const DeepCollectionEquality().hash(pageContext);
 
   @JsonKey(ignore: true)
   @override
@@ -718,19 +718,19 @@ class _$_MenuState implements _MenuState {
 abstract class _MenuState implements MenuState {
   const factory _MenuState(
       {required bool isCollapse,
-      required Option<PageContext> pageContext,
       required Option<List<App>> apps,
-      required Either<Unit, WorkspaceError> successOrFailure}) = _$_MenuState;
+      required Either<Unit, WorkspaceError> successOrFailure,
+      PageContext? pageContext}) = _$_MenuState;
 
   @override
   bool get isCollapse => throw _privateConstructorUsedError;
-  @override
-  Option<PageContext> get pageContext => throw _privateConstructorUsedError;
   @override
   Option<List<App>> get apps => throw _privateConstructorUsedError;
   @override
   Either<Unit, WorkspaceError> get successOrFailure =>
       throw _privateConstructorUsedError;
+  @override
+  PageContext? get pageContext => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
   _$MenuStateCopyWith<_MenuState> get copyWith =>

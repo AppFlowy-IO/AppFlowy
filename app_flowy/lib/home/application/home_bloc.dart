@@ -1,6 +1,4 @@
 import 'package:app_flowy/home/domain/edit_context.dart';
-import 'package:app_flowy/home/domain/page_context.dart';
-import 'package:app_flowy/home/presentation/widgets/blank_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:dartz/dartz.dart';
@@ -14,9 +12,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     HomeEvent event,
   ) async* {
     yield* event.map(
-      setPage: (e) async* {
-        yield state.copyWith(pageContext: e.context);
-      },
       showLoading: (e) async* {
         yield state.copyWith(isLoading: e.isLoading);
       },
@@ -42,11 +37,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 abstract class HomeEvent with _$HomeEvent {
   const factory HomeEvent.showLoading(bool isLoading) = _ShowLoading;
   const factory HomeEvent.forceCollapse(bool forceCollapse) = _ForceCollapse;
-
-  //page
-  const factory HomeEvent.setPage(PageContext context) = SetCurrentPage;
-
-  //edit pannel
   const factory HomeEvent.setEditPannel(EditPannelContext editContext) =
       _ShowEditPannel;
   const factory HomeEvent.dismissEditPannel() = _DismissEditPannel;
@@ -57,14 +47,12 @@ abstract class HomeState implements _$HomeState {
   const factory HomeState({
     required bool isLoading,
     required bool forceCollapse,
-    required PageContext pageContext,
     required Option<EditPannelContext> editContext,
   }) = _HomeState;
 
   factory HomeState.initial() => HomeState(
         isLoading: false,
         forceCollapse: false,
-        pageContext: const BlankPageContext(),
         editContext: none(),
       );
 }

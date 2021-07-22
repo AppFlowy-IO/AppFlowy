@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:app_flowy/home/domain/i_workspace.dart';
-import 'package:app_flowy/home/domain/page_context.dart';
+import 'package:app_flowy/home/domain/page_stack/page_stack.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
@@ -36,7 +36,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
   }
 
   Stream<MenuState> _performActionOnOpenPage(OpenPage e) async* {
-    yield state.copyWith(pageContext: some(e.context));
+    yield state.copyWith(pageContext: e.context);
   }
 
   Stream<MenuState> _performActionOnCreateApp(CreateApp event) async* {
@@ -73,14 +73,13 @@ abstract class MenuEvent with _$MenuEvent {
 abstract class MenuState implements _$MenuState {
   const factory MenuState({
     required bool isCollapse,
-    required Option<PageContext> pageContext,
     required Option<List<App>> apps,
     required Either<Unit, WorkspaceError> successOrFailure,
+    PageContext? pageContext,
   }) = _MenuState;
 
   factory MenuState.initial() => MenuState(
         isCollapse: false,
-        pageContext: none(),
         apps: none(),
         successOrFailure: left(unit),
       );

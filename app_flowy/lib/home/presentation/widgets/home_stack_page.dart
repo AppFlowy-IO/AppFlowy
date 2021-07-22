@@ -1,4 +1,4 @@
-import 'package:app_flowy/home/domain/page_context.dart';
+import 'package:app_flowy/home/domain/page_stack/page_stack.dart';
 import 'package:flutter/material.dart';
 
 abstract class HomeStackPage extends StatefulWidget {

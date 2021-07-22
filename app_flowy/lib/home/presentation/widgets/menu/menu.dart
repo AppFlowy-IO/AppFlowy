@@ -1,6 +1,6 @@
 import 'package:app_flowy/home/application/menu/menu_bloc.dart';
 import 'package:app_flowy/home/application/menu/menu_watch.dart';
-import 'package:app_flowy/home/domain/page_context.dart';
+import 'package:app_flowy/home/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/home/presentation/home_sizes.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/startup/tasks/application_task.dart';
@@ -20,7 +20,7 @@ import 'package:textstyle_extensions/textstyle_extensions.dart';
 import 'app_list.dart';
 
 class HomeMenu extends StatelessWidget {
-  final Function(Option<PageContext>) pageContextChanged;
+  final Function(PageContext?) pageContextChanged;
   final Function(bool) isCollapseChanged;
   final String workspaceId;
 

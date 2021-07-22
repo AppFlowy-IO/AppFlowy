@@ -28,12 +28,6 @@ class _$HomeEventTearOff {
     );
   }
 
-  SetCurrentPage setPage(PageContext context) {
-    return SetCurrentPage(
-      context,
-    );
-  }
-
   _ShowEditPannel setEditPannel(EditPannelContext editContext) {
     return _ShowEditPannel(
       editContext,
@@ -54,7 +48,6 @@ mixin _$HomeEvent {
   TResult when<TResult extends Object?>({
     required TResult Function(bool isLoading) showLoading,
     required TResult Function(bool forceCollapse) forceCollapse,
-    required TResult Function(PageContext context) setPage,
     required TResult Function(EditPannelContext editContext) setEditPannel,
     required TResult Function() dismissEditPannel,
   }) =>
@@ -63,7 +56,6 @@ mixin _$HomeEvent {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(bool isLoading)? showLoading,
     TResult Function(bool forceCollapse)? forceCollapse,
-    TResult Function(PageContext context)? setPage,
     TResult Function(EditPannelContext editContext)? setEditPannel,
     TResult Function()? dismissEditPannel,
     required TResult orElse(),
@@ -73,7 +65,6 @@ mixin _$HomeEvent {
   TResult map<TResult extends Object?>({
     required TResult Function(_ShowLoading value) showLoading,
     required TResult Function(_ForceCollapse value) forceCollapse,
-    required TResult Function(SetCurrentPage value) setPage,
     required TResult Function(_ShowEditPannel value) setEditPannel,
     required TResult Function(_DismissEditPannel value) dismissEditPannel,
   }) =>
@@ -82,7 +73,6 @@ mixin _$HomeEvent {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_ShowLoading value)? showLoading,
     TResult Function(_ForceCollapse value)? forceCollapse,
-    TResult Function(SetCurrentPage value)? setPage,
     TResult Function(_ShowEditPannel value)? setEditPannel,
     TResult Function(_DismissEditPannel value)? dismissEditPannel,
     required TResult orElse(),
@@ -172,7 +162,6 @@ class _$_ShowLoading implements _ShowLoading {
   TResult when<TResult extends Object?>({
     required TResult Function(bool isLoading) showLoading,
     required TResult Function(bool forceCollapse) forceCollapse,
-    required TResult Function(PageContext context) setPage,
     required TResult Function(EditPannelContext editContext) setEditPannel,
     required TResult Function() dismissEditPannel,
   }) {
@@ -184,7 +173,6 @@ class _$_ShowLoading implements _ShowLoading {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(bool isLoading)? showLoading,
     TResult Function(bool forceCollapse)? forceCollapse,
-    TResult Function(PageContext context)? setPage,
     TResult Function(EditPannelContext editContext)? setEditPannel,
     TResult Function()? dismissEditPannel,
     required TResult orElse(),
@@ -200,7 +188,6 @@ class _$_ShowLoading implements _ShowLoading {
   TResult map<TResult extends Object?>({
     required TResult Function(_ShowLoading value) showLoading,
     required TResult Function(_ForceCollapse value) forceCollapse,
-    required TResult Function(SetCurrentPage value) setPage,
     required TResult Function(_ShowEditPannel value) setEditPannel,
     required TResult Function(_DismissEditPannel value) dismissEditPannel,
   }) {
@@ -212,7 +199,6 @@ class _$_ShowLoading implements _ShowLoading {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_ShowLoading value)? showLoading,
     TResult Function(_ForceCollapse value)? forceCollapse,
-    TResult Function(SetCurrentPage value)? setPage,
     TResult Function(_ShowEditPannel value)? setEditPannel,
     TResult Function(_DismissEditPannel value)? dismissEditPannel,
     required TResult orElse(),
@@ -300,7 +286,6 @@ class _$_ForceCollapse implements _ForceCollapse {
   TResult when<TResult extends Object?>({
     required TResult Function(bool isLoading) showLoading,
     required TResult Function(bool forceCollapse) forceCollapse,
-    required TResult Function(PageContext context) setPage,
     required TResult Function(EditPannelContext editContext) setEditPannel,
     required TResult Function() dismissEditPannel,
   }) {
@@ -312,7 +297,6 @@ class _$_ForceCollapse implements _ForceCollapse {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(bool isLoading)? showLoading,
     TResult Function(bool forceCollapse)? forceCollapse,
-    TResult Function(PageContext context)? setPage,
     TResult Function(EditPannelContext editContext)? setEditPannel,
     TResult Function()? dismissEditPannel,
     required TResult orElse(),
@@ -328,7 +312,6 @@ class _$_ForceCollapse implements _ForceCollapse {
   TResult map<TResult extends Object?>({
     required TResult Function(_ShowLoading value) showLoading,
     required TResult Function(_ForceCollapse value) forceCollapse,
-    required TResult Function(SetCurrentPage value) setPage,
     required TResult Function(_ShowEditPannel value) setEditPannel,
     required TResult Function(_DismissEditPannel value) dismissEditPannel,
   }) {
@@ -340,7 +323,6 @@ class _$_ForceCollapse implements _ForceCollapse {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_ShowLoading value)? showLoading,
     TResult Function(_ForceCollapse value)? forceCollapse,
-    TResult Function(SetCurrentPage value)? setPage,
     TResult Function(_ShowEditPannel value)? setEditPannel,
     TResult Function(_DismissEditPannel value)? dismissEditPannel,
     required TResult orElse(),
@@ -358,133 +340,6 @@ abstract class _ForceCollapse implements HomeEvent {
   bool get forceCollapse => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   _$ForceCollapseCopyWith<_ForceCollapse> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class $SetCurrentPageCopyWith<$Res> {
-  factory $SetCurrentPageCopyWith(
-          SetCurrentPage value, $Res Function(SetCurrentPage) then) =
-      _$SetCurrentPageCopyWithImpl<$Res>;
-  $Res call({PageContext context});
-}
-
-/// @nodoc
-class _$SetCurrentPageCopyWithImpl<$Res> extends _$HomeEventCopyWithImpl<$Res>
-    implements $SetCurrentPageCopyWith<$Res> {
-  _$SetCurrentPageCopyWithImpl(
-      SetCurrentPage _value, $Res Function(SetCurrentPage) _then)
-      : super(_value, (v) => _then(v as SetCurrentPage));
-
-  @override
-  SetCurrentPage get _value => super._value as SetCurrentPage;
-
-  @override
-  $Res call({
-    Object? context = freezed,
-  }) {
-    return _then(SetCurrentPage(
-      context == freezed
-          ? _value.context
-          : context // ignore: cast_nullable_to_non_nullable
-              as PageContext,
-    ));
-  }
-}
-
-/// @nodoc
-
-class _$SetCurrentPage implements SetCurrentPage {
-  const _$SetCurrentPage(this.context);
-
-  @override
-  final PageContext context;
-
-  @override
-  String toString() {
-    return 'HomeEvent.setPage(context: $context)';
-  }
-
-  @override
-  bool operator ==(dynamic other) {
-    return identical(this, other) ||
-        (other is SetCurrentPage &&
-            (identical(other.context, context) ||
-                const DeepCollectionEquality().equals(other.context, context)));
-  }
-
-  @override
-  int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(context);
-
-  @JsonKey(ignore: true)
-  @override
-  $SetCurrentPageCopyWith<SetCurrentPage> get copyWith =>
-      _$SetCurrentPageCopyWithImpl<SetCurrentPage>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(bool isLoading) showLoading,
-    required TResult Function(bool forceCollapse) forceCollapse,
-    required TResult Function(PageContext context) setPage,
-    required TResult Function(EditPannelContext editContext) setEditPannel,
-    required TResult Function() dismissEditPannel,
-  }) {
-    return setPage(context);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(bool isLoading)? showLoading,
-    TResult Function(bool forceCollapse)? forceCollapse,
-    TResult Function(PageContext context)? setPage,
-    TResult Function(EditPannelContext editContext)? setEditPannel,
-    TResult Function()? dismissEditPannel,
-    required TResult orElse(),
-  }) {
-    if (setPage != null) {
-      return setPage(context);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_ShowLoading value) showLoading,
-    required TResult Function(_ForceCollapse value) forceCollapse,
-    required TResult Function(SetCurrentPage value) setPage,
-    required TResult Function(_ShowEditPannel value) setEditPannel,
-    required TResult Function(_DismissEditPannel value) dismissEditPannel,
-  }) {
-    return setPage(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_ShowLoading value)? showLoading,
-    TResult Function(_ForceCollapse value)? forceCollapse,
-    TResult Function(SetCurrentPage value)? setPage,
-    TResult Function(_ShowEditPannel value)? setEditPannel,
-    TResult Function(_DismissEditPannel value)? dismissEditPannel,
-    required TResult orElse(),
-  }) {
-    if (setPage != null) {
-      return setPage(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class SetCurrentPage implements HomeEvent {
-  const factory SetCurrentPage(PageContext context) = _$SetCurrentPage;
-
-  PageContext get context => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $SetCurrentPageCopyWith<SetCurrentPage> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -555,7 +410,6 @@ class _$_ShowEditPannel implements _ShowEditPannel {
   TResult when<TResult extends Object?>({
     required TResult Function(bool isLoading) showLoading,
     required TResult Function(bool forceCollapse) forceCollapse,
-    required TResult Function(PageContext context) setPage,
     required TResult Function(EditPannelContext editContext) setEditPannel,
     required TResult Function() dismissEditPannel,
   }) {
@@ -567,7 +421,6 @@ class _$_ShowEditPannel implements _ShowEditPannel {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(bool isLoading)? showLoading,
     TResult Function(bool forceCollapse)? forceCollapse,
-    TResult Function(PageContext context)? setPage,
     TResult Function(EditPannelContext editContext)? setEditPannel,
     TResult Function()? dismissEditPannel,
     required TResult orElse(),
@@ -583,7 +436,6 @@ class _$_ShowEditPannel implements _ShowEditPannel {
   TResult map<TResult extends Object?>({
     required TResult Function(_ShowLoading value) showLoading,
     required TResult Function(_ForceCollapse value) forceCollapse,
-    required TResult Function(SetCurrentPage value) setPage,
     required TResult Function(_ShowEditPannel value) setEditPannel,
     required TResult Function(_DismissEditPannel value) dismissEditPannel,
   }) {
@@ -595,7 +447,6 @@ class _$_ShowEditPannel implements _ShowEditPannel {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_ShowLoading value)? showLoading,
     TResult Function(_ForceCollapse value)? forceCollapse,
-    TResult Function(SetCurrentPage value)? setPage,
     TResult Function(_ShowEditPannel value)? setEditPannel,
     TResult Function(_DismissEditPannel value)? dismissEditPannel,
     required TResult orElse(),
@@ -659,7 +510,6 @@ class _$_DismissEditPannel implements _DismissEditPannel {
   TResult when<TResult extends Object?>({
     required TResult Function(bool isLoading) showLoading,
     required TResult Function(bool forceCollapse) forceCollapse,
-    required TResult Function(PageContext context) setPage,
     required TResult Function(EditPannelContext editContext) setEditPannel,
     required TResult Function() dismissEditPannel,
   }) {
@@ -671,7 +521,6 @@ class _$_DismissEditPannel implements _DismissEditPannel {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(bool isLoading)? showLoading,
     TResult Function(bool forceCollapse)? forceCollapse,
-    TResult Function(PageContext context)? setPage,
     TResult Function(EditPannelContext editContext)? setEditPannel,
     TResult Function()? dismissEditPannel,
     required TResult orElse(),
@@ -687,7 +536,6 @@ class _$_DismissEditPannel implements _DismissEditPannel {
   TResult map<TResult extends Object?>({
     required TResult Function(_ShowLoading value) showLoading,
     required TResult Function(_ForceCollapse value) forceCollapse,
-    required TResult Function(SetCurrentPage value) setPage,
     required TResult Function(_ShowEditPannel value) setEditPannel,
     required TResult Function(_DismissEditPannel value) dismissEditPannel,
   }) {
@@ -699,7 +547,6 @@ class _$_DismissEditPannel implements _DismissEditPannel {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_ShowLoading value)? showLoading,
     TResult Function(_ForceCollapse value)? forceCollapse,
-    TResult Function(SetCurrentPage value)? setPage,
     TResult Function(_ShowEditPannel value)? setEditPannel,
     TResult Function(_DismissEditPannel value)? dismissEditPannel,
     required TResult orElse(),
@@ -722,12 +569,10 @@ class _$HomeStateTearOff {
   _HomeState call(
       {required bool isLoading,
       required bool forceCollapse,
-      required PageContext pageContext,
       required Option<EditPannelContext> editContext}) {
     return _HomeState(
       isLoading: isLoading,
       forceCollapse: forceCollapse,
-      pageContext: pageContext,
       editContext: editContext,
     );
   }
@@ -740,7 +585,6 @@ const $HomeState = _$HomeStateTearOff();
 mixin _$HomeState {
   bool get isLoading => throw _privateConstructorUsedError;
   bool get forceCollapse => throw _privateConstructorUsedError;
-  PageContext get pageContext => throw _privateConstructorUsedError;
   Option<EditPannelContext> get editContext =>
       throw _privateConstructorUsedError;
 
@@ -756,7 +600,6 @@ abstract class $HomeStateCopyWith<$Res> {
   $Res call(
       {bool isLoading,
       bool forceCollapse,
-      PageContext pageContext,
       Option<EditPannelContext> editContext});
 }
 
@@ -772,7 +615,6 @@ class _$HomeStateCopyWithImpl<$Res> implements $HomeStateCopyWith<$Res> {
   $Res call({
     Object? isLoading = freezed,
     Object? forceCollapse = freezed,
-    Object? pageContext = freezed,
     Object? editContext = freezed,
   }) {
     return _then(_value.copyWith(
@@ -784,10 +626,6 @@ class _$HomeStateCopyWithImpl<$Res> implements $HomeStateCopyWith<$Res> {
           ? _value.forceCollapse
           : forceCollapse // ignore: cast_nullable_to_non_nullable
               as bool,
-      pageContext: pageContext == freezed
-          ? _value.pageContext
-          : pageContext // ignore: cast_nullable_to_non_nullable
-              as PageContext,
       editContext: editContext == freezed
           ? _value.editContext
           : editContext // ignore: cast_nullable_to_non_nullable
@@ -805,7 +643,6 @@ abstract class _$HomeStateCopyWith<$Res> implements $HomeStateCopyWith<$Res> {
   $Res call(
       {bool isLoading,
       bool forceCollapse,
-      PageContext pageContext,
       Option<EditPannelContext> editContext});
 }
 
@@ -822,7 +659,6 @@ class __$HomeStateCopyWithImpl<$Res> extends _$HomeStateCopyWithImpl<$Res>
   $Res call({
     Object? isLoading = freezed,
     Object? forceCollapse = freezed,
-    Object? pageContext = freezed,
     Object? editContext = freezed,
   }) {
     return _then(_HomeState(
@@ -834,10 +670,6 @@ class __$HomeStateCopyWithImpl<$Res> extends _$HomeStateCopyWithImpl<$Res>
           ? _value.forceCollapse
           : forceCollapse // ignore: cast_nullable_to_non_nullable
               as bool,
-      pageContext: pageContext == freezed
-          ? _value.pageContext
-          : pageContext // ignore: cast_nullable_to_non_nullable
-              as PageContext,
       editContext: editContext == freezed
           ? _value.editContext
           : editContext // ignore: cast_nullable_to_non_nullable
@@ -852,7 +684,6 @@ class _$_HomeState implements _HomeState {
   const _$_HomeState(
       {required this.isLoading,
       required this.forceCollapse,
-      required this.pageContext,
       required this.editContext});
 
   @override
@@ -860,13 +691,11 @@ class _$_HomeState implements _HomeState {
   @override
   final bool forceCollapse;
   @override
-  final PageContext pageContext;
-  @override
   final Option<EditPannelContext> editContext;
 
   @override
   String toString() {
-    return 'HomeState(isLoading: $isLoading, forceCollapse: $forceCollapse, pageContext: $pageContext, editContext: $editContext)';
+    return 'HomeState(isLoading: $isLoading, forceCollapse: $forceCollapse, editContext: $editContext)';
   }
 
   @override
@@ -879,9 +708,6 @@ class _$_HomeState implements _HomeState {
             (identical(other.forceCollapse, forceCollapse) ||
                 const DeepCollectionEquality()
                     .equals(other.forceCollapse, forceCollapse)) &&
-            (identical(other.pageContext, pageContext) ||
-                const DeepCollectionEquality()
-                    .equals(other.pageContext, pageContext)) &&
             (identical(other.editContext, editContext) ||
                 const DeepCollectionEquality()
                     .equals(other.editContext, editContext)));
@@ -892,7 +718,6 @@ class _$_HomeState implements _HomeState {
       runtimeType.hashCode ^
       const DeepCollectionEquality().hash(isLoading) ^
       const DeepCollectionEquality().hash(forceCollapse) ^
-      const DeepCollectionEquality().hash(pageContext) ^
       const DeepCollectionEquality().hash(editContext);
 
   @JsonKey(ignore: true)
@@ -905,15 +730,12 @@ abstract class _HomeState implements HomeState {
   const factory _HomeState(
       {required bool isLoading,
       required bool forceCollapse,
-      required PageContext pageContext,
       required Option<EditPannelContext> editContext}) = _$_HomeState;
 
   @override
   bool get isLoading => throw _privateConstructorUsedError;
   @override
   bool get forceCollapse => throw _privateConstructorUsedError;
-  @override
-  PageContext get pageContext => throw _privateConstructorUsedError;
   @override
   Option<EditPannelContext> get editContext =>
       throw _privateConstructorUsedError;
