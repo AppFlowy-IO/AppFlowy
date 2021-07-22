@@ -17,6 +17,9 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         "String" => TypeCategory::Str,
         "ObservableSubject"
         | "KeyValue"
+        | "CreateDocRequest"
+        | "Doc"
+        | "EditorError"
         | "QueryAppRequest"
         | "CreateAppRequest"
         | "ColorStyle"
@@ -43,7 +46,9 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "SignInParams"
         | "UserError"
         => TypeCategory::Protobuf,
-        "ViewType"
+        "EditorEvent"
+        | "EditorErrorCode"
+        | "ViewType"
         | "WorkspaceEvent"
         | "WorkspaceErrorCode"
         | "WorkspaceObservable"

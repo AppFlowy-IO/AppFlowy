@@ -1,6 +1,11 @@
 mod entities;
 mod errors;
 mod event;
-mod file_manager;
 mod handlers;
-mod module;
+pub mod module;
+mod protobuf;
+mod services;
+
+pub mod prelude {
+    pub use crate::module::*;
+}

@@ -6,7 +6,7 @@ use std::convert::TryInto;
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct EditorError {
     #[pb(index = 1)]
-    pub code: UserErrorCode,
+    pub code: EditorErrorCode,
 
     #[pb(index = 2)]
     pub msg: String,
@@ -36,8 +36,8 @@ pub enum EditorErrorCode {
     DocViewIdInvalid = 11,
 }
 
-impl std::default::Default for UserErrorCode {
-    fn default() -> Self { UserErrorCode::Unknown }
+impl std::default::Default for EditorErrorCode {
+    fn default() -> Self { EditorErrorCode::Unknown }
 }
 
 impl std::convert::From<flowy_database::result::Error> for EditorError {
@@ -56,7 +56,7 @@ impl flowy_dispatch::Error for EditorError {
 }
 
 pub struct ErrorBuilder {
-    pub code: UserErrorCode,
+    pub code: EditorErrorCode,
     pub msg: Option<String>,
 }
 

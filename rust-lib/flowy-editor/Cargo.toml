@@ -13,3 +13,4 @@ flowy-derive = { path = "../flowy-derive" }
 flowy-database = { path = "../flowy-database" }
 diesel = {version = "1.4.7", features = ["sqlite"]}
 diesel_derives = {version = "1.4.1", features = ["sqlite"]}
+protobuf = {version = "2.18.0"}

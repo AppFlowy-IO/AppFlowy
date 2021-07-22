@@ -20,7 +20,7 @@ pub struct CreateDocParams {
 }
 
 impl TryInto<CreateDocParams> for CreateDocRequest {
-    type Error = WorkspaceError;
+    type Error = EditorError;
 
     fn try_into(self) -> Result<CreateDocParams, Self::Error> {
         let name = DocName::parse(self.name)
@@ -41,4 +41,16 @@ impl TryInto<CreateDocParams> for CreateDocRequest {
 
         Ok(CreateDocParams { view_id, name })
     }
+}
+
+#[derive(ProtoBuf, Default, Debug)]
+pub struct Doc {
+    #[pb(index = 1)]
+    pub id: String,
+
+    #[pb(index = 2)]
+    pub name: String,
+
+    #[pb(index = 3)]
+    pub view_id: String,
 }

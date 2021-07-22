@@ -1,5 +1,6 @@
 use crate::flowy_server::{ArcFlowyServer, FlowyServerMocker};
 use flowy_dispatch::prelude::Module;
+use flowy_editor::prelude::*;
 use flowy_user::prelude::*;
 
 use crate::deps_resolve::{WorkspaceDatabaseImpl, WorkspaceUserImpl};
@@ -27,5 +28,6 @@ pub fn build_modules(config: ModuleConfig, _server: ArcFlowyServer) -> Vec<Modul
     vec![
         flowy_user::module::create(user_session),
         flowy_workspace::module::create(workspace_user_impl, workspace_data_impl),
+        flowy_editor::module::create(),
     ]
 }

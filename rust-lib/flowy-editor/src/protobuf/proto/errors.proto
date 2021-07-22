@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+message EditorError {
+    EditorErrorCode code = 1;
+    string msg = 2;
+}
+enum EditorErrorCode {
+    Unknown = 0;
+    EditorDBInternalError = 1;
+    DocNameInvalid = 10;
+    DocViewIdInvalid = 11;
+}

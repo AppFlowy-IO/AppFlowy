@@ -1,4 +1,4 @@
-use crate::file_manager::file::*;
+use crate::services::file_manager::*;
 use std::{
     collections::HashMap,
     path::{Path, PathBuf},
