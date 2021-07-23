@@ -12,21 +12,16 @@ import 'package:protobuf/protobuf.dart' as $pb;
 class QueryDocRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'QueryDocRequest', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
-    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'readContent')
     ..hasRequiredFields = false
   ;
 
   QueryDocRequest._() : super();
   factory QueryDocRequest({
     $core.String? docId,
-    $core.bool? readContent,
   }) {
     final _result = create();
     if (docId != null) {
       _result.docId = docId;
-    }
-    if (readContent != null) {
-      _result.readContent = readContent;
     }
     return _result;
   }
@@ -59,14 +54,5 @@ class QueryDocRequest extends $pb.GeneratedMessage {
   $core.bool hasDocId() => $_has(0);
   @$pb.TagNumber(1)
   void clearDocId() => clearField(1);
-
-  @$pb.TagNumber(2)
-  $core.bool get readContent => $_getBF(1);
-  @$pb.TagNumber(2)
-  set readContent($core.bool v) { $_setBool(1, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasReadContent() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearReadContent() => clearField(2);
 }
 

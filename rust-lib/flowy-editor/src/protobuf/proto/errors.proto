@@ -7,6 +7,9 @@ message EditorError {
 enum EditorErrorCode {
     Unknown = 0;
     EditorDBInternalError = 1;
+    EditorDBConnFailed = 2;
     DocNameInvalid = 10;
     DocViewIdInvalid = 11;
+    DocDescTooLong = 12;
+    DocFileError = 13;
 }

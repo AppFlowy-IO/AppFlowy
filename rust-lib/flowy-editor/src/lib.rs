@@ -1,6 +1,6 @@
-mod entities;
-mod errors;
-mod event;
+pub mod entities;
+pub mod errors;
+pub mod event;
 mod handlers;
 pub mod module;
 mod protobuf;

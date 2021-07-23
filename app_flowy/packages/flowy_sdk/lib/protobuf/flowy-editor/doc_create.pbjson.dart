@@ -20,17 +20,27 @@ const CreateDocRequest$json = const {
 
 /// Descriptor for `CreateDocRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List createDocRequestDescriptor = $convert.base64Decode('ChBDcmVhdGVEb2NSZXF1ZXN0Eg4KAmlkGAEgASgJUgJpZBISCgRuYW1lGAIgASgJUgRuYW1lEhIKBGRlc2MYAyABKAlSBGRlc2M=');
-@$core.Deprecated('Use docDescriptor instead')
-const Doc$json = const {
-  '1': 'Doc',
+@$core.Deprecated('Use docDescriptionDescriptor instead')
+const DocDescription$json = const {
+  '1': 'DocDescription',
   '2': const [
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
     const {'1': 'desc', '3': 3, '4': 1, '5': 9, '10': 'desc'},
     const {'1': 'path', '3': 4, '4': 1, '5': 9, '10': 'path'},
-    const {'1': 'content', '3': 5, '4': 1, '5': 9, '10': 'content'},
+  ],
+};
+
+/// Descriptor for `DocDescription`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List docDescriptionDescriptor = $convert.base64Decode('Cg5Eb2NEZXNjcmlwdGlvbhIOCgJpZBgBIAEoCVICaWQSEgoEbmFtZRgCIAEoCVIEbmFtZRISCgRkZXNjGAMgASgJUgRkZXNjEhIKBHBhdGgYBCABKAlSBHBhdGg=');
+@$core.Deprecated('Use docDescriptor instead')
+const Doc$json = const {
+  '1': 'Doc',
+  '2': const [
+    const {'1': 'desc', '3': 1, '4': 1, '5': 11, '6': '.DocDescription', '10': 'desc'},
+    const {'1': 'content', '3': 2, '4': 1, '5': 9, '10': 'content'},
   ],
 };
 
 /// Descriptor for `Doc`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List docDescriptor = $convert.base64Decode('CgNEb2MSDgoCaWQYASABKAlSAmlkEhIKBG5hbWUYAiABKAlSBG5hbWUSEgoEZGVzYxgDIAEoCVIEZGVzYxISCgRwYXRoGAQgASgJUgRwYXRoEhgKB2NvbnRlbnQYBSABKAlSB2NvbnRlbnQ=');
+final $typed_data.Uint8List docDescriptor = $convert.base64Decode('CgNEb2MSIwoEZGVzYxgBIAEoCzIPLkRvY0Rlc2NyaXB0aW9uUgRkZXNjEhgKB2NvbnRlbnQYAiABKAlSB2NvbnRlbnQ=');

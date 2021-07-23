@@ -14,13 +14,16 @@ const EditorErrorCode$json = const {
   '2': const [
     const {'1': 'Unknown', '2': 0},
     const {'1': 'EditorDBInternalError', '2': 1},
+    const {'1': 'EditorDBConnFailed', '2': 2},
     const {'1': 'DocNameInvalid', '2': 10},
     const {'1': 'DocViewIdInvalid', '2': 11},
+    const {'1': 'DocDescTooLong', '2': 12},
+    const {'1': 'DocFileError', '2': 13},
   ],
 };
 
 /// Descriptor for `EditorErrorCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List editorErrorCodeDescriptor = $convert.base64Decode('Cg9FZGl0b3JFcnJvckNvZGUSCwoHVW5rbm93bhAAEhkKFUVkaXRvckRCSW50ZXJuYWxFcnJvchABEhIKDkRvY05hbWVJbnZhbGlkEAoSFAoQRG9jVmlld0lkSW52YWxpZBAL');
+final $typed_data.Uint8List editorErrorCodeDescriptor = $convert.base64Decode('Cg9FZGl0b3JFcnJvckNvZGUSCwoHVW5rbm93bhAAEhkKFUVkaXRvckRCSW50ZXJuYWxFcnJvchABEhYKEkVkaXRvckRCQ29ubkZhaWxlZBACEhIKDkRvY05hbWVJbnZhbGlkEAoSFAoQRG9jVmlld0lkSW52YWxpZBALEhIKDkRvY0Rlc2NUb29Mb25nEAwSEAoMRG9jRmlsZUVycm9yEA0=');
 @$core.Deprecated('Use editorErrorDescriptor instead')
 const EditorError$json = const {
   '1': 'EditorError',

@@ -17,10 +17,10 @@ impl ViewController {
         Self { sql }
     }
 
-    pub async fn save_view(&self, params: CreateViewParams) -> Result<View, WorkspaceError> {
+    pub async fn create_view(&self, params: CreateViewParams) -> Result<View, WorkspaceError> {
         let view_table = ViewTable::new(params);
         let view: View = view_table.clone().into();
-        let _ = self.sql.write_view_table(view_table)?;
+        let _ = self.sql.create_view(view_table)?;
 
         send_observable(&view.id, WorkspaceObservable::AppAddView);
         Ok(view)

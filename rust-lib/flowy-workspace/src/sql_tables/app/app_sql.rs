@@ -18,7 +18,7 @@ pub struct AppTableSql {
 }
 
 impl AppTableSql {
-    pub(crate) fn write_app_table(&self, app_table: AppTable) -> Result<(), WorkspaceError> {
+    pub(crate) fn create_app(&self, app_table: AppTable) -> Result<(), WorkspaceError> {
         let conn = self.database.db_connection()?;
         let _ = diesel::insert_into(app_table::table)
             .values(app_table)
@@ -26,16 +26,13 @@ impl AppTableSql {
         Ok(())
     }
 
-    pub(crate) fn update_app_table(
-        &self,
-        changeset: AppTableChangeset,
-    ) -> Result<(), WorkspaceError> {
+    pub(crate) fn update_app(&self, changeset: AppTableChangeset) -> Result<(), WorkspaceError> {
         let conn = self.database.db_connection()?;
         diesel_update_table!(app_table, changeset, conn);
         Ok(())
     }
 
-    pub(crate) fn read_app_table(&self, app_id: &str) -> Result<AppTable, WorkspaceError> {
+    pub(crate) fn read_app(&self, app_id: &str) -> Result<AppTable, WorkspaceError> {
         let app_table = dsl::app_table
             .filter(app_table::id.eq(app_id))
             .first::<AppTable>(&*(self.database.db_connection()?))?;

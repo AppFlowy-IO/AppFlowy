@@ -14,8 +14,8 @@ use flowy_workspace::errors::WorkspaceError;
 use std::{marker::PhantomData, sync::Once};
 static INIT: Once = Once::new();
 
-pub type WorkspaceTestBuilder = TestBuilder<FixedUserTester<WorkspaceError>>;
-impl WorkspaceTestBuilder {
+pub type SingleUserTestBuilder = TestBuilder<FixedUserTester<WorkspaceError>>;
+impl SingleUserTestBuilder {
     pub fn new() -> Self {
         let mut builder = Self {
             tester: Box::new(FixedUserTester::<WorkspaceError>::new()),

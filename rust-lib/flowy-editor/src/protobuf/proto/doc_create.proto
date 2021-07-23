@@ -5,10 +5,13 @@ message CreateDocRequest {
     string name = 2;
     string desc = 3;
 }
-message Doc {
+message DocDescription {
     string id = 1;
     string name = 2;
     string desc = 3;
     string path = 4;
-    string content = 5;
+}
+message Doc {
+    DocDescription desc = 1;
+    string content = 2;
 }

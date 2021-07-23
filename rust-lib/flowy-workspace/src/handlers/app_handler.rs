@@ -15,7 +15,7 @@ pub async fn create_app(
     controller: ModuleData<Arc<AppController>>,
 ) -> ResponseResult<App, WorkspaceError> {
     let params: CreateAppParams = data.into_inner().try_into()?;
-    let detail = controller.save_app(params)?;
+    let detail = controller.create_app(params)?;
     response_ok(detail)
 }
 
@@ -25,9 +25,9 @@ pub async fn get_app(
     controller: ModuleData<Arc<AppController>>,
 ) -> ResponseResult<App, WorkspaceError> {
     let params: QueryAppParams = data.into_inner().try_into()?;
-    let mut app = controller.get_app(&params.app_id).await?;
+    let mut app = controller.read_app(&params.app_id).await?;
     if params.read_views {
-        let views = controller.get_views(&params.app_id).await?;
+        let views = controller.read_views(&params.app_id).await?;
         app.views = RepeatedView { items: views };
     }
 

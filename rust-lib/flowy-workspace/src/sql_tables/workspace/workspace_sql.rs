@@ -17,10 +17,7 @@ pub struct WorkspaceSql {
 }
 
 impl WorkspaceSql {
-    pub fn write_workspace_table(
-        &self,
-        workspace_table: WorkspaceTable,
-    ) -> Result<(), WorkspaceError> {
+    pub fn create_workspace(&self, workspace_table: WorkspaceTable) -> Result<(), WorkspaceError> {
         let _ = diesel::insert_into(workspace_table::table)
             .values(workspace_table)
             .execute(&*(self.database.db_connection()?))?;

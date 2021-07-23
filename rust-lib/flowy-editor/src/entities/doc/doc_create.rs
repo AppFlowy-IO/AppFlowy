@@ -8,7 +8,7 @@ use std::convert::TryInto;
 #[derive(ProtoBuf, Default)]
 pub struct CreateDocRequest {
     #[pb(index = 1)]
-    id: String,
+    pub id: String,
 
     #[pb(index = 2)]
     pub name: String,
@@ -52,7 +52,7 @@ impl TryInto<CreateDocParams> for CreateDocRequest {
 }
 
 #[derive(ProtoBuf, Default, Debug)]
-pub struct Doc {
+pub struct DocDescription {
     #[pb(index = 1)]
     pub id: String,
 
@@ -64,7 +64,13 @@ pub struct Doc {
 
     #[pb(index = 4)]
     pub path: String,
+}
 
-    #[pb(index = 5)]
+#[derive(ProtoBuf, Default, Debug)]
+pub struct Doc {
+    #[pb(index = 1)]
+    pub desc: DocDescription,
+
+    #[pb(index = 2)]
     pub content: String,
 }

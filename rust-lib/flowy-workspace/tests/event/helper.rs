@@ -1,4 +1,4 @@
-pub use flowy_test::builder::WorkspaceTestBuilder;
+pub use flowy_test::builder::SingleUserTestBuilder;
 use flowy_workspace::{
     entities::{app::*, view::*, workspace::*},
     event::WorkspaceEvent::*,
@@ -17,7 +17,7 @@ pub fn create_workspace(name: &str, desc: &str) -> Workspace {
         desc: desc.to_owned(),
     };
 
-    let workspace = WorkspaceTestBuilder::new()
+    let workspace = SingleUserTestBuilder::new()
         .event(CreateWorkspace)
         .request(request)
         .sync_send()
@@ -34,7 +34,7 @@ pub fn create_app(name: &str, desc: &str, workspace_id: &str) -> App {
         color_style: Default::default(),
     };
 
-    let app = WorkspaceTestBuilder::new()
+    let app = SingleUserTestBuilder::new()
         .event(CreateApp)
         .request(create_app_request)
         .sync_send()
@@ -43,7 +43,7 @@ pub fn create_app(name: &str, desc: &str, workspace_id: &str) -> App {
 }
 
 pub fn get_workspace(request: QueryWorkspaceRequest) -> Workspace {
-    let workspace = WorkspaceTestBuilder::new()
+    let workspace = SingleUserTestBuilder::new()
         .event(GetWorkspace)
         .request(request)
         .sync_send()
@@ -53,7 +53,7 @@ pub fn get_workspace(request: QueryWorkspaceRequest) -> Workspace {
 }
 
 pub fn get_app(request: QueryAppRequest) -> App {
-    let app = WorkspaceTestBuilder::new()
+    let app = SingleUserTestBuilder::new()
         .event(GetApp)
         .request(request)
         .sync_send()
@@ -63,7 +63,7 @@ pub fn get_app(request: QueryAppRequest) -> App {
 }
 
 pub fn create_view(request: CreateViewRequest) -> View {
-    let view = WorkspaceTestBuilder::new()
+    let view = SingleUserTestBuilder::new()
         .event(CreateView)
         .request(request)
         .sync_send()

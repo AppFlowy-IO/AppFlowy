@@ -1,3 +1,4 @@
+use crate::services::file_manager::FileError;
 use derive_more::Display;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_dispatch::prelude::{EventResponse, ResponseBuilder};
@@ -24,16 +25,25 @@ impl EditorError {
 #[derive(Debug, Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
 pub enum EditorErrorCode {
     #[display(fmt = "Unknown")]
-    Unknown          = 0,
+    Unknown            = 0,
 
     #[display(fmt = "EditorDBInternalError")]
     EditorDBInternalError = 1,
 
+    #[display(fmt = "EditorDBConnFailed")]
+    EditorDBConnFailed = 2,
+
     #[display(fmt = "DocNameInvalid")]
-    DocNameInvalid   = 10,
+    DocNameInvalid     = 10,
 
     #[display(fmt = "DocViewIdInvalid")]
-    DocViewIdInvalid = 11,
+    DocViewIdInvalid   = 11,
+
+    #[display(fmt = "DocDescTooLong")]
+    DocDescTooLong     = 12,
+
+    #[display(fmt = "DocDescTooLong")]
+    DocFileError       = 13,
 }
 
 impl std::default::Default for EditorErrorCode {
@@ -43,6 +53,14 @@ impl std::default::Default for EditorErrorCode {
 impl std::convert::From<flowy_database::result::Error> for EditorError {
     fn from(error: flowy_database::result::Error) -> Self {
         ErrorBuilder::new(EditorErrorCode::EditorDBInternalError)
+            .error(error)
+            .build()
+    }
+}
+
+impl std::convert::From<FileError> for EditorError {
+    fn from(error: FileError) -> Self {
+        ErrorBuilder::new(EditorErrorCode::DocFileError)
             .error(error)
             .build()
     }

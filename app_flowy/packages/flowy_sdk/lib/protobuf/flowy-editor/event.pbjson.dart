@@ -13,8 +13,10 @@ const EditorEvent$json = const {
   '1': 'EditorEvent',
   '2': const [
     const {'1': 'CreateDoc', '2': 0},
+    const {'1': 'UpdateDoc', '2': 1},
+    const {'1': 'ReadDoc', '2': 2},
   ],
 };
 
 /// Descriptor for `EditorEvent`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List editorEventDescriptor = $convert.base64Decode('CgtFZGl0b3JFdmVudBINCglDcmVhdGVEb2MQAA==');
+final $typed_data.Uint8List editorEventDescriptor = $convert.base64Decode('CgtFZGl0b3JFdmVudBINCglDcmVhdGVEb2MQABINCglVcGRhdGVEb2MQARILCgdSZWFkRG9jEAI=');

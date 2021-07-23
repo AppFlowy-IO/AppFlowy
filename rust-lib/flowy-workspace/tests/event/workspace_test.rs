@@ -14,7 +14,7 @@ fn workspace_create_success() { let _ = create_workspace("First workspace", "");
 
 #[test]
 fn workspace_get_success() {
-    let workspace = WorkspaceTestBuilder::new()
+    let workspace = SingleUserTestBuilder::new()
         .event(GetCurWorkspace)
         .sync_send()
         .parse::<Workspace>();
@@ -60,7 +60,7 @@ fn workspace_create_with_invalid_name_test() {
         };
 
         assert_eq!(
-            WorkspaceTestBuilder::new()
+            SingleUserTestBuilder::new()
                 .event(CreateWorkspace)
                 .request(request)
                 .sync_send()
@@ -80,7 +80,7 @@ fn workspace_update_with_invalid_name_test() {
         };
 
         assert_eq!(
-            WorkspaceTestBuilder::new()
+            SingleUserTestBuilder::new()
                 .event(CreateWorkspace)
                 .request(request)
                 .sync_send()

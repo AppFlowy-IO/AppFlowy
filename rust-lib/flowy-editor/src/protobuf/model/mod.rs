@@ -1,5 +1,8 @@
 // Auto-generated, do not edit 
 
+mod doc_modify; 
+pub use doc_modify::*; 
+
 mod doc_create; 
 pub use doc_create::*; 
 

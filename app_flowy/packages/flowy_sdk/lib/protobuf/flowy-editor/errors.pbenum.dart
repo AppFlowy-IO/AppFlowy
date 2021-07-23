@@ -12,14 +12,20 @@ import 'package:protobuf/protobuf.dart' as $pb;
 class EditorErrorCode extends $pb.ProtobufEnum {
   static const EditorErrorCode Unknown = EditorErrorCode._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unknown');
   static const EditorErrorCode EditorDBInternalError = EditorErrorCode._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'EditorDBInternalError');
+  static const EditorErrorCode EditorDBConnFailed = EditorErrorCode._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'EditorDBConnFailed');
   static const EditorErrorCode DocNameInvalid = EditorErrorCode._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DocNameInvalid');
   static const EditorErrorCode DocViewIdInvalid = EditorErrorCode._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DocViewIdInvalid');
+  static const EditorErrorCode DocDescTooLong = EditorErrorCode._(12, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DocDescTooLong');
+  static const EditorErrorCode DocFileError = EditorErrorCode._(13, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DocFileError');
 
   static const $core.List<EditorErrorCode> values = <EditorErrorCode> [
     Unknown,
     EditorDBInternalError,
+    EditorDBConnFailed,
     DocNameInvalid,
     DocViewIdInvalid,
+    DocDescTooLong,
+    DocFileError,
   ];
 
   static final $core.Map<$core.int, EditorErrorCode> _byValue = $pb.ProtobufEnum.initByValue(values);

@@ -1,5 +1,5 @@
 use crate::helper::*;
-use flowy_test::builder::WorkspaceTestBuilder;
+use flowy_test::builder::SingleUserTestBuilder;
 use flowy_workspace::{
     entities::{
         app::{App, CreateAppRequest, QueryAppRequest},

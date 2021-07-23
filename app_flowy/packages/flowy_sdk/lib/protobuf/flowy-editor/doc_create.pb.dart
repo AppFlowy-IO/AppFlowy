@@ -84,23 +84,21 @@ class CreateDocRequest extends $pb.GeneratedMessage {
   void clearDesc() => clearField(3);
 }
 
-class Doc extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Doc', createEmptyInstance: create)
+class DocDescription extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DocDescription', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'path')
-    ..aOS(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'content')
     ..hasRequiredFields = false
   ;
 
-  Doc._() : super();
-  factory Doc({
+  DocDescription._() : super();
+  factory DocDescription({
     $core.String? id,
     $core.String? name,
     $core.String? desc,
     $core.String? path,
-    $core.String? content,
   }) {
     final _result = create();
     if (id != null) {
@@ -115,31 +113,28 @@ class Doc extends $pb.GeneratedMessage {
     if (path != null) {
       _result.path = path;
     }
-    if (content != null) {
-      _result.content = content;
-    }
     return _result;
   }
-  factory Doc.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Doc.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory DocDescription.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory DocDescription.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  Doc clone() => Doc()..mergeFromMessage(this);
+  DocDescription clone() => DocDescription()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  Doc copyWith(void Function(Doc) updates) => super.copyWith((message) => updates(message as Doc)) as Doc; // ignore: deprecated_member_use
+  DocDescription copyWith(void Function(DocDescription) updates) => super.copyWith((message) => updates(message as DocDescription)) as DocDescription; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static Doc create() => Doc._();
-  Doc createEmptyInstance() => create();
-  static $pb.PbList<Doc> createRepeated() => $pb.PbList<Doc>();
+  static DocDescription create() => DocDescription._();
+  DocDescription createEmptyInstance() => create();
+  static $pb.PbList<DocDescription> createRepeated() => $pb.PbList<DocDescription>();
   @$core.pragma('dart2js:noInline')
-  static Doc getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Doc>(create);
-  static Doc? _defaultInstance;
+  static DocDescription getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DocDescription>(create);
+  static DocDescription? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
@@ -176,14 +171,68 @@ class Doc extends $pb.GeneratedMessage {
   $core.bool hasPath() => $_has(3);
   @$pb.TagNumber(4)
   void clearPath() => clearField(4);
+}
 
-  @$pb.TagNumber(5)
-  $core.String get content => $_getSZ(4);
-  @$pb.TagNumber(5)
-  set content($core.String v) { $_setString(4, v); }
-  @$pb.TagNumber(5)
-  $core.bool hasContent() => $_has(4);
-  @$pb.TagNumber(5)
-  void clearContent() => clearField(5);
+class Doc extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Doc', createEmptyInstance: create)
+    ..aOM<DocDescription>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc', subBuilder: DocDescription.create)
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'content')
+    ..hasRequiredFields = false
+  ;
+
+  Doc._() : super();
+  factory Doc({
+    DocDescription? desc,
+    $core.String? content,
+  }) {
+    final _result = create();
+    if (desc != null) {
+      _result.desc = desc;
+    }
+    if (content != null) {
+      _result.content = content;
+    }
+    return _result;
+  }
+  factory Doc.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Doc.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Doc clone() => Doc()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Doc copyWith(void Function(Doc) updates) => super.copyWith((message) => updates(message as Doc)) as Doc; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static Doc create() => Doc._();
+  Doc createEmptyInstance() => create();
+  static $pb.PbList<Doc> createRepeated() => $pb.PbList<Doc>();
+  @$core.pragma('dart2js:noInline')
+  static Doc getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Doc>(create);
+  static Doc? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  DocDescription get desc => $_getN(0);
+  @$pb.TagNumber(1)
+  set desc(DocDescription v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasDesc() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearDesc() => clearField(1);
+  @$pb.TagNumber(1)
+  DocDescription ensureDesc() => $_ensure(0);
+
+  @$pb.TagNumber(2)
+  $core.String get content => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set content($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasContent() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearContent() => clearField(2);
 }
 

@@ -6,10 +6,16 @@ use std::{
     io::{Read, Write},
     path::{Path, PathBuf},
     str,
+    sync::atomic::{AtomicUsize, Ordering},
     time::SystemTime,
 };
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct FileId(pub(crate) usize);
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct FileId(pub(crate) String);
+
+impl std::convert::From<String> for FileId {
+    fn from(s: String) -> Self { FileId(s) }
+}
 
 #[derive(Debug, Clone, Copy)]
 pub enum CharacterEncoding {
@@ -28,15 +34,17 @@ impl CharacterEncoding {
     }
 }
 
+#[derive(Debug)]
 pub enum FileError {
     Io(io::Error, PathBuf),
     UnknownEncoding(PathBuf),
     HasChanged(PathBuf),
 }
 
+#[derive(Clone, Debug)]
 pub struct FileInfo {
     pub path: PathBuf,
-    pub modify_time: Option<SystemTime>,
+    pub modified_time: Option<SystemTime>,
     pub has_changed: bool,
     pub encoding: CharacterEncoding,
 }
@@ -56,20 +64,13 @@ where
     let info = FileInfo {
         encoding,
         path: path.as_ref().to_owned(),
-        modify_time: get_mod_time(&path),
+        modified_time: get_modified_time(&path),
         has_changed: false,
     };
     Ok((s, info))
 }
 
-fn get_mod_time<P: AsRef<Path>>(path: P) -> Option<SystemTime> {
-    File::open(path)
-        .and_then(|f| f.metadata())
-        .and_then(|meta| meta.modified())
-        .ok()
-}
-
-fn try_save(
+pub(crate) fn try_save(
     path: &Path,
     text: &str,
     encoding: CharacterEncoding,
@@ -97,7 +98,7 @@ fn try_save(
     Ok(())
 }
 
-fn try_decode(
+pub(crate) fn try_decode(
     bytes: Vec<u8>,
     encoding: CharacterEncoding,
     path: &Path,
@@ -114,4 +115,16 @@ fn try_decode(
             Ok(String::from(&s[UTF8_BOM.len()..]))
         },
     }
+}
+
+pub(crate) fn create_dir_if_not_exist(dir: &str) -> Result<(), io::Error> {
+    let _ = fs::create_dir_all(dir)?;
+    Ok(())
+}
+
+pub(crate) fn get_modified_time<P: AsRef<Path>>(path: P) -> Option<SystemTime> {
+    File::open(path)
+        .and_then(|f| f.metadata())
+        .and_then(|meta| meta.modified())
+        .ok()
 }

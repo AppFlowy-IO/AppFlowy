@@ -14,7 +14,7 @@ pub struct DocTableSql {
 }
 
 impl DocTableSql {
-    pub(crate) fn write_doc_table(&self, doc_table: DocTable) -> Result<(), EditorError> {
+    pub(crate) fn create_doc_table(&self, doc_table: DocTable) -> Result<(), EditorError> {
         let conn = self.database.db_connection()?;
         let _ = diesel::insert_into(doc_table::table)
             .values(doc_table)

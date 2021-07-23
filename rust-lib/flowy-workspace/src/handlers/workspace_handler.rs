@@ -13,7 +13,7 @@ pub async fn create_workspace(
 ) -> ResponseResult<Workspace, WorkspaceError> {
     let controller = controller.get_ref().clone();
     let params: CreateWorkspaceParams = data.into_inner().try_into()?;
-    let detail = controller.save_workspace(params).await?;
+    let detail = controller.create_workspace(params).await?;
     response_ok(detail)
 }
 
@@ -21,7 +21,7 @@ pub async fn create_workspace(
 pub async fn get_cur_workspace(
     controller: ModuleData<Arc<WorkspaceController>>,
 ) -> ResponseResult<Workspace, WorkspaceError> {
-    let workspace = controller.get_cur_workspace().await?;
+    let workspace = controller.read_cur_workspace().await?;
     response_ok(workspace)
 }
 
@@ -31,10 +31,10 @@ pub async fn get_workspace(
     controller: ModuleData<Arc<WorkspaceController>>,
 ) -> ResponseResult<Workspace, WorkspaceError> {
     let params: QueryWorkspaceParams = data.into_inner().try_into()?;
-    let mut workspace = controller.get_workspace(&params.workspace_id).await?;
+    let mut workspace = controller.read_workspace(&params.workspace_id).await?;
 
     if params.read_apps {
-        let apps = controller.get_apps(&params.workspace_id).await?;
+        let apps = controller.read_apps(&params.workspace_id).await?;
         workspace.apps = RepeatedApp { items: apps };
     }
 

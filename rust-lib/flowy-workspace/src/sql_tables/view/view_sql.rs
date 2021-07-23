@@ -11,7 +11,7 @@ pub struct ViewTableSql {
 }
 
 impl ViewTableSql {
-    pub(crate) fn write_view_table(&self, view_table: ViewTable) -> Result<(), WorkspaceError> {
+    pub(crate) fn create_view(&self, view_table: ViewTable) -> Result<(), WorkspaceError> {
         let conn = self.database.db_connection()?;
         let _ = diesel::insert_into(view_table::table)
             .values(view_table)

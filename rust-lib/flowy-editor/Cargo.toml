@@ -15,6 +15,9 @@ flowy-infra = { path = "../flowy-infra" }
 diesel = {version = "1.4.7", features = ["sqlite"]}
 diesel_derives = {version = "1.4.1", features = ["sqlite"]}
 protobuf = {version = "2.18.0"}
+unicode-segmentation = "1.7.1"
+lazy_static = "1.4.0"
+log = "0.4.14"
 
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }

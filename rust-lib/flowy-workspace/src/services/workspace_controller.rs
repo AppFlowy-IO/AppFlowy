@@ -29,13 +29,13 @@ impl WorkspaceController {
         }
     }
 
-    pub async fn save_workspace(
+    pub async fn create_workspace(
         &self,
         params: CreateWorkspaceParams,
     ) -> Result<Workspace, WorkspaceError> {
         let workspace_table = WorkspaceTable::new(params);
         let detail: Workspace = workspace_table.clone().into();
-        let _ = self.sql.write_workspace_table(workspace_table)?;
+        let _ = self.sql.create_workspace(workspace_table)?;
         let _ = self.user.set_cur_workspace_id(&detail.id).await?;
 
         Ok(detail)
@@ -54,24 +54,24 @@ impl WorkspaceController {
         unimplemented!()
     }
 
-    pub async fn get_cur_workspace(&self) -> Result<Workspace, WorkspaceError> {
+    pub async fn read_cur_workspace(&self) -> Result<Workspace, WorkspaceError> {
         let user_workspace = self.user.get_cur_workspace().await?;
-        let workspace = self.get_workspace(&user_workspace.workspace_id).await?;
+        let workspace = self.read_workspace(&user_workspace.workspace_id).await?;
         Ok(workspace)
     }
 
-    pub async fn get_cur_apps(&self) -> Result<Vec<App>, WorkspaceError> {
+    pub async fn read_cur_apps(&self) -> Result<Vec<App>, WorkspaceError> {
         let user_workspace = self.user.get_cur_workspace().await?;
-        let apps = self.get_apps(&user_workspace.workspace_id).await?;
+        let apps = self.read_apps(&user_workspace.workspace_id).await?;
         Ok(apps)
     }
 
-    pub async fn get_workspace(&self, workspace_id: &str) -> Result<Workspace, WorkspaceError> {
-        let workspace_table = self.get_workspace_table(workspace_id).await?;
+    pub async fn read_workspace(&self, workspace_id: &str) -> Result<Workspace, WorkspaceError> {
+        let workspace_table = self.read_workspace_table(workspace_id).await?;
         Ok(workspace_table.into())
     }
 
-    pub async fn get_apps(&self, workspace_id: &str) -> Result<Vec<App>, WorkspaceError> {
+    pub async fn read_apps(&self, workspace_id: &str) -> Result<Vec<App>, WorkspaceError> {
         let apps = self
             .sql
             .read_apps_belong_to_workspace(workspace_id)?
@@ -82,7 +82,7 @@ impl WorkspaceController {
         Ok(apps)
     }
 
-    fn get_workspace_table(
+    fn read_workspace_table(
         &self,
         workspace_id: &str,
     ) -> DispatchFuture<Result<WorkspaceTable, WorkspaceError>> {

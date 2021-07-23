@@ -6,14 +6,10 @@ use std::convert::TryInto;
 pub struct QueryDocRequest {
     #[pb(index = 1)]
     pub doc_id: String,
-
-    #[pb(index = 2)]
-    pub read_content: bool,
 }
 
-pub struct QueryDocParams {
+pub(crate) struct QueryDocParams {
     pub doc_id: String,
-    pub read_content: bool,
 }
 
 impl TryInto<QueryDocParams> for QueryDocRequest {
@@ -28,9 +24,6 @@ impl TryInto<QueryDocParams> for QueryDocRequest {
             })?
             .0;
 
-        Ok(QueryDocParams {
-            doc_id,
-            read_content: self.read_content,
-        })
+        Ok(QueryDocParams { doc_id })
     }
 }

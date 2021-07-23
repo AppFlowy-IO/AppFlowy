@@ -11,6 +11,6 @@ pub async fn create_view(
     controller: ModuleData<Arc<ViewController>>,
 ) -> ResponseResult<View, WorkspaceError> {
     let params: CreateViewParams = data.into_inner().try_into()?;
-    let view = controller.save_view(params).await?;
+    let view = controller.create_view(params).await?;
     response_ok(view)
 }
