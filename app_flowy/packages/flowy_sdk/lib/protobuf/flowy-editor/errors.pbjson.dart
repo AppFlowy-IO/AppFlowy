@@ -19,11 +19,12 @@ const EditorErrorCode$json = const {
     const {'1': 'DocViewIdInvalid', '2': 11},
     const {'1': 'DocDescTooLong', '2': 12},
     const {'1': 'DocFileError', '2': 13},
+    const {'1': 'EditorUserNotLoginYet', '2': 100},
   ],
 };
 
 /// Descriptor for `EditorErrorCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List editorErrorCodeDescriptor = $convert.base64Decode('Cg9FZGl0b3JFcnJvckNvZGUSCwoHVW5rbm93bhAAEhkKFUVkaXRvckRCSW50ZXJuYWxFcnJvchABEhYKEkVkaXRvckRCQ29ubkZhaWxlZBACEhIKDkRvY05hbWVJbnZhbGlkEAoSFAoQRG9jVmlld0lkSW52YWxpZBALEhIKDkRvY0Rlc2NUb29Mb25nEAwSEAoMRG9jRmlsZUVycm9yEA0=');
+final $typed_data.Uint8List editorErrorCodeDescriptor = $convert.base64Decode('Cg9FZGl0b3JFcnJvckNvZGUSCwoHVW5rbm93bhAAEhkKFUVkaXRvckRCSW50ZXJuYWxFcnJvchABEhYKEkVkaXRvckRCQ29ubkZhaWxlZBACEhIKDkRvY05hbWVJbnZhbGlkEAoSFAoQRG9jVmlld0lkSW52YWxpZBALEhIKDkRvY0Rlc2NUb29Mb25nEAwSEAoMRG9jRmlsZUVycm9yEA0SGQoVRWRpdG9yVXNlck5vdExvZ2luWWV0EGQ=');
 @$core.Deprecated('Use editorErrorDescriptor instead')
 const EditorError$json = const {
   '1': 'EditorError',

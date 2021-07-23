@@ -4,7 +4,7 @@ use crate::{
     handlers::*,
     services::{
         doc_controller::DocController,
-        file_manager::{FileManager, FileManagerConfig},
+        file_manager::{create_dir_if_not_exist, FileManager},
     },
 };
 use flowy_database::DBConnection;
@@ -16,20 +16,12 @@ pub trait EditorDatabase: Send + Sync {
     fn db_connection(&self) -> Result<DBConnection, EditorError>;
 }
 
-pub struct EditorConfig {
-    root: String,
+pub trait EditorUser: Send + Sync {
+    fn user_doc_dir(&self) -> Result<String, EditorError>;
 }
 
-impl EditorConfig {
-    pub fn new(root: &str) -> Self {
-        Self {
-            root: root.to_owned(),
-        }
-    }
-}
-
-pub fn create(database: Arc<dyn EditorDatabase>, config: EditorConfig) -> Module {
-    let file_manager = RwLock::new(FileManager::new(FileManagerConfig::new(&config.root)));
+pub fn create(database: Arc<dyn EditorDatabase>, user: Arc<dyn EditorUser>) -> Module {
+    let file_manager = RwLock::new(FileManager::new(user.clone()));
     let doc_controller = DocController::new(database);
 
     Module::new()

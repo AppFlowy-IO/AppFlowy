@@ -146,6 +146,11 @@ impl UserSession {
         }
     }
 
+    pub fn get_user_dir(&self) -> Result<String, UserError> {
+        let user_id = self.get_user_id()?;
+        Ok(format!("{}/{}", self.config.root_dir, user_id))
+    }
+
     pub fn get_user_id(&self) -> Result<String, UserError> {
         let mut user_id = {
             let read_guard = self.user_id.read().map_err(|e| {

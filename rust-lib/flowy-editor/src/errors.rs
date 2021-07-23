@@ -44,6 +44,9 @@ pub enum EditorErrorCode {
 
     #[display(fmt = "DocDescTooLong")]
     DocFileError       = 13,
+
+    #[display(fmt = "EditorUserNotLoginYet")]
+    EditorUserNotLoginYet = 100,
 }
 
 impl std::default::Default for EditorErrorCode {

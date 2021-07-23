@@ -1,33 +1,21 @@
-use crate::services::file_manager::*;
+use crate::{module::EditorUser, services::file_manager::*};
 use std::{
     collections::HashMap,
     io,
     path::{Path, PathBuf},
-    sync::{PoisonError, RwLock, RwLockReadGuard},
+    sync::{Arc, PoisonError, RwLock, RwLockReadGuard},
 };
 
-pub(crate) struct FileManagerConfig {
-    doc_dir: String,
-}
-
-impl FileManagerConfig {
-    pub fn new(root: &str) -> Self {
-        let doc_dir = format!("{}/doc", root);
-        Self { doc_dir }
-    }
-}
-
 pub struct FileManager {
-    config: FileManagerConfig,
+    pub user: Arc<dyn EditorUser>,
     open_files: HashMap<PathBuf, FileId>,
     file_info: HashMap<FileId, FileInfo>,
 }
 
 impl FileManager {
-    pub(crate) fn new(config: FileManagerConfig) -> Self {
-        // let _ = create_dir_if_not_exist(&config.doc_dir)?;
+    pub(crate) fn new(user: Arc<dyn EditorUser>) -> Self {
         Self {
-            config,
+            user,
             open_files: HashMap::new(),
             file_info: HashMap::new(),
         }
@@ -70,12 +58,17 @@ impl FileManager {
         }
     }
 
-    pub(crate) fn create_file(&mut self, id: &str, text: &str) -> PathBuf {
-        let path = PathBuf::from(format!("{}/{}", self.config.doc_dir, id));
+    pub(crate) fn create_file(
+        &mut self,
+        id: &str,
+        dir: &str,
+        text: &str,
+    ) -> Result<PathBuf, FileError> {
+        let path = PathBuf::from(format!("{}/{}", dir, id));
         let file_id: FileId = id.to_owned().into();
         log::info!("Create doc at: {:?}", path);
-        self.save_new(&path, text, &file_id);
-        path
+        let _ = self.save_new(&path, text, &file_id)?;
+        Ok(path)
     }
 
     pub(crate) fn get_info(&self, id: &FileId) -> Option<&FileInfo> { self.file_info.get(id) }

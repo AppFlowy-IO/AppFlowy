@@ -33,7 +33,10 @@ class IAppImpl extends IApp {
       case ViewType.Doc:
         final docRepo = DocRepository(docId: view.id);
         final result = await docRepo.createDoc(name: view.name, desc: "");
-        return result.fold((l) => left(view), (r) => left(view));
+        return result.fold((l) => left(view), (r) {
+          return right(
+              WorkspaceError(code: WorkspaceErrorCode.Unknown, msg: r.msg));
+        });
       default:
         return left(view);
     }

@@ -14,7 +14,11 @@ pub async fn create_doc(
     manager: Unit<RwLock<FileManager>>,
 ) -> ResponseResult<DocDescription, EditorError> {
     let params: CreateDocParams = data.into_inner().try_into()?;
-    let path = manager.write().await.create_file(&params.id, &params.text);
+    let dir = manager.read().await.user.user_doc_dir()?;
+    let path = manager
+        .write()
+        .await
+        .create_file(&params.id, &dir, &params.text)?;
     let doc_desc = controller
         .create_doc(params, path.to_str().unwrap())
         .await?;
