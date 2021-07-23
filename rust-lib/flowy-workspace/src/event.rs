@@ -33,6 +33,6 @@ pub enum WorkspaceEvent {
     ReadView        = 202,
 
     #[display(fmt = "UpdateView")]
-    #[event(input = "UpdateViewRequest", output = "View")]
+    #[event(input = "UpdateViewRequest")]
     UpdateView      = 203,
 }

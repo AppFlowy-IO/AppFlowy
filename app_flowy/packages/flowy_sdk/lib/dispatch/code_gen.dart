@@ -152,6 +152,40 @@ class WorkspaceEventCreateView {
     }
 }
 
+class WorkspaceEventReadView {
+     QueryViewRequest request;
+     WorkspaceEventReadView(this.request);
+
+    Future<Either<View, WorkspaceError>> send() {
+    final request = FFIRequest.create()
+          ..event = WorkspaceEvent.ReadView.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (okBytes) => left(View.fromBuffer(okBytes)),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
+class WorkspaceEventUpdateView {
+     UpdateViewRequest request;
+     WorkspaceEventUpdateView(this.request);
+
+    Future<Either<Unit, WorkspaceError>> send() {
+    final request = FFIRequest.create()
+          ..event = WorkspaceEvent.UpdateView.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (bytes) => left(unit),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
 class UserEventGetStatus {
     UserEventGetStatus();
 
