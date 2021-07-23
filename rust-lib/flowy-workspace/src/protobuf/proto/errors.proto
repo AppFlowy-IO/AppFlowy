@@ -12,7 +12,9 @@ enum WorkspaceErrorCode {
     AppIdInvalid = 10;
     AppNameInvalid = 11;
     ViewNameInvalid = 20;
-    ViewThumbnailName = 21;
+    ViewThumbnailInvalid = 21;
+    ViewIdInvalid = 22;
+    ViewDescInvalid = 23;
     DatabaseConnectionFail = 100;
     WorkspaceDatabaseError = 101;
     UserInternalError = 102;

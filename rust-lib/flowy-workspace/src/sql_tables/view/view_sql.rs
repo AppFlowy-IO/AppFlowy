@@ -1,9 +1,12 @@
 use crate::{
     errors::WorkspaceError,
     module::WorkspaceDatabase,
-    sql_tables::{app::AppTable, view::ViewTable},
+    sql_tables::view::{ViewTable, ViewTableChangeset},
 };
-use flowy_database::{prelude::*, schema::view_table};
+use flowy_database::{
+    prelude::*,
+    schema::{view_table, view_table::dsl},
+};
 use std::sync::Arc;
 
 pub struct ViewTableSql {
@@ -16,6 +19,20 @@ impl ViewTableSql {
         let _ = diesel::insert_into(view_table::table)
             .values(view_table)
             .execute(&*conn)?;
+        Ok(())
+    }
+
+    pub(crate) fn read_view(&self, view_id: &str) -> Result<ViewTable, WorkspaceError> {
+        let view_table = dsl::view_table
+            .filter(view_table::id.eq(view_id))
+            .first::<ViewTable>(&*(self.database.db_connection()?))?;
+
+        Ok(view_table)
+    }
+
+    pub(crate) fn update_view(&self, changeset: ViewTableChangeset) -> Result<(), WorkspaceError> {
+        let conn = self.database.db_connection()?;
+        diesel_update_table!(view_table, changeset, conn);
         Ok(())
     }
 

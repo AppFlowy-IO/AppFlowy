@@ -7,4 +7,6 @@ enum WorkspaceEvent {
     CreateApp = 101;
     GetApp = 102;
     CreateView = 201;
+    ReadView = 202;
+    UpdateView = 203;
 }

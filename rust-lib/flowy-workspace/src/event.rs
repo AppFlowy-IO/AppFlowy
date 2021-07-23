@@ -27,4 +27,12 @@ pub enum WorkspaceEvent {
     #[display(fmt = "CreateView")]
     #[event(input = "CreateViewRequest", output = "View")]
     CreateView      = 201,
+
+    #[display(fmt = "ReadView")]
+    #[event(input = "QueryViewRequest", output = "View")]
+    ReadView        = 202,
+
+    #[display(fmt = "UpdateView")]
+    #[event(input = "UpdateViewRequest", output = "View")]
+    UpdateView      = 203,
 }

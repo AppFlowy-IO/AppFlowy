@@ -1,5 +1,8 @@
 // Auto-generated, do not edit 
 
+mod view_update; 
+pub use view_update::*; 
+
 mod app_query; 
 pub use app_query::*; 
 
@@ -32,3 +35,6 @@ pub use workspace_create::*;
 
 mod app_update; 
 pub use app_update::*; 
+
+mod view_query; 
+pub use view_query::*; 

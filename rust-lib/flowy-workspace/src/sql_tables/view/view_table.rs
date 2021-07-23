@@ -1,5 +1,5 @@
 use crate::{
-    entities::view::{CreateViewParams, View, ViewType},
+    entities::view::{CreateViewParams, UpdateViewParams, View, ViewType},
     impl_sql_integer_expression,
     sql_tables::app::AppTable,
 };
@@ -62,15 +62,17 @@ pub struct ViewTableChangeset {
     pub id: String,
     pub name: Option<String>,
     pub desc: Option<String>,
+    pub thumbnail: Option<String>,
     pub modified_time: i64,
 }
 
 impl ViewTableChangeset {
-    pub fn new(id: &str) -> Self {
+    pub fn new(params: UpdateViewParams) -> Self {
         ViewTableChangeset {
-            id: id.to_string(),
-            name: None,
-            desc: None,
+            id: params.view_id,
+            name: params.name,
+            desc: params.desc,
+            thumbnail: params.thumbnail,
             modified_time: timestamp(),
         }
     }

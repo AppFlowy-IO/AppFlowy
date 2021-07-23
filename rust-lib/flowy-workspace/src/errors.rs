@@ -32,20 +32,26 @@ pub enum WorkspaceErrorCode {
     #[display(fmt = "Workspace id is invalid")]
     WorkspaceIdInvalid   = 2,
 
-    #[display(fmt = "App color style format error")]
+    #[display(fmt = "Color style of the App is invalid")]
     AppColorStyleInvalid = 3,
 
-    #[display(fmt = "App id is invalid")]
+    #[display(fmt = "Id of the App  is invalid")]
     AppIdInvalid         = 10,
 
-    #[display(fmt = "App name is invalid")]
+    #[display(fmt = "Name of the App  is invalid")]
     AppNameInvalid       = 11,
 
-    #[display(fmt = "View name is invalid")]
+    #[display(fmt = "Name of the View  is invalid")]
     ViewNameInvalid      = 20,
 
     #[display(fmt = "Thumbnail of the view is invalid")]
-    ViewThumbnailName    = 21,
+    ViewThumbnailInvalid = 21,
+
+    #[display(fmt = "Id of the View is invalid")]
+    ViewIdInvalid        = 22,
+
+    #[display(fmt = "Description of the View is invalid")]
+    ViewDescInvalid      = 23,
 
     #[display(fmt = "Get database connection failed")]
     DatabaseConnectionFail = 100,

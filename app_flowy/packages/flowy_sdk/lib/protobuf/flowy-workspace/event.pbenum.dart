@@ -16,6 +16,8 @@ class WorkspaceEvent extends $pb.ProtobufEnum {
   static const WorkspaceEvent CreateApp = WorkspaceEvent._(101, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateApp');
   static const WorkspaceEvent GetApp = WorkspaceEvent._(102, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetApp');
   static const WorkspaceEvent CreateView = WorkspaceEvent._(201, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateView');
+  static const WorkspaceEvent ReadView = WorkspaceEvent._(202, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ReadView');
+  static const WorkspaceEvent UpdateView = WorkspaceEvent._(203, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UpdateView');
 
   static const $core.List<WorkspaceEvent> values = <WorkspaceEvent> [
     CreateWorkspace,
@@ -24,6 +26,8 @@ class WorkspaceEvent extends $pb.ProtobufEnum {
     CreateApp,
     GetApp,
     CreateView,
+    ReadView,
+    UpdateView,
   ];
 
   static final $core.Map<$core.int, WorkspaceEvent> _byValue = $pb.ProtobufEnum.initByValue(values);

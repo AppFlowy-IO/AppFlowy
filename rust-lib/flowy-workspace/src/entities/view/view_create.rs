@@ -68,7 +68,7 @@ impl TryInto<CreateViewParams> for CreateViewRequest {
             Some(thumbnail) => {
                 ViewThumbnail::parse(thumbnail)
                     .map_err(|e| {
-                        ErrorBuilder::new(WorkspaceErrorCode::ViewThumbnailName)
+                        ErrorBuilder::new(WorkspaceErrorCode::ViewThumbnailInvalid)
                             .msg(e)
                             .build()
                     })?
