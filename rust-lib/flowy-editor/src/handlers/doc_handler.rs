@@ -12,8 +12,8 @@ use std::{
 
 pub async fn create_doc(
     data: Data<CreateDocRequest>,
-    controller: ModuleData<DocController>,
-    manager: ModuleData<RwLock<FileManager>>,
+    controller: Unit<DocController>,
+    manager: Unit<RwLock<FileManager>>,
 ) -> ResponseResult<DocDescription, EditorError> {
     let params: CreateDocParams = data.into_inner().try_into()?;
     let path = manager.read().unwrap().make_file_path(&params.id);
@@ -25,8 +25,8 @@ pub async fn create_doc(
 
 pub async fn read_doc(
     data: Data<QueryDocRequest>,
-    controller: ModuleData<DocController>,
-    manager: ModuleData<RwLock<FileManager>>,
+    controller: Unit<DocController>,
+    manager: Unit<RwLock<FileManager>>,
 ) -> ResponseResult<Doc, EditorError> {
     let params: QueryDocParams = data.into_inner().try_into()?;
     let desc = controller.read_doc(&params.doc_id).await?;
@@ -42,8 +42,8 @@ pub async fn read_doc(
 
 pub async fn update_doc(
     data: Data<UpdateDocRequest>,
-    controller: ModuleData<DocController>,
-    manager: ModuleData<RwLock<FileManager>>,
+    controller: Unit<DocController>,
+    manager: Unit<RwLock<FileManager>>,
 ) -> Result<(), EditorError> {
     let mut params: UpdateDocParams = data.into_inner().try_into()?;
     match params.content.take() {

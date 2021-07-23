@@ -13,7 +13,7 @@ use pin_project::pin_project;
 
 use crate::{
     errors::{DispatchError, InternalError},
-    module::{container::ModuleDataMap, ModuleData},
+    module::{container::ModuleDataMap, Unit},
     request::{payload::Payload, EventRequest, FromRequest},
     response::{EventResponse, Responder},
     service::{
@@ -77,7 +77,7 @@ impl Module {
     pub fn data<D: 'static + Send + Sync>(mut self, data: D) -> Self {
         Arc::get_mut(&mut self.module_data)
             .unwrap()
-            .insert(ModuleData::new(data));
+            .insert(Unit::new(data));
 
         self
     }
