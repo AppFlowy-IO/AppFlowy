@@ -11,6 +11,10 @@ flowy-dispatch = { path = "../flowy-dispatch" }
 flowy-log = { path = "../flowy-log" }
 flowy-derive = { path = "../flowy-derive" }
 flowy-database = { path = "../flowy-database" }
+flowy-infra = { path = "../flowy-infra" }
 diesel = {version = "1.4.7", features = ["sqlite"]}
 diesel_derives = {version = "1.4.1", features = ["sqlite"]}
 protobuf = {version = "2.18.0"}
+
+[dev-dependencies]
+flowy-test = { path = "../flowy-test" }

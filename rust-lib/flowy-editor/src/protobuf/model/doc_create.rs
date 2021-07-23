@@ -26,8 +26,9 @@
 #[derive(PartialEq,Clone,Default)]
 pub struct CreateDocRequest {
     // message fields
-    pub view_id: ::std::string::String,
+    pub id: ::std::string::String,
     pub name: ::std::string::String,
+    pub desc: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -44,30 +45,30 @@ impl CreateDocRequest {
         ::std::default::Default::default()
     }
 
-    // string view_id = 1;
+    // string id = 1;
 
 
-    pub fn get_view_id(&self) -> &str {
-        &self.view_id
+    pub fn get_id(&self) -> &str {
+        &self.id
     }
-    pub fn clear_view_id(&mut self) {
-        self.view_id.clear();
+    pub fn clear_id(&mut self) {
+        self.id.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_view_id(&mut self, v: ::std::string::String) {
-        self.view_id = v;
+    pub fn set_id(&mut self, v: ::std::string::String) {
+        self.id = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_view_id(&mut self) -> &mut ::std::string::String {
-        &mut self.view_id
+    pub fn mut_id(&mut self) -> &mut ::std::string::String {
+        &mut self.id
     }
 
     // Take field
-    pub fn take_view_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.view_id, ::std::string::String::new())
+    pub fn take_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.id, ::std::string::String::new())
     }
 
     // string name = 2;
@@ -95,6 +96,32 @@ impl CreateDocRequest {
     pub fn take_name(&mut self) -> ::std::string::String {
         ::std::mem::replace(&mut self.name, ::std::string::String::new())
     }
+
+    // string desc = 3;
+
+
+    pub fn get_desc(&self) -> &str {
+        &self.desc
+    }
+    pub fn clear_desc(&mut self) {
+        self.desc.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_desc(&mut self, v: ::std::string::String) {
+        self.desc = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_desc(&mut self) -> &mut ::std::string::String {
+        &mut self.desc
+    }
+
+    // Take field
+    pub fn take_desc(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.desc, ::std::string::String::new())
+    }
 }
 
 impl ::protobuf::Message for CreateDocRequest {
@@ -107,10 +134,13 @@ impl ::protobuf::Message for CreateDocRequest {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.view_id)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.id)?;
                 },
                 2 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.name)?;
+                },
+                3 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.desc)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -124,11 +154,14 @@ impl ::protobuf::Message for CreateDocRequest {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.view_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.view_id);
+        if !self.id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.id);
         }
         if !self.name.is_empty() {
             my_size += ::protobuf::rt::string_size(2, &self.name);
+        }
+        if !self.desc.is_empty() {
+            my_size += ::protobuf::rt::string_size(3, &self.desc);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -136,11 +169,14 @@ impl ::protobuf::Message for CreateDocRequest {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.view_id.is_empty() {
-            os.write_string(1, &self.view_id)?;
+        if !self.id.is_empty() {
+            os.write_string(1, &self.id)?;
         }
         if !self.name.is_empty() {
             os.write_string(2, &self.name)?;
+        }
+        if !self.desc.is_empty() {
+            os.write_string(3, &self.desc)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -181,14 +217,19 @@ impl ::protobuf::Message for CreateDocRequest {
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "view_id",
-                |m: &CreateDocRequest| { &m.view_id },
-                |m: &mut CreateDocRequest| { &mut m.view_id },
+                "id",
+                |m: &CreateDocRequest| { &m.id },
+                |m: &mut CreateDocRequest| { &mut m.id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "name",
                 |m: &CreateDocRequest| { &m.name },
                 |m: &mut CreateDocRequest| { &mut m.name },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "desc",
+                |m: &CreateDocRequest| { &m.desc },
+                |m: &mut CreateDocRequest| { &mut m.desc },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<CreateDocRequest>(
                 "CreateDocRequest",
@@ -206,8 +247,9 @@ impl ::protobuf::Message for CreateDocRequest {
 
 impl ::protobuf::Clear for CreateDocRequest {
     fn clear(&mut self) {
-        self.view_id.clear();
+        self.id.clear();
         self.name.clear();
+        self.desc.clear();
         self.unknown_fields.clear();
     }
 }
@@ -229,7 +271,9 @@ pub struct Doc {
     // message fields
     pub id: ::std::string::String,
     pub name: ::std::string::String,
-    pub view_id: ::std::string::String,
+    pub desc: ::std::string::String,
+    pub path: ::std::string::String,
+    pub content: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -298,30 +342,82 @@ impl Doc {
         ::std::mem::replace(&mut self.name, ::std::string::String::new())
     }
 
-    // string view_id = 3;
+    // string desc = 3;
 
 
-    pub fn get_view_id(&self) -> &str {
-        &self.view_id
+    pub fn get_desc(&self) -> &str {
+        &self.desc
     }
-    pub fn clear_view_id(&mut self) {
-        self.view_id.clear();
+    pub fn clear_desc(&mut self) {
+        self.desc.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_view_id(&mut self, v: ::std::string::String) {
-        self.view_id = v;
+    pub fn set_desc(&mut self, v: ::std::string::String) {
+        self.desc = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_view_id(&mut self) -> &mut ::std::string::String {
-        &mut self.view_id
+    pub fn mut_desc(&mut self) -> &mut ::std::string::String {
+        &mut self.desc
     }
 
     // Take field
-    pub fn take_view_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.view_id, ::std::string::String::new())
+    pub fn take_desc(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.desc, ::std::string::String::new())
+    }
+
+    // string path = 4;
+
+
+    pub fn get_path(&self) -> &str {
+        &self.path
+    }
+    pub fn clear_path(&mut self) {
+        self.path.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_path(&mut self, v: ::std::string::String) {
+        self.path = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_path(&mut self) -> &mut ::std::string::String {
+        &mut self.path
+    }
+
+    // Take field
+    pub fn take_path(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.path, ::std::string::String::new())
+    }
+
+    // string content = 5;
+
+
+    pub fn get_content(&self) -> &str {
+        &self.content
+    }
+    pub fn clear_content(&mut self) {
+        self.content.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_content(&mut self, v: ::std::string::String) {
+        self.content = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_content(&mut self) -> &mut ::std::string::String {
+        &mut self.content
+    }
+
+    // Take field
+    pub fn take_content(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.content, ::std::string::String::new())
     }
 }
 
@@ -341,7 +437,13 @@ impl ::protobuf::Message for Doc {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.name)?;
                 },
                 3 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.view_id)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.desc)?;
+                },
+                4 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.path)?;
+                },
+                5 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.content)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -361,8 +463,14 @@ impl ::protobuf::Message for Doc {
         if !self.name.is_empty() {
             my_size += ::protobuf::rt::string_size(2, &self.name);
         }
-        if !self.view_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(3, &self.view_id);
+        if !self.desc.is_empty() {
+            my_size += ::protobuf::rt::string_size(3, &self.desc);
+        }
+        if !self.path.is_empty() {
+            my_size += ::protobuf::rt::string_size(4, &self.path);
+        }
+        if !self.content.is_empty() {
+            my_size += ::protobuf::rt::string_size(5, &self.content);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -376,8 +484,14 @@ impl ::protobuf::Message for Doc {
         if !self.name.is_empty() {
             os.write_string(2, &self.name)?;
         }
-        if !self.view_id.is_empty() {
-            os.write_string(3, &self.view_id)?;
+        if !self.desc.is_empty() {
+            os.write_string(3, &self.desc)?;
+        }
+        if !self.path.is_empty() {
+            os.write_string(4, &self.path)?;
+        }
+        if !self.content.is_empty() {
+            os.write_string(5, &self.content)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -428,9 +542,19 @@ impl ::protobuf::Message for Doc {
                 |m: &mut Doc| { &mut m.name },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "view_id",
-                |m: &Doc| { &m.view_id },
-                |m: &mut Doc| { &mut m.view_id },
+                "desc",
+                |m: &Doc| { &m.desc },
+                |m: &mut Doc| { &mut m.desc },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "path",
+                |m: &Doc| { &m.path },
+                |m: &mut Doc| { &mut m.path },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "content",
+                |m: &Doc| { &m.content },
+                |m: &mut Doc| { &mut m.content },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<Doc>(
                 "Doc",
@@ -450,7 +574,9 @@ impl ::protobuf::Clear for Doc {
     fn clear(&mut self) {
         self.id.clear();
         self.name.clear();
-        self.view_id.clear();
+        self.desc.clear();
+        self.path.clear();
+        self.content.clear();
         self.unknown_fields.clear();
     }
 }
@@ -468,27 +594,38 @@ impl ::protobuf::reflect::ProtobufValue for Doc {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x10doc_create.proto\"?\n\x10CreateDocRequest\x12\x17\n\x07view_id\x18\
-    \x01\x20\x01(\tR\x06viewId\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\
-    \"B\n\x03Doc\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x12\n\x04name\
-    \x18\x02\x20\x01(\tR\x04name\x12\x17\n\x07view_id\x18\x03\x20\x01(\tR\
-    \x06viewIdJ\xd5\x02\n\x06\x12\x04\0\0\n\x01\n\x08\n\x01\x0c\x12\x03\0\0\
-    \x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\0\x01\x12\x03\
-    \x02\x08\x18\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x17\n\x0c\n\x05\x04\
-    \0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\
-    \x0b\x12\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x15\x16\n\x0b\n\x04\x04\
-    \0\x02\x01\x12\x03\x04\x04\x14\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\
-    \x04\n\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x0b\x0f\n\x0c\n\x05\x04\
-    \0\x02\x01\x03\x12\x03\x04\x12\x13\n\n\n\x02\x04\x01\x12\x04\x06\0\n\x01\
-    \n\n\n\x03\x04\x01\x01\x12\x03\x06\x08\x0b\n\x0b\n\x04\x04\x01\x02\0\x12\
-    \x03\x07\x04\x12\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x07\x04\n\n\x0c\n\
-    \x05\x04\x01\x02\0\x01\x12\x03\x07\x0b\r\n\x0c\n\x05\x04\x01\x02\0\x03\
-    \x12\x03\x07\x10\x11\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\x08\x04\x14\n\
-    \x0c\n\x05\x04\x01\x02\x01\x05\x12\x03\x08\x04\n\n\x0c\n\x05\x04\x01\x02\
-    \x01\x01\x12\x03\x08\x0b\x0f\n\x0c\n\x05\x04\x01\x02\x01\x03\x12\x03\x08\
-    \x12\x13\n\x0b\n\x04\x04\x01\x02\x02\x12\x03\t\x04\x17\n\x0c\n\x05\x04\
-    \x01\x02\x02\x05\x12\x03\t\x04\n\n\x0c\n\x05\x04\x01\x02\x02\x01\x12\x03\
-    \t\x0b\x12\n\x0c\n\x05\x04\x01\x02\x02\x03\x12\x03\t\x15\x16b\x06proto3\
+    \n\x10doc_create.proto\"J\n\x10CreateDocRequest\x12\x0e\n\x02id\x18\x01\
+    \x20\x01(\tR\x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x12\
+    \n\x04desc\x18\x03\x20\x01(\tR\x04desc\"k\n\x03Doc\x12\x0e\n\x02id\x18\
+    \x01\x20\x01(\tR\x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\
+    \x12\n\x04desc\x18\x03\x20\x01(\tR\x04desc\x12\x12\n\x04path\x18\x04\x20\
+    \x01(\tR\x04path\x12\x18\n\x07content\x18\x05\x20\x01(\tR\x07contentJ\
+    \xfa\x03\n\x06\x12\x04\0\0\r\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\
+    \x02\x04\0\x12\x04\x02\0\x06\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x18\
+    \n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x12\n\x0c\n\x05\x04\0\x02\0\x05\
+    \x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\r\n\x0c\n\
+    \x05\x04\0\x02\0\x03\x12\x03\x03\x10\x11\n\x0b\n\x04\x04\0\x02\x01\x12\
+    \x03\x04\x04\x14\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\n\n\x0c\n\
+    \x05\x04\0\x02\x01\x01\x12\x03\x04\x0b\x0f\n\x0c\n\x05\x04\0\x02\x01\x03\
+    \x12\x03\x04\x12\x13\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x04\x14\n\x0c\
+    \n\x05\x04\0\x02\x02\x05\x12\x03\x05\x04\n\n\x0c\n\x05\x04\0\x02\x02\x01\
+    \x12\x03\x05\x0b\x0f\n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05\x12\x13\n\
+    \n\n\x02\x04\x01\x12\x04\x07\0\r\x01\n\n\n\x03\x04\x01\x01\x12\x03\x07\
+    \x08\x0b\n\x0b\n\x04\x04\x01\x02\0\x12\x03\x08\x04\x12\n\x0c\n\x05\x04\
+    \x01\x02\0\x05\x12\x03\x08\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\
+    \x08\x0b\r\n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\x08\x10\x11\n\x0b\n\x04\
+    \x04\x01\x02\x01\x12\x03\t\x04\x14\n\x0c\n\x05\x04\x01\x02\x01\x05\x12\
+    \x03\t\x04\n\n\x0c\n\x05\x04\x01\x02\x01\x01\x12\x03\t\x0b\x0f\n\x0c\n\
+    \x05\x04\x01\x02\x01\x03\x12\x03\t\x12\x13\n\x0b\n\x04\x04\x01\x02\x02\
+    \x12\x03\n\x04\x14\n\x0c\n\x05\x04\x01\x02\x02\x05\x12\x03\n\x04\n\n\x0c\
+    \n\x05\x04\x01\x02\x02\x01\x12\x03\n\x0b\x0f\n\x0c\n\x05\x04\x01\x02\x02\
+    \x03\x12\x03\n\x12\x13\n\x0b\n\x04\x04\x01\x02\x03\x12\x03\x0b\x04\x14\n\
+    \x0c\n\x05\x04\x01\x02\x03\x05\x12\x03\x0b\x04\n\n\x0c\n\x05\x04\x01\x02\
+    \x03\x01\x12\x03\x0b\x0b\x0f\n\x0c\n\x05\x04\x01\x02\x03\x03\x12\x03\x0b\
+    \x12\x13\n\x0b\n\x04\x04\x01\x02\x04\x12\x03\x0c\x04\x17\n\x0c\n\x05\x04\
+    \x01\x02\x04\x05\x12\x03\x0c\x04\n\n\x0c\n\x05\x04\x01\x02\x04\x01\x12\
+    \x03\x0c\x0b\x12\n\x0c\n\x05\x04\x01\x02\x04\x03\x12\x03\x0c\x15\x16b\
+    \x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

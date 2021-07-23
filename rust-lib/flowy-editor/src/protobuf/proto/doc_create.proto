@@ -1,11 +1,14 @@
 syntax = "proto3";
 
 message CreateDocRequest {
-    string view_id = 1;
+    string id = 1;
     string name = 2;
+    string desc = 3;
 }
 message Doc {
     string id = 1;
     string name = 2;
-    string view_id = 3;
+    string desc = 3;
+    string path = 4;
+    string content = 5;
 }

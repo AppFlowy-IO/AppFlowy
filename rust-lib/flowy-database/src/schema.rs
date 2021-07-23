@@ -13,6 +13,18 @@ table! {
 }
 
 table! {
+    doc_table (id) {
+        id -> Text,
+        name -> Text,
+        desc -> Text,
+        path -> Text,
+        modified_time -> BigInt,
+        create_time -> BigInt,
+        version -> BigInt,
+    }
+}
+
+table! {
     user_table (id) {
         id -> Text,
         name -> Text,
@@ -50,6 +62,7 @@ table! {
 
 allow_tables_to_appear_in_same_query!(
     app_table,
+    doc_table,
     user_table,
     view_table,
     workspace_table,

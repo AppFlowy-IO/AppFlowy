@@ -12,22 +12,25 @@ import 'dart:typed_data' as $typed_data;
 const CreateDocRequest$json = const {
   '1': 'CreateDocRequest',
   '2': const [
-    const {'1': 'view_id', '3': 1, '4': 1, '5': 9, '10': 'viewId'},
+    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
+    const {'1': 'desc', '3': 3, '4': 1, '5': 9, '10': 'desc'},
   ],
 };
 
 /// Descriptor for `CreateDocRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List createDocRequestDescriptor = $convert.base64Decode('ChBDcmVhdGVEb2NSZXF1ZXN0EhcKB3ZpZXdfaWQYASABKAlSBnZpZXdJZBISCgRuYW1lGAIgASgJUgRuYW1l');
+final $typed_data.Uint8List createDocRequestDescriptor = $convert.base64Decode('ChBDcmVhdGVEb2NSZXF1ZXN0Eg4KAmlkGAEgASgJUgJpZBISCgRuYW1lGAIgASgJUgRuYW1lEhIKBGRlc2MYAyABKAlSBGRlc2M=');
 @$core.Deprecated('Use docDescriptor instead')
 const Doc$json = const {
   '1': 'Doc',
   '2': const [
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
-    const {'1': 'view_id', '3': 3, '4': 1, '5': 9, '10': 'viewId'},
+    const {'1': 'desc', '3': 3, '4': 1, '5': 9, '10': 'desc'},
+    const {'1': 'path', '3': 4, '4': 1, '5': 9, '10': 'path'},
+    const {'1': 'content', '3': 5, '4': 1, '5': 9, '10': 'content'},
   ],
 };
 
 /// Descriptor for `Doc`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List docDescriptor = $convert.base64Decode('CgNEb2MSDgoCaWQYASABKAlSAmlkEhIKBG5hbWUYAiABKAlSBG5hbWUSFwoHdmlld19pZBgDIAEoCVIGdmlld0lk');
+final $typed_data.Uint8List docDescriptor = $convert.base64Decode('CgNEb2MSDgoCaWQYASABKAlSAmlkEhIKBG5hbWUYAiABKAlSBG5hbWUSEgoEZGVzYxgDIAEoCVIEZGVzYxISCgRwYXRoGAQgASgJUgRwYXRoEhgKB2NvbnRlbnQYBSABKAlSB2NvbnRlbnQ=');

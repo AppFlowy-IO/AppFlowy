@@ -11,22 +11,27 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 class CreateDocRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateDocRequest', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewId')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
     ..hasRequiredFields = false
   ;
 
   CreateDocRequest._() : super();
   factory CreateDocRequest({
-    $core.String? viewId,
+    $core.String? id,
     $core.String? name,
+    $core.String? desc,
   }) {
     final _result = create();
-    if (viewId != null) {
-      _result.viewId = viewId;
+    if (id != null) {
+      _result.id = id;
     }
     if (name != null) {
       _result.name = name;
+    }
+    if (desc != null) {
+      _result.desc = desc;
     }
     return _result;
   }
@@ -52,13 +57,13 @@ class CreateDocRequest extends $pb.GeneratedMessage {
   static CreateDocRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get viewId => $_getSZ(0);
+  $core.String get id => $_getSZ(0);
   @$pb.TagNumber(1)
-  set viewId($core.String v) { $_setString(0, v); }
+  set id($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasViewId() => $_has(0);
+  $core.bool hasId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearViewId() => clearField(1);
+  void clearId() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.String get name => $_getSZ(1);
@@ -68,13 +73,24 @@ class CreateDocRequest extends $pb.GeneratedMessage {
   $core.bool hasName() => $_has(1);
   @$pb.TagNumber(2)
   void clearName() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get desc => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set desc($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasDesc() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearDesc() => clearField(3);
 }
 
 class Doc extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Doc', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
-    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewId')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'path')
+    ..aOS(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'content')
     ..hasRequiredFields = false
   ;
 
@@ -82,7 +98,9 @@ class Doc extends $pb.GeneratedMessage {
   factory Doc({
     $core.String? id,
     $core.String? name,
-    $core.String? viewId,
+    $core.String? desc,
+    $core.String? path,
+    $core.String? content,
   }) {
     final _result = create();
     if (id != null) {
@@ -91,8 +109,14 @@ class Doc extends $pb.GeneratedMessage {
     if (name != null) {
       _result.name = name;
     }
-    if (viewId != null) {
-      _result.viewId = viewId;
+    if (desc != null) {
+      _result.desc = desc;
+    }
+    if (path != null) {
+      _result.path = path;
+    }
+    if (content != null) {
+      _result.content = content;
     }
     return _result;
   }
@@ -136,12 +160,30 @@ class Doc extends $pb.GeneratedMessage {
   void clearName() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get viewId => $_getSZ(2);
+  $core.String get desc => $_getSZ(2);
   @$pb.TagNumber(3)
-  set viewId($core.String v) { $_setString(2, v); }
+  set desc($core.String v) { $_setString(2, v); }
   @$pb.TagNumber(3)
-  $core.bool hasViewId() => $_has(2);
+  $core.bool hasDesc() => $_has(2);
   @$pb.TagNumber(3)
-  void clearViewId() => clearField(3);
+  void clearDesc() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get path => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set path($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasPath() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearPath() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get content => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set content($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasContent() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearContent() => clearField(5);
 }
 

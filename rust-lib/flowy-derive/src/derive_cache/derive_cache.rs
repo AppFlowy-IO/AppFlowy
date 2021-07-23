@@ -19,6 +19,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "KeyValue"
         | "CreateDocRequest"
         | "Doc"
+        | "QueryDocRequest"
         | "EditorError"
         | "QueryAppRequest"
         | "CreateAppRequest"

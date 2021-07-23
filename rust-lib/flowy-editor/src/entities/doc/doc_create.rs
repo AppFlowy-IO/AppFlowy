@@ -8,15 +8,19 @@ use std::convert::TryInto;
 #[derive(ProtoBuf, Default)]
 pub struct CreateDocRequest {
     #[pb(index = 1)]
-    view_id: String,
+    id: String,
 
     #[pb(index = 2)]
     pub name: String,
+
+    #[pb(index = 3)]
+    pub desc: String,
 }
 
 pub struct CreateDocParams {
-    pub view_id: String,
+    pub id: String,
     pub name: String,
+    pub desc: String,
 }
 
 impl TryInto<CreateDocParams> for CreateDocRequest {
@@ -31,7 +35,7 @@ impl TryInto<CreateDocParams> for CreateDocRequest {
             })?
             .0;
 
-        let view_id = DocViewId::parse(self.view_id)
+        let id = DocViewId::parse(self.id)
             .map_err(|e| {
                 ErrorBuilder::new(EditorErrorCode::DocViewIdInvalid)
                     .msg(e)
@@ -39,7 +43,11 @@ impl TryInto<CreateDocParams> for CreateDocRequest {
             })?
             .0;
 
-        Ok(CreateDocParams { view_id, name })
+        Ok(CreateDocParams {
+            id,
+            name,
+            desc: self.desc,
+        })
     }
 }
 
@@ -52,5 +60,11 @@ pub struct Doc {
     pub name: String,
 
     #[pb(index = 3)]
-    pub view_id: String,
+    pub desc: String,
+
+    #[pb(index = 4)]
+    pub path: String,
+
+    #[pb(index = 5)]
+    pub content: String,
 }

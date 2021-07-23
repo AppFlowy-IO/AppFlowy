@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message QueryDocRequest {
+    string doc_id = 1;
+    bool read_content = 2;
+}

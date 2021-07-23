@@ -8,3 +8,6 @@ pub use errors::*;
 
 mod event; 
 pub use event::*; 
+
+mod doc_query; 
+pub use doc_query::*; 
