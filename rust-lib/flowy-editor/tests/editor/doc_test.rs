@@ -2,17 +2,21 @@ use crate::helper::*;
 
 #[test]
 fn file_create_test() {
-    let doc_desc = create_doc("hello world", "flutter ❤️ rust");
+    let doc_desc = create_doc("hello world", "flutter ❤️ rust", "123");
     dbg!(&doc_desc);
+
+    let doc = read_doc(&doc_desc.id);
+    assert_eq!(doc.text, "123".to_owned());
 }
 
 #[test]
-fn file_save_test() {
-    let content = "😁😁😁😁😁😁😁😁😁😁".to_owned();
-    let doc_desc = create_doc("hello world", "flutter ❤️ rust");
+fn file_update_text_test() {
+    let doc_desc = create_doc("hello world", "flutter ❤️ rust", "");
     dbg!(&doc_desc);
+
+    let content = "😁😁😁😁😁😁😁😁😁😁".to_owned();
     save_doc(&doc_desc, &content);
 
     let doc = read_doc(&doc_desc.id);
-    assert_eq!(doc.content, content);
+    assert_eq!(doc.text, content);
 }

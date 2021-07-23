@@ -19,8 +19,8 @@ enum UpdateDocRequest_OneOfDesc {
   notSet
 }
 
-enum UpdateDocRequest_OneOfContent {
-  content, 
+enum UpdateDocRequest_OneOfText {
+  text, 
   notSet
 }
 
@@ -33,9 +33,9 @@ class UpdateDocRequest extends $pb.GeneratedMessage {
     3 : UpdateDocRequest_OneOfDesc.desc,
     0 : UpdateDocRequest_OneOfDesc.notSet
   };
-  static const $core.Map<$core.int, UpdateDocRequest_OneOfContent> _UpdateDocRequest_OneOfContentByTag = {
-    4 : UpdateDocRequest_OneOfContent.content,
-    0 : UpdateDocRequest_OneOfContent.notSet
+  static const $core.Map<$core.int, UpdateDocRequest_OneOfText> _UpdateDocRequest_OneOfTextByTag = {
+    4 : UpdateDocRequest_OneOfText.text,
+    0 : UpdateDocRequest_OneOfText.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UpdateDocRequest', createEmptyInstance: create)
     ..oo(0, [2])
@@ -44,7 +44,7 @@ class UpdateDocRequest extends $pb.GeneratedMessage {
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
-    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'content')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'text')
     ..hasRequiredFields = false
   ;
 
@@ -53,7 +53,7 @@ class UpdateDocRequest extends $pb.GeneratedMessage {
     $core.String? id,
     $core.String? name,
     $core.String? desc,
-    $core.String? content,
+    $core.String? text,
   }) {
     final _result = create();
     if (id != null) {
@@ -65,8 +65,8 @@ class UpdateDocRequest extends $pb.GeneratedMessage {
     if (desc != null) {
       _result.desc = desc;
     }
-    if (content != null) {
-      _result.content = content;
+    if (text != null) {
+      _result.text = text;
     }
     return _result;
   }
@@ -97,8 +97,8 @@ class UpdateDocRequest extends $pb.GeneratedMessage {
   UpdateDocRequest_OneOfDesc whichOneOfDesc() => _UpdateDocRequest_OneOfDescByTag[$_whichOneof(1)]!;
   void clearOneOfDesc() => clearField($_whichOneof(1));
 
-  UpdateDocRequest_OneOfContent whichOneOfContent() => _UpdateDocRequest_OneOfContentByTag[$_whichOneof(2)]!;
-  void clearOneOfContent() => clearField($_whichOneof(2));
+  UpdateDocRequest_OneOfText whichOneOfText() => _UpdateDocRequest_OneOfTextByTag[$_whichOneof(2)]!;
+  void clearOneOfText() => clearField($_whichOneof(2));
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
@@ -128,12 +128,12 @@ class UpdateDocRequest extends $pb.GeneratedMessage {
   void clearDesc() => clearField(3);
 
   @$pb.TagNumber(4)
-  $core.String get content => $_getSZ(3);
+  $core.String get text => $_getSZ(3);
   @$pb.TagNumber(4)
-  set content($core.String v) { $_setString(3, v); }
+  set text($core.String v) { $_setString(3, v); }
   @$pb.TagNumber(4)
-  $core.bool hasContent() => $_has(3);
+  $core.bool hasText() => $_has(3);
   @$pb.TagNumber(4)
-  void clearContent() => clearField(4);
+  void clearText() => clearField(4);
 }
 

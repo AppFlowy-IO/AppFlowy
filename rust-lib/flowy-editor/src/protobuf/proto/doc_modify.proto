@@ -4,5 +4,5 @@ message UpdateDocRequest {
     string id = 1;
     oneof one_of_name { string name = 2; };
     oneof one_of_desc { string desc = 3; };
-    oneof one_of_content { string content = 4; };
+    oneof one_of_text { string text = 4; };
 }

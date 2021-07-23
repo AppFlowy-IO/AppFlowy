@@ -2,6 +2,57 @@
 
 /// Auto gen code from rust ast, do not edit
 part of 'dispatch.dart';
+class EditorEventCreateDoc {
+     CreateDocRequest request;
+     EditorEventCreateDoc(this.request);
+
+    Future<Either<DocDescription, EditorError>> send() {
+    final request = FFIRequest.create()
+          ..event = EditorEvent.CreateDoc.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (okBytes) => left(DocDescription.fromBuffer(okBytes)),
+           (errBytes) => right(EditorError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
+class EditorEventUpdateDoc {
+     UpdateDocRequest request;
+     EditorEventUpdateDoc(this.request);
+
+    Future<Either<Unit, EditorError>> send() {
+    final request = FFIRequest.create()
+          ..event = EditorEvent.UpdateDoc.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (bytes) => left(unit),
+           (errBytes) => right(EditorError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
+class EditorEventReadDoc {
+     QueryDocRequest request;
+     EditorEventReadDoc(this.request);
+
+    Future<Either<Doc, EditorError>> send() {
+    final request = FFIRequest.create()
+          ..event = EditorEvent.ReadDoc.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (okBytes) => left(Doc.fromBuffer(okBytes)),
+           (errBytes) => right(EditorError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
 class WorkspaceEventCreateWorkspace {
      CreateWorkspaceRequest request;
      WorkspaceEventCreateWorkspace(this.request);
@@ -13,8 +64,8 @@ class WorkspaceEventCreateWorkspace {
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-          (okBytes) => left(Workspace.fromBuffer(okBytes)),
-          (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+           (okBytes) => left(Workspace.fromBuffer(okBytes)),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
         ));
     }
 }
@@ -44,8 +95,8 @@ class WorkspaceEventGetWorkspace {
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-          (okBytes) => left(Workspace.fromBuffer(okBytes)),
-          (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+           (okBytes) => left(Workspace.fromBuffer(okBytes)),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
         ));
     }
 }
@@ -61,8 +112,8 @@ class WorkspaceEventCreateApp {
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-          (okBytes) => left(App.fromBuffer(okBytes)),
-          (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+           (okBytes) => left(App.fromBuffer(okBytes)),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
         ));
     }
 }
@@ -78,8 +129,8 @@ class WorkspaceEventGetApp {
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-          (okBytes) => left(App.fromBuffer(okBytes)),
-          (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+           (okBytes) => left(App.fromBuffer(okBytes)),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
         ));
     }
 }
@@ -95,8 +146,8 @@ class WorkspaceEventCreateView {
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-          (okBytes) => left(View.fromBuffer(okBytes)),
-          (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+           (okBytes) => left(View.fromBuffer(okBytes)),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
         ));
     }
 }
@@ -126,8 +177,8 @@ class UserEventSignIn {
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-          (okBytes) => left(UserDetail.fromBuffer(okBytes)),
-          (errBytes) => right(UserError.fromBuffer(errBytes)),
+           (okBytes) => left(UserDetail.fromBuffer(okBytes)),
+           (errBytes) => right(UserError.fromBuffer(errBytes)),
         ));
     }
 }
@@ -143,8 +194,8 @@ class UserEventSignUp {
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-          (okBytes) => left(UserDetail.fromBuffer(okBytes)),
-          (errBytes) => right(UserError.fromBuffer(errBytes)),
+           (okBytes) => left(UserDetail.fromBuffer(okBytes)),
+           (errBytes) => right(UserError.fromBuffer(errBytes)),
         ));
     }
 }
@@ -174,8 +225,8 @@ class UserEventUpdateUser {
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-          (okBytes) => left(UserDetail.fromBuffer(okBytes)),
-          (errBytes) => right(UserError.fromBuffer(errBytes)),
+           (okBytes) => left(UserDetail.fromBuffer(okBytes)),
+           (errBytes) => right(UserError.fromBuffer(errBytes)),
         ));
     }
 }

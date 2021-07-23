@@ -14,14 +14,14 @@ pub struct UpdateDocRequest {
     pub desc: Option<String>,
 
     #[pb(index = 4, one_of)]
-    pub content: Option<String>,
+    pub text: Option<String>,
 }
 
 pub(crate) struct UpdateDocParams {
     pub(crate) id: String,
     pub(crate) name: Option<String>,
     pub(crate) desc: Option<String>,
-    pub(crate) content: Option<String>,
+    pub(crate) text: Option<String>,
 }
 
 impl TryInto<UpdateDocParams> for UpdateDocRequest {
@@ -66,7 +66,7 @@ impl TryInto<UpdateDocParams> for UpdateDocRequest {
             id,
             name,
             desc,
-            content: self.content,
+            text: self.text,
         })
     }
 }

@@ -15,12 +15,16 @@ pub struct CreateDocRequest {
 
     #[pb(index = 3)]
     pub desc: String,
+
+    #[pb(index = 4)]
+    pub text: String,
 }
 
 pub struct CreateDocParams {
     pub id: String,
     pub name: String,
     pub desc: String,
+    pub text: String,
 }
 
 impl TryInto<CreateDocParams> for CreateDocRequest {
@@ -47,6 +51,7 @@ impl TryInto<CreateDocParams> for CreateDocRequest {
             id,
             name,
             desc: self.desc,
+            text: self.text,
         })
     }
 }
@@ -72,5 +77,5 @@ pub struct Doc {
     pub desc: DocDescription,
 
     #[pb(index = 2)]
-    pub content: String,
+    pub text: String,
 }

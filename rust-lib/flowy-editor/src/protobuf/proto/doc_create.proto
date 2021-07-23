@@ -4,6 +4,7 @@ message CreateDocRequest {
     string id = 1;
     string name = 2;
     string desc = 3;
+    string text = 4;
 }
 message DocDescription {
     string id = 1;
@@ -13,5 +14,5 @@ message DocDescription {
 }
 message Doc {
     DocDescription desc = 1;
-    string content = 2;
+    string text = 2;
 }

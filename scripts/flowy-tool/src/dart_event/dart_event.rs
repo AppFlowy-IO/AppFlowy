@@ -114,6 +114,10 @@ pub fn ast_to_event_render_ctx(ast: &Vec<EventASTContext>) -> Vec<EventRenderCon
                 Some(ref event_output) => Some(event_output.get_ident().unwrap().to_string()),
                 None => None,
             };
+            // eprintln!(
+            //     "😁 {:?} / {:?}",
+            //     event_ast.event_input, event_ast.event_output
+            // );
 
             return EventRenderContext {
                 input_deserializer,

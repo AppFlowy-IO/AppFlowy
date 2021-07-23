@@ -14,6 +14,7 @@ class CreateDocRequest extends $pb.GeneratedMessage {
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'text')
     ..hasRequiredFields = false
   ;
 
@@ -22,6 +23,7 @@ class CreateDocRequest extends $pb.GeneratedMessage {
     $core.String? id,
     $core.String? name,
     $core.String? desc,
+    $core.String? text,
   }) {
     final _result = create();
     if (id != null) {
@@ -32,6 +34,9 @@ class CreateDocRequest extends $pb.GeneratedMessage {
     }
     if (desc != null) {
       _result.desc = desc;
+    }
+    if (text != null) {
+      _result.text = text;
     }
     return _result;
   }
@@ -82,6 +87,15 @@ class CreateDocRequest extends $pb.GeneratedMessage {
   $core.bool hasDesc() => $_has(2);
   @$pb.TagNumber(3)
   void clearDesc() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get text => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set text($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasText() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearText() => clearField(4);
 }
 
 class DocDescription extends $pb.GeneratedMessage {
@@ -176,21 +190,21 @@ class DocDescription extends $pb.GeneratedMessage {
 class Doc extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Doc', createEmptyInstance: create)
     ..aOM<DocDescription>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc', subBuilder: DocDescription.create)
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'content')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'text')
     ..hasRequiredFields = false
   ;
 
   Doc._() : super();
   factory Doc({
     DocDescription? desc,
-    $core.String? content,
+    $core.String? text,
   }) {
     final _result = create();
     if (desc != null) {
       _result.desc = desc;
     }
-    if (content != null) {
-      _result.content = content;
+    if (text != null) {
+      _result.text = text;
     }
     return _result;
   }
@@ -227,12 +241,12 @@ class Doc extends $pb.GeneratedMessage {
   DocDescription ensureDesc() => $_ensure(0);
 
   @$pb.TagNumber(2)
-  $core.String get content => $_getSZ(1);
+  $core.String get text => $_getSZ(1);
   @$pb.TagNumber(2)
-  set content($core.String v) { $_setString(1, v); }
+  set text($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasContent() => $_has(1);
+  $core.bool hasText() => $_has(1);
   @$pb.TagNumber(2)
-  void clearContent() => clearField(2);
+  void clearText() => clearField(2);
 }
 

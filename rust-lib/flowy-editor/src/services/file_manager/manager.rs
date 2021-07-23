@@ -70,8 +70,12 @@ impl FileManager {
         }
     }
 
-    pub(crate) fn make_file_path(&self, id: &str) -> PathBuf {
-        PathBuf::from(format!("{}/{}", self.config.doc_dir, id))
+    pub(crate) fn create_file(&mut self, id: &str, text: &str) -> PathBuf {
+        let path = PathBuf::from(format!("{}/{}", self.config.doc_dir, id));
+        let file_id: FileId = id.to_owned().into();
+        log::info!("Create doc at: {:?}", path);
+        self.save_new(&path, text, &file_id);
+        path
     }
 
     pub(crate) fn get_info(&self, id: &FileId) -> Option<&FileInfo> { self.file_info.get(id) }
@@ -91,7 +95,7 @@ impl FileManager {
         false
     }
 
-    fn save_new(&mut self, path: &Path, text: &String, id: &FileId) -> Result<(), FileError> {
+    fn save_new(&mut self, path: &Path, text: &str, id: &FileId) -> Result<(), FileError> {
         try_save(path, text, CharacterEncoding::Utf8, self.get_info(id))
             .map_err(|e| FileError::Io(e, path.to_owned()))?;
         let info = FileInfo {

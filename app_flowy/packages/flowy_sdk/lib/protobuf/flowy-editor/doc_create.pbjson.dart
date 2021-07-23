@@ -15,11 +15,12 @@ const CreateDocRequest$json = const {
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
     const {'1': 'desc', '3': 3, '4': 1, '5': 9, '10': 'desc'},
+    const {'1': 'text', '3': 4, '4': 1, '5': 9, '10': 'text'},
   ],
 };
 
 /// Descriptor for `CreateDocRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List createDocRequestDescriptor = $convert.base64Decode('ChBDcmVhdGVEb2NSZXF1ZXN0Eg4KAmlkGAEgASgJUgJpZBISCgRuYW1lGAIgASgJUgRuYW1lEhIKBGRlc2MYAyABKAlSBGRlc2M=');
+final $typed_data.Uint8List createDocRequestDescriptor = $convert.base64Decode('ChBDcmVhdGVEb2NSZXF1ZXN0Eg4KAmlkGAEgASgJUgJpZBISCgRuYW1lGAIgASgJUgRuYW1lEhIKBGRlc2MYAyABKAlSBGRlc2MSEgoEdGV4dBgEIAEoCVIEdGV4dA==');
 @$core.Deprecated('Use docDescriptionDescriptor instead')
 const DocDescription$json = const {
   '1': 'DocDescription',
@@ -38,9 +39,9 @@ const Doc$json = const {
   '1': 'Doc',
   '2': const [
     const {'1': 'desc', '3': 1, '4': 1, '5': 11, '6': '.DocDescription', '10': 'desc'},
-    const {'1': 'content', '3': 2, '4': 1, '5': 9, '10': 'content'},
+    const {'1': 'text', '3': 2, '4': 1, '5': 9, '10': 'text'},
   ],
 };
 
 /// Descriptor for `Doc`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List docDescriptor = $convert.base64Decode('CgNEb2MSIwoEZGVzYxgBIAEoCzIPLkRvY0Rlc2NyaXB0aW9uUgRkZXNjEhgKB2NvbnRlbnQYAiABKAlSB2NvbnRlbnQ=');
+final $typed_data.Uint8List docDescriptor = $convert.base64Decode('CgNEb2MSIwoEZGVzYxgBIAEoCzIPLkRvY0Rlc2NyaXB0aW9uUgRkZXNjEhIKBHRleHQYAiABKAlSBHRleHQ=');

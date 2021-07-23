@@ -30,7 +30,7 @@ pub struct UpdateDocRequest {
     // message oneof groups
     pub one_of_name: ::std::option::Option<UpdateDocRequest_oneof_one_of_name>,
     pub one_of_desc: ::std::option::Option<UpdateDocRequest_oneof_one_of_desc>,
-    pub one_of_content: ::std::option::Option<UpdateDocRequest_oneof_one_of_content>,
+    pub one_of_text: ::std::option::Option<UpdateDocRequest_oneof_one_of_text>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -53,8 +53,8 @@ pub enum UpdateDocRequest_oneof_one_of_desc {
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum UpdateDocRequest_oneof_one_of_content {
-    content(::std::string::String),
+pub enum UpdateDocRequest_oneof_one_of_text {
+    text(::std::string::String),
 }
 
 impl UpdateDocRequest {
@@ -186,48 +186,48 @@ impl UpdateDocRequest {
         }
     }
 
-    // string content = 4;
+    // string text = 4;
 
 
-    pub fn get_content(&self) -> &str {
-        match self.one_of_content {
-            ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_content::content(ref v)) => v,
+    pub fn get_text(&self) -> &str {
+        match self.one_of_text {
+            ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_text::text(ref v)) => v,
             _ => "",
         }
     }
-    pub fn clear_content(&mut self) {
-        self.one_of_content = ::std::option::Option::None;
+    pub fn clear_text(&mut self) {
+        self.one_of_text = ::std::option::Option::None;
     }
 
-    pub fn has_content(&self) -> bool {
-        match self.one_of_content {
-            ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_content::content(..)) => true,
+    pub fn has_text(&self) -> bool {
+        match self.one_of_text {
+            ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_text::text(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
-    pub fn set_content(&mut self, v: ::std::string::String) {
-        self.one_of_content = ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_content::content(v))
+    pub fn set_text(&mut self, v: ::std::string::String) {
+        self.one_of_text = ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_text::text(v))
     }
 
     // Mutable pointer to the field.
-    pub fn mut_content(&mut self) -> &mut ::std::string::String {
-        if let ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_content::content(_)) = self.one_of_content {
+    pub fn mut_text(&mut self) -> &mut ::std::string::String {
+        if let ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_text::text(_)) = self.one_of_text {
         } else {
-            self.one_of_content = ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_content::content(::std::string::String::new()));
+            self.one_of_text = ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_text::text(::std::string::String::new()));
         }
-        match self.one_of_content {
-            ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_content::content(ref mut v)) => v,
+        match self.one_of_text {
+            ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_text::text(ref mut v)) => v,
             _ => panic!(),
         }
     }
 
     // Take field
-    pub fn take_content(&mut self) -> ::std::string::String {
-        if self.has_content() {
-            match self.one_of_content.take() {
-                ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_content::content(v)) => v,
+    pub fn take_text(&mut self) -> ::std::string::String {
+        if self.has_text() {
+            match self.one_of_text.take() {
+                ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_text::text(v)) => v,
                 _ => panic!(),
             }
         } else {
@@ -264,7 +264,7 @@ impl ::protobuf::Message for UpdateDocRequest {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_content = ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_content::content(is.read_string()?));
+                    self.one_of_text = ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_text::text(is.read_string()?));
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -295,9 +295,9 @@ impl ::protobuf::Message for UpdateDocRequest {
                 },
             };
         }
-        if let ::std::option::Option::Some(ref v) = self.one_of_content {
+        if let ::std::option::Option::Some(ref v) = self.one_of_text {
             match v {
-                &UpdateDocRequest_oneof_one_of_content::content(ref v) => {
+                &UpdateDocRequest_oneof_one_of_text::text(ref v) => {
                     my_size += ::protobuf::rt::string_size(4, &v);
                 },
             };
@@ -325,9 +325,9 @@ impl ::protobuf::Message for UpdateDocRequest {
                 },
             };
         }
-        if let ::std::option::Option::Some(ref v) = self.one_of_content {
+        if let ::std::option::Option::Some(ref v) = self.one_of_text {
             match v {
-                &UpdateDocRequest_oneof_one_of_content::content(ref v) => {
+                &UpdateDocRequest_oneof_one_of_text::text(ref v) => {
                     os.write_string(4, v)?;
                 },
             };
@@ -386,9 +386,9 @@ impl ::protobuf::Message for UpdateDocRequest {
                 UpdateDocRequest::get_desc,
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
-                "content",
-                UpdateDocRequest::has_content,
-                UpdateDocRequest::get_content,
+                "text",
+                UpdateDocRequest::has_text,
+                UpdateDocRequest::get_text,
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<UpdateDocRequest>(
                 "UpdateDocRequest",
@@ -409,7 +409,7 @@ impl ::protobuf::Clear for UpdateDocRequest {
         self.id.clear();
         self.one_of_name = ::std::option::Option::None;
         self.one_of_desc = ::std::option::Option::None;
-        self.one_of_content = ::std::option::Option::None;
+        self.one_of_text = ::std::option::Option::None;
         self.unknown_fields.clear();
     }
 }
@@ -427,27 +427,27 @@ impl ::protobuf::reflect::ProtobufValue for UpdateDocRequest {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x10doc_modify.proto\"\x9a\x01\n\x10UpdateDocRequest\x12\x0e\n\x02id\
+    \n\x10doc_modify.proto\"\x91\x01\n\x10UpdateDocRequest\x12\x0e\n\x02id\
     \x18\x01\x20\x01(\tR\x02id\x12\x14\n\x04name\x18\x02\x20\x01(\tH\0R\x04n\
-    ame\x12\x14\n\x04desc\x18\x03\x20\x01(\tH\x01R\x04desc\x12\x1a\n\x07cont\
-    ent\x18\x04\x20\x01(\tH\x02R\x07contentB\r\n\x0bone_of_nameB\r\n\x0bone_\
-    of_descB\x10\n\x0eone_of_contentJ\xd7\x02\n\x06\x12\x04\0\0\x07\x01\n\
-    \x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x07\x01\n\n\
-    \n\x03\x04\0\x01\x12\x03\x02\x08\x18\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\
-    \x04\x12\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\
-    \x02\0\x01\x12\x03\x03\x0b\r\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x10\
-    \x11\n\x0b\n\x04\x04\0\x08\0\x12\x03\x04\x04*\n\x0c\n\x05\x04\0\x08\0\
-    \x01\x12\x03\x04\n\x15\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x18(\n\x0c\
-    \n\x05\x04\0\x02\x01\x05\x12\x03\x04\x18\x1e\n\x0c\n\x05\x04\0\x02\x01\
-    \x01\x12\x03\x04\x1f#\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04&'\n\x0b\
-    \n\x04\x04\0\x08\x01\x12\x03\x05\x04*\n\x0c\n\x05\x04\0\x08\x01\x01\x12\
-    \x03\x05\n\x15\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x18(\n\x0c\n\x05\
-    \x04\0\x02\x02\x05\x12\x03\x05\x18\x1e\n\x0c\n\x05\x04\0\x02\x02\x01\x12\
-    \x03\x05\x1f#\n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05&'\n\x0b\n\x04\
-    \x04\0\x08\x02\x12\x03\x06\x040\n\x0c\n\x05\x04\0\x08\x02\x01\x12\x03\
-    \x06\n\x18\n\x0b\n\x04\x04\0\x02\x03\x12\x03\x06\x1b.\n\x0c\n\x05\x04\0\
-    \x02\x03\x05\x12\x03\x06\x1b!\n\x0c\n\x05\x04\0\x02\x03\x01\x12\x03\x06\
-    \")\n\x0c\n\x05\x04\0\x02\x03\x03\x12\x03\x06,-b\x06proto3\
+    ame\x12\x14\n\x04desc\x18\x03\x20\x01(\tH\x01R\x04desc\x12\x14\n\x04text\
+    \x18\x04\x20\x01(\tH\x02R\x04textB\r\n\x0bone_of_nameB\r\n\x0bone_of_des\
+    cB\r\n\x0bone_of_textJ\xd7\x02\n\x06\x12\x04\0\0\x07\x01\n\x08\n\x01\x0c\
+    \x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x07\x01\n\n\n\x03\x04\0\
+    \x01\x12\x03\x02\x08\x18\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x12\n\
+    \x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\
+    \x12\x03\x03\x0b\r\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x10\x11\n\x0b\
+    \n\x04\x04\0\x08\0\x12\x03\x04\x04*\n\x0c\n\x05\x04\0\x08\0\x01\x12\x03\
+    \x04\n\x15\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x18(\n\x0c\n\x05\x04\0\
+    \x02\x01\x05\x12\x03\x04\x18\x1e\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\
+    \x04\x1f#\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04&'\n\x0b\n\x04\x04\0\
+    \x08\x01\x12\x03\x05\x04*\n\x0c\n\x05\x04\0\x08\x01\x01\x12\x03\x05\n\
+    \x15\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x18(\n\x0c\n\x05\x04\0\x02\
+    \x02\x05\x12\x03\x05\x18\x1e\n\x0c\n\x05\x04\0\x02\x02\x01\x12\x03\x05\
+    \x1f#\n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05&'\n\x0b\n\x04\x04\0\x08\
+    \x02\x12\x03\x06\x04*\n\x0c\n\x05\x04\0\x08\x02\x01\x12\x03\x06\n\x15\n\
+    \x0b\n\x04\x04\0\x02\x03\x12\x03\x06\x18(\n\x0c\n\x05\x04\0\x02\x03\x05\
+    \x12\x03\x06\x18\x1e\n\x0c\n\x05\x04\0\x02\x03\x01\x12\x03\x06\x1f#\n\
+    \x0c\n\x05\x04\0\x02\x03\x03\x12\x03\x06&'b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

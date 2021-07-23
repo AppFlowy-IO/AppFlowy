@@ -29,6 +29,7 @@ pub struct CreateDocRequest {
     pub id: ::std::string::String,
     pub name: ::std::string::String,
     pub desc: ::std::string::String,
+    pub text: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -122,6 +123,32 @@ impl CreateDocRequest {
     pub fn take_desc(&mut self) -> ::std::string::String {
         ::std::mem::replace(&mut self.desc, ::std::string::String::new())
     }
+
+    // string text = 4;
+
+
+    pub fn get_text(&self) -> &str {
+        &self.text
+    }
+    pub fn clear_text(&mut self) {
+        self.text.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_text(&mut self, v: ::std::string::String) {
+        self.text = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_text(&mut self) -> &mut ::std::string::String {
+        &mut self.text
+    }
+
+    // Take field
+    pub fn take_text(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.text, ::std::string::String::new())
+    }
 }
 
 impl ::protobuf::Message for CreateDocRequest {
@@ -141,6 +168,9 @@ impl ::protobuf::Message for CreateDocRequest {
                 },
                 3 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.desc)?;
+                },
+                4 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.text)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -163,6 +193,9 @@ impl ::protobuf::Message for CreateDocRequest {
         if !self.desc.is_empty() {
             my_size += ::protobuf::rt::string_size(3, &self.desc);
         }
+        if !self.text.is_empty() {
+            my_size += ::protobuf::rt::string_size(4, &self.text);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -177,6 +210,9 @@ impl ::protobuf::Message for CreateDocRequest {
         }
         if !self.desc.is_empty() {
             os.write_string(3, &self.desc)?;
+        }
+        if !self.text.is_empty() {
+            os.write_string(4, &self.text)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -231,6 +267,11 @@ impl ::protobuf::Message for CreateDocRequest {
                 |m: &CreateDocRequest| { &m.desc },
                 |m: &mut CreateDocRequest| { &mut m.desc },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "text",
+                |m: &CreateDocRequest| { &m.text },
+                |m: &mut CreateDocRequest| { &mut m.text },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<CreateDocRequest>(
                 "CreateDocRequest",
                 fields,
@@ -250,6 +291,7 @@ impl ::protobuf::Clear for CreateDocRequest {
         self.id.clear();
         self.name.clear();
         self.desc.clear();
+        self.text.clear();
         self.unknown_fields.clear();
     }
 }
@@ -555,7 +597,7 @@ impl ::protobuf::reflect::ProtobufValue for DocDescription {
 pub struct Doc {
     // message fields
     pub desc: ::protobuf::SingularPtrField<DocDescription>,
-    pub content: ::std::string::String,
+    pub text: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -605,30 +647,30 @@ impl Doc {
         self.desc.take().unwrap_or_else(|| DocDescription::new())
     }
 
-    // string content = 2;
+    // string text = 2;
 
 
-    pub fn get_content(&self) -> &str {
-        &self.content
+    pub fn get_text(&self) -> &str {
+        &self.text
     }
-    pub fn clear_content(&mut self) {
-        self.content.clear();
+    pub fn clear_text(&mut self) {
+        self.text.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_content(&mut self, v: ::std::string::String) {
-        self.content = v;
+    pub fn set_text(&mut self, v: ::std::string::String) {
+        self.text = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_content(&mut self) -> &mut ::std::string::String {
-        &mut self.content
+    pub fn mut_text(&mut self) -> &mut ::std::string::String {
+        &mut self.text
     }
 
     // Take field
-    pub fn take_content(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.content, ::std::string::String::new())
+    pub fn take_text(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.text, ::std::string::String::new())
     }
 }
 
@@ -650,7 +692,7 @@ impl ::protobuf::Message for Doc {
                     ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.desc)?;
                 },
                 2 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.content)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.text)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -668,8 +710,8 @@ impl ::protobuf::Message for Doc {
             let len = v.compute_size();
             my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         }
-        if !self.content.is_empty() {
-            my_size += ::protobuf::rt::string_size(2, &self.content);
+        if !self.text.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.text);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -682,8 +724,8 @@ impl ::protobuf::Message for Doc {
             os.write_raw_varint32(v.get_cached_size())?;
             v.write_to_with_cached_sizes(os)?;
         }
-        if !self.content.is_empty() {
-            os.write_string(2, &self.content)?;
+        if !self.text.is_empty() {
+            os.write_string(2, &self.text)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -729,9 +771,9 @@ impl ::protobuf::Message for Doc {
                 |m: &mut Doc| { &mut m.desc },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "content",
-                |m: &Doc| { &m.content },
-                |m: &mut Doc| { &mut m.content },
+                "text",
+                |m: &Doc| { &m.text },
+                |m: &mut Doc| { &mut m.text },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<Doc>(
                 "Doc",
@@ -750,7 +792,7 @@ impl ::protobuf::Message for Doc {
 impl ::protobuf::Clear for Doc {
     fn clear(&mut self) {
         self.desc.clear();
-        self.content.clear();
+        self.text.clear();
         self.unknown_fields.clear();
     }
 }
@@ -768,43 +810,46 @@ impl ::protobuf::reflect::ProtobufValue for Doc {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x10doc_create.proto\"J\n\x10CreateDocRequest\x12\x0e\n\x02id\x18\x01\
+    \n\x10doc_create.proto\"^\n\x10CreateDocRequest\x12\x0e\n\x02id\x18\x01\
     \x20\x01(\tR\x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x12\
-    \n\x04desc\x18\x03\x20\x01(\tR\x04desc\"\\\n\x0eDocDescription\x12\x0e\n\
-    \x02id\x18\x01\x20\x01(\tR\x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\
-    \x04name\x12\x12\n\x04desc\x18\x03\x20\x01(\tR\x04desc\x12\x12\n\x04path\
-    \x18\x04\x20\x01(\tR\x04path\"D\n\x03Doc\x12#\n\x04desc\x18\x01\x20\x01(\
-    \x0b2\x0f.DocDescriptionR\x04desc\x12\x18\n\x07content\x18\x02\x20\x01(\
-    \tR\x07contentJ\xc9\x04\n\x06\x12\x04\0\0\x10\x01\n\x08\n\x01\x0c\x12\
-    \x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x06\x01\n\n\n\x03\x04\0\x01\
-    \x12\x03\x02\x08\x18\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x12\n\x0c\n\
-    \x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\
-    \x03\x03\x0b\r\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x10\x11\n\x0b\n\
-    \x04\x04\0\x02\x01\x12\x03\x04\x04\x14\n\x0c\n\x05\x04\0\x02\x01\x05\x12\
-    \x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x0b\x0f\n\x0c\n\
-    \x05\x04\0\x02\x01\x03\x12\x03\x04\x12\x13\n\x0b\n\x04\x04\0\x02\x02\x12\
-    \x03\x05\x04\x14\n\x0c\n\x05\x04\0\x02\x02\x05\x12\x03\x05\x04\n\n\x0c\n\
-    \x05\x04\0\x02\x02\x01\x12\x03\x05\x0b\x0f\n\x0c\n\x05\x04\0\x02\x02\x03\
-    \x12\x03\x05\x12\x13\n\n\n\x02\x04\x01\x12\x04\x07\0\x0c\x01\n\n\n\x03\
-    \x04\x01\x01\x12\x03\x07\x08\x16\n\x0b\n\x04\x04\x01\x02\0\x12\x03\x08\
-    \x04\x12\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x08\x04\n\n\x0c\n\x05\x04\
-    \x01\x02\0\x01\x12\x03\x08\x0b\r\n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\
-    \x08\x10\x11\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\t\x04\x14\n\x0c\n\x05\
-    \x04\x01\x02\x01\x05\x12\x03\t\x04\n\n\x0c\n\x05\x04\x01\x02\x01\x01\x12\
-    \x03\t\x0b\x0f\n\x0c\n\x05\x04\x01\x02\x01\x03\x12\x03\t\x12\x13\n\x0b\n\
-    \x04\x04\x01\x02\x02\x12\x03\n\x04\x14\n\x0c\n\x05\x04\x01\x02\x02\x05\
-    \x12\x03\n\x04\n\n\x0c\n\x05\x04\x01\x02\x02\x01\x12\x03\n\x0b\x0f\n\x0c\
-    \n\x05\x04\x01\x02\x02\x03\x12\x03\n\x12\x13\n\x0b\n\x04\x04\x01\x02\x03\
-    \x12\x03\x0b\x04\x14\n\x0c\n\x05\x04\x01\x02\x03\x05\x12\x03\x0b\x04\n\n\
-    \x0c\n\x05\x04\x01\x02\x03\x01\x12\x03\x0b\x0b\x0f\n\x0c\n\x05\x04\x01\
-    \x02\x03\x03\x12\x03\x0b\x12\x13\n\n\n\x02\x04\x02\x12\x04\r\0\x10\x01\n\
-    \n\n\x03\x04\x02\x01\x12\x03\r\x08\x0b\n\x0b\n\x04\x04\x02\x02\0\x12\x03\
-    \x0e\x04\x1c\n\x0c\n\x05\x04\x02\x02\0\x06\x12\x03\x0e\x04\x12\n\x0c\n\
-    \x05\x04\x02\x02\0\x01\x12\x03\x0e\x13\x17\n\x0c\n\x05\x04\x02\x02\0\x03\
-    \x12\x03\x0e\x1a\x1b\n\x0b\n\x04\x04\x02\x02\x01\x12\x03\x0f\x04\x17\n\
-    \x0c\n\x05\x04\x02\x02\x01\x05\x12\x03\x0f\x04\n\n\x0c\n\x05\x04\x02\x02\
-    \x01\x01\x12\x03\x0f\x0b\x12\n\x0c\n\x05\x04\x02\x02\x01\x03\x12\x03\x0f\
-    \x15\x16b\x06proto3\
+    \n\x04desc\x18\x03\x20\x01(\tR\x04desc\x12\x12\n\x04text\x18\x04\x20\x01\
+    (\tR\x04text\"\\\n\x0eDocDescription\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\
+    \x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x12\n\x04desc\
+    \x18\x03\x20\x01(\tR\x04desc\x12\x12\n\x04path\x18\x04\x20\x01(\tR\x04pa\
+    th\">\n\x03Doc\x12#\n\x04desc\x18\x01\x20\x01(\x0b2\x0f.DocDescriptionR\
+    \x04desc\x12\x12\n\x04text\x18\x02\x20\x01(\tR\x04textJ\x80\x05\n\x06\
+    \x12\x04\0\0\x11\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\
+    \x04\x02\0\x07\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x18\n\x0b\n\x04\
+    \x04\0\x02\0\x12\x03\x03\x04\x12\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\
+    \x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\r\n\x0c\n\x05\x04\0\
+    \x02\0\x03\x12\x03\x03\x10\x11\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\
+    \x14\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\
+    \x02\x01\x01\x12\x03\x04\x0b\x0f\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\
+    \x04\x12\x13\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x04\x14\n\x0c\n\x05\
+    \x04\0\x02\x02\x05\x12\x03\x05\x04\n\n\x0c\n\x05\x04\0\x02\x02\x01\x12\
+    \x03\x05\x0b\x0f\n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05\x12\x13\n\x0b\
+    \n\x04\x04\0\x02\x03\x12\x03\x06\x04\x14\n\x0c\n\x05\x04\0\x02\x03\x05\
+    \x12\x03\x06\x04\n\n\x0c\n\x05\x04\0\x02\x03\x01\x12\x03\x06\x0b\x0f\n\
+    \x0c\n\x05\x04\0\x02\x03\x03\x12\x03\x06\x12\x13\n\n\n\x02\x04\x01\x12\
+    \x04\x08\0\r\x01\n\n\n\x03\x04\x01\x01\x12\x03\x08\x08\x16\n\x0b\n\x04\
+    \x04\x01\x02\0\x12\x03\t\x04\x12\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\t\
+    \x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\t\x0b\r\n\x0c\n\x05\x04\x01\
+    \x02\0\x03\x12\x03\t\x10\x11\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\n\x04\
+    \x14\n\x0c\n\x05\x04\x01\x02\x01\x05\x12\x03\n\x04\n\n\x0c\n\x05\x04\x01\
+    \x02\x01\x01\x12\x03\n\x0b\x0f\n\x0c\n\x05\x04\x01\x02\x01\x03\x12\x03\n\
+    \x12\x13\n\x0b\n\x04\x04\x01\x02\x02\x12\x03\x0b\x04\x14\n\x0c\n\x05\x04\
+    \x01\x02\x02\x05\x12\x03\x0b\x04\n\n\x0c\n\x05\x04\x01\x02\x02\x01\x12\
+    \x03\x0b\x0b\x0f\n\x0c\n\x05\x04\x01\x02\x02\x03\x12\x03\x0b\x12\x13\n\
+    \x0b\n\x04\x04\x01\x02\x03\x12\x03\x0c\x04\x14\n\x0c\n\x05\x04\x01\x02\
+    \x03\x05\x12\x03\x0c\x04\n\n\x0c\n\x05\x04\x01\x02\x03\x01\x12\x03\x0c\
+    \x0b\x0f\n\x0c\n\x05\x04\x01\x02\x03\x03\x12\x03\x0c\x12\x13\n\n\n\x02\
+    \x04\x02\x12\x04\x0e\0\x11\x01\n\n\n\x03\x04\x02\x01\x12\x03\x0e\x08\x0b\
+    \n\x0b\n\x04\x04\x02\x02\0\x12\x03\x0f\x04\x1c\n\x0c\n\x05\x04\x02\x02\0\
+    \x06\x12\x03\x0f\x04\x12\n\x0c\n\x05\x04\x02\x02\0\x01\x12\x03\x0f\x13\
+    \x17\n\x0c\n\x05\x04\x02\x02\0\x03\x12\x03\x0f\x1a\x1b\n\x0b\n\x04\x04\
+    \x02\x02\x01\x12\x03\x10\x04\x14\n\x0c\n\x05\x04\x02\x02\x01\x05\x12\x03\
+    \x10\x04\n\n\x0c\n\x05\x04\x02\x02\x01\x01\x12\x03\x10\x0b\x0f\n\x0c\n\
+    \x05\x04\x02\x02\x01\x03\x12\x03\x10\x12\x13b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

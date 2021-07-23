@@ -44,8 +44,14 @@ impl EventTemplate {
             Some(ref input) => self.tera_context.insert("input_deserializer", input),
         }
 
-        self.tera_context
-            .insert("has_output", &ctx.output_deserializer.is_some());
+        // eprintln!(
+        //     "😁 {:?} / {:?}",
+        //     &ctx.input_deserializer, &ctx.output_deserializer
+        // );
+
+        let has_output = ctx.output_deserializer.is_some();
+        self.tera_context.insert("has_output", &has_output);
+
         match ctx.output_deserializer {
             None => self.tera_context.insert("output_deserializer", "Unit"),
             Some(ref output) => self.tera_context.insert("output_deserializer", output),
