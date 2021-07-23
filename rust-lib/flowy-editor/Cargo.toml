@@ -18,6 +18,7 @@ protobuf = {version = "2.18.0"}
 unicode-segmentation = "1.7.1"
 lazy_static = "1.4.0"
 log = "0.4.14"
+tokio = {version = "1.6.0", features = ["sync"]}
 
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }

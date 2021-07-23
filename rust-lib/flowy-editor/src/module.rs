@@ -9,7 +9,8 @@ use crate::{
 };
 use flowy_database::DBConnection;
 use flowy_dispatch::prelude::*;
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+use tokio::sync::RwLock;
 
 pub trait EditorDatabase: Send + Sync {
     fn db_connection(&self) -> Result<DBConnection, EditorError>;

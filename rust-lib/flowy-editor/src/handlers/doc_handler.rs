@@ -4,11 +4,8 @@ use crate::{
     services::{doc_controller::DocController, file_manager::FileManager},
 };
 use flowy_dispatch::prelude::*;
-use std::{
-    convert::TryInto,
-    path::Path,
-    sync::{Arc, RwLock},
-};
+use std::{convert::TryInto, path::Path, sync::Arc};
+use tokio::sync::RwLock;
 
 pub async fn create_doc(
     data: Data<CreateDocRequest>,
@@ -16,7 +13,7 @@ pub async fn create_doc(
     manager: Unit<RwLock<FileManager>>,
 ) -> ResponseResult<DocDescription, EditorError> {
     let params: CreateDocParams = data.into_inner().try_into()?;
-    let path = manager.read().unwrap().make_file_path(&params.id);
+    let path = manager.read().await.make_file_path(&params.id);
     let doc_desc = controller
         .create_doc(params, path.to_str().unwrap())
         .await?;
@@ -33,7 +30,7 @@ pub async fn read_doc(
 
     let content = manager
         .write()
-        .unwrap()
+        .await
         .open(Path::new(&desc.path), desc.id.clone())?;
 
     let doc = Doc { desc, content };
@@ -52,7 +49,7 @@ pub async fn update_doc(
             let doc_desc = controller.read_doc(&params.id).await?;
             manager
                 .write()
-                .unwrap()
+                .await
                 .save(Path::new(&doc_desc.path), &s, params.id.clone());
         },
     }
