@@ -12,8 +12,9 @@ class DocRepository {
   });
 
   Future<Either<DocInfo, EditorError>> createDoc(
-      {required String name, String? desc}) {
-    final request = CreateDocRequest(id: docId, name: name, desc: desc);
+      {required String name, String? desc, String? text}) {
+    final request =
+        CreateDocRequest(id: docId, name: name, desc: desc, text: text);
 
     return EditorEventCreateDoc(request).send();
   }

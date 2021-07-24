@@ -32,7 +32,8 @@ class IAppImpl extends IApp {
     switch (view.viewType) {
       case ViewType.Doc:
         final docRepo = DocRepository(docId: view.id);
-        final result = await docRepo.createDoc(name: view.name, desc: "");
+        final result = await docRepo.createDoc(
+            name: view.name, desc: "", text: "[{\"insert\":\"\\n\"}]");
         return result.fold((l) => left(view), (r) {
           return right(
               WorkspaceError(code: WorkspaceErrorCode.Unknown, msg: r.msg));
