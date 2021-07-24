@@ -14,7 +14,6 @@ class DocBloc extends Bloc<DocEvent, DocState> {
   Stream<DocState> mapEventToState(DocEvent event) async* {
     yield* event.map(
       initial: (e) async* {},
-      save: (Save value) async* {},
       close: (Close value) async* {},
     );
   }
@@ -23,7 +22,6 @@ class DocBloc extends Bloc<DocEvent, DocState> {
 @freezed
 abstract class DocEvent with _$DocEvent {
   const factory DocEvent.initial() = Initial;
-  const factory DocEvent.save(String jsonStr) = Save;
   const factory DocEvent.close() = Close;
 }
 

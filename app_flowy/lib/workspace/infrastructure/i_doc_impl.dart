@@ -1,10 +1,11 @@
 import 'dart:convert';
 
-import 'package:app_flowy/workspace/domain/i_doc.dart';
-import 'package:app_flowy/workspace/infrastructure/repos/doc_repo.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flowy_sdk/protobuf/flowy-editor/errors.pb.dart';
-import 'package:dartz/dartz.dart';
+
+import 'package:app_flowy/workspace/domain/i_doc.dart';
+import 'package:app_flowy/workspace/infrastructure/repos/doc_repo.dart';
 
 class IDocImpl extends IDoc {
   DocRepository repo;
@@ -47,5 +48,23 @@ class IDocImpl extends IDoc {
     final json = jsonDecode(text);
     final document = Document.fromJson(json);
     return document;
+  }
+}
+
+class EditorPersistenceImpl extends EditorPersistence {
+  DocRepository repo;
+  EditorPersistenceImpl({
+    required this.repo,
+  });
+
+  @override
+  Future<bool> save(List<dynamic> jsonList) async {
+    final json = jsonEncode(jsonList);
+    return repo.updateDoc(text: json).then((result) {
+      return result.fold(
+        (l) => true,
+        (r) => false,
+      );
+    });
   }
 }

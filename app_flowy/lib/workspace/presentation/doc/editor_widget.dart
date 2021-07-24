@@ -16,6 +16,7 @@ class EditorWdiget extends StatelessWidget {
     controller = EditorController(
       document: doc.data,
       selection: const TextSelection.collapsed(offset: 0),
+      persistence: getIt<EditorPersistence>(param1: doc.info.id),
     );
   }
 
@@ -23,12 +24,16 @@ class EditorWdiget extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => getIt<DocBloc>(param1: doc.info.id),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _renderEditor(controller),
-          _renderToolbar(controller),
-        ],
+      child: BlocBuilder<DocBloc, DocState>(
+        builder: (ctx, state) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _renderEditor(controller),
+              _renderToolbar(controller),
+            ],
+          );
+        },
       ),
     );
   }

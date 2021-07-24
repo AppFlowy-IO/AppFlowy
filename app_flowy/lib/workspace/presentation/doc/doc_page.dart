@@ -36,6 +36,21 @@ class _DocPageState extends State<DocPage> {
       }),
     );
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  void deactivate() {
+    super.deactivate();
+  }
+
+  @override
+  void didUpdateWidget(covariant DocPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+  }
 }
 
 class DocPageStackView extends HomeStackView {

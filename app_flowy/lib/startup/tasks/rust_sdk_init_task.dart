@@ -40,7 +40,7 @@ class ApplicationBlocObserver extends BlocObserver {
   @override
   // ignore: unnecessary_overrides
   void onTransition(Bloc bloc, Transition transition) {
-    // Log.debug(transition);
+    Log.debug(transition);
     super.onTransition(bloc, transition);
   }
 
@@ -48,11 +48,5 @@ class ApplicationBlocObserver extends BlocObserver {
   void onError(BlocBase bloc, Object error, StackTrace stackTrace) {
     Log.debug(error);
     super.onError(bloc, error, stackTrace);
-  }
-}
-
-class EngineBlocConfig {
-  static void setup() {
-    Bloc.observer = ApplicationBlocObserver();
   }
 }

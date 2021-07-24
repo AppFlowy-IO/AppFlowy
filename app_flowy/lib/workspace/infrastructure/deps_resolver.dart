@@ -15,6 +15,7 @@ import 'package:app_flowy/workspace/infrastructure/repos/app_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/doc_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/workspace_repo.dart';
+import 'package:flowy_editor/flowy_editor.dart';
 import 'package:get_it/get_it.dart';
 
 import 'i_view_impl.dart';
@@ -66,6 +67,9 @@ class HomeDepsResolver {
     getIt.registerFactoryParam<DocBloc, String, void>(
         (docId, _) => DocBloc(getIt<IDoc>(param1: docId)));
 
+    // editor
+    getIt.registerFactoryParam<EditorPersistence, String, void>(
+        (docId, _) => EditorPersistenceImpl(repo: DocRepository(docId: docId)));
     // getIt.registerFactoryParam<ViewBloc, String, void>(
     //     (viewId, _) => ViewBloc(iViewImpl: getIt<IView>(param1: viewId)));
   }
