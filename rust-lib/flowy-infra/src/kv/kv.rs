@@ -8,7 +8,7 @@ use std::{path::Path, sync::RwLock};
 
 const DB_NAME: &str = "kv.db";
 lazy_static! {
-    pub static ref KV_HOLDER: RwLock<KVStore> = RwLock::new(KVStore::new());
+    static ref KV_HOLDER: RwLock<KVStore> = RwLock::new(KVStore::new());
 }
 
 pub struct KVStore {

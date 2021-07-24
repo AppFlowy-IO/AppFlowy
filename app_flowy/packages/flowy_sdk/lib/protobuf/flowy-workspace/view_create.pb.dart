@@ -29,7 +29,7 @@ class CreateViewRequest extends $pb.GeneratedMessage {
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'thumbnail')
-    ..e<ViewTypeIdentifier>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewType', $pb.PbFieldType.OE, defaultOrMaker: ViewTypeIdentifier.Docs, valueOf: ViewTypeIdentifier.valueOf, enumValues: ViewTypeIdentifier.values)
+    ..e<ViewType>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewType', $pb.PbFieldType.OE, defaultOrMaker: ViewType.Blank, valueOf: ViewType.valueOf, enumValues: ViewType.values)
     ..hasRequiredFields = false
   ;
 
@@ -39,7 +39,7 @@ class CreateViewRequest extends $pb.GeneratedMessage {
     $core.String? name,
     $core.String? desc,
     $core.String? thumbnail,
-    ViewTypeIdentifier? viewType,
+    ViewType? viewType,
   }) {
     final _result = create();
     if (appId != null) {
@@ -120,9 +120,9 @@ class CreateViewRequest extends $pb.GeneratedMessage {
   void clearThumbnail() => clearField(4);
 
   @$pb.TagNumber(5)
-  ViewTypeIdentifier get viewType => $_getN(4);
+  ViewType get viewType => $_getN(4);
   @$pb.TagNumber(5)
-  set viewType(ViewTypeIdentifier v) { setField(5, v); }
+  set viewType(ViewType v) { setField(5, v); }
   @$pb.TagNumber(5)
   $core.bool hasViewType() => $_has(4);
   @$pb.TagNumber(5)
@@ -135,7 +135,7 @@ class View extends $pb.GeneratedMessage {
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'appId')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
-    ..e<ViewTypeIdentifier>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewType', $pb.PbFieldType.OE, defaultOrMaker: ViewTypeIdentifier.Docs, valueOf: ViewTypeIdentifier.valueOf, enumValues: ViewTypeIdentifier.values)
+    ..e<ViewType>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewType', $pb.PbFieldType.OE, defaultOrMaker: ViewType.Blank, valueOf: ViewType.valueOf, enumValues: ViewType.values)
     ..hasRequiredFields = false
   ;
 
@@ -145,7 +145,7 @@ class View extends $pb.GeneratedMessage {
     $core.String? appId,
     $core.String? name,
     $core.String? desc,
-    ViewTypeIdentifier? viewType,
+    ViewType? viewType,
   }) {
     final _result = create();
     if (id != null) {
@@ -223,12 +223,53 @@ class View extends $pb.GeneratedMessage {
   void clearDesc() => clearField(4);
 
   @$pb.TagNumber(5)
-  ViewTypeIdentifier get viewType => $_getN(4);
+  ViewType get viewType => $_getN(4);
   @$pb.TagNumber(5)
-  set viewType(ViewTypeIdentifier v) { setField(5, v); }
+  set viewType(ViewType v) { setField(5, v); }
   @$pb.TagNumber(5)
   $core.bool hasViewType() => $_has(4);
   @$pb.TagNumber(5)
   void clearViewType() => clearField(5);
+}
+
+class RepeatedView extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RepeatedView', createEmptyInstance: create)
+    ..pc<View>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'items', $pb.PbFieldType.PM, subBuilder: View.create)
+    ..hasRequiredFields = false
+  ;
+
+  RepeatedView._() : super();
+  factory RepeatedView({
+    $core.Iterable<View>? items,
+  }) {
+    final _result = create();
+    if (items != null) {
+      _result.items.addAll(items);
+    }
+    return _result;
+  }
+  factory RepeatedView.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RepeatedView.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  RepeatedView clone() => RepeatedView()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  RepeatedView copyWith(void Function(RepeatedView) updates) => super.copyWith((message) => updates(message as RepeatedView)) as RepeatedView; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static RepeatedView create() => RepeatedView._();
+  RepeatedView createEmptyInstance() => create();
+  static $pb.PbList<RepeatedView> createRepeated() => $pb.PbList<RepeatedView>();
+  @$core.pragma('dart2js:noInline')
+  static RepeatedView getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RepeatedView>(create);
+  static RepeatedView? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<View> get items => $_getList(0);
 }
 

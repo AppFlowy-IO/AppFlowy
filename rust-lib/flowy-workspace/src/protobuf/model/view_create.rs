@@ -29,7 +29,7 @@ pub struct CreateViewRequest {
     pub app_id: ::std::string::String,
     pub name: ::std::string::String,
     pub desc: ::std::string::String,
-    pub view_type: ViewTypeIdentifier,
+    pub view_type: ViewType,
     // message oneof groups
     pub one_of_thumbnail: ::std::option::Option<CreateViewRequest_oneof_one_of_thumbnail>,
     // special fields
@@ -180,18 +180,18 @@ impl CreateViewRequest {
         }
     }
 
-    // .ViewTypeIdentifier view_type = 5;
+    // .ViewType view_type = 5;
 
 
-    pub fn get_view_type(&self) -> ViewTypeIdentifier {
+    pub fn get_view_type(&self) -> ViewType {
         self.view_type
     }
     pub fn clear_view_type(&mut self) {
-        self.view_type = ViewTypeIdentifier::Docs;
+        self.view_type = ViewType::Blank;
     }
 
     // Param is passed by value, moved
-    pub fn set_view_type(&mut self, v: ViewTypeIdentifier) {
+    pub fn set_view_type(&mut self, v: ViewType) {
         self.view_type = v;
     }
 }
@@ -244,7 +244,7 @@ impl ::protobuf::Message for CreateViewRequest {
         if !self.desc.is_empty() {
             my_size += ::protobuf::rt::string_size(3, &self.desc);
         }
-        if self.view_type != ViewTypeIdentifier::Docs {
+        if self.view_type != ViewType::Blank {
             my_size += ::protobuf::rt::enum_size(5, self.view_type);
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_thumbnail {
@@ -269,7 +269,7 @@ impl ::protobuf::Message for CreateViewRequest {
         if !self.desc.is_empty() {
             os.write_string(3, &self.desc)?;
         }
-        if self.view_type != ViewTypeIdentifier::Docs {
+        if self.view_type != ViewType::Blank {
             os.write_enum(5, ::protobuf::ProtobufEnum::value(&self.view_type))?;
         }
         if let ::std::option::Option::Some(ref v) = self.one_of_thumbnail {
@@ -337,7 +337,7 @@ impl ::protobuf::Message for CreateViewRequest {
                 CreateViewRequest::has_thumbnail,
                 CreateViewRequest::get_thumbnail,
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<ViewTypeIdentifier>>(
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<ViewType>>(
                 "view_type",
                 |m: &CreateViewRequest| { &m.view_type },
                 |m: &mut CreateViewRequest| { &mut m.view_type },
@@ -362,7 +362,7 @@ impl ::protobuf::Clear for CreateViewRequest {
         self.name.clear();
         self.desc.clear();
         self.one_of_thumbnail = ::std::option::Option::None;
-        self.view_type = ViewTypeIdentifier::Docs;
+        self.view_type = ViewType::Blank;
         self.unknown_fields.clear();
     }
 }
@@ -386,7 +386,7 @@ pub struct View {
     pub app_id: ::std::string::String,
     pub name: ::std::string::String,
     pub desc: ::std::string::String,
-    pub view_type: ViewTypeIdentifier,
+    pub view_type: ViewType,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -507,18 +507,18 @@ impl View {
         ::std::mem::replace(&mut self.desc, ::std::string::String::new())
     }
 
-    // .ViewTypeIdentifier view_type = 5;
+    // .ViewType view_type = 5;
 
 
-    pub fn get_view_type(&self) -> ViewTypeIdentifier {
+    pub fn get_view_type(&self) -> ViewType {
         self.view_type
     }
     pub fn clear_view_type(&mut self) {
-        self.view_type = ViewTypeIdentifier::Docs;
+        self.view_type = ViewType::Blank;
     }
 
     // Param is passed by value, moved
-    pub fn set_view_type(&mut self, v: ViewTypeIdentifier) {
+    pub fn set_view_type(&mut self, v: ViewType) {
         self.view_type = v;
     }
 }
@@ -571,7 +571,7 @@ impl ::protobuf::Message for View {
         if !self.desc.is_empty() {
             my_size += ::protobuf::rt::string_size(4, &self.desc);
         }
-        if self.view_type != ViewTypeIdentifier::Docs {
+        if self.view_type != ViewType::Blank {
             my_size += ::protobuf::rt::enum_size(5, self.view_type);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
@@ -592,7 +592,7 @@ impl ::protobuf::Message for View {
         if !self.desc.is_empty() {
             os.write_string(4, &self.desc)?;
         }
-        if self.view_type != ViewTypeIdentifier::Docs {
+        if self.view_type != ViewType::Blank {
             os.write_enum(5, ::protobuf::ProtobufEnum::value(&self.view_type))?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
@@ -653,7 +653,7 @@ impl ::protobuf::Message for View {
                 |m: &View| { &m.desc },
                 |m: &mut View| { &mut m.desc },
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<ViewTypeIdentifier>>(
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<ViewType>>(
                 "view_type",
                 |m: &View| { &m.view_type },
                 |m: &mut View| { &mut m.view_type },
@@ -678,7 +678,7 @@ impl ::protobuf::Clear for View {
         self.app_id.clear();
         self.name.clear();
         self.desc.clear();
-        self.view_type = ViewTypeIdentifier::Docs;
+        self.view_type = ViewType::Blank;
         self.unknown_fields.clear();
     }
 }
@@ -695,26 +695,195 @@ impl ::protobuf::reflect::ProtobufValue for View {
     }
 }
 
-#[derive(Clone,PartialEq,Eq,Debug,Hash)]
-pub enum ViewTypeIdentifier {
-    Docs = 0,
+#[derive(PartialEq,Clone,Default)]
+pub struct RepeatedView {
+    // message fields
+    pub items: ::protobuf::RepeatedField<View>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
 }
 
-impl ::protobuf::ProtobufEnum for ViewTypeIdentifier {
+impl<'a> ::std::default::Default for &'a RepeatedView {
+    fn default() -> &'a RepeatedView {
+        <RepeatedView as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl RepeatedView {
+    pub fn new() -> RepeatedView {
+        ::std::default::Default::default()
+    }
+
+    // repeated .View items = 1;
+
+
+    pub fn get_items(&self) -> &[View] {
+        &self.items
+    }
+    pub fn clear_items(&mut self) {
+        self.items.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_items(&mut self, v: ::protobuf::RepeatedField<View>) {
+        self.items = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_items(&mut self) -> &mut ::protobuf::RepeatedField<View> {
+        &mut self.items
+    }
+
+    // Take field
+    pub fn take_items(&mut self) -> ::protobuf::RepeatedField<View> {
+        ::std::mem::replace(&mut self.items, ::protobuf::RepeatedField::new())
+    }
+}
+
+impl ::protobuf::Message for RepeatedView {
+    fn is_initialized(&self) -> bool {
+        for v in &self.items {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.items)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        for value in &self.items {
+            let len = value.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        };
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        for v in &self.items {
+            os.write_tag(1, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        };
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> RepeatedView {
+        RepeatedView::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<View>>(
+                "items",
+                |m: &RepeatedView| { &m.items },
+                |m: &mut RepeatedView| { &mut m.items },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<RepeatedView>(
+                "RepeatedView",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static RepeatedView {
+        static instance: ::protobuf::rt::LazyV2<RepeatedView> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(RepeatedView::new)
+    }
+}
+
+impl ::protobuf::Clear for RepeatedView {
+    fn clear(&mut self) {
+        self.items.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for RepeatedView {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for RepeatedView {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
+pub enum ViewType {
+    Blank = 0,
+    Doc = 1,
+}
+
+impl ::protobuf::ProtobufEnum for ViewType {
     fn value(&self) -> i32 {
         *self as i32
     }
 
-    fn from_i32(value: i32) -> ::std::option::Option<ViewTypeIdentifier> {
+    fn from_i32(value: i32) -> ::std::option::Option<ViewType> {
         match value {
-            0 => ::std::option::Option::Some(ViewTypeIdentifier::Docs),
+            0 => ::std::option::Option::Some(ViewType::Blank),
+            1 => ::std::option::Option::Some(ViewType::Doc),
             _ => ::std::option::Option::None
         }
     }
 
     fn values() -> &'static [Self] {
-        static values: &'static [ViewTypeIdentifier] = &[
-            ViewTypeIdentifier::Docs,
+        static values: &'static [ViewType] = &[
+            ViewType::Blank,
+            ViewType::Doc,
         ];
         values
     }
@@ -722,72 +891,79 @@ impl ::protobuf::ProtobufEnum for ViewTypeIdentifier {
     fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
-            ::protobuf::reflect::EnumDescriptor::new_pb_name::<ViewTypeIdentifier>("ViewTypeIdentifier", file_descriptor_proto())
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<ViewType>("ViewType", file_descriptor_proto())
         })
     }
 }
 
-impl ::std::marker::Copy for ViewTypeIdentifier {
+impl ::std::marker::Copy for ViewType {
 }
 
-impl ::std::default::Default for ViewTypeIdentifier {
+impl ::std::default::Default for ViewType {
     fn default() -> Self {
-        ViewTypeIdentifier::Docs
+        ViewType::Blank
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for ViewTypeIdentifier {
+impl ::protobuf::reflect::ProtobufValue for ViewType {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
     }
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x11view_create.proto\"\xb8\x01\n\x11CreateViewRequest\x12\x15\n\x06ap\
+    \n\x11view_create.proto\"\xae\x01\n\x11CreateViewRequest\x12\x15\n\x06ap\
     p_id\x18\x01\x20\x01(\tR\x05appId\x12\x12\n\x04name\x18\x02\x20\x01(\tR\
     \x04name\x12\x12\n\x04desc\x18\x03\x20\x01(\tR\x04desc\x12\x1e\n\tthumbn\
-    ail\x18\x04\x20\x01(\tH\0R\tthumbnail\x120\n\tview_type\x18\x05\x20\x01(\
-    \x0e2\x13.ViewTypeIdentifierR\x08viewTypeB\x12\n\x10one_of_thumbnail\"\
-    \x87\x01\n\x04View\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x15\n\
-    \x06app_id\x18\x02\x20\x01(\tR\x05appId\x12\x12\n\x04name\x18\x03\x20\
-    \x01(\tR\x04name\x12\x12\n\x04desc\x18\x04\x20\x01(\tR\x04desc\x120\n\tv\
-    iew_type\x18\x05\x20\x01(\x0e2\x13.ViewTypeIdentifierR\x08viewType*\x1e\
-    \n\x12ViewTypeIdentifier\x12\x08\n\x04Docs\x10\0J\xc4\x05\n\x06\x12\x04\
-    \0\0\x12\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\
-    \0\x08\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x19\n\x0b\n\x04\x04\0\x02\
-    \0\x12\x03\x03\x04\x16\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\
-    \x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\x11\n\x0c\n\x05\x04\0\x02\0\
-    \x03\x12\x03\x03\x14\x15\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x14\n\
-    \x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\x01\
-    \x01\x12\x03\x04\x0b\x0f\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x12\
-    \x13\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x04\x14\n\x0c\n\x05\x04\0\x02\
-    \x02\x05\x12\x03\x05\x04\n\n\x0c\n\x05\x04\0\x02\x02\x01\x12\x03\x05\x0b\
-    \x0f\n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05\x12\x13\n\x0b\n\x04\x04\0\
-    \x08\0\x12\x03\x06\x044\n\x0c\n\x05\x04\0\x08\0\x01\x12\x03\x06\n\x1a\n\
-    \x0b\n\x04\x04\0\x02\x03\x12\x03\x06\x1d2\n\x0c\n\x05\x04\0\x02\x03\x05\
-    \x12\x03\x06\x1d#\n\x0c\n\x05\x04\0\x02\x03\x01\x12\x03\x06$-\n\x0c\n\
-    \x05\x04\0\x02\x03\x03\x12\x03\x0601\n\x0b\n\x04\x04\0\x02\x04\x12\x03\
-    \x07\x04%\n\x0c\n\x05\x04\0\x02\x04\x06\x12\x03\x07\x04\x16\n\x0c\n\x05\
-    \x04\0\x02\x04\x01\x12\x03\x07\x17\x20\n\x0c\n\x05\x04\0\x02\x04\x03\x12\
-    \x03\x07#$\n\n\n\x02\x04\x01\x12\x04\t\0\x0f\x01\n\n\n\x03\x04\x01\x01\
-    \x12\x03\t\x08\x0c\n\x0b\n\x04\x04\x01\x02\0\x12\x03\n\x04\x12\n\x0c\n\
-    \x05\x04\x01\x02\0\x05\x12\x03\n\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\
-    \x03\n\x0b\r\n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\n\x10\x11\n\x0b\n\x04\
-    \x04\x01\x02\x01\x12\x03\x0b\x04\x16\n\x0c\n\x05\x04\x01\x02\x01\x05\x12\
-    \x03\x0b\x04\n\n\x0c\n\x05\x04\x01\x02\x01\x01\x12\x03\x0b\x0b\x11\n\x0c\
-    \n\x05\x04\x01\x02\x01\x03\x12\x03\x0b\x14\x15\n\x0b\n\x04\x04\x01\x02\
-    \x02\x12\x03\x0c\x04\x14\n\x0c\n\x05\x04\x01\x02\x02\x05\x12\x03\x0c\x04\
-    \n\n\x0c\n\x05\x04\x01\x02\x02\x01\x12\x03\x0c\x0b\x0f\n\x0c\n\x05\x04\
-    \x01\x02\x02\x03\x12\x03\x0c\x12\x13\n\x0b\n\x04\x04\x01\x02\x03\x12\x03\
-    \r\x04\x14\n\x0c\n\x05\x04\x01\x02\x03\x05\x12\x03\r\x04\n\n\x0c\n\x05\
-    \x04\x01\x02\x03\x01\x12\x03\r\x0b\x0f\n\x0c\n\x05\x04\x01\x02\x03\x03\
-    \x12\x03\r\x12\x13\n\x0b\n\x04\x04\x01\x02\x04\x12\x03\x0e\x04%\n\x0c\n\
-    \x05\x04\x01\x02\x04\x06\x12\x03\x0e\x04\x16\n\x0c\n\x05\x04\x01\x02\x04\
-    \x01\x12\x03\x0e\x17\x20\n\x0c\n\x05\x04\x01\x02\x04\x03\x12\x03\x0e#$\n\
-    \n\n\x02\x05\0\x12\x04\x10\0\x12\x01\n\n\n\x03\x05\0\x01\x12\x03\x10\x05\
-    \x17\n\x0b\n\x04\x05\0\x02\0\x12\x03\x11\x04\r\n\x0c\n\x05\x05\0\x02\0\
-    \x01\x12\x03\x11\x04\x08\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x11\x0b\x0c\
-    b\x06proto3\
+    ail\x18\x04\x20\x01(\tH\0R\tthumbnail\x12&\n\tview_type\x18\x05\x20\x01(\
+    \x0e2\t.ViewTypeR\x08viewTypeB\x12\n\x10one_of_thumbnail\"}\n\x04View\
+    \x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x15\n\x06app_id\x18\x02\
+    \x20\x01(\tR\x05appId\x12\x12\n\x04name\x18\x03\x20\x01(\tR\x04name\x12\
+    \x12\n\x04desc\x18\x04\x20\x01(\tR\x04desc\x12&\n\tview_type\x18\x05\x20\
+    \x01(\x0e2\t.ViewTypeR\x08viewType\"+\n\x0cRepeatedView\x12\x1b\n\x05ite\
+    ms\x18\x01\x20\x03(\x0b2\x05.ViewR\x05items*\x1e\n\x08ViewType\x12\t\n\
+    \x05Blank\x10\0\x12\x07\n\x03Doc\x10\x01J\xca\x06\n\x06\x12\x04\0\0\x16\
+    \x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x08\
+    \x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x19\n\x0b\n\x04\x04\0\x02\0\x12\
+    \x03\x03\x04\x16\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\
+    \x05\x04\0\x02\0\x01\x12\x03\x03\x0b\x11\n\x0c\n\x05\x04\0\x02\0\x03\x12\
+    \x03\x03\x14\x15\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x14\n\x0c\n\
+    \x05\x04\0\x02\x01\x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\x01\x01\
+    \x12\x03\x04\x0b\x0f\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x12\x13\n\
+    \x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x04\x14\n\x0c\n\x05\x04\0\x02\x02\
+    \x05\x12\x03\x05\x04\n\n\x0c\n\x05\x04\0\x02\x02\x01\x12\x03\x05\x0b\x0f\
+    \n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05\x12\x13\n\x0b\n\x04\x04\0\x08\
+    \0\x12\x03\x06\x044\n\x0c\n\x05\x04\0\x08\0\x01\x12\x03\x06\n\x1a\n\x0b\
+    \n\x04\x04\0\x02\x03\x12\x03\x06\x1d2\n\x0c\n\x05\x04\0\x02\x03\x05\x12\
+    \x03\x06\x1d#\n\x0c\n\x05\x04\0\x02\x03\x01\x12\x03\x06$-\n\x0c\n\x05\
+    \x04\0\x02\x03\x03\x12\x03\x0601\n\x0b\n\x04\x04\0\x02\x04\x12\x03\x07\
+    \x04\x1b\n\x0c\n\x05\x04\0\x02\x04\x06\x12\x03\x07\x04\x0c\n\x0c\n\x05\
+    \x04\0\x02\x04\x01\x12\x03\x07\r\x16\n\x0c\n\x05\x04\0\x02\x04\x03\x12\
+    \x03\x07\x19\x1a\n\n\n\x02\x04\x01\x12\x04\t\0\x0f\x01\n\n\n\x03\x04\x01\
+    \x01\x12\x03\t\x08\x0c\n\x0b\n\x04\x04\x01\x02\0\x12\x03\n\x04\x12\n\x0c\
+    \n\x05\x04\x01\x02\0\x05\x12\x03\n\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\
+    \x12\x03\n\x0b\r\n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\n\x10\x11\n\x0b\n\
+    \x04\x04\x01\x02\x01\x12\x03\x0b\x04\x16\n\x0c\n\x05\x04\x01\x02\x01\x05\
+    \x12\x03\x0b\x04\n\n\x0c\n\x05\x04\x01\x02\x01\x01\x12\x03\x0b\x0b\x11\n\
+    \x0c\n\x05\x04\x01\x02\x01\x03\x12\x03\x0b\x14\x15\n\x0b\n\x04\x04\x01\
+    \x02\x02\x12\x03\x0c\x04\x14\n\x0c\n\x05\x04\x01\x02\x02\x05\x12\x03\x0c\
+    \x04\n\n\x0c\n\x05\x04\x01\x02\x02\x01\x12\x03\x0c\x0b\x0f\n\x0c\n\x05\
+    \x04\x01\x02\x02\x03\x12\x03\x0c\x12\x13\n\x0b\n\x04\x04\x01\x02\x03\x12\
+    \x03\r\x04\x14\n\x0c\n\x05\x04\x01\x02\x03\x05\x12\x03\r\x04\n\n\x0c\n\
+    \x05\x04\x01\x02\x03\x01\x12\x03\r\x0b\x0f\n\x0c\n\x05\x04\x01\x02\x03\
+    \x03\x12\x03\r\x12\x13\n\x0b\n\x04\x04\x01\x02\x04\x12\x03\x0e\x04\x1b\n\
+    \x0c\n\x05\x04\x01\x02\x04\x06\x12\x03\x0e\x04\x0c\n\x0c\n\x05\x04\x01\
+    \x02\x04\x01\x12\x03\x0e\r\x16\n\x0c\n\x05\x04\x01\x02\x04\x03\x12\x03\
+    \x0e\x19\x1a\n\n\n\x02\x04\x02\x12\x04\x10\0\x12\x01\n\n\n\x03\x04\x02\
+    \x01\x12\x03\x10\x08\x14\n\x0b\n\x04\x04\x02\x02\0\x12\x03\x11\x04\x1c\n\
+    \x0c\n\x05\x04\x02\x02\0\x04\x12\x03\x11\x04\x0c\n\x0c\n\x05\x04\x02\x02\
+    \0\x06\x12\x03\x11\r\x11\n\x0c\n\x05\x04\x02\x02\0\x01\x12\x03\x11\x12\
+    \x17\n\x0c\n\x05\x04\x02\x02\0\x03\x12\x03\x11\x1a\x1b\n\n\n\x02\x05\0\
+    \x12\x04\x13\0\x16\x01\n\n\n\x03\x05\0\x01\x12\x03\x13\x05\r\n\x0b\n\x04\
+    \x05\0\x02\0\x12\x03\x14\x04\x0e\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\x14\
+    \x04\t\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x14\x0c\r\n\x0b\n\x04\x05\0\
+    \x02\x01\x12\x03\x15\x04\x0c\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\x15\
+    \x04\x07\n\x0c\n\x05\x05\0\x02\x01\x02\x12\x03\x15\n\x0bb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

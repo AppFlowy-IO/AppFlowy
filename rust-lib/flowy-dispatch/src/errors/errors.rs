@@ -1,4 +1,5 @@
 use crate::{
+    byte_trait::FromBytes,
     request::EventRequest,
     response::{EventResponse, ResponseBuilder, StatusCode},
 };
@@ -8,7 +9,7 @@ use std::{fmt, option::NoneError};
 use tokio::sync::mpsc::error::SendError;
 
 pub trait Error: fmt::Debug + DynClone + Send + Sync {
-    fn as_response(&self) -> EventResponse { EventResponse::new(StatusCode::Err) }
+    fn as_response(&self) -> EventResponse;
 }
 
 dyn_clone::clone_trait_object!(Error);
@@ -66,6 +67,13 @@ impl From<String> for DispatchError {
     fn from(s: String) -> Self { InternalError { inner: s }.into() }
 }
 
+impl FromBytes for DispatchError {
+    fn parse_from_bytes(bytes: &Vec<u8>) -> Result<Self, String> {
+        let s = String::from_utf8(bytes.to_vec()).unwrap();
+        Ok(InternalError { inner: s }.into())
+    }
+}
+
 impl From<DispatchError> for EventResponse {
     fn from(err: DispatchError) -> Self { err.inner_error().as_response() }
 }
@@ -98,12 +106,8 @@ where
     T: fmt::Debug + fmt::Display + 'static + Clone + Send + Sync,
 {
     fn as_response(&self) -> EventResponse {
-        let error = InternalError {
-            inner: format!("{}", self.inner),
-        }
-        .into();
-
-        ResponseBuilder::Err().error(error).build()
+        let error = format!("{}", self.inner).into_bytes();
+        ResponseBuilder::Err().data(error).build()
     }
 }
 

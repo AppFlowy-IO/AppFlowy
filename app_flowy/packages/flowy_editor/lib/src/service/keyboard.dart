@@ -8,6 +8,7 @@ enum InputShortcut {
   COPY,
   PASTE,
   SELECT_ALL,
+  SAVE,
 }
 
 typedef CursorMoveCallback = void Function(
@@ -46,6 +47,7 @@ class KeyboardListener {
     LogicalKeyboardKey.keyC,
     LogicalKeyboardKey.keyV,
     LogicalKeyboardKey.keyX,
+    LogicalKeyboardKey.keyS,
     LogicalKeyboardKey.delete,
     LogicalKeyboardKey.backspace,
   };
@@ -78,6 +80,7 @@ class KeyboardListener {
     LogicalKeyboardKey.keyC: InputShortcut.COPY,
     LogicalKeyboardKey.keyV: InputShortcut.PASTE,
     LogicalKeyboardKey.keyA: InputShortcut.SELECT_ALL,
+    LogicalKeyboardKey.keyS: InputShortcut.SAVE,
   };
 
   bool handleRawKeyEvent(RawKeyEvent event) {
@@ -89,8 +92,7 @@ class KeyboardListener {
       return false;
     }
 
-    final keysPressed =
-        LogicalKeyboardKey.collapseSynonyms(RawKeyboard.instance.keysPressed);
+    final keysPressed = LogicalKeyboardKey.collapseSynonyms(RawKeyboard.instance.keysPressed);
     final key = event.logicalKey;
     final isMacOS = event.data is RawKeyEventDataMacOs;
     final modifierKeys = isMacOS ? _osxModifierKeys : _winModifierKeys;

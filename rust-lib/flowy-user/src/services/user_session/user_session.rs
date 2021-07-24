@@ -63,21 +63,16 @@ impl UserSession {
     pub async fn sign_in(&self, params: SignInParams) -> Result<UserTable, UserError> {
         let user = self.server.sign_in(params)?;
         let _ = self.set_user_id(Some(user.id.clone()))?;
+        let user_table = self.save_user(user).await?;
 
-        let user_table = self.save_user(user)?;
-        let _ = self
-            .create_default_workspace_if_need(&user_table.id)
-            .await?;
         Ok(user_table)
     }
 
     pub async fn sign_up(&self, params: SignUpParams) -> Result<UserTable, UserError> {
         let user = self.server.sign_up(params)?;
         let _ = self.set_user_id(Some(user.id.clone()))?;
-        let user_table = self.save_user(user)?;
-        let _ = self
-            .create_default_workspace_if_need(&user_table.id)
-            .await?;
+        let user_table = self.save_user(user).await?;
+
         Ok(user_table)
     }
 
@@ -96,7 +91,13 @@ impl UserSession {
         Ok(())
     }
 
-    fn save_user(&self, user: UserTable) -> Result<UserTable, UserError> {
+    async fn save_user(&self, mut user: UserTable) -> Result<UserTable, UserError> {
+        if user.workspace.is_empty() {
+            log::info!("Try to create user default workspace");
+            let workspace_id = self.create_default_workspace_if_need(&user.id).await?;
+            user.workspace = workspace_id;
+        }
+
         let conn = self.get_db_connection()?;
         let _ = diesel::insert_into(user_table::table)
             .values(user.clone())
@@ -109,7 +110,6 @@ impl UserSession {
         let changeset = UserTableChangeset::new(params);
         let conn = self.get_db_connection()?;
         diesel_update_table!(user_table, changeset, conn);
-
         let user_detail = self.user_detail()?;
         Ok(user_detail)
     }
@@ -144,6 +144,11 @@ impl UserSession {
                 .error(e)
                 .build()),
         }
+    }
+
+    pub fn get_user_dir(&self) -> Result<String, UserError> {
+        let user_id = self.get_user_id()?;
+        Ok(format!("{}/{}", self.config.root_dir, user_id))
     }
 
     pub fn get_user_id(&self) -> Result<String, UserError> {
@@ -183,19 +188,18 @@ impl UserSession {
         Ok(())
     }
 
-    async fn create_default_workspace_if_need(&self, user_id: &str) -> Result<(), UserError> {
+    async fn create_default_workspace_if_need(&self, user_id: &str) -> Result<String, UserError> {
         let key = format!("{}{}", user_id, DEFAULT_WORKSPACE);
         if KVStore::get_bool(&key).unwrap_or(false) {
-            return Ok(());
+            return Err(ErrorBuilder::new(UserErrorCode::DefaultWorkspaceAlreadyExist).build());
         }
-
         KVStore::set_bool(&key, true);
         log::debug!("Create user:{} default workspace", user_id);
-        let _ = self
+        let workspace_id = self
             .server
             .create_workspace(DEFAULT_WORKSPACE_NAME, DEFAULT_WORKSPACE_DESC, user_id)
             .await?;
-        Ok(())
+        Ok(workspace_id)
     }
 }
 

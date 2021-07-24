@@ -266,14 +266,21 @@ pub struct EventAttrs {
 
 #[derive(Debug, Clone)]
 pub struct ASTEnumAttrVariant {
-    pub name: String,
+    pub enum_name: String,
+    pub enum_item_name: String,
     pub value: String,
     pub event_attrs: EventAttrs,
 }
 
 impl ASTEnumAttrVariant {
-    pub fn from_ast(ctxt: &Ctxt, variant: &syn::Variant, enum_attrs: &Vec<syn::Attribute>) -> Self {
-        let name = variant.ident.to_string();
+    pub fn from_ast(
+        ctxt: &Ctxt,
+        ident: &syn::Ident,
+        variant: &syn::Variant,
+        enum_attrs: &Vec<syn::Attribute>,
+    ) -> Self {
+        let enum_item_name = variant.ident.to_string();
+        let enum_name = ident.to_string();
         let mut value = String::new();
         if variant.discriminant.is_some() {
             match variant.discriminant.as_ref().unwrap().1 {
@@ -290,7 +297,8 @@ impl ASTEnumAttrVariant {
         }
         let event_attrs = get_event_attrs_from(ctxt, &variant.attrs, enum_attrs);
         ASTEnumAttrVariant {
-            name,
+            enum_name,
+            enum_item_name,
             value,
             event_attrs,
         }

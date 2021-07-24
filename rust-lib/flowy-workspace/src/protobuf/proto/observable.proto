@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+enum WorkspaceObservable {
+    Unknown = 0;
+    WorkspaceUpdateDesc = 10;
+    WorkspaceAddApp = 11;
+    AppUpdateDesc = 20;
+    AppAddView = 21;
+    ViewUpdateDesc = 30;
+}

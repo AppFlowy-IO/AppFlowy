@@ -9,16 +9,18 @@
 import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
-class ViewTypeIdentifier extends $pb.ProtobufEnum {
-  static const ViewTypeIdentifier Docs = ViewTypeIdentifier._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Docs');
+class ViewType extends $pb.ProtobufEnum {
+  static const ViewType Blank = ViewType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Blank');
+  static const ViewType Doc = ViewType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Doc');
 
-  static const $core.List<ViewTypeIdentifier> values = <ViewTypeIdentifier> [
-    Docs,
+  static const $core.List<ViewType> values = <ViewType> [
+    Blank,
+    Doc,
   ];
 
-  static final $core.Map<$core.int, ViewTypeIdentifier> _byValue = $pb.ProtobufEnum.initByValue(values);
-  static ViewTypeIdentifier? valueOf($core.int value) => _byValue[value];
+  static final $core.Map<$core.int, ViewType> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static ViewType? valueOf($core.int value) => _byValue[value];
 
-  const ViewTypeIdentifier._($core.int v, $core.String n) : super(v, n);
+  const ViewType._($core.int v, $core.String n) : super(v, n);
 }
 

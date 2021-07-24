@@ -39,8 +39,19 @@ const App$json = const {
     const {'1': 'workspace_id', '3': 2, '4': 1, '5': 9, '10': 'workspaceId'},
     const {'1': 'name', '3': 3, '4': 1, '5': 9, '10': 'name'},
     const {'1': 'desc', '3': 4, '4': 1, '5': 9, '10': 'desc'},
+    const {'1': 'views', '3': 5, '4': 1, '5': 11, '6': '.RepeatedView', '10': 'views'},
   ],
 };
 
 /// Descriptor for `App`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List appDescriptor = $convert.base64Decode('CgNBcHASDgoCaWQYASABKAlSAmlkEiEKDHdvcmtzcGFjZV9pZBgCIAEoCVILd29ya3NwYWNlSWQSEgoEbmFtZRgDIAEoCVIEbmFtZRISCgRkZXNjGAQgASgJUgRkZXNj');
+final $typed_data.Uint8List appDescriptor = $convert.base64Decode('CgNBcHASDgoCaWQYASABKAlSAmlkEiEKDHdvcmtzcGFjZV9pZBgCIAEoCVILd29ya3NwYWNlSWQSEgoEbmFtZRgDIAEoCVIEbmFtZRISCgRkZXNjGAQgASgJUgRkZXNjEiMKBXZpZXdzGAUgASgLMg0uUmVwZWF0ZWRWaWV3UgV2aWV3cw==');
+@$core.Deprecated('Use repeatedAppDescriptor instead')
+const RepeatedApp$json = const {
+  '1': 'RepeatedApp',
+  '2': const [
+    const {'1': 'items', '3': 1, '4': 3, '5': 11, '6': '.App', '10': 'items'},
+  ],
+};
+
+/// Descriptor for `RepeatedApp`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List repeatedAppDescriptor = $convert.base64Decode('CgtSZXBlYXRlZEFwcBIaCgVpdGVtcxgBIAMoCzIELkFwcFIFaXRlbXM=');

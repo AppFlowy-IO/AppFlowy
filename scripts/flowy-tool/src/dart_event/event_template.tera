@@ -19,8 +19,13 @@ class {{ event_class }} {
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-          (okBytes) => left({{ output_deserializer }}.fromBuffer(okBytes)),
-          (errBytes) => right({{ error_deserializer }}.fromBuffer(errBytes)),
+
+        {%- if has_output  %}
+           (okBytes) => left({{ output_deserializer }}.fromBuffer(okBytes)),
+        {%- else %}
+           (bytes) => left(unit),
+        {%- endif %}
+           (errBytes) => right({{ error_deserializer }}.fromBuffer(errBytes)),
         ));
 
 {%- else %}

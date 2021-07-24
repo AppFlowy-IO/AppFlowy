@@ -80,6 +80,22 @@ typedef _init_sdk_Dart = int Function(
   Pointer<ffi.Utf8> path,
 );
 
+
+/// C function `init_stream`.
+int set_stream_port(int port) {
+  return _set_stream_port(port);
+}
+
+final _set_stream_port_Dart _set_stream_port =
+_dl.lookupFunction<_set_stream_port_C, _set_stream_port_Dart>('set_stream_port');
+
+typedef _set_stream_port_C = Int32 Function(
+    Int64 port,
+    );
+typedef _set_stream_port_Dart = int Function(
+    int port,
+    );
+
 /// C function `link_me_please`.
 void link_me_please() {
   _link_me_please();

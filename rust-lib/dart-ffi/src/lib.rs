@@ -12,14 +12,6 @@ use flowy_sdk::*;
 use lazy_static::lazy_static;
 use std::{ffi::CStr, os::raw::c_char};
 
-lazy_static! {
-    pub static ref FFI_RUNTIME: tokio::runtime::Runtime =
-        tokio::runtime::Builder::new_current_thread()
-            .thread_name("flowy-dart-ffi")
-            .build()
-            .unwrap();
-}
-
 #[no_mangle]
 pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
     let c_str: &CStr = unsafe { CStr::from_ptr(path) };
@@ -56,6 +48,12 @@ pub extern "C" fn sync_command(input: *const u8, len: usize) -> *const u8 {
     let response_bytes = vec![];
     let result = extend_front_four_bytes_into_bytes(&response_bytes);
     forget_rust(result)
+}
+
+#[no_mangle]
+pub extern "C" fn set_stream_port(port: i64) -> i32 {
+    flowy_observable::dart::RustStreamSender::set_port(port);
+    return 0;
 }
 
 #[inline(never)]

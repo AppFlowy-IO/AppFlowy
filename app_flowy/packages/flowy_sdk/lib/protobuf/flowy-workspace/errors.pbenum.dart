@@ -17,7 +17,9 @@ class WorkspaceErrorCode extends $pb.ProtobufEnum {
   static const WorkspaceErrorCode AppIdInvalid = WorkspaceErrorCode._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppIdInvalid');
   static const WorkspaceErrorCode AppNameInvalid = WorkspaceErrorCode._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppNameInvalid');
   static const WorkspaceErrorCode ViewNameInvalid = WorkspaceErrorCode._(20, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewNameInvalid');
-  static const WorkspaceErrorCode ViewThumbnailName = WorkspaceErrorCode._(21, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewThumbnailName');
+  static const WorkspaceErrorCode ViewThumbnailInvalid = WorkspaceErrorCode._(21, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewThumbnailInvalid');
+  static const WorkspaceErrorCode ViewIdInvalid = WorkspaceErrorCode._(22, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewIdInvalid');
+  static const WorkspaceErrorCode ViewDescInvalid = WorkspaceErrorCode._(23, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewDescInvalid');
   static const WorkspaceErrorCode DatabaseConnectionFail = WorkspaceErrorCode._(100, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DatabaseConnectionFail');
   static const WorkspaceErrorCode WorkspaceDatabaseError = WorkspaceErrorCode._(101, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceDatabaseError');
   static const WorkspaceErrorCode UserInternalError = WorkspaceErrorCode._(102, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserInternalError');
@@ -31,7 +33,9 @@ class WorkspaceErrorCode extends $pb.ProtobufEnum {
     AppIdInvalid,
     AppNameInvalid,
     ViewNameInvalid,
-    ViewThumbnailName,
+    ViewThumbnailInvalid,
+    ViewIdInvalid,
+    ViewDescInvalid,
     DatabaseConnectionFail,
     WorkspaceDatabaseError,
     UserInternalError,

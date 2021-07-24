@@ -3,16 +3,10 @@ use flowy_dispatch::prelude::*;
 use std::{convert::TryInto, sync::Arc};
 
 // tracing instrument 👉🏻 https://docs.rs/tracing/0.1.26/tracing/attr.instrument.html
-#[tracing::instrument(
-    name = "user_sign_in",
-    skip(data, session),
-    fields(
-        email = %data.email,
-    )
-)]
+#[tracing::instrument(name = "user_sign_in", skip(data, session), fields(email = %data.email))]
 pub async fn user_sign_in_handler(
     data: Data<SignInRequest>,
-    session: ModuleData<Arc<UserSession>>,
+    session: Unit<Arc<UserSession>>,
 ) -> ResponseResult<UserDetail, UserError> {
     let params: SignInParams = data.into_inner().try_into()?;
     let user = session.sign_in(params).await?;
@@ -30,7 +24,7 @@ pub async fn user_sign_in_handler(
 )]
 pub async fn user_sign_up_handler(
     data: Data<SignUpRequest>,
-    session: ModuleData<Arc<UserSession>>,
+    session: Unit<Arc<UserSession>>,
 ) -> ResponseResult<UserDetail, UserError> {
     let params: SignUpParams = data.into_inner().try_into()?;
     let user = session.sign_up(params).await?;

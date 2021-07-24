@@ -1,0 +1,17 @@
+[package]
+name = "flowy-observable"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+lazy_static = {version = "1.4.0"}
+protobuf = {version = "2.20.0"}
+allo-isolate = {version = "^0.1", features = ["catch-unwind",]}
+log = "0.4.14"
+
+flowy-derive = {path = "../flowy-derive"}
+
+[features]
+dart = []

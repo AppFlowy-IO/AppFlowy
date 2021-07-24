@@ -2,7 +2,11 @@ syntax = "proto3";
 
 enum WorkspaceEvent {
     CreateWorkspace = 0;
-    GetWorkspaceDetail = 1;
+    GetCurWorkspace = 1;
+    GetWorkspace = 2;
     CreateApp = 101;
+    GetApp = 102;
     CreateView = 201;
+    ReadView = 202;
+    UpdateView = 203;
 }

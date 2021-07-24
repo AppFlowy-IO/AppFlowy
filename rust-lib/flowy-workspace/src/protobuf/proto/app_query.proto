@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message QueryAppRequest {
+    string app_id = 1;
+    bool read_views = 2;
+}

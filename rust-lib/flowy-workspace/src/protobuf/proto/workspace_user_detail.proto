@@ -1,11 +1,6 @@
 syntax = "proto3";
-import "workspace_create.proto";
 
-message UserWorkspace {
+message CurrentWorkspace {
     string owner = 1;
     string workspace_id = 2;
-}
-message UserWorkspaceDetail {
-    string owner = 1;
-    Workspace workspace = 2;
 }

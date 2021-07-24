@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message QueryWorkspaceRequest {
+    string workspace_id = 1;
+    bool read_apps = 2;
+}

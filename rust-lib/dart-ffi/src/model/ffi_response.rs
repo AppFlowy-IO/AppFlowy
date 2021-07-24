@@ -1,5 +1,5 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_dispatch::prelude::{EventResponse, Payload, StatusCode};
+use flowy_dispatch::prelude::{DispatchError, EventResponse, Payload, StatusCode};
 
 #[derive(ProtoBuf_Enum, Clone, Copy)]
 pub enum FFIStatusCode {
@@ -32,6 +32,11 @@ impl std::convert::From<EventResponse> for FFIResponse {
             StatusCode::Ok => FFIStatusCode::Ok,
             StatusCode::Err => FFIStatusCode::Err,
         };
+
+        // let msg = match resp.error {
+        //     None => "".to_owned(),
+        //     Some(e) => format!("{:?}", e),
+        // };
 
         FFIResponse { payload, code }
     }

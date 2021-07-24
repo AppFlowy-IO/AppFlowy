@@ -1,4 +1,5 @@
 syntax = "proto3";
+import "view_create.proto";
 
 message CreateAppRequest {
     string workspace_id = 1;
@@ -14,4 +15,8 @@ message App {
     string workspace_id = 2;
     string name = 3;
     string desc = 4;
+    RepeatedView views = 5;
+}
+message RepeatedApp {
+    repeated App items = 1;
 }

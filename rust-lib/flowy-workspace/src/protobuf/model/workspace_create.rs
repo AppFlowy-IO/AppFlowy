@@ -230,6 +230,7 @@ pub struct Workspace {
     pub id: ::std::string::String,
     pub name: ::std::string::String,
     pub desc: ::std::string::String,
+    pub apps: ::protobuf::SingularPtrField<super::app_create::RepeatedApp>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -323,10 +324,48 @@ impl Workspace {
     pub fn take_desc(&mut self) -> ::std::string::String {
         ::std::mem::replace(&mut self.desc, ::std::string::String::new())
     }
+
+    // .RepeatedApp apps = 4;
+
+
+    pub fn get_apps(&self) -> &super::app_create::RepeatedApp {
+        self.apps.as_ref().unwrap_or_else(|| <super::app_create::RepeatedApp as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_apps(&mut self) {
+        self.apps.clear();
+    }
+
+    pub fn has_apps(&self) -> bool {
+        self.apps.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_apps(&mut self, v: super::app_create::RepeatedApp) {
+        self.apps = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_apps(&mut self) -> &mut super::app_create::RepeatedApp {
+        if self.apps.is_none() {
+            self.apps.set_default();
+        }
+        self.apps.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_apps(&mut self) -> super::app_create::RepeatedApp {
+        self.apps.take().unwrap_or_else(|| super::app_create::RepeatedApp::new())
+    }
 }
 
 impl ::protobuf::Message for Workspace {
     fn is_initialized(&self) -> bool {
+        for v in &self.apps {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
         true
     }
 
@@ -342,6 +381,9 @@ impl ::protobuf::Message for Workspace {
                 },
                 3 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.desc)?;
+                },
+                4 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.apps)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -364,6 +406,10 @@ impl ::protobuf::Message for Workspace {
         if !self.desc.is_empty() {
             my_size += ::protobuf::rt::string_size(3, &self.desc);
         }
+        if let Some(ref v) = self.apps.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -378,6 +424,11 @@ impl ::protobuf::Message for Workspace {
         }
         if !self.desc.is_empty() {
             os.write_string(3, &self.desc)?;
+        }
+        if let Some(ref v) = self.apps.as_ref() {
+            os.write_tag(4, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -432,6 +483,11 @@ impl ::protobuf::Message for Workspace {
                 |m: &Workspace| { &m.desc },
                 |m: &mut Workspace| { &mut m.desc },
             ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<super::app_create::RepeatedApp>>(
+                "apps",
+                |m: &Workspace| { &m.apps },
+                |m: &mut Workspace| { &mut m.apps },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<Workspace>(
                 "Workspace",
                 fields,
@@ -451,6 +507,7 @@ impl ::protobuf::Clear for Workspace {
         self.id.clear();
         self.name.clear();
         self.desc.clear();
+        self.apps.clear();
         self.unknown_fields.clear();
     }
 }
@@ -468,28 +525,32 @@ impl ::protobuf::reflect::ProtobufValue for Workspace {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x16workspace_create.proto\"@\n\x16CreateWorkspaceRequest\x12\x12\n\
-    \x04name\x18\x01\x20\x01(\tR\x04name\x12\x12\n\x04desc\x18\x02\x20\x01(\
-    \tR\x04desc\"C\n\tWorkspace\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\
-    \x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x12\n\x04desc\x18\x03\
-    \x20\x01(\tR\x04descJ\xd5\x02\n\x06\x12\x04\0\0\n\x01\n\x08\n\x01\x0c\
-    \x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\0\
-    \x01\x12\x03\x02\x08\x1e\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x14\n\
-    \x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\
-    \x12\x03\x03\x0b\x0f\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x12\x13\n\
-    \x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x14\n\x0c\n\x05\x04\0\x02\x01\
-    \x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x0b\x0f\
-    \n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x12\x13\n\n\n\x02\x04\x01\x12\
-    \x04\x06\0\n\x01\n\n\n\x03\x04\x01\x01\x12\x03\x06\x08\x11\n\x0b\n\x04\
-    \x04\x01\x02\0\x12\x03\x07\x04\x12\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\
-    \x07\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x07\x0b\r\n\x0c\n\x05\
-    \x04\x01\x02\0\x03\x12\x03\x07\x10\x11\n\x0b\n\x04\x04\x01\x02\x01\x12\
-    \x03\x08\x04\x14\n\x0c\n\x05\x04\x01\x02\x01\x05\x12\x03\x08\x04\n\n\x0c\
-    \n\x05\x04\x01\x02\x01\x01\x12\x03\x08\x0b\x0f\n\x0c\n\x05\x04\x01\x02\
-    \x01\x03\x12\x03\x08\x12\x13\n\x0b\n\x04\x04\x01\x02\x02\x12\x03\t\x04\
-    \x14\n\x0c\n\x05\x04\x01\x02\x02\x05\x12\x03\t\x04\n\n\x0c\n\x05\x04\x01\
-    \x02\x02\x01\x12\x03\t\x0b\x0f\n\x0c\n\x05\x04\x01\x02\x02\x03\x12\x03\t\
-    \x12\x13b\x06proto3\
+    \n\x16workspace_create.proto\x1a\x10app_create.proto\"@\n\x16CreateWorks\
+    paceRequest\x12\x12\n\x04name\x18\x01\x20\x01(\tR\x04name\x12\x12\n\x04d\
+    esc\x18\x02\x20\x01(\tR\x04desc\"e\n\tWorkspace\x12\x0e\n\x02id\x18\x01\
+    \x20\x01(\tR\x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x12\
+    \n\x04desc\x18\x03\x20\x01(\tR\x04desc\x12\x20\n\x04apps\x18\x04\x20\x01\
+    (\x0b2\x0c.RepeatedAppR\x04appsJ\x97\x03\n\x06\x12\x04\0\0\x0c\x01\n\x08\
+    \n\x01\x0c\x12\x03\0\0\x12\n\t\n\x02\x03\0\x12\x03\x01\0\x1a\n\n\n\x02\
+    \x04\0\x12\x04\x03\0\x06\x01\n\n\n\x03\x04\0\x01\x12\x03\x03\x08\x1e\n\
+    \x0b\n\x04\x04\0\x02\0\x12\x03\x04\x04\x14\n\x0c\n\x05\x04\0\x02\0\x05\
+    \x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x04\x0b\x0f\n\x0c\
+    \n\x05\x04\0\x02\0\x03\x12\x03\x04\x12\x13\n\x0b\n\x04\x04\0\x02\x01\x12\
+    \x03\x05\x04\x14\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x05\x04\n\n\x0c\n\
+    \x05\x04\0\x02\x01\x01\x12\x03\x05\x0b\x0f\n\x0c\n\x05\x04\0\x02\x01\x03\
+    \x12\x03\x05\x12\x13\n\n\n\x02\x04\x01\x12\x04\x07\0\x0c\x01\n\n\n\x03\
+    \x04\x01\x01\x12\x03\x07\x08\x11\n\x0b\n\x04\x04\x01\x02\0\x12\x03\x08\
+    \x04\x12\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x08\x04\n\n\x0c\n\x05\x04\
+    \x01\x02\0\x01\x12\x03\x08\x0b\r\n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\
+    \x08\x10\x11\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\t\x04\x14\n\x0c\n\x05\
+    \x04\x01\x02\x01\x05\x12\x03\t\x04\n\n\x0c\n\x05\x04\x01\x02\x01\x01\x12\
+    \x03\t\x0b\x0f\n\x0c\n\x05\x04\x01\x02\x01\x03\x12\x03\t\x12\x13\n\x0b\n\
+    \x04\x04\x01\x02\x02\x12\x03\n\x04\x14\n\x0c\n\x05\x04\x01\x02\x02\x05\
+    \x12\x03\n\x04\n\n\x0c\n\x05\x04\x01\x02\x02\x01\x12\x03\n\x0b\x0f\n\x0c\
+    \n\x05\x04\x01\x02\x02\x03\x12\x03\n\x12\x13\n\x0b\n\x04\x04\x01\x02\x03\
+    \x12\x03\x0b\x04\x19\n\x0c\n\x05\x04\x01\x02\x03\x06\x12\x03\x0b\x04\x0f\
+    \n\x0c\n\x05\x04\x01\x02\x03\x01\x12\x03\x0b\x10\x14\n\x0c\n\x05\x04\x01\
+    \x02\x03\x03\x12\x03\x0b\x17\x18b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

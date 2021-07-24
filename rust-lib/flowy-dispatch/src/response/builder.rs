@@ -14,7 +14,6 @@ macro_rules! static_response {
 pub struct ResponseBuilder<T = Payload> {
     pub payload: T,
     pub status: StatusCode,
-    pub error: Option<DispatchError>,
 }
 
 impl ResponseBuilder {
@@ -22,7 +21,6 @@ impl ResponseBuilder {
         ResponseBuilder {
             payload: Payload::None,
             status,
-            error: None,
         }
     }
 
@@ -31,16 +29,10 @@ impl ResponseBuilder {
         self
     }
 
-    pub fn error(mut self, error: DispatchError) -> Self {
-        self.error = Some(error);
-        self
-    }
-
     pub fn build(self) -> EventResponse {
         EventResponse {
             payload: self.payload,
             status_code: self.status,
-            error: self.error,
         }
     }
 

@@ -1,4 +1,5 @@
 syntax = "proto3";
+import "app_create.proto";
 
 message CreateWorkspaceRequest {
     string name = 1;
@@ -8,4 +9,5 @@ message Workspace {
     string id = 1;
     string name = 2;
     string desc = 3;
+    RepeatedApp apps = 4;
 }

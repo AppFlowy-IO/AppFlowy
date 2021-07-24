@@ -36,6 +36,9 @@ pub enum UserErrorCode {
     #[display(fmt = "Database internal error")]
     UserDatabaseInternalError = 5,
 
+    #[display(fmt = "Sql internal error")]
+    SqlInternalError     = 6,
+
     #[display(fmt = "User not login yet")]
     UserNotLoginYet      = 10,
     #[display(fmt = "Get current id read lock failed")]
@@ -55,6 +58,9 @@ pub enum UserErrorCode {
     UserIdInvalid        = 24,
     #[display(fmt = "Create user default workspace failed")]
     CreateDefaultWorkspaceFailed = 25,
+
+    #[display(fmt = "User default workspace already exists")]
+    DefaultWorkspaceAlreadyExist = 26,
 }
 
 impl std::default::Default for UserErrorCode {
@@ -68,7 +74,8 @@ impl std::convert::From<flowy_database::result::Error> for UserError {
             .build()
     }
 }
-use diesel::result::DatabaseErrorKind;
+// use diesel::result::{Error, DatabaseErrorKind};
+// use flowy_sqlite::ErrorKind;
 impl std::convert::From<flowy_sqlite::Error> for UserError {
     fn from(error: flowy_sqlite::Error) -> Self {
         // match error.kind() {
@@ -84,7 +91,6 @@ impl std::convert::From<flowy_sqlite::Error> for UserError {
         //                 }
         //                 _ => {}
         //             }
-        //
         //         },
         //         Error::NotFound => {},
         //         Error::QueryBuilderError(_) => {},
@@ -100,7 +106,7 @@ impl std::convert::From<flowy_sqlite::Error> for UserError {
         //     ErrorKind::__Nonexhaustive { .. } => {},
         // }
 
-        ErrorBuilder::new(UserErrorCode::UserDatabaseInternalError)
+        ErrorBuilder::new(UserErrorCode::SqlInternalError)
             .error(error)
             .build()
     }

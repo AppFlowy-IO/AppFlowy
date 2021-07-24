@@ -5,15 +5,19 @@ message CreateViewRequest {
     string name = 2;
     string desc = 3;
     oneof one_of_thumbnail { string thumbnail = 4; };
-    ViewTypeIdentifier view_type = 5;
+    ViewType view_type = 5;
 }
 message View {
     string id = 1;
     string app_id = 2;
     string name = 3;
     string desc = 4;
-    ViewTypeIdentifier view_type = 5;
+    ViewType view_type = 5;
 }
-enum ViewTypeIdentifier {
-    Docs = 0;
+message RepeatedView {
+    repeated View items = 1;
+}
+enum ViewType {
+    Blank = 0;
+    Doc = 1;
 }

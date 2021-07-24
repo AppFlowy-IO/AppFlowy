@@ -36,7 +36,7 @@ where
             Payload::None => ready(Err(unexpected_none_payload(req))),
             Payload::Bytes(bytes) => match T::parse_from_bytes(bytes) {
                 Ok(data) => ready(Ok(Data(data))),
-                Err(e) => ready(Err(InternalError::new(format!("{:?}", e)).into())),
+                Err(e) => ready(Err(InternalError::new(format!("{}", e)).into())),
             },
         }
     }
@@ -50,7 +50,7 @@ where
         match self.into_inner().into_bytes() {
             Ok(bytes) => ResponseBuilder::Ok().data(bytes.to_vec()).build(),
             Err(e) => {
-                let system_err: DispatchError = InternalError::new(format!("{:?}", e)).into();
+                let system_err: DispatchError = InternalError::new(format!("{}", e)).into();
                 system_err.into()
             },
         }

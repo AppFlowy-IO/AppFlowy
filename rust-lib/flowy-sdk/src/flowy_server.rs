@@ -1,4 +1,10 @@
-use flowy_dispatch::prelude::{DispatchFuture, EventDispatch, ModuleRequest, ToBytes};
+use flowy_dispatch::prelude::{
+    DispatchError,
+    DispatchFuture,
+    EventDispatch,
+    ModuleRequest,
+    ToBytes,
+};
 use flowy_user::{
     entities::{SignInParams, SignUpParams, UserDetail},
     errors::{ErrorBuilder, UserError, UserErrorCode},
@@ -53,7 +59,8 @@ impl UserServer for FlowyServerMocker {
         name: &str,
         desc: &str,
         _user_id: &str,
-    ) -> DispatchFuture<Result<(), UserError>> {
+    ) -> DispatchFuture<Result<String, UserError>> {
+        log::info!("Create user workspace: {:?}", name);
         let payload: Vec<u8> = CreateWorkspaceRequest {
             name: name.to_string(),
             desc: desc.to_string(),
@@ -64,15 +71,21 @@ impl UserServer for FlowyServerMocker {
         let request = ModuleRequest::new(CreateWorkspace).payload(payload);
         DispatchFuture {
             fut: Box::pin(async move {
-                let _ = EventDispatch::async_send(request)
+                let result = EventDispatch::async_send(request)
                     .await
-                    .parse::<Workspace, WorkspaceError>()
+                    .parse::<Workspace, DispatchError>()
                     .map_err(|e| {
                         ErrorBuilder::new(UserErrorCode::CreateDefaultWorkspaceFailed)
                             .error(e)
                             .build()
                     })?;
-                Ok(())
+
+                let workspace = result.map_err(|e| {
+                    ErrorBuilder::new(UserErrorCode::CreateDefaultWorkspaceFailed)
+                        .error(e)
+                        .build()
+                })?;
+                Ok(workspace.id)
             }),
         }
     }

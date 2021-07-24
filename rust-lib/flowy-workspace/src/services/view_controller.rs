@@ -1,28 +1,43 @@
 use crate::{
-    entities::view::{CreateViewParams, View},
+    entities::view::{CreateViewParams, UpdateViewParams, View},
     errors::WorkspaceError,
-    module::WorkspaceUser,
-    sql_tables::view::ViewTable,
+    module::WorkspaceDatabase,
+    observable::{send_observable, WorkspaceObservable},
+    sql_tables::view::{ViewTable, ViewTableChangeset, ViewTableSql},
 };
-use flowy_database::{prelude::*, schema::view_table};
 use std::sync::Arc;
 
 pub struct ViewController {
-    user: Arc<dyn WorkspaceUser>,
+    sql: Arc<ViewTableSql>,
 }
 
 impl ViewController {
-    pub fn new(user: Arc<dyn WorkspaceUser>) -> Self { Self { user } }
+    pub fn new(database: Arc<dyn WorkspaceDatabase>) -> Self {
+        let sql = Arc::new(ViewTableSql { database });
+        Self { sql }
+    }
 
-    pub async fn save_view(&self, params: CreateViewParams) -> Result<View, WorkspaceError> {
+    pub async fn create_view(&self, params: CreateViewParams) -> Result<View, WorkspaceError> {
         let view_table = ViewTable::new(params);
-        let conn = self.user.db_connection()?;
         let view: View = view_table.clone().into();
+        let _ = self.sql.create_view(view_table)?;
 
-        let _ = diesel::insert_into(view_table::table)
-            .values(view_table)
-            .execute(&*conn)?;
-
+        send_observable(&view.app_id, WorkspaceObservable::AppAddView);
         Ok(view)
+    }
+
+    pub async fn read_view(&self, view_id: &str) -> Result<View, WorkspaceError> {
+        let view_table = self.sql.read_view(view_id)?;
+        let view: View = view_table.into();
+        Ok(view)
+    }
+
+    pub async fn update_view(&self, params: UpdateViewParams) -> Result<(), WorkspaceError> {
+        let changeset = ViewTableChangeset::new(params);
+        let view_id = changeset.id.clone();
+        let _ = self.sql.update_view(changeset)?;
+        send_observable(&view_id, WorkspaceObservable::ViewUpdateDesc);
+
+        Ok(())
     }
 }

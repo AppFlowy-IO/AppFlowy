@@ -11,15 +11,15 @@ pub struct EventASTContext {
 
 impl EventASTContext {
     pub fn from(variant: &ASTEnumAttrVariant) -> EventASTContext {
-        let command_name = variant.name.clone();
+        let command_name = variant.enum_item_name.clone();
         if command_name.is_empty() {
-            panic!("Invalid command name: {}", variant.name);
+            panic!("Invalid command name: {}", variant.enum_item_name);
         }
 
         let event = format_ident!("{}", &command_name);
         let splits = command_name.split("_").collect::<Vec<&str>>();
 
-        let event_ty = format_ident!("UserEvent");
+        let event_ty = format_ident!("{}", variant.enum_name);
         let event_request_struct = format_ident!("{}Event", &splits.join(""));
 
         let event_input = variant.event_input();

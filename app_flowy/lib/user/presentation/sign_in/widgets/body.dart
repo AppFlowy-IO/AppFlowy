@@ -1,7 +1,7 @@
-import 'package:app_flowy/home/presentation/home_screen.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/application/sign_in/sign_in_bloc.dart';
 import 'package:app_flowy/user/presentation/sign_in/widgets/background.dart';
+import 'package:app_flowy/workspace/presentation/home/home_screen.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';

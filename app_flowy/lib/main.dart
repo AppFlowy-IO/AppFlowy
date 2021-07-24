@@ -10,5 +10,5 @@ class FlowyAppFactory implements AppFactory {
 }
 
 void main() {
-  App.run(FlowyAppFactory());
+  Application.run(FlowyAppFactory());
 }

@@ -1,4 +1,4 @@
-import 'package:app_flowy/welcome/domain/interface.dart';
+import 'package:app_flowy/welcome/domain/i_welcome.dart';
 import 'package:app_flowy/welcome/domain/auth_state.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/welcome/application/welcome_bloc.dart';

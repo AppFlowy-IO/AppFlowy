@@ -26,8 +26,9 @@ const Workspace$json = const {
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
     const {'1': 'desc', '3': 3, '4': 1, '5': 9, '10': 'desc'},
+    const {'1': 'apps', '3': 4, '4': 1, '5': 11, '6': '.RepeatedApp', '10': 'apps'},
   ],
 };
 
 /// Descriptor for `Workspace`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List workspaceDescriptor = $convert.base64Decode('CglXb3Jrc3BhY2USDgoCaWQYASABKAlSAmlkEhIKBG5hbWUYAiABKAlSBG5hbWUSEgoEZGVzYxgDIAEoCVIEZGVzYw==');
+final $typed_data.Uint8List workspaceDescriptor = $convert.base64Decode('CglXb3Jrc3BhY2USDgoCaWQYASABKAlSAmlkEhIKBG5hbWUYAiABKAlSBG5hbWUSEgoEZGVzYxgDIAEoCVIEZGVzYxIgCgRhcHBzGAQgASgLMgwuUmVwZWF0ZWRBcHBSBGFwcHM=');

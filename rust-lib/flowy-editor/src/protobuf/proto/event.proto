@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+enum EditorEvent {
+    CreateDoc = 0;
+    UpdateDoc = 1;
+    ReadDocInfo = 2;
+    ReadDocData = 3;
+}

@@ -1,12 +1,10 @@
-import 'package:app_flowy/user/domain/interface.dart';
+import 'package:app_flowy/user/domain/i_auth.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-part 'sign_in_event.dart';
-part 'sign_in_state.dart';
 part 'sign_in_bloc.freezed.dart';
 
 class SignInBloc extends Bloc<SignInEvent, SignInState> {
@@ -42,4 +40,28 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       (s) => state.copyWith(isSubmitting: false, signInFailure: some(right(s))),
     );
   }
+}
+
+@freezed
+abstract class SignInEvent with _$SignInEvent {
+  const factory SignInEvent.signedInWithUserEmailAndPassword() =
+      SignedInWithUserEmailAndPassword;
+
+  const factory SignInEvent.emailChanged(String email) = EmailChanged;
+  const factory SignInEvent.passwordChanged(String password) = PasswordChanged;
+}
+
+@freezed
+abstract class SignInState with _$SignInState {
+  const factory SignInState({
+    String? email,
+    String? password,
+    required bool isSubmitting,
+    required Option<Either<UserDetail, UserError>> signInFailure,
+  }) = _SignInState;
+
+  factory SignInState.initial() => SignInState(
+        isSubmitting: false,
+        signInFailure: none(),
+      );
 }

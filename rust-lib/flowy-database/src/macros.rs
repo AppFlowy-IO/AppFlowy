@@ -10,6 +10,6 @@ macro_rules! diesel_update_table {
         let affected_row = diesel::update(filter)
             .set($changeset)
             .execute(&*$connection)?;
-        debug_assert_eq!(affected_row, 1);
+        // debug_assert_eq!(affected_row, 1);
     };
 }

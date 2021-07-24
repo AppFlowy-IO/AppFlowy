@@ -16,6 +16,7 @@ class UserErrorCode extends $pb.ProtobufEnum {
   static const UserErrorCode UserDatabaseReadLocked = UserErrorCode._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseReadLocked');
   static const UserErrorCode UserDatabaseDidNotMatch = UserErrorCode._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseDidNotMatch');
   static const UserErrorCode UserDatabaseInternalError = UserErrorCode._(5, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseInternalError');
+  static const UserErrorCode SqlInternalError = UserErrorCode._(6, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'SqlInternalError');
   static const UserErrorCode UserNotLoginYet = UserErrorCode._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNotLoginYet');
   static const UserErrorCode ReadCurrentIdFailed = UserErrorCode._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ReadCurrentIdFailed');
   static const UserErrorCode WriteCurrentIdFailed = UserErrorCode._(12, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WriteCurrentIdFailed');
@@ -25,6 +26,7 @@ class UserErrorCode extends $pb.ProtobufEnum {
   static const UserErrorCode UserWorkspaceInvalid = UserErrorCode._(23, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserWorkspaceInvalid');
   static const UserErrorCode UserIdInvalid = UserErrorCode._(24, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserIdInvalid');
   static const UserErrorCode CreateDefaultWorkspaceFailed = UserErrorCode._(25, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateDefaultWorkspaceFailed');
+  static const UserErrorCode DefaultWorkspaceAlreadyExist = UserErrorCode._(26, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DefaultWorkspaceAlreadyExist');
 
   static const $core.List<UserErrorCode> values = <UserErrorCode> [
     Unknown,
@@ -33,6 +35,7 @@ class UserErrorCode extends $pb.ProtobufEnum {
     UserDatabaseReadLocked,
     UserDatabaseDidNotMatch,
     UserDatabaseInternalError,
+    SqlInternalError,
     UserNotLoginYet,
     ReadCurrentIdFailed,
     WriteCurrentIdFailed,
@@ -42,6 +45,7 @@ class UserErrorCode extends $pb.ProtobufEnum {
     UserWorkspaceInvalid,
     UserIdInvalid,
     CreateDefaultWorkspaceFailed,
+    DefaultWorkspaceAlreadyExist,
   ];
 
   static final $core.Map<$core.int, UserErrorCode> _byValue = $pb.ProtobufEnum.initByValue(values);

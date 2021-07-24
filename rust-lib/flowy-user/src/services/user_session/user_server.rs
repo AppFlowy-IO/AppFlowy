@@ -19,5 +19,5 @@ pub trait UserServer {
         name: &str,
         desc: &str,
         user_id: &str,
-    ) -> DispatchFuture<Result<(), UserError>>;
+    ) -> DispatchFuture<Result<String, UserError>>;
 }

@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+message QueryDocRequest {
+    string doc_id = 1;
+}
+message QueryDocDataRequest {
+    string doc_id = 1;
+    string path = 2;
+}

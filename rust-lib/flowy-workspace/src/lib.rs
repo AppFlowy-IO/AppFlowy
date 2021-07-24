@@ -7,6 +7,7 @@ mod sql_tables;
 
 #[macro_use]
 mod macros;
+mod observable;
 mod protobuf;
 mod services;
 

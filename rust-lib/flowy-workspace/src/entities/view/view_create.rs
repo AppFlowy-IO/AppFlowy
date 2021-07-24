@@ -1,18 +1,20 @@
 use crate::{
     entities::{app::parser::AppId, view::parser::*},
     errors::{ErrorBuilder, WorkspaceError, WorkspaceErrorCode},
-    sql_tables::view::ViewType,
+    impl_def_and_def_mut,
+    sql_tables::view::ViewTableType,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use std::convert::TryInto;
 
-#[derive(Debug, ProtoBuf_Enum)]
-pub enum ViewTypeIdentifier {
-    Docs = 0,
+#[derive(PartialEq, Debug, ProtoBuf_Enum)]
+pub enum ViewType {
+    Blank = 0,
+    Doc   = 1,
 }
 
-impl std::default::Default for ViewTypeIdentifier {
-    fn default() -> Self { ViewTypeIdentifier::Docs }
+impl std::default::Default for ViewType {
+    fn default() -> Self { ViewType::Blank }
 }
 
 #[derive(Default, ProtoBuf)]
@@ -30,7 +32,7 @@ pub struct CreateViewRequest {
     pub thumbnail: Option<String>,
 
     #[pb(index = 5)]
-    pub view_type: ViewTypeIdentifier,
+    pub view_type: ViewType,
 }
 
 pub struct CreateViewParams {
@@ -38,7 +40,7 @@ pub struct CreateViewParams {
     pub name: String,
     pub desc: String,
     pub thumbnail: String,
-    pub view_type: ViewType,
+    pub view_type: ViewTableType,
 }
 
 impl TryInto<CreateViewParams> for CreateViewRequest {
@@ -66,7 +68,7 @@ impl TryInto<CreateViewParams> for CreateViewRequest {
             Some(thumbnail) => {
                 ViewThumbnail::parse(thumbnail)
                     .map_err(|e| {
-                        ErrorBuilder::new(WorkspaceErrorCode::ViewThumbnailName)
+                        ErrorBuilder::new(WorkspaceErrorCode::ViewThumbnailInvalid)
                             .msg(e)
                             .build()
                     })?
@@ -85,7 +87,7 @@ impl TryInto<CreateViewParams> for CreateViewRequest {
     }
 }
 
-#[derive(ProtoBuf, Default, Debug)]
+#[derive(PartialEq, ProtoBuf, Default, Debug)]
 pub struct View {
     #[pb(index = 1)]
     pub id: String,
@@ -100,5 +102,13 @@ pub struct View {
     pub desc: String,
 
     #[pb(index = 5)]
-    pub view_type: ViewTypeIdentifier,
+    pub view_type: ViewType,
 }
+
+#[derive(PartialEq, Debug, Default, ProtoBuf)]
+pub struct RepeatedView {
+    #[pb(index = 1)]
+    pub items: Vec<View>,
+}
+
+impl_def_and_def_mut!(RepeatedView, View);

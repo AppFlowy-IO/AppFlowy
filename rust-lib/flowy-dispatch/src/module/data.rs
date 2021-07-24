@@ -5,18 +5,18 @@ use crate::{
 };
 use std::{any::type_name, ops::Deref, sync::Arc};
 
-pub struct ModuleData<T: ?Sized + Send + Sync>(Arc<T>);
+pub struct Unit<T: ?Sized + Send + Sync>(Arc<T>);
 
-impl<T> ModuleData<T>
+impl<T> Unit<T>
 where
     T: Send + Sync,
 {
-    pub fn new(data: T) -> Self { ModuleData(Arc::new(data)) }
+    pub fn new(data: T) -> Self { Unit(Arc::new(data)) }
 
     pub fn get_ref(&self) -> &T { self.0.as_ref() }
 }
 
-impl<T> Deref for ModuleData<T>
+impl<T> Deref for Unit<T>
 where
     T: ?Sized + Send + Sync,
 {
@@ -25,21 +25,21 @@ where
     fn deref(&self) -> &Arc<T> { &self.0 }
 }
 
-impl<T> Clone for ModuleData<T>
+impl<T> Clone for Unit<T>
 where
     T: ?Sized + Send + Sync,
 {
-    fn clone(&self) -> ModuleData<T> { ModuleData(self.0.clone()) }
+    fn clone(&self) -> Unit<T> { Unit(self.0.clone()) }
 }
 
-impl<T> From<Arc<T>> for ModuleData<T>
+impl<T> From<Arc<T>> for Unit<T>
 where
     T: ?Sized + Send + Sync,
 {
-    fn from(arc: Arc<T>) -> Self { ModuleData(arc) }
+    fn from(arc: Arc<T>) -> Self { Unit(arc) }
 }
 
-impl<T> FromRequest for ModuleData<T>
+impl<T> FromRequest for Unit<T>
 where
     T: ?Sized + Send + Sync + 'static,
 {
@@ -48,7 +48,7 @@ where
 
     #[inline]
     fn from_request(req: &EventRequest, _: &mut Payload) -> Self::Future {
-        if let Some(data) = req.module_data::<ModuleData<T>>() {
+        if let Some(data) = req.module_data::<Unit<T>>() {
             ready(Ok(data.clone()))
         } else {
             let msg = format!(
