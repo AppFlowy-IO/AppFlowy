@@ -1,5 +1,5 @@
 use crate::{
-    entities::doc::{CreateDocParams, Doc, DocDescription, QueryDocParams, UpdateDocParams},
+    entities::doc::{CreateDocParams, DocData, DocInfo, QueryDocParams, UpdateDocParams},
     errors::EditorError,
     module::EditorDatabase,
     sql_tables::doc::{DocTable, DocTableChangeset, DocTableSql},
@@ -20,9 +20,9 @@ impl DocController {
         &self,
         params: CreateDocParams,
         path: &str,
-    ) -> Result<DocDescription, EditorError> {
+    ) -> Result<DocInfo, EditorError> {
         let doc_table = DocTable::new(params, path);
-        let doc: DocDescription = doc_table.clone().into();
+        let doc: DocInfo = doc_table.clone().into();
         let _ = self.sql.create_doc_table(doc_table)?;
 
         Ok(doc)
@@ -34,9 +34,9 @@ impl DocController {
         Ok(())
     }
 
-    pub(crate) async fn read_doc(&self, doc_id: &str) -> Result<DocDescription, EditorError> {
+    pub(crate) async fn read_doc(&self, doc_id: &str) -> Result<DocInfo, EditorError> {
         let doc_table = self.sql.read_doc_table(doc_id)?;
-        let doc_desc: DocDescription = doc_table.into();
+        let doc_desc: DocInfo = doc_table.into();
         Ok(doc_desc)
     }
 }

@@ -11,16 +11,23 @@ class DocRepository {
     required this.docId,
   });
 
-  Future<Either<DocDescription, EditorError>> createDoc(
+  Future<Either<DocInfo, EditorError>> createDoc(
       {required String name, String? desc}) {
     final request = CreateDocRequest(id: docId, name: name, desc: desc);
 
     return EditorEventCreateDoc(request).send();
   }
 
-  Future<Either<Doc, EditorError>> readDoc() {
+  Future<Either<DocInfo, EditorError>> readDoc() {
     final request = QueryDocRequest.create()..docId = docId;
-    return EditorEventReadDoc(request).send();
+    return EditorEventReadDocInfo(request).send();
+  }
+
+  Future<Either<DocData, EditorError>> readDocData(String path) {
+    final request = QueryDocDataRequest.create()
+      ..docId = docId
+      ..path = path;
+    return EditorEventReadDocData(request).send();
   }
 
   Future<Either<Unit, EditorError>> updateDoc(

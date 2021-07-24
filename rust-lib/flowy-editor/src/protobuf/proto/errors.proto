@@ -11,6 +11,7 @@ enum EditorErrorCode {
     DocNameInvalid = 10;
     DocViewIdInvalid = 11;
     DocDescTooLong = 12;
-    DocFileError = 13;
+    DocOpenFileError = 13;
+    DocFilePathInvalid = 14;
     EditorUserNotLoginYet = 100;
 }

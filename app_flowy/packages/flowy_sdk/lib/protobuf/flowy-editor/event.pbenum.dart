@@ -12,12 +12,14 @@ import 'package:protobuf/protobuf.dart' as $pb;
 class EditorEvent extends $pb.ProtobufEnum {
   static const EditorEvent CreateDoc = EditorEvent._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateDoc');
   static const EditorEvent UpdateDoc = EditorEvent._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UpdateDoc');
-  static const EditorEvent ReadDoc = EditorEvent._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ReadDoc');
+  static const EditorEvent ReadDocInfo = EditorEvent._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ReadDocInfo');
+  static const EditorEvent ReadDocData = EditorEvent._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ReadDocData');
 
   static const $core.List<EditorEvent> values = <EditorEvent> [
     CreateDoc,
     UpdateDoc,
-    ReadDoc,
+    ReadDocInfo,
+    ReadDocData,
   ];
 
   static final $core.Map<$core.int, EditorEvent> _byValue = $pb.ProtobufEnum.initByValue(values);

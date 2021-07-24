@@ -12,7 +12,7 @@ pub async fn create_doc(
     data: Data<CreateDocRequest>,
     controller: Unit<DocController>,
     manager: Unit<RwLock<FileManager>>,
-) -> ResponseResult<DocDescription, EditorError> {
+) -> ResponseResult<DocInfo, EditorError> {
     let params: CreateDocParams = data.into_inner().try_into()?;
     let dir = manager.read().await.user.user_doc_dir()?;
     let path = manager
@@ -30,18 +30,29 @@ pub async fn read_doc(
     data: Data<QueryDocRequest>,
     controller: Unit<DocController>,
     manager: Unit<RwLock<FileManager>>,
-) -> ResponseResult<Doc, EditorError> {
+) -> ResponseResult<DocInfo, EditorError> {
     let params: QueryDocParams = data.into_inner().try_into()?;
-    let desc = controller.read_doc(&params.doc_id).await?;
-    let content = manager
+    let doc_info = controller.read_doc(&params.doc_id).await?;
+    let _ = manager
         .write()
         .await
-        .open(Path::new(&desc.path), desc.id.clone())?;
+        .open(Path::new(&doc_info.path), doc_info.id.clone())?;
 
-    response_ok(Doc {
-        desc,
-        text: content,
-    })
+    response_ok(doc_info)
+}
+
+#[tracing::instrument(name = "read_doc_data", skip(data, manager))]
+pub async fn read_doc_data(
+    data: Data<QueryDocDataRequest>,
+    manager: Unit<RwLock<FileManager>>,
+) -> ResponseResult<DocData, EditorError> {
+    let params: QueryDocDataParams = data.into_inner().try_into()?;
+    let text = manager
+        .write()
+        .await
+        .open(Path::new(&params.path), params.doc_id)?;
+
+    response_ok(DocData { text })
 }
 
 pub async fn update_doc(

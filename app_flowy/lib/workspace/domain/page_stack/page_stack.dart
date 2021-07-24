@@ -1,5 +1,5 @@
 import 'package:app_flowy/workspace/domain/page_stack/page_stack_bloc.dart';
-import 'package:app_flowy/workspace/presentation/doc/doc_widget.dart';
+import 'package:app_flowy/workspace/presentation/doc/doc_page.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';

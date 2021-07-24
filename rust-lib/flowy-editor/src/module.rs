@@ -30,5 +30,6 @@ pub fn create(database: Arc<dyn EditorDatabase>, user: Arc<dyn EditorUser>) -> M
         .data(doc_controller)
         .event(EditorEvent::CreateDoc, create_doc)
         .event(EditorEvent::UpdateDoc, update_doc)
-        .event(EditorEvent::ReadDoc, read_doc)
+        .event(EditorEvent::ReadDocInfo, read_doc)
+        .event(EditorEvent::ReadDocData, read_doc_data)
 }

@@ -1,4 +1,4 @@
-use crate::entities::doc::{CreateDocParams, DocDescription, UpdateDocParams};
+use crate::entities::doc::{CreateDocParams, DocInfo, UpdateDocParams};
 use flowy_database::schema::doc_table;
 use flowy_infra::{timestamp, uuid};
 use std::convert::TryInto;
@@ -48,9 +48,9 @@ impl DocTableChangeset {
     }
 }
 
-impl std::convert::Into<DocDescription> for DocTable {
-    fn into(self) -> DocDescription {
-        DocDescription {
+impl std::convert::Into<DocInfo> for DocTable {
+    fn into(self) -> DocInfo {
+        DocInfo {
             id: self.id,
             name: self.name,
             desc: self.desc,

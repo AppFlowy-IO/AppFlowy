@@ -6,13 +6,12 @@ message CreateDocRequest {
     string desc = 3;
     string text = 4;
 }
-message DocDescription {
+message DocInfo {
     string id = 1;
     string name = 2;
     string desc = 3;
     string path = 4;
 }
-message Doc {
-    DocDescription desc = 1;
-    string text = 2;
+message DocData {
+    string text = 1;
 }

@@ -42,8 +42,11 @@ pub enum EditorErrorCode {
     #[display(fmt = "DocDescTooLong")]
     DocDescTooLong     = 12,
 
-    #[display(fmt = "DocDescTooLong")]
-    DocFileError       = 13,
+    #[display(fmt = "DocOpenFileError")]
+    DocOpenFileError   = 13,
+
+    #[display(fmt = "DocFilePathInvalid")]
+    DocFilePathInvalid = 14,
 
     #[display(fmt = "EditorUserNotLoginYet")]
     EditorUserNotLoginYet = 100,
@@ -63,7 +66,7 @@ impl std::convert::From<flowy_database::result::Error> for EditorError {
 
 impl std::convert::From<FileError> for EditorError {
     fn from(error: FileError) -> Self {
-        ErrorBuilder::new(EditorErrorCode::DocFileError)
+        ErrorBuilder::new(EditorErrorCode::DocOpenFileError)
             .error(error)
             .build()
     }

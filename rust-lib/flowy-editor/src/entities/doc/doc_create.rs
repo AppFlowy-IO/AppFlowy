@@ -57,7 +57,7 @@ impl TryInto<CreateDocParams> for CreateDocRequest {
 }
 
 #[derive(ProtoBuf, Default, Debug)]
-pub struct DocDescription {
+pub struct DocInfo {
     #[pb(index = 1)]
     pub id: String,
 
@@ -72,10 +72,7 @@ pub struct DocDescription {
 }
 
 #[derive(ProtoBuf, Default, Debug)]
-pub struct Doc {
+pub struct DocData {
     #[pb(index = 1)]
-    pub desc: DocDescription,
-
-    #[pb(index = 2)]
     pub text: String,
 }

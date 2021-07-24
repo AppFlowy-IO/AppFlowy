@@ -6,14 +6,14 @@ class EditorEventCreateDoc {
      CreateDocRequest request;
      EditorEventCreateDoc(this.request);
 
-    Future<Either<DocDescription, EditorError>> send() {
+    Future<Either<DocInfo, EditorError>> send() {
     final request = FFIRequest.create()
           ..event = EditorEvent.CreateDoc.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-           (okBytes) => left(DocDescription.fromBuffer(okBytes)),
+           (okBytes) => left(DocInfo.fromBuffer(okBytes)),
            (errBytes) => right(EditorError.fromBuffer(errBytes)),
         ));
     }
@@ -36,18 +36,35 @@ class EditorEventUpdateDoc {
     }
 }
 
-class EditorEventReadDoc {
+class EditorEventReadDocInfo {
      QueryDocRequest request;
-     EditorEventReadDoc(this.request);
+     EditorEventReadDocInfo(this.request);
 
-    Future<Either<Doc, EditorError>> send() {
+    Future<Either<DocInfo, EditorError>> send() {
     final request = FFIRequest.create()
-          ..event = EditorEvent.ReadDoc.toString()
+          ..event = EditorEvent.ReadDocInfo.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-           (okBytes) => left(Doc.fromBuffer(okBytes)),
+           (okBytes) => left(DocInfo.fromBuffer(okBytes)),
+           (errBytes) => right(EditorError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
+class EditorEventReadDocData {
+     QueryDocDataRequest request;
+     EditorEventReadDocData(this.request);
+
+    Future<Either<DocData, EditorError>> send() {
+    final request = FFIRequest.create()
+          ..event = EditorEvent.ReadDocData.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (okBytes) => left(DocData.fromBuffer(okBytes)),
            (errBytes) => right(EditorError.fromBuffer(errBytes)),
         ));
     }

@@ -27,7 +27,8 @@
 pub enum EditorEvent {
     CreateDoc = 0,
     UpdateDoc = 1,
-    ReadDoc = 2,
+    ReadDocInfo = 2,
+    ReadDocData = 3,
 }
 
 impl ::protobuf::ProtobufEnum for EditorEvent {
@@ -39,7 +40,8 @@ impl ::protobuf::ProtobufEnum for EditorEvent {
         match value {
             0 => ::std::option::Option::Some(EditorEvent::CreateDoc),
             1 => ::std::option::Option::Some(EditorEvent::UpdateDoc),
-            2 => ::std::option::Option::Some(EditorEvent::ReadDoc),
+            2 => ::std::option::Option::Some(EditorEvent::ReadDocInfo),
+            3 => ::std::option::Option::Some(EditorEvent::ReadDocData),
             _ => ::std::option::Option::None
         }
     }
@@ -48,7 +50,8 @@ impl ::protobuf::ProtobufEnum for EditorEvent {
         static values: &'static [EditorEvent] = &[
             EditorEvent::CreateDoc,
             EditorEvent::UpdateDoc,
-            EditorEvent::ReadDoc,
+            EditorEvent::ReadDocInfo,
+            EditorEvent::ReadDocData,
         ];
         values
     }
@@ -77,16 +80,19 @@ impl ::protobuf::reflect::ProtobufValue for EditorEvent {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0bevent.proto*8\n\x0bEditorEvent\x12\r\n\tCreateDoc\x10\0\x12\r\n\tU\
-    pdateDoc\x10\x01\x12\x0b\n\x07ReadDoc\x10\x02J\xa5\x01\n\x06\x12\x04\0\0\
-    \x06\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x05\0\x12\x04\x02\0\
-    \x06\x01\n\n\n\x03\x05\0\x01\x12\x03\x02\x05\x10\n\x0b\n\x04\x05\0\x02\0\
-    \x12\x03\x03\x04\x12\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\x03\x04\r\n\x0c\
-    \n\x05\x05\0\x02\0\x02\x12\x03\x03\x10\x11\n\x0b\n\x04\x05\0\x02\x01\x12\
-    \x03\x04\x04\x12\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\x04\x04\r\n\x0c\n\
-    \x05\x05\0\x02\x01\x02\x12\x03\x04\x10\x11\n\x0b\n\x04\x05\0\x02\x02\x12\
-    \x03\x05\x04\x10\n\x0c\n\x05\x05\0\x02\x02\x01\x12\x03\x05\x04\x0b\n\x0c\
-    \n\x05\x05\0\x02\x02\x02\x12\x03\x05\x0e\x0fb\x06proto3\
+    \n\x0bevent.proto*M\n\x0bEditorEvent\x12\r\n\tCreateDoc\x10\0\x12\r\n\tU\
+    pdateDoc\x10\x01\x12\x0f\n\x0bReadDocInfo\x10\x02\x12\x0f\n\x0bReadDocDa\
+    ta\x10\x03J\xce\x01\n\x06\x12\x04\0\0\x07\x01\n\x08\n\x01\x0c\x12\x03\0\
+    \0\x12\n\n\n\x02\x05\0\x12\x04\x02\0\x07\x01\n\n\n\x03\x05\0\x01\x12\x03\
+    \x02\x05\x10\n\x0b\n\x04\x05\0\x02\0\x12\x03\x03\x04\x12\n\x0c\n\x05\x05\
+    \0\x02\0\x01\x12\x03\x03\x04\r\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x03\
+    \x10\x11\n\x0b\n\x04\x05\0\x02\x01\x12\x03\x04\x04\x12\n\x0c\n\x05\x05\0\
+    \x02\x01\x01\x12\x03\x04\x04\r\n\x0c\n\x05\x05\0\x02\x01\x02\x12\x03\x04\
+    \x10\x11\n\x0b\n\x04\x05\0\x02\x02\x12\x03\x05\x04\x14\n\x0c\n\x05\x05\0\
+    \x02\x02\x01\x12\x03\x05\x04\x0f\n\x0c\n\x05\x05\0\x02\x02\x02\x12\x03\
+    \x05\x12\x13\n\x0b\n\x04\x05\0\x02\x03\x12\x03\x06\x04\x14\n\x0c\n\x05\
+    \x05\0\x02\x03\x01\x12\x03\x06\x04\x0f\n\x0c\n\x05\x05\0\x02\x03\x02\x12\
+    \x03\x06\x12\x13b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

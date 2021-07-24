@@ -16,7 +16,8 @@ class EditorErrorCode extends $pb.ProtobufEnum {
   static const EditorErrorCode DocNameInvalid = EditorErrorCode._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DocNameInvalid');
   static const EditorErrorCode DocViewIdInvalid = EditorErrorCode._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DocViewIdInvalid');
   static const EditorErrorCode DocDescTooLong = EditorErrorCode._(12, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DocDescTooLong');
-  static const EditorErrorCode DocFileError = EditorErrorCode._(13, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DocFileError');
+  static const EditorErrorCode DocOpenFileError = EditorErrorCode._(13, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DocOpenFileError');
+  static const EditorErrorCode DocFilePathInvalid = EditorErrorCode._(14, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DocFilePathInvalid');
   static const EditorErrorCode EditorUserNotLoginYet = EditorErrorCode._(100, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'EditorUserNotLoginYet');
 
   static const $core.List<EditorErrorCode> values = <EditorErrorCode> [
@@ -26,7 +27,8 @@ class EditorErrorCode extends $pb.ProtobufEnum {
     DocNameInvalid,
     DocViewIdInvalid,
     DocDescTooLong,
-    DocFileError,
+    DocOpenFileError,
+    DocFilePathInvalid,
     EditorUserNotLoginYet,
   ];
 
