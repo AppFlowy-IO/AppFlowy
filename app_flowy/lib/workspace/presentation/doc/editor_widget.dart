@@ -58,8 +58,4 @@ class EditorWdiget extends StatelessWidget {
   Future<String> _onImageSelection(File file) {
     throw UnimplementedError();
   }
-
-  void save() {
-    final deltaJson = controller.document.toDelta().toJson();
-  }
 }
