@@ -20,4 +20,5 @@ enum UserErrorCode {
     UserWorkspaceInvalid = 23;
     UserIdInvalid = 24;
     CreateDefaultWorkspaceFailed = 25;
+    DefaultWorkspaceAlreadyExist = 26;
 }

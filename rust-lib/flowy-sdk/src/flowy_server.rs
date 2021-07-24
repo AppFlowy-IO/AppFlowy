@@ -53,7 +53,8 @@ impl UserServer for FlowyServerMocker {
         name: &str,
         desc: &str,
         _user_id: &str,
-    ) -> DispatchFuture<Result<(), UserError>> {
+    ) -> DispatchFuture<Result<String, UserError>> {
+        log::info!("Create user workspace: {:?}", name);
         let payload: Vec<u8> = CreateWorkspaceRequest {
             name: name.to_string(),
             desc: desc.to_string(),
@@ -64,7 +65,7 @@ impl UserServer for FlowyServerMocker {
         let request = ModuleRequest::new(CreateWorkspace).payload(payload);
         DispatchFuture {
             fut: Box::pin(async move {
-                let _ = EventDispatch::async_send(request)
+                let result = EventDispatch::async_send(request)
                     .await
                     .parse::<Workspace, WorkspaceError>()
                     .map_err(|e| {
@@ -72,7 +73,13 @@ impl UserServer for FlowyServerMocker {
                             .error(e)
                             .build()
                     })?;
-                Ok(())
+
+                let workspace = result.map_err(|e| {
+                    ErrorBuilder::new(UserErrorCode::CreateDefaultWorkspaceFailed)
+                        .error(e)
+                        .build()
+                })?;
+                Ok(workspace.id)
             }),
         }
     }

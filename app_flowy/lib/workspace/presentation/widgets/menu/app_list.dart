@@ -11,7 +11,7 @@ class AppList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return apps.fold(() {
-      return const Text('You have no apps, create one?');
+      return const Expanded(child: Text('You have no apps, create one?'));
     }, (apps) {
       return ExpandableTheme(
           data: const ExpandableThemeData(

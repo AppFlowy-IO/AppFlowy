@@ -55,6 +55,9 @@ pub enum UserErrorCode {
     UserIdInvalid        = 24,
     #[display(fmt = "Create user default workspace failed")]
     CreateDefaultWorkspaceFailed = 25,
+
+    #[display(fmt = "User default workspace already exists")]
+    DefaultWorkspaceAlreadyExist = 26,
 }
 
 impl std::default::Default for UserErrorCode {
