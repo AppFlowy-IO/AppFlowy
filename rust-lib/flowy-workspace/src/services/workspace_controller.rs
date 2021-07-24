@@ -36,8 +36,6 @@ impl WorkspaceController {
         let workspace_table = WorkspaceTable::new(params);
         let detail: Workspace = workspace_table.clone().into();
         let _ = self.sql.create_workspace(workspace_table)?;
-        // let _ = self.user.set_cur_workspace_id(&detail.id).await?;
-
         Ok(detail)
     }
 

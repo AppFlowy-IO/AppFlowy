@@ -18,6 +18,7 @@ const UserErrorCode$json = const {
     const {'1': 'UserDatabaseReadLocked', '2': 3},
     const {'1': 'UserDatabaseDidNotMatch', '2': 4},
     const {'1': 'UserDatabaseInternalError', '2': 5},
+    const {'1': 'SqlInternalError', '2': 6},
     const {'1': 'UserNotLoginYet', '2': 10},
     const {'1': 'ReadCurrentIdFailed', '2': 11},
     const {'1': 'WriteCurrentIdFailed', '2': 12},
@@ -32,7 +33,7 @@ const UserErrorCode$json = const {
 };
 
 /// Descriptor for `UserErrorCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List userErrorCodeDescriptor = $convert.base64Decode('Cg1Vc2VyRXJyb3JDb2RlEgsKB1Vua25vd24QABIaChZVc2VyRGF0YWJhc2VJbml0RmFpbGVkEAESGwoXVXNlckRhdGFiYXNlV3JpdGVMb2NrZWQQAhIaChZVc2VyRGF0YWJhc2VSZWFkTG9ja2VkEAMSGwoXVXNlckRhdGFiYXNlRGlkTm90TWF0Y2gQBBIdChlVc2VyRGF0YWJhc2VJbnRlcm5hbEVycm9yEAUSEwoPVXNlck5vdExvZ2luWWV0EAoSFwoTUmVhZEN1cnJlbnRJZEZhaWxlZBALEhgKFFdyaXRlQ3VycmVudElkRmFpbGVkEAwSEAoMRW1haWxJbnZhbGlkEBQSEwoPUGFzc3dvcmRJbnZhbGlkEBUSEwoPVXNlck5hbWVJbnZhbGlkEBYSGAoUVXNlcldvcmtzcGFjZUludmFsaWQQFxIRCg1Vc2VySWRJbnZhbGlkEBgSIAocQ3JlYXRlRGVmYXVsdFdvcmtzcGFjZUZhaWxlZBAZEiAKHERlZmF1bHRXb3Jrc3BhY2VBbHJlYWR5RXhpc3QQGg==');
+final $typed_data.Uint8List userErrorCodeDescriptor = $convert.base64Decode('Cg1Vc2VyRXJyb3JDb2RlEgsKB1Vua25vd24QABIaChZVc2VyRGF0YWJhc2VJbml0RmFpbGVkEAESGwoXVXNlckRhdGFiYXNlV3JpdGVMb2NrZWQQAhIaChZVc2VyRGF0YWJhc2VSZWFkTG9ja2VkEAMSGwoXVXNlckRhdGFiYXNlRGlkTm90TWF0Y2gQBBIdChlVc2VyRGF0YWJhc2VJbnRlcm5hbEVycm9yEAUSFAoQU3FsSW50ZXJuYWxFcnJvchAGEhMKD1VzZXJOb3RMb2dpbllldBAKEhcKE1JlYWRDdXJyZW50SWRGYWlsZWQQCxIYChRXcml0ZUN1cnJlbnRJZEZhaWxlZBAMEhAKDEVtYWlsSW52YWxpZBAUEhMKD1Bhc3N3b3JkSW52YWxpZBAVEhMKD1VzZXJOYW1lSW52YWxpZBAWEhgKFFVzZXJXb3Jrc3BhY2VJbnZhbGlkEBcSEQoNVXNlcklkSW52YWxpZBAYEiAKHENyZWF0ZURlZmF1bHRXb3Jrc3BhY2VGYWlsZWQQGRIgChxEZWZhdWx0V29ya3NwYWNlQWxyZWFkeUV4aXN0EBo=');
 @$core.Deprecated('Use userErrorDescriptor instead')
 const UserError$json = const {
   '1': 'UserError',

@@ -28,8 +28,7 @@ impl WorkspaceUser for WorkspaceUserImpl {
                         ErrorBuilder::new(WorkspaceErrorCode::UserInternalError)
                             .error(e)
                             .build()
-                    });
-
+                    })?;
                 Ok(())
             }),
         }

@@ -1,5 +1,5 @@
-import 'package:app_flowy/workspace/application/home_bloc.dart';
-import 'package:app_flowy/workspace/application/watcher/home_watcher_bloc.dart';
+import 'package:app_flowy/workspace/application/home/home_bloc.dart';
+import 'package:app_flowy/workspace/application/home/home_watcher_bloc.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/prelude.dart';
 import 'package:app_flowy/startup/startup.dart';

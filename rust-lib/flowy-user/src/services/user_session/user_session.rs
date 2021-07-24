@@ -110,7 +110,6 @@ impl UserSession {
         let changeset = UserTableChangeset::new(params);
         let conn = self.get_db_connection()?;
         diesel_update_table!(user_table, changeset, conn);
-
         let user_detail = self.user_detail()?;
         Ok(user_detail)
     }

@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-part 'home_watcher_event.dart';
-part 'home_watcher_state.dart';
 part 'home_watcher_bloc.freezed.dart';
 
 class HomeWatcherBloc extends Bloc<HomeWatcherEvent, HomeWatcherState> {
@@ -16,4 +13,16 @@ class HomeWatcherBloc extends Bloc<HomeWatcherEvent, HomeWatcherState> {
   ) async* {
     yield state;
   }
+}
+
+@freezed
+abstract class HomeWatcherEvent with _$HomeWatcherEvent {
+  const factory HomeWatcherEvent.started(String workspaceId) = _Started;
+  const factory HomeWatcherEvent.stop(String workspaceId) = _Stop;
+}
+
+@freezed
+abstract class HomeWatcherState with _$HomeWatcherState {
+  const factory HomeWatcherState.initial() = _Initial;
+  const factory HomeWatcherState.loading() = _Loading;
 }

@@ -20,7 +20,6 @@ pub struct EventResponse {
     #[derivative(Debug = "ignore")]
     pub payload: Payload,
     pub status_code: StatusCode,
-    pub error: Option<DispatchError>,
 }
 
 impl EventResponse {
@@ -28,7 +27,6 @@ impl EventResponse {
         EventResponse {
             payload: Payload::None,
             status_code,
-            error: None,
         }
     }
 
@@ -58,10 +56,6 @@ impl std::fmt::Display for EventResponse {
         match &self.payload {
             Payload::Bytes(b) => f.write_fmt(format_args!("Data: {} bytes", b.len()))?,
             Payload::None => f.write_fmt(format_args!("Data: Empty"))?,
-        }
-        match &self.error {
-            Some(e) => f.write_fmt(format_args!("Error: {:?}", e))?,
-            None => {},
         }
 
         Ok(())

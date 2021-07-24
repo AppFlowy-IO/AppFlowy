@@ -1,4 +1,4 @@
-import 'package:app_flowy/workspace/application/home_bloc.dart';
+import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flutter/material.dart';

@@ -11,6 +11,7 @@ enum UserErrorCode {
     UserDatabaseReadLocked = 3;
     UserDatabaseDidNotMatch = 4;
     UserDatabaseInternalError = 5;
+    SqlInternalError = 6;
     UserNotLoginYet = 10;
     ReadCurrentIdFailed = 11;
     WriteCurrentIdFailed = 12;

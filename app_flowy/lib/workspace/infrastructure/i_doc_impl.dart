@@ -30,7 +30,8 @@ class IDocImpl extends IDoc {
   @override
   Future<Either<Unit, EditorError>> updateDoc(
       {String? name, String? desc, String? text}) {
-    return repo.updateDoc(name: name, desc: desc, text: text);
+    final json = jsonEncode(text ?? "");
+    return repo.updateDoc(name: name, desc: desc, text: json);
   }
 
   Future<Either<Document, EditorError>> _loadDocument(String path) {

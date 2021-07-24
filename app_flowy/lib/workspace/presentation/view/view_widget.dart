@@ -11,12 +11,7 @@ class ViewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-        onTap: _openView(context),
-        child: Container(
-          height: 30,
-          child: buildContent(),
-        ));
+    return InkWell(onTap: _openView(context), child: buildContent());
   }
 
   Row buildContent() {

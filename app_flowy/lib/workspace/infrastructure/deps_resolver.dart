@@ -1,5 +1,6 @@
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:app_flowy/workspace/application/app/app_watch_bloc.dart';
+import 'package:app_flowy/workspace/application/doc/doc_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_watch.dart';
 import 'package:app_flowy/workspace/application/view/doc_watch_bloc.dart';
@@ -61,6 +62,9 @@ class HomeDepsResolver {
 
     getIt.registerFactoryParam<DocWatchBloc, String, void>(
         (docId, _) => DocWatchBloc(iDocImpl: getIt<IDoc>(param1: docId)));
+
+    getIt.registerFactoryParam<DocBloc, String, void>(
+        (docId, _) => DocBloc(getIt<IDoc>(param1: docId)));
 
     // getIt.registerFactoryParam<ViewBloc, String, void>(
     //     (viewId, _) => ViewBloc(iViewImpl: getIt<IView>(param1: viewId)));

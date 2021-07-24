@@ -1,4 +1,10 @@
-use flowy_dispatch::prelude::{DispatchFuture, EventDispatch, ModuleRequest, ToBytes};
+use flowy_dispatch::prelude::{
+    DispatchError,
+    DispatchFuture,
+    EventDispatch,
+    ModuleRequest,
+    ToBytes,
+};
 use flowy_user::{
     entities::{SignInParams, SignUpParams, UserDetail},
     errors::{ErrorBuilder, UserError, UserErrorCode},
@@ -67,7 +73,7 @@ impl UserServer for FlowyServerMocker {
             fut: Box::pin(async move {
                 let result = EventDispatch::async_send(request)
                     .await
-                    .parse::<Workspace, WorkspaceError>()
+                    .parse::<Workspace, DispatchError>()
                     .map_err(|e| {
                         ErrorBuilder::new(UserErrorCode::CreateDefaultWorkspaceFailed)
                             .error(e)
