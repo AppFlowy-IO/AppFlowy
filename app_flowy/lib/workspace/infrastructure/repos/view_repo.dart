@@ -18,7 +18,7 @@ class ViewRepository {
     required this.viewId,
   });
 
-  Future<Either<View, WorkspaceError>> getView() {
+  Future<Either<View, WorkspaceError>> readView() {
     final request = QueryViewRequest.create()..viewId = viewId;
     return WorkspaceEventReadView(request).send();
   }
@@ -57,7 +57,7 @@ class ViewWatchRepository {
         if (_updatedCallback == null) {
           return;
         }
-        _repo.getView().then((result) {
+        _repo.readView().then((result) {
           result.fold(
             (view) => _updatedCallback!(view),
             (error) => Log.error(error),

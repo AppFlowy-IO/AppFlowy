@@ -29,4 +29,9 @@ class DocRepository {
 
     return EditorEventUpdateDoc(request).send();
   }
+
+  Future<Either<Unit, EditorError>> closeDoc(
+      {String? name, String? desc, String? text}) {
+    throw UnimplementedError();
+  }
 }

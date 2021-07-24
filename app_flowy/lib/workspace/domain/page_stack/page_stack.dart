@@ -63,7 +63,7 @@ List<Widget> _buildStackWidget(HomeStackView stackView) {
         case ViewType.Blank:
           return BlankPage(stackView: stackView as BlankStackView);
         case ViewType.Doc:
-          return DocPage(stackView: stackView as DocPageContext);
+          return DocPage(stackView: stackView as DocPageStackView);
         default:
           return BlankPage(stackView: stackView as BlankStackView);
       }
@@ -78,7 +78,7 @@ HomeStackView stackViewFromView(View view) {
     case ViewType.Blank:
       return const BlankStackView();
     case ViewType.Doc:
-      return DocPageContext(view);
+      return DocPageStackView(view);
     default:
       return const BlankStackView();
   }
