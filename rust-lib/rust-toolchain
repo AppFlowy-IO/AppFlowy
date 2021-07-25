@@ -1,3 +1,4 @@
 [toolchain]
+#rustup override set nightly-2021-04-24
 channel = "nightly-2021-04-24"
 targets = [ "aarch64-apple-darwin", "x86_64-apple-darwin", "aarch64-apple-ios", "x86_64-apple-ios" ]

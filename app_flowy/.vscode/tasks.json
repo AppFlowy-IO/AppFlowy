@@ -13,7 +13,7 @@
 			// ${cwd}: the current working directory of the spawned process
 
 			"type": "shell",
-			"command": "sh ${workspaceFolder}/../scripts/build_sdk.sh",
+			"command": "sh ./scripts/build_sdk.sh",
 			"group": "build",
 			"options": {
 				"cwd": "${workspaceFolder}/../"
@@ -21,7 +21,7 @@
 			"problemMatcher": [
                 "$rustc"
             ],
-			"label": "build rust sdk"
+			"label": "BuildRust"
 		}
 	]
 }
