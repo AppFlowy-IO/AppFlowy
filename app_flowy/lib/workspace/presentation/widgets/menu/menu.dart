@@ -2,21 +2,16 @@ import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_watch.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/startup/tasks/application_task.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
+import 'package:app_flowy/workspace/presentation/widgets/menu/create_app_dialog.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
-import 'package:flowy_infra_ui/style_widget/styled_text_input.dart';
-import 'package:flowy_infra_ui/widget/buttons/ok_cancel_button.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
 import 'app_list.dart';
 
 class HomeMenu extends StatelessWidget {
@@ -61,16 +56,24 @@ class HomeMenu extends StatelessWidget {
   }
 
   Widget _renderBody(BuildContext context) {
+    // nested cloumn: https://siddharthmolleti.com/flutter-box-constraints-nested-column-s-row-s-3dfacada7361
     return Container(
-      color: Theme.of(context).colorScheme.primaryVariant,
+      color: Theme.of(context).colorScheme.background,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          const MenuTopBar(),
-          _renderAppList(context),
-          _renderNewButton(context),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                _renderTopBar(context),
+                _renderAppList(context),
+              ],
+            ).padding(horizontal: Insets.l),
+          ),
+          _renderNewAppButton(context),
         ],
-      ).padding(horizontal: Insets.sm),
+      ),
     );
   }
 
@@ -88,10 +91,17 @@ class HomeMenu extends StatelessWidget {
     );
   }
 
-  Widget _renderNewButton(BuildContext context) {
+  Widget _renderNewAppButton(BuildContext context) {
     return NewAppButton(
-      createAppCallback: (appName) =>
+      press: (appName) =>
           context.read<MenuBloc>().add(MenuEvent.createApp(appName, desc: "")),
+    );
+  }
+
+  Widget _renderTopBar(BuildContext context) {
+    return SizedBox(
+      height: HomeSizes.menuTopBarHeight,
+      child: const MenuTopBar(),
     );
   }
 }
@@ -102,22 +112,27 @@ class MenuTopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<MenuBloc, MenuState>(
       builder: (context, state) {
-        return SizedBox(
-          height: HomeSizes.menuTopBarHeight,
-          child: Row(
-            children: [
-              const Text(
-                'AppFlowy',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-              ).constrained(minWidth: 100),
-              const Spacer(),
-              IconButton(
-                icon: const Icon(Icons.arrow_left),
-                onPressed: () =>
-                    context.read<MenuBloc>().add(const MenuEvent.collapse()),
-              ),
-            ],
-          ),
+        return Row(
+          children: [
+            const Image(
+                fit: BoxFit.cover,
+                width: 25,
+                height: 25,
+                image: AssetImage('assets/images/app_flowy_logo.jpg')),
+            const HSpace(8),
+            const Text(
+              'AppFlowy',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+            const Spacer(),
+            IconButton(
+              icon: const Icon(Icons.arrow_left),
+              alignment: Alignment.centerRight,
+              padding: EdgeInsets.zero,
+              onPressed: () =>
+                  context.read<MenuBloc>().add(const MenuEvent.collapse()),
+            ),
+          ],
         );
       },
     );
@@ -125,43 +140,43 @@ class MenuTopBar extends StatelessWidget {
 }
 
 class NewAppButton extends StatelessWidget {
-  final Function(String)? createAppCallback;
+  final Function(String)? press;
 
-  const NewAppButton({this.createAppCallback, Key? key}) : super(key: key);
+  const NewAppButton({this.press, Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(width: 1, color: Colors.grey.shade300),
+        ),
+      ),
       height: HomeSizes.menuAddButtonHeight,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          const Icon(Icons.add),
-          const SizedBox(
-            width: 10,
-          ),
+          const Icon(Icons.add_circle_rounded, size: 30),
           TextButton(
             onPressed: () async => await _showCreateAppDialog(context),
-            child: _buttonTitle(),
+            child: const Text(
+              'New App',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
           )
         ],
-      ),
+      ).padding(horizontal: Insets.l),
     );
-  }
-
-  Widget _buttonTitle() {
-    return const Text('New App',
-        style: TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
-        ));
   }
 
   Future<void> _showCreateAppDialog(BuildContext context) async {
     await Dialogs.showWithContext(CreateAppDialogContext(
       confirm: (appName) {
-        if (appName.isNotEmpty && createAppCallback != null) {
-          createAppCallback!(appName);
+        if (appName.isNotEmpty && press != null) {
+          press!(appName);
         }
       },
     ), context);
@@ -169,53 +184,3 @@ class NewAppButton extends StatelessWidget {
 }
 
 //ignore: must_be_immutable
-class CreateAppDialogContext extends DialogContext {
-  String appName;
-  final Function(String)? confirm;
-
-  CreateAppDialogContext({this.appName = "", this.confirm})
-      : super(identifier: 'CreateAppDialogContext');
-
-  @override
-  Widget buildWiget(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-    return StyledDialog(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          ...[
-            Text('Create App'.toUpperCase(),
-                style: TextStyles.T1.textColor(theme.accent1Darker)),
-            VSpace(Insets.sm * 1.5),
-            // Container(color: theme.greyWeak.withOpacity(.35), height: 1),
-            VSpace(Insets.m * 1.5),
-          ],
-          StyledFormTextInput(
-            hintText: "App name",
-            onChanged: (text) {
-              appName = text;
-            },
-          ),
-          SizedBox(height: Insets.l),
-          OkCancelButton(
-            onOkPressed: () {
-              if (confirm != null) {
-                confirm!(appName);
-                AppGlobals.nav.pop();
-              }
-            },
-            onCancelPressed: () {
-              AppGlobals.nav.pop();
-            },
-          )
-        ],
-      ),
-    );
-  }
-
-  @override
-  List<Object> get props => [identifier];
-
-  @override
-  bool get barrierDismissable => false;
-}

@@ -23,7 +23,7 @@ class HomeLayout {
 
     showEditPannel = homeBlocState.editContext.isSome();
 
-    menuWidth = Sizes.sideBarSm;
+    menuWidth = Sizes.sideBarMed;
     if (context.widthPx >= PageBreaks.desktop) {
       menuWidth = Sizes.sideBarLg;
     }
