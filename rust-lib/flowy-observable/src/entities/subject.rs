@@ -18,7 +18,10 @@ pub struct ObservableSubject {
 impl std::default::Default for ObservableSubject {
     fn default() -> Self {
         Self {
-            ..Default::default()
+            category: "".to_string(),
+            ty: 0,
+            subject_id: "".to_string(),
+            subject_payload: None,
         }
     }
 }

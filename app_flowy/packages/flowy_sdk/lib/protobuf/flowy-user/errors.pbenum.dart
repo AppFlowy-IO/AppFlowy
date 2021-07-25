@@ -9,26 +9,26 @@
 import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
-class UserErrorCode extends $pb.ProtobufEnum {
-  static const UserErrorCode Unknown = UserErrorCode._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unknown');
-  static const UserErrorCode UserDatabaseInitFailed = UserErrorCode._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseInitFailed');
-  static const UserErrorCode UserDatabaseWriteLocked = UserErrorCode._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseWriteLocked');
-  static const UserErrorCode UserDatabaseReadLocked = UserErrorCode._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseReadLocked');
-  static const UserErrorCode UserDatabaseDidNotMatch = UserErrorCode._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseDidNotMatch');
-  static const UserErrorCode UserDatabaseInternalError = UserErrorCode._(5, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseInternalError');
-  static const UserErrorCode SqlInternalError = UserErrorCode._(6, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'SqlInternalError');
-  static const UserErrorCode UserNotLoginYet = UserErrorCode._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNotLoginYet');
-  static const UserErrorCode ReadCurrentIdFailed = UserErrorCode._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ReadCurrentIdFailed');
-  static const UserErrorCode WriteCurrentIdFailed = UserErrorCode._(12, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WriteCurrentIdFailed');
-  static const UserErrorCode EmailInvalid = UserErrorCode._(20, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'EmailInvalid');
-  static const UserErrorCode PasswordInvalid = UserErrorCode._(21, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'PasswordInvalid');
-  static const UserErrorCode UserNameInvalid = UserErrorCode._(22, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNameInvalid');
-  static const UserErrorCode UserWorkspaceInvalid = UserErrorCode._(23, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserWorkspaceInvalid');
-  static const UserErrorCode UserIdInvalid = UserErrorCode._(24, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserIdInvalid');
-  static const UserErrorCode CreateDefaultWorkspaceFailed = UserErrorCode._(25, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateDefaultWorkspaceFailed');
-  static const UserErrorCode DefaultWorkspaceAlreadyExist = UserErrorCode._(26, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DefaultWorkspaceAlreadyExist');
+class UserErrCode extends $pb.ProtobufEnum {
+  static const UserErrCode Unknown = UserErrCode._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unknown');
+  static const UserErrCode UserDatabaseInitFailed = UserErrCode._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseInitFailed');
+  static const UserErrCode UserDatabaseWriteLocked = UserErrCode._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseWriteLocked');
+  static const UserErrCode UserDatabaseReadLocked = UserErrCode._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseReadLocked');
+  static const UserErrCode UserDatabaseDidNotMatch = UserErrCode._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseDidNotMatch');
+  static const UserErrCode UserDatabaseInternalError = UserErrCode._(5, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseInternalError');
+  static const UserErrCode SqlInternalError = UserErrCode._(6, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'SqlInternalError');
+  static const UserErrCode UserNotLoginYet = UserErrCode._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNotLoginYet');
+  static const UserErrCode ReadCurrentIdFailed = UserErrCode._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ReadCurrentIdFailed');
+  static const UserErrCode WriteCurrentIdFailed = UserErrCode._(12, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WriteCurrentIdFailed');
+  static const UserErrCode EmailInvalid = UserErrCode._(20, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'EmailInvalid');
+  static const UserErrCode PasswordInvalid = UserErrCode._(21, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'PasswordInvalid');
+  static const UserErrCode UserNameInvalid = UserErrCode._(22, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNameInvalid');
+  static const UserErrCode UserWorkspaceInvalid = UserErrCode._(23, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserWorkspaceInvalid');
+  static const UserErrCode UserIdInvalid = UserErrCode._(24, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserIdInvalid');
+  static const UserErrCode CreateDefaultWorkspaceFailed = UserErrCode._(25, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateDefaultWorkspaceFailed');
+  static const UserErrCode DefaultWorkspaceAlreadyExist = UserErrCode._(26, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DefaultWorkspaceAlreadyExist');
 
-  static const $core.List<UserErrorCode> values = <UserErrorCode> [
+  static const $core.List<UserErrCode> values = <UserErrCode> [
     Unknown,
     UserDatabaseInitFailed,
     UserDatabaseWriteLocked,
@@ -48,9 +48,9 @@ class UserErrorCode extends $pb.ProtobufEnum {
     DefaultWorkspaceAlreadyExist,
   ];
 
-  static final $core.Map<$core.int, UserErrorCode> _byValue = $pb.ProtobufEnum.initByValue(values);
-  static UserErrorCode? valueOf($core.int value) => _byValue[value];
+  static final $core.Map<$core.int, UserErrCode> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static UserErrCode? valueOf($core.int value) => _byValue[value];
 
-  const UserErrorCode._($core.int v, $core.String n) : super(v, n);
+  const UserErrCode._($core.int v, $core.String n) : super(v, n);
 }
 

@@ -7,13 +7,12 @@ use flowy_dispatch::prelude::{
 };
 use flowy_user::{
     entities::{SignInParams, SignUpParams, UserDetail},
-    errors::{ErrorBuilder, UserError, UserErrorCode},
+    errors::{ErrorBuilder, UserErrCode, UserError},
     prelude::UserServer,
     sql_tables::UserTable,
 };
 use flowy_workspace::{
     entities::workspace::{CreateWorkspaceRequest, Workspace},
-    errors::WorkspaceError,
     event::WorkspaceEvent::CreateWorkspace,
 };
 
@@ -47,11 +46,11 @@ impl UserServer for FlowyServerMocker {
     }
 
     fn sign_out(&self, _user_id: &str) -> Result<(), UserError> {
-        Err(ErrorBuilder::new(UserErrorCode::Unknown).build())
+        Err(ErrorBuilder::new(UserErrCode::Unknown).build())
     }
 
     fn get_user_info(&self, _user_id: &str) -> Result<UserDetail, UserError> {
-        Err(ErrorBuilder::new(UserErrorCode::Unknown).build())
+        Err(ErrorBuilder::new(UserErrCode::Unknown).build())
     }
 
     fn create_workspace(
@@ -75,13 +74,13 @@ impl UserServer for FlowyServerMocker {
                     .await
                     .parse::<Workspace, DispatchError>()
                     .map_err(|e| {
-                        ErrorBuilder::new(UserErrorCode::CreateDefaultWorkspaceFailed)
+                        ErrorBuilder::new(UserErrCode::CreateDefaultWorkspaceFailed)
                             .error(e)
                             .build()
                     })?;
 
                 let workspace = result.map_err(|e| {
-                    ErrorBuilder::new(UserErrorCode::CreateDefaultWorkspaceFailed)
+                    ErrorBuilder::new(UserErrCode::CreateDefaultWorkspaceFailed)
                         .error(e)
                         .build()
                 })?;

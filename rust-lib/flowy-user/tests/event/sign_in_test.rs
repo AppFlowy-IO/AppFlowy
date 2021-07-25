@@ -1,5 +1,5 @@
 use crate::helper::*;
-use flowy_user::{errors::UserErrorCode, event::UserEvent::*, prelude::*};
+use flowy_user::{errors::UserErrCode, event::UserEvent::*, prelude::*};
 use serial_test::*;
 
 #[test]
@@ -35,7 +35,7 @@ fn sign_in_with_invalid_email() {
                 .sync_send()
                 .error()
                 .code,
-            UserErrorCode::EmailInvalid
+            UserErrCode::EmailInvalid
         );
     }
 }
@@ -56,7 +56,7 @@ fn sign_in_with_invalid_password() {
                 .sync_send()
                 .error()
                 .code,
-            UserErrorCode::PasswordInvalid
+            UserErrCode::PasswordInvalid
         );
     }
 }

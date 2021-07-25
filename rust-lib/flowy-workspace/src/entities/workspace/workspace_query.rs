@@ -22,7 +22,7 @@ impl TryInto<QueryWorkspaceParams> for QueryWorkspaceRequest {
     fn try_into(self) -> Result<QueryWorkspaceParams, Self::Error> {
         let workspace_id = WorkspaceId::parse(self.workspace_id)
             .map_err(|e| {
-                ErrorBuilder::new(WorkspaceErrorCode::WorkspaceIdInvalid)
+                ErrorBuilder::new(WsErrCode::WorkspaceIdInvalid)
                     .msg(e)
                     .build()
             })?

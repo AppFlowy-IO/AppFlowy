@@ -11,7 +11,7 @@ use std::sync::{Arc, RwLock};
 
 use crate::{
     entities::{SignInParams, SignUpParams, UpdateUserParams, UpdateUserRequest, UserDetail},
-    errors::{ErrorBuilder, UserError, UserErrorCode},
+    errors::{ErrorBuilder, UserErrCode, UserError},
     event::UserEvent::*,
     services::user_session::{database::UserDB, user_server::UserServer},
     sql_tables::{UserTable, UserTableChangeset},
@@ -140,7 +140,7 @@ impl UserSession {
                 *write_guard = user_id;
                 Ok(())
             },
-            Err(e) => Err(ErrorBuilder::new(UserErrorCode::WriteCurrentIdFailed)
+            Err(e) => Err(ErrorBuilder::new(UserErrCode::WriteCurrentIdFailed)
                 .error(e)
                 .build()),
         }
@@ -154,7 +154,7 @@ impl UserSession {
     pub fn get_user_id(&self) -> Result<String, UserError> {
         let mut user_id = {
             let read_guard = self.user_id.read().map_err(|e| {
-                ErrorBuilder::new(UserErrorCode::ReadCurrentIdFailed)
+                ErrorBuilder::new(UserErrCode::ReadCurrentIdFailed)
                     .error(e)
                     .build()
             })?;
@@ -168,7 +168,7 @@ impl UserSession {
         }
 
         match user_id {
-            None => Err(ErrorBuilder::new(UserErrorCode::UserNotLoginYet).build()),
+            None => Err(ErrorBuilder::new(UserErrCode::UserNotLoginYet).build()),
             Some(user_id) => Ok(user_id),
         }
     }
@@ -191,7 +191,7 @@ impl UserSession {
     async fn create_default_workspace_if_need(&self, user_id: &str) -> Result<String, UserError> {
         let key = format!("{}{}", user_id, DEFAULT_WORKSPACE);
         if KVStore::get_bool(&key).unwrap_or(false) {
-            return Err(ErrorBuilder::new(UserErrorCode::DefaultWorkspaceAlreadyExist).build());
+            return Err(ErrorBuilder::new(UserErrCode::DefaultWorkspaceAlreadyExist).build());
         }
         KVStore::set_bool(&key, true);
         log::debug!("Create user:{} default workspace", user_id);
@@ -205,7 +205,7 @@ impl UserSession {
 
 pub fn current_user_id() -> Result<String, UserError> {
     match KVStore::get_str(USER_ID_CACHE_KEY) {
-        None => Err(ErrorBuilder::new(UserErrorCode::UserNotLoginYet).build()),
+        None => Err(ErrorBuilder::new(UserErrCode::UserNotLoginYet).build()),
         Some(user_id) => Ok(user_id),
     }
 }

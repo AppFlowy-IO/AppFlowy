@@ -6,14 +6,14 @@ use std::convert::TryInto;
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct WorkspaceError {
     #[pb(index = 1)]
-    pub code: WorkspaceErrorCode,
+    pub code: WsErrCode,
 
     #[pb(index = 2)]
     pub msg: String,
 }
 
 impl WorkspaceError {
-    pub fn new(code: WorkspaceErrorCode, msg: &str) -> Self {
+    pub fn new(code: WsErrCode, msg: &str) -> Self {
         Self {
             code,
             msg: msg.to_owned(),
@@ -22,7 +22,7 @@ impl WorkspaceError {
 }
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
-pub enum WorkspaceErrorCode {
+pub enum WsErrCode {
     #[display(fmt = "Unknown")]
     Unknown              = 0,
 
@@ -66,13 +66,13 @@ pub enum WorkspaceErrorCode {
     UserNotLoginYet      = 103,
 }
 
-impl std::default::Default for WorkspaceErrorCode {
-    fn default() -> Self { WorkspaceErrorCode::Unknown }
+impl std::default::Default for WsErrCode {
+    fn default() -> Self { WsErrCode::Unknown }
 }
 
 impl std::convert::From<flowy_database::result::Error> for WorkspaceError {
     fn from(error: flowy_database::result::Error) -> Self {
-        ErrorBuilder::new(WorkspaceErrorCode::WorkspaceDatabaseError)
+        ErrorBuilder::new(WsErrCode::WorkspaceDatabaseError)
             .error(error)
             .build()
     }
@@ -86,12 +86,12 @@ impl flowy_dispatch::Error for WorkspaceError {
 }
 
 pub struct ErrorBuilder {
-    pub code: WorkspaceErrorCode,
+    pub code: WsErrCode,
     pub msg: Option<String>,
 }
 
 impl ErrorBuilder {
-    pub fn new(code: WorkspaceErrorCode) -> Self { ErrorBuilder { code, msg: None } }
+    pub fn new(code: WsErrCode) -> Self { ErrorBuilder { code, msg: None } }
 
     pub fn msg<T>(mut self, msg: T) -> Self
     where

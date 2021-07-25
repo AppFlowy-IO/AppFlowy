@@ -26,7 +26,7 @@
 #[derive(PartialEq,Clone,Default)]
 pub struct WorkspaceError {
     // message fields
-    pub code: WorkspaceErrorCode,
+    pub code: WsErrCode,
     pub msg: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -44,18 +44,18 @@ impl WorkspaceError {
         ::std::default::Default::default()
     }
 
-    // .WorkspaceErrorCode code = 1;
+    // .WsErrCode code = 1;
 
 
-    pub fn get_code(&self) -> WorkspaceErrorCode {
+    pub fn get_code(&self) -> WsErrCode {
         self.code
     }
     pub fn clear_code(&mut self) {
-        self.code = WorkspaceErrorCode::Unknown;
+        self.code = WsErrCode::Unknown;
     }
 
     // Param is passed by value, moved
-    pub fn set_code(&mut self, v: WorkspaceErrorCode) {
+    pub fn set_code(&mut self, v: WsErrCode) {
         self.code = v;
     }
 
@@ -113,7 +113,7 @@ impl ::protobuf::Message for WorkspaceError {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if self.code != WorkspaceErrorCode::Unknown {
+        if self.code != WsErrCode::Unknown {
             my_size += ::protobuf::rt::enum_size(1, self.code);
         }
         if !self.msg.is_empty() {
@@ -125,7 +125,7 @@ impl ::protobuf::Message for WorkspaceError {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if self.code != WorkspaceErrorCode::Unknown {
+        if self.code != WsErrCode::Unknown {
             os.write_enum(1, ::protobuf::ProtobufEnum::value(&self.code))?;
         }
         if !self.msg.is_empty() {
@@ -169,7 +169,7 @@ impl ::protobuf::Message for WorkspaceError {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<WorkspaceErrorCode>>(
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<WsErrCode>>(
                 "code",
                 |m: &WorkspaceError| { &m.code },
                 |m: &mut WorkspaceError| { &mut m.code },
@@ -195,7 +195,7 @@ impl ::protobuf::Message for WorkspaceError {
 
 impl ::protobuf::Clear for WorkspaceError {
     fn clear(&mut self) {
-        self.code = WorkspaceErrorCode::Unknown;
+        self.code = WsErrCode::Unknown;
         self.msg.clear();
         self.unknown_fields.clear();
     }
@@ -214,7 +214,7 @@ impl ::protobuf::reflect::ProtobufValue for WorkspaceError {
 }
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
-pub enum WorkspaceErrorCode {
+pub enum WsErrCode {
     Unknown = 0,
     WorkspaceNameInvalid = 1,
     WorkspaceIdInvalid = 2,
@@ -231,47 +231,47 @@ pub enum WorkspaceErrorCode {
     UserNotLoginYet = 103,
 }
 
-impl ::protobuf::ProtobufEnum for WorkspaceErrorCode {
+impl ::protobuf::ProtobufEnum for WsErrCode {
     fn value(&self) -> i32 {
         *self as i32
     }
 
-    fn from_i32(value: i32) -> ::std::option::Option<WorkspaceErrorCode> {
+    fn from_i32(value: i32) -> ::std::option::Option<WsErrCode> {
         match value {
-            0 => ::std::option::Option::Some(WorkspaceErrorCode::Unknown),
-            1 => ::std::option::Option::Some(WorkspaceErrorCode::WorkspaceNameInvalid),
-            2 => ::std::option::Option::Some(WorkspaceErrorCode::WorkspaceIdInvalid),
-            3 => ::std::option::Option::Some(WorkspaceErrorCode::AppColorStyleInvalid),
-            10 => ::std::option::Option::Some(WorkspaceErrorCode::AppIdInvalid),
-            11 => ::std::option::Option::Some(WorkspaceErrorCode::AppNameInvalid),
-            20 => ::std::option::Option::Some(WorkspaceErrorCode::ViewNameInvalid),
-            21 => ::std::option::Option::Some(WorkspaceErrorCode::ViewThumbnailInvalid),
-            22 => ::std::option::Option::Some(WorkspaceErrorCode::ViewIdInvalid),
-            23 => ::std::option::Option::Some(WorkspaceErrorCode::ViewDescInvalid),
-            100 => ::std::option::Option::Some(WorkspaceErrorCode::DatabaseConnectionFail),
-            101 => ::std::option::Option::Some(WorkspaceErrorCode::WorkspaceDatabaseError),
-            102 => ::std::option::Option::Some(WorkspaceErrorCode::UserInternalError),
-            103 => ::std::option::Option::Some(WorkspaceErrorCode::UserNotLoginYet),
+            0 => ::std::option::Option::Some(WsErrCode::Unknown),
+            1 => ::std::option::Option::Some(WsErrCode::WorkspaceNameInvalid),
+            2 => ::std::option::Option::Some(WsErrCode::WorkspaceIdInvalid),
+            3 => ::std::option::Option::Some(WsErrCode::AppColorStyleInvalid),
+            10 => ::std::option::Option::Some(WsErrCode::AppIdInvalid),
+            11 => ::std::option::Option::Some(WsErrCode::AppNameInvalid),
+            20 => ::std::option::Option::Some(WsErrCode::ViewNameInvalid),
+            21 => ::std::option::Option::Some(WsErrCode::ViewThumbnailInvalid),
+            22 => ::std::option::Option::Some(WsErrCode::ViewIdInvalid),
+            23 => ::std::option::Option::Some(WsErrCode::ViewDescInvalid),
+            100 => ::std::option::Option::Some(WsErrCode::DatabaseConnectionFail),
+            101 => ::std::option::Option::Some(WsErrCode::WorkspaceDatabaseError),
+            102 => ::std::option::Option::Some(WsErrCode::UserInternalError),
+            103 => ::std::option::Option::Some(WsErrCode::UserNotLoginYet),
             _ => ::std::option::Option::None
         }
     }
 
     fn values() -> &'static [Self] {
-        static values: &'static [WorkspaceErrorCode] = &[
-            WorkspaceErrorCode::Unknown,
-            WorkspaceErrorCode::WorkspaceNameInvalid,
-            WorkspaceErrorCode::WorkspaceIdInvalid,
-            WorkspaceErrorCode::AppColorStyleInvalid,
-            WorkspaceErrorCode::AppIdInvalid,
-            WorkspaceErrorCode::AppNameInvalid,
-            WorkspaceErrorCode::ViewNameInvalid,
-            WorkspaceErrorCode::ViewThumbnailInvalid,
-            WorkspaceErrorCode::ViewIdInvalid,
-            WorkspaceErrorCode::ViewDescInvalid,
-            WorkspaceErrorCode::DatabaseConnectionFail,
-            WorkspaceErrorCode::WorkspaceDatabaseError,
-            WorkspaceErrorCode::UserInternalError,
-            WorkspaceErrorCode::UserNotLoginYet,
+        static values: &'static [WsErrCode] = &[
+            WsErrCode::Unknown,
+            WsErrCode::WorkspaceNameInvalid,
+            WsErrCode::WorkspaceIdInvalid,
+            WsErrCode::AppColorStyleInvalid,
+            WsErrCode::AppIdInvalid,
+            WsErrCode::AppNameInvalid,
+            WsErrCode::ViewNameInvalid,
+            WsErrCode::ViewThumbnailInvalid,
+            WsErrCode::ViewIdInvalid,
+            WsErrCode::ViewDescInvalid,
+            WsErrCode::DatabaseConnectionFail,
+            WsErrCode::WorkspaceDatabaseError,
+            WsErrCode::UserInternalError,
+            WsErrCode::UserNotLoginYet,
         ];
         values
     }
@@ -279,74 +279,74 @@ impl ::protobuf::ProtobufEnum for WorkspaceErrorCode {
     fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
-            ::protobuf::reflect::EnumDescriptor::new_pb_name::<WorkspaceErrorCode>("WorkspaceErrorCode", file_descriptor_proto())
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<WsErrCode>("WsErrCode", file_descriptor_proto())
         })
     }
 }
 
-impl ::std::marker::Copy for WorkspaceErrorCode {
+impl ::std::marker::Copy for WsErrCode {
 }
 
-impl ::std::default::Default for WorkspaceErrorCode {
+impl ::std::default::Default for WsErrCode {
     fn default() -> Self {
-        WorkspaceErrorCode::Unknown
+        WsErrCode::Unknown
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for WorkspaceErrorCode {
+impl ::protobuf::reflect::ProtobufValue for WsErrCode {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
     }
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0cerrors.proto\"K\n\x0eWorkspaceError\x12'\n\x04code\x18\x01\x20\x01\
-    (\x0e2\x13.WorkspaceErrorCodeR\x04code\x12\x10\n\x03msg\x18\x02\x20\x01(\
-    \tR\x03msg*\xce\x02\n\x12WorkspaceErrorCode\x12\x0b\n\x07Unknown\x10\0\
-    \x12\x18\n\x14WorkspaceNameInvalid\x10\x01\x12\x16\n\x12WorkspaceIdInval\
-    id\x10\x02\x12\x18\n\x14AppColorStyleInvalid\x10\x03\x12\x10\n\x0cAppIdI\
-    nvalid\x10\n\x12\x12\n\x0eAppNameInvalid\x10\x0b\x12\x13\n\x0fViewNameIn\
-    valid\x10\x14\x12\x18\n\x14ViewThumbnailInvalid\x10\x15\x12\x11\n\rViewI\
-    dInvalid\x10\x16\x12\x13\n\x0fViewDescInvalid\x10\x17\x12\x1a\n\x16Datab\
-    aseConnectionFail\x10d\x12\x1a\n\x16WorkspaceDatabaseError\x10e\x12\x15\
-    \n\x11UserInternalError\x10f\x12\x13\n\x0fUserNotLoginYet\x10gJ\xee\x05\
-    \n\x06\x12\x04\0\0\x15\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\
-    \0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x16\n\x0b\n\
-    \x04\x04\0\x02\0\x12\x03\x03\x04\x20\n\x0c\n\x05\x04\0\x02\0\x06\x12\x03\
-    \x03\x04\x16\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x17\x1b\n\x0c\n\x05\
-    \x04\0\x02\0\x03\x12\x03\x03\x1e\x1f\n\x0b\n\x04\x04\0\x02\x01\x12\x03\
-    \x04\x04\x13\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\n\n\x0c\n\x05\
-    \x04\0\x02\x01\x01\x12\x03\x04\x0b\x0e\n\x0c\n\x05\x04\0\x02\x01\x03\x12\
-    \x03\x04\x11\x12\n\n\n\x02\x05\0\x12\x04\x06\0\x15\x01\n\n\n\x03\x05\0\
-    \x01\x12\x03\x06\x05\x17\n\x0b\n\x04\x05\0\x02\0\x12\x03\x07\x04\x10\n\
-    \x0c\n\x05\x05\0\x02\0\x01\x12\x03\x07\x04\x0b\n\x0c\n\x05\x05\0\x02\0\
-    \x02\x12\x03\x07\x0e\x0f\n\x0b\n\x04\x05\0\x02\x01\x12\x03\x08\x04\x1d\n\
-    \x0c\n\x05\x05\0\x02\x01\x01\x12\x03\x08\x04\x18\n\x0c\n\x05\x05\0\x02\
-    \x01\x02\x12\x03\x08\x1b\x1c\n\x0b\n\x04\x05\0\x02\x02\x12\x03\t\x04\x1b\
-    \n\x0c\n\x05\x05\0\x02\x02\x01\x12\x03\t\x04\x16\n\x0c\n\x05\x05\0\x02\
-    \x02\x02\x12\x03\t\x19\x1a\n\x0b\n\x04\x05\0\x02\x03\x12\x03\n\x04\x1d\n\
-    \x0c\n\x05\x05\0\x02\x03\x01\x12\x03\n\x04\x18\n\x0c\n\x05\x05\0\x02\x03\
-    \x02\x12\x03\n\x1b\x1c\n\x0b\n\x04\x05\0\x02\x04\x12\x03\x0b\x04\x16\n\
-    \x0c\n\x05\x05\0\x02\x04\x01\x12\x03\x0b\x04\x10\n\x0c\n\x05\x05\0\x02\
-    \x04\x02\x12\x03\x0b\x13\x15\n\x0b\n\x04\x05\0\x02\x05\x12\x03\x0c\x04\
-    \x18\n\x0c\n\x05\x05\0\x02\x05\x01\x12\x03\x0c\x04\x12\n\x0c\n\x05\x05\0\
-    \x02\x05\x02\x12\x03\x0c\x15\x17\n\x0b\n\x04\x05\0\x02\x06\x12\x03\r\x04\
-    \x19\n\x0c\n\x05\x05\0\x02\x06\x01\x12\x03\r\x04\x13\n\x0c\n\x05\x05\0\
-    \x02\x06\x02\x12\x03\r\x16\x18\n\x0b\n\x04\x05\0\x02\x07\x12\x03\x0e\x04\
-    \x1e\n\x0c\n\x05\x05\0\x02\x07\x01\x12\x03\x0e\x04\x18\n\x0c\n\x05\x05\0\
-    \x02\x07\x02\x12\x03\x0e\x1b\x1d\n\x0b\n\x04\x05\0\x02\x08\x12\x03\x0f\
-    \x04\x17\n\x0c\n\x05\x05\0\x02\x08\x01\x12\x03\x0f\x04\x11\n\x0c\n\x05\
-    \x05\0\x02\x08\x02\x12\x03\x0f\x14\x16\n\x0b\n\x04\x05\0\x02\t\x12\x03\
-    \x10\x04\x19\n\x0c\n\x05\x05\0\x02\t\x01\x12\x03\x10\x04\x13\n\x0c\n\x05\
-    \x05\0\x02\t\x02\x12\x03\x10\x16\x18\n\x0b\n\x04\x05\0\x02\n\x12\x03\x11\
-    \x04!\n\x0c\n\x05\x05\0\x02\n\x01\x12\x03\x11\x04\x1a\n\x0c\n\x05\x05\0\
-    \x02\n\x02\x12\x03\x11\x1d\x20\n\x0b\n\x04\x05\0\x02\x0b\x12\x03\x12\x04\
-    !\n\x0c\n\x05\x05\0\x02\x0b\x01\x12\x03\x12\x04\x1a\n\x0c\n\x05\x05\0\
-    \x02\x0b\x02\x12\x03\x12\x1d\x20\n\x0b\n\x04\x05\0\x02\x0c\x12\x03\x13\
-    \x04\x1c\n\x0c\n\x05\x05\0\x02\x0c\x01\x12\x03\x13\x04\x15\n\x0c\n\x05\
-    \x05\0\x02\x0c\x02\x12\x03\x13\x18\x1b\n\x0b\n\x04\x05\0\x02\r\x12\x03\
-    \x14\x04\x1a\n\x0c\n\x05\x05\0\x02\r\x01\x12\x03\x14\x04\x13\n\x0c\n\x05\
-    \x05\0\x02\r\x02\x12\x03\x14\x16\x19b\x06proto3\
+    \n\x0cerrors.proto\"B\n\x0eWorkspaceError\x12\x1e\n\x04code\x18\x01\x20\
+    \x01(\x0e2\n.WsErrCodeR\x04code\x12\x10\n\x03msg\x18\x02\x20\x01(\tR\x03\
+    msg*\xc5\x02\n\tWsErrCode\x12\x0b\n\x07Unknown\x10\0\x12\x18\n\x14Worksp\
+    aceNameInvalid\x10\x01\x12\x16\n\x12WorkspaceIdInvalid\x10\x02\x12\x18\n\
+    \x14AppColorStyleInvalid\x10\x03\x12\x10\n\x0cAppIdInvalid\x10\n\x12\x12\
+    \n\x0eAppNameInvalid\x10\x0b\x12\x13\n\x0fViewNameInvalid\x10\x14\x12\
+    \x18\n\x14ViewThumbnailInvalid\x10\x15\x12\x11\n\rViewIdInvalid\x10\x16\
+    \x12\x13\n\x0fViewDescInvalid\x10\x17\x12\x1a\n\x16DatabaseConnectionFai\
+    l\x10d\x12\x1a\n\x16WorkspaceDatabaseError\x10e\x12\x15\n\x11UserInterna\
+    lError\x10f\x12\x13\n\x0fUserNotLoginYet\x10gJ\xee\x05\n\x06\x12\x04\0\0\
+    \x15\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\
+    \x05\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x16\n\x0b\n\x04\x04\0\x02\0\
+    \x12\x03\x03\x04\x17\n\x0c\n\x05\x04\0\x02\0\x06\x12\x03\x03\x04\r\n\x0c\
+    \n\x05\x04\0\x02\0\x01\x12\x03\x03\x0e\x12\n\x0c\n\x05\x04\0\x02\0\x03\
+    \x12\x03\x03\x15\x16\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x13\n\x0c\
+    \n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\x01\x01\
+    \x12\x03\x04\x0b\x0e\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x11\x12\n\
+    \n\n\x02\x05\0\x12\x04\x06\0\x15\x01\n\n\n\x03\x05\0\x01\x12\x03\x06\x05\
+    \x0e\n\x0b\n\x04\x05\0\x02\0\x12\x03\x07\x04\x10\n\x0c\n\x05\x05\0\x02\0\
+    \x01\x12\x03\x07\x04\x0b\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x07\x0e\x0f\
+    \n\x0b\n\x04\x05\0\x02\x01\x12\x03\x08\x04\x1d\n\x0c\n\x05\x05\0\x02\x01\
+    \x01\x12\x03\x08\x04\x18\n\x0c\n\x05\x05\0\x02\x01\x02\x12\x03\x08\x1b\
+    \x1c\n\x0b\n\x04\x05\0\x02\x02\x12\x03\t\x04\x1b\n\x0c\n\x05\x05\0\x02\
+    \x02\x01\x12\x03\t\x04\x16\n\x0c\n\x05\x05\0\x02\x02\x02\x12\x03\t\x19\
+    \x1a\n\x0b\n\x04\x05\0\x02\x03\x12\x03\n\x04\x1d\n\x0c\n\x05\x05\0\x02\
+    \x03\x01\x12\x03\n\x04\x18\n\x0c\n\x05\x05\0\x02\x03\x02\x12\x03\n\x1b\
+    \x1c\n\x0b\n\x04\x05\0\x02\x04\x12\x03\x0b\x04\x16\n\x0c\n\x05\x05\0\x02\
+    \x04\x01\x12\x03\x0b\x04\x10\n\x0c\n\x05\x05\0\x02\x04\x02\x12\x03\x0b\
+    \x13\x15\n\x0b\n\x04\x05\0\x02\x05\x12\x03\x0c\x04\x18\n\x0c\n\x05\x05\0\
+    \x02\x05\x01\x12\x03\x0c\x04\x12\n\x0c\n\x05\x05\0\x02\x05\x02\x12\x03\
+    \x0c\x15\x17\n\x0b\n\x04\x05\0\x02\x06\x12\x03\r\x04\x19\n\x0c\n\x05\x05\
+    \0\x02\x06\x01\x12\x03\r\x04\x13\n\x0c\n\x05\x05\0\x02\x06\x02\x12\x03\r\
+    \x16\x18\n\x0b\n\x04\x05\0\x02\x07\x12\x03\x0e\x04\x1e\n\x0c\n\x05\x05\0\
+    \x02\x07\x01\x12\x03\x0e\x04\x18\n\x0c\n\x05\x05\0\x02\x07\x02\x12\x03\
+    \x0e\x1b\x1d\n\x0b\n\x04\x05\0\x02\x08\x12\x03\x0f\x04\x17\n\x0c\n\x05\
+    \x05\0\x02\x08\x01\x12\x03\x0f\x04\x11\n\x0c\n\x05\x05\0\x02\x08\x02\x12\
+    \x03\x0f\x14\x16\n\x0b\n\x04\x05\0\x02\t\x12\x03\x10\x04\x19\n\x0c\n\x05\
+    \x05\0\x02\t\x01\x12\x03\x10\x04\x13\n\x0c\n\x05\x05\0\x02\t\x02\x12\x03\
+    \x10\x16\x18\n\x0b\n\x04\x05\0\x02\n\x12\x03\x11\x04!\n\x0c\n\x05\x05\0\
+    \x02\n\x01\x12\x03\x11\x04\x1a\n\x0c\n\x05\x05\0\x02\n\x02\x12\x03\x11\
+    \x1d\x20\n\x0b\n\x04\x05\0\x02\x0b\x12\x03\x12\x04!\n\x0c\n\x05\x05\0\
+    \x02\x0b\x01\x12\x03\x12\x04\x1a\n\x0c\n\x05\x05\0\x02\x0b\x02\x12\x03\
+    \x12\x1d\x20\n\x0b\n\x04\x05\0\x02\x0c\x12\x03\x13\x04\x1c\n\x0c\n\x05\
+    \x05\0\x02\x0c\x01\x12\x03\x13\x04\x15\n\x0c\n\x05\x05\0\x02\x0c\x02\x12\
+    \x03\x13\x18\x1b\n\x0b\n\x04\x05\0\x02\r\x12\x03\x14\x04\x1a\n\x0c\n\x05\
+    \x05\0\x02\r\x01\x12\x03\x14\x04\x13\n\x0c\n\x05\x05\0\x02\r\x02\x12\x03\
+    \x14\x16\x19b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

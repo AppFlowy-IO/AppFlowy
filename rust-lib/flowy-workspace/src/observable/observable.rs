@@ -35,6 +35,7 @@ impl ObservableSender {
         }
     }
 
+    #[allow(dead_code)]
     pub(crate) fn payload<T>(mut self, payload: T) -> Self
     where
         T: ToBytes,
@@ -68,6 +69,7 @@ pub(crate) fn send_observable(id: &str, ty: WorkspaceObservable) {
     ObservableSender::new(id, ty).send();
 }
 
+#[allow(dead_code)]
 pub(crate) fn send_observable_with_payload<T>(id: &str, ty: WorkspaceObservable, payload: T)
 where
     T: ToBytes,

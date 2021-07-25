@@ -3,8 +3,8 @@ use flowy_dispatch::prelude::*;
 use std::{convert::TryInto, sync::Arc};
 
 // tracing instrument 👉🏻 https://docs.rs/tracing/0.1.26/tracing/attr.instrument.html
-#[tracing::instrument(name = "user_sign_in", skip(data, session), fields(email = %data.email))]
-pub async fn user_sign_in_handler(
+#[tracing::instrument(name = "sign_in", skip(data, session), fields(email = %data.email))]
+pub async fn sign_in(
     data: Data<SignInRequest>,
     session: Unit<Arc<UserSession>>,
 ) -> ResponseResult<UserDetail, UserError> {
@@ -15,14 +15,14 @@ pub async fn user_sign_in_handler(
 }
 
 #[tracing::instrument(
-    name = "user_sign_up",
+    name = "sign_up",
     skip(data, session),
     fields(
         email = %data.email,
         name = %data.name,
     )
 )]
-pub async fn user_sign_up_handler(
+pub async fn sign_up(
     data: Data<SignUpRequest>,
     session: Unit<Arc<UserSession>>,
 ) -> ResponseResult<UserDetail, UserError> {

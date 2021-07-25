@@ -1,10 +1,10 @@
 syntax = "proto3";
 
 message UserError {
-    UserErrorCode code = 1;
+    UserErrCode code = 1;
     string msg = 2;
 }
-enum UserErrorCode {
+enum UserErrCode {
     Unknown = 0;
     UserDatabaseInitFailed = 1;
     UserDatabaseWriteLocked = 2;

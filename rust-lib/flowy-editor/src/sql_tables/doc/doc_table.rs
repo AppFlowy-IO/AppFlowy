@@ -1,7 +1,6 @@
 use crate::entities::doc::{CreateDocParams, DocInfo, UpdateDocParams};
 use flowy_database::schema::doc_table;
-use flowy_infra::{timestamp, uuid};
-use std::convert::TryInto;
+use flowy_infra::timestamp;
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
 #[table_name = "doc_table"]

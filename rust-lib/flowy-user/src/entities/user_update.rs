@@ -1,6 +1,6 @@
 use crate::{
     entities::parser::*,
-    errors::{ErrorBuilder, UserError, UserErrorCode},
+    errors::{ErrorBuilder, UserErrCode, UserError},
 };
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
@@ -65,11 +65,7 @@ impl TryInto<UpdateUserParams> for UpdateUserRequest {
 
     fn try_into(self) -> Result<UpdateUserParams, Self::Error> {
         let id = UserId::parse(self.id)
-            .map_err(|e| {
-                ErrorBuilder::new(UserErrorCode::UserIdInvalid)
-                    .msg(e)
-                    .build()
-            })?
+            .map_err(|e| ErrorBuilder::new(UserErrCode::UserIdInvalid).msg(e).build())?
             .0;
 
         let name = match self.name {
@@ -77,7 +73,7 @@ impl TryInto<UpdateUserParams> for UpdateUserRequest {
             Some(name) => Some(
                 UserName::parse(name)
                     .map_err(|e| {
-                        ErrorBuilder::new(UserErrorCode::UserNameInvalid)
+                        ErrorBuilder::new(UserErrCode::UserNameInvalid)
                             .msg(e)
                             .build()
                     })?
@@ -89,11 +85,7 @@ impl TryInto<UpdateUserParams> for UpdateUserRequest {
             None => None,
             Some(email) => Some(
                 UserEmail::parse(email)
-                    .map_err(|e| {
-                        ErrorBuilder::new(UserErrorCode::EmailInvalid)
-                            .msg(e)
-                            .build()
-                    })?
+                    .map_err(|e| ErrorBuilder::new(UserErrCode::EmailInvalid).msg(e).build())?
                     .0,
             ),
         };
@@ -103,7 +95,7 @@ impl TryInto<UpdateUserParams> for UpdateUserRequest {
             Some(workspace) => Some(
                 UserWorkspace::parse(workspace)
                     .map_err(|e| {
-                        ErrorBuilder::new(UserErrorCode::UserWorkspaceInvalid)
+                        ErrorBuilder::new(UserErrCode::UserWorkspaceInvalid)
                             .msg(e)
                             .build()
                     })?
@@ -116,7 +108,7 @@ impl TryInto<UpdateUserParams> for UpdateUserRequest {
             Some(password) => Some(
                 UserPassword::parse(password)
                     .map_err(|e| {
-                        ErrorBuilder::new(UserErrorCode::PasswordInvalid)
+                        ErrorBuilder::new(UserErrCode::PasswordInvalid)
                             .msg(e)
                             .build()
                     })?

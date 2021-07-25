@@ -14,8 +14,8 @@ mod services;
 #[macro_use]
 extern crate flowy_database;
 
-#[macro_use]
-extern crate flowy_dispatch;
+// #[macro_use]
+// extern crate flowy_dispatch;
 
 pub mod prelude {
     pub use crate::{errors::*, module::*, services::*};

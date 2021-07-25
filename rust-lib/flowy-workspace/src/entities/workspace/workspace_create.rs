@@ -1,8 +1,5 @@
 use crate::{
-    entities::{
-        app::{App, RepeatedApp},
-        workspace::parser::*,
-    },
+    entities::{app::RepeatedApp, workspace::parser::*},
     errors::*,
 };
 use flowy_derive::ProtoBuf;
@@ -27,7 +24,7 @@ impl TryInto<CreateWorkspaceParams> for CreateWorkspaceRequest {
 
     fn try_into(self) -> Result<CreateWorkspaceParams, Self::Error> {
         let name = WorkspaceName::parse(self.name).map_err(|e| {
-            ErrorBuilder::new(WorkspaceErrorCode::WorkspaceNameInvalid)
+            ErrorBuilder::new(WsErrCode::WorkspaceNameInvalid)
                 .msg(e)
                 .build()
         })?;

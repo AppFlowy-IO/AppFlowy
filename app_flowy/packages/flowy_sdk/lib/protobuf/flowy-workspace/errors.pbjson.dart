@@ -8,9 +8,9 @@
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
 import 'dart:typed_data' as $typed_data;
-@$core.Deprecated('Use workspaceErrorCodeDescriptor instead')
-const WorkspaceErrorCode$json = const {
-  '1': 'WorkspaceErrorCode',
+@$core.Deprecated('Use wsErrCodeDescriptor instead')
+const WsErrCode$json = const {
+  '1': 'WsErrCode',
   '2': const [
     const {'1': 'Unknown', '2': 0},
     const {'1': 'WorkspaceNameInvalid', '2': 1},
@@ -29,16 +29,16 @@ const WorkspaceErrorCode$json = const {
   ],
 };
 
-/// Descriptor for `WorkspaceErrorCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List workspaceErrorCodeDescriptor = $convert.base64Decode('ChJXb3Jrc3BhY2VFcnJvckNvZGUSCwoHVW5rbm93bhAAEhgKFFdvcmtzcGFjZU5hbWVJbnZhbGlkEAESFgoSV29ya3NwYWNlSWRJbnZhbGlkEAISGAoUQXBwQ29sb3JTdHlsZUludmFsaWQQAxIQCgxBcHBJZEludmFsaWQQChISCg5BcHBOYW1lSW52YWxpZBALEhMKD1ZpZXdOYW1lSW52YWxpZBAUEhgKFFZpZXdUaHVtYm5haWxJbnZhbGlkEBUSEQoNVmlld0lkSW52YWxpZBAWEhMKD1ZpZXdEZXNjSW52YWxpZBAXEhoKFkRhdGFiYXNlQ29ubmVjdGlvbkZhaWwQZBIaChZXb3Jrc3BhY2VEYXRhYmFzZUVycm9yEGUSFQoRVXNlckludGVybmFsRXJyb3IQZhITCg9Vc2VyTm90TG9naW5ZZXQQZw==');
+/// Descriptor for `WsErrCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List wsErrCodeDescriptor = $convert.base64Decode('CglXc0VyckNvZGUSCwoHVW5rbm93bhAAEhgKFFdvcmtzcGFjZU5hbWVJbnZhbGlkEAESFgoSV29ya3NwYWNlSWRJbnZhbGlkEAISGAoUQXBwQ29sb3JTdHlsZUludmFsaWQQAxIQCgxBcHBJZEludmFsaWQQChISCg5BcHBOYW1lSW52YWxpZBALEhMKD1ZpZXdOYW1lSW52YWxpZBAUEhgKFFZpZXdUaHVtYm5haWxJbnZhbGlkEBUSEQoNVmlld0lkSW52YWxpZBAWEhMKD1ZpZXdEZXNjSW52YWxpZBAXEhoKFkRhdGFiYXNlQ29ubmVjdGlvbkZhaWwQZBIaChZXb3Jrc3BhY2VEYXRhYmFzZUVycm9yEGUSFQoRVXNlckludGVybmFsRXJyb3IQZhITCg9Vc2VyTm90TG9naW5ZZXQQZw==');
 @$core.Deprecated('Use workspaceErrorDescriptor instead')
 const WorkspaceError$json = const {
   '1': 'WorkspaceError',
   '2': const [
-    const {'1': 'code', '3': 1, '4': 1, '5': 14, '6': '.WorkspaceErrorCode', '10': 'code'},
+    const {'1': 'code', '3': 1, '4': 1, '5': 14, '6': '.WsErrCode', '10': 'code'},
     const {'1': 'msg', '3': 2, '4': 1, '5': 9, '10': 'msg'},
   ],
 };
 
 /// Descriptor for `WorkspaceError`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List workspaceErrorDescriptor = $convert.base64Decode('Cg5Xb3Jrc3BhY2VFcnJvchInCgRjb2RlGAEgASgOMhMuV29ya3NwYWNlRXJyb3JDb2RlUgRjb2RlEhAKA21zZxgCIAEoCVIDbXNn');
+final $typed_data.Uint8List workspaceErrorDescriptor = $convert.base64Decode('Cg5Xb3Jrc3BhY2VFcnJvchIeCgRjb2RlGAEgASgOMgouV3NFcnJDb2RlUgRjb2RlEhAKA21zZxgCIAEoCVIDbXNn');

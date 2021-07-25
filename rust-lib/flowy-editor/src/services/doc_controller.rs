@@ -1,5 +1,5 @@
 use crate::{
-    entities::doc::{CreateDocParams, DocData, DocInfo, QueryDocParams, UpdateDocParams},
+    entities::doc::{CreateDocParams, DocInfo, UpdateDocParams},
     errors::EditorError,
     module::EditorDatabase,
     sql_tables::doc::{DocTable, DocTableChangeset, DocTableSql},

@@ -34,6 +34,7 @@ pub fn save_doc(desc: &DocInfo, content: &str) {
         .sync_send();
 }
 
+#[allow(dead_code)]
 pub fn read_doc(doc_id: &str) -> DocInfo {
     let request = QueryDocRequest {
         doc_id: doc_id.to_string(),

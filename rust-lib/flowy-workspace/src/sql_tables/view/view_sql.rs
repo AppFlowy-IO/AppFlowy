@@ -36,5 +36,5 @@ impl ViewTableSql {
         Ok(())
     }
 
-    pub fn delete_view(&self, view_id: &str) -> Result<(), WorkspaceError> { unimplemented!() }
+    pub fn delete_view(&self, _view_id: &str) -> Result<(), WorkspaceError> { unimplemented!() }
 }

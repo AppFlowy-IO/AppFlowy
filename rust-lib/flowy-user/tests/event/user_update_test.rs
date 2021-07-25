@@ -1,5 +1,5 @@
 use crate::helper::*;
-use flowy_user::{errors::UserErrorCode, event::UserEvent::*, prelude::*};
+use flowy_user::{errors::UserErrCode, event::UserEvent::*, prelude::*};
 use serial_test::*;
 
 #[test]
@@ -86,7 +86,7 @@ fn user_update_with_invalid_email() {
                 .sync_send()
                 .error()
                 .code,
-            UserErrorCode::EmailInvalid
+            UserErrCode::EmailInvalid
         );
     }
 }
@@ -111,7 +111,7 @@ fn user_update_with_invalid_password() {
                 .sync_send()
                 .error()
                 .code,
-            UserErrorCode::PasswordInvalid
+            UserErrCode::PasswordInvalid
         );
     }
 }
@@ -135,6 +135,6 @@ fn user_update_with_invalid_name() {
             .sync_send()
             .error()
             .code,
-        UserErrorCode::UserNameInvalid
+        UserErrCode::UserNameInvalid
     );
 }

@@ -1,13 +1,9 @@
 use crate::helper::*;
 use flowy_workspace::{
-    entities::{
-        app::{App, CreateAppRequest},
-        workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest, Workspace},
-    },
+    entities::workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest, Workspace},
     event::WorkspaceEvent::*,
     prelude::*,
 };
-use serial_test::*;
 
 #[test]
 fn workspace_create_success() { let _ = create_workspace("First workspace", ""); }
@@ -66,7 +62,7 @@ fn workspace_create_with_invalid_name_test() {
                 .sync_send()
                 .error()
                 .code,
-            WorkspaceErrorCode::WorkspaceNameInvalid
+            WsErrCode::WorkspaceNameInvalid
         )
     }
 }
@@ -86,7 +82,7 @@ fn workspace_update_with_invalid_name_test() {
                 .sync_send()
                 .error()
                 .code,
-            WorkspaceErrorCode::WorkspaceNameInvalid
+            WsErrCode::WorkspaceNameInvalid
         )
     }
 }

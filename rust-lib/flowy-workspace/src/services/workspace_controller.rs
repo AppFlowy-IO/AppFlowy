@@ -48,7 +48,7 @@ impl WorkspaceController {
         Ok(())
     }
 
-    pub fn delete_workspace(&self, workspace_id: &str) -> Result<(), WorkspaceError> {
+    pub fn delete_workspace(&self, _workspace_id: &str) -> Result<(), WorkspaceError> {
         unimplemented!()
     }
 
