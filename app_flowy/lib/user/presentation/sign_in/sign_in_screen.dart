@@ -121,7 +121,7 @@ class LoginButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RoundedButton(
+    return RoundedTextButton(
       title: 'Login',
       height: 65,
       borderRadius: BorderRadius.circular(10),

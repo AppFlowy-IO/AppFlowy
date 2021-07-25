@@ -13,4 +13,5 @@ class Durations {
 
 class RouteDurations {
   static Duration get slow => .7.seconds;
+  static Duration get medium => .35.seconds;
 }

@@ -1,8 +1,10 @@
+import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/text_field_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flowy_infra/time/duration.dart';
 
-class RoundedInputField extends StatelessWidget {
+// ignore: must_be_immutable
+class RoundedInputField extends StatefulWidget {
   final String? hintText;
   final IconData? icon;
   final bool obscureText;
@@ -10,8 +12,9 @@ class RoundedInputField extends StatelessWidget {
   final Color highlightBorderColor;
   final String errorText;
   final ValueChanged<String>? onChanged;
+  late bool enableObscure;
 
-  const RoundedInputField({
+  RoundedInputField({
     Key? key,
     this.hintText,
     this.icon,
@@ -20,20 +23,27 @@ class RoundedInputField extends StatelessWidget {
     this.normalBorderColor = Colors.transparent,
     this.highlightBorderColor = Colors.transparent,
     this.errorText = "",
-  }) : super(key: key);
+  }) : super(key: key) {
+    enableObscure = obscureText;
+  }
 
   @override
+  State<RoundedInputField> createState() => _RoundedInputFieldState();
+}
+
+class _RoundedInputFieldState extends State<RoundedInputField> {
+  @override
   Widget build(BuildContext context) {
-    final Icon? newIcon = icon == null
+    final Icon? newIcon = widget.icon == null
         ? null
         : Icon(
-            icon!,
+            widget.icon!,
             color: const Color(0xFF6F35A5),
           );
 
-    var borderColor = normalBorderColor;
-    if (errorText.isNotEmpty) {
-      borderColor = highlightBorderColor;
+    var borderColor = widget.normalBorderColor;
+    if (widget.errorText.isNotEmpty) {
+      borderColor = widget.highlightBorderColor;
     }
 
     List<Widget> children = [
@@ -41,28 +51,46 @@ class RoundedInputField extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         borderColor: borderColor,
         child: TextFormField(
-          onChanged: onChanged,
+          onChanged: widget.onChanged,
           cursorColor: const Color(0xFF6F35A5),
-          obscureText: obscureText,
+          obscureText: widget.enableObscure,
           decoration: InputDecoration(
             icon: newIcon,
-            hintText: hintText,
+            hintText: widget.hintText,
             border: InputBorder.none,
+            suffixIcon: suffixIcon(),
           ),
         ),
       ),
     ];
 
-    if (errorText.isNotEmpty) {
-      children
-          .add(Text(errorText, style: TextStyle(color: highlightBorderColor)));
+    if (widget.errorText.isNotEmpty) {
+      children.add(Text(
+        widget.errorText,
+        style: TextStyle(color: widget.highlightBorderColor),
+      ));
     }
 
-    return AnimatedContainer(
-      duration: .3.seconds,
+    return AnimatedSize(
+      duration: .4.seconds,
+      curve: Curves.easeInOut,
       child: Column(
         children: children,
       ),
+    );
+  }
+
+  Widget? suffixIcon() {
+    if (widget.obscureText == false) {
+      return null;
+    }
+    return RoundedImageButton(
+      size: 20,
+      press: () {
+        widget.enableObscure = !widget.enableObscure;
+        setState(() {});
+      },
+      child: const Icon(Icons.password, size: 15),
     );
   }
 }
