@@ -15,7 +15,7 @@ Future<void> initGetIt(
   getIt.registerLazySingleton<FlowySDK>(() => const FlowySDK());
   getIt.registerLazySingleton<AppLauncher>(() => AppLauncher(env, getIt));
 
-  await WelcomeDepsResolver.resolve(getIt);
   await UserDepsResolver.resolve(getIt);
+  await WelcomeDepsResolver.resolve(getIt);
   await HomeDepsResolver.resolve(getIt);
 }

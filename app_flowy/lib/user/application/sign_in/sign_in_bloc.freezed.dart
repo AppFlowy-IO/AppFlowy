@@ -438,12 +438,16 @@ class _$SignInStateTearOff {
       {String? email,
       String? password,
       required bool isSubmitting,
-      required Option<Either<UserDetail, UserError>> signInFailure}) {
+      required Option<String> passwordError,
+      required Option<String> emailError,
+      required Option<Either<UserDetail, UserError>> successOrFail}) {
     return _SignInState(
       email: email,
       password: password,
       isSubmitting: isSubmitting,
-      signInFailure: signInFailure,
+      passwordError: passwordError,
+      emailError: emailError,
+      successOrFail: successOrFail,
     );
   }
 }
@@ -456,7 +460,9 @@ mixin _$SignInState {
   String? get email => throw _privateConstructorUsedError;
   String? get password => throw _privateConstructorUsedError;
   bool get isSubmitting => throw _privateConstructorUsedError;
-  Option<Either<UserDetail, UserError>> get signInFailure =>
+  Option<String> get passwordError => throw _privateConstructorUsedError;
+  Option<String> get emailError => throw _privateConstructorUsedError;
+  Option<Either<UserDetail, UserError>> get successOrFail =>
       throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
@@ -473,7 +479,9 @@ abstract class $SignInStateCopyWith<$Res> {
       {String? email,
       String? password,
       bool isSubmitting,
-      Option<Either<UserDetail, UserError>> signInFailure});
+      Option<String> passwordError,
+      Option<String> emailError,
+      Option<Either<UserDetail, UserError>> successOrFail});
 }
 
 /// @nodoc
@@ -489,7 +497,9 @@ class _$SignInStateCopyWithImpl<$Res> implements $SignInStateCopyWith<$Res> {
     Object? email = freezed,
     Object? password = freezed,
     Object? isSubmitting = freezed,
-    Object? signInFailure = freezed,
+    Object? passwordError = freezed,
+    Object? emailError = freezed,
+    Object? successOrFail = freezed,
   }) {
     return _then(_value.copyWith(
       email: email == freezed
@@ -504,9 +514,17 @@ class _$SignInStateCopyWithImpl<$Res> implements $SignInStateCopyWith<$Res> {
           ? _value.isSubmitting
           : isSubmitting // ignore: cast_nullable_to_non_nullable
               as bool,
-      signInFailure: signInFailure == freezed
-          ? _value.signInFailure
-          : signInFailure // ignore: cast_nullable_to_non_nullable
+      passwordError: passwordError == freezed
+          ? _value.passwordError
+          : passwordError // ignore: cast_nullable_to_non_nullable
+              as Option<String>,
+      emailError: emailError == freezed
+          ? _value.emailError
+          : emailError // ignore: cast_nullable_to_non_nullable
+              as Option<String>,
+      successOrFail: successOrFail == freezed
+          ? _value.successOrFail
+          : successOrFail // ignore: cast_nullable_to_non_nullable
               as Option<Either<UserDetail, UserError>>,
     ));
   }
@@ -523,7 +541,9 @@ abstract class _$SignInStateCopyWith<$Res>
       {String? email,
       String? password,
       bool isSubmitting,
-      Option<Either<UserDetail, UserError>> signInFailure});
+      Option<String> passwordError,
+      Option<String> emailError,
+      Option<Either<UserDetail, UserError>> successOrFail});
 }
 
 /// @nodoc
@@ -541,7 +561,9 @@ class __$SignInStateCopyWithImpl<$Res> extends _$SignInStateCopyWithImpl<$Res>
     Object? email = freezed,
     Object? password = freezed,
     Object? isSubmitting = freezed,
-    Object? signInFailure = freezed,
+    Object? passwordError = freezed,
+    Object? emailError = freezed,
+    Object? successOrFail = freezed,
   }) {
     return _then(_SignInState(
       email: email == freezed
@@ -556,9 +578,17 @@ class __$SignInStateCopyWithImpl<$Res> extends _$SignInStateCopyWithImpl<$Res>
           ? _value.isSubmitting
           : isSubmitting // ignore: cast_nullable_to_non_nullable
               as bool,
-      signInFailure: signInFailure == freezed
-          ? _value.signInFailure
-          : signInFailure // ignore: cast_nullable_to_non_nullable
+      passwordError: passwordError == freezed
+          ? _value.passwordError
+          : passwordError // ignore: cast_nullable_to_non_nullable
+              as Option<String>,
+      emailError: emailError == freezed
+          ? _value.emailError
+          : emailError // ignore: cast_nullable_to_non_nullable
+              as Option<String>,
+      successOrFail: successOrFail == freezed
+          ? _value.successOrFail
+          : successOrFail // ignore: cast_nullable_to_non_nullable
               as Option<Either<UserDetail, UserError>>,
     ));
   }
@@ -571,7 +601,9 @@ class _$_SignInState implements _SignInState {
       {this.email,
       this.password,
       required this.isSubmitting,
-      required this.signInFailure});
+      required this.passwordError,
+      required this.emailError,
+      required this.successOrFail});
 
   @override
   final String? email;
@@ -580,11 +612,15 @@ class _$_SignInState implements _SignInState {
   @override
   final bool isSubmitting;
   @override
-  final Option<Either<UserDetail, UserError>> signInFailure;
+  final Option<String> passwordError;
+  @override
+  final Option<String> emailError;
+  @override
+  final Option<Either<UserDetail, UserError>> successOrFail;
 
   @override
   String toString() {
-    return 'SignInState(email: $email, password: $password, isSubmitting: $isSubmitting, signInFailure: $signInFailure)';
+    return 'SignInState(email: $email, password: $password, isSubmitting: $isSubmitting, passwordError: $passwordError, emailError: $emailError, successOrFail: $successOrFail)';
   }
 
   @override
@@ -599,9 +635,15 @@ class _$_SignInState implements _SignInState {
             (identical(other.isSubmitting, isSubmitting) ||
                 const DeepCollectionEquality()
                     .equals(other.isSubmitting, isSubmitting)) &&
-            (identical(other.signInFailure, signInFailure) ||
+            (identical(other.passwordError, passwordError) ||
                 const DeepCollectionEquality()
-                    .equals(other.signInFailure, signInFailure)));
+                    .equals(other.passwordError, passwordError)) &&
+            (identical(other.emailError, emailError) ||
+                const DeepCollectionEquality()
+                    .equals(other.emailError, emailError)) &&
+            (identical(other.successOrFail, successOrFail) ||
+                const DeepCollectionEquality()
+                    .equals(other.successOrFail, successOrFail)));
   }
 
   @override
@@ -610,7 +652,9 @@ class _$_SignInState implements _SignInState {
       const DeepCollectionEquality().hash(email) ^
       const DeepCollectionEquality().hash(password) ^
       const DeepCollectionEquality().hash(isSubmitting) ^
-      const DeepCollectionEquality().hash(signInFailure);
+      const DeepCollectionEquality().hash(passwordError) ^
+      const DeepCollectionEquality().hash(emailError) ^
+      const DeepCollectionEquality().hash(successOrFail);
 
   @JsonKey(ignore: true)
   @override
@@ -623,7 +667,9 @@ abstract class _SignInState implements SignInState {
           {String? email,
           String? password,
           required bool isSubmitting,
-          required Option<Either<UserDetail, UserError>> signInFailure}) =
+          required Option<String> passwordError,
+          required Option<String> emailError,
+          required Option<Either<UserDetail, UserError>> successOrFail}) =
       _$_SignInState;
 
   @override
@@ -633,7 +679,11 @@ abstract class _SignInState implements SignInState {
   @override
   bool get isSubmitting => throw _privateConstructorUsedError;
   @override
-  Option<Either<UserDetail, UserError>> get signInFailure =>
+  Option<String> get passwordError => throw _privateConstructorUsedError;
+  @override
+  Option<String> get emailError => throw _privateConstructorUsedError;
+  @override
+  Option<Either<UserDetail, UserError>> get successOrFail =>
       throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)

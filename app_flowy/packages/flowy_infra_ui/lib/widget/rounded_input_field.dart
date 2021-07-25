@@ -1,10 +1,14 @@
 import 'package:flowy_infra_ui/widget/text_field_container.dart';
 import 'package:flutter/material.dart';
+import 'package:flowy_infra/time/duration.dart';
 
 class RoundedInputField extends StatelessWidget {
   final String? hintText;
   final IconData? icon;
   final bool obscureText;
+  final Color normalBorderColor;
+  final Color highlightBorderColor;
+  final String errorText;
   final ValueChanged<String>? onChanged;
 
   const RoundedInputField({
@@ -13,6 +17,9 @@ class RoundedInputField extends StatelessWidget {
     this.icon,
     this.obscureText = false,
     this.onChanged,
+    this.normalBorderColor = Colors.transparent,
+    this.highlightBorderColor = Colors.transparent,
+    this.errorText = "",
   }) : super(key: key);
 
   @override
@@ -24,18 +31,37 @@ class RoundedInputField extends StatelessWidget {
             color: const Color(0xFF6F35A5),
           );
 
-    return TextFieldContainer(
-      borderRadius: BorderRadius.circular(10),
-      borderColor: Colors.blueGrey,
-      child: TextFormField(
-        onChanged: onChanged,
-        cursorColor: const Color(0xFF6F35A5),
-        obscureText: obscureText,
-        decoration: InputDecoration(
-          icon: newIcon,
-          hintText: hintText,
-          border: InputBorder.none,
+    var borderColor = normalBorderColor;
+    if (errorText.isNotEmpty) {
+      borderColor = highlightBorderColor;
+    }
+
+    List<Widget> children = [
+      TextFieldContainer(
+        borderRadius: BorderRadius.circular(10),
+        borderColor: borderColor,
+        child: TextFormField(
+          onChanged: onChanged,
+          cursorColor: const Color(0xFF6F35A5),
+          obscureText: obscureText,
+          decoration: InputDecoration(
+            icon: newIcon,
+            hintText: hintText,
+            border: InputBorder.none,
+          ),
         ),
+      ),
+    ];
+
+    if (errorText.isNotEmpty) {
+      children
+          .add(Text(errorText, style: TextStyle(color: highlightBorderColor)));
+    }
+
+    return AnimatedContainer(
+      duration: .3.seconds,
+      child: Column(
+        children: children,
       ),
     );
   }

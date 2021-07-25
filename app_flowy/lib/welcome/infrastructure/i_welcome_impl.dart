@@ -1,3 +1,5 @@
+import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/user/domain/i_auth.dart';
 import 'package:app_flowy/user/presentation/sign_in/sign_in_screen.dart';
 import 'package:app_flowy/welcome/domain/auth_state.dart';
 import 'package:app_flowy/welcome/domain/i_welcome.dart';
@@ -34,6 +36,6 @@ class WelcomeRoute implements IWelcomeRoute {
 
   @override
   Widget pushSignInScreen() {
-    return const SignInScreen();
+    return SignInScreen(router: getIt<IAuthRouter>());
   }
 }
