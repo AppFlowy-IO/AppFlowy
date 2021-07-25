@@ -3,13 +3,23 @@ import 'package:flutter/material.dart';
 class RoundedButton extends StatelessWidget {
   final VoidCallback? press;
   final String? title;
-  final Size? size;
+  final double? width;
+  final double? height;
+  final BorderRadius borderRadius;
+  final Color borderColor;
+  final Color color;
+  final Color textColor;
 
   const RoundedButton({
     Key? key,
     this.press,
     this.title,
-    this.size,
+    this.width,
+    this.height,
+    this.borderRadius = BorderRadius.zero,
+    this.borderColor = Colors.transparent,
+    this.color = Colors.transparent,
+    this.textColor = Colors.white,
   }) : super(key: key);
 
   @override
@@ -17,15 +27,22 @@ class RoundedButton extends StatelessWidget {
     return ConstrainedBox(
       constraints: BoxConstraints(
         minWidth: 100,
-        maxWidth: size?.width ?? double.infinity,
+        maxWidth: width ?? double.infinity,
         minHeight: 50,
-        maxHeight: size?.height ?? double.infinity,
+        maxHeight: height ?? 60,
       ),
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 10),
-        child: TextButton(
-          child: Text(title ?? ''),
-          onPressed: press,
+        decoration: BoxDecoration(
+          border: Border.all(color: borderColor),
+          borderRadius: borderRadius,
+          color: color,
+        ),
+        child: SizedBox.expand(
+          child: TextButton(
+            child: Text(title ?? '', style: TextStyle(color: textColor)),
+            onPressed: press,
+          ),
         ),
       ),
     );

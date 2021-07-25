@@ -18,9 +18,9 @@
 			"options": {
 				"cwd": "${workspaceFolder}/../"
 			  },
-			"problemMatcher": [
-                "$rustc"
-            ],
+			// "problemMatcher": [
+            //     "$rustc"
+            // ],
 			"label": "BuildRust"
 		}
 	]
