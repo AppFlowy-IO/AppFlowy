@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'auth_state.dart';
 
 abstract class IWelcomeAuth {
-  Future<AuthState> currentUserState();
+  Future<AuthState> currentUserDetail();
 }
 
 abstract class IWelcomeRoute {

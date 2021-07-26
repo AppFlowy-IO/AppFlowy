@@ -2,7 +2,6 @@ import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:app_flowy/workspace/application/app/app_watch_bloc.dart';
 import 'package:app_flowy/workspace/presentation/app/view_list.dart';
 import 'package:app_flowy/workspace/presentation/widgets/menu/menu_list.dart';
-import 'package:app_flowy/workspace/presentation/widgets/menu/menu_size.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_infra/size.dart';
@@ -15,7 +14,7 @@ import 'package:dartz/dartz.dart';
 
 class AppWidget extends MenuItem {
   final App app;
-  const AppWidget(this.app, {Key? key}) : super(key: key);
+  AppWidget(this.app, {Key? key}) : super(key: ValueKey(app.id));
 
   @override
   Widget build(BuildContext context) {
@@ -103,11 +102,11 @@ class AppHeader extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             ExpandableIcon(
-              theme: ExpandableThemeData(
+              theme: const ExpandableThemeData(
                 expandIcon: Icons.arrow_right,
                 collapseIcon: Icons.arrow_drop_down,
                 iconColor: Colors.black,
-                iconSize: HomeMenuSize.collapseIconSize,
+                iconSize: 24,
                 iconPadding: EdgeInsets.zero,
                 hasIcon: false,
               ),
@@ -116,7 +115,7 @@ class AppHeader extends StatelessWidget {
               child: Text(app.name),
             ),
             SizedBox(
-              height: HomeMenuSize.createViewButtonSize,
+              height: 30,
               child: createViewPopupMenu(context),
             ),
           ],

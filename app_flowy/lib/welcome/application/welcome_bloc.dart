@@ -13,7 +13,7 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
   Stream<WelcomeState> mapEventToState(WelcomeEvent event) async* {
     yield* event.map(
       getUser: (val) async* {
-        final authState = await authImpl.currentUserState();
+        final authState = await authImpl.currentUserDetail();
         yield state.copyWith(auth: authState);
       },
     );

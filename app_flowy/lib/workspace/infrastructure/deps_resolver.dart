@@ -16,8 +16,10 @@ import 'package:app_flowy/workspace/infrastructure/repos/doc_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/workspace_repo.dart';
 import 'package:flowy_editor/flowy_editor.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/user_detail.pb.dart';
 import 'package:get_it/get_it.dart';
 
+import 'i_user_impl.dart';
 import 'i_view_impl.dart';
 
 class HomeDepsResolver {
@@ -32,10 +34,10 @@ class HomeDepsResolver {
         (appId, _) => IAppWatchImpl(repo: AppWatchRepository(appId: appId)));
 
     //workspace
-    getIt.registerFactoryParam<IWorkspace, String, void>((workspaceId, _) =>
-        IWorkspaceImpl(repo: WorkspaceRepo(workspaceId: workspaceId)));
-    getIt.registerFactoryParam<IWorkspaceWatch, String, void>((workspacId, _) =>
-        IWorkspaceWatchImpl(repo: WorkspaceWatchRepo(workspaceId: workspacId)));
+    getIt.registerFactoryParam<IWorkspace, UserDetail, void>(
+        (user, _) => IWorkspaceImpl(repo: WorkspaceRepo(user: user)));
+    getIt.registerFactoryParam<IWorkspaceWatch, UserDetail, void>(
+        (user, _) => IWorkspaceWatchImpl(repo: WorkspaceWatchRepo(user: user)));
 
     // View
     getIt.registerFactoryParam<IView, String, void>(
@@ -47,11 +49,15 @@ class HomeDepsResolver {
     getIt.registerFactoryParam<IDoc, String, void>(
         (docId, _) => IDocImpl(repo: DocRepository(docId: docId)));
 
+    // User
+    getIt.registerFactoryParam<IUser, UserDetail, void>(
+        (user, _) => IUserImpl(repo: UserRepo(user: user)));
+
     //Bloc
-    getIt.registerFactoryParam<MenuBloc, String, void>(
-        (workspaceId, _) => MenuBloc(getIt<IWorkspace>(param1: workspaceId)));
-    getIt.registerFactoryParam<MenuWatchBloc, String, void>((workspaceId, _) =>
-        MenuWatchBloc(getIt<IWorkspaceWatch>(param1: workspaceId)));
+    getIt.registerFactoryParam<MenuBloc, UserDetail, void>(
+        (user, _) => MenuBloc(getIt<IWorkspace>(param1: user)));
+    getIt.registerFactoryParam<MenuWatchBloc, UserDetail, void>(
+        (user, _) => MenuWatchBloc(getIt<IWorkspaceWatch>(param1: user)));
 
     getIt.registerFactoryParam<AppBloc, String, void>(
         (appId, _) => AppBloc(getIt<IApp>(param1: appId)));

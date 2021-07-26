@@ -13,7 +13,7 @@ export 'package:app_flowy/welcome/domain/i_welcome.dart';
 
 class WelcomeAuthImpl implements IWelcomeAuth {
   @override
-  Future<AuthState> currentUserState() {
+  Future<AuthState> currentUserDetail() {
     final result = UserEventGetStatus().send();
     return result.then((result) {
       return result.fold(

@@ -1,6 +1,5 @@
 import 'package:app_flowy/workspace/presentation/home/home_screen.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_infra_ui/widget/route/animation.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:app_flowy/user/domain/i_auth.dart';
