@@ -1,17 +1,25 @@
 import 'dart:ui' show window;
 
+import 'package:flowy_infra_ui/src/overlay/overlay_route.dart';
 import 'package:flutter/material.dart';
 
 import 'overlay_basis.dart';
-import 'overlay_layout_delegate.dart';
 
 class OverlayPannel extends StatefulWidget {
   const OverlayPannel({
     Key? key,
     this.focusNode,
+    this.padding = EdgeInsets.zero,
+    this.anchorDirection = AnchorDirection.topRight,
+    required this.anchorPosition,
+    required this.route,
   }) : super(key: key);
 
   final FocusNode? focusNode;
+  final EdgeInsetsGeometry padding;
+  final AnchorDirection anchorDirection;
+  final Offset anchorPosition;
+  final OverlayPannelRoute route;
 
   @override
   _OverlayPannelState createState() => _OverlayPannelState();
@@ -22,10 +30,25 @@ class _OverlayPannelState extends State<OverlayPannel> with WidgetsBindingObserv
   FocusNode? get focusNode => widget.focusNode ?? _internalNode;
   late FocusHighlightMode _focusHighlightMode;
   bool _hasPrimaryFocus = false;
+  late CurvedAnimation _fadeOpacity;
+  late CurvedAnimation _resize;
+  OverlayPannelRoute? _overlayRoute;
 
   @override
   void initState() {
     super.initState();
+    _fadeOpacity = CurvedAnimation(
+      parent: widget.route.animation!,
+      curve: const Interval(0.0, 0.25),
+      reverseCurve: const Interval(0.75, 1.0),
+    );
+    _resize = CurvedAnimation(
+      parent: widget.route.animation!,
+      curve: const Interval(0.25, 0.5),
+      reverseCurve: const Threshold(0.0),
+    );
+
+    // TODO: junlin - handle focus action or remove it
     if (widget.focusNode == null) {
       _internalNode ??= _createFocusNode();
     }
@@ -85,17 +108,11 @@ class _OverlayPannelState extends State<OverlayPannel> with WidgetsBindingObserv
     });
   }
 
-  void _removeOverlayRoute() {
-    // TODO: junlin
-  }
-
   // MARK: Layout
 
   Orientation _getOrientation(BuildContext context) {
     Orientation? result = MediaQuery.maybeOf(context)?.orientation;
     if (result == null) {
-      // If there's no MediaQuery, then use the window aspect to determine
-      // orientation.
       final Size size = window.physicalSize;
       result = size.width > size.height ? Orientation.landscape : Orientation.portrait;
     }

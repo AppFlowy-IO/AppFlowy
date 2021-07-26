@@ -1,50 +1,47 @@
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+
+import 'overlay_route.dart';
 import 'overlay_basis.dart';
 
 class OverlayLayoutDelegate extends SingleChildLayoutDelegate {
   OverlayLayoutDelegate({
-    required this.anchorRect,
-    required this.targetRect,
+    required this.route,
+    required this.padding,
+    required this.anchorPosition,
     required this.anchorDirection,
-    required this.safeAreaEnabled,
-    required this.insets,
   });
 
+  final OverlayPannelRoute route;
+  final EdgeInsets padding;
   final AnchorDirection anchorDirection;
-  final bool safeAreaEnabled;
-  final EdgeInsets insets;
-  final Rect anchorRect;
-  final Rect targetRect;
+  final Offset anchorPosition;
 
   @override
   bool shouldRelayout(OverlayLayoutDelegate oldDelegate) {
-    return anchorRect != oldDelegate.anchorRect ||
-        insets != oldDelegate.insets ||
-        safeAreaEnabled != oldDelegate.safeAreaEnabled ||
-        anchorDirection != oldDelegate.anchorDirection;
+    return anchorPosition != oldDelegate.anchorPosition || anchorDirection != oldDelegate.anchorDirection;
   }
 
   @override
   Offset getPositionForChild(Size size, Size childSize) {
-    // calculate the pannel maximum available rect
-    var pannelRect = Rect.fromLTWH(0, 0, size.width, size.height);
-    pannelRect = insets.deflateRect(pannelRect);
-    // apply safearea
-    if (safeAreaEnabled) {
-      final safeArea = MediaQueryData.fromWindow(window).padding;
-      pannelRect = safeArea.deflateRect(pannelRect);
-    }
-
-    // clip pannel rect
-
     // TODO: junlin - calculate child position
     return Offset.zero;
   }
 
   @override
   BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
-    return constraints.loosen();
+    double maxHeight = math.max(
+      0.0,
+      math.min(route.maxHeight, constraints.maxHeight - padding.top - padding.bottom),
+    );
+    double width = math.min(route.maxWidth, constraints.maxWidth);
+    return BoxConstraints(
+      minHeight: 0.0,
+      maxHeight: maxHeight,
+      minWidth: width,
+      maxWidth: width,
+    );
   }
 }
