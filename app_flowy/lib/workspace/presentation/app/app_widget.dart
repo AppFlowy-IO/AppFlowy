@@ -6,11 +6,22 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
+
+class AppWidgetSize {
+  static double expandedIconSize = 24;
+  static double expandedIconRightSpace = 8;
+
+  static double scale = 1;
+
+  static double get expandedPadding =>
+      expandedIconSize * scale + expandedIconRightSpace;
+}
 
 class AppWidget extends MenuItem {
   final App app;
@@ -54,27 +65,24 @@ class AppWidget extends MenuItem {
       child: ScrollOnExpand(
         scrollOnExpand: true,
         scrollOnCollapse: false,
-        child: Card(
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            children: <Widget>[
-              ExpandablePanel(
-                theme: const ExpandableThemeData(
-                  headerAlignment: ExpandablePanelHeaderAlignment.center,
-                  tapBodyToExpand: false,
-                  tapBodyToCollapse: false,
-                  iconPadding: EdgeInsets.zero,
-                  hasIcon: false,
-                ),
-                header: AppHeader(app),
-                expanded: Padding(
-                  padding: EdgeInsets.only(left: Sizes.iconMed),
-                  child: child,
-                ),
-                collapsed: const SizedBox(),
+        child: Column(
+          children: <Widget>[
+            ExpandablePanel(
+              theme: const ExpandableThemeData(
+                headerAlignment: ExpandablePanelHeaderAlignment.center,
+                tapBodyToExpand: false,
+                tapBodyToCollapse: false,
+                iconPadding: EdgeInsets.zero,
+                hasIcon: false,
               ),
-            ],
-          ),
+              header: AppHeader(app),
+              expanded: Padding(
+                padding: EdgeInsets.only(left: AppWidgetSize.expandedPadding),
+                child: child,
+              ),
+              collapsed: const SizedBox(),
+            ),
+          ],
         ),
       ),
     );
@@ -93,40 +101,35 @@ class AppHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: Insets.m),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            ExpandableIcon(
-              theme: const ExpandableThemeData(
-                expandIcon: Icons.arrow_right,
-                collapseIcon: Icons.arrow_drop_down,
-                iconColor: Colors.black,
-                iconSize: 24,
-                iconPadding: EdgeInsets.zero,
-                hasIcon: false,
-              ),
-            ),
-            Expanded(
-              child: Text(app.name),
-            ),
-            SizedBox(
-              height: 30,
-              child: createViewPopupMenu(context),
-            ),
-          ],
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        ExpandableIcon(
+          theme: ExpandableThemeData(
+            expandIcon: Icons.arrow_drop_up,
+            collapseIcon: Icons.arrow_drop_down,
+            iconColor: Colors.black,
+            iconSize: AppWidgetSize.expandedIconSize,
+            iconPadding: EdgeInsets.zero,
+            hasIcon: false,
+          ),
         ),
-      ),
+        HSpace(AppWidgetSize.expandedIconRightSpace),
+        Expanded(
+          child: Text(
+            app.name,
+            style: const TextStyle(fontSize: 18),
+          ),
+        ),
+        _renderPopupMenu(context),
+      ],
     );
   }
 
-  Widget createViewPopupMenu(BuildContext context) {
+  Widget _renderPopupMenu(BuildContext context) {
     return PopupMenuButton(
-        iconSize: 24,
+        iconSize: 20,
         tooltip: 'create new view',
         icon: const Icon(Icons.add),
         padding: EdgeInsets.zero,

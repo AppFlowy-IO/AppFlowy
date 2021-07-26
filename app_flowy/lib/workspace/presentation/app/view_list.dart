@@ -15,22 +15,22 @@ class ViewList extends StatelessWidget {
   Widget build(BuildContext context) {
     Log.info('ViewList build');
     return views.fold(
-      () => const SizedBox(
-        height: 10,
-      ),
+      () => const SizedBox(),
       (views) {
         return Column(
-          children: buildViewWidgets(views),
-        ).padding(vertical: Insets.sm);
+          children: _renderViewWidgets(views),
+        );
       },
     );
   }
 
-  List<ViewWidget> buildViewWidgets(List<View> views) {
+  List<Widget> _renderViewWidgets(List<View> views) {
     var targetViews = views.map((view) {
-      return ViewWidget(
-        icon: const Icon(Icons.file_copy),
-        view: view,
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: ViewWidget(
+          view: view,
+        ),
       );
     }).toList(growable: true);
     return targetViews;
