@@ -2,17 +2,20 @@ import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_watch.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/workspace/presentation/app/app_widget.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:app_flowy/workspace/presentation/widgets/menu/create_app_dialog.dart';
+import 'package:app_flowy/workspace/presentation/widgets/menu/user_profile.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
-import 'app_list.dart';
+import 'menu_list.dart';
 
 class HomeMenu extends StatelessWidget {
   final Function(HomeStackView?) pageContextChanged;
@@ -67,7 +70,7 @@ class HomeMenu extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 _renderTopBar(context),
-                _renderAppList(context),
+                _renderMenuList(context),
               ],
             ).padding(horizontal: Insets.l),
           ),
@@ -77,17 +80,19 @@ class HomeMenu extends StatelessWidget {
     );
   }
 
-  Widget _renderAppList(BuildContext context) {
+  Widget _renderMenuList(BuildContext context) {
     return BlocBuilder<MenuWatchBloc, MenuWatchState>(
-      builder: (context, state) => state.map(
-        initial: (_) => BlocBuilder<MenuBloc, MenuState>(
-          builder: (context, state) {
-            return AppList(apps: state.apps);
-          },
-        ),
-        loadApps: (s) => AppList(apps: some(s.apps)),
-        loadFail: (s) => FlowyErrorPage(s.error.toString()),
-      ),
+      builder: (context, state) {
+        return state.map(
+          initial: (_) => BlocBuilder<MenuBloc, MenuState>(
+            builder: (context, s) => MenuList(
+              menuItems: menuItemsWithApps(s.apps),
+            ),
+          ),
+          loadApps: (s) => MenuList(menuItems: menuItemsWithApps(some(s.apps))),
+          loadFail: (s) => FlowyErrorPage(s.error.toString()),
+        );
+      },
     );
   }
 
@@ -103,6 +108,21 @@ class HomeMenu extends StatelessWidget {
       height: HomeSizes.menuTopBarHeight,
       child: const MenuTopBar(),
     );
+  }
+
+  List<MenuItem> menuItemsWithApps(Option<List<App>> someApps) {
+    List<MenuItem> menuItems = [
+      const UserProfile(),
+    ];
+
+    // apps
+    List<MenuItem> appWidgets = someApps.fold(
+      () => [],
+      (apps) => apps.map((app) => AppWidget(app)).toList(),
+    );
+
+    menuItems.addAll(appWidgets);
+    return menuItems;
   }
 }
 
@@ -182,5 +202,3 @@ class NewAppButton extends StatelessWidget {
     ), context);
   }
 }
-
-//ignore: must_be_immutable

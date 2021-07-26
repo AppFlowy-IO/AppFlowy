@@ -1,6 +1,7 @@
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:app_flowy/workspace/application/app/app_watch_bloc.dart';
 import 'package:app_flowy/workspace/presentation/app/view_list.dart';
+import 'package:app_flowy/workspace/presentation/widgets/menu/menu_list.dart';
 import 'package:app_flowy/workspace/presentation/widgets/menu/menu_size.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:expandable/expandable.dart';
@@ -12,7 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
 
-class AppWidget extends StatelessWidget {
+class AppWidget extends MenuItem {
   final App app;
   const AppWidget(this.app, {Key? key}) : super(key: key);
 
@@ -79,6 +80,9 @@ class AppWidget extends StatelessWidget {
       ),
     );
   }
+
+  @override
+  MenuItemType get type => MenuItemType.app;
 }
 
 class AppHeader extends StatelessWidget {
