@@ -32,3 +32,13 @@ const Workspace$json = const {
 
 /// Descriptor for `Workspace`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List workspaceDescriptor = $convert.base64Decode('CglXb3Jrc3BhY2USDgoCaWQYASABKAlSAmlkEhIKBG5hbWUYAiABKAlSBG5hbWUSEgoEZGVzYxgDIAEoCVIEZGVzYxIgCgRhcHBzGAQgASgLMgwuUmVwZWF0ZWRBcHBSBGFwcHM=');
+@$core.Deprecated('Use workspacesDescriptor instead')
+const Workspaces$json = const {
+  '1': 'Workspaces',
+  '2': const [
+    const {'1': 'items', '3': 1, '4': 3, '5': 11, '6': '.Workspace', '10': 'items'},
+  ],
+};
+
+/// Descriptor for `Workspaces`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List workspacesDescriptor = $convert.base64Decode('CgpXb3Jrc3BhY2VzEiAKBWl0ZW1zGAEgAygLMgouV29ya3NwYWNlUgVpdGVtcw==');

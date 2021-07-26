@@ -33,6 +33,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "UpdateWorkspaceRequest"
         | "CreateWorkspaceRequest"
         | "Workspace"
+        | "Workspaces"
         | "QueryWorkspaceRequest"
         | "CurrentWorkspace"
         | "UpdateViewRequest"

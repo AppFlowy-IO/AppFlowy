@@ -31,7 +31,7 @@ class MenuList extends StatelessWidget {
           separatorBuilder: (context, index) => const VSpace(10),
           physics: const BouncingScrollPhysics(),
           itemBuilder: (BuildContext context, int index) {
-            return menuItems[index].build(context);
+            return menuItems[index];
           },
         ),
       ),

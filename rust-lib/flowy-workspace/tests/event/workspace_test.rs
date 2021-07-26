@@ -1,6 +1,6 @@
 use crate::helper::*;
 use flowy_workspace::{
-    entities::workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest, Workspace},
+    entities::workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest, Workspace, Workspaces},
     event::WorkspaceEvent::*,
     prelude::*,
 };
@@ -16,6 +16,16 @@ fn workspace_get_success() {
         .parse::<Workspace>();
 
     dbg!(&workspace);
+}
+
+#[test]
+fn workspace_read_all_success() {
+    let workspaces = SingleUserTestBuilder::new()
+        .event(ReadAllWorkspace)
+        .sync_send()
+        .parse::<Workspaces>();
+
+    dbg!(&workspaces);
 }
 
 #[test]

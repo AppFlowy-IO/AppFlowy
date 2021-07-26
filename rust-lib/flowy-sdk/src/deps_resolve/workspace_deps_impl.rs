@@ -13,6 +13,14 @@ pub struct WorkspaceUserImpl {
 }
 
 impl WorkspaceUser for WorkspaceUserImpl {
+    fn user_id(&self) -> Result<String, WorkspaceError> {
+        self.user_session.get_user_id().map_err(|e| {
+            ErrorBuilder::new(WsErrCode::UserInternalError)
+                .error(e)
+                .build()
+        })
+    }
+
     fn set_cur_workspace_id(
         &self,
         workspace_id: &str,

@@ -40,9 +40,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
   }
 
   Stream<MenuState> _performActionOnCreateApp(CreateApp event) async* {
-    await iWorkspaceImpl
-        .createApp(name: event.name, desc: event.desc)
-        .then((result) async* {
+    iWorkspaceImpl.createApp(name: event.name, desc: event.desc).then((result) {
       result.fold(
         (app) => {},
         (error) async* {

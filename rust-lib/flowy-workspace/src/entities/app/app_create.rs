@@ -84,7 +84,7 @@ pub struct App {
     pub views: RepeatedView,
 }
 
-#[derive(Debug, Default, ProtoBuf)]
+#[derive(PartialEq, Debug, Default, ProtoBuf)]
 pub struct RepeatedApp {
     #[pb(index = 1)]
     pub items: Vec<App>,

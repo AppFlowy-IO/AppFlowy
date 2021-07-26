@@ -2,6 +2,7 @@ import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:app_flowy/workspace/application/app/app_watch_bloc.dart';
 import 'package:app_flowy/workspace/application/doc/doc_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
+import 'package:app_flowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_watch.dart';
 import 'package:app_flowy/workspace/application/view/doc_watch_bloc.dart';
 import 'package:app_flowy/workspace/application/view/view_bloc.dart';
@@ -53,12 +54,16 @@ class HomeDepsResolver {
     getIt.registerFactoryParam<IUser, UserDetail, void>(
         (user, _) => IUserImpl(repo: UserRepo(user: user)));
 
-    //Bloc
+    //Menu Bloc
     getIt.registerFactoryParam<MenuBloc, UserDetail, void>(
         (user, _) => MenuBloc(getIt<IWorkspace>(param1: user)));
     getIt.registerFactoryParam<MenuWatchBloc, UserDetail, void>(
         (user, _) => MenuWatchBloc(getIt<IWorkspaceWatch>(param1: user)));
 
+    getIt.registerFactoryParam<MenuUserBloc, UserDetail, void>(
+        (user, _) => MenuUserBloc(getIt<IUser>(param1: user)));
+
+    //
     getIt.registerFactoryParam<AppBloc, String, void>(
         (appId, _) => AppBloc(getIt<IApp>(param1: appId)));
     getIt.registerFactoryParam<AppWatchBloc, String, void>(

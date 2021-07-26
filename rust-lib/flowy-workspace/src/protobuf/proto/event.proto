@@ -4,6 +4,7 @@ enum WorkspaceEvent {
     CreateWorkspace = 0;
     GetCurWorkspace = 1;
     GetWorkspace = 2;
+    ReadAllWorkspace = 3;
     CreateApp = 101;
     GetApp = 102;
     CreateView = 201;

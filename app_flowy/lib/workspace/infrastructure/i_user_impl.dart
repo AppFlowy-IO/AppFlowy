@@ -13,8 +13,7 @@ class IUserImpl extends IUser {
 
   @override
   Future<Either<Unit, WorkspaceError>> deleteWorkspace(String workspaceId) {
-    // TODO: implement deleteWorkspace
-    throw UnimplementedError();
+    return repo.deleteWorkspace(workspaceId: workspaceId);
   }
 
   @override
@@ -24,7 +23,14 @@ class IUserImpl extends IUser {
 
   @override
   Future<Either<Unit, UserError>> signOut() {
-    // TODO: implement signOut
-    throw UnimplementedError();
+    return repo.signOut();
+  }
+
+  @override
+  UserDetail get user => repo.user;
+
+  @override
+  Future<Either<List<Workspace>, WorkspaceError>> fetchWorkspaces() {
+    return repo.fetchWorkspaces();
   }
 }
