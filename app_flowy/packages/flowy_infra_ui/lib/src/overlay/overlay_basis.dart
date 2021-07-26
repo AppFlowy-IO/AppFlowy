@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 /// Specifies how overlay are anchored to the SourceWidget
 enum AnchorDirection {
   // Corner aligned with a corner of the SourceWidget

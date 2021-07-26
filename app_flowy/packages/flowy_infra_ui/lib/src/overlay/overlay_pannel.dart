@@ -1,43 +1,37 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'overlay_basis.dart';
 
-class OverlayPannel extends SingleChildLayoutDelegate {
-  OverlayPannel({
+import 'overlay_basis.dart';
+import 'overlay_layout_delegate.dart';
+
+class OverlayPannel extends StatelessWidget {
+  const OverlayPannel({
+    Key? key,
+    required this.child,
     required this.targetRect,
+    required this.anchorRect,
+    this.safeAreaEnabled = true,
     this.anchorDirection = AnchorDirection.topRight,
-    this.safeAreaEnabled = false,
     this.insets = EdgeInsets.zero,
-  });
+  }) : super(key: key);
 
   final AnchorDirection anchorDirection;
   final bool safeAreaEnabled;
   final EdgeInsets insets;
   final Rect targetRect;
+  final Rect anchorRect;
+  final Widget child;
 
   @override
-  bool shouldRelayout(OverlayPannel oldDelegate) {
-    return targetRect != oldDelegate.targetRect ||
-        insets != oldDelegate.insets ||
-        safeAreaEnabled != oldDelegate.safeAreaEnabled ||
-        anchorDirection != oldDelegate.anchorDirection;
-  }
-
-  @override
-  Offset getPositionForChild(Size size, Size childSize) {
-    var pannelRect = targetRect;
-    if (safeAreaEnabled) {
-      final safeArea = MediaQueryData.fromWindow(window).padding;
-      pannelRect = safeArea.deflateRect(pannelRect);
-    }
-
-    // TODO: junlin - calculate child position
-    return Offset.zero;
-  }
-
-  @override
-  BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
-    return constraints.loosen();
+  Widget build(BuildContext context) {
+    return CustomSingleChildLayout(
+      delegate: OverlayLayoutDelegate(
+        targetRect: targetRect,
+        anchorRect: anchorRect,
+        safeAreaEnabled: safeAreaEnabled,
+        anchorDirection: anchorDirection,
+        insets: insets,
+      ),
+      child: child,
+    );
   }
 }

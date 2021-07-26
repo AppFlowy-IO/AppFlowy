@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../overlay/overlay_screen.dart';
 import '../keyboard/keyboard_screen.dart';
 import 'demo_item.dart';
 
@@ -8,6 +10,7 @@ class HomeScreen extends StatelessWidget {
   static List<ListItem> items = [
     SectionHeaderItem('Widget Demos'),
     KeyboardItem(),
+    OverlayItem(),
   ];
 
   @override
