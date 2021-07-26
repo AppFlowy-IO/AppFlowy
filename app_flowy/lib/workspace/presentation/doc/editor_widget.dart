@@ -50,7 +50,9 @@ class EditorWdiget extends StatelessWidget {
       scrollBottomInset: 0,
       scrollController: ScrollController(),
     );
-    return Expanded(child: editor);
+    return Expanded(
+      child: Padding(padding: const EdgeInsets.all(10), child: editor),
+    );
   }
 
   Widget _renderToolbar(EditorController controller) {

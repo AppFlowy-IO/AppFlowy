@@ -1,20 +1,62 @@
+import 'package:app_flowy/workspace/domain/image.dart';
+import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
+import 'package:flowy_infra_ui/widget/rounded_button.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pbenum.dart';
 import 'package:flutter/material.dart';
 
 class HomeTopBar extends StatelessWidget {
-  final String title;
-  const HomeTopBar({Key? key, required this.title}) : super(key: key);
+  final HomeStackView view;
+  const HomeTopBar({Key? key, required this.view}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: HomeInsets.topBarTitlePadding),
+    return SizedBox(
       height: HomeSizes.topBarHeight,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          HomeTitle(title: title),
-        ],
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(width: 0.5, color: Colors.grey.shade300),
+          ),
+        ),
+        child: Padding(
+          padding:
+              EdgeInsets.symmetric(horizontal: HomeInsets.topBarTitlePadding),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              HomeTitle(title: view.title, type: view.type),
+              const Spacer(),
+              _renderShareButton(),
+              _renderMoreButton(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _renderShareButton() {
+    return RoundedTextButton(
+      title: 'Share',
+      height: 30,
+      width: 60,
+      fontSize: 12,
+      borderRadius: BorderRadius.circular(6),
+      color: Colors.lightBlue,
+      press: () {},
+    );
+  }
+
+  Widget _renderMoreButton() {
+    return SizedBox(
+      width: 24,
+      child: IconButton(
+        icon: const Icon(Icons.more_vert),
+        iconSize: 12,
+        alignment: Alignment.center,
+        onPressed: () {},
       ),
     );
   }
@@ -22,28 +64,32 @@ class HomeTopBar extends StatelessWidget {
 
 class HomeTitle extends StatelessWidget {
   final String title;
-  final _editingController = TextEditingController(
-    text: '',
-  );
+  final ViewType type;
 
-  HomeTitle({
+  const HomeTitle({
     Key? key,
     required this.title,
+    required this.type,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    _editingController.text = title;
-
-    return Expanded(
-      child: TextField(
-        controller: _editingController,
-        textAlign: TextAlign.left,
-        style: const TextStyle(fontSize: 28.0),
-        decoration: const InputDecoration(
-          hintText: 'Name the view',
-          border: UnderlineInputBorder(borderSide: BorderSide.none),
-        ),
+    return Flexible(
+      child: Row(
+        children: [
+          Image(
+              fit: BoxFit.scaleDown,
+              width: 15,
+              height: 15,
+              image: assetImageForViewType(type)),
+          const HSpace(6),
+          Text(
+            title,
+            overflow: TextOverflow.fade,
+            softWrap: false,
+            style: const TextStyle(fontSize: 16),
+          ),
+        ],
       ),
     );
   }

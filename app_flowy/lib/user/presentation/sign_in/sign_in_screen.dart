@@ -123,7 +123,7 @@ class LoginButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return RoundedTextButton(
       title: 'Login',
-      height: 65,
+      height: 45,
       borderRadius: BorderRadius.circular(10),
       color: Colors.lightBlue,
       press: () {

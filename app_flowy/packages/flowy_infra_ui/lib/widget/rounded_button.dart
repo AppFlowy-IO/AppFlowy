@@ -9,6 +9,7 @@ class RoundedTextButton extends StatelessWidget {
   final Color borderColor;
   final Color color;
   final Color textColor;
+  final double fontSize;
 
   const RoundedTextButton({
     Key? key,
@@ -20,19 +21,19 @@ class RoundedTextButton extends StatelessWidget {
     this.borderColor = Colors.transparent,
     this.color = Colors.transparent,
     this.textColor = Colors.white,
+    this.fontSize = 16,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: BoxConstraints(
-        minWidth: 100,
+        minWidth: 10,
         maxWidth: width ?? double.infinity,
-        minHeight: 50,
+        minHeight: 10,
         maxHeight: height ?? 60,
       ),
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
           border: Border.all(color: borderColor),
           borderRadius: borderRadius,
@@ -40,7 +41,10 @@ class RoundedTextButton extends StatelessWidget {
         ),
         child: SizedBox.expand(
           child: TextButton(
-            child: Text(title ?? '', style: TextStyle(color: textColor)),
+            child: Text(
+              title ?? '',
+              style: TextStyle(color: textColor, fontSize: fontSize),
+            ),
             onPressed: press,
           ),
         ),

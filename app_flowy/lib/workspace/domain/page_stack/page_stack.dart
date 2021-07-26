@@ -32,7 +32,7 @@ class HomePageStack {
       child: BlocBuilder<PageStackBloc, PageStackState>(
         builder: (context, state) {
           return HomeTopBar(
-            title: state.stackView.title,
+            view: state.stackView,
           );
         },
       ),

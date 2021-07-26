@@ -31,7 +31,8 @@ class HomeScreen extends StatelessWidget {
           buildWhen: (previous, current) => previous != current,
           builder: (context, state) {
             return StyledContainer(
-              Theme.of(context).colorScheme.background,
+              Theme.of(context).colorScheme.surface,
+              // Colors.white,
               child: _buildBody(
                   state, context.read<HomeBloc>().state.forceCollapse),
             );

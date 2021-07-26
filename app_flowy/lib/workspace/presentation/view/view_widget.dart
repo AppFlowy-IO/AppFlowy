@@ -1,4 +1,5 @@
 import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/workspace/domain/image.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
@@ -16,11 +17,11 @@ class ViewWidget extends StatelessWidget {
   Row buildContent() {
     return Row(
       children: [
-        const Image(
+        Image(
             fit: BoxFit.cover,
             width: 20,
             height: 20,
-            image: AssetImage('assets/images/file_icon.jpg')),
+            image: assetImageForViewType(view.viewType)),
         const HSpace(6),
         Text(
           view.name,

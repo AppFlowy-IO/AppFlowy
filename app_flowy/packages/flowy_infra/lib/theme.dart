@@ -39,7 +39,7 @@ class AppTheme {
     switch (t) {
       case ThemeType.light:
         return AppTheme(isDark: false)
-          ..bg1 = const Color(0xfff1f7f0)
+          ..bg1 = const Color.fromARGB(255, 247, 248, 252)
           ..bg2 = const Color(0xffc1dcbc)
           ..surface = Colors.white
           ..accent1 = const Color(0xff00a086)
