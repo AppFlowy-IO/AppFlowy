@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 
+final GlobalKey<OverlayManagerState> _key = GlobalKey<OverlayManagerState>();
+TransitionBuilder overlayManagerBuilder() {
+  return (context, child) {
+    return OverlayManager(key: _key, child: child);
+  }
+}
+
 class OverlayManager extends StatefulWidget {
-  const OverlayManager({Key? key}) : super(key: key);
+  const OverlayManager({Key? key, required this.child}) : super(key: key);
+  final Widget? child;
 
   static OverlayManagerState of(
     BuildContext context, {
@@ -50,22 +58,3 @@ class OverlayManagerState extends State<OverlayManager> {
     return Container();
   }
 }
-
-
-// TODO: Impl show method
-  // void show(BuildContext context) {
-  //   assert(_overlayRoute == null, 'Can\'t push single overlay twice.');
-  //   final NavigatorState navigator = Navigator.of(context);
-  //   final RenderBox renderBox = context.findRenderObject()! as RenderBox;
-
-  //   _overlayRoute = OverlayPannelRoute(
-  //     anchorDirection: widget.anchorDirection,
-  //     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-  //     anchorPosition: widget.anchorPosition,
-  //     maxWidth: widget.maxWidth ?? renderBox.size.width,
-  //     maxHeight: widget.maxHeight ?? renderBox.size.height,
-  //   );
-  //   _createRouteAnimation(_overlayRoute!);
-
-  //   navigator.push(_overlayRoute!);
-  // }

@@ -69,7 +69,10 @@ class _OverlayPannelState extends State<OverlayPannel> with WidgetsBindingObserv
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return FadeTransition(
+      opacity: _fadeOpacity,
+      child: widget.route.widgetBuilder(context),
+    );
   }
 
   @override

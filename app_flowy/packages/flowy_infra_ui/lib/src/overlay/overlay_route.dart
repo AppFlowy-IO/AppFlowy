@@ -14,6 +14,7 @@ class OverlayPannelRoute extends PopupRoute<_OverlayRouteResult> {
   final Offset anchorPosition;
   final double maxWidth;
   final double maxHeight;
+  final WidgetBuilder widgetBuilder;
 
   OverlayPannelRoute({
     this.padding = EdgeInsets.zero,
@@ -23,6 +24,7 @@ class OverlayPannelRoute extends PopupRoute<_OverlayRouteResult> {
     required this.anchorPosition,
     required this.maxWidth,
     required this.maxHeight,
+    required this.widgetBuilder,
   });
 
   @override
