@@ -2,30 +2,30 @@ import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 
-class BlankStackView extends HomeStackView {
-  const BlankStackView() : super(type: ViewType.Blank, title: 'Blank');
+class AnnouncementStackView extends HomeStackView {
+  const AnnouncementStackView() : super(type: ViewType.Blank, title: 'Blank');
 
   @override
   List<Object> get props => [];
 }
 
-class BlankPage extends HomeStackWidget {
-  const BlankPage({Key? key, required BlankStackView stackView})
+class AnnouncementPage extends HomeStackWidget {
+  const AnnouncementPage({Key? key, required AnnouncementStackView stackView})
       : super(key: key, stackView: stackView);
 
   @override
-  State<StatefulWidget> createState() => _BlankPageState();
+  State<StatefulWidget> createState() => _AnnouncementPage();
 }
 
-class _BlankPageState extends State<BlankPage> {
+class _AnnouncementPage extends State<AnnouncementPage> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Theme.of(context).colorScheme.primary,
-      child: const Center(
-        child: Text(
-          'Hello AppFlowy',
-          style: TextStyle(fontSize: 60),
+    return SizedBox.expand(
+      child: Container(
+        color: Theme.of(context).colorScheme.surface,
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Container(),
         ),
       ),
     );

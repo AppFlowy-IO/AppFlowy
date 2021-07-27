@@ -23,7 +23,8 @@ class HomePageStack {
   }
 
   void setStackView(HomeStackView? stackView) {
-    _bloc.add(PageStackEvent.setStackView(stackView ?? const BlankStackView()));
+    _bloc.add(PageStackEvent.setStackView(
+        stackView ?? const AnnouncementStackView()));
   }
 
   Widget stackTopBar() {
@@ -61,15 +62,17 @@ List<Widget> _buildStackWidget(HomeStackView stackView) {
     if (viewType == stackView.type) {
       switch (stackView.type) {
         case ViewType.Blank:
-          return BlankPage(stackView: stackView as BlankStackView);
+          return AnnouncementPage(
+              stackView: stackView as AnnouncementStackView);
         case ViewType.Doc:
           final docView = stackView as DocPageStackView;
           return DocPage(key: ValueKey(docView.view.id), stackView: docView);
         default:
-          return BlankPage(stackView: stackView as BlankStackView);
+          return AnnouncementPage(
+              stackView: stackView as AnnouncementStackView);
       }
     } else {
-      return const BlankPage(stackView: BlankStackView());
+      return const AnnouncementPage(stackView: AnnouncementStackView());
     }
   }).toList();
 }
@@ -77,11 +80,11 @@ List<Widget> _buildStackWidget(HomeStackView stackView) {
 HomeStackView stackViewFromView(View view) {
   switch (view.viewType) {
     case ViewType.Blank:
-      return const BlankStackView();
+      return const AnnouncementStackView();
     case ViewType.Doc:
       return DocPageStackView(view);
     default:
-      return const BlankStackView();
+      return const AnnouncementStackView();
   }
 }
 

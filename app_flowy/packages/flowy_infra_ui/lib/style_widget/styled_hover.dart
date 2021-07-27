@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// ignore: unused_import
 import 'package:flowy_infra/time/duration.dart';
 
 typedef HoverBuilder = Widget Function(BuildContext context, bool onHover);
@@ -36,19 +37,17 @@ class _StyledHoverState extends State<StyledHover> {
       width: widget.borderWidth,
     );
 
-    final animatedDuration = .1.seconds;
-
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (p) => setOnHover(true),
       onExit: (p) => setOnHover(false),
-      child: AnimatedContainer(
+      child: Container(
         decoration: BoxDecoration(
           border: hoverBorder,
           color: hoverColor,
           borderRadius: widget.borderRadius,
         ),
-        duration: animatedDuration,
+        // duration: .1.seconds,
         child: widget.builder(context, _onHover),
       ),
     );

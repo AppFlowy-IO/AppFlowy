@@ -60,16 +60,13 @@ class AppWidget extends MenuItem {
   }
 
   ExpandableNotifier expandableWrapper(BuildContext context, Widget child) {
-    final controller = ExpandableController(initialExpanded: false);
     return ExpandableNotifier(
-      controller: controller,
       child: ScrollOnExpand(
         scrollOnExpand: true,
         scrollOnCollapse: false,
         child: Column(
           children: <Widget>[
             ExpandablePanel(
-              // controller: controller,
               theme: const ExpandableThemeData(
                 headerAlignment: ExpandablePanelHeaderAlignment.center,
                 tapBodyToExpand: false,
@@ -78,7 +75,7 @@ class AppWidget extends MenuItem {
                 iconPadding: EdgeInsets.zero,
                 hasIcon: false,
               ),
-              header: AppHeader(app, controller: controller),
+              header: AppHeader(app),
               expanded: child,
               collapsed: const SizedBox(),
             ),
@@ -100,12 +97,10 @@ class AppWidget extends MenuItem {
 }
 
 class AppHeader extends StatelessWidget {
-  final ExpandableController controller;
   final App app;
   const AppHeader(
     this.app, {
     Key? key,
-    required this.controller,
   }) : super(key: key);
 
   @override
@@ -115,7 +110,11 @@ class AppHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         InkWell(
-          onTap: () => controller.toggle(),
+          onTap: () {
+            ExpandableController.of(context,
+                    rebuildOnChange: false, required: true)
+                ?.toggle();
+          },
           child: ExpandableIcon(
             theme: ExpandableThemeData(
               expandIcon: Icons.arrow_drop_up,
