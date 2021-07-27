@@ -1,6 +1,7 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/domain/image.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
+import 'package:app_flowy/workspace/presentation/app/app_widget.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,15 @@ class ViewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(onTap: _openView(context), child: buildContent());
+    final contentPadding = EdgeInsets.only(
+        left: AppWidgetSize.expandedPadding, top: 5, bottom: 5, right: 5);
+    return InkWell(
+      onTap: _openView(context),
+      child: Padding(
+        padding: contentPadding,
+        child: buildContent(),
+      ),
+    );
   }
 
   Row buildContent() {

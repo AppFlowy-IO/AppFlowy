@@ -13,4 +13,3 @@ rustup show
 #   3. ~/.profile
 #   4. ~/.zshrc
 cargo make desktop
-

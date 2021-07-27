@@ -9,7 +9,7 @@
             "request": "launch",
             "program": "${workspaceRoot}/lib/main.dart",
             "type": "dart",
-            "preLaunchTask": "BuildRust",
+            "preLaunchTask": "build_flowy_sdk",
             "cwd": "${workspaceRoot}"
         },
         {

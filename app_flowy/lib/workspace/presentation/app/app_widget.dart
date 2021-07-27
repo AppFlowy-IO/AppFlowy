@@ -76,10 +76,7 @@ class AppWidget extends MenuItem {
                 hasIcon: false,
               ),
               header: AppHeader(app),
-              expanded: Padding(
-                padding: EdgeInsets.only(left: AppWidgetSize.expandedPadding),
-                child: child,
-              ),
+              expanded: child,
               collapsed: const SizedBox(),
             ),
           ],
