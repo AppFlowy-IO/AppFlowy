@@ -1,59 +1,58 @@
-import 'package:flowy_infra_ui/widget/mouse_hover_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flowy_infra/time/duration.dart';
 
-class StyledHover extends StatelessWidget {
+typedef HoverBuilder = Widget Function(BuildContext context, bool onHover);
+
+class StyledHover extends StatefulWidget {
   final Color color;
   final Color borderColor;
   final double borderWidth;
-  final Widget child;
   final BorderRadius borderRadius;
+  final HoverBuilder builder;
 
   const StyledHover({
     Key? key,
     required this.color,
-    required this.child,
     this.borderColor = Colors.transparent,
     this.borderWidth = 0,
     this.borderRadius = BorderRadius.zero,
+    required this.builder,
   }) : super(key: key);
 
   @override
+  State<StyledHover> createState() => _StyledHoverState();
+}
+
+class _StyledHoverState extends State<StyledHover> {
+  bool _onHover = false;
+
+  @override
   Widget build(BuildContext context) {
-    return MouseHoverBuilder(
-      builder: (_, isHovered) => AnimatedContainer(
+    final hoverColor =
+        _onHover ? widget.color : Theme.of(context).colorScheme.background;
+
+    final hoverBorder = Border.all(
+      color: widget.borderColor,
+      width: widget.borderWidth,
+    );
+
+    final animatedDuration = .1.seconds;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (p) => setOnHover(true),
+      onExit: (p) => setOnHover(false),
+      child: AnimatedContainer(
         decoration: BoxDecoration(
-          border: Border.all(color: borderColor, width: borderWidth),
-          color: isHovered ? color : Colors.transparent,
-          borderRadius: borderRadius,
+          border: hoverBorder,
+          color: hoverColor,
+          borderRadius: widget.borderRadius,
         ),
-        duration: .1.seconds,
-        child: child,
+        duration: animatedDuration,
+        child: widget.builder(context, _onHover),
       ),
     );
   }
+
+  void setOnHover(bool value) => setState(() => _onHover = value);
 }
-
-
-// @override
-//   Widget build(BuildContext context) {
-//     return GestureDetector(
-//       behavior: HitTestBehavior.translucent,
-//       onTap: () {
-//         context
-//             .read<HomeBloc>()
-//             .add(HomeEvent.setEditPannel(CellEditPannelContext()));
-//       },
-//       child: MouseHoverBuilder(
-//         builder: (_, isHovered) => Container(
-//           width: width,
-//           decoration: CellDecoration.box(
-//             color: isHovered ? Colors.red.withOpacity(.1) : Colors.transparent,
-//           ),
-//           padding: EdgeInsets.symmetric(
-//               vertical: GridInsets.vertical, horizontal: GridInsets.horizontal),
-//           child: child,
-//         ),
-//       ),
-//     );
-//   }

@@ -5,6 +5,7 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_detail.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flowy_infra_ui/style_widget/styled_text.dart';
 
 class MenuUser extends MenuItem {
   final UserDetail user;
@@ -44,12 +45,7 @@ class MenuUser extends MenuItem {
       name = context.read<MenuUserBloc>().state.user.email;
     }
     return Flexible(
-      child: Text(
-        name,
-        overflow: TextOverflow.fade,
-        softWrap: false,
-        style: const TextStyle(fontSize: 18),
-      ),
+      child: StyledText(name, fontSize: 18),
     );
   }
 

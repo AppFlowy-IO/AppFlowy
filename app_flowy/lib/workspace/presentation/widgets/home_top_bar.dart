@@ -5,6 +5,8 @@ import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pbenum.dart';
 import 'package:flutter/material.dart';
+import 'package:flowy_infra_ui/style_widget/styled_more.dart';
+import 'package:flowy_infra_ui/style_widget/styled_text.dart';
 
 class HomeTopBar extends StatelessWidget {
   final HomeStackView view;
@@ -50,14 +52,9 @@ class HomeTopBar extends StatelessWidget {
   }
 
   Widget _renderMoreButton() {
-    return SizedBox(
+    return StyledMore(
       width: 24,
-      child: IconButton(
-        icon: const Icon(Icons.more_vert),
-        iconSize: 12,
-        alignment: Alignment.center,
-        onPressed: () {},
-      ),
+      onPressed: () {},
     );
   }
 }
@@ -83,12 +80,7 @@ class HomeTitle extends StatelessWidget {
               height: 15,
               image: assetImageForViewType(type)),
           const HSpace(6),
-          Text(
-            title,
-            overflow: TextOverflow.fade,
-            softWrap: false,
-            style: const TextStyle(fontSize: 16),
-          ),
+          StyledText(title, fontSize: 16),
         ],
       ),
     );

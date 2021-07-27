@@ -5,6 +5,8 @@ import 'package:app_flowy/workspace/presentation/app/app_widget.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:flowy_infra_ui/style_widget/styled_more.dart';
+import 'package:flowy_infra_ui/style_widget/styled_hover.dart';
 
 class ViewWidget extends StatelessWidget {
   final View view;
@@ -12,32 +14,56 @@ class ViewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final contentPadding = EdgeInsets.only(
-        left: AppWidgetSize.expandedPadding, top: 5, bottom: 5, right: 5);
     return InkWell(
       onTap: _openView(context),
-      child: Padding(
-        padding: contentPadding,
-        child: buildContent(),
+      child: StyledHover(
+        color: Colors.grey.shade300,
+        borderRadius: BorderRadius.circular(8),
+        builder: (context, onHover) => _render(context, onHover),
       ),
     );
   }
 
-  Row buildContent() {
-    return Row(
-      children: [
-        Image(
-            fit: BoxFit.cover,
-            width: 20,
-            height: 20,
-            image: assetImageForViewType(view.viewType)),
-        const HSpace(6),
-        Text(
-          view.name,
-          textAlign: TextAlign.start,
-          style: const TextStyle(fontSize: 15),
-        )
-      ],
+  Widget _render(BuildContext context, bool onHover) {
+    const double width = 20;
+    List<Widget> children = [
+      Image(
+          fit: BoxFit.cover,
+          width: width,
+          height: width,
+          image: assetImageForViewType(view.viewType)),
+      const HSpace(6),
+      Text(
+        view.name,
+        textAlign: TextAlign.start,
+        style: const TextStyle(fontSize: 15),
+      ),
+    ];
+
+    if (onHover) {
+      children.add(const Spacer());
+
+      children.add(Align(
+        alignment: Alignment.center,
+        child: StyledMore(
+          width: width,
+          onPressed: () {},
+        ),
+      ));
+    }
+
+    final padding = EdgeInsets.only(
+      left: AppWidgetSize.expandedPadding,
+      top: 5,
+      bottom: 5,
+      right: 5,
+    );
+
+    return Padding(
+      padding: padding,
+      child: Flexible(
+        child: Row(children: children),
+      ),
     );
   }
 
