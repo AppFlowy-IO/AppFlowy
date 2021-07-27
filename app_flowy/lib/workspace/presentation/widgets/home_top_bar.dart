@@ -5,7 +5,7 @@ import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pbenum.dart';
 import 'package:flutter/material.dart';
-import 'package:flowy_infra_ui/style_widget/styled_more.dart';
+import 'package:flowy_infra_ui/style_widget/styled_icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/styled_text.dart';
 
 class HomeTopBar extends StatelessWidget {
@@ -47,14 +47,18 @@ class HomeTopBar extends StatelessWidget {
       fontSize: 12,
       borderRadius: BorderRadius.circular(6),
       color: Colors.lightBlue,
-      press: () {},
+      press: () {
+        debugPrint('share page');
+      },
     );
   }
 
   Widget _renderMoreButton() {
     return StyledMore(
       width: 24,
-      onPressed: () {},
+      onPressed: () {
+        debugPrint('show more');
+      },
     );
   }
 }

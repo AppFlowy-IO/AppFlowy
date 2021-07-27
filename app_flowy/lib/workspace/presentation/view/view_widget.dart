@@ -5,7 +5,7 @@ import 'package:app_flowy/workspace/presentation/app/app_widget.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:flowy_infra_ui/style_widget/styled_more.dart';
+import 'package:flowy_infra_ui/style_widget/styled_icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/styled_hover.dart';
 
 class ViewWidget extends StatelessWidget {
@@ -61,9 +61,7 @@ class ViewWidget extends StatelessWidget {
 
     return Padding(
       padding: padding,
-      child: Flexible(
-        child: Row(children: children),
-      ),
+      child: Row(children: children),
     );
   }
 

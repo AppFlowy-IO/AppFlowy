@@ -25,7 +25,7 @@ class ViewList extends StatelessWidget {
   List<Widget> _renderViews(List<View> views) {
     var targetViews = views.map((view) {
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+        padding: const EdgeInsets.symmetric(vertical: 2),
         child: ViewWidget(
           view: view,
         ),

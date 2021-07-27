@@ -6,6 +6,7 @@ import 'package:flowy_sdk/protobuf/flowy-user/user_detail.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowy_infra_ui/style_widget/styled_text.dart';
+import 'package:flowy_infra_ui/style_widget/styled_icon_button.dart';
 
 class MenuUser extends MenuItem {
   final UserDetail user;
@@ -50,11 +51,13 @@ class MenuUser extends MenuItem {
   }
 
   Widget _renderDropButton(BuildContext context) {
-    return IconButton(
+    return StyledIconButton(
+      width: 30,
+      iconRatio: 0.8,
       icon: const Icon(Icons.arrow_drop_down),
-      alignment: Alignment.center,
-      padding: EdgeInsets.zero,
-      onPressed: () {},
+      onPressed: () {
+        debugPrint('show user profile');
+      },
     );
   }
 

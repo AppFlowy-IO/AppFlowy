@@ -4,9 +4,10 @@ import 'package:app_flowy/workspace/presentation/app/view_list.dart';
 import 'package:app_flowy/workspace/presentation/widgets/menu/menu_list.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:expandable/expandable.dart';
-import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_infra_ui/style_widget/styled_text_button.dart';
+import 'package:flowy_infra_ui/style_widget/styled_icon_button.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
@@ -46,11 +47,9 @@ class AppWidget extends MenuItem {
         builder: (context, state) {
           final child = state.map(
             initial: (_) => BlocBuilder<AppBloc, AppState>(
-              builder: (context, state) {
-                return ViewList(state.views);
-              },
+              builder: (context, state) => _renderViewList(state.views),
             ),
-            loadViews: (s) => ViewList(some(s.views)),
+            loadViews: (s) => _renderViewList(some(s.views)),
             loadFail: (s) => FlowyErrorPage(s.error.toString()),
           );
 
@@ -61,21 +60,25 @@ class AppWidget extends MenuItem {
   }
 
   ExpandableNotifier expandableWrapper(BuildContext context, Widget child) {
+    final controller = ExpandableController(initialExpanded: false);
     return ExpandableNotifier(
+      controller: controller,
       child: ScrollOnExpand(
         scrollOnExpand: true,
         scrollOnCollapse: false,
         child: Column(
           children: <Widget>[
             ExpandablePanel(
+              // controller: controller,
               theme: const ExpandableThemeData(
                 headerAlignment: ExpandablePanelHeaderAlignment.center,
                 tapBodyToExpand: false,
                 tapBodyToCollapse: false,
+                tapHeaderToExpand: false,
                 iconPadding: EdgeInsets.zero,
                 hasIcon: false,
               ),
-              header: AppHeader(app),
+              header: AppHeader(app, controller: controller),
               expanded: child,
               collapsed: const SizedBox(),
             ),
@@ -85,15 +88,24 @@ class AppWidget extends MenuItem {
     );
   }
 
+  Widget _renderViewList(Option<List<View>> views) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: ViewList(views),
+    );
+  }
+
   @override
   MenuItemType get type => MenuItemType.app;
 }
 
 class AppHeader extends StatelessWidget {
+  final ExpandableController controller;
   final App app;
   const AppHeader(
     this.app, {
     Key? key,
+    required this.controller,
   }) : super(key: key);
 
   @override
@@ -102,37 +114,45 @@ class AppHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        ExpandableIcon(
-          theme: ExpandableThemeData(
-            expandIcon: Icons.arrow_drop_up,
-            collapseIcon: Icons.arrow_drop_down,
-            iconColor: Colors.black,
-            iconSize: AppWidgetSize.expandedIconSize,
-            iconPadding: EdgeInsets.zero,
-            hasIcon: false,
+        InkWell(
+          onTap: () => controller.toggle(),
+          child: ExpandableIcon(
+            theme: ExpandableThemeData(
+              expandIcon: Icons.arrow_drop_up,
+              collapseIcon: Icons.arrow_drop_down,
+              iconColor: Colors.black,
+              iconSize: AppWidgetSize.expandedIconSize,
+              iconPadding: EdgeInsets.zero,
+              hasIcon: false,
+            ),
           ),
         ),
         HSpace(AppWidgetSize.expandedIconRightSpace),
         Expanded(
-          child: Text(
+          child: StyledTextButton(
             app.name,
-            style: const TextStyle(fontSize: 18),
+            onPressed: () {
+              debugPrint('show app document');
+            },
           ),
         ),
-        _renderPopupMenu(context),
+        StyledIconButton(
+          icon: const Icon(Icons.add),
+          onPressed: () {
+            debugPrint('add view');
+          },
+        ),
       ],
     );
   }
 
-  Widget _renderPopupMenu(BuildContext context) {
-    return PopupMenuButton(
-        iconSize: 20,
-        tooltip: 'create new view',
-        icon: const Icon(Icons.add),
-        padding: EdgeInsets.zero,
-        onSelected: (viewType) => _createView(viewType as ViewType, context),
-        itemBuilder: (context) => menuItemBuilder());
-  }
+  // return PopupMenuButton(
+  //     iconSize: 20,
+  //     tooltip: 'create new view',
+  //     icon: const Icon(Icons.add),
+  //     padding: EdgeInsets.zero,
+  //     onSelected: (viewType) => _createView(viewType as ViewType, context),
+  //     itemBuilder: (context) => menuItemBuilder());
 
   List<PopupMenuEntry> menuItemBuilder() {
     return ViewType.values
