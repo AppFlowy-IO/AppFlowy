@@ -1,3 +1,4 @@
+import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flutter/material.dart';
 
 import '../home/demo_item.dart';
@@ -42,7 +43,14 @@ class OverlayScreen extends StatelessWidget {
               ),
             ),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                FlowyOverlay.of(context).insert(
+                  const FlutterLogo(
+                    size: 200,
+                  ),
+                  'overlay_flutter_logo',
+                );
+              },
               child: const Text('Show Overlay'),
             ),
           ],
