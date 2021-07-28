@@ -49,6 +49,7 @@ class OverlayScreen extends StatelessWidget {
                     size: 200,
                   ),
                   'overlay_flutter_logo',
+                  null,
                 );
               },
               child: const Text('Show Overlay'),

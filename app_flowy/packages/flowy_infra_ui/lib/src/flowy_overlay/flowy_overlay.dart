@@ -110,7 +110,11 @@ class FlowyOverlay extends StatefulWidget {
 class FlowyOverlayState extends State<FlowyOverlay> {
   List<Tuple3<Widget, String, FlowyOverlayDelegate?>> _overlayList = [];
 
-  void insert(Widget widget, String identifier, FlowyOverlayDelegate? delegate) {
+  void insert({
+    required Widget widget,
+    required String identifier,
+    FlowyOverlayDelegate? delegate,
+  }) {
     setState(() {
       _overlayList.add(Tuple3(widget, identifier, delegate));
     });
