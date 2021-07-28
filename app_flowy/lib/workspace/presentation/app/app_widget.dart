@@ -85,11 +85,15 @@ class AppWidget extends MenuItem {
     );
   }
 
-  Widget _renderViewList(Option<List<View>> views) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: ViewList(views),
+  Widget _renderViewList(Option<List<View>> some) {
+    List<View> views = some.fold(
+      () => List.empty(growable: true),
+      (views) => views,
     );
+
+    return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: ViewList(views, key: UniqueKey()));
   }
 
   @override
@@ -135,23 +139,23 @@ class AppHeader extends StatelessWidget {
             },
           ),
         ),
-        StyledIconButton(
-          icon: const Icon(Icons.add),
-          onPressed: () {
-            debugPrint('add view');
-          },
-        ),
+        // StyledIconButton(
+        //   icon: const Icon(Icons.add),
+        //   onPressed: () {
+        //     debugPrint('add view');
+        //   },
+        // ),
+        PopupMenuButton(
+            iconSize: 20,
+            tooltip: 'create new view',
+            icon: const Icon(Icons.add),
+            padding: EdgeInsets.zero,
+            onSelected: (viewType) =>
+                _createView(viewType as ViewType, context),
+            itemBuilder: (context) => menuItemBuilder())
       ],
     );
   }
-
-  // return PopupMenuButton(
-  //     iconSize: 20,
-  //     tooltip: 'create new view',
-  //     icon: const Icon(Icons.add),
-  //     padding: EdgeInsets.zero,
-  //     onSelected: (viewType) => _createView(viewType as ViewType, context),
-  //     itemBuilder: (context) => menuItemBuilder());
 
   List<PopupMenuEntry> menuItemBuilder() {
     return ViewType.values

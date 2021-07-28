@@ -43,7 +43,7 @@ SPEC CHECKSUMS:
   flowy_infra_ui: 9d5021b1610fe0476eb1191bf7cd41c4a4138d8f
   flowy_sdk: c302ac0a22dea596db0df8073b9637b2bf2ff6fd
   FlutterMacOS: 57701585bf7de1b3fc2bb61f6378d73bbdea8424
-  path_provider_macos: a0a3fd666cb7cd0448e936fb4abad4052961002b
+  path_provider_macos: 160cab0d5461f0c0e02995469a98f24bdb9a3f1f
   url_launcher_macos: 45af3d61de06997666568a7149c1be98b41c95d4
   window_size: 339dafa0b27a95a62a843042038fa6c3c48de195
 

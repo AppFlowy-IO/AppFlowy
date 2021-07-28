@@ -20,8 +20,9 @@ class StyledTextButton extends StatelessWidget {
     return InkWell(
       onTap: onPressed,
       child: StyledHover(
-        color: Colors.grey.shade300,
-        borderRadius: BorderRadius.circular(8),
+        config: HoverDisplayConfig(
+            borderRadius: BorderRadius.circular(8),
+            hoverColor: Colors.grey.shade300),
         builder: (context, onHover) => _render(),
       ),
     );

@@ -8,11 +8,11 @@ use flowy_database::schema::view_table;
 use flowy_infra::{timestamp, uuid};
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
-#[belongs_to(AppTable, foreign_key = "app_id")]
+#[belongs_to(AppTable, foreign_key = "belong_to_id")]
 #[table_name = "view_table"]
 pub(crate) struct ViewTable {
     pub id: String,
-    pub app_id: String,
+    pub belong_to_id: String,
     pub name: String,
     pub desc: String,
     pub modified_time: i64,
@@ -28,7 +28,7 @@ impl ViewTable {
         let time = timestamp();
         ViewTable {
             id: view_id,
-            app_id: params.app_id,
+            belong_to_id: params.belong_to_id,
             name: params.name,
             desc: params.desc,
             modified_time: time,
@@ -48,7 +48,7 @@ impl std::convert::Into<View> for ViewTable {
 
         View {
             id: self.id,
-            app_id: self.app_id,
+            belong_to_id: self.belong_to_id,
             name: self.name,
             desc: self.desc,
             view_type,

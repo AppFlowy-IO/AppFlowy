@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 message CreateViewRequest {
-    string app_id = 1;
+    string belong_to_id = 1;
     string name = 2;
     string desc = 3;
     oneof one_of_thumbnail { string thumbnail = 4; };
@@ -9,7 +9,7 @@ message CreateViewRequest {
 }
 message View {
     string id = 1;
-    string app_id = 2;
+    string belong_to_id = 2;
     string name = 3;
     string desc = 4;
     ViewType view_type = 5;

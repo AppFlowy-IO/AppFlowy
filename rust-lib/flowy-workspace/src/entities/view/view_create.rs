@@ -1,5 +1,5 @@
 use crate::{
-    entities::{app::parser::AppId, view::parser::*},
+    entities::{app::parser::BelongToId, view::parser::*},
     errors::{ErrorBuilder, WorkspaceError, WsErrCode},
     impl_def_and_def_mut,
     sql_tables::view::ViewTableType,
@@ -20,7 +20,7 @@ impl std::default::Default for ViewType {
 #[derive(Default, ProtoBuf)]
 pub struct CreateViewRequest {
     #[pb(index = 1)]
-    pub app_id: String,
+    pub belong_to_id: String,
 
     #[pb(index = 2)]
     pub name: String,
@@ -36,7 +36,7 @@ pub struct CreateViewRequest {
 }
 
 pub struct CreateViewParams {
-    pub app_id: String,
+    pub belong_to_id: String,
     pub name: String,
     pub desc: String,
     pub thumbnail: String,
@@ -51,7 +51,7 @@ impl TryInto<CreateViewParams> for CreateViewRequest {
             .map_err(|e| ErrorBuilder::new(WsErrCode::ViewNameInvalid).msg(e).build())?
             .0;
 
-        let app_id = AppId::parse(self.app_id)
+        let belong_to_id = BelongToId::parse(self.belong_to_id)
             .map_err(|e| ErrorBuilder::new(WsErrCode::AppIdInvalid).msg(e).build())?
             .0;
 
@@ -70,7 +70,7 @@ impl TryInto<CreateViewParams> for CreateViewRequest {
 
         let view_type = ViewTypeCheck::parse(self.view_type).unwrap().0;
         Ok(CreateViewParams {
-            app_id,
+            belong_to_id,
             name,
             desc: self.desc,
             thumbnail,
@@ -85,7 +85,7 @@ pub struct View {
     pub id: String,
 
     #[pb(index = 2)]
-    pub app_id: String,
+    pub belong_to_id: String,
 
     #[pb(index = 3)]
     pub name: String,

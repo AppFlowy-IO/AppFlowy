@@ -1,4 +1,4 @@
-use crate::{entities::app::parser::AppId, errors::*};
+use crate::{entities::app::parser::BelongToId, errors::*};
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
 
@@ -20,7 +20,7 @@ impl TryInto<QueryAppParams> for QueryAppRequest {
     type Error = WorkspaceError;
 
     fn try_into(self) -> Result<QueryAppParams, Self::Error> {
-        let app_id = AppId::parse(self.app_id)
+        let app_id = BelongToId::parse(self.app_id)
             .map_err(|e| ErrorBuilder::new(WsErrCode::AppIdInvalid).msg(e).build())?
             .0;
 

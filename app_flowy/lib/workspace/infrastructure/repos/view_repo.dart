@@ -13,13 +13,13 @@ import 'package:flowy_sdk/rust_stream.dart';
 import 'package:app_flowy/workspace/domain/i_view.dart';
 
 class ViewRepository {
-  String viewId;
+  View view;
   ViewRepository({
-    required this.viewId,
+    required this.view,
   });
 
   Future<Either<View, WorkspaceError>> readView() {
-    final request = QueryViewRequest.create()..viewId = viewId;
+    final request = QueryViewRequest.create()..viewId = view.id;
     return WorkspaceEventReadView(request).send();
   }
 }
@@ -27,12 +27,12 @@ class ViewRepository {
 class ViewWatchRepository {
   StreamSubscription<ObservableSubject>? _subscription;
   ViewUpdatedCallback? _updatedCallback;
-  String viewId;
+  View view;
   late ViewRepository _repo;
   ViewWatchRepository({
-    required this.viewId,
+    required this.view,
   }) {
-    _repo = ViewRepository(viewId: viewId);
+    _repo = ViewRepository(view: view);
   }
 
   void startWatching({
@@ -40,7 +40,7 @@ class ViewWatchRepository {
   }) {
     _updatedCallback = updatedCallback;
     _subscription = RustStreamReceiver.listen((observable) {
-      if (observable.subjectId != viewId) {
+      if (observable.subjectId != view.id) {
         return;
       }
 

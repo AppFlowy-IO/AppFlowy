@@ -1,74 +1,90 @@
-import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/domain/image.dart';
-import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
-import 'package:app_flowy/workspace/presentation/app/app_widget.dart';
+import 'package:flowy_infra_ui/style_widget/styled_hover.dart';
+import 'package:flowy_infra_ui/style_widget/styled_icon_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:flowy_infra_ui/style_widget/styled_icon_button.dart';
-import 'package:flowy_infra_ui/style_widget/styled_hover.dart';
+import 'package:app_flowy/workspace/domain/image.dart';
+import 'package:app_flowy/workspace/presentation/app/app_widget.dart';
+import 'package:styled_widget/styled_widget.dart';
+
+class ViewWidgetContext {
+  final View view;
+  bool isSelected;
+
+  ViewWidgetContext(
+    this.view, {
+    this.isSelected = false,
+  });
+}
+
+typedef OpenViewCallback = void Function(View);
 
 class ViewWidget extends StatelessWidget {
-  final View view;
-  const ViewWidget({Key? key, required this.view}) : super(key: key);
+  final ViewWidgetContext viewCtx;
+  final OpenViewCallback onOpen;
+  const ViewWidget({Key? key, required this.viewCtx, required this.onOpen})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final config = HoverDisplayConfig(hoverColor: Colors.grey.shade200);
     return InkWell(
       onTap: _openView(context),
       child: StyledHover(
-        color: Colors.grey.shade300,
-        borderRadius: BorderRadius.circular(8),
-        builder: (context, onHover) => _render(context, onHover),
+        config: config,
+        builder: (context, onHover) => _render(context, onHover, config),
       ),
     );
   }
 
-  Widget _render(BuildContext context, bool onHover) {
-    const double width = 20;
+  Widget _render(
+      BuildContext context, bool onHover, HoverDisplayConfig config) {
+    const double width = 22;
     List<Widget> children = [
       Image(
           fit: BoxFit.cover,
           width: width,
           height: width,
-          image: assetImageForViewType(view.viewType)),
+          image: assetImageForViewType(viewCtx.view.viewType)),
       const HSpace(6),
       Text(
-        view.name,
+        viewCtx.view.name,
         textAlign: TextAlign.start,
         style: const TextStyle(fontSize: 15),
       ),
     ];
 
     if (onHover) {
-      children.add(const Spacer());
-
-      children.add(Align(
-        alignment: Alignment.center,
-        child: StyledMore(
-          width: width,
-          onPressed: () {},
-        ),
-      ));
+      _addedHover(children, width);
     }
 
-    final padding = EdgeInsets.only(
+    Widget widget = Row(children: children).padding(
+      vertical: 5,
       left: AppWidgetSize.expandedPadding,
-      top: 5,
-      bottom: 5,
       right: 5,
     );
 
-    return Padding(
-      padding: padding,
-      child: Row(children: children),
-    );
+    if (viewCtx.isSelected) {
+      widget = HoverBackground(child: widget, config: config);
+    }
+
+    return widget;
   }
 
   Function() _openView(BuildContext context) {
-    return () {
-      final stackView = stackViewFromView(view);
-      getIt<HomePageStack>().setStackView(stackView);
-    };
+    return () => onOpen(viewCtx.view);
+  }
+
+  void _addedHover(List<Widget> children, double hoverWidth) {
+    children.add(const Spacer());
+    children.add(Align(
+      alignment: Alignment.center,
+      child: StyledMore(
+        width: hoverWidth,
+        onPressed: () {
+          debugPrint('show view setting');
+        },
+      ),
+    ));
   }
 }

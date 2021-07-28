@@ -25,7 +25,7 @@ class CreateViewRequest extends $pb.GeneratedMessage {
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateViewRequest', createEmptyInstance: create)
     ..oo(0, [4])
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'appId')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'belongToId')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'thumbnail')
@@ -35,15 +35,15 @@ class CreateViewRequest extends $pb.GeneratedMessage {
 
   CreateViewRequest._() : super();
   factory CreateViewRequest({
-    $core.String? appId,
+    $core.String? belongToId,
     $core.String? name,
     $core.String? desc,
     $core.String? thumbnail,
     ViewType? viewType,
   }) {
     final _result = create();
-    if (appId != null) {
-      _result.appId = appId;
+    if (belongToId != null) {
+      _result.belongToId = belongToId;
     }
     if (name != null) {
       _result.name = name;
@@ -84,13 +84,13 @@ class CreateViewRequest extends $pb.GeneratedMessage {
   void clearOneOfThumbnail() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
-  $core.String get appId => $_getSZ(0);
+  $core.String get belongToId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set appId($core.String v) { $_setString(0, v); }
+  set belongToId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasAppId() => $_has(0);
+  $core.bool hasBelongToId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearAppId() => clearField(1);
+  void clearBelongToId() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.String get name => $_getSZ(1);
@@ -132,7 +132,7 @@ class CreateViewRequest extends $pb.GeneratedMessage {
 class View extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'View', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'appId')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'belongToId')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
     ..e<ViewType>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewType', $pb.PbFieldType.OE, defaultOrMaker: ViewType.Blank, valueOf: ViewType.valueOf, enumValues: ViewType.values)
@@ -142,7 +142,7 @@ class View extends $pb.GeneratedMessage {
   View._() : super();
   factory View({
     $core.String? id,
-    $core.String? appId,
+    $core.String? belongToId,
     $core.String? name,
     $core.String? desc,
     ViewType? viewType,
@@ -151,8 +151,8 @@ class View extends $pb.GeneratedMessage {
     if (id != null) {
       _result.id = id;
     }
-    if (appId != null) {
-      _result.appId = appId;
+    if (belongToId != null) {
+      _result.belongToId = belongToId;
     }
     if (name != null) {
       _result.name = name;
@@ -196,13 +196,13 @@ class View extends $pb.GeneratedMessage {
   void clearId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get appId => $_getSZ(1);
+  $core.String get belongToId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set appId($core.String v) { $_setString(1, v); }
+  set belongToId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasAppId() => $_has(1);
+  $core.bool hasBelongToId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearAppId() => clearField(2);
+  void clearBelongToId() => clearField(2);
 
   @$pb.TagNumber(3)
   $core.String get name => $_getSZ(2);

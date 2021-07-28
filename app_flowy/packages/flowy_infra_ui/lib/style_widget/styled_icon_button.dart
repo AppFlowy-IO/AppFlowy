@@ -50,6 +50,7 @@ class StyledMore extends StatelessWidget {
       width: width,
       height: height,
       icon: const Icon(Icons.more_vert),
+      onPressed: onPressed,
     );
   }
 }

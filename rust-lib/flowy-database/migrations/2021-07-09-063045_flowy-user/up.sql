@@ -31,7 +31,7 @@ CREATE TABLE app_table (
 
 CREATE TABLE view_table (
     id TEXT NOT NULL PRIMARY KEY,
-    app_id TEXT NOT NULL DEFAULT '',
+    belong_to_id TEXT NOT NULL DEFAULT '',
     name TEXT NOT NULL DEFAULT '',
     desc TEXT NOT NULL DEFAULT '',
     modified_time BIGINT NOT NULL DEFAULT 0,

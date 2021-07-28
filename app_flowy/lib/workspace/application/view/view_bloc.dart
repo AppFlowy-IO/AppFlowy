@@ -3,7 +3,6 @@ import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
 import 'package:app_flowy/workspace/domain/i_view.dart';
 
 part 'view_bloc.freezed.dart';

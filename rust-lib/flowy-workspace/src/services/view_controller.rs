@@ -22,7 +22,7 @@ impl ViewController {
         let view: View = view_table.clone().into();
         let _ = self.sql.create_view(view_table)?;
 
-        send_observable(&view.app_id, WorkspaceObservable::AppAddView);
+        send_observable(&view.belong_to_id, WorkspaceObservable::AppAddView);
         Ok(view)
     }
 

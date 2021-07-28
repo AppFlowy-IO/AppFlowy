@@ -37,7 +37,7 @@ table! {
 table! {
     view_table (id) {
         id -> Text,
-        app_id -> Text,
+        belong_to_id -> Text,
         name -> Text,
         desc -> Text,
         modified_time -> BigInt,

@@ -35,15 +35,11 @@ class StyledNavigationList extends StatelessWidget {
       return [];
     }
 
-    List<NaviItem> newItems = _selectNaviItem(items);
+    List<NaviItem> newItems = _filter(items);
     Widget last = NaviItemWidget(newItems.removeLast());
 
     List<Widget> widgets = newItems
-        .map(
-          (item) => NaviItemDivider(
-            child: NaviItemWidget(item),
-          ),
-        )
+        .map((item) => NaviItemDivider(child: NaviItemWidget(item)))
         .toList();
 
     widgets.add(last);
@@ -51,7 +47,7 @@ class StyledNavigationList extends StatelessWidget {
     return widgets;
   }
 
-  List<NaviItem> _selectNaviItem(List<NaviItem> items) {
+  List<NaviItem> _filter(List<NaviItem> items) {
     final length = items.length;
     if (length > 4) {
       final ellipsisItems = items.getRange(1, length - 2).toList();

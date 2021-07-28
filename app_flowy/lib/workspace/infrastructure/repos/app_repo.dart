@@ -29,7 +29,7 @@ class AppRepository {
   Future<Either<View, WorkspaceError>> createView(
       String name, String desc, ViewType viewType) {
     final request = CreateViewRequest.create()
-      ..appId = appId
+      ..belongToId = appId
       ..name = name
       ..desc = desc
       ..viewType = viewType;

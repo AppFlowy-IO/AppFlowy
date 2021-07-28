@@ -6,6 +6,7 @@ import 'package:app_flowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_watch.dart';
 import 'package:app_flowy/workspace/application/view/doc_watch_bloc.dart';
 import 'package:app_flowy/workspace/application/view/view_bloc.dart';
+import 'package:app_flowy/workspace/application/view/view_list_bloc.dart';
 import 'package:app_flowy/workspace/domain/i_doc.dart';
 import 'package:app_flowy/workspace/domain/i_view.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
@@ -18,6 +19,7 @@ import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/workspace_repo.dart';
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_detail.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:get_it/get_it.dart';
 
 import 'i_user_impl.dart';
@@ -41,10 +43,10 @@ class HomeDepsResolver {
         (user, _) => IWorkspaceWatchImpl(repo: WorkspaceWatchRepo(user: user)));
 
     // View
-    getIt.registerFactoryParam<IView, String, void>(
-        (viewId, _) => IViewImpl(repo: ViewRepository(viewId: viewId)));
-    getIt.registerFactoryParam<IViewWatch, String, void>((viewId, _) =>
-        IViewWatchImpl(repo: ViewWatchRepository(viewId: viewId)));
+    getIt.registerFactoryParam<IView, View, void>(
+        (view, _) => IViewImpl(repo: ViewRepository(view: view)));
+    getIt.registerFactoryParam<IViewWatch, View, void>(
+        (view, _) => IViewWatchImpl(repo: ViewWatchRepository(view: view)));
 
     // Doc
     getIt.registerFactoryParam<IDoc, String, void>(
@@ -81,6 +83,10 @@ class HomeDepsResolver {
     // editor
     getIt.registerFactoryParam<EditorPersistence, String, void>(
         (docId, _) => EditorPersistenceImpl(repo: DocRepository(docId: docId)));
+
+    getIt.registerFactoryParam<ViewListBloc, List<View>, void>(
+        (views, _) => ViewListBloc(views: views));
+
     // getIt.registerFactoryParam<ViewBloc, String, void>(
     //     (viewId, _) => ViewBloc(iViewImpl: getIt<IView>(param1: viewId)));
   }

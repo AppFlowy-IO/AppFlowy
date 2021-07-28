@@ -26,7 +26,7 @@
 #[derive(PartialEq,Clone,Default)]
 pub struct CreateViewRequest {
     // message fields
-    pub app_id: ::std::string::String,
+    pub belong_to_id: ::std::string::String,
     pub name: ::std::string::String,
     pub desc: ::std::string::String,
     pub view_type: ViewType,
@@ -53,30 +53,30 @@ impl CreateViewRequest {
         ::std::default::Default::default()
     }
 
-    // string app_id = 1;
+    // string belong_to_id = 1;
 
 
-    pub fn get_app_id(&self) -> &str {
-        &self.app_id
+    pub fn get_belong_to_id(&self) -> &str {
+        &self.belong_to_id
     }
-    pub fn clear_app_id(&mut self) {
-        self.app_id.clear();
+    pub fn clear_belong_to_id(&mut self) {
+        self.belong_to_id.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_app_id(&mut self, v: ::std::string::String) {
-        self.app_id = v;
+    pub fn set_belong_to_id(&mut self, v: ::std::string::String) {
+        self.belong_to_id = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_app_id(&mut self) -> &mut ::std::string::String {
-        &mut self.app_id
+    pub fn mut_belong_to_id(&mut self) -> &mut ::std::string::String {
+        &mut self.belong_to_id
     }
 
     // Take field
-    pub fn take_app_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.app_id, ::std::string::String::new())
+    pub fn take_belong_to_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.belong_to_id, ::std::string::String::new())
     }
 
     // string name = 2;
@@ -206,7 +206,7 @@ impl ::protobuf::Message for CreateViewRequest {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.app_id)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.belong_to_id)?;
                 },
                 2 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.name)?;
@@ -235,8 +235,8 @@ impl ::protobuf::Message for CreateViewRequest {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.app_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.app_id);
+        if !self.belong_to_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.belong_to_id);
         }
         if !self.name.is_empty() {
             my_size += ::protobuf::rt::string_size(2, &self.name);
@@ -260,8 +260,8 @@ impl ::protobuf::Message for CreateViewRequest {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.app_id.is_empty() {
-            os.write_string(1, &self.app_id)?;
+        if !self.belong_to_id.is_empty() {
+            os.write_string(1, &self.belong_to_id)?;
         }
         if !self.name.is_empty() {
             os.write_string(2, &self.name)?;
@@ -318,9 +318,9 @@ impl ::protobuf::Message for CreateViewRequest {
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "app_id",
-                |m: &CreateViewRequest| { &m.app_id },
-                |m: &mut CreateViewRequest| { &mut m.app_id },
+                "belong_to_id",
+                |m: &CreateViewRequest| { &m.belong_to_id },
+                |m: &mut CreateViewRequest| { &mut m.belong_to_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "name",
@@ -358,7 +358,7 @@ impl ::protobuf::Message for CreateViewRequest {
 
 impl ::protobuf::Clear for CreateViewRequest {
     fn clear(&mut self) {
-        self.app_id.clear();
+        self.belong_to_id.clear();
         self.name.clear();
         self.desc.clear();
         self.one_of_thumbnail = ::std::option::Option::None;
@@ -383,7 +383,7 @@ impl ::protobuf::reflect::ProtobufValue for CreateViewRequest {
 pub struct View {
     // message fields
     pub id: ::std::string::String,
-    pub app_id: ::std::string::String,
+    pub belong_to_id: ::std::string::String,
     pub name: ::std::string::String,
     pub desc: ::std::string::String,
     pub view_type: ViewType,
@@ -429,30 +429,30 @@ impl View {
         ::std::mem::replace(&mut self.id, ::std::string::String::new())
     }
 
-    // string app_id = 2;
+    // string belong_to_id = 2;
 
 
-    pub fn get_app_id(&self) -> &str {
-        &self.app_id
+    pub fn get_belong_to_id(&self) -> &str {
+        &self.belong_to_id
     }
-    pub fn clear_app_id(&mut self) {
-        self.app_id.clear();
+    pub fn clear_belong_to_id(&mut self) {
+        self.belong_to_id.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_app_id(&mut self, v: ::std::string::String) {
-        self.app_id = v;
+    pub fn set_belong_to_id(&mut self, v: ::std::string::String) {
+        self.belong_to_id = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_app_id(&mut self) -> &mut ::std::string::String {
-        &mut self.app_id
+    pub fn mut_belong_to_id(&mut self) -> &mut ::std::string::String {
+        &mut self.belong_to_id
     }
 
     // Take field
-    pub fn take_app_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.app_id, ::std::string::String::new())
+    pub fn take_belong_to_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.belong_to_id, ::std::string::String::new())
     }
 
     // string name = 3;
@@ -536,7 +536,7 @@ impl ::protobuf::Message for View {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.id)?;
                 },
                 2 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.app_id)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.belong_to_id)?;
                 },
                 3 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.name)?;
@@ -562,8 +562,8 @@ impl ::protobuf::Message for View {
         if !self.id.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.id);
         }
-        if !self.app_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(2, &self.app_id);
+        if !self.belong_to_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.belong_to_id);
         }
         if !self.name.is_empty() {
             my_size += ::protobuf::rt::string_size(3, &self.name);
@@ -583,8 +583,8 @@ impl ::protobuf::Message for View {
         if !self.id.is_empty() {
             os.write_string(1, &self.id)?;
         }
-        if !self.app_id.is_empty() {
-            os.write_string(2, &self.app_id)?;
+        if !self.belong_to_id.is_empty() {
+            os.write_string(2, &self.belong_to_id)?;
         }
         if !self.name.is_empty() {
             os.write_string(3, &self.name)?;
@@ -639,9 +639,9 @@ impl ::protobuf::Message for View {
                 |m: &mut View| { &mut m.id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "app_id",
-                |m: &View| { &m.app_id },
-                |m: &mut View| { &mut m.app_id },
+                "belong_to_id",
+                |m: &View| { &m.belong_to_id },
+                |m: &mut View| { &mut m.belong_to_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "name",
@@ -675,7 +675,7 @@ impl ::protobuf::Message for View {
 impl ::protobuf::Clear for View {
     fn clear(&mut self) {
         self.id.clear();
-        self.app_id.clear();
+        self.belong_to_id.clear();
         self.name.clear();
         self.desc.clear();
         self.view_type = ViewType::Blank;
@@ -912,58 +912,59 @@ impl ::protobuf::reflect::ProtobufValue for ViewType {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x11view_create.proto\"\xae\x01\n\x11CreateViewRequest\x12\x15\n\x06ap\
-    p_id\x18\x01\x20\x01(\tR\x05appId\x12\x12\n\x04name\x18\x02\x20\x01(\tR\
-    \x04name\x12\x12\n\x04desc\x18\x03\x20\x01(\tR\x04desc\x12\x1e\n\tthumbn\
-    ail\x18\x04\x20\x01(\tH\0R\tthumbnail\x12&\n\tview_type\x18\x05\x20\x01(\
-    \x0e2\t.ViewTypeR\x08viewTypeB\x12\n\x10one_of_thumbnail\"}\n\x04View\
-    \x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x15\n\x06app_id\x18\x02\
-    \x20\x01(\tR\x05appId\x12\x12\n\x04name\x18\x03\x20\x01(\tR\x04name\x12\
-    \x12\n\x04desc\x18\x04\x20\x01(\tR\x04desc\x12&\n\tview_type\x18\x05\x20\
-    \x01(\x0e2\t.ViewTypeR\x08viewType\"+\n\x0cRepeatedView\x12\x1b\n\x05ite\
-    ms\x18\x01\x20\x03(\x0b2\x05.ViewR\x05items*\x1e\n\x08ViewType\x12\t\n\
-    \x05Blank\x10\0\x12\x07\n\x03Doc\x10\x01J\xca\x06\n\x06\x12\x04\0\0\x16\
-    \x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x08\
-    \x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x19\n\x0b\n\x04\x04\0\x02\0\x12\
-    \x03\x03\x04\x16\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\
-    \x05\x04\0\x02\0\x01\x12\x03\x03\x0b\x11\n\x0c\n\x05\x04\0\x02\0\x03\x12\
-    \x03\x03\x14\x15\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x14\n\x0c\n\
-    \x05\x04\0\x02\x01\x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\x01\x01\
-    \x12\x03\x04\x0b\x0f\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x12\x13\n\
-    \x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x04\x14\n\x0c\n\x05\x04\0\x02\x02\
-    \x05\x12\x03\x05\x04\n\n\x0c\n\x05\x04\0\x02\x02\x01\x12\x03\x05\x0b\x0f\
-    \n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05\x12\x13\n\x0b\n\x04\x04\0\x08\
-    \0\x12\x03\x06\x044\n\x0c\n\x05\x04\0\x08\0\x01\x12\x03\x06\n\x1a\n\x0b\
-    \n\x04\x04\0\x02\x03\x12\x03\x06\x1d2\n\x0c\n\x05\x04\0\x02\x03\x05\x12\
-    \x03\x06\x1d#\n\x0c\n\x05\x04\0\x02\x03\x01\x12\x03\x06$-\n\x0c\n\x05\
-    \x04\0\x02\x03\x03\x12\x03\x0601\n\x0b\n\x04\x04\0\x02\x04\x12\x03\x07\
-    \x04\x1b\n\x0c\n\x05\x04\0\x02\x04\x06\x12\x03\x07\x04\x0c\n\x0c\n\x05\
-    \x04\0\x02\x04\x01\x12\x03\x07\r\x16\n\x0c\n\x05\x04\0\x02\x04\x03\x12\
-    \x03\x07\x19\x1a\n\n\n\x02\x04\x01\x12\x04\t\0\x0f\x01\n\n\n\x03\x04\x01\
-    \x01\x12\x03\t\x08\x0c\n\x0b\n\x04\x04\x01\x02\0\x12\x03\n\x04\x12\n\x0c\
-    \n\x05\x04\x01\x02\0\x05\x12\x03\n\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\
-    \x12\x03\n\x0b\r\n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\n\x10\x11\n\x0b\n\
-    \x04\x04\x01\x02\x01\x12\x03\x0b\x04\x16\n\x0c\n\x05\x04\x01\x02\x01\x05\
-    \x12\x03\x0b\x04\n\n\x0c\n\x05\x04\x01\x02\x01\x01\x12\x03\x0b\x0b\x11\n\
-    \x0c\n\x05\x04\x01\x02\x01\x03\x12\x03\x0b\x14\x15\n\x0b\n\x04\x04\x01\
-    \x02\x02\x12\x03\x0c\x04\x14\n\x0c\n\x05\x04\x01\x02\x02\x05\x12\x03\x0c\
-    \x04\n\n\x0c\n\x05\x04\x01\x02\x02\x01\x12\x03\x0c\x0b\x0f\n\x0c\n\x05\
-    \x04\x01\x02\x02\x03\x12\x03\x0c\x12\x13\n\x0b\n\x04\x04\x01\x02\x03\x12\
-    \x03\r\x04\x14\n\x0c\n\x05\x04\x01\x02\x03\x05\x12\x03\r\x04\n\n\x0c\n\
-    \x05\x04\x01\x02\x03\x01\x12\x03\r\x0b\x0f\n\x0c\n\x05\x04\x01\x02\x03\
-    \x03\x12\x03\r\x12\x13\n\x0b\n\x04\x04\x01\x02\x04\x12\x03\x0e\x04\x1b\n\
-    \x0c\n\x05\x04\x01\x02\x04\x06\x12\x03\x0e\x04\x0c\n\x0c\n\x05\x04\x01\
-    \x02\x04\x01\x12\x03\x0e\r\x16\n\x0c\n\x05\x04\x01\x02\x04\x03\x12\x03\
-    \x0e\x19\x1a\n\n\n\x02\x04\x02\x12\x04\x10\0\x12\x01\n\n\n\x03\x04\x02\
-    \x01\x12\x03\x10\x08\x14\n\x0b\n\x04\x04\x02\x02\0\x12\x03\x11\x04\x1c\n\
-    \x0c\n\x05\x04\x02\x02\0\x04\x12\x03\x11\x04\x0c\n\x0c\n\x05\x04\x02\x02\
-    \0\x06\x12\x03\x11\r\x11\n\x0c\n\x05\x04\x02\x02\0\x01\x12\x03\x11\x12\
-    \x17\n\x0c\n\x05\x04\x02\x02\0\x03\x12\x03\x11\x1a\x1b\n\n\n\x02\x05\0\
-    \x12\x04\x13\0\x16\x01\n\n\n\x03\x05\0\x01\x12\x03\x13\x05\r\n\x0b\n\x04\
-    \x05\0\x02\0\x12\x03\x14\x04\x0e\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\x14\
-    \x04\t\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x14\x0c\r\n\x0b\n\x04\x05\0\
-    \x02\x01\x12\x03\x15\x04\x0c\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\x15\
-    \x04\x07\n\x0c\n\x05\x05\0\x02\x01\x02\x12\x03\x15\n\x0bb\x06proto3\
+    \n\x11view_create.proto\"\xb9\x01\n\x11CreateViewRequest\x12\x20\n\x0cbe\
+    long_to_id\x18\x01\x20\x01(\tR\nbelongToId\x12\x12\n\x04name\x18\x02\x20\
+    \x01(\tR\x04name\x12\x12\n\x04desc\x18\x03\x20\x01(\tR\x04desc\x12\x1e\n\
+    \tthumbnail\x18\x04\x20\x01(\tH\0R\tthumbnail\x12&\n\tview_type\x18\x05\
+    \x20\x01(\x0e2\t.ViewTypeR\x08viewTypeB\x12\n\x10one_of_thumbnail\"\x88\
+    \x01\n\x04View\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x20\n\x0cbe\
+    long_to_id\x18\x02\x20\x01(\tR\nbelongToId\x12\x12\n\x04name\x18\x03\x20\
+    \x01(\tR\x04name\x12\x12\n\x04desc\x18\x04\x20\x01(\tR\x04desc\x12&\n\tv\
+    iew_type\x18\x05\x20\x01(\x0e2\t.ViewTypeR\x08viewType\"+\n\x0cRepeatedV\
+    iew\x12\x1b\n\x05items\x18\x01\x20\x03(\x0b2\x05.ViewR\x05items*\x1e\n\
+    \x08ViewType\x12\t\n\x05Blank\x10\0\x12\x07\n\x03Doc\x10\x01J\xca\x06\n\
+    \x06\x12\x04\0\0\x16\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\
+    \x12\x04\x02\0\x08\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x19\n\x0b\n\
+    \x04\x04\0\x02\0\x12\x03\x03\x04\x1c\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\
+    \x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\x17\n\x0c\n\x05\
+    \x04\0\x02\0\x03\x12\x03\x03\x1a\x1b\n\x0b\n\x04\x04\0\x02\x01\x12\x03\
+    \x04\x04\x14\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\n\n\x0c\n\x05\
+    \x04\0\x02\x01\x01\x12\x03\x04\x0b\x0f\n\x0c\n\x05\x04\0\x02\x01\x03\x12\
+    \x03\x04\x12\x13\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x04\x14\n\x0c\n\
+    \x05\x04\0\x02\x02\x05\x12\x03\x05\x04\n\n\x0c\n\x05\x04\0\x02\x02\x01\
+    \x12\x03\x05\x0b\x0f\n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05\x12\x13\n\
+    \x0b\n\x04\x04\0\x08\0\x12\x03\x06\x044\n\x0c\n\x05\x04\0\x08\0\x01\x12\
+    \x03\x06\n\x1a\n\x0b\n\x04\x04\0\x02\x03\x12\x03\x06\x1d2\n\x0c\n\x05\
+    \x04\0\x02\x03\x05\x12\x03\x06\x1d#\n\x0c\n\x05\x04\0\x02\x03\x01\x12\
+    \x03\x06$-\n\x0c\n\x05\x04\0\x02\x03\x03\x12\x03\x0601\n\x0b\n\x04\x04\0\
+    \x02\x04\x12\x03\x07\x04\x1b\n\x0c\n\x05\x04\0\x02\x04\x06\x12\x03\x07\
+    \x04\x0c\n\x0c\n\x05\x04\0\x02\x04\x01\x12\x03\x07\r\x16\n\x0c\n\x05\x04\
+    \0\x02\x04\x03\x12\x03\x07\x19\x1a\n\n\n\x02\x04\x01\x12\x04\t\0\x0f\x01\
+    \n\n\n\x03\x04\x01\x01\x12\x03\t\x08\x0c\n\x0b\n\x04\x04\x01\x02\0\x12\
+    \x03\n\x04\x12\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\n\x04\n\n\x0c\n\x05\
+    \x04\x01\x02\0\x01\x12\x03\n\x0b\r\n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\
+    \n\x10\x11\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\x0b\x04\x1c\n\x0c\n\x05\
+    \x04\x01\x02\x01\x05\x12\x03\x0b\x04\n\n\x0c\n\x05\x04\x01\x02\x01\x01\
+    \x12\x03\x0b\x0b\x17\n\x0c\n\x05\x04\x01\x02\x01\x03\x12\x03\x0b\x1a\x1b\
+    \n\x0b\n\x04\x04\x01\x02\x02\x12\x03\x0c\x04\x14\n\x0c\n\x05\x04\x01\x02\
+    \x02\x05\x12\x03\x0c\x04\n\n\x0c\n\x05\x04\x01\x02\x02\x01\x12\x03\x0c\
+    \x0b\x0f\n\x0c\n\x05\x04\x01\x02\x02\x03\x12\x03\x0c\x12\x13\n\x0b\n\x04\
+    \x04\x01\x02\x03\x12\x03\r\x04\x14\n\x0c\n\x05\x04\x01\x02\x03\x05\x12\
+    \x03\r\x04\n\n\x0c\n\x05\x04\x01\x02\x03\x01\x12\x03\r\x0b\x0f\n\x0c\n\
+    \x05\x04\x01\x02\x03\x03\x12\x03\r\x12\x13\n\x0b\n\x04\x04\x01\x02\x04\
+    \x12\x03\x0e\x04\x1b\n\x0c\n\x05\x04\x01\x02\x04\x06\x12\x03\x0e\x04\x0c\
+    \n\x0c\n\x05\x04\x01\x02\x04\x01\x12\x03\x0e\r\x16\n\x0c\n\x05\x04\x01\
+    \x02\x04\x03\x12\x03\x0e\x19\x1a\n\n\n\x02\x04\x02\x12\x04\x10\0\x12\x01\
+    \n\n\n\x03\x04\x02\x01\x12\x03\x10\x08\x14\n\x0b\n\x04\x04\x02\x02\0\x12\
+    \x03\x11\x04\x1c\n\x0c\n\x05\x04\x02\x02\0\x04\x12\x03\x11\x04\x0c\n\x0c\
+    \n\x05\x04\x02\x02\0\x06\x12\x03\x11\r\x11\n\x0c\n\x05\x04\x02\x02\0\x01\
+    \x12\x03\x11\x12\x17\n\x0c\n\x05\x04\x02\x02\0\x03\x12\x03\x11\x1a\x1b\n\
+    \n\n\x02\x05\0\x12\x04\x13\0\x16\x01\n\n\n\x03\x05\0\x01\x12\x03\x13\x05\
+    \r\n\x0b\n\x04\x05\0\x02\0\x12\x03\x14\x04\x0e\n\x0c\n\x05\x05\0\x02\0\
+    \x01\x12\x03\x14\x04\t\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x14\x0c\r\n\
+    \x0b\n\x04\x05\0\x02\x01\x12\x03\x15\x04\x0c\n\x0c\n\x05\x05\0\x02\x01\
+    \x01\x12\x03\x15\x04\x07\n\x0c\n\x05\x05\0\x02\x01\x02\x12\x03\x15\n\x0b\
+    b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;
