@@ -1,6 +1,5 @@
-import 'package:dartz/dartz.dart' show Tuple2;
+import 'package:dartz/dartz.dart' show Tuple3;
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 
 /// Specifies how overlay are anchored to the SourceWidget
 enum AnchorDirection {
@@ -51,6 +50,10 @@ TransitionBuilder overlayManagerBuilder() {
     assert(child != null, 'Child can\'t be null.');
     return FlowyOverlay(key: _key, child: child!);
   };
+}
+
+abstract class FlowyOverlayDelegate {
+  void didRemove();
 }
 
 class FlowyOverlay extends StatefulWidget {
@@ -105,22 +108,26 @@ class FlowyOverlay extends StatefulWidget {
 }
 
 class FlowyOverlayState extends State<FlowyOverlay> {
-  List<Tuple2<Widget, String>> _overlayList = [];
+  List<Tuple3<Widget, String, FlowyOverlayDelegate?>> _overlayList = [];
 
-  void insert(Widget widget, String identifier) {
+  void insert(Widget widget, String identifier, FlowyOverlayDelegate? delegate) {
     setState(() {
-      _overlayList.add(Tuple2(widget, identifier));
+      _overlayList.add(Tuple3(widget, identifier, delegate));
     });
   }
 
   void remove(String identifier) {
     setState(() {
-      _overlayList.removeWhere((ele) => ele.value2 == identifier);
+      final index = _overlayList.indexWhere((ele) => ele.value2 == identifier);
+      _overlayList.removeAt(index).value3?.didRemove();
     });
   }
 
   void removeAll() {
     setState(() {
+      for (var ele in _overlayList.reversed) {
+        ele.value3?.didRemove();
+      }
       _overlayList = [];
     });
   }
