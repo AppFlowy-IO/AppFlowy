@@ -130,7 +130,7 @@ class MenuItemBuilder {
   MenuItemBuilder withApps(Option<List<App>> someApps) {
     List<MenuItem> appWidgets = someApps.foldRight(
       [],
-      (apps, _) => apps.map((app) => AppWidget(app)).toList(),
+      (apps, _) => apps.map((app) => AppWidget(AppWidgetContext(app))).toList(),
     );
     items.addAll(appWidgets);
     return this;

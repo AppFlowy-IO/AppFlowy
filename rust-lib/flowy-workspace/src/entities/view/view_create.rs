@@ -95,6 +95,9 @@ pub struct View {
 
     #[pb(index = 5)]
     pub view_type: ViewType,
+
+    #[pb(index = 6)]
+    pub version: i64,
 }
 
 #[derive(PartialEq, Debug, Default, ProtoBuf)]

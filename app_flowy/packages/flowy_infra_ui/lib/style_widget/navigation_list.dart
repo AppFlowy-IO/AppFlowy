@@ -50,12 +50,13 @@ class StyledNavigationList extends StatelessWidget {
   List<NaviItem> _filter(List<NaviItem> items) {
     final length = items.length;
     if (length > 4) {
+      final first = items[0];
       final ellipsisItems = items.getRange(1, length - 2).toList();
+      final last = items.getRange(length - 2, length).toList();
       return [
-        items[0],
+        first,
         EllipsisNaviItem(items: ellipsisItems),
-        items[length - 2],
-        items[length - 1]
+        ...last,
       ];
     } else {
       return items;

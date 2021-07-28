@@ -6,8 +6,8 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_infra_ui/style_widget/styled_text_button.dart';
-import 'package:flowy_infra_ui/style_widget/styled_icon_button.dart';
+import 'package:flowy_infra_ui/style_widget/text_button.dart';
+import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
@@ -17,28 +17,34 @@ import 'package:dartz/dartz.dart';
 class AppWidgetSize {
   static double expandedIconSize = 24;
   static double expandedIconRightSpace = 8;
-
   static double scale = 1;
-
   static double get expandedPadding =>
       expandedIconSize * scale + expandedIconRightSpace;
 }
 
-class AppWidget extends MenuItem {
+class AppWidgetContext {
   final App app;
-  AppWidget(this.app, {Key? key}) : super(key: ValueKey(app.id));
+
+  AppWidgetContext(this.app);
+
+  Key valueKey() => ValueKey("${app.id}${app.version}");
+}
+
+class AppWidget extends MenuItem {
+  final AppWidgetContext appCtx;
+  AppWidget(this.appCtx, {Key? key}) : super(key: appCtx.valueKey());
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider<AppBloc>(create: (context) {
-          final appBloc = getIt<AppBloc>(param1: app.id);
+          final appBloc = getIt<AppBloc>(param1: appCtx.app.id);
           appBloc.add(const AppEvent.initial());
           return appBloc;
         }),
         BlocProvider<AppWatchBloc>(create: (context) {
-          final watchBloc = getIt<AppWatchBloc>(param1: app.id);
+          final watchBloc = getIt<AppWatchBloc>(param1: appCtx.app.id);
           watchBloc.add(const AppWatchEvent.started());
           return watchBloc;
         }),
@@ -75,7 +81,7 @@ class AppWidget extends MenuItem {
                 iconPadding: EdgeInsets.zero,
                 hasIcon: false,
               ),
-              header: AppHeader(app),
+              header: AppHeader(appCtx.app),
               expanded: child,
               collapsed: const SizedBox(),
             ),
@@ -93,7 +99,7 @@ class AppWidget extends MenuItem {
 
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
-        child: ViewList(views, key: UniqueKey()));
+        child: ViewList(views));
   }
 
   @override
@@ -132,7 +138,7 @@ class AppHeader extends StatelessWidget {
         ),
         HSpace(AppWidgetSize.expandedIconRightSpace),
         Expanded(
-          child: StyledTextButton(
+          child: FlowyTextButton(
             app.name,
             onPressed: () {
               debugPrint('show app document');

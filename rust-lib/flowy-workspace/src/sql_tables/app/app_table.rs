@@ -105,6 +105,7 @@ impl std::convert::Into<App> for AppTable {
             name: self.name,
             desc: self.desc,
             views: RepeatedView::default(),
+            version: self.version,
         }
     }
 }

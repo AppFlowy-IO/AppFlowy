@@ -7,6 +7,7 @@
 
 import 'dart:core' as $core;
 
+import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 import 'view_create.pb.dart' as $0;
@@ -156,6 +157,7 @@ class App extends $pb.GeneratedMessage {
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
     ..aOM<$0.RepeatedView>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'views', subBuilder: $0.RepeatedView.create)
+    ..aInt64(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'version')
     ..hasRequiredFields = false
   ;
 
@@ -166,6 +168,7 @@ class App extends $pb.GeneratedMessage {
     $core.String? name,
     $core.String? desc,
     $0.RepeatedView? views,
+    $fixnum.Int64? version,
   }) {
     final _result = create();
     if (id != null) {
@@ -182,6 +185,9 @@ class App extends $pb.GeneratedMessage {
     }
     if (views != null) {
       _result.views = views;
+    }
+    if (version != null) {
+      _result.version = version;
     }
     return _result;
   }
@@ -252,6 +258,15 @@ class App extends $pb.GeneratedMessage {
   void clearViews() => clearField(5);
   @$pb.TagNumber(5)
   $0.RepeatedView ensureViews() => $_ensure(4);
+
+  @$pb.TagNumber(6)
+  $fixnum.Int64 get version => $_getI64(5);
+  @$pb.TagNumber(6)
+  set version($fixnum.Int64 v) { $_setInt64(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasVersion() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearVersion() => clearField(6);
 }
 
 class RepeatedApp extends $pb.GeneratedMessage {

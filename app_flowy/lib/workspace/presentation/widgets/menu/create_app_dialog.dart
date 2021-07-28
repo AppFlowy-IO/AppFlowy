@@ -2,7 +2,7 @@ import 'package:app_flowy/startup/tasks/application_task.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra/theme.dart';
-import 'package:flowy_infra_ui/style_widget/styled_text_input.dart';
+import 'package:flowy_infra_ui/style_widget/text_input.dart';
 import 'package:flowy_infra_ui/widget/buttons/ok_cancel_button.dart';
 import 'package:flowy_infra_ui/widget/dialog/dialog_context.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
@@ -34,7 +34,7 @@ class CreateAppDialogContext extends DialogContext {
             // Container(color: theme.greyWeak.withOpacity(.35), height: 1),
             VSpace(Insets.m * 1.5),
           ],
-          StyledFormTextInput(
+          FlowyFormTextInput(
             hintText: "App name",
             onChanged: (text) {
               appName = text;

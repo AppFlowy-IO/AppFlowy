@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class StyleBarTitle extends StatelessWidget {
+class FlowyBarTitle extends StatelessWidget {
   final String title;
 
-  const StyleBarTitle({
+  const FlowyBarTitle({
     Key? key,
     required this.title,
   }) : super(key: key);

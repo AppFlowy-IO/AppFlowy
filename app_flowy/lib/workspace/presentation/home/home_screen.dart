@@ -4,7 +4,7 @@ import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/prelude.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:flowy_infra/flowy_logger.dart';
-import 'package:flowy_infra_ui/style_widget/styled_container.dart';
+import 'package:flowy_infra_ui/style_widget/container.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,7 +30,7 @@ class HomeScreen extends StatelessWidget {
         body: BlocBuilder<HomeBloc, HomeState>(
           buildWhen: (previous, current) => previous != current,
           builder: (context, state) {
-            return StyledContainer(
+            return FlowyContainer(
               Theme.of(context).colorScheme.surface,
               // Colors.white,
               child: _buildBody(

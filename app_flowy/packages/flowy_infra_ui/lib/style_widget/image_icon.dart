@@ -1,12 +1,12 @@
 import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 
-class StyledImageIcon extends StatelessWidget {
+class FlowyImageIcon extends StatelessWidget {
   final AssetImage image;
   final Color? color;
   final double? size;
 
-  const StyledImageIcon(this.image, {Key? key, this.color, this.size})
+  const FlowyImageIcon(this.image, {Key? key, this.color, this.size})
       : super(key: key);
 
   @override

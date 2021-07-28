@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class StyleCloseButton extends StatelessWidget {
+class FlowyCloseButton extends StatelessWidget {
   final VoidCallback? onPressed;
 
-  const StyleCloseButton({
+  const FlowyCloseButton({
     Key? key,
     this.onPressed,
   }) : super(key: key);

@@ -52,6 +52,7 @@ impl std::convert::Into<View> for ViewTable {
             name: self.name,
             desc: self.desc,
             view_type,
+            version: self.version,
         }
     }
 }

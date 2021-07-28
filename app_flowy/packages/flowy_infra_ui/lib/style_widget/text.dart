@@ -1,10 +1,10 @@
 import 'package:flutter/widgets.dart';
 
-class StyledText extends StatelessWidget {
+class FlowyText extends StatelessWidget {
   final String title;
   final TextOverflow overflow;
   final double fontSize;
-  const StyledText(
+  const FlowyText(
     this.title, {
     Key? key,
     this.overflow = TextOverflow.ellipsis,

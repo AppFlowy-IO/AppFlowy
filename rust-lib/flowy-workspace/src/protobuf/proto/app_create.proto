@@ -16,6 +16,7 @@ message App {
     string name = 3;
     string desc = 4;
     RepeatedView views = 5;
+    int64 version = 6;
 }
 message RepeatedApp {
     repeated App items = 1;

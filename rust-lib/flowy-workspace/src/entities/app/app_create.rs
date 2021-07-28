@@ -82,6 +82,9 @@ pub struct App {
 
     #[pb(index = 5)]
     pub views: RepeatedView,
+
+    #[pb(index = 6)]
+    pub version: i64,
 }
 
 #[derive(PartialEq, Debug, Default, ProtoBuf)]

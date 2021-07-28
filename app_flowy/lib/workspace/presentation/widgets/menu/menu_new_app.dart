@@ -3,7 +3,7 @@ import 'package:app_flowy/workspace/presentation/widgets/menu/create_app_dialog.
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flutter/material.dart';
-import 'package:styled_widget/styled_widget.dart';
+import 'package:flowy_infra_ui/style_widget/extension.dart';
 
 class NewAppButton extends StatelessWidget {
   final Function(String)? press;
@@ -11,12 +11,7 @@ class NewAppButton extends StatelessWidget {
   const NewAppButton({this.press, Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(width: 1, color: Colors.grey.shade300),
-        ),
-      ),
+    return SizedBox(
       height: HomeSizes.menuAddButtonHeight,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -35,7 +30,7 @@ class NewAppButton extends StatelessWidget {
           )
         ],
       ).padding(horizontal: Insets.l),
-    );
+    ).topBorder(color: Colors.grey.shade300);
   }
 
   Future<void> _showCreateAppDialog(BuildContext context) async {

@@ -4,21 +4,21 @@ import 'package:flowy_infra/time/duration.dart';
 
 typedef HoverBuilder = Widget Function(BuildContext context, bool onHover);
 
-class StyledHover extends StatefulWidget {
+class FlowyHover extends StatefulWidget {
   final HoverDisplayConfig config;
   final HoverBuilder builder;
 
-  const StyledHover({
+  const FlowyHover({
     Key? key,
     required this.builder,
     this.config = const HoverDisplayConfig(),
   }) : super(key: key);
 
   @override
-  State<StyledHover> createState() => _StyledHoverState();
+  State<FlowyHover> createState() => _FlowyHoverState();
 }
 
-class _StyledHoverState extends State<StyledHover> {
+class _FlowyHoverState extends State<FlowyHover> {
   bool _onHover = false;
 
   @override
@@ -32,7 +32,7 @@ class _StyledHoverState extends State<StyledHover> {
       cursor: SystemMouseCursors.click,
       onEnter: (p) => setOnHover(true),
       onExit: (p) => setOnHover(false),
-      child: HoverBackground(
+      child: FlowyHoverBackground(
           config: config, child: widget.builder(context, _onHover)),
     );
   }
@@ -61,12 +61,12 @@ class HoverDisplayConfig {
   }
 }
 
-class HoverBackground extends StatelessWidget {
+class FlowyHoverBackground extends StatelessWidget {
   final HoverDisplayConfig config;
 
   final Widget child;
 
-  const HoverBackground({
+  const FlowyHoverBackground({
     Key? key,
     required this.child,
     this.config = const HoverDisplayConfig(),

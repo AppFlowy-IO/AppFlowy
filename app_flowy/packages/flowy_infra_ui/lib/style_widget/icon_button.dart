@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class StyledIconButton extends StatelessWidget {
+class FlowyIconButton extends StatelessWidget {
   final double width;
   final double? height;
   final double iconRatio;
   final Icon icon;
   final VoidCallback? onPressed;
 
-  const StyledIconButton({
+  const FlowyIconButton({
     Key? key,
     this.height,
     this.onPressed,
@@ -32,12 +32,12 @@ class StyledIconButton extends StatelessWidget {
   }
 }
 
-class StyledMore extends StatelessWidget {
+class FlowyMoreButton extends StatelessWidget {
   final double width;
   final double? height;
   final VoidCallback? onPressed;
 
-  const StyledMore({
+  const FlowyMoreButton({
     Key? key,
     this.height,
     this.onPressed,
@@ -46,7 +46,7 @@ class StyledMore extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StyledIconButton(
+    return FlowyIconButton(
       width: width,
       height: height,
       icon: const Icon(Icons.more_vert),

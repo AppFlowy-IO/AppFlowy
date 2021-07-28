@@ -1,4 +1,4 @@
-import 'package:flowy_infra_ui/style_widget/styled_image_icon.dart';
+import 'package:flowy_infra_ui/style_widget/image_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 // ignore: import_of_legacy_library_into_null_safe
@@ -42,7 +42,7 @@ class SecondaryIconButton extends StatelessWidget {
       minHeight: 36,
       minWidth: 36,
       contentPadding: Insets.sm,
-      child: StyledImageIcon(icon, size: 20, color: color ?? theme.grey),
+      child: FlowyImageIcon(icon, size: 20, color: color ?? theme.grey),
     );
   }
 }

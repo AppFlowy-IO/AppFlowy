@@ -9,7 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ViewList extends StatelessWidget {
   final List<View> views;
-  const ViewList(this.views, {Key? key}) : super(key: key);
+  ViewList(this.views, {Key? key}) : super(key: UniqueKey());
 
   @override
   Widget build(BuildContext context) {

@@ -1,14 +1,14 @@
-import 'package:flowy_infra_ui/style_widget/styled_hover.dart';
-import 'package:flowy_infra_ui/style_widget/styled_text.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-class StyledTextButton extends StatelessWidget {
+class FlowyTextButton extends StatelessWidget {
   final String text;
   final double fontSize;
   final VoidCallback? onPressed;
   final EdgeInsets padding;
-  const StyledTextButton(this.text,
+  const FlowyTextButton(this.text,
       {Key? key,
       this.onPressed,
       this.fontSize = 16,
@@ -19,7 +19,7 @@ class StyledTextButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onPressed,
-      child: StyledHover(
+      child: FlowyHover(
         config: HoverDisplayConfig(
             borderRadius: BorderRadius.circular(8),
             hoverColor: Colors.grey.shade300),
@@ -33,7 +33,7 @@ class StyledTextButton extends StatelessWidget {
       padding: padding,
       child: Align(
         alignment: Alignment.centerLeft,
-        child: StyledText(text, fontSize: fontSize),
+        child: FlowyText(text, fontSize: fontSize),
       ),
     );
   }

@@ -1,5 +1,5 @@
-import 'package:flowy_infra_ui/style_widget/styled_hover.dart';
-import 'package:flowy_infra_ui/style_widget/styled_icon_button.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +15,8 @@ class ViewWidgetContext {
     this.view, {
     this.isSelected = false,
   });
+
+  Key valueKey() => ValueKey("${view.id}${view.version}");
 }
 
 typedef OpenViewCallback = void Function(View);
@@ -22,15 +24,15 @@ typedef OpenViewCallback = void Function(View);
 class ViewWidget extends StatelessWidget {
   final ViewWidgetContext viewCtx;
   final OpenViewCallback onOpen;
-  const ViewWidget({Key? key, required this.viewCtx, required this.onOpen})
-      : super(key: key);
+  ViewWidget({Key? key, required this.viewCtx, required this.onOpen})
+      : super(key: viewCtx.valueKey());
 
   @override
   Widget build(BuildContext context) {
     final config = HoverDisplayConfig(hoverColor: Colors.grey.shade200);
     return InkWell(
       onTap: _openView(context),
-      child: StyledHover(
+      child: FlowyHover(
         config: config,
         builder: (context, onHover) => _render(context, onHover, config),
       ),
@@ -65,7 +67,7 @@ class ViewWidget extends StatelessWidget {
     );
 
     if (viewCtx.isSelected) {
-      widget = HoverBackground(child: widget, config: config);
+      widget = FlowyHoverBackground(child: widget, config: config);
     }
 
     return widget;
@@ -79,7 +81,7 @@ class ViewWidget extends StatelessWidget {
     children.add(const Spacer());
     children.add(Align(
       alignment: Alignment.center,
-      child: StyledMore(
+      child: FlowyMoreButton(
         width: hoverWidth,
         onPressed: () {
           debugPrint('show view setting');

@@ -1,7 +1,7 @@
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flutter/material.dart';
 
-class StyledContainer extends StatelessWidget {
+class FlowyContainer extends StatelessWidget {
   final Color color;
   final BorderRadiusGeometry? borderRadius;
   final List<BoxShadow>? shadows;
@@ -13,7 +13,7 @@ class StyledContainer extends StatelessWidget {
   final Duration? duration;
   final BoxBorder? border;
 
-  const StyledContainer(this.color,
+  const FlowyContainer(this.color,
       {Key? key,
       this.borderRadius,
       this.shadows,

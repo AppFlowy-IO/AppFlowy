@@ -13,6 +13,7 @@ message View {
     string name = 3;
     string desc = 4;
     ViewType view_type = 5;
+    int64 version = 6;
 }
 message RepeatedView {
     repeated View items = 1;

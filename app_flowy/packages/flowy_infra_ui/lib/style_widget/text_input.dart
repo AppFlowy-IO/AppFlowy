@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:textstyle_extensions/textstyle_extensions.dart';
 
-class StyledFormTextInput extends StatelessWidget {
+class FlowyFormTextInput extends StatelessWidget {
   static EdgeInsets kDefaultTextInputPadding =
       EdgeInsets.only(bottom: Insets.sm, top: 4);
 
@@ -27,7 +27,7 @@ class StyledFormTextInput extends StatelessWidget {
   final Function(bool)? onFocusChanged;
   final Function(FocusNode)? onFocusCreated;
 
-  const StyledFormTextInput(
+  const FlowyFormTextInput(
       {Key? key,
       this.label,
       this.autoFocus,

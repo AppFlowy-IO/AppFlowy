@@ -6,7 +6,7 @@ import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flowy_infra_ui/style_widget/styled_progress_indicator.dart';
+import 'package:flowy_infra_ui/style_widget/progress_indicator.dart';
 
 class DocPage extends HomeStackWidget {
   const DocPage({Key? key, required DocPageStackView stackView})
@@ -30,7 +30,7 @@ class _DocPageState extends State<DocPage> {
           BlocBuilder<DocWatchBloc, DocWatchState>(builder: (context, state) {
         assert(widget.stackView is DocPageStackView);
         return state.map(
-          loading: (_) => const StyledProgressIndicator(),
+          loading: (_) => const FlowyProgressIndicator(),
           loadDoc: (s) => EditorWdiget(doc: s.doc),
           loadFail: (s) => FlowyErrorPage(s.error.toString()),
         );

@@ -14,6 +14,7 @@ abstract class HomeStackView extends Equatable {
   const HomeStackView({required this.type, required this.title});
 }
 
+// HomePageStack is initialized as singleton to controll the page stack.
 class HomePageStack {
   final PageStackBloc _bloc = PageStackBloc();
   HomePageStack();

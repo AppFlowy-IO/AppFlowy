@@ -5,8 +5,10 @@ import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pbenum.dart';
 import 'package:flutter/material.dart';
-import 'package:flowy_infra_ui/style_widget/styled_icon_button.dart';
-import 'package:flowy_infra_ui/style_widget/styled_text.dart';
+import 'package:flowy_infra_ui/style_widget/icon_button.dart';
+// import 'package:flowy_infra_ui/style_widget/styled_navigation_list.dart';
+import 'package:flowy_infra_ui/style_widget/extension.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 
 class HomeTopBar extends StatelessWidget {
   final HomeStackView view;
@@ -16,26 +18,17 @@ class HomeTopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: HomeSizes.topBarHeight,
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(width: 0.5, color: Colors.grey.shade300),
-          ),
-        ),
-        child: Padding(
-          padding:
-              EdgeInsets.symmetric(horizontal: HomeInsets.topBarTitlePadding),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              HomeTitle(title: view.title, type: view.type),
-              const Spacer(),
-              _renderShareButton(),
-              _renderMoreButton(),
-            ],
-          ),
-        ),
-      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          HomeTitle(title: view.title, type: view.type),
+          const Spacer(),
+          _renderShareButton(),
+          _renderMoreButton(),
+        ],
+      )
+          .padding(horizontal: HomeInsets.topBarTitlePadding)
+          .bottomBorder(color: Colors.grey.shade300),
     );
   }
 
@@ -54,12 +47,16 @@ class HomeTopBar extends StatelessWidget {
   }
 
   Widget _renderMoreButton() {
-    return StyledMore(
+    return FlowyMoreButton(
       width: 24,
       onPressed: () {
         debugPrint('show more');
       },
     );
+  }
+
+  Widget _renderNavigationList() {
+    return Container();
   }
 }
 
@@ -84,7 +81,7 @@ class HomeTitle extends StatelessWidget {
               height: 15,
               image: assetImageForViewType(type)),
           const HSpace(6),
-          StyledText(title, fontSize: 16),
+          FlowyText(title, fontSize: 16),
         ],
       ),
     );
