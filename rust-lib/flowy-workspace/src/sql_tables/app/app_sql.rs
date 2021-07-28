@@ -4,7 +4,6 @@ use crate::{
     sql_tables::{
         app::{AppTable, AppTableChangeset},
         view::ViewTable,
-        workspace::WorkspaceTable,
     },
 };
 use flowy_database::{
@@ -40,7 +39,9 @@ impl AppTableSql {
         Ok(app_table)
     }
 
-    pub(crate) fn delete_app(&self, app_id: &str) -> Result<(), WorkspaceError> { unimplemented!() }
+    pub(crate) fn delete_app(&self, _app_id: &str) -> Result<(), WorkspaceError> {
+        unimplemented!()
+    }
 
     pub(crate) fn read_views_belong_to_app(
         &self,

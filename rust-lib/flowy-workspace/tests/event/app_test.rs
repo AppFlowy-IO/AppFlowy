@@ -1,13 +1,6 @@
 use crate::helper::*;
-use flowy_test::builder::SingleUserTestBuilder;
-use flowy_workspace::{
-    entities::{
-        app::{App, CreateAppRequest, QueryAppRequest},
-        view::*,
-        workspace::Workspace,
-    },
-    event::WorkspaceEvent::{CreateApp, GetCurWorkspace},
-};
+
+use flowy_workspace::entities::{app::QueryAppRequest, view::*};
 
 #[test]
 fn app_create_success() {

@@ -33,7 +33,8 @@ impl WorkspaceController {
         &self,
         params: CreateWorkspaceParams,
     ) -> Result<Workspace, WorkspaceError> {
-        let workspace_table = WorkspaceTable::new(params);
+        let user_id = self.user.user_id()?;
+        let workspace_table = WorkspaceTable::new(params, &user_id);
         let detail: Workspace = workspace_table.clone().into();
         let _ = self.sql.create_workspace(workspace_table)?;
         Ok(detail)
@@ -48,7 +49,7 @@ impl WorkspaceController {
         Ok(())
     }
 
-    pub fn delete_workspace(&self, workspace_id: &str) -> Result<(), WorkspaceError> {
+    pub fn delete_workspace(&self, _workspace_id: &str) -> Result<(), WorkspaceError> {
         unimplemented!()
     }
 
@@ -67,6 +68,18 @@ impl WorkspaceController {
     pub async fn read_workspace(&self, workspace_id: &str) -> Result<Workspace, WorkspaceError> {
         let workspace_table = self.read_workspace_table(workspace_id).await?;
         Ok(workspace_table.into())
+    }
+
+    pub async fn read_workspaces_belong_to_user(&self) -> Result<Vec<Workspace>, WorkspaceError> {
+        let user_id = self.user.user_id()?;
+        let workspace = self
+            .sql
+            .read_workspaces_belong_to_user(&user_id)?
+            .into_iter()
+            .map(|workspace_table| workspace_table.into())
+            .collect::<Vec<Workspace>>();
+
+        Ok(workspace)
     }
 
     pub async fn read_apps(&self, workspace_id: &str) -> Result<Vec<App>, WorkspaceError> {

@@ -19,10 +19,11 @@ pub struct WorkspaceTable {
 
 impl WorkspaceTable {
     #[allow(dead_code)]
-    pub fn new(params: CreateWorkspaceParams) -> Self {
+    pub fn new(params: CreateWorkspaceParams, user_id: &str) -> Self {
         let mut workspace = WorkspaceTable::default();
         workspace.name = params.name;
         workspace.desc = params.desc;
+        workspace.user_id = user_id.to_string();
         workspace
     }
 }

@@ -1,20 +1,32 @@
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:app_flowy/workspace/application/app/app_watch_bloc.dart';
 import 'package:app_flowy/workspace/presentation/app/view_list.dart';
-import 'package:app_flowy/workspace/presentation/widgets/menu/menu_size.dart';
+import 'package:app_flowy/workspace/presentation/widgets/menu/menu_list.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:expandable/expandable.dart';
-import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_infra_ui/style_widget/styled_text_button.dart';
+import 'package:flowy_infra_ui/style_widget/styled_icon_button.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
 
-class AppWidget extends StatelessWidget {
+class AppWidgetSize {
+  static double expandedIconSize = 24;
+  static double expandedIconRightSpace = 8;
+
+  static double scale = 1;
+
+  static double get expandedPadding =>
+      expandedIconSize * scale + expandedIconRightSpace;
+}
+
+class AppWidget extends MenuItem {
   final App app;
-  const AppWidget(this.app, {Key? key}) : super(key: key);
+  AppWidget(this.app, {Key? key}) : super(key: ValueKey(app.id));
 
   @override
   Widget build(BuildContext context) {
@@ -35,11 +47,9 @@ class AppWidget extends StatelessWidget {
         builder: (context, state) {
           final child = state.map(
             initial: (_) => BlocBuilder<AppBloc, AppState>(
-              builder: (context, state) {
-                return ViewList(state.views);
-              },
+              builder: (context, state) => _renderViewList(state.views),
             ),
-            loadViews: (s) => ViewList(some(s.views)),
+            loadViews: (s) => _renderViewList(some(s.views)),
             loadFail: (s) => FlowyErrorPage(s.error.toString()),
           );
 
@@ -54,31 +64,36 @@ class AppWidget extends StatelessWidget {
       child: ScrollOnExpand(
         scrollOnExpand: true,
         scrollOnCollapse: false,
-        child: Card(
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            children: <Widget>[
-              ExpandablePanel(
-                theme: const ExpandableThemeData(
-                  headerAlignment: ExpandablePanelHeaderAlignment.center,
-                  tapBodyToExpand: false,
-                  tapBodyToCollapse: false,
-                  iconPadding: EdgeInsets.zero,
-                  hasIcon: false,
-                ),
-                header: AppHeader(app),
-                expanded: Padding(
-                  padding: EdgeInsets.only(left: Sizes.iconMed),
-                  child: child,
-                ),
-                collapsed: const SizedBox(),
+        child: Column(
+          children: <Widget>[
+            ExpandablePanel(
+              theme: const ExpandableThemeData(
+                headerAlignment: ExpandablePanelHeaderAlignment.center,
+                tapBodyToExpand: false,
+                tapBodyToCollapse: false,
+                tapHeaderToExpand: false,
+                iconPadding: EdgeInsets.zero,
+                hasIcon: false,
               ),
-            ],
-          ),
+              header: AppHeader(app),
+              expanded: child,
+              collapsed: const SizedBox(),
+            ),
+          ],
         ),
       ),
     );
   }
+
+  Widget _renderViewList(Option<List<View>> views) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: ViewList(views),
+    );
+  }
+
+  @override
+  MenuItemType get type => MenuItemType.app;
 }
 
 class AppHeader extends StatelessWidget {
@@ -90,46 +105,53 @@ class AppHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: Insets.m),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            ExpandableIcon(
-              theme: ExpandableThemeData(
-                expandIcon: Icons.arrow_right,
-                collapseIcon: Icons.arrow_drop_down,
-                iconColor: Colors.black,
-                iconSize: HomeMenuSize.collapseIconSize,
-                iconPadding: EdgeInsets.zero,
-                hasIcon: false,
-              ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        InkWell(
+          onTap: () {
+            ExpandableController.of(context,
+                    rebuildOnChange: false, required: true)
+                ?.toggle();
+          },
+          child: ExpandableIcon(
+            theme: ExpandableThemeData(
+              expandIcon: Icons.arrow_drop_up,
+              collapseIcon: Icons.arrow_drop_down,
+              iconColor: Colors.black,
+              iconSize: AppWidgetSize.expandedIconSize,
+              iconPadding: EdgeInsets.zero,
+              hasIcon: false,
             ),
-            Expanded(
-              child: Text(app.name),
-            ),
-            SizedBox(
-              height: HomeMenuSize.createViewButtonSize,
-              child: createViewPopupMenu(context),
-            ),
-          ],
+          ),
         ),
-      ),
+        HSpace(AppWidgetSize.expandedIconRightSpace),
+        Expanded(
+          child: StyledTextButton(
+            app.name,
+            onPressed: () {
+              debugPrint('show app document');
+            },
+          ),
+        ),
+        StyledIconButton(
+          icon: const Icon(Icons.add),
+          onPressed: () {
+            debugPrint('add view');
+          },
+        ),
+      ],
     );
   }
 
-  Widget createViewPopupMenu(BuildContext context) {
-    return PopupMenuButton(
-        iconSize: 24,
-        tooltip: 'create new view',
-        icon: const Icon(Icons.add),
-        padding: EdgeInsets.zero,
-        onSelected: (viewType) => _createView(viewType as ViewType, context),
-        itemBuilder: (context) => menuItemBuilder());
-  }
+  // return PopupMenuButton(
+  //     iconSize: 20,
+  //     tooltip: 'create new view',
+  //     icon: const Icon(Icons.add),
+  //     padding: EdgeInsets.zero,
+  //     onSelected: (viewType) => _createView(viewType as ViewType, context),
+  //     itemBuilder: (context) => menuItemBuilder());
 
   List<PopupMenuEntry> menuItemBuilder() {
     return ViewType.values

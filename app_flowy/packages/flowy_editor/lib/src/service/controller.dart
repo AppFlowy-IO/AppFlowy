@@ -10,10 +10,16 @@ import '../model/document/document.dart';
 import '../model/document/style.dart';
 import '../model/document/node/embed.dart';
 
+abstract class EditorPersistence {
+  Future<bool> save(List<dynamic> jsonList);
+}
+
 class EditorController extends ChangeNotifier {
+  final EditorPersistence? persistence;
   EditorController({
     required this.document,
     required this.selection,
+    this.persistence,
   });
 
   factory EditorController.basic() {
@@ -38,7 +44,8 @@ class EditorController extends ChangeNotifier {
       );
 
   Style getSelectionStyle() =>
-      document.collectStyle(selection.start, selection.end - selection.start)..mergeAll(toggledStyle);
+      document.collectStyle(selection.start, selection.end - selection.start)
+        ..mergeAll(toggledStyle);
 
   bool get hasUndo => document.hasUndo;
 
@@ -58,10 +65,10 @@ class EditorController extends ChangeNotifier {
     }
   }
 
-  Future<bool> save() async {
-    document.toDelta().toJson();
-    // TODO: vedon - Save document to database
-    return true;
+  void save() {
+    if (persistence != null) {
+      persistence!.save(document.toDelta().toJson());
+    }
   }
 
   @override
@@ -80,7 +87,9 @@ class EditorController extends ChangeNotifier {
   }
 
   void formatText(int index, int length, Attribute? attribute) {
-    if (length == 0 && attribute!.isInline && attribute.key != Attribute.link.key) {
+    if (length == 0 &&
+        attribute!.isInline &&
+        attribute.key != Attribute.link.key) {
       toggledStyle = toggledStyle.put(attribute);
     }
 
@@ -95,16 +104,25 @@ class EditorController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void replaceText(int index, int length, Object? data, TextSelection? textSelection) {
+  void replaceText(
+      int index, int length, Object? data, TextSelection? textSelection) {
     assert(data is String || data is Embeddable);
 
     Delta? delta;
     if (length > 0 || data is! String || data.isNotEmpty) {
       delta = document.replace(index, length, data);
-      var shouldRetainDelta = toggledStyle.isNotEmpty && delta.isNotEmpty && delta.length <= 2 && delta.last.isInsert;
-      if (shouldRetainDelta && toggledStyle.isNotEmpty && delta.length == 2 && delta.last.data == '\n') {
+      print(delta);
+      var shouldRetainDelta = toggledStyle.isNotEmpty &&
+          delta.isNotEmpty &&
+          delta.length <= 2 &&
+          delta.last.isInsert;
+      if (shouldRetainDelta &&
+          toggledStyle.isNotEmpty &&
+          delta.length == 2 &&
+          delta.last.data == '\n') {
         // if all attributes are inline, shouldRetainDelta should be false
-        final anyAttributeNotInline = toggledStyle.values.any((attr) => !attr.isInline);
+        final anyAttributeNotInline =
+            toggledStyle.values.any((attr) => !attr.isInline);
         shouldRetainDelta &= anyAttributeNotInline;
       }
       if (shouldRetainDelta) {
@@ -146,7 +164,8 @@ class EditorController extends ChangeNotifier {
 
     textSelection = selection.copyWith(
       baseOffset: delta.transformPosition(selection.baseOffset, force: false),
-      extentOffset: delta.transformPosition(selection.extentOffset, force: false),
+      extentOffset:
+          delta.transformPosition(selection.extentOffset, force: false),
     );
     if (selection != textSelection) {
       _updateSelection(textSelection, source);

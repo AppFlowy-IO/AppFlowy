@@ -1,6 +1,6 @@
 use crate::flowy_server::{ArcFlowyServer, FlowyServerMocker};
 use flowy_dispatch::prelude::Module;
-use flowy_editor::prelude::*;
+
 use flowy_user::prelude::*;
 
 use crate::deps_resolve::{

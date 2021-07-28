@@ -40,3 +40,12 @@ pub async fn get_workspace(
 
     response_ok(workspace)
 }
+
+#[tracing::instrument(name = "get_all_workspaces", skip(controller))]
+pub async fn read_all_workspaces(
+    controller: Unit<Arc<WorkspaceController>>,
+) -> ResponseResult<Workspaces, WorkspaceError> {
+    let workspaces = controller.read_workspaces_belong_to_user().await?;
+
+    response_ok(Workspaces { items: workspaces })
+}

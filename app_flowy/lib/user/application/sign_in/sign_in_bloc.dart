@@ -22,10 +22,10 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
         );
       },
       emailChanged: (EmailChanged value) async* {
-        yield state.copyWith(email: value.email, signInFailure: none());
+        yield state.copyWith(email: value.email, successOrFail: none());
       },
       passwordChanged: (PasswordChanged value) async* {
-        yield state.copyWith(password: value.password, signInFailure: none());
+        yield state.copyWith(password: value.password, successOrFail: none());
       },
     );
   }
@@ -36,9 +36,27 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     final result = await authImpl.signIn(state.email, state.password);
     yield result.fold(
       (userDetail) => state.copyWith(
-          isSubmitting: false, signInFailure: some(left(userDetail))),
-      (s) => state.copyWith(isSubmitting: false, signInFailure: some(right(s))),
+          isSubmitting: false, successOrFail: some(left(userDetail))),
+      (error) => stateFromCode(error),
     );
+  }
+
+  SignInState stateFromCode(UserError error) {
+    switch (error.code) {
+      case UserErrCode.EmailInvalid:
+        return state.copyWith(
+            isSubmitting: false,
+            emailError: some(error.msg),
+            passwordError: none());
+      case UserErrCode.PasswordInvalid:
+        return state.copyWith(
+            isSubmitting: false,
+            passwordError: some(error.msg),
+            emailError: none());
+      default:
+        return state.copyWith(
+            isSubmitting: false, successOrFail: some(right(error)));
+    }
   }
 }
 
@@ -46,7 +64,6 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
 abstract class SignInEvent with _$SignInEvent {
   const factory SignInEvent.signedInWithUserEmailAndPassword() =
       SignedInWithUserEmailAndPassword;
-
   const factory SignInEvent.emailChanged(String email) = EmailChanged;
   const factory SignInEvent.passwordChanged(String password) = PasswordChanged;
 }
@@ -57,11 +74,15 @@ abstract class SignInState with _$SignInState {
     String? email,
     String? password,
     required bool isSubmitting,
-    required Option<Either<UserDetail, UserError>> signInFailure,
+    required Option<String> passwordError,
+    required Option<String> emailError,
+    required Option<Either<UserDetail, UserError>> successOrFail,
   }) = _SignInState;
 
   factory SignInState.initial() => SignInState(
         isSubmitting: false,
-        signInFailure: none(),
+        passwordError: none(),
+        emailError: none(),
+        successOrFail: none(),
       );
 }

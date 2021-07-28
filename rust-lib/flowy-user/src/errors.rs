@@ -6,14 +6,14 @@ use std::convert::TryInto;
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct UserError {
     #[pb(index = 1)]
-    pub code: UserErrorCode,
+    pub code: UserErrCode,
 
     #[pb(index = 2)]
     pub msg: String,
 }
 
 impl UserError {
-    fn new(code: UserErrorCode, msg: &str) -> Self {
+    fn new(code: UserErrCode, msg: &str) -> Self {
         Self {
             code,
             msg: msg.to_owned(),
@@ -22,7 +22,7 @@ impl UserError {
 }
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
-pub enum UserErrorCode {
+pub enum UserErrCode {
     #[display(fmt = "Unknown")]
     Unknown              = 0,
     #[display(fmt = "Database init failed")]
@@ -63,13 +63,13 @@ pub enum UserErrorCode {
     DefaultWorkspaceAlreadyExist = 26,
 }
 
-impl std::default::Default for UserErrorCode {
-    fn default() -> Self { UserErrorCode::Unknown }
+impl std::default::Default for UserErrCode {
+    fn default() -> Self { UserErrCode::Unknown }
 }
 
 impl std::convert::From<flowy_database::result::Error> for UserError {
     fn from(error: flowy_database::result::Error) -> Self {
-        ErrorBuilder::new(UserErrorCode::UserDatabaseInternalError)
+        ErrorBuilder::new(UserErrCode::UserDatabaseInternalError)
             .error(error)
             .build()
     }
@@ -106,7 +106,7 @@ impl std::convert::From<flowy_sqlite::Error> for UserError {
         //     ErrorKind::__Nonexhaustive { .. } => {},
         // }
 
-        ErrorBuilder::new(UserErrorCode::SqlInternalError)
+        ErrorBuilder::new(UserErrCode::SqlInternalError)
             .error(error)
             .build()
     }
@@ -120,12 +120,12 @@ impl flowy_dispatch::Error for UserError {
 }
 
 pub struct ErrorBuilder {
-    pub code: UserErrorCode,
+    pub code: UserErrCode,
     pub msg: Option<String>,
 }
 
 impl ErrorBuilder {
-    pub fn new(code: UserErrorCode) -> Self { ErrorBuilder { code, msg: None } }
+    pub fn new(code: UserErrCode) -> Self { ErrorBuilder { code, msg: None } }
 
     pub fn msg<T>(mut self, msg: T) -> Self
     where

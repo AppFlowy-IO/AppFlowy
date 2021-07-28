@@ -524,33 +524,205 @@ impl ::protobuf::reflect::ProtobufValue for Workspace {
     }
 }
 
+#[derive(PartialEq,Clone,Default)]
+pub struct Workspaces {
+    // message fields
+    pub items: ::protobuf::RepeatedField<Workspace>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a Workspaces {
+    fn default() -> &'a Workspaces {
+        <Workspaces as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl Workspaces {
+    pub fn new() -> Workspaces {
+        ::std::default::Default::default()
+    }
+
+    // repeated .Workspace items = 1;
+
+
+    pub fn get_items(&self) -> &[Workspace] {
+        &self.items
+    }
+    pub fn clear_items(&mut self) {
+        self.items.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_items(&mut self, v: ::protobuf::RepeatedField<Workspace>) {
+        self.items = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_items(&mut self) -> &mut ::protobuf::RepeatedField<Workspace> {
+        &mut self.items
+    }
+
+    // Take field
+    pub fn take_items(&mut self) -> ::protobuf::RepeatedField<Workspace> {
+        ::std::mem::replace(&mut self.items, ::protobuf::RepeatedField::new())
+    }
+}
+
+impl ::protobuf::Message for Workspaces {
+    fn is_initialized(&self) -> bool {
+        for v in &self.items {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.items)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        for value in &self.items {
+            let len = value.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        };
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        for v in &self.items {
+            os.write_tag(1, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        };
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> Workspaces {
+        Workspaces::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<Workspace>>(
+                "items",
+                |m: &Workspaces| { &m.items },
+                |m: &mut Workspaces| { &mut m.items },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<Workspaces>(
+                "Workspaces",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static Workspaces {
+        static instance: ::protobuf::rt::LazyV2<Workspaces> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(Workspaces::new)
+    }
+}
+
+impl ::protobuf::Clear for Workspaces {
+    fn clear(&mut self) {
+        self.items.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for Workspaces {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for Workspaces {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x16workspace_create.proto\x1a\x10app_create.proto\"@\n\x16CreateWorks\
     paceRequest\x12\x12\n\x04name\x18\x01\x20\x01(\tR\x04name\x12\x12\n\x04d\
     esc\x18\x02\x20\x01(\tR\x04desc\"e\n\tWorkspace\x12\x0e\n\x02id\x18\x01\
     \x20\x01(\tR\x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x12\
     \n\x04desc\x18\x03\x20\x01(\tR\x04desc\x12\x20\n\x04apps\x18\x04\x20\x01\
-    (\x0b2\x0c.RepeatedAppR\x04appsJ\x97\x03\n\x06\x12\x04\0\0\x0c\x01\n\x08\
-    \n\x01\x0c\x12\x03\0\0\x12\n\t\n\x02\x03\0\x12\x03\x01\0\x1a\n\n\n\x02\
-    \x04\0\x12\x04\x03\0\x06\x01\n\n\n\x03\x04\0\x01\x12\x03\x03\x08\x1e\n\
-    \x0b\n\x04\x04\0\x02\0\x12\x03\x04\x04\x14\n\x0c\n\x05\x04\0\x02\0\x05\
-    \x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x04\x0b\x0f\n\x0c\
-    \n\x05\x04\0\x02\0\x03\x12\x03\x04\x12\x13\n\x0b\n\x04\x04\0\x02\x01\x12\
-    \x03\x05\x04\x14\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x05\x04\n\n\x0c\n\
-    \x05\x04\0\x02\x01\x01\x12\x03\x05\x0b\x0f\n\x0c\n\x05\x04\0\x02\x01\x03\
-    \x12\x03\x05\x12\x13\n\n\n\x02\x04\x01\x12\x04\x07\0\x0c\x01\n\n\n\x03\
-    \x04\x01\x01\x12\x03\x07\x08\x11\n\x0b\n\x04\x04\x01\x02\0\x12\x03\x08\
-    \x04\x12\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x08\x04\n\n\x0c\n\x05\x04\
-    \x01\x02\0\x01\x12\x03\x08\x0b\r\n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\
-    \x08\x10\x11\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\t\x04\x14\n\x0c\n\x05\
-    \x04\x01\x02\x01\x05\x12\x03\t\x04\n\n\x0c\n\x05\x04\x01\x02\x01\x01\x12\
-    \x03\t\x0b\x0f\n\x0c\n\x05\x04\x01\x02\x01\x03\x12\x03\t\x12\x13\n\x0b\n\
-    \x04\x04\x01\x02\x02\x12\x03\n\x04\x14\n\x0c\n\x05\x04\x01\x02\x02\x05\
-    \x12\x03\n\x04\n\n\x0c\n\x05\x04\x01\x02\x02\x01\x12\x03\n\x0b\x0f\n\x0c\
-    \n\x05\x04\x01\x02\x02\x03\x12\x03\n\x12\x13\n\x0b\n\x04\x04\x01\x02\x03\
-    \x12\x03\x0b\x04\x19\n\x0c\n\x05\x04\x01\x02\x03\x06\x12\x03\x0b\x04\x0f\
-    \n\x0c\n\x05\x04\x01\x02\x03\x01\x12\x03\x0b\x10\x14\n\x0c\n\x05\x04\x01\
-    \x02\x03\x03\x12\x03\x0b\x17\x18b\x06proto3\
+    (\x0b2\x0c.RepeatedAppR\x04apps\".\n\nWorkspaces\x12\x20\n\x05items\x18\
+    \x01\x20\x03(\x0b2\n.WorkspaceR\x05itemsJ\xf4\x03\n\x06\x12\x04\0\0\x0f\
+    \x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\t\n\x02\x03\0\x12\x03\x01\0\x1a\n\
+    \n\n\x02\x04\0\x12\x04\x03\0\x06\x01\n\n\n\x03\x04\0\x01\x12\x03\x03\x08\
+    \x1e\n\x0b\n\x04\x04\0\x02\0\x12\x03\x04\x04\x14\n\x0c\n\x05\x04\0\x02\0\
+    \x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x04\x0b\x0f\n\
+    \x0c\n\x05\x04\0\x02\0\x03\x12\x03\x04\x12\x13\n\x0b\n\x04\x04\0\x02\x01\
+    \x12\x03\x05\x04\x14\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x05\x04\n\n\
+    \x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x05\x0b\x0f\n\x0c\n\x05\x04\0\x02\
+    \x01\x03\x12\x03\x05\x12\x13\n\n\n\x02\x04\x01\x12\x04\x07\0\x0c\x01\n\n\
+    \n\x03\x04\x01\x01\x12\x03\x07\x08\x11\n\x0b\n\x04\x04\x01\x02\0\x12\x03\
+    \x08\x04\x12\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x08\x04\n\n\x0c\n\x05\
+    \x04\x01\x02\0\x01\x12\x03\x08\x0b\r\n\x0c\n\x05\x04\x01\x02\0\x03\x12\
+    \x03\x08\x10\x11\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\t\x04\x14\n\x0c\n\
+    \x05\x04\x01\x02\x01\x05\x12\x03\t\x04\n\n\x0c\n\x05\x04\x01\x02\x01\x01\
+    \x12\x03\t\x0b\x0f\n\x0c\n\x05\x04\x01\x02\x01\x03\x12\x03\t\x12\x13\n\
+    \x0b\n\x04\x04\x01\x02\x02\x12\x03\n\x04\x14\n\x0c\n\x05\x04\x01\x02\x02\
+    \x05\x12\x03\n\x04\n\n\x0c\n\x05\x04\x01\x02\x02\x01\x12\x03\n\x0b\x0f\n\
+    \x0c\n\x05\x04\x01\x02\x02\x03\x12\x03\n\x12\x13\n\x0b\n\x04\x04\x01\x02\
+    \x03\x12\x03\x0b\x04\x19\n\x0c\n\x05\x04\x01\x02\x03\x06\x12\x03\x0b\x04\
+    \x0f\n\x0c\n\x05\x04\x01\x02\x03\x01\x12\x03\x0b\x10\x14\n\x0c\n\x05\x04\
+    \x01\x02\x03\x03\x12\x03\x0b\x17\x18\n\n\n\x02\x04\x02\x12\x04\r\0\x0f\
+    \x01\n\n\n\x03\x04\x02\x01\x12\x03\r\x08\x12\n\x0b\n\x04\x04\x02\x02\0\
+    \x12\x03\x0e\x04!\n\x0c\n\x05\x04\x02\x02\0\x04\x12\x03\x0e\x04\x0c\n\
+    \x0c\n\x05\x04\x02\x02\0\x06\x12\x03\x0e\r\x16\n\x0c\n\x05\x04\x02\x02\0\
+    \x01\x12\x03\x0e\x17\x1c\n\x0c\n\x05\x04\x02\x02\0\x03\x12\x03\x0e\x1f\
+    \x20b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

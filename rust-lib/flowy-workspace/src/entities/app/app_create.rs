@@ -42,20 +42,17 @@ impl TryInto<CreateAppParams> for CreateAppRequest {
     type Error = WorkspaceError;
 
     fn try_into(self) -> Result<CreateAppParams, Self::Error> {
-        let name = AppName::parse(self.name).map_err(|e| {
-            ErrorBuilder::new(WorkspaceErrorCode::AppNameInvalid)
-                .msg(e)
-                .build()
-        })?;
+        let name = AppName::parse(self.name)
+            .map_err(|e| ErrorBuilder::new(WsErrCode::AppNameInvalid).msg(e).build())?;
 
         let id = WorkspaceId::parse(self.workspace_id).map_err(|e| {
-            ErrorBuilder::new(WorkspaceErrorCode::WorkspaceIdInvalid)
+            ErrorBuilder::new(WsErrCode::WorkspaceIdInvalid)
                 .msg(e)
                 .build()
         })?;
 
         let color_style = AppColorStyle::parse(self.color_style).map_err(|e| {
-            ErrorBuilder::new(WorkspaceErrorCode::AppColorStyleInvalid)
+            ErrorBuilder::new(WsErrCode::AppColorStyleInvalid)
                 .msg(e)
                 .build()
         })?;
@@ -87,7 +84,7 @@ pub struct App {
     pub views: RepeatedView,
 }
 
-#[derive(Debug, Default, ProtoBuf)]
+#[derive(PartialEq, Debug, Default, ProtoBuf)]
 pub struct RepeatedApp {
     #[pb(index = 1)]
     pub items: Vec<App>,

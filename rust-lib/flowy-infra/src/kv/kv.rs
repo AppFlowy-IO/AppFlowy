@@ -175,7 +175,7 @@ mod tests {
             std::fs::create_dir_all(dir).unwrap();
         }
 
-        KVStore::init(dir);
+        KVStore::init(dir).unwrap();
 
         KVStore::set_str("1", "hello".to_string());
         assert_eq!(KVStore::get_str("1").unwrap(), "hello");

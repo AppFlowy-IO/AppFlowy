@@ -5,6 +5,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/flowy_logger.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-observable/subject.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/user_detail.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/observable.pb.dart';
@@ -13,9 +14,9 @@ import 'package:flowy_sdk/protobuf/flowy-workspace/workspace_query.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 
 class WorkspaceRepo {
-  String workspaceId;
+  UserDetail user;
   WorkspaceRepo({
-    required this.workspaceId,
+    required this.user,
   });
 
   Future<Either<App, WorkspaceError>> createApp(String appName, String desc) {
@@ -38,7 +39,7 @@ class WorkspaceRepo {
   Future<Either<Workspace, WorkspaceError>> getWorkspace(
       {bool readApps = false}) {
     final request = QueryWorkspaceRequest.create()
-      ..workspaceId = workspaceId
+      ..workspaceId = user.workspace
       ..readApps = readApps;
 
     return WorkspaceEventGetWorkspace(request).send().then((result) {
@@ -54,13 +55,13 @@ class WorkspaceWatchRepo {
   StreamSubscription<ObservableSubject>? _subscription;
   WorkspaceAddAppCallback? _addAppCallback;
   WorkspaceUpdatedCallback? _updatedCallback;
-  final String workspaceId;
+  final UserDetail user;
   late WorkspaceRepo _repo;
 
   WorkspaceWatchRepo({
-    required this.workspaceId,
+    required this.user,
   }) {
-    _repo = WorkspaceRepo(workspaceId: workspaceId);
+    _repo = WorkspaceRepo(user: user);
   }
 
   void startWatching(
@@ -70,7 +71,7 @@ class WorkspaceWatchRepo {
     _updatedCallback = updatedCallback;
 
     _subscription = RustStreamReceiver.listen((observable) {
-      if (observable.subjectId != workspaceId) {
+      if (observable.subjectId != user.workspace) {
         return;
       }
 

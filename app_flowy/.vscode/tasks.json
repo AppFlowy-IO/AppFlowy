@@ -1,8 +1,6 @@
 {
 	"version": "2.0.0",
-	"tasks": [
-		{
-			// https://code.visualstudio.com/docs/editor/tasks
+	// https://code.visualstudio.com/docs/editor/tasks
 			//https://gist.github.com/deadalusai/9e13e36d61ec7fb72148
 			
 			// ${workspaceRoot}: the root folder of the team
@@ -11,9 +9,22 @@
 			// ${fileDirname}: the current opened file's dirname
 			// ${fileExtname}: the current opened file's extension
 			// ${cwd}: the current working directory of the spawned process
-
+	"tasks": [
+		{
 			"type": "shell",
-			"command": "sh ${workspaceFolder}/../scripts/build_sdk.sh",
+			"command": "sh ./scripts/build_sdk.sh",
+			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}/../"
+			  },
+			// "problemMatcher": [
+            //     "$rustc"
+            // ],
+			"label": "build_flowy_sdk"
+		},
+		{
+			"type": "shell",
+			"command": "sh ./scripts/code_gen.sh",
 			"group": "build",
 			"options": {
 				"cwd": "${workspaceFolder}/../"
@@ -21,7 +32,7 @@
 			"problemMatcher": [
                 "$rustc"
             ],
-			"label": "build rust sdk"
+			"label": "generate events"
 		}
 	]
 }

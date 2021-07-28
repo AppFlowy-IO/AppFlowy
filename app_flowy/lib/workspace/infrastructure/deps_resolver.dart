@@ -2,6 +2,7 @@ import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:app_flowy/workspace/application/app/app_watch_bloc.dart';
 import 'package:app_flowy/workspace/application/doc/doc_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
+import 'package:app_flowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_watch.dart';
 import 'package:app_flowy/workspace/application/view/doc_watch_bloc.dart';
 import 'package:app_flowy/workspace/application/view/view_bloc.dart';
@@ -15,8 +16,11 @@ import 'package:app_flowy/workspace/infrastructure/repos/app_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/doc_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/workspace_repo.dart';
+import 'package:flowy_editor/flowy_editor.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/user_detail.pb.dart';
 import 'package:get_it/get_it.dart';
 
+import 'i_user_impl.dart';
 import 'i_view_impl.dart';
 
 class HomeDepsResolver {
@@ -31,10 +35,10 @@ class HomeDepsResolver {
         (appId, _) => IAppWatchImpl(repo: AppWatchRepository(appId: appId)));
 
     //workspace
-    getIt.registerFactoryParam<IWorkspace, String, void>((workspaceId, _) =>
-        IWorkspaceImpl(repo: WorkspaceRepo(workspaceId: workspaceId)));
-    getIt.registerFactoryParam<IWorkspaceWatch, String, void>((workspacId, _) =>
-        IWorkspaceWatchImpl(repo: WorkspaceWatchRepo(workspaceId: workspacId)));
+    getIt.registerFactoryParam<IWorkspace, UserDetail, void>(
+        (user, _) => IWorkspaceImpl(repo: WorkspaceRepo(user: user)));
+    getIt.registerFactoryParam<IWorkspaceWatch, UserDetail, void>(
+        (user, _) => IWorkspaceWatchImpl(repo: WorkspaceWatchRepo(user: user)));
 
     // View
     getIt.registerFactoryParam<IView, String, void>(
@@ -46,12 +50,20 @@ class HomeDepsResolver {
     getIt.registerFactoryParam<IDoc, String, void>(
         (docId, _) => IDocImpl(repo: DocRepository(docId: docId)));
 
-    //Bloc
-    getIt.registerFactoryParam<MenuBloc, String, void>(
-        (workspaceId, _) => MenuBloc(getIt<IWorkspace>(param1: workspaceId)));
-    getIt.registerFactoryParam<MenuWatchBloc, String, void>((workspaceId, _) =>
-        MenuWatchBloc(getIt<IWorkspaceWatch>(param1: workspaceId)));
+    // User
+    getIt.registerFactoryParam<IUser, UserDetail, void>(
+        (user, _) => IUserImpl(repo: UserRepo(user: user)));
 
+    //Menu Bloc
+    getIt.registerFactoryParam<MenuBloc, UserDetail, void>(
+        (user, _) => MenuBloc(getIt<IWorkspace>(param1: user)));
+    getIt.registerFactoryParam<MenuWatchBloc, UserDetail, void>(
+        (user, _) => MenuWatchBloc(getIt<IWorkspaceWatch>(param1: user)));
+
+    getIt.registerFactoryParam<MenuUserBloc, UserDetail, void>(
+        (user, _) => MenuUserBloc(getIt<IUser>(param1: user)));
+
+    //
     getIt.registerFactoryParam<AppBloc, String, void>(
         (appId, _) => AppBloc(getIt<IApp>(param1: appId)));
     getIt.registerFactoryParam<AppWatchBloc, String, void>(
@@ -66,6 +78,9 @@ class HomeDepsResolver {
     getIt.registerFactoryParam<DocBloc, String, void>(
         (docId, _) => DocBloc(getIt<IDoc>(param1: docId)));
 
+    // editor
+    getIt.registerFactoryParam<EditorPersistence, String, void>(
+        (docId, _) => EditorPersistenceImpl(repo: DocRepository(docId: docId)));
     // getIt.registerFactoryParam<ViewBloc, String, void>(
     //     (viewId, _) => ViewBloc(iViewImpl: getIt<IView>(param1: viewId)));
   }

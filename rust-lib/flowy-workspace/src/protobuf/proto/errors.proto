@@ -1,10 +1,10 @@
 syntax = "proto3";
 
 message WorkspaceError {
-    WorkspaceErrorCode code = 1;
+    WsErrCode code = 1;
     string msg = 2;
 }
-enum WorkspaceErrorCode {
+enum WsErrCode {
     Unknown = 0;
     WorkspaceNameInvalid = 1;
     WorkspaceIdInvalid = 2;

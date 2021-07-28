@@ -26,7 +26,7 @@
 #[derive(PartialEq,Clone,Default)]
 pub struct UserError {
     // message fields
-    pub code: UserErrorCode,
+    pub code: UserErrCode,
     pub msg: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -44,18 +44,18 @@ impl UserError {
         ::std::default::Default::default()
     }
 
-    // .UserErrorCode code = 1;
+    // .UserErrCode code = 1;
 
 
-    pub fn get_code(&self) -> UserErrorCode {
+    pub fn get_code(&self) -> UserErrCode {
         self.code
     }
     pub fn clear_code(&mut self) {
-        self.code = UserErrorCode::Unknown;
+        self.code = UserErrCode::Unknown;
     }
 
     // Param is passed by value, moved
-    pub fn set_code(&mut self, v: UserErrorCode) {
+    pub fn set_code(&mut self, v: UserErrCode) {
         self.code = v;
     }
 
@@ -113,7 +113,7 @@ impl ::protobuf::Message for UserError {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if self.code != UserErrorCode::Unknown {
+        if self.code != UserErrCode::Unknown {
             my_size += ::protobuf::rt::enum_size(1, self.code);
         }
         if !self.msg.is_empty() {
@@ -125,7 +125,7 @@ impl ::protobuf::Message for UserError {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if self.code != UserErrorCode::Unknown {
+        if self.code != UserErrCode::Unknown {
             os.write_enum(1, ::protobuf::ProtobufEnum::value(&self.code))?;
         }
         if !self.msg.is_empty() {
@@ -169,7 +169,7 @@ impl ::protobuf::Message for UserError {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<UserErrorCode>>(
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<UserErrCode>>(
                 "code",
                 |m: &UserError| { &m.code },
                 |m: &mut UserError| { &mut m.code },
@@ -195,7 +195,7 @@ impl ::protobuf::Message for UserError {
 
 impl ::protobuf::Clear for UserError {
     fn clear(&mut self) {
-        self.code = UserErrorCode::Unknown;
+        self.code = UserErrCode::Unknown;
         self.msg.clear();
         self.unknown_fields.clear();
     }
@@ -214,7 +214,7 @@ impl ::protobuf::reflect::ProtobufValue for UserError {
 }
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
-pub enum UserErrorCode {
+pub enum UserErrCode {
     Unknown = 0,
     UserDatabaseInitFailed = 1,
     UserDatabaseWriteLocked = 2,
@@ -234,53 +234,53 @@ pub enum UserErrorCode {
     DefaultWorkspaceAlreadyExist = 26,
 }
 
-impl ::protobuf::ProtobufEnum for UserErrorCode {
+impl ::protobuf::ProtobufEnum for UserErrCode {
     fn value(&self) -> i32 {
         *self as i32
     }
 
-    fn from_i32(value: i32) -> ::std::option::Option<UserErrorCode> {
+    fn from_i32(value: i32) -> ::std::option::Option<UserErrCode> {
         match value {
-            0 => ::std::option::Option::Some(UserErrorCode::Unknown),
-            1 => ::std::option::Option::Some(UserErrorCode::UserDatabaseInitFailed),
-            2 => ::std::option::Option::Some(UserErrorCode::UserDatabaseWriteLocked),
-            3 => ::std::option::Option::Some(UserErrorCode::UserDatabaseReadLocked),
-            4 => ::std::option::Option::Some(UserErrorCode::UserDatabaseDidNotMatch),
-            5 => ::std::option::Option::Some(UserErrorCode::UserDatabaseInternalError),
-            6 => ::std::option::Option::Some(UserErrorCode::SqlInternalError),
-            10 => ::std::option::Option::Some(UserErrorCode::UserNotLoginYet),
-            11 => ::std::option::Option::Some(UserErrorCode::ReadCurrentIdFailed),
-            12 => ::std::option::Option::Some(UserErrorCode::WriteCurrentIdFailed),
-            20 => ::std::option::Option::Some(UserErrorCode::EmailInvalid),
-            21 => ::std::option::Option::Some(UserErrorCode::PasswordInvalid),
-            22 => ::std::option::Option::Some(UserErrorCode::UserNameInvalid),
-            23 => ::std::option::Option::Some(UserErrorCode::UserWorkspaceInvalid),
-            24 => ::std::option::Option::Some(UserErrorCode::UserIdInvalid),
-            25 => ::std::option::Option::Some(UserErrorCode::CreateDefaultWorkspaceFailed),
-            26 => ::std::option::Option::Some(UserErrorCode::DefaultWorkspaceAlreadyExist),
+            0 => ::std::option::Option::Some(UserErrCode::Unknown),
+            1 => ::std::option::Option::Some(UserErrCode::UserDatabaseInitFailed),
+            2 => ::std::option::Option::Some(UserErrCode::UserDatabaseWriteLocked),
+            3 => ::std::option::Option::Some(UserErrCode::UserDatabaseReadLocked),
+            4 => ::std::option::Option::Some(UserErrCode::UserDatabaseDidNotMatch),
+            5 => ::std::option::Option::Some(UserErrCode::UserDatabaseInternalError),
+            6 => ::std::option::Option::Some(UserErrCode::SqlInternalError),
+            10 => ::std::option::Option::Some(UserErrCode::UserNotLoginYet),
+            11 => ::std::option::Option::Some(UserErrCode::ReadCurrentIdFailed),
+            12 => ::std::option::Option::Some(UserErrCode::WriteCurrentIdFailed),
+            20 => ::std::option::Option::Some(UserErrCode::EmailInvalid),
+            21 => ::std::option::Option::Some(UserErrCode::PasswordInvalid),
+            22 => ::std::option::Option::Some(UserErrCode::UserNameInvalid),
+            23 => ::std::option::Option::Some(UserErrCode::UserWorkspaceInvalid),
+            24 => ::std::option::Option::Some(UserErrCode::UserIdInvalid),
+            25 => ::std::option::Option::Some(UserErrCode::CreateDefaultWorkspaceFailed),
+            26 => ::std::option::Option::Some(UserErrCode::DefaultWorkspaceAlreadyExist),
             _ => ::std::option::Option::None
         }
     }
 
     fn values() -> &'static [Self] {
-        static values: &'static [UserErrorCode] = &[
-            UserErrorCode::Unknown,
-            UserErrorCode::UserDatabaseInitFailed,
-            UserErrorCode::UserDatabaseWriteLocked,
-            UserErrorCode::UserDatabaseReadLocked,
-            UserErrorCode::UserDatabaseDidNotMatch,
-            UserErrorCode::UserDatabaseInternalError,
-            UserErrorCode::SqlInternalError,
-            UserErrorCode::UserNotLoginYet,
-            UserErrorCode::ReadCurrentIdFailed,
-            UserErrorCode::WriteCurrentIdFailed,
-            UserErrorCode::EmailInvalid,
-            UserErrorCode::PasswordInvalid,
-            UserErrorCode::UserNameInvalid,
-            UserErrorCode::UserWorkspaceInvalid,
-            UserErrorCode::UserIdInvalid,
-            UserErrorCode::CreateDefaultWorkspaceFailed,
-            UserErrorCode::DefaultWorkspaceAlreadyExist,
+        static values: &'static [UserErrCode] = &[
+            UserErrCode::Unknown,
+            UserErrCode::UserDatabaseInitFailed,
+            UserErrCode::UserDatabaseWriteLocked,
+            UserErrCode::UserDatabaseReadLocked,
+            UserErrCode::UserDatabaseDidNotMatch,
+            UserErrCode::UserDatabaseInternalError,
+            UserErrCode::SqlInternalError,
+            UserErrCode::UserNotLoginYet,
+            UserErrCode::ReadCurrentIdFailed,
+            UserErrCode::WriteCurrentIdFailed,
+            UserErrCode::EmailInvalid,
+            UserErrCode::PasswordInvalid,
+            UserErrCode::UserNameInvalid,
+            UserErrCode::UserWorkspaceInvalid,
+            UserErrCode::UserIdInvalid,
+            UserErrCode::CreateDefaultWorkspaceFailed,
+            UserErrCode::DefaultWorkspaceAlreadyExist,
         ];
         values
     }
@@ -288,31 +288,31 @@ impl ::protobuf::ProtobufEnum for UserErrorCode {
     fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
-            ::protobuf::reflect::EnumDescriptor::new_pb_name::<UserErrorCode>("UserErrorCode", file_descriptor_proto())
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<UserErrCode>("UserErrCode", file_descriptor_proto())
         })
     }
 }
 
-impl ::std::marker::Copy for UserErrorCode {
+impl ::std::marker::Copy for UserErrCode {
 }
 
-impl ::std::default::Default for UserErrorCode {
+impl ::std::default::Default for UserErrCode {
     fn default() -> Self {
-        UserErrorCode::Unknown
+        UserErrCode::Unknown
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for UserErrorCode {
+impl ::protobuf::reflect::ProtobufValue for UserErrCode {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
     }
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0cerrors.proto\"A\n\tUserError\x12\"\n\x04code\x18\x01\x20\x01(\x0e2\
-    \x0e.UserErrorCodeR\x04code\x12\x10\n\x03msg\x18\x02\x20\x01(\tR\x03msg*\
-    \xb8\x03\n\rUserErrorCode\x12\x0b\n\x07Unknown\x10\0\x12\x1a\n\x16UserDa\
-    tabaseInitFailed\x10\x01\x12\x1b\n\x17UserDatabaseWriteLocked\x10\x02\
+    \n\x0cerrors.proto\"?\n\tUserError\x12\x20\n\x04code\x18\x01\x20\x01(\
+    \x0e2\x0c.UserErrCodeR\x04code\x12\x10\n\x03msg\x18\x02\x20\x01(\tR\x03m\
+    sg*\xb6\x03\n\x0bUserErrCode\x12\x0b\n\x07Unknown\x10\0\x12\x1a\n\x16Use\
+    rDatabaseInitFailed\x10\x01\x12\x1b\n\x17UserDatabaseWriteLocked\x10\x02\
     \x12\x1a\n\x16UserDatabaseReadLocked\x10\x03\x12\x1b\n\x17UserDatabaseDi\
     dNotMatch\x10\x04\x12\x1d\n\x19UserDatabaseInternalError\x10\x05\x12\x14\
     \n\x10SqlInternalError\x10\x06\x12\x13\n\x0fUserNotLoginYet\x10\n\x12\
@@ -323,13 +323,13 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     ultWorkspaceFailed\x10\x19\x12\x20\n\x1cDefaultWorkspaceAlreadyExist\x10\
     \x1aJ\xe9\x06\n\x06\x12\x04\0\0\x18\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\
     \n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\
-    \x08\x11\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x1b\n\x0c\n\x05\x04\0\
-    \x02\0\x06\x12\x03\x03\x04\x11\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\
-    \x12\x16\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x19\x1a\n\x0b\n\x04\x04\
+    \x08\x11\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x19\n\x0c\n\x05\x04\0\
+    \x02\0\x06\x12\x03\x03\x04\x0f\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\
+    \x10\x14\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x17\x18\n\x0b\n\x04\x04\
     \0\x02\x01\x12\x03\x04\x04\x13\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\
     \x04\n\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x0b\x0e\n\x0c\n\x05\x04\
     \0\x02\x01\x03\x12\x03\x04\x11\x12\n\n\n\x02\x05\0\x12\x04\x06\0\x18\x01\
-    \n\n\n\x03\x05\0\x01\x12\x03\x06\x05\x12\n\x0b\n\x04\x05\0\x02\0\x12\x03\
+    \n\n\n\x03\x05\0\x01\x12\x03\x06\x05\x10\n\x0b\n\x04\x05\0\x02\0\x12\x03\
     \x07\x04\x10\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\x07\x04\x0b\n\x0c\n\x05\
     \x05\0\x02\0\x02\x12\x03\x07\x0e\x0f\n\x0b\n\x04\x05\0\x02\x01\x12\x03\
     \x08\x04\x1f\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\x08\x04\x1a\n\x0c\n\

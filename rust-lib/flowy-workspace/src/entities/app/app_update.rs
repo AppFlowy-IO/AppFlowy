@@ -6,7 +6,7 @@ use crate::{
         },
         workspace::parser::WorkspaceId,
     },
-    errors::{ErrorBuilder, WorkspaceError, WorkspaceErrorCode},
+    errors::{ErrorBuilder, WorkspaceError, WsErrCode},
 };
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
@@ -42,11 +42,7 @@ impl TryInto<UpdateAppParams> for UpdateAppRequest {
 
     fn try_into(self) -> Result<UpdateAppParams, Self::Error> {
         let app_id = AppId::parse(self.app_id)
-            .map_err(|e| {
-                ErrorBuilder::new(WorkspaceErrorCode::AppIdInvalid)
-                    .msg(e)
-                    .build()
-            })?
+            .map_err(|e| ErrorBuilder::new(WsErrCode::AppIdInvalid).msg(e).build())?
             .0;
 
         let name = match self.name {
@@ -54,7 +50,7 @@ impl TryInto<UpdateAppParams> for UpdateAppRequest {
             Some(name) => Some(
                 AppName::parse(name)
                     .map_err(|e| {
-                        ErrorBuilder::new(WorkspaceErrorCode::WorkspaceNameInvalid)
+                        ErrorBuilder::new(WsErrCode::WorkspaceNameInvalid)
                             .msg(e)
                             .build()
                     })?
@@ -67,7 +63,7 @@ impl TryInto<UpdateAppParams> for UpdateAppRequest {
             Some(wid) => Some(
                 WorkspaceId::parse(wid)
                     .map_err(|e| {
-                        ErrorBuilder::new(WorkspaceErrorCode::WorkspaceIdInvalid)
+                        ErrorBuilder::new(WsErrCode::WorkspaceIdInvalid)
                             .msg(e)
                             .build()
                     })?
@@ -80,7 +76,7 @@ impl TryInto<UpdateAppParams> for UpdateAppRequest {
             Some(color_style) => Some(
                 AppColorStyle::parse(color_style)
                     .map_err(|e| {
-                        ErrorBuilder::new(WorkspaceErrorCode::AppColorStyleInvalid)
+                        ErrorBuilder::new(WsErrCode::AppColorStyleInvalid)
                             .msg(e)
                             .build()
                     })?

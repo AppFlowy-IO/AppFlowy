@@ -6,7 +6,6 @@ use std::{
     io::{Read, Write},
     path::{Path, PathBuf},
     str,
-    sync::atomic::{AtomicUsize, Ordering},
     time::SystemTime,
 };
 
@@ -117,6 +116,7 @@ pub(crate) fn try_decode(
     }
 }
 
+#[allow(dead_code)]
 pub(crate) fn create_dir_if_not_exist(dir: &str) -> Result<(), io::Error> {
     let _ = fs::create_dir_all(dir)?;
     Ok(())

@@ -4,7 +4,7 @@ use crate::{
     services::{doc_controller::DocController, file_manager::FileManager},
 };
 use flowy_dispatch::prelude::*;
-use std::{convert::TryInto, path::Path, sync::Arc};
+use std::{convert::TryInto, path::Path};
 use tokio::sync::RwLock;
 
 #[tracing::instrument(name = "create_doc", skip(data, controller, manager))]
@@ -67,7 +67,8 @@ pub async fn update_doc(
         manager
             .write()
             .await
-            .save(Path::new(&doc_desc.path), &s, params.id.clone());
+            .save(Path::new(&doc_desc.path), &s, params.id.clone())
+            .unwrap();
     }
 
     if params.name.is_some() || params.desc.is_some() {

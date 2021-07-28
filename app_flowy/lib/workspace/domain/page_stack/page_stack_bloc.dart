@@ -30,6 +30,6 @@ abstract class PageStackState implements _$PageStackState {
   }) = _PageStackState;
 
   factory PageStackState.initial() => const PageStackState(
-        stackView: BlankStackView(),
+        stackView: AnnouncementStackView(),
       );
 }

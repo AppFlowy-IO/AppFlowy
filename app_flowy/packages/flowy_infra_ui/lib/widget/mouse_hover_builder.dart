@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-typedef HoverBuilder = Widget Function(BuildContext context, bool isHovering);
+typedef HoverBuilder = Widget Function(BuildContext context, bool onHover);
 
 class MouseHoverBuilder extends StatefulWidget {
   final bool isClickable;
@@ -15,17 +15,17 @@ class MouseHoverBuilder extends StatefulWidget {
 }
 
 class _MouseHoverBuilderState extends State<MouseHoverBuilder> {
-  bool isOver = false;
+  bool _onHover = false;
 
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
       cursor: widget.isClickable ? SystemMouseCursors.click : SystemMouseCursors.basic,
-      onEnter: (p) => setOver(true),
-      onExit: (p) => setOver(false),
-      child: widget.builder(context, isOver),
+      onEnter: (p) => setOnHover(true),
+      onExit: (p) => setOnHover(false),
+      child: widget.builder(context, _onHover),
     );
   }
 
-  void setOver(bool value) => setState(() => isOver = value);
+  void setOnHover(bool value) => setState(() => _onHover = value);
 }

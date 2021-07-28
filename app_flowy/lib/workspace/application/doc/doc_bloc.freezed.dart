@@ -20,12 +20,6 @@ class _$DocEventTearOff {
     return const Initial();
   }
 
-  Save save(String jsonStr) {
-    return Save(
-      jsonStr,
-    );
-  }
-
   Close close() {
     return const Close();
   }
@@ -39,14 +33,12 @@ mixin _$DocEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
-    required TResult Function(String jsonStr) save,
     required TResult Function() close,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
-    TResult Function(String jsonStr)? save,
     TResult Function()? close,
     required TResult orElse(),
   }) =>
@@ -54,14 +46,12 @@ mixin _$DocEvent {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(Initial value) initial,
-    required TResult Function(Save value) save,
     required TResult Function(Close value) close,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Initial value)? initial,
-    TResult Function(Save value)? save,
     TResult Function(Close value)? close,
     required TResult orElse(),
   }) =>
@@ -121,7 +111,6 @@ class _$Initial implements Initial {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
-    required TResult Function(String jsonStr) save,
     required TResult Function() close,
   }) {
     return initial();
@@ -131,7 +120,6 @@ class _$Initial implements Initial {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
-    TResult Function(String jsonStr)? save,
     TResult Function()? close,
     required TResult orElse(),
   }) {
@@ -145,7 +133,6 @@ class _$Initial implements Initial {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(Initial value) initial,
-    required TResult Function(Save value) save,
     required TResult Function(Close value) close,
   }) {
     return initial(this);
@@ -155,7 +142,6 @@ class _$Initial implements Initial {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Initial value)? initial,
-    TResult Function(Save value)? save,
     TResult Function(Close value)? close,
     required TResult orElse(),
   }) {
@@ -168,122 +154,6 @@ class _$Initial implements Initial {
 
 abstract class Initial implements DocEvent {
   const factory Initial() = _$Initial;
-}
-
-/// @nodoc
-abstract class $SaveCopyWith<$Res> {
-  factory $SaveCopyWith(Save value, $Res Function(Save) then) =
-      _$SaveCopyWithImpl<$Res>;
-  $Res call({String jsonStr});
-}
-
-/// @nodoc
-class _$SaveCopyWithImpl<$Res> extends _$DocEventCopyWithImpl<$Res>
-    implements $SaveCopyWith<$Res> {
-  _$SaveCopyWithImpl(Save _value, $Res Function(Save) _then)
-      : super(_value, (v) => _then(v as Save));
-
-  @override
-  Save get _value => super._value as Save;
-
-  @override
-  $Res call({
-    Object? jsonStr = freezed,
-  }) {
-    return _then(Save(
-      jsonStr == freezed
-          ? _value.jsonStr
-          : jsonStr // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
-  }
-}
-
-/// @nodoc
-
-class _$Save implements Save {
-  const _$Save(this.jsonStr);
-
-  @override
-  final String jsonStr;
-
-  @override
-  String toString() {
-    return 'DocEvent.save(jsonStr: $jsonStr)';
-  }
-
-  @override
-  bool operator ==(dynamic other) {
-    return identical(this, other) ||
-        (other is Save &&
-            (identical(other.jsonStr, jsonStr) ||
-                const DeepCollectionEquality().equals(other.jsonStr, jsonStr)));
-  }
-
-  @override
-  int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(jsonStr);
-
-  @JsonKey(ignore: true)
-  @override
-  $SaveCopyWith<Save> get copyWith =>
-      _$SaveCopyWithImpl<Save>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() initial,
-    required TResult Function(String jsonStr) save,
-    required TResult Function() close,
-  }) {
-    return save(jsonStr);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? initial,
-    TResult Function(String jsonStr)? save,
-    TResult Function()? close,
-    required TResult orElse(),
-  }) {
-    if (save != null) {
-      return save(jsonStr);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(Initial value) initial,
-    required TResult Function(Save value) save,
-    required TResult Function(Close value) close,
-  }) {
-    return save(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(Initial value)? initial,
-    TResult Function(Save value)? save,
-    TResult Function(Close value)? close,
-    required TResult orElse(),
-  }) {
-    if (save != null) {
-      return save(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class Save implements DocEvent {
-  const factory Save(String jsonStr) = _$Save;
-
-  String get jsonStr => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $SaveCopyWith<Save> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -324,7 +194,6 @@ class _$Close implements Close {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
-    required TResult Function(String jsonStr) save,
     required TResult Function() close,
   }) {
     return close();
@@ -334,7 +203,6 @@ class _$Close implements Close {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
-    TResult Function(String jsonStr)? save,
     TResult Function()? close,
     required TResult orElse(),
   }) {
@@ -348,7 +216,6 @@ class _$Close implements Close {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(Initial value) initial,
-    required TResult Function(Save value) save,
     required TResult Function(Close value) close,
   }) {
     return close(this);
@@ -358,7 +225,6 @@ class _$Close implements Close {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Initial value)? initial,
-    TResult Function(Save value)? save,
     TResult Function(Close value)? close,
     required TResult orElse(),
   }) {

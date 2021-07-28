@@ -1,7 +1,7 @@
 use crate::{
     byte_trait::FromBytes,
     request::EventRequest,
-    response::{EventResponse, ResponseBuilder, StatusCode},
+    response::{EventResponse, ResponseBuilder},
 };
 use dyn_clone::DynClone;
 use serde::{Serialize, Serializer};

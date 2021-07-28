@@ -31,7 +31,7 @@ impl TryInto<UpdateWorkspaceParams> for UpdateWorkspaceRequest {
             Some(name) => Some(
                 WorkspaceName::parse(name)
                     .map_err(|e| {
-                        ErrorBuilder::new(WorkspaceErrorCode::WorkspaceNameInvalid)
+                        ErrorBuilder::new(WsErrCode::WorkspaceNameInvalid)
                             .msg(e)
                             .build()
                     })?
@@ -40,7 +40,7 @@ impl TryInto<UpdateWorkspaceParams> for UpdateWorkspaceRequest {
         };
 
         let id = WorkspaceId::parse(self.id).map_err(|e| {
-            ErrorBuilder::new(WorkspaceErrorCode::WorkspaceIdInvalid)
+            ErrorBuilder::new(WsErrCode::WorkspaceIdInvalid)
                 .msg(e)
                 .build()
         })?;

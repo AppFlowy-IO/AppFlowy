@@ -1,6 +1,6 @@
 use crate::{
     entities::{app::parser::AppId, view::parser::*},
-    errors::{ErrorBuilder, WorkspaceError, WorkspaceErrorCode},
+    errors::{ErrorBuilder, WorkspaceError, WsErrCode},
     impl_def_and_def_mut,
     sql_tables::view::ViewTableType,
 };
@@ -48,19 +48,11 @@ impl TryInto<CreateViewParams> for CreateViewRequest {
 
     fn try_into(self) -> Result<CreateViewParams, Self::Error> {
         let name = ViewName::parse(self.name)
-            .map_err(|e| {
-                ErrorBuilder::new(WorkspaceErrorCode::ViewNameInvalid)
-                    .msg(e)
-                    .build()
-            })?
+            .map_err(|e| ErrorBuilder::new(WsErrCode::ViewNameInvalid).msg(e).build())?
             .0;
 
         let app_id = AppId::parse(self.app_id)
-            .map_err(|e| {
-                ErrorBuilder::new(WorkspaceErrorCode::AppIdInvalid)
-                    .msg(e)
-                    .build()
-            })?
+            .map_err(|e| ErrorBuilder::new(WsErrCode::AppIdInvalid).msg(e).build())?
             .0;
 
         let thumbnail = match self.thumbnail {
@@ -68,7 +60,7 @@ impl TryInto<CreateViewParams> for CreateViewRequest {
             Some(thumbnail) => {
                 ViewThumbnail::parse(thumbnail)
                     .map_err(|e| {
-                        ErrorBuilder::new(WorkspaceErrorCode::ViewThumbnailInvalid)
+                        ErrorBuilder::new(WsErrCode::ViewThumbnailInvalid)
                             .msg(e)
                             .build()
                     })?

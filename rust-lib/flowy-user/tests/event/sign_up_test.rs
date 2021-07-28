@@ -35,7 +35,7 @@ fn sign_up_with_invalid_email() {
                 .sync_send()
                 .error()
                 .code,
-            UserErrorCode::EmailInvalid
+            UserErrCode::EmailInvalid
         );
     }
 }
@@ -56,7 +56,7 @@ fn sign_up_with_invalid_password() {
                 .sync_send()
                 .error()
                 .code,
-            UserErrorCode::PasswordInvalid
+            UserErrCode::PasswordInvalid
         );
     }
 }

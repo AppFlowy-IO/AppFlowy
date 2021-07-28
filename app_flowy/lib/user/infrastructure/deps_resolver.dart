@@ -6,10 +6,11 @@ import 'package:get_it/get_it.dart';
 
 class UserDepsResolver {
   static Future<void> resolve(GetIt getIt) async {
-    getIt.registerLazySingleton<AuthRepository>(() => AuthRepository());
+    getIt.registerFactory<AuthRepository>(() => AuthRepository());
 
     //Interface implementation
     getIt.registerFactory<IAuth>(() => AuthImpl(repo: getIt<AuthRepository>()));
+    getIt.registerFactory<IAuthRouter>(() => AuthRouterImpl());
 
     //Bloc
     getIt.registerFactory<SignInBloc>(() => SignInBloc(getIt<IAuth>()));

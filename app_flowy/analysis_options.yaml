@@ -15,7 +15,7 @@ analyzer:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
     - "packages/flowy_editor/**"
-    - "packages/flowy_infra_ui/**"
+    # - "packages/flowy_infra_ui/**"
     
 linter:
   # The lint rules applied to this project can be customized in the

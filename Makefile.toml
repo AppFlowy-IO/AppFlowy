@@ -10,7 +10,7 @@ CARGO_MAKE_CRATE_NAME = "dart-ffi"
 DEV = true
 LIB_OUT_DIR = "debug"
 RELEASE = false
-TARGET_OS = "unknown"
+#TARGET_OS = "unknown"
 
 [tasks.setup-crate-type]
 private = true

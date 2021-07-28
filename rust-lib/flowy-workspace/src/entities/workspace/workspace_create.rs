@@ -1,9 +1,7 @@
 use crate::{
-    entities::{
-        app::{App, RepeatedApp},
-        workspace::parser::*,
-    },
+    entities::{app::RepeatedApp, workspace::parser::*},
     errors::*,
+    impl_def_and_def_mut,
 };
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
@@ -27,7 +25,7 @@ impl TryInto<CreateWorkspaceParams> for CreateWorkspaceRequest {
 
     fn try_into(self) -> Result<CreateWorkspaceParams, Self::Error> {
         let name = WorkspaceName::parse(self.name).map_err(|e| {
-            ErrorBuilder::new(WorkspaceErrorCode::WorkspaceNameInvalid)
+            ErrorBuilder::new(WsErrCode::WorkspaceNameInvalid)
                 .msg(e)
                 .build()
         })?;
@@ -39,7 +37,7 @@ impl TryInto<CreateWorkspaceParams> for CreateWorkspaceRequest {
     }
 }
 
-#[derive(ProtoBuf, Default, Debug)]
+#[derive(PartialEq, ProtoBuf, Default, Debug)]
 pub struct Workspace {
     #[pb(index = 1)]
     pub id: String,
@@ -53,3 +51,11 @@ pub struct Workspace {
     #[pb(index = 4)]
     pub apps: RepeatedApp,
 }
+
+#[derive(PartialEq, Debug, Default, ProtoBuf)]
+pub struct Workspaces {
+    #[pb(index = 1)]
+    pub items: Vec<Workspace>,
+}
+
+impl_def_and_def_mut!(Workspaces, Workspace);

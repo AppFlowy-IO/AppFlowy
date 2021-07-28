@@ -163,3 +163,44 @@ class Workspace extends $pb.GeneratedMessage {
   $0.RepeatedApp ensureApps() => $_ensure(3);
 }
 
+class Workspaces extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Workspaces', createEmptyInstance: create)
+    ..pc<Workspace>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'items', $pb.PbFieldType.PM, subBuilder: Workspace.create)
+    ..hasRequiredFields = false
+  ;
+
+  Workspaces._() : super();
+  factory Workspaces({
+    $core.Iterable<Workspace>? items,
+  }) {
+    final _result = create();
+    if (items != null) {
+      _result.items.addAll(items);
+    }
+    return _result;
+  }
+  factory Workspaces.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Workspaces.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Workspaces clone() => Workspaces()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Workspaces copyWith(void Function(Workspaces) updates) => super.copyWith((message) => updates(message as Workspaces)) as Workspaces; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static Workspaces create() => Workspaces._();
+  Workspaces createEmptyInstance() => create();
+  static $pb.PbList<Workspaces> createRepeated() => $pb.PbList<Workspaces>();
+  @$core.pragma('dart2js:noInline')
+  static Workspaces getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Workspaces>(create);
+  static Workspaces? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<Workspace> get items => $_getList(0);
+}
+

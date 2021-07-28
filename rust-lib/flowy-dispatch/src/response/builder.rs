@@ -1,5 +1,4 @@
 use crate::{
-    errors::DispatchError,
     request::Payload,
     response::{EventResponse, StatusCode},
 };

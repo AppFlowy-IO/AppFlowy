@@ -15,14 +15,14 @@ export 'errors.pbenum.dart';
 
 class UserError extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UserError', createEmptyInstance: create)
-    ..e<UserErrorCode>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'code', $pb.PbFieldType.OE, defaultOrMaker: UserErrorCode.Unknown, valueOf: UserErrorCode.valueOf, enumValues: UserErrorCode.values)
+    ..e<UserErrCode>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'code', $pb.PbFieldType.OE, defaultOrMaker: UserErrCode.Unknown, valueOf: UserErrCode.valueOf, enumValues: UserErrCode.values)
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'msg')
     ..hasRequiredFields = false
   ;
 
   UserError._() : super();
   factory UserError({
-    UserErrorCode? code,
+    UserErrCode? code,
     $core.String? msg,
   }) {
     final _result = create();
@@ -56,9 +56,9 @@ class UserError extends $pb.GeneratedMessage {
   static UserError? _defaultInstance;
 
   @$pb.TagNumber(1)
-  UserErrorCode get code => $_getN(0);
+  UserErrCode get code => $_getN(0);
   @$pb.TagNumber(1)
-  set code(UserErrorCode v) { setField(1, v); }
+  set code(UserErrCode v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasCode() => $_has(0);
   @$pb.TagNumber(1)

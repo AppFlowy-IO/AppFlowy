@@ -9,7 +9,7 @@ use crate::{
 };
 use flowy_dispatch::prelude::*;
 use flowy_sdk::*;
-use lazy_static::lazy_static;
+
 use std::{ffi::CStr, os::raw::c_char};
 
 #[no_mangle]

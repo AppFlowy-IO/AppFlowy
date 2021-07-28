@@ -1,7 +1,7 @@
 use crate::util::get_tera;
 use flowy_ast::*;
 use phf::phf_map;
-use syn::__private::quote::__private::Ident;
+
 use tera::Context;
 
 // Protobuf data type : https://developers.google.com/protocol-buffers/docs/proto3

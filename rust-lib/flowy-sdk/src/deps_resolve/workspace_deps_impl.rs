@@ -3,7 +3,7 @@ use flowy_dispatch::prelude::DispatchFuture;
 use flowy_user::prelude::UserSession;
 use flowy_workspace::{
     entities::workspace::CurrentWorkspace,
-    errors::{ErrorBuilder, WorkspaceError, WorkspaceErrorCode},
+    errors::{ErrorBuilder, WorkspaceError, WsErrCode},
     module::{WorkspaceDatabase, WorkspaceUser},
 };
 use std::sync::Arc;
@@ -13,6 +13,14 @@ pub struct WorkspaceUserImpl {
 }
 
 impl WorkspaceUser for WorkspaceUserImpl {
+    fn user_id(&self) -> Result<String, WorkspaceError> {
+        self.user_session.get_user_id().map_err(|e| {
+            ErrorBuilder::new(WsErrCode::UserInternalError)
+                .error(e)
+                .build()
+        })
+    }
+
     fn set_cur_workspace_id(
         &self,
         workspace_id: &str,
@@ -25,7 +33,7 @@ impl WorkspaceUser for WorkspaceUserImpl {
                     .set_current_workspace(&workspace_id)
                     .await
                     .map_err(|e| {
-                        ErrorBuilder::new(WorkspaceErrorCode::UserInternalError)
+                        ErrorBuilder::new(WsErrCode::UserInternalError)
                             .error(e)
                             .build()
                     })?;
@@ -39,7 +47,7 @@ impl WorkspaceUser for WorkspaceUserImpl {
         DispatchFuture {
             fut: Box::pin(async move {
                 let user_detail = user_session.user_detail().map_err(|e| {
-                    ErrorBuilder::new(WorkspaceErrorCode::UserNotLoginYet)
+                    ErrorBuilder::new(WsErrCode::UserNotLoginYet)
                         .error(e)
                         .build()
                 })?;
@@ -60,7 +68,7 @@ pub struct WorkspaceDatabaseImpl {
 impl WorkspaceDatabase for WorkspaceDatabaseImpl {
     fn db_connection(&self) -> Result<DBConnection, WorkspaceError> {
         self.user_session.get_db_connection().map_err(|e| {
-            ErrorBuilder::new(WorkspaceErrorCode::DatabaseConnectionFail)
+            ErrorBuilder::new(WsErrCode::DatabaseConnectionFail)
                 .error(e)
                 .build()
         })

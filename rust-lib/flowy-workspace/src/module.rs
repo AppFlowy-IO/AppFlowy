@@ -13,6 +13,7 @@ use std::sync::Arc;
 pub trait WorkspaceDeps: WorkspaceUser + WorkspaceDatabase {}
 
 pub trait WorkspaceUser: Send + Sync {
+    fn user_id(&self) -> Result<String, WorkspaceError>;
     fn set_cur_workspace_id(&self, id: &str) -> DispatchFuture<Result<(), WorkspaceError>>;
     fn get_cur_workspace(&self) -> DispatchFuture<Result<CurrentWorkspace, WorkspaceError>>;
 }
@@ -41,6 +42,7 @@ pub fn create(user: Arc<dyn WorkspaceUser>, database: Arc<dyn WorkspaceDatabase>
         .data(workspace_controller)
         .data(app_controller)
         .data(view_controller)
+        .event(WorkspaceEvent::ReadAllWorkspace, read_all_workspaces)
         .event(WorkspaceEvent::CreateWorkspace, create_workspace)
         .event(WorkspaceEvent::GetCurWorkspace, get_cur_workspace)
         .event(WorkspaceEvent::GetWorkspace, get_workspace)

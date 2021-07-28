@@ -36,5 +36,5 @@ impl DocTableSql {
         Ok(doc_table)
     }
 
-    pub(crate) fn delete_doc(&self, view_id: &str) -> Result<(), EditorError> { unimplemented!() }
+    pub(crate) fn delete_doc(&self, _view_id: &str) -> Result<(), EditorError> { unimplemented!() }
 }

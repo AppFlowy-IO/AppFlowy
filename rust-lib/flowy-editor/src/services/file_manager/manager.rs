@@ -1,9 +1,8 @@
 use crate::{module::EditorUser, services::file_manager::*};
 use std::{
     collections::HashMap,
-    io,
     path::{Path, PathBuf},
-    sync::{Arc, PoisonError, RwLock, RwLockReadGuard},
+    sync::Arc,
 };
 
 pub struct FileManager {
@@ -49,6 +48,7 @@ impl FileManager {
         }
     }
 
+    #[allow(dead_code)]
     pub(crate) fn close<T>(&mut self, id: T)
     where
         T: Into<FileId>,
@@ -71,12 +71,15 @@ impl FileManager {
         Ok(path)
     }
 
+    #[allow(dead_code)]
     pub(crate) fn get_info(&self, id: &FileId) -> Option<&FileInfo> { self.file_info.get(id) }
 
+    #[allow(dead_code)]
     pub(crate) fn get_file_id(&self, path: &Path) -> Option<FileId> {
         self.open_files.get(path).cloned()
     }
 
+    #[allow(dead_code)]
     pub fn check_file(&mut self, path: &Path, id: &FileId) -> bool {
         if let Some(info) = self.file_info.get_mut(&id) {
             let modified_time = get_modified_time(path);

@@ -2,10 +2,7 @@ use crate::{
     errors::EditorError,
     event::EditorEvent,
     handlers::*,
-    services::{
-        doc_controller::DocController,
-        file_manager::{create_dir_if_not_exist, FileManager},
-    },
+    services::{doc_controller::DocController, file_manager::FileManager},
 };
 use flowy_database::DBConnection;
 use flowy_dispatch::prelude::*;
