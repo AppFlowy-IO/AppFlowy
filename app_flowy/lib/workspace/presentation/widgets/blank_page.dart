@@ -3,7 +3,7 @@ import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 
 class AnnouncementStackView extends HomeStackView {
-  const AnnouncementStackView() : super(type: ViewType.Blank, title: 'Blank');
+  const AnnouncementStackView() : super(type: ViewType.Blank, title: 'Blank', identifier: "Announcement");
 
   @override
   List<Object> get props => [];

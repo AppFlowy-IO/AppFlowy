@@ -1,57 +1,72 @@
-import 'package:app_flowy/workspace/domain/page_stack/page_stack_bloc.dart';
-import 'package:app_flowy/workspace/presentation/doc/doc_page.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:app_flowy/workspace/presentation/doc/doc_page.dart';
 import 'package:app_flowy/workspace/presentation/widgets/blank_page.dart';
 import 'package:app_flowy/workspace/presentation/widgets/fading_index_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/prelude.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class HomeStackView extends Equatable {
   final ViewType type;
   final String title;
-  const HomeStackView({required this.type, required this.title});
+  final String identifier;
+  const HomeStackView(
+      {required this.type, required this.title, required this.identifier});
+}
+
+class PageStackNotifier extends ChangeNotifier {
+  HomeStackView? innerView;
+
+  PageStackNotifier({
+    this.innerView,
+  });
+
+  set view(HomeStackView view) {
+    innerView = view;
+    notifyListeners();
+  }
+
+  HomeStackView get view {
+    return innerView ?? const AnnouncementStackView();
+  }
 }
 
 // HomePageStack is initialized as singleton to controll the page stack.
 class HomePageStack {
-  final PageStackBloc _bloc = PageStackBloc();
+  final PageStackNotifier _notifier = PageStackNotifier();
   HomePageStack();
 
   String title() {
-    return _bloc.state.stackView.title;
+    return _notifier.view.title;
   }
 
   void setStackView(HomeStackView? stackView) {
-    _bloc.add(PageStackEvent.setStackView(
-        stackView ?? const AnnouncementStackView()));
+    _notifier.view = stackView ?? const AnnouncementStackView();
   }
 
   Widget stackTopBar() {
-    return BlocProvider<PageStackBloc>(
-      create: (context) => _bloc,
-      child: BlocBuilder<PageStackBloc, PageStackState>(
-        builder: (context, state) {
-          return HomeTopBar(
-            view: state.stackView,
-          );
-        },
-      ),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => _notifier),
+      ],
+      child: Consumer(builder: (ctx, PageStackNotifier notifier, child) {
+        return HomeTopBar(view: notifier.view);
+      }),
     );
   }
 
   Widget stackWidget() {
-    return BlocProvider<PageStackBloc>(
-      create: (context) => _bloc,
-      child: BlocBuilder<PageStackBloc, PageStackState>(
-        builder: (context, state) {
-          return FadingIndexedStack(
-            index: pages.indexOf(state.stackView.type),
-            children: _buildStackWidget(state.stackView),
-          );
-        },
-      ),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => _notifier),
+      ],
+      child: Consumer(builder: (ctx, PageStackNotifier notifier, child) {
+        return FadingIndexedStack(
+          index: pages.indexOf(notifier.view.type),
+          children: _buildStackWidget(notifier.view),
+        );
+      }),
     );
   }
 }

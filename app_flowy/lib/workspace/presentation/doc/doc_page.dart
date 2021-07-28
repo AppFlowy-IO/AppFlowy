@@ -60,6 +60,7 @@ class DocPageStackView extends HomeStackView {
       : super(
           type: view.viewType,
           title: view.name,
+          identifier: view.id,
         );
 
   @override

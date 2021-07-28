@@ -1,12 +1,14 @@
+import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/domain/image.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
+import 'package:app_flowy/workspace/presentation/home/navigation_list.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pbenum.dart';
 import 'package:flutter/material.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
-// import 'package:flowy_infra_ui/style_widget/styled_navigation_list.dart';
 import 'package:flowy_infra_ui/style_widget/extension.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 
@@ -21,13 +23,15 @@ class HomeTopBar extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          HomeTitle(title: view.title, type: view.type),
+          _renderNavigationList(view),
           const Spacer(),
           _renderShareButton(),
           _renderMoreButton(),
         ],
       )
-          .padding(horizontal: HomeInsets.topBarTitlePadding)
+          .padding(
+            horizontal: HomeInsets.topBarTitlePadding,
+          )
           .bottomBorder(color: Colors.grey.shade300),
     );
   }
@@ -55,8 +59,8 @@ class HomeTopBar extends StatelessWidget {
     );
   }
 
-  Widget _renderNavigationList() {
-    return Container();
+  Widget _renderNavigationList(HomeStackView view) {
+    return const StyledNavigationList();
   }
 }
 
@@ -86,4 +90,19 @@ class HomeTitle extends StatelessWidget {
       ),
     );
   }
+}
+
+class ViewNaviItemImpl extends NaviItem {
+  final HomeStackView view;
+
+  ViewNaviItemImpl(this.view);
+
+  @override
+  NaviAction get action => () => getIt<HomePageStack>().setStackView(view);
+
+  @override
+  String get identifier => view.identifier;
+
+  @override
+  String get title => view.title;
 }
