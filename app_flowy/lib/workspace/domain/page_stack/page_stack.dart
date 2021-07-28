@@ -48,7 +48,7 @@ class HomePageStack {
   Widget stackTopBar() {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => _notifier),
+        ChangeNotifierProvider.value(value: _notifier),
       ],
       child: Consumer(builder: (ctx, PageStackNotifier notifier, child) {
         return HomeTopBar(view: notifier.view);
@@ -59,7 +59,7 @@ class HomePageStack {
   Widget stackWidget() {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => _notifier),
+        ChangeNotifierProvider.value(value: _notifier),
       ],
       child: Consumer(builder: (ctx, PageStackNotifier notifier, child) {
         return FadingIndexedStack(

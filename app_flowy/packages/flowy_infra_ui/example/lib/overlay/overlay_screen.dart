@@ -45,11 +45,11 @@ class OverlayScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 FlowyOverlay.of(context).insert(
-                  const FlutterLogo(
+                  widget: const FlutterLogo(
                     size: 200,
                   ),
-                  'overlay_flutter_logo',
-                  null,
+                  identifier: 'overlay_flutter_logo',
+                  delegate: null,
                 );
               },
               child: const Text('Show Overlay'),

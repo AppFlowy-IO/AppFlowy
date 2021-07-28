@@ -1,18 +1,18 @@
-import 'package:app_flowy/workspace/application/app/app_bloc.dart';
-import 'package:app_flowy/workspace/application/app/app_watch_bloc.dart';
-import 'package:app_flowy/workspace/presentation/app/view_list.dart';
-import 'package:app_flowy/workspace/presentation/widgets/menu/menu_list.dart';
-import 'package:app_flowy/startup/startup.dart';
+import 'package:dartz/dartz.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_infra_ui/style_widget/text_button.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:dartz/dartz.dart';
+
+import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/workspace/application/app/app_bloc.dart';
+import 'package:app_flowy/workspace/application/app/app_watch_bloc.dart';
+import 'package:app_flowy/workspace/presentation/app/view_list.dart';
+import 'package:app_flowy/workspace/presentation/widgets/menu/menu_list.dart';
+import 'package:provider/provider.dart';
+import 'app_header.dart';
 
 class AppWidgetSize {
   static double expandedIconSize = 24;
@@ -22,10 +22,25 @@ class AppWidgetSize {
       expandedIconSize * scale + expandedIconRightSpace;
 }
 
+class ViewListData extends ChangeNotifier {
+  List<View>? innerViews;
+  ViewListData();
+
+  set views(List<View> views) {
+    innerViews = views;
+    notifyListeners();
+  }
+
+  List<View> get views => innerViews ?? [];
+}
+
 class AppWidgetContext {
   final App app;
+  final viewListData = ViewListData();
 
-  AppWidgetContext(this.app);
+  AppWidgetContext(
+    this.app,
+  );
 
   Key valueKey() => ValueKey("${app.id}${app.version}");
 }
@@ -92,90 +107,27 @@ class AppWidget extends MenuItem {
   }
 
   Widget _renderViewList(Option<List<View>> some) {
-    List<View> views = some.fold(
-      () => List.empty(growable: true),
-      (views) => views,
+    some.fold(
+      () {
+        appCtx.viewListData.views = List.empty(growable: true);
+      },
+      (views) {
+        appCtx.viewListData.views = views;
+      },
     );
 
-    return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: ViewList(views));
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: appCtx.viewListData),
+      ],
+      child: Consumer(builder: (context, ViewListData notifier, child) {
+        return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: ViewList(notifier.views));
+      }),
+    );
   }
 
   @override
   MenuItemType get type => MenuItemType.app;
-}
-
-class AppHeader extends StatelessWidget {
-  final App app;
-  const AppHeader(
-    this.app, {
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        InkWell(
-          onTap: () {
-            ExpandableController.of(context,
-                    rebuildOnChange: false, required: true)
-                ?.toggle();
-          },
-          child: ExpandableIcon(
-            theme: ExpandableThemeData(
-              expandIcon: Icons.arrow_drop_up,
-              collapseIcon: Icons.arrow_drop_down,
-              iconColor: Colors.black,
-              iconSize: AppWidgetSize.expandedIconSize,
-              iconPadding: EdgeInsets.zero,
-              hasIcon: false,
-            ),
-          ),
-        ),
-        HSpace(AppWidgetSize.expandedIconRightSpace),
-        Expanded(
-          child: FlowyTextButton(
-            app.name,
-            onPressed: () {
-              debugPrint('show app document');
-            },
-          ),
-        ),
-        // StyledIconButton(
-        //   icon: const Icon(Icons.add),
-        //   onPressed: () {
-        //     debugPrint('add view');
-        //   },
-        // ),
-        PopupMenuButton(
-            iconSize: 20,
-            tooltip: 'create new view',
-            icon: const Icon(Icons.add),
-            padding: EdgeInsets.zero,
-            onSelected: (viewType) =>
-                _createView(viewType as ViewType, context),
-            itemBuilder: (context) => menuItemBuilder())
-      ],
-    );
-  }
-
-  List<PopupMenuEntry> menuItemBuilder() {
-    return ViewType.values
-        .where((element) => element != ViewType.Blank)
-        .map((ty) {
-      return PopupMenuItem<ViewType>(
-          value: ty,
-          child: Row(
-            children: <Widget>[Text(ty.name)],
-          ));
-    }).toList();
-  }
-
-  void _createView(ViewType viewType, BuildContext context) {
-    context.read<AppBloc>().add(AppEvent.createView("New view", "", viewType));
-  }
 }

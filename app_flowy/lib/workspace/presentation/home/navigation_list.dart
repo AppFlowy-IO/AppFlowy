@@ -1,6 +1,5 @@
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/home_top_bar.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,7 +13,7 @@ abstract class NaviItem {
   NaviAction get action;
 }
 
-class NavigationNotifier extends ChangeNotifier {
+class NavigationNotifier with ChangeNotifier {
   PageStackNotifier pageStackNotifier;
   NavigationNotifier(this.pageStackNotifier);
 
@@ -26,11 +25,11 @@ class NavigationNotifier extends ChangeNotifier {
   List<NaviItem> get naviItems {
     List<NaviItem> items = [
       ViewNaviItemImpl(pageStackNotifier.view),
-      ViewNaviItemImpl(pageStackNotifier.view),
-      ViewNaviItemImpl(pageStackNotifier.view),
-      ViewNaviItemImpl(pageStackNotifier.view),
-      ViewNaviItemImpl(pageStackNotifier.view),
-      ViewNaviItemImpl(pageStackNotifier.view)
+      // ViewNaviItemImpl(pageStackNotifier.view),
+      // ViewNaviItemImpl(pageStackNotifier.view),
+      // ViewNaviItemImpl(pageStackNotifier.view),
+      // ViewNaviItemImpl(pageStackNotifier.view),
+      // ViewNaviItemImpl(pageStackNotifier.view)
     ];
     return items;
   }

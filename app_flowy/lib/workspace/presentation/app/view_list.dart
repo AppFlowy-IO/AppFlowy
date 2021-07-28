@@ -1,29 +1,51 @@
-import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/application/view/view_list_bloc.dart';
-import 'package:app_flowy/workspace/presentation/view/view_widget.dart';
+import 'package:app_flowy/workspace/presentation/app/app_widget.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
-import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
+import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
+import 'package:app_flowy/workspace/presentation/view/view_widget.dart';
+
+class ViewListNotifier with ChangeNotifier {
+  List<View> innerViews;
+  View? _selectedView;
+  ViewListNotifier(this.innerViews);
+
+  set views(List<View> views) => innerViews = views;
+  List<View> get views => innerViews;
+
+  void openView(View view) {
+    _selectedView = view;
+    notifyListeners();
+  }
+
+  View? get selectedView => _selectedView;
+
+  void update(ViewListData notifier) {
+    innerViews = notifier.views;
+    notifyListeners();
+  }
+}
 
 class ViewList extends StatelessWidget {
   final List<View> views;
-  ViewList(this.views, {Key? key}) : super(key: UniqueKey());
+  const ViewList(this.views, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          getIt<ViewListBloc>(param1: views)..add(ViewListEvent.initial(views)),
-      child: BlocBuilder<ViewListBloc, ViewListState>(
-        builder: (context, state) {
-          return state.views.fold(
-            () => const SizedBox(),
-            (views) => _renderViews(context, views),
-          );
-        },
+    return ChangeNotifierProxyProvider<ViewListData, ViewListNotifier>(
+      create: (_) => ViewListNotifier(
+        Provider.of<ViewListData>(
+          context,
+          listen: false,
+        ).views,
       ),
+      update: (_, notifier, controller) => controller!..update(notifier),
+      child: Consumer(builder: (context, ViewListNotifier notifier, child) {
+        return _renderViews(context, notifier.views);
+      }),
     );
   }
 
@@ -35,7 +57,7 @@ class ViewList extends StatelessWidget {
       final viewWidget = ViewWidget(
         viewCtx: viewCtx,
         onOpen: (view) {
-          context.read<ViewListBloc>().add(ViewListEvent.openView(view));
+          context.read<ViewListNotifier>().openView(view);
           final stackView = stackViewFromView(viewCtx.view);
           getIt<HomePageStack>().setStackView(stackView);
         },
@@ -53,10 +75,11 @@ class ViewList extends StatelessWidget {
   }
 
   bool _isViewSelected(BuildContext context, String viewId) {
-    return context
-        .read<ViewListBloc>()
-        .state
-        .selectedView
-        .fold(() => false, (selectedViewId) => viewId == selectedViewId);
+    final view = context.read<ViewListNotifier>().selectedView;
+    if (view != null) {
+      return view.id == viewId;
+    } else {
+      return false;
+    }
   }
 }
