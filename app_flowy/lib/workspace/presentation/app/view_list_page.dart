@@ -1,4 +1,4 @@
-import 'package:app_flowy/workspace/presentation/app/app_widget.dart';
+import 'package:app_flowy/workspace/presentation/app/app_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
-import 'package:app_flowy/workspace/presentation/view/view_widget.dart';
+import 'package:app_flowy/workspace/presentation/view/view_page.dart';
 
 class ViewListNotifier with ChangeNotifier {
   List<View> innerViews;
@@ -16,7 +16,7 @@ class ViewListNotifier with ChangeNotifier {
   set views(List<View> views) => innerViews = views;
   List<View> get views => innerViews;
 
-  void openView(View view) {
+  void setSelectedView(View view) {
     _selectedView = view;
     notifyListeners();
   }
@@ -29,9 +29,9 @@ class ViewListNotifier with ChangeNotifier {
   }
 }
 
-class ViewList extends StatelessWidget {
+class ViewListPage extends StatelessWidget {
   final List<View> views;
-  const ViewList(this.views, {Key? key}) : super(key: key);
+  const ViewListPage(this.views, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -51,13 +51,13 @@ class ViewList extends StatelessWidget {
 
   Widget _renderViews(BuildContext context, List<View> views) {
     var viewWidgets = views.map((view) {
-      final viewCtx = ViewWidgetContext(view,
-          isSelected: _isViewSelected(context, view.id));
+      final viewCtx = ViewWidgetContext(view);
 
-      final viewWidget = ViewWidget(
+      final viewWidget = ViewPage(
         viewCtx: viewCtx,
+        isSelected: _isViewSelected(context, view.id),
         onOpen: (view) {
-          context.read<ViewListNotifier>().openView(view);
+          context.read<ViewListNotifier>().setSelectedView(view);
           final stackView = stackViewFromView(viewCtx.view);
           getIt<HomePageStack>().setStackView(stackView);
         },

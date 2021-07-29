@@ -13,7 +13,7 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_watch.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
-import 'package:app_flowy/workspace/presentation/app/app_widget.dart';
+import 'package:app_flowy/workspace/presentation/app/app_page.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:app_flowy/workspace/presentation/widgets/menu/menu_user.dart';
 
@@ -130,7 +130,7 @@ class MenuItemBuilder {
   MenuItemBuilder withApps(Option<List<App>> someApps) {
     List<MenuItem> appWidgets = someApps.foldRight(
       [],
-      (apps, _) => apps.map((app) => AppWidget(AppWidgetContext(app))).toList(),
+      (apps, _) => apps.map((app) => AppPage(AppPageContext(app))).toList(),
     );
     items.addAll(appWidgets);
     return this;

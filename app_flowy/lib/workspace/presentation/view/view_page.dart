@@ -4,27 +4,28 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:app_flowy/workspace/domain/image.dart';
-import 'package:app_flowy/workspace/presentation/app/app_widget.dart';
+import 'package:app_flowy/workspace/presentation/app/app_page.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 class ViewWidgetContext {
   final View view;
-  bool isSelected;
 
-  ViewWidgetContext(
-    this.view, {
-    this.isSelected = false,
-  });
+  ViewWidgetContext(this.view);
 
   Key valueKey() => ValueKey("${view.id}${view.version}");
 }
 
 typedef OpenViewCallback = void Function(View);
 
-class ViewWidget extends StatelessWidget {
+class ViewPage extends StatelessWidget {
   final ViewWidgetContext viewCtx;
+  final bool isSelected;
   final OpenViewCallback onOpen;
-  ViewWidget({Key? key, required this.viewCtx, required this.onOpen})
+  ViewPage(
+      {Key? key,
+      required this.viewCtx,
+      required this.onOpen,
+      required this.isSelected})
       : super(key: viewCtx.valueKey());
 
   @override
@@ -62,11 +63,11 @@ class ViewWidget extends StatelessWidget {
 
     Widget widget = Row(children: children).padding(
       vertical: 5,
-      left: AppWidgetSize.expandedPadding,
+      left: AppPageSize.expandedPadding,
       right: 5,
     );
 
-    if (viewCtx.isSelected) {
+    if (isSelected) {
       widget = FlowyHoverBackground(child: widget, config: config);
     }
 

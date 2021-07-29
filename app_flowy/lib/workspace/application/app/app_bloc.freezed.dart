@@ -308,7 +308,7 @@ class _$AppStateTearOff {
 
   _AppState call(
       {required bool isLoading,
-      required Option<List<View>> views,
+      required List<View>? views,
       required Either<Unit, WorkspaceError> successOrFailure}) {
     return _AppState(
       isLoading: isLoading,
@@ -324,7 +324,7 @@ const $AppState = _$AppStateTearOff();
 /// @nodoc
 mixin _$AppState {
   bool get isLoading => throw _privateConstructorUsedError;
-  Option<List<View>> get views => throw _privateConstructorUsedError;
+  List<View>? get views => throw _privateConstructorUsedError;
   Either<Unit, WorkspaceError> get successOrFailure =>
       throw _privateConstructorUsedError;
 
@@ -339,7 +339,7 @@ abstract class $AppStateCopyWith<$Res> {
       _$AppStateCopyWithImpl<$Res>;
   $Res call(
       {bool isLoading,
-      Option<List<View>> views,
+      List<View>? views,
       Either<Unit, WorkspaceError> successOrFailure});
 }
 
@@ -365,7 +365,7 @@ class _$AppStateCopyWithImpl<$Res> implements $AppStateCopyWith<$Res> {
       views: views == freezed
           ? _value.views
           : views // ignore: cast_nullable_to_non_nullable
-              as Option<List<View>>,
+              as List<View>?,
       successOrFailure: successOrFailure == freezed
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
@@ -381,7 +381,7 @@ abstract class _$AppStateCopyWith<$Res> implements $AppStateCopyWith<$Res> {
   @override
   $Res call(
       {bool isLoading,
-      Option<List<View>> views,
+      List<View>? views,
       Either<Unit, WorkspaceError> successOrFailure});
 }
 
@@ -408,7 +408,7 @@ class __$AppStateCopyWithImpl<$Res> extends _$AppStateCopyWithImpl<$Res>
       views: views == freezed
           ? _value.views
           : views // ignore: cast_nullable_to_non_nullable
-              as Option<List<View>>,
+              as List<View>?,
       successOrFailure: successOrFailure == freezed
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
@@ -428,7 +428,7 @@ class _$_AppState implements _AppState {
   @override
   final bool isLoading;
   @override
-  final Option<List<View>> views;
+  final List<View>? views;
   @override
   final Either<Unit, WorkspaceError> successOrFailure;
 
@@ -467,13 +467,13 @@ class _$_AppState implements _AppState {
 abstract class _AppState implements AppState {
   const factory _AppState(
       {required bool isLoading,
-      required Option<List<View>> views,
+      required List<View>? views,
       required Either<Unit, WorkspaceError> successOrFailure}) = _$_AppState;
 
   @override
   bool get isLoading => throw _privateConstructorUsedError;
   @override
-  Option<List<View>> get views => throw _privateConstructorUsedError;
+  List<View>? get views => throw _privateConstructorUsedError;
   @override
   Either<Unit, WorkspaceError> get successOrFailure =>
       throw _privateConstructorUsedError;

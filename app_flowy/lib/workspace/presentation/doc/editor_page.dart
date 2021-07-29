@@ -7,12 +7,12 @@ import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class EditorWdiget extends StatelessWidget {
+class EditorPage extends StatelessWidget {
   final FocusNode _focusNode = FocusNode();
   late EditorController controller;
   final Doc doc;
 
-  EditorWdiget({Key? key, required this.doc}) : super(key: key) {
+  EditorPage({Key? key, required this.doc}) : super(key: key) {
     controller = EditorController(
       document: doc.data,
       selection: const TextSelection.collapsed(offset: 0),

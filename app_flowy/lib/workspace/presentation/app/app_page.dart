@@ -1,4 +1,3 @@
-import 'package:dartz/dartz.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
@@ -9,12 +8,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:app_flowy/workspace/application/app/app_watch_bloc.dart';
-import 'package:app_flowy/workspace/presentation/app/view_list.dart';
+import 'package:app_flowy/workspace/presentation/app/view_list_page.dart';
 import 'package:app_flowy/workspace/presentation/widgets/menu/menu_list.dart';
 import 'package:provider/provider.dart';
+import 'package:styled_widget/styled_widget.dart';
 import 'app_header.dart';
 
-class AppWidgetSize {
+class AppPageSize {
   static double expandedIconSize = 24;
   static double expandedIconRightSpace = 8;
   static double scale = 1;
@@ -34,20 +34,20 @@ class ViewListData extends ChangeNotifier {
   List<View> get views => innerViews ?? [];
 }
 
-class AppWidgetContext {
+class AppPageContext {
   final App app;
   final viewListData = ViewListData();
 
-  AppWidgetContext(
+  AppPageContext(
     this.app,
   );
 
   Key valueKey() => ValueKey("${app.id}${app.version}");
 }
 
-class AppWidget extends MenuItem {
-  final AppWidgetContext appCtx;
-  AppWidget(this.appCtx, {Key? key}) : super(key: appCtx.valueKey());
+class AppPage extends MenuItem {
+  final AppPageContext appCtx;
+  AppPage(this.appCtx, {Key? key}) : super(key: appCtx.valueKey());
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +70,7 @@ class AppWidget extends MenuItem {
             initial: (_) => BlocBuilder<AppBloc, AppState>(
               builder: (context, state) => _renderViewList(state.views),
             ),
-            loadViews: (s) => _renderViewList(some(s.views)),
+            loadViews: (s) => _renderViewList(s.views),
             loadFail: (s) => FlowyErrorPage(s.error.toString()),
           );
 
@@ -106,24 +106,14 @@ class AppWidget extends MenuItem {
     );
   }
 
-  Widget _renderViewList(Option<List<View>> some) {
-    some.fold(
-      () {
-        appCtx.viewListData.views = List.empty(growable: true);
-      },
-      (views) {
-        appCtx.viewListData.views = views;
-      },
-    );
-
+  Widget _renderViewList(List<View>? views) {
+    appCtx.viewListData.views = views ?? List.empty(growable: false);
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: appCtx.viewListData),
       ],
       child: Consumer(builder: (context, ViewListData notifier, child) {
-        return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: ViewList(notifier.views));
+        return ViewListPage(notifier.views).padding(vertical: 8);
       }),
     );
   }

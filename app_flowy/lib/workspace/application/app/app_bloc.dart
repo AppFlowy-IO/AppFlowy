@@ -29,7 +29,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   Stream<AppState> _fetchViews() async* {
     final viewsOrFailed = await iAppImpl.getViews();
     yield viewsOrFailed.fold(
-      (apps) => state.copyWith(views: some(apps)),
+      (apps) => state.copyWith(views: apps),
       (error) => state.copyWith(successOrFailure: right(error)),
     );
   }
@@ -46,13 +46,13 @@ abstract class AppEvent with _$AppEvent {
 abstract class AppState implements _$AppState {
   const factory AppState({
     required bool isLoading,
-    required Option<List<View>> views,
+    required List<View>? views,
     required Either<Unit, WorkspaceError> successOrFailure,
   }) = _AppState;
 
   factory AppState.initial() => AppState(
         isLoading: false,
-        views: none(),
+        views: null,
         successOrFailure: left(unit),
       );
 }
