@@ -87,12 +87,12 @@ class WorkspaceEventCreateWorkspace {
     }
 }
 
-class WorkspaceEventGetCurWorkspace {
-    WorkspaceEventGetCurWorkspace();
+class WorkspaceEventReadCurWorkspace {
+    WorkspaceEventReadCurWorkspace();
 
     Future<Either<Workspace, WorkspaceError>> send() {
      final request = FFIRequest.create()
-        ..event = WorkspaceEvent.GetCurWorkspace.toString();
+        ..event = WorkspaceEvent.ReadCurWorkspace.toString();
 
      return Dispatch.asyncRequest(request).then((bytesResult) => bytesResult.fold(
         (okBytes) => left(Workspace.fromBuffer(okBytes)),
@@ -101,18 +101,35 @@ class WorkspaceEventGetCurWorkspace {
     }
 }
 
-class WorkspaceEventGetWorkspace {
+class WorkspaceEventReadWorkspace {
      QueryWorkspaceRequest request;
-     WorkspaceEventGetWorkspace(this.request);
+     WorkspaceEventReadWorkspace(this.request);
 
     Future<Either<Workspace, WorkspaceError>> send() {
     final request = FFIRequest.create()
-          ..event = WorkspaceEvent.GetWorkspace.toString()
+          ..event = WorkspaceEvent.ReadWorkspace.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
            (okBytes) => left(Workspace.fromBuffer(okBytes)),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
+class WorkspaceEventDeleteWorkspace {
+     DeleteWorkspaceRequest request;
+     WorkspaceEventDeleteWorkspace(this.request);
+
+    Future<Either<Unit, WorkspaceError>> send() {
+    final request = FFIRequest.create()
+          ..event = WorkspaceEvent.DeleteWorkspace.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (bytes) => left(unit),
            (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
         ));
     }
@@ -149,18 +166,52 @@ class WorkspaceEventCreateApp {
     }
 }
 
-class WorkspaceEventGetApp {
+class WorkspaceEventDeleteApp {
+     DeleteAppRequest request;
+     WorkspaceEventDeleteApp(this.request);
+
+    Future<Either<Unit, WorkspaceError>> send() {
+    final request = FFIRequest.create()
+          ..event = WorkspaceEvent.DeleteApp.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (bytes) => left(unit),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
+class WorkspaceEventReadApp {
      QueryAppRequest request;
-     WorkspaceEventGetApp(this.request);
+     WorkspaceEventReadApp(this.request);
 
     Future<Either<App, WorkspaceError>> send() {
     final request = FFIRequest.create()
-          ..event = WorkspaceEvent.GetApp.toString()
+          ..event = WorkspaceEvent.ReadApp.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
            (okBytes) => left(App.fromBuffer(okBytes)),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
+class WorkspaceEventUpdateApp {
+     UpdateAppRequest request;
+     WorkspaceEventUpdateApp(this.request);
+
+    Future<Either<Unit, WorkspaceError>> send() {
+    final request = FFIRequest.create()
+          ..event = WorkspaceEvent.UpdateApp.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (bytes) => left(unit),
            (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
         ));
     }
@@ -207,6 +258,23 @@ class WorkspaceEventUpdateView {
     Future<Either<Unit, WorkspaceError>> send() {
     final request = FFIRequest.create()
           ..event = WorkspaceEvent.UpdateView.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (bytes) => left(unit),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
+class WorkspaceEventDeleteView {
+     DeleteViewRequest request;
+     WorkspaceEventDeleteView(this.request);
+
+    Future<Either<Unit, WorkspaceError>> send() {
+    final request = FFIRequest.create()
+          ..event = WorkspaceEvent.DeleteView.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)

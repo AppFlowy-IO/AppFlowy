@@ -23,7 +23,7 @@ class AppRepository {
       ..appId = appId
       ..readViews = false;
 
-    return WorkspaceEventGetApp(request).send();
+    return WorkspaceEventReadApp(request).send();
   }
 
   Future<Either<View, WorkspaceError>> createView(
@@ -42,7 +42,7 @@ class AppRepository {
       ..appId = appId
       ..readViews = true;
 
-    return WorkspaceEventGetApp(request).send().then((result) {
+    return WorkspaceEventReadApp(request).send().then((result) {
       return result.fold(
         (app) => left(app.views.items),
         (error) => right(error),

@@ -19,20 +19,22 @@ class RustSDKInitTask extends LaunchTask {
 
     Directory directory = await getApplicationDocumentsDirectory();
     final documentPath = directory.path;
-    final flowySandbox = Directory('$documentPath/flowy');
-    switch (context.env) {
-      case IntegrationEnv.dev:
-        // await context.getIt<FlowySDK>().init(Directory('./temp/flowy_dev'));
-        await context.getIt<FlowySDK>().init(flowySandbox);
-        break;
-      case IntegrationEnv.pro:
-        await context.getIt<FlowySDK>().init(flowySandbox);
-        break;
-      default:
-        assert(false, 'Unsupported env');
-    }
 
-    return Future(() => {});
+    return Directory('$documentPath/flowy')
+        .create()
+        .then((Directory directory) async {
+      switch (context.env) {
+        case IntegrationEnv.dev:
+          // await context.getIt<FlowySDK>().init(Directory('./temp/flowy_dev'));
+          await context.getIt<FlowySDK>().init(directory);
+          break;
+        case IntegrationEnv.pro:
+          await context.getIt<FlowySDK>().init(directory);
+          break;
+        default:
+          assert(false, 'Unsupported env');
+      }
+    });
   }
 }
 

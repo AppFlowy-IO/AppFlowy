@@ -20,7 +20,7 @@ class WorkspaceRepo {
   });
 
   Future<Either<App, WorkspaceError>> createApp(String appName, String desc) {
-    return WorkspaceEventGetCurWorkspace().send().then((result) {
+    return WorkspaceEventReadCurWorkspace().send().then((result) {
       return result.fold(
         (workspace) {
           final request = CreateAppRequest.create()
@@ -42,7 +42,7 @@ class WorkspaceRepo {
       ..workspaceId = user.workspace
       ..readApps = readApps;
 
-    return WorkspaceEventGetWorkspace(request).send().then((result) {
+    return WorkspaceEventReadWorkspace(request).send().then((result) {
       return result.fold(
         (workspace) => left(workspace),
         (error) => right(error),
