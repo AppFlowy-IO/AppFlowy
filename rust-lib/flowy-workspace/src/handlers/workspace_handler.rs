@@ -17,16 +17,16 @@ pub async fn create_workspace(
     response_ok(detail)
 }
 
-#[tracing::instrument(name = "get_cur_workspace", skip(controller))]
-pub async fn get_cur_workspace(
+#[tracing::instrument(name = "read_cur_workspace", skip(controller))]
+pub async fn read_cur_workspace(
     controller: Unit<Arc<WorkspaceController>>,
 ) -> ResponseResult<Workspace, WorkspaceError> {
     let workspace = controller.read_cur_workspace().await?;
     response_ok(workspace)
 }
 
-#[tracing::instrument(name = "get_workspace", skip(data, controller))]
-pub async fn get_workspace(
+#[tracing::instrument(name = "read_workspace", skip(data, controller))]
+pub async fn read_workspace(
     data: Data<QueryWorkspaceRequest>,
     controller: Unit<Arc<WorkspaceController>>,
 ) -> ResponseResult<Workspace, WorkspaceError> {

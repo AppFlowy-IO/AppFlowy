@@ -37,18 +37,29 @@ pub fn create(user: Arc<dyn WorkspaceUser>, database: Arc<dyn WorkspaceDatabase>
         app_controller.clone(),
     ));
 
-    Module::new()
+    let mut module = Module::new()
         .name("Flowy-Workspace")
         .data(workspace_controller)
         .data(app_controller)
-        .data(view_controller)
+        .data(view_controller);
+
+    module = module
         .event(WorkspaceEvent::ReadAllWorkspace, read_all_workspaces)
         .event(WorkspaceEvent::CreateWorkspace, create_workspace)
-        .event(WorkspaceEvent::GetCurWorkspace, get_cur_workspace)
-        .event(WorkspaceEvent::GetWorkspace, get_workspace)
+        .event(WorkspaceEvent::ReadCurWorkspace, read_cur_workspace)
+        .event(WorkspaceEvent::ReadWorkspace, read_workspace);
+
+    module = module
         .event(WorkspaceEvent::CreateApp, create_app)
-        .event(WorkspaceEvent::GetApp, get_app)
+        .event(WorkspaceEvent::ReadApp, read_app)
+        .event(WorkspaceEvent::UpdateApp, update_app)
+        .event(WorkspaceEvent::DeleteApp, delete_app);
+
+    module = module
         .event(WorkspaceEvent::CreateView, create_view)
         .event(WorkspaceEvent::ReadView, read_view)
         .event(WorkspaceEvent::UpdateView, update_view)
+        .event(WorkspaceEvent::DeleteView, delete_view);
+
+    module
 }

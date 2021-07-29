@@ -77,6 +77,7 @@ pub trait TesterTrait {
         self.mut_context().response = Some(resp);
     }
 
+    // TODO: support return Option<R>
     fn parse<R>(&mut self) -> R
     where
         R: FromBytes,

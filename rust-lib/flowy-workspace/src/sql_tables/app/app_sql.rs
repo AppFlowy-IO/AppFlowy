@@ -31,32 +31,40 @@ impl AppTableSql {
         Ok(())
     }
 
-    pub(crate) fn read_app(&self, app_id: &str) -> Result<AppTable, WorkspaceError> {
+    pub(crate) fn read_app(
+        &self,
+        app_id: &str,
+        is_trash: bool,
+    ) -> Result<AppTable, WorkspaceError> {
         let app_table = dsl::app_table
             .filter(app_table::id.eq(app_id))
+            .filter(app_table::is_trash.eq(is_trash))
             .first::<AppTable>(&*(self.database.db_connection()?))?;
 
         Ok(app_table)
     }
 
-    pub(crate) fn delete_app(&self, _app_id: &str) -> Result<(), WorkspaceError> {
-        unimplemented!()
-    }
-
-    pub(crate) fn read_views_belong_to_app(
-        &self,
-        app_id: &str,
-    ) -> Result<Vec<ViewTable>, WorkspaceError> {
+    pub(crate) fn delete_app(&self, app_id: &str) -> Result<(), WorkspaceError> {
         let conn = self.database.db_connection()?;
-
-        let views = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
-            let app_table: AppTable = dsl::app_table
-                .filter(app_table::id.eq(app_id))
-                .first::<AppTable>(&*(conn))?;
-            let views = ViewTable::belonging_to(&app_table).load::<ViewTable>(&*conn)?;
-            Ok(views)
-        })?;
-
-        Ok(views)
+        diesel_delete_table!(app_table, app_id, conn);
+        Ok(())
     }
+
+    // pub(crate) fn read_views_belong_to_app(
+    //     &self,
+    //     app_id: &str,
+    // ) -> Result<Vec<ViewTable>, WorkspaceError> {
+    //     let conn = self.database.db_connection()?;
+    //
+    //     let views = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
+    //         let app_table: AppTable = dsl::app_table
+    //             .filter(app_table::id.eq(app_id))
+    //             .first::<AppTable>(&*(conn))?;
+    //         let views =
+    // ViewTable::belonging_to(&app_table).load::<ViewTable>(&*conn)?;
+    //         Ok(views)
+    //     })?;
+    //
+    //     Ok(views)
+    // }
 }

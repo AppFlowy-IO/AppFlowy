@@ -9,6 +9,7 @@ table! {
         modified_time -> BigInt,
         create_time -> BigInt,
         version -> BigInt,
+        is_trash -> Bool,
     }
 }
 
@@ -45,6 +46,7 @@ table! {
         thumbnail -> Text,
         view_type -> Integer,
         version -> BigInt,
+        is_trash -> Bool,
     }
 }
 

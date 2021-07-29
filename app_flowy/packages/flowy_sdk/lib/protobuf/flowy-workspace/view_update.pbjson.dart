@@ -16,13 +16,15 @@ const UpdateViewRequest$json = const {
     const {'1': 'name', '3': 2, '4': 1, '5': 9, '9': 0, '10': 'name'},
     const {'1': 'desc', '3': 3, '4': 1, '5': 9, '9': 1, '10': 'desc'},
     const {'1': 'thumbnail', '3': 4, '4': 1, '5': 9, '9': 2, '10': 'thumbnail'},
+    const {'1': 'is_trash', '3': 5, '4': 1, '5': 8, '9': 3, '10': 'isTrash'},
   ],
   '8': const [
     const {'1': 'one_of_name'},
     const {'1': 'one_of_desc'},
     const {'1': 'one_of_thumbnail'},
+    const {'1': 'one_of_is_trash'},
   ],
 };
 
 /// Descriptor for `UpdateViewRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List updateViewRequestDescriptor = $convert.base64Decode('ChFVcGRhdGVWaWV3UmVxdWVzdBIXCgd2aWV3X2lkGAEgASgJUgZ2aWV3SWQSFAoEbmFtZRgCIAEoCUgAUgRuYW1lEhQKBGRlc2MYAyABKAlIAVIEZGVzYxIeCgl0aHVtYm5haWwYBCABKAlIAlIJdGh1bWJuYWlsQg0KC29uZV9vZl9uYW1lQg0KC29uZV9vZl9kZXNjQhIKEG9uZV9vZl90aHVtYm5haWw=');
+final $typed_data.Uint8List updateViewRequestDescriptor = $convert.base64Decode('ChFVcGRhdGVWaWV3UmVxdWVzdBIXCgd2aWV3X2lkGAEgASgJUgZ2aWV3SWQSFAoEbmFtZRgCIAEoCUgAUgRuYW1lEhQKBGRlc2MYAyABKAlIAVIEZGVzYxIeCgl0aHVtYm5haWwYBCABKAlIAlIJdGh1bWJuYWlsEhsKCGlzX3RyYXNoGAUgASgISANSB2lzVHJhc2hCDQoLb25lX29mX25hbWVCDQoLb25lX29mX2Rlc2NCEgoQb25lX29mX3RodW1ibmFpbEIRCg9vbmVfb2ZfaXNfdHJhc2g=');

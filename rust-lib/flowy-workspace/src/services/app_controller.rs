@@ -40,12 +40,17 @@ impl AppController {
         Ok(app)
     }
 
-    pub async fn read_app(&self, app_id: &str) -> Result<App, WorkspaceError> {
-        let app_table = self.async_read_app(&app_id).await?;
+    pub async fn read_app(&self, app_id: &str, is_trash: bool) -> Result<App, WorkspaceError> {
+        let app_table = self.async_read_app(&app_id, is_trash).await?;
         Ok(app_table.into())
     }
 
-    pub fn update_app(&self, params: UpdateAppParams) -> Result<(), WorkspaceError> {
+    pub async fn delete_app(&self, app_id: &str) -> Result<(), WorkspaceError> {
+        let _ = self.sql.delete_app(app_id)?;
+        Ok(())
+    }
+
+    pub async fn update_app(&self, params: UpdateAppParams) -> Result<(), WorkspaceError> {
         let changeset = AppTableChangeset::new(params);
         let app_id = changeset.id.clone();
         let _ = self.sql.update_app(changeset)?;
@@ -53,23 +58,16 @@ impl AppController {
         Ok(())
     }
 
-    pub async fn read_views(&self, app_id: &str) -> Result<Vec<View>, WorkspaceError> {
-        let views = self
-            .sql
-            .read_views_belong_to_app(app_id)?
-            .into_iter()
-            .map(|view_table| view_table.into())
-            .collect::<Vec<View>>();
-
-        Ok(views)
-    }
-
-    fn async_read_app(&self, app_id: &str) -> DispatchFuture<Result<AppTable, WorkspaceError>> {
+    fn async_read_app(
+        &self,
+        app_id: &str,
+        is_trash: bool,
+    ) -> DispatchFuture<Result<AppTable, WorkspaceError>> {
         let sql = self.sql.clone();
         let app_id = app_id.to_owned();
         DispatchFuture {
             fut: Box::pin(async move {
-                let app_table = sql.read_app(&app_id)?;
+                let app_table = sql.read_app(&app_id, is_trash)?;
                 // TODO: fetch app from remote server
                 Ok(app_table)
             }),

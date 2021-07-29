@@ -31,6 +31,11 @@ enum UpdateAppRequest_OneOfColorStyle {
   notSet
 }
 
+enum UpdateAppRequest_OneOfIsTrash {
+  isTrash, 
+  notSet
+}
+
 class UpdateAppRequest extends $pb.GeneratedMessage {
   static const $core.Map<$core.int, UpdateAppRequest_OneOfWorkspaceId> _UpdateAppRequest_OneOfWorkspaceIdByTag = {
     2 : UpdateAppRequest_OneOfWorkspaceId.workspaceId,
@@ -48,16 +53,22 @@ class UpdateAppRequest extends $pb.GeneratedMessage {
     5 : UpdateAppRequest_OneOfColorStyle.colorStyle,
     0 : UpdateAppRequest_OneOfColorStyle.notSet
   };
+  static const $core.Map<$core.int, UpdateAppRequest_OneOfIsTrash> _UpdateAppRequest_OneOfIsTrashByTag = {
+    6 : UpdateAppRequest_OneOfIsTrash.isTrash,
+    0 : UpdateAppRequest_OneOfIsTrash.notSet
+  };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UpdateAppRequest', createEmptyInstance: create)
     ..oo(0, [2])
     ..oo(1, [3])
     ..oo(2, [4])
     ..oo(3, [5])
+    ..oo(4, [6])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'appId')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspaceId')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
     ..aOM<$0.ColorStyle>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'colorStyle', subBuilder: $0.ColorStyle.create)
+    ..aOB(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isTrash')
     ..hasRequiredFields = false
   ;
 
@@ -68,6 +79,7 @@ class UpdateAppRequest extends $pb.GeneratedMessage {
     $core.String? name,
     $core.String? desc,
     $0.ColorStyle? colorStyle,
+    $core.bool? isTrash,
   }) {
     final _result = create();
     if (appId != null) {
@@ -84,6 +96,9 @@ class UpdateAppRequest extends $pb.GeneratedMessage {
     }
     if (colorStyle != null) {
       _result.colorStyle = colorStyle;
+    }
+    if (isTrash != null) {
+      _result.isTrash = isTrash;
     }
     return _result;
   }
@@ -119,6 +134,9 @@ class UpdateAppRequest extends $pb.GeneratedMessage {
 
   UpdateAppRequest_OneOfColorStyle whichOneOfColorStyle() => _UpdateAppRequest_OneOfColorStyleByTag[$_whichOneof(3)]!;
   void clearOneOfColorStyle() => clearField($_whichOneof(3));
+
+  UpdateAppRequest_OneOfIsTrash whichOneOfIsTrash() => _UpdateAppRequest_OneOfIsTrashByTag[$_whichOneof(4)]!;
+  void clearOneOfIsTrash() => clearField($_whichOneof(4));
 
   @$pb.TagNumber(1)
   $core.String get appId => $_getSZ(0);
@@ -166,5 +184,14 @@ class UpdateAppRequest extends $pb.GeneratedMessage {
   void clearColorStyle() => clearField(5);
   @$pb.TagNumber(5)
   $0.ColorStyle ensureColorStyle() => $_ensure(4);
+
+  @$pb.TagNumber(6)
+  $core.bool get isTrash => $_getBF(5);
+  @$pb.TagNumber(6)
+  set isTrash($core.bool v) { $_setBool(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasIsTrash() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearIsTrash() => clearField(6);
 }
 

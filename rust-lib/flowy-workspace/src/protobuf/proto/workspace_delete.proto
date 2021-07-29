@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+message DeleteWorkspaceRequest {
+    string workspace_id = 1;
+}

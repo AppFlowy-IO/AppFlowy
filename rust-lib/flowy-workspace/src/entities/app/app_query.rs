@@ -9,11 +9,35 @@ pub struct QueryAppRequest {
 
     #[pb(index = 2)]
     pub read_views: bool,
+
+    #[pb(index = 3)]
+    pub is_trash: bool,
+}
+
+impl QueryAppRequest {
+    pub fn new(app_id: &str) -> Self {
+        QueryAppRequest {
+            app_id: app_id.to_string(),
+            read_views: false,
+            is_trash: false,
+        }
+    }
+
+    pub fn set_read_views(mut self, read_views: bool) -> Self {
+        self.read_views = read_views;
+        self
+    }
+
+    pub fn set_is_trash(mut self, is_trash: bool) -> Self {
+        self.is_trash = is_trash;
+        self
+    }
 }
 
 pub struct QueryAppParams {
     pub app_id: String,
     pub read_views: bool,
+    pub is_trash: bool,
 }
 
 impl TryInto<QueryAppParams> for QueryAppRequest {
@@ -27,6 +51,7 @@ impl TryInto<QueryAppParams> for QueryAppRequest {
         Ok(QueryAppParams {
             app_id,
             read_views: self.read_views,
+            is_trash: self.is_trash,
         })
     }
 }

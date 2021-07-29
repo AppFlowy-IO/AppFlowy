@@ -8,25 +8,37 @@ pub enum WorkspaceEvent {
     #[event(input = "CreateWorkspaceRequest", output = "Workspace")]
     CreateWorkspace  = 0,
 
-    #[display(fmt = "GetCurWorkspace")]
+    #[display(fmt = "ReadCurWorkspace")]
     #[event(output = "Workspace")]
-    GetCurWorkspace  = 1,
+    ReadCurWorkspace = 1,
 
-    #[display(fmt = "GetWorkspace")]
+    #[display(fmt = "ReadWorkspace")]
     #[event(input = "QueryWorkspaceRequest", output = "Workspace")]
-    GetWorkspace     = 2,
+    ReadWorkspace    = 2,
+
+    #[display(fmt = "DeleteWorkspace")]
+    #[event(input = "DeleteWorkspaceRequest")]
+    DeleteWorkspace  = 3,
 
     #[display(fmt = "ReadAllWorkspace")]
     #[event(output = "Workspaces")]
-    ReadAllWorkspace = 3,
+    ReadAllWorkspace = 4,
 
     #[display(fmt = "CreateApp")]
     #[event(input = "CreateAppRequest", output = "App")]
     CreateApp        = 101,
 
-    #[display(fmt = "GetApp")]
+    #[display(fmt = "DeleteApp")]
+    #[event(input = "DeleteAppRequest")]
+    DeleteApp        = 102,
+
+    #[display(fmt = "ReadApp")]
     #[event(input = "QueryAppRequest", output = "App")]
-    GetApp           = 102,
+    ReadApp          = 103,
+
+    #[display(fmt = "UpdateApp")]
+    #[event(input = "UpdateAppRequest")]
+    UpdateApp        = 104,
 
     #[display(fmt = "CreateView")]
     #[event(input = "CreateViewRequest", output = "View")]
@@ -39,4 +51,8 @@ pub enum WorkspaceEvent {
     #[display(fmt = "UpdateView")]
     #[event(input = "UpdateViewRequest")]
     UpdateView       = 203,
+
+    #[display(fmt = "DeleteView")]
+    #[event(input = "DeleteViewRequest")]
+    DeleteView       = 204,
 }

@@ -20,6 +20,7 @@ pub(crate) struct ViewTable {
     pub thumbnail: String,
     pub view_type: ViewTableType,
     pub version: i64,
+    pub is_trash: bool,
 }
 
 impl ViewTable {
@@ -36,6 +37,7 @@ impl ViewTable {
             thumbnail: params.thumbnail,
             view_type: params.view_type,
             version: 0,
+            is_trash: false,
         }
     }
 }
@@ -65,6 +67,7 @@ pub struct ViewTableChangeset {
     pub desc: Option<String>,
     pub thumbnail: Option<String>,
     pub modified_time: i64,
+    pub is_trash: Option<bool>,
 }
 
 impl ViewTableChangeset {
@@ -75,6 +78,7 @@ impl ViewTableChangeset {
             desc: params.desc,
             thumbnail: params.thumbnail,
             modified_time: timestamp(),
+            is_trash: params.is_trash,
         }
     }
 }

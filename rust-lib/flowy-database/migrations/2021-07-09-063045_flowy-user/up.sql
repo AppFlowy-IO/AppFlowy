@@ -26,7 +26,8 @@ CREATE TABLE app_table (
     last_view_id TEXT DEFAULT '',
     modified_time BIGINT NOT NULL DEFAULT 0,
     create_time BIGINT NOT NULL DEFAULT 0,
-    version BIGINT NOT NULL DEFAULT 0
+    version BIGINT NOT NULL DEFAULT 0,
+    is_trash Boolean NOT NULL DEFAULT false
 );
 
 CREATE TABLE view_table (
@@ -38,5 +39,6 @@ CREATE TABLE view_table (
     create_time BIGINT NOT NULL DEFAULT 0,
     thumbnail TEXT NOT NULL DEFAULT '',
     view_type INTEGER NOT NULL DEFAULT 0,
-    version BIGINT NOT NULL DEFAULT 0
+    version BIGINT NOT NULL DEFAULT 0,
+    is_trash Boolean NOT NULL DEFAULT false
 );

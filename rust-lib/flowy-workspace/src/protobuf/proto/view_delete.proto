@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+message DeleteViewRequest {
+    string view_id = 1;
+}

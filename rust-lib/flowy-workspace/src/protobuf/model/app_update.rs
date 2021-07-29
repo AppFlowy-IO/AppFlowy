@@ -32,6 +32,7 @@ pub struct UpdateAppRequest {
     pub one_of_name: ::std::option::Option<UpdateAppRequest_oneof_one_of_name>,
     pub one_of_desc: ::std::option::Option<UpdateAppRequest_oneof_one_of_desc>,
     pub one_of_color_style: ::std::option::Option<UpdateAppRequest_oneof_one_of_color_style>,
+    pub one_of_is_trash: ::std::option::Option<UpdateAppRequest_oneof_one_of_is_trash>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -61,6 +62,11 @@ pub enum UpdateAppRequest_oneof_one_of_desc {
 #[derive(Clone,PartialEq,Debug)]
 pub enum UpdateAppRequest_oneof_one_of_color_style {
     color_style(super::app_create::ColorStyle),
+}
+
+#[derive(Clone,PartialEq,Debug)]
+pub enum UpdateAppRequest_oneof_one_of_is_trash {
+    is_trash(bool),
 }
 
 impl UpdateAppRequest {
@@ -289,6 +295,31 @@ impl UpdateAppRequest {
             super::app_create::ColorStyle::new()
         }
     }
+
+    // bool is_trash = 6;
+
+
+    pub fn get_is_trash(&self) -> bool {
+        match self.one_of_is_trash {
+            ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_is_trash::is_trash(v)) => v,
+            _ => false,
+        }
+    }
+    pub fn clear_is_trash(&mut self) {
+        self.one_of_is_trash = ::std::option::Option::None;
+    }
+
+    pub fn has_is_trash(&self) -> bool {
+        match self.one_of_is_trash {
+            ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_is_trash::is_trash(..)) => true,
+            _ => false,
+        }
+    }
+
+    // Param is passed by value, moved
+    pub fn set_is_trash(&mut self, v: bool) {
+        self.one_of_is_trash = ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_is_trash::is_trash(v))
+    }
 }
 
 impl ::protobuf::Message for UpdateAppRequest {
@@ -331,6 +362,12 @@ impl ::protobuf::Message for UpdateAppRequest {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
                     self.one_of_color_style = ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_color_style::color_style(is.read_message()?));
+                },
+                6 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    self.one_of_is_trash = ::std::option::Option::Some(UpdateAppRequest_oneof_one_of_is_trash::is_trash(is.read_bool()?));
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -376,6 +413,13 @@ impl ::protobuf::Message for UpdateAppRequest {
                 },
             };
         }
+        if let ::std::option::Option::Some(ref v) = self.one_of_is_trash {
+            match v {
+                &UpdateAppRequest_oneof_one_of_is_trash::is_trash(v) => {
+                    my_size += 2;
+                },
+            };
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -412,6 +456,13 @@ impl ::protobuf::Message for UpdateAppRequest {
                     os.write_tag(5, ::protobuf::wire_format::WireTypeLengthDelimited)?;
                     os.write_raw_varint32(v.get_cached_size())?;
                     v.write_to_with_cached_sizes(os)?;
+                },
+            };
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_is_trash {
+            match v {
+                &UpdateAppRequest_oneof_one_of_is_trash::is_trash(v) => {
+                    os.write_bool(6, v)?;
                 },
             };
         }
@@ -478,6 +529,11 @@ impl ::protobuf::Message for UpdateAppRequest {
                 UpdateAppRequest::has_color_style,
                 UpdateAppRequest::get_color_style,
             ));
+            fields.push(::protobuf::reflect::accessor::make_singular_bool_accessor::<_>(
+                "is_trash",
+                UpdateAppRequest::has_is_trash,
+                UpdateAppRequest::get_is_trash,
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<UpdateAppRequest>(
                 "UpdateAppRequest",
                 fields,
@@ -499,6 +555,7 @@ impl ::protobuf::Clear for UpdateAppRequest {
         self.one_of_name = ::std::option::Option::None;
         self.one_of_desc = ::std::option::Option::None;
         self.one_of_color_style = ::std::option::Option::None;
+        self.one_of_is_trash = ::std::option::Option::None;
         self.unknown_fields.clear();
     }
 }
@@ -516,34 +573,39 @@ impl ::protobuf::reflect::ProtobufValue for UpdateAppRequest {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x10app_update.proto\x1a\x10app_create.proto\"\xf5\x01\n\x10UpdateAppR\
+    \n\x10app_update.proto\x1a\x10app_create.proto\"\xa5\x02\n\x10UpdateAppR\
     equest\x12\x15\n\x06app_id\x18\x01\x20\x01(\tR\x05appId\x12#\n\x0cworksp\
     ace_id\x18\x02\x20\x01(\tH\0R\x0bworkspaceId\x12\x14\n\x04name\x18\x03\
     \x20\x01(\tH\x01R\x04name\x12\x14\n\x04desc\x18\x04\x20\x01(\tH\x02R\x04\
     desc\x12.\n\x0bcolor_style\x18\x05\x20\x01(\x0b2\x0b.ColorStyleH\x03R\nc\
-    olorStyleB\x15\n\x13one_of_workspace_idB\r\n\x0bone_of_nameB\r\n\x0bone_\
-    of_descB\x14\n\x12one_of_color_styleJ\xb4\x03\n\x06\x12\x04\0\0\t\x01\n\
-    \x08\n\x01\x0c\x12\x03\0\0\x12\n\t\n\x02\x03\0\x12\x03\x01\0\x1a\n\n\n\
-    \x02\x04\0\x12\x04\x03\0\t\x01\n\n\n\x03\x04\0\x01\x12\x03\x03\x08\x18\n\
-    \x0b\n\x04\x04\0\x02\0\x12\x03\x04\x04\x16\n\x0c\n\x05\x04\0\x02\0\x05\
-    \x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x04\x0b\x11\n\x0c\
-    \n\x05\x04\0\x02\0\x03\x12\x03\x04\x14\x15\n\x0b\n\x04\x04\0\x08\0\x12\
-    \x03\x05\x04:\n\x0c\n\x05\x04\0\x08\0\x01\x12\x03\x05\n\x1d\n\x0b\n\x04\
-    \x04\0\x02\x01\x12\x03\x05\x208\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\
-    \x05\x20&\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x05'3\n\x0c\n\x05\x04\0\
-    \x02\x01\x03\x12\x03\x0567\n\x0b\n\x04\x04\0\x08\x01\x12\x03\x06\x04*\n\
-    \x0c\n\x05\x04\0\x08\x01\x01\x12\x03\x06\n\x15\n\x0b\n\x04\x04\0\x02\x02\
-    \x12\x03\x06\x18(\n\x0c\n\x05\x04\0\x02\x02\x05\x12\x03\x06\x18\x1e\n\
-    \x0c\n\x05\x04\0\x02\x02\x01\x12\x03\x06\x1f#\n\x0c\n\x05\x04\0\x02\x02\
-    \x03\x12\x03\x06&'\n\x0b\n\x04\x04\0\x08\x02\x12\x03\x07\x04*\n\x0c\n\
-    \x05\x04\0\x08\x02\x01\x12\x03\x07\n\x15\n\x0b\n\x04\x04\0\x02\x03\x12\
-    \x03\x07\x18(\n\x0c\n\x05\x04\0\x02\x03\x05\x12\x03\x07\x18\x1e\n\x0c\n\
-    \x05\x04\0\x02\x03\x01\x12\x03\x07\x1f#\n\x0c\n\x05\x04\0\x02\x03\x03\
-    \x12\x03\x07&'\n\x0b\n\x04\x04\0\x08\x03\x12\x03\x08\x04<\n\x0c\n\x05\
-    \x04\0\x08\x03\x01\x12\x03\x08\n\x1c\n\x0b\n\x04\x04\0\x02\x04\x12\x03\
-    \x08\x1f:\n\x0c\n\x05\x04\0\x02\x04\x06\x12\x03\x08\x1f)\n\x0c\n\x05\x04\
-    \0\x02\x04\x01\x12\x03\x08*5\n\x0c\n\x05\x04\0\x02\x04\x03\x12\x03\x0889\
-    b\x06proto3\
+    olorStyle\x12\x1b\n\x08is_trash\x18\x06\x20\x01(\x08H\x04R\x07isTrashB\
+    \x15\n\x13one_of_workspace_idB\r\n\x0bone_of_nameB\r\n\x0bone_of_descB\
+    \x14\n\x12one_of_color_styleB\x11\n\x0fone_of_is_trashJ\x86\x04\n\x06\
+    \x12\x04\0\0\n\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\t\n\x02\x03\0\x12\
+    \x03\x01\0\x1a\n\n\n\x02\x04\0\x12\x04\x03\0\n\x01\n\n\n\x03\x04\0\x01\
+    \x12\x03\x03\x08\x18\n\x0b\n\x04\x04\0\x02\0\x12\x03\x04\x04\x16\n\x0c\n\
+    \x05\x04\0\x02\0\x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\
+    \x03\x04\x0b\x11\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x04\x14\x15\n\x0b\n\
+    \x04\x04\0\x08\0\x12\x03\x05\x04:\n\x0c\n\x05\x04\0\x08\0\x01\x12\x03\
+    \x05\n\x1d\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x05\x208\n\x0c\n\x05\x04\0\
+    \x02\x01\x05\x12\x03\x05\x20&\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x05'\
+    3\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x0567\n\x0b\n\x04\x04\0\x08\x01\
+    \x12\x03\x06\x04*\n\x0c\n\x05\x04\0\x08\x01\x01\x12\x03\x06\n\x15\n\x0b\
+    \n\x04\x04\0\x02\x02\x12\x03\x06\x18(\n\x0c\n\x05\x04\0\x02\x02\x05\x12\
+    \x03\x06\x18\x1e\n\x0c\n\x05\x04\0\x02\x02\x01\x12\x03\x06\x1f#\n\x0c\n\
+    \x05\x04\0\x02\x02\x03\x12\x03\x06&'\n\x0b\n\x04\x04\0\x08\x02\x12\x03\
+    \x07\x04*\n\x0c\n\x05\x04\0\x08\x02\x01\x12\x03\x07\n\x15\n\x0b\n\x04\
+    \x04\0\x02\x03\x12\x03\x07\x18(\n\x0c\n\x05\x04\0\x02\x03\x05\x12\x03\
+    \x07\x18\x1e\n\x0c\n\x05\x04\0\x02\x03\x01\x12\x03\x07\x1f#\n\x0c\n\x05\
+    \x04\0\x02\x03\x03\x12\x03\x07&'\n\x0b\n\x04\x04\0\x08\x03\x12\x03\x08\
+    \x04<\n\x0c\n\x05\x04\0\x08\x03\x01\x12\x03\x08\n\x1c\n\x0b\n\x04\x04\0\
+    \x02\x04\x12\x03\x08\x1f:\n\x0c\n\x05\x04\0\x02\x04\x06\x12\x03\x08\x1f)\
+    \n\x0c\n\x05\x04\0\x02\x04\x01\x12\x03\x08*5\n\x0c\n\x05\x04\0\x02\x04\
+    \x03\x12\x03\x0889\n\x0b\n\x04\x04\0\x08\x04\x12\x03\t\x040\n\x0c\n\x05\
+    \x04\0\x08\x04\x01\x12\x03\t\n\x19\n\x0b\n\x04\x04\0\x02\x05\x12\x03\t\
+    \x1c.\n\x0c\n\x05\x04\0\x02\x05\x05\x12\x03\t\x1c\x20\n\x0c\n\x05\x04\0\
+    \x02\x05\x01\x12\x03\t!)\n\x0c\n\x05\x04\0\x02\x05\x03\x12\x03\t,-b\x06p\
+    roto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

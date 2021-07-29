@@ -5,6 +5,9 @@ pub use workspace_user_detail::*;
 
 pub(crate) mod parser;
 mod workspace_create;
+mod workspace_delete;
 mod workspace_query;
 mod workspace_update;
 mod workspace_user_detail;
+
+pub use workspace_delete::*;

@@ -14,8 +14,9 @@ const QueryAppRequest$json = const {
   '2': const [
     const {'1': 'app_id', '3': 1, '4': 1, '5': 9, '10': 'appId'},
     const {'1': 'read_views', '3': 2, '4': 1, '5': 8, '10': 'readViews'},
+    const {'1': 'is_trash', '3': 3, '4': 1, '5': 8, '10': 'isTrash'},
   ],
 };
 
 /// Descriptor for `QueryAppRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List queryAppRequestDescriptor = $convert.base64Decode('Cg9RdWVyeUFwcFJlcXVlc3QSFQoGYXBwX2lkGAEgASgJUgVhcHBJZBIdCgpyZWFkX3ZpZXdzGAIgASgIUglyZWFkVmlld3M=');
+final $typed_data.Uint8List queryAppRequestDescriptor = $convert.base64Decode('Cg9RdWVyeUFwcFJlcXVlc3QSFQoGYXBwX2lkGAEgASgJUgVhcHBJZBIdCgpyZWFkX3ZpZXdzGAIgASgIUglyZWFkVmlld3MSGQoIaXNfdHJhc2gYAyABKAhSB2lzVHJhc2g=');

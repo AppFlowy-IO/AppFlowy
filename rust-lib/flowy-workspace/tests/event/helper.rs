@@ -26,9 +26,21 @@ pub fn create_workspace(name: &str, desc: &str) -> Workspace {
     workspace
 }
 
-pub fn create_app(name: &str, desc: &str, workspace_id: &str) -> App {
+pub fn read_workspace(request: QueryWorkspaceRequest) -> Workspace {
+    let workspace = SingleUserTestBuilder::new()
+        .event(ReadWorkspace)
+        .request(request)
+        .sync_send()
+        .parse::<Workspace>();
+
+    workspace
+}
+
+pub fn create_app(name: &str, desc: &str) -> App {
+    let workspace = create_workspace("Workspace", "");
+
     let create_app_request = CreateAppRequest {
-        workspace_id: workspace_id.to_string(),
+        workspace_id: workspace.id,
         name: name.to_string(),
         desc: desc.to_string(),
         color_style: Default::default(),
@@ -42,19 +54,27 @@ pub fn create_app(name: &str, desc: &str, workspace_id: &str) -> App {
     app
 }
 
-pub fn get_workspace(request: QueryWorkspaceRequest) -> Workspace {
-    let workspace = SingleUserTestBuilder::new()
-        .event(GetWorkspace)
-        .request(request)
-        .sync_send()
-        .parse::<Workspace>();
+pub fn delete_app(app_id: &str) {
+    let delete_app_request = DeleteAppRequest {
+        app_id: app_id.to_string(),
+    };
 
-    workspace
+    SingleUserTestBuilder::new()
+        .event(DeleteApp)
+        .request(delete_app_request)
+        .sync_send();
 }
 
-pub fn get_app(request: QueryAppRequest) -> App {
+pub fn update_app(request: UpdateAppRequest) {
+    SingleUserTestBuilder::new()
+        .event(UpdateApp)
+        .request(request)
+        .sync_send();
+}
+
+pub fn read_app(request: QueryAppRequest) -> App {
     let app = SingleUserTestBuilder::new()
-        .event(GetApp)
+        .event(ReadApp)
         .request(request)
         .sync_send()
         .parse::<App>();
@@ -62,7 +82,7 @@ pub fn get_app(request: QueryAppRequest) -> App {
     app
 }
 
-pub fn create_view(request: CreateViewRequest) -> View {
+pub fn create_view_with_request(request: CreateViewRequest) -> View {
     let view = SingleUserTestBuilder::new()
         .event(CreateView)
         .request(request)
@@ -70,4 +90,32 @@ pub fn create_view(request: CreateViewRequest) -> View {
         .parse::<View>();
 
     view
+}
+
+pub fn create_view() -> View {
+    let app = create_app("App A", "AppFlowy Github Project");
+    let request = CreateViewRequest {
+        belong_to_id: app.id.clone(),
+        name: "View A".to_string(),
+        desc: "".to_string(),
+        thumbnail: None,
+        view_type: ViewType::Doc,
+    };
+
+    create_view_with_request(request)
+}
+
+pub fn update_view(request: UpdateViewRequest) {
+    SingleUserTestBuilder::new()
+        .event(UpdateView)
+        .request(request)
+        .sync_send();
+}
+
+pub fn read_view(request: QueryViewRequest) -> View {
+    SingleUserTestBuilder::new()
+        .event(ReadView)
+        .request(request)
+        .sync_send()
+        .parse::<View>()
 }

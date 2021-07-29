@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+message DeleteAppRequest {
+    string app_id = 1;
+}

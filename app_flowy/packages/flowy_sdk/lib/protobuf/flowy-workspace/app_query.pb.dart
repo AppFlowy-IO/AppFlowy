@@ -13,6 +13,7 @@ class QueryAppRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'QueryAppRequest', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'appId')
     ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'readViews')
+    ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isTrash')
     ..hasRequiredFields = false
   ;
 
@@ -20,6 +21,7 @@ class QueryAppRequest extends $pb.GeneratedMessage {
   factory QueryAppRequest({
     $core.String? appId,
     $core.bool? readViews,
+    $core.bool? isTrash,
   }) {
     final _result = create();
     if (appId != null) {
@@ -27,6 +29,9 @@ class QueryAppRequest extends $pb.GeneratedMessage {
     }
     if (readViews != null) {
       _result.readViews = readViews;
+    }
+    if (isTrash != null) {
+      _result.isTrash = isTrash;
     }
     return _result;
   }
@@ -68,5 +73,14 @@ class QueryAppRequest extends $pb.GeneratedMessage {
   $core.bool hasReadViews() => $_has(1);
   @$pb.TagNumber(2)
   void clearReadViews() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.bool get isTrash => $_getBF(2);
+  @$pb.TagNumber(3)
+  set isTrash($core.bool v) { $_setBool(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasIsTrash() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearIsTrash() => clearField(3);
 }
 

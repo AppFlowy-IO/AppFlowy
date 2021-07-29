@@ -24,6 +24,11 @@ enum UpdateViewRequest_OneOfThumbnail {
   notSet
 }
 
+enum UpdateViewRequest_OneOfIsTrash {
+  isTrash, 
+  notSet
+}
+
 class UpdateViewRequest extends $pb.GeneratedMessage {
   static const $core.Map<$core.int, UpdateViewRequest_OneOfName> _UpdateViewRequest_OneOfNameByTag = {
     2 : UpdateViewRequest_OneOfName.name,
@@ -37,14 +42,20 @@ class UpdateViewRequest extends $pb.GeneratedMessage {
     4 : UpdateViewRequest_OneOfThumbnail.thumbnail,
     0 : UpdateViewRequest_OneOfThumbnail.notSet
   };
+  static const $core.Map<$core.int, UpdateViewRequest_OneOfIsTrash> _UpdateViewRequest_OneOfIsTrashByTag = {
+    5 : UpdateViewRequest_OneOfIsTrash.isTrash,
+    0 : UpdateViewRequest_OneOfIsTrash.notSet
+  };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UpdateViewRequest', createEmptyInstance: create)
     ..oo(0, [2])
     ..oo(1, [3])
     ..oo(2, [4])
+    ..oo(3, [5])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewId')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'thumbnail')
+    ..aOB(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isTrash')
     ..hasRequiredFields = false
   ;
 
@@ -54,6 +65,7 @@ class UpdateViewRequest extends $pb.GeneratedMessage {
     $core.String? name,
     $core.String? desc,
     $core.String? thumbnail,
+    $core.bool? isTrash,
   }) {
     final _result = create();
     if (viewId != null) {
@@ -67,6 +79,9 @@ class UpdateViewRequest extends $pb.GeneratedMessage {
     }
     if (thumbnail != null) {
       _result.thumbnail = thumbnail;
+    }
+    if (isTrash != null) {
+      _result.isTrash = isTrash;
     }
     return _result;
   }
@@ -99,6 +114,9 @@ class UpdateViewRequest extends $pb.GeneratedMessage {
 
   UpdateViewRequest_OneOfThumbnail whichOneOfThumbnail() => _UpdateViewRequest_OneOfThumbnailByTag[$_whichOneof(2)]!;
   void clearOneOfThumbnail() => clearField($_whichOneof(2));
+
+  UpdateViewRequest_OneOfIsTrash whichOneOfIsTrash() => _UpdateViewRequest_OneOfIsTrashByTag[$_whichOneof(3)]!;
+  void clearOneOfIsTrash() => clearField($_whichOneof(3));
 
   @$pb.TagNumber(1)
   $core.String get viewId => $_getSZ(0);
@@ -135,5 +153,14 @@ class UpdateViewRequest extends $pb.GeneratedMessage {
   $core.bool hasThumbnail() => $_has(3);
   @$pb.TagNumber(4)
   void clearThumbnail() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.bool get isTrash => $_getBF(4);
+  @$pb.TagNumber(5)
+  set isTrash($core.bool v) { $_setBool(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasIsTrash() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearIsTrash() => clearField(5);
 }
 

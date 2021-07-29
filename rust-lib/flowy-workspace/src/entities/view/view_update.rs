@@ -18,6 +18,9 @@ pub struct UpdateViewRequest {
 
     #[pb(index = 4, one_of)]
     pub thumbnail: Option<String>,
+
+    #[pb(index = 5, one_of)]
+    pub is_trash: Option<bool>,
 }
 
 pub struct UpdateViewParams {
@@ -25,6 +28,7 @@ pub struct UpdateViewParams {
     pub name: Option<String>,
     pub desc: Option<String>,
     pub thumbnail: Option<String>,
+    pub is_trash: Option<bool>,
 }
 
 impl TryInto<UpdateViewParams> for UpdateViewRequest {
@@ -71,6 +75,7 @@ impl TryInto<UpdateViewParams> for UpdateViewRequest {
             name,
             desc,
             thumbnail,
+            is_trash: self.is_trash,
         })
     }
 }

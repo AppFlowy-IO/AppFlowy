@@ -11,7 +11,7 @@ fn workspace_create_success() { let _ = create_workspace("First workspace", "");
 #[test]
 fn workspace_get_success() {
     let workspace = SingleUserTestBuilder::new()
-        .event(GetCurWorkspace)
+        .event(ReadCurWorkspace)
         .sync_send()
         .parse::<Workspace>();
 
@@ -39,21 +39,19 @@ fn workspace_create_and_then_get_workspace_success() {
         read_apps: false,
     };
 
-    let workspace_from_db = get_workspace(request);
+    let workspace_from_db = read_workspace(request);
     assert_eq!(workspace.name, workspace_from_db.name);
 }
 
 #[test]
 fn workspace_create_with_apps_success() {
-    let workspace = create_workspace("Workspace B", "");
-    let app = create_app("App A", "", &workspace.id);
-
+    let app = create_app("App A", "");
     let query_workspace_request = QueryWorkspaceRequest {
-        workspace_id: workspace.id.clone(),
+        workspace_id: app.workspace_id.clone(),
         read_apps: true,
     };
 
-    let workspace_from_db = get_workspace(query_workspace_request);
+    let workspace_from_db = read_workspace(query_workspace_request);
     assert_eq!(&app, workspace_from_db.apps.first_or_crash());
 }
 

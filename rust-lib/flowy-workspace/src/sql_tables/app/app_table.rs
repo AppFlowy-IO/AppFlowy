@@ -25,6 +25,7 @@ pub(crate) struct AppTable {
     pub modified_time: i64,
     pub create_time: i64,
     pub version: i64,
+    pub is_trash: bool,
 }
 
 impl AppTable {
@@ -41,6 +42,7 @@ impl AppTable {
             modified_time: time,
             create_time: time,
             version: 0,
+            is_trash: false,
         }
     }
 }
@@ -84,6 +86,7 @@ pub struct AppTableChangeset {
     pub workspace_id: Option<String>,
     pub name: Option<String>,
     pub desc: Option<String>,
+    pub is_trash: Option<bool>,
 }
 
 impl AppTableChangeset {
@@ -93,6 +96,7 @@ impl AppTableChangeset {
             workspace_id: params.workspace_id,
             name: params.name,
             desc: params.desc,
+            is_trash: params.is_trash,
         }
     }
 }

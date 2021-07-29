@@ -41,8 +41,10 @@ impl WorkspaceSql {
         Ok(())
     }
 
-    pub fn delete_workspace(&self, _workspace_id: &str) -> Result<(), WorkspaceError> {
-        unimplemented!()
+    pub fn delete_workspace(&self, workspace_id: &str) -> Result<(), WorkspaceError> {
+        let conn = self.database.db_connection()?;
+        diesel_delete_table!(workspace_table, workspace_id, conn);
+        Ok(())
     }
 
     pub(crate) fn read_apps_belong_to_workspace(

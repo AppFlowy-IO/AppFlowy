@@ -27,6 +27,9 @@ pub struct UpdateAppRequest {
 
     #[pb(index = 5, one_of)]
     pub color_style: Option<ColorStyle>,
+
+    #[pb(index = 6, one_of)]
+    pub is_trash: Option<bool>,
 }
 
 pub struct UpdateAppParams {
@@ -35,6 +38,7 @@ pub struct UpdateAppParams {
     pub name: Option<String>,
     pub desc: Option<String>,
     pub color_style: Option<ColorStyle>,
+    pub is_trash: Option<bool>,
 }
 
 impl TryInto<UpdateAppParams> for UpdateAppRequest {
@@ -90,6 +94,7 @@ impl TryInto<UpdateAppParams> for UpdateAppRequest {
             name,
             desc: self.desc,
             color_style,
+            is_trash: self.is_trash,
         })
     }
 }

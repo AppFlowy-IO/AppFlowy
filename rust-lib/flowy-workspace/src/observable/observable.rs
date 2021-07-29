@@ -46,7 +46,7 @@ impl ObservableSender {
     }
 
     pub(crate) fn send(self) {
-        log::debug!(
+        log::trace!(
             "Workspace observable id: {}, ty: {:?}",
             self.subject_id,
             self.ty

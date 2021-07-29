@@ -3,8 +3,14 @@
 mod view_update; 
 pub use view_update::*; 
 
+mod view_delete; 
+pub use view_delete::*; 
+
 mod app_query; 
 pub use app_query::*; 
+
+mod workspace_delete; 
+pub use workspace_delete::*; 
 
 mod observable; 
 pub use observable::*; 
@@ -38,3 +44,6 @@ pub use app_update::*;
 
 mod view_query; 
 pub use view_query::*; 
+
+mod app_delete; 
+pub use app_delete::*; 

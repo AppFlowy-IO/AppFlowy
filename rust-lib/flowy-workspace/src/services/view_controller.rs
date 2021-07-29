@@ -26,10 +26,29 @@ impl ViewController {
         Ok(view)
     }
 
-    pub async fn read_view(&self, view_id: &str) -> Result<View, WorkspaceError> {
-        let view_table = self.sql.read_view(view_id)?;
+    pub async fn read_view(&self, view_id: &str, is_trash: bool) -> Result<View, WorkspaceError> {
+        let view_table = self.sql.read_view(view_id, is_trash)?;
         let view: View = view_table.into();
         Ok(view)
+    }
+
+    pub async fn delete_view(&self, view_id: &str) -> Result<(), WorkspaceError> {
+        let _ = self.sql.delete_view(view_id)?;
+        Ok(())
+    }
+
+    pub async fn read_views_belong_to(
+        &self,
+        belong_to_id: &str,
+    ) -> Result<Vec<View>, WorkspaceError> {
+        let views = self
+            .sql
+            .read_views_belong_to(belong_to_id)?
+            .into_iter()
+            .map(|view_table| view_table.into())
+            .collect::<Vec<View>>();
+
+        Ok(views)
     }
 
     pub async fn update_view(&self, params: UpdateViewParams) -> Result<(), WorkspaceError> {

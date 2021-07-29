@@ -12,16 +12,21 @@ import 'package:protobuf/protobuf.dart' as $pb;
 class QueryViewRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'QueryViewRequest', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewId')
+    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isTrash')
     ..hasRequiredFields = false
   ;
 
   QueryViewRequest._() : super();
   factory QueryViewRequest({
     $core.String? viewId,
+    $core.bool? isTrash,
   }) {
     final _result = create();
     if (viewId != null) {
       _result.viewId = viewId;
+    }
+    if (isTrash != null) {
+      _result.isTrash = isTrash;
     }
     return _result;
   }
@@ -54,5 +59,14 @@ class QueryViewRequest extends $pb.GeneratedMessage {
   $core.bool hasViewId() => $_has(0);
   @$pb.TagNumber(1)
   void clearViewId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.bool get isTrash => $_getBF(1);
+  @$pb.TagNumber(2)
+  set isTrash($core.bool v) { $_setBool(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasIsTrash() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearIsTrash() => clearField(2);
 }
 
