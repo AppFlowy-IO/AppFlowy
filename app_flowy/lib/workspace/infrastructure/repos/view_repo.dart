@@ -26,7 +26,7 @@ class ViewRepository {
 
 class ViewWatchRepository {
   StreamSubscription<ObservableSubject>? _subscription;
-  ViewUpdatedCallback? _updatedCallback;
+  ViewUpdatedCallback? _update;
   View view;
   late ViewRepository _repo;
   ViewWatchRepository({
@@ -36,9 +36,9 @@ class ViewWatchRepository {
   }
 
   void startWatching({
-    ViewUpdatedCallback? updatedCallback,
+    ViewUpdatedCallback? update,
   }) {
-    _updatedCallback = updatedCallback;
+    _update = update;
     _subscription = RustStreamReceiver.listen((observable) {
       if (observable.subjectId != view.id) {
         return;
@@ -53,13 +53,13 @@ class ViewWatchRepository {
 
   void _handleObservableType(WorkspaceObservable ty) {
     switch (ty) {
-      case WorkspaceObservable.ViewUpdateDesc:
-        if (_updatedCallback == null) {
+      case WorkspaceObservable.ViewUpdated:
+        if (_update == null) {
           return;
         }
         _repo.readView().then((result) {
           result.fold(
-            (view) => _updatedCallback!(view),
+            (view) => _update!(view),
             (error) => Log.error(error),
           );
         });

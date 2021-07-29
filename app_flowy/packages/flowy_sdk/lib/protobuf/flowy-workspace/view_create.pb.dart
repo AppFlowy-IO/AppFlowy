@@ -138,6 +138,7 @@ class View extends $pb.GeneratedMessage {
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
     ..e<ViewType>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewType', $pb.PbFieldType.OE, defaultOrMaker: ViewType.Blank, valueOf: ViewType.valueOf, enumValues: ViewType.values)
     ..aInt64(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'version')
+    ..aOM<RepeatedView>(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'belongings', subBuilder: RepeatedView.create)
     ..hasRequiredFields = false
   ;
 
@@ -149,6 +150,7 @@ class View extends $pb.GeneratedMessage {
     $core.String? desc,
     ViewType? viewType,
     $fixnum.Int64? version,
+    RepeatedView? belongings,
   }) {
     final _result = create();
     if (id != null) {
@@ -168,6 +170,9 @@ class View extends $pb.GeneratedMessage {
     }
     if (version != null) {
       _result.version = version;
+    }
+    if (belongings != null) {
+      _result.belongings = belongings;
     }
     return _result;
   }
@@ -245,6 +250,17 @@ class View extends $pb.GeneratedMessage {
   $core.bool hasVersion() => $_has(5);
   @$pb.TagNumber(6)
   void clearVersion() => clearField(6);
+
+  @$pb.TagNumber(7)
+  RepeatedView get belongings => $_getN(6);
+  @$pb.TagNumber(7)
+  set belongings(RepeatedView v) { setField(7, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasBelongings() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearBelongings() => clearField(7);
+  @$pb.TagNumber(7)
+  RepeatedView ensureBelongings() => $_ensure(6);
 }
 
 class RepeatedView extends $pb.GeneratedMessage {

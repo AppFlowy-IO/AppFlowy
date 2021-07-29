@@ -52,9 +52,15 @@ impl ViewTableSql {
         Ok(())
     }
 
-    pub fn delete_view(&self, view_id: &str) -> Result<(), WorkspaceError> {
+    pub(crate) fn delete_view(&self, view_id: &str) -> Result<ViewTable, WorkspaceError> {
         let conn = self.database.db_connection()?;
+
+        // TODO: group into transaction
+        let view_table = dsl::view_table
+            .filter(view_table::id.eq(view_id))
+            .first::<ViewTable>(&*(self.database.db_connection()?))?;
+
         diesel_delete_table!(view_table, view_id, conn);
-        Ok(())
+        Ok(view_table)
     }
 }

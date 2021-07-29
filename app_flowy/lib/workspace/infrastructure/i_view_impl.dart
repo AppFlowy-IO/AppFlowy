@@ -23,7 +23,7 @@ class IViewWatchImpl extends IViewWatch {
 
   @override
   void startWatching({ViewUpdatedCallback? updatedCallback}) {
-    repo.startWatching(updatedCallback: updatedCallback);
+    repo.startWatching(update: updatedCallback);
   }
 
   @override

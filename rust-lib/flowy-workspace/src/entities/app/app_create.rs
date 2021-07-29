@@ -81,7 +81,7 @@ pub struct App {
     pub desc: String,
 
     #[pb(index = 5)]
-    pub views: RepeatedView,
+    pub belongings: RepeatedView,
 
     #[pb(index = 6)]
     pub version: i64,

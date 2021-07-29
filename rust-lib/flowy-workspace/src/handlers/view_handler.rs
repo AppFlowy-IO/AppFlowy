@@ -6,6 +6,7 @@ use crate::{
         DeleteViewRequest,
         QueryViewParams,
         QueryViewRequest,
+        RepeatedView,
         UpdateViewParams,
         UpdateViewRequest,
         View,
@@ -32,9 +33,14 @@ pub async fn read_view(
     controller: Unit<Arc<ViewController>>,
 ) -> ResponseResult<View, WorkspaceError> {
     let params: QueryViewParams = data.into_inner().try_into()?;
-    let view = controller
+    let mut view = controller
         .read_view(&params.view_id, params.is_trash)
         .await?;
+
+    if params.read_belongings {
+        let views = controller.read_views_belong_to(&params.view_id).await?;
+        view.belongings = RepeatedView { items: views }
+    }
 
     response_ok(view)
 }

@@ -14,8 +14,9 @@ const QueryViewRequest$json = const {
   '2': const [
     const {'1': 'view_id', '3': 1, '4': 1, '5': 9, '10': 'viewId'},
     const {'1': 'is_trash', '3': 2, '4': 1, '5': 8, '10': 'isTrash'},
+    const {'1': 'read_belongings', '3': 3, '4': 1, '5': 8, '10': 'readBelongings'},
   ],
 };
 
 /// Descriptor for `QueryViewRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List queryViewRequestDescriptor = $convert.base64Decode('ChBRdWVyeVZpZXdSZXF1ZXN0EhcKB3ZpZXdfaWQYASABKAlSBnZpZXdJZBIZCghpc190cmFzaBgCIAEoCFIHaXNUcmFzaA==');
+final $typed_data.Uint8List queryViewRequestDescriptor = $convert.base64Decode('ChBRdWVyeVZpZXdSZXF1ZXN0EhcKB3ZpZXdfaWQYASABKAlSBnZpZXdJZBIZCghpc190cmFzaBgCIAEoCFIHaXNUcmFzaBInCg9yZWFkX2JlbG9uZ2luZ3MYAyABKAhSDnJlYWRCZWxvbmdpbmdz');

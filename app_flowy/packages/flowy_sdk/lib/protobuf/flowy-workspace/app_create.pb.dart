@@ -156,7 +156,7 @@ class App extends $pb.GeneratedMessage {
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspaceId')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
-    ..aOM<$0.RepeatedView>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'views', subBuilder: $0.RepeatedView.create)
+    ..aOM<$0.RepeatedView>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'belongings', subBuilder: $0.RepeatedView.create)
     ..aInt64(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'version')
     ..hasRequiredFields = false
   ;
@@ -167,7 +167,7 @@ class App extends $pb.GeneratedMessage {
     $core.String? workspaceId,
     $core.String? name,
     $core.String? desc,
-    $0.RepeatedView? views,
+    $0.RepeatedView? belongings,
     $fixnum.Int64? version,
   }) {
     final _result = create();
@@ -183,8 +183,8 @@ class App extends $pb.GeneratedMessage {
     if (desc != null) {
       _result.desc = desc;
     }
-    if (views != null) {
-      _result.views = views;
+    if (belongings != null) {
+      _result.belongings = belongings;
     }
     if (version != null) {
       _result.version = version;
@@ -249,15 +249,15 @@ class App extends $pb.GeneratedMessage {
   void clearDesc() => clearField(4);
 
   @$pb.TagNumber(5)
-  $0.RepeatedView get views => $_getN(4);
+  $0.RepeatedView get belongings => $_getN(4);
   @$pb.TagNumber(5)
-  set views($0.RepeatedView v) { setField(5, v); }
+  set belongings($0.RepeatedView v) { setField(5, v); }
   @$pb.TagNumber(5)
-  $core.bool hasViews() => $_has(4);
+  $core.bool hasBelongings() => $_has(4);
   @$pb.TagNumber(5)
-  void clearViews() => clearField(5);
+  void clearBelongings() => clearField(5);
   @$pb.TagNumber(5)
-  $0.RepeatedView ensureViews() => $_ensure(4);
+  $0.RepeatedView ensureBelongings() => $_ensure(4);
 
   @$pb.TagNumber(6)
   $fixnum.Int64 get version => $_getI64(5);

@@ -26,11 +26,15 @@
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum WorkspaceObservable {
     Unknown = 0,
-    WorkspaceUpdateDesc = 10,
-    WorkspaceAddApp = 11,
-    AppUpdateDesc = 20,
-    AppAddView = 21,
-    ViewUpdateDesc = 30,
+    UserCreateWorkspace = 10,
+    UserDeleteWorkspace = 11,
+    WorkspaceUpdated = 12,
+    WorkspaceCreateApp = 13,
+    WorkspaceDeleteApp = 14,
+    AppUpdated = 21,
+    AppCreateView = 23,
+    AppDeleteView = 24,
+    ViewUpdated = 31,
 }
 
 impl ::protobuf::ProtobufEnum for WorkspaceObservable {
@@ -41,11 +45,15 @@ impl ::protobuf::ProtobufEnum for WorkspaceObservable {
     fn from_i32(value: i32) -> ::std::option::Option<WorkspaceObservable> {
         match value {
             0 => ::std::option::Option::Some(WorkspaceObservable::Unknown),
-            10 => ::std::option::Option::Some(WorkspaceObservable::WorkspaceUpdateDesc),
-            11 => ::std::option::Option::Some(WorkspaceObservable::WorkspaceAddApp),
-            20 => ::std::option::Option::Some(WorkspaceObservable::AppUpdateDesc),
-            21 => ::std::option::Option::Some(WorkspaceObservable::AppAddView),
-            30 => ::std::option::Option::Some(WorkspaceObservable::ViewUpdateDesc),
+            10 => ::std::option::Option::Some(WorkspaceObservable::UserCreateWorkspace),
+            11 => ::std::option::Option::Some(WorkspaceObservable::UserDeleteWorkspace),
+            12 => ::std::option::Option::Some(WorkspaceObservable::WorkspaceUpdated),
+            13 => ::std::option::Option::Some(WorkspaceObservable::WorkspaceCreateApp),
+            14 => ::std::option::Option::Some(WorkspaceObservable::WorkspaceDeleteApp),
+            21 => ::std::option::Option::Some(WorkspaceObservable::AppUpdated),
+            23 => ::std::option::Option::Some(WorkspaceObservable::AppCreateView),
+            24 => ::std::option::Option::Some(WorkspaceObservable::AppDeleteView),
+            31 => ::std::option::Option::Some(WorkspaceObservable::ViewUpdated),
             _ => ::std::option::Option::None
         }
     }
@@ -53,11 +61,15 @@ impl ::protobuf::ProtobufEnum for WorkspaceObservable {
     fn values() -> &'static [Self] {
         static values: &'static [WorkspaceObservable] = &[
             WorkspaceObservable::Unknown,
-            WorkspaceObservable::WorkspaceUpdateDesc,
-            WorkspaceObservable::WorkspaceAddApp,
-            WorkspaceObservable::AppUpdateDesc,
-            WorkspaceObservable::AppAddView,
-            WorkspaceObservable::ViewUpdateDesc,
+            WorkspaceObservable::UserCreateWorkspace,
+            WorkspaceObservable::UserDeleteWorkspace,
+            WorkspaceObservable::WorkspaceUpdated,
+            WorkspaceObservable::WorkspaceCreateApp,
+            WorkspaceObservable::WorkspaceDeleteApp,
+            WorkspaceObservable::AppUpdated,
+            WorkspaceObservable::AppCreateView,
+            WorkspaceObservable::AppDeleteView,
+            WorkspaceObservable::ViewUpdated,
         ];
         values
     }
@@ -86,25 +98,35 @@ impl ::protobuf::reflect::ProtobufValue for WorkspaceObservable {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x10observable.proto*\x87\x01\n\x13WorkspaceObservable\x12\x0b\n\x07Un\
-    known\x10\0\x12\x17\n\x13WorkspaceUpdateDesc\x10\n\x12\x13\n\x0fWorkspac\
-    eAddApp\x10\x0b\x12\x11\n\rAppUpdateDesc\x10\x14\x12\x0e\n\nAppAddView\
-    \x10\x15\x12\x12\n\x0eViewUpdateDesc\x10\x1eJ\xa0\x02\n\x06\x12\x04\0\0\
-    \t\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x05\0\x12\x04\x02\0\t\
-    \x01\n\n\n\x03\x05\0\x01\x12\x03\x02\x05\x18\n\x0b\n\x04\x05\0\x02\0\x12\
-    \x03\x03\x04\x10\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\x03\x04\x0b\n\x0c\n\
-    \x05\x05\0\x02\0\x02\x12\x03\x03\x0e\x0f\n\x0b\n\x04\x05\0\x02\x01\x12\
-    \x03\x04\x04\x1d\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\x04\x04\x17\n\x0c\
-    \n\x05\x05\0\x02\x01\x02\x12\x03\x04\x1a\x1c\n\x0b\n\x04\x05\0\x02\x02\
-    \x12\x03\x05\x04\x19\n\x0c\n\x05\x05\0\x02\x02\x01\x12\x03\x05\x04\x13\n\
-    \x0c\n\x05\x05\0\x02\x02\x02\x12\x03\x05\x16\x18\n\x0b\n\x04\x05\0\x02\
-    \x03\x12\x03\x06\x04\x17\n\x0c\n\x05\x05\0\x02\x03\x01\x12\x03\x06\x04\
-    \x11\n\x0c\n\x05\x05\0\x02\x03\x02\x12\x03\x06\x14\x16\n\x0b\n\x04\x05\0\
-    \x02\x04\x12\x03\x07\x04\x14\n\x0c\n\x05\x05\0\x02\x04\x01\x12\x03\x07\
-    \x04\x0e\n\x0c\n\x05\x05\0\x02\x04\x02\x12\x03\x07\x11\x13\n\x0b\n\x04\
-    \x05\0\x02\x05\x12\x03\x08\x04\x18\n\x0c\n\x05\x05\0\x02\x05\x01\x12\x03\
-    \x08\x04\x12\n\x0c\n\x05\x05\0\x02\x05\x02\x12\x03\x08\x15\x17b\x06proto\
-    3\
+    \n\x10observable.proto*\xe1\x01\n\x13WorkspaceObservable\x12\x0b\n\x07Un\
+    known\x10\0\x12\x17\n\x13UserCreateWorkspace\x10\n\x12\x17\n\x13UserDele\
+    teWorkspace\x10\x0b\x12\x14\n\x10WorkspaceUpdated\x10\x0c\x12\x16\n\x12W\
+    orkspaceCreateApp\x10\r\x12\x16\n\x12WorkspaceDeleteApp\x10\x0e\x12\x0e\
+    \n\nAppUpdated\x10\x15\x12\x11\n\rAppCreateView\x10\x17\x12\x11\n\rAppDe\
+    leteView\x10\x18\x12\x0f\n\x0bViewUpdated\x10\x1fJ\xc4\x03\n\x06\x12\x04\
+    \0\0\r\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x05\0\x12\x04\x02\0\
+    \r\x01\n\n\n\x03\x05\0\x01\x12\x03\x02\x05\x18\n\x0b\n\x04\x05\0\x02\0\
+    \x12\x03\x03\x04\x10\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\x03\x04\x0b\n\
+    \x0c\n\x05\x05\0\x02\0\x02\x12\x03\x03\x0e\x0f\n\x0b\n\x04\x05\0\x02\x01\
+    \x12\x03\x04\x04\x1d\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\x04\x04\x17\n\
+    \x0c\n\x05\x05\0\x02\x01\x02\x12\x03\x04\x1a\x1c\n\x0b\n\x04\x05\0\x02\
+    \x02\x12\x03\x05\x04\x1d\n\x0c\n\x05\x05\0\x02\x02\x01\x12\x03\x05\x04\
+    \x17\n\x0c\n\x05\x05\0\x02\x02\x02\x12\x03\x05\x1a\x1c\n\x0b\n\x04\x05\0\
+    \x02\x03\x12\x03\x06\x04\x1a\n\x0c\n\x05\x05\0\x02\x03\x01\x12\x03\x06\
+    \x04\x14\n\x0c\n\x05\x05\0\x02\x03\x02\x12\x03\x06\x17\x19\n\x0b\n\x04\
+    \x05\0\x02\x04\x12\x03\x07\x04\x1c\n\x0c\n\x05\x05\0\x02\x04\x01\x12\x03\
+    \x07\x04\x16\n\x0c\n\x05\x05\0\x02\x04\x02\x12\x03\x07\x19\x1b\n\x0b\n\
+    \x04\x05\0\x02\x05\x12\x03\x08\x04\x1c\n\x0c\n\x05\x05\0\x02\x05\x01\x12\
+    \x03\x08\x04\x16\n\x0c\n\x05\x05\0\x02\x05\x02\x12\x03\x08\x19\x1b\n\x0b\
+    \n\x04\x05\0\x02\x06\x12\x03\t\x04\x14\n\x0c\n\x05\x05\0\x02\x06\x01\x12\
+    \x03\t\x04\x0e\n\x0c\n\x05\x05\0\x02\x06\x02\x12\x03\t\x11\x13\n\x0b\n\
+    \x04\x05\0\x02\x07\x12\x03\n\x04\x17\n\x0c\n\x05\x05\0\x02\x07\x01\x12\
+    \x03\n\x04\x11\n\x0c\n\x05\x05\0\x02\x07\x02\x12\x03\n\x14\x16\n\x0b\n\
+    \x04\x05\0\x02\x08\x12\x03\x0b\x04\x17\n\x0c\n\x05\x05\0\x02\x08\x01\x12\
+    \x03\x0b\x04\x11\n\x0c\n\x05\x05\0\x02\x08\x02\x12\x03\x0b\x14\x16\n\x0b\
+    \n\x04\x05\0\x02\t\x12\x03\x0c\x04\x15\n\x0c\n\x05\x05\0\x02\t\x01\x12\
+    \x03\x0c\x04\x0f\n\x0c\n\x05\x05\0\x02\t\x02\x12\x03\x0c\x12\x14b\x06pro\
+    to3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

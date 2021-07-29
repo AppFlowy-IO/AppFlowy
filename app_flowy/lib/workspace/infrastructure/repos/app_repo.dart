@@ -21,7 +21,7 @@ class AppRepository {
   Future<Either<App, WorkspaceError>> getAppDesc() {
     final request = QueryAppRequest.create()
       ..appId = appId
-      ..readViews = false;
+      ..readBelongings = false;
 
     return WorkspaceEventReadApp(request).send();
   }
@@ -40,11 +40,11 @@ class AppRepository {
   Future<Either<List<View>, WorkspaceError>> getViews() {
     final request = QueryAppRequest.create()
       ..appId = appId
-      ..readViews = true;
+      ..readBelongings = true;
 
     return WorkspaceEventReadApp(request).send().then((result) {
       return result.fold(
-        (app) => left(app.views.items),
+        (app) => left(app.belongings.items),
         (error) => right(error),
       );
     });
@@ -53,8 +53,9 @@ class AppRepository {
 
 class AppWatchRepository {
   StreamSubscription<ObservableSubject>? _subscription;
-  AppAddViewCallback? _addViewCallback;
-  AppUpdatedCallback? _updatedCallback;
+  AppCreateViewCallback? _createView;
+  AppDeleteViewCallback? _deleteView;
+  AppUpdatedCallback? _update;
   String appId;
   late AppRepository _repo;
   AppWatchRepository({
@@ -64,10 +65,12 @@ class AppWatchRepository {
   }
 
   void startWatching(
-      {AppAddViewCallback? addViewCallback,
-      AppUpdatedCallback? updatedCallback}) {
-    _addViewCallback = addViewCallback;
-    _updatedCallback = updatedCallback;
+      {AppCreateViewCallback? createView,
+      AppDeleteViewCallback? deleteView,
+      AppUpdatedCallback? update}) {
+    _createView = createView;
+    _deleteView = deleteView;
+    _update = update;
     _subscription = RustStreamReceiver.listen((observable) {
       if (observable.subjectId != appId) {
         return;
@@ -82,24 +85,35 @@ class AppWatchRepository {
 
   void _handleObservableType(WorkspaceObservable ty) {
     switch (ty) {
-      case WorkspaceObservable.AppAddView:
-        if (_addViewCallback == null) {
+      case WorkspaceObservable.AppCreateView:
+        if (_createView == null) {
           return;
         }
         _repo.getViews().then((result) {
           result.fold(
-            (views) => _addViewCallback!(left(views)),
-            (error) => _addViewCallback!(right(error)),
+            (views) => _createView!(left(views)),
+            (error) => _createView!(right(error)),
           );
         });
         break;
-      case WorkspaceObservable.AppUpdateDesc:
-        if (_updatedCallback == null) {
+      case WorkspaceObservable.AppDeleteView:
+        if (_deleteView == null) {
+          return;
+        }
+        _repo.getViews().then((result) {
+          result.fold(
+            (views) => _deleteView!(left(views)),
+            (error) => _deleteView!(right(error)),
+          );
+        });
+        break;
+      case WorkspaceObservable.AppUpdated:
+        if (_update == null) {
           return;
         }
         _repo.getAppDesc().then((result) {
           result.fold(
-            (app) => _updatedCallback!(app.name, app.desc),
+            (app) => _update!(app.name, app.desc),
             (error) => Log.error(error),
           );
         });

@@ -27,7 +27,7 @@
 pub struct QueryAppRequest {
     // message fields
     pub app_id: ::std::string::String,
-    pub read_views: bool,
+    pub read_belongings: bool,
     pub is_trash: bool,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -71,19 +71,19 @@ impl QueryAppRequest {
         ::std::mem::replace(&mut self.app_id, ::std::string::String::new())
     }
 
-    // bool read_views = 2;
+    // bool read_belongings = 2;
 
 
-    pub fn get_read_views(&self) -> bool {
-        self.read_views
+    pub fn get_read_belongings(&self) -> bool {
+        self.read_belongings
     }
-    pub fn clear_read_views(&mut self) {
-        self.read_views = false;
+    pub fn clear_read_belongings(&mut self) {
+        self.read_belongings = false;
     }
 
     // Param is passed by value, moved
-    pub fn set_read_views(&mut self, v: bool) {
-        self.read_views = v;
+    pub fn set_read_belongings(&mut self, v: bool) {
+        self.read_belongings = v;
     }
 
     // bool is_trash = 3;
@@ -119,7 +119,7 @@ impl ::protobuf::Message for QueryAppRequest {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
                     let tmp = is.read_bool()?;
-                    self.read_views = tmp;
+                    self.read_belongings = tmp;
                 },
                 3 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
@@ -143,7 +143,7 @@ impl ::protobuf::Message for QueryAppRequest {
         if !self.app_id.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.app_id);
         }
-        if self.read_views != false {
+        if self.read_belongings != false {
             my_size += 2;
         }
         if self.is_trash != false {
@@ -158,8 +158,8 @@ impl ::protobuf::Message for QueryAppRequest {
         if !self.app_id.is_empty() {
             os.write_string(1, &self.app_id)?;
         }
-        if self.read_views != false {
-            os.write_bool(2, self.read_views)?;
+        if self.read_belongings != false {
+            os.write_bool(2, self.read_belongings)?;
         }
         if self.is_trash != false {
             os.write_bool(3, self.is_trash)?;
@@ -208,9 +208,9 @@ impl ::protobuf::Message for QueryAppRequest {
                 |m: &mut QueryAppRequest| { &mut m.app_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
-                "read_views",
-                |m: &QueryAppRequest| { &m.read_views },
-                |m: &mut QueryAppRequest| { &mut m.read_views },
+                "read_belongings",
+                |m: &QueryAppRequest| { &m.read_belongings },
+                |m: &mut QueryAppRequest| { &mut m.read_belongings },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
                 "is_trash",
@@ -234,7 +234,7 @@ impl ::protobuf::Message for QueryAppRequest {
 impl ::protobuf::Clear for QueryAppRequest {
     fn clear(&mut self) {
         self.app_id.clear();
-        self.read_views = false;
+        self.read_belongings = false;
         self.is_trash = false;
         self.unknown_fields.clear();
     }
@@ -253,20 +253,20 @@ impl ::protobuf::reflect::ProtobufValue for QueryAppRequest {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0fapp_query.proto\"b\n\x0fQueryAppRequest\x12\x15\n\x06app_id\x18\
-    \x01\x20\x01(\tR\x05appId\x12\x1d\n\nread_views\x18\x02\x20\x01(\x08R\tr\
-    eadViews\x12\x19\n\x08is_trash\x18\x03\x20\x01(\x08R\x07isTrashJ\xcf\x01\
-    \n\x06\x12\x04\0\0\x06\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\
-    \0\x12\x04\x02\0\x06\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x17\n\x0b\n\
-    \x04\x04\0\x02\0\x12\x03\x03\x04\x16\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\
-    \x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\x11\n\x0c\n\x05\
-    \x04\0\x02\0\x03\x12\x03\x03\x14\x15\n\x0b\n\x04\x04\0\x02\x01\x12\x03\
-    \x04\x04\x18\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\x08\n\x0c\n\
-    \x05\x04\0\x02\x01\x01\x12\x03\x04\t\x13\n\x0c\n\x05\x04\0\x02\x01\x03\
-    \x12\x03\x04\x16\x17\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x04\x16\n\x0c\
-    \n\x05\x04\0\x02\x02\x05\x12\x03\x05\x04\x08\n\x0c\n\x05\x04\0\x02\x02\
-    \x01\x12\x03\x05\t\x11\n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05\x14\x15\
-    b\x06proto3\
+    \n\x0fapp_query.proto\"l\n\x0fQueryAppRequest\x12\x15\n\x06app_id\x18\
+    \x01\x20\x01(\tR\x05appId\x12'\n\x0fread_belongings\x18\x02\x20\x01(\x08\
+    R\x0ereadBelongings\x12\x19\n\x08is_trash\x18\x03\x20\x01(\x08R\x07isTra\
+    shJ\xcf\x01\n\x06\x12\x04\0\0\x06\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\
+    \n\n\x02\x04\0\x12\x04\x02\0\x06\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\
+    \x17\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x16\n\x0c\n\x05\x04\0\x02\0\
+    \x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\x11\n\
+    \x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x14\x15\n\x0b\n\x04\x04\0\x02\x01\
+    \x12\x03\x04\x04\x1d\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\x08\n\
+    \x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\t\x18\n\x0c\n\x05\x04\0\x02\x01\
+    \x03\x12\x03\x04\x1b\x1c\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x04\x16\n\
+    \x0c\n\x05\x04\0\x02\x02\x05\x12\x03\x05\x04\x08\n\x0c\n\x05\x04\0\x02\
+    \x02\x01\x12\x03\x05\t\x11\n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05\x14\
+    \x15b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

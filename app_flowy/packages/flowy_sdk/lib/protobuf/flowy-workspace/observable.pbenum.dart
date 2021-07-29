@@ -11,19 +11,27 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 class WorkspaceObservable extends $pb.ProtobufEnum {
   static const WorkspaceObservable Unknown = WorkspaceObservable._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unknown');
-  static const WorkspaceObservable WorkspaceUpdateDesc = WorkspaceObservable._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceUpdateDesc');
-  static const WorkspaceObservable WorkspaceAddApp = WorkspaceObservable._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceAddApp');
-  static const WorkspaceObservable AppUpdateDesc = WorkspaceObservable._(20, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppUpdateDesc');
-  static const WorkspaceObservable AppAddView = WorkspaceObservable._(21, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppAddView');
-  static const WorkspaceObservable ViewUpdateDesc = WorkspaceObservable._(30, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewUpdateDesc');
+  static const WorkspaceObservable UserCreateWorkspace = WorkspaceObservable._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserCreateWorkspace');
+  static const WorkspaceObservable UserDeleteWorkspace = WorkspaceObservable._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDeleteWorkspace');
+  static const WorkspaceObservable WorkspaceUpdated = WorkspaceObservable._(12, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceUpdated');
+  static const WorkspaceObservable WorkspaceCreateApp = WorkspaceObservable._(13, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceCreateApp');
+  static const WorkspaceObservable WorkspaceDeleteApp = WorkspaceObservable._(14, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceDeleteApp');
+  static const WorkspaceObservable AppUpdated = WorkspaceObservable._(21, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppUpdated');
+  static const WorkspaceObservable AppCreateView = WorkspaceObservable._(23, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppCreateView');
+  static const WorkspaceObservable AppDeleteView = WorkspaceObservable._(24, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppDeleteView');
+  static const WorkspaceObservable ViewUpdated = WorkspaceObservable._(31, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewUpdated');
 
   static const $core.List<WorkspaceObservable> values = <WorkspaceObservable> [
     Unknown,
-    WorkspaceUpdateDesc,
-    WorkspaceAddApp,
-    AppUpdateDesc,
-    AppAddView,
-    ViewUpdateDesc,
+    UserCreateWorkspace,
+    UserDeleteWorkspace,
+    WorkspaceUpdated,
+    WorkspaceCreateApp,
+    WorkspaceDeleteApp,
+    AppUpdated,
+    AppCreateView,
+    AppDeleteView,
+    ViewUpdated,
   ];
 
   static final $core.Map<$core.int, WorkspaceObservable> _byValue = $pb.ProtobufEnum.initByValue(values);

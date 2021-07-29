@@ -53,8 +53,9 @@ class WorkspaceRepo {
 
 class WorkspaceWatchRepo {
   StreamSubscription<ObservableSubject>? _subscription;
-  WorkspaceAddAppCallback? _addAppCallback;
-  WorkspaceUpdatedCallback? _updatedCallback;
+  WorkspaceCreateAppCallback? _createApp;
+  WorkspaceDeleteAppCallback? _deleteApp;
+  WorkspaceUpdatedCallback? _update;
   final UserDetail user;
   late WorkspaceRepo _repo;
 
@@ -64,11 +65,14 @@ class WorkspaceWatchRepo {
     _repo = WorkspaceRepo(user: user);
   }
 
-  void startWatching(
-      {WorkspaceAddAppCallback? addAppCallback,
-      WorkspaceUpdatedCallback? updatedCallback}) {
-    _addAppCallback = addAppCallback;
-    _updatedCallback = updatedCallback;
+  void startWatching({
+    WorkspaceCreateAppCallback? createApp,
+    WorkspaceDeleteAppCallback? deleteApp,
+    WorkspaceUpdatedCallback? update,
+  }) {
+    _createApp = createApp;
+    _deleteApp = deleteApp;
+    _update = update;
 
     _subscription = RustStreamReceiver.listen((observable) {
       if (observable.subjectId != user.workspace) {
@@ -84,25 +88,36 @@ class WorkspaceWatchRepo {
 
   void _handleObservableType(WorkspaceObservable ty) {
     switch (ty) {
-      case WorkspaceObservable.WorkspaceUpdateDesc:
-        if (_updatedCallback == null) {
+      case WorkspaceObservable.WorkspaceUpdated:
+        if (_update == null) {
           return;
         }
         _repo.getWorkspace().then((result) {
           result.fold(
-            (workspace) => _updatedCallback!(workspace.name, workspace.desc),
+            (workspace) => _update!(workspace.name, workspace.desc),
             (error) => Log.error(error),
           );
         });
         break;
-      case WorkspaceObservable.WorkspaceAddApp:
-        if (_addAppCallback == null) {
+      case WorkspaceObservable.WorkspaceCreateApp:
+        if (_createApp == null) {
           return;
         }
         _repo.getWorkspace(readApps: true).then((result) {
           result.fold(
-            (workspace) => _addAppCallback!(left(workspace.apps.items)),
-            (error) => _addAppCallback!(right(error)),
+            (workspace) => _createApp!(left(workspace.apps.items)),
+            (error) => _createApp!(right(error)),
+          );
+        });
+        break;
+      case WorkspaceObservable.WorkspaceDeleteApp:
+        if (_deleteApp == null) {
+          return;
+        }
+        _repo.getWorkspace(readApps: true).then((result) {
+          result.fold(
+            (workspace) => _deleteApp!(left(workspace.apps.items)),
+            (error) => _deleteApp!(right(error)),
           );
         });
         break;

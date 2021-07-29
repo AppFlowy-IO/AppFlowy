@@ -22,7 +22,7 @@ impl ViewController {
         let view: View = view_table.clone().into();
         let _ = self.sql.create_view(view_table)?;
 
-        send_observable(&view.belong_to_id, WorkspaceObservable::AppAddView);
+        send_observable(&view.belong_to_id, WorkspaceObservable::AppCreateView);
         Ok(view)
     }
 
@@ -33,7 +33,8 @@ impl ViewController {
     }
 
     pub async fn delete_view(&self, view_id: &str) -> Result<(), WorkspaceError> {
-        let _ = self.sql.delete_view(view_id)?;
+        let view = self.sql.delete_view(view_id)?;
+        send_observable(&view.belong_to_id, WorkspaceObservable::AppDeleteView);
         Ok(())
     }
 
@@ -55,7 +56,7 @@ impl ViewController {
         let changeset = ViewTableChangeset::new(params);
         let view_id = changeset.id.clone();
         let _ = self.sql.update_view(changeset)?;
-        send_observable(&view_id, WorkspaceObservable::ViewUpdateDesc);
+        send_observable(&view_id, WorkspaceObservable::ViewUpdated);
 
         Ok(())
     }

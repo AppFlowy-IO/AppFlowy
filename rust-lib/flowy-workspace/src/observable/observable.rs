@@ -7,13 +7,18 @@ const OBSERVABLE_CATEGORY: &'static str = "Workspace";
 pub(crate) enum WorkspaceObservable {
     Unknown             = 0,
 
-    WorkspaceUpdateDesc = 10,
-    WorkspaceAddApp     = 11,
+    UserCreateWorkspace = 10,
+    UserDeleteWorkspace = 11,
 
-    AppUpdateDesc       = 20,
-    AppAddView          = 21,
+    WorkspaceUpdated    = 12,
+    WorkspaceCreateApp  = 13,
+    WorkspaceDeleteApp  = 14,
 
-    ViewUpdateDesc      = 30,
+    AppUpdated          = 21,
+    AppCreateView       = 23,
+    AppDeleteView       = 24,
+
+    ViewUpdated         = 31,
 }
 
 impl std::default::Default for WorkspaceObservable {

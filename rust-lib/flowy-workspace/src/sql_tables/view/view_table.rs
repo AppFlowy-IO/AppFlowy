@@ -1,5 +1,5 @@
 use crate::{
-    entities::view::{CreateViewParams, UpdateViewParams, View, ViewType},
+    entities::view::{CreateViewParams, RepeatedView, UpdateViewParams, View, ViewType},
     impl_sql_integer_expression,
     sql_tables::app::AppTable,
 };
@@ -54,6 +54,7 @@ impl std::convert::Into<View> for ViewTable {
             name: self.name,
             desc: self.desc,
             view_type,
+            belongings: RepeatedView::default(),
             version: self.version,
         }
     }

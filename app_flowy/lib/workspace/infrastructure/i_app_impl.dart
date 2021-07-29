@@ -51,10 +51,9 @@ class IAppWatchImpl extends IAppWatch {
 
   @override
   void startWatching(
-      {AppAddViewCallback? addViewCallback,
+      {AppCreateViewCallback? addViewCallback,
       AppUpdatedCallback? updatedCallback}) {
-    repo.startWatching(
-        addViewCallback: addViewCallback, updatedCallback: updatedCallback);
+    repo.startWatching(createView: addViewCallback, update: updatedCallback);
   }
 
   @override

@@ -108,7 +108,7 @@ impl std::convert::Into<App> for AppTable {
             workspace_id: self.workspace_id,
             name: self.name,
             desc: self.desc,
-            views: RepeatedView::default(),
+            belongings: RepeatedView::default(),
             version: self.version,
         }
     }

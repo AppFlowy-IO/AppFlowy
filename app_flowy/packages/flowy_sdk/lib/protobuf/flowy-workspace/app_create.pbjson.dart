@@ -39,13 +39,13 @@ const App$json = const {
     const {'1': 'workspace_id', '3': 2, '4': 1, '5': 9, '10': 'workspaceId'},
     const {'1': 'name', '3': 3, '4': 1, '5': 9, '10': 'name'},
     const {'1': 'desc', '3': 4, '4': 1, '5': 9, '10': 'desc'},
-    const {'1': 'views', '3': 5, '4': 1, '5': 11, '6': '.RepeatedView', '10': 'views'},
+    const {'1': 'belongings', '3': 5, '4': 1, '5': 11, '6': '.RepeatedView', '10': 'belongings'},
     const {'1': 'version', '3': 6, '4': 1, '5': 3, '10': 'version'},
   ],
 };
 
 /// Descriptor for `App`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List appDescriptor = $convert.base64Decode('CgNBcHASDgoCaWQYASABKAlSAmlkEiEKDHdvcmtzcGFjZV9pZBgCIAEoCVILd29ya3NwYWNlSWQSEgoEbmFtZRgDIAEoCVIEbmFtZRISCgRkZXNjGAQgASgJUgRkZXNjEiMKBXZpZXdzGAUgASgLMg0uUmVwZWF0ZWRWaWV3UgV2aWV3cxIYCgd2ZXJzaW9uGAYgASgDUgd2ZXJzaW9u');
+final $typed_data.Uint8List appDescriptor = $convert.base64Decode('CgNBcHASDgoCaWQYASABKAlSAmlkEiEKDHdvcmtzcGFjZV9pZBgCIAEoCVILd29ya3NwYWNlSWQSEgoEbmFtZRgDIAEoCVIEbmFtZRISCgRkZXNjGAQgASgJUgRkZXNjEi0KCmJlbG9uZ2luZ3MYBSABKAsyDS5SZXBlYXRlZFZpZXdSCmJlbG9uZ2luZ3MSGAoHdmVyc2lvbhgGIAEoA1IHdmVyc2lvbg==');
 @$core.Deprecated('Use repeatedAppDescriptor instead')
 const RepeatedApp$json = const {
   '1': 'RepeatedApp',

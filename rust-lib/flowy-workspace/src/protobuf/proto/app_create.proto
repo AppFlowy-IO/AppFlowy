@@ -15,7 +15,7 @@ message App {
     string workspace_id = 2;
     string name = 3;
     string desc = 4;
-    RepeatedView views = 5;
+    RepeatedView belongings = 5;
     int64 version = 6;
 }
 message RepeatedApp {

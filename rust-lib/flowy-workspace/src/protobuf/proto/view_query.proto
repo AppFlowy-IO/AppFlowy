@@ -3,4 +3,5 @@ syntax = "proto3";
 message QueryViewRequest {
     string view_id = 1;
     bool is_trash = 2;
+    bool read_belongings = 3;
 }

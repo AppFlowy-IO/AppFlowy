@@ -12,6 +12,9 @@ pub struct QueryViewRequest {
 
     #[pb(index = 2)]
     pub is_trash: bool,
+
+    #[pb(index = 3)]
+    pub read_belongings: bool,
 }
 
 impl QueryViewRequest {
@@ -19,6 +22,7 @@ impl QueryViewRequest {
         Self {
             view_id: view_id.to_owned(),
             is_trash: false,
+            read_belongings: false,
         }
     }
 
@@ -31,6 +35,7 @@ impl QueryViewRequest {
 pub struct QueryViewParams {
     pub view_id: String,
     pub is_trash: bool,
+    pub read_belongings: bool,
 }
 
 impl TryInto<QueryViewParams> for QueryViewRequest {
@@ -44,6 +49,7 @@ impl TryInto<QueryViewParams> for QueryViewRequest {
         Ok(QueryViewParams {
             view_id,
             is_trash: self.is_trash,
+            read_belongings: self.read_belongings,
         })
     }
 }

@@ -388,6 +388,7 @@ pub struct View {
     pub desc: ::std::string::String,
     pub view_type: ViewType,
     pub version: i64,
+    pub belongings: ::protobuf::SingularPtrField<RepeatedView>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -537,10 +538,48 @@ impl View {
     pub fn set_version(&mut self, v: i64) {
         self.version = v;
     }
+
+    // .RepeatedView belongings = 7;
+
+
+    pub fn get_belongings(&self) -> &RepeatedView {
+        self.belongings.as_ref().unwrap_or_else(|| <RepeatedView as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_belongings(&mut self) {
+        self.belongings.clear();
+    }
+
+    pub fn has_belongings(&self) -> bool {
+        self.belongings.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_belongings(&mut self, v: RepeatedView) {
+        self.belongings = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_belongings(&mut self) -> &mut RepeatedView {
+        if self.belongings.is_none() {
+            self.belongings.set_default();
+        }
+        self.belongings.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_belongings(&mut self) -> RepeatedView {
+        self.belongings.take().unwrap_or_else(|| RepeatedView::new())
+    }
 }
 
 impl ::protobuf::Message for View {
     fn is_initialized(&self) -> bool {
+        for v in &self.belongings {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
         true
     }
 
@@ -569,6 +608,9 @@ impl ::protobuf::Message for View {
                     }
                     let tmp = is.read_int64()?;
                     self.version = tmp;
+                },
+                7 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.belongings)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -600,6 +642,10 @@ impl ::protobuf::Message for View {
         if self.version != 0 {
             my_size += ::protobuf::rt::value_size(6, self.version, ::protobuf::wire_format::WireTypeVarint);
         }
+        if let Some(ref v) = self.belongings.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -623,6 +669,11 @@ impl ::protobuf::Message for View {
         }
         if self.version != 0 {
             os.write_int64(6, self.version)?;
+        }
+        if let Some(ref v) = self.belongings.as_ref() {
+            os.write_tag(7, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -692,6 +743,11 @@ impl ::protobuf::Message for View {
                 |m: &View| { &m.version },
                 |m: &mut View| { &mut m.version },
             ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<RepeatedView>>(
+                "belongings",
+                |m: &View| { &m.belongings },
+                |m: &mut View| { &mut m.belongings },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<View>(
                 "View",
                 fields,
@@ -714,6 +770,7 @@ impl ::protobuf::Clear for View {
         self.desc.clear();
         self.view_type = ViewType::Blank;
         self.version = 0;
+        self.belongings.clear();
         self.unknown_fields.clear();
     }
 }
@@ -951,14 +1008,15 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     long_to_id\x18\x01\x20\x01(\tR\nbelongToId\x12\x12\n\x04name\x18\x02\x20\
     \x01(\tR\x04name\x12\x12\n\x04desc\x18\x03\x20\x01(\tR\x04desc\x12\x1e\n\
     \tthumbnail\x18\x04\x20\x01(\tH\0R\tthumbnail\x12&\n\tview_type\x18\x05\
-    \x20\x01(\x0e2\t.ViewTypeR\x08viewTypeB\x12\n\x10one_of_thumbnail\"\xa2\
+    \x20\x01(\x0e2\t.ViewTypeR\x08viewTypeB\x12\n\x10one_of_thumbnail\"\xd1\
     \x01\n\x04View\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x20\n\x0cbe\
     long_to_id\x18\x02\x20\x01(\tR\nbelongToId\x12\x12\n\x04name\x18\x03\x20\
     \x01(\tR\x04name\x12\x12\n\x04desc\x18\x04\x20\x01(\tR\x04desc\x12&\n\tv\
     iew_type\x18\x05\x20\x01(\x0e2\t.ViewTypeR\x08viewType\x12\x18\n\x07vers\
-    ion\x18\x06\x20\x01(\x03R\x07version\"+\n\x0cRepeatedView\x12\x1b\n\x05i\
-    tems\x18\x01\x20\x03(\x0b2\x05.ViewR\x05items*\x1e\n\x08ViewType\x12\t\n\
-    \x05Blank\x10\0\x12\x07\n\x03Doc\x10\x01J\x81\x07\n\x06\x12\x04\0\0\x17\
+    ion\x18\x06\x20\x01(\x03R\x07version\x12-\n\nbelongings\x18\x07\x20\x01(\
+    \x0b2\r.RepeatedViewR\nbelongings\"+\n\x0cRepeatedView\x12\x1b\n\x05item\
+    s\x18\x01\x20\x03(\x0b2\x05.ViewR\x05items*\x1e\n\x08ViewType\x12\t\n\
+    \x05Blank\x10\0\x12\x07\n\x03Doc\x10\x01J\xb8\x07\n\x06\x12\x04\0\0\x18\
     \x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x08\
     \x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x19\n\x0b\n\x04\x04\0\x02\0\x12\
     \x03\x03\x04\x1c\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\
@@ -975,7 +1033,7 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x04\0\x02\x03\x03\x12\x03\x0601\n\x0b\n\x04\x04\0\x02\x04\x12\x03\x07\
     \x04\x1b\n\x0c\n\x05\x04\0\x02\x04\x06\x12\x03\x07\x04\x0c\n\x0c\n\x05\
     \x04\0\x02\x04\x01\x12\x03\x07\r\x16\n\x0c\n\x05\x04\0\x02\x04\x03\x12\
-    \x03\x07\x19\x1a\n\n\n\x02\x04\x01\x12\x04\t\0\x10\x01\n\n\n\x03\x04\x01\
+    \x03\x07\x19\x1a\n\n\n\x02\x04\x01\x12\x04\t\0\x11\x01\n\n\n\x03\x04\x01\
     \x01\x12\x03\t\x08\x0c\n\x0b\n\x04\x04\x01\x02\0\x12\x03\n\x04\x12\n\x0c\
     \n\x05\x04\x01\x02\0\x05\x12\x03\n\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\
     \x12\x03\n\x0b\r\n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\n\x10\x11\n\x0b\n\
@@ -993,16 +1051,19 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x0e\x19\x1a\n\x0b\n\x04\x04\x01\x02\x05\x12\x03\x0f\x04\x16\n\x0c\n\x05\
     \x04\x01\x02\x05\x05\x12\x03\x0f\x04\t\n\x0c\n\x05\x04\x01\x02\x05\x01\
     \x12\x03\x0f\n\x11\n\x0c\n\x05\x04\x01\x02\x05\x03\x12\x03\x0f\x14\x15\n\
-    \n\n\x02\x04\x02\x12\x04\x11\0\x13\x01\n\n\n\x03\x04\x02\x01\x12\x03\x11\
-    \x08\x14\n\x0b\n\x04\x04\x02\x02\0\x12\x03\x12\x04\x1c\n\x0c\n\x05\x04\
-    \x02\x02\0\x04\x12\x03\x12\x04\x0c\n\x0c\n\x05\x04\x02\x02\0\x06\x12\x03\
-    \x12\r\x11\n\x0c\n\x05\x04\x02\x02\0\x01\x12\x03\x12\x12\x17\n\x0c\n\x05\
-    \x04\x02\x02\0\x03\x12\x03\x12\x1a\x1b\n\n\n\x02\x05\0\x12\x04\x14\0\x17\
-    \x01\n\n\n\x03\x05\0\x01\x12\x03\x14\x05\r\n\x0b\n\x04\x05\0\x02\0\x12\
-    \x03\x15\x04\x0e\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\x15\x04\t\n\x0c\n\
-    \x05\x05\0\x02\0\x02\x12\x03\x15\x0c\r\n\x0b\n\x04\x05\0\x02\x01\x12\x03\
-    \x16\x04\x0c\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\x16\x04\x07\n\x0c\n\
-    \x05\x05\0\x02\x01\x02\x12\x03\x16\n\x0bb\x06proto3\
+    \x0b\n\x04\x04\x01\x02\x06\x12\x03\x10\x04\x20\n\x0c\n\x05\x04\x01\x02\
+    \x06\x06\x12\x03\x10\x04\x10\n\x0c\n\x05\x04\x01\x02\x06\x01\x12\x03\x10\
+    \x11\x1b\n\x0c\n\x05\x04\x01\x02\x06\x03\x12\x03\x10\x1e\x1f\n\n\n\x02\
+    \x04\x02\x12\x04\x12\0\x14\x01\n\n\n\x03\x04\x02\x01\x12\x03\x12\x08\x14\
+    \n\x0b\n\x04\x04\x02\x02\0\x12\x03\x13\x04\x1c\n\x0c\n\x05\x04\x02\x02\0\
+    \x04\x12\x03\x13\x04\x0c\n\x0c\n\x05\x04\x02\x02\0\x06\x12\x03\x13\r\x11\
+    \n\x0c\n\x05\x04\x02\x02\0\x01\x12\x03\x13\x12\x17\n\x0c\n\x05\x04\x02\
+    \x02\0\x03\x12\x03\x13\x1a\x1b\n\n\n\x02\x05\0\x12\x04\x15\0\x18\x01\n\n\
+    \n\x03\x05\0\x01\x12\x03\x15\x05\r\n\x0b\n\x04\x05\0\x02\0\x12\x03\x16\
+    \x04\x0e\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\x16\x04\t\n\x0c\n\x05\x05\0\
+    \x02\0\x02\x12\x03\x16\x0c\r\n\x0b\n\x04\x05\0\x02\x01\x12\x03\x17\x04\
+    \x0c\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\x17\x04\x07\n\x0c\n\x05\x05\0\
+    \x02\x01\x02\x12\x03\x17\n\x0bb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

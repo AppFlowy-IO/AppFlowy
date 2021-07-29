@@ -2,9 +2,13 @@ syntax = "proto3";
 
 enum WorkspaceObservable {
     Unknown = 0;
-    WorkspaceUpdateDesc = 10;
-    WorkspaceAddApp = 11;
-    AppUpdateDesc = 20;
-    AppAddView = 21;
-    ViewUpdateDesc = 30;
+    UserCreateWorkspace = 10;
+    UserDeleteWorkspace = 11;
+    WorkspaceUpdated = 12;
+    WorkspaceCreateApp = 13;
+    WorkspaceDeleteApp = 14;
+    AppUpdated = 21;
+    AppCreateView = 23;
+    AppDeleteView = 24;
+    ViewUpdated = 31;
 }

@@ -36,7 +36,8 @@ impl AppController {
         let app_table = AppTable::new(params);
         let app: App = app_table.clone().into();
         let _ = self.sql.create_app(app_table)?;
-        send_observable(&app.workspace_id, WorkspaceObservable::WorkspaceAddApp);
+
+        send_observable(&app.workspace_id, WorkspaceObservable::WorkspaceCreateApp);
         Ok(app)
     }
 
@@ -46,7 +47,8 @@ impl AppController {
     }
 
     pub async fn delete_app(&self, app_id: &str) -> Result<(), WorkspaceError> {
-        let _ = self.sql.delete_app(app_id)?;
+        let app = self.sql.delete_app(app_id)?;
+        send_observable(&app.workspace_id, WorkspaceObservable::WorkspaceDeleteApp);
         Ok(())
     }
 
@@ -54,7 +56,7 @@ impl AppController {
         let changeset = AppTableChangeset::new(params);
         let app_id = changeset.id.clone();
         let _ = self.sql.update_app(changeset)?;
-        send_observable(&app_id, WorkspaceObservable::AppUpdateDesc);
+        send_observable(&app_id, WorkspaceObservable::AppUpdated);
         Ok(())
     }
 

@@ -59,9 +59,9 @@ pub async fn read_app(
     let mut app = app_controller
         .read_app(&params.app_id, params.is_trash)
         .await?;
-    if params.read_views {
+    if params.read_belongings {
         let views = view_controller.read_views_belong_to(&params.app_id).await?;
-        app.views = RepeatedView { items: views };
+        app.belongings = RepeatedView { items: views };
     }
 
     response_ok(app)

@@ -35,9 +35,10 @@ impl WorkspaceController {
     ) -> Result<Workspace, WorkspaceError> {
         let user_id = self.user.user_id()?;
         let workspace_table = WorkspaceTable::new(params, &user_id);
-        let detail: Workspace = workspace_table.clone().into();
+        let workspace: Workspace = workspace_table.clone().into();
         let _ = self.sql.create_workspace(workspace_table)?;
-        Ok(detail)
+        send_observable(&user_id, WorkspaceObservable::UserCreateWorkspace);
+        Ok(workspace)
     }
 
     pub fn update_workspace(&self, params: UpdateWorkspaceParams) -> Result<(), WorkspaceError> {
@@ -45,12 +46,15 @@ impl WorkspaceController {
         let workspace_id = changeset.id.clone();
         let _ = self.sql.update_workspace(changeset)?;
 
-        send_observable(&workspace_id, WorkspaceObservable::WorkspaceUpdateDesc);
+        send_observable(&workspace_id, WorkspaceObservable::WorkspaceUpdated);
         Ok(())
     }
 
-    pub fn delete_workspace(&self, _workspace_id: &str) -> Result<(), WorkspaceError> {
-        unimplemented!()
+    pub fn delete_workspace(&self, workspace_id: &str) -> Result<(), WorkspaceError> {
+        let user_id = self.user.user_id()?;
+        let _ = self.sql.delete_workspace(workspace_id)?;
+        send_observable(&user_id, WorkspaceObservable::UserDeleteWorkspace);
+        Ok(())
     }
 
     pub async fn read_cur_workspace(&self) -> Result<Workspace, WorkspaceError> {

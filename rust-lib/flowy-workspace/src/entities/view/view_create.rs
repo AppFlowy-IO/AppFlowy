@@ -98,6 +98,9 @@ pub struct View {
 
     #[pb(index = 6)]
     pub version: i64,
+
+    #[pb(index = 7)]
+    pub belongings: RepeatedView,
 }
 
 #[derive(PartialEq, Debug, Default, ProtoBuf)]

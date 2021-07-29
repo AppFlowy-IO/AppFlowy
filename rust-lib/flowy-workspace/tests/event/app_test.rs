@@ -53,8 +53,8 @@ fn app_create_with_view_and_then_get_success() {
     let query = QueryAppRequest::new(&app.id).set_read_views(true);
     let view_from_db = read_app(query);
 
-    assert_eq!(view_from_db.views[0], view_a);
-    assert_eq!(view_from_db.views[1], view_b);
+    assert_eq!(view_from_db.belongings[0], view_a);
+    assert_eq!(view_from_db.belongings[1], view_b);
 }
 
 #[test]

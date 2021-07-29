@@ -1,5 +1,6 @@
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:expandable/expandable.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_infra_ui/style_widget/text_button.dart';
@@ -45,7 +46,7 @@ class AppHeader extends StatelessWidget {
           child: FlowyTextButton(
             app.name,
             onPressed: () {
-              debugPrint('show app document');
+              debugPrint('show app');
             },
           ),
         ),
@@ -53,6 +54,8 @@ class AppHeader extends StatelessWidget {
         //   icon: const Icon(Icons.add),
         //   onPressed: () {
         //     debugPrint('add view');
+        //     FlowyOverlay.of(context)
+        //         .insert(widget: Text('test'), identifier: 'identifier');
         //   },
         // ),
         PopupMenuButton(

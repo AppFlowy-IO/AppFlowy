@@ -1,5 +1,6 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:window_size/window_size.dart';
@@ -34,7 +35,7 @@ class ApplicationWidget extends StatelessWidget {
     return Provider.value(
         value: theme,
         child: MaterialApp(
-          title: 'AppFlowy',
+          builder: overlayManagerBuilder(),
           debugShowCheckedModeBanner: false,
           theme: theme.themeData,
           navigatorKey: AppGlobals.rootNavKey,

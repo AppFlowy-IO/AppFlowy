@@ -44,10 +44,14 @@ impl AppTableSql {
         Ok(app_table)
     }
 
-    pub(crate) fn delete_app(&self, app_id: &str) -> Result<(), WorkspaceError> {
+    pub(crate) fn delete_app(&self, app_id: &str) -> Result<AppTable, WorkspaceError> {
         let conn = self.database.db_connection()?;
+        // TODO: group into sql transaction
+        let app_table = dsl::app_table
+            .filter(app_table::id.eq(app_id))
+            .first::<AppTable>(&*(self.database.db_connection()?))?;
         diesel_delete_table!(app_table, app_id, conn);
-        Ok(())
+        Ok(app_table)
     }
 
     // pub(crate) fn read_views_belong_to_app(

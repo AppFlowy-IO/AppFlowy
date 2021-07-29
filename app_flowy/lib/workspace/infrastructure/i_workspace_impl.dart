@@ -37,10 +37,9 @@ class IWorkspaceWatchImpl extends IWorkspaceWatch {
 
   @override
   void startWatching(
-      {WorkspaceAddAppCallback? addAppCallback,
+      {WorkspaceCreateAppCallback? addAppCallback,
       WorkspaceUpdatedCallback? updatedCallback}) {
-    repo.startWatching(
-        addAppCallback: addAppCallback, updatedCallback: updatedCallback);
+    repo.startWatching(createApp: addAppCallback, update: updatedCallback);
   }
 
   @override
