@@ -1,9 +1,16 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
+import 'package:flowy_sdk/protobuf/flowy-observable/subject.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_detail.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/observable.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/workspace_create.pb.dart';
+import 'package:flowy_sdk/rust_stream.dart';
+
+import 'package:app_flowy/workspace/domain/i_user.dart';
 
 class UserRepo {
   final UserDetail user;
@@ -32,5 +39,68 @@ class UserRepo {
         (r) => right(r),
       );
     });
+  }
+}
+
+class UserWatchRepo {
+  StreamSubscription<ObservableSubject>? _subscription;
+  UserCreateWorkspaceCallback? _createWorkspace;
+  UserDeleteWorkspaceCallback? _deleteWorkspace;
+  late UserRepo _repo;
+  UserWatchRepo({
+    required UserDetail user,
+  }) {
+    _repo = UserRepo(user: user);
+  }
+
+  void startWatching(
+      {UserCreateWorkspaceCallback? createWorkspace,
+      UserDeleteWorkspaceCallback? deleteWorkspace}) {
+    _createWorkspace = createWorkspace;
+    _deleteWorkspace = deleteWorkspace;
+    _subscription = RustStreamReceiver.listen((observable) {
+      if (observable.subjectId != _repo.user.id) {
+        return;
+      }
+
+      final ty = WorkspaceObservable.valueOf(observable.ty);
+      if (ty != null) {
+        _handleObservableType(ty);
+      }
+    });
+  }
+
+  Future<void> close() async {
+    await _subscription?.cancel();
+  }
+
+  void _handleObservableType(WorkspaceObservable ty) {
+    switch (ty) {
+      case WorkspaceObservable.UserCreateWorkspace:
+        if (_createWorkspace == null) {
+          return;
+        }
+        _repo.fetchWorkspaces().then((result) {
+          result.fold(
+            (workspaces) => _createWorkspace!(left(workspaces)),
+            (error) => _createWorkspace!(right(error)),
+          );
+        });
+        break;
+      case WorkspaceObservable.UserDeleteWorkspace:
+        if (_deleteWorkspace == null) {
+          return;
+        }
+        _repo.fetchWorkspaces().then((result) {
+          result.fold(
+            (workspaces) => _deleteWorkspace!(left(workspaces)),
+            (error) => _deleteWorkspace!(right(error)),
+          );
+        });
+        break;
+
+      default:
+        break;
+    }
   }
 }

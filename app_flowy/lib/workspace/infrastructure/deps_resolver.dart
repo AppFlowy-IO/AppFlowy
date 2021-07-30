@@ -55,6 +55,8 @@ class HomeDepsResolver {
     // User
     getIt.registerFactoryParam<IUser, UserDetail, void>(
         (user, _) => IUserImpl(repo: UserRepo(user: user)));
+    getIt.registerFactoryParam<IUserWatch, UserDetail, void>(
+        (user, _) => IUserWatchImpl(repo: UserWatchRepo(user: user)));
 
     //Menu Bloc
     getIt.registerFactoryParam<MenuBloc, UserDetail, void>(
