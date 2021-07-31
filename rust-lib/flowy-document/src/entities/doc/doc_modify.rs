@@ -25,12 +25,12 @@ pub(crate) struct UpdateDocParams {
 }
 
 impl TryInto<UpdateDocParams> for UpdateDocRequest {
-    type Error = EditorError;
+    type Error = DocError;
 
     fn try_into(self) -> Result<UpdateDocParams, Self::Error> {
         let id = DocId::parse(self.id)
             .map_err(|e| {
-                ErrorBuilder::new(EditorErrorCode::DocViewIdInvalid)
+                ErrorBuilder::new(DocErrorCode::DocViewIdInvalid)
                     .msg(e)
                     .build()
             })?
@@ -41,7 +41,7 @@ impl TryInto<UpdateDocParams> for UpdateDocRequest {
             Some(name) => Some(
                 DocName::parse(name)
                     .map_err(|e| {
-                        ErrorBuilder::new(EditorErrorCode::DocNameInvalid)
+                        ErrorBuilder::new(DocErrorCode::DocNameInvalid)
                             .msg(e)
                             .build()
                     })?
@@ -54,7 +54,7 @@ impl TryInto<UpdateDocParams> for UpdateDocRequest {
             Some(desc) => Some(
                 DocDesc::parse(desc)
                     .map_err(|e| {
-                        ErrorBuilder::new(EditorErrorCode::DocDescTooLong)
+                        ErrorBuilder::new(DocErrorCode::DocDescTooLong)
                             .msg(e)
                             .build()
                     })?

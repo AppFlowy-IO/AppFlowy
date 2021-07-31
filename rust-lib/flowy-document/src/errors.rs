@@ -5,16 +5,16 @@ use flowy_dispatch::prelude::{EventResponse, ResponseBuilder};
 use std::convert::TryInto;
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
-pub struct EditorError {
+pub struct DocError {
     #[pb(index = 1)]
-    pub code: EditorErrorCode,
+    pub code: DocErrorCode,
 
     #[pb(index = 2)]
     pub msg: String,
 }
 
-impl EditorError {
-    fn new(code: EditorErrorCode, msg: &str) -> Self {
+impl DocError {
+    fn new(code: DocErrorCode, msg: &str) -> Self {
         Self {
             code,
             msg: msg.to_owned(),
@@ -23,7 +23,7 @@ impl EditorError {
 }
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
-pub enum EditorErrorCode {
+pub enum DocErrorCode {
     #[display(fmt = "Unknown")]
     Unknown            = 0,
 
@@ -52,27 +52,27 @@ pub enum EditorErrorCode {
     EditorUserNotLoginYet = 100,
 }
 
-impl std::default::Default for EditorErrorCode {
-    fn default() -> Self { EditorErrorCode::Unknown }
+impl std::default::Default for DocErrorCode {
+    fn default() -> Self { DocErrorCode::Unknown }
 }
 
-impl std::convert::From<flowy_database::result::Error> for EditorError {
+impl std::convert::From<flowy_database::result::Error> for DocError {
     fn from(error: flowy_database::result::Error) -> Self {
-        ErrorBuilder::new(EditorErrorCode::EditorDBInternalError)
+        ErrorBuilder::new(DocErrorCode::EditorDBInternalError)
             .error(error)
             .build()
     }
 }
 
-impl std::convert::From<FileError> for EditorError {
+impl std::convert::From<FileError> for DocError {
     fn from(error: FileError) -> Self {
-        ErrorBuilder::new(EditorErrorCode::DocOpenFileError)
+        ErrorBuilder::new(DocErrorCode::DocOpenFileError)
             .error(error)
             .build()
     }
 }
 
-impl flowy_dispatch::Error for EditorError {
+impl flowy_dispatch::Error for DocError {
     fn as_response(&self) -> EventResponse {
         let bytes: Vec<u8> = self.clone().try_into().unwrap();
         ResponseBuilder::Err().data(bytes).build()
@@ -80,12 +80,12 @@ impl flowy_dispatch::Error for EditorError {
 }
 
 pub struct ErrorBuilder {
-    pub code: EditorErrorCode,
+    pub code: DocErrorCode,
     pub msg: Option<String>,
 }
 
 impl ErrorBuilder {
-    pub fn new(code: EditorErrorCode) -> Self { ErrorBuilder { code, msg: None } }
+    pub fn new(code: DocErrorCode) -> Self { ErrorBuilder { code, msg: None } }
 
     pub fn msg<T>(mut self, msg: T) -> Self
     where
@@ -103,7 +103,7 @@ impl ErrorBuilder {
         self
     }
 
-    pub fn build(mut self) -> EditorError {
-        EditorError::new(self.code, &self.msg.take().unwrap_or("".to_owned()))
+    pub fn build(mut self) -> DocError {
+        DocError::new(self.code, &self.msg.take().unwrap_or("".to_owned()))
     }
 }

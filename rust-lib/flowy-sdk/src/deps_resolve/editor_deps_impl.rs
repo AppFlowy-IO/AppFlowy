@@ -1,7 +1,7 @@
 use flowy_database::DBConnection;
-use flowy_editor::{
-    errors::{EditorError, EditorErrorCode, ErrorBuilder},
-    module::{EditorDatabase, EditorUser},
+use flowy_document::{
+    errors::{DocError, DocErrorCode, ErrorBuilder},
+    module::{DocumentDatabase, DocumentUser},
 };
 use flowy_user::prelude::UserSession;
 use std::{path::Path, sync::Arc};
@@ -10,10 +10,10 @@ pub struct EditorDatabaseImpl {
     pub(crate) user_session: Arc<UserSession>,
 }
 
-impl EditorDatabase for EditorDatabaseImpl {
-    fn db_connection(&self) -> Result<DBConnection, EditorError> {
+impl DocumentDatabase for EditorDatabaseImpl {
+    fn db_connection(&self) -> Result<DBConnection, DocError> {
         self.user_session.get_db_connection().map_err(|e| {
-            ErrorBuilder::new(EditorErrorCode::EditorDBConnFailed)
+            ErrorBuilder::new(DocErrorCode::EditorDBConnFailed)
                 .error(e)
                 .build()
         })
@@ -24,10 +24,10 @@ pub struct EditorUserImpl {
     pub(crate) user_session: Arc<UserSession>,
 }
 
-impl EditorUser for EditorUserImpl {
-    fn user_doc_dir(&self) -> Result<String, EditorError> {
+impl DocumentUser for EditorUserImpl {
+    fn user_doc_dir(&self) -> Result<String, DocError> {
         let dir = self.user_session.get_user_dir().map_err(|e| {
-            ErrorBuilder::new(EditorErrorCode::EditorUserNotLoginYet)
+            ErrorBuilder::new(DocErrorCode::EditorUserNotLoginYet)
                 .error(e)
                 .build()
         })?;

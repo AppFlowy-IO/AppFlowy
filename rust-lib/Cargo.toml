@@ -13,6 +13,7 @@ members = [
   "flowy-infra",
   "flowy-workspace",
   "flowy-observable",
+  "flowy-document",
   "flowy-editor",
 ]
 

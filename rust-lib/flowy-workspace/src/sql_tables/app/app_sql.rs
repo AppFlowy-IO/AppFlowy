@@ -1,10 +1,7 @@
 use crate::{
     errors::WorkspaceError,
     module::WorkspaceDatabase,
-    sql_tables::{
-        app::{AppTable, AppTableChangeset},
-        view::ViewTable,
-    },
+    sql_tables::app::{AppTable, AppTableChangeset},
 };
 use flowy_database::{
     prelude::*,

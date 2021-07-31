@@ -67,9 +67,9 @@ impl Responder for EventResponse {
     fn respond_to(self, _: &EventRequest) -> EventResponse { self }
 }
 
-pub type ResponseResult<T, E> = std::result::Result<Data<T>, E>;
+pub type DataResult<T, E> = std::result::Result<Data<T>, E>;
 
-pub fn response_ok<T, E>(data: T) -> Result<Data<T>, E>
+pub fn data_result<T, E>(data: T) -> Result<Data<T>, E>
 where
     E: Into<DispatchError>,
 {

@@ -1,8 +1,5 @@
 use crate::{
-    entities::{
-        app::{App, CreateAppParams, *},
-        view::View,
-    },
+    entities::app::{App, CreateAppParams, *},
     errors::*,
     module::{WorkspaceDatabase, WorkspaceUser},
     observable::*,

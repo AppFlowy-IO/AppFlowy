@@ -13,16 +13,16 @@ import 'errors.pbenum.dart';
 
 export 'errors.pbenum.dart';
 
-class EditorError extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'EditorError', createEmptyInstance: create)
-    ..e<EditorErrorCode>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'code', $pb.PbFieldType.OE, defaultOrMaker: EditorErrorCode.Unknown, valueOf: EditorErrorCode.valueOf, enumValues: EditorErrorCode.values)
+class DocError extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DocError', createEmptyInstance: create)
+    ..e<DocErrorCode>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'code', $pb.PbFieldType.OE, defaultOrMaker: DocErrorCode.Unknown, valueOf: DocErrorCode.valueOf, enumValues: DocErrorCode.values)
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'msg')
     ..hasRequiredFields = false
   ;
 
-  EditorError._() : super();
-  factory EditorError({
-    EditorErrorCode? code,
+  DocError._() : super();
+  factory DocError({
+    DocErrorCode? code,
     $core.String? msg,
   }) {
     final _result = create();
@@ -34,31 +34,31 @@ class EditorError extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory EditorError.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory EditorError.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory DocError.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory DocError.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  EditorError clone() => EditorError()..mergeFromMessage(this);
+  DocError clone() => DocError()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  EditorError copyWith(void Function(EditorError) updates) => super.copyWith((message) => updates(message as EditorError)) as EditorError; // ignore: deprecated_member_use
+  DocError copyWith(void Function(DocError) updates) => super.copyWith((message) => updates(message as DocError)) as DocError; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static EditorError create() => EditorError._();
-  EditorError createEmptyInstance() => create();
-  static $pb.PbList<EditorError> createRepeated() => $pb.PbList<EditorError>();
+  static DocError create() => DocError._();
+  DocError createEmptyInstance() => create();
+  static $pb.PbList<DocError> createRepeated() => $pb.PbList<DocError>();
   @$core.pragma('dart2js:noInline')
-  static EditorError getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<EditorError>(create);
-  static EditorError? _defaultInstance;
+  static DocError getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DocError>(create);
+  static DocError? _defaultInstance;
 
   @$pb.TagNumber(1)
-  EditorErrorCode get code => $_getN(0);
+  DocErrorCode get code => $_getN(0);
   @$pb.TagNumber(1)
-  set code(EditorErrorCode v) { setField(1, v); }
+  set code(DocErrorCode v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasCode() => $_has(0);
   @$pb.TagNumber(1)

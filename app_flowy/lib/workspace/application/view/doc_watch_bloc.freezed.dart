@@ -160,7 +160,7 @@ class _$DocWatchStateTearOff {
     );
   }
 
-  LoadFail loadFail(EditorError error) {
+  LoadFail loadFail(DocError error) {
     return LoadFail(
       error,
     );
@@ -176,14 +176,14 @@ mixin _$DocWatchState {
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
     required TResult Function(Doc doc) loadDoc,
-    required TResult Function(EditorError error) loadFail,
+    required TResult Function(DocError error) loadFail,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
     TResult Function(Doc doc)? loadDoc,
-    TResult Function(EditorError error)? loadFail,
+    TResult Function(DocError error)? loadFail,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -260,7 +260,7 @@ class _$Loading implements Loading {
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
     required TResult Function(Doc doc) loadDoc,
-    required TResult Function(EditorError error) loadFail,
+    required TResult Function(DocError error) loadFail,
   }) {
     return loading();
   }
@@ -270,7 +270,7 @@ class _$Loading implements Loading {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
     TResult Function(Doc doc)? loadDoc,
-    TResult Function(EditorError error)? loadFail,
+    TResult Function(DocError error)? loadFail,
     required TResult orElse(),
   }) {
     if (loading != null) {
@@ -372,7 +372,7 @@ class _$LoadDoc implements LoadDoc {
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
     required TResult Function(Doc doc) loadDoc,
-    required TResult Function(EditorError error) loadFail,
+    required TResult Function(DocError error) loadFail,
   }) {
     return loadDoc(doc);
   }
@@ -382,7 +382,7 @@ class _$LoadDoc implements LoadDoc {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
     TResult Function(Doc doc)? loadDoc,
-    TResult Function(EditorError error)? loadFail,
+    TResult Function(DocError error)? loadFail,
     required TResult orElse(),
   }) {
     if (loadDoc != null) {
@@ -428,7 +428,7 @@ abstract class LoadDoc implements DocWatchState {
 abstract class $LoadFailCopyWith<$Res> {
   factory $LoadFailCopyWith(LoadFail value, $Res Function(LoadFail) then) =
       _$LoadFailCopyWithImpl<$Res>;
-  $Res call({EditorError error});
+  $Res call({DocError error});
 }
 
 /// @nodoc
@@ -448,7 +448,7 @@ class _$LoadFailCopyWithImpl<$Res> extends _$DocWatchStateCopyWithImpl<$Res>
       error == freezed
           ? _value.error
           : error // ignore: cast_nullable_to_non_nullable
-              as EditorError,
+              as DocError,
     ));
   }
 }
@@ -459,7 +459,7 @@ class _$LoadFail implements LoadFail {
   const _$LoadFail(this.error);
 
   @override
-  final EditorError error;
+  final DocError error;
 
   @override
   String toString() {
@@ -488,7 +488,7 @@ class _$LoadFail implements LoadFail {
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
     required TResult Function(Doc doc) loadDoc,
-    required TResult Function(EditorError error) loadFail,
+    required TResult Function(DocError error) loadFail,
   }) {
     return loadFail(error);
   }
@@ -498,7 +498,7 @@ class _$LoadFail implements LoadFail {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
     TResult Function(Doc doc)? loadDoc,
-    TResult Function(EditorError error)? loadFail,
+    TResult Function(DocError error)? loadFail,
     required TResult orElse(),
   }) {
     if (loadFail != null) {
@@ -533,9 +533,9 @@ class _$LoadFail implements LoadFail {
 }
 
 abstract class LoadFail implements DocWatchState {
-  const factory LoadFail(EditorError error) = _$LoadFail;
+  const factory LoadFail(DocError error) = _$LoadFail;
 
-  EditorError get error => throw _privateConstructorUsedError;
+  DocError get error => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $LoadFailCopyWith<LoadFail> get copyWith =>
       throw _privateConstructorUsedError;

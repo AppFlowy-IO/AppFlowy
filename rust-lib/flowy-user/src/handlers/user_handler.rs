@@ -3,11 +3,9 @@ use flowy_dispatch::prelude::*;
 use std::{convert::TryInto, sync::Arc};
 
 #[tracing::instrument(name = "get_user_status", skip(session))]
-pub async fn get_user_status(
-    session: Unit<Arc<UserSession>>,
-) -> ResponseResult<UserDetail, UserError> {
+pub async fn get_user_status(session: Unit<Arc<UserSession>>) -> DataResult<UserDetail, UserError> {
     let user_detail = session.user_detail()?;
-    response_ok(user_detail)
+    data_result(user_detail)
 }
 
 #[tracing::instrument(name = "sign_out", skip(session))]
@@ -20,8 +18,8 @@ pub async fn sign_out(session: Unit<Arc<UserSession>>) -> Result<(), UserError> 
 pub async fn update_user(
     data: Data<UpdateUserRequest>,
     session: Unit<Arc<UserSession>>,
-) -> ResponseResult<UserDetail, UserError> {
+) -> DataResult<UserDetail, UserError> {
     let params: UpdateUserParams = data.into_inner().try_into()?;
     let user_detail = session.update_user(params)?;
-    response_ok(user_detail)
+    data_result(user_detail)
 }

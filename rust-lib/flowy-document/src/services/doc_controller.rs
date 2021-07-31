@@ -1,7 +1,7 @@
 use crate::{
     entities::doc::{CreateDocParams, DocInfo, UpdateDocParams},
-    errors::EditorError,
-    module::EditorDatabase,
+    errors::DocError,
+    module::DocumentDatabase,
     sql_tables::doc::{DocTable, DocTableChangeset, DocTableSql},
 };
 use std::sync::Arc;
@@ -11,7 +11,7 @@ pub struct DocController {
 }
 
 impl DocController {
-    pub(crate) fn new(database: Arc<dyn EditorDatabase>) -> Self {
+    pub(crate) fn new(database: Arc<dyn DocumentDatabase>) -> Self {
         let sql = Arc::new(DocTableSql { database });
         Self { sql }
     }
@@ -20,7 +20,7 @@ impl DocController {
         &self,
         params: CreateDocParams,
         path: &str,
-    ) -> Result<DocInfo, EditorError> {
+    ) -> Result<DocInfo, DocError> {
         let doc_table = DocTable::new(params, path);
         let doc: DocInfo = doc_table.clone().into();
         let _ = self.sql.create_doc_table(doc_table)?;
@@ -28,13 +28,13 @@ impl DocController {
         Ok(doc)
     }
 
-    pub(crate) async fn update_doc(&self, params: UpdateDocParams) -> Result<(), EditorError> {
+    pub(crate) async fn update_doc(&self, params: UpdateDocParams) -> Result<(), DocError> {
         let changeset = DocTableChangeset::new(params);
         let _ = self.sql.update_doc_table(changeset)?;
         Ok(())
     }
 
-    pub(crate) async fn read_doc(&self, doc_id: &str) -> Result<DocInfo, EditorError> {
+    pub(crate) async fn read_doc(&self, doc_id: &str) -> Result<DocInfo, DocError> {
         let doc_table = self.sql.read_doc_table(doc_id)?;
         let doc_desc: DocInfo = doc_table.into();
         Ok(doc_desc)

@@ -14,24 +14,24 @@ use crate::{
     errors::WorkspaceError,
     services::ViewController,
 };
-use flowy_dispatch::prelude::{response_ok, Data, ResponseResult, Unit};
+use flowy_dispatch::prelude::{data_result, Data, DataResult, Unit};
 use std::{convert::TryInto, sync::Arc};
 
 #[tracing::instrument(name = "create_view", skip(data, controller))]
 pub async fn create_view(
     data: Data<CreateViewRequest>,
     controller: Unit<Arc<ViewController>>,
-) -> ResponseResult<View, WorkspaceError> {
+) -> DataResult<View, WorkspaceError> {
     let params: CreateViewParams = data.into_inner().try_into()?;
     let view = controller.create_view(params).await?;
-    response_ok(view)
+    data_result(view)
 }
 
 #[tracing::instrument(name = "read_view", skip(data, controller))]
 pub async fn read_view(
     data: Data<QueryViewRequest>,
     controller: Unit<Arc<ViewController>>,
-) -> ResponseResult<View, WorkspaceError> {
+) -> DataResult<View, WorkspaceError> {
     let params: QueryViewParams = data.into_inner().try_into()?;
     let mut view = controller
         .read_view(&params.view_id, params.is_trash)
@@ -42,7 +42,7 @@ pub async fn read_view(
         view.belongings = RepeatedView { items: views }
     }
 
-    response_ok(view)
+    data_result(view)
 }
 
 #[tracing::instrument(name = "update_view", skip(data, controller))]

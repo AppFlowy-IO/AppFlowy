@@ -1,6 +1,6 @@
 use crate::{
     entities::doc::*,
-    errors::EditorError,
+    errors::DocError,
     services::{doc_controller::DocController, file_manager::FileManager},
 };
 use flowy_dispatch::prelude::*;
@@ -12,7 +12,7 @@ pub async fn create_doc(
     data: Data<CreateDocRequest>,
     controller: Unit<DocController>,
     manager: Unit<RwLock<FileManager>>,
-) -> ResponseResult<DocInfo, EditorError> {
+) -> DataResult<DocInfo, DocError> {
     let params: CreateDocParams = data.into_inner().try_into()?;
     let dir = manager.read().await.user.user_doc_dir()?;
     let path = manager
@@ -22,7 +22,7 @@ pub async fn create_doc(
     let doc_desc = controller
         .create_doc(params, path.to_str().unwrap())
         .await?;
-    response_ok(doc_desc)
+    data_result(doc_desc)
 }
 
 #[tracing::instrument(name = "read_doc", skip(data, controller, manager))]
@@ -30,7 +30,7 @@ pub async fn read_doc(
     data: Data<QueryDocRequest>,
     controller: Unit<DocController>,
     manager: Unit<RwLock<FileManager>>,
-) -> ResponseResult<DocInfo, EditorError> {
+) -> DataResult<DocInfo, DocError> {
     let params: QueryDocParams = data.into_inner().try_into()?;
     let doc_info = controller.read_doc(&params.doc_id).await?;
     let _ = manager
@@ -38,28 +38,28 @@ pub async fn read_doc(
         .await
         .open(Path::new(&doc_info.path), doc_info.id.clone())?;
 
-    response_ok(doc_info)
+    data_result(doc_info)
 }
 
 #[tracing::instrument(name = "read_doc_data", skip(data, manager))]
 pub async fn read_doc_data(
     data: Data<QueryDocDataRequest>,
     manager: Unit<RwLock<FileManager>>,
-) -> ResponseResult<DocData, EditorError> {
+) -> DataResult<DocData, DocError> {
     let params: QueryDocDataParams = data.into_inner().try_into()?;
     let text = manager
         .write()
         .await
         .open(Path::new(&params.path), params.doc_id)?;
 
-    response_ok(DocData { text })
+    data_result(DocData { text })
 }
 
 pub async fn update_doc(
     data: Data<UpdateDocRequest>,
     controller: Unit<DocController>,
     manager: Unit<RwLock<FileManager>>,
-) -> Result<(), EditorError> {
+) -> Result<(), DocError> {
     let mut params: UpdateDocParams = data.into_inner().try_into()?;
 
     if let Some(s) = params.text.take() {

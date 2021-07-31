@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/workspace/domain/i_doc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:flowy_sdk/protobuf/flowy-editor/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-document/errors.pb.dart';
 part 'doc_watch_bloc.freezed.dart';
 
 class DocWatchBloc extends Bloc<DocWatchEvent, DocWatchState> {
@@ -38,5 +38,5 @@ class DocWatchEvent with _$DocWatchEvent {
 class DocWatchState with _$DocWatchState {
   const factory DocWatchState.loading() = Loading;
   const factory DocWatchState.loadDoc(Doc doc) = LoadDoc;
-  const factory DocWatchState.loadFail(EditorError error) = LoadFail;
+  const factory DocWatchState.loadFail(DocError error) = LoadFail;
 }

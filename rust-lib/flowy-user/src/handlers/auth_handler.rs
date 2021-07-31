@@ -7,11 +7,11 @@ use std::{convert::TryInto, sync::Arc};
 pub async fn sign_in(
     data: Data<SignInRequest>,
     session: Unit<Arc<UserSession>>,
-) -> ResponseResult<UserDetail, UserError> {
+) -> DataResult<UserDetail, UserError> {
     let params: SignInParams = data.into_inner().try_into()?;
     let user = session.sign_in(params).await?;
     let user_detail = UserDetail::from(user);
-    response_ok(user_detail)
+    data_result(user_detail)
 }
 
 #[tracing::instrument(
@@ -25,9 +25,9 @@ pub async fn sign_in(
 pub async fn sign_up(
     data: Data<SignUpRequest>,
     session: Unit<Arc<UserSession>>,
-) -> ResponseResult<UserDetail, UserError> {
+) -> DataResult<UserDetail, UserError> {
     let params: SignUpParams = data.into_inner().try_into()?;
     let user = session.sign_up(params).await?;
     let user_detail = UserDetail::from(user);
-    response_ok(user_detail)
+    data_result(user_detail)
 }

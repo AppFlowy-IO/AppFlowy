@@ -28,12 +28,12 @@ pub struct CreateDocParams {
 }
 
 impl TryInto<CreateDocParams> for CreateDocRequest {
-    type Error = EditorError;
+    type Error = DocError;
 
     fn try_into(self) -> Result<CreateDocParams, Self::Error> {
         let name = DocName::parse(self.name)
             .map_err(|e| {
-                ErrorBuilder::new(EditorErrorCode::DocNameInvalid)
+                ErrorBuilder::new(DocErrorCode::DocNameInvalid)
                     .msg(e)
                     .build()
             })?
@@ -41,7 +41,7 @@ impl TryInto<CreateDocParams> for CreateDocRequest {
 
         let id = DocViewId::parse(self.id)
             .map_err(|e| {
-                ErrorBuilder::new(EditorErrorCode::DocViewIdInvalid)
+                ErrorBuilder::new(DocErrorCode::DocViewIdInvalid)
                     .msg(e)
                     .build()
             })?

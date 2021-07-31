@@ -16,12 +16,12 @@ pub(crate) struct QueryDocParams {
 }
 
 impl TryInto<QueryDocParams> for QueryDocRequest {
-    type Error = EditorError;
+    type Error = DocError;
 
     fn try_into(self) -> Result<QueryDocParams, Self::Error> {
         let doc_id = DocId::parse(self.doc_id)
             .map_err(|e| {
-                ErrorBuilder::new(EditorErrorCode::DocViewIdInvalid)
+                ErrorBuilder::new(DocErrorCode::DocViewIdInvalid)
                     .msg(e)
                     .build()
             })?
@@ -46,12 +46,12 @@ pub(crate) struct QueryDocDataParams {
 }
 
 impl TryInto<QueryDocDataParams> for QueryDocDataRequest {
-    type Error = EditorError;
+    type Error = DocError;
 
     fn try_into(self) -> Result<QueryDocDataParams, Self::Error> {
         let doc_id = DocId::parse(self.doc_id)
             .map_err(|e| {
-                ErrorBuilder::new(EditorErrorCode::DocViewIdInvalid)
+                ErrorBuilder::new(DocErrorCode::DocViewIdInvalid)
                     .msg(e)
                     .build()
             })?
@@ -59,7 +59,7 @@ impl TryInto<QueryDocDataParams> for QueryDocDataRequest {
 
         let path = DocPath::parse(self.path)
             .map_err(|e| {
-                ErrorBuilder::new(EditorErrorCode::DocFilePathInvalid)
+                ErrorBuilder::new(DocErrorCode::DocFilePathInvalid)
                     .msg(e)
                     .build()
             })?

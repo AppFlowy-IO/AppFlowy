@@ -40,6 +40,6 @@ pub fn build_modules(config: ModuleConfig, _server: ArcFlowyServer) -> Vec<Modul
     vec![
         flowy_user::module::create(user_session),
         flowy_workspace::module::create(workspace_user_impl, workspace_db),
-        flowy_editor::module::create(editor_db, editor_user),
+        flowy_document::module::create(editor_db, editor_user),
     ]
 }

@@ -1,4 +1,4 @@
-use crate::{module::EditorUser, services::file_manager::*};
+use crate::{module::DocumentUser, services::file_manager::*};
 use std::{
     collections::HashMap,
     path::{Path, PathBuf},
@@ -6,13 +6,13 @@ use std::{
 };
 
 pub struct FileManager {
-    pub user: Arc<dyn EditorUser>,
+    pub user: Arc<dyn DocumentUser>,
     open_files: HashMap<PathBuf, FileId>,
     file_info: HashMap<FileId, FileInfo>,
 }
 
 impl FileManager {
-    pub(crate) fn new(user: Arc<dyn EditorUser>) -> Self {
+    pub(crate) fn new(user: Arc<dyn DocumentUser>) -> Self {
         Self {
             user,
             open_files: HashMap::new(),

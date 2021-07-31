@@ -1,7 +1,7 @@
 import 'package:flowy_editor/flowy_editor.dart';
-import 'package:flowy_sdk/protobuf/flowy-editor/doc_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-document/doc_create.pb.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/flowy-editor/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-document/errors.pb.dart';
 
 class Doc {
   final DocInfo info;
@@ -11,8 +11,8 @@ class Doc {
 }
 
 abstract class IDoc {
-  Future<Either<Doc, EditorError>> readDoc();
-  Future<Either<Unit, EditorError>> updateDoc(
+  Future<Either<Doc, DocError>> readDoc();
+  Future<Either<Unit, DocError>> updateDoc(
       {String? name, String? desc, String? text});
-  Future<Either<Unit, EditorError>> closeDoc();
+  Future<Either<Unit, DocError>> closeDoc();
 }

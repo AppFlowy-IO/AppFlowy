@@ -24,38 +24,38 @@
 // const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_22_1;
 
 #[derive(PartialEq,Clone,Default)]
-pub struct EditorError {
+pub struct DocError {
     // message fields
-    pub code: EditorErrorCode,
+    pub code: DocErrorCode,
     pub msg: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a EditorError {
-    fn default() -> &'a EditorError {
-        <EditorError as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a DocError {
+    fn default() -> &'a DocError {
+        <DocError as ::protobuf::Message>::default_instance()
     }
 }
 
-impl EditorError {
-    pub fn new() -> EditorError {
+impl DocError {
+    pub fn new() -> DocError {
         ::std::default::Default::default()
     }
 
-    // .EditorErrorCode code = 1;
+    // .DocErrorCode code = 1;
 
 
-    pub fn get_code(&self) -> EditorErrorCode {
+    pub fn get_code(&self) -> DocErrorCode {
         self.code
     }
     pub fn clear_code(&mut self) {
-        self.code = EditorErrorCode::Unknown;
+        self.code = DocErrorCode::Unknown;
     }
 
     // Param is passed by value, moved
-    pub fn set_code(&mut self, v: EditorErrorCode) {
+    pub fn set_code(&mut self, v: DocErrorCode) {
         self.code = v;
     }
 
@@ -86,7 +86,7 @@ impl EditorError {
     }
 }
 
-impl ::protobuf::Message for EditorError {
+impl ::protobuf::Message for DocError {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -113,7 +113,7 @@ impl ::protobuf::Message for EditorError {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if self.code != EditorErrorCode::Unknown {
+        if self.code != DocErrorCode::Unknown {
             my_size += ::protobuf::rt::enum_size(1, self.code);
         }
         if !self.msg.is_empty() {
@@ -125,7 +125,7 @@ impl ::protobuf::Message for EditorError {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if self.code != EditorErrorCode::Unknown {
+        if self.code != DocErrorCode::Unknown {
             os.write_enum(1, ::protobuf::ProtobufEnum::value(&self.code))?;
         }
         if !self.msg.is_empty() {
@@ -161,60 +161,60 @@ impl ::protobuf::Message for EditorError {
         Self::descriptor_static()
     }
 
-    fn new() -> EditorError {
-        EditorError::new()
+    fn new() -> DocError {
+        DocError::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<EditorErrorCode>>(
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<DocErrorCode>>(
                 "code",
-                |m: &EditorError| { &m.code },
-                |m: &mut EditorError| { &mut m.code },
+                |m: &DocError| { &m.code },
+                |m: &mut DocError| { &mut m.code },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "msg",
-                |m: &EditorError| { &m.msg },
-                |m: &mut EditorError| { &mut m.msg },
+                |m: &DocError| { &m.msg },
+                |m: &mut DocError| { &mut m.msg },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<EditorError>(
-                "EditorError",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<DocError>(
+                "DocError",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static EditorError {
-        static instance: ::protobuf::rt::LazyV2<EditorError> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(EditorError::new)
+    fn default_instance() -> &'static DocError {
+        static instance: ::protobuf::rt::LazyV2<DocError> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(DocError::new)
     }
 }
 
-impl ::protobuf::Clear for EditorError {
+impl ::protobuf::Clear for DocError {
     fn clear(&mut self) {
-        self.code = EditorErrorCode::Unknown;
+        self.code = DocErrorCode::Unknown;
         self.msg.clear();
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for EditorError {
+impl ::std::fmt::Debug for DocError {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for EditorError {
+impl ::protobuf::reflect::ProtobufValue for DocError {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
 }
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
-pub enum EditorErrorCode {
+pub enum DocErrorCode {
     Unknown = 0,
     EditorDBInternalError = 1,
     EditorDBConnFailed = 2,
@@ -226,37 +226,37 @@ pub enum EditorErrorCode {
     EditorUserNotLoginYet = 100,
 }
 
-impl ::protobuf::ProtobufEnum for EditorErrorCode {
+impl ::protobuf::ProtobufEnum for DocErrorCode {
     fn value(&self) -> i32 {
         *self as i32
     }
 
-    fn from_i32(value: i32) -> ::std::option::Option<EditorErrorCode> {
+    fn from_i32(value: i32) -> ::std::option::Option<DocErrorCode> {
         match value {
-            0 => ::std::option::Option::Some(EditorErrorCode::Unknown),
-            1 => ::std::option::Option::Some(EditorErrorCode::EditorDBInternalError),
-            2 => ::std::option::Option::Some(EditorErrorCode::EditorDBConnFailed),
-            10 => ::std::option::Option::Some(EditorErrorCode::DocNameInvalid),
-            11 => ::std::option::Option::Some(EditorErrorCode::DocViewIdInvalid),
-            12 => ::std::option::Option::Some(EditorErrorCode::DocDescTooLong),
-            13 => ::std::option::Option::Some(EditorErrorCode::DocOpenFileError),
-            14 => ::std::option::Option::Some(EditorErrorCode::DocFilePathInvalid),
-            100 => ::std::option::Option::Some(EditorErrorCode::EditorUserNotLoginYet),
+            0 => ::std::option::Option::Some(DocErrorCode::Unknown),
+            1 => ::std::option::Option::Some(DocErrorCode::EditorDBInternalError),
+            2 => ::std::option::Option::Some(DocErrorCode::EditorDBConnFailed),
+            10 => ::std::option::Option::Some(DocErrorCode::DocNameInvalid),
+            11 => ::std::option::Option::Some(DocErrorCode::DocViewIdInvalid),
+            12 => ::std::option::Option::Some(DocErrorCode::DocDescTooLong),
+            13 => ::std::option::Option::Some(DocErrorCode::DocOpenFileError),
+            14 => ::std::option::Option::Some(DocErrorCode::DocFilePathInvalid),
+            100 => ::std::option::Option::Some(DocErrorCode::EditorUserNotLoginYet),
             _ => ::std::option::Option::None
         }
     }
 
     fn values() -> &'static [Self] {
-        static values: &'static [EditorErrorCode] = &[
-            EditorErrorCode::Unknown,
-            EditorErrorCode::EditorDBInternalError,
-            EditorErrorCode::EditorDBConnFailed,
-            EditorErrorCode::DocNameInvalid,
-            EditorErrorCode::DocViewIdInvalid,
-            EditorErrorCode::DocDescTooLong,
-            EditorErrorCode::DocOpenFileError,
-            EditorErrorCode::DocFilePathInvalid,
-            EditorErrorCode::EditorUserNotLoginYet,
+        static values: &'static [DocErrorCode] = &[
+            DocErrorCode::Unknown,
+            DocErrorCode::EditorDBInternalError,
+            DocErrorCode::EditorDBConnFailed,
+            DocErrorCode::DocNameInvalid,
+            DocErrorCode::DocViewIdInvalid,
+            DocErrorCode::DocDescTooLong,
+            DocErrorCode::DocOpenFileError,
+            DocErrorCode::DocFilePathInvalid,
+            DocErrorCode::EditorUserNotLoginYet,
         ];
         values
     }
@@ -264,61 +264,61 @@ impl ::protobuf::ProtobufEnum for EditorErrorCode {
     fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
-            ::protobuf::reflect::EnumDescriptor::new_pb_name::<EditorErrorCode>("EditorErrorCode", file_descriptor_proto())
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<DocErrorCode>("DocErrorCode", file_descriptor_proto())
         })
     }
 }
 
-impl ::std::marker::Copy for EditorErrorCode {
+impl ::std::marker::Copy for DocErrorCode {
 }
 
-impl ::std::default::Default for EditorErrorCode {
+impl ::std::default::Default for DocErrorCode {
     fn default() -> Self {
-        EditorErrorCode::Unknown
+        DocErrorCode::Unknown
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for EditorErrorCode {
+impl ::protobuf::reflect::ProtobufValue for DocErrorCode {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
     }
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0cerrors.proto\"E\n\x0bEditorError\x12$\n\x04code\x18\x01\x20\x01(\
-    \x0e2\x10.EditorErrorCodeR\x04code\x12\x10\n\x03msg\x18\x02\x20\x01(\tR\
-    \x03msg*\xd8\x01\n\x0fEditorErrorCode\x12\x0b\n\x07Unknown\x10\0\x12\x19\
-    \n\x15EditorDBInternalError\x10\x01\x12\x16\n\x12EditorDBConnFailed\x10\
-    \x02\x12\x12\n\x0eDocNameInvalid\x10\n\x12\x14\n\x10DocViewIdInvalid\x10\
-    \x0b\x12\x12\n\x0eDocDescTooLong\x10\x0c\x12\x14\n\x10DocOpenFileError\
-    \x10\r\x12\x16\n\x12DocFilePathInvalid\x10\x0e\x12\x19\n\x15EditorUserNo\
-    tLoginYet\x10dJ\xa1\x04\n\x06\x12\x04\0\0\x10\x01\n\x08\n\x01\x0c\x12\
-    \x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\0\x01\
-    \x12\x03\x02\x08\x13\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x1d\n\x0c\n\
-    \x05\x04\0\x02\0\x06\x12\x03\x03\x04\x13\n\x0c\n\x05\x04\0\x02\0\x01\x12\
-    \x03\x03\x14\x18\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x1b\x1c\n\x0b\n\
-    \x04\x04\0\x02\x01\x12\x03\x04\x04\x13\n\x0c\n\x05\x04\0\x02\x01\x05\x12\
-    \x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x0b\x0e\n\x0c\n\
-    \x05\x04\0\x02\x01\x03\x12\x03\x04\x11\x12\n\n\n\x02\x05\0\x12\x04\x06\0\
-    \x10\x01\n\n\n\x03\x05\0\x01\x12\x03\x06\x05\x14\n\x0b\n\x04\x05\0\x02\0\
-    \x12\x03\x07\x04\x10\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\x07\x04\x0b\n\
-    \x0c\n\x05\x05\0\x02\0\x02\x12\x03\x07\x0e\x0f\n\x0b\n\x04\x05\0\x02\x01\
-    \x12\x03\x08\x04\x1e\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\x08\x04\x19\n\
-    \x0c\n\x05\x05\0\x02\x01\x02\x12\x03\x08\x1c\x1d\n\x0b\n\x04\x05\0\x02\
-    \x02\x12\x03\t\x04\x1b\n\x0c\n\x05\x05\0\x02\x02\x01\x12\x03\t\x04\x16\n\
-    \x0c\n\x05\x05\0\x02\x02\x02\x12\x03\t\x19\x1a\n\x0b\n\x04\x05\0\x02\x03\
-    \x12\x03\n\x04\x18\n\x0c\n\x05\x05\0\x02\x03\x01\x12\x03\n\x04\x12\n\x0c\
-    \n\x05\x05\0\x02\x03\x02\x12\x03\n\x15\x17\n\x0b\n\x04\x05\0\x02\x04\x12\
-    \x03\x0b\x04\x1a\n\x0c\n\x05\x05\0\x02\x04\x01\x12\x03\x0b\x04\x14\n\x0c\
-    \n\x05\x05\0\x02\x04\x02\x12\x03\x0b\x17\x19\n\x0b\n\x04\x05\0\x02\x05\
-    \x12\x03\x0c\x04\x18\n\x0c\n\x05\x05\0\x02\x05\x01\x12\x03\x0c\x04\x12\n\
-    \x0c\n\x05\x05\0\x02\x05\x02\x12\x03\x0c\x15\x17\n\x0b\n\x04\x05\0\x02\
-    \x06\x12\x03\r\x04\x1a\n\x0c\n\x05\x05\0\x02\x06\x01\x12\x03\r\x04\x14\n\
-    \x0c\n\x05\x05\0\x02\x06\x02\x12\x03\r\x17\x19\n\x0b\n\x04\x05\0\x02\x07\
-    \x12\x03\x0e\x04\x1c\n\x0c\n\x05\x05\0\x02\x07\x01\x12\x03\x0e\x04\x16\n\
-    \x0c\n\x05\x05\0\x02\x07\x02\x12\x03\x0e\x19\x1b\n\x0b\n\x04\x05\0\x02\
-    \x08\x12\x03\x0f\x04\x20\n\x0c\n\x05\x05\0\x02\x08\x01\x12\x03\x0f\x04\
-    \x19\n\x0c\n\x05\x05\0\x02\x08\x02\x12\x03\x0f\x1c\x1fb\x06proto3\
+    \n\x0cerrors.proto\"?\n\x08DocError\x12!\n\x04code\x18\x01\x20\x01(\x0e2\
+    \r.DocErrorCodeR\x04code\x12\x10\n\x03msg\x18\x02\x20\x01(\tR\x03msg*\
+    \xd5\x01\n\x0cDocErrorCode\x12\x0b\n\x07Unknown\x10\0\x12\x19\n\x15Edito\
+    rDBInternalError\x10\x01\x12\x16\n\x12EditorDBConnFailed\x10\x02\x12\x12\
+    \n\x0eDocNameInvalid\x10\n\x12\x14\n\x10DocViewIdInvalid\x10\x0b\x12\x12\
+    \n\x0eDocDescTooLong\x10\x0c\x12\x14\n\x10DocOpenFileError\x10\r\x12\x16\
+    \n\x12DocFilePathInvalid\x10\x0e\x12\x19\n\x15EditorUserNotLoginYet\x10d\
+    J\xa1\x04\n\x06\x12\x04\0\0\x10\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\
+    \n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\
+    \x10\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x1a\n\x0c\n\x05\x04\0\x02\0\
+    \x06\x12\x03\x03\x04\x10\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x11\x15\
+    \n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x18\x19\n\x0b\n\x04\x04\0\x02\
+    \x01\x12\x03\x04\x04\x13\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\n\
+    \n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x0b\x0e\n\x0c\n\x05\x04\0\x02\
+    \x01\x03\x12\x03\x04\x11\x12\n\n\n\x02\x05\0\x12\x04\x06\0\x10\x01\n\n\n\
+    \x03\x05\0\x01\x12\x03\x06\x05\x11\n\x0b\n\x04\x05\0\x02\0\x12\x03\x07\
+    \x04\x10\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\x07\x04\x0b\n\x0c\n\x05\x05\
+    \0\x02\0\x02\x12\x03\x07\x0e\x0f\n\x0b\n\x04\x05\0\x02\x01\x12\x03\x08\
+    \x04\x1e\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\x08\x04\x19\n\x0c\n\x05\
+    \x05\0\x02\x01\x02\x12\x03\x08\x1c\x1d\n\x0b\n\x04\x05\0\x02\x02\x12\x03\
+    \t\x04\x1b\n\x0c\n\x05\x05\0\x02\x02\x01\x12\x03\t\x04\x16\n\x0c\n\x05\
+    \x05\0\x02\x02\x02\x12\x03\t\x19\x1a\n\x0b\n\x04\x05\0\x02\x03\x12\x03\n\
+    \x04\x18\n\x0c\n\x05\x05\0\x02\x03\x01\x12\x03\n\x04\x12\n\x0c\n\x05\x05\
+    \0\x02\x03\x02\x12\x03\n\x15\x17\n\x0b\n\x04\x05\0\x02\x04\x12\x03\x0b\
+    \x04\x1a\n\x0c\n\x05\x05\0\x02\x04\x01\x12\x03\x0b\x04\x14\n\x0c\n\x05\
+    \x05\0\x02\x04\x02\x12\x03\x0b\x17\x19\n\x0b\n\x04\x05\0\x02\x05\x12\x03\
+    \x0c\x04\x18\n\x0c\n\x05\x05\0\x02\x05\x01\x12\x03\x0c\x04\x12\n\x0c\n\
+    \x05\x05\0\x02\x05\x02\x12\x03\x0c\x15\x17\n\x0b\n\x04\x05\0\x02\x06\x12\
+    \x03\r\x04\x1a\n\x0c\n\x05\x05\0\x02\x06\x01\x12\x03\r\x04\x14\n\x0c\n\
+    \x05\x05\0\x02\x06\x02\x12\x03\r\x17\x19\n\x0b\n\x04\x05\0\x02\x07\x12\
+    \x03\x0e\x04\x1c\n\x0c\n\x05\x05\0\x02\x07\x01\x12\x03\x0e\x04\x16\n\x0c\
+    \n\x05\x05\0\x02\x07\x02\x12\x03\x0e\x19\x1b\n\x0b\n\x04\x05\0\x02\x08\
+    \x12\x03\x0f\x04\x20\n\x0c\n\x05\x05\0\x02\x08\x01\x12\x03\x0f\x04\x19\n\
+    \x0c\n\x05\x05\0\x02\x08\x02\x12\x03\x0f\x1c\x1fb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

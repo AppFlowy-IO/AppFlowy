@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-message EditorError {
-    EditorErrorCode code = 1;
+message DocError {
+    DocErrorCode code = 1;
     string msg = 2;
 }
-enum EditorErrorCode {
+enum DocErrorCode {
     Unknown = 0;
     EditorDBInternalError = 1;
     EditorDBConnFailed = 2;

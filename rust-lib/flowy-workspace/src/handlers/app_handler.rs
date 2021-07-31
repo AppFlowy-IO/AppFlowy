@@ -16,17 +16,17 @@ use crate::{
     errors::WorkspaceError,
     services::{AppController, ViewController},
 };
-use flowy_dispatch::prelude::{response_ok, Data, ResponseResult, Unit};
+use flowy_dispatch::prelude::{data_result, Data, DataResult, Unit};
 use std::{convert::TryInto, sync::Arc};
 
 #[tracing::instrument(name = "create_app", skip(data, controller))]
 pub async fn create_app(
     data: Data<CreateAppRequest>,
     controller: Unit<Arc<AppController>>,
-) -> ResponseResult<App, WorkspaceError> {
+) -> DataResult<App, WorkspaceError> {
     let params: CreateAppParams = data.into_inner().try_into()?;
     let detail = controller.create_app(params)?;
-    response_ok(detail)
+    data_result(detail)
 }
 
 #[tracing::instrument(name = "delete_app", skip(data, controller))]
@@ -54,15 +54,17 @@ pub async fn read_app(
     data: Data<QueryAppRequest>,
     app_controller: Unit<Arc<AppController>>,
     view_controller: Unit<Arc<ViewController>>,
-) -> ResponseResult<App, WorkspaceError> {
+) -> DataResult<App, WorkspaceError> {
     let params: QueryAppParams = data.into_inner().try_into()?;
     let mut app = app_controller
         .read_app(&params.app_id, params.is_trash)
         .await?;
+
+    // The View's belonging is the view indexed by the belong_to_id for now
     if params.read_belongings {
         let views = view_controller.read_views_belong_to(&params.app_id).await?;
         app.belongings = RepeatedView { items: views };
     }
 
-    response_ok(app)
+    data_result(app)
 }

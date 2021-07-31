@@ -1,7 +1,7 @@
 use crate::helper::*;
 
 use flowy_workspace::entities::{
-    app::{QueryAppRequest, UpdateAppParams, UpdateAppRequest},
+    app::{QueryAppRequest, UpdateAppRequest},
     view::*,
 };
 
