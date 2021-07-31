@@ -15,6 +15,7 @@ members = [
   "flowy-observable",
   "flowy-document",
   "flowy-editor",
+  "flowy-ot",
 ]
 
 [profile.dev]
