@@ -15,9 +15,9 @@ impl Rng {
     }
 
     pub fn gen_delta(&mut self, s: &str) -> Delta {
-        let mut op = Delta::default();
+        let mut delta = Delta::default();
         loop {
-            let left = s.chars().count() - op.base_len();
+            let left = s.chars().count() - delta.base_len();
             if left == 0 {
                 break;
             }
@@ -28,19 +28,19 @@ impl Rng {
             };
             match self.0.gen_range(0.0, 1.0) {
                 f if f < 0.2 => {
-                    op.insert(&self.gen_string(i));
+                    delta.insert(&self.gen_string(i), None);
                 },
                 f if f < 0.4 => {
-                    op.delete(i as u64);
+                    delta.delete(i as u64);
                 },
                 _ => {
-                    op.retain(i as u64);
+                    delta.retain(i as u64, None);
                 },
             }
         }
         if self.0.gen_range(0.0, 1.0) < 0.3 {
-            op.insert(&("1".to_owned() + &self.gen_string(10)));
+            delta.insert(&("1".to_owned() + &self.gen_string(10)), None);
         }
-        op
+        delta
     }
 }

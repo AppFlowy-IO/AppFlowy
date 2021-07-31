@@ -33,43 +33,91 @@ impl std::ops::DerefMut for Attributes {
     fn deref_mut(&mut self) -> &mut Self::Target { &mut self.inner }
 }
 
-pub fn compose_attributes(
-    mut a: Attributes,
-    b: Attributes,
-    keep_empty: bool,
-) -> Option<Attributes> {
-    a.extend(b);
-    let mut result = a;
-    if !keep_empty {
-        result.remove_empty_value()
+pub struct AttributesBuilder {
+    inner: Attributes,
+}
+
+impl AttributesBuilder {
+    pub fn new() -> Self {
+        Self {
+            inner: Attributes::default(),
+        }
     }
 
-    return if result.is_empty() {
+    pub fn bold(mut self) -> Self {
+        self.inner.insert("bold".to_owned(), "true".to_owned());
+        self
+    }
+
+    pub fn italic(mut self) -> Self {
+        self.inner.insert("italic".to_owned(), "true".to_owned());
+        self
+    }
+
+    pub fn underline(mut self) -> Self {
+        self.inner.insert("underline".to_owned(), "true".to_owned());
+        self
+    }
+
+    pub fn build(self) -> Attributes { self.inner }
+}
+
+pub fn compose_attributes(
+    a: Option<Attributes>,
+    b: Option<Attributes>,
+    keep_empty: bool,
+) -> Option<Attributes> {
+    if a.is_none() {
+        return b;
+    }
+
+    if b.is_none() {
+        return None;
+    }
+
+    let mut attrs_a = a.unwrap_or(Attributes::default());
+    let attrs_b = b.unwrap_or(Attributes::default());
+    attrs_a.extend(attrs_b);
+
+    if !keep_empty {
+        attrs_a.remove_empty_value()
+    }
+
+    return if attrs_a.is_empty() {
         None
     } else {
-        Some(result)
+        Some(attrs_a)
     };
 }
 
-pub fn transform_attributes(a: Attributes, b: Attributes, priority: bool) -> Option<Attributes> {
-    if a.is_empty() {
-        return Some(b);
+pub fn transform_attributes(
+    a: Option<Attributes>,
+    b: Option<Attributes>,
+    priority: bool,
+) -> Option<Attributes> {
+    if a.is_none() {
+        return b;
     }
 
-    if b.is_empty() {
+    if b.is_none() {
         return None;
     }
 
     if !priority {
-        return Some(b);
+        return b;
     }
 
-    let result = b.iter().fold(Attributes::new(), |mut attributes, (k, v)| {
-        if a.contains_key(k) == false {
-            attributes.insert(k.clone(), v.clone());
-        }
-        attributes
-    });
+    let attrs_a = a.unwrap_or(Attributes::default());
+    let attrs_b = b.unwrap_or(Attributes::default());
+
+    let result = attrs_b
+        .iter()
+        .fold(Attributes::new(), |mut attributes, (k, v)| {
+            if attrs_a.contains_key(k) == false {
+                attributes.insert(k.clone(), v.clone());
+            }
+            attributes
+        });
     Some(result)
 }
 

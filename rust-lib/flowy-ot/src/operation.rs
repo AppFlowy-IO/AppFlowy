@@ -8,7 +8,7 @@ use std::{
 #[derive(Clone, Debug, PartialEq)]
 pub struct Operation {
     pub ty: OpType,
-    pub attrs: Attributes,
+    pub attrs: Option<Attributes>,
 }
 
 impl Operation {
@@ -16,7 +16,14 @@ impl Operation {
 
     pub fn retain(&mut self, n: u64) { self.ty.retain(n); }
 
-    pub fn is_plain(&self) -> bool { self.attrs.is_empty() }
+    pub fn set_attrs(&mut self, attrs: Option<Attributes>) { self.attrs = attrs; }
+
+    pub fn is_plain(&self) -> bool {
+        match self.attrs {
+            None => true,
+            Some(ref attrs) => attrs.is_empty(),
+        }
+    }
 
     pub fn is_noop(&self) -> bool {
         match self.ty {
@@ -72,16 +79,11 @@ impl OpType {
 
 pub struct OperationBuilder {
     ty: OpType,
-    attrs: Attributes,
+    attrs: Option<Attributes>,
 }
 
 impl OperationBuilder {
-    pub fn new(ty: OpType) -> OperationBuilder {
-        OperationBuilder {
-            ty,
-            attrs: Attributes::default(),
-        }
-    }
+    pub fn new(ty: OpType) -> OperationBuilder { OperationBuilder { ty, attrs: None } }
 
     pub fn retain(n: u64) -> OperationBuilder { OperationBuilder::new(OpType::Retain(n)) }
 
@@ -89,7 +91,7 @@ impl OperationBuilder {
 
     pub fn insert(s: String) -> OperationBuilder { OperationBuilder::new(OpType::Insert(s)) }
 
-    pub fn with_attrs(mut self, attrs: Attributes) -> OperationBuilder {
+    pub fn with_attrs(mut self, attrs: Option<Attributes>) -> OperationBuilder {
         self.attrs = attrs;
         self
     }

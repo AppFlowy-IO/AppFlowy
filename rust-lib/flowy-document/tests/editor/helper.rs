@@ -1,6 +1,6 @@
 use flowy_test::builder::SingleUserTestBuilder;
 
-use flowy_editor::{entities::doc::*, event::EditorEvent::*};
+use flowy_document::{entities::doc::*, event::EditorEvent::*};
 use flowy_infra::uuid;
 
 pub fn create_doc(name: &str, desc: &str, text: &str) -> DocInfo {
