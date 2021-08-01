@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart' show Tuple3;
+import 'package:flowy_infra_ui/src/flowy_overlay/overlay_layout_delegate.dart';
 import 'package:flutter/material.dart';
 
 /// Specifies how overlay are anchored to the SourceWidget
@@ -110,14 +111,55 @@ class FlowyOverlay extends StatefulWidget {
 class FlowyOverlayState extends State<FlowyOverlay> {
   List<Tuple3<Widget, String, FlowyOverlayDelegate?>> _overlayList = [];
 
-  void insert({
+  /// Insert a overlay widget which frame is set by the widget, not the component.
+  /// Be sure to specify the offset and size using the `Postition` widget.
+  void insertCustom({
     required Widget widget,
     required String identifier,
     FlowyOverlayDelegate? delegate,
   }) {
-    setState(() {
-      _overlayList.add(Tuple3(widget, identifier, delegate));
-    });
+    _showOverlay(
+      widget: widget,
+      identifier: identifier,
+      shouldAnchor: false,
+      delegate: delegate,
+    );
+  }
+
+  void insertWithRect({
+    required Widget widget,
+    required String identifier,
+    required Offset anchorPosition,
+    required Size anchorSize,
+    AnchorDirection? anchorDirection,
+    FlowyOverlayDelegate? delegate,
+  }) {
+    _showOverlay(
+      widget: widget,
+      identifier: identifier,
+      shouldAnchor: true,
+      delegate: delegate,
+      anchorPosition: anchorPosition,
+      anchorSize: anchorSize,
+      anchorDirection: anchorDirection,
+    );
+  }
+
+  void insertWithAnchor({
+    required Widget widget,
+    required String identifier,
+    required BuildContext anchorContext,
+    AnchorDirection? anchorDirection,
+    FlowyOverlayDelegate? delegate,
+  }) {
+    _showOverlay(
+      widget: widget,
+      identifier: identifier,
+      shouldAnchor: true,
+      delegate: delegate,
+      anchorContext: anchorContext,
+      anchorDirection: anchorDirection,
+    );
   }
 
   void remove(String identifier) {
@@ -140,6 +182,48 @@ class FlowyOverlayState extends State<FlowyOverlay> {
     if (mounted) {
       setState(() {});
     }
+  }
+
+  void _showOverlay({
+    required Widget widget,
+    required String identifier,
+    required bool shouldAnchor,
+    Offset? anchorPosition,
+    Size? anchorSize,
+    AnchorDirection? anchorDirection,
+    BuildContext? anchorContext,
+    FlowyOverlayDelegate? delegate,
+  }) {
+    Widget overlay = widget;
+
+    if (shouldAnchor) {
+      assert(
+        anchorPosition != null || anchorContext != null,
+        'Must provide `anchorPosition` or `anchorContext` to locating overlay.',
+      );
+      var targetAnchorPosition = anchorPosition;
+      if (anchorContext != null) {
+        RenderObject renderObject = anchorContext.findRenderObject()!;
+        assert(
+          renderObject is RenderBox,
+          'Unexpect non-RenderBox render object caught.',
+        );
+        final localOffset = (renderObject as RenderBox).localToGlobal(Offset.zero);
+        targetAnchorPosition ??= localOffset;
+      }
+      final anchorRect = targetAnchorPosition! & (anchorSize ?? Size.zero);
+      overlay = CustomSingleChildLayout(
+        delegate: OverlayLayoutDelegate(
+          anchorRect: anchorRect,
+          anchorDirection: anchorDirection ?? AnchorDirection.rightWithTopAligned,
+        ),
+        child: widget,
+      );
+    }
+
+    setState(() {
+      _overlayList.add(Tuple3(overlay, identifier, delegate));
+    });
   }
 
   @override

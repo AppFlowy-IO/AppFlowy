@@ -1,43 +1,38 @@
-// import 'dart:math' as math;
-// import 'dart:ui';
+import 'dart:math' as math;
+import 'dart:ui';
 
-// import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
-// import 'flowy_overlay.dart';
+import 'flowy_overlay.dart';
 
-// class OverlayLayoutDelegate extends SingleChildLayoutDelegate {
-//   OverlayLayoutDelegate({
-//     required this.route,
-//     required this.padding,
-//     required this.anchorPosition,
-//     required this.anchorDirection,
-//   });
+class OverlayLayoutDelegate extends SingleChildLayoutDelegate {
+  OverlayLayoutDelegate({
+    required this.anchorRect,
+    required this.anchorDirection,
+  });
 
-//   final OverlayPannelRoute route;
-//   final EdgeInsets padding;
-//   final AnchorDirection anchorDirection;
-//   final Offset anchorPosition;
+  final Rect anchorRect;
+  final AnchorDirection anchorDirection;
 
-//   @override
-//   bool shouldRelayout(OverlayLayoutDelegate oldDelegate) {
-//     return anchorPosition != oldDelegate.anchorPosition || anchorDirection != oldDelegate.anchorDirection;
-//   }
+  @override
+  bool shouldRelayout(OverlayLayoutDelegate oldDelegate) {
+    return anchorRect != oldDelegate.anchorRect || anchorDirection != oldDelegate.anchorDirection;
+  }
 
-//   @override
-//   Offset getPositionForChild(Size size, Size childSize) {
-//     // TODO: junlin - calculate child position
-//     return Offset.zero;
-//   }
+  @override
+  Size getSize(BoxConstraints constraints) {
+    return super.getSize(constraints);
+  }
 
-//   @override
-//   BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
-//     double maxHeight = math.max(0.0, constraints.maxHeight - padding.top - padding.bottom);
-//     double width = constraints.maxWidth;
-//     return BoxConstraints(
-//       minHeight: 0.0,
-//       maxHeight: maxHeight,
-//       minWidth: width,
-//       maxWidth: width,
-//     );
-//   }
-// }
+  @override
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
+    // TODO: junlin - calculate child constaints
+    return super.getConstraintsForChild(constraints);
+  }
+
+  @override
+  Offset getPositionForChild(Size size, Size childSize) {
+    // TODO: junlin - calculate child position
+    return Offset(size.width / 2, size.height / 2);
+  }
+}
