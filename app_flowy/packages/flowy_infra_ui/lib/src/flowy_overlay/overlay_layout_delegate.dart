@@ -1,43 +1,142 @@
-// import 'dart:math' as math;
-// import 'dart:ui';
+import 'dart:math' as math;
+import 'dart:ui';
 
-// import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
-// import 'flowy_overlay.dart';
+import 'flowy_overlay.dart';
 
-// class OverlayLayoutDelegate extends SingleChildLayoutDelegate {
-//   OverlayLayoutDelegate({
-//     required this.route,
-//     required this.padding,
-//     required this.anchorPosition,
-//     required this.anchorDirection,
-//   });
+class OverlayLayoutDelegate extends SingleChildLayoutDelegate {
+  OverlayLayoutDelegate({
+    required this.anchorRect,
+    required this.anchorDirection,
+    required this.overlapBehaviour,
+  });
 
-//   final OverlayPannelRoute route;
-//   final EdgeInsets padding;
-//   final AnchorDirection anchorDirection;
-//   final Offset anchorPosition;
+  final Rect anchorRect;
+  final AnchorDirection anchorDirection;
+  final OverlapBehaviour overlapBehaviour;
 
-//   @override
-//   bool shouldRelayout(OverlayLayoutDelegate oldDelegate) {
-//     return anchorPosition != oldDelegate.anchorPosition || anchorDirection != oldDelegate.anchorDirection;
-//   }
+  @override
+  bool shouldRelayout(OverlayLayoutDelegate oldDelegate) {
+    return anchorRect != oldDelegate.anchorRect ||
+        anchorDirection != oldDelegate.anchorDirection ||
+        overlapBehaviour != oldDelegate.overlapBehaviour;
+  }
 
-//   @override
-//   Offset getPositionForChild(Size size, Size childSize) {
-//     // TODO: junlin - calculate child position
-//     return Offset.zero;
-//   }
+  @override
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
+    switch (overlapBehaviour) {
+      case OverlapBehaviour.none:
+        return constraints.loosen();
+      case OverlapBehaviour.stretch:
+        // TODO: junlin - resize when overlapBehaviour == .stretch
+        return constraints.loosen();
+    }
+  }
 
-//   @override
-//   BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
-//     double maxHeight = math.max(0.0, constraints.maxHeight - padding.top - padding.bottom);
-//     double width = constraints.maxWidth;
-//     return BoxConstraints(
-//       minHeight: 0.0,
-//       maxHeight: maxHeight,
-//       minWidth: width,
-//       maxWidth: width,
-//     );
-//   }
-// }
+  @override
+  Offset getPositionForChild(Size size, Size childSize) {
+    Offset position;
+    switch (anchorDirection) {
+      case AnchorDirection.topLeft:
+        position = Offset(
+          anchorRect.left - childSize.width,
+          anchorRect.top - childSize.height,
+        );
+        break;
+      case AnchorDirection.topRight:
+        position = Offset(
+          anchorRect.right,
+          anchorRect.top - childSize.height,
+        );
+        break;
+      case AnchorDirection.bottomLeft:
+        position = Offset(
+          anchorRect.left - childSize.width,
+          anchorRect.bottom,
+        );
+        break;
+      case AnchorDirection.bottomRight:
+        position = Offset(
+          anchorRect.right,
+          anchorRect.bottom,
+        );
+        break;
+      case AnchorDirection.topWithLeftAligned:
+        position = Offset(
+          anchorRect.left,
+          anchorRect.top - childSize.height,
+        );
+        break;
+      case AnchorDirection.topWithCenterAligned:
+        position = Offset(
+          anchorRect.left + anchorRect.width / 2.0 - childSize.width / 2.0,
+          anchorRect.top - childSize.height,
+        );
+        break;
+      case AnchorDirection.topWithRightAligned:
+        position = Offset(
+          anchorRect.right - childSize.width,
+          anchorRect.top - childSize.height,
+        );
+        break;
+      case AnchorDirection.rightWithTopAligned:
+        position = Offset(anchorRect.right, anchorRect.top);
+        break;
+      case AnchorDirection.rightWithCenterAligned:
+        position = Offset(
+          anchorRect.right,
+          anchorRect.top + anchorRect.height / 2.0 - childSize.height / 2.0,
+        );
+        break;
+      case AnchorDirection.rightWithBottomAligned:
+        position = Offset(
+          anchorRect.right,
+          anchorRect.bottom - childSize.height,
+        );
+        break;
+      case AnchorDirection.bottomWithLeftAligned:
+        position = Offset(
+          anchorRect.left,
+          anchorRect.bottom,
+        );
+        break;
+      case AnchorDirection.bottomWithCenterAligned:
+        position = Offset(
+          anchorRect.left + anchorRect.width / 2.0 - childSize.width / 2.0,
+          anchorRect.bottom,
+        );
+        break;
+      case AnchorDirection.bottomWithRightAligned:
+        position = Offset(
+          anchorRect.right - childSize.width,
+          anchorRect.bottom,
+        );
+        break;
+      case AnchorDirection.leftWithTopAligned:
+        position = Offset(
+          anchorRect.left - childSize.width,
+          anchorRect.top,
+        );
+        break;
+      case AnchorDirection.leftWithCenterAligned:
+        position = Offset(
+          anchorRect.left - childSize.width,
+          anchorRect.top + anchorRect.height / 2.0 - childSize.height / 2.0,
+        );
+        break;
+      case AnchorDirection.leftWithBottomAligned:
+        position = Offset(
+          anchorRect.left - childSize.width,
+          anchorRect.bottom - childSize.height,
+        );
+        break;
+      default:
+        throw UnimplementedError();
+    }
+    return Offset(
+      math.max(0.0, math.min(size.width - childSize.width, position.dx)),
+      math.max(0.0, math.min(size.height - childSize.height, position.dy)),
+    );
+  }
+}
