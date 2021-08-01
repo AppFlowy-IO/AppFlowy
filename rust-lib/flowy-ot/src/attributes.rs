@@ -1,7 +1,9 @@
 use std::collections::{hash_map::RandomState, HashMap};
 
-#[derive(Debug, Clone, Default, PartialEq)]
+#[derive(Debug, Clone, Default, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Attributes {
+    #[serde(skip_serializing_if = "HashMap::is_empty")]
+    #[serde(flatten)]
     inner: HashMap<String, String>,
 }
 

@@ -1,5 +1,3 @@
-mod helper;
-
 use crate::helper::Rng;
 use bytecount::num_chars;
 use flowy_ot::{

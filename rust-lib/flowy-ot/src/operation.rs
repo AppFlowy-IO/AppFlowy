@@ -29,15 +29,35 @@ impl Operation {
         }
     }
 
-    pub fn attrs(&self) -> Option<Attributes> {
+    pub fn attributes(&self) -> Option<Attributes> {
         match self {
             Operation::Delete(_) => None,
-            Operation::Retain(retain) => retain.attrs.clone(),
-            Operation::Insert(insert) => insert.attrs.clone(),
+            Operation::Retain(retain) => retain.attributes.clone(),
+            Operation::Insert(insert) => insert.attributes.clone(),
         }
     }
 
-    pub fn is_plain(&self) -> bool { self.attrs().is_none() }
+    pub fn set_attributes(&mut self, attributes: Option<Attributes>) {
+        match self {
+            Operation::Delete(_) => {},
+            Operation::Retain(retain) => {
+                retain.attributes = attributes;
+            },
+            Operation::Insert(insert) => {
+                insert.attributes = attributes;
+            },
+        }
+    }
+
+    pub fn is_plain(&self) -> bool { self.attributes().is_none() }
+
+    pub fn length(&self) -> u64 {
+        match self {
+            Operation::Delete(n) => *n,
+            Operation::Retain(r) => r.n,
+            Operation::Insert(i) => i.num_chars(),
+        }
+    }
 }
 
 pub struct OpBuilder {
@@ -54,7 +74,7 @@ impl OpBuilder {
 
     pub fn insert(s: String) -> OpBuilder { OpBuilder::new(Operation::Insert(s.into())) }
 
-    pub fn with_attrs(mut self, attrs: Option<Attributes>) -> OpBuilder {
+    pub fn attributes(mut self, attrs: Option<Attributes>) -> OpBuilder {
         self.attrs = attrs;
         self
     }
@@ -63,21 +83,28 @@ impl OpBuilder {
         let mut operation = self.ty;
         match &mut operation {
             Operation::Delete(_) => {},
-            Operation::Retain(retain) => retain.attrs = self.attrs,
-            Operation::Insert(insert) => insert.attrs = self.attrs,
+            Operation::Retain(retain) => retain.attributes = self.attrs,
+            Operation::Insert(insert) => insert.attributes = self.attrs,
         }
         operation
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Retain {
+    #[serde(rename(serialize = "retain", deserialize = "retain"))]
     pub n: u64,
-    pub(crate) attrs: Option<Attributes>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) attributes: Option<Attributes>,
 }
 
 impl std::convert::From<u64> for Retain {
-    fn from(n: u64) -> Self { Retain { n, attrs: None } }
+    fn from(n: u64) -> Self {
+        Retain {
+            n,
+            attributes: None,
+        }
+    }
 }
 
 impl Deref for Retain {
@@ -90,10 +117,13 @@ impl DerefMut for Retain {
     fn deref_mut(&mut self) -> &mut Self::Target { &mut self.n }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Insert {
+    #[serde(rename(serialize = "insert", deserialize = "insert"))]
     pub s: String,
-    pub attrs: Option<Attributes>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub attributes: Option<Attributes>,
 }
 
 impl Insert {
@@ -105,14 +135,19 @@ impl Insert {
 }
 
 impl std::convert::From<String> for Insert {
-    fn from(s: String) -> Self { Insert { s, attrs: None } }
+    fn from(s: String) -> Self {
+        Insert {
+            s,
+            attributes: None,
+        }
+    }
 }
 
 impl std::convert::From<&str> for Insert {
     fn from(s: &str) -> Self {
         Insert {
             s: s.to_owned(),
-            attrs: None,
+            attributes: None,
         }
     }
 }

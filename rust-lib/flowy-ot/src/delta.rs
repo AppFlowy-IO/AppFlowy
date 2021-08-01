@@ -53,11 +53,11 @@ impl Delta {
         }
     }
 
-    fn add(&mut self, op: Operation) {
+    pub fn add(&mut self, op: Operation) {
         match op {
             Operation::Delete(i) => self.delete(i),
-            Operation::Insert(i) => self.insert(&i.s, i.attrs),
-            Operation::Retain(r) => self.retain(r.n, r.attrs),
+            Operation::Insert(i) => self.insert(&i.s, i.attributes),
+            Operation::Retain(r) => self.retain(r.n, r.attributes),
         }
     }
 
@@ -96,7 +96,7 @@ impl Delta {
             _ => Operation::Insert(s.into()),
         };
         self.ops
-            .push(OpBuilder::new(new_last).with_attrs(attrs).build());
+            .push(OpBuilder::new(new_last).attributes(attrs).build());
     }
 
     pub fn retain(&mut self, n: u64, attrs: Option<Attributes>) {
@@ -108,10 +108,10 @@ impl Delta {
 
         if let Some(Operation::Retain(i_last)) = self.ops.last_mut() {
             i_last.n += n;
-            i_last.attrs = attrs;
+            i_last.attributes = attrs;
         } else {
             self.ops
-                .push(OpBuilder::retain(n).with_attrs(attrs).build());
+                .push(OpBuilder::retain(n).attributes(attrs).build());
         }
     }
 
@@ -415,7 +415,7 @@ impl Delta {
                 Operation::Delete(delete) => {
                     inverted.insert(
                         &chars.take(*delete as usize).collect::<String>(),
-                        op.attrs(),
+                        op.attributes(),
                     );
                 },
             }
@@ -452,6 +452,6 @@ impl Delta {
 pub fn get_attrs(operation: &Option<Operation>) -> Option<Attributes> {
     match operation {
         None => None,
-        Some(operation) => operation.attrs(),
+        Some(operation) => operation.attributes(),
     }
 }
