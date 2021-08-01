@@ -20,19 +20,13 @@ class OverlayLayoutDelegate extends SingleChildLayoutDelegate {
   }
 
   @override
-  Size getSize(BoxConstraints constraints) {
-    return super.getSize(constraints);
-  }
-
-  @override
   BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
-    // TODO: junlin - calculate child constaints
-    return super.getConstraintsForChild(constraints);
+    return constraints.loosen();
   }
 
   @override
   Offset getPositionForChild(Size size, Size childSize) {
     // TODO: junlin - calculate child position
-    return Offset(size.width / 2, size.height / 2);
+    return Offset(anchorRect.width / 2, anchorRect.height / 2);
   }
 }

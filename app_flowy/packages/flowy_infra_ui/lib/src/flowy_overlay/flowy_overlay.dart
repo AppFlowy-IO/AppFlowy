@@ -201,17 +201,24 @@ class FlowyOverlayState extends State<FlowyOverlay> {
         anchorPosition != null || anchorContext != null,
         'Must provide `anchorPosition` or `anchorContext` to locating overlay.',
       );
-      var targetAnchorPosition = anchorPosition;
+      Offset targetAnchorPosition = anchorPosition ?? Offset.zero;
+      Size targetAnchorSize = anchorSize ?? Size.zero;
       if (anchorContext != null) {
         RenderObject renderObject = anchorContext.findRenderObject()!;
         assert(
           renderObject is RenderBox,
           'Unexpect non-RenderBox render object caught.',
         );
-        final localOffset = (renderObject as RenderBox).localToGlobal(Offset.zero);
-        targetAnchorPosition ??= localOffset;
+        final renderBox = renderObject as RenderBox;
+        targetAnchorPosition = renderBox.localToGlobal(Offset.zero);
+        targetAnchorSize = renderBox.size;
       }
-      final anchorRect = targetAnchorPosition! & (anchorSize ?? Size.zero);
+      final anchorRect = Rect.fromLTWH(
+        targetAnchorPosition.dx,
+        targetAnchorPosition.dy,
+        targetAnchorSize.width,
+        targetAnchorSize.height,
+      );
       overlay = CustomSingleChildLayout(
         delegate: OverlayLayoutDelegate(
           anchorRect: anchorRect,
