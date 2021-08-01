@@ -1,105 +1,118 @@
 use crate::attributes::Attributes;
+use bytecount::num_chars;
 use std::{
     cmp::Ordering,
     collections::{hash_map::RandomState, HashMap},
-    ops::Deref,
+    ops::{Deref, DerefMut},
+    str::Chars,
 };
 
-#[derive(Clone, Debug, PartialEq)]
-pub struct Operation {
-    pub ty: OpType,
-    pub attrs: Option<Attributes>,
+#[derive(Debug, Clone, PartialEq)]
+pub enum Operation {
+    Delete(u64),
+    Retain(Retain),
+    Insert(Insert),
 }
 
 impl Operation {
-    pub fn delete(&mut self, n: u64) { self.ty.delete(n); }
-
-    pub fn retain(&mut self, n: u64) { self.ty.retain(n); }
-
-    pub fn set_attrs(&mut self, attrs: Option<Attributes>) { self.attrs = attrs; }
-
-    pub fn is_plain(&self) -> bool {
-        match self.attrs {
-            None => true,
-            Some(ref attrs) => attrs.is_empty(),
+    pub fn is_delete(&self) -> bool {
+        match self {
+            Operation::Delete(_) => true,
+            _ => false,
         }
     }
 
     pub fn is_noop(&self) -> bool {
-        match self.ty {
-            OpType::Retain(_) => true,
+        match self {
+            Operation::Retain(_) => true,
             _ => false,
         }
     }
+
+    pub fn attrs(&self) -> Option<Attributes> {
+        match self {
+            Operation::Delete(_) => None,
+            Operation::Retain(retain) => retain.attrs.clone(),
+            Operation::Insert(insert) => insert.attrs.clone(),
+        }
+    }
+
+    pub fn is_plain(&self) -> bool { self.attrs().is_none() }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum OpType {
-    Delete(u64),
-    Retain(u64),
-    Insert(String),
-}
-
-impl OpType {
-    pub fn is_delete(&self) -> bool {
-        match self {
-            OpType::Delete(_) => true,
-            _ => false,
-        }
-    }
-
-    pub fn is_retain(&self) -> bool {
-        match self {
-            OpType::Retain(_) => true,
-            _ => false,
-        }
-    }
-
-    pub fn is_insert(&self) -> bool {
-        match self {
-            OpType::Insert(_) => true,
-            _ => false,
-        }
-    }
-
-    pub fn delete(&mut self, n: u64) {
-        debug_assert_eq!(self.is_delete(), true);
-        if let OpType::Delete(n_last) = self {
-            *n_last += n;
-        }
-    }
-
-    pub fn retain(&mut self, n: u64) {
-        debug_assert_eq!(self.is_retain(), true);
-        if let OpType::Retain(i_last) = self {
-            *i_last += n;
-        }
-    }
-}
-
-pub struct OperationBuilder {
-    ty: OpType,
+pub struct OpBuilder {
+    ty: Operation,
     attrs: Option<Attributes>,
 }
 
-impl OperationBuilder {
-    pub fn new(ty: OpType) -> OperationBuilder { OperationBuilder { ty, attrs: None } }
+impl OpBuilder {
+    pub fn new(ty: Operation) -> OpBuilder { OpBuilder { ty, attrs: None } }
 
-    pub fn retain(n: u64) -> OperationBuilder { OperationBuilder::new(OpType::Retain(n)) }
+    pub fn retain(n: u64) -> OpBuilder { OpBuilder::new(Operation::Retain(n.into())) }
 
-    pub fn delete(n: u64) -> OperationBuilder { OperationBuilder::new(OpType::Delete(n)) }
+    pub fn delete(n: u64) -> OpBuilder { OpBuilder::new(Operation::Delete(n)) }
 
-    pub fn insert(s: String) -> OperationBuilder { OperationBuilder::new(OpType::Insert(s)) }
+    pub fn insert(s: String) -> OpBuilder { OpBuilder::new(Operation::Insert(s.into())) }
 
-    pub fn with_attrs(mut self, attrs: Option<Attributes>) -> OperationBuilder {
+    pub fn with_attrs(mut self, attrs: Option<Attributes>) -> OpBuilder {
         self.attrs = attrs;
         self
     }
 
     pub fn build(self) -> Operation {
-        Operation {
-            ty: self.ty,
-            attrs: self.attrs,
+        let mut operation = self.ty;
+        match &mut operation {
+            Operation::Delete(_) => {},
+            Operation::Retain(retain) => retain.attrs = self.attrs,
+            Operation::Insert(insert) => insert.attrs = self.attrs,
+        }
+        operation
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct Retain {
+    pub n: u64,
+    pub(crate) attrs: Option<Attributes>,
+}
+
+impl std::convert::From<u64> for Retain {
+    fn from(n: u64) -> Self { Retain { n, attrs: None } }
+}
+
+impl Deref for Retain {
+    type Target = u64;
+
+    fn deref(&self) -> &Self::Target { &self.n }
+}
+
+impl DerefMut for Retain {
+    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.n }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct Insert {
+    pub s: String,
+    pub attrs: Option<Attributes>,
+}
+
+impl Insert {
+    pub fn as_bytes(&self) -> &[u8] { self.s.as_bytes() }
+
+    pub fn chars(&self) -> Chars<'_> { self.s.chars() }
+
+    pub fn num_chars(&self) -> u64 { num_chars(self.s.as_bytes()) as _ }
+}
+
+impl std::convert::From<String> for Insert {
+    fn from(s: String) -> Self { Insert { s, attrs: None } }
+}
+
+impl std::convert::From<&str> for Insert {
+    fn from(s: &str) -> Self {
+        Insert {
+            s: s.to_owned(),
+            attrs: None,
         }
     }
 }

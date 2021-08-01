@@ -12,7 +12,7 @@ impl Attributes {
         }
     }
 
-    pub fn remove_empty_value(&mut self) { self.inner.retain((|_, v| v.is_empty())); }
+    pub fn remove_empty_value(&mut self) { self.inner.retain(|_, v| v.is_empty()); }
 
     pub fn extend(&mut self, other: Attributes) { self.inner.extend(other.inner); }
 }
@@ -134,7 +134,7 @@ pub fn invert_attributes(attr: Option<Attributes>, base: Option<Attributes>) -> 
             attributes
         });
 
-    let inverted = attr.iter().fold(base_inverted, |mut attributes, (k, v)| {
+    let inverted = attr.iter().fold(base_inverted, |mut attributes, (k, _)| {
         if base.get(k) != attr.get(k) && !base.contains_key(k) {
             attributes.insert(k.clone(), "".to_owned());
         }

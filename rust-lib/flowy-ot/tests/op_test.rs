@@ -5,7 +5,7 @@ use bytecount::num_chars;
 use flowy_ot::{
     attributes::*,
     delta::Delta,
-    operation::{OpType, OperationBuilder},
+    operation::{OpBuilder, Operation},
 };
 
 #[test]
@@ -31,7 +31,7 @@ fn sequence() {
     let mut delta = Delta::default();
     delta.retain(5, None);
     delta.retain(0, None);
-    delta.insert("lorem", None);
+    delta.insert("appflowy", None);
     delta.insert("", None);
     delta.delete(3);
     delta.delete(0);
@@ -62,6 +62,21 @@ fn apply() {
     let after_a = delta_a.apply("").unwrap();
     let after_b = delta_b.apply(&after_a).unwrap();
     assert_eq!("hello world,appflowy", &after_b);
+}
+
+#[test]
+fn base_len_test() {
+    let mut delta_a = Delta::default();
+    delta_a.insert("a", None);
+    delta_a.insert("b", None);
+    delta_a.insert("c", None);
+
+    let s = "hello world,".to_owned();
+    delta_a.delete(s.len() as u64);
+    let after_a = delta_a.apply(&s).unwrap();
+
+    delta_a.insert("d", None);
+    assert_eq!("abc", &after_a);
 }
 
 #[test]
@@ -107,28 +122,28 @@ fn ops_merging() {
     assert_eq!(delta.ops.len(), 0);
     delta.retain(2, None);
     assert_eq!(delta.ops.len(), 1);
-    assert_eq!(delta.ops.last(), Some(&OperationBuilder::retain(2).build()));
+    assert_eq!(delta.ops.last(), Some(&OpBuilder::retain(2).build()));
     delta.retain(3, None);
     assert_eq!(delta.ops.len(), 1);
-    assert_eq!(delta.ops.last(), Some(&OperationBuilder::retain(5).build()));
+    assert_eq!(delta.ops.last(), Some(&OpBuilder::retain(5).build()));
     delta.insert("abc", None);
     assert_eq!(delta.ops.len(), 2);
     assert_eq!(
         delta.ops.last(),
-        Some(&OperationBuilder::insert("abc".to_owned()).build())
+        Some(&OpBuilder::insert("abc".to_owned()).build())
     );
     delta.insert("xyz", None);
     assert_eq!(delta.ops.len(), 2);
     assert_eq!(
         delta.ops.last(),
-        Some(&OperationBuilder::insert("abcxyz".to_owned()).build())
+        Some(&OpBuilder::insert("abcxyz".to_owned()).build())
     );
     delta.delete(1);
     assert_eq!(delta.ops.len(), 3);
-    assert_eq!(delta.ops.last(), Some(&OperationBuilder::delete(1).build()));
+    assert_eq!(delta.ops.last(), Some(&OpBuilder::delete(1).build()));
     delta.delete(1);
     assert_eq!(delta.ops.len(), 3);
-    assert_eq!(delta.ops.last(), Some(&OperationBuilder::delete(2).build()));
+    assert_eq!(delta.ops.last(), Some(&OpBuilder::delete(2).build()));
 }
 #[test]
 fn is_noop() {
