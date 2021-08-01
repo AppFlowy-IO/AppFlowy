@@ -1,3 +1,4 @@
+use crate::operation::Operation;
 use std::collections::{hash_map::RandomState, HashMap};
 
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize, serde::Deserialize)]
@@ -64,11 +65,21 @@ impl AttributesBuilder {
     pub fn build(self) -> Attributes { self.inner }
 }
 
+pub fn attributes_from(operation: &Option<Operation>) -> Option<Attributes> {
+    match operation {
+        None => None,
+        Some(operation) => operation.attributes(),
+    }
+}
+
 pub fn compose_attributes(
-    a: Option<Attributes>,
-    b: Option<Attributes>,
+    op1: &Option<Operation>,
+    op2: &Option<Operation>,
     keep_empty: bool,
 ) -> Option<Attributes> {
+    let a = attributes_from(op1);
+    let b = attributes_from(op2);
+
     if a.is_none() {
         return b;
     }
@@ -93,10 +104,13 @@ pub fn compose_attributes(
 }
 
 pub fn transform_attributes(
-    a: Option<Attributes>,
-    b: Option<Attributes>,
+    op1: &Option<Operation>,
+    op2: &Option<Operation>,
     priority: bool,
 ) -> Option<Attributes> {
+    let a = attributes_from(op1);
+    let b = attributes_from(op2);
+
     if a.is_none() {
         return b;
     }

@@ -58,6 +58,7 @@ impl Operation {
             Operation::Insert(i) => i.num_chars(),
         }
     }
+    pub fn is_empty(&self) -> bool { self.length() == 0 }
 }
 
 pub struct OpBuilder {
@@ -72,7 +73,7 @@ impl OpBuilder {
 
     pub fn delete(n: u64) -> OpBuilder { OpBuilder::new(Operation::Delete(n)) }
 
-    pub fn insert(s: String) -> OpBuilder { OpBuilder::new(Operation::Insert(s.into())) }
+    pub fn insert(s: &str) -> OpBuilder { OpBuilder::new(Operation::Insert(s.into())) }
 
     pub fn attributes(mut self, attrs: Option<Attributes>) -> OpBuilder {
         self.attrs = attrs;

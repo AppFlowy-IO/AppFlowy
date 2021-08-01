@@ -77,26 +77,29 @@ impl Delta {
         if s.is_empty() {
             return;
         }
-        self.target_len += num_chars(s.as_bytes());
 
+        self.target_len += num_chars(s.as_bytes());
         let new_last = match self.ops.as_mut_slice() {
             [.., Operation::Insert(s_last)] => {
-                s_last.s += &s;
-                return;
+                //
+                merge_insert_or_new_op(s_last, s, attrs)
             },
             [.., Operation::Insert(s_pre_last), Operation::Delete(_)] => {
-                s_pre_last.s += s;
-                return;
+                //
+                merge_insert_or_new_op(s_pre_last, s, attrs)
             },
             [.., op_last @ Operation::Delete(_)] => {
                 let new_last = op_last.clone();
-                *op_last = Operation::Insert(s.into());
-                new_last
+                *op_last = OpBuilder::insert(s).attributes(attrs).build();
+                Some(new_last)
             },
-            _ => Operation::Insert(s.into()),
+            _ => Some(OpBuilder::insert(s).attributes(attrs).build()),
         };
-        self.ops
-            .push(OpBuilder::new(new_last).attributes(attrs).build());
+
+        match new_last {
+            None => {},
+            Some(new_last) => self.ops.push(new_last),
+        }
     }
 
     pub fn retain(&mut self, n: u64, attrs: Option<Attributes>) {
@@ -107,8 +110,10 @@ impl Delta {
         self.target_len += n as usize;
 
         if let Some(Operation::Retain(i_last)) = self.ops.last_mut() {
-            i_last.n += n;
-            i_last.attributes = attrs;
+            match merge_retain_or_new_op(i_last, n, attrs) {
+                None => {},
+                Some(new_op) => self.ops.push(new_op),
+            }
         } else {
             self.ops
                 .push(OpBuilder::retain(n).attributes(attrs).build());
@@ -144,15 +149,14 @@ impl Delta {
                     next_op1 = ops1.next();
                 },
                 (_, Some(Operation::Insert(insert))) => {
-                    new_delta.insert(&insert.s, get_attrs(&next_op2));
+                    new_delta.insert(&insert.s, attributes_from(&next_op2));
                     next_op2 = ops2.next();
                 },
                 (None, _) | (_, None) => {
                     return Err(OTError);
                 },
                 (Some(Operation::Retain(i)), Some(Operation::Retain(j))) => {
-                    let new_attrs =
-                        compose_attributes(get_attrs(&next_op1), get_attrs(&next_op2), true);
+                    let new_attrs = compose_attributes(&next_op1, &next_op2, true);
                     match i.cmp(&j) {
                         Ordering::Less => {
                             new_delta.retain(i.n, new_attrs);
@@ -185,16 +189,17 @@ impl Delta {
                         },
                         Ordering::Greater => {
                             next_op1 = Some(
-                                OpBuilder::insert(insert.chars().skip(*j as usize).collect())
-                                    .build(),
+                                OpBuilder::insert(
+                                    &insert.chars().skip(*j as usize).collect::<String>(),
+                                )
+                                .build(),
                             );
                             next_op2 = ops2.next();
                         },
                     }
                 },
                 (Some(Operation::Insert(insert)), Some(Operation::Retain(j))) => {
-                    let new_attrs =
-                        compose_attributes(get_attrs(&next_op1), get_attrs(&next_op2), false);
+                    let new_attrs = compose_attributes(&next_op1, &next_op2, false);
                     match (insert.num_chars()).cmp(j) {
                         Ordering::Less => {
                             new_delta.insert(&insert.s, new_attrs);
@@ -210,7 +215,7 @@ impl Delta {
                             let chars = &mut insert.chars();
                             new_delta
                                 .insert(&chars.take(j.n as usize).collect::<String>(), new_attrs);
-                            next_op1 = Some(OpBuilder::insert(chars.collect()).build());
+                            next_op1 = Some(OpBuilder::insert(&chars.collect::<String>()).build());
                             next_op2 = ops2.next();
                         },
                     }
@@ -263,15 +268,13 @@ impl Delta {
             match (&next_op1, &next_op2) {
                 (None, None) => break,
                 (Some(Operation::Insert(insert)), _) => {
-                    let new_attrs =
-                        compose_attributes(get_attrs(&next_op1), get_attrs(&next_op2), true);
+                    let new_attrs = compose_attributes(&next_op1, &next_op2, true);
                     a_prime.insert(&insert.s, new_attrs.clone());
                     b_prime.retain(insert.num_chars(), new_attrs.clone());
                     next_op1 = ops1.next();
                 },
                 (_, Some(Operation::Insert(insert))) => {
-                    let new_attrs =
-                        compose_attributes(get_attrs(&next_op1), get_attrs(&next_op2), true);
+                    let new_attrs = compose_attributes(&next_op1, &next_op2, true);
                     a_prime.retain(insert.num_chars(), new_attrs.clone());
                     b_prime.insert(&insert.s, new_attrs.clone());
                     next_op2 = ops2.next();
@@ -283,8 +286,7 @@ impl Delta {
                     return Err(OTError);
                 },
                 (Some(Operation::Retain(i)), Some(Operation::Retain(j))) => {
-                    let new_attrs =
-                        compose_attributes(get_attrs(&next_op1), get_attrs(&next_op2), true);
+                    let new_attrs = compose_attributes(&next_op1, &next_op2, true);
                     match i.cmp(&j) {
                         Ordering::Less => {
                             a_prime.retain(i.n, new_attrs.clone());
@@ -449,9 +451,33 @@ impl Delta {
     pub fn is_empty(&self) -> bool { self.ops.is_empty() }
 }
 
-pub fn get_attrs(operation: &Option<Operation>) -> Option<Attributes> {
-    match operation {
-        None => None,
-        Some(operation) => operation.attributes(),
+fn merge_insert_or_new_op(
+    insert: &mut Insert,
+    s: &str,
+    attributes: Option<Attributes>,
+) -> Option<Operation> {
+    if insert.attributes == attributes {
+        insert.s += s;
+        None
+    } else {
+        Some(OpBuilder::insert(s).attributes(attributes).build())
+    }
+}
+
+fn merge_retain_or_new_op(
+    retain: &mut Retain,
+    n: u64,
+    attributes: Option<Attributes>,
+) -> Option<Operation> {
+    if attributes.is_none() {
+        retain.n += n;
+        return None;
+    }
+
+    if retain.attributes == attributes {
+        retain.n += n;
+        None
+    } else {
+        Some(OpBuilder::retain(n).attributes(attributes).build())
     }
 }

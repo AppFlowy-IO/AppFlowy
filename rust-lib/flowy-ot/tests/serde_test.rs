@@ -7,7 +7,7 @@ use flowy_ot::{
 #[test]
 fn operation_insert_serialize_test() {
     let attributes = AttributesBuilder::new().bold().italic().build();
-    let operation = OpBuilder::insert("123".to_owned())
+    let operation = OpBuilder::insert("123")
         .attributes(Some(attributes))
         .build();
     let json = serde_json::to_string(&operation).unwrap();
@@ -39,7 +39,7 @@ fn delta_serialize_test() {
     let mut delta = Delta::default();
 
     let attributes = AttributesBuilder::new().bold().italic().build();
-    let retain = OpBuilder::insert("123".to_owned())
+    let retain = OpBuilder::insert("123")
         .attributes(Some(attributes))
         .build();
 

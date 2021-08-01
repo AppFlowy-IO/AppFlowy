@@ -1,10 +1,12 @@
-use crate::helper::Rng;
+pub mod helper;
+
 use bytecount::num_chars;
 use flowy_ot::{
     attributes::*,
     delta::Delta,
     operation::{OpBuilder, Operation},
 };
+use helper::*;
 
 #[test]
 fn lengths() {
@@ -126,16 +128,10 @@ fn ops_merging() {
     assert_eq!(delta.ops.last(), Some(&OpBuilder::retain(5).build()));
     delta.insert("abc", None);
     assert_eq!(delta.ops.len(), 2);
-    assert_eq!(
-        delta.ops.last(),
-        Some(&OpBuilder::insert("abc".to_owned()).build())
-    );
+    assert_eq!(delta.ops.last(), Some(&OpBuilder::insert("abc").build()));
     delta.insert("xyz", None);
     assert_eq!(delta.ops.len(), 2);
-    assert_eq!(
-        delta.ops.last(),
-        Some(&OpBuilder::insert("abcxyz".to_owned()).build())
-    );
+    assert_eq!(delta.ops.last(), Some(&OpBuilder::insert("abcxyz").build()));
     delta.delete(1);
     assert_eq!(delta.ops.len(), 3);
     assert_eq!(delta.ops.last(), Some(&OpBuilder::delete(1).build()));
