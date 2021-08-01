@@ -39,17 +39,23 @@ class OverlayLayoutDelegate extends SingleChildLayoutDelegate {
     Offset position;
     switch (anchorDirection) {
       case AnchorDirection.topLeft:
-        position = Offset(
-          anchorRect.left - childSize.width,
-          anchorRect.top - childSize.height,
-        );
+        position = Offset(anchorRect.left - childSize.width, anchorRect.top - childSize.height);
+        break;
+      case AnchorDirection.topRight:
+        position = Offset(anchorRect.right, anchorRect.top - childSize.height);
+        break;
+      case AnchorDirection.bottomLeft:
+        position = Offset(anchorRect.left - childSize.width, anchorRect.bottom);
+        break;
+      case AnchorDirection.bottomRight:
+        position = Offset(anchorRect.right, anchorRect.bottom);
         break;
       default:
         throw UnimplementedError();
     }
     return Offset(
-      math.max(0.0, math.min(size.width, position.dx)),
-      math.max(0.0, math.min(size.height, position.dy)),
+      math.max(0.0, math.min(size.width - childSize.width, position.dx)),
+      math.max(0.0, math.min(size.height - childSize.height, position.dy)),
     );
   }
 }
