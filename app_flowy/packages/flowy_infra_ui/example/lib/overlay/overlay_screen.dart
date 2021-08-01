@@ -44,7 +44,7 @@ class OverlayScreen extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                FlowyOverlay.of(context).insert(
+                FlowyOverlay.of(context).insertCustom(
                   widget: const FlutterLogo(
                     size: 200,
                   ),
@@ -53,6 +53,38 @@ class OverlayScreen extends StatelessWidget {
                 );
               },
               child: const Text('Show Overlay'),
+            ),
+            const SizedBox(height: 12.0),
+            ElevatedButton(
+              onPressed: () {
+                FlowyOverlay.of(context).insertWithAnchor(
+                  widget: const FlutterLogo(
+                    size: 200,
+                    textColor: Colors.orange,
+                  ),
+                  identifier: 'overlay_flutter_logo',
+                  delegate: null,
+                  anchorContext: context,
+                );
+              },
+              child: const Text('Show Anchored Overlay'),
+            ),
+            const SizedBox(height: 12.0),
+            ElevatedButton(
+              onPressed: () {
+                final windowSize = MediaQuery.of(context).size;
+                FlowyOverlay.of(context).insertWithRect(
+                  widget: const FlutterLogo(
+                    size: 200,
+                    textColor: Colors.orange,
+                  ),
+                  identifier: 'overlay_flutter_logo',
+                  delegate: null,
+                  anchorPosition: Offset(0, windowSize.height - 200),
+                  anchorSize: Size.zero,
+                );
+              },
+              child: const Text('Show Positioned Overlay'),
             ),
           ],
         ));
