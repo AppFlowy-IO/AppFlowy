@@ -59,13 +59,21 @@ class OverlayScreen extends StatelessWidget {
               return ElevatedButton(
                 onPressed: () {
                   FlowyOverlay.of(context).insertWithAnchor(
-                    widget: const FlutterLogo(
-                      size: 200,
-                      textColor: Colors.orange,
+                    widget: SizedBox(
+                      width: 200,
+                      height: 100,
+                      child: Card(
+                        color: Colors.grey[200],
+                        child: GestureDetector(
+                          onTapDown: (_) => print('Hello Flutter'),
+                          child: const Center(child: FlutterLogo(size: 100)),
+                        ),
+                      ),
                     ),
-                    identifier: 'overlay_flutter_logo',
+                    identifier: 'overlay_card',
                     delegate: null,
                     anchorContext: buttonContext,
+                    anchorDirection: AnchorDirection.topLeft,
                   );
                 },
                 child: const Text('Show Anchored Overlay'),
@@ -76,14 +84,22 @@ class OverlayScreen extends StatelessWidget {
               onPressed: () {
                 final windowSize = MediaQuery.of(context).size;
                 FlowyOverlay.of(context).insertWithRect(
-                  widget: const FlutterLogo(
-                    size: 200,
-                    textColor: Colors.orange,
+                  widget: SizedBox(
+                    width: 200,
+                    height: 100,
+                    child: Card(
+                      color: Colors.orange[200],
+                      child: GestureDetector(
+                        onTapDown: (_) => print('Hello Flutter'),
+                        child: const Center(child: FlutterLogo(size: 100)),
+                      ),
+                    ),
                   ),
-                  identifier: 'overlay_flutter_logo',
+                  identifier: 'overlay_card',
                   delegate: null,
                   anchorPosition: Offset(0, windowSize.height - 200),
                   anchorSize: Size.zero,
+                  anchorDirection: AnchorDirection.topLeft,
                 );
               },
               child: const Text('Show Positioned Overlay'),

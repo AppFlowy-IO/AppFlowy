@@ -28,7 +28,18 @@ enum AnchorDirection {
   custom,
 }
 
-/// The behavior of overlay when user tapping system back button
+// TODO: junlin - support overlap behaviour
+/// [Unsupported] The behaviour of overlay when overlap with anchor widget
+enum OverlapBehaviour {
+  /// Maintain overlay size, which may cover the anchor widget.
+  none,
+
+  /// Resize overlay to avoid overlaping the anchor widget.
+  stretch,
+}
+
+// TODO: junlin - support route pop handler
+/// [Unsupported] The behavior of overlay when user tapping system back button
 enum OnBackBehavior {
   /// Won't handle the back action
   none,
@@ -192,6 +203,7 @@ class FlowyOverlayState extends State<FlowyOverlay> {
     Size? anchorSize,
     AnchorDirection? anchorDirection,
     BuildContext? anchorContext,
+    OverlapBehaviour? overlapBehaviour,
     FlowyOverlayDelegate? delegate,
   }) {
     Widget overlay = widget;
@@ -222,7 +234,9 @@ class FlowyOverlayState extends State<FlowyOverlay> {
       overlay = CustomSingleChildLayout(
         delegate: OverlayLayoutDelegate(
           anchorRect: anchorRect,
-          anchorDirection: anchorDirection ?? AnchorDirection.rightWithTopAligned,
+          anchorDirection:
+              shouldAnchor ? anchorDirection ?? AnchorDirection.rightWithTopAligned : AnchorDirection.custom,
+          overlapBehaviour: overlapBehaviour ?? OverlapBehaviour.stretch,
         ),
         child: widget,
       );
