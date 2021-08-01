@@ -39,16 +39,97 @@ class OverlayLayoutDelegate extends SingleChildLayoutDelegate {
     Offset position;
     switch (anchorDirection) {
       case AnchorDirection.topLeft:
-        position = Offset(anchorRect.left - childSize.width, anchorRect.top - childSize.height);
+        position = Offset(
+          anchorRect.left - childSize.width,
+          anchorRect.top - childSize.height,
+        );
         break;
       case AnchorDirection.topRight:
-        position = Offset(anchorRect.right, anchorRect.top - childSize.height);
+        position = Offset(
+          anchorRect.right,
+          anchorRect.top - childSize.height,
+        );
         break;
       case AnchorDirection.bottomLeft:
-        position = Offset(anchorRect.left - childSize.width, anchorRect.bottom);
+        position = Offset(
+          anchorRect.left - childSize.width,
+          anchorRect.bottom,
+        );
         break;
       case AnchorDirection.bottomRight:
-        position = Offset(anchorRect.right, anchorRect.bottom);
+        position = Offset(
+          anchorRect.right,
+          anchorRect.bottom,
+        );
+        break;
+      case AnchorDirection.topWithLeftAligned:
+        position = Offset(
+          anchorRect.left,
+          anchorRect.top - childSize.height,
+        );
+        break;
+      case AnchorDirection.topWithCenterAligned:
+        position = Offset(
+          anchorRect.left + anchorRect.width / 2.0 - childSize.width / 2.0,
+          anchorRect.top - childSize.height,
+        );
+        break;
+      case AnchorDirection.topWithRightAligned:
+        position = Offset(
+          anchorRect.right - childSize.width,
+          anchorRect.top - childSize.height,
+        );
+        break;
+      case AnchorDirection.rightWithTopAligned:
+        position = Offset(anchorRect.right, anchorRect.top);
+        break;
+      case AnchorDirection.rightWithCenterAligned:
+        position = Offset(
+          anchorRect.right,
+          anchorRect.top + anchorRect.height / 2.0 - childSize.height / 2.0,
+        );
+        break;
+      case AnchorDirection.rightWithBottomAligned:
+        position = Offset(
+          anchorRect.right,
+          anchorRect.bottom - childSize.height,
+        );
+        break;
+      case AnchorDirection.bottomWithLeftAligned:
+        position = Offset(
+          anchorRect.left,
+          anchorRect.bottom,
+        );
+        break;
+      case AnchorDirection.bottomWithCenterAligned:
+        position = Offset(
+          anchorRect.left + anchorRect.width / 2.0 - childSize.width / 2.0,
+          anchorRect.bottom,
+        );
+        break;
+      case AnchorDirection.bottomWithRightAligned:
+        position = Offset(
+          anchorRect.right - childSize.width,
+          anchorRect.bottom,
+        );
+        break;
+      case AnchorDirection.leftWithTopAligned:
+        position = Offset(
+          anchorRect.left - childSize.width,
+          anchorRect.top,
+        );
+        break;
+      case AnchorDirection.leftWithCenterAligned:
+        position = Offset(
+          anchorRect.left - childSize.width,
+          anchorRect.top + anchorRect.height / 2.0 - childSize.height / 2.0,
+        );
+        break;
+      case AnchorDirection.leftWithBottomAligned:
+        position = Offset(
+          anchorRect.left - childSize.width,
+          anchorRect.bottom - childSize.height,
+        );
         break;
       default:
         throw UnimplementedError();
