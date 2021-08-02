@@ -58,6 +58,7 @@ pub enum MergeTestOp {
     InsertBold(usize, &'static str, Interval),
     // delta_i, start, length, enable
     Bold(usize, Interval, bool),
+    Italic(usize, Interval, bool),
     Transform(usize, usize),
     AssertStr(usize, &'static str),
     AssertOpsJson(usize, &'static str),
@@ -71,7 +72,7 @@ impl MergeTest {
     pub fn new() -> Self {
         static INIT: Once = Once::new();
         INIT.call_once(|| {
-            std::env::set_var("RUST_LOG", "debug");
+            std::env::set_var("RUST_LOG", "info");
             env_logger::init();
         });
 
@@ -90,40 +91,17 @@ impl MergeTest {
                 delta.insert(s, None);
             },
             MergeTestOp::InsertBold(delta_i, s, interval) => {
-                let attrs = AttrsBuilder::new().bold().build();
+                let attrs = AttrsBuilder::new().bold(true).build();
                 let delta = &mut self.deltas[*delta_i];
                 delta.insert(s, Some(attrs));
             },
             MergeTestOp::Bold(delta_i, interval, enable) => {
-                let attrs = if *enable {
-                    AttrsBuilder::new().bold().build()
-                } else {
-                    AttrsBuilder::new().un_bold().build()
-                };
-                let delta = &mut self.deltas[*delta_i];
-                let delta_interval = Interval::new(0, delta.target_len);
-
-                let mut new_delta = Delta::default();
-                let prefix = delta_interval.prefix(*interval);
-                if prefix.is_empty() == false && prefix != *interval {
-                    let size = prefix.size();
-                    // get attr in prefix interval
-                    let attrs = attributes_in_interval(delta, &prefix);
-                    new_delta.retain(size as u64, Some(attrs));
-                }
-
-                let size = interval.size();
-                new_delta.retain(size as u64, Some(attrs));
-
-                let suffix = delta_interval.suffix(*interval);
-                if suffix.is_empty() == false {
-                    let size = suffix.size();
-                    let attrs = attributes_in_interval(delta, &suffix);
-                    new_delta.retain(size as u64, Some(attrs));
-                }
-
-                let a = delta.compose(&new_delta).unwrap();
-                self.deltas[*delta_i] = a;
+                let attrs = AttrsBuilder::new().bold(*enable).build();
+                self.replace_delta(*delta_i, attrs, interval);
+            },
+            MergeTestOp::Italic(delta_i, interval, enable) => {
+                let attrs = AttrsBuilder::new().italic(*enable).build();
+                self.replace_delta(*delta_i, attrs, interval);
             },
             MergeTestOp::Transform(delta_a_i, delta_b_i) => {
                 let delta_a = &self.deltas[*delta_a_i];
@@ -142,12 +120,16 @@ impl MergeTest {
             },
 
             MergeTestOp::AssertOpsJson(delta_i, expected) => {
-                let s = serde_json::to_string(&self.deltas[*delta_i]).unwrap();
-                if &s != expected {
-                    log::error!("{}", s);
-                }
+                let expected_delta: Delta = serde_json::from_str(expected).unwrap();
 
-                assert_eq!(&s, expected);
+                let delta_i_json = serde_json::to_string(&self.deltas[*delta_i]).unwrap();
+                let delta: Delta = serde_json::from_str(&delta_i_json).unwrap();
+
+                if expected_delta != delta {
+                    log::error!("✅ {}", expected);
+                    log::error!("❌ {}", delta_i_json);
+                }
+                assert_eq!(delta, expected_delta);
             },
         }
     }
@@ -157,13 +139,49 @@ impl MergeTest {
             self.run_op(op);
         }
     }
+
+    pub fn replace_delta(
+        &mut self,
+        delta_index: usize,
+        attributes: Attributes,
+        interval: &Interval,
+    ) {
+        let old_delta = &self.deltas[delta_index];
+        let new_delta = delta_with_attribute(old_delta, attributes, interval);
+        self.deltas[delta_index] = new_delta;
+    }
+}
+
+pub fn delta_with_attribute(delta: &Delta, attributes: Attributes, interval: &Interval) -> Delta {
+    let delta_interval = Interval::new(0, delta.target_len);
+
+    let mut new_delta = Delta::default();
+    let prefix = delta_interval.prefix(*interval);
+    if prefix.is_empty() == false && prefix != *interval {
+        let size = prefix.size();
+        let attrs = attributes_in_interval(delta, &prefix);
+        new_delta.retain(size as u64, attrs);
+    }
+
+    let size = interval.size();
+    log::debug!("Apply attribute {:?} to {}", attributes, interval);
+    new_delta.retain(size as u64, Some(attributes));
+
+    let suffix = delta_interval.suffix(*interval);
+    if suffix.is_empty() == false {
+        let size = suffix.size();
+        let attrs = attributes_in_interval(delta, &suffix);
+        new_delta.retain(size as u64, attrs);
+    }
+
+    delta.compose(&new_delta).unwrap()
 }
 
 pub fn debug_print_delta(delta: &Delta) {
     log::debug!("😁 {}", serde_json::to_string(delta).unwrap());
 }
 
-pub fn attributes_in_interval(delta: &Delta, interval: &Interval) -> Attributes {
+pub fn attributes_in_interval(delta: &Delta, interval: &Interval) -> Option<Attributes> {
     let mut attributes = Attributes::new();
     let mut offset = 0;
 
@@ -178,12 +196,12 @@ pub fn attributes_in_interval(delta: &Delta, interval: &Interval) -> Attributes 
         },
         Operation::Insert(insert) => {
             if insert.attributes.is_some() {
-                if interval.start >= offset || insert.num_chars() > interval.end as u64 {
+                if interval.start >= offset && insert.num_chars() > (interval.end as u64 - 1) {
                     attributes.extend(insert.attributes.as_ref().unwrap().clone());
                 }
                 offset += insert.num_chars() as usize;
             }
         },
     });
-    attributes
+    Some(attributes)
 }

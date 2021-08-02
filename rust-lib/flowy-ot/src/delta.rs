@@ -156,7 +156,13 @@ impl Delta {
                     return Err(OTError);
                 },
                 (Some(Operation::Retain(retain)), Some(Operation::Retain(o_retain))) => {
-                    let composed_attrs = compose_attributes(&next_op1, &next_op2, true);
+                    let composed_attrs = compose_attributes(&next_op1, &next_op2, false);
+                    log::debug!(
+                        "[retain:{} - retain:{}]: {:?}",
+                        retain.num,
+                        o_retain.num,
+                        composed_attrs
+                    );
                     match retain.cmp(&o_retain) {
                         Ordering::Less => {
                             new_delta.retain(retain.num, composed_attrs);
@@ -201,6 +207,12 @@ impl Delta {
                 },
                 (Some(Operation::Insert(insert)), Some(Operation::Retain(o_retain))) => {
                     let composed_attrs = compose_attributes(&next_op1, &next_op2, false);
+                    log::debug!(
+                        "[insert:{} - retain:{}]: {:?}",
+                        insert.s,
+                        o_retain.num,
+                        composed_attrs
+                    );
                     match (insert.num_chars()).cmp(o_retain) {
                         Ordering::Less => {
                             new_delta.insert(&insert.s, composed_attrs.clone());
@@ -465,6 +477,11 @@ fn merge_insert_or_new_op(
     s: &str,
     attributes: Option<Attributes>,
 ) -> Option<Operation> {
+    if attributes.is_none() {
+        insert.s += s;
+        return None;
+    }
+
     if insert.attributes == attributes {
         insert.s += s;
         None
@@ -478,11 +495,17 @@ fn merge_retain_or_new_op(
     n: u64,
     attributes: Option<Attributes>,
 ) -> Option<Operation> {
+    log::trace!(
+        "merge_retain_or_new_op: {:?}, {:?}",
+        retain.attributes,
+        attributes
+    );
+
     if attributes.is_none() {
         retain.num += n;
         return None;
     }
-    // log::debug!("merge retain: {:?}, {:?}", retain.attributes, attributes);
+
     if retain.attributes == attributes {
         retain.num += n;
         None

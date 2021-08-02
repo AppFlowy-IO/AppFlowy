@@ -6,7 +6,7 @@ use flowy_ot::{
 
 #[test]
 fn operation_insert_serialize_test() {
-    let attributes = AttrsBuilder::new().bold().italic().build();
+    let attributes = AttrsBuilder::new().bold(true).italic(true).build();
     let operation = OpBuilder::insert("123")
         .attributes(Some(attributes))
         .build();
@@ -38,7 +38,7 @@ fn operation_delete_serialize_test() {
 fn delta_serialize_test() {
     let mut delta = Delta::default();
 
-    let attributes = AttrsBuilder::new().bold().italic().build();
+    let attributes = AttrsBuilder::new().bold(true).italic(true).build();
     let retain = OpBuilder::insert("123")
         .attributes(Some(attributes))
         .build();

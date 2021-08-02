@@ -15,7 +15,7 @@ impl Attributes {
         }
     }
 
-    pub fn remove_empty_value(&mut self) { self.inner.retain(|_, v| v.is_empty() == false); }
+    pub fn remove_empty(&mut self) { self.inner.retain(|_, v| v.is_empty() == false); }
 
     pub fn extend(&mut self, other: Attributes) { self.inner.extend(other.inner); }
 
@@ -49,18 +49,21 @@ impl AttrsBuilder {
         }
     }
 
-    pub fn bold(mut self) -> Self {
-        self.inner.insert("bold".to_owned(), "true".to_owned());
+    pub fn bold(mut self, bold: bool) -> Self {
+        let val = match bold {
+            true => "true",
+            false => "",
+        };
+        self.inner.insert("bold".to_owned(), val.to_owned());
         self
     }
 
-    pub fn un_bold(mut self) -> Self {
-        self.inner.insert("bold".to_owned(), "".to_owned());
-        self
-    }
-
-    pub fn italic(mut self) -> Self {
-        self.inner.insert("italic".to_owned(), "true".to_owned());
+    pub fn italic(mut self, italic: bool) -> Self {
+        let val = match italic {
+            true => "true",
+            false => "",
+        };
+        self.inner.insert("italic".to_owned(), val.to_owned());
         self
     }
 
@@ -86,25 +89,26 @@ pub fn compose_attributes(
 ) -> Option<Attributes> {
     let a = attributes_from(op1);
     let b = attributes_from(op2);
+
+    if a.is_none() && b.is_none() {
+        return None;
+    }
+
     let mut attrs_a = a.unwrap_or(Attributes::default());
     let attrs_b = b.unwrap_or(Attributes::default());
 
-    // log::debug!(
-    //     "before compose_attributes: a: {:?}, b: {:?}",
-    //     attrs_a,
-    //     attrs_b
-    // );
+    log::trace!(
+        "before compose_attributes: a: {:?}, b: {:?}",
+        attrs_a,
+        attrs_b
+    );
     attrs_a.extend(attrs_b);
+    log::trace!("after compose_attributes: a: {:?}", attrs_a);
     if !keep_empty {
-        attrs_a.remove_empty_value()
+        attrs_a.remove_empty()
     }
-    // log::debug!("after compose_attributes: a: {:?}", attrs_a);
 
-    return if attrs_a.is_empty() {
-        None
-    } else {
-        Some(attrs_a)
-    };
+    Some(attrs_a)
 }
 
 pub fn transform_attributes(

@@ -76,7 +76,14 @@ impl OpBuilder {
     pub fn insert(s: &str) -> OpBuilder { OpBuilder::new(Operation::Insert(s.into())) }
 
     pub fn attributes(mut self, attrs: Option<Attributes>) -> OpBuilder {
-        self.attrs = attrs;
+        match attrs {
+            None => self.attrs = attrs,
+            Some(attrs) => match attrs.is_empty() {
+                true => self.attrs = None,
+                false => self.attrs = Some(attrs),
+            },
+        }
+
         self
     }
 
@@ -95,7 +102,7 @@ impl OpBuilder {
 pub struct Retain {
     #[serde(rename(serialize = "retain", deserialize = "retain"))]
     pub num: u64,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "is_empty")]
     pub attributes: Option<Attributes>,
 }
 
@@ -123,7 +130,7 @@ pub struct Insert {
     #[serde(rename(serialize = "insert", deserialize = "insert"))]
     pub s: String,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "is_empty")]
     pub attributes: Option<Attributes>,
 }
 
@@ -150,5 +157,12 @@ impl std::convert::From<&str> for Insert {
             s: s.to_owned(),
             attributes: None,
         }
+    }
+}
+
+fn is_empty(attributes: &Option<Attributes>) -> bool {
+    match attributes {
+        None => true,
+        Some(attributes) => attributes.is_empty(),
     }
 }

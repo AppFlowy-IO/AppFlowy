@@ -54,6 +54,30 @@ fn delta_add_bold_attr3() {
 }
 
 #[test]
+fn delta_add_bold_italic() {
+    let ops = vec![
+        Insert(0, "1234"),
+        Bold(0, Interval::new(0, 4), true),
+        Italic(0, Interval::new(0, 4), true),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"1234","attributes":{"italic":"true","bold":"true"}}]"#,
+        ),
+        Insert(0, "5678"),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"12345678","attributes":{"italic":"true","bold":"true"}}]"#,
+        ),
+        Italic(0, Interval::new(4, 6), false),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"1234","attributes":{"italic":"true","bold":"true"}},{"insert":"56"},{"insert":"78","attributes":{"bold":"true","italic":"true"}}]"#,
+        ),
+    ];
+    MergeTest::new().run_script(ops);
+}
+
+#[test]
 fn delta_add_bold_attr_and_invert() {
     let ops = vec![
         Insert(0, "1234"),
