@@ -123,7 +123,7 @@ class FlowyOverlayState extends State<FlowyOverlay> {
   List<Tuple3<Widget, String, FlowyOverlayDelegate?>> _overlayList = [];
 
   /// Insert a overlay widget which frame is set by the widget, not the component.
-  /// Be sure to specify the offset and size using the `Postition` widget.
+  /// Be sure to specify the offset and size using a anchorable widget (like `Postition`, `CompositedTransformFollower`)
   void insertCustom({
     required Widget widget,
     required String identifier,
