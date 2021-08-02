@@ -20,8 +20,8 @@ class OverlayItem extends DemoItem {
   }
 }
 
-class OverlayDemoAnchorDirection extends ChangeNotifier {
-  OverlayDemoAnchorDirection(this._anchorDirection);
+class OverlayDemoConfiguration extends ChangeNotifier {
+  OverlayDemoConfiguration(this._anchorDirection, this._overlapBehaviour);
 
   AnchorDirection _anchorDirection;
 
@@ -29,6 +29,15 @@ class OverlayDemoAnchorDirection extends ChangeNotifier {
 
   set anchorDirection(AnchorDirection value) {
     _anchorDirection = value;
+    notifyListeners();
+  }
+
+  OverlapBehaviour _overlapBehaviour;
+
+  OverlapBehaviour get overlapBehaviour => _overlapBehaviour;
+
+  set overlapBehaviour(OverlapBehaviour value) {
+    _overlapBehaviour = value;
     notifyListeners();
   }
 }
@@ -43,7 +52,7 @@ class OverlayScreen extends StatelessWidget {
           title: const Text('Overlay Demo'),
         ),
         body: ChangeNotifierProvider(
-          create: (context) => OverlayDemoAnchorDirection(AnchorDirection.rightWithTopAligned),
+          create: (context) => OverlayDemoConfiguration(AnchorDirection.rightWithTopAligned, OverlapBehaviour.stretch),
           child: Builder(builder: (providerContext) {
             return Center(
               child: ConstrainedBox(
@@ -80,14 +89,26 @@ class OverlayScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 24.0),
                     DropdownButton<AnchorDirection>(
-                      value: providerContext.watch<OverlayDemoAnchorDirection>().anchorDirection,
+                      value: providerContext.watch<OverlayDemoConfiguration>().anchorDirection,
                       onChanged: (AnchorDirection? newValue) {
                         if (newValue != null) {
-                          providerContext.read<OverlayDemoAnchorDirection>().anchorDirection = newValue;
+                          providerContext.read<OverlayDemoConfiguration>().anchorDirection = newValue;
                         }
                       },
                       items: AnchorDirection.values.map((AnchorDirection classType) {
                         return DropdownMenuItem<AnchorDirection>(value: classType, child: Text(classType.toString()));
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 24.0),
+                    DropdownButton<OverlapBehaviour>(
+                      value: providerContext.watch<OverlayDemoConfiguration>().overlapBehaviour,
+                      onChanged: (OverlapBehaviour? newValue) {
+                        if (newValue != null) {
+                          providerContext.read<OverlayDemoConfiguration>().overlapBehaviour = newValue;
+                        }
+                      },
+                      items: OverlapBehaviour.values.map((OverlapBehaviour classType) {
+                        return DropdownMenuItem<OverlapBehaviour>(value: classType, child: Text(classType.toString()));
                       }).toList(),
                     ),
                     const SizedBox(height: 24.0),
@@ -98,7 +119,7 @@ class OverlayScreen extends StatelessWidget {
                           onPressed: () {
                             FlowyOverlay.of(context).insertWithAnchor(
                               widget: SizedBox(
-                                width: 100,
+                                width: 300,
                                 height: 50,
                                 child: Card(
                                   color: Colors.grey[200],
@@ -112,7 +133,8 @@ class OverlayScreen extends StatelessWidget {
                               identifier: 'overlay_anchored_card',
                               delegate: null,
                               anchorContext: buttonContext,
-                              anchorDirection: providerContext.read<OverlayDemoAnchorDirection>().anchorDirection,
+                              anchorDirection: providerContext.read<OverlayDemoConfiguration>().anchorDirection,
+                              overlapBehaviour: providerContext.read<OverlayDemoConfiguration>().overlapBehaviour,
                             );
                           },
                           child: const Text('Show Anchored Overlay'),
@@ -140,7 +162,8 @@ class OverlayScreen extends StatelessWidget {
                           delegate: null,
                           anchorPosition: Offset(0, windowSize.height - 200),
                           anchorSize: Size.zero,
-                          anchorDirection: providerContext.read<OverlayDemoAnchorDirection>().anchorDirection,
+                          anchorDirection: providerContext.read<OverlayDemoConfiguration>().anchorDirection,
+                          overlapBehaviour: providerContext.read<OverlayDemoConfiguration>().overlapBehaviour,
                         );
                       },
                       child: const Text('Show Positioned Overlay'),

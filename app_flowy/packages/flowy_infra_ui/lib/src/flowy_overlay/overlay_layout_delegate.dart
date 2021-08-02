@@ -29,8 +29,93 @@ class OverlayLayoutDelegate extends SingleChildLayoutDelegate {
       case OverlapBehaviour.none:
         return constraints.loosen();
       case OverlapBehaviour.stretch:
-        // TODO: junlin - resize when overlapBehaviour == .stretch
-        return constraints.loosen();
+        BoxConstraints childConstraints;
+        switch (anchorDirection) {
+          case AnchorDirection.topLeft:
+            childConstraints = BoxConstraints.loose(Size(
+              anchorRect.left,
+              anchorRect.top,
+            ));
+            break;
+          case AnchorDirection.topRight:
+            childConstraints = BoxConstraints.loose(Size(
+              constraints.maxWidth - anchorRect.right,
+              anchorRect.top,
+            ));
+            break;
+          case AnchorDirection.bottomLeft:
+            childConstraints = BoxConstraints.loose(Size(
+              anchorRect.left,
+              constraints.maxHeight - anchorRect.bottom,
+            ));
+            break;
+          case AnchorDirection.bottomRight:
+            childConstraints = BoxConstraints.loose(Size(
+              constraints.maxWidth - anchorRect.right,
+              constraints.maxHeight - anchorRect.bottom,
+            ));
+            break;
+          case AnchorDirection.rightWithTopAligned:
+            childConstraints = BoxConstraints.loose(Size(
+              constraints.maxWidth - anchorRect.right,
+              constraints.maxHeight - anchorRect.top,
+            ));
+            break;
+          case AnchorDirection.rightWithCenterAligned:
+            childConstraints = BoxConstraints.loose(Size(
+              constraints.maxWidth - anchorRect.right,
+              constraints.maxHeight,
+            ));
+            break;
+          case AnchorDirection.rightWithBottomAligned:
+            childConstraints = BoxConstraints.loose(Size(
+              constraints.maxWidth - anchorRect.right,
+              anchorRect.bottom,
+            ));
+            break;
+          case AnchorDirection.bottomWithLeftAligned:
+            childConstraints = BoxConstraints.loose(Size(
+              anchorRect.left,
+              constraints.maxHeight - anchorRect.bottom,
+            ));
+            break;
+          case AnchorDirection.bottomWithCenterAligned:
+            childConstraints = BoxConstraints.loose(Size(
+              constraints.maxWidth,
+              constraints.maxHeight - anchorRect.bottom,
+            ));
+            break;
+          case AnchorDirection.bottomWithRightAligned:
+            childConstraints = BoxConstraints.loose(Size(
+              anchorRect.right,
+              constraints.maxHeight - anchorRect.bottom,
+            ));
+            break;
+          case AnchorDirection.leftWithTopAligned:
+            childConstraints = BoxConstraints.loose(Size(
+              anchorRect.left,
+              constraints.maxHeight - anchorRect.top,
+            ));
+            break;
+          case AnchorDirection.leftWithCenterAligned:
+            childConstraints = BoxConstraints.loose(Size(
+              anchorRect.left,
+              constraints.maxHeight,
+            ));
+            break;
+          case AnchorDirection.leftWithBottomAligned:
+            childConstraints = BoxConstraints.loose(Size(
+              anchorRect.left,
+              anchorRect.bottom,
+            ));
+            break;
+          case AnchorDirection.custom:
+            childConstraints = constraints.loosen();
+            break;
+          default:
+            throw UnimplementedError();
+        }
+        return childConstraints;
     }
   }
 

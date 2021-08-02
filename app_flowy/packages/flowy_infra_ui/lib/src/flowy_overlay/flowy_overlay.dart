@@ -28,8 +28,7 @@ enum AnchorDirection {
   custom,
 }
 
-// TODO: junlin - support overlap behaviour
-/// [Unsupported] The behaviour of overlay when overlap with anchor widget
+/// The behaviour of overlay when overlap with anchor widget
 enum OverlapBehaviour {
   /// Maintain overlay size, which may cover the anchor widget.
   none,
@@ -144,6 +143,7 @@ class FlowyOverlayState extends State<FlowyOverlay> {
     required Size anchorSize,
     AnchorDirection? anchorDirection,
     FlowyOverlayDelegate? delegate,
+    OverlapBehaviour? overlapBehaviour,
   }) {
     _showOverlay(
       widget: widget,
@@ -153,6 +153,7 @@ class FlowyOverlayState extends State<FlowyOverlay> {
       anchorPosition: anchorPosition,
       anchorSize: anchorSize,
       anchorDirection: anchorDirection,
+      overlapBehaviour: overlapBehaviour,
     );
   }
 
@@ -162,6 +163,7 @@ class FlowyOverlayState extends State<FlowyOverlay> {
     required BuildContext anchorContext,
     AnchorDirection? anchorDirection,
     FlowyOverlayDelegate? delegate,
+    OverlapBehaviour? overlapBehaviour,
   }) {
     _showOverlay(
       widget: widget,
@@ -170,6 +172,7 @@ class FlowyOverlayState extends State<FlowyOverlay> {
       delegate: delegate,
       anchorContext: anchorContext,
       anchorDirection: anchorDirection,
+      overlapBehaviour: overlapBehaviour,
     );
   }
 
