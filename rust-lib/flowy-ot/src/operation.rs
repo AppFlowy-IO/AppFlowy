@@ -29,7 +29,7 @@ impl Operation {
         }
     }
 
-    pub fn attributes(&self) -> Option<Attributes> {
+    pub fn get_attributes(&self) -> Option<Attributes> {
         match self {
             Operation::Delete(_) => None,
             Operation::Retain(retain) => retain.attributes.clone(),
@@ -49,12 +49,12 @@ impl Operation {
         }
     }
 
-    pub fn is_plain(&self) -> bool { self.attributes().is_none() }
+    pub fn is_plain(&self) -> bool { self.get_attributes().is_none() }
 
     pub fn length(&self) -> u64 {
         match self {
             Operation::Delete(n) => *n,
-            Operation::Retain(r) => r.n,
+            Operation::Retain(r) => r.num,
             Operation::Insert(i) => i.num_chars(),
         }
     }
@@ -94,15 +94,15 @@ impl OpBuilder {
 #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Retain {
     #[serde(rename(serialize = "retain", deserialize = "retain"))]
-    pub n: u64,
+    pub num: u64,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub(crate) attributes: Option<Attributes>,
+    pub attributes: Option<Attributes>,
 }
 
 impl std::convert::From<u64> for Retain {
     fn from(n: u64) -> Self {
         Retain {
-            n,
+            num: n,
             attributes: None,
         }
     }
@@ -111,11 +111,11 @@ impl std::convert::From<u64> for Retain {
 impl Deref for Retain {
     type Target = u64;
 
-    fn deref(&self) -> &Self::Target { &self.n }
+    fn deref(&self) -> &Self::Target { &self.num }
 }
 
 impl DerefMut for Retain {
-    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.n }
+    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.num }
 }
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]

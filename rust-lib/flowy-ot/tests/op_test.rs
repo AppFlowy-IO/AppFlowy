@@ -1,5 +1,6 @@
 pub mod helper;
 
+use crate::helper::MergeTestOp::*;
 use bytecount::num_chars;
 use flowy_ot::{
     attributes::*,
@@ -7,6 +8,7 @@ use flowy_ot::{
     operation::{OpBuilder, Operation},
 };
 use helper::*;
+use std::str::FromStr;
 
 #[test]
 fn lengths() {
@@ -91,6 +93,7 @@ fn invert() {
         assert_eq!(delta_b.apply(&delta_a.apply(&s).unwrap()).unwrap(), s);
     }
 }
+
 #[test]
 fn empty_ops() {
     let mut delta = Delta::default();
@@ -184,4 +187,41 @@ fn transform() {
         assert_eq!(ab_prime, ba_prime);
         assert_eq!(after_ab_prime, after_ba_prime);
     }
+}
+
+#[test]
+fn transform2() {
+    let ops = vec![
+        Insert(0, "123"),
+        Insert(1, "456"),
+        Transform(0, 1),
+        AssertStr(0, "123456"),
+        AssertStr(1, "123456"),
+        AssertOpsJson(0, r#"[{"insert":"123456"}]"#),
+        AssertOpsJson(1, r#"[{"insert":"123456"}]"#),
+    ];
+    MergeTest::new().run_script(ops);
+}
+
+#[test]
+fn delta_transform_test() {
+    let mut a = Delta::default();
+    let mut a_s = String::new();
+    a.insert("123", Some(AttrsBuilder::new().bold().build()));
+    a_s = a.apply(&a_s).unwrap();
+
+    let mut b = Delta::default();
+    let mut b_s = String::new();
+    b.insert("456", None);
+    b_s = a.apply(&b_s).unwrap();
+
+    let (a_prime, b_prime) = a.transform(&b).unwrap();
+    assert_eq!(
+        r#"[{"insert":"123","attributes":{"bold":"true"}},{"retain":3}]"#,
+        serde_json::to_string(&a_prime).unwrap()
+    );
+    assert_eq!(
+        r#"[{"retain":3,"attributes":{"bold":"true"}},{"insert":"456"}]"#,
+        serde_json::to_string(&b_prime).unwrap()
+    );
 }

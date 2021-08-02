@@ -15,9 +15,11 @@ impl Attributes {
         }
     }
 
-    pub fn remove_empty_value(&mut self) { self.inner.retain(|_, v| v.is_empty()); }
+    pub fn remove_empty_value(&mut self) { self.inner.retain(|_, v| v.is_empty() == false); }
 
     pub fn extend(&mut self, other: Attributes) { self.inner.extend(other.inner); }
+
+    pub fn is_empty(&self) -> bool { self.inner.is_empty() }
 }
 
 impl std::convert::From<HashMap<String, String>> for Attributes {
@@ -36,11 +38,11 @@ impl std::ops::DerefMut for Attributes {
     fn deref_mut(&mut self) -> &mut Self::Target { &mut self.inner }
 }
 
-pub struct AttributesBuilder {
+pub struct AttrsBuilder {
     inner: Attributes,
 }
 
-impl AttributesBuilder {
+impl AttrsBuilder {
     pub fn new() -> Self {
         Self {
             inner: Attributes::default(),
@@ -49,6 +51,11 @@ impl AttributesBuilder {
 
     pub fn bold(mut self) -> Self {
         self.inner.insert("bold".to_owned(), "true".to_owned());
+        self
+    }
+
+    pub fn un_bold(mut self) -> Self {
+        self.inner.insert("bold".to_owned(), "".to_owned());
         self
     }
 
@@ -68,7 +75,7 @@ impl AttributesBuilder {
 pub fn attributes_from(operation: &Option<Operation>) -> Option<Attributes> {
     match operation {
         None => None,
-        Some(operation) => operation.attributes(),
+        Some(operation) => operation.get_attributes(),
     }
 }
 
@@ -79,22 +86,19 @@ pub fn compose_attributes(
 ) -> Option<Attributes> {
     let a = attributes_from(op1);
     let b = attributes_from(op2);
-
-    if a.is_none() {
-        return b;
-    }
-
-    if b.is_none() {
-        return None;
-    }
-
     let mut attrs_a = a.unwrap_or(Attributes::default());
     let attrs_b = b.unwrap_or(Attributes::default());
-    attrs_a.extend(attrs_b);
 
+    // log::debug!(
+    //     "before compose_attributes: a: {:?}, b: {:?}",
+    //     attrs_a,
+    //     attrs_b
+    // );
+    attrs_a.extend(attrs_b);
     if !keep_empty {
         attrs_a.remove_empty_value()
     }
+    // log::debug!("after compose_attributes: a: {:?}", attrs_a);
 
     return if attrs_a.is_empty() {
         None
