@@ -77,7 +77,23 @@ impl Interval {
         }
     }
 
+    pub fn union(&self, other: Interval) -> Interval {
+        if self.is_empty() {
+            return other;
+        }
+        if other.is_empty() {
+            return *self;
+        }
+        let start = min(self.start, other.start);
+        let end = max(self.end, other.end);
+        Interval { start, end }
+    }
+
     pub fn size(&self) -> usize { self.end - self.start }
+}
+
+impl std::default::Default for Interval {
+    fn default() -> Self { Interval::new(0, 0) }
 }
 
 impl fmt::Display for Interval {

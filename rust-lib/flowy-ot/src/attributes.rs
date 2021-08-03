@@ -1,5 +1,5 @@
 use crate::operation::Operation;
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt};
 
 const PLAIN: &'static str = "";
 fn is_plain(s: &str) -> bool { s == PLAIN }
@@ -15,7 +15,7 @@ pub enum Attributes {
 }
 
 impl Attributes {
-    pub fn merge(&self, other: Option<Attributes>) -> Attributes {
+    pub fn extend(&self, other: Option<Attributes>) -> Attributes {
         let other = other.unwrap_or(Attributes::Empty);
         match (self, &other) {
             (Attributes::Custom(data), Attributes::Custom(o_data)) => {
@@ -40,6 +40,23 @@ impl Attributes {
 
 impl std::default::Default for Attributes {
     fn default() -> Self { Attributes::Empty }
+}
+
+impl fmt::Display for Attributes {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Attributes::Follow => {
+                f.write_str("")?;
+            },
+            Attributes::Custom(data) => {
+                f.write_fmt(format_args!("{:?}", data.inner))?;
+            },
+            Attributes::Empty => {
+                f.write_str("")?;
+            },
+        }
+        Ok(())
+    }
 }
 
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize, serde::Deserialize)]
@@ -132,9 +149,9 @@ pub fn compose_attributes(left: &Option<Operation>, right: &Option<Operation>) -
     let mut attr = match (&attr_l, &attr_r) {
         (_, Some(Attributes::Custom(_))) => match &attr_l {
             None => attr_r.unwrap(),
-            Some(_) => attr_l.unwrap().merge(attr_r.clone()),
+            Some(_) => attr_l.unwrap().extend(attr_r.clone()),
         },
-        (Some(Attributes::Custom(_)), _) => attr_l.unwrap().merge(attr_r),
+        (Some(Attributes::Custom(_)), _) => attr_l.unwrap().extend(attr_r),
         _ => Attributes::Empty,
     };
 

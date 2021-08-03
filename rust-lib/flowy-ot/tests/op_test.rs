@@ -2,7 +2,7 @@ pub mod helper;
 
 use crate::helper::MergeTestOp::*;
 use bytecount::num_chars;
-use flowy_ot::{attributes::*, delta::Delta, operation::OpBuilder};
+use flowy_ot::{attributes::*, delta::Delta, interval::Interval, operation::OpBuilder};
 use helper::*;
 
 #[test]
@@ -188,8 +188,8 @@ fn transform() {
 #[test]
 fn transform2() {
     let ops = vec![
-        Insert(0, "123"),
-        Insert(1, "456"),
+        Insert(0, "123", 0),
+        Insert(1, "456", 0),
         Transform(0, 1),
         AssertStr(0, "123456"),
         AssertStr(1, "123456"),

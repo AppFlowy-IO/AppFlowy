@@ -1,6 +1,7 @@
 use crate::attributes::Attributes;
 use bytecount::num_chars;
 use std::{
+    fmt,
     ops::{Deref, DerefMut},
     str::Chars,
 };
@@ -35,6 +36,18 @@ impl Operation {
         }
     }
 
+    pub fn extend_attributes(&mut self, attributes: Attributes) {
+        match self {
+            Operation::Delete(_) => {},
+            Operation::Retain(retain) => {
+                retain.attributes.extend(Some(attributes));
+            },
+            Operation::Insert(insert) => {
+                insert.attributes.extend(Some(attributes));
+            },
+        }
+    }
+
     pub fn set_attributes(&mut self, attributes: Attributes) {
         match self {
             Operation::Delete(_) => {
@@ -65,6 +78,29 @@ impl Operation {
         }
     }
     pub fn is_empty(&self) -> bool { self.length() == 0 }
+}
+
+impl fmt::Display for Operation {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Operation::Delete(n) => {
+                f.write_fmt(format_args!("delete: {}", n))?;
+            },
+            Operation::Retain(r) => {
+                f.write_fmt(format_args!(
+                    "retain: {}, attributes: {}",
+                    r.num, r.attributes
+                ))?;
+            },
+            Operation::Insert(i) => {
+                f.write_fmt(format_args!(
+                    "insert: {}, attributes: {}",
+                    i.s, i.attributes
+                ))?;
+            },
+        }
+        Ok(())
+    }
 }
 
 pub struct OpBuilder {

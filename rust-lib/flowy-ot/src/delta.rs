@@ -1,6 +1,6 @@
 use crate::{attributes::*, errors::OTError, operation::*};
 use bytecount::num_chars;
-use std::{cmp::Ordering, iter::FromIterator, str::FromStr};
+use std::{cmp::Ordering, fmt, iter::FromIterator, str::FromStr};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Delta {
@@ -31,6 +31,16 @@ impl FromStr for Delta {
 
 impl<T: AsRef<str>> From<T> for Delta {
     fn from(s: T) -> Delta { Delta::from_str(s.as_ref()).unwrap() }
+}
+
+impl fmt::Display for Delta {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&serde_json::to_string(self).unwrap_or("".to_owned()))?;
+        // for op in &self.ops {
+        //     f.write_fmt(format_args!("{}", op));
+        // }
+        Ok(())
+    }
 }
 
 impl FromIterator<Operation> for Delta {
