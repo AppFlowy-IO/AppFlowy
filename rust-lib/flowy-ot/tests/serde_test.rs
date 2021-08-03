@@ -1,5 +1,5 @@
 use flowy_ot::{
-    attributes::{Attributes, AttrsBuilder},
+    attributes::AttrsBuilder,
     delta::Delta,
     operation::{OpBuilder, Operation, Retain},
 };
@@ -7,9 +7,7 @@ use flowy_ot::{
 #[test]
 fn operation_insert_serialize_test() {
     let attributes = AttrsBuilder::new().bold(true).italic(true).build();
-    let operation = OpBuilder::insert("123")
-        .attributes(Some(attributes))
-        .build();
+    let operation = OpBuilder::insert("123").attributes(attributes).build();
     let json = serde_json::to_string(&operation).unwrap();
     eprintln!("{}", json);
 
@@ -39,9 +37,7 @@ fn delta_serialize_test() {
     let mut delta = Delta::default();
 
     let attributes = AttrsBuilder::new().bold(true).italic(true).build();
-    let retain = OpBuilder::insert("123")
-        .attributes(Some(attributes))
-        .build();
+    let retain = OpBuilder::insert("123").attributes(attributes).build();
 
     delta.add(retain);
     delta.add(Operation::Retain(5.into()));

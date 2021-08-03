@@ -1,18 +1,13 @@
 pub mod helper;
 
-use crate::{
-    helper::{MergeTestOp::*, *},
-    MergeTestOp::*,
-};
+use crate::helper::{MergeTestOp::*, *};
 use flowy_ot::{
-    attributes::{Attributes, AttrsBuilder},
-    delta::Delta,
     interval::Interval,
     operation::{OpBuilder, Operation, Retain},
 };
 
 #[test]
-fn delta_add_bold_attr1() {
+fn delta_add_bold_and_invert_all() {
     let ops = vec![
         Insert(0, "123"),
         Bold(0, Interval::new(0, 3), true),
@@ -24,7 +19,7 @@ fn delta_add_bold_attr1() {
 }
 
 #[test]
-fn delta_add_bold_attr2() {
+fn delta_add_bold_and_invert_partial_suffix() {
     let ops = vec![
         Insert(0, "1234"),
         Bold(0, Interval::new(0, 4), true),
@@ -39,7 +34,24 @@ fn delta_add_bold_attr2() {
 }
 
 #[test]
-fn delta_add_bold_attr3() {
+fn delta_add_bold_and_invert_partial_suffix2() {
+    let ops = vec![
+        Insert(0, "1234"),
+        Bold(0, Interval::new(0, 4), true),
+        AssertOpsJson(0, r#"[{"insert":"1234","attributes":{"bold":"true"}}]"#),
+        Bold(0, Interval::new(2, 4), false),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34"}]"#,
+        ),
+        Bold(0, Interval::new(2, 4), true),
+        AssertOpsJson(0, r#"[{"insert":"1234","attributes":{"bold":"true"}}]"#),
+    ];
+    MergeTest::new().run_script(ops);
+}
+
+#[test]
+fn delta_add_bold_and_invert_partial_prefix() {
     let ops = vec![
         Insert(0, "1234"),
         Bold(0, Interval::new(0, 4), true),
@@ -50,6 +62,31 @@ fn delta_add_bold_attr3() {
             r#"[{"insert":"12"},{"insert":"34","attributes":{"bold":"true"}}]"#,
         ),
     ];
+    MergeTest::new().run_script(ops);
+}
+
+#[test]
+fn delta_add_bold_consecutive() {
+    let ops = vec![
+        Insert(0, "1234"),
+        Bold(0, Interval::new(0, 1), true),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"1","attributes":{"bold":"true"}},{"insert":"234"}]"#,
+        ),
+        Bold(0, Interval::new(1, 2), true),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34"}]"#,
+        ),
+    ];
+    MergeTest::new().run_script(ops);
+}
+
+#[test]
+#[should_panic]
+fn delta_add_bold_empty_str() {
+    let ops = vec![Bold(0, Interval::new(0, 4), true)];
     MergeTest::new().run_script(ops);
 }
 
@@ -73,23 +110,6 @@ fn delta_add_bold_italic() {
             0,
             r#"[{"insert":"1234","attributes":{"italic":"true","bold":"true"}},{"insert":"56"},{"insert":"78","attributes":{"bold":"true","italic":"true"}}]"#,
         ),
-    ];
-    MergeTest::new().run_script(ops);
-}
-
-#[test]
-fn delta_add_bold_attr_and_invert() {
-    let ops = vec![
-        Insert(0, "1234"),
-        Bold(0, Interval::new(0, 4), true),
-        AssertOpsJson(0, r#"[{"insert":"1234","attributes":{"bold":"true"}}]"#),
-        Bold(0, Interval::new(2, 4), false),
-        AssertOpsJson(
-            0,
-            r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34"}]"#,
-        ),
-        Bold(0, Interval::new(2, 4), true),
-        AssertOpsJson(0, r#"[{"insert":"1234","attributes":{"bold":"true"}}]"#),
     ];
     MergeTest::new().run_script(ops);
 }
@@ -130,6 +150,56 @@ fn delta_compose_attr_delta_with_attr_delta_test() {
         Transform(0, 1),
         AssertOpsJson(0, r#"[{"insert":"1234567","attributes":{"bold":"true"}}]"#),
         AssertOpsJson(1, r#"[{"insert":"1234567","attributes":{"bold":"true"}}]"#),
+    ];
+
+    MergeTest::new().run_script(ops);
+}
+
+#[test]
+fn delta_delete_heading() {
+    let ops = vec![
+        InsertBold(0, "123456", Interval::new(0, 6)),
+        AssertOpsJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
+        Delete(0, Interval::new(0, 2)),
+        AssertOpsJson(0, r#"[{"insert":"3456","attributes":{"bold":"true"}}]"#),
+    ];
+
+    MergeTest::new().run_script(ops);
+}
+
+#[test]
+fn delta_delete_trailing() {
+    let ops = vec![
+        InsertBold(0, "123456", Interval::new(0, 6)),
+        AssertOpsJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
+        Delete(0, Interval::new(5, 6)),
+        AssertOpsJson(0, r#"[{"insert":"12345","attributes":{"bold":"true"}}]"#),
+    ];
+
+    MergeTest::new().run_script(ops);
+}
+
+#[test]
+fn delta_delete_middle() {
+    let ops = vec![
+        InsertBold(0, "123456", Interval::new(0, 6)),
+        AssertOpsJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
+        Delete(0, Interval::new(0, 2)),
+        AssertOpsJson(0, r#"[{"insert":"3456","attributes":{"bold":"true"}}]"#),
+        Delete(0, Interval::new(2, 4)),
+        AssertOpsJson(0, r#"[{"insert":"34","attributes":{"bold":"true"}}]"#),
+    ];
+
+    MergeTest::new().run_script(ops);
+}
+
+#[test]
+fn delta_delete_all() {
+    let ops = vec![
+        InsertBold(0, "123456", Interval::new(0, 6)),
+        AssertOpsJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
+        Delete(0, Interval::new(0, 6)),
+        AssertOpsJson(0, r#"[]"#),
     ];
 
     MergeTest::new().run_script(ops);

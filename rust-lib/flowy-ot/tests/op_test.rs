@@ -2,26 +2,21 @@ pub mod helper;
 
 use crate::helper::MergeTestOp::*;
 use bytecount::num_chars;
-use flowy_ot::{
-    attributes::*,
-    delta::Delta,
-    operation::{OpBuilder, Operation},
-};
+use flowy_ot::{attributes::*, delta::Delta, operation::OpBuilder};
 use helper::*;
-use std::str::FromStr;
 
 #[test]
 fn lengths() {
     let mut delta = Delta::default();
     assert_eq!(delta.base_len, 0);
     assert_eq!(delta.target_len, 0);
-    delta.retain(5, None);
+    delta.retain(5, Attributes::Empty);
     assert_eq!(delta.base_len, 5);
     assert_eq!(delta.target_len, 5);
-    delta.insert("abc", None);
+    delta.insert("abc", Attributes::Empty);
     assert_eq!(delta.base_len, 5);
     assert_eq!(delta.target_len, 8);
-    delta.retain(2, None);
+    delta.retain(2, Attributes::Empty);
     assert_eq!(delta.base_len, 7);
     assert_eq!(delta.target_len, 10);
     delta.delete(2);
@@ -31,10 +26,10 @@ fn lengths() {
 #[test]
 fn sequence() {
     let mut delta = Delta::default();
-    delta.retain(5, None);
-    delta.retain(0, None);
-    delta.insert("appflowy", None);
-    delta.insert("", None);
+    delta.retain(5, Attributes::Empty);
+    delta.retain(0, Attributes::Empty);
+    delta.insert("appflowy", Attributes::Empty);
+    delta.insert("", Attributes::Empty);
     delta.delete(3);
     delta.delete(0);
     assert_eq!(delta.ops.len(), 3);
@@ -55,11 +50,11 @@ fn apply_1000() {
 fn apply() {
     let s = "hello world,".to_owned();
     let mut delta_a = Delta::default();
-    delta_a.insert(&s, None);
+    delta_a.insert(&s, Attributes::Empty);
 
     let mut delta_b = Delta::default();
-    delta_b.retain(s.len() as u64, None);
-    delta_b.insert("appflowy", None);
+    delta_b.retain(s.len() as u64, Attributes::Empty);
+    delta_b.insert("appflowy", Attributes::Empty);
 
     let after_a = delta_a.apply("").unwrap();
     let after_b = delta_b.apply(&after_a).unwrap();
@@ -69,15 +64,15 @@ fn apply() {
 #[test]
 fn base_len_test() {
     let mut delta_a = Delta::default();
-    delta_a.insert("a", None);
-    delta_a.insert("b", None);
-    delta_a.insert("c", None);
+    delta_a.insert("a", Attributes::Empty);
+    delta_a.insert("b", Attributes::Empty);
+    delta_a.insert("c", Attributes::Empty);
 
     let s = "hello world,".to_owned();
     delta_a.delete(s.len() as u64);
     let after_a = delta_a.apply(&s).unwrap();
 
-    delta_a.insert("d", None);
+    delta_a.insert("d", Attributes::Empty);
     assert_eq!("abc", &after_a);
 }
 
@@ -97,8 +92,8 @@ fn invert() {
 #[test]
 fn empty_ops() {
     let mut delta = Delta::default();
-    delta.retain(0, None);
-    delta.insert("", None);
+    delta.retain(0, Attributes::Empty);
+    delta.insert("", Attributes::Empty);
     delta.delete(0);
     assert_eq!(delta.ops.len(), 0);
 }
@@ -106,33 +101,33 @@ fn empty_ops() {
 fn eq() {
     let mut delta_a = Delta::default();
     delta_a.delete(1);
-    delta_a.insert("lo", None);
-    delta_a.retain(2, None);
-    delta_a.retain(3, None);
+    delta_a.insert("lo", Attributes::Empty);
+    delta_a.retain(2, Attributes::Empty);
+    delta_a.retain(3, Attributes::Empty);
     let mut delta_b = Delta::default();
     delta_b.delete(1);
-    delta_b.insert("l", None);
-    delta_b.insert("o", None);
-    delta_b.retain(5, None);
+    delta_b.insert("l", Attributes::Empty);
+    delta_b.insert("o", Attributes::Empty);
+    delta_b.retain(5, Attributes::Empty);
     assert_eq!(delta_a, delta_b);
     delta_a.delete(1);
-    delta_b.retain(1, None);
+    delta_b.retain(1, Attributes::Empty);
     assert_ne!(delta_a, delta_b);
 }
 #[test]
 fn ops_merging() {
     let mut delta = Delta::default();
     assert_eq!(delta.ops.len(), 0);
-    delta.retain(2, None);
+    delta.retain(2, Attributes::Empty);
     assert_eq!(delta.ops.len(), 1);
     assert_eq!(delta.ops.last(), Some(&OpBuilder::retain(2).build()));
-    delta.retain(3, None);
+    delta.retain(3, Attributes::Empty);
     assert_eq!(delta.ops.len(), 1);
     assert_eq!(delta.ops.last(), Some(&OpBuilder::retain(5).build()));
-    delta.insert("abc", None);
+    delta.insert("abc", Attributes::Empty);
     assert_eq!(delta.ops.len(), 2);
     assert_eq!(delta.ops.last(), Some(&OpBuilder::insert("abc").build()));
-    delta.insert("xyz", None);
+    delta.insert("xyz", Attributes::Empty);
     assert_eq!(delta.ops.len(), 2);
     assert_eq!(delta.ops.last(), Some(&OpBuilder::insert("abcxyz").build()));
     delta.delete(1);
@@ -146,11 +141,11 @@ fn ops_merging() {
 fn is_noop() {
     let mut delta = Delta::default();
     assert!(delta.is_noop());
-    delta.retain(5, None);
+    delta.retain(5, Attributes::Empty);
     assert!(delta.is_noop());
-    delta.retain(3, None);
+    delta.retain(3, Attributes::Empty);
     assert!(delta.is_noop());
-    delta.insert("lorem", None);
+    delta.insert("lorem", Attributes::Empty);
     assert!(!delta.is_noop());
 }
 #[test]
@@ -184,9 +179,9 @@ fn transform() {
         let ba_prime = b.compose(&a_prime).unwrap();
         assert_eq!(ab_prime, ba_prime);
 
-        // let after_ab_prime = ab_prime.apply(&s).unwrap();
-        // let after_ba_prime = ba_prime.apply(&s).unwrap();
-        // assert_eq!(after_ab_prime, after_ba_prime);
+        let after_ab_prime = ab_prime.apply(&s).unwrap();
+        let after_ba_prime = ba_prime.apply(&s).unwrap();
+        assert_eq!(after_ab_prime, after_ba_prime);
     }
 }
 
@@ -208,13 +203,13 @@ fn transform2() {
 fn delta_transform_test() {
     let mut a = Delta::default();
     let mut a_s = String::new();
-    a.insert("123", Some(AttrsBuilder::new().bold(true).build()));
+    a.insert("123", AttrsBuilder::new().bold(true).build());
     a_s = a.apply(&a_s).unwrap();
     assert_eq!(&a_s, "123");
 
     let mut b = Delta::default();
     let mut b_s = String::new();
-    b.insert("456", None);
+    b.insert("456", Attributes::Empty);
     b_s = b.apply(&b_s).unwrap();
     assert_eq!(&b_s, "456");
 

@@ -1,58 +1,97 @@
 use crate::operation::Operation;
-use std::collections::{hash_map::RandomState, HashMap};
+use std::collections::HashMap;
+
+const PLAIN: &'static str = "";
+fn is_plain(s: &str) -> bool { s == PLAIN }
+
+#[derive(Debug, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(untagged)]
+pub enum Attributes {
+    #[serde(skip)]
+    Follow,
+    Custom(AttributesData),
+    #[serde(skip)]
+    Empty,
+}
+
+impl Attributes {
+    pub fn merge(&self, other: Option<Attributes>) -> Attributes {
+        let other = other.unwrap_or(Attributes::Empty);
+        match (self, &other) {
+            (Attributes::Custom(data), Attributes::Custom(o_data)) => {
+                let mut data = data.clone();
+                data.extend(o_data.clone());
+                Attributes::Custom(data)
+            },
+            _ => other,
+        }
+    }
+    // remove attribute if the value is PLAIN
+    pub fn remove_plain(&mut self) {
+        match self {
+            Attributes::Follow => {},
+            Attributes::Custom(data) => {
+                data.remove_plain();
+            },
+            Attributes::Empty => {},
+        }
+    }
+}
+
+impl std::default::Default for Attributes {
+    fn default() -> Self { Attributes::Empty }
+}
 
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct Attributes {
+pub struct AttributesData {
     #[serde(skip_serializing_if = "HashMap::is_empty")]
     #[serde(flatten)]
     inner: HashMap<String, String>,
 }
 
-impl Attributes {
+impl AttributesData {
     pub fn new() -> Self {
-        Attributes {
+        AttributesData {
             inner: HashMap::new(),
         }
     }
 
-    pub fn remove_empty(&mut self) { self.inner.retain(|_, v| v.is_empty() == false); }
+    pub fn remove_plain(&mut self) { self.inner.retain(|_, v| !is_plain(v)); }
 
-    pub fn extend(&mut self, other: Attributes) { self.inner.extend(other.inner); }
+    pub fn extend(&mut self, other: AttributesData) { self.inner.extend(other.inner); }
 
-    pub fn is_empty(&self) -> bool { self.inner.is_empty() }
+    pub fn is_plain(&self) -> bool { self.inner.values().filter(|v| !is_plain(v)).count() == 0 }
 }
 
-impl std::convert::From<HashMap<String, String>> for Attributes {
-    fn from(attributes: HashMap<String, String, RandomState>) -> Self {
-        Attributes { inner: attributes }
-    }
+impl std::convert::From<HashMap<String, String>> for AttributesData {
+    fn from(attributes: HashMap<String, String>) -> Self { AttributesData { inner: attributes } }
 }
 
-impl std::ops::Deref for Attributes {
+impl std::ops::Deref for AttributesData {
     type Target = HashMap<String, String>;
 
     fn deref(&self) -> &Self::Target { &self.inner }
 }
 
-impl std::ops::DerefMut for Attributes {
+impl std::ops::DerefMut for AttributesData {
     fn deref_mut(&mut self) -> &mut Self::Target { &mut self.inner }
 }
 
 pub struct AttrsBuilder {
-    inner: Attributes,
+    inner: AttributesData,
 }
 
 impl AttrsBuilder {
     pub fn new() -> Self {
         Self {
-            inner: Attributes::default(),
+            inner: AttributesData::default(),
         }
     }
 
     pub fn bold(mut self, bold: bool) -> Self {
         let val = match bold {
             true => "true",
-            false => "",
+            false => PLAIN,
         };
         self.inner.insert("bold".to_owned(), val.to_owned());
         self
@@ -61,7 +100,7 @@ impl AttrsBuilder {
     pub fn italic(mut self, italic: bool) -> Self {
         let val = match italic {
             true => "true",
-            false => "",
+            false => PLAIN,
         };
         self.inner.insert("italic".to_owned(), val.to_owned());
         self
@@ -72,98 +111,108 @@ impl AttrsBuilder {
         self
     }
 
-    pub fn build(self) -> Attributes { self.inner }
+    pub fn build(self) -> Attributes { Attributes::Custom(self.inner) }
 }
 
 pub fn attributes_from(operation: &Option<Operation>) -> Option<Attributes> {
     match operation {
         None => None,
-        Some(operation) => operation.get_attributes(),
+        Some(operation) => Some(operation.get_attributes()),
     }
 }
 
-pub fn compose_attributes(
-    op1: &Option<Operation>,
-    op2: &Option<Operation>,
-    keep_empty: bool,
-) -> Option<Attributes> {
-    let a = attributes_from(op1);
-    let b = attributes_from(op2);
-
-    if a.is_none() && b.is_none() {
-        return None;
+pub fn compose_attributes(left: &Option<Operation>, right: &Option<Operation>) -> Attributes {
+    if left.is_none() && right.is_none() {
+        return Attributes::Empty;
     }
+    let attr_l = attributes_from(left);
+    let attr_r = attributes_from(right);
+    log::trace!("compose_attributes: a: {:?}, b: {:?}", attr_l, attr_r);
 
-    let mut attrs_a = a.unwrap_or(Attributes::default());
-    let attrs_b = b.unwrap_or(Attributes::default());
+    let mut attr = match (&attr_l, &attr_r) {
+        (_, Some(Attributes::Custom(_))) => match &attr_l {
+            None => attr_r.unwrap(),
+            Some(_) => attr_l.unwrap().merge(attr_r.clone()),
+        },
+        (Some(Attributes::Custom(_)), _) => attr_l.unwrap().merge(attr_r),
+        _ => Attributes::Empty,
+    };
 
-    log::trace!(
-        "before compose_attributes: a: {:?}, b: {:?}",
-        attrs_a,
-        attrs_b
-    );
-    attrs_a.extend(attrs_b);
-    log::trace!("after compose_attributes: a: {:?}", attrs_a);
-    if !keep_empty {
-        attrs_a.remove_empty()
-    }
+    log::trace!("composed_attributes: a: {:?}", attr);
 
-    Some(attrs_a)
+    // remove the attribute if the value is PLAIN
+    attr.remove_plain();
+
+    attr
 }
 
 pub fn transform_attributes(
-    op1: &Option<Operation>,
-    op2: &Option<Operation>,
+    left: &Option<Operation>,
+    right: &Option<Operation>,
     priority: bool,
-) -> Option<Attributes> {
-    let a = attributes_from(op1);
-    let b = attributes_from(op2);
+) -> Attributes {
+    let attr_l = attributes_from(left);
+    let attr_r = attributes_from(right);
 
-    if a.is_none() {
-        return b;
-    }
+    if attr_l.is_none() {
+        if attr_r.is_none() {
+            return Attributes::Empty;
+        }
 
-    if b.is_none() {
-        return None;
+        return match attr_r.as_ref().unwrap() {
+            Attributes::Follow => Attributes::Empty,
+            Attributes::Custom(_) => attr_r.unwrap(),
+            Attributes::Empty => Attributes::Empty,
+        };
     }
 
     if !priority {
-        return b;
+        return attr_r.unwrap();
     }
 
-    let attrs_a = a.unwrap_or(Attributes::default());
-    let attrs_b = b.unwrap_or(Attributes::default());
-
-    let result = attrs_b
-        .iter()
-        .fold(Attributes::new(), |mut attributes, (k, v)| {
-            if attrs_a.contains_key(k) == false {
-                attributes.insert(k.clone(), v.clone());
-            }
-            attributes
-        });
-    Some(result)
+    match (attr_l.unwrap(), attr_r.unwrap()) {
+        (Attributes::Custom(attr_data_l), Attributes::Custom(attr_data_r)) => {
+            let result = transform_attribute_data(attr_data_l, attr_data_r);
+            Attributes::Custom(result)
+        },
+        _ => Attributes::Empty,
+    }
 }
 
-pub fn invert_attributes(attr: Option<Attributes>, base: Option<Attributes>) -> Attributes {
-    let attr = attr.unwrap_or(Attributes::new());
-    let base = base.unwrap_or(Attributes::new());
-
-    let base_inverted = base
+fn transform_attribute_data(left: AttributesData, right: AttributesData) -> AttributesData {
+    let result = right
         .iter()
-        .fold(Attributes::new(), |mut attributes, (k, v)| {
-            if base.get(k) != attr.get(k) && attr.contains_key(k) {
-                attributes.insert(k.clone(), v.clone());
+        .fold(AttributesData::new(), |mut new_attr_data, (k, v)| {
+            if !left.contains_key(k) {
+                new_attr_data.insert(k.clone(), v.clone());
             }
-            attributes
+            new_attr_data
         });
-
-    let inverted = attr.iter().fold(base_inverted, |mut attributes, (k, _)| {
-        if base.get(k) != attr.get(k) && !base.contains_key(k) {
-            attributes.insert(k.clone(), "".to_owned());
-        }
-        attributes
-    });
-
-    return inverted;
+    result
 }
+
+// pub fn invert_attributes(
+//     attr: Option<AttributesData>,
+//     base: Option<AttributesData>,
+// ) -> AttributesData {
+//     let attr = attr.unwrap_or(AttributesData::new());
+//     let base = base.unwrap_or(AttributesData::new());
+//
+//     let base_inverted = base
+//         .iter()
+//         .fold(AttributesData::new(), |mut attributes, (k, v)| {
+//             if base.get(k) != attr.get(k) && attr.contains_key(k) {
+//                 attributes.insert(k.clone(), v.clone());
+//             }
+//             attributes
+//         });
+//
+//     let inverted = attr.iter().fold(base_inverted, |mut attributes, (k, _)| {
+//         if base.get(k) != attr.get(k) && !base.contains_key(k) {
+//             attributes.insert(k.clone(), "".to_owned());
+//         }
+//         attributes
+//     });
+//
+//     return inverted;
+// }

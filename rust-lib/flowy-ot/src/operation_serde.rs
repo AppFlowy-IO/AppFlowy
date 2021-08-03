@@ -8,7 +8,7 @@ use serde::{
     Serialize,
     Serializer,
 };
-use std::{collections::HashMap, fmt};
+use std::fmt;
 
 impl Serialize for Operation {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -82,7 +82,7 @@ impl<'de> Deserialize<'de> for Operation {
                 match operation {
                     None => Err(de::Error::missing_field("operation")),
                     Some(mut operation) => {
-                        operation.set_attributes(attributes);
+                        operation.set_attributes(attributes.unwrap_or(Attributes::Empty));
                         Ok(operation)
                     },
                 }

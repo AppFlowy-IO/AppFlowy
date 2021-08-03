@@ -1,6 +1,6 @@
 use crate::{attributes::*, errors::OTError, operation::*};
 use bytecount::num_chars;
-use std::{cmp::Ordering, error::Error, fmt, iter::FromIterator, str::FromStr};
+use std::{cmp::Ordering, iter::FromIterator, str::FromStr};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Delta {
@@ -73,7 +73,7 @@ impl Delta {
         }
     }
 
-    pub fn insert(&mut self, s: &str, attrs: Option<Attributes>) {
+    pub fn insert(&mut self, s: &str, attrs: Attributes) {
         if s.is_empty() {
             return;
         }
@@ -102,7 +102,7 @@ impl Delta {
         }
     }
 
-    pub fn retain(&mut self, n: u64, attrs: Option<Attributes>) {
+    pub fn retain(&mut self, n: u64, attrs: Attributes) {
         if n == 0 {
             return;
         }
@@ -149,14 +149,17 @@ impl Delta {
                     next_op1 = ops1.next();
                 },
                 (_, Some(Operation::Insert(o_insert))) => {
-                    new_delta.insert(&o_insert.s, attributes_from(&next_op2));
+                    new_delta.insert(
+                        &o_insert.s,
+                        attributes_from(&next_op2).unwrap_or(Attributes::Empty),
+                    );
                     next_op2 = ops2.next();
                 },
                 (None, _) | (_, None) => {
                     return Err(OTError);
                 },
                 (Some(Operation::Retain(retain)), Some(Operation::Retain(o_retain))) => {
-                    let composed_attrs = compose_attributes(&next_op1, &next_op2, false);
+                    let composed_attrs = compose_attributes(&next_op1, &next_op2);
                     log::debug!(
                         "[retain:{} - retain:{}]: {:?}",
                         retain.num,
@@ -186,6 +189,7 @@ impl Delta {
                         Ordering::Less => {
                             next_op2 = Some(
                                 OpBuilder::delete(*o_num - num_chars(insert.as_bytes()) as u64)
+                                    .attributes(insert.attributes.clone())
                                     .build(),
                             );
                             next_op1 = ops1.next();
@@ -206,7 +210,7 @@ impl Delta {
                     }
                 },
                 (Some(Operation::Insert(insert)), Some(Operation::Retain(o_retain))) => {
-                    let composed_attrs = compose_attributes(&next_op1, &next_op2, false);
+                    let composed_attrs = compose_attributes(&next_op1, &next_op2);
                     log::debug!(
                         "[insert:{} - retain:{}]: {:?}",
                         insert.s,
@@ -234,7 +238,11 @@ impl Delta {
                                 &chars.take(o_retain.num as usize).collect::<String>(),
                                 composed_attrs,
                             );
-                            next_op1 = Some(OpBuilder::insert(&chars.collect::<String>()).build());
+                            next_op1 = Some(
+                                OpBuilder::insert(&chars.collect::<String>())
+                                    .attributes(Attributes::Empty)
+                                    .build(),
+                            );
                             next_op2 = ops2.next();
                         },
                     }
@@ -297,7 +305,7 @@ impl Delta {
                 (_, Some(Operation::Insert(o_insert))) => {
                     let composed_attrs = transform_attributes(&next_op1, &next_op2, true);
                     a_prime.retain(o_insert.num_chars(), composed_attrs.clone());
-                    b_prime.insert(&o_insert.s, composed_attrs.clone());
+                    b_prime.insert(&o_insert.s, composed_attrs);
                     next_op2 = ops2.next();
                 },
                 (None, _) => {
@@ -427,7 +435,7 @@ impl Delta {
         for op in &self.ops {
             match &op {
                 Operation::Retain(retain) => {
-                    inverted.retain(retain.num, None);
+                    inverted.retain(retain.num, Attributes::Follow);
                     for _ in 0..retain.num {
                         chars.next();
                     }
@@ -475,41 +483,47 @@ impl Delta {
 fn merge_insert_or_new_op(
     insert: &mut Insert,
     s: &str,
-    attributes: Option<Attributes>,
+    attributes: Attributes,
 ) -> Option<Operation> {
-    if attributes.is_none() {
-        insert.s += s;
-        return None;
-    }
-
-    if insert.attributes == attributes {
-        insert.s += s;
-        None
-    } else {
-        Some(OpBuilder::insert(s).attributes(attributes).build())
+    match &attributes {
+        Attributes::Follow => {
+            insert.s += s;
+            return None;
+        },
+        Attributes::Custom(_) | Attributes::Empty => {
+            if insert.attributes == attributes {
+                insert.s += s;
+                None
+            } else {
+                Some(OpBuilder::insert(s).attributes(attributes).build())
+            }
+        },
     }
 }
 
 fn merge_retain_or_new_op(
     retain: &mut Retain,
     n: u64,
-    attributes: Option<Attributes>,
+    attributes: Attributes,
 ) -> Option<Operation> {
-    log::trace!(
+    log::debug!(
         "merge_retain_or_new_op: {:?}, {:?}",
         retain.attributes,
         attributes
     );
 
-    if attributes.is_none() {
-        retain.num += n;
-        return None;
-    }
-
-    if retain.attributes == attributes {
-        retain.num += n;
-        None
-    } else {
-        Some(OpBuilder::retain(n).attributes(attributes).build())
+    match &attributes {
+        Attributes::Follow => {
+            retain.num += n;
+            None
+        },
+        Attributes::Custom(_) | Attributes::Empty => {
+            if retain.attributes == attributes {
+                retain.num += n;
+                None
+            } else {
+                Some(OpBuilder::retain(n).attributes(attributes).build())
+            }
+        },
     }
 }

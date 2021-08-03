@@ -1,8 +1,6 @@
 use crate::attributes::Attributes;
 use bytecount::num_chars;
 use std::{
-    cmp::Ordering,
-    collections::{hash_map::RandomState, HashMap},
     ops::{Deref, DerefMut},
     str::Chars,
 };
@@ -29,17 +27,19 @@ impl Operation {
         }
     }
 
-    pub fn get_attributes(&self) -> Option<Attributes> {
+    pub fn get_attributes(&self) -> Attributes {
         match self {
-            Operation::Delete(_) => None,
+            Operation::Delete(_) => Attributes::Empty,
             Operation::Retain(retain) => retain.attributes.clone(),
             Operation::Insert(insert) => insert.attributes.clone(),
         }
     }
 
-    pub fn set_attributes(&mut self, attributes: Option<Attributes>) {
+    pub fn set_attributes(&mut self, attributes: Attributes) {
         match self {
-            Operation::Delete(_) => {},
+            Operation::Delete(_) => {
+                log::error!("Delete should not contains attributes");
+            },
             Operation::Retain(retain) => {
                 retain.attributes = attributes;
             },
@@ -49,7 +49,13 @@ impl Operation {
         }
     }
 
-    pub fn is_plain(&self) -> bool { self.get_attributes().is_none() }
+    pub fn is_plain(&self) -> bool {
+        match self.get_attributes() {
+            Attributes::Follow => true,
+            Attributes::Custom(_) => false,
+            Attributes::Empty => true,
+        }
+    }
 
     pub fn length(&self) -> u64 {
         match self {
@@ -63,11 +69,16 @@ impl Operation {
 
 pub struct OpBuilder {
     ty: Operation,
-    attrs: Option<Attributes>,
+    attrs: Attributes,
 }
 
 impl OpBuilder {
-    pub fn new(ty: Operation) -> OpBuilder { OpBuilder { ty, attrs: None } }
+    pub fn new(ty: Operation) -> OpBuilder {
+        OpBuilder {
+            ty,
+            attrs: Attributes::Empty,
+        }
+    }
 
     pub fn retain(n: u64) -> OpBuilder { OpBuilder::new(Operation::Retain(n.into())) }
 
@@ -75,15 +86,8 @@ impl OpBuilder {
 
     pub fn insert(s: &str) -> OpBuilder { OpBuilder::new(Operation::Insert(s.into())) }
 
-    pub fn attributes(mut self, attrs: Option<Attributes>) -> OpBuilder {
-        match attrs {
-            None => self.attrs = attrs,
-            Some(attrs) => match attrs.is_empty() {
-                true => self.attrs = None,
-                false => self.attrs = Some(attrs),
-            },
-        }
-
+    pub fn attributes(mut self, attrs: Attributes) -> OpBuilder {
+        self.attrs = attrs;
         self
     }
 
@@ -103,14 +107,14 @@ pub struct Retain {
     #[serde(rename(serialize = "retain", deserialize = "retain"))]
     pub num: u64,
     #[serde(skip_serializing_if = "is_empty")]
-    pub attributes: Option<Attributes>,
+    pub attributes: Attributes,
 }
 
 impl std::convert::From<u64> for Retain {
     fn from(n: u64) -> Self {
         Retain {
             num: n,
-            attributes: None,
+            attributes: Attributes::default(),
         }
     }
 }
@@ -131,7 +135,7 @@ pub struct Insert {
     pub s: String,
 
     #[serde(skip_serializing_if = "is_empty")]
-    pub attributes: Option<Attributes>,
+    pub attributes: Attributes,
 }
 
 impl Insert {
@@ -146,23 +150,22 @@ impl std::convert::From<String> for Insert {
     fn from(s: String) -> Self {
         Insert {
             s,
-            attributes: None,
+            attributes: Attributes::default(),
         }
     }
 }
 
 impl std::convert::From<&str> for Insert {
-    fn from(s: &str) -> Self {
-        Insert {
-            s: s.to_owned(),
-            attributes: None,
-        }
-    }
+    fn from(s: &str) -> Self { Insert::from(s.to_owned()) }
 }
 
-fn is_empty(attributes: &Option<Attributes>) -> bool {
+fn is_empty(attributes: &Attributes) -> bool {
     match attributes {
-        None => true,
-        Some(attributes) => attributes.is_empty(),
+        Attributes::Follow => true,
+        Attributes::Custom(data) => {
+            let is_empty = data.is_plain();
+            is_empty
+        },
+        Attributes::Empty => true,
     }
 }

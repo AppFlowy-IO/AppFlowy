@@ -1,7 +1,7 @@
 use std::{
     cmp::{max, min},
     fmt,
-    ops::{Range, RangeFrom, RangeFull, RangeInclusive, RangeTo, RangeToInclusive},
+    ops::{Range, RangeInclusive, RangeTo, RangeToInclusive},
 };
 
 /// Representing a closed-open range;
