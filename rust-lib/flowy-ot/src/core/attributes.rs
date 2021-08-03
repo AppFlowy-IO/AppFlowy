@@ -1,4 +1,4 @@
-use crate::operation::Operation;
+use crate::core::Operation;
 use std::{collections::HashMap, fmt};
 
 const PLAIN: &'static str = "";

@@ -1,8 +1,4 @@
-use flowy_ot::{
-    attributes::AttrsBuilder,
-    delta::Delta,
-    operation::{OpBuilder, Operation, Retain},
-};
+use flowy_ot::core::*;
 
 #[test]
 fn operation_insert_serialize_test() {

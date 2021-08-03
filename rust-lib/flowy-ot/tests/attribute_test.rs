@@ -1,10 +1,7 @@
 pub mod helper;
 
 use crate::helper::{MergeTestOp::*, *};
-use flowy_ot::{
-    interval::Interval,
-    operation::{OpBuilder, Operation, Retain},
-};
+use flowy_ot::core::Interval;
 
 #[test]
 fn delta_insert_text() {
@@ -30,8 +27,27 @@ fn delta_insert_text_at_head() {
 fn delta_insert_text_at_middle() {
     let ops = vec![
         Insert(0, "123", 0),
-        Insert(0, "456", 2),
-        AssertOpsJson(0, r#"[{"insert":"124563"}]"#),
+        Insert(0, "456", 1),
+        AssertOpsJson(0, r#"[{"insert":"145623"}]"#),
+    ];
+    MergeTest::new().run_script(ops);
+}
+
+#[test]
+fn delta_insert_text_with_attr() {
+    let ops = vec![
+        Insert(0, "145", 0),
+        Insert(0, "23", 1),
+        Bold(0, Interval::new(0, 2), true),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"345"}]"#,
+        ),
+        Insert(0, "abc", 1),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"1abc2","attributes":{"bold":"true"}},{"insert":"345"}]"#,
+        ),
     ];
     MergeTest::new().run_script(ops);
 }

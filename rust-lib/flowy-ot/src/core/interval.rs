@@ -131,7 +131,7 @@ impl From<RangeToInclusive<usize>> for Interval {
 
 #[cfg(test)]
 mod tests {
-    use crate::interval::Interval;
+    use crate::core::Interval;
 
     #[test]
     fn contains() {

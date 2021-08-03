@@ -1,4 +1,7 @@
-use crate::{attributes::*, errors::OTError, operation::*};
+use crate::{
+    core::{attributes::*, operation::*},
+    errors::OTError,
+};
 use bytecount::num_chars;
 use std::{cmp::Ordering, fmt, iter::FromIterator, str::FromStr};
 

@@ -1,4 +1,4 @@
-use crate::{attributes::Attributes, delta::Delta, operation::Operation};
+use crate::core::{Attributes, Delta, Operation};
 use serde::{
     de,
     de::{MapAccess, SeqAccess, Visitor},

@@ -1,4 +1,4 @@
-use crate::attributes::Attributes;
+use crate::core::Attributes;
 use bytecount::num_chars;
 use std::{
     fmt,

@@ -1,9 +1,4 @@
-use flowy_ot::{
-    attributes::{Attributes, AttributesData, AttrsBuilder},
-    delta::Delta,
-    interval::Interval,
-    operation::{OpBuilder, Operation},
-};
+use flowy_ot::core::*;
 use rand::{prelude::*, Rng as WrappedRng};
 use std::sync::Once;
 
@@ -113,28 +108,7 @@ impl MergeTest {
             attributes = Attributes::Follow;
         }
         let insert = OpBuilder::insert(s).attributes(attributes).build();
-
-        let mut new_delta = Delta::default();
-        let prefix = Interval::new(0, index);
-        let suffix = Interval::new(index, old_delta.target_len);
-
-        split_interval_with_delta(old_delta, &prefix)
-            .into_iter()
-            .for_each(|interval| {
-                let attrs = attributes_in_delta(old_delta, &interval);
-                new_delta.retain(interval.size() as u64, attrs);
-            });
-
-        new_delta.add(insert);
-
-        split_interval_with_delta(old_delta, &suffix)
-            .into_iter()
-            .for_each(|interval| {
-                let attrs = attributes_in_delta(old_delta, &interval);
-                new_delta.retain(interval.size() as u64, attrs);
-            });
-
-        new_delta = old_delta.compose(&new_delta).unwrap();
+        let new_delta = new_delta_with_op(old_delta, insert, Interval::new(index, index));
         self.deltas[delta_index] = new_delta;
     }
 
@@ -152,7 +126,7 @@ impl MergeTest {
         let attrs = attributes_in_delta(old_delta, &interval);
         retain.extend_attributes(attrs);
 
-        let new_delta = new_delta_with_op(old_delta, retain, interval);
+        let new_delta = new_delta_with_op(old_delta, retain, *interval);
         self.deltas[delta_index] = new_delta;
     }
 
@@ -162,14 +136,14 @@ impl MergeTest {
         let attrs = attributes_in_delta(old_delta, &interval);
         delete.extend_attributes(attrs);
 
-        let new_delta = new_delta_with_op(old_delta, delete, interval);
+        let new_delta = new_delta_with_op(old_delta, delete, *interval);
         self.deltas[delta_index] = new_delta;
     }
 }
 
-fn new_delta_with_op(delta: &Delta, op: Operation, interval: &Interval) -> Delta {
+fn new_delta_with_op(delta: &Delta, op: Operation, interval: Interval) -> Delta {
     let mut new_delta = Delta::default();
-    let (prefix, interval, suffix) = target_length_split_with_interval(delta.target_len, *interval);
+    let (prefix, interval, suffix) = target_length_split_with_interval(delta.target_len, interval);
 
     // prefix
     if prefix.is_empty() == false && prefix != interval {
@@ -266,13 +240,6 @@ pub fn attributes_in_delta(delta: &Delta, interval: &Interval) -> Attributes {
         Attributes::Empty
     } else {
         Attributes::Custom(attributes_data)
-    }
-}
-fn attributes_in_operation(op: &Operation, interval: &Interval) -> Attributes {
-    match op {
-        Operation::Delete(_) => Attributes::Empty,
-        Operation::Retain(retain) => Attributes::Empty,
-        Operation::Insert(insert) => Attributes::Empty,
     }
 }
 

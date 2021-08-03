@@ -2,7 +2,7 @@ pub mod helper;
 
 use crate::helper::MergeTestOp::*;
 use bytecount::num_chars;
-use flowy_ot::{attributes::*, delta::Delta, interval::Interval, operation::OpBuilder};
+use flowy_ot::core::*;
 use helper::*;
 
 #[test]
