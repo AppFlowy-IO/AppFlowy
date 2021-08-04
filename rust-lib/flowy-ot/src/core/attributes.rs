@@ -161,6 +161,7 @@ pub fn compose_attributes(left: &Option<Operation>, right: &Option<Operation>) -
             Some(_) => attr_l.unwrap().extend(attr_r.clone()),
         },
         (Some(Attributes::Custom(_)), _) => attr_l.unwrap().extend(attr_r),
+        (Some(Attributes::Follow), Some(Attributes::Follow)) => Attributes::Follow,
         _ => Attributes::Empty,
     };
 
@@ -186,7 +187,7 @@ pub fn transform_attributes(
         }
 
         return match attr_r.as_ref().unwrap() {
-            Attributes::Follow => Attributes::Empty,
+            Attributes::Follow => Attributes::Follow,
             Attributes::Custom(_) => attr_r.unwrap(),
             Attributes::Empty => Attributes::Empty,
         };

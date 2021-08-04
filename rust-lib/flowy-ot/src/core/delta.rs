@@ -161,10 +161,7 @@ impl Delta {
                     next_op1 = ops1.next();
                 },
                 (_, Some(Operation::Insert(o_insert))) => {
-                    new_delta.insert(
-                        &o_insert.s,
-                        attributes_from(&next_op2).unwrap_or(Attributes::Empty),
-                    );
+                    new_delta.insert(&o_insert.s, o_insert.attributes.clone());
                     next_op2 = ops2.next();
                 },
                 (None, _) | (_, None) => {
@@ -502,7 +499,7 @@ impl Delta {
                 },
                 Operation::Retain(_) => {
                     if op.is_plain() {
-                        inverted.retain(op_len as u64, Attributes::Empty);
+                        inverted.retain(op_len as u64, op.get_attributes());
                     } else {
                         a(&mut inverted, op, index, op_len as usize);
                     }

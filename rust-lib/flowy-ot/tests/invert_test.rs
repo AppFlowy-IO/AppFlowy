@@ -19,6 +19,17 @@ fn delta_invert_delta_test() {
 }
 
 #[test]
+fn delta_invert_delta_test2() {
+    let ops = vec![
+        Insert(0, "1234", 0),
+        Insert(1, "4567", 0),
+        Invert(0, 1),
+        AssertOpsJson(0, r#"[{"insert":"1234"}]"#),
+    ];
+    OpTester::new().run_script(ops);
+}
+
+#[test]
 fn delta_get_ops_in_interval_1() {
     let mut delta = Delta::default();
     let insert_a = OpBuilder::insert("123").build();

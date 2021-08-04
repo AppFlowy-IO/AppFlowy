@@ -12,6 +12,8 @@ pub enum TestOp {
     Delete(usize, Interval),
     Italic(usize, Interval, bool),
     Transform(usize, usize),
+    // invert the delta_a base on the delta_b
+    Invert(usize, usize),
     AssertStr(usize, &'static str),
     AssertOpsJson(usize, &'static str),
 }
@@ -69,6 +71,19 @@ impl OpTester {
 
                 self.deltas[*delta_a_i] = new_delta_a;
                 self.deltas[*delta_b_i] = new_delta_b;
+            },
+            TestOp::Invert(delta_a_i, delta_b_i) => {
+                let delta_a = &self.deltas[*delta_a_i];
+                let delta_b = &self.deltas[*delta_b_i];
+
+                let (_, b_prime) = delta_a.transform(delta_b).unwrap();
+                let undo = b_prime.invert_delta(&delta_a);
+                let new_delta = delta_a.compose(&b_prime).unwrap();
+                let new_delta_after_undo = new_delta.compose(&undo).unwrap();
+
+                assert_eq!(delta_a, &new_delta_after_undo);
+
+                self.deltas[*delta_a_i] = new_delta_after_undo;
             },
             TestOp::AssertStr(delta_i, expected) => {
                 let s = self.deltas[*delta_i].apply("").unwrap();
