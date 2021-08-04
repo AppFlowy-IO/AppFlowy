@@ -91,6 +91,7 @@ impl OpTester {
             },
 
             TestOp::AssertOpsJson(delta_i, expected) => {
+                log::debug!("AssertOpsJson: {:?}", self.deltas[*delta_i]);
                 let delta_i_json = serde_json::to_string(&self.deltas[*delta_i]).unwrap();
 
                 let expected_delta: Delta = serde_json::from_str(expected).unwrap();
@@ -140,8 +141,13 @@ impl OpTester {
             .attributes(attributes)
             .build();
 
-        let attributes = old_delta.attributes_in_interval(*interval);
-        retain.extend_attributes(attributes);
+        let attributes_in_interval = old_delta.attributes_in_interval(*interval);
+        retain.extend_attributes(attributes_in_interval);
+        log::debug!(
+            "Update delta with attributes: {:?} at: {:?}",
+            retain,
+            interval
+        );
 
         let new_delta = new_delta_with_op(old_delta, retain, *interval);
         self.deltas[delta_index] = new_delta;
@@ -149,10 +155,7 @@ impl OpTester {
 
     pub fn update_delta_with_delete(&mut self, delta_index: usize, interval: &Interval) {
         let old_delta = &self.deltas[delta_index];
-        let mut delete = OpBuilder::delete(interval.size() as u64).build();
-        let attributes = old_delta.attributes_in_interval(*interval);
-        delete.extend_attributes(attributes);
-
+        let delete = OpBuilder::delete(interval.size() as u64).build();
         let new_delta = new_delta_with_op(old_delta, delete, *interval);
         self.deltas[delta_index] = new_delta;
     }
@@ -165,9 +168,14 @@ fn new_delta_with_op(delta: &Delta, op: Operation, interval: Interval) -> Delta 
     // prefix
     if prefix.is_empty() == false && prefix != interval {
         let intervals = split_interval_with_delta(delta, &prefix);
-        intervals.into_iter().for_each(|interval| {
-            let attributes = delta.attributes_in_interval(interval);
-            new_delta.retain(interval.size() as u64, attributes);
+        intervals.into_iter().for_each(|p_interval| {
+            let attributes = delta.attributes_in_interval(p_interval);
+            log::debug!(
+                "prefix attribute: {:?}, interval: {:?}",
+                attributes,
+                p_interval
+            );
+            new_delta.retain(p_interval.size() as u64, attributes);
         });
     }
 
@@ -176,9 +184,14 @@ fn new_delta_with_op(delta: &Delta, op: Operation, interval: Interval) -> Delta 
     // suffix
     if suffix.is_empty() == false {
         let intervals = split_interval_with_delta(delta, &suffix);
-        intervals.into_iter().for_each(|interval| {
-            let attributes = delta.attributes_in_interval(interval);
-            new_delta.retain(interval.size() as u64, attributes);
+        intervals.into_iter().for_each(|s_interval| {
+            let attributes = delta.attributes_in_interval(s_interval);
+            log::debug!(
+                "suffix attribute: {:?}, interval: {:?}",
+                attributes,
+                s_interval
+            );
+            new_delta.retain(s_interval.size() as u64, attributes);
         });
     }
 

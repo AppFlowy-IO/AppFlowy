@@ -16,15 +16,24 @@ pub enum Attributes {
 
 impl Attributes {
     pub fn extend(&self, other: Option<Attributes>) -> Attributes {
+        log::debug!("Attribute extend: {:?} with {:?}", self, other);
         let other = other.unwrap_or(Attributes::Empty);
-        match (self, &other) {
+        let result = match (self, &other) {
             (Attributes::Custom(data), Attributes::Custom(o_data)) => {
-                let mut data = data.clone();
-                data.extend(o_data.clone());
-                Attributes::Custom(data)
+                if !data.is_plain() {
+                    let mut data = data.clone();
+                    data.extend(o_data.clone());
+                    Attributes::Custom(data)
+                } else {
+                    Attributes::Custom(data.clone())
+                }
             },
+            (Attributes::Custom(data), _) => Attributes::Custom(data.clone()),
+            // (Attributes::Empty, _) => Attributes::Empty,
             _ => other,
-        }
+        };
+        log::debug!("result {:?}", result);
+        result
     }
     // remove attribute if the value is PLAIN
     // { "k": PLAIN } -> {}
@@ -156,21 +165,29 @@ pub fn compose_attributes(left: &Option<Operation>, right: &Option<Operation>) -
     log::trace!("compose_attributes: a: {:?}, b: {:?}", attr_l, attr_r);
 
     let mut attr = match (&attr_l, &attr_r) {
-        (_, Some(Attributes::Custom(_))) => match &attr_l {
+        (_, Some(Attributes::Custom(_))) => match attr_l {
             None => attr_r.unwrap(),
             Some(_) => attr_l.unwrap().extend(attr_r.clone()),
+            // Some(attr_l) => merge_attributes(attr_l, attr_r),
         },
         (Some(Attributes::Custom(_)), _) => attr_l.unwrap().extend(attr_r),
+        // (Some(Attributes::Custom(_)), _) => merge_attributes(attr_l.unwrap(), attr_r),
         (Some(Attributes::Follow), Some(Attributes::Follow)) => Attributes::Follow,
         _ => Attributes::Empty,
     };
 
     log::trace!("composed_attributes: a: {:?}", attr);
 
-    // remove the attribute if the value is PLAIN
-    attr.remove_plain();
-
-    attr
+    match &mut attr {
+        Attributes::Custom(data) => {
+            data.remove_plain();
+            match data.is_plain() {
+                true => Attributes::Empty,
+                false => attr,
+            }
+        },
+        _ => attr,
+    }
 }
 
 pub fn transform_attributes(
@@ -247,4 +264,17 @@ fn transform_attribute_data(left: AttributesData, right: AttributesData) -> Attr
             new_attr_data
         });
     result
+}
+
+pub fn merge_attributes(attributes: Attributes, other: Option<Attributes>) -> Attributes {
+    let other = other.unwrap_or(Attributes::Empty);
+    match (&attributes, &other) {
+        (Attributes::Custom(data), Attributes::Custom(o_data)) => {
+            let mut data = data.clone();
+            data.extend(o_data.clone());
+            Attributes::Custom(data)
+        },
+        (Attributes::Custom(data), _) => Attributes::Custom(data.clone()),
+        _ => other,
+    }
 }

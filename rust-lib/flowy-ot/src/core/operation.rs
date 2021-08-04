@@ -40,10 +40,12 @@ impl Operation {
         match self {
             Operation::Delete(_) => {},
             Operation::Retain(retain) => {
-                retain.attributes.extend(Some(attributes));
+                let a = retain.attributes.extend(Some(attributes));
+                retain.attributes = a;
             },
             Operation::Insert(insert) => {
-                insert.attributes.extend(Some(attributes));
+                let a = insert.attributes.extend(Some(attributes));
+                insert.attributes = a;
             },
         }
     }

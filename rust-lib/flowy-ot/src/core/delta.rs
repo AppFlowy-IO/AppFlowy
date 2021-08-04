@@ -472,41 +472,45 @@ impl Delta {
             return inverted;
         }
 
-        let a = |inverted: &mut Delta, op: &Operation, index: usize, op_len: usize| {
-            let ops = other.ops_in_interval(Interval::new(index, op_len));
-            ops.into_iter().for_each(|other_op| match op {
-                Operation::Delete(_) => {
-                    inverted.add(other_op);
-                },
-                Operation::Retain(_) => {},
-                Operation::Insert(_) => {
-                    if !op.is_plain() {
-                        let inverted_attrs =
-                            invert_attributes(op.get_attributes(), other_op.get_attributes());
-                        inverted.retain(other_op.length(), inverted_attrs);
+        let inverted_from_other =
+            |inverted: &mut Delta, operation: &Operation, index: usize, op_len: usize| {
+                let ops = other.ops_in_interval(Interval::new(index, op_len));
+                ops.into_iter().for_each(|other_op| {
+                    match operation {
+                        Operation::Delete(_) => {
+                            inverted.add(other_op);
+                        },
+                        Operation::Retain(_) => {
+                            let inverted_attrs = invert_attributes(
+                                operation.get_attributes(),
+                                other_op.get_attributes(),
+                            );
+                            inverted.retain(other_op.length(), inverted_attrs);
+                        },
+                        Operation::Insert(_) => {
+                            // Impossible to here
+                        },
                     }
-                },
-            });
-        };
+                });
+            };
 
         let mut index = 0;
         for op in &self.ops {
-            let op_len: usize = op.length() as usize;
+            let len: usize = op.length() as usize;
             match op {
                 Operation::Delete(_) => {
-                    a(&mut inverted, op, index, op_len);
-                    index += op_len;
+                    inverted_from_other(&mut inverted, op, index, len);
+                    index += len;
                 },
                 Operation::Retain(_) => {
-                    if op.is_plain() {
-                        inverted.retain(op_len as u64, op.get_attributes());
-                    } else {
-                        a(&mut inverted, op, index, op_len as usize);
+                    match op.is_plain() {
+                        true => inverted.retain(len as u64, op.get_attributes()),
+                        false => inverted_from_other(&mut inverted, op, index, len as usize),
                     }
-                    index += op_len;
+                    index += len;
                 },
-                Operation::Insert(insert) => {
-                    inverted.delete(op_len as u64);
+                Operation::Insert(_) => {
+                    inverted.delete(len as u64);
                 },
             }
         }
@@ -565,16 +569,19 @@ impl Delta {
                 //     }
                 // }
             },
-            Operation::Insert(insert) => match &insert.attributes {
-                Attributes::Follow => {},
-                Attributes::Custom(data) => {
-                    let end = insert.num_chars() as usize;
-                    if interval.contains_range(offset, offset + end) {
-                        attributes_data.extend(data.clone());
-                    }
-                    offset += end;
-                },
-                Attributes::Empty => {},
+            Operation::Insert(insert) => {
+                let end = insert.num_chars() as usize;
+                match &insert.attributes {
+                    Attributes::Follow => {},
+                    Attributes::Custom(data) => {
+                        log::debug!("get attributes from op: {:?} at {:?}", op, interval);
+                        if interval.contains_range(offset, offset + end) {
+                            attributes_data.extend(data.clone());
+                        }
+                    },
+                    Attributes::Empty => {},
+                }
+                offset += end
             },
         });
 

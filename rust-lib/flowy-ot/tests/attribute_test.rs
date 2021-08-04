@@ -174,7 +174,7 @@ fn delta_add_bold_italic2() {
         Italic(0, Interval::new(4, 6), true),
         AssertOpsJson(
             0,
-            r#"[{"insert":"12","attributes":{"bold":"true","italic":"true"}},{"insert":"34","attributes":{"bold":"true"}},{"insert":"56","attributes":{"italic":"true"}}]"#,
+            r#"[{"insert":"12","attributes":{"italic":"true","bold":"true"}},{"insert":"34","attributes":{"bold":"true"}},{"insert":"56","attributes":{"italic":"true","bold":"true"}}]"#,
         ),
     ];
 
@@ -221,7 +221,7 @@ fn delta_add_bold_italic_delete() {
         Delete(0, Interval::new(0, 5)),
         AssertOpsJson(
             0,
-            r#"[{"insert":"67","attributes":{"bold":"true"}},{"insert":"89"}]"#,
+            r#"[{"insert":"67"},{"insert":"89","attributes":{"bold":"true"}}]"#,
         ),
     ];
 
@@ -263,18 +263,18 @@ fn delta_compose_attr_delta_with_attr_delta_test2() {
         Italic(0, Interval::new(4, 6), true),
         AssertOpsJson(
             0,
-            r#"[{"insert":"12","attributes":{"bold":"true","italic":"true"}},{"insert":"34","attributes":{"bold":"true"}},{"insert":"56","attributes":{"italic":"true"}}]"#,
+            r#"[{"insert":"12","attributes":{"bold":"true","italic":"true"}},{"insert":"34","attributes":{"bold":"true"}},{"insert":"56","attributes":{"italic":"true","bold":"true"}}]"#,
         ),
         InsertBold(1, "7", Interval::new(0, 1)),
         AssertOpsJson(1, r#"[{"insert":"7","attributes":{"bold":"true"}}]"#),
         Transform(0, 1),
         AssertOpsJson(
             0,
-            r#"[{"insert":"12","attributes":{"italic":"true","bold":"true"}},{"insert":"34","attributes":{"bold":"true"}},{"insert":"56","attributes":{"italic":"true"}},{"insert":"7","attributes":{"bold":"true"}}]"#,
+            r#"[{"insert":"12","attributes":{"italic":"true","bold":"true"}},{"insert":"34","attributes":{"bold":"true"}},{"insert":"56","attributes":{"italic":"true","bold":"true"}},{"insert":"7","attributes":{"bold":"true"}}]"#,
         ),
         AssertOpsJson(
             1,
-            r#"[{"insert":"12","attributes":{"italic":"true","bold":"true"}},{"insert":"34","attributes":{"bold":"true"}},{"insert":"56","attributes":{"italic":"true"}},{"insert":"7","attributes":{"bold":"true"}}]"#,
+            r#"[{"insert":"12","attributes":{"italic":"true","bold":"true"}},{"insert":"34","attributes":{"bold":"true"}},{"insert":"56","attributes":{"italic":"true","bold":"true"}},{"insert":"7","attributes":{"bold":"true"}}]"#,
         ),
     ];
 
