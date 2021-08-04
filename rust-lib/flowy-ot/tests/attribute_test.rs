@@ -1,6 +1,6 @@
 pub mod helper;
 
-use crate::helper::{MergeTestOp::*, *};
+use crate::helper::{TestOp::*, *};
 use flowy_ot::core::Interval;
 
 #[test]
@@ -10,7 +10,7 @@ fn delta_insert_text() {
         Insert(0, "456", 3),
         AssertOpsJson(0, r#"[{"insert":"123456"}]"#),
     ];
-    MergeTest::new().run_script(ops);
+    OpTester::new().run_script(ops);
 }
 
 #[test]
@@ -20,7 +20,7 @@ fn delta_insert_text_at_head() {
         Insert(0, "456", 0),
         AssertOpsJson(0, r#"[{"insert":"456123"}]"#),
     ];
-    MergeTest::new().run_script(ops);
+    OpTester::new().run_script(ops);
 }
 
 #[test]
@@ -30,7 +30,7 @@ fn delta_insert_text_at_middle() {
         Insert(0, "456", 1),
         AssertOpsJson(0, r#"[{"insert":"145623"}]"#),
     ];
-    MergeTest::new().run_script(ops);
+    OpTester::new().run_script(ops);
 }
 
 #[test]
@@ -49,7 +49,7 @@ fn delta_insert_text_with_attr() {
             r#"[{"insert":"1abc2","attributes":{"bold":"true"}},{"insert":"345"}]"#,
         ),
     ];
-    MergeTest::new().run_script(ops);
+    OpTester::new().run_script(ops);
 }
 
 #[test]
@@ -61,7 +61,7 @@ fn delta_add_bold_and_invert_all() {
         Bold(0, Interval::new(0, 3), false),
         AssertOpsJson(0, r#"[{"insert":"123"}]"#),
     ];
-    MergeTest::new().run_script(ops);
+    OpTester::new().run_script(ops);
 }
 
 #[test]
@@ -76,7 +76,7 @@ fn delta_add_bold_and_invert_partial_suffix() {
             r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34"}]"#,
         ),
     ];
-    MergeTest::new().run_script(ops);
+    OpTester::new().run_script(ops);
 }
 
 #[test]
@@ -93,7 +93,7 @@ fn delta_add_bold_and_invert_partial_suffix2() {
         Bold(0, Interval::new(2, 4), true),
         AssertOpsJson(0, r#"[{"insert":"1234","attributes":{"bold":"true"}}]"#),
     ];
-    MergeTest::new().run_script(ops);
+    OpTester::new().run_script(ops);
 }
 
 #[test]
@@ -108,7 +108,7 @@ fn delta_add_bold_and_invert_partial_prefix() {
             r#"[{"insert":"12"},{"insert":"34","attributes":{"bold":"true"}}]"#,
         ),
     ];
-    MergeTest::new().run_script(ops);
+    OpTester::new().run_script(ops);
 }
 
 #[test]
@@ -126,14 +126,14 @@ fn delta_add_bold_consecutive() {
             r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34"}]"#,
         ),
     ];
-    MergeTest::new().run_script(ops);
+    OpTester::new().run_script(ops);
 }
 
 #[test]
 #[should_panic]
 fn delta_add_bold_empty_str() {
     let ops = vec![Bold(0, Interval::new(0, 4), true)];
-    MergeTest::new().run_script(ops);
+    OpTester::new().run_script(ops);
 }
 
 #[test]
@@ -157,7 +157,7 @@ fn delta_add_bold_italic() {
             r#"[{"insert":"1234","attributes":{"italic":"true","bold":"true"}},{"insert":"56"},{"insert":"78","attributes":{"bold":"true","italic":"true"}}]"#,
         ),
     ];
-    MergeTest::new().run_script(ops);
+    OpTester::new().run_script(ops);
 }
 
 #[test]
@@ -178,7 +178,7 @@ fn delta_add_bold_italic2() {
         ),
     ];
 
-    MergeTest::new().run_script(ops);
+    OpTester::new().run_script(ops);
 }
 
 #[test]
@@ -203,7 +203,7 @@ fn delta_add_bold_italic3() {
         ),
     ];
 
-    MergeTest::new().run_script(ops);
+    OpTester::new().run_script(ops);
 }
 
 #[test]
@@ -225,7 +225,7 @@ fn delta_add_bold_italic_delete() {
         ),
     ];
 
-    MergeTest::new().run_script(ops);
+    OpTester::new().run_script(ops);
 }
 
 #[test]
@@ -236,7 +236,7 @@ fn delta_merge_inserted_text_with_same_attribute() {
         InsertBold(0, "456", Interval::new(3, 6)),
         AssertOpsJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
     ];
-    MergeTest::new().run_script(ops);
+    OpTester::new().run_script(ops);
 }
 
 #[test]
@@ -251,7 +251,7 @@ fn delta_compose_attr_delta_with_attr_delta_test() {
         AssertOpsJson(1, r#"[{"insert":"1234567","attributes":{"bold":"true"}}]"#),
     ];
 
-    MergeTest::new().run_script(ops);
+    OpTester::new().run_script(ops);
 }
 
 #[test]
@@ -278,7 +278,7 @@ fn delta_compose_attr_delta_with_attr_delta_test2() {
         ),
     ];
 
-    MergeTest::new().run_script(ops);
+    OpTester::new().run_script(ops);
 }
 
 #[test]
@@ -293,7 +293,7 @@ fn delta_compose_attr_delta_with_no_attr_delta_test() {
         AssertOpsJson(0, expected),
         AssertOpsJson(1, expected),
     ];
-    MergeTest::new().run_script(ops);
+    OpTester::new().run_script(ops);
 }
 
 #[test]
@@ -305,7 +305,7 @@ fn delta_delete_heading() {
         AssertOpsJson(0, r#"[{"insert":"3456","attributes":{"bold":"true"}}]"#),
     ];
 
-    MergeTest::new().run_script(ops);
+    OpTester::new().run_script(ops);
 }
 
 #[test]
@@ -317,7 +317,7 @@ fn delta_delete_trailing() {
         AssertOpsJson(0, r#"[{"insert":"12345","attributes":{"bold":"true"}}]"#),
     ];
 
-    MergeTest::new().run_script(ops);
+    OpTester::new().run_script(ops);
 }
 
 #[test]
@@ -331,7 +331,7 @@ fn delta_delete_middle() {
         AssertOpsJson(0, r#"[{"insert":"34","attributes":{"bold":"true"}}]"#),
     ];
 
-    MergeTest::new().run_script(ops);
+    OpTester::new().run_script(ops);
 }
 
 #[test]
@@ -343,5 +343,5 @@ fn delta_delete_all() {
         AssertOpsJson(0, r#"[]"#),
     ];
 
-    MergeTest::new().run_script(ops);
+    OpTester::new().run_script(ops);
 }

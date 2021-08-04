@@ -1,6 +1,6 @@
 pub mod helper;
 
-use crate::helper::MergeTestOp::*;
+use crate::helper::TestOp::*;
 use bytecount::num_chars;
 use flowy_ot::core::*;
 use helper::*;
@@ -196,7 +196,7 @@ fn transform2() {
         AssertOpsJson(0, r#"[{"insert":"123456"}]"#),
         AssertOpsJson(1, r#"[{"insert":"123456"}]"#),
     ];
-    MergeTest::new().run_script(ops);
+    OpTester::new().run_script(ops);
 }
 
 #[test]

@@ -3,7 +3,7 @@ use rand::{prelude::*, Rng as WrappedRng};
 use std::sync::Once;
 
 #[derive(Clone, Debug)]
-pub enum MergeTestOp {
+pub enum TestOp {
     Insert(usize, &'static str, usize),
     // delta_i, s, start, length,
     InsertBold(usize, &'static str, Interval),
@@ -16,11 +16,11 @@ pub enum MergeTestOp {
     AssertOpsJson(usize, &'static str),
 }
 
-pub struct MergeTest {
+pub struct OpTester {
     deltas: Vec<Delta>,
 }
 
-impl MergeTest {
+impl OpTester {
     pub fn new() -> Self {
         static INIT: Once = Once::new();
         INIT.call_once(|| {
@@ -36,29 +36,29 @@ impl MergeTest {
         Self { deltas }
     }
 
-    pub fn run_op(&mut self, op: &MergeTestOp) {
+    pub fn run_op(&mut self, op: &TestOp) {
         match op {
-            MergeTestOp::Insert(delta_i, s, index) => {
+            TestOp::Insert(delta_i, s, index) => {
                 self.update_delta_with_insert(*delta_i, s, *index);
             },
-            MergeTestOp::Delete(delta_i, interval) => {
+            TestOp::Delete(delta_i, interval) => {
                 //
                 self.update_delta_with_delete(*delta_i, interval);
             },
-            MergeTestOp::InsertBold(delta_i, s, _interval) => {
+            TestOp::InsertBold(delta_i, s, _interval) => {
                 let attrs = AttrsBuilder::new().bold(true).build();
                 let delta = &mut self.deltas[*delta_i];
                 delta.insert(s, attrs);
             },
-            MergeTestOp::Bold(delta_i, interval, enable) => {
+            TestOp::Bold(delta_i, interval, enable) => {
                 let attrs = AttrsBuilder::new().bold(*enable).build();
                 self.update_delta_with_attribute(*delta_i, attrs, interval);
             },
-            MergeTestOp::Italic(delta_i, interval, enable) => {
+            TestOp::Italic(delta_i, interval, enable) => {
                 let attrs = AttrsBuilder::new().italic(*enable).build();
                 self.update_delta_with_attribute(*delta_i, attrs, interval);
             },
-            MergeTestOp::Transform(delta_a_i, delta_b_i) => {
+            TestOp::Transform(delta_a_i, delta_b_i) => {
                 let delta_a = &self.deltas[*delta_a_i];
                 let delta_b = &self.deltas[*delta_b_i];
 
@@ -70,12 +70,12 @@ impl MergeTest {
                 self.deltas[*delta_a_i] = new_delta_a;
                 self.deltas[*delta_b_i] = new_delta_b;
             },
-            MergeTestOp::AssertStr(delta_i, expected) => {
+            TestOp::AssertStr(delta_i, expected) => {
                 let s = self.deltas[*delta_i].apply("").unwrap();
                 assert_eq!(&s, expected);
             },
 
-            MergeTestOp::AssertOpsJson(delta_i, expected) => {
+            TestOp::AssertOpsJson(delta_i, expected) => {
                 let delta_i_json = serde_json::to_string(&self.deltas[*delta_i]).unwrap();
 
                 let expected_delta: Delta = serde_json::from_str(expected).unwrap();
@@ -90,11 +90,13 @@ impl MergeTest {
         }
     }
 
-    pub fn run_script(&mut self, script: Vec<MergeTestOp>) {
+    pub fn run_script(&mut self, script: Vec<TestOp>) {
         for (_i, op) in script.iter().enumerate() {
             self.run_op(op);
         }
     }
+
+    pub fn get_delta(&mut self, index: usize) -> &mut Delta { &mut self.deltas[index] }
 
     pub fn update_delta_with_insert(&mut self, delta_index: usize, s: &str, index: usize) {
         let old_delta = &mut self.deltas[delta_index];
@@ -103,7 +105,7 @@ impl MergeTest {
             log::error!("{} out of bounds {}", index, target_interval);
         }
 
-        let mut attributes = attributes_in_delta(old_delta, &Interval::new(index, index + 1));
+        let mut attributes = old_delta.attributes_in_interval(Interval::new(index, index + 1));
         if attributes == Attributes::Empty {
             attributes = Attributes::Follow;
         }
@@ -123,8 +125,8 @@ impl MergeTest {
             .attributes(attributes)
             .build();
 
-        let attrs = attributes_in_delta(old_delta, &interval);
-        retain.extend_attributes(attrs);
+        let attributes = old_delta.attributes_in_interval(*interval);
+        retain.extend_attributes(attributes);
 
         let new_delta = new_delta_with_op(old_delta, retain, *interval);
         self.deltas[delta_index] = new_delta;
@@ -133,8 +135,8 @@ impl MergeTest {
     pub fn update_delta_with_delete(&mut self, delta_index: usize, interval: &Interval) {
         let old_delta = &self.deltas[delta_index];
         let mut delete = OpBuilder::delete(interval.size() as u64).build();
-        let attrs = attributes_in_delta(old_delta, &interval);
-        delete.extend_attributes(attrs);
+        let attributes = old_delta.attributes_in_interval(*interval);
+        delete.extend_attributes(attributes);
 
         let new_delta = new_delta_with_op(old_delta, delete, *interval);
         self.deltas[delta_index] = new_delta;
@@ -149,8 +151,8 @@ fn new_delta_with_op(delta: &Delta, op: Operation, interval: Interval) -> Delta 
     if prefix.is_empty() == false && prefix != interval {
         let intervals = split_interval_with_delta(delta, &prefix);
         intervals.into_iter().for_each(|interval| {
-            let attrs = attributes_in_delta(delta, &interval);
-            new_delta.retain(interval.size() as u64, attrs);
+            let attributes = delta.attributes_in_interval(interval);
+            new_delta.retain(interval.size() as u64, attributes);
         });
     }
 
@@ -160,8 +162,8 @@ fn new_delta_with_op(delta: &Delta, op: Operation, interval: Interval) -> Delta 
     if suffix.is_empty() == false {
         let intervals = split_interval_with_delta(delta, &suffix);
         intervals.into_iter().for_each(|interval| {
-            let attrs = attributes_in_delta(delta, &interval);
-            new_delta.retain(interval.size() as u64, attrs);
+            let attributes = delta.attributes_in_interval(interval);
+            new_delta.retain(interval.size() as u64, attributes);
         });
     }
 
@@ -200,47 +202,7 @@ pub fn target_length_split_with_interval(
 }
 
 pub fn debug_print_delta(delta: &Delta) {
-    log::debug!("😁 {}", serde_json::to_string(delta).unwrap());
-}
-
-pub fn attributes_in_delta(delta: &Delta, interval: &Interval) -> Attributes {
-    let mut attributes_data = AttributesData::new();
-    let mut offset: usize = 0;
-
-    delta.ops.iter().for_each(|op| match op {
-        Operation::Delete(_n) => {},
-        Operation::Retain(retain) => {
-            if interval.contains(retain.num as usize) {
-                match &retain.attributes {
-                    Attributes::Follow => {},
-                    Attributes::Custom(data) => {
-                        attributes_data.extend(data.clone());
-                    },
-                    Attributes::Empty => {},
-                }
-            }
-        },
-        Operation::Insert(insert) => match &insert.attributes {
-            Attributes::Follow => {},
-            Attributes::Custom(data) => {
-                let end = insert.num_chars() as usize;
-                if !interval
-                    .intersect(Interval::new(offset, offset + end))
-                    .is_empty()
-                {
-                    attributes_data.extend(data.clone());
-                }
-                offset += end;
-            },
-            Attributes::Empty => {},
-        },
-    });
-
-    if attributes_data.is_plain() {
-        Attributes::Empty
-    } else {
-        Attributes::Custom(attributes_data)
-    }
+    eprintln!("😁 {}", serde_json::to_string(delta).unwrap());
 }
 
 pub struct Rng(StdRng);
@@ -259,7 +221,7 @@ impl Rng {
     pub fn gen_delta(&mut self, s: &str) -> Delta {
         let mut delta = Delta::default();
         loop {
-            let left = s.chars().count() - delta.base_len();
+            let left = s.chars().count() - delta.base_len;
             if left == 0 {
                 break;
             }

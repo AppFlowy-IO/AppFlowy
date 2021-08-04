@@ -27,6 +27,7 @@ impl Attributes {
         }
     }
     // remove attribute if the value is PLAIN
+    // { "k": PLAIN } -> {}
     pub fn remove_plain(&mut self) {
         match self {
             Attributes::Follow => {},
@@ -34,6 +35,14 @@ impl Attributes {
                 data.remove_plain();
             },
             Attributes::Empty => {},
+        }
+    }
+
+    pub fn get_attributes_data(&self) -> Option<AttributesData> {
+        match self {
+            Attributes::Follow => None,
+            Attributes::Custom(data) => Some(data.clone()),
+            Attributes::Empty => None,
         }
     }
 }
@@ -131,7 +140,7 @@ impl AttrsBuilder {
     pub fn build(self) -> Attributes { Attributes::Custom(self.inner) }
 }
 
-pub fn attributes_from(operation: &Option<Operation>) -> Option<Attributes> {
+pub(crate) fn attributes_from(operation: &Option<Operation>) -> Option<Attributes> {
     match operation {
         None => None,
         Some(operation) => Some(operation.get_attributes()),
@@ -196,6 +205,37 @@ pub fn transform_attributes(
     }
 }
 
+pub fn invert_attributes(attr: Attributes, base: Attributes) -> Attributes {
+    let attr = attr.get_attributes_data();
+    let base = base.get_attributes_data();
+
+    if attr.is_none() && base.is_none() {
+        return Attributes::Empty;
+    }
+
+    let attr = attr.unwrap_or(AttributesData::new());
+    let base = base.unwrap_or(AttributesData::new());
+
+    let base_inverted = base
+        .iter()
+        .fold(AttributesData::new(), |mut attributes, (k, v)| {
+            if base.get(k) != attr.get(k) && attr.contains_key(k) {
+                attributes.insert(k.clone(), v.clone());
+            }
+            attributes
+        });
+
+    let inverted = attr.iter().fold(base_inverted, |mut attributes, (k, _)| {
+        if base.get(k) != attr.get(k) && !base.contains_key(k) {
+            // attributes.insert(k.clone(), "".to_owned());
+            attributes.remove(k);
+        }
+        attributes
+    });
+
+    return Attributes::Custom(inverted);
+}
+
 fn transform_attribute_data(left: AttributesData, right: AttributesData) -> AttributesData {
     let result = right
         .iter()
@@ -207,29 +247,3 @@ fn transform_attribute_data(left: AttributesData, right: AttributesData) -> Attr
         });
     result
 }
-
-// pub fn invert_attributes(
-//     attr: Option<AttributesData>,
-//     base: Option<AttributesData>,
-// ) -> AttributesData {
-//     let attr = attr.unwrap_or(AttributesData::new());
-//     let base = base.unwrap_or(AttributesData::new());
-//
-//     let base_inverted = base
-//         .iter()
-//         .fold(AttributesData::new(), |mut attributes, (k, v)| {
-//             if base.get(k) != attr.get(k) && attr.contains_key(k) {
-//                 attributes.insert(k.clone(), v.clone());
-//             }
-//             attributes
-//         });
-//
-//     let inverted = attr.iter().fold(base_inverted, |mut attributes, (k, _)| {
-//         if base.get(k) != attr.get(k) && !base.contains_key(k) {
-//             attributes.insert(k.clone(), "".to_owned());
-//         }
-//         attributes
-//     });
-//
-//     return inverted;
-// }

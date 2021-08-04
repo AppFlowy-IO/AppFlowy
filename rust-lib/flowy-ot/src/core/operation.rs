@@ -73,10 +73,11 @@ impl Operation {
     pub fn length(&self) -> u64 {
         match self {
             Operation::Delete(n) => *n,
-            Operation::Retain(r) => r.num,
+            Operation::Retain(r) => r.n,
             Operation::Insert(i) => i.num_chars(),
         }
     }
+
     pub fn is_empty(&self) -> bool { self.length() == 0 }
 }
 
@@ -89,7 +90,7 @@ impl fmt::Display for Operation {
             Operation::Retain(r) => {
                 f.write_fmt(format_args!(
                     "retain: {}, attributes: {}",
-                    r.num, r.attributes
+                    r.n, r.attributes
                 ))?;
             },
             Operation::Insert(i) => {
@@ -141,15 +142,40 @@ impl OpBuilder {
 #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Retain {
     #[serde(rename(serialize = "retain", deserialize = "retain"))]
-    pub num: u64,
+    pub n: u64,
     #[serde(skip_serializing_if = "is_empty")]
     pub attributes: Attributes,
+}
+
+impl Retain {
+    pub fn merge_or_new_op(&mut self, n: u64, attributes: Attributes) -> Option<Operation> {
+        log::debug!(
+            "merge_retain_or_new_op: {:?}, {:?}",
+            self.attributes,
+            attributes
+        );
+
+        match &attributes {
+            Attributes::Follow => {
+                self.n += n;
+                None
+            },
+            Attributes::Custom(_) | Attributes::Empty => {
+                if self.attributes == attributes {
+                    self.n += n;
+                    None
+                } else {
+                    Some(OpBuilder::retain(n).attributes(attributes).build())
+                }
+            },
+        }
+    }
 }
 
 impl std::convert::From<u64> for Retain {
     fn from(n: u64) -> Self {
         Retain {
-            num: n,
+            n,
             attributes: Attributes::default(),
         }
     }
@@ -158,11 +184,11 @@ impl std::convert::From<u64> for Retain {
 impl Deref for Retain {
     type Target = u64;
 
-    fn deref(&self) -> &Self::Target { &self.num }
+    fn deref(&self) -> &Self::Target { &self.n }
 }
 
 impl DerefMut for Retain {
-    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.num }
+    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.n }
 }
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
@@ -180,6 +206,23 @@ impl Insert {
     pub fn chars(&self) -> Chars<'_> { self.s.chars() }
 
     pub fn num_chars(&self) -> u64 { num_chars(self.s.as_bytes()) as _ }
+
+    pub fn merge_or_new_op(&mut self, s: &str, attributes: Attributes) -> Option<Operation> {
+        match &attributes {
+            Attributes::Follow => {
+                self.s += s;
+                return None;
+            },
+            Attributes::Custom(_) | Attributes::Empty => {
+                if self.attributes == attributes {
+                    self.s += s;
+                    None
+                } else {
+                    Some(OpBuilder::insert(s).attributes(attributes).build())
+                }
+            },
+        }
+    }
 }
 
 impl std::convert::From<String> for Insert {
