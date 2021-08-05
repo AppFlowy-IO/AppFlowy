@@ -212,18 +212,27 @@ fn delta_add_bold_italic_delete() {
         Insert(0, "123456789", 0),
         Bold(0, Interval::new(0, 5), true),
         Italic(0, Interval::new(0, 2), true),
+        // AssertOpsJson(
+        //     0,
+        //     r#"[{"insert":"12","attributes":{"italic":"true","bold":"true"}},{"insert":"345","
+        // attributes":{"bold":"true"}},{"insert":"6789"}]"#, ),
         Italic(0, Interval::new(2, 4), true),
-        Bold(0, Interval::new(7, 9), true),
         AssertOpsJson(
             0,
-            r#"[{"insert":"1234","attributes":{"bold":"true","italic":"true"}},{"insert":"5","attributes":{"bold":"true"}},{"insert":"67"},{"insert":"89","attributes":{"bold":"true"}}]"#,
-        ),
-        Delete(0, Interval::new(0, 5)),
-        AssertOpsJson(
-            0,
-            r#"[{"insert":"67"},{"insert":"89","attributes":{"bold":"true"}}]"#,
+            r#"[{"insert":"1234","attributes":{"bold":"true","italic":"true"}},{"insert":"5","attributes":{"bold":"true"}},{"insert":"6789"}]"#,
         ),
     ];
+    // Bold(0, Interval::new(7, 9), true),
+    // AssertOpsJson(
+    //     0,
+    //     r#"[{"insert":"1234","attributes":{"bold":"true","italic":"true"}},{"
+    // insert":"5","attributes":{"bold":"true"}},{"insert":"67"},{"insert":"89","
+    // attributes":{"bold":"true"}}]"#, ),
+    // Delete(0, Interval::new(0, 5)),
+    // AssertOpsJson(
+    //     0,
+    //     r#"[{"insert":"67"},{"insert":"89","attributes":{"bold":"true"}}]"#,
+    // ),
 
     OpTester::new().run_script(ops);
 }

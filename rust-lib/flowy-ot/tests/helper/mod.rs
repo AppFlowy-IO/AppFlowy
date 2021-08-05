@@ -1,20 +1,38 @@
+use derive_more::Display;
 use flowy_ot::core::*;
 use rand::{prelude::*, Rng as WrappedRng};
 use std::sync::Once;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Display)]
 pub enum TestOp {
+    #[display(fmt = "Insert")]
     Insert(usize, &'static str, usize),
+
     // delta_i, s, start, length,
+    #[display(fmt = "InsertBold")]
     InsertBold(usize, &'static str, Interval),
+
     // delta_i, start, length, enable
+    #[display(fmt = "Bold")]
     Bold(usize, Interval, bool),
+
+    #[display(fmt = "Delete")]
     Delete(usize, Interval),
+
+    #[display(fmt = "Italic")]
     Italic(usize, Interval, bool),
+
+    #[display(fmt = "Transform")]
     Transform(usize, usize),
+
     // invert the delta_a base on the delta_b
+    #[display(fmt = "Invert")]
     Invert(usize, usize),
+
+    #[display(fmt = "AssertStr")]
     AssertStr(usize, &'static str),
+
+    #[display(fmt = "AssertOpsJson")]
     AssertOpsJson(usize, &'static str),
 }
 
@@ -39,6 +57,7 @@ impl OpTester {
     }
 
     pub fn run_op(&mut self, op: &TestOp) {
+        log::debug!("***************** 😈{} *******************", &op);
         match op {
             TestOp::Insert(delta_i, s, index) => {
                 self.update_delta_with_insert(*delta_i, s, *index);
@@ -75,11 +94,20 @@ impl OpTester {
             TestOp::Invert(delta_a_i, delta_b_i) => {
                 let delta_a = &self.deltas[*delta_a_i];
                 let delta_b = &self.deltas[*delta_b_i];
+                log::debug!("Invert: ");
+                log::debug!("a: {}", delta_a.to_json());
+                log::debug!("b: {}", delta_b.to_json());
 
                 let (_, b_prime) = delta_a.transform(delta_b).unwrap();
                 let undo = b_prime.invert_delta(&delta_a);
+
                 let new_delta = delta_a.compose(&b_prime).unwrap();
+                log::debug!("new delta: {}", new_delta.to_json());
+                log::debug!("undo delta: {}", undo.to_json());
+
                 let new_delta_after_undo = new_delta.compose(&undo).unwrap();
+
+                log::debug!("inverted delta a: {}", new_delta_after_undo.to_string());
 
                 assert_eq!(delta_a, &new_delta_after_undo);
 
@@ -138,6 +166,11 @@ impl OpTester {
     ) {
         let old_delta = &self.deltas[delta_index];
         let old_attributes = old_delta.attributes_in_interval(*interval);
+        log::debug!(
+            "merge attributes: {:?}, with old: {:?}",
+            attributes,
+            old_attributes
+        );
         let new_attributes = match &mut attributes {
             Attributes::Follow => old_attributes,
             Attributes::Custom(attr_data) => {
@@ -147,12 +180,13 @@ impl OpTester {
             Attributes::Empty => Attributes::Empty,
         };
 
+        log::debug!("new attributes: {:?}", new_attributes);
         let retain = OpBuilder::retain(interval.size() as u64)
             .attributes(new_attributes)
             .build();
 
         log::debug!(
-            "Update delta with attributes: {:?} at: {:?}",
+            "Update delta with new attributes: {:?} at: {:?}",
             retain,
             interval
         );
@@ -187,6 +221,7 @@ fn new_delta_with_op(delta: &Delta, op: Operation, interval: Interval) -> Delta 
         });
     }
 
+    log::debug!("add new op: {:?}", op);
     new_delta.add(op);
 
     // suffix

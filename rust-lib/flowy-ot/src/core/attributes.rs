@@ -182,69 +182,41 @@ pub(crate) fn attributes_from(operation: &Option<Operation>) -> Option<Attribute
     }
 }
 
-pub fn compose_attributes(left: &Option<Operation>, right: &Option<Operation>) -> Attributes {
+pub fn compose_operation(left: &Option<Operation>, right: &Option<Operation>) -> Attributes {
     if left.is_none() && right.is_none() {
         return Attributes::Empty;
     }
     let attr_l = attributes_from(left);
     let attr_r = attributes_from(right);
-    log::trace!("compose_attributes: a: {:?}, b: {:?}", attr_l, attr_r);
 
-    let mut attr = match (&attr_l, &attr_r) {
-        (_, Some(Attributes::Custom(_))) => match attr_l {
-            None => attr_r.unwrap(),
-            Some(attr_l) => merge_attributes(attr_l, attr_r),
-        },
-        (Some(Attributes::Custom(_)), Some(Attributes::Follow))
-        | (Some(Attributes::Custom(_)), Some(Attributes::Custom(_))) => {
-            merge_attributes(attr_l.unwrap(), attr_r)
-        },
-        (Some(Attributes::Follow), Some(Attributes::Follow)) => Attributes::Follow,
-        _ => Attributes::Empty,
-    };
+    if attr_l.is_none() {
+        return attr_r.unwrap();
+    }
 
-    log::trace!("composed_attributes: a: {:?}", attr);
-    attr.apply_rule()
+    if attr_r.is_none() {
+        return attr_l.unwrap();
+    }
+
+    compose_attributes(attr_l.unwrap(), attr_r.unwrap())
 }
 
-pub fn transform_op_attributes(
-    left: &Option<Operation>,
-    right: &Option<Operation>,
-    priority: bool,
-) -> Attributes {
+pub fn transform_operation(left: &Option<Operation>, right: &Option<Operation>) -> Attributes {
     let attr_l = attributes_from(left);
     let attr_r = attributes_from(right);
-    transform_attributes(attr_l, attr_r, priority)
-}
 
-pub fn transform_attributes(
-    left: Option<Attributes>,
-    right: Option<Attributes>,
-    priority: bool,
-) -> Attributes {
-    if left.is_none() {
-        if right.is_none() {
+    if attr_l.is_none() {
+        if attr_r.is_none() {
             return Attributes::Empty;
         }
 
-        return match right.as_ref().unwrap() {
+        return match attr_r.as_ref().unwrap() {
             Attributes::Follow => Attributes::Follow,
-            Attributes::Custom(_) => right.unwrap(),
+            Attributes::Custom(_) => attr_r.unwrap(),
             Attributes::Empty => Attributes::Empty,
         };
     }
 
-    if !priority {
-        return right.unwrap();
-    }
-
-    match (left.unwrap(), right.unwrap()) {
-        (Attributes::Custom(attr_data_l), Attributes::Custom(attr_data_r)) => {
-            let result = transform_attribute_data(attr_data_l, attr_data_r);
-            Attributes::Custom(result)
-        },
-        _ => Attributes::Empty,
-    }
+    transform_attributes(attr_l.unwrap(), attr_r.unwrap())
 }
 
 pub fn invert_attributes(attr: Attributes, base: Attributes) -> Attributes {
@@ -278,20 +250,7 @@ pub fn invert_attributes(attr: Attributes, base: Attributes) -> Attributes {
     return Attributes::Custom(inverted);
 }
 
-fn transform_attribute_data(left: AttributesData, right: AttributesData) -> AttributesData {
-    let result = right
-        .iter()
-        .fold(AttributesData::new(), |mut new_attr_data, (k, v)| {
-            if !left.contains_key(k) {
-                new_attr_data.insert(k.clone(), v.clone());
-            }
-            new_attr_data
-        });
-    result
-}
-
-pub fn merge_attributes(attributes: Attributes, other: Option<Attributes>) -> Attributes {
-    let other = other.unwrap_or(Attributes::Empty);
+pub fn merge_attributes(attributes: Attributes, other: Attributes) -> Attributes {
     match (&attributes, &other) {
         (Attributes::Custom(data), Attributes::Custom(o_data)) => {
             let mut data = data.clone();
@@ -300,5 +259,37 @@ pub fn merge_attributes(attributes: Attributes, other: Option<Attributes>) -> At
         },
         (Attributes::Custom(data), _) => Attributes::Custom(data.clone()),
         _ => other,
+    }
+}
+
+fn compose_attributes(left: Attributes, right: Attributes) -> Attributes {
+    log::trace!("compose_attributes: a: {:?}, b: {:?}", left, right);
+
+    let attr = match (&left, &right) {
+        (_, Attributes::Empty) => Attributes::Empty,
+        (_, Attributes::Custom(_)) => merge_attributes(left, right),
+        (Attributes::Custom(_), _) => merge_attributes(left, right),
+        _ => Attributes::Follow,
+    };
+
+    log::trace!("composed_attributes: a: {:?}", attr);
+    attr.apply_rule()
+}
+
+fn transform_attributes(left: Attributes, right: Attributes) -> Attributes {
+    match (left, right) {
+        (Attributes::Custom(data_l), Attributes::Custom(data_r)) => {
+            let result = data_r
+                .iter()
+                .fold(AttributesData::new(), |mut new_attr_data, (k, v)| {
+                    if !data_l.contains_key(k) {
+                        new_attr_data.insert(k.clone(), v.clone());
+                    }
+                    new_attr_data
+                });
+
+            Attributes::Custom(result)
+        },
+        _ => Attributes::Empty,
     }
 }

@@ -168,7 +168,7 @@ impl Delta {
                     return Err(OTError);
                 },
                 (Some(Operation::Retain(retain)), Some(Operation::Retain(o_retain))) => {
-                    let composed_attrs = compose_attributes(&next_op1, &next_op2);
+                    let composed_attrs = compose_operation(&next_op1, &next_op2);
                     log::debug!(
                         "[retain:{} - retain:{}]: {:?}",
                         retain.n,
@@ -219,7 +219,7 @@ impl Delta {
                     }
                 },
                 (Some(Operation::Insert(insert)), Some(Operation::Retain(o_retain))) => {
-                    let composed_attrs = compose_attributes(&next_op1, &next_op2);
+                    let composed_attrs = compose_operation(&next_op1, &next_op2);
                     log::debug!(
                         "[insert:{} - retain:{}]: {:?}",
                         insert.s,
@@ -231,7 +231,7 @@ impl Delta {
                             new_delta.insert(&insert.s, composed_attrs.clone());
                             next_op2 = Some(
                                 OpBuilder::retain(o_retain.n - insert.num_chars())
-                                    .attributes(composed_attrs.clone())
+                                    .attributes(o_retain.attributes.clone())
                                     .build(),
                             );
                             next_op1 = ops1.next();
@@ -249,7 +249,10 @@ impl Delta {
                             );
                             next_op1 = Some(
                                 OpBuilder::insert(&chars.collect::<String>())
-                                    //maybe o_retain attributes
+                                    // consider this situation: 
+                                    // [insert:12345678 - retain:4], 
+                                    //      the attributes of "5678" should be empty and the following 
+                                    //      retain will bringing the attributes. 
                                     .attributes(Attributes::Empty)
                                     .build(),
                             );
@@ -313,7 +316,7 @@ impl Delta {
                     next_op1 = ops1.next();
                 },
                 (_, Some(Operation::Insert(o_insert))) => {
-                    let composed_attrs = transform_op_attributes(&next_op1, &next_op2, true);
+                    let composed_attrs = transform_operation(&next_op1, &next_op2);
                     a_prime.retain(o_insert.num_chars(), composed_attrs.clone());
                     b_prime.insert(&o_insert.s, composed_attrs);
                     next_op2 = ops2.next();
@@ -325,7 +328,7 @@ impl Delta {
                     return Err(OTError);
                 },
                 (Some(Operation::Retain(retain)), Some(Operation::Retain(o_retain))) => {
-                    let composed_attrs = transform_op_attributes(&next_op1, &next_op2, true);
+                    let composed_attrs = transform_operation(&next_op1, &next_op2);
                     match retain.cmp(&o_retain) {
                         Ordering::Less => {
                             a_prime.retain(retain.n, composed_attrs.clone());
@@ -474,22 +477,29 @@ impl Delta {
         }
 
         let inverted_from_other =
-            |inverted: &mut Delta, operation: &Operation, index: usize, op_len: usize| {
-                let ops = other.ops_in_interval(Interval::new(index, op_len));
+            |inverted: &mut Delta, operation: &Operation, start: usize, end: usize| {
+                let ops = other.ops_in_interval(Interval::new(start, end));
                 ops.into_iter().for_each(|other_op| {
                     match operation {
                         Operation::Delete(_) => {
                             inverted.add(other_op);
                         },
                         Operation::Retain(_) => {
+                            log::debug!(
+                                "Start invert attributes: {:?}, {:?}",
+                                operation.get_attributes(),
+                                other_op.get_attributes()
+                            );
                             let inverted_attrs = invert_attributes(
                                 operation.get_attributes(),
                                 other_op.get_attributes(),
                             );
+                            log::debug!("End invert attributes: {:?}", inverted_attrs);
                             inverted.retain(other_op.length(), inverted_attrs);
                         },
                         Operation::Insert(_) => {
                             // Impossible to here
+                            panic!()
                         },
                     }
                 });
@@ -500,13 +510,13 @@ impl Delta {
             let len: usize = op.length() as usize;
             match op {
                 Operation::Delete(_) => {
-                    inverted_from_other(&mut inverted, op, index, len);
+                    inverted_from_other(&mut inverted, op, index, index + len);
                     index += len;
                 },
                 Operation::Retain(_) => {
                     match op.has_attribute() {
                         true => inverted.retain(len as u64, op.get_attributes()),
-                        false => inverted_from_other(&mut inverted, op, index, len as usize),
+                        false => inverted_from_other(&mut inverted, op, index, index + len),
                     }
                     index += len;
                 },
@@ -575,8 +585,8 @@ impl Delta {
                 match &insert.attributes {
                     Attributes::Follow => {},
                     Attributes::Custom(data) => {
-                        log::debug!("extend attributes from op: {:?} at {:?}", op, interval);
                         if interval.contains_range(offset, offset + end) {
+                            log::debug!("Get attributes from op: {:?} at {:?}", op, interval);
                             attributes_data.extend(data.clone());
                         }
                     },
@@ -588,4 +598,6 @@ impl Delta {
 
         attributes_data.into_attributes()
     }
+
+    pub fn to_json(&self) -> String { serde_json::to_string(self).unwrap_or("".to_owned()) }
 }

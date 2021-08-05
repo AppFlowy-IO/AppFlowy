@@ -1,4 +1,4 @@
-use crate::core::{transform_attributes, Attributes};
+use crate::core::Attributes;
 use bytecount::num_chars;
 use std::{
     fmt,
@@ -145,14 +145,17 @@ impl Retain {
 
         match &attributes {
             Attributes::Follow => {
+                log::debug!("Follow attribute: {:?}", self.attributes);
                 self.n += n;
                 None
             },
             Attributes::Custom(_) | Attributes::Empty => {
                 if self.attributes == attributes {
+                    log::debug!("Attribute equal");
                     self.n += n;
                     None
                 } else {
+                    log::debug!("New retain op");
                     Some(OpBuilder::retain(n).attributes(attributes).build())
                 }
             },

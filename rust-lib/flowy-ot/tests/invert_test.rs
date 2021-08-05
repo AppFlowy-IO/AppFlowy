@@ -54,10 +54,12 @@ fn delta_invert_delta() {
             0,
             r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34","attributes":{"bold":"true","italic":"true"}},{"insert":"56","attributes":{"bold":"true"}}]"#,
         ),
-        /* Insert(1, "4567", 0),
-         *
-         * Invert(0, 1),
-         * AssertOpsJson(0, r#"[{"insert":"123","attributes":{"bold":"true"}}]"#), */
+        Insert(1, "abc", 0),
+        Invert(0, 1),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34","attributes":{"bold":"true","italic":"true"}},{"insert":"56","attributes":{"bold":"true"}}]"#,
+        ),
     ];
     OpTester::new().run_script(ops);
 }
