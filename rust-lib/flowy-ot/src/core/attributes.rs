@@ -1,8 +1,8 @@
 use crate::core::Operation;
 use std::{collections::HashMap, fmt};
 
-const PLAIN: &'static str = "";
-fn is_plain(s: &str) -> bool { s == PLAIN }
+const REMOVE_FLAG: &'static str = "";
+fn should_remove(s: &str) -> bool { s == REMOVE_FLAG }
 
 #[derive(Debug, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
@@ -15,43 +15,19 @@ pub enum Attributes {
 }
 
 impl Attributes {
-    pub fn extend(&self, other: Option<Attributes>) -> Attributes {
-        log::debug!("Attribute extend: {:?} with {:?}", self, other);
-        let other = other.unwrap_or(Attributes::Empty);
-        let result = match (self, &other) {
-            (Attributes::Custom(data), Attributes::Custom(o_data)) => {
-                if !data.is_plain() {
-                    let mut data = data.clone();
-                    data.extend(o_data.clone());
-                    Attributes::Custom(data)
-                } else {
-                    Attributes::Custom(data.clone())
-                }
-            },
-            (Attributes::Custom(data), _) => Attributes::Custom(data.clone()),
-            // (Attributes::Empty, _) => Attributes::Empty,
-            _ => other,
-        };
-        log::debug!("result {:?}", result);
-        result
-    }
-    // remove attribute if the value is PLAIN
-    // { "k": PLAIN } -> {}
-    pub fn remove_plain(&mut self) {
-        match self {
-            Attributes::Follow => {},
-            Attributes::Custom(data) => {
-                data.remove_plain();
-            },
-            Attributes::Empty => {},
-        }
-    }
-
-    pub fn get_attributes_data(&self) -> Option<AttributesData> {
+    pub fn data(&self) -> Option<AttributesData> {
         match self {
             Attributes::Follow => None,
             Attributes::Custom(data) => Some(data.clone()),
             Attributes::Empty => None,
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        match self {
+            Attributes::Follow => true,
+            Attributes::Custom(data) => data.is_empty(),
+            Attributes::Empty => true,
         }
     }
 }
@@ -90,12 +66,62 @@ impl AttributesData {
             inner: HashMap::new(),
         }
     }
+    pub fn is_empty(&self) -> bool {
+        self.inner.values().filter(|v| !should_remove(v)).count() == 0
+    }
 
-    pub fn remove_plain(&mut self) { self.inner.retain(|_, v| !is_plain(v)); }
+    fn remove_empty(&mut self) { self.inner.retain(|_, v| !should_remove(v)); }
 
     pub fn extend(&mut self, other: AttributesData) { self.inner.extend(other.inner); }
 
-    pub fn is_plain(&self) -> bool { self.inner.values().filter(|v| !is_plain(v)).count() == 0 }
+    pub fn merge(&mut self, other: Option<AttributesData>) {
+        if other.is_none() {
+            return;
+        }
+
+        let mut new_attributes = other.unwrap().inner;
+        self.inner.iter().for_each(|(k, v)| {
+            if should_remove(v) {
+                new_attributes.remove(k);
+            } else {
+                new_attributes.insert(k.clone(), v.clone());
+            }
+        });
+        self.inner = new_attributes;
+    }
+}
+
+pub trait AttributesDataRule {
+    fn apply_rule(&mut self);
+
+    fn into_attributes(self) -> Attributes;
+}
+impl AttributesDataRule for AttributesData {
+    fn apply_rule(&mut self) { self.remove_empty(); }
+
+    fn into_attributes(mut self) -> Attributes {
+        self.apply_rule();
+
+        if self.is_empty() {
+            Attributes::Empty
+        } else {
+            Attributes::Custom(self)
+        }
+    }
+}
+
+pub trait AttributesRule {
+    fn apply_rule(self) -> Attributes;
+}
+
+impl AttributesRule for Attributes {
+    fn apply_rule(self) -> Attributes {
+        match self {
+            Attributes::Follow => self,
+            Attributes::Custom(data) => data.into_attributes(),
+            Attributes::Empty => self,
+        }
+    }
 }
 
 impl std::convert::From<HashMap<String, String>> for AttributesData {
@@ -126,7 +152,7 @@ impl AttrsBuilder {
     pub fn bold(mut self, bold: bool) -> Self {
         let val = match bold {
             true => "true",
-            false => PLAIN,
+            false => REMOVE_FLAG,
         };
         self.inner.insert("bold".to_owned(), val.to_owned());
         self
@@ -135,7 +161,7 @@ impl AttrsBuilder {
     pub fn italic(mut self, italic: bool) -> Self {
         let val = match italic {
             true => "true",
-            false => PLAIN,
+            false => REMOVE_FLAG,
         };
         self.inner.insert("italic".to_owned(), val.to_owned());
         self
@@ -167,54 +193,52 @@ pub fn compose_attributes(left: &Option<Operation>, right: &Option<Operation>) -
     let mut attr = match (&attr_l, &attr_r) {
         (_, Some(Attributes::Custom(_))) => match attr_l {
             None => attr_r.unwrap(),
-            Some(_) => attr_l.unwrap().extend(attr_r.clone()),
-            // Some(attr_l) => merge_attributes(attr_l, attr_r),
+            Some(attr_l) => merge_attributes(attr_l, attr_r),
         },
-        (Some(Attributes::Custom(_)), _) => attr_l.unwrap().extend(attr_r),
-        // (Some(Attributes::Custom(_)), _) => merge_attributes(attr_l.unwrap(), attr_r),
+        (Some(Attributes::Custom(_)), Some(Attributes::Follow))
+        | (Some(Attributes::Custom(_)), Some(Attributes::Custom(_))) => {
+            merge_attributes(attr_l.unwrap(), attr_r)
+        },
         (Some(Attributes::Follow), Some(Attributes::Follow)) => Attributes::Follow,
         _ => Attributes::Empty,
     };
 
     log::trace!("composed_attributes: a: {:?}", attr);
-
-    match &mut attr {
-        Attributes::Custom(data) => {
-            data.remove_plain();
-            match data.is_plain() {
-                true => Attributes::Empty,
-                false => attr,
-            }
-        },
-        _ => attr,
-    }
+    attr.apply_rule()
 }
 
-pub fn transform_attributes(
+pub fn transform_op_attributes(
     left: &Option<Operation>,
     right: &Option<Operation>,
     priority: bool,
 ) -> Attributes {
     let attr_l = attributes_from(left);
     let attr_r = attributes_from(right);
+    transform_attributes(attr_l, attr_r, priority)
+}
 
-    if attr_l.is_none() {
-        if attr_r.is_none() {
+pub fn transform_attributes(
+    left: Option<Attributes>,
+    right: Option<Attributes>,
+    priority: bool,
+) -> Attributes {
+    if left.is_none() {
+        if right.is_none() {
             return Attributes::Empty;
         }
 
-        return match attr_r.as_ref().unwrap() {
+        return match right.as_ref().unwrap() {
             Attributes::Follow => Attributes::Follow,
-            Attributes::Custom(_) => attr_r.unwrap(),
+            Attributes::Custom(_) => right.unwrap(),
             Attributes::Empty => Attributes::Empty,
         };
     }
 
     if !priority {
-        return attr_r.unwrap();
+        return right.unwrap();
     }
 
-    match (attr_l.unwrap(), attr_r.unwrap()) {
+    match (left.unwrap(), right.unwrap()) {
         (Attributes::Custom(attr_data_l), Attributes::Custom(attr_data_r)) => {
             let result = transform_attribute_data(attr_data_l, attr_data_r);
             Attributes::Custom(result)
@@ -224,8 +248,8 @@ pub fn transform_attributes(
 }
 
 pub fn invert_attributes(attr: Attributes, base: Attributes) -> Attributes {
-    let attr = attr.get_attributes_data();
-    let base = base.get_attributes_data();
+    let attr = attr.data();
+    let base = base.data();
 
     if attr.is_none() && base.is_none() {
         return Attributes::Empty;

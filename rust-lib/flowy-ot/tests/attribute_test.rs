@@ -154,7 +154,7 @@ fn delta_add_bold_italic() {
         Italic(0, Interval::new(4, 6), false),
         AssertOpsJson(
             0,
-            r#"[{"insert":"1234","attributes":{"italic":"true","bold":"true"}},{"insert":"56"},{"insert":"78","attributes":{"bold":"true","italic":"true"}}]"#,
+            r#"[{"insert":"1234","attributes":{"bold":"true","italic":"true"}},{"insert":"56","attributes":{"bold":"true"}},{"insert":"78","attributes":{"bold":"true","italic":"true"}}]"#,
         ),
     ];
     OpTester::new().run_script(ops);

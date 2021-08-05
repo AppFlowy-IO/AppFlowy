@@ -1,4 +1,4 @@
-use crate::core::Attributes;
+use crate::core::{transform_attributes, Attributes};
 use bytecount::num_chars;
 use std::{
     fmt,
@@ -36,20 +36,6 @@ impl Operation {
         }
     }
 
-    pub fn extend_attributes(&mut self, attributes: Attributes) {
-        match self {
-            Operation::Delete(_) => {},
-            Operation::Retain(retain) => {
-                let a = retain.attributes.extend(Some(attributes));
-                retain.attributes = a;
-            },
-            Operation::Insert(insert) => {
-                let a = insert.attributes.extend(Some(attributes));
-                insert.attributes = a;
-            },
-        }
-    }
-
     pub fn set_attributes(&mut self, attributes: Attributes) {
         match self {
             Operation::Delete(_) => {
@@ -64,7 +50,7 @@ impl Operation {
         }
     }
 
-    pub fn is_plain(&self) -> bool {
+    pub fn has_attribute(&self) -> bool {
         match self.get_attributes() {
             Attributes::Follow => true,
             Attributes::Custom(_) => false,
@@ -240,13 +226,4 @@ impl std::convert::From<&str> for Insert {
     fn from(s: &str) -> Self { Insert::from(s.to_owned()) }
 }
 
-fn is_empty(attributes: &Attributes) -> bool {
-    match attributes {
-        Attributes::Follow => true,
-        Attributes::Custom(data) => {
-            let is_empty = data.is_plain();
-            is_empty
-        },
-        Attributes::Empty => true,
-    }
-}
+fn is_empty(attributes: &Attributes) -> bool { attributes.is_empty() }

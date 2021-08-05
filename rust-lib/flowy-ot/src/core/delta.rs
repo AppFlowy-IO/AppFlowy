@@ -249,6 +249,7 @@ impl Delta {
                             );
                             next_op1 = Some(
                                 OpBuilder::insert(&chars.collect::<String>())
+                                    //maybe o_retain attributes
                                     .attributes(Attributes::Empty)
                                     .build(),
                             );
@@ -312,7 +313,7 @@ impl Delta {
                     next_op1 = ops1.next();
                 },
                 (_, Some(Operation::Insert(o_insert))) => {
-                    let composed_attrs = transform_attributes(&next_op1, &next_op2, true);
+                    let composed_attrs = transform_op_attributes(&next_op1, &next_op2, true);
                     a_prime.retain(o_insert.num_chars(), composed_attrs.clone());
                     b_prime.insert(&o_insert.s, composed_attrs);
                     next_op2 = ops2.next();
@@ -324,7 +325,7 @@ impl Delta {
                     return Err(OTError);
                 },
                 (Some(Operation::Retain(retain)), Some(Operation::Retain(o_retain))) => {
-                    let composed_attrs = transform_attributes(&next_op1, &next_op2, true);
+                    let composed_attrs = transform_op_attributes(&next_op1, &next_op2, true);
                     match retain.cmp(&o_retain) {
                         Ordering::Less => {
                             a_prime.retain(retain.n, composed_attrs.clone());
@@ -503,7 +504,7 @@ impl Delta {
                     index += len;
                 },
                 Operation::Retain(_) => {
-                    match op.is_plain() {
+                    match op.has_attribute() {
                         true => inverted.retain(len as u64, op.get_attributes()),
                         false => inverted_from_other(&mut inverted, op, index, len as usize),
                     }
@@ -574,7 +575,7 @@ impl Delta {
                 match &insert.attributes {
                     Attributes::Follow => {},
                     Attributes::Custom(data) => {
-                        log::debug!("get attributes from op: {:?} at {:?}", op, interval);
+                        log::debug!("extend attributes from op: {:?} at {:?}", op, interval);
                         if interval.contains_range(offset, offset + end) {
                             attributes_data.extend(data.clone());
                         }
@@ -585,10 +586,6 @@ impl Delta {
             },
         });
 
-        if attributes_data.is_plain() {
-            Attributes::Empty
-        } else {
-            Attributes::Custom(attributes_data)
-        }
+        attributes_data.into_attributes()
     }
 }

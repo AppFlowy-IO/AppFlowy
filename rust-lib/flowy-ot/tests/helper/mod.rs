@@ -133,16 +133,24 @@ impl OpTester {
     pub fn update_delta_with_attribute(
         &mut self,
         delta_index: usize,
-        attributes: Attributes,
+        mut attributes: Attributes,
         interval: &Interval,
     ) {
         let old_delta = &self.deltas[delta_index];
-        let mut retain = OpBuilder::retain(interval.size() as u64)
-            .attributes(attributes)
+        let old_attributes = old_delta.attributes_in_interval(*interval);
+        let new_attributes = match &mut attributes {
+            Attributes::Follow => old_attributes,
+            Attributes::Custom(attr_data) => {
+                attr_data.merge(old_attributes.data());
+                attr_data.clone().into_attributes()
+            },
+            Attributes::Empty => Attributes::Empty,
+        };
+
+        let retain = OpBuilder::retain(interval.size() as u64)
+            .attributes(new_attributes)
             .build();
 
-        let attributes_in_interval = old_delta.attributes_in_interval(*interval);
-        retain.extend_attributes(attributes_in_interval);
         log::debug!(
             "Update delta with attributes: {:?} at: {:?}",
             retain,
