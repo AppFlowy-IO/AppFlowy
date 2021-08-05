@@ -1,6 +1,6 @@
 use crate::{
     core::{attributes::*, operation::*, Interval},
-    errors::OTError,
+    errors::{ErrorBuilder, OTError, OTErrorCode},
 };
 use bytecount::num_chars;
 use std::{cmp::Ordering, fmt, iter::FromIterator, str::FromStr};
@@ -146,7 +146,7 @@ impl Delta {
     /// conflicts.
     pub fn compose(&self, other: &Self) -> Result<Self, OTError> {
         if self.target_len != other.base_len {
-            return Err(OTError);
+            return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength).build());
         }
 
         let mut new_delta = Delta::default();
@@ -167,7 +167,7 @@ impl Delta {
                     next_op2 = ops2.next();
                 },
                 (None, _) | (_, None) => {
-                    return Err(OTError);
+                    return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength).build());
                 },
                 (Some(Operation::Retain(retain)), Some(Operation::Retain(o_retain))) => {
                     let composed_attrs = compose_operation(&next_op1, &next_op2);
@@ -297,7 +297,7 @@ impl Delta {
     /// length conflicts.
     pub fn transform(&self, other: &Self) -> Result<(Self, Self), OTError> {
         if self.base_len != other.base_len {
-            return Err(OTError);
+            return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength).build());
         }
 
         let mut a_prime = Delta::default();
@@ -324,10 +324,10 @@ impl Delta {
                     next_op2 = ops2.next();
                 },
                 (None, _) => {
-                    return Err(OTError);
+                    return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength).build());
                 },
                 (_, None) => {
-                    return Err(OTError);
+                    return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength).build());
                 },
                 (Some(Operation::Retain(retain)), Some(Operation::Retain(o_retain))) => {
                     let composed_attrs = transform_operation(&next_op1, &next_op2);
@@ -418,7 +418,7 @@ impl Delta {
     /// conflicts.
     pub fn apply(&self, s: &str) -> Result<String, OTError> {
         if num_chars(s.as_bytes()) != self.base_len {
-            return Err(OTError);
+            return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength).build());
         }
         let mut new_s = String::new();
         let chars = &mut s.chars();

@@ -29,8 +29,14 @@ pub enum TestOp {
     Transform(usize, usize),
 
     // invert the delta_a base on the delta_b
+    #[display(fmt = "Invert")]
+    Invert(usize, usize),
+
     #[display(fmt = "Undo")]
-    Undo(usize, usize),
+    Undo(usize),
+
+    #[display(fmt = "Redo")]
+    Redo(usize),
 
     #[display(fmt = "AssertOpsJson")]
     AssertOpsJson(usize, &'static str),
@@ -80,13 +86,12 @@ impl OpTester {
                 document.format(*interval, Attribute::Italic, *enable);
             },
             TestOp::Transform(delta_a_i, delta_b_i) => {
-                let (document_a, document_b) =
-                    transform(&self.documents[*delta_a_i], &self.documents[*delta_b_i]);
-
-                self.documents[*delta_a_i] = document_a;
-                self.documents[*delta_b_i] = document_b;
+                transform(
+                    &mut self.documents[*delta_a_i],
+                    &mut self.documents[*delta_b_i],
+                );
             },
-            TestOp::Undo(delta_a_i, delta_b_i) => {
+            TestOp::Invert(delta_a_i, delta_b_i) => {
                 let delta_a = &self.documents[*delta_a_i].data();
                 let delta_b = &self.documents[*delta_b_i].data();
                 log::debug!("Invert: ");
@@ -108,7 +113,12 @@ impl OpTester {
 
                 self.documents[*delta_a_i].set_data(new_delta_after_undo);
             },
-
+            TestOp::Undo(delta_i) => {
+                self.documents[*delta_i].undo();
+            },
+            TestOp::Redo(delta_i) => {
+                self.documents[*delta_i].redo();
+            },
             TestOp::AssertOpsJson(delta_i, expected) => {
                 let delta_i_json = self.documents[*delta_i].to_json();
 

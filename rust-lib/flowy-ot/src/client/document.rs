@@ -1,5 +1,5 @@
 use crate::{
-    client::{History, UndoResult},
+    client::{History, RevId, Revision, UndoResult},
     core::{
         Attribute,
         Attributes,
@@ -10,11 +10,13 @@ use crate::{
         OpBuilder,
         Operation,
     },
+    errors::{ErrorBuilder, OTError, OTErrorCode::*},
 };
 
 pub struct Document {
     data: Delta,
     history: History,
+    rev_id_counter: u64,
 }
 
 impl Document {
@@ -22,6 +24,7 @@ impl Document {
         Document {
             data: Delta::new(),
             history: History::new(),
+            rev_id_counter: 1,
         }
     }
 
@@ -53,9 +56,38 @@ impl Document {
         self.update_with_attribute(attributes, interval);
     }
 
-    pub fn undo(&mut self) -> UndoResult { unimplemented!() }
+    pub fn can_undo(&self) -> bool { self.history.can_undo() }
 
-    pub fn redo(&mut self) -> UndoResult { unimplemented!() }
+    pub fn can_redo(&self) -> bool { self.history.can_redo() }
+
+    pub fn undo(&mut self) -> Result<UndoResult, OTError> {
+        match self.history.undo() {
+            None => Err(ErrorBuilder::new(UndoFail).build()),
+            Some(undo_delta) => {
+                let new_delta = self.data.compose(&undo_delta)?;
+                let result = UndoResult::success(new_delta.target_len as u64);
+                let redo_delta = undo_delta.invert_delta(&self.data);
+                self.data = new_delta;
+                self.history.add_redo(redo_delta);
+
+                Ok(result)
+            },
+        }
+    }
+
+    pub fn redo(&mut self) -> Result<UndoResult, OTError> {
+        match self.history.redo() {
+            None => Err(ErrorBuilder::new(RedoFail).build()),
+            Some(redo_delta) => {
+                let new_delta = self.data.compose(&redo_delta)?;
+                let result = UndoResult::success(new_delta.target_len as u64);
+                let redo_delta = redo_delta.invert_delta(&self.data);
+                self.data = new_delta;
+                self.history.add_undo(redo_delta);
+                Ok(result)
+            },
+        }
+    }
 
     pub fn delete(&mut self, interval: Interval) {
         let delete = OpBuilder::delete(interval.size() as u64).build();
@@ -96,6 +128,13 @@ impl Document {
         }
 
         let new_data = self.data.compose(&new_delta).unwrap();
+        let undo_delta = new_data.invert_delta(&self.data);
+        self.rev_id_counter += 1;
+
+        if !undo_delta.is_empty() {
+            self.history.add_undo(undo_delta);
+        }
+
         self.data = new_data;
     }
 
@@ -128,24 +167,19 @@ impl Document {
 
         self.update_with_op(retain, interval);
     }
+
+    fn next_rev_id(&self) -> RevId { RevId(self.rev_id_counter) }
 }
 
-pub fn transform(left: &Document, right: &Document) -> (Document, Document) {
+pub fn transform(left: &mut Document, right: &mut Document) {
     let (a_prime, b_prime) = left.data.transform(&right.data).unwrap();
     log::trace!("a:{:?},b:{:?}", a_prime, b_prime);
 
     let data_left = left.data.compose(&b_prime).unwrap();
     let data_right = right.data.compose(&a_prime).unwrap();
-    (
-        Document {
-            data: data_left,
-            history: left.history.clone(),
-        },
-        Document {
-            data: data_right,
-            history: right.history.clone(),
-        },
-    )
+
+    left.set_data(data_left);
+    right.set_data(data_right);
 }
 
 fn split_length_with_interval(length: usize, interval: Interval) -> (Interval, Interval, Interval) {
