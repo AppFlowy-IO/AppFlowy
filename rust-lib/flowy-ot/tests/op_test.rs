@@ -191,8 +191,6 @@ fn transform2() {
         Insert(0, "123", 0),
         Insert(1, "456", 0),
         Transform(0, 1),
-        AssertStr(0, "123456"),
-        AssertStr(1, "123456"),
         AssertOpsJson(0, r#"[{"insert":"123456"}]"#),
         AssertOpsJson(1, r#"[{"insert":"123456"}]"#),
     ];

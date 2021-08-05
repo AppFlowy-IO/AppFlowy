@@ -1,5 +1,8 @@
 use derive_more::Display;
-use flowy_ot::core::*;
+use flowy_ot::{
+    client::{transform, Document},
+    core::*,
+};
 use rand::{prelude::*, Rng as WrappedRng};
 use std::sync::Once;
 
@@ -29,15 +32,12 @@ pub enum TestOp {
     #[display(fmt = "Undo")]
     Undo(usize, usize),
 
-    #[display(fmt = "AssertStr")]
-    AssertStr(usize, &'static str),
-
     #[display(fmt = "AssertOpsJson")]
     AssertOpsJson(usize, &'static str),
 }
 
 pub struct OpTester {
-    deltas: Vec<Delta>,
+    documents: Vec<Document>,
 }
 
 impl OpTester {
@@ -48,52 +48,47 @@ impl OpTester {
             env_logger::init();
         });
 
-        let mut deltas = Vec::with_capacity(2);
+        let mut documents = Vec::with_capacity(2);
         for _ in 0..2 {
-            let delta = Delta::default();
-            deltas.push(delta);
+            documents.push(Document::new());
         }
-        Self { deltas }
+        Self { documents }
     }
 
     pub fn run_op(&mut self, op: &TestOp) {
         log::debug!("***************** 😈{} *******************", &op);
         match op {
             TestOp::Insert(delta_i, s, index) => {
-                self.update_delta_with_insert(*delta_i, s, *index);
+                let document = &mut self.documents[*delta_i];
+                document.edit(*index, s);
             },
             TestOp::Delete(delta_i, interval) => {
-                //
-                self.update_delta_with_delete(*delta_i, interval);
+                let document = &mut self.documents[*delta_i];
+                document.delete(*interval);
             },
-            TestOp::InsertBold(delta_i, s, _interval) => {
-                let attrs = AttrsBuilder::new().bold(true).build();
-                let delta = &mut self.deltas[*delta_i];
-                delta.insert(s, attrs);
+            TestOp::InsertBold(delta_i, s, interval) => {
+                let document = &mut self.documents[*delta_i];
+                document.edit(interval.start, s);
+                document.format(*interval, Attribute::Bold, true);
             },
             TestOp::Bold(delta_i, interval, enable) => {
-                let attrs = AttrsBuilder::new().bold(*enable).build();
-                self.update_delta_with_attribute(*delta_i, attrs, interval);
+                let document = &mut self.documents[*delta_i];
+                document.format(*interval, Attribute::Bold, *enable);
             },
             TestOp::Italic(delta_i, interval, enable) => {
-                let attrs = AttrsBuilder::new().italic(*enable).build();
-                self.update_delta_with_attribute(*delta_i, attrs, interval);
+                let document = &mut self.documents[*delta_i];
+                document.format(*interval, Attribute::Italic, *enable);
             },
             TestOp::Transform(delta_a_i, delta_b_i) => {
-                let delta_a = &self.deltas[*delta_a_i];
-                let delta_b = &self.deltas[*delta_b_i];
+                let (document_a, document_b) =
+                    transform(&self.documents[*delta_a_i], &self.documents[*delta_b_i]);
 
-                let (a_prime, b_prime) = delta_a.transform(delta_b).unwrap();
-                log::trace!("a:{:?},b:{:?}", a_prime, b_prime);
-                let new_delta_a = delta_a.compose(&b_prime).unwrap();
-                let new_delta_b = delta_b.compose(&a_prime).unwrap();
-
-                self.deltas[*delta_a_i] = new_delta_a;
-                self.deltas[*delta_b_i] = new_delta_b;
+                self.documents[*delta_a_i] = document_a;
+                self.documents[*delta_b_i] = document_b;
             },
             TestOp::Undo(delta_a_i, delta_b_i) => {
-                let delta_a = &self.deltas[*delta_a_i];
-                let delta_b = &self.deltas[*delta_b_i];
+                let delta_a = &self.documents[*delta_a_i].data();
+                let delta_b = &self.documents[*delta_b_i].data();
                 log::debug!("Invert: ");
                 log::debug!("a: {}", delta_a.to_json());
                 log::debug!("b: {}", delta_b.to_json());
@@ -109,18 +104,13 @@ impl OpTester {
 
                 log::debug!("inverted delta a: {}", new_delta_after_undo.to_string());
 
-                assert_eq!(delta_a, &new_delta_after_undo);
+                assert_eq!(delta_a, &&new_delta_after_undo);
 
-                self.deltas[*delta_a_i] = new_delta_after_undo;
-            },
-            TestOp::AssertStr(delta_i, expected) => {
-                let s = self.deltas[*delta_i].apply("").unwrap();
-                assert_eq!(&s, expected);
+                self.documents[*delta_a_i].set_data(new_delta_after_undo);
             },
 
             TestOp::AssertOpsJson(delta_i, expected) => {
-                log::debug!("AssertOpsJson: {:?}", self.deltas[*delta_i]);
-                let delta_i_json = serde_json::to_string(&self.deltas[*delta_i]).unwrap();
+                let delta_i_json = self.documents[*delta_i].to_json();
 
                 let expected_delta: Delta = serde_json::from_str(expected).unwrap();
                 let target_delta: Delta = serde_json::from_str(&delta_i_json).unwrap();
@@ -139,116 +129,6 @@ impl OpTester {
             self.run_op(op);
         }
     }
-
-    pub fn get_delta(&mut self, index: usize) -> &mut Delta { &mut self.deltas[index] }
-
-    pub fn update_delta_with_insert(&mut self, delta_index: usize, s: &str, index: usize) {
-        let old_delta = &mut self.deltas[delta_index];
-        let target_interval = Interval::new(0, old_delta.target_len);
-        if old_delta.target_len < index {
-            log::error!("{} out of bounds {}", index, target_interval);
-        }
-
-        let mut attributes = old_delta.get_attributes(Interval::new(index, index + 1));
-        if attributes == Attributes::Empty {
-            attributes = Attributes::Follow;
-        }
-        let insert = OpBuilder::insert(s).attributes(attributes).build();
-        let new_delta = new_delta_with_op(old_delta, insert, Interval::new(index, index));
-        self.deltas[delta_index] = new_delta;
-    }
-
-    pub fn update_delta_with_attribute(
-        &mut self,
-        delta_index: usize,
-        mut attributes: Attributes,
-        interval: &Interval,
-    ) {
-        let old_delta = &self.deltas[delta_index];
-        let old_attributes = old_delta.get_attributes(*interval);
-        log::debug!(
-            "merge attributes: {:?}, with old: {:?}",
-            attributes,
-            old_attributes
-        );
-        let new_attributes = match &mut attributes {
-            Attributes::Follow => old_attributes,
-            Attributes::Custom(attr_data) => {
-                attr_data.merge(old_attributes.data());
-                attr_data.clone().into_attributes()
-            },
-            Attributes::Empty => Attributes::Empty,
-        };
-
-        log::debug!("new attributes: {:?}", new_attributes);
-        let retain = OpBuilder::retain(interval.size() as u64)
-            .attributes(new_attributes)
-            .build();
-
-        log::debug!(
-            "Update delta with new attributes: {:?} at: {:?}",
-            retain,
-            interval
-        );
-
-        let new_delta = new_delta_with_op(old_delta, retain, *interval);
-        self.deltas[delta_index] = new_delta;
-    }
-
-    pub fn update_delta_with_delete(&mut self, delta_index: usize, interval: &Interval) {
-        let old_delta = &self.deltas[delta_index];
-        let delete = OpBuilder::delete(interval.size() as u64).build();
-        let new_delta = new_delta_with_op(old_delta, delete, *interval);
-        self.deltas[delta_index] = new_delta;
-    }
-}
-
-fn new_delta_with_op(delta: &Delta, op: Operation, interval: Interval) -> Delta {
-    let mut new_delta = Delta::default();
-    let (prefix, interval, suffix) = target_length_split_with_interval(delta.target_len, interval);
-
-    // prefix
-    if prefix.is_empty() == false && prefix != interval {
-        let intervals = split_interval_with_delta(delta, &prefix);
-        intervals.into_iter().for_each(|p_interval| {
-            let attributes = delta.get_attributes(p_interval);
-            log::debug!(
-                "prefix attribute: {:?}, interval: {:?}",
-                attributes,
-                p_interval
-            );
-            new_delta.retain(p_interval.size() as u64, attributes);
-        });
-    }
-
-    log::debug!("add new op: {:?}", op);
-    new_delta.add(op);
-
-    // suffix
-    if suffix.is_empty() == false {
-        let intervals = split_interval_with_delta(delta, &suffix);
-        intervals.into_iter().for_each(|s_interval| {
-            let attributes = delta.get_attributes(s_interval);
-            log::debug!(
-                "suffix attribute: {:?}, interval: {:?}",
-                attributes,
-                s_interval
-            );
-            new_delta.retain(s_interval.size() as u64, attributes);
-        });
-    }
-
-    delta.compose(&new_delta).unwrap()
-}
-
-pub fn target_length_split_with_interval(
-    length: usize,
-    interval: Interval,
-) -> (Interval, Interval, Interval) {
-    let original_interval = Interval::new(0, length);
-    let prefix = original_interval.prefix(interval);
-    let suffix = original_interval.suffix(interval);
-    (prefix, interval, suffix)
 }
 
 pub fn debug_print_delta(delta: &Delta) {
