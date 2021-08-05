@@ -26,8 +26,8 @@ pub enum TestOp {
     Transform(usize, usize),
 
     // invert the delta_a base on the delta_b
-    #[display(fmt = "Invert")]
-    Invert(usize, usize),
+    #[display(fmt = "Undo")]
+    Undo(usize, usize),
 
     #[display(fmt = "AssertStr")]
     AssertStr(usize, &'static str),
@@ -91,7 +91,7 @@ impl OpTester {
                 self.deltas[*delta_a_i] = new_delta_a;
                 self.deltas[*delta_b_i] = new_delta_b;
             },
-            TestOp::Invert(delta_a_i, delta_b_i) => {
+            TestOp::Undo(delta_a_i, delta_b_i) => {
                 let delta_a = &self.deltas[*delta_a_i];
                 let delta_b = &self.deltas[*delta_b_i];
                 log::debug!("Invert: ");
@@ -149,7 +149,7 @@ impl OpTester {
             log::error!("{} out of bounds {}", index, target_interval);
         }
 
-        let mut attributes = old_delta.attributes_in_interval(Interval::new(index, index + 1));
+        let mut attributes = old_delta.get_attributes(Interval::new(index, index + 1));
         if attributes == Attributes::Empty {
             attributes = Attributes::Follow;
         }
@@ -165,7 +165,7 @@ impl OpTester {
         interval: &Interval,
     ) {
         let old_delta = &self.deltas[delta_index];
-        let old_attributes = old_delta.attributes_in_interval(*interval);
+        let old_attributes = old_delta.get_attributes(*interval);
         log::debug!(
             "merge attributes: {:?}, with old: {:?}",
             attributes,
@@ -211,7 +211,7 @@ fn new_delta_with_op(delta: &Delta, op: Operation, interval: Interval) -> Delta 
     if prefix.is_empty() == false && prefix != interval {
         let intervals = split_interval_with_delta(delta, &prefix);
         intervals.into_iter().for_each(|p_interval| {
-            let attributes = delta.attributes_in_interval(p_interval);
+            let attributes = delta.get_attributes(p_interval);
             log::debug!(
                 "prefix attribute: {:?}, interval: {:?}",
                 attributes,
@@ -228,7 +228,7 @@ fn new_delta_with_op(delta: &Delta, op: Operation, interval: Interval) -> Delta 
     if suffix.is_empty() == false {
         let intervals = split_interval_with_delta(delta, &suffix);
         intervals.into_iter().for_each(|s_interval| {
-            let attributes = delta.attributes_in_interval(s_interval);
+            let attributes = delta.get_attributes(s_interval);
             log::debug!(
                 "suffix attribute: {:?}, interval: {:?}",
                 attributes,
@@ -239,27 +239,6 @@ fn new_delta_with_op(delta: &Delta, op: Operation, interval: Interval) -> Delta 
     }
 
     delta.compose(&new_delta).unwrap()
-}
-
-fn split_interval_with_delta(delta: &Delta, interval: &Interval) -> Vec<Interval> {
-    let mut start = 0;
-    let mut new_intervals = vec![];
-    delta.ops.iter().for_each(|op| match op {
-        Operation::Delete(_) => {},
-        Operation::Retain(_) => {},
-        Operation::Insert(insert) => {
-            let len = insert.num_chars() as usize;
-            let end = start + len;
-            let insert_interval = Interval::new(start, end);
-            let new_interval = interval.intersect(insert_interval);
-
-            if !new_interval.is_empty() {
-                new_intervals.push(new_interval)
-            }
-            start += len;
-        },
-    });
-    new_intervals
 }
 
 pub fn target_length_split_with_interval(

@@ -57,6 +57,8 @@ impl FromIterator<Operation> for Delta {
 }
 
 impl Delta {
+    pub fn new() -> Self { Self::default() }
+
     #[inline]
     pub fn with_capacity(capacity: usize) -> Self {
         Self {
@@ -562,7 +564,7 @@ impl Delta {
         ops
     }
 
-    pub fn attributes_in_interval(&self, interval: Interval) -> Attributes {
+    pub fn get_attributes(&self, interval: Interval) -> Attributes {
         let mut attributes_data = AttributesData::new();
         let mut offset: usize = 0;
 
