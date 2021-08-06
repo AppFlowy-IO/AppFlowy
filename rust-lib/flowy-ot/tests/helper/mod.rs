@@ -1,8 +1,5 @@
 use derive_more::Display;
-use flowy_ot::{
-    client::{transform, Document},
-    core::*,
-};
+use flowy_ot::{client::Document, core::*};
 use rand::{prelude::*, Rng as WrappedRng};
 use std::sync::Once;
 
@@ -66,30 +63,41 @@ impl OpTester {
         match op {
             TestOp::Insert(delta_i, s, index) => {
                 let document = &mut self.documents[*delta_i];
-                document.edit(*index, s);
+                document.edit(*index, s).unwrap();
             },
             TestOp::Delete(delta_i, interval) => {
                 let document = &mut self.documents[*delta_i];
-                document.delete(*interval);
+                document.delete(*interval).unwrap();
             },
             TestOp::InsertBold(delta_i, s, interval) => {
                 let document = &mut self.documents[*delta_i];
-                document.edit(interval.start, s);
-                document.format(*interval, Attribute::Bold, true);
+                document.edit(interval.start, s).unwrap();
+                document.format(*interval, Attribute::Bold, true).unwrap();
             },
             TestOp::Bold(delta_i, interval, enable) => {
                 let document = &mut self.documents[*delta_i];
-                document.format(*interval, Attribute::Bold, *enable);
+                document
+                    .format(*interval, Attribute::Bold, *enable)
+                    .unwrap();
             },
             TestOp::Italic(delta_i, interval, enable) => {
                 let document = &mut self.documents[*delta_i];
-                document.format(*interval, Attribute::Italic, *enable);
+                document
+                    .format(*interval, Attribute::Italic, *enable)
+                    .unwrap();
             },
             TestOp::Transform(delta_a_i, delta_b_i) => {
-                transform(
-                    &mut self.documents[*delta_a_i],
-                    &mut self.documents[*delta_b_i],
-                );
+                let (a_prime, b_prime) = self.documents[*delta_a_i]
+                    .data()
+                    .transform(&self.documents[*delta_b_i].data())
+                    .unwrap();
+                log::trace!("a:{:?},b:{:?}", a_prime, b_prime);
+
+                let data_left = self.documents[*delta_a_i].data().compose(&b_prime).unwrap();
+                let data_right = self.documents[*delta_b_i].data().compose(&a_prime).unwrap();
+
+                self.documents[*delta_a_i].set_data(data_left);
+                self.documents[*delta_b_i].set_data(data_right);
             },
             TestOp::Invert(delta_a_i, delta_b_i) => {
                 let delta_a = &self.documents[*delta_a_i].data();
@@ -114,10 +122,10 @@ impl OpTester {
                 self.documents[*delta_a_i].set_data(new_delta_after_undo);
             },
             TestOp::Undo(delta_i) => {
-                self.documents[*delta_i].undo();
+                self.documents[*delta_i].undo().unwrap();
             },
             TestOp::Redo(delta_i) => {
-                self.documents[*delta_i].redo();
+                self.documents[*delta_i].redo().unwrap();
             },
             TestOp::AssertOpsJson(delta_i, expected) => {
                 let delta_i_json = self.documents[*delta_i].to_json();

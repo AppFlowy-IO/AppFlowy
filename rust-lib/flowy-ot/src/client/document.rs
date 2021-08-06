@@ -1,5 +1,5 @@
 use crate::{
-    client::{History, RevId, Revision, UndoResult},
+    client::{History, RevId, UndoResult},
     core::{
         Attribute,
         Attributes,
@@ -21,14 +21,17 @@ pub struct Document {
 
 impl Document {
     pub fn new() -> Self {
+        let mut delta = Delta::new();
+        delta.insert("\n", Attributes::Empty);
+
         Document {
-            data: Delta::new(),
+            data: delta,
             history: History::new(),
             rev_id_counter: 1,
         }
     }
 
-    pub fn edit(&mut self, index: usize, text: &str) {
+    pub fn edit(&mut self, index: usize, text: &str) -> Result<(), OTError> {
         if self.data.target_len < index {
             log::error!(
                 "{} out of bounds. should 0..{}",
@@ -44,16 +47,21 @@ impl Document {
         let insert = OpBuilder::insert(text).attributes(attributes).build();
         let interval = Interval::new(index, index);
 
-        self.update_with_op(insert, interval);
+        self.update_with_op(insert, interval)
     }
 
-    pub fn format(&mut self, interval: Interval, attribute: Attribute, enable: bool) {
+    pub fn format(
+        &mut self,
+        interval: Interval,
+        attribute: Attribute,
+        enable: bool,
+    ) -> Result<(), OTError> {
         let attributes = match enable {
             true => AttrsBuilder::new().add_attribute(attribute).build(),
             false => AttrsBuilder::new().remove_attribute(attribute).build(),
         };
 
-        self.update_with_attribute(attributes, interval);
+        self.update_with_attribute(attributes, interval)
     }
 
     pub fn can_undo(&self) -> bool { self.history.can_undo() }
@@ -89,9 +97,9 @@ impl Document {
         }
     }
 
-    pub fn delete(&mut self, interval: Interval) {
+    pub fn delete(&mut self, interval: Interval) -> Result<(), OTError> {
         let delete = OpBuilder::delete(interval.size() as u64).build();
-        self.update_with_op(delete, interval);
+        self.update_with_op(delete, interval)
     }
 
     pub fn to_json(&self) -> String { self.data.to_json() }
@@ -100,7 +108,7 @@ impl Document {
 
     pub fn set_data(&mut self, data: Delta) { self.data = data; }
 
-    fn update_with_op(&mut self, op: Operation, interval: Interval) {
+    fn update_with_op(&mut self, op: Operation, interval: Interval) -> Result<(), OTError> {
         let mut new_delta = Delta::default();
         let (prefix, interval, suffix) = split_length_with_interval(self.data.target_len, interval);
 
@@ -127,18 +135,20 @@ impl Document {
             });
         }
 
-        let new_data = self.data.compose(&new_delta).unwrap();
-        let undo_delta = new_data.invert_delta(&self.data);
+        let new_data = self.data.compose(&new_delta)?;
+        let undo_delta = new_delta.invert_delta(&self.data);
         self.rev_id_counter += 1;
 
-        if !undo_delta.is_empty() {
-            self.history.add_undo(undo_delta);
-        }
-
+        self.history.record(undo_delta);
         self.data = new_data;
+        Ok(())
     }
 
-    pub fn update_with_attribute(&mut self, mut attributes: Attributes, interval: Interval) {
+    pub fn update_with_attribute(
+        &mut self,
+        mut attributes: Attributes,
+        interval: Interval,
+    ) -> Result<(), OTError> {
         let old_attributes = self.data.get_attributes(interval);
         log::debug!(
             "merge attributes: {:?}, with old: {:?}",
@@ -165,21 +175,10 @@ impl Document {
             interval
         );
 
-        self.update_with_op(retain, interval);
+        self.update_with_op(retain, interval)
     }
 
     fn next_rev_id(&self) -> RevId { RevId(self.rev_id_counter) }
-}
-
-pub fn transform(left: &mut Document, right: &mut Document) {
-    let (a_prime, b_prime) = left.data.transform(&right.data).unwrap();
-    log::trace!("a:{:?},b:{:?}", a_prime, b_prime);
-
-    let data_left = left.data.compose(&b_prime).unwrap();
-    let data_right = right.data.compose(&a_prime).unwrap();
-
-    left.set_data(data_left);
-    right.set_data(data_right);
 }
 
 fn split_length_with_interval(length: usize, interval: Interval) -> (Interval, Interval, Interval) {

@@ -1,4 +1,4 @@
-use crate::core::{Delta, Interval, OpBuilder, Operation};
+use crate::core::Delta;
 
 const MAX_UNDOS: usize = 20;
 
@@ -37,6 +37,7 @@ pub struct History {
     cur_undo: usize,
     undos: Vec<Delta>,
     redos: Vec<Delta>,
+    capacity: usize,
 }
 
 impl History {
@@ -45,6 +46,7 @@ impl History {
             cur_undo: 1,
             undos: Vec::new(),
             redos: Vec::new(),
+            capacity: 20,
         }
     }
 
@@ -55,6 +57,19 @@ impl History {
     pub fn add_undo(&mut self, delta: Delta) { self.undos.push(delta); }
 
     pub fn add_redo(&mut self, delta: Delta) { self.redos.push(delta); }
+
+    pub fn record(&mut self, delta: Delta) {
+        if delta.ops.is_empty() {
+            return;
+        }
+
+        self.redos.clear();
+        self.add_undo(delta);
+
+        if self.undos.len() > self.capacity {
+            self.undos.remove(0);
+        }
+    }
 
     pub fn undo(&mut self) -> Option<Delta> {
         if !self.can_undo() {
