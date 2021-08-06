@@ -82,7 +82,7 @@ fn invert() {
         let mut rng = Rng::default();
         let s = rng.gen_string(50);
         let delta_a = rng.gen_delta(&s);
-        let delta_b = delta_a.invert(&s);
+        let delta_b = delta_a.invert_str(&s);
         assert_eq!(delta_a.base_len, delta_b.target_len);
         assert_eq!(delta_a.target_len, delta_b.base_len);
         assert_eq!(delta_b.apply(&delta_a.apply(&s).unwrap()).unwrap(), s);

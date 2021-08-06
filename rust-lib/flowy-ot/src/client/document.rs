@@ -72,10 +72,10 @@ impl Document {
         match self.history.undo() {
             None => Err(ErrorBuilder::new(UndoFail).build()),
             Some(undo_delta) => {
-                let new_delta = self.data.compose(&undo_delta)?;
-                let result = UndoResult::success(new_delta.target_len as u64);
-                let redo_delta = undo_delta.invert_delta(&self.data);
-                self.data = new_delta;
+                let composed_delta = self.data.compose(&undo_delta)?;
+                let redo_delta = undo_delta.invert(&self.data);
+                let result = UndoResult::success(composed_delta.target_len as u64);
+                self.data = composed_delta;
                 self.history.add_redo(redo_delta);
 
                 Ok(result)
@@ -89,9 +89,9 @@ impl Document {
             Some(redo_delta) => {
                 let new_delta = self.data.compose(&redo_delta)?;
                 let result = UndoResult::success(new_delta.target_len as u64);
-                let redo_delta = redo_delta.invert_delta(&self.data);
+                let undo_delta = redo_delta.invert(&self.data);
                 self.data = new_delta;
-                self.history.add_undo(redo_delta);
+                self.history.add_undo(undo_delta);
                 Ok(result)
             },
         }
@@ -103,6 +103,8 @@ impl Document {
     }
 
     pub fn to_json(&self) -> String { self.data.to_json() }
+
+    pub fn to_string(&self) -> String { self.data.apply("").unwrap() }
 
     pub fn data(&self) -> &Delta { &self.data }
 
@@ -135,12 +137,15 @@ impl Document {
             });
         }
 
-        let new_data = self.data.compose(&new_delta)?;
-        let undo_delta = new_delta.invert_delta(&self.data);
-        self.rev_id_counter += 1;
+        // c = a.compose(b)
+        // d = b.invert(a)
+        // a = c.compose(d)
+        let composed_delta = self.data.compose(&new_delta)?;
+        let undo_delta = new_delta.invert(&self.data);
 
+        self.rev_id_counter += 1;
         self.history.record(undo_delta);
-        self.data = new_data;
+        self.data = composed_delta;
         Ok(())
     }
 

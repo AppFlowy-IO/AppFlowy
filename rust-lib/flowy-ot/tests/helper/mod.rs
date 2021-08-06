@@ -35,6 +35,9 @@ pub enum TestOp {
     #[display(fmt = "Redo")]
     Redo(usize),
 
+    #[display(fmt = "AssertStr")]
+    AssertStr(usize, &'static str),
+
     #[display(fmt = "AssertOpsJson")]
     AssertOpsJson(usize, &'static str),
 }
@@ -107,7 +110,7 @@ impl OpTester {
                 log::debug!("b: {}", delta_b.to_json());
 
                 let (_, b_prime) = delta_a.transform(delta_b).unwrap();
-                let undo = b_prime.invert_delta(&delta_a);
+                let undo = b_prime.invert(&delta_a);
 
                 let new_delta = delta_a.compose(&b_prime).unwrap();
                 log::debug!("new delta: {}", new_delta.to_json());
@@ -127,6 +130,10 @@ impl OpTester {
             TestOp::Redo(delta_i) => {
                 self.documents[*delta_i].redo().unwrap();
             },
+            TestOp::AssertStr(delta_i, expected) => {
+                assert_eq!(&self.documents[*delta_i].to_string(), expected);
+            },
+
             TestOp::AssertOpsJson(delta_i, expected) => {
                 let delta_i_json = self.documents[*delta_i].to_json();
 

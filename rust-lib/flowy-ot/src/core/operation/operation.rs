@@ -1,6 +1,7 @@
-use crate::core::{Attributes, OpBuilder};
+use crate::core::{Attributes, Interval, OpBuilder};
 use bytecount::num_chars;
 use std::{
+    cmp::min,
     fmt,
     ops::{Deref, DerefMut},
     str::Chars,
@@ -52,9 +53,9 @@ impl Operation {
 
     pub fn has_attribute(&self) -> bool {
         match self.get_attributes() {
-            Attributes::Follow => true,
-            Attributes::Custom(_) => false,
-            Attributes::Empty => true,
+            Attributes::Follow => false,
+            Attributes::Custom(data) => data.is_empty(),
+            Attributes::Empty => false,
         }
     }
 
@@ -67,6 +68,30 @@ impl Operation {
     }
 
     pub fn is_empty(&self) -> bool { self.length() == 0 }
+
+    pub fn shrink_to_interval(&self, interval: Interval) -> Operation {
+        match self {
+            Operation::Delete(_) => Operation::Delete(interval.size() as u64),
+            Operation::Retain(retain) => {
+                //
+                OpBuilder::retain(interval.size() as u64)
+                    .attributes(retain.attributes.clone())
+                    .build()
+            },
+            Operation::Insert(insert) => {
+                // debug_assert!(insert.s.len() <= interval.size());
+                if interval.start > insert.s.len() {
+                    return OpBuilder::insert("").build();
+                }
+
+                let end = min(interval.end, insert.s.len());
+                let s = &insert.s[interval.start..end];
+                OpBuilder::insert(s)
+                    .attributes(insert.attributes.clone())
+                    .build()
+            },
+        }
+    }
 }
 
 impl fmt::Display for Operation {

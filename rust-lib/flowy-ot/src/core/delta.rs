@@ -3,7 +3,12 @@ use crate::{
     errors::{ErrorBuilder, OTError, OTErrorCode},
 };
 use bytecount::num_chars;
-use std::{cmp::Ordering, fmt, iter::FromIterator, str::FromStr};
+use std::{
+    cmp::{max, min, Ordering},
+    fmt,
+    iter::FromIterator,
+    str::FromStr,
+};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Delta {
@@ -444,7 +449,7 @@ impl Delta {
 
     /// Computes the inverse of an operation. The inverse of an operation is the
     /// operation that reverts the effects of the operation
-    pub fn invert(&self, s: &str) -> Self {
+    pub fn invert_str(&self, s: &str) -> Self {
         let mut inverted = Delta::default();
         let chars = &mut s.chars();
         for op in &self.ops {
@@ -472,7 +477,7 @@ impl Delta {
         inverted
     }
 
-    pub fn invert_delta(&self, other: &Delta) -> Delta {
+    pub fn invert(&self, other: &Delta) -> Delta {
         let mut inverted = Delta::default();
         if other.is_empty() {
             return inverted;
@@ -517,8 +522,8 @@ impl Delta {
                 },
                 Operation::Retain(_) => {
                     match op.has_attribute() {
-                        true => inverted.retain(len as u64, op.get_attributes()),
-                        false => inverted_from_other(&mut inverted, op, index, index + len),
+                        true => inverted_from_other(&mut inverted, op, index, index + len),
+                        false => inverted.retain(len as u64, op.get_attributes()),
                     }
                     index += len;
                 },
@@ -547,20 +552,26 @@ impl Delta {
         let mut ops: Vec<Operation> = Vec::with_capacity(self.ops.len());
         let mut offset: usize = 0;
         let mut ops_iter = self.ops.iter();
-        let mut op = ops_iter.next();
+        let mut next_op = ops_iter.next();
 
-        while offset < interval.end && op.is_some() {
-            if let Some(op) = op {
+        if offset < interval.end && next_op.is_some() {
+            let op = next_op.take().unwrap();
+            let len = op.length() as usize;
+            // log::info!("{:?}", op);
+            while offset < len {
                 if offset < interval.start {
-                    offset += op.length() as usize;
+                    offset += min(interval.start, op.length() as usize);
                 } else {
-                    ops.push(op.clone());
-                    offset += op.length() as usize;
+                    if interval.contains(offset) {
+                        ops.push(op.shrink_to_interval(interval));
+                        offset += max(op.length() as usize, interval.size());
+                    } else {
+                        break;
+                    }
                 }
             }
-            op = ops_iter.next();
+            next_op = ops_iter.next();
         }
-
         ops
     }
 

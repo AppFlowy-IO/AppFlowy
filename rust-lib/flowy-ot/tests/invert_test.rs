@@ -10,7 +10,7 @@ fn delta_invert_no_attribute_delta() {
     let mut change = Delta::default();
     change.add(OpBuilder::retain(3).build());
     change.add(OpBuilder::insert("456").build());
-    let undo = change.invert_delta(&delta);
+    let undo = change.invert(&delta);
 
     let new_delta = delta.compose(&change).unwrap();
     let delta_after_undo = new_delta.compose(&undo).unwrap();
