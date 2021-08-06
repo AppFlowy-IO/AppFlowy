@@ -3,7 +3,7 @@ use crate::core::Delta;
 const MAX_UNDOS: usize = 20;
 
 #[derive(Debug, Clone)]
-pub struct RevId(pub u64);
+pub struct RevId(pub usize);
 
 #[derive(Debug, Clone)]
 pub struct Revision {
@@ -18,7 +18,7 @@ impl Revision {
 #[derive(Debug, Clone)]
 pub struct UndoResult {
     success: bool,
-    len: u64,
+    len: usize,
 }
 
 impl UndoResult {
@@ -29,7 +29,7 @@ impl UndoResult {
         }
     }
 
-    pub fn success(len: u64) -> Self { UndoResult { success: true, len } }
+    pub fn success(len: usize) -> Self { UndoResult { success: true, len } }
 }
 
 #[derive(Debug, Clone)]

@@ -16,14 +16,12 @@ use crate::{
 pub struct Document {
     data: Delta,
     history: History,
-    rev_id_counter: u64,
+    rev_id_counter: usize,
 }
 
 impl Document {
     pub fn new() -> Self {
-        let mut delta = Delta::new();
-        delta.insert("\n", Attributes::Empty);
-
+        let delta = Delta::new();
         Document {
             data: delta,
             history: History::new(),
@@ -74,7 +72,7 @@ impl Document {
             Some(undo_delta) => {
                 let composed_delta = self.data.compose(&undo_delta)?;
                 let redo_delta = undo_delta.invert(&self.data);
-                let result = UndoResult::success(composed_delta.target_len as u64);
+                let result = UndoResult::success(composed_delta.target_len as usize);
                 self.data = composed_delta;
                 self.history.add_redo(redo_delta);
 
@@ -88,7 +86,7 @@ impl Document {
             None => Err(ErrorBuilder::new(RedoFail).build()),
             Some(redo_delta) => {
                 let new_delta = self.data.compose(&redo_delta)?;
-                let result = UndoResult::success(new_delta.target_len as u64);
+                let result = UndoResult::success(new_delta.target_len as usize);
                 let undo_delta = redo_delta.invert(&self.data);
                 self.data = new_delta;
                 self.history.add_undo(undo_delta);
@@ -98,7 +96,7 @@ impl Document {
     }
 
     pub fn delete(&mut self, interval: Interval) -> Result<(), OTError> {
-        let delete = OpBuilder::delete(interval.size() as u64).build();
+        let delete = OpBuilder::delete(interval.size()).build();
         self.update_with_op(delete, interval)
     }
 
@@ -120,7 +118,7 @@ impl Document {
             intervals.into_iter().for_each(|i| {
                 let attributes = self.data.get_attributes(i);
                 log::debug!("prefix attribute: {:?}, interval: {:?}", attributes, i);
-                new_delta.retain(i.size() as u64, attributes);
+                new_delta.retain(i.size() as usize, attributes);
             });
         }
 
@@ -133,7 +131,7 @@ impl Document {
             intervals.into_iter().for_each(|i| {
                 let attributes = self.data.get_attributes(i);
                 log::debug!("suffix attribute: {:?}, interval: {:?}", attributes, i);
-                new_delta.retain(i.size() as u64, attributes);
+                new_delta.retain(i.size() as usize, attributes);
             });
         }
 
@@ -170,7 +168,7 @@ impl Document {
         };
 
         log::debug!("new attributes: {:?}", new_attributes);
-        let retain = OpBuilder::retain(interval.size() as u64)
+        let retain = OpBuilder::retain(interval.size())
             .attributes(new_attributes)
             .build();
 

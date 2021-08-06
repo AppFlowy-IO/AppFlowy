@@ -9,7 +9,7 @@ use std::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Operation {
-    Delete(u64),
+    Delete(usize),
     Retain(Retain),
     Insert(Insert),
 }
@@ -59,7 +59,7 @@ impl Operation {
         }
     }
 
-    pub fn length(&self) -> u64 {
+    pub fn length(&self) -> usize {
         match self {
             Operation::Delete(n) => *n,
             Operation::Retain(r) => r.n,
@@ -71,10 +71,13 @@ impl Operation {
 
     pub fn shrink_to_interval(&self, interval: Interval) -> Operation {
         match self {
-            Operation::Delete(_) => Operation::Delete(interval.size() as u64),
+            Operation::Delete(n) => {
+                //
+                OpBuilder::delete(min(*n, interval.size())).build()
+            },
             Operation::Retain(retain) => {
                 //
-                OpBuilder::retain(interval.size() as u64)
+                OpBuilder::retain(min(retain.n, interval.size()))
                     .attributes(retain.attributes.clone())
                     .build()
             },
@@ -120,13 +123,13 @@ impl fmt::Display for Operation {
 #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Retain {
     #[serde(rename(serialize = "retain", deserialize = "retain"))]
-    pub n: u64,
+    pub n: usize,
     #[serde(skip_serializing_if = "is_empty")]
     pub attributes: Attributes,
 }
 
 impl Retain {
-    pub fn merge_or_new_op(&mut self, n: u64, attributes: Attributes) -> Option<Operation> {
+    pub fn merge_or_new_op(&mut self, n: usize, attributes: Attributes) -> Option<Operation> {
         log::debug!(
             "merge_retain_or_new_op: {:?}, {:?}",
             self.attributes,
@@ -153,8 +156,8 @@ impl Retain {
     }
 }
 
-impl std::convert::From<u64> for Retain {
-    fn from(n: u64) -> Self {
+impl std::convert::From<usize> for Retain {
+    fn from(n: usize) -> Self {
         Retain {
             n,
             attributes: Attributes::default(),
@@ -163,7 +166,7 @@ impl std::convert::From<u64> for Retain {
 }
 
 impl Deref for Retain {
-    type Target = u64;
+    type Target = usize;
 
     fn deref(&self) -> &Self::Target { &self.n }
 }
@@ -186,7 +189,7 @@ impl Insert {
 
     pub fn chars(&self) -> Chars<'_> { self.s.chars() }
 
-    pub fn num_chars(&self) -> u64 { num_chars(self.s.as_bytes()) as _ }
+    pub fn num_chars(&self) -> usize { num_chars(self.s.as_bytes()) as _ }
 
     pub fn merge_or_new_op(&mut self, s: &str, attributes: Attributes) -> Option<Operation> {
         match &attributes {

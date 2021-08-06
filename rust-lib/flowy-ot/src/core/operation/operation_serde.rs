@@ -59,7 +59,7 @@ impl<'de> Deserialize<'de> for Operation {
                             if operation.is_some() {
                                 return Err(de::Error::duplicate_field("operation"));
                             }
-                            let i: u64 = map.next_value()?;
+                            let i: usize = map.next_value()?;
                             operation = Some(Operation::Retain(i.into()));
                         },
                         "insert" => {

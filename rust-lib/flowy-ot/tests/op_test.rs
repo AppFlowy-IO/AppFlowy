@@ -53,7 +53,7 @@ fn apply() {
     delta_a.insert(&s, Attributes::Empty);
 
     let mut delta_b = Delta::default();
-    delta_b.retain(s.len() as u64, Attributes::Empty);
+    delta_b.retain(s.len(), Attributes::Empty);
     delta_b.insert("appflowy", Attributes::Empty);
 
     let after_a = delta_a.apply("").unwrap();
@@ -69,7 +69,7 @@ fn base_len_test() {
     delta_a.insert("c", Attributes::Empty);
 
     let s = "hello world,".to_owned();
-    delta_a.delete(s.len() as u64);
+    delta_a.delete(s.len());
     let after_a = delta_a.apply(&s).unwrap();
 
     delta_a.insert("d", Attributes::Empty);

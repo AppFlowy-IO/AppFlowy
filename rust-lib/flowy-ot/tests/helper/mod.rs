@@ -190,10 +190,10 @@ impl Rng {
                     delta.insert(&self.gen_string(i), Attributes::Empty);
                 },
                 f if f < 0.4 => {
-                    delta.delete(i as u64);
+                    delta.delete(i);
                 },
                 _ => {
-                    delta.retain(i as u64, Attributes::Empty);
+                    delta.retain(i, Attributes::Empty);
                 },
             }
         }

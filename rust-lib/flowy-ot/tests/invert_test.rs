@@ -52,13 +52,17 @@ fn delta_invert_attribute_delta_with_no_attribute_delta2() {
         Italic(0, Interval::new(2, 4), true),
         AssertOpsJson(
             0,
-            r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34","attributes":{"bold":"true","italic":"true"}},{"insert":"56","attributes":{"bold":"true"}}]"#,
+            r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34","attributes":
+{"bold":"true","italic":"true"}},{"insert":"56","attributes":{"bold":"true"
+}}]"#,
         ),
         Insert(1, "abc", 0),
         Invert(0, 1),
         AssertOpsJson(
             0,
-            r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34","attributes":{"bold":"true","italic":"true"}},{"insert":"56","attributes":{"bold":"true"}}]"#,
+            r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34","attributes":
+{"bold":"true","italic":"true"}},{"insert":"56","attributes":{"bold":"true"
+}}]"#,
         ),
     ];
     OpTester::new().run_script(ops);
@@ -91,7 +95,9 @@ fn delta_invert_no_attribute_delta_with_attribute_delta2() {
         Italic(1, Interval::new(1, 3), true),
         AssertOpsJson(
             1,
-            r#"[{"insert":"a","attributes":{"bold":"true"}},{"insert":"bc","attributes":{"bold":"true","italic":"true"}},{"insert":"d","attributes":{"bold":"true"}}]"#,
+            r#"[{"insert":"a","attributes":{"bold":"true"}},{"insert":"bc","attributes":
+{"bold":"true","italic":"true"}},{"insert":"d","attributes":{"bold":"true"
+}}]"#,
         ),
         Invert(0, 1),
         AssertOpsJson(0, r#"[{"insert":"123"}]"#),
@@ -109,7 +115,9 @@ fn delta_invert_attribute_delta_with_attribute_delta() {
         Italic(0, Interval::new(2, 4), true),
         AssertOpsJson(
             0,
-            r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34","attributes":{"bold":"true","italic":"true"}},{"insert":"56","attributes":{"bold":"true"}}]"#,
+            r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34","attributes":
+{"bold":"true","italic":"true"}},{"insert":"56","attributes":{"bold":"true"
+}}]"#,
         ),
         Insert(1, "abc", 0),
         Bold(1, Interval::new(0, 3), true),
@@ -117,12 +125,16 @@ fn delta_invert_attribute_delta_with_attribute_delta() {
         Italic(1, Interval::new(1, 3), true),
         AssertOpsJson(
             1,
-            r#"[{"insert":"a","attributes":{"bold":"true"}},{"insert":"bc","attributes":{"bold":"true","italic":"true"}},{"insert":"d","attributes":{"bold":"true"}}]"#,
+            r#"[{"insert":"a","attributes":{"bold":"true"}},{"insert":"bc","attributes":
+{"bold":"true","italic":"true"}},{"insert":"d","attributes":{"bold":"true"
+}}]"#,
         ),
         Invert(0, 1),
         AssertOpsJson(
             0,
-            r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34","attributes":{"bold":"true","italic":"true"}},{"insert":"56","attributes":{"bold":"true"}}]"#,
+            r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34","attributes":
+{"bold":"true","italic":"true"}},{"insert":"56","attributes":{"bold":"true"
+}}]"#,
         ),
     ];
     OpTester::new().run_script(ops);
@@ -138,7 +150,7 @@ fn delta_get_ops_in_interval_1() {
     delta.add(insert_b.clone());
 
     assert_eq!(
-        delta.ops_in_interval(Interval::new(0, 3)),
+        delta.ops_in_interval(Interval::new(0, 4)),
         vec![delta.ops.last().unwrap().clone()]
     );
 }

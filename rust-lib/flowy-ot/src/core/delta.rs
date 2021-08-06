@@ -81,7 +81,7 @@ impl Delta {
         }
     }
 
-    pub fn delete(&mut self, n: u64) {
+    pub fn delete(&mut self, n: usize) {
         if n == 0 {
             return;
         }
@@ -122,7 +122,7 @@ impl Delta {
         }
     }
 
-    pub fn retain(&mut self, n: u64, attrs: Attributes) {
+    pub fn retain(&mut self, n: usize, attrs: Attributes) {
         if n == 0 {
             return;
         }
@@ -201,10 +201,10 @@ impl Delta {
                     }
                 },
                 (Some(Operation::Insert(insert)), Some(Operation::Delete(o_num))) => {
-                    match (num_chars(insert.as_bytes()) as u64).cmp(o_num) {
+                    match (num_chars(insert.as_bytes()) as usize).cmp(o_num) {
                         Ordering::Less => {
                             next_op2 = Some(
-                                OpBuilder::delete(*o_num - num_chars(insert.as_bytes()) as u64)
+                                OpBuilder::delete(*o_num - num_chars(insert.as_bytes()) as usize)
                                     .attributes(insert.attributes.clone())
                                     .build(),
                             );
@@ -523,12 +523,12 @@ impl Delta {
                 Operation::Retain(_) => {
                     match op.has_attribute() {
                         true => inverted_from_other(&mut inverted, op, index, index + len),
-                        false => inverted.retain(len as u64, op.get_attributes()),
+                        false => inverted.retain(len as usize, op.get_attributes()),
                     }
                     index += len;
                 },
                 Operation::Insert(_) => {
-                    inverted.delete(len as u64);
+                    inverted.delete(len as usize);
                 },
             }
         }
@@ -554,9 +554,9 @@ impl Delta {
         let mut ops_iter = self.ops.iter();
         let mut next_op = ops_iter.next();
 
-        if offset < interval.end && next_op.is_some() {
+        while offset < interval.end && next_op.is_some() {
             let op = next_op.take().unwrap();
-            let len = op.length() as usize;
+            let len = offset + op.length() as usize;
             // log::info!("{:?}", op);
             while offset < len {
                 if offset < interval.start {
@@ -564,7 +564,7 @@ impl Delta {
                 } else {
                     if interval.contains(offset) {
                         ops.push(op.shrink_to_interval(interval));
-                        offset += max(op.length() as usize, interval.size());
+                        offset += min(op.length() as usize, interval.size());
                     } else {
                         break;
                     }

@@ -13,9 +13,9 @@ impl OpBuilder {
         }
     }
 
-    pub fn retain(n: u64) -> OpBuilder { OpBuilder::new(Operation::Retain(n.into())) }
+    pub fn retain(n: usize) -> OpBuilder { OpBuilder::new(Operation::Retain(n.into())) }
 
-    pub fn delete(n: u64) -> OpBuilder { OpBuilder::new(Operation::Delete(n)) }
+    pub fn delete(n: usize) -> OpBuilder { OpBuilder::new(Operation::Delete(n)) }
 
     pub fn insert(s: &str) -> OpBuilder { OpBuilder::new(Operation::Insert(s.into())) }
 
