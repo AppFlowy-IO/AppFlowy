@@ -1,4 +1,4 @@
-use crate::core::{should_remove, Operation};
+use crate::core::{Attribute, AttributesData, AttributesRule, Operation};
 use std::{collections::HashMap, fmt};
 
 #[derive(Debug, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
@@ -50,91 +50,6 @@ impl fmt::Display for Attributes {
     }
 }
 
-#[derive(Debug, Clone, Default, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct AttributesData {
-    #[serde(skip_serializing_if = "HashMap::is_empty")]
-    #[serde(flatten)]
-    inner: HashMap<String, String>,
-}
-
-impl AttributesData {
-    pub fn new() -> Self {
-        AttributesData {
-            inner: HashMap::new(),
-        }
-    }
-    pub fn is_empty(&self) -> bool {
-        self.inner.values().filter(|v| !should_remove(v)).count() == 0
-    }
-
-    fn remove_empty(&mut self) { self.inner.retain(|_, v| !should_remove(v)); }
-
-    pub fn extend(&mut self, other: AttributesData) { self.inner.extend(other.inner); }
-
-    pub fn merge(&mut self, other: Option<AttributesData>) {
-        if other.is_none() {
-            return;
-        }
-
-        let mut new_attributes = other.unwrap().inner;
-        self.inner.iter().for_each(|(k, v)| {
-            if should_remove(v) {
-                new_attributes.remove(k);
-            } else {
-                new_attributes.insert(k.clone(), v.clone());
-            }
-        });
-        self.inner = new_attributes;
-    }
-}
-
-pub trait AttributesDataRule {
-    fn apply_rule(&mut self);
-
-    fn into_attributes(self) -> Attributes;
-}
-impl AttributesDataRule for AttributesData {
-    fn apply_rule(&mut self) { self.remove_empty(); }
-
-    fn into_attributes(mut self) -> Attributes {
-        self.apply_rule();
-
-        if self.is_empty() {
-            Attributes::Empty
-        } else {
-            Attributes::Custom(self)
-        }
-    }
-}
-
-pub trait AttributesRule {
-    fn apply_rule(self) -> Attributes;
-}
-
-impl AttributesRule for Attributes {
-    fn apply_rule(self) -> Attributes {
-        match self {
-            Attributes::Follow => self,
-            Attributes::Custom(data) => data.into_attributes(),
-            Attributes::Empty => self,
-        }
-    }
-}
-
-impl std::convert::From<HashMap<String, String>> for AttributesData {
-    fn from(attributes: HashMap<String, String>) -> Self { AttributesData { inner: attributes } }
-}
-
-impl std::ops::Deref for AttributesData {
-    type Target = HashMap<String, String>;
-
-    fn deref(&self) -> &Self::Target { &self.inner }
-}
-
-impl std::ops::DerefMut for AttributesData {
-    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.inner }
-}
-
 pub(crate) fn attributes_from(operation: &Option<Operation>) -> Option<Attributes> {
     match operation {
         None => None,
@@ -180,6 +95,7 @@ pub fn transform_operation(left: &Option<Operation>, right: &Option<Operation>) 
 }
 
 pub fn invert_attributes(attr: Attributes, base: Attributes) -> Attributes {
+    log::info!("Invert attributes: {:?} : {:?}", attr, base);
     let attr = attr.data();
     let base = base.data();
 
@@ -213,7 +129,7 @@ pub fn merge_attributes(attributes: Attributes, other: Attributes) -> Attributes
     match (&attributes, &other) {
         (Attributes::Custom(data), Attributes::Custom(o_data)) => {
             let mut data = data.clone();
-            data.extend(o_data.clone());
+            data.extend(Some(o_data.clone()), false);
             Attributes::Custom(data)
         },
         (Attributes::Custom(data), _) => Attributes::Custom(data.clone()),

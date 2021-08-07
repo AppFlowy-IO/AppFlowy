@@ -515,6 +515,7 @@ impl Delta {
         let mut index = 0;
         for op in &self.ops {
             let len: usize = op.length() as usize;
+            log::info!("{:?}", op);
             match op {
                 Operation::Delete(_) => {
                     inverted_from_other(&mut inverted, op, index, index + len);
@@ -600,7 +601,7 @@ impl Delta {
                     Attributes::Custom(data) => {
                         if interval.contains_range(offset, offset + end) {
                             log::debug!("Get attributes from op: {:?} at {:?}", op, interval);
-                            attributes_data.extend(data.clone());
+                            attributes_data.extend(Some(data.clone()), false);
                         }
                     },
                     Attributes::Empty => {},

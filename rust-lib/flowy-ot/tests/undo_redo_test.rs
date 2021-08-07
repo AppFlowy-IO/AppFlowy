@@ -1,11 +1,11 @@
 pub mod helper;
 
 use crate::helper::{TestOp::*, *};
+use flowy_ot::core::Interval;
 
 #[test]
 fn delta_undo_insert() {
     let ops = vec![
-        //
         Insert(0, "\n", 0),
         Insert(0, "123", 0),
         Undo(0),
@@ -54,6 +54,18 @@ fn delta_redo_insert2() {
         AssertOpsJson(0, r#"[{"insert":"123\n"}]"#),
         Redo(0),
         AssertOpsJson(0, r#"[{"insert":"123456\n"}]"#),
+        Undo(0),
+        AssertOpsJson(0, r#"[{"insert":"123\n"}]"#),
+    ];
+    OpTester::new().run_script(ops);
+}
+
+#[test]
+fn delta_undo_attributes() {
+    let ops = vec![
+        Insert(0, "\n", 0),
+        Insert(0, "123", 0),
+        Bold(0, Interval::new(0, 3), true),
         Undo(0),
         AssertOpsJson(0, r#"[{"insert":"123\n"}]"#),
     ];

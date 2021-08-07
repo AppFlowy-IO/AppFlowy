@@ -1,9 +1,8 @@
 use crate::core::{Attributes, AttributesData};
 use derive_more::Display;
-const REMOVE_FLAG: &'static str = "";
-pub(crate) fn should_remove(s: &str) -> bool { s == REMOVE_FLAG }
 
-#[derive(Clone, Display)]
+#[derive(Clone, Debug, Display, Hash, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum Attribute {
     #[display(fmt = "bold")]
     Bold,
@@ -22,29 +21,27 @@ impl AttrsBuilder {
         }
     }
 
-    pub fn add_attribute(mut self, attribute: Attribute) -> Self {
-        self.inner
-            .insert(format!("{}", attribute), "true".to_owned());
+    pub fn add(mut self, attribute: Attribute) -> Self {
+        self.inner.add(attribute);
         self
     }
 
-    pub fn remove_attribute(mut self, attribute: Attribute) -> Self {
-        self.inner
-            .insert(format!("{}", attribute), REMOVE_FLAG.to_owned());
+    pub fn remove(mut self, attribute: &Attribute) -> Self {
+        self.inner.remove(attribute);
         self
     }
 
     pub fn bold(self, bold: bool) -> Self {
         match bold {
-            true => self.add_attribute(Attribute::Bold),
-            false => self.remove_attribute(Attribute::Bold),
+            true => self.add(Attribute::Bold),
+            false => self.remove(&Attribute::Bold),
         }
     }
 
     pub fn italic(self, italic: bool) -> Self {
         match italic {
-            true => self.add_attribute(Attribute::Italic),
-            false => self.remove_attribute(Attribute::Italic),
+            true => self.add(Attribute::Italic),
+            false => self.remove(&Attribute::Italic),
         }
     }
 

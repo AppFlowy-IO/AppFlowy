@@ -54,7 +54,7 @@ impl Operation {
     pub fn has_attribute(&self) -> bool {
         match self.get_attributes() {
             Attributes::Follow => false,
-            Attributes::Custom(data) => data.is_empty(),
+            Attributes::Custom(data) => !data.is_empty(),
             Attributes::Empty => false,
         }
     }
