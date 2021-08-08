@@ -120,22 +120,22 @@ fn ops_merging() {
     assert_eq!(delta.ops.len(), 0);
     delta.retain(2, Attributes::Empty);
     assert_eq!(delta.ops.len(), 1);
-    assert_eq!(delta.ops.last(), Some(&OpBuilder::retain(2).build()));
+    assert_eq!(delta.ops.last(), Some(&Builder::retain(2).build()));
     delta.retain(3, Attributes::Empty);
     assert_eq!(delta.ops.len(), 1);
-    assert_eq!(delta.ops.last(), Some(&OpBuilder::retain(5).build()));
+    assert_eq!(delta.ops.last(), Some(&Builder::retain(5).build()));
     delta.insert("abc", Attributes::Empty);
     assert_eq!(delta.ops.len(), 2);
-    assert_eq!(delta.ops.last(), Some(&OpBuilder::insert("abc").build()));
+    assert_eq!(delta.ops.last(), Some(&Builder::insert("abc").build()));
     delta.insert("xyz", Attributes::Empty);
     assert_eq!(delta.ops.len(), 2);
-    assert_eq!(delta.ops.last(), Some(&OpBuilder::insert("abcxyz").build()));
+    assert_eq!(delta.ops.last(), Some(&Builder::insert("abcxyz").build()));
     delta.delete(1);
     assert_eq!(delta.ops.len(), 3);
-    assert_eq!(delta.ops.last(), Some(&OpBuilder::delete(1).build()));
+    assert_eq!(delta.ops.last(), Some(&Builder::delete(1).build()));
     delta.delete(1);
     assert_eq!(delta.ops.len(), 3);
-    assert_eq!(delta.ops.last(), Some(&OpBuilder::delete(2).build()));
+    assert_eq!(delta.ops.last(), Some(&Builder::delete(2).build()));
 }
 #[test]
 fn is_noop() {

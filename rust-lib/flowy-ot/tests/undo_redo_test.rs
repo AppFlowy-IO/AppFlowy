@@ -71,3 +71,20 @@ fn delta_undo_attributes() {
     ];
     OpTester::new().run_script(ops);
 }
+
+#[test]
+fn delta_redo_attributes() {
+    let ops = vec![
+        Insert(0, "\n", 0),
+        Insert(0, "123", 0),
+        Bold(0, Interval::new(0, 3), true),
+        Undo(0),
+        AssertOpsJson(0, r#"[{"insert":"123\n"}]"#),
+        Redo(0),
+        AssertOpsJson(
+            0,
+            r#" [{"insert":"123","attributes":{"bold":"true"}},{"insert":"\n"}]"#,
+        ),
+    ];
+    OpTester::new().run_script(ops);
+}

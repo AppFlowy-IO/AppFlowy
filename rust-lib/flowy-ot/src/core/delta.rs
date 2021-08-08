@@ -89,7 +89,7 @@ impl Delta {
         if let Some(Operation::Delete(n_last)) = self.ops.last_mut() {
             *n_last += n;
         } else {
-            self.ops.push(OpBuilder::delete(n).build());
+            self.ops.push(Builder::delete(n).build());
         }
     }
 
@@ -110,10 +110,10 @@ impl Delta {
             },
             [.., op_last @ Operation::Delete(_)] => {
                 let new_last = op_last.clone();
-                *op_last = OpBuilder::insert(s).attributes(attrs).build();
+                *op_last = Builder::insert(s).attributes(attrs).build();
                 Some(new_last)
             },
-            _ => Some(OpBuilder::insert(s).attributes(attrs).build()),
+            _ => Some(Builder::insert(s).attributes(attrs).build()),
         };
 
         match new_last {
@@ -134,8 +134,7 @@ impl Delta {
                 self.ops.push(new_op);
             }
         } else {
-            self.ops
-                .push(OpBuilder::retain(n).attributes(attrs).build());
+            self.ops.push(Builder::retain(n).attributes(attrs).build());
         }
     }
 
@@ -185,7 +184,7 @@ impl Delta {
                     match retain.cmp(&o_retain) {
                         Ordering::Less => {
                             new_delta.retain(retain.n, composed_attrs);
-                            next_op2 = Some(OpBuilder::retain(o_retain.n - retain.n).build());
+                            next_op2 = Some(Builder::retain(o_retain.n - retain.n).build());
                             next_op1 = ops1.next();
                         },
                         std::cmp::Ordering::Equal => {
@@ -195,7 +194,7 @@ impl Delta {
                         },
                         std::cmp::Ordering::Greater => {
                             new_delta.retain(o_retain.n, composed_attrs);
-                            next_op1 = Some(OpBuilder::retain(retain.n - o_retain.n).build());
+                            next_op1 = Some(Builder::retain(retain.n - o_retain.n).build());
                             next_op2 = ops2.next();
                         },
                     }
@@ -204,7 +203,7 @@ impl Delta {
                     match (num_chars(insert.as_bytes()) as usize).cmp(o_num) {
                         Ordering::Less => {
                             next_op2 = Some(
-                                OpBuilder::delete(*o_num - num_chars(insert.as_bytes()) as usize)
+                                Builder::delete(*o_num - num_chars(insert.as_bytes()) as usize)
                                     .attributes(insert.attributes.clone())
                                     .build(),
                             );
@@ -216,7 +215,7 @@ impl Delta {
                         },
                         Ordering::Greater => {
                             next_op1 = Some(
-                                OpBuilder::insert(
+                                Builder::insert(
                                     &insert.chars().skip(*o_num as usize).collect::<String>(),
                                 )
                                 .build(),
@@ -237,7 +236,7 @@ impl Delta {
                         Ordering::Less => {
                             new_delta.insert(&insert.s, composed_attrs.clone());
                             next_op2 = Some(
-                                OpBuilder::retain(o_retain.n - insert.num_chars())
+                                Builder::retain(o_retain.n - insert.num_chars())
                                     .attributes(o_retain.attributes.clone())
                                     .build(),
                             );
@@ -255,7 +254,7 @@ impl Delta {
                                 composed_attrs,
                             );
                             next_op1 = Some(
-                                OpBuilder::insert(&chars.collect::<String>())
+                                Builder::insert(&chars.collect::<String>())
                                     // consider this situation: 
                                     // [insert:12345678 - retain:4], 
                                     //      the attributes of "5678" should be empty and the following 
@@ -271,7 +270,7 @@ impl Delta {
                     match retain.cmp(&o_num) {
                         Ordering::Less => {
                             new_delta.delete(retain.n);
-                            next_op2 = Some(OpBuilder::delete(*o_num - retain.n).build());
+                            next_op2 = Some(Builder::delete(*o_num - retain.n).build());
                             next_op1 = ops1.next();
                         },
                         Ordering::Equal => {
@@ -281,7 +280,7 @@ impl Delta {
                         },
                         Ordering::Greater => {
                             new_delta.delete(*o_num);
-                            next_op1 = Some(OpBuilder::retain(retain.n - *o_num).build());
+                            next_op1 = Some(Builder::retain(retain.n - *o_num).build());
                             next_op2 = ops2.next();
                         },
                     }
@@ -340,7 +339,7 @@ impl Delta {
                         Ordering::Less => {
                             a_prime.retain(retain.n, composed_attrs.clone());
                             b_prime.retain(retain.n, composed_attrs.clone());
-                            next_op2 = Some(OpBuilder::retain(o_retain.n - retain.n).build());
+                            next_op2 = Some(Builder::retain(o_retain.n - retain.n).build());
                             next_op1 = ops1.next();
                         },
                         Ordering::Equal => {
@@ -352,14 +351,14 @@ impl Delta {
                         Ordering::Greater => {
                             a_prime.retain(o_retain.n, composed_attrs.clone());
                             b_prime.retain(o_retain.n, composed_attrs.clone());
-                            next_op1 = Some(OpBuilder::retain(retain.n - o_retain.n).build());
+                            next_op1 = Some(Builder::retain(retain.n - o_retain.n).build());
                             next_op2 = ops2.next();
                         },
                     };
                 },
                 (Some(Operation::Delete(i)), Some(Operation::Delete(j))) => match i.cmp(&j) {
                     Ordering::Less => {
-                        next_op2 = Some(OpBuilder::delete(*j - *i).build());
+                        next_op2 = Some(Builder::delete(*j - *i).build());
                         next_op1 = ops1.next();
                     },
                     Ordering::Equal => {
@@ -367,7 +366,7 @@ impl Delta {
                         next_op2 = ops2.next();
                     },
                     Ordering::Greater => {
-                        next_op1 = Some(OpBuilder::delete(*i - *j).build());
+                        next_op1 = Some(Builder::delete(*i - *j).build());
                         next_op2 = ops2.next();
                     },
                 },
@@ -375,7 +374,7 @@ impl Delta {
                     match i.cmp(&o_retain) {
                         Ordering::Less => {
                             a_prime.delete(*i);
-                            next_op2 = Some(OpBuilder::retain(o_retain.n - *i).build());
+                            next_op2 = Some(Builder::retain(o_retain.n - *i).build());
                             next_op1 = ops1.next();
                         },
                         Ordering::Equal => {
@@ -385,7 +384,7 @@ impl Delta {
                         },
                         Ordering::Greater => {
                             a_prime.delete(o_retain.n);
-                            next_op1 = Some(OpBuilder::delete(*i - o_retain.n).build());
+                            next_op1 = Some(Builder::delete(*i - o_retain.n).build());
                             next_op2 = ops2.next();
                         },
                     };
@@ -394,7 +393,7 @@ impl Delta {
                     match retain.cmp(&j) {
                         Ordering::Less => {
                             b_prime.delete(retain.n);
-                            next_op2 = Some(OpBuilder::delete(*j - retain.n).build());
+                            next_op2 = Some(Builder::delete(*j - retain.n).build());
                             next_op1 = ops1.next();
                         },
                         Ordering::Equal => {
@@ -404,7 +403,7 @@ impl Delta {
                         },
                         Ordering::Greater => {
                             b_prime.delete(*j);
-                            next_op1 = Some(OpBuilder::retain(retain.n - *j).build());
+                            next_op1 = Some(Builder::retain(retain.n - *j).build());
                             next_op2 = ops2.next();
                         },
                     };
@@ -485,10 +484,13 @@ impl Delta {
 
         let inverted_from_other =
             |inverted: &mut Delta, operation: &Operation, start: usize, end: usize| {
+                log::debug!("invert op: {:?} [{}:{}]", operation, start, end);
+
                 let ops = other.ops_in_interval(Interval::new(start, end));
                 ops.into_iter().for_each(|other_op| {
                     match operation {
                         Operation::Delete(_) => {
+                            log::debug!("add: {}", other_op);
                             inverted.add(other_op);
                         },
                         Operation::Retain(_) => {
@@ -502,6 +504,7 @@ impl Delta {
                                 other_op.get_attributes(),
                             );
                             log::debug!("End invert attributes: {:?}", inverted_attrs);
+                            log::debug!("invert retain: {}, {}", other_op.length(), inverted_attrs);
                             inverted.retain(other_op.length(), inverted_attrs);
                         },
                         Operation::Insert(_) => {
@@ -515,21 +518,25 @@ impl Delta {
         let mut index = 0;
         for op in &self.ops {
             let len: usize = op.length() as usize;
-            log::info!("{:?}", op);
             match op {
-                Operation::Delete(_) => {
-                    inverted_from_other(&mut inverted, op, index, index + len);
+                Operation::Delete(n) => {
+                    inverted_from_other(&mut inverted, op, index, index + *n);
                     index += len;
                 },
                 Operation::Retain(_) => {
                     match op.has_attribute() {
                         true => inverted_from_other(&mut inverted, op, index, index + len),
-                        false => inverted.retain(len as usize, op.get_attributes()),
+                        false => {
+                            log::debug!("invert retain op: {:?}", op);
+                            inverted.retain(len as usize, op.get_attributes())
+                        },
                     }
                     index += len;
                 },
-                Operation::Insert(_) => {
+                Operation::Insert(insert) => {
+                    log::debug!("invert insert op: {:?}", op);
                     inverted.delete(len as usize);
+                    // index += insert.s.len();
                 },
             }
         }
@@ -549,29 +556,42 @@ impl Delta {
 
     pub fn is_empty(&self) -> bool { self.ops.is_empty() }
 
-    pub fn ops_in_interval(&self, interval: Interval) -> Vec<Operation> {
-        let mut ops: Vec<Operation> = Vec::with_capacity(self.ops.len());
-        let mut offset: usize = 0;
-        let mut ops_iter = self.ops.iter();
-        let mut next_op = ops_iter.next();
+    pub fn ops_in_interval(&self, mut interval: Interval) -> Vec<Operation> {
+        log::debug!("ops in delta: {:?}, at {:?}", self, interval);
 
-        while offset < interval.end && next_op.is_some() {
-            let op = next_op.take().unwrap();
-            let len = offset + op.length() as usize;
-            // log::info!("{:?}", op);
-            while offset < len {
-                if offset < interval.start {
-                    offset += min(interval.start, op.length() as usize);
-                } else {
-                    if interval.contains(offset) {
-                        ops.push(op.shrink_to_interval(interval));
-                        offset += min(op.length() as usize, interval.size());
-                    } else {
-                        break;
+        let mut ops: Vec<Operation> = Vec::with_capacity(self.ops.len());
+        let mut ops_iter = self.ops.iter();
+        let mut maybe_next_op = ops_iter.next();
+        let mut offset: usize = 0;
+
+        while maybe_next_op.is_some() {
+            let next_op = maybe_next_op.take().unwrap();
+            if offset < interval.start {
+                if next_op.length() > interval.size() {
+                    // if the op's length larger than the interval size, just shrink the op to that
+                    // interval. for example: delta: "123456", interval: [3,6).
+                    // ┌──────────────┐
+                    // │ 1 2 3 4 5 6  │
+                    // └───────▲───▲──┘
+                    //         │   │
+                    //        [3, 6)
+                    if let Some(new_op) = next_op.shrink(interval) {
+                        ops.push(new_op);
                     }
+                } else {
+                    // adding the op's length to offset until the offset is contained in the
+                    // interval
+                    offset += next_op.length();
                 }
+            } else {
+                // the interval passed in the shrink function is base on the op not the delta.
+                if let Some(new_op) = next_op.shrink(interval.translate_neg(offset)) {
+                    ops.push(new_op);
+                }
+                offset += min(interval.size(), next_op.length());
+                interval = Interval::new(offset, interval.end);
             }
-            next_op = ops_iter.next();
+            maybe_next_op = ops_iter.next();
         }
         ops
     }

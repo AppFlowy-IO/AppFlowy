@@ -1,4 +1,4 @@
-use crate::core::{Attributes, Interval, OpBuilder};
+use crate::core::{Attributes, Builder, Interval};
 use bytecount::num_chars;
 use std::{
     cmp::min,
@@ -54,8 +54,17 @@ impl Operation {
     pub fn has_attribute(&self) -> bool {
         match self.get_attributes() {
             Attributes::Follow => false,
-            Attributes::Custom(data) => !data.is_empty(),
+            // Attributes::Custom(data) => !data.is_plain(),
+            Attributes::Custom(data) => true,
             Attributes::Empty => false,
+        }
+    }
+
+    pub fn is_plain(&self) -> bool {
+        match self.get_attributes() {
+            Attributes::Follow => true,
+            Attributes::Custom(data) => data.is_plain(),
+            Attributes::Empty => true,
         }
     }
 
@@ -69,30 +78,27 @@ impl Operation {
 
     pub fn is_empty(&self) -> bool { self.length() == 0 }
 
-    pub fn shrink_to_interval(&self, interval: Interval) -> Operation {
-        match self {
-            Operation::Delete(n) => {
-                //
-                OpBuilder::delete(min(*n, interval.size())).build()
-            },
-            Operation::Retain(retain) => {
-                //
-                OpBuilder::retain(min(retain.n, interval.size()))
-                    .attributes(retain.attributes.clone())
-                    .build()
-            },
+    pub fn shrink(&self, interval: Interval) -> Option<Operation> {
+        let op = match self {
+            Operation::Delete(n) => Builder::delete(min(*n, interval.size())).build(),
+            Operation::Retain(retain) => Builder::retain(min(retain.n, interval.size()))
+                .attributes(retain.attributes.clone())
+                .build(),
             Operation::Insert(insert) => {
-                // debug_assert!(insert.s.len() <= interval.size());
                 if interval.start > insert.s.len() {
-                    return OpBuilder::insert("").build();
+                    Builder::insert("").build()
+                } else {
+                    let s = &insert.s[interval.start..min(interval.end, insert.s.len())];
+                    Builder::insert(s)
+                        .attributes(insert.attributes.clone())
+                        .build()
                 }
-
-                let end = min(interval.end, insert.s.len());
-                let s = &insert.s[interval.start..end];
-                OpBuilder::insert(s)
-                    .attributes(insert.attributes.clone())
-                    .build()
             },
+        };
+
+        match op.is_empty() {
+            true => None,
+            false => Some(op),
         }
     }
 }
@@ -130,11 +136,7 @@ pub struct Retain {
 
 impl Retain {
     pub fn merge_or_new_op(&mut self, n: usize, attributes: Attributes) -> Option<Operation> {
-        log::debug!(
-            "merge_retain_or_new_op: {:?}, {:?}",
-            self.attributes,
-            attributes
-        );
+        log::debug!("merge_retain_or_new_op: {:?}, {:?}", n, attributes);
 
         match &attributes {
             Attributes::Follow => {
@@ -149,7 +151,7 @@ impl Retain {
                     None
                 } else {
                     log::debug!("New retain op");
-                    Some(OpBuilder::retain(n).attributes(attributes).build())
+                    Some(Builder::retain(n).attributes(attributes).build())
                 }
             },
         }
@@ -202,7 +204,7 @@ impl Insert {
                     self.s += s;
                     None
                 } else {
-                    Some(OpBuilder::insert(s).attributes(attributes).build())
+                    Some(Builder::insert(s).attributes(attributes).build())
                 }
             },
         }
@@ -222,4 +224,10 @@ impl std::convert::From<&str> for Insert {
     fn from(s: &str) -> Self { Insert::from(s.to_owned()) }
 }
 
-fn is_empty(attributes: &Attributes) -> bool { attributes.is_empty() }
+fn is_empty(attributes: &Attributes) -> bool {
+    match attributes {
+        Attributes::Follow => true,
+        Attributes::Custom(data) => data.is_plain(),
+        Attributes::Empty => true,
+    }
+}

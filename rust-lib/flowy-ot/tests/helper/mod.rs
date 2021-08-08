@@ -50,7 +50,8 @@ impl OpTester {
     pub fn new() -> Self {
         static INIT: Once = Once::new();
         INIT.call_once(|| {
-            std::env::set_var("RUST_LOG", "debug");
+            color_eyre::install().unwrap();
+            std::env::set_var("RUST_LOG", "info");
             env_logger::init();
         });
 

@@ -1,15 +1,15 @@
 pub mod helper;
 use crate::helper::{TestOp::*, *};
-use flowy_ot::core::{Delta, Interval, OpBuilder};
+use flowy_ot::core::{Builder, Delta, Interval};
 
 #[test]
 fn delta_invert_no_attribute_delta() {
     let mut delta = Delta::default();
-    delta.add(OpBuilder::insert("123").build());
+    delta.add(Builder::insert("123").build());
 
     let mut change = Delta::default();
-    change.add(OpBuilder::retain(3).build());
-    change.add(OpBuilder::insert("456").build());
+    change.add(Builder::retain(3).build());
+    change.add(Builder::insert("456").build());
     let undo = change.invert(&delta);
 
     let new_delta = delta.compose(&change).unwrap();
@@ -48,21 +48,30 @@ fn delta_invert_attribute_delta_with_no_attribute_delta2() {
         Insert(0, "123", 0),
         Bold(0, Interval::new(0, 3), true),
         Insert(0, "456", 3),
-        AssertOpsJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
+        AssertOpsJson(
+            0,
+            r#"[
+            {"insert":"123456","attributes":{"bold":"true"}}]
+            "#,
+        ),
         Italic(0, Interval::new(2, 4), true),
         AssertOpsJson(
             0,
-            r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34","attributes":
-{"bold":"true","italic":"true"}},{"insert":"56","attributes":{"bold":"true"
-}}]"#,
+            r#"[
+            {"insert":"12","attributes":{"bold":"true"}}, 
+            {"insert":"34","attributes":{"bold":"true","italic":"true"}},
+            {"insert":"56","attributes":{"bold":"true"}}
+            ]"#,
         ),
         Insert(1, "abc", 0),
         Invert(0, 1),
         AssertOpsJson(
             0,
-            r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34","attributes":
-{"bold":"true","italic":"true"}},{"insert":"56","attributes":{"bold":"true"
-}}]"#,
+            r#"[
+            {"insert":"12","attributes":{"bold":"true"}},
+            {"insert":"34","attributes":{"bold":"true","italic":"true"}},
+            {"insert":"56","attributes":{"bold":"true"}}
+            ]"#,
         ),
     ];
     OpTester::new().run_script(ops);
@@ -115,9 +124,11 @@ fn delta_invert_attribute_delta_with_attribute_delta() {
         Italic(0, Interval::new(2, 4), true),
         AssertOpsJson(
             0,
-            r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34","attributes":
-{"bold":"true","italic":"true"}},{"insert":"56","attributes":{"bold":"true"
-}}]"#,
+            r#"[
+            {"insert":"12","attributes":{"bold":"true"}},
+            {"insert":"34","attributes":{"bold":"true","italic":"true"}},
+            {"insert":"56","attributes":{"bold":"true"}}
+            ]"#,
         ),
         Insert(1, "abc", 0),
         Bold(1, Interval::new(0, 3), true),
@@ -125,16 +136,20 @@ fn delta_invert_attribute_delta_with_attribute_delta() {
         Italic(1, Interval::new(1, 3), true),
         AssertOpsJson(
             1,
-            r#"[{"insert":"a","attributes":{"bold":"true"}},{"insert":"bc","attributes":
-{"bold":"true","italic":"true"}},{"insert":"d","attributes":{"bold":"true"
-}}]"#,
+            r#"[
+            {"insert":"a","attributes":{"bold":"true"}},
+            {"insert":"bc","attributes":{"bold":"true","italic":"true"}},
+            {"insert":"d","attributes":{"bold":"true"}}
+            ]"#,
         ),
         Invert(0, 1),
         AssertOpsJson(
             0,
-            r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34","attributes":
-{"bold":"true","italic":"true"}},{"insert":"56","attributes":{"bold":"true"
-}}]"#,
+            r#"[
+            {"insert":"12","attributes":{"bold":"true"}},
+            {"insert":"34","attributes":{"bold":"true","italic":"true"}},
+            {"insert":"56","attributes":{"bold":"true"}}
+            ]"#,
         ),
     ];
     OpTester::new().run_script(ops);
@@ -143,8 +158,8 @@ fn delta_invert_attribute_delta_with_attribute_delta() {
 #[test]
 fn delta_get_ops_in_interval_1() {
     let mut delta = Delta::default();
-    let insert_a = OpBuilder::insert("123").build();
-    let insert_b = OpBuilder::insert("4").build();
+    let insert_a = Builder::insert("123").build();
+    let insert_b = Builder::insert("4").build();
 
     delta.add(insert_a.clone());
     delta.add(insert_b.clone());
@@ -158,15 +173,20 @@ fn delta_get_ops_in_interval_1() {
 #[test]
 fn delta_get_ops_in_interval_2() {
     let mut delta = Delta::default();
-    let insert_a = OpBuilder::insert("123").build();
-    let insert_b = OpBuilder::insert("4").build();
-    let insert_c = OpBuilder::insert("5").build();
-    let retain_a = OpBuilder::retain(3).build();
+    let insert_a = Builder::insert("123").build();
+    let insert_b = Builder::insert("4").build();
+    let insert_c = Builder::insert("5").build();
+    let retain_a = Builder::retain(3).build();
 
     delta.add(insert_a.clone());
     delta.add(retain_a.clone());
     delta.add(insert_b.clone());
     delta.add(insert_c.clone());
+
+    assert_eq!(
+        delta.ops_in_interval(Interval::new(0, 2)),
+        vec![Builder::insert("12").build()]
+    );
 
     assert_eq!(
         delta.ops_in_interval(Interval::new(0, 3)),
@@ -175,16 +195,48 @@ fn delta_get_ops_in_interval_2() {
 
     assert_eq!(
         delta.ops_in_interval(Interval::new(0, 4)),
+        vec![insert_a.clone(), Builder::retain(1).build()]
+    );
+
+    assert_eq!(
+        delta.ops_in_interval(Interval::new(0, 6)),
         vec![insert_a.clone(), retain_a.clone()]
     );
 
     assert_eq!(
         delta.ops_in_interval(Interval::new(0, 7)),
-        vec![
-            insert_a.clone(),
-            retain_a.clone(),
-            // insert_b and insert_c will be merged into one. insert: "45"
-            delta.ops.last().unwrap().clone()
-        ]
+        vec![insert_a.clone(), retain_a.clone(), insert_b.clone()]
+    );
+}
+
+#[test]
+fn delta_get_ops_in_interval_3() {
+    let mut delta = Delta::default();
+    let insert_a = Builder::insert("123456").build();
+    delta.add(insert_a.clone());
+    assert_eq!(
+        delta.ops_in_interval(Interval::new(3, 6)),
+        vec![Builder::insert("456").build()]
+    );
+}
+
+#[test]
+fn delta_get_ops_in_interval_4() {
+    let mut delta = Delta::default();
+    let insert_a = Builder::insert("12").build();
+    let insert_b = Builder::insert("34").build();
+    let insert_c = Builder::insert("56").build();
+
+    delta.ops.push(insert_a.clone());
+    delta.ops.push(insert_b.clone());
+    delta.ops.push(insert_c.clone());
+
+    assert_eq!(delta.ops_in_interval(Interval::new(0, 2)), vec![insert_a]);
+    assert_eq!(delta.ops_in_interval(Interval::new(2, 4)), vec![insert_b]);
+    assert_eq!(delta.ops_in_interval(Interval::new(4, 6)), vec![insert_c]);
+
+    assert_eq!(
+        delta.ops_in_interval(Interval::new(2, 5)),
+        vec![Builder::insert("34").build(), Builder::insert("5").build()]
     );
 }

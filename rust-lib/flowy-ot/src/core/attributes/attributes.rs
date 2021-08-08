@@ -19,14 +19,6 @@ impl Attributes {
             Attributes::Empty => None,
         }
     }
-
-    pub fn is_empty(&self) -> bool {
-        match self {
-            Attributes::Follow => true,
-            Attributes::Custom(data) => data.is_empty(),
-            Attributes::Empty => true,
-        }
-    }
 }
 
 impl std::default::Default for Attributes {
@@ -95,7 +87,6 @@ pub fn transform_operation(left: &Option<Operation>, right: &Option<Operation>) 
 }
 
 pub fn invert_attributes(attr: Attributes, base: Attributes) -> Attributes {
-    log::info!("Invert attributes: {:?} : {:?}", attr, base);
     let attr = attr.data();
     let base = base.data();
 

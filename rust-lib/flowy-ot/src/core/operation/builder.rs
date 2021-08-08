@@ -1,25 +1,25 @@
 use crate::core::{Attributes, Operation};
 
-pub struct OpBuilder {
+pub struct Builder {
     ty: Operation,
     attrs: Attributes,
 }
 
-impl OpBuilder {
-    pub fn new(ty: Operation) -> OpBuilder {
-        OpBuilder {
+impl Builder {
+    pub fn new(ty: Operation) -> Builder {
+        Builder {
             ty,
             attrs: Attributes::Empty,
         }
     }
 
-    pub fn retain(n: usize) -> OpBuilder { OpBuilder::new(Operation::Retain(n.into())) }
+    pub fn retain(n: usize) -> Builder { Builder::new(Operation::Retain(n.into())) }
 
-    pub fn delete(n: usize) -> OpBuilder { OpBuilder::new(Operation::Delete(n)) }
+    pub fn delete(n: usize) -> Builder { Builder::new(Operation::Delete(n)) }
 
-    pub fn insert(s: &str) -> OpBuilder { OpBuilder::new(Operation::Insert(s.into())) }
+    pub fn insert(s: &str) -> Builder { Builder::new(Operation::Insert(s.into())) }
 
-    pub fn attributes(mut self, attrs: Attributes) -> OpBuilder {
+    pub fn attributes(mut self, attrs: Attributes) -> Builder {
         self.attrs = attrs;
         self
     }

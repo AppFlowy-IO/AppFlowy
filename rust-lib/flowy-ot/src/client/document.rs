@@ -5,9 +5,9 @@ use crate::{
         Attributes,
         AttributesDataRule,
         AttrsBuilder,
+        Builder,
         Delta,
         Interval,
-        OpBuilder,
         Operation,
     },
     errors::{ErrorBuilder, OTError, OTErrorCode::*},
@@ -42,7 +42,7 @@ impl Document {
         if attributes == Attributes::Empty {
             attributes = Attributes::Follow;
         }
-        let insert = OpBuilder::insert(text).attributes(attributes).build();
+        let insert = Builder::insert(text).attributes(attributes).build();
         let interval = Interval::new(index, index);
 
         self.update_with_op(insert, interval)
@@ -70,8 +70,10 @@ impl Document {
         match self.history.undo() {
             None => Err(ErrorBuilder::new(UndoFail).build()),
             Some(undo_delta) => {
+                log::debug!("undo: {:?}", undo_delta);
                 let composed_delta = self.data.compose(&undo_delta)?;
                 let redo_delta = undo_delta.invert(&self.data);
+                log::debug!("computed redo: {:?}", redo_delta);
                 let result = UndoResult::success(composed_delta.target_len as usize);
                 self.data = composed_delta;
                 self.history.add_redo(redo_delta);
@@ -85,10 +87,13 @@ impl Document {
         match self.history.redo() {
             None => Err(ErrorBuilder::new(RedoFail).build()),
             Some(redo_delta) => {
+                log::debug!("redo: {:?}", redo_delta);
                 let new_delta = self.data.compose(&redo_delta)?;
                 let result = UndoResult::success(new_delta.target_len as usize);
                 let undo_delta = redo_delta.invert(&self.data);
+                log::debug!("computed undo: {:?}", undo_delta);
                 self.data = new_delta;
+
                 self.history.add_undo(undo_delta);
                 Ok(result)
             },
@@ -96,7 +101,7 @@ impl Document {
     }
 
     pub fn delete(&mut self, interval: Interval) -> Result<(), OTError> {
-        let delete = OpBuilder::delete(interval.size()).build();
+        let delete = Builder::delete(interval.size()).build();
         self.update_with_op(delete, interval)
     }
 
@@ -168,7 +173,7 @@ impl Document {
         };
 
         log::debug!("new attributes: {:?}", new_attributes);
-        let retain = OpBuilder::retain(interval.size())
+        let retain = Builder::retain(interval.size())
             .attributes(new_attributes)
             .build();
 

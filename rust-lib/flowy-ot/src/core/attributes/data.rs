@@ -17,7 +17,8 @@ impl AttributesData {
             inner: HashMap::new(),
         }
     }
-    pub fn is_empty(&self) -> bool {
+
+    pub fn is_plain(&self) -> bool {
         self.inner.values().filter(|v| !should_remove(v)).count() == 0
     }
 
@@ -59,7 +60,7 @@ impl AttributesDataRule for AttributesData {
     fn into_attributes(mut self) -> Attributes {
         self.apply_rule();
 
-        if self.is_empty() {
+        if self.is_plain() {
             Attributes::Empty
         } else {
             Attributes::Custom(self)
