@@ -55,6 +55,24 @@ class OverlayLayoutDelegate extends SingleChildLayoutDelegate {
               constraints.maxHeight - anchorRect.bottom,
             ));
             break;
+          case AnchorDirection.topWithLeftAligned:
+            childConstraints = BoxConstraints.loose(Size(
+              constraints.maxWidth - anchorRect.left,
+              anchorRect.top,
+            ));
+            break;
+          case AnchorDirection.topWithCenterAligned:
+            childConstraints = BoxConstraints.loose(Size(
+              constraints.maxWidth,
+              anchorRect.top,
+            ));
+            break;
+          case AnchorDirection.topWithRightAligned:
+            childConstraints = BoxConstraints.loose(Size(
+              anchorRect.right,
+              anchorRect.top,
+            ));
+            break;
           case AnchorDirection.rightWithTopAligned:
             childConstraints = BoxConstraints.loose(Size(
               constraints.maxWidth - anchorRect.right,

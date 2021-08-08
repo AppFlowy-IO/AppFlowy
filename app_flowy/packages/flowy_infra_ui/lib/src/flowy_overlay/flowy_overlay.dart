@@ -264,7 +264,6 @@ class FlowyOverlayState extends State<FlowyOverlay> {
           ),
         ),
     ];
-
     return Stack(
       children: children..addAll(overlays),
     );
