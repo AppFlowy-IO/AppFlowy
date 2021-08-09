@@ -154,7 +154,11 @@ fn delta_add_bold_italic() {
         Italic(0, Interval::new(4, 6), false),
         AssertOpsJson(
             0,
-            r#"[{"insert":"1234","attributes":{"bold":"true","italic":"true"}},{"insert":"56","attributes":{"bold":"true"}},{"insert":"78","attributes":{"bold":"true","italic":"true"}}]"#,
+            r#"[
+            {"insert":"1234","attributes":{"bold":"true","italic":"true"}},
+            {"insert":"56","attributes":{"bold":"true"}},
+            {"insert":"78","attributes":{"bold":"true","italic":"true"}}]
+            "#,
         ),
     ];
     OpTester::new().run_script(ops);
@@ -169,12 +173,19 @@ fn delta_add_bold_italic2() {
         Italic(0, Interval::new(0, 2), true),
         AssertOpsJson(
             0,
-            r#"[{"insert":"12","attributes":{"italic":"true","bold":"true"}},{"insert":"3456","attributes":{"bold":"true"}}]"#,
+            r#"[
+            {"insert":"12","attributes":{"italic":"true","bold":"true"}},
+            {"insert":"3456","attributes":{"bold":"true"}}]
+            "#,
         ),
         Italic(0, Interval::new(4, 6), true),
         AssertOpsJson(
             0,
-            r#"[{"insert":"12","attributes":{"italic":"true","bold":"true"}},{"insert":"34","attributes":{"bold":"true"}},{"insert":"56","attributes":{"italic":"true","bold":"true"}}]"#,
+            r#"[
+            {"insert":"12","attributes":{"italic":"true","bold":"true"}},
+            {"insert":"34","attributes":{"bold":"true"}},
+            {"insert":"56","attributes":{"italic":"true","bold":"true"}}]
+            "#,
         ),
     ];
 
@@ -189,17 +200,29 @@ fn delta_add_bold_italic3() {
         Italic(0, Interval::new(0, 2), true),
         AssertOpsJson(
             0,
-            r#"[{"insert":"12","attributes":{"bold":"true","italic":"true"}},{"insert":"345","attributes":{"bold":"true"}},{"insert":"6789"}]"#,
+            r#"[
+            {"insert":"12","attributes":{"bold":"true","italic":"true"}},
+            {"insert":"345","attributes":{"bold":"true"}},{"insert":"6789"}]
+            "#,
         ),
         Italic(0, Interval::new(2, 4), true),
         AssertOpsJson(
             0,
-            r#"[{"insert":"1234","attributes":{"bold":"true","italic":"true"}},{"insert":"5","attributes":{"bold":"true"}},{"insert":"6789"}]"#,
+            r#"[
+            {"insert":"1234","attributes":{"bold":"true","italic":"true"}},
+            {"insert":"5","attributes":{"bold":"true"}},
+            {"insert":"6789"}]
+            "#,
         ),
         Bold(0, Interval::new(7, 9), true),
         AssertOpsJson(
             0,
-            r#"[{"insert":"1234","attributes":{"bold":"true","italic":"true"}},{"insert":"5","attributes":{"bold":"true"}},{"insert":"67"},{"insert":"89","attributes":{"bold":"true"}}]"#,
+            r#"[
+            {"insert":"1234","attributes":{"bold":"true","italic":"true"}},
+            {"insert":"5","attributes":{"bold":"true"}},
+            {"insert":"67"},
+            {"insert":"89","attributes":{"bold":"true"}}]
+            "#,
         ),
     ];
 
@@ -212,27 +235,35 @@ fn delta_add_bold_italic_delete() {
         Insert(0, "123456789", 0),
         Bold(0, Interval::new(0, 5), true),
         Italic(0, Interval::new(0, 2), true),
-        // AssertOpsJson(
-        //     0,
-        //     r#"[{"insert":"12","attributes":{"italic":"true","bold":"true"}},{"insert":"345","
-        // attributes":{"bold":"true"}},{"insert":"6789"}]"#, ),
+        AssertOpsJson(
+            0,
+            r#"[
+            {"insert":"12","attributes":{"italic":"true","bold":"true"}},
+            {"insert":"345","attributes":{"bold":"true"}},{"insert":"6789"}]
+            "#,
+        ),
         Italic(0, Interval::new(2, 4), true),
         AssertOpsJson(
             0,
-            r#"[{"insert":"1234","attributes":{"bold":"true","italic":"true"}},{"insert":"5","attributes":{"bold":"true"}},{"insert":"6789"}]"#,
+            r#"[
+            {"insert":"1234","attributes":{"bold":"true","italic":"true"}}
+            ,{"insert":"5","attributes":{"bold":"true"}},{"insert":"6789"}]"#,
+        ),
+        Bold(0, Interval::new(7, 9), true),
+        AssertOpsJson(
+            0,
+            r#"[
+            {"insert":"1234","attributes":{"bold":"true","italic":"true"}},
+            {"insert":"5","attributes":{"bold":"true"}},{"insert":"67"},
+            {"insert":"89","attributes":{"bold":"true"}}]
+            "#,
+        ),
+        Delete(0, Interval::new(0, 5)),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"67"},{"insert":"89","attributes":{"bold":"true"}}]"#,
         ),
     ];
-    // Bold(0, Interval::new(7, 9), true),
-    // AssertOpsJson(
-    //     0,
-    //     r#"[{"insert":"1234","attributes":{"bold":"true","italic":"true"}},{"
-    // insert":"5","attributes":{"bold":"true"}},{"insert":"67"},{"insert":"89","
-    // attributes":{"bold":"true"}}]"#, ),
-    // Delete(0, Interval::new(0, 5)),
-    // AssertOpsJson(
-    //     0,
-    //     r#"[{"insert":"67"},{"insert":"89","attributes":{"bold":"true"}}]"#,
-    // ),
 
     OpTester::new().run_script(ops);
 }
@@ -272,18 +303,32 @@ fn delta_compose_attr_delta_with_attr_delta_test2() {
         Italic(0, Interval::new(4, 6), true),
         AssertOpsJson(
             0,
-            r#"[{"insert":"12","attributes":{"bold":"true","italic":"true"}},{"insert":"34","attributes":{"bold":"true"}},{"insert":"56","attributes":{"italic":"true","bold":"true"}}]"#,
+            r#"[
+            {"insert":"12","attributes":{"bold":"true","italic":"true"}},
+            {"insert":"34","attributes":{"bold":"true"}},
+            {"insert":"56","attributes":{"italic":"true","bold":"true"}}]
+            "#,
         ),
         InsertBold(1, "7", Interval::new(0, 1)),
         AssertOpsJson(1, r#"[{"insert":"7","attributes":{"bold":"true"}}]"#),
         Transform(0, 1),
         AssertOpsJson(
             0,
-            r#"[{"insert":"12","attributes":{"italic":"true","bold":"true"}},{"insert":"34","attributes":{"bold":"true"}},{"insert":"56","attributes":{"italic":"true","bold":"true"}},{"insert":"7","attributes":{"bold":"true"}}]"#,
+            r#"[
+            {"insert":"12","attributes":{"italic":"true","bold":"true"}},
+            {"insert":"34","attributes":{"bold":"true"}},
+            {"insert":"56","attributes":{"italic":"true","bold":"true"}},
+            {"insert":"7","attributes":{"bold":"true"}}]
+            "#,
         ),
         AssertOpsJson(
             1,
-            r#"[{"insert":"12","attributes":{"italic":"true","bold":"true"}},{"insert":"34","attributes":{"bold":"true"}},{"insert":"56","attributes":{"italic":"true","bold":"true"}},{"insert":"7","attributes":{"bold":"true"}}]"#,
+            r#"[
+            {"insert":"12","attributes":{"italic":"true","bold":"true"}},
+            {"insert":"34","attributes":{"bold":"true"}},
+            {"insert":"56","attributes":{"italic":"true","bold":"true"}},
+            {"insert":"7","attributes":{"bold":"true"}}]
+            "#,
         ),
     ];
 

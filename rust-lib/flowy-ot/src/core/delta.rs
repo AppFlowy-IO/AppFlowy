@@ -482,50 +482,17 @@ impl Delta {
             return inverted;
         }
 
-        let inverted_from_other =
-            |inverted: &mut Delta, operation: &Operation, start: usize, end: usize| {
-                log::debug!("invert op: {:?} [{}:{}]", operation, start, end);
-
-                let ops = other.ops_in_interval(Interval::new(start, end));
-                ops.into_iter().for_each(|other_op| {
-                    match operation {
-                        Operation::Delete(_) => {
-                            log::debug!("add: {}", other_op);
-                            inverted.add(other_op);
-                        },
-                        Operation::Retain(_) => {
-                            log::debug!(
-                                "Start invert attributes: {:?}, {:?}",
-                                operation.get_attributes(),
-                                other_op.get_attributes()
-                            );
-                            let inverted_attrs = invert_attributes(
-                                operation.get_attributes(),
-                                other_op.get_attributes(),
-                            );
-                            log::debug!("End invert attributes: {:?}", inverted_attrs);
-                            log::debug!("invert retain: {}, {}", other_op.length(), inverted_attrs);
-                            inverted.retain(other_op.length(), inverted_attrs);
-                        },
-                        Operation::Insert(_) => {
-                            // Impossible to here
-                            panic!()
-                        },
-                    }
-                });
-            };
-
         let mut index = 0;
         for op in &self.ops {
             let len: usize = op.length() as usize;
             match op {
                 Operation::Delete(n) => {
-                    inverted_from_other(&mut inverted, op, index, index + *n);
+                    invert_from_other(&mut inverted, other, op, index, index + *n);
                     index += len;
                 },
                 Operation::Retain(_) => {
                     match op.has_attribute() {
-                        true => inverted_from_other(&mut inverted, op, index, index + len),
+                        true => invert_from_other(&mut inverted, other, op, index, index + len),
                         false => {
                             log::debug!("invert retain op: {:?}", op);
                             inverted.retain(len as usize, op.get_attributes())
@@ -533,10 +500,9 @@ impl Delta {
                     }
                     index += len;
                 },
-                Operation::Insert(insert) => {
+                Operation::Insert(_) => {
                     log::debug!("invert insert op: {:?}", op);
                     inverted.delete(len as usize);
-                    // index += insert.s.len();
                 },
             }
         }
@@ -558,7 +524,6 @@ impl Delta {
 
     pub fn ops_in_interval(&self, mut interval: Interval) -> Vec<Operation> {
         log::debug!("ops in delta: {:?}, at {:?}", self, interval);
-
         let mut ops: Vec<Operation> = Vec::with_capacity(self.ops.len());
         let mut ops_iter = self.ops.iter();
         let mut maybe_next_op = ops_iter.next();
@@ -567,27 +532,39 @@ impl Delta {
         while maybe_next_op.is_some() {
             let next_op = maybe_next_op.take().unwrap();
             if offset < interval.start {
-                if next_op.length() > interval.size() {
+                let next_op_i = Interval::new(offset, offset + next_op.length());
+                let intersect = next_op_i.intersect(interval);
+                if !intersect.is_empty() {
                     // if the op's length larger than the interval size, just shrink the op to that
-                    // interval. for example: delta: "123456", interval: [3,6).
+                    // interval Checkout the delta_get_ops_in_interval_3 test for more details.
                     // ┌──────────────┐
                     // │ 1 2 3 4 5 6  │
                     // └───────▲───▲──┘
                     //         │   │
-                    //        [3, 6)
-                    if let Some(new_op) = next_op.shrink(interval) {
+                    //        [3, 5)
+                    // op = "45"
+                    if let Some(new_op) = next_op.shrink(intersect) {
+                        offset += min(intersect.end, next_op.length());
+                        interval = Interval::new(offset, interval.end);
                         ops.push(new_op);
                     }
                 } else {
-                    // adding the op's length to offset until the offset is contained in the
-                    // interval
-                    offset += next_op.length();
+                    offset += next_op_i.size();
                 }
             } else {
                 // the interval passed in the shrink function is base on the op not the delta.
                 if let Some(new_op) = next_op.shrink(interval.translate_neg(offset)) {
                     ops.push(new_op);
                 }
+                // take the small value between interval.size() and next_op.length().
+                // for example: extract the ops from three insert ops with interval [2,5). the
+                // interval size is larger than the op. Run the
+                // delta_get_ops_in_interval_4 for more details.
+                // ┌──────┐  ┌──────┐  ┌──────┐
+                // │ 1 2  │  │ 3 4  │  │ 5 6  │
+                // └──────┘  └─▲────┘  └───▲──┘
+                //             │  [2, 5)   │
+                //
                 offset += min(interval.size(), next_op.length());
                 interval = Interval::new(offset, interval.end);
             }
@@ -634,4 +611,39 @@ impl Delta {
     }
 
     pub fn to_json(&self) -> String { serde_json::to_string(self).unwrap_or("".to_owned()) }
+}
+
+fn invert_from_other(
+    inverted: &mut Delta,
+    other: &Delta,
+    operation: &Operation,
+    start: usize,
+    end: usize,
+) {
+    log::debug!("invert op: {:?} [{}:{}]", operation, start, end);
+    let ops = other.ops_in_interval(Interval::new(start, end));
+    ops.into_iter().for_each(|other_op| {
+        match operation {
+            Operation::Delete(_) => {
+                log::debug!("add: {}", other_op);
+                inverted.add(other_op);
+            },
+            Operation::Retain(_) => {
+                log::debug!(
+                    "Start invert attributes: {:?}, {:?}",
+                    operation.get_attributes(),
+                    other_op.get_attributes()
+                );
+                let inverted_attrs =
+                    invert_attributes(operation.get_attributes(), other_op.get_attributes());
+                log::debug!("End invert attributes: {:?}", inverted_attrs);
+                log::debug!("invert retain: {}, {}", other_op.length(), inverted_attrs);
+                inverted.retain(other_op.length(), inverted_attrs);
+            },
+            Operation::Insert(_) => {
+                // Impossible to here
+                panic!()
+            },
+        }
+    });
 }

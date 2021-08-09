@@ -215,8 +215,8 @@ fn delta_get_ops_in_interval_3() {
     let insert_a = Builder::insert("123456").build();
     delta.add(insert_a.clone());
     assert_eq!(
-        delta.ops_in_interval(Interval::new(3, 6)),
-        vec![Builder::insert("456").build()]
+        delta.ops_in_interval(Interval::new(3, 5)),
+        vec![Builder::insert("45").build()]
     );
 }
 
@@ -238,5 +238,29 @@ fn delta_get_ops_in_interval_4() {
     assert_eq!(
         delta.ops_in_interval(Interval::new(2, 5)),
         vec![Builder::insert("34").build(), Builder::insert("5").build()]
+    );
+}
+
+#[test]
+fn delta_get_ops_in_interval_5() {
+    let mut delta = Delta::default();
+    let insert_a = Builder::insert("123456").build();
+    let insert_b = Builder::insert("789").build();
+    delta.ops.push(insert_a.clone());
+    delta.ops.push(insert_b.clone());
+    assert_eq!(
+        delta.ops_in_interval(Interval::new(4, 8)),
+        vec![Builder::insert("56").build(), Builder::insert("78").build()]
+    );
+}
+
+#[test]
+fn delta_get_ops_in_interval_6() {
+    let mut delta = Delta::default();
+    let insert_a = Builder::insert("12345678").build();
+    delta.add(insert_a.clone());
+    assert_eq!(
+        delta.ops_in_interval(Interval::new(4, 6)),
+        vec![Builder::insert("56").build()]
     );
 }
