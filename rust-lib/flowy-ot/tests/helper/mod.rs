@@ -1,7 +1,7 @@
 use derive_more::Display;
 use flowy_ot::{client::Document, core::*};
 use rand::{prelude::*, Rng as WrappedRng};
-use std::{sync::Once, thread::sleep_ms, time::Duration};
+use std::{sync::Once, time::Duration};
 
 #[derive(Clone, Debug, Display)]
 pub enum TestOp {

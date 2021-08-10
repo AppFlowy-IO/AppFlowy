@@ -159,9 +159,9 @@ impl Document {
         let new_attributes = match &mut attributes {
             Attributes::Follow => old_attributes,
             Attributes::Custom(attr_data) => {
-                attr_data.extend(old_attributes.data(), true);
+                attr_data.merge(old_attributes.data());
                 log::debug!("combine with old result : {:?}", attr_data);
-                attr_data.clone().into_attributes()
+                attr_data.clone().into()
             },
         };
 
@@ -209,7 +209,7 @@ impl Document {
         // a = c.compose(d)
         log::debug!("👉invert change {}", change);
         let new_delta = self.data.compose(change)?;
-        let mut inverted_delta = change.invert(&self.data);
+        let inverted_delta = change.invert(&self.data);
         // trim(&mut inverted_delta);
 
         Ok((new_delta, inverted_delta))

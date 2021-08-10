@@ -55,7 +55,7 @@ impl Operation {
     pub fn has_attribute(&self) -> bool {
         match self.get_attributes() {
             Attributes::Follow => false,
-            Attributes::Custom(data) => !data.is_plain(),
+            Attributes::Custom(data) => !data.is_empty(),
         }
     }
 
@@ -96,7 +96,7 @@ impl Operation {
 
 impl fmt::Display for Operation {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("{");
+        f.write_str("{")?;
         match self {
             Operation::Delete(n) => {
                 f.write_fmt(format_args!("delete: {}", n))?;
@@ -108,7 +108,7 @@ impl fmt::Display for Operation {
                 f.write_fmt(format_args!("{}", i))?;
             },
         }
-        f.write_str("}");
+        f.write_str("}")?;
         Ok(())
     }
 }
@@ -159,7 +159,7 @@ impl Retain {
     pub fn is_plain(&self) -> bool {
         match &self.attributes {
             Attributes::Follow => true,
-            Attributes::Custom(data) => data.is_plain(),
+            Attributes::Custom(data) => data.is_empty(),
         }
     }
 }
@@ -250,6 +250,6 @@ impl std::convert::From<&str> for Insert {
 fn is_empty(attributes: &Attributes) -> bool {
     match attributes {
         Attributes::Follow => true,
-        Attributes::Custom(data) => data.is_plain(),
+        Attributes::Custom(data) => data.is_empty(),
     }
 }

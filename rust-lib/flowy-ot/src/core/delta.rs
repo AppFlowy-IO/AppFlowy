@@ -4,7 +4,7 @@ use crate::{
 };
 use bytecount::num_chars;
 use std::{
-    cmp::{max, min, Ordering},
+    cmp::{min, Ordering},
     fmt,
     iter::FromIterator,
     str::FromStr,
@@ -46,7 +46,7 @@ impl fmt::Display for Delta {
         // f.write_str(&serde_json::to_string(self).unwrap_or("".to_owned()))?;
         f.write_str("[ ")?;
         for op in &self.ops {
-            f.write_fmt(format_args!("{} ", op));
+            f.write_fmt(format_args!("{} ", op))?;
         }
         f.write_str("]")?;
         Ok(())
@@ -232,7 +232,7 @@ impl Delta {
                 },
                 (Some(Operation::Insert(insert)), Some(Operation::Retain(o_retain))) => {
                     let mut composed_attrs = compose_operation(&next_op1, &next_op2);
-                    composed_attrs = composed_attrs.apply_rule();
+                    composed_attrs = composed_attrs.remove_empty();
 
                     log::debug!(
                         "compose: [{} - {}], composed_attrs: {}",
@@ -589,35 +589,28 @@ impl Delta {
         log::debug!("Get attributes at {:?}", interval);
         self.ops.iter().for_each(|op| match op {
             Operation::Delete(_n) => {},
-            Operation::Retain(_retain) => {
-                unimplemented!()
-                // if interval.contains(retain.n as usize) {
-                //     match &retain.attributes {
-                //         Attributes::Follow => {},
-                //         Attributes::Custom(data) => {
-                //             attributes_data.extend(data.clone());
-                //         },
-                //         Attributes::Empty => {},
-                //     }
-                // }
+            Operation::Retain(retain) => {
+                if let Attributes::Custom(data) = &retain.attributes {
+                    if interval.contains_range(offset, offset + retain.n) {
+                        log::debug!("extend retain attributes with {} ", &data);
+                        attributes_data.extend(Some(data.clone()));
+                    }
+                }
+                offset += retain.n;
             },
             Operation::Insert(insert) => {
                 let end = insert.num_chars() as usize;
-                match &insert.attributes {
-                    Attributes::Follow => {},
-                    Attributes::Custom(data) => {
-                        if interval.contains_range(offset, offset + end) {
-                            log::debug!("extend attributes with {} ", &data);
-                            attributes_data.extend(Some(data.clone()), false);
-                        }
-                    },
+                if let Attributes::Custom(data) = &insert.attributes {
+                    if interval.contains_range(offset, offset + end) {
+                        log::debug!("extend insert attributes with {} ", &data);
+                        attributes_data.extend(Some(data.clone()));
+                    }
                 }
-                offset += end
+                offset += end;
             },
         });
 
-        attributes_data.apply_rule();
-        let attribute = attributes_data.into_attributes();
+        let attribute: Attributes = attributes_data.into();
         log::debug!("Get attributes result: {} ", &attribute);
         attribute
     }

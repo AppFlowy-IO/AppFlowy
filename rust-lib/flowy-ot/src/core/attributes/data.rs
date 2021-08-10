@@ -24,71 +24,38 @@ impl AttributesData {
         }
     }
 
-    pub fn is_plain(&self) -> bool { self.inner.is_empty() }
+    pub fn is_empty(&self) -> bool { self.inner.is_empty() }
+
+    pub fn add(&mut self, attribute: Attribute) { self.inner.insert(attribute, "true".to_owned()); }
 
     pub fn remove(&mut self, attribute: &Attribute) {
         self.inner.insert(attribute.clone(), REMOVE_FLAG.to_owned());
     }
 
-    pub fn add(&mut self, attribute: Attribute) { self.inner.insert(attribute, "true".to_owned()); }
+    // Remove the key if its value is empty. e.g. { bold: "" }
+    pub fn remove_empty_value(&mut self) { self.inner.retain(|_, v| !should_remove(v)); }
 
-    pub fn extend(&mut self, other: Option<AttributesData>, prune: bool) {
+    pub fn extend(&mut self, other: Option<AttributesData>) {
+        if other.is_none() {
+            return;
+        }
+        self.inner.extend(other.unwrap().inner);
+    }
+
+    // Update self attributes by constructing new attributes from the other if it's
+    // not None and replace the key/value with self key/value.
+    pub fn merge(&mut self, other: Option<AttributesData>) {
         if other.is_none() {
             return;
         }
 
-        if prune {
-            let mut new_attributes = other.unwrap().inner;
-            self.inner.iter().for_each(|(k, v)| {
-                // if should_remove(v) {
-                //     new_attributes.remove(k);
-                // } else {
-                //     new_attributes.insert(k.clone(), v.clone());
-                // }
-                new_attributes.insert(k.clone(), v.clone());
-            });
-            self.inner = new_attributes;
-        } else {
-            self.inner.extend(other.unwrap().inner);
-        }
+        let mut new_attributes = other.unwrap().inner;
+        self.inner.iter().for_each(|(k, v)| {
+            new_attributes.insert(k.clone(), v.clone());
+        });
+        self.inner = new_attributes;
     }
 }
-
-pub trait AttributesDataRule {
-    fn apply_rule(&mut self);
-
-    fn into_attributes(self) -> Attributes;
-}
-impl AttributesDataRule for AttributesData {
-    fn apply_rule(&mut self) { self.inner.retain(|_, v| !should_remove(v)); }
-
-    fn into_attributes(mut self) -> Attributes {
-        if self.is_plain() {
-            Attributes::default()
-        } else {
-            Attributes::Custom(self)
-        }
-    }
-}
-
-pub trait AttributesRule {
-    fn apply_rule(self) -> Attributes;
-}
-
-impl AttributesRule for Attributes {
-    fn apply_rule(self) -> Attributes {
-        match self {
-            Attributes::Follow => self,
-            Attributes::Custom(mut data) => {
-                data.apply_rule();
-                data.into_attributes()
-            },
-        }
-    }
-}
-// impl std::convert::From<HashMap<String, String>> for AttributesData {
-//     fn from(attributes: HashMap<String, String>) -> Self { AttributesData {
-// inner: attributes } } }
 
 impl std::ops::Deref for AttributesData {
     type Target = HashMap<Attribute, String>;
@@ -98,4 +65,8 @@ impl std::ops::Deref for AttributesData {
 
 impl std::ops::DerefMut for AttributesData {
     fn deref_mut(&mut self) -> &mut Self::Target { &mut self.inner }
+}
+
+impl std::convert::Into<Attributes> for AttributesData {
+    fn into(self) -> Attributes { Attributes::Custom(self) }
 }
