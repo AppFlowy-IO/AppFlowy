@@ -352,7 +352,7 @@ fn delta_compose_attr_delta_with_no_attr_delta_test() {
 }
 
 #[test]
-fn delta_delete_heading() {
+fn delta_replace_heading() {
     let ops = vec![
         InsertBold(0, "123456", Interval::new(0, 6)),
         AssertOpsJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
@@ -364,7 +364,7 @@ fn delta_delete_heading() {
 }
 
 #[test]
-fn delta_delete_trailing() {
+fn delta_replace_trailing() {
     let ops = vec![
         InsertBold(0, "123456", Interval::new(0, 6)),
         AssertOpsJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
@@ -376,7 +376,7 @@ fn delta_delete_trailing() {
 }
 
 #[test]
-fn delta_delete_middle() {
+fn delta_replace_middle() {
     let ops = vec![
         InsertBold(0, "123456", Interval::new(0, 6)),
         AssertOpsJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
@@ -390,12 +390,30 @@ fn delta_delete_middle() {
 }
 
 #[test]
-fn delta_delete_all() {
+fn delta_replace_all() {
     let ops = vec![
         InsertBold(0, "123456", Interval::new(0, 6)),
         AssertOpsJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
         Delete(0, Interval::new(0, 6)),
         AssertOpsJson(0, r#"[]"#),
+    ];
+
+    OpTester::new().run_script(ops);
+}
+
+#[test]
+fn delta_replace_with_text() {
+    let ops = vec![
+        InsertBold(0, "123456", Interval::new(0, 6)),
+        AssertOpsJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
+        Replace(0, Interval::new(0, 3), "ab"),
+        AssertOpsJson(
+            0,
+            r#"[
+            {"insert":"ab"},
+            {"insert":"456","attributes":{"bold":"true"}}]
+            "#,
+        ),
     ];
 
     OpTester::new().run_script(ops);

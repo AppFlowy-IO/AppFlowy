@@ -1,5 +1,5 @@
 use crate::core::{Attribute, AttributesData, AttributesRule, Operation};
-use std::{collections::HashMap, fmt};
+use std::{collections::HashMap, fmt, fmt::Formatter};
 
 #[derive(Debug, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
@@ -9,6 +9,16 @@ pub enum Attributes {
     Custom(AttributesData),
     #[serde(skip)]
     Empty,
+}
+
+impl fmt::Display for Attributes {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            Attributes::Follow => f.write_str("follow"),
+            Attributes::Custom(data) => f.write_fmt(format_args!("{:?}", data.inner)),
+            Attributes::Empty => f.write_str("empty"),
+        }
+    }
 }
 
 impl Attributes {
@@ -23,23 +33,6 @@ impl Attributes {
 
 impl std::default::Default for Attributes {
     fn default() -> Self { Attributes::Empty }
-}
-
-impl fmt::Display for Attributes {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Attributes::Follow => {
-                f.write_str("")?;
-            },
-            Attributes::Custom(data) => {
-                f.write_fmt(format_args!("{:?}", data.inner))?;
-            },
-            Attributes::Empty => {
-                f.write_str("")?;
-            },
-        }
-        Ok(())
-    }
 }
 
 pub(crate) fn attributes_from(operation: &Option<Operation>) -> Option<Attributes> {
@@ -139,7 +132,7 @@ fn compose_attributes(left: Attributes, right: Attributes) -> Attributes {
     };
 
     log::trace!("composed_attributes: a: {:?}", attr);
-    attr.apply_rule()
+    attr
 }
 
 fn transform_attributes(left: Attributes, right: Attributes) -> Attributes {

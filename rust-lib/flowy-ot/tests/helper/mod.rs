@@ -1,7 +1,7 @@
 use derive_more::Display;
 use flowy_ot::{client::Document, core::*};
 use rand::{prelude::*, Rng as WrappedRng};
-use std::sync::Once;
+use std::{sync::Once, thread::sleep_ms, time::Duration};
 
 #[derive(Clone, Debug, Display)]
 pub enum TestOp {
@@ -19,6 +19,9 @@ pub enum TestOp {
     #[display(fmt = "Delete")]
     Delete(usize, Interval),
 
+    #[display(fmt = "Replace")]
+    Replace(usize, Interval, &'static str),
+
     #[display(fmt = "Italic")]
     Italic(usize, Interval, bool),
 
@@ -34,6 +37,9 @@ pub enum TestOp {
 
     #[display(fmt = "Redo")]
     Redo(usize),
+
+    #[display(fmt = "Wait")]
+    Wait(usize),
 
     #[display(fmt = "AssertStr")]
     AssertStr(usize, &'static str),
@@ -51,7 +57,7 @@ impl OpTester {
         static INIT: Once = Once::new();
         INIT.call_once(|| {
             color_eyre::install().unwrap();
-            std::env::set_var("RUST_LOG", "info");
+            std::env::set_var("RUST_LOG", "debug");
             env_logger::init();
         });
 
@@ -71,7 +77,11 @@ impl OpTester {
             },
             TestOp::Delete(delta_i, interval) => {
                 let document = &mut self.documents[*delta_i];
-                document.delete(*interval).unwrap();
+                document.replace(*interval, "").unwrap();
+            },
+            TestOp::Replace(delta_i, interval, s) => {
+                let document = &mut self.documents[*delta_i];
+                document.replace(*interval, s).unwrap();
             },
             TestOp::InsertBold(delta_i, s, interval) => {
                 let document = &mut self.documents[*delta_i];
@@ -130,6 +140,9 @@ impl OpTester {
             },
             TestOp::Redo(delta_i) => {
                 self.documents[*delta_i].redo().unwrap();
+            },
+            TestOp::Wait(mills_sec) => {
+                std::thread::sleep(Duration::from_millis(*mills_sec as u64));
             },
             TestOp::AssertStr(delta_i, expected) => {
                 assert_eq!(&self.documents[*delta_i].to_string(), expected);

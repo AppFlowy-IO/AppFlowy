@@ -1,5 +1,6 @@
 use crate::core::{Attributes, Builder, Interval};
 use bytecount::num_chars;
+use serde::__private::Formatter;
 use std::{
     cmp::min,
     fmt,
@@ -60,14 +61,6 @@ impl Operation {
         }
     }
 
-    pub fn is_plain(&self) -> bool {
-        match self.get_attributes() {
-            Attributes::Follow => true,
-            Attributes::Custom(data) => data.is_plain(),
-            Attributes::Empty => true,
-        }
-    }
-
     pub fn length(&self) -> usize {
         match self {
             Operation::Delete(n) => *n,
@@ -105,23 +98,19 @@ impl Operation {
 
 impl fmt::Display for Operation {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("{");
         match self {
             Operation::Delete(n) => {
                 f.write_fmt(format_args!("delete: {}", n))?;
             },
             Operation::Retain(r) => {
-                f.write_fmt(format_args!(
-                    "retain: {}, attributes: {}",
-                    r.n, r.attributes
-                ))?;
+                f.write_fmt(format_args!("{}", r))?;
             },
             Operation::Insert(i) => {
-                f.write_fmt(format_args!(
-                    "insert: {}, attributes: {}",
-                    i.s, i.attributes
-                ))?;
+                f.write_fmt(format_args!("{}", i))?;
             },
         }
+        f.write_str("}");
         Ok(())
     }
 }
@@ -134,9 +123,23 @@ pub struct Retain {
     pub attributes: Attributes,
 }
 
+impl fmt::Display for Retain {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!(
+            "retain: {}, attributes: {}",
+            self.n, self.attributes
+        ))
+    }
+}
+
 impl Retain {
     pub fn merge_or_new_op(&mut self, n: usize, attributes: Attributes) -> Option<Operation> {
-        log::debug!("merge_retain_or_new_op: {:?}, {:?}", n, attributes);
+        log::debug!(
+            "merge_retain_or_new_op: len: {:?}, l: {} - r: {}",
+            n,
+            self.attributes,
+            attributes
+        );
 
         match &attributes {
             Attributes::Follow => {
@@ -146,14 +149,20 @@ impl Retain {
             },
             Attributes::Custom(_) | Attributes::Empty => {
                 if self.attributes == attributes {
-                    log::debug!("Attribute equal");
                     self.n += n;
                     None
                 } else {
-                    log::debug!("New retain op");
                     Some(Builder::retain(n).attributes(attributes).build())
                 }
             },
+        }
+    }
+
+    pub fn is_plain(&self) -> bool {
+        match &self.attributes {
+            Attributes::Follow => true,
+            Attributes::Custom(data) => data.is_plain(),
+            Attributes::Empty => true,
         }
     }
 }
@@ -184,6 +193,23 @@ pub struct Insert {
 
     #[serde(skip_serializing_if = "is_empty")]
     pub attributes: Attributes,
+}
+
+impl fmt::Display for Insert {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let mut s = self.s.clone();
+        if s.ends_with("\n") {
+            s.pop();
+            if s.is_empty() {
+                s = "new_line".to_owned();
+            }
+        }
+
+        f.write_fmt(format_args!(
+            "insert: {}, attributes: {}",
+            s, self.attributes
+        ))
+    }
 }
 
 impl Insert {

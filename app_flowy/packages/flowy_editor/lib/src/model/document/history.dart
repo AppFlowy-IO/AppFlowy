@@ -51,10 +51,12 @@ class History {
     var undoDelta = change.invert(before);
     final timestamp = DateTime.now().millisecondsSinceEpoch;
 
-    if (timestamp - lastRecorded < minRecordThreshold &&
-        stack.undo.isNotEmpty) {
+    if (stack.undo.isNotEmpty) {
       final lastDelta = stack.undo.removeLast();
+      print("undoDelta: $undoDelta");
+      print("lastDelta: $lastDelta");
       undoDelta = undoDelta.compose(lastDelta);
+      print("compose result: $undoDelta");
     } else {
       lastRecorded = timestamp;
     }

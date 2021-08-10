@@ -36,7 +36,7 @@ impl UndoResult {
 pub struct History {
     cur_undo: usize,
     undos: Vec<Delta>,
-    redos: Vec<Delta>,
+    redoes: Vec<Delta>,
     capacity: usize,
 }
 
@@ -45,25 +45,25 @@ impl History {
         History {
             cur_undo: 1,
             undos: Vec::new(),
-            redos: Vec::new(),
+            redoes: Vec::new(),
             capacity: 20,
         }
     }
 
     pub fn can_undo(&self) -> bool { !self.undos.is_empty() }
 
-    pub fn can_redo(&self) -> bool { !self.redos.is_empty() }
+    pub fn can_redo(&self) -> bool { !self.redoes.is_empty() }
 
     pub fn add_undo(&mut self, delta: Delta) { self.undos.push(delta); }
 
-    pub fn add_redo(&mut self, delta: Delta) { self.redos.push(delta); }
+    pub fn add_redo(&mut self, delta: Delta) { self.redoes.push(delta); }
 
     pub fn record(&mut self, delta: Delta) {
         if delta.ops.is_empty() {
             return;
         }
 
-        self.redos.clear();
+        self.redoes.clear();
         self.add_undo(delta);
 
         if self.undos.len() > self.capacity {
@@ -84,7 +84,7 @@ impl History {
             return None;
         }
 
-        let delta = self.redos.pop().unwrap();
+        let delta = self.redoes.pop().unwrap();
         Some(delta)
     }
 }

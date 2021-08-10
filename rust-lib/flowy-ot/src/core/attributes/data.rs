@@ -18,9 +18,7 @@ impl AttributesData {
         }
     }
 
-    pub fn is_plain(&self) -> bool {
-        self.inner.values().filter(|v| !should_remove(v)).count() == 0
-    }
+    pub fn is_plain(&self) -> bool { self.inner.is_empty() }
 
     pub fn remove(&mut self, attribute: &Attribute) {
         self.inner.insert(attribute.clone(), REMOVE_FLAG.to_owned());

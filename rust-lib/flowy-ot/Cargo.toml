@@ -12,6 +12,7 @@ serde_json = {version = "1.0"}
 derive_more = {version = "0.99", features = ["display"]}
 log = "0.4"
 color-eyre = { version = "0.5", default-features = false }
+chrono = "0.4.19"
 
 [dev-dependencies]
 criterion = "0.3"
