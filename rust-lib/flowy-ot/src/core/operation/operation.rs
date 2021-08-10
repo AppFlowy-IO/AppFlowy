@@ -32,7 +32,7 @@ impl Operation {
 
     pub fn get_attributes(&self) -> Attributes {
         match self {
-            Operation::Delete(_) => Attributes::Empty,
+            Operation::Delete(_) => Attributes::default(),
             Operation::Retain(retain) => retain.attributes.clone(),
             Operation::Insert(insert) => insert.attributes.clone(),
         }
@@ -55,9 +55,7 @@ impl Operation {
     pub fn has_attribute(&self) -> bool {
         match self.get_attributes() {
             Attributes::Follow => false,
-            // Attributes::Custom(data) => !data.is_plain(),
-            Attributes::Custom(data) => true,
-            Attributes::Empty => false,
+            Attributes::Custom(data) => !data.is_plain(),
         }
     }
 
@@ -147,7 +145,7 @@ impl Retain {
                 self.n += n;
                 None
             },
-            Attributes::Custom(_) | Attributes::Empty => {
+            Attributes::Custom(_) => {
                 if self.attributes == attributes {
                     self.n += n;
                     None
@@ -162,7 +160,6 @@ impl Retain {
         match &self.attributes {
             Attributes::Follow => true,
             Attributes::Custom(data) => data.is_plain(),
-            Attributes::Empty => true,
         }
     }
 }
@@ -225,7 +222,7 @@ impl Insert {
                 self.s += s;
                 return None;
             },
-            Attributes::Custom(_) | Attributes::Empty => {
+            Attributes::Custom(_) => {
                 if self.attributes == attributes {
                     self.s += s;
                     None
@@ -254,6 +251,5 @@ fn is_empty(attributes: &Attributes) -> bool {
     match attributes {
         Attributes::Follow => true,
         Attributes::Custom(data) => data.is_plain(),
-        Attributes::Empty => true,
     }
 }

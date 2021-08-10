@@ -82,7 +82,7 @@ impl<'de> Deserialize<'de> for Operation {
                 match operation {
                     None => Err(de::Error::missing_field("operation")),
                     Some(mut operation) => {
-                        operation.set_attributes(attributes.unwrap_or(Attributes::Empty));
+                        operation.set_attributes(attributes.unwrap_or(Attributes::default()));
                         Ok(operation)
                     },
                 }

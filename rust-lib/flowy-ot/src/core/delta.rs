@@ -261,15 +261,7 @@ impl Delta {
                                 &chars.take(o_retain.n as usize).collect::<String>(),
                                 composed_attrs,
                             );
-                            next_op1 = Some(
-                                Builder::insert(&chars.collect::<String>())
-                                    // consider this situation: 
-                                    // [insert:12345678 - retain:4], 
-                                    //      the attributes of "5678" should be empty and the following 
-                                    //      retain will bringing the attributes. 
-                                    .attributes(Attributes::Empty)
-                                    .build(),
-                            );
+                            next_op1 = Some(Builder::insert(&chars.collect::<String>()).build());
                             next_op2 = ops2.next();
                         },
                     }
@@ -594,7 +586,7 @@ impl Delta {
     pub fn get_attributes(&self, interval: Interval) -> Attributes {
         let mut attributes_data = AttributesData::new();
         let mut offset: usize = 0;
-
+        log::debug!("Get attributes at {:?}", interval);
         self.ops.iter().for_each(|op| match op {
             Operation::Delete(_n) => {},
             Operation::Retain(_retain) => {
@@ -615,17 +607,19 @@ impl Delta {
                     Attributes::Follow => {},
                     Attributes::Custom(data) => {
                         if interval.contains_range(offset, offset + end) {
-                            log::debug!("Get attributes from op: {:?} at {:?}", op, interval);
+                            log::debug!("extend attributes with {} ", &data);
                             attributes_data.extend(Some(data.clone()), false);
                         }
                     },
-                    Attributes::Empty => {},
                 }
                 offset += end
             },
         });
 
-        attributes_data.into_attributes()
+        attributes_data.apply_rule();
+        let attribute = attributes_data.into_attributes();
+        log::debug!("Get attributes result: {} ", &attribute);
+        attribute
     }
 
     pub fn to_json(&self) -> String { serde_json::to_string(self).unwrap_or("".to_owned()) }

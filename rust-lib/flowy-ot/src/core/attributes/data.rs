@@ -11,6 +11,12 @@ pub struct AttributesData {
     pub(crate) inner: HashMap<Attribute, String>,
 }
 
+impl fmt::Display for AttributesData {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!("{:?}", self.inner))
+    }
+}
+
 impl AttributesData {
     pub fn new() -> Self {
         AttributesData {
@@ -34,11 +40,12 @@ impl AttributesData {
         if prune {
             let mut new_attributes = other.unwrap().inner;
             self.inner.iter().for_each(|(k, v)| {
-                if should_remove(v) {
-                    new_attributes.remove(k);
-                } else {
-                    new_attributes.insert(k.clone(), v.clone());
-                }
+                // if should_remove(v) {
+                //     new_attributes.remove(k);
+                // } else {
+                //     new_attributes.insert(k.clone(), v.clone());
+                // }
+                new_attributes.insert(k.clone(), v.clone());
             });
             self.inner = new_attributes;
         } else {
@@ -56,10 +63,8 @@ impl AttributesDataRule for AttributesData {
     fn apply_rule(&mut self) { self.inner.retain(|_, v| !should_remove(v)); }
 
     fn into_attributes(mut self) -> Attributes {
-        self.apply_rule();
-
         if self.is_plain() {
-            Attributes::Empty
+            Attributes::default()
         } else {
             Attributes::Custom(self)
         }
@@ -74,8 +79,10 @@ impl AttributesRule for Attributes {
     fn apply_rule(self) -> Attributes {
         match self {
             Attributes::Follow => self,
-            Attributes::Custom(data) => data.into_attributes(),
-            Attributes::Empty => self,
+            Attributes::Custom(mut data) => {
+                data.apply_rule();
+                data.into_attributes()
+            },
         }
     }
 }

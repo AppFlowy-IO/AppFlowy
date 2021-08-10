@@ -34,7 +34,7 @@ impl Document {
         }
         let probe = Interval::new(index, index + 1);
         let mut attributes = self.data.get_attributes(probe);
-        if attributes == Attributes::Empty {
+        if attributes.is_empty() {
             attributes = Attributes::Follow;
         }
         let mut delta = Delta::new();
@@ -55,7 +55,7 @@ impl Document {
             true => AttrsBuilder::new().add(attribute).build(),
             false => AttrsBuilder::new().remove(&attribute).build(),
         };
-
+        log::debug!("format with {} at {}", attributes, interval);
         self.update_with_attribute(attributes, interval)
     }
 
@@ -153,22 +153,19 @@ impl Document {
         mut attributes: Attributes,
         interval: Interval,
     ) -> Result<(), OTError> {
+        log::debug!("Update document with attributes: {:?}", attributes,);
         let old_attributes = self.data.get_attributes(interval);
-        log::debug!(
-            "combine attributes: {:?} : {:?}",
-            attributes,
-            old_attributes
-        );
+        log::debug!("combine with old: {:?}", old_attributes);
         let new_attributes = match &mut attributes {
             Attributes::Follow => old_attributes,
             Attributes::Custom(attr_data) => {
                 attr_data.extend(old_attributes.data(), true);
+                log::debug!("combine with old result : {:?}", attr_data);
                 attr_data.clone().into_attributes()
             },
-            Attributes::Empty => Attributes::Empty,
         };
 
-        log::debug!("combined result: {:?}", new_attributes);
+        log::debug!("combine result: {:?}", new_attributes);
         let retain = Builder::retain(interval.size())
             .attributes(new_attributes)
             .build();
@@ -202,6 +199,7 @@ impl Document {
             self.history.record(undo_delta);
         }
 
+        log::debug!("document delta: {}", &composed_delta);
         Ok(composed_delta)
     }
 

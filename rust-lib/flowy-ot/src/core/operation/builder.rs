@@ -9,7 +9,7 @@ impl Builder {
     pub fn new(ty: Operation) -> Builder {
         Builder {
             ty,
-            attrs: Attributes::Empty,
+            attrs: Attributes::default(),
         }
     }
 

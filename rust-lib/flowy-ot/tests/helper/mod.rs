@@ -57,7 +57,7 @@ impl OpTester {
         static INIT: Once = Once::new();
         INIT.call_once(|| {
             color_eyre::install().unwrap();
-            std::env::set_var("RUST_LOG", "debug");
+            std::env::set_var("RUST_LOG", "info");
             env_logger::init();
         });
 
@@ -201,18 +201,21 @@ impl Rng {
             };
             match self.0.gen_range(0.0, 1.0) {
                 f if f < 0.2 => {
-                    delta.insert(&self.gen_string(i), Attributes::Empty);
+                    delta.insert(&self.gen_string(i), Attributes::default());
                 },
                 f if f < 0.4 => {
                     delta.delete(i);
                 },
                 _ => {
-                    delta.retain(i, Attributes::Empty);
+                    delta.retain(i, Attributes::Follow);
                 },
             }
         }
         if self.0.gen_range(0.0, 1.0) < 0.3 {
-            delta.insert(&("1".to_owned() + &self.gen_string(10)), Attributes::Empty);
+            delta.insert(
+                &("1".to_owned() + &self.gen_string(10)),
+                Attributes::default(),
+            );
         }
         delta
     }
