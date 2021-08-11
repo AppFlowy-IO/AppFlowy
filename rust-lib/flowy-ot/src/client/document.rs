@@ -1,5 +1,5 @@
 use crate::{
-    client::{History, RevId, UndoResult},
+    client::{view::View, History, RevId, UndoResult},
     core::*,
     errors::{ErrorBuilder, OTError, OTErrorCode::*},
 };
@@ -7,8 +7,9 @@ use crate::{
 pub const RECORD_THRESHOLD: usize = 400; // in milliseconds
 
 pub struct Document {
-    data: Delta,
+    delta: Delta,
     history: History,
+    view: View,
     rev_id_counter: usize,
     last_edit_time: usize,
 }
@@ -17,26 +18,30 @@ impl Document {
     pub fn new() -> Self {
         let delta = Delta::new();
         Document {
-            data: delta,
+            delta,
             history: History::new(),
+            view: View::new(),
             rev_id_counter: 1,
             last_edit_time: 0,
         }
     }
 
     pub fn insert(&mut self, index: usize, text: &str) -> Result<(), OTError> {
-        if self.data.target_len < index {
+        if self.delta.target_len < index {
             log::error!(
                 "{} out of bounds. should 0..{}",
                 index,
-                self.data.target_len
+                self.delta.target_len
             );
         }
         let probe = Interval::new(index, index + 1);
-        let mut attributes = self.data.get_attributes(probe);
+        let mut attributes = self.delta.get_attributes(probe);
         if attributes.is_empty() {
             attributes = Attributes::Follow;
         }
+
+        // let delta = self.view.handle_insert(&self.delta, s, interval);
+
         let mut delta = Delta::new();
         let insert = Builder::insert(text).attributes(attributes).build();
         let interval = Interval::new(index, index);
@@ -86,7 +91,7 @@ impl Document {
             Some(undo_delta) => {
                 let (new_delta, inverted_delta) = self.invert_change(&undo_delta)?;
                 let result = UndoResult::success(new_delta.target_len as usize);
-                self.data = new_delta;
+                self.delta = new_delta;
                 self.history.add_redo(inverted_delta);
 
                 Ok(result)
@@ -100,7 +105,7 @@ impl Document {
             Some(redo_delta) => {
                 let (new_delta, inverted_delta) = self.invert_change(&redo_delta)?;
                 let result = UndoResult::success(new_delta.target_len as usize);
-                self.data = new_delta;
+                self.delta = new_delta;
 
                 self.history.add_undo(inverted_delta);
                 Ok(result)
@@ -108,26 +113,27 @@ impl Document {
         }
     }
 
-    pub fn to_json(&self) -> String { self.data.to_json() }
+    pub fn to_json(&self) -> String { self.delta.to_json() }
 
-    pub fn to_string(&self) -> String { self.data.apply("").unwrap() }
+    pub fn to_string(&self) -> String { self.delta.apply("").unwrap() }
 
-    pub fn data(&self) -> &Delta { &self.data }
+    pub fn data(&self) -> &Delta { &self.delta }
 
-    pub fn set_data(&mut self, data: Delta) { self.data = data; }
+    pub fn set_data(&mut self, data: Delta) { self.delta = data; }
 
     fn update_with_op(&mut self, delta: &Delta, interval: Interval) -> Result<(), OTError> {
         let mut new_delta = Delta::default();
-        let (prefix, interval, suffix) = split_length_with_interval(self.data.target_len, interval);
+        let (prefix, interval, suffix) =
+            split_length_with_interval(self.delta.target_len, interval);
 
         // prefix
         if prefix.is_empty() == false && prefix != interval {
-            let intervals = split_interval_with_delta(&self.data, &prefix);
-            intervals.into_iter().for_each(|i| {
-                let attributes = self.data.get_attributes(i);
-                log::trace!("prefix attribute: {:?}, interval: {:?}", attributes, i);
-                new_delta.retain(i.size() as usize, attributes);
-            });
+            DeltaAttributesIter::from_interval(&self.delta, prefix).for_each(
+                |(length, attributes)| {
+                    log::debug!("prefix attribute: {:?}, len: {}", attributes, length);
+                    new_delta.retain(length, attributes);
+                },
+            );
         }
 
         delta.ops.iter().for_each(|op| {
@@ -136,15 +142,15 @@ impl Document {
 
         // suffix
         if suffix.is_empty() == false {
-            let intervals = split_interval_with_delta(&self.data, &suffix);
-            intervals.into_iter().for_each(|i| {
-                let attributes = self.data.get_attributes(i);
-                log::trace!("suffix attribute: {:?}, interval: {:?}", attributes, i);
-                new_delta.retain(i.size() as usize, attributes);
-            });
+            DeltaAttributesIter::from_interval(&self.delta, suffix).for_each(
+                |(length, attributes)| {
+                    log::debug!("suffix attribute: {:?}, len: {}", attributes, length);
+                    new_delta.retain(length, attributes);
+                },
+            );
         }
 
-        self.data = self.record_change(&new_delta)?;
+        self.delta = self.record_change(&new_delta)?;
         Ok(())
     }
 
@@ -154,7 +160,7 @@ impl Document {
         interval: Interval,
     ) -> Result<(), OTError> {
         log::debug!("Update document with attributes: {:?}", attributes,);
-        let old_attributes = self.data.get_attributes(interval);
+        let old_attributes = self.delta.get_attributes(interval);
         log::debug!("combine with old: {:?}", old_attributes);
         let new_attributes = match &mut attributes {
             Attributes::Follow => old_attributes,
@@ -208,8 +214,8 @@ impl Document {
         // d = b.invert(a)
         // a = c.compose(d)
         log::debug!("👉invert change {}", change);
-        let new_delta = self.data.compose(change)?;
-        let inverted_delta = change.invert(&self.data);
+        let new_delta = self.delta.compose(change)?;
+        let inverted_delta = change.invert(&self.delta);
         // trim(&mut inverted_delta);
 
         Ok((new_delta, inverted_delta))
@@ -223,7 +229,7 @@ fn split_length_with_interval(length: usize, interval: Interval) -> (Interval, I
     (prefix, interval, suffix)
 }
 
-fn split_interval_with_delta(delta: &Delta, interval: &Interval) -> Vec<Interval> {
+fn split_interval_by_delta(delta: &Delta, interval: &Interval) -> Vec<Interval> {
     let mut start = 0;
     let mut new_intervals = vec![];
     delta.ops.iter().for_each(|op| match op {

@@ -14,7 +14,7 @@ fn delta_get_ops_in_interval_1() {
     delta.add(insert_a.clone());
     delta.add(insert_b.clone());
 
-    let mut iterator = DeltaIter::new(&delta, Interval::new(0, 4));
+    let mut iterator = DeltaIter::from_interval(&delta, Interval::new(0, 4));
     assert_eq!(iterator.ops(), delta.ops);
 }
 
@@ -32,27 +32,27 @@ fn delta_get_ops_in_interval_2() {
     delta.add(insert_c.clone());
 
     assert_eq!(
-        DeltaIter::new(&delta, Interval::new(0, 2)).ops(),
+        DeltaIter::from_interval(&delta, Interval::new(0, 2)).ops(),
         vec![Builder::insert("12").build()]
     );
 
     assert_eq!(
-        DeltaIter::new(&delta, Interval::new(0, 3)).ops(),
+        DeltaIter::from_interval(&delta, Interval::new(0, 3)).ops(),
         vec![insert_a.clone()]
     );
 
     assert_eq!(
-        DeltaIter::new(&delta, Interval::new(0, 4)).ops(),
+        DeltaIter::from_interval(&delta, Interval::new(0, 4)).ops(),
         vec![insert_a.clone(), Builder::retain(1).build()]
     );
 
     assert_eq!(
-        DeltaIter::new(&delta, Interval::new(0, 6)).ops(),
+        DeltaIter::from_interval(&delta, Interval::new(0, 6)).ops(),
         vec![insert_a.clone(), retain_a.clone()]
     );
 
     assert_eq!(
-        DeltaIter::new(&delta, Interval::new(0, 7)).ops(),
+        DeltaIter::from_interval(&delta, Interval::new(0, 7)).ops(),
         vec![insert_a.clone(), retain_a.clone(), insert_b.clone()]
     );
 }
@@ -63,7 +63,7 @@ fn delta_get_ops_in_interval_3() {
     let insert_a = Builder::insert("123456").build();
     delta.add(insert_a.clone());
     assert_eq!(
-        DeltaIter::new(&delta, Interval::new(3, 5)).ops(),
+        DeltaIter::from_interval(&delta, Interval::new(3, 5)).ops(),
         vec![Builder::insert("45").build()]
     );
 }
@@ -80,20 +80,20 @@ fn delta_get_ops_in_interval_4() {
     delta.ops.push(insert_c.clone());
 
     assert_eq!(
-        DeltaIter::new(&delta, Interval::new(0, 2)).ops(),
+        DeltaIter::from_interval(&delta, Interval::new(0, 2)).ops(),
         vec![insert_a]
     );
     assert_eq!(
-        DeltaIter::new(&delta, Interval::new(2, 4)).ops(),
+        DeltaIter::from_interval(&delta, Interval::new(2, 4)).ops(),
         vec![insert_b]
     );
     assert_eq!(
-        DeltaIter::new(&delta, Interval::new(4, 6)).ops(),
+        DeltaIter::from_interval(&delta, Interval::new(4, 6)).ops(),
         vec![insert_c]
     );
 
     assert_eq!(
-        DeltaIter::new(&delta, Interval::new(2, 5)).ops(),
+        DeltaIter::from_interval(&delta, Interval::new(2, 5)).ops(),
         vec![Builder::insert("34").build(), Builder::insert("5").build()]
     );
 }
@@ -106,12 +106,12 @@ fn delta_get_ops_in_interval_5() {
     delta.ops.push(insert_a.clone());
     delta.ops.push(insert_b.clone());
     assert_eq!(
-        DeltaIter::new(&delta, Interval::new(4, 8)).ops(),
+        DeltaIter::from_interval(&delta, Interval::new(4, 8)).ops(),
         vec![Builder::insert("56").build(), Builder::insert("78").build()]
     );
 
     assert_eq!(
-        DeltaIter::new(&delta, Interval::new(8, 9)).ops(),
+        DeltaIter::from_interval(&delta, Interval::new(8, 9)).ops(),
         vec![Builder::insert("9").build()]
     );
 }
@@ -122,7 +122,7 @@ fn delta_get_ops_in_interval_6() {
     let insert_a = Builder::insert("12345678").build();
     delta.add(insert_a.clone());
     assert_eq!(
-        DeltaIter::new(&delta, Interval::new(4, 6)).ops(),
+        DeltaIter::from_interval(&delta, Interval::new(4, 6)).ops(),
         vec![Builder::insert("56").build()]
     );
 }

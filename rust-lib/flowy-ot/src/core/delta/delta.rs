@@ -573,7 +573,7 @@ fn invert_from_other(
     end: usize,
 ) {
     log::debug!("invert op: {} [{}:{}]", operation, start, end);
-    let other_ops = DeltaIter::new(other, Interval::new(start, end)).ops();
+    let other_ops = DeltaIter::from_interval(other, Interval::new(start, end)).ops();
     other_ops.into_iter().for_each(|other_op| match operation {
         Operation::Delete(n) => {
             log::debug!("invert delete: {} by add {}", n, other_op);

@@ -1,4 +1,4 @@
-use crate::core::{Delta, Interval, Operation};
+use crate::core::{Attributes, AttributesData, Delta, Interval, Operation};
 use std::{cmp::min, slice::Iter};
 
 pub struct Cursor<'a> {
@@ -77,7 +77,12 @@ pub struct DeltaIter<'a> {
 }
 
 impl<'a> DeltaIter<'a> {
-    pub fn new(delta: &'a Delta, interval: Interval) -> Self {
+    pub fn new(delta: &'a Delta) -> Self {
+        let interval = Interval::new(0, usize::MAX);
+        Self::from_interval(delta, interval)
+    }
+
+    pub fn from_interval(delta: &'a Delta, interval: Interval) -> Self {
         let cursor = Cursor::new(delta, interval);
         Self { cursor, interval }
     }
@@ -87,9 +92,62 @@ impl<'a> DeltaIter<'a> {
 
 impl<'a> Iterator for DeltaIter<'a> {
     type Item = Operation;
-
     fn next(&mut self) -> Option<Self::Item> { self.cursor.next_op() }
 }
+
+pub struct DeltaAttributesIter<'a> {
+    delta_iter: DeltaIter<'a>,
+    interval: Interval,
+}
+
+impl<'a> DeltaAttributesIter<'a> {
+    pub fn new(delta: &'a Delta) -> Self {
+        let interval = Interval::new(0, usize::MAX);
+        Self::from_interval(delta, interval)
+    }
+
+    pub fn from_interval(delta: &'a Delta, interval: Interval) -> Self {
+        let delta_iter = DeltaIter::from_interval(delta, interval);
+        Self {
+            delta_iter,
+            interval,
+        }
+    }
+}
+
+impl<'a> Iterator for DeltaAttributesIter<'a> {
+    type Item = (usize, Attributes);
+    fn next(&mut self) -> Option<Self::Item> {
+        let next_op = self.delta_iter.next();
+        if next_op.is_none() {
+            return None;
+        }
+        let mut length: usize = 0;
+        let mut attributes_data = AttributesData::new();
+
+        match next_op.unwrap() {
+            Operation::Delete(_n) => {},
+            Operation::Retain(retain) => {
+                if let Attributes::Custom(data) = &retain.attributes {
+                    log::debug!("extend retain attributes with {} ", &data);
+                    attributes_data.extend(Some(data.clone()));
+                }
+                length = retain.n;
+            },
+            Operation::Insert(insert) => {
+                if let Attributes::Custom(data) = &insert.attributes {
+                    log::debug!("extend insert attributes with {} ", &data);
+                    attributes_data.extend(Some(data.clone()));
+                }
+                length = insert.num_chars();
+            },
+        }
+
+        let attribute: Attributes = attributes_data.into();
+        Some((length, attribute))
+    }
+}
+
 #[cfg(test)]
 mod tests {
 
