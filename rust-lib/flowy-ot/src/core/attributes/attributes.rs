@@ -1,5 +1,5 @@
 use crate::core::{Attribute, AttributeKey, Operation};
-use std::{collections::HashMap, fmt, fmt::Formatter};
+use std::{collections::HashMap, fmt};
 
 pub const REMOVE_FLAG: &'static str = "";
 pub(crate) fn should_remove(s: &str) -> bool { s == REMOVE_FLAG }

@@ -6,18 +6,16 @@ use flowy_ot::{client::RECORD_THRESHOLD, core::Interval};
 #[test]
 fn delta_undo_insert() {
     let ops = vec![
-        Insert(0, "\n", 0),
         Insert(0, "123", 0),
         Undo(0),
         AssertOpsJson(0, r#"[{"insert":"\n"}]"#),
     ];
-    OpTester::new().run_script(ops);
+    OpTester::new().run_script_with_newline(ops);
 }
 
 #[test]
 fn delta_undo_insert2() {
     let ops = vec![
-        Insert(0, "\n", 0),
         Insert(0, "123", 0),
         Wait(RECORD_THRESHOLD),
         Insert(0, "456", 0),
@@ -26,13 +24,12 @@ fn delta_undo_insert2() {
         Undo(0),
         AssertOpsJson(0, r#"[{"insert":"\n"}]"#),
     ];
-    OpTester::new().run_script(ops);
+    OpTester::new().run_script_with_newline(ops);
 }
 
 #[test]
 fn delta_redo_insert() {
     let ops = vec![
-        Insert(0, "\n", 0),
         Insert(0, "123", 0),
         AssertOpsJson(0, r#"[{"insert":"123\n"}]"#),
         Undo(0),
@@ -40,13 +37,12 @@ fn delta_redo_insert() {
         Redo(0),
         AssertOpsJson(0, r#"[{"insert":"123\n"}]"#),
     ];
-    OpTester::new().run_script(ops);
+    OpTester::new().run_script_with_newline(ops);
 }
 
 #[test]
 fn delta_redo_insert_with_lagging() {
     let ops = vec![
-        Insert(0, "\n", 0),
         Insert(0, "123", 0),
         Wait(RECORD_THRESHOLD),
         Insert(0, "456", 3),
@@ -60,38 +56,35 @@ fn delta_redo_insert_with_lagging() {
         Undo(0),
         AssertOpsJson(0, r#"[{"insert":"123\n"}]"#),
     ];
-    OpTester::new().run_script(ops);
+    OpTester::new().run_script_with_newline(ops);
 }
 
 #[test]
 fn delta_undo_attributes() {
     let ops = vec![
-        Insert(0, "\n", 0),
         Insert(0, "123", 0),
         Bold(0, Interval::new(0, 3), true),
         Undo(0),
         AssertOpsJson(0, r#"[{"insert":"\n"}]"#),
     ];
-    OpTester::new().run_script(ops);
+    OpTester::new().run_script_with_newline(ops);
 }
 
 #[test]
 fn delta_undo_attributes_with_lagging() {
     let ops = vec![
-        Insert(0, "\n", 0),
         Insert(0, "123", 0),
         Wait(RECORD_THRESHOLD),
         Bold(0, Interval::new(0, 3), true),
         Undo(0),
         AssertOpsJson(0, r#"[{"insert":"123\n"}]"#),
     ];
-    OpTester::new().run_script(ops);
+    OpTester::new().run_script_with_newline(ops);
 }
 
 #[test]
 fn delta_redo_attributes() {
     let ops = vec![
-        Insert(0, "\n", 0),
         Insert(0, "123", 0),
         Bold(0, Interval::new(0, 3), true),
         Undo(0),
@@ -102,13 +95,12 @@ fn delta_redo_attributes() {
             r#" [{"insert":"123","attributes":{"bold":"true"}},{"insert":"\n"}]"#,
         ),
     ];
-    OpTester::new().run_script(ops);
+    OpTester::new().run_script_with_newline(ops);
 }
 
 #[test]
 fn delta_redo_attributes_with_lagging() {
     let ops = vec![
-        Insert(0, "\n", 0),
         Insert(0, "123", 0),
         Wait(RECORD_THRESHOLD),
         Bold(0, Interval::new(0, 3), true),
@@ -120,7 +112,7 @@ fn delta_redo_attributes_with_lagging() {
             r#"[{"insert":"123","attributes":{"bold":"true"}},{"insert":"\n"}]"#,
         ),
     ];
-    OpTester::new().run_script(ops);
+    OpTester::new().run_script_with_newline(ops);
 }
 
 #[test]
@@ -139,7 +131,6 @@ fn delta_undo_delete() {
 #[test]
 fn delta_undo_delete2() {
     let ops = vec![
-        Insert(0, "\n", 0),
         Insert(0, "123", 0),
         Bold(0, Interval::new(0, 3), true),
         Delete(0, Interval::new(0, 1)),
@@ -153,13 +144,12 @@ fn delta_undo_delete2() {
         Undo(0),
         AssertOpsJson(0, r#"[{"insert":"\n"}]"#),
     ];
-    OpTester::new().run_script(ops);
+    OpTester::new().run_script_with_newline(ops);
 }
 
 #[test]
 fn delta_undo_delete2_with_lagging() {
     let ops = vec![
-        Insert(0, "\n", 0),
         Insert(0, "123", 0),
         Wait(RECORD_THRESHOLD),
         Bold(0, Interval::new(0, 3), true),
@@ -181,13 +171,12 @@ fn delta_undo_delete2_with_lagging() {
             "#,
         ),
     ];
-    OpTester::new().run_script(ops);
+    OpTester::new().run_script_with_newline(ops);
 }
 
 #[test]
 fn delta_redo_delete() {
     let ops = vec![
-        Insert(0, "\n", 0),
         Insert(0, "123", 0),
         Delete(0, Interval::new(0, 3)),
         AssertOpsJson(0, r#"[{"insert":"\n"}]"#),
@@ -195,13 +184,12 @@ fn delta_redo_delete() {
         Redo(0),
         AssertOpsJson(0, r#"[{"insert":"\n"}]"#),
     ];
-    OpTester::new().run_script(ops);
+    OpTester::new().run_script_with_newline(ops);
 }
 
 #[test]
 fn delta_undo_replace() {
     let ops = vec![
-        Insert(0, "\n", 0),
         Insert(0, "123", 0),
         Bold(0, Interval::new(0, 3), true),
         Replace(0, Interval::new(0, 2), "ab"),
@@ -215,13 +203,12 @@ fn delta_undo_replace() {
         Undo(0),
         AssertOpsJson(0, r#"[{"insert":"\n"}]"#),
     ];
-    OpTester::new().run_script(ops);
+    OpTester::new().run_script_with_newline(ops);
 }
 
 #[test]
 fn delta_undo_replace_with_lagging() {
     let ops = vec![
-        Insert(0, "\n", 0),
         Insert(0, "123", 0),
         Wait(RECORD_THRESHOLD),
         Bold(0, Interval::new(0, 3), true),
@@ -240,13 +227,12 @@ fn delta_undo_replace_with_lagging() {
             r#"[{"insert":"123","attributes":{"bold":"true"}},{"insert":"\n"}]"#,
         ),
     ];
-    OpTester::new().run_script(ops);
+    OpTester::new().run_script_with_newline(ops);
 }
 
 #[test]
 fn delta_redo_replace() {
     let ops = vec![
-        Insert(0, "\n", 0),
         Insert(0, "123", 0),
         Bold(0, Interval::new(0, 3), true),
         Replace(0, Interval::new(0, 2), "ab"),
@@ -260,5 +246,5 @@ fn delta_redo_replace() {
             "#,
         ),
     ];
-    OpTester::new().run_script(ops);
+    OpTester::new().run_script_with_newline(ops);
 }

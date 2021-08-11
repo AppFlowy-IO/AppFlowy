@@ -525,34 +525,6 @@ impl Delta {
 
     pub fn is_empty(&self) -> bool { self.ops.is_empty() }
 
-    pub fn get_attributes(&self, interval: Interval) -> Attributes {
-        let mut attributes = Attributes::new();
-        let mut offset: usize = 0;
-        log::debug!("Get attributes at {:?}", interval);
-        self.ops.iter().for_each(|op| match op {
-            Operation::Delete(_n) => {},
-            Operation::Retain(retain) => {
-                if interval.contains_range(offset, offset + retain.n) {
-                    log::debug!("extend retain attributes with {} ", &retain.attributes);
-                    attributes.extend(retain.attributes.clone());
-                }
-
-                offset += retain.n;
-            },
-            Operation::Insert(insert) => {
-                let end = insert.num_chars() as usize;
-                if interval.contains_range(offset, offset + end) {
-                    log::debug!("extend insert attributes with {} ", &insert.attributes);
-                    attributes.extend(insert.attributes.clone());
-                }
-                offset += end;
-            },
-        });
-
-        log::debug!("Get attributes result: {} ", &attributes);
-        attributes
-    }
-
     pub fn to_json(&self) -> String { serde_json::to_string(self).unwrap_or("".to_owned()) }
 }
 

@@ -16,17 +16,11 @@ pub enum Operation {
 }
 
 impl Operation {
-    pub fn is_delete(&self) -> bool {
+    pub fn get_data(&self) -> &str {
         match self {
-            Operation::Delete(_) => true,
-            _ => false,
-        }
-    }
-
-    pub fn is_noop(&self) -> bool {
-        match self {
-            Operation::Retain(_) => true,
-            _ => false,
+            Operation::Delete(_) => "",
+            Operation::Retain(_) => "",
+            Operation::Insert(insert) => &insert.s,
         }
     }
 

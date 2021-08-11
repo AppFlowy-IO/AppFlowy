@@ -17,6 +17,10 @@ pub struct Document {
 impl Document {
     pub fn new() -> Self {
         let delta = Delta::new();
+        Self::from_delta(delta)
+    }
+
+    pub fn from_delta(delta: Delta) -> Self {
         Document {
             delta,
             history: History::new(),
@@ -35,7 +39,7 @@ impl Document {
             );
         }
 
-        let delta = self.view.handle_insert(&self.delta, text, index);
+        let delta = self.view.insert(&self.delta, text, index)?;
         let interval = Interval::new(index, index);
         self.update_with_op(&delta, interval)
     }
@@ -139,7 +143,7 @@ impl Document {
     ) -> Result<(), OTError> {
         log::debug!("Update document with attribute: {}", attribute);
         let mut attributes = AttrsBuilder::new().add(attribute).build();
-        let old_attributes = self.delta.get_attributes(interval);
+        let old_attributes = AttributesIter::from_interval(&self.delta, interval).next_or_empty();
 
         log::debug!("combine with old: {:?}", old_attributes);
         attributes.merge(Some(old_attributes));
@@ -201,18 +205,4 @@ fn split_length_with_interval(length: usize, interval: Interval) -> (Interval, I
     let prefix = original_interval.prefix(interval);
     let suffix = original_interval.suffix(interval);
     (prefix, interval, suffix)
-}
-
-pub fn trim(delta: &mut Delta) {
-    let remove_last = match delta.ops.last() {
-        None => false,
-        Some(op) => match op {
-            Operation::Delete(_) => false,
-            Operation::Retain(retain) => retain.is_plain(),
-            Operation::Insert(_) => false,
-        },
-    };
-    if remove_last {
-        delta.ops.pop();
-    }
 }

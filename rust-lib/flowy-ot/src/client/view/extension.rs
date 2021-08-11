@@ -1,16 +1,16 @@
 use crate::{
     client::Document,
-    core::{Attributes, Delta, Interval},
+    core::{Attribute, Delta, Interval},
 };
 
 pub trait InsertExt {
-    fn apply(&self, delta: &Delta, s: &str, index: usize) -> Delta;
+    fn apply(&self, delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta>;
 }
 
 pub trait FormatExt {
-    fn apply(&self, document: &Document, interval: Interval, attributes: Attributes);
+    fn apply(&self, delta: &Delta, interval: Interval, attribute: &Attribute) -> Option<Delta>;
 }
 
 pub trait DeleteExt {
-    fn apply(&self, document: &Document, interval: Interval);
+    fn apply(&self, delta: &Delta, interval: Interval) -> Option<Delta>;
 }

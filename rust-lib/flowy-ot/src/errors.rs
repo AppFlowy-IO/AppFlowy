@@ -26,6 +26,8 @@ impl Error for OTError {
 #[derive(Debug, Clone)]
 pub enum OTErrorCode {
     IncompatibleLength,
+    ApplyInsertFail,
+    ApplyFormatFail,
     UndoFail,
     RedoFail,
 }

@@ -64,11 +64,7 @@ impl OpTester {
             env_logger::init();
         });
 
-        let mut documents = Vec::with_capacity(2);
-        for _ in 0..2 {
-            documents.push(Document::new());
-        }
-        Self { documents }
+        Self { documents: vec![] }
     }
 
     pub fn run_op(&mut self, op: &TestOp) {
@@ -173,6 +169,22 @@ impl OpTester {
     }
 
     pub fn run_script(&mut self, script: Vec<TestOp>) {
+        let delta = Delta::new();
+        self.run(script, delta);
+    }
+
+    pub fn run_script_with_newline(&mut self, script: Vec<TestOp>) {
+        let mut delta = Delta::new();
+        delta.insert("\n", Attributes::default());
+        self.run(script, delta);
+    }
+
+    fn run(&mut self, script: Vec<TestOp>, delta: Delta) {
+        let mut documents = Vec::with_capacity(2);
+        for _ in 0..2 {
+            documents.push(Document::from_delta(delta.clone()));
+        }
+        self.documents = documents;
         for (_i, op) in script.iter().enumerate() {
             self.run_op(op);
         }
