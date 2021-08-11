@@ -52,12 +52,7 @@ impl Operation {
         }
     }
 
-    pub fn has_attribute(&self) -> bool {
-        match self.get_attributes() {
-            Attributes::Follow => false,
-            Attributes::Custom(data) => !data.is_empty(),
-        }
-    }
+    pub fn has_attribute(&self) -> bool { !self.get_attributes().is_empty() }
 
     pub fn length(&self) -> usize {
         match self {
@@ -139,29 +134,15 @@ impl Retain {
             attributes
         );
 
-        match &attributes {
-            Attributes::Follow => {
-                log::debug!("Follow attribute: {:?}", self.attributes);
-                self.n += n;
-                None
-            },
-            Attributes::Custom(_) => {
-                if self.attributes == attributes {
-                    self.n += n;
-                    None
-                } else {
-                    Some(Builder::retain(n).attributes(attributes).build())
-                }
-            },
+        if self.attributes == attributes {
+            self.n += n;
+            None
+        } else {
+            Some(Builder::retain(n).attributes(attributes).build())
         }
     }
 
-    pub fn is_plain(&self) -> bool {
-        match &self.attributes {
-            Attributes::Follow => true,
-            Attributes::Custom(data) => data.is_empty(),
-        }
-    }
+    pub fn is_plain(&self) -> bool { self.attributes.is_empty() }
 }
 
 impl std::convert::From<usize> for Retain {
@@ -217,19 +198,11 @@ impl Insert {
     pub fn num_chars(&self) -> usize { num_chars(self.s.as_bytes()) as _ }
 
     pub fn merge_or_new_op(&mut self, s: &str, attributes: Attributes) -> Option<Operation> {
-        match &attributes {
-            Attributes::Follow => {
-                self.s += s;
-                return None;
-            },
-            Attributes::Custom(_) => {
-                if self.attributes == attributes {
-                    self.s += s;
-                    None
-                } else {
-                    Some(Builder::insert(s).attributes(attributes).build())
-                }
-            },
+        if self.attributes == attributes {
+            self.s += s;
+            None
+        } else {
+            Some(Builder::insert(s).attributes(attributes).build())
         }
     }
 }
@@ -247,9 +220,4 @@ impl std::convert::From<&str> for Insert {
     fn from(s: &str) -> Self { Insert::from(s.to_owned()) }
 }
 
-fn is_empty(attributes: &Attributes) -> bool {
-    match attributes {
-        Attributes::Follow => true,
-        Attributes::Custom(data) => data.is_empty(),
-    }
-}
+fn is_empty(attributes: &Attributes) -> bool { attributes.is_empty() }

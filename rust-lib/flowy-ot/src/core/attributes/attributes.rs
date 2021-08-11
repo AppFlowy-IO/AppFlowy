@@ -1,58 +1,72 @@
-use crate::core::{AttributesData, Operation};
-use std::{fmt, fmt::Formatter};
+use crate::core::{Attribute, AttributeKey, Operation};
+use std::{collections::HashMap, fmt, fmt::Formatter};
 
-pub trait AttributesRule {
-    // Remove the empty attribute that its value is empty. e.g. {bold: ""}.
-    fn remove_empty(self) -> Attributes;
-}
+pub const REMOVE_FLAG: &'static str = "";
+pub(crate) fn should_remove(s: &str) -> bool { s == REMOVE_FLAG }
 
-impl AttributesRule for Attributes {
-    fn remove_empty(self) -> Attributes {
-        match self {
-            Attributes::Follow => self,
-            Attributes::Custom(mut data) => {
-                data.remove_empty_value();
-                data.into()
-            },
-        }
-    }
-}
-
-#[derive(Debug, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
-#[serde(untagged)]
-pub enum Attributes {
-    #[serde(skip)]
-    Follow,
-    Custom(AttributesData),
+#[derive(Debug, Clone, Default, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Attributes {
+    #[serde(skip_serializing_if = "HashMap::is_empty")]
+    #[serde(flatten)]
+    pub(crate) inner: HashMap<AttributeKey, String>,
 }
 
 impl fmt::Display for Attributes {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            Attributes::Follow => f.write_str("follow"),
-            Attributes::Custom(data) => f.write_fmt(format_args!("{}", data)),
-        }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!("{:?}", self.inner))
     }
 }
 
 impl Attributes {
-    pub fn data(&self) -> Option<AttributesData> {
-        match self {
-            Attributes::Follow => None,
-            Attributes::Custom(data) => Some(data.clone()),
+    pub fn new() -> Self {
+        Attributes {
+            inner: HashMap::new(),
         }
     }
 
-    pub fn is_empty(&self) -> bool {
-        match self {
-            Attributes::Follow => false,
-            Attributes::Custom(data) => data.is_empty(),
+    pub fn is_empty(&self) -> bool { self.inner.is_empty() }
+
+    pub fn add(&mut self, attribute: Attribute) {
+        let Attribute {
+            key,
+            value,
+            scope: _,
+        } = attribute;
+        self.inner.insert(key, value);
+    }
+
+    pub fn remove(&mut self, key: &AttributeKey) {
+        self.inner.insert(key.clone(), REMOVE_FLAG.to_owned());
+    }
+
+    // Remove the key if its value is empty. e.g. { bold: "" }
+    pub fn remove_empty_value(&mut self) { self.inner.retain(|_, v| !should_remove(v)); }
+
+    pub fn extend(&mut self, other: Attributes) { self.inner.extend(other.inner); }
+
+    // Update self attributes by constructing new attributes from the other if it's
+    // not None and replace the key/value with self key/value.
+    pub fn merge(&mut self, other: Option<Attributes>) {
+        if other.is_none() {
+            return;
         }
+
+        let mut new_attributes = other.unwrap().inner;
+        self.inner.iter().for_each(|(k, v)| {
+            new_attributes.insert(k.clone(), v.clone());
+        });
+        self.inner = new_attributes;
     }
 }
 
-impl std::default::Default for Attributes {
-    fn default() -> Self { Attributes::Custom(AttributesData::new()) }
+impl std::ops::Deref for Attributes {
+    type Target = HashMap<AttributeKey, String>;
+
+    fn deref(&self) -> &Self::Target { &self.inner }
+}
+
+impl std::ops::DerefMut for Attributes {
+    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.inner }
 }
 
 pub(crate) fn attributes_from(operation: &Option<Operation>) -> Option<Attributes> {
@@ -80,11 +94,7 @@ pub fn compose_operation(left: &Option<Operation>, right: &Option<Operation>) ->
     let left = attr_left.unwrap();
     let right = attr_right.unwrap();
     log::trace!("compose attributes: a: {:?}, b: {:?}", left, right);
-    let attr = match (&left, &right) {
-        (_, Attributes::Custom(_)) => merge_attributes(left, right),
-        (Attributes::Custom(_), _) => merge_attributes(left, right),
-        _ => Attributes::Follow,
-    };
+    let attr = merge_attributes(left, right);
     log::trace!("compose attributes result: {:?}", attr);
     attr
 }
@@ -98,45 +108,24 @@ pub fn transform_operation(left: &Option<Operation>, right: &Option<Operation>) 
             return Attributes::default();
         }
 
-        return match attr_r.as_ref().unwrap() {
-            Attributes::Follow => Attributes::Follow,
-            Attributes::Custom(_) => attr_r.unwrap(),
-        };
+        return attr_r.unwrap();
     }
 
     let left = attr_l.unwrap();
     let right = attr_r.unwrap();
-    match (left, right) {
-        (Attributes::Custom(data_l), Attributes::Custom(data_r)) => {
-            let result = data_r
-                .iter()
-                .fold(AttributesData::new(), |mut new_attr_data, (k, v)| {
-                    if !data_l.contains_key(k) {
-                        new_attr_data.insert(k.clone(), v.clone());
-                    }
-                    new_attr_data
-                });
-
-            Attributes::Custom(result)
-        },
-        _ => Attributes::default(),
-    }
+    left.iter()
+        .fold(Attributes::new(), |mut new_attributes, (k, v)| {
+            if !right.contains_key(k) {
+                new_attributes.insert(k.clone(), v.clone());
+            }
+            new_attributes
+        })
 }
 
 pub fn invert_attributes(attr: Attributes, base: Attributes) -> Attributes {
-    let attr = attr.data();
-    let base = base.data();
-
-    if attr.is_none() && base.is_none() {
-        return Attributes::default();
-    }
-
-    let attr = attr.unwrap_or(AttributesData::new());
-    let base = base.unwrap_or(AttributesData::new());
-
     let base_inverted = base
         .iter()
-        .fold(AttributesData::new(), |mut attributes, (k, v)| {
+        .fold(Attributes::new(), |mut attributes, (k, v)| {
             if base.get(k) != attr.get(k) && attr.contains_key(k) {
                 attributes.insert(k.clone(), v.clone());
             }
@@ -150,17 +139,22 @@ pub fn invert_attributes(attr: Attributes, base: Attributes) -> Attributes {
         attributes
     });
 
-    return Attributes::Custom(inverted);
+    return inverted;
 }
 
-pub fn merge_attributes(attributes: Attributes, other: Attributes) -> Attributes {
-    match (&attributes, &other) {
-        (Attributes::Custom(data), Attributes::Custom(o_data)) => {
-            let mut data = data.clone();
-            data.extend(Some(o_data.clone()));
-            Attributes::Custom(data)
-        },
-        (Attributes::Custom(data), _) => Attributes::Custom(data.clone()),
-        _ => other,
+pub fn merge_attributes(mut attributes: Attributes, other: Attributes) -> Attributes {
+    attributes.extend(other);
+    attributes
+}
+
+pub trait AttributesRule {
+    // Remove the empty attribute that its value is empty. e.g. {bold: ""}.
+    fn remove_empty(self) -> Attributes;
+}
+
+impl AttributesRule for Attributes {
+    fn remove_empty(mut self) -> Attributes {
+        self.remove_empty_value();
+        self.into()
     }
 }

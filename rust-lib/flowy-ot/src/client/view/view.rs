@@ -1,6 +1,6 @@
 use crate::{
     client::view::{InsertExt, PreserveInlineStyleExt},
-    core::{Delta, Interval},
+    core::Delta,
 };
 
 type InsertExtension = Box<dyn InsertExt>;
@@ -15,10 +15,10 @@ impl View {
         Self { insert_exts }
     }
 
-    pub(crate) fn handle_insert(&self, delta: &Delta, s: &str, interval: Interval) -> Delta {
+    pub(crate) fn handle_insert(&self, delta: &Delta, s: &str, index: usize) -> Delta {
         let mut new_delta = Delta::new();
         self.insert_exts.iter().for_each(|ext| {
-            new_delta = ext.apply(delta, s, interval);
+            new_delta = ext.apply(delta, s, index);
         });
         new_delta
     }

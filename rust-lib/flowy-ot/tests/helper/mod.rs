@@ -1,5 +1,8 @@
 use derive_more::Display;
-use flowy_ot::{client::Document, core::*};
+use flowy_ot::{
+    client::Document,
+    core::{REMOVE_FLAG, *},
+};
 use rand::{prelude::*, Rng as WrappedRng};
 use std::{sync::Once, time::Duration};
 
@@ -86,19 +89,25 @@ impl OpTester {
             TestOp::InsertBold(delta_i, s, interval) => {
                 let document = &mut self.documents[*delta_i];
                 document.insert(interval.start, s).unwrap();
-                document.format(*interval, Attribute::Bold, true).unwrap();
+                document
+                    .format(*interval, AttributeKey::Bold.with_value("true".to_owned()))
+                    .unwrap();
             },
             TestOp::Bold(delta_i, interval, enable) => {
                 let document = &mut self.documents[*delta_i];
-                document
-                    .format(*interval, Attribute::Bold, *enable)
-                    .unwrap();
+                let attribute = match *enable {
+                    true => AttributeKey::Bold.with_value("true".to_owned()),
+                    false => AttributeKey::Bold.with_value("".to_owned()),
+                };
+                document.format(*interval, attribute).unwrap();
             },
             TestOp::Italic(delta_i, interval, enable) => {
                 let document = &mut self.documents[*delta_i];
-                document
-                    .format(*interval, Attribute::Italic, *enable)
-                    .unwrap();
+                let attribute = match *enable {
+                    true => AttributeKey::Italic.with_value("true"),
+                    false => AttributeKey::Italic.with_value(REMOVE_FLAG),
+                };
+                document.format(*interval, attribute).unwrap();
             },
             TestOp::Transform(delta_a_i, delta_b_i) => {
                 let (a_prime, b_prime) = self.documents[*delta_a_i]
@@ -207,7 +216,7 @@ impl Rng {
                     delta.delete(i);
                 },
                 _ => {
-                    delta.retain(i, Attributes::Follow);
+                    delta.retain(i, Attributes::default());
                 },
             }
         }

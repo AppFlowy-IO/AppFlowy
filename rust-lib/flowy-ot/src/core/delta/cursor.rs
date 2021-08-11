@@ -1,28 +1,41 @@
-use crate::core::{Attributes, AttributesData, Delta, Interval, Operation};
-use std::{cmp::min, slice::Iter};
+use crate::{
+    core::{Attributes, Delta, Interval, Operation},
+    errors::{ErrorBuilder, OTError, OTErrorCode},
+};
+use std::{
+    cmp::min,
+    ops::{Deref, DerefMut},
+    slice::Iter,
+};
 
 pub struct Cursor<'a> {
     delta: &'a Delta,
     interval: Interval,
     iterator: Iter<'a, Operation>,
     offset: usize,
+    offset_op: Option<&'a Operation>,
 }
 
 impl<'a> Cursor<'a> {
     pub fn new(delta: &'a Delta, interval: Interval) -> Cursor<'a> {
-        let mut cursor = Self {
+        let cursor = Self {
             delta,
             interval,
             iterator: delta.ops.iter(),
             offset: 0,
+            offset_op: None,
         };
         cursor
     }
 
     pub fn next_op(&mut self) -> Option<Operation> {
-        let mut next_op = self.iterator.next();
-        let mut find_op = None;
+        let mut next_op = self.offset_op.take();
 
+        if next_op.is_none() {
+            next_op = self.iterator.next();
+        }
+
+        let mut find_op = None;
         while find_op.is_none() && next_op.is_some() {
             let op = next_op.unwrap();
             if self.offset < self.interval.start {
@@ -69,6 +82,34 @@ impl<'a> Cursor<'a> {
 
         find_op
     }
+
+    pub fn seek_to(&mut self, index: usize) -> Result<(), OTError> {
+        if self.offset > index {
+            let msg = format!(
+                "{} should be greater than current offset: {}",
+                index, self.offset
+            );
+            return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength)
+                .msg(&msg)
+                .build());
+        }
+
+        let mut offset = 0;
+        while let Some(op) = self.iterator.next() {
+            if offset != 0 {
+                self.offset = offset;
+            }
+
+            offset += op.length();
+            self.offset_op = Some(op);
+
+            if offset >= index {
+                break;
+            }
+        }
+
+        Ok(())
+    }
 }
 
 pub struct DeltaIter<'a> {
@@ -88,6 +129,11 @@ impl<'a> DeltaIter<'a> {
     }
 
     pub fn ops(&mut self) -> Vec<Operation> { self.collect::<Vec<_>>() }
+
+    pub fn seek_to(&mut self, n_char: usize) -> Result<(), OTError> {
+        let _ = self.cursor.seek_to(n_char)?;
+        Ok(())
+    }
 }
 
 impl<'a> Iterator for DeltaIter<'a> {
@@ -95,12 +141,12 @@ impl<'a> Iterator for DeltaIter<'a> {
     fn next(&mut self) -> Option<Self::Item> { self.cursor.next_op() }
 }
 
-pub struct DeltaAttributesIter<'a> {
+pub struct AttributesIter<'a> {
     delta_iter: DeltaIter<'a>,
     interval: Interval,
 }
 
-impl<'a> DeltaAttributesIter<'a> {
+impl<'a> AttributesIter<'a> {
     pub fn new(delta: &'a Delta) -> Self {
         let interval = Interval::new(0, usize::MAX);
         Self::from_interval(delta, interval)
@@ -115,7 +161,17 @@ impl<'a> DeltaAttributesIter<'a> {
     }
 }
 
-impl<'a> Iterator for DeltaAttributesIter<'a> {
+impl<'a> Deref for AttributesIter<'a> {
+    type Target = DeltaIter<'a>;
+
+    fn deref(&self) -> &Self::Target { &self.delta_iter }
+}
+
+impl<'a> DerefMut for AttributesIter<'a> {
+    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.delta_iter }
+}
+
+impl<'a> Iterator for AttributesIter<'a> {
     type Item = (usize, Attributes);
     fn next(&mut self) -> Option<Self::Item> {
         let next_op = self.delta_iter.next();
@@ -123,28 +179,34 @@ impl<'a> Iterator for DeltaAttributesIter<'a> {
             return None;
         }
         let mut length: usize = 0;
-        let mut attributes_data = AttributesData::new();
+        let mut attributes = Attributes::new();
 
         match next_op.unwrap() {
             Operation::Delete(_n) => {},
             Operation::Retain(retain) => {
-                if let Attributes::Custom(data) = &retain.attributes {
-                    log::debug!("extend retain attributes with {} ", &data);
-                    attributes_data.extend(Some(data.clone()));
-                }
+                log::debug!("extend retain attributes with {} ", &retain.attributes);
+                attributes.extend(retain.attributes.clone());
+
                 length = retain.n;
             },
             Operation::Insert(insert) => {
-                if let Attributes::Custom(data) = &insert.attributes {
-                    log::debug!("extend insert attributes with {} ", &data);
-                    attributes_data.extend(Some(data.clone()));
-                }
+                log::debug!("extend insert attributes with {} ", &insert.attributes);
+                attributes.extend(insert.attributes.clone());
                 length = insert.num_chars();
             },
         }
 
-        let attribute: Attributes = attributes_data.into();
-        Some((length, attribute))
+        Some((length, attributes))
+    }
+}
+
+pub(crate) fn attributes_at_index(delta: &Delta, index: usize) -> Attributes {
+    let mut iter = AttributesIter::new(delta);
+    iter.seek_to(index);
+    match iter.next() {
+        // None => Attributes::Follow,
+        None => Attributes::new(),
+        Some((_, attributes)) => attributes,
     }
 }
 

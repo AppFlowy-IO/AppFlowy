@@ -1,11 +1,10 @@
 use crate::{
-    client::{view::insert_ext::*, Document},
+    client::Document,
     core::{Attributes, Delta, Interval},
 };
-use lazy_static::lazy_static;
 
 pub trait InsertExt {
-    fn apply(&self, delta: &Delta, s: &str, interval: Interval) -> Delta;
+    fn apply(&self, delta: &Delta, s: &str, index: usize) -> Delta;
 }
 
 pub trait FormatExt {

@@ -337,7 +337,7 @@ fn delta_compose_attr_delta_with_attr_delta_test2() {
 
 #[test]
 fn delta_compose_attr_delta_with_no_attr_delta_test() {
-    let expected = r#"[{"insert":"1234567","attributes":{"bold":"true"}}]"#;
+    let expected = r#"[{"insert":"123456","attributes":{"bold":"true"}},{"insert":"7"}]"#;
 
     let ops = vec![
         InsertBold(0, "123456", Interval::new(0, 6)),

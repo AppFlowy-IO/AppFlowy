@@ -1,6 +1,6 @@
 use crate::{
-    client::{view::InsertExt, Document},
-    core::{Builder, Delta, Interval},
+    client::view::InsertExt,
+    core::{attributes_at_index, Attributes, AttributesIter, Builder, Delta, Interval},
 };
 
 pub struct PreserveInlineStyleExt {}
@@ -10,13 +10,12 @@ impl PreserveInlineStyleExt {
 }
 
 impl InsertExt for PreserveInlineStyleExt {
-    fn apply(&self, delta: &Delta, s: &str, interval: Interval) -> Delta {
-        // let mut delta = Delta::default();
-        // let insert = Builder::insert(text).attributes(attributes).build();
-        // let interval = Interval::new(index, index);
-        // delta.add(insert);
-        //
-        // delta
-        unimplemented!()
+    fn apply(&self, delta: &Delta, text: &str, index: usize) -> Delta {
+        let attributes = attributes_at_index(delta, index);
+        let mut delta = Delta::new();
+        let insert = Builder::insert(text).attributes(attributes).build();
+        delta.add(insert);
+
+        delta
     }
 }

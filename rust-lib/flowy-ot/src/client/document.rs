@@ -34,40 +34,22 @@ impl Document {
                 self.delta.target_len
             );
         }
-        let probe = Interval::new(index, index + 1);
-        let mut attributes = self.delta.get_attributes(probe);
-        if attributes.is_empty() {
-            attributes = Attributes::Follow;
-        }
 
-        // let delta = self.view.handle_insert(&self.delta, s, interval);
-
-        let mut delta = Delta::new();
-        let insert = Builder::insert(text).attributes(attributes).build();
+        let delta = self.view.handle_insert(&self.delta, text, index);
         let interval = Interval::new(index, index);
-        delta.add(insert);
-
         self.update_with_op(&delta, interval)
     }
 
-    pub fn format(
-        &mut self,
-        interval: Interval,
-        attribute: Attribute,
-        enable: bool,
-    ) -> Result<(), OTError> {
-        let attributes = match enable {
-            true => AttrsBuilder::new().add(attribute).build(),
-            false => AttrsBuilder::new().remove(&attribute).build(),
-        };
-        log::debug!("format with {} at {}", attributes, interval);
-        self.update_with_attribute(attributes, interval)
+    pub fn format(&mut self, interval: Interval, attribute: Attribute) -> Result<(), OTError> {
+        log::debug!("format with {} at {}", attribute, interval);
+
+        self.update_with_attribute(attribute, interval)
     }
 
     pub fn replace(&mut self, interval: Interval, s: &str) -> Result<(), OTError> {
         let mut delta = Delta::default();
         if !s.is_empty() {
-            let insert = Builder::insert(s).attributes(Attributes::Follow).build();
+            let insert = Builder::insert(s).build();
             delta.add(insert);
         }
 
@@ -128,12 +110,10 @@ impl Document {
 
         // prefix
         if prefix.is_empty() == false && prefix != interval {
-            DeltaAttributesIter::from_interval(&self.delta, prefix).for_each(
-                |(length, attributes)| {
-                    log::debug!("prefix attribute: {:?}, len: {}", attributes, length);
-                    new_delta.retain(length, attributes);
-                },
-            );
+            AttributesIter::from_interval(&self.delta, prefix).for_each(|(length, attributes)| {
+                log::debug!("prefix attribute: {:?}, len: {}", attributes, length);
+                new_delta.retain(length, attributes);
+            });
         }
 
         delta.ops.iter().for_each(|op| {
@@ -142,12 +122,10 @@ impl Document {
 
         // suffix
         if suffix.is_empty() == false {
-            DeltaAttributesIter::from_interval(&self.delta, suffix).for_each(
-                |(length, attributes)| {
-                    log::debug!("suffix attribute: {:?}, len: {}", attributes, length);
-                    new_delta.retain(length, attributes);
-                },
-            );
+            AttributesIter::from_interval(&self.delta, suffix).for_each(|(length, attributes)| {
+                log::debug!("suffix attribute: {:?}, len: {}", attributes, length);
+                new_delta.retain(length, attributes);
+            });
         }
 
         self.delta = self.record_change(&new_delta)?;
@@ -156,22 +134,18 @@ impl Document {
 
     pub fn update_with_attribute(
         &mut self,
-        mut attributes: Attributes,
+        attribute: Attribute,
         interval: Interval,
     ) -> Result<(), OTError> {
-        log::debug!("Update document with attributes: {:?}", attributes,);
+        log::debug!("Update document with attribute: {}", attribute);
+        let mut attributes = AttrsBuilder::new().add(attribute).build();
         let old_attributes = self.delta.get_attributes(interval);
-        log::debug!("combine with old: {:?}", old_attributes);
-        let new_attributes = match &mut attributes {
-            Attributes::Follow => old_attributes,
-            Attributes::Custom(attr_data) => {
-                attr_data.merge(old_attributes.data());
-                log::debug!("combine with old result : {:?}", attr_data);
-                attr_data.clone().into()
-            },
-        };
 
+        log::debug!("combine with old: {:?}", old_attributes);
+        attributes.merge(Some(old_attributes));
+        let new_attributes = attributes;
         log::debug!("combine result: {:?}", new_attributes);
+
         let retain = Builder::retain(interval.size())
             .attributes(new_attributes)
             .build();
@@ -227,27 +201,6 @@ fn split_length_with_interval(length: usize, interval: Interval) -> (Interval, I
     let prefix = original_interval.prefix(interval);
     let suffix = original_interval.suffix(interval);
     (prefix, interval, suffix)
-}
-
-fn split_interval_by_delta(delta: &Delta, interval: &Interval) -> Vec<Interval> {
-    let mut start = 0;
-    let mut new_intervals = vec![];
-    delta.ops.iter().for_each(|op| match op {
-        Operation::Delete(_) => {},
-        Operation::Retain(_) => {},
-        Operation::Insert(insert) => {
-            let len = insert.num_chars() as usize;
-            let end = start + len;
-            let insert_interval = Interval::new(start, end);
-            let new_interval = interval.intersect(insert_interval);
-
-            if !new_interval.is_empty() {
-                new_intervals.push(new_interval)
-            }
-            start += len;
-        },
-    });
-    new_intervals
 }
 
 pub fn trim(delta: &mut Delta) {
