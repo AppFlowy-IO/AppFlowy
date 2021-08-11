@@ -1,5 +1,5 @@
 use crate::{
-    core::{attributes::*, operation::*, Interval},
+    core::{attributes::*, operation::*, DeltaIter, Interval},
     errors::{ErrorBuilder, OTError, OTErrorCode},
 };
 use bytecount::num_chars;
@@ -530,59 +530,6 @@ impl Delta {
 
     pub fn is_empty(&self) -> bool { self.ops.is_empty() }
 
-    pub fn ops_in_interval(&self, mut interval: Interval) -> Vec<Operation> {
-        log::debug!("try get ops in delta: {} at {}", self, interval);
-
-        let mut ops: Vec<Operation> = Vec::with_capacity(self.ops.len());
-        let mut ops_iter = self.ops.iter();
-        let mut maybe_next_op = ops_iter.next();
-        let mut offset: usize = 0;
-
-        while maybe_next_op.is_some() {
-            let next_op = maybe_next_op.take().unwrap();
-            if offset < interval.start {
-                let next_op_i = Interval::new(offset, offset + next_op.length());
-                let intersect = next_op_i.intersect(interval);
-                if intersect.is_empty() {
-                    offset += next_op_i.size();
-                } else {
-                    if let Some(new_op) = next_op.shrink(intersect.translate_neg(offset)) {
-                        // shrink the op to fit the intersect range
-                        // ┌──────────────┐
-                        // │ 1 2 3 4 5 6  │
-                        // └───────▲───▲──┘
-                        //         │   │
-                        //        [3, 5)
-                        // op = "45"
-                        ops.push(new_op);
-                    }
-                    offset = intersect.end;
-                    interval = Interval::new(offset, interval.end);
-                }
-            } else {
-                // the interval passed in the shrink function is base on the op not the delta.
-                if let Some(new_op) = next_op.shrink(interval.translate_neg(offset)) {
-                    ops.push(new_op);
-                }
-                // for example: extract the ops from three insert ops with interval [2,5). the
-                // interval size is larger than the op. Moving the offset to extract each part.
-                // Each step would be the small value between interval.size() and
-                // next_op.length(). Checkout the delta_get_ops_in_interval_4 for more details.
-                //
-                // ┌──────┐  ┌──────┐  ┌──────┐
-                // │ 1 2  │  │ 3 4  │  │ 5 6  │
-                // └──────┘  └─▲────┘  └───▲──┘
-                //             │  [2, 5)   │
-                //
-                offset += min(interval.size(), next_op.length());
-                interval = Interval::new(offset, interval.end);
-            }
-            maybe_next_op = ops_iter.next();
-        }
-        log::debug!("did get ops : {:?}", ops);
-        ops
-    }
-
     pub fn get_attributes(&self, interval: Interval) -> Attributes {
         let mut attributes_data = AttributesData::new();
         let mut offset: usize = 0;
@@ -626,7 +573,7 @@ fn invert_from_other(
     end: usize,
 ) {
     log::debug!("invert op: {} [{}:{}]", operation, start, end);
-    let other_ops = other.ops_in_interval(Interval::new(start, end));
+    let other_ops = DeltaIter::new(other, Interval::new(start, end)).ops();
     other_ops.into_iter().for_each(|other_op| match operation {
         Operation::Delete(n) => {
             log::debug!("invert delete: {} by add {}", n, other_op);

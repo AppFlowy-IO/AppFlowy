@@ -53,10 +53,7 @@ class History {
 
     if (stack.undo.isNotEmpty) {
       final lastDelta = stack.undo.removeLast();
-      print("undoDelta: $undoDelta");
-      print("lastDelta: $lastDelta");
       undoDelta = undoDelta.compose(lastDelta);
-      print("compose result: $undoDelta");
     } else {
       lastRecorded = timestamp;
     }

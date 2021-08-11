@@ -24,7 +24,7 @@ impl Document {
         }
     }
 
-    pub fn edit(&mut self, index: usize, text: &str) -> Result<(), OTError> {
+    pub fn insert(&mut self, index: usize, text: &str) -> Result<(), OTError> {
         if self.data.target_len < index {
             log::error!(
                 "{} out of bounds. should 0..{}",
@@ -59,6 +59,21 @@ impl Document {
         self.update_with_attribute(attributes, interval)
     }
 
+    pub fn replace(&mut self, interval: Interval, s: &str) -> Result<(), OTError> {
+        let mut delta = Delta::default();
+        if !s.is_empty() {
+            let insert = Builder::insert(s).attributes(Attributes::Follow).build();
+            delta.add(insert);
+        }
+
+        if !interval.is_empty() {
+            let delete = Builder::delete(interval.size()).build();
+            delta.add(delete);
+        }
+
+        self.update_with_op(&delta, interval)
+    }
+
     pub fn can_undo(&self) -> bool { self.history.can_undo() }
 
     pub fn can_redo(&self) -> bool { self.history.can_redo() }
@@ -91,21 +106,6 @@ impl Document {
                 Ok(result)
             },
         }
-    }
-
-    pub fn replace(&mut self, interval: Interval, s: &str) -> Result<(), OTError> {
-        let mut delta = Delta::default();
-        if !s.is_empty() {
-            let insert = Builder::insert(s).attributes(Attributes::Follow).build();
-            delta.add(insert);
-        }
-
-        if !interval.is_empty() {
-            let delete = Builder::delete(interval.size()).build();
-            delta.add(delete);
-        }
-
-        self.update_with_op(&delta, interval)
     }
 
     pub fn to_json(&self) -> String { self.data.to_json() }

@@ -73,7 +73,7 @@ impl OpTester {
         match op {
             TestOp::Insert(delta_i, s, index) => {
                 let document = &mut self.documents[*delta_i];
-                document.edit(*index, s).unwrap();
+                document.insert(*index, s).unwrap();
             },
             TestOp::Delete(delta_i, interval) => {
                 let document = &mut self.documents[*delta_i];
@@ -85,7 +85,7 @@ impl OpTester {
             },
             TestOp::InsertBold(delta_i, s, interval) => {
                 let document = &mut self.documents[*delta_i];
-                document.edit(interval.start, s).unwrap();
+                document.insert(interval.start, s).unwrap();
                 document.format(*interval, Attribute::Bold, true).unwrap();
             },
             TestOp::Bold(delta_i, interval, enable) => {
