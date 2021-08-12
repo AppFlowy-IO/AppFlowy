@@ -8,8 +8,9 @@ pub struct Cursor<'a> {
     delta: &'a Delta,
     interval: Interval,
     iterator: Iter<'a, Operation>,
-    offset: usize,
-    offset_op: Option<&'a Operation>,
+    char_index: usize,
+    op_index: usize,
+    current_op: Option<&'a Operation>,
 }
 
 impl<'a> Cursor<'a> {
@@ -18,29 +19,31 @@ impl<'a> Cursor<'a> {
             delta,
             interval,
             iterator: delta.ops.iter(),
-            offset: 0,
-            offset_op: None,
+            char_index: 0,
+            op_index: 0,
+            current_op: None,
         };
         cursor
     }
 
     pub fn next_op(&mut self) -> Option<Operation> {
-        let mut next_op = self.offset_op.take();
-
+        let mut next_op = self.current_op.take();
         if next_op.is_none() {
             next_op = self.iterator.next();
         }
 
         let mut find_op = None;
         while find_op.is_none() && next_op.is_some() {
+            self.op_index += 1;
+
             let op = next_op.unwrap();
-            if self.offset < self.interval.start {
-                let intersect =
-                    Interval::new(self.offset, self.offset + op.length()).intersect(self.interval);
+            if self.char_index < self.interval.start {
+                let intersect = Interval::new(self.char_index, self.char_index + op.length())
+                    .intersect(self.interval);
                 if intersect.is_empty() {
-                    self.offset += op.length();
+                    self.char_index += op.length();
                 } else {
-                    if let Some(new_op) = op.shrink(intersect.translate_neg(self.offset)) {
+                    if let Some(new_op) = op.shrink(intersect.translate_neg(self.char_index)) {
                         // shrink the op to fit the intersect range
                         // ┌──────────────┐
                         // │ 1 2 3 4 5 6  │
@@ -50,11 +53,11 @@ impl<'a> Cursor<'a> {
                         // op = "45"
                         find_op = Some(new_op);
                     }
-                    self.offset = intersect.end;
+                    self.char_index = intersect.end;
                 }
             } else {
                 // the interval passed in the shrink function is base on the op not the delta.
-                if let Some(new_op) = op.shrink(self.interval.translate_neg(self.offset)) {
+                if let Some(new_op) = op.shrink(self.interval.translate_neg(self.char_index)) {
                     find_op = Some(new_op);
                 }
                 // for example: extract the ops from three insert ops with interval [2,5). the
@@ -67,43 +70,96 @@ impl<'a> Cursor<'a> {
                 // └──────┘  └─▲────┘  └───▲──┘
                 //             │  [2, 5)   │
                 //
-                self.offset += min(self.interval.size(), op.length());
+                self.char_index += min(self.interval.size(), op.length());
             }
 
             match find_op {
                 None => next_op = self.iterator.next(),
-                Some(_) => self.interval.start = self.offset,
+                Some(_) => self.interval.start = self.char_index,
             }
         }
 
         find_op
     }
 
-    pub fn seek_to(&mut self, index: usize) -> Result<(), OTError> {
-        if self.offset > index {
-            let msg = format!(
-                "{} should be greater than current offset: {}",
-                index, self.offset
-            );
-            return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength)
-                .msg(&msg)
-                .build());
-        }
+    pub fn seek<M: Metric>(&mut self, index: usize) -> Result<(), OTError> {
+        self.current_op = M::seek(self, index)?;
+        Ok(())
+    }
+}
 
-        let mut offset = 0;
-        while let Some(op) = self.iterator.next() {
-            if offset != 0 {
-                self.offset = offset;
+pub trait Metric {
+    fn seek<'a, 'b>(
+        cursor: &'b mut Cursor<'a>,
+        index: usize,
+    ) -> Result<Option<&'a Operation>, OTError>;
+}
+
+pub struct OpMetric {}
+
+impl Metric for OpMetric {
+    fn seek<'a, 'b>(
+        cursor: &'b mut Cursor<'a>,
+        index: usize,
+    ) -> Result<Option<&'a Operation>, OTError> {
+        let _ = check_bound(cursor.op_index, index)?;
+
+        let mut offset = cursor.op_index;
+        let mut op_at_index = None;
+
+        while let Some(op) = cursor.iterator.next() {
+            if offset != cursor.op_index {
+                cursor.char_index += op.length();
+                cursor.op_index = offset;
             }
 
-            offset += op.length();
-            self.offset_op = Some(op);
+            offset += 1;
+            op_at_index = Some(op);
 
             if offset >= index {
                 break;
             }
         }
 
-        Ok(())
+        Ok(op_at_index)
     }
+}
+
+pub struct CharMetric {}
+
+impl Metric for CharMetric {
+    fn seek<'a, 'b>(
+        cursor: &'b mut Cursor<'a>,
+        index: usize,
+    ) -> Result<Option<&'a Operation>, OTError> {
+        let _ = check_bound(cursor.char_index, index)?;
+
+        let mut offset = cursor.char_index;
+        let mut op_at_index = None;
+        while let Some(op) = cursor.iterator.next() {
+            if offset != cursor.char_index {
+                cursor.char_index = offset;
+                cursor.op_index += 1;
+            }
+
+            offset += op.length();
+            op_at_index = Some(op);
+
+            if offset >= index {
+                break;
+            }
+        }
+
+        Ok(op_at_index)
+    }
+}
+
+fn check_bound(current: usize, target: usize) -> Result<(), OTError> {
+    if current > target {
+        let msg = format!("{} should be greater than current: {}", target, current);
+        return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength)
+            .msg(&msg)
+            .build());
+    }
+    Ok(())
 }

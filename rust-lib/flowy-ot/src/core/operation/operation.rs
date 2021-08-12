@@ -1,4 +1,4 @@
-use crate::core::{Attributes, Builder, Interval};
+use crate::core::{Attribute, Attributes, Builder, Interval};
 use bytecount::num_chars;
 use serde::__private::Formatter;
 use std::{
@@ -47,6 +47,10 @@ impl Operation {
     }
 
     pub fn has_attribute(&self) -> bool { !self.get_attributes().is_empty() }
+
+    pub fn contain_attribute(&self, attribute: &Attribute) -> bool {
+        self.get_attributes().contains_key(&attribute.key)
+    }
 
     pub fn length(&self) -> usize {
         match self {

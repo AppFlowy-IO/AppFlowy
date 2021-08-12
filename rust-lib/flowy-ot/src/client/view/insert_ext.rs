@@ -44,7 +44,7 @@ impl InsertExt for ResetLineFormatOnNewLineExt {
         }
 
         let mut iter = DeltaIter::new(delta);
-        iter.seek_to(index);
+        iter.seek(index);
         let maybe_next_op = iter.next();
         if maybe_next_op.is_none() {
             return None;

@@ -47,6 +47,8 @@ impl Document {
     pub fn format(&mut self, interval: Interval, attribute: Attribute) -> Result<(), OTError> {
         log::debug!("format with {} at {}", attribute, interval);
 
+        // let format_delta = self.view.format(&self.delta, attribute, interval)?;
+
         self.update_with_attribute(attribute, interval)
     }
 

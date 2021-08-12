@@ -23,8 +23,8 @@ impl<'a> DeltaIter<'a> {
 
     pub fn ops(&mut self) -> Vec<Operation> { self.collect::<Vec<_>>() }
 
-    pub fn seek_to(&mut self, n_char: usize) -> Result<(), OTError> {
-        let _ = self.cursor.seek_to(n_char)?;
+    pub fn seek(&mut self, n_char: usize) -> Result<(), OTError> {
+        let _ = self.cursor.seek::<CharMetric>(n_char)?;
         Ok(())
     }
 }
@@ -102,7 +102,7 @@ impl<'a> Iterator for AttributesIter<'a> {
 
 pub(crate) fn attributes_at_index(delta: &Delta, index: usize) -> Attributes {
     let mut iter = AttributesIter::new(delta);
-    iter.seek_to(index);
+    iter.seek(index);
     match iter.next() {
         // None => Attributes::Follow,
         None => Attributes::new(),

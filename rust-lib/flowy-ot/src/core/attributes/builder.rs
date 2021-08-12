@@ -71,7 +71,7 @@ pub enum AttributeKey {
     UnChecked,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum AttributeScope {
     Inline,
     Block,
@@ -79,7 +79,7 @@ pub enum AttributeScope {
     Ignore,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Attribute {
     pub key: AttributeKey,
     pub value: String,
@@ -90,6 +90,14 @@ impl fmt::Display for Attribute {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let s = format!("{:?}:{} {:?}", self.key, self.value, self.scope);
         f.write_str(&s)
+    }
+}
+
+impl std::convert::Into<Attributes> for Attribute {
+    fn into(self) -> Attributes {
+        let mut attributes = Attributes::new();
+        attributes.add(self);
+        attributes
     }
 }
 
