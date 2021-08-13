@@ -1,4 +1,4 @@
-use crate::core::{Attribute, Attributes, Builder, Interval};
+use crate::core::{Attribute, Attributes, Interval, OpBuilder};
 use bytecount::num_chars;
 use serde::__private::Formatter;
 use std::{
@@ -68,22 +68,22 @@ impl Operation {
         let mut right = None;
         match self {
             Operation::Delete(n) => {
-                left = Some(Builder::delete(index).build());
-                right = Some(Builder::delete(*n - index).build());
+                left = Some(OpBuilder::delete(index).build());
+                right = Some(OpBuilder::delete(*n - index).build());
             },
             Operation::Retain(retain) => {
-                left = Some(Builder::delete(index).build());
-                right = Some(Builder::delete(retain.n - index).build());
+                left = Some(OpBuilder::delete(index).build());
+                right = Some(OpBuilder::delete(retain.n - index).build());
             },
             Operation::Insert(insert) => {
                 let attributes = self.get_attributes();
                 left = Some(
-                    Builder::insert(&insert.s[0..index])
+                    OpBuilder::insert(&insert.s[0..index])
                         .attributes(attributes.clone())
                         .build(),
                 );
                 right = Some(
-                    Builder::insert(&insert.s[index..insert.num_chars()])
+                    OpBuilder::insert(&insert.s[index..insert.num_chars()])
                         .attributes(attributes)
                         .build(),
                 );
@@ -95,16 +95,16 @@ impl Operation {
 
     pub fn shrink(&self, interval: Interval) -> Option<Operation> {
         let op = match self {
-            Operation::Delete(n) => Builder::delete(min(*n, interval.size())).build(),
-            Operation::Retain(retain) => Builder::retain(min(retain.n, interval.size()))
+            Operation::Delete(n) => OpBuilder::delete(min(*n, interval.size())).build(),
+            Operation::Retain(retain) => OpBuilder::retain(min(retain.n, interval.size()))
                 .attributes(retain.attributes.clone())
                 .build(),
             Operation::Insert(insert) => {
                 if interval.start > insert.s.len() {
-                    Builder::insert("").build()
+                    OpBuilder::insert("").build()
                 } else {
                     let s = &insert.s[interval.start..min(interval.end, insert.s.len())];
-                    Builder::insert(s)
+                    OpBuilder::insert(s)
                         .attributes(insert.attributes.clone())
                         .build()
                 }
@@ -115,6 +115,27 @@ impl Operation {
             true => None,
             false => Some(op),
         }
+    }
+
+    pub fn is_delete(&self) -> bool {
+        if let Operation::Delete(_) = self {
+            return true;
+        }
+        false
+    }
+
+    pub fn is_insert(&self) -> bool {
+        if let Operation::Insert(_) = self {
+            return true;
+        }
+        false
+    }
+
+    pub fn is_retain(&self) -> bool {
+        if let Operation::Retain(_) = self {
+            return true;
+        }
+        false
     }
 }
 
@@ -167,7 +188,7 @@ impl Retain {
             self.n += n;
             None
         } else {
-            Some(Builder::retain(n).attributes(attributes).build())
+            Some(OpBuilder::retain(n).attributes(attributes).build())
         }
     }
 
@@ -231,7 +252,7 @@ impl Insert {
             self.s += s;
             None
         } else {
-            Some(Builder::insert(s).attributes(attributes).build())
+            Some(OpBuilder::insert(s).attributes(attributes).build())
         }
     }
 }

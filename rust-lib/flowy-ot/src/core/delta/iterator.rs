@@ -37,6 +37,12 @@ impl<'a> DeltaIter<'a> {
     }
 
     pub fn has_next(&self) -> bool { self.cursor.has_next() }
+
+    pub fn is_next_insert(&self) -> bool { self.cursor.current_op().is_insert() }
+
+    pub fn is_next_retain(&self) -> bool { self.cursor.current_op().is_retain() }
+
+    pub fn is_next_delete(&self) -> bool { self.cursor.current_op().is_delete() }
 }
 
 impl<'a> Iterator for DeltaIter<'a> {

@@ -60,12 +60,12 @@ impl Document {
     pub fn replace(&mut self, interval: Interval, s: &str) -> Result<(), OTError> {
         let mut delta = Delta::default();
         if !s.is_empty() {
-            let insert = Builder::insert(s).build();
+            let insert = OpBuilder::insert(s).build();
             delta.add(insert);
         }
 
         if !interval.is_empty() {
-            let delete = Builder::delete(interval.size()).build();
+            let delete = OpBuilder::delete(interval.size()).build();
             delta.add(delete);
         }
 
@@ -157,7 +157,7 @@ impl Document {
         let new_attributes = attributes;
         log::debug!("combine result: {:?}", new_attributes);
 
-        let retain = Builder::retain(interval.size())
+        let retain = OpBuilder::retain(interval.size())
             .attributes(new_attributes)
             .build();
 

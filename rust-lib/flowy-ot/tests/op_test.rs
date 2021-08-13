@@ -8,8 +8,8 @@ use helper::*;
 #[test]
 fn delta_get_ops_in_interval_1() {
     let mut delta = Delta::default();
-    let insert_a = Builder::insert("123").build();
-    let insert_b = Builder::insert("4").build();
+    let insert_a = OpBuilder::insert("123").build();
+    let insert_b = OpBuilder::insert("4").build();
 
     delta.add(insert_a.clone());
     delta.add(insert_b.clone());
@@ -21,10 +21,10 @@ fn delta_get_ops_in_interval_1() {
 #[test]
 fn delta_get_ops_in_interval_2() {
     let mut delta = Delta::default();
-    let insert_a = Builder::insert("123").build();
-    let insert_b = Builder::insert("4").build();
-    let insert_c = Builder::insert("5").build();
-    let retain_a = Builder::retain(3).build();
+    let insert_a = OpBuilder::insert("123").build();
+    let insert_b = OpBuilder::insert("4").build();
+    let insert_c = OpBuilder::insert("5").build();
+    let retain_a = OpBuilder::retain(3).build();
 
     delta.add(insert_a.clone());
     delta.add(retain_a.clone());
@@ -33,12 +33,12 @@ fn delta_get_ops_in_interval_2() {
 
     assert_eq!(
         DeltaIter::from_interval(&delta, Interval::new(0, 2)).ops(),
-        vec![Builder::insert("12").build()]
+        vec![OpBuilder::insert("12").build()]
     );
 
     assert_eq!(
         DeltaIter::from_interval(&delta, Interval::new(1, 3)).ops(),
-        vec![Builder::insert("23").build()]
+        vec![OpBuilder::insert("23").build()]
     );
 
     assert_eq!(
@@ -48,7 +48,7 @@ fn delta_get_ops_in_interval_2() {
 
     assert_eq!(
         DeltaIter::from_interval(&delta, Interval::new(0, 4)).ops(),
-        vec![insert_a.clone(), Builder::retain(1).build()]
+        vec![insert_a.clone(), OpBuilder::retain(1).build()]
     );
 
     assert_eq!(
@@ -65,20 +65,20 @@ fn delta_get_ops_in_interval_2() {
 #[test]
 fn delta_get_ops_in_interval_3() {
     let mut delta = Delta::default();
-    let insert_a = Builder::insert("123456").build();
+    let insert_a = OpBuilder::insert("123456").build();
     delta.add(insert_a.clone());
     assert_eq!(
         DeltaIter::from_interval(&delta, Interval::new(3, 5)).ops(),
-        vec![Builder::insert("45").build()]
+        vec![OpBuilder::insert("45").build()]
     );
 }
 
 #[test]
 fn delta_get_ops_in_interval_4() {
     let mut delta = Delta::default();
-    let insert_a = Builder::insert("12").build();
-    let insert_b = Builder::insert("34").build();
-    let insert_c = Builder::insert("56").build();
+    let insert_a = OpBuilder::insert("12").build();
+    let insert_b = OpBuilder::insert("34").build();
+    let insert_c = OpBuilder::insert("56").build();
 
     delta.ops.push(insert_a.clone());
     delta.ops.push(insert_b.clone());
@@ -99,20 +99,26 @@ fn delta_get_ops_in_interval_4() {
 
     assert_eq!(
         DeltaIter::from_interval(&delta, Interval::new(2, 5)).ops(),
-        vec![Builder::insert("34").build(), Builder::insert("5").build()]
+        vec![
+            OpBuilder::insert("34").build(),
+            OpBuilder::insert("5").build()
+        ]
     );
 }
 
 #[test]
 fn delta_get_ops_in_interval_5() {
     let mut delta = Delta::default();
-    let insert_a = Builder::insert("123456").build();
-    let insert_b = Builder::insert("789").build();
+    let insert_a = OpBuilder::insert("123456").build();
+    let insert_b = OpBuilder::insert("789").build();
     delta.ops.push(insert_a.clone());
     delta.ops.push(insert_b.clone());
     assert_eq!(
         DeltaIter::from_interval(&delta, Interval::new(4, 8)).ops(),
-        vec![Builder::insert("56").build(), Builder::insert("78").build()]
+        vec![
+            OpBuilder::insert("56").build(),
+            OpBuilder::insert("78").build()
+        ]
     );
 
     // assert_eq!(
@@ -124,81 +130,81 @@ fn delta_get_ops_in_interval_5() {
 #[test]
 fn delta_get_ops_in_interval_6() {
     let mut delta = Delta::default();
-    let insert_a = Builder::insert("12345678").build();
+    let insert_a = OpBuilder::insert("12345678").build();
     delta.add(insert_a.clone());
     assert_eq!(
         DeltaIter::from_interval(&delta, Interval::new(4, 6)).ops(),
-        vec![Builder::insert("56").build()]
+        vec![OpBuilder::insert("56").build()]
     );
 }
 
 #[test]
 fn delta_get_ops_in_interval_7() {
     let mut delta = Delta::default();
-    let insert_a = Builder::insert("12345").build();
-    let retain_a = Builder::retain(3).build();
+    let insert_a = OpBuilder::insert("12345").build();
+    let retain_a = OpBuilder::retain(3).build();
 
     delta.add(insert_a.clone());
     delta.add(retain_a.clone());
 
     let mut iter_1 = DeltaIter::new(&delta);
     iter_1.seek::<CharMetric>(2).unwrap();
-    assert_eq!(iter_1.next_op().unwrap(), Builder::insert("345").build());
-    assert_eq!(iter_1.next_op().unwrap(), Builder::retain(3).build());
+    assert_eq!(iter_1.next_op().unwrap(), OpBuilder::insert("345").build());
+    assert_eq!(iter_1.next_op().unwrap(), OpBuilder::retain(3).build());
 
     let mut iter_2 = DeltaIter::new(&delta);
     assert_eq!(
         iter_2.next_op_with_len(2).unwrap(),
-        Builder::insert("12").build()
+        OpBuilder::insert("12").build()
     );
-    assert_eq!(iter_2.next_op().unwrap(), Builder::insert("345").build());
+    assert_eq!(iter_2.next_op().unwrap(), OpBuilder::insert("345").build());
 
-    assert_eq!(iter_2.next_op().unwrap(), Builder::retain(3).build());
+    assert_eq!(iter_2.next_op().unwrap(), OpBuilder::retain(3).build());
 }
 
 #[test]
 fn delta_seek_1() {
     let mut delta = Delta::default();
-    let insert_a = Builder::insert("12345").build();
-    let retain_a = Builder::retain(3).build();
+    let insert_a = OpBuilder::insert("12345").build();
+    let retain_a = OpBuilder::retain(3).build();
     delta.add(insert_a.clone());
     delta.add(retain_a.clone());
     let mut iter = DeltaIter::new(&delta);
     iter.seek::<OpMetric>(1).unwrap();
-    assert_eq!(iter.next_op().unwrap(), Builder::retain(3).build());
+    assert_eq!(iter.next_op().unwrap(), OpBuilder::retain(3).build());
 }
 
 #[test]
 fn delta_seek_2() {
     let mut delta = Delta::default();
-    delta.add(Builder::insert("12345").build());
+    delta.add(OpBuilder::insert("12345").build());
 
     let mut iter = DeltaIter::new(&delta);
     assert_eq!(
         iter.next_op_with_len(1).unwrap(),
-        Builder::insert("1").build()
+        OpBuilder::insert("1").build()
     );
 }
 
 #[test]
 fn delta_seek_3() {
     let mut delta = Delta::default();
-    delta.add(Builder::insert("12345").build());
+    delta.add(OpBuilder::insert("12345").build());
 
     let mut iter = DeltaIter::new(&delta);
     assert_eq!(
         iter.next_op_with_len(2).unwrap(),
-        Builder::insert("12").build()
+        OpBuilder::insert("12").build()
     );
 
     assert_eq!(
         iter.next_op_with_len(2).unwrap(),
-        Builder::insert("34").build()
+        OpBuilder::insert("34").build()
     );
 
     assert_eq!(
         iter.next_op_with_len(2).unwrap(),
-        Builder::insert("5").build()
+        OpBuilder::insert("5").build()
     );
 
     assert_eq!(iter.next_op_with_len(1), None);
@@ -207,30 +213,30 @@ fn delta_seek_3() {
 #[test]
 fn delta_seek_4() {
     let mut delta = Delta::default();
-    delta.add(Builder::insert("12345").build());
+    delta.add(OpBuilder::insert("12345").build());
 
     let mut iter = DeltaIter::new(&delta);
     iter.seek::<CharMetric>(3);
     assert_eq!(
         iter.next_op_with_len(2).unwrap(),
-        Builder::insert("45").build()
+        OpBuilder::insert("45").build()
     );
 }
 
 #[test]
 fn delta_next_op_len_test() {
     let mut delta = Delta::default();
-    delta.add(Builder::insert("12345").build());
+    delta.add(OpBuilder::insert("12345").build());
 
     let mut iter = DeltaIter::new(&delta);
     iter.seek::<CharMetric>(3);
     assert_eq!(iter.next_op_len(), 2);
     assert_eq!(
         iter.next_op_with_len(1).unwrap(),
-        Builder::insert("4").build()
+        OpBuilder::insert("4").build()
     );
     assert_eq!(iter.next_op_len(), 1);
-    assert_eq!(iter.next_op().unwrap(), Builder::insert("5").build());
+    assert_eq!(iter.next_op().unwrap(), OpBuilder::insert("5").build());
 }
 
 #[test]
@@ -348,22 +354,22 @@ fn ops_merging() {
     assert_eq!(delta.ops.len(), 0);
     delta.retain(2, Attributes::default());
     assert_eq!(delta.ops.len(), 1);
-    assert_eq!(delta.ops.last(), Some(&Builder::retain(2).build()));
+    assert_eq!(delta.ops.last(), Some(&OpBuilder::retain(2).build()));
     delta.retain(3, Attributes::default());
     assert_eq!(delta.ops.len(), 1);
-    assert_eq!(delta.ops.last(), Some(&Builder::retain(5).build()));
+    assert_eq!(delta.ops.last(), Some(&OpBuilder::retain(5).build()));
     delta.insert("abc", Attributes::default());
     assert_eq!(delta.ops.len(), 2);
-    assert_eq!(delta.ops.last(), Some(&Builder::insert("abc").build()));
+    assert_eq!(delta.ops.last(), Some(&OpBuilder::insert("abc").build()));
     delta.insert("xyz", Attributes::default());
     assert_eq!(delta.ops.len(), 2);
-    assert_eq!(delta.ops.last(), Some(&Builder::insert("abcxyz").build()));
+    assert_eq!(delta.ops.last(), Some(&OpBuilder::insert("abcxyz").build()));
     delta.delete(1);
     assert_eq!(delta.ops.len(), 3);
-    assert_eq!(delta.ops.last(), Some(&Builder::delete(1).build()));
+    assert_eq!(delta.ops.last(), Some(&OpBuilder::delete(1).build()));
     delta.delete(1);
     assert_eq!(delta.ops.len(), 3);
-    assert_eq!(delta.ops.last(), Some(&Builder::delete(2).build()));
+    assert_eq!(delta.ops.last(), Some(&OpBuilder::delete(2).build()));
 }
 #[test]
 fn is_noop() {
@@ -453,11 +459,11 @@ fn delta_transform_test() {
 #[test]
 fn delta_invert_no_attribute_delta() {
     let mut delta = Delta::default();
-    delta.add(Builder::insert("123").build());
+    delta.add(OpBuilder::insert("123").build());
 
     let mut change = Delta::default();
-    change.add(Builder::retain(3).build());
-    change.add(Builder::insert("456").build());
+    change.add(OpBuilder::retain(3).build());
+    change.add(OpBuilder::insert("456").build());
     let undo = change.invert(&delta);
 
     let new_delta = delta.compose(&change).unwrap();

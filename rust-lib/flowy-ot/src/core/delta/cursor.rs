@@ -31,43 +31,7 @@ impl<'a> Cursor<'a> {
         cursor
     }
 
-    fn descend(&mut self, index: usize) {
-        self.next_iv.start += index;
-
-        if self.c_index >= self.next_iv.start {
-            return;
-        }
-        while let Some((o_index, op)) = self.iter.next() {
-            self.o_index = o_index;
-            let start = self.c_index;
-            let end = start + op.length();
-            let intersect = Interval::new(start, end).intersect(self.next_iv);
-            if intersect.is_empty() {
-                self.c_index += op.length();
-            } else {
-                self.next_op = Some(op.clone());
-                break;
-            }
-        }
-    }
-
     pub fn next_interval(&self) -> Interval { self.next_op_interval_with_len(None) }
-
-    fn next_op_interval_with_len(&self, force_len: Option<usize>) -> Interval {
-        let op = self
-            .next_op
-            .as_ref()
-            .unwrap_or(&self.delta.ops[self.o_index]);
-
-        let start = self.c_index;
-        let end = match force_len {
-            None => self.c_index + op.length(),
-            Some(force_len) => self.c_index + min(force_len, op.length()),
-        };
-        let intersect = Interval::new(start, end).intersect(self.next_iv);
-        let interval = intersect.translate_neg(start);
-        interval
-    }
 
     pub fn next_op_with_len(&mut self, force_len: Option<usize>) -> Option<Operation> {
         let mut find_op = None;
@@ -102,6 +66,46 @@ impl<'a> Cursor<'a> {
     pub fn next_op(&mut self) -> Option<Operation> { self.next_op_with_len(None) }
 
     pub fn has_next(&self) -> bool { self.c_index < self.next_iv.end }
+
+    fn descend(&mut self, index: usize) {
+        self.next_iv.start += index;
+
+        if self.c_index >= self.next_iv.start {
+            return;
+        }
+        while let Some((o_index, op)) = self.iter.next() {
+            self.o_index = o_index;
+            let start = self.c_index;
+            let end = start + op.length();
+            let intersect = Interval::new(start, end).intersect(self.next_iv);
+            if intersect.is_empty() {
+                self.c_index += op.length();
+            } else {
+                self.next_op = Some(op.clone());
+                break;
+            }
+        }
+    }
+
+    pub fn current_op(&self) -> &Operation {
+        let op = self
+            .next_op
+            .as_ref()
+            .unwrap_or(&self.delta.ops[self.o_index]);
+        op
+    }
+
+    fn next_op_interval_with_len(&self, force_len: Option<usize>) -> Interval {
+        let op = self.current_op();
+        let start = self.c_index;
+        let end = match force_len {
+            None => self.c_index + op.length(),
+            Some(force_len) => self.c_index + min(force_len, op.length()),
+        };
+        let intersect = Interval::new(start, end).intersect(self.next_iv);
+        let interval = intersect.translate_neg(start);
+        interval
+    }
 }
 
 fn find_next_op<'a>(cursor: &mut Cursor<'a>) -> Option<&'a Operation> {
