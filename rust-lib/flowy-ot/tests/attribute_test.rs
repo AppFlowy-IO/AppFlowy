@@ -53,6 +53,23 @@ fn delta_insert_text_with_attr() {
 }
 
 #[test]
+fn delta_add_bold() {
+    let ops = vec![
+        Insert(0, "123456", 0),
+        Bold(0, Interval::new(3, 5), true),
+        AssertOpsJson(
+            0,
+            r#"[
+            {"insert":"123"},
+            {"insert":"45","attributes":{"bold":"true"}},
+            {"insert":"6"}
+            ]"#,
+        ),
+    ];
+    OpTester::new().run_script(ops);
+}
+
+#[test]
 fn delta_add_bold_and_invert_all() {
     let ops = vec![
         Insert(0, "123", 0),

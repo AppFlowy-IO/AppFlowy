@@ -86,7 +86,7 @@ impl FormatExt for ResolveInlineFormatExt {
         let len = interval.size();
 
         while cur < len && iter.has_next() {
-            let some_op = iter.next_op_with_length(len - cur);
+            let some_op = iter.next_op_with_len(len - cur);
             if some_op.is_none() {
                 return Some(new_delta);
             }

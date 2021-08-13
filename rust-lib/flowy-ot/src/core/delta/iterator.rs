@@ -25,8 +25,10 @@ impl<'a> DeltaIter<'a> {
 
     pub fn next_op(&mut self) -> Option<Operation> { self.cursor.next_op() }
 
-    pub fn next_op_with_length(&mut self, length: usize) -> Option<Operation> {
-        self.cursor.next_op_with_length(Some(length))
+    pub fn next_op_len(&self) -> usize { self.cursor.next_interval().size() }
+
+    pub fn next_op_with_len(&mut self, length: usize) -> Option<Operation> {
+        self.cursor.next_op_with_len(Some(length))
     }
 
     pub fn seek<M: Metric>(&mut self, index: usize) -> Result<(), OTError> {

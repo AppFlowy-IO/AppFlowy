@@ -50,8 +50,10 @@ impl Document {
         //     .view
         //     .format(&self.delta, attribute.clone(), interval)
         //     .unwrap();
-        // let a = self.delta.compose(&format_delta).unwrap();
-        // println!("{:?}", a);
+        //
+        // self.delta = self.record_change(&format_delta)?;
+        // Ok(())
+
         self.update_with_attribute(attribute, interval)
     }
 
