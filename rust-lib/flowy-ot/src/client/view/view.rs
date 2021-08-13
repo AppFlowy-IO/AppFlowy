@@ -73,8 +73,15 @@ impl View {
 
 fn construct_insert_exts() -> Vec<InsertExtension> {
     vec![
-        Box::new(PreserveInlineStyleExt::new()),
-        Box::new(ResetLineFormatOnNewLineExt::new()),
+        Box::new(InsertEmbedsExt {}),
+        Box::new(ForceNewlineForInsertsAroundEmbedExt {}),
+        Box::new(AutoExitBlockExt {}),
+        Box::new(PreserveBlockStyleOnInsertExt {}),
+        Box::new(PreserveLineStyleOnSplitExt {}),
+        Box::new(ResetLineFormatOnNewLineExt {}),
+        Box::new(AutoFormatLinksExt {}),
+        Box::new(PreserveInlineStylesExt {}),
+        Box::new(DefaultInsertExt {}),
     ]
 }
 

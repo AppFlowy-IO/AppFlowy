@@ -46,9 +46,12 @@ impl Document {
 
     pub fn format(&mut self, interval: Interval, attribute: Attribute) -> Result<(), OTError> {
         log::debug!("format with {} at {}", attribute, interval);
-
-        // let format_delta = self.view.format(&self.delta, attribute, interval)?;
-
+        // let format_delta = self
+        //     .view
+        //     .format(&self.delta, attribute.clone(), interval)
+        //     .unwrap();
+        // let a = self.delta.compose(&format_delta).unwrap();
+        // println!("{:?}", a);
         self.update_with_attribute(attribute, interval)
     }
 
@@ -165,7 +168,10 @@ impl Document {
     fn next_rev_id(&self) -> RevId { RevId(self.rev_id_counter) }
 
     fn record_change(&mut self, delta: &Delta) -> Result<Delta, OTError> {
-        let (composed_delta, mut undo_delta) = self.invert_change(&delta)?;
+        log::debug!("👉invert change {}", delta);
+        let composed_delta = self.delta.compose(delta)?;
+        let mut undo_delta = delta.invert(&self.delta);
+
         self.rev_id_counter += 1;
 
         let now = chrono::Utc::now().timestamp_millis() as usize;

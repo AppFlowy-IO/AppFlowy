@@ -62,6 +62,37 @@ impl Operation {
 
     pub fn is_empty(&self) -> bool { self.length() == 0 }
 
+    pub fn split(&self, index: usize) -> (Option<Operation>, Option<Operation>) {
+        debug_assert!(index < self.length());
+        let mut left = None;
+        let mut right = None;
+        match self {
+            Operation::Delete(n) => {
+                left = Some(Builder::delete(index).build());
+                right = Some(Builder::delete(*n - index).build());
+            },
+            Operation::Retain(retain) => {
+                left = Some(Builder::delete(index).build());
+                right = Some(Builder::delete(retain.n - index).build());
+            },
+            Operation::Insert(insert) => {
+                let attributes = self.get_attributes();
+                left = Some(
+                    Builder::insert(&insert.s[0..index])
+                        .attributes(attributes.clone())
+                        .build(),
+                );
+                right = Some(
+                    Builder::insert(&insert.s[index..insert.num_chars()])
+                        .attributes(attributes)
+                        .build(),
+                );
+            },
+        }
+
+        (left, right)
+    }
+
     pub fn shrink(&self, interval: Interval) -> Option<Operation> {
         let op = match self {
             Operation::Delete(n) => Builder::delete(min(*n, interval.size())).build(),

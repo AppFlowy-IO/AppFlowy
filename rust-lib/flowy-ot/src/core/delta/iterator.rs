@@ -12,7 +12,7 @@ pub struct DeltaIter<'a> {
 
 impl<'a> DeltaIter<'a> {
     pub fn new(delta: &'a Delta) -> Self {
-        let interval = Interval::new(0, usize::MAX);
+        let interval = Interval::new(0, i32::MAX as usize);
         Self::from_interval(delta, interval)
     }
 
@@ -23,15 +23,23 @@ impl<'a> DeltaIter<'a> {
 
     pub fn ops(&mut self) -> Vec<Operation> { self.collect::<Vec<_>>() }
 
-    pub fn seek(&mut self, n_char: usize) -> Result<(), OTError> {
-        let _ = self.cursor.seek::<CharMetric>(n_char)?;
+    pub fn next_op(&mut self) -> Option<Operation> { self.cursor.next_op() }
+
+    pub fn next_op_with_length(&mut self, length: usize) -> Option<Operation> {
+        self.cursor.next_op_with_length(Some(length))
+    }
+
+    pub fn seek<M: Metric>(&mut self, index: usize) -> Result<(), OTError> {
+        let _ = M::seek(&mut self.cursor, index)?;
         Ok(())
     }
+
+    pub fn has_next(&self) -> bool { self.cursor.has_next() }
 }
 
 impl<'a> Iterator for DeltaIter<'a> {
     type Item = Operation;
-    fn next(&mut self) -> Option<Self::Item> { self.cursor.next_op() }
+    fn next(&mut self) -> Option<Self::Item> { self.next_op() }
 }
 
 pub struct AttributesIter<'a> {
@@ -100,11 +108,10 @@ impl<'a> Iterator for AttributesIter<'a> {
     }
 }
 
-pub(crate) fn attributes_at_index(delta: &Delta, index: usize) -> Attributes {
+pub(crate) fn attributes_with_length(delta: &Delta, index: usize) -> Attributes {
     let mut iter = AttributesIter::new(delta);
-    iter.seek(index);
+    iter.seek::<CharMetric>(index);
     match iter.next() {
-        // None => Attributes::Follow,
         None => Attributes::new(),
         Some((_, attributes)) => attributes,
     }

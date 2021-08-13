@@ -4,153 +4,127 @@ use crate::{
 };
 use std::{cmp::min, slice::Iter};
 
+#[derive(Debug)]
 pub struct Cursor<'a> {
-    delta: &'a Delta,
-    interval: Interval,
-    iterator: Iter<'a, Operation>,
-    char_index: usize,
-    op_index: usize,
-    current_op: Option<&'a Operation>,
+    pub(crate) delta: &'a Delta,
+    pub(crate) origin_iv: Interval,
+    pub(crate) next_iv: Interval,
+    pub(crate) c_index: usize,
+    pub(crate) o_index: usize,
+    iter: Iter<'a, Operation>,
+    next_op: Option<Operation>,
 }
 
 impl<'a> Cursor<'a> {
     pub fn new(delta: &'a Delta, interval: Interval) -> Cursor<'a> {
-        let cursor = Self {
+        // debug_assert!(interval.start <= delta.target_len);
+        let mut cursor = Self {
             delta,
-            interval,
-            iterator: delta.ops.iter(),
-            char_index: 0,
-            op_index: 0,
-            current_op: None,
+            origin_iv: interval,
+            next_iv: interval,
+            c_index: 0,
+            o_index: 0,
+            iter: delta.ops.iter(),
+            next_op: None,
         };
+        cursor.descend(0);
         cursor
     }
 
-    pub fn next_op(&mut self) -> Option<Operation> {
-        let mut next_op = self.current_op.take();
-        if next_op.is_none() {
-            next_op = self.iterator.next();
+    fn descend(&mut self, index: usize) {
+        self.next_iv.start += index;
+        if self.c_index >= self.next_iv.start {
+            return;
         }
 
-        let mut find_op = None;
-        while find_op.is_none() && next_op.is_some() {
-            self.op_index += 1;
-
-            let op = next_op.unwrap();
-            if self.char_index < self.interval.start {
-                let intersect = Interval::new(self.char_index, self.char_index + op.length())
-                    .intersect(self.interval);
-                if intersect.is_empty() {
-                    self.char_index += op.length();
-                } else {
-                    if let Some(new_op) = op.shrink(intersect.translate_neg(self.char_index)) {
-                        // shrink the op to fit the intersect range
-                        // ┌──────────────┐
-                        // │ 1 2 3 4 5 6  │
-                        // └───────▲───▲──┘
-                        //         │   │
-                        //        [3, 5)
-                        // op = "45"
-                        find_op = Some(new_op);
-                    }
-                    self.char_index = intersect.end;
-                }
+        while let Some(op) = self.iter.next() {
+            self.o_index += 1;
+            let start = self.c_index;
+            let end = start + op.length();
+            let intersect = Interval::new(start, end).intersect(self.next_iv);
+            if intersect.is_empty() {
+                self.c_index += op.length();
             } else {
-                // the interval passed in the shrink function is base on the op not the delta.
-                if let Some(new_op) = op.shrink(self.interval.translate_neg(self.char_index)) {
-                    find_op = Some(new_op);
-                }
-                // for example: extract the ops from three insert ops with interval [2,5). the
-                // interval size is larger than the op. Moving the offset to extract each part.
-                // Each step would be the small value between interval.size() and
-                // next_op.length(). Checkout the delta_get_ops_in_interval_4 for more details.
-                //
-                // ┌──────┐  ┌──────┐  ┌──────┐
-                // │ 1 2  │  │ 3 4  │  │ 5 6  │
-                // └──────┘  └─▲────┘  └───▲──┘
-                //             │  [2, 5)   │
-                //
-                self.char_index += min(self.interval.size(), op.length());
+                self.next_op = Some(op.clone());
+                break;
+            }
+        }
+    }
+
+    pub fn next_op_with_length(&mut self, length: Option<usize>) -> Option<Operation> {
+        let mut find_op = None;
+        let next_op = self.next_op.take();
+        let mut next_op = next_op.as_ref();
+        if next_op.is_none() {
+            next_op = self.iter.next();
+            self.o_index += 1;
+        }
+
+        while find_op.is_none() && next_op.is_some() {
+            let op = next_op.unwrap();
+            let start = self.c_index;
+            let end = match length {
+                None => self.c_index + op.length(),
+                Some(length) => self.c_index + min(length, op.length()),
+            };
+            let intersect = Interval::new(start, end).intersect(self.next_iv);
+            let interval = intersect.translate_neg(start);
+
+            let op_interval = Interval::new(0, op.length());
+            let suffix = op_interval.suffix(interval);
+
+            find_op = op.shrink(interval);
+
+            if !suffix.is_empty() {
+                self.next_op = op.shrink(suffix);
             }
 
-            match find_op {
-                None => next_op = self.iterator.next(),
-                Some(_) => self.interval.start = self.char_index,
+            self.c_index = intersect.end;
+            self.next_iv.start = intersect.end;
+
+            if find_op.is_none() {
+                next_op = self.iter.next();
             }
         }
 
         find_op
     }
 
-    pub fn seek<M: Metric>(&mut self, index: usize) -> Result<(), OTError> {
-        self.current_op = M::seek(self, index)?;
-        Ok(())
-    }
+    pub fn next_op(&mut self) -> Option<Operation> { self.next_op_with_length(None) }
+
+    pub fn has_next(&self) -> bool { self.c_index < self.next_iv.end }
 }
 
+type SeekResult = Result<(), OTError>;
 pub trait Metric {
-    fn seek<'a, 'b>(
-        cursor: &'b mut Cursor<'a>,
-        index: usize,
-    ) -> Result<Option<&'a Operation>, OTError>;
+    fn seek(cursor: &mut Cursor, index: usize) -> SeekResult;
 }
 
 pub struct OpMetric {}
 
 impl Metric for OpMetric {
-    fn seek<'a, 'b>(
-        cursor: &'b mut Cursor<'a>,
-        index: usize,
-    ) -> Result<Option<&'a Operation>, OTError> {
-        let _ = check_bound(cursor.op_index, index)?;
-
-        let mut offset = cursor.op_index;
-        let mut op_at_index = None;
-
-        while let Some(op) = cursor.iterator.next() {
-            if offset != cursor.op_index {
-                cursor.char_index += op.length();
-                cursor.op_index = offset;
-            }
-
-            offset += 1;
-            op_at_index = Some(op);
-
-            if offset >= index {
+    fn seek(cursor: &mut Cursor, index: usize) -> SeekResult {
+        let _ = check_bound(cursor.o_index, index)?;
+        let mut temp_cursor = Cursor::new(cursor.delta, cursor.origin_iv);
+        let mut offset = 0;
+        while let Some(op) = temp_cursor.iter.next() {
+            offset += op.length();
+            if offset > index {
                 break;
             }
         }
-
-        Ok(op_at_index)
+        cursor.descend(offset);
+        Ok(())
     }
 }
 
 pub struct CharMetric {}
 
 impl Metric for CharMetric {
-    fn seek<'a, 'b>(
-        cursor: &'b mut Cursor<'a>,
-        index: usize,
-    ) -> Result<Option<&'a Operation>, OTError> {
-        let _ = check_bound(cursor.char_index, index)?;
-
-        let mut offset = cursor.char_index;
-        let mut op_at_index = None;
-        while let Some(op) = cursor.iterator.next() {
-            if offset != cursor.char_index {
-                cursor.char_index = offset;
-                cursor.op_index += 1;
-            }
-
-            offset += op.length();
-            op_at_index = Some(op);
-
-            if offset >= index {
-                break;
-            }
-        }
-
-        Ok(op_at_index)
+    fn seek(cursor: &mut Cursor, index: usize) -> SeekResult {
+        let _ = check_bound(cursor.c_index, index)?;
+        let _ = cursor.next_op_with_length(Some(index));
+        Ok(())
     }
 }
 
