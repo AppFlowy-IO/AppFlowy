@@ -46,7 +46,7 @@ impl History {
             cur_undo: 1,
             undos: Vec::new(),
             redoes: Vec::new(),
-            capacity: 20,
+            capacity: MAX_UNDOS,
         }
     }
 

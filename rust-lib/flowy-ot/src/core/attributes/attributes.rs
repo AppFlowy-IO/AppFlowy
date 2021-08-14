@@ -24,6 +24,8 @@ impl Attributes {
         }
     }
 
+    pub fn empty() -> Self { Self::default() }
+
     pub fn is_empty(&self) -> bool { self.inner.is_empty() }
 
     pub fn add(&mut self, attribute: Attribute) {
@@ -93,6 +95,13 @@ pub fn compose_operation(left: &Option<Operation>, right: &Option<Operation>) ->
 
     let left = attr_left.unwrap();
     let right = attr_right.unwrap();
+    log::trace!("compose attributes: a: {:?}, b: {:?}", left, right);
+    let attr = merge_attributes(left, right);
+    log::trace!("compose attributes result: {:?}", attr);
+    attr
+}
+
+pub fn compose_attributes(left: Attributes, right: Attributes) -> Attributes {
     log::trace!("compose attributes: a: {:?}, b: {:?}", left, right);
     let attr = merge_attributes(left, right);
     log::trace!("compose attributes result: {:?}", attr);

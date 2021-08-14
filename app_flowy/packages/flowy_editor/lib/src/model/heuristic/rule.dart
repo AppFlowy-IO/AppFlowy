@@ -40,7 +40,7 @@ class Rules {
   final List<Rule> _rules;
 
   static final Rules _instance = Rules([
-    // const FormatLinkAtCaretPositionRule(),
+    const FormatLinkAtCaretPositionRule(),
     // const ResolveLineFormatRule(),
     const ResolveInlineFormatRule(),
     // const InsertEmbedsRule(),
@@ -54,7 +54,7 @@ class Rules {
     const CatchAllInsertRule(),
     // const EnsureEmbedLineRule(),
     // const PreserveLineStyleOnMergeRule(),
-    // const CatchAllDeleteRule(),
+    const CatchAllDeleteRule(),
   ]);
 
   static Rules getInstance() => _instance;

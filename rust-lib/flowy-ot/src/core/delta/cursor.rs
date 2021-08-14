@@ -31,7 +31,7 @@ impl<'a> Cursor<'a> {
         cursor
     }
 
-    pub fn next_interval(&self) -> Interval { self.next_op_interval_with_len(None) }
+    pub fn next_interval(&self) -> Interval { self.next_op_interval_with_constraint(None) }
 
     pub fn next_op_with_len(&mut self, force_len: Option<usize>) -> Option<Operation> {
         let mut find_op = None;
@@ -44,7 +44,7 @@ impl<'a> Cursor<'a> {
 
         while find_op.is_none() && next_op.is_some() {
             let op = next_op.take().unwrap();
-            let interval = self.next_op_interval_with_len(force_len);
+            let interval = self.next_op_interval_with_constraint(force_len);
             find_op = op.shrink(interval);
 
             let suffix = Interval::new(0, op.length()).suffix(interval);
@@ -65,7 +65,7 @@ impl<'a> Cursor<'a> {
 
     pub fn next_op(&mut self) -> Option<Operation> { self.next_op_with_len(None) }
 
-    pub fn has_next(&self) -> bool { self.c_index < self.next_iv.end }
+    pub fn has_next(&self) -> bool { self.next_iter_op().is_some() }
 
     fn descend(&mut self, index: usize) {
         self.next_iv.start += index;
@@ -87,16 +87,28 @@ impl<'a> Cursor<'a> {
         }
     }
 
-    pub fn current_op(&self) -> &Operation {
-        let op = self
-            .next_op
-            .as_ref()
-            .unwrap_or(&self.delta.ops[self.o_index]);
-        op
+    pub fn next_iter_op(&self) -> Option<&Operation> {
+        let mut next_op = self.next_op.as_ref();
+        if next_op.is_none() {
+            let mut offset = 0;
+            for op in &self.delta.ops {
+                offset += op.length();
+                if offset > self.c_index {
+                    next_op = Some(op);
+                    break;
+                }
+            }
+        }
+        next_op
     }
 
-    fn next_op_interval_with_len(&self, force_len: Option<usize>) -> Interval {
-        let op = self.current_op();
+    fn next_op_interval_with_constraint(&self, force_len: Option<usize>) -> Interval {
+        let next_op = self.next_iter_op();
+        if next_op.is_none() {
+            return Interval::new(0, 0);
+        }
+
+        let op = next_op.unwrap();
         let start = self.c_index;
         let end = match force_len {
             None => self.c_index + op.length(),

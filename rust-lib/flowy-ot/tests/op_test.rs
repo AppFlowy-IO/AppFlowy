@@ -148,7 +148,7 @@ fn delta_get_ops_in_interval_7() {
     delta.add(retain_a.clone());
 
     let mut iter_1 = DeltaIter::new(&delta);
-    iter_1.seek::<CharMetric>(2).unwrap();
+    iter_1.seek::<CharMetric>(2);
     assert_eq!(iter_1.next_op().unwrap(), OpBuilder::insert("345").build());
     assert_eq!(iter_1.next_op().unwrap(), OpBuilder::retain(3).build());
 
@@ -170,7 +170,7 @@ fn delta_seek_1() {
     delta.add(insert_a.clone());
     delta.add(retain_a.clone());
     let mut iter = DeltaIter::new(&delta);
-    iter.seek::<OpMetric>(1).unwrap();
+    iter.seek::<OpMetric>(1);
     assert_eq!(iter.next_op().unwrap(), OpBuilder::retain(3).build());
 }
 
@@ -230,13 +230,27 @@ fn delta_next_op_len_test() {
 
     let mut iter = DeltaIter::new(&delta);
     iter.seek::<CharMetric>(3);
-    assert_eq!(iter.next_op_len(), 2);
+    assert_eq!(iter.next_op_len().unwrap(), 2);
     assert_eq!(
         iter.next_op_with_len(1).unwrap(),
         OpBuilder::insert("4").build()
     );
-    assert_eq!(iter.next_op_len(), 1);
+    assert_eq!(iter.next_op_len().unwrap(), 1);
     assert_eq!(iter.next_op().unwrap(), OpBuilder::insert("5").build());
+}
+
+#[test]
+fn delta_next_op_len_test2() {
+    let mut delta = Delta::default();
+    delta.add(OpBuilder::insert("12345").build());
+    let mut iter = DeltaIter::new(&delta);
+
+    assert_eq!(iter.next_op_len().unwrap(), 5);
+    assert_eq!(
+        iter.next_op_with_len(5).unwrap(),
+        OpBuilder::insert("12345").build()
+    );
+    assert_eq!(iter.next_op_len(), None);
 }
 
 #[test]

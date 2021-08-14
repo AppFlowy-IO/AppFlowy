@@ -2,6 +2,7 @@ use crate::{
     client::view::{FormatExt, NEW_LINE},
     core::{
         Attribute,
+        AttributeKey,
         AttributeScope,
         Attributes,
         CharMetric,
@@ -11,16 +12,22 @@ use crate::{
         Interval,
         Operation,
     },
+    errors::OTError,
 };
 
 pub struct FormatLinkAtCaretPositionExt {}
 
 impl FormatExt for FormatLinkAtCaretPositionExt {
     fn apply(&self, delta: &Delta, interval: Interval, attribute: &Attribute) -> Option<Delta> {
+        if attribute.key != AttributeKey::Link || interval.size() != 0 {
+            return None;
+        }
+
         let mut iter = DeltaIter::new(delta);
         iter.seek::<CharMetric>(interval.start);
-        let (before, after) = (iter.next(), iter.next());
-        let mut start = interval.start;
+
+        let (before, after) = (iter.next_op_with_len(interval.size()), iter.next());
+        let mut start = interval.end;
         let mut retain = 0;
 
         if let Some(before) = before {
@@ -97,7 +104,7 @@ impl FormatExt for ResolveInlineFormatExt {
                     None => {
                         new_delta.retain(op.length(), attribute.clone().into());
                     },
-                    Some(mut line_break) => {
+                    Some(line_break) => {
                         let mut pos = 0;
                         let mut some_line_break = Some(line_break);
                         while some_line_break.is_some() {

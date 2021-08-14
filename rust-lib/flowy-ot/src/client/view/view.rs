@@ -26,10 +26,16 @@ impl View {
         }
     }
 
-    pub(crate) fn insert(&self, delta: &Delta, text: &str, index: usize) -> Result<Delta, OTError> {
+    pub(crate) fn insert(
+        &self,
+        delta: &Delta,
+        text: &str,
+        index: usize,
+        replace_len: usize,
+    ) -> Result<Delta, OTError> {
         let mut new_delta = None;
         for ext in &self.insert_exts {
-            if let Some(delta) = ext.apply(delta, 0, text, index) {
+            if let Some(delta) = ext.apply(delta, replace_len, text, index) {
                 new_delta = Some(delta);
                 break;
             }
@@ -41,13 +47,19 @@ impl View {
         }
     }
 
-    pub(crate) fn replace(
-        &self,
-        delta: &Delta,
-        text: &str,
-        interval: Interval,
-    ) -> Result<Delta, OTError> {
-        unimplemented!()
+    pub(crate) fn delete(&self, delta: &Delta, interval: Interval) -> Result<Delta, OTError> {
+        let mut new_delta = None;
+        for ext in &self.delete_exts {
+            if let Some(delta) = ext.apply(delta, interval) {
+                new_delta = Some(delta);
+                break;
+            }
+        }
+
+        match new_delta {
+            None => Err(ErrorBuilder::new(OTErrorCode::ApplyInsertFail).build()),
+            Some(new_delta) => Ok(new_delta),
+        }
     }
 
     pub(crate) fn format(
@@ -96,6 +108,6 @@ fn construct_format_exts() -> Vec<FormatExtension> {
 fn construct_delete_exts() -> Vec<DeleteExtension> {
     vec![
         //
-
+        Box::new(DefaultDeleteExt {}),
     ]
 }

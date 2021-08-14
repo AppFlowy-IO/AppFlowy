@@ -1,7 +1,4 @@
-use crate::{
-    client::Document,
-    core::{Attribute, Delta, Interval},
-};
+use crate::core::{Attribute, Delta, Interval};
 
 pub trait InsertExt {
     fn apply(&self, delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta>;

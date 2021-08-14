@@ -178,6 +178,7 @@ fn delta_undo_delete2_with_lagging() {
 fn delta_redo_delete() {
     let ops = vec![
         Insert(0, "123", 0),
+        Wait(RECORD_THRESHOLD),
         Delete(0, Interval::new(0, 3)),
         AssertOpsJson(0, r#"[{"insert":"\n"}]"#),
         Undo(0),

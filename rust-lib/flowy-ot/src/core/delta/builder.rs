@@ -16,6 +16,11 @@ impl DeltaBuilder {
         self
     }
 
+    pub fn delete(mut self, n: usize) -> Self {
+        self.delta.delete(n);
+        self
+    }
+
     pub fn insert(mut self, s: &str, attrs: Attributes) -> Self {
         self.delta.insert(s, attrs);
         self

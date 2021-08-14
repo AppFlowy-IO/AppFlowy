@@ -1,29 +1,32 @@
 use crate::{
     client::view::InsertExt,
-    core::{
-        attributes_with_length,
-        AttributeKey,
-        Attributes,
-        CharMetric,
-        Delta,
-        DeltaBuilder,
-        DeltaIter,
-        Operation,
-    },
+    core::{AttributeKey, Attributes, CharMetric, Delta, DeltaBuilder, DeltaIter, Operation},
 };
 
 pub const NEW_LINE: &'static str = "\n";
 
 pub struct PreserveBlockStyleOnInsertExt {}
 impl InsertExt for PreserveBlockStyleOnInsertExt {
-    fn apply(&self, delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta> {
+    fn apply(
+        &self,
+        _delta: &Delta,
+        _replace_len: usize,
+        _text: &str,
+        _index: usize,
+    ) -> Option<Delta> {
         None
     }
 }
 
 pub struct PreserveLineStyleOnSplitExt {}
 impl InsertExt for PreserveLineStyleOnSplitExt {
-    fn apply(&self, delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta> {
+    fn apply(
+        &self,
+        _delta: &Delta,
+        _replace_len: usize,
+        _text: &str,
+        _index: usize,
+    ) -> Option<Delta> {
         None
     }
 }
@@ -31,43 +34,90 @@ impl InsertExt for PreserveLineStyleOnSplitExt {
 pub struct AutoExitBlockExt {}
 
 impl InsertExt for AutoExitBlockExt {
-    fn apply(&self, delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta> {
+    fn apply(
+        &self,
+        _delta: &Delta,
+        _replace_len: usize,
+        _text: &str,
+        _index: usize,
+    ) -> Option<Delta> {
         None
     }
 }
 
 pub struct InsertEmbedsExt {}
 impl InsertExt for InsertEmbedsExt {
-    fn apply(&self, delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta> {
+    fn apply(
+        &self,
+        _delta: &Delta,
+        _replace_len: usize,
+        _text: &str,
+        _index: usize,
+    ) -> Option<Delta> {
         None
     }
 }
 
 pub struct ForceNewlineForInsertsAroundEmbedExt {}
 impl InsertExt for ForceNewlineForInsertsAroundEmbedExt {
-    fn apply(&self, delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta> {
+    fn apply(
+        &self,
+        _delta: &Delta,
+        _replace_len: usize,
+        _text: &str,
+        _index: usize,
+    ) -> Option<Delta> {
         None
     }
 }
 
 pub struct AutoFormatLinksExt {}
 impl InsertExt for AutoFormatLinksExt {
-    fn apply(&self, delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta> {
+    fn apply(
+        &self,
+        _delta: &Delta,
+        _replace_len: usize,
+        _text: &str,
+        _index: usize,
+    ) -> Option<Delta> {
         None
     }
 }
 
 pub struct PreserveInlineStylesExt {}
 impl InsertExt for PreserveInlineStylesExt {
-    fn apply(&self, delta: &Delta, _replace_len: usize, text: &str, index: usize) -> Option<Delta> {
+    fn apply(&self, delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta> {
         if text.ends_with(NEW_LINE) {
             return None;
         }
-        let probe_index = if index > 1 { index - 1 } else { index };
-        let attributes = attributes_with_length(delta, probe_index);
-        let delta = DeltaBuilder::new().insert(text, attributes).build();
 
-        Some(delta)
+        let mut iter = DeltaIter::new(delta);
+        let prev = iter.next_op_with_len(index);
+        if prev.is_none() {
+            return None;
+        }
+        let prev = prev.unwrap();
+        if prev.get_data().contains(NEW_LINE) {
+            return None;
+        }
+
+        let mut attributes = prev.get_attributes();
+        if attributes.is_empty() || !attributes.contains_key(&AttributeKey::Link) {
+            return Some(
+                DeltaBuilder::new()
+                    .retain(index + replace_len, Attributes::empty())
+                    .insert(text, attributes)
+                    .build(),
+            );
+        }
+
+        attributes.remove(&AttributeKey::Link);
+        let new_delta = DeltaBuilder::new()
+            .retain(index + replace_len, Attributes::empty())
+            .insert(text, attributes)
+            .build();
+
+        return Some(new_delta);
     }
 }
 
@@ -109,7 +159,7 @@ impl InsertExt for ResetLineFormatOnNewLineExt {
 
 pub struct DefaultInsertExt {}
 impl InsertExt for DefaultInsertExt {
-    fn apply(&self, delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta> {
+    fn apply(&self, _delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta> {
         Some(
             DeltaBuilder::new()
                 .retain(index + replace_len, Attributes::default())

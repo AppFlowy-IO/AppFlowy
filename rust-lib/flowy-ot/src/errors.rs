@@ -28,6 +28,7 @@ pub enum OTErrorCode {
     IncompatibleLength,
     ApplyInsertFail,
     ApplyFormatFail,
+    ComposeOperationFail,
     UndoFail,
     RedoFail,
 }

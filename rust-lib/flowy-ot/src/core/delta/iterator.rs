@@ -5,6 +5,8 @@ use crate::{
 };
 use std::ops::{Deref, DerefMut};
 
+pub(crate) const MAX_IV_LEN: usize = i32::MAX as usize;
+
 pub struct DeltaIter<'a> {
     cursor: Cursor<'a>,
     interval: Interval,
@@ -12,7 +14,7 @@ pub struct DeltaIter<'a> {
 
 impl<'a> DeltaIter<'a> {
     pub fn new(delta: &'a Delta) -> Self {
-        let interval = Interval::new(0, i32::MAX as usize);
+        let interval = Interval::new(0, MAX_IV_LEN);
         Self::from_interval(delta, interval)
     }
 
@@ -25,24 +27,48 @@ impl<'a> DeltaIter<'a> {
 
     pub fn next_op(&mut self) -> Option<Operation> { self.cursor.next_op() }
 
-    pub fn next_op_len(&self) -> usize { self.cursor.next_interval().size() }
+    pub fn next_op_len(&self) -> Option<usize> {
+        let interval = self.cursor.next_interval();
+        if interval.is_empty() {
+            None
+        } else {
+            Some(interval.size())
+        }
+    }
 
     pub fn next_op_with_len(&mut self, length: usize) -> Option<Operation> {
         self.cursor.next_op_with_len(Some(length))
     }
 
-    pub fn seek<M: Metric>(&mut self, index: usize) -> Result<(), OTError> {
-        let _ = M::seek(&mut self.cursor, index)?;
-        Ok(())
+    pub fn seek<M: Metric>(&mut self, index: usize) {
+        match M::seek(&mut self.cursor, index) {
+            Ok(_) => {},
+            Err(e) => log::error!("Seek fail: {:?}", e),
+        }
     }
 
     pub fn has_next(&self) -> bool { self.cursor.has_next() }
 
-    pub fn is_next_insert(&self) -> bool { self.cursor.current_op().is_insert() }
+    pub fn is_next_insert(&self) -> bool {
+        match self.cursor.next_iter_op() {
+            None => false,
+            Some(op) => op.is_insert(),
+        }
+    }
 
-    pub fn is_next_retain(&self) -> bool { self.cursor.current_op().is_retain() }
+    pub fn is_next_retain(&self) -> bool {
+        match self.cursor.next_iter_op() {
+            None => false,
+            Some(op) => op.is_retain(),
+        }
+    }
 
-    pub fn is_next_delete(&self) -> bool { self.cursor.current_op().is_delete() }
+    pub fn is_next_delete(&self) -> bool {
+        match self.cursor.next_iter_op() {
+            None => false,
+            Some(op) => op.is_delete(),
+        }
+    }
 }
 
 impl<'a> Iterator for DeltaIter<'a> {
@@ -52,7 +78,6 @@ impl<'a> Iterator for DeltaIter<'a> {
 
 pub struct AttributesIter<'a> {
     delta_iter: DeltaIter<'a>,
-    interval: Interval,
 }
 
 impl<'a> AttributesIter<'a> {
@@ -63,10 +88,7 @@ impl<'a> AttributesIter<'a> {
 
     pub fn from_interval(delta: &'a Delta, interval: Interval) -> Self {
         let delta_iter = DeltaIter::from_interval(delta, interval);
-        Self {
-            delta_iter,
-            interval,
-        }
+        Self { delta_iter }
     }
 
     pub fn next_or_empty(&mut self) -> Attributes {
@@ -113,14 +135,5 @@ impl<'a> Iterator for AttributesIter<'a> {
         }
 
         Some((length, attributes))
-    }
-}
-
-pub(crate) fn attributes_with_length(delta: &Delta, index: usize) -> Attributes {
-    let mut iter = AttributesIter::new(delta);
-    iter.seek::<CharMetric>(index);
-    match iter.next() {
-        None => Attributes::new(),
-        Some((_, attributes)) => attributes,
     }
 }

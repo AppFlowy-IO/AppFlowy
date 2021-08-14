@@ -62,6 +62,7 @@ impl Operation {
 
     pub fn is_empty(&self) -> bool { self.length() == 0 }
 
+    #[allow(dead_code)]
     pub fn split(&self, index: usize) -> (Option<Operation>, Option<Operation>) {
         debug_assert!(index < self.length());
         let mut left = None;
@@ -100,10 +101,14 @@ impl Operation {
                 .attributes(retain.attributes.clone())
                 .build(),
             Operation::Insert(insert) => {
-                if interval.start > insert.s.len() {
+                if interval.start > insert.num_chars() {
                     OpBuilder::insert("").build()
                 } else {
-                    let s = &insert.s[interval.start..min(interval.end, insert.s.len())];
+                    let chars = insert.chars().skip(interval.start);
+                    let s = &chars
+                        .take(min(interval.size(), insert.num_chars()))
+                        .collect::<String>();
+
                     OpBuilder::insert(s)
                         .attributes(insert.attributes.clone())
                         .build()

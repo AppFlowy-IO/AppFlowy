@@ -30,7 +30,12 @@ impl Document {
         }
     }
 
-    pub fn insert(&mut self, index: usize, text: &str) -> Result<(), OTError> {
+    pub fn insert(
+        &mut self,
+        index: usize,
+        text: &str,
+        replace_len: usize,
+    ) -> Result<Delta, OTError> {
         if self.delta.target_len < index {
             log::error!(
                 "{} out of bounds. should 0..{}",
@@ -39,37 +44,43 @@ impl Document {
             );
         }
 
-        let delta = self.view.insert(&self.delta, text, index)?;
-        let interval = Interval::new(index, index);
-        self.update_with_op(&delta, interval)
+        let delta = self.view.insert(&self.delta, text, index, replace_len)?;
+        self.add_delta(&delta)?;
+        Ok(delta)
+    }
+
+    pub fn delete(&mut self, interval: Interval) -> Result<Delta, OTError> {
+        debug_assert_eq!(interval.is_empty(), false);
+        let delete = self.view.delete(&self.delta, interval)?;
+        if !delete.is_empty() {
+            let _ = self.add_delta(&delete)?;
+        }
+        Ok(delete)
     }
 
     pub fn format(&mut self, interval: Interval, attribute: Attribute) -> Result<(), OTError> {
         log::debug!("format with {} at {}", attribute, interval);
-        // let format_delta = self
-        //     .view
-        //     .format(&self.delta, attribute.clone(), interval)
-        //     .unwrap();
-        //
-        // self.delta = self.record_change(&format_delta)?;
-        // Ok(())
+        let format_delta = self
+            .view
+            .format(&self.delta, attribute.clone(), interval)
+            .unwrap();
 
-        self.update_with_attribute(attribute, interval)
+        self.add_delta(&format_delta)?;
+        Ok(())
     }
 
-    pub fn replace(&mut self, interval: Interval, s: &str) -> Result<(), OTError> {
+    pub fn replace(&mut self, interval: Interval, s: &str) -> Result<Delta, OTError> {
         let mut delta = Delta::default();
         if !s.is_empty() {
-            let insert = OpBuilder::insert(s).build();
-            delta.add(insert);
+            delta = self.insert(interval.start, s, interval.size())?;
         }
 
         if !interval.is_empty() {
-            let delete = OpBuilder::delete(interval.size()).build();
-            delta.add(delete);
+            let delete = self.delete(interval)?;
+            delta = delta.compose(&delete)?;
         }
 
-        self.update_with_op(&delta, interval)
+        Ok(delta)
     }
 
     pub fn can_undo(&self) -> bool { self.history.can_undo() }
@@ -114,66 +125,13 @@ impl Document {
 
     pub fn set_data(&mut self, data: Delta) { self.delta = data; }
 
-    fn update_with_op(&mut self, delta: &Delta, interval: Interval) -> Result<(), OTError> {
-        let mut new_delta = Delta::default();
-        let (prefix, interval, suffix) =
-            split_length_with_interval(self.delta.target_len, interval);
-
-        // prefix
-        if prefix.is_empty() == false && prefix != interval {
-            AttributesIter::from_interval(&self.delta, prefix).for_each(|(length, attributes)| {
-                log::debug!("prefix attribute: {:?}, len: {}", attributes, length);
-                new_delta.retain(length, attributes);
-            });
-        }
-
-        delta.ops.iter().for_each(|op| {
-            new_delta.add(op.clone());
-        });
-
-        // suffix
-        if suffix.is_empty() == false {
-            AttributesIter::from_interval(&self.delta, suffix).for_each(|(length, attributes)| {
-                log::debug!("suffix attribute: {:?}, len: {}", attributes, length);
-                new_delta.retain(length, attributes);
-            });
-        }
-
-        self.delta = self.record_change(&new_delta)?;
-        Ok(())
-    }
-
-    pub fn update_with_attribute(
-        &mut self,
-        attribute: Attribute,
-        interval: Interval,
-    ) -> Result<(), OTError> {
-        log::debug!("Update document with attribute: {}", attribute);
-        let mut attributes = AttrsBuilder::new().add(attribute).build();
-        let old_attributes = AttributesIter::from_interval(&self.delta, interval).next_or_empty();
-
-        log::debug!("combine with old: {:?}", old_attributes);
-        attributes.merge(Some(old_attributes));
-        let new_attributes = attributes;
-        log::debug!("combine result: {:?}", new_attributes);
-
-        let retain = OpBuilder::retain(interval.size())
-            .attributes(new_attributes)
-            .build();
-
-        let mut delta = Delta::new();
-        delta.add(retain);
-
-        self.update_with_op(&delta, interval)
-    }
-
+    #[allow(dead_code)]
     fn next_rev_id(&self) -> RevId { RevId(self.rev_id_counter) }
 
-    fn record_change(&mut self, delta: &Delta) -> Result<Delta, OTError> {
+    fn add_delta(&mut self, delta: &Delta) -> Result<(), OTError> {
         log::debug!("👉invert change {}", delta);
         let composed_delta = self.delta.compose(delta)?;
         let mut undo_delta = delta.invert(&self.delta);
-
         self.rev_id_counter += 1;
 
         let now = chrono::Utc::now().timestamp_millis() as usize;
@@ -188,13 +146,14 @@ impl Document {
             self.last_edit_time = now;
         }
 
+        log::debug!("compose previous result: {}", undo_delta);
         if !undo_delta.is_empty() {
-            log::debug!("record change: {}", undo_delta);
             self.history.record(undo_delta);
         }
 
         log::debug!("document delta: {}", &composed_delta);
-        Ok(composed_delta)
+        self.delta = composed_delta;
+        Ok(())
     }
 
     fn invert_change(&self, change: &Delta) -> Result<(Delta, Delta), OTError> {
@@ -208,11 +167,4 @@ impl Document {
 
         Ok((new_delta, inverted_delta))
     }
-}
-
-fn split_length_with_interval(length: usize, interval: Interval) -> (Interval, Interval, Interval) {
-    let original_interval = Interval::new(0, length);
-    let prefix = original_interval.prefix(interval);
-    let suffix = original_interval.suffix(interval);
-    (prefix, interval, suffix)
 }

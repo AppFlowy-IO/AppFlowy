@@ -1,5 +1,5 @@
 use crate::{
-    core::{attributes::*, operation::*, DeltaIter, Interval},
+    core::{attributes::*, operation::*, DeltaIter, Interval, MAX_IV_LEN},
     errors::{ErrorBuilder, OTError, OTErrorCode},
 };
 use bytecount::num_chars;
@@ -141,47 +141,84 @@ impl Delta {
         }
     }
 
-    pub fn compose2(&self, other: &Self) -> Result<Self, OTError> {
-        let mut new_delta = Delta::default();
-        let mut iter_1 = DeltaIter::new(self);
-        let mut iter_2 = DeltaIter::new(other);
-
-        while iter_1.has_next() || iter_2.has_next() {
-            if iter_2.is_next_insert() {
-                new_delta.add(iter_2.next_op().unwrap());
-                continue;
-            }
-
-            if iter_1.is_next_Delete() {
-                new_delta.add(iter_1.next_op().unwrap());
-                continue;
-            }
-
-            let length = min(iter_1.next_op_len(), iter_2.next_op_len());
-            let op1 = iter_1
-                .next_op_with_len(length)
-                .unwrap_or(OpBuilder::retain(length).build());
-            let op2 = iter_2
-                .next_op_with_len(length)
-                .unwrap_or(OpBuilder::retain(length).build());
-
-            debug_assert!(op1.length())
-        }
-
-        Ok(new_delta)
-    }
-
     /// Merges the operation with `other` into one operation while preserving
     /// the changes of both. Or, in other words, for each input string S and a
     /// pair of consecutive operations A and B.
     ///     `apply(apply(S, A), B) = apply(S, compose(A, B))`
     /// must hold.
-    ///
-    /// # Error
-    ///
-    /// Returns an `OTError` if the operations are not composable due to length
-    /// conflicts.
     pub fn compose(&self, other: &Self) -> Result<Self, OTError> {
+        let mut new_delta = Delta::default();
+        let mut iter = DeltaIter::new(self);
+        let mut other_iter = DeltaIter::new(other);
+
+        while iter.has_next() || other_iter.has_next() {
+            if other_iter.is_next_insert() {
+                new_delta.add(other_iter.next_op().unwrap());
+                continue;
+            }
+
+            if iter.is_next_delete() {
+                new_delta.add(iter.next_op().unwrap());
+                continue;
+            }
+
+            let length = min(
+                iter.next_op_len().unwrap_or(MAX_IV_LEN),
+                other_iter.next_op_len().unwrap_or(MAX_IV_LEN),
+            );
+
+            let op = iter
+                .next_op_with_len(length)
+                .unwrap_or(OpBuilder::retain(length).build());
+
+            let other_op = other_iter
+                .next_op_with_len(length)
+                .unwrap_or(OpBuilder::retain(length).build());
+
+            debug_assert_eq!(op.length(), other_op.length());
+
+            match (&op, &other_op) {
+                (Operation::Retain(retain), Operation::Retain(other_retain)) => {
+                    let composed_attrs = compose_attributes(
+                        retain.attributes.clone(),
+                        other_retain.attributes.clone(),
+                    );
+                    new_delta.add(
+                        OpBuilder::retain(retain.n)
+                            .attributes(composed_attrs)
+                            .build(),
+                    )
+                },
+                (Operation::Insert(insert), Operation::Retain(other_retain)) => {
+                    let mut composed_attrs = compose_attributes(
+                        insert.attributes.clone(),
+                        other_retain.attributes.clone(),
+                    );
+                    composed_attrs = composed_attrs.remove_empty();
+                    new_delta.add(
+                        OpBuilder::insert(op.get_data())
+                            .attributes(composed_attrs)
+                            .build(),
+                    )
+                },
+                (Operation::Retain(_), Operation::Delete(_)) => {
+                    new_delta.add(other_op);
+                },
+                (a, b) => {
+                    debug_assert_eq!(a.is_insert(), true);
+                    debug_assert_eq!(b.is_delete(), true);
+                    continue;
+                },
+            }
+        }
+
+        Ok(new_delta)
+    }
+
+    #[deprecated(
+        note = "The same as compose except it requires the target_len of self must equal to other's base_len"
+    )]
+    pub fn compose2(&self, other: &Self) -> Result<Self, OTError> {
         if self.target_len != other.base_len {
             return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength).build());
         }
