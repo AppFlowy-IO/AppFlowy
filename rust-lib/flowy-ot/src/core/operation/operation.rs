@@ -65,8 +65,8 @@ impl Operation {
     #[allow(dead_code)]
     pub fn split(&self, index: usize) -> (Option<Operation>, Option<Operation>) {
         debug_assert!(index < self.length());
-        let mut left = None;
-        let mut right = None;
+        let left;
+        let right;
         match self {
             Operation::Delete(n) => {
                 left = Some(OpBuilder::delete(index).build());

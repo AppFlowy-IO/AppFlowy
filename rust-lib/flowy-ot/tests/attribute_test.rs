@@ -147,12 +147,6 @@ fn delta_add_bold_consecutive() {
 }
 
 #[test]
-fn delta_add_bold_empty_str() {
-    let ops = vec![Bold(0, Interval::new(0, 4), true)];
-    OpTester::new().run_script(ops);
-}
-
-#[test]
 fn delta_add_bold_italic() {
     let ops = vec![
         Insert(0, "1234", 0),

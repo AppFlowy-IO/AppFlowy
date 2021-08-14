@@ -12,7 +12,6 @@ use crate::{
         Interval,
         Operation,
     },
-    errors::OTError,
 };
 
 pub struct FormatLinkAtCaretPositionExt {}
@@ -51,8 +50,8 @@ impl FormatExt for FormatLinkAtCaretPositionExt {
 
         Some(
             DeltaBuilder::new()
-                .retain(start, Attributes::default())
-                .retain(retain, (attribute.clone()).into())
+                .retain(start)
+                .retain_with_attributes(retain, (attribute.clone()).into())
                 .build(),
         )
     }
@@ -82,10 +81,7 @@ impl FormatExt for ResolveInlineFormatExt {
         if attribute.scope != AttributeScope::Inline {
             return None;
         }
-        let mut new_delta = DeltaBuilder::new()
-            .retain(interval.start, Attributes::default())
-            .build();
-
+        let mut new_delta = DeltaBuilder::new().retain(interval.start).build();
         let mut iter = DeltaIter::new(delta);
         iter.seek::<CharMetric>(interval.start);
 

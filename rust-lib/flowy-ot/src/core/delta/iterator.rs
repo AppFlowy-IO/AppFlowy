@@ -1,15 +1,11 @@
 use super::cursor::*;
-use crate::{
-    core::{Attributes, Delta, Interval, Operation},
-    errors::OTError,
-};
+use crate::core::{Attributes, Delta, Interval, Operation};
 use std::ops::{Deref, DerefMut};
 
 pub(crate) const MAX_IV_LEN: usize = i32::MAX as usize;
 
 pub struct DeltaIter<'a> {
     cursor: Cursor<'a>,
-    interval: Interval,
 }
 
 impl<'a> DeltaIter<'a> {
@@ -20,7 +16,7 @@ impl<'a> DeltaIter<'a> {
 
     pub fn from_interval(delta: &'a Delta, interval: Interval) -> Self {
         let cursor = Cursor::new(delta, interval);
-        Self { cursor, interval }
+        Self { cursor }
     }
 
     pub fn ops(&mut self) -> Vec<Operation> { self.collect::<Vec<_>>() }

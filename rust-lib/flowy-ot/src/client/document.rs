@@ -1,7 +1,7 @@
 use crate::{
     client::{view::View, History, RevId, UndoResult},
     core::*,
-    errors::{ErrorBuilder, OTError, OTErrorCode::*},
+    errors::{ErrorBuilder, OTError, OTErrorCode, OTErrorCode::*},
 };
 
 pub const RECORD_THRESHOLD: usize = 400; // in milliseconds
@@ -30,26 +30,16 @@ impl Document {
         }
     }
 
-    pub fn insert(
-        &mut self,
-        index: usize,
-        text: &str,
-        replace_len: usize,
-    ) -> Result<Delta, OTError> {
-        if self.delta.target_len < index {
-            log::error!(
-                "{} out of bounds. should 0..{}",
-                index,
-                self.delta.target_len
-            );
-        }
-
-        let delta = self.view.insert(&self.delta, text, index, replace_len)?;
+    pub fn insert(&mut self, index: usize, text: &str) -> Result<Delta, OTError> {
+        let interval = Interval::new(index, index);
+        let _ = validate_interval(&self.delta, &interval)?;
+        let delta = self.view.insert(&self.delta, text, interval)?;
         self.add_delta(&delta)?;
         Ok(delta)
     }
 
     pub fn delete(&mut self, interval: Interval) -> Result<Delta, OTError> {
+        let _ = validate_interval(&self.delta, &interval)?;
         debug_assert_eq!(interval.is_empty(), false);
         let delete = self.view.delete(&self.delta, interval)?;
         if !delete.is_empty() {
@@ -59,6 +49,7 @@ impl Document {
     }
 
     pub fn format(&mut self, interval: Interval, attribute: Attribute) -> Result<(), OTError> {
+        let _ = validate_interval(&self.delta, &interval)?;
         log::debug!("format with {} at {}", attribute, interval);
         let format_delta = self
             .view
@@ -69,10 +60,12 @@ impl Document {
         Ok(())
     }
 
-    pub fn replace(&mut self, interval: Interval, s: &str) -> Result<Delta, OTError> {
+    pub fn replace(&mut self, interval: Interval, text: &str) -> Result<Delta, OTError> {
+        let _ = validate_interval(&self.delta, &interval)?;
         let mut delta = Delta::default();
-        if !s.is_empty() {
-            delta = self.insert(interval.start, s, interval.size())?;
+        if !text.is_empty() {
+            delta = self.view.insert(&self.delta, text, interval)?;
+            self.add_delta(&delta)?;
         }
 
         if !interval.is_empty() {
@@ -124,10 +117,9 @@ impl Document {
     pub fn data(&self) -> &Delta { &self.delta }
 
     pub fn set_data(&mut self, data: Delta) { self.delta = data; }
+}
 
-    #[allow(dead_code)]
-    fn next_rev_id(&self) -> RevId { RevId(self.rev_id_counter) }
-
+impl Document {
     fn add_delta(&mut self, delta: &Delta) -> Result<(), OTError> {
         log::debug!("👉invert change {}", delta);
         let composed_delta = self.delta.compose(delta)?;
@@ -163,8 +155,21 @@ impl Document {
         log::debug!("👉invert change {}", change);
         let new_delta = self.delta.compose(change)?;
         let inverted_delta = change.invert(&self.delta);
-        // trim(&mut inverted_delta);
-
         Ok((new_delta, inverted_delta))
     }
+
+    #[allow(dead_code)]
+    fn next_rev_id(&self) -> RevId { RevId(self.rev_id_counter) }
+}
+
+fn validate_interval(delta: &Delta, interval: &Interval) -> Result<(), OTError> {
+    if delta.target_len < interval.end {
+        log::error!(
+            "{:?} out of bounds. should 0..{}",
+            interval,
+            delta.target_len
+        );
+        return Err(ErrorBuilder::new(OTErrorCode::IntervalOutOfBound).build());
+    }
+    Ok(())
 }

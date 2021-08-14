@@ -27,8 +27,10 @@ impl Error for OTError {
 pub enum OTErrorCode {
     IncompatibleLength,
     ApplyInsertFail,
+    ApplyDeleteFail,
     ApplyFormatFail,
     ComposeOperationFail,
+    IntervalOutOfBound,
     UndoFail,
     RedoFail,
 }

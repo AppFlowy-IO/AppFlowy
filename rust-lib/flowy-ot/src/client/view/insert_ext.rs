@@ -1,6 +1,6 @@
 use crate::{
     client::view::InsertExt,
-    core::{AttributeKey, Attributes, CharMetric, Delta, DeltaBuilder, DeltaIter, Operation},
+    core::{AttributeKey, Attributes, CharMetric, Delta, DeltaBuilder, DeltaIter},
 };
 
 pub const NEW_LINE: &'static str = "\n";
@@ -92,11 +92,7 @@ impl InsertExt for PreserveInlineStylesExt {
         }
 
         let mut iter = DeltaIter::new(delta);
-        let prev = iter.next_op_with_len(index);
-        if prev.is_none() {
-            return None;
-        }
-        let prev = prev.unwrap();
+        let prev = iter.next_op_with_len(index)?;
         if prev.get_data().contains(NEW_LINE) {
             return None;
         }
@@ -105,16 +101,16 @@ impl InsertExt for PreserveInlineStylesExt {
         if attributes.is_empty() || !attributes.contains_key(&AttributeKey::Link) {
             return Some(
                 DeltaBuilder::new()
-                    .retain(index + replace_len, Attributes::empty())
-                    .insert(text, attributes)
+                    .retain(index + replace_len)
+                    .insert_with_attributes(text, attributes)
                     .build(),
             );
         }
 
         attributes.remove(&AttributeKey::Link);
         let new_delta = DeltaBuilder::new()
-            .retain(index + replace_len, Attributes::empty())
-            .insert(text, attributes)
+            .retain(index + replace_len)
+            .insert_with_attributes(text, attributes)
             .build();
 
         return Some(new_delta);
@@ -130,27 +126,22 @@ impl InsertExt for ResetLineFormatOnNewLineExt {
 
         let mut iter = DeltaIter::new(delta);
         iter.seek::<CharMetric>(index);
-        let maybe_next_op = iter.next();
-        if maybe_next_op.is_none() {
-            return None;
-        }
-
-        let op = maybe_next_op.unwrap();
-        if !op.get_data().starts_with(NEW_LINE) {
+        let next_op = iter.next()?;
+        if !next_op.get_data().starts_with(NEW_LINE) {
             return None;
         }
 
         let mut reset_attribute = Attributes::new();
-        if op.get_attributes().contains_key(&AttributeKey::Header) {
+        if next_op.get_attributes().contains_key(&AttributeKey::Header) {
             reset_attribute.add(AttributeKey::Header.with_value(""));
         }
 
         let len = index + replace_len;
         Some(
             DeltaBuilder::new()
-                .retain(len, Attributes::default())
-                .insert(NEW_LINE, op.get_attributes())
-                .retain(1, reset_attribute)
+                .retain(len)
+                .insert_with_attributes(NEW_LINE, next_op.get_attributes())
+                .retain_with_attributes(1, reset_attribute)
                 .trim()
                 .build(),
         )
@@ -162,8 +153,8 @@ impl InsertExt for DefaultInsertExt {
     fn apply(&self, _delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta> {
         Some(
             DeltaBuilder::new()
-                .retain(index + replace_len, Attributes::default())
-                .insert(text, Attributes::default())
+                .retain(index + replace_len)
+                .insert(text)
                 .build(),
         )
     }

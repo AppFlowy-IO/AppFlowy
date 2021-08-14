@@ -1,12 +1,8 @@
 use crate::{
-    client::view::{DeleteExt, FormatExt, InsertExt, *},
+    client::view::*,
     core::{Attribute, Delta, Interval},
     errors::{ErrorBuilder, OTError, OTErrorCode},
 };
-
-type InsertExtension = Box<dyn InsertExt>;
-type FormatExtension = Box<dyn FormatExt>;
-type DeleteExtension = Box<dyn DeleteExt>;
 
 pub struct View {
     insert_exts: Vec<InsertExtension>,
@@ -16,13 +12,10 @@ pub struct View {
 
 impl View {
     pub(crate) fn new() -> Self {
-        let insert_exts = construct_insert_exts();
-        let format_exts = construct_format_exts();
-        let delete_exts = construct_delete_exts();
         Self {
-            insert_exts,
-            format_exts,
-            delete_exts,
+            insert_exts: construct_insert_exts(),
+            format_exts: construct_format_exts(),
+            delete_exts: construct_delete_exts(),
         }
     }
 
@@ -30,12 +23,11 @@ impl View {
         &self,
         delta: &Delta,
         text: &str,
-        index: usize,
-        replace_len: usize,
+        interval: Interval,
     ) -> Result<Delta, OTError> {
         let mut new_delta = None;
         for ext in &self.insert_exts {
-            if let Some(delta) = ext.apply(delta, replace_len, text, index) {
+            if let Some(delta) = ext.apply(delta, interval.size(), text, interval.start) {
                 new_delta = Some(delta);
                 break;
             }
@@ -57,7 +49,7 @@ impl View {
         }
 
         match new_delta {
-            None => Err(ErrorBuilder::new(OTErrorCode::ApplyInsertFail).build()),
+            None => Err(ErrorBuilder::new(OTErrorCode::ApplyDeleteFail).build()),
             Some(new_delta) => Ok(new_delta),
         }
     }

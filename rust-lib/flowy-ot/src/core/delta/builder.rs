@@ -11,8 +11,13 @@ impl DeltaBuilder {
         }
     }
 
-    pub fn retain(mut self, n: usize, attrs: Attributes) -> Self {
+    pub fn retain_with_attributes(mut self, n: usize, attrs: Attributes) -> Self {
         self.delta.retain(n, attrs);
+        self
+    }
+
+    pub fn retain(mut self, n: usize) -> Self {
+        self.delta.retain(n, Attributes::empty());
         self
     }
 
@@ -21,8 +26,13 @@ impl DeltaBuilder {
         self
     }
 
-    pub fn insert(mut self, s: &str, attrs: Attributes) -> Self {
+    pub fn insert_with_attributes(mut self, s: &str, attrs: Attributes) -> Self {
         self.delta.insert(s, attrs);
+        self
+    }
+
+    pub fn insert(mut self, s: &str) -> Self {
+        self.delta.insert(s, Attributes::empty());
         self
     }
 
