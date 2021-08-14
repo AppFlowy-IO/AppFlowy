@@ -111,7 +111,6 @@ class EditorController extends ChangeNotifier {
     Delta? delta;
     if (length > 0 || data is! String || data.isNotEmpty) {
       delta = document.replace(index, length, data);
-      print(delta);
       var shouldRetainDelta = toggledStyle.isNotEmpty &&
           delta.isNotEmpty &&
           delta.length <= 2 &&

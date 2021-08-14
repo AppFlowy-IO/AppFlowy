@@ -53,6 +53,7 @@ dependencies:
   sized_context: ^1.0.0+1
   styled_widget: '>=0.3.1'
   expandable: ^5.0.1
+  flutter_svg: ^0.22.0
 
 
   # The following adds the Cupertino Icons font to your application.

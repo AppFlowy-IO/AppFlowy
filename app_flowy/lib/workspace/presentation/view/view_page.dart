@@ -44,11 +44,10 @@ class ViewPage extends StatelessWidget {
       BuildContext context, bool onHover, HoverDisplayConfig config) {
     const double width = 22;
     List<Widget> children = [
-      Image(
-          fit: BoxFit.cover,
+      SizedBox(
           width: width,
           height: width,
-          image: assetImageForViewType(viewCtx.view.viewType)),
+          child: svgImageForViewType(viewCtx.view.viewType)),
       const HSpace(6),
       Text(
         viewCtx.view.name,
