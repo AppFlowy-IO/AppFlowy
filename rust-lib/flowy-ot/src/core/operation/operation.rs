@@ -34,15 +34,9 @@ impl Operation {
 
     pub fn set_attributes(&mut self, attributes: Attributes) {
         match self {
-            Operation::Delete(_) => {
-                log::error!("Delete should not contains attributes");
-            },
-            Operation::Retain(retain) => {
-                retain.attributes = attributes;
-            },
-            Operation::Insert(insert) => {
-                insert.attributes = attributes;
-            },
+            Operation::Delete(_) => log::error!("Delete should not contains attributes"),
+            Operation::Retain(retain) => retain.attributes = attributes,
+            Operation::Insert(insert) => insert.attributes = attributes,
         }
     }
 
@@ -52,7 +46,7 @@ impl Operation {
         self.get_attributes().contains_key(&attribute.key)
     }
 
-    pub fn length(&self) -> usize {
+    pub fn len(&self) -> usize {
         match self {
             Operation::Delete(n) => *n,
             Operation::Retain(r) => r.n,
@@ -60,11 +54,11 @@ impl Operation {
         }
     }
 
-    pub fn is_empty(&self) -> bool { self.length() == 0 }
+    pub fn is_empty(&self) -> bool { self.len() == 0 }
 
     #[allow(dead_code)]
     pub fn split(&self, index: usize) -> (Option<Operation>, Option<Operation>) {
-        debug_assert!(index < self.length());
+        debug_assert!(index < self.len());
         let left;
         let right;
         match self {

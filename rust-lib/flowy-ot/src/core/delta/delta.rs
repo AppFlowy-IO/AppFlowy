@@ -175,7 +175,7 @@ impl Delta {
                 .next_op_before(length)
                 .unwrap_or(OpBuilder::retain(length).build());
 
-            debug_assert_eq!(op.length(), other_op.length());
+            debug_assert_eq!(op.len(), other_op.len());
 
             match (&op, &other_op) {
                 (Operation::Retain(retain), Operation::Retain(other_retain)) => {
@@ -554,7 +554,7 @@ impl Delta {
         log::debug!("other: {}", other);
         let mut index = 0;
         for op in &self.ops {
-            let len: usize = op.length() as usize;
+            let len: usize = op.len() as usize;
             match op {
                 Operation::Delete(n) => {
                     invert_from_other(&mut inverted, other, op, index, index + *n);
@@ -629,10 +629,10 @@ fn invert_from_other(
             log::debug!(
                 "invert retain: {} by retain len: {}, {}",
                 retain,
-                other_op.length(),
+                other_op.len(),
                 inverted_attrs
             );
-            base.retain(other_op.length(), inverted_attrs);
+            base.retain(other_op.len(), inverted_attrs);
         },
         Operation::Insert(_) => {
             log::error!("Impossible to here. Insert operation should be treated as delete")

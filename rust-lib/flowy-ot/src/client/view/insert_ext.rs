@@ -1,6 +1,6 @@
 use crate::{
     client::view::InsertExt,
-    core::{AttributeKey, Attributes, CharMetric, Delta, DeltaBuilder, DeltaIter, Operation},
+    core::{AttributeKey, Attributes, CharMetric, Delta, DeltaBuilder, DeltaIter},
 };
 
 pub const NEW_LINE: &'static str = "\n";
@@ -169,7 +169,7 @@ impl InsertExt for DefaultInsertExt {
     fn ext_name(&self) -> &str { "DefaultInsertExt" }
 
     fn apply(&self, delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta> {
-        let mut iter = DeltaIter::new(delta);
+        let iter = DeltaIter::new(delta);
         let mut attributes = Attributes::new();
 
         if text.ends_with(NEW_LINE) {

@@ -1,8 +1,8 @@
-use crate::core::{Attributes, Delta, Operation};
+use crate::core::{Attributes, Operation};
 use serde::{
     de,
-    de::{MapAccess, SeqAccess, Visitor},
-    ser::{SerializeMap, SerializeSeq},
+    de::{MapAccess, Visitor},
+    ser::SerializeMap,
     Deserialize,
     Deserializer,
     Serialize,

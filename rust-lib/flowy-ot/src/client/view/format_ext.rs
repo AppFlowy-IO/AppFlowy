@@ -1,5 +1,5 @@
 use crate::{
-    client::view::{util::find_newline, FormatExt, NEW_LINE},
+    client::view::{util::find_newline, FormatExt},
     core::{
         Attribute,
         AttributeKey,
@@ -33,15 +33,15 @@ impl FormatExt for FormatLinkAtCaretPositionExt {
 
         if let Some(before) = before {
             if before.contain_attribute(attribute) {
-                start -= before.length();
-                retain += before.length();
+                start -= before.len();
+                retain += before.len();
             }
         }
 
         if let Some(after) = after {
             if after.contain_attribute(attribute) {
                 if retain != 0 {
-                    retain += after.length();
+                    retain += after.len();
                 }
             }
         }
@@ -76,14 +76,14 @@ impl FormatExt for ResolveBlockFormatExt {
         while start < end && iter.has_next() {
             let next_op = iter.next_op_before(end - start).unwrap();
             match find_newline(next_op.get_data()) {
-                None => new_delta.retain(next_op.length(), Attributes::empty()),
+                None => new_delta.retain(next_op.len(), Attributes::empty()),
                 Some(_) => {
                     let tmp_delta = line_break(&next_op, attribute, AttributeScope::Block);
                     new_delta.extend(tmp_delta);
                 },
             }
 
-            start += next_op.length();
+            start += next_op.len();
         }
 
         while iter.has_next() {
@@ -92,7 +92,7 @@ impl FormatExt for ResolveBlockFormatExt {
                 .expect("Unexpected None, iter.has_next() must return op");
 
             match find_newline(op.get_data()) {
-                None => new_delta.retain(op.length(), Attributes::empty()),
+                None => new_delta.retain(op.len(), Attributes::empty()),
                 Some(line_break) => {
                     debug_assert_eq!(line_break, 0);
                     new_delta.retain(1, attribute.clone().into());
@@ -123,14 +123,14 @@ impl FormatExt for ResolveInlineFormatExt {
         while start < end && iter.has_next() {
             let next_op = iter.next_op_before(end - start).unwrap();
             match find_newline(next_op.get_data()) {
-                None => new_delta.retain(next_op.length(), attribute.clone().into()),
+                None => new_delta.retain(next_op.len(), attribute.clone().into()),
                 Some(_) => {
                     let tmp_delta = line_break(&next_op, attribute, AttributeScope::Inline);
                     new_delta.extend(tmp_delta);
                 },
             }
 
-            start += next_op.length();
+            start += next_op.len();
         }
 
         Some(new_delta)
@@ -140,7 +140,7 @@ impl FormatExt for ResolveInlineFormatExt {
 fn line_break(op: &Operation, attribute: &Attribute, scope: AttributeScope) -> Delta {
     let mut new_delta = Delta::new();
     let mut start = 0;
-    let end = op.length();
+    let end = op.len();
     let mut s = op.get_data();
 
     while let Some(line_break) = find_newline(s) {

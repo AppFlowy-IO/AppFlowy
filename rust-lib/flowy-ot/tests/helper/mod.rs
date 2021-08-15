@@ -1,8 +1,5 @@
 use derive_more::Display;
-use flowy_ot::{
-    client::Document,
-    core::{REMOVE_FLAG, *},
-};
+use flowy_ot::{client::Document, core::*};
 use rand::{prelude::*, Rng as WrappedRng};
 use std::{sync::Once, time::Duration};
 
@@ -63,7 +60,7 @@ impl OpTester {
         static INIT: Once = Once::new();
         INIT.call_once(|| {
             color_eyre::install().unwrap();
-            std::env::set_var("RUST_LOG", "debug");
+            std::env::set_var("RUST_LOG", "info");
             env_logger::init();
         });
 

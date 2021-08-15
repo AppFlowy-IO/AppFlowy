@@ -1,6 +1,6 @@
 use crate::{
     client::view::*,
-    core::{Attribute, Delta, Interval, Operation},
+    core::{Attribute, Delta, Interval},
     errors::{ErrorBuilder, OTError, OTErrorCode},
 };
 
