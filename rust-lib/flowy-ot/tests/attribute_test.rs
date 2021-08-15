@@ -43,11 +43,11 @@ fn attributes_insert_text_with_attr() {
             0,
             r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"345"}]"#,
         ),
-        /* Insert(0, "abc", 1),
-         * AssertOpsJson(
-         *     0,
-         *     r#"[{"insert":"1abc2","attributes":{"bold":"true"}},{"insert":"345"}]"#,
-         * ), */
+        Insert(0, "abc", 1),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"1abc2","attributes":{"bold":"true"}},{"insert":"345"}]"#,
+        ),
     ];
     OpTester::new().run_script(ops);
 }
