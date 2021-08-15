@@ -24,7 +24,7 @@ impl<'a> DeltaIter<'a> {
     pub fn next_op(&mut self) -> Option<Operation> { self.cursor.next_op() }
 
     pub fn next_op_len(&self) -> Option<usize> {
-        let interval = self.cursor.next_interval();
+        let interval = self.cursor.next_iv();
         if interval.is_empty() {
             None
         } else {
@@ -32,8 +32,8 @@ impl<'a> DeltaIter<'a> {
         }
     }
 
-    pub fn next_op_with_len(&mut self, length: usize) -> Option<Operation> {
-        self.cursor.next_op_with_len(Some(length))
+    pub fn next_op_before(&mut self, index: usize) -> Option<Operation> {
+        self.cursor.next_op_before(Some(index))
     }
 
     pub fn seek<M: Metric>(&mut self, index: usize) {

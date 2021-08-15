@@ -106,7 +106,7 @@ impl InsertExt for PreserveInlineStylesExt {
         }
 
         let mut iter = DeltaIter::new(delta);
-        let prev = iter.next_op_with_len(index)?;
+        let prev = iter.next_op_before(index)?;
         if prev.get_data().contains(NEW_LINE) {
             return None;
         }

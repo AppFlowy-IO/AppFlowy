@@ -9,8 +9,8 @@ pub struct Cursor<'a> {
     pub(crate) delta: &'a Delta,
     pub(crate) origin_iv: Interval,
     pub(crate) next_iv: Interval,
-    pub(crate) c_index: usize,
-    pub(crate) o_index: usize,
+    pub(crate) iter_char_count: usize,
+    pub(crate) iter_op_index: usize,
     iter: Enumerate<Iter<'a, Operation>>,
     next_op: Option<Operation>,
 }
@@ -22,8 +22,8 @@ impl<'a> Cursor<'a> {
             delta,
             origin_iv: interval,
             next_iv: interval,
-            c_index: 0,
-            o_index: 0,
+            iter_char_count: 0,
+            iter_op_index: 0,
             iter: delta.ops.iter().enumerate(),
             next_op: None,
         };
@@ -31,9 +31,11 @@ impl<'a> Cursor<'a> {
         cursor
     }
 
-    pub fn next_interval(&self) -> Interval { self.next_op_interval_with_constraint(None) }
+    pub fn next_iv(&self) -> Interval { self.next_op_iv_before(None) }
 
-    pub fn next_op_with_len(&mut self, force_len: Option<usize>) -> Option<Operation> {
+    pub fn next_op(&mut self) -> Option<Operation> { self.next_op_before(None) }
+
+    pub fn next_op_before(&mut self, b_index: Option<usize>) -> Option<Operation> {
         let mut find_op = None;
         let next_op = self.next_op.take();
         let mut next_op = next_op.as_ref();
@@ -42,10 +44,10 @@ impl<'a> Cursor<'a> {
             next_op = find_next_op(self);
         }
 
-        let old_c_index = self.c_index;
+        let old_iter_char_count = self.iter_char_count;
         while find_op.is_none() && next_op.is_some() {
             let op = next_op.take().unwrap();
-            let interval = self.next_op_interval_with_constraint(force_len);
+            let interval = self.next_op_iv_before(b_index);
             if interval.is_empty() {
                 self.next_op = Some(op.clone());
                 break;
@@ -57,8 +59,8 @@ impl<'a> Cursor<'a> {
                 self.next_op = op.shrink(suffix);
             }
 
-            self.c_index += interval.end;
-            self.next_iv.start = self.c_index;
+            self.iter_char_count += interval.end;
+            self.next_iv.start = self.iter_char_count;
 
             if find_op.is_none() {
                 next_op = find_next_op(self);
@@ -66,33 +68,31 @@ impl<'a> Cursor<'a> {
         }
 
         if find_op.is_some() {
-            let last = self.c_index - old_c_index;
-            let force_len = force_len.unwrap_or(0);
+            let last = self.iter_char_count - old_iter_char_count;
+            let force_len = b_index.unwrap_or(0);
             if force_len > last {
                 let len = force_len - last;
-                return self.next_op_with_len(Some(len));
+                return self.next_op_before(Some(len));
             }
         }
         return find_op;
     }
-
-    pub fn next_op(&mut self) -> Option<Operation> { self.next_op_with_len(None) }
 
     pub fn has_next(&self) -> bool { self.next_iter_op().is_some() }
 
     fn descend(&mut self, index: usize) {
         self.next_iv.start += index;
 
-        if self.c_index >= self.next_iv.start {
+        if self.iter_char_count >= self.next_iv.start {
             return;
         }
         while let Some((o_index, op)) = self.iter.next() {
-            self.o_index = o_index;
-            let start = self.c_index;
+            self.iter_op_index = o_index;
+            let start = self.iter_char_count;
             let end = start + op.length();
             let intersect = Interval::new(start, end).intersect(self.next_iv);
             if intersect.is_empty() {
-                self.c_index += op.length();
+                self.iter_char_count += op.length();
             } else {
                 self.next_op = Some(op.clone());
                 break;
@@ -106,7 +106,7 @@ impl<'a> Cursor<'a> {
             let mut offset = 0;
             for op in &self.delta.ops {
                 offset += op.length();
-                if offset > self.c_index {
+                if offset > self.iter_char_count {
                     next_op = Some(op);
                     break;
                 }
@@ -115,17 +115,17 @@ impl<'a> Cursor<'a> {
         next_op
     }
 
-    fn next_op_interval_with_constraint(&self, force_len: Option<usize>) -> Interval {
+    fn next_op_iv_before(&self, b_index: Option<usize>) -> Interval {
         let next_op = self.next_iter_op();
         if next_op.is_none() {
             return Interval::new(0, 0);
         }
 
         let op = next_op.unwrap();
-        let start = self.c_index;
-        let end = match force_len {
-            None => self.c_index + op.length(),
-            Some(force_len) => self.c_index + min(force_len, op.length()),
+        let start = self.iter_char_count;
+        let end = match b_index {
+            None => self.iter_char_count + op.length(),
+            Some(b_index) => self.iter_char_count + min(b_index, op.length()),
         };
         let intersect = Interval::new(start, end).intersect(self.next_iv);
         let interval = intersect.translate_neg(start);
@@ -137,7 +137,7 @@ fn find_next_op<'a>(cursor: &mut Cursor<'a>) -> Option<&'a Operation> {
     match cursor.iter.next() {
         None => None,
         Some((o_index, op)) => {
-            cursor.o_index = o_index;
+            cursor.iter_op_index = o_index;
             Some(op)
         },
     }
@@ -152,7 +152,7 @@ pub struct OpMetric {}
 
 impl Metric for OpMetric {
     fn seek(cursor: &mut Cursor, index: usize) -> SeekResult {
-        let _ = check_bound(cursor.o_index, index)?;
+        let _ = check_bound(cursor.iter_op_index, index)?;
         let mut temp_cursor = Cursor::new(cursor.delta, cursor.origin_iv);
         let mut offset = 0;
         while let Some((_, op)) = temp_cursor.iter.next() {
@@ -170,8 +170,8 @@ pub struct CharMetric {}
 
 impl Metric for CharMetric {
     fn seek(cursor: &mut Cursor, index: usize) -> SeekResult {
-        let _ = check_bound(cursor.c_index, index)?;
-        let _ = cursor.next_op_with_len(Some(index));
+        let _ = check_bound(cursor.iter_char_count, index)?;
+        let _ = cursor.next_op_before(Some(index));
 
         Ok(())
     }

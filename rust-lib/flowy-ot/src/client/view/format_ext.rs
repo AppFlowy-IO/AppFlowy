@@ -27,7 +27,7 @@ impl FormatExt for FormatLinkAtCaretPositionExt {
         let mut iter = DeltaIter::new(delta);
         iter.seek::<CharMetric>(interval.start);
 
-        let (before, after) = (iter.next_op_with_len(interval.size()), iter.next());
+        let (before, after) = (iter.next_op_before(interval.size()), iter.next());
         let mut start = interval.end;
         let mut retain = 0;
 
@@ -74,7 +74,7 @@ impl FormatExt for ResolveBlockFormatExt {
         let mut start = 0;
         let end = interval.size();
         while start < end && iter.has_next() {
-            let next_op = iter.next_op_with_len(end - start).unwrap();
+            let next_op = iter.next_op_before(end - start).unwrap();
             match find_newline(next_op.get_data()) {
                 None => new_delta.retain(next_op.length(), Attributes::empty()),
                 Some(_) => {
@@ -121,7 +121,7 @@ impl FormatExt for ResolveInlineFormatExt {
         let end = interval.size();
 
         while start < end && iter.has_next() {
-            let next_op = iter.next_op_with_len(end - start).unwrap();
+            let next_op = iter.next_op_before(end - start).unwrap();
             match find_newline(next_op.get_data()) {
                 None => new_delta.retain(next_op.length(), attribute.clone().into()),
                 Some(_) => {
