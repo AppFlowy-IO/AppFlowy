@@ -52,6 +52,7 @@ class Document {
   bool get hasRedo => _history.hasRedo;
 
   Delta insert(int index, Object? data, {int replaceLength = 0}) {
+    print('insert $data at $index');
     assert(index >= 0);
     assert(data is String || data is Embeddable);
     if (data is Embeddable) {
@@ -67,7 +68,10 @@ class Document {
       data: data,
       length: replaceLength,
     );
+
+    print('insert delta: $delta');
     compose(delta, ChangeSource.LOCAL);
+    print('compose insert, current document $_delta');
     return delta;
   }
 
@@ -76,6 +80,7 @@ class Document {
     final delta = _rules.apply(RuleType.DELETE, this, index, length: length);
     if (delta.isNotEmpty) {
       compose(delta, ChangeSource.LOCAL);
+      print('compose delete, current document $_delta');
     }
     return delta;
   }
@@ -92,14 +97,17 @@ class Document {
     // We have to insert before applying delete rules
     // Otherwise delete would be operating on stale document snapshot.
     if (dataIsNotEmpty) {
+      print('insert $data at $index, replace len: $length');
       delta = insert(index, data, replaceLength: length);
     }
 
     if (length > 0) {
+      print('delete $length at $index, len: $length');
       final deleteDelta = delete(index, length);
       delta = delta.compose(deleteDelta);
     }
 
+    print('replace result $delta');
     return delta;
   }
 
@@ -117,6 +125,7 @@ class Document {
     );
     if (formatDelta.isNotEmpty) {
       compose(formatDelta, ChangeSource.LOCAL);
+      print('compose format, current document $_delta');
       delta = delta.compose(formatDelta);
     }
 

@@ -4,7 +4,7 @@ use crate::helper::{TestOp::*, *};
 use flowy_ot::core::Interval;
 
 #[test]
-fn delta_insert_text() {
+fn attributes_insert_text() {
     let ops = vec![
         Insert(0, "123", 0),
         Insert(0, "456", 3),
@@ -14,7 +14,7 @@ fn delta_insert_text() {
 }
 
 #[test]
-fn delta_insert_text_at_head() {
+fn attributes_insert_text_at_head() {
     let ops = vec![
         Insert(0, "123", 0),
         Insert(0, "456", 0),
@@ -24,7 +24,7 @@ fn delta_insert_text_at_head() {
 }
 
 #[test]
-fn delta_insert_text_at_middle() {
+fn attributes_insert_text_at_middle() {
     let ops = vec![
         Insert(0, "123", 0),
         Insert(0, "456", 1),
@@ -34,7 +34,7 @@ fn delta_insert_text_at_middle() {
 }
 
 #[test]
-fn delta_insert_text_with_attr() {
+fn attributes_insert_text_with_attr() {
     let ops = vec![
         Insert(0, "145", 0),
         Insert(0, "23", 1),
@@ -53,7 +53,7 @@ fn delta_insert_text_with_attr() {
 }
 
 #[test]
-fn delta_add_bold() {
+fn attributes_add_bold() {
     let ops = vec![
         Insert(0, "123456", 0),
         Bold(0, Interval::new(3, 5), true),
@@ -70,7 +70,7 @@ fn delta_add_bold() {
 }
 
 #[test]
-fn delta_add_bold_and_invert_all() {
+fn attributes_add_bold_and_invert_all() {
     let ops = vec![
         Insert(0, "123", 0),
         Bold(0, Interval::new(0, 3), true),
@@ -82,7 +82,7 @@ fn delta_add_bold_and_invert_all() {
 }
 
 #[test]
-fn delta_add_bold_and_invert_partial_suffix() {
+fn attributes_add_bold_and_invert_partial_suffix() {
     let ops = vec![
         Insert(0, "1234", 0),
         Bold(0, Interval::new(0, 4), true),
@@ -97,7 +97,7 @@ fn delta_add_bold_and_invert_partial_suffix() {
 }
 
 #[test]
-fn delta_add_bold_and_invert_partial_suffix2() {
+fn attributes_add_bold_and_invert_partial_suffix2() {
     let ops = vec![
         Insert(0, "1234", 0),
         Bold(0, Interval::new(0, 4), true),
@@ -114,7 +114,35 @@ fn delta_add_bold_and_invert_partial_suffix2() {
 }
 
 #[test]
-fn delta_add_bold_and_invert_partial_prefix() {
+fn attributes_add_bold_with_new_line() {
+    let ops = vec![
+        Insert(0, "123456", 0),
+        Bold(0, Interval::new(0, 6), true),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"123456","attributes":{"bold":"true"}},{"insert":"\n"}]"#,
+        ),
+        Insert(0, "\n", 3),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"123","attributes":{"bold":"true"}},{"insert":"\n"},{"insert":"456","attributes":{"bold":"true"}},{"insert":"\n"}]"#,
+        ),
+        Insert(0, "\n", 4),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"123","attributes":{"bold":"true"}},{"insert":"\n\n"},{"insert":"456","attributes":{"bold":"true"}},{"insert":"\n"}]"#,
+        ),
+        Insert(0, "a", 4),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"123","attributes":{"bold":"true"}},{"insert":"\na\n"},{"insert":"456","attributes":{"bold":"true"}},{"insert":"\n"}]"#,
+        ),
+    ];
+    OpTester::new().run_script_with_newline(ops);
+}
+
+#[test]
+fn attributes_add_bold_and_invert_partial_prefix() {
     let ops = vec![
         Insert(0, "1234", 0),
         Bold(0, Interval::new(0, 4), true),
@@ -129,7 +157,7 @@ fn delta_add_bold_and_invert_partial_prefix() {
 }
 
 #[test]
-fn delta_add_bold_consecutive() {
+fn attributes_add_bold_consecutive() {
     let ops = vec![
         Insert(0, "1234", 0),
         Bold(0, Interval::new(0, 1), true),
@@ -147,31 +175,26 @@ fn delta_add_bold_consecutive() {
 }
 
 #[test]
-fn delta_add_bold_italic() {
+fn attributes_add_bold_italic() {
     let ops = vec![
         Insert(0, "1234", 0),
         Bold(0, Interval::new(0, 4), true),
         Italic(0, Interval::new(0, 4), true),
         AssertOpsJson(
             0,
-            r#"[{"insert":"1234","attributes":{"italic":"true","bold":"true"}}]"#,
+            r#"[{"insert":"1234","attributes":{"italic":"true","bold":"true"}},{"insert":"\n"}]"#,
         ),
         Insert(0, "5678", 4),
         AssertOpsJson(
             0,
-            r#"[{"insert":"12345678","attributes":{"italic":"true","bold":"true"}}]"#,
-        ),
-        Italic(0, Interval::new(4, 6), false),
-        AssertOpsJson(
-            0,
-            r#"[{"insert":"1234","attributes":{"bold":"true","italic":"true"}},{"insert":"56","attributes":{"bold":"true"}},{"insert":"78","attributes":{"bold":"true","italic":"true"}}]"#,
+            r#"[{"insert":"12345678","attributes":{"bold":"true","italic":"true"}},{"insert":"\n"}]"#,
         ),
     ];
-    OpTester::new().run_script(ops);
+    OpTester::new().run_script_with_newline(ops);
 }
 
 #[test]
-fn delta_add_bold_italic2() {
+fn attributes_add_bold_italic2() {
     let ops = vec![
         Insert(0, "123456", 0),
         Bold(0, Interval::new(0, 6), true),
@@ -199,7 +222,7 @@ fn delta_add_bold_italic2() {
 }
 
 #[test]
-fn delta_add_bold_italic3() {
+fn attributes_add_bold_italic3() {
     let ops = vec![
         Insert(0, "123456789", 0),
         Bold(0, Interval::new(0, 5), true),
@@ -236,7 +259,7 @@ fn delta_add_bold_italic3() {
 }
 
 #[test]
-fn delta_add_bold_italic_delete() {
+fn attributes_add_bold_italic_delete() {
     let ops = vec![
         Insert(0, "123456789", 0),
         Bold(0, Interval::new(0, 5), true),
@@ -275,7 +298,7 @@ fn delta_add_bold_italic_delete() {
 }
 
 #[test]
-fn delta_merge_inserted_text_with_same_attribute() {
+fn attributes_merge_inserted_text_with_same_attribute() {
     let ops = vec![
         InsertBold(0, "123", Interval::new(0, 3)),
         AssertOpsJson(0, r#"[{"insert":"123","attributes":{"bold":"true"}}]"#),
@@ -286,7 +309,7 @@ fn delta_merge_inserted_text_with_same_attribute() {
 }
 
 #[test]
-fn delta_compose_attr_delta_with_attr_delta_test() {
+fn attributes_compose_attr_attributes_with_attr_attributes_test() {
     let ops = vec![
         InsertBold(0, "123456", Interval::new(0, 6)),
         AssertOpsJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
@@ -301,7 +324,7 @@ fn delta_compose_attr_delta_with_attr_delta_test() {
 }
 
 #[test]
-fn delta_compose_attr_delta_with_attr_delta_test2() {
+fn attributes_compose_attr_attributes_with_attr_attributes_test2() {
     let ops = vec![
         Insert(0, "123456", 0),
         Bold(0, Interval::new(0, 6), true),
@@ -342,7 +365,7 @@ fn delta_compose_attr_delta_with_attr_delta_test2() {
 }
 
 #[test]
-fn delta_compose_attr_delta_with_no_attr_delta_test() {
+fn attributes_compose_attr_attributes_with_no_attr_attributes_test() {
     let expected = r#"[{"insert":"123456","attributes":{"bold":"true"}},{"insert":"7"}]"#;
 
     let ops = vec![
@@ -358,7 +381,7 @@ fn delta_compose_attr_delta_with_no_attr_delta_test() {
 }
 
 #[test]
-fn delta_replace_heading() {
+fn attributes_replace_heading() {
     let ops = vec![
         InsertBold(0, "123456", Interval::new(0, 6)),
         AssertOpsJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
@@ -370,7 +393,7 @@ fn delta_replace_heading() {
 }
 
 #[test]
-fn delta_replace_trailing() {
+fn attributes_replace_trailing() {
     let ops = vec![
         InsertBold(0, "123456", Interval::new(0, 6)),
         AssertOpsJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
@@ -382,7 +405,7 @@ fn delta_replace_trailing() {
 }
 
 #[test]
-fn delta_replace_middle() {
+fn attributes_replace_middle() {
     let ops = vec![
         InsertBold(0, "123456", Interval::new(0, 6)),
         AssertOpsJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
@@ -396,7 +419,7 @@ fn delta_replace_middle() {
 }
 
 #[test]
-fn delta_replace_all() {
+fn attributes_replace_all() {
     let ops = vec![
         InsertBold(0, "123456", Interval::new(0, 6)),
         AssertOpsJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
@@ -408,7 +431,7 @@ fn delta_replace_all() {
 }
 
 #[test]
-fn delta_replace_with_text() {
+fn attributes_replace_with_text() {
     let ops = vec![
         InsertBold(0, "123456", Interval::new(0, 6)),
         AssertOpsJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
@@ -420,4 +443,63 @@ fn delta_replace_with_text() {
     ];
 
     OpTester::new().run_script(ops);
+}
+
+#[test]
+fn attributes_add_header() {
+    let ops = vec![
+        Insert(0, "123456", 0),
+        Header(0, Interval::new(0, 6), 1, true),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"123456"},{"insert":"\n","attributes":{"header":"1"}}]"#,
+        ),
+        Insert(0, "\n", 3),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"123"},{"insert":"\n","attributes":{"header":"1"}},{"insert":"456"},{"insert":"\n","attributes":{"header":"1"}}]"#,
+        ),
+    ];
+
+    OpTester::new().run_script_with_newline(ops);
+}
+
+#[test]
+fn attributes_header_add_newline() {
+    let ops = vec![
+        Insert(0, "123456", 0),
+        Header(0, Interval::new(0, 6), 1, true),
+        Insert(0, "\n", 6),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"123456"},{"insert":"\n","attributes":{"header":"1"}},{"insert":"\n"}]"#,
+        ),
+    ];
+
+    OpTester::new().run_script_with_newline(ops);
+}
+
+#[test]
+fn attributes_header_add_newline_2() {
+    let ops = vec![
+        Insert(0, "123456", 0),
+        Header(0, Interval::new(0, 6), 1, true),
+        Insert(0, "\n", 3),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"123"},{"insert":"\n","attributes":{"header":"1"}},{"insert":"456"},{"insert":"\n","attributes":{"header":"1"}}]"#,
+        ),
+        Insert(0, "\n", 4),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"123"},{"insert":"\n\n","attributes":{"header":"1"}},{"insert":"456"},{"insert":"\n","attributes":{"header":"1"}}]"#,
+        ),
+        Insert(0, "\n", 4),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"123"},{"insert":"\n\n","attributes":{"header":"1"}},{"insert":"\n456"},{"insert":"\n","attributes":{"header":"1"}}]"#,
+        ),
+    ];
+
+    OpTester::new().run_script_with_newline(ops);
 }

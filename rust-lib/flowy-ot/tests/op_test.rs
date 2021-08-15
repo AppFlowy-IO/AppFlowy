@@ -224,6 +224,26 @@ fn delta_seek_4() {
 }
 
 #[test]
+fn delta_seek_5() {
+    let mut delta = Delta::default();
+    let attributes = AttrsBuilder::new().bold(true).italic(true).build();
+    delta.add(
+        OpBuilder::insert("1234")
+            .attributes(attributes.clone())
+            .build(),
+    );
+    delta.add(OpBuilder::insert("\n").build());
+
+    let mut iter = DeltaIter::new(&delta);
+    iter.seek::<CharMetric>(0);
+
+    assert_eq!(
+        iter.next_op_with_len(4).unwrap(),
+        OpBuilder::insert("1234").attributes(attributes).build(),
+    );
+}
+
+#[test]
 fn delta_next_op_len_test() {
     let mut delta = Delta::default();
     delta.add(OpBuilder::insert("12345").build());

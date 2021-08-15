@@ -41,7 +41,7 @@ class Rules {
 
   static final Rules _instance = Rules([
     const FormatLinkAtCaretPositionRule(),
-    // const ResolveLineFormatRule(),
+    const ResolveLineFormatRule(),
     const ResolveInlineFormatRule(),
     // const InsertEmbedsRule(),
     // const ForceNewlineForInsertsAroundEmbedRule(),
@@ -70,6 +70,7 @@ class Rules {
         final result = rule.apply(delta, index,
             length: length, data: data, attribute: attribute);
         if (result != null) {
+          print('apply rule: $rule, result: $result');
           return result..trim();
         }
       } catch (e) {

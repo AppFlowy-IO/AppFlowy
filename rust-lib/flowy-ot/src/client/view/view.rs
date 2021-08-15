@@ -1,6 +1,6 @@
 use crate::{
     client::view::*,
-    core::{Attribute, Delta, Interval},
+    core::{Attribute, Delta, Interval, Operation},
     errors::{ErrorBuilder, OTError, OTErrorCode},
 };
 
@@ -28,6 +28,7 @@ impl View {
         let mut new_delta = None;
         for ext in &self.insert_exts {
             if let Some(delta) = ext.apply(delta, interval.size(), text, interval.start) {
+                log::debug!("[{}]: applied, delta: {}", ext.ext_name(), delta);
                 new_delta = Some(delta);
                 break;
             }
@@ -43,6 +44,7 @@ impl View {
         let mut new_delta = None;
         for ext in &self.delete_exts {
             if let Some(delta) = ext.apply(delta, interval) {
+                log::debug!("[{}]: applied, delta: {}", ext.ext_name(), delta);
                 new_delta = Some(delta);
                 break;
             }
@@ -63,6 +65,7 @@ impl View {
         let mut new_delta = None;
         for ext in &self.format_exts {
             if let Some(delta) = ext.apply(delta, interval, &attribute) {
+                log::debug!("[{}]: applied, delta: {}", ext.ext_name(), delta);
                 new_delta = Some(delta);
                 break;
             }
@@ -92,7 +95,7 @@ fn construct_insert_exts() -> Vec<InsertExtension> {
 fn construct_format_exts() -> Vec<FormatExtension> {
     vec![
         Box::new(FormatLinkAtCaretPositionExt {}),
-        Box::new(ResolveLineFormatExt {}),
+        Box::new(ResolveBlockFormatExt {}),
         Box::new(ResolveInlineFormatExt {}),
     ]
 }

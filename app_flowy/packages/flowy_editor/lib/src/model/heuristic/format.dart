@@ -44,7 +44,9 @@ class ResolveLineFormatRule extends FormatRule {
       for (var lineBreak = text.indexOf('\n');
           lineBreak >= 0;
           lineBreak = text.indexOf('\n', offset)) {
-        tmp..retain(lineBreak - offset)..retain(1, attribute.toJson());
+        tmp
+          ..retain(lineBreak - offset)
+          ..retain(1, attribute.toJson());
         offset = lineBreak + 1;
       }
       tmp.retain(text.length - offset);
@@ -59,7 +61,9 @@ class ResolveLineFormatRule extends FormatRule {
         delta.retain(op.length!);
         continue;
       }
-      delta..retain(lineBreak)..retain(1, attribute.toJson());
+      delta
+        ..retain(lineBreak)
+        ..retain(1, attribute.toJson());
       break;
     }
     return delta;
@@ -91,7 +95,9 @@ class FormatLinkAtCaretPositionRule extends FormatRule {
       return null;
     }
 
-    delta..retain(beg)..retain(retain!, attribute.toJson());
+    delta
+      ..retain(beg)
+      ..retain(retain!, attribute.toJson());
     return delta;
   }
 }
@@ -120,7 +126,9 @@ class ResolveInlineFormatRule extends FormatRule {
       }
       var pos = 0;
       while (lineBreak >= 0) {
-        delta..retain(lineBreak - pos, attribute.toJson())..retain(1);
+        delta
+          ..retain(lineBreak - pos, attribute.toJson())
+          ..retain(1);
         pos = lineBreak + 1;
         lineBreak = text.indexOf('\n', pos);
       }

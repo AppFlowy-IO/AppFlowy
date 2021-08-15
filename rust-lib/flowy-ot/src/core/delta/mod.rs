@@ -1,6 +1,7 @@
 mod builder;
 mod cursor;
 mod delta;
+mod delta_serde;
 mod iterator;
 
 pub use builder::*;

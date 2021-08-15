@@ -28,6 +28,9 @@ pub enum TestOp {
     #[display(fmt = "Italic")]
     Italic(usize, Interval, bool),
 
+    #[display(fmt = "Header")]
+    Header(usize, Interval, usize, bool),
+
     #[display(fmt = "Transform")]
     Transform(usize, usize),
 
@@ -60,7 +63,7 @@ impl OpTester {
         static INIT: Once = Once::new();
         INIT.call_once(|| {
             color_eyre::install().unwrap();
-            std::env::set_var("RUST_LOG", "info");
+            std::env::set_var("RUST_LOG", "debug");
             env_logger::init();
         });
 
@@ -86,22 +89,30 @@ impl OpTester {
                 let document = &mut self.documents[*delta_i];
                 document.insert(interval.start, s).unwrap();
                 document
-                    .format(*interval, AttributeKey::Bold.with_value("true".to_owned()))
+                    .format(*interval, AttributeKey::Bold.value(true))
                     .unwrap();
             },
             TestOp::Bold(delta_i, interval, enable) => {
                 let document = &mut self.documents[*delta_i];
                 let attribute = match *enable {
-                    true => AttributeKey::Bold.with_value("true".to_owned()),
-                    false => AttributeKey::Bold.with_value("".to_owned()),
+                    true => AttributeKey::Bold.value(true),
+                    false => AttributeKey::Bold.remove(),
                 };
                 document.format(*interval, attribute).unwrap();
             },
             TestOp::Italic(delta_i, interval, enable) => {
                 let document = &mut self.documents[*delta_i];
                 let attribute = match *enable {
-                    true => AttributeKey::Italic.with_value("true"),
-                    false => AttributeKey::Italic.with_value(REMOVE_FLAG),
+                    true => AttributeKey::Italic.value("true"),
+                    false => AttributeKey::Italic.remove(),
+                };
+                document.format(*interval, attribute).unwrap();
+            },
+            TestOp::Header(delta_i, interval, level, enable) => {
+                let document = &mut self.documents[*delta_i];
+                let attribute = match *enable {
+                    true => AttributeKey::Header.value(level),
+                    false => AttributeKey::Header.remove(),
                 };
                 document.format(*interval, attribute).unwrap();
             },

@@ -599,6 +599,8 @@ impl Delta {
     pub fn is_empty(&self) -> bool { self.ops.is_empty() }
 
     pub fn to_json(&self) -> String { serde_json::to_string(self).unwrap_or("".to_owned()) }
+
+    pub fn extend(&mut self, other: Self) { other.ops.into_iter().for_each(|op| self.add(op)); }
 }
 
 fn invert_from_other(

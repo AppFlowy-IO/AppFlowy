@@ -2,6 +2,13 @@ use crate::core::{Attributes, REMOVE_FLAG};
 use derive_more::Display;
 use std::{fmt, fmt::Formatter};
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct AttributeValue(pub(crate) String);
+
+impl AsRef<str> for AttributeValue {
+    fn as_ref(&self) -> &str { &self.0 }
+}
+
 #[derive(Clone, Debug, Display, Hash, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum AttributeKey {
@@ -23,8 +30,6 @@ pub enum AttributeKey {
     Color,
     #[display(fmt = "background")]
     Background,
-    #[display(fmt = "header")]
-    Header,
     #[display(fmt = "ident")]
     Ident,
     #[display(fmt = "align")]
@@ -41,18 +46,8 @@ pub enum AttributeKey {
     Height,
     #[display(fmt = "style")]
     Style,
-    #[display(fmt = "h1")]
-    H1,
-    #[display(fmt = "h2")]
-    H2,
-    #[display(fmt = "h3")]
-    H3,
-    #[display(fmt = "h4")]
-    H4,
-    #[display(fmt = "h5")]
-    H5,
-    #[display(fmt = "h6")]
-    H6,
+    #[display(fmt = "header")]
+    Header,
     #[display(fmt = "left")]
     LeftAlignment,
     #[display(fmt = "center")]
@@ -82,13 +77,13 @@ pub enum AttributeScope {
 #[derive(Debug, Clone)]
 pub struct Attribute {
     pub key: AttributeKey,
-    pub value: String,
+    pub value: AttributeValue,
     pub scope: AttributeScope,
 }
 
 impl fmt::Display for Attribute {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let s = format!("{:?}:{} {:?}", self.key, self.value, self.scope);
+        let s = format!("{:?}:{} {:?}", self.key, self.value.as_ref(), self.scope);
         f.write_str(&s)
     }
 }
@@ -129,13 +124,13 @@ impl AttrsBuilder {
         self
     }
 
-    pub fn insert<T: Into<String>>(mut self, key: AttributeKey, value: T) -> Self {
-        self.inner.add(key.with_value(value));
+    pub fn insert<T: Into<AttributeValue>>(mut self, key: AttributeKey, value: T) -> Self {
+        self.inner.add(key.value(value));
         self
     }
 
     pub fn remove<T: Into<String>>(mut self, key: AttributeKey) -> Self {
-        self.inner.add(key.with_value(REMOVE_FLAG));
+        self.inner.add(key.value(REMOVE_FLAG));
         self
     }
 
@@ -148,9 +143,11 @@ impl AttrsBuilder {
 }
 
 impl AttributeKey {
-    pub fn with_value<T: Into<String>>(&self, value: T) -> Attribute {
+    pub fn remove(&self) -> Attribute { self.value(REMOVE_FLAG) }
+
+    pub fn value<T: Into<AttributeValue>>(&self, value: T) -> Attribute {
         let key = self.clone();
-        let value: String = value.into();
+        let value: AttributeValue = value.into();
         match self {
             AttributeKey::Bold
             | AttributeKey::Italic
@@ -167,12 +164,6 @@ impl AttributeKey {
             },
 
             AttributeKey::Header
-            | AttributeKey::H1
-            | AttributeKey::H2
-            | AttributeKey::H3
-            | AttributeKey::H4
-            | AttributeKey::H5
-            | AttributeKey::H6
             | AttributeKey::LeftAlignment
             | AttributeKey::CenterAlignment
             | AttributeKey::RightAlignment
@@ -197,5 +188,23 @@ impl AttributeKey {
                 scope: AttributeScope::Ignore,
             },
         }
+    }
+}
+
+impl std::convert::From<&usize> for AttributeValue {
+    fn from(val: &usize) -> Self { AttributeValue(format!("{}", val)) }
+}
+
+impl std::convert::From<&str> for AttributeValue {
+    fn from(val: &str) -> Self { AttributeValue(val.to_owned()) }
+}
+
+impl std::convert::From<bool> for AttributeValue {
+    fn from(val: bool) -> Self {
+        let val = match val {
+            true => "true",
+            false => "",
+        };
+        AttributeValue(val.to_owned())
     }
 }

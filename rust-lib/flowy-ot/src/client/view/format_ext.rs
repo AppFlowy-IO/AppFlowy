@@ -1,5 +1,5 @@
 use crate::{
-    client::view::{FormatExt, NEW_LINE},
+    client::view::{util::find_newline, FormatExt, NEW_LINE},
     core::{
         Attribute,
         AttributeKey,
@@ -17,6 +17,8 @@ use crate::{
 pub struct FormatLinkAtCaretPositionExt {}
 
 impl FormatExt for FormatLinkAtCaretPositionExt {
+    fn ext_name(&self) -> &str { "FormatLinkAtCaretPositionExt" }
+
     fn apply(&self, delta: &Delta, interval: Interval, attribute: &Attribute) -> Option<Delta> {
         if attribute.key != AttributeKey::Link || interval.size() != 0 {
             return None;
@@ -57,26 +59,56 @@ impl FormatExt for FormatLinkAtCaretPositionExt {
     }
 }
 
-pub struct ResolveLineFormatExt {}
-impl FormatExt for ResolveLineFormatExt {
+pub struct ResolveBlockFormatExt {}
+impl FormatExt for ResolveBlockFormatExt {
+    fn ext_name(&self) -> &str { "ResolveBlockFormatExt" }
+
     fn apply(&self, delta: &Delta, interval: Interval, attribute: &Attribute) -> Option<Delta> {
         if attribute.scope != AttributeScope::Block {
             return None;
         }
 
-        let mut new_delta = Delta::new();
-        new_delta.retain(interval.start, Attributes::default());
-
+        let mut new_delta = DeltaBuilder::new().retain(interval.start).build();
         let mut iter = DeltaIter::new(delta);
         iter.seek::<CharMetric>(interval.start);
+        let mut start = 0;
+        let end = interval.size();
+        while start < end && iter.has_next() {
+            let next_op = iter.next_op_with_len(end - start).unwrap();
+            match find_newline(next_op.get_data()) {
+                None => new_delta.retain(next_op.length(), Attributes::empty()),
+                Some(_) => {
+                    let tmp_delta = line_break(&next_op, attribute, AttributeScope::Block);
+                    new_delta.extend(tmp_delta);
+                },
+            }
 
-        None
+            start += next_op.length();
+        }
+
+        while iter.has_next() {
+            let op = iter
+                .next_op()
+                .expect("Unexpected None, iter.has_next() must return op");
+
+            match find_newline(op.get_data()) {
+                None => new_delta.retain(op.length(), Attributes::empty()),
+                Some(line_break) => {
+                    debug_assert_eq!(line_break, 0);
+                    new_delta.retain(1, attribute.clone().into());
+                    break;
+                },
+            }
+        }
+
+        Some(new_delta)
     }
 }
 
 pub struct ResolveInlineFormatExt {}
-
 impl FormatExt for ResolveInlineFormatExt {
+    fn ext_name(&self) -> &str { "ResolveInlineFormatExt" }
+
     fn apply(&self, delta: &Delta, interval: Interval, attribute: &Attribute) -> Option<Delta> {
         if attribute.scope != AttributeScope::Inline {
             return None;
@@ -85,44 +117,57 @@ impl FormatExt for ResolveInlineFormatExt {
         let mut iter = DeltaIter::new(delta);
         iter.seek::<CharMetric>(interval.start);
 
-        let mut cur = 0;
-        let len = interval.size();
+        let mut start = 0;
+        let end = interval.size();
 
-        while cur < len && iter.has_next() {
-            let some_op = iter.next_op_with_len(len - cur);
-            if some_op.is_none() {
-                return Some(new_delta);
-            }
-            let op = some_op.unwrap();
-            if let Operation::Insert(insert) = &op {
-                let mut s = insert.s.as_str();
-                match s.find(NEW_LINE) {
-                    None => {
-                        new_delta.retain(op.length(), attribute.clone().into());
-                    },
-                    Some(line_break) => {
-                        let mut pos = 0;
-                        let mut some_line_break = Some(line_break);
-                        while some_line_break.is_some() {
-                            let line_break = some_line_break.unwrap();
-                            new_delta.retain(line_break - pos, attribute.clone().into());
-                            new_delta.retain(1, Attributes::default());
-                            pos = line_break + 1;
-
-                            s = &s[pos..s.len()];
-                            some_line_break = s.find(NEW_LINE);
-                        }
-
-                        if pos < op.length() {
-                            new_delta.retain(op.length() - pos, attribute.clone().into());
-                        }
-                    },
-                }
+        while start < end && iter.has_next() {
+            let next_op = iter.next_op_with_len(end - start).unwrap();
+            match find_newline(next_op.get_data()) {
+                None => new_delta.retain(next_op.length(), attribute.clone().into()),
+                Some(_) => {
+                    let tmp_delta = line_break(&next_op, attribute, AttributeScope::Inline);
+                    new_delta.extend(tmp_delta);
+                },
             }
 
-            cur += op.length();
+            start += next_op.length();
         }
 
         Some(new_delta)
     }
+}
+
+fn line_break(op: &Operation, attribute: &Attribute, scope: AttributeScope) -> Delta {
+    let mut new_delta = Delta::new();
+    let mut start = 0;
+    let end = op.length();
+    let mut s = op.get_data();
+
+    while let Some(line_break) = find_newline(s) {
+        match scope {
+            AttributeScope::Inline => {
+                new_delta.retain(line_break - start, attribute.clone().into());
+                new_delta.retain(1, Attributes::empty());
+            },
+            AttributeScope::Block => {
+                new_delta.retain(line_break - start, Attributes::empty());
+                new_delta.retain(1, attribute.clone().into());
+            },
+            _ => {
+                log::error!("Unsupported parser line break for {:?}", scope);
+            },
+        }
+
+        start = line_break + 1;
+        s = &s[start..s.len()];
+    }
+
+    if start < end {
+        match scope {
+            AttributeScope::Inline => new_delta.retain(end - start, attribute.clone().into()),
+            AttributeScope::Block => new_delta.retain(end - start, Attributes::empty()),
+            _ => log::error!("Unsupported parser line break for {:?}", scope),
+        }
+    }
+    new_delta
 }

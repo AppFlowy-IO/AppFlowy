@@ -42,11 +42,16 @@ impl<'a> Cursor<'a> {
             next_op = find_next_op(self);
         }
 
+        let old_c_index = self.c_index;
         while find_op.is_none() && next_op.is_some() {
             let op = next_op.take().unwrap();
             let interval = self.next_op_interval_with_constraint(force_len);
-            find_op = op.shrink(interval);
+            if interval.is_empty() {
+                self.next_op = Some(op.clone());
+                break;
+            }
 
+            find_op = op.shrink(interval);
             let suffix = Interval::new(0, op.length()).suffix(interval);
             if !suffix.is_empty() {
                 self.next_op = op.shrink(suffix);
@@ -60,7 +65,15 @@ impl<'a> Cursor<'a> {
             }
         }
 
-        find_op
+        if find_op.is_some() {
+            let last = self.c_index - old_c_index;
+            let force_len = force_len.unwrap_or(0);
+            if force_len > last {
+                let len = force_len - last;
+                return self.next_op_with_len(Some(len));
+            }
+        }
+        return find_op;
     }
 
     pub fn next_op(&mut self) -> Option<Operation> { self.next_op_with_len(None) }
@@ -159,6 +172,7 @@ impl Metric for CharMetric {
     fn seek(cursor: &mut Cursor, index: usize) -> SeekResult {
         let _ = check_bound(cursor.c_index, index)?;
         let _ = cursor.next_op_with_len(Some(index));
+
         Ok(())
     }
 }

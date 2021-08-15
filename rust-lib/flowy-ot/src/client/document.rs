@@ -34,6 +34,7 @@ impl Document {
         let interval = Interval::new(index, index);
         let _ = validate_interval(&self.delta, &interval)?;
         let delta = self.view.insert(&self.delta, text, interval)?;
+        log::debug!("👉 receive change: {}", delta);
         self.add_delta(&delta)?;
         Ok(delta)
     }
@@ -43,6 +44,7 @@ impl Document {
         debug_assert_eq!(interval.is_empty(), false);
         let delete = self.view.delete(&self.delta, interval)?;
         if !delete.is_empty() {
+            log::debug!("👉 receive change: {}", delete);
             let _ = self.add_delta(&delete)?;
         }
         Ok(delete)
@@ -56,6 +58,7 @@ impl Document {
             .format(&self.delta, attribute.clone(), interval)
             .unwrap();
 
+        log::debug!("👉 receive change: {}", format_delta);
         self.add_delta(&format_delta)?;
         Ok(())
     }
@@ -65,6 +68,7 @@ impl Document {
         let mut delta = Delta::default();
         if !text.is_empty() {
             delta = self.view.insert(&self.delta, text, interval)?;
+            log::debug!("👉 receive change: {}", delta);
             self.add_delta(&delta)?;
         }
 
@@ -121,7 +125,6 @@ impl Document {
 
 impl Document {
     fn add_delta(&mut self, delta: &Delta) -> Result<(), OTError> {
-        log::debug!("👉invert change {}", delta);
         let composed_delta = self.delta.compose(delta)?;
         let mut undo_delta = delta.invert(&self.delta);
         self.rev_id_counter += 1;
@@ -138,7 +141,7 @@ impl Document {
             self.last_edit_time = now;
         }
 
-        log::debug!("compose previous result: {}", undo_delta);
+        log::debug!("👉 receive change undo: {}", undo_delta);
         if !undo_delta.is_empty() {
             self.history.record(undo_delta);
         }

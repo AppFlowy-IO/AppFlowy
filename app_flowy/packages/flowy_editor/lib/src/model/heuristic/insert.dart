@@ -159,7 +159,9 @@ class AutoExitBlockRule extends InsertRule {
         .firstWhere((k) => Attribute.blockKeysExceptHeader.contains(k));
     attributes[k] = null;
     // retain(1) should be '\n', set it with no attribute
-    return Delta()..retain(index + (length ?? 0))..retain(1, attributes);
+    return Delta()
+      ..retain(index + (length ?? 0))
+      ..retain(1, attributes);
   }
 }
 
@@ -261,10 +263,14 @@ class ForceNewlineForInsertsAroundEmbedRule extends InsertRule {
     }
     final delta = Delta()..retain(index + (length ?? 0));
     if (cursorBeforeEmbed && !text.endsWith('\n')) {
-      return delta..insert(text)..insert('\n');
+      return delta
+        ..insert(text)
+        ..insert('\n');
     }
     if (cursorAfterEmbed && !text.startsWith('\n')) {
-      return delta..insert('\n')..insert(text);
+      return delta
+        ..insert('\n')
+        ..insert(text);
     }
     return delta..insert(text);
   }

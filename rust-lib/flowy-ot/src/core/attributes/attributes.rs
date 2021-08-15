@@ -1,14 +1,14 @@
-use crate::core::{Attribute, AttributeKey, Operation};
+use crate::core::{Attribute, AttributeKey, AttributeValue, Operation};
 use std::{collections::HashMap, fmt};
 
 pub const REMOVE_FLAG: &'static str = "";
-pub(crate) fn should_remove(s: &str) -> bool { s == REMOVE_FLAG }
+pub(crate) fn should_remove(val: &AttributeValue) -> bool { val.0 == REMOVE_FLAG }
 
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Attributes {
     #[serde(skip_serializing_if = "HashMap::is_empty")]
     #[serde(flatten)]
-    pub(crate) inner: HashMap<AttributeKey, String>,
+    pub(crate) inner: HashMap<AttributeKey, AttributeValue>,
 }
 
 impl fmt::Display for Attributes {
@@ -38,7 +38,8 @@ impl Attributes {
     }
 
     pub fn remove(&mut self, key: &AttributeKey) {
-        self.inner.insert(key.clone(), REMOVE_FLAG.to_owned());
+        let value: AttributeValue = REMOVE_FLAG.into();
+        self.inner.insert(key.clone(), value);
     }
 
     // Remove the key if its value is empty. e.g. { bold: "" }
@@ -62,7 +63,7 @@ impl Attributes {
 }
 
 impl std::ops::Deref for Attributes {
-    type Target = HashMap<AttributeKey, String>;
+    type Target = HashMap<AttributeKey, AttributeValue>;
 
     fn deref(&self) -> &Self::Target { &self.inner }
 }
