@@ -625,7 +625,7 @@ fn invert_from_other(
             );
             let inverted_attrs =
                 invert_attributes(operation.get_attributes(), other_op.get_attributes());
-            log::debug!("invert result: {:?}", inverted_attrs);
+            log::debug!("invert attributes result: {:?}", inverted_attrs);
             log::debug!(
                 "invert retain: {} by retain len: {}, {}",
                 retain,

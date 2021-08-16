@@ -635,3 +635,40 @@ fn attributes_auto_format_exist_link2() {
 
     OpTester::new().run_script_with_newline(ops);
 }
+
+#[test]
+fn attributes_add_bullet() {
+    let ops = vec![
+        Insert(0, "1", 0),
+        Bullet(0, Interval::new(0, 1), true),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
+        ),
+        Insert(0, NEW_LINE, 1),
+        Insert(0, "2", 2),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}},{"insert":"2"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
+        ),
+    ];
+
+    OpTester::new().run_script_with_newline(ops);
+}
+
+#[test]
+fn attributes_un_bullet_one() {
+    let ops = vec![
+        Insert(0, "1", 0),
+        Bullet(0, Interval::new(0, 1), true),
+        Insert(0, NEW_LINE, 1),
+        Insert(0, "2", 2),
+        Bullet(0, Interval::new(2, 3), false),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}},{"insert":"2\n"}]"#,
+        ),
+    ];
+
+    OpTester::new().run_script_with_newline(ops);
+}

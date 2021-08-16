@@ -33,6 +33,9 @@ pub enum TestOp {
     #[display(fmt = "Link")]
     Link(usize, Interval, &'static str, bool),
 
+    #[display(fmt = "Bullet")]
+    Bullet(usize, Interval, bool),
+
     #[display(fmt = "Transform")]
     Transform(usize, usize),
 
@@ -123,6 +126,14 @@ impl OpTester {
                 let attribute = match *enable {
                     true => AttributeKey::Link.value(link.to_owned()),
                     false => AttributeKey::Link.remove(),
+                };
+                document.format(*iv, attribute).unwrap();
+            },
+            TestOp::Bullet(delta_i, iv, enable) => {
+                let document = &mut self.documents[*delta_i];
+                let attribute = match *enable {
+                    true => AttributeKey::Bullet.value("true"),
+                    false => AttributeKey::Bullet.remove(),
                 };
                 document.format(*iv, attribute).unwrap();
             },

@@ -1,6 +1,6 @@
 use crate::{
     client::{extensions::InsertExt, util::is_whitespace},
-    core::{CharMetric, Delta, DeltaIter},
+    core::{Delta, DeltaIter},
 };
 
 pub struct AutoFormatExt {}
@@ -50,13 +50,10 @@ impl InsertExt for AutoFormatExt {
     }
 }
 
-use crate::{
-    client::extensions::NEW_LINE,
-    core::{Attribute, AttributeBuilder, Attributes, DeltaBuilder, Operation},
-};
+use crate::core::{Attribute, AttributeBuilder, Attributes, DeltaBuilder, Operation};
 use bytecount::num_chars;
 use std::cmp::min;
-use url::{ParseError, Url};
+use url::Url;
 
 pub enum AutoFormatter {
     Url(Url),

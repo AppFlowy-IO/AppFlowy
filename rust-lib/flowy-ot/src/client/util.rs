@@ -50,7 +50,7 @@ impl OpNewline {
     pub fn is_not_found(&self) -> bool { self == &OpNewline::NotFound }
 
     pub fn is_contain(&self) -> bool {
-        self.is_start() || self.is_end() || self == &OpNewline::Contain
+        self.is_start() || self.is_end() || self.is_equal() || self == &OpNewline::Contain
     }
 
     pub fn is_equal(&self) -> bool { self == &OpNewline::Equal }

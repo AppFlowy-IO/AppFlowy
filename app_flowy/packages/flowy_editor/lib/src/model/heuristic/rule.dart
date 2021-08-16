@@ -45,7 +45,7 @@ class Rules {
     const ResolveInlineFormatRule(),
     // const InsertEmbedsRule(),
     // const ForceNewlineForInsertsAroundEmbedRule(),
-    // const AutoExitBlockRule(),
+    const AutoExitBlockRule(),
     // const PreserveBlockStyleOnInsertRule(),
     // const PreserveLineStyleOnSplitRule(),
     const ResetLineFormatOnNewLineRule(),

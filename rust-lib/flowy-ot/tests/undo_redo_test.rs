@@ -267,3 +267,22 @@ fn history_undo_add_header() {
 
     OpTester::new().run_script_with_newline(ops);
 }
+
+#[test]
+fn history_undo_add_link() {
+    let site = "https://appflowy.io";
+    let ops = vec![
+        Insert(0, site, 0),
+        Wait(RECORD_THRESHOLD),
+        Link(0, Interval::new(0, site.len()), site, true),
+        Undo(0),
+        AssertOpsJson(0, r#"[{"insert":"https://appflowy.io\n"}]"#),
+        Redo(0),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"https://appflowy.io","attributes":{"link":"https://appflowy.io"}},{"insert":"\n"}]"#,
+        ),
+    ];
+
+    OpTester::new().run_script_with_newline(ops);
+}

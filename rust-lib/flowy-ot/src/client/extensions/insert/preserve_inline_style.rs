@@ -3,7 +3,7 @@ use crate::{
         extensions::InsertExt,
         util::{contain_newline, OpNewline},
     },
-    core::{AttributeKey, Attributes, CharMetric, Delta, DeltaBuilder, DeltaIter},
+    core::{AttributeKey, Attributes, Delta, DeltaBuilder, DeltaIter},
 };
 
 pub struct PreserveInlineStylesExt {}

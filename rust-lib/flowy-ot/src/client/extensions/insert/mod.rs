@@ -1,17 +1,16 @@
+pub use auto_exit_block::*;
 pub use auto_format::*;
 pub use default_insert::*;
 pub use preserve_inline_style::*;
 pub use reset_format_on_new_line::*;
 
+mod auto_exit_block;
 mod auto_format;
 mod default_insert;
 mod preserve_inline_style;
 mod reset_format_on_new_line;
 
-use crate::{
-    client::extensions::InsertExt,
-    core::{Delta, DeltaBuilder, DeltaIter, Operation},
-};
+use crate::{client::extensions::InsertExt, core::Delta};
 
 pub struct PreserveBlockStyleOnInsertExt {}
 impl InsertExt for PreserveBlockStyleOnInsertExt {
@@ -31,22 +30,6 @@ impl InsertExt for PreserveBlockStyleOnInsertExt {
 pub struct PreserveLineStyleOnSplitExt {}
 impl InsertExt for PreserveLineStyleOnSplitExt {
     fn ext_name(&self) -> &str { "PreserveLineStyleOnSplitExt" }
-
-    fn apply(
-        &self,
-        _delta: &Delta,
-        _replace_len: usize,
-        _text: &str,
-        _index: usize,
-    ) -> Option<Delta> {
-        None
-    }
-}
-
-pub struct AutoExitBlockExt {}
-
-impl InsertExt for AutoExitBlockExt {
-    fn ext_name(&self) -> &str { "AutoExitBlockExt" }
 
     fn apply(
         &self,
