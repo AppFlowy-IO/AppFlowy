@@ -69,6 +69,7 @@ class Document {
       length: replaceLength,
     );
 
+    print('current document delta: $_delta');
     print('insert delta: $delta');
     compose(delta, ChangeSource.LOCAL);
     print('compose insert, current document $_delta');
@@ -79,6 +80,7 @@ class Document {
     assert(index >= 0 && length > 0);
     final delta = _rules.apply(RuleType.DELETE, this, index, length: length);
     if (delta.isNotEmpty) {
+      print('current document delta: $_delta');
       compose(delta, ChangeSource.LOCAL);
       print('compose delete, current document $_delta');
     }
@@ -124,6 +126,7 @@ class Document {
       attribute: attribute,
     );
     if (formatDelta.isNotEmpty) {
+      print('current document delta: $_delta');
       compose(formatDelta, ChangeSource.LOCAL);
       print('compose format, current document $_delta');
       delta = delta.compose(formatDelta);

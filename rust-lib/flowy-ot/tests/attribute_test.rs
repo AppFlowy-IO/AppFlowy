@@ -3,7 +3,7 @@ pub mod helper;
 use crate::helper::{TestOp::*, *};
 use flowy_ot::core::Interval;
 
-use flowy_ot::client::extensions::NEW_LINE;
+use flowy_ot::client::extensions::{NEW_LINE, WHITESPACE};
 
 #[test]
 fn attributes_insert_text() {
@@ -582,6 +582,54 @@ fn attributes_link_insert_newline_at_middle() {
         AssertOpsJson(
             0,
             r#"[{"insert":"123","attributes":{"link":"https://appflowy.io"}},{"insert":"\n"},{"insert":"456","attributes":{"link":"https://appflowy.io"}},{"insert":"\n"}]"#,
+        ),
+    ];
+
+    OpTester::new().run_script_with_newline(ops);
+}
+
+#[test]
+fn attributes_auto_format_link() {
+    let site = "https://appflowy.io";
+    let ops = vec![
+        Insert(0, site, 0),
+        AssertOpsJson(0, r#"[{"insert":"https://appflowy.io\n"}]"#),
+        Insert(0, WHITESPACE, site.len()),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"https://appflowy.io","attributes":{"link":"https://appflowy.io/"}},{"insert":" \n"}]"#,
+        ),
+    ];
+
+    OpTester::new().run_script_with_newline(ops);
+}
+
+#[test]
+fn attributes_auto_format_exist_link() {
+    let site = "https://appflowy.io";
+    let ops = vec![
+        Insert(0, site, 0),
+        Link(0, Interval::new(0, site.len()), site, true),
+        Insert(0, WHITESPACE, site.len()),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"https://appflowy.io","attributes":{"link":"https://appflowy.io/"}},{"insert":" \n"}]"#,
+        ),
+    ];
+
+    OpTester::new().run_script_with_newline(ops);
+}
+
+#[test]
+fn attributes_auto_format_exist_link2() {
+    let site = "https://appflowy.io";
+    let ops = vec![
+        Insert(0, site, 0),
+        Link(0, Interval::new(0, site.len() / 2), site, true),
+        Insert(0, WHITESPACE, site.len()),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"https://a","attributes":{"link":"https://appflowy.io"}},{"insert":"ppflowy.io \n"}]"#,
         ),
     ];
 

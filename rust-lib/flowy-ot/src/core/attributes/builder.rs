@@ -96,7 +96,7 @@ impl std::convert::Into<Attributes> for Attribute {
     }
 }
 
-pub struct AttrsBuilder {
+pub struct AttributeBuilder {
     inner: Attributes,
 }
 
@@ -112,7 +112,19 @@ macro_rules! impl_bool_attribute {
     };
 }
 
-impl AttrsBuilder {
+macro_rules! impl_str_attribute {
+    ($name: ident,$key: expr) => {
+        pub fn $name(self, s: &str, value: bool) -> Self {
+            let value = match value {
+                true => s,
+                false => REMOVE_FLAG,
+            };
+            self.insert($key, value)
+        }
+    };
+}
+
+impl AttributeBuilder {
     pub fn new() -> Self {
         Self {
             inner: Attributes::default(),
@@ -134,10 +146,12 @@ impl AttrsBuilder {
         self
     }
 
+    // AttributeBuilder::new().bold(true).build()
     impl_bool_attribute!(bold, AttributeKey::Bold);
     impl_bool_attribute!(italic, AttributeKey::Italic);
     impl_bool_attribute!(underline, AttributeKey::Underline);
     impl_bool_attribute!(strike_through, AttributeKey::StrikeThrough);
+    impl_str_attribute!(link, AttributeKey::Link);
 
     pub fn build(self) -> Attributes { self.inner }
 }

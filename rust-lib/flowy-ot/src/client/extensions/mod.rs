@@ -9,6 +9,7 @@ mod format;
 mod insert;
 
 pub const NEW_LINE: &'static str = "\n";
+pub const WHITESPACE: &'static str = " ";
 
 pub type InsertExtension = Box<dyn InsertExt>;
 pub type FormatExtension = Box<dyn FormatExt>;

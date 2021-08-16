@@ -3,6 +3,8 @@ use flowy_ot::{client::Document, core::*};
 use rand::{prelude::*, Rng as WrappedRng};
 use std::{sync::Once, time::Duration};
 
+const LEVEL: &'static str = "info";
+
 #[derive(Clone, Debug, Display)]
 pub enum TestOp {
     #[display(fmt = "Insert")]
@@ -63,7 +65,7 @@ impl OpTester {
         static INIT: Once = Once::new();
         INIT.call_once(|| {
             color_eyre::install().unwrap();
-            std::env::set_var("RUST_LOG", "info");
+            std::env::set_var("RUST_LOG", LEVEL);
             env_logger::init();
         });
 

@@ -1,4 +1,7 @@
-use crate::{client::extensions::NEW_LINE, core::Operation};
+use crate::{
+    client::extensions::{NEW_LINE, WHITESPACE},
+    core::Operation,
+};
 
 #[inline]
 pub fn find_newline(s: &str) -> Option<usize> {
@@ -60,7 +63,7 @@ pub fn is_op_contains_newline(op: &Operation) -> bool { contain_newline(op.get_d
 pub fn is_newline(s: &str) -> bool { s == NEW_LINE }
 
 #[inline]
-pub fn is_whitespace(s: &str) -> bool { s == " " }
+pub fn is_whitespace(s: &str) -> bool { s == WHITESPACE }
 
 #[inline]
 pub fn contain_newline(s: &str) -> bool { s.contains(NEW_LINE) }

@@ -226,7 +226,7 @@ fn delta_seek_4() {
 #[test]
 fn delta_seek_5() {
     let mut delta = Delta::default();
-    let attributes = AttrsBuilder::new().bold(true).italic(true).build();
+    let attributes = AttributeBuilder::new().bold(true).italic(true).build();
     delta.add(
         OpBuilder::insert("1234")
             .attributes(attributes.clone())
@@ -469,7 +469,7 @@ fn transform2() {
 fn delta_transform_test() {
     let mut a = Delta::default();
     let mut a_s = String::new();
-    a.insert("123", AttrsBuilder::new().bold(true).build());
+    a.insert("123", AttributeBuilder::new().bold(true).build());
     a_s = a.apply(&a_s).unwrap();
     assert_eq!(&a_s, "123");
 

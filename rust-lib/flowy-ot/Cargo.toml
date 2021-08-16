@@ -14,6 +14,7 @@ log = "0.4"
 color-eyre = { version = "0.5", default-features = false }
 chrono = "0.4.19"
 lazy_static = "1.4.0"
+url = "2.2"
 
 [dev-dependencies]
 criterion = "0.3"
