@@ -1,5 +1,5 @@
+use super::extensions::*;
 use crate::{
-    client::view::*,
     core::{Attribute, Delta, Interval},
     errors::{ErrorBuilder, OTError, OTErrorCode},
 };
@@ -86,7 +86,7 @@ fn construct_insert_exts() -> Vec<InsertExtension> {
         Box::new(PreserveBlockStyleOnInsertExt {}),
         Box::new(PreserveLineStyleOnSplitExt {}),
         Box::new(ResetLineFormatOnNewLineExt {}),
-        Box::new(AutoFormatLinksExt {}),
+        Box::new(AutoFormatExt {}),
         Box::new(PreserveInlineStylesExt {}),
         Box::new(DefaultInsertExt {}),
     ]

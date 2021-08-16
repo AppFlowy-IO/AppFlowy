@@ -28,6 +28,9 @@ pub enum TestOp {
     #[display(fmt = "Header")]
     Header(usize, Interval, usize, bool),
 
+    #[display(fmt = "Link")]
+    Link(usize, Interval, &'static str, bool),
+
     #[display(fmt = "Transform")]
     Transform(usize, usize),
 
@@ -74,44 +77,52 @@ impl OpTester {
                 let document = &mut self.documents[*delta_i];
                 document.insert(*index, s).unwrap();
             },
-            TestOp::Delete(delta_i, interval) => {
+            TestOp::Delete(delta_i, iv) => {
                 let document = &mut self.documents[*delta_i];
-                document.replace(*interval, "").unwrap();
+                document.replace(*iv, "").unwrap();
             },
-            TestOp::Replace(delta_i, interval, s) => {
+            TestOp::Replace(delta_i, iv, s) => {
                 let document = &mut self.documents[*delta_i];
-                document.replace(*interval, s).unwrap();
+                document.replace(*iv, s).unwrap();
             },
-            TestOp::InsertBold(delta_i, s, interval) => {
+            TestOp::InsertBold(delta_i, s, iv) => {
                 let document = &mut self.documents[*delta_i];
-                document.insert(interval.start, s).unwrap();
+                document.insert(iv.start, s).unwrap();
                 document
-                    .format(*interval, AttributeKey::Bold.value(true))
+                    .format(*iv, AttributeKey::Bold.value(true))
                     .unwrap();
             },
-            TestOp::Bold(delta_i, interval, enable) => {
+            TestOp::Bold(delta_i, iv, enable) => {
                 let document = &mut self.documents[*delta_i];
                 let attribute = match *enable {
                     true => AttributeKey::Bold.value(true),
                     false => AttributeKey::Bold.remove(),
                 };
-                document.format(*interval, attribute).unwrap();
+                document.format(*iv, attribute).unwrap();
             },
-            TestOp::Italic(delta_i, interval, enable) => {
+            TestOp::Italic(delta_i, iv, enable) => {
                 let document = &mut self.documents[*delta_i];
                 let attribute = match *enable {
                     true => AttributeKey::Italic.value("true"),
                     false => AttributeKey::Italic.remove(),
                 };
-                document.format(*interval, attribute).unwrap();
+                document.format(*iv, attribute).unwrap();
             },
-            TestOp::Header(delta_i, interval, level, enable) => {
+            TestOp::Header(delta_i, iv, level, enable) => {
                 let document = &mut self.documents[*delta_i];
                 let attribute = match *enable {
                     true => AttributeKey::Header.value(level),
                     false => AttributeKey::Header.remove(),
                 };
-                document.format(*interval, attribute).unwrap();
+                document.format(*iv, attribute).unwrap();
+            },
+            TestOp::Link(delta_i, iv, link, enable) => {
+                let document = &mut self.documents[*delta_i];
+                let attribute = match *enable {
+                    true => AttributeKey::Link.value(link.to_owned()),
+                    false => AttributeKey::Link.remove(),
+                };
+                document.format(*iv, attribute).unwrap();
             },
             TestOp::Transform(delta_a_i, delta_b_i) => {
                 let (a_prime, b_prime) = self.documents[*delta_a_i]

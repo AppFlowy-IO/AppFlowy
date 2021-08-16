@@ -1,4 +1,14 @@
+pub use delete::*;
+pub use format::*;
+pub use insert::*;
+
 use crate::core::{Attribute, Delta, Interval};
+
+mod delete;
+mod format;
+mod insert;
+
+pub const NEW_LINE: &'static str = "\n";
 
 pub type InsertExtension = Box<dyn InsertExt>;
 pub type FormatExtension = Box<dyn FormatExt>;

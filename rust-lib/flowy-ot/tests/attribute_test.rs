@@ -3,6 +3,8 @@ pub mod helper;
 use crate::helper::{TestOp::*, *};
 use flowy_ot::core::Interval;
 
+use flowy_ot::client::extensions::NEW_LINE;
+
 #[test]
 fn attributes_insert_text() {
     let ops = vec![
@@ -446,7 +448,7 @@ fn attributes_replace_with_text() {
 }
 
 #[test]
-fn attributes_add_header() {
+fn attributes_header_insert_newline_at_middle() {
     let ops = vec![
         Insert(0, "123456", 0),
         Header(0, Interval::new(0, 6), 1, true),
@@ -465,22 +467,7 @@ fn attributes_add_header() {
 }
 
 #[test]
-fn attributes_header_add_newline() {
-    let ops = vec![
-        Insert(0, "123456", 0),
-        Header(0, Interval::new(0, 6), 1, true),
-        Insert(0, "\n", 6),
-        AssertOpsJson(
-            0,
-            r#"[{"insert":"123456"},{"insert":"\n","attributes":{"header":"1"}},{"insert":"\n"}]"#,
-        ),
-    ];
-
-    OpTester::new().run_script_with_newline(ops);
-}
-
-#[test]
-fn attributes_header_add_newline_2() {
+fn attributes_header_insert_newline_at_middle2() {
     let ops = vec![
         Insert(0, "123456", 0),
         Header(0, Interval::new(0, 6), 1, true),
@@ -498,6 +485,103 @@ fn attributes_header_add_newline_2() {
         AssertOpsJson(
             0,
             r#"[{"insert":"123"},{"insert":"\n\n","attributes":{"header":"1"}},{"insert":"\n456"},{"insert":"\n","attributes":{"header":"1"}}]"#,
+        ),
+    ];
+
+    OpTester::new().run_script_with_newline(ops);
+}
+
+#[test]
+fn attributes_header_insert_newline_at_trailing() {
+    let ops = vec![
+        Insert(0, "123456", 0),
+        Header(0, Interval::new(0, 6), 1, true),
+        Insert(0, "\n", 6),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"123456"},{"insert":"\n","attributes":{"header":"1"}},{"insert":"\n"}]"#,
+        ),
+    ];
+
+    OpTester::new().run_script_with_newline(ops);
+}
+
+#[test]
+fn attributes_add_link() {
+    let ops = vec![
+        Insert(0, "123456", 0),
+        Link(0, Interval::new(0, 6), "https://appflowy.io", true),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"123456","attributes":{"link":"https://appflowy.io"}},{"insert":"\n"}]"#,
+        ),
+    ];
+
+    OpTester::new().run_script_with_newline(ops);
+}
+
+#[test]
+fn attributes_link_insert_char_at_head() {
+    let ops = vec![
+        Insert(0, "123456", 0),
+        Link(0, Interval::new(0, 6), "https://appflowy.io", true),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"123456","attributes":{"link":"https://appflowy.io"}},{"insert":"\n"}]"#,
+        ),
+        Insert(0, "a", 0),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"a"},{"insert":"123456","attributes":{"link":"https://appflowy.io"}},{"insert":"\n"}]"#,
+        ),
+    ];
+
+    OpTester::new().run_script_with_newline(ops);
+}
+
+#[test]
+fn attributes_link_insert_char_at_middle() {
+    let ops = vec![
+        Insert(0, "1256", 0),
+        Link(0, Interval::new(0, 4), "https://appflowy.io", true),
+        Insert(0, "34", 2),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"123456","attributes":{"link":"https://appflowy.io"}},{"insert":"\n"}]"#,
+        ),
+    ];
+
+    OpTester::new().run_script_with_newline(ops);
+}
+
+#[test]
+fn attributes_link_insert_char_at_trailing() {
+    let ops = vec![
+        Insert(0, "123456", 0),
+        Link(0, Interval::new(0, 6), "https://appflowy.io", true),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"123456","attributes":{"link":"https://appflowy.io"}},{"insert":"\n"}]"#,
+        ),
+        Insert(0, "a", 6),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"123456","attributes":{"link":"https://appflowy.io"}},{"insert":"a\n"}]"#,
+        ),
+    ];
+
+    OpTester::new().run_script_with_newline(ops);
+}
+
+#[test]
+fn attributes_link_insert_newline_at_middle() {
+    let ops = vec![
+        Insert(0, "123456", 0),
+        Link(0, Interval::new(0, 6), "https://appflowy.io", true),
+        Insert(0, NEW_LINE, 3),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"123","attributes":{"link":"https://appflowy.io"}},{"insert":"\n"},{"insert":"456","attributes":{"link":"https://appflowy.io"}},{"insert":"\n"}]"#,
         ),
     ];
 

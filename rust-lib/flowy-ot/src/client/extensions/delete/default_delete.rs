@@ -1,5 +1,5 @@
 use crate::{
-    client::view::DeleteExt,
+    client::extensions::DeleteExt,
     core::{Delta, DeltaBuilder, Interval},
 };
 

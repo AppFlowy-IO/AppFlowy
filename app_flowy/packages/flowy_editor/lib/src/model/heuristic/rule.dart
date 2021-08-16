@@ -49,7 +49,7 @@ class Rules {
     // const PreserveBlockStyleOnInsertRule(),
     // const PreserveLineStyleOnSplitRule(),
     const ResetLineFormatOnNewLineRule(),
-    // const AutoFormatLinksRule(),
+    const AutoFormatLinksRule(),
     const PreserveInlineStylesRule(),
     const CatchAllInsertRule(),
     // const EnsureEmbedLineRule(),
