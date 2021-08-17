@@ -38,7 +38,7 @@ impl<'a> DeltaIter<'a> {
     }
 
     // find next op contains NEW_LINE
-    pub fn first_op_contains_newline(&mut self) -> Option<(Operation, usize)> {
+    pub fn first_newline_op(&mut self) -> Option<(Operation, usize)> {
         let mut offset = 0;
         while self.has_next() {
             if let Some(op) = self.next_op() {

@@ -56,6 +56,7 @@ impl AttributeBuilder {
     impl_bool_attribute!(underline, AttributeKey::Underline);
     impl_bool_attribute!(strike_through, AttributeKey::StrikeThrough);
     impl_str_attribute!(link, AttributeKey::Link);
+    // impl_str_attribute!(header, AttributeKey::Header);
 
     pub fn build(self) -> Attributes { self.inner }
 }

@@ -178,3 +178,9 @@ pub fn merge_attributes(mut attributes: Attributes, other: Attributes) -> Attrib
     attributes.extend(other);
     attributes
 }
+
+pub fn attributes_except_header(op: &Operation) -> Attributes {
+    let mut attributes = op.get_attributes();
+    attributes.remove(AttributeKey::Header);
+    attributes
+}

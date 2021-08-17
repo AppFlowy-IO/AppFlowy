@@ -507,6 +507,22 @@ fn attributes_header_insert_newline_at_trailing() {
 }
 
 #[test]
+fn attributes_header_insert_double_newline_at_trailing() {
+    let ops = vec![
+        Insert(0, "123456", 0),
+        Header(0, Interval::new(0, 6), 1, true),
+        Insert(0, "\n", 6),
+        Insert(0, "\n", 7),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"123456"},{"insert":"\n","attributes":{"header":"1"}},{"insert":"\n\n"}]"#,
+        ),
+    ];
+
+    OpTester::new().run_script_with_newline(ops);
+}
+
+#[test]
 fn attributes_add_link() {
     let ops = vec![
         Insert(0, "123456", 0),
@@ -639,6 +655,20 @@ fn attributes_auto_format_exist_link2() {
 #[test]
 fn attributes_add_bullet() {
     let ops = vec![
+        Insert(0, "12", 0),
+        Bullet(0, Interval::new(0, 1), true),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"12"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
+        ),
+    ];
+
+    OpTester::new().run_script_with_newline(ops);
+}
+
+#[test]
+fn attributes_add_bullet2() {
+    let ops = vec![
         Insert(0, "1", 0),
         Bullet(0, Interval::new(0, 1), true),
         AssertOpsJson(
@@ -687,6 +717,46 @@ fn attributes_auto_exit_block() {
         AssertOpsJson(
             0,
             r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}},{"insert":"\n"}]"#,
+        ),
+    ];
+
+    OpTester::new().run_script_with_newline(ops);
+}
+
+#[test]
+fn attributes_preserve_block_when_insert_newline_inside() {
+    let ops = vec![
+        Insert(0, "12", 0),
+        Bullet(0, Interval::new(0, 2), true),
+        Insert(0, NEW_LINE, 2),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"12"},{"insert":"\n\n","attributes":{"bullet":"true"}}]"#,
+        ),
+        Insert(0, "34", 3),
+        AssertOpsJson(
+            0,
+            r#"[
+            {"insert":"12"},{"insert":"\n","attributes":{"bullet":"true"}},
+            {"insert":"34"},{"insert":"\n","attributes":{"bullet":"true"}}
+            ]"#,
+        ),
+        Insert(0, NEW_LINE, 3),
+        AssertOpsJson(
+            0,
+            r#"[
+            {"insert":"12"},{"insert":"\n\n","attributes":{"bullet":"true"}},
+            {"insert":"34"},{"insert":"\n","attributes":{"bullet":"true"}}
+            ]"#,
+        ),
+        Insert(0, "ab", 3),
+        AssertOpsJson(
+            0,
+            r#"[
+            {"insert":"12"},{"insert":"\n","attributes":{"bullet":"true"}},
+            {"insert":"ab"},{"insert":"\n","attributes":{"bullet":"true"}},
+            {"insert":"34"},{"insert":"\n","attributes":{"bullet":"true"}}
+            ]"#,
         ),
     ];
 

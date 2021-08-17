@@ -31,11 +31,8 @@ lazy_static! {
         AttributeKey::Size,
         AttributeKey::Background,
     ]);
-    static ref INGORE_KEYS: HashSet<AttributeKey> = HashSet::from_iter(vec![
-        AttributeKey::Width,
-        AttributeKey::Height,
-        AttributeKey::Style,
-    ]);
+    static ref INGORE_KEYS: HashSet<AttributeKey> =
+        HashSet::from_iter(vec![AttributeKey::Width, AttributeKey::Height,]);
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -103,8 +100,6 @@ pub enum AttributeKey {
     Width,
     #[display(fmt = "height")]
     Height,
-    #[display(fmt = "style")]
-    Style,
     #[display(fmt = "header")]
     Header,
     #[display(fmt = "left")]
@@ -131,6 +126,8 @@ impl AttributeKey {
     pub fn value<T: Into<AttributeValue>>(&self, value: T) -> Attribute {
         let key = self.clone();
         let value: AttributeValue = value.into();
+        debug_assert_eq!(self.check_value(&value), true);
+
         if INLINE_KEYS.contains(self) {
             return Attribute {
                 key,
@@ -152,6 +149,59 @@ impl AttributeKey {
             value,
             scope: AttributeScope::Ignore,
         }
+    }
+
+    fn check_value(&self, value: &AttributeValue) -> bool {
+        if value.0.is_empty() {
+            return true;
+        }
+
+        match self {
+            AttributeKey::Bold
+            | AttributeKey::Italic
+            | AttributeKey::Underline
+            | AttributeKey::StrikeThrough
+            | AttributeKey::Indent
+            | AttributeKey::Align
+            | AttributeKey::CodeBlock
+            | AttributeKey::List
+            | AttributeKey::QuoteBlock
+            | AttributeKey::JustifyAlignment
+            | AttributeKey::Bullet
+            | AttributeKey::Ordered
+            | AttributeKey::Checked
+            | AttributeKey::UnChecked => {
+                if let Err(e) = value.0.parse::<bool>() {
+                    log::error!(
+                        "Parser failed: {:?}. expected bool, but receive {}",
+                        e,
+                        value.0
+                    );
+                    return false;
+                }
+            },
+
+            AttributeKey::Link | AttributeKey::Color | AttributeKey::Background => {},
+
+            AttributeKey::Header
+            | AttributeKey::Width
+            | AttributeKey::Height
+            | AttributeKey::Font
+            | AttributeKey::Size
+            | AttributeKey::LeftAlignment
+            | AttributeKey::CenterAlignment
+            | AttributeKey::RightAlignment => {
+                if let Err(e) = value.0.parse::<usize>() {
+                    log::error!(
+                        "Parser failed: {:?}. expected usize, but receive {}",
+                        e,
+                        value.0
+                    );
+                    return false;
+                }
+            },
+        }
+        true
     }
 }
 

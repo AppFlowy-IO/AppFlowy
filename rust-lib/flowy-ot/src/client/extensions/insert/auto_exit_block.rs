@@ -12,7 +12,7 @@ use crate::{
     },
 };
 
-use crate::core::is_empty_line_at_index;
+use crate::core::{attributes_except_header, is_empty_line_at_index};
 
 pub struct AutoExitBlockExt {}
 
@@ -42,7 +42,7 @@ impl InsertExt for AutoExitBlockExt {
             return None;
         }
 
-        match iter.first_op_contains_newline() {
+        match iter.first_newline_op() {
             None => {},
             Some((newline_op, _)) => {
                 let newline_attributes = attributes_except_header(&newline_op);
@@ -61,10 +61,4 @@ impl InsertExt for AutoExitBlockExt {
                 .build(),
         )
     }
-}
-
-fn attributes_except_header(op: &Operation) -> Attributes {
-    let mut attributes = op.get_attributes();
-    attributes.remove(AttributeKey::Header);
-    attributes
 }

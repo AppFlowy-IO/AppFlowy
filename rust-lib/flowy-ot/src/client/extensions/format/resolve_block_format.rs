@@ -49,7 +49,7 @@ impl FormatExt for ResolveBlockFormatExt {
             match find_newline(op.get_data()) {
                 None => new_delta.retain(op.len(), Attributes::empty()),
                 Some(line_break) => {
-                    debug_assert_eq!(line_break, 0);
+                    new_delta.retain(line_break, Attributes::empty());
                     new_delta.retain(1, attribute.clone().into());
                     break;
                 },
