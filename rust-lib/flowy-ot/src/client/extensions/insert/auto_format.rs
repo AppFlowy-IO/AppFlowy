@@ -5,7 +5,7 @@ use crate::{
 
 pub struct AutoFormatExt {}
 impl InsertExt for AutoFormatExt {
-    fn ext_name(&self) -> &str { "AutoFormatExt" }
+    fn ext_name(&self) -> &str { std::any::type_name::<AutoFormatExt>() }
 
     fn apply(&self, delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta> {
         // enter whitespace to trigger auto format

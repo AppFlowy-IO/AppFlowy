@@ -3,9 +3,9 @@ use crate::{
     core::{AttributeKey, Attributes, CharMetric, Delta, DeltaBuilder, DeltaIter, NEW_LINE},
 };
 
-pub struct ResetLineFormatOnNewLineExt {}
-impl InsertExt for ResetLineFormatOnNewLineExt {
-    fn ext_name(&self) -> &str { "ResetLineFormatOnNewLineExt" }
+pub struct ResetLineFormatOnNewLine {}
+impl InsertExt for ResetLineFormatOnNewLine {
+    fn ext_name(&self) -> &str { std::any::type_name::<ResetLineFormatOnNewLine>() }
 
     fn apply(&self, delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta> {
         if !is_newline(text) {

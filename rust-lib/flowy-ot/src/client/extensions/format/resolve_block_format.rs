@@ -15,9 +15,9 @@ use crate::{
     },
 };
 
-pub struct ResolveBlockFormatExt {}
-impl FormatExt for ResolveBlockFormatExt {
-    fn ext_name(&self) -> &str { "ResolveBlockFormatExt" }
+pub struct ResolveBlockFormat {}
+impl FormatExt for ResolveBlockFormat {
+    fn ext_name(&self) -> &str { std::any::type_name::<ResolveBlockFormat>() }
 
     fn apply(&self, delta: &Delta, interval: Interval, attribute: &Attribute) -> Option<Delta> {
         if attribute.scope != AttributeScope::Block {

@@ -82,21 +82,21 @@ fn construct_insert_exts() -> Vec<InsertExtension> {
     vec![
         Box::new(InsertEmbedsExt {}),
         Box::new(ForceNewlineForInsertsAroundEmbedExt {}),
-        Box::new(AutoExitBlockExt {}),
-        Box::new(PreserveBlockStyleOnInsertExt {}),
-        Box::new(PreserveLineStyleOnSplitExt {}),
-        Box::new(ResetLineFormatOnNewLineExt {}),
+        Box::new(AutoExitBlock {}),
+        Box::new(PreserveBlockFormatOnInsert {}),
+        Box::new(PreserveLineFormatOnSplit {}),
+        Box::new(ResetLineFormatOnNewLine {}),
         Box::new(AutoFormatExt {}),
-        Box::new(PreserveInlineStylesExt {}),
-        Box::new(DefaultInsertExt {}),
+        Box::new(PreserveInlineFormat {}),
+        Box::new(DefaultInsertAttribute {}),
     ]
 }
 
 fn construct_format_exts() -> Vec<FormatExtension> {
     vec![
         Box::new(FormatLinkAtCaretPositionExt {}),
-        Box::new(ResolveBlockFormatExt {}),
-        Box::new(ResolveInlineFormatExt {}),
+        Box::new(ResolveBlockFormat {}),
+        Box::new(ResolveInlineFormat {}),
     ]
 }
 

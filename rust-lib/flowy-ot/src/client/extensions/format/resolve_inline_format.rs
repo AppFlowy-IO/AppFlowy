@@ -6,9 +6,9 @@ use crate::{
     core::{Attribute, AttributeScope, CharMetric, Delta, DeltaBuilder, DeltaIter, Interval},
 };
 
-pub struct ResolveInlineFormatExt {}
-impl FormatExt for ResolveInlineFormatExt {
-    fn ext_name(&self) -> &str { "ResolveInlineFormatExt" }
+pub struct ResolveInlineFormat {}
+impl FormatExt for ResolveInlineFormat {
+    fn ext_name(&self) -> &str { std::any::type_name::<ResolveInlineFormat>() }
 
     fn apply(&self, delta: &Delta, interval: Interval, attribute: &Attribute) -> Option<Delta> {
         if attribute.scope != AttributeScope::Inline {

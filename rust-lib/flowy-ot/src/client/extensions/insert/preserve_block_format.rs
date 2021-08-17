@@ -13,9 +13,9 @@ use crate::{
     },
 };
 
-pub struct PreserveBlockStyleOnInsertExt {}
-impl InsertExt for PreserveBlockStyleOnInsertExt {
-    fn ext_name(&self) -> &str { "PreserveBlockStyleOnInsertExt" }
+pub struct PreserveBlockFormatOnInsert {}
+impl InsertExt for PreserveBlockFormatOnInsert {
+    fn ext_name(&self) -> &str { std::any::type_name::<PreserveBlockFormatOnInsert>() }
 
     fn apply(&self, delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta> {
         if !is_newline(text) {
@@ -38,7 +38,6 @@ impl InsertExt for PreserveBlockStyleOnInsertExt {
                 }
 
                 let lines: Vec<_> = text.split(NEW_LINE).collect();
-                let line_count = lines.len();
                 let mut new_delta = DeltaBuilder::new().retain(index + replace_len).build();
                 lines.iter().enumerate().for_each(|(i, line)| {
                     if !line.is_empty() {
@@ -52,8 +51,6 @@ impl InsertExt for PreserveBlockStyleOnInsertExt {
                     } else {
                         // do nothing
                     }
-
-                    log::info!("{}", new_delta);
                 });
                 if !reset_attribute.is_empty() {
                     new_delta.retain(offset, Attributes::empty());

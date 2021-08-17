@@ -14,10 +14,10 @@ use crate::{
 
 use crate::core::{attributes_except_header, is_empty_line_at_index};
 
-pub struct AutoExitBlockExt {}
+pub struct AutoExitBlock {}
 
-impl InsertExt for AutoExitBlockExt {
-    fn ext_name(&self) -> &str { "AutoExitBlockExt" }
+impl InsertExt for AutoExitBlock {
+    fn ext_name(&self) -> &str { std::any::type_name::<AutoExitBlock>() }
 
     fn apply(&self, delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta> {
         // Auto exit block will be triggered by enter two new lines

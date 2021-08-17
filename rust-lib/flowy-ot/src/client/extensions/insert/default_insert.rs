@@ -3,9 +3,9 @@ use crate::{
     core::{AttributeKey, Attributes, Delta, DeltaBuilder, DeltaIter, NEW_LINE},
 };
 
-pub struct DefaultInsertExt {}
-impl InsertExt for DefaultInsertExt {
-    fn ext_name(&self) -> &str { "DefaultInsertExt" }
+pub struct DefaultInsertAttribute {}
+impl InsertExt for DefaultInsertAttribute {
+    fn ext_name(&self) -> &str { std::any::type_name::<DefaultInsertAttribute>() }
 
     fn apply(&self, delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta> {
         let iter = DeltaIter::new(delta);

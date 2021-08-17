@@ -6,7 +6,7 @@ use crate::{
 pub struct FormatLinkAtCaretPositionExt {}
 
 impl FormatExt for FormatLinkAtCaretPositionExt {
-    fn ext_name(&self) -> &str { "FormatLinkAtCaretPositionExt" }
+    fn ext_name(&self) -> &str { std::any::type_name::<FormatLinkAtCaretPositionExt>() }
 
     fn apply(&self, delta: &Delta, interval: Interval, attribute: &Attribute) -> Option<Delta> {
         if attribute.key != AttributeKey::Link || interval.size() != 0 {

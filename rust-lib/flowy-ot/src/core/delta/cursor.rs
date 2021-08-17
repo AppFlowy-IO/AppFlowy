@@ -8,9 +8,9 @@ use std::{cmp::min, iter::Enumerate, slice::Iter};
 pub struct Cursor<'a> {
     pub(crate) delta: &'a Delta,
     pub(crate) origin_iv: Interval,
-    pub(crate) next_iv: Interval,
-    pub(crate) cur_char_count: usize,
-    pub(crate) cur_op_index: usize,
+    pub(crate) consume_iv: Interval,
+    pub(crate) consume_count: usize,
+    pub(crate) op_index: usize,
     iter: Enumerate<Iter<'a, Operation>>,
     next_op: Option<Operation>,
 }
@@ -21,9 +21,9 @@ impl<'a> Cursor<'a> {
         let mut cursor = Self {
             delta,
             origin_iv: interval,
-            next_iv: interval,
-            cur_char_count: 0,
-            cur_op_index: 0,
+            consume_iv: interval,
+            consume_count: 0,
+            op_index: 0,
             iter: delta.ops.iter().enumerate(),
             next_op: None,
         };
@@ -39,14 +39,14 @@ impl<'a> Cursor<'a> {
     // get the last operation before the index
     pub fn last_op_before_index(&mut self, index: Option<usize>) -> Option<Operation> {
         let mut find_op = None;
-        let next_op = self.next_op.take();
-        let mut next_op = next_op.as_ref();
+        let holder = self.next_op.clone();
+        let mut next_op = holder.as_ref();
 
         if next_op.is_none() {
             next_op = find_next_op(self);
         }
 
-        let pre_char_count = self.cur_char_count;
+        let mut pos = 0;
         while find_op.is_none() && next_op.is_some() {
             let op = next_op.take().unwrap();
             let interval = self.next_iv_before(index);
@@ -56,13 +56,16 @@ impl<'a> Cursor<'a> {
             }
 
             find_op = op.shrink(interval);
+            self.next_op = None;
+
             let suffix = Interval::new(0, op.len()).suffix(interval);
             if !suffix.is_empty() {
                 self.next_op = op.shrink(suffix);
             }
 
-            self.cur_char_count += interval.end;
-            self.next_iv.start = self.cur_char_count;
+            pos += interval.end;
+            self.consume_count += interval.end;
+            self.consume_iv.start = self.consume_count;
 
             if find_op.is_none() {
                 next_op = find_next_op(self);
@@ -71,9 +74,8 @@ impl<'a> Cursor<'a> {
 
         if find_op.is_some() && index.is_some() {
             // try to find the next op before the index if iter_char_count less than index
-            let pos = self.cur_char_count - pre_char_count;
             let end = index.unwrap();
-            if end > pos {
+            if end > pos && self.has_next() {
                 return self.last_op_before_index(Some(end - pos));
             }
         }
@@ -83,18 +85,18 @@ impl<'a> Cursor<'a> {
     pub fn has_next(&self) -> bool { self.next_iter_op().is_some() }
 
     fn descend(&mut self, index: usize) {
-        self.next_iv.start += index;
+        self.consume_iv.start += index;
 
-        if self.cur_char_count >= self.next_iv.start {
+        if self.consume_count >= self.consume_iv.start {
             return;
         }
         while let Some((o_index, op)) = self.iter.next() {
-            self.cur_op_index = o_index;
-            let start = self.cur_char_count;
+            self.op_index = o_index;
+            let start = self.consume_count;
             let end = start + op.len();
-            let intersect = Interval::new(start, end).intersect(self.next_iv);
+            let intersect = Interval::new(start, end).intersect(self.consume_iv);
             if intersect.is_empty() {
-                self.cur_char_count += op.len();
+                self.consume_count += op.len();
             } else {
                 self.next_op = Some(op.clone());
                 break;
@@ -108,7 +110,7 @@ impl<'a> Cursor<'a> {
             let mut offset = 0;
             for op in &self.delta.ops {
                 offset += op.len();
-                if offset > self.cur_char_count {
+                if offset > self.consume_count {
                     next_op = Some(op);
                     break;
                 }
@@ -124,12 +126,13 @@ impl<'a> Cursor<'a> {
         }
 
         let op = next_op.unwrap();
-        let start = self.cur_char_count;
+        let start = self.consume_count;
         let end = match index {
-            None => self.cur_char_count + op.len(),
-            Some(index) => self.cur_char_count + min(index, op.len()),
+            None => self.consume_count + op.len(),
+            Some(index) => self.consume_count + min(index, op.len()),
         };
-        let intersect = Interval::new(start, end).intersect(self.next_iv);
+
+        let intersect = Interval::new(start, end).intersect(self.consume_iv);
         let interval = intersect.translate_neg(start);
         interval
     }
@@ -139,7 +142,7 @@ fn find_next_op<'a>(cursor: &mut Cursor<'a>) -> Option<&'a Operation> {
     match cursor.iter.next() {
         None => None,
         Some((o_index, op)) => {
-            cursor.cur_op_index = o_index;
+            cursor.op_index = o_index;
             Some(op)
         },
     }
@@ -154,7 +157,7 @@ pub struct OpMetric {}
 
 impl Metric for OpMetric {
     fn seek(cursor: &mut Cursor, index: usize) -> SeekResult {
-        let _ = check_bound(cursor.cur_op_index, index)?;
+        let _ = check_bound(cursor.op_index, index)?;
         let mut seek_cursor = Cursor::new(cursor.delta, cursor.origin_iv);
         let mut offset = 0;
         while let Some((_, op)) = seek_cursor.iter.next() {
@@ -172,7 +175,7 @@ pub struct CharMetric {}
 
 impl Metric for CharMetric {
     fn seek(cursor: &mut Cursor, index: usize) -> SeekResult {
-        let _ = check_bound(cursor.cur_char_count, index)?;
+        let _ = check_bound(cursor.consume_count, index)?;
         let _ = cursor.last_op_before_index(Some(index));
 
         Ok(())
