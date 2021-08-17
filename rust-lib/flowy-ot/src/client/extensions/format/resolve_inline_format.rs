@@ -15,14 +15,12 @@ impl FormatExt for ResolveInlineFormatExt {
             return None;
         }
         let mut new_delta = DeltaBuilder::new().retain(interval.start).build();
-        let mut iter = DeltaIter::new(delta);
-        iter.seek::<CharMetric>(interval.start);
-
+        let mut iter = DeltaIter::from_offset(delta, interval.start);
         let mut start = 0;
         let end = interval.size();
 
         while start < end && iter.has_next() {
-            let next_op = iter.next_op_before(end - start).unwrap();
+            let next_op = iter.last_op_before_index(end - start).unwrap();
             match find_newline(next_op.get_data()) {
                 None => new_delta.retain(next_op.len(), attribute.clone().into()),
                 Some(_) => {

@@ -1,9 +1,6 @@
 use crate::{
-    client::{
-        extensions::{InsertExt, NEW_LINE},
-        util::is_newline,
-    },
-    core::{AttributeKey, Attributes, CharMetric, Delta, DeltaBuilder, DeltaIter},
+    client::{extensions::InsertExt, util::is_newline},
+    core::{AttributeKey, Attributes, CharMetric, Delta, DeltaBuilder, DeltaIter, NEW_LINE},
 };
 
 pub struct ResetLineFormatOnNewLineExt {}
@@ -16,8 +13,7 @@ impl InsertExt for ResetLineFormatOnNewLineExt {
         }
 
         let mut iter = DeltaIter::new(delta);
-        iter.seek::<CharMetric>(index);
-        let next_op = iter.next()?;
+        let next_op = iter.first_op_after_index(index)?;
         if !next_op.get_data().starts_with(NEW_LINE) {
             return None;
         }

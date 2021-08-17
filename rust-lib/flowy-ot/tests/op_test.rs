@@ -147,14 +147,13 @@ fn delta_get_ops_in_interval_7() {
     delta.add(insert_a.clone());
     delta.add(retain_a.clone());
 
-    let mut iter_1 = DeltaIter::new(&delta);
-    iter_1.seek::<CharMetric>(2);
+    let mut iter_1 = DeltaIter::from_offset(&delta, 2);
     assert_eq!(iter_1.next_op().unwrap(), OpBuilder::insert("345").build());
     assert_eq!(iter_1.next_op().unwrap(), OpBuilder::retain(3).build());
 
     let mut iter_2 = DeltaIter::new(&delta);
     assert_eq!(
-        iter_2.next_op_before(2).unwrap(),
+        iter_2.last_op_before_index(2).unwrap(),
         OpBuilder::insert("12").build()
     );
     assert_eq!(iter_2.next_op().unwrap(), OpBuilder::insert("345").build());
@@ -181,7 +180,7 @@ fn delta_seek_2() {
 
     let mut iter = DeltaIter::new(&delta);
     assert_eq!(
-        iter.next_op_before(1).unwrap(),
+        iter.last_op_before_index(1).unwrap(),
         OpBuilder::insert("1").build()
     );
 }
@@ -193,21 +192,21 @@ fn delta_seek_3() {
 
     let mut iter = DeltaIter::new(&delta);
     assert_eq!(
-        iter.next_op_before(2).unwrap(),
+        iter.last_op_before_index(2).unwrap(),
         OpBuilder::insert("12").build()
     );
 
     assert_eq!(
-        iter.next_op_before(2).unwrap(),
+        iter.last_op_before_index(2).unwrap(),
         OpBuilder::insert("34").build()
     );
 
     assert_eq!(
-        iter.next_op_before(2).unwrap(),
+        iter.last_op_before_index(2).unwrap(),
         OpBuilder::insert("5").build()
     );
 
-    assert_eq!(iter.next_op_before(1), None);
+    assert_eq!(iter.last_op_before_index(1), None);
 }
 
 #[test]
@@ -218,7 +217,7 @@ fn delta_seek_4() {
     let mut iter = DeltaIter::new(&delta);
     iter.seek::<CharMetric>(3);
     assert_eq!(
-        iter.next_op_before(2).unwrap(),
+        iter.last_op_before_index(2).unwrap(),
         OpBuilder::insert("45").build()
     );
 }
@@ -238,7 +237,7 @@ fn delta_seek_5() {
     iter.seek::<CharMetric>(0);
 
     assert_eq!(
-        iter.next_op_before(4).unwrap(),
+        iter.last_op_before_index(4).unwrap(),
         OpBuilder::insert("1234").attributes(attributes).build(),
     );
 }
@@ -252,7 +251,7 @@ fn delta_next_op_len_test() {
     iter.seek::<CharMetric>(3);
     assert_eq!(iter.next_op_len().unwrap(), 2);
     assert_eq!(
-        iter.next_op_before(1).unwrap(),
+        iter.last_op_before_index(1).unwrap(),
         OpBuilder::insert("4").build()
     );
     assert_eq!(iter.next_op_len().unwrap(), 1);
@@ -267,10 +266,20 @@ fn delta_next_op_len_test2() {
 
     assert_eq!(iter.next_op_len().unwrap(), 5);
     assert_eq!(
-        iter.next_op_before(5).unwrap(),
+        iter.last_op_before_index(5).unwrap(),
         OpBuilder::insert("12345").build()
     );
     assert_eq!(iter.next_op_len(), None);
+}
+
+#[test]
+fn delta_next_op_len_test3() {
+    let mut delta = Delta::default();
+    delta.add(OpBuilder::insert("12345").build());
+    let mut iter = DeltaIter::new(&delta);
+
+    assert_eq!(iter.last_op_before_index(0), None,);
+    assert_eq!(iter.next_op_len().unwrap(), 5);
 }
 
 #[test]

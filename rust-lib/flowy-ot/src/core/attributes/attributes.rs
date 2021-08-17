@@ -37,17 +37,39 @@ impl Attributes {
         self.inner.insert(key, value);
     }
 
-    pub fn remove(&mut self, key: &AttributeKey) {
+    pub fn mark_as_removed(&mut self, key: &AttributeKey) {
         let value: AttributeValue = REMOVE_FLAG.into();
         self.inner.insert(key.clone(), value);
     }
 
-    // Remove the key if its value is empty. e.g. { bold: "" }
-    pub fn remove_empty_value(&mut self) { self.inner.retain(|_, v| !should_remove(v)); }
+    pub fn mark_as_removed_except(&mut self, attribute: &AttributeKey) {
+        self.inner.iter_mut().for_each(|(k, v)| {
+            if k != attribute {
+                v.0 = REMOVE_FLAG.into();
+            }
+            v.0 = REMOVE_FLAG.into();
+        });
+    }
+
+    pub fn remove(&mut self, key: AttributeKey) { self.inner.retain(|k, _| k != &key); }
+
+    // pub fn block_attributes_except_header(attributes: &Attributes) -> Attributes
+    // {     let mut new_attributes = Attributes::new();
+    //     attributes.iter().for_each(|(k, v)| {
+    //         if k != &AttributeKey::Header {
+    //             new_attributes.insert(k.clone(), v.clone());
+    //         }
+    //     });
+    //
+    //     new_attributes
+    // }
+
+    // Remove the empty attribute which value is empty. e.g. {bold: ""}.
+    pub fn remove_empty(&mut self) { self.inner.retain(|_, v| !should_remove(v)); }
 
     pub fn extend(&mut self, other: Attributes) { self.inner.extend(other.inner); }
 
-    // Update self attributes by constructing new attributes from the other if it's
+    // Update inner by constructing new attributes from the other if it's
     // not None and replace the key/value with self key/value.
     pub fn merge(&mut self, other: Option<Attributes>) {
         if other.is_none() {
@@ -144,7 +166,7 @@ pub fn invert_attributes(attr: Attributes, base: Attributes) -> Attributes {
 
     let inverted = attr.iter().fold(base_inverted, |mut attributes, (k, _)| {
         if base.get(k) != attr.get(k) && !base.contains_key(k) {
-            attributes.remove(k);
+            attributes.mark_as_removed(k);
         }
         attributes
     });
@@ -155,16 +177,4 @@ pub fn invert_attributes(attr: Attributes, base: Attributes) -> Attributes {
 pub fn merge_attributes(mut attributes: Attributes, other: Attributes) -> Attributes {
     attributes.extend(other);
     attributes
-}
-
-pub trait AttributesRule {
-    // Remove the empty attribute that its value is empty. e.g. {bold: ""}.
-    fn remove_empty(self) -> Attributes;
-}
-
-impl AttributesRule for Attributes {
-    fn remove_empty(mut self) -> Attributes {
-        self.remove_empty_value();
-        self.into()
-    }
 }

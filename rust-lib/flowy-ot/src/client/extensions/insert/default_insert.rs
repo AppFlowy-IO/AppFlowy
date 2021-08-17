@@ -1,6 +1,6 @@
 use crate::{
-    client::extensions::{InsertExt, NEW_LINE},
-    core::{AttributeKey, Attributes, Delta, DeltaBuilder, DeltaIter},
+    client::extensions::InsertExt,
+    core::{AttributeKey, Attributes, Delta, DeltaBuilder, DeltaIter, NEW_LINE},
 };
 
 pub struct DefaultInsertExt {}

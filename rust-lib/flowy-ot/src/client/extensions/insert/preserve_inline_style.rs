@@ -1,9 +1,6 @@
 use crate::{
-    client::{
-        extensions::InsertExt,
-        util::{contain_newline, OpNewline},
-    },
-    core::{AttributeKey, Attributes, Delta, DeltaBuilder, DeltaIter},
+    client::{extensions::InsertExt, util::contain_newline},
+    core::{AttributeKey, Attributes, Delta, DeltaBuilder, DeltaIter, OpNewline},
 };
 
 pub struct PreserveInlineStylesExt {}
@@ -16,7 +13,7 @@ impl InsertExt for PreserveInlineStylesExt {
         }
 
         let mut iter = DeltaIter::new(delta);
-        let prev = iter.next_op_before(index)?;
+        let prev = iter.last_op_before_index(index)?;
         if OpNewline::parse(&prev).is_contain() {
             return None;
         }

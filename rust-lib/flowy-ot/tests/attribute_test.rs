@@ -3,7 +3,7 @@ pub mod helper;
 use crate::helper::{TestOp::*, *};
 use flowy_ot::core::Interval;
 
-use flowy_ot::client::extensions::{NEW_LINE, WHITESPACE};
+use flowy_ot::core::{NEW_LINE, WHITESPACE};
 
 #[test]
 fn attributes_insert_text() {
@@ -646,6 +646,10 @@ fn attributes_add_bullet() {
             r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
         ),
         Insert(0, NEW_LINE, 1),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"1"},{"insert":"\n\n","attributes":{"bullet":"true"}}]"#,
+        ),
         Insert(0, "2", 2),
         AssertOpsJson(
             0,
@@ -667,6 +671,22 @@ fn attributes_un_bullet_one() {
         AssertOpsJson(
             0,
             r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}},{"insert":"2\n"}]"#,
+        ),
+    ];
+
+    OpTester::new().run_script_with_newline(ops);
+}
+
+#[test]
+fn attributes_auto_exit_block() {
+    let ops = vec![
+        Insert(0, "1", 0),
+        Bullet(0, Interval::new(0, 1), true),
+        Insert(0, NEW_LINE, 1),
+        Insert(0, NEW_LINE, 2),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}},{"insert":"\n"}]"#,
         ),
     ];
 

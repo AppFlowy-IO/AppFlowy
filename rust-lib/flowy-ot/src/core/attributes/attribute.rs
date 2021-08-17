@@ -6,11 +6,19 @@ use std::{collections::HashSet, fmt, fmt::Formatter, iter::FromIterator};
 lazy_static! {
     static ref BLOCK_KEYS: HashSet<AttributeKey> = HashSet::from_iter(vec![
         AttributeKey::Header,
-        AttributeKey::Align,
-        AttributeKey::List,
-        AttributeKey::CodeBlock,
-        AttributeKey::QuoteBlock,
+        AttributeKey::LeftAlignment,
+        AttributeKey::CenterAlignment,
+        AttributeKey::RightAlignment,
+        AttributeKey::JustifyAlignment,
         AttributeKey::Indent,
+        AttributeKey::Align,
+        AttributeKey::CodeBlock,
+        AttributeKey::List,
+        AttributeKey::Bullet,
+        AttributeKey::Ordered,
+        AttributeKey::Checked,
+        AttributeKey::UnChecked,
+        AttributeKey::QuoteBlock,
     ]);
     static ref INLINE_KEYS: HashSet<AttributeKey> = HashSet::from_iter(vec![
         AttributeKey::Bold,
@@ -19,7 +27,14 @@ lazy_static! {
         AttributeKey::StrikeThrough,
         AttributeKey::Link,
         AttributeKey::Color,
+        AttributeKey::Font,
+        AttributeKey::Size,
         AttributeKey::Background,
+    ]);
+    static ref INGORE_KEYS: HashSet<AttributeKey> = HashSet::from_iter(vec![
+        AttributeKey::Width,
+        AttributeKey::Height,
+        AttributeKey::Style,
     ]);
 }
 
@@ -116,45 +131,26 @@ impl AttributeKey {
     pub fn value<T: Into<AttributeValue>>(&self, value: T) -> Attribute {
         let key = self.clone();
         let value: AttributeValue = value.into();
-        match self {
-            AttributeKey::Bold
-            | AttributeKey::Italic
-            | AttributeKey::Underline
-            | AttributeKey::StrikeThrough
-            | AttributeKey::Link
-            | AttributeKey::Color
-            | AttributeKey::Background
-            | AttributeKey::Font
-            | AttributeKey::Size => Attribute {
+        if INLINE_KEYS.contains(self) {
+            return Attribute {
                 key,
                 value,
                 scope: AttributeScope::Inline,
-            },
+            };
+        }
 
-            AttributeKey::Header
-            | AttributeKey::LeftAlignment
-            | AttributeKey::CenterAlignment
-            | AttributeKey::RightAlignment
-            | AttributeKey::JustifyAlignment
-            | AttributeKey::Indent
-            | AttributeKey::Align
-            | AttributeKey::CodeBlock
-            | AttributeKey::List
-            | AttributeKey::Bullet
-            | AttributeKey::Ordered
-            | AttributeKey::Checked
-            | AttributeKey::UnChecked
-            | AttributeKey::QuoteBlock => Attribute {
+        if BLOCK_KEYS.contains(self) {
+            return Attribute {
                 key,
                 value,
                 scope: AttributeScope::Block,
-            },
+            };
+        }
 
-            AttributeKey::Width | AttributeKey::Height | AttributeKey::Style => Attribute {
-                key,
-                value,
-                scope: AttributeScope::Ignore,
-            },
+        Attribute {
+            key,
+            value,
+            scope: AttributeScope::Ignore,
         }
     }
 }
@@ -182,4 +178,11 @@ impl std::convert::From<bool> for AttributeValue {
         };
         AttributeValue(val.to_owned())
     }
+}
+
+pub fn is_block_except_header(k: &AttributeKey) -> bool {
+    if k == &AttributeKey::Header {
+        return false;
+    }
+    BLOCK_KEYS.contains(k)
 }

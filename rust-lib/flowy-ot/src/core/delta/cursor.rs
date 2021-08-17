@@ -34,10 +34,10 @@ impl<'a> Cursor<'a> {
     // get the next operation interval
     pub fn next_iv(&self) -> Interval { self.next_iv_before(None) }
 
-    pub fn next_op(&mut self) -> Option<Operation> { self.next_op_before(None) }
+    pub fn next_op(&mut self) -> Option<Operation> { self.last_op_before_index(None) }
 
     // get the last operation before the index
-    pub fn next_op_before(&mut self, index: Option<usize>) -> Option<Operation> {
+    pub fn last_op_before_index(&mut self, index: Option<usize>) -> Option<Operation> {
         let mut find_op = None;
         let next_op = self.next_op.take();
         let mut next_op = next_op.as_ref();
@@ -74,7 +74,7 @@ impl<'a> Cursor<'a> {
             let pos = self.cur_char_count - pre_char_count;
             let end = index.unwrap();
             if end > pos {
-                return self.next_op_before(Some(end - pos));
+                return self.last_op_before_index(Some(end - pos));
             }
         }
         return find_op;
@@ -173,7 +173,7 @@ pub struct CharMetric {}
 impl Metric for CharMetric {
     fn seek(cursor: &mut Cursor, index: usize) -> SeekResult {
         let _ = check_bound(cursor.cur_char_count, index)?;
-        let _ = cursor.next_op_before(Some(index));
+        let _ = cursor.last_op_before_index(Some(index));
 
         Ok(())
     }

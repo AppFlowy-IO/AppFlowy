@@ -13,7 +13,7 @@ impl InsertExt for AutoFormatExt {
             return None;
         }
         let mut iter = DeltaIter::new(delta);
-        if let Some(prev) = iter.next_op_before(index) {
+        if let Some(prev) = iter.last_op_before_index(index) {
             match AutoFormat::parse(prev.get_data()) {
                 None => {},
                 Some(formatter) => {

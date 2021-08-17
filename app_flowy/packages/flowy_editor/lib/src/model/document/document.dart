@@ -73,6 +73,7 @@ class Document {
     print('insert delta: $delta');
     compose(delta, ChangeSource.LOCAL);
     print('compose insert, current document $_delta');
+    print('compose end');
     return delta;
   }
 

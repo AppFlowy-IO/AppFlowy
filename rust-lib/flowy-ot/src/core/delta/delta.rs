@@ -168,11 +168,11 @@ impl Delta {
             );
 
             let op = iter
-                .next_op_before(length)
+                .last_op_before_index(length)
                 .unwrap_or(OpBuilder::retain(length).build());
 
             let other_op = other_iter
-                .next_op_before(length)
+                .last_op_before_index(length)
                 .unwrap_or(OpBuilder::retain(length).build());
 
             debug_assert_eq!(op.len(), other_op.len());
@@ -194,7 +194,7 @@ impl Delta {
                         insert.attributes.clone(),
                         other_retain.attributes.clone(),
                     );
-                    composed_attrs = composed_attrs.remove_empty();
+                    composed_attrs.remove_empty();
                     new_delta.add(
                         OpBuilder::insert(op.get_data())
                             .attributes(composed_attrs)
@@ -300,7 +300,7 @@ impl Delta {
                 },
                 (Some(Operation::Insert(insert)), Some(Operation::Retain(o_retain))) => {
                     let mut composed_attrs = compose_operation(&next_op1, &next_op2);
-                    composed_attrs = composed_attrs.remove_empty();
+                    composed_attrs.remove_empty();
 
                     log::debug!(
                         "compose: [{} - {}], composed_attrs: {}",

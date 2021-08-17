@@ -13,10 +13,8 @@ impl FormatExt for FormatLinkAtCaretPositionExt {
             return None;
         }
 
-        let mut iter = DeltaIter::new(delta);
-        iter.seek::<CharMetric>(interval.start);
-
-        let (before, after) = (iter.next_op_before(interval.size()), iter.next());
+        let mut iter = DeltaIter::from_offset(delta, interval.start);
+        let (before, after) = (iter.last_op_before_index(interval.size()), iter.next_op());
         let mut start = interval.end;
         let mut retain = 0;
 
