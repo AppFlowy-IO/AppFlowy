@@ -28,9 +28,10 @@ serde_json = {version = "1.0"}
 flowy-dispatch = {path = "../flowy-dispatch"}
 flowy-sdk = {path = "../flowy-sdk"}
 flowy-derive = {path = "../flowy-derive"}
-flowy-observable = {path = "../flowy-observable", features = ["dart"]}
+flowy-observable = {path = "../flowy-observable"}
 
 
-#[features]
+[features]
+observable = ["flowy-observable/dart"]
 #use_serde = ["bincode"]
 #use_protobuf= ["protobuf"]
