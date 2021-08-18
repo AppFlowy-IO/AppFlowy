@@ -42,13 +42,21 @@ impl Attributes {
         self.inner.insert(key.clone(), value);
     }
 
-    pub fn mark_as_removed_except(&mut self, attribute: &AttributeKey) {
-        self.inner.iter_mut().for_each(|(k, v)| {
-            if k != attribute {
-                v.0 = REMOVE_FLAG.into();
-            }
-            v.0 = REMOVE_FLAG.into();
-        });
+    pub fn mark_all_as_removed_except(&mut self, attribute: Option<AttributeKey>) {
+        match attribute {
+            None => {
+                self.inner
+                    .iter_mut()
+                    .for_each(|(k, v)| v.0 = REMOVE_FLAG.into());
+            },
+            Some(attribute) => {
+                self.inner.iter_mut().for_each(|(k, v)| {
+                    if k != &attribute {
+                        v.0 = REMOVE_FLAG.into();
+                    }
+                });
+            },
+        }
     }
 
     pub fn remove(&mut self, key: AttributeKey) { self.inner.retain(|k, _| k != &key); }

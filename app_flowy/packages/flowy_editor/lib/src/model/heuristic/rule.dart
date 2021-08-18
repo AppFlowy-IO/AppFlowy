@@ -53,7 +53,7 @@ class Rules {
     const PreserveInlineStylesRule(),
     const CatchAllInsertRule(),
     // const EnsureEmbedLineRule(),
-    // const PreserveLineStyleOnMergeRule(),
+    const PreserveLineStyleOnMergeRule(),
     const CatchAllDeleteRule(),
   ]);
 

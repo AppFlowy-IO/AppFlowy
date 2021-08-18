@@ -1,15 +1,6 @@
 use crate::{
     client::{extensions::InsertExt, util::is_newline},
-    core::{
-        AttributeKey,
-        AttributeValue,
-        Attributes,
-        CharMetric,
-        Delta,
-        DeltaBuilder,
-        DeltaIter,
-        Operation,
-    },
+    core::{AttributeKey, Delta, DeltaBuilder, DeltaIter, Operation},
 };
 
 use crate::core::{attributes_except_header, is_empty_line_at_index};
@@ -42,7 +33,7 @@ impl InsertExt for AutoExitBlock {
             return None;
         }
 
-        match iter.first_newline_op() {
+        match iter.next_op_with_newline() {
             None => {},
             Some((newline_op, _)) => {
                 let newline_attributes = attributes_except_header(&newline_op);
@@ -52,7 +43,7 @@ impl InsertExt for AutoExitBlock {
             },
         }
 
-        attributes.mark_as_removed_except(&AttributeKey::Header);
+        attributes.mark_all_as_removed_except(Some(AttributeKey::Header));
 
         Some(
             DeltaBuilder::new()

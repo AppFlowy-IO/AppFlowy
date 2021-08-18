@@ -2,7 +2,6 @@ use crate::{
     client::{extensions::InsertExt, util::is_newline},
     core::{
         attributes_except_header,
-        AttributeBuilder,
         AttributeKey,
         Attributes,
         Delta,
@@ -23,7 +22,7 @@ impl InsertExt for PreserveBlockFormatOnInsert {
         }
 
         let mut iter = DeltaIter::from_offset(delta, index);
-        match iter.first_newline_op() {
+        match iter.next_op_with_newline() {
             None => {},
             Some((newline_op, offset)) => {
                 let newline_attributes = newline_op.get_attributes();

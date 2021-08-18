@@ -1,4 +1,4 @@
-use crate::core::{Operation, NEW_LINE, WHITESPACE};
+use crate::core::{NEW_LINE, WHITESPACE};
 
 #[inline]
 pub fn find_newline(s: &str) -> Option<usize> {
@@ -7,9 +7,6 @@ pub fn find_newline(s: &str) -> Option<usize> {
         Some(line_break) => Some(line_break),
     }
 }
-
-#[inline]
-pub fn is_op_contains_newline(op: &Operation) -> bool { contain_newline(op.get_data()) }
 
 #[inline]
 pub fn is_newline(s: &str) -> bool { s == NEW_LINE }

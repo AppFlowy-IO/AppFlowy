@@ -762,3 +762,23 @@ fn attributes_preserve_block_when_insert_newline_inside() {
 
     OpTester::new().run_script_with_newline(ops);
 }
+
+#[test]
+fn attributes_preserve_line_format_on_merge() {
+    let ops = vec![
+        Insert(0, "123456", 0),
+        Header(0, Interval::new(0, 6), 1, true),
+        Insert(0, NEW_LINE, 3),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"123"},{"insert":"\n","attributes":{"header":"1"}},{"insert":"456"},{"insert":"\n","attributes":{"header":"1"}}]"#,
+        ),
+        Delete(0, Interval::new(3, 4)),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"123456"},{"insert":"\n","attributes":{"header":"1"}}]"#,
+        ),
+    ];
+
+    OpTester::new().run_script_with_newline(ops);
+}

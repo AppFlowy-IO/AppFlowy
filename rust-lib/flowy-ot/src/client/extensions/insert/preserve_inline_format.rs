@@ -3,16 +3,7 @@ use crate::{
         extensions::InsertExt,
         util::{contain_newline, is_newline},
     },
-    core::{
-        AttributeKey,
-        Attributes,
-        Delta,
-        DeltaBuilder,
-        DeltaIter,
-        OpNewline,
-        Operation,
-        NEW_LINE,
-    },
+    core::{AttributeKey, Attributes, Delta, DeltaBuilder, DeltaIter, OpNewline, NEW_LINE},
 };
 
 pub struct PreserveInlineFormat {}
@@ -25,7 +16,7 @@ impl InsertExt for PreserveInlineFormat {
         }
 
         let mut iter = DeltaIter::new(delta);
-        let prev = iter.last_op_before_index(index)?;
+        let prev = iter.next_op_with_len(index)?;
         if OpNewline::parse(&prev).is_contain() {
             return None;
         }
@@ -69,7 +60,7 @@ impl InsertExt for PreserveLineFormatOnSplit {
         }
 
         let mut iter = DeltaIter::new(delta);
-        let prev = iter.last_op_before_index(index)?;
+        let prev = iter.next_op_with_len(index)?;
         if OpNewline::parse(&prev).is_end() {
             return None;
         }
@@ -89,7 +80,7 @@ impl InsertExt for PreserveLineFormatOnSplit {
             return Some(new_delta);
         }
 
-        match iter.first_newline_op() {
+        match iter.next_op_with_newline() {
             None => {},
             Some((newline_op, _)) => {
                 new_delta.insert(NEW_LINE, newline_op.get_attributes());

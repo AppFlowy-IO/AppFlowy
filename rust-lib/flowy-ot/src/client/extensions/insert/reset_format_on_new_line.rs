@@ -13,7 +13,8 @@ impl InsertExt for ResetLineFormatOnNewLine {
         }
 
         let mut iter = DeltaIter::new(delta);
-        let next_op = iter.first_op_after_index(index)?;
+        iter.seek::<CharMetric>(index);
+        let next_op = iter.next_op()?;
         if !next_op.get_data().starts_with(NEW_LINE) {
             return None;
         }

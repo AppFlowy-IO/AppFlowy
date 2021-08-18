@@ -168,11 +168,11 @@ impl Delta {
             );
 
             let op = iter
-                .last_op_before_index(length)
+                .next_op_with_len(length)
                 .unwrap_or(OpBuilder::retain(length).build());
 
             let other_op = other_iter
-                .last_op_before_index(length)
+                .next_op_with_len(length)
                 .unwrap_or(OpBuilder::retain(length).build());
 
             debug_assert_eq!(op.len(), other_op.len());

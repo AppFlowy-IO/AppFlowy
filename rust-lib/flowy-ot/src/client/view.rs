@@ -102,7 +102,7 @@ fn construct_format_exts() -> Vec<FormatExtension> {
 
 fn construct_delete_exts() -> Vec<DeleteExtension> {
     vec![
-        //
-        Box::new(DefaultDeleteExt {}),
+        Box::new(PreserveLineFormatOnMerge {}),
+        Box::new(DefaultDelete {}),
     ]
 }

@@ -3,16 +3,7 @@ use crate::{
         extensions::{format::helper::line_break, FormatExt},
         util::find_newline,
     },
-    core::{
-        Attribute,
-        AttributeScope,
-        Attributes,
-        CharMetric,
-        Delta,
-        DeltaBuilder,
-        DeltaIter,
-        Interval,
-    },
+    core::{Attribute, AttributeScope, Attributes, Delta, DeltaBuilder, DeltaIter, Interval},
 };
 
 pub struct ResolveBlockFormat {}
@@ -29,7 +20,7 @@ impl FormatExt for ResolveBlockFormat {
         let mut start = 0;
         let end = interval.size();
         while start < end && iter.has_next() {
-            let next_op = iter.last_op_before_index(end - start).unwrap();
+            let next_op = iter.next_op_with_len(end - start).unwrap();
             match find_newline(next_op.get_data()) {
                 None => new_delta.retain(next_op.len(), Attributes::empty()),
                 Some(_) => {

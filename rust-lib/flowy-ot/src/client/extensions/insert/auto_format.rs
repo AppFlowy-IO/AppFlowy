@@ -13,7 +13,7 @@ impl InsertExt for AutoFormatExt {
             return None;
         }
         let mut iter = DeltaIter::new(delta);
-        if let Some(prev) = iter.last_op_before_index(index) {
+        if let Some(prev) = iter.next_op_with_len(index) {
             match AutoFormat::parse(prev.get_data()) {
                 None => {},
                 Some(formatter) => {
@@ -50,7 +50,7 @@ impl InsertExt for AutoFormatExt {
     }
 }
 
-use crate::core::{Attribute, AttributeBuilder, Attributes, DeltaBuilder, Operation};
+use crate::core::{AttributeBuilder, Attributes, DeltaBuilder, Operation};
 use bytecount::num_chars;
 use std::cmp::min;
 use url::Url;

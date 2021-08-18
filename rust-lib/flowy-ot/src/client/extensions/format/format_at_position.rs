@@ -1,6 +1,6 @@
 use crate::{
     client::extensions::FormatExt,
-    core::{Attribute, AttributeKey, CharMetric, Delta, DeltaBuilder, DeltaIter, Interval},
+    core::{Attribute, AttributeKey, Delta, DeltaBuilder, DeltaIter, Interval},
 };
 
 pub struct FormatLinkAtCaretPositionExt {}
@@ -14,7 +14,7 @@ impl FormatExt for FormatLinkAtCaretPositionExt {
         }
 
         let mut iter = DeltaIter::from_offset(delta, interval.start);
-        let (before, after) = (iter.last_op_before_index(interval.size()), iter.next_op());
+        let (before, after) = (iter.next_op_with_len(interval.size()), iter.next_op());
         let mut start = interval.end;
         let mut retain = 0;
 

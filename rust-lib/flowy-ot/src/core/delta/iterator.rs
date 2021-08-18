@@ -5,7 +5,7 @@ use std::ops::{Deref, DerefMut};
 pub(crate) const MAX_IV_LEN: usize = i32::MAX as usize;
 
 pub struct DeltaIter<'a> {
-    cursor: Cursor<'a>,
+    cursor: OpCursor<'a>,
 }
 
 impl<'a> DeltaIter<'a> {
@@ -22,7 +22,7 @@ impl<'a> DeltaIter<'a> {
     }
 
     pub fn from_interval(delta: &'a Delta, interval: Interval) -> Self {
-        let cursor = Cursor::new(delta, interval);
+        let cursor = OpCursor::new(delta, interval);
         Self { cursor }
     }
 
@@ -37,8 +37,14 @@ impl<'a> DeltaIter<'a> {
         }
     }
 
+    pub fn next_op(&mut self) -> Option<Operation> { self.cursor.next() }
+
+    pub fn next_op_with_len(&mut self, len: usize) -> Option<Operation> {
+        self.cursor.next_with_len(Some(len))
+    }
+
     // find next op contains NEW_LINE
-    pub fn first_newline_op(&mut self) -> Option<(Operation, usize)> {
+    pub fn next_op_with_newline(&mut self) -> Option<(Operation, usize)> {
         let mut offset = 0;
         while self.has_next() {
             if let Some(op) = self.next_op() {
@@ -50,17 +56,6 @@ impl<'a> DeltaIter<'a> {
         }
 
         None
-    }
-
-    pub fn next_op(&mut self) -> Option<Operation> { self.cursor.next_op() }
-
-    pub fn last_op_before_index(&mut self, index: usize) -> Option<Operation> {
-        self.cursor.last_op_before_index(Some(index))
-    }
-
-    pub fn first_op_after_index(&mut self, index: usize) -> Option<Operation> {
-        self.seek::<CharMetric>(index);
-        self.next_op()
     }
 
     pub fn seek<M: Metric>(&mut self, index: usize) {
@@ -101,7 +96,7 @@ impl<'a> Iterator for DeltaIter<'a> {
 
 pub fn is_empty_line_at_index(delta: &Delta, index: usize) -> bool {
     let mut iter = DeltaIter::new(delta);
-    let (prev, next) = (iter.last_op_before_index(index), iter.next_op());
+    let (prev, next) = (iter.next_op_with_len(index), iter.next_op());
     if prev.is_none() {
         return true;
     }
@@ -151,7 +146,7 @@ impl<'a> DerefMut for AttributesIter<'a> {
 impl<'a> Iterator for AttributesIter<'a> {
     type Item = (usize, Attributes);
     fn next(&mut self) -> Option<Self::Item> {
-        let next_op = self.delta_iter.next();
+        let next_op = self.delta_iter.next_op();
         if next_op.is_none() {
             return None;
         }

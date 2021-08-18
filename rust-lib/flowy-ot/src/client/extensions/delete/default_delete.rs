@@ -3,9 +3,9 @@ use crate::{
     core::{Delta, DeltaBuilder, Interval},
 };
 
-pub struct DefaultDeleteExt {}
-impl DeleteExt for DefaultDeleteExt {
-    fn ext_name(&self) -> &str { "DeleteExt" }
+pub struct DefaultDelete {}
+impl DeleteExt for DefaultDelete {
+    fn ext_name(&self) -> &str { "DefaultDelete" }
 
     fn apply(&self, _delta: &Delta, interval: Interval) -> Option<Delta> {
         Some(
