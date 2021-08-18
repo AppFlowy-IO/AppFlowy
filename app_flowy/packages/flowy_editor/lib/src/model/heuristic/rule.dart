@@ -43,7 +43,7 @@ class Rules {
     const FormatLinkAtCaretPositionRule(),
     const ResolveLineFormatRule(),
     const ResolveInlineFormatRule(),
-    // const InsertEmbedsRule(),
+    const InsertEmbedsRule(),
     // const ForceNewlineForInsertsAroundEmbedRule(),
     const AutoExitBlockRule(),
     const PreserveBlockStyleOnInsertRule(),

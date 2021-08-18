@@ -23,6 +23,14 @@ impl Error for OTError {
     fn source(&self) -> Option<&(dyn Error + 'static)> { None }
 }
 
+impl std::convert::From<serde_json::Error> for OTError {
+    fn from(error: serde_json::Error) -> Self {
+        ErrorBuilder::new(OTErrorCode::SerdeError)
+            .error(error)
+            .build()
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum OTErrorCode {
     IncompatibleLength,
@@ -33,6 +41,7 @@ pub enum OTErrorCode {
     IntervalOutOfBound,
     UndoFail,
     RedoFail,
+    SerdeError,
 }
 
 pub struct ErrorBuilder {

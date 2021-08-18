@@ -1,10 +1,12 @@
 use crate::{
-    client::{view::View, History, RevId, UndoResult},
+    client::{view::View, History, RevId, UndoResult, RECORD_THRESHOLD},
     core::*,
     errors::{ErrorBuilder, OTError, OTErrorCode, OTErrorCode::*},
 };
 
-pub const RECORD_THRESHOLD: usize = 400; // in milliseconds
+pub trait DocumentData {
+    fn into_string(self) -> Result<String, OTError>;
+}
 
 pub struct Document {
     delta: Delta,
@@ -30,10 +32,12 @@ impl Document {
         }
     }
 
-    pub fn insert(&mut self, index: usize, text: &str) -> Result<Delta, OTError> {
+    pub fn insert<T: DocumentData>(&mut self, index: usize, data: T) -> Result<Delta, OTError> {
         let interval = Interval::new(index, index);
         let _ = validate_interval(&self.delta, &interval)?;
-        let delta = self.view.insert(&self.delta, text, interval)?;
+
+        let text = data.into_string()?;
+        let delta = self.view.insert(&self.delta, &text, interval)?;
         log::debug!("👉 receive change: {}", delta);
         self.add_delta(&delta)?;
         Ok(delta)
@@ -63,11 +67,16 @@ impl Document {
         Ok(())
     }
 
-    pub fn replace(&mut self, interval: Interval, text: &str) -> Result<Delta, OTError> {
+    pub fn replace<T: DocumentData>(
+        &mut self,
+        interval: Interval,
+        data: T,
+    ) -> Result<Delta, OTError> {
         let _ = validate_interval(&self.delta, &interval)?;
         let mut delta = Delta::default();
+        let text = data.into_string()?;
         if !text.is_empty() {
-            delta = self.view.insert(&self.delta, text, interval)?;
+            delta = self.view.insert(&self.delta, &text, interval)?;
             log::debug!("👉 receive change: {}", delta);
             self.add_delta(&delta)?;
         }

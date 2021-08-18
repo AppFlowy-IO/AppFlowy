@@ -4,6 +4,8 @@ use crate::{
     errors::{ErrorBuilder, OTError, OTErrorCode},
 };
 
+pub const RECORD_THRESHOLD: usize = 400; // in milliseconds
+
 pub struct View {
     insert_exts: Vec<InsertExtension>,
     format_exts: Vec<FormatExtension>,
