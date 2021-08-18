@@ -7,7 +7,6 @@ use crate::{
         Delta,
         DeltaBuilder,
         DeltaIter,
-        Operation,
         NEW_LINE,
     },
 };

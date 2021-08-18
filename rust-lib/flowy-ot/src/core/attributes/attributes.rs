@@ -47,7 +47,7 @@ impl Attributes {
             None => {
                 self.inner
                     .iter_mut()
-                    .for_each(|(k, v)| v.0 = REMOVE_FLAG.into());
+                    .for_each(|(_k, v)| v.0 = REMOVE_FLAG.into());
             },
             Some(attribute) => {
                 self.inner.iter_mut().for_each(|(k, v)| {

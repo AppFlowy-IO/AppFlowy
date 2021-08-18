@@ -1,10 +1,13 @@
 pub mod helper;
 
 use crate::helper::{TestOp::*, *};
-use flowy_ot::{client::RECORD_THRESHOLD, core::Interval};
+use flowy_ot::{
+    client::RECORD_THRESHOLD,
+    core::{Interval, NEW_LINE, WHITESPACE},
+};
 
 #[test]
-fn history_undo_insert() {
+fn history_insert_undo() {
     let ops = vec![
         Insert(0, "123", 0),
         Undo(0),
@@ -14,7 +17,7 @@ fn history_undo_insert() {
 }
 
 #[test]
-fn history_undo_insert2() {
+fn history_insert_undo_with_lagging() {
     let ops = vec![
         Insert(0, "123", 0),
         Wait(RECORD_THRESHOLD),
@@ -28,7 +31,7 @@ fn history_undo_insert2() {
 }
 
 #[test]
-fn history_redo_insert() {
+fn history_insert_redo() {
     let ops = vec![
         Insert(0, "123", 0),
         AssertOpsJson(0, r#"[{"insert":"123\n"}]"#),
@@ -41,7 +44,7 @@ fn history_redo_insert() {
 }
 
 #[test]
-fn history_redo_insert_with_lagging() {
+fn history_insert_redo_with_lagging() {
     let ops = vec![
         Insert(0, "123", 0),
         Wait(RECORD_THRESHOLD),
@@ -60,7 +63,7 @@ fn history_redo_insert_with_lagging() {
 }
 
 #[test]
-fn history_undo_attributes() {
+fn history_bold_undo() {
     let ops = vec![
         Insert(0, "123", 0),
         Bold(0, Interval::new(0, 3), true),
@@ -71,7 +74,7 @@ fn history_undo_attributes() {
 }
 
 #[test]
-fn history_undo_attributes_with_lagging() {
+fn history_bold_undo_with_lagging() {
     let ops = vec![
         Insert(0, "123", 0),
         Wait(RECORD_THRESHOLD),
@@ -83,7 +86,7 @@ fn history_undo_attributes_with_lagging() {
 }
 
 #[test]
-fn history_redo_attributes() {
+fn history_bold_redo() {
     let ops = vec![
         Insert(0, "123", 0),
         Bold(0, Interval::new(0, 3), true),
@@ -99,7 +102,7 @@ fn history_redo_attributes() {
 }
 
 #[test]
-fn history_redo_attributes_with_lagging() {
+fn history_bold_redo_with_lagging() {
     let ops = vec![
         Insert(0, "123", 0),
         Wait(RECORD_THRESHOLD),
@@ -116,7 +119,7 @@ fn history_redo_attributes_with_lagging() {
 }
 
 #[test]
-fn history_undo_delete() {
+fn history_delete_undo() {
     let ops = vec![
         Insert(0, "123", 0),
         AssertOpsJson(0, r#"[{"insert":"123"}]"#),
@@ -129,7 +132,7 @@ fn history_undo_delete() {
 }
 
 #[test]
-fn history_undo_delete2() {
+fn history_delete_undo_2() {
     let ops = vec![
         Insert(0, "123", 0),
         Bold(0, Interval::new(0, 3), true),
@@ -148,7 +151,7 @@ fn history_undo_delete2() {
 }
 
 #[test]
-fn history_undo_delete2_with_lagging() {
+fn history_delete_undo_with_lagging() {
     let ops = vec![
         Insert(0, "123", 0),
         Wait(RECORD_THRESHOLD),
@@ -175,7 +178,7 @@ fn history_undo_delete2_with_lagging() {
 }
 
 #[test]
-fn history_redo_delete() {
+fn history_delete_redo() {
     let ops = vec![
         Insert(0, "123", 0),
         Wait(RECORD_THRESHOLD),
@@ -189,7 +192,7 @@ fn history_redo_delete() {
 }
 
 #[test]
-fn history_undo_replace() {
+fn history_replace_undo() {
     let ops = vec![
         Insert(0, "123", 0),
         Bold(0, Interval::new(0, 3), true),
@@ -208,7 +211,7 @@ fn history_undo_replace() {
 }
 
 #[test]
-fn history_undo_replace_with_lagging() {
+fn history_replace_undo_with_lagging() {
     let ops = vec![
         Insert(0, "123", 0),
         Wait(RECORD_THRESHOLD),
@@ -232,7 +235,7 @@ fn history_undo_replace_with_lagging() {
 }
 
 #[test]
-fn history_redo_replace() {
+fn history_replace_redo() {
     let ops = vec![
         Insert(0, "123", 0),
         Bold(0, Interval::new(0, 3), true),
@@ -251,13 +254,14 @@ fn history_redo_replace() {
 }
 
 #[test]
-fn history_undo_add_header() {
+fn history_header_added_undo() {
     let ops = vec![
         Insert(0, "123456", 0),
         Header(0, Interval::new(0, 6), 1, true),
         Insert(0, "\n", 3),
         Insert(0, "\n", 4),
         Undo(0),
+        AssertOpsJson(0, r#"[{"insert":"\n"}]"#),
         Redo(0),
         AssertOpsJson(
             0,
@@ -269,7 +273,7 @@ fn history_undo_add_header() {
 }
 
 #[test]
-fn history_undo_add_link() {
+fn history_link_added_undo() {
     let site = "https://appflowy.io";
     let ops = vec![
         Insert(0, site, 0),
@@ -281,6 +285,106 @@ fn history_undo_add_link() {
         AssertOpsJson(
             0,
             r#"[{"insert":"https://appflowy.io","attributes":{"link":"https://appflowy.io"}},{"insert":"\n"}]"#,
+        ),
+    ];
+
+    OpTester::new().run_script_with_newline(ops);
+}
+
+#[test]
+fn history_link_auto_format_undo_with_lagging() {
+    let site = "https://appflowy.io";
+    let ops = vec![
+        Insert(0, site, 0),
+        AssertOpsJson(0, r#"[{"insert":"https://appflowy.io\n"}]"#),
+        Wait(RECORD_THRESHOLD),
+        Insert(0, WHITESPACE, site.len()),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"https://appflowy.io","attributes":{"link":"https://appflowy.io/"}},{"insert":" \n"}]"#,
+        ),
+        Undo(0),
+        AssertOpsJson(0, r#"[{"insert":"https://appflowy.io\n"}]"#),
+    ];
+
+    OpTester::new().run_script_with_newline(ops);
+}
+
+#[test]
+fn history_bullet_undo() {
+    let ops = vec![
+        Insert(0, "1", 0),
+        Bullet(0, Interval::new(0, 1), true),
+        Insert(0, NEW_LINE, 1),
+        Insert(0, "2", 2),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}},{"insert":"2"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
+        ),
+        Undo(0),
+        AssertOpsJson(0, r#"[{"insert":"\n"}]"#),
+        Redo(0),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}},{"insert":"2"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
+        ),
+    ];
+
+    OpTester::new().run_script_with_newline(ops);
+}
+
+#[test]
+fn history_bullet_undo_with_lagging() {
+    let ops = vec![
+        Insert(0, "1", 0),
+        Bullet(0, Interval::new(0, 1), true),
+        Wait(RECORD_THRESHOLD),
+        Insert(0, NEW_LINE, 1),
+        Insert(0, "2", 2),
+        Wait(RECORD_THRESHOLD),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}},{"insert":"2"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
+        ),
+        Undo(0),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
+        ),
+        Undo(0),
+        AssertOpsJson(0, r#"[{"insert":"\n"}]"#),
+        Redo(0),
+        Redo(0),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}},{"insert":"2"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
+        ),
+    ];
+
+    OpTester::new().run_script_with_newline(ops);
+}
+
+#[test]
+fn history_undo_attribute_on_merge_between_line() {
+    let ops = vec![
+        Insert(0, "123456", 0),
+        Bullet(0, Interval::new(0, 6), true),
+        Wait(RECORD_THRESHOLD),
+        Insert(0, NEW_LINE, 3),
+        Wait(RECORD_THRESHOLD),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"123"},{"insert":"\n","attributes":{"bullet":"true"}},{"insert":"456"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
+        ),
+        Delete(0, Interval::new(3, 4)), // delete the newline
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"123456"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
+        ),
+        Undo(0),
+        AssertOpsJson(
+            0,
+            r#"[{"insert":"123"},{"insert":"\n","attributes":{"bullet":"true"}},{"insert":"456"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
         ),
     ];
 

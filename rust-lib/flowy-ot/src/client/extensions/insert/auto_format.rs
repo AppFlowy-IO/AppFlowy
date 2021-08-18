@@ -50,7 +50,7 @@ impl InsertExt for AutoFormatExt {
     }
 }
 
-use crate::core::{AttributeBuilder, Attributes, DeltaBuilder, Operation};
+use crate::core::{AttributeBuilder, Attributes, DeltaBuilder};
 use bytecount::num_chars;
 use std::cmp::min;
 use url::Url;

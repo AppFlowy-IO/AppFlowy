@@ -3,7 +3,7 @@ use flowy_ot::{client::Document, core::*};
 use rand::{prelude::*, Rng as WrappedRng};
 use std::{sync::Once, time::Duration};
 
-const LEVEL: &'static str = "debug";
+const LEVEL: &'static str = "info";
 
 #[derive(Clone, Debug, Display)]
 pub enum TestOp {

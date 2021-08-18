@@ -6,6 +6,36 @@ use flowy_ot::core::*;
 use helper::*;
 
 #[test]
+fn attributes_insert_text() {
+    let ops = vec![
+        Insert(0, "123", 0),
+        Insert(0, "456", 3),
+        AssertOpsJson(0, r#"[{"insert":"123456"}]"#),
+    ];
+    OpTester::new().run_script(ops);
+}
+
+#[test]
+fn attributes_insert_text_at_head() {
+    let ops = vec![
+        Insert(0, "123", 0),
+        Insert(0, "456", 0),
+        AssertOpsJson(0, r#"[{"insert":"456123"}]"#),
+    ];
+    OpTester::new().run_script(ops);
+}
+
+#[test]
+fn attributes_insert_text_at_middle() {
+    let ops = vec![
+        Insert(0, "123", 0),
+        Insert(0, "456", 1),
+        AssertOpsJson(0, r#"[{"insert":"145623"}]"#),
+    ];
+    OpTester::new().run_script(ops);
+}
+
+#[test]
 fn delta_get_ops_in_interval_1() {
     let mut delta = Delta::default();
     let insert_a = OpBuilder::insert("123").build();

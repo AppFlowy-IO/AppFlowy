@@ -94,7 +94,7 @@ fn construct_insert_exts() -> Vec<InsertExtension> {
 
 fn construct_format_exts() -> Vec<FormatExtension> {
     vec![
-        Box::new(FormatLinkAtCaretPositionExt {}),
+        // Box::new(FormatLinkAtCaretPositionExt {}),
         Box::new(ResolveBlockFormat {}),
         Box::new(ResolveInlineFormat {}),
     ]

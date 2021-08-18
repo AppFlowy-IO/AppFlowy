@@ -1,6 +1,6 @@
 use crate::{
     client::{extensions::DeleteExt, util::is_newline},
-    core::{Attributes, CharMetric, Delta, DeltaBuilder, DeltaIter, Interval, Operation, NEW_LINE},
+    core::{Attributes, CharMetric, Delta, DeltaBuilder, DeltaIter, Interval, NEW_LINE},
 };
 
 pub struct PreserveLineFormatOnMerge {}

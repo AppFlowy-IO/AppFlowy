@@ -93,7 +93,8 @@ class EditorController extends ChangeNotifier {
       toggledStyle = toggledStyle.put(attribute);
     }
 
-    final change = document.format(index, length, attribute);
+    final change =
+        document.format(index, length, LinkAttribute("www.baidu.com"));
     final adjustedSelection = selection.copyWith(
       baseOffset: change.transformPosition(selection.baseOffset),
       extentOffset: change.transformPosition(selection.extentOffset),

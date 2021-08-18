@@ -1,6 +1,6 @@
 use crate::{
     client::{extensions::InsertExt, util::is_newline},
-    core::{AttributeKey, Delta, DeltaBuilder, DeltaIter, Operation},
+    core::{AttributeKey, Delta, DeltaBuilder, DeltaIter},
 };
 
 use crate::core::{attributes_except_header, is_empty_line_at_index};

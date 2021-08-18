@@ -175,14 +175,17 @@ pub struct CharMetric {}
 
 impl Metric for CharMetric {
     fn seek(cursor: &mut OpCursor, index: usize) -> SeekResult {
-        let _ = check_bound(cursor.consume_count, index)?;
-        let _ = cursor.next_with_len(Some(index));
+        if index > 0 {
+            let _ = check_bound(cursor.consume_count, index)?;
+            let _ = cursor.next_with_len(Some(index));
+        }
 
         Ok(())
     }
 }
 
 fn check_bound(current: usize, target: usize) -> Result<(), OTError> {
+    debug_assert!(current <= target);
     if current > target {
         let msg = format!("{} should be greater than current: {}", target, current);
         return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength)
