@@ -21,8 +21,21 @@ log = "0.4.14"
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_repr = "0.1"
-
 flowy-log = { path = "../rust-lib/flowy-log" }
+
+[dependencies.sqlx]
+version = "0.5.2"
+default-features = false
+features = [
+    "runtime-actix-rustls",
+    "macros",
+    "postgres",
+    "uuid",
+    "chrono",
+    "migrate"
+]
+
+
 
 
 [lib]

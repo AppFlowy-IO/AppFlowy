@@ -20,11 +20,6 @@ fn ws_scope() -> Scope { web::scope("/ws").service(ws::start_connection) }
 
 pub async fn init_app_context() -> Arc<AppContext> {
     let _ = flowy_log::Builder::new("flowy").env_filter("Debug").build();
-
-    // std::env::set_var("RUST_LOG", "info");
-    // env_logger::init();
-    // log::debug!("EnvTask initialization");
-
     let ws_server = WSServer::new().start();
     let ctx = AppContext::new(ws_server);
     Arc::new(ctx)
