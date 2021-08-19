@@ -1,0 +1,5 @@
+host = "localhost"
+port = 5433
+username = "postgres"
+password = "password"
+database_name = "flowy"

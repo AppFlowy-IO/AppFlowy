@@ -12,7 +12,6 @@ actix-http = "2.2.1"
 actix-web-actors = "3"
 actix-codec = "0.3"
 
-
 futures = "0.3.15"
 bytes = "0.5"
 toml = "0.5.8"
@@ -21,7 +20,10 @@ log = "0.4.14"
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_repr = "0.1"
+derive_more = {version = "0.99", features = ["display"]}
+protobuf = {version = "2.20.0"}
 flowy-log = { path = "../rust-lib/flowy-log" }
+flowy-user = { path = "../rust-lib/flowy-user" }
 
 [dependencies.sqlx]
 version = "0.5.2"

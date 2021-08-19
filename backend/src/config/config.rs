@@ -1,11 +1,18 @@
-use std::convert::TryFrom;
+use crate::config::DatabaseConfig;
+use std::{convert::TryFrom, sync::Arc};
 
 pub struct Config {
     pub http_port: u16,
+    pub database: Arc<DatabaseConfig>,
 }
 
 impl Config {
-    pub fn new() -> Self { Config { http_port: 3030 } }
+    pub fn new() -> Self {
+        Config {
+            http_port: 3030,
+            database: Arc::new(DatabaseConfig::default()),
+        }
+    }
 
     pub fn server_addr(&self) -> String { format!("0.0.0.0:{}", self.http_port) }
 }

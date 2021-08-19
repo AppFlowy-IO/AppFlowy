@@ -24,7 +24,7 @@ impl Builder {
         self
     }
 
-    pub fn local(mut self, directory: impl AsRef<Path>) -> Self {
+    pub fn local(self, directory: impl AsRef<Path>) -> Self {
         let directory = directory.as_ref().to_str().unwrap().to_owned();
         let local_file_name = format!("{}.log", &self.name);
         let file_appender = tracing_appender::rolling::daily(directory, local_file_name);

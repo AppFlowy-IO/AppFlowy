@@ -1,6 +1,6 @@
 use crate::ws_service::{entities::SessionId, WSClient, WSServer};
 use actix::Addr;
-use actix_http::{body::Body, Response};
+
 use actix_web::{
     get,
     web::{Data, Path, Payload},

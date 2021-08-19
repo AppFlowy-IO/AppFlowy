@@ -3,7 +3,6 @@ use crate::{
     ws_service::{
         entities::{Connect, Disconnect, Session, SessionId},
         ClientMessage,
-        WSClient,
     },
 };
 use actix::{Actor, Context, Handler};

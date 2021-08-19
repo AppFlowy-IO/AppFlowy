@@ -16,7 +16,6 @@ use actix::{
     AsyncContext,
     ContextFutureSpawner,
     Handler,
-    Recipient,
     Running,
     StreamHandler,
     WrapFuture,
