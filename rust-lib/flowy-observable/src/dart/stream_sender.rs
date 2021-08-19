@@ -39,7 +39,7 @@ impl RustStreamSender {
         }
     }
 
-    pub fn post(observable_subject: ObservableSubject) -> Result<(), String> {
+    pub fn post(_observable_subject: ObservableSubject) -> Result<(), String> {
         #[cfg(feature = "dart")]
         match R2F_STREAM_SENDER.read() {
             Ok(stream) => stream.inner_post(observable_subject),

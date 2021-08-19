@@ -1,6 +1,5 @@
 use crate::{client::DocumentData, errors::OTError};
 use serde::{Deserialize, Serialize};
-use serde_json::Error;
 
 impl<T: AsRef<str>> DocumentData for T {
     fn into_string(self) -> Result<String, OTError> { Ok(self.as_ref().to_string()) }

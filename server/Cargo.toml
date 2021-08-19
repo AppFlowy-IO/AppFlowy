@@ -1,0 +1,30 @@
+[package]
+name = "server"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix = "0.10"
+actix-web = "3"
+actix-http = "2.2.1"
+actix-web-actors = "3"
+actix-codec = "0.3"
+
+
+futures = "0.3.15"
+bytes = "0.5"
+toml = "0.5.8"
+dashmap = "4.0"
+log = "0.4.14"
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_repr = "0.1"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "flowy_server"
+path = "src/main.rs"
