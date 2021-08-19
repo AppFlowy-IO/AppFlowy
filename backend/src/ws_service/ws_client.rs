@@ -1,9 +1,9 @@
 use crate::{
     config::{HEARTBEAT_INTERVAL, PING_TIMEOUT},
-    ws::{
+    ws_service::{
         entities::{Connect, Disconnect, SessionId},
-        Frame,
-        Packet,
+        ClientMessage,
+        MessageData,
         WSServer,
     },
 };
@@ -16,6 +16,7 @@ use actix::{
     AsyncContext,
     ContextFutureSpawner,
     Handler,
+    Recipient,
     Running,
     StreamHandler,
     WrapFuture,
@@ -24,13 +25,13 @@ use actix::{
 use actix_web_actors::{ws, ws::Message::Text};
 use std::time::Instant;
 
-pub struct WSSession {
+pub struct WSClient {
     sid: SessionId,
     server: Addr<WSServer>,
     hb: Instant,
 }
 
-impl WSSession {
+impl WSClient {
     pub fn new(sid: SessionId, server: Addr<WSServer>) -> Self {
         Self {
             sid,
@@ -52,7 +53,16 @@ impl WSSession {
         });
     }
 
-    fn connect(&self, ctx: &mut ws::WebsocketContext<Self>) {
+    fn send(&self, data: MessageData) {
+        let msg = ClientMessage::new(self.sid.clone(), data);
+        self.server.do_send(msg);
+    }
+}
+
+impl Actor for WSClient {
+    type Context = ws::WebsocketContext<Self>;
+
+    fn started(&mut self, ctx: &mut Self::Context) {
         self.hb(ctx);
         let socket = ctx.address().recipient();
         let connect = Connect {
@@ -75,17 +85,6 @@ impl WSSession {
             .wait(ctx);
     }
 
-    fn send(&self, frame: Frame) {
-        let msg = Packet::new(self.sid.clone(), frame);
-        self.server.do_send(msg);
-    }
-}
-
-impl Actor for WSSession {
-    type Context = ws::WebsocketContext<Self>;
-
-    fn started(&mut self, ctx: &mut Self::Context) { self.connect(ctx); }
-
     fn stopping(&mut self, _: &mut Self::Context) -> Running {
         self.server.do_send(Disconnect {
             sid: self.sid.clone(),
@@ -95,7 +94,7 @@ impl Actor for WSSession {
     }
 }
 
-impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSSession {
+impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSClient {
     fn handle(&mut self, msg: Result<ws::Message, ws::ProtocolError>, ctx: &mut Self::Context) {
         match msg {
             Ok(ws::Message::Ping(msg)) => {
@@ -105,12 +104,12 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSSession {
             },
             Ok(ws::Message::Pong(msg)) => {
                 log::debug!("Receive {} pong {:?}", &self.sid, &msg);
-                self.send(Frame::Connect(self.sid.clone()));
+                self.send(MessageData::Connect(self.sid.clone()));
                 self.hb = Instant::now();
             },
             Ok(ws::Message::Binary(bin)) => {
                 log::debug!(" Receive {} binary", &self.sid);
-                self.send(Frame::Binary(bin));
+                self.send(MessageData::Binary(bin));
             },
             Ok(ws::Message::Close(reason)) => {
                 log::debug!("Receive {} close {:?}", &self.sid, &reason);
@@ -125,7 +124,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSSession {
             },
             Ok(Text(s)) => {
                 log::debug!("Receive {} text {:?}", &self.sid, &s);
-                self.send(Frame::Text(s));
+                self.send(MessageData::Text(s));
             },
 
             Err(e) => {
@@ -138,22 +137,22 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSSession {
     }
 }
 
-impl Handler<Packet> for WSSession {
+impl Handler<ClientMessage> for WSClient {
     type Result = ();
 
-    fn handle(&mut self, msg: Packet, ctx: &mut Self::Context) {
-        match msg.frame {
-            Frame::Text(text) => {
+    fn handle(&mut self, msg: ClientMessage, ctx: &mut Self::Context) {
+        match msg.data {
+            MessageData::Text(text) => {
                 ctx.text(text);
             },
-            Frame::Binary(binary) => {
+            MessageData::Binary(binary) => {
                 ctx.binary(binary);
             },
-            Frame::Connect(sid) => {
+            MessageData::Connect(sid) => {
                 let connect_msg = format!("{} connect", &sid);
                 ctx.text(connect_msg);
             },
-            Frame::Disconnect(text) => {
+            MessageData::Disconnect(text) => {
                 log::debug!("Session start disconnecting {}", self.sid);
                 ctx.text(text);
                 ctx.stop();

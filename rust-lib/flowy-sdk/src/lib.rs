@@ -42,7 +42,11 @@ impl FlowySDK {
     fn init_log(directory: &str) {
         if !INIT_LOG.load(Ordering::SeqCst) {
             INIT_LOG.store(true, Ordering::SeqCst);
-            flowy_log::init_log("flowy", directory, "Debug").unwrap();
+
+            let _ = flowy_log::Builder::new("flowy")
+                .local(directory)
+                .env_filter("Debug")
+                .build();
         }
     }
 

@@ -1,5 +1,5 @@
 [package]
-name = "server"
+name = "backend"
 version = "0.1.0"
 edition = "2018"
 
@@ -22,9 +22,12 @@ serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_repr = "0.1"
 
+flowy-log = { path = "../rust-lib/flowy-log" }
+
+
 [lib]
 path = "src/lib.rs"
 
 [[bin]]
-name = "flowy_server"
+name = "backend"
 path = "src/main.rs"

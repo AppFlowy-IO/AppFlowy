@@ -1,4 +1,4 @@
-use server::startup::{init_app_context, run};
+use backend::startup::{init_app_context, run};
 use std::net::TcpListener;
 
 #[actix_web::main]

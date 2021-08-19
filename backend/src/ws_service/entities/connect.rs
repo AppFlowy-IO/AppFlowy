@@ -1,11 +1,27 @@
-use crate::{errors::ServerError, ws::Packet};
+use crate::{errors::ServerError, ws_service::ClientMessage};
 use actix::{Message, Recipient};
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 
+pub type Socket = Recipient<ClientMessage>;
+
 #[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
 pub struct SessionId {
     pub id: String,
+}
+
+pub struct Session {
+    pub id: SessionId,
+    pub socket: Socket,
+}
+
+impl std::convert::From<Connect> for Session {
+    fn from(c: Connect) -> Self {
+        Self {
+            id: c.sid,
+            socket: c.socket,
+        }
+    }
 }
 
 impl SessionId {
@@ -22,7 +38,7 @@ impl std::fmt::Display for SessionId {
 #[derive(Debug, Message, Clone)]
 #[rtype(result = "Result<(), ServerError>")]
 pub struct Connect {
-    pub socket: Recipient<Packet>,
+    pub socket: Socket,
     pub sid: SessionId,
 }
 

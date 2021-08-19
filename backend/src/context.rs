@@ -1,4 +1,4 @@
-use crate::{config::Config, ws::WSServer};
+use crate::{config::Config, ws_service::WSServer};
 use actix::Addr;
 use std::sync::Arc;
 
