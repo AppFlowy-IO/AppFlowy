@@ -11,5 +11,6 @@ message SignUpParams {
     string password = 3;
 }
 message SignUpResponse {
-    bool is_success = 1;
+    bool name = 1;
+    string email = 2;
 }

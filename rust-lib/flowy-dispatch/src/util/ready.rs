@@ -1,6 +1,8 @@
-use std::future::Future;
-use std::pin::Pin;
-use std::task::{Context, Poll};
+use std::{
+    future::Future,
+    pin::Pin,
+    task::{Context, Poll},
+};
 
 pub struct Ready<T> {
     val: Option<T>,
@@ -8,9 +10,7 @@ pub struct Ready<T> {
 
 impl<T> Ready<T> {
     #[inline]
-    pub fn into_inner(mut self) -> T {
-        self.val.take().unwrap()
-    }
+    pub fn into_inner(mut self) -> T { self.val.take().unwrap() }
 }
 
 impl<T> Unpin for Ready<T> {}
@@ -25,6 +25,4 @@ impl<T> Future for Ready<T> {
     }
 }
 
-pub fn ready<T>(val: T) -> Ready<T> {
-    Ready { val: Some(val) }
-}
+pub fn ready<T>(val: T) -> Ready<T> { Ready { val: Some(val) } }

@@ -1,5 +1,6 @@
-use crate::{errors::ServerError, ws_service::ClientMessage};
+use crate::ws_service::ClientMessage;
 use actix::{Message, Recipient};
+use flowy_net::errors::ServerError;
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 

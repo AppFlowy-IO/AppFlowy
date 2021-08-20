@@ -36,9 +36,10 @@ final $typed_data.Uint8List signUpParamsDescriptor = $convert.base64Decode('CgxT
 const SignUpResponse$json = const {
   '1': 'SignUpResponse',
   '2': const [
-    const {'1': 'is_success', '3': 1, '4': 1, '5': 8, '10': 'isSuccess'},
+    const {'1': 'name', '3': 1, '4': 1, '5': 8, '10': 'name'},
+    const {'1': 'email', '3': 2, '4': 1, '5': 9, '10': 'email'},
   ],
 };
 
 /// Descriptor for `SignUpResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List signUpResponseDescriptor = $convert.base64Decode('Cg5TaWduVXBSZXNwb25zZRIdCgppc19zdWNjZXNzGAEgASgIUglpc1N1Y2Nlc3M=');
+final $typed_data.Uint8List signUpResponseDescriptor = $convert.base64Decode('Cg5TaWduVXBSZXNwb25zZRISCgRuYW1lGAEgASgIUgRuYW1lEhQKBWVtYWlsGAIgASgJUgVlbWFpbA==');

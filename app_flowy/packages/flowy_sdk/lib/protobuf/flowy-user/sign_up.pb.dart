@@ -161,17 +161,22 @@ class SignUpParams extends $pb.GeneratedMessage {
 
 class SignUpResponse extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SignUpResponse', createEmptyInstance: create)
-    ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isSuccess')
+    ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'email')
     ..hasRequiredFields = false
   ;
 
   SignUpResponse._() : super();
   factory SignUpResponse({
-    $core.bool? isSuccess,
+    $core.bool? name,
+    $core.String? email,
   }) {
     final _result = create();
-    if (isSuccess != null) {
-      _result.isSuccess = isSuccess;
+    if (name != null) {
+      _result.name = name;
+    }
+    if (email != null) {
+      _result.email = email;
     }
     return _result;
   }
@@ -197,12 +202,21 @@ class SignUpResponse extends $pb.GeneratedMessage {
   static SignUpResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.bool get isSuccess => $_getBF(0);
+  $core.bool get name => $_getBF(0);
   @$pb.TagNumber(1)
-  set isSuccess($core.bool v) { $_setBool(0, v); }
+  set name($core.bool v) { $_setBool(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasIsSuccess() => $_has(0);
+  $core.bool hasName() => $_has(0);
   @$pb.TagNumber(1)
-  void clearIsSuccess() => clearField(1);
+  void clearName() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get email => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set email($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasEmail() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearEmail() => clearField(2);
 }
 

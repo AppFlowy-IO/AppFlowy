@@ -41,7 +41,9 @@ pub struct ServiceResponse {
 }
 
 impl ServiceResponse {
-    pub fn new(request: EventRequest, response: EventResponse) -> Self { ServiceResponse { request, response } }
+    pub fn new(request: EventRequest, response: EventResponse) -> Self {
+        ServiceResponse { request, response }
+    }
 
     pub fn into_parts(self) -> (EventRequest, EventResponse) { (self.request, self.response) }
 }

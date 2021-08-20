@@ -1,5 +1,5 @@
 use crate::service::{Service, ServiceFactory};
-use futures_core::future::{BoxFuture};
+use futures_core::future::BoxFuture;
 
 pub fn factory<SF, Req>(factory: SF) -> BoxServiceFactory<SF::Context, Req, SF::Response, SF::Error>
 where

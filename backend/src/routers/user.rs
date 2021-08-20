@@ -1,23 +1,24 @@
-use crate::user_service::Auth;
+use crate::{routers::helper::parse_from_payload, user_service::Auth};
 use actix_web::{
     web::{Data, Payload},
     Error,
     HttpRequest,
     HttpResponse,
 };
-use flowy_user::protobuf::SignUpRequest;
-
-use crate::{entities::ServerResponse, routers::helper::parse_from_payload};
+use flowy_net::response::*;
+use flowy_user::protobuf::SignUpParams;
 
 use std::sync::Arc;
 
 pub async fn user_register(
-    request: HttpRequest,
+    _request: HttpRequest,
     payload: Payload,
     auth: Data<Arc<Auth>>,
 ) -> Result<HttpResponse, Error> {
-    let request: SignUpRequest = parse_from_payload(payload).await?;
-    // ProtobufError
+    let params: SignUpParams = parse_from_payload(payload).await?;
+    let _ = auth.sign_up(params)?;
+
     let resp = ServerResponse::success();
+
     Ok(resp.into())
 }

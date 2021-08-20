@@ -1,7 +1,18 @@
-use crate::{entities::ServerCode, errors::ServerError};
-use actix_web::{body::Body, HttpResponse, ResponseError};
-
+use crate::errors::ServerError;
 use serde::Serialize;
+
+use serde_repr::*;
+
+#[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug)]
+#[repr(u16)]
+pub enum ServerCode {
+    Success          = 0,
+    InvalidToken     = 1,
+    InternalError    = 2,
+    Unauthorized     = 3,
+    PayloadOverflow  = 4,
+    PayloadSerdeFail = 5,
+}
 
 #[derive(Debug, Serialize)]
 pub struct ServerResponse<T> {
@@ -29,17 +40,5 @@ impl ServerResponse<String> {
 
     pub fn from_msg(msg: &str, code: ServerCode) -> Self {
         Self::new(Some("".to_owned()), msg, code)
-    }
-}
-
-impl<T: Serialize> std::convert::Into<HttpResponse> for ServerResponse<T> {
-    fn into(self) -> HttpResponse {
-        match serde_json::to_string(&self) {
-            Ok(body) => HttpResponse::Ok().body(Body::from(body)),
-            Err(e) => {
-                let msg = format!("Serial error: {:?}", e);
-                ServerError::InternalError(msg).error_response()
-            },
-        }
     }
 }

@@ -24,6 +24,7 @@ derive_more = {version = "0.99", features = ["display"]}
 protobuf = {version = "2.20.0"}
 flowy-log = { path = "../rust-lib/flowy-log" }
 flowy-user = { path = "../rust-lib/flowy-user" }
+flowy-net = { path = "../rust-lib/flowy-net", features = ["http"] }
 
 [dependencies.sqlx]
 version = "0.5.2"
@@ -36,8 +37,6 @@ features = [
     "chrono",
     "migrate"
 ]
-
-
 
 
 [lib]

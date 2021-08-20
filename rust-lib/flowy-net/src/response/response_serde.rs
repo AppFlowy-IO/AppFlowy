@@ -1,4 +1,4 @@
-use crate::entities::{ServerCode, ServerResponse};
+use crate::response::{ServerCode, ServerResponse};
 use serde::{
     de::{self, MapAccess, Visitor},
     Deserialize,

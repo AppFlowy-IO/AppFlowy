@@ -512,7 +512,8 @@ impl ::protobuf::reflect::ProtobufValue for SignUpParams {
 #[derive(PartialEq,Clone,Default)]
 pub struct SignUpResponse {
     // message fields
-    pub is_success: bool,
+    pub name: bool,
+    pub email: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -529,19 +530,45 @@ impl SignUpResponse {
         ::std::default::Default::default()
     }
 
-    // bool is_success = 1;
+    // bool name = 1;
 
 
-    pub fn get_is_success(&self) -> bool {
-        self.is_success
+    pub fn get_name(&self) -> bool {
+        self.name
     }
-    pub fn clear_is_success(&mut self) {
-        self.is_success = false;
+    pub fn clear_name(&mut self) {
+        self.name = false;
     }
 
     // Param is passed by value, moved
-    pub fn set_is_success(&mut self, v: bool) {
-        self.is_success = v;
+    pub fn set_name(&mut self, v: bool) {
+        self.name = v;
+    }
+
+    // string email = 2;
+
+
+    pub fn get_email(&self) -> &str {
+        &self.email
+    }
+    pub fn clear_email(&mut self) {
+        self.email.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_email(&mut self, v: ::std::string::String) {
+        self.email = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_email(&mut self) -> &mut ::std::string::String {
+        &mut self.email
+    }
+
+    // Take field
+    pub fn take_email(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.email, ::std::string::String::new())
     }
 }
 
@@ -559,7 +586,10 @@ impl ::protobuf::Message for SignUpResponse {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
                     let tmp = is.read_bool()?;
-                    self.is_success = tmp;
+                    self.name = tmp;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.email)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -573,8 +603,11 @@ impl ::protobuf::Message for SignUpResponse {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if self.is_success != false {
+        if self.name != false {
             my_size += 2;
+        }
+        if !self.email.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.email);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -582,8 +615,11 @@ impl ::protobuf::Message for SignUpResponse {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if self.is_success != false {
-            os.write_bool(1, self.is_success)?;
+        if self.name != false {
+            os.write_bool(1, self.name)?;
+        }
+        if !self.email.is_empty() {
+            os.write_string(2, &self.email)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -624,9 +660,14 @@ impl ::protobuf::Message for SignUpResponse {
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
-                "is_success",
-                |m: &SignUpResponse| { &m.is_success },
-                |m: &mut SignUpResponse| { &mut m.is_success },
+                "name",
+                |m: &SignUpResponse| { &m.name },
+                |m: &mut SignUpResponse| { &mut m.name },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "email",
+                |m: &SignUpResponse| { &m.email },
+                |m: &mut SignUpResponse| { &mut m.email },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<SignUpResponse>(
                 "SignUpResponse",
@@ -644,7 +685,8 @@ impl ::protobuf::Message for SignUpResponse {
 
 impl ::protobuf::Clear for SignUpResponse {
     fn clear(&mut self) {
-        self.is_success = false;
+        self.name = false;
+        self.email.clear();
         self.unknown_fields.clear();
     }
 }
@@ -667,31 +709,34 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x08password\x18\x03\x20\x01(\tR\x08password\"T\n\x0cSignUpParams\x12\
     \x14\n\x05email\x18\x01\x20\x01(\tR\x05email\x12\x12\n\x04name\x18\x02\
     \x20\x01(\tR\x04name\x12\x1a\n\x08password\x18\x03\x20\x01(\tR\x08passwo\
-    rd\"/\n\x0eSignUpResponse\x12\x1d\n\nis_success\x18\x01\x20\x01(\x08R\ti\
-    sSuccessJ\xdb\x03\n\x06\x12\x04\0\0\x0e\x01\n\x08\n\x01\x0c\x12\x03\0\0\
-    \x12\n\n\n\x02\x04\0\x12\x04\x02\0\x06\x01\n\n\n\x03\x04\0\x01\x12\x03\
-    \x02\x08\x15\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x15\n\x0c\n\x05\x04\
-    \0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\
-    \x0b\x10\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x13\x14\n\x0b\n\x04\x04\
-    \0\x02\x01\x12\x03\x04\x04\x14\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\
-    \x04\n\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x0b\x0f\n\x0c\n\x05\x04\
-    \0\x02\x01\x03\x12\x03\x04\x12\x13\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\
-    \x04\x18\n\x0c\n\x05\x04\0\x02\x02\x05\x12\x03\x05\x04\n\n\x0c\n\x05\x04\
-    \0\x02\x02\x01\x12\x03\x05\x0b\x13\n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\
-    \x05\x16\x17\n\n\n\x02\x04\x01\x12\x04\x07\0\x0b\x01\n\n\n\x03\x04\x01\
-    \x01\x12\x03\x07\x08\x14\n\x0b\n\x04\x04\x01\x02\0\x12\x03\x08\x04\x15\n\
-    \x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x08\x04\n\n\x0c\n\x05\x04\x01\x02\0\
-    \x01\x12\x03\x08\x0b\x10\n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\x08\x13\
-    \x14\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\t\x04\x14\n\x0c\n\x05\x04\x01\
-    \x02\x01\x05\x12\x03\t\x04\n\n\x0c\n\x05\x04\x01\x02\x01\x01\x12\x03\t\
-    \x0b\x0f\n\x0c\n\x05\x04\x01\x02\x01\x03\x12\x03\t\x12\x13\n\x0b\n\x04\
-    \x04\x01\x02\x02\x12\x03\n\x04\x18\n\x0c\n\x05\x04\x01\x02\x02\x05\x12\
-    \x03\n\x04\n\n\x0c\n\x05\x04\x01\x02\x02\x01\x12\x03\n\x0b\x13\n\x0c\n\
-    \x05\x04\x01\x02\x02\x03\x12\x03\n\x16\x17\n\n\n\x02\x04\x02\x12\x04\x0c\
-    \0\x0e\x01\n\n\n\x03\x04\x02\x01\x12\x03\x0c\x08\x16\n\x0b\n\x04\x04\x02\
-    \x02\0\x12\x03\r\x04\x18\n\x0c\n\x05\x04\x02\x02\0\x05\x12\x03\r\x04\x08\
-    \n\x0c\n\x05\x04\x02\x02\0\x01\x12\x03\r\t\x13\n\x0c\n\x05\x04\x02\x02\0\
-    \x03\x12\x03\r\x16\x17b\x06proto3\
+    rd\":\n\x0eSignUpResponse\x12\x12\n\x04name\x18\x01\x20\x01(\x08R\x04nam\
+    e\x12\x14\n\x05email\x18\x02\x20\x01(\tR\x05emailJ\x92\x04\n\x06\x12\x04\
+    \0\0\x0f\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\
+    \0\x06\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x15\n\x0b\n\x04\x04\0\x02\
+    \0\x12\x03\x03\x04\x15\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\
+    \x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\x10\n\x0c\n\x05\x04\0\x02\0\
+    \x03\x12\x03\x03\x13\x14\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x14\n\
+    \x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\x01\
+    \x01\x12\x03\x04\x0b\x0f\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x12\
+    \x13\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x04\x18\n\x0c\n\x05\x04\0\x02\
+    \x02\x05\x12\x03\x05\x04\n\n\x0c\n\x05\x04\0\x02\x02\x01\x12\x03\x05\x0b\
+    \x13\n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05\x16\x17\n\n\n\x02\x04\x01\
+    \x12\x04\x07\0\x0b\x01\n\n\n\x03\x04\x01\x01\x12\x03\x07\x08\x14\n\x0b\n\
+    \x04\x04\x01\x02\0\x12\x03\x08\x04\x15\n\x0c\n\x05\x04\x01\x02\0\x05\x12\
+    \x03\x08\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x08\x0b\x10\n\x0c\n\
+    \x05\x04\x01\x02\0\x03\x12\x03\x08\x13\x14\n\x0b\n\x04\x04\x01\x02\x01\
+    \x12\x03\t\x04\x14\n\x0c\n\x05\x04\x01\x02\x01\x05\x12\x03\t\x04\n\n\x0c\
+    \n\x05\x04\x01\x02\x01\x01\x12\x03\t\x0b\x0f\n\x0c\n\x05\x04\x01\x02\x01\
+    \x03\x12\x03\t\x12\x13\n\x0b\n\x04\x04\x01\x02\x02\x12\x03\n\x04\x18\n\
+    \x0c\n\x05\x04\x01\x02\x02\x05\x12\x03\n\x04\n\n\x0c\n\x05\x04\x01\x02\
+    \x02\x01\x12\x03\n\x0b\x13\n\x0c\n\x05\x04\x01\x02\x02\x03\x12\x03\n\x16\
+    \x17\n\n\n\x02\x04\x02\x12\x04\x0c\0\x0f\x01\n\n\n\x03\x04\x02\x01\x12\
+    \x03\x0c\x08\x16\n\x0b\n\x04\x04\x02\x02\0\x12\x03\r\x04\x12\n\x0c\n\x05\
+    \x04\x02\x02\0\x05\x12\x03\r\x04\x08\n\x0c\n\x05\x04\x02\x02\0\x01\x12\
+    \x03\r\t\r\n\x0c\n\x05\x04\x02\x02\0\x03\x12\x03\r\x10\x11\n\x0b\n\x04\
+    \x04\x02\x02\x01\x12\x03\x0e\x04\x15\n\x0c\n\x05\x04\x02\x02\x01\x05\x12\
+    \x03\x0e\x04\n\n\x0c\n\x05\x04\x02\x02\x01\x01\x12\x03\x0e\x0b\x10\n\x0c\
+    \n\x05\x04\x02\x02\x01\x03\x12\x03\x0e\x13\x14b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

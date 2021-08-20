@@ -57,9 +57,8 @@ pub struct SignUpParams {
 #[derive(ProtoBuf, Debug, Default)]
 pub struct SignUpResponse {
     #[pb(index = 1)]
-    pub is_success: bool,
-}
+    pub name: bool,
 
-impl SignUpResponse {
-    pub fn new(is_success: bool) -> Self { Self { is_success } }
+    #[pb(index = 2)]
+    pub email: String,
 }

@@ -16,6 +16,7 @@ members = [
   "flowy-document",
   "flowy-editor",
   "flowy-ot",
+  "flowy-net",
 ]
 
 [profile.dev]

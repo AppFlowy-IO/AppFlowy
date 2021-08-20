@@ -21,7 +21,7 @@ impl std::default::Default for ObservableSubject {
             category: "".to_string(),
             ty: 0,
             subject_id: "".to_string(),
-            subject_payload: None
+            subject_payload: None,
         }
     }
 }
