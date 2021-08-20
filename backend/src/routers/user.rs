@@ -10,7 +10,7 @@ use flowy_user::protobuf::SignUpParams;
 
 use std::sync::Arc;
 
-pub async fn user_register(
+pub async fn register(
     _request: HttpRequest,
     payload: Payload,
     auth: Data<Arc<Auth>>,
@@ -18,7 +18,7 @@ pub async fn user_register(
     let params: SignUpParams = parse_from_payload(payload).await?;
     let _ = auth.sign_up(params)?;
 
-    let resp = ServerResponse::success();
+    let resp = FlowyResponse::success();
 
     Ok(resp.into())
 }

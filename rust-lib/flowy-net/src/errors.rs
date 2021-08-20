@@ -1,30 +1,38 @@
-use crate::response::ServerResponse;
+use crate::response::FlowyResponse;
 use protobuf::ProtobufError;
+
 use std::fmt::{Formatter, Write};
 
 #[derive(Debug)]
-pub enum ServerError {
+pub enum NetworkError {
     InternalError(String),
-    BadRequest(ServerResponse<String>),
+    BadRequest(FlowyResponse<String>),
     Unauthorized,
 }
 
-impl std::fmt::Display for ServerError {
+impl std::fmt::Display for NetworkError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            ServerError::InternalError(_) => f.write_str("Internal Server Error"),
-            ServerError::BadRequest(request) => {
+            NetworkError::InternalError(_) => f.write_str("Internal Server Error"),
+            NetworkError::BadRequest(request) => {
                 let msg = format!("Bad Request: {:?}", request);
                 f.write_str(&msg)
             },
-            ServerError::Unauthorized => f.write_str("Unauthorized"),
+            NetworkError::Unauthorized => f.write_str("Unauthorized"),
         }
     }
 }
 
-impl std::convert::From<ProtobufError> for ServerError {
+impl std::convert::From<ProtobufError> for NetworkError {
     fn from(err: ProtobufError) -> Self {
         let msg = format!("{:?}", err);
-        ServerError::InternalError(msg)
+        NetworkError::InternalError(msg)
+    }
+}
+
+impl std::convert::From<reqwest::Error> for NetworkError {
+    fn from(error: reqwest::Error) -> Self {
+        let msg = format!("{:?}", error);
+        NetworkError::InternalError(msg)
     }
 }

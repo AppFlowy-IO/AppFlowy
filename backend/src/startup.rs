@@ -16,6 +16,7 @@ pub fn run(app_ctx: Arc<AppContext>, listener: TcpListener) -> Result<Server, st
             .wrap(middleware::Logger::default())
             .data(web::JsonConfig::default().limit(4096))
             .service(ws_scope())
+            .service(user_scope())
             .data(app_ctx.ws_server.clone())
             .data(app_ctx.db_pool.clone())
             .data(app_ctx.auth.clone())
@@ -26,6 +27,10 @@ pub fn run(app_ctx: Arc<AppContext>, listener: TcpListener) -> Result<Server, st
 }
 
 fn ws_scope() -> Scope { web::scope("/ws").service(ws::start_connection) }
+
+fn user_scope() -> Scope {
+    web::scope("/user").service(web::resource("/register").route(web::post().to(user::register)))
+}
 
 pub async fn init_app_context() -> Arc<AppContext> {
     let _ = flowy_log::Builder::new("flowy").env_filter("Debug").build();

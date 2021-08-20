@@ -3,8 +3,7 @@ use crate::{
     errors::{ErrorBuilder, UserErrCode, UserError},
 };
 
-use flowy_infra::uuid;
-use flowy_net::future::ResultFuture;
+use flowy_net::{future::ResultFuture, request::FlowyRequest};
 use std::sync::Arc;
 
 pub(crate) trait UserServer {
@@ -27,13 +26,23 @@ impl UserServerImpl {}
 
 impl UserServer for UserServerImpl {
     fn sign_up(&self, _params: SignUpParams) -> ResultFuture<SignUpResponse, UserError> {
-        ResultFuture::new(async {
-            Ok(SignUpResponse {
-                uid: "".to_string(),
-                name: "".to_string(),
-                email: "".to_string(),
-            })
-        })
+        // let bytes: Vec<u8> = params.try_into().unwrap();
+        // ResultFuture::new(async move {
+        //     match FlowyRequest::new()
+        //         .post_data::<SignUpResponse>("SIGN_UP_URL.as_ref()", bytes)
+        //         .await
+        //     {
+        //         Ok(a) => {},
+        //         Err(err) => {},
+        //     }
+        //
+        //     Ok(SignUpResponse {
+        //         uid: "".to_string(),
+        //         name: "".to_string(),
+        //         email: "".to_string(),
+        //     })
+        // })
+        unimplemented!()
     }
 
     fn sign_in(&self, _params: SignInParams) -> ResultFuture<SignInResponse, UserError> {

@@ -14,6 +14,9 @@ serde_repr = "0.1"
 actix-web = {version = "3", optional = true}
 pin-project = "1.0.0"
 futures-core = { version = "0.3", default-features = false }
+log = "0.4"
+bytes = "1.0"
+lazy_static = "1.4.0"
 
 [features]
 http = ["actix-web"]

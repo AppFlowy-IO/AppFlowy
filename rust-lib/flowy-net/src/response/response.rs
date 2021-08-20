@@ -14,15 +14,15 @@ pub enum ServerCode {
 }
 
 #[derive(Debug, Serialize)]
-pub struct ServerResponse<T> {
+pub struct FlowyResponse<T> {
     pub msg: String,
     pub data: Option<T>,
     pub code: ServerCode,
 }
 
-impl<T: Serialize> ServerResponse<T> {
+impl<T: Serialize> FlowyResponse<T> {
     pub fn new(data: Option<T>, msg: &str, code: ServerCode) -> Self {
-        ServerResponse {
+        FlowyResponse {
             msg: msg.to_owned(),
             data,
             code,
@@ -34,7 +34,7 @@ impl<T: Serialize> ServerResponse<T> {
     }
 }
 
-impl ServerResponse<String> {
+impl FlowyResponse<String> {
     pub fn success() -> Self { Self::from_msg("", ServerCode::Success) }
 
     pub fn from_msg(msg: &str, code: ServerCode) -> Self {

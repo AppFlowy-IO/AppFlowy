@@ -1,4 +1,4 @@
-use crate::response::{ServerCode, ServerResponse};
+use crate::response::{FlowyResponse, ServerCode};
 use serde::{
     de::{self, MapAccess, Visitor},
     Deserialize,
@@ -8,7 +8,7 @@ use serde::{
 use std::{fmt, marker::PhantomData, str::FromStr};
 
 pub trait ServerData<'a>: Serialize + Deserialize<'a> + FromStr<Err = ()> {}
-impl<'de, T: ServerData<'de>> Deserialize<'de> for ServerResponse<T> {
+impl<'de, T: ServerData<'de>> Deserialize<'de> for FlowyResponse<T> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
@@ -18,7 +18,7 @@ impl<'de, T: ServerData<'de>> Deserialize<'de> for ServerResponse<T> {
         where
             T: ServerData<'de>,
         {
-            type Value = ServerResponse<T>;
+            type Value = FlowyResponse<T>;
 
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
                 formatter.write_str("struct Duration")

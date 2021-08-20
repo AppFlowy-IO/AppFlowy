@@ -4,7 +4,7 @@ use crate::ws_service::{
 };
 use actix::{Actor, Context, Handler};
 use dashmap::DashMap;
-use flowy_net::errors::ServerError;
+use flowy_net::errors::NetworkError;
 
 pub struct WSServer {
     sessions: DashMap<SessionId, Session>,
@@ -26,7 +26,7 @@ impl Actor for WSServer {
 }
 
 impl Handler<Connect> for WSServer {
-    type Result = Result<(), ServerError>;
+    type Result = Result<(), NetworkError>;
     fn handle(&mut self, msg: Connect, _ctx: &mut Context<Self>) -> Self::Result {
         let session: Session = msg.into();
         self.sessions.insert(session.id.clone(), session);
@@ -36,7 +36,7 @@ impl Handler<Connect> for WSServer {
 }
 
 impl Handler<Disconnect> for WSServer {
-    type Result = Result<(), ServerError>;
+    type Result = Result<(), NetworkError>;
     fn handle(&mut self, msg: Disconnect, _: &mut Context<Self>) -> Self::Result {
         self.sessions.remove(&msg.sid);
         Ok(())
