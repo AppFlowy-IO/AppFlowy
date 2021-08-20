@@ -7,7 +7,7 @@ pub enum PayloadError {}
 #[derive(Clone, serde::Serialize)]
 pub enum Payload {
     None,
-    Bytes(Vec<u8>),
+    Bytes(Bytes),
 }
 
 impl std::fmt::Debug for Payload {
@@ -26,18 +26,15 @@ fn format_payload_print(payload: &Payload, f: &mut Formatter<'_>) -> fmt::Result
 }
 
 impl std::convert::Into<Payload> for String {
-    fn into(self) -> Payload { Payload::Bytes(self.into_bytes()) }
+    fn into(self) -> Payload { Payload::Bytes(Bytes::from(self)) }
 }
 
 impl std::convert::Into<Payload> for &'_ String {
-    fn into(self) -> Payload { Payload::Bytes(self.to_owned().into_bytes()) }
+    fn into(self) -> Payload { Payload::Bytes(Bytes::from(self.to_owned())) }
 }
 
 impl std::convert::Into<Payload> for Bytes {
-    fn into(self) -> Payload {
-        // Opti(nathan): do not copy the bytes?
-        Payload::Bytes(self.as_ref().to_vec())
-    }
+    fn into(self) -> Payload { Payload::Bytes(self) }
 }
 
 impl std::convert::Into<Payload> for () {
@@ -45,7 +42,7 @@ impl std::convert::Into<Payload> for () {
 }
 
 impl std::convert::Into<Payload> for Vec<u8> {
-    fn into(self) -> Payload { Payload::Bytes(self) }
+    fn into(self) -> Payload { Payload::Bytes(Bytes::from(self)) }
 }
 
 impl std::convert::Into<Payload> for &str {

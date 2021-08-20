@@ -22,10 +22,10 @@ pub fn make_de_token_steam(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStrea
         });
 
     let de_token_stream: TokenStream = quote! {
-        impl std::convert::TryFrom<&Vec<u8>> for #struct_ident {
+        impl std::convert::TryFrom<&bytes::Bytes> for #struct_ident {
             type Error = String;
-            fn try_from(bytes: &Vec<u8>) -> Result<Self, Self::Error> {
-                let result: ::protobuf::ProtobufResult<crate::protobuf::#pb_ty> = ::protobuf::Message::parse_from_bytes(bytes);
+            fn try_from(bytes: &bytes::Bytes) -> Result<Self, Self::Error> {
+                let result: ::protobuf::ProtobufResult<crate::protobuf::#pb_ty> = ::protobuf::Message::parse_from_bytes(&bytes);
                 match result {
                     Ok(mut pb) => {
                         #struct_ident::try_from(&mut pb)

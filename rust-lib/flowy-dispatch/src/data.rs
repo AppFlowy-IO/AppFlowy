@@ -5,6 +5,7 @@ use crate::{
     response::{EventResponse, Responder, ResponseBuilder},
     util::ready::{ready, Ready},
 };
+use bytes::Bytes;
 use std::ops;
 
 pub struct Data<T>(pub T);
@@ -34,7 +35,7 @@ where
     fn from_request(req: &EventRequest, payload: &mut Payload) -> Self::Future {
         match payload {
             Payload::None => ready(Err(unexpected_none_payload(req))),
-            Payload::Bytes(bytes) => match T::parse_from_bytes(bytes) {
+            Payload::Bytes(bytes) => match T::parse_from_bytes(bytes.clone()) {
                 Ok(data) => ready(Ok(Data(data))),
                 Err(e) => ready(Err(InternalError::new(format!("{}", e)).into())),
             },
@@ -48,7 +49,7 @@ where
 {
     fn respond_to(self, _request: &EventRequest) -> EventResponse {
         match self.into_inner().into_bytes() {
-            Ok(bytes) => ResponseBuilder::Ok().data(bytes.to_vec()).build(),
+            Ok(bytes) => ResponseBuilder::Ok().data(bytes).build(),
             Err(e) => {
                 let system_err: DispatchError = InternalError::new(format!("{}", e)).into();
                 system_err.into()
@@ -79,7 +80,7 @@ where
 {
     match payload {
         Payload::None => Err(format!("Parse fail, expected payload")),
-        Payload::Bytes(bytes) => match T::parse_from_bytes(&bytes) {
+        Payload::Bytes(bytes) => match T::parse_from_bytes(bytes.clone()) {
             Ok(data) => Ok(Data(data)),
             Err(e) => Err(e),
         },
@@ -100,5 +101,5 @@ where
 }
 
 impl ToBytes for Data<String> {
-    fn into_bytes(self) -> Result<Vec<u8>, String> { Ok(self.0.into_bytes()) }
+    fn into_bytes(self) -> Result<Bytes, String> { Ok(Bytes::from(self.0)) }
 }

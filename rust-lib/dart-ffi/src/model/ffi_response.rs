@@ -24,7 +24,7 @@ pub struct FFIResponse {
 impl std::convert::From<EventResponse> for FFIResponse {
     fn from(resp: EventResponse) -> Self {
         let payload = match resp.payload {
-            Payload::Bytes(bytes) => bytes,
+            Payload::Bytes(bytes) => bytes.to_vec(),
             Payload::None => vec![],
         };
 

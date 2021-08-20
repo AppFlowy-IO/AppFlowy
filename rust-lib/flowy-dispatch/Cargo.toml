@@ -12,7 +12,7 @@ paste = "1"
 futures-channel = "0.3.15"
 futures = "0.3.15"
 futures-util = "0.3.15"
-bytes = "1.0"
+bytes = {version = "1.0", features = ["serde"]}
 tokio = { version = "1", features = ["full"] }
 uuid = { version = "0.8", features = ["serde", "v4"] }
 log = "0.4.14"

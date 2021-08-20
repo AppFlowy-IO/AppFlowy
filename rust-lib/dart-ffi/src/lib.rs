@@ -67,7 +67,7 @@ async fn post_to_flutter(response: EventResponse, port: i64) {
     match isolate
         .catch_unwind(async {
             let ffi_resp = FFIResponse::from(response);
-            ffi_resp.into_bytes().unwrap()
+            ffi_resp.into_bytes().unwrap().to_vec()
         })
         .await
     {

@@ -3,6 +3,7 @@ use crate::{
     request::EventRequest,
     response::{EventResponse, ResponseBuilder},
 };
+use bytes::Bytes;
 use dyn_clone::DynClone;
 use serde::{Serialize, Serializer};
 use std::{fmt, option::NoneError};
@@ -68,7 +69,7 @@ impl From<String> for DispatchError {
 }
 
 impl FromBytes for DispatchError {
-    fn parse_from_bytes(bytes: &Vec<u8>) -> Result<Self, String> {
+    fn parse_from_bytes(bytes: Bytes) -> Result<Self, String> {
         let s = String::from_utf8(bytes.to_vec()).unwrap();
         Ok(InternalError { inner: s }.into())
     }

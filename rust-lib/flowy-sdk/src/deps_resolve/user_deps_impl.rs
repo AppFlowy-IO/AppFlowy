@@ -1,3 +1,4 @@
+use bytes::Bytes;
 use flowy_dispatch::prelude::{
     DispatchError,
     DispatchFuture,
@@ -23,7 +24,7 @@ impl WorkspaceAction for UserWorkspaceActionImpl {
         _user_id: &str,
     ) -> DispatchFuture<Result<String, UserError>> {
         log::info!("Create user workspace: {:?}", name);
-        let payload: Vec<u8> = CreateWorkspaceRequest {
+        let payload: Bytes = CreateWorkspaceRequest {
             name: name.to_string(),
             desc: desc.to_string(),
         }

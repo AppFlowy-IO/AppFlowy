@@ -8,6 +8,7 @@ use crate::{
     },
     sql_tables::{UserTable, UserTableChangeset},
 };
+use bytes::Bytes;
 use flowy_database::{
     query_dsl::*,
     schema::{user_table, user_table::dsl},
@@ -168,7 +169,7 @@ impl UserSession {
 
     pub async fn set_current_workspace(&self, workspace_id: &str) -> Result<(), UserError> {
         let user_id = self.get_user_id()?;
-        let payload: Vec<u8> = UpdateUserRequest::new(&user_id)
+        let payload: Bytes = UpdateUserRequest::new(&user_id)
             .workspace(workspace_id)
             .into_bytes()
             .unwrap();

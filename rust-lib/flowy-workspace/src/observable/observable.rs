@@ -1,6 +1,8 @@
+use bytes::Bytes;
 use flowy_derive::ProtoBuf_Enum;
 use flowy_dispatch::prelude::ToBytes;
 use flowy_observable::{dart::RustStreamSender, entities::ObservableSubject};
+
 const OBSERVABLE_CATEGORY: &'static str = "Workspace";
 
 #[derive(ProtoBuf_Enum, Debug)]
@@ -28,7 +30,7 @@ impl std::default::Default for WorkspaceObservable {
 pub(crate) struct ObservableSender {
     ty: WorkspaceObservable,
     subject_id: String,
-    payload: Option<Vec<u8>>,
+    payload: Option<Bytes>,
 }
 
 impl ObservableSender {
@@ -57,11 +59,16 @@ impl ObservableSender {
             self.ty
         );
 
+        let subject_payload = match self.payload {
+            None => None,
+            Some(bytes) => Some(bytes.to_vec()),
+        };
+
         let subject = ObservableSubject {
             category: OBSERVABLE_CATEGORY.to_string(),
             ty: self.ty as i32,
             subject_id: self.subject_id,
-            subject_payload: self.payload,
+            subject_payload,
         };
         match RustStreamSender::post(subject) {
             Ok(_) => {},

@@ -10,6 +10,7 @@ lazy_static = {version = "1.4.0"}
 protobuf = {version = "2.20.0"}
 allo-isolate = {version = "^0.1", features = ["catch-unwind",]}
 log = "0.4.14"
+bytes = { version = "1.0" }
 
 flowy-derive = {path = "../flowy-derive"}
 

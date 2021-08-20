@@ -1,3 +1,4 @@
+use bytes::Bytes;
 use derive_more::Display;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_dispatch::prelude::{EventResponse, ResponseBuilder};
@@ -114,7 +115,7 @@ impl std::convert::From<flowy_sqlite::Error> for UserError {
 
 impl flowy_dispatch::Error for UserError {
     fn as_response(&self) -> EventResponse {
-        let bytes: Vec<u8> = self.clone().try_into().unwrap();
+        let bytes: Bytes = self.clone().try_into().unwrap();
         ResponseBuilder::Err().data(bytes).build()
     }
 }

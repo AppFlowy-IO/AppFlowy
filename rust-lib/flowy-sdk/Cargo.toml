@@ -18,6 +18,7 @@ tracing = { version = "0.1" }
 log = "0.4.14"
 futures-core = { version = "0.3", default-features = false }
 color-eyre = { version = "0.5", default-features = false }
+bytes = "1.0"
 
 [dev-dependencies]
 serde = { version = "1.0", features = ["derive"] }

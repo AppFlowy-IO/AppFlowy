@@ -17,14 +17,14 @@ pub fn make_se_token_stream(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStre
 
     let se_token_stream: TokenStream = quote! {
 
-        impl std::convert::TryInto<Vec<u8>> for #struct_ident {
+        impl std::convert::TryInto<bytes::Bytes> for #struct_ident {
             type Error = String;
-            fn try_into(self) -> Result<Vec<u8>, Self::Error> {
+            fn try_into(self) -> Result<bytes::Bytes, Self::Error> {
                 use protobuf::Message;
                 let pb: crate::protobuf::#pb_ty = self.try_into()?;
                 let result: ::protobuf::ProtobufResult<Vec<u8>> = pb.write_to_bytes();
                 match result {
-                    Ok(bytes) => { Ok(bytes) },
+                    Ok(bytes) => { Ok(bytes::Bytes::from(bytes)) },
                     Err(e) => { Err(format!("{:?}", e)) }
                 }
             }

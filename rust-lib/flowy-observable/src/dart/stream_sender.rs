@@ -1,4 +1,5 @@
 use crate::entities::ObservableSubject;
+use bytes::Bytes;
 use lazy_static::lazy_static;
 use std::{convert::TryInto, sync::RwLock};
 
@@ -21,8 +22,8 @@ impl RustStreamSender {
     fn inner_post(&self, observable_subject: ObservableSubject) -> Result<(), String> {
         match self.isolate {
             Some(ref isolate) => {
-                let bytes: Vec<u8> = observable_subject.try_into().unwrap();
-                isolate.post(bytes);
+                let bytes: Bytes = observable_subject.try_into().unwrap();
+                isolate.post(bytes.to_vec());
                 Ok(())
             },
             None => Err("Isolate is not set".to_owned()),
@@ -39,7 +40,7 @@ impl RustStreamSender {
         }
     }
 
-    pub fn post(_observable_subject: ObservableSubject) -> Result<(), String> {
+    pub fn post(observable_subject: ObservableSubject) -> Result<(), String> {
         #[cfg(feature = "dart")]
         match R2F_STREAM_SENDER.read() {
             Ok(stream) => stream.inner_post(observable_subject),
