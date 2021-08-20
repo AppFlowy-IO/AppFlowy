@@ -30,3 +30,15 @@ const SignInParams$json = const {
 
 /// Descriptor for `SignInParams`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List signInParamsDescriptor = $convert.base64Decode('CgxTaWduSW5QYXJhbXMSFAoFZW1haWwYASABKAlSBWVtYWlsEhoKCHBhc3N3b3JkGAIgASgJUghwYXNzd29yZA==');
+@$core.Deprecated('Use signInResponseDescriptor instead')
+const SignInResponse$json = const {
+  '1': 'SignInResponse',
+  '2': const [
+    const {'1': 'uid', '3': 1, '4': 1, '5': 9, '10': 'uid'},
+    const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
+    const {'1': 'email', '3': 3, '4': 1, '5': 9, '10': 'email'},
+  ],
+};
+
+/// Descriptor for `SignInResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List signInResponseDescriptor = $convert.base64Decode('Cg5TaWduSW5SZXNwb25zZRIQCgN1aWQYASABKAlSA3VpZBISCgRuYW1lGAIgASgJUgRuYW1lEhQKBWVtYWlsGAMgASgJUgVlbWFpbA==');

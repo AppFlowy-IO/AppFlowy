@@ -54,7 +54,9 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "SignUpResponse"
         | "SignInRequest"
         | "SignInParams"
-        | "UserError" => TypeCategory::Protobuf,
+        | "SignInResponse"
+        | "UserError"
+        => TypeCategory::Protobuf,
         "ViewType"
         | "WorkspaceEvent"
         | "WsErrCode"
@@ -64,7 +66,8 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "FFIStatusCode"
         | "UserStatus"
         | "UserEvent"
-        | "UserErrCode" => TypeCategory::Enum,
+        | "UserErrCode"
+        => TypeCategory::Enum,
 
         "Option" => TypeCategory::Opt,
         _ => TypeCategory::Primitive,

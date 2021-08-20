@@ -1,3 +1,13 @@
+use crate::{
+    entities::{SignInParams, SignUpParams, UpdateUserParams, UpdateUserRequest, UserDetail},
+    errors::{ErrorBuilder, UserErrCode, UserError},
+    event::UserEvent::*,
+    services::{
+        user::{construct_server, database::UserDB, UserServer},
+        workspace::WorkspaceAction,
+    },
+    sql_tables::{UserTable, UserTableChangeset},
+};
 use flowy_database::{
     query_dsl::*,
     schema::{user_table, user_table::dsl},
@@ -5,18 +15,9 @@ use flowy_database::{
     ExpressionMethods,
     UserDatabaseConnection,
 };
-use flowy_infra::kv::KVStore;
-
-use std::sync::{Arc, RwLock};
-
-use crate::{
-    entities::{SignInParams, SignUpParams, UpdateUserParams, UpdateUserRequest, UserDetail},
-    errors::{ErrorBuilder, UserErrCode, UserError},
-    event::UserEvent::*,
-    services::user_session::{database::UserDB, user_server::UserServer},
-    sql_tables::{UserTable, UserTableChangeset},
-};
 use flowy_dispatch::prelude::{EventDispatch, ModuleRequest, ToBytes};
+use flowy_infra::kv::KVStore;
+use std::sync::{Arc, RwLock};
 
 const DEFAULT_WORKSPACE_NAME: &'static str = "My workspace";
 const DEFAULT_WORKSPACE_DESC: &'static str = "This is your first workspace";
@@ -37,19 +38,22 @@ impl UserSessionConfig {
 pub struct UserSession {
     database: UserDB,
     config: UserSessionConfig,
+    workspace: Arc<dyn WorkspaceAction + Send + Sync>,
     server: Arc<dyn UserServer + Send + Sync>,
     user_id: RwLock<Option<String>>,
 }
 
 impl UserSession {
-    pub fn new<R>(config: UserSessionConfig, server: Arc<R>) -> Self
+    pub fn new<R>(config: UserSessionConfig, workspace: Arc<R>) -> Self
     where
-        R: 'static + UserServer + Send + Sync,
+        R: 'static + WorkspaceAction + Send + Sync,
     {
         let db = UserDB::new(&config.root_dir);
+        let server = construct_server();
         Self {
             database: db,
             config,
+            workspace,
             server,
             user_id: RwLock::new(None),
         }
@@ -61,17 +65,17 @@ impl UserSession {
     }
 
     pub async fn sign_in(&self, params: SignInParams) -> Result<UserTable, UserError> {
-        let user = self.server.sign_in(params)?;
-        let _ = self.set_user_id(Some(user.id.clone()))?;
-        let user_table = self.save_user(user).await?;
+        let resp = self.server.sign_in(params).await?;
+        let _ = self.set_user_id(Some(resp.uid.clone()))?;
+        let user_table = self.save_user(resp.into()).await?;
 
         Ok(user_table)
     }
 
     pub async fn sign_up(&self, params: SignUpParams) -> Result<UserTable, UserError> {
-        let user = self.server.sign_up(params)?;
-        let _ = self.set_user_id(Some(user.id.clone()))?;
-        let user_table = self.save_user(user).await?;
+        let resp = self.server.sign_up(params).await?;
+        let _ = self.set_user_id(Some(resp.uid.clone()))?;
+        let user_table = self.save_user(resp.into()).await?;
 
         Ok(user_table)
     }
@@ -80,11 +84,7 @@ impl UserSession {
         let user_id = self.get_user_id()?;
         let conn = self.get_db_connection()?;
         let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&user_id))).execute(&*conn)?;
-
-        match self.server.sign_out(&user_id) {
-            Ok(_) => {},
-            Err(_) => {},
-        }
+        let _ = self.server.sign_out(&user_id);
         let _ = self.database.close_user_db(&user_id)?;
         let _ = self.set_user_id(None)?;
 
@@ -120,14 +120,7 @@ impl UserSession {
             .filter(user_table::id.eq(&user_id))
             .first::<UserTable>(&*(self.get_db_connection()?))?;
 
-        match self.server.get_user_info(&user_id) {
-            Ok(_user_detail) => {
-                // TODO: post latest user_detail to upper layer
-            },
-            Err(_e) => {
-                // log::debug!("Get user details failed. {:?}", e);
-            },
-        }
+        let _ = self.server.get_user_info(&user_id);
 
         Ok(UserDetail::from(user))
     }
@@ -196,7 +189,7 @@ impl UserSession {
         KVStore::set_bool(&key, true);
         log::debug!("Create user:{} default workspace", user_id);
         let workspace_id = self
-            .server
+            .workspace
             .create_workspace(DEFAULT_WORKSPACE_NAME, DEFAULT_WORKSPACE_DESC, user_id)
             .await?;
         Ok(workspace_id)

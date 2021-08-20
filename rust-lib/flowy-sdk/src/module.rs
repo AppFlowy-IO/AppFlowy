@@ -1,11 +1,10 @@
-use crate::flowy_server::{ArcFlowyServer, FlowyServerMocker};
 use flowy_dispatch::prelude::Module;
-
 use flowy_user::prelude::*;
 
 use crate::deps_resolve::{
     EditorDatabaseImpl,
     EditorUserImpl,
+    UserWorkspaceActionImpl,
     WorkspaceDatabaseImpl,
     WorkspaceUserImpl,
 };
@@ -15,11 +14,11 @@ pub struct ModuleConfig {
     pub root: String,
 }
 
-pub fn build_modules(config: ModuleConfig, _server: ArcFlowyServer) -> Vec<Module> {
+pub fn build_modules(config: ModuleConfig) -> Vec<Module> {
     let user_session = Arc::new(
         UserSessionBuilder::new()
             .root_dir(&config.root)
-            .build(Arc::new(FlowyServerMocker {})),
+            .build(Arc::new(UserWorkspaceActionImpl {})),
     );
 
     let workspace_user_impl = Arc::new(WorkspaceUserImpl {

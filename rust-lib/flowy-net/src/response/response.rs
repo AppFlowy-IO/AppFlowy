@@ -1,4 +1,3 @@
-use crate::errors::ServerError;
 use serde::Serialize;
 
 use serde_repr::*;

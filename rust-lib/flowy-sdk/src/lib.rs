@@ -1,34 +1,27 @@
 mod deps_resolve;
-mod flowy_server;
+// mod flowy_server;
 pub mod module;
 
-pub use crate::flowy_server::{ArcFlowyServer, FlowyServerMocker};
 use flowy_dispatch::prelude::*;
 use module::build_modules;
 pub use module::*;
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc,
-};
+use std::sync::atomic::{AtomicBool, Ordering};
 
 static INIT_LOG: AtomicBool = AtomicBool::new(false);
 pub struct FlowySDK {
     root: String,
-    server: ArcFlowyServer,
 }
 
 impl FlowySDK {
     pub fn new(root: &str) -> Self {
-        let server = Arc::new(FlowyServerMocker {});
         Self {
             root: root.to_owned(),
-            server,
         }
     }
 
-    pub fn construct(self) { FlowySDK::construct_with(&self.root, self.server.clone()) }
+    pub fn construct(self) { FlowySDK::construct_with(&self.root) }
 
-    pub fn construct_with(root: &str, server: ArcFlowyServer) {
+    pub fn construct_with(root: &str) {
         FlowySDK::init_log(root);
 
         tracing::info!("🔥 Root path: {}", root);
@@ -36,7 +29,7 @@ impl FlowySDK {
             Ok(_) => {},
             Err(e) => tracing::error!("Init kv store failedL: {}", e),
         }
-        FlowySDK::init_modules(root, server);
+        FlowySDK::init_modules(root);
     }
 
     fn init_log(directory: &str) {
@@ -45,15 +38,15 @@ impl FlowySDK {
 
             let _ = flowy_log::Builder::new("flowy")
                 .local(directory)
-                .env_filter("Debug")
+                .env_filter("info")
                 .build();
         }
     }
 
-    fn init_modules(root: &str, server: ArcFlowyServer) {
+    fn init_modules(root: &str) {
         let config = ModuleConfig {
             root: root.to_owned(),
         };
-        EventDispatch::construct(|| build_modules(config, server));
+        EventDispatch::construct(|| build_modules(config));
     }
 }

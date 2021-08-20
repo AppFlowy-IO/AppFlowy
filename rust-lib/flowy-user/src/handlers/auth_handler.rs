@@ -1,4 +1,4 @@
-use crate::{entities::*, errors::UserError, services::user_session::UserSession};
+use crate::{entities::*, errors::UserError, services::user::UserSession};
 use flowy_dispatch::prelude::*;
 use std::{convert::TryInto, sync::Arc};
 

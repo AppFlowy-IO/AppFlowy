@@ -20,6 +20,18 @@ pub struct SignInParams {
     pub password: String,
 }
 
+#[derive(Default, ProtoBuf)]
+pub struct SignInResponse {
+    #[pb(index = 1)]
+    pub uid: String,
+
+    #[pb(index = 2)]
+    pub name: String,
+
+    #[pb(index = 3)]
+    pub email: String,
+}
+
 impl TryInto<SignInParams> for SignInRequest {
     type Error = UserError;
 

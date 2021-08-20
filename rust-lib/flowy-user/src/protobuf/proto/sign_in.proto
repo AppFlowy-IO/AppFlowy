@@ -8,3 +8,8 @@ message SignInParams {
     string email = 1;
     string password = 2;
 }
+message SignInResponse {
+    string uid = 1;
+    string name = 2;
+    string email = 3;
+}

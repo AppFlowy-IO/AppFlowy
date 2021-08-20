@@ -6,25 +6,16 @@ use flowy_dispatch::prelude::{
     ToBytes,
 };
 use flowy_user::{
-    entities::{SignInParams, SignUpParams, UserDetail},
     errors::{ErrorBuilder, UserErrCode, UserError},
-    prelude::UserWorkspaceAction,
-    sql_tables::UserTable,
+    prelude::WorkspaceAction,
 };
 use flowy_workspace::{
     entities::workspace::{CreateWorkspaceRequest, Workspace},
     event::WorkspaceEvent::CreateWorkspace,
 };
 
-pub type ArcFlowyServer = std::sync::Arc<dyn FlowyServer>;
-
-pub trait FlowyServer: UserWorkspaceAction {}
-
-pub struct FlowyServerMocker {}
-
-impl FlowyServer for FlowyServerMocker {}
-
-impl UserWorkspaceAction for FlowyServerMocker {
+pub struct UserWorkspaceActionImpl {}
+impl WorkspaceAction for UserWorkspaceActionImpl {
     fn create_workspace(
         &self,
         name: &str,

@@ -13,6 +13,7 @@ flowy-derive = { path = "../flowy-derive" }
 flowy-database = { path = "../flowy-database" }
 flowy-sqlite = { path = "../flowy-sqlite" }
 flowy-infra = { path = "../flowy-infra" }
+flowy-net = { path = "../flowy-net" }
 
 tracing = { version = "0.1", features = ["log"] }
 bytes = "1.0"
@@ -41,3 +42,6 @@ flowy-test = { path = "../flowy-test" }
 tokio = { version = "1", features = ["full"] }
 futures = "0.3.15"
 serial_test = "0.5.1"
+
+[features]
+http_server = []

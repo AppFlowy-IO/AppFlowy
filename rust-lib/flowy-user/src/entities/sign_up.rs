@@ -57,8 +57,11 @@ pub struct SignUpParams {
 #[derive(ProtoBuf, Debug, Default)]
 pub struct SignUpResponse {
     #[pb(index = 1)]
-    pub name: bool,
+    pub uid: String,
 
     #[pb(index = 2)]
+    pub name: String,
+
+    #[pb(index = 3)]
     pub email: String,
 }

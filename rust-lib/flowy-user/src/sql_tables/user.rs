@@ -1,4 +1,4 @@
-use crate::entities::UpdateUserParams;
+use crate::entities::{SignInResponse, SignUpResponse, UpdateUserParams};
 use flowy_database::schema::user_table;
 
 #[derive(Clone, Default, Queryable, Identifiable, Insertable)]
@@ -25,6 +25,18 @@ impl UserTable {
     pub fn set_workspace(mut self, workspace: String) -> Self {
         self.workspace = workspace;
         self
+    }
+}
+
+impl std::convert::From<SignUpResponse> for UserTable {
+    fn from(resp: SignUpResponse) -> Self {
+        UserTable::new(resp.uid, resp.name, resp.email, "".to_owned())
+    }
+}
+
+impl std::convert::From<SignInResponse> for UserTable {
+    fn from(resp: SignInResponse) -> Self {
+        UserTable::new(resp.uid, resp.name, resp.email, "".to_owned())
     }
 }
 
