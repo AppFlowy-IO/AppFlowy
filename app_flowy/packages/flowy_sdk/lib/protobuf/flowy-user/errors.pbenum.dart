@@ -27,6 +27,7 @@ class UserErrCode extends $pb.ProtobufEnum {
   static const UserErrCode UserIdInvalid = UserErrCode._(24, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserIdInvalid');
   static const UserErrCode CreateDefaultWorkspaceFailed = UserErrCode._(25, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateDefaultWorkspaceFailed');
   static const UserErrCode DefaultWorkspaceAlreadyExist = UserErrCode._(26, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DefaultWorkspaceAlreadyExist');
+  static const UserErrCode NetworkError = UserErrCode._(100, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'NetworkError');
 
   static const $core.List<UserErrCode> values = <UserErrCode> [
     Unknown,
@@ -46,6 +47,7 @@ class UserErrCode extends $pb.ProtobufEnum {
     UserIdInvalid,
     CreateDefaultWorkspaceFailed,
     DefaultWorkspaceAlreadyExist,
+    NetworkError,
   ];
 
   static final $core.Map<$core.int, UserErrCode> _byValue = $pb.ProtobufEnum.initByValue(values);

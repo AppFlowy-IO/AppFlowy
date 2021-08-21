@@ -28,8 +28,8 @@ impl UserServerImpl {}
 impl UserServer for UserServerImpl {
     fn sign_up(&self, params: SignUpParams) -> ResultFuture<SignUpResponse, UserError> {
         ResultFuture::new(async move {
-            let a = http_post(SIGN_UP_URL.as_ref(), params).await?;
-            Ok(a)
+            let resp = http_post(SIGN_UP_URL.as_ref(), params).await?;
+            Ok(resp)
         })
     }
 

@@ -11,6 +11,7 @@ pub enum ServerCode {
     Unauthorized     = 3,
     PayloadOverflow  = 4,
     PayloadSerdeFail = 5,
+    ProtobufError    = 6,
 }
 
 #[derive(Debug, Serialize)]

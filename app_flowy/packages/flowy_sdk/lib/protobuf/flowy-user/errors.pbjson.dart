@@ -29,11 +29,12 @@ const UserErrCode$json = const {
     const {'1': 'UserIdInvalid', '2': 24},
     const {'1': 'CreateDefaultWorkspaceFailed', '2': 25},
     const {'1': 'DefaultWorkspaceAlreadyExist', '2': 26},
+    const {'1': 'NetworkError', '2': 100},
   ],
 };
 
 /// Descriptor for `UserErrCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List userErrCodeDescriptor = $convert.base64Decode('CgtVc2VyRXJyQ29kZRILCgdVbmtub3duEAASGgoWVXNlckRhdGFiYXNlSW5pdEZhaWxlZBABEhsKF1VzZXJEYXRhYmFzZVdyaXRlTG9ja2VkEAISGgoWVXNlckRhdGFiYXNlUmVhZExvY2tlZBADEhsKF1VzZXJEYXRhYmFzZURpZE5vdE1hdGNoEAQSHQoZVXNlckRhdGFiYXNlSW50ZXJuYWxFcnJvchAFEhQKEFNxbEludGVybmFsRXJyb3IQBhITCg9Vc2VyTm90TG9naW5ZZXQQChIXChNSZWFkQ3VycmVudElkRmFpbGVkEAsSGAoUV3JpdGVDdXJyZW50SWRGYWlsZWQQDBIQCgxFbWFpbEludmFsaWQQFBITCg9QYXNzd29yZEludmFsaWQQFRITCg9Vc2VyTmFtZUludmFsaWQQFhIYChRVc2VyV29ya3NwYWNlSW52YWxpZBAXEhEKDVVzZXJJZEludmFsaWQQGBIgChxDcmVhdGVEZWZhdWx0V29ya3NwYWNlRmFpbGVkEBkSIAocRGVmYXVsdFdvcmtzcGFjZUFscmVhZHlFeGlzdBAa');
+final $typed_data.Uint8List userErrCodeDescriptor = $convert.base64Decode('CgtVc2VyRXJyQ29kZRILCgdVbmtub3duEAASGgoWVXNlckRhdGFiYXNlSW5pdEZhaWxlZBABEhsKF1VzZXJEYXRhYmFzZVdyaXRlTG9ja2VkEAISGgoWVXNlckRhdGFiYXNlUmVhZExvY2tlZBADEhsKF1VzZXJEYXRhYmFzZURpZE5vdE1hdGNoEAQSHQoZVXNlckRhdGFiYXNlSW50ZXJuYWxFcnJvchAFEhQKEFNxbEludGVybmFsRXJyb3IQBhITCg9Vc2VyTm90TG9naW5ZZXQQChIXChNSZWFkQ3VycmVudElkRmFpbGVkEAsSGAoUV3JpdGVDdXJyZW50SWRGYWlsZWQQDBIQCgxFbWFpbEludmFsaWQQFBITCg9QYXNzd29yZEludmFsaWQQFRITCg9Vc2VyTmFtZUludmFsaWQQFhIYChRVc2VyV29ya3NwYWNlSW52YWxpZBAXEhEKDVVzZXJJZEludmFsaWQQGBIgChxDcmVhdGVEZWZhdWx0V29ya3NwYWNlRmFpbGVkEBkSIAocRGVmYXVsdFdvcmtzcGFjZUFscmVhZHlFeGlzdBAaEhAKDE5ldHdvcmtFcnJvchBk');
 @$core.Deprecated('Use userErrorDescriptor instead')
 const UserError$json = const {
   '1': 'UserError',

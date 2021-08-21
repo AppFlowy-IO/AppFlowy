@@ -25,6 +25,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_repr = "0.1"
 derive_more = {version = "0.99", features = ["display"]}
 protobuf = {version = "2.20.0"}
+uuid = { version = "0.8", features = ["serde", "v4"] }
 
 flowy-log = { path = "../rust-lib/flowy-log" }
 flowy-user = { path = "../rust-lib/flowy-user" }

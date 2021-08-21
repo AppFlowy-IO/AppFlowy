@@ -16,8 +16,7 @@ impl FFIRequest {
     pub fn from_u8_pointer(pointer: *const u8, len: usize) -> Self {
         let buffer = unsafe { std::slice::from_raw_parts(pointer, len) }.to_vec();
         let bytes = Bytes::from(buffer);
-
-        let request: FFIRequest = FFIRequest::try_from(&bytes).unwrap();
+        let request: FFIRequest = FFIRequest::try_from(bytes).unwrap();
         request
     }
 }

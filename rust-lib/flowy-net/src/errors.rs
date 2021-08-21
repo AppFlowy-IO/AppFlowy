@@ -5,6 +5,7 @@ use std::fmt::{Formatter, Write};
 #[derive(Debug)]
 pub enum NetworkError {
     InternalError(String),
+    ProtobufError(ProtobufError),
     BadRequest(FlowyResponse<String>),
     Unauthorized,
 }
@@ -13,6 +14,7 @@ impl std::fmt::Display for NetworkError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             NetworkError::InternalError(_) => f.write_str("Internal Server Error"),
+            NetworkError::ProtobufError(err) => f.write_str(&format!("protobuf error: {}", err)),
             NetworkError::BadRequest(request) => {
                 let msg = format!("Bad Request: {:?}", request);
                 f.write_str(&msg)
@@ -23,10 +25,7 @@ impl std::fmt::Display for NetworkError {
 }
 
 impl std::convert::From<ProtobufError> for NetworkError {
-    fn from(err: ProtobufError) -> Self {
-        let msg = format!("{:?}", err);
-        NetworkError::InternalError(msg)
-    }
+    fn from(err: ProtobufError) -> Self { NetworkError::ProtobufError(err) }
 }
 
 impl std::convert::From<reqwest::Error> for NetworkError {

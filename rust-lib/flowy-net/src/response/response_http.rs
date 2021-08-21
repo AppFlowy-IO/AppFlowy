@@ -9,6 +9,10 @@ impl NetworkError {
                 let resp = FlowyResponse::from_msg(&msg, ServerCode::InternalError);
                 HttpResponse::InternalServerError().json(resp)
             },
+            NetworkError::ProtobufError(err) => {
+                let resp = FlowyResponse::from_msg(&format!("{}", err), ServerCode::ProtobufError);
+                HttpResponse::InternalServerError().json(resp)
+            },
             NetworkError::BadRequest(ref resp) => HttpResponse::BadRequest().json(resp),
             NetworkError::Unauthorized => {
                 let resp = FlowyResponse::from_msg("Unauthorized", ServerCode::Unauthorized);

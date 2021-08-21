@@ -86,31 +86,8 @@ impl flowy_dispatch::Error for WorkspaceError {
     }
 }
 
-pub struct ErrorBuilder {
-    pub code: WsErrCode,
-    pub msg: Option<String>,
-}
+pub type ErrorBuilder = flowy_infra::errors::Builder<WsErrCode, WorkspaceError>;
 
-impl ErrorBuilder {
-    pub fn new(code: WsErrCode) -> Self { ErrorBuilder { code, msg: None } }
-
-    pub fn msg<T>(mut self, msg: T) -> Self
-    where
-        T: Into<String>,
-    {
-        self.msg = Some(msg.into());
-        self
-    }
-
-    pub fn error<T>(mut self, msg: T) -> Self
-    where
-        T: std::fmt::Debug,
-    {
-        self.msg = Some(format!("{:?}", msg));
-        self
-    }
-
-    pub fn build(mut self) -> WorkspaceError {
-        WorkspaceError::new(self.code, &self.msg.take().unwrap_or("".to_owned()))
-    }
+impl flowy_infra::errors::Build<WsErrCode> for WorkspaceError {
+    fn build(code: WsErrCode, msg: String) -> Self { WorkspaceError::new(code, &msg) }
 }

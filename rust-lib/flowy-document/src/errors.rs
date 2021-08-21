@@ -80,31 +80,8 @@ impl flowy_dispatch::Error for DocError {
     }
 }
 
-pub struct ErrorBuilder {
-    pub code: DocErrorCode,
-    pub msg: Option<String>,
-}
+pub type ErrorBuilder = flowy_infra::errors::Builder<DocErrorCode, DocError>;
 
-impl ErrorBuilder {
-    pub fn new(code: DocErrorCode) -> Self { ErrorBuilder { code, msg: None } }
-
-    pub fn msg<T>(mut self, msg: T) -> Self
-    where
-        T: Into<String>,
-    {
-        self.msg = Some(msg.into());
-        self
-    }
-
-    pub fn error<T>(mut self, msg: T) -> Self
-    where
-        T: std::fmt::Debug,
-    {
-        self.msg = Some(format!("{:?}", msg));
-        self
-    }
-
-    pub fn build(mut self) -> DocError {
-        DocError::new(self.code, &self.msg.take().unwrap_or("".to_owned()))
-    }
+impl flowy_infra::errors::Build<DocErrorCode> for DocError {
+    fn build(code: DocErrorCode, msg: String) -> Self { DocError::new(code, &msg) }
 }

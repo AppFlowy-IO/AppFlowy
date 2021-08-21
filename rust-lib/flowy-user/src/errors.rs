@@ -62,6 +62,9 @@ pub enum UserErrCode {
 
     #[display(fmt = "User default workspace already exists")]
     DefaultWorkspaceAlreadyExist = 26,
+
+    #[display(fmt = "Network error")]
+    NetworkError         = 100,
 }
 
 impl std::default::Default for UserErrCode {
@@ -113,6 +116,14 @@ impl std::convert::From<flowy_sqlite::Error> for UserError {
     }
 }
 
+impl std::convert::From<flowy_net::errors::NetworkError> for UserError {
+    fn from(error: flowy_net::errors::NetworkError) -> Self {
+        ErrorBuilder::new(UserErrCode::NetworkError)
+            .error(error)
+            .build()
+    }
+}
+
 impl flowy_dispatch::Error for UserError {
     fn as_response(&self) -> EventResponse {
         let bytes: Bytes = self.clone().try_into().unwrap();
@@ -120,31 +131,8 @@ impl flowy_dispatch::Error for UserError {
     }
 }
 
-pub struct ErrorBuilder {
-    pub code: UserErrCode,
-    pub msg: Option<String>,
-}
+pub type ErrorBuilder = flowy_infra::errors::Builder<UserErrCode, UserError>;
 
-impl ErrorBuilder {
-    pub fn new(code: UserErrCode) -> Self { ErrorBuilder { code, msg: None } }
-
-    pub fn msg<T>(mut self, msg: T) -> Self
-    where
-        T: Into<String>,
-    {
-        self.msg = Some(msg.into());
-        self
-    }
-
-    pub fn error<T>(mut self, msg: T) -> Self
-    where
-        T: std::fmt::Debug,
-    {
-        self.msg = Some(format!("{:?}", msg));
-        self
-    }
-
-    pub fn build(mut self) -> UserError {
-        UserError::new(self.code, &self.msg.take().unwrap_or("".to_owned()))
-    }
+impl flowy_infra::errors::Build<UserErrCode> for UserError {
+    fn build(code: UserErrCode, msg: String) -> Self { UserError::new(code, &msg) }
 }
