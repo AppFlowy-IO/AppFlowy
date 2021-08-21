@@ -22,9 +22,9 @@ pub fn make_de_token_steam(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStrea
         });
 
     let de_token_stream: TokenStream = quote! {
-        impl std::convert::TryFrom<&bytes::Bytes> for #struct_ident {
+        impl std::convert::TryFrom<bytes::Bytes> for #struct_ident {
             type Error = ::protobuf::ProtobufError;
-            fn try_from(bytes: &bytes::Bytes) -> Result<Self, Self::Error> {
+            fn try_from(bytes: bytes::Bytes) -> Result<Self, Self::Error> {
                 let mut pb: crate::protobuf::#pb_ty = ::protobuf::Message::parse_from_bytes(&bytes)?;
                 #struct_ident::try_from(&mut pb)
             }

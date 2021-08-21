@@ -8,21 +8,22 @@ use std::{
 };
 use tokio::sync::{oneshot, oneshot::error::RecvError};
 
-pub async fn http_post<T1, T2>(url: &str, data: T1) -> ResultFuture<T2, NetworkError>
-where
-    T1: TryInto<Bytes, Error = ProtobufError> + Send + Sync + 'static,
-    T2: TryFrom<Bytes, Error = ProtobufError> + Send + Sync + 'static,
-{
-    let url = url.to_owned();
-    ResultFuture::new(async move { post(url, data).await })
-}
+// pub async fn http_post<T1, T2>(url: &str, data: T1) -> ResultFuture<T2,
+// NetworkError> where
+//     T1: TryInto<Bytes, Error = ProtobufError> + Send + Sync + 'static,
+//     T2: TryFrom<Bytes, Error = ProtobufError> + Send + Sync + 'static,
+// {
+//     let url = url.to_owned();
+//     ResultFuture::new(async move { post(url, data).await })
+// }
 
-pub async fn post<T1, T2>(url: String, data: T1) -> Result<T2, NetworkError>
+pub async fn http_post<T1, T2>(url: &str, data: T1) -> Result<T2, NetworkError>
 where
     T1: TryInto<Bytes, Error = ProtobufError>,
     T2: TryFrom<Bytes, Error = ProtobufError>,
 {
     let request_bytes: Bytes = data.try_into()?;
+    let url = url.to_owned();
     let (tx, rx) = oneshot::channel::<Result<Response, _>>();
 
     tokio::spawn(async move {

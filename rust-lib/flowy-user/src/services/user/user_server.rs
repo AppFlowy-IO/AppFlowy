@@ -27,8 +27,10 @@ impl UserServerImpl {}
 
 impl UserServer for UserServerImpl {
     fn sign_up(&self, params: SignUpParams) -> ResultFuture<SignUpResponse, UserError> {
-        // http_post(SIGN_UP_URL.as_ref(), params)
-        unimplemented!()
+        ResultFuture::new(async move {
+            let a = http_post(SIGN_UP_URL.as_ref(), params).await?;
+            Ok(a)
+        })
     }
 
     fn sign_in(&self, _params: SignInParams) -> ResultFuture<SignInResponse, UserError> {

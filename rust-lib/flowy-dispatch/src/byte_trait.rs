@@ -1,6 +1,7 @@
 use crate::errors::{DispatchError, InternalError};
 use bytes::Bytes;
 use protobuf::ProtobufError;
+use std::convert::TryFrom;
 
 // To bytes
 pub trait ToBytes {
@@ -48,11 +49,13 @@ pub trait FromBytes: Sized {
 #[cfg(feature = "use_protobuf")]
 impl<T> FromBytes for T
 where
-    // https://stackoverflow.com/questions/62871045/tryfromu8-trait-bound-in-trait
-    T: for<'a> std::convert::TryFrom<&'a Bytes, Error = protobuf::ProtobufError>,
+    // // https://stackoverflow.com/questions/62871045/tryfromu8-trait-bound-in-trait
+    // T: for<'a> std::convert::TryFrom<&'a Bytes, Error =
+    // protobuf::ProtobufError>,
+    T: std::convert::TryFrom<Bytes, Error = protobuf::ProtobufError>,
 {
     fn parse_from_bytes(bytes: Bytes) -> Result<Self, DispatchError> {
-        let data = T::try_from(&bytes)?;
+        let data = T::try_from(bytes.clone())?;
         Ok(data)
     }
 }
