@@ -1,4 +1,4 @@
-use crate::{errors::NetworkError, future::ResultFuture};
+use crate::{future::ResultFuture, response::ServerError};
 use bytes::Bytes;
 use protobuf::{Message, ProtobufError};
 use reqwest::{Client, Error, Response};
@@ -6,7 +6,9 @@ use std::{
     convert::{TryFrom, TryInto},
     time::Duration,
 };
+use hyper::{StatusCode, http};
 use tokio::sync::{oneshot, oneshot::error::RecvError};
+use crate::response::ServerCode;
 
 // pub async fn http_post<T1, T2>(url: &str, data: T1) -> ResultFuture<T2,
 // NetworkError> where
@@ -17,7 +19,7 @@ use tokio::sync::{oneshot, oneshot::error::RecvError};
 //     ResultFuture::new(async move { post(url, data).await })
 // }
 
-pub async fn http_post<T1, T2>(url: &str, data: T1) -> Result<T2, NetworkError>
+pub async fn http_post<T1, T2>(url: &str, data: T1) -> Result<T2, ServerError>
 where
     T1: TryInto<Bytes, Error = ProtobufError>,
     T2: TryFrom<Bytes, Error = ProtobufError>,
@@ -32,20 +34,21 @@ where
         tx.send(response);
     });
 
-    match rx.await {
-        Ok(response) => {
-            let response = response?;
-            let response_bytes = response.bytes().await?;
-            let data = T2::try_from(response_bytes)?;
-            Ok(data)
-        },
-        Err(e) => {
-            unimplemented!()
-        },
+    let response = rx.await??;
+    if response.status() == http::StatusCode::OK {
+        let response_bytes = response.bytes().await?;
+        let data = T2::try_from(response_bytes)?;
+        Ok(data)
+
+    } else {
+        Err(ServerError {
+            code: ServerCode::InternalError,
+            msg: format!("{:?}", response),
+        })
     }
 }
 
-async fn parse_response<T>(response: Response) -> Result<T, NetworkError>
+async fn parse_response<T>(response: Response) -> Result<T, ServerError>
 where
     T: Message,
 {
@@ -53,7 +56,7 @@ where
     parse_bytes(bytes)
 }
 
-fn parse_bytes<T>(bytes: Bytes) -> Result<T, NetworkError>
+fn parse_bytes<T>(bytes: Bytes) -> Result<T, ServerError>
 where
     T: Message,
 {

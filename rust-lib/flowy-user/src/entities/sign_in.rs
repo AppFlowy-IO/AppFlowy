@@ -36,13 +36,9 @@ impl TryInto<SignInParams> for SignInRequest {
     type Error = UserError;
 
     fn try_into(self) -> Result<SignInParams, Self::Error> {
-        let email = UserEmail::parse(self.email)
-            .map_err(|e| ErrorBuilder::new(UserErrCode::EmailInvalid).msg(e).build())?;
-        let password = UserPassword::parse(self.password).map_err(|e| {
-            ErrorBuilder::new(UserErrCode::PasswordInvalid)
-                .msg(e)
-                .build()
-        })?;
+        let email = UserEmail::parse(self.email).map_err(|e| ErrorBuilder::new(e).build())?;
+        let password =
+            UserPassword::parse(self.password).map_err(|e| ErrorBuilder::new(e).build())?;
 
         Ok(SignInParams {
             email: email.0,

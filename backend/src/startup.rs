@@ -6,7 +6,7 @@ use crate::{
     ws_service::WSServer,
 };
 use actix::Actor;
-use actix_web::{dev::Server, middleware, web, App, HttpServer, Scope};
+use actix_web::{dev::Server, middleware, web, web::Data, App, HttpServer, Scope};
 use sqlx::PgPool;
 use std::{net::TcpListener, sync::Arc};
 
@@ -14,12 +14,12 @@ pub fn run(app_ctx: Arc<AppContext>, listener: TcpListener) -> Result<Server, st
     let server = HttpServer::new(move || {
         App::new()
             .wrap(middleware::Logger::default())
-            .data(web::JsonConfig::default().limit(4096))
+            .app_data(web::JsonConfig::default().limit(4096))
             .service(ws_scope())
             .service(user_scope())
-            .data(app_ctx.ws_server.clone())
-            .data(app_ctx.db_pool.clone())
-            .data(app_ctx.auth.clone())
+            .app_data(Data::new(app_ctx.ws_server.clone()))
+            .app_data(Data::new(app_ctx.db_pool.clone()))
+            .app_data(Data::new(app_ctx.auth.clone()))
     })
     .listen(listener)?
     .run();

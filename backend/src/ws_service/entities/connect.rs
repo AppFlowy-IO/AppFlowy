@@ -1,6 +1,6 @@
 use crate::ws_service::ClientMessage;
 use actix::{Message, Recipient};
-use flowy_net::errors::NetworkError;
+use flowy_net::response::ServerError;
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 
@@ -37,14 +37,14 @@ impl std::fmt::Display for SessionId {
 }
 
 #[derive(Debug, Message, Clone)]
-#[rtype(result = "Result<(), NetworkError>")]
+#[rtype(result = "Result<(), ServerError>")]
 pub struct Connect {
     pub socket: Socket,
     pub sid: SessionId,
 }
 
 #[derive(Debug, Message, Clone)]
-#[rtype(result = "Result<(), NetworkError>")]
+#[rtype(result = "Result<(), ServerError>")]
 pub struct Disconnect {
     pub sid: SessionId,
 }

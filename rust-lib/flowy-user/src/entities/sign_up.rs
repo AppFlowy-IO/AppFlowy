@@ -20,19 +20,10 @@ impl TryInto<SignUpParams> for SignUpRequest {
     type Error = UserError;
 
     fn try_into(self) -> Result<SignUpParams, Self::Error> {
-        let email = UserEmail::parse(self.email)
-            .map_err(|e| ErrorBuilder::new(UserErrCode::EmailInvalid).msg(e).build())?;
-        let password = UserPassword::parse(self.password).map_err(|e| {
-            ErrorBuilder::new(UserErrCode::PasswordInvalid)
-                .msg(e)
-                .build()
-        })?;
-
-        let name = UserName::parse(self.name).map_err(|e| {
-            ErrorBuilder::new(UserErrCode::UserNameInvalid)
-                .msg(e)
-                .build()
-        })?;
+        let email = UserEmail::parse(self.email).map_err(|e| ErrorBuilder::new(e).build())?;
+        let password =
+            UserPassword::parse(self.password).map_err(|e| ErrorBuilder::new(e).build())?;
+        let name = UserName::parse(self.name).map_err(|e| ErrorBuilder::new(e).build())?;
 
         Ok(SignUpParams {
             email: email.0,

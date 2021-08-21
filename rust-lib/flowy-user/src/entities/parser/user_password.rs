@@ -1,27 +1,29 @@
+use crate::errors::UserErrCode;
 use fancy_regex::Regex;
 use lazy_static::lazy_static;
 use unicode_segmentation::UnicodeSegmentation;
+
 #[derive(Debug)]
 pub struct UserPassword(pub String);
 
 impl UserPassword {
-    pub fn parse(s: String) -> Result<UserPassword, String> {
+    pub fn parse(s: String) -> Result<UserPassword, UserErrCode> {
         if s.trim().is_empty() {
-            return Err(format!("Password can not be empty or whitespace."));
+            return Err(UserErrCode::PasswordIsEmpty);
         }
 
         if s.graphemes(true).count() > 100 {
-            return Err(format!("Password too long."));
+            return Err(UserErrCode::PasswordTooLong);
         }
 
         let forbidden_characters = ['/', '(', ')', '"', '<', '>', '\\', '{', '}'];
         let contains_forbidden_characters = s.chars().any(|g| forbidden_characters.contains(&g));
         if contains_forbidden_characters {
-            return Err(format!("Password contains forbidden characters."));
+            return Err(UserErrCode::PasswordContainsForbidCharacters);
         }
 
         if !validate_password(&s) {
-            return Err(format!("Password should contain a minimum of 6 characters with 1 special 1 letter and 1 numeric"));
+            return Err(UserErrCode::PasswordFormatInvalid);
         }
 
         Ok(Self(s))

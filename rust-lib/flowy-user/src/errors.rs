@@ -47,21 +47,37 @@ pub enum UserErrCode {
     #[display(fmt = "Get current id write lock failed")]
     WriteCurrentIdFailed = 12,
 
-    #[display(fmt = "Email format is not correct")]
-    EmailInvalid         = 20,
-    #[display(fmt = "Password format is not correct")]
-    PasswordInvalid      = 21,
-    #[display(fmt = "User name is invalid")]
-    UserNameInvalid      = 22,
+    #[display(fmt = "Email can not be empty or whitespace")]
+    EmailIsEmpty         = 20,
+    #[display(fmt = "Email format is not valid")]
+    EmailFormatInvalid   = 21,
+    #[display(fmt = "Email already exists")]
+    EmailAlreadyExists   = 22,
+    #[display(fmt = "Password can not be empty or whitespace")]
+    PasswordIsEmpty      = 30,
+    #[display(fmt = "Password format too long")]
+    PasswordTooLong      = 31,
+    #[display(fmt = "Password contains forbidden characters.")]
+    PasswordContainsForbidCharacters = 32,
+    #[display(
+        fmt = "Password should contain a minimum of 6 characters with 1 special 1 letter and 1 numeric"
+    )]
+    PasswordFormatInvalid = 33,
+    #[display(fmt = "User name is too long")]
+    UserNameTooLong      = 40,
+    #[display(fmt = "User name contain forbidden characters")]
+    UserNameContainsForbiddenCharacters = 41,
+    #[display(fmt = "User name can not be empty or whitespace")]
+    UserNameIsEmpty      = 42,
     #[display(fmt = "User workspace is invalid")]
-    UserWorkspaceInvalid = 23,
+    UserWorkspaceInvalid = 50,
     #[display(fmt = "User id is invalid")]
-    UserIdInvalid        = 24,
+    UserIdInvalid        = 51,
     #[display(fmt = "Create user default workspace failed")]
-    CreateDefaultWorkspaceFailed = 25,
+    CreateDefaultWorkspaceFailed = 52,
 
     #[display(fmt = "User default workspace already exists")]
-    DefaultWorkspaceAlreadyExist = 26,
+    DefaultWorkspaceAlreadyExist = 53,
 
     #[display(fmt = "Network error")]
     NetworkError         = 100,
@@ -116,8 +132,8 @@ impl std::convert::From<flowy_sqlite::Error> for UserError {
     }
 }
 
-impl std::convert::From<flowy_net::errors::NetworkError> for UserError {
-    fn from(error: flowy_net::errors::NetworkError) -> Self {
+impl std::convert::From<flowy_net::response::ServerError> for UserError {
+    fn from(error: flowy_net::response::ServerError) -> Self {
         ErrorBuilder::new(UserErrCode::NetworkError)
             .error(error)
             .build()
@@ -134,5 +150,12 @@ impl flowy_dispatch::Error for UserError {
 pub type ErrorBuilder = flowy_infra::errors::Builder<UserErrCode, UserError>;
 
 impl flowy_infra::errors::Build<UserErrCode> for UserError {
-    fn build(code: UserErrCode, msg: String) -> Self { UserError::new(code, &msg) }
+    fn build(code: UserErrCode, msg: String) -> Self {
+        let msg = if msg.is_empty() {
+            format!("{}", code)
+        } else {
+            msg
+        };
+        UserError::new(code, &msg)
+    }
 }

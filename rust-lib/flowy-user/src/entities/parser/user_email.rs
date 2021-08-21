@@ -1,18 +1,19 @@
+use crate::errors::UserErrCode;
 use validator::validate_email;
 
 #[derive(Debug)]
 pub struct UserEmail(pub String);
 
 impl UserEmail {
-    pub fn parse(s: String) -> Result<UserEmail, String> {
+    pub fn parse(s: String) -> Result<UserEmail, UserErrCode> {
         if s.trim().is_empty() {
-            return Err(format!("Email can not be empty or whitespace"));
+            return Err(UserErrCode::EmailIsEmpty);
         }
 
         if validate_email(&s) {
             Ok(Self(s))
         } else {
-            Err(format!("{} is not a valid email.", s))
+            Err(UserErrCode::EmailFormatInvalid)
         }
     }
 }

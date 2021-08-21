@@ -1,28 +1,15 @@
-use crate::{errors::NetworkError, response::*};
+use crate::response::*;
 use actix_web::{body::Body, error::ResponseError, BaseHttpResponse, HttpResponse};
 use serde::Serialize;
 
-impl NetworkError {
+impl ServerError {
     fn http_response(&self) -> HttpResponse {
-        match self {
-            NetworkError::InternalError(msg) => {
-                let resp = FlowyResponse::from_msg(&msg, ServerCode::InternalError);
-                HttpResponse::InternalServerError().json(resp)
-            },
-            NetworkError::ProtobufError(err) => {
-                let resp = FlowyResponse::from_msg(&format!("{}", err), ServerCode::ProtobufError);
-                HttpResponse::InternalServerError().json(resp)
-            },
-            NetworkError::BadRequest(ref resp) => HttpResponse::BadRequest().json(resp),
-            NetworkError::Unauthorized => {
-                let resp = FlowyResponse::from_msg("Unauthorized", ServerCode::Unauthorized);
-                HttpResponse::Unauthorized().json(resp)
-            },
-        }
+        let resp: FlowyResponse<String> = self.into();
+        HttpResponse::Ok().json(resp)
     }
 }
 
-impl ResponseError for NetworkError {
+impl ResponseError for ServerError {
     fn error_response(&self) -> HttpResponse { self.http_response().into() }
 }
 
@@ -32,7 +19,11 @@ impl<T: Serialize> std::convert::Into<HttpResponse> for FlowyResponse<T> {
             Ok(body) => HttpResponse::Ok().body(Body::from(body)),
             Err(e) => {
                 let msg = format!("Serial error: {:?}", e);
-                NetworkError::InternalError(msg).error_response()
+                ServerError {
+                    code: ServerCode::SerdeError,
+                    msg,
+                }
+                .error_response()
             },
         }
     }

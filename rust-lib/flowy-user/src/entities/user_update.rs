@@ -72,11 +72,7 @@ impl TryInto<UpdateUserParams> for UpdateUserRequest {
             None => None,
             Some(name) => Some(
                 UserName::parse(name)
-                    .map_err(|e| {
-                        ErrorBuilder::new(UserErrCode::UserNameInvalid)
-                            .msg(e)
-                            .build()
-                    })?
+                    .map_err(|e| ErrorBuilder::new(e).build())?
                     .0,
             ),
         };
@@ -85,7 +81,7 @@ impl TryInto<UpdateUserParams> for UpdateUserRequest {
             None => None,
             Some(email) => Some(
                 UserEmail::parse(email)
-                    .map_err(|e| ErrorBuilder::new(UserErrCode::EmailInvalid).msg(e).build())?
+                    .map_err(|e| ErrorBuilder::new(e).build())?
                     .0,
             ),
         };
@@ -107,11 +103,7 @@ impl TryInto<UpdateUserParams> for UpdateUserRequest {
             None => None,
             Some(password) => Some(
                 UserPassword::parse(password)
-                    .map_err(|e| {
-                        ErrorBuilder::new(UserErrCode::PasswordInvalid)
-                            .msg(e)
-                            .build()
-                    })?
+                    .map_err(|e| ErrorBuilder::new(e).build())?
                     .0,
             ),
         };
