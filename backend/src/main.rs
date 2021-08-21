@@ -1,10 +1,11 @@
-use backend::startup::{init_app_context, run};
+use backend::{application::Application, config::get_configuration};
 use std::net::TcpListener;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let app_ctx = init_app_context().await;
-    let listener =
-        TcpListener::bind(app_ctx.config.server_addr()).expect("Failed to bind server address");
-    run(app_ctx, listener)?.await
+    let configuration = get_configuration().expect("Failed to read configuration.");
+    let application = Application::build(configuration).await?;
+    application.run_until_stopped().await?;
+
+    Ok(())
 }

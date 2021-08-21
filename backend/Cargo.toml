@@ -23,9 +23,11 @@ log = "0.4.14"
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_repr = "0.1"
+serde-aux = "1.0.1"
 derive_more = {version = "0.99", features = ["display"]}
 protobuf = {version = "2.20.0"}
 uuid = { version = "0.8", features = ["serde", "v4"] }
+config = { version = "0.10.1", default-features = false, features = ["yaml"] }
 
 flowy-log = { path = "../rust-lib/flowy-log" }
 flowy-user = { path = "../rust-lib/flowy-user" }
