@@ -68,14 +68,17 @@ impl EventDispatch {
                     service
                         .call(service_ctx)
                         .await
-                        .unwrap_or_else(|e| InternalError::new(format!("{:?}", e)).as_response())
+                        .unwrap_or_else(|e| InternalError::Other(format!("{:?}", e)).as_response())
                 });
 
                 DispatchFuture {
                     fut: Box::pin(async move {
                         join_handle.await.unwrap_or_else(|e| {
-                            InternalError::new(format!("EVENT_DISPATCH join error: {:?}", e))
-                                .as_response()
+                            let error = InternalError::JoinError(format!(
+                                "EVENT_DISPATCH join error: {:?}",
+                                e
+                            ));
+                            error.as_response()
                         })
                     }),
                 }
@@ -83,9 +86,8 @@ impl EventDispatch {
 
             Err(e) => {
                 let msg = format!("EVENT_DISPATCH read failed. {:?}", e);
-                log::error!("{}", msg);
                 DispatchFuture {
-                    fut: Box::pin(async { InternalError::new(msg).as_response() }),
+                    fut: Box::pin(async { InternalError::Lock(msg).as_response() }),
                 }
             },
         }
@@ -165,7 +167,7 @@ impl Service<DispatchContext> for DispatchService {
                     None => {
                         let msg = format!("Can not find the event handler. {:?}", request);
                         log::error!("{}", msg);
-                        Err(InternalError::new(msg).into())
+                        Err(InternalError::HandleNotFound(msg).into())
                     },
                 }
             };

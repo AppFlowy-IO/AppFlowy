@@ -1,9 +1,9 @@
 use crate::{errors::NetworkError, response::*};
-use actix_web::{body::Body, error::ResponseError, HttpResponse};
+use actix_web::{body::Body, error::ResponseError, BaseHttpResponse, HttpResponse};
 use serde::Serialize;
 
-impl ResponseError for NetworkError {
-    fn error_response(&self) -> HttpResponse {
+impl NetworkError {
+    fn http_response(&self) -> HttpResponse {
         match self {
             NetworkError::InternalError(msg) => {
                 let resp = FlowyResponse::from_msg(&msg, ServerCode::InternalError);
@@ -16,6 +16,10 @@ impl ResponseError for NetworkError {
             },
         }
     }
+}
+
+impl ResponseError for NetworkError {
+    fn error_response(&self) -> HttpResponse { self.http_response().into() }
 }
 
 impl<T: Serialize> std::convert::Into<HttpResponse> for FlowyResponse<T> {

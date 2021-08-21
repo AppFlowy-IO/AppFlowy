@@ -3,10 +3,11 @@ use crate::{
     errors::{ErrorBuilder, UserErrCode, UserError},
 };
 
-use flowy_net::{future::ResultFuture, request::FlowyRequest};
+use bytes::Bytes;
+use flowy_net::{config::SIGN_UP_URL, future::ResultFuture, request::http_post};
 use std::sync::Arc;
 
-pub(crate) trait UserServer {
+pub trait UserServer {
     fn sign_up(&self, params: SignUpParams) -> ResultFuture<SignUpResponse, UserError>;
     fn sign_in(&self, params: SignInParams) -> ResultFuture<SignInResponse, UserError>;
     fn sign_out(&self, user_id: &str) -> ResultFuture<(), UserError>;
@@ -25,23 +26,8 @@ pub struct UserServerImpl {}
 impl UserServerImpl {}
 
 impl UserServer for UserServerImpl {
-    fn sign_up(&self, _params: SignUpParams) -> ResultFuture<SignUpResponse, UserError> {
-        // let bytes: Vec<u8> = params.try_into().unwrap();
-        // ResultFuture::new(async move {
-        //     match FlowyRequest::new()
-        //         .post_data::<SignUpResponse>("SIGN_UP_URL.as_ref()", bytes)
-        //         .await
-        //     {
-        //         Ok(a) => {},
-        //         Err(err) => {},
-        //     }
-        //
-        //     Ok(SignUpResponse {
-        //         uid: "".to_string(),
-        //         name: "".to_string(),
-        //         email: "".to_string(),
-        //     })
-        // })
+    fn sign_up(&self, params: SignUpParams) -> ResultFuture<SignUpResponse, UserError> {
+        // http_post(SIGN_UP_URL.as_ref(), params)
         unimplemented!()
     }
 

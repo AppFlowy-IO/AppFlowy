@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use flowy_derive::ProtoBuf_Enum;
-use flowy_dispatch::prelude::ToBytes;
+use flowy_dispatch::prelude::{DispatchError, ToBytes};
 use flowy_observable::{dart::RustStreamSender, entities::ObservableSubject};
 
 const OBSERVABLE_CATEGORY: &'static str = "Workspace";
@@ -47,8 +47,13 @@ impl ObservableSender {
     where
         T: ToBytes,
     {
-        let bytes = payload.into_bytes().unwrap();
-        self.payload = Some(bytes);
+        match payload.into_bytes() {
+            Ok(bytes) => self.payload = Some(bytes),
+            Err(e) => {
+                log::error!("Set observable payload failed: {:?}", e);
+            },
+        }
+
         self
     }
 

@@ -18,20 +18,17 @@ pub fn make_se_token_stream(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStre
     let se_token_stream: TokenStream = quote! {
 
         impl std::convert::TryInto<bytes::Bytes> for #struct_ident {
-            type Error = String;
+            type Error = ::protobuf::ProtobufError;
             fn try_into(self) -> Result<bytes::Bytes, Self::Error> {
                 use protobuf::Message;
                 let pb: crate::protobuf::#pb_ty = self.try_into()?;
-                let result: ::protobuf::ProtobufResult<Vec<u8>> = pb.write_to_bytes();
-                match result {
-                    Ok(bytes) => { Ok(bytes::Bytes::from(bytes)) },
-                    Err(e) => { Err(format!("{:?}", e)) }
-                }
+                let bytes = pb.write_to_bytes()?;
+                Ok(bytes::Bytes::from(bytes))
             }
         }
 
         impl std::convert::TryInto<crate::protobuf::#pb_ty> for #struct_ident {
-            type Error = String;
+            type Error = ::protobuf::ProtobufError;
             fn try_into(self) -> Result<crate::protobuf::#pb_ty, Self::Error> {
                 let mut pb = crate::protobuf::#pb_ty::new();
                 #(#build_set_pb_fields)*

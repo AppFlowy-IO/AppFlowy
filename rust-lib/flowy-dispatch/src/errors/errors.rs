@@ -5,9 +5,10 @@ use crate::{
 };
 use bytes::Bytes;
 use dyn_clone::DynClone;
+use protobuf::ProtobufError;
 use serde::{Serialize, Serializer};
 use std::{fmt, option::NoneError};
-use tokio::sync::mpsc::error::SendError;
+use tokio::{sync::mpsc::error::SendError, task::JoinError};
 
 pub trait Error: fmt::Debug + DynClone + Send + Sync {
     fn as_response(&self) -> EventResponse;
@@ -48,68 +49,36 @@ impl std::error::Error for DispatchError {
 
 impl From<SendError<EventRequest>> for DispatchError {
     fn from(err: SendError<EventRequest>) -> Self {
-        InternalError {
-            inner: format!("{}", err),
-        }
-        .into()
+        InternalError::Other(format!("{}", err)).into()
     }
 }
 
 impl From<NoneError> for DispatchError {
     fn from(s: NoneError) -> Self {
-        InternalError {
-            inner: format!("Unexpected none: {:?}", s),
-        }
-        .into()
+        InternalError::UnexpectedNone(format!("Unexpected none: {:?}", s)).into()
     }
 }
 
 impl From<String> for DispatchError {
-    fn from(s: String) -> Self { InternalError { inner: s }.into() }
+    fn from(s: String) -> Self { InternalError::Other(s).into() }
+}
+
+#[cfg(feature = "use_protobuf")]
+impl From<protobuf::ProtobufError> for DispatchError {
+    fn from(e: protobuf::ProtobufError) -> Self {
+        InternalError::ProtobufError(format!("{:?}", e)).into()
+    }
 }
 
 impl FromBytes for DispatchError {
-    fn parse_from_bytes(bytes: Bytes) -> Result<Self, String> {
+    fn parse_from_bytes(bytes: Bytes) -> Result<Self, DispatchError> {
         let s = String::from_utf8(bytes.to_vec()).unwrap();
-        Ok(InternalError { inner: s }.into())
+        Ok(InternalError::DeserializeFromBytes(s).into())
     }
 }
 
 impl From<DispatchError> for EventResponse {
     fn from(err: DispatchError) -> Self { err.inner_error().as_response() }
-}
-
-#[derive(Clone)]
-pub(crate) struct InternalError<T: Clone> {
-    inner: T,
-}
-
-impl<T: Clone> InternalError<T> {
-    pub fn new(inner: T) -> Self { InternalError { inner } }
-}
-
-impl<T> fmt::Debug for InternalError<T>
-where
-    T: fmt::Debug + 'static + Clone + Send + Sync,
-{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { fmt::Debug::fmt(&self.inner, f) }
-}
-
-impl<T> fmt::Display for InternalError<T>
-where
-    T: fmt::Debug + fmt::Display + 'static + Clone + Send + Sync,
-{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { fmt::Display::fmt(&self.inner, f) }
-}
-
-impl<T> Error for InternalError<T>
-where
-    T: fmt::Debug + fmt::Display + 'static + Clone + Send + Sync,
-{
-    fn as_response(&self) -> EventResponse {
-        let error = format!("{}", self.inner).into_bytes();
-        ResponseBuilder::Err().data(error).build()
-    }
 }
 
 impl Serialize for DispatchError {
@@ -119,4 +88,44 @@ impl Serialize for DispatchError {
     {
         serializer.serialize_str(&format!("{}", self))
     }
+}
+
+#[derive(Clone, Debug)]
+pub(crate) enum InternalError {
+    ProtobufError(String),
+    UnexpectedNone(String),
+    DeserializeFromBytes(String),
+    SerializeToBytes(String),
+    JoinError(String),
+    Lock(String),
+    ServiceNotFound(String),
+    HandleNotFound(String),
+    Other(String),
+}
+
+impl fmt::Display for InternalError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            InternalError::ProtobufError(s) => fmt::Display::fmt(&s, f),
+            InternalError::UnexpectedNone(s) => fmt::Display::fmt(&s, f),
+            InternalError::DeserializeFromBytes(s) => fmt::Display::fmt(&s, f),
+            InternalError::SerializeToBytes(s) => fmt::Display::fmt(&s, f),
+            InternalError::JoinError(s) => fmt::Display::fmt(&s, f),
+            InternalError::Lock(s) => fmt::Display::fmt(&s, f),
+            InternalError::ServiceNotFound(s) => fmt::Display::fmt(&s, f),
+            InternalError::HandleNotFound(s) => fmt::Display::fmt(&s, f),
+            InternalError::Other(s) => fmt::Display::fmt(&s, f),
+        }
+    }
+}
+
+impl Error for InternalError {
+    fn as_response(&self) -> EventResponse {
+        let error = format!("{}", self).into_bytes();
+        ResponseBuilder::Err().data(error).build()
+    }
+}
+
+impl std::convert::From<JoinError> for InternalError {
+    fn from(e: JoinError) -> Self { InternalError::JoinError(format!("{}", e)) }
 }

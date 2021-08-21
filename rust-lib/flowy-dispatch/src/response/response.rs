@@ -36,15 +36,11 @@ impl EventResponse {
         E: FromBytes,
     {
         if self.status_code == StatusCode::Err {
-            match <Data<E>>::try_from(self.payload) {
-                Ok(err) => Ok(Err(err.into_inner())),
-                Err(e) => Err(InternalError::new(e).into()),
-            }
+            let err = <Data<E>>::try_from(self.payload)?;
+            Ok(Err(err.into_inner()))
         } else {
-            match <Data<T>>::try_from(self.payload) {
-                Ok(a) => Ok(Ok(a.into_inner())),
-                Err(e) => Err(InternalError::new(e).into()),
-            }
+            let data = <Data<T>>::try_from(self.payload)?;
+            Ok(Ok(data.into_inner()))
         }
     }
 }

@@ -1,6 +1,5 @@
 use crate::response::FlowyResponse;
 use protobuf::ProtobufError;
-
 use std::fmt::{Formatter, Write};
 
 #[derive(Debug)]
@@ -35,4 +34,8 @@ impl std::convert::From<reqwest::Error> for NetworkError {
         let msg = format!("{:?}", error);
         NetworkError::InternalError(msg)
     }
+}
+
+impl std::convert::From<String> for NetworkError {
+    fn from(error: String) -> Self { NetworkError::InternalError(error) }
 }

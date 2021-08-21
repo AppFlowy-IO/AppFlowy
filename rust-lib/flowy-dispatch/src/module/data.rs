@@ -56,7 +56,7 @@ where
                 type_name::<T>()
             );
             log::error!("{}", msg,);
-            ready(Err(InternalError::new(msg).into()))
+            ready(Err(InternalError::Other(msg).into()))
         }
     }
 }

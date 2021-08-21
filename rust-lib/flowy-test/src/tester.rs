@@ -64,9 +64,15 @@ pub trait TesterTrait {
     where
         P: ToBytes,
     {
-        let bytes = payload.into_bytes().unwrap();
-        let module_request = self.mut_context().request.take().unwrap();
-        self.mut_context().request = Some(module_request.payload(bytes));
+        match payload.into_bytes() {
+            Ok(bytes) => {
+                let module_request = self.mut_context().request.take().unwrap();
+                self.mut_context().request = Some(module_request.payload(bytes));
+            },
+            Err(e) => {
+                log::error!("Set payload failed: {:?}", e);
+            },
+        }
     }
 
     fn sync_send(&mut self) {

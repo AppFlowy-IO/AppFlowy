@@ -14,10 +14,10 @@ use actix_web_actors::ws;
 pub async fn start_connection(
     request: HttpRequest,
     payload: Payload,
-    Path(token): Path<String>,
+    path: Path<String>,
     server: Data<Addr<WSServer>>,
 ) -> Result<HttpResponse, Error> {
-    let client = WSClient::new(SessionId::new(token), server.get_ref().clone());
+    let client = WSClient::new(SessionId::new(path.clone()), server.get_ref().clone());
     let result = ws::start(client, &request, payload);
 
     match result {

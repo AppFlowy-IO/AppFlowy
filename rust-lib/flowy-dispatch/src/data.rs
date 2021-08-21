@@ -37,7 +37,9 @@ where
             Payload::None => ready(Err(unexpected_none_payload(req))),
             Payload::Bytes(bytes) => match T::parse_from_bytes(bytes.clone()) {
                 Ok(data) => ready(Ok(Data(data))),
-                Err(e) => ready(Err(InternalError::new(format!("{}", e)).into())),
+                Err(e) => ready(Err(
+                    InternalError::DeserializeFromBytes(format!("{}", e)).into()
+                )),
             },
         }
     }
@@ -50,10 +52,7 @@ where
     fn respond_to(self, _request: &EventRequest) -> EventResponse {
         match self.into_inner().into_bytes() {
             Ok(bytes) => ResponseBuilder::Ok().data(bytes).build(),
-            Err(e) => {
-                let system_err: DispatchError = InternalError::new(format!("{}", e)).into();
-                system_err.into()
-            },
+            Err(e) => e.into(),
         }
     }
 }
@@ -62,7 +61,7 @@ impl<T> std::convert::TryFrom<&Payload> for Data<T>
 where
     T: FromBytes,
 {
-    type Error = String;
+    type Error = DispatchError;
     fn try_from(payload: &Payload) -> Result<Data<T>, Self::Error> { parse_payload(payload) }
 }
 
@@ -70,19 +69,21 @@ impl<T> std::convert::TryFrom<Payload> for Data<T>
 where
     T: FromBytes,
 {
-    type Error = String;
+    type Error = DispatchError;
     fn try_from(payload: Payload) -> Result<Data<T>, Self::Error> { parse_payload(&payload) }
 }
 
-fn parse_payload<T>(payload: &Payload) -> Result<Data<T>, String>
+fn parse_payload<T>(payload: &Payload) -> Result<Data<T>, DispatchError>
 where
     T: FromBytes,
 {
     match payload {
-        Payload::None => Err(format!("Parse fail, expected payload")),
-        Payload::Bytes(bytes) => match T::parse_from_bytes(bytes.clone()) {
-            Ok(data) => Ok(Data(data)),
-            Err(e) => Err(e),
+        Payload::None => {
+            Err(InternalError::UnexpectedNone(format!("Parse fail, expected payload")).into())
+        },
+        Payload::Bytes(bytes) => {
+            let data = T::parse_from_bytes(bytes.clone())?;
+            Ok(Data(data))
         },
     }
 }
@@ -91,7 +92,7 @@ impl<T> std::convert::TryInto<Payload> for Data<T>
 where
     T: ToBytes,
 {
-    type Error = String;
+    type Error = DispatchError;
 
     fn try_into(self) -> Result<Payload, Self::Error> {
         let inner = self.into_inner();
@@ -101,5 +102,5 @@ where
 }
 
 impl ToBytes for Data<String> {
-    fn into_bytes(self) -> Result<Bytes, String> { Ok(Bytes::from(self.0)) }
+    fn into_bytes(self) -> Result<Bytes, DispatchError> { Ok(Bytes::from(self.0)) }
 }

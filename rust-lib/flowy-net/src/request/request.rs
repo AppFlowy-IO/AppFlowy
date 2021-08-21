@@ -1,47 +1,46 @@
-use crate::errors::NetworkError;
+use crate::{errors::NetworkError, future::ResultFuture};
 use bytes::Bytes;
-use protobuf::Message;
-use reqwest::{Client, Response};
-use std::{convert::TryFrom, time::Duration};
+use protobuf::{Message, ProtobufError};
+use reqwest::{Client, Error, Response};
+use std::{
+    convert::{TryFrom, TryInto},
+    time::Duration,
+};
+use tokio::sync::{oneshot, oneshot::error::RecvError};
 
-pub struct FlowyRequest {
-    client: Client,
+pub async fn http_post<T1, T2>(url: &str, data: T1) -> ResultFuture<T2, NetworkError>
+where
+    T1: TryInto<Bytes, Error = ProtobufError> + Send + Sync + 'static,
+    T2: TryFrom<Bytes, Error = ProtobufError> + Send + Sync + 'static,
+{
+    let url = url.to_owned();
+    ResultFuture::new(async move { post(url, data).await })
 }
 
-impl FlowyRequest {
-    pub fn new() -> Self {
+pub async fn post<T1, T2>(url: String, data: T1) -> Result<T2, NetworkError>
+where
+    T1: TryInto<Bytes, Error = ProtobufError>,
+    T2: TryFrom<Bytes, Error = ProtobufError>,
+{
+    let request_bytes: Bytes = data.try_into()?;
+    let (tx, rx) = oneshot::channel::<Result<Response, _>>();
+
+    tokio::spawn(async move {
         let client = default_client();
-        Self { client }
-    }
+        let response = client.post(&url).body(request_bytes).send().await;
+        tx.send(response);
+    });
 
-    pub async fn get<T>(&self, url: &str) -> Result<T, NetworkError>
-    where
-        T: Message,
-    {
-        let url = url.to_owned();
-        let response = self.client.get(&url).send().await?;
-        parse_response(response).await
-    }
-
-    pub async fn post<T>(&self, url: &str, data: T) -> Result<T, NetworkError>
-    where
-        T: Message,
-    {
-        let url = url.to_owned();
-        let body = data.write_to_bytes()?;
-        let response = self.client.post(&url).body(body).send().await?;
-        parse_response(response).await
-    }
-
-    pub async fn post_data<T>(&self, url: &str, bytes: Vec<u8>) -> Result<T, NetworkError>
-    where
-        T: for<'a> TryFrom<&'a Vec<u8>>,
-    {
-        let url = url.to_owned();
-        let response = self.client.post(&url).body(bytes).send().await?;
-        let bytes = response.bytes().await?.to_vec();
-        let data = T::try_from(&bytes).map_err(|_e| panic!("")).unwrap();
-        Ok(data)
+    match rx.await {
+        Ok(response) => {
+            let response = response?;
+            let response_bytes = response.bytes().await?;
+            let data = T2::try_from(response_bytes)?;
+            Ok(data)
+        },
+        Err(e) => {
+            unimplemented!()
+        },
     }
 }
 

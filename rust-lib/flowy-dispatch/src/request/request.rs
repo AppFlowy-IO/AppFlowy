@@ -77,7 +77,7 @@ impl FromRequest for String {
 
 pub fn unexpected_none_payload(request: &EventRequest) -> DispatchError {
     log::warn!("{:?} expected payload", &request.event);
-    InternalError::new("Expected payload").into()
+    InternalError::UnexpectedNone("Expected payload".to_string()).into()
 }
 
 #[doc(hidden)]

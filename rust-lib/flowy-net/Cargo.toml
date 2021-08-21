@@ -11,12 +11,14 @@ protobuf = {version = "2.18.0"}
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 serde_repr = "0.1"
-actix-web = {version = "3", optional = true}
 pin-project = "1.0.0"
 futures-core = { version = "0.3", default-features = false }
 log = "0.4"
 bytes = "1.0"
 lazy_static = "1.4.0"
+tokio = { version = "1", features = ["full"] }
+
+actix-web = {version = "4.0.0-beta.8", optional = true}
 
 [features]
 http = ["actix-web"]

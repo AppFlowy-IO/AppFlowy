@@ -12,6 +12,7 @@ use actix::{
     Actor,
     ActorContext,
     ActorFuture,
+    ActorFutureExt,
     Addr,
     AsyncContext,
     ContextFutureSpawner,
@@ -123,13 +124,13 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSClient {
             },
             Ok(Text(s)) => {
                 log::debug!("Receive {} text {:?}", &self.sid, &s);
-                self.send(MessageData::Text(s));
+                self.send(MessageData::Text(s.to_string()));
             },
 
             Err(e) => {
                 let msg = format!("{} error: {:?}", &self.sid, e);
-                ctx.text(&msg);
                 log::error!("stream {}", msg);
+                ctx.text(msg);
                 ctx.stop();
             },
         }

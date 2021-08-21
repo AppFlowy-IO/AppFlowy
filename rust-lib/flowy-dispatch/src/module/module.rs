@@ -192,7 +192,13 @@ impl Service<ModuleRequest> for ModuleService {
                 };
                 Box::pin(async move { Ok(fut.await.unwrap_or_else(|e| e.into())) })
             },
-            None => Box::pin(async { Err(InternalError::new("".to_string()).into()) }),
+            None => {
+                let msg = format!(
+                    "Can not find service factory for event: {:?}",
+                    request.event
+                );
+                Box::pin(async { Err(InternalError::ServiceNotFound(msg).into()) })
+            },
         }
     }
 }
