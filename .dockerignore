@@ -1,0 +1,7 @@
+.env
+.dockerignore
+doc/
+scripts/
+rust-lib/target/
+backend/target/
+app_flowy/

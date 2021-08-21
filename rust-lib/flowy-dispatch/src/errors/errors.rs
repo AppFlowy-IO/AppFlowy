@@ -7,7 +7,7 @@ use bytes::Bytes;
 use dyn_clone::DynClone;
 use protobuf::ProtobufError;
 use serde::{Serialize, Serializer};
-use std::{fmt, option::NoneError};
+use std::fmt;
 use tokio::{sync::mpsc::error::SendError, task::JoinError};
 
 pub trait Error: fmt::Debug + DynClone + Send + Sync {
@@ -50,12 +50,6 @@ impl std::error::Error for DispatchError {
 impl From<SendError<EventRequest>> for DispatchError {
     fn from(err: SendError<EventRequest>) -> Self {
         InternalError::Other(format!("{}", err)).into()
-    }
-}
-
-impl From<NoneError> for DispatchError {
-    fn from(s: NoneError) -> Self {
-        InternalError::UnexpectedNone(format!("Unexpected none: {:?}", s)).into()
     }
 }
 

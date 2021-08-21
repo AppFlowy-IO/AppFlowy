@@ -2,6 +2,7 @@
 
 
 ### Docker
+
 1. follow the [instructions](https://docs.docker.com/desktop/mac/install/) to install docker.
 2. open terminal and run: `docker pull postgres`
    
@@ -26,3 +27,5 @@ export DB_PORT=5433
 ```
 
 ![img_1.png](img_1.png)
+
+[Docker command](https://docs.docker.com/engine/reference/commandline/builder_prune/)

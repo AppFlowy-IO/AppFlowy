@@ -1,5 +1,3 @@
-#![feature(try_trait)]
-
 mod errors;
 mod module;
 mod request;
