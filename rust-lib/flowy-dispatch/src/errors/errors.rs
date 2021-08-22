@@ -5,7 +5,7 @@ use crate::{
 };
 use bytes::Bytes;
 use dyn_clone::DynClone;
-use protobuf::ProtobufError;
+
 use serde::{Serialize, Serializer};
 use std::fmt;
 use tokio::{sync::mpsc::error::SendError, task::JoinError};

@@ -1,6 +1,7 @@
-use serde::{Serialize, __private::Formatter};
+use bytes::Bytes;
+use serde::{Deserialize, Serialize, __private::Formatter};
 use serde_repr::*;
-use std::{error::Error, fmt};
+use std::{convert::TryInto, error::Error, fmt};
 use tokio::sync::oneshot::error::RecvError;
 
 #[derive(Debug)]
@@ -16,11 +17,11 @@ impl std::fmt::Display for ServerError {
     }
 }
 
-impl std::convert::From<&ServerError> for FlowyResponse<String> {
+impl std::convert::From<&ServerError> for FlowyResponse {
     fn from(error: &ServerError) -> Self {
         FlowyResponse {
             msg: error.msg.clone(),
-            data: None,
+            data: Bytes::from(vec![]),
             code: error.code.clone(),
         }
     }
@@ -43,15 +44,15 @@ pub enum ServerCode {
     ConnectCancel    = 11,
 }
 
-#[derive(Debug, Serialize)]
-pub struct FlowyResponse<T> {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct FlowyResponse {
     pub msg: String,
-    pub data: Option<T>,
+    pub data: Bytes,
     pub code: ServerCode,
 }
 
-impl<T: Serialize> FlowyResponse<T> {
-    pub fn new(data: Option<T>, msg: &str, code: ServerCode) -> Self {
+impl FlowyResponse {
+    pub fn new(data: Bytes, msg: &str, code: ServerCode) -> Self {
         FlowyResponse {
             msg: msg.to_owned(),
             data,
@@ -59,16 +60,13 @@ impl<T: Serialize> FlowyResponse<T> {
         }
     }
 
-    pub fn from_data(data: T, msg: &str, code: ServerCode) -> Self {
-        Self::new(Some(data), msg, code)
-    }
-}
-
-impl FlowyResponse<String> {
-    pub fn success() -> Self { Self::from_msg("", ServerCode::Success) }
-
-    pub fn from_msg(msg: &str, code: ServerCode) -> Self {
-        Self::new(Some("".to_owned()), msg, code)
+    pub fn from<T: TryInto<Bytes, Error = protobuf::ProtobufError>>(
+        data: T,
+        msg: &str,
+        code: ServerCode,
+    ) -> Result<Self, ServerError> {
+        let bytes: Bytes = data.try_into()?;
+        Ok(Self::new(bytes, msg, code))
     }
 }
 
@@ -86,6 +84,16 @@ impl std::convert::From<RecvError> for ServerError {
         ServerError {
             code: ServerCode::InternalError,
             msg: format!("{:?}", error),
+        }
+    }
+}
+
+impl std::convert::From<serde_json::Error> for ServerError {
+    fn from(e: serde_json::Error) -> Self {
+        let msg = format!("Serial error: {:?}", e);
+        ServerError {
+            code: ServerCode::SerdeError,
+            msg,
         }
     }
 }
@@ -121,9 +129,7 @@ impl std::convert::From<reqwest::Error> for ServerError {
                         code = ServerCode::ConnectCancel;
                     }
 
-                    if hyper_error.is_timeout() {
-
-                    }
+                    if hyper_error.is_timeout() {}
 
                     ServerError { code, msg }
                 },

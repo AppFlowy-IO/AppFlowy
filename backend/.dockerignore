@@ -8,3 +8,4 @@ Dockerfile
 scripts/
 migrations/
 app_flowy/
+rust-lib/target/

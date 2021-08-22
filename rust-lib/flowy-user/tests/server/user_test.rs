@@ -10,4 +10,5 @@ async fn user_register_test() {
         password: "123".to_string(),
     };
     let result = server.sign_up(params).await.unwrap();
+    println!("{:?}", result);
 }

@@ -1,23 +1,13 @@
-use crate::{future::ResultFuture, response::ServerError};
+use crate::response::{FlowyResponse, ServerCode, ServerError};
 use bytes::Bytes;
+use hyper::http;
 use protobuf::{Message, ProtobufError};
-use reqwest::{Client, Error, Response};
+use reqwest::{Client, Response};
 use std::{
     convert::{TryFrom, TryInto},
     time::Duration,
 };
-use hyper::{StatusCode, http};
-use tokio::sync::{oneshot, oneshot::error::RecvError};
-use crate::response::ServerCode;
-
-// pub async fn http_post<T1, T2>(url: &str, data: T1) -> ResultFuture<T2,
-// NetworkError> where
-//     T1: TryInto<Bytes, Error = ProtobufError> + Send + Sync + 'static,
-//     T2: TryFrom<Bytes, Error = ProtobufError> + Send + Sync + 'static,
-// {
-//     let url = url.to_owned();
-//     ResultFuture::new(async move { post(url, data).await })
-// }
+use tokio::sync::oneshot;
 
 pub async fn http_post<T1, T2>(url: &str, data: T1) -> Result<T2, ServerError>
 where
@@ -37,9 +27,9 @@ where
     let response = rx.await??;
     if response.status() == http::StatusCode::OK {
         let response_bytes = response.bytes().await?;
-        let data = T2::try_from(response_bytes)?;
+        let flowy_resp: FlowyResponse = serde_json::from_slice(&response_bytes).unwrap();
+        let data = T2::try_from(flowy_resp.data)?;
         Ok(data)
-
     } else {
         Err(ServerError {
             code: ServerCode::InternalError,

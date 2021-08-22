@@ -5,7 +5,6 @@ pub use flowy_test::prelude::{random_valid_email, valid_password};
 pub(crate) fn invalid_email_test_case() -> Vec<String> {
     // https://gist.github.com/cjaoude/fd9910626629b53c4d25
     vec![
-        "",
         "annie@",
         "annie@gmail@",
         "#@%^%#$@#$@#.com",
@@ -31,7 +30,7 @@ pub(crate) fn invalid_email_test_case() -> Vec<String> {
 }
 
 pub(crate) fn invalid_password_test_case() -> Vec<String> {
-    vec!["", "123456", "1234".repeat(100).as_str()]
+    vec!["123456", "1234".repeat(100).as_str()]
         .iter()
         .map(|s| s.to_string())
         .collect::<Vec<_>>()

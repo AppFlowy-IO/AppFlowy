@@ -9,6 +9,7 @@ rustup component add rustfmt
 cargo install cargo-expand
 cargo install cargo-watch
 cargo install cargo-cache
+cargo install bunyan
 
 #protobuf code gen env
 brew install protobuf@3.13

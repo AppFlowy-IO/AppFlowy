@@ -8,15 +8,22 @@ pub struct Settings {
     pub application: ApplicationSettings,
 }
 
+// We are using 127.0.0.1 as our host in address, we are instructing our
+// application to only accept connections coming from the same machine. However,
+// request from the hose machine which is not seen as local by our Docker image.
+//
+// Using 0.0.0.0 as host to instruct our application to accept connections from
+// any network interface. So using 127.0.0.1 for our local development and set
+// it to 0.0.0.0 in our Docker images.
+//
 #[derive(serde::Deserialize, Clone)]
 pub struct ApplicationSettings {
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub port: u16,
     pub host: String,
-    pub base_url: String,
 }
 
-#[derive(serde::Deserialize, Clone)]
+#[derive(serde::Deserialize, Clone, Debug)]
 pub struct DatabaseSettings {
     pub username: String,
     pub password: String,

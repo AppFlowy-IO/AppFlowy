@@ -19,5 +19,7 @@ members = [
   "flowy-net",
 ]
 
+exclude = ["../backend"]
+
 [profile.dev]
 split-debuginfo = "unpacked"

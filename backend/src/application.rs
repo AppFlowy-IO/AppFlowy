@@ -63,7 +63,10 @@ async fn init_app_context(configuration: &Settings) -> Arc<AppContext> {
     let pg_pool = Arc::new(
         get_connection_pool(&configuration.database)
             .await
-            .expect("Failed to connect to Postgres."),
+            .expect(&format!(
+                "Failed to connect to Postgres {:?}.",
+                configuration.database
+            )),
     );
 
     let ws_server = WSServer::new().start();
@@ -77,7 +80,7 @@ async fn init_app_context(configuration: &Settings) -> Arc<AppContext> {
 
 pub async fn get_connection_pool(configuration: &DatabaseSettings) -> Result<PgPool, sqlx::Error> {
     PgPoolOptions::new()
-        .connect_timeout(std::time::Duration::from_secs(2))
+        .connect_timeout(std::time::Duration::from_secs(5))
         .connect_with(configuration.with_db())
         .await
 }

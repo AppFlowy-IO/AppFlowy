@@ -28,3 +28,7 @@ export DB_PORT=5433
 ![img_1.png](img_1.png)
 
 [Docker command](https://docs.docker.com/engine/reference/commandline/builder_prune/)
+
+### Run
+By default, Docker images do not expose their ports to the underlying host machine. We need to do it explicitly using the -p flag.
+`docker run -p 8000:8000 backend`

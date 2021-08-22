@@ -3,7 +3,6 @@ use crate::{
     errors::{ErrorBuilder, UserErrCode, UserError},
 };
 
-use bytes::Bytes;
 use flowy_net::{config::SIGN_UP_URL, future::ResultFuture, request::http_post};
 use std::sync::Arc;
 

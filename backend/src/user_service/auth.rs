@@ -1,5 +1,5 @@
 use chrono::Utc;
-use flowy_net::response::{ServerCode, ServerError};
+use flowy_net::response::{FlowyResponse, ServerCode, ServerError};
 use flowy_user::{entities::SignUpResponse, protobuf::SignUpParams};
 use sqlx::PgPool;
 use std::sync::Arc;
@@ -11,15 +11,16 @@ pub struct Auth {
 impl Auth {
     pub fn new(db_pool: Arc<PgPool>) -> Self { Self { db_pool } }
 
-    pub async fn sign_up(&self, params: SignUpParams) -> Result<SignUpResponse, ServerError> {
+    pub async fn sign_up(&self, params: SignUpParams) -> Result<FlowyResponse, ServerError> {
         // email exist?
         // generate user id
+        let uuid = uuid::Uuid::new_v4();
         let result = sqlx::query!(
             r#"
             INSERT INTO user_table (id, email, name, create_time, password)
             VALUES ($1, $2, $3, $4, $5)
         "#,
-            uuid::Uuid::new_v4(),
+            uuid,
             params.email,
             params.name,
             Utc::now(),
@@ -28,11 +29,14 @@ impl Auth {
         .execute(self.db_pool.as_ref())
         .await;
 
-        let response = SignUpResponse {
-            uid: "".to_string(),
-            name: "".to_string(),
-            email: "".to_string(),
+        let data = SignUpResponse {
+            uid: uuid.to_string(),
+            name: params.name,
+            email: params.email,
         };
+
+        let response = FlowyResponse::from(data, "", ServerCode::Success)?;
+
         Ok(response)
     }
 

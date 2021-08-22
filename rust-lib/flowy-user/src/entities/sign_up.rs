@@ -1,6 +1,6 @@
 use crate::{
     entities::parser::*,
-    errors::{ErrorBuilder, UserErrCode, UserError},
+    errors::{ErrorBuilder, UserError},
 };
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;

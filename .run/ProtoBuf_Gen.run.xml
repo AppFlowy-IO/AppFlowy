@@ -1,0 +1,22 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ProtoBuf_Gen" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
+    <option name="command" value="run --manifest-path $PROJECT_DIR$/scripts/flowy-tool/Cargo.toml -- pb-gen --rust_source=$PROJECT_DIR$/rust-lib/  --derive_meta=$PROJECT_DIR$/rust-lib/flowy-derive/src/derive_cache/derive_cache.rs  --flutter_package_lib=$PROJECT_DIR$/app_flowy/packages/flowy_sdk/lib" />
+    <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+    <option name="channel" value="DEFAULT" />
+    <option name="allFeatures" value="false" />
+    <option name="emulateTerminal" value="false" />
+    <option name="backtrace" value="SHORT" />
+    <envs>
+      <env name="rust_source" value="${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/" />
+      <env name="build_cache" value="${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-derive/src/auto_gen_file/category_from_str.rs" />
+      <env name="proto_file_output" value="${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-protobuf/define" />
+      <env name="rust_mod_dir" value="${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-protobuf/src/" />
+      <env name="flutter_mod_dir" value="${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/flutter-lib/packages/flowy_protobuf/lib/" />
+    </envs>
+    <option name="isRedirectInput" value="false" />
+    <option name="redirectInputPath" value="" />
+    <method v="2">
+      <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+    </method>
+  </configuration>
+</component>

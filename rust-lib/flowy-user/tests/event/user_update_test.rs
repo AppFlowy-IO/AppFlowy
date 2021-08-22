@@ -86,7 +86,7 @@ fn user_update_with_invalid_email() {
                 .sync_send()
                 .error()
                 .code,
-            UserErrCode::EmailInvalid
+            UserErrCode::EmailFormatInvalid
         );
     }
 }
@@ -111,7 +111,7 @@ fn user_update_with_invalid_password() {
                 .sync_send()
                 .error()
                 .code,
-            UserErrCode::PasswordInvalid
+            UserErrCode::PasswordFormatInvalid
         );
     }
 }
@@ -135,6 +135,6 @@ fn user_update_with_invalid_name() {
             .sync_send()
             .error()
             .code,
-        UserErrCode::UserNameInvalid
+        UserErrCode::UserIdInvalid
     );
 }

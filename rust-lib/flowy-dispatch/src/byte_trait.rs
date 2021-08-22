@@ -1,6 +1,6 @@
 use crate::errors::{DispatchError, InternalError};
 use bytes::Bytes;
-use protobuf::ProtobufError;
+
 use std::convert::TryFrom;
 
 // To bytes

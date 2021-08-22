@@ -1,7 +1,7 @@
 use crate::{
     byte_trait::FromBytes,
     data::Data,
-    errors::{DispatchError, InternalError},
+    errors::DispatchError,
     request::{EventRequest, Payload},
     response::Responder,
 };
