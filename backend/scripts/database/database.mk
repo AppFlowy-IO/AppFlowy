@@ -10,7 +10,7 @@ init_docker:
 	${ROOT}/docker.sh
 
 init_database:
-	${ROOT}/init.sh
+	${ROOT}/db_init.sh
 
 reset_db:
 	sqlx database reset

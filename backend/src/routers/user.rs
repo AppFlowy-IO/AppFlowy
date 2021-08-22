@@ -16,7 +16,7 @@ pub async fn register(
     auth: Data<Arc<Auth>>,
 ) -> Result<HttpResponse, Error> {
     let params: SignUpParams = parse_from_payload(payload).await?;
-    let _ = auth.sign_up(params)?;
+    let _ = auth.sign_up(params).await?;
 
     let resp = FlowyResponse::success();
 
