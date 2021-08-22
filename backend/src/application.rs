@@ -2,7 +2,6 @@ use crate::{
     config::{get_configuration, DatabaseSettings, Settings},
     context::AppContext,
     routers::*,
-    user_service::Auth,
     ws_service::WSServer,
 };
 use actix::Actor;
@@ -13,39 +12,37 @@ use std::{net::TcpListener, sync::Arc};
 pub struct Application {
     port: u16,
     server: Server,
-    app_ctx: Arc<AppContext>,
 }
 
 impl Application {
     pub async fn build(configuration: Settings) -> Result<Self, std::io::Error> {
-        let app_ctx = init_app_context(&configuration).await;
         let address = format!(
             "{}:{}",
             configuration.application.host, configuration.application.port
         );
         let listener = TcpListener::bind(&address)?;
         let port = listener.local_addr().unwrap().port();
-        let server = run(listener, app_ctx.clone())?;
-        Ok(Self {
-            port,
-            server,
-            app_ctx,
-        })
+        let app_ctx = init_app_context(&configuration).await;
+        let server = run(listener, app_ctx)?;
+        Ok(Self { port, server })
     }
 
     pub async fn run_until_stopped(self) -> Result<(), std::io::Error> { self.server.await }
 }
 
-pub fn run(listener: TcpListener, app_ctx: Arc<AppContext>) -> Result<Server, std::io::Error> {
+pub fn run(listener: TcpListener, app_ctx: AppContext) -> Result<Server, std::io::Error> {
+    let AppContext { ws_server, pg_pool } = app_ctx;
+    let ws_server = Data::new(ws_server);
+    let pg_pool = Data::new(pg_pool);
+
     let server = HttpServer::new(move || {
         App::new()
             .wrap(middleware::Logger::default())
             .app_data(web::JsonConfig::default().limit(4096))
             .service(ws_scope())
             .service(user_scope())
-            .app_data(Data::new(app_ctx.ws_server.clone()))
-            .app_data(Data::new(app_ctx.db_pool.clone()))
-            .app_data(Data::new(app_ctx.auth.clone()))
+            .app_data(ws_server.clone())
+            .app_data(pg_pool.clone())
     })
     .listen(listener)?
     .run();
@@ -58,24 +55,18 @@ fn user_scope() -> Scope {
     web::scope("/user").service(web::resource("/register").route(web::post().to(user::register)))
 }
 
-async fn init_app_context(configuration: &Settings) -> Arc<AppContext> {
+async fn init_app_context(configuration: &Settings) -> AppContext {
     let _ = flowy_log::Builder::new("flowy").env_filter("Debug").build();
-    let pg_pool = Arc::new(
-        get_connection_pool(&configuration.database)
-            .await
-            .expect(&format!(
-                "Failed to connect to Postgres {:?}.",
-                configuration.database
-            )),
-    );
+    let pg_pool = get_connection_pool(&configuration.database)
+        .await
+        .expect(&format!(
+            "Failed to connect to Postgres at {:?}.",
+            configuration.database
+        ));
 
     let ws_server = WSServer::new().start();
 
-    let auth = Arc::new(Auth::new(pg_pool.clone()));
-
-    let ctx = AppContext::new(ws_server, pg_pool, auth);
-
-    Arc::new(ctx)
+    AppContext::new(ws_server, pg_pool)
 }
 
 pub async fn get_connection_pool(configuration: &DatabaseSettings) -> Result<PgPool, sqlx::Error> {

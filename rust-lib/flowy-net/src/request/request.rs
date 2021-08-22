@@ -1,4 +1,4 @@
-use crate::response::{FlowyResponse, ServerCode, ServerError};
+use crate::response::{Code, FlowyResponse, ServerError};
 use bytes::Bytes;
 use hyper::http;
 use protobuf::{Message, ProtobufError};
@@ -25,41 +25,20 @@ where
     });
 
     let response = rx.await??;
-    if response.status() == http::StatusCode::OK {
-        let response_bytes = response.bytes().await?;
-        let flowy_resp: FlowyResponse = serde_json::from_slice(&response_bytes).unwrap();
-        let data = T2::try_from(flowy_resp.data)?;
-        Ok(data)
+    let data = get_response_data(response).await?;
+    Ok(T2::try_from(data)?)
+}
+
+async fn get_response_data(original: Response) -> Result<Bytes, ServerError> {
+    if original.status() == http::StatusCode::OK {
+        let bytes = original.bytes().await?;
+        let response: FlowyResponse = serde_json::from_slice(&bytes)?;
+        match response.error {
+            None => Ok(response.data),
+            Some(error) => Err(error),
+        }
     } else {
-        Err(ServerError {
-            code: ServerCode::InternalError,
-            msg: format!("{:?}", response),
-        })
-    }
-}
-
-async fn parse_response<T>(response: Response) -> Result<T, ServerError>
-where
-    T: Message,
-{
-    let bytes = response.bytes().await?;
-    parse_bytes(bytes)
-}
-
-fn parse_bytes<T>(bytes: Bytes) -> Result<T, ServerError>
-where
-    T: Message,
-{
-    match Message::parse_from_bytes(&bytes) {
-        Ok(data) => Ok(data),
-        Err(e) => {
-            log::error!(
-                "Parse bytes for {:?} failed: {}",
-                std::any::type_name::<T>(),
-                e
-            );
-            Err(e.into())
-        },
+        Err(ServerError::http(original))
     }
 }
 

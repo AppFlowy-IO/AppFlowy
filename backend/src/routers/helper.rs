@@ -20,14 +20,11 @@ pub fn parse_from_bytes<T: Message>(bytes: &[u8]) -> Result<T, ServerError> {
 pub async fn poll_payload(mut payload: web::Payload) -> Result<web::BytesMut, ServerError> {
     let mut body = web::BytesMut::new();
     while let Some(chunk) = payload.next().await {
-        let chunk = chunk.map_err(|e| ServerError {
-            code: ServerCode::InternalError,
-            msg: format!("{:?}", e),
-        })?;
+        let chunk = chunk.map_err(ServerError::internal)?;
 
         if (body.len() + chunk.len()) > MAX_PAYLOAD_SIZE {
             return Err(ServerError {
-                code: ServerCode::PayloadOverflow,
+                code: Code::PayloadOverflow,
                 msg: "Payload overflow".to_string(),
             });
         }

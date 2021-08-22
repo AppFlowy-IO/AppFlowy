@@ -7,7 +7,7 @@ async fn user_register_test() {
     let params = SignUpParams {
         email: "annie@appflowy.io".to_string(),
         name: "annie".to_string(),
-        password: "123".to_string(),
+        password: "1233333".to_string(),
     };
     let result = server.sign_up(params).await.unwrap();
     println!("{:?}", result);

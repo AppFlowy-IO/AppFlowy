@@ -21,7 +21,8 @@ tokio = { version = "1", features = ["full"] }
 actix-web = {version = "4.0.0-beta.8", optional = true}
 derive_more = {version = "0.99", features = ["display"]}
 flowy-derive = { path = "../flowy-derive" }
-
+anyhow = "1.0"
+thiserror = "1.0.24"
 
 [features]
 http = ["actix-web"]
