@@ -64,7 +64,6 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "EditorEvent"
         | "DocErrorCode"
         | "FFIStatusCode"
-        | "UserServerError"
         | "UserStatus"
         | "UserEvent"
         | "UserErrCode"

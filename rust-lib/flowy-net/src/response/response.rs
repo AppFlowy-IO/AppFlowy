@@ -32,7 +32,7 @@ impl std::convert::From<protobuf::ProtobufError> for ServerError {
 }
 
 impl std::convert::From<RecvError> for ServerError {
-    fn from(error: RecvError) -> Self { ServerError::internal(error) }
+    fn from(error: RecvError) -> Self { ServerError::internal().with_msg(error) }
 }
 
 impl std::convert::From<serde_json::Error> for ServerError {
@@ -46,7 +46,7 @@ impl std::convert::From<serde_json::Error> for ServerError {
 }
 
 impl std::convert::From<anyhow::Error> for ServerError {
-    fn from(error: anyhow::Error) -> Self { ServerError::internal(error) }
+    fn from(error: anyhow::Error) -> Self { ServerError::internal().with_msg(error) }
 }
 
 impl std::convert::From<reqwest::Error> for ServerError {

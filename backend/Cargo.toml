@@ -14,6 +14,7 @@ actix-codec = "0.3"
 actix-web = "4.0.0-beta.8"
 actix-http = "3.0.0-beta.8"
 actix-web-actors = { version = "4.0.0-beta.6" }
+actix-identity = "0.4.0-beta.2"
 
 futures = "0.3.15"
 bytes = "1"
@@ -24,13 +25,15 @@ serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_repr = "0.1"
 serde-aux = "1.0.1"
-derive_more = {version = "0.99", features = ["display"]}
+derive_more = {version = "0.99"}
 protobuf = {version = "2.20.0"}
 uuid = { version = "0.8", features = ["serde", "v4"] }
 config = { version = "0.10.1", default-features = false, features = ["yaml"] }
 chrono = "0.4.19"
 anyhow = "1.0.40"
 thiserror = "1.0.24"
+bcrypt = "0.10"
+jsonwebtoken = "7.2"
 
 flowy-log = { path = "../rust-lib/flowy-log" }
 flowy-user = { path = "../rust-lib/flowy-user" }

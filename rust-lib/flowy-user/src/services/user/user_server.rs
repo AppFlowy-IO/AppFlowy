@@ -81,6 +81,7 @@ impl UserServer for UserServerMock {
                 uid,
                 name: params.email.clone(),
                 email: params.email,
+                token: "".to_string(),
             })
         })
     }

@@ -14,9 +14,11 @@ pub struct ServerError {
 macro_rules! static_error {
     ($name:ident, $status:expr) => {
         #[allow(non_snake_case, missing_docs)]
-        pub fn $name<T: Debug>(error: T) -> ServerError {
-            let msg = format!("{:?}", error);
-            ServerError { code: $status, msg }
+        pub fn $name() -> ServerError {
+            ServerError {
+                code: $status,
+                msg: format!("{}", $status),
+            }
         }
     };
 }
@@ -25,6 +27,13 @@ impl ServerError {
     static_error!(internal, Code::InternalError);
     static_error!(http, Code::HttpError);
     static_error!(payload_none, Code::PayloadUnexpectedNone);
+    static_error!(unauthorized, Code::Unauthorized);
+    static_error!(passwordNotMatch, Code::PasswordNotMatch);
+
+    pub fn with_msg<T: Debug>(mut self, error: T) -> Self {
+        self.msg = format!("{:?}", error);
+        self
+    }
 }
 
 impl std::fmt::Display for ServerError {
@@ -43,28 +52,47 @@ impl std::convert::From<&ServerError> for FlowyResponse {
     }
 }
 
-#[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone)]
+#[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone, derive_more::Display)]
 #[repr(u16)]
 pub enum Code {
+    #[display(fmt = "Token is invalid")]
     InvalidToken       = 1,
-    Unauthorized       = 3,
-    PayloadOverflow    = 4,
-    PayloadSerdeFail   = 5,
-    PayloadUnexpectedNone = 6,
+    #[display(fmt = "Unauthorized")]
+    Unauthorized       = 2,
+    #[display(fmt = "Payload too large")]
+    PayloadOverflow    = 3,
+    #[display(fmt = "Payload deserialize failed")]
+    PayloadSerdeFail   = 4,
+    #[display(fmt = "Unexpected empty payload")]
+    PayloadUnexpectedNone = 5,
 
+    #[display(fmt = "Protobuf serde error")]
     ProtobufError      = 10,
+    #[display(fmt = "Json serde Error")]
     SerdeError         = 11,
 
+    #[display(fmt = "Email address already exists")]
     EmailAlreadyExists = 50,
 
+    #[display(fmt = "Username and password do not match")]
+    PasswordNotMatch   = 51,
+
+    #[display(fmt = "Connect refused")]
     ConnectRefused     = 100,
+
+    #[display(fmt = "Connection timeout")]
     ConnectTimeout     = 101,
+    #[display(fmt = "Connection closed")]
     ConnectClose       = 102,
+    #[display(fmt = "Connection canceled")]
     ConnectCancel      = 103,
 
+    #[display(fmt = "Sql error")]
     SqlError           = 200,
 
+    #[display(fmt = "Http request error")]
     HttpError          = 300,
 
+    #[display(fmt = "Internal error")]
     InternalError      = 1000,
 }

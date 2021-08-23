@@ -136,6 +136,7 @@ class SignInResponse extends $pb.GeneratedMessage {
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'uid')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'email')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'token')
     ..hasRequiredFields = false
   ;
 
@@ -144,6 +145,7 @@ class SignInResponse extends $pb.GeneratedMessage {
     $core.String? uid,
     $core.String? name,
     $core.String? email,
+    $core.String? token,
   }) {
     final _result = create();
     if (uid != null) {
@@ -154,6 +156,9 @@ class SignInResponse extends $pb.GeneratedMessage {
     }
     if (email != null) {
       _result.email = email;
+    }
+    if (token != null) {
+      _result.token = token;
     }
     return _result;
   }
@@ -204,5 +209,14 @@ class SignInResponse extends $pb.GeneratedMessage {
   $core.bool hasEmail() => $_has(2);
   @$pb.TagNumber(3)
   void clearEmail() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get token => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set token($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasToken() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearToken() => clearField(4);
 }
 

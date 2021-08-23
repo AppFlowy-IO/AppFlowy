@@ -1,6 +1,9 @@
 use crate::config::MAX_PAYLOAD_SIZE;
 use actix_web::web;
-use flowy_net::response::*;
+use flowy_net::{
+    errors::{Code, ServerError},
+    response::*,
+};
 use futures::StreamExt;
 use protobuf::{Message, ProtobufResult};
 
@@ -20,7 +23,7 @@ pub fn parse_from_bytes<T: Message>(bytes: &[u8]) -> Result<T, ServerError> {
 pub async fn poll_payload(mut payload: web::Payload) -> Result<web::BytesMut, ServerError> {
     let mut body = web::BytesMut::new();
     while let Some(chunk) = payload.next().await {
-        let chunk = chunk.map_err(ServerError::internal)?;
+        let chunk = chunk.map_err(|err| ServerError::internal().with_msg(err))?;
 
         if (body.len() + chunk.len()) > MAX_PAYLOAD_SIZE {
             return Err(ServerError {

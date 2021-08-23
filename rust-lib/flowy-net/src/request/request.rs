@@ -20,9 +20,9 @@ pub struct HttpRequestBuilder {
 }
 
 impl HttpRequestBuilder {
-    fn new() -> Self {
+    fn new(url: &str) -> Self {
         Self {
-            url: "".to_owned(),
+            url: url.to_owned(),
             body: None,
             response: None,
             method: Method::GET,
@@ -30,15 +30,13 @@ impl HttpRequestBuilder {
     }
 
     pub fn get(url: &str) -> Self {
-        let mut builder = Self::new();
-        builder.url = url.to_owned();
+        let mut builder = Self::new(url);
         builder.method = Method::GET;
         builder
     }
 
     pub fn post(url: &str) -> Self {
-        let mut builder = Self::new();
-        builder.url = url.to_owned();
+        let mut builder = Self::new(url);
         builder.method = Method::POST;
         builder
     }
@@ -54,11 +52,11 @@ impl HttpRequestBuilder {
 
     pub async fn send(mut self) -> Result<Self, ServerError> {
         let (tx, rx) = oneshot::channel::<Result<Response, _>>();
-        // reqwest client is not 'Sync' by channel is.
         let url = self.url.clone();
         let body = self.body.take();
         let method = self.method.clone();
 
+        // reqwest client is not 'Sync' by channel is.
         tokio::spawn(async move {
             let client = default_client();
             let mut builder = client.request(method, url);
@@ -85,7 +83,7 @@ impl HttpRequestBuilder {
         match data {
             None => {
                 let msg = format!("Request: {} receives unexpected empty body", self.url);
-                Err(ServerError::payload_none(msg))
+                Err(ServerError::payload_none().with_msg(msg))
             },
             Some(data) => Ok(T2::try_from(data)?),
         }
@@ -123,7 +121,7 @@ async fn get_response_data(original: Response) -> Result<Bytes, ServerError> {
             Some(error) => Err(error),
         }
     } else {
-        Err(ServerError::http(original))
+        Err(ServerError::http().with_msg(original))
     }
 }
 

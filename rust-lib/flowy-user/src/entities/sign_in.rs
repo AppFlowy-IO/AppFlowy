@@ -30,6 +30,9 @@ pub struct SignInResponse {
 
     #[pb(index = 3)]
     pub email: String,
+
+    #[pb(index = 4)]
+    pub token: String,
 }
 
 impl TryInto<SignInParams> for SignInRequest {

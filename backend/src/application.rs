@@ -1,10 +1,16 @@
 use crate::{
-    config::{get_configuration, DatabaseSettings, Settings},
+    config::{
+        env::{domain, secret, use_https},
+        get_configuration,
+        DatabaseSettings,
+        Settings,
+    },
     context::AppContext,
     routers::*,
     ws_service::WSServer,
 };
 use actix::Actor;
+use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_web::{dev::Server, middleware, web, web::Data, App, HttpServer, Scope};
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use std::{net::TcpListener, sync::Arc};
@@ -34,10 +40,13 @@ pub fn run(listener: TcpListener, app_ctx: AppContext) -> Result<Server, std::io
     let AppContext { ws_server, pg_pool } = app_ctx;
     let ws_server = Data::new(ws_server);
     let pg_pool = Data::new(pg_pool);
+    let domain = domain();
+    let secret: String = secret();
 
     let server = HttpServer::new(move || {
         App::new()
             .wrap(middleware::Logger::default())
+            .wrap(identify_service(&domain, &secret))
             .app_data(web::JsonConfig::default().limit(4096))
             .service(ws_scope())
             .service(user_scope())
@@ -49,10 +58,24 @@ pub fn run(listener: TcpListener, app_ctx: AppContext) -> Result<Server, std::io
     Ok(server)
 }
 
-fn ws_scope() -> Scope { web::scope("/ws").service(ws::start_connection) }
+fn ws_scope() -> Scope { web::scope("/ws").service(ws_router::start_connection) }
 
 fn user_scope() -> Scope {
-    web::scope("/user").service(web::resource("/register").route(web::post().to(user::register)))
+    web::scope("/api")
+        // authentication
+        .service(web::resource("/auth")
+            .route(web::post().to(user_router::login_handler))
+            .route(web::delete().to(user_router::logout_handler))
+            .route(web::get().to(user_router::user_profile))
+        )
+        // password
+        .service(web::resource("/password_change")
+            .route(web::post().to(user_router::change_password))
+        )
+        // register
+        .service(web::resource("/register")
+            .route(web::post().to(user_router::register_handler))
+        )
 }
 
 async fn init_app_context(configuration: &Settings) -> AppContext {
@@ -67,6 +90,17 @@ async fn init_app_context(configuration: &Settings) -> AppContext {
     let ws_server = WSServer::new().start();
 
     AppContext::new(ws_server, pg_pool)
+}
+
+pub fn identify_service(domain: &str, secret: &str) -> IdentityService<CookieIdentityPolicy> {
+    IdentityService::new(
+        CookieIdentityPolicy::new(secret.as_bytes())
+            .name("auth")
+            .path("/")
+            .domain(domain)
+            .max_age_secs(24 * 3600)
+            .secure(use_https()),
+    )
 }
 
 pub async fn get_connection_pool(configuration: &DatabaseSettings) -> Result<PgPool, sqlx::Error> {
