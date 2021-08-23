@@ -4,7 +4,7 @@ use crate::{
 };
 use chrono::{Duration, Local};
 use derive_more::{From, Into};
-use flowy_net::errors::{Code, ServerError};
+use flowy_net::errors::{ErrorCode, ServerError};
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 
@@ -51,7 +51,7 @@ impl Token {
             &EncodingKey::from_secret(jwt_secret().as_ref()),
         )
         .map(Into::into)
-        .map_err(|err| ServerError::internal().with_msg(err))
+        .map_err(|err| ServerError::internal().context(err))
     }
 
     pub fn decode_token(token: &Self) -> Result<Claim, ServerError> {
@@ -61,6 +61,6 @@ impl Token {
             &Validation::new(DEFAULT_ALGORITHM),
         )
         .map(|data| Ok(data.claims))
-        .map_err(|err| ServerError::unauthorized().with_msg(err))?
+        .map_err(|err| ServerError::unauthorized().context(err))?
     }
 }

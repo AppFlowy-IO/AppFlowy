@@ -1,5 +1,5 @@
 use crate::{
-    errors::{Code, ServerError},
+    errors::{ErrorCode, ServerError},
     response::FlowyResponse,
 };
 use bytes::Bytes;
@@ -83,7 +83,7 @@ impl HttpRequestBuilder {
         match data {
             None => {
                 let msg = format!("Request: {} receives unexpected empty body", self.url);
-                Err(ServerError::payload_none().with_msg(msg))
+                Err(ServerError::payload_none().context(msg))
             },
             Some(data) => Ok(T2::try_from(data)?),
         }
@@ -121,7 +121,7 @@ async fn get_response_data(original: Response) -> Result<Bytes, ServerError> {
             Some(error) => Err(error),
         }
     } else {
-        Err(ServerError::http().with_msg(original))
+        Err(ServerError::http().context(original))
     }
 }
 

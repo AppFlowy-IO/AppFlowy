@@ -7,7 +7,7 @@ use crate::response::FlowyResponse;
 
 #[derive(thiserror::Error, Debug, Serialize, Deserialize, Clone)]
 pub struct ServerError {
-    pub code: Code,
+    pub code: ErrorCode,
     pub msg: String,
 }
 
@@ -24,13 +24,14 @@ macro_rules! static_error {
 }
 
 impl ServerError {
-    static_error!(internal, Code::InternalError);
-    static_error!(http, Code::HttpError);
-    static_error!(payload_none, Code::PayloadUnexpectedNone);
-    static_error!(unauthorized, Code::Unauthorized);
-    static_error!(passwordNotMatch, Code::PasswordNotMatch);
+    static_error!(internal, ErrorCode::InternalError);
+    static_error!(http, ErrorCode::HttpError);
+    static_error!(payload_none, ErrorCode::PayloadUnexpectedNone);
+    static_error!(unauthorized, ErrorCode::Unauthorized);
+    static_error!(password_not_match, ErrorCode::PasswordNotMatch);
+    static_error!(params_invalid, ErrorCode::ParamsInvalid);
 
-    pub fn with_msg<T: Debug>(mut self, error: T) -> Self {
+    pub fn context<T: Debug>(mut self, error: T) -> Self {
         self.msg = format!("{:?}", error);
         self
     }
@@ -54,7 +55,7 @@ impl std::convert::From<&ServerError> for FlowyResponse {
 
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone, derive_more::Display)]
 #[repr(u16)]
-pub enum Code {
+pub enum ErrorCode {
     #[display(fmt = "Token is invalid")]
     InvalidToken       = 1,
     #[display(fmt = "Unauthorized")]
@@ -65,6 +66,8 @@ pub enum Code {
     PayloadSerdeFail   = 4,
     #[display(fmt = "Unexpected empty payload")]
     PayloadUnexpectedNone = 5,
+    #[display(fmt = "Params is invalid")]
+    ParamsInvalid      = 6,
 
     #[display(fmt = "Protobuf serde error")]
     ProtobufError      = 10,

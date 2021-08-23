@@ -6,11 +6,12 @@ use actix_identity::Identity;
 use anyhow::Context;
 use chrono::Utc;
 use flowy_net::{
-    errors::{Code, ServerError},
+    errors::{ErrorCode, ServerError},
     response::FlowyResponse,
 };
 use flowy_user::{
     entities::{SignInResponse, SignUpResponse},
+    prelude::parser::{UserEmail, UserPassword},
     protobuf::{SignInParams, SignUpParams},
 };
 use sqlx::{Error, PgPool, Postgres, Transaction};
@@ -21,17 +22,23 @@ pub async fn sign_in(
     params: SignInParams,
     id: Identity,
 ) -> Result<FlowyResponse, ServerError> {
+    let email =
+        UserEmail::parse(params.email).map_err(|e| ServerError::params_invalid().context(e))?;
+    let password = UserPassword::parse(params.password)
+        .map_err(|e| ServerError::params_invalid().context(e))?;
+
     let mut transaction = pool
         .begin()
         .await
         .context("Failed to acquire a Postgres connection to sign in")?;
-    let user = read_user(&mut transaction, &params.email).await?;
+
+    let user = read_user(&mut transaction, &email.0).await?;
     transaction
         .commit()
         .await
         .context("Failed to commit SQL transaction to sign in.")?;
 
-    match verify_password(&params.password, &user.password) {
+    match verify_password(&password.0, &user.password) {
         Ok(true) => {
             let token = Token::create_token(&user)?;
             let data = SignInResponse {
@@ -43,7 +50,7 @@ pub async fn sign_in(
             id.remember(data.token.clone());
             FlowyResponse::success(data)
         },
-        _ => Err(ServerError::passwordNotMatch()),
+        _ => Err(ServerError::password_not_match()),
     }
 }
 
@@ -77,11 +84,11 @@ async fn is_email_exist(
         .bind(email)
         .fetch_optional(transaction)
         .await
-        .map_err(|err| ServerError::internal().with_msg(err))?;
+        .map_err(|err| ServerError::internal().context(err))?;
 
     match result {
         Some(_) => Err(ServerError {
-            code: Code::EmailAlreadyExists,
+            code: ErrorCode::EmailAlreadyExists,
             msg: format!("{} already exists", email),
         }),
         None => Ok(()),
@@ -96,7 +103,7 @@ async fn read_user(
         .bind(email)
         .fetch_one(transaction)
         .await
-        .map_err(|err| ServerError::internal().with_msg(err))?;
+        .map_err(|err| ServerError::internal().context(err))?;
 
     Ok(user)
 }
@@ -120,7 +127,7 @@ async fn insert_user(
     )
     .execute(transaction)
     .await
-    .map_err(|e| ServerError::internal().with_msg(e))?;
+    .map_err(|e| ServerError::internal().context(e))?;
 
     let data = SignUpResponse {
         uid: uuid.to_string(),

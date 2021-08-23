@@ -4,7 +4,7 @@ use crate::{
 };
 
 use flowy_net::{
-    config::SIGN_UP_URL,
+    config::*,
     future::ResultFuture,
     request::{http_post, HttpRequestBuilder},
 };
@@ -35,15 +35,8 @@ impl UserServer for UserServerImpl {
         ResultFuture::new(async move { user_sign_up(params, SIGN_UP_URL.as_ref()).await })
     }
 
-    fn sign_in(&self, _params: SignInParams) -> ResultFuture<SignInResponse, UserError> {
-        // let user_id = params.email.clone();
-        // Ok(UserTable::new(
-        //     user_id,
-        //     "".to_owned(),
-        //     params.email,
-        //     params.password,
-        // ))
-        unimplemented!()
+    fn sign_in(&self, params: SignInParams) -> ResultFuture<SignInResponse, UserError> {
+        ResultFuture::new(async move { user_sign_in(params, SIGN_IN_URL.as_ref()).await })
     }
 
     fn sign_out(&self, _user_id: &str) -> ResultFuture<(), UserError> {

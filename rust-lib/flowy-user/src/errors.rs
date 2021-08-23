@@ -63,6 +63,7 @@ pub enum UserErrCode {
         fmt = "Password should contain a minimum of 6 characters with 1 special 1 letter and 1 numeric"
     )]
     PasswordFormatInvalid = 33,
+
     #[display(fmt = "User name is too long")]
     UserNameTooLong      = 40,
     #[display(fmt = "User name contain forbidden characters")]
@@ -81,6 +82,10 @@ pub enum UserErrCode {
 
     #[display(fmt = "Network error")]
     NetworkError         = 100,
+}
+
+impl UserErrCode {
+    pub fn to_string(&self) -> String { format!("{}", self) }
 }
 
 impl std::default::Default for UserErrCode {
