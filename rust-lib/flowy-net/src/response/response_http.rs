@@ -1,7 +1,7 @@
 use crate::response::*;
-use actix_web::{body::Body, error::ResponseError, BaseHttpResponse, HttpResponse};
-use reqwest::StatusCode;
-use serde::Serialize;
+use actix_web::{error::ResponseError, HttpResponse};
+
+use crate::errors::ServerError;
 
 impl ResponseError for ServerError {
     fn error_response(&self) -> HttpResponse {

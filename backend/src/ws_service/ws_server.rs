@@ -4,7 +4,7 @@ use crate::ws_service::{
 };
 use actix::{Actor, Context, Handler};
 use dashmap::DashMap;
-use flowy_net::response::ServerError;
+use flowy_net::errors::ServerError;
 
 pub struct WSServer {
     sessions: DashMap<SessionId, Session>,

@@ -9,6 +9,7 @@ use flowy_net::response::*;
 use flowy_user::protobuf::SignUpParams;
 
 use crate::user_service::sign_up;
+use flowy_net::errors::ServerError;
 use sqlx::PgPool;
 use std::sync::Arc;
 

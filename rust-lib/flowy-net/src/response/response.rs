@@ -1,70 +1,8 @@
+use crate::errors::{Code, ServerError};
 use bytes::Bytes;
-use serde::{Deserialize, Serialize, __private::Formatter};
-use serde_repr::*;
-use std::{convert::TryInto, error::Error, fmt, fmt::Debug};
+use serde::{Deserialize, Serialize};
+use std::{convert::TryInto, error::Error, fmt::Debug};
 use tokio::sync::oneshot::error::RecvError;
-
-#[derive(thiserror::Error, Debug, Serialize, Deserialize, Clone)]
-pub struct ServerError {
-    pub code: Code,
-    pub msg: String,
-}
-
-macro_rules! static_error {
-    ($name:ident, $status:expr) => {
-        #[allow(non_snake_case, missing_docs)]
-        pub fn $name<T: Debug>(error: T) -> ServerError {
-            let msg = format!("{:?}", error);
-            ServerError { code: $status, msg }
-        }
-    };
-}
-
-impl ServerError {
-    static_error!(internal, Code::InternalError);
-    static_error!(http, Code::HttpError);
-}
-
-impl std::fmt::Display for ServerError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let msg = format!("{:?}:{}", self.code, self.msg);
-        f.write_str(&msg)
-    }
-}
-
-impl std::convert::From<&ServerError> for FlowyResponse {
-    fn from(error: &ServerError) -> Self {
-        FlowyResponse {
-            data: Bytes::from(vec![]),
-            error: Some(error.clone()),
-        }
-    }
-}
-
-#[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone)]
-#[repr(u16)]
-pub enum Code {
-    InvalidToken       = 1,
-    Unauthorized       = 3,
-    PayloadOverflow    = 4,
-    PayloadSerdeFail   = 5,
-
-    ProtobufError      = 6,
-    SerdeError         = 7,
-
-    EmailAlreadyExists = 50,
-
-    ConnectRefused     = 100,
-    ConnectTimeout     = 101,
-    ConnectClose       = 102,
-    ConnectCancel      = 103,
-
-    SqlError           = 200,
-
-    HttpError          = 300,
-
-    InternalError      = 1000,
-}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FlowyResponse {

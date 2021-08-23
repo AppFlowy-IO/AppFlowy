@@ -3,7 +3,11 @@ use crate::{
     errors::{ErrorBuilder, UserErrCode, UserError},
 };
 
-use flowy_net::{config::SIGN_UP_URL, future::ResultFuture, request::http_post};
+use flowy_net::{
+    config::SIGN_UP_URL,
+    future::ResultFuture,
+    request::{http_post, HttpRequestBuilder},
+};
 use std::sync::Arc;
 
 pub trait UserServer {
@@ -27,8 +31,12 @@ impl UserServerImpl {}
 impl UserServer for UserServerImpl {
     fn sign_up(&self, params: SignUpParams) -> ResultFuture<SignUpResponse, UserError> {
         ResultFuture::new(async move {
-            let resp = http_post(SIGN_UP_URL.as_ref(), params).await?;
-            Ok(resp)
+            let response = HttpRequestBuilder::post(SIGN_UP_URL.as_ref())
+                .protobuf(params)?
+                .send()
+                .await?
+                .response()?;
+            Ok(response)
         })
     }
 

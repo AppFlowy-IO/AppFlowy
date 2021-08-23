@@ -132,8 +132,8 @@ impl std::convert::From<flowy_sqlite::Error> for UserError {
     }
 }
 
-impl std::convert::From<flowy_net::response::ServerError> for UserError {
-    fn from(error: flowy_net::response::ServerError) -> Self {
+impl std::convert::From<flowy_net::errors::ServerError> for UserError {
+    fn from(error: flowy_net::errors::ServerError) -> Self {
         ErrorBuilder::new(UserErrCode::NetworkError)
             .error(error)
             .build()

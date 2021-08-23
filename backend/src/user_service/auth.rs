@@ -1,6 +1,6 @@
 use anyhow::Context;
 use chrono::Utc;
-use flowy_net::response::{Code, FlowyResponse, ServerError};
+use flowy_net::{errors::ServerError, response::FlowyResponse};
 use flowy_user::{entities::SignUpResponse, protobuf::SignUpParams};
 use sqlx::{Error, PgPool, Postgres, Transaction};
 use std::sync::Arc;
