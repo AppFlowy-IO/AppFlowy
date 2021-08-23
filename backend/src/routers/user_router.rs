@@ -14,7 +14,7 @@ use flowy_net::errors::ServerError;
 use sqlx::PgPool;
 use std::sync::Arc;
 
-pub async fn login_handler(
+pub async fn sign_in_handler(
     payload: Payload,
     id: Identity,
     pool: Data<PgPool>,
@@ -24,7 +24,7 @@ pub async fn login_handler(
     Ok(resp.into())
 }
 
-pub async fn logout_handler(id: Identity) -> Result<HttpResponse, ServerError> {
+pub async fn sign_out_handler(id: Identity) -> Result<HttpResponse, ServerError> {
     id.forget();
     Ok(HttpResponse::Ok().finish())
 }
@@ -37,7 +37,7 @@ pub async fn user_profile(
     unimplemented!()
 }
 
-pub async fn register_handler(
+pub async fn register_user_handler(
     _request: HttpRequest,
     payload: Payload,
     pool: Data<PgPool>,

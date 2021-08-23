@@ -43,7 +43,7 @@ impl RustStreamSender {
     pub fn post(_observable_subject: ObservableSubject) -> Result<(), String> {
         #[cfg(feature = "dart")]
         match R2F_STREAM_SENDER.read() {
-            Ok(stream) => stream.inner_post(observable_subject),
+            Ok(stream) => stream.inner_post(_observable_subject),
             Err(e) => Err(format!("Get rust to flutter stream lock fail. {:?}", e)),
         }
 

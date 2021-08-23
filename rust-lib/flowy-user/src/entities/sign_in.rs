@@ -20,7 +20,7 @@ pub struct SignInParams {
     pub password: String,
 }
 
-#[derive(Default, ProtoBuf)]
+#[derive(Debug, Default, ProtoBuf)]
 pub struct SignInResponse {
     #[pb(index = 1)]
     pub uid: String,

@@ -116,7 +116,7 @@ async fn insert_user(
         params.email,
         params.name,
         Utc::now(),
-        "123".to_string()
+        password,
     )
     .execute(transaction)
     .await

@@ -34,6 +34,8 @@ impl Application {
     }
 
     pub async fn run_until_stopped(self) -> Result<(), std::io::Error> { self.server.await }
+
+    pub fn port(&self) -> u16 { self.port }
 }
 
 pub fn run(listener: TcpListener, app_ctx: AppContext) -> Result<Server, std::io::Error> {
@@ -64,8 +66,8 @@ fn user_scope() -> Scope {
     web::scope("/api")
         // authentication
         .service(web::resource("/auth")
-            .route(web::post().to(user_router::login_handler))
-            .route(web::delete().to(user_router::logout_handler))
+            .route(web::post().to(user_router::sign_in_handler))
+            .route(web::delete().to(user_router::sign_out_handler))
             .route(web::get().to(user_router::user_profile))
         )
         // password
@@ -74,7 +76,7 @@ fn user_scope() -> Scope {
         )
         // register
         .service(web::resource("/register")
-            .route(web::post().to(user_router::register_handler))
+            .route(web::post().to(user_router::register_user_handler))
         )
 }
 
