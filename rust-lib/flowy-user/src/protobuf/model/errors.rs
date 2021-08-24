@@ -239,7 +239,7 @@ pub enum UserErrCode {
     UserIdInvalid = 51,
     CreateDefaultWorkspaceFailed = 52,
     DefaultWorkspaceAlreadyExist = 53,
-    NetworkError = 100,
+    ServerError = 100,
 }
 
 impl ::protobuf::ProtobufEnum for UserErrCode {
@@ -273,7 +273,7 @@ impl ::protobuf::ProtobufEnum for UserErrCode {
             51 => ::std::option::Option::Some(UserErrCode::UserIdInvalid),
             52 => ::std::option::Option::Some(UserErrCode::CreateDefaultWorkspaceFailed),
             53 => ::std::option::Option::Some(UserErrCode::DefaultWorkspaceAlreadyExist),
-            100 => ::std::option::Option::Some(UserErrCode::NetworkError),
+            100 => ::std::option::Option::Some(UserErrCode::ServerError),
             _ => ::std::option::Option::None
         }
     }
@@ -304,7 +304,7 @@ impl ::protobuf::ProtobufEnum for UserErrCode {
             UserErrCode::UserIdInvalid,
             UserErrCode::CreateDefaultWorkspaceFailed,
             UserErrCode::DefaultWorkspaceAlreadyExist,
-            UserErrCode::NetworkError,
+            UserErrCode::ServerError,
         ];
         values
     }
@@ -335,7 +335,7 @@ impl ::protobuf::reflect::ProtobufValue for UserErrCode {
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x0cerrors.proto\"?\n\tUserError\x12\x20\n\x04code\x18\x01\x20\x01(\
     \x0e2\x0c.UserErrCodeR\x04code\x12\x10\n\x03msg\x18\x02\x20\x01(\tR\x03m\
-    sg*\x8c\x05\n\x0bUserErrCode\x12\x0b\n\x07Unknown\x10\0\x12\x1a\n\x16Use\
+    sg*\x8b\x05\n\x0bUserErrCode\x12\x0b\n\x07Unknown\x10\0\x12\x1a\n\x16Use\
     rDatabaseInitFailed\x10\x01\x12\x1b\n\x17UserDatabaseWriteLocked\x10\x02\
     \x12\x1a\n\x16UserDatabaseReadLocked\x10\x03\x12\x1b\n\x17UserDatabaseDi\
     dNotMatch\x10\x04\x12\x1d\n\x19UserDatabaseInternalError\x10\x05\x12\x14\
@@ -348,8 +348,8 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x12\x13\n\x0fUserNameTooLong\x10(\x12'\n#UserNameContainsForbiddenChara\
     cters\x10)\x12\x13\n\x0fUserNameIsEmpty\x10*\x12\x18\n\x14UserWorkspaceI\
     nvalid\x102\x12\x11\n\rUserIdInvalid\x103\x12\x20\n\x1cCreateDefaultWork\
-    spaceFailed\x104\x12\x20\n\x1cDefaultWorkspaceAlreadyExist\x105\x12\x10\
-    \n\x0cNetworkError\x10dJ\xb1\t\n\x06\x12\x04\0\0\x20\x01\n\x08\n\x01\x0c\
+    spaceFailed\x104\x12\x20\n\x1cDefaultWorkspaceAlreadyExist\x105\x12\x0f\
+    \n\x0bServerError\x10dJ\xb1\t\n\x06\x12\x04\0\0\x20\x01\n\x08\n\x01\x0c\
     \x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\0\
     \x01\x12\x03\x02\x08\x11\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x19\n\
     \x0c\n\x05\x04\0\x02\0\x06\x12\x03\x03\x04\x0f\n\x0c\n\x05\x04\0\x02\0\
@@ -406,8 +406,8 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x12\x03\x1d\x04\x20\n\x0c\n\x05\x05\0\x02\x16\x02\x12\x03\x1d#%\n\x0b\n\
     \x04\x05\0\x02\x17\x12\x03\x1e\x04&\n\x0c\n\x05\x05\0\x02\x17\x01\x12\
     \x03\x1e\x04\x20\n\x0c\n\x05\x05\0\x02\x17\x02\x12\x03\x1e#%\n\x0b\n\x04\
-    \x05\0\x02\x18\x12\x03\x1f\x04\x17\n\x0c\n\x05\x05\0\x02\x18\x01\x12\x03\
-    \x1f\x04\x10\n\x0c\n\x05\x05\0\x02\x18\x02\x12\x03\x1f\x13\x16b\x06proto\
+    \x05\0\x02\x18\x12\x03\x1f\x04\x16\n\x0c\n\x05\x05\0\x02\x18\x01\x12\x03\
+    \x1f\x04\x0f\n\x0c\n\x05\x05\0\x02\x18\x02\x12\x03\x1f\x12\x15b\x06proto\
     3\
 ";
 

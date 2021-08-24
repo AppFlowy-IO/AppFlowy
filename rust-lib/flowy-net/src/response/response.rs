@@ -1,4 +1,4 @@
-use crate::errors::{ErrorCode, ServerError};
+use crate::errors::{ErrorCode, Kind, ServerError};
 use bytes::Bytes;
 use serde::{Deserialize, Serialize};
 use std::{convert::TryInto, error::Error, fmt::Debug};
@@ -23,12 +23,7 @@ impl FlowyResponse {
 }
 
 impl std::convert::From<protobuf::ProtobufError> for ServerError {
-    fn from(err: protobuf::ProtobufError) -> Self {
-        ServerError {
-            code: ErrorCode::ProtobufError,
-            msg: format!("{}", err),
-        }
-    }
+    fn from(e: protobuf::ProtobufError) -> Self { ServerError::internal().context(e) }
 }
 
 impl std::convert::From<RecvError> for ServerError {
@@ -36,13 +31,7 @@ impl std::convert::From<RecvError> for ServerError {
 }
 
 impl std::convert::From<serde_json::Error> for ServerError {
-    fn from(e: serde_json::Error) -> Self {
-        let msg = format!("Serial error: {:?}", e);
-        ServerError {
-            code: ErrorCode::SerdeError,
-            msg,
-        }
-    }
+    fn from(e: serde_json::Error) -> Self { ServerError::internal().context(e) }
 }
 
 impl std::convert::From<anyhow::Error> for ServerError {
@@ -52,19 +41,13 @@ impl std::convert::From<anyhow::Error> for ServerError {
 impl std::convert::From<reqwest::Error> for ServerError {
     fn from(error: reqwest::Error) -> Self {
         if error.is_timeout() {
-            return ServerError {
-                code: ErrorCode::ConnectTimeout,
-                msg: format!("{}", error),
-            };
+            return ServerError::connect_timeout().context(error);
         }
 
         if error.is_request() {
             let hyper_error: Option<&hyper::Error> = error.source().unwrap().downcast_ref();
             return match hyper_error {
-                None => ServerError {
-                    code: ErrorCode::ConnectRefused,
-                    msg: format!("{:?}", error),
-                },
+                None => ServerError::connect_refused().context(error),
                 Some(hyper_error) => {
                     let mut code = ErrorCode::InternalError;
                     let msg = format!("{}", error);
@@ -82,15 +65,15 @@ impl std::convert::From<reqwest::Error> for ServerError {
 
                     if hyper_error.is_timeout() {}
 
-                    ServerError { code, msg }
+                    ServerError {
+                        code,
+                        msg,
+                        kind: Kind::Other,
+                    }
                 },
             };
         }
 
-        let msg = format!("{:?}", error);
-        ServerError {
-            code: ErrorCode::ProtobufError,
-            msg,
-        }
+        ServerError::internal().context(error)
     }
 }

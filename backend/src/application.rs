@@ -7,6 +7,9 @@ use crate::{
     },
     context::AppContext,
     routers::*,
+    user_service::router as user,
+    workspace_service::{app::router as app, view::router as view, workspace::router as workspace},
+    ws_service,
     ws_service::WSServer,
 };
 use actix::Actor;
@@ -60,23 +63,41 @@ pub fn run(listener: TcpListener, app_ctx: AppContext) -> Result<Server, std::io
     Ok(server)
 }
 
-fn ws_scope() -> Scope { web::scope("/ws").service(ws_router::start_connection) }
+fn ws_scope() -> Scope { web::scope("/ws").service(ws_service::router::start_connection) }
 
 fn user_scope() -> Scope {
     web::scope("/api")
         // authentication
         .service(web::resource("/auth")
-            .route(web::post().to(user_router::sign_in_handler))
-            .route(web::delete().to(user_router::sign_out_handler))
-            .route(web::get().to(user_router::user_profile))
+            .route(web::post().to(user::sign_in_handler))
+            .route(web::delete().to(user::sign_out_handler))
+            .route(web::get().to(user::user_profile))
+        )
+        .service(web::resource("/workspace")
+            .route(web::post().to(workspace::create_workspace))
+            .route(web::delete().to(workspace::delete_workspace))
+            .route(web::get().to(workspace::read_workspace))
+            .route(web::patch().to(workspace::update_workspace))
+        )
+        .service(web::resource("/app")
+            .route(web::post().to(app::create_app))
+            .route(web::delete().to(app::delete_app))
+            .route(web::get().to(app::read_app))
+            .route(web::patch().to(app::update_app))
+        )
+        .service(web::resource("/view")
+            .route(web::post().to(view::create_view))
+            .route(web::delete().to(view::delete_view))
+            .route(web::get().to(view::read_view))
+            .route(web::patch().to(view::update_view))
         )
         // password
         .service(web::resource("/password_change")
-            .route(web::post().to(user_router::change_password))
+            .route(web::post().to(user::change_password))
         )
         // register
         .service(web::resource("/register")
-            .route(web::post().to(user_router::register_user_handler))
+            .route(web::post().to(user::register_user_handler))
         )
 }
 

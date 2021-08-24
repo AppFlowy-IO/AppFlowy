@@ -1,7 +1,7 @@
 use crate::config::MAX_PAYLOAD_SIZE;
 use actix_web::web;
 use flowy_net::{
-    errors::{ErrorCode, ServerError},
+    errors::{ErrorCode, Kind, ServerError},
     response::*,
 };
 use futures::StreamExt;
@@ -26,10 +26,11 @@ pub async fn poll_payload(mut payload: web::Payload) -> Result<web::BytesMut, Se
         let chunk = chunk.map_err(|err| ServerError::internal().context(err))?;
 
         if (body.len() + chunk.len()) > MAX_PAYLOAD_SIZE {
-            return Err(ServerError {
-                code: ErrorCode::PayloadOverflow,
-                msg: "Payload overflow".to_string(),
-            });
+            return Err(ServerError::new(
+                "Payload overflow".to_string(),
+                ErrorCode::PayloadOverflow,
+                Kind::Other,
+            ));
         }
         body.extend_from_slice(&chunk);
     }

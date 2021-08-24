@@ -1,9 +1,9 @@
-mod event;
 mod handlers;
 mod sql_tables;
 
 pub mod entities;
 pub mod errors;
+pub mod event;
 pub mod module;
 pub mod protobuf;
 pub mod services;

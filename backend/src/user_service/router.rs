@@ -8,7 +8,7 @@ use actix_web::{
 use flowy_net::response::*;
 use flowy_user::protobuf::{SignInParams, SignUpParams};
 
-use crate::user_service::auth_service::{register_user, sign_in};
+use crate::user_service::{register_user, sign_in};
 use actix_identity::Identity;
 use flowy_net::errors::ServerError;
 use sqlx::PgPool;

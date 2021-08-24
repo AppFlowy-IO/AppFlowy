@@ -2,7 +2,11 @@ use bytes::Bytes;
 use derive_more::Display;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_dispatch::prelude::{EventResponse, ResponseBuilder};
-use std::convert::TryInto;
+use flowy_net::errors::Kind;
+use std::{
+    convert::TryInto,
+    fmt::{Debug, Formatter},
+};
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct UserError {
@@ -22,7 +26,7 @@ impl UserError {
     }
 }
 
-#[derive(Debug, Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
+#[derive(Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
 pub enum UserErrCode {
     #[display(fmt = "Unknown")]
     Unknown              = 0,
@@ -80,8 +84,12 @@ pub enum UserErrCode {
     #[display(fmt = "User default workspace already exists")]
     DefaultWorkspaceAlreadyExist = 53,
 
-    #[display(fmt = "Network error")]
-    NetworkError         = 100,
+    #[display(fmt = "Server error")]
+    ServerError          = 100,
+}
+
+impl Debug for UserErrCode {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str(&format!("{}", self)) }
 }
 
 impl UserErrCode {
@@ -139,8 +147,8 @@ impl std::convert::From<flowy_sqlite::Error> for UserError {
 
 impl std::convert::From<flowy_net::errors::ServerError> for UserError {
     fn from(error: flowy_net::errors::ServerError) -> Self {
-        ErrorBuilder::new(UserErrCode::NetworkError)
-            .error(error)
+        ErrorBuilder::new(UserErrCode::ServerError)
+            .error(error.msg)
             .build()
     }
 }

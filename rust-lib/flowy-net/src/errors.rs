@@ -9,6 +9,7 @@ use crate::response::FlowyResponse;
 pub struct ServerError {
     pub code: ErrorCode,
     pub msg: String,
+    pub kind: Kind,
 }
 
 macro_rules! static_error {
@@ -18,6 +19,7 @@ macro_rules! static_error {
             ServerError {
                 code: $status,
                 msg: format!("{}", $status),
+                kind: Kind::Other,
             }
         }
     };
@@ -30,6 +32,17 @@ impl ServerError {
     static_error!(unauthorized, ErrorCode::Unauthorized);
     static_error!(password_not_match, ErrorCode::PasswordNotMatch);
     static_error!(params_invalid, ErrorCode::ParamsInvalid);
+    static_error!(connect_timeout, ErrorCode::ConnectTimeout);
+    static_error!(connect_close, ErrorCode::ConnectClose);
+    static_error!(connect_cancel, ErrorCode::ConnectCancel);
+    static_error!(connect_refused, ErrorCode::ConnectRefused);
+
+    pub fn new(msg: String, code: ErrorCode, kind: Kind) -> Self { Self { code, msg, kind } }
+
+    pub fn kind(mut self, kind: Kind) -> Self {
+        self.kind = kind;
+        self
+    }
 
     pub fn context<T: Debug>(mut self, error: T) -> Self {
         self.msg = format!("{:?}", error);
@@ -51,6 +64,12 @@ impl std::convert::From<&ServerError> for FlowyResponse {
             error: Some(error.clone()),
         }
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum Kind {
+    User,
+    Other,
 }
 
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone, derive_more::Display)]

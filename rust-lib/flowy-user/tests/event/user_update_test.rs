@@ -104,15 +104,11 @@ fn user_update_with_invalid_password() {
             password: Some(password),
         };
 
-        assert_eq!(
-            UserTestBuilder::new()
-                .event(UpdateUser)
-                .request(request)
-                .sync_send()
-                .error()
-                .code,
-            UserErrCode::PasswordFormatInvalid
-        );
+        UserTestBuilder::new()
+            .event(UpdateUser)
+            .request(request)
+            .sync_send()
+            .assert_error();
     }
 }
 
@@ -128,13 +124,9 @@ fn user_update_with_invalid_name() {
         password: None,
     };
 
-    assert_eq!(
-        UserTestBuilder::new()
-            .event(UpdateUser)
-            .request(request)
-            .sync_send()
-            .error()
-            .code,
-        UserErrCode::UserIdInvalid
-    );
+    UserTestBuilder::new()
+        .event(UpdateUser)
+        .request(request)
+        .sync_send()
+        .assert_error();
 }

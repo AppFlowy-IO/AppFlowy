@@ -32,3 +32,23 @@ export DB_PORT=5433
 ### Run
 By default, Docker images do not expose their ports to the underlying host machine. We need to do it explicitly using the -p flag.
 `docker run -p 8000:8000 backend`
+
+
+### Sqlx
+
+**Sqlx and Diesel commands** 
+* create migration
+    * sqlx: sqlx migrate add $(table)
+    * diesel: diesel migration generation $(table)
+    
+* run migration
+    * sqlx: sqlx migrate run
+    * diesel: diesel migration run
+    
+* reset database
+    * sqlx: sqlx database reset
+    * diesel: diesel database reset
+
+**Type mapping**
+* [postgres type map](https://docs.rs/sqlx/0.5.7/sqlx/postgres/types/index.html)
+* [postgres and diesel type map](https://kotiri.com/2018/01/31/postgresql-diesel-rust-types.html)

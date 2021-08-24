@@ -49,14 +49,10 @@ fn sign_in_with_invalid_password() {
             password,
         };
 
-        assert_eq!(
-            UserTestBuilder::new()
-                .event(SignIn)
-                .request(request)
-                .sync_send()
-                .error()
-                .code,
-            UserErrCode::PasswordFormatInvalid
-        );
+        UserTestBuilder::new()
+            .event(SignIn)
+            .request(request)
+            .sync_send()
+            .assert_error();
     }
 }

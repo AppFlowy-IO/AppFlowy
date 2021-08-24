@@ -1,16 +1,16 @@
 use crate::{
     entities::{token::Token, user::User},
-    user_service::utils::{hash_password, verify_password},
+    user_service::{hash_password, verify_password},
 };
 use actix_identity::Identity;
 use anyhow::Context;
 use chrono::Utc;
 use flowy_net::{
-    errors::{ErrorCode, ServerError},
+    errors::{ErrorCode, Kind, ServerError},
     response::FlowyResponse,
 };
 use flowy_user::{
-    entities::{SignInResponse, SignUpResponse},
+    entities::{parser::UserName, SignInResponse, SignUpResponse},
     prelude::parser::{UserEmail, UserPassword},
     protobuf::{SignInParams, SignUpParams},
 };
@@ -58,15 +58,27 @@ pub async fn register_user(
     pool: &PgPool,
     params: SignUpParams,
 ) -> Result<FlowyResponse, ServerError> {
+    let name =
+        UserName::parse(params.name).map_err(|e| ServerError::params_invalid().context(e))?;
+    let email =
+        UserEmail::parse(params.email).map_err(|e| ServerError::params_invalid().context(e))?;
+    let password = UserPassword::parse(params.password)
+        .map_err(|e| ServerError::params_invalid().context(e))?;
+
     let mut transaction = pool
         .begin()
         .await
         .context("Failed to acquire a Postgres connection to register user")?;
 
-    let _ = is_email_exist(&mut transaction, &params.email).await?;
-    let data = insert_user(&mut transaction, params)
-        .await
-        .context("Failed to insert user")?;
+    let _ = is_email_exist(&mut transaction, email.as_ref()).await?;
+    let data = insert_user(
+        &mut transaction,
+        name.as_ref(),
+        email.as_ref(),
+        password.as_ref(),
+    )
+    .await
+    .context("Failed to insert user")?;
 
     transaction
         .commit()
@@ -90,6 +102,7 @@ async fn is_email_exist(
         Some(_) => Err(ServerError {
             code: ErrorCode::EmailAlreadyExists,
             msg: format!("{} already exists", email),
+            kind: Kind::User,
         }),
         None => Ok(()),
     }
@@ -110,18 +123,20 @@ async fn read_user(
 
 async fn insert_user(
     transaction: &mut Transaction<'_, Postgres>,
-    params: SignUpParams,
+    name: &str,
+    email: &str,
+    password: &str,
 ) -> Result<SignUpResponse, ServerError> {
     let uuid = uuid::Uuid::new_v4();
-    let password = hash_password(&params.password)?;
+    let password = hash_password(password)?;
     let _ = sqlx::query!(
         r#"
             INSERT INTO user_table (id, email, name, create_time, password)
             VALUES ($1, $2, $3, $4, $5)
         "#,
         uuid,
-        params.email,
-        params.name,
+        email,
+        name,
         Utc::now(),
         password,
     )
@@ -131,8 +146,8 @@ async fn insert_user(
 
     let data = SignUpResponse {
         uid: uuid.to_string(),
-        name: params.name,
-        email: params.email,
+        name: name.to_string(),
+        email: email.to_string(),
     };
 
     Ok(data)

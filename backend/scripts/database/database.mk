@@ -13,13 +13,16 @@ init_database:
 	${ROOT}/db_init.sh
 
 reset_db:
+	#diesel database reset
 	sqlx database reset
 
 add_migrations:
 	#make table="the name of your table" add_migrations
+	# diesel migration generation $(table)
 	sqlx migrate add $(table)
 
 run_migrations:
+	# diesel migration run
 	sqlx migrate run
 
 echo_db_url:

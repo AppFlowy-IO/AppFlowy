@@ -30,6 +30,10 @@ impl UserPassword {
     }
 }
 
+impl AsRef<str> for UserPassword {
+    fn as_ref(&self) -> &str { &self.0 }
+}
+
 lazy_static! {
     // Test it in https://regex101.com/
     // https://stackoverflow.com/questions/2370015/regular-expression-for-password-validation/2370045

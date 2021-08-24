@@ -29,5 +29,5 @@ enum UserErrCode {
     UserIdInvalid = 51;
     CreateDefaultWorkspaceFailed = 52;
     DefaultWorkspaceAlreadyExist = 53;
-    NetworkError = 100;
+    ServerError = 100;
 }
