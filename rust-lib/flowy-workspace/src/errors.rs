@@ -65,10 +65,21 @@ pub enum WsErrCode {
 
     #[display(fmt = "User not login yet")]
     UserNotLoginYet      = 103,
+
+    #[display(fmt = "Server error")]
+    ServerError          = 1000,
 }
 
 impl std::default::Default for WsErrCode {
     fn default() -> Self { WsErrCode::Unknown }
+}
+
+impl std::convert::From<flowy_net::errors::ServerError> for WorkspaceError {
+    fn from(error: flowy_net::errors::ServerError) -> Self {
+        ErrorBuilder::new(WsErrCode::ServerError)
+            .error(error.msg)
+            .build()
+    }
 }
 
 impl std::convert::From<flowy_database::result::Error> for WorkspaceError {

@@ -7,6 +7,7 @@ use crate::{
     sql_tables::workspace::{WorkspaceSql, WorkspaceTable, WorkspaceTableChangeset},
 };
 use flowy_dispatch::prelude::DispatchFuture;
+use flowy_net::request::HttpRequestBuilder;
 use std::sync::Arc;
 
 pub struct WorkspaceController {
@@ -31,9 +32,11 @@ impl WorkspaceController {
 
     pub async fn create_workspace(
         &self,
-        params: CreateWorkspaceParams,
+        mut params: CreateWorkspaceParams,
     ) -> Result<Workspace, WorkspaceError> {
         let user_id = self.user.user_id()?;
+        params.user_id = Some(user_id.clone());
+
         let workspace_table = WorkspaceTable::new(params, &user_id);
         let workspace: Workspace = workspace_table.clone().into();
         let _ = self.sql.create_workspace(workspace_table)?;
@@ -111,4 +114,28 @@ impl WorkspaceController {
             }),
         }
     }
+}
+
+pub async fn create_workspace_request(
+    params: CreateWorkspaceParams,
+    url: &str,
+) -> Result<Workspace, WorkspaceError> {
+    let workspace = HttpRequestBuilder::post(&url.to_owned())
+        .protobuf(params)?
+        .send()
+        .await?
+        .response()?;
+    Ok(workspace)
+}
+
+pub async fn read_workspace_request(
+    params: QueryWorkspaceParams,
+    url: &str,
+) -> Result<Workspace, WorkspaceError> {
+    let workspace = HttpRequestBuilder::get(&url.to_owned())
+        .protobuf(params)?
+        .send()
+        .await?
+        .response()?;
+    Ok(workspace)
 }

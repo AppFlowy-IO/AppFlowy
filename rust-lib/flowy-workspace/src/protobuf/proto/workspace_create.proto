@@ -5,6 +5,11 @@ message CreateWorkspaceRequest {
     string name = 1;
     string desc = 2;
 }
+message CreateWorkspaceParams {
+    string name = 1;
+    string desc = 2;
+    oneof one_of_user_id { string user_id = 3; };
+}
 message Workspace {
     string id = 1;
     string name = 2;

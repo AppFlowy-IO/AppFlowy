@@ -18,3 +18,13 @@ const DeleteWorkspaceRequest$json = const {
 
 /// Descriptor for `DeleteWorkspaceRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List deleteWorkspaceRequestDescriptor = $convert.base64Decode('ChZEZWxldGVXb3Jrc3BhY2VSZXF1ZXN0EiEKDHdvcmtzcGFjZV9pZBgBIAEoCVILd29ya3NwYWNlSWQ=');
+@$core.Deprecated('Use deleteWorkspaceParamsDescriptor instead')
+const DeleteWorkspaceParams$json = const {
+  '1': 'DeleteWorkspaceParams',
+  '2': const [
+    const {'1': 'workspace_id', '3': 1, '4': 1, '5': 9, '10': 'workspaceId'},
+  ],
+};
+
+/// Descriptor for `DeleteWorkspaceParams`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List deleteWorkspaceParamsDescriptor = $convert.base64Decode('ChVEZWxldGVXb3Jrc3BhY2VQYXJhbXMSIQoMd29ya3NwYWNlX2lkGAEgASgJUgt3b3Jrc3BhY2VJZA==');

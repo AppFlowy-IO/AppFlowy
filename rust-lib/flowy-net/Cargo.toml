@@ -23,6 +23,7 @@ derive_more = {version = "0.99", features = ["display"]}
 flowy-derive = { path = "../flowy-derive" }
 anyhow = "1.0"
 thiserror = "1.0.24"
+uuid = { version = "0.8", features = ["v4"] }
 
 [features]
 http = ["actix-web"]

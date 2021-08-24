@@ -11,7 +11,9 @@ pub struct DeleteWorkspaceRequest {
     workspace_id: String,
 }
 
+#[derive(ProtoBuf, Default)]
 pub struct DeleteWorkspaceParams {
+    #[pb(index = 1)]
     workspace_id: String,
 }
 

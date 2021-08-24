@@ -4,3 +4,7 @@ message QueryWorkspaceRequest {
     string workspace_id = 1;
     bool read_apps = 2;
 }
+message QueryWorkspaceParams {
+    string workspace_id = 1;
+    bool read_apps = 2;
+}

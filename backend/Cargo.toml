@@ -37,8 +37,10 @@ jsonwebtoken = "7.2"
 
 flowy-log = { path = "../rust-lib/flowy-log" }
 flowy-user = { path = "../rust-lib/flowy-user" }
+flowy-workspace = { path = "../rust-lib/flowy-workspace" }
 flowy-net = { path = "../rust-lib/flowy-net", features = ["http"] }
 
+ormx = { version = "0.7", features = ["postgres"]}
 [dependencies.sqlx]
 version = "0.5.6"
 default-features = false
@@ -50,6 +52,7 @@ features = [
     "chrono",
     "migrate",
     "offline",
+    "any",
 ]
 
 
@@ -66,3 +69,4 @@ actix-rt = "2"
 tokio = { version = "1", features = ["macros"] }
 linkify = "0.5.0"
 flowy-user = { path = "../rust-lib/flowy-user" }
+flowy-workspace = { path = "../rust-lib/flowy-workspace" }

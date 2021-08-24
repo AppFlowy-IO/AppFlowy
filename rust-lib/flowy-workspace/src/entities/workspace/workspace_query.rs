@@ -11,8 +11,12 @@ pub struct QueryWorkspaceRequest {
     pub read_apps: bool,
 }
 
+#[derive(ProtoBuf, Default)]
 pub struct QueryWorkspaceParams {
+    #[pb(index = 1)]
     pub workspace_id: String,
+
+    #[pb(index = 2)]
     pub read_apps: bool,
 }
 

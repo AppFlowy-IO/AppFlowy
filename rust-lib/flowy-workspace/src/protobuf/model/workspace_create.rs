@@ -225,6 +225,289 @@ impl ::protobuf::reflect::ProtobufValue for CreateWorkspaceRequest {
 }
 
 #[derive(PartialEq,Clone,Default)]
+pub struct CreateWorkspaceParams {
+    // message fields
+    pub name: ::std::string::String,
+    pub desc: ::std::string::String,
+    // message oneof groups
+    pub one_of_user_id: ::std::option::Option<CreateWorkspaceParams_oneof_one_of_user_id>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a CreateWorkspaceParams {
+    fn default() -> &'a CreateWorkspaceParams {
+        <CreateWorkspaceParams as ::protobuf::Message>::default_instance()
+    }
+}
+
+#[derive(Clone,PartialEq,Debug)]
+pub enum CreateWorkspaceParams_oneof_one_of_user_id {
+    user_id(::std::string::String),
+}
+
+impl CreateWorkspaceParams {
+    pub fn new() -> CreateWorkspaceParams {
+        ::std::default::Default::default()
+    }
+
+    // string name = 1;
+
+
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+    pub fn clear_name(&mut self) {
+        self.name.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_name(&mut self, v: ::std::string::String) {
+        self.name = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_name(&mut self) -> &mut ::std::string::String {
+        &mut self.name
+    }
+
+    // Take field
+    pub fn take_name(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.name, ::std::string::String::new())
+    }
+
+    // string desc = 2;
+
+
+    pub fn get_desc(&self) -> &str {
+        &self.desc
+    }
+    pub fn clear_desc(&mut self) {
+        self.desc.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_desc(&mut self, v: ::std::string::String) {
+        self.desc = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_desc(&mut self) -> &mut ::std::string::String {
+        &mut self.desc
+    }
+
+    // Take field
+    pub fn take_desc(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.desc, ::std::string::String::new())
+    }
+
+    // string user_id = 3;
+
+
+    pub fn get_user_id(&self) -> &str {
+        match self.one_of_user_id {
+            ::std::option::Option::Some(CreateWorkspaceParams_oneof_one_of_user_id::user_id(ref v)) => v,
+            _ => "",
+        }
+    }
+    pub fn clear_user_id(&mut self) {
+        self.one_of_user_id = ::std::option::Option::None;
+    }
+
+    pub fn has_user_id(&self) -> bool {
+        match self.one_of_user_id {
+            ::std::option::Option::Some(CreateWorkspaceParams_oneof_one_of_user_id::user_id(..)) => true,
+            _ => false,
+        }
+    }
+
+    // Param is passed by value, moved
+    pub fn set_user_id(&mut self, v: ::std::string::String) {
+        self.one_of_user_id = ::std::option::Option::Some(CreateWorkspaceParams_oneof_one_of_user_id::user_id(v))
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_user_id(&mut self) -> &mut ::std::string::String {
+        if let ::std::option::Option::Some(CreateWorkspaceParams_oneof_one_of_user_id::user_id(_)) = self.one_of_user_id {
+        } else {
+            self.one_of_user_id = ::std::option::Option::Some(CreateWorkspaceParams_oneof_one_of_user_id::user_id(::std::string::String::new()));
+        }
+        match self.one_of_user_id {
+            ::std::option::Option::Some(CreateWorkspaceParams_oneof_one_of_user_id::user_id(ref mut v)) => v,
+            _ => panic!(),
+        }
+    }
+
+    // Take field
+    pub fn take_user_id(&mut self) -> ::std::string::String {
+        if self.has_user_id() {
+            match self.one_of_user_id.take() {
+                ::std::option::Option::Some(CreateWorkspaceParams_oneof_one_of_user_id::user_id(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            ::std::string::String::new()
+        }
+    }
+}
+
+impl ::protobuf::Message for CreateWorkspaceParams {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.name)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.desc)?;
+                },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    self.one_of_user_id = ::std::option::Option::Some(CreateWorkspaceParams_oneof_one_of_user_id::user_id(is.read_string()?));
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.name.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.name);
+        }
+        if !self.desc.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.desc);
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_user_id {
+            match v {
+                &CreateWorkspaceParams_oneof_one_of_user_id::user_id(ref v) => {
+                    my_size += ::protobuf::rt::string_size(3, &v);
+                },
+            };
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.name.is_empty() {
+            os.write_string(1, &self.name)?;
+        }
+        if !self.desc.is_empty() {
+            os.write_string(2, &self.desc)?;
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_user_id {
+            match v {
+                &CreateWorkspaceParams_oneof_one_of_user_id::user_id(ref v) => {
+                    os.write_string(3, v)?;
+                },
+            };
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> CreateWorkspaceParams {
+        CreateWorkspaceParams::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "name",
+                |m: &CreateWorkspaceParams| { &m.name },
+                |m: &mut CreateWorkspaceParams| { &mut m.name },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "desc",
+                |m: &CreateWorkspaceParams| { &m.desc },
+                |m: &mut CreateWorkspaceParams| { &mut m.desc },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
+                "user_id",
+                CreateWorkspaceParams::has_user_id,
+                CreateWorkspaceParams::get_user_id,
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<CreateWorkspaceParams>(
+                "CreateWorkspaceParams",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static CreateWorkspaceParams {
+        static instance: ::protobuf::rt::LazyV2<CreateWorkspaceParams> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(CreateWorkspaceParams::new)
+    }
+}
+
+impl ::protobuf::Clear for CreateWorkspaceParams {
+    fn clear(&mut self) {
+        self.name.clear();
+        self.desc.clear();
+        self.one_of_user_id = ::std::option::Option::None;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for CreateWorkspaceParams {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for CreateWorkspaceParams {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
 pub struct Workspace {
     // message fields
     pub id: ::std::string::String,
@@ -693,36 +976,49 @@ impl ::protobuf::reflect::ProtobufValue for Workspaces {
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x16workspace_create.proto\x1a\x10app_create.proto\"@\n\x16CreateWorks\
     paceRequest\x12\x12\n\x04name\x18\x01\x20\x01(\tR\x04name\x12\x12\n\x04d\
-    esc\x18\x02\x20\x01(\tR\x04desc\"e\n\tWorkspace\x12\x0e\n\x02id\x18\x01\
-    \x20\x01(\tR\x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x12\
-    \n\x04desc\x18\x03\x20\x01(\tR\x04desc\x12\x20\n\x04apps\x18\x04\x20\x01\
-    (\x0b2\x0c.RepeatedAppR\x04apps\".\n\nWorkspaces\x12\x20\n\x05items\x18\
-    \x01\x20\x03(\x0b2\n.WorkspaceR\x05itemsJ\xf4\x03\n\x06\x12\x04\0\0\x0f\
-    \x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\t\n\x02\x03\0\x12\x03\x01\0\x1a\n\
-    \n\n\x02\x04\0\x12\x04\x03\0\x06\x01\n\n\n\x03\x04\0\x01\x12\x03\x03\x08\
-    \x1e\n\x0b\n\x04\x04\0\x02\0\x12\x03\x04\x04\x14\n\x0c\n\x05\x04\0\x02\0\
-    \x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x04\x0b\x0f\n\
-    \x0c\n\x05\x04\0\x02\0\x03\x12\x03\x04\x12\x13\n\x0b\n\x04\x04\0\x02\x01\
-    \x12\x03\x05\x04\x14\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x05\x04\n\n\
-    \x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x05\x0b\x0f\n\x0c\n\x05\x04\0\x02\
-    \x01\x03\x12\x03\x05\x12\x13\n\n\n\x02\x04\x01\x12\x04\x07\0\x0c\x01\n\n\
-    \n\x03\x04\x01\x01\x12\x03\x07\x08\x11\n\x0b\n\x04\x04\x01\x02\0\x12\x03\
-    \x08\x04\x12\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x08\x04\n\n\x0c\n\x05\
-    \x04\x01\x02\0\x01\x12\x03\x08\x0b\r\n\x0c\n\x05\x04\x01\x02\0\x03\x12\
-    \x03\x08\x10\x11\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\t\x04\x14\n\x0c\n\
-    \x05\x04\x01\x02\x01\x05\x12\x03\t\x04\n\n\x0c\n\x05\x04\x01\x02\x01\x01\
-    \x12\x03\t\x0b\x0f\n\x0c\n\x05\x04\x01\x02\x01\x03\x12\x03\t\x12\x13\n\
-    \x0b\n\x04\x04\x01\x02\x02\x12\x03\n\x04\x14\n\x0c\n\x05\x04\x01\x02\x02\
-    \x05\x12\x03\n\x04\n\n\x0c\n\x05\x04\x01\x02\x02\x01\x12\x03\n\x0b\x0f\n\
-    \x0c\n\x05\x04\x01\x02\x02\x03\x12\x03\n\x12\x13\n\x0b\n\x04\x04\x01\x02\
-    \x03\x12\x03\x0b\x04\x19\n\x0c\n\x05\x04\x01\x02\x03\x06\x12\x03\x0b\x04\
-    \x0f\n\x0c\n\x05\x04\x01\x02\x03\x01\x12\x03\x0b\x10\x14\n\x0c\n\x05\x04\
-    \x01\x02\x03\x03\x12\x03\x0b\x17\x18\n\n\n\x02\x04\x02\x12\x04\r\0\x0f\
-    \x01\n\n\n\x03\x04\x02\x01\x12\x03\r\x08\x12\n\x0b\n\x04\x04\x02\x02\0\
-    \x12\x03\x0e\x04!\n\x0c\n\x05\x04\x02\x02\0\x04\x12\x03\x0e\x04\x0c\n\
-    \x0c\n\x05\x04\x02\x02\0\x06\x12\x03\x0e\r\x16\n\x0c\n\x05\x04\x02\x02\0\
-    \x01\x12\x03\x0e\x17\x1c\n\x0c\n\x05\x04\x02\x02\0\x03\x12\x03\x0e\x1f\
-    \x20b\x06proto3\
+    esc\x18\x02\x20\x01(\tR\x04desc\"l\n\x15CreateWorkspaceParams\x12\x12\n\
+    \x04name\x18\x01\x20\x01(\tR\x04name\x12\x12\n\x04desc\x18\x02\x20\x01(\
+    \tR\x04desc\x12\x19\n\x07user_id\x18\x03\x20\x01(\tH\0R\x06userIdB\x10\n\
+    \x0eone_of_user_id\"e\n\tWorkspace\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\
+    \x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x12\n\x04desc\
+    \x18\x03\x20\x01(\tR\x04desc\x12\x20\n\x04apps\x18\x04\x20\x01(\x0b2\x0c\
+    .RepeatedAppR\x04apps\".\n\nWorkspaces\x12\x20\n\x05items\x18\x01\x20\
+    \x03(\x0b2\n.WorkspaceR\x05itemsJ\xcc\x05\n\x06\x12\x04\0\0\x14\x01\n\
+    \x08\n\x01\x0c\x12\x03\0\0\x12\n\t\n\x02\x03\0\x12\x03\x01\0\x1a\n\n\n\
+    \x02\x04\0\x12\x04\x03\0\x06\x01\n\n\n\x03\x04\0\x01\x12\x03\x03\x08\x1e\
+    \n\x0b\n\x04\x04\0\x02\0\x12\x03\x04\x04\x14\n\x0c\n\x05\x04\0\x02\0\x05\
+    \x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x04\x0b\x0f\n\x0c\
+    \n\x05\x04\0\x02\0\x03\x12\x03\x04\x12\x13\n\x0b\n\x04\x04\0\x02\x01\x12\
+    \x03\x05\x04\x14\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x05\x04\n\n\x0c\n\
+    \x05\x04\0\x02\x01\x01\x12\x03\x05\x0b\x0f\n\x0c\n\x05\x04\0\x02\x01\x03\
+    \x12\x03\x05\x12\x13\n\n\n\x02\x04\x01\x12\x04\x07\0\x0b\x01\n\n\n\x03\
+    \x04\x01\x01\x12\x03\x07\x08\x1d\n\x0b\n\x04\x04\x01\x02\0\x12\x03\x08\
+    \x04\x14\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x08\x04\n\n\x0c\n\x05\x04\
+    \x01\x02\0\x01\x12\x03\x08\x0b\x0f\n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\
+    \x08\x12\x13\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\t\x04\x14\n\x0c\n\x05\
+    \x04\x01\x02\x01\x05\x12\x03\t\x04\n\n\x0c\n\x05\x04\x01\x02\x01\x01\x12\
+    \x03\t\x0b\x0f\n\x0c\n\x05\x04\x01\x02\x01\x03\x12\x03\t\x12\x13\n\x0b\n\
+    \x04\x04\x01\x08\0\x12\x03\n\x040\n\x0c\n\x05\x04\x01\x08\0\x01\x12\x03\
+    \n\n\x18\n\x0b\n\x04\x04\x01\x02\x02\x12\x03\n\x1b.\n\x0c\n\x05\x04\x01\
+    \x02\x02\x05\x12\x03\n\x1b!\n\x0c\n\x05\x04\x01\x02\x02\x01\x12\x03\n\")\
+    \n\x0c\n\x05\x04\x01\x02\x02\x03\x12\x03\n,-\n\n\n\x02\x04\x02\x12\x04\
+    \x0c\0\x11\x01\n\n\n\x03\x04\x02\x01\x12\x03\x0c\x08\x11\n\x0b\n\x04\x04\
+    \x02\x02\0\x12\x03\r\x04\x12\n\x0c\n\x05\x04\x02\x02\0\x05\x12\x03\r\x04\
+    \n\n\x0c\n\x05\x04\x02\x02\0\x01\x12\x03\r\x0b\r\n\x0c\n\x05\x04\x02\x02\
+    \0\x03\x12\x03\r\x10\x11\n\x0b\n\x04\x04\x02\x02\x01\x12\x03\x0e\x04\x14\
+    \n\x0c\n\x05\x04\x02\x02\x01\x05\x12\x03\x0e\x04\n\n\x0c\n\x05\x04\x02\
+    \x02\x01\x01\x12\x03\x0e\x0b\x0f\n\x0c\n\x05\x04\x02\x02\x01\x03\x12\x03\
+    \x0e\x12\x13\n\x0b\n\x04\x04\x02\x02\x02\x12\x03\x0f\x04\x14\n\x0c\n\x05\
+    \x04\x02\x02\x02\x05\x12\x03\x0f\x04\n\n\x0c\n\x05\x04\x02\x02\x02\x01\
+    \x12\x03\x0f\x0b\x0f\n\x0c\n\x05\x04\x02\x02\x02\x03\x12\x03\x0f\x12\x13\
+    \n\x0b\n\x04\x04\x02\x02\x03\x12\x03\x10\x04\x19\n\x0c\n\x05\x04\x02\x02\
+    \x03\x06\x12\x03\x10\x04\x0f\n\x0c\n\x05\x04\x02\x02\x03\x01\x12\x03\x10\
+    \x10\x14\n\x0c\n\x05\x04\x02\x02\x03\x03\x12\x03\x10\x17\x18\n\n\n\x02\
+    \x04\x03\x12\x04\x12\0\x14\x01\n\n\n\x03\x04\x03\x01\x12\x03\x12\x08\x12\
+    \n\x0b\n\x04\x04\x03\x02\0\x12\x03\x13\x04!\n\x0c\n\x05\x04\x03\x02\0\
+    \x04\x12\x03\x13\x04\x0c\n\x0c\n\x05\x04\x03\x02\0\x06\x12\x03\x13\r\x16\
+    \n\x0c\n\x05\x04\x03\x02\0\x01\x12\x03\x13\x17\x1c\n\x0c\n\x05\x04\x03\
+    \x02\0\x03\x12\x03\x13\x1f\x20b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

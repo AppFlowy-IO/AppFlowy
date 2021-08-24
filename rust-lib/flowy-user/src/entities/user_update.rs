@@ -52,11 +52,21 @@ impl UpdateUserRequest {
     }
 }
 
+#[derive(ProtoBuf, Default)]
 pub struct UpdateUserParams {
+    #[pb(index = 1)]
     pub id: String,
+
+    #[pb(index = 2, one_of)]
     pub name: Option<String>,
+
+    #[pb(index = 3, one_of)]
     pub email: Option<String>,
+
+    #[pb(index = 4, one_of)]
     pub workspace: Option<String>,
+
+    #[pb(index = 5, one_of)]
     pub password: Option<String>,
 }
 

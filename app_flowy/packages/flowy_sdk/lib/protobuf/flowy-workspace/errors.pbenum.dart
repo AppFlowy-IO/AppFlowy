@@ -24,6 +24,7 @@ class WsErrCode extends $pb.ProtobufEnum {
   static const WsErrCode WorkspaceDatabaseError = WsErrCode._(101, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceDatabaseError');
   static const WsErrCode UserInternalError = WsErrCode._(102, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserInternalError');
   static const WsErrCode UserNotLoginYet = WsErrCode._(103, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNotLoginYet');
+  static const WsErrCode ServerError = WsErrCode._(1000, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ServerError');
 
   static const $core.List<WsErrCode> values = <WsErrCode> [
     Unknown,
@@ -40,6 +41,7 @@ class WsErrCode extends $pb.ProtobufEnum {
     WorkspaceDatabaseError,
     UserInternalError,
     UserNotLoginYet,
+    ServerError,
   ];
 
   static final $core.Map<$core.int, WsErrCode> _byValue = $pb.ProtobufEnum.initByValue(values);

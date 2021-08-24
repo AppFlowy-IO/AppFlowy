@@ -3,7 +3,7 @@
 use chrono::Utc;
 
 #[derive(Debug, Clone, sqlx::FromRow)]
-pub struct User {
+pub struct UserTable {
     pub(crate) id: uuid::Uuid,
     pub(crate) email: String,
     pub(crate) name: String,

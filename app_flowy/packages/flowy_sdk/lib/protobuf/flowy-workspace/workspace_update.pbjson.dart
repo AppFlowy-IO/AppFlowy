@@ -24,3 +24,19 @@ const UpdateWorkspaceRequest$json = const {
 
 /// Descriptor for `UpdateWorkspaceRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List updateWorkspaceRequestDescriptor = $convert.base64Decode('ChZVcGRhdGVXb3Jrc3BhY2VSZXF1ZXN0Eg4KAmlkGAEgASgJUgJpZBIUCgRuYW1lGAIgASgJSABSBG5hbWUSFAoEZGVzYxgDIAEoCUgBUgRkZXNjQg0KC29uZV9vZl9uYW1lQg0KC29uZV9vZl9kZXNj');
+@$core.Deprecated('Use updateWorkspaceParamsDescriptor instead')
+const UpdateWorkspaceParams$json = const {
+  '1': 'UpdateWorkspaceParams',
+  '2': const [
+    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+    const {'1': 'name', '3': 2, '4': 1, '5': 9, '9': 0, '10': 'name'},
+    const {'1': 'desc', '3': 3, '4': 1, '5': 9, '9': 1, '10': 'desc'},
+  ],
+  '8': const [
+    const {'1': 'one_of_name'},
+    const {'1': 'one_of_desc'},
+  ],
+};
+
+/// Descriptor for `UpdateWorkspaceParams`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List updateWorkspaceParamsDescriptor = $convert.base64Decode('ChVVcGRhdGVXb3Jrc3BhY2VQYXJhbXMSDgoCaWQYASABKAlSAmlkEhQKBG5hbWUYAiABKAlIAFIEbmFtZRIUCgRkZXNjGAMgASgJSAFSBGRlc2NCDQoLb25lX29mX25hbWVCDQoLb25lX29mX2Rlc2M=');

@@ -19,4 +19,5 @@ enum WsErrCode {
     WorkspaceDatabaseError = 101;
     UserInternalError = 102;
     UserNotLoginYet = 103;
+    ServerError = 1000;
 }

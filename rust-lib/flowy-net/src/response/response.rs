@@ -14,11 +14,15 @@ pub struct FlowyResponse {
 impl FlowyResponse {
     pub fn new(data: Bytes, error: Option<ServerError>) -> Self { FlowyResponse { data, error } }
 
-    pub fn success<T: TryInto<Bytes, Error = protobuf::ProtobufError>>(
+    pub fn success() -> Self { Self::new(Bytes::new(), None) }
+
+    pub fn data<T: TryInto<Bytes, Error = protobuf::ProtobufError>>(
+        mut self,
         data: T,
     ) -> Result<Self, ServerError> {
         let bytes: Bytes = data.try_into()?;
-        Ok(Self::new(bytes, None))
+        self.data = bytes;
+        Ok(self)
     }
 }
 
@@ -76,4 +80,8 @@ impl std::convert::From<reqwest::Error> for ServerError {
 
         ServerError::internal().context(error)
     }
+}
+
+impl std::convert::From<uuid::Error> for ServerError {
+    fn from(e: uuid::Error) -> Self { ServerError::internal().context(e) }
 }

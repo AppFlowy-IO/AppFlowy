@@ -1,5 +1,5 @@
 use crate::{
-    entities::{token::Token, user::User},
+    entities::{token::Token, user::UserTable},
     user_service::{hash_password, verify_password},
 };
 use actix_identity::Identity;
@@ -48,7 +48,7 @@ pub async fn sign_in(
                 token: token.into(),
             };
             id.remember(data.token.clone());
-            FlowyResponse::success(data)
+            FlowyResponse::success().data(data)
         },
         _ => Err(ServerError::password_not_match()),
     }
@@ -85,7 +85,7 @@ pub async fn register_user(
         .await
         .context("Failed to commit SQL transaction to register user.")?;
 
-    FlowyResponse::success(data)
+    FlowyResponse::success().data(data)
 }
 
 async fn is_email_exist(
@@ -111,8 +111,8 @@ async fn is_email_exist(
 async fn read_user(
     transaction: &mut Transaction<'_, Postgres>,
     email: &str,
-) -> Result<User, ServerError> {
-    let user = sqlx::query_as::<Postgres, User>("SELECT * FROM user_table WHERE email = $1")
+) -> Result<UserTable, ServerError> {
+    let user = sqlx::query_as::<Postgres, UserTable>("SELECT * FROM user_table WHERE email = $1")
         .bind(email)
         .fetch_one(transaction)
         .await

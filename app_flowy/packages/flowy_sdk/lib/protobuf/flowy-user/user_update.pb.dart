@@ -164,3 +164,158 @@ class UpdateUserRequest extends $pb.GeneratedMessage {
   void clearPassword() => clearField(5);
 }
 
+enum UpdateUserParams_OneOfName {
+  name, 
+  notSet
+}
+
+enum UpdateUserParams_OneOfEmail {
+  email, 
+  notSet
+}
+
+enum UpdateUserParams_OneOfWorkspace {
+  workspace, 
+  notSet
+}
+
+enum UpdateUserParams_OneOfPassword {
+  password, 
+  notSet
+}
+
+class UpdateUserParams extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, UpdateUserParams_OneOfName> _UpdateUserParams_OneOfNameByTag = {
+    2 : UpdateUserParams_OneOfName.name,
+    0 : UpdateUserParams_OneOfName.notSet
+  };
+  static const $core.Map<$core.int, UpdateUserParams_OneOfEmail> _UpdateUserParams_OneOfEmailByTag = {
+    3 : UpdateUserParams_OneOfEmail.email,
+    0 : UpdateUserParams_OneOfEmail.notSet
+  };
+  static const $core.Map<$core.int, UpdateUserParams_OneOfWorkspace> _UpdateUserParams_OneOfWorkspaceByTag = {
+    4 : UpdateUserParams_OneOfWorkspace.workspace,
+    0 : UpdateUserParams_OneOfWorkspace.notSet
+  };
+  static const $core.Map<$core.int, UpdateUserParams_OneOfPassword> _UpdateUserParams_OneOfPasswordByTag = {
+    5 : UpdateUserParams_OneOfPassword.password,
+    0 : UpdateUserParams_OneOfPassword.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UpdateUserParams', createEmptyInstance: create)
+    ..oo(0, [2])
+    ..oo(1, [3])
+    ..oo(2, [4])
+    ..oo(3, [5])
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'email')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspace')
+    ..aOS(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'password')
+    ..hasRequiredFields = false
+  ;
+
+  UpdateUserParams._() : super();
+  factory UpdateUserParams({
+    $core.String? id,
+    $core.String? name,
+    $core.String? email,
+    $core.String? workspace,
+    $core.String? password,
+  }) {
+    final _result = create();
+    if (id != null) {
+      _result.id = id;
+    }
+    if (name != null) {
+      _result.name = name;
+    }
+    if (email != null) {
+      _result.email = email;
+    }
+    if (workspace != null) {
+      _result.workspace = workspace;
+    }
+    if (password != null) {
+      _result.password = password;
+    }
+    return _result;
+  }
+  factory UpdateUserParams.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory UpdateUserParams.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  UpdateUserParams clone() => UpdateUserParams()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  UpdateUserParams copyWith(void Function(UpdateUserParams) updates) => super.copyWith((message) => updates(message as UpdateUserParams)) as UpdateUserParams; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static UpdateUserParams create() => UpdateUserParams._();
+  UpdateUserParams createEmptyInstance() => create();
+  static $pb.PbList<UpdateUserParams> createRepeated() => $pb.PbList<UpdateUserParams>();
+  @$core.pragma('dart2js:noInline')
+  static UpdateUserParams getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UpdateUserParams>(create);
+  static UpdateUserParams? _defaultInstance;
+
+  UpdateUserParams_OneOfName whichOneOfName() => _UpdateUserParams_OneOfNameByTag[$_whichOneof(0)]!;
+  void clearOneOfName() => clearField($_whichOneof(0));
+
+  UpdateUserParams_OneOfEmail whichOneOfEmail() => _UpdateUserParams_OneOfEmailByTag[$_whichOneof(1)]!;
+  void clearOneOfEmail() => clearField($_whichOneof(1));
+
+  UpdateUserParams_OneOfWorkspace whichOneOfWorkspace() => _UpdateUserParams_OneOfWorkspaceByTag[$_whichOneof(2)]!;
+  void clearOneOfWorkspace() => clearField($_whichOneof(2));
+
+  UpdateUserParams_OneOfPassword whichOneOfPassword() => _UpdateUserParams_OneOfPasswordByTag[$_whichOneof(3)]!;
+  void clearOneOfPassword() => clearField($_whichOneof(3));
+
+  @$pb.TagNumber(1)
+  $core.String get id => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set id($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get name => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set name($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasName() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearName() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get email => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set email($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasEmail() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearEmail() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get workspace => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set workspace($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasWorkspace() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearWorkspace() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get password => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set password($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasPassword() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearPassword() => clearField(5);
+}
+

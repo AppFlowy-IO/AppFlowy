@@ -1,6 +1,6 @@
 use crate::{
     config::env::{domain, jwt_secret},
-    entities::user::User,
+    entities::user::UserTable,
 };
 use chrono::{Duration, Local};
 use derive_more::{From, Into};
@@ -43,7 +43,7 @@ impl Claim {
 #[derive(From, Into)]
 pub struct Token(String);
 impl Token {
-    pub fn create_token(data: &User) -> Result<Self, ServerError> {
+    pub fn create_token(data: &UserTable) -> Result<Self, ServerError> {
         let claims = Claim::with_email(&data.email);
         encode(
             &Header::new(DEFAULT_ALGORITHM),

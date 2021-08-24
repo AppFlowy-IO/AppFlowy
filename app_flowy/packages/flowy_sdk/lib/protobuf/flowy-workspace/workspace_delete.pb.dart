@@ -56,3 +56,50 @@ class DeleteWorkspaceRequest extends $pb.GeneratedMessage {
   void clearWorkspaceId() => clearField(1);
 }
 
+class DeleteWorkspaceParams extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DeleteWorkspaceParams', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspaceId')
+    ..hasRequiredFields = false
+  ;
+
+  DeleteWorkspaceParams._() : super();
+  factory DeleteWorkspaceParams({
+    $core.String? workspaceId,
+  }) {
+    final _result = create();
+    if (workspaceId != null) {
+      _result.workspaceId = workspaceId;
+    }
+    return _result;
+  }
+  factory DeleteWorkspaceParams.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory DeleteWorkspaceParams.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  DeleteWorkspaceParams clone() => DeleteWorkspaceParams()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  DeleteWorkspaceParams copyWith(void Function(DeleteWorkspaceParams) updates) => super.copyWith((message) => updates(message as DeleteWorkspaceParams)) as DeleteWorkspaceParams; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static DeleteWorkspaceParams create() => DeleteWorkspaceParams._();
+  DeleteWorkspaceParams createEmptyInstance() => create();
+  static $pb.PbList<DeleteWorkspaceParams> createRepeated() => $pb.PbList<DeleteWorkspaceParams>();
+  @$core.pragma('dart2js:noInline')
+  static DeleteWorkspaceParams getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DeleteWorkspaceParams>(create);
+  static DeleteWorkspaceParams? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get workspaceId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set workspaceId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasWorkspaceId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearWorkspaceId() => clearField(1);
+}
+

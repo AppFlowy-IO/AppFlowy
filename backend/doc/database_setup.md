@@ -49,6 +49,10 @@ By default, Docker images do not expose their ports to the underlying host machi
     * sqlx: sqlx database reset
     * diesel: diesel database reset
 
+**offline mode**
+
+`cargo sqlx prepare -- --bin backend`
+
 **Type mapping**
 * [postgres type map](https://docs.rs/sqlx/0.5.7/sqlx/postgres/types/index.html)
 * [postgres and diesel type map](https://kotiri.com/2018/01/31/postgresql-diesel-rust-types.html)

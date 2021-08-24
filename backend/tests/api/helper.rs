@@ -4,6 +4,7 @@ use backend::{
 };
 use flowy_net::request::HttpRequestBuilder;
 use flowy_user::prelude::*;
+use flowy_workspace::prelude::*;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
 
@@ -24,6 +25,31 @@ impl TestApp {
         let url = format!("{}/api/auth", self.address);
         let resp = user_sign_in(params, &url).await.unwrap();
         resp
+    }
+
+    pub async fn create_workspace(&self, mut params: CreateWorkspaceParams) -> Workspace {
+        let url = format!("{}/api/workspace", self.address);
+        let response = self.register_test_user().await;
+        params.user_id = Some(response.uid);
+        let workspace = create_workspace_request(params, &url).await.unwrap();
+        workspace
+    }
+
+    pub async fn read_workspace(&self, params: QueryWorkspaceParams) -> Workspace {
+        let url = format!("{}/api/workspace", self.address);
+        let workspace = read_workspace_request(params, &url).await.unwrap();
+        workspace
+    }
+
+    async fn register_test_user(&self) -> SignUpResponse {
+        let params = SignUpParams {
+            email: "annie@appflowy.io".to_string(),
+            name: "annie".to_string(),
+            password: "HelloAppFlowy123!".to_string(),
+        };
+
+        let response = self.register_user(params).await;
+        response
     }
 }
 

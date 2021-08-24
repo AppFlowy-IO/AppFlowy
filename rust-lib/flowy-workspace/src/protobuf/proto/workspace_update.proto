@@ -5,3 +5,8 @@ message UpdateWorkspaceRequest {
     oneof one_of_name { string name = 2; };
     oneof one_of_desc { string desc = 3; };
 }
+message UpdateWorkspaceParams {
+    string id = 1;
+    oneof one_of_name { string name = 2; };
+    oneof one_of_desc { string desc = 3; };
+}

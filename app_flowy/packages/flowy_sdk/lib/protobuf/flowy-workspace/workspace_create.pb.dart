@@ -72,6 +72,94 @@ class CreateWorkspaceRequest extends $pb.GeneratedMessage {
   void clearDesc() => clearField(2);
 }
 
+enum CreateWorkspaceParams_OneOfUserId {
+  userId, 
+  notSet
+}
+
+class CreateWorkspaceParams extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, CreateWorkspaceParams_OneOfUserId> _CreateWorkspaceParams_OneOfUserIdByTag = {
+    3 : CreateWorkspaceParams_OneOfUserId.userId,
+    0 : CreateWorkspaceParams_OneOfUserId.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateWorkspaceParams', createEmptyInstance: create)
+    ..oo(0, [3])
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'userId')
+    ..hasRequiredFields = false
+  ;
+
+  CreateWorkspaceParams._() : super();
+  factory CreateWorkspaceParams({
+    $core.String? name,
+    $core.String? desc,
+    $core.String? userId,
+  }) {
+    final _result = create();
+    if (name != null) {
+      _result.name = name;
+    }
+    if (desc != null) {
+      _result.desc = desc;
+    }
+    if (userId != null) {
+      _result.userId = userId;
+    }
+    return _result;
+  }
+  factory CreateWorkspaceParams.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory CreateWorkspaceParams.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  CreateWorkspaceParams clone() => CreateWorkspaceParams()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  CreateWorkspaceParams copyWith(void Function(CreateWorkspaceParams) updates) => super.copyWith((message) => updates(message as CreateWorkspaceParams)) as CreateWorkspaceParams; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static CreateWorkspaceParams create() => CreateWorkspaceParams._();
+  CreateWorkspaceParams createEmptyInstance() => create();
+  static $pb.PbList<CreateWorkspaceParams> createRepeated() => $pb.PbList<CreateWorkspaceParams>();
+  @$core.pragma('dart2js:noInline')
+  static CreateWorkspaceParams getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CreateWorkspaceParams>(create);
+  static CreateWorkspaceParams? _defaultInstance;
+
+  CreateWorkspaceParams_OneOfUserId whichOneOfUserId() => _CreateWorkspaceParams_OneOfUserIdByTag[$_whichOneof(0)]!;
+  void clearOneOfUserId() => clearField($_whichOneof(0));
+
+  @$pb.TagNumber(1)
+  $core.String get name => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set name($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasName() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearName() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get desc => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set desc($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasDesc() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearDesc() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get userId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set userId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasUserId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearUserId() => clearField(3);
+}
+
 class Workspace extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Workspace', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')

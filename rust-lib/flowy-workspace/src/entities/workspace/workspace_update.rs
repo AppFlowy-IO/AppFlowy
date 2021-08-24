@@ -16,9 +16,15 @@ pub struct UpdateWorkspaceRequest {
     desc: Option<String>,
 }
 
+#[derive(ProtoBuf, Default)]
 pub struct UpdateWorkspaceParams {
+    #[pb(index = 1)]
     pub id: String,
+
+    #[pb(index = 2, one_of)]
     pub name: Option<String>,
+
+    #[pb(index = 3, one_of)]
     pub desc: Option<String>,
 }
 

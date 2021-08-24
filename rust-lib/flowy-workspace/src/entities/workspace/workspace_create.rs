@@ -15,9 +15,16 @@ pub struct CreateWorkspaceRequest {
     pub desc: String,
 }
 
+#[derive(ProtoBuf, Default)]
 pub struct CreateWorkspaceParams {
+    #[pb(index = 1)]
     pub name: String,
+
+    #[pb(index = 2)]
     pub desc: String,
+
+    #[pb(index = 3, one_of)]
+    pub user_id: Option<String>,
 }
 
 impl TryInto<CreateWorkspaceParams> for CreateWorkspaceRequest {
@@ -33,6 +40,7 @@ impl TryInto<CreateWorkspaceParams> for CreateWorkspaceRequest {
         Ok(CreateWorkspaceParams {
             name: name.0,
             desc: self.desc,
+            user_id: None,
         })
     }
 }
@@ -50,6 +58,17 @@ pub struct Workspace {
 
     #[pb(index = 4)]
     pub apps: RepeatedApp,
+}
+
+impl Workspace {
+    pub fn new(id: String, name: String, desc: String) -> Self {
+        Self {
+            id,
+            name,
+            desc,
+            apps: RepeatedApp::default(),
+        }
+    }
 }
 
 #[derive(PartialEq, Debug, Default, ProtoBuf)]
