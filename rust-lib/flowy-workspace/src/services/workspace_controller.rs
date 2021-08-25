@@ -35,7 +35,9 @@ impl WorkspaceController {
         mut params: CreateWorkspaceParams,
     ) -> Result<Workspace, WorkspaceError> {
         let user_id = self.user.user_id()?;
-        params.user_id = Some(user_id.clone());
+        params.user_id = user_id.clone();
+
+        // TODO: server
 
         let workspace_table = WorkspaceTable::new(params, &user_id);
         let workspace: Workspace = workspace_table.clone().into();
@@ -124,18 +126,52 @@ pub async fn create_workspace_request(
         .protobuf(params)?
         .send()
         .await?
-        .response()?;
+        .response()
+        .await?;
     Ok(workspace)
 }
 
 pub async fn read_workspace_request(
     params: QueryWorkspaceParams,
     url: &str,
-) -> Result<Workspace, WorkspaceError> {
-    let workspace = HttpRequestBuilder::get(&url.to_owned())
+) -> Result<Option<Workspace>, WorkspaceError> {
+    let result = HttpRequestBuilder::get(&url.to_owned())
         .protobuf(params)?
         .send()
         .await?
-        .response()?;
-    Ok(workspace)
+        .response::<Workspace>()
+        .await;
+
+    match result {
+        Ok(workspace) => Ok(Some(workspace)),
+        Err(e) => {
+            if e.is_not_found() {
+                Ok(None)
+            } else {
+                Err(e.into())
+            }
+        },
+    }
+}
+
+pub async fn update_workspace_request(
+    params: UpdateWorkspaceParams,
+    url: &str,
+) -> Result<(), WorkspaceError> {
+    let _ = HttpRequestBuilder::patch(&url.to_owned())
+        .protobuf(params)?
+        .send()
+        .await?;
+    Ok(())
+}
+
+pub async fn delete_workspace_request(
+    params: DeleteWorkspaceParams,
+    url: &str,
+) -> Result<(), WorkspaceError> {
+    let _ = HttpRequestBuilder::delete(&url.to_owned())
+        .protobuf(params)?
+        .send()
+        .await?;
+    Ok(())
 }

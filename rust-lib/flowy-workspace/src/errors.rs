@@ -2,6 +2,7 @@ use bytes::Bytes;
 use derive_more::Display;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_dispatch::prelude::{EventResponse, ResponseBuilder};
+use flowy_net::errors::ErrorCode;
 use std::convert::TryInto;
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
@@ -36,6 +37,9 @@ pub enum WsErrCode {
     #[display(fmt = "Color style of the App is invalid")]
     AppColorStyleInvalid = 3,
 
+    #[display(fmt = "Workspace desc is invalid")]
+    WorkspaceDescInvalid = 4,
+
     #[display(fmt = "Id of the App  is invalid")]
     AppIdInvalid         = 10,
 
@@ -68,6 +72,8 @@ pub enum WsErrCode {
 
     #[display(fmt = "Server error")]
     ServerError          = 1000,
+    #[display(fmt = "Record not found")]
+    RecordNotFound       = 1001,
 }
 
 impl std::default::Default for WsErrCode {
@@ -76,9 +82,15 @@ impl std::default::Default for WsErrCode {
 
 impl std::convert::From<flowy_net::errors::ServerError> for WorkspaceError {
     fn from(error: flowy_net::errors::ServerError) -> Self {
-        ErrorBuilder::new(WsErrCode::ServerError)
-            .error(error.msg)
-            .build()
+        match error.code {
+            ErrorCode::RecordNotFound => ErrorBuilder::new(WsErrCode::RecordNotFound)
+                .error(error.msg)
+                .build(),
+
+            _ => ErrorBuilder::new(WsErrCode::ServerError)
+                .error(error.msg)
+                .build(),
+        }
     }
 }
 

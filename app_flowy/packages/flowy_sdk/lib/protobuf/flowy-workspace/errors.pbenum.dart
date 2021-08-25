@@ -14,6 +14,7 @@ class WsErrCode extends $pb.ProtobufEnum {
   static const WsErrCode WorkspaceNameInvalid = WsErrCode._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceNameInvalid');
   static const WsErrCode WorkspaceIdInvalid = WsErrCode._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceIdInvalid');
   static const WsErrCode AppColorStyleInvalid = WsErrCode._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppColorStyleInvalid');
+  static const WsErrCode WorkspaceDescInvalid = WsErrCode._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceDescInvalid');
   static const WsErrCode AppIdInvalid = WsErrCode._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppIdInvalid');
   static const WsErrCode AppNameInvalid = WsErrCode._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppNameInvalid');
   static const WsErrCode ViewNameInvalid = WsErrCode._(20, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewNameInvalid');
@@ -25,12 +26,14 @@ class WsErrCode extends $pb.ProtobufEnum {
   static const WsErrCode UserInternalError = WsErrCode._(102, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserInternalError');
   static const WsErrCode UserNotLoginYet = WsErrCode._(103, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNotLoginYet');
   static const WsErrCode ServerError = WsErrCode._(1000, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ServerError');
+  static const WsErrCode RecordNotFound = WsErrCode._(1001, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RecordNotFound');
 
   static const $core.List<WsErrCode> values = <WsErrCode> [
     Unknown,
     WorkspaceNameInvalid,
     WorkspaceIdInvalid,
     AppColorStyleInvalid,
+    WorkspaceDescInvalid,
     AppIdInvalid,
     AppNameInvalid,
     ViewNameInvalid,
@@ -42,6 +45,7 @@ class WsErrCode extends $pb.ProtobufEnum {
     UserInternalError,
     UserNotLoginYet,
     ServerError,
+    RecordNotFound,
   ];
 
   static final $core.Map<$core.int, WsErrCode> _byValue = $pb.ProtobufEnum.initByValue(values);

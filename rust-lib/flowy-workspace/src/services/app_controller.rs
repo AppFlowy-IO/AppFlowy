@@ -7,6 +7,7 @@ use crate::{
     sql_tables::app::{AppTable, AppTableChangeset, AppTableSql},
 };
 use flowy_dispatch::prelude::DispatchFuture;
+use flowy_net::request::HttpRequestBuilder;
 use std::sync::Arc;
 
 pub struct AppController {
@@ -29,7 +30,12 @@ impl AppController {
         }
     }
 
-    pub fn create_app(&self, params: CreateAppParams) -> Result<App, WorkspaceError> {
+    pub fn create_app(&self, mut params: CreateAppParams) -> Result<App, WorkspaceError> {
+        let user_id = self.user.user_id()?;
+        params.user_id = user_id;
+
+        // TODO: server
+
         let app_table = AppTable::new(params);
         let app: App = app_table.clone().into();
         let _ = self.sql.create_app(app_table)?;
@@ -72,4 +78,53 @@ impl AppController {
             }),
         }
     }
+}
+
+pub async fn create_app_request(params: CreateAppParams, url: &str) -> Result<App, WorkspaceError> {
+    let app = HttpRequestBuilder::post(&url.to_owned())
+        .protobuf(params)?
+        .send()
+        .await?
+        .response()
+        .await?;
+    Ok(app)
+}
+
+pub async fn read_app_request(
+    params: QueryAppParams,
+    url: &str,
+) -> Result<Option<App>, WorkspaceError> {
+    let result = HttpRequestBuilder::get(&url.to_owned())
+        .protobuf(params)?
+        .send()
+        .await?
+        .response::<App>()
+        .await;
+
+    match result {
+        Ok(app) => Ok(Some(app)),
+        Err(e) => {
+            if e.is_not_found() {
+                Ok(None)
+            } else {
+                Err(e.into())
+            }
+        },
+    }
+}
+
+pub async fn update_app_request(params: UpdateAppParams, url: &str) -> Result<(), WorkspaceError> {
+    let _ = HttpRequestBuilder::patch(&url.to_owned())
+        .protobuf(params)?
+        .send()
+        .await?;
+    Ok(())
+}
+
+pub async fn delete_app_request(params: DeleteAppParams, url: &str) -> Result<(), WorkspaceError> {
+    let _ = HttpRequestBuilder::delete(&url.to_owned())
+        .protobuf(params)?
+        .send()
+        .await?;
+    Ok(())
 }

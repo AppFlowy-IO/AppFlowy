@@ -18,3 +18,13 @@ const DeleteAppRequest$json = const {
 
 /// Descriptor for `DeleteAppRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List deleteAppRequestDescriptor = $convert.base64Decode('ChBEZWxldGVBcHBSZXF1ZXN0EhUKBmFwcF9pZBgBIAEoCVIFYXBwSWQ=');
+@$core.Deprecated('Use deleteAppParamsDescriptor instead')
+const DeleteAppParams$json = const {
+  '1': 'DeleteAppParams',
+  '2': const [
+    const {'1': 'app_id', '3': 1, '4': 1, '5': 9, '10': 'appId'},
+  ],
+};
+
+/// Descriptor for `DeleteAppParams`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List deleteAppParamsDescriptor = $convert.base64Decode('Cg9EZWxldGVBcHBQYXJhbXMSFQoGYXBwX2lkGAEgASgJUgVhcHBJZA==');

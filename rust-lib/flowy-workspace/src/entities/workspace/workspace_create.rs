@@ -23,8 +23,8 @@ pub struct CreateWorkspaceParams {
     #[pb(index = 2)]
     pub desc: String,
 
-    #[pb(index = 3, one_of)]
-    pub user_id: Option<String>,
+    #[pb(index = 3)]
+    pub user_id: String,
 }
 
 impl TryInto<CreateWorkspaceParams> for CreateWorkspaceRequest {
@@ -32,15 +32,21 @@ impl TryInto<CreateWorkspaceParams> for CreateWorkspaceRequest {
 
     fn try_into(self) -> Result<CreateWorkspaceParams, Self::Error> {
         let name = WorkspaceName::parse(self.name).map_err(|e| {
-            ErrorBuilder::new(WsErrCode::WorkspaceNameInvalid)
+            ErrorBuilder::new(WsErrCode::WorkspaceDescInvalid)
+                .msg(e)
+                .build()
+        })?;
+
+        let desc = WorkspaceDesc::parse(self.desc).map_err(|e| {
+            ErrorBuilder::new(WsErrCode::WorkspaceDescInvalid)
                 .msg(e)
                 .build()
         })?;
 
         Ok(CreateWorkspaceParams {
             name: name.0,
-            desc: self.desc,
-            user_id: None,
+            desc: desc.0,
+            user_id: "".to_string(),
         })
     }
 }

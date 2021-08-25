@@ -34,6 +34,7 @@ anyhow = "1.0.40"
 thiserror = "1.0.24"
 bcrypt = "0.10"
 jsonwebtoken = "7.2"
+sql-builder = "3.1.1"
 
 flowy-log = { path = "../rust-lib/flowy-log" }
 flowy-user = { path = "../rust-lib/flowy-user" }

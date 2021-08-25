@@ -15,7 +15,7 @@ use tokio::sync::oneshot;
 pub struct HttpRequestBuilder {
     url: String,
     body: Option<Bytes>,
-    response: Option<Bytes>,
+    response: Option<Response>,
     method: Method,
 }
 
@@ -38,6 +38,18 @@ impl HttpRequestBuilder {
     pub fn post(url: &str) -> Self {
         let mut builder = Self::new(url);
         builder.method = Method::POST;
+        builder
+    }
+
+    pub fn patch(url: &str) -> Self {
+        let mut builder = Self::new(url);
+        builder.method = Method::PATCH;
+        builder
+    }
+
+    pub fn delete(url: &str) -> Self {
+        let mut builder = Self::new(url);
+        builder.method = Method::DELETE;
         builder
     }
 
@@ -70,22 +82,23 @@ impl HttpRequestBuilder {
         });
 
         let response = rx.await??;
-        let data = get_response_data(response).await?;
-        self.response = Some(data);
+        self.response = Some(response);
         Ok(self)
     }
 
-    pub fn response<T2>(mut self) -> Result<T2, ServerError>
+    pub async fn response<T2>(self) -> Result<T2, ServerError>
     where
         T2: TryFrom<Bytes, Error = ProtobufError>,
     {
-        let data = self.response.take();
-        match data {
+        match self.response {
             None => {
                 let msg = format!("Request: {} receives unexpected empty body", self.url);
                 Err(ServerError::payload_none().context(msg))
             },
-            Some(data) => Ok(T2::try_from(data)?),
+            Some(response) => {
+                let data = get_response_data(response).await?;
+                Ok(T2::try_from(data)?)
+            },
         }
     }
 }

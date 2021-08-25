@@ -56,3 +56,19 @@ By default, Docker images do not expose their ports to the underlying host machi
 **Type mapping**
 * [postgres type map](https://docs.rs/sqlx/0.5.7/sqlx/postgres/types/index.html)
 * [postgres and diesel type map](https://kotiri.com/2018/01/31/postgresql-diesel-rust-types.html)
+
+
+## Q&A
+1. Receive` { code: 24, kind: Other, message: "Too many open files" } on arbiter` after running cargo test on backend.
+> This is due to a limit enforced by the operating system on the maximum number of open file descriptors (including sockets) for each process.
+> Raising the file descriptor limit using `ulimit -n 2048` to solve this issue. It won't stay after reboot so check on google how to persist 
+> that value if you want to.
+> 
+> or you can try:
+> `launchctl limit maxfiles 2048 2048`
+> `launchctl limit maxfiles`
+> 
+> Don't forget to relaunch your terminal.
+
+## More
+* [11-database-drivers](https://blog.logrocket.com/11-database-drivers-and-orms-for-rust-that-are-ready-for-production/) 

@@ -6,7 +6,7 @@ use actix_identity::Identity;
 use anyhow::Context;
 use chrono::Utc;
 use flowy_net::{
-    errors::{ErrorCode, Kind, ServerError},
+    errors::{ErrorCode, ServerError},
     response::FlowyResponse,
 };
 use flowy_user::{
@@ -102,7 +102,6 @@ async fn is_email_exist(
         Some(_) => Err(ServerError {
             code: ErrorCode::EmailAlreadyExists,
             msg: format!("{} already exists", email),
-            kind: Kind::User,
         }),
         None => Ok(()),
     }

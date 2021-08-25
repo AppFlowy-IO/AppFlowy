@@ -1,5 +1,5 @@
 -- Add migration script here
-CREATE TABLE view_table(
+CREATE TABLE IF NOT EXISTS view_table(
       id uuid NOT NULL,
       PRIMARY KEY (id),
       belong_to_id TEXT NOT NULL,

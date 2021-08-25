@@ -7,6 +7,7 @@ use crate::{
     errors::*,
     impl_def_and_def_mut,
 };
+use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
 
@@ -25,17 +26,28 @@ pub struct CreateAppRequest {
     pub color_style: ColorStyle,
 }
 
-#[derive(ProtoBuf, Default, Debug)]
+#[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct ColorStyle {
     #[pb(index = 1)]
     pub theme_color: String,
 }
 
+#[derive(ProtoBuf, Default)]
 pub struct CreateAppParams {
+    #[pb(index = 1)]
     pub workspace_id: String,
+
+    #[pb(index = 2)]
     pub name: String,
+
+    #[pb(index = 3)]
     pub desc: String,
+
+    #[pb(index = 4)]
     pub color_style: ColorStyle,
+
+    #[pb(index = 5)]
+    pub user_id: String,
 }
 
 impl TryInto<CreateAppParams> for CreateAppRequest {
@@ -62,6 +74,7 @@ impl TryInto<CreateAppParams> for CreateAppRequest {
             name: name.0,
             desc: self.desc,
             color_style: color_style.0,
+            user_id: "".to_string(),
         })
     }
 }

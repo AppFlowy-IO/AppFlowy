@@ -1,8 +1,8 @@
 #[derive(Debug)]
-pub struct BelongToId(pub String);
+pub struct AppId(pub String);
 
-impl BelongToId {
-    pub fn parse(s: String) -> Result<BelongToId, String> {
+impl AppId {
+    pub fn parse(s: String) -> Result<AppId, String> {
         if s.trim().is_empty() {
             return Err(format!("App id can not be empty or whitespace"));
         }
@@ -11,6 +11,6 @@ impl BelongToId {
     }
 }
 
-impl AsRef<str> for BelongToId {
+impl AsRef<str> for AppId {
     fn as_ref(&self) -> &str { &self.0 }
 }

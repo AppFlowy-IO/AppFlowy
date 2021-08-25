@@ -46,7 +46,7 @@ pub async fn delete_handler(
     pool: Data<PgPool>,
 ) -> Result<HttpResponse, ServerError> {
     let params: DeleteWorkspaceParams = parse_from_payload(payload).await?;
-    let resp = delete_workspace(pool.get_ref(), params).await?;
+    let resp = delete_workspace(pool.get_ref(), params.get_workspace_id()).await?;
     Ok(resp.into())
 }
 

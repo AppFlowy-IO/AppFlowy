@@ -1,4 +1,4 @@
-use crate::errors::{ErrorCode, Kind, ServerError};
+use crate::errors::{ErrorCode, ServerError};
 use bytes::Bytes;
 use serde::{Deserialize, Serialize};
 use std::{convert::TryInto, error::Error, fmt::Debug};
@@ -69,11 +69,7 @@ impl std::convert::From<reqwest::Error> for ServerError {
 
                     if hyper_error.is_timeout() {}
 
-                    ServerError {
-                        code,
-                        msg,
-                        kind: Kind::Other,
-                    }
+                    ServerError { code, msg }
                 },
             };
         }

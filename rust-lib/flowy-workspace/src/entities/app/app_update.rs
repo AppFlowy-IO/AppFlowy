@@ -1,7 +1,7 @@
 use crate::{
     entities::{
         app::{
-            parser::{AppColorStyle, AppName, BelongToId},
+            parser::{AppColorStyle, AppId, AppName},
             ColorStyle,
         },
         workspace::parser::WorkspaceId,
@@ -32,12 +32,24 @@ pub struct UpdateAppRequest {
     pub is_trash: Option<bool>,
 }
 
+#[derive(ProtoBuf, Default)]
 pub struct UpdateAppParams {
+    #[pb(index = 1)]
     pub app_id: String,
+
+    #[pb(index = 2, one_of)]
     pub workspace_id: Option<String>,
+
+    #[pb(index = 3, one_of)]
     pub name: Option<String>,
+
+    #[pb(index = 4, one_of)]
     pub desc: Option<String>,
+
+    #[pb(index = 5, one_of)]
     pub color_style: Option<ColorStyle>,
+
+    #[pb(index = 6, one_of)]
     pub is_trash: Option<bool>,
 }
 
@@ -45,7 +57,7 @@ impl TryInto<UpdateAppParams> for UpdateAppRequest {
     type Error = WorkspaceError;
 
     fn try_into(self) -> Result<UpdateAppParams, Self::Error> {
-        let app_id = BelongToId::parse(self.app_id)
+        let app_id = AppId::parse(self.app_id)
             .map_err(|e| ErrorBuilder::new(WsErrCode::AppIdInvalid).msg(e).build())?
             .0;
 

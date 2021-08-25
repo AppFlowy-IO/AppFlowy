@@ -14,7 +14,7 @@ pub struct DeleteWorkspaceRequest {
 #[derive(ProtoBuf, Default)]
 pub struct DeleteWorkspaceParams {
     #[pb(index = 1)]
-    workspace_id: String,
+    pub workspace_id: String,
 }
 
 impl TryInto<DeleteWorkspaceParams> for DeleteWorkspaceRequest {

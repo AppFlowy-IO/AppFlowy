@@ -25,15 +25,12 @@ const CreateWorkspaceParams$json = const {
   '2': const [
     const {'1': 'name', '3': 1, '4': 1, '5': 9, '10': 'name'},
     const {'1': 'desc', '3': 2, '4': 1, '5': 9, '10': 'desc'},
-    const {'1': 'user_id', '3': 3, '4': 1, '5': 9, '9': 0, '10': 'userId'},
-  ],
-  '8': const [
-    const {'1': 'one_of_user_id'},
+    const {'1': 'user_id', '3': 3, '4': 1, '5': 9, '10': 'userId'},
   ],
 };
 
 /// Descriptor for `CreateWorkspaceParams`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List createWorkspaceParamsDescriptor = $convert.base64Decode('ChVDcmVhdGVXb3Jrc3BhY2VQYXJhbXMSEgoEbmFtZRgBIAEoCVIEbmFtZRISCgRkZXNjGAIgASgJUgRkZXNjEhkKB3VzZXJfaWQYAyABKAlIAFIGdXNlcklkQhAKDm9uZV9vZl91c2VyX2lk');
+final $typed_data.Uint8List createWorkspaceParamsDescriptor = $convert.base64Decode('ChVDcmVhdGVXb3Jrc3BhY2VQYXJhbXMSEgoEbmFtZRgBIAEoCVIEbmFtZRISCgRkZXNjGAIgASgJUgRkZXNjEhcKB3VzZXJfaWQYAyABKAlSBnVzZXJJZA==');
 @$core.Deprecated('Use workspaceDescriptor instead')
 const Workspace$json = const {
   '1': 'Workspace',

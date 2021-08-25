@@ -182,13 +182,177 @@ impl ::protobuf::reflect::ProtobufValue for DeleteAppRequest {
     }
 }
 
+#[derive(PartialEq,Clone,Default)]
+pub struct DeleteAppParams {
+    // message fields
+    pub app_id: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a DeleteAppParams {
+    fn default() -> &'a DeleteAppParams {
+        <DeleteAppParams as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl DeleteAppParams {
+    pub fn new() -> DeleteAppParams {
+        ::std::default::Default::default()
+    }
+
+    // string app_id = 1;
+
+
+    pub fn get_app_id(&self) -> &str {
+        &self.app_id
+    }
+    pub fn clear_app_id(&mut self) {
+        self.app_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_app_id(&mut self, v: ::std::string::String) {
+        self.app_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_app_id(&mut self) -> &mut ::std::string::String {
+        &mut self.app_id
+    }
+
+    // Take field
+    pub fn take_app_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.app_id, ::std::string::String::new())
+    }
+}
+
+impl ::protobuf::Message for DeleteAppParams {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.app_id)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.app_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.app_id);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.app_id.is_empty() {
+            os.write_string(1, &self.app_id)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> DeleteAppParams {
+        DeleteAppParams::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "app_id",
+                |m: &DeleteAppParams| { &m.app_id },
+                |m: &mut DeleteAppParams| { &mut m.app_id },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<DeleteAppParams>(
+                "DeleteAppParams",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static DeleteAppParams {
+        static instance: ::protobuf::rt::LazyV2<DeleteAppParams> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(DeleteAppParams::new)
+    }
+}
+
+impl ::protobuf::Clear for DeleteAppParams {
+    fn clear(&mut self) {
+        self.app_id.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for DeleteAppParams {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for DeleteAppParams {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x10app_delete.proto\")\n\x10DeleteAppRequest\x12\x15\n\x06app_id\x18\
-    \x01\x20\x01(\tR\x05appIdJa\n\x06\x12\x04\0\0\x04\x01\n\x08\n\x01\x0c\
-    \x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x04\x01\n\n\n\x03\x04\0\
-    \x01\x12\x03\x02\x08\x18\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x16\n\
-    \x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\
-    \x12\x03\x03\x0b\x11\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x14\x15b\
+    \x01\x20\x01(\tR\x05appId\"(\n\x0fDeleteAppParams\x12\x15\n\x06app_id\
+    \x18\x01\x20\x01(\tR\x05appIdJ\xb0\x01\n\x06\x12\x04\0\0\x07\x01\n\x08\n\
+    \x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x04\x01\n\n\n\x03\
+    \x04\0\x01\x12\x03\x02\x08\x18\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\
+    \x16\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\
+    \0\x01\x12\x03\x03\x0b\x11\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x14\
+    \x15\n\n\n\x02\x04\x01\x12\x04\x05\0\x07\x01\n\n\n\x03\x04\x01\x01\x12\
+    \x03\x05\x08\x17\n\x0b\n\x04\x04\x01\x02\0\x12\x03\x06\x04\x16\n\x0c\n\
+    \x05\x04\x01\x02\0\x05\x12\x03\x06\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\
+    \x12\x03\x06\x0b\x11\n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\x06\x14\x15b\
     \x06proto3\
 ";
 

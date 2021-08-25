@@ -53,7 +53,8 @@ pub async fn user_sign_up(params: SignUpParams, url: &str) -> Result<SignUpRespo
         .protobuf(params)?
         .send()
         .await?
-        .response()?;
+        .response()
+        .await?;
     Ok(response)
 }
 
@@ -62,7 +63,8 @@ pub async fn user_sign_in(params: SignInParams, url: &str) -> Result<SignInRespo
         .protobuf(params)?
         .send()
         .await?
-        .response()?;
+        .response()
+        .await?;
     Ok(response)
 }
 

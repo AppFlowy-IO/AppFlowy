@@ -1,5 +1,5 @@
 use bcrypt::{hash, verify, BcryptError, DEFAULT_COST};
-use flowy_net::errors::{ErrorCode, Kind, ServerError};
+use flowy_net::errors::{ErrorCode, ServerError};
 use jsonwebtoken::Algorithm;
 
 pub fn uuid() -> String { uuid::Uuid::new_v4().to_string() }
@@ -19,7 +19,6 @@ pub fn verify_password(source: &str, hash: &str) -> Result<bool, ServerError> {
         _ => Err(ServerError::new(
             "Username and password don't match".to_string(),
             ErrorCode::PasswordNotMatch,
-            Kind::User,
         )),
     }
 }

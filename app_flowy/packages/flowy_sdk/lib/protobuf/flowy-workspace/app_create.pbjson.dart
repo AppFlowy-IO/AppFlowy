@@ -31,6 +31,20 @@ const ColorStyle$json = const {
 
 /// Descriptor for `ColorStyle`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List colorStyleDescriptor = $convert.base64Decode('CgpDb2xvclN0eWxlEh8KC3RoZW1lX2NvbG9yGAEgASgJUgp0aGVtZUNvbG9y');
+@$core.Deprecated('Use createAppParamsDescriptor instead')
+const CreateAppParams$json = const {
+  '1': 'CreateAppParams',
+  '2': const [
+    const {'1': 'workspace_id', '3': 1, '4': 1, '5': 9, '10': 'workspaceId'},
+    const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
+    const {'1': 'desc', '3': 3, '4': 1, '5': 9, '10': 'desc'},
+    const {'1': 'color_style', '3': 4, '4': 1, '5': 11, '6': '.ColorStyle', '10': 'colorStyle'},
+    const {'1': 'user_id', '3': 5, '4': 1, '5': 9, '10': 'userId'},
+  ],
+};
+
+/// Descriptor for `CreateAppParams`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List createAppParamsDescriptor = $convert.base64Decode('Cg9DcmVhdGVBcHBQYXJhbXMSIQoMd29ya3NwYWNlX2lkGAEgASgJUgt3b3Jrc3BhY2VJZBISCgRuYW1lGAIgASgJUgRuYW1lEhIKBGRlc2MYAyABKAlSBGRlc2MSLAoLY29sb3Jfc3R5bGUYBCABKAsyCy5Db2xvclN0eWxlUgpjb2xvclN0eWxlEhcKB3VzZXJfaWQYBSABKAlSBnVzZXJJZA==');
 @$core.Deprecated('Use appDescriptor instead')
 const App$json = const {
   '1': 'App',

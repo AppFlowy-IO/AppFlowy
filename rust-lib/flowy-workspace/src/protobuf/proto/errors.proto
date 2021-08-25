@@ -9,6 +9,7 @@ enum WsErrCode {
     WorkspaceNameInvalid = 1;
     WorkspaceIdInvalid = 2;
     AppColorStyleInvalid = 3;
+    WorkspaceDescInvalid = 4;
     AppIdInvalid = 10;
     AppNameInvalid = 11;
     ViewNameInvalid = 20;
@@ -20,4 +21,5 @@ enum WsErrCode {
     UserInternalError = 102;
     UserNotLoginYet = 103;
     ServerError = 1000;
+    RecordNotFound = 1001;
 }

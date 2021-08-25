@@ -1,5 +1,5 @@
 -- Add migration script here
-CREATE TABLE app_table(
+CREATE TABLE IF NOT EXISTS app_table(
     id uuid NOT NULL,
     PRIMARY KEY (id),
     workspace_id TEXT NOT NULL,

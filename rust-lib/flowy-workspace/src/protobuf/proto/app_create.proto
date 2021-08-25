@@ -10,6 +10,13 @@ message CreateAppRequest {
 message ColorStyle {
     string theme_color = 1;
 }
+message CreateAppParams {
+    string workspace_id = 1;
+    string name = 2;
+    string desc = 3;
+    ColorStyle color_style = 4;
+    string user_id = 5;
+}
 message App {
     string id = 1;
     string workspace_id = 2;

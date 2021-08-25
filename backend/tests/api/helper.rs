@@ -27,21 +27,51 @@ impl TestApp {
         resp
     }
 
-    pub async fn create_workspace(&self, mut params: CreateWorkspaceParams) -> Workspace {
+    pub async fn create_workspace(&self, params: CreateWorkspaceParams) -> Workspace {
         let url = format!("{}/api/workspace", self.address);
-        let response = self.register_test_user().await;
-        params.user_id = Some(response.uid);
         let workspace = create_workspace_request(params, &url).await.unwrap();
         workspace
     }
 
-    pub async fn read_workspace(&self, params: QueryWorkspaceParams) -> Workspace {
+    pub async fn read_workspace(&self, params: QueryWorkspaceParams) -> Option<Workspace> {
         let url = format!("{}/api/workspace", self.address);
         let workspace = read_workspace_request(params, &url).await.unwrap();
         workspace
     }
 
-    async fn register_test_user(&self) -> SignUpResponse {
+    pub async fn update_workspace(&self, params: UpdateWorkspaceParams) {
+        let url = format!("{}/api/workspace", self.address);
+        update_workspace_request(params, &url).await.unwrap();
+    }
+
+    pub async fn delete_workspace(&self, params: DeleteWorkspaceParams) {
+        let url = format!("{}/api/workspace", self.address);
+        delete_workspace_request(params, &url).await.unwrap();
+    }
+
+    pub async fn create_app(&self, params: CreateAppParams) -> App {
+        let url = format!("{}/api/app", self.address);
+        let app = create_app_request(params, &url).await.unwrap();
+        app
+    }
+
+    pub async fn read_app(&self, params: QueryAppParams) -> Option<App> {
+        let url = format!("{}/api/app", self.address);
+        let app = read_app_request(params, &url).await.unwrap();
+        app
+    }
+
+    pub async fn update_app(&self, params: UpdateAppParams) {
+        let url = format!("{}/api/app", self.address);
+        update_app_request(params, &url).await.unwrap();
+    }
+
+    pub async fn delete_app(&self, params: DeleteAppParams) {
+        let url = format!("{}/api/app", self.address);
+        delete_app_request(params, &url).await.unwrap();
+    }
+
+    pub(crate) async fn register_test_user(&self) -> SignUpResponse {
         let params = SignUpParams {
             email: "annie@appflowy.io".to_string(),
             name: "annie".to_string(),

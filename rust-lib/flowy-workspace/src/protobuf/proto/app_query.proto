@@ -5,3 +5,8 @@ message QueryAppRequest {
     bool read_belongings = 2;
     bool is_trash = 3;
 }
+message QueryAppParams {
+    string app_id = 1;
+    bool read_belongings = 2;
+    bool is_trash = 3;
+}

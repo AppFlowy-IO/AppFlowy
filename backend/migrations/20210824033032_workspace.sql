@@ -1,5 +1,5 @@
 -- Add migration script here
-CREATE TABLE workspace_table(
+CREATE TABLE IF NOT EXISTS workspace_table(
    id uuid NOT NULL,
    PRIMARY KEY (id),
    name TEXT NOT NULL,

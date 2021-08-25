@@ -16,6 +16,7 @@ const WsErrCode$json = const {
     const {'1': 'WorkspaceNameInvalid', '2': 1},
     const {'1': 'WorkspaceIdInvalid', '2': 2},
     const {'1': 'AppColorStyleInvalid', '2': 3},
+    const {'1': 'WorkspaceDescInvalid', '2': 4},
     const {'1': 'AppIdInvalid', '2': 10},
     const {'1': 'AppNameInvalid', '2': 11},
     const {'1': 'ViewNameInvalid', '2': 20},
@@ -27,11 +28,12 @@ const WsErrCode$json = const {
     const {'1': 'UserInternalError', '2': 102},
     const {'1': 'UserNotLoginYet', '2': 103},
     const {'1': 'ServerError', '2': 1000},
+    const {'1': 'RecordNotFound', '2': 1001},
   ],
 };
 
 /// Descriptor for `WsErrCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List wsErrCodeDescriptor = $convert.base64Decode('CglXc0VyckNvZGUSCwoHVW5rbm93bhAAEhgKFFdvcmtzcGFjZU5hbWVJbnZhbGlkEAESFgoSV29ya3NwYWNlSWRJbnZhbGlkEAISGAoUQXBwQ29sb3JTdHlsZUludmFsaWQQAxIQCgxBcHBJZEludmFsaWQQChISCg5BcHBOYW1lSW52YWxpZBALEhMKD1ZpZXdOYW1lSW52YWxpZBAUEhgKFFZpZXdUaHVtYm5haWxJbnZhbGlkEBUSEQoNVmlld0lkSW52YWxpZBAWEhMKD1ZpZXdEZXNjSW52YWxpZBAXEhoKFkRhdGFiYXNlQ29ubmVjdGlvbkZhaWwQZBIaChZXb3Jrc3BhY2VEYXRhYmFzZUVycm9yEGUSFQoRVXNlckludGVybmFsRXJyb3IQZhITCg9Vc2VyTm90TG9naW5ZZXQQZxIQCgtTZXJ2ZXJFcnJvchDoBw==');
+final $typed_data.Uint8List wsErrCodeDescriptor = $convert.base64Decode('CglXc0VyckNvZGUSCwoHVW5rbm93bhAAEhgKFFdvcmtzcGFjZU5hbWVJbnZhbGlkEAESFgoSV29ya3NwYWNlSWRJbnZhbGlkEAISGAoUQXBwQ29sb3JTdHlsZUludmFsaWQQAxIYChRXb3Jrc3BhY2VEZXNjSW52YWxpZBAEEhAKDEFwcElkSW52YWxpZBAKEhIKDkFwcE5hbWVJbnZhbGlkEAsSEwoPVmlld05hbWVJbnZhbGlkEBQSGAoUVmlld1RodW1ibmFpbEludmFsaWQQFRIRCg1WaWV3SWRJbnZhbGlkEBYSEwoPVmlld0Rlc2NJbnZhbGlkEBcSGgoWRGF0YWJhc2VDb25uZWN0aW9uRmFpbBBkEhoKFldvcmtzcGFjZURhdGFiYXNlRXJyb3IQZRIVChFVc2VySW50ZXJuYWxFcnJvchBmEhMKD1VzZXJOb3RMb2dpbllldBBnEhAKC1NlcnZlckVycm9yEOgHEhMKDlJlY29yZE5vdEZvdW5kEOkH');
 @$core.Deprecated('Use workspaceErrorDescriptor instead')
 const WorkspaceError$json = const {
   '1': 'WorkspaceError',

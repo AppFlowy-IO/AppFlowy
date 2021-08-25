@@ -2,7 +2,6 @@ use bytes::Bytes;
 use derive_more::Display;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_dispatch::prelude::{EventResponse, ResponseBuilder};
-use flowy_net::errors::Kind;
 use std::{
     convert::TryInto,
     fmt::{Debug, Formatter},

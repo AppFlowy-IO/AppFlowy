@@ -8,7 +8,7 @@ message CreateWorkspaceRequest {
 message CreateWorkspaceParams {
     string name = 1;
     string desc = 2;
-    oneof one_of_user_id { string user_id = 3; };
+    string user_id = 3;
 }
 message Workspace {
     string id = 1;

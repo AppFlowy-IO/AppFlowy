@@ -1,4 +1,4 @@
-use crate::{entities::app::parser::BelongToId, errors::*};
+use crate::{entities::app::parser::AppId, errors::*};
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
 
@@ -34,9 +34,15 @@ impl QueryAppRequest {
     }
 }
 
+#[derive(ProtoBuf, Default)]
 pub struct QueryAppParams {
+    #[pb(index = 1)]
     pub app_id: String,
+
+    #[pb(index = 2)]
     pub read_belongings: bool,
+
+    #[pb(index = 3)]
     pub is_trash: bool,
 }
 
@@ -44,7 +50,7 @@ impl TryInto<QueryAppParams> for QueryAppRequest {
     type Error = WorkspaceError;
 
     fn try_into(self) -> Result<QueryAppParams, Self::Error> {
-        let app_id = BelongToId::parse(self.app_id)
+        let app_id = AppId::parse(self.app_id)
             .map_err(|e| ErrorBuilder::new(WsErrCode::AppIdInvalid).msg(e).build())?
             .0;
 

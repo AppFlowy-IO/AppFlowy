@@ -1,5 +1,5 @@
 -- Add migration script here
-CREATE TABLE user_table(
+CREATE TABLE IF NOT EXISTS user_table(
     id uuid NOT NULL,
     PRIMARY KEY (id),
     email TEXT NOT NULL UNIQUE,

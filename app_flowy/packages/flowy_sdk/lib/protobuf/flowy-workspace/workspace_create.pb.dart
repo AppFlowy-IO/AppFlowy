@@ -72,18 +72,8 @@ class CreateWorkspaceRequest extends $pb.GeneratedMessage {
   void clearDesc() => clearField(2);
 }
 
-enum CreateWorkspaceParams_OneOfUserId {
-  userId, 
-  notSet
-}
-
 class CreateWorkspaceParams extends $pb.GeneratedMessage {
-  static const $core.Map<$core.int, CreateWorkspaceParams_OneOfUserId> _CreateWorkspaceParams_OneOfUserIdByTag = {
-    3 : CreateWorkspaceParams_OneOfUserId.userId,
-    0 : CreateWorkspaceParams_OneOfUserId.notSet
-  };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateWorkspaceParams', createEmptyInstance: create)
-    ..oo(0, [3])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'userId')
@@ -128,9 +118,6 @@ class CreateWorkspaceParams extends $pb.GeneratedMessage {
   @$core.pragma('dart2js:noInline')
   static CreateWorkspaceParams getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CreateWorkspaceParams>(create);
   static CreateWorkspaceParams? _defaultInstance;
-
-  CreateWorkspaceParams_OneOfUserId whichOneOfUserId() => _CreateWorkspaceParams_OneOfUserIdByTag[$_whichOneof(0)]!;
-  void clearOneOfUserId() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);

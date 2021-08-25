@@ -10,7 +10,6 @@ use uuid::Error;
 pub struct ServerError {
     pub code: ErrorCode,
     pub msg: String,
-    pub kind: Kind,
 }
 
 macro_rules! static_error {
@@ -20,7 +19,6 @@ macro_rules! static_error {
             ServerError {
                 code: $status,
                 msg: format!("{}", $status),
-                kind: Kind::Other,
             }
         }
     };
@@ -38,18 +36,17 @@ impl ServerError {
     static_error!(connect_cancel, ErrorCode::ConnectCancel);
     static_error!(connect_refused, ErrorCode::ConnectRefused);
 
-    pub fn new(msg: String, code: ErrorCode, kind: Kind) -> Self { Self { code, msg, kind } }
-
-    pub fn kind(mut self, kind: Kind) -> Self {
-        self.kind = kind;
-        self
-    }
+    pub fn new(msg: String, code: ErrorCode) -> Self { Self { code, msg } }
 
     pub fn context<T: Debug>(mut self, error: T) -> Self {
         self.msg = format!("{:?}", error);
         self
     }
+
+    pub fn is_not_found(&self) -> bool { self.code == ErrorCode::RecordNotFound }
 }
+
+pub fn invalid_params<T: Debug>(e: T) -> ServerError { ServerError::params_invalid().context(e) }
 
 impl std::fmt::Display for ServerError {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
@@ -65,12 +62,6 @@ impl std::convert::From<&ServerError> for FlowyResponse {
             error: Some(error.clone()),
         }
     }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum Kind {
-    User,
-    Other,
 }
 
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone, derive_more::Display)]
@@ -112,6 +103,8 @@ pub enum ErrorCode {
 
     #[display(fmt = "Sql error")]
     SqlError           = 200,
+    #[display(fmt = "Record not found")]
+    RecordNotFound     = 201,
 
     #[display(fmt = "Http request error")]
     HttpError          = 300,
