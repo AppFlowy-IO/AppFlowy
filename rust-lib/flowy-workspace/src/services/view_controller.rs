@@ -1,10 +1,11 @@
 use crate::{
-    entities::view::{CreateViewParams, UpdateViewParams, View},
+    entities::view::{CreateViewParams, DeleteViewParams, QueryViewParams, UpdateViewParams, View},
     errors::WorkspaceError,
     module::WorkspaceDatabase,
     observable::{send_observable, WorkspaceObservable},
     sql_tables::view::{ViewTable, ViewTableChangeset, ViewTableSql},
 };
+use flowy_net::request::HttpRequestBuilder;
 use std::sync::Arc;
 
 pub struct ViewController {
@@ -60,4 +61,62 @@ impl ViewController {
 
         Ok(())
     }
+}
+
+pub async fn create_view_request(
+    params: CreateViewParams,
+    url: &str,
+) -> Result<View, WorkspaceError> {
+    let view = HttpRequestBuilder::post(&url.to_owned())
+        .protobuf(params)?
+        .send()
+        .await?
+        .response()
+        .await?;
+    Ok(view)
+}
+
+pub async fn read_view_request(
+    params: QueryViewParams,
+    url: &str,
+) -> Result<Option<View>, WorkspaceError> {
+    let result = HttpRequestBuilder::get(&url.to_owned())
+        .protobuf(params)?
+        .send()
+        .await?
+        .response::<View>()
+        .await;
+
+    match result {
+        Ok(view) => Ok(Some(view)),
+        Err(e) => {
+            if e.is_not_found() {
+                Ok(None)
+            } else {
+                Err(e.into())
+            }
+        },
+    }
+}
+
+pub async fn update_view_request(
+    params: UpdateViewParams,
+    url: &str,
+) -> Result<(), WorkspaceError> {
+    let _ = HttpRequestBuilder::patch(&url.to_owned())
+        .protobuf(params)?
+        .send()
+        .await?;
+    Ok(())
+}
+
+pub async fn delete_view_request(
+    params: DeleteViewParams,
+    url: &str,
+) -> Result<(), WorkspaceError> {
+    let _ = HttpRequestBuilder::delete(&url.to_owned())
+        .protobuf(params)?
+        .send()
+        .await?;
+    Ok(())
 }

@@ -56,3 +56,50 @@ class DeleteViewRequest extends $pb.GeneratedMessage {
   void clearViewId() => clearField(1);
 }
 
+class DeleteViewParams extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DeleteViewParams', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewId')
+    ..hasRequiredFields = false
+  ;
+
+  DeleteViewParams._() : super();
+  factory DeleteViewParams({
+    $core.String? viewId,
+  }) {
+    final _result = create();
+    if (viewId != null) {
+      _result.viewId = viewId;
+    }
+    return _result;
+  }
+  factory DeleteViewParams.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory DeleteViewParams.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  DeleteViewParams clone() => DeleteViewParams()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  DeleteViewParams copyWith(void Function(DeleteViewParams) updates) => super.copyWith((message) => updates(message as DeleteViewParams)) as DeleteViewParams; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static DeleteViewParams create() => DeleteViewParams._();
+  DeleteViewParams createEmptyInstance() => create();
+  static $pb.PbList<DeleteViewParams> createRepeated() => $pb.PbList<DeleteViewParams>();
+  @$core.pragma('dart2js:noInline')
+  static DeleteViewParams getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DeleteViewParams>(create);
+  static DeleteViewParams? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get viewId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set viewId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasViewId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearViewId() => clearField(1);
+}
+

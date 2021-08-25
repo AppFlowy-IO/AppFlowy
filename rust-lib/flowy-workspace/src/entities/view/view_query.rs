@@ -32,9 +32,15 @@ impl QueryViewRequest {
     }
 }
 
+#[derive(Default, ProtoBuf)]
 pub struct QueryViewParams {
+    #[pb(index = 1)]
     pub view_id: String,
+
+    #[pb(index = 2)]
     pub is_trash: bool,
+
+    #[pb(index = 3)]
     pub read_belongings: bool,
 }
 

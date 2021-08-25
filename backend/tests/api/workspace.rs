@@ -1,6 +1,7 @@
 use crate::helper::{spawn_app, TestApp};
 use flowy_workspace::entities::{
     app::{App, ColorStyle, CreateAppParams, DeleteAppParams, QueryAppParams, UpdateAppParams},
+    view::{CreateViewParams, DeleteViewParams, QueryViewParams, UpdateViewParams, View, ViewType},
     workspace::{
         CreateWorkspaceParams,
         DeleteWorkspaceParams,
@@ -154,5 +155,70 @@ async fn create_test_app(app: &TestApp) -> App {
     };
 
     let app = app.create_app(params).await;
+    app
+}
+
+#[actix_rt::test]
+async fn view_create() {
+    let application = spawn_app().await;
+    let view = create_test_view(&application).await;
+    log::info!("{:?}", view);
+}
+
+#[actix_rt::test]
+async fn view_update() {
+    let application = spawn_app().await;
+    let view = create_test_view(&application).await;
+
+    // update
+    let update_params = UpdateViewParams {
+        view_id: view.id.clone(),
+        name: Some("new view name".to_string()),
+        desc: None,
+        thumbnail: None,
+        is_trash: Some(true),
+    };
+    application.update_view(update_params).await;
+
+    // read
+    let read_params = QueryViewParams {
+        view_id: view.id.clone(),
+        is_trash: true,
+        read_belongings: false,
+    };
+    let view = application.read_view(read_params).await;
+    log::info!("{:?}", view);
+}
+
+#[actix_rt::test]
+async fn view_delete() {
+    let application = spawn_app().await;
+    let view = create_test_view(&application).await;
+
+    // delete
+    let delete_params = DeleteViewParams {
+        view_id: view.id.clone(),
+    };
+    application.delete_view(delete_params).await;
+
+    // read
+    let read_params = QueryViewParams {
+        view_id: view.id.clone(),
+        is_trash: true,
+        read_belongings: false,
+    };
+    assert_eq!(application.read_view(read_params).await.is_none(), true);
+}
+
+async fn create_test_view(application: &TestApp) -> View {
+    let app = create_test_app(&application).await;
+    let params = CreateViewParams {
+        belong_to_id: app.id.clone(),
+        name: "My first view".to_string(),
+        desc: "This is my first view".to_string(),
+        thumbnail: "http://1.png".to_string(),
+        view_type: ViewType::Doc,
+    };
+    let app = application.create_view(params).await;
     app
 }

@@ -5,3 +5,8 @@ message QueryViewRequest {
     bool is_trash = 2;
     bool read_belongings = 3;
 }
+message QueryViewParams {
+    string view_id = 1;
+    bool is_trash = 2;
+    bool read_belongings = 3;
+}

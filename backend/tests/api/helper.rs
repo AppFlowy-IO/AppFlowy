@@ -71,6 +71,28 @@ impl TestApp {
         delete_app_request(params, &url).await.unwrap();
     }
 
+    pub async fn create_view(&self, params: CreateViewParams) -> View {
+        let url = format!("{}/api/view", self.address);
+        let view = create_view_request(params, &url).await.unwrap();
+        view
+    }
+
+    pub async fn read_view(&self, params: QueryViewParams) -> Option<View> {
+        let url = format!("{}/api/view", self.address);
+        let view = read_view_request(params, &url).await.unwrap();
+        view
+    }
+
+    pub async fn update_view(&self, params: UpdateViewParams) {
+        let url = format!("{}/api/view", self.address);
+        update_view_request(params, &url).await.unwrap();
+    }
+
+    pub async fn delete_view(&self, params: DeleteViewParams) {
+        let url = format!("{}/api/view", self.address);
+        delete_view_request(params, &url).await.unwrap();
+    }
+
     pub(crate) async fn register_test_user(&self) -> SignUpResponse {
         let params = SignUpParams {
             email: "annie@appflowy.io".to_string(),

@@ -18,3 +18,13 @@ const DeleteViewRequest$json = const {
 
 /// Descriptor for `DeleteViewRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List deleteViewRequestDescriptor = $convert.base64Decode('ChFEZWxldGVWaWV3UmVxdWVzdBIXCgd2aWV3X2lkGAEgASgJUgZ2aWV3SWQ=');
+@$core.Deprecated('Use deleteViewParamsDescriptor instead')
+const DeleteViewParams$json = const {
+  '1': 'DeleteViewParams',
+  '2': const [
+    const {'1': 'view_id', '3': 1, '4': 1, '5': 9, '10': 'viewId'},
+  ],
+};
+
+/// Descriptor for `DeleteViewParams`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List deleteViewParamsDescriptor = $convert.base64Decode('ChBEZWxldGVWaWV3UGFyYW1zEhcKB3ZpZXdfaWQYASABKAlSBnZpZXdJZA==');

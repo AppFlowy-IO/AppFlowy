@@ -11,8 +11,10 @@ pub struct DeleteViewRequest {
     view_id: String,
 }
 
+#[derive(Default, ProtoBuf)]
 pub struct DeleteViewParams {
-    pub(crate) view_id: String,
+    #[pb(index = 1)]
+    pub view_id: String,
 }
 
 impl TryInto<DeleteViewParams> for DeleteViewRequest {

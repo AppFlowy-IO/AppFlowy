@@ -252,21 +252,262 @@ impl ::protobuf::reflect::ProtobufValue for QueryViewRequest {
     }
 }
 
+#[derive(PartialEq,Clone,Default)]
+pub struct QueryViewParams {
+    // message fields
+    pub view_id: ::std::string::String,
+    pub is_trash: bool,
+    pub read_belongings: bool,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a QueryViewParams {
+    fn default() -> &'a QueryViewParams {
+        <QueryViewParams as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl QueryViewParams {
+    pub fn new() -> QueryViewParams {
+        ::std::default::Default::default()
+    }
+
+    // string view_id = 1;
+
+
+    pub fn get_view_id(&self) -> &str {
+        &self.view_id
+    }
+    pub fn clear_view_id(&mut self) {
+        self.view_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_view_id(&mut self, v: ::std::string::String) {
+        self.view_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_view_id(&mut self) -> &mut ::std::string::String {
+        &mut self.view_id
+    }
+
+    // Take field
+    pub fn take_view_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.view_id, ::std::string::String::new())
+    }
+
+    // bool is_trash = 2;
+
+
+    pub fn get_is_trash(&self) -> bool {
+        self.is_trash
+    }
+    pub fn clear_is_trash(&mut self) {
+        self.is_trash = false;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_is_trash(&mut self, v: bool) {
+        self.is_trash = v;
+    }
+
+    // bool read_belongings = 3;
+
+
+    pub fn get_read_belongings(&self) -> bool {
+        self.read_belongings
+    }
+    pub fn clear_read_belongings(&mut self) {
+        self.read_belongings = false;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_read_belongings(&mut self, v: bool) {
+        self.read_belongings = v;
+    }
+}
+
+impl ::protobuf::Message for QueryViewParams {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.view_id)?;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_bool()?;
+                    self.is_trash = tmp;
+                },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_bool()?;
+                    self.read_belongings = tmp;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.view_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.view_id);
+        }
+        if self.is_trash != false {
+            my_size += 2;
+        }
+        if self.read_belongings != false {
+            my_size += 2;
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.view_id.is_empty() {
+            os.write_string(1, &self.view_id)?;
+        }
+        if self.is_trash != false {
+            os.write_bool(2, self.is_trash)?;
+        }
+        if self.read_belongings != false {
+            os.write_bool(3, self.read_belongings)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> QueryViewParams {
+        QueryViewParams::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "view_id",
+                |m: &QueryViewParams| { &m.view_id },
+                |m: &mut QueryViewParams| { &mut m.view_id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
+                "is_trash",
+                |m: &QueryViewParams| { &m.is_trash },
+                |m: &mut QueryViewParams| { &mut m.is_trash },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
+                "read_belongings",
+                |m: &QueryViewParams| { &m.read_belongings },
+                |m: &mut QueryViewParams| { &mut m.read_belongings },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<QueryViewParams>(
+                "QueryViewParams",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static QueryViewParams {
+        static instance: ::protobuf::rt::LazyV2<QueryViewParams> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(QueryViewParams::new)
+    }
+}
+
+impl ::protobuf::Clear for QueryViewParams {
+    fn clear(&mut self) {
+        self.view_id.clear();
+        self.is_trash = false;
+        self.read_belongings = false;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for QueryViewParams {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for QueryViewParams {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x10view_query.proto\"o\n\x10QueryViewRequest\x12\x17\n\x07view_id\x18\
     \x01\x20\x01(\tR\x06viewId\x12\x19\n\x08is_trash\x18\x02\x20\x01(\x08R\
     \x07isTrash\x12'\n\x0fread_belongings\x18\x03\x20\x01(\x08R\x0ereadBelon\
-    gingsJ\xcf\x01\n\x06\x12\x04\0\0\x06\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\
-    \n\n\n\x02\x04\0\x12\x04\x02\0\x06\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\
-    \x08\x18\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x17\n\x0c\n\x05\x04\0\
-    \x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\
-    \x12\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x15\x16\n\x0b\n\x04\x04\0\
-    \x02\x01\x12\x03\x04\x04\x16\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\
-    \x04\x08\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\t\x11\n\x0c\n\x05\x04\
-    \0\x02\x01\x03\x12\x03\x04\x14\x15\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\
-    \x04\x1d\n\x0c\n\x05\x04\0\x02\x02\x05\x12\x03\x05\x04\x08\n\x0c\n\x05\
-    \x04\0\x02\x02\x01\x12\x03\x05\t\x18\n\x0c\n\x05\x04\0\x02\x02\x03\x12\
-    \x03\x05\x1b\x1cb\x06proto3\
+    gings\"n\n\x0fQueryViewParams\x12\x17\n\x07view_id\x18\x01\x20\x01(\tR\
+    \x06viewId\x12\x19\n\x08is_trash\x18\x02\x20\x01(\x08R\x07isTrash\x12'\n\
+    \x0fread_belongings\x18\x03\x20\x01(\x08R\x0ereadBelongingsJ\x8c\x03\n\
+    \x06\x12\x04\0\0\x0b\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\
+    \x12\x04\x02\0\x06\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x18\n\x0b\n\
+    \x04\x04\0\x02\0\x12\x03\x03\x04\x17\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\
+    \x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\x12\n\x0c\n\x05\
+    \x04\0\x02\0\x03\x12\x03\x03\x15\x16\n\x0b\n\x04\x04\0\x02\x01\x12\x03\
+    \x04\x04\x16\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\x08\n\x0c\n\
+    \x05\x04\0\x02\x01\x01\x12\x03\x04\t\x11\n\x0c\n\x05\x04\0\x02\x01\x03\
+    \x12\x03\x04\x14\x15\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x04\x1d\n\x0c\
+    \n\x05\x04\0\x02\x02\x05\x12\x03\x05\x04\x08\n\x0c\n\x05\x04\0\x02\x02\
+    \x01\x12\x03\x05\t\x18\n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05\x1b\x1c\
+    \n\n\n\x02\x04\x01\x12\x04\x07\0\x0b\x01\n\n\n\x03\x04\x01\x01\x12\x03\
+    \x07\x08\x17\n\x0b\n\x04\x04\x01\x02\0\x12\x03\x08\x04\x17\n\x0c\n\x05\
+    \x04\x01\x02\0\x05\x12\x03\x08\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\
+    \x03\x08\x0b\x12\n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\x08\x15\x16\n\x0b\
+    \n\x04\x04\x01\x02\x01\x12\x03\t\x04\x16\n\x0c\n\x05\x04\x01\x02\x01\x05\
+    \x12\x03\t\x04\x08\n\x0c\n\x05\x04\x01\x02\x01\x01\x12\x03\t\t\x11\n\x0c\
+    \n\x05\x04\x01\x02\x01\x03\x12\x03\t\x14\x15\n\x0b\n\x04\x04\x01\x02\x02\
+    \x12\x03\n\x04\x1d\n\x0c\n\x05\x04\x01\x02\x02\x05\x12\x03\n\x04\x08\n\
+    \x0c\n\x05\x04\x01\x02\x02\x01\x12\x03\n\t\x18\n\x0c\n\x05\x04\x01\x02\
+    \x02\x03\x12\x03\n\x1b\x1cb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

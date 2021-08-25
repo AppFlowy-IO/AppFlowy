@@ -110,7 +110,7 @@ pub(crate) async fn read_app(
     };
 
     if params.read_belongings {
-        // app.belongings
+        // TODO: read belongings
     }
 
     FlowyResponse::success().data(app)
@@ -166,6 +166,7 @@ pub(crate) async fn update_app(
         .add_some_arg("workspace_id", workspace_id)
         .add_some_arg("color_style", color_style)
         .add_some_arg("description", desc)
+        .add_some_arg("modified_time", Some(Utc::now()))
         .add_arg_if(params.has_is_trash(), "is_trash", params.get_is_trash())
         .and_where_eq("id", app_id)
         .build()?;

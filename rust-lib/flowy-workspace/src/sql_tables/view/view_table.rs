@@ -27,6 +27,11 @@ impl ViewTable {
     pub fn new(params: CreateViewParams) -> Self {
         let view_id = uuid();
         let time = timestamp();
+        let view_type = match params.view_type {
+            ViewType::Blank => ViewTableType::Docs,
+            ViewType::Doc => ViewTableType::Docs,
+        };
+
         ViewTable {
             id: view_id,
             belong_to_id: params.belong_to_id,
@@ -35,7 +40,7 @@ impl ViewTable {
             modified_time: time,
             create_time: time,
             thumbnail: params.thumbnail,
-            view_type: params.view_type,
+            view_type,
             version: 0,
             is_trash: false,
         }

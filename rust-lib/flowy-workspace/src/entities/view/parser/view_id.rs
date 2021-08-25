@@ -10,3 +10,7 @@ impl ViewId {
         Ok(Self(s))
     }
 }
+
+impl AsRef<str> for ViewId {
+    fn as_ref(&self) -> &str { &self.0 }
+}

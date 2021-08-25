@@ -3,3 +3,6 @@ syntax = "proto3";
 message DeleteViewRequest {
     string view_id = 1;
 }
+message DeleteViewParams {
+    string view_id = 1;
+}

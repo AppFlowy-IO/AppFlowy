@@ -17,6 +17,19 @@ impl std::default::Default for ViewType {
     fn default() -> Self { ViewType::Blank }
 }
 
+impl std::convert::From<i32> for ViewType {
+    fn from(val: i32) -> Self {
+        match val {
+            1 => ViewType::Doc,
+            0 => ViewType::Blank,
+            _ => {
+                log::error!("Invalid view type: {}", val);
+                ViewType::Blank
+            },
+        }
+    }
+}
+
 #[derive(Default, ProtoBuf)]
 pub struct CreateViewRequest {
     #[pb(index = 1)]
@@ -35,12 +48,22 @@ pub struct CreateViewRequest {
     pub view_type: ViewType,
 }
 
+#[derive(Default, ProtoBuf)]
 pub struct CreateViewParams {
+    #[pb(index = 1)]
     pub belong_to_id: String,
+
+    #[pb(index = 2)]
     pub name: String,
+
+    #[pb(index = 3)]
     pub desc: String,
+
+    #[pb(index = 4)]
     pub thumbnail: String,
-    pub view_type: ViewTableType,
+
+    #[pb(index = 5)]
+    pub view_type: ViewType,
 }
 
 impl TryInto<CreateViewParams> for CreateViewRequest {
@@ -68,13 +91,12 @@ impl TryInto<CreateViewParams> for CreateViewRequest {
             },
         };
 
-        let view_type = ViewTypeCheck::parse(self.view_type).unwrap().0;
         Ok(CreateViewParams {
             belong_to_id,
             name,
             desc: self.desc,
             thumbnail,
-            view_type,
+            view_type: self.view_type,
         })
     }
 }

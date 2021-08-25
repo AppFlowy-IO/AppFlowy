@@ -1,4 +1,4 @@
-mod parser;
+pub mod parser;
 mod view_create;
 mod view_delete;
 mod view_query;

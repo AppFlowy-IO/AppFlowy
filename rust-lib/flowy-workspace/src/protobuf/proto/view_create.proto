@@ -7,6 +7,13 @@ message CreateViewRequest {
     oneof one_of_thumbnail { string thumbnail = 4; };
     ViewType view_type = 5;
 }
+message CreateViewParams {
+    string belong_to_id = 1;
+    string name = 2;
+    string desc = 3;
+    string thumbnail = 4;
+    ViewType view_type = 5;
+}
 message View {
     string id = 1;
     string belong_to_id = 2;

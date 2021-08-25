@@ -23,11 +23,21 @@ pub struct UpdateViewRequest {
     pub is_trash: Option<bool>,
 }
 
+#[derive(Default, ProtoBuf)]
 pub struct UpdateViewParams {
+    #[pb(index = 1)]
     pub view_id: String,
+
+    #[pb(index = 2, one_of)]
     pub name: Option<String>,
+
+    #[pb(index = 3, one_of)]
     pub desc: Option<String>,
+
+    #[pb(index = 4, one_of)]
     pub thumbnail: Option<String>,
+
+    #[pb(index = 5, one_of)]
     pub is_trash: Option<bool>,
 }
 
