@@ -1,7 +1,7 @@
 mod config;
-
+mod dart_event;
+mod proto;
 mod util;
-
 use clap::{App, Arg};
 
 fn main() {

@@ -16,6 +16,6 @@ message Workspace {
     string desc = 3;
     RepeatedApp apps = 4;
 }
-message Workspaces {
+message RepeatedWorkspace {
     repeated Workspace items = 1;
 }

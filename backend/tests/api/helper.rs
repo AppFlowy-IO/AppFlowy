@@ -83,6 +83,12 @@ impl TestApp {
         view
     }
 
+    pub async fn read_workspace_list(&self, user_id: &str) -> RepeatedWorkspace {
+        let url = format!("{}/api/workspace_list/{}", self.address, user_id);
+        let workspaces = read_workspace_list_request(&url).await.unwrap();
+        workspaces
+    }
+
     pub async fn update_view(&self, params: UpdateViewParams) {
         let url = format!("{}/api/view", self.address);
         update_view_request(params, &url).await.unwrap();

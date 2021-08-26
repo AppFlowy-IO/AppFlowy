@@ -55,6 +55,10 @@ impl HttpRequestBuilder {
         T1: TryInto<Bytes, Error = ProtobufError>,
     {
         let body: Bytes = body.try_into()?;
+        self.bytes(body)
+    }
+
+    pub fn bytes(mut self, body: Bytes) -> Result<Self, ServerError> {
         self.body = Some(body);
         Ok(self)
     }

@@ -20,6 +20,20 @@ pub struct QueryWorkspaceParams {
     pub read_apps: bool,
 }
 
+impl QueryWorkspaceParams {
+    pub fn new(workspace_id: &str) -> Self {
+        Self {
+            workspace_id: workspace_id.to_owned(),
+            ..Default::default()
+        }
+    }
+
+    pub fn read_apps(mut self) -> Self {
+        self.read_apps = true;
+        self
+    }
+}
+
 impl TryInto<QueryWorkspaceParams> for QueryWorkspaceRequest {
     type Error = WorkspaceError;
 

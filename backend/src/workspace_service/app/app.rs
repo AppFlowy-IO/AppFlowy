@@ -2,8 +2,11 @@ use flowy_net::{errors::ServerError, response::FlowyResponse};
 
 use crate::{
     entities::workspace::AppTable,
-    sqlx_ext::{map_sqlx_error, SqlBuilder},
-    workspace_service::view::read_views_belong_to_id,
+    sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
+    workspace_service::{
+        app::{check_app_id, make_app_from_table, Builder},
+        view::read_views_belong_to_id,
+    },
 };
 use anyhow::Context;
 use chrono::Utc;
@@ -13,13 +16,11 @@ use flowy_workspace::{
     entities::{
         app::{
             parser::{AppDesc, AppId, AppName},
-            App,
             RepeatedApp,
         },
-        view::RepeatedView,
         workspace::parser::WorkspaceId,
     },
-    protobuf::{CreateAppParams, QueryAppParams, UpdateAppParams},
+    protobuf::{App, CreateAppParams, QueryAppParams, RepeatedView, UpdateAppParams},
 };
 use protobuf::Message;
 use sqlx::{postgres::PgArguments, PgPool, Postgres, Transaction};
@@ -27,31 +28,21 @@ use uuid::Uuid;
 
 pub(crate) async fn create_app(
     pool: &PgPool,
-    params: CreateAppParams,
+    mut params: CreateAppParams,
 ) -> Result<FlowyResponse, ServerError> {
-    let color_bytes = params.get_color_style().write_to_bytes()?;
-    let name = AppName::parse(params.name).map_err(invalid_params)?;
-    let workspace_id = WorkspaceId::parse(params.workspace_id).map_err(invalid_params)?;
-    let user_id = UserId::parse(params.user_id).map_err(invalid_params)?;
-    let desc = AppDesc::parse(params.desc).map_err(invalid_params)?;
-
+    let name = AppName::parse(params.take_name()).map_err(invalid_params)?;
+    let workspace_id = WorkspaceId::parse(params.take_workspace_id()).map_err(invalid_params)?;
+    let user_id = UserId::parse(params.take_user_id()).map_err(invalid_params)?;
+    let desc = AppDesc::parse(params.take_desc()).map_err(invalid_params)?;
     let mut transaction = pool
         .begin()
         .await
         .context("Failed to acquire a Postgres connection to create app")?;
 
-    let uuid = uuid::Uuid::new_v4();
-    let time = Utc::now();
-
-    let (sql, args) = SqlBuilder::create("app_table")
-        .add_arg("id", uuid)
-        .add_arg("workspace_id", workspace_id.as_ref())
-        .add_arg("name", name.as_ref())
-        .add_arg("description", desc.as_ref())
-        .add_arg("color_style", color_bytes)
-        .add_arg("modified_time", &time)
-        .add_arg("create_time", &time)
-        .add_arg("user_id", user_id.as_ref())
+    let (sql, args, app) = Builder::new(user_id.as_ref(), workspace_id.as_ref())
+        .name(name.as_ref())
+        .desc(desc.as_ref())
+        .color_style(params.take_color_style())
         .build()?;
 
     let _ = sqlx::query_with(&sql, args)
@@ -64,16 +55,7 @@ pub(crate) async fn create_app(
         .await
         .context("Failed to commit SQL transaction to create app.")?;
 
-    let app = App {
-        id: uuid.to_string(),
-        workspace_id: workspace_id.as_ref().to_owned(),
-        name: name.as_ref().to_string(),
-        desc: desc.as_ref().to_string(),
-        belongings: RepeatedView::default(),
-        version: 0,
-    };
-
-    FlowyResponse::success().data(app)
+    FlowyResponse::success().pb(app)
 }
 
 pub(crate) async fn read_app(
@@ -99,7 +81,11 @@ pub(crate) async fn read_app(
 
     let mut views = RepeatedView::default();
     if params.read_belongings {
-        views.items = read_views_belong_to_id(&mut transaction, &table.id.to_string()).await?;
+        views.set_items(
+            read_views_belong_to_id(&mut transaction, &table.id.to_string())
+                .await?
+                .into(),
+        );
     }
 
     transaction
@@ -107,10 +93,8 @@ pub(crate) async fn read_app(
         .await
         .context("Failed to commit SQL transaction to read app.")?;
 
-    let mut app: App = table.into();
-    app.belongings = views;
-
-    FlowyResponse::success().data(app)
+    let app = make_app_from_table(table, views);
+    FlowyResponse::success().pb(app)
 }
 
 pub(crate) async fn update_app(
@@ -207,7 +191,7 @@ pub(crate) async fn delete_app(pool: &PgPool, app_id: &str) -> Result<FlowyRespo
 
 // transaction must be commit from caller
 pub(crate) async fn read_apps_belong_to_workspace<'c>(
-    transaction: &mut Transaction<'c, Postgres>,
+    transaction: &mut DBTransaction<'_>,
     workspace_id: &str,
 ) -> Result<Vec<App>, ServerError> {
     let workspace_id = WorkspaceId::parse(workspace_id.to_owned()).map_err(invalid_params)?;
@@ -223,14 +207,8 @@ pub(crate) async fn read_apps_belong_to_workspace<'c>(
 
     let apps = tables
         .into_iter()
-        .map(|table| table.into())
+        .map(|table| make_app_from_table(table, RepeatedView::default()))
         .collect::<Vec<App>>();
 
     Ok(apps)
-}
-
-fn check_app_id(id: String) -> Result<Uuid, ServerError> {
-    let app_id = AppId::parse(id).map_err(invalid_params)?;
-    let app_id = Uuid::parse_str(app_id.as_ref())?;
-    Ok(app_id)
 }

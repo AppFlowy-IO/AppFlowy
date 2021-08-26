@@ -53,6 +53,30 @@ pub struct UpdateAppParams {
     pub is_trash: Option<bool>,
 }
 
+impl UpdateAppParams {
+    pub fn new(app_id: &str) -> Self {
+        Self {
+            app_id: app_id.to_string(),
+            ..Default::default()
+        }
+    }
+
+    pub fn name(mut self, name: &str) -> Self {
+        self.name = Some(name.to_string());
+        self
+    }
+
+    pub fn desc(mut self, desc: &str) -> Self {
+        self.desc = Some(desc.to_string());
+        self
+    }
+
+    pub fn trash(mut self) -> Self {
+        self.is_trash = Some(true);
+        self
+    }
+}
+
 impl TryInto<UpdateAppParams> for UpdateAppRequest {
     type Error = WorkspaceError;
 

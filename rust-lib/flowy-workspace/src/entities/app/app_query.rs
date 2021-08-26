@@ -46,6 +46,25 @@ pub struct QueryAppParams {
     pub is_trash: bool,
 }
 
+impl QueryAppParams {
+    pub fn new(app_id: &str) -> Self {
+        Self {
+            app_id: app_id.to_string(),
+            ..Default::default()
+        }
+    }
+
+    pub fn read_belongings(mut self) -> Self {
+        self.read_belongings = true;
+        self
+    }
+
+    pub fn trash(mut self) -> Self {
+        self.is_trash = true;
+        self
+    }
+}
+
 impl TryInto<QueryAppParams> for QueryAppRequest {
     type Error = WorkspaceError;
 

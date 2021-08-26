@@ -1,6 +1,8 @@
 use crate::{
     entities::{token::Token, user::UserTable},
+    sqlx_ext::DBTransaction,
     user_service::{hash_password, verify_password},
+    workspace_service::user_default::create_default_workspace,
 };
 use actix_identity::Identity;
 use anyhow::Context;
@@ -10,9 +12,8 @@ use flowy_net::{
     response::FlowyResponse,
 };
 use flowy_user::{
-    entities::{parser::UserName, SignInResponse, SignUpResponse},
-    prelude::parser::{UserEmail, UserPassword},
-    protobuf::{SignInParams, SignUpParams},
+    entities::parser::{UserEmail, UserName, UserPassword},
+    protobuf::{SignInParams, SignInResponse, SignUpParams, SignUpResponse},
 };
 use sqlx::{PgPool, Postgres, Transaction};
 
@@ -40,14 +41,14 @@ pub async fn sign_in(
     match verify_password(&password.0, &user.password) {
         Ok(true) => {
             let token = Token::create_token(&user)?;
-            let data = SignInResponse {
-                uid: user.id.to_string(),
-                name: user.name,
-                email: user.email,
-                token: token.into(),
-            };
-            id.remember(data.token.clone());
-            FlowyResponse::success().data(data)
+            let mut response_data = SignInResponse::default();
+            response_data.set_uid(user.id.to_string());
+            response_data.set_name(user.name);
+            response_data.set_email(user.email);
+            response_data.set_token(token.into());
+
+            id.remember(response_data.token.clone());
+            FlowyResponse::success().pb(response_data)
         },
         _ => Err(ServerError::password_not_match()),
     }
@@ -70,7 +71,7 @@ pub async fn register_user(
         .context("Failed to acquire a Postgres connection to register user")?;
 
     let _ = is_email_exist(&mut transaction, email.as_ref()).await?;
-    let data = insert_user(
+    let response_data = insert_new_user(
         &mut transaction,
         name.as_ref(),
         email.as_ref(),
@@ -79,16 +80,18 @@ pub async fn register_user(
     .await
     .context("Failed to insert user")?;
 
+    let _ = create_default_workspace(&mut transaction, response_data.get_uid()).await?;
+
     transaction
         .commit()
         .await
         .context("Failed to commit SQL transaction to register user.")?;
 
-    FlowyResponse::success().data(data)
+    FlowyResponse::success().pb(response_data)
 }
 
 async fn is_email_exist(
-    transaction: &mut Transaction<'_, Postgres>,
+    transaction: &mut DBTransaction<'_>,
     email: &str,
 ) -> Result<(), ServerError> {
     let result = sqlx::query(r#"SELECT email FROM user_table WHERE email = $1"#)
@@ -107,7 +110,7 @@ async fn is_email_exist(
 }
 
 async fn read_user(
-    transaction: &mut Transaction<'_, Postgres>,
+    transaction: &mut DBTransaction<'_>,
     email: &str,
 ) -> Result<UserTable, ServerError> {
     let user = sqlx::query_as::<Postgres, UserTable>("SELECT * FROM user_table WHERE email = $1")
@@ -119,8 +122,8 @@ async fn read_user(
     Ok(user)
 }
 
-async fn insert_user(
-    transaction: &mut Transaction<'_, Postgres>,
+async fn insert_new_user(
+    transaction: &mut DBTransaction<'_>,
     name: &str,
     email: &str,
     password: &str,
@@ -142,11 +145,10 @@ async fn insert_user(
     .await
     .map_err(|e| ServerError::internal().context(e))?;
 
-    let data = SignUpResponse {
-        uid: uuid.to_string(),
-        name: name.to_string(),
-        email: email.to_string(),
-    };
+    let mut response = SignUpResponse::default();
+    response.set_uid(uuid.to_string());
+    response.set_name(name.to_string());
+    response.set_email(email.to_string());
 
-    Ok(data)
+    Ok(response)
 }

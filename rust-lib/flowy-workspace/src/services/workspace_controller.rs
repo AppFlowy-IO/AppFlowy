@@ -169,9 +169,18 @@ pub async fn delete_workspace_request(
     params: DeleteWorkspaceParams,
     url: &str,
 ) -> Result<(), WorkspaceError> {
-    let _ = HttpRequestBuilder::delete(&url.to_owned())
+    let _ = HttpRequestBuilder::delete(url)
         .protobuf(params)?
         .send()
         .await?;
     Ok(())
+}
+
+pub async fn read_workspace_list_request(url: &str) -> Result<RepeatedWorkspace, WorkspaceError> {
+    let workspaces = HttpRequestBuilder::get(url)
+        .send()
+        .await?
+        .response::<RepeatedWorkspace>()
+        .await?;
+    Ok(workspaces)
 }

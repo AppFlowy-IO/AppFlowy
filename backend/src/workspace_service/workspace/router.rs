@@ -4,12 +4,13 @@ use crate::{
         create_workspace,
         delete_workspace,
         read_workspace,
+        read_workspace_list,
         update_workspace,
     },
 };
 use actix_identity::Identity;
 use actix_web::{
-    web::{Data, Payload},
+    web::{Data, Path, Payload},
     HttpResponse,
 };
 use flowy_net::errors::ServerError;
@@ -50,10 +51,17 @@ pub async fn delete_handler(
 
 pub async fn update_handler(
     payload: Payload,
-    _id: Identity,
     pool: Data<PgPool>,
 ) -> Result<HttpResponse, ServerError> {
     let params: UpdateWorkspaceParams = parse_from_payload(payload).await?;
     let resp = update_workspace(pool.get_ref(), params).await?;
+    Ok(resp.into())
+}
+
+pub async fn workspace_list(
+    user_id: Path<String>,
+    pool: Data<PgPool>,
+) -> Result<HttpResponse, ServerError> {
+    let resp = read_workspace_list(pool.get_ref(), &user_id).await?;
     Ok(resp.into())
 }

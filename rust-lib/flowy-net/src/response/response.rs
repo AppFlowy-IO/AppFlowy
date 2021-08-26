@@ -24,6 +24,12 @@ impl FlowyResponse {
         self.data = bytes;
         Ok(self)
     }
+
+    pub fn pb<T: ::protobuf::Message>(mut self, data: T) -> Result<Self, ServerError> {
+        let bytes: Bytes = Bytes::from(data.write_to_bytes()?);
+        self.data = bytes;
+        Ok(self)
+    }
 }
 
 impl std::convert::From<protobuf::ProtobufError> for ServerError {

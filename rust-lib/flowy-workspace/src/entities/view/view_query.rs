@@ -44,6 +44,25 @@ pub struct QueryViewParams {
     pub read_belongings: bool,
 }
 
+impl QueryViewParams {
+    pub fn new(view_id: &str) -> Self {
+        Self {
+            view_id: view_id.to_owned(),
+            ..Default::default()
+        }
+    }
+
+    pub fn trash(mut self) -> Self {
+        self.is_trash = true;
+        self
+    }
+
+    pub fn read_belongings(mut self) -> Self {
+        self.read_belongings = true;
+        self
+    }
+}
+
 impl TryInto<QueryViewParams> for QueryViewRequest {
     type Error = WorkspaceError;
 

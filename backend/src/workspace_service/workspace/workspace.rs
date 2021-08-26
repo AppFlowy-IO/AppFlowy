@@ -1,3 +1,4 @@
+use super::builder::Builder;
 use crate::{
     entities::workspace::WorkspaceTable,
     sqlx_ext::*,
@@ -10,19 +11,18 @@ use flowy_net::{
     response::FlowyResponse,
 };
 use flowy_user::entities::parser::UserId;
+
+use crate::workspace_service::workspace::{check_workspace_id, make_workspace_from_table};
 use flowy_workspace::{
-    entities::{
-        app::RepeatedApp,
-        workspace::{
-            parser::{WorkspaceDesc, WorkspaceId, WorkspaceName},
-            Workspace,
-        },
-    },
+    entities::workspace::parser::{WorkspaceDesc, WorkspaceId, WorkspaceName},
     protobuf::{
         CreateWorkspaceParams,
         DeleteWorkspaceParams,
         QueryWorkspaceParams,
+        RepeatedApp,
+        RepeatedWorkspace,
         UpdateWorkspaceParams,
+        Workspace,
     },
 };
 use sqlx::{postgres::PgArguments, PgPool, Postgres, Transaction};
@@ -41,17 +41,9 @@ pub(crate) async fn create_workspace(
         .await
         .context("Failed to acquire a Postgres connection to create workspace")?;
 
-    let uuid = uuid::Uuid::new_v4();
-    let time = Utc::now();
-
-    // TODO: use macro to fetch each field from struct
-    let (sql, args) = SqlBuilder::create("workspace_table")
-        .add_arg("id", uuid)
-        .add_arg("name", name.as_ref())
-        .add_arg("description", desc.as_ref())
-        .add_arg("modified_time", &time)
-        .add_arg("create_time", &time)
-        .add_arg("user_id", user_id.as_ref())
+    let (sql, args, workspace) = Builder::new(user_id.as_ref())
+        .name(name.as_ref())
+        .desc(desc.as_ref())
         .build()?;
 
     let _ = sqlx::query_with(&sql, args)
@@ -64,14 +56,7 @@ pub(crate) async fn create_workspace(
         .await
         .context("Failed to commit SQL transaction to create workspace.")?;
 
-    let workspace = Workspace {
-        id: uuid.to_string(),
-        name: name.as_ref().to_owned(),
-        desc: desc.as_ref().to_owned(),
-        apps: RepeatedApp::default(),
-    };
-
-    FlowyResponse::success().data(workspace)
+    FlowyResponse::success().pb(workspace)
 }
 
 pub(crate) async fn read_workspace(
@@ -94,9 +79,13 @@ pub(crate) async fn read_workspace(
         .await
         .map_err(map_sqlx_error)?;
 
-    let mut apps = RepeatedApp { items: vec![] };
+    let mut repeated_app = RepeatedApp::default();
     if params.read_apps {
-        apps.items = read_apps_belong_to_workspace(&mut transaction, &table.id.to_string()).await?;
+        repeated_app.set_items(
+            read_apps_belong_to_workspace(&mut transaction, &table.id.to_string())
+                .await?
+                .into(),
+        );
     }
 
     transaction
@@ -104,10 +93,8 @@ pub(crate) async fn read_workspace(
         .await
         .context("Failed to commit SQL transaction to read workspace.")?;
 
-    let mut workspace = Workspace::new(table.id.to_string(), table.name, table.description);
-    workspace.apps = apps;
-
-    FlowyResponse::success().data(workspace)
+    let workspace = make_workspace_from_table(table, Some(repeated_app));
+    FlowyResponse::success().pb(workspace)
 }
 
 pub(crate) async fn update_workspace(
@@ -186,8 +173,38 @@ pub(crate) async fn delete_workspace(
     Ok(FlowyResponse::success())
 }
 
-fn check_workspace_id(id: String) -> Result<Uuid, ServerError> {
-    let workspace_id = WorkspaceId::parse(id).map_err(invalid_params)?;
-    let workspace_id = Uuid::parse_str(workspace_id.as_ref())?;
-    Ok(workspace_id)
+pub async fn read_workspace_list(
+    pool: &PgPool,
+    user_id: &str,
+) -> Result<FlowyResponse, ServerError> {
+    let mut transaction = pool
+        .begin()
+        .await
+        .context("Failed to acquire a Postgres connection to delete workspace")?;
+
+    let (sql, args) = SqlBuilder::select("workspace_table")
+        .add_field("*")
+        .and_where_eq("user_id", user_id)
+        .build()?;
+
+    let tables = sqlx::query_as_with::<Postgres, WorkspaceTable, PgArguments>(&sql, args)
+        .fetch_all(&mut transaction)
+        .await
+        .map_err(map_sqlx_error)?;
+
+    transaction
+        .commit()
+        .await
+        .context("Failed to commit SQL transaction to delete workspace.")?;
+
+    let mut workspace = RepeatedWorkspace::default();
+    workspace.set_items(
+        tables
+            .into_iter()
+            .map(|table| make_workspace_from_table(table, None))
+            .collect::<Vec<Workspace>>()
+            .into(),
+    );
+
+    FlowyResponse::success().pb(workspace)
 }

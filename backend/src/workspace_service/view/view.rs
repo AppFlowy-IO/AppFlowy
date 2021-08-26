@@ -1,6 +1,7 @@
 use crate::{
     entities::workspace::ViewTable,
-    sqlx_ext::{map_sqlx_error, SqlBuilder},
+    sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
+    workspace_service::view::{check_view_id, make_view_from_table, Builder},
 };
 use anyhow::Context;
 use chrono::Utc;
@@ -11,13 +12,9 @@ use flowy_net::{
 use flowy_workspace::{
     entities::{
         app::parser::AppId,
-        view::{
-            parser::{ViewDesc, ViewId, ViewName, ViewThumbnail},
-            RepeatedView,
-            View,
-        },
+        view::parser::{ViewDesc, ViewId, ViewName, ViewThumbnail},
     },
-    protobuf::{CreateViewParams, QueryViewParams, UpdateViewParams},
+    protobuf::{CreateViewParams, QueryViewParams, RepeatedView, UpdateViewParams, View},
 };
 use protobuf::ProtobufEnum;
 use sqlx::{postgres::PgArguments, PgPool, Postgres, Transaction};
@@ -37,18 +34,11 @@ pub(crate) async fn create_view(
         .await
         .context("Failed to acquire a Postgres connection to create view")?;
 
-    let uuid = uuid::Uuid::new_v4();
-    let time = Utc::now();
-
-    let (sql, args) = SqlBuilder::create("view_table")
-        .add_arg("id", uuid)
-        .add_arg("belong_to_id", belong_to_id.as_ref())
-        .add_arg("name", name.as_ref())
-        .add_arg("description", desc.as_ref())
-        .add_arg("modified_time", &time)
-        .add_arg("create_time", &time)
-        .add_arg("thumbnail", thumbnail.as_ref())
-        .add_arg("view_type", params.view_type.value())
+    let (sql, args, view) = Builder::new(belong_to_id.as_ref())
+        .name(name.as_ref())
+        .desc(desc.as_ref())
+        .thumbnail(thumbnail.as_ref())
+        .view_type(params.view_type)
         .build()?;
 
     let _ = sqlx::query_with(&sql, args)
@@ -61,17 +51,7 @@ pub(crate) async fn create_view(
         .await
         .context("Failed to commit SQL transaction to create view.")?;
 
-    let view = View {
-        id: uuid.to_string(),
-        belong_to_id: belong_to_id.as_ref().to_owned(),
-        name: name.as_ref().to_owned(),
-        desc: desc.as_ref().to_owned(),
-        view_type: params.view_type.value().into(),
-        version: 0,
-        belongings: RepeatedView::default(),
-    };
-
-    FlowyResponse::success().data(view)
+    FlowyResponse::success().pb(view)
 }
 
 pub(crate) async fn read_view(
@@ -96,7 +76,11 @@ pub(crate) async fn read_view(
 
     let mut views = RepeatedView::default();
     if params.read_belongings {
-        views.items = read_views_belong_to_id(&mut transaction, &table.id.to_string()).await?;
+        views.set_items(
+            read_views_belong_to_id(&mut transaction, &table.id.to_string())
+                .await?
+                .into(),
+        )
     }
 
     transaction
@@ -104,10 +88,9 @@ pub(crate) async fn read_view(
         .await
         .context("Failed to commit SQL transaction to read view.")?;
 
-    let mut view: View = table.into();
-    view.belongings = views;
+    let view = make_view_from_table(table, views);
 
-    FlowyResponse::success().data(view)
+    FlowyResponse::success().pb(view)
 }
 
 pub(crate) async fn update_view(
@@ -199,13 +182,14 @@ pub(crate) async fn delete_view(
 
 // transaction must be commit from caller
 pub(crate) async fn read_views_belong_to_id<'c>(
-    transaction: &mut Transaction<'c, Postgres>,
+    transaction: &mut DBTransaction<'_>,
     id: &str,
 ) -> Result<Vec<View>, ServerError> {
     // TODO: add index for app_table
     let (sql, args) = SqlBuilder::select("view_table")
         .add_field("*")
         .and_where_eq("belong_to_id", id)
+        .and_where_eq("is_trash", false)
         .build()?;
 
     let tables = sqlx::query_as_with::<Postgres, ViewTable, PgArguments>(&sql, args)
@@ -215,14 +199,8 @@ pub(crate) async fn read_views_belong_to_id<'c>(
 
     let views = tables
         .into_iter()
-        .map(|table| table.into())
+        .map(|table| make_view_from_table(table, RepeatedView::default()))
         .collect::<Vec<View>>();
 
     Ok(views)
-}
-
-fn check_view_id(id: String) -> Result<Uuid, ServerError> {
-    let view_id = ViewId::parse(id).map_err(invalid_params)?;
-    let view_id = Uuid::parse_str(view_id.as_ref())?;
-    Ok(view_id)
 }

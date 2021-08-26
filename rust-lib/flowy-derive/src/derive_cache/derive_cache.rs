@@ -35,7 +35,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "CreateWorkspaceRequest"
         | "CreateWorkspaceParams"
         | "Workspace"
-        | "Workspaces"
+        | "RepeatedWorkspace"
         | "QueryWorkspaceRequest"
         | "QueryWorkspaceParams"
         | "CurrentWorkspace"

@@ -78,9 +78,9 @@ impl Workspace {
 }
 
 #[derive(PartialEq, Debug, Default, ProtoBuf)]
-pub struct Workspaces {
+pub struct RepeatedWorkspace {
     #[pb(index = 1)]
     pub items: Vec<Workspace>,
 }
 
-impl_def_and_def_mut!(Workspaces, Workspace);
+impl_def_and_def_mut!(RepeatedWorkspace, Workspace);
