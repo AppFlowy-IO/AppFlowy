@@ -2,7 +2,6 @@ use crate::ws_service::WSServer;
 use actix::Addr;
 
 use sqlx::PgPool;
-use std::sync::Arc;
 
 pub struct AppContext {
     pub ws_server: Addr<WSServer>,

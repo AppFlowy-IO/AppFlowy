@@ -4,7 +4,7 @@ use crate::{
 };
 use chrono::{Duration, Local};
 use derive_more::{From, Into};
-use flowy_net::errors::{ErrorCode, ServerError};
+use flowy_net::errors::ServerError;
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 

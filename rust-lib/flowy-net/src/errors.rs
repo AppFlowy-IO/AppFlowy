@@ -4,7 +4,6 @@ use serde_repr::*;
 use std::{fmt, fmt::Debug};
 
 use crate::response::FlowyResponse;
-use uuid::Error;
 
 #[derive(thiserror::Error, Debug, Serialize, Deserialize, Clone)]
 pub struct ServerError {

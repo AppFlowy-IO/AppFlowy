@@ -14,8 +14,7 @@ use flowy_user::{
     prelude::parser::{UserEmail, UserPassword},
     protobuf::{SignInParams, SignUpParams},
 };
-use sqlx::{Error, PgPool, Postgres, Transaction};
-use std::sync::Arc;
+use sqlx::{PgPool, Postgres, Transaction};
 
 pub async fn sign_in(
     pool: &PgPool,

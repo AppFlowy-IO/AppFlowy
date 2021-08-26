@@ -2,7 +2,7 @@ use backend::{
     application::{get_connection_pool, Application},
     config::{get_configuration, DatabaseSettings},
 };
-use flowy_net::request::HttpRequestBuilder;
+
 use flowy_user::prelude::*;
 use flowy_workspace::prelude::*;
 use sqlx::{Connection, Executor, PgConnection, PgPool};

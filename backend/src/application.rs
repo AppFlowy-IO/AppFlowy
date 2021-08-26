@@ -1,7 +1,6 @@
 use crate::{
     config::{
         env::{domain, secret, use_https},
-        get_configuration,
         DatabaseSettings,
         Settings,
     },
@@ -16,7 +15,7 @@ use actix::Actor;
 use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_web::{dev::Server, middleware, web, web::Data, App, HttpServer, Scope};
 use sqlx::{postgres::PgPoolOptions, PgPool};
-use std::{net::TcpListener, sync::Arc};
+use std::net::TcpListener;
 
 pub struct Application {
     port: u16,

@@ -1,5 +1,5 @@
 use crate::helper::{spawn_app, TestApp};
-use flowy_user::entities::{SignInParams, SignInResponse, SignUpParams, SignUpResponse};
+use flowy_user::entities::{SignInParams, SignUpParams, SignUpResponse};
 
 #[actix_rt::test]
 async fn user_register() {

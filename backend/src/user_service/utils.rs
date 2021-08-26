@@ -1,6 +1,5 @@
-use bcrypt::{hash, verify, BcryptError, DEFAULT_COST};
+use bcrypt::{hash, verify, DEFAULT_COST};
 use flowy_net::errors::{ErrorCode, ServerError};
-use jsonwebtoken::Algorithm;
 
 pub fn uuid() -> String { uuid::Uuid::new_v4().to_string() }
 

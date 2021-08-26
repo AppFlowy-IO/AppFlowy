@@ -1,7 +1,4 @@
-use crate::{
-    errors::{ErrorCode, ServerError},
-    response::FlowyResponse,
-};
+use crate::{errors::ServerError, response::FlowyResponse};
 use bytes::Bytes;
 use hyper::http;
 use protobuf::ProtobufError;

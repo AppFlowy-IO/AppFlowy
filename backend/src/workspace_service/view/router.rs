@@ -2,11 +2,9 @@ use crate::{
     routers::utils::parse_from_payload,
     workspace_service::view::{create_view, delete_view, read_view, update_view},
 };
-use actix_identity::Identity;
+
 use actix_web::{
     web::{Data, Payload},
-    Error,
-    HttpRequest,
     HttpResponse,
 };
 use flowy_net::errors::ServerError;

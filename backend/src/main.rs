@@ -1,5 +1,4 @@
 use backend::{application::Application, config::get_configuration};
-use std::net::TcpListener;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

@@ -2,7 +2,6 @@ use crate::{
     entities::{app::parser::AppId, view::parser::*},
     errors::{ErrorBuilder, WorkspaceError, WsErrCode},
     impl_def_and_def_mut,
-    sql_tables::view::ViewTableType,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use std::convert::TryInto;

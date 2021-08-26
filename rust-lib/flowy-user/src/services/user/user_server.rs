@@ -3,11 +3,7 @@ use crate::{
     errors::{ErrorBuilder, UserErrCode, UserError},
 };
 
-use flowy_net::{
-    config::*,
-    future::ResultFuture,
-    request::{http_post, HttpRequestBuilder},
-};
+use flowy_net::{config::*, future::ResultFuture, request::HttpRequestBuilder};
 use std::sync::Arc;
 
 pub trait UserServer {

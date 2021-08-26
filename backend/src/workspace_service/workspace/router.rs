@@ -10,8 +10,6 @@ use crate::{
 use actix_identity::Identity;
 use actix_web::{
     web::{Data, Payload},
-    Error,
-    HttpRequest,
     HttpResponse,
 };
 use flowy_net::errors::ServerError;
@@ -52,7 +50,7 @@ pub async fn delete_handler(
 
 pub async fn update_handler(
     payload: Payload,
-    id: Identity,
+    _id: Identity,
     pool: Data<PgPool>,
 ) -> Result<HttpResponse, ServerError> {
     let params: UpdateWorkspaceParams = parse_from_payload(payload).await?;

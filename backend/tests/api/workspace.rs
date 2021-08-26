@@ -32,6 +32,23 @@ async fn workspace_read() {
 }
 
 #[actix_rt::test]
+async fn workspace_read_with_belongs() {
+    let application = spawn_app().await;
+    let (workspace, user_id) = create_test_workspace(&application).await;
+    let _ = create_test_app(&application, &workspace.id, &user_id).await;
+    let _ = create_test_app(&application, &workspace.id, &user_id).await;
+    let _ = create_test_app(&application, &workspace.id, &user_id).await;
+
+    let read_params = QueryWorkspaceParams {
+        workspace_id: workspace.id.clone(),
+        read_apps: true,
+    };
+
+    let workspace = application.read_workspace(read_params).await.unwrap();
+    assert_eq!(workspace.apps.len(), 3);
+}
+
+#[actix_rt::test]
 async fn workspace_update() {
     let app = spawn_app().await;
     let (workspace_1, _) = create_test_workspace(&app).await;
@@ -81,14 +98,16 @@ async fn create_test_workspace(app: &TestApp) -> (Workspace, String) {
 #[actix_rt::test]
 async fn app_create() {
     let application = spawn_app().await;
-    let app = create_test_app(&application).await;
+    let (workspace, user_id) = create_test_workspace(&application).await;
+    let app = create_test_app(&application, &workspace.id, &user_id).await;
     log::info!("{:?}", app);
 }
 
 #[actix_rt::test]
 async fn app_read() {
     let application = spawn_app().await;
-    let app = create_test_app(&application).await;
+    let (workspace, user_id) = create_test_workspace(&application).await;
+    let app = create_test_app(&application, &workspace.id, &user_id).await;
 
     let read_params = QueryAppParams {
         app_id: app.id,
@@ -100,9 +119,29 @@ async fn app_read() {
 }
 
 #[actix_rt::test]
+async fn app_read_with_belongs() {
+    let application = spawn_app().await;
+    let (workspace, user_id) = create_test_workspace(&application).await;
+    let app = create_test_app(&application, &workspace.id, &user_id).await;
+
+    let _ = create_test_view(&application, &app.id).await;
+    let _ = create_test_view(&application, &app.id).await;
+
+    let read_params = QueryAppParams {
+        app_id: app.id,
+        read_belongings: true,
+        is_trash: false,
+    };
+
+    let app = application.read_app(read_params).await.unwrap();
+    assert_eq!(app.belongings.len(), 2);
+}
+
+#[actix_rt::test]
 async fn app_update() {
     let application = spawn_app().await;
-    let app = create_test_app(&application).await;
+    let (workspace, user_id) = create_test_workspace(&application).await;
+    let app = create_test_app(&application, &workspace.id, &user_id).await;
 
     let update_params = UpdateAppParams {
         app_id: app.id.clone(),
@@ -127,7 +166,8 @@ async fn app_update() {
 #[actix_rt::test]
 async fn app_delete() {
     let application = spawn_app().await;
-    let app = create_test_app(&application).await;
+    let (workspace, user_id) = create_test_workspace(&application).await;
+    let app = create_test_app(&application, &workspace.id, &user_id).await;
 
     let delete_params = DeleteAppParams {
         app_id: app.id.clone(),
@@ -143,15 +183,13 @@ async fn app_delete() {
     assert_eq!(application.read_app(read_params).await.is_none(), true);
 }
 
-async fn create_test_app(app: &TestApp) -> App {
-    let (workspace, user_id) = create_test_workspace(&app).await;
-
+async fn create_test_app(app: &TestApp, workspace_id: &str, user_id: &str) -> App {
     let params = CreateAppParams {
-        workspace_id: workspace.id,
+        workspace_id: workspace_id.to_owned(),
         name: "My first app".to_string(),
         desc: "This is my first app".to_string(),
         color_style: ColorStyle::default(),
-        user_id,
+        user_id: user_id.to_string(),
     };
 
     let app = app.create_app(params).await;
@@ -161,14 +199,19 @@ async fn create_test_app(app: &TestApp) -> App {
 #[actix_rt::test]
 async fn view_create() {
     let application = spawn_app().await;
-    let view = create_test_view(&application).await;
+    let (workspace, user_id) = create_test_workspace(&application).await;
+    let app = create_test_app(&application, &workspace.id, &user_id).await;
+
+    let view = create_test_view(&application, &app.id).await;
     log::info!("{:?}", view);
 }
 
 #[actix_rt::test]
 async fn view_update() {
     let application = spawn_app().await;
-    let view = create_test_view(&application).await;
+    let (workspace, user_id) = create_test_workspace(&application).await;
+    let app = create_test_app(&application, &workspace.id, &user_id).await;
+    let view = create_test_view(&application, &app.id).await;
 
     // update
     let update_params = UpdateViewParams {
@@ -193,7 +236,9 @@ async fn view_update() {
 #[actix_rt::test]
 async fn view_delete() {
     let application = spawn_app().await;
-    let view = create_test_view(&application).await;
+    let (workspace, user_id) = create_test_workspace(&application).await;
+    let app = create_test_app(&application, &workspace.id, &user_id).await;
+    let view = create_test_view(&application, &app.id).await;
 
     // delete
     let delete_params = DeleteViewParams {
@@ -210,10 +255,9 @@ async fn view_delete() {
     assert_eq!(application.read_view(read_params).await.is_none(), true);
 }
 
-async fn create_test_view(application: &TestApp) -> View {
-    let app = create_test_app(&application).await;
+async fn create_test_view(application: &TestApp, app_id: &str) -> View {
     let params = CreateViewParams {
-        belong_to_id: app.id.clone(),
+        belong_to_id: app_id.to_string(),
         name: "My first view".to_string(),
         desc: "This is my first view".to_string(),
         thumbnail: "http://1.png".to_string(),

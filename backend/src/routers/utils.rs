@@ -1,9 +1,6 @@
 use crate::config::MAX_PAYLOAD_SIZE;
 use actix_web::web;
-use flowy_net::{
-    errors::{ErrorCode, ServerError},
-    response::*,
-};
+use flowy_net::errors::{ErrorCode, ServerError};
 use futures::StreamExt;
 use protobuf::{Message, ProtobufResult};
 

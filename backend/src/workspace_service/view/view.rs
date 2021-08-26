@@ -15,13 +15,12 @@ use flowy_workspace::{
             parser::{ViewDesc, ViewId, ViewName, ViewThumbnail},
             RepeatedView,
             View,
-            ViewType,
         },
     },
     protobuf::{CreateViewParams, QueryViewParams, UpdateViewParams},
 };
 use protobuf::ProtobufEnum;
-use sqlx::{postgres::PgArguments, PgPool, Postgres};
+use sqlx::{postgres::PgArguments, PgPool, Postgres, Transaction};
 use uuid::Uuid;
 
 pub(crate) async fn create_view(
@@ -62,12 +61,6 @@ pub(crate) async fn create_view(
         .await
         .context("Failed to commit SQL transaction to create view.")?;
 
-    // a little confused here, different type with the same name in different crate
-    // let view_type = match params.view_type {
-    //     flowy_workspace::protobuf::ViewType::Blank => ViewType::Doc,
-    //     flowy_workspace::protobuf::ViewType::Doc => ViewType::Doc,
-    // };
-
     let view = View {
         id: uuid.to_string(),
         belong_to_id: belong_to_id.as_ref().to_owned(),
@@ -101,24 +94,19 @@ pub(crate) async fn read_view(
         .await
         .map_err(map_sqlx_error)?;
 
+    let mut views = RepeatedView::default();
+    if params.read_belongings {
+        views.items = read_views_belong_to_id(&mut transaction, &table.id.to_string()).await?;
+    }
+
     transaction
         .commit()
         .await
         .context("Failed to commit SQL transaction to read view.")?;
 
-    let view = View {
-        id: table.id.to_string(),
-        belong_to_id: table.belong_to_id,
-        name: table.name,
-        desc: table.description,
-        view_type: ViewType::from(table.view_type),
-        version: 0,
-        belongings: RepeatedView::default(),
-    };
+    let mut view: View = table.into();
+    view.belongings = views;
 
-    if params.read_belongings {
-        // TODO: read belongings
-    }
     FlowyResponse::success().data(view)
 }
 
@@ -127,20 +115,6 @@ pub(crate) async fn update_view(
     params: UpdateViewParams,
 ) -> Result<FlowyResponse, ServerError> {
     let view_id = check_view_id(params.view_id.clone())?;
-    // #[pb(index = 1)]
-    // pub view_id: String,
-    //
-    // #[pb(index = 2, one_of)]
-    // pub name: Option<String>,
-    //
-    // #[pb(index = 3, one_of)]
-    // pub desc: Option<String>,
-    //
-    // #[pb(index = 4, one_of)]
-    // pub thumbnail: Option<String>,
-    //
-    // #[pb(index = 5, one_of)]
-    // pub is_trash: Option<bool>,
 
     let name = match params.has_name() {
         false => None,
@@ -221,6 +195,30 @@ pub(crate) async fn delete_view(
         .context("Failed to commit SQL transaction to delete view.")?;
 
     Ok(FlowyResponse::success())
+}
+
+// transaction must be commit from caller
+pub(crate) async fn read_views_belong_to_id<'c>(
+    transaction: &mut Transaction<'c, Postgres>,
+    id: &str,
+) -> Result<Vec<View>, ServerError> {
+    // TODO: add index for app_table
+    let (sql, args) = SqlBuilder::select("view_table")
+        .add_field("*")
+        .and_where_eq("belong_to_id", id)
+        .build()?;
+
+    let tables = sqlx::query_as_with::<Postgres, ViewTable, PgArguments>(&sql, args)
+        .fetch_all(transaction)
+        .await
+        .map_err(map_sqlx_error)?;
+
+    let views = tables
+        .into_iter()
+        .map(|table| table.into())
+        .collect::<Vec<View>>();
+
+    Ok(views)
 }
 
 fn check_view_id(id: String) -> Result<Uuid, ServerError> {

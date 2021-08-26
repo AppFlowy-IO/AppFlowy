@@ -11,7 +11,6 @@ use actix::{
     fut,
     Actor,
     ActorContext,
-    ActorFuture,
     ActorFutureExt,
     Addr,
     AsyncContext,

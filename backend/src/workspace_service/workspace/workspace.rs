@@ -1,4 +1,8 @@
-use crate::{entities::workspace::WorkspaceTable, sqlx_ext::*};
+use crate::{
+    entities::workspace::WorkspaceTable,
+    sqlx_ext::*,
+    workspace_service::app::app::read_apps_belong_to_workspace,
+};
 use anyhow::Context;
 use chrono::Utc;
 use flowy_net::{
@@ -21,7 +25,7 @@ use flowy_workspace::{
         UpdateWorkspaceParams,
     },
 };
-use sqlx::{postgres::PgArguments, Arguments, PgPool, Postgres};
+use sqlx::{postgres::PgArguments, PgPool, Postgres, Transaction};
 use uuid::Uuid;
 
 pub(crate) async fn create_workspace(
@@ -90,15 +94,18 @@ pub(crate) async fn read_workspace(
         .await
         .map_err(map_sqlx_error)?;
 
+    let mut apps = RepeatedApp { items: vec![] };
+    if params.read_apps {
+        apps.items = read_apps_belong_to_workspace(&mut transaction, &table.id.to_string()).await?;
+    }
+
     transaction
         .commit()
         .await
         .context("Failed to commit SQL transaction to read workspace.")?;
 
     let mut workspace = Workspace::new(table.id.to_string(), table.name, table.description);
-    if params.get_read_apps() {
-        workspace.apps = RepeatedApp { items: vec![] }
-    }
+    workspace.apps = apps;
 
     FlowyResponse::success().data(workspace)
 }

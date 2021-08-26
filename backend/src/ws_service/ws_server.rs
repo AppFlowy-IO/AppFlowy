@@ -46,7 +46,7 @@ impl Handler<Disconnect> for WSServer {
 impl Handler<ClientMessage> for WSServer {
     type Result = ();
 
-    fn handle(&mut self, msg: ClientMessage, _ctx: &mut Context<Self>) -> Self::Result {}
+    fn handle(&mut self, _msg: ClientMessage, _ctx: &mut Context<Self>) -> Self::Result {}
 }
 
 impl actix::Supervised for WSServer {
