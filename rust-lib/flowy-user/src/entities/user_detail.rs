@@ -24,9 +24,6 @@ pub struct UserDetail {
 
     #[pb(index = 4)]
     pub status: UserStatus,
-
-    #[pb(index = 5)]
-    pub workspace: String,
 }
 
 use crate::sql_tables::UserTable;
@@ -37,7 +34,6 @@ impl std::convert::From<UserTable> for UserDetail {
             email: user.email,
             name: user.name,
             status: UserStatus::Login,
-            workspace: user.workspace,
         }
     }
 }

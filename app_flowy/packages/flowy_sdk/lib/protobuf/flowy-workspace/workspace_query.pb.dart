@@ -9,24 +9,34 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
+enum QueryWorkspaceRequest_OneOfWorkspaceId {
+  workspaceId, 
+  notSet
+}
+
 class QueryWorkspaceRequest extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, QueryWorkspaceRequest_OneOfWorkspaceId> _QueryWorkspaceRequest_OneOfWorkspaceIdByTag = {
+    1 : QueryWorkspaceRequest_OneOfWorkspaceId.workspaceId,
+    0 : QueryWorkspaceRequest_OneOfWorkspaceId.notSet
+  };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'QueryWorkspaceRequest', createEmptyInstance: create)
+    ..oo(0, [1])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspaceId')
-    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'readApps')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'userId')
     ..hasRequiredFields = false
   ;
 
   QueryWorkspaceRequest._() : super();
   factory QueryWorkspaceRequest({
     $core.String? workspaceId,
-    $core.bool? readApps,
+    $core.String? userId,
   }) {
     final _result = create();
     if (workspaceId != null) {
       _result.workspaceId = workspaceId;
     }
-    if (readApps != null) {
-      _result.readApps = readApps;
+    if (userId != null) {
+      _result.userId = userId;
     }
     return _result;
   }
@@ -51,6 +61,9 @@ class QueryWorkspaceRequest extends $pb.GeneratedMessage {
   static QueryWorkspaceRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<QueryWorkspaceRequest>(create);
   static QueryWorkspaceRequest? _defaultInstance;
 
+  QueryWorkspaceRequest_OneOfWorkspaceId whichOneOfWorkspaceId() => _QueryWorkspaceRequest_OneOfWorkspaceIdByTag[$_whichOneof(0)]!;
+  void clearOneOfWorkspaceId() => clearField($_whichOneof(0));
+
   @$pb.TagNumber(1)
   $core.String get workspaceId => $_getSZ(0);
   @$pb.TagNumber(1)
@@ -61,33 +74,43 @@ class QueryWorkspaceRequest extends $pb.GeneratedMessage {
   void clearWorkspaceId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.bool get readApps => $_getBF(1);
+  $core.String get userId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set readApps($core.bool v) { $_setBool(1, v); }
+  set userId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasReadApps() => $_has(1);
+  $core.bool hasUserId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearReadApps() => clearField(2);
+  void clearUserId() => clearField(2);
+}
+
+enum QueryWorkspaceParams_OneOfWorkspaceId {
+  workspaceId, 
+  notSet
 }
 
 class QueryWorkspaceParams extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, QueryWorkspaceParams_OneOfWorkspaceId> _QueryWorkspaceParams_OneOfWorkspaceIdByTag = {
+    1 : QueryWorkspaceParams_OneOfWorkspaceId.workspaceId,
+    0 : QueryWorkspaceParams_OneOfWorkspaceId.notSet
+  };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'QueryWorkspaceParams', createEmptyInstance: create)
+    ..oo(0, [1])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspaceId')
-    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'readApps')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'userId')
     ..hasRequiredFields = false
   ;
 
   QueryWorkspaceParams._() : super();
   factory QueryWorkspaceParams({
     $core.String? workspaceId,
-    $core.bool? readApps,
+    $core.String? userId,
   }) {
     final _result = create();
     if (workspaceId != null) {
       _result.workspaceId = workspaceId;
     }
-    if (readApps != null) {
-      _result.readApps = readApps;
+    if (userId != null) {
+      _result.userId = userId;
     }
     return _result;
   }
@@ -112,6 +135,9 @@ class QueryWorkspaceParams extends $pb.GeneratedMessage {
   static QueryWorkspaceParams getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<QueryWorkspaceParams>(create);
   static QueryWorkspaceParams? _defaultInstance;
 
+  QueryWorkspaceParams_OneOfWorkspaceId whichOneOfWorkspaceId() => _QueryWorkspaceParams_OneOfWorkspaceIdByTag[$_whichOneof(0)]!;
+  void clearOneOfWorkspaceId() => clearField($_whichOneof(0));
+
   @$pb.TagNumber(1)
   $core.String get workspaceId => $_getSZ(0);
   @$pb.TagNumber(1)
@@ -122,12 +148,12 @@ class QueryWorkspaceParams extends $pb.GeneratedMessage {
   void clearWorkspaceId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.bool get readApps => $_getBF(1);
+  $core.String get userId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set readApps($core.bool v) { $_setBool(1, v); }
+  set userId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasReadApps() => $_has(1);
+  $core.bool hasUserId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearReadApps() => clearField(2);
+  void clearUserId() => clearField(2);
 }
 

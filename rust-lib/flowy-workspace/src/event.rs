@@ -21,8 +21,12 @@ pub enum WorkspaceEvent {
     DeleteWorkspace  = 3,
 
     #[display(fmt = "ReadAllWorkspace")]
-    #[event(output = "Workspaces")]
+    #[event(output = "RepeatedWorkspace")]
     ReadAllWorkspace = 4,
+
+    #[display(fmt = "OpenWorkspace")]
+    #[event(input = "QueryWorkspaceRequest", output = "Workspace")]
+    OpenWorkspace    = 5,
 
     #[display(fmt = "CreateApp")]
     #[event(input = "CreateAppRequest", output = "App")]

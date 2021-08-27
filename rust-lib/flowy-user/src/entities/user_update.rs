@@ -17,9 +17,6 @@ pub struct UpdateUserRequest {
     pub email: Option<String>,
 
     #[pb(index = 4, one_of)]
-    pub workspace: Option<String>,
-
-    #[pb(index = 5, one_of)]
     pub password: Option<String>,
 }
 
@@ -41,11 +38,6 @@ impl UpdateUserRequest {
         self
     }
 
-    pub fn workspace(mut self, workspace: &str) -> Self {
-        self.workspace = Some(workspace.to_owned());
-        self
-    }
-
     pub fn password(mut self, password: &str) -> Self {
         self.password = Some(password.to_owned());
         self
@@ -64,9 +56,6 @@ pub struct UpdateUserParams {
     pub email: Option<String>,
 
     #[pb(index = 4, one_of)]
-    pub workspace: Option<String>,
-
-    #[pb(index = 5, one_of)]
     pub password: Option<String>,
 }
 
@@ -96,19 +85,6 @@ impl TryInto<UpdateUserParams> for UpdateUserRequest {
             ),
         };
 
-        let workspace = match self.workspace {
-            None => None,
-            Some(workspace) => Some(
-                UserWorkspace::parse(workspace)
-                    .map_err(|e| {
-                        ErrorBuilder::new(UserErrCode::UserWorkspaceInvalid)
-                            .msg(e)
-                            .build()
-                    })?
-                    .0,
-            ),
-        };
-
         let password = match self.password {
             None => None,
             Some(password) => Some(
@@ -122,7 +98,6 @@ impl TryInto<UpdateUserParams> for UpdateUserRequest {
             id,
             name,
             email,
-            workspace,
             password,
         })
     }

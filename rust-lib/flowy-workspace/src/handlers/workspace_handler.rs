@@ -29,16 +29,24 @@ pub async fn read_cur_workspace(
 pub async fn read_workspace(
     data: Data<QueryWorkspaceRequest>,
     controller: Unit<Arc<WorkspaceController>>,
-) -> DataResult<Workspace, WorkspaceError> {
+) -> DataResult<RepeatedWorkspace, WorkspaceError> {
     let params: QueryWorkspaceParams = data.into_inner().try_into()?;
-    let mut workspace = controller.read_workspace(&params.workspace_id).await?;
 
-    if params.read_apps {
-        let apps = controller.read_apps(&params.workspace_id).await?;
-        workspace.apps = RepeatedApp { items: apps };
-    }
+    let workspaces = controller.read_workspaces(params.workspace_id).await?;
 
-    data_result(workspace)
+    data_result(workspaces)
+}
+
+#[tracing::instrument(name = "open_workspace", skip(data, controller))]
+pub async fn open_workspace(
+    data: Data<QueryWorkspaceRequest>,
+    controller: Unit<Arc<WorkspaceController>>,
+) -> DataResult<RepeatedWorkspace, WorkspaceError> {
+    let params: QueryWorkspaceParams = data.into_inner().try_into()?;
+
+    let workspaces = controller.open_workspace(params.workspace_id).await?;
+
+    data_result(workspaces)
 }
 
 #[tracing::instrument(name = "get_all_workspaces", skip(controller))]

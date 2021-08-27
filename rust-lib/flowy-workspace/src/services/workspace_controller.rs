@@ -64,7 +64,20 @@ impl WorkspaceController {
 
     pub async fn read_cur_workspace(&self) -> Result<Workspace, WorkspaceError> {
         let user_workspace = self.user.get_cur_workspace().await?;
-        let workspace = self.read_workspace(&user_workspace.workspace_id).await?;
+        let mut repeated_workspace = self
+            .read_workspaces(Some(user_workspace.workspace_id.clone()))
+            .await?;
+
+        if repeated_workspace.is_empty() {
+            return Err(ErrorBuilder::new(WsErrCode::RecordNotFound).build());
+        }
+
+        debug_assert_eq!(repeated_workspace.len(), 1);
+        let workspace = repeated_workspace
+            .drain(..1)
+            .collect::<Vec<Workspace>>()
+            .pop()
+            .unwrap();
         Ok(workspace)
     }
 
@@ -74,9 +87,31 @@ impl WorkspaceController {
         Ok(apps)
     }
 
-    pub async fn read_workspace(&self, workspace_id: &str) -> Result<Workspace, WorkspaceError> {
-        let workspace_table = self.read_workspace_table(workspace_id).await?;
-        Ok(workspace_table.into())
+    pub async fn open_workspace(&self, workspace_id: &str) -> Result<Workspace, WorkspaceError> {
+        let user_id = self.user.user_id()?;
+        let result = self
+            .read_workspace_table(Some(workspace_id.to_owned()), user_id)
+            .await?
+            .first();
+
+        match result {
+            None => Err(ErrorBuilder::new(WsErrCode::RecordNotFound).build()),
+            Some(workspace_table) => {
+                let workspace: Workspace = workspace_table.into();
+                Ok(workspace)
+            },
+        }
+    }
+
+    pub async fn read_workspaces(
+        &self,
+        workspace_id: Option<String>,
+    ) -> Result<RepeatedWorkspace, WorkspaceError> {
+        let user_id = self.user.user_id()?;
+        let workspace_tables = self.read_workspace_table(workspace_id, user_id).await?;
+        let mut workspaces = vec![];
+
+        Ok(RepeatedWorkspace { items: workspaces })
     }
 
     pub async fn read_workspaces_belong_to_user(&self) -> Result<Vec<Workspace>, WorkspaceError> {
@@ -104,13 +139,14 @@ impl WorkspaceController {
 
     fn read_workspace_table(
         &self,
-        workspace_id: &str,
-    ) -> DispatchFuture<Result<WorkspaceTable, WorkspaceError>> {
+        workspace_id: Option<String>,
+        user_id: String,
+    ) -> DispatchFuture<Result<Vec<WorkspaceTable>, WorkspaceError>> {
         let sql = self.sql.clone();
         let workspace_id = workspace_id.to_owned();
         DispatchFuture {
             fut: Box::pin(async move {
-                let workspace = sql.read_workspace(&workspace_id)?;
+                let workspace = sql.read_workspaces(workspace_id, &user_id)?;
                 // TODO: fetch workspace from remote server
                 Ok(workspace)
             }),
@@ -131,26 +167,20 @@ pub async fn create_workspace_request(
     Ok(workspace)
 }
 
-pub async fn read_workspace_request(
+pub async fn read_workspaces_request(
     params: QueryWorkspaceParams,
     url: &str,
-) -> Result<Option<Workspace>, WorkspaceError> {
+) -> Result<RepeatedWorkspace, WorkspaceError> {
     let result = HttpRequestBuilder::get(&url.to_owned())
         .protobuf(params)?
         .send()
         .await?
-        .response::<Workspace>()
+        .response::<RepeatedWorkspace>()
         .await;
 
     match result {
-        Ok(workspace) => Ok(Some(workspace)),
-        Err(e) => {
-            if e.is_not_found() {
-                Ok(None)
-            } else {
-                Err(e.into())
-            }
-        },
+        Ok(repeated_workspace) => Ok(repeated_workspace),
+        Err(e) => Err(e.into()),
     }
 }
 

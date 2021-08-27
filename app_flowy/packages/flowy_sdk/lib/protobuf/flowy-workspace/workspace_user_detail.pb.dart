@@ -11,20 +11,15 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 class CurrentWorkspace extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CurrentWorkspace', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'owner')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspaceId')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspaceId')
     ..hasRequiredFields = false
   ;
 
   CurrentWorkspace._() : super();
   factory CurrentWorkspace({
-    $core.String? owner,
     $core.String? workspaceId,
   }) {
     final _result = create();
-    if (owner != null) {
-      _result.owner = owner;
-    }
     if (workspaceId != null) {
       _result.workspaceId = workspaceId;
     }
@@ -52,21 +47,12 @@ class CurrentWorkspace extends $pb.GeneratedMessage {
   static CurrentWorkspace? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get owner => $_getSZ(0);
+  $core.String get workspaceId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set owner($core.String v) { $_setString(0, v); }
+  set workspaceId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasOwner() => $_has(0);
+  $core.bool hasWorkspaceId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearOwner() => clearField(1);
-
-  @$pb.TagNumber(2)
-  $core.String get workspaceId => $_getSZ(1);
-  @$pb.TagNumber(2)
-  set workspaceId($core.String v) { $_setString(1, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasWorkspaceId() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearWorkspaceId() => clearField(2);
+  void clearWorkspaceId() => clearField(1);
 }
 

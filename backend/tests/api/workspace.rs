@@ -21,9 +21,9 @@ async fn workspace_create() {
 #[actix_rt::test]
 async fn workspace_read() {
     let app = spawn_app().await;
-    let (workspace_1, _) = create_test_workspace(&app).await;
-    let read_params = QueryWorkspaceParams::new(&workspace_1.id);
-    log::info!("{:?}", app.read_workspace(read_params).await.unwrap());
+    let (workspace_1, user_id) = create_test_workspace(&app).await;
+    let read_params = QueryWorkspaceParams::new(&user_id).workspace_id(&workspace_1.id);
+    log::info!("{:?}", app.read_workspace(read_params).await);
 }
 
 #[actix_rt::test]
@@ -34,15 +34,18 @@ async fn workspace_read_with_belongs() {
     let _ = create_test_app(&application, &workspace.id, &user_id).await;
     let _ = create_test_app(&application, &workspace.id, &user_id).await;
 
-    let read_params = QueryWorkspaceParams::new(&workspace.id).read_apps();
-    let workspace = application.read_workspace(read_params).await.unwrap();
+    let read_params = QueryWorkspaceParams::new(&user_id)
+        .workspace_id(&workspace.id)
+        .read_apps();
+    let workspaces = application.read_workspace(read_params).await;
+    let workspace = workspaces.items.first().unwrap();
     assert_eq!(workspace.apps.len(), 3);
 }
 
 #[actix_rt::test]
 async fn workspace_update() {
     let app = spawn_app().await;
-    let (workspace_1, _) = create_test_workspace(&app).await;
+    let (workspace_1, user_id) = create_test_workspace(&app).await;
     let update_params = UpdateWorkspaceParams {
         id: workspace_1.id.clone(),
         name: Some("workspace 2".to_string()),
@@ -50,28 +53,23 @@ async fn workspace_update() {
     };
     app.update_workspace(update_params).await;
 
-    let read_params = QueryWorkspaceParams {
-        workspace_id: workspace_1.id.clone(),
-        read_apps: false,
-    };
-    let workspace_2 = app.read_workspace(read_params).await.unwrap();
+    let read_params = QueryWorkspaceParams::new(&user_id).workspace_id(&workspace_1.id);
+    let workspace_2 = app.read_workspace(read_params).await;
     log::info!("{:?}", workspace_2);
 }
 
 #[actix_rt::test]
 async fn workspace_delete() {
     let app = spawn_app().await;
-    let (workspace, _) = create_test_workspace(&app).await;
+    let (workspace, user_id) = create_test_workspace(&app).await;
     let delete_params = DeleteWorkspaceParams {
         workspace_id: workspace.id.clone(),
     };
 
     let _ = app.delete_workspace(delete_params).await;
-    let read_params = QueryWorkspaceParams {
-        workspace_id: workspace.id.clone(),
-        read_apps: false,
-    };
-    assert_eq!(app.read_workspace(read_params).await.is_none(), true);
+    let read_params = QueryWorkspaceParams::new(&user_id).workspace_id(&workspace.id);
+    let repeated_workspace = app.read_workspace(read_params).await;
+    assert_eq!(repeated_workspace.len(), 0);
 }
 
 async fn create_test_workspace(app: &TestApp) -> (Workspace, String) {
@@ -248,8 +246,7 @@ async fn workspace_list_read() {
         let _ = application.create_workspace(params).await;
     }
 
-    let workspaces = application.read_workspace_list(&response.uid).await;
-    // 3 + 1 (created by default)
+    let read_params = QueryWorkspaceParams::new(&response.uid);
+    let workspaces = application.read_workspace(read_params).await;
     assert_eq!(workspaces.len(), 4);
-    log::info!("{:?}", workspaces);
 }

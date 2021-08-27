@@ -33,10 +33,10 @@ impl TestApp {
         workspace
     }
 
-    pub async fn read_workspace(&self, params: QueryWorkspaceParams) -> Option<Workspace> {
+    pub async fn read_workspace(&self, params: QueryWorkspaceParams) -> RepeatedWorkspace {
         let url = format!("{}/api/workspace", self.address);
-        let workspace = read_workspace_request(params, &url).await.unwrap();
-        workspace
+        let workspaces = read_workspaces_request(params, &url).await.unwrap();
+        workspaces
     }
 
     pub async fn update_workspace(&self, params: UpdateWorkspaceParams) {

@@ -14,13 +14,10 @@ use flowy_net::errors::invalid_params;
 use flowy_user::entities::parser::UserId;
 use flowy_workspace::{
     entities::{
-        app::{
-            parser::{AppDesc, AppId, AppName},
-            RepeatedApp,
-        },
+        app::parser::{AppDesc, AppId, AppName},
         workspace::parser::WorkspaceId,
     },
-    protobuf::{App, CreateAppParams, QueryAppParams, RepeatedView, UpdateAppParams},
+    protobuf::{App, CreateAppParams, QueryAppParams, RepeatedApp, RepeatedView, UpdateAppParams},
 };
 use protobuf::Message;
 use sqlx::{postgres::PgArguments, PgPool, Postgres, Transaction};
@@ -193,7 +190,7 @@ pub(crate) async fn delete_app(pool: &PgPool, app_id: &str) -> Result<FlowyRespo
 pub(crate) async fn read_apps_belong_to_workspace<'c>(
     transaction: &mut DBTransaction<'_>,
     workspace_id: &str,
-) -> Result<Vec<App>, ServerError> {
+) -> Result<RepeatedApp, ServerError> {
     let workspace_id = WorkspaceId::parse(workspace_id.to_owned()).map_err(invalid_params)?;
     let (sql, args) = SqlBuilder::select("app_table")
         .add_field("*")
@@ -210,5 +207,7 @@ pub(crate) async fn read_apps_belong_to_workspace<'c>(
         .map(|table| make_app_from_table(table, RepeatedView::default()))
         .collect::<Vec<App>>();
 
-    Ok(apps)
+    let mut repeated_app = RepeatedApp::default();
+    repeated_app.set_items(apps.into());
+    Ok(repeated_app)
 }

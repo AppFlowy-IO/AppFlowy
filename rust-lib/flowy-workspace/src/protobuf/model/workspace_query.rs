@@ -26,8 +26,9 @@
 #[derive(PartialEq,Clone,Default)]
 pub struct QueryWorkspaceRequest {
     // message fields
-    pub workspace_id: ::std::string::String,
-    pub read_apps: bool,
+    pub user_id: ::std::string::String,
+    // message oneof groups
+    pub one_of_workspace_id: ::std::option::Option<QueryWorkspaceRequest_oneof_one_of_workspace_id>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -39,6 +40,11 @@ impl<'a> ::std::default::Default for &'a QueryWorkspaceRequest {
     }
 }
 
+#[derive(Clone,PartialEq,Debug)]
+pub enum QueryWorkspaceRequest_oneof_one_of_workspace_id {
+    workspace_id(::std::string::String),
+}
+
 impl QueryWorkspaceRequest {
     pub fn new() -> QueryWorkspaceRequest {
         ::std::default::Default::default()
@@ -48,41 +54,75 @@ impl QueryWorkspaceRequest {
 
 
     pub fn get_workspace_id(&self) -> &str {
-        &self.workspace_id
+        match self.one_of_workspace_id {
+            ::std::option::Option::Some(QueryWorkspaceRequest_oneof_one_of_workspace_id::workspace_id(ref v)) => v,
+            _ => "",
+        }
     }
     pub fn clear_workspace_id(&mut self) {
-        self.workspace_id.clear();
+        self.one_of_workspace_id = ::std::option::Option::None;
+    }
+
+    pub fn has_workspace_id(&self) -> bool {
+        match self.one_of_workspace_id {
+            ::std::option::Option::Some(QueryWorkspaceRequest_oneof_one_of_workspace_id::workspace_id(..)) => true,
+            _ => false,
+        }
     }
 
     // Param is passed by value, moved
     pub fn set_workspace_id(&mut self, v: ::std::string::String) {
-        self.workspace_id = v;
+        self.one_of_workspace_id = ::std::option::Option::Some(QueryWorkspaceRequest_oneof_one_of_workspace_id::workspace_id(v))
     }
 
     // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
     pub fn mut_workspace_id(&mut self) -> &mut ::std::string::String {
-        &mut self.workspace_id
+        if let ::std::option::Option::Some(QueryWorkspaceRequest_oneof_one_of_workspace_id::workspace_id(_)) = self.one_of_workspace_id {
+        } else {
+            self.one_of_workspace_id = ::std::option::Option::Some(QueryWorkspaceRequest_oneof_one_of_workspace_id::workspace_id(::std::string::String::new()));
+        }
+        match self.one_of_workspace_id {
+            ::std::option::Option::Some(QueryWorkspaceRequest_oneof_one_of_workspace_id::workspace_id(ref mut v)) => v,
+            _ => panic!(),
+        }
     }
 
     // Take field
     pub fn take_workspace_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.workspace_id, ::std::string::String::new())
+        if self.has_workspace_id() {
+            match self.one_of_workspace_id.take() {
+                ::std::option::Option::Some(QueryWorkspaceRequest_oneof_one_of_workspace_id::workspace_id(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            ::std::string::String::new()
+        }
     }
 
-    // bool read_apps = 2;
+    // string user_id = 2;
 
 
-    pub fn get_read_apps(&self) -> bool {
-        self.read_apps
+    pub fn get_user_id(&self) -> &str {
+        &self.user_id
     }
-    pub fn clear_read_apps(&mut self) {
-        self.read_apps = false;
+    pub fn clear_user_id(&mut self) {
+        self.user_id.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_read_apps(&mut self, v: bool) {
-        self.read_apps = v;
+    pub fn set_user_id(&mut self, v: ::std::string::String) {
+        self.user_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_user_id(&mut self) -> &mut ::std::string::String {
+        &mut self.user_id
+    }
+
+    // Take field
+    pub fn take_user_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.user_id, ::std::string::String::new())
     }
 }
 
@@ -96,14 +136,13 @@ impl ::protobuf::Message for QueryWorkspaceRequest {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.workspace_id)?;
-                },
-                2 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    let tmp = is.read_bool()?;
-                    self.read_apps = tmp;
+                    self.one_of_workspace_id = ::std::option::Option::Some(QueryWorkspaceRequest_oneof_one_of_workspace_id::workspace_id(is.read_string()?));
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.user_id)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -117,11 +156,15 @@ impl ::protobuf::Message for QueryWorkspaceRequest {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.workspace_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.workspace_id);
+        if !self.user_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.user_id);
         }
-        if self.read_apps != false {
-            my_size += 2;
+        if let ::std::option::Option::Some(ref v) = self.one_of_workspace_id {
+            match v {
+                &QueryWorkspaceRequest_oneof_one_of_workspace_id::workspace_id(ref v) => {
+                    my_size += ::protobuf::rt::string_size(1, &v);
+                },
+            };
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -129,11 +172,15 @@ impl ::protobuf::Message for QueryWorkspaceRequest {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.workspace_id.is_empty() {
-            os.write_string(1, &self.workspace_id)?;
+        if !self.user_id.is_empty() {
+            os.write_string(2, &self.user_id)?;
         }
-        if self.read_apps != false {
-            os.write_bool(2, self.read_apps)?;
+        if let ::std::option::Option::Some(ref v) = self.one_of_workspace_id {
+            match v {
+                &QueryWorkspaceRequest_oneof_one_of_workspace_id::workspace_id(ref v) => {
+                    os.write_string(1, v)?;
+                },
+            };
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -173,15 +220,15 @@ impl ::protobuf::Message for QueryWorkspaceRequest {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+            fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
                 "workspace_id",
-                |m: &QueryWorkspaceRequest| { &m.workspace_id },
-                |m: &mut QueryWorkspaceRequest| { &mut m.workspace_id },
+                QueryWorkspaceRequest::has_workspace_id,
+                QueryWorkspaceRequest::get_workspace_id,
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
-                "read_apps",
-                |m: &QueryWorkspaceRequest| { &m.read_apps },
-                |m: &mut QueryWorkspaceRequest| { &mut m.read_apps },
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "user_id",
+                |m: &QueryWorkspaceRequest| { &m.user_id },
+                |m: &mut QueryWorkspaceRequest| { &mut m.user_id },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<QueryWorkspaceRequest>(
                 "QueryWorkspaceRequest",
@@ -199,8 +246,8 @@ impl ::protobuf::Message for QueryWorkspaceRequest {
 
 impl ::protobuf::Clear for QueryWorkspaceRequest {
     fn clear(&mut self) {
-        self.workspace_id.clear();
-        self.read_apps = false;
+        self.one_of_workspace_id = ::std::option::Option::None;
+        self.user_id.clear();
         self.unknown_fields.clear();
     }
 }
@@ -220,8 +267,9 @@ impl ::protobuf::reflect::ProtobufValue for QueryWorkspaceRequest {
 #[derive(PartialEq,Clone,Default)]
 pub struct QueryWorkspaceParams {
     // message fields
-    pub workspace_id: ::std::string::String,
-    pub read_apps: bool,
+    pub user_id: ::std::string::String,
+    // message oneof groups
+    pub one_of_workspace_id: ::std::option::Option<QueryWorkspaceParams_oneof_one_of_workspace_id>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -233,6 +281,11 @@ impl<'a> ::std::default::Default for &'a QueryWorkspaceParams {
     }
 }
 
+#[derive(Clone,PartialEq,Debug)]
+pub enum QueryWorkspaceParams_oneof_one_of_workspace_id {
+    workspace_id(::std::string::String),
+}
+
 impl QueryWorkspaceParams {
     pub fn new() -> QueryWorkspaceParams {
         ::std::default::Default::default()
@@ -242,41 +295,75 @@ impl QueryWorkspaceParams {
 
 
     pub fn get_workspace_id(&self) -> &str {
-        &self.workspace_id
+        match self.one_of_workspace_id {
+            ::std::option::Option::Some(QueryWorkspaceParams_oneof_one_of_workspace_id::workspace_id(ref v)) => v,
+            _ => "",
+        }
     }
     pub fn clear_workspace_id(&mut self) {
-        self.workspace_id.clear();
+        self.one_of_workspace_id = ::std::option::Option::None;
+    }
+
+    pub fn has_workspace_id(&self) -> bool {
+        match self.one_of_workspace_id {
+            ::std::option::Option::Some(QueryWorkspaceParams_oneof_one_of_workspace_id::workspace_id(..)) => true,
+            _ => false,
+        }
     }
 
     // Param is passed by value, moved
     pub fn set_workspace_id(&mut self, v: ::std::string::String) {
-        self.workspace_id = v;
+        self.one_of_workspace_id = ::std::option::Option::Some(QueryWorkspaceParams_oneof_one_of_workspace_id::workspace_id(v))
     }
 
     // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
     pub fn mut_workspace_id(&mut self) -> &mut ::std::string::String {
-        &mut self.workspace_id
+        if let ::std::option::Option::Some(QueryWorkspaceParams_oneof_one_of_workspace_id::workspace_id(_)) = self.one_of_workspace_id {
+        } else {
+            self.one_of_workspace_id = ::std::option::Option::Some(QueryWorkspaceParams_oneof_one_of_workspace_id::workspace_id(::std::string::String::new()));
+        }
+        match self.one_of_workspace_id {
+            ::std::option::Option::Some(QueryWorkspaceParams_oneof_one_of_workspace_id::workspace_id(ref mut v)) => v,
+            _ => panic!(),
+        }
     }
 
     // Take field
     pub fn take_workspace_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.workspace_id, ::std::string::String::new())
+        if self.has_workspace_id() {
+            match self.one_of_workspace_id.take() {
+                ::std::option::Option::Some(QueryWorkspaceParams_oneof_one_of_workspace_id::workspace_id(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            ::std::string::String::new()
+        }
     }
 
-    // bool read_apps = 2;
+    // string user_id = 2;
 
 
-    pub fn get_read_apps(&self) -> bool {
-        self.read_apps
+    pub fn get_user_id(&self) -> &str {
+        &self.user_id
     }
-    pub fn clear_read_apps(&mut self) {
-        self.read_apps = false;
+    pub fn clear_user_id(&mut self) {
+        self.user_id.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_read_apps(&mut self, v: bool) {
-        self.read_apps = v;
+    pub fn set_user_id(&mut self, v: ::std::string::String) {
+        self.user_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_user_id(&mut self) -> &mut ::std::string::String {
+        &mut self.user_id
+    }
+
+    // Take field
+    pub fn take_user_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.user_id, ::std::string::String::new())
     }
 }
 
@@ -290,14 +377,13 @@ impl ::protobuf::Message for QueryWorkspaceParams {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.workspace_id)?;
-                },
-                2 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    let tmp = is.read_bool()?;
-                    self.read_apps = tmp;
+                    self.one_of_workspace_id = ::std::option::Option::Some(QueryWorkspaceParams_oneof_one_of_workspace_id::workspace_id(is.read_string()?));
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.user_id)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -311,11 +397,15 @@ impl ::protobuf::Message for QueryWorkspaceParams {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.workspace_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.workspace_id);
+        if !self.user_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.user_id);
         }
-        if self.read_apps != false {
-            my_size += 2;
+        if let ::std::option::Option::Some(ref v) = self.one_of_workspace_id {
+            match v {
+                &QueryWorkspaceParams_oneof_one_of_workspace_id::workspace_id(ref v) => {
+                    my_size += ::protobuf::rt::string_size(1, &v);
+                },
+            };
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -323,11 +413,15 @@ impl ::protobuf::Message for QueryWorkspaceParams {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.workspace_id.is_empty() {
-            os.write_string(1, &self.workspace_id)?;
+        if !self.user_id.is_empty() {
+            os.write_string(2, &self.user_id)?;
         }
-        if self.read_apps != false {
-            os.write_bool(2, self.read_apps)?;
+        if let ::std::option::Option::Some(ref v) = self.one_of_workspace_id {
+            match v {
+                &QueryWorkspaceParams_oneof_one_of_workspace_id::workspace_id(ref v) => {
+                    os.write_string(1, v)?;
+                },
+            };
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -367,15 +461,15 @@ impl ::protobuf::Message for QueryWorkspaceParams {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+            fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
                 "workspace_id",
-                |m: &QueryWorkspaceParams| { &m.workspace_id },
-                |m: &mut QueryWorkspaceParams| { &mut m.workspace_id },
+                QueryWorkspaceParams::has_workspace_id,
+                QueryWorkspaceParams::get_workspace_id,
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
-                "read_apps",
-                |m: &QueryWorkspaceParams| { &m.read_apps },
-                |m: &mut QueryWorkspaceParams| { &mut m.read_apps },
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "user_id",
+                |m: &QueryWorkspaceParams| { &m.user_id },
+                |m: &mut QueryWorkspaceParams| { &mut m.user_id },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<QueryWorkspaceParams>(
                 "QueryWorkspaceParams",
@@ -393,8 +487,8 @@ impl ::protobuf::Message for QueryWorkspaceParams {
 
 impl ::protobuf::Clear for QueryWorkspaceParams {
     fn clear(&mut self) {
-        self.workspace_id.clear();
-        self.read_apps = false;
+        self.one_of_workspace_id = ::std::option::Option::None;
+        self.user_id.clear();
         self.unknown_fields.clear();
     }
 }
@@ -412,25 +506,28 @@ impl ::protobuf::reflect::ProtobufValue for QueryWorkspaceParams {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x15workspace_query.proto\"W\n\x15QueryWorkspaceRequest\x12!\n\x0cwork\
-    space_id\x18\x01\x20\x01(\tR\x0bworkspaceId\x12\x1b\n\tread_apps\x18\x02\
-    \x20\x01(\x08R\x08readApps\"V\n\x14QueryWorkspaceParams\x12!\n\x0cworksp\
-    ace_id\x18\x01\x20\x01(\tR\x0bworkspaceId\x12\x1b\n\tread_apps\x18\x02\
-    \x20\x01(\x08R\x08readAppsJ\x9e\x02\n\x06\x12\x04\0\0\t\x01\n\x08\n\x01\
-    \x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\
-    \0\x01\x12\x03\x02\x08\x1d\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x1c\n\
-    \x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\
-    \x12\x03\x03\x0b\x17\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x1a\x1b\n\
-    \x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x17\n\x0c\n\x05\x04\0\x02\x01\
-    \x05\x12\x03\x04\x04\x08\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\t\x12\
-    \n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x15\x16\n\n\n\x02\x04\x01\x12\
-    \x04\x06\0\t\x01\n\n\n\x03\x04\x01\x01\x12\x03\x06\x08\x1c\n\x0b\n\x04\
-    \x04\x01\x02\0\x12\x03\x07\x04\x1c\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\
-    \x07\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x07\x0b\x17\n\x0c\n\x05\
-    \x04\x01\x02\0\x03\x12\x03\x07\x1a\x1b\n\x0b\n\x04\x04\x01\x02\x01\x12\
-    \x03\x08\x04\x17\n\x0c\n\x05\x04\x01\x02\x01\x05\x12\x03\x08\x04\x08\n\
-    \x0c\n\x05\x04\x01\x02\x01\x01\x12\x03\x08\t\x12\n\x0c\n\x05\x04\x01\x02\
-    \x01\x03\x12\x03\x08\x15\x16b\x06proto3\
+    \n\x15workspace_query.proto\"l\n\x15QueryWorkspaceRequest\x12#\n\x0cwork\
+    space_id\x18\x01\x20\x01(\tH\0R\x0bworkspaceId\x12\x17\n\x07user_id\x18\
+    \x02\x20\x01(\tR\x06userIdB\x15\n\x13one_of_workspace_id\"k\n\x14QueryWo\
+    rkspaceParams\x12#\n\x0cworkspace_id\x18\x01\x20\x01(\tH\0R\x0bworkspace\
+    Id\x12\x17\n\x07user_id\x18\x02\x20\x01(\tR\x06userIdB\x15\n\x13one_of_w\
+    orkspace_idJ\xd4\x02\n\x06\x12\x04\0\0\t\x01\n\x08\n\x01\x0c\x12\x03\0\0\
+    \x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\0\x01\x12\x03\
+    \x02\x08\x1d\n\x0b\n\x04\x04\0\x08\0\x12\x03\x03\x04:\n\x0c\n\x05\x04\0\
+    \x08\0\x01\x12\x03\x03\n\x1d\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x208\n\
+    \x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x20&\n\x0c\n\x05\x04\0\x02\0\x01\
+    \x12\x03\x03'3\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x0367\n\x0b\n\x04\x04\
+    \0\x02\x01\x12\x03\x04\x04\x17\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\
+    \x04\n\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x0b\x12\n\x0c\n\x05\x04\
+    \0\x02\x01\x03\x12\x03\x04\x15\x16\n\n\n\x02\x04\x01\x12\x04\x06\0\t\x01\
+    \n\n\n\x03\x04\x01\x01\x12\x03\x06\x08\x1c\n\x0b\n\x04\x04\x01\x08\0\x12\
+    \x03\x07\x04:\n\x0c\n\x05\x04\x01\x08\0\x01\x12\x03\x07\n\x1d\n\x0b\n\
+    \x04\x04\x01\x02\0\x12\x03\x07\x208\n\x0c\n\x05\x04\x01\x02\0\x05\x12\
+    \x03\x07\x20&\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x07'3\n\x0c\n\x05\
+    \x04\x01\x02\0\x03\x12\x03\x0767\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\x08\
+    \x04\x17\n\x0c\n\x05\x04\x01\x02\x01\x05\x12\x03\x08\x04\n\n\x0c\n\x05\
+    \x04\x01\x02\x01\x01\x12\x03\x08\x0b\x12\n\x0c\n\x05\x04\x01\x02\x01\x03\
+    \x12\x03\x08\x15\x16b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

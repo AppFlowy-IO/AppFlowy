@@ -53,8 +53,7 @@ impl WorkspaceUser for WorkspaceUserImpl {
                 })?;
 
                 Ok(CurrentWorkspace {
-                    owner: user_detail.email,
-                    workspace_id: user_detail.workspace,
+                    workspace_id: "".to_owned(),
                 })
             }),
         }

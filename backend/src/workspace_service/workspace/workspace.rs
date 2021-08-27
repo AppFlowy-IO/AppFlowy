@@ -59,44 +59,6 @@ pub(crate) async fn create_workspace(
     FlowyResponse::success().pb(workspace)
 }
 
-pub(crate) async fn read_workspace(
-    pool: &PgPool,
-    params: QueryWorkspaceParams,
-) -> Result<FlowyResponse, ServerError> {
-    let workspace_id = check_workspace_id(params.get_workspace_id().to_owned())?;
-    let mut transaction = pool
-        .begin()
-        .await
-        .context("Failed to acquire a Postgres connection to read workspace")?;
-
-    let (sql, args) = SqlBuilder::select("workspace_table")
-        .add_field("*")
-        .and_where_eq("id", workspace_id)
-        .build()?;
-
-    let table = sqlx::query_as_with::<Postgres, WorkspaceTable, PgArguments>(&sql, args)
-        .fetch_one(&mut transaction)
-        .await
-        .map_err(map_sqlx_error)?;
-
-    let mut repeated_app = RepeatedApp::default();
-    if params.read_apps {
-        repeated_app.set_items(
-            read_apps_belong_to_workspace(&mut transaction, &table.id.to_string())
-                .await?
-                .into(),
-        );
-    }
-
-    transaction
-        .commit()
-        .await
-        .context("Failed to commit SQL transaction to read workspace.")?;
-
-    let workspace = make_workspace_from_table(table, Some(repeated_app));
-    FlowyResponse::success().pb(workspace)
-}
-
 pub(crate) async fn update_workspace(
     pool: &PgPool,
     params: UpdateWorkspaceParams,
@@ -173,38 +135,48 @@ pub(crate) async fn delete_workspace(
     Ok(FlowyResponse::success())
 }
 
-pub async fn read_workspace_list(
+pub async fn read_workspaces(
     pool: &PgPool,
     user_id: &str,
+    workspace_id: Option<String>,
 ) -> Result<FlowyResponse, ServerError> {
+    let user_id = UserId::parse(user_id.to_string()).map_err(invalid_params)?;
     let mut transaction = pool
         .begin()
         .await
-        .context("Failed to acquire a Postgres connection to delete workspace")?;
+        .context("Failed to acquire a Postgres connection to read workspace")?;
 
-    let (sql, args) = SqlBuilder::select("workspace_table")
+    let mut builder = SqlBuilder::select("workspace_table")
         .add_field("*")
-        .and_where_eq("user_id", user_id)
-        .build()?;
+        .and_where_eq("user_id", user_id.as_ref());
 
+    if let Some(workspace_id) = workspace_id {
+        let workspace_id = check_workspace_id(workspace_id)?;
+        builder = builder.and_where_eq("id", workspace_id);
+    }
+
+    let (sql, args) = builder.build()?;
     let tables = sqlx::query_as_with::<Postgres, WorkspaceTable, PgArguments>(&sql, args)
         .fetch_all(&mut transaction)
         .await
         .map_err(map_sqlx_error)?;
 
+    let mut repeated_workspace = RepeatedWorkspace::default();
+    let mut workspaces = vec![];
+    for table in tables {
+        let apps = read_apps_belong_to_workspace(&mut transaction, &table.id.to_string())
+            .await
+            .context("Get workspace app")
+            .unwrap_or(RepeatedApp::default());
+        let workspace = make_workspace_from_table(table, Some(apps));
+        workspaces.push(workspace);
+    }
     transaction
         .commit()
         .await
-        .context("Failed to commit SQL transaction to delete workspace.")?;
+        .context("Failed to commit SQL transaction to read workspace.")?;
 
-    let mut workspace = RepeatedWorkspace::default();
-    workspace.set_items(
-        tables
-            .into_iter()
-            .map(|table| make_workspace_from_table(table, None))
-            .collect::<Vec<Workspace>>()
-            .into(),
-    );
+    repeated_workspace.set_items(workspaces.into());
 
-    FlowyResponse::success().pb(workspace)
+    FlowyResponse::success().pb(repeated_workspace)
 }

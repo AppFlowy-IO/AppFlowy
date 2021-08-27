@@ -92,13 +92,7 @@ impl UserSession {
         Ok(())
     }
 
-    async fn save_user(&self, mut user: UserTable) -> Result<UserTable, UserError> {
-        if user.workspace.is_empty() {
-            log::info!("Try to create user default workspace");
-            let workspace_id = self.create_default_workspace_if_need(&user.id).await?;
-            user.workspace = workspace_id;
-        }
-
+    async fn save_user(&self, user: UserTable) -> Result<UserTable, UserError> {
         let conn = self.get_db_connection()?;
         let _ = diesel::insert_into(user_table::table)
             .values(user.clone())

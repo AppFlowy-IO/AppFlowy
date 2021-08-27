@@ -5,7 +5,6 @@ message UserDetail {
     string email = 2;
     string name = 3;
     UserStatus status = 4;
-    string workspace = 5;
 }
 enum UserStatus {
     Unknown = 0;

@@ -70,12 +70,12 @@ class WorkspaceEventDeleteWorkspace {
 class WorkspaceEventReadAllWorkspace {
     WorkspaceEventReadAllWorkspace();
 
-    Future<Either<Workspaces, WorkspaceError>> send() {
+    Future<Either<RepeatedWorkspace, WorkspaceError>> send() {
      final request = FFIRequest.create()
         ..event = WorkspaceEvent.ReadAllWorkspace.toString();
 
      return Dispatch.asyncRequest(request).then((bytesResult) => bytesResult.fold(
-        (okBytes) => left(Workspaces.fromBuffer(okBytes)),
+        (okBytes) => left(RepeatedWorkspace.fromBuffer(okBytes)),
         (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
       ));
     }

@@ -2,7 +2,8 @@ use flowy_dispatch::prelude::*;
 use std::sync::Once;
 
 #[allow(dead_code)]
-= Once::new();
+pub fn setup_env() {
+    static INIT: Once = Once::new();
     INIT.call_once(|| {
         std::env::set_var("RUST_LOG", "flowy_dispatch=debug,debug");
         env_logger::init();

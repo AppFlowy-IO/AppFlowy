@@ -1,10 +1,10 @@
 syntax = "proto3";
 
 message QueryWorkspaceRequest {
-    string workspace_id = 1;
-    bool read_apps = 2;
+    oneof one_of_workspace_id { string workspace_id = 1; };
+    string user_id = 2;
 }
 message QueryWorkspaceParams {
-    string workspace_id = 1;
-    bool read_apps = 2;
+    oneof one_of_workspace_id { string workspace_id = 1; };
+    string user_id = 2;
 }

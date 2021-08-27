@@ -26,7 +26,6 @@
 #[derive(PartialEq,Clone,Default)]
 pub struct CurrentWorkspace {
     // message fields
-    pub owner: ::std::string::String,
     pub workspace_id: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -44,33 +43,7 @@ impl CurrentWorkspace {
         ::std::default::Default::default()
     }
 
-    // string owner = 1;
-
-
-    pub fn get_owner(&self) -> &str {
-        &self.owner
-    }
-    pub fn clear_owner(&mut self) {
-        self.owner.clear();
-    }
-
-    // Param is passed by value, moved
-    pub fn set_owner(&mut self, v: ::std::string::String) {
-        self.owner = v;
-    }
-
-    // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
-    pub fn mut_owner(&mut self) -> &mut ::std::string::String {
-        &mut self.owner
-    }
-
-    // Take field
-    pub fn take_owner(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.owner, ::std::string::String::new())
-    }
-
-    // string workspace_id = 2;
+    // string workspace_id = 1;
 
 
     pub fn get_workspace_id(&self) -> &str {
@@ -107,9 +80,6 @@ impl ::protobuf::Message for CurrentWorkspace {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.owner)?;
-                },
-                2 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.workspace_id)?;
                 },
                 _ => {
@@ -124,11 +94,8 @@ impl ::protobuf::Message for CurrentWorkspace {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.owner.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.owner);
-        }
         if !self.workspace_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(2, &self.workspace_id);
+            my_size += ::protobuf::rt::string_size(1, &self.workspace_id);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -136,11 +103,8 @@ impl ::protobuf::Message for CurrentWorkspace {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.owner.is_empty() {
-            os.write_string(1, &self.owner)?;
-        }
         if !self.workspace_id.is_empty() {
-            os.write_string(2, &self.workspace_id)?;
+            os.write_string(1, &self.workspace_id)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -181,11 +145,6 @@ impl ::protobuf::Message for CurrentWorkspace {
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "owner",
-                |m: &CurrentWorkspace| { &m.owner },
-                |m: &mut CurrentWorkspace| { &mut m.owner },
-            ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "workspace_id",
                 |m: &CurrentWorkspace| { &m.workspace_id },
                 |m: &mut CurrentWorkspace| { &mut m.workspace_id },
@@ -206,7 +165,6 @@ impl ::protobuf::Message for CurrentWorkspace {
 
 impl ::protobuf::Clear for CurrentWorkspace {
     fn clear(&mut self) {
-        self.owner.clear();
         self.workspace_id.clear();
         self.unknown_fields.clear();
     }
@@ -225,16 +183,13 @@ impl ::protobuf::reflect::ProtobufValue for CurrentWorkspace {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x1bworkspace_user_detail.proto\"K\n\x10CurrentWorkspace\x12\x14\n\x05\
-    owner\x18\x01\x20\x01(\tR\x05owner\x12!\n\x0cworkspace_id\x18\x02\x20\
-    \x01(\tR\x0bworkspaceIdJ\x98\x01\n\x06\x12\x04\0\0\x05\x01\n\x08\n\x01\
-    \x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\
-    \0\x01\x12\x03\x02\x08\x18\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x15\n\
-    \x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\
-    \x12\x03\x03\x0b\x10\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x13\x14\n\
-    \x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x1c\n\x0c\n\x05\x04\0\x02\x01\
-    \x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x0b\x17\
-    \n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x1a\x1bb\x06proto3\
+    \n\x1bworkspace_user_detail.proto\"5\n\x10CurrentWorkspace\x12!\n\x0cwor\
+    kspace_id\x18\x01\x20\x01(\tR\x0bworkspaceIdJa\n\x06\x12\x04\0\0\x04\x01\
+    \n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x04\x01\n\
+    \n\n\x03\x04\0\x01\x12\x03\x02\x08\x18\n\x0b\n\x04\x04\0\x02\0\x12\x03\
+    \x03\x04\x1c\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\
+    \x04\0\x02\0\x01\x12\x03\x03\x0b\x17\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\
+    \x03\x1a\x1bb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

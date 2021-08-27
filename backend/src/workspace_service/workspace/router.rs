@@ -3,8 +3,7 @@ use crate::{
     workspace_service::workspace::{
         create_workspace,
         delete_workspace,
-        read_workspace,
-        read_workspace_list,
+        read_workspaces,
         update_workspace,
     },
 };
@@ -36,7 +35,13 @@ pub async fn read_handler(
     pool: Data<PgPool>,
 ) -> Result<HttpResponse, ServerError> {
     let params: QueryWorkspaceParams = parse_from_payload(payload).await?;
-    let resp = read_workspace(pool.get_ref(), params).await?;
+    let workspace_id = if params.has_workspace_id() {
+        Some(params.get_workspace_id().to_owned())
+    } else {
+        None
+    };
+    let resp = read_workspaces(pool.get_ref(), params.get_user_id(), workspace_id).await?;
+
     Ok(resp.into())
 }
 
@@ -62,6 +67,6 @@ pub async fn workspace_list(
     user_id: Path<String>,
     pool: Data<PgPool>,
 ) -> Result<HttpResponse, ServerError> {
-    let resp = read_workspace_list(pool.get_ref(), &user_id).await?;
+    let resp = read_workspaces(pool.get_ref(), &user_id, None).await?;
     Ok(resp.into())
 }

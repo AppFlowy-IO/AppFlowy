@@ -1,6 +1,5 @@
 syntax = "proto3";
 
 message CurrentWorkspace {
-    string owner = 1;
-    string workspace_id = 2;
+    string workspace_id = 1;
 }

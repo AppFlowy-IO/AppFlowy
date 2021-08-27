@@ -47,7 +47,8 @@ pub fn create(user: Arc<dyn WorkspaceUser>, database: Arc<dyn WorkspaceDatabase>
         .event(WorkspaceEvent::ReadAllWorkspace, read_all_workspaces)
         .event(WorkspaceEvent::CreateWorkspace, create_workspace)
         .event(WorkspaceEvent::ReadCurWorkspace, read_cur_workspace)
-        .event(WorkspaceEvent::ReadWorkspace, read_workspace);
+        .event(WorkspaceEvent::ReadWorkspace, read_workspace)
+        .event(WorkspaceEvent::OpenWorkspace, open_workspace);
 
     module = module
         .event(WorkspaceEvent::CreateApp, create_app)

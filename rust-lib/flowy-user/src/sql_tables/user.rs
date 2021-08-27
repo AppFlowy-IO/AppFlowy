@@ -8,7 +8,7 @@ pub struct UserTable {
     pub(crate) name: String,
     pub(crate) password: String,
     pub(crate) email: String,
-    pub(crate) workspace: String,
+    pub(crate) workspace: String, // deprecated
 }
 
 impl UserTable {
@@ -44,7 +44,7 @@ impl std::convert::From<SignInResponse> for UserTable {
 #[table_name = "user_table"]
 pub struct UserTableChangeset {
     pub id: String,
-    pub workspace: Option<String>,
+    pub workspace: Option<String>, // deprecated
     pub name: Option<String>,
     pub email: Option<String>,
     pub password: Option<String>,
@@ -54,7 +54,7 @@ impl UserTableChangeset {
     pub fn new(params: UpdateUserParams) -> Self {
         UserTableChangeset {
             id: params.id,
-            workspace: params.workspace,
+            workspace: None,
             name: params.name,
             email: params.email,
             password: params.password,

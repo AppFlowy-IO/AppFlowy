@@ -24,12 +24,20 @@ impl WorkspaceSql {
         Ok(())
     }
 
-    pub fn read_workspace(&self, workspace_id: &str) -> Result<WorkspaceTable, WorkspaceError> {
-        let workspace = dsl::workspace_table
-            .filter(workspace_table::id.eq(&workspace_id))
-            .first::<WorkspaceTable>(&*(self.database.db_connection()?))?;
+    pub fn read_workspaces(
+        &self,
+        workspace_id: Option<String>,
+        user_id: &str,
+    ) -> Result<Vec<WorkspaceTable>, WorkspaceError> {
+        let mut filter = dsl::workspace_table.filter(workspace_table::user_id.eq(user_id));
 
-        Ok(workspace)
+        if let Some(workspace_id) = workspace_id {
+            filter.filter(workspace_table::id.eq(&workspace_id));
+        }
+
+        let workspaces = filter.load::<WorkspaceTable>(&*(self.database.db_connection()?))?;
+
+        Ok(workspaces)
     }
 
     pub fn update_workspace(

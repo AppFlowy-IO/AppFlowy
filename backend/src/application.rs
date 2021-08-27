@@ -65,6 +65,8 @@ pub fn run(listener: TcpListener, app_ctx: AppContext) -> Result<Server, std::io
 fn ws_scope() -> Scope { web::scope("/ws").service(ws_service::router::start_connection) }
 
 fn user_scope() -> Scope {
+    // https://developer.mozilla.org/en-US/docs/Web/HTTP
+    // TODO: replace GET body with query params
     web::scope("/api")
         // authentication
         .service(web::resource("/auth")

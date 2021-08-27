@@ -40,6 +40,7 @@ class WorkspaceRepo {
       {bool readApps = false}) {
     final request = QueryWorkspaceRequest.create()
       ..workspaceId = user.workspace
+      ..user_id = user.id
       ..readApps = readApps;
 
     return WorkspaceEventReadWorkspace(request).send().then((result) {

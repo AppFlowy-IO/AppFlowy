@@ -28,9 +28,8 @@ const UserDetail$json = const {
     const {'1': 'email', '3': 2, '4': 1, '5': 9, '10': 'email'},
     const {'1': 'name', '3': 3, '4': 1, '5': 9, '10': 'name'},
     const {'1': 'status', '3': 4, '4': 1, '5': 14, '6': '.UserStatus', '10': 'status'},
-    const {'1': 'workspace', '3': 5, '4': 1, '5': 9, '10': 'workspace'},
   ],
 };
 
 /// Descriptor for `UserDetail`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List userDetailDescriptor = $convert.base64Decode('CgpVc2VyRGV0YWlsEg4KAmlkGAEgASgJUgJpZBIUCgVlbWFpbBgCIAEoCVIFZW1haWwSEgoEbmFtZRgDIAEoCVIEbmFtZRIjCgZzdGF0dXMYBCABKA4yCy5Vc2VyU3RhdHVzUgZzdGF0dXMSHAoJd29ya3NwYWNlGAUgASgJUgl3b3Jrc3BhY2U=');
+final $typed_data.Uint8List userDetailDescriptor = $convert.base64Decode('CgpVc2VyRGV0YWlsEg4KAmlkGAEgASgJUgJpZBIUCgVlbWFpbBgCIAEoCVIFZW1haWwSEgoEbmFtZRgDIAEoCVIEbmFtZRIjCgZzdGF0dXMYBCABKA4yCy5Vc2VyU3RhdHVzUgZzdGF0dXM=');

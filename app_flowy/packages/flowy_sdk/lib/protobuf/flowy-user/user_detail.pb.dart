@@ -19,7 +19,6 @@ class UserDetail extends $pb.GeneratedMessage {
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'email')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..e<UserStatus>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'status', $pb.PbFieldType.OE, defaultOrMaker: UserStatus.Unknown, valueOf: UserStatus.valueOf, enumValues: UserStatus.values)
-    ..aOS(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspace')
     ..hasRequiredFields = false
   ;
 
@@ -29,7 +28,6 @@ class UserDetail extends $pb.GeneratedMessage {
     $core.String? email,
     $core.String? name,
     UserStatus? status,
-    $core.String? workspace,
   }) {
     final _result = create();
     if (id != null) {
@@ -43,9 +41,6 @@ class UserDetail extends $pb.GeneratedMessage {
     }
     if (status != null) {
       _result.status = status;
-    }
-    if (workspace != null) {
-      _result.workspace = workspace;
     }
     return _result;
   }
@@ -105,14 +100,5 @@ class UserDetail extends $pb.GeneratedMessage {
   $core.bool hasStatus() => $_has(3);
   @$pb.TagNumber(4)
   void clearStatus() => clearField(4);
-
-  @$pb.TagNumber(5)
-  $core.String get workspace => $_getSZ(4);
-  @$pb.TagNumber(5)
-  set workspace($core.String v) { $_setString(4, v); }
-  @$pb.TagNumber(5)
-  $core.bool hasWorkspace() => $_has(4);
-  @$pb.TagNumber(5)
-  void clearWorkspace() => clearField(5);
 }
 

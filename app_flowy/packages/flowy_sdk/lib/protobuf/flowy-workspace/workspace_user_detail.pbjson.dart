@@ -12,10 +12,9 @@ import 'dart:typed_data' as $typed_data;
 const CurrentWorkspace$json = const {
   '1': 'CurrentWorkspace',
   '2': const [
-    const {'1': 'owner', '3': 1, '4': 1, '5': 9, '10': 'owner'},
-    const {'1': 'workspace_id', '3': 2, '4': 1, '5': 9, '10': 'workspaceId'},
+    const {'1': 'workspace_id', '3': 1, '4': 1, '5': 9, '10': 'workspaceId'},
   ],
 };
 
 /// Descriptor for `CurrentWorkspace`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List currentWorkspaceDescriptor = $convert.base64Decode('ChBDdXJyZW50V29ya3NwYWNlEhQKBW93bmVyGAEgASgJUgVvd25lchIhCgx3b3Jrc3BhY2VfaWQYAiABKAlSC3dvcmtzcGFjZUlk');
+final $typed_data.Uint8List currentWorkspaceDescriptor = $convert.base64Decode('ChBDdXJyZW50V29ya3NwYWNlEiEKDHdvcmtzcGFjZV9pZBgBIAEoCVILd29ya3NwYWNlSWQ=');
