@@ -7,6 +7,7 @@ use crate::{
     sql_tables::workspace::{WorkspaceSql, WorkspaceTable, WorkspaceTableChangeset},
 };
 use flowy_dispatch::prelude::DispatchFuture;
+use flowy_infra::kv::KVStore;
 use flowy_net::request::HttpRequestBuilder;
 use std::sync::Arc;
 
@@ -62,11 +63,54 @@ impl WorkspaceController {
         Ok(())
     }
 
-    pub async fn read_cur_workspace(&self) -> Result<Workspace, WorkspaceError> {
-        let user_workspace = self.user.get_cur_workspace().await?;
-        let mut repeated_workspace = self
-            .read_workspaces(Some(user_workspace.workspace_id.clone()))
+    pub async fn open_workspace(&self, workspace_id: &str) -> Result<Workspace, WorkspaceError> {
+        let user_id = self.user.user_id()?;
+        let result = self
+            .read_workspace_table(Some(workspace_id.to_owned()), user_id)
             .await?;
+
+        match result.first() {
+            None => Err(ErrorBuilder::new(WsErrCode::RecordNotFound).build()),
+            Some(workspace_table) => {
+                let workspace: Workspace = workspace_table.clone().into();
+                set_current_workspace(&workspace.id);
+                Ok(workspace)
+            },
+        }
+    }
+
+    pub async fn read_workspaces(
+        &self,
+        workspace_id: Option<String>,
+    ) -> Result<RepeatedWorkspace, WorkspaceError> {
+        let user_id = self.user.user_id()?;
+        let workspace_tables = self.read_workspace_table(workspace_id, user_id).await?;
+        let mut workspaces = vec![];
+        for table in workspace_tables {
+            let apps = self.read_apps(&table.id).await?;
+            let mut workspace: Workspace = table.into();
+            workspace.apps.items = apps;
+
+            workspaces.push(workspace);
+        }
+        Ok(RepeatedWorkspace { items: workspaces })
+    }
+
+    pub async fn read_workspaces_belong_to_user(&self) -> Result<Vec<Workspace>, WorkspaceError> {
+        let user_id = self.user.user_id()?;
+        let workspace = self
+            .sql
+            .read_workspaces_belong_to_user(&user_id)?
+            .into_iter()
+            .map(|workspace_table| workspace_table.into())
+            .collect::<Vec<Workspace>>();
+
+        Ok(workspace)
+    }
+
+    pub async fn read_cur_workspace(&self) -> Result<Workspace, WorkspaceError> {
+        let workspace_id = get_current_workspace()?;
+        let mut repeated_workspace = self.read_workspaces(Some(workspace_id.clone())).await?;
 
         if repeated_workspace.is_empty() {
             return Err(ErrorBuilder::new(WsErrCode::RecordNotFound).build());
@@ -82,48 +126,9 @@ impl WorkspaceController {
     }
 
     pub async fn read_cur_apps(&self) -> Result<Vec<App>, WorkspaceError> {
-        let user_workspace = self.user.get_cur_workspace().await?;
-        let apps = self.read_apps(&user_workspace.workspace_id).await?;
+        let workspace_id = get_current_workspace()?;
+        let apps = self.read_apps(&workspace_id).await?;
         Ok(apps)
-    }
-
-    pub async fn open_workspace(&self, workspace_id: &str) -> Result<Workspace, WorkspaceError> {
-        let user_id = self.user.user_id()?;
-        let result = self
-            .read_workspace_table(Some(workspace_id.to_owned()), user_id)
-            .await?
-            .first();
-
-        match result {
-            None => Err(ErrorBuilder::new(WsErrCode::RecordNotFound).build()),
-            Some(workspace_table) => {
-                let workspace: Workspace = workspace_table.into();
-                Ok(workspace)
-            },
-        }
-    }
-
-    pub async fn read_workspaces(
-        &self,
-        workspace_id: Option<String>,
-    ) -> Result<RepeatedWorkspace, WorkspaceError> {
-        let user_id = self.user.user_id()?;
-        let workspace_tables = self.read_workspace_table(workspace_id, user_id).await?;
-        let mut workspaces = vec![];
-
-        Ok(RepeatedWorkspace { items: workspaces })
-    }
-
-    pub async fn read_workspaces_belong_to_user(&self) -> Result<Vec<Workspace>, WorkspaceError> {
-        let user_id = self.user.user_id()?;
-        let workspace = self
-            .sql
-            .read_workspaces_belong_to_user(&user_id)?
-            .into_iter()
-            .map(|workspace_table| workspace_table.into())
-            .collect::<Vec<Workspace>>();
-
-        Ok(workspace)
     }
 
     pub async fn read_apps(&self, workspace_id: &str) -> Result<Vec<App>, WorkspaceError> {
@@ -151,6 +156,19 @@ impl WorkspaceController {
                 Ok(workspace)
             }),
         }
+    }
+}
+
+const CURRENT_WORKSPACE_ID: &str = "current_workspace_id";
+
+fn set_current_workspace(workspace: &str) {
+    KVStore::set_str(CURRENT_WORKSPACE_ID, workspace.to_owned());
+}
+
+fn get_current_workspace() -> Result<String, WorkspaceError> {
+    match KVStore::get_str(CURRENT_WORKSPACE_ID) {
+        None => Err(ErrorBuilder::new(WsErrCode::CurrentWorkspaceNotFound).build()),
+        Some(workspace_id) => Ok(workspace_id),
     }
 }
 

@@ -30,13 +30,11 @@ impl WorkspaceSql {
         user_id: &str,
     ) -> Result<Vec<WorkspaceTable>, WorkspaceError> {
         let mut filter = dsl::workspace_table.filter(workspace_table::user_id.eq(user_id));
-
         if let Some(workspace_id) = workspace_id {
             filter.filter(workspace_table::id.eq(&workspace_id));
         }
 
         let workspaces = filter.load::<WorkspaceTable>(&*(self.database.db_connection()?))?;
-
         Ok(workspaces)
     }
 

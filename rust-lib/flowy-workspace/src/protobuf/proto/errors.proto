@@ -10,6 +10,7 @@ enum WsErrCode {
     WorkspaceIdInvalid = 2;
     AppColorStyleInvalid = 3;
     WorkspaceDescInvalid = 4;
+    CurrentWorkspaceNotFound = 5;
     AppIdInvalid = 10;
     AppNameInvalid = 11;
     ViewNameInvalid = 20;

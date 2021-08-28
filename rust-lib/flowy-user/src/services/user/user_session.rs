@@ -161,20 +161,20 @@ impl UserSession {
         }
     }
 
-    pub async fn set_current_workspace(&self, workspace_id: &str) -> Result<(), UserError> {
-        let user_id = self.get_user_id()?;
-        let payload: Bytes = UpdateUserRequest::new(&user_id)
-            .workspace(workspace_id)
-            .into_bytes()
-            .unwrap();
-
-        let request = ModuleRequest::new(UpdateUser).payload(payload);
-        let _ = EventDispatch::async_send(request)
-            .await
-            .parse::<UserDetail, UserError>()
-            .unwrap()?;
-        Ok(())
-    }
+    // pub async fn set_current_workspace(&self, workspace_id: &str) -> Result<(),
+    // UserError> {     let user_id = self.get_user_id()?;
+    //     let payload: Bytes = UpdateUserRequest::new(&user_id)
+    //         .workspace(workspace_id)
+    //         .into_bytes()
+    //         .unwrap();
+    //
+    //     let request = ModuleRequest::new(UpdateUser).payload(payload);
+    //     let _ = EventDispatch::async_send(request)
+    //         .await
+    //         .parse::<UserDetail, UserError>()
+    //         .unwrap()?;
+    //     Ok(())
+    // }
 
     async fn create_default_workspace_if_need(&self, user_id: &str) -> Result<String, UserError> {
         let key = format!("{}{}", user_id, DEFAULT_WORKSPACE);

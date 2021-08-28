@@ -4,13 +4,11 @@ message UpdateUserRequest {
     string id = 1;
     oneof one_of_name { string name = 2; };
     oneof one_of_email { string email = 3; };
-    oneof one_of_workspace { string workspace = 4; };
-    oneof one_of_password { string password = 5; };
+    oneof one_of_password { string password = 4; };
 }
 message UpdateUserParams {
     string id = 1;
     oneof one_of_name { string name = 2; };
     oneof one_of_email { string email = 3; };
-    oneof one_of_workspace { string workspace = 4; };
-    oneof one_of_password { string password = 5; };
+    oneof one_of_password { string password = 4; };
 }

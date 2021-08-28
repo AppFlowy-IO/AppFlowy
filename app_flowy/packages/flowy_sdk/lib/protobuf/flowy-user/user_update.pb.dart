@@ -19,11 +19,6 @@ enum UpdateUserRequest_OneOfEmail {
   notSet
 }
 
-enum UpdateUserRequest_OneOfWorkspace {
-  workspace, 
-  notSet
-}
-
 enum UpdateUserRequest_OneOfPassword {
   password, 
   notSet
@@ -38,24 +33,18 @@ class UpdateUserRequest extends $pb.GeneratedMessage {
     3 : UpdateUserRequest_OneOfEmail.email,
     0 : UpdateUserRequest_OneOfEmail.notSet
   };
-  static const $core.Map<$core.int, UpdateUserRequest_OneOfWorkspace> _UpdateUserRequest_OneOfWorkspaceByTag = {
-    4 : UpdateUserRequest_OneOfWorkspace.workspace,
-    0 : UpdateUserRequest_OneOfWorkspace.notSet
-  };
   static const $core.Map<$core.int, UpdateUserRequest_OneOfPassword> _UpdateUserRequest_OneOfPasswordByTag = {
-    5 : UpdateUserRequest_OneOfPassword.password,
+    4 : UpdateUserRequest_OneOfPassword.password,
     0 : UpdateUserRequest_OneOfPassword.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UpdateUserRequest', createEmptyInstance: create)
     ..oo(0, [2])
     ..oo(1, [3])
     ..oo(2, [4])
-    ..oo(3, [5])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'email')
-    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspace')
-    ..aOS(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'password')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'password')
     ..hasRequiredFields = false
   ;
 
@@ -64,7 +53,6 @@ class UpdateUserRequest extends $pb.GeneratedMessage {
     $core.String? id,
     $core.String? name,
     $core.String? email,
-    $core.String? workspace,
     $core.String? password,
   }) {
     final _result = create();
@@ -76,9 +64,6 @@ class UpdateUserRequest extends $pb.GeneratedMessage {
     }
     if (email != null) {
       _result.email = email;
-    }
-    if (workspace != null) {
-      _result.workspace = workspace;
     }
     if (password != null) {
       _result.password = password;
@@ -112,11 +97,8 @@ class UpdateUserRequest extends $pb.GeneratedMessage {
   UpdateUserRequest_OneOfEmail whichOneOfEmail() => _UpdateUserRequest_OneOfEmailByTag[$_whichOneof(1)]!;
   void clearOneOfEmail() => clearField($_whichOneof(1));
 
-  UpdateUserRequest_OneOfWorkspace whichOneOfWorkspace() => _UpdateUserRequest_OneOfWorkspaceByTag[$_whichOneof(2)]!;
-  void clearOneOfWorkspace() => clearField($_whichOneof(2));
-
-  UpdateUserRequest_OneOfPassword whichOneOfPassword() => _UpdateUserRequest_OneOfPasswordByTag[$_whichOneof(3)]!;
-  void clearOneOfPassword() => clearField($_whichOneof(3));
+  UpdateUserRequest_OneOfPassword whichOneOfPassword() => _UpdateUserRequest_OneOfPasswordByTag[$_whichOneof(2)]!;
+  void clearOneOfPassword() => clearField($_whichOneof(2));
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
@@ -146,22 +128,13 @@ class UpdateUserRequest extends $pb.GeneratedMessage {
   void clearEmail() => clearField(3);
 
   @$pb.TagNumber(4)
-  $core.String get workspace => $_getSZ(3);
+  $core.String get password => $_getSZ(3);
   @$pb.TagNumber(4)
-  set workspace($core.String v) { $_setString(3, v); }
+  set password($core.String v) { $_setString(3, v); }
   @$pb.TagNumber(4)
-  $core.bool hasWorkspace() => $_has(3);
+  $core.bool hasPassword() => $_has(3);
   @$pb.TagNumber(4)
-  void clearWorkspace() => clearField(4);
-
-  @$pb.TagNumber(5)
-  $core.String get password => $_getSZ(4);
-  @$pb.TagNumber(5)
-  set password($core.String v) { $_setString(4, v); }
-  @$pb.TagNumber(5)
-  $core.bool hasPassword() => $_has(4);
-  @$pb.TagNumber(5)
-  void clearPassword() => clearField(5);
+  void clearPassword() => clearField(4);
 }
 
 enum UpdateUserParams_OneOfName {
@@ -171,11 +144,6 @@ enum UpdateUserParams_OneOfName {
 
 enum UpdateUserParams_OneOfEmail {
   email, 
-  notSet
-}
-
-enum UpdateUserParams_OneOfWorkspace {
-  workspace, 
   notSet
 }
 
@@ -193,24 +161,18 @@ class UpdateUserParams extends $pb.GeneratedMessage {
     3 : UpdateUserParams_OneOfEmail.email,
     0 : UpdateUserParams_OneOfEmail.notSet
   };
-  static const $core.Map<$core.int, UpdateUserParams_OneOfWorkspace> _UpdateUserParams_OneOfWorkspaceByTag = {
-    4 : UpdateUserParams_OneOfWorkspace.workspace,
-    0 : UpdateUserParams_OneOfWorkspace.notSet
-  };
   static const $core.Map<$core.int, UpdateUserParams_OneOfPassword> _UpdateUserParams_OneOfPasswordByTag = {
-    5 : UpdateUserParams_OneOfPassword.password,
+    4 : UpdateUserParams_OneOfPassword.password,
     0 : UpdateUserParams_OneOfPassword.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UpdateUserParams', createEmptyInstance: create)
     ..oo(0, [2])
     ..oo(1, [3])
     ..oo(2, [4])
-    ..oo(3, [5])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'email')
-    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspace')
-    ..aOS(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'password')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'password')
     ..hasRequiredFields = false
   ;
 
@@ -219,7 +181,6 @@ class UpdateUserParams extends $pb.GeneratedMessage {
     $core.String? id,
     $core.String? name,
     $core.String? email,
-    $core.String? workspace,
     $core.String? password,
   }) {
     final _result = create();
@@ -231,9 +192,6 @@ class UpdateUserParams extends $pb.GeneratedMessage {
     }
     if (email != null) {
       _result.email = email;
-    }
-    if (workspace != null) {
-      _result.workspace = workspace;
     }
     if (password != null) {
       _result.password = password;
@@ -267,11 +225,8 @@ class UpdateUserParams extends $pb.GeneratedMessage {
   UpdateUserParams_OneOfEmail whichOneOfEmail() => _UpdateUserParams_OneOfEmailByTag[$_whichOneof(1)]!;
   void clearOneOfEmail() => clearField($_whichOneof(1));
 
-  UpdateUserParams_OneOfWorkspace whichOneOfWorkspace() => _UpdateUserParams_OneOfWorkspaceByTag[$_whichOneof(2)]!;
-  void clearOneOfWorkspace() => clearField($_whichOneof(2));
-
-  UpdateUserParams_OneOfPassword whichOneOfPassword() => _UpdateUserParams_OneOfPasswordByTag[$_whichOneof(3)]!;
-  void clearOneOfPassword() => clearField($_whichOneof(3));
+  UpdateUserParams_OneOfPassword whichOneOfPassword() => _UpdateUserParams_OneOfPasswordByTag[$_whichOneof(2)]!;
+  void clearOneOfPassword() => clearField($_whichOneof(2));
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
@@ -301,21 +256,12 @@ class UpdateUserParams extends $pb.GeneratedMessage {
   void clearEmail() => clearField(3);
 
   @$pb.TagNumber(4)
-  $core.String get workspace => $_getSZ(3);
+  $core.String get password => $_getSZ(3);
   @$pb.TagNumber(4)
-  set workspace($core.String v) { $_setString(3, v); }
+  set password($core.String v) { $_setString(3, v); }
   @$pb.TagNumber(4)
-  $core.bool hasWorkspace() => $_has(3);
+  $core.bool hasPassword() => $_has(3);
   @$pb.TagNumber(4)
-  void clearWorkspace() => clearField(4);
-
-  @$pb.TagNumber(5)
-  $core.String get password => $_getSZ(4);
-  @$pb.TagNumber(5)
-  set password($core.String v) { $_setString(4, v); }
-  @$pb.TagNumber(5)
-  $core.bool hasPassword() => $_has(4);
-  @$pb.TagNumber(5)
-  void clearPassword() => clearField(5);
+  void clearPassword() => clearField(4);
 }
 

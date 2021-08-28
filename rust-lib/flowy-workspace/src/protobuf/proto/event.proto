@@ -6,6 +6,7 @@ enum WorkspaceEvent {
     ReadWorkspace = 2;
     DeleteWorkspace = 3;
     ReadAllWorkspace = 4;
+    OpenWorkspace = 5;
     CreateApp = 101;
     DeleteApp = 102;
     ReadApp = 103;

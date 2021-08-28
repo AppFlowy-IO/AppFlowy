@@ -15,6 +15,7 @@ class WsErrCode extends $pb.ProtobufEnum {
   static const WsErrCode WorkspaceIdInvalid = WsErrCode._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceIdInvalid');
   static const WsErrCode AppColorStyleInvalid = WsErrCode._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppColorStyleInvalid');
   static const WsErrCode WorkspaceDescInvalid = WsErrCode._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceDescInvalid');
+  static const WsErrCode CurrentWorkspaceNotFound = WsErrCode._(5, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CurrentWorkspaceNotFound');
   static const WsErrCode AppIdInvalid = WsErrCode._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppIdInvalid');
   static const WsErrCode AppNameInvalid = WsErrCode._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppNameInvalid');
   static const WsErrCode ViewNameInvalid = WsErrCode._(20, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewNameInvalid');
@@ -34,6 +35,7 @@ class WsErrCode extends $pb.ProtobufEnum {
     WorkspaceIdInvalid,
     AppColorStyleInvalid,
     WorkspaceDescInvalid,
+    CurrentWorkspaceNotFound,
     AppIdInvalid,
     AppNameInvalid,
     ViewNameInvalid,

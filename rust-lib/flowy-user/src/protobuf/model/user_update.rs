@@ -30,7 +30,6 @@ pub struct UpdateUserRequest {
     // message oneof groups
     pub one_of_name: ::std::option::Option<UpdateUserRequest_oneof_one_of_name>,
     pub one_of_email: ::std::option::Option<UpdateUserRequest_oneof_one_of_email>,
-    pub one_of_workspace: ::std::option::Option<UpdateUserRequest_oneof_one_of_workspace>,
     pub one_of_password: ::std::option::Option<UpdateUserRequest_oneof_one_of_password>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -51,11 +50,6 @@ pub enum UpdateUserRequest_oneof_one_of_name {
 #[derive(Clone,PartialEq,Debug)]
 pub enum UpdateUserRequest_oneof_one_of_email {
     email(::std::string::String),
-}
-
-#[derive(Clone,PartialEq,Debug)]
-pub enum UpdateUserRequest_oneof_one_of_workspace {
-    workspace(::std::string::String),
 }
 
 #[derive(Clone,PartialEq,Debug)]
@@ -192,56 +186,7 @@ impl UpdateUserRequest {
         }
     }
 
-    // string workspace = 4;
-
-
-    pub fn get_workspace(&self) -> &str {
-        match self.one_of_workspace {
-            ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_workspace::workspace(ref v)) => v,
-            _ => "",
-        }
-    }
-    pub fn clear_workspace(&mut self) {
-        self.one_of_workspace = ::std::option::Option::None;
-    }
-
-    pub fn has_workspace(&self) -> bool {
-        match self.one_of_workspace {
-            ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_workspace::workspace(..)) => true,
-            _ => false,
-        }
-    }
-
-    // Param is passed by value, moved
-    pub fn set_workspace(&mut self, v: ::std::string::String) {
-        self.one_of_workspace = ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_workspace::workspace(v))
-    }
-
-    // Mutable pointer to the field.
-    pub fn mut_workspace(&mut self) -> &mut ::std::string::String {
-        if let ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_workspace::workspace(_)) = self.one_of_workspace {
-        } else {
-            self.one_of_workspace = ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_workspace::workspace(::std::string::String::new()));
-        }
-        match self.one_of_workspace {
-            ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_workspace::workspace(ref mut v)) => v,
-            _ => panic!(),
-        }
-    }
-
-    // Take field
-    pub fn take_workspace(&mut self) -> ::std::string::String {
-        if self.has_workspace() {
-            match self.one_of_workspace.take() {
-                ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_workspace::workspace(v)) => v,
-                _ => panic!(),
-            }
-        } else {
-            ::std::string::String::new()
-        }
-    }
-
-    // string password = 5;
+    // string password = 4;
 
 
     pub fn get_password(&self) -> &str {
@@ -319,12 +264,6 @@ impl ::protobuf::Message for UpdateUserRequest {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_workspace = ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_workspace::workspace(is.read_string()?));
-                },
-                5 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
                     self.one_of_password = ::std::option::Option::Some(UpdateUserRequest_oneof_one_of_password::password(is.read_string()?));
                 },
                 _ => {
@@ -356,17 +295,10 @@ impl ::protobuf::Message for UpdateUserRequest {
                 },
             };
         }
-        if let ::std::option::Option::Some(ref v) = self.one_of_workspace {
-            match v {
-                &UpdateUserRequest_oneof_one_of_workspace::workspace(ref v) => {
-                    my_size += ::protobuf::rt::string_size(4, &v);
-                },
-            };
-        }
         if let ::std::option::Option::Some(ref v) = self.one_of_password {
             match v {
                 &UpdateUserRequest_oneof_one_of_password::password(ref v) => {
-                    my_size += ::protobuf::rt::string_size(5, &v);
+                    my_size += ::protobuf::rt::string_size(4, &v);
                 },
             };
         }
@@ -393,17 +325,10 @@ impl ::protobuf::Message for UpdateUserRequest {
                 },
             };
         }
-        if let ::std::option::Option::Some(ref v) = self.one_of_workspace {
-            match v {
-                &UpdateUserRequest_oneof_one_of_workspace::workspace(ref v) => {
-                    os.write_string(4, v)?;
-                },
-            };
-        }
         if let ::std::option::Option::Some(ref v) = self.one_of_password {
             match v {
                 &UpdateUserRequest_oneof_one_of_password::password(ref v) => {
-                    os.write_string(5, v)?;
+                    os.write_string(4, v)?;
                 },
             };
         }
@@ -461,11 +386,6 @@ impl ::protobuf::Message for UpdateUserRequest {
                 UpdateUserRequest::get_email,
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
-                "workspace",
-                UpdateUserRequest::has_workspace,
-                UpdateUserRequest::get_workspace,
-            ));
-            fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
                 "password",
                 UpdateUserRequest::has_password,
                 UpdateUserRequest::get_password,
@@ -489,7 +409,6 @@ impl ::protobuf::Clear for UpdateUserRequest {
         self.id.clear();
         self.one_of_name = ::std::option::Option::None;
         self.one_of_email = ::std::option::Option::None;
-        self.one_of_workspace = ::std::option::Option::None;
         self.one_of_password = ::std::option::Option::None;
         self.unknown_fields.clear();
     }
@@ -514,7 +433,6 @@ pub struct UpdateUserParams {
     // message oneof groups
     pub one_of_name: ::std::option::Option<UpdateUserParams_oneof_one_of_name>,
     pub one_of_email: ::std::option::Option<UpdateUserParams_oneof_one_of_email>,
-    pub one_of_workspace: ::std::option::Option<UpdateUserParams_oneof_one_of_workspace>,
     pub one_of_password: ::std::option::Option<UpdateUserParams_oneof_one_of_password>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -535,11 +453,6 @@ pub enum UpdateUserParams_oneof_one_of_name {
 #[derive(Clone,PartialEq,Debug)]
 pub enum UpdateUserParams_oneof_one_of_email {
     email(::std::string::String),
-}
-
-#[derive(Clone,PartialEq,Debug)]
-pub enum UpdateUserParams_oneof_one_of_workspace {
-    workspace(::std::string::String),
 }
 
 #[derive(Clone,PartialEq,Debug)]
@@ -676,56 +589,7 @@ impl UpdateUserParams {
         }
     }
 
-    // string workspace = 4;
-
-
-    pub fn get_workspace(&self) -> &str {
-        match self.one_of_workspace {
-            ::std::option::Option::Some(UpdateUserParams_oneof_one_of_workspace::workspace(ref v)) => v,
-            _ => "",
-        }
-    }
-    pub fn clear_workspace(&mut self) {
-        self.one_of_workspace = ::std::option::Option::None;
-    }
-
-    pub fn has_workspace(&self) -> bool {
-        match self.one_of_workspace {
-            ::std::option::Option::Some(UpdateUserParams_oneof_one_of_workspace::workspace(..)) => true,
-            _ => false,
-        }
-    }
-
-    // Param is passed by value, moved
-    pub fn set_workspace(&mut self, v: ::std::string::String) {
-        self.one_of_workspace = ::std::option::Option::Some(UpdateUserParams_oneof_one_of_workspace::workspace(v))
-    }
-
-    // Mutable pointer to the field.
-    pub fn mut_workspace(&mut self) -> &mut ::std::string::String {
-        if let ::std::option::Option::Some(UpdateUserParams_oneof_one_of_workspace::workspace(_)) = self.one_of_workspace {
-        } else {
-            self.one_of_workspace = ::std::option::Option::Some(UpdateUserParams_oneof_one_of_workspace::workspace(::std::string::String::new()));
-        }
-        match self.one_of_workspace {
-            ::std::option::Option::Some(UpdateUserParams_oneof_one_of_workspace::workspace(ref mut v)) => v,
-            _ => panic!(),
-        }
-    }
-
-    // Take field
-    pub fn take_workspace(&mut self) -> ::std::string::String {
-        if self.has_workspace() {
-            match self.one_of_workspace.take() {
-                ::std::option::Option::Some(UpdateUserParams_oneof_one_of_workspace::workspace(v)) => v,
-                _ => panic!(),
-            }
-        } else {
-            ::std::string::String::new()
-        }
-    }
-
-    // string password = 5;
+    // string password = 4;
 
 
     pub fn get_password(&self) -> &str {
@@ -803,12 +667,6 @@ impl ::protobuf::Message for UpdateUserParams {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_workspace = ::std::option::Option::Some(UpdateUserParams_oneof_one_of_workspace::workspace(is.read_string()?));
-                },
-                5 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
                     self.one_of_password = ::std::option::Option::Some(UpdateUserParams_oneof_one_of_password::password(is.read_string()?));
                 },
                 _ => {
@@ -840,17 +698,10 @@ impl ::protobuf::Message for UpdateUserParams {
                 },
             };
         }
-        if let ::std::option::Option::Some(ref v) = self.one_of_workspace {
-            match v {
-                &UpdateUserParams_oneof_one_of_workspace::workspace(ref v) => {
-                    my_size += ::protobuf::rt::string_size(4, &v);
-                },
-            };
-        }
         if let ::std::option::Option::Some(ref v) = self.one_of_password {
             match v {
                 &UpdateUserParams_oneof_one_of_password::password(ref v) => {
-                    my_size += ::protobuf::rt::string_size(5, &v);
+                    my_size += ::protobuf::rt::string_size(4, &v);
                 },
             };
         }
@@ -877,17 +728,10 @@ impl ::protobuf::Message for UpdateUserParams {
                 },
             };
         }
-        if let ::std::option::Option::Some(ref v) = self.one_of_workspace {
-            match v {
-                &UpdateUserParams_oneof_one_of_workspace::workspace(ref v) => {
-                    os.write_string(4, v)?;
-                },
-            };
-        }
         if let ::std::option::Option::Some(ref v) = self.one_of_password {
             match v {
                 &UpdateUserParams_oneof_one_of_password::password(ref v) => {
-                    os.write_string(5, v)?;
+                    os.write_string(4, v)?;
                 },
             };
         }
@@ -945,11 +789,6 @@ impl ::protobuf::Message for UpdateUserParams {
                 UpdateUserParams::get_email,
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
-                "workspace",
-                UpdateUserParams::has_workspace,
-                UpdateUserParams::get_workspace,
-            ));
-            fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
                 "password",
                 UpdateUserParams::has_password,
                 UpdateUserParams::get_password,
@@ -973,7 +812,6 @@ impl ::protobuf::Clear for UpdateUserParams {
         self.id.clear();
         self.one_of_name = ::std::option::Option::None;
         self.one_of_email = ::std::option::Option::None;
-        self.one_of_workspace = ::std::option::Option::None;
         self.one_of_password = ::std::option::Option::None;
         self.unknown_fields.clear();
     }
@@ -992,57 +830,47 @@ impl ::protobuf::reflect::ProtobufValue for UpdateUserParams {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x11user_update.proto\"\xd5\x01\n\x11UpdateUserRequest\x12\x0e\n\x02id\
+    \n\x11user_update.proto\"\xa1\x01\n\x11UpdateUserRequest\x12\x0e\n\x02id\
     \x18\x01\x20\x01(\tR\x02id\x12\x14\n\x04name\x18\x02\x20\x01(\tH\0R\x04n\
-    ame\x12\x16\n\x05email\x18\x03\x20\x01(\tH\x01R\x05email\x12\x1e\n\twork\
-    space\x18\x04\x20\x01(\tH\x02R\tworkspace\x12\x1c\n\x08password\x18\x05\
-    \x20\x01(\tH\x03R\x08passwordB\r\n\x0bone_of_nameB\x0e\n\x0cone_of_email\
-    B\x12\n\x10one_of_workspaceB\x11\n\x0fone_of_password\"\xd4\x01\n\x10Upd\
-    ateUserParams\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x14\n\x04nam\
-    e\x18\x02\x20\x01(\tH\0R\x04name\x12\x16\n\x05email\x18\x03\x20\x01(\tH\
-    \x01R\x05email\x12\x1e\n\tworkspace\x18\x04\x20\x01(\tH\x02R\tworkspace\
-    \x12\x1c\n\x08password\x18\x05\x20\x01(\tH\x03R\x08passwordB\r\n\x0bone_\
-    of_nameB\x0e\n\x0cone_of_emailB\x12\n\x10one_of_workspaceB\x11\n\x0fone_\
-    of_passwordJ\xc0\x06\n\x06\x12\x04\0\0\x0f\x01\n\x08\n\x01\x0c\x12\x03\0\
-    \0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x08\x01\n\n\n\x03\x04\0\x01\x12\x03\
-    \x02\x08\x19\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x12\n\x0c\n\x05\x04\
-    \0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\
-    \x0b\r\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x10\x11\n\x0b\n\x04\x04\0\
-    \x08\0\x12\x03\x04\x04*\n\x0c\n\x05\x04\0\x08\0\x01\x12\x03\x04\n\x15\n\
-    \x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x18(\n\x0c\n\x05\x04\0\x02\x01\x05\
-    \x12\x03\x04\x18\x1e\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x1f#\n\
-    \x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04&'\n\x0b\n\x04\x04\0\x08\x01\x12\
-    \x03\x05\x04,\n\x0c\n\x05\x04\0\x08\x01\x01\x12\x03\x05\n\x16\n\x0b\n\
-    \x04\x04\0\x02\x02\x12\x03\x05\x19*\n\x0c\n\x05\x04\0\x02\x02\x05\x12\
-    \x03\x05\x19\x1f\n\x0c\n\x05\x04\0\x02\x02\x01\x12\x03\x05\x20%\n\x0c\n\
-    \x05\x04\0\x02\x02\x03\x12\x03\x05()\n\x0b\n\x04\x04\0\x08\x02\x12\x03\
-    \x06\x044\n\x0c\n\x05\x04\0\x08\x02\x01\x12\x03\x06\n\x1a\n\x0b\n\x04\
-    \x04\0\x02\x03\x12\x03\x06\x1d2\n\x0c\n\x05\x04\0\x02\x03\x05\x12\x03\
-    \x06\x1d#\n\x0c\n\x05\x04\0\x02\x03\x01\x12\x03\x06$-\n\x0c\n\x05\x04\0\
-    \x02\x03\x03\x12\x03\x0601\n\x0b\n\x04\x04\0\x08\x03\x12\x03\x07\x042\n\
-    \x0c\n\x05\x04\0\x08\x03\x01\x12\x03\x07\n\x19\n\x0b\n\x04\x04\0\x02\x04\
-    \x12\x03\x07\x1c0\n\x0c\n\x05\x04\0\x02\x04\x05\x12\x03\x07\x1c\"\n\x0c\
-    \n\x05\x04\0\x02\x04\x01\x12\x03\x07#+\n\x0c\n\x05\x04\0\x02\x04\x03\x12\
-    \x03\x07./\n\n\n\x02\x04\x01\x12\x04\t\0\x0f\x01\n\n\n\x03\x04\x01\x01\
-    \x12\x03\t\x08\x18\n\x0b\n\x04\x04\x01\x02\0\x12\x03\n\x04\x12\n\x0c\n\
-    \x05\x04\x01\x02\0\x05\x12\x03\n\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\
-    \x03\n\x0b\r\n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\n\x10\x11\n\x0b\n\x04\
-    \x04\x01\x08\0\x12\x03\x0b\x04*\n\x0c\n\x05\x04\x01\x08\0\x01\x12\x03\
-    \x0b\n\x15\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\x0b\x18(\n\x0c\n\x05\x04\
-    \x01\x02\x01\x05\x12\x03\x0b\x18\x1e\n\x0c\n\x05\x04\x01\x02\x01\x01\x12\
-    \x03\x0b\x1f#\n\x0c\n\x05\x04\x01\x02\x01\x03\x12\x03\x0b&'\n\x0b\n\x04\
-    \x04\x01\x08\x01\x12\x03\x0c\x04,\n\x0c\n\x05\x04\x01\x08\x01\x01\x12\
-    \x03\x0c\n\x16\n\x0b\n\x04\x04\x01\x02\x02\x12\x03\x0c\x19*\n\x0c\n\x05\
-    \x04\x01\x02\x02\x05\x12\x03\x0c\x19\x1f\n\x0c\n\x05\x04\x01\x02\x02\x01\
-    \x12\x03\x0c\x20%\n\x0c\n\x05\x04\x01\x02\x02\x03\x12\x03\x0c()\n\x0b\n\
-    \x04\x04\x01\x08\x02\x12\x03\r\x044\n\x0c\n\x05\x04\x01\x08\x02\x01\x12\
-    \x03\r\n\x1a\n\x0b\n\x04\x04\x01\x02\x03\x12\x03\r\x1d2\n\x0c\n\x05\x04\
-    \x01\x02\x03\x05\x12\x03\r\x1d#\n\x0c\n\x05\x04\x01\x02\x03\x01\x12\x03\
-    \r$-\n\x0c\n\x05\x04\x01\x02\x03\x03\x12\x03\r01\n\x0b\n\x04\x04\x01\x08\
-    \x03\x12\x03\x0e\x042\n\x0c\n\x05\x04\x01\x08\x03\x01\x12\x03\x0e\n\x19\
-    \n\x0b\n\x04\x04\x01\x02\x04\x12\x03\x0e\x1c0\n\x0c\n\x05\x04\x01\x02\
-    \x04\x05\x12\x03\x0e\x1c\"\n\x0c\n\x05\x04\x01\x02\x04\x01\x12\x03\x0e#+\
-    \n\x0c\n\x05\x04\x01\x02\x04\x03\x12\x03\x0e./b\x06proto3\
+    ame\x12\x16\n\x05email\x18\x03\x20\x01(\tH\x01R\x05email\x12\x1c\n\x08pa\
+    ssword\x18\x04\x20\x01(\tH\x02R\x08passwordB\r\n\x0bone_of_nameB\x0e\n\
+    \x0cone_of_emailB\x11\n\x0fone_of_password\"\xa0\x01\n\x10UpdateUserPara\
+    ms\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x14\n\x04name\x18\x02\
+    \x20\x01(\tH\0R\x04name\x12\x16\n\x05email\x18\x03\x20\x01(\tH\x01R\x05e\
+    mail\x12\x1c\n\x08password\x18\x04\x20\x01(\tH\x02R\x08passwordB\r\n\x0b\
+    one_of_nameB\x0e\n\x0cone_of_emailB\x11\n\x0fone_of_passwordJ\x9c\x05\n\
+    \x06\x12\x04\0\0\r\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\
+    \x12\x04\x02\0\x07\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x19\n\x0b\n\
+    \x04\x04\0\x02\0\x12\x03\x03\x04\x12\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\
+    \x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\r\n\x0c\n\x05\x04\
+    \0\x02\0\x03\x12\x03\x03\x10\x11\n\x0b\n\x04\x04\0\x08\0\x12\x03\x04\x04\
+    *\n\x0c\n\x05\x04\0\x08\0\x01\x12\x03\x04\n\x15\n\x0b\n\x04\x04\0\x02\
+    \x01\x12\x03\x04\x18(\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x18\x1e\
+    \n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x1f#\n\x0c\n\x05\x04\0\x02\
+    \x01\x03\x12\x03\x04&'\n\x0b\n\x04\x04\0\x08\x01\x12\x03\x05\x04,\n\x0c\
+    \n\x05\x04\0\x08\x01\x01\x12\x03\x05\n\x16\n\x0b\n\x04\x04\0\x02\x02\x12\
+    \x03\x05\x19*\n\x0c\n\x05\x04\0\x02\x02\x05\x12\x03\x05\x19\x1f\n\x0c\n\
+    \x05\x04\0\x02\x02\x01\x12\x03\x05\x20%\n\x0c\n\x05\x04\0\x02\x02\x03\
+    \x12\x03\x05()\n\x0b\n\x04\x04\0\x08\x02\x12\x03\x06\x042\n\x0c\n\x05\
+    \x04\0\x08\x02\x01\x12\x03\x06\n\x19\n\x0b\n\x04\x04\0\x02\x03\x12\x03\
+    \x06\x1c0\n\x0c\n\x05\x04\0\x02\x03\x05\x12\x03\x06\x1c\"\n\x0c\n\x05\
+    \x04\0\x02\x03\x01\x12\x03\x06#+\n\x0c\n\x05\x04\0\x02\x03\x03\x12\x03\
+    \x06./\n\n\n\x02\x04\x01\x12\x04\x08\0\r\x01\n\n\n\x03\x04\x01\x01\x12\
+    \x03\x08\x08\x18\n\x0b\n\x04\x04\x01\x02\0\x12\x03\t\x04\x12\n\x0c\n\x05\
+    \x04\x01\x02\0\x05\x12\x03\t\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\
+    \t\x0b\r\n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\t\x10\x11\n\x0b\n\x04\x04\
+    \x01\x08\0\x12\x03\n\x04*\n\x0c\n\x05\x04\x01\x08\0\x01\x12\x03\n\n\x15\
+    \n\x0b\n\x04\x04\x01\x02\x01\x12\x03\n\x18(\n\x0c\n\x05\x04\x01\x02\x01\
+    \x05\x12\x03\n\x18\x1e\n\x0c\n\x05\x04\x01\x02\x01\x01\x12\x03\n\x1f#\n\
+    \x0c\n\x05\x04\x01\x02\x01\x03\x12\x03\n&'\n\x0b\n\x04\x04\x01\x08\x01\
+    \x12\x03\x0b\x04,\n\x0c\n\x05\x04\x01\x08\x01\x01\x12\x03\x0b\n\x16\n\
+    \x0b\n\x04\x04\x01\x02\x02\x12\x03\x0b\x19*\n\x0c\n\x05\x04\x01\x02\x02\
+    \x05\x12\x03\x0b\x19\x1f\n\x0c\n\x05\x04\x01\x02\x02\x01\x12\x03\x0b\x20\
+    %\n\x0c\n\x05\x04\x01\x02\x02\x03\x12\x03\x0b()\n\x0b\n\x04\x04\x01\x08\
+    \x02\x12\x03\x0c\x042\n\x0c\n\x05\x04\x01\x08\x02\x01\x12\x03\x0c\n\x19\
+    \n\x0b\n\x04\x04\x01\x02\x03\x12\x03\x0c\x1c0\n\x0c\n\x05\x04\x01\x02\
+    \x03\x05\x12\x03\x0c\x1c\"\n\x0c\n\x05\x04\x01\x02\x03\x01\x12\x03\x0c#+\
+    \n\x0c\n\x05\x04\x01\x02\x03\x03\x12\x03\x0c./b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

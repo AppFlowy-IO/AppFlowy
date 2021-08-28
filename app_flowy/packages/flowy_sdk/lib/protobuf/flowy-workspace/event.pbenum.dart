@@ -15,6 +15,7 @@ class WorkspaceEvent extends $pb.ProtobufEnum {
   static const WorkspaceEvent ReadWorkspace = WorkspaceEvent._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ReadWorkspace');
   static const WorkspaceEvent DeleteWorkspace = WorkspaceEvent._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DeleteWorkspace');
   static const WorkspaceEvent ReadAllWorkspace = WorkspaceEvent._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ReadAllWorkspace');
+  static const WorkspaceEvent OpenWorkspace = WorkspaceEvent._(5, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'OpenWorkspace');
   static const WorkspaceEvent CreateApp = WorkspaceEvent._(101, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateApp');
   static const WorkspaceEvent DeleteApp = WorkspaceEvent._(102, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DeleteApp');
   static const WorkspaceEvent ReadApp = WorkspaceEvent._(103, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ReadApp');
@@ -30,6 +31,7 @@ class WorkspaceEvent extends $pb.ProtobufEnum {
     ReadWorkspace,
     DeleteWorkspace,
     ReadAllWorkspace,
+    OpenWorkspace,
     CreateApp,
     DeleteApp,
     ReadApp,

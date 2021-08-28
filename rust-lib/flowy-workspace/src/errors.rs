@@ -40,6 +40,9 @@ pub enum WsErrCode {
     #[display(fmt = "Workspace desc is invalid")]
     WorkspaceDescInvalid = 4,
 
+    #[display(fmt = "Current workspace not found")]
+    CurrentWorkspaceNotFound = 5,
+
     #[display(fmt = "Id of the App  is invalid")]
     AppIdInvalid         = 10,
 

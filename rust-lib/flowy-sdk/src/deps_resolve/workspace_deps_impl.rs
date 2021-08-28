@@ -21,43 +21,43 @@ impl WorkspaceUser for WorkspaceUserImpl {
         })
     }
 
-    fn set_cur_workspace_id(
-        &self,
-        workspace_id: &str,
-    ) -> DispatchFuture<Result<(), WorkspaceError>> {
-        let user_session = self.user_session.clone();
-        let workspace_id = workspace_id.to_owned();
-        DispatchFuture {
-            fut: Box::pin(async move {
-                let _ = user_session
-                    .set_current_workspace(&workspace_id)
-                    .await
-                    .map_err(|e| {
-                        ErrorBuilder::new(WsErrCode::UserInternalError)
-                            .error(e)
-                            .build()
-                    })?;
-                Ok(())
-            }),
-        }
-    }
-
-    fn get_cur_workspace(&self) -> DispatchFuture<Result<CurrentWorkspace, WorkspaceError>> {
-        let user_session = self.user_session.clone();
-        DispatchFuture {
-            fut: Box::pin(async move {
-                let user_detail = user_session.user_detail().map_err(|e| {
-                    ErrorBuilder::new(WsErrCode::UserNotLoginYet)
-                        .error(e)
-                        .build()
-                })?;
-
-                Ok(CurrentWorkspace {
-                    workspace_id: "".to_owned(),
-                })
-            }),
-        }
-    }
+    // fn set_cur_workspace_id(
+    //     &self,
+    //     workspace_id: &str,
+    // ) -> DispatchFuture<Result<(), WorkspaceError>> {
+    //     let user_session = self.user_session.clone();
+    //     let workspace_id = workspace_id.to_owned();
+    //     DispatchFuture {
+    //         fut: Box::pin(async move {
+    //             let _ = user_session
+    //                 .set_current_workspace(&workspace_id)
+    //                 .await
+    //                 .map_err(|e| {
+    //                     ErrorBuilder::new(WsErrCode::UserInternalError)
+    //                         .error(e)
+    //                         .build()
+    //                 })?;
+    //             Ok(())
+    //         }),
+    //     }
+    // }
+    //
+    // fn get_cur_workspace(&self) -> DispatchFuture<Result<CurrentWorkspace,
+    // WorkspaceError>> {     let user_session = self.user_session.clone();
+    //     DispatchFuture {
+    //         fut: Box::pin(async move {
+    //             let user_detail = user_session.user_detail().map_err(|e| {
+    //                 ErrorBuilder::new(WsErrCode::UserNotLoginYet)
+    //                     .error(e)
+    //                     .build()
+    //             })?;
+    //
+    //             Ok(CurrentWorkspace {
+    //                 workspace_id: "".to_owned(),
+    //             })
+    //         }),
+    //     }
+    // }
 }
 
 pub struct WorkspaceDatabaseImpl {
