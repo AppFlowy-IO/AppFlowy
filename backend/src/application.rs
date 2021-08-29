@@ -5,7 +5,6 @@ use crate::{
         Settings,
     },
     context::AppContext,
-    routers::*,
     user_service::router as user,
     workspace_service::{app::router as app, view::router as view, workspace::router as workspace},
     ws_service,

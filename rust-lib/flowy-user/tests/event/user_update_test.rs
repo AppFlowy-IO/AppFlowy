@@ -11,7 +11,6 @@ fn user_update_with_name() {
         id: user_detail.id.clone(),
         name: Some(new_name.clone()),
         email: None,
-        workspace: None,
         password: None,
     };
 
@@ -33,7 +32,6 @@ fn user_update_with_email() {
         id: user_detail.id.clone(),
         name: None,
         email: Some(new_email.clone()),
-        workspace: None,
         password: None,
     };
 
@@ -55,7 +53,6 @@ fn user_update_with_password() {
         id: user_detail.id.clone(),
         name: None,
         email: None,
-        workspace: None,
         password: Some(new_password.clone()),
     };
 
@@ -75,7 +72,6 @@ fn user_update_with_invalid_email() {
             id: user_detail.id.clone(),
             name: None,
             email: Some(email),
-            workspace: None,
             password: None,
         };
 
@@ -100,7 +96,6 @@ fn user_update_with_invalid_password() {
             id: user_detail.id.clone(),
             name: None,
             email: None,
-            workspace: None,
             password: Some(password),
         };
 
@@ -120,7 +115,6 @@ fn user_update_with_invalid_name() {
         id: user_detail.id.clone(),
         name: Some("".to_string()),
         email: None,
-        workspace: None,
         password: None,
     };
 

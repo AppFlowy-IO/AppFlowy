@@ -1,7 +1,7 @@
 use crate::errors::UserError;
 use flowy_dispatch::prelude::DispatchFuture;
 
-pub trait WorkspaceAction {
+pub trait UserWorkspaceController {
     fn create_workspace(
         &self,
         name: &str,

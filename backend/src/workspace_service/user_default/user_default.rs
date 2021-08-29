@@ -1,15 +1,14 @@
 use crate::{
-    sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
+    sqlx_ext::{map_sqlx_error, DBTransaction},
     workspace_service::{
         app::Builder as AppBuilder,
         view::Builder as ViewBuilder,
         workspace::Builder as WorkspaceBuilder,
     },
 };
-use chrono::Utc;
+
 use flowy_net::errors::ServerError;
 use flowy_workspace::protobuf::{App, View, ViewType, Workspace};
-use sqlx::{Postgres, Transaction};
 
 pub async fn create_default_workspace(
     transaction: &mut DBTransaction<'_>,

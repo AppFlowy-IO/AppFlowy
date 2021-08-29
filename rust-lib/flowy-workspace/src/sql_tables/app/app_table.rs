@@ -83,7 +83,6 @@ impl_sql_binary_expression!(ColorStyleCol);
 #[table_name = "app_table"]
 pub struct AppTableChangeset {
     pub id: String,
-    pub workspace_id: Option<String>,
     pub name: Option<String>,
     pub desc: Option<String>,
     pub is_trash: Option<bool>,
@@ -93,7 +92,6 @@ impl AppTableChangeset {
     pub fn new(params: UpdateAppParams) -> Self {
         AppTableChangeset {
             id: params.app_id,
-            workspace_id: params.workspace_id,
             name: params.name,
             desc: params.desc,
             is_trash: params.is_trash,

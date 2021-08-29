@@ -14,11 +14,12 @@ const CreateWorkspaceRequest$json = const {
   '2': const [
     const {'1': 'name', '3': 1, '4': 1, '5': 9, '10': 'name'},
     const {'1': 'desc', '3': 2, '4': 1, '5': 9, '10': 'desc'},
+    const {'1': 'user_id', '3': 3, '4': 1, '5': 9, '10': 'userId'},
   ],
 };
 
 /// Descriptor for `CreateWorkspaceRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List createWorkspaceRequestDescriptor = $convert.base64Decode('ChZDcmVhdGVXb3Jrc3BhY2VSZXF1ZXN0EhIKBG5hbWUYASABKAlSBG5hbWUSEgoEZGVzYxgCIAEoCVIEZGVzYw==');
+final $typed_data.Uint8List createWorkspaceRequestDescriptor = $convert.base64Decode('ChZDcmVhdGVXb3Jrc3BhY2VSZXF1ZXN0EhIKBG5hbWUYASABKAlSBG5hbWUSEgoEZGVzYxgCIAEoCVIEZGVzYxIXCgd1c2VyX2lkGAMgASgJUgZ1c2VySWQ=');
 @$core.Deprecated('Use createWorkspaceParamsDescriptor instead')
 const CreateWorkspaceParams$json = const {
   '1': 'CreateWorkspaceParams',

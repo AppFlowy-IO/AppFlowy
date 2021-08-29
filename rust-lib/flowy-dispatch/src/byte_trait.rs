@@ -1,8 +1,6 @@
 use crate::errors::{DispatchError, InternalError};
 use bytes::Bytes;
 
-use std::convert::TryFrom;
-
 // To bytes
 pub trait ToBytes {
     fn into_bytes(self) -> Result<Bytes, DispatchError>;

@@ -14,14 +14,13 @@ use flowy_net::errors::invalid_params;
 use flowy_user::entities::parser::UserId;
 use flowy_workspace::{
     entities::{
-        app::parser::{AppDesc, AppId, AppName},
+        app::parser::{AppDesc, AppName},
         workspace::parser::WorkspaceId,
     },
     protobuf::{App, CreateAppParams, QueryAppParams, RepeatedApp, RepeatedView, UpdateAppParams},
 };
 use protobuf::Message;
-use sqlx::{postgres::PgArguments, PgPool, Postgres, Transaction};
-use uuid::Uuid;
+use sqlx::{postgres::PgArguments, PgPool, Postgres};
 
 pub(crate) async fn create_app(
     pool: &PgPool,
@@ -108,15 +107,6 @@ pub(crate) async fn update_app(
         ),
     };
 
-    let workspace_id = match params.has_workspace_id() {
-        false => None,
-        true => Some(
-            WorkspaceId::parse(params.get_workspace_id().to_owned())
-                .map_err(invalid_params)?
-                .0,
-        ),
-    };
-
     let color_style = match params.has_color_style() {
         false => None,
         true => {
@@ -141,7 +131,6 @@ pub(crate) async fn update_app(
 
     let (sql, args) = SqlBuilder::update("app_table")
         .add_some_arg("name", name)
-        .add_some_arg("workspace_id", workspace_id)
         .add_some_arg("color_style", color_style)
         .add_some_arg("description", desc)
         .add_some_arg("modified_time", Some(Utc::now()))

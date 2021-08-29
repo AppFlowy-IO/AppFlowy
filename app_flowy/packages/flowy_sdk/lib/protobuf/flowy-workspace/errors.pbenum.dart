@@ -26,6 +26,7 @@ class WsErrCode extends $pb.ProtobufEnum {
   static const WsErrCode WorkspaceDatabaseError = WsErrCode._(101, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceDatabaseError');
   static const WsErrCode UserInternalError = WsErrCode._(102, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserInternalError');
   static const WsErrCode UserNotLoginYet = WsErrCode._(103, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNotLoginYet');
+  static const WsErrCode UserIdIsEmpty = WsErrCode._(104, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserIdIsEmpty');
   static const WsErrCode ServerError = WsErrCode._(1000, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ServerError');
   static const WsErrCode RecordNotFound = WsErrCode._(1001, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RecordNotFound');
 
@@ -46,6 +47,7 @@ class WsErrCode extends $pb.ProtobufEnum {
     WorkspaceDatabaseError,
     UserInternalError,
     UserNotLoginYet,
+    UserIdIsEmpty,
     ServerError,
     RecordNotFound,
   ];

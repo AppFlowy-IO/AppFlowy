@@ -1,6 +1,6 @@
 use flowy_net::errors::ServerError;
 use sql_builder::SqlBuilder as InnerBuilder;
-use sqlx::{postgres::PgArguments, Arguments, Encode, PgPool, Postgres, Type};
+use sqlx::{postgres::PgArguments, Arguments, Encode, Postgres, Type};
 
 enum BuilderType {
     Create,

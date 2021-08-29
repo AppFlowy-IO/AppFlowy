@@ -28,13 +28,14 @@ const WsErrCode$json = const {
     const {'1': 'WorkspaceDatabaseError', '2': 101},
     const {'1': 'UserInternalError', '2': 102},
     const {'1': 'UserNotLoginYet', '2': 103},
+    const {'1': 'UserIdIsEmpty', '2': 104},
     const {'1': 'ServerError', '2': 1000},
     const {'1': 'RecordNotFound', '2': 1001},
   ],
 };
 
 /// Descriptor for `WsErrCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List wsErrCodeDescriptor = $convert.base64Decode('CglXc0VyckNvZGUSCwoHVW5rbm93bhAAEhgKFFdvcmtzcGFjZU5hbWVJbnZhbGlkEAESFgoSV29ya3NwYWNlSWRJbnZhbGlkEAISGAoUQXBwQ29sb3JTdHlsZUludmFsaWQQAxIYChRXb3Jrc3BhY2VEZXNjSW52YWxpZBAEEhwKGEN1cnJlbnRXb3Jrc3BhY2VOb3RGb3VuZBAFEhAKDEFwcElkSW52YWxpZBAKEhIKDkFwcE5hbWVJbnZhbGlkEAsSEwoPVmlld05hbWVJbnZhbGlkEBQSGAoUVmlld1RodW1ibmFpbEludmFsaWQQFRIRCg1WaWV3SWRJbnZhbGlkEBYSEwoPVmlld0Rlc2NJbnZhbGlkEBcSGgoWRGF0YWJhc2VDb25uZWN0aW9uRmFpbBBkEhoKFldvcmtzcGFjZURhdGFiYXNlRXJyb3IQZRIVChFVc2VySW50ZXJuYWxFcnJvchBmEhMKD1VzZXJOb3RMb2dpbllldBBnEhAKC1NlcnZlckVycm9yEOgHEhMKDlJlY29yZE5vdEZvdW5kEOkH');
+final $typed_data.Uint8List wsErrCodeDescriptor = $convert.base64Decode('CglXc0VyckNvZGUSCwoHVW5rbm93bhAAEhgKFFdvcmtzcGFjZU5hbWVJbnZhbGlkEAESFgoSV29ya3NwYWNlSWRJbnZhbGlkEAISGAoUQXBwQ29sb3JTdHlsZUludmFsaWQQAxIYChRXb3Jrc3BhY2VEZXNjSW52YWxpZBAEEhwKGEN1cnJlbnRXb3Jrc3BhY2VOb3RGb3VuZBAFEhAKDEFwcElkSW52YWxpZBAKEhIKDkFwcE5hbWVJbnZhbGlkEAsSEwoPVmlld05hbWVJbnZhbGlkEBQSGAoUVmlld1RodW1ibmFpbEludmFsaWQQFRIRCg1WaWV3SWRJbnZhbGlkEBYSEwoPVmlld0Rlc2NJbnZhbGlkEBcSGgoWRGF0YWJhc2VDb25uZWN0aW9uRmFpbBBkEhoKFldvcmtzcGFjZURhdGFiYXNlRXJyb3IQZRIVChFVc2VySW50ZXJuYWxFcnJvchBmEhMKD1VzZXJOb3RMb2dpbllldBBnEhEKDVVzZXJJZElzRW1wdHkQaBIQCgtTZXJ2ZXJFcnJvchDoBxITCg5SZWNvcmROb3RGb3VuZBDpBw==');
 @$core.Deprecated('Use workspaceErrorDescriptor instead')
 const WorkspaceError$json = const {
   '1': 'WorkspaceError',

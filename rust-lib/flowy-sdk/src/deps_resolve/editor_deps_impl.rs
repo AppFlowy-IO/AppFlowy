@@ -26,7 +26,7 @@ pub struct EditorUserImpl {
 
 impl DocumentUser for EditorUserImpl {
     fn user_doc_dir(&self) -> Result<String, DocError> {
-        let dir = self.user_session.get_user_dir().map_err(|e| {
+        let dir = self.user_session.user_dir().map_err(|e| {
             ErrorBuilder::new(DocErrorCode::EditorUserNotLoginYet)
                 .error(e)
                 .build()

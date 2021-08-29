@@ -1,8 +1,7 @@
 use flowy_database::DBConnection;
-use flowy_dispatch::prelude::DispatchFuture;
+
 use flowy_user::prelude::UserSession;
 use flowy_workspace::{
-    entities::workspace::CurrentWorkspace,
     errors::{ErrorBuilder, WorkspaceError, WsErrCode},
     module::{WorkspaceDatabase, WorkspaceUser},
 };
@@ -14,50 +13,12 @@ pub struct WorkspaceUserImpl {
 
 impl WorkspaceUser for WorkspaceUserImpl {
     fn user_id(&self) -> Result<String, WorkspaceError> {
-        self.user_session.get_user_id().map_err(|e| {
+        self.user_session.user_id().map_err(|e| {
             ErrorBuilder::new(WsErrCode::UserInternalError)
                 .error(e)
                 .build()
         })
     }
-
-    // fn set_cur_workspace_id(
-    //     &self,
-    //     workspace_id: &str,
-    // ) -> DispatchFuture<Result<(), WorkspaceError>> {
-    //     let user_session = self.user_session.clone();
-    //     let workspace_id = workspace_id.to_owned();
-    //     DispatchFuture {
-    //         fut: Box::pin(async move {
-    //             let _ = user_session
-    //                 .set_current_workspace(&workspace_id)
-    //                 .await
-    //                 .map_err(|e| {
-    //                     ErrorBuilder::new(WsErrCode::UserInternalError)
-    //                         .error(e)
-    //                         .build()
-    //                 })?;
-    //             Ok(())
-    //         }),
-    //     }
-    // }
-    //
-    // fn get_cur_workspace(&self) -> DispatchFuture<Result<CurrentWorkspace,
-    // WorkspaceError>> {     let user_session = self.user_session.clone();
-    //     DispatchFuture {
-    //         fut: Box::pin(async move {
-    //             let user_detail = user_session.user_detail().map_err(|e| {
-    //                 ErrorBuilder::new(WsErrCode::UserNotLoginYet)
-    //                     .error(e)
-    //                     .build()
-    //             })?;
-    //
-    //             Ok(CurrentWorkspace {
-    //                 workspace_id: "".to_owned(),
-    //             })
-    //         }),
-    //     }
-    // }
 }
 
 pub struct WorkspaceDatabaseImpl {

@@ -73,6 +73,9 @@ pub enum WsErrCode {
     #[display(fmt = "User not login yet")]
     UserNotLoginYet      = 103,
 
+    #[display(fmt = "UserIn is empty")]
+    UserIdIsEmpty        = 104,
+
     #[display(fmt = "Server error")]
     ServerError          = 1000,
     #[display(fmt = "Record not found")]

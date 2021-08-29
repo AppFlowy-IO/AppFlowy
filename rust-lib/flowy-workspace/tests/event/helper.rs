@@ -11,36 +11,42 @@ pub(crate) fn invalid_workspace_name_test_case() -> Vec<String> {
         .collect::<Vec<_>>()
 }
 
-pub fn create_workspace(name: &str, desc: &str) -> Workspace {
+pub fn create_workspace(name: &str, desc: &str) -> (String, Workspace) {
+    let builder = SingleUserTestBuilder::new();
+    let user_id = builder.user_detail.as_ref().unwrap().id.clone();
+
     let request = CreateWorkspaceRequest {
         name: name.to_owned(),
         desc: desc.to_owned(),
+        user_id: user_id.clone(),
     };
 
-    let workspace = SingleUserTestBuilder::new()
+    let workspace = builder
         .event(CreateWorkspace)
         .request(request)
         .sync_send()
         .parse::<Workspace>();
 
-    workspace
+    (user_id, workspace)
 }
 
-pub fn read_workspace(request: QueryWorkspaceRequest) -> Workspace {
-    let workspace = SingleUserTestBuilder::new()
+pub fn read_workspaces(request: QueryWorkspaceRequest) -> Option<Workspace> {
+    let mut repeated_workspace = SingleUserTestBuilder::new()
         .event(ReadWorkspace)
         .request(request)
         .sync_send()
-        .parse::<Workspace>();
+        .parse::<RepeatedWorkspace>();
 
-    workspace
+    debug_assert_eq!(repeated_workspace.len(), 1);
+    repeated_workspace
+        .drain(..1)
+        .collect::<Vec<Workspace>>()
+        .pop()
 }
 
-pub fn create_app(name: &str, desc: &str) -> App {
-    let workspace = create_workspace("Workspace", "");
-
+pub fn create_app(name: &str, desc: &str, workspace_id: &str) -> App {
     let create_app_request = CreateAppRequest {
-        workspace_id: workspace.id,
+        workspace_id: workspace_id.to_owned(),
         name: name.to_string(),
         desc: desc.to_string(),
         color_style: Default::default(),
@@ -93,7 +99,8 @@ pub fn create_view_with_request(request: CreateViewRequest) -> View {
 }
 
 pub fn create_view() -> View {
-    let app = create_app("App A", "AppFlowy Github Project");
+    let workspace = create_workspace("Workspace", "").1;
+    let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
     let request = CreateViewRequest {
         belong_to_id: app.id.clone(),
         name: "View A".to_string(),

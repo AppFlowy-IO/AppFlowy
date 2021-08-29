@@ -8,25 +8,26 @@ use flowy_dispatch::prelude::{
 };
 use flowy_user::{
     errors::{ErrorBuilder, UserErrCode, UserError},
-    prelude::WorkspaceAction,
+    prelude::UserWorkspaceController,
 };
 use flowy_workspace::{
     entities::workspace::{CreateWorkspaceRequest, Workspace},
     event::WorkspaceEvent::CreateWorkspace,
 };
 
-pub struct UserWorkspaceActionImpl {}
-impl WorkspaceAction for UserWorkspaceActionImpl {
+pub struct UserWorkspaceControllerImpl {}
+impl UserWorkspaceController for UserWorkspaceControllerImpl {
     fn create_workspace(
         &self,
         name: &str,
         desc: &str,
-        _user_id: &str,
+        user_id: &str,
     ) -> DispatchFuture<Result<String, UserError>> {
-        log::info!("Create user workspace: {:?}", name);
+        log::info!("Create new workspace: {:?}", name);
         let payload: Bytes = CreateWorkspaceRequest {
             name: name.to_string(),
             desc: desc.to_string(),
+            user_id: user_id.to_string(),
         }
         .into_bytes()
         .unwrap();

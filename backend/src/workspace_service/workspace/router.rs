@@ -7,7 +7,7 @@ use crate::{
         update_workspace,
     },
 };
-use actix_identity::Identity;
+
 use actix_web::{
     web::{Data, Path, Payload},
     HttpResponse,

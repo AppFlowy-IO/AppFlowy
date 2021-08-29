@@ -13,6 +13,9 @@ pub struct CreateWorkspaceRequest {
 
     #[pb(index = 2)]
     pub desc: String,
+
+    #[pb(index = 3)]
+    pub user_id: String,
 }
 
 #[derive(ProtoBuf, Default)]
@@ -32,7 +35,7 @@ impl TryInto<CreateWorkspaceParams> for CreateWorkspaceRequest {
 
     fn try_into(self) -> Result<CreateWorkspaceParams, Self::Error> {
         let name = WorkspaceName::parse(self.name).map_err(|e| {
-            ErrorBuilder::new(WsErrCode::WorkspaceDescInvalid)
+            ErrorBuilder::new(WsErrCode::WorkspaceNameInvalid)
                 .msg(e)
                 .build()
         })?;
@@ -43,10 +46,16 @@ impl TryInto<CreateWorkspaceParams> for CreateWorkspaceRequest {
                 .build()
         })?;
 
+        if self.user_id.is_empty() {
+            return Err(ErrorBuilder::new(WsErrCode::UserIdIsEmpty)
+                .msg("Create workspace failed. UserId is empty")
+                .build());
+        }
+
         Ok(CreateWorkspaceParams {
             name: name.0,
             desc: desc.0,
-            user_id: "".to_string(),
+            user_id: self.user_id,
         })
     }
 }

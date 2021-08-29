@@ -6,34 +6,29 @@ use std::{
 };
 
 use crate::{
-    helper::valid_email,
+    helper::{create_default_workspace_if_need, valid_email},
     tester::{TesterContext, TesterTrait},
 };
 use flowy_user::errors::UserError;
 use flowy_workspace::errors::WorkspaceError;
-use std::{marker::PhantomData, sync::Once};
-static INIT: Once = Once::new();
+use std::marker::PhantomData;
 
 pub type SingleUserTestBuilder = TestBuilder<FixedUserTester<WorkspaceError>>;
 impl SingleUserTestBuilder {
     pub fn new() -> Self {
-        let mut builder = Self {
-            tester: Box::new(FixedUserTester::<WorkspaceError>::new()),
-            user_detail: None,
-        };
+        let mut builder = TestBuilder::test(Box::new(FixedUserTester::<WorkspaceError>::new()));
+        builder.login_if_need();
 
-        INIT.call_once(|| builder.login_if_need());
+        let user_id = builder.user_detail.as_ref().unwrap().id.clone();
+        let _ = create_default_workspace_if_need(&user_id);
+
         builder
     }
 }
-
 pub type UserTestBuilder = TestBuilder<RandomUserTester<UserError>>;
 impl UserTestBuilder {
     pub fn new() -> Self {
-        let builder = Self {
-            tester: Box::new(RandomUserTester::<UserError>::new()),
-            user_detail: None,
-        };
+        let builder = TestBuilder::test(Box::new(RandomUserTester::<UserError>::new()));
 
         builder
     }
@@ -50,6 +45,13 @@ impl<T> TestBuilder<T>
 where
     T: TesterTrait,
 {
+    pub fn test(tester: Box<T>) -> Self {
+        Self {
+            tester,
+            user_detail: None,
+        }
+    }
+
     pub fn login(mut self) -> Self {
         let user_detail = self.tester.login();
         self.user_detail = Some(user_detail);

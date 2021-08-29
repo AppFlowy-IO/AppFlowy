@@ -1,5 +1,5 @@
 use crate::{
-    entities::{app::RepeatedApp, workspace::*},
+    entities::workspace::*,
     errors::{ErrorBuilder, WorkspaceError, WsErrCode},
     services::WorkspaceController,
 };
@@ -31,9 +31,7 @@ pub async fn read_workspace(
     controller: Unit<Arc<WorkspaceController>>,
 ) -> DataResult<RepeatedWorkspace, WorkspaceError> {
     let params: QueryWorkspaceParams = data.into_inner().try_into()?;
-
     let workspaces = controller.read_workspaces(params.workspace_id).await?;
-
     data_result(workspaces)
 }
 

@@ -7,7 +7,7 @@ use crate::{
 };
 use flowy_database::DBConnection;
 
-use crate::{entities::workspace::CurrentWorkspace, handlers::*, services::ViewController};
+use crate::{handlers::*, services::ViewController};
 use std::sync::Arc;
 
 pub trait WorkspaceDeps: WorkspaceUser + WorkspaceDatabase {}

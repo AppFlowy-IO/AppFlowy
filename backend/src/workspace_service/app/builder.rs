@@ -75,7 +75,7 @@ impl Builder {
 }
 
 fn default_color_style() -> Vec<u8> {
-    let mut style = ColorStyle::default();
+    let style = ColorStyle::default();
     match style.write_to_bytes() {
         Ok(bytes) => bytes,
         Err(e) => {

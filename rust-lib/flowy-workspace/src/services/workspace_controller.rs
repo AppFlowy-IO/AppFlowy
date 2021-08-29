@@ -33,11 +33,9 @@ impl WorkspaceController {
 
     pub async fn create_workspace(
         &self,
-        mut params: CreateWorkspaceParams,
+        params: CreateWorkspaceParams,
     ) -> Result<Workspace, WorkspaceError> {
-        let user_id = self.user.user_id()?;
-        params.user_id = user_id.clone();
-
+        let user_id = params.user_id.clone();
         // TODO: server
 
         let workspace_table = WorkspaceTable::new(params, &user_id);

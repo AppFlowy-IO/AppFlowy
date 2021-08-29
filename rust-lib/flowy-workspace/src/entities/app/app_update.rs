@@ -1,10 +1,7 @@
 use crate::{
-    entities::{
-        app::{
-            parser::{AppColorStyle, AppId, AppName},
-            ColorStyle,
-        },
-        workspace::parser::WorkspaceId,
+    entities::app::{
+        parser::{AppColorStyle, AppId, AppName},
+        ColorStyle,
     },
     errors::{ErrorBuilder, WorkspaceError, WsErrCode},
 };
@@ -17,18 +14,15 @@ pub struct UpdateAppRequest {
     pub app_id: String,
 
     #[pb(index = 2, one_of)]
-    pub workspace_id: Option<String>,
-
-    #[pb(index = 3, one_of)]
     pub name: Option<String>,
 
-    #[pb(index = 4, one_of)]
+    #[pb(index = 3, one_of)]
     pub desc: Option<String>,
 
-    #[pb(index = 5, one_of)]
+    #[pb(index = 4, one_of)]
     pub color_style: Option<ColorStyle>,
 
-    #[pb(index = 6, one_of)]
+    #[pb(index = 5, one_of)]
     pub is_trash: Option<bool>,
 }
 
@@ -38,18 +32,15 @@ pub struct UpdateAppParams {
     pub app_id: String,
 
     #[pb(index = 2, one_of)]
-    pub workspace_id: Option<String>,
-
-    #[pb(index = 3, one_of)]
     pub name: Option<String>,
 
-    #[pb(index = 4, one_of)]
+    #[pb(index = 3, one_of)]
     pub desc: Option<String>,
 
-    #[pb(index = 5, one_of)]
+    #[pb(index = 4, one_of)]
     pub color_style: Option<ColorStyle>,
 
-    #[pb(index = 6, one_of)]
+    #[pb(index = 5, one_of)]
     pub is_trash: Option<bool>,
 }
 
@@ -98,19 +89,6 @@ impl TryInto<UpdateAppParams> for UpdateAppRequest {
             ),
         };
 
-        let workspace_id = match self.workspace_id {
-            None => None,
-            Some(wid) => Some(
-                WorkspaceId::parse(wid)
-                    .map_err(|e| {
-                        ErrorBuilder::new(WsErrCode::WorkspaceIdInvalid)
-                            .msg(e)
-                            .build()
-                    })?
-                    .0,
-            ),
-        };
-
         let color_style = match self.color_style {
             None => None,
             Some(color_style) => Some(
@@ -126,7 +104,6 @@ impl TryInto<UpdateAppParams> for UpdateAppRequest {
 
         Ok(UpdateAppParams {
             app_id,
-            workspace_id,
             name,
             desc: self.desc,
             color_style,

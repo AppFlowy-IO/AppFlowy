@@ -15,7 +15,14 @@ fn workspace_create_success() { let _ = create_workspace("First workspace", "");
 
 #[test]
 fn workspace_get_success() {
-    let workspace = SingleUserTestBuilder::new()
+    let builder = SingleUserTestBuilder::new();
+
+    let _workspaces = SingleUserTestBuilder::new()
+        .event(ReadAllWorkspace)
+        .sync_send()
+        .parse::<RepeatedWorkspace>();
+
+    let workspace = builder
         .event(ReadCurWorkspace)
         .sync_send()
         .parse::<Workspace>();
@@ -35,41 +42,47 @@ fn workspace_read_all_success() {
 
 #[test]
 fn workspace_create_and_then_get_workspace_success() {
-    let workspace = create_workspace(
+    let (user_id, workspace) = create_workspace(
         "Workspace A",
         "workspace_create_and_then_get_workspace_success",
     );
     let request = QueryWorkspaceRequest {
-        workspace_id: workspace.id.clone(),
-        read_apps: false,
+        workspace_id: Some(workspace.id.clone()),
+        user_id,
     };
 
-    let workspace_from_db = read_workspace(request);
+    let workspace_from_db = read_workspaces(request).unwrap();
     assert_eq!(workspace.name, workspace_from_db.name);
 }
 
 #[test]
 fn workspace_create_with_apps_success() {
-    let app = create_app("App A", "");
+    let (user_id, workspace) = create_workspace("Workspace", "");
+    let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
+
     let query_workspace_request = QueryWorkspaceRequest {
-        workspace_id: app.workspace_id.clone(),
-        read_apps: true,
+        workspace_id: Some(workspace.id),
+        user_id,
     };
 
-    let workspace_from_db = read_workspace(query_workspace_request);
+    let workspace_from_db = read_workspaces(query_workspace_request).unwrap();
     assert_eq!(&app, workspace_from_db.apps.first_or_crash());
 }
 
 #[test]
 fn workspace_create_with_invalid_name_test() {
     for name in invalid_workspace_name_test_case() {
+        let builder = SingleUserTestBuilder::new();
+        let user_id = builder.user_detail.as_ref().unwrap().id.clone();
+
         let request = CreateWorkspaceRequest {
             name,
             desc: "".to_owned(),
+            user_id: user_id.clone(),
         };
 
         assert_eq!(
-            SingleUserTestBuilder::new()
+            builder
                 .event(CreateWorkspace)
                 .request(request)
                 .sync_send()
@@ -83,13 +96,17 @@ fn workspace_create_with_invalid_name_test() {
 #[test]
 fn workspace_update_with_invalid_name_test() {
     for name in invalid_workspace_name_test_case() {
+        let builder = SingleUserTestBuilder::new();
+        let user_id = builder.user_detail.as_ref().unwrap().id.clone();
+
         let request = CreateWorkspaceRequest {
             name,
             desc: "".to_owned(),
+            user_id: user_id.clone(),
         };
 
         assert_eq!(
-            SingleUserTestBuilder::new()
+            builder
                 .event(CreateWorkspace)
                 .request(request)
                 .sync_send()

@@ -5,7 +5,7 @@ use crate::{
     workspace_service::app::app::read_apps_belong_to_workspace,
 };
 use anyhow::Context;
-use chrono::Utc;
+
 use flowy_net::{
     errors::{invalid_params, ServerError},
     response::FlowyResponse,
@@ -14,19 +14,10 @@ use flowy_user::entities::parser::UserId;
 
 use crate::workspace_service::workspace::{check_workspace_id, make_workspace_from_table};
 use flowy_workspace::{
-    entities::workspace::parser::{WorkspaceDesc, WorkspaceId, WorkspaceName},
-    protobuf::{
-        CreateWorkspaceParams,
-        DeleteWorkspaceParams,
-        QueryWorkspaceParams,
-        RepeatedApp,
-        RepeatedWorkspace,
-        UpdateWorkspaceParams,
-        Workspace,
-    },
+    entities::workspace::parser::{WorkspaceDesc, WorkspaceName},
+    protobuf::{CreateWorkspaceParams, RepeatedApp, RepeatedWorkspace, UpdateWorkspaceParams},
 };
-use sqlx::{postgres::PgArguments, PgPool, Postgres, Transaction};
-use uuid::Uuid;
+use sqlx::{postgres::PgArguments, PgPool, Postgres};
 
 pub(crate) async fn create_workspace(
     pool: &PgPool,

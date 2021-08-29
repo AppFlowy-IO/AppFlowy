@@ -12,13 +12,12 @@ use flowy_net::{
 use flowy_workspace::{
     entities::{
         app::parser::AppId,
-        view::parser::{ViewDesc, ViewId, ViewName, ViewThumbnail},
+        view::parser::{ViewDesc, ViewName, ViewThumbnail},
     },
     protobuf::{CreateViewParams, QueryViewParams, RepeatedView, UpdateViewParams, View},
 };
-use protobuf::ProtobufEnum;
-use sqlx::{postgres::PgArguments, PgPool, Postgres, Transaction};
-use uuid::Uuid;
+
+use sqlx::{postgres::PgArguments, PgPool, Postgres};
 
 pub(crate) async fn create_view(
     pool: &PgPool,

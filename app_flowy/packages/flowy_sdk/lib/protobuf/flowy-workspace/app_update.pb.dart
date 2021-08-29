@@ -11,11 +11,6 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 import 'app_create.pb.dart' as $0;
 
-enum UpdateAppRequest_OneOfWorkspaceId {
-  workspaceId, 
-  notSet
-}
-
 enum UpdateAppRequest_OneOfName {
   name, 
   notSet
@@ -37,24 +32,20 @@ enum UpdateAppRequest_OneOfIsTrash {
 }
 
 class UpdateAppRequest extends $pb.GeneratedMessage {
-  static const $core.Map<$core.int, UpdateAppRequest_OneOfWorkspaceId> _UpdateAppRequest_OneOfWorkspaceIdByTag = {
-    2 : UpdateAppRequest_OneOfWorkspaceId.workspaceId,
-    0 : UpdateAppRequest_OneOfWorkspaceId.notSet
-  };
   static const $core.Map<$core.int, UpdateAppRequest_OneOfName> _UpdateAppRequest_OneOfNameByTag = {
-    3 : UpdateAppRequest_OneOfName.name,
+    2 : UpdateAppRequest_OneOfName.name,
     0 : UpdateAppRequest_OneOfName.notSet
   };
   static const $core.Map<$core.int, UpdateAppRequest_OneOfDesc> _UpdateAppRequest_OneOfDescByTag = {
-    4 : UpdateAppRequest_OneOfDesc.desc,
+    3 : UpdateAppRequest_OneOfDesc.desc,
     0 : UpdateAppRequest_OneOfDesc.notSet
   };
   static const $core.Map<$core.int, UpdateAppRequest_OneOfColorStyle> _UpdateAppRequest_OneOfColorStyleByTag = {
-    5 : UpdateAppRequest_OneOfColorStyle.colorStyle,
+    4 : UpdateAppRequest_OneOfColorStyle.colorStyle,
     0 : UpdateAppRequest_OneOfColorStyle.notSet
   };
   static const $core.Map<$core.int, UpdateAppRequest_OneOfIsTrash> _UpdateAppRequest_OneOfIsTrashByTag = {
-    6 : UpdateAppRequest_OneOfIsTrash.isTrash,
+    5 : UpdateAppRequest_OneOfIsTrash.isTrash,
     0 : UpdateAppRequest_OneOfIsTrash.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UpdateAppRequest', createEmptyInstance: create)
@@ -62,20 +53,17 @@ class UpdateAppRequest extends $pb.GeneratedMessage {
     ..oo(1, [3])
     ..oo(2, [4])
     ..oo(3, [5])
-    ..oo(4, [6])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'appId')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspaceId')
-    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
-    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
-    ..aOM<$0.ColorStyle>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'colorStyle', subBuilder: $0.ColorStyle.create)
-    ..aOB(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isTrash')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
+    ..aOM<$0.ColorStyle>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'colorStyle', subBuilder: $0.ColorStyle.create)
+    ..aOB(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isTrash')
     ..hasRequiredFields = false
   ;
 
   UpdateAppRequest._() : super();
   factory UpdateAppRequest({
     $core.String? appId,
-    $core.String? workspaceId,
     $core.String? name,
     $core.String? desc,
     $0.ColorStyle? colorStyle,
@@ -84,9 +72,6 @@ class UpdateAppRequest extends $pb.GeneratedMessage {
     final _result = create();
     if (appId != null) {
       _result.appId = appId;
-    }
-    if (workspaceId != null) {
-      _result.workspaceId = workspaceId;
     }
     if (name != null) {
       _result.name = name;
@@ -123,20 +108,17 @@ class UpdateAppRequest extends $pb.GeneratedMessage {
   static UpdateAppRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UpdateAppRequest>(create);
   static UpdateAppRequest? _defaultInstance;
 
-  UpdateAppRequest_OneOfWorkspaceId whichOneOfWorkspaceId() => _UpdateAppRequest_OneOfWorkspaceIdByTag[$_whichOneof(0)]!;
-  void clearOneOfWorkspaceId() => clearField($_whichOneof(0));
+  UpdateAppRequest_OneOfName whichOneOfName() => _UpdateAppRequest_OneOfNameByTag[$_whichOneof(0)]!;
+  void clearOneOfName() => clearField($_whichOneof(0));
 
-  UpdateAppRequest_OneOfName whichOneOfName() => _UpdateAppRequest_OneOfNameByTag[$_whichOneof(1)]!;
-  void clearOneOfName() => clearField($_whichOneof(1));
+  UpdateAppRequest_OneOfDesc whichOneOfDesc() => _UpdateAppRequest_OneOfDescByTag[$_whichOneof(1)]!;
+  void clearOneOfDesc() => clearField($_whichOneof(1));
 
-  UpdateAppRequest_OneOfDesc whichOneOfDesc() => _UpdateAppRequest_OneOfDescByTag[$_whichOneof(2)]!;
-  void clearOneOfDesc() => clearField($_whichOneof(2));
+  UpdateAppRequest_OneOfColorStyle whichOneOfColorStyle() => _UpdateAppRequest_OneOfColorStyleByTag[$_whichOneof(2)]!;
+  void clearOneOfColorStyle() => clearField($_whichOneof(2));
 
-  UpdateAppRequest_OneOfColorStyle whichOneOfColorStyle() => _UpdateAppRequest_OneOfColorStyleByTag[$_whichOneof(3)]!;
-  void clearOneOfColorStyle() => clearField($_whichOneof(3));
-
-  UpdateAppRequest_OneOfIsTrash whichOneOfIsTrash() => _UpdateAppRequest_OneOfIsTrashByTag[$_whichOneof(4)]!;
-  void clearOneOfIsTrash() => clearField($_whichOneof(4));
+  UpdateAppRequest_OneOfIsTrash whichOneOfIsTrash() => _UpdateAppRequest_OneOfIsTrashByTag[$_whichOneof(3)]!;
+  void clearOneOfIsTrash() => clearField($_whichOneof(3));
 
   @$pb.TagNumber(1)
   $core.String get appId => $_getSZ(0);
@@ -148,56 +130,42 @@ class UpdateAppRequest extends $pb.GeneratedMessage {
   void clearAppId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get workspaceId => $_getSZ(1);
+  $core.String get name => $_getSZ(1);
   @$pb.TagNumber(2)
-  set workspaceId($core.String v) { $_setString(1, v); }
+  set name($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasWorkspaceId() => $_has(1);
+  $core.bool hasName() => $_has(1);
   @$pb.TagNumber(2)
-  void clearWorkspaceId() => clearField(2);
+  void clearName() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get name => $_getSZ(2);
+  $core.String get desc => $_getSZ(2);
   @$pb.TagNumber(3)
-  set name($core.String v) { $_setString(2, v); }
+  set desc($core.String v) { $_setString(2, v); }
   @$pb.TagNumber(3)
-  $core.bool hasName() => $_has(2);
+  $core.bool hasDesc() => $_has(2);
   @$pb.TagNumber(3)
-  void clearName() => clearField(3);
+  void clearDesc() => clearField(3);
 
   @$pb.TagNumber(4)
-  $core.String get desc => $_getSZ(3);
+  $0.ColorStyle get colorStyle => $_getN(3);
   @$pb.TagNumber(4)
-  set desc($core.String v) { $_setString(3, v); }
+  set colorStyle($0.ColorStyle v) { setField(4, v); }
   @$pb.TagNumber(4)
-  $core.bool hasDesc() => $_has(3);
+  $core.bool hasColorStyle() => $_has(3);
   @$pb.TagNumber(4)
-  void clearDesc() => clearField(4);
+  void clearColorStyle() => clearField(4);
+  @$pb.TagNumber(4)
+  $0.ColorStyle ensureColorStyle() => $_ensure(3);
 
   @$pb.TagNumber(5)
-  $0.ColorStyle get colorStyle => $_getN(4);
+  $core.bool get isTrash => $_getBF(4);
   @$pb.TagNumber(5)
-  set colorStyle($0.ColorStyle v) { setField(5, v); }
+  set isTrash($core.bool v) { $_setBool(4, v); }
   @$pb.TagNumber(5)
-  $core.bool hasColorStyle() => $_has(4);
+  $core.bool hasIsTrash() => $_has(4);
   @$pb.TagNumber(5)
-  void clearColorStyle() => clearField(5);
-  @$pb.TagNumber(5)
-  $0.ColorStyle ensureColorStyle() => $_ensure(4);
-
-  @$pb.TagNumber(6)
-  $core.bool get isTrash => $_getBF(5);
-  @$pb.TagNumber(6)
-  set isTrash($core.bool v) { $_setBool(5, v); }
-  @$pb.TagNumber(6)
-  $core.bool hasIsTrash() => $_has(5);
-  @$pb.TagNumber(6)
-  void clearIsTrash() => clearField(6);
-}
-
-enum UpdateAppParams_OneOfWorkspaceId {
-  workspaceId, 
-  notSet
+  void clearIsTrash() => clearField(5);
 }
 
 enum UpdateAppParams_OneOfName {
@@ -221,24 +189,20 @@ enum UpdateAppParams_OneOfIsTrash {
 }
 
 class UpdateAppParams extends $pb.GeneratedMessage {
-  static const $core.Map<$core.int, UpdateAppParams_OneOfWorkspaceId> _UpdateAppParams_OneOfWorkspaceIdByTag = {
-    2 : UpdateAppParams_OneOfWorkspaceId.workspaceId,
-    0 : UpdateAppParams_OneOfWorkspaceId.notSet
-  };
   static const $core.Map<$core.int, UpdateAppParams_OneOfName> _UpdateAppParams_OneOfNameByTag = {
-    3 : UpdateAppParams_OneOfName.name,
+    2 : UpdateAppParams_OneOfName.name,
     0 : UpdateAppParams_OneOfName.notSet
   };
   static const $core.Map<$core.int, UpdateAppParams_OneOfDesc> _UpdateAppParams_OneOfDescByTag = {
-    4 : UpdateAppParams_OneOfDesc.desc,
+    3 : UpdateAppParams_OneOfDesc.desc,
     0 : UpdateAppParams_OneOfDesc.notSet
   };
   static const $core.Map<$core.int, UpdateAppParams_OneOfColorStyle> _UpdateAppParams_OneOfColorStyleByTag = {
-    5 : UpdateAppParams_OneOfColorStyle.colorStyle,
+    4 : UpdateAppParams_OneOfColorStyle.colorStyle,
     0 : UpdateAppParams_OneOfColorStyle.notSet
   };
   static const $core.Map<$core.int, UpdateAppParams_OneOfIsTrash> _UpdateAppParams_OneOfIsTrashByTag = {
-    6 : UpdateAppParams_OneOfIsTrash.isTrash,
+    5 : UpdateAppParams_OneOfIsTrash.isTrash,
     0 : UpdateAppParams_OneOfIsTrash.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UpdateAppParams', createEmptyInstance: create)
@@ -246,20 +210,17 @@ class UpdateAppParams extends $pb.GeneratedMessage {
     ..oo(1, [3])
     ..oo(2, [4])
     ..oo(3, [5])
-    ..oo(4, [6])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'appId')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspaceId')
-    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
-    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
-    ..aOM<$0.ColorStyle>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'colorStyle', subBuilder: $0.ColorStyle.create)
-    ..aOB(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isTrash')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
+    ..aOM<$0.ColorStyle>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'colorStyle', subBuilder: $0.ColorStyle.create)
+    ..aOB(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isTrash')
     ..hasRequiredFields = false
   ;
 
   UpdateAppParams._() : super();
   factory UpdateAppParams({
     $core.String? appId,
-    $core.String? workspaceId,
     $core.String? name,
     $core.String? desc,
     $0.ColorStyle? colorStyle,
@@ -268,9 +229,6 @@ class UpdateAppParams extends $pb.GeneratedMessage {
     final _result = create();
     if (appId != null) {
       _result.appId = appId;
-    }
-    if (workspaceId != null) {
-      _result.workspaceId = workspaceId;
     }
     if (name != null) {
       _result.name = name;
@@ -307,20 +265,17 @@ class UpdateAppParams extends $pb.GeneratedMessage {
   static UpdateAppParams getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UpdateAppParams>(create);
   static UpdateAppParams? _defaultInstance;
 
-  UpdateAppParams_OneOfWorkspaceId whichOneOfWorkspaceId() => _UpdateAppParams_OneOfWorkspaceIdByTag[$_whichOneof(0)]!;
-  void clearOneOfWorkspaceId() => clearField($_whichOneof(0));
+  UpdateAppParams_OneOfName whichOneOfName() => _UpdateAppParams_OneOfNameByTag[$_whichOneof(0)]!;
+  void clearOneOfName() => clearField($_whichOneof(0));
 
-  UpdateAppParams_OneOfName whichOneOfName() => _UpdateAppParams_OneOfNameByTag[$_whichOneof(1)]!;
-  void clearOneOfName() => clearField($_whichOneof(1));
+  UpdateAppParams_OneOfDesc whichOneOfDesc() => _UpdateAppParams_OneOfDescByTag[$_whichOneof(1)]!;
+  void clearOneOfDesc() => clearField($_whichOneof(1));
 
-  UpdateAppParams_OneOfDesc whichOneOfDesc() => _UpdateAppParams_OneOfDescByTag[$_whichOneof(2)]!;
-  void clearOneOfDesc() => clearField($_whichOneof(2));
+  UpdateAppParams_OneOfColorStyle whichOneOfColorStyle() => _UpdateAppParams_OneOfColorStyleByTag[$_whichOneof(2)]!;
+  void clearOneOfColorStyle() => clearField($_whichOneof(2));
 
-  UpdateAppParams_OneOfColorStyle whichOneOfColorStyle() => _UpdateAppParams_OneOfColorStyleByTag[$_whichOneof(3)]!;
-  void clearOneOfColorStyle() => clearField($_whichOneof(3));
-
-  UpdateAppParams_OneOfIsTrash whichOneOfIsTrash() => _UpdateAppParams_OneOfIsTrashByTag[$_whichOneof(4)]!;
-  void clearOneOfIsTrash() => clearField($_whichOneof(4));
+  UpdateAppParams_OneOfIsTrash whichOneOfIsTrash() => _UpdateAppParams_OneOfIsTrashByTag[$_whichOneof(3)]!;
+  void clearOneOfIsTrash() => clearField($_whichOneof(3));
 
   @$pb.TagNumber(1)
   $core.String get appId => $_getSZ(0);
@@ -332,50 +287,41 @@ class UpdateAppParams extends $pb.GeneratedMessage {
   void clearAppId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get workspaceId => $_getSZ(1);
+  $core.String get name => $_getSZ(1);
   @$pb.TagNumber(2)
-  set workspaceId($core.String v) { $_setString(1, v); }
+  set name($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasWorkspaceId() => $_has(1);
+  $core.bool hasName() => $_has(1);
   @$pb.TagNumber(2)
-  void clearWorkspaceId() => clearField(2);
+  void clearName() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get name => $_getSZ(2);
+  $core.String get desc => $_getSZ(2);
   @$pb.TagNumber(3)
-  set name($core.String v) { $_setString(2, v); }
+  set desc($core.String v) { $_setString(2, v); }
   @$pb.TagNumber(3)
-  $core.bool hasName() => $_has(2);
+  $core.bool hasDesc() => $_has(2);
   @$pb.TagNumber(3)
-  void clearName() => clearField(3);
+  void clearDesc() => clearField(3);
 
   @$pb.TagNumber(4)
-  $core.String get desc => $_getSZ(3);
+  $0.ColorStyle get colorStyle => $_getN(3);
   @$pb.TagNumber(4)
-  set desc($core.String v) { $_setString(3, v); }
+  set colorStyle($0.ColorStyle v) { setField(4, v); }
   @$pb.TagNumber(4)
-  $core.bool hasDesc() => $_has(3);
+  $core.bool hasColorStyle() => $_has(3);
   @$pb.TagNumber(4)
-  void clearDesc() => clearField(4);
+  void clearColorStyle() => clearField(4);
+  @$pb.TagNumber(4)
+  $0.ColorStyle ensureColorStyle() => $_ensure(3);
 
   @$pb.TagNumber(5)
-  $0.ColorStyle get colorStyle => $_getN(4);
+  $core.bool get isTrash => $_getBF(4);
   @$pb.TagNumber(5)
-  set colorStyle($0.ColorStyle v) { setField(5, v); }
+  set isTrash($core.bool v) { $_setBool(4, v); }
   @$pb.TagNumber(5)
-  $core.bool hasColorStyle() => $_has(4);
+  $core.bool hasIsTrash() => $_has(4);
   @$pb.TagNumber(5)
-  void clearColorStyle() => clearField(5);
-  @$pb.TagNumber(5)
-  $0.ColorStyle ensureColorStyle() => $_ensure(4);
-
-  @$pb.TagNumber(6)
-  $core.bool get isTrash => $_getBF(5);
-  @$pb.TagNumber(6)
-  set isTrash($core.bool v) { $_setBool(5, v); }
-  @$pb.TagNumber(6)
-  $core.bool hasIsTrash() => $_has(5);
-  @$pb.TagNumber(6)
-  void clearIsTrash() => clearField(6);
+  void clearIsTrash() => clearField(5);
 }
 

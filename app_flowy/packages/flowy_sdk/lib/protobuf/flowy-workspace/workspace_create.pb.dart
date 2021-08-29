@@ -15,6 +15,7 @@ class CreateWorkspaceRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateWorkspaceRequest', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'userId')
     ..hasRequiredFields = false
   ;
 
@@ -22,6 +23,7 @@ class CreateWorkspaceRequest extends $pb.GeneratedMessage {
   factory CreateWorkspaceRequest({
     $core.String? name,
     $core.String? desc,
+    $core.String? userId,
   }) {
     final _result = create();
     if (name != null) {
@@ -29,6 +31,9 @@ class CreateWorkspaceRequest extends $pb.GeneratedMessage {
     }
     if (desc != null) {
       _result.desc = desc;
+    }
+    if (userId != null) {
+      _result.userId = userId;
     }
     return _result;
   }
@@ -70,6 +75,15 @@ class CreateWorkspaceRequest extends $pb.GeneratedMessage {
   $core.bool hasDesc() => $_has(1);
   @$pb.TagNumber(2)
   void clearDesc() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get userId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set userId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasUserId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearUserId() => clearField(3);
 }
 
 class CreateWorkspaceParams extends $pb.GeneratedMessage {

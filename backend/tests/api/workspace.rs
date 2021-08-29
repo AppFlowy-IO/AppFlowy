@@ -34,9 +34,7 @@ async fn workspace_read_with_belongs() {
     let _ = create_test_app(&application, &workspace.id, &user_id).await;
     let _ = create_test_app(&application, &workspace.id, &user_id).await;
 
-    let read_params = QueryWorkspaceParams::new(&user_id)
-        .workspace_id(&workspace.id)
-        .read_apps();
+    let read_params = QueryWorkspaceParams::new(&user_id).workspace_id(&workspace.id);
     let workspaces = application.read_workspace(read_params).await;
     let workspace = workspaces.items.first().unwrap();
     assert_eq!(workspace.apps.len(), 3);

@@ -1,14 +1,13 @@
 use crate::{
-    entities::{SignInParams, SignUpParams, UpdateUserParams, UpdateUserRequest, UserDetail},
+    entities::{SignInParams, SignUpParams, UpdateUserParams, UserDetail},
     errors::{ErrorBuilder, UserErrCode, UserError},
-    event::UserEvent::*,
     services::{
-        user::{construct_server, database::UserDB, UserServer},
-        workspace::WorkspaceAction,
+        user::{construct_user_server, database::UserDB, UserServerAPI},
+        workspace::UserWorkspaceController,
     },
     sql_tables::{UserTable, UserTableChangeset},
 };
-use bytes::Bytes;
+
 use flowy_database::{
     query_dsl::*,
     schema::{user_table, user_table::dsl},
@@ -16,13 +15,9 @@ use flowy_database::{
     ExpressionMethods,
     UserDatabaseConnection,
 };
-use flowy_dispatch::prelude::{EventDispatch, ModuleRequest, ToBytes};
+
 use flowy_infra::kv::KVStore;
 use std::sync::{Arc, RwLock};
-
-const DEFAULT_WORKSPACE_NAME: &'static str = "My workspace";
-const DEFAULT_WORKSPACE_DESC: &'static str = "This is your first workspace";
-const DEFAULT_WORKSPACE: &'static str = "Default_Workspace";
 
 pub struct UserSessionConfig {
     root_dir: String,
@@ -39,29 +34,29 @@ impl UserSessionConfig {
 pub struct UserSession {
     database: UserDB,
     config: UserSessionConfig,
-    workspace: Arc<dyn WorkspaceAction + Send + Sync>,
-    server: Arc<dyn UserServer + Send + Sync>,
+    workspace_controller: Arc<dyn UserWorkspaceController + Send + Sync>,
+    server: Arc<dyn UserServerAPI + Send + Sync>,
     user_id: RwLock<Option<String>>,
 }
 
 impl UserSession {
-    pub fn new<R>(config: UserSessionConfig, workspace: Arc<R>) -> Self
+    pub fn new<R>(config: UserSessionConfig, workspace_controller: Arc<R>) -> Self
     where
-        R: 'static + WorkspaceAction + Send + Sync,
+        R: 'static + UserWorkspaceController + Send + Sync,
     {
         let db = UserDB::new(&config.root_dir);
-        let server = construct_server();
+        let server = construct_user_server(workspace_controller.clone());
         Self {
             database: db,
             config,
-            workspace,
+            workspace_controller,
             server,
             user_id: RwLock::new(None),
         }
     }
 
     pub fn get_db_connection(&self) -> Result<DBConnection, UserError> {
-        let user_id = self.get_user_id()?;
+        let user_id = self.user_id()?;
         self.database.get_connection(&user_id)
     }
 
@@ -82,7 +77,7 @@ impl UserSession {
     }
 
     pub fn sign_out(&self) -> Result<(), UserError> {
-        let user_id = self.get_user_id()?;
+        let user_id = self.user_id()?;
         let conn = self.get_db_connection()?;
         let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&user_id))).execute(&*conn)?;
         let _ = self.server.sign_out(&user_id);
@@ -110,7 +105,7 @@ impl UserSession {
     }
 
     pub fn user_detail(&self) -> Result<UserDetail, UserError> {
-        let user_id = self.get_user_id()?;
+        let user_id = self.user_id()?;
         let user = dsl::user_table
             .filter(user_table::id.eq(&user_id))
             .first::<UserTable>(&*(self.get_db_connection()?))?;
@@ -134,12 +129,12 @@ impl UserSession {
         }
     }
 
-    pub fn get_user_dir(&self) -> Result<String, UserError> {
-        let user_id = self.get_user_id()?;
+    pub fn user_dir(&self) -> Result<String, UserError> {
+        let user_id = self.user_id()?;
         Ok(format!("{}/{}", self.config.root_dir, user_id))
     }
 
-    pub fn get_user_id(&self) -> Result<String, UserError> {
+    pub fn user_id(&self) -> Result<String, UserError> {
         let mut user_id = {
             let read_guard = self.user_id.read().map_err(|e| {
                 ErrorBuilder::new(UserErrCode::ReadCurrentIdFailed)
@@ -159,35 +154,6 @@ impl UserSession {
             None => Err(ErrorBuilder::new(UserErrCode::UserNotLoginYet).build()),
             Some(user_id) => Ok(user_id),
         }
-    }
-
-    // pub async fn set_current_workspace(&self, workspace_id: &str) -> Result<(),
-    // UserError> {     let user_id = self.get_user_id()?;
-    //     let payload: Bytes = UpdateUserRequest::new(&user_id)
-    //         .workspace(workspace_id)
-    //         .into_bytes()
-    //         .unwrap();
-    //
-    //     let request = ModuleRequest::new(UpdateUser).payload(payload);
-    //     let _ = EventDispatch::async_send(request)
-    //         .await
-    //         .parse::<UserDetail, UserError>()
-    //         .unwrap()?;
-    //     Ok(())
-    // }
-
-    async fn create_default_workspace_if_need(&self, user_id: &str) -> Result<String, UserError> {
-        let key = format!("{}{}", user_id, DEFAULT_WORKSPACE);
-        if KVStore::get_bool(&key).unwrap_or(false) {
-            return Err(ErrorBuilder::new(UserErrCode::DefaultWorkspaceAlreadyExist).build());
-        }
-        KVStore::set_bool(&key, true);
-        log::debug!("Create user:{} default workspace", user_id);
-        let workspace_id = self
-            .workspace
-            .create_workspace(DEFAULT_WORKSPACE_NAME, DEFAULT_WORKSPACE_DESC, user_id)
-            .await?;
-        Ok(workspace_id)
     }
 }
 

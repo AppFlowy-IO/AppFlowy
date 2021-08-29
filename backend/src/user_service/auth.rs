@@ -15,7 +15,7 @@ use flowy_user::{
     entities::parser::{UserEmail, UserName, UserPassword},
     protobuf::{SignInParams, SignInResponse, SignUpParams, SignUpResponse},
 };
-use sqlx::{PgPool, Postgres, Transaction};
+use sqlx::{PgPool, Postgres};
 
 pub async fn sign_in(
     pool: &PgPool,

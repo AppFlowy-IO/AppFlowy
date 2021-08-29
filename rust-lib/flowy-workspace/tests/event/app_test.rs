@@ -7,14 +7,16 @@ use flowy_workspace::entities::{
 
 #[test]
 fn app_create_success() {
-    let app = create_app("App A", "AppFlowy Github Project");
+    let workspace = create_workspace("Workspace", "").1;
+    let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
     dbg!(&app);
 }
 
 #[test]
 #[should_panic]
 fn app_delete_success() {
-    let app = create_app("App A", "AppFlowy Github Project");
+    let workspace = create_workspace("Workspace", "").1;
+    let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
     delete_app(&app.id);
     let query = QueryAppRequest::new(&app.id);
     let _ = read_app(query);
@@ -22,7 +24,8 @@ fn app_delete_success() {
 
 #[test]
 fn app_create_and_then_get_success() {
-    let app = create_app("App A", "AppFlowy Github Project");
+    let workspace = create_workspace("Workspace", "").1;
+    let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
     let query = QueryAppRequest::new(&app.id);
     let app_from_db = read_app(query);
     assert_eq!(app_from_db, app);
@@ -30,7 +33,8 @@ fn app_create_and_then_get_success() {
 
 #[test]
 fn app_create_with_view_and_then_get_success() {
-    let app = create_app("App A", "AppFlowy Github Project");
+    let workspace = create_workspace("Workspace", "").1;
+    let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
     let request_a = CreateViewRequest {
         belong_to_id: app.id.clone(),
         name: "View A".to_string(),
@@ -73,10 +77,10 @@ fn app_update_with_trash_flag_and_read_without_trash_flag_fail() {
 }
 
 pub fn create_app_with_trash_flag() -> String {
-    let app = create_app("App A", "AppFlowy Github Project");
+    let workspace = create_workspace("Workspace", "").1;
+    let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
     let request = UpdateAppRequest {
         app_id: app.id.clone(),
-        workspace_id: None,
         name: None,
         desc: None,
         color_style: None,

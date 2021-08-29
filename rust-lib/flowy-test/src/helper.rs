@@ -1,4 +1,11 @@
-use flowy_infra::uuid;
+use bytes::Bytes;
+use flowy_dispatch::prelude::{DispatchError, EventDispatch, ModuleRequest, ToBytes};
+use flowy_infra::{kv::KVStore, uuid};
+use flowy_user::errors::{ErrorBuilder, UserErrCode, UserError};
+use flowy_workspace::{
+    entities::workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest, Workspace},
+    event::WorkspaceEvent::{CreateWorkspace, OpenWorkspace},
+};
 use std::{fs, path::PathBuf};
 
 pub fn root_dir() -> String {
@@ -22,3 +29,53 @@ pub fn random_valid_email() -> String { format!("{}@appflowy.io", uuid()) }
 pub fn valid_email() -> String { "annie@appflowy.io".to_string() }
 
 pub fn valid_password() -> String { "HelloWorld!123".to_string() }
+
+const DEFAULT_WORKSPACE_NAME: &'static str = "My workspace";
+const DEFAULT_WORKSPACE_DESC: &'static str = "This is your first workspace";
+const DEFAULT_WORKSPACE: &'static str = "Default_Workspace";
+
+pub(crate) fn create_default_workspace_if_need(user_id: &str) -> Result<(), UserError> {
+    let key = format!("{}{}", user_id, DEFAULT_WORKSPACE);
+    if KVStore::get_bool(&key).unwrap_or(false) {
+        return Err(ErrorBuilder::new(UserErrCode::DefaultWorkspaceAlreadyExist).build());
+    }
+    KVStore::set_bool(&key, true);
+
+    let payload: Bytes = CreateWorkspaceRequest {
+        name: DEFAULT_WORKSPACE_NAME.to_string(),
+        desc: DEFAULT_WORKSPACE_DESC.to_string(),
+        user_id: user_id.to_string(),
+    }
+    .into_bytes()
+    .unwrap();
+
+    let request = ModuleRequest::new(CreateWorkspace).payload(payload);
+    let result = EventDispatch::sync_send(request)
+        .parse::<Workspace, DispatchError>()
+        .map_err(|e| {
+            ErrorBuilder::new(UserErrCode::CreateDefaultWorkspaceFailed)
+                .error(e)
+                .build()
+        })?;
+
+    let workspace = result.map_err(|e| {
+        ErrorBuilder::new(UserErrCode::CreateDefaultWorkspaceFailed)
+            .error(e)
+            .build()
+    })?;
+
+    let query: Bytes = QueryWorkspaceRequest {
+        workspace_id: Some(workspace.id.clone()),
+        user_id: user_id.to_string(),
+    }
+    .into_bytes()
+    .unwrap();
+
+    let request = ModuleRequest::new(OpenWorkspace).payload(query);
+    let _result = EventDispatch::sync_send(request)
+        .parse::<Workspace, DispatchError>()
+        .unwrap()
+        .unwrap();
+
+    Ok(())
+}

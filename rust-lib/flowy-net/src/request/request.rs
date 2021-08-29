@@ -50,7 +50,7 @@ impl HttpRequestBuilder {
         builder
     }
 
-    pub fn protobuf<T1>(mut self, body: T1) -> Result<Self, ServerError>
+    pub fn protobuf<T1>(self, body: T1) -> Result<Self, ServerError>
     where
         T1: TryInto<Bytes, Error = ProtobufError>,
     {
