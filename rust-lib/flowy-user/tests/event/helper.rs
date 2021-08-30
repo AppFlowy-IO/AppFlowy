@@ -1,4 +1,4 @@
-pub use flowy_test::builder::UserTestBuilder;
+pub use flowy_test::builder::RandomUserTestBuilder;
 
 pub use flowy_test::prelude::{random_valid_email, valid_password};
 

@@ -10,14 +10,14 @@ use std::{
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct UserError {
     #[pb(index = 1)]
-    pub code: UserErrCode,
+    pub code: ErrorCode,
 
     #[pb(index = 2)]
     pub msg: String,
 }
 
 impl UserError {
-    fn new(code: UserErrCode, msg: &str) -> Self {
+    fn new(code: ErrorCode, msg: &str) -> Self {
         Self {
             code,
             msg: msg.to_owned(),
@@ -26,7 +26,7 @@ impl UserError {
 }
 
 #[derive(Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
-pub enum UserErrCode {
+pub enum ErrorCode {
     #[display(fmt = "Unknown")]
     Unknown              = 0,
     #[display(fmt = "Database init failed")]
@@ -87,21 +87,21 @@ pub enum UserErrCode {
     ServerError          = 100,
 }
 
-impl Debug for UserErrCode {
+impl Debug for ErrorCode {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str(&format!("{}", self)) }
 }
 
-impl UserErrCode {
+impl ErrorCode {
     pub fn to_string(&self) -> String { format!("{}", self) }
 }
 
-impl std::default::Default for UserErrCode {
-    fn default() -> Self { UserErrCode::Unknown }
+impl std::default::Default for ErrorCode {
+    fn default() -> Self { ErrorCode::Unknown }
 }
 
 impl std::convert::From<flowy_database::result::Error> for UserError {
     fn from(error: flowy_database::result::Error) -> Self {
-        ErrorBuilder::new(UserErrCode::UserDatabaseInternalError)
+        ErrorBuilder::new(ErrorCode::UserDatabaseInternalError)
             .error(error)
             .build()
     }
@@ -138,7 +138,7 @@ impl std::convert::From<flowy_sqlite::Error> for UserError {
         //     ErrorKind::__Nonexhaustive { .. } => {},
         // }
 
-        ErrorBuilder::new(UserErrCode::SqlInternalError)
+        ErrorBuilder::new(ErrorCode::SqlInternalError)
             .error(error)
             .build()
     }
@@ -146,7 +146,7 @@ impl std::convert::From<flowy_sqlite::Error> for UserError {
 
 impl std::convert::From<flowy_net::errors::ServerError> for UserError {
     fn from(error: flowy_net::errors::ServerError) -> Self {
-        ErrorBuilder::new(UserErrCode::ServerError)
+        ErrorBuilder::new(ErrorCode::ServerError)
             .error(error.msg)
             .build()
     }
@@ -159,10 +159,10 @@ impl flowy_dispatch::Error for UserError {
     }
 }
 
-pub type ErrorBuilder = flowy_infra::errors::Builder<UserErrCode, UserError>;
+pub type ErrorBuilder = flowy_infra::errors::Builder<ErrorCode, UserError>;
 
-impl flowy_infra::errors::Build<UserErrCode> for UserError {
-    fn build(code: UserErrCode, msg: String) -> Self {
+impl flowy_infra::errors::Build<ErrorCode> for UserError {
+    fn build(code: ErrorCode, msg: String) -> Self {
         let msg = if msg.is_empty() {
             format!("{}", code)
         } else {

@@ -5,7 +5,7 @@ use serial_test::*;
 #[test]
 #[serial]
 fn user_status_get_failed_before_login() {
-    let _a = UserTestBuilder::new()
+    let _a = RandomUserTestBuilder::new()
         .logout()
         .event(GetStatus)
         .assert_error()
@@ -20,7 +20,7 @@ fn user_status_get_success_after_login() {
         password: valid_password(),
     };
 
-    let response = UserTestBuilder::new()
+    let response = RandomUserTestBuilder::new()
         .logout()
         .event(SignIn)
         .request(request)
@@ -28,7 +28,7 @@ fn user_status_get_success_after_login() {
         .parse::<UserDetail>();
     dbg!(&response);
 
-    let _ = UserTestBuilder::new()
+    let _ = RandomUserTestBuilder::new()
         .event(GetStatus)
         .sync_send()
         .parse::<UserDetail>();

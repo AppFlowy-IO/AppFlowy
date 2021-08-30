@@ -55,16 +55,16 @@ impl TryInto<CreateAppParams> for CreateAppRequest {
 
     fn try_into(self) -> Result<CreateAppParams, Self::Error> {
         let name = AppName::parse(self.name)
-            .map_err(|e| ErrorBuilder::new(WsErrCode::AppNameInvalid).msg(e).build())?;
+            .map_err(|e| ErrorBuilder::new(ErrorCode::AppNameInvalid).msg(e).build())?;
 
         let id = WorkspaceId::parse(self.workspace_id).map_err(|e| {
-            ErrorBuilder::new(WsErrCode::WorkspaceIdInvalid)
+            ErrorBuilder::new(ErrorCode::WorkspaceIdInvalid)
                 .msg(e)
                 .build()
         })?;
 
         let color_style = AppColorStyle::parse(self.color_style).map_err(|e| {
-            ErrorBuilder::new(WsErrCode::AppColorStyleInvalid)
+            ErrorBuilder::new(ErrorCode::AppColorStyleInvalid)
                 .msg(e)
                 .build()
         })?;

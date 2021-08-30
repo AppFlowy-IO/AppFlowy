@@ -1,19 +1,19 @@
-use crate::errors::UserErrCode;
+use crate::errors::ErrorCode;
 use validator::validate_email;
 
 #[derive(Debug)]
 pub struct UserEmail(pub String);
 
 impl UserEmail {
-    pub fn parse(s: String) -> Result<UserEmail, UserErrCode> {
+    pub fn parse(s: String) -> Result<UserEmail, ErrorCode> {
         if s.trim().is_empty() {
-            return Err(UserErrCode::EmailIsEmpty);
+            return Err(ErrorCode::EmailIsEmpty);
         }
 
         if validate_email(&s) {
             Ok(Self(s))
         } else {
-            Err(UserErrCode::EmailFormatInvalid)
+            Err(ErrorCode::EmailFormatInvalid)
         }
     }
 }

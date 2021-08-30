@@ -1,4 +1,4 @@
-pub use flowy_test::builder::SingleUserTestBuilder;
+pub use flowy_test::builder::UserTestBuilder;
 use flowy_workspace::{
     entities::{app::*, view::*, workspace::*},
     event::WorkspaceEvent::*,
@@ -12,7 +12,7 @@ pub(crate) fn invalid_workspace_name_test_case() -> Vec<String> {
 }
 
 pub fn create_workspace(name: &str, desc: &str) -> (String, Workspace) {
-    let builder = SingleUserTestBuilder::new();
+    let builder = UserTestBuilder::new();
     let user_id = builder.user_detail.as_ref().unwrap().id.clone();
 
     let request = CreateWorkspaceRequest {
@@ -31,7 +31,7 @@ pub fn create_workspace(name: &str, desc: &str) -> (String, Workspace) {
 }
 
 pub fn read_workspaces(request: QueryWorkspaceRequest) -> Option<Workspace> {
-    let mut repeated_workspace = SingleUserTestBuilder::new()
+    let mut repeated_workspace = UserTestBuilder::new()
         .event(ReadWorkspaces)
         .request(request)
         .sync_send()
@@ -52,7 +52,7 @@ pub fn create_app(name: &str, desc: &str, workspace_id: &str) -> App {
         color_style: Default::default(),
     };
 
-    let app = SingleUserTestBuilder::new()
+    let app = UserTestBuilder::new()
         .event(CreateApp)
         .request(create_app_request)
         .sync_send()
@@ -65,21 +65,21 @@ pub fn delete_app(app_id: &str) {
         app_id: app_id.to_string(),
     };
 
-    SingleUserTestBuilder::new()
+    UserTestBuilder::new()
         .event(DeleteApp)
         .request(delete_app_request)
         .sync_send();
 }
 
 pub fn update_app(request: UpdateAppRequest) {
-    SingleUserTestBuilder::new()
+    UserTestBuilder::new()
         .event(UpdateApp)
         .request(request)
         .sync_send();
 }
 
 pub fn read_app(request: QueryAppRequest) -> App {
-    let app = SingleUserTestBuilder::new()
+    let app = UserTestBuilder::new()
         .event(ReadApp)
         .request(request)
         .sync_send()
@@ -89,7 +89,7 @@ pub fn read_app(request: QueryAppRequest) -> App {
 }
 
 pub fn create_view_with_request(request: CreateViewRequest) -> View {
-    let view = SingleUserTestBuilder::new()
+    let view = UserTestBuilder::new()
         .event(CreateView)
         .request(request)
         .sync_send()
@@ -113,14 +113,14 @@ pub fn create_view() -> View {
 }
 
 pub fn update_view(request: UpdateViewRequest) {
-    SingleUserTestBuilder::new()
+    UserTestBuilder::new()
         .event(UpdateView)
         .request(request)
         .sync_send();
 }
 
 pub fn read_view(request: QueryViewRequest) -> View {
-    SingleUserTestBuilder::new()
+    UserTestBuilder::new()
         .event(ReadView)
         .request(request)
         .sync_send()

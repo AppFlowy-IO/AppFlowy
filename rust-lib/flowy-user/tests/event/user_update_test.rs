@@ -1,11 +1,11 @@
 use crate::helper::*;
-use flowy_user::{errors::UserErrCode, event::UserEvent::*, prelude::*};
+use flowy_user::{errors::ErrorCode, event::UserEvent::*, prelude::*};
 use serial_test::*;
 
 #[test]
 #[serial]
 fn user_update_with_name() {
-    let user_detail = UserTestBuilder::new().reset().user_detail.unwrap();
+    let user_detail = RandomUserTestBuilder::new().reset().user_detail.unwrap();
     let new_name = "hello_world".to_owned();
     let request = UpdateUserRequest {
         id: user_detail.id.clone(),
@@ -14,7 +14,7 @@ fn user_update_with_name() {
         password: None,
     };
 
-    let user_detail = UserTestBuilder::new()
+    let user_detail = RandomUserTestBuilder::new()
         .event(UpdateUser)
         .request(request)
         .sync_send()
@@ -26,7 +26,7 @@ fn user_update_with_name() {
 #[test]
 #[serial]
 fn user_update_with_email() {
-    let user_detail = UserTestBuilder::new().reset().user_detail.unwrap();
+    let user_detail = RandomUserTestBuilder::new().reset().user_detail.unwrap();
     let new_email = "123@gmai.com".to_owned();
     let request = UpdateUserRequest {
         id: user_detail.id.clone(),
@@ -35,7 +35,7 @@ fn user_update_with_email() {
         password: None,
     };
 
-    let user_detail = UserTestBuilder::new()
+    let user_detail = RandomUserTestBuilder::new()
         .event(UpdateUser)
         .request(request)
         .sync_send()
@@ -47,7 +47,7 @@ fn user_update_with_email() {
 #[test]
 #[serial]
 fn user_update_with_password() {
-    let user_detail = UserTestBuilder::new().reset().user_detail.unwrap();
+    let user_detail = RandomUserTestBuilder::new().reset().user_detail.unwrap();
     let new_password = "H123world!".to_owned();
     let request = UpdateUserRequest {
         id: user_detail.id.clone(),
@@ -56,7 +56,7 @@ fn user_update_with_password() {
         password: Some(new_password.clone()),
     };
 
-    let _ = UserTestBuilder::new()
+    let _ = RandomUserTestBuilder::new()
         .event(UpdateUser)
         .request(request)
         .sync_send()
@@ -66,7 +66,7 @@ fn user_update_with_password() {
 #[test]
 #[serial]
 fn user_update_with_invalid_email() {
-    let user_detail = UserTestBuilder::new().reset().user_detail.unwrap();
+    let user_detail = RandomUserTestBuilder::new().reset().user_detail.unwrap();
     for email in invalid_email_test_case() {
         let request = UpdateUserRequest {
             id: user_detail.id.clone(),
@@ -76,13 +76,13 @@ fn user_update_with_invalid_email() {
         };
 
         assert_eq!(
-            UserTestBuilder::new()
+            RandomUserTestBuilder::new()
                 .event(UpdateUser)
                 .request(request)
                 .sync_send()
                 .error()
                 .code,
-            UserErrCode::EmailFormatInvalid
+            ErrorCode::EmailFormatInvalid
         );
     }
 }
@@ -90,7 +90,7 @@ fn user_update_with_invalid_email() {
 #[test]
 #[serial]
 fn user_update_with_invalid_password() {
-    let user_detail = UserTestBuilder::new().reset().user_detail.unwrap();
+    let user_detail = RandomUserTestBuilder::new().reset().user_detail.unwrap();
     for password in invalid_password_test_case() {
         let request = UpdateUserRequest {
             id: user_detail.id.clone(),
@@ -99,7 +99,7 @@ fn user_update_with_invalid_password() {
             password: Some(password),
         };
 
-        UserTestBuilder::new()
+        RandomUserTestBuilder::new()
             .event(UpdateUser)
             .request(request)
             .sync_send()
@@ -110,7 +110,7 @@ fn user_update_with_invalid_password() {
 #[test]
 #[serial]
 fn user_update_with_invalid_name() {
-    let user_detail = UserTestBuilder::new().reset().user_detail.unwrap();
+    let user_detail = RandomUserTestBuilder::new().reset().user_detail.unwrap();
     let request = UpdateUserRequest {
         id: user_detail.id.clone(),
         name: Some("".to_string()),
@@ -118,7 +118,7 @@ fn user_update_with_invalid_name() {
         password: None,
     };
 
-    UserTestBuilder::new()
+    RandomUserTestBuilder::new()
         .event(UpdateUser)
         .request(request)
         .sync_send()

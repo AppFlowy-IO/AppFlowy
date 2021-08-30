@@ -1,6 +1,6 @@
 use crate::{
     entities::parser::*,
-    errors::{ErrorBuilder, UserErrCode, UserError},
+    errors::{ErrorBuilder, ErrorCode, UserError},
 };
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
@@ -64,7 +64,7 @@ impl TryInto<UpdateUserParams> for UpdateUserRequest {
 
     fn try_into(self) -> Result<UpdateUserParams, Self::Error> {
         let id = UserId::parse(self.id)
-            .map_err(|e| ErrorBuilder::new(UserErrCode::UserIdInvalid).msg(e).build())?
+            .map_err(|e| ErrorBuilder::new(ErrorCode::UserIdInvalid).msg(e).build())?
             .0;
 
         let name = match self.name {

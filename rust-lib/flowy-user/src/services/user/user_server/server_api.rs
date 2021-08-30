@@ -1,6 +1,6 @@
 use crate::{
     entities::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UserDetail},
-    errors::{ErrorBuilder, UserErrCode, UserError},
+    errors::{ErrorBuilder, ErrorCode, UserError},
 };
 
 use flowy_net::{config::*, future::ResultFuture, request::HttpRequestBuilder};
@@ -27,11 +27,11 @@ impl UserServerAPI for UserServer {
     }
 
     fn sign_out(&self, _user_id: &str) -> ResultFuture<(), UserError> {
-        ResultFuture::new(async { Err(ErrorBuilder::new(UserErrCode::Unknown).build()) })
+        ResultFuture::new(async { Err(ErrorBuilder::new(ErrorCode::Unknown).build()) })
     }
 
     fn get_user_info(&self, _user_id: &str) -> ResultFuture<UserDetail, UserError> {
-        ResultFuture::new(async { Err(ErrorBuilder::new(UserErrCode::Unknown).build()) })
+        ResultFuture::new(async { Err(ErrorBuilder::new(ErrorCode::Unknown).build()) })
     }
 }
 

@@ -72,14 +72,14 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         => TypeCategory::Protobuf,
         "ViewType"
         | "WorkspaceEvent"
-        | "WsErrCode"
+        | "ErrorCode"
         | "WorkspaceObservable"
         | "EditorEvent"
         | "DocErrorCode"
         | "FFIStatusCode"
         | "UserStatus"
         | "UserEvent"
-        | "UserErrCode"
+        | "ErrorCode"
         => TypeCategory::Enum,
 
         "Option" => TypeCategory::Opt,

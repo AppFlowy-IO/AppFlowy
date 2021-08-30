@@ -8,9 +8,9 @@
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
 import 'dart:typed_data' as $typed_data;
-@$core.Deprecated('Use userErrCodeDescriptor instead')
-const UserErrCode$json = const {
-  '1': 'UserErrCode',
+@$core.Deprecated('Use errorCodeDescriptor instead')
+const ErrorCode$json = const {
+  '1': 'ErrorCode',
   '2': const [
     const {'1': 'Unknown', '2': 0},
     const {'1': 'UserDatabaseInitFailed', '2': 1},
@@ -40,16 +40,16 @@ const UserErrCode$json = const {
   ],
 };
 
-/// Descriptor for `UserErrCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List userErrCodeDescriptor = $convert.base64Decode('CgtVc2VyRXJyQ29kZRILCgdVbmtub3duEAASGgoWVXNlckRhdGFiYXNlSW5pdEZhaWxlZBABEhsKF1VzZXJEYXRhYmFzZVdyaXRlTG9ja2VkEAISGgoWVXNlckRhdGFiYXNlUmVhZExvY2tlZBADEhsKF1VzZXJEYXRhYmFzZURpZE5vdE1hdGNoEAQSHQoZVXNlckRhdGFiYXNlSW50ZXJuYWxFcnJvchAFEhQKEFNxbEludGVybmFsRXJyb3IQBhITCg9Vc2VyTm90TG9naW5ZZXQQChIXChNSZWFkQ3VycmVudElkRmFpbGVkEAsSGAoUV3JpdGVDdXJyZW50SWRGYWlsZWQQDBIQCgxFbWFpbElzRW1wdHkQFBIWChJFbWFpbEZvcm1hdEludmFsaWQQFRIWChJFbWFpbEFscmVhZHlFeGlzdHMQFhITCg9QYXNzd29yZElzRW1wdHkQHhITCg9QYXNzd29yZFRvb0xvbmcQHxIkCiBQYXNzd29yZENvbnRhaW5zRm9yYmlkQ2hhcmFjdGVycxAgEhkKFVBhc3N3b3JkRm9ybWF0SW52YWxpZBAhEhMKD1VzZXJOYW1lVG9vTG9uZxAoEicKI1VzZXJOYW1lQ29udGFpbnNGb3JiaWRkZW5DaGFyYWN0ZXJzECkSEwoPVXNlck5hbWVJc0VtcHR5ECoSGAoUVXNlcldvcmtzcGFjZUludmFsaWQQMhIRCg1Vc2VySWRJbnZhbGlkEDMSIAocQ3JlYXRlRGVmYXVsdFdvcmtzcGFjZUZhaWxlZBA0EiAKHERlZmF1bHRXb3Jrc3BhY2VBbHJlYWR5RXhpc3QQNRIPCgtTZXJ2ZXJFcnJvchBk');
+/// Descriptor for `ErrorCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List errorCodeDescriptor = $convert.base64Decode('CglFcnJvckNvZGUSCwoHVW5rbm93bhAAEhoKFlVzZXJEYXRhYmFzZUluaXRGYWlsZWQQARIbChdVc2VyRGF0YWJhc2VXcml0ZUxvY2tlZBACEhoKFlVzZXJEYXRhYmFzZVJlYWRMb2NrZWQQAxIbChdVc2VyRGF0YWJhc2VEaWROb3RNYXRjaBAEEh0KGVVzZXJEYXRhYmFzZUludGVybmFsRXJyb3IQBRIUChBTcWxJbnRlcm5hbEVycm9yEAYSEwoPVXNlck5vdExvZ2luWWV0EAoSFwoTUmVhZEN1cnJlbnRJZEZhaWxlZBALEhgKFFdyaXRlQ3VycmVudElkRmFpbGVkEAwSEAoMRW1haWxJc0VtcHR5EBQSFgoSRW1haWxGb3JtYXRJbnZhbGlkEBUSFgoSRW1haWxBbHJlYWR5RXhpc3RzEBYSEwoPUGFzc3dvcmRJc0VtcHR5EB4SEwoPUGFzc3dvcmRUb29Mb25nEB8SJAogUGFzc3dvcmRDb250YWluc0ZvcmJpZENoYXJhY3RlcnMQIBIZChVQYXNzd29yZEZvcm1hdEludmFsaWQQIRITCg9Vc2VyTmFtZVRvb0xvbmcQKBInCiNVc2VyTmFtZUNvbnRhaW5zRm9yYmlkZGVuQ2hhcmFjdGVycxApEhMKD1VzZXJOYW1lSXNFbXB0eRAqEhgKFFVzZXJXb3Jrc3BhY2VJbnZhbGlkEDISEQoNVXNlcklkSW52YWxpZBAzEiAKHENyZWF0ZURlZmF1bHRXb3Jrc3BhY2VGYWlsZWQQNBIgChxEZWZhdWx0V29ya3NwYWNlQWxyZWFkeUV4aXN0EDUSDwoLU2VydmVyRXJyb3IQZA==');
 @$core.Deprecated('Use userErrorDescriptor instead')
 const UserError$json = const {
   '1': 'UserError',
   '2': const [
-    const {'1': 'code', '3': 1, '4': 1, '5': 14, '6': '.UserErrCode', '10': 'code'},
+    const {'1': 'code', '3': 1, '4': 1, '5': 14, '6': '.ErrorCode', '10': 'code'},
     const {'1': 'msg', '3': 2, '4': 1, '5': 9, '10': 'msg'},
   ],
 };
 
 /// Descriptor for `UserError`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List userErrorDescriptor = $convert.base64Decode('CglVc2VyRXJyb3ISIAoEY29kZRgBIAEoDjIMLlVzZXJFcnJDb2RlUgRjb2RlEhAKA21zZxgCIAEoCVIDbXNn');
+final $typed_data.Uint8List userErrorDescriptor = $convert.base64Decode('CglVc2VyRXJyb3ISHgoEY29kZRgBIAEoDjIKLkVycm9yQ29kZVIEY29kZRIQCgNtc2cYAiABKAlSA21zZw==');

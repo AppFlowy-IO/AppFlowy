@@ -1,6 +1,6 @@
 use crate::{
     entities::view::parser::{ViewId, *},
-    errors::{ErrorBuilder, WorkspaceError, WsErrCode},
+    errors::{ErrorBuilder, ErrorCode, WorkspaceError},
 };
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
@@ -69,14 +69,14 @@ impl TryInto<UpdateViewParams> for UpdateViewRequest {
 
     fn try_into(self) -> Result<UpdateViewParams, Self::Error> {
         let view_id = ViewId::parse(self.view_id)
-            .map_err(|e| ErrorBuilder::new(WsErrCode::ViewIdInvalid).msg(e).build())?
+            .map_err(|e| ErrorBuilder::new(ErrorCode::ViewIdInvalid).msg(e).build())?
             .0;
 
         let name = match self.name {
             None => None,
             Some(name) => Some(
                 ViewName::parse(name)
-                    .map_err(|e| ErrorBuilder::new(WsErrCode::ViewNameInvalid).msg(e).build())?
+                    .map_err(|e| ErrorBuilder::new(ErrorCode::ViewNameInvalid).msg(e).build())?
                     .0,
             ),
         };
@@ -85,7 +85,7 @@ impl TryInto<UpdateViewParams> for UpdateViewRequest {
             None => None,
             Some(desc) => Some(
                 ViewDesc::parse(desc)
-                    .map_err(|e| ErrorBuilder::new(WsErrCode::ViewDescInvalid).msg(e).build())?
+                    .map_err(|e| ErrorBuilder::new(ErrorCode::ViewDescInvalid).msg(e).build())?
                     .0,
             ),
         };
@@ -95,7 +95,7 @@ impl TryInto<UpdateViewParams> for UpdateViewRequest {
             Some(thumbnail) => Some(
                 ViewThumbnail::parse(thumbnail)
                     .map_err(|e| {
-                        ErrorBuilder::new(WsErrCode::ViewThumbnailInvalid)
+                        ErrorBuilder::new(ErrorCode::ViewThumbnailInvalid)
                             .msg(e)
                             .build()
                     })?

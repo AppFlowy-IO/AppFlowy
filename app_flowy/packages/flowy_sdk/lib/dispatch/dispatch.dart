@@ -17,7 +17,7 @@ import 'package:flowy_sdk/protobuf/flowy-document/protobuf.dart';
 // ignore: unused_import
 import 'package:flowy_sdk/protobuf/flowy-infra/protobuf.dart';
 import 'package:protobuf/protobuf.dart';
-import 'dart:convert' show utf8;
+// import 'dart:convert' show utf8;
 import 'error.dart';
 
 part 'code_gen.dart';

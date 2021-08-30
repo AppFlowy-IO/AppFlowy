@@ -9,28 +9,28 @@
 import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
-class WsErrCode extends $pb.ProtobufEnum {
-  static const WsErrCode Unknown = WsErrCode._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unknown');
-  static const WsErrCode WorkspaceNameInvalid = WsErrCode._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceNameInvalid');
-  static const WsErrCode WorkspaceIdInvalid = WsErrCode._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceIdInvalid');
-  static const WsErrCode AppColorStyleInvalid = WsErrCode._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppColorStyleInvalid');
-  static const WsErrCode WorkspaceDescInvalid = WsErrCode._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceDescInvalid');
-  static const WsErrCode CurrentWorkspaceNotFound = WsErrCode._(5, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CurrentWorkspaceNotFound');
-  static const WsErrCode AppIdInvalid = WsErrCode._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppIdInvalid');
-  static const WsErrCode AppNameInvalid = WsErrCode._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppNameInvalid');
-  static const WsErrCode ViewNameInvalid = WsErrCode._(20, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewNameInvalid');
-  static const WsErrCode ViewThumbnailInvalid = WsErrCode._(21, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewThumbnailInvalid');
-  static const WsErrCode ViewIdInvalid = WsErrCode._(22, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewIdInvalid');
-  static const WsErrCode ViewDescInvalid = WsErrCode._(23, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewDescInvalid');
-  static const WsErrCode DatabaseConnectionFail = WsErrCode._(100, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DatabaseConnectionFail');
-  static const WsErrCode WorkspaceDatabaseError = WsErrCode._(101, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceDatabaseError');
-  static const WsErrCode UserInternalError = WsErrCode._(102, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserInternalError');
-  static const WsErrCode UserNotLoginYet = WsErrCode._(103, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNotLoginYet');
-  static const WsErrCode UserIdIsEmpty = WsErrCode._(104, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserIdIsEmpty');
-  static const WsErrCode ServerError = WsErrCode._(1000, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ServerError');
-  static const WsErrCode RecordNotFound = WsErrCode._(1001, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RecordNotFound');
+class ErrorCode extends $pb.ProtobufEnum {
+  static const ErrorCode Unknown = ErrorCode._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unknown');
+  static const ErrorCode WorkspaceNameInvalid = ErrorCode._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceNameInvalid');
+  static const ErrorCode WorkspaceIdInvalid = ErrorCode._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceIdInvalid');
+  static const ErrorCode AppColorStyleInvalid = ErrorCode._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppColorStyleInvalid');
+  static const ErrorCode WorkspaceDescInvalid = ErrorCode._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceDescInvalid');
+  static const ErrorCode CurrentWorkspaceNotFound = ErrorCode._(5, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CurrentWorkspaceNotFound');
+  static const ErrorCode AppIdInvalid = ErrorCode._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppIdInvalid');
+  static const ErrorCode AppNameInvalid = ErrorCode._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppNameInvalid');
+  static const ErrorCode ViewNameInvalid = ErrorCode._(20, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewNameInvalid');
+  static const ErrorCode ViewThumbnailInvalid = ErrorCode._(21, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewThumbnailInvalid');
+  static const ErrorCode ViewIdInvalid = ErrorCode._(22, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewIdInvalid');
+  static const ErrorCode ViewDescInvalid = ErrorCode._(23, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewDescInvalid');
+  static const ErrorCode DatabaseConnectionFail = ErrorCode._(100, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DatabaseConnectionFail');
+  static const ErrorCode WorkspaceDatabaseError = ErrorCode._(101, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceDatabaseError');
+  static const ErrorCode UserInternalError = ErrorCode._(102, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserInternalError');
+  static const ErrorCode UserNotLoginYet = ErrorCode._(103, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNotLoginYet');
+  static const ErrorCode UserIdIsEmpty = ErrorCode._(104, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserIdIsEmpty');
+  static const ErrorCode ServerError = ErrorCode._(1000, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ServerError');
+  static const ErrorCode RecordNotFound = ErrorCode._(1001, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RecordNotFound');
 
-  static const $core.List<WsErrCode> values = <WsErrCode> [
+  static const $core.List<ErrorCode> values = <ErrorCode> [
     Unknown,
     WorkspaceNameInvalid,
     WorkspaceIdInvalid,
@@ -52,9 +52,9 @@ class WsErrCode extends $pb.ProtobufEnum {
     RecordNotFound,
   ];
 
-  static final $core.Map<$core.int, WsErrCode> _byValue = $pb.ProtobufEnum.initByValue(values);
-  static WsErrCode? valueOf($core.int value) => _byValue[value];
+  static final $core.Map<$core.int, ErrorCode> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static ErrorCode? valueOf($core.int value) => _byValue[value];
 
-  const WsErrCode._($core.int v, $core.String n) : super(v, n);
+  const ErrorCode._($core.int v, $core.String n) : super(v, n);
 }
 

@@ -26,7 +26,7 @@
 #[derive(PartialEq,Clone,Default)]
 pub struct UserError {
     // message fields
-    pub code: UserErrCode,
+    pub code: ErrorCode,
     pub msg: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -44,18 +44,18 @@ impl UserError {
         ::std::default::Default::default()
     }
 
-    // .UserErrCode code = 1;
+    // .ErrorCode code = 1;
 
 
-    pub fn get_code(&self) -> UserErrCode {
+    pub fn get_code(&self) -> ErrorCode {
         self.code
     }
     pub fn clear_code(&mut self) {
-        self.code = UserErrCode::Unknown;
+        self.code = ErrorCode::Unknown;
     }
 
     // Param is passed by value, moved
-    pub fn set_code(&mut self, v: UserErrCode) {
+    pub fn set_code(&mut self, v: ErrorCode) {
         self.code = v;
     }
 
@@ -113,7 +113,7 @@ impl ::protobuf::Message for UserError {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if self.code != UserErrCode::Unknown {
+        if self.code != ErrorCode::Unknown {
             my_size += ::protobuf::rt::enum_size(1, self.code);
         }
         if !self.msg.is_empty() {
@@ -125,7 +125,7 @@ impl ::protobuf::Message for UserError {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if self.code != UserErrCode::Unknown {
+        if self.code != ErrorCode::Unknown {
             os.write_enum(1, ::protobuf::ProtobufEnum::value(&self.code))?;
         }
         if !self.msg.is_empty() {
@@ -169,7 +169,7 @@ impl ::protobuf::Message for UserError {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<UserErrCode>>(
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<ErrorCode>>(
                 "code",
                 |m: &UserError| { &m.code },
                 |m: &mut UserError| { &mut m.code },
@@ -195,7 +195,7 @@ impl ::protobuf::Message for UserError {
 
 impl ::protobuf::Clear for UserError {
     fn clear(&mut self) {
-        self.code = UserErrCode::Unknown;
+        self.code = ErrorCode::Unknown;
         self.msg.clear();
         self.unknown_fields.clear();
     }
@@ -214,7 +214,7 @@ impl ::protobuf::reflect::ProtobufValue for UserError {
 }
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
-pub enum UserErrCode {
+pub enum ErrorCode {
     Unknown = 0,
     UserDatabaseInitFailed = 1,
     UserDatabaseWriteLocked = 2,
@@ -242,69 +242,69 @@ pub enum UserErrCode {
     ServerError = 100,
 }
 
-impl ::protobuf::ProtobufEnum for UserErrCode {
+impl ::protobuf::ProtobufEnum for ErrorCode {
     fn value(&self) -> i32 {
         *self as i32
     }
 
-    fn from_i32(value: i32) -> ::std::option::Option<UserErrCode> {
+    fn from_i32(value: i32) -> ::std::option::Option<ErrorCode> {
         match value {
-            0 => ::std::option::Option::Some(UserErrCode::Unknown),
-            1 => ::std::option::Option::Some(UserErrCode::UserDatabaseInitFailed),
-            2 => ::std::option::Option::Some(UserErrCode::UserDatabaseWriteLocked),
-            3 => ::std::option::Option::Some(UserErrCode::UserDatabaseReadLocked),
-            4 => ::std::option::Option::Some(UserErrCode::UserDatabaseDidNotMatch),
-            5 => ::std::option::Option::Some(UserErrCode::UserDatabaseInternalError),
-            6 => ::std::option::Option::Some(UserErrCode::SqlInternalError),
-            10 => ::std::option::Option::Some(UserErrCode::UserNotLoginYet),
-            11 => ::std::option::Option::Some(UserErrCode::ReadCurrentIdFailed),
-            12 => ::std::option::Option::Some(UserErrCode::WriteCurrentIdFailed),
-            20 => ::std::option::Option::Some(UserErrCode::EmailIsEmpty),
-            21 => ::std::option::Option::Some(UserErrCode::EmailFormatInvalid),
-            22 => ::std::option::Option::Some(UserErrCode::EmailAlreadyExists),
-            30 => ::std::option::Option::Some(UserErrCode::PasswordIsEmpty),
-            31 => ::std::option::Option::Some(UserErrCode::PasswordTooLong),
-            32 => ::std::option::Option::Some(UserErrCode::PasswordContainsForbidCharacters),
-            33 => ::std::option::Option::Some(UserErrCode::PasswordFormatInvalid),
-            40 => ::std::option::Option::Some(UserErrCode::UserNameTooLong),
-            41 => ::std::option::Option::Some(UserErrCode::UserNameContainsForbiddenCharacters),
-            42 => ::std::option::Option::Some(UserErrCode::UserNameIsEmpty),
-            50 => ::std::option::Option::Some(UserErrCode::UserWorkspaceInvalid),
-            51 => ::std::option::Option::Some(UserErrCode::UserIdInvalid),
-            52 => ::std::option::Option::Some(UserErrCode::CreateDefaultWorkspaceFailed),
-            53 => ::std::option::Option::Some(UserErrCode::DefaultWorkspaceAlreadyExist),
-            100 => ::std::option::Option::Some(UserErrCode::ServerError),
+            0 => ::std::option::Option::Some(ErrorCode::Unknown),
+            1 => ::std::option::Option::Some(ErrorCode::UserDatabaseInitFailed),
+            2 => ::std::option::Option::Some(ErrorCode::UserDatabaseWriteLocked),
+            3 => ::std::option::Option::Some(ErrorCode::UserDatabaseReadLocked),
+            4 => ::std::option::Option::Some(ErrorCode::UserDatabaseDidNotMatch),
+            5 => ::std::option::Option::Some(ErrorCode::UserDatabaseInternalError),
+            6 => ::std::option::Option::Some(ErrorCode::SqlInternalError),
+            10 => ::std::option::Option::Some(ErrorCode::UserNotLoginYet),
+            11 => ::std::option::Option::Some(ErrorCode::ReadCurrentIdFailed),
+            12 => ::std::option::Option::Some(ErrorCode::WriteCurrentIdFailed),
+            20 => ::std::option::Option::Some(ErrorCode::EmailIsEmpty),
+            21 => ::std::option::Option::Some(ErrorCode::EmailFormatInvalid),
+            22 => ::std::option::Option::Some(ErrorCode::EmailAlreadyExists),
+            30 => ::std::option::Option::Some(ErrorCode::PasswordIsEmpty),
+            31 => ::std::option::Option::Some(ErrorCode::PasswordTooLong),
+            32 => ::std::option::Option::Some(ErrorCode::PasswordContainsForbidCharacters),
+            33 => ::std::option::Option::Some(ErrorCode::PasswordFormatInvalid),
+            40 => ::std::option::Option::Some(ErrorCode::UserNameTooLong),
+            41 => ::std::option::Option::Some(ErrorCode::UserNameContainsForbiddenCharacters),
+            42 => ::std::option::Option::Some(ErrorCode::UserNameIsEmpty),
+            50 => ::std::option::Option::Some(ErrorCode::UserWorkspaceInvalid),
+            51 => ::std::option::Option::Some(ErrorCode::UserIdInvalid),
+            52 => ::std::option::Option::Some(ErrorCode::CreateDefaultWorkspaceFailed),
+            53 => ::std::option::Option::Some(ErrorCode::DefaultWorkspaceAlreadyExist),
+            100 => ::std::option::Option::Some(ErrorCode::ServerError),
             _ => ::std::option::Option::None
         }
     }
 
     fn values() -> &'static [Self] {
-        static values: &'static [UserErrCode] = &[
-            UserErrCode::Unknown,
-            UserErrCode::UserDatabaseInitFailed,
-            UserErrCode::UserDatabaseWriteLocked,
-            UserErrCode::UserDatabaseReadLocked,
-            UserErrCode::UserDatabaseDidNotMatch,
-            UserErrCode::UserDatabaseInternalError,
-            UserErrCode::SqlInternalError,
-            UserErrCode::UserNotLoginYet,
-            UserErrCode::ReadCurrentIdFailed,
-            UserErrCode::WriteCurrentIdFailed,
-            UserErrCode::EmailIsEmpty,
-            UserErrCode::EmailFormatInvalid,
-            UserErrCode::EmailAlreadyExists,
-            UserErrCode::PasswordIsEmpty,
-            UserErrCode::PasswordTooLong,
-            UserErrCode::PasswordContainsForbidCharacters,
-            UserErrCode::PasswordFormatInvalid,
-            UserErrCode::UserNameTooLong,
-            UserErrCode::UserNameContainsForbiddenCharacters,
-            UserErrCode::UserNameIsEmpty,
-            UserErrCode::UserWorkspaceInvalid,
-            UserErrCode::UserIdInvalid,
-            UserErrCode::CreateDefaultWorkspaceFailed,
-            UserErrCode::DefaultWorkspaceAlreadyExist,
-            UserErrCode::ServerError,
+        static values: &'static [ErrorCode] = &[
+            ErrorCode::Unknown,
+            ErrorCode::UserDatabaseInitFailed,
+            ErrorCode::UserDatabaseWriteLocked,
+            ErrorCode::UserDatabaseReadLocked,
+            ErrorCode::UserDatabaseDidNotMatch,
+            ErrorCode::UserDatabaseInternalError,
+            ErrorCode::SqlInternalError,
+            ErrorCode::UserNotLoginYet,
+            ErrorCode::ReadCurrentIdFailed,
+            ErrorCode::WriteCurrentIdFailed,
+            ErrorCode::EmailIsEmpty,
+            ErrorCode::EmailFormatInvalid,
+            ErrorCode::EmailAlreadyExists,
+            ErrorCode::PasswordIsEmpty,
+            ErrorCode::PasswordTooLong,
+            ErrorCode::PasswordContainsForbidCharacters,
+            ErrorCode::PasswordFormatInvalid,
+            ErrorCode::UserNameTooLong,
+            ErrorCode::UserNameContainsForbiddenCharacters,
+            ErrorCode::UserNameIsEmpty,
+            ErrorCode::UserWorkspaceInvalid,
+            ErrorCode::UserIdInvalid,
+            ErrorCode::CreateDefaultWorkspaceFailed,
+            ErrorCode::DefaultWorkspaceAlreadyExist,
+            ErrorCode::ServerError,
         ];
         values
     }
@@ -312,52 +312,52 @@ impl ::protobuf::ProtobufEnum for UserErrCode {
     fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
-            ::protobuf::reflect::EnumDescriptor::new_pb_name::<UserErrCode>("UserErrCode", file_descriptor_proto())
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<ErrorCode>("ErrorCode", file_descriptor_proto())
         })
     }
 }
 
-impl ::std::marker::Copy for UserErrCode {
+impl ::std::marker::Copy for ErrorCode {
 }
 
-impl ::std::default::Default for UserErrCode {
+impl ::std::default::Default for ErrorCode {
     fn default() -> Self {
-        UserErrCode::Unknown
+        ErrorCode::Unknown
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for UserErrCode {
+impl ::protobuf::reflect::ProtobufValue for ErrorCode {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
     }
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0cerrors.proto\"?\n\tUserError\x12\x20\n\x04code\x18\x01\x20\x01(\
-    \x0e2\x0c.UserErrCodeR\x04code\x12\x10\n\x03msg\x18\x02\x20\x01(\tR\x03m\
-    sg*\x8b\x05\n\x0bUserErrCode\x12\x0b\n\x07Unknown\x10\0\x12\x1a\n\x16Use\
-    rDatabaseInitFailed\x10\x01\x12\x1b\n\x17UserDatabaseWriteLocked\x10\x02\
-    \x12\x1a\n\x16UserDatabaseReadLocked\x10\x03\x12\x1b\n\x17UserDatabaseDi\
-    dNotMatch\x10\x04\x12\x1d\n\x19UserDatabaseInternalError\x10\x05\x12\x14\
-    \n\x10SqlInternalError\x10\x06\x12\x13\n\x0fUserNotLoginYet\x10\n\x12\
-    \x17\n\x13ReadCurrentIdFailed\x10\x0b\x12\x18\n\x14WriteCurrentIdFailed\
-    \x10\x0c\x12\x10\n\x0cEmailIsEmpty\x10\x14\x12\x16\n\x12EmailFormatInval\
-    id\x10\x15\x12\x16\n\x12EmailAlreadyExists\x10\x16\x12\x13\n\x0fPassword\
-    IsEmpty\x10\x1e\x12\x13\n\x0fPasswordTooLong\x10\x1f\x12$\n\x20PasswordC\
-    ontainsForbidCharacters\x10\x20\x12\x19\n\x15PasswordFormatInvalid\x10!\
+    \n\x0cerrors.proto\"=\n\tUserError\x12\x1e\n\x04code\x18\x01\x20\x01(\
+    \x0e2\n.ErrorCodeR\x04code\x12\x10\n\x03msg\x18\x02\x20\x01(\tR\x03msg*\
+    \x89\x05\n\tErrorCode\x12\x0b\n\x07Unknown\x10\0\x12\x1a\n\x16UserDataba\
+    seInitFailed\x10\x01\x12\x1b\n\x17UserDatabaseWriteLocked\x10\x02\x12\
+    \x1a\n\x16UserDatabaseReadLocked\x10\x03\x12\x1b\n\x17UserDatabaseDidNot\
+    Match\x10\x04\x12\x1d\n\x19UserDatabaseInternalError\x10\x05\x12\x14\n\
+    \x10SqlInternalError\x10\x06\x12\x13\n\x0fUserNotLoginYet\x10\n\x12\x17\
+    \n\x13ReadCurrentIdFailed\x10\x0b\x12\x18\n\x14WriteCurrentIdFailed\x10\
+    \x0c\x12\x10\n\x0cEmailIsEmpty\x10\x14\x12\x16\n\x12EmailFormatInvalid\
+    \x10\x15\x12\x16\n\x12EmailAlreadyExists\x10\x16\x12\x13\n\x0fPasswordIs\
+    Empty\x10\x1e\x12\x13\n\x0fPasswordTooLong\x10\x1f\x12$\n\x20PasswordCon\
+    tainsForbidCharacters\x10\x20\x12\x19\n\x15PasswordFormatInvalid\x10!\
     \x12\x13\n\x0fUserNameTooLong\x10(\x12'\n#UserNameContainsForbiddenChara\
     cters\x10)\x12\x13\n\x0fUserNameIsEmpty\x10*\x12\x18\n\x14UserWorkspaceI\
     nvalid\x102\x12\x11\n\rUserIdInvalid\x103\x12\x20\n\x1cCreateDefaultWork\
     spaceFailed\x104\x12\x20\n\x1cDefaultWorkspaceAlreadyExist\x105\x12\x0f\
     \n\x0bServerError\x10dJ\xb1\t\n\x06\x12\x04\0\0\x20\x01\n\x08\n\x01\x0c\
     \x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\0\
-    \x01\x12\x03\x02\x08\x11\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x19\n\
-    \x0c\n\x05\x04\0\x02\0\x06\x12\x03\x03\x04\x0f\n\x0c\n\x05\x04\0\x02\0\
-    \x01\x12\x03\x03\x10\x14\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x17\x18\
-    \n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x13\n\x0c\n\x05\x04\0\x02\x01\
+    \x01\x12\x03\x02\x08\x11\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x17\n\
+    \x0c\n\x05\x04\0\x02\0\x06\x12\x03\x03\x04\r\n\x0c\n\x05\x04\0\x02\0\x01\
+    \x12\x03\x03\x0e\x12\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x15\x16\n\
+    \x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x13\n\x0c\n\x05\x04\0\x02\x01\
     \x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x0b\x0e\
     \n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x11\x12\n\n\n\x02\x05\0\x12\
-    \x04\x06\0\x20\x01\n\n\n\x03\x05\0\x01\x12\x03\x06\x05\x10\n\x0b\n\x04\
+    \x04\x06\0\x20\x01\n\n\n\x03\x05\0\x01\x12\x03\x06\x05\x0e\n\x0b\n\x04\
     \x05\0\x02\0\x12\x03\x07\x04\x10\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\x07\
     \x04\x0b\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x07\x0e\x0f\n\x0b\n\x04\x05\
     \0\x02\x01\x12\x03\x08\x04\x1f\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\x08\

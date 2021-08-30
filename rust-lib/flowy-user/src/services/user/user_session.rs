@@ -1,6 +1,6 @@
 use crate::{
     entities::{SignInParams, SignUpParams, UpdateUserParams, UserDetail},
-    errors::{ErrorBuilder, UserErrCode, UserError},
+    errors::{ErrorBuilder, ErrorCode, UserError},
     services::{
         user::{construct_user_server, database::UserDB, UserServerAPI},
         workspace::UserWorkspaceController,
@@ -124,7 +124,7 @@ impl UserSession {
                 *write_guard = user_id;
                 Ok(())
             },
-            Err(e) => Err(ErrorBuilder::new(UserErrCode::WriteCurrentIdFailed)
+            Err(e) => Err(ErrorBuilder::new(ErrorCode::WriteCurrentIdFailed)
                 .error(e)
                 .build()),
         }
@@ -138,7 +138,7 @@ impl UserSession {
     pub fn user_id(&self) -> Result<String, UserError> {
         let mut user_id = {
             let read_guard = self.user_id.read().map_err(|e| {
-                ErrorBuilder::new(UserErrCode::ReadCurrentIdFailed)
+                ErrorBuilder::new(ErrorCode::ReadCurrentIdFailed)
                     .error(e)
                     .build()
             })?;
@@ -152,7 +152,7 @@ impl UserSession {
         }
 
         match user_id {
-            None => Err(ErrorBuilder::new(UserErrCode::UserNotLoginYet).build()),
+            None => Err(ErrorBuilder::new(ErrorCode::UserNotLoginYet).build()),
             Some(user_id) => Ok(user_id),
         }
     }
@@ -160,7 +160,7 @@ impl UserSession {
 
 pub fn current_user_id() -> Result<String, UserError> {
     match KVStore::get_str(USER_ID_CACHE_KEY) {
-        None => Err(ErrorBuilder::new(UserErrCode::UserNotLoginYet).build()),
+        None => Err(ErrorBuilder::new(ErrorCode::UserNotLoginYet).build()),
         Some(user_id) => Ok(user_id),
     }
 }

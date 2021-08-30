@@ -20,6 +20,8 @@ diesel_derives = {version = "1.4.1", features = ["sqlite"]}
 futures-core = { version = "0.3", default-features = false }
 pin-project = "1.0.0"
 flowy-net = { path = "../flowy-net" }
+strum = "0.21"
+strum_macros = "0.21"
 
 lazy_static = "1.4.0"
 serde = { version = "1.0", features = ["derive"] }

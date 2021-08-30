@@ -1,5 +1,5 @@
 use crate::helper::*;
-use flowy_user::{errors::UserErrCode, event::UserEvent::*, prelude::*};
+use flowy_user::{errors::ErrorCode, event::UserEvent::*, prelude::*};
 use serial_test::*;
 
 #[test]
@@ -10,7 +10,7 @@ fn sign_in_success() {
         password: valid_password(),
     };
 
-    let response = UserTestBuilder::new()
+    let response = RandomUserTestBuilder::new()
         .logout()
         .event(SignIn)
         .request(request)
@@ -29,13 +29,13 @@ fn sign_in_with_invalid_email() {
         };
 
         assert_eq!(
-            UserTestBuilder::new()
+            RandomUserTestBuilder::new()
                 .event(SignIn)
                 .request(request)
                 .sync_send()
                 .error()
                 .code,
-            UserErrCode::EmailFormatInvalid
+            ErrorCode::EmailFormatInvalid
         );
     }
 }
@@ -49,7 +49,7 @@ fn sign_in_with_invalid_password() {
             password,
         };
 
-        UserTestBuilder::new()
+        RandomUserTestBuilder::new()
             .event(SignIn)
             .request(request)
             .sync_send()

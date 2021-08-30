@@ -9,6 +9,7 @@ use flowy_user::{
     event::UserEvent::{GetStatus, SignOut, SignUp},
     prelude::*,
 };
+use flowy_workspace::errors::ErrorCode;
 use std::{
     convert::TryFrom,
     fmt::{Debug, Display},
@@ -89,7 +90,9 @@ pub trait TesterTrait {
         let response = self.mut_context().response.clone().unwrap();
         match response.parse::<R, Self::Error>() {
             Ok(Ok(data)) => data,
-            Ok(Err(e)) => panic!("parse failed: {:?}", e),
+            Ok(Err(e)) => {
+                panic!("parse failed: {:?}", e)
+            },
             Err(e) => panic!("Internal error: {:?}", e),
         }
     }

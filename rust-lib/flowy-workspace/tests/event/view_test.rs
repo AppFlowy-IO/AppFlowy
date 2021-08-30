@@ -3,10 +3,10 @@ use crate::helper::*;
 use flowy_workspace::entities::view::*;
 
 #[test]
-fn view_create_success() { let _ = create_view(); }
+fn view_create() { let _ = create_view(); }
 
 #[test]
-fn view_update_with_trash_flag_and_read_with_trash_flag_success() {
+fn view_set_trash_flag() {
     let view_id = create_view_with_trash_flag();
     let query = QueryViewRequest::new(&view_id).set_is_trash(true);
     let _ = read_view(query);
@@ -14,13 +14,13 @@ fn view_update_with_trash_flag_and_read_with_trash_flag_success() {
 
 #[test]
 #[should_panic]
-fn view_update_with_trash_flag_and_read_without_trash_flag_fail() {
+fn view_set_trash_flag2() {
     let view_id = create_view_with_trash_flag();
     let query = QueryViewRequest::new(&view_id);
     let _ = read_view(query);
 }
 
-pub fn create_view_with_trash_flag() -> String {
+fn create_view_with_trash_flag() -> String {
     let view = create_view();
     let request = UpdateViewRequest {
         view_id: view.id.clone(),

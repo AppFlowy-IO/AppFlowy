@@ -21,5 +21,8 @@ log = "0.4.14"
 tokio = {version = "1.6.0", features = ["sync"]}
 tracing = { version = "0.1", features = ["log"] }
 bytes = { version = "1.0" }
+strum = "0.21"
+strum_macros = "0.21"
+
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }

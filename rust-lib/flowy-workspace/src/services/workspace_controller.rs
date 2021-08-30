@@ -68,7 +68,7 @@ impl WorkspaceController {
             .await?;
 
         match result.first() {
-            None => Err(ErrorBuilder::new(WsErrCode::RecordNotFound).build()),
+            None => Err(ErrorBuilder::new(ErrorCode::RecordNotFound).build()),
             Some(workspace_table) => {
                 let workspace: Workspace = workspace_table.clone().into();
                 set_current_workspace(&workspace.id);
@@ -99,7 +99,7 @@ impl WorkspaceController {
         let mut repeated_workspace = self.read_workspaces(Some(workspace_id.clone())).await?;
 
         if repeated_workspace.is_empty() {
-            return Err(ErrorBuilder::new(WsErrCode::RecordNotFound).build());
+            return Err(ErrorBuilder::new(ErrorCode::RecordNotFound).build());
         }
 
         debug_assert_eq!(repeated_workspace.len(), 1);
@@ -153,7 +153,7 @@ fn set_current_workspace(workspace: &str) {
 
 fn get_current_workspace() -> Result<String, WorkspaceError> {
     match KVStore::get_str(CURRENT_WORKSPACE_ID) {
-        None => Err(ErrorBuilder::new(WsErrCode::CurrentWorkspaceNotFound).build()),
+        None => Err(ErrorBuilder::new(ErrorCode::CurrentWorkspaceNotFound).build()),
         Some(workspace_id) => Ok(workspace_id),
     }
 }

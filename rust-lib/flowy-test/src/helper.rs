@@ -1,7 +1,7 @@
 use bytes::Bytes;
 use flowy_dispatch::prelude::{DispatchError, EventDispatch, ModuleRequest, ToBytes};
 use flowy_infra::{kv::KVStore, uuid};
-use flowy_user::errors::{ErrorBuilder, UserErrCode, UserError};
+use flowy_user::errors::{ErrorBuilder, ErrorCode, UserError};
 use flowy_workspace::{
     entities::workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest, Workspace},
     event::WorkspaceEvent::{CreateWorkspace, OpenWorkspace},
@@ -37,7 +37,7 @@ const DEFAULT_WORKSPACE: &'static str = "Default_Workspace";
 pub(crate) fn create_default_workspace_if_need(user_id: &str) -> Result<(), UserError> {
     let key = format!("{}{}", user_id, DEFAULT_WORKSPACE);
     if KVStore::get_bool(&key).unwrap_or(false) {
-        return Err(ErrorBuilder::new(UserErrCode::DefaultWorkspaceAlreadyExist).build());
+        return Err(ErrorBuilder::new(ErrorCode::DefaultWorkspaceAlreadyExist).build());
     }
     KVStore::set_bool(&key, true);
 
@@ -53,13 +53,13 @@ pub(crate) fn create_default_workspace_if_need(user_id: &str) -> Result<(), User
     let result = EventDispatch::sync_send(request)
         .parse::<Workspace, DispatchError>()
         .map_err(|e| {
-            ErrorBuilder::new(UserErrCode::CreateDefaultWorkspaceFailed)
+            ErrorBuilder::new(ErrorCode::CreateDefaultWorkspaceFailed)
                 .error(e)
                 .build()
         })?;
 
     let workspace = result.map_err(|e| {
-        ErrorBuilder::new(UserErrCode::CreateDefaultWorkspaceFailed)
+        ErrorBuilder::new(ErrorCode::CreateDefaultWorkspaceFailed)
             .error(e)
             .build()
     })?;

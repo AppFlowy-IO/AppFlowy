@@ -1,14 +1,14 @@
-use crate::errors::UserErrCode;
+use crate::errors::ErrorCode;
 use unicode_segmentation::UnicodeSegmentation;
 
 #[derive(Debug)]
 pub struct UserName(pub String);
 
 impl UserName {
-    pub fn parse(s: String) -> Result<UserName, UserErrCode> {
+    pub fn parse(s: String) -> Result<UserName, ErrorCode> {
         let is_empty_or_whitespace = s.trim().is_empty();
         if is_empty_or_whitespace {
-            return Err(UserErrCode::UserNameIsEmpty);
+            return Err(ErrorCode::UserNameIsEmpty);
         }
         // A grapheme is defined by the Unicode standard as a "user-perceived"
         // character: `å` is a single grapheme, but it is composed of two characters
@@ -19,14 +19,14 @@ impl UserName {
         // the recommended one.
         let is_too_long = s.graphemes(true).count() > 256;
         if is_too_long {
-            return Err(UserErrCode::UserNameTooLong);
+            return Err(ErrorCode::UserNameTooLong);
         }
 
         let forbidden_characters = ['/', '(', ')', '"', '<', '>', '\\', '{', '}'];
         let contains_forbidden_characters = s.chars().any(|g| forbidden_characters.contains(&g));
 
         if contains_forbidden_characters {
-            return Err(UserErrCode::UserNameContainsForbiddenCharacters);
+            return Err(ErrorCode::UserNameContainsForbiddenCharacters);
         }
 
         Ok(Self(s))

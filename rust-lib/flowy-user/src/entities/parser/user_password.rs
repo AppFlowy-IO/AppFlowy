@@ -1,4 +1,4 @@
-use crate::errors::UserErrCode;
+use crate::errors::ErrorCode;
 use fancy_regex::Regex;
 use lazy_static::lazy_static;
 use unicode_segmentation::UnicodeSegmentation;
@@ -7,23 +7,23 @@ use unicode_segmentation::UnicodeSegmentation;
 pub struct UserPassword(pub String);
 
 impl UserPassword {
-    pub fn parse(s: String) -> Result<UserPassword, UserErrCode> {
+    pub fn parse(s: String) -> Result<UserPassword, ErrorCode> {
         if s.trim().is_empty() {
-            return Err(UserErrCode::PasswordIsEmpty);
+            return Err(ErrorCode::PasswordIsEmpty);
         }
 
         if s.graphemes(true).count() > 100 {
-            return Err(UserErrCode::PasswordTooLong);
+            return Err(ErrorCode::PasswordTooLong);
         }
 
         let forbidden_characters = ['/', '(', ')', '"', '<', '>', '\\', '{', '}'];
         let contains_forbidden_characters = s.chars().any(|g| forbidden_characters.contains(&g));
         if contains_forbidden_characters {
-            return Err(UserErrCode::PasswordContainsForbidCharacters);
+            return Err(ErrorCode::PasswordContainsForbidCharacters);
         }
 
         if !validate_password(&s) {
-            return Err(UserErrCode::PasswordFormatInvalid);
+            return Err(ErrorCode::PasswordFormatInvalid);
         }
 
         Ok(Self(s))

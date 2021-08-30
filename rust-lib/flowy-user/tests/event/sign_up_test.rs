@@ -11,7 +11,7 @@ fn sign_up_success() {
         password: valid_password(),
     };
 
-    let _response = UserTestBuilder::new()
+    let _response = RandomUserTestBuilder::new()
         .logout()
         .event(SignUp)
         .request(request)
@@ -29,13 +29,13 @@ fn sign_up_with_invalid_email() {
         };
 
         assert_eq!(
-            UserTestBuilder::new()
+            RandomUserTestBuilder::new()
                 .event(SignUp)
                 .request(request)
                 .sync_send()
                 .error()
                 .code,
-            UserErrCode::EmailFormatInvalid
+            ErrorCode::EmailFormatInvalid
         );
     }
 }
@@ -49,7 +49,7 @@ fn sign_up_with_invalid_password() {
             password,
         };
 
-        UserTestBuilder::new()
+        RandomUserTestBuilder::new()
             .event(SignUp)
             .request(request)
             .sync_send()

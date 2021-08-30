@@ -1,6 +1,6 @@
 use crate::{
     entities::view::parser::ViewId,
-    errors::{ErrorBuilder, WorkspaceError, WsErrCode},
+    errors::{ErrorBuilder, ErrorCode, WorkspaceError},
 };
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
@@ -22,7 +22,7 @@ impl TryInto<DeleteViewParams> for DeleteViewRequest {
 
     fn try_into(self) -> Result<DeleteViewParams, Self::Error> {
         let view_id = ViewId::parse(self.view_id)
-            .map_err(|e| ErrorBuilder::new(WsErrCode::ViewIdInvalid).msg(e).build())?
+            .map_err(|e| ErrorBuilder::new(ErrorCode::ViewIdInvalid).msg(e).build())?
             .0;
 
         Ok(DeleteViewParams { view_id })

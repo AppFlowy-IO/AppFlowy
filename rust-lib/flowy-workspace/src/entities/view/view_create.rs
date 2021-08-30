@@ -1,6 +1,6 @@
 use crate::{
     entities::{app::parser::AppId, view::parser::*},
-    errors::{ErrorBuilder, WorkspaceError, WsErrCode},
+    errors::{ErrorBuilder, ErrorCode, WorkspaceError},
     impl_def_and_def_mut,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
@@ -70,11 +70,11 @@ impl TryInto<CreateViewParams> for CreateViewRequest {
 
     fn try_into(self) -> Result<CreateViewParams, Self::Error> {
         let name = ViewName::parse(self.name)
-            .map_err(|e| ErrorBuilder::new(WsErrCode::ViewNameInvalid).msg(e).build())?
+            .map_err(|e| ErrorBuilder::new(ErrorCode::ViewNameInvalid).msg(e).build())?
             .0;
 
         let belong_to_id = AppId::parse(self.belong_to_id)
-            .map_err(|e| ErrorBuilder::new(WsErrCode::AppIdInvalid).msg(e).build())?
+            .map_err(|e| ErrorBuilder::new(ErrorCode::AppIdInvalid).msg(e).build())?
             .0;
 
         let thumbnail = match self.thumbnail {
@@ -82,7 +82,7 @@ impl TryInto<CreateViewParams> for CreateViewRequest {
             Some(thumbnail) => {
                 ViewThumbnail::parse(thumbnail)
                     .map_err(|e| {
-                        ErrorBuilder::new(WsErrCode::ViewThumbnailInvalid)
+                        ErrorBuilder::new(ErrorCode::ViewThumbnailInvalid)
                             .msg(e)
                             .build()
                     })?

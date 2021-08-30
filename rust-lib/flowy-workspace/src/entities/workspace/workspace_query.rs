@@ -12,6 +12,20 @@ pub struct QueryWorkspaceRequest {
     pub user_id: String,
 }
 
+impl QueryWorkspaceRequest {
+    pub fn new(user_id: &str) -> Self {
+        Self {
+            workspace_id: None,
+            user_id: user_id.to_owned(),
+        }
+    }
+
+    pub fn workspace_id(mut self, workspace_id: &str) -> Self {
+        self.workspace_id = Some(workspace_id.to_owned());
+        self
+    }
+}
+
 // Read all workspaces if the workspace_id is None
 #[derive(ProtoBuf, Default)]
 pub struct QueryWorkspaceParams {
@@ -46,7 +60,7 @@ impl TryInto<QueryWorkspaceParams> for QueryWorkspaceRequest {
             Some(workspace_id) => Some(
                 WorkspaceId::parse(workspace_id)
                     .map_err(|e| {
-                        ErrorBuilder::new(WsErrCode::WorkspaceIdInvalid)
+                        ErrorBuilder::new(ErrorCode::WorkspaceIdInvalid)
                             .msg(e)
                             .build()
                     })?

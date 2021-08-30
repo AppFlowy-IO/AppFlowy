@@ -26,7 +26,7 @@
 #[derive(PartialEq,Clone,Default)]
 pub struct WorkspaceError {
     // message fields
-    pub code: WsErrCode,
+    pub code: ErrorCode,
     pub msg: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -44,18 +44,18 @@ impl WorkspaceError {
         ::std::default::Default::default()
     }
 
-    // .WsErrCode code = 1;
+    // .ErrorCode code = 1;
 
 
-    pub fn get_code(&self) -> WsErrCode {
+    pub fn get_code(&self) -> ErrorCode {
         self.code
     }
     pub fn clear_code(&mut self) {
-        self.code = WsErrCode::Unknown;
+        self.code = ErrorCode::Unknown;
     }
 
     // Param is passed by value, moved
-    pub fn set_code(&mut self, v: WsErrCode) {
+    pub fn set_code(&mut self, v: ErrorCode) {
         self.code = v;
     }
 
@@ -113,7 +113,7 @@ impl ::protobuf::Message for WorkspaceError {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if self.code != WsErrCode::Unknown {
+        if self.code != ErrorCode::Unknown {
             my_size += ::protobuf::rt::enum_size(1, self.code);
         }
         if !self.msg.is_empty() {
@@ -125,7 +125,7 @@ impl ::protobuf::Message for WorkspaceError {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if self.code != WsErrCode::Unknown {
+        if self.code != ErrorCode::Unknown {
             os.write_enum(1, ::protobuf::ProtobufEnum::value(&self.code))?;
         }
         if !self.msg.is_empty() {
@@ -169,7 +169,7 @@ impl ::protobuf::Message for WorkspaceError {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<WsErrCode>>(
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<ErrorCode>>(
                 "code",
                 |m: &WorkspaceError| { &m.code },
                 |m: &mut WorkspaceError| { &mut m.code },
@@ -195,7 +195,7 @@ impl ::protobuf::Message for WorkspaceError {
 
 impl ::protobuf::Clear for WorkspaceError {
     fn clear(&mut self) {
-        self.code = WsErrCode::Unknown;
+        self.code = ErrorCode::Unknown;
         self.msg.clear();
         self.unknown_fields.clear();
     }
@@ -214,7 +214,7 @@ impl ::protobuf::reflect::ProtobufValue for WorkspaceError {
 }
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
-pub enum WsErrCode {
+pub enum ErrorCode {
     Unknown = 0,
     WorkspaceNameInvalid = 1,
     WorkspaceIdInvalid = 2,
@@ -236,57 +236,57 @@ pub enum WsErrCode {
     RecordNotFound = 1001,
 }
 
-impl ::protobuf::ProtobufEnum for WsErrCode {
+impl ::protobuf::ProtobufEnum for ErrorCode {
     fn value(&self) -> i32 {
         *self as i32
     }
 
-    fn from_i32(value: i32) -> ::std::option::Option<WsErrCode> {
+    fn from_i32(value: i32) -> ::std::option::Option<ErrorCode> {
         match value {
-            0 => ::std::option::Option::Some(WsErrCode::Unknown),
-            1 => ::std::option::Option::Some(WsErrCode::WorkspaceNameInvalid),
-            2 => ::std::option::Option::Some(WsErrCode::WorkspaceIdInvalid),
-            3 => ::std::option::Option::Some(WsErrCode::AppColorStyleInvalid),
-            4 => ::std::option::Option::Some(WsErrCode::WorkspaceDescInvalid),
-            5 => ::std::option::Option::Some(WsErrCode::CurrentWorkspaceNotFound),
-            10 => ::std::option::Option::Some(WsErrCode::AppIdInvalid),
-            11 => ::std::option::Option::Some(WsErrCode::AppNameInvalid),
-            20 => ::std::option::Option::Some(WsErrCode::ViewNameInvalid),
-            21 => ::std::option::Option::Some(WsErrCode::ViewThumbnailInvalid),
-            22 => ::std::option::Option::Some(WsErrCode::ViewIdInvalid),
-            23 => ::std::option::Option::Some(WsErrCode::ViewDescInvalid),
-            100 => ::std::option::Option::Some(WsErrCode::DatabaseConnectionFail),
-            101 => ::std::option::Option::Some(WsErrCode::WorkspaceDatabaseError),
-            102 => ::std::option::Option::Some(WsErrCode::UserInternalError),
-            103 => ::std::option::Option::Some(WsErrCode::UserNotLoginYet),
-            104 => ::std::option::Option::Some(WsErrCode::UserIdIsEmpty),
-            1000 => ::std::option::Option::Some(WsErrCode::ServerError),
-            1001 => ::std::option::Option::Some(WsErrCode::RecordNotFound),
+            0 => ::std::option::Option::Some(ErrorCode::Unknown),
+            1 => ::std::option::Option::Some(ErrorCode::WorkspaceNameInvalid),
+            2 => ::std::option::Option::Some(ErrorCode::WorkspaceIdInvalid),
+            3 => ::std::option::Option::Some(ErrorCode::AppColorStyleInvalid),
+            4 => ::std::option::Option::Some(ErrorCode::WorkspaceDescInvalid),
+            5 => ::std::option::Option::Some(ErrorCode::CurrentWorkspaceNotFound),
+            10 => ::std::option::Option::Some(ErrorCode::AppIdInvalid),
+            11 => ::std::option::Option::Some(ErrorCode::AppNameInvalid),
+            20 => ::std::option::Option::Some(ErrorCode::ViewNameInvalid),
+            21 => ::std::option::Option::Some(ErrorCode::ViewThumbnailInvalid),
+            22 => ::std::option::Option::Some(ErrorCode::ViewIdInvalid),
+            23 => ::std::option::Option::Some(ErrorCode::ViewDescInvalid),
+            100 => ::std::option::Option::Some(ErrorCode::DatabaseConnectionFail),
+            101 => ::std::option::Option::Some(ErrorCode::WorkspaceDatabaseError),
+            102 => ::std::option::Option::Some(ErrorCode::UserInternalError),
+            103 => ::std::option::Option::Some(ErrorCode::UserNotLoginYet),
+            104 => ::std::option::Option::Some(ErrorCode::UserIdIsEmpty),
+            1000 => ::std::option::Option::Some(ErrorCode::ServerError),
+            1001 => ::std::option::Option::Some(ErrorCode::RecordNotFound),
             _ => ::std::option::Option::None
         }
     }
 
     fn values() -> &'static [Self] {
-        static values: &'static [WsErrCode] = &[
-            WsErrCode::Unknown,
-            WsErrCode::WorkspaceNameInvalid,
-            WsErrCode::WorkspaceIdInvalid,
-            WsErrCode::AppColorStyleInvalid,
-            WsErrCode::WorkspaceDescInvalid,
-            WsErrCode::CurrentWorkspaceNotFound,
-            WsErrCode::AppIdInvalid,
-            WsErrCode::AppNameInvalid,
-            WsErrCode::ViewNameInvalid,
-            WsErrCode::ViewThumbnailInvalid,
-            WsErrCode::ViewIdInvalid,
-            WsErrCode::ViewDescInvalid,
-            WsErrCode::DatabaseConnectionFail,
-            WsErrCode::WorkspaceDatabaseError,
-            WsErrCode::UserInternalError,
-            WsErrCode::UserNotLoginYet,
-            WsErrCode::UserIdIsEmpty,
-            WsErrCode::ServerError,
-            WsErrCode::RecordNotFound,
+        static values: &'static [ErrorCode] = &[
+            ErrorCode::Unknown,
+            ErrorCode::WorkspaceNameInvalid,
+            ErrorCode::WorkspaceIdInvalid,
+            ErrorCode::AppColorStyleInvalid,
+            ErrorCode::WorkspaceDescInvalid,
+            ErrorCode::CurrentWorkspaceNotFound,
+            ErrorCode::AppIdInvalid,
+            ErrorCode::AppNameInvalid,
+            ErrorCode::ViewNameInvalid,
+            ErrorCode::ViewThumbnailInvalid,
+            ErrorCode::ViewIdInvalid,
+            ErrorCode::ViewDescInvalid,
+            ErrorCode::DatabaseConnectionFail,
+            ErrorCode::WorkspaceDatabaseError,
+            ErrorCode::UserInternalError,
+            ErrorCode::UserNotLoginYet,
+            ErrorCode::UserIdIsEmpty,
+            ErrorCode::ServerError,
+            ErrorCode::RecordNotFound,
         ];
         values
     }
@@ -294,21 +294,21 @@ impl ::protobuf::ProtobufEnum for WsErrCode {
     fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
-            ::protobuf::reflect::EnumDescriptor::new_pb_name::<WsErrCode>("WsErrCode", file_descriptor_proto())
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<ErrorCode>("ErrorCode", file_descriptor_proto())
         })
     }
 }
 
-impl ::std::marker::Copy for WsErrCode {
+impl ::std::marker::Copy for ErrorCode {
 }
 
-impl ::std::default::Default for WsErrCode {
+impl ::std::default::Default for ErrorCode {
     fn default() -> Self {
-        WsErrCode::Unknown
+        ErrorCode::Unknown
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for WsErrCode {
+impl ::protobuf::reflect::ProtobufValue for ErrorCode {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
     }
@@ -316,8 +316,8 @@ impl ::protobuf::reflect::ProtobufValue for WsErrCode {
 
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x0cerrors.proto\"B\n\x0eWorkspaceError\x12\x1e\n\x04code\x18\x01\x20\
-    \x01(\x0e2\n.WsErrCodeR\x04code\x12\x10\n\x03msg\x18\x02\x20\x01(\tR\x03\
-    msg*\xb7\x03\n\tWsErrCode\x12\x0b\n\x07Unknown\x10\0\x12\x18\n\x14Worksp\
+    \x01(\x0e2\n.ErrorCodeR\x04code\x12\x10\n\x03msg\x18\x02\x20\x01(\tR\x03\
+    msg*\xb7\x03\n\tErrorCode\x12\x0b\n\x07Unknown\x10\0\x12\x18\n\x14Worksp\
     aceNameInvalid\x10\x01\x12\x16\n\x12WorkspaceIdInvalid\x10\x02\x12\x18\n\
     \x14AppColorStyleInvalid\x10\x03\x12\x18\n\x14WorkspaceDescInvalid\x10\
     \x04\x12\x1c\n\x18CurrentWorkspaceNotFound\x10\x05\x12\x10\n\x0cAppIdInv\

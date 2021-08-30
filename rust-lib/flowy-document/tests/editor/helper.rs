@@ -1,4 +1,4 @@
-use flowy_test::builder::SingleUserTestBuilder;
+use flowy_test::builder::UserTestBuilder;
 
 use flowy_document::{entities::doc::*, event::EditorEvent::*};
 use flowy_infra::uuid;
@@ -11,7 +11,7 @@ pub fn create_doc(name: &str, desc: &str, text: &str) -> DocInfo {
         text: text.to_owned(),
     };
 
-    let doc_desc = SingleUserTestBuilder::new()
+    let doc_desc = UserTestBuilder::new()
         .event(CreateDoc)
         .request(request)
         .sync_send()
@@ -28,7 +28,7 @@ pub fn save_doc(desc: &DocInfo, content: &str) {
         text: Some(content.to_owned()),
     };
 
-    let _ = SingleUserTestBuilder::new()
+    let _ = UserTestBuilder::new()
         .event(UpdateDoc)
         .request(request)
         .sync_send();
@@ -40,7 +40,7 @@ pub fn read_doc(doc_id: &str) -> DocInfo {
         doc_id: doc_id.to_string(),
     };
 
-    let doc = SingleUserTestBuilder::new()
+    let doc = UserTestBuilder::new()
         .event(ReadDocInfo)
         .request(request)
         .sync_send()
@@ -55,7 +55,7 @@ pub fn read_doc_data(doc_id: &str, path: &str) -> DocData {
         path: path.to_string(),
     };
 
-    let doc = SingleUserTestBuilder::new()
+    let doc = UserTestBuilder::new()
         .event(ReadDocData)
         .request(request)
         .sync_send()

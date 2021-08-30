@@ -6,7 +6,6 @@ import 'package:app_flowy/welcome/domain/i_welcome.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
 import 'package:app_flowy/workspace/presentation/home/home_screen.dart';
 import 'package:app_flowy/workspace/presentation/workspace/workspace_select_screen.dart';
-import 'package:flowy_infra/flowy_logger.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_infra_ui/widget/route/animation.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
@@ -44,11 +43,8 @@ class WelcomeRoute implements IWelcomeRoute {
           (workspace) =>
               _pushToScreen(context, HomeScreen(repo.user, workspace.id)),
           (error) async {
-            // assert(error.code == WsErrCode.RecordNotFound);
-            // error shoule be RecordNotFound
-            Log.error(error);
+            assert(error.code == WsErrCode.CurrentWorkspaceNotFound);
             final screen = WorkspaceSelectScreen(repo: repo);
-
             final workspaceId = await Navigator.of(context).push(
               PageRoutes.fade(
                 () => screen,

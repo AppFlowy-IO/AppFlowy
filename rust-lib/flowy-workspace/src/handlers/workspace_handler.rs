@@ -1,6 +1,6 @@
 use crate::{
     entities::workspace::*,
-    errors::{ErrorBuilder, WorkspaceError, WsErrCode},
+    errors::{ErrorBuilder, ErrorCode, WorkspaceError},
     services::WorkspaceController,
 };
 use flowy_dispatch::prelude::{data_result, Data, DataResult, Unit};
@@ -42,7 +42,7 @@ pub async fn open_workspace(
 ) -> DataResult<Workspace, WorkspaceError> {
     let params: QueryWorkspaceParams = data.into_inner().try_into()?;
     match params.workspace_id {
-        None => Err(ErrorBuilder::new(WsErrCode::WorkspaceIdInvalid).build()),
+        None => Err(ErrorBuilder::new(ErrorCode::WorkspaceIdInvalid).build()),
         Some(workspace_id) => {
             let workspaces = controller.open_workspace(&workspace_id).await?;
             data_result(workspaces)

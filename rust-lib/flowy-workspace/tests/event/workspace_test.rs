@@ -14,17 +14,13 @@ use flowy_workspace::{
 fn workspace_create_success() { let _ = create_workspace("First workspace", ""); }
 
 #[test]
-fn workspace_read_all_success() {
+fn workspace_read_all() {
     let (user_id, _) = create_workspace(
         "Workspace A",
         "workspace_create_and_then_get_workspace_success",
     );
-    let request = QueryWorkspaceRequest {
-        workspace_id: None,
-        user_id,
-    };
-
-    let workspaces = SingleUserTestBuilder::new()
+    let request = QueryWorkspaceRequest::new(&user_id);
+    let workspaces = UserTestBuilder::new()
         .event(ReadWorkspaces)
         .request(request)
         .sync_send()
@@ -34,38 +30,30 @@ fn workspace_read_all_success() {
 }
 
 #[test]
-fn workspace_create_and_then_get_workspace_success() {
+fn workspace_create_and_then_get_workspace() {
     let (user_id, workspace) = create_workspace(
         "Workspace A",
         "workspace_create_and_then_get_workspace_success",
     );
-    let request = QueryWorkspaceRequest {
-        workspace_id: Some(workspace.id.clone()),
-        user_id,
-    };
-
+    let request = QueryWorkspaceRequest::new(&user_id).workspace_id(&workspace.id);
     let workspace_from_db = read_workspaces(request).unwrap();
     assert_eq!(workspace.name, workspace_from_db.name);
 }
 
 #[test]
-fn workspace_create_with_apps_success() {
+fn workspace_create_with_apps() {
     let (user_id, workspace) = create_workspace("Workspace", "");
     let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
 
-    let query_workspace_request = QueryWorkspaceRequest {
-        workspace_id: Some(workspace.id),
-        user_id,
-    };
-
-    let workspace_from_db = read_workspaces(query_workspace_request).unwrap();
+    let request = QueryWorkspaceRequest::new(&user_id).workspace_id(&workspace.id);
+    let workspace_from_db = read_workspaces(request).unwrap();
     assert_eq!(&app, workspace_from_db.apps.first_or_crash());
 }
 
 #[test]
-fn workspace_create_with_invalid_name_test() {
+fn workspace_create_with_invalid_name() {
     for name in invalid_workspace_name_test_case() {
-        let builder = SingleUserTestBuilder::new();
+        let builder = UserTestBuilder::new();
         let user_id = builder.user_detail.as_ref().unwrap().id.clone();
 
         let request = CreateWorkspaceRequest {
@@ -81,15 +69,15 @@ fn workspace_create_with_invalid_name_test() {
                 .sync_send()
                 .error()
                 .code,
-            WsErrCode::WorkspaceNameInvalid
+            ErrorCode::WorkspaceNameInvalid
         )
     }
 }
 
 #[test]
-fn workspace_update_with_invalid_name_test() {
+fn workspace_update_with_invalid_name() {
     for name in invalid_workspace_name_test_case() {
-        let builder = SingleUserTestBuilder::new();
+        let builder = UserTestBuilder::new();
         let user_id = builder.user_detail.as_ref().unwrap().id.clone();
 
         let request = CreateWorkspaceRequest {
@@ -105,7 +93,7 @@ fn workspace_update_with_invalid_name_test() {
                 .sync_send()
                 .error()
                 .code,
-            WsErrCode::WorkspaceNameInvalid
+            ErrorCode::WorkspaceNameInvalid
         )
     }
 }

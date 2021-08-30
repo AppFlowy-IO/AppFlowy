@@ -1,4 +1,4 @@
-use crate::errors::{ErrorBuilder, UserErrCode, UserError};
+use crate::errors::{ErrorBuilder, ErrorCode, UserError};
 use flowy_database::{DBConnection, Database};
 use lazy_static::lazy_static;
 use once_cell::sync::Lazy;
@@ -22,7 +22,7 @@ impl UserDB {
 
     fn open_user_db(&self, user_id: &str) -> Result<(), UserError> {
         if user_id.is_empty() {
-            return Err(ErrorBuilder::new(UserErrCode::UserDatabaseInitFailed)
+            return Err(ErrorBuilder::new(ErrorCode::UserDatabaseInitFailed)
                 .msg("user id is empty")
                 .build());
         }
@@ -30,13 +30,13 @@ impl UserDB {
         let dir = format!("{}/{}", self.db_dir, user_id);
         let db = flowy_database::init(&dir).map_err(|e| {
             log::error!("flowy_database::init failed, {:?}", e);
-            ErrorBuilder::new(UserErrCode::UserDatabaseInitFailed)
+            ErrorBuilder::new(ErrorCode::UserDatabaseInitFailed)
                 .error(e)
                 .build()
         })?;
 
         let mut db_map = DB_MAP.write().map_err(|e| {
-            ErrorBuilder::new(UserErrCode::UserDatabaseWriteLocked)
+            ErrorBuilder::new(ErrorCode::UserDatabaseWriteLocked)
                 .error(e)
                 .build()
         })?;
@@ -47,7 +47,7 @@ impl UserDB {
 
     pub(crate) fn close_user_db(&self, user_id: &str) -> Result<(), UserError> {
         let mut db_map = DB_MAP.write().map_err(|e| {
-            ErrorBuilder::new(UserErrCode::UserDatabaseWriteLocked)
+            ErrorBuilder::new(ErrorCode::UserDatabaseWriteLocked)
                 .msg(format!("Close user db failed. {:?}", e))
                 .build()
         })?;
@@ -63,13 +63,13 @@ impl UserDB {
         }
 
         let db_map = DB_MAP.read().map_err(|e| {
-            ErrorBuilder::new(UserErrCode::UserDatabaseReadLocked)
+            ErrorBuilder::new(ErrorCode::UserDatabaseReadLocked)
                 .error(e)
                 .build()
         })?;
 
         match db_map.get(user_id) {
-            None => Err(ErrorBuilder::new(UserErrCode::UserDatabaseInitFailed)
+            None => Err(ErrorBuilder::new(ErrorCode::UserDatabaseInitFailed)
                 .msg("Get connection failed. The database is not initialization")
                 .build()),
             Some(database) => Ok(database.get_connection()?),

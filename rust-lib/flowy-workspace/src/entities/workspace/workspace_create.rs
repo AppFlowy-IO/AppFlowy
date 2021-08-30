@@ -35,19 +35,19 @@ impl TryInto<CreateWorkspaceParams> for CreateWorkspaceRequest {
 
     fn try_into(self) -> Result<CreateWorkspaceParams, Self::Error> {
         let name = WorkspaceName::parse(self.name).map_err(|e| {
-            ErrorBuilder::new(WsErrCode::WorkspaceNameInvalid)
+            ErrorBuilder::new(ErrorCode::WorkspaceNameInvalid)
                 .msg(e)
                 .build()
         })?;
 
         let desc = WorkspaceDesc::parse(self.desc).map_err(|e| {
-            ErrorBuilder::new(WsErrCode::WorkspaceDescInvalid)
+            ErrorBuilder::new(ErrorCode::WorkspaceDescInvalid)
                 .msg(e)
                 .build()
         })?;
 
         if self.user_id.is_empty() {
-            return Err(ErrorBuilder::new(WsErrCode::UserIdIsEmpty)
+            return Err(ErrorBuilder::new(ErrorCode::UserIdIsEmpty)
                 .msg("Create workspace failed. UserId is empty")
                 .build());
         }

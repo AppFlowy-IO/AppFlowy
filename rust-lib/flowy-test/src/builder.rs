@@ -13,8 +13,8 @@ use flowy_user::errors::UserError;
 use flowy_workspace::errors::WorkspaceError;
 use std::marker::PhantomData;
 
-pub type SingleUserTestBuilder = TestBuilder<FixedUserTester<WorkspaceError>>;
-impl SingleUserTestBuilder {
+pub type UserTestBuilder = TestBuilder<FixedUserTester<WorkspaceError>>;
+impl UserTestBuilder {
     pub fn new() -> Self {
         let mut builder = TestBuilder::test(Box::new(FixedUserTester::<WorkspaceError>::new()));
         builder.setup_default_workspace();
@@ -27,13 +27,9 @@ impl SingleUserTestBuilder {
         let _ = create_default_workspace_if_need(&user_id);
     }
 }
-pub type UserTestBuilder = TestBuilder<RandomUserTester<UserError>>;
-impl UserTestBuilder {
-    pub fn new() -> Self {
-        let builder = TestBuilder::test(Box::new(RandomUserTester::<UserError>::new()));
-
-        builder
-    }
+pub type RandomUserTestBuilder = TestBuilder<RandomUserTester<UserError>>;
+impl RandomUserTestBuilder {
+    pub fn new() -> Self { TestBuilder::test(Box::new(RandomUserTester::<UserError>::new())) }
 
     pub fn reset(self) -> Self { self.login() }
 }
@@ -47,7 +43,7 @@ impl<T> TestBuilder<T>
 where
     T: TesterTrait,
 {
-    pub fn test(tester: Box<T>) -> Self {
+    fn test(tester: Box<T>) -> Self {
         Self {
             tester,
             user_detail: None,
@@ -60,7 +56,7 @@ where
         self
     }
 
-    pub fn login_if_need(&mut self) {
+    fn login_if_need(&mut self) {
         let user_detail = self.tester.login_if_need();
         self.user_detail = Some(user_detail);
     }

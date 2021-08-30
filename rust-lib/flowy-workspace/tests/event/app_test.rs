@@ -6,7 +6,7 @@ use flowy_workspace::entities::{
 };
 
 #[test]
-fn app_create_success() {
+fn app_create() {
     let workspace = create_workspace("Workspace", "").1;
     let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
     dbg!(&app);
@@ -14,7 +14,7 @@ fn app_create_success() {
 
 #[test]
 #[should_panic]
-fn app_delete_success() {
+fn app_delete() {
     let workspace = create_workspace("Workspace", "").1;
     let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
     delete_app(&app.id);
@@ -23,7 +23,7 @@ fn app_delete_success() {
 }
 
 #[test]
-fn app_create_and_then_get_success() {
+fn app_read() {
     let workspace = create_workspace("Workspace", "").1;
     let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
     let query = QueryAppRequest::new(&app.id);
@@ -32,7 +32,7 @@ fn app_create_and_then_get_success() {
 }
 
 #[test]
-fn app_create_with_view_and_then_get_success() {
+fn app_create_with_view() {
     let workspace = create_workspace("Workspace", "").1;
     let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
     let request_a = CreateViewRequest {
@@ -62,7 +62,7 @@ fn app_create_with_view_and_then_get_success() {
 }
 
 #[test]
-fn app_update_with_trash_flag_and_read_with_trash_flag_success() {
+fn app_set_trash_flag() {
     let app_id = create_app_with_trash_flag();
     let query = QueryAppRequest::new(&app_id).set_is_trash(true);
     let _ = read_app(query);
@@ -70,13 +70,13 @@ fn app_update_with_trash_flag_and_read_with_trash_flag_success() {
 
 #[test]
 #[should_panic]
-fn app_update_with_trash_flag_and_read_without_trash_flag_fail() {
+fn app_set_trash_flag_2() {
     let app_id = create_app_with_trash_flag();
     let query = QueryAppRequest::new(&app_id);
     let _ = read_app(query);
 }
 
-pub fn create_app_with_trash_flag() -> String {
+fn create_app_with_trash_flag() -> String {
     let workspace = create_workspace("Workspace", "").1;
     let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
     let request = UpdateAppRequest {
