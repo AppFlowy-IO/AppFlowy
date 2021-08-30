@@ -7,8 +7,8 @@ edition = "2018"
 
 [dependencies]
 flowy-dispatch = { path = "../flowy-dispatch", features = ["use_tracing"]}
-flowy-log = { path = "../flowy-log" }
-#flowy-log = { path = "../flowy-log", features = ["use_bunyan"] }
+#flowy-log = { path = "../flowy-log" }
+flowy-log = { path = "../flowy-log", features = ["use_bunyan"] }
 flowy-user = { path = "../flowy-user" }
 flowy-infra = { path = "../flowy-infra" }
 flowy-workspace = { path = "../flowy-workspace" }
@@ -19,7 +19,6 @@ log = "0.4.14"
 futures-core = { version = "0.3", default-features = false }
 color-eyre = { version = "0.5", default-features = false }
 bytes = "1.0"
-
 [dev-dependencies]
 serde = { version = "1.0", features = ["derive"] }
 bincode = { version = "1.3"}

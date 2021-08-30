@@ -73,19 +73,4 @@ impl WorkspaceSql {
 
         Ok(apps)
     }
-
-    pub(crate) fn read_workspaces_belong_to_user(
-        &self,
-        user_id: &str,
-    ) -> Result<Vec<WorkspaceTable>, WorkspaceError> {
-        let conn = self.database.db_connection()?;
-        let workspaces = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
-            let workspaces = dsl::workspace_table
-                .filter(workspace_table::user_id.eq(user_id))
-                .load::<WorkspaceTable>(&*(conn))?;
-            Ok(workspaces)
-        })?;
-
-        Ok(workspaces)
-    }
 }

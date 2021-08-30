@@ -94,18 +94,6 @@ impl WorkspaceController {
         Ok(RepeatedWorkspace { items: workspaces })
     }
 
-    pub async fn read_workspaces_belong_to_user(&self) -> Result<Vec<Workspace>, WorkspaceError> {
-        let user_id = self.user.user_id()?;
-        let workspace = self
-            .sql
-            .read_workspaces_belong_to_user(&user_id)?
-            .into_iter()
-            .map(|workspace_table| workspace_table.into())
-            .collect::<Vec<Workspace>>();
-
-        Ok(workspace)
-    }
-
     pub async fn read_cur_workspace(&self) -> Result<Workspace, WorkspaceError> {
         let workspace_id = get_current_workspace()?;
         let mut repeated_workspace = self.read_workspaces(Some(workspace_id.clone())).await?;

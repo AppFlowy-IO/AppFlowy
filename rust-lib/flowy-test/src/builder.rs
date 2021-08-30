@@ -17,12 +17,14 @@ pub type SingleUserTestBuilder = TestBuilder<FixedUserTester<WorkspaceError>>;
 impl SingleUserTestBuilder {
     pub fn new() -> Self {
         let mut builder = TestBuilder::test(Box::new(FixedUserTester::<WorkspaceError>::new()));
-        builder.login_if_need();
-
-        let user_id = builder.user_detail.as_ref().unwrap().id.clone();
-        let _ = create_default_workspace_if_need(&user_id);
-
+        builder.setup_default_workspace();
         builder
+    }
+
+    pub fn setup_default_workspace(&mut self) {
+        self.login_if_need();
+        let user_id = self.user_detail.as_ref().unwrap().id.clone();
+        let _ = create_default_workspace_if_need(&user_id);
     }
 }
 pub type UserTestBuilder = TestBuilder<RandomUserTester<UserError>>;

@@ -15,6 +15,7 @@ use std::{
     hash::Hash,
 };
 
+#[allow(dead_code)]
 pub struct TesterContext {
     request: Option<ModuleRequest>,
     response: Option<EventResponse>,

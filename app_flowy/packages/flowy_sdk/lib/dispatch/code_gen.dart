@@ -33,18 +33,18 @@ class WorkspaceEventReadCurWorkspace {
     }
 }
 
-class WorkspaceEventReadWorkspace {
+class WorkspaceEventReadWorkspaces {
      QueryWorkspaceRequest request;
-     WorkspaceEventReadWorkspace(this.request);
+     WorkspaceEventReadWorkspaces(this.request);
 
-    Future<Either<Workspace, WorkspaceError>> send() {
+    Future<Either<RepeatedWorkspace, WorkspaceError>> send() {
     final request = FFIRequest.create()
-          ..event = WorkspaceEvent.ReadWorkspace.toString()
+          ..event = WorkspaceEvent.ReadWorkspaces.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-           (okBytes) => left(Workspace.fromBuffer(okBytes)),
+           (okBytes) => left(RepeatedWorkspace.fromBuffer(okBytes)),
            (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
         ));
     }
@@ -67,17 +67,20 @@ class WorkspaceEventDeleteWorkspace {
     }
 }
 
-class WorkspaceEventReadAllWorkspace {
-    WorkspaceEventReadAllWorkspace();
+class WorkspaceEventOpenWorkspace {
+     QueryWorkspaceRequest request;
+     WorkspaceEventOpenWorkspace(this.request);
 
-    Future<Either<RepeatedWorkspace, WorkspaceError>> send() {
-     final request = FFIRequest.create()
-        ..event = WorkspaceEvent.ReadAllWorkspace.toString();
+    Future<Either<Workspace, WorkspaceError>> send() {
+    final request = FFIRequest.create()
+          ..event = WorkspaceEvent.OpenWorkspace.toString()
+          ..payload = requestToBytes(this.request);
 
-     return Dispatch.asyncRequest(request).then((bytesResult) => bytesResult.fold(
-        (okBytes) => left(RepeatedWorkspace.fromBuffer(okBytes)),
-        (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
-      ));
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (okBytes) => left(Workspace.fromBuffer(okBytes)),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
     }
 }
 

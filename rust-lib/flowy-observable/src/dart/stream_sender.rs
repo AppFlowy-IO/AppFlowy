@@ -8,6 +8,7 @@ lazy_static! {
 }
 
 pub struct RustStreamSender {
+    #[allow(dead_code)]
     isolate: Option<allo_isolate::Isolate>,
 }
 
@@ -19,6 +20,7 @@ impl RustStreamSender {
         self.isolate = Some(allo_isolate::Isolate::new(port));
     }
 
+    #[allow(dead_code)]
     fn inner_post(&self, observable_subject: ObservableSubject) -> Result<(), String> {
         match self.isolate {
             Some(ref isolate) => {

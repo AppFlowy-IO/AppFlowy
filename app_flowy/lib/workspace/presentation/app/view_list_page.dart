@@ -35,6 +35,7 @@ class ViewListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The ViewListNotifier will be updated after ViewListData changed passed by parent widget
     return ChangeNotifierProxyProvider<ViewListData, ViewListNotifier>(
       create: (_) => ViewListNotifier(
         Provider.of<ViewListData>(

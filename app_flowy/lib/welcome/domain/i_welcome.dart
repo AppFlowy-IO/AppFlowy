@@ -9,5 +9,5 @@ abstract class IWelcomeAuth {
 
 abstract class IWelcomeRoute {
   Widget pushSignInScreen();
-  Widget pushHomeScreen(UserDetail userDetail);
+  Future<void> pushHomeScreen(BuildContext context, UserDetail userDetail);
 }

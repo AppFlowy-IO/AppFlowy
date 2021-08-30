@@ -26,7 +26,7 @@ pub async fn read_cur_workspace(
 }
 
 #[tracing::instrument(name = "read_workspace", skip(data, controller))]
-pub async fn read_workspace(
+pub async fn read_workspaces(
     data: Data<QueryWorkspaceRequest>,
     controller: Unit<Arc<WorkspaceController>>,
 ) -> DataResult<RepeatedWorkspace, WorkspaceError> {
@@ -48,13 +48,4 @@ pub async fn open_workspace(
             data_result(workspaces)
         },
     }
-}
-
-#[tracing::instrument(name = "get_all_workspaces", skip(controller))]
-pub async fn read_all_workspaces(
-    controller: Unit<Arc<WorkspaceController>>,
-) -> DataResult<RepeatedWorkspace, WorkspaceError> {
-    let workspaces = controller.read_workspaces_belong_to_user().await?;
-
-    data_result(RepeatedWorkspace { items: workspaces })
 }

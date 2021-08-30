@@ -4,6 +4,7 @@ use std::convert::TryInto;
 
 #[derive(Default, ProtoBuf)]
 pub struct QueryWorkspaceRequest {
+    // return all workspace if workspace_id is None
     #[pb(index = 1, one_of)]
     pub workspace_id: Option<String>,
 

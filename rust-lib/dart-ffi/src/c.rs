@@ -8,6 +8,7 @@ pub fn forget_rust(buf: Vec<u8>) -> *const u8 {
 }
 
 #[allow(unused_attributes)]
+#[allow(dead_code)]
 pub fn reclaim_rust(ptr: *mut u8, length: u32) {
     unsafe {
         let len: usize = length as usize;

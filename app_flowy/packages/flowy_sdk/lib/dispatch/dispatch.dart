@@ -17,7 +17,7 @@ import 'package:flowy_sdk/protobuf/flowy-document/protobuf.dart';
 // ignore: unused_import
 import 'package:flowy_sdk/protobuf/flowy-infra/protobuf.dart';
 import 'package:protobuf/protobuf.dart';
-
+import 'dart:convert' show utf8;
 import 'error.dart';
 
 part 'code_gen.dart';
@@ -54,10 +54,15 @@ Future<Either<Uint8List, Uint8List>> _extractPayload(
         if (response.code == FFIStatusCode.Ok) {
           return left(Uint8List.fromList(response.payload));
         } else {
+          // final error = utf8.decode(response.payload);
+          // Log.error("Dispatch error: $error");
           return right(Uint8List.fromList(response.payload));
         }
       },
-      (error) => right(emptyBytes()),
+      (error) {
+        Log.error("Response should not be empty $error");
+        return right(emptyBytes());
+      },
     );
   });
 }

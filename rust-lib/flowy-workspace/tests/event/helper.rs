@@ -32,7 +32,7 @@ pub fn create_workspace(name: &str, desc: &str) -> (String, Workspace) {
 
 pub fn read_workspaces(request: QueryWorkspaceRequest) -> Option<Workspace> {
     let mut repeated_workspace = SingleUserTestBuilder::new()
-        .event(ReadWorkspace)
+        .event(ReadWorkspaces)
         .request(request)
         .sync_send()
         .parse::<RepeatedWorkspace>();

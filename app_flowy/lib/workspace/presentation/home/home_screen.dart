@@ -15,7 +15,8 @@ import 'home_layout.dart';
 class HomeScreen extends StatelessWidget {
   static GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
   final UserDetail user;
-  const HomeScreen(this.user, {Key? key}) : super(key: key);
+  final String workspaceId;
+  const HomeScreen(this.user, this.workspaceId, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +77,7 @@ class HomeScreen extends StatelessWidget {
         homeBloc.add(HomeEvent.forceCollapse(isCollapse));
       },
       user: user,
+      workspaceId: workspaceId,
     );
     homeMenu = RepaintBoundary(child: homeMenu);
     homeMenu = FocusTraversalGroup(child: homeMenu);

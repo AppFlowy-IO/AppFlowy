@@ -1,4 +1,5 @@
-import 'package:app_flowy/workspace/presentation/home/home_screen.dart';
+import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
+import 'package:app_flowy/workspace/presentation/workspace/workspace_select_screen.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra_ui/widget/route/animation.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
@@ -37,8 +38,14 @@ class AuthRouterImpl extends IAuthRouter {
   }
 
   @override
-  void showHomeScreen(BuildContext context, UserDetail user) {
-    Navigator.of(context).push(PageRoutes.fade(() => HomeScreen(user)));
+  void showWorkspaceSelectScreen(BuildContext context, UserDetail user) {
+    Navigator.of(context).push(
+      PageRoutes.fade(
+        () => WorkspaceSelectScreen(
+          repo: UserRepo(user: user),
+        ),
+      ),
+    );
   }
 
   @override

@@ -37,10 +37,12 @@ class HomeDepsResolver {
         (appId, _) => IAppWatchImpl(repo: AppWatchRepository(appId: appId)));
 
     //workspace
-    getIt.registerFactoryParam<IWorkspace, UserDetail, void>(
-        (user, _) => IWorkspaceImpl(repo: WorkspaceRepo(user: user)));
-    getIt.registerFactoryParam<IWorkspaceWatch, UserDetail, void>(
-        (user, _) => IWorkspaceWatchImpl(repo: WorkspaceWatchRepo(user: user)));
+    getIt.registerFactoryParam<IWorkspace, UserDetail, String>(
+        (user, workspaceId) => IWorkspaceImpl(
+            repo: WorkspaceRepo(user: user, workspaceId: workspaceId)));
+    getIt.registerFactoryParam<IWorkspaceWatch, UserDetail, String>(
+        (user, workspaceId) => IWorkspaceWatchImpl(
+            repo: WorkspaceWatchRepo(user: user, workspaceId: workspaceId)));
 
     // View
     getIt.registerFactoryParam<IView, View, void>(
@@ -59,10 +61,12 @@ class HomeDepsResolver {
         (user, _) => IUserWatchImpl(repo: UserWatchRepo(user: user)));
 
     //Menu Bloc
-    getIt.registerFactoryParam<MenuBloc, UserDetail, void>(
-        (user, _) => MenuBloc(getIt<IWorkspace>(param1: user)));
-    getIt.registerFactoryParam<MenuWatchBloc, UserDetail, void>(
-        (user, _) => MenuWatchBloc(getIt<IWorkspaceWatch>(param1: user)));
+    getIt.registerFactoryParam<MenuBloc, UserDetail, String>(
+        (user, workspaceId) =>
+            MenuBloc(getIt<IWorkspace>(param1: user, param2: workspaceId)));
+    getIt.registerFactoryParam<MenuWatchBloc, UserDetail, String>(
+        (user, workspaceId) => MenuWatchBloc(
+            getIt<IWorkspaceWatch>(param1: user, param2: workspaceId)));
 
     getIt.registerFactoryParam<MenuUserBloc, UserDetail, void>(
         (user, _) => MenuUserBloc(getIt<IUser>(param1: user)));

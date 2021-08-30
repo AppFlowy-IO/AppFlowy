@@ -13,6 +13,7 @@ use std::sync::Arc;
 pub struct AppController {
     user: Arc<dyn WorkspaceUser>,
     sql: Arc<AppTableSql>,
+    #[allow(dead_code)]
     view_controller: Arc<ViewController>,
 }
 

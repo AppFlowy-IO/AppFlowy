@@ -36,7 +36,7 @@ class SignInScreen extends StatelessWidget {
   void _handleSuccessOrFail(
       Either<UserDetail, UserError> result, BuildContext context) {
     result.fold(
-      (user) => router.showHomeScreen(context, user),
+      (user) => router.showWorkspaceSelectScreen(context, user),
       (error) => _showErrorMessage(context, error.msg),
     );
   }

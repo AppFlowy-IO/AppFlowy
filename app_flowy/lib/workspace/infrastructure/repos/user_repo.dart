@@ -8,8 +8,8 @@ import 'package:flowy_sdk/protobuf/flowy-user/user_detail.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/observable.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/workspace_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/workspace_query.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
-
 import 'package:app_flowy/workspace/domain/i_user.dart';
 
 class UserRepo {
@@ -33,10 +33,38 @@ class UserRepo {
   }
 
   Future<Either<List<Workspace>, WorkspaceError>> fetchWorkspaces() {
-    return WorkspaceEventReadAllWorkspace().send().then((result) {
+    final request = QueryWorkspaceRequest.create()..userId = user.id;
+
+    return WorkspaceEventReadWorkspaces(request).send().then((result) {
       return result.fold(
         (workspaces) => left(workspaces.items),
-        (r) => right(r),
+        (error) => right(error),
+      );
+    });
+  }
+
+  Future<Either<Workspace, WorkspaceError>> openWorkspace(String workspaceId) {
+    final request = QueryWorkspaceRequest.create()
+      ..userId = user.id
+      ..workspaceId = workspaceId;
+    return WorkspaceEventOpenWorkspace(request).send().then((result) {
+      return result.fold(
+        (workspace) => left(workspace),
+        (error) => right(error),
+      );
+    });
+  }
+
+  Future<Either<Workspace, WorkspaceError>> createWorkspace(
+      String name, String desc) {
+    final request = CreateWorkspaceRequest.create()
+      ..userId = user.id
+      ..name = name
+      ..desc = desc;
+    return WorkspaceEventCreateWorkspace(request).send().then((result) {
+      return result.fold(
+        (workspace) => left(workspace),
+        (error) => right(error),
       );
     });
   }

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:app_flowy/workspace/domain/i_workspace.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/flowy_logger.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
@@ -13,10 +12,14 @@ import 'package:flowy_sdk/protobuf/flowy-workspace/workspace_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/workspace_query.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 
+import 'package:app_flowy/workspace/domain/i_workspace.dart';
+
 class WorkspaceRepo {
   UserDetail user;
+  String workspaceId;
   WorkspaceRepo({
     required this.user,
+    required this.workspaceId,
   });
 
   Future<Either<App, WorkspaceError>> createApp(String appName, String desc) {
@@ -36,16 +39,22 @@ class WorkspaceRepo {
     });
   }
 
-  Future<Either<Workspace, WorkspaceError>> getWorkspace(
-      {bool readApps = false}) {
+  Future<Either<Workspace, WorkspaceError>> getWorkspace() {
     final request = QueryWorkspaceRequest.create()
-      ..workspaceId = user.workspace
-      ..user_id = user.id
-      ..readApps = readApps;
+      ..userId = user.id
+      ..workspaceId = workspaceId;
 
-    return WorkspaceEventReadWorkspace(request).send().then((result) {
+    return WorkspaceEventReadWorkspaces(request).send().then((result) {
       return result.fold(
-        (workspace) => left(workspace),
+        (workspaces) {
+          assert(workspaces.items.length == 1);
+
+          if (workspaces.items.isEmpty) {
+            return right(WorkspaceError.create()..msg = "Workspace not found");
+          } else {
+            return left(workspaces.items[0]);
+          }
+        },
         (error) => right(error),
       );
     });
@@ -58,12 +67,14 @@ class WorkspaceWatchRepo {
   WorkspaceDeleteAppCallback? _deleteApp;
   WorkspaceUpdatedCallback? _update;
   final UserDetail user;
+  final String workspaceId;
   late WorkspaceRepo _repo;
 
   WorkspaceWatchRepo({
     required this.user,
+    required this.workspaceId,
   }) {
-    _repo = WorkspaceRepo(user: user);
+    _repo = WorkspaceRepo(user: user, workspaceId: workspaceId);
   }
 
   void startWatching({
@@ -76,7 +87,7 @@ class WorkspaceWatchRepo {
     _update = update;
 
     _subscription = RustStreamReceiver.listen((observable) {
-      if (observable.subjectId != user.workspace) {
+      if (observable.subjectId != workspaceId) {
         return;
       }
 
@@ -104,18 +115,20 @@ class WorkspaceWatchRepo {
         if (_createApp == null) {
           return;
         }
-        _repo.getWorkspace(readApps: true).then((result) {
+
+        _repo.getWorkspace().then((result) {
           result.fold(
             (workspace) => _createApp!(left(workspace.apps.items)),
             (error) => _createApp!(right(error)),
           );
         });
+
         break;
       case WorkspaceObservable.WorkspaceDeleteApp:
         if (_deleteApp == null) {
           return;
         }
-        _repo.getWorkspace(readApps: true).then((result) {
+        _repo.getWorkspace().then((result) {
           result.fold(
             (workspace) => _deleteApp!(left(workspace.apps.items)),
             (error) => _deleteApp!(right(error)),

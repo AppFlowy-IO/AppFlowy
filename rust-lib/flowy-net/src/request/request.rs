@@ -79,7 +79,12 @@ impl HttpRequestBuilder {
             }
 
             let response = builder.send().await;
-            tx.send(response);
+            match tx.send(response) {
+                Ok(_) => {},
+                Err(e) => {
+                    log::error!("Send http response failed: {:?}", e)
+                },
+            }
         });
 
         let response = rx.await??;
@@ -102,28 +107,6 @@ impl HttpRequestBuilder {
             },
         }
     }
-}
-
-#[allow(dead_code)]
-pub async fn http_post<T1, T2>(url: &str, data: T1) -> Result<T2, ServerError>
-where
-    T1: TryInto<Bytes, Error = ProtobufError>,
-    T2: TryFrom<Bytes, Error = ProtobufError>,
-{
-    let body: Bytes = data.try_into()?;
-    let url = url.to_owned();
-    let (tx, rx) = oneshot::channel::<Result<Response, _>>();
-
-    // reqwest client is not 'Sync' by channel is.
-    tokio::spawn(async move {
-        let client = default_client();
-        let response = client.post(&url).body(body).send().await;
-        tx.send(response);
-    });
-
-    let response = rx.await??;
-    let data = get_response_data(response).await?;
-    Ok(T2::try_from(data)?)
 }
 
 async fn get_response_data(original: Response) -> Result<Bytes, ServerError> {

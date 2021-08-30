@@ -14,26 +14,19 @@ use flowy_workspace::{
 fn workspace_create_success() { let _ = create_workspace("First workspace", ""); }
 
 #[test]
-fn workspace_get_success() {
-    let builder = SingleUserTestBuilder::new();
-
-    let _workspaces = SingleUserTestBuilder::new()
-        .event(ReadAllWorkspace)
-        .sync_send()
-        .parse::<RepeatedWorkspace>();
-
-    let workspace = builder
-        .event(ReadCurWorkspace)
-        .sync_send()
-        .parse::<Workspace>();
-
-    dbg!(&workspace);
-}
-
-#[test]
 fn workspace_read_all_success() {
+    let (user_id, _) = create_workspace(
+        "Workspace A",
+        "workspace_create_and_then_get_workspace_success",
+    );
+    let request = QueryWorkspaceRequest {
+        workspace_id: None,
+        user_id,
+    };
+
     let workspaces = SingleUserTestBuilder::new()
-        .event(ReadAllWorkspace)
+        .event(ReadWorkspaces)
+        .request(request)
         .sync_send()
         .parse::<RepeatedWorkspace>();
 

@@ -20,7 +20,7 @@ class IWorkspaceImpl extends IWorkspace {
 
   @override
   Future<Either<List<App>, WorkspaceError>> getApps() {
-    return repo.getWorkspace(readApps: true).then((result) {
+    return repo.getWorkspace().then((result) {
       return result.fold(
         (workspace) => left(workspace.apps.items),
         (error) => right(error),

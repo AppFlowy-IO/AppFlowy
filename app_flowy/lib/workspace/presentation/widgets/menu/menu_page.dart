@@ -23,13 +23,15 @@ class HomeMenu extends StatelessWidget {
   final Function(HomeStackView?) pageContextChanged;
   final Function(bool) isCollapseChanged;
   final UserDetail user;
+  final String workspaceId;
 
-  const HomeMenu(
-      {Key? key,
-      required this.pageContextChanged,
-      required this.isCollapseChanged,
-      required this.user})
-      : super(key: key);
+  const HomeMenu({
+    Key? key,
+    required this.pageContextChanged,
+    required this.isCollapseChanged,
+    required this.user,
+    required this.workspaceId,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -37,10 +39,12 @@ class HomeMenu extends StatelessWidget {
       providers: [
         BlocProvider<MenuBloc>(
             create: (context) =>
-                getIt<MenuBloc>(param1: user)..add(const MenuEvent.initial())),
+                getIt<MenuBloc>(param1: user, param2: workspaceId)
+                  ..add(const MenuEvent.initial())),
         BlocProvider(
-            create: (context) => getIt<MenuWatchBloc>(param1: user)
-              ..add(const MenuWatchEvent.started())),
+            create: (context) =>
+                getIt<MenuWatchBloc>(param1: user, param2: workspaceId)
+                  ..add(const MenuWatchEvent.started())),
       ],
       child: MultiBlocListener(
         listeners: [

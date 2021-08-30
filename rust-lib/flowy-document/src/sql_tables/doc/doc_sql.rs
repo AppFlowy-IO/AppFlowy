@@ -36,5 +36,6 @@ impl DocTableSql {
         Ok(doc_table)
     }
 
+    #[allow(dead_code)]
     pub(crate) fn delete_doc(&self, _view_id: &str) -> Result<(), DocError> { unimplemented!() }
 }

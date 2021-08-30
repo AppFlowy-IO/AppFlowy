@@ -45,10 +45,9 @@ pub fn create(user: Arc<dyn WorkspaceUser>, database: Arc<dyn WorkspaceDatabase>
         .data(view_controller);
 
     module = module
-        .event(WorkspaceEvent::ReadAllWorkspace, read_all_workspaces)
         .event(WorkspaceEvent::CreateWorkspace, create_workspace)
         .event(WorkspaceEvent::ReadCurWorkspace, read_cur_workspace)
-        .event(WorkspaceEvent::ReadWorkspace, read_workspace)
+        .event(WorkspaceEvent::ReadWorkspaces, read_workspaces)
         .event(WorkspaceEvent::OpenWorkspace, open_workspace);
 
     module = module

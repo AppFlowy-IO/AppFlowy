@@ -34,6 +34,7 @@ impl UserSessionConfig {
 pub struct UserSession {
     database: UserDB,
     config: UserSessionConfig,
+    #[allow(dead_code)]
     workspace_controller: Arc<dyn UserWorkspaceController + Send + Sync>,
     server: Arc<dyn UserServerAPI + Send + Sync>,
     user_id: RwLock<Option<String>>,
