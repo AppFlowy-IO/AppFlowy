@@ -77,7 +77,7 @@ impl FFIResponse {
         self.code
     }
     pub fn clear_code(&mut self) {
-        self.code = FFIStatusCode::Unknown;
+        self.code = FFIStatusCode::Ok;
     }
 
     // Param is passed by value, moved
@@ -116,7 +116,7 @@ impl ::protobuf::Message for FFIResponse {
         if !self.payload.is_empty() {
             my_size += ::protobuf::rt::bytes_size(1, &self.payload);
         }
-        if self.code != FFIStatusCode::Unknown {
+        if self.code != FFIStatusCode::Ok {
             my_size += ::protobuf::rt::enum_size(2, self.code);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
@@ -128,7 +128,7 @@ impl ::protobuf::Message for FFIResponse {
         if !self.payload.is_empty() {
             os.write_bytes(1, &self.payload)?;
         }
-        if self.code != FFIStatusCode::Unknown {
+        if self.code != FFIStatusCode::Ok {
             os.write_enum(2, ::protobuf::ProtobufEnum::value(&self.code))?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
@@ -196,7 +196,7 @@ impl ::protobuf::Message for FFIResponse {
 impl ::protobuf::Clear for FFIResponse {
     fn clear(&mut self) {
         self.payload.clear();
-        self.code = FFIStatusCode::Unknown;
+        self.code = FFIStatusCode::Ok;
         self.unknown_fields.clear();
     }
 }
@@ -215,9 +215,9 @@ impl ::protobuf::reflect::ProtobufValue for FFIResponse {
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum FFIStatusCode {
-    Unknown = 0,
-    Ok = 1,
-    Err = 2,
+    Ok = 0,
+    Err = 1,
+    Internal = 2,
 }
 
 impl ::protobuf::ProtobufEnum for FFIStatusCode {
@@ -227,18 +227,18 @@ impl ::protobuf::ProtobufEnum for FFIStatusCode {
 
     fn from_i32(value: i32) -> ::std::option::Option<FFIStatusCode> {
         match value {
-            0 => ::std::option::Option::Some(FFIStatusCode::Unknown),
-            1 => ::std::option::Option::Some(FFIStatusCode::Ok),
-            2 => ::std::option::Option::Some(FFIStatusCode::Err),
+            0 => ::std::option::Option::Some(FFIStatusCode::Ok),
+            1 => ::std::option::Option::Some(FFIStatusCode::Err),
+            2 => ::std::option::Option::Some(FFIStatusCode::Internal),
             _ => ::std::option::Option::None
         }
     }
 
     fn values() -> &'static [Self] {
         static values: &'static [FFIStatusCode] = &[
-            FFIStatusCode::Unknown,
             FFIStatusCode::Ok,
             FFIStatusCode::Err,
+            FFIStatusCode::Internal,
         ];
         values
     }
@@ -256,7 +256,7 @@ impl ::std::marker::Copy for FFIStatusCode {
 
 impl ::std::default::Default for FFIStatusCode {
     fn default() -> Self {
-        FFIStatusCode::Unknown
+        FFIStatusCode::Ok
     }
 }
 
@@ -269,23 +269,23 @@ impl ::protobuf::reflect::ProtobufValue for FFIStatusCode {
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x12ffi_response.proto\"K\n\x0bFFIResponse\x12\x18\n\x07payload\x18\
     \x01\x20\x01(\x0cR\x07payload\x12\"\n\x04code\x18\x02\x20\x01(\x0e2\x0e.\
-    FFIStatusCodeR\x04code*-\n\rFFIStatusCode\x12\x0b\n\x07Unknown\x10\0\x12\
-    \x06\n\x02Ok\x10\x01\x12\x07\n\x03Err\x10\x02J\xab\x02\n\x06\x12\x04\0\0\
-    \n\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\
-    \x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x13\n\x0b\n\x04\x04\0\x02\0\x12\
-    \x03\x03\x04\x16\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\t\n\x0c\n\
-    \x05\x04\0\x02\0\x01\x12\x03\x03\n\x11\n\x0c\n\x05\x04\0\x02\0\x03\x12\
+    FFIStatusCodeR\x04code*.\n\rFFIStatusCode\x12\x06\n\x02Ok\x10\0\x12\x07\
+    \n\x03Err\x10\x01\x12\x0c\n\x08Internal\x10\x02J\xab\x02\n\x06\x12\x04\0\
+    \0\n\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\
+    \x05\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x13\n\x0b\n\x04\x04\0\x02\0\
+    \x12\x03\x03\x04\x16\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\t\n\x0c\
+    \n\x05\x04\0\x02\0\x01\x12\x03\x03\n\x11\n\x0c\n\x05\x04\0\x02\0\x03\x12\
     \x03\x03\x14\x15\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x1b\n\x0c\n\
     \x05\x04\0\x02\x01\x06\x12\x03\x04\x04\x11\n\x0c\n\x05\x04\0\x02\x01\x01\
     \x12\x03\x04\x12\x16\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x19\x1a\n\
     \n\n\x02\x05\0\x12\x04\x06\0\n\x01\n\n\n\x03\x05\0\x01\x12\x03\x06\x05\
-    \x12\n\x0b\n\x04\x05\0\x02\0\x12\x03\x07\x04\x10\n\x0c\n\x05\x05\0\x02\0\
-    \x01\x12\x03\x07\x04\x0b\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x07\x0e\x0f\
-    \n\x0b\n\x04\x05\0\x02\x01\x12\x03\x08\x04\x0b\n\x0c\n\x05\x05\0\x02\x01\
-    \x01\x12\x03\x08\x04\x06\n\x0c\n\x05\x05\0\x02\x01\x02\x12\x03\x08\t\n\n\
-    \x0b\n\x04\x05\0\x02\x02\x12\x03\t\x04\x0c\n\x0c\n\x05\x05\0\x02\x02\x01\
-    \x12\x03\t\x04\x07\n\x0c\n\x05\x05\0\x02\x02\x02\x12\x03\t\n\x0bb\x06pro\
-    to3\
+    \x12\n\x0b\n\x04\x05\0\x02\0\x12\x03\x07\x04\x0b\n\x0c\n\x05\x05\0\x02\0\
+    \x01\x12\x03\x07\x04\x06\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x07\t\n\n\
+    \x0b\n\x04\x05\0\x02\x01\x12\x03\x08\x04\x0c\n\x0c\n\x05\x05\0\x02\x01\
+    \x01\x12\x03\x08\x04\x07\n\x0c\n\x05\x05\0\x02\x01\x02\x12\x03\x08\n\x0b\
+    \n\x0b\n\x04\x05\0\x02\x02\x12\x03\t\x04\x11\n\x0c\n\x05\x05\0\x02\x02\
+    \x01\x12\x03\t\x04\x0c\n\x0c\n\x05\x05\0\x02\x02\x02\x12\x03\t\x0f\x10b\
+    \x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

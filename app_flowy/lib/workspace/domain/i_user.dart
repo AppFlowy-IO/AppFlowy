@@ -7,7 +7,6 @@ import 'package:flowy_sdk/protobuf/flowy-workspace/workspace_create.pb.dart';
 export 'package:flowy_sdk/protobuf/flowy-workspace/workspace_create.pb.dart';
 export 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
 export 'package:flowy_sdk/protobuf/flowy-user/user_detail.pb.dart';
-export 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 
 typedef UserCreateWorkspaceCallback = void Function(
     Either<List<Workspace>, WorkspaceError> workspacesOrFailed);

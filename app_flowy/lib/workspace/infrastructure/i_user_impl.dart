@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:app_flowy/workspace/domain/i_user.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 export 'package:app_flowy/workspace/domain/i_user.dart';
 export 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
 

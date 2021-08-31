@@ -114,7 +114,7 @@ impl fmt::Display for InternalError {
 impl Error for InternalError {
     fn as_response(&self) -> EventResponse {
         let error = format!("{}", self).into_bytes();
-        ResponseBuilder::Err().data(error).build()
+        ResponseBuilder::Internal().data(error).build()
     }
 }
 

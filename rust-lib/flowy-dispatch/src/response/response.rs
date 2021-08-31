@@ -10,8 +10,9 @@ use std::{convert::TryFrom, fmt, fmt::Formatter};
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 pub enum StatusCode {
-    Ok  = 0,
-    Err = 1,
+    Ok       = 0,
+    Err      = 1,
+    Internal = 2,
 }
 
 // serde user guide: https://serde.rs/field-attrs.html
@@ -35,12 +36,15 @@ impl EventResponse {
         T: FromBytes,
         E: FromBytes,
     {
-        if self.status_code == StatusCode::Err {
-            let err = <Data<E>>::try_from(self.payload)?;
-            Ok(Err(err.into_inner()))
-        } else {
-            let data = <Data<T>>::try_from(self.payload)?;
-            Ok(Ok(data.into_inner()))
+        match self.status_code {
+            StatusCode::Ok => {
+                let data = <Data<T>>::try_from(self.payload)?;
+                Ok(Ok(data.into_inner()))
+            },
+            StatusCode::Err | StatusCode::Internal => {
+                let err = <Data<E>>::try_from(self.payload)?;
+                Ok(Err(err.into_inner()))
+            },
         }
     }
 }

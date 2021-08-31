@@ -12,14 +12,14 @@ import 'dart:typed_data' as $typed_data;
 const FFIStatusCode$json = const {
   '1': 'FFIStatusCode',
   '2': const [
-    const {'1': 'Unknown', '2': 0},
-    const {'1': 'Ok', '2': 1},
-    const {'1': 'Err', '2': 2},
+    const {'1': 'Ok', '2': 0},
+    const {'1': 'Err', '2': 1},
+    const {'1': 'Internal', '2': 2},
   ],
 };
 
 /// Descriptor for `FFIStatusCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List fFIStatusCodeDescriptor = $convert.base64Decode('Cg1GRklTdGF0dXNDb2RlEgsKB1Vua25vd24QABIGCgJPaxABEgcKA0VychAC');
+final $typed_data.Uint8List fFIStatusCodeDescriptor = $convert.base64Decode('Cg1GRklTdGF0dXNDb2RlEgYKAk9rEAASBwoDRXJyEAESDAoISW50ZXJuYWwQAg==');
 @$core.Deprecated('Use fFIResponseDescriptor instead')
 const FFIResponse$json = const {
   '1': 'FFIResponse',

@@ -5,7 +5,7 @@ message FFIResponse {
     FFIStatusCode code = 2;
 }
 enum FFIStatusCode {
-    Unknown = 0;
-    Ok = 1;
-    Err = 2;
+    Ok = 0;
+    Err = 1;
+    Internal = 2;
 }

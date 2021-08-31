@@ -3,13 +3,13 @@ use flowy_dispatch::prelude::{EventResponse, Payload, StatusCode};
 
 #[derive(ProtoBuf_Enum, Clone, Copy)]
 pub enum FFIStatusCode {
-    Unknown = 0,
-    Ok      = 1,
-    Err     = 2,
+    Ok       = 0,
+    Err      = 1,
+    Internal = 2,
 }
 
 impl std::default::Default for FFIStatusCode {
-    fn default() -> FFIStatusCode { FFIStatusCode::Unknown }
+    fn default() -> FFIStatusCode { FFIStatusCode::Ok }
 }
 
 #[derive(ProtoBuf, Default)]
@@ -31,6 +31,7 @@ impl std::convert::From<EventResponse> for FFIResponse {
         let code = match resp.status_code {
             StatusCode::Ok => FFIStatusCode::Ok,
             StatusCode::Err => FFIStatusCode::Err,
+            StatusCode::Internal => FFIStatusCode::Internal,
         };
 
         // let msg = match resp.error {

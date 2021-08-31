@@ -16,7 +16,7 @@ export 'ffi_response.pbenum.dart';
 class FFIResponse extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FFIResponse', createEmptyInstance: create)
     ..a<$core.List<$core.int>>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'payload', $pb.PbFieldType.OY)
-    ..e<FFIStatusCode>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'code', $pb.PbFieldType.OE, defaultOrMaker: FFIStatusCode.Unknown, valueOf: FFIStatusCode.valueOf, enumValues: FFIStatusCode.values)
+    ..e<FFIStatusCode>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'code', $pb.PbFieldType.OE, defaultOrMaker: FFIStatusCode.Ok, valueOf: FFIStatusCode.valueOf, enumValues: FFIStatusCode.values)
     ..hasRequiredFields = false
   ;
 

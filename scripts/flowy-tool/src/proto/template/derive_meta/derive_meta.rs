@@ -1,5 +1,6 @@
 use crate::proto::proto_info::{CrateProtoInfo, ProtoFile};
 use crate::util::{get_tera, read_file};
+use itertools::Itertools;
 use std::fs::OpenOptions;
 use std::io::Write;
 use tera::Context;
@@ -13,6 +14,7 @@ pub struct ProtobufDeriveMeta {
 #[allow(dead_code)]
 impl ProtobufDeriveMeta {
     pub fn new(structs: Vec<String>, enums: Vec<String>) -> Self {
+        let enums: Vec<_> = enums.into_iter().unique().collect();
         return ProtobufDeriveMeta {
             context: Context::new(),
             structs,

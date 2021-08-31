@@ -43,12 +43,12 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
 
   SignInState stateFromCode(UserError error) {
     switch (error.code) {
-      case UserErrCode.EmailFormatInvalid:
+      case ErrorCode.EmailFormatInvalid:
         return state.copyWith(
             isSubmitting: false,
             emailError: some(error.msg),
             passwordError: none());
-      case UserErrCode.PasswordFormatInvalid:
+      case ErrorCode.PasswordFormatInvalid:
         return state.copyWith(
             isSubmitting: false,
             passwordError: some(error.msg),

@@ -79,7 +79,6 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "FFIStatusCode"
         | "UserStatus"
         | "UserEvent"
-        | "ErrorCode"
         => TypeCategory::Enum,
 
         "Option" => TypeCategory::Opt,

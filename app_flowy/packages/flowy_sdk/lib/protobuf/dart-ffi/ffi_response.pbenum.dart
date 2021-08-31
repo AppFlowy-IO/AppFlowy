@@ -10,14 +10,14 @@ import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 class FFIStatusCode extends $pb.ProtobufEnum {
-  static const FFIStatusCode Unknown = FFIStatusCode._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unknown');
-  static const FFIStatusCode Ok = FFIStatusCode._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Ok');
-  static const FFIStatusCode Err = FFIStatusCode._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Err');
+  static const FFIStatusCode Ok = FFIStatusCode._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Ok');
+  static const FFIStatusCode Err = FFIStatusCode._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Err');
+  static const FFIStatusCode Internal = FFIStatusCode._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Internal');
 
   static const $core.List<FFIStatusCode> values = <FFIStatusCode> [
-    Unknown,
     Ok,
     Err,
+    Internal,
   ];
 
   static final $core.Map<$core.int, FFIStatusCode> _byValue = $pb.ProtobufEnum.initByValue(values);
