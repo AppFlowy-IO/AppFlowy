@@ -104,9 +104,3 @@ pub struct SignUpResponse {
     #[pb(index = 4)]
     pub token: String,
 }
-
-#[derive(Default, ProtoBuf)]
-pub struct SignOutParams {
-    #[pb(index = 1)]
-    pub token: String,
-}

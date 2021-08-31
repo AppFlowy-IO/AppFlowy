@@ -3,14 +3,15 @@ use crate::{
     errors::{ErrorBuilder, ErrorCode, UserError},
 };
 
-use crate::entities::{QueryUserDetailParams, SignOutParams};
-use flowy_net::{config::*, future::ResultFuture, request::HttpRequestBuilder};
+use crate::entities::UserToken;
+use flowy_infra::future::ResultFuture;
+use flowy_net::{config::*, request::HttpRequestBuilder};
 
 pub trait UserServerAPI {
     fn sign_up(&self, params: SignUpParams) -> ResultFuture<SignUpResponse, UserError>;
     fn sign_in(&self, params: SignInParams) -> ResultFuture<SignInResponse, UserError>;
     fn sign_out(&self, token: &str) -> ResultFuture<(), UserError>;
-    fn get_user_info(&self, user_id: &str) -> ResultFuture<UserDetail, UserError>;
+    fn get_user_detail(&self, token: &str) -> ResultFuture<UserDetail, UserError>;
 }
 
 pub struct UserServer {}
@@ -27,12 +28,21 @@ impl UserServerAPI for UserServer {
         ResultFuture::new(async move { user_sign_in(params, SIGN_IN_URL.as_ref()).await })
     }
 
-    fn sign_out(&self, _token: &str) -> ResultFuture<(), UserError> {
-        ResultFuture::new(async { Err(ErrorBuilder::new(ErrorCode::Unknown).build()) })
+    fn sign_out(&self, token: &str) -> ResultFuture<(), UserError> {
+        let params = UserToken {
+            token: token.to_string(),
+        };
+        ResultFuture::new(async move {
+            let _ = user_sign_out(params, SIGN_OUT_URL.as_ref()).await;
+            Ok(())
+        })
     }
 
-    fn get_user_info(&self, _user_id: &str) -> ResultFuture<UserDetail, UserError> {
-        ResultFuture::new(async { Err(ErrorBuilder::new(ErrorCode::Unknown).build()) })
+    fn get_user_detail(&self, token: &str) -> ResultFuture<UserDetail, UserError> {
+        let params = UserToken {
+            token: token.to_string(),
+        };
+        ResultFuture::new(async { get_user_detail(params, USER_DETAIL_URL.as_ref()).await })
     }
 }
 
@@ -56,7 +66,7 @@ pub async fn user_sign_in(params: SignInParams, url: &str) -> Result<SignInRespo
     Ok(response)
 }
 
-pub async fn user_sign_out(params: SignOutParams, url: &str) -> Result<(), UserError> {
+pub async fn user_sign_out(params: UserToken, url: &str) -> Result<(), UserError> {
     let _ = HttpRequestBuilder::delete(&url.to_owned())
         .protobuf(params)?
         .send()
@@ -64,10 +74,7 @@ pub async fn user_sign_out(params: SignOutParams, url: &str) -> Result<(), UserE
     Ok(())
 }
 
-pub async fn get_user_detail(
-    params: QueryUserDetailParams,
-    url: &str,
-) -> Result<UserDetail, UserError> {
+pub async fn get_user_detail(params: UserToken, url: &str) -> Result<UserDetail, UserError> {
     let user_detail = HttpRequestBuilder::get(&url.to_owned())
         .protobuf(params)?
         .send()

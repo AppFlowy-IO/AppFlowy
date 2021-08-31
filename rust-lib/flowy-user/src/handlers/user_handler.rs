@@ -1,10 +1,17 @@
-use crate::{entities::*, errors::UserError, services::user::UserSession};
+use crate::{
+    entities::*,
+    errors::UserError,
+    services::user::{update_user, UserSession},
+};
 use flowy_dispatch::prelude::*;
+use flowy_infra::future::ResultFuture;
 use std::{convert::TryInto, sync::Arc};
 
 #[tracing::instrument(name = "get_user_status", skip(session))]
-pub async fn get_user_status(session: Unit<Arc<UserSession>>) -> DataResult<UserDetail, UserError> {
-    let user_detail = session.user_detail()?;
+pub async fn user_status_handler(
+    session: Unit<Arc<UserSession>>,
+) -> DataResult<UserDetail, UserError> {
+    let user_detail = session.user_detail().await?;
     data_result(user_detail)
 }
 
@@ -15,11 +22,11 @@ pub async fn sign_out(session: Unit<Arc<UserSession>>) -> Result<(), UserError> 
 }
 
 #[tracing::instrument(name = "update_user", skip(data, session))]
-pub async fn update_user(
+pub async fn update_user_handler(
     data: Data<UpdateUserRequest>,
     session: Unit<Arc<UserSession>>,
-) -> DataResult<UserDetail, UserError> {
+) -> Result<(), UserError> {
     let params: UpdateUserParams = data.into_inner().try_into()?;
-    let user_detail = session.update_user(params)?;
-    data_result(user_detail)
+    session.update_user(params).await?;
+    Ok(())
 }

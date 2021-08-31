@@ -83,6 +83,9 @@ fn user_scope() -> Scope {
             .route(web::delete().to(user::sign_out_handler))
             .route(web::get().to(user::user_detail_handler))
         )
+        .service(web::resource("/register")
+            .route(web::post().to(user::register_handler))
+        )
         .service(web::resource("/workspace")
             .route(web::post().to(workspace::create_handler))
             .route(web::delete().to(workspace::delete_handler))
@@ -107,10 +110,6 @@ fn user_scope() -> Scope {
         // password
         .service(web::resource("/password_change")
             .route(web::post().to(user::change_password))
-        )
-        // register
-        .service(web::resource("/register")
-            .route(web::post().to(user::register_user_handler))
         )
 }
 

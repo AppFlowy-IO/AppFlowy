@@ -17,6 +17,7 @@ class ErrorCode extends $pb.ProtobufEnum {
   static const ErrorCode UserDatabaseDidNotMatch = ErrorCode._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseDidNotMatch');
   static const ErrorCode UserDatabaseInternalError = ErrorCode._(5, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseInternalError');
   static const ErrorCode SqlInternalError = ErrorCode._(6, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'SqlInternalError');
+  static const ErrorCode DatabaseConnectError = ErrorCode._(7, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DatabaseConnectError');
   static const ErrorCode UserNotLoginYet = ErrorCode._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNotLoginYet');
   static const ErrorCode ReadCurrentIdFailed = ErrorCode._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ReadCurrentIdFailed');
   static const ErrorCode WriteCurrentIdFailed = ErrorCode._(12, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WriteCurrentIdFailed');
@@ -44,6 +45,7 @@ class ErrorCode extends $pb.ProtobufEnum {
     UserDatabaseDidNotMatch,
     UserDatabaseInternalError,
     SqlInternalError,
+    DatabaseConnectError,
     UserNotLoginYet,
     ReadCurrentIdFailed,
     WriteCurrentIdFailed,

@@ -12,8 +12,5 @@ pub mod services;
 extern crate flowy_database;
 
 pub mod prelude {
-    pub use crate::{
-        entities::*,
-        services::{user::*, workspace::*},
-    };
+    pub use crate::{entities::*, services::user::*};
 }

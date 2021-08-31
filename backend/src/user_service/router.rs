@@ -8,7 +8,7 @@ use actix_web::{
 use crate::user_service::{get_user_details, register_user, sign_in, sign_out};
 use actix_identity::Identity;
 use flowy_net::{errors::ServerError, response::FlowyResponse};
-use flowy_user::protobuf::{QueryUserDetailParams, SignInParams, SignOutParams, SignUpParams};
+use flowy_user::protobuf::{SignInParams, SignUpParams, UserToken};
 use sqlx::PgPool;
 
 pub async fn sign_in_handler(
@@ -24,7 +24,7 @@ pub async fn sign_in_handler(
 }
 
 pub async fn sign_out_handler(payload: Payload, id: Identity) -> Result<HttpResponse, ServerError> {
-    let params: SignOutParams = parse_from_payload(payload).await?;
+    let params: UserToken = parse_from_payload(payload).await?;
     id.forget();
 
     let response = sign_out(params).await?;
@@ -40,7 +40,7 @@ pub async fn user_detail_handler(
     Ok(response.into())
 }
 
-pub async fn register_user_handler(
+pub async fn register_handler(
     payload: Payload,
     pool: Data<PgPool>,
 ) -> Result<HttpResponse, ServerError> {

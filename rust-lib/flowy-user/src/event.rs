@@ -5,17 +5,17 @@ use strum_macros::Display;
 #[event_err = "UserError"]
 pub enum UserEvent {
     #[event(output = "UserDetail")]
-    GetStatus  = 0,
+    GetUserProfile = 0,
 
     #[event(input = "SignInRequest", output = "UserDetail")]
-    SignIn     = 1,
+    SignIn         = 1,
 
     #[event(input = "SignUpRequest", output = "UserDetail")]
-    SignUp     = 2,
+    SignUp         = 2,
 
     #[event(passthrough)]
-    SignOut    = 3,
+    SignOut        = 3,
 
-    #[event(input = "UpdateUserRequest", output = "UserDetail")]
-    UpdateUser = 4,
+    #[event(input = "UpdateUserRequest")]
+    UpdateUser     = 4,
 }

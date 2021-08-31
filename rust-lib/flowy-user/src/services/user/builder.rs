@@ -1,7 +1,4 @@
-use crate::services::{
-    user::{UserSession, UserSessionConfig},
-    workspace::UserWorkspaceController,
-};
+use crate::services::user::{UserSession, UserSessionConfig};
 use std::sync::Arc;
 
 pub struct UserSessionBuilder {
@@ -16,12 +13,9 @@ impl UserSessionBuilder {
         self
     }
 
-    pub fn build<S>(mut self, workspace_controller: Arc<S>) -> UserSession
-    where
-        S: 'static + UserWorkspaceController + Send + Sync,
-    {
+    pub fn build(mut self) -> UserSession {
         let config = self.config.take().unwrap();
 
-        UserSession::new(config, workspace_controller)
+        UserSession::new(config)
     }
 }

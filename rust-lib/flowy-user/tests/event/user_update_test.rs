@@ -5,18 +5,17 @@ use serial_test::*;
 #[test]
 #[serial]
 fn user_update_with_name() {
-    let user_detail = RandomUserTestBuilder::new().reset().user_detail.unwrap();
+    let user_detail = TestBuilder::new().login().user_detail.unwrap();
     let new_name = "hello_world".to_owned();
-    let request = UpdateUserRequest {
-        id: user_detail.id.clone(),
-        name: Some(new_name.clone()),
-        email: None,
-        password: None,
-    };
-
-    let user_detail = RandomUserTestBuilder::new()
+    let request = UpdateUserRequest::new(&user_detail.id).name(&new_name);
+    let _ = TestBuilder::new()
         .event(UpdateUser)
         .request(request)
+        .sync_send();
+
+    let user_detail = TestBuilder::new()
+        .event(GetUserProfile)
+        .assert_error()
         .sync_send()
         .parse::<UserDetail>();
 
@@ -26,18 +25,18 @@ fn user_update_with_name() {
 #[test]
 #[serial]
 fn user_update_with_email() {
-    let user_detail = RandomUserTestBuilder::new().reset().user_detail.unwrap();
+    let user_detail = TestBuilder::new().login().user_detail.unwrap();
     let new_email = "123@gmai.com".to_owned();
-    let request = UpdateUserRequest {
-        id: user_detail.id.clone(),
-        name: None,
-        email: Some(new_email.clone()),
-        password: None,
-    };
+    let request = UpdateUserRequest::new(&user_detail.id).email(&new_email);
 
-    let user_detail = RandomUserTestBuilder::new()
+    let _ = TestBuilder::new()
         .event(UpdateUser)
         .request(request)
+        .sync_send();
+
+    let user_detail = TestBuilder::new()
+        .event(GetUserProfile)
+        .assert_error()
         .sync_send()
         .parse::<UserDetail>();
 
@@ -47,16 +46,11 @@ fn user_update_with_email() {
 #[test]
 #[serial]
 fn user_update_with_password() {
-    let user_detail = RandomUserTestBuilder::new().reset().user_detail.unwrap();
+    let user_detail = TestBuilder::new().login().user_detail.unwrap();
     let new_password = "H123world!".to_owned();
-    let request = UpdateUserRequest {
-        id: user_detail.id.clone(),
-        name: None,
-        email: None,
-        password: Some(new_password.clone()),
-    };
+    let request = UpdateUserRequest::new(&user_detail.id).password(&new_password);
 
-    let _ = RandomUserTestBuilder::new()
+    let _ = TestBuilder::new()
         .event(UpdateUser)
         .request(request)
         .sync_send()
@@ -66,17 +60,11 @@ fn user_update_with_password() {
 #[test]
 #[serial]
 fn user_update_with_invalid_email() {
-    let user_detail = RandomUserTestBuilder::new().reset().user_detail.unwrap();
+    let user_detail = TestBuilder::new().login().user_detail.unwrap();
     for email in invalid_email_test_case() {
-        let request = UpdateUserRequest {
-            id: user_detail.id.clone(),
-            name: None,
-            email: Some(email),
-            password: None,
-        };
-
+        let request = UpdateUserRequest::new(&user_detail.id).email(&email);
         assert_eq!(
-            RandomUserTestBuilder::new()
+            TestBuilder::new()
                 .event(UpdateUser)
                 .request(request)
                 .sync_send()
@@ -90,16 +78,11 @@ fn user_update_with_invalid_email() {
 #[test]
 #[serial]
 fn user_update_with_invalid_password() {
-    let user_detail = RandomUserTestBuilder::new().reset().user_detail.unwrap();
+    let user_detail = TestBuilder::new().login().user_detail.unwrap();
     for password in invalid_password_test_case() {
-        let request = UpdateUserRequest {
-            id: user_detail.id.clone(),
-            name: None,
-            email: None,
-            password: Some(password),
-        };
+        let request = UpdateUserRequest::new(&user_detail.id).password(&password);
 
-        RandomUserTestBuilder::new()
+        TestBuilder::new()
             .event(UpdateUser)
             .request(request)
             .sync_send()
@@ -110,15 +93,10 @@ fn user_update_with_invalid_password() {
 #[test]
 #[serial]
 fn user_update_with_invalid_name() {
-    let user_detail = RandomUserTestBuilder::new().reset().user_detail.unwrap();
-    let request = UpdateUserRequest {
-        id: user_detail.id.clone(),
-        name: Some("".to_string()),
-        email: None,
-        password: None,
-    };
+    let user_detail = TestBuilder::new().login().user_detail.unwrap();
+    let request = UpdateUserRequest::new(&user_detail.id).name("");
 
-    RandomUserTestBuilder::new()
+    TestBuilder::new()
         .event(UpdateUser)
         .request(request)
         .sync_send()

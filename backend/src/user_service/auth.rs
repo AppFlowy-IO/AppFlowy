@@ -14,14 +14,7 @@ use flowy_net::{
 };
 use flowy_user::{
     entities::parser::{UserEmail, UserName, UserPassword},
-    protobuf::{
-        SignInParams,
-        SignInResponse,
-        SignOutParams,
-        SignUpParams,
-        SignUpResponse,
-        UserDetail,
-    },
+    protobuf::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UserDetail},
 };
 use sqlx::{PgPool, Postgres};
 
@@ -59,7 +52,7 @@ pub async fn sign_in(pool: &PgPool, params: SignInParams) -> Result<SignInRespon
     }
 }
 
-pub async fn sign_out(params: SignOutParams) -> Result<FlowyResponse, ServerError> {
+pub async fn sign_out(params: UserToken) -> Result<FlowyResponse, ServerError> {
     let _ = AUTHORIZED_USERS.store_auth(LoggedUser::from_token(params.token.clone())?, false)?;
     Ok(FlowyResponse::success())
 }

@@ -1,12 +1,12 @@
 use crate::{
-    helper::{random_valid_email, valid_password},
+    helper::{random_email, valid_password},
     init_test_sdk,
 };
 use flowy_dispatch::prelude::*;
 pub use flowy_sdk::*;
 use flowy_user::{
     errors::UserError,
-    event::UserEvent::{GetStatus, SignOut, SignUp},
+    event::UserEvent::{GetUserProfile, SignOut, SignUp},
     prelude::*,
 };
 
@@ -38,7 +38,7 @@ impl std::default::Default for TesterContext {
             request: None,
             status_code: StatusCode::Ok,
             response: None,
-            user_email: random_valid_email(),
+            user_email: random_email(),
         }
     }
 }
@@ -126,7 +126,7 @@ pub trait TesterTrait {
 
     fn login_if_need(&self) -> UserDetail {
         init_test_sdk();
-        match EventDispatch::sync_send(ModuleRequest::new(GetStatus))
+        match EventDispatch::sync_send(ModuleRequest::new(GetUserProfile))
             .parse::<UserDetail, UserError>()
             .unwrap()
         {

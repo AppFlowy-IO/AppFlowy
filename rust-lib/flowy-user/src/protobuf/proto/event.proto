@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 enum UserEvent {
-    GetStatus = 0;
+    GetUserProfile = 0;
     SignIn = 1;
     SignUp = 2;
     SignOut = 3;

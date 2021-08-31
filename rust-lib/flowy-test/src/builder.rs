@@ -13,10 +13,10 @@ use flowy_user::errors::UserError;
 use flowy_workspace::errors::WorkspaceError;
 use std::marker::PhantomData;
 
-pub type UserTestBuilder = TestBuilder<FixedUserTester<WorkspaceError>>;
-impl UserTestBuilder {
+pub type AnnieTestBuilder = Builder<FlowyAnnie<WorkspaceError>>;
+impl AnnieTestBuilder {
     pub fn new() -> Self {
-        let mut builder = TestBuilder::test(Box::new(FixedUserTester::<WorkspaceError>::new()));
+        let mut builder = Builder::test(Box::new(FlowyAnnie::<WorkspaceError>::new()));
         builder.setup_default_workspace();
         builder
     }
@@ -27,19 +27,17 @@ impl UserTestBuilder {
         let _ = create_default_workspace_if_need(&user_id);
     }
 }
-pub type RandomUserTestBuilder = TestBuilder<RandomUserTester<UserError>>;
-impl RandomUserTestBuilder {
-    pub fn new() -> Self { TestBuilder::test(Box::new(RandomUserTester::<UserError>::new())) }
-
-    pub fn reset(self) -> Self { self.login() }
+pub type TestBuilder = Builder<RandomUserTester<UserError>>;
+impl TestBuilder {
+    pub fn new() -> Self { Builder::test(Box::new(RandomUserTester::<UserError>::new())) }
 }
 
-pub struct TestBuilder<T: TesterTrait> {
+pub struct Builder<T: TesterTrait> {
     pub tester: Box<T>,
     pub user_detail: Option<UserDetail>,
 }
 
-impl<T> TestBuilder<T>
+impl<T> Builder<T>
 where
     T: TesterTrait,
 {
@@ -135,12 +133,12 @@ where
     fn context(&self) -> &TesterContext { &self.context }
 }
 
-pub struct FixedUserTester<Error> {
+pub struct FlowyAnnie<Error> {
     context: TesterContext,
     err_phantom: PhantomData<Error>,
 }
 
-impl<Error> FixedUserTester<Error>
+impl<Error> FlowyAnnie<Error>
 where
     Error: FromBytes + Debug,
 {
@@ -152,7 +150,7 @@ where
     }
 }
 
-impl<Error> TesterTrait for FixedUserTester<Error>
+impl<Error> TesterTrait for FlowyAnnie<Error>
 where
     Error: FromBytes + Debug,
 {

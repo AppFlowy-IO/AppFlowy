@@ -17,3 +17,5 @@ protobuf = {version = "2.18.0"}
 log = "0.4.14"
 chrono = "0.4.19"
 bytes = { version = "1.0" }
+pin-project = "1.0.0"
+futures-core = { version = "0.3", default-features = false }

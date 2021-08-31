@@ -4,7 +4,6 @@ use flowy_user::prelude::*;
 use crate::deps_resolve::{
     EditorDatabaseImpl,
     EditorUserImpl,
-    UserWorkspaceControllerImpl,
     WorkspaceDatabaseImpl,
     WorkspaceUserImpl,
 };
@@ -15,11 +14,7 @@ pub struct ModuleConfig {
 }
 
 pub fn build_modules(config: ModuleConfig) -> Vec<Module> {
-    let user_session = Arc::new(
-        UserSessionBuilder::new()
-            .root_dir(&config.root)
-            .build(Arc::new(UserWorkspaceControllerImpl {})),
-    );
+    let user_session = Arc::new(UserSessionBuilder::new().root_dir(&config.root).build());
 
     let workspace_user_impl = Arc::new(WorkspaceUserImpl {
         user_session: user_session.clone(),

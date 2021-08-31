@@ -20,16 +20,16 @@ const UserStatus$json = const {
 
 /// Descriptor for `UserStatus`. Decode as a `google.protobuf.EnumDescriptorProto`.
 final $typed_data.Uint8List userStatusDescriptor = $convert.base64Decode('CgpVc2VyU3RhdHVzEgsKB1Vua25vd24QABIJCgVMb2dpbhABEgsKB0V4cGlyZWQQAg==');
-@$core.Deprecated('Use queryUserDetailParamsDescriptor instead')
-const QueryUserDetailParams$json = const {
-  '1': 'QueryUserDetailParams',
+@$core.Deprecated('Use userTokenDescriptor instead')
+const UserToken$json = const {
+  '1': 'UserToken',
   '2': const [
     const {'1': 'token', '3': 1, '4': 1, '5': 9, '10': 'token'},
   ],
 };
 
-/// Descriptor for `QueryUserDetailParams`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List queryUserDetailParamsDescriptor = $convert.base64Decode('ChVRdWVyeVVzZXJEZXRhaWxQYXJhbXMSFAoFdG9rZW4YASABKAlSBXRva2Vu');
+/// Descriptor for `UserToken`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List userTokenDescriptor = $convert.base64Decode('CglVc2VyVG9rZW4SFAoFdG9rZW4YASABKAlSBXRva2Vu');
 @$core.Deprecated('Use userDetailDescriptor instead')
 const UserDetail$json = const {
   '1': 'UserDetail',

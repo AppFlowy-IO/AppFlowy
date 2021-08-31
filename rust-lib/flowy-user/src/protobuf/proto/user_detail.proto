@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-message QueryUserDetailParams {
+message UserToken {
     string token = 1;
 }
 message UserDetail {

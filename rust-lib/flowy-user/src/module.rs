@@ -9,7 +9,7 @@ pub fn create(user_session: Arc<UserSession>) -> Module {
         .data(user_session)
         .event(UserEvent::SignIn, sign_in)
         .event(UserEvent::SignUp, sign_up)
-        .event(UserEvent::GetStatus, get_user_status)
+        .event(UserEvent::GetUserProfile, user_status_handler)
         .event(UserEvent::SignOut, sign_out)
-        .event(UserEvent::UpdateUser, update_user)
+        .event(UserEvent::UpdateUser, update_user_handler)
 }

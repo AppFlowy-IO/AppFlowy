@@ -80,13 +80,3 @@ const SignUpResponse$json = const {
 
 /// Descriptor for `SignUpResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List signUpResponseDescriptor = $convert.base64Decode('Cg5TaWduVXBSZXNwb25zZRIQCgN1aWQYASABKAlSA3VpZBISCgRuYW1lGAIgASgJUgRuYW1lEhQKBWVtYWlsGAMgASgJUgVlbWFpbBIUCgV0b2tlbhgEIAEoCVIFdG9rZW4=');
-@$core.Deprecated('Use signOutParamsDescriptor instead')
-const SignOutParams$json = const {
-  '1': 'SignOutParams',
-  '2': const [
-    const {'1': 'token', '3': 1, '4': 1, '5': 9, '10': 'token'},
-  ],
-};
-
-/// Descriptor for `SignOutParams`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List signOutParamsDescriptor = $convert.base64Decode('Cg1TaWduT3V0UGFyYW1zEhQKBXRva2VuGAEgASgJUgV0b2tlbg==');

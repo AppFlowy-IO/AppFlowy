@@ -11,14 +11,14 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 export 'user_detail.pbenum.dart';
 
-class QueryUserDetailParams extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'QueryUserDetailParams', createEmptyInstance: create)
+class UserToken extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UserToken', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'token')
     ..hasRequiredFields = false
   ;
 
-  QueryUserDetailParams._() : super();
-  factory QueryUserDetailParams({
+  UserToken._() : super();
+  factory UserToken({
     $core.String? token,
   }) {
     final _result = create();
@@ -27,26 +27,26 @@ class QueryUserDetailParams extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory QueryUserDetailParams.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory QueryUserDetailParams.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory UserToken.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory UserToken.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  QueryUserDetailParams clone() => QueryUserDetailParams()..mergeFromMessage(this);
+  UserToken clone() => UserToken()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  QueryUserDetailParams copyWith(void Function(QueryUserDetailParams) updates) => super.copyWith((message) => updates(message as QueryUserDetailParams)) as QueryUserDetailParams; // ignore: deprecated_member_use
+  UserToken copyWith(void Function(UserToken) updates) => super.copyWith((message) => updates(message as UserToken)) as UserToken; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static QueryUserDetailParams create() => QueryUserDetailParams._();
-  QueryUserDetailParams createEmptyInstance() => create();
-  static $pb.PbList<QueryUserDetailParams> createRepeated() => $pb.PbList<QueryUserDetailParams>();
+  static UserToken create() => UserToken._();
+  UserToken createEmptyInstance() => create();
+  static $pb.PbList<UserToken> createRepeated() => $pb.PbList<UserToken>();
   @$core.pragma('dart2js:noInline')
-  static QueryUserDetailParams getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<QueryUserDetailParams>(create);
-  static QueryUserDetailParams? _defaultInstance;
+  static UserToken getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UserToken>(create);
+  static UserToken? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get token => $_getSZ(0);

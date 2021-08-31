@@ -6,11 +6,11 @@ use serial_test::*;
 #[serial]
 fn sign_in_success() {
     let request = SignInRequest {
-        email: random_valid_email(),
+        email: random_email(),
         password: valid_password(),
     };
 
-    let response = RandomUserTestBuilder::new()
+    let response = TestBuilder::new()
         .logout()
         .event(SignIn)
         .request(request)
@@ -29,7 +29,7 @@ fn sign_in_with_invalid_email() {
         };
 
         assert_eq!(
-            RandomUserTestBuilder::new()
+            TestBuilder::new()
                 .event(SignIn)
                 .request(request)
                 .sync_send()
@@ -45,11 +45,11 @@ fn sign_in_with_invalid_email() {
 fn sign_in_with_invalid_password() {
     for password in invalid_password_test_case() {
         let request = SignInRequest {
-            email: random_valid_email(),
+            email: random_email(),
             password,
         };
 
-        RandomUserTestBuilder::new()
+        TestBuilder::new()
             .event(SignIn)
             .request(request)
             .sync_send()

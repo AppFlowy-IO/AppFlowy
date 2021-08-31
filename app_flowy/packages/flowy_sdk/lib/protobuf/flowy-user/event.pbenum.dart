@@ -10,14 +10,14 @@ import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 class UserEvent extends $pb.ProtobufEnum {
-  static const UserEvent GetStatus = UserEvent._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetStatus');
+  static const UserEvent GetUserProfile = UserEvent._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetUserProfile');
   static const UserEvent SignIn = UserEvent._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'SignIn');
   static const UserEvent SignUp = UserEvent._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'SignUp');
   static const UserEvent SignOut = UserEvent._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'SignOut');
   static const UserEvent UpdateUser = UserEvent._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UpdateUser');
 
   static const $core.List<UserEvent> values = <UserEvent> [
-    GetStatus,
+    GetUserProfile,
     SignIn,
     SignUp,
     SignOut,

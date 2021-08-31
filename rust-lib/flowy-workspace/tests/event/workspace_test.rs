@@ -15,7 +15,7 @@ fn workspace_read_all() {
         "workspace_create_and_then_get_workspace_success",
     );
     let request = QueryWorkspaceRequest::new(&user_id);
-    let workspaces = UserTestBuilder::new()
+    let workspaces = AnnieTestBuilder::new()
         .event(ReadWorkspaces)
         .request(request)
         .sync_send()
@@ -48,7 +48,7 @@ fn workspace_create_with_apps() {
 #[test]
 fn workspace_create_with_invalid_name() {
     for name in invalid_workspace_name_test_case() {
-        let builder = UserTestBuilder::new();
+        let builder = AnnieTestBuilder::new();
         let user_id = builder.user_detail.as_ref().unwrap().id.clone();
 
         let request = CreateWorkspaceRequest {
@@ -72,7 +72,7 @@ fn workspace_create_with_invalid_name() {
 #[test]
 fn workspace_update_with_invalid_name() {
     for name in invalid_workspace_name_test_case() {
-        let builder = UserTestBuilder::new();
+        let builder = AnnieTestBuilder::new();
         let user_id = builder.user_detail.as_ref().unwrap().id.clone();
 
         let request = CreateWorkspaceRequest {

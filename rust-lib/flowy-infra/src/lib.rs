@@ -5,6 +5,7 @@ extern crate diesel;
 extern crate diesel_derives;
 
 pub mod errors;
+pub mod future;
 pub mod kv;
 mod protobuf;
 

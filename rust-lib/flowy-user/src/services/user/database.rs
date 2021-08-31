@@ -1,9 +1,13 @@
 use crate::errors::{ErrorBuilder, ErrorCode, UserError};
 use flowy_database::{DBConnection, Database};
+use flowy_sqlite::ConnectionPool;
 use lazy_static::lazy_static;
 use once_cell::sync::Lazy;
 use parking_lot::Mutex;
-use std::{collections::HashMap, sync::RwLock};
+use std::{
+    collections::HashMap,
+    sync::{Arc, RwLock},
+};
 
 lazy_static! {
     static ref DB: RwLock<Option<Database>> = RwLock::new(None);
@@ -57,6 +61,11 @@ impl UserDB {
     }
 
     pub(crate) fn get_connection(&self, user_id: &str) -> Result<DBConnection, UserError> {
+        let conn = self.get_pool(user_id)?.get()?;
+        Ok(conn)
+    }
+
+    pub(crate) fn get_pool(&self, user_id: &str) -> Result<Arc<ConnectionPool>, UserError> {
         if !is_user_db_init(user_id) {
             let _ = self.open_user_db(user_id)?;
             set_user_db_init(true, user_id);
@@ -72,7 +81,7 @@ impl UserDB {
             None => Err(ErrorBuilder::new(ErrorCode::UserDatabaseInitFailed)
                 .msg("Get connection failed. The database is not initialization")
                 .build()),
-            Some(database) => Ok(database.get_connection()?),
+            Some(database) => Ok(database.get_pool()),
         }
     }
 }

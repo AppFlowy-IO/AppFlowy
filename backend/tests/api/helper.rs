@@ -27,12 +27,12 @@ impl TestApp {
         resp
     }
 
-    pub async fn sign_out(&self, params: SignOutParams) {
+    pub async fn sign_out(&self, params: UserToken) {
         let url = format!("{}/api/auth", self.address);
         let _ = user_sign_out(params, &url).await.unwrap();
     }
 
-    pub async fn get_user_detail(&self, params: QueryUserDetailParams) -> UserDetail {
+    pub async fn get_user_detail(&self, params: UserToken) -> UserDetail {
         let url = format!("{}/api/auth", self.address);
         let user_detail = get_user_detail(params, &url).await.unwrap();
         user_detail

@@ -30,6 +30,3 @@ message SignUpResponse {
     string email = 3;
     string token = 4;
 }
-message SignOutParams {
-    string token = 1;
-}

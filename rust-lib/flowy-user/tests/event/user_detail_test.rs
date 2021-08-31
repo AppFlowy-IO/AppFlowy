@@ -4,23 +4,23 @@ use serial_test::*;
 
 #[test]
 #[serial]
-fn user_status_get_failed_before_login() {
-    let _a = RandomUserTestBuilder::new()
+fn user_status_get_failed() {
+    let _ = TestBuilder::new()
         .logout()
-        .event(GetStatus)
+        .event(GetUserProfile)
         .assert_error()
         .sync_send();
 }
 
 #[test]
 #[serial]
-fn user_status_get_success_after_login() {
+fn user_detail_get() {
     let request = SignInRequest {
-        email: random_valid_email(),
+        email: random_email(),
         password: valid_password(),
     };
 
-    let response = RandomUserTestBuilder::new()
+    let response = TestBuilder::new()
         .logout()
         .event(SignIn)
         .request(request)
@@ -28,8 +28,8 @@ fn user_status_get_success_after_login() {
         .parse::<UserDetail>();
     dbg!(&response);
 
-    let _ = RandomUserTestBuilder::new()
-        .event(GetStatus)
+    let _ = TestBuilder::new()
+        .event(GetUserProfile)
         .sync_send()
         .parse::<UserDetail>();
 }

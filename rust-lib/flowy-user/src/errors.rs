@@ -43,6 +43,9 @@ pub enum ErrorCode {
     #[display(fmt = "Sql internal error")]
     SqlInternalError     = 6,
 
+    #[display(fmt = "r2d2 connection error")]
+    DatabaseConnectError = 7,
+
     #[display(fmt = "User not login yet")]
     UserNotLoginYet      = 10,
     #[display(fmt = "Get current id read lock failed")]
@@ -106,6 +109,15 @@ impl std::convert::From<flowy_database::result::Error> for UserError {
             .build()
     }
 }
+
+impl std::convert::From<::r2d2::Error> for UserError {
+    fn from(error: r2d2::Error) -> Self {
+        ErrorBuilder::new(ErrorCode::DatabaseConnectError)
+            .error(error)
+            .build()
+    }
+}
+
 // use diesel::result::{Error, DatabaseErrorKind};
 // use flowy_sqlite::ErrorKind;
 impl std::convert::From<flowy_sqlite::Error> for UserError {

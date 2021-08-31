@@ -1,10 +1,7 @@
 use crate::{
     entities::{SignInParams, SignUpParams, UpdateUserParams, UserDetail},
     errors::{ErrorBuilder, ErrorCode, UserError},
-    services::{
-        user::{construct_user_server, database::UserDB, UserServerAPI},
-        workspace::UserWorkspaceController,
-    },
+    services::user::{construct_user_server, database::UserDB, UserServerAPI},
     sql_tables::{UserTable, UserTableChangeset},
 };
 
@@ -16,7 +13,9 @@ use flowy_database::{
     UserDatabaseConnection,
 };
 
+use crate::entities::UserToken;
 use flowy_infra::kv::KVStore;
+use flowy_sqlite::ConnectionPool;
 use std::sync::{Arc, RwLock};
 
 pub struct UserSessionConfig {
@@ -31,26 +30,23 @@ impl UserSessionConfig {
     }
 }
 
+type Server = Arc<dyn UserServerAPI + Send + Sync>;
+
 pub struct UserSession {
     database: UserDB,
     config: UserSessionConfig,
     #[allow(dead_code)]
-    workspace_controller: Arc<dyn UserWorkspaceController + Send + Sync>,
-    server: Arc<dyn UserServerAPI + Send + Sync>,
+    pub(crate) server: Server,
     user_id: RwLock<Option<String>>,
 }
 
 impl UserSession {
-    pub fn new<R>(config: UserSessionConfig, workspace_controller: Arc<R>) -> Self
-    where
-        R: 'static + UserWorkspaceController + Send + Sync,
-    {
+    pub fn new(config: UserSessionConfig) -> Self {
         let db = UserDB::new(&config.root_dir);
-        let server = construct_user_server(workspace_controller.clone());
+        let server = construct_user_server();
         Self {
             database: db,
             config,
-            workspace_controller,
             server,
             user_id: RwLock::new(None),
         }
@@ -59,6 +55,11 @@ impl UserSession {
     pub fn get_db_connection(&self) -> Result<DBConnection, UserError> {
         let user_id = self.user_id()?;
         self.database.get_connection(&user_id)
+    }
+
+    pub fn db_connection_pool(&self) -> Result<Arc<ConnectionPool>, UserError> {
+        let user_id = self.user_id()?;
+        self.database.get_pool(&user_id)
     }
 
     pub async fn sign_in(&self, params: SignInParams) -> Result<UserTable, UserError> {
@@ -78,7 +79,7 @@ impl UserSession {
     }
 
     pub async fn sign_out(&self) -> Result<(), UserError> {
-        let user_detail = self.user_detail()?;
+        let user_detail = self.user_detail().await?;
 
         match self.server.sign_out(&user_detail.token).await {
             Ok(_) => {},
@@ -104,21 +105,34 @@ impl UserSession {
         Ok(user)
     }
 
-    pub fn update_user(&self, params: UpdateUserParams) -> Result<UserDetail, UserError> {
+    pub async fn update_user(&self, params: UpdateUserParams) -> Result<(), UserError> {
         let changeset = UserTableChangeset::new(params);
         let conn = self.get_db_connection()?;
         diesel_update_table!(user_table, changeset, conn);
-        let user_detail = self.user_detail()?;
-        Ok(user_detail)
+        Ok(())
     }
 
-    pub fn user_detail(&self) -> Result<UserDetail, UserError> {
+    pub async fn user_detail(&self) -> Result<UserDetail, UserError> {
         let user_id = self.user_id()?;
         let user = dsl::user_table
             .filter(user_table::id.eq(&user_id))
             .first::<UserTable>(&*(self.get_db_connection()?))?;
 
-        let _ = self.server.get_user_info(&user_id);
+        let server = self.server.clone();
+        let token = user.token.clone();
+        tokio::spawn(async move {
+            match server.get_user_detail(&token).await {
+                Ok(user_detail) => {
+                    //
+                    log::info!("{:?}", user_detail);
+                },
+                Err(e) => {
+                    //
+                    log::info!("{:?}", e);
+                },
+            }
+        })
+        .await;
 
         Ok(UserDetail::from(user))
     }
@@ -164,10 +178,21 @@ impl UserSession {
         }
     }
 
-    pub fn user_token(&self) -> Result<String, UserError> {
-        let user_detail = self.user_detail()?;
-        Ok(user_detail.token)
-    }
+    // pub fn user_token(&self) -> Result<String, UserError> {
+    //     let user_detail = self.user_detail()?;
+    //     Ok(user_detail.token)
+    // }
+}
+
+pub async fn update_user(
+    server: Server,
+    pool: Arc<ConnectionPool>,
+    params: UpdateUserParams,
+) -> Result<(), UserError> {
+    let changeset = UserTableChangeset::new(params);
+    let conn = pool.get()?;
+    diesel_update_table!(user_table, changeset, conn);
+    Ok(())
 }
 
 pub fn current_user_id() -> Result<String, UserError> {

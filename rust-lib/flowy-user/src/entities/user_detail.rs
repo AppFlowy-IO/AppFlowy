@@ -1,7 +1,7 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
 #[derive(Default, ProtoBuf)]
-pub struct QueryUserDetailParams {
+pub struct UserToken {
     #[pb(index = 1)]
     pub token: String,
 }

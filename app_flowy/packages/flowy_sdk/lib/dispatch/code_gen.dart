@@ -354,14 +354,14 @@ class UserEventUpdateUser {
      UpdateUserRequest request;
      UserEventUpdateUser(this.request);
 
-    Future<Either<UserDetail, UserError>> send() {
+    Future<Either<Unit, UserError>> send() {
     final request = FFIRequest.create()
           ..event = UserEvent.UpdateUser.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-           (okBytes) => left(UserDetail.fromBuffer(okBytes)),
+           (bytes) => left(unit),
            (errBytes) => right(UserError.fromBuffer(errBytes)),
         ));
     }

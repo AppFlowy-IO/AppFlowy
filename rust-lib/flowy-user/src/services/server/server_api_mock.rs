@@ -4,14 +4,12 @@ use crate::{
     services::user::UserServerAPI,
 };
 
-use crate::services::workspace::UserWorkspaceController;
+use crate::entities::UserToken;
 
-use flowy_net::future::ResultFuture;
+use flowy_infra::future::ResultFuture;
 use std::sync::Arc;
 
-pub struct UserServerMock {
-    pub workspace_controller: Arc<dyn UserWorkspaceController + Send + Sync>,
-}
+pub struct UserServerMock {}
 
 impl UserServerMock {}
 
@@ -44,7 +42,7 @@ impl UserServerAPI for UserServerMock {
         ResultFuture::new(async { Ok(()) })
     }
 
-    fn get_user_info(&self, _user_id: &str) -> ResultFuture<UserDetail, UserError> {
+    fn get_user_detail(&self, _token: &str) -> ResultFuture<UserDetail, UserError> {
         ResultFuture::new(async { Err(ErrorBuilder::new(ErrorCode::Unknown).build()) })
     }
 }

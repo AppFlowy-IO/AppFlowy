@@ -3,10 +3,11 @@ use crate::{
     pool::{ConnectionManager, ConnectionPool, PoolConfig},
 };
 use r2d2::PooledConnection;
+use std::sync::Arc;
 
 pub struct Database {
     uri: String,
-    pool: ConnectionPool,
+    pool: Arc<ConnectionPool>,
 }
 
 pub type DBConnection = PooledConnection<ConnectionManager>;
@@ -20,7 +21,10 @@ impl Database {
         }
 
         let pool = ConnectionPool::new(pool_config, &uri)?;
-        Ok(Self { uri, pool })
+        Ok(Self {
+            uri,
+            pool: Arc::new(pool),
+        })
     }
 
     pub fn get_uri(&self) -> &str { &self.uri }
@@ -29,6 +33,8 @@ impl Database {
         let conn = self.pool.get()?;
         Ok(conn)
     }
+
+    pub fn get_pool(&self) -> Arc<ConnectionPool> { self.pool.clone() }
 }
 
 pub fn db_file_uri(dir: &str, name: &str) -> String {

@@ -12,7 +12,7 @@ import 'dart:typed_data' as $typed_data;
 const UserEvent$json = const {
   '1': 'UserEvent',
   '2': const [
-    const {'1': 'GetStatus', '2': 0},
+    const {'1': 'GetUserProfile', '2': 0},
     const {'1': 'SignIn', '2': 1},
     const {'1': 'SignUp', '2': 2},
     const {'1': 'SignOut', '2': 3},
@@ -21,4 +21,4 @@ const UserEvent$json = const {
 };
 
 /// Descriptor for `UserEvent`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List userEventDescriptor = $convert.base64Decode('CglVc2VyRXZlbnQSDQoJR2V0U3RhdHVzEAASCgoGU2lnbkluEAESCgoGU2lnblVwEAISCwoHU2lnbk91dBADEg4KClVwZGF0ZVVzZXIQBA==');
+final $typed_data.Uint8List userEventDescriptor = $convert.base64Decode('CglVc2VyRXZlbnQSEgoOR2V0VXNlclByb2ZpbGUQABIKCgZTaWduSW4QARIKCgZTaWduVXAQAhILCgdTaWduT3V0EAMSDgoKVXBkYXRlVXNlchAE');

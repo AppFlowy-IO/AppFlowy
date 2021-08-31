@@ -1,11 +1,5 @@
 use crate::helper::{spawn_app, TestApp};
-use flowy_user::entities::{
-    QueryUserDetailParams,
-    SignInParams,
-    SignOutParams,
-    SignUpParams,
-    SignUpResponse,
-};
+use flowy_user::entities::{SignInParams, SignUpParams, SignUpResponse, UserToken};
 
 #[actix_rt::test]
 async fn user_register() {
@@ -62,12 +56,12 @@ async fn user_sign_out() {
         .await;
 
     let token = sign_in_resp.token.clone();
-    let sign_out_params = SignOutParams {
+    let user_token = UserToken {
         token: token.clone(),
     };
-    app.sign_out(sign_out_params).await;
+    app.sign_out(user_token).await;
 
-    let query_user_params = QueryUserDetailParams { token };
+    let query_user_params = UserToken { token };
     app.get_user_detail(query_user_params).await;
 }
 
@@ -77,7 +71,7 @@ async fn user_get_detail() {
     let email = "annie@appflowy.io";
     let password = "HelloWork123!";
     let sign_up_resp = register_user(&app, email, password).await;
-    let query_user_params = QueryUserDetailParams {
+    let query_user_params = UserToken {
         token: sign_up_resp.token,
     };
     log::info!("{:?}", app.get_user_detail(query_user_params).await);
