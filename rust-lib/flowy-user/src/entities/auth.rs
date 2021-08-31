@@ -100,6 +100,9 @@ pub struct SignUpResponse {
 
     #[pb(index = 3)]
     pub email: String,
+
+    #[pb(index = 4)]
+    pub token: String,
 }
 
 #[derive(Default, ProtoBuf)]

@@ -3,7 +3,7 @@ use crate::{
     errors::{ErrorBuilder, ErrorCode, UserError},
 };
 
-use crate::entities::SignOutParams;
+use crate::entities::{QueryUserDetailParams, SignOutParams};
 use flowy_net::{config::*, future::ResultFuture, request::HttpRequestBuilder};
 
 pub trait UserServerAPI {
@@ -62,4 +62,17 @@ pub async fn user_sign_out(params: SignOutParams, url: &str) -> Result<(), UserE
         .send()
         .await?;
     Ok(())
+}
+
+pub async fn get_user_detail(
+    params: QueryUserDetailParams,
+    url: &str,
+) -> Result<UserDetail, UserError> {
+    let user_detail = HttpRequestBuilder::get(&url.to_owned())
+        .protobuf(params)?
+        .send()
+        .await?
+        .response()
+        .await?;
+    Ok(user_detail)
 }

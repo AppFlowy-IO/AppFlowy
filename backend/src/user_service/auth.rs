@@ -44,14 +44,15 @@ pub async fn sign_in(pool: &PgPool, params: SignInParams) -> Result<SignInRespon
 
     match verify_password(&password.0, &user.password) {
         Ok(true) => {
-            let token = Token::create_token(&user)?;
+            let token = Token::create_token(&user.email)?;
+            let _ = AUTHORIZED_USERS.store_auth(user.email.clone().into(), true)?;
+
             let mut response_data = SignInResponse::default();
             response_data.set_uid(user.id.to_string());
             response_data.set_name(user.name);
             response_data.set_email(user.email);
             response_data.set_token(token.clone().into());
 
-            let _ = AUTHORIZED_USERS.store_auth(LoggedUser::from_token(token.into())?, true)?;
             Ok(response_data)
         },
         _ => Err(ServerError::password_not_match()),
@@ -89,6 +90,7 @@ pub async fn register_user(
     .await
     .context("Failed to insert user")?;
 
+    let _ = AUTHORIZED_USERS.store_auth(email.as_ref().to_string().into(), true)?;
     let _ = create_default_workspace(&mut transaction, response_data.get_uid()).await?;
 
     transaction
@@ -164,6 +166,7 @@ async fn insert_new_user(
     email: &str,
     password: &str,
 ) -> Result<SignUpResponse, ServerError> {
+    let token = Token::create_token(email)?;
     let uuid = uuid::Uuid::new_v4();
     let password = hash_password(password)?;
     let _ = sqlx::query!(
@@ -185,6 +188,7 @@ async fn insert_new_user(
     response.set_uid(uuid.to_string());
     response.set_name(name.to_string());
     response.set_email(email.to_string());
+    response.set_token(token.into());
 
     Ok(response)
 }

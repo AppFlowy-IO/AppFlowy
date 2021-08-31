@@ -32,6 +32,12 @@ impl TestApp {
         let _ = user_sign_out(params, &url).await.unwrap();
     }
 
+    pub async fn get_user_detail(&self, params: QueryUserDetailParams) -> UserDetail {
+        let url = format!("{}/api/auth", self.address);
+        let user_detail = get_user_detail(params, &url).await.unwrap();
+        user_detail
+    }
+
     pub async fn create_workspace(&self, params: CreateWorkspaceParams) -> Workspace {
         let url = format!("{}/api/workspace", self.address);
         let workspace = create_workspace_request(params, &url).await.unwrap();

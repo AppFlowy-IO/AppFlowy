@@ -23,6 +23,7 @@ impl UserServerAPI for UserServerMock {
                 uid,
                 name: params.name,
                 email: params.email,
+                token: "fake token".to_owned(),
             })
         })
     }

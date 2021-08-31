@@ -45,8 +45,8 @@ impl Claim {
 #[derive(From, Into, Clone)]
 pub struct Token(String);
 impl Token {
-    pub fn create_token(data: &UserTable) -> Result<Self, ServerError> {
-        let claims = Claim::with_email(&data.email);
+    pub fn create_token(data: &str) -> Result<Self, ServerError> {
+        let claims = Claim::with_email(&data);
         encode(
             &Header::new(DEFAULT_ALGORITHM),
             &claims,

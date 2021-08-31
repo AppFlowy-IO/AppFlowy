@@ -23,6 +23,10 @@ impl std::convert::From<Claim> for LoggedUser {
     }
 }
 
+impl std::convert::From<String> for LoggedUser {
+    fn from(email: String) -> Self { Self { email } }
+}
+
 impl LoggedUser {
     pub fn from_token(token: String) -> Result<Self, ServerError> {
         let user: LoggedUser = Token::decode_token(&token.into())?.into();
