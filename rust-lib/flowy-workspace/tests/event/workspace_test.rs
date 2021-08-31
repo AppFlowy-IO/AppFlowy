@@ -1,11 +1,6 @@
 use crate::helper::*;
 use flowy_workspace::{
-    entities::workspace::{
-        CreateWorkspaceRequest,
-        QueryWorkspaceRequest,
-        RepeatedWorkspace,
-        Workspace,
-    },
+    entities::workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest, RepeatedWorkspace},
     event::WorkspaceEvent::*,
     prelude::*,
 };

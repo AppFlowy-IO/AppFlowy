@@ -10,7 +10,7 @@ pub async fn get_user_status(session: Unit<Arc<UserSession>>) -> DataResult<User
 
 #[tracing::instrument(name = "sign_out", skip(session))]
 pub async fn sign_out(session: Unit<Arc<UserSession>>) -> Result<(), UserError> {
-    let _ = session.sign_out()?;
+    let _ = session.sign_out().await?;
     Ok(())
 }
 

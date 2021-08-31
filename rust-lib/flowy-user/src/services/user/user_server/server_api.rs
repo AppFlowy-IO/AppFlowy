@@ -3,12 +3,13 @@ use crate::{
     errors::{ErrorBuilder, ErrorCode, UserError},
 };
 
+use crate::entities::SignOutParams;
 use flowy_net::{config::*, future::ResultFuture, request::HttpRequestBuilder};
 
 pub trait UserServerAPI {
     fn sign_up(&self, params: SignUpParams) -> ResultFuture<SignUpResponse, UserError>;
     fn sign_in(&self, params: SignInParams) -> ResultFuture<SignInResponse, UserError>;
-    fn sign_out(&self, user_id: &str) -> ResultFuture<(), UserError>;
+    fn sign_out(&self, token: &str) -> ResultFuture<(), UserError>;
     fn get_user_info(&self, user_id: &str) -> ResultFuture<UserDetail, UserError>;
 }
 
@@ -26,7 +27,7 @@ impl UserServerAPI for UserServer {
         ResultFuture::new(async move { user_sign_in(params, SIGN_IN_URL.as_ref()).await })
     }
 
-    fn sign_out(&self, _user_id: &str) -> ResultFuture<(), UserError> {
+    fn sign_out(&self, _token: &str) -> ResultFuture<(), UserError> {
         ResultFuture::new(async { Err(ErrorBuilder::new(ErrorCode::Unknown).build()) })
     }
 
@@ -53,4 +54,12 @@ pub async fn user_sign_in(params: SignInParams, url: &str) -> Result<SignInRespo
         .response()
         .await?;
     Ok(response)
+}
+
+pub async fn user_sign_out(params: SignOutParams, url: &str) -> Result<(), UserError> {
+    let _ = HttpRequestBuilder::delete(&url.to_owned())
+        .protobuf(params)?
+        .send()
+        .await?;
+    Ok(())
 }

@@ -27,13 +27,18 @@ impl TestApp {
         resp
     }
 
+    pub async fn sign_out(&self, params: SignOutParams) {
+        let url = format!("{}/api/auth", self.address);
+        let _ = user_sign_out(params, &url).await.unwrap();
+    }
+
     pub async fn create_workspace(&self, params: CreateWorkspaceParams) -> Workspace {
         let url = format!("{}/api/workspace", self.address);
         let workspace = create_workspace_request(params, &url).await.unwrap();
         workspace
     }
 
-    pub async fn read_workspace(&self, params: QueryWorkspaceParams) -> RepeatedWorkspace {
+    pub async fn read_workspaces(&self, params: QueryWorkspaceParams) -> RepeatedWorkspace {
         let url = format!("{}/api/workspace", self.address);
         let workspaces = read_workspaces_request(params, &url).await.unwrap();
         workspaces
@@ -81,12 +86,6 @@ impl TestApp {
         let url = format!("{}/api/view", self.address);
         let view = read_view_request(params, &url).await.unwrap();
         view
-    }
-
-    pub async fn read_workspace_list(&self, user_id: &str) -> RepeatedWorkspace {
-        let url = format!("{}/api/workspace_list/{}", self.address, user_id);
-        let workspaces = read_workspace_list_request(&url).await.unwrap();
-        workspaces
     }
 
     pub async fn update_view(&self, params: UpdateViewParams) {

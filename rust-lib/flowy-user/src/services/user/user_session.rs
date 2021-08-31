@@ -77,12 +77,19 @@ impl UserSession {
         Ok(user_table)
     }
 
-    pub fn sign_out(&self) -> Result<(), UserError> {
-        let user_id = self.user_id()?;
+    pub async fn sign_out(&self) -> Result<(), UserError> {
+        let user_detail = self.user_detail()?;
+
+        match self.server.sign_out(&user_detail.token).await {
+            Ok(_) => {},
+            Err(e) => log::error!("Sign out failed: {:?}", e),
+        }
+
         let conn = self.get_db_connection()?;
-        let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&user_id))).execute(&*conn)?;
-        let _ = self.server.sign_out(&user_id);
-        let _ = self.database.close_user_db(&user_id)?;
+        let _ =
+            diesel::delete(dsl::user_table.filter(dsl::id.eq(&user_detail.id))).execute(&*conn)?;
+        let _ = self.server.sign_out(&user_detail.id);
+        let _ = self.database.close_user_db(&user_detail.id)?;
         let _ = self.set_user_id(None)?;
 
         Ok(())
@@ -155,6 +162,11 @@ impl UserSession {
             None => Err(ErrorBuilder::new(ErrorCode::UserNotLoginYet).build()),
             Some(user_id) => Ok(user_id),
         }
+    }
+
+    pub fn user_token(&self) -> Result<String, UserError> {
+        let user_detail = self.user_detail()?;
+        Ok(user_detail.token)
     }
 }
 

@@ -20,6 +20,16 @@ const UserStatus$json = const {
 
 /// Descriptor for `UserStatus`. Decode as a `google.protobuf.EnumDescriptorProto`.
 final $typed_data.Uint8List userStatusDescriptor = $convert.base64Decode('CgpVc2VyU3RhdHVzEgsKB1Vua25vd24QABIJCgVMb2dpbhABEgsKB0V4cGlyZWQQAg==');
+@$core.Deprecated('Use queryUserDetailParamsDescriptor instead')
+const QueryUserDetailParams$json = const {
+  '1': 'QueryUserDetailParams',
+  '2': const [
+    const {'1': 'token', '3': 1, '4': 1, '5': 9, '10': 'token'},
+  ],
+};
+
+/// Descriptor for `QueryUserDetailParams`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List queryUserDetailParamsDescriptor = $convert.base64Decode('ChVRdWVyeVVzZXJEZXRhaWxQYXJhbXMSFAoFdG9rZW4YASABKAlSBXRva2Vu');
 @$core.Deprecated('Use userDetailDescriptor instead')
 const UserDetail$json = const {
   '1': 'UserDetail',
@@ -27,9 +37,45 @@ const UserDetail$json = const {
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'email', '3': 2, '4': 1, '5': 9, '10': 'email'},
     const {'1': 'name', '3': 3, '4': 1, '5': 9, '10': 'name'},
-    const {'1': 'status', '3': 4, '4': 1, '5': 14, '6': '.UserStatus', '10': 'status'},
+    const {'1': 'token', '3': 4, '4': 1, '5': 9, '10': 'token'},
   ],
 };
 
 /// Descriptor for `UserDetail`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List userDetailDescriptor = $convert.base64Decode('CgpVc2VyRGV0YWlsEg4KAmlkGAEgASgJUgJpZBIUCgVlbWFpbBgCIAEoCVIFZW1haWwSEgoEbmFtZRgDIAEoCVIEbmFtZRIjCgZzdGF0dXMYBCABKA4yCy5Vc2VyU3RhdHVzUgZzdGF0dXM=');
+final $typed_data.Uint8List userDetailDescriptor = $convert.base64Decode('CgpVc2VyRGV0YWlsEg4KAmlkGAEgASgJUgJpZBIUCgVlbWFpbBgCIAEoCVIFZW1haWwSEgoEbmFtZRgDIAEoCVIEbmFtZRIUCgV0b2tlbhgEIAEoCVIFdG9rZW4=');
+@$core.Deprecated('Use updateUserRequestDescriptor instead')
+const UpdateUserRequest$json = const {
+  '1': 'UpdateUserRequest',
+  '2': const [
+    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+    const {'1': 'name', '3': 2, '4': 1, '5': 9, '9': 0, '10': 'name'},
+    const {'1': 'email', '3': 3, '4': 1, '5': 9, '9': 1, '10': 'email'},
+    const {'1': 'password', '3': 4, '4': 1, '5': 9, '9': 2, '10': 'password'},
+  ],
+  '8': const [
+    const {'1': 'one_of_name'},
+    const {'1': 'one_of_email'},
+    const {'1': 'one_of_password'},
+  ],
+};
+
+/// Descriptor for `UpdateUserRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List updateUserRequestDescriptor = $convert.base64Decode('ChFVcGRhdGVVc2VyUmVxdWVzdBIOCgJpZBgBIAEoCVICaWQSFAoEbmFtZRgCIAEoCUgAUgRuYW1lEhYKBWVtYWlsGAMgASgJSAFSBWVtYWlsEhwKCHBhc3N3b3JkGAQgASgJSAJSCHBhc3N3b3JkQg0KC29uZV9vZl9uYW1lQg4KDG9uZV9vZl9lbWFpbEIRCg9vbmVfb2ZfcGFzc3dvcmQ=');
+@$core.Deprecated('Use updateUserParamsDescriptor instead')
+const UpdateUserParams$json = const {
+  '1': 'UpdateUserParams',
+  '2': const [
+    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+    const {'1': 'name', '3': 2, '4': 1, '5': 9, '9': 0, '10': 'name'},
+    const {'1': 'email', '3': 3, '4': 1, '5': 9, '9': 1, '10': 'email'},
+    const {'1': 'password', '3': 4, '4': 1, '5': 9, '9': 2, '10': 'password'},
+  ],
+  '8': const [
+    const {'1': 'one_of_name'},
+    const {'1': 'one_of_email'},
+    const {'1': 'one_of_password'},
+  ],
+};
+
+/// Descriptor for `UpdateUserParams`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List updateUserParamsDescriptor = $convert.base64Decode('ChBVcGRhdGVVc2VyUGFyYW1zEg4KAmlkGAEgASgJUgJpZBIUCgRuYW1lGAIgASgJSABSBG5hbWUSFgoFZW1haWwYAyABKAlIAVIFZW1haWwSHAoIcGFzc3dvcmQYBCABKAlIAlIIcGFzc3dvcmRCDQoLb25lX29mX25hbWVCDgoMb25lX29mX2VtYWlsQhEKD29uZV9vZl9wYXNzd29yZA==');

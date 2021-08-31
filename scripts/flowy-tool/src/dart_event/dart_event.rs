@@ -41,6 +41,7 @@ impl DartEventCodeGen {
 
 pub struct DartEventCrate {
     crate_path: String,
+    #[allow(dead_code)]
     crate_name: String,
     event_files: Vec<String>,
 }

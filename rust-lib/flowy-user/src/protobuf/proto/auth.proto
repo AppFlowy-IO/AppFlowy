@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+message SignInRequest {
+    string email = 1;
+    string password = 2;
+}
+message SignInParams {
+    string email = 1;
+    string password = 2;
+}
+message SignInResponse {
+    string uid = 1;
+    string name = 2;
+    string email = 3;
+    string token = 4;
+}
+message SignUpRequest {
+    string email = 1;
+    string name = 2;
+    string password = 3;
+}
+message SignUpParams {
+    string email = 1;
+    string name = 2;
+    string password = 3;
+}
+message SignUpResponse {
+    string uid = 1;
+    string name = 2;
+    string email = 3;
+}
+message SignOutParams {
+    string token = 1;
+}

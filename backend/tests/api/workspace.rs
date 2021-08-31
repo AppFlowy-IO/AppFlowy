@@ -23,7 +23,7 @@ async fn workspace_read() {
     let app = spawn_app().await;
     let (workspace_1, user_id) = create_test_workspace(&app).await;
     let read_params = QueryWorkspaceParams::new(&user_id).workspace_id(&workspace_1.id);
-    log::info!("{:?}", app.read_workspace(read_params).await);
+    log::info!("{:?}", app.read_workspaces(read_params).await);
 }
 
 #[actix_rt::test]
@@ -35,7 +35,7 @@ async fn workspace_read_with_belongs() {
     let _ = create_test_app(&application, &workspace.id, &user_id).await;
 
     let read_params = QueryWorkspaceParams::new(&user_id).workspace_id(&workspace.id);
-    let workspaces = application.read_workspace(read_params).await;
+    let workspaces = application.read_workspaces(read_params).await;
     let workspace = workspaces.items.first().unwrap();
     assert_eq!(workspace.apps.len(), 3);
 }
@@ -52,7 +52,7 @@ async fn workspace_update() {
     app.update_workspace(update_params).await;
 
     let read_params = QueryWorkspaceParams::new(&user_id).workspace_id(&workspace_1.id);
-    let workspace_2 = app.read_workspace(read_params).await;
+    let workspace_2 = app.read_workspaces(read_params).await;
     log::info!("{:?}", workspace_2);
 }
 
@@ -66,7 +66,7 @@ async fn workspace_delete() {
 
     let _ = app.delete_workspace(delete_params).await;
     let read_params = QueryWorkspaceParams::new(&user_id).workspace_id(&workspace.id);
-    let repeated_workspace = app.read_workspace(read_params).await;
+    let repeated_workspace = app.read_workspaces(read_params).await;
     assert_eq!(repeated_workspace.len(), 0);
 }
 
@@ -245,6 +245,6 @@ async fn workspace_list_read() {
     }
 
     let read_params = QueryWorkspaceParams::new(&response.uid);
-    let workspaces = application.read_workspace(read_params).await;
+    let workspaces = application.read_workspaces(read_params).await;
     assert_eq!(workspaces.len(), 4);
 }

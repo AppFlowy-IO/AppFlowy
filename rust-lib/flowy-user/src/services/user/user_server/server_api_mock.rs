@@ -39,7 +39,7 @@ impl UserServerAPI for UserServerMock {
         })
     }
 
-    fn sign_out(&self, _user_id: &str) -> ResultFuture<(), UserError> {
+    fn sign_out(&self, _token: &str) -> ResultFuture<(), UserError> {
         ResultFuture::new(async { Ok(()) })
     }
 

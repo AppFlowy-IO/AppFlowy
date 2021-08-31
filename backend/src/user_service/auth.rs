@@ -1,10 +1,11 @@
+use super::AUTHORIZED_USERS;
 use crate::{
     entities::{token::Token, user::UserTable},
     sqlx_ext::DBTransaction,
-    user_service::{hash_password, verify_password},
+    user_service::{hash_password, verify_password, LoggedUser},
     workspace_service::user_default::create_default_workspace,
 };
-use actix_identity::Identity;
+
 use anyhow::Context;
 use chrono::Utc;
 use flowy_net::{
@@ -13,15 +14,18 @@ use flowy_net::{
 };
 use flowy_user::{
     entities::parser::{UserEmail, UserName, UserPassword},
-    protobuf::{SignInParams, SignInResponse, SignUpParams, SignUpResponse},
+    protobuf::{
+        SignInParams,
+        SignInResponse,
+        SignOutParams,
+        SignUpParams,
+        SignUpResponse,
+        UserDetail,
+    },
 };
 use sqlx::{PgPool, Postgres};
 
-pub async fn sign_in(
-    pool: &PgPool,
-    params: SignInParams,
-    id: Identity,
-) -> Result<FlowyResponse, ServerError> {
+pub async fn sign_in(pool: &PgPool, params: SignInParams) -> Result<SignInResponse, ServerError> {
     let email =
         UserEmail::parse(params.email).map_err(|e| ServerError::params_invalid().context(e))?;
     let password = UserPassword::parse(params.password)
@@ -45,13 +49,18 @@ pub async fn sign_in(
             response_data.set_uid(user.id.to_string());
             response_data.set_name(user.name);
             response_data.set_email(user.email);
-            response_data.set_token(token.into());
+            response_data.set_token(token.clone().into());
 
-            id.remember(response_data.token.clone());
-            FlowyResponse::success().pb(response_data)
+            let _ = AUTHORIZED_USERS.store_auth(LoggedUser::from_token(token.into())?, true)?;
+            Ok(response_data)
         },
         _ => Err(ServerError::password_not_match()),
     }
+}
+
+pub async fn sign_out(params: SignOutParams) -> Result<FlowyResponse, ServerError> {
+    let _ = AUTHORIZED_USERS.store_auth(LoggedUser::from_token(params.token.clone())?, false)?;
+    Ok(FlowyResponse::success())
 }
 
 pub async fn register_user(
@@ -88,6 +97,33 @@ pub async fn register_user(
         .context("Failed to commit SQL transaction to register user.")?;
 
     FlowyResponse::success().pb(response_data)
+}
+
+pub(crate) async fn get_user_details(
+    pool: &PgPool,
+    token: &str,
+) -> Result<FlowyResponse, ServerError> {
+    let logged_user = LoggedUser::from_token(token.to_owned().into())?;
+    let mut transaction = pool
+        .begin()
+        .await
+        .context("Failed to acquire a Postgres connection to get user detail")?;
+
+    let user_table = read_user(&mut transaction, &logged_user.email).await?;
+
+    transaction
+        .commit()
+        .await
+        .context("Failed to commit SQL transaction to get user detail.")?;
+
+    // update the user active time
+    let _ = AUTHORIZED_USERS.store_auth(logged_user, true)?;
+
+    let mut user_detail = UserDetail::default();
+    user_detail.set_email(user_table.email);
+    user_detail.set_name(user_table.name);
+    user_detail.set_token(token.to_owned());
+    FlowyResponse::success().pb(user_detail)
 }
 
 async fn is_email_exist(

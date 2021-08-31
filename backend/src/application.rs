@@ -14,7 +14,8 @@ use actix::Actor;
 use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_web::{dev::Server, middleware, web, web::Data, App, HttpServer, Scope};
 use sqlx::{postgres::PgPoolOptions, PgPool};
-use std::net::TcpListener;
+use std::{net::TcpListener, time::Duration};
+use tokio::time::interval;
 
 pub struct Application {
     port: u16,
@@ -46,6 +47,8 @@ pub fn run(listener: TcpListener, app_ctx: AppContext) -> Result<Server, std::io
     let domain = domain();
     let secret: String = secret();
 
+    actix_rt::spawn(period_check(pg_pool.clone()));
+
     let server = HttpServer::new(move || {
         App::new()
             .wrap(middleware::Logger::default())
@@ -61,6 +64,13 @@ pub fn run(listener: TcpListener, app_ctx: AppContext) -> Result<Server, std::io
     Ok(server)
 }
 
+async fn period_check(_pool: Data<PgPool>) {
+    let mut i = interval(Duration::from_secs(60));
+    loop {
+        i.tick().await;
+    }
+}
+
 fn ws_scope() -> Scope { web::scope("/ws").service(ws_service::router::start_connection) }
 
 fn user_scope() -> Scope {
@@ -71,7 +81,7 @@ fn user_scope() -> Scope {
         .service(web::resource("/auth")
             .route(web::post().to(user::sign_in_handler))
             .route(web::delete().to(user::sign_out_handler))
-            .route(web::get().to(user::user_profile))
+            .route(web::get().to(user::user_detail_handler))
         )
         .service(web::resource("/workspace")
             .route(web::post().to(workspace::create_handler))

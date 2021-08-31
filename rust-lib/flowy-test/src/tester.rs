@@ -9,7 +9,7 @@ use flowy_user::{
     event::UserEvent::{GetStatus, SignOut, SignUp},
     prelude::*,
 };
-use flowy_workspace::errors::ErrorCode;
+
 use std::{
     convert::TryFrom,
     fmt::{Debug, Display},

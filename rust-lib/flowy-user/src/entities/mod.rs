@@ -1,9 +1,6 @@
-pub use sign_in::*;
-pub use sign_up::*;
+pub use auth::*;
 pub use user_detail::*;
-pub use user_update::*;
 pub mod parser;
-mod sign_in;
-pub mod sign_up;
+
+pub mod auth;
 mod user_detail;
-mod user_update;

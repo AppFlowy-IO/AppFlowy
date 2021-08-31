@@ -34,13 +34,15 @@ impl Claim {
             exp: (Local::now() + Duration::hours(24)).timestamp(),
         }
     }
+
+    pub fn get_email(self) -> String { self.email }
 }
 
 // impl From<Claim> for User {
 //     fn from(claim: Claim) -> Self { Self { email: claim.email } }
 // }
 
-#[derive(From, Into)]
+#[derive(From, Into, Clone)]
 pub struct Token(String);
 impl Token {
     pub fn create_token(data: &UserTable) -> Result<Self, ServerError> {

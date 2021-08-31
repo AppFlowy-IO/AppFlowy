@@ -5,6 +5,14 @@ use futures::StreamExt;
 use protobuf::{Message, ProtobufResult};
 
 pub async fn parse_from_payload<T: Message>(payload: web::Payload) -> Result<T, ServerError> {
+    let bytes = poll_payload(&mut payload.into_inner()).await?;
+    parse_from_bytes(&bytes)
+}
+
+#[allow(dead_code)]
+pub async fn parse_from_dev_payload<T: Message>(
+    payload: &mut actix_web::dev::Payload,
+) -> Result<T, ServerError> {
     let bytes = poll_payload(payload).await?;
     parse_from_bytes(&bytes)
 }
@@ -17,7 +25,9 @@ pub fn parse_from_bytes<T: Message>(bytes: &[u8]) -> Result<T, ServerError> {
     }
 }
 
-pub async fn poll_payload(mut payload: web::Payload) -> Result<web::BytesMut, ServerError> {
+pub async fn poll_payload(
+    payload: &mut actix_web::dev::Payload,
+) -> Result<web::BytesMut, ServerError> {
     let mut body = web::BytesMut::new();
     while let Some(chunk) = payload.next().await {
         let chunk = chunk.map_err(|err| ServerError::internal().context(err))?;
