@@ -105,6 +105,19 @@ impl UserSession {
     }
 
     pub async fn update_user(&self, params: UpdateUserParams) -> Result<(), UserError> {
+        let session = self.get_session()?;
+        match self
+            .server
+            .update_user(&session.token, params.clone())
+            .await
+        {
+            Ok(_) => {},
+            Err(e) => {
+                // TODO: retry?
+                log::error!("update user profile failed: {:?}", e);
+            },
+        }
+
         let changeset = UserTableChangeset::new(params);
         let conn = self.get_db_connection()?;
         diesel_update_table!(user_table, changeset, conn);
@@ -126,8 +139,7 @@ impl UserSession {
                     log::info!("{:?}", e);
                 },
             }
-        })
-        .await;
+        });
 
         let user = dsl::user_table
             .filter(user_table::id.eq(&session.user_id))

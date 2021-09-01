@@ -10,6 +10,7 @@ use flowy_user::{
     prelude::*,
 };
 
+use flowy_user::event::UserEvent::SignIn;
 use std::{
     convert::TryFrom,
     fmt::{Debug, Display},
@@ -105,17 +106,36 @@ pub trait TesterTrait {
             .into_inner()
     }
 
-    fn login(&self) -> UserDetail {
+    fn sign_up(&self) -> (UserDetail, String) {
         init_test_sdk();
+        let password = valid_password();
         let payload = SignUpRequest {
             email: self.context().user_email.clone(),
             name: "app flowy".to_string(),
-            password: valid_password(),
+            password: password.clone(),
         }
         .into_bytes()
         .unwrap();
 
         let request = ModuleRequest::new(SignUp).payload(payload);
+        let user_detail = EventDispatch::sync_send(request)
+            .parse::<UserDetail, UserError>()
+            .unwrap()
+            .unwrap();
+
+        (user_detail, password)
+    }
+
+    fn sign_in(&self) -> UserDetail {
+        init_test_sdk();
+        let payload = SignInRequest {
+            email: self.context().user_email.clone(),
+            password: valid_password(),
+        }
+        .into_bytes()
+        .unwrap();
+
+        let request = ModuleRequest::new(SignIn).payload(payload);
         let user_detail = EventDispatch::sync_send(request)
             .parse::<UserDetail, UserError>()
             .unwrap()
@@ -131,7 +151,7 @@ pub trait TesterTrait {
             .unwrap()
         {
             Ok(user_detail) => user_detail,
-            Err(_e) => self.login(),
+            Err(_e) => self.sign_in(),
         }
     }
 

@@ -48,8 +48,16 @@ where
         }
     }
 
-    pub fn login(mut self) -> Self {
-        let user_detail = self.tester.login();
+    pub fn sign_up(self) -> SignUpContext {
+        let (user_detail, password) = self.tester.sign_up();
+        SignUpContext {
+            user_detail,
+            password,
+        }
+    }
+
+    pub fn sign_in(mut self) -> Self {
+        let user_detail = self.tester.sign_in();
         self.user_detail = Some(user_detail);
         self
     }
@@ -159,4 +167,9 @@ where
     fn mut_context(&mut self) -> &mut TesterContext { &mut self.context }
 
     fn context(&self) -> &TesterContext { &self.context }
+}
+
+pub struct SignUpContext {
+    pub user_detail: UserDetail,
+    pub password: String,
 }

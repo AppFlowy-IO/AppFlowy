@@ -6,7 +6,7 @@ use crate::{
 
 use crate::entities::UpdateUserParams;
 
-use flowy_infra::future::ResultFuture;
+use flowy_infra::{future::ResultFuture, uuid};
 
 pub struct UserServerMock {}
 
@@ -14,7 +14,7 @@ impl UserServerMock {}
 
 impl UserServerAPI for UserServerMock {
     fn sign_up(&self, params: SignUpParams) -> ResultFuture<SignUpResponse, UserError> {
-        let uid = params.email.clone();
+        let uid = uuid();
         ResultFuture::new(async move {
             Ok(SignUpResponse {
                 uid,
@@ -28,7 +28,7 @@ impl UserServerAPI for UserServerMock {
     fn sign_in(&self, params: SignInParams) -> ResultFuture<SignInResponse, UserError> {
         ResultFuture::new(async {
             Ok(SignInResponse {
-                uid: "fake id".to_owned(),
+                uid: uuid(),
                 name: "fake name".to_owned(),
                 email: params.email,
                 token: "fake token".to_string(),

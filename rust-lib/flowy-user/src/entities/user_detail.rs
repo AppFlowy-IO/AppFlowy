@@ -17,7 +17,7 @@ impl std::default::Default for UserStatus {
     fn default() -> Self { UserStatus::Unknown }
 }
 
-#[derive(ProtoBuf, Default, Debug)]
+#[derive(ProtoBuf, Default, Debug, PartialEq, Eq)]
 pub struct UserDetail {
     #[pb(index = 1)]
     pub id: String,
@@ -85,7 +85,7 @@ impl UpdateUserRequest {
     }
 }
 
-#[derive(ProtoBuf, Default)]
+#[derive(ProtoBuf, Default, Clone)]
 pub struct UpdateUserParams {
     // TODO: remove user id
     #[pb(index = 1)]
