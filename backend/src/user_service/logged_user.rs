@@ -4,7 +4,6 @@ use chrono::{DateTime, Utc};
 use dashmap::DashMap;
 use flowy_net::errors::ServerError;
 
-use actix_http::header::ToStrError;
 use actix_web::http::HeaderValue;
 use lazy_static::lazy_static;
 
@@ -59,10 +58,7 @@ impl LoggedUser {
 
 use actix_web::{dev::Payload, FromRequest, HttpRequest};
 use flowy_net::config::HEADER_TOKEN;
-use futures::{
-    executor::block_on,
-    future::{ready, Ready},
-};
+use futures::future::{ready, Ready};
 use std::convert::TryInto;
 
 impl FromRequest for LoggedUser {

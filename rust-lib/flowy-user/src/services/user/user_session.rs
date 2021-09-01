@@ -1,7 +1,7 @@
 use crate::{
     entities::{SignInParams, SignUpParams, UpdateUserParams, UserDetail},
     errors::{ErrorBuilder, ErrorCode, UserError},
-    services::user::{construct_user_server, database::UserDB, UserServerAPI},
+    services::user::{construct_user_server, database::UserDB},
     sql_tables::{UserTable, UserTableChangeset},
 };
 
@@ -13,12 +13,12 @@ use flowy_database::{
     UserDatabaseConnection,
 };
 
-use crate::{entities::UserToken, services::server::Server};
+use crate::services::server::Server;
 use flowy_infra::kv::KVStore;
 use flowy_sqlite::ConnectionPool;
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
-use serde_json::Error;
+
 use std::sync::Arc;
 
 pub struct UserSessionConfig {
@@ -112,13 +112,9 @@ impl UserSession {
     }
 
     pub async fn user_detail(&self) -> Result<UserDetail, UserError> {
-        let user_id = self.get_session()?.user_id;
-        let user = dsl::user_table
-            .filter(user_table::id.eq(&user_id))
-            .first::<UserTable>(&*(self.get_db_connection()?))?;
-
+        let session = self.get_session()?;
+        let token = session.token;
         let server = self.server.clone();
-        let token = user.token.clone();
         tokio::spawn(async move {
             match server.get_user_detail(&token).await {
                 Ok(user_detail) => {
@@ -132,6 +128,10 @@ impl UserSession {
             }
         })
         .await;
+
+        let user = dsl::user_table
+            .filter(user_table::id.eq(&session.user_id))
+            .first::<UserTable>(&*(self.get_db_connection()?))?;
 
         Ok(UserDetail::from(user))
     }
@@ -194,7 +194,7 @@ impl UserSession {
 }
 
 pub async fn update_user(
-    server: Server,
+    _server: Server,
     pool: Arc<ConnectionPool>,
     params: UpdateUserParams,
 ) -> Result<(), UserError> {

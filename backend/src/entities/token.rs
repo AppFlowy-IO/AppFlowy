@@ -1,7 +1,4 @@
-use crate::{
-    config::env::{domain, jwt_secret},
-    entities::user::UserTable,
-};
+use crate::config::env::{domain, jwt_secret};
 use chrono::{Duration, Local};
 use derive_more::{From, Into};
 use flowy_net::errors::ServerError;

@@ -22,7 +22,6 @@ use flowy_user::{
         SignUpResponse,
         UpdateUserParams,
         UserDetail,
-        UserToken,
     },
 };
 use sqlx::{PgPool, Postgres};
@@ -57,8 +56,8 @@ pub async fn sign_in(pool: &PgPool, params: SignInParams) -> Result<SignInRespon
     Ok(response_data)
 }
 
-pub async fn sign_out(params: UserToken) -> Result<FlowyResponse, ServerError> {
-    let _ = AUTHORIZED_USERS.store_auth(LoggedUser::from_token(params.token.clone())?, false)?;
+pub async fn sign_out(logged_user: LoggedUser) -> Result<FlowyResponse, ServerError> {
+    let _ = AUTHORIZED_USERS.store_auth(logged_user, false)?;
     Ok(FlowyResponse::success())
 }
 

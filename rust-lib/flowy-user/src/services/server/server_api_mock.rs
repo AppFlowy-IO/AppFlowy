@@ -4,10 +4,9 @@ use crate::{
     services::user::UserServerAPI,
 };
 
-use crate::entities::{UpdateUserParams, UserToken};
+use crate::entities::UpdateUserParams;
 
 use flowy_infra::future::ResultFuture;
-use std::sync::Arc;
 
 pub struct UserServerMock {}
 
@@ -27,13 +26,12 @@ impl UserServerAPI for UserServerMock {
     }
 
     fn sign_in(&self, params: SignInParams) -> ResultFuture<SignInResponse, UserError> {
-        let uid = params.email.clone();
         ResultFuture::new(async {
             Ok(SignInResponse {
-                uid,
-                name: params.email.clone(),
+                uid: "fake id".to_owned(),
+                name: "fake name".to_owned(),
                 email: params.email,
-                token: "".to_string(),
+                token: "fake token".to_string(),
             })
         })
     }
@@ -42,11 +40,15 @@ impl UserServerAPI for UserServerMock {
         ResultFuture::new(async { Ok(()) })
     }
 
-    fn update_user(&self, _params: UpdateUserParams) -> ResultFuture<(), UserError> {
+    fn update_user(&self, _token: &str, _params: UpdateUserParams) -> ResultFuture<(), UserError> {
         ResultFuture::new(async { Ok(()) })
     }
 
     fn get_user_detail(&self, _token: &str) -> ResultFuture<UserDetail, UserError> {
-        ResultFuture::new(async { Err(ErrorBuilder::new(ErrorCode::Unknown).build()) })
+        ResultFuture::new(async {
+            Err(ErrorBuilder::new(ErrorCode::Unknown)
+                .msg("mock data, ignore this error")
+                .build())
+        })
     }
 }

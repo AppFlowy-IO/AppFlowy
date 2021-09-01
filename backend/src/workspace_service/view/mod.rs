@@ -3,4 +3,4 @@ pub mod router;
 mod view;
 
 pub use builder::*;
-pub use view::*;
+pub(crate) use view::*;

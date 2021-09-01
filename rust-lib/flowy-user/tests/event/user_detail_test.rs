@@ -21,7 +21,6 @@ fn user_detail_get() {
     };
 
     let response = TestBuilder::new()
-        .logout()
         .event(SignIn)
         .request(request)
         .sync_send()

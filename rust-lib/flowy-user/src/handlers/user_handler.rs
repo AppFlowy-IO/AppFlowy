@@ -1,10 +1,6 @@
-use crate::{
-    entities::*,
-    errors::UserError,
-    services::user::{update_user, UserSession},
-};
+use crate::{entities::*, errors::UserError, services::user::UserSession};
 use flowy_dispatch::prelude::*;
-use flowy_infra::future::ResultFuture;
+
 use std::{convert::TryInto, sync::Arc};
 
 #[tracing::instrument(name = "get_user_status", skip(session))]

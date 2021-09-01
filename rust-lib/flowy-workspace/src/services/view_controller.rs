@@ -5,7 +5,7 @@ use crate::{
     observable::{send_observable, WorkspaceObservable},
     sql_tables::view::{ViewTable, ViewTableChangeset, ViewTableSql},
 };
-use flowy_net::{errors::ServerError, request::HttpRequestBuilder};
+use flowy_net::request::HttpRequestBuilder;
 use std::sync::Arc;
 
 pub struct ViewController {

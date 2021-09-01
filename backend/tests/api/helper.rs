@@ -26,9 +26,9 @@ impl TestApp {
         user_sign_in(params, &url).await
     }
 
-    pub async fn sign_out(&self, params: UserToken) {
+    pub async fn sign_out(&self, token: &str) {
         let url = format!("{}/api/auth", self.address);
-        let _ = user_sign_out(params, &url).await.unwrap();
+        let _ = user_sign_out(token, &url).await.unwrap();
     }
 
     pub async fn get_user_detail(&self, token: &str) -> UserDetail {

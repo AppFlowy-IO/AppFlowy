@@ -15,7 +15,7 @@ use crate::user_service::{
 };
 use actix_identity::Identity;
 use flowy_net::{errors::ServerError, response::FlowyResponse};
-use flowy_user::protobuf::{SignInParams, SignUpParams, UpdateUserParams, UserToken};
+use flowy_user::protobuf::{SignInParams, SignUpParams, UpdateUserParams};
 use sqlx::PgPool;
 
 pub async fn sign_in_handler(
@@ -30,11 +30,13 @@ pub async fn sign_in_handler(
     Ok(response.into())
 }
 
-pub async fn sign_out_handler(payload: Payload, id: Identity) -> Result<HttpResponse, ServerError> {
-    let params: UserToken = parse_from_payload(payload).await?;
+pub async fn sign_out_handler(
+    logged_user: LoggedUser,
+    id: Identity,
+) -> Result<HttpResponse, ServerError> {
     id.forget();
 
-    let response = sign_out(params).await?;
+    let response = sign_out(logged_user).await?;
     Ok(response.into())
 }
 

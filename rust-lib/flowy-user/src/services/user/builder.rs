@@ -1,5 +1,4 @@
 use crate::services::user::{UserSession, UserSessionConfig};
-use std::sync::Arc;
 
 pub struct UserSessionBuilder {
     config: Option<UserSessionConfig>,
