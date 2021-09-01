@@ -3,7 +3,7 @@ use backend::{
     config::{get_configuration, DatabaseSettings},
 };
 
-use flowy_user::prelude::*;
+use flowy_user::{errors::UserError, prelude::*};
 use flowy_workspace::prelude::*;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
@@ -21,10 +21,9 @@ impl TestApp {
         resp
     }
 
-    pub async fn sign_in(&self, params: SignInParams) -> SignInResponse {
+    pub async fn sign_in(&self, params: SignInParams) -> Result<SignInResponse, UserError> {
         let url = format!("{}/api/auth", self.address);
-        let resp = user_sign_in(params, &url).await.unwrap();
-        resp
+        user_sign_in(params, &url).await
     }
 
     pub async fn sign_out(&self, params: UserToken) {
@@ -32,10 +31,19 @@ impl TestApp {
         let _ = user_sign_out(params, &url).await.unwrap();
     }
 
-    pub async fn get_user_detail(&self, params: UserToken) -> UserDetail {
-        let url = format!("{}/api/auth", self.address);
-        let user_detail = get_user_detail(params, &url).await.unwrap();
+    pub async fn get_user_detail(&self, token: &str) -> UserDetail {
+        let url = format!("{}/api/user", self.address);
+        let user_detail = get_user_detail(token, &url).await.unwrap();
         user_detail
+    }
+
+    pub async fn update_user_detail(
+        &self,
+        token: &str,
+        params: UpdateUserParams,
+    ) -> Result<(), UserError> {
+        let url = format!("{}/api/user", self.address);
+        update_user_detail(token, params, &url).await
     }
 
     pub async fn create_workspace(&self, params: CreateWorkspaceParams) -> Workspace {

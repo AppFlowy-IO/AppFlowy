@@ -23,6 +23,7 @@ enum ErrorCode {
     PasswordTooLong = 31;
     PasswordContainsForbidCharacters = 32;
     PasswordFormatInvalid = 33;
+    PasswordNotMatch = 34;
     UserNameTooLong = 40;
     UserNameContainsForbiddenCharacters = 41;
     UserNameIsEmpty = 42;

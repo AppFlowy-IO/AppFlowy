@@ -98,12 +98,13 @@ pub async fn read_app_request(
     let result = HttpRequestBuilder::get(&url.to_owned())
         .protobuf(params)?
         .send()
-        .await?
-        .response::<App>()
         .await;
 
     match result {
-        Ok(app) => Ok(Some(app)),
+        Ok(builder) => {
+            let app = builder.response::<App>().await?;
+            Ok(Some(app))
+        },
         Err(e) => {
             if e.is_not_found() {
                 Ok(None)

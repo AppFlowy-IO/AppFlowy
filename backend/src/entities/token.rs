@@ -20,22 +20,22 @@ pub struct Claim {
     iat: i64,
     // expiry
     exp: i64,
-    email: String,
+    user_id: String,
 }
 
 impl Claim {
-    pub fn with_email(email: &str) -> Self {
+    pub fn with_user_id(user_id: &str) -> Self {
         let domain = domain();
         Self {
             iss: domain,
             sub: "auth".to_string(),
-            email: email.to_string(),
+            user_id: user_id.to_string(),
             iat: Local::now().timestamp(),
             exp: (Local::now() + Duration::hours(24)).timestamp(),
         }
     }
 
-    pub fn get_email(self) -> String { self.email }
+    pub fn get_user_id(self) -> String { self.user_id }
 }
 
 // impl From<Claim> for User {
@@ -45,8 +45,8 @@ impl Claim {
 #[derive(From, Into, Clone)]
 pub struct Token(String);
 impl Token {
-    pub fn create_token(data: &str) -> Result<Self, ServerError> {
-        let claims = Claim::with_email(&data);
+    pub fn create_token(user_id: &str) -> Result<Self, ServerError> {
+        let claims = Claim::with_user_id(&user_id);
         encode(
             &Header::new(DEFAULT_ALGORITHM),
             &claims,

@@ -37,12 +37,11 @@ const UserDetail$json = const {
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'email', '3': 2, '4': 1, '5': 9, '10': 'email'},
     const {'1': 'name', '3': 3, '4': 1, '5': 9, '10': 'name'},
-    const {'1': 'token', '3': 4, '4': 1, '5': 9, '10': 'token'},
   ],
 };
 
 /// Descriptor for `UserDetail`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List userDetailDescriptor = $convert.base64Decode('CgpVc2VyRGV0YWlsEg4KAmlkGAEgASgJUgJpZBIUCgVlbWFpbBgCIAEoCVIFZW1haWwSEgoEbmFtZRgDIAEoCVIEbmFtZRIUCgV0b2tlbhgEIAEoCVIFdG9rZW4=');
+final $typed_data.Uint8List userDetailDescriptor = $convert.base64Decode('CgpVc2VyRGV0YWlsEg4KAmlkGAEgASgJUgJpZBIUCgVlbWFpbBgCIAEoCVIFZW1haWwSEgoEbmFtZRgDIAEoCVIEbmFtZQ==');
 @$core.Deprecated('Use updateUserRequestDescriptor instead')
 const UpdateUserRequest$json = const {
   '1': 'UpdateUserRequest',

@@ -4,6 +4,8 @@ use chrono::{DateTime, Utc};
 use dashmap::DashMap;
 use flowy_net::errors::ServerError;
 
+use actix_http::header::ToStrError;
+use actix_web::http::HeaderValue;
 use lazy_static::lazy_static;
 
 lazy_static! {
@@ -12,22 +14,35 @@ lazy_static! {
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct LoggedUser {
-    pub email: String,
+    user_id: String,
 }
 
 impl std::convert::From<Claim> for LoggedUser {
     fn from(c: Claim) -> Self {
         Self {
-            email: c.get_email(),
+            user_id: c.get_user_id(),
         }
     }
 }
 
-impl std::convert::From<String> for LoggedUser {
-    fn from(email: String) -> Self { Self { email } }
+impl std::convert::TryFrom<&HeaderValue> for LoggedUser {
+    type Error = ServerError;
+
+    fn try_from(header: &HeaderValue) -> Result<Self, Self::Error> {
+        match header.to_str() {
+            Ok(val) => LoggedUser::from_token(val.to_owned()),
+            Err(_) => Err(ServerError::unauthorized()),
+        }
+    }
 }
 
 impl LoggedUser {
+    pub fn new(user_id: &str) -> Self {
+        Self {
+            user_id: user_id.to_owned(),
+        }
+    }
+
     pub fn from_token(token: String) -> Result<Self, ServerError> {
         let user: LoggedUser = Token::decode_token(&token.into())?.into();
         match AUTHORIZED_USERS.is_authorized(&user) {
@@ -35,25 +50,33 @@ impl LoggedUser {
             false => Err(ServerError::unauthorized()),
         }
     }
+
+    pub fn get_user_id(&self) -> Result<uuid::Uuid, ServerError> {
+        let id = uuid::Uuid::parse_str(&self.user_id)?;
+        Ok(id)
+    }
 }
 
-// use futures::{
-//     executor::block_on,
-//     future::{ready, Ready},
-// };
-// impl FromRequest for LoggedUser {
-//     type Config = ();
-//     type Error = ServerError;
-//     type Future = Ready<Result<Self, Self::Error>>;
-//
-//     fn from_request(_req: &HttpRequest, payload: &mut Payload) ->
-// Self::Future {         let result: Result<SignOutParams, ServerError> =
-// block_on(parse_from_dev_payload(payload));         match result {
-//             Ok(params) => ready(LoggedUser::from_token(params.token)),
-//             Err(e) => ready(Err(e)),
-//         }
-//     }
-// }
+use actix_web::{dev::Payload, FromRequest, HttpRequest};
+use flowy_net::config::HEADER_TOKEN;
+use futures::{
+    executor::block_on,
+    future::{ready, Ready},
+};
+use std::convert::TryInto;
+
+impl FromRequest for LoggedUser {
+    type Config = ();
+    type Error = ServerError;
+    type Future = Ready<Result<Self, Self::Error>>;
+
+    fn from_request(request: &HttpRequest, _payload: &mut Payload) -> Self::Future {
+        match request.headers().get(HEADER_TOKEN) {
+            Some(header) => ready(header.try_into()),
+            None => ready(Err(ServerError::unauthorized())),
+        }
+    }
+}
 
 #[derive(Clone, Debug, Copy)]
 enum AuthStatus {

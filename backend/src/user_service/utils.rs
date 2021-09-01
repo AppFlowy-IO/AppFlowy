@@ -12,6 +12,11 @@ pub fn hash_password(plain: &str) -> Result<String, ServerError> {
     hash(plain, hashing_cost).map_err(|e| ServerError::internal().context(e))
 }
 
+// The Source is the password user enter. The hash is the source after hashing.
+// let source = "123";
+// let hash = hash_password(source).unwrap();
+//
+// verify_password(source, hash)
 pub fn verify_password(source: &str, hash: &str) -> Result<bool, ServerError> {
     match verify(source, hash) {
         Ok(true) => Ok(true),

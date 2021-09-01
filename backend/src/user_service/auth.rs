@@ -6,15 +6,24 @@ use crate::{
     workspace_service::user_default::create_default_workspace,
 };
 
+use crate::sqlx_ext::{map_sqlx_error, SqlBuilder};
 use anyhow::Context;
 use chrono::Utc;
 use flowy_net::{
-    errors::{ErrorCode, ServerError},
+    errors::{invalid_params, ErrorCode, ServerError},
     response::FlowyResponse,
 };
 use flowy_user::{
     entities::parser::{UserEmail, UserName, UserPassword},
-    protobuf::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UserDetail},
+    protobuf::{
+        SignInParams,
+        SignInResponse,
+        SignUpParams,
+        SignUpResponse,
+        UpdateUserParams,
+        UserDetail,
+        UserToken,
+    },
 };
 use sqlx::{PgPool, Postgres};
 
@@ -29,27 +38,23 @@ pub async fn sign_in(pool: &PgPool, params: SignInParams) -> Result<SignInRespon
         .await
         .context("Failed to acquire a Postgres connection to sign in")?;
 
-    let user = read_user(&mut transaction, &email.0).await?;
+    let user = check_user_password(&mut transaction, email.as_ref(), password.as_ref()).await?;
     transaction
         .commit()
         .await
         .context("Failed to commit SQL transaction to sign in.")?;
 
-    match verify_password(&password.0, &user.password) {
-        Ok(true) => {
-            let token = Token::create_token(&user.email)?;
-            let _ = AUTHORIZED_USERS.store_auth(user.email.clone().into(), true)?;
+    let token = Token::create_token(&user.id.to_string())?;
+    let logged_user = LoggedUser::new(&user.id.to_string());
 
-            let mut response_data = SignInResponse::default();
-            response_data.set_uid(user.id.to_string());
-            response_data.set_name(user.name);
-            response_data.set_email(user.email);
-            response_data.set_token(token.clone().into());
+    let _ = AUTHORIZED_USERS.store_auth(logged_user, true)?;
+    let mut response_data = SignInResponse::default();
+    response_data.set_uid(user.id.to_string());
+    response_data.set_name(user.name);
+    response_data.set_email(user.email);
+    response_data.set_token(token.clone().into());
 
-            Ok(response_data)
-        },
-        _ => Err(ServerError::password_not_match()),
-    }
+    Ok(response_data)
 }
 
 pub async fn sign_out(params: UserToken) -> Result<FlowyResponse, ServerError> {
@@ -83,7 +88,8 @@ pub async fn register_user(
     .await
     .context("Failed to insert user")?;
 
-    let _ = AUTHORIZED_USERS.store_auth(email.as_ref().to_string().into(), true)?;
+    let logged_user = LoggedUser::new(&response_data.uid);
+    let _ = AUTHORIZED_USERS.store_auth(logged_user, true)?;
     let _ = create_default_workspace(&mut transaction, response_data.get_uid()).await?;
 
     transaction
@@ -96,15 +102,20 @@ pub async fn register_user(
 
 pub(crate) async fn get_user_details(
     pool: &PgPool,
-    token: &str,
+    logged_user: LoggedUser,
 ) -> Result<FlowyResponse, ServerError> {
-    let logged_user = LoggedUser::from_token(token.to_owned().into())?;
     let mut transaction = pool
         .begin()
         .await
         .context("Failed to acquire a Postgres connection to get user detail")?;
 
-    let user_table = read_user(&mut transaction, &logged_user.email).await?;
+    let id = logged_user.get_user_id()?;
+    let user_table =
+        sqlx::query_as::<Postgres, UserTable>("SELECT * FROM user_table WHERE id = $1")
+            .bind(id)
+            .fetch_one(&mut transaction)
+            .await
+            .map_err(|err| ServerError::internal().context(err))?;
 
     transaction
         .commit()
@@ -115,10 +126,68 @@ pub(crate) async fn get_user_details(
     let _ = AUTHORIZED_USERS.store_auth(logged_user, true)?;
 
     let mut user_detail = UserDetail::default();
+    user_detail.set_id(user_table.id.to_string());
     user_detail.set_email(user_table.email);
     user_detail.set_name(user_table.name);
-    user_detail.set_token(token.to_owned());
     FlowyResponse::success().pb(user_detail)
+}
+
+pub(crate) async fn set_user_detail(
+    pool: &PgPool,
+    logged_user: LoggedUser,
+    params: UpdateUserParams,
+) -> Result<FlowyResponse, ServerError> {
+    let mut transaction = pool
+        .begin()
+        .await
+        .context("Failed to acquire a Postgres connection to update user profile")?;
+
+    let name = match params.has_name() {
+        false => None,
+        true => Some(
+            UserName::parse(params.get_name().to_owned())
+                .map_err(invalid_params)?
+                .0,
+        ),
+    };
+
+    let email = match params.has_email() {
+        false => None,
+        true => Some(
+            UserEmail::parse(params.get_email().to_owned())
+                .map_err(invalid_params)?
+                .0,
+        ),
+    };
+
+    let password = match params.has_password() {
+        false => None,
+        true => {
+            let password =
+                UserPassword::parse(params.get_password().to_owned()).map_err(invalid_params)?;
+            let password = hash_password(password.as_ref())?;
+            Some(password)
+        },
+    };
+
+    let (sql, args) = SqlBuilder::update("user_table")
+        .add_some_arg("name", name)
+        .add_some_arg("email", email)
+        .add_some_arg("password", password)
+        .and_where_eq("id", &logged_user.get_user_id()?)
+        .build()?;
+
+    sqlx::query_with(&sql, args)
+        .execute(&mut transaction)
+        .await
+        .map_err(map_sqlx_error)?;
+
+    transaction
+        .commit()
+        .await
+        .context("Failed to commit SQL transaction to update user profile.")?;
+
+    Ok(FlowyResponse::success())
 }
 
 async fn is_email_exist(
@@ -140,9 +209,10 @@ async fn is_email_exist(
     }
 }
 
-async fn read_user(
+async fn check_user_password(
     transaction: &mut DBTransaction<'_>,
     email: &str,
+    password: &str,
 ) -> Result<UserTable, ServerError> {
     let user = sqlx::query_as::<Postgres, UserTable>("SELECT * FROM user_table WHERE email = $1")
         .bind(email)
@@ -150,7 +220,10 @@ async fn read_user(
         .await
         .map_err(|err| ServerError::internal().context(err))?;
 
-    Ok(user)
+    match verify_password(&password, &user.password) {
+        Ok(true) => Ok(user),
+        _ => Err(ServerError::password_not_match()),
+    }
 }
 
 async fn insert_new_user(
@@ -159,8 +232,8 @@ async fn insert_new_user(
     email: &str,
     password: &str,
 ) -> Result<SignUpResponse, ServerError> {
-    let token = Token::create_token(email)?;
     let uuid = uuid::Uuid::new_v4();
+    let token = Token::create_token(&uuid.to_string())?;
     let password = hash_password(password)?;
     let _ = sqlx::query!(
         r#"

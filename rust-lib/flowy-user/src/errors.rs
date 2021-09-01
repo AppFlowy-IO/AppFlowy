@@ -2,6 +2,7 @@ use bytes::Bytes;
 use derive_more::Display;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_dispatch::prelude::{EventResponse, ResponseBuilder};
+use flowy_net::errors::ServerError;
 use std::{
     convert::TryInto,
     fmt::{Debug, Formatter},
@@ -69,6 +70,8 @@ pub enum ErrorCode {
         fmt = "Password should contain a minimum of 6 characters with 1 special 1 letter and 1 numeric"
     )]
     PasswordFormatInvalid = 33,
+    #[display(fmt = "Password not match")]
+    PasswordNotMatch     = 34,
 
     #[display(fmt = "User name is too long")]
     UserNameTooLong      = 40,
@@ -158,9 +161,16 @@ impl std::convert::From<flowy_sqlite::Error> for UserError {
 
 impl std::convert::From<flowy_net::errors::ServerError> for UserError {
     fn from(error: flowy_net::errors::ServerError) -> Self {
-        ErrorBuilder::new(ErrorCode::ServerError)
-            .error(error.msg)
-            .build()
+        match error.code {
+            flowy_net::errors::ErrorCode::PasswordNotMatch => {
+                ErrorBuilder::new(ErrorCode::PasswordNotMatch)
+                    .error(error.msg)
+                    .build()
+            },
+            _ => ErrorBuilder::new(ErrorCode::ServerError)
+                .error(error.msg)
+                .build(),
+        }
     }
 }
 

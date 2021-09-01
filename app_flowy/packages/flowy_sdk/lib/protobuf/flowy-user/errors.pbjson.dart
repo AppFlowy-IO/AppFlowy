@@ -30,6 +30,7 @@ const ErrorCode$json = const {
     const {'1': 'PasswordTooLong', '2': 31},
     const {'1': 'PasswordContainsForbidCharacters', '2': 32},
     const {'1': 'PasswordFormatInvalid', '2': 33},
+    const {'1': 'PasswordNotMatch', '2': 34},
     const {'1': 'UserNameTooLong', '2': 40},
     const {'1': 'UserNameContainsForbiddenCharacters', '2': 41},
     const {'1': 'UserNameIsEmpty', '2': 42},
@@ -42,7 +43,7 @@ const ErrorCode$json = const {
 };
 
 /// Descriptor for `ErrorCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List errorCodeDescriptor = $convert.base64Decode('CglFcnJvckNvZGUSCwoHVW5rbm93bhAAEhoKFlVzZXJEYXRhYmFzZUluaXRGYWlsZWQQARIbChdVc2VyRGF0YWJhc2VXcml0ZUxvY2tlZBACEhoKFlVzZXJEYXRhYmFzZVJlYWRMb2NrZWQQAxIbChdVc2VyRGF0YWJhc2VEaWROb3RNYXRjaBAEEh0KGVVzZXJEYXRhYmFzZUludGVybmFsRXJyb3IQBRIUChBTcWxJbnRlcm5hbEVycm9yEAYSGAoURGF0YWJhc2VDb25uZWN0RXJyb3IQBxITCg9Vc2VyTm90TG9naW5ZZXQQChIXChNSZWFkQ3VycmVudElkRmFpbGVkEAsSGAoUV3JpdGVDdXJyZW50SWRGYWlsZWQQDBIQCgxFbWFpbElzRW1wdHkQFBIWChJFbWFpbEZvcm1hdEludmFsaWQQFRIWChJFbWFpbEFscmVhZHlFeGlzdHMQFhITCg9QYXNzd29yZElzRW1wdHkQHhITCg9QYXNzd29yZFRvb0xvbmcQHxIkCiBQYXNzd29yZENvbnRhaW5zRm9yYmlkQ2hhcmFjdGVycxAgEhkKFVBhc3N3b3JkRm9ybWF0SW52YWxpZBAhEhMKD1VzZXJOYW1lVG9vTG9uZxAoEicKI1VzZXJOYW1lQ29udGFpbnNGb3JiaWRkZW5DaGFyYWN0ZXJzECkSEwoPVXNlck5hbWVJc0VtcHR5ECoSGAoUVXNlcldvcmtzcGFjZUludmFsaWQQMhIRCg1Vc2VySWRJbnZhbGlkEDMSIAocQ3JlYXRlRGVmYXVsdFdvcmtzcGFjZUZhaWxlZBA0EiAKHERlZmF1bHRXb3Jrc3BhY2VBbHJlYWR5RXhpc3QQNRIPCgtTZXJ2ZXJFcnJvchBk');
+final $typed_data.Uint8List errorCodeDescriptor = $convert.base64Decode('CglFcnJvckNvZGUSCwoHVW5rbm93bhAAEhoKFlVzZXJEYXRhYmFzZUluaXRGYWlsZWQQARIbChdVc2VyRGF0YWJhc2VXcml0ZUxvY2tlZBACEhoKFlVzZXJEYXRhYmFzZVJlYWRMb2NrZWQQAxIbChdVc2VyRGF0YWJhc2VEaWROb3RNYXRjaBAEEh0KGVVzZXJEYXRhYmFzZUludGVybmFsRXJyb3IQBRIUChBTcWxJbnRlcm5hbEVycm9yEAYSGAoURGF0YWJhc2VDb25uZWN0RXJyb3IQBxITCg9Vc2VyTm90TG9naW5ZZXQQChIXChNSZWFkQ3VycmVudElkRmFpbGVkEAsSGAoUV3JpdGVDdXJyZW50SWRGYWlsZWQQDBIQCgxFbWFpbElzRW1wdHkQFBIWChJFbWFpbEZvcm1hdEludmFsaWQQFRIWChJFbWFpbEFscmVhZHlFeGlzdHMQFhITCg9QYXNzd29yZElzRW1wdHkQHhITCg9QYXNzd29yZFRvb0xvbmcQHxIkCiBQYXNzd29yZENvbnRhaW5zRm9yYmlkQ2hhcmFjdGVycxAgEhkKFVBhc3N3b3JkRm9ybWF0SW52YWxpZBAhEhQKEFBhc3N3b3JkTm90TWF0Y2gQIhITCg9Vc2VyTmFtZVRvb0xvbmcQKBInCiNVc2VyTmFtZUNvbnRhaW5zRm9yYmlkZGVuQ2hhcmFjdGVycxApEhMKD1VzZXJOYW1lSXNFbXB0eRAqEhgKFFVzZXJXb3Jrc3BhY2VJbnZhbGlkEDISEQoNVXNlcklkSW52YWxpZBAzEiAKHENyZWF0ZURlZmF1bHRXb3Jrc3BhY2VGYWlsZWQQNBIgChxEZWZhdWx0V29ya3NwYWNlQWxyZWFkeUV4aXN0EDUSDwoLU2VydmVyRXJyb3IQZA==');
 @$core.Deprecated('Use userErrorDescriptor instead')
 const UserError$json = const {
   '1': 'UserError',

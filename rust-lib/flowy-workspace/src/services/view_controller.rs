@@ -5,7 +5,7 @@ use crate::{
     observable::{send_observable, WorkspaceObservable},
     sql_tables::view::{ViewTable, ViewTableChangeset, ViewTableSql},
 };
-use flowy_net::request::HttpRequestBuilder;
+use flowy_net::{errors::ServerError, request::HttpRequestBuilder};
 use std::sync::Arc;
 
 pub struct ViewController {
@@ -83,12 +83,13 @@ pub async fn read_view_request(
     let result = HttpRequestBuilder::get(&url.to_owned())
         .protobuf(params)?
         .send()
-        .await?
-        .response::<View>()
         .await;
 
     match result {
-        Ok(view) => Ok(Some(view)),
+        Ok(builder) => {
+            let view = builder.response::<View>().await?;
+            Ok(Some(view))
+        },
         Err(e) => {
             if e.is_not_found() {
                 Ok(None)

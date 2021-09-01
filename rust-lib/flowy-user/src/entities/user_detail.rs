@@ -27,9 +27,6 @@ pub struct UserDetail {
 
     #[pb(index = 3)]
     pub name: String,
-
-    #[pb(index = 4)]
-    pub token: String,
 }
 
 use crate::{
@@ -45,7 +42,6 @@ impl std::convert::From<UserTable> for UserDetail {
             id: user.id,
             email: user.email,
             name: user.name,
-            token: user.token,
         }
     }
 }
@@ -91,6 +87,7 @@ impl UpdateUserRequest {
 
 #[derive(ProtoBuf, Default)]
 pub struct UpdateUserParams {
+    // TODO: remove user id
     #[pb(index = 1)]
     pub id: String,
 
@@ -102,6 +99,30 @@ pub struct UpdateUserParams {
 
     #[pb(index = 4, one_of)]
     pub password: Option<String>,
+}
+
+impl UpdateUserParams {
+    pub fn new(user_id: &str) -> Self {
+        Self {
+            id: user_id.to_owned(),
+            ..Default::default()
+        }
+    }
+
+    pub fn name(mut self, name: &str) -> Self {
+        self.name = Some(name.to_owned());
+        self
+    }
+
+    pub fn email(mut self, email: &str) -> Self {
+        self.email = Some(email.to_owned());
+        self
+    }
+
+    pub fn password(mut self, password: &str) -> Self {
+        self.password = Some(password.to_owned());
+        self
+    }
 }
 
 impl TryInto<UpdateUserParams> for UpdateUserRequest {

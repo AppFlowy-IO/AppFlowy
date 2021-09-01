@@ -13,7 +13,7 @@ use flowy_database::{
     UserDatabaseConnection,
 };
 
-use crate::entities::UserToken;
+use crate::{entities::UserToken, services::server::Server};
 use flowy_infra::kv::KVStore;
 use flowy_sqlite::ConnectionPool;
 use parking_lot::RwLock;
@@ -33,13 +33,11 @@ impl UserSessionConfig {
     }
 }
 
-type Server = Arc<dyn UserServerAPI + Send + Sync>;
-
 pub struct UserSession {
     database: UserDB,
     config: UserSessionConfig,
     #[allow(dead_code)]
-    pub(crate) server: Server,
+    server: Server,
     session: RwLock<Option<Session>>,
 }
 
@@ -90,30 +88,20 @@ impl UserSession {
     }
 
     pub async fn sign_out(&self) -> Result<(), UserError> {
-        let user_detail = self.user_detail().await?;
-
-        match self.server.sign_out(&user_detail.token).await {
+        let session = self.get_session()?;
+        match self.server.sign_out(&session.token).await {
             Ok(_) => {},
             Err(e) => log::error!("Sign out failed: {:?}", e),
         }
 
         let conn = self.get_db_connection()?;
         let _ =
-            diesel::delete(dsl::user_table.filter(dsl::id.eq(&user_detail.id))).execute(&*conn)?;
-        let _ = self.server.sign_out(&user_detail.id);
-        let _ = self.database.close_user_db(&user_detail.id)?;
+            diesel::delete(dsl::user_table.filter(dsl::id.eq(&session.user_id))).execute(&*conn)?;
+        let _ = self.server.sign_out(&session.token);
+        let _ = self.database.close_user_db(&session.user_id)?;
         let _ = self.set_session(None)?;
 
         Ok(())
-    }
-
-    async fn save_user(&self, user: UserTable) -> Result<UserTable, UserError> {
-        let conn = self.get_db_connection()?;
-        let _ = diesel::insert_into(user_table::table)
-            .values(user.clone())
-            .execute(&*conn)?;
-
-        Ok(user)
     }
 
     pub async fn update_user(&self, params: UpdateUserParams) -> Result<(), UserError> {
@@ -153,6 +141,24 @@ impl UserSession {
         Ok(format!("{}/{}", self.config.root_dir, session.user_id))
     }
 
+    pub fn user_id(&self) -> Result<String, UserError> { Ok(self.get_session()?.user_id) }
+
+    // pub fn user_token(&self) -> Result<String, UserError> {
+    //     let user_detail = self.user_detail()?;
+    //     Ok(user_detail.token)
+    // }
+}
+
+impl UserSession {
+    async fn save_user(&self, user: UserTable) -> Result<UserTable, UserError> {
+        let conn = self.get_db_connection()?;
+        let _ = diesel::insert_into(user_table::table)
+            .values(user.clone())
+            .execute(&*conn)?;
+
+        Ok(user)
+    }
+
     fn set_session(&self, session: Option<Session>) -> Result<(), UserError> {
         log::trace!("Update user session: {:?}", session);
         match &session {
@@ -185,11 +191,6 @@ impl UserSession {
             Some(session) => Ok(session),
         }
     }
-
-    // pub fn user_token(&self) -> Result<String, UserError> {
-    //     let user_detail = self.user_detail()?;
-    //     Ok(user_detail.token)
-    // }
 }
 
 pub async fn update_user(
@@ -238,7 +239,7 @@ impl std::convert::From<String> for Session {
         match serde_json::from_str(&s) {
             Ok(s) => s,
             Err(e) => {
-                log::error!("{Deserialize string to Session failed: {:?}", e"}");
+                log::error!("Deserialize string to Session failed: {:?}", e);
                 Session::default()
             },
         }
@@ -250,7 +251,7 @@ impl std::convert::Into<String> for Session {
         match serde_json::to_string(&self) {
             Ok(s) => s,
             Err(e) => {
-                log::error!("{Serialize session to string failed: {:?}", e"}");
+                log::error!("Serialize session to string failed: {:?}", e);
                 "".to_string()
             },
         }

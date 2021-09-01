@@ -4,7 +4,7 @@ use crate::{
     services::user::UserServerAPI,
 };
 
-use crate::entities::UserToken;
+use crate::entities::{UpdateUserParams, UserToken};
 
 use flowy_infra::future::ResultFuture;
 use std::sync::Arc;
@@ -39,6 +39,10 @@ impl UserServerAPI for UserServerMock {
     }
 
     fn sign_out(&self, _token: &str) -> ResultFuture<(), UserError> {
+        ResultFuture::new(async { Ok(()) })
+    }
+
+    fn update_user(&self, _params: UpdateUserParams) -> ResultFuture<(), UserError> {
         ResultFuture::new(async { Ok(()) })
     }
 

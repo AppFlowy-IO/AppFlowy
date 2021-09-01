@@ -2,7 +2,7 @@ use crate::{errors::ServerError, response::FlowyResponse};
 use bytes::Bytes;
 use hyper::http;
 use protobuf::ProtobufError;
-use reqwest::{Client, Method, Response};
+use reqwest::{header::HeaderMap, Client, Method, Response};
 use std::{
     convert::{TryFrom, TryInto},
     time::Duration,
@@ -12,7 +12,8 @@ use tokio::sync::oneshot;
 pub struct HttpRequestBuilder {
     url: String,
     body: Option<Bytes>,
-    response: Option<Response>,
+    response: Option<Bytes>,
+    headers: HeaderMap,
     method: Method,
 }
 
@@ -22,6 +23,7 @@ impl HttpRequestBuilder {
             url: url.to_owned(),
             body: None,
             response: None,
+            headers: HeaderMap::new(),
             method: Method::GET,
         }
     }
@@ -50,6 +52,11 @@ impl HttpRequestBuilder {
         builder
     }
 
+    pub fn header(mut self, key: &'static str, value: &str) -> Self {
+        self.headers.insert(key, value.parse().unwrap());
+        self
+    }
+
     pub fn protobuf<T1>(self, body: T1) -> Result<Self, ServerError>
     where
         T1: TryInto<Bytes, Error = ProtobufError>,
@@ -68,11 +75,12 @@ impl HttpRequestBuilder {
         let url = self.url.clone();
         let body = self.body.take();
         let method = self.method.clone();
+        let headers = self.headers.clone();
 
         // reqwest client is not 'Sync' by channel is.
         tokio::spawn(async move {
             let client = default_client();
-            let mut builder = client.request(method, url);
+            let mut builder = client.request(method, url).headers(headers);
 
             if let Some(body) = body {
                 builder = builder.body(body);
@@ -88,8 +96,14 @@ impl HttpRequestBuilder {
         });
 
         let response = rx.await??;
-        self.response = Some(response);
-        Ok(self)
+
+        match get_response_data(response).await {
+            Ok(bytes) => {
+                self.response = Some(bytes);
+                Ok(self)
+            },
+            Err(error) => Err(error),
+        }
     }
 
     pub async fn response<T2>(self) -> Result<T2, ServerError>
@@ -101,10 +115,7 @@ impl HttpRequestBuilder {
                 let msg = format!("Request: {} receives unexpected empty body", self.url);
                 Err(ServerError::payload_none().context(msg))
             },
-            Some(response) => {
-                let data = get_response_data(response).await?;
-                Ok(T2::try_from(data)?)
-            },
+            Some(data) => Ok(T2::try_from(data)?),
         }
     }
 }

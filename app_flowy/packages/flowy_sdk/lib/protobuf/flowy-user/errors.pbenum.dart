@@ -28,6 +28,7 @@ class ErrorCode extends $pb.ProtobufEnum {
   static const ErrorCode PasswordTooLong = ErrorCode._(31, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'PasswordTooLong');
   static const ErrorCode PasswordContainsForbidCharacters = ErrorCode._(32, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'PasswordContainsForbidCharacters');
   static const ErrorCode PasswordFormatInvalid = ErrorCode._(33, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'PasswordFormatInvalid');
+  static const ErrorCode PasswordNotMatch = ErrorCode._(34, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'PasswordNotMatch');
   static const ErrorCode UserNameTooLong = ErrorCode._(40, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNameTooLong');
   static const ErrorCode UserNameContainsForbiddenCharacters = ErrorCode._(41, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNameContainsForbiddenCharacters');
   static const ErrorCode UserNameIsEmpty = ErrorCode._(42, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNameIsEmpty');
@@ -56,6 +57,7 @@ class ErrorCode extends $pb.ProtobufEnum {
     PasswordTooLong,
     PasswordContainsForbidCharacters,
     PasswordFormatInvalid,
+    PasswordNotMatch,
     UserNameTooLong,
     UserNameContainsForbiddenCharacters,
     UserNameIsEmpty,

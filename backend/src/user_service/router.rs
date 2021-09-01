@@ -5,10 +5,17 @@ use actix_web::{
     HttpResponse,
 };
 
-use crate::user_service::{get_user_details, register_user, sign_in, sign_out};
+use crate::user_service::{
+    get_user_details,
+    register_user,
+    set_user_detail,
+    sign_in,
+    sign_out,
+    LoggedUser,
+};
 use actix_identity::Identity;
 use flowy_net::{errors::ServerError, response::FlowyResponse};
-use flowy_user::protobuf::{SignInParams, SignUpParams, UserToken};
+use flowy_user::protobuf::{SignInParams, SignUpParams, UpdateUserParams, UserToken};
 use sqlx::PgPool;
 
 pub async fn sign_in_handler(
@@ -31,12 +38,21 @@ pub async fn sign_out_handler(payload: Payload, id: Identity) -> Result<HttpResp
     Ok(response.into())
 }
 
-pub async fn user_detail_handler(
-    payload: Payload,
+pub async fn get_user_detail_handler(
+    logged_user: LoggedUser,
     pool: Data<PgPool>,
 ) -> Result<HttpResponse, ServerError> {
-    let params: QueryUserDetailParams = parse_from_payload(payload).await?;
-    let response = get_user_details(pool.get_ref(), &params.token).await?;
+    let response = get_user_details(pool.get_ref(), logged_user).await?;
+    Ok(response.into())
+}
+
+pub async fn set_user_detail_handler(
+    logged_user: LoggedUser,
+    pool: Data<PgPool>,
+    payload: Payload,
+) -> Result<HttpResponse, ServerError> {
+    let params: UpdateUserParams = parse_from_payload(payload).await?;
+    let response = set_user_detail(pool.get_ref(), logged_user, params).await?;
     Ok(response.into())
 }
 
