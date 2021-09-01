@@ -1,11 +1,16 @@
 use crate::{
-    entities::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UserDetail},
+    entities::{
+        SignInParams,
+        SignInResponse,
+        SignUpParams,
+        SignUpResponse,
+        UpdateUserParams,
+        UserDetail,
+    },
     errors::{ErrorBuilder, ErrorCode, UserError},
-    services::user::UserServerAPI,
 };
 
-use crate::entities::UpdateUserParams;
-
+use crate::services::server::UserServerAPI;
 use flowy_infra::{future::ResultFuture, uuid};
 
 pub struct UserServerMock {}

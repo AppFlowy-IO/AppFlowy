@@ -33,3 +33,6 @@ bytes = { version = "1.0" }
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }
 serial_test = "0.5.1"
+
+[features]
+http_server = []

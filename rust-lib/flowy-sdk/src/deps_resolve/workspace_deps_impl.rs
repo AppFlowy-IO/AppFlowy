@@ -19,6 +19,14 @@ impl WorkspaceUser for WorkspaceUserImpl {
                 .build()
         })
     }
+
+    fn token(&self) -> Result<String, WorkspaceError> {
+        self.user_session.token().map_err(|e| {
+            ErrorBuilder::new(ErrorCode::UserInternalError)
+                .error(e)
+                .build()
+        })
+    }
 }
 
 pub struct WorkspaceDatabaseImpl {

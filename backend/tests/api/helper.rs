@@ -17,23 +17,23 @@ pub struct TestApp {
 impl TestApp {
     pub async fn register_user(&self, params: SignUpParams) -> SignUpResponse {
         let url = format!("{}/api/register", self.address);
-        let resp = user_sign_up(params, &url).await.unwrap();
+        let resp = user_sign_up_request(params, &url).await.unwrap();
         resp
     }
 
     pub async fn sign_in(&self, params: SignInParams) -> Result<SignInResponse, UserError> {
         let url = format!("{}/api/auth", self.address);
-        user_sign_in(params, &url).await
+        user_sign_in_request(params, &url).await
     }
 
     pub async fn sign_out(&self, token: &str) {
         let url = format!("{}/api/auth", self.address);
-        let _ = user_sign_out(token, &url).await.unwrap();
+        let _ = user_sign_out_request(token, &url).await.unwrap();
     }
 
     pub async fn get_user_detail(&self, token: &str) -> UserDetail {
         let url = format!("{}/api/user", self.address);
-        let user_detail = get_user_detail(token, &url).await.unwrap();
+        let user_detail = get_user_detail_request(token, &url).await.unwrap();
         user_detail
     }
 
@@ -43,7 +43,7 @@ impl TestApp {
         params: UpdateUserParams,
     ) -> Result<(), UserError> {
         let url = format!("{}/api/user", self.address);
-        update_user_detail(token, params, &url).await
+        update_user_detail_request(token, params, &url).await
     }
 
     pub async fn create_workspace(&self, params: CreateWorkspaceParams) -> Workspace {

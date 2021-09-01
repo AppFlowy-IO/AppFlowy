@@ -7,6 +7,7 @@ import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+// ignore: must_be_immutable
 class EditorPage extends StatelessWidget {
   final FocusNode _focusNode = FocusNode();
   late EditorController controller;

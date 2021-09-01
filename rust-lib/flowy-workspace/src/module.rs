@@ -7,13 +7,17 @@ use crate::{
 };
 use flowy_database::DBConnection;
 
-use crate::{handlers::*, services::ViewController};
+use crate::{
+    handlers::*,
+    services::{server::construct_workspace_server, ViewController},
+};
 use std::sync::Arc;
 
 pub trait WorkspaceDeps: WorkspaceUser + WorkspaceDatabase {}
 
 pub trait WorkspaceUser: Send + Sync {
     fn user_id(&self) -> Result<String, WorkspaceError>;
+    fn token(&self) -> Result<String, WorkspaceError>;
     // fn set_cur_workspace_id(&self, id: &str) -> DispatchFuture<Result<(),
     // WorkspaceError>>; fn get_cur_workspace(&self) ->
     // DispatchFuture<Result<CurrentWorkspace, WorkspaceError>>;
@@ -24,18 +28,21 @@ pub trait WorkspaceDatabase: Send + Sync {
 }
 
 pub fn create(user: Arc<dyn WorkspaceUser>, database: Arc<dyn WorkspaceDatabase>) -> Module {
-    let view_controller = Arc::new(ViewController::new(database.clone()));
+    let server = construct_workspace_server();
+    let view_controller = Arc::new(ViewController::new(database.clone(), server.clone()));
 
     let app_controller = Arc::new(AppController::new(
         user.clone(),
         database.clone(),
         view_controller.clone(),
+        server.clone(),
     ));
 
     let workspace_controller = Arc::new(WorkspaceController::new(
         user.clone(),
         database.clone(),
         app_controller.clone(),
+        server.clone(),
     ));
 
     let mut module = Module::new()

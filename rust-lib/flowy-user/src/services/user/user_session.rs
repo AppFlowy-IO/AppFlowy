@@ -155,10 +155,7 @@ impl UserSession {
 
     pub fn user_id(&self) -> Result<String, UserError> { Ok(self.get_session()?.user_id) }
 
-    // pub fn user_token(&self) -> Result<String, UserError> {
-    //     let user_detail = self.user_detail()?;
-    //     Ok(user_detail.token)
-    // }
+    pub fn token(&self) -> Result<String, UserError> { Ok(self.get_session()?.token) }
 }
 
 impl UserSession {

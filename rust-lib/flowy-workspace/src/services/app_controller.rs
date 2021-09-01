@@ -3,35 +3,38 @@ use crate::{
     errors::*,
     module::{WorkspaceDatabase, WorkspaceUser},
     observable::*,
-    services::ViewController,
+    services::{server::Server, ViewController},
     sql_tables::app::{AppTable, AppTableChangeset, AppTableSql},
 };
 use flowy_dispatch::prelude::DispatchFuture;
 use flowy_net::request::HttpRequestBuilder;
 use std::sync::Arc;
 
-pub struct AppController {
+pub(crate) struct AppController {
     user: Arc<dyn WorkspaceUser>,
     sql: Arc<AppTableSql>,
     #[allow(dead_code)]
     view_controller: Arc<ViewController>,
+    server: Server,
 }
 
 impl AppController {
-    pub fn new(
+    pub(crate) fn new(
         user: Arc<dyn WorkspaceUser>,
         database: Arc<dyn WorkspaceDatabase>,
         view_controller: Arc<ViewController>,
+        server: Server,
     ) -> Self {
         let sql = Arc::new(AppTableSql { database });
         Self {
             user,
             sql,
             view_controller,
+            server,
         }
     }
 
-    pub fn create_app(&self, mut params: CreateAppParams) -> Result<App, WorkspaceError> {
+    pub(crate) fn create_app(&self, mut params: CreateAppParams) -> Result<App, WorkspaceError> {
         let user_id = self.user.user_id()?;
         params.user_id = user_id;
 
@@ -45,18 +48,18 @@ impl AppController {
         Ok(app)
     }
 
-    pub async fn read_app(&self, app_id: &str, is_trash: bool) -> Result<App, WorkspaceError> {
+    pub(crate) async fn read_app(&self, app_id: &str, is_trash: bool) -> Result<App, WorkspaceError> {
         let app_table = self.async_read_app(&app_id, is_trash).await?;
         Ok(app_table.into())
     }
 
-    pub async fn delete_app(&self, app_id: &str) -> Result<(), WorkspaceError> {
+    pub(crate) async fn delete_app(&self, app_id: &str) -> Result<(), WorkspaceError> {
         let app = self.sql.delete_app(app_id)?;
         send_observable(&app.workspace_id, WorkspaceObservable::WorkspaceDeleteApp);
         Ok(())
     }
 
-    pub async fn update_app(&self, params: UpdateAppParams) -> Result<(), WorkspaceError> {
+    pub(crate) async fn update_app(&self, params: UpdateAppParams) -> Result<(), WorkspaceError> {
         let changeset = AppTableChangeset::new(params);
         let app_id = changeset.id.clone();
         let _ = self.sql.update_app(changeset)?;
@@ -64,11 +67,7 @@ impl AppController {
         Ok(())
     }
 
-    fn async_read_app(
-        &self,
-        app_id: &str,
-        is_trash: bool,
-    ) -> DispatchFuture<Result<AppTable, WorkspaceError>> {
+    fn async_read_app(&self, app_id: &str, is_trash: bool) -> DispatchFuture<Result<AppTable, WorkspaceError>> {
         let sql = self.sql.clone();
         let app_id = app_id.to_owned();
         DispatchFuture {
@@ -91,20 +90,11 @@ pub async fn create_app_request(params: CreateAppParams, url: &str) -> Result<Ap
     Ok(app)
 }
 
-pub async fn read_app_request(
-    params: QueryAppParams,
-    url: &str,
-) -> Result<Option<App>, WorkspaceError> {
-    let result = HttpRequestBuilder::get(&url.to_owned())
-        .protobuf(params)?
-        .send()
-        .await;
+pub async fn read_app_request(params: QueryAppParams, url: &str) -> Result<Option<App>, WorkspaceError> {
+    let result = HttpRequestBuilder::get(&url.to_owned()).protobuf(params)?.send().await;
 
     match result {
-        Ok(builder) => {
-            let app = builder.response::<App>().await?;
-            Ok(Some(app))
-        },
+        Ok(builder) => Ok(Some(builder.response::<App>().await?)),
         Err(e) => {
             if e.is_not_found() {
                 Ok(None)
@@ -116,17 +106,11 @@ pub async fn read_app_request(
 }
 
 pub async fn update_app_request(params: UpdateAppParams, url: &str) -> Result<(), WorkspaceError> {
-    let _ = HttpRequestBuilder::patch(&url.to_owned())
-        .protobuf(params)?
-        .send()
-        .await?;
+    let _ = HttpRequestBuilder::patch(&url.to_owned()).protobuf(params)?.send().await?;
     Ok(())
 }
 
 pub async fn delete_app_request(params: DeleteAppParams, url: &str) -> Result<(), WorkspaceError> {
-    let _ = HttpRequestBuilder::delete(&url.to_owned())
-        .protobuf(params)?
-        .send()
-        .await?;
+    let _ = HttpRequestBuilder::delete(&url.to_owned()).protobuf(params)?.send().await?;
     Ok(())
 }
