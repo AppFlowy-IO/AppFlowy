@@ -6,11 +6,11 @@ export DB_PORT=5433
 export DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@localhost:${DB_PORT}/${DB_NAME}
 export ROOT = "./scripts/database"
 
-init_docker:
-	${ROOT}/docker.sh
+init_postgres:
+	${ROOT}/init_postgres.sh
 
 init_database:
-	${ROOT}/db_init.sh
+	${ROOT}/init_database.sh
 
 reset_db:
 	#diesel database reset
