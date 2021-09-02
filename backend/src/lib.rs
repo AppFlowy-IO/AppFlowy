@@ -2,6 +2,7 @@ pub mod application;
 pub mod config;
 mod context;
 mod entities;
+mod middleware;
 mod routers;
 mod sqlx_ext;
 pub mod user_service;

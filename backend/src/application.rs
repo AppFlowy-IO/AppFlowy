@@ -53,6 +53,7 @@ pub fn run(listener: TcpListener, app_ctx: AppContext) -> Result<Server, std::io
         App::new()
             .wrap(middleware::Logger::default())
             .wrap(identify_service(&domain, &secret))
+            .wrap(crate::middleware::AuthenticationService)
             .app_data(web::JsonConfig::default().limit(4096))
             .service(ws_scope())
             .service(user_scope())
