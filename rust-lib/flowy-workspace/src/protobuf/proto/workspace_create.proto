@@ -14,6 +14,8 @@ message Workspace {
     string name = 2;
     string desc = 3;
     RepeatedApp apps = 4;
+    int64 modified_time = 5;
+    int64 create_time = 6;
 }
 message RepeatedWorkspace {
     repeated Workspace items = 1;

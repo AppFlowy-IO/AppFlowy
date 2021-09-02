@@ -242,6 +242,8 @@ class View extends $pb.GeneratedMessage {
     ..e<ViewType>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewType', $pb.PbFieldType.OE, defaultOrMaker: ViewType.Blank, valueOf: ViewType.valueOf, enumValues: ViewType.values)
     ..aInt64(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'version')
     ..aOM<RepeatedView>(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'belongings', subBuilder: RepeatedView.create)
+    ..aInt64(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'modifiedTime')
+    ..aInt64(9, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'createTime')
     ..hasRequiredFields = false
   ;
 
@@ -254,6 +256,8 @@ class View extends $pb.GeneratedMessage {
     ViewType? viewType,
     $fixnum.Int64? version,
     RepeatedView? belongings,
+    $fixnum.Int64? modifiedTime,
+    $fixnum.Int64? createTime,
   }) {
     final _result = create();
     if (id != null) {
@@ -276,6 +280,12 @@ class View extends $pb.GeneratedMessage {
     }
     if (belongings != null) {
       _result.belongings = belongings;
+    }
+    if (modifiedTime != null) {
+      _result.modifiedTime = modifiedTime;
+    }
+    if (createTime != null) {
+      _result.createTime = createTime;
     }
     return _result;
   }
@@ -364,6 +374,24 @@ class View extends $pb.GeneratedMessage {
   void clearBelongings() => clearField(7);
   @$pb.TagNumber(7)
   RepeatedView ensureBelongings() => $_ensure(6);
+
+  @$pb.TagNumber(8)
+  $fixnum.Int64 get modifiedTime => $_getI64(7);
+  @$pb.TagNumber(8)
+  set modifiedTime($fixnum.Int64 v) { $_setInt64(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasModifiedTime() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearModifiedTime() => clearField(8);
+
+  @$pb.TagNumber(9)
+  $fixnum.Int64 get createTime => $_getI64(8);
+  @$pb.TagNumber(9)
+  set createTime($fixnum.Int64 v) { $_setInt64(8, v); }
+  @$pb.TagNumber(9)
+  $core.bool hasCreateTime() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearCreateTime() => clearField(9);
 }
 
 class RepeatedView extends $pb.GeneratedMessage {

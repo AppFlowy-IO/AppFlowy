@@ -54,11 +54,13 @@ const App$json = const {
     const {'1': 'desc', '3': 4, '4': 1, '5': 9, '10': 'desc'},
     const {'1': 'belongings', '3': 5, '4': 1, '5': 11, '6': '.RepeatedView', '10': 'belongings'},
     const {'1': 'version', '3': 6, '4': 1, '5': 3, '10': 'version'},
+    const {'1': 'modified_time', '3': 7, '4': 1, '5': 3, '10': 'modifiedTime'},
+    const {'1': 'create_time', '3': 8, '4': 1, '5': 3, '10': 'createTime'},
   ],
 };
 
 /// Descriptor for `App`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List appDescriptor = $convert.base64Decode('CgNBcHASDgoCaWQYASABKAlSAmlkEiEKDHdvcmtzcGFjZV9pZBgCIAEoCVILd29ya3NwYWNlSWQSEgoEbmFtZRgDIAEoCVIEbmFtZRISCgRkZXNjGAQgASgJUgRkZXNjEi0KCmJlbG9uZ2luZ3MYBSABKAsyDS5SZXBlYXRlZFZpZXdSCmJlbG9uZ2luZ3MSGAoHdmVyc2lvbhgGIAEoA1IHdmVyc2lvbg==');
+final $typed_data.Uint8List appDescriptor = $convert.base64Decode('CgNBcHASDgoCaWQYASABKAlSAmlkEiEKDHdvcmtzcGFjZV9pZBgCIAEoCVILd29ya3NwYWNlSWQSEgoEbmFtZRgDIAEoCVIEbmFtZRISCgRkZXNjGAQgASgJUgRkZXNjEi0KCmJlbG9uZ2luZ3MYBSABKAsyDS5SZXBlYXRlZFZpZXdSCmJlbG9uZ2luZ3MSGAoHdmVyc2lvbhgGIAEoA1IHdmVyc2lvbhIjCg1tb2RpZmllZF90aW1lGAcgASgDUgxtb2RpZmllZFRpbWUSHwoLY3JlYXRlX3RpbWUYCCABKANSCmNyZWF0ZVRpbWU=');
 @$core.Deprecated('Use repeatedAppDescriptor instead')
 const RepeatedApp$json = const {
   '1': 'RepeatedApp',

@@ -64,6 +64,8 @@ pub(crate) fn make_workspace_from_table(
         name: table.name,
         desc: table.description,
         apps: Default::default(),
+        modified_time: table.modified_time.timestamp(),
+        create_time: table.create_time.timestamp(),
         unknown_fields: Default::default(),
         cached_size: Default::default(),
     };

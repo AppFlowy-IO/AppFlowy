@@ -32,7 +32,7 @@ impl QueryViewRequest {
     }
 }
 
-#[derive(Default, ProtoBuf)]
+#[derive(Default, ProtoBuf, Clone)]
 pub struct QueryViewParams {
     #[pb(index = 1)]
     pub view_id: String,

@@ -249,6 +249,8 @@ class App extends $pb.GeneratedMessage {
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
     ..aOM<$0.RepeatedView>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'belongings', subBuilder: $0.RepeatedView.create)
     ..aInt64(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'version')
+    ..aInt64(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'modifiedTime')
+    ..aInt64(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'createTime')
     ..hasRequiredFields = false
   ;
 
@@ -260,6 +262,8 @@ class App extends $pb.GeneratedMessage {
     $core.String? desc,
     $0.RepeatedView? belongings,
     $fixnum.Int64? version,
+    $fixnum.Int64? modifiedTime,
+    $fixnum.Int64? createTime,
   }) {
     final _result = create();
     if (id != null) {
@@ -279,6 +283,12 @@ class App extends $pb.GeneratedMessage {
     }
     if (version != null) {
       _result.version = version;
+    }
+    if (modifiedTime != null) {
+      _result.modifiedTime = modifiedTime;
+    }
+    if (createTime != null) {
+      _result.createTime = createTime;
     }
     return _result;
   }
@@ -358,6 +368,24 @@ class App extends $pb.GeneratedMessage {
   $core.bool hasVersion() => $_has(5);
   @$pb.TagNumber(6)
   void clearVersion() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $fixnum.Int64 get modifiedTime => $_getI64(6);
+  @$pb.TagNumber(7)
+  set modifiedTime($fixnum.Int64 v) { $_setInt64(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasModifiedTime() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearModifiedTime() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $fixnum.Int64 get createTime => $_getI64(7);
+  @$pb.TagNumber(8)
+  set createTime($fixnum.Int64 v) { $_setInt64(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasCreateTime() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearCreateTime() => clearField(8);
 }
 
 class RepeatedApp extends $pb.GeneratedMessage {

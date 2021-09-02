@@ -14,17 +14,20 @@ use crate::{
     errors::WorkspaceError,
     services::server::WorkspaceServerAPI,
 };
-use flowy_infra::{future::ResultFuture, uuid};
+use flowy_infra::{future::ResultFuture, timestamp, uuid};
 
 pub struct WorkspaceServerMock {}
 
 impl WorkspaceServerAPI for WorkspaceServerMock {
     fn create_workspace(&self, _token: &str, params: CreateWorkspaceParams) -> ResultFuture<Workspace, WorkspaceError> {
+        let time = timestamp();
         let workspace = Workspace {
             id: uuid(),
             name: params.name,
             desc: params.desc,
             apps: RepeatedApp::default(),
+            modified_time: time,
+            create_time: time,
         };
 
         ResultFuture::new(async { Ok(workspace) })
@@ -46,6 +49,7 @@ impl WorkspaceServerAPI for WorkspaceServerMock {
     }
 
     fn create_view(&self, _token: &str, params: CreateViewParams) -> ResultFuture<View, WorkspaceError> {
+        let time = timestamp();
         let view = View {
             id: uuid(),
             belong_to_id: params.belong_to_id,
@@ -54,6 +58,8 @@ impl WorkspaceServerAPI for WorkspaceServerMock {
             view_type: params.view_type,
             version: 0,
             belongings: RepeatedView::default(),
+            modified_time: time,
+            create_time: time,
         };
         ResultFuture::new(async { Ok(view) })
     }
@@ -71,6 +77,7 @@ impl WorkspaceServerAPI for WorkspaceServerMock {
     }
 
     fn create_app(&self, _token: &str, params: CreateAppParams) -> ResultFuture<App, WorkspaceError> {
+        let time = timestamp();
         let app = App {
             id: uuid(),
             workspace_id: params.workspace_id,
@@ -78,6 +85,8 @@ impl WorkspaceServerAPI for WorkspaceServerMock {
             desc: params.desc,
             belongings: RepeatedView::default(),
             version: 0,
+            modified_time: time,
+            create_time: time,
         };
         ResultFuture::new(async { Ok(app) })
     }

@@ -38,11 +38,13 @@ const Workspace$json = const {
     const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
     const {'1': 'desc', '3': 3, '4': 1, '5': 9, '10': 'desc'},
     const {'1': 'apps', '3': 4, '4': 1, '5': 11, '6': '.RepeatedApp', '10': 'apps'},
+    const {'1': 'modified_time', '3': 5, '4': 1, '5': 3, '10': 'modifiedTime'},
+    const {'1': 'create_time', '3': 6, '4': 1, '5': 3, '10': 'createTime'},
   ],
 };
 
 /// Descriptor for `Workspace`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List workspaceDescriptor = $convert.base64Decode('CglXb3Jrc3BhY2USDgoCaWQYASABKAlSAmlkEhIKBG5hbWUYAiABKAlSBG5hbWUSEgoEZGVzYxgDIAEoCVIEZGVzYxIgCgRhcHBzGAQgASgLMgwuUmVwZWF0ZWRBcHBSBGFwcHM=');
+final $typed_data.Uint8List workspaceDescriptor = $convert.base64Decode('CglXb3Jrc3BhY2USDgoCaWQYASABKAlSAmlkEhIKBG5hbWUYAiABKAlSBG5hbWUSEgoEZGVzYxgDIAEoCVIEZGVzYxIgCgRhcHBzGAQgASgLMgwuUmVwZWF0ZWRBcHBSBGFwcHMSIwoNbW9kaWZpZWRfdGltZRgFIAEoA1IMbW9kaWZpZWRUaW1lEh8KC2NyZWF0ZV90aW1lGAYgASgDUgpjcmVhdGVUaW1l');
 @$core.Deprecated('Use repeatedWorkspaceDescriptor instead')
 const RepeatedWorkspace$json = const {
   '1': 'RepeatedWorkspace',

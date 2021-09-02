@@ -7,6 +7,7 @@
 
 import 'dart:core' as $core;
 
+import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 import 'app_create.pb.dart' as $0;
@@ -139,6 +140,8 @@ class Workspace extends $pb.GeneratedMessage {
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
     ..aOM<$0.RepeatedApp>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'apps', subBuilder: $0.RepeatedApp.create)
+    ..aInt64(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'modifiedTime')
+    ..aInt64(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'createTime')
     ..hasRequiredFields = false
   ;
 
@@ -148,6 +151,8 @@ class Workspace extends $pb.GeneratedMessage {
     $core.String? name,
     $core.String? desc,
     $0.RepeatedApp? apps,
+    $fixnum.Int64? modifiedTime,
+    $fixnum.Int64? createTime,
   }) {
     final _result = create();
     if (id != null) {
@@ -161,6 +166,12 @@ class Workspace extends $pb.GeneratedMessage {
     }
     if (apps != null) {
       _result.apps = apps;
+    }
+    if (modifiedTime != null) {
+      _result.modifiedTime = modifiedTime;
+    }
+    if (createTime != null) {
+      _result.createTime = createTime;
     }
     return _result;
   }
@@ -222,6 +233,24 @@ class Workspace extends $pb.GeneratedMessage {
   void clearApps() => clearField(4);
   @$pb.TagNumber(4)
   $0.RepeatedApp ensureApps() => $_ensure(3);
+
+  @$pb.TagNumber(5)
+  $fixnum.Int64 get modifiedTime => $_getI64(4);
+  @$pb.TagNumber(5)
+  set modifiedTime($fixnum.Int64 v) { $_setInt64(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasModifiedTime() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearModifiedTime() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $fixnum.Int64 get createTime => $_getI64(5);
+  @$pb.TagNumber(6)
+  set createTime($fixnum.Int64 v) { $_setInt64(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasCreateTime() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearCreateTime() => clearField(6);
 }
 
 class RepeatedWorkspace extends $pb.GeneratedMessage {

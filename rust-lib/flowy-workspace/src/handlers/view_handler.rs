@@ -27,7 +27,7 @@ pub(crate) async fn create_view(data: Data<CreateViewRequest>, controller: Unit<
 #[tracing::instrument(name = "read_view", skip(data, controller))]
 pub(crate) async fn read_view(data: Data<QueryViewRequest>, controller: Unit<Arc<ViewController>>) -> DataResult<View, WorkspaceError> {
     let params: QueryViewParams = data.into_inner().try_into()?;
-    let mut view = controller.read_view(&params.view_id, params.is_trash).await?;
+    let mut view = controller.read_view(params.clone()).await?;
 
     if params.read_belongings {
         let views = controller.read_views_belong_to(&params.view_id).await?;

@@ -23,6 +23,8 @@ message App {
     string desc = 4;
     RepeatedView belongings = 5;
     int64 version = 6;
+    int64 modified_time = 7;
+    int64 create_time = 8;
 }
 message RepeatedApp {
     repeated App items = 1;

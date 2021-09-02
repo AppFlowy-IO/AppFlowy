@@ -26,7 +26,7 @@ pub struct UpdateAppRequest {
     pub is_trash: Option<bool>,
 }
 
-#[derive(ProtoBuf, Default)]
+#[derive(ProtoBuf, Default, Clone)]
 pub struct UpdateAppParams {
     #[pb(index = 1)]
     pub app_id: String,
@@ -80,11 +80,7 @@ impl TryInto<UpdateAppParams> for UpdateAppRequest {
             None => None,
             Some(name) => Some(
                 AppName::parse(name)
-                    .map_err(|e| {
-                        ErrorBuilder::new(ErrorCode::WorkspaceNameInvalid)
-                            .msg(e)
-                            .build()
-                    })?
+                    .map_err(|e| ErrorBuilder::new(ErrorCode::WorkspaceNameInvalid).msg(e).build())?
                     .0,
             ),
         };
@@ -93,11 +89,7 @@ impl TryInto<UpdateAppParams> for UpdateAppRequest {
             None => None,
             Some(color_style) => Some(
                 AppColorStyle::parse(color_style)
-                    .map_err(|e| {
-                        ErrorBuilder::new(ErrorCode::AppColorStyleInvalid)
-                            .msg(e)
-                            .build()
-                    })?
+                    .map_err(|e| ErrorBuilder::new(ErrorCode::AppColorStyleInvalid).msg(e).build())?
                     .0,
             ),
         };

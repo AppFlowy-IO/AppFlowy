@@ -35,30 +35,27 @@ impl WorkspaceController {
     }
 
     pub(crate) async fn create_workspace(&self, params: CreateWorkspaceParams) -> Result<Workspace, WorkspaceError> {
-        let _ = self.create_workspace_on_server(params.clone()).await?;
-
+        let workspace = self.create_workspace_on_server(params.clone()).await?;
         let user_id = self.user.user_id()?;
-        let workspace_table = WorkspaceTable::new(params, &user_id);
-        let workspace: Workspace = workspace_table.clone().into();
+        let workspace_table = WorkspaceTable::new(workspace.clone(), &user_id);
         let _ = self.sql.create_workspace(workspace_table)?;
         send_observable(&user_id, WorkspaceObservable::UserCreateWorkspace);
         Ok(workspace)
     }
 
-    pub(crate) fn update_workspace(&self, params: UpdateWorkspaceParams) -> Result<(), WorkspaceError> {
+    pub(crate) async fn update_workspace(&self, params: UpdateWorkspaceParams) -> Result<(), WorkspaceError> {
         let changeset = WorkspaceTableChangeset::new(params.clone());
         let workspace_id = changeset.id.clone();
         let _ = self.sql.update_workspace(changeset)?;
-
-        let _ = self.update_workspace_on_server(params.clone())?;
+        let _ = self.update_workspace_on_server(params).await?;
         send_observable(&workspace_id, WorkspaceObservable::WorkspaceUpdated);
         Ok(())
     }
 
-    pub(crate) fn delete_workspace(&self, workspace_id: &str) -> Result<(), WorkspaceError> {
+    pub(crate) async fn delete_workspace(&self, workspace_id: &str) -> Result<(), WorkspaceError> {
         let user_id = self.user.user_id()?;
         let _ = self.sql.delete_workspace(workspace_id)?;
-
+        let _ = self.delete_workspace_on_server(workspace_id).await?;
         send_observable(&user_id, WorkspaceObservable::UserDeleteWorkspace);
         Ok(())
     }
@@ -80,7 +77,7 @@ impl WorkspaceController {
     pub(crate) async fn read_workspaces(&self, params: QueryWorkspaceParams) -> Result<RepeatedWorkspace, WorkspaceError> {
         self.read_workspaces_on_server(params.clone());
         let user_id = self.user.user_id()?;
-        let workspace_tables = self.read_workspace_table(params.workspace_id, user_id).await?;
+        let workspace_tables = self.read_workspace_table(params.workspace_id.clone(), user_id).await?;
         let mut workspaces = vec![];
         for table in workspace_tables {
             let apps = self.read_apps(&table.id).await?;
@@ -88,6 +85,8 @@ impl WorkspaceController {
             workspace.apps.items = apps;
             workspaces.push(workspace);
         }
+
+        let _ = self.read_workspaces_on_server(params).await?;
         Ok(RepeatedWorkspace { items: workspaces })
     }
 
@@ -141,20 +140,20 @@ impl WorkspaceController {
 }
 
 impl WorkspaceController {
-    fn token_server(&self) -> Result<(String, Server), WorkspaceError> {
+    fn token_with_server(&self) -> Result<(String, Server), WorkspaceError> {
         let token = self.user.token()?;
         let server = self.server.clone();
         Ok((token, server))
     }
 
-    async fn create_workspace_on_server(&self, params: CreateWorkspaceParams) -> Result<(), WorkspaceError> {
+    async fn create_workspace_on_server(&self, params: CreateWorkspaceParams) -> Result<Workspace, WorkspaceError> {
         let token = self.user.token()?;
-        let _ = self.server.create_workspace(&token, params).await?;
-        Ok(())
+        let workspace = self.server.create_workspace(&token, params).await?;
+        Ok(workspace)
     }
 
-    fn update_workspace_on_server(&self, params: UpdateWorkspaceParams) -> Result<(), WorkspaceError> {
-        let (token, server) = self.token_server()?;
+    async fn update_workspace_on_server(&self, params: UpdateWorkspaceParams) -> Result<(), WorkspaceError> {
+        let (token, server) = self.token_with_server()?;
         spawn(async move {
             match server.update_workspace(&token, params).await {
                 Ok(_) => {},
@@ -167,8 +166,11 @@ impl WorkspaceController {
         Ok(())
     }
 
-    fn delete_workspace_on_server(&self, params: DeleteWorkspaceParams) -> Result<(), WorkspaceError> {
-        let (token, server) = self.token_server()?;
+    async fn delete_workspace_on_server(&self, workspace_id: &str) -> Result<(), WorkspaceError> {
+        let params = DeleteWorkspaceParams {
+            workspace_id: workspace_id.to_string(),
+        };
+        let (token, server) = self.token_with_server()?;
         spawn(async move {
             match server.delete_workspace(&token, params).await {
                 Ok(_) => {},
@@ -181,11 +183,11 @@ impl WorkspaceController {
         Ok(())
     }
 
-    fn read_workspaces_on_server(&self, params: QueryWorkspaceParams) -> Result<(), WorkspaceError> {
-        let (token, server) = self.token_server()?;
+    async fn read_workspaces_on_server(&self, params: QueryWorkspaceParams) -> Result<(), WorkspaceError> {
+        let (token, server) = self.token_with_server()?;
         spawn(async move {
             match server.read_workspace(&token, params).await {
-                Ok(_) => {
+                Ok(_workspaces) => {
                     // TODO: notify
                 },
                 Err(e) => {

@@ -61,11 +61,13 @@ const View$json = const {
     const {'1': 'view_type', '3': 5, '4': 1, '5': 14, '6': '.ViewType', '10': 'viewType'},
     const {'1': 'version', '3': 6, '4': 1, '5': 3, '10': 'version'},
     const {'1': 'belongings', '3': 7, '4': 1, '5': 11, '6': '.RepeatedView', '10': 'belongings'},
+    const {'1': 'modified_time', '3': 8, '4': 1, '5': 3, '10': 'modifiedTime'},
+    const {'1': 'create_time', '3': 9, '4': 1, '5': 3, '10': 'createTime'},
   ],
 };
 
 /// Descriptor for `View`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List viewDescriptor = $convert.base64Decode('CgRWaWV3Eg4KAmlkGAEgASgJUgJpZBIgCgxiZWxvbmdfdG9faWQYAiABKAlSCmJlbG9uZ1RvSWQSEgoEbmFtZRgDIAEoCVIEbmFtZRISCgRkZXNjGAQgASgJUgRkZXNjEiYKCXZpZXdfdHlwZRgFIAEoDjIJLlZpZXdUeXBlUgh2aWV3VHlwZRIYCgd2ZXJzaW9uGAYgASgDUgd2ZXJzaW9uEi0KCmJlbG9uZ2luZ3MYByABKAsyDS5SZXBlYXRlZFZpZXdSCmJlbG9uZ2luZ3M=');
+final $typed_data.Uint8List viewDescriptor = $convert.base64Decode('CgRWaWV3Eg4KAmlkGAEgASgJUgJpZBIgCgxiZWxvbmdfdG9faWQYAiABKAlSCmJlbG9uZ1RvSWQSEgoEbmFtZRgDIAEoCVIEbmFtZRISCgRkZXNjGAQgASgJUgRkZXNjEiYKCXZpZXdfdHlwZRgFIAEoDjIJLlZpZXdUeXBlUgh2aWV3VHlwZRIYCgd2ZXJzaW9uGAYgASgDUgd2ZXJzaW9uEi0KCmJlbG9uZ2luZ3MYByABKAsyDS5SZXBlYXRlZFZpZXdSCmJlbG9uZ2luZ3MSIwoNbW9kaWZpZWRfdGltZRgIIAEoA1IMbW9kaWZpZWRUaW1lEh8KC2NyZWF0ZV90aW1lGAkgASgDUgpjcmVhdGVUaW1l');
 @$core.Deprecated('Use repeatedViewDescriptor instead')
 const RepeatedView$json = const {
   '1': 'RepeatedView',

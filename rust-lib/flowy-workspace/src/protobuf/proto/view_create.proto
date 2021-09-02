@@ -22,6 +22,8 @@ message View {
     ViewType view_type = 5;
     int64 version = 6;
     RepeatedView belongings = 7;
+    int64 modified_time = 8;
+    int64 create_time = 9;
 }
 message RepeatedView {
     repeated View items = 1;

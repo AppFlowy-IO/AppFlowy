@@ -92,6 +92,8 @@ pub(crate) fn make_app_from_table(table: AppTable, views: RepeatedView) -> App {
     app.set_name(table.name.clone());
     app.set_desc(table.description.clone());
     app.set_belongings(views);
+    app.set_modified_time(table.modified_time.timestamp());
+    app.set_create_time(table.create_time.timestamp());
 
     app
 }

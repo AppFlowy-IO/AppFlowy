@@ -29,7 +29,6 @@ impl TryInto<CreateWorkspaceParams> for CreateWorkspaceRequest {
 
     fn try_into(self) -> Result<CreateWorkspaceParams, Self::Error> {
         let name = WorkspaceName::parse(self.name).map_err(|e| ErrorBuilder::new(ErrorCode::WorkspaceNameInvalid).msg(e).build())?;
-
         let desc = WorkspaceDesc::parse(self.desc).map_err(|e| ErrorBuilder::new(ErrorCode::WorkspaceDescInvalid).msg(e).build())?;
 
         Ok(CreateWorkspaceParams {
@@ -39,7 +38,7 @@ impl TryInto<CreateWorkspaceParams> for CreateWorkspaceRequest {
     }
 }
 
-#[derive(PartialEq, ProtoBuf, Default, Debug)]
+#[derive(PartialEq, ProtoBuf, Default, Debug, Clone)]
 pub struct Workspace {
     #[pb(index = 1)]
     pub id: String,
@@ -52,17 +51,12 @@ pub struct Workspace {
 
     #[pb(index = 4)]
     pub apps: RepeatedApp,
-}
 
-impl Workspace {
-    pub fn new(id: String, name: String, desc: String) -> Self {
-        Self {
-            id,
-            name,
-            desc,
-            apps: RepeatedApp::default(),
-        }
-    }
+    #[pb(index = 5)]
+    pub modified_time: i64,
+
+    #[pb(index = 6)]
+    pub create_time: i64,
 }
 
 #[derive(PartialEq, Debug, Default, ProtoBuf)]

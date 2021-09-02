@@ -6,7 +6,7 @@ use crate::{
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use std::convert::TryInto;
 
-#[derive(PartialEq, Debug, ProtoBuf_Enum)]
+#[derive(PartialEq, Debug, ProtoBuf_Enum, Clone)]
 pub enum ViewType {
     Blank = 0,
     Doc   = 1,
@@ -81,11 +81,7 @@ impl TryInto<CreateViewParams> for CreateViewRequest {
             None => "".to_string(),
             Some(thumbnail) => {
                 ViewThumbnail::parse(thumbnail)
-                    .map_err(|e| {
-                        ErrorBuilder::new(ErrorCode::ViewThumbnailInvalid)
-                            .msg(e)
-                            .build()
-                    })?
+                    .map_err(|e| ErrorBuilder::new(ErrorCode::ViewThumbnailInvalid).msg(e).build())?
                     .0
             },
         };
@@ -100,7 +96,7 @@ impl TryInto<CreateViewParams> for CreateViewRequest {
     }
 }
 
-#[derive(PartialEq, ProtoBuf, Default, Debug)]
+#[derive(PartialEq, ProtoBuf, Default, Debug, Clone)]
 pub struct View {
     #[pb(index = 1)]
     pub id: String,
@@ -122,9 +118,15 @@ pub struct View {
 
     #[pb(index = 7)]
     pub belongings: RepeatedView,
+
+    #[pb(index = 8)]
+    pub modified_time: i64,
+
+    #[pb(index = 9)]
+    pub create_time: i64,
 }
 
-#[derive(PartialEq, Debug, Default, ProtoBuf)]
+#[derive(PartialEq, Debug, Default, ProtoBuf, Clone)]
 pub struct RepeatedView {
     #[pb(index = 1)]
     pub items: Vec<View>,

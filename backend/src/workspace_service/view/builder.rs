@@ -81,6 +81,8 @@ pub(crate) fn make_view_from_table(table: ViewTable, views: RepeatedView) -> Vie
     view.set_desc(table.description);
     view.set_view_type(view_type);
     view.set_belongings(views);
+    view.set_create_time(table.create_time.timestamp());
+    view.set_modified_time(table.modified_time.timestamp());
 
     view
 }

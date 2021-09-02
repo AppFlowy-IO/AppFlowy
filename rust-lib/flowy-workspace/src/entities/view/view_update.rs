@@ -23,7 +23,7 @@ pub struct UpdateViewRequest {
     pub is_trash: Option<bool>,
 }
 
-#[derive(Default, ProtoBuf)]
+#[derive(Default, ProtoBuf, Clone)]
 pub struct UpdateViewParams {
     #[pb(index = 1)]
     pub view_id: String,
@@ -94,11 +94,7 @@ impl TryInto<UpdateViewParams> for UpdateViewRequest {
             None => None,
             Some(thumbnail) => Some(
                 ViewThumbnail::parse(thumbnail)
-                    .map_err(|e| {
-                        ErrorBuilder::new(ErrorCode::ViewThumbnailInvalid)
-                            .msg(e)
-                            .build()
-                    })?
+                    .map_err(|e| ErrorBuilder::new(ErrorCode::ViewThumbnailInvalid).msg(e).build())?
                     .0,
             ),
         };

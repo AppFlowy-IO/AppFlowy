@@ -1,11 +1,11 @@
 use crate::{
-    entities::view::{CreateViewParams, RepeatedView, UpdateViewParams, View, ViewType},
+    entities::view::{RepeatedView, UpdateViewParams, View, ViewType},
     impl_sql_integer_expression,
     sql_tables::app::AppTable,
 };
 use diesel::sql_types::Integer;
 use flowy_database::schema::view_table;
-use flowy_infra::{timestamp, uuid};
+use flowy_infra::timestamp;
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
 #[belongs_to(AppTable, foreign_key = "belong_to_id")]
@@ -24,22 +24,21 @@ pub(crate) struct ViewTable {
 }
 
 impl ViewTable {
-    pub fn new(params: CreateViewParams) -> Self {
-        let view_id = uuid();
-        let time = timestamp();
-        let view_type = match params.view_type {
+    pub fn new(view: View) -> Self {
+        let view_type = match view.view_type {
             ViewType::Blank => ViewTableType::Docs,
             ViewType::Doc => ViewTableType::Docs,
         };
 
         ViewTable {
-            id: view_id,
-            belong_to_id: params.belong_to_id,
-            name: params.name,
-            desc: params.desc,
-            modified_time: time,
-            create_time: time,
-            thumbnail: params.thumbnail,
+            id: view.id,
+            belong_to_id: view.belong_to_id,
+            name: view.name,
+            desc: view.desc,
+            modified_time: view.modified_time,
+            create_time: view.create_time,
+            // TODO: thumbnail
+            thumbnail: "".to_owned(),
             view_type,
             version: 0,
             is_trash: false,
@@ -60,7 +59,9 @@ impl std::convert::Into<View> for ViewTable {
             desc: self.desc,
             view_type,
             belongings: RepeatedView::default(),
+            modified_time: self.modified_time,
             version: self.version,
+            create_time: self.create_time,
         }
     }
 }

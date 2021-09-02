@@ -1,6 +1,6 @@
 use crate::{
     entities::{
-        app::{App, ColorStyle, CreateAppParams, UpdateAppParams},
+        app::{App, ColorStyle, UpdateAppParams},
         view::RepeatedView,
     },
     impl_sql_binary_expression,
@@ -8,7 +8,7 @@ use crate::{
 };
 use diesel::sql_types::Binary;
 use flowy_database::schema::app_table;
-use flowy_infra::{timestamp, uuid};
+
 use serde::{Deserialize, Serialize, __private::TryFrom};
 use std::convert::TryInto;
 
@@ -29,18 +29,16 @@ pub(crate) struct AppTable {
 }
 
 impl AppTable {
-    pub fn new(params: CreateAppParams) -> Self {
-        let app_id = uuid();
-        let time = timestamp();
+    pub fn new(app: App) -> Self {
         Self {
-            id: app_id,
-            workspace_id: params.workspace_id,
-            name: params.name,
-            desc: params.desc,
-            color_style: params.color_style.into(),
+            id: app.id,
+            workspace_id: app.workspace_id,
+            name: app.name,
+            desc: app.desc,
+            color_style: ColorStyleCol::default(),
             last_view_id: None,
-            modified_time: time,
-            create_time: time,
+            modified_time: app.modified_time,
+            create_time: app.create_time,
             version: 0,
             is_trash: false,
         }
@@ -64,17 +62,13 @@ impl std::convert::From<ColorStyle> for ColorStyleCol {
 impl std::convert::TryInto<Vec<u8>> for &ColorStyleCol {
     type Error = String;
 
-    fn try_into(self) -> Result<Vec<u8>, Self::Error> {
-        bincode::serialize(self).map_err(|e| format!("{:?}", e))
-    }
+    fn try_into(self) -> Result<Vec<u8>, Self::Error> { bincode::serialize(self).map_err(|e| format!("{:?}", e)) }
 }
 
 impl std::convert::TryFrom<&[u8]> for ColorStyleCol {
     type Error = String;
 
-    fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
-        bincode::deserialize(value).map_err(|e| format!("{:?}", e))
-    }
+    fn try_from(value: &[u8]) -> Result<Self, Self::Error> { bincode::deserialize(value).map_err(|e| format!("{:?}", e)) }
 }
 
 impl_sql_binary_expression!(ColorStyleCol);
@@ -108,6 +102,8 @@ impl std::convert::Into<App> for AppTable {
             desc: self.desc,
             belongings: RepeatedView::default(),
             version: self.version,
+            modified_time: self.modified_time,
+            create_time: self.create_time,
         }
     }
 }

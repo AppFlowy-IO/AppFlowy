@@ -67,7 +67,7 @@ impl TryInto<CreateAppParams> for CreateAppRequest {
     }
 }
 
-#[derive(PartialEq, ProtoBuf, Default, Debug)]
+#[derive(PartialEq, ProtoBuf, Default, Debug, Clone)]
 pub struct App {
     #[pb(index = 1)]
     pub id: String,
@@ -86,9 +86,15 @@ pub struct App {
 
     #[pb(index = 6)]
     pub version: i64,
+
+    #[pb(index = 7)]
+    pub modified_time: i64,
+
+    #[pb(index = 8)]
+    pub create_time: i64,
 }
 
-#[derive(PartialEq, Debug, Default, ProtoBuf)]
+#[derive(PartialEq, Debug, Default, ProtoBuf, Clone)]
 pub struct RepeatedApp {
     #[pb(index = 1)]
     pub items: Vec<App>,

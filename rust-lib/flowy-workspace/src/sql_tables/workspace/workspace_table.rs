@@ -1,9 +1,8 @@
 use crate::entities::{
     app::RepeatedApp,
-    workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, Workspace},
+    workspace::{UpdateWorkspaceParams, Workspace},
 };
 use flowy_database::schema::workspace_table;
-use flowy_infra::{timestamp, uuid};
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable)]
 #[table_name = "workspace_table"]
@@ -19,26 +18,28 @@ pub struct WorkspaceTable {
 
 impl WorkspaceTable {
     #[allow(dead_code)]
-    pub fn new(params: CreateWorkspaceParams, user_id: &str) -> Self {
-        let mut workspace = WorkspaceTable::default();
-        workspace.name = params.name;
-        workspace.desc = params.desc;
-        workspace.user_id = user_id.to_string();
-        workspace
+    pub fn new(workspace: Workspace, user_id: &str) -> Self {
+        WorkspaceTable {
+            id: workspace.id,
+            name: workspace.name,
+            desc: workspace.desc,
+            modified_time: workspace.modified_time,
+            create_time: workspace.create_time,
+            user_id: user_id.to_owned(),
+            version: 0,
+        }
     }
 }
 
-impl std::default::Default for WorkspaceTable {
-    fn default() -> Self {
-        let time = timestamp();
-        WorkspaceTable {
-            id: uuid(),
-            name: String::default(),
-            desc: String::default(),
-            modified_time: time,
-            create_time: time,
-            user_id: String::default(),
-            version: 0,
+impl std::convert::Into<Workspace> for WorkspaceTable {
+    fn into(self) -> Workspace {
+        Workspace {
+            id: self.id,
+            name: self.name,
+            desc: self.desc,
+            apps: RepeatedApp::default(),
+            modified_time: self.modified_time,
+            create_time: self.create_time,
         }
     }
 }
@@ -57,17 +58,6 @@ impl WorkspaceTableChangeset {
             id: params.id,
             name: params.name,
             desc: params.desc,
-        }
-    }
-}
-
-impl std::convert::Into<Workspace> for WorkspaceTable {
-    fn into(self) -> Workspace {
-        Workspace {
-            id: self.id,
-            name: self.name,
-            desc: self.desc,
-            apps: RepeatedApp::default(),
         }
     }
 }
