@@ -64,9 +64,11 @@ where
 
         if !authenticate_pass {
             if let Some(header) = req.headers().get(HEADER_TOKEN) {
-                let logger_user: LoggedUser = header.try_into().unwrap();
-                if AUTHORIZED_USERS.is_authorized(&logger_user) {
-                    authenticate_pass = true;
+                let result: Result<LoggedUser, ServerError> = header.try_into();
+                if let Ok(logged_user) = result {
+                    if AUTHORIZED_USERS.is_authorized(&logged_user) {
+                        authenticate_pass = true;
+                    }
                 }
             }
         }

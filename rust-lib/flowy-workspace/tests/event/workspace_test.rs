@@ -10,7 +10,7 @@ fn workspace_create_success() { let _ = create_workspace("First workspace", "");
 
 #[test]
 fn workspace_read_all() {
-    let (_, _) = create_workspace("Workspace A", "workspace_create_and_then_get_workspace_success");
+    let _ = create_workspace("Workspace A", "workspace_create_and_then_get_workspace_success");
     let request = QueryWorkspaceRequest::new();
     let workspaces = AnnieTestBuilder::new()
         .event(ReadWorkspaces)
@@ -23,7 +23,7 @@ fn workspace_read_all() {
 
 #[test]
 fn workspace_create_and_then_get_workspace() {
-    let (_user_id, workspace) = create_workspace("Workspace A", "workspace_create_and_then_get_workspace_success");
+    let workspace = create_workspace("Workspace A", "workspace_create_and_then_get_workspace_success");
     let request = QueryWorkspaceRequest::new().workspace_id(&workspace.id);
     let workspace_from_db = read_workspaces(request).unwrap();
     assert_eq!(workspace.name, workspace_from_db.name);
@@ -31,7 +31,7 @@ fn workspace_create_and_then_get_workspace() {
 
 #[test]
 fn workspace_create_with_apps() {
-    let (_user_id, workspace) = create_workspace("Workspace", "");
+    let workspace = create_workspace("Workspace", "");
     let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
 
     let request = QueryWorkspaceRequest::new().workspace_id(&workspace.id);

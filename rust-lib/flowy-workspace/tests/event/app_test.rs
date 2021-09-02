@@ -7,7 +7,7 @@ use flowy_workspace::entities::{
 
 #[test]
 fn app_create() {
-    let workspace = create_workspace("Workspace", "").1;
+    let workspace = create_workspace("Workspace", "");
     let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
     dbg!(&app);
 }
@@ -15,7 +15,7 @@ fn app_create() {
 #[test]
 #[should_panic]
 fn app_delete() {
-    let workspace = create_workspace("Workspace", "").1;
+    let workspace = create_workspace("Workspace", "");
     let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
     delete_app(&app.id);
     let query = QueryAppRequest::new(&app.id);
@@ -24,7 +24,7 @@ fn app_delete() {
 
 #[test]
 fn app_read() {
-    let workspace = create_workspace("Workspace", "").1;
+    let workspace = create_workspace("Workspace", "");
     let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
     let query = QueryAppRequest::new(&app.id);
     let app_from_db = read_app(query);
@@ -33,13 +33,13 @@ fn app_read() {
 
 #[test]
 fn app_create_with_view() {
-    let workspace = create_workspace("Workspace", "").1;
+    let workspace = create_workspace("Workspace", "");
     let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
     let request_a = CreateViewRequest {
         belong_to_id: app.id.clone(),
         name: "View A".to_string(),
         desc: "".to_string(),
-        thumbnail: None,
+        thumbnail: Some("http://1.png".to_string()),
         view_type: ViewType::Doc,
     };
 
@@ -47,7 +47,7 @@ fn app_create_with_view() {
         belong_to_id: app.id.clone(),
         name: "View B".to_string(),
         desc: "".to_string(),
-        thumbnail: None,
+        thumbnail: Some("http://1.png".to_string()),
         view_type: ViewType::Doc,
     };
 
@@ -77,7 +77,7 @@ fn app_set_trash_flag_2() {
 }
 
 fn create_app_with_trash_flag() -> String {
-    let workspace = create_workspace("Workspace", "").1;
+    let workspace = create_workspace("Workspace", "");
     let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
     let request = UpdateAppRequest {
         app_id: app.id.clone(),

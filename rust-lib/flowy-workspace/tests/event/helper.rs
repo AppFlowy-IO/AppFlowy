@@ -11,18 +11,15 @@ pub(crate) fn invalid_workspace_name_test_case() -> Vec<String> {
         .collect::<Vec<_>>()
 }
 
-pub fn create_workspace(name: &str, desc: &str) -> (String, Workspace) {
+pub fn create_workspace(name: &str, desc: &str) -> Workspace {
     let builder = AnnieTestBuilder::new();
-    let user_id = builder.user_detail.as_ref().unwrap().id.clone();
-
     let request = CreateWorkspaceRequest {
         name: name.to_owned(),
         desc: desc.to_owned(),
     };
 
     let workspace = builder.event(CreateWorkspace).request(request).sync_send().parse::<Workspace>();
-
-    (user_id, workspace)
+    workspace
 }
 
 pub fn read_workspaces(request: QueryWorkspaceRequest) -> Option<Workspace> {
@@ -79,13 +76,13 @@ pub fn create_view_with_request(request: CreateViewRequest) -> View {
 }
 
 pub fn create_view() -> View {
-    let workspace = create_workspace("Workspace", "").1;
+    let workspace = create_workspace("Workspace", "");
     let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
     let request = CreateViewRequest {
         belong_to_id: app.id.clone(),
         name: "View A".to_string(),
         desc: "".to_string(),
-        thumbnail: None,
+        thumbnail: Some("http://1.png".to_string()),
         view_type: ViewType::Doc,
     };
 
