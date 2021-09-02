@@ -25,7 +25,7 @@ message SignUpParams {
     string password = 3;
 }
 message SignUpResponse {
-    string uid = 1;
+    string user_id = 1;
     string name = 2;
     string email = 3;
     string token = 4;

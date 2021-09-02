@@ -4,12 +4,10 @@ import "app_create.proto";
 message CreateWorkspaceRequest {
     string name = 1;
     string desc = 2;
-    string user_id = 3;
 }
 message CreateWorkspaceParams {
     string name = 1;
     string desc = 2;
-    string user_id = 3;
 }
 message Workspace {
     string id = 1;

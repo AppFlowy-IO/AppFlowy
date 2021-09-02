@@ -4,7 +4,7 @@ use backend::{
 };
 
 use flowy_user::{errors::UserError, prelude::*};
-use flowy_workspace::prelude::*;
+use flowy_workspace::prelude::{server::*, *};
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
 
@@ -46,70 +46,74 @@ impl TestApp {
         update_user_detail_request(token, params, &url).await
     }
 
-    pub async fn create_workspace(&self, params: CreateWorkspaceParams) -> Workspace {
+    pub async fn create_workspace(&self, params: CreateWorkspaceParams, token: &str) -> Workspace {
         let url = format!("{}/api/workspace", self.address);
-        let workspace = create_workspace_request(params, &url).await.unwrap();
+        let workspace = create_workspace_request(token, params, &url).await.unwrap();
         workspace
     }
 
-    pub async fn read_workspaces(&self, params: QueryWorkspaceParams) -> RepeatedWorkspace {
+    pub async fn read_workspaces(
+        &self,
+        params: QueryWorkspaceParams,
+        token: &str,
+    ) -> RepeatedWorkspace {
         let url = format!("{}/api/workspace", self.address);
-        let workspaces = read_workspaces_request(params, &url).await.unwrap();
+        let workspaces = read_workspaces_request(token, params, &url).await.unwrap();
         workspaces
     }
 
-    pub async fn update_workspace(&self, params: UpdateWorkspaceParams) {
+    pub async fn update_workspace(&self, params: UpdateWorkspaceParams, token: &str) {
         let url = format!("{}/api/workspace", self.address);
-        update_workspace_request(params, &url).await.unwrap();
+        update_workspace_request(token, params, &url).await.unwrap();
     }
 
-    pub async fn delete_workspace(&self, params: DeleteWorkspaceParams) {
+    pub async fn delete_workspace(&self, params: DeleteWorkspaceParams, token: &str) {
         let url = format!("{}/api/workspace", self.address);
-        delete_workspace_request(params, &url).await.unwrap();
+        delete_workspace_request(token, params, &url).await.unwrap();
     }
 
-    pub async fn create_app(&self, params: CreateAppParams) -> App {
+    pub async fn create_app(&self, params: CreateAppParams, token: &str) -> App {
         let url = format!("{}/api/app", self.address);
-        let app = create_app_request(params, &url).await.unwrap();
+        let app = create_app_request(token, params, &url).await.unwrap();
         app
     }
 
-    pub async fn read_app(&self, params: QueryAppParams) -> Option<App> {
+    pub async fn read_app(&self, params: QueryAppParams, token: &str) -> Option<App> {
         let url = format!("{}/api/app", self.address);
-        let app = read_app_request(params, &url).await.unwrap();
+        let app = read_app_request(token, params, &url).await.unwrap();
         app
     }
 
-    pub async fn update_app(&self, params: UpdateAppParams) {
+    pub async fn update_app(&self, params: UpdateAppParams, token: &str) {
         let url = format!("{}/api/app", self.address);
-        update_app_request(params, &url).await.unwrap();
+        update_app_request(token, params, &url).await.unwrap();
     }
 
-    pub async fn delete_app(&self, params: DeleteAppParams) {
+    pub async fn delete_app(&self, params: DeleteAppParams, token: &str) {
         let url = format!("{}/api/app", self.address);
-        delete_app_request(params, &url).await.unwrap();
+        delete_app_request(token, params, &url).await.unwrap();
     }
 
-    pub async fn create_view(&self, params: CreateViewParams) -> View {
+    pub async fn create_view(&self, params: CreateViewParams, token: &str) -> View {
         let url = format!("{}/api/view", self.address);
-        let view = create_view_request(params, &url).await.unwrap();
+        let view = create_view_request(token, params, &url).await.unwrap();
         view
     }
 
-    pub async fn read_view(&self, params: QueryViewParams) -> Option<View> {
+    pub async fn read_view(&self, params: QueryViewParams, token: &str) -> Option<View> {
         let url = format!("{}/api/view", self.address);
-        let view = read_view_request(params, &url).await.unwrap();
+        let view = read_view_request(token, params, &url).await.unwrap();
         view
     }
 
-    pub async fn update_view(&self, params: UpdateViewParams) {
+    pub async fn update_view(&self, params: UpdateViewParams, token: &str) {
         let url = format!("{}/api/view", self.address);
-        update_view_request(params, &url).await.unwrap();
+        update_view_request(token, params, &url).await.unwrap();
     }
 
-    pub async fn delete_view(&self, params: DeleteViewParams) {
+    pub async fn delete_view(&self, params: DeleteViewParams, token: &str) {
         let url = format!("{}/api/view", self.address);
-        delete_view_request(params, &url).await.unwrap();
+        delete_view_request(token, params, &url).await.unwrap();
     }
 
     pub(crate) async fn register_test_user(&self) -> SignUpResponse {

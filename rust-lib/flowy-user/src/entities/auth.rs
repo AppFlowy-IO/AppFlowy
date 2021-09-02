@@ -40,8 +40,7 @@ impl TryInto<SignInParams> for SignInRequest {
 
     fn try_into(self) -> Result<SignInParams, Self::Error> {
         let email = UserEmail::parse(self.email).map_err(|e| ErrorBuilder::new(e).build())?;
-        let password =
-            UserPassword::parse(self.password).map_err(|e| ErrorBuilder::new(e).build())?;
+        let password = UserPassword::parse(self.password).map_err(|e| ErrorBuilder::new(e).build())?;
 
         Ok(SignInParams {
             email: email.0,
@@ -66,8 +65,7 @@ impl TryInto<SignUpParams> for SignUpRequest {
 
     fn try_into(self) -> Result<SignUpParams, Self::Error> {
         let email = UserEmail::parse(self.email).map_err(|e| ErrorBuilder::new(e).build())?;
-        let password =
-            UserPassword::parse(self.password).map_err(|e| ErrorBuilder::new(e).build())?;
+        let password = UserPassword::parse(self.password).map_err(|e| ErrorBuilder::new(e).build())?;
         let name = UserName::parse(self.name).map_err(|e| ErrorBuilder::new(e).build())?;
 
         Ok(SignUpParams {
@@ -93,7 +91,7 @@ pub struct SignUpParams {
 #[derive(ProtoBuf, Debug, Default)]
 pub struct SignUpResponse {
     #[pb(index = 1)]
-    pub uid: String,
+    pub user_id: String,
 
     #[pb(index = 2)]
     pub name: String,

@@ -9,4 +9,9 @@ lazy_static! {
     pub static ref SIGN_IN_URL: String = format!("{}/api/auth", HOST);
     pub static ref SIGN_OUT_URL: String = format!("{}/api/auth", HOST);
     pub static ref USER_PROFILE_URL: String = format!("{}/api/user", HOST);
+
+    //
+    pub static ref WORKSPACE_URL: String = format!("{}/api/workspace", HOST);
+    pub static ref APP_URL: String = format!("{}/api/app", HOST);
+    pub static ref VIEW_URL: String = format!("{}/api/view", HOST);
 }

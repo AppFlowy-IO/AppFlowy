@@ -372,7 +372,7 @@ class SignUpParams extends $pb.GeneratedMessage {
 
 class SignUpResponse extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SignUpResponse', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'uid')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'userId')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'email')
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'token')
@@ -381,14 +381,14 @@ class SignUpResponse extends $pb.GeneratedMessage {
 
   SignUpResponse._() : super();
   factory SignUpResponse({
-    $core.String? uid,
+    $core.String? userId,
     $core.String? name,
     $core.String? email,
     $core.String? token,
   }) {
     final _result = create();
-    if (uid != null) {
-      _result.uid = uid;
+    if (userId != null) {
+      _result.userId = userId;
     }
     if (name != null) {
       _result.name = name;
@@ -423,13 +423,13 @@ class SignUpResponse extends $pb.GeneratedMessage {
   static SignUpResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get uid => $_getSZ(0);
+  $core.String get userId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set uid($core.String v) { $_setString(0, v); }
+  set userId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasUid() => $_has(0);
+  $core.bool hasUserId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearUid() => clearField(1);
+  void clearUserId() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.String get name => $_getSZ(1);

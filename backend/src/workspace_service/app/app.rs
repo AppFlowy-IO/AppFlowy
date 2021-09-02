@@ -3,6 +3,7 @@ use flowy_net::{errors::ServerError, response::FlowyResponse};
 use crate::{
     entities::workspace::AppTable,
     sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
+    user_service::LoggedUser,
     workspace_service::{
         app::{check_app_id, make_app_from_table, Builder},
         view::read_views_belong_to_id,
@@ -25,17 +26,18 @@ use sqlx::{postgres::PgArguments, PgPool, Postgres};
 pub(crate) async fn create_app(
     pool: &PgPool,
     mut params: CreateAppParams,
+    logged_user: LoggedUser,
 ) -> Result<FlowyResponse, ServerError> {
     let name = AppName::parse(params.take_name()).map_err(invalid_params)?;
     let workspace_id = WorkspaceId::parse(params.take_workspace_id()).map_err(invalid_params)?;
-    let user_id = UserId::parse(params.take_user_id()).map_err(invalid_params)?;
+    let user_id = logged_user.get_user_id()?.to_string();
     let desc = AppDesc::parse(params.take_desc()).map_err(invalid_params)?;
     let mut transaction = pool
         .begin()
         .await
         .context("Failed to acquire a Postgres connection to create app")?;
 
-    let (sql, args, app) = Builder::new(user_id.as_ref(), workspace_id.as_ref())
+    let (sql, args, app) = Builder::new(&user_id, workspace_id.as_ref())
         .name(name.as_ref())
         .desc(desc.as_ref())
         .color_style(params.take_color_style())

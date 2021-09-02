@@ -12,7 +12,10 @@ use flowy_net::{
 };
 use flowy_user::entities::parser::UserId;
 
-use crate::workspace_service::workspace::{check_workspace_id, make_workspace_from_table};
+use crate::{
+    user_service::LoggedUser,
+    workspace_service::workspace::{check_workspace_id, make_workspace_from_table},
+};
 use flowy_workspace::{
     entities::workspace::parser::{WorkspaceDesc, WorkspaceName},
     protobuf::{CreateWorkspaceParams, RepeatedApp, RepeatedWorkspace, UpdateWorkspaceParams},
@@ -22,17 +25,18 @@ use sqlx::{postgres::PgArguments, PgPool, Postgres};
 pub(crate) async fn create_workspace(
     pool: &PgPool,
     params: CreateWorkspaceParams,
+    logged_user: LoggedUser,
 ) -> Result<FlowyResponse, ServerError> {
     let name = WorkspaceName::parse(params.get_name().to_owned()).map_err(invalid_params)?;
     let desc = WorkspaceDesc::parse(params.get_desc().to_owned()).map_err(invalid_params)?;
-    let user_id = UserId::parse(params.user_id).map_err(invalid_params)?;
+    let user_id = logged_user.get_user_id()?.to_string();
 
     let mut transaction = pool
         .begin()
         .await
         .context("Failed to acquire a Postgres connection to create workspace")?;
 
-    let (sql, args, workspace) = Builder::new(user_id.as_ref())
+    let (sql, args, workspace) = Builder::new(&user_id)
         .name(name.as_ref())
         .desc(desc.as_ref())
         .build()?;
@@ -128,10 +132,10 @@ pub(crate) async fn delete_workspace(
 
 pub async fn read_workspaces(
     pool: &PgPool,
-    user_id: &str,
     workspace_id: Option<String>,
+    logged_user: LoggedUser,
 ) -> Result<FlowyResponse, ServerError> {
-    let user_id = UserId::parse(user_id.to_string()).map_err(invalid_params)?;
+    let user_id = logged_user.get_user_id()?.to_string();
     let mut transaction = pool
         .begin()
         .await
@@ -139,7 +143,7 @@ pub async fn read_workspaces(
 
     let mut builder = SqlBuilder::select("workspace_table")
         .add_field("*")
-        .and_where_eq("user_id", user_id.as_ref());
+        .and_where_eq("user_id", &user_id);
 
     if let Some(workspace_id) = workspace_id {
         let workspace_id = check_workspace_id(workspace_id)?;

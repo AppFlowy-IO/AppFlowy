@@ -22,21 +22,16 @@ class QueryWorkspaceRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'QueryWorkspaceRequest', createEmptyInstance: create)
     ..oo(0, [1])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspaceId')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'userId')
     ..hasRequiredFields = false
   ;
 
   QueryWorkspaceRequest._() : super();
   factory QueryWorkspaceRequest({
     $core.String? workspaceId,
-    $core.String? userId,
   }) {
     final _result = create();
     if (workspaceId != null) {
       _result.workspaceId = workspaceId;
-    }
-    if (userId != null) {
-      _result.userId = userId;
     }
     return _result;
   }
@@ -72,15 +67,6 @@ class QueryWorkspaceRequest extends $pb.GeneratedMessage {
   $core.bool hasWorkspaceId() => $_has(0);
   @$pb.TagNumber(1)
   void clearWorkspaceId() => clearField(1);
-
-  @$pb.TagNumber(2)
-  $core.String get userId => $_getSZ(1);
-  @$pb.TagNumber(2)
-  set userId($core.String v) { $_setString(1, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasUserId() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearUserId() => clearField(2);
 }
 
 enum QueryWorkspaceParams_OneOfWorkspaceId {
@@ -96,21 +82,16 @@ class QueryWorkspaceParams extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'QueryWorkspaceParams', createEmptyInstance: create)
     ..oo(0, [1])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspaceId')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'userId')
     ..hasRequiredFields = false
   ;
 
   QueryWorkspaceParams._() : super();
   factory QueryWorkspaceParams({
     $core.String? workspaceId,
-    $core.String? userId,
   }) {
     final _result = create();
     if (workspaceId != null) {
       _result.workspaceId = workspaceId;
-    }
-    if (userId != null) {
-      _result.userId = userId;
     }
     return _result;
   }
@@ -146,14 +127,5 @@ class QueryWorkspaceParams extends $pb.GeneratedMessage {
   $core.bool hasWorkspaceId() => $_has(0);
   @$pb.TagNumber(1)
   void clearWorkspaceId() => clearField(1);
-
-  @$pb.TagNumber(2)
-  $core.String get userId => $_getSZ(1);
-  @$pb.TagNumber(2)
-  set userId($core.String v) { $_setString(1, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasUserId() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearUserId() => clearField(2);
 }
 

@@ -2,9 +2,7 @@ syntax = "proto3";
 
 message QueryWorkspaceRequest {
     oneof one_of_workspace_id { string workspace_id = 1; };
-    string user_id = 2;
 }
 message QueryWorkspaceParams {
     oneof one_of_workspace_id { string workspace_id = 1; };
-    string user_id = 2;
 }

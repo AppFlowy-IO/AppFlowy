@@ -3,6 +3,7 @@ use crate::{
     workspace_service::app::app::{create_app, delete_app, read_app, update_app},
 };
 
+use crate::user_service::LoggedUser;
 use actix_web::{
     web::{Data, Payload},
     HttpResponse,
@@ -19,9 +20,10 @@ use sqlx::PgPool;
 pub async fn create_handler(
     payload: Payload,
     pool: Data<PgPool>,
+    logged_user: LoggedUser,
 ) -> Result<HttpResponse, ServerError> {
     let params: CreateAppParams = parse_from_payload(payload).await?;
-    let resp = create_app(pool.get_ref(), params).await?;
+    let resp = create_app(pool.get_ref(), params, logged_user).await?;
     Ok(resp.into())
 }
 

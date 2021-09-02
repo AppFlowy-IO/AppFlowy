@@ -29,7 +29,7 @@ pub(crate) async fn read_workspaces(
     controller: Unit<Arc<WorkspaceController>>,
 ) -> DataResult<RepeatedWorkspace, WorkspaceError> {
     let params: QueryWorkspaceParams = data.into_inner().try_into()?;
-    let workspaces = controller.read_workspaces(params.workspace_id).await?;
+    let workspaces = controller.read_workspaces(params).await?;
     data_result(workspaces)
 }
 

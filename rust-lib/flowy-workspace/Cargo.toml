@@ -13,16 +13,17 @@ flowy-database = { path = "../flowy-database" }
 flowy-sqlite = { path = "../flowy-sqlite" }
 flowy-infra = { path = "../flowy-infra" }
 flowy-observable = { path = "../flowy-observable" }
+flowy-net = { path = "../flowy-net" }
+
 protobuf = {version = "2.18.0"}
 log = "0.4.14"
 diesel = {version = "1.4.7", features = ["sqlite"]}
 diesel_derives = {version = "1.4.1", features = ["sqlite"]}
 futures-core = { version = "0.3", default-features = false }
 pin-project = "1.0.0"
-flowy-net = { path = "../flowy-net" }
 strum = "0.21"
 strum_macros = "0.21"
-
+tokio = { version = "1", features = ["rt"] }
 lazy_static = "1.4.0"
 serde = { version = "1.0", features = ["derive"] }
 derive_more = {version = "0.99", features = ["display"]}

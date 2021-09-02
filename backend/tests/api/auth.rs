@@ -73,7 +73,7 @@ async fn user_update_password() {
     let password = "HelloWorld123!";
     let sign_up_resp = register_user(&app, email, password).await;
 
-    let params = UpdateUserParams::new(&sign_up_resp.uid).password("Hello123!");
+    let params = UpdateUserParams::new(&sign_up_resp.user_id).password("Hello123!");
     app.update_user_detail(&sign_up_resp.token, params)
         .await
         .unwrap();
@@ -96,7 +96,7 @@ async fn user_update_name() {
     let app = spawn_app().await;
     let sign_up_resp = sign_up_user(&app).await;
     let name = "tom".to_string();
-    let params = UpdateUserParams::new(&sign_up_resp.uid).name(&name);
+    let params = UpdateUserParams::new(&sign_up_resp.user_id).name(&name);
     app.update_user_detail(&sign_up_resp.token, params)
         .await
         .unwrap();
@@ -110,7 +110,7 @@ async fn user_update_email() {
     let app = spawn_app().await;
     let sign_up_resp = sign_up_user(&app).await;
     let email = "123@gmail.com".to_string();
-    let params = UpdateUserParams::new(&sign_up_resp.uid).email(&email);
+    let params = UpdateUserParams::new(&sign_up_resp.user_id).email(&email);
     app.update_user_detail(&sign_up_resp.token, params)
         .await
         .unwrap();

@@ -16,7 +16,7 @@ pub struct UpdateWorkspaceRequest {
     desc: Option<String>,
 }
 
-#[derive(ProtoBuf, Default)]
+#[derive(Clone, ProtoBuf, Default)]
 pub struct UpdateWorkspaceParams {
     #[pb(index = 1)]
     pub id: String,
@@ -36,20 +36,12 @@ impl TryInto<UpdateWorkspaceParams> for UpdateWorkspaceRequest {
             None => None,
             Some(name) => Some(
                 WorkspaceName::parse(name)
-                    .map_err(|e| {
-                        ErrorBuilder::new(ErrorCode::WorkspaceNameInvalid)
-                            .msg(e)
-                            .build()
-                    })?
+                    .map_err(|e| ErrorBuilder::new(ErrorCode::WorkspaceNameInvalid).msg(e).build())?
                     .0,
             ),
         };
 
-        let id = WorkspaceId::parse(self.id).map_err(|e| {
-            ErrorBuilder::new(ErrorCode::WorkspaceIdInvalid)
-                .msg(e)
-                .build()
-        })?;
+        let id = WorkspaceId::parse(self.id).map_err(|e| ErrorBuilder::new(ErrorCode::WorkspaceIdInvalid).msg(e).build())?;
 
         Ok(UpdateWorkspaceParams {
             id: id.0,

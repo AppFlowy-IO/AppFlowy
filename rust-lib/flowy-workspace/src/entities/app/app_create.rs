@@ -45,36 +45,24 @@ pub struct CreateAppParams {
 
     #[pb(index = 4)]
     pub color_style: ColorStyle,
-
-    #[pb(index = 5)]
-    pub user_id: String,
 }
 
 impl TryInto<CreateAppParams> for CreateAppRequest {
     type Error = WorkspaceError;
 
     fn try_into(self) -> Result<CreateAppParams, Self::Error> {
-        let name = AppName::parse(self.name)
-            .map_err(|e| ErrorBuilder::new(ErrorCode::AppNameInvalid).msg(e).build())?;
+        let name = AppName::parse(self.name).map_err(|e| ErrorBuilder::new(ErrorCode::AppNameInvalid).msg(e).build())?;
 
-        let id = WorkspaceId::parse(self.workspace_id).map_err(|e| {
-            ErrorBuilder::new(ErrorCode::WorkspaceIdInvalid)
-                .msg(e)
-                .build()
-        })?;
+        let id = WorkspaceId::parse(self.workspace_id).map_err(|e| ErrorBuilder::new(ErrorCode::WorkspaceIdInvalid).msg(e).build())?;
 
-        let color_style = AppColorStyle::parse(self.color_style).map_err(|e| {
-            ErrorBuilder::new(ErrorCode::AppColorStyleInvalid)
-                .msg(e)
-                .build()
-        })?;
+        let color_style =
+            AppColorStyle::parse(self.color_style).map_err(|e| ErrorBuilder::new(ErrorCode::AppColorStyleInvalid).msg(e).build())?;
 
         Ok(CreateAppParams {
             workspace_id: id.0,
             name: name.0,
             desc: self.desc,
             color_style: color_style.0,
-            user_id: "".to_string(),
         })
     }
 }

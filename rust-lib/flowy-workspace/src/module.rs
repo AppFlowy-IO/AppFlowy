@@ -18,9 +18,6 @@ pub trait WorkspaceDeps: WorkspaceUser + WorkspaceDatabase {}
 pub trait WorkspaceUser: Send + Sync {
     fn user_id(&self) -> Result<String, WorkspaceError>;
     fn token(&self) -> Result<String, WorkspaceError>;
-    // fn set_cur_workspace_id(&self, id: &str) -> DispatchFuture<Result<(),
-    // WorkspaceError>>; fn get_cur_workspace(&self) ->
-    // DispatchFuture<Result<CurrentWorkspace, WorkspaceError>>;
 }
 
 pub trait WorkspaceDatabase: Send + Sync {

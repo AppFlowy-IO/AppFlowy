@@ -87,9 +87,9 @@ pub async fn register_user(
     .await
     .context("Failed to insert user")?;
 
-    let logged_user = LoggedUser::new(&response_data.uid);
+    let logged_user = LoggedUser::new(&response_data.user_id);
     let _ = AUTHORIZED_USERS.store_auth(logged_user, true)?;
-    let _ = create_default_workspace(&mut transaction, response_data.get_uid()).await?;
+    let _ = create_default_workspace(&mut transaction, response_data.get_user_id()).await?;
 
     transaction
         .commit()
@@ -250,7 +250,7 @@ async fn insert_new_user(
     .map_err(|e| ServerError::internal().context(e))?;
 
     let mut response = SignUpResponse::default();
-    response.set_uid(uuid.to_string());
+    response.set_user_id(uuid.to_string());
     response.set_name(name.to_string());
     response.set_email(email.to_string());
     response.set_token(token.into());

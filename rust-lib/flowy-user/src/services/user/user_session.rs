@@ -80,7 +80,7 @@ impl UserSession {
 
     pub async fn sign_up(&self, params: SignUpParams) -> Result<UserTable, UserError> {
         let resp = self.server.sign_up(params).await?;
-        let session = Session::new(&resp.uid, &resp.token);
+        let session = Session::new(&resp.user_id, &resp.token);
         let _ = self.set_session(Some(session))?;
         let user_table = self.save_user(resp.into()).await?;
 
@@ -95,8 +95,7 @@ impl UserSession {
         }
 
         let conn = self.get_db_connection()?;
-        let _ =
-            diesel::delete(dsl::user_table.filter(dsl::id.eq(&session.user_id))).execute(&*conn)?;
+        let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&session.user_id))).execute(&*conn)?;
         let _ = self.server.sign_out(&session.token);
         let _ = self.database.close_user_db(&session.user_id)?;
         let _ = self.set_session(None)?;
@@ -106,11 +105,7 @@ impl UserSession {
 
     pub async fn update_user(&self, params: UpdateUserParams) -> Result<(), UserError> {
         let session = self.get_session()?;
-        match self
-            .server
-            .update_user(&session.token, params.clone())
-            .await
-        {
+        match self.server.update_user(&session.token, params.clone()).await {
             Ok(_) => {},
             Err(e) => {
                 // TODO: retry?
@@ -161,9 +156,7 @@ impl UserSession {
 impl UserSession {
     async fn save_user(&self, user: UserTable) -> Result<UserTable, UserError> {
         let conn = self.get_db_connection()?;
-        let _ = diesel::insert_into(user_table::table)
-            .values(user.clone())
-            .execute(&*conn)?;
+        let _ = diesel::insert_into(user_table::table).values(user.clone()).execute(&*conn)?;
 
         Ok(user)
     }
@@ -202,11 +195,7 @@ impl UserSession {
     }
 }
 
-pub async fn update_user(
-    _server: Server,
-    pool: Arc<ConnectionPool>,
-    params: UpdateUserParams,
-) -> Result<(), UserError> {
+pub async fn update_user(_server: Server, pool: Arc<ConnectionPool>, params: UpdateUserParams) -> Result<(), UserError> {
     let changeset = UserTableChangeset::new(params);
     let conn = pool.get()?;
     diesel_update_table!(user_table, changeset, conn);
@@ -221,9 +210,7 @@ pub fn current_user_id() -> Result<String, UserError> {
 }
 
 impl UserDatabaseConnection for UserSession {
-    fn get_connection(&self) -> Result<DBConnection, String> {
-        self.get_db_connection().map_err(|e| format!("{:?}", e))
-    }
+    fn get_connection(&self) -> Result<DBConnection, String> { self.get_db_connection().map_err(|e| format!("{:?}", e)) }
 }
 
 const SESSION_CACHE_KEY: &str = "session_cache_key";

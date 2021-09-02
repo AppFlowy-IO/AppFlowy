@@ -3,13 +3,13 @@ use crate::{
     errors::*,
     module::{WorkspaceDatabase, WorkspaceUser},
     observable::{send_observable, WorkspaceObservable},
-    services::{server::Server, AppController},
+    services::{helper::spawn, server::Server, AppController},
     sql_tables::workspace::{WorkspaceSql, WorkspaceTable, WorkspaceTableChangeset},
 };
 use flowy_dispatch::prelude::DispatchFuture;
 use flowy_infra::kv::KVStore;
 use flowy_net::request::HttpRequestBuilder;
-use std::sync::Arc;
+use std::{future::Future, sync::Arc};
 
 pub(crate) struct WorkspaceController {
     pub user: Arc<dyn WorkspaceUser>,
@@ -35,9 +35,9 @@ impl WorkspaceController {
     }
 
     pub(crate) async fn create_workspace(&self, params: CreateWorkspaceParams) -> Result<Workspace, WorkspaceError> {
-        let user_id = params.user_id.clone();
-        // TODO: server
+        let _ = self.create_workspace_on_server(params.clone()).await?;
 
+        let user_id = self.user.user_id()?;
         let workspace_table = WorkspaceTable::new(params, &user_id);
         let workspace: Workspace = workspace_table.clone().into();
         let _ = self.sql.create_workspace(workspace_table)?;
@@ -46,10 +46,11 @@ impl WorkspaceController {
     }
 
     pub(crate) fn update_workspace(&self, params: UpdateWorkspaceParams) -> Result<(), WorkspaceError> {
-        let changeset = WorkspaceTableChangeset::new(params);
+        let changeset = WorkspaceTableChangeset::new(params.clone());
         let workspace_id = changeset.id.clone();
         let _ = self.sql.update_workspace(changeset)?;
 
+        let _ = self.update_workspace_on_server(params.clone())?;
         send_observable(&workspace_id, WorkspaceObservable::WorkspaceUpdated);
         Ok(())
     }
@@ -57,6 +58,7 @@ impl WorkspaceController {
     pub(crate) fn delete_workspace(&self, workspace_id: &str) -> Result<(), WorkspaceError> {
         let user_id = self.user.user_id()?;
         let _ = self.sql.delete_workspace(workspace_id)?;
+
         send_observable(&user_id, WorkspaceObservable::UserDeleteWorkspace);
         Ok(())
     }
@@ -75,23 +77,25 @@ impl WorkspaceController {
         }
     }
 
-    pub(crate) async fn read_workspaces(&self, workspace_id: Option<String>) -> Result<RepeatedWorkspace, WorkspaceError> {
+    pub(crate) async fn read_workspaces(&self, params: QueryWorkspaceParams) -> Result<RepeatedWorkspace, WorkspaceError> {
+        self.read_workspaces_on_server(params.clone());
         let user_id = self.user.user_id()?;
-        let workspace_tables = self.read_workspace_table(workspace_id, user_id).await?;
+        let workspace_tables = self.read_workspace_table(params.workspace_id, user_id).await?;
         let mut workspaces = vec![];
         for table in workspace_tables {
             let apps = self.read_apps(&table.id).await?;
             let mut workspace: Workspace = table.into();
             workspace.apps.items = apps;
-
             workspaces.push(workspace);
         }
         Ok(RepeatedWorkspace { items: workspaces })
     }
 
     pub(crate) async fn read_cur_workspace(&self) -> Result<Workspace, WorkspaceError> {
-        let workspace_id = get_current_workspace()?;
-        let mut repeated_workspace = self.read_workspaces(Some(workspace_id.clone())).await?;
+        let params = QueryWorkspaceParams {
+            workspace_id: Some(get_current_workspace()?),
+        };
+        let mut repeated_workspace = self.read_workspaces(params).await?;
 
         if repeated_workspace.is_empty() {
             return Err(ErrorBuilder::new(ErrorCode::RecordNotFound).build());
@@ -136,6 +140,64 @@ impl WorkspaceController {
     }
 }
 
+impl WorkspaceController {
+    fn token_server(&self) -> Result<(String, Server), WorkspaceError> {
+        let token = self.user.token()?;
+        let server = self.server.clone();
+        Ok((token, server))
+    }
+
+    async fn create_workspace_on_server(&self, params: CreateWorkspaceParams) -> Result<(), WorkspaceError> {
+        let token = self.user.token()?;
+        let _ = self.server.create_workspace(&token, params).await?;
+        Ok(())
+    }
+
+    fn update_workspace_on_server(&self, params: UpdateWorkspaceParams) -> Result<(), WorkspaceError> {
+        let (token, server) = self.token_server()?;
+        spawn(async move {
+            match server.update_workspace(&token, params).await {
+                Ok(_) => {},
+                Err(e) => {
+                    // TODO: retry?
+                    log::error!("Update workspace failed: {:?}", e);
+                },
+            }
+        });
+        Ok(())
+    }
+
+    fn delete_workspace_on_server(&self, params: DeleteWorkspaceParams) -> Result<(), WorkspaceError> {
+        let (token, server) = self.token_server()?;
+        spawn(async move {
+            match server.delete_workspace(&token, params).await {
+                Ok(_) => {},
+                Err(e) => {
+                    // TODO: retry?
+                    log::error!("Delete workspace failed: {:?}", e);
+                },
+            }
+        });
+        Ok(())
+    }
+
+    fn read_workspaces_on_server(&self, params: QueryWorkspaceParams) -> Result<(), WorkspaceError> {
+        let (token, server) = self.token_server()?;
+        spawn(async move {
+            match server.read_workspace(&token, params).await {
+                Ok(_) => {
+                    // TODO: notify
+                },
+                Err(e) => {
+                    // TODO: retry?
+                    log::error!("Delete workspace failed: {:?}", e);
+                },
+            }
+        });
+        Ok(())
+    }
+}
+
 const CURRENT_WORKSPACE_ID: &str = "current_workspace_id";
 
 fn set_current_workspace(workspace: &str) { KVStore::set_str(CURRENT_WORKSPACE_ID, workspace.to_owned()); }
@@ -145,43 +207,4 @@ fn get_current_workspace() -> Result<String, WorkspaceError> {
         None => Err(ErrorBuilder::new(ErrorCode::CurrentWorkspaceNotFound).build()),
         Some(workspace_id) => Ok(workspace_id),
     }
-}
-
-pub async fn create_workspace_request(params: CreateWorkspaceParams, url: &str) -> Result<Workspace, WorkspaceError> {
-    let workspace = HttpRequestBuilder::post(&url.to_owned())
-        .protobuf(params)?
-        .send()
-        .await?
-        .response()
-        .await?;
-    Ok(workspace)
-}
-
-pub async fn read_workspaces_request(params: QueryWorkspaceParams, url: &str) -> Result<RepeatedWorkspace, WorkspaceError> {
-    let result = HttpRequestBuilder::get(&url.to_owned())
-        .protobuf(params)?
-        .send()
-        .await?
-        .response::<RepeatedWorkspace>()
-        .await;
-
-    match result {
-        Ok(repeated_workspace) => Ok(repeated_workspace),
-        Err(e) => Err(e.into()),
-    }
-}
-
-pub async fn update_workspace_request(params: UpdateWorkspaceParams, url: &str) -> Result<(), WorkspaceError> {
-    let _ = HttpRequestBuilder::patch(&url.to_owned()).protobuf(params)?.send().await?;
-    Ok(())
-}
-
-pub async fn delete_workspace_request(params: DeleteWorkspaceParams, url: &str) -> Result<(), WorkspaceError> {
-    let _ = HttpRequestBuilder::delete(url).protobuf(params)?.send().await?;
-    Ok(())
-}
-
-pub async fn read_workspace_list_request(url: &str) -> Result<RepeatedWorkspace, WorkspaceError> {
-    let workspaces = HttpRequestBuilder::get(url).send().await?.response::<RepeatedWorkspace>().await?;
-    Ok(workspaces)
 }

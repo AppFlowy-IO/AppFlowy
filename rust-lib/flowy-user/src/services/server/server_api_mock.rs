@@ -1,12 +1,5 @@
 use crate::{
-    entities::{
-        SignInParams,
-        SignInResponse,
-        SignUpParams,
-        SignUpResponse,
-        UpdateUserParams,
-        UserDetail,
-    },
+    entities::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserDetail},
     errors::{ErrorBuilder, ErrorCode, UserError},
 };
 
@@ -22,7 +15,7 @@ impl UserServerAPI for UserServerMock {
         let uid = uuid();
         ResultFuture::new(async move {
             Ok(SignUpResponse {
-                uid,
+                user_id: uid,
                 name: params.name,
                 email: params.email,
                 token: "fake token".to_owned(),
@@ -41,19 +34,11 @@ impl UserServerAPI for UserServerMock {
         })
     }
 
-    fn sign_out(&self, _token: &str) -> ResultFuture<(), UserError> {
-        ResultFuture::new(async { Ok(()) })
-    }
+    fn sign_out(&self, _token: &str) -> ResultFuture<(), UserError> { ResultFuture::new(async { Ok(()) }) }
 
-    fn update_user(&self, _token: &str, _params: UpdateUserParams) -> ResultFuture<(), UserError> {
-        ResultFuture::new(async { Ok(()) })
-    }
+    fn update_user(&self, _token: &str, _params: UpdateUserParams) -> ResultFuture<(), UserError> { ResultFuture::new(async { Ok(()) }) }
 
     fn get_user_detail(&self, _token: &str) -> ResultFuture<UserDetail, UserError> {
-        ResultFuture::new(async {
-            Err(ErrorBuilder::new(ErrorCode::Unknown)
-                .msg("mock data, ignore this error")
-                .build())
-        })
+        ResultFuture::new(async { Err(ErrorBuilder::new(ErrorCode::Unknown).msg("mock data, ignore this error").build()) })
     }
 }

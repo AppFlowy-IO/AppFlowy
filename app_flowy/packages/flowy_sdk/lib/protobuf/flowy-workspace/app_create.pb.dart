@@ -156,7 +156,6 @@ class CreateAppParams extends $pb.GeneratedMessage {
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
     ..aOM<ColorStyle>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'colorStyle', subBuilder: ColorStyle.create)
-    ..aOS(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'userId')
     ..hasRequiredFields = false
   ;
 
@@ -166,7 +165,6 @@ class CreateAppParams extends $pb.GeneratedMessage {
     $core.String? name,
     $core.String? desc,
     ColorStyle? colorStyle,
-    $core.String? userId,
   }) {
     final _result = create();
     if (workspaceId != null) {
@@ -180,9 +178,6 @@ class CreateAppParams extends $pb.GeneratedMessage {
     }
     if (colorStyle != null) {
       _result.colorStyle = colorStyle;
-    }
-    if (userId != null) {
-      _result.userId = userId;
     }
     return _result;
   }
@@ -244,15 +239,6 @@ class CreateAppParams extends $pb.GeneratedMessage {
   void clearColorStyle() => clearField(4);
   @$pb.TagNumber(4)
   ColorStyle ensureColorStyle() => $_ensure(3);
-
-  @$pb.TagNumber(5)
-  $core.String get userId => $_getSZ(4);
-  @$pb.TagNumber(5)
-  set userId($core.String v) { $_setString(4, v); }
-  @$pb.TagNumber(5)
-  $core.bool hasUserId() => $_has(4);
-  @$pb.TagNumber(5)
-  void clearUserId() => clearField(5);
 }
 
 class App extends $pb.GeneratedMessage {
