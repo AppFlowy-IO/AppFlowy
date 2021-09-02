@@ -44,7 +44,6 @@ pub(crate) fn create_default_workspace_if_need(user_id: &str) -> Result<(), User
     let payload: Bytes = CreateWorkspaceRequest {
         name: DEFAULT_WORKSPACE_NAME.to_string(),
         desc: DEFAULT_WORKSPACE_DESC.to_string(),
-        user_id: user_id.to_string(),
     }
     .into_bytes()
     .unwrap();
@@ -52,21 +51,12 @@ pub(crate) fn create_default_workspace_if_need(user_id: &str) -> Result<(), User
     let request = ModuleRequest::new(CreateWorkspace).payload(payload);
     let result = EventDispatch::sync_send(request)
         .parse::<Workspace, DispatchError>()
-        .map_err(|e| {
-            ErrorBuilder::new(ErrorCode::CreateDefaultWorkspaceFailed)
-                .error(e)
-                .build()
-        })?;
+        .map_err(|e| ErrorBuilder::new(ErrorCode::CreateDefaultWorkspaceFailed).error(e).build())?;
 
-    let workspace = result.map_err(|e| {
-        ErrorBuilder::new(ErrorCode::CreateDefaultWorkspaceFailed)
-            .error(e)
-            .build()
-    })?;
+    let workspace = result.map_err(|e| ErrorBuilder::new(ErrorCode::CreateDefaultWorkspaceFailed).error(e).build())?;
 
     let query: Bytes = QueryWorkspaceRequest {
         workspace_id: Some(workspace.id.clone()),
-        user_id: user_id.to_string(),
     }
     .into_bytes()
     .unwrap();

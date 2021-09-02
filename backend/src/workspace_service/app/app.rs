@@ -12,7 +12,7 @@ use crate::{
 use anyhow::Context;
 use chrono::Utc;
 use flowy_net::errors::invalid_params;
-use flowy_user::entities::parser::UserId;
+
 use flowy_workspace::{
     entities::{
         app::parser::{AppDesc, AppName},

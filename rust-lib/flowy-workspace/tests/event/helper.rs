@@ -18,14 +18,9 @@ pub fn create_workspace(name: &str, desc: &str) -> (String, Workspace) {
     let request = CreateWorkspaceRequest {
         name: name.to_owned(),
         desc: desc.to_owned(),
-        user_id: user_id.clone(),
     };
 
-    let workspace = builder
-        .event(CreateWorkspace)
-        .request(request)
-        .sync_send()
-        .parse::<Workspace>();
+    let workspace = builder.event(CreateWorkspace).request(request).sync_send().parse::<Workspace>();
 
     (user_id, workspace)
 }
@@ -38,10 +33,7 @@ pub fn read_workspaces(request: QueryWorkspaceRequest) -> Option<Workspace> {
         .parse::<RepeatedWorkspace>();
 
     debug_assert_eq!(repeated_workspace.len(), 1);
-    repeated_workspace
-        .drain(..1)
-        .collect::<Vec<Workspace>>()
-        .pop()
+    repeated_workspace.drain(..1).collect::<Vec<Workspace>>().pop()
 }
 
 pub fn create_app(name: &str, desc: &str, workspace_id: &str) -> App {
@@ -65,25 +57,13 @@ pub fn delete_app(app_id: &str) {
         app_id: app_id.to_string(),
     };
 
-    AnnieTestBuilder::new()
-        .event(DeleteApp)
-        .request(delete_app_request)
-        .sync_send();
+    AnnieTestBuilder::new().event(DeleteApp).request(delete_app_request).sync_send();
 }
 
-pub fn update_app(request: UpdateAppRequest) {
-    AnnieTestBuilder::new()
-        .event(UpdateApp)
-        .request(request)
-        .sync_send();
-}
+pub fn update_app(request: UpdateAppRequest) { AnnieTestBuilder::new().event(UpdateApp).request(request).sync_send(); }
 
 pub fn read_app(request: QueryAppRequest) -> App {
-    let app = AnnieTestBuilder::new()
-        .event(ReadApp)
-        .request(request)
-        .sync_send()
-        .parse::<App>();
+    let app = AnnieTestBuilder::new().event(ReadApp).request(request).sync_send().parse::<App>();
 
     app
 }
@@ -112,17 +92,6 @@ pub fn create_view() -> View {
     create_view_with_request(request)
 }
 
-pub fn update_view(request: UpdateViewRequest) {
-    AnnieTestBuilder::new()
-        .event(UpdateView)
-        .request(request)
-        .sync_send();
-}
+pub fn update_view(request: UpdateViewRequest) { AnnieTestBuilder::new().event(UpdateView).request(request).sync_send(); }
 
-pub fn read_view(request: QueryViewRequest) -> View {
-    AnnieTestBuilder::new()
-        .event(ReadView)
-        .request(request)
-        .sync_send()
-        .parse::<View>()
-}
+pub fn read_view(request: QueryViewRequest) -> View { AnnieTestBuilder::new().event(ReadView).request(request).sync_send().parse::<View>() }

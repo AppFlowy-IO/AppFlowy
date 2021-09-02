@@ -6,7 +6,6 @@ use crate::{
 use crate::{entities::UpdateUserParams, services::server::UserServerAPI};
 use flowy_infra::future::ResultFuture;
 use flowy_net::{config::*, request::HttpRequestBuilder};
-use std::sync::Arc;
 
 pub struct UserServer {}
 impl UserServer {

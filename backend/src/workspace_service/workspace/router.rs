@@ -10,7 +10,7 @@ use crate::{
 
 use crate::user_service::LoggedUser;
 use actix_web::{
-    web::{Data, Path, Payload},
+    web::{Data, Payload},
     HttpResponse,
 };
 use flowy_net::errors::ServerError;

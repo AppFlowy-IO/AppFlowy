@@ -7,7 +7,7 @@ use crate::{
     sql_tables::app::{AppTable, AppTableChangeset, AppTableSql},
 };
 use flowy_dispatch::prelude::DispatchFuture;
-use flowy_net::request::HttpRequestBuilder;
+
 use std::sync::Arc;
 
 pub(crate) struct AppController {

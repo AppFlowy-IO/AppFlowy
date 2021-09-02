@@ -1,12 +1,12 @@
 use crate::{
-    entities::view::{CreateViewParams, DeleteViewParams, QueryViewParams, UpdateViewParams, View},
+    entities::view::{CreateViewParams, UpdateViewParams, View},
     errors::WorkspaceError,
     module::WorkspaceDatabase,
     observable::{send_observable, WorkspaceObservable},
     services::server::Server,
     sql_tables::view::{ViewTable, ViewTableChangeset, ViewTableSql},
 };
-use flowy_net::request::HttpRequestBuilder;
+
 use std::sync::Arc;
 
 pub(crate) struct ViewController {

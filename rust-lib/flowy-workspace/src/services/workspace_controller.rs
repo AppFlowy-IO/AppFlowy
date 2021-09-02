@@ -8,8 +8,8 @@ use crate::{
 };
 use flowy_dispatch::prelude::DispatchFuture;
 use flowy_infra::kv::KVStore;
-use flowy_net::request::HttpRequestBuilder;
-use std::{future::Future, sync::Arc};
+
+use std::sync::Arc;
 
 pub(crate) struct WorkspaceController {
     pub user: Arc<dyn WorkspaceUser>,

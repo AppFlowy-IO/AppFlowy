@@ -2,8 +2,6 @@ use crate::user_service::{LoggedUser, AUTHORIZED_USERS};
 use actix_service::{Service, Transform};
 use actix_web::{
     dev::{ServiceRequest, ServiceResponse},
-    http::{HeaderName, HeaderValue, Method},
-    web::Data,
     Error,
     HttpResponse,
     ResponseError,
@@ -11,15 +9,11 @@ use actix_web::{
 
 use crate::config::IGNORE_ROUTES;
 use actix_web::{body::AnyBody, dev::MessageBody};
-use flowy_net::{config::HEADER_TOKEN, errors::ServerError, response::FlowyResponse};
-use futures::{
-    future::{ok, LocalBoxFuture, Ready},
-    Future,
-};
+use flowy_net::{config::HEADER_TOKEN, errors::ServerError};
+use futures::future::{ok, LocalBoxFuture, Ready};
 use std::{
     convert::TryInto,
     error::Error as StdError,
-    pin::Pin,
     task::{Context, Poll},
 };
 
@@ -59,7 +53,7 @@ where
         self.service.poll_ready(cx)
     }
 
-    fn call(&self, mut req: ServiceRequest) -> Self::Future {
+    fn call(&self, req: ServiceRequest) -> Self::Future {
         let mut authenticate_pass: bool = false;
         for ignore_route in IGNORE_ROUTES.iter() {
             if req.path().starts_with(ignore_route) {

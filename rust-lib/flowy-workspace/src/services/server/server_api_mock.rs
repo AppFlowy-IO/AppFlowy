@@ -59,7 +59,7 @@ impl WorkspaceServerAPI for WorkspaceServerMock {
     }
 
     fn read_view(&self, _token: &str, _params: QueryViewParams) -> ResultFuture<Option<View>, WorkspaceError> {
-        ResultFuture::new(async { Ok((None)) })
+        ResultFuture::new(async { Ok(None) })
     }
 
     fn delete_view(&self, _token: &str, _params: DeleteViewParams) -> ResultFuture<(), WorkspaceError> {

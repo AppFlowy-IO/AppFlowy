@@ -10,7 +10,6 @@ use flowy_net::{
     errors::{invalid_params, ServerError},
     response::FlowyResponse,
 };
-use flowy_user::entities::parser::UserId;
 
 use crate::{
     user_service::LoggedUser,
