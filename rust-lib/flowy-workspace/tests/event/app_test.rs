@@ -1,5 +1,6 @@
 use crate::helper::*;
 
+use flowy_test::builder::UserTestBuilder;
 use flowy_workspace::entities::{
     app::{QueryAppRequest, UpdateAppRequest},
     view::*,
@@ -7,6 +8,7 @@ use flowy_workspace::entities::{
 
 #[test]
 fn app_create() {
+    let _ = UserTestBuilder::new().sign_up();
     let workspace = create_workspace("Workspace", "");
     let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
     dbg!(&app);
@@ -15,6 +17,8 @@ fn app_create() {
 #[test]
 #[should_panic]
 fn app_delete() {
+    let _ = UserTestBuilder::new().sign_up();
+
     let workspace = create_workspace("Workspace", "");
     let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
     delete_app(&app.id);
@@ -24,6 +28,8 @@ fn app_delete() {
 
 #[test]
 fn app_read() {
+    let _ = UserTestBuilder::new().sign_up();
+
     let workspace = create_workspace("Workspace", "");
     let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
     let query = QueryAppRequest::new(&app.id);
@@ -33,6 +39,7 @@ fn app_read() {
 
 #[test]
 fn app_create_with_view() {
+    let _a = UserTestBuilder::new().sign_up();
     let workspace = create_workspace("Workspace", "");
     let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
     let request_a = CreateViewRequest {
@@ -63,6 +70,7 @@ fn app_create_with_view() {
 
 #[test]
 fn app_set_trash_flag() {
+    let _ = UserTestBuilder::new().sign_up();
     let app_id = create_app_with_trash_flag();
     let query = QueryAppRequest::new(&app_id).set_is_trash(true);
     let _ = read_app(query);
@@ -71,6 +79,7 @@ fn app_set_trash_flag() {
 #[test]
 #[should_panic]
 fn app_set_trash_flag_2() {
+    let _ = UserTestBuilder::new().sign_up();
     let app_id = create_app_with_trash_flag();
     let query = QueryAppRequest::new(&app_id);
     let _ = read_app(query);

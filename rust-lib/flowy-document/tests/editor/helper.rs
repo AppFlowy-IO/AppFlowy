@@ -1,4 +1,4 @@
-use flowy_test::builder::AnnieTestBuilder;
+use flowy_test::builder::{AnnieTestBuilder, DocTestBuilder, TestBuilder};
 
 use flowy_document::{entities::doc::*, event::EditorEvent::*};
 use flowy_infra::uuid;
@@ -11,13 +11,12 @@ pub fn create_doc(name: &str, desc: &str, text: &str) -> DocInfo {
         text: text.to_owned(),
     };
 
-    let doc_desc = AnnieTestBuilder::new()
+    let doc = DocTestBuilder::new()
         .event(CreateDoc)
         .request(request)
         .sync_send()
         .parse::<DocInfo>();
-
-    doc_desc
+    doc
 }
 
 pub fn save_doc(desc: &DocInfo, content: &str) {
@@ -28,34 +27,31 @@ pub fn save_doc(desc: &DocInfo, content: &str) {
         text: Some(content.to_owned()),
     };
 
-    let _ = AnnieTestBuilder::new()
-        .event(UpdateDoc)
-        .request(request)
-        .sync_send();
+    let _ = DocTestBuilder::new().event(UpdateDoc).request(request).sync_send();
 }
 
-#[allow(dead_code)]
-pub fn read_doc(doc_id: &str) -> DocInfo {
-    let request = QueryDocRequest {
-        doc_id: doc_id.to_string(),
-    };
+// #[allow(dead_code)]
+// pub fn read_doc(doc_id: &str) -> DocInfo {
+//     let request = QueryDocRequest {
+//         doc_id: doc_id.to_string(),
+//     };
+//
+//     let doc = AnnieTestBuilder::new()
+//         .event(ReadDocInfo)
+//         .request(request)
+//         .sync_send()
+//         .parse::<DocInfo>();
+//
+//     doc
+// }
 
-    let doc = AnnieTestBuilder::new()
-        .event(ReadDocInfo)
-        .request(request)
-        .sync_send()
-        .parse::<DocInfo>();
-
-    doc
-}
-
-pub fn read_doc_data(doc_id: &str, path: &str) -> DocData {
+pub(crate) fn read_doc_data(doc_id: &str, path: &str) -> DocData {
     let request = QueryDocDataRequest {
         doc_id: doc_id.to_string(),
         path: path.to_string(),
     };
 
-    let doc = AnnieTestBuilder::new()
+    let doc = DocTestBuilder::new()
         .event(ReadDocData)
         .request(request)
         .sync_send()

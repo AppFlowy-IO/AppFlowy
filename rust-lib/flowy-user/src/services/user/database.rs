@@ -3,12 +3,8 @@ use flowy_database::{DBConnection, Database};
 use flowy_sqlite::ConnectionPool;
 use lazy_static::lazy_static;
 use once_cell::sync::Lazy;
-use parking_lot::Mutex;
-use std::{
-    collections::HashMap,
-    sync::{Arc, RwLock},
-};
-
+use parking_lot::{lock_api::RwLockReadGuard, Mutex, RawRwLock, RwLock};
+use std::{collections::HashMap, sync::Arc, time::Duration};
 lazy_static! {
     static ref DB: RwLock<Option<Database>> = RwLock::new(None);
 }
@@ -18,46 +14,42 @@ pub(crate) struct UserDB {
 }
 
 impl UserDB {
-    pub(crate) fn new(db_dir: &str) -> Self {
-        Self {
-            db_dir: db_dir.to_owned(),
-        }
-    }
+    pub(crate) fn new(db_dir: &str) -> Self { Self { db_dir: db_dir.to_owned() } }
 
     fn open_user_db(&self, user_id: &str) -> Result<(), UserError> {
         if user_id.is_empty() {
-            return Err(ErrorBuilder::new(ErrorCode::UserDatabaseInitFailed)
-                .msg("user id is empty")
-                .build());
+            return Err(ErrorBuilder::new(ErrorCode::UserDatabaseInitFailed).msg("user id is empty").build());
         }
 
+        log::info!("open user db {}", user_id);
         let dir = format!("{}/{}", self.db_dir, user_id);
         let db = flowy_database::init(&dir).map_err(|e| {
-            log::error!("flowy_database::init failed, {:?}", e);
-            ErrorBuilder::new(ErrorCode::UserDatabaseInitFailed)
-                .error(e)
-                .build()
+            log::error!("init user db failed, {:?}, user_id: {}", e, user_id);
+            ErrorBuilder::new(ErrorCode::UserDatabaseInitFailed).error(e).build()
         })?;
 
-        let mut db_map = DB_MAP.write().map_err(|e| {
-            ErrorBuilder::new(ErrorCode::UserDatabaseWriteLocked)
-                .error(e)
-                .build()
-        })?;
-
-        db_map.insert(user_id.to_owned(), db);
-        Ok(())
+        match DB_MAP.try_write_for(Duration::from_millis(300)) {
+            None => Err(ErrorBuilder::new(ErrorCode::AcquireWriteLockedFailed)
+                .msg(format!("Open user db failed"))
+                .build()),
+            Some(mut write_guard) => {
+                write_guard.insert(user_id.to_owned(), db);
+                Ok(())
+            },
+        }
     }
 
     pub(crate) fn close_user_db(&self, user_id: &str) -> Result<(), UserError> {
-        let mut db_map = DB_MAP.write().map_err(|e| {
-            ErrorBuilder::new(ErrorCode::UserDatabaseWriteLocked)
-                .msg(format!("Close user db failed. {:?}", e))
-                .build()
-        })?;
-        set_user_db_init(false, user_id);
-        db_map.remove(user_id);
-        Ok(())
+        match DB_MAP.try_write_for(Duration::from_millis(300)) {
+            None => Err(ErrorBuilder::new(ErrorCode::AcquireWriteLockedFailed)
+                .msg(format!("Close user db failed"))
+                .build()),
+            Some(mut write_guard) => {
+                set_user_db_init(false, user_id);
+                write_guard.remove(user_id);
+                Ok(())
+            },
+        }
     }
 
     pub(crate) fn get_connection(&self, user_id: &str) -> Result<DBConnection, UserError> {
@@ -66,22 +58,28 @@ impl UserDB {
     }
 
     pub(crate) fn get_pool(&self, user_id: &str) -> Result<Arc<ConnectionPool>, UserError> {
-        if !is_user_db_init(user_id) {
-            let _ = self.open_user_db(user_id)?;
-            set_user_db_init(true, user_id);
+        // Opti: INIT_LOCK try to lock the INIT_RECORD accesses. Because the write guard
+        // can not nested in the read guard that will cause the deadlock.
+        match INIT_LOCK.try_lock_for(Duration::from_millis(300)) {
+            None => log::error!("get_pool fail"),
+            Some(_) => {
+                if !is_user_db_init(user_id) {
+                    let _ = self.open_user_db(user_id)?;
+                    set_user_db_init(true, user_id);
+                }
+            },
         }
 
-        let db_map = DB_MAP.read().map_err(|e| {
-            ErrorBuilder::new(ErrorCode::UserDatabaseReadLocked)
-                .error(e)
-                .build()
-        })?;
-
-        match db_map.get(user_id) {
-            None => Err(ErrorBuilder::new(ErrorCode::UserDatabaseInitFailed)
-                .msg("Get connection failed. The database is not initialization")
+        match DB_MAP.try_read_for(Duration::from_millis(300)) {
+            None => Err(ErrorBuilder::new(ErrorCode::AcquireReadLockedFailed)
+                .msg(format!("Read user db failed"))
                 .build()),
-            Some(database) => Ok(database.get_pool()),
+            Some(read_guard) => match read_guard.get(user_id) {
+                None => Err(ErrorBuilder::new(ErrorCode::UserDatabaseInitFailed)
+                    .msg("Get connection failed. The database is not initialization")
+                    .build()),
+                Some(database) => Ok(database.get_pool()),
+            },
         }
     }
 }
@@ -90,14 +88,15 @@ lazy_static! {
     static ref DB_MAP: RwLock<HashMap<String, Database>> = RwLock::new(HashMap::new());
 }
 
-static INIT_FLAG_MAP: Lazy<Mutex<HashMap<String, bool>>> = Lazy::new(|| Mutex::new(HashMap::new()));
+static INIT_LOCK: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));
+static INIT_RECORD: Lazy<Mutex<HashMap<String, bool>>> = Lazy::new(|| Mutex::new(HashMap::new()));
 fn set_user_db_init(is_init: bool, user_id: &str) {
-    let mut flag_map = INIT_FLAG_MAP.lock();
-    flag_map.insert(user_id.to_owned(), is_init);
+    let mut record = INIT_RECORD.lock();
+    record.insert(user_id.to_owned(), is_init);
 }
 
 fn is_user_db_init(user_id: &str) -> bool {
-    match INIT_FLAG_MAP.lock().get(user_id) {
+    match INIT_RECORD.lock().get(user_id) {
         None => false,
         Some(flag) => flag.clone(),
     }

@@ -69,22 +69,36 @@ impl UserSession {
         self.database.get_pool(&user_id)
     }
 
-    pub async fn sign_in(&self, params: SignInParams) -> Result<UserTable, UserError> {
-        let resp = self.server.sign_in(params).await?;
-        let session = Session::new(&resp.uid, &resp.token);
-        let _ = self.set_session(Some(session))?;
-        let user_table = self.save_user(resp.into()).await?;
-
-        Ok(user_table)
+    pub async fn sign_in(&self, params: SignInParams) -> Result<UserDetail, UserError> {
+        if self.is_login(&params.email) {
+            self.user_detail().await
+        } else {
+            let resp = self.server.sign_in(params).await?;
+            let session = Session::new(&resp.uid, &resp.token, &resp.email);
+            let _ = self.set_session(Some(session))?;
+            let user_table = self.save_user(resp.into()).await?;
+            let user_detail = UserDetail::from(user_table);
+            Ok(user_detail)
+        }
     }
 
-    pub async fn sign_up(&self, params: SignUpParams) -> Result<UserTable, UserError> {
+    pub async fn sign_up(&self, params: SignUpParams) -> Result<UserDetail, UserError> {
+        // if self.is_login(&params.email) {
+        //     self.user_detail().await
+        // } else {
+        //     let resp = self.server.sign_up(params).await?;
+        //     let session = Session::new(&resp.user_id, &resp.token, &resp.email);
+        //     let _ = self.set_session(Some(session))?;
+        //     let user_table = self.save_user(resp.into()).await?;
+        //     let user_detail = UserDetail::from(user_table);
+        //     Ok(user_detail)
+        // }
         let resp = self.server.sign_up(params).await?;
-        let session = Session::new(&resp.user_id, &resp.token);
+        let session = Session::new(&resp.user_id, &resp.token, &resp.email);
         let _ = self.set_session(Some(session))?;
         let user_table = self.save_user(resp.into()).await?;
-
-        Ok(user_table)
+        let user_detail = UserDetail::from(user_table);
+        Ok(user_detail)
     }
 
     pub async fn sign_out(&self) -> Result<(), UserError> {
@@ -170,6 +184,7 @@ impl UserSession {
         *self.session.write() = session;
         Ok(())
     }
+
     fn get_session(&self) -> Result<Session, UserError> {
         let mut session = { (*self.session.read()).clone() };
         if session.is_none() {
@@ -185,6 +200,13 @@ impl UserSession {
         match session {
             None => Err(ErrorBuilder::new(ErrorCode::UserNotLoginYet).build()),
             Some(session) => Ok(session),
+        }
+    }
+
+    fn is_login(&self, email: &str) -> bool {
+        match self.get_session() {
+            Ok(session) => session.email == email,
+            Err(_) => false,
         }
     }
 }
@@ -213,13 +235,15 @@ const SESSION_CACHE_KEY: &str = "session_cache_key";
 struct Session {
     user_id: String,
     token: String,
+    email: String,
 }
 
 impl Session {
-    pub fn new(user_id: &str, token: &str) -> Self {
+    pub fn new(user_id: &str, token: &str, email: &str) -> Self {
         Self {
             user_id: user_id.to_owned(),
             token: token.to_owned(),
+            email: email.to_owned(),
         }
     }
 }

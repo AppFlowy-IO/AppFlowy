@@ -1,4 +1,5 @@
 use crate::helper::*;
+use flowy_test::builder::*;
 use flowy_workspace::{
     entities::workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest, RepeatedWorkspace},
     event::WorkspaceEvent::*,
@@ -10,11 +11,12 @@ fn workspace_create_success() { let _ = create_workspace("First workspace", "");
 
 #[test]
 fn workspace_read_all() {
+    let _ = UserTestBuilder::new().sign_up();
     let _ = create_workspace("Workspace A", "workspace_create_and_then_get_workspace_success");
-    let request = QueryWorkspaceRequest::new();
-    let workspaces = AnnieTestBuilder::new()
+
+    let workspaces = WorkspaceTestBuilder::new()
         .event(ReadWorkspaces)
-        .request(request)
+        .request(QueryWorkspaceRequest::new())
         .sync_send()
         .parse::<RepeatedWorkspace>();
 
@@ -42,11 +44,15 @@ fn workspace_create_with_apps() {
 #[test]
 fn workspace_create_with_invalid_name() {
     for name in invalid_workspace_name_test_case() {
-        let builder = AnnieTestBuilder::new();
+        let _ = UserTestBuilder::new().sign_up();
         let request = CreateWorkspaceRequest { name, desc: "".to_owned() };
-
         assert_eq!(
-            builder.event(CreateWorkspace).request(request).sync_send().error().code,
+            WorkspaceTestBuilder::new()
+                .event(CreateWorkspace)
+                .request(request)
+                .sync_send()
+                .error()
+                .code,
             ErrorCode::WorkspaceNameInvalid
         )
     }
@@ -54,12 +60,16 @@ fn workspace_create_with_invalid_name() {
 
 #[test]
 fn workspace_update_with_invalid_name() {
+    let _ = UserTestBuilder::new().sign_up();
     for name in invalid_workspace_name_test_case() {
-        let builder = AnnieTestBuilder::new();
         let request = CreateWorkspaceRequest { name, desc: "".to_owned() };
-
         assert_eq!(
-            builder.event(CreateWorkspace).request(request).sync_send().error().code,
+            WorkspaceTestBuilder::new()
+                .event(CreateWorkspace)
+                .request(request)
+                .sync_send()
+                .error()
+                .code,
             ErrorCode::WorkspaceNameInvalid
         )
     }

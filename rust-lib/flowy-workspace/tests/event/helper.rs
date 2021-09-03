@@ -1,4 +1,4 @@
-pub use flowy_test::builder::AnnieTestBuilder;
+use flowy_test::builder::{UserTestBuilder, WorkspaceTestBuilder};
 use flowy_workspace::{
     entities::{app::*, view::*, workspace::*},
     event::WorkspaceEvent::*,
@@ -17,7 +17,7 @@ pub fn create_workspace(name: &str, desc: &str) -> Workspace {
         desc: desc.to_owned(),
     };
 
-    let workspace = AnnieTestBuilder::new()
+    let workspace = WorkspaceTestBuilder::new()
         .event(CreateWorkspace)
         .request(request)
         .sync_send()
@@ -26,13 +26,13 @@ pub fn create_workspace(name: &str, desc: &str) -> Workspace {
 }
 
 pub fn read_workspaces(request: QueryWorkspaceRequest) -> Option<Workspace> {
-    let mut repeated_workspace = AnnieTestBuilder::new()
+    let mut repeated_workspace = WorkspaceTestBuilder::new()
         .event(ReadWorkspaces)
         .request(request)
         .sync_send()
         .parse::<RepeatedWorkspace>();
 
-    debug_assert_eq!(repeated_workspace.len(), 1);
+    debug_assert_eq!(repeated_workspace.len(), 1, "Default workspace not found");
     repeated_workspace.drain(..1).collect::<Vec<Workspace>>().pop()
 }
 
@@ -44,7 +44,7 @@ pub fn create_app(name: &str, desc: &str, workspace_id: &str) -> App {
         color_style: Default::default(),
     };
 
-    let app = AnnieTestBuilder::new()
+    let app = WorkspaceTestBuilder::new()
         .event(CreateApp)
         .request(create_app_request)
         .sync_send()
@@ -57,19 +57,23 @@ pub fn delete_app(app_id: &str) {
         app_id: app_id.to_string(),
     };
 
-    AnnieTestBuilder::new().event(DeleteApp).request(delete_app_request).sync_send();
+    WorkspaceTestBuilder::new().event(DeleteApp).request(delete_app_request).sync_send();
 }
 
-pub fn update_app(request: UpdateAppRequest) { AnnieTestBuilder::new().event(UpdateApp).request(request).sync_send(); }
+pub fn update_app(request: UpdateAppRequest) { WorkspaceTestBuilder::new().event(UpdateApp).request(request).sync_send(); }
 
 pub fn read_app(request: QueryAppRequest) -> App {
-    let app = AnnieTestBuilder::new().event(ReadApp).request(request).sync_send().parse::<App>();
+    let app = WorkspaceTestBuilder::new()
+        .event(ReadApp)
+        .request(request)
+        .sync_send()
+        .parse::<App>();
 
     app
 }
 
 pub fn create_view_with_request(request: CreateViewRequest) -> View {
-    let view = AnnieTestBuilder::new()
+    let view = WorkspaceTestBuilder::new()
         .event(CreateView)
         .request(request)
         .sync_send()
@@ -78,9 +82,8 @@ pub fn create_view_with_request(request: CreateViewRequest) -> View {
     view
 }
 
-pub fn create_view() -> View {
-    let workspace = create_workspace("Workspace", "");
-    let app = create_app("App A", "AppFlowy Github Project", &workspace.id);
+pub fn create_view(workspace_id: &str) -> View {
+    let app = create_app("App A", "AppFlowy Github Project", workspace_id);
     let request = CreateViewRequest {
         belong_to_id: app.id.clone(),
         name: "View A".to_string(),
@@ -92,6 +95,12 @@ pub fn create_view() -> View {
     create_view_with_request(request)
 }
 
-pub fn update_view(request: UpdateViewRequest) { AnnieTestBuilder::new().event(UpdateView).request(request).sync_send(); }
+pub fn update_view(request: UpdateViewRequest) { WorkspaceTestBuilder::new().event(UpdateView).request(request).sync_send(); }
 
-pub fn read_view(request: QueryViewRequest) -> View { AnnieTestBuilder::new().event(ReadView).request(request).sync_send().parse::<View>() }
+pub fn read_view(request: QueryViewRequest) -> View {
+    WorkspaceTestBuilder::new()
+        .event(ReadView)
+        .request(request)
+        .sync_send()
+        .parse::<View>()
+}

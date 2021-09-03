@@ -7,10 +7,7 @@ use flowy_sdk::FlowySDK;
 use std::sync::Once;
 
 pub mod prelude {
-    pub use crate::{
-        builder::{TestBuilder, *},
-        helper::*,
-    };
+    pub use crate::{builder::*, helper::*};
     pub use flowy_dispatch::prelude::*;
 }
 

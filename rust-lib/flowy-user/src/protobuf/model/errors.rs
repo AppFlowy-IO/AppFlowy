@@ -217,8 +217,8 @@ impl ::protobuf::reflect::ProtobufValue for UserError {
 pub enum ErrorCode {
     Unknown = 0,
     UserDatabaseInitFailed = 1,
-    UserDatabaseWriteLocked = 2,
-    UserDatabaseReadLocked = 3,
+    AcquireWriteLockedFailed = 2,
+    AcquireReadLockedFailed = 3,
     UserDatabaseDidNotMatch = 4,
     UserDatabaseInternalError = 5,
     SqlInternalError = 6,
@@ -253,8 +253,8 @@ impl ::protobuf::ProtobufEnum for ErrorCode {
         match value {
             0 => ::std::option::Option::Some(ErrorCode::Unknown),
             1 => ::std::option::Option::Some(ErrorCode::UserDatabaseInitFailed),
-            2 => ::std::option::Option::Some(ErrorCode::UserDatabaseWriteLocked),
-            3 => ::std::option::Option::Some(ErrorCode::UserDatabaseReadLocked),
+            2 => ::std::option::Option::Some(ErrorCode::AcquireWriteLockedFailed),
+            3 => ::std::option::Option::Some(ErrorCode::AcquireReadLockedFailed),
             4 => ::std::option::Option::Some(ErrorCode::UserDatabaseDidNotMatch),
             5 => ::std::option::Option::Some(ErrorCode::UserDatabaseInternalError),
             6 => ::std::option::Option::Some(ErrorCode::SqlInternalError),
@@ -286,8 +286,8 @@ impl ::protobuf::ProtobufEnum for ErrorCode {
         static values: &'static [ErrorCode] = &[
             ErrorCode::Unknown,
             ErrorCode::UserDatabaseInitFailed,
-            ErrorCode::UserDatabaseWriteLocked,
-            ErrorCode::UserDatabaseReadLocked,
+            ErrorCode::AcquireWriteLockedFailed,
+            ErrorCode::AcquireReadLockedFailed,
             ErrorCode::UserDatabaseDidNotMatch,
             ErrorCode::UserDatabaseInternalError,
             ErrorCode::SqlInternalError,
@@ -341,10 +341,10 @@ impl ::protobuf::reflect::ProtobufValue for ErrorCode {
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x0cerrors.proto\"=\n\tUserError\x12\x1e\n\x04code\x18\x01\x20\x01(\
     \x0e2\n.ErrorCodeR\x04code\x12\x10\n\x03msg\x18\x02\x20\x01(\tR\x03msg*\
-    \xb9\x05\n\tErrorCode\x12\x0b\n\x07Unknown\x10\0\x12\x1a\n\x16UserDataba\
-    seInitFailed\x10\x01\x12\x1b\n\x17UserDatabaseWriteLocked\x10\x02\x12\
-    \x1a\n\x16UserDatabaseReadLocked\x10\x03\x12\x1b\n\x17UserDatabaseDidNot\
-    Match\x10\x04\x12\x1d\n\x19UserDatabaseInternalError\x10\x05\x12\x14\n\
+    \xbb\x05\n\tErrorCode\x12\x0b\n\x07Unknown\x10\0\x12\x1a\n\x16UserDataba\
+    seInitFailed\x10\x01\x12\x1c\n\x18AcquireWriteLockedFailed\x10\x02\x12\
+    \x1b\n\x17AcquireReadLockedFailed\x10\x03\x12\x1b\n\x17UserDatabaseDidNo\
+    tMatch\x10\x04\x12\x1d\n\x19UserDatabaseInternalError\x10\x05\x12\x14\n\
     \x10SqlInternalError\x10\x06\x12\x18\n\x14DatabaseConnectError\x10\x07\
     \x12\x13\n\x0fUserNotLoginYet\x10\n\x12\x17\n\x13ReadCurrentIdFailed\x10\
     \x0b\x12\x18\n\x14WriteCurrentIdFailed\x10\x0c\x12\x10\n\x0cEmailIsEmpty\
@@ -369,10 +369,10 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x04\x0b\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x07\x0e\x0f\n\x0b\n\x04\x05\
     \0\x02\x01\x12\x03\x08\x04\x1f\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\x08\
     \x04\x1a\n\x0c\n\x05\x05\0\x02\x01\x02\x12\x03\x08\x1d\x1e\n\x0b\n\x04\
-    \x05\0\x02\x02\x12\x03\t\x04\x20\n\x0c\n\x05\x05\0\x02\x02\x01\x12\x03\t\
-    \x04\x1b\n\x0c\n\x05\x05\0\x02\x02\x02\x12\x03\t\x1e\x1f\n\x0b\n\x04\x05\
-    \0\x02\x03\x12\x03\n\x04\x1f\n\x0c\n\x05\x05\0\x02\x03\x01\x12\x03\n\x04\
-    \x1a\n\x0c\n\x05\x05\0\x02\x03\x02\x12\x03\n\x1d\x1e\n\x0b\n\x04\x05\0\
+    \x05\0\x02\x02\x12\x03\t\x04!\n\x0c\n\x05\x05\0\x02\x02\x01\x12\x03\t\
+    \x04\x1c\n\x0c\n\x05\x05\0\x02\x02\x02\x12\x03\t\x1f\x20\n\x0b\n\x04\x05\
+    \0\x02\x03\x12\x03\n\x04\x20\n\x0c\n\x05\x05\0\x02\x03\x01\x12\x03\n\x04\
+    \x1b\n\x0c\n\x05\x05\0\x02\x03\x02\x12\x03\n\x1e\x1f\n\x0b\n\x04\x05\0\
     \x02\x04\x12\x03\x0b\x04\x20\n\x0c\n\x05\x05\0\x02\x04\x01\x12\x03\x0b\
     \x04\x1b\n\x0c\n\x05\x05\0\x02\x04\x02\x12\x03\x0b\x1e\x1f\n\x0b\n\x04\
     \x05\0\x02\x05\x12\x03\x0c\x04\"\n\x0c\n\x05\x05\0\x02\x05\x01\x12\x03\

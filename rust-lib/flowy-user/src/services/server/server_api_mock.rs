@@ -15,21 +15,22 @@ impl UserServerAPI for UserServerMock {
         let uid = uuid();
         ResultFuture::new(async move {
             Ok(SignUpResponse {
-                user_id: uid,
+                user_id: uid.clone(),
                 name: params.name,
                 email: params.email,
-                token: "fake token".to_owned(),
+                token: uid,
             })
         })
     }
 
     fn sign_in(&self, params: SignInParams) -> ResultFuture<SignInResponse, UserError> {
+        let user_id = uuid();
         ResultFuture::new(async {
             Ok(SignInResponse {
-                uid: uuid(),
+                uid: user_id.clone(),
                 name: "fake name".to_owned(),
                 email: params.email,
-                token: "fake token".to_string(),
+                token: user_id,
             })
         })
     }

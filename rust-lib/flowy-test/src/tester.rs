@@ -1,5 +1,5 @@
 use crate::{
-    helper::{random_email, valid_password},
+    helper::{login_password, random_email},
     init_test_sdk,
 };
 use flowy_dispatch::prelude::*;
@@ -10,6 +10,7 @@ use flowy_user::{
     prelude::*,
 };
 
+use crate::helper::login_email;
 use flowy_user::event::UserEvent::SignIn;
 use std::{
     convert::TryFrom,
@@ -22,15 +23,10 @@ pub struct TesterContext {
     request: Option<ModuleRequest>,
     response: Option<EventResponse>,
     status_code: StatusCode,
-    user_email: String,
 }
 
 impl TesterContext {
-    pub fn new(email: String) -> Self {
-        let mut ctx = TesterContext::default();
-        ctx.user_email = email;
-        ctx
-    }
+    pub fn new(email: String) -> Self { TesterContext::default() }
 }
 
 impl std::default::Default for TesterContext {
@@ -39,7 +35,6 @@ impl std::default::Default for TesterContext {
             request: None,
             status_code: StatusCode::Ok,
             response: None,
-            user_email: random_email(),
         }
     }
 }
@@ -59,7 +54,6 @@ pub trait TesterTrait {
     where
         E: Eq + Hash + Debug + Clone + Display,
     {
-        init_test_sdk();
         self.mut_context().request = Some(ModuleRequest::new(event));
     }
 
@@ -101,16 +95,13 @@ pub trait TesterTrait {
     fn error(&mut self) -> Self::Error {
         let response = self.mut_context().response.clone().unwrap();
         assert_eq!(response.status_code, StatusCode::Err);
-        <Data<Self::Error>>::try_from(response.payload)
-            .unwrap()
-            .into_inner()
+        <Data<Self::Error>>::try_from(response.payload).unwrap().into_inner()
     }
 
     fn sign_up(&self) -> (UserDetail, String) {
-        init_test_sdk();
-        let password = valid_password();
+        let password = login_password();
         let payload = SignUpRequest {
-            email: self.context().user_email.clone(),
+            email: random_email(),
             name: "app flowy".to_string(),
             password: password.clone(),
         }
@@ -118,34 +109,26 @@ pub trait TesterTrait {
         .unwrap();
 
         let request = ModuleRequest::new(SignUp).payload(payload);
-        let user_detail = EventDispatch::sync_send(request)
-            .parse::<UserDetail, UserError>()
-            .unwrap()
-            .unwrap();
+        let user_detail = EventDispatch::sync_send(request).parse::<UserDetail, UserError>().unwrap().unwrap();
 
         (user_detail, password)
     }
 
     fn sign_in(&self) -> UserDetail {
-        init_test_sdk();
         let payload = SignInRequest {
-            email: self.context().user_email.clone(),
-            password: valid_password(),
+            email: login_email(),
+            password: login_password(),
         }
         .into_bytes()
         .unwrap();
 
         let request = ModuleRequest::new(SignIn).payload(payload);
-        let user_detail = EventDispatch::sync_send(request)
-            .parse::<UserDetail, UserError>()
-            .unwrap()
-            .unwrap();
+        let user_detail = EventDispatch::sync_send(request).parse::<UserDetail, UserError>().unwrap().unwrap();
 
         user_detail
     }
 
     fn login_if_need(&self) -> UserDetail {
-        init_test_sdk();
         match EventDispatch::sync_send(ModuleRequest::new(GetUserProfile))
             .parse::<UserDetail, UserError>()
             .unwrap()
@@ -155,8 +138,5 @@ pub trait TesterTrait {
         }
     }
 
-    fn logout(&self) {
-        init_test_sdk();
-        let _ = EventDispatch::sync_send(ModuleRequest::new(SignOut));
-    }
+    fn logout(&self) { let _ = EventDispatch::sync_send(ModuleRequest::new(SignOut)); }
 }

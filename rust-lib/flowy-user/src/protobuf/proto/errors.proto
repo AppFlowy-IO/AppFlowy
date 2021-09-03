@@ -7,8 +7,8 @@ message UserError {
 enum ErrorCode {
     Unknown = 0;
     UserDatabaseInitFailed = 1;
-    UserDatabaseWriteLocked = 2;
-    UserDatabaseReadLocked = 3;
+    AcquireWriteLockedFailed = 2;
+    AcquireReadLockedFailed = 3;
     UserDatabaseDidNotMatch = 4;
     UserDatabaseInternalError = 5;
     SqlInternalError = 6;

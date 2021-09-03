@@ -11,6 +11,7 @@ flowy-dispatch = { path = "../flowy-dispatch"}
 flowy-user = { path = "../flowy-user"}
 flowy-workspace = { path = "../flowy-workspace"}
 flowy-infra = { path = "../flowy-infra"}
+flowy-document = { path = "../flowy-document"}
 
 serde = { version = "1.0", features = ["derive"] }
 bincode = { version = "1.3"}

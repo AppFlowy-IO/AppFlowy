@@ -12,8 +12,8 @@ import 'package:protobuf/protobuf.dart' as $pb;
 class ErrorCode extends $pb.ProtobufEnum {
   static const ErrorCode Unknown = ErrorCode._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unknown');
   static const ErrorCode UserDatabaseInitFailed = ErrorCode._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseInitFailed');
-  static const ErrorCode UserDatabaseWriteLocked = ErrorCode._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseWriteLocked');
-  static const ErrorCode UserDatabaseReadLocked = ErrorCode._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseReadLocked');
+  static const ErrorCode AcquireWriteLockedFailed = ErrorCode._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AcquireWriteLockedFailed');
+  static const ErrorCode AcquireReadLockedFailed = ErrorCode._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AcquireReadLockedFailed');
   static const ErrorCode UserDatabaseDidNotMatch = ErrorCode._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseDidNotMatch');
   static const ErrorCode UserDatabaseInternalError = ErrorCode._(5, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDatabaseInternalError');
   static const ErrorCode SqlInternalError = ErrorCode._(6, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'SqlInternalError');
@@ -41,8 +41,8 @@ class ErrorCode extends $pb.ProtobufEnum {
   static const $core.List<ErrorCode> values = <ErrorCode> [
     Unknown,
     UserDatabaseInitFailed,
-    UserDatabaseWriteLocked,
-    UserDatabaseReadLocked,
+    AcquireWriteLockedFailed,
+    AcquireReadLockedFailed,
     UserDatabaseDidNotMatch,
     UserDatabaseInternalError,
     SqlInternalError,

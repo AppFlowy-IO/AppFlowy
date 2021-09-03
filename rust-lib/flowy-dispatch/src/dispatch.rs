@@ -14,7 +14,7 @@ use std::{future::Future, sync::RwLock};
 use tokio::macros::support::{Pin, Poll};
 
 lazy_static! {
-    pub static ref EVENT_DISPATCH: RwLock<Option<EventDispatch>> = RwLock::new(None);
+    static ref EVENT_DISPATCH: RwLock<Option<EventDispatch>> = RwLock::new(None);
 }
 
 pub struct EventDispatch {
@@ -31,10 +31,7 @@ impl EventDispatch {
         log::trace!("{}", module_info(&modules));
         let module_map = as_module_map(modules);
         let runtime = tokio_default_runtime().unwrap();
-        let dispatch = EventDispatch {
-            module_map,
-            runtime,
-        };
+        let dispatch = EventDispatch { module_map, runtime };
         *(EVENT_DISPATCH.write().unwrap()) = Some(dispatch);
     }
 
@@ -45,10 +42,7 @@ impl EventDispatch {
         EventDispatch::async_send_with_callback(request, |_| Box::pin(async {}))
     }
 
-    pub fn async_send_with_callback<Req, Callback>(
-        request: Req,
-        callback: Callback,
-    ) -> DispatchFuture<EventResponse>
+    pub fn async_send_with_callback<Req, Callback>(request: Req, callback: Callback) -> DispatchFuture<EventResponse>
     where
         Req: std::convert::Into<ModuleRequest>,
         Callback: FnOnce(EventResponse) -> BoxFuture<'static, ()> + 'static + Send + Sync,
@@ -74,10 +68,7 @@ impl EventDispatch {
                 DispatchFuture {
                     fut: Box::pin(async move {
                         join_handle.await.unwrap_or_else(|e| {
-                            let error = InternalError::JoinError(format!(
-                                "EVENT_DISPATCH join error: {:?}",
-                                e
-                            ));
+                            let error = InternalError::JoinError(format!("EVENT_DISPATCH join error: {:?}", e));
                             error.as_response()
                         })
                     }),
@@ -94,9 +85,7 @@ impl EventDispatch {
     }
 
     pub fn sync_send(request: ModuleRequest) -> EventResponse {
-        futures::executor::block_on(async {
-            EventDispatch::async_send_with_callback(request, |_| Box::pin(async {})).await
-        })
+        futures::executor::block_on(async { EventDispatch::async_send_with_callback(request, |_| Box::pin(async {})).await })
     }
 }
 
@@ -120,8 +109,7 @@ where
     }
 }
 
-pub type BoxFutureCallback =
-    Box<dyn FnOnce(EventResponse) -> BoxFuture<'static, ()> + 'static + Send + Sync>;
+pub type BoxFutureCallback = Box<dyn FnOnce(EventResponse) -> BoxFuture<'static, ()> + 'static + Send + Sync>;
 
 #[derive(Derivative)]
 #[derivative(Debug)]

@@ -1,6 +1,7 @@
-pub use flowy_test::builder::TestBuilder;
-
-pub use flowy_test::prelude::{random_email, valid_password};
+pub use flowy_test::{
+    builder::*,
+    prelude::{login_password, random_email},
+};
 
 pub(crate) fn invalid_email_test_case() -> Vec<String> {
     // https://gist.github.com/cjaoude/fd9910626629b53c4d25

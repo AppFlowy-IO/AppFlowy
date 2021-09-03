@@ -27,10 +27,10 @@ pub enum ErrorCode {
     Unknown              = 0,
     #[display(fmt = "Database init failed")]
     UserDatabaseInitFailed = 1,
-    #[display(fmt = "Get database write lock failed")]
-    UserDatabaseWriteLocked = 2,
-    #[display(fmt = "Get database read lock failed")]
-    UserDatabaseReadLocked = 3,
+    #[display(fmt = "Acquire database write lock failed")]
+    AcquireWriteLockedFailed = 2,
+    #[display(fmt = "Acquire database read lock failed")]
+    AcquireReadLockedFailed = 3,
     #[display(fmt = "Opening database is not belonging to the current user")]
     UserDatabaseDidNotMatch = 4,
     #[display(fmt = "Database internal error")]

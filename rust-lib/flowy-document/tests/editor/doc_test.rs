@@ -1,7 +1,9 @@
 use crate::helper::*;
+use flowy_test::builder::{TestBuilder, UserTestBuilder};
 
 #[test]
 fn file_create_test() {
+    let _ = UserTestBuilder::new().sign_up();
     let doc_desc = create_doc("hello world", "flutter ❤️ rust", "123");
     dbg!(&doc_desc);
 
@@ -11,6 +13,7 @@ fn file_create_test() {
 
 #[test]
 fn file_update_text_test() {
+    let _ = UserTestBuilder::new().sign_up();
     let doc_desc = create_doc("hello world", "flutter ❤️ rust", "");
     dbg!(&doc_desc);
 
