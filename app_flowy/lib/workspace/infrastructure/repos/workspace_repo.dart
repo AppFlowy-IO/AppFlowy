@@ -40,9 +40,7 @@ class WorkspaceRepo {
   }
 
   Future<Either<Workspace, WorkspaceError>> getWorkspace() {
-    final request = QueryWorkspaceRequest.create()
-      ..userId = user.id
-      ..workspaceId = workspaceId;
+    final request = QueryWorkspaceRequest.create()..workspaceId = workspaceId;
 
     return WorkspaceEventReadWorkspaces(request).send().then((result) {
       return result.fold(

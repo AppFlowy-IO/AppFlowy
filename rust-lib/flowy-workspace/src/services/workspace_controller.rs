@@ -7,7 +7,7 @@ use crate::{
     sql_tables::workspace::{WorkspaceSql, WorkspaceTable, WorkspaceTableChangeset},
 };
 use flowy_dispatch::prelude::DispatchFuture;
-use flowy_infra::kv::KVStore;
+use flowy_infra::kv::KV;
 
 use std::sync::Arc;
 
@@ -202,10 +202,10 @@ impl WorkspaceController {
 
 const CURRENT_WORKSPACE_ID: &str = "current_workspace_id";
 
-fn set_current_workspace(workspace: &str) { KVStore::set_str(CURRENT_WORKSPACE_ID, workspace.to_owned()); }
+fn set_current_workspace(workspace: &str) { KV::set_str(CURRENT_WORKSPACE_ID, workspace.to_owned()); }
 
 fn get_current_workspace() -> Result<String, WorkspaceError> {
-    match KVStore::get_str(CURRENT_WORKSPACE_ID) {
+    match KV::get_str(CURRENT_WORKSPACE_ID) {
         None => Err(ErrorBuilder::new(ErrorCode::CurrentWorkspaceNotFound).build()),
         Some(workspace_id) => Ok(workspace_id),
     }

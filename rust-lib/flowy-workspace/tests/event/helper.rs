@@ -12,13 +12,16 @@ pub(crate) fn invalid_workspace_name_test_case() -> Vec<String> {
 }
 
 pub fn create_workspace(name: &str, desc: &str) -> Workspace {
-    let builder = AnnieTestBuilder::new();
     let request = CreateWorkspaceRequest {
         name: name.to_owned(),
         desc: desc.to_owned(),
     };
 
-    let workspace = builder.event(CreateWorkspace).request(request).sync_send().parse::<Workspace>();
+    let workspace = AnnieTestBuilder::new()
+        .event(CreateWorkspace)
+        .request(request)
+        .sync_send()
+        .parse::<Workspace>();
     workspace
 }
 

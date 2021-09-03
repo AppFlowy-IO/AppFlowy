@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use flowy_dispatch::prelude::{DispatchError, EventDispatch, ModuleRequest, ToBytes};
-use flowy_infra::{kv::KVStore, uuid};
+use flowy_infra::{kv::KV, uuid};
 use flowy_user::errors::{ErrorBuilder, ErrorCode, UserError};
 use flowy_workspace::{
     entities::workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest, Workspace},
@@ -36,10 +36,10 @@ const DEFAULT_WORKSPACE: &'static str = "Default_Workspace";
 
 pub(crate) fn create_default_workspace_if_need(user_id: &str) -> Result<(), UserError> {
     let key = format!("{}{}", user_id, DEFAULT_WORKSPACE);
-    if KVStore::get_bool(&key).unwrap_or(false) {
+    if KV::get_bool(&key).unwrap_or(false) {
         return Err(ErrorBuilder::new(ErrorCode::DefaultWorkspaceAlreadyExist).build());
     }
-    KVStore::set_bool(&key, true);
+    KV::set_bool(&key, true);
 
     let payload: Bytes = CreateWorkspaceRequest {
         name: DEFAULT_WORKSPACE_NAME.to_string(),

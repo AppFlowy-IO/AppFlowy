@@ -14,7 +14,7 @@ use flowy_database::{
 };
 
 use crate::services::server::Server;
-use flowy_infra::kv::KVStore;
+use flowy_infra::kv::KV;
 use flowy_sqlite::ConnectionPool;
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
@@ -164,22 +164,16 @@ impl UserSession {
     fn set_session(&self, session: Option<Session>) -> Result<(), UserError> {
         log::trace!("Update user session: {:?}", session);
         match &session {
-            None => KVStore::set_str(SESSION_CACHE_KEY, "".to_string()),
-            Some(session) => KVStore::set_str(SESSION_CACHE_KEY, session.clone().into()),
+            None => KV::remove(SESSION_CACHE_KEY).map_err(|e| UserError::new(ErrorCode::SqlInternalError, &e))?,
+            Some(session) => KV::set_str(SESSION_CACHE_KEY, session.clone().into()),
         }
-
-        let mut write_guard = self.session.write();
-        *write_guard = session;
+        *self.session.write() = session;
         Ok(())
     }
     fn get_session(&self) -> Result<Session, UserError> {
-        let mut session = {
-            let read_guard = self.session.read();
-            (*read_guard).clone()
-        };
-
+        let mut session = { (*self.session.read()).clone() };
         if session.is_none() {
-            match KVStore::get_str(SESSION_CACHE_KEY) {
+            match KV::get_str(SESSION_CACHE_KEY) {
                 None => {},
                 Some(s) => {
                     session = Some(Session::from(s));
@@ -203,7 +197,7 @@ pub async fn update_user(_server: Server, pool: Arc<ConnectionPool>, params: Upd
 }
 
 pub fn current_user_id() -> Result<String, UserError> {
-    match KVStore::get_str(SESSION_CACHE_KEY) {
+    match KV::get_str(SESSION_CACHE_KEY) {
         None => Err(ErrorBuilder::new(ErrorCode::UserNotLoginYet).build()),
         Some(user_id) => Ok(user_id),
     }

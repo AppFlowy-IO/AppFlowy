@@ -41,19 +41,11 @@ impl<T> Builder<T>
 where
     T: TesterTrait,
 {
-    fn test(tester: Box<T>) -> Self {
-        Self {
-            tester,
-            user_detail: None,
-        }
-    }
+    fn test(tester: Box<T>) -> Self { Self { tester, user_detail: None } }
 
     pub fn sign_up(self) -> SignUpContext {
         let (user_detail, password) = self.tester.sign_up();
-        SignUpContext {
-            user_detail,
-            password,
-        }
+        SignUpContext { user_detail, password }
     }
 
     pub fn sign_in(mut self) -> Self {
@@ -65,11 +57,6 @@ where
     fn login_if_need(&mut self) {
         let user_detail = self.tester.login_if_need();
         self.user_detail = Some(user_detail);
-    }
-
-    pub fn logout(self) -> Self {
-        // self.tester.logout();
-        self
     }
 
     pub fn request<P>(mut self, request: P) -> Self

@@ -8,16 +8,14 @@ use std::{path::Path, sync::RwLock};
 
 const DB_NAME: &str = "kv.db";
 lazy_static! {
-    static ref KV_HOLDER: RwLock<KVStore> = RwLock::new(KVStore::new());
+    static ref KV_HOLDER: RwLock<KV> = RwLock::new(KV { database: None });
 }
 
-pub struct KVStore {
+pub struct KV {
     database: Option<Database>,
 }
 
-impl KVStore {
-    fn new() -> Self { KVStore { database: None } }
-
+impl KV {
     fn set(item: KeyValue) -> Result<(), String> {
         let _ = diesel::replace_into(kv_table::table)
             .values(&item)
@@ -56,9 +54,7 @@ impl KVStore {
         let conn = database.get_connection().unwrap();
         SqliteConnection::execute(&*conn, KV_SQL).unwrap();
 
-        let mut store = KV_HOLDER
-            .write()
-            .map_err(|e| format!("KVStore write failed: {:?}", e))?;
+        let mut store = KV_HOLDER.write().map_err(|e| format!("KVStore write failed: {:?}", e))?;
         store.database = Some(database);
 
         Ok(())
@@ -70,10 +66,10 @@ macro_rules! impl_get_func {
         $func_name:ident,
         $get_method:ident=>$target:ident
     ) => {
-        impl KVStore {
+        impl KV {
             #[allow(dead_code)]
             pub fn $func_name(k: &str) -> Option<$target> {
-                match KVStore::get(k) {
+                match KV::get(k) {
                     Ok(item) => item.$get_method,
                     Err(_) => None,
                 }
@@ -84,12 +80,12 @@ macro_rules! impl_get_func {
 
 macro_rules! impl_set_func {
     ($func_name:ident,$set_method:ident,$key_type:ident) => {
-        impl KVStore {
+        impl KV {
             #[allow(dead_code)]
             pub fn $func_name(key: &str, value: $key_type) {
                 let mut item = KeyValue::new(key);
                 item.$set_method = Some(value);
-                match KVStore::set(item) {
+                match KV::set(item) {
                     Ok(_) => {},
                     Err(e) => {
                         log::error!("{:?}", e)
@@ -166,7 +162,7 @@ impl KeyValue {
 
 #[cfg(test)]
 mod tests {
-    use crate::kv::KVStore;
+    use crate::kv::KV;
 
     #[test]
     fn kv_store_test() {
@@ -175,16 +171,16 @@ mod tests {
             std::fs::create_dir_all(dir).unwrap();
         }
 
-        KVStore::init(dir).unwrap();
+        KV::init(dir).unwrap();
 
-        KVStore::set_str("1", "hello".to_string());
-        assert_eq!(KVStore::get_str("1").unwrap(), "hello");
+        KV::set_str("1", "hello".to_string());
+        assert_eq!(KV::get_str("1").unwrap(), "hello");
 
-        assert_eq!(KVStore::get_str("2"), None);
+        assert_eq!(KV::get_str("2"), None);
 
-        KVStore::set_bool("1", true);
-        assert_eq!(KVStore::get_bool("1").unwrap(), true);
+        KV::set_bool("1", true);
+        assert_eq!(KV::get_bool("1").unwrap(), true);
 
-        assert_eq!(KVStore::get_bool("2"), None);
+        assert_eq!(KV::get_bool("2"), None);
     }
 }

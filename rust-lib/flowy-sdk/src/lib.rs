@@ -13,11 +13,7 @@ pub struct FlowySDK {
 }
 
 impl FlowySDK {
-    pub fn new(root: &str) -> Self {
-        Self {
-            root: root.to_owned(),
-        }
-    }
+    pub fn new(root: &str) -> Self { Self { root: root.to_owned() } }
 
     pub fn construct(self) { FlowySDK::construct_with(&self.root) }
 
@@ -25,7 +21,7 @@ impl FlowySDK {
         FlowySDK::init_log(root);
 
         tracing::info!("🔥 Root path: {}", root);
-        match flowy_infra::kv::KVStore::init(root) {
+        match flowy_infra::kv::KV::init(root) {
             Ok(_) => {},
             Err(e) => tracing::error!("Init kv store failedL: {}", e),
         }
@@ -36,17 +32,12 @@ impl FlowySDK {
         if !INIT_LOG.load(Ordering::SeqCst) {
             INIT_LOG.store(true, Ordering::SeqCst);
 
-            let _ = flowy_log::Builder::new("flowy")
-                .local(directory)
-                .env_filter("info")
-                .build();
+            let _ = flowy_log::Builder::new("flowy").local(directory).env_filter("info").build();
         }
     }
 
     fn init_modules(root: &str) {
-        let config = ModuleConfig {
-            root: root.to_owned(),
-        };
+        let config = ModuleConfig { root: root.to_owned() };
         EventDispatch::construct(|| build_modules(config));
     }
 }

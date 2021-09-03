@@ -33,7 +33,7 @@ class UserRepo {
   }
 
   Future<Either<List<Workspace>, WorkspaceError>> fetchWorkspaces() {
-    final request = QueryWorkspaceRequest.create()..userId = user.id;
+    final request = QueryWorkspaceRequest.create();
 
     return WorkspaceEventReadWorkspaces(request).send().then((result) {
       return result.fold(
@@ -44,9 +44,7 @@ class UserRepo {
   }
 
   Future<Either<Workspace, WorkspaceError>> openWorkspace(String workspaceId) {
-    final request = QueryWorkspaceRequest.create()
-      ..userId = user.id
-      ..workspaceId = workspaceId;
+    final request = QueryWorkspaceRequest.create()..workspaceId = workspaceId;
     return WorkspaceEventOpenWorkspace(request).send().then((result) {
       return result.fold(
         (workspace) => left(workspace),
@@ -58,7 +56,6 @@ class UserRepo {
   Future<Either<Workspace, WorkspaceError>> createWorkspace(
       String name, String desc) {
     final request = CreateWorkspaceRequest.create()
-      ..userId = user.id
       ..name = name
       ..desc = desc;
     return WorkspaceEventCreateWorkspace(request).send().then((result) {

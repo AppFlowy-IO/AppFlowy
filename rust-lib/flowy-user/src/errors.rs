@@ -18,12 +18,7 @@ pub struct UserError {
 }
 
 impl UserError {
-    fn new(code: ErrorCode, msg: &str) -> Self {
-        Self {
-            code,
-            msg: msg.to_owned(),
-        }
-    }
+    pub(crate) fn new(code: ErrorCode, msg: &str) -> Self { Self { code, msg: msg.to_owned() } }
 }
 
 #[derive(Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
@@ -66,9 +61,7 @@ pub enum ErrorCode {
     PasswordTooLong      = 31,
     #[display(fmt = "Password contains forbidden characters.")]
     PasswordContainsForbidCharacters = 32,
-    #[display(
-        fmt = "Password should contain a minimum of 6 characters with 1 special 1 letter and 1 numeric"
-    )]
+    #[display(fmt = "Password should contain a minimum of 6 characters with 1 special 1 letter and 1 numeric")]
     PasswordFormatInvalid = 33,
     #[display(fmt = "Password not match")]
     PasswordNotMatch     = 34,
@@ -106,19 +99,11 @@ impl std::default::Default for ErrorCode {
 }
 
 impl std::convert::From<flowy_database::result::Error> for UserError {
-    fn from(error: flowy_database::result::Error) -> Self {
-        ErrorBuilder::new(ErrorCode::UserDatabaseInternalError)
-            .error(error)
-            .build()
-    }
+    fn from(error: flowy_database::result::Error) -> Self { ErrorBuilder::new(ErrorCode::UserDatabaseInternalError).error(error).build() }
 }
 
 impl std::convert::From<::r2d2::Error> for UserError {
-    fn from(error: r2d2::Error) -> Self {
-        ErrorBuilder::new(ErrorCode::DatabaseConnectError)
-            .error(error)
-            .build()
-    }
+    fn from(error: r2d2::Error) -> Self { ErrorBuilder::new(ErrorCode::DatabaseConnectError).error(error).build() }
 }
 
 // use diesel::result::{Error, DatabaseErrorKind};
@@ -153,23 +138,15 @@ impl std::convert::From<flowy_sqlite::Error> for UserError {
         //     ErrorKind::__Nonexhaustive { .. } => {},
         // }
 
-        ErrorBuilder::new(ErrorCode::SqlInternalError)
-            .error(error)
-            .build()
+        ErrorBuilder::new(ErrorCode::SqlInternalError).error(error).build()
     }
 }
 
 impl std::convert::From<flowy_net::errors::ServerError> for UserError {
     fn from(error: flowy_net::errors::ServerError) -> Self {
         match error.code {
-            flowy_net::errors::ErrorCode::PasswordNotMatch => {
-                ErrorBuilder::new(ErrorCode::PasswordNotMatch)
-                    .error(error.msg)
-                    .build()
-            },
-            _ => ErrorBuilder::new(ErrorCode::ServerError)
-                .error(error.msg)
-                .build(),
+            flowy_net::errors::ErrorCode::PasswordNotMatch => ErrorBuilder::new(ErrorCode::PasswordNotMatch).error(error.msg).build(),
+            _ => ErrorBuilder::new(ErrorCode::ServerError).error(error.msg).build(),
         }
     }
 }
@@ -185,11 +162,7 @@ pub type ErrorBuilder = flowy_infra::errors::Builder<ErrorCode, UserError>;
 
 impl flowy_infra::errors::Build<ErrorCode> for UserError {
     fn build(code: ErrorCode, msg: String) -> Self {
-        let msg = if msg.is_empty() {
-            format!("{}", code)
-        } else {
-            msg
-        };
+        let msg = if msg.is_empty() { format!("{}", code) } else { msg };
         UserError::new(code, &msg)
     }
 }
