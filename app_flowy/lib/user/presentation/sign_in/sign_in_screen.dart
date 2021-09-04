@@ -6,7 +6,7 @@ import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/user_detail.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
@@ -34,7 +34,7 @@ class SignInScreen extends StatelessWidget {
   }
 
   void _handleSuccessOrFail(
-      Either<UserDetail, UserError> result, BuildContext context) {
+      Either<UserProfile, UserError> result, BuildContext context) {
     result.fold(
       (user) => router.showWorkspaceSelectScreen(context, user),
       (error) => _showErrorMessage(context, error.msg),

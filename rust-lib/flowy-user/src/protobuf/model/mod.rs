@@ -6,8 +6,8 @@ pub use user_table::*;
 mod errors; 
 pub use errors::*; 
 
-mod user_detail; 
-pub use user_detail::*; 
+mod user_profile; 
+pub use user_profile::*; 
 
 mod event; 
 pub use event::*; 

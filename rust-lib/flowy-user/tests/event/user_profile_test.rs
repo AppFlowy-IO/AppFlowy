@@ -9,7 +9,7 @@ use serial_test::*;
 fn user_profile_get_failed() {
     let sdk = init_test_sdk();
     let result = UserTest::new(sdk).event(GetUserProfile).assert_error().sync_send();
-    assert!(result.user_detail().is_none())
+    assert!(result.user_profile().is_none())
 }
 
 #[test]
@@ -19,7 +19,7 @@ fn user_profile_get() {
     let user = UserTest::new(env.sdk.clone())
         .event(GetUserProfile)
         .sync_send()
-        .parse::<UserDetail>();
+        .parse::<UserProfile>();
     assert_eq!(env.user, user);
 }
 
@@ -31,13 +31,13 @@ fn user_update_with_name() {
     let request = UpdateUserRequest::new(&env.user.id).name(&new_name);
     let _ = UserTest::new(env.sdk()).event(UpdateUser).request(request).sync_send();
 
-    let user_detail = UserTest::new(env.sdk())
+    let user_profile = UserTest::new(env.sdk())
         .event(GetUserProfile)
         .assert_error()
         .sync_send()
-        .parse::<UserDetail>();
+        .parse::<UserProfile>();
 
-    assert_eq!(user_detail.name, new_name,);
+    assert_eq!(user_profile.name, new_name,);
 }
 
 #[test]
@@ -47,13 +47,13 @@ fn user_update_with_email() {
     let new_email = format!("{}@gmai.com", uuid());
     let request = UpdateUserRequest::new(&env.user.id).email(&new_email);
     let _ = UserTest::new(env.sdk()).event(UpdateUser).request(request).sync_send();
-    let user_detail = UserTest::new(env.sdk())
+    let user_profile = UserTest::new(env.sdk())
         .event(GetUserProfile)
         .assert_error()
         .sync_send()
-        .parse::<UserDetail>();
+        .parse::<UserProfile>();
 
-    assert_eq!(user_detail.email, new_email,);
+    assert_eq!(user_profile.email, new_email,);
 }
 
 #[test]

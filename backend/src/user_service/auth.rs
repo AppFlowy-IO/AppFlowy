@@ -21,7 +21,7 @@ use flowy_user::{
         SignUpParams,
         SignUpResponse,
         UpdateUserParams,
-        UserDetail,
+        UserProfile,
     },
 };
 use sqlx::{PgPool, Postgres};
@@ -99,7 +99,7 @@ pub async fn register_user(
     FlowyResponse::success().pb(response_data)
 }
 
-pub(crate) async fn get_user_details(
+pub(crate) async fn get_user_profile(
     pool: &PgPool,
     logged_user: LoggedUser,
 ) -> Result<FlowyResponse, ServerError> {
@@ -124,14 +124,14 @@ pub(crate) async fn get_user_details(
     // update the user active time
     let _ = AUTHORIZED_USERS.store_auth(logged_user, true)?;
 
-    let mut user_detail = UserDetail::default();
-    user_detail.set_id(user_table.id.to_string());
-    user_detail.set_email(user_table.email);
-    user_detail.set_name(user_table.name);
-    FlowyResponse::success().pb(user_detail)
+    let mut user_profile = UserProfile::default();
+    user_profile.set_id(user_table.id.to_string());
+    user_profile.set_email(user_table.email);
+    user_profile.set_name(user_table.name);
+    FlowyResponse::success().pb(user_profile)
 }
 
-pub(crate) async fn set_user_detail(
+pub(crate) async fn set_user_profile(
     pool: &PgPool,
     logged_user: LoggedUser,
     params: UpdateUserParams,

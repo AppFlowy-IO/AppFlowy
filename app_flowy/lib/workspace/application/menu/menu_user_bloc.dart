@@ -1,5 +1,5 @@
 import 'package:app_flowy/workspace/domain/i_user.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/user_detail.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/workspace_create.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -47,12 +47,12 @@ class MenuUserEvent with _$MenuUserEvent {
 @freezed
 class MenuUserState with _$MenuUserState {
   const factory MenuUserState({
-    required UserDetail user,
+    required UserProfile user,
     required Option<List<Workspace>> workspaces,
     required Either<Unit, String> successOrFailure,
   }) = _MenuUserState;
 
-  factory MenuUserState.initial(UserDetail user) => MenuUserState(
+  factory MenuUserState.initial(UserProfile user) => MenuUserState(
         user: user,
         workspaces: none(),
         successOrFailure: left(unit),

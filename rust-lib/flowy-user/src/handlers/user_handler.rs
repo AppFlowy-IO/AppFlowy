@@ -4,9 +4,9 @@ use flowy_dispatch::prelude::*;
 use std::{convert::TryInto, sync::Arc};
 
 #[tracing::instrument(name = "get_user_status", skip(session))]
-pub async fn user_profile_handler(session: Unit<Arc<UserSession>>) -> DataResult<UserDetail, UserError> {
-    let user_detail = session.user_detail().await?;
-    data_result(user_detail)
+pub async fn user_profile_handler(session: Unit<Arc<UserSession>>) -> DataResult<UserProfile, UserError> {
+    let user_profile = session.user_profile().await?;
+    data_result(user_profile)
 }
 
 #[tracing::instrument(name = "sign_out", skip(session))]

@@ -18,7 +18,7 @@ import 'package:app_flowy/workspace/infrastructure/repos/doc_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/workspace_repo.dart';
 import 'package:flowy_editor/flowy_editor.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/user_detail.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:get_it/get_it.dart';
 
@@ -37,10 +37,10 @@ class HomeDepsResolver {
         (appId, _) => IAppWatchImpl(repo: AppWatchRepository(appId: appId)));
 
     //workspace
-    getIt.registerFactoryParam<IWorkspace, UserDetail, String>(
+    getIt.registerFactoryParam<IWorkspace, UserProfile, String>(
         (user, workspaceId) => IWorkspaceImpl(
             repo: WorkspaceRepo(user: user, workspaceId: workspaceId)));
-    getIt.registerFactoryParam<IWorkspaceWatch, UserDetail, String>(
+    getIt.registerFactoryParam<IWorkspaceWatch, UserProfile, String>(
         (user, workspaceId) => IWorkspaceWatchImpl(
             repo: WorkspaceWatchRepo(user: user, workspaceId: workspaceId)));
 
@@ -55,20 +55,20 @@ class HomeDepsResolver {
         (docId, _) => IDocImpl(repo: DocRepository(docId: docId)));
 
     // User
-    getIt.registerFactoryParam<IUser, UserDetail, void>(
+    getIt.registerFactoryParam<IUser, UserProfile, void>(
         (user, _) => IUserImpl(repo: UserRepo(user: user)));
-    getIt.registerFactoryParam<IUserWatch, UserDetail, void>(
+    getIt.registerFactoryParam<IUserWatch, UserProfile, void>(
         (user, _) => IUserWatchImpl(repo: UserWatchRepo(user: user)));
 
     //Menu Bloc
-    getIt.registerFactoryParam<MenuBloc, UserDetail, String>(
+    getIt.registerFactoryParam<MenuBloc, UserProfile, String>(
         (user, workspaceId) =>
             MenuBloc(getIt<IWorkspace>(param1: user, param2: workspaceId)));
-    getIt.registerFactoryParam<MenuWatchBloc, UserDetail, String>(
+    getIt.registerFactoryParam<MenuWatchBloc, UserProfile, String>(
         (user, workspaceId) => MenuWatchBloc(
             getIt<IWorkspaceWatch>(param1: user, param2: workspaceId)));
 
-    getIt.registerFactoryParam<MenuUserBloc, UserDetail, void>(
+    getIt.registerFactoryParam<MenuUserBloc, UserProfile, void>(
         (user, _) => MenuUserBloc(getIt<IUser>(param1: user)));
 
     //

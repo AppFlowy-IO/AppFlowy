@@ -1,5 +1,5 @@
 use crate::{
-    entities::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UserDetail},
+    entities::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UserProfile},
     errors::UserError,
 };
 
@@ -31,12 +31,12 @@ impl UserServerAPI for UserServer {
 
     fn update_user(&self, token: &str, params: UpdateUserParams) -> ResultFuture<(), UserError> {
         let token = token.to_owned();
-        ResultFuture::new(async move { update_user_detail_request(&token, params, USER_PROFILE_URL.as_ref()).await })
+        ResultFuture::new(async move { update_user_profile_request(&token, params, USER_PROFILE_URL.as_ref()).await })
     }
 
-    fn get_user_detail(&self, token: &str) -> ResultFuture<UserDetail, UserError> {
+    fn get_user(&self, token: &str) -> ResultFuture<UserProfile, UserError> {
         let token = token.to_owned();
-        ResultFuture::new(async move { get_user_detail_request(&token, USER_PROFILE_URL.as_ref()).await })
+        ResultFuture::new(async move { get_user_profile_request(&token, USER_PROFILE_URL.as_ref()).await })
     }
 }
 
@@ -68,17 +68,17 @@ pub async fn user_sign_out_request(token: &str, url: &str) -> Result<(), UserErr
     Ok(())
 }
 
-pub async fn get_user_detail_request(token: &str, url: &str) -> Result<UserDetail, UserError> {
-    let user_detail = HttpRequestBuilder::get(&url.to_owned())
+pub async fn get_user_profile_request(token: &str, url: &str) -> Result<UserProfile, UserError> {
+    let user_profile = HttpRequestBuilder::get(&url.to_owned())
         .header(HEADER_TOKEN, token)
         .send()
         .await?
         .response()
         .await?;
-    Ok(user_detail)
+    Ok(user_profile)
 }
 
-pub async fn update_user_detail_request(token: &str, params: UpdateUserParams, url: &str) -> Result<(), UserError> {
+pub async fn update_user_profile_request(token: &str, params: UpdateUserParams, url: &str) -> Result<(), UserError> {
     let _ = HttpRequestBuilder::patch(&url.to_owned())
         .header(HEADER_TOKEN, token)
         .protobuf(params)?

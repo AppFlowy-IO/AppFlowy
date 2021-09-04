@@ -3,7 +3,7 @@ import 'package:app_flowy/workspace/presentation/widgets/menu/menu_top_bar.dart'
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/user_detail.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,7 +22,7 @@ import 'menu_list.dart';
 class HomeMenu extends StatelessWidget {
   final Function(HomeStackView?) pageContextChanged;
   final Function(bool) isCollapseChanged;
-  final UserDetail user;
+  final UserProfile user;
   final String workspaceId;
 
   const HomeMenu({
@@ -126,7 +126,7 @@ class MenuItemBuilder {
 
   MenuItemBuilder();
 
-  MenuItemBuilder withUser(UserDetail user) {
+  MenuItemBuilder withUser(UserProfile user) {
     items.add(MenuUser(user));
     return this;
   }

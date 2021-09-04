@@ -3,7 +3,7 @@ import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 
 class AuthRepository {
-  Future<Either<UserDetail, UserError>> signIn(
+  Future<Either<UserProfile, UserError>> signIn(
       {required String? email, required String? password}) {
     //
     final request = SignInRequest.create()
@@ -13,7 +13,7 @@ class AuthRepository {
     return UserEventSignIn(request).send();
   }
 
-  Future<Either<UserDetail, UserError>> signUp(
+  Future<Either<UserProfile, UserError>> signUp(
       {required String? name,
       required String? password,
       required String? email}) {

@@ -17,8 +17,8 @@ class IUserImpl extends IUser {
   }
 
   @override
-  Future<Either<UserDetail, UserError>> fetchUserDetail(String userId) {
-    return repo.fetchUserDetail(userId: userId);
+  Future<Either<UserProfile, UserError>> fetchUserProfile(String userId) {
+    return repo.fetchUserProfile(userId: userId);
   }
 
   @override
@@ -27,7 +27,7 @@ class IUserImpl extends IUser {
   }
 
   @override
-  UserDetail get user => repo.user;
+  UserProfile get user => repo.user;
 
   @override
   Future<Either<List<Workspace>, WorkspaceError>> fetchWorkspaces() {

@@ -249,7 +249,7 @@ class _$MenuUserStateTearOff {
   const _$MenuUserStateTearOff();
 
   _MenuUserState call(
-      {required UserDetail user,
+      {required UserProfile user,
       required Option<List<Workspace>> workspaces,
       required Either<Unit, String> successOrFailure}) {
     return _MenuUserState(
@@ -265,7 +265,7 @@ const $MenuUserState = _$MenuUserStateTearOff();
 
 /// @nodoc
 mixin _$MenuUserState {
-  UserDetail get user => throw _privateConstructorUsedError;
+  UserProfile get user => throw _privateConstructorUsedError;
   Option<List<Workspace>> get workspaces => throw _privateConstructorUsedError;
   Either<Unit, String> get successOrFailure =>
       throw _privateConstructorUsedError;
@@ -281,7 +281,7 @@ abstract class $MenuUserStateCopyWith<$Res> {
           MenuUserState value, $Res Function(MenuUserState) then) =
       _$MenuUserStateCopyWithImpl<$Res>;
   $Res call(
-      {UserDetail user,
+      {UserProfile user,
       Option<List<Workspace>> workspaces,
       Either<Unit, String> successOrFailure});
 }
@@ -305,7 +305,7 @@ class _$MenuUserStateCopyWithImpl<$Res>
       user: user == freezed
           ? _value.user
           : user // ignore: cast_nullable_to_non_nullable
-              as UserDetail,
+              as UserProfile,
       workspaces: workspaces == freezed
           ? _value.workspaces
           : workspaces // ignore: cast_nullable_to_non_nullable
@@ -326,7 +326,7 @@ abstract class _$MenuUserStateCopyWith<$Res>
       __$MenuUserStateCopyWithImpl<$Res>;
   @override
   $Res call(
-      {UserDetail user,
+      {UserProfile user,
       Option<List<Workspace>> workspaces,
       Either<Unit, String> successOrFailure});
 }
@@ -352,7 +352,7 @@ class __$MenuUserStateCopyWithImpl<$Res>
       user: user == freezed
           ? _value.user
           : user // ignore: cast_nullable_to_non_nullable
-              as UserDetail,
+              as UserProfile,
       workspaces: workspaces == freezed
           ? _value.workspaces
           : workspaces // ignore: cast_nullable_to_non_nullable
@@ -374,7 +374,7 @@ class _$_MenuUserState implements _MenuUserState {
       required this.successOrFailure});
 
   @override
-  final UserDetail user;
+  final UserProfile user;
   @override
   final Option<List<Workspace>> workspaces;
   @override
@@ -414,12 +414,12 @@ class _$_MenuUserState implements _MenuUserState {
 
 abstract class _MenuUserState implements MenuUserState {
   const factory _MenuUserState(
-      {required UserDetail user,
+      {required UserProfile user,
       required Option<List<Workspace>> workspaces,
       required Either<Unit, String> successOrFailure}) = _$_MenuUserState;
 
   @override
-  UserDetail get user => throw _privateConstructorUsedError;
+  UserProfile get user => throw _privateConstructorUsedError;
   @override
   Option<List<Workspace>> get workspaces => throw _privateConstructorUsedError;
   @override

@@ -440,7 +440,7 @@ class _$SignInStateTearOff {
       required bool isSubmitting,
       required Option<String> passwordError,
       required Option<String> emailError,
-      required Option<Either<UserDetail, UserError>> successOrFail}) {
+      required Option<Either<UserProfile, UserError>> successOrFail}) {
     return _SignInState(
       email: email,
       password: password,
@@ -462,7 +462,7 @@ mixin _$SignInState {
   bool get isSubmitting => throw _privateConstructorUsedError;
   Option<String> get passwordError => throw _privateConstructorUsedError;
   Option<String> get emailError => throw _privateConstructorUsedError;
-  Option<Either<UserDetail, UserError>> get successOrFail =>
+  Option<Either<UserProfile, UserError>> get successOrFail =>
       throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
@@ -481,7 +481,7 @@ abstract class $SignInStateCopyWith<$Res> {
       bool isSubmitting,
       Option<String> passwordError,
       Option<String> emailError,
-      Option<Either<UserDetail, UserError>> successOrFail});
+      Option<Either<UserProfile, UserError>> successOrFail});
 }
 
 /// @nodoc
@@ -525,7 +525,7 @@ class _$SignInStateCopyWithImpl<$Res> implements $SignInStateCopyWith<$Res> {
       successOrFail: successOrFail == freezed
           ? _value.successOrFail
           : successOrFail // ignore: cast_nullable_to_non_nullable
-              as Option<Either<UserDetail, UserError>>,
+              as Option<Either<UserProfile, UserError>>,
     ));
   }
 }
@@ -543,7 +543,7 @@ abstract class _$SignInStateCopyWith<$Res>
       bool isSubmitting,
       Option<String> passwordError,
       Option<String> emailError,
-      Option<Either<UserDetail, UserError>> successOrFail});
+      Option<Either<UserProfile, UserError>> successOrFail});
 }
 
 /// @nodoc
@@ -589,7 +589,7 @@ class __$SignInStateCopyWithImpl<$Res> extends _$SignInStateCopyWithImpl<$Res>
       successOrFail: successOrFail == freezed
           ? _value.successOrFail
           : successOrFail // ignore: cast_nullable_to_non_nullable
-              as Option<Either<UserDetail, UserError>>,
+              as Option<Either<UserProfile, UserError>>,
     ));
   }
 }
@@ -616,7 +616,7 @@ class _$_SignInState implements _SignInState {
   @override
   final Option<String> emailError;
   @override
-  final Option<Either<UserDetail, UserError>> successOrFail;
+  final Option<Either<UserProfile, UserError>> successOrFail;
 
   @override
   String toString() {
@@ -669,7 +669,7 @@ abstract class _SignInState implements SignInState {
           required bool isSubmitting,
           required Option<String> passwordError,
           required Option<String> emailError,
-          required Option<Either<UserDetail, UserError>> successOrFail}) =
+          required Option<Either<UserProfile, UserError>> successOrFail}) =
       _$_SignInState;
 
   @override
@@ -683,7 +683,7 @@ abstract class _SignInState implements SignInState {
   @override
   Option<String> get emailError => throw _privateConstructorUsedError;
   @override
-  Option<Either<UserDetail, UserError>> get successOrFail =>
+  Option<Either<UserProfile, UserError>> get successOrFail =>
       throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)

@@ -4,7 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-observable/subject.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/user_detail.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/observable.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/workspace_create.pb.dart';
@@ -13,14 +13,14 @@ import 'package:flowy_sdk/rust_stream.dart';
 import 'package:app_flowy/workspace/domain/i_user.dart';
 
 class UserRepo {
-  final UserDetail user;
+  final UserProfile user;
   UserRepo({
     required this.user,
   });
 
-  Future<Either<UserDetail, UserError>> fetchUserDetail(
+  Future<Either<UserProfile, UserError>> fetchUserProfile(
       {required String userId}) {
-    return UserEventGetStatus().send();
+    return UserEventGetUserProfile().send();
   }
 
   Future<Either<Unit, WorkspaceError>> deleteWorkspace(
@@ -73,7 +73,7 @@ class UserWatchRepo {
   UserDeleteWorkspaceCallback? _deleteWorkspace;
   late UserRepo _repo;
   UserWatchRepo({
-    required UserDetail user,
+    required UserProfile user,
   }) {
     _repo = UserRepo(user: user);
   }

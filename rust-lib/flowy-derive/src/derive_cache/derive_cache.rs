@@ -66,7 +66,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "SignUpParams"
         | "SignUpResponse"
         | "UserToken"
-        | "UserDetail"
+        | "UserProfile"
         | "UpdateUserRequest"
         | "UpdateUserParams"
         | "UserError"

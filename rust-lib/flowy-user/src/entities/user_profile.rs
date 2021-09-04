@@ -18,7 +18,7 @@ impl std::default::Default for UserStatus {
 }
 
 #[derive(ProtoBuf, Default, Debug, PartialEq, Eq, Clone)]
-pub struct UserDetail {
+pub struct UserProfile {
     #[pb(index = 1)]
     pub id: String,
 
@@ -36,9 +36,9 @@ use crate::{
 };
 use std::convert::TryInto;
 
-impl std::convert::From<UserTable> for UserDetail {
+impl std::convert::From<UserTable> for UserProfile {
     fn from(user: UserTable) -> Self {
-        UserDetail {
+        UserProfile {
             id: user.id,
             email: user.email,
             name: user.name,

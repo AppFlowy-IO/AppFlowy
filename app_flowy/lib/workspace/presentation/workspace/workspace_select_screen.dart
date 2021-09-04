@@ -132,7 +132,7 @@ class WorkspaceItem extends StatelessWidget {
 // }
 
 // class WorkspaceSelectScreen extends StatelessWidget {
-//   final UserDetail user;
+//   final UserProfile user;
 //   const WorkspaceSelectScreen({
 //     Key? key,
 //     required this.user,
@@ -206,7 +206,7 @@ class WorkspaceItem extends StatelessWidget {
 // }
 //
 // class WorkspaceSelectScreen extends StatelessWidget {
-//   final UserDetail user;
+//   final UserProfile user;
 //   const WorkspaceSelectScreen({
 //     Key? key,
 //     required this.user,

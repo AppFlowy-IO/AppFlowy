@@ -1,9 +1,8 @@
 syntax = "proto3";
-
 message UserToken {
     string token = 1;
 }
-message UserDetail {
+message UserProfile {
     string id = 1;
     string email = 2;
     string name = 3;

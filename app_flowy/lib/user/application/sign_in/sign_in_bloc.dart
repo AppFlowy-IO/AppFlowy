@@ -35,8 +35,8 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
 
     final result = await authImpl.signIn(state.email, state.password);
     yield result.fold(
-      (userDetail) => state.copyWith(
-          isSubmitting: false, successOrFail: some(left(userDetail))),
+      (UserProfile) => state.copyWith(
+          isSubmitting: false, successOrFail: some(left(UserProfile))),
       (error) => stateFromCode(error),
     );
   }
@@ -76,7 +76,7 @@ abstract class SignInState with _$SignInState {
     required bool isSubmitting,
     required Option<String> passwordError,
     required Option<String> emailError,
-    required Option<Either<UserDetail, UserError>> successOrFail,
+    required Option<Either<UserProfile, UserError>> successOrFail,
   }) = _SignInState;
 
   factory SignInState.initial() => SignInState(

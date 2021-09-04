@@ -3,7 +3,7 @@ mod helper;
 
 use crate::helper::*;
 use flowy_sdk::FlowySDK;
-use flowy_user::entities::UserDetail;
+use flowy_user::entities::UserProfile;
 
 pub mod prelude {
     pub use crate::{builder::*, helper::*, *};
@@ -15,7 +15,7 @@ pub type FlowyTestSDK = FlowySDK;
 #[derive(Clone)]
 pub struct FlowyEnv {
     pub sdk: FlowyTestSDK,
-    pub user: UserDetail,
+    pub user: UserProfile,
     pub password: String,
 }
 
@@ -25,7 +25,7 @@ impl FlowyEnv {
         let result = sign_up(sdk.dispatch());
         let env = Self {
             sdk,
-            user: result.user_detail,
+            user: result.user_profile,
             password: result.password,
         };
         env

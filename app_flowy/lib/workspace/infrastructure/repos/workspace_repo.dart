@@ -4,7 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/flowy_logger.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-observable/subject.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/user_detail.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/observable.pb.dart';
@@ -15,7 +15,7 @@ import 'package:flowy_sdk/rust_stream.dart';
 import 'package:app_flowy/workspace/domain/i_workspace.dart';
 
 class WorkspaceRepo {
-  UserDetail user;
+  UserProfile user;
   String workspaceId;
   WorkspaceRepo({
     required this.user,
@@ -64,7 +64,7 @@ class WorkspaceWatchRepo {
   WorkspaceCreateAppCallback? _createApp;
   WorkspaceDeleteAppCallback? _deleteApp;
   WorkspaceUpdatedCallback? _update;
-  final UserDetail user;
+  final UserProfile user;
   final String workspaceId;
   late WorkspaceRepo _repo;
 

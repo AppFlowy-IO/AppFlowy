@@ -3,7 +3,7 @@ use flowy_dispatch::prelude::{EventDispatch, ModuleRequest, ToBytes};
 use flowy_infra::{kv::KV, uuid};
 
 use flowy_user::{
-    entities::{SignInRequest, SignUpRequest, UserDetail},
+    entities::{SignInRequest, SignUpRequest, UserProfile},
     errors::{ErrorBuilder, ErrorCode, UserError},
     event::UserEvent::{SignIn, SignOut, SignUp},
 };
@@ -76,7 +76,7 @@ pub(crate) fn create_default_workspace_if_need(dispatch: Arc<EventDispatch>, use
 }
 
 pub struct SignUpContext {
-    pub user_detail: UserDetail,
+    pub user_profile: UserProfile,
     pub password: String,
 }
 
@@ -91,17 +91,17 @@ pub fn sign_up(dispatch: Arc<EventDispatch>) -> SignUpContext {
     .unwrap();
 
     let request = ModuleRequest::new(SignUp).payload(payload);
-    let user_detail = EventDispatch::sync_send(dispatch.clone(), request)
-        .parse::<UserDetail, UserError>()
+    let user_profile = EventDispatch::sync_send(dispatch.clone(), request)
+        .parse::<UserProfile, UserError>()
         .unwrap()
         .unwrap();
 
-    let _ = create_default_workspace_if_need(dispatch.clone(), &user_detail.id);
-    SignUpContext { user_detail, password }
+    let _ = create_default_workspace_if_need(dispatch.clone(), &user_profile.id);
+    SignUpContext { user_profile, password }
 }
 
 #[allow(dead_code)]
-fn sign_in(dispatch: Arc<EventDispatch>) -> UserDetail {
+fn sign_in(dispatch: Arc<EventDispatch>) -> UserProfile {
     let payload = SignInRequest {
         email: login_email(),
         password: login_password(),
@@ -110,12 +110,12 @@ fn sign_in(dispatch: Arc<EventDispatch>) -> UserDetail {
     .unwrap();
 
     let request = ModuleRequest::new(SignIn).payload(payload);
-    let user_detail = EventDispatch::sync_send(dispatch, request)
-        .parse::<UserDetail, UserError>()
+    let user_profile = EventDispatch::sync_send(dispatch, request)
+        .parse::<UserProfile, UserError>()
         .unwrap()
         .unwrap();
 
-    user_detail
+    user_profile
 }
 
 #[allow(dead_code)]

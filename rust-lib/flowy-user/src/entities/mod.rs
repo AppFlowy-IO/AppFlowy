@@ -1,6 +1,6 @@
 pub use auth::*;
-pub use user_detail::*;
+pub use user_profile::*;
 pub mod parser;
 
 pub mod auth;
-mod user_detail;
+mod user_profile;

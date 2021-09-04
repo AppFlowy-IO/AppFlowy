@@ -4,7 +4,8 @@ part 'auth_state.freezed.dart';
 
 @freezed
 abstract class AuthState with _$AuthState {
-  const factory AuthState.authenticated(UserDetail userDetail) = Authenticated;
+  const factory AuthState.authenticated(UserProfile userProfile) =
+      Authenticated;
   const factory AuthState.unauthenticated(UserError error) = Unauthenticated;
   const factory AuthState.initial() = _Initial;
 }

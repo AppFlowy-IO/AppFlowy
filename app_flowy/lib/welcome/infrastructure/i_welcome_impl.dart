@@ -18,12 +18,12 @@ export 'package:app_flowy/welcome/domain/i_welcome.dart';
 
 class WelcomeAuthImpl implements IWelcomeAuth {
   @override
-  Future<AuthState> currentUserDetail() {
-    final result = UserEventGetStatus().send();
+  Future<AuthState> currentUserProfile() {
+    final result = UserEventGetUserProfile().send();
     return result.then((result) {
       return result.fold(
-        (userDetail) {
-          return AuthState.authenticated(userDetail);
+        (UserProfile) {
+          return AuthState.authenticated(UserProfile);
         },
         (userError) {
           return AuthState.unauthenticated(userError);
@@ -35,7 +35,7 @@ class WelcomeAuthImpl implements IWelcomeAuth {
 
 class WelcomeRoute implements IWelcomeRoute {
   @override
-  Future<void> pushHomeScreen(BuildContext context, UserDetail user) async {
+  Future<void> pushHomeScreen(BuildContext context, UserProfile user) async {
     final repo = UserRepo(user: user);
     return WorkspaceEventReadCurWorkspace().send().then(
       (result) {

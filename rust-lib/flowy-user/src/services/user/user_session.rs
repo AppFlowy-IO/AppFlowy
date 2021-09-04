@@ -1,5 +1,5 @@
 use crate::{
-    entities::{SignInParams, SignUpParams, UpdateUserParams, UserDetail},
+    entities::{SignInParams, SignUpParams, UpdateUserParams, UserProfile},
     errors::{ErrorBuilder, ErrorCode, UserError},
     services::user::{construct_user_server, database::UserDB},
     sql_tables::{UserTable, UserTableChangeset},
@@ -69,29 +69,29 @@ impl UserSession {
         self.database.get_pool(&user_id)
     }
 
-    pub async fn sign_in(&self, params: SignInParams) -> Result<UserDetail, UserError> {
+    pub async fn sign_in(&self, params: SignInParams) -> Result<UserProfile, UserError> {
         if self.is_login(&params.email) {
-            self.user_detail().await
+            self.user_profile().await
         } else {
             let resp = self.server.sign_in(params).await?;
             let session = Session::new(&resp.uid, &resp.token, &resp.email);
             let _ = self.set_session(Some(session))?;
             let user_table = self.save_user(resp.into()).await?;
-            let user_detail = UserDetail::from(user_table);
-            Ok(user_detail)
+            let user_profile = UserProfile::from(user_table);
+            Ok(user_profile)
         }
     }
 
-    pub async fn sign_up(&self, params: SignUpParams) -> Result<UserDetail, UserError> {
+    pub async fn sign_up(&self, params: SignUpParams) -> Result<UserProfile, UserError> {
         if self.is_login(&params.email) {
-            self.user_detail().await
+            self.user_profile().await
         } else {
             let resp = self.server.sign_up(params).await?;
             let session = Session::new(&resp.user_id, &resp.token, &resp.email);
             let _ = self.set_session(Some(session))?;
             let user_table = self.save_user(resp.into()).await?;
-            let user_detail = UserDetail::from(user_table);
-            Ok(user_detail)
+            let user_profile = UserProfile::from(user_table);
+            Ok(user_profile)
         }
     }
 
@@ -127,15 +127,15 @@ impl UserSession {
         Ok(())
     }
 
-    pub async fn user_detail(&self) -> Result<UserDetail, UserError> {
+    pub async fn user_profile(&self) -> Result<UserProfile, UserError> {
         let session = self.get_session()?;
         let token = session.token;
         let server = self.server.clone();
         tokio::spawn(async move {
-            match server.get_user_detail(&token).await {
-                Ok(user_detail) => {
+            match server.get_user(&token).await {
+                Ok(profile) => {
                     //
-                    log::info!("{:?}", user_detail);
+                    log::info!("{:?}", profile);
                 },
                 Err(e) => {
                     //
@@ -149,7 +149,7 @@ impl UserSession {
             .filter(user_table::id.eq(&session.user_id))
             .first::<UserTable>(&*(self.get_db_connection()?))?;
 
-        Ok(UserDetail::from(user))
+        Ok(UserProfile::from(user))
     }
 
     pub fn user_dir(&self) -> Result<String, UserError> {

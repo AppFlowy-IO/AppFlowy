@@ -1,369 +1,369 @@
+
+
 /// Auto gen code from rust ast, do not edit
 part of 'dispatch.dart';
-
 class WorkspaceEventCreateWorkspace {
-  CreateWorkspaceRequest request;
-  WorkspaceEventCreateWorkspace(this.request);
+     CreateWorkspaceRequest request;
+     WorkspaceEventCreateWorkspace(this.request);
 
-  Future<Either<Workspace, WorkspaceError>> send() {
+    Future<Either<Workspace, WorkspaceError>> send() {
     final request = FFIRequest.create()
-      ..event = WorkspaceEvent.CreateWorkspace.toString()
-      ..payload = requestToBytes(this.request);
+          ..event = WorkspaceEvent.CreateWorkspace.toString()
+          ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-              (okBytes) => left(Workspace.fromBuffer(okBytes)),
-              (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
-            ));
-  }
+           (okBytes) => left(Workspace.fromBuffer(okBytes)),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
+    }
 }
 
 class WorkspaceEventReadCurWorkspace {
-  WorkspaceEventReadCurWorkspace();
+    WorkspaceEventReadCurWorkspace();
 
-  Future<Either<Workspace, WorkspaceError>> send() {
-    final request = FFIRequest.create()
-      ..event = WorkspaceEvent.ReadCurWorkspace.toString();
+    Future<Either<Workspace, WorkspaceError>> send() {
+     final request = FFIRequest.create()
+        ..event = WorkspaceEvent.ReadCurWorkspace.toString();
 
-    return Dispatch.asyncRequest(request)
-        .then((bytesResult) => bytesResult.fold(
-              (okBytes) => left(Workspace.fromBuffer(okBytes)),
-              (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
-            ));
-  }
+     return Dispatch.asyncRequest(request).then((bytesResult) => bytesResult.fold(
+        (okBytes) => left(Workspace.fromBuffer(okBytes)),
+        (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+      ));
+    }
 }
 
 class WorkspaceEventReadWorkspaces {
-  QueryWorkspaceRequest request;
-  WorkspaceEventReadWorkspaces(this.request);
+     QueryWorkspaceRequest request;
+     WorkspaceEventReadWorkspaces(this.request);
 
-  Future<Either<RepeatedWorkspace, WorkspaceError>> send() {
+    Future<Either<RepeatedWorkspace, WorkspaceError>> send() {
     final request = FFIRequest.create()
-      ..event = WorkspaceEvent.ReadWorkspaces.toString()
-      ..payload = requestToBytes(this.request);
+          ..event = WorkspaceEvent.ReadWorkspaces.toString()
+          ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-              (okBytes) => left(RepeatedWorkspace.fromBuffer(okBytes)),
-              (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
-            ));
-  }
+           (okBytes) => left(RepeatedWorkspace.fromBuffer(okBytes)),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
+    }
 }
 
 class WorkspaceEventDeleteWorkspace {
-  DeleteWorkspaceRequest request;
-  WorkspaceEventDeleteWorkspace(this.request);
+     DeleteWorkspaceRequest request;
+     WorkspaceEventDeleteWorkspace(this.request);
 
-  Future<Either<Unit, WorkspaceError>> send() {
+    Future<Either<Unit, WorkspaceError>> send() {
     final request = FFIRequest.create()
-      ..event = WorkspaceEvent.DeleteWorkspace.toString()
-      ..payload = requestToBytes(this.request);
+          ..event = WorkspaceEvent.DeleteWorkspace.toString()
+          ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-              (bytes) => left(unit),
-              (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
-            ));
-  }
+           (bytes) => left(unit),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
+    }
 }
 
 class WorkspaceEventOpenWorkspace {
-  QueryWorkspaceRequest request;
-  WorkspaceEventOpenWorkspace(this.request);
+     QueryWorkspaceRequest request;
+     WorkspaceEventOpenWorkspace(this.request);
 
-  Future<Either<Workspace, WorkspaceError>> send() {
+    Future<Either<Workspace, WorkspaceError>> send() {
     final request = FFIRequest.create()
-      ..event = WorkspaceEvent.OpenWorkspace.toString()
-      ..payload = requestToBytes(this.request);
+          ..event = WorkspaceEvent.OpenWorkspace.toString()
+          ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-              (okBytes) => left(Workspace.fromBuffer(okBytes)),
-              (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
-            ));
-  }
+           (okBytes) => left(Workspace.fromBuffer(okBytes)),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
+    }
 }
 
 class WorkspaceEventCreateApp {
-  CreateAppRequest request;
-  WorkspaceEventCreateApp(this.request);
+     CreateAppRequest request;
+     WorkspaceEventCreateApp(this.request);
 
-  Future<Either<App, WorkspaceError>> send() {
+    Future<Either<App, WorkspaceError>> send() {
     final request = FFIRequest.create()
-      ..event = WorkspaceEvent.CreateApp.toString()
-      ..payload = requestToBytes(this.request);
+          ..event = WorkspaceEvent.CreateApp.toString()
+          ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-              (okBytes) => left(App.fromBuffer(okBytes)),
-              (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
-            ));
-  }
+           (okBytes) => left(App.fromBuffer(okBytes)),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
+    }
 }
 
 class WorkspaceEventDeleteApp {
-  DeleteAppRequest request;
-  WorkspaceEventDeleteApp(this.request);
+     DeleteAppRequest request;
+     WorkspaceEventDeleteApp(this.request);
 
-  Future<Either<Unit, WorkspaceError>> send() {
+    Future<Either<Unit, WorkspaceError>> send() {
     final request = FFIRequest.create()
-      ..event = WorkspaceEvent.DeleteApp.toString()
-      ..payload = requestToBytes(this.request);
+          ..event = WorkspaceEvent.DeleteApp.toString()
+          ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-              (bytes) => left(unit),
-              (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
-            ));
-  }
+           (bytes) => left(unit),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
+    }
 }
 
 class WorkspaceEventReadApp {
-  QueryAppRequest request;
-  WorkspaceEventReadApp(this.request);
+     QueryAppRequest request;
+     WorkspaceEventReadApp(this.request);
 
-  Future<Either<App, WorkspaceError>> send() {
+    Future<Either<App, WorkspaceError>> send() {
     final request = FFIRequest.create()
-      ..event = WorkspaceEvent.ReadApp.toString()
-      ..payload = requestToBytes(this.request);
+          ..event = WorkspaceEvent.ReadApp.toString()
+          ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-              (okBytes) => left(App.fromBuffer(okBytes)),
-              (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
-            ));
-  }
+           (okBytes) => left(App.fromBuffer(okBytes)),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
+    }
 }
 
 class WorkspaceEventUpdateApp {
-  UpdateAppRequest request;
-  WorkspaceEventUpdateApp(this.request);
+     UpdateAppRequest request;
+     WorkspaceEventUpdateApp(this.request);
 
-  Future<Either<Unit, WorkspaceError>> send() {
+    Future<Either<Unit, WorkspaceError>> send() {
     final request = FFIRequest.create()
-      ..event = WorkspaceEvent.UpdateApp.toString()
-      ..payload = requestToBytes(this.request);
+          ..event = WorkspaceEvent.UpdateApp.toString()
+          ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-              (bytes) => left(unit),
-              (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
-            ));
-  }
+           (bytes) => left(unit),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
+    }
 }
 
 class WorkspaceEventCreateView {
-  CreateViewRequest request;
-  WorkspaceEventCreateView(this.request);
+     CreateViewRequest request;
+     WorkspaceEventCreateView(this.request);
 
-  Future<Either<View, WorkspaceError>> send() {
+    Future<Either<View, WorkspaceError>> send() {
     final request = FFIRequest.create()
-      ..event = WorkspaceEvent.CreateView.toString()
-      ..payload = requestToBytes(this.request);
+          ..event = WorkspaceEvent.CreateView.toString()
+          ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-              (okBytes) => left(View.fromBuffer(okBytes)),
-              (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
-            ));
-  }
+           (okBytes) => left(View.fromBuffer(okBytes)),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
+    }
 }
 
 class WorkspaceEventReadView {
-  QueryViewRequest request;
-  WorkspaceEventReadView(this.request);
+     QueryViewRequest request;
+     WorkspaceEventReadView(this.request);
 
-  Future<Either<View, WorkspaceError>> send() {
+    Future<Either<View, WorkspaceError>> send() {
     final request = FFIRequest.create()
-      ..event = WorkspaceEvent.ReadView.toString()
-      ..payload = requestToBytes(this.request);
+          ..event = WorkspaceEvent.ReadView.toString()
+          ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-              (okBytes) => left(View.fromBuffer(okBytes)),
-              (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
-            ));
-  }
+           (okBytes) => left(View.fromBuffer(okBytes)),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
+    }
 }
 
 class WorkspaceEventUpdateView {
-  UpdateViewRequest request;
-  WorkspaceEventUpdateView(this.request);
+     UpdateViewRequest request;
+     WorkspaceEventUpdateView(this.request);
 
-  Future<Either<Unit, WorkspaceError>> send() {
+    Future<Either<Unit, WorkspaceError>> send() {
     final request = FFIRequest.create()
-      ..event = WorkspaceEvent.UpdateView.toString()
-      ..payload = requestToBytes(this.request);
+          ..event = WorkspaceEvent.UpdateView.toString()
+          ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-              (bytes) => left(unit),
-              (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
-            ));
-  }
+           (bytes) => left(unit),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
+    }
 }
 
 class WorkspaceEventDeleteView {
-  DeleteViewRequest request;
-  WorkspaceEventDeleteView(this.request);
+     DeleteViewRequest request;
+     WorkspaceEventDeleteView(this.request);
 
-  Future<Either<Unit, WorkspaceError>> send() {
+    Future<Either<Unit, WorkspaceError>> send() {
     final request = FFIRequest.create()
-      ..event = WorkspaceEvent.DeleteView.toString()
-      ..payload = requestToBytes(this.request);
+          ..event = WorkspaceEvent.DeleteView.toString()
+          ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-              (bytes) => left(unit),
-              (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
-            ));
-  }
+           (bytes) => left(unit),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
+    }
 }
 
 class EditorEventCreateDoc {
-  CreateDocRequest request;
-  EditorEventCreateDoc(this.request);
+     CreateDocRequest request;
+     EditorEventCreateDoc(this.request);
 
-  Future<Either<DocInfo, DocError>> send() {
+    Future<Either<DocInfo, DocError>> send() {
     final request = FFIRequest.create()
-      ..event = EditorEvent.CreateDoc.toString()
-      ..payload = requestToBytes(this.request);
+          ..event = EditorEvent.CreateDoc.toString()
+          ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-              (okBytes) => left(DocInfo.fromBuffer(okBytes)),
-              (errBytes) => right(DocError.fromBuffer(errBytes)),
-            ));
-  }
+           (okBytes) => left(DocInfo.fromBuffer(okBytes)),
+           (errBytes) => right(DocError.fromBuffer(errBytes)),
+        ));
+    }
 }
 
 class EditorEventUpdateDoc {
-  UpdateDocRequest request;
-  EditorEventUpdateDoc(this.request);
+     UpdateDocRequest request;
+     EditorEventUpdateDoc(this.request);
 
-  Future<Either<Unit, DocError>> send() {
+    Future<Either<Unit, DocError>> send() {
     final request = FFIRequest.create()
-      ..event = EditorEvent.UpdateDoc.toString()
-      ..payload = requestToBytes(this.request);
+          ..event = EditorEvent.UpdateDoc.toString()
+          ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-              (bytes) => left(unit),
-              (errBytes) => right(DocError.fromBuffer(errBytes)),
-            ));
-  }
+           (bytes) => left(unit),
+           (errBytes) => right(DocError.fromBuffer(errBytes)),
+        ));
+    }
 }
 
 class EditorEventReadDocInfo {
-  QueryDocRequest request;
-  EditorEventReadDocInfo(this.request);
+     QueryDocRequest request;
+     EditorEventReadDocInfo(this.request);
 
-  Future<Either<DocInfo, DocError>> send() {
+    Future<Either<DocInfo, DocError>> send() {
     final request = FFIRequest.create()
-      ..event = EditorEvent.ReadDocInfo.toString()
-      ..payload = requestToBytes(this.request);
+          ..event = EditorEvent.ReadDocInfo.toString()
+          ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-              (okBytes) => left(DocInfo.fromBuffer(okBytes)),
-              (errBytes) => right(DocError.fromBuffer(errBytes)),
-            ));
-  }
+           (okBytes) => left(DocInfo.fromBuffer(okBytes)),
+           (errBytes) => right(DocError.fromBuffer(errBytes)),
+        ));
+    }
 }
 
 class EditorEventReadDocData {
-  QueryDocDataRequest request;
-  EditorEventReadDocData(this.request);
+     QueryDocDataRequest request;
+     EditorEventReadDocData(this.request);
 
-  Future<Either<DocData, DocError>> send() {
+    Future<Either<DocData, DocError>> send() {
     final request = FFIRequest.create()
-      ..event = EditorEvent.ReadDocData.toString()
-      ..payload = requestToBytes(this.request);
+          ..event = EditorEvent.ReadDocData.toString()
+          ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-              (okBytes) => left(DocData.fromBuffer(okBytes)),
-              (errBytes) => right(DocError.fromBuffer(errBytes)),
-            ));
-  }
+           (okBytes) => left(DocData.fromBuffer(okBytes)),
+           (errBytes) => right(DocError.fromBuffer(errBytes)),
+        ));
+    }
 }
 
-class UserEventGetStatus {
-  UserEventGetStatus();
+class UserEventGetUserProfile {
+    UserEventGetUserProfile();
 
-  Future<Either<UserDetail, UserError>> send() {
-    final request = FFIRequest.create()
-      ..event = UserEvent.GetUserProfile.toString();
+    Future<Either<UserProfile, UserError>> send() {
+     final request = FFIRequest.create()
+        ..event = UserEvent.GetUserProfile.toString();
 
-    return Dispatch.asyncRequest(request)
-        .then((bytesResult) => bytesResult.fold(
-              (okBytes) => left(UserDetail.fromBuffer(okBytes)),
-              (errBytes) => right(UserError.fromBuffer(errBytes)),
-            ));
-  }
+     return Dispatch.asyncRequest(request).then((bytesResult) => bytesResult.fold(
+        (okBytes) => left(UserProfile.fromBuffer(okBytes)),
+        (errBytes) => right(UserError.fromBuffer(errBytes)),
+      ));
+    }
 }
 
 class UserEventSignIn {
-  SignInRequest request;
-  UserEventSignIn(this.request);
+     SignInRequest request;
+     UserEventSignIn(this.request);
 
-  Future<Either<UserDetail, UserError>> send() {
+    Future<Either<UserProfile, UserError>> send() {
     final request = FFIRequest.create()
-      ..event = UserEvent.SignIn.toString()
-      ..payload = requestToBytes(this.request);
+          ..event = UserEvent.SignIn.toString()
+          ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-              (okBytes) => left(UserDetail.fromBuffer(okBytes)),
-              (errBytes) => right(UserError.fromBuffer(errBytes)),
-            ));
-  }
+           (okBytes) => left(UserProfile.fromBuffer(okBytes)),
+           (errBytes) => right(UserError.fromBuffer(errBytes)),
+        ));
+    }
 }
 
 class UserEventSignUp {
-  SignUpRequest request;
-  UserEventSignUp(this.request);
+     SignUpRequest request;
+     UserEventSignUp(this.request);
 
-  Future<Either<UserDetail, UserError>> send() {
+    Future<Either<UserProfile, UserError>> send() {
     final request = FFIRequest.create()
-      ..event = UserEvent.SignUp.toString()
-      ..payload = requestToBytes(this.request);
+          ..event = UserEvent.SignUp.toString()
+          ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-              (okBytes) => left(UserDetail.fromBuffer(okBytes)),
-              (errBytes) => right(UserError.fromBuffer(errBytes)),
-            ));
-  }
+           (okBytes) => left(UserProfile.fromBuffer(okBytes)),
+           (errBytes) => right(UserError.fromBuffer(errBytes)),
+        ));
+    }
 }
 
 class UserEventSignOut {
-  UserEventSignOut();
+    UserEventSignOut();
 
-  Future<Either<Unit, UserError>> send() {
-    final request = FFIRequest.create()..event = UserEvent.SignOut.toString();
+    Future<Either<Unit, UserError>> send() {
+     final request = FFIRequest.create()
+        ..event = UserEvent.SignOut.toString();
 
-    return Dispatch.asyncRequest(request)
-        .then((bytesResult) => bytesResult.fold(
-              (bytes) => left(unit),
-              (errBytes) => right(UserError.fromBuffer(errBytes)),
-            ));
-  }
+     return Dispatch.asyncRequest(request).then((bytesResult) => bytesResult.fold(
+        (bytes) => left(unit),
+        (errBytes) => right(UserError.fromBuffer(errBytes)),
+      ));
+    }
 }
 
 class UserEventUpdateUser {
-  UpdateUserRequest request;
-  UserEventUpdateUser(this.request);
+     UpdateUserRequest request;
+     UserEventUpdateUser(this.request);
 
-  Future<Either<Unit, UserError>> send() {
+    Future<Either<Unit, UserError>> send() {
     final request = FFIRequest.create()
-      ..event = UserEvent.UpdateUser.toString()
-      ..payload = requestToBytes(this.request);
+          ..event = UserEvent.UpdateUser.toString()
+          ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-              (bytes) => left(unit),
-              (errBytes) => right(UserError.fromBuffer(errBytes)),
-            ));
-  }
+           (bytes) => left(unit),
+           (errBytes) => right(UserError.fromBuffer(errBytes)),
+        ));
+    }
 }
+

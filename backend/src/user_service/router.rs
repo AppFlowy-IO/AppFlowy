@@ -6,9 +6,9 @@ use actix_web::{
 };
 
 use crate::user_service::{
-    get_user_details,
+    get_user_profile,
     register_user,
-    set_user_detail,
+    set_user_profile,
     sign_in,
     sign_out,
     LoggedUser,
@@ -40,21 +40,21 @@ pub async fn sign_out_handler(
     Ok(response.into())
 }
 
-pub async fn get_user_detail_handler(
+pub async fn get_user_profile_handler(
     logged_user: LoggedUser,
     pool: Data<PgPool>,
 ) -> Result<HttpResponse, ServerError> {
-    let response = get_user_details(pool.get_ref(), logged_user).await?;
+    let response = get_user_profile(pool.get_ref(), logged_user).await?;
     Ok(response.into())
 }
 
-pub async fn set_user_detail_handler(
+pub async fn set_user_profile_handler(
     logged_user: LoggedUser,
     pool: Data<PgPool>,
     payload: Payload,
 ) -> Result<HttpResponse, ServerError> {
     let params: UpdateUserParams = parse_from_payload(payload).await?;
-    let response = set_user_detail(pool.get_ref(), logged_user, params).await?;
+    let response = set_user_profile(pool.get_ref(), logged_user, params).await?;
     Ok(response.into())
 }
 

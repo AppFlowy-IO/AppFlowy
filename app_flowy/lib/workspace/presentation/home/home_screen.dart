@@ -14,7 +14,7 @@ import 'home_layout.dart';
 
 class HomeScreen extends StatelessWidget {
   static GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
-  final UserDetail user;
+  final UserProfile user;
   final String workspaceId;
   const HomeScreen(this.user, this.workspaceId, {Key? key}) : super(key: key);
 

@@ -14,13 +14,13 @@ class AuthImpl extends IAuth {
   });
 
   @override
-  Future<Either<UserDetail, UserError>> signIn(
+  Future<Either<UserProfile, UserError>> signIn(
       String? email, String? password) {
     return repo.signIn(email: email, password: password);
   }
 
   @override
-  Future<Either<UserDetail, UserError>> signUp(
+  Future<Either<UserProfile, UserError>> signUp(
       String? name, String? password, String? email) {
     return repo.signUp(name: name, password: password, email: email);
   }
@@ -38,7 +38,7 @@ class AuthRouterImpl extends IAuthRouter {
   }
 
   @override
-  void showWorkspaceSelectScreen(BuildContext context, UserDetail user) {
+  void showWorkspaceSelectScreen(BuildContext context, UserProfile user) {
     Navigator.of(context).push(
       PageRoutes.fade(
         () => WorkspaceSelectScreen(

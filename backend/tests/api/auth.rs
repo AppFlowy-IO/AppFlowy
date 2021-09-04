@@ -56,14 +56,14 @@ async fn user_sign_out() {
     app.sign_out(&token).await;
 
     // user_detail will be empty because use was sign out.
-    app.get_user_detail(&token).await;
+    app.get_user_profile(&token).await;
 }
 
 #[actix_rt::test]
 async fn user_get_detail() {
     let app = spawn_app().await;
     let sign_up_resp = sign_up_user(&app).await;
-    log::info!("{:?}", app.get_user_detail(&sign_up_resp.token).await);
+    log::info!("{:?}", app.get_user_profile(&sign_up_resp.token).await);
 }
 
 #[actix_rt::test]
@@ -74,7 +74,7 @@ async fn user_update_password() {
     let sign_up_resp = register_user(&app, email, password).await;
 
     let params = UpdateUserParams::new(&sign_up_resp.user_id).password("Hello123!");
-    app.update_user_detail(&sign_up_resp.token, params)
+    app.update_user_profile(&sign_up_resp.token, params)
         .await
         .unwrap();
 
@@ -97,11 +97,11 @@ async fn user_update_name() {
     let sign_up_resp = sign_up_user(&app).await;
     let name = "tom".to_string();
     let params = UpdateUserParams::new(&sign_up_resp.user_id).name(&name);
-    app.update_user_detail(&sign_up_resp.token, params)
+    app.update_user_profile(&sign_up_resp.token, params)
         .await
         .unwrap();
 
-    let user = app.get_user_detail(&sign_up_resp.token).await;
+    let user = app.get_user_profile(&sign_up_resp.token).await;
     assert_eq!(user.name, name);
 }
 
@@ -111,11 +111,11 @@ async fn user_update_email() {
     let sign_up_resp = sign_up_user(&app).await;
     let email = "123@gmail.com".to_string();
     let params = UpdateUserParams::new(&sign_up_resp.user_id).email(&email);
-    app.update_user_detail(&sign_up_resp.token, params)
+    app.update_user_profile(&sign_up_resp.token, params)
         .await
         .unwrap();
 
-    let user = app.get_user_detail(&sign_up_resp.token).await;
+    let user = app.get_user_profile(&sign_up_resp.token).await;
     assert_eq!(user.email, email);
 }
 

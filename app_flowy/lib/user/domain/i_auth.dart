@@ -3,15 +3,16 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
 abstract class IAuth {
-  Future<Either<UserDetail, UserError>> signIn(String? email, String? password);
-  Future<Either<UserDetail, UserError>> signUp(
+  Future<Either<UserProfile, UserError>> signIn(
+      String? email, String? password);
+  Future<Either<UserProfile, UserError>> signUp(
       String? name, String? password, String? email);
 
   Future<Either<Unit, UserError>> signOut();
 }
 
 abstract class IAuthRouter {
-  void showWorkspaceSelectScreen(BuildContext context, UserDetail user);
+  void showWorkspaceSelectScreen(BuildContext context, UserProfile user);
   void showSignUpScreen(BuildContext context);
   void showForgetPasswordScreen(BuildContext context);
 }

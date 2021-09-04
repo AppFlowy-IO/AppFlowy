@@ -4,10 +4,10 @@ import 'package:flutter/widgets.dart';
 import 'auth_state.dart';
 
 abstract class IWelcomeAuth {
-  Future<AuthState> currentUserDetail();
+  Future<AuthState> currentUserProfile();
 }
 
 abstract class IWelcomeRoute {
   Widget pushSignInScreen();
-  Future<void> pushHomeScreen(BuildContext context, UserDetail userDetail);
+  Future<void> pushHomeScreen(BuildContext context, UserProfile profile);
 }

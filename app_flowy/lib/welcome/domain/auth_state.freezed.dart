@@ -16,9 +16,9 @@ final _privateConstructorUsedError = UnsupportedError(
 class _$AuthStateTearOff {
   const _$AuthStateTearOff();
 
-  Authenticated authenticated(UserDetail userDetail) {
+  Authenticated authenticated(UserProfile userProfile) {
     return Authenticated(
-      userDetail,
+      userProfile,
     );
   }
 
@@ -40,14 +40,14 @@ const $AuthState = _$AuthStateTearOff();
 mixin _$AuthState {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(UserDetail userDetail) authenticated,
+    required TResult Function(UserProfile userProfile) authenticated,
     required TResult Function(UserError error) unauthenticated,
     required TResult Function() initial,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(UserDetail userDetail)? authenticated,
+    TResult Function(UserProfile userProfile)? authenticated,
     TResult Function(UserError error)? unauthenticated,
     TResult Function()? initial,
     required TResult orElse(),
@@ -90,7 +90,7 @@ abstract class $AuthenticatedCopyWith<$Res> {
   factory $AuthenticatedCopyWith(
           Authenticated value, $Res Function(Authenticated) then) =
       _$AuthenticatedCopyWithImpl<$Res>;
-  $Res call({UserDetail userDetail});
+  $Res call({UserProfile userProfile});
 }
 
 /// @nodoc
@@ -105,13 +105,13 @@ class _$AuthenticatedCopyWithImpl<$Res> extends _$AuthStateCopyWithImpl<$Res>
 
   @override
   $Res call({
-    Object? userDetail = freezed,
+    Object? userProfile = freezed,
   }) {
     return _then(Authenticated(
-      userDetail == freezed
-          ? _value.userDetail
-          : userDetail // ignore: cast_nullable_to_non_nullable
-              as UserDetail,
+      userProfile == freezed
+          ? _value.userProfile
+          : userProfile // ignore: cast_nullable_to_non_nullable
+              as UserProfile,
     ));
   }
 }
@@ -119,28 +119,28 @@ class _$AuthenticatedCopyWithImpl<$Res> extends _$AuthStateCopyWithImpl<$Res>
 /// @nodoc
 
 class _$Authenticated implements Authenticated {
-  const _$Authenticated(this.userDetail);
+  const _$Authenticated(this.userProfile);
 
   @override
-  final UserDetail userDetail;
+  final UserProfile userProfile;
 
   @override
   String toString() {
-    return 'AuthState.authenticated(userDetail: $userDetail)';
+    return 'AuthState.authenticated(userProfile: $userProfile)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other is Authenticated &&
-            (identical(other.userDetail, userDetail) ||
+            (identical(other.userProfile, userProfile) ||
                 const DeepCollectionEquality()
-                    .equals(other.userDetail, userDetail)));
+                    .equals(other.userProfile, userProfile)));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(userDetail);
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(userProfile);
 
   @JsonKey(ignore: true)
   @override
@@ -150,23 +150,23 @@ class _$Authenticated implements Authenticated {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(UserDetail userDetail) authenticated,
+    required TResult Function(UserProfile userProfile) authenticated,
     required TResult Function(UserError error) unauthenticated,
     required TResult Function() initial,
   }) {
-    return authenticated(userDetail);
+    return authenticated(userProfile);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(UserDetail userDetail)? authenticated,
+    TResult Function(UserProfile userProfile)? authenticated,
     TResult Function(UserError error)? unauthenticated,
     TResult Function()? initial,
     required TResult orElse(),
   }) {
     if (authenticated != null) {
-      return authenticated(userDetail);
+      return authenticated(userProfile);
     }
     return orElse();
   }
@@ -197,9 +197,9 @@ class _$Authenticated implements Authenticated {
 }
 
 abstract class Authenticated implements AuthState {
-  const factory Authenticated(UserDetail userDetail) = _$Authenticated;
+  const factory Authenticated(UserProfile userProfile) = _$Authenticated;
 
-  UserDetail get userDetail => throw _privateConstructorUsedError;
+  UserProfile get userProfile => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $AuthenticatedCopyWith<Authenticated> get copyWith =>
       throw _privateConstructorUsedError;
@@ -269,7 +269,7 @@ class _$Unauthenticated implements Unauthenticated {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(UserDetail userDetail) authenticated,
+    required TResult Function(UserProfile userProfile) authenticated,
     required TResult Function(UserError error) unauthenticated,
     required TResult Function() initial,
   }) {
@@ -279,7 +279,7 @@ class _$Unauthenticated implements Unauthenticated {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(UserDetail userDetail)? authenticated,
+    TResult Function(UserProfile userProfile)? authenticated,
     TResult Function(UserError error)? unauthenticated,
     TResult Function()? initial,
     required TResult orElse(),
@@ -361,7 +361,7 @@ class _$_Initial implements _Initial {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(UserDetail userDetail) authenticated,
+    required TResult Function(UserProfile userProfile) authenticated,
     required TResult Function(UserError error) unauthenticated,
     required TResult Function() initial,
   }) {
@@ -371,7 +371,7 @@ class _$_Initial implements _Initial {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(UserDetail userDetail)? authenticated,
+    TResult Function(UserProfile userProfile)? authenticated,
     TResult Function(UserError error)? unauthenticated,
     TResult Function()? initial,
     required TResult orElse(),

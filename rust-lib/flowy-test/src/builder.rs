@@ -1,5 +1,5 @@
 use flowy_dispatch::prelude::{EventDispatch, EventResponse, FromBytes, ModuleRequest, StatusCode, ToBytes};
-use flowy_user::entities::UserDetail;
+use flowy_user::entities::UserProfile;
 use std::{
     fmt::{Debug, Display},
     hash::Hash,
@@ -26,13 +26,13 @@ impl WorkspaceTest {
 pub type UserTest = Builder<UserError>;
 impl UserTest {
     pub fn new(sdk: FlowyTestSDK) -> Self { Builder::test(TestContext::new(sdk)) }
-    pub fn user_detail(&self) -> &Option<UserDetail> { &self.user_detail }
+    pub fn user_profile(&self) -> &Option<UserProfile> { &self.user_profile }
 }
 
 #[derive(Clone)]
 pub struct Builder<E> {
     context: TestContext,
-    user_detail: Option<UserDetail>,
+    user_profile: Option<UserProfile>,
     err_phantom: PhantomData<E>,
 }
 
@@ -43,7 +43,7 @@ where
     pub(crate) fn test(context: TestContext) -> Self {
         Self {
             context,
-            user_detail: None,
+            user_profile: None,
             err_phantom: PhantomData,
         }
     }

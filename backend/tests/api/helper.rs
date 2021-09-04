@@ -31,19 +31,19 @@ impl TestApp {
         let _ = user_sign_out_request(token, &url).await.unwrap();
     }
 
-    pub async fn get_user_detail(&self, token: &str) -> UserDetail {
+    pub async fn get_user_profile(&self, token: &str) -> UserProfile {
         let url = format!("{}/api/user", self.address);
-        let user_detail = get_user_detail_request(token, &url).await.unwrap();
-        user_detail
+        let user_profile = get_user_profile_request(token, &url).await.unwrap();
+        user_profile
     }
 
-    pub async fn update_user_detail(
+    pub async fn update_user_profile(
         &self,
         token: &str,
         params: UpdateUserParams,
     ) -> Result<(), UserError> {
         let url = format!("{}/api/user", self.address);
-        update_user_detail_request(token, params, &url).await
+        update_user_profile_request(token, params, &url).await
     }
 
     pub async fn create_workspace(&self, params: CreateWorkspaceParams, token: &str) -> Workspace {

@@ -50,7 +50,7 @@ fn sign_in_success() {
         .event(SignIn)
         .request(request)
         .sync_send()
-        .parse::<UserDetail>();
+        .parse::<UserProfile>();
     dbg!(&response);
 }
 

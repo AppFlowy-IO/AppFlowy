@@ -41,7 +41,7 @@ class WelcomeScreen extends StatelessWidget {
   }
 
   void _handleAuthenticated(BuildContext context, Authenticated result) {
-    getIt<IWelcomeRoute>().pushHomeScreen(context, result.userDetail);
+    getIt<IWelcomeRoute>().pushHomeScreen(context, result.userProfile);
   }
 
   void _handleUnauthenticated(BuildContext context, Unauthenticated result) {
