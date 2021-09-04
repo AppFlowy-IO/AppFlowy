@@ -1,5 +1,5 @@
 use crate::helper::*;
-use flowy_test::{builder::*, TestSDKBuilder};
+use flowy_test::{builder::*, FlowyEnv};
 use flowy_workspace::{
     entities::workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest, RepeatedWorkspace},
     event::WorkspaceEvent::*,
@@ -8,16 +8,16 @@ use flowy_workspace::{
 
 #[test]
 fn workspace_create_success() {
-    let sdk = TestSDKBuilder::new().sign_up().build();
+    let sdk = FlowyEnv::setup().sdk;
     let _ = create_workspace(&sdk, "First workspace", "");
 }
 
 #[test]
 fn workspace_read_all() {
-    let sdk = TestSDKBuilder::new().sign_up().build();
+    let sdk = FlowyEnv::setup().sdk;
     let _ = create_workspace(&sdk, "Workspace A", "workspace_create_and_then_get_workspace_success");
 
-    let workspaces = WorkspaceTestBuilder::new(sdk.clone())
+    let workspaces = WorkspaceTest::new(sdk.clone())
         .event(ReadWorkspaces)
         .request(QueryWorkspaceRequest::new())
         .sync_send()
@@ -28,7 +28,7 @@ fn workspace_read_all() {
 
 #[test]
 fn workspace_create_and_then_get_workspace() {
-    let sdk = TestSDKBuilder::new().sign_up().build();
+    let sdk = FlowyEnv::setup().sdk;
     let workspace = create_workspace(&sdk, "Workspace A", "workspace_create_and_then_get_workspace_success");
     let request = QueryWorkspaceRequest::new().workspace_id(&workspace.id);
     let workspace_from_db = read_workspaces(&sdk, request).unwrap();
@@ -37,7 +37,7 @@ fn workspace_create_and_then_get_workspace() {
 
 #[test]
 fn workspace_create_with_apps() {
-    let sdk = TestSDKBuilder::new().sign_up().build();
+    let sdk = FlowyEnv::setup().sdk;
     let workspace = create_workspace(&sdk, "Workspace", "");
     let app = create_app(&sdk, "App A", "AppFlowy Github Project", &workspace.id);
 
@@ -48,12 +48,11 @@ fn workspace_create_with_apps() {
 
 #[test]
 fn workspace_create_with_invalid_name() {
-    let sdk = TestSDKBuilder::new().sign_up().build();
     for name in invalid_workspace_name_test_case() {
-        let _ = UserTestBuilder::new(sdk.clone()).sign_up();
+        let sdk = FlowyEnv::setup().sdk;
         let request = CreateWorkspaceRequest { name, desc: "".to_owned() };
         assert_eq!(
-            WorkspaceTestBuilder::new(sdk.clone())
+            WorkspaceTest::new(sdk)
                 .event(CreateWorkspace)
                 .request(request)
                 .sync_send()
@@ -66,11 +65,11 @@ fn workspace_create_with_invalid_name() {
 
 #[test]
 fn workspace_update_with_invalid_name() {
-    let sdk = TestSDKBuilder::new().sign_up().build();
+    let sdk = FlowyEnv::setup().sdk;
     for name in invalid_workspace_name_test_case() {
         let request = CreateWorkspaceRequest { name, desc: "".to_owned() };
         assert_eq!(
-            WorkspaceTestBuilder::new(sdk.clone())
+            WorkspaceTest::new(sdk.clone())
                 .event(CreateWorkspace)
                 .request(request)
                 .sync_send()

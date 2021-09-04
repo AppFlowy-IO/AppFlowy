@@ -1,5 +1,5 @@
 use crate::helper::*;
-use flowy_test::{builder::UserTestBuilder, init_test_sdk};
+use flowy_test::{builder::UserTest, init_test_sdk, FlowyEnv};
 use flowy_user::{errors::ErrorCode, event::UserEvent::*, prelude::*};
 use serial_test::*;
 
@@ -15,7 +15,7 @@ fn sign_up_with_invalid_email() {
         };
 
         assert_eq!(
-            UserTestBuilder::new(sdk).event(SignUp).request(request).sync_send().error().code,
+            UserTest::new(sdk).event(SignUp).request(request).sync_send().error().code,
             ErrorCode::EmailFormatInvalid
         );
     }
@@ -31,23 +31,22 @@ fn sign_up_with_invalid_password() {
             password,
         };
 
-        UserTestBuilder::new(sdk).event(SignUp).request(request).sync_send().assert_error();
+        UserTest::new(sdk).event(SignUp).request(request).sync_send().assert_error();
     }
 }
 
 #[test]
 #[serial]
 fn sign_in_success() {
-    let sdk = init_test_sdk();
-    let context = UserTestBuilder::new(sdk.clone()).sign_up();
-    let _ = UserTestBuilder::new(sdk.clone()).event(SignOut).sync_send();
+    let env = FlowyEnv::setup();
+    let _ = UserTest::new(env.sdk()).event(SignOut).sync_send();
 
     let request = SignInRequest {
-        email: context.user_detail.email,
-        password: context.password,
+        email: env.user.email.clone(),
+        password: env.password.clone(),
     };
 
-    let response = UserTestBuilder::new(sdk)
+    let response = UserTest::new(env.sdk())
         .event(SignIn)
         .request(request)
         .sync_send()
@@ -66,7 +65,7 @@ fn sign_in_with_invalid_email() {
         };
 
         assert_eq!(
-            UserTestBuilder::new(sdk).event(SignIn).request(request).sync_send().error().code,
+            UserTest::new(sdk).event(SignIn).request(request).sync_send().error().code,
             ErrorCode::EmailFormatInvalid
         );
     }
@@ -82,6 +81,6 @@ fn sign_in_with_invalid_password() {
             password,
         };
 
-        UserTestBuilder::new(sdk).event(SignIn).request(request).sync_send().assert_error();
+        UserTest::new(sdk).event(SignIn).request(request).sync_send().assert_error();
     }
 }

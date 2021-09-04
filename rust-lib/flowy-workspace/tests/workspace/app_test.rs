@@ -8,7 +8,7 @@ use flowy_workspace::entities::{
 
 #[test]
 fn app_create() {
-    let sdk = TestSDKBuilder::new().sign_up().build();
+    let sdk = FlowyEnv::setup().sdk;
     let workspace = create_workspace(&sdk, "Workspace", "");
     let app = create_app(&sdk, "App A", "AppFlowy Github Project", &workspace.id);
     dbg!(&app);
@@ -17,7 +17,7 @@ fn app_create() {
 #[test]
 #[should_panic]
 fn app_delete() {
-    let sdk = TestSDKBuilder::new().sign_up().build();
+    let sdk = FlowyEnv::setup().sdk;
     let workspace = create_workspace(&sdk, "Workspace", "");
     let app = create_app(&sdk, "App A", "AppFlowy Github Project", &workspace.id);
     delete_app(&sdk, &app.id);
@@ -27,7 +27,7 @@ fn app_delete() {
 
 #[test]
 fn app_read() {
-    let sdk = TestSDKBuilder::new().sign_up().build();
+    let sdk = FlowyEnv::setup().sdk;
 
     let workspace = create_workspace(&sdk, "Workspace", "");
     let app = create_app(&sdk, "App A", "AppFlowy Github Project", &workspace.id);
@@ -38,7 +38,7 @@ fn app_read() {
 
 #[test]
 fn app_create_with_view() {
-    let sdk = TestSDKBuilder::new().sign_up().build();
+    let sdk = FlowyEnv::setup().sdk;
     let workspace = create_workspace(&sdk, "Workspace", "");
     let app = create_app(&sdk, "App A", "AppFlowy Github Project", &workspace.id);
     let request_a = CreateViewRequest {
@@ -69,7 +69,7 @@ fn app_create_with_view() {
 
 #[test]
 fn app_set_trash_flag() {
-    let sdk = TestSDKBuilder::new().sign_up().build();
+    let sdk = FlowyEnv::setup().sdk;
     let app_id = create_app_with_trash_flag(&sdk);
     let query = QueryAppRequest::new(&app_id).set_is_trash(true);
     let _ = read_app(&sdk, query);
@@ -78,7 +78,7 @@ fn app_set_trash_flag() {
 #[test]
 #[should_panic]
 fn app_set_trash_flag_2() {
-    let sdk = TestSDKBuilder::new().sign_up().build();
+    let sdk = FlowyEnv::setup().sdk;
     let app_id = create_app_with_trash_flag(&sdk);
     let query = QueryAppRequest::new(&app_id);
     let _ = read_app(&sdk, query);

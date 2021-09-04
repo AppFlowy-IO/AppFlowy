@@ -1,9 +1,9 @@
 pub mod builder;
 mod helper;
-// pub mod workspace_builder;
 
-use crate::{builder::UserTestBuilder, helper::root_dir};
+use crate::helper::*;
 use flowy_sdk::FlowySDK;
+use flowy_user::entities::UserDetail;
 
 pub mod prelude {
     pub use crate::{builder::*, helper::*, *};
@@ -13,19 +13,25 @@ pub mod prelude {
 pub type FlowyTestSDK = FlowySDK;
 
 #[derive(Clone)]
-pub struct TestSDKBuilder {
-    inner: FlowyTestSDK,
+pub struct FlowyEnv {
+    pub sdk: FlowyTestSDK,
+    pub user: UserDetail,
+    pub password: String,
 }
 
-impl TestSDKBuilder {
-    pub fn new() -> Self { Self { inner: init_test_sdk() } }
-
-    pub fn sign_up(self) -> Self {
-        let _ = UserTestBuilder::new(self.inner.clone()).sign_up();
-        self
+impl FlowyEnv {
+    pub fn setup() -> Self {
+        let sdk = init_test_sdk();
+        let result = sign_up(sdk.dispatch());
+        let env = Self {
+            sdk,
+            user: result.user_detail,
+            password: result.password,
+        };
+        env
     }
 
-    pub fn build(self) -> FlowyTestSDK { self.inner }
+    pub fn sdk(&self) -> FlowyTestSDK { self.sdk.clone() }
 }
 
 pub fn init_test_sdk() -> FlowyTestSDK {

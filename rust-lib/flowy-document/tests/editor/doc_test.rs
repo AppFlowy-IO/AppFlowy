@@ -1,9 +1,9 @@
 use crate::helper::*;
-use flowy_test::TestSDKBuilder;
+use flowy_test::FlowyEnv;
 
 #[test]
 fn file_create_test() {
-    let sdk = TestSDKBuilder::new().sign_up().build();
+    let sdk = FlowyEnv::setup().sdk;
     let doc_desc = create_doc(&sdk, "hello world", "flutter ❤️ rust", "123");
     dbg!(&doc_desc);
 
@@ -13,7 +13,7 @@ fn file_create_test() {
 
 #[test]
 fn file_update_text_test() {
-    let sdk = TestSDKBuilder::new().sign_up().build();
+    let sdk = FlowyEnv::setup().sdk;
     let doc_desc = create_doc(&sdk, "hello world", "flutter ❤️ rust", "");
     dbg!(&doc_desc);
 

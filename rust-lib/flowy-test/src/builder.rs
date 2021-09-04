@@ -5,78 +5,27 @@ use std::{
     hash::Hash,
 };
 
-use crate::helper::{create_default_workspace_if_need, login_email, login_password, random_email};
+use crate::FlowyTestSDK;
 use flowy_dispatch::prelude::*;
 use flowy_document::errors::DocError;
-pub use flowy_sdk::*;
-use flowy_user::{
-    errors::UserError,
-    event::UserEvent::{SignOut, SignUp},
-    prelude::*,
-};
+use flowy_sdk::*;
+use flowy_user::errors::UserError;
 use flowy_workspace::errors::WorkspaceError;
-use std::{marker::PhantomData, sync::Arc};
+use std::{convert::TryFrom, marker::PhantomData, sync::Arc};
 
-use crate::FlowyTestSDK;
-use flowy_user::event::UserEvent::SignIn;
-use std::convert::TryFrom;
-
-pub type DocTestBuilder = Builder<DocError>;
-impl DocTestBuilder {
+pub type DocTest = Builder<DocError>;
+impl DocTest {
     pub fn new(sdk: FlowyTestSDK) -> Self { Builder::test(TestContext::new(sdk)) }
 }
 
-pub type WorkspaceTestBuilder = Builder<WorkspaceError>;
-impl WorkspaceTestBuilder {
+pub type WorkspaceTest = Builder<WorkspaceError>;
+impl WorkspaceTest {
     pub fn new(sdk: FlowyTestSDK) -> Self { Builder::test(TestContext::new(sdk)) }
 }
 
-pub type UserTestBuilder = Builder<UserError>;
-impl UserTestBuilder {
+pub type UserTest = Builder<UserError>;
+impl UserTest {
     pub fn new(sdk: FlowyTestSDK) -> Self { Builder::test(TestContext::new(sdk)) }
-
-    pub fn sign_up(self) -> SignUpContext {
-        let password = login_password();
-        let payload = SignUpRequest {
-            email: random_email(),
-            name: "app flowy".to_string(),
-            password: password.clone(),
-        }
-        .into_bytes()
-        .unwrap();
-
-        let request = ModuleRequest::new(SignUp).payload(payload);
-        let user_detail = EventDispatch::sync_send(self.dispatch(), request)
-            .parse::<UserDetail, UserError>()
-            .unwrap()
-            .unwrap();
-
-        let _ = create_default_workspace_if_need(self.dispatch(), &user_detail.id);
-        SignUpContext { user_detail, password }
-    }
-
-    #[allow(dead_code)]
-    fn sign_in(mut self) -> Self {
-        let payload = SignInRequest {
-            email: login_email(),
-            password: login_password(),
-        }
-        .into_bytes()
-        .unwrap();
-
-        let request = ModuleRequest::new(SignIn).payload(payload);
-        let user_detail = EventDispatch::sync_send(self.dispatch(), request)
-            .parse::<UserDetail, UserError>()
-            .unwrap()
-            .unwrap();
-
-        self.user_detail = Some(user_detail);
-        self
-    }
-
-    #[allow(dead_code)]
-    fn logout(&self) { let _ = EventDispatch::sync_send(self.dispatch(), ModuleRequest::new(SignOut)); }
-
     pub fn user_detail(&self) -> &Option<UserDetail> { &self.user_detail }
 }
 
@@ -184,8 +133,4 @@ impl TestContext {
             response: None,
         }
     }
-}
-pub struct SignUpContext {
-    pub user_detail: UserDetail,
-    pub password: String,
 }

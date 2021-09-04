@@ -1,4 +1,4 @@
-use flowy_test::builder::DocTestBuilder;
+use flowy_test::builder::DocTest;
 
 use flowy_document::{entities::doc::*, event::EditorEvent::*};
 use flowy_infra::uuid;
@@ -12,7 +12,7 @@ pub fn create_doc(sdk: &FlowyTestSDK, name: &str, desc: &str, text: &str) -> Doc
         text: text.to_owned(),
     };
 
-    let doc = DocTestBuilder::new(sdk.clone())
+    let doc = DocTest::new(sdk.clone())
         .event(CreateDoc)
         .request(request)
         .sync_send()
@@ -28,7 +28,7 @@ pub fn save_doc(sdk: &FlowyTestSDK, desc: &DocInfo, content: &str) {
         text: Some(content.to_owned()),
     };
 
-    let _ = DocTestBuilder::new(sdk.clone()).event(UpdateDoc).request(request).sync_send();
+    let _ = DocTest::new(sdk.clone()).event(UpdateDoc).request(request).sync_send();
 }
 
 // #[allow(dead_code)]
@@ -52,7 +52,7 @@ pub(crate) fn read_doc_data(sdk: &FlowyTestSDK, doc_id: &str, path: &str) -> Doc
         path: path.to_string(),
     };
 
-    let doc = DocTestBuilder::new(sdk.clone())
+    let doc = DocTest::new(sdk.clone())
         .event(ReadDocData)
         .request(request)
         .sync_send()

@@ -69,42 +69,6 @@ impl EventDispatch {
                 })
             }),
         }
-        // match dispatch.read() {
-        //     Ok(dispatch) => {
-        //         let dispatch = dispatch.as_ref().unwrap();
-        //         let module_map = dispatch.module_map.clone();
-        //         let service = Box::new(DispatchService { module_map });
-        //         log::trace!("Async event: {:?}", &request.event);
-        //         let service_ctx = DispatchContext {
-        //             request,
-        //             callback: Some(Box::new(callback)),
-        //         };
-        //         let join_handle = dispatch.runtime.spawn(async move {
-        //             service
-        //                 .call(service_ctx)
-        //                 .await
-        //                 .unwrap_or_else(|e|
-        // InternalError::Other(format!("{:?}", e)).as_response())
-        //         });
-        //
-        //         DispatchFuture {
-        //             fut: Box::pin(async move {
-        //                 join_handle.await.unwrap_or_else(|e| {
-        //                     let error =
-        // InternalError::JoinError(format!("EVENT_DISPATCH join error: {:?}",
-        // e));                     error.as_response()
-        //                 })
-        //             }),
-        //         }
-        //     },
-        //
-        //     Err(e) => {
-        //         let msg = format!("EVENT_DISPATCH read failed. {:?}", e);
-        //         DispatchFuture {
-        //             fut: Box::pin(async {
-        // InternalError::Lock(msg).as_response() }),         }
-        //     },
-        // }
     }
 
     pub fn sync_send(dispatch: Arc<EventDispatch>, request: ModuleRequest) -> EventResponse {

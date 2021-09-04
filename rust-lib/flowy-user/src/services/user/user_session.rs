@@ -142,7 +142,8 @@ impl UserSession {
                     log::info!("{:?}", e);
                 },
             }
-        });
+        })
+        .await;
 
         let user = dsl::user_table
             .filter(user_table::id.eq(&session.user_id))

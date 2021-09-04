@@ -2,7 +2,11 @@ use bytes::Bytes;
 use flowy_dispatch::prelude::{EventDispatch, ModuleRequest, ToBytes};
 use flowy_infra::{kv::KV, uuid};
 
-use flowy_user::errors::{ErrorBuilder, ErrorCode, UserError};
+use flowy_user::{
+    entities::{SignInRequest, SignUpRequest, UserDetail},
+    errors::{ErrorBuilder, ErrorCode, UserError},
+    event::UserEvent::{SignIn, SignOut, SignUp},
+};
 use flowy_workspace::{
     entities::workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest, Workspace},
     errors::WorkspaceError,
@@ -70,3 +74,49 @@ pub(crate) fn create_default_workspace_if_need(dispatch: Arc<EventDispatch>, use
 
     Ok(())
 }
+
+pub struct SignUpContext {
+    pub user_detail: UserDetail,
+    pub password: String,
+}
+
+pub fn sign_up(dispatch: Arc<EventDispatch>) -> SignUpContext {
+    let password = login_password();
+    let payload = SignUpRequest {
+        email: random_email(),
+        name: "app flowy".to_string(),
+        password: password.clone(),
+    }
+    .into_bytes()
+    .unwrap();
+
+    let request = ModuleRequest::new(SignUp).payload(payload);
+    let user_detail = EventDispatch::sync_send(dispatch.clone(), request)
+        .parse::<UserDetail, UserError>()
+        .unwrap()
+        .unwrap();
+
+    let _ = create_default_workspace_if_need(dispatch.clone(), &user_detail.id);
+    SignUpContext { user_detail, password }
+}
+
+#[allow(dead_code)]
+fn sign_in(dispatch: Arc<EventDispatch>) -> UserDetail {
+    let payload = SignInRequest {
+        email: login_email(),
+        password: login_password(),
+    }
+    .into_bytes()
+    .unwrap();
+
+    let request = ModuleRequest::new(SignIn).payload(payload);
+    let user_detail = EventDispatch::sync_send(dispatch, request)
+        .parse::<UserDetail, UserError>()
+        .unwrap()
+        .unwrap();
+
+    user_detail
+}
+
+#[allow(dead_code)]
+fn logout(dispatch: Arc<EventDispatch>) { let _ = EventDispatch::sync_send(dispatch, ModuleRequest::new(SignOut)); }

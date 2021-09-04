@@ -22,6 +22,7 @@ impl FlowySDK {
         init_log(root);
         init_kv(root);
 
+        tracing::info!("🔥 user folder: {}", root);
         let dispatch = Arc::new(init_dispatch(root));
         let root = root.to_owned();
         Self { root, dispatch }
@@ -31,7 +32,6 @@ impl FlowySDK {
 }
 
 fn init_kv(root: &str) {
-    tracing::info!("🔥 Root path: {}", root);
     match flowy_infra::kv::KV::init(root) {
         Ok(_) => {},
         Err(e) => tracing::error!("Init kv store failedL: {}", e),
