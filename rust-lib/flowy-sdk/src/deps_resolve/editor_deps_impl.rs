@@ -12,11 +12,9 @@ pub struct EditorDatabaseImpl {
 
 impl DocumentDatabase for EditorDatabaseImpl {
     fn db_connection(&self) -> Result<DBConnection, DocError> {
-        self.user_session.get_db_connection().map_err(|e| {
-            ErrorBuilder::new(DocErrorCode::EditorDBConnFailed)
-                .error(e)
-                .build()
-        })
+        self.user_session
+            .db()
+            .map_err(|e| ErrorBuilder::new(DocErrorCode::EditorDBConnFailed).error(e).build())
     }
 }
 
@@ -26,11 +24,10 @@ pub struct EditorUserImpl {
 
 impl DocumentUser for EditorUserImpl {
     fn user_doc_dir(&self) -> Result<String, DocError> {
-        let dir = self.user_session.user_dir().map_err(|e| {
-            ErrorBuilder::new(DocErrorCode::EditorUserNotLoginYet)
-                .error(e)
-                .build()
-        })?;
+        let dir = self
+            .user_session
+            .user_dir()
+            .map_err(|e| ErrorBuilder::new(DocErrorCode::EditorUserNotLoginYet).error(e).build())?;
 
         let doc_dir = format!("{}/doc", dir);
         if !Path::new(&doc_dir).exists() {

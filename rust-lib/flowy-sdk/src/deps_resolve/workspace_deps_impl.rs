@@ -13,19 +13,15 @@ pub struct WorkspaceUserImpl {
 
 impl WorkspaceUser for WorkspaceUserImpl {
     fn user_id(&self) -> Result<String, WorkspaceError> {
-        self.user_session.user_id().map_err(|e| {
-            ErrorBuilder::new(ErrorCode::UserInternalError)
-                .error(e)
-                .build()
-        })
+        self.user_session
+            .user_id()
+            .map_err(|e| ErrorBuilder::new(ErrorCode::UserInternalError).error(e).build())
     }
 
     fn token(&self) -> Result<String, WorkspaceError> {
-        self.user_session.token().map_err(|e| {
-            ErrorBuilder::new(ErrorCode::UserInternalError)
-                .error(e)
-                .build()
-        })
+        self.user_session
+            .token()
+            .map_err(|e| ErrorBuilder::new(ErrorCode::UserInternalError).error(e).build())
     }
 }
 
@@ -35,10 +31,8 @@ pub struct WorkspaceDatabaseImpl {
 
 impl WorkspaceDatabase for WorkspaceDatabaseImpl {
     fn db_connection(&self) -> Result<DBConnection, WorkspaceError> {
-        self.user_session.get_db_connection().map_err(|e| {
-            ErrorBuilder::new(ErrorCode::DatabaseConnectionFail)
-                .error(e)
-                .build()
-        })
+        self.user_session
+            .db()
+            .map_err(|e| ErrorBuilder::new(ErrorCode::DatabaseConnectionFail).error(e).build())
     }
 }
