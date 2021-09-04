@@ -1,5 +1,5 @@
 use crate::helper::*;
-use flowy_test::builder::{TestBuilder, UserTestBuilder};
+use flowy_test::builder::UserTestBuilder;
 
 #[test]
 fn file_create_test() {

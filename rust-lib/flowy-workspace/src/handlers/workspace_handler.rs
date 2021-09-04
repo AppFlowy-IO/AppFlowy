@@ -39,11 +39,6 @@ pub(crate) async fn open_workspace(
     controller: Unit<Arc<WorkspaceController>>,
 ) -> DataResult<Workspace, WorkspaceError> {
     let params: QueryWorkspaceParams = data.into_inner().try_into()?;
-    match params.workspace_id {
-        None => Err(ErrorBuilder::new(ErrorCode::WorkspaceIdInvalid).build()),
-        Some(workspace_id) => {
-            let workspaces = controller.open_workspace(&workspace_id).await?;
-            data_result(workspaces)
-        },
-    }
+    let workspaces = controller.open_workspace(params).await?;
+    data_result(workspaces)
 }

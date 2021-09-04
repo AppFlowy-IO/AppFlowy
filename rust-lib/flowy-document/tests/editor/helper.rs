@@ -1,4 +1,4 @@
-use flowy_test::builder::{AnnieTestBuilder, DocTestBuilder, TestBuilder};
+use flowy_test::builder::DocTestBuilder;
 
 use flowy_document::{entities::doc::*, event::EditorEvent::*};
 use flowy_infra::uuid;

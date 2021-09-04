@@ -60,24 +60,29 @@ impl WorkspaceController {
         Ok(())
     }
 
-    pub(crate) async fn open_workspace(&self, workspace_id: &str) -> Result<Workspace, WorkspaceError> {
+    pub(crate) async fn open_workspace(&self, params: QueryWorkspaceParams) -> Result<Workspace, WorkspaceError> {
         let user_id = self.user.user_id()?;
-        let result = self.read_workspace_table(Some(workspace_id.to_owned()), user_id).await?;
-
-        match result.first() {
-            None => Err(ErrorBuilder::new(ErrorCode::RecordNotFound).build()),
-            Some(workspace_table) => {
-                let workspace: Workspace = workspace_table.clone().into();
-                set_current_workspace(&workspace.id);
-                Ok(workspace)
-            },
+        if let Some(workspace_id) = params.workspace_id.clone() {
+            self.read_workspaces_on_server(params.clone());
+            let result = self.read_workspace_table(Some(workspace_id), user_id)?;
+            match result.first() {
+                None => Err(ErrorBuilder::new(ErrorCode::RecordNotFound).build()),
+                Some(workspace_table) => {
+                    let workspace: Workspace = workspace_table.clone().into();
+                    set_current_workspace(&workspace.id);
+                    Ok(workspace)
+                },
+            }
+        } else {
+            return Err(ErrorBuilder::new(ErrorCode::WorkspaceIdInvalid)
+                .msg("Opened workspace id should not be empty")
+                .build());
         }
     }
 
     pub(crate) async fn read_workspaces(&self, params: QueryWorkspaceParams) -> Result<RepeatedWorkspace, WorkspaceError> {
-        self.read_workspaces_on_server(params.clone());
         let user_id = self.user.user_id()?;
-        let workspace_tables = self.read_workspace_table(params.workspace_id.clone(), user_id).await?;
+        let workspace_tables = self.read_workspace_table(params.workspace_id.clone(), user_id)?;
         let mut workspaces = vec![];
         for table in workspace_tables {
             let apps = self.read_apps(&table.id).await?;
@@ -122,20 +127,11 @@ impl WorkspaceController {
         Ok(apps)
     }
 
-    fn read_workspace_table(
-        &self,
-        workspace_id: Option<String>,
-        user_id: String,
-    ) -> DispatchFuture<Result<Vec<WorkspaceTable>, WorkspaceError>> {
+    fn read_workspace_table(&self, workspace_id: Option<String>, user_id: String) -> Result<Vec<WorkspaceTable>, WorkspaceError> {
         let sql = self.sql.clone();
         let workspace_id = workspace_id.to_owned();
-        DispatchFuture {
-            fut: Box::pin(async move {
-                let workspace = sql.read_workspaces(workspace_id, &user_id)?;
-                // TODO: fetch workspace from remote server
-                Ok(workspace)
-            }),
-        }
+        let workspace = sql.read_workspaces(workspace_id, &user_id)?;
+        Ok(workspace)
     }
 }
 

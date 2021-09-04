@@ -22,3 +22,11 @@ futures-util = "0.3.15"
 thread-id = "3.3.0"
 log = "0.4"
 bytes = "1.0"
+
+[dev-dependencies]
+quickcheck = "0.9.2"
+quickcheck_macros = "0.9.1"
+fake = "~2.3.0"
+claim = "0.4.0"
+futures = "0.3.15"
+serial_test = "0.5.1"

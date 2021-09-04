@@ -51,9 +51,9 @@ pub trait WorkspaceServerAPI {
 }
 
 pub(crate) fn construct_workspace_server() -> Arc<dyn WorkspaceServerAPI + Send + Sync> {
-    if cfg!(feature = "http_server") {
-        Arc::new(WorkspaceServer {})
-    } else {
+    if cfg!(feature = "mock_server") {
         Arc::new(WorkspaceServerMock {})
+    } else {
+        Arc::new(WorkspaceServer {})
     }
 }

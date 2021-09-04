@@ -101,7 +101,7 @@ pub trait TesterTrait {
     fn sign_up(&self) -> (UserDetail, String) {
         let password = login_password();
         let payload = SignUpRequest {
-            email: random_email(),
+            email: login_email(),
             name: "app flowy".to_string(),
             password: password.clone(),
         }

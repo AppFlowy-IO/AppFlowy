@@ -27,7 +27,7 @@ pub fn root_dir() -> String {
 
 pub fn random_email() -> String { format!("{}@appflowy.io", uuid()) }
 
-pub fn login_email() -> String { "annie@appflowy.io".to_string() }
+pub fn login_email() -> String { "annie2@appflowy.io".to_string() }
 
 pub fn login_password() -> String { "HelloWorld!123".to_string() }
 

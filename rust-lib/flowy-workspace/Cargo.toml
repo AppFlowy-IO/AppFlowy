@@ -35,5 +35,6 @@ bytes = { version = "1.0" }
 flowy-test = { path = "../flowy-test" }
 serial_test = "0.5.1"
 
+
 [features]
-http_server = []
+mock_server = []

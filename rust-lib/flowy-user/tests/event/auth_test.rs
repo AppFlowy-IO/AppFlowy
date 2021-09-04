@@ -44,7 +44,6 @@ fn sign_up_with_invalid_password() {
 #[serial]
 fn sign_in_success() {
     let context = UserTestBuilder::new().sign_up();
-
     let _ = UserTestBuilder::new().event(SignOut).sync_send();
 
     let request = SignInRequest {

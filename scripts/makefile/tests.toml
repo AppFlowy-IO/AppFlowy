@@ -1,0 +1,31 @@
+
+[tasks.test_local]
+category = "Build"
+dependencies = ["rm_cache"]
+description = "Build desktop targets."
+script = '''
+cd rust-lib
+cargo test --features "flowy-workspace/mock_server","flowy-user/mock_server"
+'''
+
+
+[tasks.test_remote]
+dependencies = ["rm_cache", "run_server"]
+[tasks.run_test_remote_command]
+script = """
+cd rust-lib
+cargo test
+"""
+
+
+[tasks.run_server]
+script = """
+cd backend
+cargo run
+"""
+
+
+[tasks.rm_cache]
+script = """
+rm -rf rust-lib/flowy-test/temp
+"""

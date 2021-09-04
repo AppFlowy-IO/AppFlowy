@@ -83,22 +83,16 @@ impl UserSession {
     }
 
     pub async fn sign_up(&self, params: SignUpParams) -> Result<UserDetail, UserError> {
-        // if self.is_login(&params.email) {
-        //     self.user_detail().await
-        // } else {
-        //     let resp = self.server.sign_up(params).await?;
-        //     let session = Session::new(&resp.user_id, &resp.token, &resp.email);
-        //     let _ = self.set_session(Some(session))?;
-        //     let user_table = self.save_user(resp.into()).await?;
-        //     let user_detail = UserDetail::from(user_table);
-        //     Ok(user_detail)
-        // }
-        let resp = self.server.sign_up(params).await?;
-        let session = Session::new(&resp.user_id, &resp.token, &resp.email);
-        let _ = self.set_session(Some(session))?;
-        let user_table = self.save_user(resp.into()).await?;
-        let user_detail = UserDetail::from(user_table);
-        Ok(user_detail)
+        if self.is_login(&params.email) {
+            self.user_detail().await
+        } else {
+            let resp = self.server.sign_up(params).await?;
+            let session = Session::new(&resp.user_id, &resp.token, &resp.email);
+            let _ = self.set_session(Some(session))?;
+            let user_table = self.save_user(resp.into()).await?;
+            let user_detail = UserDetail::from(user_table);
+            Ok(user_detail)
+        }
     }
 
     pub async fn sign_out(&self) -> Result<(), UserError> {
@@ -216,13 +210,6 @@ pub async fn update_user(_server: Server, pool: Arc<ConnectionPool>, params: Upd
     let conn = pool.get()?;
     diesel_update_table!(user_table, changeset, conn);
     Ok(())
-}
-
-pub fn current_user_id() -> Result<String, UserError> {
-    match KV::get_str(SESSION_CACHE_KEY) {
-        None => Err(ErrorBuilder::new(ErrorCode::UserNotLoginYet).build()),
-        Some(user_id) => Ok(user_id),
-    }
 }
 
 impl UserDatabaseConnection for UserSession {
