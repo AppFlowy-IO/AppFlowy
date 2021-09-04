@@ -17,7 +17,7 @@ actix-rt = "2"
 actix-web-actors = { version = "4.0.0-beta.6" }
 actix-service = "2.0.0-beta.5"
 actix-identity = "0.4.0-beta.2"
-#actix-cors = "0.5.4"
+actix-cors = "0.6.0-beta.2"
 
 futures = "0.3.15"
 bytes = "1"
