@@ -3,7 +3,7 @@ use flowy_database::{DBConnection, Database};
 use flowy_sqlite::ConnectionPool;
 use lazy_static::lazy_static;
 use once_cell::sync::Lazy;
-use parking_lot::{lock_api::RwLockReadGuard, Mutex, RawRwLock, RwLock};
+use parking_lot::{Mutex, RwLock};
 use std::{collections::HashMap, sync::Arc, time::Duration};
 lazy_static! {
     static ref DB: RwLock<Option<Database>> = RwLock::new(None);

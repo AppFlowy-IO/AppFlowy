@@ -16,17 +16,7 @@ use crate::{
     module::{container::ModuleDataMap, Unit},
     request::{payload::Payload, EventRequest, FromRequest},
     response::{EventResponse, Responder},
-    service::{
-        factory,
-        BoxService,
-        BoxServiceFactory,
-        Handler,
-        HandlerService,
-        Service,
-        ServiceFactory,
-        ServiceRequest,
-        ServiceResponse,
-    },
+    service::{factory, BoxService, BoxServiceFactory, Handler, HandlerService, Service, ServiceFactory, ServiceRequest, ServiceResponse},
 };
 use futures_core::future::BoxFuture;
 use std::sync::Arc;
@@ -51,8 +41,7 @@ impl<T: Display + Eq + Hash + Debug + Clone> std::convert::From<T> for Event {
     fn from(t: T) -> Self { Event(format!("{}", t)) }
 }
 
-pub type EventServiceFactory =
-    BoxServiceFactory<(), ServiceRequest, ServiceResponse, DispatchError>;
+pub type EventServiceFactory = BoxServiceFactory<(), ServiceRequest, ServiceResponse, DispatchError>;
 
 pub struct Module {
     pub name: String,
@@ -75,9 +64,7 @@ impl Module {
     }
 
     pub fn data<D: 'static + Send + Sync>(mut self, data: D) -> Self {
-        Arc::get_mut(&mut self.module_data)
-            .unwrap()
-            .insert(Unit::new(data));
+        Arc::get_mut(&mut self.module_data).unwrap().insert(Unit::new(data));
 
         self
     }
@@ -102,15 +89,10 @@ impl Module {
         self
     }
 
-    pub fn events(&self) -> Vec<Event> {
-        self.service_map
-            .keys()
-            .map(|key| key.clone())
-            .collect::<Vec<_>>()
-    }
+    pub fn events(&self) -> Vec<Event> { self.service_map.keys().map(|key| key.clone()).collect::<Vec<_>>() }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ModuleRequest {
     pub id: String,
     pub event: Event,
@@ -139,9 +121,7 @@ impl ModuleRequest {
 }
 
 impl std::fmt::Display for ModuleRequest {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}:{:?}", self.id, self.event)
-    }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { write!(f, "{}:{:?}", self.id, self.event) }
 }
 
 impl ServiceFactory<ModuleRequest> for Module {
@@ -155,10 +135,7 @@ impl ServiceFactory<ModuleRequest> for Module {
         let service_map = self.service_map.clone();
         let module_data = self.module_data.clone();
         Box::pin(async move {
-            let service = ModuleService {
-                service_map,
-                module_data,
-            };
+            let service = ModuleService { service_map, module_data };
             let module_service = Box::new(service) as Self::Service;
             Ok(module_service)
         })
@@ -193,10 +170,7 @@ impl Service<ModuleRequest> for ModuleService {
                 Box::pin(async move { Ok(fut.await.unwrap_or_else(|e| e.into())) })
             },
             None => {
-                let msg = format!(
-                    "Can not find service factory for event: {:?}",
-                    request.event
-                );
+                let msg = format!("Can not find service factory for event: {:?}", request.event);
                 Box::pin(async { Err(InternalError::ServiceNotFound(msg).into()) })
             },
         }

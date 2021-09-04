@@ -9,15 +9,22 @@ use crate::{
 };
 use flowy_dispatch::prelude::*;
 use flowy_sdk::*;
+use lazy_static::lazy_static;
+use parking_lot::RwLock;
+use std::{ffi::CStr, os::raw::c_char, sync::Arc};
 
-use std::{ffi::CStr, os::raw::c_char};
+lazy_static! {
+    static ref FLOWY_SDK: RwLock<Option<Arc<FlowySDK>>> = RwLock::new(None);
+}
+
+fn dispatch() -> Arc<EventDispatch> { FLOWY_SDK.read().as_ref().unwrap().dispatch() }
 
 #[no_mangle]
 pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
     let c_str: &CStr = unsafe { CStr::from_ptr(path) };
     let path: &str = c_str.to_str().unwrap();
     log::info!("🔥 FlowySDK start running");
-    FlowySDK::new(path).construct();
+    *FLOWY_SDK.write() = Some(Arc::new(FlowySDK::new(path)));
 
     return 1;
 }
@@ -25,14 +32,9 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
 #[no_mangle]
 pub extern "C" fn async_command(port: i64, input: *const u8, len: usize) {
     let request: ModuleRequest = FFIRequest::from_u8_pointer(input, len).into();
-    log::trace!(
-        "[FFI]: {} Async Event: {:?} with {} port",
-        &request.id,
-        &request.event,
-        port
-    );
+    log::trace!("[FFI]: {} Async Event: {:?} with {} port", &request.id, &request.event, port);
 
-    let _ = EventDispatch::async_send_with_callback(request, move |resp: EventResponse| {
+    let _ = EventDispatch::async_send_with_callback(dispatch(), request, move |resp: EventResponse| {
         log::trace!("[FFI]: Post data to dart through {} port", port);
         Box::pin(post_to_flutter(resp, port))
     });
@@ -42,7 +44,7 @@ pub extern "C" fn async_command(port: i64, input: *const u8, len: usize) {
 pub extern "C" fn sync_command(input: *const u8, len: usize) -> *const u8 {
     let request: ModuleRequest = FFIRequest::from_u8_pointer(input, len).into();
     log::trace!("[FFI]: {} Sync Event: {:?}", &request.id, &request.event,);
-    let _response = EventDispatch::sync_send(request);
+    let _response = EventDispatch::sync_send(dispatch(), request);
 
     // FFIResponse {  }
     let response_bytes = vec![];

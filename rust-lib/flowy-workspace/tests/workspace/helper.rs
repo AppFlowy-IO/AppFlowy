@@ -1,4 +1,4 @@
-use flowy_test::builder::{UserTestBuilder, WorkspaceTestBuilder};
+use flowy_test::prelude::*;
 use flowy_workspace::{
     entities::{app::*, view::*, workspace::*},
     event::WorkspaceEvent::*,
@@ -11,13 +11,13 @@ pub(crate) fn invalid_workspace_name_test_case() -> Vec<String> {
         .collect::<Vec<_>>()
 }
 
-pub fn create_workspace(name: &str, desc: &str) -> Workspace {
+pub fn create_workspace(sdk: &FlowyTestSDK, name: &str, desc: &str) -> Workspace {
     let request = CreateWorkspaceRequest {
         name: name.to_owned(),
         desc: desc.to_owned(),
     };
 
-    let workspace = WorkspaceTestBuilder::new()
+    let workspace = WorkspaceTestBuilder::new(sdk.clone())
         .event(CreateWorkspace)
         .request(request)
         .sync_send()
@@ -25,8 +25,8 @@ pub fn create_workspace(name: &str, desc: &str) -> Workspace {
     workspace
 }
 
-pub fn read_workspaces(request: QueryWorkspaceRequest) -> Option<Workspace> {
-    let mut repeated_workspace = WorkspaceTestBuilder::new()
+pub fn read_workspaces(sdk: &FlowyTestSDK, request: QueryWorkspaceRequest) -> Option<Workspace> {
+    let mut repeated_workspace = WorkspaceTestBuilder::new(sdk.clone())
         .event(ReadWorkspaces)
         .request(request)
         .sync_send()
@@ -36,7 +36,7 @@ pub fn read_workspaces(request: QueryWorkspaceRequest) -> Option<Workspace> {
     repeated_workspace.drain(..1).collect::<Vec<Workspace>>().pop()
 }
 
-pub fn create_app(name: &str, desc: &str, workspace_id: &str) -> App {
+pub fn create_app(sdk: &FlowyTestSDK, name: &str, desc: &str, workspace_id: &str) -> App {
     let create_app_request = CreateAppRequest {
         workspace_id: workspace_id.to_owned(),
         name: name.to_string(),
@@ -44,7 +44,7 @@ pub fn create_app(name: &str, desc: &str, workspace_id: &str) -> App {
         color_style: Default::default(),
     };
 
-    let app = WorkspaceTestBuilder::new()
+    let app = WorkspaceTestBuilder::new(sdk.clone())
         .event(CreateApp)
         .request(create_app_request)
         .sync_send()
@@ -52,18 +52,23 @@ pub fn create_app(name: &str, desc: &str, workspace_id: &str) -> App {
     app
 }
 
-pub fn delete_app(app_id: &str) {
+pub fn delete_app(sdk: &FlowyTestSDK, app_id: &str) {
     let delete_app_request = DeleteAppRequest {
         app_id: app_id.to_string(),
     };
 
-    WorkspaceTestBuilder::new().event(DeleteApp).request(delete_app_request).sync_send();
+    WorkspaceTestBuilder::new(sdk.clone())
+        .event(DeleteApp)
+        .request(delete_app_request)
+        .sync_send();
 }
 
-pub fn update_app(request: UpdateAppRequest) { WorkspaceTestBuilder::new().event(UpdateApp).request(request).sync_send(); }
+pub fn update_app(sdk: &FlowyTestSDK, request: UpdateAppRequest) {
+    WorkspaceTestBuilder::new(sdk.clone()).event(UpdateApp).request(request).sync_send();
+}
 
-pub fn read_app(request: QueryAppRequest) -> App {
-    let app = WorkspaceTestBuilder::new()
+pub fn read_app(sdk: &FlowyTestSDK, request: QueryAppRequest) -> App {
+    let app = WorkspaceTestBuilder::new(sdk.clone())
         .event(ReadApp)
         .request(request)
         .sync_send()
@@ -72,8 +77,8 @@ pub fn read_app(request: QueryAppRequest) -> App {
     app
 }
 
-pub fn create_view_with_request(request: CreateViewRequest) -> View {
-    let view = WorkspaceTestBuilder::new()
+pub fn create_view_with_request(sdk: &FlowyTestSDK, request: CreateViewRequest) -> View {
+    let view = WorkspaceTestBuilder::new(sdk.clone())
         .event(CreateView)
         .request(request)
         .sync_send()
@@ -82,8 +87,8 @@ pub fn create_view_with_request(request: CreateViewRequest) -> View {
     view
 }
 
-pub fn create_view(workspace_id: &str) -> View {
-    let app = create_app("App A", "AppFlowy Github Project", workspace_id);
+pub fn create_view(sdk: &FlowyTestSDK, workspace_id: &str) -> View {
+    let app = create_app(sdk, "App A", "AppFlowy Github Project", workspace_id);
     let request = CreateViewRequest {
         belong_to_id: app.id.clone(),
         name: "View A".to_string(),
@@ -92,13 +97,18 @@ pub fn create_view(workspace_id: &str) -> View {
         view_type: ViewType::Doc,
     };
 
-    create_view_with_request(request)
+    create_view_with_request(sdk, request)
 }
 
-pub fn update_view(request: UpdateViewRequest) { WorkspaceTestBuilder::new().event(UpdateView).request(request).sync_send(); }
+pub fn update_view(sdk: &FlowyTestSDK, request: UpdateViewRequest) {
+    WorkspaceTestBuilder::new(sdk.clone())
+        .event(UpdateView)
+        .request(request)
+        .sync_send();
+}
 
-pub fn read_view(request: QueryViewRequest) -> View {
-    WorkspaceTestBuilder::new()
+pub fn read_view(sdk: &FlowyTestSDK, request: QueryViewRequest) -> View {
+    WorkspaceTestBuilder::new(sdk.clone())
         .event(ReadView)
         .request(request)
         .sync_send()

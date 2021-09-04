@@ -5,39 +5,49 @@ pub mod module;
 use flowy_dispatch::prelude::*;
 use module::build_modules;
 pub use module::*;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc,
+};
 
 static INIT_LOG: AtomicBool = AtomicBool::new(false);
+#[derive(Clone)]
 pub struct FlowySDK {
     root: String,
+    dispatch: Arc<EventDispatch>,
 }
 
 impl FlowySDK {
-    pub fn new(root: &str) -> Self { Self { root: root.to_owned() } }
+    pub fn new(root: &str) -> Self {
+        init_log(root);
+        init_kv(root);
 
-    pub fn construct(self) { FlowySDK::construct_with(&self.root) }
-
-    pub fn construct_with(root: &str) {
-        FlowySDK::init_log(root);
-
-        tracing::info!("🔥 Root path: {}", root);
-        match flowy_infra::kv::KV::init(root) {
-            Ok(_) => {},
-            Err(e) => tracing::error!("Init kv store failedL: {}", e),
-        }
-        FlowySDK::init_modules(root);
+        let dispatch = Arc::new(init_dispatch(root));
+        let root = root.to_owned();
+        Self { root, dispatch }
     }
 
-    fn init_log(directory: &str) {
-        if !INIT_LOG.load(Ordering::SeqCst) {
-            INIT_LOG.store(true, Ordering::SeqCst);
+    pub fn dispatch(&self) -> Arc<EventDispatch> { self.dispatch.clone() }
+}
 
-            let _ = flowy_log::Builder::new("flowy").local(directory).env_filter("info").build();
-        }
+fn init_kv(root: &str) {
+    tracing::info!("🔥 Root path: {}", root);
+    match flowy_infra::kv::KV::init(root) {
+        Ok(_) => {},
+        Err(e) => tracing::error!("Init kv store failedL: {}", e),
     }
+}
 
-    fn init_modules(root: &str) {
-        let config = ModuleConfig { root: root.to_owned() };
-        EventDispatch::construct(|| build_modules(config));
+fn init_log(directory: &str) {
+    if !INIT_LOG.load(Ordering::SeqCst) {
+        INIT_LOG.store(true, Ordering::SeqCst);
+
+        let _ = flowy_log::Builder::new("flowy").local(directory).env_filter("info").build();
     }
+}
+
+fn init_dispatch(root: &str) -> EventDispatch {
+    let config = ModuleConfig { root: root.to_owned() };
+    let dispatch = EventDispatch::construct(|| build_modules(config));
+    dispatch
 }

@@ -2,8 +2,9 @@ use flowy_test::builder::DocTestBuilder;
 
 use flowy_document::{entities::doc::*, event::EditorEvent::*};
 use flowy_infra::uuid;
+use flowy_test::prelude::*;
 
-pub fn create_doc(name: &str, desc: &str, text: &str) -> DocInfo {
+pub fn create_doc(sdk: &FlowyTestSDK, name: &str, desc: &str, text: &str) -> DocInfo {
     let request = CreateDocRequest {
         id: uuid(),
         name: name.to_owned(),
@@ -11,7 +12,7 @@ pub fn create_doc(name: &str, desc: &str, text: &str) -> DocInfo {
         text: text.to_owned(),
     };
 
-    let doc = DocTestBuilder::new()
+    let doc = DocTestBuilder::new(sdk.clone())
         .event(CreateDoc)
         .request(request)
         .sync_send()
@@ -19,7 +20,7 @@ pub fn create_doc(name: &str, desc: &str, text: &str) -> DocInfo {
     doc
 }
 
-pub fn save_doc(desc: &DocInfo, content: &str) {
+pub fn save_doc(sdk: &FlowyTestSDK, desc: &DocInfo, content: &str) {
     let request = UpdateDocRequest {
         id: desc.id.clone(),
         name: Some(desc.name.clone()),
@@ -27,7 +28,7 @@ pub fn save_doc(desc: &DocInfo, content: &str) {
         text: Some(content.to_owned()),
     };
 
-    let _ = DocTestBuilder::new().event(UpdateDoc).request(request).sync_send();
+    let _ = DocTestBuilder::new(sdk.clone()).event(UpdateDoc).request(request).sync_send();
 }
 
 // #[allow(dead_code)]
@@ -45,13 +46,13 @@ pub fn save_doc(desc: &DocInfo, content: &str) {
 //     doc
 // }
 
-pub(crate) fn read_doc_data(doc_id: &str, path: &str) -> DocData {
+pub(crate) fn read_doc_data(sdk: &FlowyTestSDK, doc_id: &str, path: &str) -> DocData {
     let request = QueryDocDataRequest {
         doc_id: doc_id.to_string(),
         path: path.to_string(),
     };
 
-    let doc = DocTestBuilder::new()
+    let doc = DocTestBuilder::new(sdk.clone())
         .event(ReadDocData)
         .request(request)
         .sync_send()

@@ -37,4 +37,4 @@ serial_test = "0.5.1"
 
 
 [features]
-mock_server = []
+http_server = []

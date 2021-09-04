@@ -20,9 +20,9 @@ pub trait UserServerAPI {
 }
 
 pub(crate) fn construct_user_server() -> Arc<dyn UserServerAPI + Send + Sync> {
-    if cfg!(feature = "mock_server") {
-        Arc::new(UserServerMock {})
-    } else {
+    if cfg!(feature = "http_server") {
         Arc::new(UserServer {})
+    } else {
+        Arc::new(UserServerMock {})
     }
 }

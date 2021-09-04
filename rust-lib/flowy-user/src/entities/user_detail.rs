@@ -17,7 +17,7 @@ impl std::default::Default for UserStatus {
     fn default() -> Self { UserStatus::Unknown }
 }
 
-#[derive(ProtoBuf, Default, Debug, PartialEq, Eq)]
+#[derive(ProtoBuf, Default, Debug, PartialEq, Eq, Clone)]
 pub struct UserDetail {
     #[pb(index = 1)]
     pub id: String,
@@ -135,36 +135,19 @@ impl TryInto<UpdateUserParams> for UpdateUserRequest {
 
         let name = match self.name {
             None => None,
-            Some(name) => Some(
-                UserName::parse(name)
-                    .map_err(|e| ErrorBuilder::new(e).build())?
-                    .0,
-            ),
+            Some(name) => Some(UserName::parse(name).map_err(|e| ErrorBuilder::new(e).build())?.0),
         };
 
         let email = match self.email {
             None => None,
-            Some(email) => Some(
-                UserEmail::parse(email)
-                    .map_err(|e| ErrorBuilder::new(e).build())?
-                    .0,
-            ),
+            Some(email) => Some(UserEmail::parse(email).map_err(|e| ErrorBuilder::new(e).build())?.0),
         };
 
         let password = match self.password {
             None => None,
-            Some(password) => Some(
-                UserPassword::parse(password)
-                    .map_err(|e| ErrorBuilder::new(e).build())?
-                    .0,
-            ),
+            Some(password) => Some(UserPassword::parse(password).map_err(|e| ErrorBuilder::new(e).build())?.0),
         };
 
-        Ok(UpdateUserParams {
-            id,
-            name,
-            email,
-            password,
-        })
+        Ok(UpdateUserParams { id, name, email, password })
     }
 }

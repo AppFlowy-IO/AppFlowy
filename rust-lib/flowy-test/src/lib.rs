@@ -1,21 +1,34 @@
 pub mod builder;
 mod helper;
-mod tester;
+// pub mod workspace_builder;
 
-use crate::helper::root_dir;
+use crate::{builder::UserTestBuilder, helper::root_dir};
 use flowy_sdk::FlowySDK;
-use std::sync::Once;
 
 pub mod prelude {
-    pub use crate::{builder::*, helper::*};
+    pub use crate::{builder::*, helper::*, *};
     pub use flowy_dispatch::prelude::*;
 }
 
-static INIT: Once = Once::new();
-pub fn init_test_sdk() {
-    let root_dir = root_dir();
+pub type FlowyTestSDK = FlowySDK;
 
-    INIT.call_once(|| {
-        FlowySDK::construct_with(&root_dir);
-    });
+#[derive(Clone)]
+pub struct TestSDKBuilder {
+    inner: FlowyTestSDK,
+}
+
+impl TestSDKBuilder {
+    pub fn new() -> Self { Self { inner: init_test_sdk() } }
+
+    pub fn sign_up(self) -> Self {
+        let _ = UserTestBuilder::new(self.inner.clone()).sign_up();
+        self
+    }
+
+    pub fn build(self) -> FlowyTestSDK { self.inner }
+}
+
+pub fn init_test_sdk() -> FlowyTestSDK {
+    let root_dir = root_dir();
+    FlowySDK::new(&root_dir)
 }

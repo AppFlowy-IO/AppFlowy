@@ -1,8 +1,4 @@
-use crate::{
-    entities::workspace::*,
-    errors::{ErrorBuilder, ErrorCode, WorkspaceError},
-    services::WorkspaceController,
-};
+use crate::{entities::workspace::*, errors::WorkspaceError, services::WorkspaceController};
 use flowy_dispatch::prelude::{data_result, Data, DataResult, Unit};
 use std::{convert::TryInto, sync::Arc};
 

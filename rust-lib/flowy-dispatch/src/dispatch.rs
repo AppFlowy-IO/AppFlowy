@@ -8,22 +8,17 @@ use crate::{
 use derivative::*;
 use futures_core::future::BoxFuture;
 use futures_util::task::Context;
-use lazy_static::lazy_static;
+
 use pin_project::pin_project;
-use std::{future::Future, sync::RwLock};
+use std::{future::Future, sync::Arc};
 use tokio::macros::support::{Pin, Poll};
-
-lazy_static! {
-    static ref EVENT_DISPATCH: RwLock<Option<EventDispatch>> = RwLock::new(None);
-}
-
 pub struct EventDispatch {
     module_map: ModuleMap,
     runtime: tokio::runtime::Runtime,
 }
 
 impl EventDispatch {
-    pub fn construct<F>(module_factory: F)
+    pub fn construct<F>(module_factory: F) -> EventDispatch
     where
         F: FnOnce() -> Vec<Module>,
     {
@@ -32,60 +27,88 @@ impl EventDispatch {
         let module_map = as_module_map(modules);
         let runtime = tokio_default_runtime().unwrap();
         let dispatch = EventDispatch { module_map, runtime };
-        *(EVENT_DISPATCH.write().unwrap()) = Some(dispatch);
+        dispatch
     }
 
-    pub fn async_send<Req>(request: Req) -> DispatchFuture<EventResponse>
+    pub fn async_send<Req>(dispatch: Arc<EventDispatch>, request: Req) -> DispatchFuture<EventResponse>
     where
         Req: std::convert::Into<ModuleRequest>,
     {
-        EventDispatch::async_send_with_callback(request, |_| Box::pin(async {}))
+        EventDispatch::async_send_with_callback(dispatch, request, |_| Box::pin(async {}))
     }
 
-    pub fn async_send_with_callback<Req, Callback>(request: Req, callback: Callback) -> DispatchFuture<EventResponse>
+    pub fn async_send_with_callback<Req, Callback>(
+        dispatch: Arc<EventDispatch>,
+        request: Req,
+        callback: Callback,
+    ) -> DispatchFuture<EventResponse>
     where
         Req: std::convert::Into<ModuleRequest>,
         Callback: FnOnce(EventResponse) -> BoxFuture<'static, ()> + 'static + Send + Sync,
     {
         let request: ModuleRequest = request.into();
-        match EVENT_DISPATCH.read() {
-            Ok(dispatch) => {
-                let dispatch = dispatch.as_ref().unwrap();
-                let module_map = dispatch.module_map.clone();
-                let service = Box::new(DispatchService { module_map });
-                log::trace!("Async event: {:?}", &request.event);
-                let service_ctx = DispatchContext {
-                    request,
-                    callback: Some(Box::new(callback)),
-                };
-                let join_handle = dispatch.runtime.spawn(async move {
-                    service
-                        .call(service_ctx)
-                        .await
-                        .unwrap_or_else(|e| InternalError::Other(format!("{:?}", e)).as_response())
-                });
+        let module_map = dispatch.module_map.clone();
+        let service = Box::new(DispatchService { module_map });
+        log::trace!("Async event: {:?}", &request.event);
+        let service_ctx = DispatchContext {
+            request,
+            callback: Some(Box::new(callback)),
+        };
+        let join_handle = dispatch.runtime.spawn(async move {
+            service
+                .call(service_ctx)
+                .await
+                .unwrap_or_else(|e| InternalError::Other(format!("{:?}", e)).as_response())
+        });
 
-                DispatchFuture {
-                    fut: Box::pin(async move {
-                        join_handle.await.unwrap_or_else(|e| {
-                            let error = InternalError::JoinError(format!("EVENT_DISPATCH join error: {:?}", e));
-                            error.as_response()
-                        })
-                    }),
-                }
-            },
-
-            Err(e) => {
-                let msg = format!("EVENT_DISPATCH read failed. {:?}", e);
-                DispatchFuture {
-                    fut: Box::pin(async { InternalError::Lock(msg).as_response() }),
-                }
-            },
+        DispatchFuture {
+            fut: Box::pin(async move {
+                join_handle.await.unwrap_or_else(|e| {
+                    let error = InternalError::JoinError(format!("EVENT_DISPATCH join error: {:?}", e));
+                    error.as_response()
+                })
+            }),
         }
+        // match dispatch.read() {
+        //     Ok(dispatch) => {
+        //         let dispatch = dispatch.as_ref().unwrap();
+        //         let module_map = dispatch.module_map.clone();
+        //         let service = Box::new(DispatchService { module_map });
+        //         log::trace!("Async event: {:?}", &request.event);
+        //         let service_ctx = DispatchContext {
+        //             request,
+        //             callback: Some(Box::new(callback)),
+        //         };
+        //         let join_handle = dispatch.runtime.spawn(async move {
+        //             service
+        //                 .call(service_ctx)
+        //                 .await
+        //                 .unwrap_or_else(|e|
+        // InternalError::Other(format!("{:?}", e)).as_response())
+        //         });
+        //
+        //         DispatchFuture {
+        //             fut: Box::pin(async move {
+        //                 join_handle.await.unwrap_or_else(|e| {
+        //                     let error =
+        // InternalError::JoinError(format!("EVENT_DISPATCH join error: {:?}",
+        // e));                     error.as_response()
+        //                 })
+        //             }),
+        //         }
+        //     },
+        //
+        //     Err(e) => {
+        //         let msg = format!("EVENT_DISPATCH read failed. {:?}", e);
+        //         DispatchFuture {
+        //             fut: Box::pin(async {
+        // InternalError::Lock(msg).as_response() }),         }
+        //     },
+        // }
     }
 
-    pub fn sync_send(request: ModuleRequest) -> EventResponse {
-        futures::executor::block_on(async { EventDispatch::async_send_with_callback(request, |_| Box::pin(async {})).await })
+    pub fn sync_send(dispatch: Arc<EventDispatch>, request: ModuleRequest) -> EventResponse {
+        futures::executor::block_on(async { EventDispatch::async_send_with_callback(dispatch, request, |_| Box::pin(async {})).await })
     }
 }
 

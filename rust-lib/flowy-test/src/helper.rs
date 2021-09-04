@@ -1,13 +1,14 @@
 use bytes::Bytes;
-use flowy_dispatch::prelude::{DispatchError, EventDispatch, ModuleRequest, ToBytes};
+use flowy_dispatch::prelude::{EventDispatch, ModuleRequest, ToBytes};
 use flowy_infra::{kv::KV, uuid};
+
 use flowy_user::errors::{ErrorBuilder, ErrorCode, UserError};
 use flowy_workspace::{
     entities::workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest, Workspace},
     errors::WorkspaceError,
     event::WorkspaceEvent::{CreateWorkspace, OpenWorkspace},
 };
-use std::{fs, path::PathBuf};
+use std::{fs, path::PathBuf, sync::Arc};
 
 pub fn root_dir() -> String {
     // https://doc.rust-lang.org/cargo/reference/environment-variables.html
@@ -35,7 +36,7 @@ const DEFAULT_WORKSPACE_NAME: &'static str = "My workspace";
 const DEFAULT_WORKSPACE_DESC: &'static str = "This is your first workspace";
 const DEFAULT_WORKSPACE: &'static str = "Default_Workspace";
 
-pub(crate) fn create_default_workspace_if_need(user_id: &str) -> Result<(), UserError> {
+pub(crate) fn create_default_workspace_if_need(dispatch: Arc<EventDispatch>, user_id: &str) -> Result<(), UserError> {
     let key = format!("{}{}", user_id, DEFAULT_WORKSPACE);
     if KV::get_bool(&key).unwrap_or(false) {
         return Err(ErrorBuilder::new(ErrorCode::DefaultWorkspaceAlreadyExist).build());
@@ -50,12 +51,11 @@ pub(crate) fn create_default_workspace_if_need(user_id: &str) -> Result<(), User
     .unwrap();
 
     let request = ModuleRequest::new(CreateWorkspace).payload(payload);
-    let result = EventDispatch::sync_send(request)
+    let result = EventDispatch::sync_send(dispatch.clone(), request)
         .parse::<Workspace, WorkspaceError>()
         .map_err(|e| ErrorBuilder::new(ErrorCode::CreateDefaultWorkspaceFailed).error(e).build())?;
 
     let workspace = result.map_err(|e| ErrorBuilder::new(ErrorCode::CreateDefaultWorkspaceFailed).error(e).build())?;
-
     let query: Bytes = QueryWorkspaceRequest {
         workspace_id: Some(workspace.id.clone()),
     }
@@ -63,7 +63,7 @@ pub(crate) fn create_default_workspace_if_need(user_id: &str) -> Result<(), User
     .unwrap();
 
     let request = ModuleRequest::new(OpenWorkspace).payload(query);
-    let _result = EventDispatch::sync_send(request)
+    let _result = EventDispatch::sync_send(dispatch.clone(), request)
         .parse::<Workspace, WorkspaceError>()
         .unwrap()
         .unwrap();

@@ -170,7 +170,7 @@ impl UserSession {
     }
 
     fn set_session(&self, session: Option<Session>) -> Result<(), UserError> {
-        log::trace!("Update user session: {:?}", session);
+        log::debug!("Update user session: {:?}", session);
         match &session {
             None => KV::remove(SESSION_CACHE_KEY).map_err(|e| UserError::new(ErrorCode::SqlInternalError, &e))?,
             Some(session) => KV::set_str(SESSION_CACHE_KEY, session.clone().into()),

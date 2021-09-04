@@ -10,9 +10,9 @@ pub fn setup_env() {
     });
 }
 
-pub fn init_dispatch<F>(module_factory: F)
+pub fn init_dispatch<F>(module_factory: F) -> EventDispatch
 where
     F: FnOnce() -> Vec<Module>,
 {
-    EventDispatch::construct(module_factory);
+    EventDispatch::construct(module_factory)
 }

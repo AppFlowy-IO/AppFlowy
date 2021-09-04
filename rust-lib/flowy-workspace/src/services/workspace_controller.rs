@@ -6,7 +6,7 @@ use crate::{
     services::{helper::spawn, server::Server, AppController},
     sql_tables::workspace::{WorkspaceSql, WorkspaceTable, WorkspaceTableChangeset},
 };
-use flowy_dispatch::prelude::DispatchFuture;
+
 use flowy_infra::kv::KV;
 
 use std::sync::Arc;

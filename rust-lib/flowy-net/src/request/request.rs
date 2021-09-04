@@ -80,8 +80,7 @@ impl HttpRequestBuilder {
         // reqwest client is not 'Sync' by channel is.
         tokio::spawn(async move {
             let client = default_client();
-            let mut builder = client.request(method, url).headers(headers);
-
+            let mut builder = client.request(method.clone(), url).headers(headers);
             if let Some(body) = body {
                 builder = builder.body(body);
             }
@@ -90,7 +89,7 @@ impl HttpRequestBuilder {
             match tx.send(response) {
                 Ok(_) => {},
                 Err(e) => {
-                    log::error!("Send http response failed: {:?}", e)
+                    log::error!("[{}] Send http request failed: {:?}", method, e);
                 },
             }
         });
