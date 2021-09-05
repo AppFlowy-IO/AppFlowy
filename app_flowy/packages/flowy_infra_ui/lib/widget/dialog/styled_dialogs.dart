@@ -132,7 +132,7 @@ class StyledDialog extends StatelessWidget {
 
     Widget innerContent = Container(
       padding: padding ?? EdgeInsets.all(Insets.lGutter),
-      color: bgColor ?? theme.surface,
+      color: bgColor ?? theme.bg1,
       child: child,
     );
 
@@ -198,9 +198,9 @@ class OkCancelDialog extends StatelessWidget {
         children: <Widget>[
           if (title != null) ...[
             Text(title!.toUpperCase(),
-                style: TextStyles.T1.textColor(theme.accent1Darker)),
+                style: TextStyles.T1.textColor(theme.shader1)),
             VSpace(Insets.sm * 1.5),
-            Container(color: theme.greyWeak.withOpacity(.35), height: 1),
+            Container(color: theme.bg1, height: 1),
             VSpace(Insets.m * 1.5),
           ],
           Text(message, style: TextStyles.Body1.textHeight(1.5)),

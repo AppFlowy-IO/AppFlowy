@@ -2,6 +2,7 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/application/sign_in/sign_in_bloc.dart';
 import 'package:app_flowy/user/domain/i_auth.dart';
 import 'package:app_flowy/user/presentation/sign_in/widgets/background.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -10,6 +11,7 @@ import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flowy_infra/image.dart';
 
 class SignInScreen extends StatelessWidget {
   final IAuthRouter router;
@@ -71,6 +73,7 @@ class SignInForm extends StatelessWidget {
           const EmailTextField(),
           const PasswordTextField(),
           ForgetPasswordButton(router: router),
+          const VSpace(30),
           const LoginButton(),
           const VSpace(10),
           SignUpPrompt(router: router),
@@ -94,18 +97,19 @@ class SignUpPrompt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
     return Row(
       children: [
-        const Text("Dont't have an account",
-            style: TextStyle(color: Colors.blueGrey, fontSize: 12)),
+        Text("Dont't have an account",
+            style: TextStyle(color: theme.shader3, fontSize: 12)),
         TextButton(
           style: TextButton.styleFrom(
             textStyle: const TextStyle(fontSize: 12),
           ),
           onPressed: () => router.showSignUpScreen(context),
-          child: const Text(
+          child: Text(
             'Sign Up',
-            style: TextStyle(color: Colors.lightBlue),
+            style: TextStyle(color: theme.main1),
           ),
         ),
       ],
@@ -121,11 +125,12 @@ class LoginButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
     return RoundedTextButton(
       title: 'Login',
       height: 45,
       borderRadius: BorderRadius.circular(10),
-      color: Colors.lightBlue,
+      color: theme.main1,
       press: () {
         context
             .read<SignInBloc>()
@@ -145,14 +150,15 @@ class ForgetPasswordButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
     return TextButton(
       style: TextButton.styleFrom(
         textStyle: const TextStyle(fontSize: 12),
       ),
       onPressed: () => router.showForgetPasswordScreen(context),
-      child: const Text(
+      child: Text(
         'Forgot Password?',
-        style: TextStyle(color: Colors.lightBlue),
+        style: TextStyle(color: theme.main1),
       ),
     );
   }
@@ -165,15 +171,18 @@ class PasswordTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
     return BlocBuilder<SignInBloc, SignInState>(
       buildWhen: (previous, current) =>
           previous.passwordError != current.passwordError,
       builder: (context, state) {
         return RoundedInputField(
           obscureText: true,
+          obscureIcon: svgWidgetWithName("home/Hide.svg"),
+          obscureHideIcon: svgWidgetWithName("home/Show.svg"),
           hintText: 'password',
-          normalBorderColor: Colors.green,
-          highlightBorderColor: Colors.red,
+          normalBorderColor: theme.shader4,
+          highlightBorderColor: theme.red,
           errorText: context
               .read<SignInBloc>()
               .state
@@ -195,14 +204,15 @@ class EmailTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
     return BlocBuilder<SignInBloc, SignInState>(
       buildWhen: (previous, current) =>
           previous.emailError != current.emailError,
       builder: (context, state) {
         return RoundedInputField(
           hintText: 'email',
-          normalBorderColor: Colors.green,
-          highlightBorderColor: Colors.red,
+          normalBorderColor: theme.shader4,
+          highlightBorderColor: theme.red,
           errorText: context
               .read<SignInBloc>()
               .state

@@ -1,5 +1,8 @@
+import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SignInFormContainer extends StatelessWidget {
   final List<Widget> children;
@@ -32,22 +35,19 @@ class SignInTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
     return SizedBox(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image(
-              fit: BoxFit.cover,
-              width: logoSize.width,
-              height: logoSize.height,
-              image: const AssetImage('assets/images/app_flowy_logo.jpg')),
+          svgWidgetWithName("small_logo.svg"),
           const VSpace(30),
           Text(
             title,
-            style: const TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
+            style: TextStyle(
+              color: theme.shader1,
+              fontWeight: FontWeight.w600,
+              fontSize: 24,
             ),
           )
         ],

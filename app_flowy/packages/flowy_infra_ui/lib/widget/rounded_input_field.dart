@@ -8,6 +8,8 @@ class RoundedInputField extends StatefulWidget {
   final String? hintText;
   final IconData? icon;
   final bool obscureText;
+  final Widget? obscureIcon;
+  final Widget? obscureHideIcon;
   final Color normalBorderColor;
   final Color highlightBorderColor;
   final String errorText;
@@ -19,6 +21,8 @@ class RoundedInputField extends StatefulWidget {
     this.hintText,
     this.icon,
     this.obscureText = false,
+    this.obscureIcon,
+    this.obscureHideIcon,
     this.onChanged,
     this.normalBorderColor = Colors.transparent,
     this.highlightBorderColor = Colors.transparent,
@@ -84,13 +88,28 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
     if (widget.obscureText == false) {
       return null;
     }
+
+    Widget? icon;
+    if (widget.obscureText == true) {
+      assert(widget.obscureIcon != null && widget.obscureHideIcon != null);
+      if (widget.enableObscure) {
+        icon = widget.obscureIcon!;
+      } else {
+        icon = widget.obscureHideIcon!;
+      }
+    }
+
+    if (icon == null) {
+      return null;
+    }
+
     return RoundedImageButton(
       size: 20,
       press: () {
         widget.enableObscure = !widget.enableObscure;
         setState(() {});
       },
-      child: const Icon(Icons.password, size: 15),
+      child: icon,
     );
   }
 }

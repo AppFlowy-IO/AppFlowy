@@ -82,7 +82,7 @@ class _BaseStyledBtnState extends State<BaseStyledButton> {
         boxShadow: _isFocused
             ? [
                 BoxShadow(
-                    color: theme.focus.withOpacity(0.25),
+                    color: theme.shader6,
                     offset: Offset.zero,
                     blurRadius: 8.0,
                     spreadRadius: 0.0),
@@ -99,7 +99,7 @@ class _BaseStyledBtnState extends State<BaseStyledButton> {
               shape: RoundedRectangleBorder(
                 side: BorderSide(
                   width: 1.8,
-                  color: theme.focus,
+                  color: theme.shader6,
                 ),
                 borderRadius:
                     BorderRadius.circular(widget.borderRadius ?? Corners.s5),
@@ -119,8 +119,8 @@ class _BaseStyledBtnState extends State<BaseStyledButton> {
         highlightElevation: 0,
         focusElevation: 0,
         fillColor: Colors.transparent,
-        hoverColor: widget.hoverColor ?? theme.surface,
-        highlightColor: widget.downColor ?? theme.accent1.withOpacity(.1),
+        hoverColor: widget.hoverColor ?? theme.hover,
+        highlightColor: widget.downColor ?? theme.main1,
         focusColor: widget.focusColor ?? Colors.grey.withOpacity(0.35),
         child: Opacity(
           child: Padding(

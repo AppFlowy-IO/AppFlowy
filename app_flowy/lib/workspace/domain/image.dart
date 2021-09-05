@@ -1,7 +1,6 @@
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
-
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flowy_infra/image.dart';
 
 AssetImage assetImageForViewType(ViewType type) {
   final imageName = imageNameForViewType(type);
@@ -10,9 +9,7 @@ AssetImage assetImageForViewType(ViewType type) {
 
 Widget svgImageForViewType(ViewType type) {
   final imageName = imageNameForViewType(type);
-  final Widget svg = SvgPicture.asset(
-    'assets/images/$imageName',
-  );
+  final Widget svg = svgWidgetWithName(imageName);
 
   return svg;
 }

@@ -117,12 +117,12 @@ class ScrollbarState extends State<StyledScrollbar> {
         var showHandle = contentExtent > _viewExtent && contentExtent > 0;
         // Handle color
         var handleColor = widget.handleColor ??
-            (theme.isDark ? theme.greyWeak.withOpacity(.2) : theme.greyWeak);
+            (theme.isDark ? theme.bg2.withOpacity(.2) : theme.bg2);
         // Track color
         var trackColor = widget.trackColor ??
             (theme.isDark
-                ? theme.greyWeak.withOpacity(.1)
-                : theme.greyWeak.withOpacity(.3));
+                ? theme.bg2.withOpacity(.1)
+                : theme.bg2.withOpacity(.3));
 
         //Layout the stack, it just contains a child, and
         return Stack(children: <Widget>[

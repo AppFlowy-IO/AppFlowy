@@ -200,7 +200,7 @@ class StyledSearchTextInputState extends State<StyledSearchTextInput> {
         autocorrect: widget.autoCorrect ?? false,
         enableSuggestions: widget.enableSuggestions ?? false,
         style: widget.style ?? TextStyles.Body1,
-        cursorColor: theme.accent1,
+        cursorColor: theme.main1,
         controller: _controller,
         showCursor: true,
         enabled: widget.enabled,
@@ -218,7 +218,7 @@ class StyledSearchTextInputState extends State<StyledSearchTextInput> {
                 errorText: widget.errorText,
                 errorMaxLines: 2,
                 hintText: widget.hintText,
-                hintStyle: TextStyles.Body1.textColor(theme.grey),
+                hintStyle: TextStyles.Body1.textColor(theme.shader4),
                 labelText: widget.label),
       ),
     );

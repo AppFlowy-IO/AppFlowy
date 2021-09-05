@@ -18,7 +18,7 @@ class SecondaryTextButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    TextStyle txtStyle = TextStyles.Footnote.textColor(theme.accent1Darker);
+    TextStyle txtStyle = TextStyles.Footnote.textColor(theme.shader1);
     return SecondaryButton(
         onPressed: onPressed, child: Text(label, style: txtStyle));
   }
@@ -42,7 +42,7 @@ class SecondaryIconButton extends StatelessWidget {
       minHeight: 36,
       minWidth: 36,
       contentPadding: Insets.sm,
-      child: FlowyImageIcon(icon, size: 20, color: color ?? theme.grey),
+      child: FlowyImageIcon(icon, size: 20, color: color ?? theme.shader4),
     );
   }
 }
@@ -82,12 +82,11 @@ class _SecondaryButtonState extends State<SecondaryButton> {
         minWidth: widget.minWidth ?? 78,
         minHeight: widget.minHeight ?? 42,
         contentPadding: EdgeInsets.all(widget.contentPadding ?? Insets.m),
-        bgColor: theme.surface,
-        outlineColor:
-            (_isMouseOver ? theme.accent1 : theme.grey).withOpacity(.35),
-        hoverColor: theme.surface,
+        bgColor: theme.bg1,
+        outlineColor: (_isMouseOver ? theme.hover : theme.shader6),
+        hoverColor: theme.hover,
         onFocusChanged: widget.onFocusChanged,
-        downColor: theme.greyWeak.withOpacity(.35),
+        downColor: theme.selector,
         borderRadius: Corners.s5,
         child: IgnorePointer(child: widget.child),
         onPressed: widget.onPressed,

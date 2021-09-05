@@ -11,9 +11,7 @@ class AppTheme {
   static ThemeType defaultTheme = ThemeType.light;
 
   bool isDark;
-  late Color bg1; //
   late Color surface; //
-  late Color bg2;
   late Color accent1;
   late Color accent1Dark;
   late Color accent1Darker;
@@ -24,9 +22,40 @@ class AppTheme {
   late Color greyWeak;
   late Color error;
   late Color focus;
-
   late Color txt;
   late Color accentTxt;
+
+  late Color hover;
+  late Color selector;
+  late Color red;
+  late Color yellow;
+  late Color green;
+
+  late Color shader1;
+  late Color shader2;
+  late Color shader3;
+  late Color shader4;
+  late Color shader5;
+  late Color shader6;
+  late Color shader7;
+
+  late Color bg1;
+  late Color bg2;
+  late Color bg3;
+  late Color bg4;
+
+  late Color tint1;
+  late Color tint2;
+  late Color tint3;
+  late Color tint4;
+  late Color tint5;
+  late Color tint6;
+  late Color tint7;
+  late Color tint8;
+  late Color tint9;
+
+  late Color main1;
+  late Color main2;
 
   /// Default constructor
   AppTheme({this.isDark = true}) {
@@ -39,8 +68,6 @@ class AppTheme {
     switch (t) {
       case ThemeType.light:
         return AppTheme(isDark: false)
-          ..bg1 = const Color.fromARGB(255, 247, 248, 252)
-          ..bg2 = const Color(0xffc1dcbc)
           ..surface = Colors.white
           ..accent1 = const Color(0xff00a086)
           ..accent1Dark = const Color(0xff00856f)
@@ -51,7 +78,34 @@ class AppTheme {
           ..grey = const Color(0xff515d5a)
           ..greyStrong = const Color(0xff151918)
           ..error = Colors.red.shade900
-          ..focus = const Color(0xFF0ee2b1);
+          ..focus = const Color(0xFFe0f8ff)
+          ..hover = const Color(0xFFe0f8ff) //
+          ..selector = const Color(0xfff2fcff)
+          ..red = const Color(0xfffb006d)
+          ..yellow = const Color(0xffffd667)
+          ..green = const Color(0xff66cf80)
+          ..shader1 = const Color(0xff333333)
+          ..shader2 = const Color(0xff4f4f4f)
+          ..shader3 = const Color(0xff828282)
+          ..shader4 = const Color(0xffbdbdbd)
+          ..shader5 = const Color(0xffe0e0e0)
+          ..shader6 = const Color(0xfff2f2f2)
+          ..shader7 = const Color(0xffffffff)
+          ..bg1 = const Color(0xfff7f8fc)
+          ..bg2 = const Color(0xffedeef2)
+          ..bg3 = const Color(0xffe2e4eb)
+          ..bg4 = const Color(0xff2c144b)
+          ..tint1 = const Color(0xffe8e0ff)
+          ..tint2 = const Color(0xffffe7fd)
+          ..tint3 = const Color(0xffffe7ee)
+          ..tint4 = const Color(0xffffefe3)
+          ..tint5 = const Color(0xfffff2cd)
+          ..tint6 = const Color(0xfff5ffdc)
+          ..tint7 = const Color(0xffddffd6)
+          ..tint8 = const Color(0xffdefff1)
+          ..tint9 = const Color(0xffdefff1)
+          ..main1 = const Color(0xff00bcf0)
+          ..main2 = const Color(0xff00b7ea);
 
       case ThemeType.dark:
         return AppTheme(isDark: true)
@@ -67,7 +121,34 @@ class AppTheme {
           ..grey = const Color(0xffced4d3)
           ..greyStrong = const Color(0xffffffff)
           ..error = const Color(0xffe55642)
-          ..focus = const Color(0xff0ee2b1);
+          ..focus = const Color(0xff0ee2b1)
+          ..hover = const Color(0xFFe0f8ff) //
+          ..selector = const Color(0xfff2fcff)
+          ..red = const Color(0xfffb006d)
+          ..yellow = const Color(0xffffd667)
+          ..green = const Color(0xff66cf80)
+          ..shader1 = const Color(0xff333333)
+          ..shader2 = const Color(0xff4f4f4f)
+          ..shader3 = const Color(0xff828282)
+          ..shader4 = const Color(0xffbdbdbd)
+          ..shader5 = const Color(0xffe0e0e0)
+          ..shader6 = const Color(0xfff2f2f2)
+          ..shader7 = const Color(0xffffffff)
+          ..bg1 = const Color(0xfff7f8fc)
+          ..bg2 = const Color(0xffedeef2)
+          ..bg3 = const Color(0xffe2e4eb)
+          ..bg4 = const Color(0xff2c144b)
+          ..tint1 = const Color(0xffe8e0ff)
+          ..tint2 = const Color(0xffffe7fd)
+          ..tint3 = const Color(0xffffe7ee)
+          ..tint4 = const Color(0xffffefe3)
+          ..tint5 = const Color(0xfffff2cd)
+          ..tint6 = const Color(0xfff5ffdc)
+          ..tint7 = const Color(0xffddffd6)
+          ..tint8 = const Color(0xffdefff1)
+          ..tint9 = const Color(0xffdefff1)
+          ..main1 = const Color(0xff00bcf0)
+          ..main2 = const Color(0xff00b7ea);
     }
   }
 
@@ -76,23 +157,23 @@ class AppTheme {
       textTheme: (isDark ? ThemeData.dark() : ThemeData.light()).textTheme,
       colorScheme: ColorScheme(
           brightness: isDark ? Brightness.dark : Brightness.light,
-          primary: accent1,
-          primaryVariant: accent1Darker,
-          secondary: accent2,
-          secondaryVariant: ColorUtils.shiftHsl(accent2, -.2),
+          primary: main1,
+          primaryVariant: main2,
+          secondary: bg1,
+          secondaryVariant: bg2,
           background: bg1,
           surface: surface,
-          onBackground: txt,
+          onBackground: bg1,
           onSurface: txt,
-          onError: txt,
-          onPrimary: accentTxt,
-          onSecondary: accentTxt,
+          onError: red,
+          onPrimary: bg1,
+          onSecondary: bg1,
           error: error),
     );
     return t.copyWith(
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        highlightColor: accent1,
-        toggleableActiveColor: accent1);
+        highlightColor: main1,
+        toggleableActiveColor: main1);
   }
 
   Color shift(Color c, double d) =>
