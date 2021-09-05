@@ -32,7 +32,7 @@ pub struct ColorStyle {
     pub theme_color: String,
 }
 
-#[derive(ProtoBuf, Default)]
+#[derive(ProtoBuf, Default, Debug)]
 pub struct CreateAppParams {
     #[pb(index = 1)]
     pub workspace_id: String,

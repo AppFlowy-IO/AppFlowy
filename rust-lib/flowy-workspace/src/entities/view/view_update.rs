@@ -23,7 +23,7 @@ pub struct UpdateViewRequest {
     pub is_trash: Option<bool>,
 }
 
-#[derive(Default, ProtoBuf, Clone)]
+#[derive(Default, ProtoBuf, Clone, Debug)]
 pub struct UpdateViewParams {
     #[pb(index = 1)]
     pub view_id: String,

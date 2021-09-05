@@ -1,4 +1,5 @@
 import 'package:app_flowy/workspace/domain/i_app.dart';
+import 'package:flowy_infra/flowy_logger.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -30,7 +31,10 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     final viewsOrFailed = await iAppImpl.getViews();
     yield viewsOrFailed.fold(
       (apps) => state.copyWith(views: apps),
-      (error) => state.copyWith(successOrFailure: right(error)),
+      (error) {
+        Log.error(error);
+        return state.copyWith(successOrFailure: right(error));
+      },
     );
   }
 }

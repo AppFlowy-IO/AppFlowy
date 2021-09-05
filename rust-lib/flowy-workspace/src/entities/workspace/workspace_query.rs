@@ -19,7 +19,7 @@ impl QueryWorkspaceRequest {
 }
 
 // Read all workspaces if the workspace_id is None
-#[derive(Clone, ProtoBuf, Default)]
+#[derive(Clone, ProtoBuf, Default, Debug)]
 pub struct QueryWorkspaceParams {
     #[pb(index = 1, one_of)]
     pub workspace_id: Option<String>,

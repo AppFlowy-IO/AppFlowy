@@ -142,12 +142,14 @@ impl WorkspaceController {
         Ok((token, server))
     }
 
+    #[tracing::instrument(skip(self), err)]
     async fn create_workspace_on_server(&self, params: CreateWorkspaceParams) -> Result<Workspace, WorkspaceError> {
         let token = self.user.token()?;
         let workspace = self.server.create_workspace(&token, params).await?;
         Ok(workspace)
     }
 
+    #[tracing::instrument(skip(self), err)]
     async fn update_workspace_on_server(&self, params: UpdateWorkspaceParams) -> Result<(), WorkspaceError> {
         let (token, server) = self.token_with_server()?;
         spawn(async move {
@@ -162,6 +164,7 @@ impl WorkspaceController {
         Ok(())
     }
 
+    #[tracing::instrument(skip(self), err)]
     async fn delete_workspace_on_server(&self, workspace_id: &str) -> Result<(), WorkspaceError> {
         let params = DeleteWorkspaceParams {
             workspace_id: workspace_id.to_string(),
@@ -179,6 +182,7 @@ impl WorkspaceController {
         Ok(())
     }
 
+    #[tracing::instrument(skip(self), err)]
     async fn read_workspaces_on_server(&self, params: QueryWorkspaceParams) -> Result<(), WorkspaceError> {
         let (token, server) = self.token_with_server()?;
         spawn(async move {

@@ -19,29 +19,33 @@ use crate::{
 use flowy_dispatch::prelude::{data_result, Data, DataResult, Unit};
 use std::{convert::TryInto, sync::Arc};
 
-#[tracing::instrument(name = "create_app", skip(data, controller))]
-pub(crate) async fn create_app(data: Data<CreateAppRequest>, controller: Unit<Arc<AppController>>) -> DataResult<App, WorkspaceError> {
+#[tracing::instrument(skip(data, controller), err)]
+pub(crate) async fn create_app_handler(
+    data: Data<CreateAppRequest>,
+    controller: Unit<Arc<AppController>>,
+) -> DataResult<App, WorkspaceError> {
     let params: CreateAppParams = data.into_inner().try_into()?;
     let detail = controller.create_app(params).await?;
+
     data_result(detail)
 }
 
-#[tracing::instrument(name = "delete_app", skip(data, controller))]
-pub(crate) async fn delete_app(data: Data<DeleteAppRequest>, controller: Unit<Arc<AppController>>) -> Result<(), WorkspaceError> {
+#[tracing::instrument(skip(data, controller))]
+pub(crate) async fn delete_app_handler(data: Data<DeleteAppRequest>, controller: Unit<Arc<AppController>>) -> Result<(), WorkspaceError> {
     let params: DeleteAppParams = data.into_inner().try_into()?;
     let _ = controller.delete_app(&params.app_id).await?;
     Ok(())
 }
 
-#[tracing::instrument(name = "update_app", skip(data, controller))]
-pub(crate) async fn update_app(data: Data<UpdateAppRequest>, controller: Unit<Arc<AppController>>) -> Result<(), WorkspaceError> {
+#[tracing::instrument(skip(data, controller))]
+pub(crate) async fn update_app_handler(data: Data<UpdateAppRequest>, controller: Unit<Arc<AppController>>) -> Result<(), WorkspaceError> {
     let params: UpdateAppParams = data.into_inner().try_into()?;
     let _ = controller.update_app(params).await?;
     Ok(())
 }
 
-#[tracing::instrument(name = "read_app", skip(data, app_controller, view_controller))]
-pub(crate) async fn read_app(
+#[tracing::instrument(skip(data, app_controller, view_controller))]
+pub(crate) async fn read_app_handler(
     data: Data<QueryAppRequest>,
     app_controller: Unit<Arc<AppController>>,
     view_controller: Unit<Arc<ViewController>>,

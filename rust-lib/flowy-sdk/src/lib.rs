@@ -11,21 +11,42 @@ use std::sync::{
 };
 
 static INIT_LOG: AtomicBool = AtomicBool::new(false);
+
+#[derive(Debug, Clone)]
+pub struct FlowySDKConfig {
+    root: String,
+    log_filter: String,
+}
+
+impl FlowySDKConfig {
+    pub fn new(root: &str) -> Self {
+        FlowySDKConfig {
+            root: root.to_owned(),
+            log_filter: std::env::var("RUST_LOG").unwrap_or("info".to_owned()),
+        }
+    }
+
+    pub fn log_filter(mut self, filter: &str) -> Self {
+        self.log_filter = filter.to_owned();
+        self
+    }
+}
+
 #[derive(Clone)]
 pub struct FlowySDK {
-    root: String,
+    config: FlowySDKConfig,
     dispatch: Arc<EventDispatch>,
 }
 
 impl FlowySDK {
-    pub fn new(root: &str) -> Self {
-        init_log(root);
-        init_kv(root);
+    pub fn new(config: FlowySDKConfig) -> Self {
+        init_log(&config);
+        init_kv(&config.root);
 
-        tracing::info!("🔥 user folder: {}", root);
-        let dispatch = Arc::new(init_dispatch(root));
-        let root = root.to_owned();
-        Self { root, dispatch }
+        tracing::debug!("🔥 {:?}", config);
+        let dispatch = Arc::new(init_dispatch(&config.root));
+
+        Self { config, dispatch }
     }
 
     pub fn dispatch(&self) -> Arc<EventDispatch> { self.dispatch.clone() }
@@ -38,11 +59,14 @@ fn init_kv(root: &str) {
     }
 }
 
-fn init_log(directory: &str) {
+fn init_log(config: &FlowySDKConfig) {
     if !INIT_LOG.load(Ordering::SeqCst) {
         INIT_LOG.store(true, Ordering::SeqCst);
 
-        let _ = flowy_log::Builder::new("flowy").local(directory).env_filter("info").build();
+        let _ = flowy_log::Builder::new("flowy")
+            .local(&config.root)
+            .env_filter(&config.log_filter)
+            .build();
     }
 }
 

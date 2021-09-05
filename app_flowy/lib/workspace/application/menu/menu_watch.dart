@@ -1,4 +1,5 @@
 import 'package:app_flowy/workspace/domain/i_workspace.dart';
+import 'package:flowy_infra/flowy_logger.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +39,10 @@ class MenuWatchBloc extends Bloc<MenuWatchEvent, MenuWatchState> {
   void _handleAppsOrFail(Either<List<App>, WorkspaceError> appsOrFail) {
     appsOrFail.fold(
       (apps) => add(MenuWatchEvent.appsReceived(left(apps))),
-      (error) => add(MenuWatchEvent.appsReceived(right(error))),
+      (error) {
+        Log.error(error);
+        add(MenuWatchEvent.appsReceived(right(error)));
+      },
     );
   }
 }

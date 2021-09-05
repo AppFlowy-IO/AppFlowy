@@ -32,7 +32,7 @@ pub struct WorkspaceDatabaseImpl {
 impl WorkspaceDatabase for WorkspaceDatabaseImpl {
     fn db_connection(&self) -> Result<DBConnection, WorkspaceError> {
         self.user_session
-            .db()
+            .db_conn()
             .map_err(|e| ErrorBuilder::new(ErrorCode::DatabaseConnectionFail).error(e).build())
     }
 }

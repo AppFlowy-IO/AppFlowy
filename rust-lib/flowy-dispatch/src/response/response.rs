@@ -47,6 +47,8 @@ impl EventResponse {
             },
         }
     }
+
+    pub(crate) fn is_success(&self) -> bool { self.status_code == StatusCode::Ok }
 }
 
 impl std::fmt::Display for EventResponse {

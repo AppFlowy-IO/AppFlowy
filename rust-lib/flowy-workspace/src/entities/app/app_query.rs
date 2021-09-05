@@ -34,7 +34,7 @@ impl QueryAppRequest {
     }
 }
 
-#[derive(ProtoBuf, Default, Clone)]
+#[derive(ProtoBuf, Default, Clone, Debug)]
 pub struct QueryAppParams {
     #[pb(index = 1)]
     pub app_id: String,

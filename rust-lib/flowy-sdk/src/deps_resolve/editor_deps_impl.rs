@@ -13,7 +13,7 @@ pub struct EditorDatabaseImpl {
 impl DocumentDatabase for EditorDatabaseImpl {
     fn db_connection(&self) -> Result<DBConnection, DocError> {
         self.user_session
-            .db()
+            .db_conn()
             .map_err(|e| ErrorBuilder::new(DocErrorCode::EditorDBConnFailed).error(e).build())
     }
 }

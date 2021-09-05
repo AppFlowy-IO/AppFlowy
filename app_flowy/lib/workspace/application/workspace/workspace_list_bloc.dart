@@ -1,4 +1,5 @@
 import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
+import 'package:flowy_infra/flowy_logger.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/workspace_create.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -31,7 +32,10 @@ class WorkspaceListBloc extends Bloc<WorkspaceListEvent, WorkspaceListState> {
     yield workspacesOrFailed.fold(
       (workspaces) =>
           state.copyWith(workspaces: workspaces, successOrFailure: left(unit)),
-      (error) => state.copyWith(successOrFailure: right(error)),
+      (error) {
+        Log.error(error);
+        return state.copyWith(successOrFailure: right(error));
+      },
     );
   }
 
@@ -39,7 +43,10 @@ class WorkspaceListBloc extends Bloc<WorkspaceListEvent, WorkspaceListState> {
     final result = await repo.openWorkspace(workspace.id);
     yield result.fold(
       (workspaces) => state.copyWith(successOrFailure: left(unit)),
-      (error) => state.copyWith(successOrFailure: right(error)),
+      (error) {
+        Log.error(error);
+        return state.copyWith(successOrFailure: right(error));
+      },
     );
   }
 
@@ -50,7 +57,10 @@ class WorkspaceListBloc extends Bloc<WorkspaceListEvent, WorkspaceListState> {
         add(const WorkspaceListEvent.fetchWorkspaces());
         return state.copyWith(successOrFailure: left(unit));
       },
-      (error) => state.copyWith(successOrFailure: right(error)),
+      (error) {
+        Log.error(error);
+        return state.copyWith(successOrFailure: right(error));
+      },
     );
   }
 }

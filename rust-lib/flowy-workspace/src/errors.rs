@@ -3,7 +3,7 @@ use derive_more::Display;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_dispatch::prelude::{EventResponse, ResponseBuilder};
 use flowy_net::errors::ErrorCode as NetworkErrorCode;
-use std::convert::TryInto;
+use std::{convert::TryInto, fmt};
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct WorkspaceError {
@@ -15,12 +15,7 @@ pub struct WorkspaceError {
 }
 
 impl WorkspaceError {
-    pub fn new(code: ErrorCode, msg: &str) -> Self {
-        Self {
-            code,
-            msg: msg.to_owned(),
-        }
-    }
+    pub fn new(code: ErrorCode, msg: &str) -> Self { Self { code, msg: msg.to_owned() } }
 }
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
@@ -89,23 +84,15 @@ impl std::default::Default for ErrorCode {
 impl std::convert::From<flowy_net::errors::ServerError> for WorkspaceError {
     fn from(error: flowy_net::errors::ServerError) -> Self {
         match error.code {
-            NetworkErrorCode::RecordNotFound => ErrorBuilder::new(ErrorCode::RecordNotFound)
-                .error(error.msg)
-                .build(),
+            NetworkErrorCode::RecordNotFound => ErrorBuilder::new(ErrorCode::RecordNotFound).error(error.msg).build(),
 
-            _ => ErrorBuilder::new(ErrorCode::ServerError)
-                .error(error.msg)
-                .build(),
+            _ => ErrorBuilder::new(ErrorCode::ServerError).error(error.msg).build(),
         }
     }
 }
 
 impl std::convert::From<flowy_database::result::Error> for WorkspaceError {
-    fn from(error: flowy_database::result::Error) -> Self {
-        ErrorBuilder::new(ErrorCode::WorkspaceDatabaseError)
-            .error(error)
-            .build()
-    }
+    fn from(error: flowy_database::result::Error) -> Self { ErrorBuilder::new(ErrorCode::WorkspaceDatabaseError).error(error).build() }
 }
 
 impl flowy_dispatch::Error for WorkspaceError {
@@ -113,6 +100,10 @@ impl flowy_dispatch::Error for WorkspaceError {
         let bytes: Bytes = self.clone().try_into().unwrap();
         ResponseBuilder::Err().data(bytes).build()
     }
+}
+
+impl fmt::Display for WorkspaceError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { write!(f, "{:?}: {}", &self.code, &self.msg) }
 }
 
 pub type ErrorBuilder = flowy_infra::errors::Builder<ErrorCode, WorkspaceError>;

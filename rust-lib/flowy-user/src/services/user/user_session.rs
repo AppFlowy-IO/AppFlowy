@@ -54,7 +54,7 @@ impl UserSession {
         }
     }
 
-    pub fn db(&self) -> Result<DBConnection, UserError> {
+    pub fn db_conn(&self) -> Result<DBConnection, UserError> {
         let user_id = self.get_session()?.user_id;
         self.database.get_connection(&user_id)
     }
@@ -98,7 +98,7 @@ impl UserSession {
 
     pub async fn sign_out(&self) -> Result<(), UserError> {
         let session = self.get_session()?;
-        let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&session.user_id))).execute(&*(self.db()?))?;
+        let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&session.user_id))).execute(&*(self.db_conn()?))?;
         let _ = self.database.close_user_db(&session.user_id)?;
         let _ = self.set_session(None)?;
         let _ = self.sign_out_on_server(&session.token).await?;
@@ -109,7 +109,7 @@ impl UserSession {
     pub async fn update_user(&self, params: UpdateUserParams) -> Result<(), UserError> {
         let session = self.get_session()?;
         let changeset = UserTableChangeset::new(params.clone());
-        diesel_update_table!(user_table, changeset, self.db()?);
+        diesel_update_table!(user_table, changeset, self.db_conn()?);
 
         let _ = self.update_user_on_server(&session.token, params).await?;
         Ok(())
@@ -120,7 +120,7 @@ impl UserSession {
         let token = session.token;
         let user = dsl::user_table
             .filter(user_table::id.eq(&session.user_id))
-            .first::<UserTable>(&*(self.db()?))?;
+            .first::<UserTable>(&*(self.db_conn()?))?;
 
         let _ = self.read_user_profile_on_server(&token).await?;
         Ok(UserProfile::from(user))
@@ -140,7 +140,7 @@ impl UserSession {
     async fn read_user_profile_on_server(&self, token: &str) -> Result<(), UserError> {
         let server = self.server.clone();
         let token = token.to_owned();
-        spawn(async move {
+        let _ = spawn(async move {
             match server.get_user(&token).await {
                 Ok(profile) => {
                     //
@@ -158,7 +158,7 @@ impl UserSession {
     async fn update_user_on_server(&self, token: &str, params: UpdateUserParams) -> Result<(), UserError> {
         let server = self.server.clone();
         let token = token.to_owned();
-        spawn(async move {
+        let _ = spawn(async move {
             match server.update_user(&token, params).await {
                 Ok(_) => {},
                 Err(e) => {
@@ -166,26 +166,27 @@ impl UserSession {
                     log::error!("update user profile failed: {:?}", e);
                 },
             }
-        });
+        })
+        .await;
         Ok(())
     }
 
     async fn sign_out_on_server(&self, token: &str) -> Result<(), UserError> {
         let server = self.server.clone();
         let token = token.to_owned();
-        spawn(async move {
+        let _ = spawn(async move {
             match server.sign_out(&token).await {
                 Ok(_) => {},
                 Err(e) => log::error!("Sign out failed: {:?}", e),
             }
-        });
+        })
+        .await;
         Ok(())
     }
 
     async fn save_user(&self, user: UserTable) -> Result<UserTable, UserError> {
-        let conn = self.db()?;
+        let conn = self.db_conn()?;
         let _ = diesel::insert_into(user_table::table).values(user.clone()).execute(&*conn)?;
-
         Ok(user)
     }
 
@@ -233,7 +234,7 @@ pub async fn update_user(_server: Server, pool: Arc<ConnectionPool>, params: Upd
 }
 
 impl UserDatabaseConnection for UserSession {
-    fn get_connection(&self) -> Result<DBConnection, String> { self.db().map_err(|e| format!("{:?}", e)) }
+    fn get_connection(&self) -> Result<DBConnection, String> { self.db_conn().map_err(|e| format!("{:?}", e)) }
 }
 
 const SESSION_CACHE_KEY: &str = "session_cache_key";

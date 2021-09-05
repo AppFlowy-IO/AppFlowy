@@ -49,22 +49,22 @@ pub fn create(user: Arc<dyn WorkspaceUser>, database: Arc<dyn WorkspaceDatabase>
         .data(view_controller);
 
     module = module
-        .event(WorkspaceEvent::CreateWorkspace, create_workspace)
-        .event(WorkspaceEvent::ReadCurWorkspace, read_cur_workspace)
-        .event(WorkspaceEvent::ReadWorkspaces, read_workspaces)
-        .event(WorkspaceEvent::OpenWorkspace, open_workspace);
+        .event(WorkspaceEvent::CreateWorkspace, create_workspace_handler)
+        .event(WorkspaceEvent::ReadCurWorkspace, read_cur_workspace_handler)
+        .event(WorkspaceEvent::ReadWorkspaces, read_workspaces_handler)
+        .event(WorkspaceEvent::OpenWorkspace, open_workspace_handler);
 
     module = module
-        .event(WorkspaceEvent::CreateApp, create_app)
-        .event(WorkspaceEvent::ReadApp, read_app)
-        .event(WorkspaceEvent::UpdateApp, update_app)
-        .event(WorkspaceEvent::DeleteApp, delete_app);
+        .event(WorkspaceEvent::CreateApp, create_app_handler)
+        .event(WorkspaceEvent::ReadApp, read_app_handler)
+        .event(WorkspaceEvent::UpdateApp, update_app_handler)
+        .event(WorkspaceEvent::DeleteApp, delete_app_handler);
 
     module = module
-        .event(WorkspaceEvent::CreateView, create_view)
-        .event(WorkspaceEvent::ReadView, read_view)
-        .event(WorkspaceEvent::UpdateView, update_view)
-        .event(WorkspaceEvent::DeleteView, delete_view);
+        .event(WorkspaceEvent::CreateView, create_view_handler)
+        .event(WorkspaceEvent::ReadView, read_view_handler)
+        .event(WorkspaceEvent::UpdateView, update_view_handler)
+        .event(WorkspaceEvent::DeleteView, delete_view_handler);
 
     module
 }

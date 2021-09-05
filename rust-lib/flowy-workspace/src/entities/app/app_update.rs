@@ -26,7 +26,7 @@ pub struct UpdateAppRequest {
     pub is_trash: Option<bool>,
 }
 
-#[derive(ProtoBuf, Default, Clone)]
+#[derive(ProtoBuf, Default, Clone, Debug)]
 pub struct UpdateAppParams {
     #[pb(index = 1)]
     pub app_id: String,

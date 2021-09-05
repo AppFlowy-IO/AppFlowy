@@ -35,5 +35,6 @@ flowy-observable = {path = "../flowy-observable"}
 
 [features]
 observable = ["flowy-observable/dart"]
+http_server = ["flowy-sdk/http_server", "flowy-sdk/use_bunyan"]
 #use_serde = ["bincode"]
 #use_protobuf= ["protobuf"]

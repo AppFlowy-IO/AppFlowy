@@ -47,7 +47,7 @@ pub struct CreateViewRequest {
     pub view_type: ViewType,
 }
 
-#[derive(Default, ProtoBuf)]
+#[derive(Default, ProtoBuf, Debug)]
 pub struct CreateViewParams {
     #[pb(index = 1)]
     pub belong_to_id: String,

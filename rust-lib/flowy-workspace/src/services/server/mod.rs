@@ -45,8 +45,11 @@ pub trait WorkspaceServerAPI {
 
     // App
     fn create_app(&self, token: &str, params: CreateAppParams) -> ResultFuture<App, WorkspaceError>;
+
     fn read_app(&self, token: &str, params: QueryAppParams) -> ResultFuture<Option<App>, WorkspaceError>;
+
     fn update_app(&self, token: &str, params: UpdateAppParams) -> ResultFuture<(), WorkspaceError>;
+
     fn delete_app(&self, token: &str, params: DeleteAppParams) -> ResultFuture<(), WorkspaceError>;
 }
 

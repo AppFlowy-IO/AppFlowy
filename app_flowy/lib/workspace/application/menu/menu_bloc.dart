@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:app_flowy/workspace/domain/i_workspace.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flowy_infra/flowy_logger.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flutter/material.dart';
@@ -11,8 +12,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'menu_bloc.freezed.dart';
 
 class MenuBloc extends Bloc<MenuEvent, MenuState> {
-  final IWorkspace iWorkspaceImpl;
-  MenuBloc(this.iWorkspaceImpl) : super(MenuState.initial());
+  final IWorkspace workspace;
+  MenuBloc(this.workspace) : super(MenuState.initial());
 
   @override
   Stream<MenuState> mapEventToState(
@@ -40,21 +41,25 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
   }
 
   Stream<MenuState> _performActionOnCreateApp(CreateApp event) async* {
-    iWorkspaceImpl.createApp(name: event.name, desc: event.desc).then((result) {
-      result.fold(
-        (app) => {},
-        (error) async* {
-          yield state.copyWith(successOrFailure: right(error));
-        },
-      );
-    });
+    final result =
+        await workspace.createApp(name: event.name, desc: event.desc);
+    yield result.fold(
+      (app) => state.copyWith(apps: some([app])),
+      (error) {
+        Log.error(error);
+        return state.copyWith(successOrFailure: right(error));
+      },
+    );
   }
 
   Stream<MenuState> _fetchApps() async* {
-    final appsOrFail = await iWorkspaceImpl.getApps();
+    final appsOrFail = await workspace.getApps();
     yield appsOrFail.fold(
       (apps) => state.copyWith(apps: some(apps)),
-      (error) => state.copyWith(successOrFailure: right(error)),
+      (error) {
+        Log.error(error);
+        return state.copyWith(successOrFailure: right(error));
+      },
     );
   }
 }

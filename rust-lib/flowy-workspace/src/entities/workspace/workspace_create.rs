@@ -15,7 +15,7 @@ pub struct CreateWorkspaceRequest {
     pub desc: String,
 }
 
-#[derive(Clone, ProtoBuf, Default)]
+#[derive(Clone, ProtoBuf, Default, Debug)]
 pub struct CreateWorkspaceParams {
     #[pb(index = 1)]
     pub name: String,

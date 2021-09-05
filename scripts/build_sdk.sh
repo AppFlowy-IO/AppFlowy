@@ -13,3 +13,4 @@ rustup show
 #   3. ~/.profile
 #   4. ~/.zshrc
 cargo make desktop
+#cargo make gen_dart_event

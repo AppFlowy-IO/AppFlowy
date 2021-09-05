@@ -23,8 +23,9 @@ fn dispatch() -> Arc<EventDispatch> { FLOWY_SDK.read().as_ref().unwrap().dispatc
 pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
     let c_str: &CStr = unsafe { CStr::from_ptr(path) };
     let path: &str = c_str.to_str().unwrap();
-    log::info!("🔥 FlowySDK start running");
-    *FLOWY_SDK.write() = Some(Arc::new(FlowySDK::new(path)));
+
+    let config = FlowySDKConfig::new(path).log_filter("info");
+    *FLOWY_SDK.write() = Some(Arc::new(FlowySDK::new(config)));
 
     return 1;
 }

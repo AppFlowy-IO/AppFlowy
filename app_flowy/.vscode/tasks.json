@@ -22,17 +22,5 @@
             // ],
 			"label": "build_flowy_sdk"
 		},
-		{
-			"type": "shell",
-			"command": "sh ./scripts/code_gen.sh",
-			"group": "build",
-			"options": {
-				"cwd": "${workspaceFolder}/../"
-			  },
-			"problemMatcher": [
-                "$rustc"
-            ],
-			"label": "generate events"
-		}
 	]
 }

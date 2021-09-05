@@ -72,12 +72,14 @@ impl ViewController {
 }
 
 impl ViewController {
+    #[tracing::instrument(skip(self), err)]
     async fn create_view_on_server(&self, params: CreateViewParams) -> Result<View, WorkspaceError> {
         let token = self.user.token()?;
         let view = self.server.create_view(&token, params).await?;
         Ok(view)
     }
 
+    #[tracing::instrument(skip(self), err)]
     async fn update_view_on_server(&self, params: UpdateViewParams) -> Result<(), WorkspaceError> {
         let token = self.user.token()?;
         let server = self.server.clone();
@@ -93,6 +95,7 @@ impl ViewController {
         Ok(())
     }
 
+    #[tracing::instrument(skip(self), err)]
     async fn delete_view_on_server(&self, view_id: &str) -> Result<(), WorkspaceError> {
         let token = self.user.token()?;
         let server = self.server.clone();
@@ -111,6 +114,7 @@ impl ViewController {
         Ok(())
     }
 
+    #[tracing::instrument(skip(self), err)]
     async fn read_view_on_server(&self, params: QueryViewParams) -> Result<(), WorkspaceError> {
         let token = self.user.token()?;
         let server = self.server.clone();

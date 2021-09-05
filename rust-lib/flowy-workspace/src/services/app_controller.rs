@@ -33,6 +33,7 @@ impl AppController {
         }
     }
 
+    #[tracing::instrument(level = "debug", skip(self), err)]
     pub(crate) async fn create_app(&self, params: CreateAppParams) -> Result<App, WorkspaceError> {
         let app = self.create_app_on_server(params).await?;
         let app_table = AppTable::new(app.clone());
@@ -65,12 +66,15 @@ impl AppController {
 }
 
 impl AppController {
+    #[tracing::instrument(level = "debug", skip(self), err)]
     async fn create_app_on_server(&self, params: CreateAppParams) -> Result<App, WorkspaceError> {
         let token = self.user.token()?;
         let app = self.server.create_app(&token, params).await?;
+        log::info!("😁 {:?}", app);
         Ok(app)
     }
 
+    #[tracing::instrument(level = "debug", skip(self), err)]
     async fn update_app_on_server(&self, params: UpdateAppParams) -> Result<(), WorkspaceError> {
         let token = self.user.token()?;
         let server = self.server.clone();
@@ -86,6 +90,7 @@ impl AppController {
         Ok(())
     }
 
+    #[tracing::instrument(level = "debug", skip(self), err)]
     async fn delete_app_on_server(&self, app_id: &str) -> Result<(), WorkspaceError> {
         let token = self.user.token()?;
         let server = self.server.clone();
@@ -104,6 +109,7 @@ impl AppController {
         Ok(())
     }
 
+    #[tracing::instrument(level = "debug", skip(self), err)]
     async fn read_app_on_server(&self, params: QueryAppParams) -> Result<(), WorkspaceError> {
         let token = self.user.token()?;
         let server = self.server.clone();

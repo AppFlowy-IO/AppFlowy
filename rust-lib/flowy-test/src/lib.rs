@@ -2,7 +2,7 @@ pub mod builder;
 mod helper;
 
 use crate::helper::*;
-use flowy_sdk::FlowySDK;
+use flowy_sdk::{FlowySDK, FlowySDKConfig};
 use flowy_user::entities::UserProfile;
 
 pub mod prelude {
@@ -35,6 +35,6 @@ impl FlowyEnv {
 }
 
 pub fn init_test_sdk() -> FlowyTestSDK {
-    let root_dir = root_dir();
-    FlowySDK::new(&root_dir)
+    let config = FlowySDKConfig::new(&root_dir()).log_filter("debug");
+    FlowySDK::new(config)
 }

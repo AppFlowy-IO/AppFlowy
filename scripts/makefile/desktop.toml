@@ -25,7 +25,7 @@ description = "Build desktop targets."
 script = [
   """
     cd rust-lib/
-    cargo build --package=dart-ffi --target ${DESKTOP_TARGET} --features="observable"
+    cargo build --package=dart-ffi --target ${DESKTOP_TARGET} --features="observable","http_server"
     cd ../
   """,
 ]

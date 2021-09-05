@@ -16,7 +16,7 @@ pub struct UpdateWorkspaceRequest {
     desc: Option<String>,
 }
 
-#[derive(Clone, ProtoBuf, Default)]
+#[derive(Clone, ProtoBuf, Default, Debug)]
 pub struct UpdateWorkspaceParams {
     #[pb(index = 1)]
     pub id: String,

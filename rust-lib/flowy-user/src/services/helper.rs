@@ -1,9 +1,12 @@
 use std::future::Future;
 
-pub fn spawn<F>(f: F)
+pub async fn spawn<F>(f: F)
 where
     F: Future + Send + 'static,
     F::Output: Send + 'static,
 {
-    tokio::spawn(f);
+    match tokio::spawn(f).await {
+        Ok(_) => {},
+        Err(e) => log::error!("{:?}", e),
+    }
 }
