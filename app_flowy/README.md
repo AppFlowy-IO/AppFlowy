@@ -14,3 +14,8 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter, view our
 [online documentation](https://flutter.dev/docs), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+
+## release check
+1. [entitlements](https://flutter.dev/desktop#setting-up-entitlements)
+2. [symbols stripped](https://flutter.dev/docs/development/platform-integration/c-interop)
