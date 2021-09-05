@@ -1,5 +1,5 @@
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/user/application/sign_in/sign_in_bloc.dart';
+import 'package:app_flowy/user/application/sign_in_bloc.dart';
 import 'package:app_flowy/user/domain/i_auth.dart';
 import 'package:app_flowy/user/presentation/sign_in/widgets/background.dart';
 import 'package:flowy_infra/theme.dart';
@@ -63,9 +63,9 @@ class SignInForm extends StatelessWidget {
   Widget build(BuildContext context) {
     return Align(
       alignment: Alignment.center,
-      child: SignInFormContainer(
+      child: AuthFormContainer(
         children: [
-          const SignInTitle(
+          const AuthFormTitle(
             title: 'Login to Appflowy',
             logoSize: Size(60, 60),
           ),
@@ -128,7 +128,7 @@ class LoginButton extends StatelessWidget {
     final theme = context.watch<AppTheme>();
     return RoundedTextButton(
       title: 'Login',
-      height: 45,
+      height: 48,
       borderRadius: BorderRadius.circular(10),
       color: theme.main1,
       press: () {
@@ -180,7 +180,7 @@ class PasswordTextField extends StatelessWidget {
           obscureText: true,
           obscureIcon: svgWidgetWithName("home/Hide.svg"),
           obscureHideIcon: svgWidgetWithName("home/Show.svg"),
-          hintText: 'password',
+          hintText: 'Password',
           normalBorderColor: theme.shader4,
           highlightBorderColor: theme.red,
           errorText: context
@@ -210,7 +210,7 @@ class EmailTextField extends StatelessWidget {
           previous.emailError != current.emailError,
       builder: (context, state) {
         return RoundedInputField(
-          hintText: 'email',
+          hintText: 'Email',
           normalBorderColor: theme.shader4,
           highlightBorderColor: theme.red,
           errorText: context

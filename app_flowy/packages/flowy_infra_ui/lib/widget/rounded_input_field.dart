@@ -1,7 +1,9 @@
+import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/text_field_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flowy_infra/time/duration.dart';
+import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
 class RoundedInputField extends StatefulWidget {
@@ -10,11 +12,14 @@ class RoundedInputField extends StatefulWidget {
   final bool obscureText;
   final Widget? obscureIcon;
   final Widget? obscureHideIcon;
+  final FontWeight? fontWeight;
+  final double? fontSize;
   final Color normalBorderColor;
   final Color highlightBorderColor;
   final String errorText;
   final ValueChanged<String>? onChanged;
   late bool enableObscure;
+  var _text = "";
 
   RoundedInputField({
     Key? key,
@@ -26,6 +31,8 @@ class RoundedInputField extends StatefulWidget {
     this.onChanged,
     this.normalBorderColor = Colors.transparent,
     this.highlightBorderColor = Colors.transparent,
+    this.fontWeight = FontWeight.normal,
+    this.fontSize = 20,
     this.errorText = "",
   }) : super(key: key) {
     enableObscure = obscureText;
@@ -38,6 +45,7 @@ class RoundedInputField extends StatefulWidget {
 class _RoundedInputFieldState extends State<RoundedInputField> {
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
     final Icon? newIcon = widget.icon == null
         ? null
         : Icon(
@@ -52,15 +60,23 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
 
     List<Widget> children = [
       TextFieldContainer(
+        height: 48,
         borderRadius: BorderRadius.circular(10),
         borderColor: borderColor,
         child: TextFormField(
-          onChanged: widget.onChanged,
-          cursorColor: const Color(0xFF6F35A5),
+          onChanged: (value) {
+            widget._text = value;
+            if (widget.onChanged != null) {
+              widget.onChanged!(value);
+            }
+            setState(() {});
+          },
+          cursorColor: theme.main1,
           obscureText: widget.enableObscure,
           decoration: InputDecoration(
             icon: newIcon,
             hintText: widget.hintText,
+            hintStyle: TextStyle(color: widget.normalBorderColor),
             border: InputBorder.none,
             suffixIcon: suffixIcon(),
           ),
@@ -71,7 +87,10 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
     if (widget.errorText.isNotEmpty) {
       children.add(Text(
         widget.errorText,
-        style: TextStyle(color: widget.highlightBorderColor),
+        style: TextStyle(
+            color: widget.highlightBorderColor,
+            fontWeight: widget.fontWeight,
+            fontSize: widget.fontSize),
       ));
     }
 
@@ -89,6 +108,10 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
       return null;
     }
 
+    if (widget._text.isEmpty) {
+      return SizedBox.fromSize(size: const Size.square(16));
+    }
+
     Widget? icon;
     if (widget.obscureText == true) {
       assert(widget.obscureIcon != null && widget.obscureHideIcon != null);
@@ -104,7 +127,7 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
     }
 
     return RoundedImageButton(
-      size: 20,
+      size: 16,
       press: () {
         widget.enableObscure = !widget.enableObscure;
         setState(() {});

@@ -12,19 +12,6 @@ class AppTheme {
 
   bool isDark;
   late Color surface; //
-  late Color accent1;
-  late Color accent1Dark;
-  late Color accent1Darker;
-  late Color accent2;
-  late Color accent3;
-  late Color grey;
-  late Color greyStrong;
-  late Color greyWeak;
-  late Color error;
-  late Color focus;
-  late Color txt;
-  late Color accentTxt;
-
   late Color hover;
   late Color selector;
   late Color red;
@@ -58,10 +45,7 @@ class AppTheme {
   late Color main2;
 
   /// Default constructor
-  AppTheme({this.isDark = true}) {
-    txt = isDark ? Colors.white : Colors.black;
-    accentTxt = isDark ? Colors.black : Colors.white;
-  }
+  AppTheme({this.isDark = true});
 
   /// fromType factory constructor
   factory AppTheme.fromType(ThemeType t) {
@@ -69,16 +53,6 @@ class AppTheme {
       case ThemeType.light:
         return AppTheme(isDark: false)
           ..surface = Colors.white
-          ..accent1 = const Color(0xff00a086)
-          ..accent1Dark = const Color(0xff00856f)
-          ..accent1Darker = const Color(0xff006b5a)
-          ..accent2 = const Color(0xfff09433)
-          ..accent3 = const Color(0xff5bc91a)
-          ..greyWeak = const Color(0xff909f9c)
-          ..grey = const Color(0xff515d5a)
-          ..greyStrong = const Color(0xff151918)
-          ..error = Colors.red.shade900
-          ..focus = const Color(0xFFe0f8ff)
           ..hover = const Color(0xFFe0f8ff) //
           ..selector = const Color(0xfff2fcff)
           ..red = const Color(0xfffb006d)
@@ -109,19 +83,7 @@ class AppTheme {
 
       case ThemeType.dark:
         return AppTheme(isDark: true)
-          ..bg1 = const Color(0xff121212)
-          ..bg2 = const Color(0xff2c2c2c)
           ..surface = const Color(0xff252525)
-          ..accent1 = const Color(0xff00a086)
-          ..accent1Dark = const Color(0xff00caa5)
-          ..accent1Darker = const Color(0xff00caa5)
-          ..accent2 = const Color(0xfff19e46)
-          ..accent3 = const Color(0xff5BC91A)
-          ..greyWeak = const Color(0xffa8b3b0)
-          ..grey = const Color(0xffced4d3)
-          ..greyStrong = const Color(0xffffffff)
-          ..error = const Color(0xffe55642)
-          ..focus = const Color(0xff0ee2b1)
           ..hover = const Color(0xFFe0f8ff) //
           ..selector = const Color(0xfff2fcff)
           ..red = const Color(0xfffb006d)
@@ -153,8 +115,9 @@ class AppTheme {
   }
 
   ThemeData get themeData {
-    var t = ThemeData.from(
+    var t = ThemeData(
       textTheme: (isDark ? ThemeData.dark() : ThemeData.light()).textTheme,
+      textSelectionTheme: TextSelectionThemeData(cursorColor: main1),
       colorScheme: ColorScheme(
           brightness: isDark ? Brightness.dark : Brightness.light,
           primary: main1,
@@ -164,15 +127,17 @@ class AppTheme {
           background: bg1,
           surface: surface,
           onBackground: bg1,
-          onSurface: txt,
+          onSurface: surface,
           onError: red,
           onPrimary: bg1,
           onSecondary: bg1,
-          error: error),
+          error: red),
     );
+
     return t.copyWith(
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         highlightColor: main1,
+        indicatorColor: main1,
         toggleableActiveColor: main1);
   }
 

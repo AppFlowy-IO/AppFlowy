@@ -2,7 +2,6 @@ import 'package:app_flowy/user/domain/i_auth.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'sign_in_bloc.freezed.dart';
@@ -35,8 +34,8 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
 
     final result = await authImpl.signIn(state.email, state.password);
     yield result.fold(
-      (UserProfile) => state.copyWith(
-          isSubmitting: false, successOrFail: some(left(UserProfile))),
+      (userProfile) => state.copyWith(
+          isSubmitting: false, successOrFail: some(left(userProfile))),
       (error) => stateFromCode(error),
     );
   }

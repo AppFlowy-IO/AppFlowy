@@ -1,12 +1,14 @@
+import 'dart:math';
+
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class SignInFormContainer extends StatelessWidget {
+class AuthFormContainer extends StatelessWidget {
   final List<Widget> children;
-  const SignInFormContainer({
+  const AuthFormContainer({
     Key? key,
     required this.children,
   }) : super(key: key);
@@ -15,7 +17,7 @@ class SignInFormContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return SizedBox(
-      width: size.width * 0.3,
+      width: min(size.width, 340),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: children,
@@ -24,10 +26,10 @@ class SignInFormContainer extends StatelessWidget {
   }
 }
 
-class SignInTitle extends StatelessWidget {
+class AuthFormTitle extends StatelessWidget {
   final String title;
   final Size logoSize;
-  const SignInTitle({
+  const AuthFormTitle({
     Key? key,
     required this.title,
     required this.logoSize,
@@ -40,7 +42,10 @@ class SignInTitle extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          svgWidgetWithName("small_logo.svg"),
+          SizedBox.fromSize(
+            size: const Size.square(40),
+            child: svgWidgetWithName("flowy_logo.svg"),
+          ),
           const VSpace(30),
           Text(
             title,

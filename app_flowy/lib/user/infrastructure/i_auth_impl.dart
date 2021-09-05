@@ -1,3 +1,4 @@
+import 'package:app_flowy/user/presentation/sign_up/sign_up_screen.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
 import 'package:app_flowy/workspace/presentation/workspace/workspace_select_screen.dart';
 import 'package:dartz/dartz.dart';
@@ -50,6 +51,10 @@ class AuthRouterImpl extends IAuthRouter {
 
   @override
   void showSignUpScreen(BuildContext context) {
-    // TODO: implement showSignUpScreen
+    Navigator.of(context).push(
+      PageRoutes.fade(
+        () => const SignUpScreen(),
+      ),
+    );
   }
 }

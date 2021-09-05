@@ -1,4 +1,5 @@
-import 'package:app_flowy/user/application/sign_in/sign_in_bloc.dart';
+import 'package:app_flowy/user/application/sign_in_bloc.dart';
+import 'package:app_flowy/user/application/sign_up_bloc.dart';
 import 'package:app_flowy/user/domain/i_auth.dart';
 import 'package:app_flowy/user/infrastructure/repos/auth_repo.dart';
 import 'package:app_flowy/user/infrastructure/i_auth_impl.dart';
@@ -14,5 +15,6 @@ class UserDepsResolver {
 
     //Bloc
     getIt.registerFactory<SignInBloc>(() => SignInBloc(getIt<IAuth>()));
+    getIt.registerFactory<SignUpBloc>(() => SignUpBloc(getIt<IAuth>()));
   }
 }
