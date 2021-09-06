@@ -129,9 +129,10 @@ impl TestApp {
 }
 
 pub async fn spawn_app() -> TestApp {
+    let database_name = format!("{}", Uuid::new_v4().to_string());
     let configuration = {
         let mut c = get_configuration().expect("Failed to read configuration.");
-        c.database.database_name = Uuid::new_v4().to_string();
+        c.database.database_name = database_name.clone();
         // Use a random OS port
         c.application.port = 0;
         c
@@ -143,7 +144,10 @@ pub async fn spawn_app() -> TestApp {
         .expect("Failed to build application.");
     let application_port = application.port();
 
-    let _ = tokio::spawn(application.run_until_stopped());
+    let _ = tokio::spawn(async {
+        let _ = application.run_until_stopped();
+        drop_test_database(database_name).await;
+    });
 
     TestApp {
         address: format!("http://localhost:{}", application_port),
@@ -175,4 +179,22 @@ async fn configure_database(config: &DatabaseSettings) -> PgPool {
         .expect("Failed to migrate the database");
 
     connection_pool
+}
+
+async fn drop_test_database(database_name: String) {
+    let configuration = {
+        let mut c = get_configuration().expect("Failed to read configuration.");
+        c.database.database_name = "flowy".to_owned();
+        c.application.port = 0;
+        c
+    };
+
+    let mut connection = PgConnection::connect_with(&configuration.database.without_db())
+        .await
+        .expect("Failed to connect to Postgres");
+
+    connection
+        .execute(&*format!(r#"Drop DATABASE "{}";"#, database_name))
+        .await
+        .expect("Failed to drop database.");
 }
