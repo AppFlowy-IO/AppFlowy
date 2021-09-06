@@ -1,4 +1,6 @@
-import 'package:app_flowy/user/presentation/sign_up/sign_up_screen.dart';
+import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/user/presentation/sign_up_screen.dart';
+import 'package:app_flowy/welcome/domain/i_welcome.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
 import 'package:app_flowy/workspace/presentation/workspace/workspace_select_screen.dart';
 import 'package:dartz/dartz.dart';
@@ -34,26 +36,20 @@ class AuthImpl extends IAuth {
 
 class AuthRouterImpl extends IAuthRouter {
   @override
-  void showForgetPasswordScreen(BuildContext context) {
+  void pushForgetPasswordScreen(BuildContext context) {
     // TODO: implement showForgetPasswordScreen
   }
 
   @override
-  void showWorkspaceSelectScreen(BuildContext context, UserProfile user) {
-    Navigator.of(context).push(
-      PageRoutes.fade(
-        () => WorkspaceSelectScreen(
-          repo: UserRepo(user: user),
-        ),
-      ),
-    );
+  void pushWelcomeScreen(BuildContext context, UserProfile userProfile) {
+    getIt<IWelcomeRoute>().pushWelcomeScreen(context, userProfile);
   }
 
   @override
-  void showSignUpScreen(BuildContext context) {
+  void pushSignUpScreen(BuildContext context) {
     Navigator.of(context).push(
       PageRoutes.fade(
-        () => const SignUpScreen(),
+        () => SignUpScreen(router: getIt<IAuthRouter>()),
       ),
     );
   }

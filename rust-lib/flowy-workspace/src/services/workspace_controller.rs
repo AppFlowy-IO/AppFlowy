@@ -82,7 +82,7 @@ impl WorkspaceController {
 
     pub(crate) async fn read_workspaces(&self, params: QueryWorkspaceParams) -> Result<RepeatedWorkspace, WorkspaceError> {
         let user_id = self.user.user_id()?;
-        let workspace_tables = self.read_workspace_table(params.workspace_id.clone(), user_id)?;
+        let workspace_tables = self.read_workspace_table(params.workspace_id.clone(), user_id.clone())?;
         let mut workspaces = vec![];
         for table in workspace_tables {
             let apps = self.read_apps(&table.id).await?;
@@ -91,7 +91,7 @@ impl WorkspaceController {
             workspaces.push(workspace);
         }
 
-        let _ = self.read_workspaces_on_server(params).await?;
+        let _ = self.read_workspaces_on_server(user_id, params).await?;
         Ok(RepeatedWorkspace { items: workspaces })
     }
 
@@ -183,12 +183,13 @@ impl WorkspaceController {
     }
 
     #[tracing::instrument(skip(self), err)]
-    async fn read_workspaces_on_server(&self, params: QueryWorkspaceParams) -> Result<(), WorkspaceError> {
+    async fn read_workspaces_on_server(&self, user_id: String, params: QueryWorkspaceParams) -> Result<(), WorkspaceError> {
         let (token, server) = self.token_with_server()?;
         spawn(async move {
             match server.read_workspace(&token, params).await {
-                Ok(_workspaces) => {
-                    // TODO: notify
+                Ok(workspaces) => {
+                    log::debug!("Workspace list: {:?}", workspaces);
+                    send_observable(&user_id, WorkspaceObservable::UserCreateWorkspace);
                 },
                 Err(e) => {
                     // TODO: retry?
@@ -196,6 +197,7 @@ impl WorkspaceController {
                 },
             }
         });
+
         Ok(())
     }
 }

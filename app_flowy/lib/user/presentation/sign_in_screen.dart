@@ -1,7 +1,7 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/application/sign_in_bloc.dart';
 import 'package:app_flowy/user/domain/i_auth.dart';
-import 'package:app_flowy/user/presentation/sign_in/widgets/background.dart';
+import 'package:app_flowy/user/presentation/widgets/background.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
@@ -38,7 +38,7 @@ class SignInScreen extends StatelessWidget {
   void _handleSuccessOrFail(
       Either<UserProfile, UserError> result, BuildContext context) {
     result.fold(
-      (user) => router.showWorkspaceSelectScreen(context, user),
+      (user) => router.pushWelcomeScreen(context, user),
       (error) => _showErrorMessage(context, error.msg),
     );
   }
@@ -106,7 +106,7 @@ class SignUpPrompt extends StatelessWidget {
           style: TextButton.styleFrom(
             textStyle: const TextStyle(fontSize: 12),
           ),
-          onPressed: () => router.showSignUpScreen(context),
+          onPressed: () => router.pushSignUpScreen(context),
           child: Text(
             'Sign Up',
             style: TextStyle(color: theme.main1),
@@ -155,7 +155,7 @@ class ForgetPasswordButton extends StatelessWidget {
       style: TextButton.styleFrom(
         textStyle: const TextStyle(fontSize: 12),
       ),
-      onPressed: () => router.showForgetPasswordScreen(context),
+      onPressed: () => router.pushForgetPasswordScreen(context),
       child: Text(
         'Forgot Password?',
         style: TextStyle(color: theme.main1),
@@ -178,6 +178,7 @@ class PasswordTextField extends StatelessWidget {
       builder: (context, state) {
         return RoundedInputField(
           obscureText: true,
+          fontSize: 14,
           obscureIcon: svgWidgetWithName("home/Hide.svg"),
           obscureHideIcon: svgWidgetWithName("home/Show.svg"),
           hintText: 'Password',
@@ -211,6 +212,7 @@ class EmailTextField extends StatelessWidget {
       builder: (context, state) {
         return RoundedInputField(
           hintText: 'Email',
+          fontSize: 14,
           normalBorderColor: theme.shader4,
           highlightBorderColor: theme.red,
           errorText: context

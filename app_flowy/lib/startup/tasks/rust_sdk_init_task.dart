@@ -42,7 +42,8 @@ class ApplicationBlocObserver extends BlocObserver {
   @override
   // ignore: unnecessary_overrides
   void onTransition(Bloc bloc, Transition transition) {
-    Log.debug(transition);
+    Log.debug(
+        "[current]: ${transition.currentState} \n[next]: ${transition.nextState}");
     super.onTransition(bloc, transition);
   }
 

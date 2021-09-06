@@ -182,6 +182,7 @@ async fn configure_database(config: &DatabaseSettings) -> PgPool {
 }
 
 async fn drop_test_database(database_name: String) {
+    // https://stackoverflow.com/questions/36502401/postgres-drop-database-error-pq-cannot-drop-the-currently-open-database?rq=1
     let configuration = {
         let mut c = get_configuration().expect("Failed to read configuration.");
         c.database.database_name = "flowy".to_owned();

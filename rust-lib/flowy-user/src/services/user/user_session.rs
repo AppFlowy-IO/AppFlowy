@@ -18,8 +18,6 @@ use flowy_infra::kv::KV;
 use flowy_sqlite::ConnectionPool;
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
-
-use crate::services::helper::spawn;
 use std::sync::Arc;
 
 pub struct UserSessionConfig {
@@ -70,6 +68,7 @@ impl UserSession {
         self.database.get_pool(&user_id)
     }
 
+    #[tracing::instrument(level = "debug", skip(self))]
     pub async fn sign_in(&self, params: SignInParams) -> Result<UserProfile, UserError> {
         if self.is_login(&params.email) {
             self.user_profile().await
@@ -83,6 +82,7 @@ impl UserSession {
         }
     }
 
+    #[tracing::instrument(level = "debug", skip(self))]
     pub async fn sign_up(&self, params: SignUpParams) -> Result<UserProfile, UserError> {
         if self.is_login(&params.email) {
             self.user_profile().await
@@ -96,6 +96,7 @@ impl UserSession {
         }
     }
 
+    #[tracing::instrument(level = "debug", skip(self))]
     pub async fn sign_out(&self) -> Result<(), UserError> {
         let session = self.get_session()?;
         let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&session.user_id))).execute(&*(self.db_conn()?))?;
@@ -106,6 +107,7 @@ impl UserSession {
         Ok(())
     }
 
+    #[tracing::instrument(level = "debug", skip(self))]
     pub async fn update_user(&self, params: UpdateUserParams) -> Result<(), UserError> {
         let session = self.get_session()?;
         let changeset = UserTableChangeset::new(params.clone());
@@ -140,7 +142,7 @@ impl UserSession {
     async fn read_user_profile_on_server(&self, token: &str) -> Result<(), UserError> {
         let server = self.server.clone();
         let token = token.to_owned();
-        let _ = spawn(async move {
+        let _ = tokio::spawn(async move {
             match server.get_user(&token).await {
                 Ok(profile) => {
                     //
@@ -158,7 +160,7 @@ impl UserSession {
     async fn update_user_on_server(&self, token: &str, params: UpdateUserParams) -> Result<(), UserError> {
         let server = self.server.clone();
         let token = token.to_owned();
-        let _ = spawn(async move {
+        let _ = tokio::spawn(async move {
             match server.update_user(&token, params).await {
                 Ok(_) => {},
                 Err(e) => {
@@ -174,7 +176,7 @@ impl UserSession {
     async fn sign_out_on_server(&self, token: &str) -> Result<(), UserError> {
         let server = self.server.clone();
         let token = token.to_owned();
-        let _ = spawn(async move {
+        let _ = tokio::spawn(async move {
             match server.sign_out(&token).await {
                 Ok(_) => {},
                 Err(e) => log::error!("Sign out failed: {:?}", e),

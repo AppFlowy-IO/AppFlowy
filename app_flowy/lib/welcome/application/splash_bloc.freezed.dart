@@ -1,7 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
-part of 'welcome_bloc.dart';
+part of 'splash_bloc.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -13,8 +13,8 @@ final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more informations: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
 /// @nodoc
-class _$WelcomeEventTearOff {
-  const _$WelcomeEventTearOff();
+class _$SplashEventTearOff {
+  const _$SplashEventTearOff();
 
   _GetUser getUser() {
     return const _GetUser();
@@ -22,10 +22,10 @@ class _$WelcomeEventTearOff {
 }
 
 /// @nodoc
-const $WelcomeEvent = _$WelcomeEventTearOff();
+const $SplashEvent = _$SplashEventTearOff();
 
 /// @nodoc
-mixin _$WelcomeEvent {
+mixin _$SplashEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() getUser,
@@ -51,19 +51,19 @@ mixin _$WelcomeEvent {
 }
 
 /// @nodoc
-abstract class $WelcomeEventCopyWith<$Res> {
-  factory $WelcomeEventCopyWith(
-          WelcomeEvent value, $Res Function(WelcomeEvent) then) =
-      _$WelcomeEventCopyWithImpl<$Res>;
+abstract class $SplashEventCopyWith<$Res> {
+  factory $SplashEventCopyWith(
+          SplashEvent value, $Res Function(SplashEvent) then) =
+      _$SplashEventCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class _$WelcomeEventCopyWithImpl<$Res> implements $WelcomeEventCopyWith<$Res> {
-  _$WelcomeEventCopyWithImpl(this._value, this._then);
+class _$SplashEventCopyWithImpl<$Res> implements $SplashEventCopyWith<$Res> {
+  _$SplashEventCopyWithImpl(this._value, this._then);
 
-  final WelcomeEvent _value;
+  final SplashEvent _value;
   // ignore: unused_field
-  final $Res Function(WelcomeEvent) _then;
+  final $Res Function(SplashEvent) _then;
 }
 
 /// @nodoc
@@ -73,7 +73,7 @@ abstract class _$GetUserCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$GetUserCopyWithImpl<$Res> extends _$WelcomeEventCopyWithImpl<$Res>
+class __$GetUserCopyWithImpl<$Res> extends _$SplashEventCopyWithImpl<$Res>
     implements _$GetUserCopyWith<$Res> {
   __$GetUserCopyWithImpl(_GetUser _value, $Res Function(_GetUser) _then)
       : super(_value, (v) => _then(v as _GetUser));
@@ -89,7 +89,7 @@ class _$_GetUser implements _GetUser {
 
   @override
   String toString() {
-    return 'WelcomeEvent.getUser()';
+    return 'SplashEvent.getUser()';
   }
 
   @override
@@ -141,50 +141,50 @@ class _$_GetUser implements _GetUser {
   }
 }
 
-abstract class _GetUser implements WelcomeEvent {
+abstract class _GetUser implements SplashEvent {
   const factory _GetUser() = _$_GetUser;
 }
 
 /// @nodoc
-class _$WelcomeStateTearOff {
-  const _$WelcomeStateTearOff();
+class _$SplashStateTearOff {
+  const _$SplashStateTearOff();
 
-  _WelcomeState call({required AuthState auth}) {
-    return _WelcomeState(
+  _SplashState call({required AuthState auth}) {
+    return _SplashState(
       auth: auth,
     );
   }
 }
 
 /// @nodoc
-const $WelcomeState = _$WelcomeStateTearOff();
+const $SplashState = _$SplashStateTearOff();
 
 /// @nodoc
-mixin _$WelcomeState {
+mixin _$SplashState {
   AuthState get auth => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
-  $WelcomeStateCopyWith<WelcomeState> get copyWith =>
+  $SplashStateCopyWith<SplashState> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $WelcomeStateCopyWith<$Res> {
-  factory $WelcomeStateCopyWith(
-          WelcomeState value, $Res Function(WelcomeState) then) =
-      _$WelcomeStateCopyWithImpl<$Res>;
+abstract class $SplashStateCopyWith<$Res> {
+  factory $SplashStateCopyWith(
+          SplashState value, $Res Function(SplashState) then) =
+      _$SplashStateCopyWithImpl<$Res>;
   $Res call({AuthState auth});
 
   $AuthStateCopyWith<$Res> get auth;
 }
 
 /// @nodoc
-class _$WelcomeStateCopyWithImpl<$Res> implements $WelcomeStateCopyWith<$Res> {
-  _$WelcomeStateCopyWithImpl(this._value, this._then);
+class _$SplashStateCopyWithImpl<$Res> implements $SplashStateCopyWith<$Res> {
+  _$SplashStateCopyWithImpl(this._value, this._then);
 
-  final WelcomeState _value;
+  final SplashState _value;
   // ignore: unused_field
-  final $Res Function(WelcomeState) _then;
+  final $Res Function(SplashState) _then;
 
   @override
   $Res call({
@@ -207,11 +207,11 @@ class _$WelcomeStateCopyWithImpl<$Res> implements $WelcomeStateCopyWith<$Res> {
 }
 
 /// @nodoc
-abstract class _$WelcomeStateCopyWith<$Res>
-    implements $WelcomeStateCopyWith<$Res> {
-  factory _$WelcomeStateCopyWith(
-          _WelcomeState value, $Res Function(_WelcomeState) then) =
-      __$WelcomeStateCopyWithImpl<$Res>;
+abstract class _$SplashStateCopyWith<$Res>
+    implements $SplashStateCopyWith<$Res> {
+  factory _$SplashStateCopyWith(
+          _SplashState value, $Res Function(_SplashState) then) =
+      __$SplashStateCopyWithImpl<$Res>;
   @override
   $Res call({AuthState auth});
 
@@ -220,20 +220,20 @@ abstract class _$WelcomeStateCopyWith<$Res>
 }
 
 /// @nodoc
-class __$WelcomeStateCopyWithImpl<$Res> extends _$WelcomeStateCopyWithImpl<$Res>
-    implements _$WelcomeStateCopyWith<$Res> {
-  __$WelcomeStateCopyWithImpl(
-      _WelcomeState _value, $Res Function(_WelcomeState) _then)
-      : super(_value, (v) => _then(v as _WelcomeState));
+class __$SplashStateCopyWithImpl<$Res> extends _$SplashStateCopyWithImpl<$Res>
+    implements _$SplashStateCopyWith<$Res> {
+  __$SplashStateCopyWithImpl(
+      _SplashState _value, $Res Function(_SplashState) _then)
+      : super(_value, (v) => _then(v as _SplashState));
 
   @override
-  _WelcomeState get _value => super._value as _WelcomeState;
+  _SplashState get _value => super._value as _SplashState;
 
   @override
   $Res call({
     Object? auth = freezed,
   }) {
-    return _then(_WelcomeState(
+    return _then(_SplashState(
       auth: auth == freezed
           ? _value.auth
           : auth // ignore: cast_nullable_to_non_nullable
@@ -244,21 +244,21 @@ class __$WelcomeStateCopyWithImpl<$Res> extends _$WelcomeStateCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$_WelcomeState implements _WelcomeState {
-  const _$_WelcomeState({required this.auth});
+class _$_SplashState implements _SplashState {
+  const _$_SplashState({required this.auth});
 
   @override
   final AuthState auth;
 
   @override
   String toString() {
-    return 'WelcomeState(auth: $auth)';
+    return 'SplashState(auth: $auth)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _WelcomeState &&
+        (other is _SplashState &&
             (identical(other.auth, auth) ||
                 const DeepCollectionEquality().equals(other.auth, auth)));
   }
@@ -269,17 +269,17 @@ class _$_WelcomeState implements _WelcomeState {
 
   @JsonKey(ignore: true)
   @override
-  _$WelcomeStateCopyWith<_WelcomeState> get copyWith =>
-      __$WelcomeStateCopyWithImpl<_WelcomeState>(this, _$identity);
+  _$SplashStateCopyWith<_SplashState> get copyWith =>
+      __$SplashStateCopyWithImpl<_SplashState>(this, _$identity);
 }
 
-abstract class _WelcomeState implements WelcomeState {
-  const factory _WelcomeState({required AuthState auth}) = _$_WelcomeState;
+abstract class _SplashState implements SplashState {
+  const factory _SplashState({required AuthState auth}) = _$_SplashState;
 
   @override
   AuthState get auth => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
-  _$WelcomeStateCopyWith<_WelcomeState> get copyWith =>
+  _$SplashStateCopyWith<_SplashState> get copyWith =>
       throw _privateConstructorUsedError;
 }

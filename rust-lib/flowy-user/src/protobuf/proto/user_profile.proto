@@ -1,4 +1,5 @@
 syntax = "proto3";
+
 message UserToken {
     string token = 1;
 }

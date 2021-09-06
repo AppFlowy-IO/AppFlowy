@@ -1,77 +1,105 @@
-import 'package:app_flowy/welcome/domain/i_welcome.dart';
-import 'package:app_flowy/welcome/domain/auth_state.dart';
-import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/welcome/application/welcome_bloc.dart';
-import 'package:flowy_infra_ui/widget/route/animation.dart';
-import 'package:flowy_infra/flowy_logger.dart';
+import 'package:app_flowy/workspace/application/workspace/workspace_list_bloc.dart';
+import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
+import 'package:flowy_infra_ui/style_widget/text_button.dart';
+import 'package:flowy_infra_ui/widget/error_page.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/workspace_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flowy_infra/time/prelude.dart';
+import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
 
 class WelcomeScreen extends StatelessWidget {
-  const WelcomeScreen({Key? key}) : super(key: key);
+  final UserRepo repo;
+  const WelcomeScreen({
+    Key? key,
+    required this.repo,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) {
-        return getIt<WelcomeBloc>()..add(const WelcomeEvent.getUser());
-      },
-      child: Scaffold(
-        body: BlocListener<WelcomeBloc, WelcomeState>(
-          listener: (context, state) {
-            state.auth.map(
-              authenticated: (r) => _handleAuthenticated(context, r),
-              unauthenticated: (r) => _handleUnauthenticated(context, r),
-              initial: (r) => {},
-            );
-          },
-          child: const Body(),
-        ),
+      create: (_) =>
+          WorkspaceListBloc(repo)..add(const WorkspaceListEvent.initial()),
+      child: BlocBuilder<WorkspaceListBloc, WorkspaceListState>(
+        builder: (context, state) {
+          return Scaffold(
+            body: Padding(
+              padding: const EdgeInsets.all(60.0),
+              child: Column(
+                children: [
+                  _renderBody(state),
+                  _renderCreateButton(context),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  void _pushToScreen(BuildContext context, Widget screen) {
-    /// Let the splash view sit for a bit. Mainly for aesthetics and to ensure a smooth intro animation.
-    Navigator.push(
-        context,
-        PageRoutes.fade(
-            () => screen, RouteDurations.slow.inMilliseconds * .001));
+  Widget _renderBody(WorkspaceListState state) {
+    final body = state.successOrFailure.fold(
+      (_) => _renderList(state.workspaces),
+      (error) => FlowyErrorPage(error.toString()),
+    );
+    return body;
   }
 
-  void _handleAuthenticated(BuildContext context, Authenticated result) {
-    getIt<IWelcomeRoute>().pushHomeScreen(context, result.userProfile);
+  Widget _renderCreateButton(BuildContext context) {
+    return SizedBox(
+      width: 200,
+      height: 40,
+      child: FlowyTextButton(
+        "Create workspace",
+        fontSize: 14,
+        onPressed: () {
+          context
+              .read<WorkspaceListBloc>()
+              .add(const WorkspaceListEvent.createWorkspace("workspace", ""));
+        },
+      ),
+    );
   }
 
-  void _handleUnauthenticated(BuildContext context, Unauthenticated result) {
-    Log.error(result.error);
+  Widget _renderList(List<Workspace> workspaces) {
+    return Expanded(
+      child: StyledListView(
+        itemBuilder: (BuildContext context, int index) {
+          final workspace = workspaces[index];
+          return WorkspaceItem(
+            workspace: workspace,
+            onPressed: (workspace) => _handleOnPress(context, workspace),
+          );
+        },
+        itemCount: workspaces.length,
+      ),
+    );
+  }
 
-    _pushToScreen(context, getIt<IWelcomeRoute>().pushSignInScreen());
+  void _handleOnPress(BuildContext context, Workspace workspace) {
+    context
+        .read<WorkspaceListBloc>()
+        .add(WorkspaceListEvent.openWorkspace(workspace));
+
+    Navigator.of(context).pop(workspace.id);
   }
 }
 
-class Body extends StatelessWidget {
-  const Body({Key? key}) : super(key: key);
+class WorkspaceItem extends StatelessWidget {
+  final Workspace workspace;
+  final void Function(Workspace workspace) onPressed;
+  const WorkspaceItem(
+      {Key? key, required this.workspace, required this.onPressed})
+      : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
-
-    return Container(
-      alignment: Alignment.center,
-      child: SingleChildScrollView(
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Image(
-                fit: BoxFit.cover,
-                width: size.width,
-                height: size.height,
-                image: const AssetImage(
-                    'assets/images/appflowy_launch_splash.jpg')),
-            const CircularProgressIndicator.adaptive(),
-          ],
-        ),
+    return SizedBox(
+      height: 46,
+      child: FlowyTextButton(
+        workspace.name,
+        fontSize: 14,
+        onPressed: () => onPressed(workspace),
       ),
     );
   }

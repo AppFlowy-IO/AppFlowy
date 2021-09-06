@@ -31,6 +31,12 @@ class _$SignUpEventTearOff {
       password,
     );
   }
+
+  RepeatPasswordChanged repeatPasswordChanged(String password) {
+    return RepeatPasswordChanged(
+      password,
+    );
+  }
 }
 
 /// @nodoc
@@ -43,6 +49,7 @@ mixin _$SignUpEvent {
     required TResult Function() signUpWithUserEmailAndPassword,
     required TResult Function(String email) emailChanged,
     required TResult Function(String password) passwordChanged,
+    required TResult Function(String password) repeatPasswordChanged,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -50,6 +57,7 @@ mixin _$SignUpEvent {
     TResult Function()? signUpWithUserEmailAndPassword,
     TResult Function(String email)? emailChanged,
     TResult Function(String password)? passwordChanged,
+    TResult Function(String password)? repeatPasswordChanged,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -59,6 +67,8 @@ mixin _$SignUpEvent {
         signUpWithUserEmailAndPassword,
     required TResult Function(EmailChanged value) emailChanged,
     required TResult Function(PasswordChanged value) passwordChanged,
+    required TResult Function(RepeatPasswordChanged value)
+        repeatPasswordChanged,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -67,6 +77,7 @@ mixin _$SignUpEvent {
         signUpWithUserEmailAndPassword,
     TResult Function(EmailChanged value)? emailChanged,
     TResult Function(PasswordChanged value)? passwordChanged,
+    TResult Function(RepeatPasswordChanged value)? repeatPasswordChanged,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -135,6 +146,7 @@ class _$SignUpWithUserEmailAndPassword
     required TResult Function() signUpWithUserEmailAndPassword,
     required TResult Function(String email) emailChanged,
     required TResult Function(String password) passwordChanged,
+    required TResult Function(String password) repeatPasswordChanged,
   }) {
     return signUpWithUserEmailAndPassword();
   }
@@ -145,6 +157,7 @@ class _$SignUpWithUserEmailAndPassword
     TResult Function()? signUpWithUserEmailAndPassword,
     TResult Function(String email)? emailChanged,
     TResult Function(String password)? passwordChanged,
+    TResult Function(String password)? repeatPasswordChanged,
     required TResult orElse(),
   }) {
     if (signUpWithUserEmailAndPassword != null) {
@@ -160,6 +173,8 @@ class _$SignUpWithUserEmailAndPassword
         signUpWithUserEmailAndPassword,
     required TResult Function(EmailChanged value) emailChanged,
     required TResult Function(PasswordChanged value) passwordChanged,
+    required TResult Function(RepeatPasswordChanged value)
+        repeatPasswordChanged,
   }) {
     return signUpWithUserEmailAndPassword(this);
   }
@@ -171,6 +186,7 @@ class _$SignUpWithUserEmailAndPassword
         signUpWithUserEmailAndPassword,
     TResult Function(EmailChanged value)? emailChanged,
     TResult Function(PasswordChanged value)? passwordChanged,
+    TResult Function(RepeatPasswordChanged value)? repeatPasswordChanged,
     required TResult orElse(),
   }) {
     if (signUpWithUserEmailAndPassword != null) {
@@ -252,6 +268,7 @@ class _$EmailChanged implements EmailChanged {
     required TResult Function() signUpWithUserEmailAndPassword,
     required TResult Function(String email) emailChanged,
     required TResult Function(String password) passwordChanged,
+    required TResult Function(String password) repeatPasswordChanged,
   }) {
     return emailChanged(email);
   }
@@ -262,6 +279,7 @@ class _$EmailChanged implements EmailChanged {
     TResult Function()? signUpWithUserEmailAndPassword,
     TResult Function(String email)? emailChanged,
     TResult Function(String password)? passwordChanged,
+    TResult Function(String password)? repeatPasswordChanged,
     required TResult orElse(),
   }) {
     if (emailChanged != null) {
@@ -277,6 +295,8 @@ class _$EmailChanged implements EmailChanged {
         signUpWithUserEmailAndPassword,
     required TResult Function(EmailChanged value) emailChanged,
     required TResult Function(PasswordChanged value) passwordChanged,
+    required TResult Function(RepeatPasswordChanged value)
+        repeatPasswordChanged,
   }) {
     return emailChanged(this);
   }
@@ -288,6 +308,7 @@ class _$EmailChanged implements EmailChanged {
         signUpWithUserEmailAndPassword,
     TResult Function(EmailChanged value)? emailChanged,
     TResult Function(PasswordChanged value)? passwordChanged,
+    TResult Function(RepeatPasswordChanged value)? repeatPasswordChanged,
     required TResult orElse(),
   }) {
     if (emailChanged != null) {
@@ -375,6 +396,7 @@ class _$PasswordChanged implements PasswordChanged {
     required TResult Function() signUpWithUserEmailAndPassword,
     required TResult Function(String email) emailChanged,
     required TResult Function(String password) passwordChanged,
+    required TResult Function(String password) repeatPasswordChanged,
   }) {
     return passwordChanged(password);
   }
@@ -385,6 +407,7 @@ class _$PasswordChanged implements PasswordChanged {
     TResult Function()? signUpWithUserEmailAndPassword,
     TResult Function(String email)? emailChanged,
     TResult Function(String password)? passwordChanged,
+    TResult Function(String password)? repeatPasswordChanged,
     required TResult orElse(),
   }) {
     if (passwordChanged != null) {
@@ -400,6 +423,8 @@ class _$PasswordChanged implements PasswordChanged {
         signUpWithUserEmailAndPassword,
     required TResult Function(EmailChanged value) emailChanged,
     required TResult Function(PasswordChanged value) passwordChanged,
+    required TResult Function(RepeatPasswordChanged value)
+        repeatPasswordChanged,
   }) {
     return passwordChanged(this);
   }
@@ -411,6 +436,7 @@ class _$PasswordChanged implements PasswordChanged {
         signUpWithUserEmailAndPassword,
     TResult Function(EmailChanged value)? emailChanged,
     TResult Function(PasswordChanged value)? passwordChanged,
+    TResult Function(RepeatPasswordChanged value)? repeatPasswordChanged,
     required TResult orElse(),
   }) {
     if (passwordChanged != null) {
@@ -430,21 +456,155 @@ abstract class PasswordChanged implements SignUpEvent {
 }
 
 /// @nodoc
+abstract class $RepeatPasswordChangedCopyWith<$Res> {
+  factory $RepeatPasswordChangedCopyWith(RepeatPasswordChanged value,
+          $Res Function(RepeatPasswordChanged) then) =
+      _$RepeatPasswordChangedCopyWithImpl<$Res>;
+  $Res call({String password});
+}
+
+/// @nodoc
+class _$RepeatPasswordChangedCopyWithImpl<$Res>
+    extends _$SignUpEventCopyWithImpl<$Res>
+    implements $RepeatPasswordChangedCopyWith<$Res> {
+  _$RepeatPasswordChangedCopyWithImpl(
+      RepeatPasswordChanged _value, $Res Function(RepeatPasswordChanged) _then)
+      : super(_value, (v) => _then(v as RepeatPasswordChanged));
+
+  @override
+  RepeatPasswordChanged get _value => super._value as RepeatPasswordChanged;
+
+  @override
+  $Res call({
+    Object? password = freezed,
+  }) {
+    return _then(RepeatPasswordChanged(
+      password == freezed
+          ? _value.password
+          : password // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$RepeatPasswordChanged implements RepeatPasswordChanged {
+  const _$RepeatPasswordChanged(this.password);
+
+  @override
+  final String password;
+
+  @override
+  String toString() {
+    return 'SignUpEvent.repeatPasswordChanged(password: $password)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is RepeatPasswordChanged &&
+            (identical(other.password, password) ||
+                const DeepCollectionEquality()
+                    .equals(other.password, password)));
+  }
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(password);
+
+  @JsonKey(ignore: true)
+  @override
+  $RepeatPasswordChangedCopyWith<RepeatPasswordChanged> get copyWith =>
+      _$RepeatPasswordChangedCopyWithImpl<RepeatPasswordChanged>(
+          this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() signUpWithUserEmailAndPassword,
+    required TResult Function(String email) emailChanged,
+    required TResult Function(String password) passwordChanged,
+    required TResult Function(String password) repeatPasswordChanged,
+  }) {
+    return repeatPasswordChanged(password);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? signUpWithUserEmailAndPassword,
+    TResult Function(String email)? emailChanged,
+    TResult Function(String password)? passwordChanged,
+    TResult Function(String password)? repeatPasswordChanged,
+    required TResult orElse(),
+  }) {
+    if (repeatPasswordChanged != null) {
+      return repeatPasswordChanged(password);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(SignUpWithUserEmailAndPassword value)
+        signUpWithUserEmailAndPassword,
+    required TResult Function(EmailChanged value) emailChanged,
+    required TResult Function(PasswordChanged value) passwordChanged,
+    required TResult Function(RepeatPasswordChanged value)
+        repeatPasswordChanged,
+  }) {
+    return repeatPasswordChanged(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(SignUpWithUserEmailAndPassword value)?
+        signUpWithUserEmailAndPassword,
+    TResult Function(EmailChanged value)? emailChanged,
+    TResult Function(PasswordChanged value)? passwordChanged,
+    TResult Function(RepeatPasswordChanged value)? repeatPasswordChanged,
+    required TResult orElse(),
+  }) {
+    if (repeatPasswordChanged != null) {
+      return repeatPasswordChanged(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class RepeatPasswordChanged implements SignUpEvent {
+  const factory RepeatPasswordChanged(String password) =
+      _$RepeatPasswordChanged;
+
+  String get password => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $RepeatPasswordChangedCopyWith<RepeatPasswordChanged> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
 class _$SignUpStateTearOff {
   const _$SignUpStateTearOff();
 
   _SignUpState call(
       {String? email,
       String? password,
+      String? repeatedPassword,
       required bool isSubmitting,
       required Option<String> passwordError,
+      required Option<String> repeatPasswordError,
       required Option<String> emailError,
       required Option<Either<UserProfile, UserError>> successOrFail}) {
     return _SignUpState(
       email: email,
       password: password,
+      repeatedPassword: repeatedPassword,
       isSubmitting: isSubmitting,
       passwordError: passwordError,
+      repeatPasswordError: repeatPasswordError,
       emailError: emailError,
       successOrFail: successOrFail,
     );
@@ -458,8 +618,10 @@ const $SignUpState = _$SignUpStateTearOff();
 mixin _$SignUpState {
   String? get email => throw _privateConstructorUsedError;
   String? get password => throw _privateConstructorUsedError;
+  String? get repeatedPassword => throw _privateConstructorUsedError;
   bool get isSubmitting => throw _privateConstructorUsedError;
   Option<String> get passwordError => throw _privateConstructorUsedError;
+  Option<String> get repeatPasswordError => throw _privateConstructorUsedError;
   Option<String> get emailError => throw _privateConstructorUsedError;
   Option<Either<UserProfile, UserError>> get successOrFail =>
       throw _privateConstructorUsedError;
@@ -477,8 +639,10 @@ abstract class $SignUpStateCopyWith<$Res> {
   $Res call(
       {String? email,
       String? password,
+      String? repeatedPassword,
       bool isSubmitting,
       Option<String> passwordError,
+      Option<String> repeatPasswordError,
       Option<String> emailError,
       Option<Either<UserProfile, UserError>> successOrFail});
 }
@@ -495,8 +659,10 @@ class _$SignUpStateCopyWithImpl<$Res> implements $SignUpStateCopyWith<$Res> {
   $Res call({
     Object? email = freezed,
     Object? password = freezed,
+    Object? repeatedPassword = freezed,
     Object? isSubmitting = freezed,
     Object? passwordError = freezed,
+    Object? repeatPasswordError = freezed,
     Object? emailError = freezed,
     Object? successOrFail = freezed,
   }) {
@@ -509,6 +675,10 @@ class _$SignUpStateCopyWithImpl<$Res> implements $SignUpStateCopyWith<$Res> {
           ? _value.password
           : password // ignore: cast_nullable_to_non_nullable
               as String?,
+      repeatedPassword: repeatedPassword == freezed
+          ? _value.repeatedPassword
+          : repeatedPassword // ignore: cast_nullable_to_non_nullable
+              as String?,
       isSubmitting: isSubmitting == freezed
           ? _value.isSubmitting
           : isSubmitting // ignore: cast_nullable_to_non_nullable
@@ -516,6 +686,10 @@ class _$SignUpStateCopyWithImpl<$Res> implements $SignUpStateCopyWith<$Res> {
       passwordError: passwordError == freezed
           ? _value.passwordError
           : passwordError // ignore: cast_nullable_to_non_nullable
+              as Option<String>,
+      repeatPasswordError: repeatPasswordError == freezed
+          ? _value.repeatPasswordError
+          : repeatPasswordError // ignore: cast_nullable_to_non_nullable
               as Option<String>,
       emailError: emailError == freezed
           ? _value.emailError
@@ -539,8 +713,10 @@ abstract class _$SignUpStateCopyWith<$Res>
   $Res call(
       {String? email,
       String? password,
+      String? repeatedPassword,
       bool isSubmitting,
       Option<String> passwordError,
+      Option<String> repeatPasswordError,
       Option<String> emailError,
       Option<Either<UserProfile, UserError>> successOrFail});
 }
@@ -559,8 +735,10 @@ class __$SignUpStateCopyWithImpl<$Res> extends _$SignUpStateCopyWithImpl<$Res>
   $Res call({
     Object? email = freezed,
     Object? password = freezed,
+    Object? repeatedPassword = freezed,
     Object? isSubmitting = freezed,
     Object? passwordError = freezed,
+    Object? repeatPasswordError = freezed,
     Object? emailError = freezed,
     Object? successOrFail = freezed,
   }) {
@@ -573,6 +751,10 @@ class __$SignUpStateCopyWithImpl<$Res> extends _$SignUpStateCopyWithImpl<$Res>
           ? _value.password
           : password // ignore: cast_nullable_to_non_nullable
               as String?,
+      repeatedPassword: repeatedPassword == freezed
+          ? _value.repeatedPassword
+          : repeatedPassword // ignore: cast_nullable_to_non_nullable
+              as String?,
       isSubmitting: isSubmitting == freezed
           ? _value.isSubmitting
           : isSubmitting // ignore: cast_nullable_to_non_nullable
@@ -580,6 +762,10 @@ class __$SignUpStateCopyWithImpl<$Res> extends _$SignUpStateCopyWithImpl<$Res>
       passwordError: passwordError == freezed
           ? _value.passwordError
           : passwordError // ignore: cast_nullable_to_non_nullable
+              as Option<String>,
+      repeatPasswordError: repeatPasswordError == freezed
+          ? _value.repeatPasswordError
+          : repeatPasswordError // ignore: cast_nullable_to_non_nullable
               as Option<String>,
       emailError: emailError == freezed
           ? _value.emailError
@@ -599,8 +785,10 @@ class _$_SignUpState implements _SignUpState {
   const _$_SignUpState(
       {this.email,
       this.password,
+      this.repeatedPassword,
       required this.isSubmitting,
       required this.passwordError,
+      required this.repeatPasswordError,
       required this.emailError,
       required this.successOrFail});
 
@@ -609,9 +797,13 @@ class _$_SignUpState implements _SignUpState {
   @override
   final String? password;
   @override
+  final String? repeatedPassword;
+  @override
   final bool isSubmitting;
   @override
   final Option<String> passwordError;
+  @override
+  final Option<String> repeatPasswordError;
   @override
   final Option<String> emailError;
   @override
@@ -619,7 +811,7 @@ class _$_SignUpState implements _SignUpState {
 
   @override
   String toString() {
-    return 'SignUpState(email: $email, password: $password, isSubmitting: $isSubmitting, passwordError: $passwordError, emailError: $emailError, successOrFail: $successOrFail)';
+    return 'SignUpState(email: $email, password: $password, repeatedPassword: $repeatedPassword, isSubmitting: $isSubmitting, passwordError: $passwordError, repeatPasswordError: $repeatPasswordError, emailError: $emailError, successOrFail: $successOrFail)';
   }
 
   @override
@@ -631,12 +823,18 @@ class _$_SignUpState implements _SignUpState {
             (identical(other.password, password) ||
                 const DeepCollectionEquality()
                     .equals(other.password, password)) &&
+            (identical(other.repeatedPassword, repeatedPassword) ||
+                const DeepCollectionEquality()
+                    .equals(other.repeatedPassword, repeatedPassword)) &&
             (identical(other.isSubmitting, isSubmitting) ||
                 const DeepCollectionEquality()
                     .equals(other.isSubmitting, isSubmitting)) &&
             (identical(other.passwordError, passwordError) ||
                 const DeepCollectionEquality()
                     .equals(other.passwordError, passwordError)) &&
+            (identical(other.repeatPasswordError, repeatPasswordError) ||
+                const DeepCollectionEquality()
+                    .equals(other.repeatPasswordError, repeatPasswordError)) &&
             (identical(other.emailError, emailError) ||
                 const DeepCollectionEquality()
                     .equals(other.emailError, emailError)) &&
@@ -650,8 +848,10 @@ class _$_SignUpState implements _SignUpState {
       runtimeType.hashCode ^
       const DeepCollectionEquality().hash(email) ^
       const DeepCollectionEquality().hash(password) ^
+      const DeepCollectionEquality().hash(repeatedPassword) ^
       const DeepCollectionEquality().hash(isSubmitting) ^
       const DeepCollectionEquality().hash(passwordError) ^
+      const DeepCollectionEquality().hash(repeatPasswordError) ^
       const DeepCollectionEquality().hash(emailError) ^
       const DeepCollectionEquality().hash(successOrFail);
 
@@ -665,8 +865,10 @@ abstract class _SignUpState implements SignUpState {
   const factory _SignUpState(
           {String? email,
           String? password,
+          String? repeatedPassword,
           required bool isSubmitting,
           required Option<String> passwordError,
+          required Option<String> repeatPasswordError,
           required Option<String> emailError,
           required Option<Either<UserProfile, UserError>> successOrFail}) =
       _$_SignUpState;
@@ -676,9 +878,13 @@ abstract class _SignUpState implements SignUpState {
   @override
   String? get password => throw _privateConstructorUsedError;
   @override
+  String? get repeatedPassword => throw _privateConstructorUsedError;
+  @override
   bool get isSubmitting => throw _privateConstructorUsedError;
   @override
   Option<String> get passwordError => throw _privateConstructorUsedError;
+  @override
+  Option<String> get repeatPasswordError => throw _privateConstructorUsedError;
   @override
   Option<String> get emailError => throw _privateConstructorUsedError;
   @override

@@ -3,14 +3,14 @@ import 'package:app_flowy/welcome/domain/i_welcome.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'welcome_bloc.freezed.dart';
+part 'splash_bloc.freezed.dart';
 
-class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
-  final IWelcomeAuth authImpl;
-  WelcomeBloc(this.authImpl) : super(WelcomeState.initial());
+class SplashBloc extends Bloc<SplashEvent, SplashState> {
+  final ISplashAuth authImpl;
+  SplashBloc(this.authImpl) : super(SplashState.initial());
 
   @override
-  Stream<WelcomeState> mapEventToState(WelcomeEvent event) async* {
+  Stream<SplashState> mapEventToState(SplashEvent event) async* {
     yield* event.map(
       getUser: (val) async* {
         final authState = await authImpl.currentUserProfile();
@@ -21,17 +21,17 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
 }
 
 @freezed
-abstract class WelcomeEvent with _$WelcomeEvent {
-  const factory WelcomeEvent.getUser() = _GetUser;
+abstract class SplashEvent with _$SplashEvent {
+  const factory SplashEvent.getUser() = _GetUser;
 }
 
 @freezed
-abstract class WelcomeState implements _$WelcomeState {
-  const factory WelcomeState({
+abstract class SplashState implements _$SplashState {
+  const factory SplashState({
     required AuthState auth,
-  }) = _WelcomeState;
+  }) = _SplashState;
 
-  factory WelcomeState.initial() => const WelcomeState(
+  factory SplashState.initial() => const SplashState(
         auth: AuthState.initial(),
       );
 }

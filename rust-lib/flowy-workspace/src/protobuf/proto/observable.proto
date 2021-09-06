@@ -7,6 +7,7 @@ enum WorkspaceObservable {
     WorkspaceUpdated = 12;
     WorkspaceCreateApp = 13;
     WorkspaceDeleteApp = 14;
+    WorkspaceListUpdated = 15;
     AppUpdated = 21;
     AppCreateView = 23;
     AppDeleteView = 24;

@@ -11,7 +11,7 @@ pub struct SignInRequest {
     pub password: String,
 }
 
-#[derive(Default, ProtoBuf)]
+#[derive(Default, ProtoBuf, Debug)]
 pub struct SignInParams {
     #[pb(index = 1)]
     pub email: String,
@@ -76,7 +76,7 @@ impl TryInto<SignUpParams> for SignUpRequest {
     }
 }
 
-#[derive(ProtoBuf, Default)]
+#[derive(ProtoBuf, Default, Debug)]
 pub struct SignUpParams {
     #[pb(index = 1)]
     pub email: String,

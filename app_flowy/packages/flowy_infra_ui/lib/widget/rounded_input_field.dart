@@ -85,13 +85,18 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
     ];
 
     if (widget.errorText.isNotEmpty) {
-      children.add(Text(
-        widget.errorText,
-        style: TextStyle(
-            color: widget.highlightBorderColor,
-            fontWeight: widget.fontWeight,
-            fontSize: widget.fontSize),
-      ));
+      children.add(
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            widget.errorText,
+            style: TextStyle(
+                color: widget.highlightBorderColor,
+                fontWeight: widget.fontWeight,
+                fontSize: widget.fontSize),
+          ),
+        ),
+      );
     }
 
     return AnimatedSize(

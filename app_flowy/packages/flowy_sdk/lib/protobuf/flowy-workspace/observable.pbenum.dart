@@ -16,6 +16,7 @@ class WorkspaceObservable extends $pb.ProtobufEnum {
   static const WorkspaceObservable WorkspaceUpdated = WorkspaceObservable._(12, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceUpdated');
   static const WorkspaceObservable WorkspaceCreateApp = WorkspaceObservable._(13, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceCreateApp');
   static const WorkspaceObservable WorkspaceDeleteApp = WorkspaceObservable._(14, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceDeleteApp');
+  static const WorkspaceObservable WorkspaceListUpdated = WorkspaceObservable._(15, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceListUpdated');
   static const WorkspaceObservable AppUpdated = WorkspaceObservable._(21, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppUpdated');
   static const WorkspaceObservable AppCreateView = WorkspaceObservable._(23, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppCreateView');
   static const WorkspaceObservable AppDeleteView = WorkspaceObservable._(24, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppDeleteView');
@@ -28,6 +29,7 @@ class WorkspaceObservable extends $pb.ProtobufEnum {
     WorkspaceUpdated,
     WorkspaceCreateApp,
     WorkspaceDeleteApp,
+    WorkspaceListUpdated,
     AppUpdated,
     AppCreateView,
     AppDeleteView,

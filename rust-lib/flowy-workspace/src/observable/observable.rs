@@ -7,20 +7,21 @@ const OBSERVABLE_CATEGORY: &'static str = "Workspace";
 
 #[derive(ProtoBuf_Enum, Debug)]
 pub(crate) enum WorkspaceObservable {
-    Unknown             = 0,
+    Unknown              = 0,
 
-    UserCreateWorkspace = 10,
-    UserDeleteWorkspace = 11,
+    UserCreateWorkspace  = 10,
+    UserDeleteWorkspace  = 11,
 
-    WorkspaceUpdated    = 12,
-    WorkspaceCreateApp  = 13,
-    WorkspaceDeleteApp  = 14,
+    WorkspaceUpdated     = 12,
+    WorkspaceCreateApp   = 13,
+    WorkspaceDeleteApp   = 14,
+    WorkspaceListUpdated = 15,
 
-    AppUpdated          = 21,
-    AppCreateView       = 23,
-    AppDeleteView       = 24,
+    AppUpdated           = 21,
+    AppCreateView        = 23,
+    AppDeleteView        = 24,
 
-    ViewUpdated         = 31,
+    ViewUpdated          = 31,
 }
 
 impl std::default::Default for WorkspaceObservable {
@@ -58,11 +59,7 @@ impl ObservableSender {
     }
 
     pub(crate) fn send(self) {
-        log::trace!(
-            "Workspace observable id: {}, ty: {:?}",
-            self.subject_id,
-            self.ty
-        );
+        log::trace!("Workspace observable id: {}, ty: {:?}", self.subject_id, self.ty);
 
         let subject_payload = match self.payload {
             None => None,
@@ -82,9 +79,7 @@ impl ObservableSender {
     }
 }
 
-pub(crate) fn send_observable(id: &str, ty: WorkspaceObservable) {
-    ObservableSender::new(id, ty).send();
-}
+pub(crate) fn send_observable(id: &str, ty: WorkspaceObservable) { ObservableSender::new(id, ty).send(); }
 
 #[allow(dead_code)]
 pub(crate) fn send_observable_with_payload<T>(id: &str, ty: WorkspaceObservable, payload: T)

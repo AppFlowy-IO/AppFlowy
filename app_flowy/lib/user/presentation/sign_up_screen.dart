@@ -1,5 +1,6 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/application/sign_up_bloc.dart';
+import 'package:app_flowy/user/domain/i_auth.dart';
 import 'package:app_flowy/user/presentation/widgets/background.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
@@ -13,7 +14,8 @@ import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/image.dart';
 
 class SignUpScreen extends StatelessWidget {
-  const SignUpScreen({Key? key}) : super(key: key);
+  final IAuthRouter router;
+  const SignUpScreen({Key? key, required this.router}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,31 +24,23 @@ class SignUpScreen extends StatelessWidget {
       child: BlocListener<SignUpBloc, SignUpState>(
         listener: (context, state) {
           state.successOrFail.fold(
-            () => null,
-            (result) => _handleSuccessOrFail(result, context),
+            () => {},
+            (result) => _handleSuccessOrFail(context, result),
           );
         },
-        child: const Scaffold(
-          body: SignUpForm(),
-        ),
+        child: const Scaffold(body: SignUpForm()),
       ),
     );
   }
 
   void _handleSuccessOrFail(
-      Either<UserProfile, UserError> result, BuildContext context) {
+      BuildContext context, Either<UserProfile, UserError> result) {
     result.fold(
-      (user) => {
-        // router.showWorkspaceSelectScreen(context, user)
-      },
-      (error) => _showErrorMessage(context, error.msg),
-    );
-  }
-
-  void _showErrorMessage(BuildContext context, String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(msg),
+      (user) => router.pushWelcomeScreen(context, user),
+      (error) => ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.msg),
+        ),
       ),
     );
   }
@@ -70,7 +64,7 @@ class SignUpForm extends StatelessWidget {
           const VSpace(30),
           const EmailTextField(),
           const PasswordTextField(),
-          const PasswordTextField(hintText: "Repeate password"),
+          const RepeatPasswordTextField(),
           const VSpace(30),
           const SignUpButton(),
           const VSpace(10),
@@ -95,17 +89,14 @@ class SignUpPrompt extends StatelessWidget {
     final theme = context.watch<AppTheme>();
     return Row(
       children: [
-        Text("Already have an account",
-            style: TextStyle(color: theme.shader3, fontSize: 12)),
+        Text(
+          "Already have an account?",
+          style: TextStyle(color: theme.shader3, fontSize: 12),
+        ),
         TextButton(
-          style: TextButton.styleFrom(
-            textStyle: const TextStyle(fontSize: 12),
-          ),
+          style: TextButton.styleFrom(textStyle: const TextStyle(fontSize: 12)),
           onPressed: () => Navigator.pop(context),
-          child: Text(
-            'Sign In',
-            style: TextStyle(color: theme.main1),
-          ),
+          child: Text('Sign In', style: TextStyle(color: theme.main1)),
         ),
       ],
       mainAxisAlignment: MainAxisAlignment.center,
@@ -136,10 +127,8 @@ class SignUpButton extends StatelessWidget {
 }
 
 class PasswordTextField extends StatelessWidget {
-  final String hintText;
   const PasswordTextField({
     Key? key,
-    this.hintText = "Password",
   }) : super(key: key);
 
   @override
@@ -155,7 +144,7 @@ class PasswordTextField extends StatelessWidget {
           obscureHideIcon: svgWidgetWithName("home/Show.svg"),
           fontSize: 14,
           fontWeight: FontWeight.w500,
-          hintText: hintText,
+          hintText: "Password",
           normalBorderColor: theme.shader4,
           highlightBorderColor: theme.red,
           errorText: context
@@ -166,6 +155,41 @@ class PasswordTextField extends StatelessWidget {
           onChanged: (value) => context
               .read<SignUpBloc>()
               .add(SignUpEvent.passwordChanged(value)),
+        );
+      },
+    );
+  }
+}
+
+class RepeatPasswordTextField extends StatelessWidget {
+  const RepeatPasswordTextField({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    return BlocBuilder<SignUpBloc, SignUpState>(
+      buildWhen: (previous, current) =>
+          previous.repeatPasswordError != current.repeatPasswordError,
+      builder: (context, state) {
+        return RoundedInputField(
+          obscureText: true,
+          obscureIcon: svgWidgetWithName("home/Hide.svg"),
+          obscureHideIcon: svgWidgetWithName("home/Show.svg"),
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          hintText: "Repeate password",
+          normalBorderColor: theme.shader4,
+          highlightBorderColor: theme.red,
+          errorText: context
+              .read<SignUpBloc>()
+              .state
+              .repeatPasswordError
+              .fold(() => "", (error) => error),
+          onChanged: (value) => context
+              .read<SignUpBloc>()
+              .add(SignUpEvent.repeatPasswordChanged(value)),
         );
       },
     );
@@ -186,6 +210,7 @@ class EmailTextField extends StatelessWidget {
       builder: (context, state) {
         return RoundedInputField(
           hintText: 'Email',
+          fontSize: 14,
           normalBorderColor: theme.shader4,
           highlightBorderColor: theme.red,
           errorText: context

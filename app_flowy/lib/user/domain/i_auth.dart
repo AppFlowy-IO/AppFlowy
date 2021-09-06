@@ -12,7 +12,7 @@ abstract class IAuth {
 }
 
 abstract class IAuthRouter {
-  void showWorkspaceSelectScreen(BuildContext context, UserProfile user);
-  void showSignUpScreen(BuildContext context);
-  void showForgetPasswordScreen(BuildContext context);
+  void pushWelcomeScreen(BuildContext context, UserProfile userProfile);
+  void pushSignUpScreen(BuildContext context);
+  void pushForgetPasswordScreen(BuildContext context);
 }
