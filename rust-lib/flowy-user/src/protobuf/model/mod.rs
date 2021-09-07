@@ -1,5 +1,8 @@
 // Auto-generated, do not edit 
 
+mod observable; 
+pub use observable::*; 
+
 mod user_table; 
 pub use user_table::*; 
 

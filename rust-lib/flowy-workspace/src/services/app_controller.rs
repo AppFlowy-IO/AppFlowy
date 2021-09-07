@@ -37,7 +37,7 @@ impl AppController {
 
         // Opti: transaction
         let apps = self.read_local_apps(&app.workspace_id, &*conn)?;
-        ObservableBuilder::new(&app.workspace_id, WorkspaceObservable::WorkspaceCreateApp)
+        observable(&app.workspace_id, WorkspaceObservable::WorkspaceCreateApp)
             .payload(apps)
             .build();
         Ok(app)
@@ -58,7 +58,7 @@ impl AppController {
         let app = self.sql.delete_app(app_id, &*conn)?;
         // Opti: transaction
         let apps = self.read_local_apps(&app.workspace_id, &*conn)?;
-        ObservableBuilder::new(&app.workspace_id, WorkspaceObservable::WorkspaceDeleteApp)
+        observable(&app.workspace_id, WorkspaceObservable::WorkspaceDeleteApp)
             .payload(apps)
             .build();
         Ok(())
@@ -78,9 +78,7 @@ impl AppController {
         let conn = self.database.db_connection()?;
         let _ = self.sql.update_app(changeset, &*conn)?;
         let app: App = self.sql.read_app(&app_id, false, &*conn)?.into();
-        ObservableBuilder::new(&app_id, WorkspaceObservable::AppUpdated)
-            .payload(app)
-            .build();
+        observable(&app_id, WorkspaceObservable::AppUpdated).payload(app).build();
         Ok(())
     }
 }

@@ -2,21 +2,29 @@ use crate::{
     entities::{app::App, workspace::*},
     errors::*,
     module::{WorkspaceDatabase, WorkspaceUser},
-    observable::WorkspaceObservable,
+    observable::observable,
     services::{helper::spawn, server::Server, AppController},
     sql_tables::workspace::{WorkspaceTable, WorkspaceTableChangeset, WorkspaceTableSql},
 };
 
 use flowy_infra::kv::KV;
 
-use crate::{entities::app::RepeatedApp, observable::ObservableBuilder};
+use crate::{
+    entities::app::RepeatedApp,
+    observable::WorkspaceObservable,
+    sql_tables::{
+        app::{AppTable, AppTableSql},
+        view::{ViewTable, ViewTableSql},
+    },
+};
 use flowy_database::SqliteConnection;
 use std::sync::Arc;
 
 pub(crate) struct WorkspaceController {
     pub user: Arc<dyn WorkspaceUser>,
     pub workspace_sql: Arc<WorkspaceTableSql>,
-    // pub app_sql: Arc<AppTableSql>,
+    pub app_sql: Arc<AppTableSql>,
+    pub view_sql: Arc<ViewTableSql>,
     pub database: Arc<dyn WorkspaceDatabase>,
     pub app_controller: Arc<AppController>,
     server: Server,
@@ -29,10 +37,14 @@ impl WorkspaceController {
         app_controller: Arc<AppController>,
         server: Server,
     ) -> Self {
-        let sql = Arc::new(WorkspaceTableSql {});
+        let workspace_sql = Arc::new(WorkspaceTableSql {});
+        let app_sql = Arc::new(AppTableSql {});
+        let view_sql = Arc::new(ViewTableSql {});
         Self {
             user,
-            workspace_sql: sql,
+            workspace_sql,
+            app_sql,
+            view_sql,
             database,
             app_controller,
             server,
@@ -58,7 +70,7 @@ impl WorkspaceController {
         (conn).immediate_transaction::<_, WorkspaceError, _>(|| {
             self.workspace_sql.create_workspace(workspace_table, conn)?;
             let repeated_workspace = self.read_local_workspaces(None, &user_id, conn)?;
-            ObservableBuilder::new(&user_id, WorkspaceObservable::UserCreateWorkspace)
+            observable(&user_id, WorkspaceObservable::UserCreateWorkspace)
                 .payload(repeated_workspace)
                 .build();
 
@@ -78,7 +90,7 @@ impl WorkspaceController {
             let _ = self.workspace_sql.update_workspace(changeset, conn)?;
             let user_id = self.user.user_id()?;
             let workspace = self.read_local_workspace(workspace_id.clone(), &user_id, conn)?;
-            ObservableBuilder::new(&workspace_id, WorkspaceObservable::WorkspaceUpdated)
+            observable(&workspace_id, WorkspaceObservable::WorkspaceUpdated)
                 .payload(workspace)
                 .build();
 
@@ -95,7 +107,7 @@ impl WorkspaceController {
         (conn).immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.workspace_sql.delete_workspace(workspace_id, conn)?;
             let repeated_workspace = self.read_local_workspaces(None, &user_id, conn)?;
-            ObservableBuilder::new(&user_id, WorkspaceObservable::UserDeleteWorkspace)
+            observable(&user_id, WorkspaceObservable::UserDeleteWorkspace)
                 .payload(repeated_workspace)
                 .build();
 
@@ -244,40 +256,35 @@ impl WorkspaceController {
     #[tracing::instrument(skip(self), err)]
     async fn read_workspaces_on_server(&self, user_id: String, params: QueryWorkspaceParams) -> Result<(), WorkspaceError> {
         let (token, server) = self.token_with_server()?;
-        let sql = self.workspace_sql.clone();
+        let workspace_sql = self.workspace_sql.clone();
+        let app_sql = self.app_sql.clone();
+        let view_sql = self.view_sql.clone();
         let conn = self.database.db_connection()?;
         spawn(async move {
             // Opti: retry?
             let workspaces = server.read_workspace(&token, params).await?;
             let _ = (&*conn).immediate_transaction::<_, WorkspaceError, _>(|| {
+                log::debug!("Save {} workspace", workspaces.len());
                 for workspace in &workspaces.items {
                     let mut m_workspace = workspace.clone();
                     let apps = m_workspace.apps.take_items();
                     let workspace_table = WorkspaceTable::new(m_workspace, &user_id);
-                    log::debug!("Save workspace");
-                    let _ = sql.create_workspace(workspace_table, &*conn)?;
-                    log::debug!("Save apps");
 
+                    let _ = workspace_sql.create_workspace(workspace_table, &*conn)?;
+                    log::debug!("Save {} apps", apps.len());
                     for mut app in apps {
                         let views = app.belongings.take_items();
-                        // let _ = sql.create_apps(vec![app], &*conn)?;
+                        app_sql.create_app(AppTable::new(app), &*conn);
 
-                        // pub(crate) fn create_apps(&self, apps: Vec<App>, conn: &SqliteConnection) ->
-                        // Result<(), WorkspaceError> {     for app in apps {
-                        //         let _ = self.app_sql.create_app_with(AppTable::new(app), conn)?;
-                        //     }
-                        //     Ok(())
-                        // }
-
-                        log::debug!("Save views");
-                        for _view in views {
-                            //
+                        log::debug!("Save {} views", views.len());
+                        for view in views {
+                            view_sql.create_view(ViewTable::new(view), &*conn);
                         }
                     }
                 }
                 Ok(())
             })?;
-            ObservableBuilder::new(&user_id, WorkspaceObservable::WorkspaceListUpdated)
+            observable(&user_id, WorkspaceObservable::WorkspaceListUpdated)
                 .payload(workspaces)
                 .build();
             Result::<(), WorkspaceError>::Ok(())

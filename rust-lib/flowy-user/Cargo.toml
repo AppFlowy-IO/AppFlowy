@@ -14,6 +14,7 @@ flowy-database = { path = "../flowy-database" }
 flowy-sqlite = { path = "../flowy-sqlite" }
 flowy-infra = { path = "../flowy-infra" }
 flowy-net = { path = "../flowy-net" }
+flowy-observable = { path = "../flowy-observable" }
 
 tracing = { version = "0.1", features = ["log"] }
 bytes = "1.0"

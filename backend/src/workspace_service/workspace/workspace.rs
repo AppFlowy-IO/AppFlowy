@@ -1,9 +1,5 @@
 use super::builder::Builder;
-use crate::{
-    entities::workspace::WorkspaceTable,
-    sqlx_ext::*,
-    workspace_service::app::app::read_apps_belong_to_workspace,
-};
+use crate::{entities::workspace::WorkspaceTable, sqlx_ext::*};
 use anyhow::Context;
 
 use flowy_net::{
@@ -12,12 +8,24 @@ use flowy_net::{
 };
 
 use crate::{
+    entities::workspace::AppTable,
     user_service::LoggedUser,
-    workspace_service::workspace::{check_workspace_id, make_workspace_from_table},
+    workspace_service::{
+        app::make_app_from_table,
+        view::read_views_belong_to_id,
+        workspace::{check_workspace_id, make_workspace_from_table},
+    },
 };
 use flowy_workspace::{
-    entities::workspace::parser::{WorkspaceDesc, WorkspaceName},
-    protobuf::{CreateWorkspaceParams, RepeatedApp, RepeatedWorkspace, UpdateWorkspaceParams},
+    entities::workspace::parser::{WorkspaceDesc, WorkspaceId, WorkspaceName},
+    protobuf::{
+        App,
+        CreateWorkspaceParams,
+        RepeatedApp,
+        RepeatedView,
+        RepeatedWorkspace,
+        UpdateWorkspaceParams,
+    },
 };
 use sqlx::{postgres::PgArguments, PgPool, Postgres};
 
@@ -157,11 +165,18 @@ pub async fn read_workspaces(
 
     let mut repeated_workspace = RepeatedWorkspace::default();
     let mut workspaces = vec![];
+    // Opti: combine the query
     for table in tables {
-        let apps = read_apps_belong_to_workspace(&mut transaction, &table.id.to_string())
+        let mut apps = read_apps_belong_to_workspace(&mut transaction, &table.id.to_string())
             .await
             .context("Get workspace app")
             .unwrap_or(RepeatedApp::default());
+
+        for app in &mut apps.items {
+            let views = read_views_belong_to_id(&mut transaction, &app.id).await?;
+            app.mut_belongings().set_items(views.into());
+        }
+
         let workspace = make_workspace_from_table(table, Some(apps));
         workspaces.push(workspace);
     }
@@ -171,6 +186,32 @@ pub async fn read_workspaces(
         .context("Failed to commit SQL transaction to read workspace.")?;
 
     repeated_workspace.set_items(workspaces.into());
-
     FlowyResponse::success().pb(repeated_workspace)
+}
+
+// transaction must be commit from caller
+async fn read_apps_belong_to_workspace<'c>(
+    transaction: &mut DBTransaction<'_>,
+    workspace_id: &str,
+) -> Result<RepeatedApp, ServerError> {
+    let transaction = transaction;
+    let workspace_id = WorkspaceId::parse(workspace_id.to_owned()).map_err(invalid_params)?;
+    let (sql, args) = SqlBuilder::select("app_table")
+        .add_field("*")
+        .and_where_eq("workspace_id", workspace_id.0)
+        .build()?;
+
+    let tables = sqlx::query_as_with::<Postgres, AppTable, PgArguments>(&sql, args)
+        .fetch_all(transaction)
+        .await
+        .map_err(map_sqlx_error)?;
+
+    let apps = tables
+        .into_iter()
+        .map(|table| make_app_from_table(table, RepeatedView::default()))
+        .collect::<Vec<App>>();
+
+    let mut repeated_app = RepeatedApp::default();
+    repeated_app.set_items(apps.into());
+    Ok(repeated_app)
 }

@@ -5,6 +5,7 @@ use crate::{
     sql_tables::{UserTable, UserTableChangeset},
 };
 
+use crate::{observable::*, services::server::Server};
 use flowy_database::{
     query_dsl::*,
     schema::{user_table, user_table::dsl},
@@ -12,8 +13,6 @@ use flowy_database::{
     ExpressionMethods,
     UserDatabaseConnection,
 };
-
-use crate::services::server::Server;
 use flowy_infra::kv::KV;
 use flowy_sqlite::ConnectionPool;
 use parking_lot::RwLock;
@@ -118,13 +117,12 @@ impl UserSession {
     }
 
     pub async fn user_profile(&self) -> Result<UserProfile, UserError> {
-        let session = self.get_session()?;
-        let token = session.token;
+        let (user_id, token) = self.get_session()?.into_part();
         let user = dsl::user_table
-            .filter(user_table::id.eq(&session.user_id))
+            .filter(user_table::id.eq(&user_id))
             .first::<UserTable>(&*(self.db_conn()?))?;
 
-        let _ = self.read_user_profile_on_server(&token).await?;
+        let _ = self.read_user_profile_on_server(&token, &user_id).await?;
         Ok(UserProfile::from(user))
     }
 
@@ -139,18 +137,18 @@ impl UserSession {
 }
 
 impl UserSession {
-    async fn read_user_profile_on_server(&self, token: &str) -> Result<(), UserError> {
+    async fn read_user_profile_on_server(&self, token: &str, user_id: &str) -> Result<(), UserError> {
         let server = self.server.clone();
         let token = token.to_owned();
-        let _ = tokio::spawn(async move {
+        let user_id = user_id.to_owned();
+        tokio::spawn(async move {
             match server.get_user(&token).await {
                 Ok(profile) => {
-                    //
-                    log::info!("{:?}", profile);
+                    observable(&user_id, UserObservable::UserProfileUpdated).payload(profile).build();
                 },
                 Err(e) => {
-                    //
-                    log::info!("{:?}", e);
+                    log::error!("{:?}", e);
+                    observable(&user_id, UserObservable::UserProfileUpdated).error(e).build();
                 },
             }
         });
@@ -193,7 +191,7 @@ impl UserSession {
     }
 
     fn set_session(&self, session: Option<Session>) -> Result<(), UserError> {
-        log::debug!("Update user session: {:?}", session);
+        log::debug!("Set user session: {:?}", session);
         match &session {
             None => KV::remove(SESSION_CACHE_KEY).map_err(|e| UserError::new(ErrorCode::SqlInternalError, &e))?,
             Some(session) => KV::set_str(SESSION_CACHE_KEY, session.clone().into()),
@@ -256,6 +254,8 @@ impl Session {
             email: email.to_owned(),
         }
     }
+
+    pub fn into_part(mut self) -> (String, String) { (self.user_id, self.token) }
 }
 
 impl std::convert::From<String> for Session {

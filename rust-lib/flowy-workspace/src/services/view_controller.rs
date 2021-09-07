@@ -2,7 +2,7 @@ use crate::{
     entities::view::{CreateViewParams, UpdateViewParams, View},
     errors::WorkspaceError,
     module::WorkspaceDatabase,
-    observable::WorkspaceObservable,
+    observable::observable,
     services::{helper::spawn, server::Server},
     sql_tables::view::{ViewTable, ViewTableChangeset, ViewTableSql},
 };
@@ -10,7 +10,7 @@ use crate::{
 use crate::{
     entities::view::{DeleteViewParams, QueryViewParams, RepeatedView},
     module::WorkspaceUser,
-    observable::ObservableBuilder,
+    observable::WorkspaceObservable,
 };
 use flowy_database::SqliteConnection;
 use std::sync::Arc;
@@ -41,7 +41,7 @@ impl ViewController {
         (conn).immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.sql.create_view(view_table, conn)?;
             let repeated_view = self.read_local_views_belong_to(&view.belong_to_id, conn)?;
-            ObservableBuilder::new(&view.belong_to_id, WorkspaceObservable::AppCreateView)
+            observable(&view.belong_to_id, WorkspaceObservable::AppCreateView)
                 .payload(repeated_view)
                 .build();
             Ok(())
@@ -64,7 +64,7 @@ impl ViewController {
         (conn).immediate_transaction::<_, WorkspaceError, _>(|| {
             let view_table = self.sql.delete_view(view_id, conn)?;
             let repeated_view = self.read_local_views_belong_to(&view_table.belong_to_id, conn)?;
-            ObservableBuilder::new(&view_table.belong_to_id, WorkspaceObservable::AppDeleteView)
+            observable(&view_table.belong_to_id, WorkspaceObservable::AppDeleteView)
                 .payload(repeated_view)
                 .build();
             Ok(())
@@ -92,9 +92,7 @@ impl ViewController {
         (conn).immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.sql.update_view(changeset, conn)?;
             let view: View = self.sql.read_view(&view_id, None, conn)?.into();
-            ObservableBuilder::new(&view_id, WorkspaceObservable::ViewUpdated)
-                .payload(view)
-                .build();
+            observable(&view_id, WorkspaceObservable::ViewUpdated).payload(view).build();
             Ok(())
         })?;
 

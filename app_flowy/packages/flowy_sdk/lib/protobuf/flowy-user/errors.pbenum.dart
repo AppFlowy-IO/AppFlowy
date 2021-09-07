@@ -34,8 +34,10 @@ class ErrorCode extends $pb.ProtobufEnum {
   static const ErrorCode UserNameIsEmpty = ErrorCode._(42, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNameIsEmpty');
   static const ErrorCode UserWorkspaceInvalid = ErrorCode._(50, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserWorkspaceInvalid');
   static const ErrorCode UserIdInvalid = ErrorCode._(51, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserIdInvalid');
-  static const ErrorCode CreateDefaultWorkspaceFailed = ErrorCode._(52, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateDefaultWorkspaceFailed');
-  static const ErrorCode DefaultWorkspaceAlreadyExist = ErrorCode._(53, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DefaultWorkspaceAlreadyExist');
+  static const ErrorCode UserTokenInvalid = ErrorCode._(54, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserTokenInvalid');
+  static const ErrorCode UserNotExist = ErrorCode._(55, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNotExist');
+  static const ErrorCode CreateDefaultWorkspaceFailed = ErrorCode._(60, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateDefaultWorkspaceFailed');
+  static const ErrorCode DefaultWorkspaceAlreadyExist = ErrorCode._(61, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DefaultWorkspaceAlreadyExist');
   static const ErrorCode ServerError = ErrorCode._(100, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ServerError');
 
   static const $core.List<ErrorCode> values = <ErrorCode> [
@@ -63,6 +65,8 @@ class ErrorCode extends $pb.ProtobufEnum {
     UserNameIsEmpty,
     UserWorkspaceInvalid,
     UserIdInvalid,
+    UserTokenInvalid,
+    UserNotExist,
     CreateDefaultWorkspaceFailed,
     DefaultWorkspaceAlreadyExist,
     ServerError,

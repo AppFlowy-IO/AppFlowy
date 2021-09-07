@@ -2,7 +2,7 @@ use flowy_net::{errors::ServerError, response::FlowyResponse};
 
 use crate::{
     entities::workspace::AppTable,
-    sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
+    sqlx_ext::{map_sqlx_error, SqlBuilder},
     user_service::LoggedUser,
     workspace_service::{
         app::{check_app_id, make_app_from_table, Builder},
@@ -18,7 +18,7 @@ use flowy_workspace::{
         app::parser::{AppDesc, AppName},
         workspace::parser::WorkspaceId,
     },
-    protobuf::{App, CreateAppParams, QueryAppParams, RepeatedApp, RepeatedView, UpdateAppParams},
+    protobuf::{CreateAppParams, QueryAppParams, RepeatedApp, RepeatedView, UpdateAppParams},
 };
 use protobuf::Message;
 use sqlx::{postgres::PgArguments, PgPool, Postgres};
@@ -175,30 +175,4 @@ pub(crate) async fn delete_app(pool: &PgPool, app_id: &str) -> Result<FlowyRespo
         .context("Failed to commit SQL transaction to delete app.")?;
 
     Ok(FlowyResponse::success())
-}
-
-// transaction must be commit from caller
-pub(crate) async fn read_apps_belong_to_workspace<'c>(
-    transaction: &mut DBTransaction<'_>,
-    workspace_id: &str,
-) -> Result<RepeatedApp, ServerError> {
-    let workspace_id = WorkspaceId::parse(workspace_id.to_owned()).map_err(invalid_params)?;
-    let (sql, args) = SqlBuilder::select("app_table")
-        .add_field("*")
-        .and_where_eq("workspace_id", workspace_id.0)
-        .build()?;
-
-    let tables = sqlx::query_as_with::<Postgres, AppTable, PgArguments>(&sql, args)
-        .fetch_all(transaction)
-        .await
-        .map_err(map_sqlx_error)?;
-
-    let apps = tables
-        .into_iter()
-        .map(|table| make_app_from_table(table, RepeatedView::default()))
-        .collect::<Vec<App>>();
-
-    let mut repeated_app = RepeatedApp::default();
-    repeated_app.set_items(apps.into());
-    Ok(repeated_app)
 }

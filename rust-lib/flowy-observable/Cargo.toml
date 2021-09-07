@@ -13,6 +13,7 @@ log = "0.4.14"
 bytes = { version = "1.0" }
 
 flowy-derive = {path = "../flowy-derive"}
+flowy-dispatch = {path = "../flowy-dispatch"}
 
 [features]
 dart = []
