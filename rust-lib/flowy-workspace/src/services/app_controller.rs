@@ -7,6 +7,7 @@ use crate::{
     sql_tables::app::{AppTable, AppTableChangeset, AppTableSql},
 };
 
+use crate::entities::view::RepeatedView;
 use std::sync::Arc;
 
 pub(crate) struct AppController {
@@ -24,7 +25,7 @@ impl AppController {
         view_controller: Arc<ViewController>,
         server: Server,
     ) -> Self {
-        let sql = Arc::new(AppTableSql { database });
+        let sql = Arc::new(AppTableSql::new(database));
         Self {
             user,
             sql,
@@ -38,7 +39,12 @@ impl AppController {
         let app = self.create_app_on_server(params).await?;
         let app_table = AppTable::new(app.clone());
         let _ = self.sql.create_app(app_table)?;
-        send_observable(&app.workspace_id, WorkspaceObservable::WorkspaceCreateApp);
+
+        // Opti: transaction
+        let apps = self.read_local_apps(&app.workspace_id)?;
+        ObservableBuilder::new(&app.workspace_id, WorkspaceObservable::WorkspaceCreateApp)
+            .payload(apps)
+            .build();
         Ok(app)
     }
 
@@ -51,8 +57,19 @@ impl AppController {
     pub(crate) async fn delete_app(&self, app_id: &str) -> Result<(), WorkspaceError> {
         let app = self.sql.delete_app(app_id)?;
         let _ = self.delete_app_on_server(app_id).await?;
-        send_observable(&app.workspace_id, WorkspaceObservable::WorkspaceDeleteApp);
+
+        // Opti: transaction
+        let apps = self.read_local_apps(&app.workspace_id)?;
+        ObservableBuilder::new(&app.workspace_id, WorkspaceObservable::WorkspaceDeleteApp)
+            .payload(apps)
+            .build();
         Ok(())
+    }
+
+    fn read_local_apps(&self, workspace_id: &str) -> Result<RepeatedApp, WorkspaceError> {
+        let app_tables = self.sql.read_apps(workspace_id, false)?;
+        let apps = app_tables.into_iter().map(|table| table.into()).collect::<Vec<App>>();
+        Ok(RepeatedApp { items: apps })
     }
 
     pub(crate) async fn update_app(&self, params: UpdateAppParams) -> Result<(), WorkspaceError> {
@@ -60,7 +77,11 @@ impl AppController {
         let app_id = changeset.id.clone();
         let _ = self.sql.update_app(changeset)?;
         let _ = self.update_app_on_server(params).await?;
-        send_observable(&app_id, WorkspaceObservable::AppUpdated);
+
+        let app: App = self.sql.read_app(&app_id, false)?.into();
+        ObservableBuilder::new(&app_id, WorkspaceObservable::AppUpdated)
+            .payload(app)
+            .build();
         Ok(())
     }
 }
@@ -114,12 +135,11 @@ impl AppController {
         let token = self.user.token()?;
         let server = self.server.clone();
         spawn(async move {
-            match server.read_app(&token, params).await {
-                Ok(_) => {},
-                Err(e) => {
-                    // TODO: retry?
-                    log::error!("Read app failed: {:?}", e);
-                },
+            // Opti: retry?
+            let app = server.read_app(&token, params).await.unwrap();
+            match app {
+                None => {},
+                Some(_) => {},
             }
         });
         Ok(())

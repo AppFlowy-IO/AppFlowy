@@ -2,13 +2,14 @@ use crate::{
     entities::{app::App, workspace::*},
     errors::*,
     module::{WorkspaceDatabase, WorkspaceUser},
-    observable::{send_observable, WorkspaceObservable},
+    observable::WorkspaceObservable,
     services::{helper::spawn, server::Server, AppController},
     sql_tables::workspace::{WorkspaceSql, WorkspaceTable, WorkspaceTableChangeset},
 };
 
 use flowy_infra::kv::KV;
 
+use crate::{entities::app::RepeatedApp, observable::ObservableBuilder};
 use std::sync::Arc;
 
 pub(crate) struct WorkspaceController {
@@ -25,7 +26,7 @@ impl WorkspaceController {
         app_controller: Arc<AppController>,
         server: Server,
     ) -> Self {
-        let sql = Arc::new(WorkspaceSql { database });
+        let sql = Arc::new(WorkspaceSql::new(database));
         Self {
             user,
             sql,
@@ -39,7 +40,12 @@ impl WorkspaceController {
         let user_id = self.user.user_id()?;
         let workspace_table = WorkspaceTable::new(workspace.clone(), &user_id);
         let _ = self.sql.create_workspace(workspace_table)?;
-        send_observable(&user_id, WorkspaceObservable::UserCreateWorkspace);
+
+        // Opti: read all local workspaces may cause performance issues
+        let repeated_workspace = self.read_local_workspaces(None, &user_id)?;
+        ObservableBuilder::new(&user_id, WorkspaceObservable::UserCreateWorkspace)
+            .payload(repeated_workspace)
+            .build();
         Ok(workspace)
     }
 
@@ -48,7 +54,13 @@ impl WorkspaceController {
         let workspace_id = changeset.id.clone();
         let _ = self.sql.update_workspace(changeset)?;
         let _ = self.update_workspace_on_server(params).await?;
-        send_observable(&workspace_id, WorkspaceObservable::WorkspaceUpdated);
+
+        // Opti: transaction
+        let user_id = self.user.user_id()?;
+        let workspace = self.read_local_workspace(workspace_id.clone(), &user_id)?;
+        ObservableBuilder::new(&workspace_id, WorkspaceObservable::WorkspaceUpdated)
+            .payload(workspace)
+            .build();
         Ok(())
     }
 
@@ -56,23 +68,21 @@ impl WorkspaceController {
         let user_id = self.user.user_id()?;
         let _ = self.sql.delete_workspace(workspace_id)?;
         let _ = self.delete_workspace_on_server(workspace_id).await?;
-        send_observable(&user_id, WorkspaceObservable::UserDeleteWorkspace);
+
+        // Opti: read all local workspaces may cause performance issues
+        let repeated_workspace = self.read_local_workspaces(None, &user_id)?;
+        ObservableBuilder::new(&user_id, WorkspaceObservable::UserDeleteWorkspace)
+            .payload(repeated_workspace)
+            .build();
         Ok(())
     }
 
     pub(crate) async fn open_workspace(&self, params: QueryWorkspaceParams) -> Result<Workspace, WorkspaceError> {
         let user_id = self.user.user_id()?;
         if let Some(workspace_id) = params.workspace_id.clone() {
-            self.read_workspaces_on_server(params.clone());
-            let result = self.read_workspace_table(Some(workspace_id), user_id)?;
-            match result.first() {
-                None => Err(ErrorBuilder::new(ErrorCode::RecordNotFound).build()),
-                Some(workspace_table) => {
-                    let workspace: Workspace = workspace_table.clone().into();
-                    set_current_workspace(&workspace.id);
-                    Ok(workspace)
-                },
-            }
+            let workspace = self.read_local_workspace(workspace_id, &user_id)?;
+            set_current_workspace(&workspace.id);
+            Ok(workspace)
         } else {
             return Err(ErrorBuilder::new(ErrorCode::WorkspaceIdInvalid)
                 .msg("Opened workspace id should not be empty")
@@ -82,25 +92,44 @@ impl WorkspaceController {
 
     pub(crate) async fn read_workspaces(&self, params: QueryWorkspaceParams) -> Result<RepeatedWorkspace, WorkspaceError> {
         let user_id = self.user.user_id()?;
-        let workspace_tables = self.read_workspace_table(params.workspace_id.clone(), user_id.clone())?;
+        let workspaces = self.read_local_workspaces(params.workspace_id.clone(), &user_id)?;
+        let _ = self.read_workspaces_on_server(user_id, params).await?;
+        Ok(workspaces)
+    }
+
+    pub(crate) async fn read_cur_workspace(&self) -> Result<Workspace, WorkspaceError> {
+        let workspace_id = get_current_workspace()?;
+        let user_id = self.user.user_id()?;
+        let workspace = self.read_local_workspace(workspace_id, &user_id)?;
+        Ok(workspace)
+    }
+
+    pub(crate) async fn read_workspace_apps(&self) -> Result<RepeatedApp, WorkspaceError> {
+        let workspace_id = get_current_workspace()?;
+        let apps = self.read_local_apps(&workspace_id)?;
+        // TODO: read from server
+        Ok(RepeatedApp { items: apps })
+    }
+
+    #[tracing::instrument(level = "debug", skip(self), err)]
+    fn read_local_workspaces(&self, workspace_id: Option<String>, user_id: &str) -> Result<RepeatedWorkspace, WorkspaceError> {
+        let sql = self.sql.clone();
+        let workspace_id = workspace_id.to_owned();
+        let workspace_tables = sql.read_workspaces(workspace_id, user_id)?;
+
         let mut workspaces = vec![];
         for table in workspace_tables {
-            let apps = self.read_apps(&table.id).await?;
+            let apps = self.read_local_apps(&table.id)?;
             let mut workspace: Workspace = table.into();
             workspace.apps.items = apps;
             workspaces.push(workspace);
         }
-
-        let _ = self.read_workspaces_on_server(user_id, params).await?;
         Ok(RepeatedWorkspace { items: workspaces })
     }
 
-    pub(crate) async fn read_cur_workspace(&self) -> Result<Workspace, WorkspaceError> {
-        let params = QueryWorkspaceParams {
-            workspace_id: Some(get_current_workspace()?),
-        };
-        let mut repeated_workspace = self.read_workspaces(params).await?;
-
+    fn read_local_workspace(&self, workspace_id: String, user_id: &str) -> Result<Workspace, WorkspaceError> {
+        // Opti: fetch single workspace from local db
+        let mut repeated_workspace = self.read_local_workspaces(Some(workspace_id), user_id)?;
         if repeated_workspace.is_empty() {
             return Err(ErrorBuilder::new(ErrorCode::RecordNotFound).build());
         }
@@ -110,13 +139,8 @@ impl WorkspaceController {
         Ok(workspace)
     }
 
-    pub(crate) async fn read_cur_apps(&self) -> Result<Vec<App>, WorkspaceError> {
-        let workspace_id = get_current_workspace()?;
-        let apps = self.read_apps(&workspace_id).await?;
-        Ok(apps)
-    }
-
-    pub(crate) async fn read_apps(&self, workspace_id: &str) -> Result<Vec<App>, WorkspaceError> {
+    #[tracing::instrument(level = "debug", skip(self), err)]
+    fn read_local_apps(&self, workspace_id: &str) -> Result<Vec<App>, WorkspaceError> {
         let apps = self
             .sql
             .read_apps_belong_to_workspace(workspace_id)?
@@ -125,13 +149,6 @@ impl WorkspaceController {
             .collect::<Vec<App>>();
 
         Ok(apps)
-    }
-
-    fn read_workspace_table(&self, workspace_id: Option<String>, user_id: String) -> Result<Vec<WorkspaceTable>, WorkspaceError> {
-        let sql = self.sql.clone();
-        let workspace_id = workspace_id.to_owned();
-        let workspace = sql.read_workspaces(workspace_id, &user_id)?;
-        Ok(workspace)
     }
 }
 
@@ -185,17 +202,27 @@ impl WorkspaceController {
     #[tracing::instrument(skip(self), err)]
     async fn read_workspaces_on_server(&self, user_id: String, params: QueryWorkspaceParams) -> Result<(), WorkspaceError> {
         let (token, server) = self.token_with_server()?;
+        let sql = self.sql.clone();
+        let conn = self.sql.get_db_conn()?;
         spawn(async move {
-            match server.read_workspace(&token, params).await {
-                Ok(workspaces) => {
-                    log::debug!("Workspace list: {:?}", workspaces);
-                    send_observable(&user_id, WorkspaceObservable::UserCreateWorkspace);
-                },
-                Err(e) => {
-                    // TODO: retry?
-                    log::error!("Delete workspace failed: {:?}", e);
-                },
-            }
+            // Opti: retry?
+            let workspaces = server.read_workspace(&token, params).await?;
+            let _ = (&*conn).immediate_transaction::<_, WorkspaceError, _>(|| {
+                for workspace in &workspaces.items {
+                    let mut m_workspace = workspace.clone();
+                    let repeated_app = m_workspace.apps.take_items();
+                    let workspace_table = WorkspaceTable::new(m_workspace, &user_id);
+                    log::debug!("Save workspace: {} to disk", &workspace.id);
+                    let _ = sql.create_workspace_with(workspace_table, &*conn)?;
+                    log::debug!("Save workspace: {} apps to disk", &workspace.id);
+                    let _ = sql.create_apps(repeated_app, &*conn)?;
+                }
+                Ok(())
+            })?;
+            ObservableBuilder::new(&user_id, WorkspaceObservable::WorkspaceListUpdated)
+                .payload(workspaces)
+                .build();
+            Result::<(), WorkspaceError>::Ok(())
         });
 
         Ok(())

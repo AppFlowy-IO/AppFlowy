@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/flowy_logger.dart';
@@ -11,6 +12,8 @@ import 'package:flowy_sdk/protobuf/flowy-workspace/view_query.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 
 import 'package:app_flowy/workspace/domain/i_view.dart';
+
+import 'helper.dart';
 
 class ViewRepository {
   View view;
@@ -27,42 +30,41 @@ class ViewRepository {
 class ViewWatchRepository {
   StreamSubscription<ObservableSubject>? _subscription;
   ViewUpdatedCallback? _update;
+  late ObservableExtractor _extractor;
   View view;
-  late ViewRepository _repo;
+
   ViewWatchRepository({
     required this.view,
-  }) {
-    _repo = ViewRepository(view: view);
-  }
+  });
 
   void startWatching({
     ViewUpdatedCallback? update,
   }) {
     _update = update;
-    _subscription = RustStreamReceiver.listen((observable) {
-      if (observable.subjectId != view.id) {
-        return;
-      }
+    _extractor = ObservableExtractor(
+      id: view.id,
+      callback: (ty, result) {
+        _handleObservableType(ty, result);
+      },
+    );
 
-      final ty = WorkspaceObservable.valueOf(observable.ty);
-      if (ty != null) {
-        _handleObservableType(ty);
-      }
-    });
+    _subscription =
+        RustStreamReceiver.listen((observable) => _extractor.parse(observable));
   }
 
-  void _handleObservableType(WorkspaceObservable ty) {
+  void _handleObservableType(
+      WorkspaceObservable ty, Either<Uint8List, WorkspaceError> result) {
     switch (ty) {
       case WorkspaceObservable.ViewUpdated:
-        if (_update == null) {
-          return;
-        }
-        _repo.readView().then((result) {
+        if (_update != null) {
           result.fold(
-            (view) => _update!(view),
-            (error) => Log.error(error),
+            (payload) {
+              final view = View.fromBuffer(payload);
+              _update!(left(view));
+            },
+            (error) => _update!(right(error)),
           );
-        });
+        }
         break;
       default:
         break;

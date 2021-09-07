@@ -9,22 +9,33 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-enum ObservableSubject_OneOfSubjectPayload {
-  subjectPayload, 
+enum ObservableSubject_OneOfPayload {
+  payload, 
+  notSet
+}
+
+enum ObservableSubject_OneOfError {
+  error, 
   notSet
 }
 
 class ObservableSubject extends $pb.GeneratedMessage {
-  static const $core.Map<$core.int, ObservableSubject_OneOfSubjectPayload> _ObservableSubject_OneOfSubjectPayloadByTag = {
-    4 : ObservableSubject_OneOfSubjectPayload.subjectPayload,
-    0 : ObservableSubject_OneOfSubjectPayload.notSet
+  static const $core.Map<$core.int, ObservableSubject_OneOfPayload> _ObservableSubject_OneOfPayloadByTag = {
+    4 : ObservableSubject_OneOfPayload.payload,
+    0 : ObservableSubject_OneOfPayload.notSet
+  };
+  static const $core.Map<$core.int, ObservableSubject_OneOfError> _ObservableSubject_OneOfErrorByTag = {
+    5 : ObservableSubject_OneOfError.error,
+    0 : ObservableSubject_OneOfError.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ObservableSubject', createEmptyInstance: create)
     ..oo(0, [4])
+    ..oo(1, [5])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'category')
     ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ty', $pb.PbFieldType.O3)
-    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'subjectId')
-    ..a<$core.List<$core.int>>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'subjectPayload', $pb.PbFieldType.OY)
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
+    ..a<$core.List<$core.int>>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'payload', $pb.PbFieldType.OY)
+    ..a<$core.List<$core.int>>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'error', $pb.PbFieldType.OY)
     ..hasRequiredFields = false
   ;
 
@@ -32,8 +43,9 @@ class ObservableSubject extends $pb.GeneratedMessage {
   factory ObservableSubject({
     $core.String? category,
     $core.int? ty,
-    $core.String? subjectId,
-    $core.List<$core.int>? subjectPayload,
+    $core.String? id,
+    $core.List<$core.int>? payload,
+    $core.List<$core.int>? error,
   }) {
     final _result = create();
     if (category != null) {
@@ -42,11 +54,14 @@ class ObservableSubject extends $pb.GeneratedMessage {
     if (ty != null) {
       _result.ty = ty;
     }
-    if (subjectId != null) {
-      _result.subjectId = subjectId;
+    if (id != null) {
+      _result.id = id;
     }
-    if (subjectPayload != null) {
-      _result.subjectPayload = subjectPayload;
+    if (payload != null) {
+      _result.payload = payload;
+    }
+    if (error != null) {
+      _result.error = error;
     }
     return _result;
   }
@@ -71,8 +86,11 @@ class ObservableSubject extends $pb.GeneratedMessage {
   static ObservableSubject getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ObservableSubject>(create);
   static ObservableSubject? _defaultInstance;
 
-  ObservableSubject_OneOfSubjectPayload whichOneOfSubjectPayload() => _ObservableSubject_OneOfSubjectPayloadByTag[$_whichOneof(0)]!;
-  void clearOneOfSubjectPayload() => clearField($_whichOneof(0));
+  ObservableSubject_OneOfPayload whichOneOfPayload() => _ObservableSubject_OneOfPayloadByTag[$_whichOneof(0)]!;
+  void clearOneOfPayload() => clearField($_whichOneof(0));
+
+  ObservableSubject_OneOfError whichOneOfError() => _ObservableSubject_OneOfErrorByTag[$_whichOneof(1)]!;
+  void clearOneOfError() => clearField($_whichOneof(1));
 
   @$pb.TagNumber(1)
   $core.String get category => $_getSZ(0);
@@ -93,21 +111,30 @@ class ObservableSubject extends $pb.GeneratedMessage {
   void clearTy() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get subjectId => $_getSZ(2);
+  $core.String get id => $_getSZ(2);
   @$pb.TagNumber(3)
-  set subjectId($core.String v) { $_setString(2, v); }
+  set id($core.String v) { $_setString(2, v); }
   @$pb.TagNumber(3)
-  $core.bool hasSubjectId() => $_has(2);
+  $core.bool hasId() => $_has(2);
   @$pb.TagNumber(3)
-  void clearSubjectId() => clearField(3);
+  void clearId() => clearField(3);
 
   @$pb.TagNumber(4)
-  $core.List<$core.int> get subjectPayload => $_getN(3);
+  $core.List<$core.int> get payload => $_getN(3);
   @$pb.TagNumber(4)
-  set subjectPayload($core.List<$core.int> v) { $_setBytes(3, v); }
+  set payload($core.List<$core.int> v) { $_setBytes(3, v); }
   @$pb.TagNumber(4)
-  $core.bool hasSubjectPayload() => $_has(3);
+  $core.bool hasPayload() => $_has(3);
   @$pb.TagNumber(4)
-  void clearSubjectPayload() => clearField(4);
+  void clearPayload() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.List<$core.int> get error => $_getN(4);
+  @$pb.TagNumber(5)
+  set error($core.List<$core.int> v) { $_setBytes(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasError() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearError() => clearField(5);
 }
 

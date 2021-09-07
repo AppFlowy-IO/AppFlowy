@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:app_flowy/workspace/domain/i_app.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/flowy_logger.dart';
@@ -11,6 +12,7 @@ import 'package:flowy_sdk/protobuf/flowy-workspace/observable.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pbenum.dart';
 import 'package:flowy_sdk/rust_stream.dart';
+import 'helper.dart';
 
 class AppRepository {
   String appId;
@@ -56,13 +58,12 @@ class AppWatchRepository {
   AppCreateViewCallback? _createView;
   AppDeleteViewCallback? _deleteView;
   AppUpdatedCallback? _update;
+  late ObservableExtractor _extractor;
   String appId;
-  late AppRepository _repo;
+
   AppWatchRepository({
     required this.appId,
-  }) {
-    _repo = AppRepository(appId: appId);
-  }
+  });
 
   void startWatching(
       {AppCreateViewCallback? createView,
@@ -71,52 +72,48 @@ class AppWatchRepository {
     _createView = createView;
     _deleteView = deleteView;
     _update = update;
-    _subscription = RustStreamReceiver.listen((observable) {
-      if (observable.subjectId != appId) {
-        return;
-      }
-
-      final ty = WorkspaceObservable.valueOf(observable.ty);
-      if (ty != null) {
-        _handleObservableType(ty);
-      }
-    });
+    _extractor = ObservableExtractor(
+      id: appId,
+      callback: (ty, result) => _handleObservableType(ty, result),
+    );
+    _subscription =
+        RustStreamReceiver.listen((observable) => _extractor.parse(observable));
   }
 
-  void _handleObservableType(WorkspaceObservable ty) {
+  void _handleObservableType(
+      WorkspaceObservable ty, Either<Uint8List, WorkspaceError> result) {
     switch (ty) {
       case WorkspaceObservable.AppCreateView:
-        if (_createView == null) {
-          return;
-        }
-        _repo.getViews().then((result) {
+        if (_createView != null) {
           result.fold(
-            (views) => _createView!(left(views)),
+            (payload) {
+              final repeatedView = RepeatedView.fromBuffer(payload);
+              _createView!(left(repeatedView.items));
+            },
             (error) => _createView!(right(error)),
           );
-        });
+        }
         break;
       case WorkspaceObservable.AppDeleteView:
-        if (_deleteView == null) {
-          return;
-        }
-        _repo.getViews().then((result) {
+        if (_deleteView != null) {
           result.fold(
-            (views) => _deleteView!(left(views)),
+            (payload) => _deleteView!(
+              left(RepeatedView.fromBuffer(payload).items),
+            ),
             (error) => _deleteView!(right(error)),
           );
-        });
+        }
         break;
       case WorkspaceObservable.AppUpdated:
-        if (_update == null) {
-          return;
-        }
-        _repo.getAppDesc().then((result) {
+        if (_update != null) {
           result.fold(
-            (app) => _update!(app.name, app.desc),
+            (payload) {
+              final app = App.fromBuffer(payload);
+              _update!(app.name, app.desc);
+            },
             (error) => Log.error(error),
           );
-        });
+        }
         break;
       default:
         break;

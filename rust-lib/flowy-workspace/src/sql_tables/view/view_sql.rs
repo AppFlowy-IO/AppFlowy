@@ -16,17 +16,11 @@ pub struct ViewTableSql {
 impl ViewTableSql {
     pub(crate) fn create_view(&self, view_table: ViewTable) -> Result<(), WorkspaceError> {
         let conn = self.database.db_connection()?;
-        let _ = diesel::insert_into(view_table::table)
-            .values(view_table)
-            .execute(&*conn)?;
+        let _ = diesel::insert_into(view_table::table).values(view_table).execute(&*conn)?;
         Ok(())
     }
 
-    pub(crate) fn read_view(
-        &self,
-        view_id: &str,
-        is_trash: bool,
-    ) -> Result<ViewTable, WorkspaceError> {
+    pub(crate) fn read_view(&self, view_id: &str, is_trash: bool) -> Result<ViewTable, WorkspaceError> {
         let view_table = dsl::view_table
             .filter(view_table::id.eq(view_id))
             .filter(view_table::is_trash.eq(is_trash))
@@ -35,10 +29,7 @@ impl ViewTableSql {
         Ok(view_table)
     }
 
-    pub(crate) fn read_views_belong_to(
-        &self,
-        belong_to_id: &str,
-    ) -> Result<Vec<ViewTable>, WorkspaceError> {
+    pub(crate) fn read_views_belong_to(&self, belong_to_id: &str) -> Result<Vec<ViewTable>, WorkspaceError> {
         let view_tables = dsl::view_table
             .filter(view_table::belong_to_id.eq(belong_to_id))
             .load::<ViewTable>(&*(self.database.db_connection()?))?;
@@ -48,7 +39,7 @@ impl ViewTableSql {
 
     pub(crate) fn update_view(&self, changeset: ViewTableChangeset) -> Result<(), WorkspaceError> {
         let conn = self.database.db_connection()?;
-        diesel_update_table!(view_table, changeset, conn);
+        diesel_update_table!(view_table, changeset, &*conn);
         Ok(())
     }
 

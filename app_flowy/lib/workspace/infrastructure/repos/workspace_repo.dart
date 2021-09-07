@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/flowy_logger.dart';
@@ -14,6 +15,8 @@ import 'package:flowy_sdk/rust_stream.dart';
 
 import 'package:app_flowy/workspace/domain/i_workspace.dart';
 
+import 'helper.dart';
+
 class WorkspaceRepo {
   UserProfile user;
   String workspaceId;
@@ -23,25 +26,15 @@ class WorkspaceRepo {
   });
 
   Future<Either<App, WorkspaceError>> createApp(String appName, String desc) {
-    return WorkspaceEventReadCurWorkspace().send().then((result) {
-      return result.fold(
-        (workspace) {
-          final request = CreateAppRequest.create()
-            ..name = appName
-            ..workspaceId = workspace.id
-            ..desc = desc;
-          return WorkspaceEventCreateApp(request).send();
-        },
-        (error) {
-          return right(error);
-        },
-      );
-    });
+    final request = CreateAppRequest.create()
+      ..name = appName
+      ..workspaceId = workspaceId
+      ..desc = desc;
+    return WorkspaceEventCreateApp(request).send();
   }
 
   Future<Either<Workspace, WorkspaceError>> getWorkspace() {
     final request = QueryWorkspaceRequest.create()..workspaceId = workspaceId;
-
     return WorkspaceEventReadWorkspaces(request).send().then((result) {
       return result.fold(
         (workspaces) {
@@ -57,6 +50,16 @@ class WorkspaceRepo {
       );
     });
   }
+
+  Future<Either<List<App>, WorkspaceError>> getApps() {
+    final request = QueryWorkspaceRequest.create()..workspaceId = workspaceId;
+    return WorkspaceEventReadWorkspaceApps(request).send().then((result) {
+      return result.fold(
+        (apps) => left(apps.items),
+        (error) => right(error),
+      );
+    });
+  }
 }
 
 class WorkspaceWatchRepo {
@@ -64,16 +67,14 @@ class WorkspaceWatchRepo {
   WorkspaceCreateAppCallback? _createApp;
   WorkspaceDeleteAppCallback? _deleteApp;
   WorkspaceUpdatedCallback? _update;
+  late ObservableExtractor _extractor;
   final UserProfile user;
   final String workspaceId;
-  late WorkspaceRepo _repo;
 
   WorkspaceWatchRepo({
     required this.user,
     required this.workspaceId,
-  }) {
-    _repo = WorkspaceRepo(user: user, workspaceId: workspaceId);
-  }
+  });
 
   void startWatching({
     WorkspaceCreateAppCallback? createApp,
@@ -84,54 +85,50 @@ class WorkspaceWatchRepo {
     _deleteApp = deleteApp;
     _update = update;
 
-    _subscription = RustStreamReceiver.listen((observable) {
-      if (observable.subjectId != workspaceId) {
-        return;
-      }
+    _extractor = ObservableExtractor(
+      id: workspaceId,
+      callback: (ty, result) {
+        _handleObservableType(ty, result);
+      },
+    );
 
-      final ty = WorkspaceObservable.valueOf(observable.ty);
-      if (ty != null) {
-        _handleObservableType(ty);
-      }
-    });
+    _subscription =
+        RustStreamReceiver.listen((observable) => _extractor.parse(observable));
   }
 
-  void _handleObservableType(WorkspaceObservable ty) {
+  void _handleObservableType(
+      WorkspaceObservable ty, Either<Uint8List, WorkspaceError> result) {
     switch (ty) {
       case WorkspaceObservable.WorkspaceUpdated:
-        if (_update == null) {
-          return;
-        }
-        _repo.getWorkspace().then((result) {
+        if (_update != null) {
           result.fold(
-            (workspace) => _update!(workspace.name, workspace.desc),
+            (payload) {
+              final workspace = Workspace.fromBuffer(payload);
+              _update!(workspace.name, workspace.desc);
+            },
             (error) => Log.error(error),
           );
-        });
+        }
         break;
       case WorkspaceObservable.WorkspaceCreateApp:
-        if (_createApp == null) {
-          return;
-        }
-
-        _repo.getWorkspace().then((result) {
+        if (_createApp != null) {
           result.fold(
-            (workspace) => _createApp!(left(workspace.apps.items)),
+            (payload) => _createApp!(
+              left(RepeatedApp.fromBuffer(payload).items),
+            ),
             (error) => _createApp!(right(error)),
           );
-        });
-
+        }
         break;
       case WorkspaceObservable.WorkspaceDeleteApp:
-        if (_deleteApp == null) {
-          return;
-        }
-        _repo.getWorkspace().then((result) {
+        if (_deleteApp != null) {
           result.fold(
-            (workspace) => _deleteApp!(left(workspace.apps.items)),
+            (payload) => _deleteApp!(
+              left(RepeatedApp.fromBuffer(payload).items),
+            ),
             (error) => _deleteApp!(right(error)),
           );
-        });
+        }
         break;
       default:
         break;

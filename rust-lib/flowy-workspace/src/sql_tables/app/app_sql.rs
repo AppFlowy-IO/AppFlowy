@@ -6,37 +6,56 @@ use crate::{
 use flowy_database::{
     prelude::*,
     schema::{app_table, app_table::dsl},
+    SqliteConnection,
 };
 use std::sync::Arc;
 
 pub struct AppTableSql {
-    pub database: Arc<dyn WorkspaceDatabase>,
+    database: Arc<dyn WorkspaceDatabase>,
+}
+
+impl AppTableSql {
+    pub fn new(database: Arc<dyn WorkspaceDatabase>) -> Self { Self { database } }
 }
 
 impl AppTableSql {
     pub(crate) fn create_app(&self, app_table: AppTable) -> Result<(), WorkspaceError> {
         let conn = self.database.db_connection()?;
-        let _ = diesel::insert_into(app_table::table)
-            .values(app_table)
-            .execute(&*conn)?;
+        let _ = self.create_app_with(app_table, &*conn)?;
+        Ok(())
+    }
+
+    pub(crate) fn create_app_with(&self, app_table: AppTable, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
+        match diesel_record_count!(app_table, &app_table.id, conn) {
+            0 => diesel_insert_table!(app_table, &app_table, conn),
+            _ => {
+                let changeset = AppTableChangeset::from_table(app_table);
+                diesel_update_table!(app_table, changeset, conn)
+            },
+        }
         Ok(())
     }
 
     pub(crate) fn update_app(&self, changeset: AppTableChangeset) -> Result<(), WorkspaceError> {
         let conn = self.database.db_connection()?;
-        diesel_update_table!(app_table, changeset, conn);
+        diesel_update_table!(app_table, changeset, &*conn);
         Ok(())
     }
 
-    pub(crate) fn read_app(
-        &self,
-        app_id: &str,
-        is_trash: bool,
-    ) -> Result<AppTable, WorkspaceError> {
+    pub(crate) fn read_app(&self, app_id: &str, is_trash: bool) -> Result<AppTable, WorkspaceError> {
         let app_table = dsl::app_table
             .filter(app_table::id.eq(app_id))
             .filter(app_table::is_trash.eq(is_trash))
             .first::<AppTable>(&*(self.database.db_connection()?))?;
+
+        Ok(app_table)
+    }
+
+    pub(crate) fn read_apps(&self, workspace_id: &str, is_trash: bool) -> Result<Vec<AppTable>, WorkspaceError> {
+        let app_table = dsl::app_table
+            .filter(app_table::workspace_id.eq(workspace_id))
+            .filter(app_table::is_trash.eq(is_trash))
+            .load::<AppTable>(&*(self.database.db_connection()?))?;
 
         Ok(app_table)
     }

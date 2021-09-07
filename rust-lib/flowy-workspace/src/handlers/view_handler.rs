@@ -36,8 +36,7 @@ pub(crate) async fn read_view_handler(
     let mut view = controller.read_view(params.clone()).await?;
 
     if params.read_belongings {
-        let views = controller.read_views_belong_to(&params.view_id).await?;
-        view.belongings = RepeatedView { items: views }
+        view.belongings = controller.read_views_belong_to(&params.view_id).await?;
     }
 
     data_result(view)

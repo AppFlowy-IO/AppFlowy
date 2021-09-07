@@ -5,41 +5,44 @@ use strum_macros::Display;
 #[event_err = "WorkspaceError"]
 pub enum WorkspaceEvent {
     #[event(input = "CreateWorkspaceRequest", output = "Workspace")]
-    CreateWorkspace  = 0,
+    CreateWorkspace   = 0,
 
     #[event(output = "Workspace")]
-    ReadCurWorkspace = 1,
+    ReadCurWorkspace  = 1,
 
     #[event(input = "QueryWorkspaceRequest", output = "RepeatedWorkspace")]
-    ReadWorkspaces   = 2,
+    ReadWorkspaces    = 2,
 
     #[event(input = "DeleteWorkspaceRequest")]
-    DeleteWorkspace  = 3,
+    DeleteWorkspace   = 3,
 
     #[event(input = "QueryWorkspaceRequest", output = "Workspace")]
-    OpenWorkspace    = 4,
+    OpenWorkspace     = 4,
+
+    #[event(input = "QueryWorkspaceRequest", output = "RepeatedApp")]
+    ReadWorkspaceApps = 5,
 
     #[event(input = "CreateAppRequest", output = "App")]
-    CreateApp        = 101,
+    CreateApp         = 101,
 
     #[event(input = "DeleteAppRequest")]
-    DeleteApp        = 102,
+    DeleteApp         = 102,
 
     #[event(input = "QueryAppRequest", output = "App")]
-    ReadApp          = 103,
+    ReadApp           = 103,
 
     #[event(input = "UpdateAppRequest")]
-    UpdateApp        = 104,
+    UpdateApp         = 104,
 
     #[event(input = "CreateViewRequest", output = "View")]
-    CreateView       = 201,
+    CreateView        = 201,
 
     #[event(input = "QueryViewRequest", output = "View")]
-    ReadView         = 202,
+    ReadView          = 202,
 
     #[event(input = "UpdateViewRequest")]
-    UpdateView       = 203,
+    UpdateView        = 203,
 
     #[event(input = "DeleteViewRequest")]
-    DeleteView       = 204,
+    DeleteView        = 204,
 }

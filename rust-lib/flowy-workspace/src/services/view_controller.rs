@@ -2,14 +2,15 @@ use crate::{
     entities::view::{CreateViewParams, UpdateViewParams, View},
     errors::WorkspaceError,
     module::WorkspaceDatabase,
-    observable::{send_observable, WorkspaceObservable},
+    observable::WorkspaceObservable,
     services::{helper::spawn, server::Server},
     sql_tables::view::{ViewTable, ViewTableChangeset, ViewTableSql},
 };
 
 use crate::{
-    entities::view::{DeleteViewParams, QueryViewParams},
+    entities::view::{DeleteViewParams, QueryViewParams, RepeatedView},
     module::WorkspaceUser,
+    observable::ObservableBuilder,
 };
 use std::sync::Arc;
 
@@ -30,7 +31,10 @@ impl ViewController {
         let view_table = ViewTable::new(view.clone());
         let _ = self.sql.create_view(view_table)?;
 
-        send_observable(&view.belong_to_id, WorkspaceObservable::AppCreateView);
+        let repeated_view = self.read_local_views_belong_to(&view.belong_to_id)?;
+        ObservableBuilder::new(&view.belong_to_id, WorkspaceObservable::AppCreateView)
+            .payload(repeated_view)
+            .build();
         Ok(view)
     }
 
@@ -42,14 +46,19 @@ impl ViewController {
     }
 
     pub(crate) async fn delete_view(&self, view_id: &str) -> Result<(), WorkspaceError> {
-        let view = self.sql.delete_view(view_id)?;
+        let view_table = self.sql.delete_view(view_id)?;
         let _ = self.delete_view_on_server(view_id).await?;
-        send_observable(&view.belong_to_id, WorkspaceObservable::AppDeleteView);
+
+        let repeated_view = self.read_local_views_belong_to(&view_table.belong_to_id)?;
+        ObservableBuilder::new(&view_table.belong_to_id, WorkspaceObservable::AppDeleteView)
+            .payload(repeated_view)
+            .build();
         Ok(())
     }
 
     // belong_to_id will be the app_id or view_id.
-    pub(crate) async fn read_views_belong_to(&self, belong_to_id: &str) -> Result<Vec<View>, WorkspaceError> {
+    pub(crate) async fn read_views_belong_to(&self, belong_to_id: &str) -> Result<RepeatedView, WorkspaceError> {
+        // TODO: read from server
         let views = self
             .sql
             .read_views_belong_to(belong_to_id)?
@@ -57,16 +66,19 @@ impl ViewController {
             .map(|view_table| view_table.into())
             .collect::<Vec<View>>();
 
-        Ok(views)
+        Ok(RepeatedView { items: views })
     }
 
     pub(crate) async fn update_view(&self, params: UpdateViewParams) -> Result<(), WorkspaceError> {
         let changeset = ViewTableChangeset::new(params.clone());
         let view_id = changeset.id.clone();
         let _ = self.sql.update_view(changeset)?;
-
         let _ = self.update_view_on_server(params).await?;
-        send_observable(&view_id, WorkspaceObservable::ViewUpdated);
+
+        let view: View = self.sql.read_view(&view_id, false)?.into();
+        ObservableBuilder::new(&view_id, WorkspaceObservable::ViewUpdated)
+            .payload(view)
+            .build();
         Ok(())
     }
 }
@@ -128,5 +140,17 @@ impl ViewController {
             }
         });
         Ok(())
+    }
+
+    // belong_to_id will be the app_id or view_id.
+    fn read_local_views_belong_to(&self, belong_to_id: &str) -> Result<RepeatedView, WorkspaceError> {
+        let views = self
+            .sql
+            .read_views_belong_to(belong_to_id)?
+            .into_iter()
+            .map(|view_table| view_table.into())
+            .collect::<Vec<View>>();
+
+        Ok(RepeatedView { items: views })
     }
 }

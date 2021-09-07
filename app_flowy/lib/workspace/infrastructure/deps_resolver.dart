@@ -7,6 +7,7 @@ import 'package:app_flowy/workspace/application/menu/menu_watch.dart';
 import 'package:app_flowy/workspace/application/view/doc_watch_bloc.dart';
 import 'package:app_flowy/workspace/application/view/view_bloc.dart';
 import 'package:app_flowy/workspace/application/view/view_list_bloc.dart';
+import 'package:app_flowy/workspace/application/workspace/welcome_bloc.dart';
 import 'package:app_flowy/workspace/domain/i_doc.dart';
 import 'package:app_flowy/workspace/domain/i_view.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
@@ -57,8 +58,9 @@ class HomeDepsResolver {
     // User
     getIt.registerFactoryParam<IUser, UserProfile, void>(
         (user, _) => IUserImpl(repo: UserRepo(user: user)));
-    getIt.registerFactoryParam<IUserWatch, UserProfile, void>(
-        (user, _) => IUserWatchImpl(repo: UserWatchRepo(user: user)));
+    getIt.registerFactoryParam<IUserWorkspaceListWatch, UserProfile, void>(
+        (user, _) =>
+            IUserWorkspaceListWatchImpl(repo: UserWatchRepo(user: user)));
 
     //Menu Bloc
     getIt.registerFactoryParam<MenuBloc, UserProfile, String>(
@@ -92,6 +94,13 @@ class HomeDepsResolver {
 
     getIt.registerFactoryParam<ViewListBloc, List<View>, void>(
         (views, _) => ViewListBloc(views: views));
+
+    getIt.registerFactoryParam<WelcomeBloc, UserProfile, void>(
+      (user, _) => WelcomeBloc(
+        repo: UserRepo(user: user),
+        watcher: getIt<IUserWorkspaceListWatch>(param1: user),
+      ),
+    );
 
     // getIt.registerFactoryParam<ViewBloc, String, void>(
     //     (viewId, _) => ViewBloc(iViewImpl: getIt<IView>(param1: viewId)));

@@ -75,7 +75,7 @@ impl_sql_binary_expression!(ColorStyleCol);
 
 #[derive(AsChangeset, Identifiable, Default, Debug)]
 #[table_name = "app_table"]
-pub struct AppTableChangeset {
+pub(crate) struct AppTableChangeset {
     pub id: String,
     pub name: Option<String>,
     pub desc: Option<String>,
@@ -83,12 +83,21 @@ pub struct AppTableChangeset {
 }
 
 impl AppTableChangeset {
-    pub fn new(params: UpdateAppParams) -> Self {
+    pub(crate) fn new(params: UpdateAppParams) -> Self {
         AppTableChangeset {
             id: params.app_id,
             name: params.name,
             desc: params.desc,
             is_trash: params.is_trash,
+        }
+    }
+
+    pub(crate) fn from_table(table: AppTable) -> Self {
+        AppTableChangeset {
+            id: table.id,
+            name: Some(table.name),
+            desc: Some(table.desc),
+            is_trash: Some(table.is_trash),
         }
     }
 }

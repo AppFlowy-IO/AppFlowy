@@ -16,17 +16,17 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
   Stream<MenuUserState> mapEventToState(MenuUserEvent event) async* {
     yield* event.map(
       initial: (_) async* {
-        // fetch workspaces
-        iUserImpl.fetchWorkspaces().then((result) {
-          result.fold(
-            (workspaces) async* {
-              yield state.copyWith(workspaces: some(workspaces));
-            },
-            (error) async* {
-              yield state.copyWith(successOrFailure: right(error.msg));
-            },
-          );
-        });
+        // // fetch workspaces
+        // iUserImpl.fetchWorkspaces().then((result) {
+        //   result.fold(
+        //     (workspaces) async* {
+        //       yield state.copyWith(workspaces: some(workspaces));
+        //     },
+        //     (error) async* {
+        //       yield state.copyWith(successOrFailure: right(error.msg));
+        //     },
+        //   );
+        // });
       },
       fetchWorkspaces: (_FetchWorkspaces value) async* {},
     );

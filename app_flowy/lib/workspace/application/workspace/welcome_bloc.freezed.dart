@@ -1,7 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
-part of 'workspace_list_bloc.dart';
+part of 'welcome_bloc.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -13,15 +13,11 @@ final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more informations: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
 /// @nodoc
-class _$WorkspaceListEventTearOff {
-  const _$WorkspaceListEventTearOff();
+class _$WelcomeEventTearOff {
+  const _$WelcomeEventTearOff();
 
   Initial initial() {
     return const Initial();
-  }
-
-  FetchWorkspace fetchWorkspaces() {
-    return const FetchWorkspace();
   }
 
   CreateWorkspace createWorkspace(String name, String desc) {
@@ -36,64 +32,73 @@ class _$WorkspaceListEventTearOff {
       workspace,
     );
   }
+
+  WorkspacesReceived workspacesReveived(
+      Either<List<Workspace>, WorkspaceError> workspacesOrFail) {
+    return WorkspacesReceived(
+      workspacesOrFail,
+    );
+  }
 }
 
 /// @nodoc
-const $WorkspaceListEvent = _$WorkspaceListEventTearOff();
+const $WelcomeEvent = _$WelcomeEventTearOff();
 
 /// @nodoc
-mixin _$WorkspaceListEvent {
+mixin _$WelcomeEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
-    required TResult Function() fetchWorkspaces,
     required TResult Function(String name, String desc) createWorkspace,
     required TResult Function(Workspace workspace) openWorkspace,
+    required TResult Function(
+            Either<List<Workspace>, WorkspaceError> workspacesOrFail)
+        workspacesReveived,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
-    TResult Function()? fetchWorkspaces,
     TResult Function(String name, String desc)? createWorkspace,
     TResult Function(Workspace workspace)? openWorkspace,
+    TResult Function(Either<List<Workspace>, WorkspaceError> workspacesOrFail)?
+        workspacesReveived,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(Initial value) initial,
-    required TResult Function(FetchWorkspace value) fetchWorkspaces,
     required TResult Function(CreateWorkspace value) createWorkspace,
     required TResult Function(OpenWorkspace value) openWorkspace,
+    required TResult Function(WorkspacesReceived value) workspacesReveived,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Initial value)? initial,
-    TResult Function(FetchWorkspace value)? fetchWorkspaces,
     TResult Function(CreateWorkspace value)? createWorkspace,
     TResult Function(OpenWorkspace value)? openWorkspace,
+    TResult Function(WorkspacesReceived value)? workspacesReveived,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $WorkspaceListEventCopyWith<$Res> {
-  factory $WorkspaceListEventCopyWith(
-          WorkspaceListEvent value, $Res Function(WorkspaceListEvent) then) =
-      _$WorkspaceListEventCopyWithImpl<$Res>;
+abstract class $WelcomeEventCopyWith<$Res> {
+  factory $WelcomeEventCopyWith(
+          WelcomeEvent value, $Res Function(WelcomeEvent) then) =
+      _$WelcomeEventCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class _$WorkspaceListEventCopyWithImpl<$Res>
-    implements $WorkspaceListEventCopyWith<$Res> {
-  _$WorkspaceListEventCopyWithImpl(this._value, this._then);
+class _$WelcomeEventCopyWithImpl<$Res> implements $WelcomeEventCopyWith<$Res> {
+  _$WelcomeEventCopyWithImpl(this._value, this._then);
 
-  final WorkspaceListEvent _value;
+  final WelcomeEvent _value;
   // ignore: unused_field
-  final $Res Function(WorkspaceListEvent) _then;
+  final $Res Function(WelcomeEvent) _then;
 }
 
 /// @nodoc
@@ -103,7 +108,7 @@ abstract class $InitialCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$InitialCopyWithImpl<$Res> extends _$WorkspaceListEventCopyWithImpl<$Res>
+class _$InitialCopyWithImpl<$Res> extends _$WelcomeEventCopyWithImpl<$Res>
     implements $InitialCopyWith<$Res> {
   _$InitialCopyWithImpl(Initial _value, $Res Function(Initial) _then)
       : super(_value, (v) => _then(v as Initial));
@@ -119,7 +124,7 @@ class _$Initial implements Initial {
 
   @override
   String toString() {
-    return 'WorkspaceListEvent.initial()';
+    return 'WelcomeEvent.initial()';
   }
 
   @override
@@ -134,9 +139,11 @@ class _$Initial implements Initial {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
-    required TResult Function() fetchWorkspaces,
     required TResult Function(String name, String desc) createWorkspace,
     required TResult Function(Workspace workspace) openWorkspace,
+    required TResult Function(
+            Either<List<Workspace>, WorkspaceError> workspacesOrFail)
+        workspacesReveived,
   }) {
     return initial();
   }
@@ -145,9 +152,10 @@ class _$Initial implements Initial {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
-    TResult Function()? fetchWorkspaces,
     TResult Function(String name, String desc)? createWorkspace,
     TResult Function(Workspace workspace)? openWorkspace,
+    TResult Function(Either<List<Workspace>, WorkspaceError> workspacesOrFail)?
+        workspacesReveived,
     required TResult orElse(),
   }) {
     if (initial != null) {
@@ -160,9 +168,9 @@ class _$Initial implements Initial {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(Initial value) initial,
-    required TResult Function(FetchWorkspace value) fetchWorkspaces,
     required TResult Function(CreateWorkspace value) createWorkspace,
     required TResult Function(OpenWorkspace value) openWorkspace,
+    required TResult Function(WorkspacesReceived value) workspacesReveived,
   }) {
     return initial(this);
   }
@@ -171,9 +179,9 @@ class _$Initial implements Initial {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Initial value)? initial,
-    TResult Function(FetchWorkspace value)? fetchWorkspaces,
     TResult Function(CreateWorkspace value)? createWorkspace,
     TResult Function(OpenWorkspace value)? openWorkspace,
+    TResult Function(WorkspacesReceived value)? workspacesReveived,
     required TResult orElse(),
   }) {
     if (initial != null) {
@@ -183,102 +191,8 @@ class _$Initial implements Initial {
   }
 }
 
-abstract class Initial implements WorkspaceListEvent {
+abstract class Initial implements WelcomeEvent {
   const factory Initial() = _$Initial;
-}
-
-/// @nodoc
-abstract class $FetchWorkspaceCopyWith<$Res> {
-  factory $FetchWorkspaceCopyWith(
-          FetchWorkspace value, $Res Function(FetchWorkspace) then) =
-      _$FetchWorkspaceCopyWithImpl<$Res>;
-}
-
-/// @nodoc
-class _$FetchWorkspaceCopyWithImpl<$Res>
-    extends _$WorkspaceListEventCopyWithImpl<$Res>
-    implements $FetchWorkspaceCopyWith<$Res> {
-  _$FetchWorkspaceCopyWithImpl(
-      FetchWorkspace _value, $Res Function(FetchWorkspace) _then)
-      : super(_value, (v) => _then(v as FetchWorkspace));
-
-  @override
-  FetchWorkspace get _value => super._value as FetchWorkspace;
-}
-
-/// @nodoc
-
-class _$FetchWorkspace implements FetchWorkspace {
-  const _$FetchWorkspace();
-
-  @override
-  String toString() {
-    return 'WorkspaceListEvent.fetchWorkspaces()';
-  }
-
-  @override
-  bool operator ==(dynamic other) {
-    return identical(this, other) || (other is FetchWorkspace);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() initial,
-    required TResult Function() fetchWorkspaces,
-    required TResult Function(String name, String desc) createWorkspace,
-    required TResult Function(Workspace workspace) openWorkspace,
-  }) {
-    return fetchWorkspaces();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? initial,
-    TResult Function()? fetchWorkspaces,
-    TResult Function(String name, String desc)? createWorkspace,
-    TResult Function(Workspace workspace)? openWorkspace,
-    required TResult orElse(),
-  }) {
-    if (fetchWorkspaces != null) {
-      return fetchWorkspaces();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(Initial value) initial,
-    required TResult Function(FetchWorkspace value) fetchWorkspaces,
-    required TResult Function(CreateWorkspace value) createWorkspace,
-    required TResult Function(OpenWorkspace value) openWorkspace,
-  }) {
-    return fetchWorkspaces(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(Initial value)? initial,
-    TResult Function(FetchWorkspace value)? fetchWorkspaces,
-    TResult Function(CreateWorkspace value)? createWorkspace,
-    TResult Function(OpenWorkspace value)? openWorkspace,
-    required TResult orElse(),
-  }) {
-    if (fetchWorkspaces != null) {
-      return fetchWorkspaces(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class FetchWorkspace implements WorkspaceListEvent {
-  const factory FetchWorkspace() = _$FetchWorkspace;
 }
 
 /// @nodoc
@@ -291,7 +205,7 @@ abstract class $CreateWorkspaceCopyWith<$Res> {
 
 /// @nodoc
 class _$CreateWorkspaceCopyWithImpl<$Res>
-    extends _$WorkspaceListEventCopyWithImpl<$Res>
+    extends _$WelcomeEventCopyWithImpl<$Res>
     implements $CreateWorkspaceCopyWith<$Res> {
   _$CreateWorkspaceCopyWithImpl(
       CreateWorkspace _value, $Res Function(CreateWorkspace) _then)
@@ -330,7 +244,7 @@ class _$CreateWorkspace implements CreateWorkspace {
 
   @override
   String toString() {
-    return 'WorkspaceListEvent.createWorkspace(name: $name, desc: $desc)';
+    return 'WelcomeEvent.createWorkspace(name: $name, desc: $desc)';
   }
 
   @override
@@ -358,9 +272,11 @@ class _$CreateWorkspace implements CreateWorkspace {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
-    required TResult Function() fetchWorkspaces,
     required TResult Function(String name, String desc) createWorkspace,
     required TResult Function(Workspace workspace) openWorkspace,
+    required TResult Function(
+            Either<List<Workspace>, WorkspaceError> workspacesOrFail)
+        workspacesReveived,
   }) {
     return createWorkspace(name, desc);
   }
@@ -369,9 +285,10 @@ class _$CreateWorkspace implements CreateWorkspace {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
-    TResult Function()? fetchWorkspaces,
     TResult Function(String name, String desc)? createWorkspace,
     TResult Function(Workspace workspace)? openWorkspace,
+    TResult Function(Either<List<Workspace>, WorkspaceError> workspacesOrFail)?
+        workspacesReveived,
     required TResult orElse(),
   }) {
     if (createWorkspace != null) {
@@ -384,9 +301,9 @@ class _$CreateWorkspace implements CreateWorkspace {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(Initial value) initial,
-    required TResult Function(FetchWorkspace value) fetchWorkspaces,
     required TResult Function(CreateWorkspace value) createWorkspace,
     required TResult Function(OpenWorkspace value) openWorkspace,
+    required TResult Function(WorkspacesReceived value) workspacesReveived,
   }) {
     return createWorkspace(this);
   }
@@ -395,9 +312,9 @@ class _$CreateWorkspace implements CreateWorkspace {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Initial value)? initial,
-    TResult Function(FetchWorkspace value)? fetchWorkspaces,
     TResult Function(CreateWorkspace value)? createWorkspace,
     TResult Function(OpenWorkspace value)? openWorkspace,
+    TResult Function(WorkspacesReceived value)? workspacesReveived,
     required TResult orElse(),
   }) {
     if (createWorkspace != null) {
@@ -407,7 +324,7 @@ class _$CreateWorkspace implements CreateWorkspace {
   }
 }
 
-abstract class CreateWorkspace implements WorkspaceListEvent {
+abstract class CreateWorkspace implements WelcomeEvent {
   const factory CreateWorkspace(String name, String desc) = _$CreateWorkspace;
 
   String get name => throw _privateConstructorUsedError;
@@ -426,8 +343,7 @@ abstract class $OpenWorkspaceCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$OpenWorkspaceCopyWithImpl<$Res>
-    extends _$WorkspaceListEventCopyWithImpl<$Res>
+class _$OpenWorkspaceCopyWithImpl<$Res> extends _$WelcomeEventCopyWithImpl<$Res>
     implements $OpenWorkspaceCopyWith<$Res> {
   _$OpenWorkspaceCopyWithImpl(
       OpenWorkspace _value, $Res Function(OpenWorkspace) _then)
@@ -459,7 +375,7 @@ class _$OpenWorkspace implements OpenWorkspace {
 
   @override
   String toString() {
-    return 'WorkspaceListEvent.openWorkspace(workspace: $workspace)';
+    return 'WelcomeEvent.openWorkspace(workspace: $workspace)';
   }
 
   @override
@@ -484,9 +400,11 @@ class _$OpenWorkspace implements OpenWorkspace {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
-    required TResult Function() fetchWorkspaces,
     required TResult Function(String name, String desc) createWorkspace,
     required TResult Function(Workspace workspace) openWorkspace,
+    required TResult Function(
+            Either<List<Workspace>, WorkspaceError> workspacesOrFail)
+        workspacesReveived,
   }) {
     return openWorkspace(workspace);
   }
@@ -495,9 +413,10 @@ class _$OpenWorkspace implements OpenWorkspace {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
-    TResult Function()? fetchWorkspaces,
     TResult Function(String name, String desc)? createWorkspace,
     TResult Function(Workspace workspace)? openWorkspace,
+    TResult Function(Either<List<Workspace>, WorkspaceError> workspacesOrFail)?
+        workspacesReveived,
     required TResult orElse(),
   }) {
     if (openWorkspace != null) {
@@ -510,9 +429,9 @@ class _$OpenWorkspace implements OpenWorkspace {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(Initial value) initial,
-    required TResult Function(FetchWorkspace value) fetchWorkspaces,
     required TResult Function(CreateWorkspace value) createWorkspace,
     required TResult Function(OpenWorkspace value) openWorkspace,
+    required TResult Function(WorkspacesReceived value) workspacesReveived,
   }) {
     return openWorkspace(this);
   }
@@ -521,9 +440,9 @@ class _$OpenWorkspace implements OpenWorkspace {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Initial value)? initial,
-    TResult Function(FetchWorkspace value)? fetchWorkspaces,
     TResult Function(CreateWorkspace value)? createWorkspace,
     TResult Function(OpenWorkspace value)? openWorkspace,
+    TResult Function(WorkspacesReceived value)? workspacesReveived,
     required TResult orElse(),
   }) {
     if (openWorkspace != null) {
@@ -533,7 +452,7 @@ class _$OpenWorkspace implements OpenWorkspace {
   }
 }
 
-abstract class OpenWorkspace implements WorkspaceListEvent {
+abstract class OpenWorkspace implements WelcomeEvent {
   const factory OpenWorkspace(Workspace workspace) = _$OpenWorkspace;
 
   Workspace get workspace => throw _privateConstructorUsedError;
@@ -543,14 +462,146 @@ abstract class OpenWorkspace implements WorkspaceListEvent {
 }
 
 /// @nodoc
-class _$WorkspaceListStateTearOff {
-  const _$WorkspaceListStateTearOff();
+abstract class $WorkspacesReceivedCopyWith<$Res> {
+  factory $WorkspacesReceivedCopyWith(
+          WorkspacesReceived value, $Res Function(WorkspacesReceived) then) =
+      _$WorkspacesReceivedCopyWithImpl<$Res>;
+  $Res call({Either<List<Workspace>, WorkspaceError> workspacesOrFail});
+}
 
-  _WorkspaceListState call(
+/// @nodoc
+class _$WorkspacesReceivedCopyWithImpl<$Res>
+    extends _$WelcomeEventCopyWithImpl<$Res>
+    implements $WorkspacesReceivedCopyWith<$Res> {
+  _$WorkspacesReceivedCopyWithImpl(
+      WorkspacesReceived _value, $Res Function(WorkspacesReceived) _then)
+      : super(_value, (v) => _then(v as WorkspacesReceived));
+
+  @override
+  WorkspacesReceived get _value => super._value as WorkspacesReceived;
+
+  @override
+  $Res call({
+    Object? workspacesOrFail = freezed,
+  }) {
+    return _then(WorkspacesReceived(
+      workspacesOrFail == freezed
+          ? _value.workspacesOrFail
+          : workspacesOrFail // ignore: cast_nullable_to_non_nullable
+              as Either<List<Workspace>, WorkspaceError>,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$WorkspacesReceived implements WorkspacesReceived {
+  const _$WorkspacesReceived(this.workspacesOrFail);
+
+  @override
+  final Either<List<Workspace>, WorkspaceError> workspacesOrFail;
+
+  @override
+  String toString() {
+    return 'WelcomeEvent.workspacesReveived(workspacesOrFail: $workspacesOrFail)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is WorkspacesReceived &&
+            (identical(other.workspacesOrFail, workspacesOrFail) ||
+                const DeepCollectionEquality()
+                    .equals(other.workspacesOrFail, workspacesOrFail)));
+  }
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^
+      const DeepCollectionEquality().hash(workspacesOrFail);
+
+  @JsonKey(ignore: true)
+  @override
+  $WorkspacesReceivedCopyWith<WorkspacesReceived> get copyWith =>
+      _$WorkspacesReceivedCopyWithImpl<WorkspacesReceived>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function(String name, String desc) createWorkspace,
+    required TResult Function(Workspace workspace) openWorkspace,
+    required TResult Function(
+            Either<List<Workspace>, WorkspaceError> workspacesOrFail)
+        workspacesReveived,
+  }) {
+    return workspacesReveived(workspacesOrFail);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(String name, String desc)? createWorkspace,
+    TResult Function(Workspace workspace)? openWorkspace,
+    TResult Function(Either<List<Workspace>, WorkspaceError> workspacesOrFail)?
+        workspacesReveived,
+    required TResult orElse(),
+  }) {
+    if (workspacesReveived != null) {
+      return workspacesReveived(workspacesOrFail);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(Initial value) initial,
+    required TResult Function(CreateWorkspace value) createWorkspace,
+    required TResult Function(OpenWorkspace value) openWorkspace,
+    required TResult Function(WorkspacesReceived value) workspacesReveived,
+  }) {
+    return workspacesReveived(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(CreateWorkspace value)? createWorkspace,
+    TResult Function(OpenWorkspace value)? openWorkspace,
+    TResult Function(WorkspacesReceived value)? workspacesReveived,
+    required TResult orElse(),
+  }) {
+    if (workspacesReveived != null) {
+      return workspacesReveived(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class WorkspacesReceived implements WelcomeEvent {
+  const factory WorkspacesReceived(
+          Either<List<Workspace>, WorkspaceError> workspacesOrFail) =
+      _$WorkspacesReceived;
+
+  Either<List<Workspace>, WorkspaceError> get workspacesOrFail =>
+      throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $WorkspacesReceivedCopyWith<WorkspacesReceived> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+class _$WelcomeStateTearOff {
+  const _$WelcomeStateTearOff();
+
+  _WelcomeState call(
       {required bool isLoading,
       required List<Workspace> workspaces,
       required Either<Unit, WorkspaceError> successOrFailure}) {
-    return _WorkspaceListState(
+    return _WelcomeState(
       isLoading: isLoading,
       workspaces: workspaces,
       successOrFailure: successOrFailure,
@@ -559,25 +610,25 @@ class _$WorkspaceListStateTearOff {
 }
 
 /// @nodoc
-const $WorkspaceListState = _$WorkspaceListStateTearOff();
+const $WelcomeState = _$WelcomeStateTearOff();
 
 /// @nodoc
-mixin _$WorkspaceListState {
+mixin _$WelcomeState {
   bool get isLoading => throw _privateConstructorUsedError;
   List<Workspace> get workspaces => throw _privateConstructorUsedError;
   Either<Unit, WorkspaceError> get successOrFailure =>
       throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
-  $WorkspaceListStateCopyWith<WorkspaceListState> get copyWith =>
+  $WelcomeStateCopyWith<WelcomeState> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $WorkspaceListStateCopyWith<$Res> {
-  factory $WorkspaceListStateCopyWith(
-          WorkspaceListState value, $Res Function(WorkspaceListState) then) =
-      _$WorkspaceListStateCopyWithImpl<$Res>;
+abstract class $WelcomeStateCopyWith<$Res> {
+  factory $WelcomeStateCopyWith(
+          WelcomeState value, $Res Function(WelcomeState) then) =
+      _$WelcomeStateCopyWithImpl<$Res>;
   $Res call(
       {bool isLoading,
       List<Workspace> workspaces,
@@ -585,13 +636,12 @@ abstract class $WorkspaceListStateCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$WorkspaceListStateCopyWithImpl<$Res>
-    implements $WorkspaceListStateCopyWith<$Res> {
-  _$WorkspaceListStateCopyWithImpl(this._value, this._then);
+class _$WelcomeStateCopyWithImpl<$Res> implements $WelcomeStateCopyWith<$Res> {
+  _$WelcomeStateCopyWithImpl(this._value, this._then);
 
-  final WorkspaceListState _value;
+  final WelcomeState _value;
   // ignore: unused_field
-  final $Res Function(WorkspaceListState) _then;
+  final $Res Function(WelcomeState) _then;
 
   @override
   $Res call({
@@ -617,11 +667,11 @@ class _$WorkspaceListStateCopyWithImpl<$Res>
 }
 
 /// @nodoc
-abstract class _$WorkspaceListStateCopyWith<$Res>
-    implements $WorkspaceListStateCopyWith<$Res> {
-  factory _$WorkspaceListStateCopyWith(
-          _WorkspaceListState value, $Res Function(_WorkspaceListState) then) =
-      __$WorkspaceListStateCopyWithImpl<$Res>;
+abstract class _$WelcomeStateCopyWith<$Res>
+    implements $WelcomeStateCopyWith<$Res> {
+  factory _$WelcomeStateCopyWith(
+          _WelcomeState value, $Res Function(_WelcomeState) then) =
+      __$WelcomeStateCopyWithImpl<$Res>;
   @override
   $Res call(
       {bool isLoading,
@@ -630,15 +680,14 @@ abstract class _$WorkspaceListStateCopyWith<$Res>
 }
 
 /// @nodoc
-class __$WorkspaceListStateCopyWithImpl<$Res>
-    extends _$WorkspaceListStateCopyWithImpl<$Res>
-    implements _$WorkspaceListStateCopyWith<$Res> {
-  __$WorkspaceListStateCopyWithImpl(
-      _WorkspaceListState _value, $Res Function(_WorkspaceListState) _then)
-      : super(_value, (v) => _then(v as _WorkspaceListState));
+class __$WelcomeStateCopyWithImpl<$Res> extends _$WelcomeStateCopyWithImpl<$Res>
+    implements _$WelcomeStateCopyWith<$Res> {
+  __$WelcomeStateCopyWithImpl(
+      _WelcomeState _value, $Res Function(_WelcomeState) _then)
+      : super(_value, (v) => _then(v as _WelcomeState));
 
   @override
-  _WorkspaceListState get _value => super._value as _WorkspaceListState;
+  _WelcomeState get _value => super._value as _WelcomeState;
 
   @override
   $Res call({
@@ -646,7 +695,7 @@ class __$WorkspaceListStateCopyWithImpl<$Res>
     Object? workspaces = freezed,
     Object? successOrFailure = freezed,
   }) {
-    return _then(_WorkspaceListState(
+    return _then(_WelcomeState(
       isLoading: isLoading == freezed
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
@@ -665,8 +714,8 @@ class __$WorkspaceListStateCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$_WorkspaceListState implements _WorkspaceListState {
-  const _$_WorkspaceListState(
+class _$_WelcomeState implements _WelcomeState {
+  const _$_WelcomeState(
       {required this.isLoading,
       required this.workspaces,
       required this.successOrFailure});
@@ -680,13 +729,13 @@ class _$_WorkspaceListState implements _WorkspaceListState {
 
   @override
   String toString() {
-    return 'WorkspaceListState(isLoading: $isLoading, workspaces: $workspaces, successOrFailure: $successOrFailure)';
+    return 'WelcomeState(isLoading: $isLoading, workspaces: $workspaces, successOrFailure: $successOrFailure)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _WorkspaceListState &&
+        (other is _WelcomeState &&
             (identical(other.isLoading, isLoading) ||
                 const DeepCollectionEquality()
                     .equals(other.isLoading, isLoading)) &&
@@ -707,16 +756,16 @@ class _$_WorkspaceListState implements _WorkspaceListState {
 
   @JsonKey(ignore: true)
   @override
-  _$WorkspaceListStateCopyWith<_WorkspaceListState> get copyWith =>
-      __$WorkspaceListStateCopyWithImpl<_WorkspaceListState>(this, _$identity);
+  _$WelcomeStateCopyWith<_WelcomeState> get copyWith =>
+      __$WelcomeStateCopyWithImpl<_WelcomeState>(this, _$identity);
 }
 
-abstract class _WorkspaceListState implements WorkspaceListState {
-  const factory _WorkspaceListState(
+abstract class _WelcomeState implements WelcomeState {
+  const factory _WelcomeState(
           {required bool isLoading,
           required List<Workspace> workspaces,
           required Either<Unit, WorkspaceError> successOrFailure}) =
-      _$_WorkspaceListState;
+      _$_WelcomeState;
 
   @override
   bool get isLoading => throw _privateConstructorUsedError;
@@ -727,6 +776,6 @@ abstract class _WorkspaceListState implements WorkspaceListState {
       throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
-  _$WorkspaceListStateCopyWith<_WorkspaceListState> get copyWith =>
+  _$WelcomeStateCopyWith<_WelcomeState> get copyWith =>
       throw _privateConstructorUsedError;
 }

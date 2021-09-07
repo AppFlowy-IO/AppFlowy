@@ -22,14 +22,24 @@ impl FlowySDKConfig {
     pub fn new(root: &str) -> Self {
         FlowySDKConfig {
             root: root.to_owned(),
-            log_filter: std::env::var("RUST_LOG").unwrap_or("info".to_owned()),
+            log_filter: crate_log_filter(None),
         }
     }
 
     pub fn log_filter(mut self, filter: &str) -> Self {
-        self.log_filter = filter.to_owned();
+        self.log_filter = crate_log_filter(Some(filter.to_owned()));
         self
     }
+}
+
+fn crate_log_filter(level: Option<String>) -> String {
+    let level = level.unwrap_or(std::env::var("RUST_LOG").unwrap_or("info".to_owned()));
+    let mut filters = vec![];
+    filters.push(format!("flowy_sdk={}", level));
+    filters.push(format!("flowy_workspace={}", level));
+    filters.push(format!("flowy_user={}", level));
+    filters.push(format!("info"));
+    filters.join(",")
 }
 
 #[derive(Clone)]

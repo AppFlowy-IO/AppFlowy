@@ -9,10 +9,13 @@ pub struct ObservableSubject {
     pub ty: i32,
 
     #[pb(index = 3)]
-    pub subject_id: String,
+    pub id: String,
 
     #[pb(index = 4, one_of)]
-    pub subject_payload: Option<Vec<u8>>,
+    pub payload: Option<Vec<u8>>,
+
+    #[pb(index = 5, one_of)]
+    pub error: Option<Vec<u8>>,
 }
 
 impl std::default::Default for ObservableSubject {
@@ -20,8 +23,9 @@ impl std::default::Default for ObservableSubject {
         Self {
             category: "".to_string(),
             ty: 0,
-            subject_id: "".to_string(),
-            subject_payload: None,
+            id: "".to_string(),
+            payload: None,
+            error: None,
         }
     }
 }

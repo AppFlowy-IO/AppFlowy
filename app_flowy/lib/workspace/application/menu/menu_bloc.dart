@@ -52,6 +52,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
     );
   }
 
+  // ignore: unused_element
   Stream<MenuState> _fetchApps() async* {
     final appsOrFail = await workspace.getApps();
     yield appsOrFail.fold(

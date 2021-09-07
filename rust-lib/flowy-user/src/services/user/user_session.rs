@@ -111,7 +111,7 @@ impl UserSession {
     pub async fn update_user(&self, params: UpdateUserParams) -> Result<(), UserError> {
         let session = self.get_session()?;
         let changeset = UserTableChangeset::new(params.clone());
-        diesel_update_table!(user_table, changeset, self.db_conn()?);
+        diesel_update_table!(user_table, changeset, &*self.db_conn()?);
 
         let _ = self.update_user_on_server(&session.token, params).await?;
         Ok(())
@@ -231,7 +231,7 @@ impl UserSession {
 pub async fn update_user(_server: Server, pool: Arc<ConnectionPool>, params: UpdateUserParams) -> Result<(), UserError> {
     let changeset = UserTableChangeset::new(params);
     let conn = pool.get()?;
-    diesel_update_table!(user_table, changeset, conn);
+    diesel_update_table!(user_table, changeset, &*conn);
     Ok(())
 }
 

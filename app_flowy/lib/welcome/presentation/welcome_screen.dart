@@ -1,4 +1,6 @@
-import 'package:app_flowy/workspace/application/workspace/workspace_list_bloc.dart';
+import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/workspace/application/workspace/welcome_bloc.dart';
+import 'package:app_flowy/workspace/domain/i_user.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text_button.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
@@ -17,9 +19,9 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          WorkspaceListBloc(repo)..add(const WorkspaceListEvent.initial()),
-      child: BlocBuilder<WorkspaceListBloc, WorkspaceListState>(
+      create: (_) => getIt<WelcomeBloc>(param1: repo.user)
+        ..add(const WelcomeEvent.initial()),
+      child: BlocBuilder<WelcomeBloc, WelcomeState>(
         builder: (context, state) {
           return Scaffold(
             body: Padding(
@@ -37,7 +39,7 @@ class WelcomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _renderBody(WorkspaceListState state) {
+  Widget _renderBody(WelcomeState state) {
     final body = state.successOrFailure.fold(
       (_) => _renderList(state.workspaces),
       (error) => FlowyErrorPage(error.toString()),
@@ -54,8 +56,8 @@ class WelcomeScreen extends StatelessWidget {
         fontSize: 14,
         onPressed: () {
           context
-              .read<WorkspaceListBloc>()
-              .add(const WorkspaceListEvent.createWorkspace("workspace", ""));
+              .read<WelcomeBloc>()
+              .add(const WelcomeEvent.createWorkspace("workspace", ""));
         },
       ),
     );
@@ -77,9 +79,7 @@ class WelcomeScreen extends StatelessWidget {
   }
 
   void _handleOnPress(BuildContext context, Workspace workspace) {
-    context
-        .read<WorkspaceListBloc>()
-        .add(WorkspaceListEvent.openWorkspace(workspace));
+    context.read<WelcomeBloc>().add(WelcomeEvent.openWorkspace(workspace));
 
     Navigator.of(context).pop(workspace.id);
   }

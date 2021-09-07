@@ -84,6 +84,23 @@ class WorkspaceEventOpenWorkspace {
     }
 }
 
+class WorkspaceEventReadWorkspaceApps {
+     QueryWorkspaceRequest request;
+     WorkspaceEventReadWorkspaceApps(this.request);
+
+    Future<Either<RepeatedApp, WorkspaceError>> send() {
+    final request = FFIRequest.create()
+          ..event = WorkspaceEvent.ReadWorkspaceApps.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (okBytes) => left(RepeatedApp.fromBuffer(okBytes)),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
 class WorkspaceEventCreateApp {
      CreateAppRequest request;
      WorkspaceEventCreateApp(this.request);

@@ -31,22 +31,20 @@ class IUserImpl extends IUser {
 
   @override
   Future<Either<List<Workspace>, WorkspaceError>> fetchWorkspaces() {
-    return repo.fetchWorkspaces();
+    return repo.getWorkspaces();
   }
 }
 
-class IUserWatchImpl extends IUserWatch {
+class IUserWorkspaceListWatchImpl extends IUserWorkspaceListWatch {
   UserWatchRepo repo;
-  IUserWatchImpl({
+  IUserWorkspaceListWatchImpl({
     required this.repo,
   });
   @override
-  void startWatching(
-      {UserCreateWorkspaceCallback? createWorkspaceCallback,
-      UserDeleteWorkspaceCallback? deleteWorkspaceCallback}) {
-    repo.startWatching(
-        createWorkspace: createWorkspaceCallback,
-        deleteWorkspace: deleteWorkspaceCallback);
+  void startWatching({
+    WorkspaceListUpdatedCallback? workspaceListUpdatedCallback,
+  }) {
+    repo.startWatching(workspaceListUpdated: workspaceListUpdatedCallback);
   }
 
   @override

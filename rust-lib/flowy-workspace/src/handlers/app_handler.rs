@@ -55,8 +55,7 @@ pub(crate) async fn read_app_handler(
 
     // The View's belonging is the view indexed by the belong_to_id for now
     if params.read_belongings {
-        let views = view_controller.read_views_belong_to(&params.app_id).await?;
-        app.belongings = RepeatedView { items: views };
+        app.belongings = view_controller.read_views_belong_to(&params.app_id).await?;
     }
 
     data_result(app)

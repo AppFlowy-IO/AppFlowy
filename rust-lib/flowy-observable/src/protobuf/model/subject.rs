@@ -28,9 +28,10 @@ pub struct ObservableSubject {
     // message fields
     pub category: ::std::string::String,
     pub ty: i32,
-    pub subject_id: ::std::string::String,
+    pub id: ::std::string::String,
     // message oneof groups
-    pub one_of_subject_payload: ::std::option::Option<ObservableSubject_oneof_one_of_subject_payload>,
+    pub one_of_payload: ::std::option::Option<ObservableSubject_oneof_one_of_payload>,
+    pub one_of_error: ::std::option::Option<ObservableSubject_oneof_one_of_error>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -43,8 +44,13 @@ impl<'a> ::std::default::Default for &'a ObservableSubject {
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum ObservableSubject_oneof_one_of_subject_payload {
-    subject_payload(::std::vec::Vec<u8>),
+pub enum ObservableSubject_oneof_one_of_payload {
+    payload(::std::vec::Vec<u8>),
+}
+
+#[derive(Clone,PartialEq,Debug)]
+pub enum ObservableSubject_oneof_one_of_error {
+    error(::std::vec::Vec<u8>),
 }
 
 impl ObservableSubject {
@@ -93,74 +99,123 @@ impl ObservableSubject {
         self.ty = v;
     }
 
-    // string subject_id = 3;
+    // string id = 3;
 
 
-    pub fn get_subject_id(&self) -> &str {
-        &self.subject_id
+    pub fn get_id(&self) -> &str {
+        &self.id
     }
-    pub fn clear_subject_id(&mut self) {
-        self.subject_id.clear();
+    pub fn clear_id(&mut self) {
+        self.id.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_subject_id(&mut self, v: ::std::string::String) {
-        self.subject_id = v;
+    pub fn set_id(&mut self, v: ::std::string::String) {
+        self.id = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_subject_id(&mut self) -> &mut ::std::string::String {
-        &mut self.subject_id
+    pub fn mut_id(&mut self) -> &mut ::std::string::String {
+        &mut self.id
     }
 
     // Take field
-    pub fn take_subject_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.subject_id, ::std::string::String::new())
+    pub fn take_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.id, ::std::string::String::new())
     }
 
-    // bytes subject_payload = 4;
+    // bytes payload = 4;
 
 
-    pub fn get_subject_payload(&self) -> &[u8] {
-        match self.one_of_subject_payload {
-            ::std::option::Option::Some(ObservableSubject_oneof_one_of_subject_payload::subject_payload(ref v)) => v,
+    pub fn get_payload(&self) -> &[u8] {
+        match self.one_of_payload {
+            ::std::option::Option::Some(ObservableSubject_oneof_one_of_payload::payload(ref v)) => v,
             _ => &[],
         }
     }
-    pub fn clear_subject_payload(&mut self) {
-        self.one_of_subject_payload = ::std::option::Option::None;
+    pub fn clear_payload(&mut self) {
+        self.one_of_payload = ::std::option::Option::None;
     }
 
-    pub fn has_subject_payload(&self) -> bool {
-        match self.one_of_subject_payload {
-            ::std::option::Option::Some(ObservableSubject_oneof_one_of_subject_payload::subject_payload(..)) => true,
+    pub fn has_payload(&self) -> bool {
+        match self.one_of_payload {
+            ::std::option::Option::Some(ObservableSubject_oneof_one_of_payload::payload(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
-    pub fn set_subject_payload(&mut self, v: ::std::vec::Vec<u8>) {
-        self.one_of_subject_payload = ::std::option::Option::Some(ObservableSubject_oneof_one_of_subject_payload::subject_payload(v))
+    pub fn set_payload(&mut self, v: ::std::vec::Vec<u8>) {
+        self.one_of_payload = ::std::option::Option::Some(ObservableSubject_oneof_one_of_payload::payload(v))
     }
 
     // Mutable pointer to the field.
-    pub fn mut_subject_payload(&mut self) -> &mut ::std::vec::Vec<u8> {
-        if let ::std::option::Option::Some(ObservableSubject_oneof_one_of_subject_payload::subject_payload(_)) = self.one_of_subject_payload {
+    pub fn mut_payload(&mut self) -> &mut ::std::vec::Vec<u8> {
+        if let ::std::option::Option::Some(ObservableSubject_oneof_one_of_payload::payload(_)) = self.one_of_payload {
         } else {
-            self.one_of_subject_payload = ::std::option::Option::Some(ObservableSubject_oneof_one_of_subject_payload::subject_payload(::std::vec::Vec::new()));
+            self.one_of_payload = ::std::option::Option::Some(ObservableSubject_oneof_one_of_payload::payload(::std::vec::Vec::new()));
         }
-        match self.one_of_subject_payload {
-            ::std::option::Option::Some(ObservableSubject_oneof_one_of_subject_payload::subject_payload(ref mut v)) => v,
+        match self.one_of_payload {
+            ::std::option::Option::Some(ObservableSubject_oneof_one_of_payload::payload(ref mut v)) => v,
             _ => panic!(),
         }
     }
 
     // Take field
-    pub fn take_subject_payload(&mut self) -> ::std::vec::Vec<u8> {
-        if self.has_subject_payload() {
-            match self.one_of_subject_payload.take() {
-                ::std::option::Option::Some(ObservableSubject_oneof_one_of_subject_payload::subject_payload(v)) => v,
+    pub fn take_payload(&mut self) -> ::std::vec::Vec<u8> {
+        if self.has_payload() {
+            match self.one_of_payload.take() {
+                ::std::option::Option::Some(ObservableSubject_oneof_one_of_payload::payload(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            ::std::vec::Vec::new()
+        }
+    }
+
+    // bytes error = 5;
+
+
+    pub fn get_error(&self) -> &[u8] {
+        match self.one_of_error {
+            ::std::option::Option::Some(ObservableSubject_oneof_one_of_error::error(ref v)) => v,
+            _ => &[],
+        }
+    }
+    pub fn clear_error(&mut self) {
+        self.one_of_error = ::std::option::Option::None;
+    }
+
+    pub fn has_error(&self) -> bool {
+        match self.one_of_error {
+            ::std::option::Option::Some(ObservableSubject_oneof_one_of_error::error(..)) => true,
+            _ => false,
+        }
+    }
+
+    // Param is passed by value, moved
+    pub fn set_error(&mut self, v: ::std::vec::Vec<u8>) {
+        self.one_of_error = ::std::option::Option::Some(ObservableSubject_oneof_one_of_error::error(v))
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_error(&mut self) -> &mut ::std::vec::Vec<u8> {
+        if let ::std::option::Option::Some(ObservableSubject_oneof_one_of_error::error(_)) = self.one_of_error {
+        } else {
+            self.one_of_error = ::std::option::Option::Some(ObservableSubject_oneof_one_of_error::error(::std::vec::Vec::new()));
+        }
+        match self.one_of_error {
+            ::std::option::Option::Some(ObservableSubject_oneof_one_of_error::error(ref mut v)) => v,
+            _ => panic!(),
+        }
+    }
+
+    // Take field
+    pub fn take_error(&mut self) -> ::std::vec::Vec<u8> {
+        if self.has_error() {
+            match self.one_of_error.take() {
+                ::std::option::Option::Some(ObservableSubject_oneof_one_of_error::error(v)) => v,
                 _ => panic!(),
             }
         } else {
@@ -189,13 +244,19 @@ impl ::protobuf::Message for ObservableSubject {
                     self.ty = tmp;
                 },
                 3 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.subject_id)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.id)?;
                 },
                 4 => {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_subject_payload = ::std::option::Option::Some(ObservableSubject_oneof_one_of_subject_payload::subject_payload(is.read_bytes()?));
+                    self.one_of_payload = ::std::option::Option::Some(ObservableSubject_oneof_one_of_payload::payload(is.read_bytes()?));
+                },
+                5 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    self.one_of_error = ::std::option::Option::Some(ObservableSubject_oneof_one_of_error::error(is.read_bytes()?));
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -215,13 +276,20 @@ impl ::protobuf::Message for ObservableSubject {
         if self.ty != 0 {
             my_size += ::protobuf::rt::value_size(2, self.ty, ::protobuf::wire_format::WireTypeVarint);
         }
-        if !self.subject_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(3, &self.subject_id);
+        if !self.id.is_empty() {
+            my_size += ::protobuf::rt::string_size(3, &self.id);
         }
-        if let ::std::option::Option::Some(ref v) = self.one_of_subject_payload {
+        if let ::std::option::Option::Some(ref v) = self.one_of_payload {
             match v {
-                &ObservableSubject_oneof_one_of_subject_payload::subject_payload(ref v) => {
+                &ObservableSubject_oneof_one_of_payload::payload(ref v) => {
                     my_size += ::protobuf::rt::bytes_size(4, &v);
+                },
+            };
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_error {
+            match v {
+                &ObservableSubject_oneof_one_of_error::error(ref v) => {
+                    my_size += ::protobuf::rt::bytes_size(5, &v);
                 },
             };
         }
@@ -237,13 +305,20 @@ impl ::protobuf::Message for ObservableSubject {
         if self.ty != 0 {
             os.write_int32(2, self.ty)?;
         }
-        if !self.subject_id.is_empty() {
-            os.write_string(3, &self.subject_id)?;
+        if !self.id.is_empty() {
+            os.write_string(3, &self.id)?;
         }
-        if let ::std::option::Option::Some(ref v) = self.one_of_subject_payload {
+        if let ::std::option::Option::Some(ref v) = self.one_of_payload {
             match v {
-                &ObservableSubject_oneof_one_of_subject_payload::subject_payload(ref v) => {
+                &ObservableSubject_oneof_one_of_payload::payload(ref v) => {
                     os.write_bytes(4, v)?;
+                },
+            };
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_error {
+            match v {
+                &ObservableSubject_oneof_one_of_error::error(ref v) => {
+                    os.write_bytes(5, v)?;
                 },
             };
         }
@@ -296,14 +371,19 @@ impl ::protobuf::Message for ObservableSubject {
                 |m: &mut ObservableSubject| { &mut m.ty },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "subject_id",
-                |m: &ObservableSubject| { &m.subject_id },
-                |m: &mut ObservableSubject| { &mut m.subject_id },
+                "id",
+                |m: &ObservableSubject| { &m.id },
+                |m: &mut ObservableSubject| { &mut m.id },
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_bytes_accessor::<_>(
-                "subject_payload",
-                ObservableSubject::has_subject_payload,
-                ObservableSubject::get_subject_payload,
+                "payload",
+                ObservableSubject::has_payload,
+                ObservableSubject::get_payload,
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_bytes_accessor::<_>(
+                "error",
+                ObservableSubject::has_error,
+                ObservableSubject::get_error,
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<ObservableSubject>(
                 "ObservableSubject",
@@ -323,8 +403,9 @@ impl ::protobuf::Clear for ObservableSubject {
     fn clear(&mut self) {
         self.category.clear();
         self.ty = 0;
-        self.subject_id.clear();
-        self.one_of_subject_payload = ::std::option::Option::None;
+        self.id.clear();
+        self.one_of_payload = ::std::option::Option::None;
+        self.one_of_error = ::std::option::Option::None;
         self.unknown_fields.clear();
     }
 }
@@ -342,25 +423,29 @@ impl ::protobuf::reflect::ProtobufValue for ObservableSubject {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\rsubject.proto\"\xa3\x01\n\x11ObservableSubject\x12\x1a\n\x08category\
+    \n\rsubject.proto\"\xa5\x01\n\x11ObservableSubject\x12\x1a\n\x08category\
     \x18\x01\x20\x01(\tR\x08category\x12\x0e\n\x02ty\x18\x02\x20\x01(\x05R\
-    \x02ty\x12\x1d\n\nsubject_id\x18\x03\x20\x01(\tR\tsubjectId\x12)\n\x0fsu\
-    bject_payload\x18\x04\x20\x01(\x0cH\0R\x0esubjectPayloadB\x18\n\x16one_o\
-    f_subject_payloadJ\xa1\x02\n\x06\x12\x04\0\0\x07\x01\n\x08\n\x01\x0c\x12\
-    \x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x07\x01\n\n\n\x03\x04\0\x01\
-    \x12\x03\x02\x08\x19\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x18\n\x0c\n\
-    \x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\
-    \x03\x03\x0b\x13\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x16\x17\n\x0b\n\
-    \x04\x04\0\x02\x01\x12\x03\x04\x04\x11\n\x0c\n\x05\x04\0\x02\x01\x05\x12\
-    \x03\x04\x04\t\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\n\x0c\n\x0c\n\
-    \x05\x04\0\x02\x01\x03\x12\x03\x04\x0f\x10\n\x0b\n\x04\x04\0\x02\x02\x12\
-    \x03\x05\x04\x1a\n\x0c\n\x05\x04\0\x02\x02\x05\x12\x03\x05\x04\n\n\x0c\n\
-    \x05\x04\0\x02\x02\x01\x12\x03\x05\x0b\x15\n\x0c\n\x05\x04\0\x02\x02\x03\
-    \x12\x03\x05\x18\x19\n\x0b\n\x04\x04\0\x08\0\x12\x03\x06\x04?\n\x0c\n\
-    \x05\x04\0\x08\0\x01\x12\x03\x06\n\x20\n\x0b\n\x04\x04\0\x02\x03\x12\x03\
-    \x06#=\n\x0c\n\x05\x04\0\x02\x03\x05\x12\x03\x06#(\n\x0c\n\x05\x04\0\x02\
-    \x03\x01\x12\x03\x06)8\n\x0c\n\x05\x04\0\x02\x03\x03\x12\x03\x06;<b\x06p\
-    roto3\
+    \x02ty\x12\x0e\n\x02id\x18\x03\x20\x01(\tR\x02id\x12\x1a\n\x07payload\
+    \x18\x04\x20\x01(\x0cH\0R\x07payload\x12\x16\n\x05error\x18\x05\x20\x01(\
+    \x0cH\x01R\x05errorB\x10\n\x0eone_of_payloadB\x0e\n\x0cone_of_errorJ\xf3\
+    \x02\n\x06\x12\x04\0\0\x08\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\
+    \x04\0\x12\x04\x02\0\x08\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x19\n\
+    \x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x18\n\x0c\n\x05\x04\0\x02\0\x05\
+    \x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\x13\n\x0c\
+    \n\x05\x04\0\x02\0\x03\x12\x03\x03\x16\x17\n\x0b\n\x04\x04\0\x02\x01\x12\
+    \x03\x04\x04\x11\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\t\n\x0c\n\
+    \x05\x04\0\x02\x01\x01\x12\x03\x04\n\x0c\n\x0c\n\x05\x04\0\x02\x01\x03\
+    \x12\x03\x04\x0f\x10\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x04\x12\n\x0c\
+    \n\x05\x04\0\x02\x02\x05\x12\x03\x05\x04\n\n\x0c\n\x05\x04\0\x02\x02\x01\
+    \x12\x03\x05\x0b\r\n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05\x10\x11\n\
+    \x0b\n\x04\x04\0\x08\0\x12\x03\x06\x04/\n\x0c\n\x05\x04\0\x08\0\x01\x12\
+    \x03\x06\n\x18\n\x0b\n\x04\x04\0\x02\x03\x12\x03\x06\x1b-\n\x0c\n\x05\
+    \x04\0\x02\x03\x05\x12\x03\x06\x1b\x20\n\x0c\n\x05\x04\0\x02\x03\x01\x12\
+    \x03\x06!(\n\x0c\n\x05\x04\0\x02\x03\x03\x12\x03\x06+,\n\x0b\n\x04\x04\0\
+    \x08\x01\x12\x03\x07\x04+\n\x0c\n\x05\x04\0\x08\x01\x01\x12\x03\x07\n\
+    \x16\n\x0b\n\x04\x04\0\x02\x04\x12\x03\x07\x19)\n\x0c\n\x05\x04\0\x02\
+    \x04\x05\x12\x03\x07\x19\x1e\n\x0c\n\x05\x04\0\x02\x04\x01\x12\x03\x07\
+    \x1f$\n\x0c\n\x05\x04\0\x02\x04\x03\x12\x03\x07'(b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
@@ -32,7 +33,7 @@ class UserRepo {
     return UserEventSignOut().send();
   }
 
-  Future<Either<List<Workspace>, WorkspaceError>> fetchWorkspaces() {
+  Future<Either<List<Workspace>, WorkspaceError>> getWorkspaces() {
     final request = QueryWorkspaceRequest.create();
 
     return WorkspaceEventReadWorkspaces(request).send().then((result) {
@@ -69,8 +70,7 @@ class UserRepo {
 
 class UserWatchRepo {
   StreamSubscription<ObservableSubject>? _subscription;
-  UserCreateWorkspaceCallback? _createWorkspace;
-  UserDeleteWorkspaceCallback? _deleteWorkspace;
+  WorkspaceListUpdatedCallback? _workspaceListUpdated;
   late UserRepo _repo;
   UserWatchRepo({
     required UserProfile user,
@@ -78,19 +78,16 @@ class UserWatchRepo {
     _repo = UserRepo(user: user);
   }
 
-  void startWatching(
-      {UserCreateWorkspaceCallback? createWorkspace,
-      UserDeleteWorkspaceCallback? deleteWorkspace}) {
-    _createWorkspace = createWorkspace;
-    _deleteWorkspace = deleteWorkspace;
+  void startWatching({WorkspaceListUpdatedCallback? workspaceListUpdated}) {
+    _workspaceListUpdated = workspaceListUpdated;
     _subscription = RustStreamReceiver.listen((observable) {
-      if (observable.subjectId != _repo.user.id) {
+      if (observable.id != _repo.user.id) {
         return;
       }
 
       final ty = WorkspaceObservable.valueOf(observable.ty);
       if (ty != null) {
-        _handleObservableType(ty);
+        _handleObservableType(ty, Uint8List.fromList(observable.payload));
       }
     });
   }
@@ -99,31 +96,23 @@ class UserWatchRepo {
     await _subscription?.cancel();
   }
 
-  void _handleObservableType(WorkspaceObservable ty) {
+  void _handleObservableType(WorkspaceObservable ty, Uint8List payload) {
+    if (_workspaceListUpdated == null) {
+      return;
+    }
+
     switch (ty) {
       case WorkspaceObservable.UserCreateWorkspace:
-        if (_createWorkspace == null) {
-          return;
-        }
-        _repo.fetchWorkspaces().then((result) {
-          result.fold(
-            (workspaces) => _createWorkspace!(left(workspaces)),
-            (error) => _createWorkspace!(right(error)),
-          );
-        });
-        break;
       case WorkspaceObservable.UserDeleteWorkspace:
-        if (_deleteWorkspace == null) {
+      case WorkspaceObservable.WorkspaceListUpdated:
+        if (_workspaceListUpdated == null) {
           return;
         }
-        _repo.fetchWorkspaces().then((result) {
-          result.fold(
-            (workspaces) => _deleteWorkspace!(left(workspaces)),
-            (error) => _deleteWorkspace!(right(error)),
-          );
-        });
-        break;
 
+        final workspaces = RepeatedWorkspace.fromBuffer(payload);
+        _workspaceListUpdated!(left(workspaces.items));
+
+        break;
       default:
         break;
     }

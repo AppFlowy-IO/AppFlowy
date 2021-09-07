@@ -1,4 +1,8 @@
-use crate::{entities::workspace::*, errors::WorkspaceError, services::WorkspaceController};
+use crate::{
+    entities::{app::RepeatedApp, workspace::*},
+    errors::WorkspaceError,
+    services::WorkspaceController,
+};
 use flowy_dispatch::prelude::{data_result, Data, DataResult, Unit};
 use std::{convert::TryInto, sync::Arc};
 
@@ -17,6 +21,12 @@ pub(crate) async fn create_workspace_handler(
 pub(crate) async fn read_cur_workspace_handler(controller: Unit<Arc<WorkspaceController>>) -> DataResult<Workspace, WorkspaceError> {
     let workspace = controller.read_cur_workspace().await?;
     data_result(workspace)
+}
+
+#[tracing::instrument(skip(controller), err)]
+pub(crate) async fn read_workspace_apps_handler(controller: Unit<Arc<WorkspaceController>>) -> DataResult<RepeatedApp, WorkspaceError> {
+    let repeated_app = controller.read_workspace_apps().await?;
+    data_result(repeated_app)
 }
 
 #[tracing::instrument(skip(data, controller), err)]

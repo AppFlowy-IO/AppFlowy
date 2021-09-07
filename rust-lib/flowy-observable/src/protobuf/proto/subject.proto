@@ -3,6 +3,7 @@ syntax = "proto3";
 message ObservableSubject {
     string category = 1;
     int32 ty = 2;
-    string subject_id = 3;
-    oneof one_of_subject_payload { bytes subject_payload = 4; };
+    string id = 3;
+    oneof one_of_payload { bytes payload = 4; };
+    oneof one_of_error { bytes error = 5; };
 }

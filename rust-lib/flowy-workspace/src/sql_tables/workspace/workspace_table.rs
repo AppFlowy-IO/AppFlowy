@@ -60,4 +60,12 @@ impl WorkspaceTableChangeset {
             desc: params.desc,
         }
     }
+
+    pub(crate) fn from_table(table: WorkspaceTable) -> Self {
+        WorkspaceTableChangeset {
+            id: table.id,
+            name: Some(table.name),
+            desc: Some(table.desc),
+        }
+    }
 }

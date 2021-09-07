@@ -19,6 +19,9 @@ protobuf = {version = "2.18.0"}
 log = "0.4.14"
 diesel = {version = "1.4.7", features = ["sqlite"]}
 diesel_derives = {version = "1.4.1", features = ["sqlite"]}
+#diesel = { git = "https://github.com/diesel-rs/diesel.git", branch = "master", features = ["sqlite"] }
+#diesel_derives = { git = "https://github.com/diesel-rs/diesel.git", branch = "master",features = ["sqlite"] }
+
 futures-core = { version = "0.3", default-features = false }
 pin-project = "1.0.0"
 strum = "0.21"
