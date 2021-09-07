@@ -6,7 +6,6 @@ use crate::{
         DeleteViewRequest,
         QueryViewParams,
         QueryViewRequest,
-        RepeatedView,
         UpdateViewParams,
         UpdateViewRequest,
         View,

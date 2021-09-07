@@ -15,9 +15,10 @@ pub use diesel_derives::*;
 extern crate diesel_migrations;
 
 pub use flowy_sqlite::{DBConnection, Database};
+pub type Error = diesel::result::Error;
 
 use diesel_migrations::*;
-use flowy_sqlite::{Error, PoolConfig};
+use flowy_sqlite::PoolConfig;
 use std::{fmt::Debug, io, path::Path};
 
 pub mod prelude {
@@ -41,7 +42,7 @@ pub fn init(storage_path: &str) -> Result<Database, io::Error> {
 
 fn as_io_error<E>(e: E) -> io::Error
 where
-    E: Into<Error> + Debug,
+    E: Into<flowy_sqlite::Error> + Debug,
 {
     let msg = format!("{:?}", e);
     io::Error::new(io::ErrorKind::NotConnected, msg)

@@ -91,8 +91,8 @@ impl std::convert::From<flowy_net::errors::ServerError> for WorkspaceError {
     }
 }
 
-impl std::convert::From<flowy_database::result::Error> for WorkspaceError {
-    fn from(error: flowy_database::result::Error) -> Self { ErrorBuilder::new(ErrorCode::WorkspaceDatabaseError).error(error).build() }
+impl std::convert::From<flowy_database::Error> for WorkspaceError {
+    fn from(error: flowy_database::Error) -> Self { ErrorBuilder::new(ErrorCode::WorkspaceDatabaseError).error(error).build() }
 }
 
 impl flowy_dispatch::Error for WorkspaceError {

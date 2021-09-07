@@ -3,33 +3,27 @@ use crate::{
     errors::*,
     module::{WorkspaceDatabase, WorkspaceUser},
     observable::*,
-    services::{helper::spawn, server::Server, ViewController},
+    services::{helper::spawn, server::Server},
     sql_tables::app::{AppTable, AppTableChangeset, AppTableSql},
 };
 
-use crate::entities::view::RepeatedView;
+use flowy_database::SqliteConnection;
 use std::sync::Arc;
 
 pub(crate) struct AppController {
     user: Arc<dyn WorkspaceUser>,
     sql: Arc<AppTableSql>,
-    #[allow(dead_code)]
-    view_controller: Arc<ViewController>,
+    database: Arc<dyn WorkspaceDatabase>,
     server: Server,
 }
 
 impl AppController {
-    pub(crate) fn new(
-        user: Arc<dyn WorkspaceUser>,
-        database: Arc<dyn WorkspaceDatabase>,
-        view_controller: Arc<ViewController>,
-        server: Server,
-    ) -> Self {
-        let sql = Arc::new(AppTableSql::new(database));
+    pub(crate) fn new(user: Arc<dyn WorkspaceUser>, database: Arc<dyn WorkspaceDatabase>, server: Server) -> Self {
+        let sql = Arc::new(AppTableSql {});
         Self {
             user,
             sql,
-            view_controller,
+            database,
             server,
         }
     }
@@ -38,10 +32,11 @@ impl AppController {
     pub(crate) async fn create_app(&self, params: CreateAppParams) -> Result<App, WorkspaceError> {
         let app = self.create_app_on_server(params).await?;
         let app_table = AppTable::new(app.clone());
-        let _ = self.sql.create_app(app_table)?;
+        let conn = self.database.db_connection()?;
+        let _ = self.sql.create_app(app_table, &*conn)?;
 
         // Opti: transaction
-        let apps = self.read_local_apps(&app.workspace_id)?;
+        let apps = self.read_local_apps(&app.workspace_id, &*conn)?;
         ObservableBuilder::new(&app.workspace_id, WorkspaceObservable::WorkspaceCreateApp)
             .payload(apps)
             .build();
@@ -49,36 +44,40 @@ impl AppController {
     }
 
     pub(crate) async fn read_app(&self, params: QueryAppParams) -> Result<App, WorkspaceError> {
-        let app_table = self.sql.read_app(&params.app_id, params.is_trash)?;
+        let app_table = self
+            .sql
+            .read_app(&params.app_id, params.is_trash, &*self.database.db_connection()?)?;
         let _ = self.read_app_on_server(params).await?;
         Ok(app_table.into())
     }
 
     pub(crate) async fn delete_app(&self, app_id: &str) -> Result<(), WorkspaceError> {
-        let app = self.sql.delete_app(app_id)?;
-        let _ = self.delete_app_on_server(app_id).await?;
+        let _ = self.delete_app_on_server(app_id);
 
+        let conn = self.database.db_connection()?;
+        let app = self.sql.delete_app(app_id, &*conn)?;
         // Opti: transaction
-        let apps = self.read_local_apps(&app.workspace_id)?;
+        let apps = self.read_local_apps(&app.workspace_id, &*conn)?;
         ObservableBuilder::new(&app.workspace_id, WorkspaceObservable::WorkspaceDeleteApp)
             .payload(apps)
             .build();
         Ok(())
     }
 
-    fn read_local_apps(&self, workspace_id: &str) -> Result<RepeatedApp, WorkspaceError> {
-        let app_tables = self.sql.read_apps(workspace_id, false)?;
+    fn read_local_apps(&self, workspace_id: &str, conn: &SqliteConnection) -> Result<RepeatedApp, WorkspaceError> {
+        let app_tables = self.sql.read_apps(workspace_id, false, conn)?;
         let apps = app_tables.into_iter().map(|table| table.into()).collect::<Vec<App>>();
         Ok(RepeatedApp { items: apps })
     }
 
     pub(crate) async fn update_app(&self, params: UpdateAppParams) -> Result<(), WorkspaceError> {
-        let changeset = AppTableChangeset::new(params.clone());
-        let app_id = changeset.id.clone();
-        let _ = self.sql.update_app(changeset)?;
-        let _ = self.update_app_on_server(params).await?;
+        let _ = self.update_app_on_server(params.clone()).await?;
 
-        let app: App = self.sql.read_app(&app_id, false)?.into();
+        let changeset = AppTableChangeset::new(params);
+        let app_id = changeset.id.clone();
+        let conn = self.database.db_connection()?;
+        let _ = self.sql.update_app(changeset, &*conn)?;
+        let app: App = self.sql.read_app(&app_id, false, &*conn)?.into();
         ObservableBuilder::new(&app_id, WorkspaceObservable::AppUpdated)
             .payload(app)
             .build();

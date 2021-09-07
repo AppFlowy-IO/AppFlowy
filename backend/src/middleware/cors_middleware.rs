@@ -1,6 +1,5 @@
 use actix_cors::Cors;
 use actix_web::http;
-use flowy_net::config::HEADER_TOKEN;
 
 // https://javascript.info/fetch-crossorigin#cors-for-safe-requests
 // https://docs.rs/actix-cors/0.5.4/actix_cors/index.html

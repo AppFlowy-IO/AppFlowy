@@ -15,12 +15,7 @@ pub struct DocError {
 }
 
 impl DocError {
-    fn new(code: DocErrorCode, msg: &str) -> Self {
-        Self {
-            code,
-            msg: msg.to_owned(),
-        }
-    }
+    fn new(code: DocErrorCode, msg: &str) -> Self { Self { code, msg: msg.to_owned() } }
 }
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
@@ -57,20 +52,12 @@ impl std::default::Default for DocErrorCode {
     fn default() -> Self { DocErrorCode::Unknown }
 }
 
-impl std::convert::From<flowy_database::result::Error> for DocError {
-    fn from(error: flowy_database::result::Error) -> Self {
-        ErrorBuilder::new(DocErrorCode::EditorDBInternalError)
-            .error(error)
-            .build()
-    }
+impl std::convert::From<flowy_database::Error> for DocError {
+    fn from(error: flowy_database::Error) -> Self { ErrorBuilder::new(DocErrorCode::EditorDBInternalError).error(error).build() }
 }
 
 impl std::convert::From<FileError> for DocError {
-    fn from(error: FileError) -> Self {
-        ErrorBuilder::new(DocErrorCode::DocOpenFileError)
-            .error(error)
-            .build()
-    }
+    fn from(error: FileError) -> Self { ErrorBuilder::new(DocErrorCode::DocOpenFileError).error(error).build() }
 }
 
 impl flowy_dispatch::Error for DocError {

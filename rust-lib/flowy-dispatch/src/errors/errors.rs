@@ -17,11 +17,7 @@ pub trait Error: fmt::Debug + DynClone + Send + Sync {
 dyn_clone::clone_trait_object!(Error);
 
 impl<T: Error + 'static> From<T> for DispatchError {
-    fn from(err: T) -> DispatchError {
-        DispatchError {
-            inner: Box::new(err),
-        }
-    }
+    fn from(err: T) -> DispatchError { DispatchError { inner: Box::new(err) } }
 }
 
 #[derive(Clone)]
@@ -48,9 +44,7 @@ impl std::error::Error for DispatchError {
 }
 
 impl From<SendError<EventRequest>> for DispatchError {
-    fn from(err: SendError<EventRequest>) -> Self {
-        InternalError::Other(format!("{}", err)).into()
-    }
+    fn from(err: SendError<EventRequest>) -> Self { InternalError::Other(format!("{}", err)).into() }
 }
 
 impl From<String> for DispatchError {
@@ -59,9 +53,7 @@ impl From<String> for DispatchError {
 
 #[cfg(feature = "use_protobuf")]
 impl From<protobuf::ProtobufError> for DispatchError {
-    fn from(e: protobuf::ProtobufError) -> Self {
-        InternalError::ProtobufError(format!("{:?}", e)).into()
-    }
+    fn from(e: protobuf::ProtobufError) -> Self { InternalError::ProtobufError(format!("{:?}", e)).into() }
 }
 
 impl FromBytes for DispatchError {
@@ -90,7 +82,6 @@ pub(crate) enum InternalError {
     UnexpectedNone(String),
     DeserializeFromBytes(String),
     JoinError(String),
-    Lock(String),
     ServiceNotFound(String),
     HandleNotFound(String),
     Other(String),
@@ -103,7 +94,6 @@ impl fmt::Display for InternalError {
             InternalError::UnexpectedNone(s) => fmt::Display::fmt(&s, f),
             InternalError::DeserializeFromBytes(s) => fmt::Display::fmt(&s, f),
             InternalError::JoinError(s) => fmt::Display::fmt(&s, f),
-            InternalError::Lock(s) => fmt::Display::fmt(&s, f),
             InternalError::ServiceNotFound(s) => fmt::Display::fmt(&s, f),
             InternalError::HandleNotFound(s) => fmt::Display::fmt(&s, f),
             InternalError::Other(s) => fmt::Display::fmt(&s, f),

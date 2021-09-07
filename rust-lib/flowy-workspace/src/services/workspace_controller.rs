@@ -4,17 +4,20 @@ use crate::{
     module::{WorkspaceDatabase, WorkspaceUser},
     observable::WorkspaceObservable,
     services::{helper::spawn, server::Server, AppController},
-    sql_tables::workspace::{WorkspaceSql, WorkspaceTable, WorkspaceTableChangeset},
+    sql_tables::workspace::{WorkspaceTable, WorkspaceTableChangeset, WorkspaceTableSql},
 };
 
 use flowy_infra::kv::KV;
 
 use crate::{entities::app::RepeatedApp, observable::ObservableBuilder};
+use flowy_database::SqliteConnection;
 use std::sync::Arc;
 
 pub(crate) struct WorkspaceController {
     pub user: Arc<dyn WorkspaceUser>,
-    pub sql: Arc<WorkspaceSql>,
+    pub workspace_sql: Arc<WorkspaceTableSql>,
+    // pub app_sql: Arc<AppTableSql>,
+    pub database: Arc<dyn WorkspaceDatabase>,
     pub app_controller: Arc<AppController>,
     server: Server,
 }
@@ -26,10 +29,11 @@ impl WorkspaceController {
         app_controller: Arc<AppController>,
         server: Server,
     ) -> Self {
-        let sql = Arc::new(WorkspaceSql::new(database));
+        let sql = Arc::new(WorkspaceTableSql {});
         Self {
             user,
-            sql,
+            workspace_sql: sql,
+            database,
             app_controller,
             server,
         }
@@ -39,48 +43,73 @@ impl WorkspaceController {
         let workspace = self.create_workspace_on_server(params.clone()).await?;
         let user_id = self.user.user_id()?;
         let workspace_table = WorkspaceTable::new(workspace.clone(), &user_id);
-        let _ = self.sql.create_workspace(workspace_table)?;
+        let conn = &*self.database.db_connection()?;
+        //[[immediate_transaction]]
+        // https://sqlite.org/lang_transaction.html
+        // IMMEDIATE cause the database connection to start a new write immediately,
+        // without waiting for a write statement. The BEGIN IMMEDIATE might fail
+        // with SQLITE_BUSY if another write transaction is already active on another
+        // database connection.
+        //
+        // EXCLUSIVE is similar to IMMEDIATE in that a write transaction is started
+        // immediately. EXCLUSIVE and IMMEDIATE are the same in WAL mode, but in
+        // other journaling modes, EXCLUSIVE prevents other database connections from
+        // reading the database while the transaction is underway.
+        (conn).immediate_transaction::<_, WorkspaceError, _>(|| {
+            self.workspace_sql.create_workspace(workspace_table, conn)?;
+            let repeated_workspace = self.read_local_workspaces(None, &user_id, conn)?;
+            ObservableBuilder::new(&user_id, WorkspaceObservable::UserCreateWorkspace)
+                .payload(repeated_workspace)
+                .build();
 
-        // Opti: read all local workspaces may cause performance issues
-        let repeated_workspace = self.read_local_workspaces(None, &user_id)?;
-        ObservableBuilder::new(&user_id, WorkspaceObservable::UserCreateWorkspace)
-            .payload(repeated_workspace)
-            .build();
+            Ok(())
+        })?;
+
         Ok(workspace)
     }
 
     pub(crate) async fn update_workspace(&self, params: UpdateWorkspaceParams) -> Result<(), WorkspaceError> {
-        let changeset = WorkspaceTableChangeset::new(params.clone());
-        let workspace_id = changeset.id.clone();
-        let _ = self.sql.update_workspace(changeset)?;
-        let _ = self.update_workspace_on_server(params).await?;
+        let _ = self.update_workspace_on_server(params.clone()).await?;
 
-        // Opti: transaction
-        let user_id = self.user.user_id()?;
-        let workspace = self.read_local_workspace(workspace_id.clone(), &user_id)?;
-        ObservableBuilder::new(&workspace_id, WorkspaceObservable::WorkspaceUpdated)
-            .payload(workspace)
-            .build();
+        let changeset = WorkspaceTableChangeset::new(params);
+        let workspace_id = changeset.id.clone();
+        let conn = &*self.database.db_connection()?;
+        (conn).immediate_transaction::<_, WorkspaceError, _>(|| {
+            let _ = self.workspace_sql.update_workspace(changeset, conn)?;
+            let user_id = self.user.user_id()?;
+            let workspace = self.read_local_workspace(workspace_id.clone(), &user_id, conn)?;
+            ObservableBuilder::new(&workspace_id, WorkspaceObservable::WorkspaceUpdated)
+                .payload(workspace)
+                .build();
+
+            Ok(())
+        })?;
+
         Ok(())
     }
 
     pub(crate) async fn delete_workspace(&self, workspace_id: &str) -> Result<(), WorkspaceError> {
         let user_id = self.user.user_id()?;
-        let _ = self.sql.delete_workspace(workspace_id)?;
         let _ = self.delete_workspace_on_server(workspace_id).await?;
+        let conn = &*self.database.db_connection()?;
+        (conn).immediate_transaction::<_, WorkspaceError, _>(|| {
+            let _ = self.workspace_sql.delete_workspace(workspace_id, conn)?;
+            let repeated_workspace = self.read_local_workspaces(None, &user_id, conn)?;
+            ObservableBuilder::new(&user_id, WorkspaceObservable::UserDeleteWorkspace)
+                .payload(repeated_workspace)
+                .build();
 
-        // Opti: read all local workspaces may cause performance issues
-        let repeated_workspace = self.read_local_workspaces(None, &user_id)?;
-        ObservableBuilder::new(&user_id, WorkspaceObservable::UserDeleteWorkspace)
-            .payload(repeated_workspace)
-            .build();
+            Ok(())
+        })?;
+
         Ok(())
     }
 
     pub(crate) async fn open_workspace(&self, params: QueryWorkspaceParams) -> Result<Workspace, WorkspaceError> {
         let user_id = self.user.user_id()?;
+        let conn = self.database.db_connection()?;
         if let Some(workspace_id) = params.workspace_id.clone() {
-            let workspace = self.read_local_workspace(workspace_id, &user_id)?;
+            let workspace = self.read_local_workspace(workspace_id, &user_id, &*conn)?;
             set_current_workspace(&workspace.id);
             Ok(workspace)
         } else {
@@ -92,34 +121,47 @@ impl WorkspaceController {
 
     pub(crate) async fn read_workspaces(&self, params: QueryWorkspaceParams) -> Result<RepeatedWorkspace, WorkspaceError> {
         let user_id = self.user.user_id()?;
-        let workspaces = self.read_local_workspaces(params.workspace_id.clone(), &user_id)?;
-        let _ = self.read_workspaces_on_server(user_id, params).await?;
+        let _ = self.read_workspaces_on_server(user_id.clone(), params.clone()).await;
+
+        let conn = self.database.db_connection()?;
+        let workspaces = self.read_local_workspaces(params.workspace_id.clone(), &user_id, &*conn)?;
         Ok(workspaces)
     }
 
     pub(crate) async fn read_cur_workspace(&self) -> Result<Workspace, WorkspaceError> {
         let workspace_id = get_current_workspace()?;
         let user_id = self.user.user_id()?;
-        let workspace = self.read_local_workspace(workspace_id, &user_id)?;
+        let params = QueryWorkspaceParams {
+            workspace_id: Some(workspace_id.clone()),
+        };
+        let _ = self.read_workspaces_on_server(user_id.clone(), params).await?;
+
+        let conn = self.database.db_connection()?;
+        let workspace = self.read_local_workspace(workspace_id, &user_id, &*conn)?;
         Ok(workspace)
     }
 
     pub(crate) async fn read_workspace_apps(&self) -> Result<RepeatedApp, WorkspaceError> {
         let workspace_id = get_current_workspace()?;
-        let apps = self.read_local_apps(&workspace_id)?;
+        let conn = self.database.db_connection()?;
+        let apps = self.read_local_apps(&workspace_id, &*conn)?;
         // TODO: read from server
         Ok(RepeatedApp { items: apps })
     }
 
-    #[tracing::instrument(level = "debug", skip(self), err)]
-    fn read_local_workspaces(&self, workspace_id: Option<String>, user_id: &str) -> Result<RepeatedWorkspace, WorkspaceError> {
-        let sql = self.sql.clone();
+    #[tracing::instrument(level = "debug", skip(self, conn), err)]
+    fn read_local_workspaces(
+        &self,
+        workspace_id: Option<String>,
+        user_id: &str,
+        conn: &SqliteConnection,
+    ) -> Result<RepeatedWorkspace, WorkspaceError> {
         let workspace_id = workspace_id.to_owned();
-        let workspace_tables = sql.read_workspaces(workspace_id, user_id)?;
+        let workspace_tables = self.workspace_sql.read_workspaces(workspace_id, user_id, conn)?;
 
         let mut workspaces = vec![];
         for table in workspace_tables {
-            let apps = self.read_local_apps(&table.id)?;
+            let apps = self.read_local_apps(&table.id, conn)?;
             let mut workspace: Workspace = table.into();
             workspace.apps.items = apps;
             workspaces.push(workspace);
@@ -127,9 +169,9 @@ impl WorkspaceController {
         Ok(RepeatedWorkspace { items: workspaces })
     }
 
-    fn read_local_workspace(&self, workspace_id: String, user_id: &str) -> Result<Workspace, WorkspaceError> {
+    fn read_local_workspace(&self, workspace_id: String, user_id: &str, conn: &SqliteConnection) -> Result<Workspace, WorkspaceError> {
         // Opti: fetch single workspace from local db
-        let mut repeated_workspace = self.read_local_workspaces(Some(workspace_id), user_id)?;
+        let mut repeated_workspace = self.read_local_workspaces(Some(workspace_id), user_id, conn)?;
         if repeated_workspace.is_empty() {
             return Err(ErrorBuilder::new(ErrorCode::RecordNotFound).build());
         }
@@ -139,11 +181,11 @@ impl WorkspaceController {
         Ok(workspace)
     }
 
-    #[tracing::instrument(level = "debug", skip(self), err)]
-    fn read_local_apps(&self, workspace_id: &str) -> Result<Vec<App>, WorkspaceError> {
+    #[tracing::instrument(level = "debug", skip(self, conn), err)]
+    fn read_local_apps(&self, workspace_id: &str, conn: &SqliteConnection) -> Result<Vec<App>, WorkspaceError> {
         let apps = self
-            .sql
-            .read_apps_belong_to_workspace(workspace_id)?
+            .workspace_sql
+            .read_apps_belong_to_workspace(workspace_id, conn)?
             .into_iter()
             .map(|app_table| app_table.into())
             .collect::<Vec<App>>();
@@ -202,20 +244,36 @@ impl WorkspaceController {
     #[tracing::instrument(skip(self), err)]
     async fn read_workspaces_on_server(&self, user_id: String, params: QueryWorkspaceParams) -> Result<(), WorkspaceError> {
         let (token, server) = self.token_with_server()?;
-        let sql = self.sql.clone();
-        let conn = self.sql.get_db_conn()?;
+        let sql = self.workspace_sql.clone();
+        let conn = self.database.db_connection()?;
         spawn(async move {
             // Opti: retry?
             let workspaces = server.read_workspace(&token, params).await?;
             let _ = (&*conn).immediate_transaction::<_, WorkspaceError, _>(|| {
                 for workspace in &workspaces.items {
                     let mut m_workspace = workspace.clone();
-                    let repeated_app = m_workspace.apps.take_items();
+                    let apps = m_workspace.apps.take_items();
                     let workspace_table = WorkspaceTable::new(m_workspace, &user_id);
-                    log::debug!("Save workspace: {} to disk", &workspace.id);
-                    let _ = sql.create_workspace_with(workspace_table, &*conn)?;
-                    log::debug!("Save workspace: {} apps to disk", &workspace.id);
-                    let _ = sql.create_apps(repeated_app, &*conn)?;
+                    log::debug!("Save workspace");
+                    let _ = sql.create_workspace(workspace_table, &*conn)?;
+                    log::debug!("Save apps");
+
+                    for mut app in apps {
+                        let views = app.belongings.take_items();
+                        // let _ = sql.create_apps(vec![app], &*conn)?;
+
+                        // pub(crate) fn create_apps(&self, apps: Vec<App>, conn: &SqliteConnection) ->
+                        // Result<(), WorkspaceError> {     for app in apps {
+                        //         let _ = self.app_sql.create_app_with(AppTable::new(app), conn)?;
+                        //     }
+                        //     Ok(())
+                        // }
+
+                        log::debug!("Save views");
+                        for _view in views {
+                            //
+                        }
+                    }
                 }
                 Ok(())
             })?;

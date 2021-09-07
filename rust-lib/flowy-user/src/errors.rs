@@ -98,8 +98,8 @@ impl std::default::Default for ErrorCode {
     fn default() -> Self { ErrorCode::Unknown }
 }
 
-impl std::convert::From<flowy_database::result::Error> for UserError {
-    fn from(error: flowy_database::result::Error) -> Self { ErrorBuilder::new(ErrorCode::UserDatabaseInternalError).error(error).build() }
+impl std::convert::From<flowy_database::Error> for UserError {
+    fn from(error: flowy_database::Error) -> Self { ErrorBuilder::new(ErrorCode::UserDatabaseInternalError).error(error).build() }
 }
 
 impl std::convert::From<::r2d2::Error> for UserError {

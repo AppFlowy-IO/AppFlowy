@@ -1,17 +1,14 @@
 use crate::{
-    entities::{
-        app::{
-            App,
-            CreateAppParams,
-            CreateAppRequest,
-            DeleteAppParams,
-            DeleteAppRequest,
-            QueryAppParams,
-            QueryAppRequest,
-            UpdateAppParams,
-            UpdateAppRequest,
-        },
-        view::RepeatedView,
+    entities::app::{
+        App,
+        CreateAppParams,
+        CreateAppRequest,
+        DeleteAppParams,
+        DeleteAppRequest,
+        QueryAppParams,
+        QueryAppRequest,
+        UpdateAppParams,
+        UpdateAppRequest,
     },
     errors::WorkspaceError,
     services::{AppController, ViewController},

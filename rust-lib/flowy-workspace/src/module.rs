@@ -28,12 +28,7 @@ pub fn create(user: Arc<dyn WorkspaceUser>, database: Arc<dyn WorkspaceDatabase>
     let server = construct_workspace_server();
     let view_controller = Arc::new(ViewController::new(user.clone(), database.clone(), server.clone()));
 
-    let app_controller = Arc::new(AppController::new(
-        user.clone(),
-        database.clone(),
-        view_controller.clone(),
-        server.clone(),
-    ));
+    let app_controller = Arc::new(AppController::new(user.clone(), database.clone(), server.clone()));
 
     let workspace_controller = Arc::new(WorkspaceController::new(
         user.clone(),
