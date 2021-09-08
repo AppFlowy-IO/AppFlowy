@@ -23,8 +23,9 @@ const WorkspaceObservable$json = const {
     const {'1': 'AppCreateView', '2': 23},
     const {'1': 'AppDeleteView', '2': 24},
     const {'1': 'ViewUpdated', '2': 31},
+    const {'1': 'UserUnauthorized', '2': 100},
   ],
 };
 
 /// Descriptor for `WorkspaceObservable`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List workspaceObservableDescriptor = $convert.base64Decode('ChNXb3Jrc3BhY2VPYnNlcnZhYmxlEgsKB1Vua25vd24QABIXChNVc2VyQ3JlYXRlV29ya3NwYWNlEAoSFwoTVXNlckRlbGV0ZVdvcmtzcGFjZRALEhQKEFdvcmtzcGFjZVVwZGF0ZWQQDBIWChJXb3Jrc3BhY2VDcmVhdGVBcHAQDRIWChJXb3Jrc3BhY2VEZWxldGVBcHAQDhIYChRXb3Jrc3BhY2VMaXN0VXBkYXRlZBAPEg4KCkFwcFVwZGF0ZWQQFRIRCg1BcHBDcmVhdGVWaWV3EBcSEQoNQXBwRGVsZXRlVmlldxAYEg8KC1ZpZXdVcGRhdGVkEB8=');
+final $typed_data.Uint8List workspaceObservableDescriptor = $convert.base64Decode('ChNXb3Jrc3BhY2VPYnNlcnZhYmxlEgsKB1Vua25vd24QABIXChNVc2VyQ3JlYXRlV29ya3NwYWNlEAoSFwoTVXNlckRlbGV0ZVdvcmtzcGFjZRALEhQKEFdvcmtzcGFjZVVwZGF0ZWQQDBIWChJXb3Jrc3BhY2VDcmVhdGVBcHAQDRIWChJXb3Jrc3BhY2VEZWxldGVBcHAQDhIYChRXb3Jrc3BhY2VMaXN0VXBkYXRlZBAPEg4KCkFwcFVwZGF0ZWQQFRIRCg1BcHBDcmVhdGVWaWV3EBcSEQoNQXBwRGVsZXRlVmlldxAYEg8KC1ZpZXdVcGRhdGVkEB8SFAoQVXNlclVuYXV0aG9yaXplZBBk');

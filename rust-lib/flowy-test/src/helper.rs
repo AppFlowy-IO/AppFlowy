@@ -43,7 +43,7 @@ const DEFAULT_WORKSPACE: &'static str = "Default_Workspace";
 pub(crate) fn create_default_workspace_if_need(dispatch: Arc<EventDispatch>, user_id: &str) -> Result<(), UserError> {
     let key = format!("{}{}", user_id, DEFAULT_WORKSPACE);
     if KV::get_bool(&key).unwrap_or(false) {
-        return Err(ErrorBuilder::new(ErrorCode::DefaultWorkspaceAlreadyExist).build());
+        return Err(ErrorBuilder::new(ErrorCode::InternalError).build());
     }
     KV::set_bool(&key, true);
 
@@ -57,9 +57,9 @@ pub(crate) fn create_default_workspace_if_need(dispatch: Arc<EventDispatch>, use
     let request = ModuleRequest::new(CreateWorkspace).payload(payload);
     let result = EventDispatch::sync_send(dispatch.clone(), request)
         .parse::<Workspace, WorkspaceError>()
-        .map_err(|e| ErrorBuilder::new(ErrorCode::CreateDefaultWorkspaceFailed).error(e).build())?;
+        .map_err(|e| ErrorBuilder::new(ErrorCode::InternalError).error(e).build())?;
 
-    let workspace = result.map_err(|e| ErrorBuilder::new(ErrorCode::CreateDefaultWorkspaceFailed).error(e).build())?;
+    let workspace = result.map_err(|e| ErrorBuilder::new(ErrorCode::InternalError).error(e).build())?;
     let query: Bytes = QueryWorkspaceRequest {
         workspace_id: Some(workspace.id.clone()),
     }

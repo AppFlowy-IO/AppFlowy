@@ -2,7 +2,7 @@ use bytes::Bytes;
 use derive_more::Display;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_dispatch::prelude::{EventResponse, ResponseBuilder};
-use flowy_net::errors::ErrorCode as NetworkErrorCode;
+
 use std::{convert::TryInto, fmt};
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
@@ -62,17 +62,14 @@ pub enum ErrorCode {
     #[display(fmt = "Database internal error")]
     WorkspaceDatabaseError = 101,
 
-    #[display(fmt = "User internal error")]
-    UserInternalError    = 102,
-
-    #[display(fmt = "User not login yet")]
-    UserNotLoginYet      = 103,
-
     #[display(fmt = "UserIn is empty")]
-    UserIdIsEmpty        = 104,
+    UserIdIsEmpty        = 102,
+
+    #[display(fmt = "User unauthorized")]
+    UserUnauthorized     = 103,
 
     #[display(fmt = "Server error")]
-    ServerError          = 1000,
+    InternalError        = 1000,
     #[display(fmt = "Record not found")]
     RecordNotFound       = 1001,
 }
@@ -83,11 +80,8 @@ impl std::default::Default for ErrorCode {
 
 impl std::convert::From<flowy_net::errors::ServerError> for WorkspaceError {
     fn from(error: flowy_net::errors::ServerError) -> Self {
-        match error.code {
-            NetworkErrorCode::RecordNotFound => ErrorBuilder::new(ErrorCode::RecordNotFound).error(error.msg).build(),
-
-            _ => ErrorBuilder::new(ErrorCode::ServerError).error(error.msg).build(),
-        }
+        let code = server_error_to_workspace_error(error.code);
+        ErrorBuilder::new(code).error(error.msg).build()
     }
 }
 
@@ -110,4 +104,13 @@ pub type ErrorBuilder = flowy_infra::errors::Builder<ErrorCode, WorkspaceError>;
 
 impl flowy_infra::errors::Build<ErrorCode> for WorkspaceError {
     fn build(code: ErrorCode, msg: String) -> Self { WorkspaceError::new(code, &msg) }
+}
+
+use flowy_net::errors::ErrorCode as ServerErrorCode;
+fn server_error_to_workspace_error(code: ServerErrorCode) -> ErrorCode {
+    match code {
+        ServerErrorCode::Unauthorized => ErrorCode::UserUnauthorized,
+        ServerErrorCode::RecordNotFound => ErrorCode::RecordNotFound,
+        _ => ErrorCode::InternalError,
+    }
 }

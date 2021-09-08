@@ -13,11 +13,13 @@ class UserObservable extends $pb.ProtobufEnum {
   static const UserObservable Unknown = UserObservable._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unknown');
   static const UserObservable UserAuthChanged = UserObservable._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserAuthChanged');
   static const UserObservable UserProfileUpdated = UserObservable._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserProfileUpdated');
+  static const UserObservable UserUnauthorized = UserObservable._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserUnauthorized');
 
   static const $core.List<UserObservable> values = <UserObservable> [
     Unknown,
     UserAuthChanged,
     UserProfileUpdated,
+    UserUnauthorized,
   ];
 
   static final $core.Map<$core.int, UserObservable> _byValue = $pb.ProtobufEnum.initByValue(values);

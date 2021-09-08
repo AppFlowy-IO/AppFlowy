@@ -21,6 +21,7 @@ class WorkspaceObservable extends $pb.ProtobufEnum {
   static const WorkspaceObservable AppCreateView = WorkspaceObservable._(23, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppCreateView');
   static const WorkspaceObservable AppDeleteView = WorkspaceObservable._(24, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppDeleteView');
   static const WorkspaceObservable ViewUpdated = WorkspaceObservable._(31, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewUpdated');
+  static const WorkspaceObservable UserUnauthorized = WorkspaceObservable._(100, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserUnauthorized');
 
   static const $core.List<WorkspaceObservable> values = <WorkspaceObservable> [
     Unknown,
@@ -34,6 +35,7 @@ class WorkspaceObservable extends $pb.ProtobufEnum {
     AppCreateView,
     AppDeleteView,
     ViewUpdated,
+    UserUnauthorized,
   ];
 
   static final $core.Map<$core.int, WorkspaceObservable> _byValue = $pb.ProtobufEnum.initByValue(values);

@@ -1,7 +1,6 @@
-use bytes::Bytes;
 use flowy_derive::ProtoBuf_Enum;
-use flowy_dispatch::prelude::ToBytes;
-use flowy_observable::{dart::RustStreamSender, entities::ObservableSubject, ObservableBuilder};
+
+use flowy_observable::ObservableBuilder;
 
 const OBSERVABLE_CATEGORY: &'static str = "User";
 
@@ -10,6 +9,7 @@ pub(crate) enum UserObservable {
     Unknown            = 0,
     UserAuthChanged    = 1,
     UserProfileUpdated = 2,
+    UserUnauthorized   = 3,
 }
 
 impl std::default::Default for UserObservable {

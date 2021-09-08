@@ -26,7 +26,7 @@
 #[derive(PartialEq,Clone,Default)]
 pub struct ObservableSubject {
     // message fields
-    pub category: ::std::string::String,
+    pub source: ::std::string::String,
     pub ty: i32,
     pub id: ::std::string::String,
     // message oneof groups
@@ -58,30 +58,30 @@ impl ObservableSubject {
         ::std::default::Default::default()
     }
 
-    // string category = 1;
+    // string source = 1;
 
 
-    pub fn get_category(&self) -> &str {
-        &self.category
+    pub fn get_source(&self) -> &str {
+        &self.source
     }
-    pub fn clear_category(&mut self) {
-        self.category.clear();
+    pub fn clear_source(&mut self) {
+        self.source.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_category(&mut self, v: ::std::string::String) {
-        self.category = v;
+    pub fn set_source(&mut self, v: ::std::string::String) {
+        self.source = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_category(&mut self) -> &mut ::std::string::String {
-        &mut self.category
+    pub fn mut_source(&mut self) -> &mut ::std::string::String {
+        &mut self.source
     }
 
     // Take field
-    pub fn take_category(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.category, ::std::string::String::new())
+    pub fn take_source(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.source, ::std::string::String::new())
     }
 
     // int32 ty = 2;
@@ -234,7 +234,7 @@ impl ::protobuf::Message for ObservableSubject {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.category)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.source)?;
                 },
                 2 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
@@ -270,8 +270,8 @@ impl ::protobuf::Message for ObservableSubject {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.category.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.category);
+        if !self.source.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.source);
         }
         if self.ty != 0 {
             my_size += ::protobuf::rt::value_size(2, self.ty, ::protobuf::wire_format::WireTypeVarint);
@@ -299,8 +299,8 @@ impl ::protobuf::Message for ObservableSubject {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.category.is_empty() {
-            os.write_string(1, &self.category)?;
+        if !self.source.is_empty() {
+            os.write_string(1, &self.source)?;
         }
         if self.ty != 0 {
             os.write_int32(2, self.ty)?;
@@ -361,9 +361,9 @@ impl ::protobuf::Message for ObservableSubject {
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "category",
-                |m: &ObservableSubject| { &m.category },
-                |m: &mut ObservableSubject| { &mut m.category },
+                "source",
+                |m: &ObservableSubject| { &m.source },
+                |m: &mut ObservableSubject| { &mut m.source },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
                 "ty",
@@ -401,7 +401,7 @@ impl ::protobuf::Message for ObservableSubject {
 
 impl ::protobuf::Clear for ObservableSubject {
     fn clear(&mut self) {
-        self.category.clear();
+        self.source.clear();
         self.ty = 0;
         self.id.clear();
         self.one_of_payload = ::std::option::Option::None;
@@ -423,20 +423,20 @@ impl ::protobuf::reflect::ProtobufValue for ObservableSubject {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\rsubject.proto\"\xa5\x01\n\x11ObservableSubject\x12\x1a\n\x08category\
-    \x18\x01\x20\x01(\tR\x08category\x12\x0e\n\x02ty\x18\x02\x20\x01(\x05R\
-    \x02ty\x12\x0e\n\x02id\x18\x03\x20\x01(\tR\x02id\x12\x1a\n\x07payload\
-    \x18\x04\x20\x01(\x0cH\0R\x07payload\x12\x16\n\x05error\x18\x05\x20\x01(\
-    \x0cH\x01R\x05errorB\x10\n\x0eone_of_payloadB\x0e\n\x0cone_of_errorJ\xf3\
-    \x02\n\x06\x12\x04\0\0\x08\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\
-    \x04\0\x12\x04\x02\0\x08\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x19\n\
-    \x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x18\n\x0c\n\x05\x04\0\x02\0\x05\
-    \x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\x13\n\x0c\
-    \n\x05\x04\0\x02\0\x03\x12\x03\x03\x16\x17\n\x0b\n\x04\x04\0\x02\x01\x12\
-    \x03\x04\x04\x11\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\t\n\x0c\n\
-    \x05\x04\0\x02\x01\x01\x12\x03\x04\n\x0c\n\x0c\n\x05\x04\0\x02\x01\x03\
-    \x12\x03\x04\x0f\x10\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x04\x12\n\x0c\
-    \n\x05\x04\0\x02\x02\x05\x12\x03\x05\x04\n\n\x0c\n\x05\x04\0\x02\x02\x01\
+    \n\rsubject.proto\"\xa1\x01\n\x11ObservableSubject\x12\x16\n\x06source\
+    \x18\x01\x20\x01(\tR\x06source\x12\x0e\n\x02ty\x18\x02\x20\x01(\x05R\x02\
+    ty\x12\x0e\n\x02id\x18\x03\x20\x01(\tR\x02id\x12\x1a\n\x07payload\x18\
+    \x04\x20\x01(\x0cH\0R\x07payload\x12\x16\n\x05error\x18\x05\x20\x01(\x0c\
+    H\x01R\x05errorB\x10\n\x0eone_of_payloadB\x0e\n\x0cone_of_errorJ\xf3\x02\
+    \n\x06\x12\x04\0\0\x08\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\
+    \0\x12\x04\x02\0\x08\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x19\n\x0b\n\
+    \x04\x04\0\x02\0\x12\x03\x03\x04\x16\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\
+    \x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\x11\n\x0c\n\x05\
+    \x04\0\x02\0\x03\x12\x03\x03\x14\x15\n\x0b\n\x04\x04\0\x02\x01\x12\x03\
+    \x04\x04\x11\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\t\n\x0c\n\x05\
+    \x04\0\x02\x01\x01\x12\x03\x04\n\x0c\n\x0c\n\x05\x04\0\x02\x01\x03\x12\
+    \x03\x04\x0f\x10\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x04\x12\n\x0c\n\
+    \x05\x04\0\x02\x02\x05\x12\x03\x05\x04\n\n\x0c\n\x05\x04\0\x02\x02\x01\
     \x12\x03\x05\x0b\r\n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05\x10\x11\n\
     \x0b\n\x04\x04\0\x08\0\x12\x03\x06\x04/\n\x0c\n\x05\x04\0\x08\0\x01\x12\
     \x03\x06\n\x18\n\x0b\n\x04\x04\0\x02\x03\x12\x03\x06\x1b-\n\x0c\n\x05\

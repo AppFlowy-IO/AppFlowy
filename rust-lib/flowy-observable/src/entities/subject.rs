@@ -3,7 +3,7 @@ use flowy_derive::ProtoBuf;
 #[derive(Debug, Clone, ProtoBuf)]
 pub struct ObservableSubject {
     #[pb(index = 1)]
-    pub category: String,
+    pub source: String,
 
     #[pb(index = 2)]
     pub ty: i32,
@@ -21,7 +21,7 @@ pub struct ObservableSubject {
 impl std::default::Default for ObservableSubject {
     fn default() -> Self {
         Self {
-            category: "".to_string(),
+            source: "".to_string(),
             ty: 0,
             id: "".to_string(),
             payload: None,

@@ -10,12 +10,6 @@ enum ErrorCode {
     AcquireWriteLockedFailed = 2;
     AcquireReadLockedFailed = 3;
     UserDatabaseDidNotMatch = 4;
-    UserDatabaseInternalError = 5;
-    SqlInternalError = 6;
-    DatabaseConnectError = 7;
-    UserNotLoginYet = 10;
-    ReadCurrentIdFailed = 11;
-    WriteCurrentIdFailed = 12;
     EmailIsEmpty = 20;
     EmailFormatInvalid = 21;
     EmailAlreadyExists = 22;
@@ -25,13 +19,11 @@ enum ErrorCode {
     PasswordFormatInvalid = 33;
     PasswordNotMatch = 34;
     UserNameTooLong = 40;
-    UserNameContainsForbiddenCharacters = 41;
+    ContainForbiddenCharacters = 41;
     UserNameIsEmpty = 42;
     UserWorkspaceInvalid = 50;
     UserIdInvalid = 51;
-    UserTokenInvalid = 54;
+    UserUnauthorized = 54;
     UserNotExist = 55;
-    CreateDefaultWorkspaceFailed = 60;
-    DefaultWorkspaceAlreadyExist = 61;
-    ServerError = 100;
+    InternalError = 100;
 }

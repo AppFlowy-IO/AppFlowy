@@ -1,4 +1,4 @@
-import 'package:app_flowy/welcome/domain/i_welcome.dart';
+import 'package:app_flowy/welcome/domain/i_splash.dart';
 import 'package:app_flowy/welcome/domain/auth_state.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/welcome/application/splash_bloc.dart';
@@ -37,11 +37,11 @@ class SplashScreen extends StatelessWidget {
     WorkspaceEventReadCurWorkspace().send().then(
       (result) {
         return result.fold(
-          (workspace) => getIt<IWelcomeRoute>()
+          (workspace) => getIt<ISplashRoute>()
               .pushHomeScreen(context, userProfile, workspace.id),
           (error) async {
             assert(error.code == workspace.ErrorCode.CurrentWorkspaceNotFound);
-            getIt<IWelcomeRoute>().pushWelcomeScreen(context, userProfile);
+            getIt<ISplashRoute>().pushWelcomeScreen(context, userProfile);
           },
         );
       },
@@ -50,7 +50,7 @@ class SplashScreen extends StatelessWidget {
 
   void _handleUnauthenticated(BuildContext context, Unauthenticated result) {
     Log.error(result.error);
-    getIt<IWelcomeRoute>().pushSignInScreen(context);
+    getIt<ISplashRoute>().pushSignInScreen(context);
   }
 }
 

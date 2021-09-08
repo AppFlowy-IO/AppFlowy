@@ -12,7 +12,7 @@ import 'dart:typed_data' as $typed_data;
 const ObservableSubject$json = const {
   '1': 'ObservableSubject',
   '2': const [
-    const {'1': 'category', '3': 1, '4': 1, '5': 9, '10': 'category'},
+    const {'1': 'source', '3': 1, '4': 1, '5': 9, '10': 'source'},
     const {'1': 'ty', '3': 2, '4': 1, '5': 5, '10': 'ty'},
     const {'1': 'id', '3': 3, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'payload', '3': 4, '4': 1, '5': 12, '9': 0, '10': 'payload'},
@@ -25,4 +25,4 @@ const ObservableSubject$json = const {
 };
 
 /// Descriptor for `ObservableSubject`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List observableSubjectDescriptor = $convert.base64Decode('ChFPYnNlcnZhYmxlU3ViamVjdBIaCghjYXRlZ29yeRgBIAEoCVIIY2F0ZWdvcnkSDgoCdHkYAiABKAVSAnR5Eg4KAmlkGAMgASgJUgJpZBIaCgdwYXlsb2FkGAQgASgMSABSB3BheWxvYWQSFgoFZXJyb3IYBSABKAxIAVIFZXJyb3JCEAoOb25lX29mX3BheWxvYWRCDgoMb25lX29mX2Vycm9y');
+final $typed_data.Uint8List observableSubjectDescriptor = $convert.base64Decode('ChFPYnNlcnZhYmxlU3ViamVjdBIWCgZzb3VyY2UYASABKAlSBnNvdXJjZRIOCgJ0eRgCIAEoBVICdHkSDgoCaWQYAyABKAlSAmlkEhoKB3BheWxvYWQYBCABKAxIAFIHcGF5bG9hZBIWCgVlcnJvchgFIAEoDEgBUgVlcnJvckIQCg5vbmVfb2ZfcGF5bG9hZEIOCgxvbmVfb2ZfZXJyb3I=');

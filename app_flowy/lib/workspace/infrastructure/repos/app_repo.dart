@@ -58,7 +58,7 @@ class AppWatchRepository {
   AppCreateViewCallback? _createView;
   AppDeleteViewCallback? _deleteView;
   AppUpdatedCallback? _update;
-  late ObservableExtractor _extractor;
+  late WorkspaceObservableParser _extractor;
   String appId;
 
   AppWatchRepository({
@@ -72,15 +72,13 @@ class AppWatchRepository {
     _createView = createView;
     _deleteView = deleteView;
     _update = update;
-    _extractor = ObservableExtractor(
-      id: appId,
-      callback: (ty, result) => _handleObservableType(ty, result),
-    );
+    _extractor =
+        WorkspaceObservableParser(id: appId, callback: _bservableCallback);
     _subscription =
         RustStreamReceiver.listen((observable) => _extractor.parse(observable));
   }
 
-  void _handleObservableType(
+  void _bservableCallback(
       WorkspaceObservable ty, Either<Uint8List, WorkspaceError> result) {
     switch (ty) {
       case WorkspaceObservable.AppCreateView:

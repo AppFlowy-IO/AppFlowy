@@ -67,7 +67,7 @@ class WorkspaceWatchRepo {
   WorkspaceCreateAppCallback? _createApp;
   WorkspaceDeleteAppCallback? _deleteApp;
   WorkspaceUpdatedCallback? _update;
-  late ObservableExtractor _extractor;
+  late WorkspaceObservableParser _extractor;
   final UserProfile user;
   final String workspaceId;
 
@@ -85,7 +85,7 @@ class WorkspaceWatchRepo {
     _deleteApp = deleteApp;
     _update = update;
 
-    _extractor = ObservableExtractor(
+    _extractor = WorkspaceObservableParser(
       id: workspaceId,
       callback: (ty, result) {
         _handleObservableType(ty, result);

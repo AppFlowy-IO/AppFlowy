@@ -1,7 +1,6 @@
-use bytes::Bytes;
 use flowy_derive::ProtoBuf_Enum;
-use flowy_dispatch::prelude::ToBytes;
-use flowy_observable::{dart::RustStreamSender, entities::ObservableSubject, ObservableBuilder};
+
+use flowy_observable::ObservableBuilder;
 
 const OBSERVABLE_CATEGORY: &'static str = "Workspace";
 
@@ -22,6 +21,8 @@ pub(crate) enum WorkspaceObservable {
     AppDeleteView        = 24,
 
     ViewUpdated          = 31,
+
+    UserUnauthorized     = 100,
 }
 
 impl std::default::Default for WorkspaceObservable {

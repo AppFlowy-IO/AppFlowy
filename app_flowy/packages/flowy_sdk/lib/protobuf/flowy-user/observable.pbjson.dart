@@ -15,8 +15,9 @@ const UserObservable$json = const {
     const {'1': 'Unknown', '2': 0},
     const {'1': 'UserAuthChanged', '2': 1},
     const {'1': 'UserProfileUpdated', '2': 2},
+    const {'1': 'UserUnauthorized', '2': 3},
   ],
 };
 
 /// Descriptor for `UserObservable`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List userObservableDescriptor = $convert.base64Decode('Cg5Vc2VyT2JzZXJ2YWJsZRILCgdVbmtub3duEAASEwoPVXNlckF1dGhDaGFuZ2VkEAESFgoSVXNlclByb2ZpbGVVcGRhdGVkEAI=');
+final $typed_data.Uint8List userObservableDescriptor = $convert.base64Decode('Cg5Vc2VyT2JzZXJ2YWJsZRILCgdVbmtub3duEAASEwoPVXNlckF1dGhDaGFuZ2VkEAESFgoSVXNlclByb2ZpbGVVcGRhdGVkEAISFAoQVXNlclVuYXV0aG9yaXplZBAD');

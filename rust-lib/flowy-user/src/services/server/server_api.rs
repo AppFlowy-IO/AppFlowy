@@ -5,7 +5,10 @@ use crate::{
 
 use crate::{entities::UpdateUserParams, services::server::UserServerAPI};
 use flowy_infra::future::ResultFuture;
-use flowy_net::{config::*, request::HttpRequestBuilder};
+use flowy_net::{
+    config::*,
+    request::{HttpRequestBuilder, ResponseMiddleware},
+};
 
 pub struct UserServer {}
 impl UserServer {
@@ -40,8 +43,32 @@ impl UserServerAPI for UserServer {
     }
 }
 
+use crate::{errors::ErrorCode, observable::*};
+use flowy_net::response::FlowyResponse;
+use lazy_static::lazy_static;
+use std::sync::Arc;
+lazy_static! {
+    static ref IDDLEWARE: Arc<Middleware> = Arc::new(Middleware {});
+}
+
+struct Middleware {}
+impl ResponseMiddleware for Middleware {
+    fn receive_response(&self, response: &FlowyResponse) {
+        if let Some(error) = &response.error {
+            if error.is_unauthorized() {
+                log::error!("user unauthorized");
+                let error = UserError::new(ErrorCode::UserUnauthorized, "");
+                observable("", UserObservable::UserUnauthorized).error(error).build()
+            }
+        }
+    }
+}
+
+pub(crate) fn request_builder() -> HttpRequestBuilder { HttpRequestBuilder::new().middleware(IDDLEWARE.clone()) }
+
 pub async fn user_sign_up_request(params: SignUpParams, url: &str) -> Result<SignUpResponse, UserError> {
-    let response = HttpRequestBuilder::post(&url.to_owned())
+    let response = request_builder()
+        .post(&url.to_owned())
         .protobuf(params)?
         .send()
         .await?
@@ -51,7 +78,8 @@ pub async fn user_sign_up_request(params: SignUpParams, url: &str) -> Result<Sig
 }
 
 pub async fn user_sign_in_request(params: SignInParams, url: &str) -> Result<SignInResponse, UserError> {
-    let response = HttpRequestBuilder::post(&url.to_owned())
+    let response = request_builder()
+        .post(&url.to_owned())
         .protobuf(params)?
         .send()
         .await?
@@ -61,15 +89,13 @@ pub async fn user_sign_in_request(params: SignInParams, url: &str) -> Result<Sig
 }
 
 pub async fn user_sign_out_request(token: &str, url: &str) -> Result<(), UserError> {
-    let _ = HttpRequestBuilder::delete(&url.to_owned())
-        .header(HEADER_TOKEN, token)
-        .send()
-        .await?;
+    let _ = request_builder().delete(&url.to_owned()).header(HEADER_TOKEN, token).send().await?;
     Ok(())
 }
 
 pub async fn get_user_profile_request(token: &str, url: &str) -> Result<UserProfile, UserError> {
-    let user_profile = HttpRequestBuilder::get(&url.to_owned())
+    let user_profile = request_builder()
+        .get(&url.to_owned())
         .header(HEADER_TOKEN, token)
         .send()
         .await?
@@ -79,7 +105,8 @@ pub async fn get_user_profile_request(token: &str, url: &str) -> Result<UserProf
 }
 
 pub async fn update_user_profile_request(token: &str, params: UpdateUserParams, url: &str) -> Result<(), UserError> {
-    let _ = HttpRequestBuilder::patch(&url.to_owned())
+    let _ = request_builder()
+        .patch(&url.to_owned())
         .header(HEADER_TOKEN, token)
         .protobuf(params)?
         .send()

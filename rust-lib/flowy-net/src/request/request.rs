@@ -1,13 +1,21 @@
-use crate::{errors::ServerError, response::FlowyResponse};
+use crate::{
+    errors::{ErrorCode, ServerError},
+    response::FlowyResponse,
+};
 use bytes::Bytes;
 use hyper::http;
 use protobuf::ProtobufError;
 use reqwest::{header::HeaderMap, Client, Method, Response};
 use std::{
     convert::{TryFrom, TryInto},
+    sync::Arc,
     time::Duration,
 };
 use tokio::sync::oneshot;
+
+pub trait ResponseMiddleware {
+    fn receive_response(&self, response: &FlowyResponse);
+}
 
 pub struct HttpRequestBuilder {
     url: String,
@@ -15,41 +23,51 @@ pub struct HttpRequestBuilder {
     response: Option<Bytes>,
     headers: HeaderMap,
     method: Method,
+    middleware: Vec<Arc<dyn ResponseMiddleware + Send + Sync>>,
 }
 
 impl HttpRequestBuilder {
-    fn new(url: &str) -> Self {
+    pub fn new() -> Self {
         Self {
-            url: url.to_owned(),
+            url: "".to_owned(),
             body: None,
             response: None,
             headers: HeaderMap::new(),
             method: Method::GET,
+            middleware: Vec::new(),
         }
     }
 
-    pub fn get(url: &str) -> Self {
-        let mut builder = Self::new(url);
-        builder.method = Method::GET;
-        builder
+    pub fn middleware<T>(mut self, middleware: Arc<T>) -> Self
+    where
+        T: 'static + ResponseMiddleware + Send + Sync,
+    {
+        self.middleware.push(middleware);
+        self
     }
 
-    pub fn post(url: &str) -> Self {
-        let mut builder = Self::new(url);
-        builder.method = Method::POST;
-        builder
+    pub fn get(mut self, url: &str) -> Self {
+        self.url = url.to_owned();
+        self.method = Method::GET;
+        self
     }
 
-    pub fn patch(url: &str) -> Self {
-        let mut builder = Self::new(url);
-        builder.method = Method::PATCH;
-        builder
+    pub fn post(mut self, url: &str) -> Self {
+        self.url = url.to_owned();
+        self.method = Method::POST;
+        self
     }
 
-    pub fn delete(url: &str) -> Self {
-        let mut builder = Self::new(url);
-        builder.method = Method::DELETE;
-        builder
+    pub fn patch(mut self, url: &str) -> Self {
+        self.url = url.to_owned();
+        self.method = Method::PATCH;
+        self
+    }
+
+    pub fn delete(mut self, url: &str) -> Self {
+        self.url = url.to_owned();
+        self.method = Method::DELETE;
+        self
     }
 
     pub fn header(mut self, key: &'static str, value: &str) -> Self {
@@ -57,9 +75,9 @@ impl HttpRequestBuilder {
         self
     }
 
-    pub fn protobuf<T1>(self, body: T1) -> Result<Self, ServerError>
+    pub fn protobuf<T>(self, body: T) -> Result<Self, ServerError>
     where
-        T1: TryInto<Bytes, Error = ProtobufError>,
+        T: TryInto<Bytes, Error = ProtobufError>,
     {
         let body: Bytes = body.try_into()?;
         self.bytes(body)
@@ -95,13 +113,16 @@ impl HttpRequestBuilder {
         });
 
         let response = rx.await??;
-
-        match get_response_data(response).await {
-            Ok(bytes) => {
-                self.response = Some(bytes);
+        let flowy_response = flowy_response_from(response).await?;
+        self.middleware.iter().for_each(|middleware| {
+            middleware.receive_response(&flowy_response);
+        });
+        match flowy_response.error {
+            None => {
+                self.response = Some(flowy_response.data);
                 Ok(self)
             },
-            Err(error) => Err(error),
+            Some(error) => Err(error),
         }
     }
 
@@ -119,6 +140,13 @@ impl HttpRequestBuilder {
     }
 }
 
+async fn flowy_response_from(original: Response) -> Result<FlowyResponse, ServerError> {
+    let bytes = original.bytes().await?;
+    let response: FlowyResponse = serde_json::from_slice(&bytes)?;
+    Ok(response)
+}
+
+#[allow(dead_code)]
 async fn get_response_data(original: Response) -> Result<Bytes, ServerError> {
     if original.status() == http::StatusCode::OK {
         let bytes = original.bytes().await?;

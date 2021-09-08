@@ -1,16 +1,11 @@
 import 'dart:async';
-import 'dart:typed_data';
-
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-observable/subject.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/observable.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/workspace_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/workspace_query.pb.dart';
-import 'package:flowy_sdk/rust_stream.dart';
 import 'package:app_flowy/workspace/domain/i_user.dart';
 
 class UserRepo {
@@ -65,56 +60,5 @@ class UserRepo {
         (error) => right(error),
       );
     });
-  }
-}
-
-class UserWatchRepo {
-  StreamSubscription<ObservableSubject>? _subscription;
-  WorkspaceListUpdatedCallback? _workspaceListUpdated;
-  late UserRepo _repo;
-  UserWatchRepo({
-    required UserProfile user,
-  }) {
-    _repo = UserRepo(user: user);
-  }
-
-  void startWatching({WorkspaceListUpdatedCallback? workspaceListUpdated}) {
-    _workspaceListUpdated = workspaceListUpdated;
-    _subscription = RustStreamReceiver.listen((observable) {
-      if (observable.id != _repo.user.id) {
-        return;
-      }
-
-      final ty = WorkspaceObservable.valueOf(observable.ty);
-      if (ty != null) {
-        _handleObservableType(ty, Uint8List.fromList(observable.payload));
-      }
-    });
-  }
-
-  Future<void> close() async {
-    await _subscription?.cancel();
-  }
-
-  void _handleObservableType(WorkspaceObservable ty, Uint8List payload) {
-    if (_workspaceListUpdated == null) {
-      return;
-    }
-
-    switch (ty) {
-      case WorkspaceObservable.UserCreateWorkspace:
-      case WorkspaceObservable.UserDeleteWorkspace:
-      case WorkspaceObservable.WorkspaceListUpdated:
-        if (_workspaceListUpdated == null) {
-          return;
-        }
-
-        final workspaces = RepeatedWorkspace.fromBuffer(payload);
-        _workspaceListUpdated!(left(workspaces.items));
-
-        break;
-      default:
-        break;
-    }
   }
 }

@@ -15,13 +15,13 @@ impl WorkspaceUser for WorkspaceUserImpl {
     fn user_id(&self) -> Result<String, WorkspaceError> {
         self.user_session
             .user_id()
-            .map_err(|e| ErrorBuilder::new(ErrorCode::UserInternalError).error(e).build())
+            .map_err(|e| ErrorBuilder::new(ErrorCode::InternalError).error(e).build())
     }
 
     fn token(&self) -> Result<String, WorkspaceError> {
         self.user_session
             .token()
-            .map_err(|e| ErrorBuilder::new(ErrorCode::UserInternalError).error(e).build())
+            .map_err(|e| ErrorBuilder::new(ErrorCode::InternalError).error(e).build())
     }
 }
 

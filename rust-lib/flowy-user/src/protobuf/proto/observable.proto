@@ -1,6 +1,8 @@
 syntax = "proto3";
+
 enum UserObservable {
     Unknown = 0;
     UserAuthChanged = 1;
     UserProfileUpdated = 2;
+    UserUnauthorized = 3;
 }

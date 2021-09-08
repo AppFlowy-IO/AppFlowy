@@ -12,4 +12,5 @@ enum WorkspaceObservable {
     AppCreateView = 23;
     AppDeleteView = 24;
     ViewUpdated = 31;
+    UserUnauthorized = 100;
 }

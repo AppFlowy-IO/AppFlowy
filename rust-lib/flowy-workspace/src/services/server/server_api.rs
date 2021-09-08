@@ -15,7 +15,14 @@ use crate::{
     services::server::WorkspaceServerAPI,
 };
 use flowy_infra::future::ResultFuture;
-use flowy_net::{config::*, request::HttpRequestBuilder};
+use flowy_net::{
+    config::*,
+    request::{HttpRequestBuilder, ResponseMiddleware},
+    response::FlowyResponse,
+};
+use lazy_static::lazy_static;
+use std::sync::Arc;
+
 pub struct WorkspaceServer {}
 
 impl WorkspaceServerAPI for WorkspaceServer {
@@ -80,8 +87,30 @@ impl WorkspaceServerAPI for WorkspaceServer {
     }
 }
 
+lazy_static! {
+    static ref MIDDLEWARE: Arc<WorkspaceMiddleware> = Arc::new(WorkspaceMiddleware {});
+}
+
+use crate::{errors::ErrorCode, observable::*};
+
+struct WorkspaceMiddleware {}
+impl ResponseMiddleware for WorkspaceMiddleware {
+    fn receive_response(&self, response: &FlowyResponse) {
+        if let Some(error) = &response.error {
+            if error.is_unauthorized() {
+                log::error!("workspace user is unauthorized");
+                let error = WorkspaceError::new(ErrorCode::UserUnauthorized, "");
+                observable("", WorkspaceObservable::UserUnauthorized).error(error).build()
+            }
+        }
+    }
+}
+
+pub(crate) fn request_builder() -> HttpRequestBuilder { HttpRequestBuilder::new().middleware(MIDDLEWARE.clone()) }
+
 pub async fn create_workspace_request(token: &str, params: CreateWorkspaceParams, url: &str) -> Result<Workspace, WorkspaceError> {
-    let workspace = HttpRequestBuilder::post(&url.to_owned())
+    let workspace = request_builder()
+        .post(&url.to_owned())
         .header(HEADER_TOKEN, token)
         .protobuf(params)?
         .send()
@@ -92,7 +121,8 @@ pub async fn create_workspace_request(token: &str, params: CreateWorkspaceParams
 }
 
 pub async fn read_workspaces_request(token: &str, params: QueryWorkspaceParams, url: &str) -> Result<RepeatedWorkspace, WorkspaceError> {
-    let result = HttpRequestBuilder::get(&url.to_owned())
+    let result = request_builder()
+        .get(&url.to_owned())
         .header(HEADER_TOKEN, token)
         .protobuf(params)?
         .send()
@@ -107,7 +137,8 @@ pub async fn read_workspaces_request(token: &str, params: QueryWorkspaceParams, 
 }
 
 pub async fn update_workspace_request(token: &str, params: UpdateWorkspaceParams, url: &str) -> Result<(), WorkspaceError> {
-    let _ = HttpRequestBuilder::patch(&url.to_owned())
+    let _ = request_builder()
+        .patch(&url.to_owned())
         .header(HEADER_TOKEN, token)
         .protobuf(params)?
         .send()
@@ -116,7 +147,8 @@ pub async fn update_workspace_request(token: &str, params: UpdateWorkspaceParams
 }
 
 pub async fn delete_workspace_request(token: &str, params: DeleteWorkspaceParams, url: &str) -> Result<(), WorkspaceError> {
-    let _ = HttpRequestBuilder::delete(url)
+    let _ = request_builder()
+        .delete(url)
         .header(HEADER_TOKEN, token)
         .protobuf(params)?
         .send()
@@ -126,7 +158,8 @@ pub async fn delete_workspace_request(token: &str, params: DeleteWorkspaceParams
 
 // App
 pub async fn create_app_request(token: &str, params: CreateAppParams, url: &str) -> Result<App, WorkspaceError> {
-    let app = HttpRequestBuilder::post(&url.to_owned())
+    let app = request_builder()
+        .post(&url.to_owned())
         .header(HEADER_TOKEN, token)
         .protobuf(params)?
         .send()
@@ -137,7 +170,8 @@ pub async fn create_app_request(token: &str, params: CreateAppParams, url: &str)
 }
 
 pub async fn read_app_request(token: &str, params: QueryAppParams, url: &str) -> Result<Option<App>, WorkspaceError> {
-    let result = HttpRequestBuilder::get(&url.to_owned())
+    let result = request_builder()
+        .get(&url.to_owned())
         .header(HEADER_TOKEN, token)
         .protobuf(params)?
         .send()
@@ -156,7 +190,8 @@ pub async fn read_app_request(token: &str, params: QueryAppParams, url: &str) ->
 }
 
 pub async fn update_app_request(token: &str, params: UpdateAppParams, url: &str) -> Result<(), WorkspaceError> {
-    let _ = HttpRequestBuilder::patch(&url.to_owned())
+    let _ = request_builder()
+        .patch(&url.to_owned())
         .header(HEADER_TOKEN, token)
         .protobuf(params)?
         .send()
@@ -165,7 +200,8 @@ pub async fn update_app_request(token: &str, params: UpdateAppParams, url: &str)
 }
 
 pub async fn delete_app_request(token: &str, params: DeleteAppParams, url: &str) -> Result<(), WorkspaceError> {
-    let _ = HttpRequestBuilder::delete(&url.to_owned())
+    let _ = request_builder()
+        .delete(&url.to_owned())
         .header(HEADER_TOKEN, token)
         .protobuf(params)?
         .send()
@@ -175,7 +211,8 @@ pub async fn delete_app_request(token: &str, params: DeleteAppParams, url: &str)
 
 // View
 pub async fn create_view_request(token: &str, params: CreateViewParams, url: &str) -> Result<View, WorkspaceError> {
-    let view = HttpRequestBuilder::post(&url.to_owned())
+    let view = request_builder()
+        .post(&url.to_owned())
         .header(HEADER_TOKEN, token)
         .protobuf(params)?
         .send()
@@ -186,7 +223,8 @@ pub async fn create_view_request(token: &str, params: CreateViewParams, url: &st
 }
 
 pub async fn read_view_request(token: &str, params: QueryViewParams, url: &str) -> Result<Option<View>, WorkspaceError> {
-    let result = HttpRequestBuilder::get(&url.to_owned())
+    let result = request_builder()
+        .get(&url.to_owned())
         .header(HEADER_TOKEN, token)
         .protobuf(params)?
         .send()
@@ -208,7 +246,8 @@ pub async fn read_view_request(token: &str, params: QueryViewParams, url: &str) 
 }
 
 pub async fn update_view_request(token: &str, params: UpdateViewParams, url: &str) -> Result<(), WorkspaceError> {
-    let _ = HttpRequestBuilder::patch(&url.to_owned())
+    let _ = request_builder()
+        .patch(&url.to_owned())
         .header(HEADER_TOKEN, token)
         .protobuf(params)?
         .send()
@@ -217,7 +256,8 @@ pub async fn update_view_request(token: &str, params: UpdateViewParams, url: &st
 }
 
 pub async fn delete_view_request(token: &str, params: DeleteViewParams, url: &str) -> Result<(), WorkspaceError> {
-    let _ = HttpRequestBuilder::delete(&url.to_owned())
+    let _ = request_builder()
+        .delete(&url.to_owned())
         .header(HEADER_TOKEN, token)
         .protobuf(params)?
         .send()

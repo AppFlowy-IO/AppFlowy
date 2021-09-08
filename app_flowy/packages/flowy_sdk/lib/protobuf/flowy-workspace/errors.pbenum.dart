@@ -24,10 +24,9 @@ class ErrorCode extends $pb.ProtobufEnum {
   static const ErrorCode ViewDescInvalid = ErrorCode._(23, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewDescInvalid');
   static const ErrorCode DatabaseConnectionFail = ErrorCode._(100, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DatabaseConnectionFail');
   static const ErrorCode WorkspaceDatabaseError = ErrorCode._(101, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceDatabaseError');
-  static const ErrorCode UserInternalError = ErrorCode._(102, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserInternalError');
-  static const ErrorCode UserNotLoginYet = ErrorCode._(103, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNotLoginYet');
-  static const ErrorCode UserIdIsEmpty = ErrorCode._(104, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserIdIsEmpty');
-  static const ErrorCode ServerError = ErrorCode._(1000, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ServerError');
+  static const ErrorCode UserIdIsEmpty = ErrorCode._(102, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserIdIsEmpty');
+  static const ErrorCode UserUnauthorized = ErrorCode._(103, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserUnauthorized');
+  static const ErrorCode InternalError = ErrorCode._(1000, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'InternalError');
   static const ErrorCode RecordNotFound = ErrorCode._(1001, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RecordNotFound');
 
   static const $core.List<ErrorCode> values = <ErrorCode> [
@@ -45,10 +44,9 @@ class ErrorCode extends $pb.ProtobufEnum {
     ViewDescInvalid,
     DatabaseConnectionFail,
     WorkspaceDatabaseError,
-    UserInternalError,
-    UserNotLoginYet,
     UserIdIsEmpty,
-    ServerError,
+    UserUnauthorized,
+    InternalError,
     RecordNotFound,
   ];
 

@@ -193,7 +193,7 @@ impl UserSession {
     fn set_session(&self, session: Option<Session>) -> Result<(), UserError> {
         log::debug!("Set user session: {:?}", session);
         match &session {
-            None => KV::remove(SESSION_CACHE_KEY).map_err(|e| UserError::new(ErrorCode::SqlInternalError, &e))?,
+            None => KV::remove(SESSION_CACHE_KEY).map_err(|e| UserError::new(ErrorCode::InternalError, &e))?,
             Some(session) => KV::set_str(SESSION_CACHE_KEY, session.clone().into()),
         }
         *self.session.write() = session;
@@ -213,7 +213,7 @@ impl UserSession {
         }
 
         match session {
-            None => Err(ErrorBuilder::new(ErrorCode::UserNotLoginYet).build()),
+            None => Err(ErrorBuilder::new(ErrorCode::UserUnauthorized).build()),
             Some(session) => Ok(session),
         }
     }
@@ -255,7 +255,7 @@ impl Session {
         }
     }
 
-    pub fn into_part(mut self) -> (String, String) { (self.user_id, self.token) }
+    pub fn into_part(self) -> (String, String) { (self.user_id, self.token) }
 }
 
 impl std::convert::From<String> for Session {

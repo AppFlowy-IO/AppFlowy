@@ -43,6 +43,8 @@ impl ServerError {
     }
 
     pub fn is_not_found(&self) -> bool { self.code == ErrorCode::RecordNotFound }
+
+    pub fn is_unauthorized(&self) -> bool { self.code == ErrorCode::Unauthorized }
 }
 
 pub fn invalid_params<T: Debug>(e: T) -> ServerError { ServerError::params_invalid().context(e) }
@@ -66,18 +68,16 @@ impl std::convert::From<&ServerError> for FlowyResponse {
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone, derive_more::Display)]
 #[repr(u16)]
 pub enum ErrorCode {
-    #[display(fmt = "Token is invalid")]
-    InvalidToken       = 1,
     #[display(fmt = "Unauthorized")]
-    Unauthorized       = 2,
+    Unauthorized       = 1,
     #[display(fmt = "Payload too large")]
-    PayloadOverflow    = 3,
+    PayloadOverflow    = 2,
     #[display(fmt = "Payload deserialize failed")]
-    PayloadSerdeFail   = 4,
+    PayloadSerdeFail   = 3,
     #[display(fmt = "Unexpected empty payload")]
-    PayloadUnexpectedNone = 5,
+    PayloadUnexpectedNone = 4,
     #[display(fmt = "Params is invalid")]
-    ParamsInvalid      = 6,
+    ParamsInvalid      = 5,
 
     #[display(fmt = "Protobuf serde error")]
     ProtobufError      = 10,

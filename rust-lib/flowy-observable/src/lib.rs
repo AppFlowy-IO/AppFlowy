@@ -11,18 +11,18 @@ pub struct ObservableBuilder {
     id: String,
     payload: Option<Bytes>,
     error: Option<Bytes>,
+    source: String,
     ty: i32,
-    category: String,
 }
 
 impl ObservableBuilder {
-    pub fn new<T: Into<i32>>(id: &str, ty: T, category: &str) -> Self {
+    pub fn new<T: Into<i32>>(id: &str, ty: T, source: &str) -> Self {
         Self {
             id: id.to_owned(),
             ty: ty.into(),
             payload: None,
             error: None,
-            category: category.to_owned(),
+            source: source.to_owned(),
         }
     }
 
@@ -65,7 +65,7 @@ impl ObservableBuilder {
         };
 
         let subject = ObservableSubject {
-            category: self.category,
+            source: self.source,
             ty: self.ty,
             id: self.id,
             payload,

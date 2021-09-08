@@ -13,7 +13,7 @@ flowy-database = { path = "../flowy-database" }
 flowy-sqlite = { path = "../flowy-sqlite" }
 flowy-infra = { path = "../flowy-infra" }
 flowy-observable = { path = "../flowy-observable" }
-flowy-net = { path = "../flowy-net" }
+flowy-net = { path = "../flowy-net", features = ["flowy_request"] }
 
 protobuf = {version = "2.18.0"}
 log = "0.4.14"

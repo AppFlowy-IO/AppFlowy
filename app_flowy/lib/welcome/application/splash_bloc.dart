@@ -1,12 +1,12 @@
 import 'package:app_flowy/welcome/domain/auth_state.dart';
-import 'package:app_flowy/welcome/domain/i_welcome.dart';
+import 'package:app_flowy/welcome/domain/i_splash.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'splash_bloc.freezed.dart';
 
 class SplashBloc extends Bloc<SplashEvent, SplashState> {
-  final ISplashAuth authImpl;
+  final ISplashUser authImpl;
   SplashBloc(this.authImpl) : super(SplashState.initial());
 
   @override

@@ -26,16 +26,15 @@ const ErrorCode$json = const {
     const {'1': 'ViewDescInvalid', '2': 23},
     const {'1': 'DatabaseConnectionFail', '2': 100},
     const {'1': 'WorkspaceDatabaseError', '2': 101},
-    const {'1': 'UserInternalError', '2': 102},
-    const {'1': 'UserNotLoginYet', '2': 103},
-    const {'1': 'UserIdIsEmpty', '2': 104},
-    const {'1': 'ServerError', '2': 1000},
+    const {'1': 'UserIdIsEmpty', '2': 102},
+    const {'1': 'UserUnauthorized', '2': 103},
+    const {'1': 'InternalError', '2': 1000},
     const {'1': 'RecordNotFound', '2': 1001},
   ],
 };
 
 /// Descriptor for `ErrorCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List errorCodeDescriptor = $convert.base64Decode('CglFcnJvckNvZGUSCwoHVW5rbm93bhAAEhgKFFdvcmtzcGFjZU5hbWVJbnZhbGlkEAESFgoSV29ya3NwYWNlSWRJbnZhbGlkEAISGAoUQXBwQ29sb3JTdHlsZUludmFsaWQQAxIYChRXb3Jrc3BhY2VEZXNjSW52YWxpZBAEEhwKGEN1cnJlbnRXb3Jrc3BhY2VOb3RGb3VuZBAFEhAKDEFwcElkSW52YWxpZBAKEhIKDkFwcE5hbWVJbnZhbGlkEAsSEwoPVmlld05hbWVJbnZhbGlkEBQSGAoUVmlld1RodW1ibmFpbEludmFsaWQQFRIRCg1WaWV3SWRJbnZhbGlkEBYSEwoPVmlld0Rlc2NJbnZhbGlkEBcSGgoWRGF0YWJhc2VDb25uZWN0aW9uRmFpbBBkEhoKFldvcmtzcGFjZURhdGFiYXNlRXJyb3IQZRIVChFVc2VySW50ZXJuYWxFcnJvchBmEhMKD1VzZXJOb3RMb2dpbllldBBnEhEKDVVzZXJJZElzRW1wdHkQaBIQCgtTZXJ2ZXJFcnJvchDoBxITCg5SZWNvcmROb3RGb3VuZBDpBw==');
+final $typed_data.Uint8List errorCodeDescriptor = $convert.base64Decode('CglFcnJvckNvZGUSCwoHVW5rbm93bhAAEhgKFFdvcmtzcGFjZU5hbWVJbnZhbGlkEAESFgoSV29ya3NwYWNlSWRJbnZhbGlkEAISGAoUQXBwQ29sb3JTdHlsZUludmFsaWQQAxIYChRXb3Jrc3BhY2VEZXNjSW52YWxpZBAEEhwKGEN1cnJlbnRXb3Jrc3BhY2VOb3RGb3VuZBAFEhAKDEFwcElkSW52YWxpZBAKEhIKDkFwcE5hbWVJbnZhbGlkEAsSEwoPVmlld05hbWVJbnZhbGlkEBQSGAoUVmlld1RodW1ibmFpbEludmFsaWQQFRIRCg1WaWV3SWRJbnZhbGlkEBYSEwoPVmlld0Rlc2NJbnZhbGlkEBcSGgoWRGF0YWJhc2VDb25uZWN0aW9uRmFpbBBkEhoKFldvcmtzcGFjZURhdGFiYXNlRXJyb3IQZRIRCg1Vc2VySWRJc0VtcHR5EGYSFAoQVXNlclVuYXV0aG9yaXplZBBnEhIKDUludGVybmFsRXJyb3IQ6AcSEwoOUmVjb3JkTm90Rm91bmQQ6Qc=');
 @$core.Deprecated('Use workspaceErrorDescriptor instead')
 const WorkspaceError$json = const {
   '1': 'WorkspaceError',

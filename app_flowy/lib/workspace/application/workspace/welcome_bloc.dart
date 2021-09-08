@@ -11,7 +11,7 @@ part 'welcome_bloc.freezed.dart';
 
 class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
   UserRepo repo;
-  IUserWorkspaceListWatch watcher;
+  IUserWatch watcher;
   WelcomeBloc({required this.repo, required this.watcher})
       : super(WelcomeState.initial());
 
@@ -20,10 +20,9 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
     WelcomeEvent event,
   ) async* {
     yield* event.map(initial: (e) async* {
-      watcher.startWatching(
-        workspaceListUpdatedCallback: (workspacesOrFail) =>
-            _handleWorkspaceListUpdated(workspacesOrFail),
-      );
+      watcher.setWorkspacesCallback(_workspacesUpdated);
+      watcher.startWatching();
+      //
       yield* _fetchWorkspaces();
     }, openWorkspace: (e) async* {
       yield* _openWorkspace(e.workspace);
@@ -75,7 +74,7 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
     );
   }
 
-  void _handleWorkspaceListUpdated(
+  void _workspacesUpdated(
       Either<List<Workspace>, WorkspaceError> workspacesOrFail) {
     add(WelcomeEvent.workspacesReveived(workspacesOrFail));
   }

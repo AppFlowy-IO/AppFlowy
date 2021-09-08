@@ -31,7 +31,7 @@ class ObservableSubject extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ObservableSubject', createEmptyInstance: create)
     ..oo(0, [4])
     ..oo(1, [5])
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'category')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'source')
     ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ty', $pb.PbFieldType.O3)
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..a<$core.List<$core.int>>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'payload', $pb.PbFieldType.OY)
@@ -41,15 +41,15 @@ class ObservableSubject extends $pb.GeneratedMessage {
 
   ObservableSubject._() : super();
   factory ObservableSubject({
-    $core.String? category,
+    $core.String? source,
     $core.int? ty,
     $core.String? id,
     $core.List<$core.int>? payload,
     $core.List<$core.int>? error,
   }) {
     final _result = create();
-    if (category != null) {
-      _result.category = category;
+    if (source != null) {
+      _result.source = source;
     }
     if (ty != null) {
       _result.ty = ty;
@@ -93,13 +93,13 @@ class ObservableSubject extends $pb.GeneratedMessage {
   void clearOneOfError() => clearField($_whichOneof(1));
 
   @$pb.TagNumber(1)
-  $core.String get category => $_getSZ(0);
+  $core.String get source => $_getSZ(0);
   @$pb.TagNumber(1)
-  set category($core.String v) { $_setString(0, v); }
+  set source($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasCategory() => $_has(0);
+  $core.bool hasSource() => $_has(0);
   @$pb.TagNumber(1)
-  void clearCategory() => clearField(1);
+  void clearSource() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.int get ty => $_getIZ(1);

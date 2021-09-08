@@ -3,11 +3,19 @@ import 'package:flutter/widgets.dart';
 
 import 'auth_state.dart';
 
-abstract class ISplashAuth {
+abstract class ISplashUser {
   Future<AuthState> currentUserProfile();
 }
 
-abstract class IWelcomeRoute {
+abstract class ISplashUserWatch {
+  void startWatching({
+    void Function(AuthState)? authStateCallback,
+  });
+
+  Future<void> stopWatching();
+}
+
+abstract class ISplashRoute {
   void pushSignInScreen(BuildContext context);
   Future<void> pushWelcomeScreen(BuildContext context, UserProfile profile);
   void pushHomeScreen(

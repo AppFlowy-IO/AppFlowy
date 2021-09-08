@@ -30,7 +30,7 @@ class ViewRepository {
 class ViewWatchRepository {
   StreamSubscription<ObservableSubject>? _subscription;
   ViewUpdatedCallback? _update;
-  late ObservableExtractor _extractor;
+  late WorkspaceObservableParser _extractor;
   View view;
 
   ViewWatchRepository({
@@ -41,7 +41,7 @@ class ViewWatchRepository {
     ViewUpdatedCallback? update,
   }) {
     _update = update;
-    _extractor = ObservableExtractor(
+    _extractor = WorkspaceObservableParser(
       id: view.id,
       callback: (ty, result) {
         _handleObservableType(ty, result);

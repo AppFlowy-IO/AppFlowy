@@ -263,6 +263,8 @@ impl WorkspaceController {
         spawn(async move {
             // Opti: retry?
             let workspaces = server.read_workspace(&token, params).await?;
+
+            // TODO: rollback if fail
             let _ = (&*conn).immediate_transaction::<_, WorkspaceError, _>(|| {
                 log::debug!("Save {} workspace", workspaces.len());
                 for workspace in &workspaces.items {
@@ -274,11 +276,17 @@ impl WorkspaceController {
                     log::debug!("Save {} apps", apps.len());
                     for mut app in apps {
                         let views = app.belongings.take_items();
-                        app_sql.create_app(AppTable::new(app), &*conn);
+                        match app_sql.create_app(AppTable::new(app), &*conn) {
+                            Ok(_) => {},
+                            Err(e) => log::error!("create app failed: {:?}", e),
+                        }
 
                         log::debug!("Save {} views", views.len());
                         for view in views {
-                            view_sql.create_view(ViewTable::new(view), &*conn);
+                            match view_sql.create_view(ViewTable::new(view), &*conn) {
+                                Ok(_) => {},
+                                Err(e) => log::error!("create view failed: {:?}", e),
+                            }
                         }
                     }
                 }

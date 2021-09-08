@@ -58,9 +58,8 @@ class HomeDepsResolver {
     // User
     getIt.registerFactoryParam<IUser, UserProfile, void>(
         (user, _) => IUserImpl(repo: UserRepo(user: user)));
-    getIt.registerFactoryParam<IUserWorkspaceListWatch, UserProfile, void>(
-        (user, _) =>
-            IUserWorkspaceListWatchImpl(repo: UserWatchRepo(user: user)));
+    getIt.registerFactoryParam<IUserWatch, UserProfile, void>(
+        (user, _) => IUserWatchImpl(user: user));
 
     //Menu Bloc
     getIt.registerFactoryParam<MenuBloc, UserProfile, String>(
@@ -98,7 +97,7 @@ class HomeDepsResolver {
     getIt.registerFactoryParam<WelcomeBloc, UserProfile, void>(
       (user, _) => WelcomeBloc(
         repo: UserRepo(user: user),
-        watcher: getIt<IUserWorkspaceListWatch>(param1: user),
+        watcher: getIt<IUserWatch>(param1: user),
       ),
     );
 

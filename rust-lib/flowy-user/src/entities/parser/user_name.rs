@@ -26,7 +26,7 @@ impl UserName {
         let contains_forbidden_characters = s.chars().any(|g| forbidden_characters.contains(&g));
 
         if contains_forbidden_characters {
-            return Err(ErrorCode::UserNameContainsForbiddenCharacters);
+            return Err(ErrorCode::ContainForbiddenCharacters);
         }
 
         Ok(Self(s))
