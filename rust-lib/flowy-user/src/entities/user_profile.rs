@@ -27,6 +27,9 @@ pub struct UserProfile {
 
     #[pb(index = 3)]
     pub name: String,
+
+    #[pb(index = 4)]
+    pub token: String,
 }
 
 use crate::{
@@ -42,6 +45,7 @@ impl std::convert::From<UserTable> for UserProfile {
             id: user.id,
             email: user.email,
             name: user.name,
+            token: user.token,
         }
     }
 }

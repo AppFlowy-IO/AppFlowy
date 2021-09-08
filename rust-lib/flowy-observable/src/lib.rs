@@ -71,6 +71,8 @@ impl ObservableBuilder {
             payload,
             error,
         };
+
+        log::debug!("Post {}", subject);
         match RustStreamSender::post(subject) {
             Ok(_) => {},
             Err(error) => log::error!("Send observable subject failed: {}", error),

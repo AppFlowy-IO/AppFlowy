@@ -38,6 +38,7 @@ fn crate_log_filter(level: Option<String>) -> String {
     filters.push(format!("flowy_sdk={}", level));
     filters.push(format!("flowy_workspace={}", level));
     filters.push(format!("flowy_user={}", level));
+    filters.push(format!("flowy_observable={}", level));
     filters.push(format!("info"));
     filters.join(",")
 }

@@ -24,17 +24,6 @@ impl std::convert::From<Claim> for LoggedUser {
     }
 }
 
-impl std::convert::TryFrom<&HeaderValue> for LoggedUser {
-    type Error = ServerError;
-
-    fn try_from(header: &HeaderValue) -> Result<Self, Self::Error> {
-        match header.to_str() {
-            Ok(val) => LoggedUser::from_token(val.to_owned()),
-            Err(_) => Err(ServerError::unauthorized()),
-        }
-    }
-}
-
 impl LoggedUser {
     pub fn new(user_id: &str) -> Self {
         Self {
@@ -67,9 +56,20 @@ impl FromRequest for LoggedUser {
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn from_request(request: &HttpRequest, _payload: &mut Payload) -> Self::Future {
-        match request.headers().get(HEADER_TOKEN) {
-            Some(header) => ready(header.try_into()),
-            None => ready(Err(ServerError::unauthorized())),
+        match Token::parser_from_request(request) {
+            Ok(token) => ready(LoggedUser::from_token(token.0)),
+            Err(err) => ready(Err(err)),
+        }
+    }
+}
+
+impl std::convert::TryFrom<&HeaderValue> for LoggedUser {
+    type Error = ServerError;
+
+    fn try_from(header: &HeaderValue) -> Result<Self, Self::Error> {
+        match header.to_str() {
+            Ok(val) => LoggedUser::from_token(val.to_owned()),
+            Err(_) => Err(ServerError::unauthorized()),
         }
     }
 }

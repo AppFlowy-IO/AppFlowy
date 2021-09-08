@@ -40,7 +40,7 @@ impl Claim {
 // }
 
 #[derive(From, Into, Clone)]
-pub struct Token(String);
+pub struct Token(pub String);
 impl Token {
     pub fn create_token(user_id: &str) -> Result<Self, ServerError> {
         let claims = Claim::with_user_id(&user_id);
@@ -61,5 +61,33 @@ impl Token {
         )
         .map(|data| Ok(data.claims))
         .map_err(|err| ServerError::unauthorized().context(err))?
+    }
+
+    pub fn parser_from_request(request: &HttpRequest) -> Result<Self, ServerError> {
+        match request.headers().get(HEADER_TOKEN) {
+            Some(header) => match header.to_str() {
+                Ok(val) => Ok(Token(val.to_owned())),
+                Err(_) => Err(ServerError::unauthorized()),
+            },
+            None => Err(ServerError::unauthorized()),
+        }
+    }
+}
+
+use actix_web::{dev::Payload, FromRequest, HttpRequest};
+use flowy_net::config::HEADER_TOKEN;
+use futures::future::{ready, Ready};
+use std::convert::TryInto;
+
+impl FromRequest for Token {
+    type Config = ();
+    type Error = ServerError;
+    type Future = Ready<Result<Self, Self::Error>>;
+
+    fn from_request(request: &HttpRequest, _payload: &mut Payload) -> Self::Future {
+        match Token::parser_from_request(request) {
+            Ok(token) => ready(Ok(token)),
+            Err(err) => ready(Err(err)),
+        }
     }
 }

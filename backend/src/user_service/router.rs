@@ -5,13 +5,16 @@ use actix_web::{
     HttpResponse,
 };
 
-use crate::user_service::{
-    get_user_profile,
-    register_user,
-    set_user_profile,
-    sign_in,
-    sign_out,
-    LoggedUser,
+use crate::{
+    entities::token::Token,
+    user_service::{
+        get_user_profile,
+        register_user,
+        set_user_profile,
+        sign_in,
+        sign_out,
+        LoggedUser,
+    },
 };
 use actix_identity::Identity;
 use flowy_net::{errors::ServerError, response::FlowyResponse};
@@ -41,10 +44,11 @@ pub async fn sign_out_handler(
 }
 
 pub async fn get_user_profile_handler(
+    token: Token,
     logged_user: LoggedUser,
     pool: Data<PgPool>,
 ) -> Result<HttpResponse, ServerError> {
-    let response = get_user_profile(pool.get_ref(), logged_user).await?;
+    let response = get_user_profile(pool.get_ref(), token, logged_user).await?;
     Ok(response.into())
 }
 

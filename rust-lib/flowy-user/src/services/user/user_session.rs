@@ -73,7 +73,7 @@ impl UserSession {
             self.user_profile().await
         } else {
             let resp = self.server.sign_in(params).await?;
-            let session = Session::new(&resp.uid, &resp.token, &resp.email);
+            let session = Session::new(&resp.user_id, &resp.token, &resp.email);
             let _ = self.set_session(Some(session))?;
             let user_table = self.save_user(resp.into()).await?;
             let user_profile = UserProfile::from(user_table);
@@ -122,7 +122,7 @@ impl UserSession {
             .filter(user_table::id.eq(&user_id))
             .first::<UserTable>(&*(self.db_conn()?))?;
 
-        let _ = self.read_user_profile_on_server(&token, &user_id).await?;
+        let _ = self.read_user_profile_on_server(&token).await?;
         Ok(UserProfile::from(user))
     }
 
@@ -137,18 +137,17 @@ impl UserSession {
 }
 
 impl UserSession {
-    async fn read_user_profile_on_server(&self, token: &str, user_id: &str) -> Result<(), UserError> {
+    async fn read_user_profile_on_server(&self, token: &str) -> Result<(), UserError> {
         let server = self.server.clone();
         let token = token.to_owned();
-        let user_id = user_id.to_owned();
         tokio::spawn(async move {
             match server.get_user(&token).await {
                 Ok(profile) => {
-                    observable(&user_id, UserObservable::UserProfileUpdated).payload(profile).build();
+                    observable(&token, UserObservable::UserProfileUpdated).payload(profile).build();
                 },
                 Err(e) => {
                     log::error!("{:?}", e);
-                    observable(&user_id, UserObservable::UserProfileUpdated).error(e).build();
+                    observable(&token, UserObservable::UserProfileUpdated).error(e).build();
                 },
             }
         });

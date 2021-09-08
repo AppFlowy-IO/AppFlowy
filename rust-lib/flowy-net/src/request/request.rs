@@ -1,11 +1,17 @@
 use crate::{
+    config::HEADER_TOKEN,
     errors::{ErrorCode, ServerError},
     response::FlowyResponse,
 };
 use bytes::Bytes;
-use hyper::http;
+use hyper::{http, http::HeaderValue};
 use protobuf::ProtobufError;
-use reqwest::{header::HeaderMap, Client, Method, Response};
+use reqwest::{
+    header::{HeaderMap, ToStrError},
+    Client,
+    Method,
+    Response,
+};
 use std::{
     convert::{TryFrom, TryInto},
     sync::Arc,
@@ -14,7 +20,7 @@ use std::{
 use tokio::sync::oneshot;
 
 pub trait ResponseMiddleware {
-    fn receive_response(&self, response: &FlowyResponse);
+    fn receive_response(&self, token: &Option<String>, response: &FlowyResponse);
 }
 
 pub struct HttpRequestBuilder {
@@ -114,8 +120,9 @@ impl HttpRequestBuilder {
 
         let response = rx.await??;
         let flowy_response = flowy_response_from(response).await?;
+        let token = self.token();
         self.middleware.iter().for_each(|middleware| {
-            middleware.receive_response(&flowy_response);
+            middleware.receive_response(&token, &flowy_response);
         });
         match flowy_response.error {
             None => {
@@ -136,6 +143,16 @@ impl HttpRequestBuilder {
                 Err(ServerError::payload_none().context(msg))
             },
             Some(data) => Ok(T2::try_from(data)?),
+        }
+    }
+
+    fn token(&self) -> Option<String> {
+        match self.headers.get(HEADER_TOKEN) {
+            None => None,
+            Some(header) => match header.to_str() {
+                Ok(val) => Some(val.to_owned()),
+                Err(_) => None,
+            },
         }
     }
 }

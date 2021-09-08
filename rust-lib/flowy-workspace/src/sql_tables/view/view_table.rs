@@ -68,7 +68,7 @@ impl std::convert::Into<View> for ViewTable {
 
 #[derive(AsChangeset, Identifiable, Clone, Default, Debug)]
 #[table_name = "view_table"]
-pub struct ViewTableChangeset {
+pub(crate) struct ViewTableChangeset {
     pub id: String,
     pub name: Option<String>,
     pub desc: Option<String>,
@@ -78,7 +78,7 @@ pub struct ViewTableChangeset {
 }
 
 impl ViewTableChangeset {
-    pub fn new(params: UpdateViewParams) -> Self {
+    pub(crate) fn new(params: UpdateViewParams) -> Self {
         ViewTableChangeset {
             id: params.view_id,
             name: params.name,
@@ -86,6 +86,17 @@ impl ViewTableChangeset {
             thumbnail: params.thumbnail,
             modified_time: timestamp(),
             is_trash: params.is_trash,
+        }
+    }
+
+    pub(crate) fn from_table(table: ViewTable) -> Self {
+        ViewTableChangeset {
+            id: table.id,
+            name: Some(table.name),
+            desc: Some(table.desc),
+            thumbnail: Some(table.thumbnail),
+            modified_time: table.modified_time,
+            is_trash: Some(table.is_trash),
         }
     }
 }

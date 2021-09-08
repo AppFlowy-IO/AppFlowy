@@ -12,7 +12,13 @@ pub struct ViewTableSql {}
 
 impl ViewTableSql {
     pub(crate) fn create_view(&self, view_table: ViewTable, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
-        let _ = diesel::insert_into(view_table::table).values(view_table).execute(conn)?;
+        match diesel_record_count!(view_table, &view_table.id, conn) {
+            0 => diesel_insert_table!(view_table, &view_table, conn),
+            _ => {
+                let changeset = ViewTableChangeset::from_table(view_table);
+                diesel_update_table!(view_table, changeset, conn)
+            },
+        }
         Ok(())
     }
 

@@ -34,7 +34,7 @@ final $typed_data.Uint8List signInParamsDescriptor = $convert.base64Decode('CgxT
 const SignInResponse$json = const {
   '1': 'SignInResponse',
   '2': const [
-    const {'1': 'uid', '3': 1, '4': 1, '5': 9, '10': 'uid'},
+    const {'1': 'user_id', '3': 1, '4': 1, '5': 9, '10': 'userId'},
     const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
     const {'1': 'email', '3': 3, '4': 1, '5': 9, '10': 'email'},
     const {'1': 'token', '3': 4, '4': 1, '5': 9, '10': 'token'},
@@ -42,7 +42,7 @@ const SignInResponse$json = const {
 };
 
 /// Descriptor for `SignInResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List signInResponseDescriptor = $convert.base64Decode('Cg5TaWduSW5SZXNwb25zZRIQCgN1aWQYASABKAlSA3VpZBISCgRuYW1lGAIgASgJUgRuYW1lEhQKBWVtYWlsGAMgASgJUgVlbWFpbBIUCgV0b2tlbhgEIAEoCVIFdG9rZW4=');
+final $typed_data.Uint8List signInResponseDescriptor = $convert.base64Decode('Cg5TaWduSW5SZXNwb25zZRIXCgd1c2VyX2lkGAEgASgJUgZ1c2VySWQSEgoEbmFtZRgCIAEoCVIEbmFtZRIUCgVlbWFpbBgDIAEoCVIFZW1haWwSFAoFdG9rZW4YBCABKAlSBXRva2Vu');
 @$core.Deprecated('Use signUpRequestDescriptor instead')
 const SignUpRequest$json = const {
   '1': 'SignUpRequest',

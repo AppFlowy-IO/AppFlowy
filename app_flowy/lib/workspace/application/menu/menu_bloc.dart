@@ -66,7 +66,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
 }
 
 @freezed
-abstract class MenuEvent with _$MenuEvent {
+class MenuEvent with _$MenuEvent {
   const factory MenuEvent.initial() = _Initial;
   const factory MenuEvent.collapse() = Collapse;
   const factory MenuEvent.openPage(HomeStackView stackView) = OpenPage;
@@ -74,7 +74,7 @@ abstract class MenuEvent with _$MenuEvent {
 }
 
 @freezed
-abstract class MenuState implements _$MenuState {
+class MenuState with _$MenuState {
   const factory MenuState({
     required bool isCollapse,
     required Option<List<App>> apps,

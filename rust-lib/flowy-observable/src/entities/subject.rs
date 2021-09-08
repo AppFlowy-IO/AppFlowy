@@ -1,4 +1,5 @@
 use flowy_derive::ProtoBuf;
+use std::{fmt, fmt::Formatter};
 
 #[derive(Debug, Clone, ProtoBuf)]
 pub struct ObservableSubject {
@@ -16,6 +17,22 @@ pub struct ObservableSubject {
 
     #[pb(index = 5, one_of)]
     pub error: Option<Vec<u8>>,
+}
+
+impl std::fmt::Display for ObservableSubject {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let _ = f.write_str(&self.source)?;
+        let _ = f.write_str(&format!("-{}", self.ty))?;
+        if let Some(payload) = &self.payload {
+            let _ = f.write_str(&format!("-{} payload", payload.len()))?;
+        }
+
+        if let Some(payload) = &self.error {
+            let _ = f.write_str(&format!("-{} error", payload.len()))?;
+        }
+
+        Ok(())
+    }
 }
 
 impl std::default::Default for ObservableSubject {

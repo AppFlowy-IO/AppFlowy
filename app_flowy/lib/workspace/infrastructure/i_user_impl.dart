@@ -62,10 +62,10 @@ class IUserWatchImpl extends IUserWatch {
   @override
   void startWatching() {
     _workspaceParser = WorkspaceObservableParser(
-        id: _user.id, callback: _workspaceObservableCallback);
+        id: _user.token, callback: _workspaceObservableCallback);
 
-    _userParser =
-        UserObservableParser(id: _user.id, callback: _userObservableCallback);
+    _userParser = UserObservableParser(
+        id: _user.token, callback: _userObservableCallback);
 
     _subscription = RustStreamReceiver.listen((observable) {
       _workspaceParser.parse(observable);

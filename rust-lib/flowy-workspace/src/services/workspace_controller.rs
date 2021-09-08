@@ -1,23 +1,20 @@
 use crate::{
-    entities::{app::App, workspace::*},
+    entities::{
+        app::{App, RepeatedApp},
+        workspace::*,
+    },
     errors::*,
     module::{WorkspaceDatabase, WorkspaceUser},
-    observable::observable,
+    observable::{observable, WorkspaceObservable},
     services::{helper::spawn, server::Server, AppController},
-    sql_tables::workspace::{WorkspaceTable, WorkspaceTableChangeset, WorkspaceTableSql},
-};
-
-use flowy_infra::kv::KV;
-
-use crate::{
-    entities::app::RepeatedApp,
-    observable::WorkspaceObservable,
     sql_tables::{
         app::{AppTable, AppTableSql},
         view::{ViewTable, ViewTableSql},
+        workspace::{WorkspaceTable, WorkspaceTableChangeset, WorkspaceTableSql},
     },
 };
 use flowy_database::SqliteConnection;
+use flowy_infra::kv::KV;
 use std::sync::Arc;
 
 pub(crate) struct WorkspaceController {
@@ -54,6 +51,7 @@ impl WorkspaceController {
     pub(crate) async fn create_workspace(&self, params: CreateWorkspaceParams) -> Result<Workspace, WorkspaceError> {
         let workspace = self.create_workspace_on_server(params.clone()).await?;
         let user_id = self.user.user_id()?;
+        let token = self.user.token()?;
         let workspace_table = WorkspaceTable::new(workspace.clone(), &user_id);
         let conn = &*self.database.db_connection()?;
         //[[immediate_transaction]]
@@ -70,7 +68,7 @@ impl WorkspaceController {
         (conn).immediate_transaction::<_, WorkspaceError, _>(|| {
             self.workspace_sql.create_workspace(workspace_table, conn)?;
             let repeated_workspace = self.read_local_workspaces(None, &user_id, conn)?;
-            observable(&user_id, WorkspaceObservable::UserCreateWorkspace)
+            observable(&token, WorkspaceObservable::UserCreateWorkspace)
                 .payload(repeated_workspace)
                 .build();
 
@@ -102,12 +100,13 @@ impl WorkspaceController {
 
     pub(crate) async fn delete_workspace(&self, workspace_id: &str) -> Result<(), WorkspaceError> {
         let user_id = self.user.user_id()?;
+        let token = self.user.token()?;
         let _ = self.delete_workspace_on_server(workspace_id).await?;
         let conn = &*self.database.db_connection()?;
         (conn).immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.workspace_sql.delete_workspace(workspace_id, conn)?;
             let repeated_workspace = self.read_local_workspaces(None, &user_id, conn)?;
-            observable(&user_id, WorkspaceObservable::UserDeleteWorkspace)
+            observable(&token, WorkspaceObservable::UserDeleteWorkspace)
                 .payload(repeated_workspace)
                 .build();
 
@@ -263,8 +262,6 @@ impl WorkspaceController {
         spawn(async move {
             // Opti: retry?
             let workspaces = server.read_workspace(&token, params).await?;
-
-            // TODO: rollback if fail
             let _ = (&*conn).immediate_transaction::<_, WorkspaceError, _>(|| {
                 log::debug!("Save {} workspace", workspaces.len());
                 for workspace in &workspaces.items {
@@ -292,7 +289,8 @@ impl WorkspaceController {
                 }
                 Ok(())
             })?;
-            observable(&user_id, WorkspaceObservable::WorkspaceListUpdated)
+
+            observable(&token, WorkspaceObservable::WorkspaceListUpdated)
                 .payload(workspaces)
                 .build();
             Result::<(), WorkspaceError>::Ok(())

@@ -23,7 +23,7 @@ pub struct SignInParams {
 #[derive(Debug, Default, ProtoBuf)]
 pub struct SignInResponse {
     #[pb(index = 1)]
-    pub uid: String,
+    pub user_id: String,
 
     #[pb(index = 2)]
     pub name: String,

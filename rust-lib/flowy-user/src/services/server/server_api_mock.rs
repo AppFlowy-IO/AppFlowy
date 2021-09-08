@@ -27,7 +27,7 @@ impl UserServerAPI for UserServerMock {
         let user_id = uuid();
         ResultFuture::new(async {
             Ok(SignInResponse {
-                uid: user_id.clone(),
+                user_id: user_id.clone(),
                 name: "fake name".to_owned(),
                 email: params.email,
                 token: user_id,

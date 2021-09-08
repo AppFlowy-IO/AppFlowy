@@ -10,9 +10,9 @@ import 'package:dartz/dartz.dart';
 part 'welcome_bloc.freezed.dart';
 
 class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
-  UserRepo repo;
-  IUserWatch watcher;
-  WelcomeBloc({required this.repo, required this.watcher})
+  final UserRepo repo;
+  final IUserWatch watch;
+  WelcomeBloc({required this.repo, required this.watch})
       : super(WelcomeState.initial());
 
   @override
@@ -20,8 +20,8 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
     WelcomeEvent event,
   ) async* {
     yield* event.map(initial: (e) async* {
-      watcher.setWorkspacesCallback(_workspacesUpdated);
-      watcher.startWatching();
+      watch.setWorkspacesCallback(_workspacesUpdated);
+      watch.startWatching();
       //
       yield* _fetchWorkspaces();
     }, openWorkspace: (e) async* {
@@ -35,6 +35,12 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
         (error) => state.copyWith(successOrFailure: right(error)),
       );
     });
+  }
+
+  @override
+  Future<void> close() async {
+    await watch.stopWatching();
+    super.close();
   }
 
   Stream<WelcomeState> _fetchWorkspaces() async* {

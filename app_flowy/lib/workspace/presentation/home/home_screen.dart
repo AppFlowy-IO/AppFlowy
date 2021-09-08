@@ -1,5 +1,5 @@
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
-import 'package:app_flowy/workspace/application/home/home_watcher_bloc.dart';
+import 'package:app_flowy/workspace/application/home/home_auth_bloc.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/prelude.dart';
 import 'package:app_flowy/startup/startup.dart';
@@ -22,22 +22,34 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<HomeWatcherBloc>(
-            create: (context) => getIt<HomeWatcherBloc>()),
+        BlocProvider<HomeAuthBloc>(
+          create: (context) => getIt<HomeAuthBloc>(param1: user)
+            ..add(const HomeAuthEvent.started()),
+        ),
         BlocProvider<HomeBloc>(create: (context) => getIt<HomeBloc>()),
       ],
       child: Scaffold(
         key: HomeScreen.scaffoldKey,
-        body: BlocBuilder<HomeBloc, HomeState>(
-          buildWhen: (previous, current) => previous != current,
-          builder: (context, state) {
-            return FlowyContainer(
-              Theme.of(context).colorScheme.surface,
-              // Colors.white,
-              child: _buildBody(
-                  state, context.read<HomeBloc>().state.forceCollapse),
+        body: BlocListener<HomeAuthBloc, HomeAuthState>(
+          listener: (context, state) {
+            state.map(
+              loading: (_) {},
+              unauthorized: (unauthorized) {
+                //
+              },
             );
           },
+          child: BlocBuilder<HomeBloc, HomeState>(
+            buildWhen: (previous, current) => previous != current,
+            builder: (context, state) {
+              return FlowyContainer(
+                Theme.of(context).colorScheme.surface,
+                // Colors.white,
+                child: _buildBody(
+                    state, context.read<HomeBloc>().state.forceCollapse),
+              );
+            },
+          ),
         ),
       ),
     );

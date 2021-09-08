@@ -86,7 +86,7 @@ class ObservableParser<T, E> {
     }
 
     if (subject.hasPayload()) {
-      final bytes = Uint8List.fromList(subject.error);
+      final bytes = Uint8List.fromList(subject.payload);
       callback(ty, left(bytes));
     } else if (subject.hasError()) {
       final bytes = Uint8List.fromList(subject.error);

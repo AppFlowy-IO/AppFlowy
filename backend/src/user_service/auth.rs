@@ -48,7 +48,7 @@ pub async fn sign_in(pool: &PgPool, params: SignInParams) -> Result<SignInRespon
 
     let _ = AUTHORIZED_USERS.store_auth(logged_user, true)?;
     let mut response_data = SignInResponse::default();
-    response_data.set_uid(user.id.to_string());
+    response_data.set_user_id(user.id.to_string());
     response_data.set_name(user.name);
     response_data.set_email(user.email);
     response_data.set_token(token.clone().into());
@@ -101,6 +101,7 @@ pub async fn register_user(
 
 pub(crate) async fn get_user_profile(
     pool: &PgPool,
+    token: Token,
     logged_user: LoggedUser,
 ) -> Result<FlowyResponse, ServerError> {
     let mut transaction = pool
@@ -128,6 +129,7 @@ pub(crate) async fn get_user_profile(
     user_profile.set_id(user_table.id.to_string());
     user_profile.set_email(user_table.email);
     user_profile.set_name(user_table.name);
+    user_profile.set_token(token.0);
     FlowyResponse::success().pb(user_profile)
 }
 

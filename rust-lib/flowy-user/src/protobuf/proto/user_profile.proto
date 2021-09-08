@@ -7,6 +7,7 @@ message UserProfile {
     string id = 1;
     string email = 2;
     string name = 3;
+    string token = 4;
 }
 message UpdateUserRequest {
     string id = 1;

@@ -48,23 +48,28 @@ use flowy_net::response::FlowyResponse;
 use lazy_static::lazy_static;
 use std::sync::Arc;
 lazy_static! {
-    static ref IDDLEWARE: Arc<Middleware> = Arc::new(Middleware {});
+    static ref MIDDLEWARE: Arc<Middleware> = Arc::new(Middleware {});
 }
 
 struct Middleware {}
 impl ResponseMiddleware for Middleware {
-    fn receive_response(&self, response: &FlowyResponse) {
+    fn receive_response(&self, token: &Option<String>, response: &FlowyResponse) {
         if let Some(error) = &response.error {
             if error.is_unauthorized() {
                 log::error!("user unauthorized");
-                let error = UserError::new(ErrorCode::UserUnauthorized, "");
-                observable("", UserObservable::UserUnauthorized).error(error).build()
+                match token {
+                    None => {},
+                    Some(token) => {
+                        let error = UserError::new(ErrorCode::UserUnauthorized, "");
+                        observable(token, UserObservable::UserUnauthorized).error(error).build()
+                    },
+                }
             }
         }
     }
 }
 
-pub(crate) fn request_builder() -> HttpRequestBuilder { HttpRequestBuilder::new().middleware(IDDLEWARE.clone()) }
+pub(crate) fn request_builder() -> HttpRequestBuilder { HttpRequestBuilder::new().middleware(MIDDLEWARE.clone()) }
 
 pub async fn user_sign_up_request(params: SignUpParams, url: &str) -> Result<SignUpResponse, UserError> {
     let response = request_builder()

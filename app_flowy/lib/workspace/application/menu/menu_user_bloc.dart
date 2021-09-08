@@ -1,5 +1,6 @@
 import 'package:app_flowy/workspace/domain/i_user.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/workspace_create.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -9,24 +10,18 @@ part 'menu_user_bloc.freezed.dart';
 
 class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
   final IUser iUserImpl;
+  final IUserWatch watch;
 
-  MenuUserBloc(this.iUserImpl) : super(MenuUserState.initial(iUserImpl.user));
+  MenuUserBloc(this.iUserImpl, this.watch)
+      : super(MenuUserState.initial(iUserImpl.user));
 
   @override
   Stream<MenuUserState> mapEventToState(MenuUserEvent event) async* {
     yield* event.map(
       initial: (_) async* {
-        // // fetch workspaces
-        // iUserImpl.fetchWorkspaces().then((result) {
-        //   result.fold(
-        //     (workspaces) async* {
-        //       yield state.copyWith(workspaces: some(workspaces));
-        //     },
-        //     (error) async* {
-        //       yield state.copyWith(successOrFailure: right(error.msg));
-        //     },
-        //   );
-        // });
+        watch.setProfileCallback(_profileUpdated);
+        watch.setWorkspacesCallback(_workspacesUpdated);
+        watch.startWatching();
       },
       fetchWorkspaces: (_FetchWorkspaces value) async* {},
     );
@@ -34,7 +29,24 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
 
   @override
   Future<void> close() async {
+    await watch.stopWatching();
     super.close();
+  }
+
+  void _profileUpdated(Either<UserProfile, UserError> userOrFailed) {}
+  void _workspacesUpdated(
+      Either<List<Workspace>, WorkspaceError> workspacesOrFailed) {
+    // fetch workspaces
+    // iUserImpl.fetchWorkspaces().then((result) {
+    //   result.fold(
+    //     (workspaces) async* {
+    //       yield state.copyWith(workspaces: some(workspaces));
+    //     },
+    //     (error) async* {
+    //       yield state.copyWith(successOrFailure: right(error.msg));
+    //     },
+    //   );
+    // });
   }
 }
 

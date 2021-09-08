@@ -63,6 +63,7 @@ class UserProfile extends $pb.GeneratedMessage {
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'email')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'token')
     ..hasRequiredFields = false
   ;
 
@@ -71,6 +72,7 @@ class UserProfile extends $pb.GeneratedMessage {
     $core.String? id,
     $core.String? email,
     $core.String? name,
+    $core.String? token,
   }) {
     final _result = create();
     if (id != null) {
@@ -81,6 +83,9 @@ class UserProfile extends $pb.GeneratedMessage {
     }
     if (name != null) {
       _result.name = name;
+    }
+    if (token != null) {
+      _result.token = token;
     }
     return _result;
   }
@@ -131,6 +136,15 @@ class UserProfile extends $pb.GeneratedMessage {
   $core.bool hasName() => $_has(2);
   @$pb.TagNumber(3)
   void clearName() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get token => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set token($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasToken() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearToken() => clearField(4);
 }
 
 enum UpdateUserRequest_OneOfName {
