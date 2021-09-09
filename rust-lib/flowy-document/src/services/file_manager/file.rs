@@ -48,15 +48,14 @@ pub struct FileInfo {
     pub encoding: CharacterEncoding,
 }
 
+#[allow(dead_code)]
 pub(crate) fn try_load_file<P>(path: P) -> Result<(String, FileInfo), FileError>
 where
     P: AsRef<Path>,
 {
-    let mut f =
-        File::open(path.as_ref()).map_err(|e| FileError::Io(e, path.as_ref().to_owned()))?;
+    let mut f = File::open(path.as_ref()).map_err(|e| FileError::Io(e, path.as_ref().to_owned()))?;
     let mut bytes = Vec::new();
-    f.read_to_end(&mut bytes)
-        .map_err(|e| FileError::Io(e, path.as_ref().to_owned()))?;
+    f.read_to_end(&mut bytes).map_err(|e| FileError::Io(e, path.as_ref().to_owned()))?;
 
     let encoding = CharacterEncoding::guess(&bytes);
     let s = try_decode(bytes, encoding, path.as_ref())?;
@@ -69,12 +68,8 @@ where
     Ok((s, info))
 }
 
-pub(crate) fn try_save(
-    path: &Path,
-    text: &str,
-    encoding: CharacterEncoding,
-    _file_info: Option<&FileInfo>,
-) -> io::Result<()> {
+#[allow(dead_code)]
+pub(crate) fn try_save(path: &Path, text: &str, encoding: CharacterEncoding, _file_info: Option<&FileInfo>) -> io::Result<()> {
     let tmp_extension = path.extension().map_or_else(
         || OsString::from("swp"),
         |ext| {
@@ -97,20 +92,14 @@ pub(crate) fn try_save(
     Ok(())
 }
 
-pub(crate) fn try_decode(
-    bytes: Vec<u8>,
-    encoding: CharacterEncoding,
-    path: &Path,
-) -> Result<String, FileError> {
+#[allow(dead_code)]
+pub(crate) fn try_decode(bytes: Vec<u8>, encoding: CharacterEncoding, path: &Path) -> Result<String, FileError> {
     match encoding {
-        CharacterEncoding::Utf8 => {
-            Ok(String::from(str::from_utf8(&bytes).map_err(|_e| {
-                FileError::UnknownEncoding(path.to_owned())
-            })?))
-        },
+        CharacterEncoding::Utf8 => Ok(String::from(
+            str::from_utf8(&bytes).map_err(|_e| FileError::UnknownEncoding(path.to_owned()))?,
+        )),
         CharacterEncoding::Utf8WithBom => {
-            let s = String::from_utf8(bytes)
-                .map_err(|_e| FileError::UnknownEncoding(path.to_owned()))?;
+            let s = String::from_utf8(bytes).map_err(|_e| FileError::UnknownEncoding(path.to_owned()))?;
             Ok(String::from(&s[UTF8_BOM.len()..]))
         },
     }
@@ -123,8 +112,5 @@ pub(crate) fn create_dir_if_not_exist(dir: &str) -> Result<(), io::Error> {
 }
 
 pub(crate) fn get_modified_time<P: AsRef<Path>>(path: P) -> Option<SystemTime> {
-    File::open(path)
-        .and_then(|f| f.metadata())
-        .and_then(|meta| meta.modified())
-        .ok()
+    File::open(path).and_then(|f| f.metadata()).and_then(|meta| meta.modified()).ok()
 }

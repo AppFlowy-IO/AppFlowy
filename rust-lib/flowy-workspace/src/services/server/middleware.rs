@@ -10,7 +10,7 @@ use crate::{
 };
 use flowy_net::{request::ResponseMiddleware, response::FlowyResponse};
 
-struct WorkspaceMiddleware {}
+pub(crate) struct WorkspaceMiddleware {}
 impl ResponseMiddleware for WorkspaceMiddleware {
     fn receive_response(&self, token: &Option<String>, response: &FlowyResponse) {
         if let Some(error) = &response.error {

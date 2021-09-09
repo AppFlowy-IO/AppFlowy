@@ -27,7 +27,7 @@ impl TryInto<CreateDocParams> for CreateDocRequest {
     type Error = DocError;
 
     fn try_into(self) -> Result<CreateDocParams, Self::Error> {
-        let id = DocViewId::parse(self.id)
+        let id = DocId::parse(self.id)
             .map_err(|e| ErrorBuilder::new(ErrorCode::DocIdInvalid).msg(e).build())?
             .0;
 

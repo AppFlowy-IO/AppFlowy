@@ -10,4 +10,5 @@ impl std::convert::Into<i32> for DocObservable {
     fn into(self) -> i32 { self as i32 }
 }
 
+#[allow(dead_code)]
 pub(crate) fn observable(id: &str, ty: DocObservable) -> ObservableBuilder { ObservableBuilder::new(id, ty, OBSERVABLE_CATEGORY) }

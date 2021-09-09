@@ -18,7 +18,7 @@ use flowy_workspace::{
         app::parser::{AppDesc, AppName},
         workspace::parser::WorkspaceId,
     },
-    protobuf::{CreateAppParams, QueryAppParams, RepeatedApp, RepeatedView, UpdateAppParams},
+    protobuf::{CreateAppParams, QueryAppParams, RepeatedView, UpdateAppParams},
 };
 use protobuf::Message;
 use sqlx::{postgres::PgArguments, PgPool, Postgres};

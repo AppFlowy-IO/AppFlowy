@@ -1,6 +1,5 @@
 use crate::{
     errors::DocError,
-    module::DocumentDatabase,
     sql_tables::doc::{DocTable, DocTableChangeset},
 };
 use flowy_database::{
@@ -8,7 +7,7 @@ use flowy_database::{
     schema::{doc_table, doc_table::dsl},
     SqliteConnection,
 };
-use std::sync::Arc;
+
 pub struct DocTableSql {}
 
 impl DocTableSql {

@@ -1,11 +1,6 @@
-use crate::{
-    entities::doc::*,
-    errors::DocError,
-    services::{doc_controller::DocController, file_manager::FileManager},
-};
+use crate::{entities::doc::*, errors::DocError, services::doc_controller::DocController};
 use flowy_dispatch::prelude::*;
-use std::{convert::TryInto, path::Path};
-use tokio::sync::RwLock;
+use std::convert::TryInto;
 
 #[tracing::instrument(skip(data, controller))]
 pub async fn create_doc_handler(data: Data<CreateDocRequest>, controller: Unit<DocController>) -> DataResult<Doc, DocError> {
@@ -23,7 +18,7 @@ pub async fn read_doc_handler(data: Data<QueryDocRequest>, controller: Unit<DocC
 
 #[tracing::instrument(skip(data, controller))]
 pub async fn update_doc_handler(data: Data<UpdateDocRequest>, controller: Unit<DocController>) -> Result<(), DocError> {
-    let mut params: UpdateDocParams = data.into_inner().try_into()?;
+    let params: UpdateDocParams = data.into_inner().try_into()?;
     let _ = controller.update_doc(params).await?;
     Ok(())
 }

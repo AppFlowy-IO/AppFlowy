@@ -1,17 +1,8 @@
-use crate::{
-    config::HEADER_TOKEN,
-    errors::{ErrorCode, ServerError},
-    response::FlowyResponse,
-};
+use crate::{config::HEADER_TOKEN, errors::ServerError, response::FlowyResponse};
 use bytes::Bytes;
-use hyper::{http, http::HeaderValue};
+use hyper::http;
 use protobuf::ProtobufError;
-use reqwest::{
-    header::{HeaderMap, ToStrError},
-    Client,
-    Method,
-    Response,
-};
+use reqwest::{header::HeaderMap, Client, Method, Response};
 use std::{
     convert::{TryFrom, TryInto},
     sync::Arc,
@@ -94,7 +85,50 @@ impl HttpRequestBuilder {
         Ok(self)
     }
 
-    pub async fn send(mut self) -> Result<Self, ServerError> {
+    pub async fn send(self) -> Result<(), ServerError> {
+        let _ = self.inner_send().await?;
+        Ok(())
+    }
+
+    pub async fn response<T>(self) -> Result<T, ServerError>
+    where
+        T: TryFrom<Bytes, Error = ProtobufError>,
+    {
+        let builder = self.inner_send().await?;
+        match builder.response {
+            None => Err(unexpected_empty_payload(&builder.url)),
+            Some(data) => Ok(T::try_from(data)?),
+        }
+    }
+
+    pub async fn option_response<T>(self) -> Result<Option<T>, ServerError>
+    where
+        T: TryFrom<Bytes, Error = ProtobufError>,
+    {
+        let result = self.inner_send().await;
+        match result {
+            Ok(builder) => match builder.response {
+                None => Err(unexpected_empty_payload(&builder.url)),
+                Some(data) => Ok(Some(T::try_from(data)?)),
+            },
+            Err(error) => match error.is_record_not_found() {
+                true => Ok(None),
+                false => Err(error),
+            },
+        }
+    }
+
+    fn token(&self) -> Option<String> {
+        match self.headers.get(HEADER_TOKEN) {
+            None => None,
+            Some(header) => match header.to_str() {
+                Ok(val) => Some(val.to_owned()),
+                Err(_) => None,
+            },
+        }
+    }
+
+    async fn inner_send(mut self) -> Result<Self, ServerError> {
         let (tx, rx) = oneshot::channel::<Result<Response, _>>();
         let url = self.url.clone();
         let body = self.body.take();
@@ -132,29 +166,11 @@ impl HttpRequestBuilder {
             Some(error) => Err(error),
         }
     }
+}
 
-    pub async fn response<T2>(self) -> Result<T2, ServerError>
-    where
-        T2: TryFrom<Bytes, Error = ProtobufError>,
-    {
-        match self.response {
-            None => {
-                let msg = format!("Request: {} receives unexpected empty body", self.url);
-                Err(ServerError::payload_none().context(msg))
-            },
-            Some(data) => Ok(T2::try_from(data)?),
-        }
-    }
-
-    fn token(&self) -> Option<String> {
-        match self.headers.get(HEADER_TOKEN) {
-            None => None,
-            Some(header) => match header.to_str() {
-                Ok(val) => Some(val.to_owned()),
-                Err(_) => None,
-            },
-        }
-    }
+fn unexpected_empty_payload(url: &str) -> ServerError {
+    let msg = format!("Request: {} receives unexpected empty payload", url);
+    ServerError::payload_none().context(msg)
 }
 
 async fn flowy_response_from(original: Response) -> Result<FlowyResponse, ServerError> {

@@ -1,7 +1,4 @@
-use crate::{
-    entities::doc::parser::{DocId, DocPath},
-    errors::*,
-};
+use crate::{entities::doc::parser::DocId, errors::*};
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
 

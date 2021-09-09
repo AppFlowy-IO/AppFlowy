@@ -46,9 +46,8 @@ impl LoggedUser {
 }
 
 use actix_web::{dev::Payload, FromRequest, HttpRequest};
-use flowy_net::config::HEADER_TOKEN;
+
 use futures::future::{ready, Ready};
-use std::convert::TryInto;
 
 impl FromRequest for LoggedUser {
     type Config = ();

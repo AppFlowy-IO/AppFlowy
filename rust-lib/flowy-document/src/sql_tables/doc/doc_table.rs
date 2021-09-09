@@ -1,6 +1,5 @@
-use crate::entities::doc::{CreateDocParams, Doc, UpdateDocParams};
+use crate::entities::doc::{Doc, UpdateDocParams};
 use flowy_database::schema::doc_table;
-use flowy_infra::timestamp;
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
 #[table_name = "doc_table"]
@@ -14,7 +13,7 @@ impl DocTable {
     pub fn new(doc: Doc) -> Self {
         Self {
             id: doc.id,
-            data: "".to_owned(),
+            data: doc.data,
             version: 0,
         }
     }

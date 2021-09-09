@@ -27,7 +27,7 @@ impl DocumentUser for EditorUserImpl {
         let dir = self
             .user_session
             .user_dir()
-            .map_err(|e| ErrorBuilder::new(ErrorCode::EditorUserNotLoginYet).error(e).build())?;
+            .map_err(|e| ErrorBuilder::new(ErrorCode::UserUnauthorized).error(e).build())?;
 
         let doc_dir = format!("{}/doc", dir);
         if !Path::new(&doc_dir).exists() {

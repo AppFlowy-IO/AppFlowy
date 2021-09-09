@@ -59,14 +59,10 @@ impl WorkspaceTableSql {
         workspace_id: &str,
         conn: &SqliteConnection,
     ) -> Result<Vec<AppTable>, WorkspaceError> {
-        let apps = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
-            let workspace_table: WorkspaceTable = dsl::workspace_table
-                .filter(workspace_table::id.eq(workspace_id))
-                .first::<WorkspaceTable>(conn)?;
-            let apps = AppTable::belonging_to(&workspace_table).load::<AppTable>(conn)?;
-            Ok(apps)
-        })?;
-
+        let workspace_table: WorkspaceTable = dsl::workspace_table
+            .filter(workspace_table::id.eq(workspace_id))
+            .first::<WorkspaceTable>(conn)?;
+        let apps = AppTable::belonging_to(&workspace_table).load::<AppTable>(conn)?;
         Ok(apps)
     }
 }

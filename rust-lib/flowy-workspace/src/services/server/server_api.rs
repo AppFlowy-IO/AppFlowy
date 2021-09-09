@@ -15,12 +15,7 @@ use crate::{
     services::server::WorkspaceServerAPI,
 };
 use flowy_infra::future::ResultFuture;
-use flowy_net::{
-    config::*,
-    request::{HttpRequestBuilder, ResponseMiddleware},
-    response::FlowyResponse,
-};
-use std::sync::Arc;
+use flowy_net::{config::*, request::HttpRequestBuilder};
 
 pub struct WorkspaceServer {}
 
@@ -92,27 +87,20 @@ pub async fn create_workspace_request(token: &str, params: CreateWorkspaceParams
         .post(&url.to_owned())
         .header(HEADER_TOKEN, token)
         .protobuf(params)?
-        .send()
-        .await?
         .response()
         .await?;
     Ok(workspace)
 }
 
 pub async fn read_workspaces_request(token: &str, params: QueryWorkspaceParams, url: &str) -> Result<RepeatedWorkspace, WorkspaceError> {
-    let result = request_builder()
+    let repeated_workspace = request_builder()
         .get(&url.to_owned())
         .header(HEADER_TOKEN, token)
         .protobuf(params)?
-        .send()
-        .await?
         .response::<RepeatedWorkspace>()
-        .await;
+        .await?;
 
-    match result {
-        Ok(repeated_workspace) => Ok(repeated_workspace),
-        Err(e) => Err(e.into()),
-    }
+    Ok(repeated_workspace)
 }
 
 pub async fn update_workspace_request(token: &str, params: UpdateWorkspaceParams, url: &str) -> Result<(), WorkspaceError> {
@@ -141,31 +129,20 @@ pub async fn create_app_request(token: &str, params: CreateAppParams, url: &str)
         .post(&url.to_owned())
         .header(HEADER_TOKEN, token)
         .protobuf(params)?
-        .send()
-        .await?
         .response()
         .await?;
     Ok(app)
 }
 
 pub async fn read_app_request(token: &str, params: QueryAppParams, url: &str) -> Result<Option<App>, WorkspaceError> {
-    let result = request_builder()
+    let app = request_builder()
         .get(&url.to_owned())
         .header(HEADER_TOKEN, token)
         .protobuf(params)?
-        .send()
-        .await;
+        .option_response()
+        .await?;
 
-    match result {
-        Ok(builder) => Ok(Some(builder.response::<App>().await?)),
-        Err(e) => {
-            if e.is_not_found() {
-                Ok(None)
-            } else {
-                Err(e.into())
-            }
-        },
-    }
+    Ok(app)
 }
 
 pub async fn update_app_request(token: &str, params: UpdateAppParams, url: &str) -> Result<(), WorkspaceError> {
@@ -194,34 +171,20 @@ pub async fn create_view_request(token: &str, params: CreateViewParams, url: &st
         .post(&url.to_owned())
         .header(HEADER_TOKEN, token)
         .protobuf(params)?
-        .send()
-        .await?
         .response()
         .await?;
     Ok(view)
 }
 
 pub async fn read_view_request(token: &str, params: QueryViewParams, url: &str) -> Result<Option<View>, WorkspaceError> {
-    let result = request_builder()
+    let view = request_builder()
         .get(&url.to_owned())
         .header(HEADER_TOKEN, token)
         .protobuf(params)?
-        .send()
-        .await;
+        .option_response()
+        .await?;
 
-    match result {
-        Ok(builder) => {
-            let view = builder.response::<View>().await?;
-            Ok(Some(view))
-        },
-        Err(e) => {
-            if e.is_not_found() {
-                Ok(None)
-            } else {
-                Err(e.into())
-            }
-        },
-    }
+    Ok(view)
 }
 
 pub async fn update_view_request(token: &str, params: UpdateViewParams, url: &str) -> Result<(), WorkspaceError> {

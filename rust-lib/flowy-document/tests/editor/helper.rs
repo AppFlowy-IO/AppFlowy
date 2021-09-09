@@ -4,11 +4,9 @@ use flowy_document::{entities::doc::*, event::EditorEvent::*};
 use flowy_infra::uuid;
 use flowy_test::prelude::*;
 
-pub fn create_doc(sdk: &FlowyTestSDK, name: &str, desc: &str, text: &str) -> Doc {
+pub fn create_doc(sdk: &FlowyTestSDK, text: &str) -> Doc {
     let request = CreateDocRequest {
         id: uuid(),
-        name: name.to_owned(),
-        desc: desc.to_owned(),
         data: text.to_owned(),
     };
 
@@ -20,11 +18,9 @@ pub fn create_doc(sdk: &FlowyTestSDK, name: &str, desc: &str, text: &str) -> Doc
     doc
 }
 
-pub fn save_doc(sdk: &FlowyTestSDK, desc: &Doc, content: &str) {
+pub fn save_doc(sdk: &FlowyTestSDK, doc: &Doc, content: &str) {
     let request = UpdateDocRequest {
-        id: desc.id.clone(),
-        name: Some(desc.name.clone()),
-        desc: Some(desc.desc.clone()),
+        id: doc.id.clone(),
         data: Some(content.to_owned()),
     };
 
@@ -46,17 +42,12 @@ pub fn save_doc(sdk: &FlowyTestSDK, desc: &Doc, content: &str) {
 //     doc
 // }
 
-pub(crate) fn read_doc_data(sdk: &FlowyTestSDK, doc_id: &str, path: &str) -> DocData {
-    let request = QueryDocDataRequest {
+pub(crate) fn read_doc_data(sdk: &FlowyTestSDK, doc_id: &str) -> Doc {
+    let request = QueryDocRequest {
         doc_id: doc_id.to_string(),
-        path: path.to_string(),
     };
 
-    let doc = DocTest::new(sdk.clone())
-        .event(ReadDocData)
-        .request(request)
-        .sync_send()
-        .parse::<DocData>();
+    let doc = DocTest::new(sdk.clone()).event(ReadDoc).request(request).sync_send().parse::<Doc>();
 
     doc
 }

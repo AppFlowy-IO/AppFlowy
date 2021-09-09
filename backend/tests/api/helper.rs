@@ -146,7 +146,7 @@ pub async fn spawn_app() -> TestApp {
 
     let _ = tokio::spawn(async {
         let _ = application.run_until_stopped();
-        drop_test_database(database_name).await;
+        // drop_test_database(database_name).await;
     });
 
     TestApp {
@@ -181,6 +181,7 @@ async fn configure_database(config: &DatabaseSettings) -> PgPool {
     connection_pool
 }
 
+#[allow(dead_code)]
 async fn drop_test_database(database_name: String) {
     // https://stackoverflow.com/questions/36502401/postgres-drop-database-error-pq-cannot-drop-the-currently-open-database?rq=1
     let configuration = {

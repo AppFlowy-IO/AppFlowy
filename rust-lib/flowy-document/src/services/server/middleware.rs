@@ -15,7 +15,7 @@ impl ResponseMiddleware for DocMiddleware {
 
                 match token {
                     None => {},
-                    Some(token) => {
+                    Some(_token) => {
                         // let error =
                         // WorkspaceError::new(ErrorCode::UserUnauthorized, "");
                         // observable(token,

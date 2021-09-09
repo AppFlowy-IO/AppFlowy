@@ -62,14 +62,14 @@ impl DocController {
 }
 
 impl DocController {
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    #[tracing::instrument(skip(self), err)]
     async fn create_doc_on_server(&self, params: CreateDocParams) -> Result<Doc, DocError> {
         let token = self.user.token()?;
         let doc = self.server.create_doc(&token, params).await?;
         Ok(doc)
     }
 
-    #[tracing::instrument(level = "debug", skip(self, params), err)]
+    #[tracing::instrument(level = "debug", skip(self), err)]
     fn update_doc_on_server(&self, params: UpdateDocParams) -> Result<(), DocError> {
         let token = self.user.token()?;
         let server = self.server.clone();
@@ -85,13 +85,13 @@ impl DocController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, params), err)]
+    #[tracing::instrument(level = "debug", skip(self), err)]
     fn read_doc_on_server(&self, params: QueryDocParams) -> Result<(), DocError> {
         let token = self.user.token()?;
         let server = self.server.clone();
         tokio::spawn(async move {
             // Opti: handle the error and retry?
-            let doc = server.read_doc(&token, params).await?;
+            let _doc = server.read_doc(&token, params).await?;
             // save to disk
             // notify
 
@@ -100,7 +100,7 @@ impl DocController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, params), err)]
+    #[tracing::instrument(level = "debug", skip(self), err)]
     fn delete_doc_on_server(&self, params: QueryDocParams) -> Result<(), DocError> {
         let token = self.user.token()?;
         let server = self.server.clone();

@@ -7,7 +7,6 @@ edition = "2018"
 
 [dependencies]
 flowy-dispatch = { path = "../flowy-dispatch" }
-flowy-log = { path = "../flowy-log" }
 flowy-derive = { path = "../flowy-derive" }
 flowy-database = { path = "../flowy-database" }
 flowy-sqlite = { path = "../flowy-sqlite" }

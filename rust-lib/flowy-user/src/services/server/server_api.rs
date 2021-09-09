@@ -72,24 +72,12 @@ impl ResponseMiddleware for Middleware {
 pub(crate) fn request_builder() -> HttpRequestBuilder { HttpRequestBuilder::new().middleware(MIDDLEWARE.clone()) }
 
 pub async fn user_sign_up_request(params: SignUpParams, url: &str) -> Result<SignUpResponse, UserError> {
-    let response = request_builder()
-        .post(&url.to_owned())
-        .protobuf(params)?
-        .send()
-        .await?
-        .response()
-        .await?;
+    let response = request_builder().post(&url.to_owned()).protobuf(params)?.response().await?;
     Ok(response)
 }
 
 pub async fn user_sign_in_request(params: SignInParams, url: &str) -> Result<SignInResponse, UserError> {
-    let response = request_builder()
-        .post(&url.to_owned())
-        .protobuf(params)?
-        .send()
-        .await?
-        .response()
-        .await?;
+    let response = request_builder().post(&url.to_owned()).protobuf(params)?.response().await?;
     Ok(response)
 }
 
@@ -102,8 +90,6 @@ pub async fn get_user_profile_request(token: &str, url: &str) -> Result<UserProf
     let user_profile = request_builder()
         .get(&url.to_owned())
         .header(HEADER_TOKEN, token)
-        .send()
-        .await?
         .response()
         .await?;
     Ok(user_profile)

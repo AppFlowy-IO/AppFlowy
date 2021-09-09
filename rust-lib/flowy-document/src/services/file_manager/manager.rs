@@ -20,6 +20,7 @@ impl FileManager {
         }
     }
 
+    #[allow(dead_code)]
     pub(crate) fn open<T>(&mut self, path: &Path, id: T) -> Result<String, FileError>
     where
         T: Into<FileId>,
@@ -35,6 +36,7 @@ impl FileManager {
         Ok(s)
     }
 
+    #[allow(dead_code)]
     pub(crate) fn save<T>(&mut self, path: &Path, text: &String, id: T) -> Result<(), FileError>
     where
         T: Into<FileId>,
@@ -58,12 +60,8 @@ impl FileManager {
         }
     }
 
-    pub(crate) fn create_file(
-        &mut self,
-        id: &str,
-        dir: &str,
-        text: &str,
-    ) -> Result<PathBuf, FileError> {
+    #[allow(dead_code)]
+    pub(crate) fn create_file(&mut self, id: &str, dir: &str, text: &str) -> Result<PathBuf, FileError> {
         let path = PathBuf::from(format!("{}/{}", dir, id));
         let file_id: FileId = id.to_owned().into();
         log::info!("Create doc at: {:?}", path);
@@ -75,9 +73,7 @@ impl FileManager {
     pub(crate) fn get_info(&self, id: &FileId) -> Option<&FileInfo> { self.file_info.get(id) }
 
     #[allow(dead_code)]
-    pub(crate) fn get_file_id(&self, path: &Path) -> Option<FileId> {
-        self.open_files.get(path).cloned()
-    }
+    pub(crate) fn get_file_id(&self, path: &Path) -> Option<FileId> { self.open_files.get(path).cloned() }
 
     #[allow(dead_code)]
     pub fn check_file(&mut self, path: &Path, id: &FileId) -> bool {
@@ -91,9 +87,9 @@ impl FileManager {
         false
     }
 
+    #[allow(dead_code)]
     fn save_new(&mut self, path: &Path, text: &str, id: &FileId) -> Result<(), FileError> {
-        try_save(path, text, CharacterEncoding::Utf8, self.get_info(id))
-            .map_err(|e| FileError::Io(e, path.to_owned()))?;
+        try_save(path, text, CharacterEncoding::Utf8, self.get_info(id)).map_err(|e| FileError::Io(e, path.to_owned()))?;
         let info = FileInfo {
             encoding: CharacterEncoding::Utf8,
             path: path.to_owned(),
@@ -105,6 +101,7 @@ impl FileManager {
         Ok(())
     }
 
+    #[allow(dead_code)]
     fn save_existing(&mut self, path: &Path, text: &String, id: &FileId) -> Result<(), FileError> {
         let prev_path = self.file_info[id].path.clone();
         if prev_path != path {
@@ -114,8 +111,7 @@ impl FileManager {
             return Err(FileError::HasChanged(path.to_owned()));
         } else {
             let encoding = self.file_info[&id].encoding;
-            try_save(path, text, encoding, self.get_info(id))
-                .map_err(|e| FileError::Io(e, path.to_owned()))?;
+            try_save(path, text, encoding, self.get_info(id)).map_err(|e| FileError::Io(e, path.to_owned()))?;
             self.file_info.get_mut(&id).unwrap().modified_time = get_modified_time(path);
         }
         Ok(())

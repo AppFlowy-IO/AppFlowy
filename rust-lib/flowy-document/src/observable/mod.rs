@@ -1,3 +1,3 @@
 mod observable;
 
-pub use observable::*;
+pub(crate) use observable::*;

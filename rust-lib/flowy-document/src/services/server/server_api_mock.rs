@@ -3,15 +3,14 @@ use crate::{
     errors::DocError,
     services::server::DocumentServerAPI,
 };
-use flowy_infra::{future::ResultFuture, uuid};
+use flowy_infra::future::ResultFuture;
 pub struct DocServerMock {}
 
 impl DocumentServerAPI for DocServerMock {
-    fn create_doc(&self, _token: &str, _params: CreateDocParams) -> ResultFuture<Doc, DocError> {
-        let uuid = uuid();
+    fn create_doc(&self, _token: &str, params: CreateDocParams) -> ResultFuture<Doc, DocError> {
         let doc = Doc {
-            id: uuid,
-            data: "".to_string(),
+            id: params.id,
+            data: params.data,
         };
 
         ResultFuture::new(async { Ok(doc) })

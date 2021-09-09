@@ -42,7 +42,7 @@ impl ServerError {
         self
     }
 
-    pub fn is_not_found(&self) -> bool { self.code == ErrorCode::RecordNotFound }
+    pub fn is_record_not_found(&self) -> bool { self.code == ErrorCode::RecordNotFound }
 
     pub fn is_unauthorized(&self) -> bool { self.code == ErrorCode::UserUnauthorized }
 }
