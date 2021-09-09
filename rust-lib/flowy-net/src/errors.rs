@@ -27,7 +27,7 @@ impl ServerError {
     static_error!(internal, ErrorCode::InternalError);
     static_error!(http, ErrorCode::HttpError);
     static_error!(payload_none, ErrorCode::PayloadUnexpectedNone);
-    static_error!(unauthorized, ErrorCode::Unauthorized);
+    static_error!(unauthorized, ErrorCode::UserUnauthorized);
     static_error!(password_not_match, ErrorCode::PasswordNotMatch);
     static_error!(params_invalid, ErrorCode::ParamsInvalid);
     static_error!(connect_timeout, ErrorCode::ConnectTimeout);
@@ -44,7 +44,7 @@ impl ServerError {
 
     pub fn is_not_found(&self) -> bool { self.code == ErrorCode::RecordNotFound }
 
-    pub fn is_unauthorized(&self) -> bool { self.code == ErrorCode::Unauthorized }
+    pub fn is_unauthorized(&self) -> bool { self.code == ErrorCode::UserUnauthorized }
 }
 
 pub fn invalid_params<T: Debug>(e: T) -> ServerError { ServerError::params_invalid().context(e) }
@@ -69,7 +69,7 @@ impl std::convert::From<&ServerError> for FlowyResponse {
 #[repr(u16)]
 pub enum ErrorCode {
     #[display(fmt = "Unauthorized")]
-    Unauthorized       = 1,
+    UserUnauthorized   = 1,
     #[display(fmt = "Payload too large")]
     PayloadOverflow    = 2,
     #[display(fmt = "Payload deserialize failed")]

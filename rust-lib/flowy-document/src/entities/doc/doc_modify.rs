@@ -8,20 +8,16 @@ pub struct UpdateDocRequest {
     pub id: String,
 
     #[pb(index = 2, one_of)]
-    pub name: Option<String>,
-
-    #[pb(index = 3, one_of)]
-    pub desc: Option<String>,
-
-    #[pb(index = 4, one_of)]
-    pub text: Option<String>,
+    pub data: Option<String>,
 }
 
-pub(crate) struct UpdateDocParams {
+#[derive(ProtoBuf, Default, Debug, Clone)]
+pub struct UpdateDocParams {
+    #[pb(index = 1)]
     pub(crate) id: String,
-    pub(crate) name: Option<String>,
-    pub(crate) desc: Option<String>,
-    pub(crate) text: Option<String>,
+
+    #[pb(index = 2, one_of)]
+    pub(crate) data: Option<String>,
 }
 
 impl TryInto<UpdateDocParams> for UpdateDocRequest {
@@ -29,44 +25,9 @@ impl TryInto<UpdateDocParams> for UpdateDocRequest {
 
     fn try_into(self) -> Result<UpdateDocParams, Self::Error> {
         let id = DocId::parse(self.id)
-            .map_err(|e| {
-                ErrorBuilder::new(DocErrorCode::DocViewIdInvalid)
-                    .msg(e)
-                    .build()
-            })?
+            .map_err(|e| ErrorBuilder::new(ErrorCode::DocIdInvalid).msg(e).build())?
             .0;
 
-        let name = match self.name {
-            None => None,
-            Some(name) => Some(
-                DocName::parse(name)
-                    .map_err(|e| {
-                        ErrorBuilder::new(DocErrorCode::DocNameInvalid)
-                            .msg(e)
-                            .build()
-                    })?
-                    .0,
-            ),
-        };
-
-        let desc = match self.desc {
-            None => None,
-            Some(desc) => Some(
-                DocDesc::parse(desc)
-                    .map_err(|e| {
-                        ErrorBuilder::new(DocErrorCode::DocDescTooLong)
-                            .msg(e)
-                            .build()
-                    })?
-                    .0,
-            ),
-        };
-
-        Ok(UpdateDocParams {
-            id,
-            name,
-            desc,
-            text: self.text,
-        })
+        Ok(UpdateDocParams { id, data: self.data })
     }
 }

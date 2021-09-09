@@ -32,14 +32,17 @@ impl AppController {
     pub(crate) async fn create_app(&self, params: CreateAppParams) -> Result<App, WorkspaceError> {
         let app = self.create_app_on_server(params).await?;
         let app_table = AppTable::new(app.clone());
-        let conn = self.database.db_connection()?;
-        let _ = self.sql.create_app(app_table, &*conn)?;
+        let conn = &*self.database.db_connection()?;
 
-        // Opti: transaction
-        let apps = self.read_local_apps(&app.workspace_id, &*conn)?;
-        observable(&app.workspace_id, WorkspaceObservable::WorkspaceCreateApp)
-            .payload(apps)
-            .build();
+        conn.immediate_transaction::<_, WorkspaceError, _>(|| {
+            let _ = self.sql.create_app(app_table, &*conn)?;
+            let apps = self.read_local_apps(&app.workspace_id, &*conn)?;
+            observable(&app.workspace_id, WorkspaceObservable::WorkspaceCreateApp)
+                .payload(apps)
+                .build();
+            Ok(())
+        })?;
+
         Ok(app)
     }
 
@@ -47,20 +50,22 @@ impl AppController {
         let app_table = self
             .sql
             .read_app(&params.app_id, params.is_trash, &*self.database.db_connection()?)?;
-        let _ = self.read_app_on_server(params).await?;
+        let _ = self.read_app_on_server(params)?;
         Ok(app_table.into())
     }
 
     pub(crate) async fn delete_app(&self, app_id: &str) -> Result<(), WorkspaceError> {
-        let _ = self.delete_app_on_server(app_id);
+        let conn = &*self.database.db_connection()?;
+        conn.immediate_transaction::<_, WorkspaceError, _>(|| {
+            let app = self.sql.delete_app(app_id, &*conn)?;
+            let apps = self.read_local_apps(&app.workspace_id, &*conn)?;
+            observable(&app.workspace_id, WorkspaceObservable::WorkspaceDeleteApp)
+                .payload(apps)
+                .build();
+            Ok(())
+        })?;
 
-        let conn = self.database.db_connection()?;
-        let app = self.sql.delete_app(app_id, &*conn)?;
-        // Opti: transaction
-        let apps = self.read_local_apps(&app.workspace_id, &*conn)?;
-        observable(&app.workspace_id, WorkspaceObservable::WorkspaceDeleteApp)
-            .payload(apps)
-            .build();
+        let _ = self.delete_app_on_server(app_id);
         Ok(())
     }
 
@@ -71,14 +76,17 @@ impl AppController {
     }
 
     pub(crate) async fn update_app(&self, params: UpdateAppParams) -> Result<(), WorkspaceError> {
-        let _ = self.update_app_on_server(params.clone()).await?;
-
-        let changeset = AppTableChangeset::new(params);
+        let changeset = AppTableChangeset::new(params.clone());
         let app_id = changeset.id.clone();
-        let conn = self.database.db_connection()?;
-        let _ = self.sql.update_app(changeset, &*conn)?;
-        let app: App = self.sql.read_app(&app_id, false, &*conn)?.into();
-        observable(&app_id, WorkspaceObservable::AppUpdated).payload(app).build();
+        let conn = &*self.database.db_connection()?;
+        conn.immediate_transaction::<_, WorkspaceError, _>(|| {
+            let _ = self.sql.update_app(changeset, conn)?;
+            let app: App = self.sql.read_app(&app_id, false, conn)?.into();
+            observable(&app_id, WorkspaceObservable::AppUpdated).payload(app).build();
+            Ok(())
+        })?;
+
+        let _ = self.update_app_on_server(params)?;
         Ok(())
     }
 }
@@ -93,7 +101,7 @@ impl AppController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    async fn update_app_on_server(&self, params: UpdateAppParams) -> Result<(), WorkspaceError> {
+    fn update_app_on_server(&self, params: UpdateAppParams) -> Result<(), WorkspaceError> {
         let token = self.user.token()?;
         let server = self.server.clone();
         spawn(async move {
@@ -109,7 +117,7 @@ impl AppController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    async fn delete_app_on_server(&self, app_id: &str) -> Result<(), WorkspaceError> {
+    fn delete_app_on_server(&self, app_id: &str) -> Result<(), WorkspaceError> {
         let token = self.user.token()?;
         let server = self.server.clone();
         let params = DeleteAppParams {
@@ -128,7 +136,7 @@ impl AppController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    async fn read_app_on_server(&self, params: QueryAppParams) -> Result<(), WorkspaceError> {
+    fn read_app_on_server(&self, params: QueryAppParams) -> Result<(), WorkspaceError> {
         let token = self.user.token()?;
         let server = self.server.clone();
         spawn(async move {

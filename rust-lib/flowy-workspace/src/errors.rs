@@ -109,7 +109,7 @@ impl flowy_infra::errors::Build<ErrorCode> for WorkspaceError {
 use flowy_net::errors::ErrorCode as ServerErrorCode;
 fn server_error_to_workspace_error(code: ServerErrorCode) -> ErrorCode {
     match code {
-        ServerErrorCode::Unauthorized => ErrorCode::UserUnauthorized,
+        ServerErrorCode::UserUnauthorized => ErrorCode::UserUnauthorized,
         ServerErrorCode::RecordNotFound => ErrorCode::RecordNotFound,
         _ => ErrorCode::InternalError,
     }

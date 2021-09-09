@@ -6,34 +6,32 @@ use crate::{
 use flowy_database::{
     prelude::*,
     schema::{doc_table, doc_table::dsl},
+    SqliteConnection,
 };
 use std::sync::Arc;
-
-pub struct DocTableSql {
-    pub database: Arc<dyn DocumentDatabase>,
-}
+pub struct DocTableSql {}
 
 impl DocTableSql {
-    pub(crate) fn create_doc_table(&self, doc_table: DocTable) -> Result<(), DocError> {
-        let conn = self.database.db_connection()?;
-        let _ = diesel::insert_into(doc_table::table).values(doc_table).execute(&*conn)?;
+    pub(crate) fn create_doc_table(&self, doc_table: DocTable, conn: &SqliteConnection) -> Result<(), DocError> {
+        let _ = diesel::insert_into(doc_table::table).values(doc_table).execute(conn)?;
         Ok(())
     }
 
-    pub(crate) fn update_doc_table(&self, changeset: DocTableChangeset) -> Result<(), DocError> {
-        let conn = self.database.db_connection()?;
-        diesel_update_table!(doc_table, changeset, &*conn);
+    pub(crate) fn update_doc_table(&self, changeset: DocTableChangeset, conn: &SqliteConnection) -> Result<(), DocError> {
+        diesel_update_table!(doc_table, changeset, conn);
         Ok(())
     }
 
-    pub(crate) fn read_doc_table(&self, doc_id: &str) -> Result<DocTable, DocError> {
-        let doc_table = dsl::doc_table
-            .filter(doc_table::id.eq(doc_id))
-            .first::<DocTable>(&*(self.database.db_connection()?))?;
+    pub(crate) fn read_doc_table(&self, doc_id: &str, conn: &SqliteConnection) -> Result<DocTable, DocError> {
+        let doc_table = dsl::doc_table.filter(doc_table::id.eq(doc_id)).first::<DocTable>(conn)?;
 
         Ok(doc_table)
     }
 
     #[allow(dead_code)]
-    pub(crate) fn delete_doc(&self, _view_id: &str) -> Result<(), DocError> { unimplemented!() }
+    pub(crate) fn delete_doc(&self, doc_id: &str, conn: &SqliteConnection) -> Result<DocTable, DocError> {
+        let doc_table = dsl::doc_table.filter(doc_table::id.eq(doc_id)).first::<DocTable>(conn)?;
+        diesel_delete_table!(doc_table, doc_id, conn);
+        Ok(doc_table)
+    }
 }

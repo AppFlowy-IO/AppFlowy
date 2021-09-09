@@ -18,14 +18,13 @@ const QueryDocRequest$json = const {
 
 /// Descriptor for `QueryDocRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List queryDocRequestDescriptor = $convert.base64Decode('Cg9RdWVyeURvY1JlcXVlc3QSFQoGZG9jX2lkGAEgASgJUgVkb2NJZA==');
-@$core.Deprecated('Use queryDocDataRequestDescriptor instead')
-const QueryDocDataRequest$json = const {
-  '1': 'QueryDocDataRequest',
+@$core.Deprecated('Use queryDocParamsDescriptor instead')
+const QueryDocParams$json = const {
+  '1': 'QueryDocParams',
   '2': const [
     const {'1': 'doc_id', '3': 1, '4': 1, '5': 9, '10': 'docId'},
-    const {'1': 'path', '3': 2, '4': 1, '5': 9, '10': 'path'},
   ],
 };
 
-/// Descriptor for `QueryDocDataRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List queryDocDataRequestDescriptor = $convert.base64Decode('ChNRdWVyeURvY0RhdGFSZXF1ZXN0EhUKBmRvY19pZBgBIAEoCVIFZG9jSWQSEgoEcGF0aBgCIAEoCVIEcGF0aA==');
+/// Descriptor for `QueryDocParams`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List queryDocParamsDescriptor = $convert.base64Decode('Cg5RdWVyeURvY1BhcmFtcxIVCgZkb2NfaWQYASABKAlSBWRvY0lk');

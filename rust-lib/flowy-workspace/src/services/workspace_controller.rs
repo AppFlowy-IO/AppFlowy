@@ -5,7 +5,7 @@ use crate::{
     },
     errors::*,
     module::{WorkspaceDatabase, WorkspaceUser},
-    observable::{observable, WorkspaceObservable},
+    observable::*,
     services::{helper::spawn, server::Server, AppController},
     sql_tables::{
         app::{AppTable, AppTableSql},
@@ -65,7 +65,7 @@ impl WorkspaceController {
         // immediately. EXCLUSIVE and IMMEDIATE are the same in WAL mode, but in
         // other journaling modes, EXCLUSIVE prevents other database connections from
         // reading the database while the transaction is underway.
-        (conn).immediate_transaction::<_, WorkspaceError, _>(|| {
+        conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             self.workspace_sql.create_workspace(workspace_table, conn)?;
             let repeated_workspace = self.read_local_workspaces(None, &user_id, conn)?;
             observable(&token, WorkspaceObservable::UserCreateWorkspace)
@@ -79,12 +79,10 @@ impl WorkspaceController {
     }
 
     pub(crate) async fn update_workspace(&self, params: UpdateWorkspaceParams) -> Result<(), WorkspaceError> {
-        let _ = self.update_workspace_on_server(params.clone()).await?;
-
-        let changeset = WorkspaceTableChangeset::new(params);
+        let changeset = WorkspaceTableChangeset::new(params.clone());
         let workspace_id = changeset.id.clone();
         let conn = &*self.database.db_connection()?;
-        (conn).immediate_transaction::<_, WorkspaceError, _>(|| {
+        conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.workspace_sql.update_workspace(changeset, conn)?;
             let user_id = self.user.user_id()?;
             let workspace = self.read_local_workspace(workspace_id.clone(), &user_id, conn)?;
@@ -95,15 +93,16 @@ impl WorkspaceController {
             Ok(())
         })?;
 
+        let _ = self.update_workspace_on_server(params)?;
+
         Ok(())
     }
 
     pub(crate) async fn delete_workspace(&self, workspace_id: &str) -> Result<(), WorkspaceError> {
         let user_id = self.user.user_id()?;
         let token = self.user.token()?;
-        let _ = self.delete_workspace_on_server(workspace_id).await?;
         let conn = &*self.database.db_connection()?;
-        (conn).immediate_transaction::<_, WorkspaceError, _>(|| {
+        conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.workspace_sql.delete_workspace(workspace_id, conn)?;
             let repeated_workspace = self.read_local_workspaces(None, &user_id, conn)?;
             observable(&token, WorkspaceObservable::UserDeleteWorkspace)
@@ -113,6 +112,7 @@ impl WorkspaceController {
             Ok(())
         })?;
 
+        let _ = self.delete_workspace_on_server(workspace_id)?;
         Ok(())
     }
 
@@ -132,10 +132,8 @@ impl WorkspaceController {
 
     pub(crate) async fn read_workspaces(&self, params: QueryWorkspaceParams) -> Result<RepeatedWorkspace, WorkspaceError> {
         let user_id = self.user.user_id()?;
-        let _ = self.read_workspaces_on_server(user_id.clone(), params.clone()).await;
-
-        let conn = self.database.db_connection()?;
-        let workspaces = self.read_local_workspaces(params.workspace_id.clone(), &user_id, &*conn)?;
+        let workspaces = self.read_local_workspaces(params.workspace_id.clone(), &user_id, &*self.database.db_connection()?)?;
+        let _ = self.read_workspaces_on_server(user_id.clone(), params.clone());
         Ok(workspaces)
     }
 
@@ -145,10 +143,9 @@ impl WorkspaceController {
         let params = QueryWorkspaceParams {
             workspace_id: Some(workspace_id.clone()),
         };
-        let _ = self.read_workspaces_on_server(user_id.clone(), params).await?;
+        let workspace = self.read_local_workspace(workspace_id, &user_id, &*self.database.db_connection()?)?;
 
-        let conn = self.database.db_connection()?;
-        let workspace = self.read_local_workspace(workspace_id, &user_id, &*conn)?;
+        let _ = self.read_workspaces_on_server(user_id.clone(), params)?;
         Ok(workspace)
     }
 
@@ -212,15 +209,15 @@ impl WorkspaceController {
         Ok((token, server))
     }
 
-    #[tracing::instrument(skip(self), err)]
+    #[tracing::instrument(level = "debug", skip(self), err)]
     async fn create_workspace_on_server(&self, params: CreateWorkspaceParams) -> Result<Workspace, WorkspaceError> {
         let token = self.user.token()?;
         let workspace = self.server.create_workspace(&token, params).await?;
         Ok(workspace)
     }
 
-    #[tracing::instrument(skip(self), err)]
-    async fn update_workspace_on_server(&self, params: UpdateWorkspaceParams) -> Result<(), WorkspaceError> {
+    #[tracing::instrument(level = "debug", skip(self), err)]
+    fn update_workspace_on_server(&self, params: UpdateWorkspaceParams) -> Result<(), WorkspaceError> {
         let (token, server) = self.token_with_server()?;
         spawn(async move {
             match server.update_workspace(&token, params).await {
@@ -234,8 +231,8 @@ impl WorkspaceController {
         Ok(())
     }
 
-    #[tracing::instrument(skip(self), err)]
-    async fn delete_workspace_on_server(&self, workspace_id: &str) -> Result<(), WorkspaceError> {
+    #[tracing::instrument(level = "debug", skip(self), err)]
+    fn delete_workspace_on_server(&self, workspace_id: &str) -> Result<(), WorkspaceError> {
         let params = DeleteWorkspaceParams {
             workspace_id: workspace_id.to_string(),
         };
@@ -252,15 +249,15 @@ impl WorkspaceController {
         Ok(())
     }
 
-    #[tracing::instrument(skip(self), err)]
-    async fn read_workspaces_on_server(&self, user_id: String, params: QueryWorkspaceParams) -> Result<(), WorkspaceError> {
+    #[tracing::instrument(level = "debug", skip(self), err)]
+    fn read_workspaces_on_server(&self, user_id: String, params: QueryWorkspaceParams) -> Result<(), WorkspaceError> {
         let (token, server) = self.token_with_server()?;
         let workspace_sql = self.workspace_sql.clone();
         let app_sql = self.app_sql.clone();
         let view_sql = self.view_sql.clone();
         let conn = self.database.db_connection()?;
         spawn(async move {
-            // Opti: retry?
+            // Opti: handle the error and retry?
             let workspaces = server.read_workspace(&token, params).await?;
             let _ = (&*conn).immediate_transaction::<_, WorkspaceError, _>(|| {
                 log::debug!("Save {} workspace", workspaces.len());

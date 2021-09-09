@@ -16,11 +16,7 @@ table! {
 table! {
     doc_table (id) {
         id -> Text,
-        name -> Text,
-        desc -> Text,
-        path -> Text,
-        modified_time -> BigInt,
-        create_time -> BigInt,
+        data -> Text,
         version -> BigInt,
     }
 }

@@ -3,61 +3,63 @@ use bytes::Bytes;
 use derive_more::Display;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_dispatch::prelude::{EventResponse, ResponseBuilder};
-use std::convert::TryInto;
+use flowy_net::errors::ServerError;
+use std::{convert::TryInto, fmt};
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct DocError {
     #[pb(index = 1)]
-    pub code: DocErrorCode,
+    pub code: ErrorCode,
 
     #[pb(index = 2)]
     pub msg: String,
 }
 
 impl DocError {
-    fn new(code: DocErrorCode, msg: &str) -> Self { Self { code, msg: msg.to_owned() } }
+    fn new(code: ErrorCode, msg: &str) -> Self { Self { code, msg: msg.to_owned() } }
 }
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
-pub enum DocErrorCode {
-    #[display(fmt = "Unknown")]
-    Unknown            = 0,
+pub enum ErrorCode {
+    #[display(fmt = "DocIdInvalid")]
+    DocIdInvalid     = 0,
 
-    #[display(fmt = "EditorDBInternalError")]
-    EditorDBInternalError = 1,
+    #[display(fmt = "DocNotfound")]
+    DocNotfound      = 1,
 
-    #[display(fmt = "EditorDBConnFailed")]
-    EditorDBConnFailed = 2,
+    #[display(fmt = "UserUnauthorized")]
+    UserUnauthorized = 999,
 
-    #[display(fmt = "DocNameInvalid")]
-    DocNameInvalid     = 10,
-
-    #[display(fmt = "DocViewIdInvalid")]
-    DocViewIdInvalid   = 11,
-
-    #[display(fmt = "DocDescTooLong")]
-    DocDescTooLong     = 12,
-
-    #[display(fmt = "DocOpenFileError")]
-    DocOpenFileError   = 13,
-
-    #[display(fmt = "DocFilePathInvalid")]
-    DocFilePathInvalid = 14,
-
-    #[display(fmt = "EditorUserNotLoginYet")]
-    EditorUserNotLoginYet = 100,
+    #[display(fmt = "InternalError")]
+    InternalError    = 1000,
 }
 
-impl std::default::Default for DocErrorCode {
-    fn default() -> Self { DocErrorCode::Unknown }
+impl std::default::Default for ErrorCode {
+    fn default() -> Self { ErrorCode::InternalError }
 }
 
 impl std::convert::From<flowy_database::Error> for DocError {
-    fn from(error: flowy_database::Error) -> Self { ErrorBuilder::new(DocErrorCode::EditorDBInternalError).error(error).build() }
+    fn from(error: flowy_database::Error) -> Self { ErrorBuilder::new(ErrorCode::InternalError).error(error).build() }
 }
 
 impl std::convert::From<FileError> for DocError {
-    fn from(error: FileError) -> Self { ErrorBuilder::new(DocErrorCode::DocOpenFileError).error(error).build() }
+    fn from(error: FileError) -> Self { ErrorBuilder::new(ErrorCode::InternalError).error(error).build() }
+}
+
+impl std::convert::From<flowy_net::errors::ServerError> for DocError {
+    fn from(error: ServerError) -> Self {
+        let code = server_error_to_doc_error(error.code);
+        ErrorBuilder::new(code).error(error.msg).build()
+    }
+}
+
+use flowy_net::errors::ErrorCode as ServerErrorCode;
+fn server_error_to_doc_error(code: ServerErrorCode) -> ErrorCode {
+    match code {
+        ServerErrorCode::UserUnauthorized => ErrorCode::UserUnauthorized,
+        ServerErrorCode::RecordNotFound => ErrorCode::DocNotfound,
+        _ => ErrorCode::InternalError,
+    }
 }
 
 impl flowy_dispatch::Error for DocError {
@@ -67,8 +69,11 @@ impl flowy_dispatch::Error for DocError {
     }
 }
 
-pub type ErrorBuilder = flowy_infra::errors::Builder<DocErrorCode, DocError>;
+impl fmt::Display for DocError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { write!(f, "{:?}: {}", &self.code, &self.msg) }
+}
 
-impl flowy_infra::errors::Build<DocErrorCode> for DocError {
-    fn build(code: DocErrorCode, msg: String) -> Self { DocError::new(code, &msg) }
+pub type ErrorBuilder = flowy_infra::errors::Builder<ErrorCode, DocError>;
+impl flowy_infra::errors::Build<ErrorCode> for DocError {
+    fn build(code: ErrorCode, msg: String) -> Self { DocError::new(code, &msg) }
 }

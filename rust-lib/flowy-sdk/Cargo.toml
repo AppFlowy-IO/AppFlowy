@@ -27,5 +27,5 @@ tokio = { version = "1", features = ["full"]}
 futures-util = "0.3.15"
 
 [features]
-http_server = ["flowy-user/http_server", "flowy-workspace/http_server"]
+http_server = ["flowy-user/http_server", "flowy-workspace/http_server", "flowy-document/http_server"]
 use_bunyan = ["flowy-log/use_bunyan"]

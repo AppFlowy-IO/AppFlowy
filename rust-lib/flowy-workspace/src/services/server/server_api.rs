@@ -20,7 +20,6 @@ use flowy_net::{
     request::{HttpRequestBuilder, ResponseMiddleware},
     response::FlowyResponse,
 };
-use lazy_static::lazy_static;
 use std::sync::Arc;
 
 pub struct WorkspaceServer {}
@@ -87,33 +86,7 @@ impl WorkspaceServerAPI for WorkspaceServer {
     }
 }
 
-lazy_static! {
-    static ref MIDDLEWARE: Arc<WorkspaceMiddleware> = Arc::new(WorkspaceMiddleware {});
-}
-
-use crate::{errors::ErrorCode, observable::*};
-
-struct WorkspaceMiddleware {}
-impl ResponseMiddleware for WorkspaceMiddleware {
-    fn receive_response(&self, token: &Option<String>, response: &FlowyResponse) {
-        if let Some(error) = &response.error {
-            if error.is_unauthorized() {
-                log::error!("workspace user is unauthorized");
-
-                match token {
-                    None => {},
-                    Some(token) => {
-                        let error = WorkspaceError::new(ErrorCode::UserUnauthorized, "");
-                        observable(token, WorkspaceObservable::UserUnauthorized).error(error).build()
-                    },
-                }
-            }
-        }
-    }
-}
-
-pub(crate) fn request_builder() -> HttpRequestBuilder { HttpRequestBuilder::new().middleware(MIDDLEWARE.clone()) }
-
+pub(crate) fn request_builder() -> HttpRequestBuilder { HttpRequestBuilder::new().middleware(super::middleware::MIDDLEWARE.clone()) }
 pub async fn create_workspace_request(token: &str, params: CreateWorkspaceParams, url: &str) -> Result<Workspace, WorkspaceError> {
     let workspace = request_builder()
         .post(&url.to_owned())

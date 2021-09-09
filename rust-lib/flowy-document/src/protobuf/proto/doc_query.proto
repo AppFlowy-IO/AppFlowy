@@ -3,7 +3,6 @@ syntax = "proto3";
 message QueryDocRequest {
     string doc_id = 1;
 }
-message QueryDocDataRequest {
+message QueryDocParams {
     string doc_id = 1;
-    string path = 2;
 }

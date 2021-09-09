@@ -6,6 +6,9 @@ pub use doc_modify::*;
 mod doc_create; 
 pub use doc_create::*; 
 
+mod observable; 
+pub use observable::*; 
+
 mod errors; 
 pub use errors::*; 
 

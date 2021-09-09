@@ -38,7 +38,7 @@ impl ViewController {
         let conn = &*self.database.db_connection()?;
         let view_table = ViewTable::new(view.clone());
 
-        (conn).immediate_transaction::<_, WorkspaceError, _>(|| {
+        conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.sql.create_view(view_table, conn)?;
             let repeated_view = self.read_local_views_belong_to(&view.belong_to_id, conn)?;
             observable(&view.belong_to_id, WorkspaceObservable::AppCreateView)
@@ -61,7 +61,7 @@ impl ViewController {
     pub(crate) async fn delete_view(&self, view_id: &str) -> Result<(), WorkspaceError> {
         let conn = &*self.database.db_connection()?;
 
-        (conn).immediate_transaction::<_, WorkspaceError, _>(|| {
+        conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let view_table = self.sql.delete_view(view_id, conn)?;
             let repeated_view = self.read_local_views_belong_to(&view_table.belong_to_id, conn)?;
             observable(&view_table.belong_to_id, WorkspaceObservable::AppDeleteView)
@@ -89,7 +89,7 @@ impl ViewController {
         let changeset = ViewTableChangeset::new(params.clone());
         let view_id = changeset.id.clone();
 
-        (conn).immediate_transaction::<_, WorkspaceError, _>(|| {
+        conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.sql.update_view(changeset, conn)?;
             let view: View = self.sql.read_view(&view_id, None, conn)?.into();
             observable(&view_id, WorkspaceObservable::ViewUpdated).payload(view).build();
@@ -110,7 +110,7 @@ impl ViewController {
     }
 
     #[tracing::instrument(skip(self), err)]
-    async fn update_view_on_server(&self, params: UpdateViewParams) -> Result<(), WorkspaceError> {
+    fn update_view_on_server(&self, params: UpdateViewParams) -> Result<(), WorkspaceError> {
         let token = self.user.token()?;
         let server = self.server.clone();
         spawn(async move {
@@ -126,7 +126,7 @@ impl ViewController {
     }
 
     #[tracing::instrument(skip(self), err)]
-    async fn delete_view_on_server(&self, view_id: &str) -> Result<(), WorkspaceError> {
+    fn delete_view_on_server(&self, view_id: &str) -> Result<(), WorkspaceError> {
         let token = self.user.token()?;
         let server = self.server.clone();
         let params = DeleteViewParams {
@@ -145,7 +145,7 @@ impl ViewController {
     }
 
     #[tracing::instrument(skip(self), err)]
-    async fn read_view_on_server(&self, params: QueryViewParams) -> Result<(), WorkspaceError> {
+    fn read_view_on_server(&self, params: QueryViewParams) -> Result<(), WorkspaceError> {
         let token = self.user.token()?;
         let server = self.server.clone();
         spawn(async move {

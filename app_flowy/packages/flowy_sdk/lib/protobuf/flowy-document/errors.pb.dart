@@ -15,14 +15,14 @@ export 'errors.pbenum.dart';
 
 class DocError extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DocError', createEmptyInstance: create)
-    ..e<DocErrorCode>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'code', $pb.PbFieldType.OE, defaultOrMaker: DocErrorCode.Unknown, valueOf: DocErrorCode.valueOf, enumValues: DocErrorCode.values)
+    ..e<ErrorCode>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'code', $pb.PbFieldType.OE, defaultOrMaker: ErrorCode.DocIdInvalid, valueOf: ErrorCode.valueOf, enumValues: ErrorCode.values)
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'msg')
     ..hasRequiredFields = false
   ;
 
   DocError._() : super();
   factory DocError({
-    DocErrorCode? code,
+    ErrorCode? code,
     $core.String? msg,
   }) {
     final _result = create();
@@ -56,9 +56,9 @@ class DocError extends $pb.GeneratedMessage {
   static DocError? _defaultInstance;
 
   @$pb.TagNumber(1)
-  DocErrorCode get code => $_getN(0);
+  ErrorCode get code => $_getN(0);
   @$pb.TagNumber(1)
-  set code(DocErrorCode v) { setField(1, v); }
+  set code(ErrorCode v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasCode() => $_has(0);
   @$pb.TagNumber(1)

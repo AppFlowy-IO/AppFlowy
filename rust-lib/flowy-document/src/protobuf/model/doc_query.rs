@@ -183,23 +183,22 @@ impl ::protobuf::reflect::ProtobufValue for QueryDocRequest {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct QueryDocDataRequest {
+pub struct QueryDocParams {
     // message fields
     pub doc_id: ::std::string::String,
-    pub path: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a QueryDocDataRequest {
-    fn default() -> &'a QueryDocDataRequest {
-        <QueryDocDataRequest as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a QueryDocParams {
+    fn default() -> &'a QueryDocParams {
+        <QueryDocParams as ::protobuf::Message>::default_instance()
     }
 }
 
-impl QueryDocDataRequest {
-    pub fn new() -> QueryDocDataRequest {
+impl QueryDocParams {
+    pub fn new() -> QueryDocParams {
         ::std::default::Default::default()
     }
 
@@ -228,35 +227,9 @@ impl QueryDocDataRequest {
     pub fn take_doc_id(&mut self) -> ::std::string::String {
         ::std::mem::replace(&mut self.doc_id, ::std::string::String::new())
     }
-
-    // string path = 2;
-
-
-    pub fn get_path(&self) -> &str {
-        &self.path
-    }
-    pub fn clear_path(&mut self) {
-        self.path.clear();
-    }
-
-    // Param is passed by value, moved
-    pub fn set_path(&mut self, v: ::std::string::String) {
-        self.path = v;
-    }
-
-    // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
-    pub fn mut_path(&mut self) -> &mut ::std::string::String {
-        &mut self.path
-    }
-
-    // Take field
-    pub fn take_path(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.path, ::std::string::String::new())
-    }
 }
 
-impl ::protobuf::Message for QueryDocDataRequest {
+impl ::protobuf::Message for QueryDocParams {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -267,9 +240,6 @@ impl ::protobuf::Message for QueryDocDataRequest {
             match field_number {
                 1 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.doc_id)?;
-                },
-                2 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.path)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -286,9 +256,6 @@ impl ::protobuf::Message for QueryDocDataRequest {
         if !self.doc_id.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.doc_id);
         }
-        if !self.path.is_empty() {
-            my_size += ::protobuf::rt::string_size(2, &self.path);
-        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -297,9 +264,6 @@ impl ::protobuf::Message for QueryDocDataRequest {
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
         if !self.doc_id.is_empty() {
             os.write_string(1, &self.doc_id)?;
-        }
-        if !self.path.is_empty() {
-            os.write_string(2, &self.path)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -331,8 +295,8 @@ impl ::protobuf::Message for QueryDocDataRequest {
         Self::descriptor_static()
     }
 
-    fn new() -> QueryDocDataRequest {
-        QueryDocDataRequest::new()
+    fn new() -> QueryDocParams {
+        QueryDocParams::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -341,43 +305,37 @@ impl ::protobuf::Message for QueryDocDataRequest {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "doc_id",
-                |m: &QueryDocDataRequest| { &m.doc_id },
-                |m: &mut QueryDocDataRequest| { &mut m.doc_id },
+                |m: &QueryDocParams| { &m.doc_id },
+                |m: &mut QueryDocParams| { &mut m.doc_id },
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "path",
-                |m: &QueryDocDataRequest| { &m.path },
-                |m: &mut QueryDocDataRequest| { &mut m.path },
-            ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<QueryDocDataRequest>(
-                "QueryDocDataRequest",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<QueryDocParams>(
+                "QueryDocParams",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static QueryDocDataRequest {
-        static instance: ::protobuf::rt::LazyV2<QueryDocDataRequest> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(QueryDocDataRequest::new)
+    fn default_instance() -> &'static QueryDocParams {
+        static instance: ::protobuf::rt::LazyV2<QueryDocParams> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(QueryDocParams::new)
     }
 }
 
-impl ::protobuf::Clear for QueryDocDataRequest {
+impl ::protobuf::Clear for QueryDocParams {
     fn clear(&mut self) {
         self.doc_id.clear();
-        self.path.clear();
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for QueryDocDataRequest {
+impl ::std::fmt::Debug for QueryDocParams {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for QueryDocDataRequest {
+impl ::protobuf::reflect::ProtobufValue for QueryDocParams {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -385,20 +343,17 @@ impl ::protobuf::reflect::ProtobufValue for QueryDocDataRequest {
 
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x0fdoc_query.proto\"(\n\x0fQueryDocRequest\x12\x15\n\x06doc_id\x18\
-    \x01\x20\x01(\tR\x05docId\"@\n\x13QueryDocDataRequest\x12\x15\n\x06doc_i\
-    d\x18\x01\x20\x01(\tR\x05docId\x12\x12\n\x04path\x18\x02\x20\x01(\tR\x04\
-    pathJ\xe7\x01\n\x06\x12\x04\0\0\x08\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\
-    \n\n\n\x02\x04\0\x12\x04\x02\0\x04\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\
-    \x08\x17\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x16\n\x0c\n\x05\x04\0\
-    \x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\
-    \x11\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x14\x15\n\n\n\x02\x04\x01\
-    \x12\x04\x05\0\x08\x01\n\n\n\x03\x04\x01\x01\x12\x03\x05\x08\x1b\n\x0b\n\
-    \x04\x04\x01\x02\0\x12\x03\x06\x04\x16\n\x0c\n\x05\x04\x01\x02\0\x05\x12\
-    \x03\x06\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x06\x0b\x11\n\x0c\n\
-    \x05\x04\x01\x02\0\x03\x12\x03\x06\x14\x15\n\x0b\n\x04\x04\x01\x02\x01\
-    \x12\x03\x07\x04\x14\n\x0c\n\x05\x04\x01\x02\x01\x05\x12\x03\x07\x04\n\n\
-    \x0c\n\x05\x04\x01\x02\x01\x01\x12\x03\x07\x0b\x0f\n\x0c\n\x05\x04\x01\
-    \x02\x01\x03\x12\x03\x07\x12\x13b\x06proto3\
+    \x01\x20\x01(\tR\x05docId\"'\n\x0eQueryDocParams\x12\x15\n\x06doc_id\x18\
+    \x01\x20\x01(\tR\x05docIdJ\xb0\x01\n\x06\x12\x04\0\0\x07\x01\n\x08\n\x01\
+    \x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x04\x01\n\n\n\x03\x04\
+    \0\x01\x12\x03\x02\x08\x17\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x16\n\
+    \x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\
+    \x12\x03\x03\x0b\x11\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x14\x15\n\n\
+    \n\x02\x04\x01\x12\x04\x05\0\x07\x01\n\n\n\x03\x04\x01\x01\x12\x03\x05\
+    \x08\x16\n\x0b\n\x04\x04\x01\x02\0\x12\x03\x06\x04\x16\n\x0c\n\x05\x04\
+    \x01\x02\0\x05\x12\x03\x06\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\
+    \x06\x0b\x11\n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\x06\x14\x15b\x06proto\
+    3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

@@ -1,4 +1,4 @@
-use crate::entities::doc::{CreateDocParams, DocInfo, UpdateDocParams};
+use crate::entities::doc::{CreateDocParams, Doc, UpdateDocParams};
 use flowy_database::schema::doc_table;
 use flowy_infra::timestamp;
 
@@ -6,24 +6,15 @@ use flowy_infra::timestamp;
 #[table_name = "doc_table"]
 pub(crate) struct DocTable {
     pub id: String,
-    pub name: String,
-    pub desc: String,
-    pub path: String,
-    pub modified_time: i64,
-    pub create_time: i64,
+    pub data: String,
     pub version: i64,
 }
 
 impl DocTable {
-    pub fn new(params: CreateDocParams, path: &str) -> Self {
-        let time = timestamp();
+    pub fn new(doc: Doc) -> Self {
         Self {
-            id: params.id,
-            name: params.name,
-            desc: params.desc,
-            path: path.to_owned(),
-            modified_time: time,
-            create_time: time,
+            id: doc.id,
+            data: "".to_owned(),
             version: 0,
         }
     }
@@ -33,27 +24,23 @@ impl DocTable {
 #[table_name = "doc_table"]
 pub(crate) struct DocTableChangeset {
     pub id: String,
-    pub name: Option<String>,
-    pub desc: Option<String>,
+    pub data: Option<String>,
 }
 
 impl DocTableChangeset {
     pub(crate) fn new(params: UpdateDocParams) -> Self {
         Self {
             id: params.id,
-            name: params.name,
-            desc: params.desc,
+            data: params.data,
         }
     }
 }
 
-impl std::convert::Into<DocInfo> for DocTable {
-    fn into(self) -> DocInfo {
-        DocInfo {
+impl std::convert::Into<Doc> for DocTable {
+    fn into(self) -> Doc {
+        Doc {
             id: self.id,
-            name: self.name,
-            desc: self.desc,
-            path: self.path,
+            data: self.data,
         }
     }
 }

@@ -3,6 +3,7 @@ pub mod errors;
 pub mod event;
 mod handlers;
 pub mod module;
+mod observable;
 mod protobuf;
 mod services;
 mod sql_tables;

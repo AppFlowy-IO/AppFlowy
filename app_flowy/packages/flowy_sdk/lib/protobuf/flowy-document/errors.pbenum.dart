@@ -9,32 +9,22 @@
 import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
-class DocErrorCode extends $pb.ProtobufEnum {
-  static const DocErrorCode Unknown = DocErrorCode._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unknown');
-  static const DocErrorCode EditorDBInternalError = DocErrorCode._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'EditorDBInternalError');
-  static const DocErrorCode EditorDBConnFailed = DocErrorCode._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'EditorDBConnFailed');
-  static const DocErrorCode DocNameInvalid = DocErrorCode._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DocNameInvalid');
-  static const DocErrorCode DocViewIdInvalid = DocErrorCode._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DocViewIdInvalid');
-  static const DocErrorCode DocDescTooLong = DocErrorCode._(12, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DocDescTooLong');
-  static const DocErrorCode DocOpenFileError = DocErrorCode._(13, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DocOpenFileError');
-  static const DocErrorCode DocFilePathInvalid = DocErrorCode._(14, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DocFilePathInvalid');
-  static const DocErrorCode EditorUserNotLoginYet = DocErrorCode._(100, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'EditorUserNotLoginYet');
+class ErrorCode extends $pb.ProtobufEnum {
+  static const ErrorCode DocIdInvalid = ErrorCode._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DocIdInvalid');
+  static const ErrorCode DocNotfound = ErrorCode._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DocNotfound');
+  static const ErrorCode UserUnauthorized = ErrorCode._(999, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserUnauthorized');
+  static const ErrorCode InternalError = ErrorCode._(1000, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'InternalError');
 
-  static const $core.List<DocErrorCode> values = <DocErrorCode> [
-    Unknown,
-    EditorDBInternalError,
-    EditorDBConnFailed,
-    DocNameInvalid,
-    DocViewIdInvalid,
-    DocDescTooLong,
-    DocOpenFileError,
-    DocFilePathInvalid,
-    EditorUserNotLoginYet,
+  static const $core.List<ErrorCode> values = <ErrorCode> [
+    DocIdInvalid,
+    DocNotfound,
+    UserUnauthorized,
+    InternalError,
   ];
 
-  static final $core.Map<$core.int, DocErrorCode> _byValue = $pb.ProtobufEnum.initByValue(values);
-  static DocErrorCode? valueOf($core.int value) => _byValue[value];
+  static final $core.Map<$core.int, ErrorCode> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static ErrorCode? valueOf($core.int value) => _byValue[value];
 
-  const DocErrorCode._($core.int v, $core.String n) : super(v, n);
+  const ErrorCode._($core.int v, $core.String n) : super(v, n);
 }
 

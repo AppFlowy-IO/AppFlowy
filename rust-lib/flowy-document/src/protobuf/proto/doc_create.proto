@@ -2,16 +2,13 @@ syntax = "proto3";
 
 message CreateDocRequest {
     string id = 1;
-    string name = 2;
-    string desc = 3;
-    string text = 4;
+    string data = 2;
 }
-message DocInfo {
+message CreateDocParams {
     string id = 1;
-    string name = 2;
-    string desc = 3;
-    string path = 4;
+    string data = 2;
 }
-message DocData {
-    string text = 1;
+message Doc {
+    string id = 1;
+    string data = 2;
 }

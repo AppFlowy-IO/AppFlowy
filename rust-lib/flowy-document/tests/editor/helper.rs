@@ -4,28 +4,28 @@ use flowy_document::{entities::doc::*, event::EditorEvent::*};
 use flowy_infra::uuid;
 use flowy_test::prelude::*;
 
-pub fn create_doc(sdk: &FlowyTestSDK, name: &str, desc: &str, text: &str) -> DocInfo {
+pub fn create_doc(sdk: &FlowyTestSDK, name: &str, desc: &str, text: &str) -> Doc {
     let request = CreateDocRequest {
         id: uuid(),
         name: name.to_owned(),
         desc: desc.to_owned(),
-        text: text.to_owned(),
+        data: text.to_owned(),
     };
 
     let doc = DocTest::new(sdk.clone())
         .event(CreateDoc)
         .request(request)
         .sync_send()
-        .parse::<DocInfo>();
+        .parse::<Doc>();
     doc
 }
 
-pub fn save_doc(sdk: &FlowyTestSDK, desc: &DocInfo, content: &str) {
+pub fn save_doc(sdk: &FlowyTestSDK, desc: &Doc, content: &str) {
     let request = UpdateDocRequest {
         id: desc.id.clone(),
         name: Some(desc.name.clone()),
         desc: Some(desc.desc.clone()),
-        text: Some(content.to_owned()),
+        data: Some(content.to_owned()),
     };
 
     let _ = DocTest::new(sdk.clone()).event(UpdateDoc).request(request).sync_send();

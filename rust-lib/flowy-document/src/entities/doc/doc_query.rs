@@ -11,7 +11,9 @@ pub struct QueryDocRequest {
     pub doc_id: String,
 }
 
-pub(crate) struct QueryDocParams {
+#[derive(ProtoBuf, Default, Debug, Clone)]
+pub struct QueryDocParams {
+    #[pb(index = 1)]
     pub doc_id: String,
 }
 
@@ -20,51 +22,9 @@ impl TryInto<QueryDocParams> for QueryDocRequest {
 
     fn try_into(self) -> Result<QueryDocParams, Self::Error> {
         let doc_id = DocId::parse(self.doc_id)
-            .map_err(|e| {
-                ErrorBuilder::new(DocErrorCode::DocViewIdInvalid)
-                    .msg(e)
-                    .build()
-            })?
+            .map_err(|e| ErrorBuilder::new(ErrorCode::DocIdInvalid).msg(e).build())?
             .0;
 
         Ok(QueryDocParams { doc_id })
-    }
-}
-
-#[derive(Default, ProtoBuf)]
-pub struct QueryDocDataRequest {
-    #[pb(index = 1)]
-    pub doc_id: String,
-
-    #[pb(index = 2)]
-    pub path: String,
-}
-
-pub(crate) struct QueryDocDataParams {
-    pub doc_id: String,
-    pub path: String,
-}
-
-impl TryInto<QueryDocDataParams> for QueryDocDataRequest {
-    type Error = DocError;
-
-    fn try_into(self) -> Result<QueryDocDataParams, Self::Error> {
-        let doc_id = DocId::parse(self.doc_id)
-            .map_err(|e| {
-                ErrorBuilder::new(DocErrorCode::DocViewIdInvalid)
-                    .msg(e)
-                    .build()
-            })?
-            .0;
-
-        let path = DocPath::parse(self.path)
-            .map_err(|e| {
-                ErrorBuilder::new(DocErrorCode::DocFilePathInvalid)
-                    .msg(e)
-                    .build()
-            })?
-            .0;
-
-        Ok(QueryDocDataParams { doc_id, path })
     }
 }

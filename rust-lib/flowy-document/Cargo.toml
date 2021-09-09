@@ -1,3 +1,4 @@
+
 [package]
 name = "flowy-document"
 version = "0.1.0"
@@ -12,6 +13,9 @@ flowy-log = { path = "../flowy-log" }
 flowy-derive = { path = "../flowy-derive" }
 flowy-database = { path = "../flowy-database" }
 flowy-infra = { path = "../flowy-infra" }
+flowy-observable = { path = "../flowy-observable" }
+flowy-net = { path = "../flowy-net", features = ["flowy_request"] }
+
 diesel = {version = "1.4.7", features = ["sqlite"]}
 diesel_derives = {version = "1.4.1", features = ["sqlite"]}
 protobuf = {version = "2.18.0"}
@@ -26,3 +30,6 @@ strum_macros = "0.21"
 
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }
+
+[features]
+http_server = []

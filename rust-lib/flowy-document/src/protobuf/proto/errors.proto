@@ -1,17 +1,12 @@
 syntax = "proto3";
 
 message DocError {
-    DocErrorCode code = 1;
+    ErrorCode code = 1;
     string msg = 2;
 }
-enum DocErrorCode {
-    Unknown = 0;
-    EditorDBInternalError = 1;
-    EditorDBConnFailed = 2;
-    DocNameInvalid = 10;
-    DocViewIdInvalid = 11;
-    DocDescTooLong = 12;
-    DocOpenFileError = 13;
-    DocFilePathInvalid = 14;
-    EditorUserNotLoginYet = 100;
+enum ErrorCode {
+    DocIdInvalid = 0;
+    DocNotfound = 1;
+    UserUnauthorized = 999;
+    InternalError = 1000;
 }

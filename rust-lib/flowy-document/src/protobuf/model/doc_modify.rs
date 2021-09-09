@@ -28,9 +28,7 @@ pub struct UpdateDocRequest {
     // message fields
     pub id: ::std::string::String,
     // message oneof groups
-    pub one_of_name: ::std::option::Option<UpdateDocRequest_oneof_one_of_name>,
-    pub one_of_desc: ::std::option::Option<UpdateDocRequest_oneof_one_of_desc>,
-    pub one_of_text: ::std::option::Option<UpdateDocRequest_oneof_one_of_text>,
+    pub one_of_data: ::std::option::Option<UpdateDocRequest_oneof_one_of_data>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -43,18 +41,8 @@ impl<'a> ::std::default::Default for &'a UpdateDocRequest {
 }
 
 #[derive(Clone,PartialEq,Debug)]
-pub enum UpdateDocRequest_oneof_one_of_name {
-    name(::std::string::String),
-}
-
-#[derive(Clone,PartialEq,Debug)]
-pub enum UpdateDocRequest_oneof_one_of_desc {
-    desc(::std::string::String),
-}
-
-#[derive(Clone,PartialEq,Debug)]
-pub enum UpdateDocRequest_oneof_one_of_text {
-    text(::std::string::String),
+pub enum UpdateDocRequest_oneof_one_of_data {
+    data(::std::string::String),
 }
 
 impl UpdateDocRequest {
@@ -88,146 +76,48 @@ impl UpdateDocRequest {
         ::std::mem::replace(&mut self.id, ::std::string::String::new())
     }
 
-    // string name = 2;
+    // string data = 2;
 
 
-    pub fn get_name(&self) -> &str {
-        match self.one_of_name {
-            ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_name::name(ref v)) => v,
+    pub fn get_data(&self) -> &str {
+        match self.one_of_data {
+            ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_data::data(ref v)) => v,
             _ => "",
         }
     }
-    pub fn clear_name(&mut self) {
-        self.one_of_name = ::std::option::Option::None;
+    pub fn clear_data(&mut self) {
+        self.one_of_data = ::std::option::Option::None;
     }
 
-    pub fn has_name(&self) -> bool {
-        match self.one_of_name {
-            ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_name::name(..)) => true,
+    pub fn has_data(&self) -> bool {
+        match self.one_of_data {
+            ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_data::data(..)) => true,
             _ => false,
         }
     }
 
     // Param is passed by value, moved
-    pub fn set_name(&mut self, v: ::std::string::String) {
-        self.one_of_name = ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_name::name(v))
+    pub fn set_data(&mut self, v: ::std::string::String) {
+        self.one_of_data = ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_data::data(v))
     }
 
     // Mutable pointer to the field.
-    pub fn mut_name(&mut self) -> &mut ::std::string::String {
-        if let ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_name::name(_)) = self.one_of_name {
+    pub fn mut_data(&mut self) -> &mut ::std::string::String {
+        if let ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_data::data(_)) = self.one_of_data {
         } else {
-            self.one_of_name = ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_name::name(::std::string::String::new()));
+            self.one_of_data = ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_data::data(::std::string::String::new()));
         }
-        match self.one_of_name {
-            ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_name::name(ref mut v)) => v,
+        match self.one_of_data {
+            ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_data::data(ref mut v)) => v,
             _ => panic!(),
         }
     }
 
     // Take field
-    pub fn take_name(&mut self) -> ::std::string::String {
-        if self.has_name() {
-            match self.one_of_name.take() {
-                ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_name::name(v)) => v,
-                _ => panic!(),
-            }
-        } else {
-            ::std::string::String::new()
-        }
-    }
-
-    // string desc = 3;
-
-
-    pub fn get_desc(&self) -> &str {
-        match self.one_of_desc {
-            ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_desc::desc(ref v)) => v,
-            _ => "",
-        }
-    }
-    pub fn clear_desc(&mut self) {
-        self.one_of_desc = ::std::option::Option::None;
-    }
-
-    pub fn has_desc(&self) -> bool {
-        match self.one_of_desc {
-            ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_desc::desc(..)) => true,
-            _ => false,
-        }
-    }
-
-    // Param is passed by value, moved
-    pub fn set_desc(&mut self, v: ::std::string::String) {
-        self.one_of_desc = ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_desc::desc(v))
-    }
-
-    // Mutable pointer to the field.
-    pub fn mut_desc(&mut self) -> &mut ::std::string::String {
-        if let ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_desc::desc(_)) = self.one_of_desc {
-        } else {
-            self.one_of_desc = ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_desc::desc(::std::string::String::new()));
-        }
-        match self.one_of_desc {
-            ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_desc::desc(ref mut v)) => v,
-            _ => panic!(),
-        }
-    }
-
-    // Take field
-    pub fn take_desc(&mut self) -> ::std::string::String {
-        if self.has_desc() {
-            match self.one_of_desc.take() {
-                ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_desc::desc(v)) => v,
-                _ => panic!(),
-            }
-        } else {
-            ::std::string::String::new()
-        }
-    }
-
-    // string text = 4;
-
-
-    pub fn get_text(&self) -> &str {
-        match self.one_of_text {
-            ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_text::text(ref v)) => v,
-            _ => "",
-        }
-    }
-    pub fn clear_text(&mut self) {
-        self.one_of_text = ::std::option::Option::None;
-    }
-
-    pub fn has_text(&self) -> bool {
-        match self.one_of_text {
-            ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_text::text(..)) => true,
-            _ => false,
-        }
-    }
-
-    // Param is passed by value, moved
-    pub fn set_text(&mut self, v: ::std::string::String) {
-        self.one_of_text = ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_text::text(v))
-    }
-
-    // Mutable pointer to the field.
-    pub fn mut_text(&mut self) -> &mut ::std::string::String {
-        if let ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_text::text(_)) = self.one_of_text {
-        } else {
-            self.one_of_text = ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_text::text(::std::string::String::new()));
-        }
-        match self.one_of_text {
-            ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_text::text(ref mut v)) => v,
-            _ => panic!(),
-        }
-    }
-
-    // Take field
-    pub fn take_text(&mut self) -> ::std::string::String {
-        if self.has_text() {
-            match self.one_of_text.take() {
-                ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_text::text(v)) => v,
+    pub fn take_data(&mut self) -> ::std::string::String {
+        if self.has_data() {
+            match self.one_of_data.take() {
+                ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_data::data(v)) => v,
                 _ => panic!(),
             }
         } else {
@@ -252,19 +142,7 @@ impl ::protobuf::Message for UpdateDocRequest {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.one_of_name = ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_name::name(is.read_string()?));
-                },
-                3 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    self.one_of_desc = ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_desc::desc(is.read_string()?));
-                },
-                4 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    self.one_of_text = ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_text::text(is.read_string()?));
+                    self.one_of_data = ::std::option::Option::Some(UpdateDocRequest_oneof_one_of_data::data(is.read_string()?));
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -281,24 +159,10 @@ impl ::protobuf::Message for UpdateDocRequest {
         if !self.id.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.id);
         }
-        if let ::std::option::Option::Some(ref v) = self.one_of_name {
+        if let ::std::option::Option::Some(ref v) = self.one_of_data {
             match v {
-                &UpdateDocRequest_oneof_one_of_name::name(ref v) => {
+                &UpdateDocRequest_oneof_one_of_data::data(ref v) => {
                     my_size += ::protobuf::rt::string_size(2, &v);
-                },
-            };
-        }
-        if let ::std::option::Option::Some(ref v) = self.one_of_desc {
-            match v {
-                &UpdateDocRequest_oneof_one_of_desc::desc(ref v) => {
-                    my_size += ::protobuf::rt::string_size(3, &v);
-                },
-            };
-        }
-        if let ::std::option::Option::Some(ref v) = self.one_of_text {
-            match v {
-                &UpdateDocRequest_oneof_one_of_text::text(ref v) => {
-                    my_size += ::protobuf::rt::string_size(4, &v);
                 },
             };
         }
@@ -311,24 +175,10 @@ impl ::protobuf::Message for UpdateDocRequest {
         if !self.id.is_empty() {
             os.write_string(1, &self.id)?;
         }
-        if let ::std::option::Option::Some(ref v) = self.one_of_name {
+        if let ::std::option::Option::Some(ref v) = self.one_of_data {
             match v {
-                &UpdateDocRequest_oneof_one_of_name::name(ref v) => {
+                &UpdateDocRequest_oneof_one_of_data::data(ref v) => {
                     os.write_string(2, v)?;
-                },
-            };
-        }
-        if let ::std::option::Option::Some(ref v) = self.one_of_desc {
-            match v {
-                &UpdateDocRequest_oneof_one_of_desc::desc(ref v) => {
-                    os.write_string(3, v)?;
-                },
-            };
-        }
-        if let ::std::option::Option::Some(ref v) = self.one_of_text {
-            match v {
-                &UpdateDocRequest_oneof_one_of_text::text(ref v) => {
-                    os.write_string(4, v)?;
                 },
             };
         }
@@ -376,19 +226,9 @@ impl ::protobuf::Message for UpdateDocRequest {
                 |m: &mut UpdateDocRequest| { &mut m.id },
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
-                "name",
-                UpdateDocRequest::has_name,
-                UpdateDocRequest::get_name,
-            ));
-            fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
-                "desc",
-                UpdateDocRequest::has_desc,
-                UpdateDocRequest::get_desc,
-            ));
-            fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
-                "text",
-                UpdateDocRequest::has_text,
-                UpdateDocRequest::get_text,
+                "data",
+                UpdateDocRequest::has_data,
+                UpdateDocRequest::get_data,
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<UpdateDocRequest>(
                 "UpdateDocRequest",
@@ -407,9 +247,7 @@ impl ::protobuf::Message for UpdateDocRequest {
 impl ::protobuf::Clear for UpdateDocRequest {
     fn clear(&mut self) {
         self.id.clear();
-        self.one_of_name = ::std::option::Option::None;
-        self.one_of_desc = ::std::option::Option::None;
-        self.one_of_text = ::std::option::Option::None;
+        self.one_of_data = ::std::option::Option::None;
         self.unknown_fields.clear();
     }
 }
@@ -426,28 +264,269 @@ impl ::protobuf::reflect::ProtobufValue for UpdateDocRequest {
     }
 }
 
+#[derive(PartialEq,Clone,Default)]
+pub struct UpdateDocParams {
+    // message fields
+    pub id: ::std::string::String,
+    // message oneof groups
+    pub one_of_data: ::std::option::Option<UpdateDocParams_oneof_one_of_data>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a UpdateDocParams {
+    fn default() -> &'a UpdateDocParams {
+        <UpdateDocParams as ::protobuf::Message>::default_instance()
+    }
+}
+
+#[derive(Clone,PartialEq,Debug)]
+pub enum UpdateDocParams_oneof_one_of_data {
+    data(::std::string::String),
+}
+
+impl UpdateDocParams {
+    pub fn new() -> UpdateDocParams {
+        ::std::default::Default::default()
+    }
+
+    // string id = 1;
+
+
+    pub fn get_id(&self) -> &str {
+        &self.id
+    }
+    pub fn clear_id(&mut self) {
+        self.id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_id(&mut self, v: ::std::string::String) {
+        self.id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_id(&mut self) -> &mut ::std::string::String {
+        &mut self.id
+    }
+
+    // Take field
+    pub fn take_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.id, ::std::string::String::new())
+    }
+
+    // string data = 2;
+
+
+    pub fn get_data(&self) -> &str {
+        match self.one_of_data {
+            ::std::option::Option::Some(UpdateDocParams_oneof_one_of_data::data(ref v)) => v,
+            _ => "",
+        }
+    }
+    pub fn clear_data(&mut self) {
+        self.one_of_data = ::std::option::Option::None;
+    }
+
+    pub fn has_data(&self) -> bool {
+        match self.one_of_data {
+            ::std::option::Option::Some(UpdateDocParams_oneof_one_of_data::data(..)) => true,
+            _ => false,
+        }
+    }
+
+    // Param is passed by value, moved
+    pub fn set_data(&mut self, v: ::std::string::String) {
+        self.one_of_data = ::std::option::Option::Some(UpdateDocParams_oneof_one_of_data::data(v))
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_data(&mut self) -> &mut ::std::string::String {
+        if let ::std::option::Option::Some(UpdateDocParams_oneof_one_of_data::data(_)) = self.one_of_data {
+        } else {
+            self.one_of_data = ::std::option::Option::Some(UpdateDocParams_oneof_one_of_data::data(::std::string::String::new()));
+        }
+        match self.one_of_data {
+            ::std::option::Option::Some(UpdateDocParams_oneof_one_of_data::data(ref mut v)) => v,
+            _ => panic!(),
+        }
+    }
+
+    // Take field
+    pub fn take_data(&mut self) -> ::std::string::String {
+        if self.has_data() {
+            match self.one_of_data.take() {
+                ::std::option::Option::Some(UpdateDocParams_oneof_one_of_data::data(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            ::std::string::String::new()
+        }
+    }
+}
+
+impl ::protobuf::Message for UpdateDocParams {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.id)?;
+                },
+                2 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    self.one_of_data = ::std::option::Option::Some(UpdateDocParams_oneof_one_of_data::data(is.read_string()?));
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.id);
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_data {
+            match v {
+                &UpdateDocParams_oneof_one_of_data::data(ref v) => {
+                    my_size += ::protobuf::rt::string_size(2, &v);
+                },
+            };
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.id.is_empty() {
+            os.write_string(1, &self.id)?;
+        }
+        if let ::std::option::Option::Some(ref v) = self.one_of_data {
+            match v {
+                &UpdateDocParams_oneof_one_of_data::data(ref v) => {
+                    os.write_string(2, v)?;
+                },
+            };
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> UpdateDocParams {
+        UpdateDocParams::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "id",
+                |m: &UpdateDocParams| { &m.id },
+                |m: &mut UpdateDocParams| { &mut m.id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_string_accessor::<_>(
+                "data",
+                UpdateDocParams::has_data,
+                UpdateDocParams::get_data,
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<UpdateDocParams>(
+                "UpdateDocParams",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static UpdateDocParams {
+        static instance: ::protobuf::rt::LazyV2<UpdateDocParams> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(UpdateDocParams::new)
+    }
+}
+
+impl ::protobuf::Clear for UpdateDocParams {
+    fn clear(&mut self) {
+        self.id.clear();
+        self.one_of_data = ::std::option::Option::None;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for UpdateDocParams {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for UpdateDocParams {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x10doc_modify.proto\"\x91\x01\n\x10UpdateDocRequest\x12\x0e\n\x02id\
-    \x18\x01\x20\x01(\tR\x02id\x12\x14\n\x04name\x18\x02\x20\x01(\tH\0R\x04n\
-    ame\x12\x14\n\x04desc\x18\x03\x20\x01(\tH\x01R\x04desc\x12\x14\n\x04text\
-    \x18\x04\x20\x01(\tH\x02R\x04textB\r\n\x0bone_of_nameB\r\n\x0bone_of_des\
-    cB\r\n\x0bone_of_textJ\xd7\x02\n\x06\x12\x04\0\0\x07\x01\n\x08\n\x01\x0c\
-    \x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x07\x01\n\n\n\x03\x04\0\
-    \x01\x12\x03\x02\x08\x18\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x12\n\
-    \x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\
-    \x12\x03\x03\x0b\r\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x10\x11\n\x0b\
-    \n\x04\x04\0\x08\0\x12\x03\x04\x04*\n\x0c\n\x05\x04\0\x08\0\x01\x12\x03\
-    \x04\n\x15\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x18(\n\x0c\n\x05\x04\0\
-    \x02\x01\x05\x12\x03\x04\x18\x1e\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\
-    \x04\x1f#\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04&'\n\x0b\n\x04\x04\0\
-    \x08\x01\x12\x03\x05\x04*\n\x0c\n\x05\x04\0\x08\x01\x01\x12\x03\x05\n\
-    \x15\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x18(\n\x0c\n\x05\x04\0\x02\
-    \x02\x05\x12\x03\x05\x18\x1e\n\x0c\n\x05\x04\0\x02\x02\x01\x12\x03\x05\
-    \x1f#\n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05&'\n\x0b\n\x04\x04\0\x08\
-    \x02\x12\x03\x06\x04*\n\x0c\n\x05\x04\0\x08\x02\x01\x12\x03\x06\n\x15\n\
-    \x0b\n\x04\x04\0\x02\x03\x12\x03\x06\x18(\n\x0c\n\x05\x04\0\x02\x03\x05\
-    \x12\x03\x06\x18\x1e\n\x0c\n\x05\x04\0\x02\x03\x01\x12\x03\x06\x1f#\n\
-    \x0c\n\x05\x04\0\x02\x03\x03\x12\x03\x06&'b\x06proto3\
+    \n\x10doc_modify.proto\"G\n\x10UpdateDocRequest\x12\x0e\n\x02id\x18\x01\
+    \x20\x01(\tR\x02id\x12\x14\n\x04data\x18\x02\x20\x01(\tH\0R\x04dataB\r\n\
+    \x0bone_of_data\"F\n\x0fUpdateDocParams\x12\x0e\n\x02id\x18\x01\x20\x01(\
+    \tR\x02id\x12\x14\n\x04data\x18\x02\x20\x01(\tH\0R\x04dataB\r\n\x0bone_o\
+    f_dataJ\xd4\x02\n\x06\x12\x04\0\0\t\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\
+    \n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\
+    \x08\x18\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x12\n\x0c\n\x05\x04\0\
+    \x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\
+    \r\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x10\x11\n\x0b\n\x04\x04\0\x08\
+    \0\x12\x03\x04\x04*\n\x0c\n\x05\x04\0\x08\0\x01\x12\x03\x04\n\x15\n\x0b\
+    \n\x04\x04\0\x02\x01\x12\x03\x04\x18(\n\x0c\n\x05\x04\0\x02\x01\x05\x12\
+    \x03\x04\x18\x1e\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x1f#\n\x0c\n\
+    \x05\x04\0\x02\x01\x03\x12\x03\x04&'\n\n\n\x02\x04\x01\x12\x04\x06\0\t\
+    \x01\n\n\n\x03\x04\x01\x01\x12\x03\x06\x08\x17\n\x0b\n\x04\x04\x01\x02\0\
+    \x12\x03\x07\x04\x12\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x07\x04\n\n\
+    \x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x07\x0b\r\n\x0c\n\x05\x04\x01\x02\0\
+    \x03\x12\x03\x07\x10\x11\n\x0b\n\x04\x04\x01\x08\0\x12\x03\x08\x04*\n\
+    \x0c\n\x05\x04\x01\x08\0\x01\x12\x03\x08\n\x15\n\x0b\n\x04\x04\x01\x02\
+    \x01\x12\x03\x08\x18(\n\x0c\n\x05\x04\x01\x02\x01\x05\x12\x03\x08\x18\
+    \x1e\n\x0c\n\x05\x04\x01\x02\x01\x01\x12\x03\x08\x1f#\n\x0c\n\x05\x04\
+    \x01\x02\x01\x03\x12\x03\x08&'b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;
