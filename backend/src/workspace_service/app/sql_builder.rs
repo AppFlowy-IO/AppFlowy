@@ -1,9 +1,12 @@
-use crate::{entities::workspace::AppTable, sqlx_ext::SqlBuilder};
+use crate::{
+    entities::workspace::{AppTable, APP_TABLE},
+    sqlx_ext::SqlBuilder,
+};
 use chrono::Utc;
 use flowy_net::errors::{invalid_params, ServerError};
 use flowy_workspace::{
     entities::app::parser::AppId,
-    protobuf::{App, ColorStyle, RepeatedView},
+    protobuf::{App, ColorStyle},
 };
 use protobuf::Message;
 use sqlx::postgres::PgArguments;
@@ -57,9 +60,9 @@ impl Builder {
     }
 
     pub fn build(self) -> Result<(String, PgArguments, App), ServerError> {
-        let app = make_app_from_table(self.table.clone(), RepeatedView::default());
+        let app: App = self.table.clone().into();
 
-        let (sql, args) = SqlBuilder::create("app_table")
+        let (sql, args) = SqlBuilder::create(APP_TABLE)
             .add_arg("id", self.table.id)
             .add_arg("workspace_id", self.table.workspace_id)
             .add_arg("name", self.table.name)
@@ -83,19 +86,6 @@ fn default_color_style() -> Vec<u8> {
             vec![]
         },
     }
-}
-
-pub(crate) fn make_app_from_table(table: AppTable, views: RepeatedView) -> App {
-    let mut app = App::default();
-    app.set_id(table.id.to_string());
-    app.set_workspace_id(table.workspace_id.to_string());
-    app.set_name(table.name.clone());
-    app.set_desc(table.description.clone());
-    app.set_belongings(views);
-    app.set_modified_time(table.modified_time.timestamp());
-    app.set_create_time(table.create_time.timestamp());
-
-    app
 }
 
 pub(crate) fn check_app_id(id: String) -> Result<Uuid, ServerError> {

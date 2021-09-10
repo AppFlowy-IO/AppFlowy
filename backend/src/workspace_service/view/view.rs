@@ -1,7 +1,7 @@
 use crate::{
     entities::workspace::ViewTable,
     sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
-    workspace_service::view::{check_view_id, make_view_from_table, Builder},
+    workspace_service::view::sql_builder::*,
 };
 use anyhow::Context;
 use chrono::Utc;
@@ -17,6 +17,7 @@ use flowy_workspace::{
     protobuf::{CreateViewParams, QueryViewParams, RepeatedView, UpdateViewParams, View},
 };
 
+use crate::entities::workspace::VIEW_TABLE;
 use sqlx::{postgres::PgArguments, PgPool, Postgres};
 
 pub(crate) async fn create_view(
@@ -63,7 +64,7 @@ pub(crate) async fn read_view(
         .await
         .context("Failed to acquire a Postgres connection to read view")?;
 
-    let (sql, args) = SqlBuilder::select("view_table")
+    let (sql, args) = SqlBuilder::select(VIEW_TABLE)
         .add_field("*")
         .and_where_eq("id", view_id)
         .build()?;
@@ -87,7 +88,8 @@ pub(crate) async fn read_view(
         .await
         .context("Failed to commit SQL transaction to read view.")?;
 
-    let view = make_view_from_table(table, views);
+    let mut view: View = table.into();
+    view.set_belongings(views);
 
     FlowyResponse::success().pb(view)
 }
@@ -130,7 +132,7 @@ pub(crate) async fn update_view(
         .await
         .context("Failed to acquire a Postgres connection to update app")?;
 
-    let (sql, args) = SqlBuilder::update("view_table")
+    let (sql, args) = SqlBuilder::update(VIEW_TABLE)
         .add_some_arg("name", name)
         .add_some_arg("description", desc)
         .add_some_arg("thumbnail", thumbnail)
@@ -162,7 +164,7 @@ pub(crate) async fn delete_view(
         .await
         .context("Failed to acquire a Postgres connection to delete view")?;
 
-    let (sql, args) = SqlBuilder::delete("view_table")
+    let (sql, args) = SqlBuilder::delete(VIEW_TABLE)
         .and_where_eq("id", view_id)
         .build()?;
 
@@ -185,7 +187,7 @@ pub(crate) async fn read_views_belong_to_id<'c>(
     id: &str,
 ) -> Result<Vec<View>, ServerError> {
     // TODO: add index for app_table
-    let (sql, args) = SqlBuilder::select("view_table")
+    let (sql, args) = SqlBuilder::select(VIEW_TABLE)
         .add_field("*")
         .and_where_eq("belong_to_id", id)
         .and_where_eq("is_trash", false)
@@ -198,7 +200,7 @@ pub(crate) async fn read_views_belong_to_id<'c>(
 
     let views = tables
         .into_iter()
-        .map(|table| make_view_from_table(table, RepeatedView::default()))
+        .map(|table| table.into())
         .collect::<Vec<View>>();
 
     Ok(views)

@@ -7,14 +7,7 @@ use flowy_infra::future::ResultFuture;
 pub struct DocServerMock {}
 
 impl DocumentServerAPI for DocServerMock {
-    fn create_doc(&self, _token: &str, params: CreateDocParams) -> ResultFuture<Doc, DocError> {
-        let doc = Doc {
-            id: params.id,
-            data: params.data,
-        };
-
-        ResultFuture::new(async { Ok(doc) })
-    }
+    fn create_doc(&self, _token: &str, _params: CreateDocParams) -> ResultFuture<(), DocError> { ResultFuture::new(async { Ok(()) }) }
 
     fn read_doc(&self, _token: &str, _params: QueryDocParams) -> ResultFuture<Option<Doc>, DocError> {
         ResultFuture::new(async { Ok(None) })

@@ -1,6 +1,5 @@
-mod builder;
 pub mod router;
+pub mod sql_builder;
 mod view;
 
-pub use builder::*;
 pub(crate) use view::*;

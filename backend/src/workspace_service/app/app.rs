@@ -1,24 +1,20 @@
 use flowy_net::{errors::ServerError, response::FlowyResponse};
 
 use crate::{
-    entities::workspace::AppTable,
+    entities::workspace::{AppTable, APP_TABLE},
     sqlx_ext::{map_sqlx_error, SqlBuilder},
     user_service::LoggedUser,
-    workspace_service::{
-        app::{check_app_id, make_app_from_table, Builder},
-        view::read_views_belong_to_id,
-    },
+    workspace_service::{app::sql_builder::*, view::read_views_belong_to_id},
 };
 use anyhow::Context;
 use chrono::Utc;
 use flowy_net::errors::invalid_params;
-
 use flowy_workspace::{
     entities::{
         app::parser::{AppDesc, AppName},
         workspace::parser::WorkspaceId,
     },
-    protobuf::{CreateAppParams, QueryAppParams, RepeatedView, UpdateAppParams},
+    protobuf::{App, CreateAppParams, QueryAppParams, RepeatedView, UpdateAppParams},
 };
 use protobuf::Message;
 use sqlx::{postgres::PgArguments, PgPool, Postgres};
@@ -67,7 +63,7 @@ pub(crate) async fn read_app(
         .await
         .context("Failed to acquire a Postgres connection to read app")?;
 
-    let (sql, args) = SqlBuilder::select("app_table")
+    let (sql, args) = SqlBuilder::select(APP_TABLE)
         .add_field("*")
         .and_where_eq("id", app_id)
         .build()?;
@@ -91,7 +87,9 @@ pub(crate) async fn read_app(
         .await
         .context("Failed to commit SQL transaction to read app.")?;
 
-    let app = make_app_from_table(table, views);
+    let mut app: App = table.into();
+    app.set_belongings(views);
+
     FlowyResponse::success().pb(app)
 }
 
@@ -131,7 +129,7 @@ pub(crate) async fn update_app(
         .await
         .context("Failed to acquire a Postgres connection to update app")?;
 
-    let (sql, args) = SqlBuilder::update("app_table")
+    let (sql, args) = SqlBuilder::update(APP_TABLE)
         .add_some_arg("name", name)
         .add_some_arg("color_style", color_style)
         .add_some_arg("description", desc)
@@ -160,7 +158,7 @@ pub(crate) async fn delete_app(pool: &PgPool, app_id: &str) -> Result<FlowyRespo
         .await
         .context("Failed to acquire a Postgres connection to delete app")?;
 
-    let (sql, args) = SqlBuilder::delete("app_table")
+    let (sql, args) = SqlBuilder::delete(APP_TABLE)
         .and_where_eq("id", app_id)
         .build()?;
 

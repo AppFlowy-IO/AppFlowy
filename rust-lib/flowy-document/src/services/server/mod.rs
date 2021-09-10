@@ -14,7 +14,7 @@ use std::sync::Arc;
 
 pub(crate) type Server = Arc<dyn DocumentServerAPI + Send + Sync>;
 pub trait DocumentServerAPI {
-    fn create_doc(&self, token: &str, params: CreateDocParams) -> ResultFuture<Doc, DocError>;
+    fn create_doc(&self, token: &str, params: CreateDocParams) -> ResultFuture<(), DocError>;
 
     fn read_doc(&self, token: &str, params: QueryDocParams) -> ResultFuture<Option<Doc>, DocError>;
 

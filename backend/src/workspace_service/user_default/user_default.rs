@@ -1,9 +1,9 @@
 use crate::{
     sqlx_ext::{map_sqlx_error, DBTransaction},
     workspace_service::{
-        app::Builder as AppBuilder,
-        view::Builder as ViewBuilder,
-        workspace::Builder as WorkspaceBuilder,
+        app::sql_builder::Builder as AppBuilder,
+        view::sql_builder::Builder as ViewBuilder,
+        workspace::sql_builder::Builder as WorkspaceBuilder,
     },
 };
 

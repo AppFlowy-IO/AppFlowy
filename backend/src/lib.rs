@@ -1,10 +1,11 @@
 pub mod application;
 pub mod config;
 mod context;
+mod doc_service;
 mod entities;
 mod middleware;
 mod routers;
 mod sqlx_ext;
-pub mod user_service;
-pub mod workspace_service;
-pub mod ws_service;
+mod user_service;
+mod workspace_service;
+mod ws_service;

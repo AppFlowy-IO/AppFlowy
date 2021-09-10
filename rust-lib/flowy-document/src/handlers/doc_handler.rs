@@ -3,10 +3,10 @@ use flowy_dispatch::prelude::*;
 use std::convert::TryInto;
 
 #[tracing::instrument(skip(data, controller))]
-pub async fn create_doc_handler(data: Data<CreateDocRequest>, controller: Unit<DocController>) -> DataResult<Doc, DocError> {
+pub async fn create_doc_handler(data: Data<CreateDocRequest>, controller: Unit<DocController>) -> Result<(), DocError> {
     let params: CreateDocParams = data.into_inner().try_into()?;
-    let doc_desc = controller.create_doc(params).await?;
-    data_result(doc_desc)
+    let _ = controller.create_doc(params).await?;
+    Ok(())
 }
 
 #[tracing::instrument(skip(data, controller))]

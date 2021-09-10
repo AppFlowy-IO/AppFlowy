@@ -4,7 +4,7 @@ use strum_macros::Display;
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "DocError"]
 pub enum EditorEvent {
-    #[event(input = "CreateDocRequest", output = "Doc")]
+    #[event(input = "CreateDocRequest")]
     CreateDoc = 0,
 
     #[event(input = "UpdateDocRequest")]

@@ -1,9 +1,12 @@
-use crate::{entities::workspace::ViewTable, sqlx_ext::SqlBuilder};
+use crate::{
+    entities::workspace::{ViewTable, VIEW_TABLE},
+    sqlx_ext::SqlBuilder,
+};
 use chrono::Utc;
 use flowy_net::errors::{invalid_params, ServerError};
 use flowy_workspace::{
     entities::view::parser::ViewId,
-    protobuf::{RepeatedView, View, ViewType},
+    protobuf::{View, ViewType},
 };
 use protobuf::ProtobufEnum;
 use sqlx::postgres::PgArguments;
@@ -54,9 +57,9 @@ impl Builder {
     }
 
     pub fn build(self) -> Result<(String, PgArguments, View), ServerError> {
-        let view = make_view_from_table(self.table.clone(), RepeatedView::default());
+        let view: View = self.table.clone().into();
 
-        let (sql, args) = SqlBuilder::create("view_table")
+        let (sql, args) = SqlBuilder::create(VIEW_TABLE)
             .add_arg("id", self.table.id)
             .add_arg("belong_to_id", self.table.belong_to_id)
             .add_arg("name", self.table.name)
@@ -69,22 +72,6 @@ impl Builder {
 
         Ok((sql, args, view))
     }
-}
-
-pub(crate) fn make_view_from_table(table: ViewTable, views: RepeatedView) -> View {
-    let view_type = ViewType::from_i32(table.view_type).unwrap_or(ViewType::Doc);
-
-    let mut view = View::default();
-    view.set_id(table.id.to_string());
-    view.set_belong_to_id(table.belong_to_id);
-    view.set_name(table.name);
-    view.set_desc(table.description);
-    view.set_view_type(view_type);
-    view.set_belongings(views);
-    view.set_create_time(table.create_time.timestamp());
-    view.set_modified_time(table.modified_time.timestamp());
-
-    view
 }
 
 pub(crate) fn check_view_id(id: String) -> Result<Uuid, ServerError> {

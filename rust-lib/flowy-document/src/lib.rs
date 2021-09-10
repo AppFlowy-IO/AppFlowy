@@ -4,7 +4,7 @@ pub mod event;
 mod handlers;
 pub mod module;
 mod observable;
-mod protobuf;
+pub mod protobuf;
 mod services;
 mod sql_tables;
 

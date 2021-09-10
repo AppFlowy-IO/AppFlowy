@@ -5,6 +5,7 @@ use crate::{
         Settings,
     },
     context::AppContext,
+    doc_service::router as doc,
     user_service::router as user,
     workspace_service::{app::router as app, view::router as view, workspace::router as workspace},
     ws_service,
@@ -111,6 +112,12 @@ fn user_scope() -> Scope {
             .route(web::delete().to(view::delete_handler))
             .route(web::get().to(view::read_handler))
             .route(web::patch().to(view::update_handler))
+        )
+        .service(web::resource("/doc")
+            .route(web::post().to(doc::create_handler))
+            .route(web::delete().to(doc::delete_handler))
+            .route(web::get().to(doc::read_handler))
+            .route(web::patch().to(doc::update_handler))
         )
         // password
         .service(web::resource("/password_change")

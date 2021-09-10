@@ -25,14 +25,16 @@ impl DocController {
         }
     }
 
-    pub(crate) async fn create_doc(&self, params: CreateDocParams) -> Result<Doc, DocError> {
-        let doc = self.create_doc_on_server(params).await?;
-        let doc_table = DocTable::new(doc.clone());
-
+    pub(crate) async fn create_doc(&self, params: CreateDocParams) -> Result<(), DocError> {
+        let _ = self.create_doc_on_server(params.clone()).await?;
+        let doc = Doc {
+            id: params.id,
+            data: params.data,
+        };
         let conn = self.database.db_connection()?;
-        let _ = self.sql.create_doc_table(doc_table, &*conn)?;
+        let _ = self.sql.create_doc_table(DocTable::new(doc), &*conn)?;
 
-        Ok(doc)
+        Ok(())
     }
 
     pub(crate) async fn update_doc(&self, params: UpdateDocParams) -> Result<(), DocError> {
@@ -63,10 +65,10 @@ impl DocController {
 
 impl DocController {
     #[tracing::instrument(skip(self), err)]
-    async fn create_doc_on_server(&self, params: CreateDocParams) -> Result<Doc, DocError> {
+    async fn create_doc_on_server(&self, params: CreateDocParams) -> Result<(), DocError> {
         let token = self.user.token()?;
-        let doc = self.server.create_doc(&token, params).await?;
-        Ok(doc)
+        let _ = self.server.create_doc(&token, params).await?;
+        Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]

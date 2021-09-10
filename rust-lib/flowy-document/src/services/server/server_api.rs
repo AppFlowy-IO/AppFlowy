@@ -9,7 +9,7 @@ use flowy_net::{config::*, request::HttpRequestBuilder};
 pub struct DocServer {}
 
 impl DocumentServerAPI for DocServer {
-    fn create_doc(&self, token: &str, params: CreateDocParams) -> ResultFuture<Doc, DocError> {
+    fn create_doc(&self, token: &str, params: CreateDocParams) -> ResultFuture<(), DocError> {
         let token = token.to_owned();
         ResultFuture::new(async move { create_doc_request(&token, params, DOC_URL.as_ref()).await })
     }
@@ -32,14 +32,14 @@ impl DocumentServerAPI for DocServer {
 
 pub(crate) fn request_builder() -> HttpRequestBuilder { HttpRequestBuilder::new().middleware(super::middleware::MIDDLEWARE.clone()) }
 
-pub async fn create_doc_request(token: &str, params: CreateDocParams, url: &str) -> Result<Doc, DocError> {
-    let doc = request_builder()
+pub async fn create_doc_request(token: &str, params: CreateDocParams, url: &str) -> Result<(), DocError> {
+    let _ = request_builder()
         .post(&url.to_owned())
         .header(HEADER_TOKEN, token)
         .protobuf(params)?
-        .response()
+        .send()
         .await?;
-    Ok(doc)
+    Ok(())
 }
 
 pub async fn read_doc_request(token: &str, params: QueryDocParams, url: &str) -> Result<Option<Doc>, DocError> {

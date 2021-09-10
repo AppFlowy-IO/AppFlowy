@@ -1,4 +1,4 @@
-use super::builder::Builder;
+use super::sql_builder::Builder;
 use crate::{entities::workspace::WorkspaceTable, sqlx_ext::*};
 use anyhow::Context;
 
@@ -8,24 +8,13 @@ use flowy_net::{
 };
 
 use crate::{
-    entities::workspace::AppTable,
+    entities::workspace::{AppTable, WORKSPACE_TABLE},
     user_service::LoggedUser,
-    workspace_service::{
-        app::make_app_from_table,
-        view::read_views_belong_to_id,
-        workspace::{check_workspace_id, make_workspace_from_table},
-    },
+    workspace_service::{view::read_views_belong_to_id, workspace::sql_builder::*},
 };
 use flowy_workspace::{
     entities::workspace::parser::{WorkspaceDesc, WorkspaceId, WorkspaceName},
-    protobuf::{
-        App,
-        CreateWorkspaceParams,
-        RepeatedApp,
-        RepeatedView,
-        RepeatedWorkspace,
-        UpdateWorkspaceParams,
-    },
+    protobuf::{App, CreateWorkspaceParams, RepeatedApp, RepeatedWorkspace, UpdateWorkspaceParams},
 };
 use sqlx::{postgres::PgArguments, PgPool, Postgres};
 
@@ -91,7 +80,7 @@ pub(crate) async fn update_workspace(
         .await
         .context("Failed to acquire a Postgres connection to update workspace")?;
 
-    let (sql, args) = SqlBuilder::update("workspace_table")
+    let (sql, args) = SqlBuilder::update(WORKSPACE_TABLE)
         .add_some_arg("name", name)
         .add_some_arg("description", desc)
         .and_where_eq("id", workspace_id)
@@ -120,7 +109,7 @@ pub(crate) async fn delete_workspace(
         .await
         .context("Failed to acquire a Postgres connection to delete workspace")?;
 
-    let (sql, args) = SqlBuilder::delete("workspace_table")
+    let (sql, args) = SqlBuilder::delete(WORKSPACE_TABLE)
         .and_where_eq("id", workspace_id)
         .build()?;
 
@@ -148,7 +137,7 @@ pub async fn read_workspaces(
         .await
         .context("Failed to acquire a Postgres connection to read workspace")?;
 
-    let mut builder = SqlBuilder::select("workspace_table")
+    let mut builder = SqlBuilder::select(WORKSPACE_TABLE)
         .add_field("*")
         .and_where_eq("user_id", &user_id);
 
@@ -208,7 +197,7 @@ async fn read_apps_belong_to_workspace<'c>(
 
     let apps = tables
         .into_iter()
-        .map(|table| make_app_from_table(table, RepeatedView::default()))
+        .map(|table| table.into())
         .collect::<Vec<App>>();
 
     let mut repeated_app = RepeatedApp::default();

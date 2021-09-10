@@ -1,4 +1,7 @@
-use crate::{entities::workspace::WorkspaceTable, sqlx_ext::SqlBuilder};
+use crate::{
+    entities::workspace::{WorkspaceTable, WORKSPACE_TABLE},
+    sqlx_ext::SqlBuilder,
+};
 use chrono::Utc;
 use flowy_net::errors::{invalid_params, ServerError};
 use flowy_workspace::{
@@ -42,7 +45,7 @@ impl Builder {
         let workspace = make_workspace_from_table(self.table.clone(), None);
 
         // TODO: use macro to fetch each field from struct
-        let (sql, args) = SqlBuilder::create("workspace_table")
+        let (sql, args) = SqlBuilder::create(WORKSPACE_TABLE)
             .add_arg("id", self.table.id)
             .add_arg("name", self.table.name)
             .add_arg("description", self.table.description)
