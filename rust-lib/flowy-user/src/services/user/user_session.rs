@@ -1,11 +1,14 @@
 use crate::{
     entities::{SignInParams, SignUpParams, UpdateUserParams, UserProfile},
     errors::{ErrorBuilder, ErrorCode, UserError},
-    services::user::{construct_user_server, database::UserDB},
+    services::user::database::UserDB,
     sql_tables::{UserTable, UserTableChangeset},
 };
 
-use crate::{observable::*, services::server::Server};
+use crate::{
+    observable::*,
+    services::server::{construct_user_server, Server},
+};
 use flowy_database::{
     query_dsl::*,
     schema::{user_table, user_table::dsl},
