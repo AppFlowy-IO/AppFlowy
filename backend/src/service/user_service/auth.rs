@@ -1,14 +1,7 @@
-use super::AUTHORIZED_USERS;
-use crate::{
-    entities::{token::Token, user::UserTable},
-    sqlx_ext::DBTransaction,
-    user_service::{hash_password, verify_password, LoggedUser},
-    workspace_service::user_default::create_default_workspace,
-};
-
-use crate::sqlx_ext::{map_sqlx_error, SqlBuilder};
 use anyhow::Context;
 use chrono::Utc;
+use sqlx::{PgPool, Postgres};
+
 use flowy_net::{
     errors::{invalid_params, ErrorCode, ServerError},
     response::FlowyResponse,
@@ -24,7 +17,17 @@ use flowy_user::{
         UserProfile,
     },
 };
-use sqlx::{PgPool, Postgres};
+
+use crate::{
+    entities::{token::Token, user::UserTable},
+    service::{
+        user_service::{hash_password, verify_password, LoggedUser},
+        workspace_service::user_default::create_default_workspace,
+    },
+    sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
+};
+
+use super::AUTHORIZED_USERS;
 
 pub async fn sign_in(pool: &PgPool, params: SignInParams) -> Result<SignInResponse, ServerError> {
     let email =

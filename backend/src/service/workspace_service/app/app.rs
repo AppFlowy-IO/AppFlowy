@@ -1,14 +1,12 @@
-use flowy_net::{errors::ServerError, response::FlowyResponse};
-
-use crate::{
-    entities::workspace::{AppTable, APP_TABLE},
-    sqlx_ext::{map_sqlx_error, SqlBuilder},
-    user_service::LoggedUser,
-    workspace_service::{app::sql_builder::*, view::read_views_belong_to_id},
-};
 use anyhow::Context;
 use chrono::Utc;
-use flowy_net::errors::invalid_params;
+use protobuf::Message;
+use sqlx::{postgres::PgArguments, PgPool, Postgres};
+
+use flowy_net::{
+    errors::{invalid_params, ServerError},
+    response::FlowyResponse,
+};
 use flowy_workspace::{
     entities::{
         app::parser::{AppDesc, AppName},
@@ -16,8 +14,15 @@ use flowy_workspace::{
     },
     protobuf::{App, CreateAppParams, QueryAppParams, RepeatedView, UpdateAppParams},
 };
-use protobuf::Message;
-use sqlx::{postgres::PgArguments, PgPool, Postgres};
+
+use crate::{
+    entities::workspace::{AppTable, APP_TABLE},
+    service::{
+        user_service::LoggedUser,
+        workspace_service::{app::sql_builder::*, view::read_views_belong_to_id},
+    },
+    sqlx_ext::{map_sqlx_error, SqlBuilder},
+};
 
 pub(crate) async fn create_app(
     pool: &PgPool,

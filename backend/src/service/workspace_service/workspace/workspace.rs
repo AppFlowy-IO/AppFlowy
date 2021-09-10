@@ -1,22 +1,25 @@
-use super::sql_builder::Builder;
-use crate::{entities::workspace::WorkspaceTable, sqlx_ext::*};
 use anyhow::Context;
+use sqlx::{postgres::PgArguments, PgPool, Postgres};
 
 use flowy_net::{
     errors::{invalid_params, ServerError},
     response::FlowyResponse,
 };
-
-use crate::{
-    entities::workspace::{AppTable, WORKSPACE_TABLE},
-    user_service::LoggedUser,
-    workspace_service::{view::read_views_belong_to_id, workspace::sql_builder::*},
-};
 use flowy_workspace::{
     entities::workspace::parser::{WorkspaceDesc, WorkspaceId, WorkspaceName},
     protobuf::{App, CreateWorkspaceParams, RepeatedApp, RepeatedWorkspace, UpdateWorkspaceParams},
 };
-use sqlx::{postgres::PgArguments, PgPool, Postgres};
+
+use crate::{
+    entities::workspace::{AppTable, WorkspaceTable, WORKSPACE_TABLE},
+    service::{
+        user_service::LoggedUser,
+        workspace_service::{view::read_views_belong_to_id, workspace::sql_builder::*},
+    },
+    sqlx_ext::*,
+};
+
+use super::sql_builder::Builder;
 
 pub(crate) async fn create_workspace(
     pool: &PgPool,

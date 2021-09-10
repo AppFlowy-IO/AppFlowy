@@ -1,3 +1,11 @@
+use std::{net::TcpListener, time::Duration};
+
+use actix::Actor;
+use actix_identity::{CookieIdentityPolicy, IdentityService};
+use actix_web::{dev::Server, middleware, web, web::Data, App, HttpServer, Scope};
+use sqlx::{postgres::PgPoolOptions, PgPool};
+use tokio::time::interval;
+
 use crate::{
     config::{
         env::{domain, secret, use_https},
@@ -5,18 +13,18 @@ use crate::{
         Settings,
     },
     context::AppContext,
-    doc_service::router as doc,
-    user_service::router as user,
-    workspace_service::{app::router as app, view::router as view, workspace::router as workspace},
-    ws_service,
-    ws_service::WSServer,
+    service::{
+        doc_service::router as doc,
+        user_service::router as user,
+        workspace_service::{
+            app::router as app,
+            view::router as view,
+            workspace::router as workspace,
+        },
+        ws_service,
+        ws_service::WSServer,
+    },
 };
-use actix::Actor;
-use actix_identity::{CookieIdentityPolicy, IdentityService};
-use actix_web::{dev::Server, middleware, web, web::Data, App, HttpServer, Scope};
-use sqlx::{postgres::PgPoolOptions, PgPool};
-use std::{net::TcpListener, time::Duration};
-use tokio::time::interval;
 
 pub struct Application {
     port: u16,

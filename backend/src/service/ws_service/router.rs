@@ -1,4 +1,4 @@
-use crate::ws_service::{entities::SessionId, WSClient, WSServer};
+use crate::service::ws_service::{entities::SessionId, WSClient, WSServer};
 use actix::Addr;
 
 use actix_web::{

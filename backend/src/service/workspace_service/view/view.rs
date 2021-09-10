@@ -1,10 +1,7 @@
-use crate::{
-    entities::workspace::ViewTable,
-    sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
-    workspace_service::view::sql_builder::*,
-};
 use anyhow::Context;
 use chrono::Utc;
+use sqlx::{postgres::PgArguments, PgPool, Postgres};
+
 use flowy_net::{
     errors::{invalid_params, ServerError},
     response::FlowyResponse,
@@ -17,8 +14,11 @@ use flowy_workspace::{
     protobuf::{CreateViewParams, QueryViewParams, RepeatedView, UpdateViewParams, View},
 };
 
-use crate::entities::workspace::VIEW_TABLE;
-use sqlx::{postgres::PgArguments, PgPool, Postgres};
+use crate::{
+    entities::workspace::{ViewTable, VIEW_TABLE},
+    service::workspace_service::view::sql_builder::*,
+    sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
+};
 
 pub(crate) async fn create_view(
     pool: &PgPool,

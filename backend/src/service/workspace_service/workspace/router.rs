@@ -1,18 +1,9 @@
-use crate::{
-    routers::utils::parse_from_payload,
-    workspace_service::workspace::{
-        create_workspace,
-        delete_workspace,
-        read_workspaces,
-        update_workspace,
-    },
-};
-
-use crate::user_service::LoggedUser;
 use actix_web::{
     web::{Data, Payload},
     HttpResponse,
 };
+use sqlx::PgPool;
+
 use flowy_net::errors::ServerError;
 use flowy_workspace::protobuf::{
     CreateWorkspaceParams,
@@ -20,7 +11,19 @@ use flowy_workspace::protobuf::{
     QueryWorkspaceParams,
     UpdateWorkspaceParams,
 };
-use sqlx::PgPool;
+
+use crate::{
+    routers::utils::parse_from_payload,
+    service::{
+        user_service::LoggedUser,
+        workspace_service::workspace::{
+            create_workspace,
+            delete_workspace,
+            read_workspaces,
+            update_workspace,
+        },
+    },
+};
 
 pub async fn create_handler(
     payload: Payload,

@@ -1,13 +1,9 @@
-use crate::{
-    routers::utils::parse_from_payload,
-    workspace_service::app::app::{create_app, delete_app, read_app, update_app},
-};
-
-use crate::user_service::LoggedUser;
 use actix_web::{
     web::{Data, Payload},
     HttpResponse,
 };
+use sqlx::PgPool;
+
 use flowy_net::errors::ServerError;
 use flowy_workspace::protobuf::{
     CreateAppParams,
@@ -15,7 +11,14 @@ use flowy_workspace::protobuf::{
     QueryAppParams,
     UpdateAppParams,
 };
-use sqlx::PgPool;
+
+use crate::{
+    routers::utils::parse_from_payload,
+    service::{
+        user_service::LoggedUser,
+        workspace_service::app::app::{create_app, delete_app, read_app, update_app},
+    },
+};
 
 pub async fn create_handler(
     payload: Payload,

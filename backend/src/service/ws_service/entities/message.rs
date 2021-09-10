@@ -1,4 +1,4 @@
-use crate::ws_service::entities::SessionId;
+use crate::service::ws_service::entities::SessionId;
 use actix::Message;
 use bytes::Bytes;
 use std::fmt::Formatter;

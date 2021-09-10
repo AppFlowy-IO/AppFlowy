@@ -1,13 +1,18 @@
-use crate::routers::utils::parse_from_payload;
+use actix_identity::Identity;
 use actix_web::{
     web::{Data, Payload},
     HttpRequest,
     HttpResponse,
 };
+use sqlx::PgPool;
+
+use flowy_net::{errors::ServerError, response::FlowyResponse};
+use flowy_user::protobuf::{SignInParams, SignUpParams, UpdateUserParams};
 
 use crate::{
     entities::token::Token,
-    user_service::{
+    routers::utils::parse_from_payload,
+    service::user_service::{
         get_user_profile,
         register_user,
         set_user_profile,
@@ -16,10 +21,6 @@ use crate::{
         LoggedUser,
     },
 };
-use actix_identity::Identity;
-use flowy_net::{errors::ServerError, response::FlowyResponse};
-use flowy_user::protobuf::{SignInParams, SignUpParams, UpdateUserParams};
-use sqlx::PgPool;
 
 pub async fn sign_in_handler(
     payload: Payload,

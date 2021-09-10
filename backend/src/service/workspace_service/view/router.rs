@@ -1,12 +1,9 @@
-use crate::{
-    routers::utils::parse_from_payload,
-    workspace_service::view::{create_view, delete_view, read_view, update_view},
-};
-
 use actix_web::{
     web::{Data, Payload},
     HttpResponse,
 };
+use sqlx::PgPool;
+
 use flowy_net::errors::ServerError;
 use flowy_workspace::protobuf::{
     CreateViewParams,
@@ -14,7 +11,11 @@ use flowy_workspace::protobuf::{
     QueryViewParams,
     UpdateViewParams,
 };
-use sqlx::PgPool;
+
+use crate::{
+    routers::utils::parse_from_payload,
+    service::workspace_service::view::{create_view, delete_view, read_view, update_view},
+};
 
 pub async fn create_handler(
     payload: Payload,

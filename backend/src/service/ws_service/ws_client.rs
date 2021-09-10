@@ -1,12 +1,5 @@
-use crate::{
-    config::{HEARTBEAT_INTERVAL, PING_TIMEOUT},
-    ws_service::{
-        entities::{Connect, Disconnect, SessionId},
-        ClientMessage,
-        MessageData,
-        WSServer,
-    },
-};
+use std::time::Instant;
+
 use actix::{
     fut,
     Actor,
@@ -20,9 +13,17 @@ use actix::{
     StreamHandler,
     WrapFuture,
 };
-
 use actix_web_actors::{ws, ws::Message::Text};
-use std::time::Instant;
+
+use crate::{
+    config::{HEARTBEAT_INTERVAL, PING_TIMEOUT},
+    service::ws_service::{
+        entities::{Connect, Disconnect, SessionId},
+        ClientMessage,
+        MessageData,
+        WSServer,
+    },
+};
 
 pub struct WSClient {
     sid: SessionId,

@@ -1,4 +1,4 @@
-use crate::ws_service::WSServer;
+use crate::service::ws_service::WSServer;
 use actix::Addr;
 
 use sqlx::PgPool;
