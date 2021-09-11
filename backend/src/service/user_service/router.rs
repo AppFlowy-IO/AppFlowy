@@ -11,14 +11,16 @@ use flowy_user::protobuf::{SignInParams, SignUpParams, UpdateUserParams};
 
 use crate::{
     entities::token::Token,
-    routers::utils::parse_from_payload,
-    service::user_service::{
-        get_user_profile,
-        register_user,
-        set_user_profile,
-        sign_in,
-        sign_out,
-        LoggedUser,
+    service::{
+        user_service::{
+            get_user_profile,
+            register_user,
+            set_user_profile,
+            sign_in,
+            sign_out,
+            LoggedUser,
+        },
+        util::parse_from_payload,
     },
 };
 

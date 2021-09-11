@@ -61,7 +61,7 @@ impl ResponseMiddleware for Middleware {
                     None => {},
                     Some(token) => {
                         let error = UserError::new(ErrorCode::UserUnauthorized, "");
-                        observable(token, UserObservable::UserUnauthorized).error(error).build()
+                        notify(token, UserObservable::UserUnauthorized).error(error).send()
                     },
                 }
             }

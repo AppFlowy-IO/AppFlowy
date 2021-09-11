@@ -4,7 +4,7 @@ use backend::{
 };
 
 use flowy_document::{
-    entities::doc::{CreateDocParams, Doc},
+    entities::doc::{CreateDocParams, Doc, QueryDocParams, UpdateDocParams},
     prelude::*,
 };
 use flowy_user::{errors::UserError, prelude::*};
@@ -156,11 +156,19 @@ impl TestServer {
             .unwrap();
     }
 
-    pub async fn create_doc(&self, params: CreateDocParams) {
+    pub async fn update_doc(&self, params: UpdateDocParams) {
         let url = format!("{}/api/doc", self.address);
-        let _ = create_doc_request(self.user_token(), params, &url)
+        let _ = update_doc_request(self.user_token(), params, &url)
             .await
             .unwrap();
+    }
+
+    pub async fn read_doc(&self, params: QueryDocParams) -> Option<Doc> {
+        let url = format!("{}/api/doc", self.address);
+        let doc = read_doc_request(self.user_token(), params, &url)
+            .await
+            .unwrap();
+        doc
     }
 
     pub(crate) async fn register_user(&self) -> SignUpResponse {
@@ -283,22 +291,10 @@ pub(crate) async fn create_test_view(application: &TestServer, app_id: &str) -> 
         desc: "This is my first view".to_string(),
         thumbnail: "http://1.png".to_string(),
         view_type: ViewType::Doc,
+        data: "".to_owned(),
     };
     let app = application.create_view(params).await;
     app
-}
-
-pub(crate) async fn create_test_doc(server: &TestServer, view_id: &str, data: &str) -> Doc {
-    let params = CreateDocParams {
-        id: view_id.to_string(),
-        data: data.to_string(),
-    };
-    let doc = Doc {
-        id: params.id.clone(),
-        data: params.data.clone(),
-    };
-    let _ = server.create_doc(params).await;
-    doc
 }
 
 pub struct WorkspaceTest {
@@ -355,31 +351,6 @@ impl ViewTest {
             workspace,
             app,
             view,
-        }
-    }
-}
-
-pub struct DocTest {
-    pub server: TestServer,
-    pub workspace: Workspace,
-    pub app: App,
-    pub view: View,
-    pub doc: Doc,
-}
-
-impl DocTest {
-    pub async fn new() -> Self {
-        let server = TestServer::new().await;
-        let workspace = create_test_workspace(&server).await;
-        let app = create_test_app(&server, &workspace.id).await;
-        let view = create_test_view(&server, &app.id).await;
-        let doc = create_test_doc(&server, &view.id, "").await;
-        Self {
-            server,
-            workspace,
-            app,
-            view,
-            doc,
         }
     }
 }

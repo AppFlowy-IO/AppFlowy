@@ -1,5 +1,5 @@
 use flowy_derive::ProtoBuf_Enum;
-use flowy_observable::ObservableBuilder;
+use flowy_observable::NotifyBuilder;
 const OBSERVABLE_CATEGORY: &'static str = "Workspace";
 
 #[derive(ProtoBuf_Enum, Debug)]
@@ -26,4 +26,4 @@ impl std::convert::Into<i32> for WorkspaceObservable {
     fn into(self) -> i32 { self as i32 }
 }
 
-pub(crate) fn observable(id: &str, ty: WorkspaceObservable) -> ObservableBuilder { ObservableBuilder::new(id, ty, OBSERVABLE_CATEGORY) }
+pub(crate) fn notify(id: &str, ty: WorkspaceObservable) -> NotifyBuilder { NotifyBuilder::new(id, ty, OBSERVABLE_CATEGORY) }

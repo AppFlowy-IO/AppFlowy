@@ -3,6 +3,7 @@ use crate::{
     errors::{ErrorBuilder, ErrorCode, WorkspaceError},
 };
 use flowy_derive::ProtoBuf;
+use flowy_document::entities::doc::UpdateDocParams;
 use std::convert::TryInto;
 
 #[derive(Default, ProtoBuf)]
@@ -105,6 +106,29 @@ impl TryInto<UpdateViewParams> for UpdateViewRequest {
             desc,
             thumbnail,
             is_trash: self.is_trash,
+        })
+    }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct UpdateViewDataRequest {
+    #[pb(index = 1)]
+    pub view_id: String,
+
+    #[pb(index = 2)]
+    pub data: String,
+}
+
+impl TryInto<UpdateDocParams> for UpdateViewDataRequest {
+    type Error = WorkspaceError;
+
+    fn try_into(self) -> Result<UpdateDocParams, Self::Error> {
+        let view_id = ViewId::parse(self.view_id)
+            .map_err(|e| ErrorBuilder::new(ErrorCode::ViewIdInvalid).msg(e).build())?
+            .0;
+        Ok(UpdateDocParams {
+            id: view_id,
+            data: Some(self.data),
         })
     }
 }

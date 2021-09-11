@@ -37,9 +37,9 @@ impl AppController {
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.sql.create_app(app_table, &*conn)?;
             let apps = self.read_local_apps(&app.workspace_id, &*conn)?;
-            observable(&app.workspace_id, WorkspaceObservable::WorkspaceCreateApp)
+            notify(&app.workspace_id, WorkspaceObservable::WorkspaceCreateApp)
                 .payload(apps)
-                .build();
+                .send();
             Ok(())
         })?;
 
@@ -49,7 +49,7 @@ impl AppController {
     pub(crate) async fn read_app(&self, params: QueryAppParams) -> Result<App, WorkspaceError> {
         let app_table = self
             .sql
-            .read_app(&params.app_id, params.is_trash, &*self.database.db_connection()?)?;
+            .read_app(&params.app_id, Some(params.is_trash), &*self.database.db_connection()?)?;
         let _ = self.read_app_on_server(params)?;
         Ok(app_table.into())
     }
@@ -59,9 +59,9 @@ impl AppController {
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let app = self.sql.delete_app(app_id, &*conn)?;
             let apps = self.read_local_apps(&app.workspace_id, &*conn)?;
-            observable(&app.workspace_id, WorkspaceObservable::WorkspaceDeleteApp)
+            notify(&app.workspace_id, WorkspaceObservable::WorkspaceDeleteApp)
                 .payload(apps)
-                .build();
+                .send();
             Ok(())
         })?;
 
@@ -81,8 +81,8 @@ impl AppController {
         let conn = &*self.database.db_connection()?;
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.sql.update_app(changeset, conn)?;
-            let app: App = self.sql.read_app(&app_id, false, conn)?.into();
-            observable(&app_id, WorkspaceObservable::AppUpdated).payload(app).build();
+            let app: App = self.sql.read_app(&app_id, None, conn)?.into();
+            notify(&app_id, WorkspaceObservable::AppUpdated).payload(app).send();
             Ok(())
         })?;
 

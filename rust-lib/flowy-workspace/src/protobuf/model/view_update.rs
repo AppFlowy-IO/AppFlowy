@@ -943,6 +943,207 @@ impl ::protobuf::reflect::ProtobufValue for UpdateViewParams {
     }
 }
 
+#[derive(PartialEq,Clone,Default)]
+pub struct UpdateViewDataRequest {
+    // message fields
+    pub view_id: ::std::string::String,
+    pub data: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a UpdateViewDataRequest {
+    fn default() -> &'a UpdateViewDataRequest {
+        <UpdateViewDataRequest as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl UpdateViewDataRequest {
+    pub fn new() -> UpdateViewDataRequest {
+        ::std::default::Default::default()
+    }
+
+    // string view_id = 1;
+
+
+    pub fn get_view_id(&self) -> &str {
+        &self.view_id
+    }
+    pub fn clear_view_id(&mut self) {
+        self.view_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_view_id(&mut self, v: ::std::string::String) {
+        self.view_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_view_id(&mut self) -> &mut ::std::string::String {
+        &mut self.view_id
+    }
+
+    // Take field
+    pub fn take_view_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.view_id, ::std::string::String::new())
+    }
+
+    // string data = 2;
+
+
+    pub fn get_data(&self) -> &str {
+        &self.data
+    }
+    pub fn clear_data(&mut self) {
+        self.data.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_data(&mut self, v: ::std::string::String) {
+        self.data = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_data(&mut self) -> &mut ::std::string::String {
+        &mut self.data
+    }
+
+    // Take field
+    pub fn take_data(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.data, ::std::string::String::new())
+    }
+}
+
+impl ::protobuf::Message for UpdateViewDataRequest {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.view_id)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.data)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.view_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.view_id);
+        }
+        if !self.data.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.data);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.view_id.is_empty() {
+            os.write_string(1, &self.view_id)?;
+        }
+        if !self.data.is_empty() {
+            os.write_string(2, &self.data)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> UpdateViewDataRequest {
+        UpdateViewDataRequest::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "view_id",
+                |m: &UpdateViewDataRequest| { &m.view_id },
+                |m: &mut UpdateViewDataRequest| { &mut m.view_id },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "data",
+                |m: &UpdateViewDataRequest| { &m.data },
+                |m: &mut UpdateViewDataRequest| { &mut m.data },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<UpdateViewDataRequest>(
+                "UpdateViewDataRequest",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static UpdateViewDataRequest {
+        static instance: ::protobuf::rt::LazyV2<UpdateViewDataRequest> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(UpdateViewDataRequest::new)
+    }
+}
+
+impl ::protobuf::Clear for UpdateViewDataRequest {
+    fn clear(&mut self) {
+        self.view_id.clear();
+        self.data.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for UpdateViewDataRequest {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for UpdateViewDataRequest {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x11view_update.proto\"\xda\x01\n\x11UpdateViewRequest\x12\x17\n\x07vi\
     ew_id\x18\x01\x20\x01(\tR\x06viewId\x12\x14\n\x04name\x18\x02\x20\x01(\t\
@@ -955,47 +1156,55 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x03\x20\x01(\tH\x01R\x04desc\x12\x1e\n\tthumbnail\x18\x04\x20\x01(\tH\
     \x02R\tthumbnail\x12\x1b\n\x08is_trash\x18\x05\x20\x01(\x08H\x03R\x07isT\
     rashB\r\n\x0bone_of_nameB\r\n\x0bone_of_descB\x12\n\x10one_of_thumbnailB\
-    \x11\n\x0fone_of_is_trashJ\xc0\x06\n\x06\x12\x04\0\0\x0f\x01\n\x08\n\x01\
-    \x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x08\x01\n\n\n\x03\x04\
-    \0\x01\x12\x03\x02\x08\x19\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x17\n\
-    \x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\
-    \x12\x03\x03\x0b\x12\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x15\x16\n\
-    \x0b\n\x04\x04\0\x08\0\x12\x03\x04\x04*\n\x0c\n\x05\x04\0\x08\0\x01\x12\
-    \x03\x04\n\x15\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x18(\n\x0c\n\x05\
-    \x04\0\x02\x01\x05\x12\x03\x04\x18\x1e\n\x0c\n\x05\x04\0\x02\x01\x01\x12\
-    \x03\x04\x1f#\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04&'\n\x0b\n\x04\
-    \x04\0\x08\x01\x12\x03\x05\x04*\n\x0c\n\x05\x04\0\x08\x01\x01\x12\x03\
-    \x05\n\x15\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x18(\n\x0c\n\x05\x04\0\
-    \x02\x02\x05\x12\x03\x05\x18\x1e\n\x0c\n\x05\x04\0\x02\x02\x01\x12\x03\
-    \x05\x1f#\n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05&'\n\x0b\n\x04\x04\0\
-    \x08\x02\x12\x03\x06\x044\n\x0c\n\x05\x04\0\x08\x02\x01\x12\x03\x06\n\
-    \x1a\n\x0b\n\x04\x04\0\x02\x03\x12\x03\x06\x1d2\n\x0c\n\x05\x04\0\x02\
-    \x03\x05\x12\x03\x06\x1d#\n\x0c\n\x05\x04\0\x02\x03\x01\x12\x03\x06$-\n\
-    \x0c\n\x05\x04\0\x02\x03\x03\x12\x03\x0601\n\x0b\n\x04\x04\0\x08\x03\x12\
-    \x03\x07\x040\n\x0c\n\x05\x04\0\x08\x03\x01\x12\x03\x07\n\x19\n\x0b\n\
-    \x04\x04\0\x02\x04\x12\x03\x07\x1c.\n\x0c\n\x05\x04\0\x02\x04\x05\x12\
-    \x03\x07\x1c\x20\n\x0c\n\x05\x04\0\x02\x04\x01\x12\x03\x07!)\n\x0c\n\x05\
-    \x04\0\x02\x04\x03\x12\x03\x07,-\n\n\n\x02\x04\x01\x12\x04\t\0\x0f\x01\n\
-    \n\n\x03\x04\x01\x01\x12\x03\t\x08\x18\n\x0b\n\x04\x04\x01\x02\0\x12\x03\
-    \n\x04\x17\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\n\x04\n\n\x0c\n\x05\x04\
-    \x01\x02\0\x01\x12\x03\n\x0b\x12\n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\n\
-    \x15\x16\n\x0b\n\x04\x04\x01\x08\0\x12\x03\x0b\x04*\n\x0c\n\x05\x04\x01\
-    \x08\0\x01\x12\x03\x0b\n\x15\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\x0b\x18\
-    (\n\x0c\n\x05\x04\x01\x02\x01\x05\x12\x03\x0b\x18\x1e\n\x0c\n\x05\x04\
-    \x01\x02\x01\x01\x12\x03\x0b\x1f#\n\x0c\n\x05\x04\x01\x02\x01\x03\x12\
-    \x03\x0b&'\n\x0b\n\x04\x04\x01\x08\x01\x12\x03\x0c\x04*\n\x0c\n\x05\x04\
-    \x01\x08\x01\x01\x12\x03\x0c\n\x15\n\x0b\n\x04\x04\x01\x02\x02\x12\x03\
-    \x0c\x18(\n\x0c\n\x05\x04\x01\x02\x02\x05\x12\x03\x0c\x18\x1e\n\x0c\n\
-    \x05\x04\x01\x02\x02\x01\x12\x03\x0c\x1f#\n\x0c\n\x05\x04\x01\x02\x02\
-    \x03\x12\x03\x0c&'\n\x0b\n\x04\x04\x01\x08\x02\x12\x03\r\x044\n\x0c\n\
-    \x05\x04\x01\x08\x02\x01\x12\x03\r\n\x1a\n\x0b\n\x04\x04\x01\x02\x03\x12\
-    \x03\r\x1d2\n\x0c\n\x05\x04\x01\x02\x03\x05\x12\x03\r\x1d#\n\x0c\n\x05\
-    \x04\x01\x02\x03\x01\x12\x03\r$-\n\x0c\n\x05\x04\x01\x02\x03\x03\x12\x03\
-    \r01\n\x0b\n\x04\x04\x01\x08\x03\x12\x03\x0e\x040\n\x0c\n\x05\x04\x01\
-    \x08\x03\x01\x12\x03\x0e\n\x19\n\x0b\n\x04\x04\x01\x02\x04\x12\x03\x0e\
-    \x1c.\n\x0c\n\x05\x04\x01\x02\x04\x05\x12\x03\x0e\x1c\x20\n\x0c\n\x05\
-    \x04\x01\x02\x04\x01\x12\x03\x0e!)\n\x0c\n\x05\x04\x01\x02\x04\x03\x12\
-    \x03\x0e,-b\x06proto3\
+    \x11\n\x0fone_of_is_trash\"D\n\x15UpdateViewDataRequest\x12\x17\n\x07vie\
+    w_id\x18\x01\x20\x01(\tR\x06viewId\x12\x12\n\x04data\x18\x02\x20\x01(\tR\
+    \x04dataJ\xc6\x07\n\x06\x12\x04\0\0\x13\x01\n\x08\n\x01\x0c\x12\x03\0\0\
+    \x12\n\n\n\x02\x04\0\x12\x04\x02\0\x08\x01\n\n\n\x03\x04\0\x01\x12\x03\
+    \x02\x08\x19\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x17\n\x0c\n\x05\x04\
+    \0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\
+    \x0b\x12\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x15\x16\n\x0b\n\x04\x04\
+    \0\x08\0\x12\x03\x04\x04*\n\x0c\n\x05\x04\0\x08\0\x01\x12\x03\x04\n\x15\
+    \n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x18(\n\x0c\n\x05\x04\0\x02\x01\
+    \x05\x12\x03\x04\x18\x1e\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x1f#\
+    \n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04&'\n\x0b\n\x04\x04\0\x08\x01\
+    \x12\x03\x05\x04*\n\x0c\n\x05\x04\0\x08\x01\x01\x12\x03\x05\n\x15\n\x0b\
+    \n\x04\x04\0\x02\x02\x12\x03\x05\x18(\n\x0c\n\x05\x04\0\x02\x02\x05\x12\
+    \x03\x05\x18\x1e\n\x0c\n\x05\x04\0\x02\x02\x01\x12\x03\x05\x1f#\n\x0c\n\
+    \x05\x04\0\x02\x02\x03\x12\x03\x05&'\n\x0b\n\x04\x04\0\x08\x02\x12\x03\
+    \x06\x044\n\x0c\n\x05\x04\0\x08\x02\x01\x12\x03\x06\n\x1a\n\x0b\n\x04\
+    \x04\0\x02\x03\x12\x03\x06\x1d2\n\x0c\n\x05\x04\0\x02\x03\x05\x12\x03\
+    \x06\x1d#\n\x0c\n\x05\x04\0\x02\x03\x01\x12\x03\x06$-\n\x0c\n\x05\x04\0\
+    \x02\x03\x03\x12\x03\x0601\n\x0b\n\x04\x04\0\x08\x03\x12\x03\x07\x040\n\
+    \x0c\n\x05\x04\0\x08\x03\x01\x12\x03\x07\n\x19\n\x0b\n\x04\x04\0\x02\x04\
+    \x12\x03\x07\x1c.\n\x0c\n\x05\x04\0\x02\x04\x05\x12\x03\x07\x1c\x20\n\
+    \x0c\n\x05\x04\0\x02\x04\x01\x12\x03\x07!)\n\x0c\n\x05\x04\0\x02\x04\x03\
+    \x12\x03\x07,-\n\n\n\x02\x04\x01\x12\x04\t\0\x0f\x01\n\n\n\x03\x04\x01\
+    \x01\x12\x03\t\x08\x18\n\x0b\n\x04\x04\x01\x02\0\x12\x03\n\x04\x17\n\x0c\
+    \n\x05\x04\x01\x02\0\x05\x12\x03\n\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\
+    \x12\x03\n\x0b\x12\n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\n\x15\x16\n\x0b\
+    \n\x04\x04\x01\x08\0\x12\x03\x0b\x04*\n\x0c\n\x05\x04\x01\x08\0\x01\x12\
+    \x03\x0b\n\x15\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\x0b\x18(\n\x0c\n\x05\
+    \x04\x01\x02\x01\x05\x12\x03\x0b\x18\x1e\n\x0c\n\x05\x04\x01\x02\x01\x01\
+    \x12\x03\x0b\x1f#\n\x0c\n\x05\x04\x01\x02\x01\x03\x12\x03\x0b&'\n\x0b\n\
+    \x04\x04\x01\x08\x01\x12\x03\x0c\x04*\n\x0c\n\x05\x04\x01\x08\x01\x01\
+    \x12\x03\x0c\n\x15\n\x0b\n\x04\x04\x01\x02\x02\x12\x03\x0c\x18(\n\x0c\n\
+    \x05\x04\x01\x02\x02\x05\x12\x03\x0c\x18\x1e\n\x0c\n\x05\x04\x01\x02\x02\
+    \x01\x12\x03\x0c\x1f#\n\x0c\n\x05\x04\x01\x02\x02\x03\x12\x03\x0c&'\n\
+    \x0b\n\x04\x04\x01\x08\x02\x12\x03\r\x044\n\x0c\n\x05\x04\x01\x08\x02\
+    \x01\x12\x03\r\n\x1a\n\x0b\n\x04\x04\x01\x02\x03\x12\x03\r\x1d2\n\x0c\n\
+    \x05\x04\x01\x02\x03\x05\x12\x03\r\x1d#\n\x0c\n\x05\x04\x01\x02\x03\x01\
+    \x12\x03\r$-\n\x0c\n\x05\x04\x01\x02\x03\x03\x12\x03\r01\n\x0b\n\x04\x04\
+    \x01\x08\x03\x12\x03\x0e\x040\n\x0c\n\x05\x04\x01\x08\x03\x01\x12\x03\
+    \x0e\n\x19\n\x0b\n\x04\x04\x01\x02\x04\x12\x03\x0e\x1c.\n\x0c\n\x05\x04\
+    \x01\x02\x04\x05\x12\x03\x0e\x1c\x20\n\x0c\n\x05\x04\x01\x02\x04\x01\x12\
+    \x03\x0e!)\n\x0c\n\x05\x04\x01\x02\x04\x03\x12\x03\x0e,-\n\n\n\x02\x04\
+    \x02\x12\x04\x10\0\x13\x01\n\n\n\x03\x04\x02\x01\x12\x03\x10\x08\x1d\n\
+    \x0b\n\x04\x04\x02\x02\0\x12\x03\x11\x04\x17\n\x0c\n\x05\x04\x02\x02\0\
+    \x05\x12\x03\x11\x04\n\n\x0c\n\x05\x04\x02\x02\0\x01\x12\x03\x11\x0b\x12\
+    \n\x0c\n\x05\x04\x02\x02\0\x03\x12\x03\x11\x15\x16\n\x0b\n\x04\x04\x02\
+    \x02\x01\x12\x03\x12\x04\x14\n\x0c\n\x05\x04\x02\x02\x01\x05\x12\x03\x12\
+    \x04\n\n\x0c\n\x05\x04\x02\x02\x01\x01\x12\x03\x12\x0b\x0f\n\x0c\n\x05\
+    \x04\x02\x02\x01\x03\x12\x03\x12\x12\x13b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

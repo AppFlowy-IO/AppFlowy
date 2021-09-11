@@ -146,11 +146,11 @@ impl UserSession {
         tokio::spawn(async move {
             match server.get_user(&token).await {
                 Ok(profile) => {
-                    observable(&token, UserObservable::UserProfileUpdated).payload(profile).build();
+                    notify(&token, UserObservable::UserProfileUpdated).payload(profile).send();
                 },
                 Err(e) => {
                     log::error!("{:?}", e);
-                    observable(&token, UserObservable::UserProfileUpdated).error(e).build();
+                    notify(&token, UserObservable::UserProfileUpdated).error(e).send();
                 },
             }
         });

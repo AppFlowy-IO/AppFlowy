@@ -122,8 +122,6 @@ fn user_scope() -> Scope {
             .route(web::patch().to(view::update_handler))
         )
         .service(web::resource("/doc")
-            .route(web::post().to(doc::create_handler))
-            .route(web::delete().to(doc::delete_handler))
             .route(web::get().to(doc::read_handler))
             .route(web::patch().to(doc::update_handler))
         )

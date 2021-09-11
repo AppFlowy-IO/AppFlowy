@@ -10,3 +10,6 @@ message QueryViewParams {
     bool is_trash = 2;
     bool read_belongings = 3;
 }
+message OpenViewRequest {
+    string view_id = 1;
+}

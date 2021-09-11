@@ -38,7 +38,7 @@ pub(crate) async fn create_app(
         .await
         .context("Failed to acquire a Postgres connection to create app")?;
 
-    let (sql, args, app) = Builder::new(&user_id, workspace_id.as_ref())
+    let (sql, args, app) = NewAppSqlBuilder::new(&user_id, workspace_id.as_ref())
         .name(name.as_ref())
         .desc(desc.as_ref())
         .color_style(params.take_color_style())

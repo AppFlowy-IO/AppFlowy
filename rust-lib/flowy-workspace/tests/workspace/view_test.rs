@@ -4,41 +4,69 @@ use flowy_test::{FlowyEnv, FlowyTestSDK};
 use flowy_workspace::entities::view::*;
 
 #[test]
-fn view_create() {
-    let sdk = FlowyEnv::setup().sdk;
-    let workspace = create_workspace(&sdk, "Workspace", "");
-    let _ = create_view(&sdk, &workspace.id);
-}
+fn view_move_to_trash() {
+    let test = ViewTest::new();
+    test.move_view_to_trash();
 
-#[test]
-fn view_set_trash_flag() {
-    let sdk = FlowyEnv::setup().sdk;
-    let view_id = create_view_with_trash_flag(&sdk);
-    let query = QueryViewRequest::new(&view_id).set_is_trash(true);
-    let _ = read_view(&sdk, query);
+    let query = QueryViewRequest::new(&test.view.id).trash();
+    let view = read_view(&test.sdk, query);
+    assert_eq!(view, test.view);
 }
 
 #[test]
 #[should_panic]
-fn view_set_trash_flag2() {
-    let sdk = FlowyEnv::setup().sdk;
-
-    let view_id = create_view_with_trash_flag(&sdk);
-    let query = QueryViewRequest::new(&view_id);
-    let _ = read_view(&sdk, query);
+fn view_move_to_trash2() {
+    let test = ViewTest::new();
+    test.move_view_to_trash();
+    let query = QueryViewRequest::new(&test.view.id);
+    let _ = read_view(&test.sdk, query);
 }
 
-fn create_view_with_trash_flag(sdk: &FlowyTestSDK) -> String {
-    let workspace = create_workspace(sdk, "Workspace", "");
-    let view = create_view(sdk, &workspace.id);
-    let request = UpdateViewRequest {
-        view_id: view.id.clone(),
-        name: None,
-        desc: None,
-        thumbnail: None,
-        is_trash: Some(true),
-    };
-    update_view(sdk, request);
+#[test]
+fn view_open_doc() {
+    let test = ViewTest::new();
 
-    view.id
+    let request = OpenViewRequest {
+        view_id: test.view.id.clone(),
+    };
+    let _ = open_view(&test.sdk, request);
+}
+
+#[test]
+fn view_update_doc() {
+    let test = ViewTest::new();
+
+    let new_data = "123";
+    let request = UpdateViewDataRequest {
+        view_id: test.view.id.clone(),
+        data: new_data.to_string(),
+    };
+
+    update_view_data(&test.sdk, request);
+
+    let request = OpenViewRequest {
+        view_id: test.view.id.clone(),
+    };
+    let doc = open_view(&test.sdk, request);
+    assert_eq!(&doc.data, new_data);
+}
+
+#[test]
+fn view_update_big_doc() {
+    let test = ViewTest::new();
+    let new_data = "flutter ❤️ rust".repeat(1000000);
+    let request = UpdateViewDataRequest {
+        view_id: test.view.id.clone(),
+        data: new_data.to_string(),
+    };
+
+    update_view_data(&test.sdk, request);
+
+    let doc = open_view(
+        &test.sdk,
+        OpenViewRequest {
+            view_id: test.view.id.clone(),
+        },
+    );
+    assert_eq!(doc.data, new_data);
 }

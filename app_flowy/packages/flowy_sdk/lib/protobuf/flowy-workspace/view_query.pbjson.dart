@@ -32,3 +32,13 @@ const QueryViewParams$json = const {
 
 /// Descriptor for `QueryViewParams`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List queryViewParamsDescriptor = $convert.base64Decode('Cg9RdWVyeVZpZXdQYXJhbXMSFwoHdmlld19pZBgBIAEoCVIGdmlld0lkEhkKCGlzX3RyYXNoGAIgASgIUgdpc1RyYXNoEicKD3JlYWRfYmVsb25naW5ncxgDIAEoCFIOcmVhZEJlbG9uZ2luZ3M=');
+@$core.Deprecated('Use openViewRequestDescriptor instead')
+const OpenViewRequest$json = const {
+  '1': 'OpenViewRequest',
+  '2': const [
+    const {'1': 'view_id', '3': 1, '4': 1, '5': 9, '10': 'viewId'},
+  ],
+};
+
+/// Descriptor for `OpenViewRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List openViewRequestDescriptor = $convert.base64Decode('Cg9PcGVuVmlld1JlcXVlc3QSFwoHdmlld19pZBgBIAEoCVIGdmlld0lk');

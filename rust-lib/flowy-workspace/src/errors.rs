@@ -2,7 +2,8 @@ use bytes::Bytes;
 use derive_more::Display;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_dispatch::prelude::{EventResponse, ResponseBuilder};
-
+use flowy_document::errors::DocError;
+use flowy_net::errors::ErrorCode as ServerErrorCode;
 use std::{convert::TryInto, fmt};
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
@@ -56,17 +57,11 @@ pub enum ErrorCode {
     #[display(fmt = "Description of the View is invalid")]
     ViewDescInvalid      = 23,
 
-    #[display(fmt = "Get database connection failed")]
-    DatabaseConnectionFail = 100,
-
-    #[display(fmt = "Database internal error")]
-    WorkspaceDatabaseError = 101,
-
     #[display(fmt = "UserIn is empty")]
-    UserIdIsEmpty        = 102,
+    UserIdIsEmpty        = 100,
 
     #[display(fmt = "User unauthorized")]
-    UserUnauthorized     = 103,
+    UserUnauthorized     = 101,
 
     #[display(fmt = "Server error")]
     InternalError        = 1000,
@@ -78,6 +73,10 @@ impl std::default::Default for ErrorCode {
     fn default() -> Self { ErrorCode::Unknown }
 }
 
+impl std::convert::From<flowy_document::errors::DocError> for WorkspaceError {
+    fn from(error: DocError) -> Self { ErrorBuilder::new(ErrorCode::InternalError).error(error).build() }
+}
+
 impl std::convert::From<flowy_net::errors::ServerError> for WorkspaceError {
     fn from(error: flowy_net::errors::ServerError) -> Self {
         let code = server_error_to_workspace_error(error.code);
@@ -86,7 +85,7 @@ impl std::convert::From<flowy_net::errors::ServerError> for WorkspaceError {
 }
 
 impl std::convert::From<flowy_database::Error> for WorkspaceError {
-    fn from(error: flowy_database::Error) -> Self { ErrorBuilder::new(ErrorCode::WorkspaceDatabaseError).error(error).build() }
+    fn from(error: flowy_database::Error) -> Self { ErrorBuilder::new(ErrorCode::InternalError).error(error).build() }
 }
 
 impl flowy_dispatch::Error for WorkspaceError {
@@ -106,7 +105,6 @@ impl flowy_infra::errors::Build<ErrorCode> for WorkspaceError {
     fn build(code: ErrorCode, msg: String) -> Self { WorkspaceError::new(code, &msg) }
 }
 
-use flowy_net::errors::ErrorCode as ServerErrorCode;
 fn server_error_to_workspace_error(code: ServerErrorCode) -> ErrorCode {
     match code {
         ServerErrorCode::UserUnauthorized => ErrorCode::UserUnauthorized,

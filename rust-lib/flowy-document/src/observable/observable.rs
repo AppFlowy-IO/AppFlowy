@@ -1,5 +1,5 @@
 use flowy_derive::ProtoBuf_Enum;
-use flowy_observable::ObservableBuilder;
+use flowy_observable::NotifyBuilder;
 const OBSERVABLE_CATEGORY: &'static str = "Doc";
 #[derive(ProtoBuf_Enum, Debug)]
 pub(crate) enum DocObservable {
@@ -11,4 +11,4 @@ impl std::convert::Into<i32> for DocObservable {
 }
 
 #[allow(dead_code)]
-pub(crate) fn observable(id: &str, ty: DocObservable) -> ObservableBuilder { ObservableBuilder::new(id, ty, OBSERVABLE_CATEGORY) }
+pub(crate) fn observable(id: &str, ty: DocObservable) -> NotifyBuilder { NotifyBuilder::new(id, ty, OBSERVABLE_CATEGORY) }

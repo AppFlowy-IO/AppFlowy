@@ -1,7 +1,7 @@
 use super::sql_builder::*;
 use crate::{
     entities::doc::{DocTable, DOC_TABLE},
-    sqlx_ext::{map_sqlx_error, SqlBuilder},
+    sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
 use anyhow::Context;
 use flowy_document::protobuf::{CreateDocParams, Doc, QueryDocParams, UpdateDocParams};
@@ -10,27 +10,17 @@ use sqlx::{postgres::PgArguments, PgPool, Postgres};
 use uuid::Uuid;
 
 pub(crate) async fn create_doc(
-    pool: &PgPool,
+    transaction: &mut DBTransaction<'_>,
     params: CreateDocParams,
-) -> Result<FlowyResponse, ServerError> {
+) -> Result<(), ServerError> {
     let uuid = Uuid::parse_str(&params.id)?;
-    let mut transaction = pool
-        .begin()
-        .await
-        .context("Failed to acquire a Postgres connection to create doc")?;
-    let (sql, args) = Builder::new(uuid).data(params.data).build()?;
-
+    let (sql, args) = NewDocSqlBuilder::new(uuid).data(params.data).build()?;
     let _ = sqlx::query_with(&sql, args)
-        .execute(&mut transaction)
+        .execute(transaction)
         .await
         .map_err(map_sqlx_error)?;
 
-    transaction
-        .commit()
-        .await
-        .context("Failed to commit SQL transaction to create doc.")?;
-
-    Ok(FlowyResponse::success())
+    Ok(())
 }
 
 pub(crate) async fn read_doc(
@@ -97,28 +87,17 @@ pub(crate) async fn update_doc(
 }
 
 pub(crate) async fn delete_doc(
-    pool: &PgPool,
-    params: QueryDocParams,
-) -> Result<FlowyResponse, ServerError> {
-    let doc_id = Uuid::parse_str(&params.doc_id)?;
-    let mut transaction = pool
-        .begin()
-        .await
-        .context("Failed to acquire a Postgres connection to delete doc")?;
-
+    transaction: &mut DBTransaction<'_>,
+    doc_id: Uuid,
+) -> Result<(), ServerError> {
     let (sql, args) = SqlBuilder::delete(DOC_TABLE)
         .and_where_eq("id", doc_id)
         .build()?;
 
     let _ = sqlx::query_with(&sql, args)
-        .execute(&mut transaction)
+        .execute(transaction)
         .await
         .map_err(map_sqlx_error)?;
 
-    transaction
-        .commit()
-        .await
-        .context("Failed to commit SQL transaction to delete doc.")?;
-
-    Ok(FlowyResponse::success())
+    Ok(())
 }

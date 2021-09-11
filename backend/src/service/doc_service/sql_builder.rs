@@ -8,11 +8,11 @@ use flowy_net::errors::ServerError;
 use sqlx::postgres::PgArguments;
 use uuid::Uuid;
 
-pub struct Builder {
+pub struct NewDocSqlBuilder {
     table: DocTable,
 }
 
-impl Builder {
+impl NewDocSqlBuilder {
     pub fn new(id: Uuid) -> Self {
         let table = DocTable {
             id,

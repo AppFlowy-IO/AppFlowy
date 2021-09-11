@@ -11,6 +11,7 @@ use crate::{
     handlers::*,
     services::{server::construct_workspace_server, ViewController},
 };
+use flowy_document::module::Document;
 use std::sync::Arc;
 
 pub trait WorkspaceDeps: WorkspaceUser + WorkspaceDatabase {}
@@ -24,9 +25,9 @@ pub trait WorkspaceDatabase: Send + Sync {
     fn db_connection(&self) -> Result<DBConnection, WorkspaceError>;
 }
 
-pub fn create(user: Arc<dyn WorkspaceUser>, database: Arc<dyn WorkspaceDatabase>) -> Module {
+pub fn create(user: Arc<dyn WorkspaceUser>, database: Arc<dyn WorkspaceDatabase>, document: Arc<Document>) -> Module {
     let server = construct_workspace_server();
-    let view_controller = Arc::new(ViewController::new(user.clone(), database.clone(), server.clone()));
+    let view_controller = Arc::new(ViewController::new(user.clone(), database.clone(), server.clone(), document));
 
     let app_controller = Arc::new(AppController::new(user.clone(), database.clone(), server.clone()));
 
@@ -60,7 +61,9 @@ pub fn create(user: Arc<dyn WorkspaceUser>, database: Arc<dyn WorkspaceDatabase>
         .event(WorkspaceEvent::CreateView, create_view_handler)
         .event(WorkspaceEvent::ReadView, read_view_handler)
         .event(WorkspaceEvent::UpdateView, update_view_handler)
-        .event(WorkspaceEvent::DeleteView, delete_view_handler);
+        .event(WorkspaceEvent::DeleteView, delete_view_handler)
+        .event(WorkspaceEvent::OpenView, open_view_handler)
+        .event(WorkspaceEvent::UpdateViewData, update_view_data_handler);
 
     module
 }

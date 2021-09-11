@@ -68,9 +68,9 @@ impl WorkspaceController {
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             self.workspace_sql.create_workspace(workspace_table, conn)?;
             let repeated_workspace = self.read_local_workspaces(None, &user_id, conn)?;
-            observable(&token, WorkspaceObservable::UserCreateWorkspace)
+            notify(&token, WorkspaceObservable::UserCreateWorkspace)
                 .payload(repeated_workspace)
-                .build();
+                .send();
 
             Ok(())
         })?;
@@ -86,9 +86,9 @@ impl WorkspaceController {
             let _ = self.workspace_sql.update_workspace(changeset, conn)?;
             let user_id = self.user.user_id()?;
             let workspace = self.read_local_workspace(workspace_id.clone(), &user_id, conn)?;
-            observable(&workspace_id, WorkspaceObservable::WorkspaceUpdated)
+            notify(&workspace_id, WorkspaceObservable::WorkspaceUpdated)
                 .payload(workspace)
-                .build();
+                .send();
 
             Ok(())
         })?;
@@ -105,9 +105,9 @@ impl WorkspaceController {
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.workspace_sql.delete_workspace(workspace_id, conn)?;
             let repeated_workspace = self.read_local_workspaces(None, &user_id, conn)?;
-            observable(&token, WorkspaceObservable::UserDeleteWorkspace)
+            notify(&token, WorkspaceObservable::UserDeleteWorkspace)
                 .payload(repeated_workspace)
-                .build();
+                .send();
 
             Ok(())
         })?;
@@ -287,9 +287,7 @@ impl WorkspaceController {
                 Ok(())
             })?;
 
-            observable(&token, WorkspaceObservable::WorkspaceListUpdated)
-                .payload(workspaces)
-                .build();
+            notify(&token, WorkspaceObservable::WorkspaceListUpdated).payload(workspaces).send();
             Result::<(), WorkspaceError>::Ok(())
         });
 

@@ -3,6 +3,7 @@ use crate::{
     errors::{ErrorBuilder, ErrorCode, WorkspaceError},
 };
 use flowy_derive::ProtoBuf;
+use flowy_document::entities::doc::QueryDocParams;
 use std::convert::TryInto;
 
 #[derive(Default, ProtoBuf)]
@@ -27,4 +28,8 @@ impl TryInto<DeleteViewParams> for DeleteViewRequest {
 
         Ok(DeleteViewParams { view_id })
     }
+}
+
+impl std::convert::Into<QueryDocParams> for DeleteViewParams {
+    fn into(self) -> QueryDocParams { QueryDocParams { doc_id: self.view_id } }
 }

@@ -21,7 +21,7 @@ impl ResponseMiddleware for WorkspaceMiddleware {
                     None => {},
                     Some(token) => {
                         let error = WorkspaceError::new(ErrorCode::UserUnauthorized, "");
-                        observable(token, WorkspaceObservable::UserUnauthorized).error(error).build()
+                        notify(token, WorkspaceObservable::UserUnauthorized).error(error).send()
                     },
                 }
             }

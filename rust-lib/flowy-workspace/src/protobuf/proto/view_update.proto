@@ -14,3 +14,7 @@ message UpdateViewParams {
     oneof one_of_thumbnail { string thumbnail = 4; };
     oneof one_of_is_trash { bool is_trash = 5; };
 }
+message UpdateViewDataRequest {
+    string view_id = 1;
+    string data = 2;
+}

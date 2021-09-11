@@ -16,9 +16,13 @@ use flowy_workspace::{
 
 use crate::{
     entities::workspace::{ViewTable, VIEW_TABLE},
-    service::workspace_service::view::sql_builder::*,
+    service::{
+        doc_service::{create_doc, delete_doc},
+        workspace_service::view::sql_builder::*,
+    },
     sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
+use flowy_document::protobuf::CreateDocParams;
 
 pub(crate) async fn create_view(
     pool: &PgPool,
@@ -34,7 +38,7 @@ pub(crate) async fn create_view(
         .await
         .context("Failed to acquire a Postgres connection to create view")?;
 
-    let (sql, args, view) = Builder::new(belong_to_id.as_ref())
+    let (sql, args, view) = NewViewSqlBuilder::new(belong_to_id.as_ref())
         .name(name.as_ref())
         .desc(desc.as_ref())
         .thumbnail(thumbnail.as_ref())
@@ -45,6 +49,11 @@ pub(crate) async fn create_view(
         .execute(&mut transaction)
         .await
         .map_err(map_sqlx_error)?;
+
+    let mut create_doc_params = CreateDocParams::new();
+    create_doc_params.set_data(params.data);
+    create_doc_params.set_id(view.id.clone());
+    let _ = create_doc(&mut transaction, create_doc_params).await?;
 
     transaction
         .commit()
@@ -165,13 +174,15 @@ pub(crate) async fn delete_view(
         .context("Failed to acquire a Postgres connection to delete view")?;
 
     let (sql, args) = SqlBuilder::delete(VIEW_TABLE)
-        .and_where_eq("id", view_id)
+        .and_where_eq("id", &view_id)
         .build()?;
 
     let _ = sqlx::query_with(&sql, args)
         .execute(&mut transaction)
         .await
         .map_err(map_sqlx_error)?;
+
+    let _ = delete_doc(&mut transaction, view_id).await?;
 
     transaction
         .commit()

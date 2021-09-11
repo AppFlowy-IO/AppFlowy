@@ -1,22 +1,11 @@
 use flowy_database::DBConnection;
 use flowy_document::{
     errors::{DocError, ErrorBuilder, ErrorCode},
-    module::{DocumentDatabase, DocumentUser},
+    module::DocumentUser,
 };
-use flowy_user::prelude::UserSession;
+
+use flowy_user::services::user::UserSession;
 use std::{path::Path, sync::Arc};
-
-pub struct EditorDatabaseImpl {
-    pub(crate) user_session: Arc<UserSession>,
-}
-
-impl DocumentDatabase for EditorDatabaseImpl {
-    fn db_connection(&self) -> Result<DBConnection, DocError> {
-        self.user_session
-            .db_conn()
-            .map_err(|e| ErrorBuilder::new(ErrorCode::InternalError).error(e).build())
-    }
-}
 
 pub struct EditorUserImpl {
     pub(crate) user_session: Arc<UserSession>,

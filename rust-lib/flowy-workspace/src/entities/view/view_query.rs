@@ -3,6 +3,7 @@ use crate::{
     errors::{ErrorBuilder, ErrorCode, WorkspaceError},
 };
 use flowy_derive::ProtoBuf;
+use flowy_document::entities::doc::QueryDocParams;
 use std::convert::TryInto;
 
 #[derive(Default, ProtoBuf)]
@@ -26,8 +27,8 @@ impl QueryViewRequest {
         }
     }
 
-    pub fn set_is_trash(mut self, is_trash: bool) -> Self {
-        self.is_trash = is_trash;
+    pub fn trash(mut self) -> Self {
+        self.is_trash = true;
         self
     }
 }
@@ -63,9 +64,12 @@ impl QueryViewParams {
     }
 }
 
+impl std::convert::Into<QueryDocParams> for QueryViewParams {
+    fn into(self) -> QueryDocParams { QueryDocParams { doc_id: self.view_id } }
+}
+
 impl TryInto<QueryViewParams> for QueryViewRequest {
     type Error = WorkspaceError;
-
     fn try_into(self) -> Result<QueryViewParams, Self::Error> {
         let view_id = ViewId::parse(self.view_id)
             .map_err(|e| ErrorBuilder::new(ErrorCode::ViewIdInvalid).msg(e).build())?
@@ -76,5 +80,22 @@ impl TryInto<QueryViewParams> for QueryViewRequest {
             is_trash: self.is_trash,
             read_belongings: self.read_belongings,
         })
+    }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct OpenViewRequest {
+    #[pb(index = 1)]
+    pub view_id: String,
+}
+
+impl std::convert::TryInto<QueryDocParams> for OpenViewRequest {
+    type Error = WorkspaceError;
+
+    fn try_into(self) -> Result<QueryDocParams, Self::Error> {
+        let view_id = ViewId::parse(self.view_id)
+            .map_err(|e| ErrorBuilder::new(ErrorCode::ViewIdInvalid).msg(e).build())?
+            .0;
+        Ok(QueryDocParams { doc_id: view_id })
     }
 }

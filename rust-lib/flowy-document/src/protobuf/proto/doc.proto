@@ -1,9 +1,5 @@
 syntax = "proto3";
 
-message CreateDocRequest {
-    string id = 1;
-    string data = 2;
-}
 message CreateDocParams {
     string id = 1;
     string data = 2;
@@ -11,4 +7,11 @@ message CreateDocParams {
 message Doc {
     string id = 1;
     string data = 2;
+}
+message UpdateDocParams {
+    string id = 1;
+    oneof one_of_data { string data = 2; };
+}
+message QueryDocParams {
+    string doc_id = 1;
 }

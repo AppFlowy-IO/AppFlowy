@@ -15,4 +15,6 @@ enum WorkspaceEvent {
     ReadView = 202;
     UpdateView = 203;
     DeleteView = 204;
+    OpenView = 205;
+    UpdateViewData = 206;
 }

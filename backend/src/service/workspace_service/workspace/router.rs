@@ -12,16 +12,14 @@ use flowy_workspace::protobuf::{
     UpdateWorkspaceParams,
 };
 
-use crate::{
-    routers::utils::parse_from_payload,
-    service::{
-        user_service::LoggedUser,
-        workspace_service::workspace::{
-            create_workspace,
-            delete_workspace,
-            read_workspaces,
-            update_workspace,
-        },
+use crate::service::{
+    user_service::LoggedUser,
+    util::parse_from_payload,
+    workspace_service::workspace::{
+        create_workspace,
+        delete_workspace,
+        read_workspaces,
+        update_workspace,
     },
 };
 

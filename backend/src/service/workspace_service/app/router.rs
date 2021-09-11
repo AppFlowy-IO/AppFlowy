@@ -12,12 +12,10 @@ use flowy_workspace::protobuf::{
     UpdateAppParams,
 };
 
-use crate::{
-    routers::utils::parse_from_payload,
-    service::{
-        user_service::LoggedUser,
-        workspace_service::app::app::{create_app, delete_app, read_app, update_app},
-    },
+use crate::service::{
+    user_service::LoggedUser,
+    util::parse_from_payload,
+    workspace_service::app::app::{create_app, delete_app, read_app, update_app},
 };
 
 pub async fn create_handler(

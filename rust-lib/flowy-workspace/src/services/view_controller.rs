@@ -2,7 +2,7 @@ use crate::{
     entities::view::{CreateViewParams, UpdateViewParams, View},
     errors::WorkspaceError,
     module::WorkspaceDatabase,
-    observable::observable,
+    observable::notify,
     services::{helper::spawn, server::Server},
     sql_tables::view::{ViewTable, ViewTableChangeset, ViewTableSql},
 };
@@ -13,6 +13,10 @@ use crate::{
     observable::WorkspaceObservable,
 };
 use flowy_database::SqliteConnection;
+use flowy_document::{
+    entities::doc::{CreateDocParams, Doc, QueryDocParams, UpdateDocParams},
+    module::Document,
+};
 use std::sync::Arc;
 
 pub(crate) struct ViewController {
@@ -20,30 +24,35 @@ pub(crate) struct ViewController {
     sql: Arc<ViewTableSql>,
     server: Server,
     database: Arc<dyn WorkspaceDatabase>,
+    document: Arc<Document>,
 }
 
 impl ViewController {
-    pub(crate) fn new(user: Arc<dyn WorkspaceUser>, database: Arc<dyn WorkspaceDatabase>, server: Server) -> Self {
+    pub(crate) fn new(user: Arc<dyn WorkspaceUser>, database: Arc<dyn WorkspaceDatabase>, server: Server, document: Arc<Document>) -> Self {
         let sql = Arc::new(ViewTableSql {});
         Self {
             user,
             sql,
             server,
             database,
+            document,
         }
     }
 
     pub(crate) async fn create_view(&self, params: CreateViewParams) -> Result<View, WorkspaceError> {
-        let view = self.create_view_on_server(params).await?;
+        let view = self.create_view_on_server(params.clone()).await?;
         let conn = &*self.database.db_connection()?;
         let view_table = ViewTable::new(view.clone());
 
+        // TODO: rollback anything created before if failed?
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.sql.create_view(view_table, conn)?;
+            self.document.doc.create(CreateDocParams::new(&view.id, &params.data), conn)?;
+
             let repeated_view = self.read_local_views_belong_to(&view.belong_to_id, conn)?;
-            observable(&view.belong_to_id, WorkspaceObservable::AppCreateView)
+            notify(&view.belong_to_id, WorkspaceObservable::AppCreateView)
                 .payload(repeated_view)
-                .build();
+                .send();
             Ok(())
         })?;
 
@@ -58,19 +67,26 @@ impl ViewController {
         Ok(view)
     }
 
-    pub(crate) async fn delete_view(&self, view_id: &str) -> Result<(), WorkspaceError> {
+    pub(crate) async fn open_view(&self, params: QueryDocParams) -> Result<Doc, WorkspaceError> {
+        let conn = self.database.db_connection()?;
+        let doc = self.document.doc.open(params, &*conn)?;
+        Ok(doc)
+    }
+
+    pub(crate) async fn delete_view(&self, params: DeleteViewParams) -> Result<(), WorkspaceError> {
         let conn = &*self.database.db_connection()?;
+        let _ = self.delete_view_on_server(&params.view_id);
 
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
-            let view_table = self.sql.delete_view(view_id, conn)?;
+            let view_table = self.sql.delete_view(&params.view_id, conn)?;
+            let _ = self.document.doc.delete(params.into(), conn)?;
+
             let repeated_view = self.read_local_views_belong_to(&view_table.belong_to_id, conn)?;
-            observable(&view_table.belong_to_id, WorkspaceObservable::AppDeleteView)
+            notify(&view_table.belong_to_id, WorkspaceObservable::AppDeleteView)
                 .payload(repeated_view)
-                .build();
+                .send();
             Ok(())
         })?;
-
-        let _ = self.delete_view_on_server(view_id);
 
         Ok(())
     }
@@ -92,11 +108,17 @@ impl ViewController {
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.sql.update_view(changeset, conn)?;
             let view: View = self.sql.read_view(&view_id, None, conn)?.into();
-            observable(&view_id, WorkspaceObservable::ViewUpdated).payload(view).build();
+            notify(&view_id, WorkspaceObservable::ViewUpdated).payload(view).send();
             Ok(())
         })?;
 
         let _ = self.update_view_on_server(params);
+        Ok(())
+    }
+
+    pub(crate) async fn update_view_data(&self, params: UpdateDocParams) -> Result<(), WorkspaceError> {
+        let conn = &*self.database.db_connection()?;
+        let _ = self.document.doc.update(params, &*conn)?;
         Ok(())
     }
 }

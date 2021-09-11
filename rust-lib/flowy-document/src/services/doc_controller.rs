@@ -1,76 +1,60 @@
 use crate::{
     entities::doc::{CreateDocParams, Doc, QueryDocParams, UpdateDocParams},
     errors::DocError,
-    module::{DocumentDatabase, DocumentUser},
+    module::DocumentUser,
     services::server::Server,
     sql_tables::doc::{DocTable, DocTableChangeset, DocTableSql},
 };
+use flowy_database::SqliteConnection;
 use std::sync::Arc;
 
 pub struct DocController {
     server: Server,
     sql: Arc<DocTableSql>,
     user: Arc<dyn DocumentUser>,
-    database: Arc<dyn DocumentDatabase>,
 }
 
 impl DocController {
-    pub(crate) fn new(database: Arc<dyn DocumentDatabase>, server: Server, user: Arc<dyn DocumentUser>) -> Self {
+    pub(crate) fn new(server: Server, user: Arc<dyn DocumentUser>) -> Self {
         let sql = Arc::new(DocTableSql {});
-        Self {
-            sql,
-            server,
-            user,
-            database,
-        }
+        Self { sql, server, user }
     }
 
-    pub(crate) async fn create_doc(&self, params: CreateDocParams) -> Result<(), DocError> {
-        let _ = self.create_doc_on_server(params.clone()).await?;
+    #[tracing::instrument(skip(self, conn), err)]
+    pub fn create(&self, params: CreateDocParams, conn: &SqliteConnection) -> Result<(), DocError> {
         let doc = Doc {
             id: params.id,
             data: params.data,
         };
-        let conn = self.database.db_connection()?;
-        let _ = self.sql.create_doc_table(DocTable::new(doc), &*conn)?;
-
+        let _ = self.sql.create_doc_table(DocTable::new(doc), conn)?;
         Ok(())
     }
 
-    pub(crate) async fn update_doc(&self, params: UpdateDocParams) -> Result<(), DocError> {
+    #[tracing::instrument(level = "debug", skip(self, conn), err)]
+    pub fn update(&self, params: UpdateDocParams, conn: &SqliteConnection) -> Result<(), DocError> {
         let changeset = DocTableChangeset::new(params.clone());
-        let conn = self.database.db_connection()?;
         let _ = self.sql.update_doc_table(changeset, &*conn)?;
         let _ = self.update_doc_on_server(params)?;
 
         Ok(())
     }
 
-    pub(crate) async fn read_doc(&self, params: QueryDocParams) -> Result<Doc, DocError> {
-        let conn = self.database.db_connection()?;
-        let doc: Doc = self.sql.read_doc_table(&params.doc_id, &*conn)?.into();
-
+    #[tracing::instrument(level = "debug", skip(self, conn), err)]
+    pub fn open(&self, params: QueryDocParams, conn: &SqliteConnection) -> Result<Doc, DocError> {
+        let doc: Doc = self.sql.read_doc_table(&params.doc_id, conn)?.into();
         let _ = self.read_doc_on_server(params)?;
         Ok(doc)
     }
 
-    pub(crate) async fn delete_doc(&self, params: QueryDocParams) -> Result<(), DocError> {
-        let conn = self.database.db_connection()?;
+    #[tracing::instrument(level = "debug", skip(self, conn), err)]
+    pub fn delete(&self, params: QueryDocParams, conn: &SqliteConnection) -> Result<(), DocError> {
         let _ = self.sql.delete_doc(&params.doc_id, &*conn)?;
-
         let _ = self.delete_doc_on_server(params)?;
         Ok(())
     }
 }
 
 impl DocController {
-    #[tracing::instrument(skip(self), err)]
-    async fn create_doc_on_server(&self, params: CreateDocParams) -> Result<(), DocError> {
-        let token = self.user.token()?;
-        let _ = self.server.create_doc(&token, params).await?;
-        Ok(())
-    }
-
     #[tracing::instrument(level = "debug", skip(self), err)]
     fn update_doc_on_server(&self, params: UpdateDocParams) -> Result<(), DocError> {
         let token = self.user.token()?;

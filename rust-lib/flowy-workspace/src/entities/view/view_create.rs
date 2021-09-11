@@ -47,7 +47,7 @@ pub struct CreateViewRequest {
     pub view_type: ViewType,
 }
 
-#[derive(Default, ProtoBuf, Debug)]
+#[derive(Default, ProtoBuf, Debug, Clone)]
 pub struct CreateViewParams {
     #[pb(index = 1)]
     pub belong_to_id: String,
@@ -63,6 +63,9 @@ pub struct CreateViewParams {
 
     #[pb(index = 5)]
     pub view_type: ViewType,
+
+    #[pb(index = 6)]
+    pub data: String,
 }
 
 impl TryInto<CreateViewParams> for CreateViewRequest {
@@ -92,6 +95,7 @@ impl TryInto<CreateViewParams> for CreateViewRequest {
             desc: self.desc,
             thumbnail,
             view_type: self.view_type,
+            data: "".to_owned(),
         })
     }
 }

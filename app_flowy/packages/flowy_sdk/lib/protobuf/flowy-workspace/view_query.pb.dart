@@ -159,3 +159,50 @@ class QueryViewParams extends $pb.GeneratedMessage {
   void clearReadBelongings() => clearField(3);
 }
 
+class OpenViewRequest extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'OpenViewRequest', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewId')
+    ..hasRequiredFields = false
+  ;
+
+  OpenViewRequest._() : super();
+  factory OpenViewRequest({
+    $core.String? viewId,
+  }) {
+    final _result = create();
+    if (viewId != null) {
+      _result.viewId = viewId;
+    }
+    return _result;
+  }
+  factory OpenViewRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory OpenViewRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  OpenViewRequest clone() => OpenViewRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  OpenViewRequest copyWith(void Function(OpenViewRequest) updates) => super.copyWith((message) => updates(message as OpenViewRequest)) as OpenViewRequest; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static OpenViewRequest create() => OpenViewRequest._();
+  OpenViewRequest createEmptyInstance() => create();
+  static $pb.PbList<OpenViewRequest> createRepeated() => $pb.PbList<OpenViewRequest>();
+  @$core.pragma('dart2js:noInline')
+  static OpenViewRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<OpenViewRequest>(create);
+  static OpenViewRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get viewId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set viewId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasViewId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearViewId() => clearField(1);
+}
+

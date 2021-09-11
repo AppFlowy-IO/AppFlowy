@@ -2,7 +2,7 @@ use crate::{entities::workspace::parser::*, errors::*};
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
 
-#[derive(Default, ProtoBuf)]
+#[derive(Default, ProtoBuf, Clone)]
 pub struct QueryWorkspaceRequest {
     // return all workspace if workspace_id is None
     #[pb(index = 1, one_of)]

@@ -19,7 +19,7 @@ use crate::{
     sqlx_ext::*,
 };
 
-use super::sql_builder::Builder;
+use super::sql_builder::NewWorkspaceBuilder;
 
 pub(crate) async fn create_workspace(
     pool: &PgPool,
@@ -35,7 +35,7 @@ pub(crate) async fn create_workspace(
         .await
         .context("Failed to acquire a Postgres connection to create workspace")?;
 
-    let (sql, args, workspace) = Builder::new(&user_id)
+    let (sql, args, workspace) = NewWorkspaceBuilder::new(&user_id)
         .name(name.as_ref())
         .desc(desc.as_ref())
         .build()?;

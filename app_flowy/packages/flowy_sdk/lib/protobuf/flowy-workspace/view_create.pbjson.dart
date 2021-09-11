@@ -45,11 +45,12 @@ const CreateViewParams$json = const {
     const {'1': 'desc', '3': 3, '4': 1, '5': 9, '10': 'desc'},
     const {'1': 'thumbnail', '3': 4, '4': 1, '5': 9, '10': 'thumbnail'},
     const {'1': 'view_type', '3': 5, '4': 1, '5': 14, '6': '.ViewType', '10': 'viewType'},
+    const {'1': 'data', '3': 6, '4': 1, '5': 9, '10': 'data'},
   ],
 };
 
 /// Descriptor for `CreateViewParams`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List createViewParamsDescriptor = $convert.base64Decode('ChBDcmVhdGVWaWV3UGFyYW1zEiAKDGJlbG9uZ190b19pZBgBIAEoCVIKYmVsb25nVG9JZBISCgRuYW1lGAIgASgJUgRuYW1lEhIKBGRlc2MYAyABKAlSBGRlc2MSHAoJdGh1bWJuYWlsGAQgASgJUgl0aHVtYm5haWwSJgoJdmlld190eXBlGAUgASgOMgkuVmlld1R5cGVSCHZpZXdUeXBl');
+final $typed_data.Uint8List createViewParamsDescriptor = $convert.base64Decode('ChBDcmVhdGVWaWV3UGFyYW1zEiAKDGJlbG9uZ190b19pZBgBIAEoCVIKYmVsb25nVG9JZBISCgRuYW1lGAIgASgJUgRuYW1lEhIKBGRlc2MYAyABKAlSBGRlc2MSHAoJdGh1bWJuYWlsGAQgASgJUgl0aHVtYm5haWwSJgoJdmlld190eXBlGAUgASgOMgkuVmlld1R5cGVSCHZpZXdUeXBlEhIKBGRhdGEYBiABKAlSBGRhdGE=');
 @$core.Deprecated('Use viewDescriptor instead')
 const View$json = const {
   '1': 'View',

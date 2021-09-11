@@ -1,6 +1,5 @@
 use flowy_database::DBConnection;
-
-use flowy_user::prelude::UserSession;
+use flowy_user::services::user::UserSession;
 use flowy_workspace::{
     errors::{ErrorBuilder, ErrorCode, WorkspaceError},
     module::{WorkspaceDatabase, WorkspaceUser},
@@ -33,6 +32,6 @@ impl WorkspaceDatabase for WorkspaceDatabaseImpl {
     fn db_connection(&self) -> Result<DBConnection, WorkspaceError> {
         self.user_session
             .db_conn()
-            .map_err(|e| ErrorBuilder::new(ErrorCode::DatabaseConnectionFail).error(e).build())
+            .map_err(|e| ErrorBuilder::new(ErrorCode::InternalError).error(e).build())
     }
 }

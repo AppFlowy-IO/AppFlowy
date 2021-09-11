@@ -23,13 +23,13 @@ impl QueryAppRequest {
         }
     }
 
-    pub fn set_read_views(mut self, read_views: bool) -> Self {
-        self.read_belongings = read_views;
+    pub fn read_views(mut self) -> Self {
+        self.read_belongings = true;
         self
     }
 
-    pub fn set_is_trash(mut self, is_trash: bool) -> Self {
-        self.is_trash = is_trash;
+    pub fn trash(mut self) -> Self {
+        self.is_trash = true;
         self
     }
 }

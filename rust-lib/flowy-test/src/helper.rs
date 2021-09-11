@@ -40,6 +40,7 @@ const DEFAULT_WORKSPACE_NAME: &'static str = "My workspace";
 const DEFAULT_WORKSPACE_DESC: &'static str = "This is your first workspace";
 const DEFAULT_WORKSPACE: &'static str = "Default_Workspace";
 
+#[allow(dead_code)]
 pub(crate) fn create_default_workspace_if_need(dispatch: Arc<EventDispatch>, user_id: &str) -> Result<(), UserError> {
     let key = format!("{}{}", user_id, DEFAULT_WORKSPACE);
     if KV::get_bool(&key).unwrap_or(false) {
@@ -96,7 +97,7 @@ pub fn sign_up(dispatch: Arc<EventDispatch>) -> SignUpContext {
         .unwrap()
         .unwrap();
 
-    let _ = create_default_workspace_if_need(dispatch.clone(), &user_profile.id);
+    // let _ = create_default_workspace_if_need(dispatch.clone(), &user_profile.id);
     SignUpContext { user_profile, password }
 }
 

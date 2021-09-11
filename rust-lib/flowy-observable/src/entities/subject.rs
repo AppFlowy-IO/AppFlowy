@@ -21,14 +21,13 @@ pub struct ObservableSubject {
 
 impl std::fmt::Display for ObservableSubject {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let _ = f.write_str(&self.source)?;
-        let _ = f.write_str(&format!("-{}", self.ty))?;
+        let _ = f.write_str(&format!("{} changed: ", &self.source))?;
         if let Some(payload) = &self.payload {
-            let _ = f.write_str(&format!("-{} payload", payload.len()))?;
+            let _ = f.write_str(&format!("send {} payload", payload.len()))?;
         }
 
         if let Some(payload) = &self.error {
-            let _ = f.write_str(&format!("-{} error", payload.len()))?;
+            let _ = f.write_str(&format!("receive {} error", payload.len()))?;
         }
 
         Ok(())

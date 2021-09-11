@@ -12,11 +12,11 @@ use protobuf::ProtobufEnum;
 use sqlx::postgres::PgArguments;
 use uuid::Uuid;
 
-pub struct Builder {
+pub struct NewViewSqlBuilder {
     table: ViewTable,
 }
 
-impl Builder {
+impl NewViewSqlBuilder {
     pub fn new(belong_to_id: &str) -> Self {
         let uuid = uuid::Uuid::new_v4();
         let time = Utc::now();

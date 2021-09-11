@@ -13,13 +13,8 @@ use flowy_user::errors::UserError;
 use flowy_workspace::errors::WorkspaceError;
 use std::{convert::TryFrom, marker::PhantomData, sync::Arc};
 
-pub type DocTest = Builder<DocError>;
-impl DocTest {
-    pub fn new(sdk: FlowyTestSDK) -> Self { Builder::test(TestContext::new(sdk)) }
-}
-
-pub type WorkspaceTest = Builder<WorkspaceError>;
-impl WorkspaceTest {
+pub type FlowyWorkspaceTest = Builder<WorkspaceError>;
+impl FlowyWorkspaceTest {
     pub fn new(sdk: FlowyTestSDK) -> Self { Builder::test(TestContext::new(sdk)) }
 }
 
