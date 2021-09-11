@@ -23,6 +23,10 @@ class DocRepository {
     return WorkspaceEventUpdateViewData(request).send();
   }
 
+  Future<Either<Unit, WorkspaceError>> updateWithChangeset({String? text}) {
+    throw UnimplementedError();
+  }
+
   Future<Either<Unit, WorkspaceError>> closeDoc(
       {String? name, String? desc, String? text}) {
     throw UnimplementedError();

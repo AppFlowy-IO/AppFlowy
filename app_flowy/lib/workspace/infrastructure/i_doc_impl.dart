@@ -4,6 +4,8 @@ import 'package:dartz/dartz.dart';
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:app_flowy/workspace/domain/i_doc.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/doc_repo.dart';
+import 'package:flowy_infra/flowy_logger.dart';
+import 'package:flowy_sdk/protobuf/flowy-document/doc.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 
 class IDocImpl extends IDoc {
@@ -17,24 +19,21 @@ class IDocImpl extends IDoc {
   }
 
   @override
-  Future<Either<FlowyDoc, WorkspaceError>> readDoc() async {
+  Future<Either<Doc, WorkspaceError>> readDoc() async {
     final docOrFail = await repo.readDoc();
-
-    return docOrFail.fold((doc) {
-      return left(FlowyDoc(doc: doc, data: _decodeToDocument(doc.data)));
-    }, (error) => right(error));
+    return docOrFail;
   }
 
   @override
-  Future<Either<Unit, WorkspaceError>> updateDoc({String? text}) {
+  Future<Either<Unit, WorkspaceError>> saveDoc({String? text}) {
+    Log.debug("Saving doc");
     final json = jsonEncode(text ?? "");
     return repo.updateDoc(text: json);
   }
 
-  Document _decodeToDocument(String text) {
-    final json = jsonDecode(text);
-    final document = Document.fromJson(json);
-    return document;
+  @override
+  Future<Either<Unit, WorkspaceError>> updateWithChangeset({String? text}) {
+    return repo.updateWithChangeset(text: text);
   }
 }
 
@@ -46,6 +45,7 @@ class EditorPersistenceImpl extends EditorPersistence {
 
   @override
   Future<bool> save(List<dynamic> jsonList) async {
+    Log.debug("Saving doc");
     final json = jsonEncode(jsonList);
     return repo.updateDoc(text: json).then((result) {
       return result.fold(

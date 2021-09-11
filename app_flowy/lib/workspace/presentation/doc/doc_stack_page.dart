@@ -2,6 +2,7 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/view/doc_watch_bloc.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/presentation/doc/editor_page.dart';
+import 'package:flowy_infra/flowy_logger.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,10 @@ class _DocPageState extends State<DocPage> {
         return state.map(
           loading: (_) => const FlowyProgressIndicator(),
           loadDoc: (s) => EditorPage(doc: s.doc),
-          loadFail: (s) => FlowyErrorPage(s.error.toString()),
+          loadFail: (s) {
+            Log.error("$s");
+            return FlowyErrorPage(s.error.toString());
+          },
         );
       }),
     );

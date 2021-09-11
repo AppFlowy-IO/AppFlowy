@@ -8,10 +8,12 @@ class FlowyDoc {
   final Document data;
 
   FlowyDoc({required this.doc, required this.data});
+  String get id => doc.id;
 }
 
 abstract class IDoc {
-  Future<Either<FlowyDoc, WorkspaceError>> readDoc();
-  Future<Either<Unit, WorkspaceError>> updateDoc({String? text});
+  Future<Either<Doc, WorkspaceError>> readDoc();
+  Future<Either<Unit, WorkspaceError>> saveDoc({String? text});
+  Future<Either<Unit, WorkspaceError>> updateWithChangeset({String? text});
   Future<Either<Unit, WorkspaceError>> closeDoc();
 }

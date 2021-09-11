@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/application/doc/doc_bloc.dart';
+import 'package:app_flowy/workspace/application/doc/doc_edit_bloc.dart';
 import 'package:app_flowy/workspace/domain/i_doc.dart';
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -17,15 +17,15 @@ class EditorPage extends StatelessWidget {
     controller = EditorController(
       document: doc.data,
       selection: const TextSelection.collapsed(offset: 0),
-      persistence: getIt<EditorPersistence>(param1: doc.doc.id),
+      persistence: getIt<EditorPersistence>(param1: doc.id),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<DocBloc>(param1: doc.doc.id),
-      child: BlocBuilder<DocBloc, DocState>(
+      create: (context) => getIt<DocEditBloc>(param1: doc.id),
+      child: BlocBuilder<DocEditBloc, DocEditState>(
         builder: (ctx, state) {
           return Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
