@@ -154,13 +154,13 @@ class _$DocWatchStateTearOff {
     return const Loading();
   }
 
-  LoadDoc loadDoc(Doc doc) {
+  LoadDoc loadDoc(FlowyDoc doc) {
     return LoadDoc(
       doc,
     );
   }
 
-  LoadFail loadFail(DocError error) {
+  LoadFail loadFail(WorkspaceError error) {
     return LoadFail(
       error,
     );
@@ -175,15 +175,15 @@ mixin _$DocWatchState {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
-    required TResult Function(Doc doc) loadDoc,
-    required TResult Function(DocError error) loadFail,
+    required TResult Function(FlowyDoc doc) loadDoc,
+    required TResult Function(WorkspaceError error) loadFail,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
-    TResult Function(Doc doc)? loadDoc,
-    TResult Function(DocError error)? loadFail,
+    TResult Function(FlowyDoc doc)? loadDoc,
+    TResult Function(WorkspaceError error)? loadFail,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -259,8 +259,8 @@ class _$Loading implements Loading {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
-    required TResult Function(Doc doc) loadDoc,
-    required TResult Function(DocError error) loadFail,
+    required TResult Function(FlowyDoc doc) loadDoc,
+    required TResult Function(WorkspaceError error) loadFail,
   }) {
     return loading();
   }
@@ -269,8 +269,8 @@ class _$Loading implements Loading {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
-    TResult Function(Doc doc)? loadDoc,
-    TResult Function(DocError error)? loadFail,
+    TResult Function(FlowyDoc doc)? loadDoc,
+    TResult Function(WorkspaceError error)? loadFail,
     required TResult orElse(),
   }) {
     if (loading != null) {
@@ -312,7 +312,7 @@ abstract class Loading implements DocWatchState {
 abstract class $LoadDocCopyWith<$Res> {
   factory $LoadDocCopyWith(LoadDoc value, $Res Function(LoadDoc) then) =
       _$LoadDocCopyWithImpl<$Res>;
-  $Res call({Doc doc});
+  $Res call({FlowyDoc doc});
 }
 
 /// @nodoc
@@ -332,7 +332,7 @@ class _$LoadDocCopyWithImpl<$Res> extends _$DocWatchStateCopyWithImpl<$Res>
       doc == freezed
           ? _value.doc
           : doc // ignore: cast_nullable_to_non_nullable
-              as Doc,
+              as FlowyDoc,
     ));
   }
 }
@@ -343,7 +343,7 @@ class _$LoadDoc implements LoadDoc {
   const _$LoadDoc(this.doc);
 
   @override
-  final Doc doc;
+  final FlowyDoc doc;
 
   @override
   String toString() {
@@ -371,8 +371,8 @@ class _$LoadDoc implements LoadDoc {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
-    required TResult Function(Doc doc) loadDoc,
-    required TResult Function(DocError error) loadFail,
+    required TResult Function(FlowyDoc doc) loadDoc,
+    required TResult Function(WorkspaceError error) loadFail,
   }) {
     return loadDoc(doc);
   }
@@ -381,8 +381,8 @@ class _$LoadDoc implements LoadDoc {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
-    TResult Function(Doc doc)? loadDoc,
-    TResult Function(DocError error)? loadFail,
+    TResult Function(FlowyDoc doc)? loadDoc,
+    TResult Function(WorkspaceError error)? loadFail,
     required TResult orElse(),
   }) {
     if (loadDoc != null) {
@@ -417,9 +417,9 @@ class _$LoadDoc implements LoadDoc {
 }
 
 abstract class LoadDoc implements DocWatchState {
-  const factory LoadDoc(Doc doc) = _$LoadDoc;
+  const factory LoadDoc(FlowyDoc doc) = _$LoadDoc;
 
-  Doc get doc => throw _privateConstructorUsedError;
+  FlowyDoc get doc => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $LoadDocCopyWith<LoadDoc> get copyWith => throw _privateConstructorUsedError;
 }
@@ -428,7 +428,7 @@ abstract class LoadDoc implements DocWatchState {
 abstract class $LoadFailCopyWith<$Res> {
   factory $LoadFailCopyWith(LoadFail value, $Res Function(LoadFail) then) =
       _$LoadFailCopyWithImpl<$Res>;
-  $Res call({DocError error});
+  $Res call({WorkspaceError error});
 }
 
 /// @nodoc
@@ -448,7 +448,7 @@ class _$LoadFailCopyWithImpl<$Res> extends _$DocWatchStateCopyWithImpl<$Res>
       error == freezed
           ? _value.error
           : error // ignore: cast_nullable_to_non_nullable
-              as DocError,
+              as WorkspaceError,
     ));
   }
 }
@@ -459,7 +459,7 @@ class _$LoadFail implements LoadFail {
   const _$LoadFail(this.error);
 
   @override
-  final DocError error;
+  final WorkspaceError error;
 
   @override
   String toString() {
@@ -487,8 +487,8 @@ class _$LoadFail implements LoadFail {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
-    required TResult Function(Doc doc) loadDoc,
-    required TResult Function(DocError error) loadFail,
+    required TResult Function(FlowyDoc doc) loadDoc,
+    required TResult Function(WorkspaceError error) loadFail,
   }) {
     return loadFail(error);
   }
@@ -497,8 +497,8 @@ class _$LoadFail implements LoadFail {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
-    TResult Function(Doc doc)? loadDoc,
-    TResult Function(DocError error)? loadFail,
+    TResult Function(FlowyDoc doc)? loadDoc,
+    TResult Function(WorkspaceError error)? loadFail,
     required TResult orElse(),
   }) {
     if (loadFail != null) {
@@ -533,9 +533,9 @@ class _$LoadFail implements LoadFail {
 }
 
 abstract class LoadFail implements DocWatchState {
-  const factory LoadFail(DocError error) = _$LoadFail;
+  const factory LoadFail(WorkspaceError error) = _$LoadFail;
 
-  DocError get error => throw _privateConstructorUsedError;
+  WorkspaceError get error => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $LoadFailCopyWith<LoadFail> get copyWith =>
       throw _privateConstructorUsedError;

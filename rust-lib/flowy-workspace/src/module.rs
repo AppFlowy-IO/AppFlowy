@@ -1,17 +1,13 @@
-use flowy_dispatch::prelude::*;
-
 use crate::{
-    errors::WorkspaceError,
+    errors::{ErrorBuilder, ErrorCode, WorkspaceError},
     event::WorkspaceEvent,
-    services::{AppController, WorkspaceController},
+    handlers::*,
+    services::{server::construct_workspace_server, AppController, ViewController, WorkspaceController},
 };
 use flowy_database::DBConnection;
-
-use crate::{
-    handlers::*,
-    services::{server::construct_workspace_server, ViewController},
-};
+use flowy_dispatch::prelude::*;
 use flowy_document::module::Document;
+use flowy_sqlite::ConnectionPool;
 use std::sync::Arc;
 
 pub trait WorkspaceDeps: WorkspaceUser + WorkspaceDatabase {}
@@ -22,19 +18,27 @@ pub trait WorkspaceUser: Send + Sync {
 }
 
 pub trait WorkspaceDatabase: Send + Sync {
-    fn db_connection(&self) -> Result<DBConnection, WorkspaceError>;
+    fn db_pool(&self) -> Result<Arc<ConnectionPool>, WorkspaceError>;
+
+    fn db_connection(&self) -> Result<DBConnection, WorkspaceError> {
+        let pool = self.db_pool()?;
+        let conn = pool
+            .get()
+            .map_err(|e| ErrorBuilder::new(ErrorCode::InternalError).error(e).build())?;
+        Ok(conn)
+    }
 }
 
 pub fn create(user: Arc<dyn WorkspaceUser>, database: Arc<dyn WorkspaceDatabase>, document: Arc<Document>) -> Module {
     let server = construct_workspace_server();
     let view_controller = Arc::new(ViewController::new(user.clone(), database.clone(), server.clone(), document));
-
     let app_controller = Arc::new(AppController::new(user.clone(), database.clone(), server.clone()));
 
     let workspace_controller = Arc::new(WorkspaceController::new(
         user.clone(),
         database.clone(),
         app_controller.clone(),
+        view_controller.clone(),
         server.clone(),
     ));
 

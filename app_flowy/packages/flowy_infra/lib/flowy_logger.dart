@@ -8,7 +8,7 @@ class Log {
   Log() {
     _logger = Logger(
       printer: PrettyPrinter(
-          methodCount: 0, // number of method calls to be displayed
+          methodCount: 2, // number of method calls to be displayed
           errorMethodCount:
               8, // number of method calls if stacktrace is provided
           lineLength: 120, // width of the output

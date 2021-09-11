@@ -31,11 +31,10 @@ impl AppController {
     #[tracing::instrument(level = "debug", skip(self), err)]
     pub(crate) async fn create_app(&self, params: CreateAppParams) -> Result<App, WorkspaceError> {
         let app = self.create_app_on_server(params).await?;
-        let app_table = AppTable::new(app.clone());
         let conn = &*self.database.db_connection()?;
 
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
-            let _ = self.sql.create_app(app_table, &*conn)?;
+            let _ = self.save_app(app.clone(), &*conn)?;
             let apps = self.read_local_apps(&app.workspace_id, &*conn)?;
             notify(&app.workspace_id, WorkspaceObservable::WorkspaceCreateApp)
                 .payload(apps)
@@ -44,6 +43,12 @@ impl AppController {
         })?;
 
         Ok(app)
+    }
+
+    pub(crate) fn save_app(&self, app: App, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
+        let app_table = AppTable::new(app.clone());
+        let _ = self.sql.create_app(app_table, &*conn)?;
+        Ok(())
     }
 
     pub(crate) async fn read_app(&self, params: QueryAppParams) -> Result<App, WorkspaceError> {

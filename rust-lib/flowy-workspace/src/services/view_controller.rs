@@ -42,11 +42,9 @@ impl ViewController {
     pub(crate) async fn create_view(&self, params: CreateViewParams) -> Result<View, WorkspaceError> {
         let view = self.create_view_on_server(params.clone()).await?;
         let conn = &*self.database.db_connection()?;
-        let view_table = ViewTable::new(view.clone());
-
         // TODO: rollback anything created before if failed?
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
-            let _ = self.sql.create_view(view_table, conn)?;
+            let _ = self.save_view(view.clone(), conn)?;
             self.document.doc.create(CreateDocParams::new(&view.id, &params.data), conn)?;
 
             let repeated_view = self.read_local_views_belong_to(&view.belong_to_id, conn)?;
@@ -59,6 +57,12 @@ impl ViewController {
         Ok(view)
     }
 
+    pub(crate) fn save_view(&self, view: View, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
+        let view_table = ViewTable::new(view);
+        let _ = self.sql.create_view(view_table, conn)?;
+        Ok(())
+    }
+
     pub(crate) async fn read_view(&self, params: QueryViewParams) -> Result<View, WorkspaceError> {
         let conn = self.database.db_connection()?;
         let view_table = self.sql.read_view(&params.view_id, Some(params.is_trash), &*conn)?;
@@ -68,8 +72,7 @@ impl ViewController {
     }
 
     pub(crate) async fn open_view(&self, params: QueryDocParams) -> Result<Doc, WorkspaceError> {
-        let conn = self.database.db_connection()?;
-        let doc = self.document.doc.open(params, &*conn)?;
+        let doc = self.document.doc.open(params, self.database.db_pool()?).await?;
         Ok(doc)
     }
 

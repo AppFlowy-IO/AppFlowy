@@ -4,7 +4,7 @@ use actix_web::{
 };
 use sqlx::PgPool;
 
-use flowy_document::protobuf::{CreateDocParams, QueryDocParams, UpdateDocParams};
+use flowy_document::protobuf::{QueryDocParams, UpdateDocParams};
 use flowy_net::errors::ServerError;
 
 use crate::service::{

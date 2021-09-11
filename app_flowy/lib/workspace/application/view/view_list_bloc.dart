@@ -16,7 +16,7 @@ class ViewListBloc extends Bloc<ViewListEvent, ViewListState> {
         yield ViewListState.initial(s.views);
       },
       openView: (s) async* {
-        yield state.copyWith(selectedView: some(s.view.id));
+        yield state.copyWith(openedView: some(s.view.id));
       },
     );
   }
@@ -32,13 +32,13 @@ class ViewListEvent with _$ViewListEvent {
 abstract class ViewListState implements _$ViewListState {
   const factory ViewListState({
     required bool isLoading,
-    required Option<String> selectedView,
+    required Option<String> openedView,
     required Option<List<View>> views,
   }) = _ViewListState;
 
   factory ViewListState.initial(List<View> views) => ViewListState(
         isLoading: false,
-        selectedView: none(),
+        openedView: none(),
         views: some(views),
       );
 }

@@ -21,8 +21,12 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         yield* _fetchViews();
       },
       createView: (CreateView value) async* {
-        iAppImpl.createView(
+        final viewOrFailed = await iAppImpl.createView(
             name: value.name, desc: value.desc, viewType: value.viewType);
+        yield viewOrFailed.fold((view) => state, (error) {
+          Log.error(error);
+          return state.copyWith(successOrFailure: right(error));
+        });
       },
     );
   }

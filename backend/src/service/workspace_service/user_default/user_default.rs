@@ -1,10 +1,10 @@
 use flowy_net::errors::ServerError;
-use flowy_workspace::protobuf::{App, View, ViewType, Workspace};
+use flowy_workspace::protobuf::{App, CreateViewParams, View, ViewType, Workspace};
 
 use crate::{
     service::workspace_service::{
         app::sql_builder::NewAppSqlBuilder as AppBuilder,
-        view::sql_builder::NewViewSqlBuilder as ViewBuilder,
+        view::{create_view_with_transaction, sql_builder::NewViewSqlBuilder as ViewBuilder},
         workspace::sql_builder::NewWorkspaceBuilder as WorkspaceBuilder,
     },
     sqlx_ext::{map_sqlx_error, DBTransaction},
@@ -57,16 +57,18 @@ async fn create_app(
 }
 
 async fn create_view(transaction: &mut DBTransaction<'_>, app: &App) -> Result<View, ServerError> {
-    let (sql, args, view) = ViewBuilder::new(&app.id)
-        .name("DefaultView")
-        .desc("View created by AppFlowy")
-        .thumbnail("https://view.png")
-        .view_type(ViewType::Doc)
-        .build()?;
+    let params = CreateViewParams {
+        belong_to_id: app.id.clone(),
+        name: "DefaultView".to_string(),
+        desc: "View created by AppFlowy".to_string(),
+        thumbnail: "123.png".to_string(),
+        view_type: ViewType::Doc,
+        data: "[{\"insert\":\"\\n\"}]".to_string(),
+        unknown_fields: Default::default(),
+        cached_size: Default::default(),
+    };
 
-    let _ = sqlx::query_with(&sql, args)
-        .execute(transaction)
-        .await
-        .map_err(map_sqlx_error)?;
+    let view = create_view_with_transaction(transaction, params).await?;
+
     Ok(view)
 }

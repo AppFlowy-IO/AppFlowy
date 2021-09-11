@@ -1,4 +1,4 @@
-use flowy_database::DBConnection;
+use flowy_database::ConnectionPool;
 use flowy_user::services::user::UserSession;
 use flowy_workspace::{
     errors::{ErrorBuilder, ErrorCode, WorkspaceError},
@@ -29,9 +29,9 @@ pub struct WorkspaceDatabaseImpl {
 }
 
 impl WorkspaceDatabase for WorkspaceDatabaseImpl {
-    fn db_connection(&self) -> Result<DBConnection, WorkspaceError> {
+    fn db_pool(&self) -> Result<Arc<ConnectionPool>, WorkspaceError> {
         self.user_session
-            .db_conn()
+            .db_pool()
             .map_err(|e| ErrorBuilder::new(ErrorCode::InternalError).error(e).build())
     }
 }

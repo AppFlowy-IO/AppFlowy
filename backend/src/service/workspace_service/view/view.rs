@@ -28,15 +28,27 @@ pub(crate) async fn create_view(
     pool: &PgPool,
     params: CreateViewParams,
 ) -> Result<FlowyResponse, ServerError> {
-    let name = ViewName::parse(params.name).map_err(invalid_params)?;
-    let belong_to_id = AppId::parse(params.belong_to_id).map_err(invalid_params)?;
-    let thumbnail = ViewThumbnail::parse(params.thumbnail).map_err(invalid_params)?;
-    let desc = ViewDesc::parse(params.desc).map_err(invalid_params)?;
-
     let mut transaction = pool
         .begin()
         .await
         .context("Failed to acquire a Postgres connection to create view")?;
+    let view = create_view_with_transaction(&mut transaction, params).await?;
+    transaction
+        .commit()
+        .await
+        .context("Failed to commit SQL transaction to create view.")?;
+
+    FlowyResponse::success().pb(view)
+}
+
+pub(crate) async fn create_view_with_transaction(
+    transaction: &mut DBTransaction<'_>,
+    params: CreateViewParams,
+) -> Result<View, ServerError> {
+    let name = ViewName::parse(params.name).map_err(invalid_params)?;
+    let belong_to_id = AppId::parse(params.belong_to_id).map_err(invalid_params)?;
+    let thumbnail = ViewThumbnail::parse(params.thumbnail).map_err(invalid_params)?;
+    let desc = ViewDesc::parse(params.desc).map_err(invalid_params)?;
 
     let (sql, args, view) = NewViewSqlBuilder::new(belong_to_id.as_ref())
         .name(name.as_ref())
@@ -46,21 +58,15 @@ pub(crate) async fn create_view(
         .build()?;
 
     let _ = sqlx::query_with(&sql, args)
-        .execute(&mut transaction)
+        .execute(transaction as &mut DBTransaction<'_>)
         .await
         .map_err(map_sqlx_error)?;
 
     let mut create_doc_params = CreateDocParams::new();
     create_doc_params.set_data(params.data);
     create_doc_params.set_id(view.id.clone());
-    let _ = create_doc(&mut transaction, create_doc_params).await?;
-
-    transaction
-        .commit()
-        .await
-        .context("Failed to commit SQL transaction to create view.")?;
-
-    FlowyResponse::success().pb(view)
+    let _ = create_doc(transaction, create_doc_params).await?;
+    Ok(view)
 }
 
 pub(crate) async fn read_view(

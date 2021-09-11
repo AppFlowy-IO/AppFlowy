@@ -4,10 +4,8 @@ use std::sync::Once;
 #[allow(dead_code)]
 pub fn setup_env() {
     static INIT: Once = Once::new();
-    INIT.call_once(|| {
-        std::env::set_var("RUST_LOG", "flowy_dispatch=debug,debug");
-        env_logger::init();
-    });
+    std::env::);
+    INIT.call_once(|| env_logger::init());
 }
 
 pub fn init_dispatch<F>(module_factory: F) -> EventDispatch

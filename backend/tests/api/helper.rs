@@ -4,7 +4,7 @@ use backend::{
 };
 
 use flowy_document::{
-    entities::doc::{CreateDocParams, Doc, QueryDocParams, UpdateDocParams},
+    entities::doc::{Doc, QueryDocParams, UpdateDocParams},
     prelude::*,
 };
 use flowy_user::{errors::UserError, prelude::*};

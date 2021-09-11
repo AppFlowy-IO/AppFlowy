@@ -1,4 +1,3 @@
-use flowy_database::DBConnection;
 use flowy_document::{
     errors::{DocError, ErrorBuilder, ErrorCode},
     module::DocumentUser,

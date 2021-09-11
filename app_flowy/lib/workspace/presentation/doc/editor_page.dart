@@ -11,20 +11,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class EditorPage extends StatelessWidget {
   final FocusNode _focusNode = FocusNode();
   late EditorController controller;
-  final Doc doc;
+  final FlowyDoc doc;
 
   EditorPage({Key? key, required this.doc}) : super(key: key) {
     controller = EditorController(
       document: doc.data,
       selection: const TextSelection.collapsed(offset: 0),
-      persistence: getIt<EditorPersistence>(param1: doc.info.id),
+      persistence: getIt<EditorPersistence>(param1: doc.doc.id),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<DocBloc>(param1: doc.info.id),
+      create: (context) => getIt<DocBloc>(param1: doc.doc.id),
       child: BlocBuilder<DocBloc, DocState>(
         builder: (ctx, state) {
           return Column(

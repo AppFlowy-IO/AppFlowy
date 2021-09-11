@@ -36,6 +36,7 @@ class HomeScreen extends StatelessWidget {
               loading: (_) {},
               unauthorized: (unauthorized) {
                 // TODO: push to login screen when user token was invalid
+                Log.error("Push to login screen when user token was invalid");
               },
             );
           },

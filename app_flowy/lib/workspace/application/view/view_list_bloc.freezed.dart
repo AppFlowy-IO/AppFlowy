@@ -310,11 +310,11 @@ class _$ViewListStateTearOff {
 
   _ViewListState call(
       {required bool isLoading,
-      required Option<String> selectedView,
+      required Option<String> openedView,
       required Option<List<View>> views}) {
     return _ViewListState(
       isLoading: isLoading,
-      selectedView: selectedView,
+      openedView: openedView,
       views: views,
     );
   }
@@ -326,7 +326,7 @@ const $ViewListState = _$ViewListStateTearOff();
 /// @nodoc
 mixin _$ViewListState {
   bool get isLoading => throw _privateConstructorUsedError;
-  Option<String> get selectedView => throw _privateConstructorUsedError;
+  Option<String> get openedView => throw _privateConstructorUsedError;
   Option<List<View>> get views => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
@@ -340,7 +340,7 @@ abstract class $ViewListStateCopyWith<$Res> {
           ViewListState value, $Res Function(ViewListState) then) =
       _$ViewListStateCopyWithImpl<$Res>;
   $Res call(
-      {bool isLoading, Option<String> selectedView, Option<List<View>> views});
+      {bool isLoading, Option<String> openedView, Option<List<View>> views});
 }
 
 /// @nodoc
@@ -355,7 +355,7 @@ class _$ViewListStateCopyWithImpl<$Res>
   @override
   $Res call({
     Object? isLoading = freezed,
-    Object? selectedView = freezed,
+    Object? openedView = freezed,
     Object? views = freezed,
   }) {
     return _then(_value.copyWith(
@@ -363,9 +363,9 @@ class _$ViewListStateCopyWithImpl<$Res>
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
               as bool,
-      selectedView: selectedView == freezed
-          ? _value.selectedView
-          : selectedView // ignore: cast_nullable_to_non_nullable
+      openedView: openedView == freezed
+          ? _value.openedView
+          : openedView // ignore: cast_nullable_to_non_nullable
               as Option<String>,
       views: views == freezed
           ? _value.views
@@ -383,7 +383,7 @@ abstract class _$ViewListStateCopyWith<$Res>
       __$ViewListStateCopyWithImpl<$Res>;
   @override
   $Res call(
-      {bool isLoading, Option<String> selectedView, Option<List<View>> views});
+      {bool isLoading, Option<String> openedView, Option<List<View>> views});
 }
 
 /// @nodoc
@@ -400,7 +400,7 @@ class __$ViewListStateCopyWithImpl<$Res>
   @override
   $Res call({
     Object? isLoading = freezed,
-    Object? selectedView = freezed,
+    Object? openedView = freezed,
     Object? views = freezed,
   }) {
     return _then(_ViewListState(
@@ -408,9 +408,9 @@ class __$ViewListStateCopyWithImpl<$Res>
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
               as bool,
-      selectedView: selectedView == freezed
-          ? _value.selectedView
-          : selectedView // ignore: cast_nullable_to_non_nullable
+      openedView: openedView == freezed
+          ? _value.openedView
+          : openedView // ignore: cast_nullable_to_non_nullable
               as Option<String>,
       views: views == freezed
           ? _value.views
@@ -424,20 +424,18 @@ class __$ViewListStateCopyWithImpl<$Res>
 
 class _$_ViewListState implements _ViewListState {
   const _$_ViewListState(
-      {required this.isLoading,
-      required this.selectedView,
-      required this.views});
+      {required this.isLoading, required this.openedView, required this.views});
 
   @override
   final bool isLoading;
   @override
-  final Option<String> selectedView;
+  final Option<String> openedView;
   @override
   final Option<List<View>> views;
 
   @override
   String toString() {
-    return 'ViewListState(isLoading: $isLoading, selectedView: $selectedView, views: $views)';
+    return 'ViewListState(isLoading: $isLoading, openedView: $openedView, views: $views)';
   }
 
   @override
@@ -447,9 +445,9 @@ class _$_ViewListState implements _ViewListState {
             (identical(other.isLoading, isLoading) ||
                 const DeepCollectionEquality()
                     .equals(other.isLoading, isLoading)) &&
-            (identical(other.selectedView, selectedView) ||
+            (identical(other.openedView, openedView) ||
                 const DeepCollectionEquality()
-                    .equals(other.selectedView, selectedView)) &&
+                    .equals(other.openedView, openedView)) &&
             (identical(other.views, views) ||
                 const DeepCollectionEquality().equals(other.views, views)));
   }
@@ -458,7 +456,7 @@ class _$_ViewListState implements _ViewListState {
   int get hashCode =>
       runtimeType.hashCode ^
       const DeepCollectionEquality().hash(isLoading) ^
-      const DeepCollectionEquality().hash(selectedView) ^
+      const DeepCollectionEquality().hash(openedView) ^
       const DeepCollectionEquality().hash(views);
 
   @JsonKey(ignore: true)
@@ -470,13 +468,13 @@ class _$_ViewListState implements _ViewListState {
 abstract class _ViewListState implements ViewListState {
   const factory _ViewListState(
       {required bool isLoading,
-      required Option<String> selectedView,
+      required Option<String> openedView,
       required Option<List<View>> views}) = _$_ViewListState;
 
   @override
   bool get isLoading => throw _privateConstructorUsedError;
   @override
-  Option<String> get selectedView => throw _privateConstructorUsedError;
+  Option<String> get openedView => throw _privateConstructorUsedError;
   @override
   Option<List<View>> get views => throw _privateConstructorUsedError;
   @override

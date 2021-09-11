@@ -1,12 +1,14 @@
 use crate::{
     entities::doc::{CreateDocParams, Doc, QueryDocParams, UpdateDocParams},
-    errors::DocError,
+    errors::{DocError, ErrorBuilder, ErrorCode},
     module::DocumentUser,
     services::server::Server,
     sql_tables::doc::{DocTable, DocTableChangeset, DocTableSql},
 };
-use flowy_database::SqliteConnection;
+use flowy_database::{ConnectionPool, SqliteConnection};
+
 use std::sync::Arc;
+use tokio::task::JoinHandle;
 
 pub struct DocController {
     server: Server,
@@ -39,11 +41,12 @@ impl DocController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, conn), err)]
-    pub fn open(&self, params: QueryDocParams, conn: &SqliteConnection) -> Result<Doc, DocError> {
-        let doc: Doc = self.sql.read_doc_table(&params.doc_id, conn)?.into();
-        let _ = self.read_doc_on_server(params)?;
-        Ok(doc)
+    #[tracing::instrument(level = "debug", skip(self, pool), err)]
+    pub async fn open(&self, params: QueryDocParams, pool: Arc<ConnectionPool>) -> Result<Doc, DocError> {
+        match self._open(params.clone(), pool.clone()) {
+            Ok(doc_table) => Ok(doc_table.into()),
+            Err(error) => self.try_read_on_server(params, pool.clone(), error).await,
+        }
     }
 
     #[tracing::instrument(level = "debug", skip(self, conn), err)]
@@ -71,19 +74,36 @@ impl DocController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self), err)]
-    fn read_doc_on_server(&self, params: QueryDocParams) -> Result<(), DocError> {
+    #[tracing::instrument(level = "debug", skip(self, pool), err)]
+    fn read_doc_from_server(
+        &self,
+        params: QueryDocParams,
+        pool: Arc<ConnectionPool>,
+    ) -> Result<JoinHandle<Result<Doc, DocError>>, DocError> {
         let token = self.user.token()?;
         let server = self.server.clone();
-        tokio::spawn(async move {
-            // Opti: handle the error and retry?
-            let _doc = server.read_doc(&token, params).await?;
-            // save to disk
-            // notify
+        let sql = self.sql.clone();
 
-            Result::<(), DocError>::Ok(())
-        });
-        Ok(())
+        Ok(tokio::spawn(async move {
+            match server.read_doc(&token, params).await? {
+                None => Err(ErrorBuilder::new(ErrorCode::DocNotfound).build()),
+                Some(doc) => {
+                    let doc_table = DocTable::new(doc.clone());
+                    let _ = sql.create_doc_table(doc_table, &*(pool.get().unwrap()))?;
+                    // TODO: notify
+                    Ok(doc)
+                },
+            }
+        }))
+    }
+
+    #[tracing::instrument(level = "debug", skip(self), err)]
+    async fn sync_read_doc_from_server(&self, params: QueryDocParams) -> Result<Doc, DocError> {
+        let token = self.user.token()?;
+        match self.server.read_doc(&token, params).await? {
+            None => Err(ErrorBuilder::new(ErrorCode::DocNotfound).build()),
+            Some(doc) => Ok(doc),
+        }
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
@@ -101,4 +121,27 @@ impl DocController {
         });
         Ok(())
     }
+
+    fn _open(&self, params: QueryDocParams, pool: Arc<ConnectionPool>) -> Result<Doc, DocError> {
+        let doc_table = self.sql.read_doc_table(&params.doc_id, &*(pool.get().unwrap()))?;
+        let doc: Doc = doc_table.into();
+        let _ = self.read_doc_from_server(params, pool.clone())?;
+        Ok(doc)
+    }
+
+    async fn try_read_on_server(&self, params: QueryDocParams, pool: Arc<ConnectionPool>, error: DocError) -> Result<Doc, DocError> {
+        if error.is_record_not_found() {
+            log::debug!("Doc:{} don't exist, reading from server", params.doc_id);
+            self.read_doc_from_server(params, pool)?.await.map_err(internal_error)?
+        } else {
+            Err(error)
+        }
+    }
+}
+
+fn internal_error<T>(e: T) -> DocError
+where
+    T: std::fmt::Debug,
+{
+    ErrorBuilder::new(ErrorCode::InternalError).error(e).build()
 }

@@ -1,4 +1,5 @@
 import 'package:app_flowy/workspace/presentation/app/app_page.dart';
+import 'package:flowy_infra/flowy_logger.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -58,6 +59,7 @@ class ViewListPage extends StatelessWidget {
         viewCtx: viewCtx,
         isSelected: _isViewSelected(context, view.id),
         onOpen: (view) {
+          Log.debug("Open view: $view");
           context.read<ViewListNotifier>().setSelectedView(view);
           final stackView = stackViewFromView(viewCtx.view);
           getIt<HomePageStack>().setStackView(stackView);

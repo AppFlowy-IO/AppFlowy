@@ -54,7 +54,7 @@ impl UserSession {
         }
     }
 
-    pub fn db_conn(&self) -> Result<DBConnection, UserError> {
+    pub fn db_connection(&self) -> Result<DBConnection, UserError> {
         let user_id = self.get_session()?.user_id;
         self.database.get_connection(&user_id)
     }
@@ -101,7 +101,7 @@ impl UserSession {
     #[tracing::instrument(level = "debug", skip(self))]
     pub async fn sign_out(&self) -> Result<(), UserError> {
         let session = self.get_session()?;
-        let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&session.user_id))).execute(&*(self.db_conn()?))?;
+        let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&session.user_id))).execute(&*(self.db_connection()?))?;
         let _ = self.database.close_user_db(&session.user_id)?;
         let _ = self.set_session(None)?;
         let _ = self.sign_out_on_server(&session.token).await?;
@@ -113,7 +113,7 @@ impl UserSession {
     pub async fn update_user(&self, params: UpdateUserParams) -> Result<(), UserError> {
         let session = self.get_session()?;
         let changeset = UserTableChangeset::new(params.clone());
-        diesel_update_table!(user_table, changeset, &*self.db_conn()?);
+        diesel_update_table!(user_table, changeset, &*self.db_connection()?);
 
         let _ = self.update_user_on_server(&session.token, params).await?;
         Ok(())
@@ -123,7 +123,7 @@ impl UserSession {
         let (user_id, token) = self.get_session()?.into_part();
         let user = dsl::user_table
             .filter(user_table::id.eq(&user_id))
-            .first::<UserTable>(&*(self.db_conn()?))?;
+            .first::<UserTable>(&*(self.db_connection()?))?;
 
         let _ = self.read_user_profile_on_server(&token).await?;
         Ok(UserProfile::from(user))
@@ -187,7 +187,7 @@ impl UserSession {
     }
 
     async fn save_user(&self, user: UserTable) -> Result<UserTable, UserError> {
-        let conn = self.db_conn()?;
+        let conn = self.db_connection()?;
         let _ = diesel::insert_into(user_table::table).values(user.clone()).execute(&*conn)?;
         Ok(user)
     }
@@ -236,7 +236,7 @@ pub async fn update_user(_server: Server, pool: Arc<ConnectionPool>, params: Upd
 }
 
 impl UserDatabaseConnection for UserSession {
-    fn get_connection(&self) -> Result<DBConnection, String> { self.db_conn().map_err(|e| format!("{:?}", e)) }
+    fn get_connection(&self) -> Result<DBConnection, String> { self.db_connection().map_err(|e| format!("{:?}", e)) }
 }
 
 const SESSION_CACHE_KEY: &str = "session_cache_key";

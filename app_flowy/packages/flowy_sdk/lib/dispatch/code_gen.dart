@@ -237,70 +237,36 @@ class WorkspaceEventDeleteView {
     }
 }
 
-class EditorEventCreateDoc {
-     CreateDocRequest request;
-     EditorEventCreateDoc(this.request);
+class WorkspaceEventOpenView {
+     OpenViewRequest request;
+     WorkspaceEventOpenView(this.request);
 
-    Future<Either<DocInfo, DocError>> send() {
+    Future<Either<Doc, WorkspaceError>> send() {
     final request = FFIRequest.create()
-          ..event = EditorEvent.CreateDoc.toString()
+          ..event = WorkspaceEvent.OpenView.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-           (okBytes) => left(DocInfo.fromBuffer(okBytes)),
-           (errBytes) => right(DocError.fromBuffer(errBytes)),
+           (okBytes) => left(Doc.fromBuffer(okBytes)),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
         ));
     }
 }
 
-class EditorEventUpdateDoc {
-     UpdateDocRequest request;
-     EditorEventUpdateDoc(this.request);
+class WorkspaceEventUpdateViewData {
+     UpdateViewDataRequest request;
+     WorkspaceEventUpdateViewData(this.request);
 
-    Future<Either<Unit, DocError>> send() {
+    Future<Either<Unit, WorkspaceError>> send() {
     final request = FFIRequest.create()
-          ..event = EditorEvent.UpdateDoc.toString()
+          ..event = WorkspaceEvent.UpdateViewData.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
            (bytes) => left(unit),
-           (errBytes) => right(DocError.fromBuffer(errBytes)),
-        ));
-    }
-}
-
-class EditorEventReadDocInfo {
-     QueryDocRequest request;
-     EditorEventReadDocInfo(this.request);
-
-    Future<Either<DocInfo, DocError>> send() {
-    final request = FFIRequest.create()
-          ..event = EditorEvent.ReadDocInfo.toString()
-          ..payload = requestToBytes(this.request);
-
-    return Dispatch.asyncRequest(request)
-        .then((bytesResult) => bytesResult.fold(
-           (okBytes) => left(DocInfo.fromBuffer(okBytes)),
-           (errBytes) => right(DocError.fromBuffer(errBytes)),
-        ));
-    }
-}
-
-class EditorEventReadDocData {
-     QueryDocDataRequest request;
-     EditorEventReadDocData(this.request);
-
-    Future<Either<DocData, DocError>> send() {
-    final request = FFIRequest.create()
-          ..event = EditorEvent.ReadDocData.toString()
-          ..payload = requestToBytes(this.request);
-
-    return Dispatch.asyncRequest(request)
-        .then((bytesResult) => bytesResult.fold(
-           (okBytes) => left(DocData.fromBuffer(okBytes)),
-           (errBytes) => right(DocError.fromBuffer(errBytes)),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
         ));
     }
 }

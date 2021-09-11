@@ -17,6 +17,8 @@ pub struct DocError {
 
 impl DocError {
     fn new(code: ErrorCode, msg: &str) -> Self { Self { code, msg: msg.to_owned() } }
+
+    pub fn is_record_not_found(&self) -> bool { self.code == ErrorCode::DocNotfound }
 }
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
@@ -39,12 +41,25 @@ impl std::default::Default for ErrorCode {
 }
 
 impl std::convert::From<flowy_database::Error> for DocError {
-    fn from(error: flowy_database::Error) -> Self { ErrorBuilder::new(ErrorCode::InternalError).error(error).build() }
+    fn from(error: flowy_database::Error) -> Self {
+        match error {
+            flowy_database::Error::NotFound => ErrorBuilder::new(ErrorCode::DocNotfound).error(error).build(),
+            _ => ErrorBuilder::new(ErrorCode::InternalError).error(error).build(),
+        }
+    }
 }
+
+// impl std::convert::From<::r2d2::Error> for DocError {
+//     fn from(error: r2d2::Error) -> Self {
+// ErrorBuilder::new(ErrorCode::InternalError).error(error).build() } }
 
 impl std::convert::From<FileError> for DocError {
     fn from(error: FileError) -> Self { ErrorBuilder::new(ErrorCode::InternalError).error(error).build() }
 }
+
+// impl std::convert::From<flowy_sqlite::Error> for DocError {
+//     fn from(error: flowy_sqlite::Error) -> Self {
+// ErrorBuilder::new(ErrorCode::InternalError).error(error).build() } }
 
 impl std::convert::From<flowy_net::errors::ServerError> for DocError {
     fn from(error: ServerError) -> Self {
@@ -54,6 +69,7 @@ impl std::convert::From<flowy_net::errors::ServerError> for DocError {
 }
 
 use flowy_net::errors::ErrorCode as ServerErrorCode;
+
 fn server_error_to_doc_error(code: ServerErrorCode) -> ErrorCode {
     match code {
         ServerErrorCode::UserUnauthorized => ErrorCode::UserUnauthorized,

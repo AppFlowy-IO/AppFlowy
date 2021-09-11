@@ -7,7 +7,7 @@ use std::{
 
 use crate::FlowyTestSDK;
 use flowy_dispatch::prelude::*;
-use flowy_document::errors::DocError;
+
 use flowy_sdk::*;
 use flowy_user::errors::UserError;
 use flowy_workspace::errors::WorkspaceError;

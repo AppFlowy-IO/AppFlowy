@@ -1,7 +1,7 @@
 use crate::helper::*;
 use flowy_test::{builder::*, FlowyEnv};
 use flowy_workspace::{
-    entities::workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest, RepeatedWorkspace},
+    entities::workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest},
     event::WorkspaceEvent::*,
     prelude::*,
 };

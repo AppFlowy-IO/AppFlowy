@@ -6,12 +6,8 @@ use crate::{
     errors::*,
     module::{WorkspaceDatabase, WorkspaceUser},
     observable::*,
-    services::{helper::spawn, server::Server, AppController},
-    sql_tables::{
-        app::{AppTable, AppTableSql},
-        view::{ViewTable, ViewTableSql},
-        workspace::{WorkspaceTable, WorkspaceTableChangeset, WorkspaceTableSql},
-    },
+    services::{helper::spawn, server::Server, AppController, ViewController},
+    sql_tables::workspace::{WorkspaceTable, WorkspaceTableChangeset, WorkspaceTableSql},
 };
 use flowy_database::SqliteConnection;
 use flowy_infra::kv::KV;
@@ -20,8 +16,7 @@ use std::sync::Arc;
 pub(crate) struct WorkspaceController {
     pub user: Arc<dyn WorkspaceUser>,
     pub workspace_sql: Arc<WorkspaceTableSql>,
-    pub app_sql: Arc<AppTableSql>,
-    pub view_sql: Arc<ViewTableSql>,
+    pub view_controller: Arc<ViewController>,
     pub database: Arc<dyn WorkspaceDatabase>,
     pub app_controller: Arc<AppController>,
     server: Server,
@@ -32,18 +27,16 @@ impl WorkspaceController {
         user: Arc<dyn WorkspaceUser>,
         database: Arc<dyn WorkspaceDatabase>,
         app_controller: Arc<AppController>,
+        view_controller: Arc<ViewController>,
         server: Server,
     ) -> Self {
         let workspace_sql = Arc::new(WorkspaceTableSql {});
-        let app_sql = Arc::new(AppTableSql {});
-        let view_sql = Arc::new(ViewTableSql {});
         Self {
             user,
             workspace_sql,
-            app_sql,
-            view_sql,
             database,
             app_controller,
+            view_controller,
             server,
         }
     }
@@ -253,8 +246,8 @@ impl WorkspaceController {
     fn read_workspaces_on_server(&self, user_id: String, params: QueryWorkspaceParams) -> Result<(), WorkspaceError> {
         let (token, server) = self.token_with_server()?;
         let workspace_sql = self.workspace_sql.clone();
-        let app_sql = self.app_sql.clone();
-        let view_sql = self.view_sql.clone();
+        let app_ctrl = self.app_controller.clone();
+        let view_ctrl = self.view_controller.clone();
         let conn = self.database.db_connection()?;
         spawn(async move {
             // Opti: handle the error and retry?
@@ -270,14 +263,14 @@ impl WorkspaceController {
                     log::debug!("Save {} apps", apps.len());
                     for mut app in apps {
                         let views = app.belongings.take_items();
-                        match app_sql.create_app(AppTable::new(app), &*conn) {
+                        match app_ctrl.save_app(app, &*conn) {
                             Ok(_) => {},
                             Err(e) => log::error!("create app failed: {:?}", e),
                         }
 
                         log::debug!("Save {} views", views.len());
                         for view in views {
-                            match view_sql.create_view(ViewTable::new(view), &*conn) {
+                            match view_ctrl.save_view(view, &*conn) {
                                 Ok(_) => {},
                                 Err(e) => log::error!("create view failed: {:?}", e),
                             }

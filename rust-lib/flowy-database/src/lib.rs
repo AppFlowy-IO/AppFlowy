@@ -14,7 +14,7 @@ pub use diesel_derives::*;
 #[macro_use]
 extern crate diesel_migrations;
 
-pub use flowy_sqlite::{DBConnection, Database};
+pub use flowy_sqlite::{ConnectionPool, DBConnection, Database};
 pub type Error = diesel::result::Error;
 
 use diesel_migrations::*;

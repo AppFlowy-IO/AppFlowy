@@ -1,7 +1,7 @@
+import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/workspace/domain/i_doc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:flowy_sdk/protobuf/flowy-document/errors.pb.dart';
 part 'doc_watch_bloc.freezed.dart';
 
 class DocWatchBloc extends Bloc<DocWatchEvent, DocWatchState> {
@@ -24,7 +24,9 @@ class DocWatchBloc extends Bloc<DocWatchEvent, DocWatchState> {
     final docOrFail = await iDocImpl.readDoc();
     yield docOrFail.fold(
       (doc) => DocWatchState.loadDoc(doc),
-      (error) => DocWatchState.loadFail(error),
+      (error) {
+        return DocWatchState.loadFail(error);
+      },
     );
   }
 }
@@ -37,6 +39,6 @@ class DocWatchEvent with _$DocWatchEvent {
 @freezed
 class DocWatchState with _$DocWatchState {
   const factory DocWatchState.loading() = Loading;
-  const factory DocWatchState.loadDoc(Doc doc) = LoadDoc;
-  const factory DocWatchState.loadFail(DocError error) = LoadFail;
+  const factory DocWatchState.loadDoc(FlowyDoc doc) = LoadDoc;
+  const factory DocWatchState.loadFail(WorkspaceError error) = LoadFail;
 }

@@ -83,7 +83,12 @@ impl std::default::Default for ErrorCode {
 }
 
 impl std::convert::From<flowy_database::Error> for UserError {
-    fn from(error: flowy_database::Error) -> Self { ErrorBuilder::new(ErrorCode::InternalError).error(error).build() }
+    fn from(error: flowy_database::Error) -> Self {
+        match error {
+            flowy_database::Error::NotFound => ErrorBuilder::new(ErrorCode::UserNotExist).error(error).build(),
+            _ => ErrorBuilder::new(ErrorCode::InternalError).error(error).build(),
+        }
+    }
 }
 
 impl std::convert::From<::r2d2::Error> for UserError {

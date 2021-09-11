@@ -1,5 +1,4 @@
 use crate::helper::*;
-use flowy_test::prelude::*;
 
 use flowy_workspace::entities::{app::QueryAppRequest, view::*};
 

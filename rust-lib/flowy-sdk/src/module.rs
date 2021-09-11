@@ -1,5 +1,4 @@
 use flowy_dispatch::prelude::Module;
-use flowy_user::prelude::*;
 
 use crate::deps_resolve::{EditorUserImpl, WorkspaceDatabaseImpl, WorkspaceUserImpl};
 use flowy_document::module::Document;

@@ -3,10 +3,9 @@ pub struct ViewThumbnail(pub String);
 
 impl ViewThumbnail {
     pub fn parse(s: String) -> Result<ViewThumbnail, String> {
-        if s.trim().is_empty() {
-            return Err(format!("View thumbnail can not be empty or whitespace"));
-        }
-
+        // if s.trim().is_empty() {
+        //     return Err(format!("View thumbnail can not be empty or whitespace"));
+        // }
         // TODO: verify the thumbnail url is valid or not
 
         Ok(Self(s))

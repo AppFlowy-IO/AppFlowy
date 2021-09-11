@@ -1,7 +1,7 @@
 use crate::helper::*;
 use flowy_workspace::entities::{
     app::{DeleteAppParams, QueryAppParams, UpdateAppParams},
-    view::{CreateViewParams, DeleteViewParams, QueryViewParams, UpdateViewParams, View, ViewType},
+    view::{DeleteViewParams, QueryViewParams, UpdateViewParams},
     workspace::{
         CreateWorkspaceParams,
         DeleteWorkspaceParams,

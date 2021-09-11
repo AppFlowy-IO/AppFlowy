@@ -1,10 +1,8 @@
 use crate::{
     errors::DocError,
-    event::EditorEvent,
     services::{doc_controller::DocController, file_manager::FileManager, server::construct_doc_server},
 };
-use flowy_database::DBConnection;
-use flowy_dispatch::prelude::*;
+
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
