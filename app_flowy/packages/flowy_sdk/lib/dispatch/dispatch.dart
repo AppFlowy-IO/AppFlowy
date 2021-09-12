@@ -1,6 +1,6 @@
 import 'dart:ffi';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_infra/flowy_logger.dart';
+import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/protobuf/dart-ffi/ffi_response.pb.dart';
 import 'package:isolates/isolates.dart';
 import 'package:isolates/ports.dart';

@@ -2,7 +2,7 @@ import 'dart:isolate';
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ffi';
-import 'package:flowy_infra/flowy_logger.dart';
+import 'package:flowy_log/flowy_log.dart';
 import 'protobuf/flowy-observable/subject.pb.dart';
 
 typedef ObserverCallback = void Function(ObservableSubject observable);
@@ -39,7 +39,8 @@ class RustStreamReceiver {
       final observable = ObservableSubject.fromBuffer(bytes);
       _observableController.add(observable);
     } catch (e, s) {
-      Log.error('RustStreamReceiver ObservableSubject deserialize error: ${e.runtimeType}');
+      Log.error(
+          'RustStreamReceiver ObservableSubject deserialize error: ${e.runtimeType}');
       Log.error('Stack trace \n $s');
       rethrow;
     }

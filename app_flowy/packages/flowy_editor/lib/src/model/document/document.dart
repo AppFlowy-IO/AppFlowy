@@ -12,6 +12,7 @@ import 'node/container.dart';
 import 'node/embed.dart';
 import 'node/line.dart';
 import 'node/node.dart';
+import 'package:flowy_log/flowy_log.dart';
 
 /// The rich text document
 class Document {
@@ -52,7 +53,7 @@ class Document {
   bool get hasRedo => _history.hasRedo;
 
   Delta insert(int index, Object? data, {int replaceLength = 0}) {
-    print('insert $data at $index');
+    Log.trace('insert $data at $index');
     assert(index >= 0);
     assert(data is String || data is Embeddable);
     if (data is Embeddable) {
@@ -69,11 +70,11 @@ class Document {
       length: replaceLength,
     );
 
-    print('current document delta: $_delta');
-    print('insert delta: $delta');
+    Log.trace('current document delta: $_delta');
+    Log.trace('insert delta: $delta');
     compose(delta, ChangeSource.LOCAL);
-    print('compose insert, current document $_delta');
-    print('compose end');
+    Log.trace('compose insert, current document $_delta');
+    Log.trace('compose end');
     return delta;
   }
 
@@ -81,9 +82,9 @@ class Document {
     assert(index >= 0 && length > 0);
     final delta = _rules.apply(RuleType.DELETE, this, index, length: length);
     if (delta.isNotEmpty) {
-      print('current document delta: $_delta');
+      Log.trace('current document delta: $_delta');
       compose(delta, ChangeSource.LOCAL);
-      print('compose delete, current document $_delta');
+      Log.trace('compose delete, current document $_delta');
     }
     return delta;
   }
@@ -100,17 +101,17 @@ class Document {
     // We have to insert before applying delete rules
     // Otherwise delete would be operating on stale document snapshot.
     if (dataIsNotEmpty) {
-      print('insert $data at $index, replace len: $length');
+      Log.trace('insert $data at $index, replace len: $length');
       delta = insert(index, data, replaceLength: length);
     }
 
     if (length > 0) {
-      print('delete $length at $index, len: $length');
+      Log.trace('delete $length at $index, len: $length');
       final deleteDelta = delete(index, length);
       delta = delta.compose(deleteDelta);
     }
 
-    print('replace result $delta');
+    Log.trace('replace result $delta');
     return delta;
   }
 
@@ -127,9 +128,9 @@ class Document {
       attribute: attribute,
     );
     if (formatDelta.isNotEmpty) {
-      print('current document delta: $_delta');
+      Log.trace('current document delta: $_delta');
       compose(formatDelta, ChangeSource.LOCAL);
-      print('compose format, current document $_delta');
+      Log.trace('compose format, current document $_delta');
       delta = delta.compose(formatDelta);
     }
 

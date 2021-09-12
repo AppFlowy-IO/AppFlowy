@@ -4,7 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:app_flowy/workspace/domain/i_doc.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/doc_repo.dart';
-import 'package:flowy_infra/flowy_logger.dart';
+import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/protobuf/flowy-document/doc.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 

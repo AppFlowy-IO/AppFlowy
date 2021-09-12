@@ -1,5 +1,5 @@
 import 'package:app_flowy/workspace/domain/i_workspace.dart';
-import 'package:flowy_infra/flowy_logger.dart';
+import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flutter/material.dart';

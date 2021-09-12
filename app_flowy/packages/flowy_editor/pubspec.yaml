@@ -32,6 +32,8 @@ dependencies:
   meta: ^1.1.0
   quiver_hashcode: ^2.0.0
   pedantic: ^1.9.0
+  flowy_log:
+    path: ../flowy_log
 
 dev_dependencies:
   flutter_test:

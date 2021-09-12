@@ -13,7 +13,6 @@ dependencies:
   time: '>=2.0.0'
   uuid: ">=2.2.2"
   textstyle_extensions: '2.0.0-nullsafety'
-  logger: ^1.0.0
   flutter_svg: ^0.22.0
 
 dev_dependencies:
