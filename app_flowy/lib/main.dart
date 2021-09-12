@@ -2,7 +2,7 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/welcome/presentation/splash_screen.dart';
 import 'package:flutter/material.dart';
 
-class FlowyAppFactory implements AppFactory {
+class FlowyApp implements EntryPoint {
   @override
   Widget create() {
     return const SplashScreen();
@@ -10,5 +10,5 @@ class FlowyAppFactory implements AppFactory {
 }
 
 void main() {
-  Application.run(FlowyAppFactory());
+  System.run(FlowyApp());
 }

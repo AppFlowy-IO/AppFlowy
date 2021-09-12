@@ -95,6 +95,7 @@ impl TryInto<CreateViewParams> for CreateViewRequest {
             desc: self.desc,
             thumbnail,
             view_type: self.view_type,
+            // TODO: replace the placeholder
             data: "[{\"insert\":\"\\n\"}]".to_owned(),
         })
     }

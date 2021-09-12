@@ -19,7 +19,9 @@ class Block extends Container<Line?> {
 
   /// Creates new unmounted [Block].
   @override
-  Node newInstance() => Block();
+  Node newInstance() {
+    return Block();
+  }
 
   @override
   Delta toDelta() {

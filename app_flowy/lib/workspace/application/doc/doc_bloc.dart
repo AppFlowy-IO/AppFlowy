@@ -16,7 +16,7 @@ class DocBloc extends Bloc<DocEvent, DocState> {
   @override
   Stream<DocState> mapEventToState(DocEvent event) async* {
     yield* event.map(
-      started: (_) async* {
+      loadDoc: (_) async* {
         yield* _readDoc();
       },
     );
@@ -44,12 +44,12 @@ class DocBloc extends Bloc<DocEvent, DocState> {
 
 @freezed
 class DocEvent with _$DocEvent {
-  const factory DocEvent.started() = Started;
+  const factory DocEvent.loadDoc() = LoadDoc;
 }
 
 @freezed
 class DocState with _$DocState {
   const factory DocState.loading() = Loading;
-  const factory DocState.loadDoc(FlowyDoc doc) = LoadDoc;
+  const factory DocState.loadDoc(FlowyDoc doc) = LoadedDoc;
   const factory DocState.loadFail(WorkspaceError error) = LoadFail;
 }

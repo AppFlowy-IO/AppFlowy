@@ -32,6 +32,13 @@ impl Document {
         }
     }
 
+    pub fn from_json(json: &str) -> Result<Self, OTError> {
+        let delta = Delta::from_json(json)?;
+        Ok(Self::from_delta(delta))
+    }
+
+    pub fn to_json(&self) -> String { self.delta.to_json() }
+
     pub fn insert<T: DocumentData>(&mut self, index: usize, data: T) -> Result<Delta, OTError> {
         let interval = Interval::new(index, index);
         let _ = validate_interval(&self.delta, &interval)?;
@@ -57,21 +64,14 @@ impl Document {
     pub fn format(&mut self, interval: Interval, attribute: Attribute) -> Result<(), OTError> {
         let _ = validate_interval(&self.delta, &interval)?;
         log::debug!("format with {} at {}", attribute, interval);
-        let format_delta = self
-            .view
-            .format(&self.delta, attribute.clone(), interval)
-            .unwrap();
+        let format_delta = self.view.format(&self.delta, attribute.clone(), interval).unwrap();
 
         log::debug!("👉 receive change: {}", format_delta);
         self.add_delta(&format_delta)?;
         Ok(())
     }
 
-    pub fn replace<T: DocumentData>(
-        &mut self,
-        interval: Interval,
-        data: T,
-    ) -> Result<Delta, OTError> {
+    pub fn replace<T: DocumentData>(&mut self, interval: Interval, data: T) -> Result<Delta, OTError> {
         let _ = validate_interval(&self.delta, &interval)?;
         let mut delta = Delta::default();
         let text = data.into_string()?;
@@ -95,9 +95,7 @@ impl Document {
 
     pub fn undo(&mut self) -> Result<UndoResult, OTError> {
         match self.history.undo() {
-            None => Err(ErrorBuilder::new(UndoFail)
-                .msg("Undo stack is empty")
-                .build()),
+            None => Err(ErrorBuilder::new(UndoFail).msg("Undo stack is empty").build()),
             Some(undo_delta) => {
                 let (new_delta, inverted_delta) = self.invert_change(&undo_delta)?;
                 let result = UndoResult::success(new_delta.target_len as usize);
@@ -122,8 +120,6 @@ impl Document {
             },
         }
     }
-
-    pub fn to_json(&self) -> String { self.delta.to_json() }
 
     pub fn to_string(&self) -> String { self.delta.apply("").unwrap() }
 
@@ -176,11 +172,7 @@ impl Document {
 
 fn validate_interval(delta: &Delta, interval: &Interval) -> Result<(), OTError> {
     if delta.target_len < interval.end {
-        log::error!(
-            "{:?} out of bounds. should 0..{}",
-            interval,
-            delta.target_len
-        );
+        log::error!("{:?} out of bounds. should 0..{}", interval, delta.target_len);
         return Err(ErrorBuilder::new(OTErrorCode::IntervalOutOfBound).build());
     }
     Ok(())

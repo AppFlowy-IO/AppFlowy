@@ -12,7 +12,7 @@ class AppWidgetTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) {
-    final widget = context.getIt<AppFactory>().create();
+    final widget = context.getIt<EntryPoint>().create();
     final app = ApplicationWidget(child: widget);
     runApp(app);
 

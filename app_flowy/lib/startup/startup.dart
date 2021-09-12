@@ -10,17 +10,17 @@ enum IntegrationEnv {
   pro,
 }
 
-abstract class AppFactory {
+abstract class EntryPoint {
   Widget create();
 }
 
-class Application {
-  static void run(AppFactory f) {
+class System {
+  static void run(EntryPoint f) {
     // Specify the evn
     const env = IntegrationEnv.dev;
 
     // Config the deps graph
-    getIt.registerFactory<AppFactory>(() => f);
+    getIt.registerFactory<EntryPoint>(() => f);
 
     resolveDependencies(env);
 

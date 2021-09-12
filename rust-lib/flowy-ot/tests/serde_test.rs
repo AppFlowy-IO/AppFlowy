@@ -1,4 +1,4 @@
-use flowy_ot::core::*;
+use flowy_ot::{client::Document, core::*};
 
 #[test]
 fn operation_insert_serialize_test() {
@@ -42,6 +42,16 @@ fn delta_serialize_test() {
     let json = serde_json::to_string(&delta).unwrap();
     eprintln!("{}", json);
 
-    let delta_from_json: Delta = serde_json::from_str(&json).unwrap();
+    let delta_from_json = Delta::from_json(&json).unwrap();
     assert_eq!(delta_from_json, delta);
+}
+
+#[test]
+fn document_insert_serde_test() {
+    let mut document = Document::new();
+    document.insert(0, "\n");
+    document.insert(0, "123");
+    let json = document.to_json();
+    assert_eq!(r#"[{"insert":"123\n"}]"#, json);
+    assert_eq!(r#"[{"insert":"123\n"}]"#, Document::from_json(&json).unwrap().to_json());
 }

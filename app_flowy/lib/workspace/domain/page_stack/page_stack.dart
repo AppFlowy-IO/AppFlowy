@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:app_flowy/workspace/presentation/doc/doc_page.dart';
+import 'package:app_flowy/workspace/presentation/doc/doc_stack_page.dart';
 import 'package:app_flowy/workspace/presentation/widgets/blank_page.dart';
 import 'package:app_flowy/workspace/presentation/widgets/fading_index_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/prelude.dart';
@@ -78,17 +78,18 @@ List<Widget> _buildStackWidget(HomeStackView stackView) {
     if (viewType == stackView.type) {
       switch (stackView.type) {
         case ViewType.Blank:
-          return AnnouncementPage(
+          return AnnouncementStackPage(
               stackView: stackView as AnnouncementStackView);
         case ViewType.Doc:
           final docView = stackView as DocPageStackView;
-          return DocPage(key: ValueKey(docView.view.id), stackView: docView);
+          return DocStackPage(
+              key: ValueKey(docView.view.id), stackView: docView);
         default:
-          return AnnouncementPage(
+          return AnnouncementStackPage(
               stackView: stackView as AnnouncementStackView);
       }
     } else {
-      return const AnnouncementPage(stackView: AnnouncementStackView());
+      return const AnnouncementStackPage(stackView: AnnouncementStackView());
     }
   }).toList();
 }

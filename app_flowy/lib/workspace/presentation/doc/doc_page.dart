@@ -8,12 +8,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 // ignore: must_be_immutable
-class EditorPage extends StatelessWidget {
+class DocPage extends StatelessWidget {
   final FocusNode _focusNode = FocusNode();
   late EditorController controller;
   final FlowyDoc doc;
 
-  EditorPage({Key? key, required this.doc}) : super(key: key) {
+  DocPage({Key? key, required this.doc}) : super(key: key) {
     controller = EditorController(
       document: doc.data,
       selection: const TextSelection.collapsed(offset: 0),

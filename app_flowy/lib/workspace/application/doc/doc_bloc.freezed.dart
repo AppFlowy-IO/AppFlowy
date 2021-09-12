@@ -16,8 +16,8 @@ final _privateConstructorUsedError = UnsupportedError(
 class _$DocEventTearOff {
   const _$DocEventTearOff();
 
-  Started started() {
-    return const Started();
+  LoadDoc loadDoc() {
+    return const LoadDoc();
   }
 }
 
@@ -28,23 +28,23 @@ const $DocEvent = _$DocEventTearOff();
 mixin _$DocEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() started,
+    required TResult Function() loadDoc,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? started,
+    TResult Function()? loadDoc,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(Started value) started,
+    required TResult Function(LoadDoc value) loadDoc,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(Started value)? started,
+    TResult Function(LoadDoc value)? loadDoc,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -66,34 +66,34 @@ class _$DocEventCopyWithImpl<$Res> implements $DocEventCopyWith<$Res> {
 }
 
 /// @nodoc
-abstract class $StartedCopyWith<$Res> {
-  factory $StartedCopyWith(Started value, $Res Function(Started) then) =
-      _$StartedCopyWithImpl<$Res>;
+abstract class $LoadDocCopyWith<$Res> {
+  factory $LoadDocCopyWith(LoadDoc value, $Res Function(LoadDoc) then) =
+      _$LoadDocCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class _$StartedCopyWithImpl<$Res> extends _$DocEventCopyWithImpl<$Res>
-    implements $StartedCopyWith<$Res> {
-  _$StartedCopyWithImpl(Started _value, $Res Function(Started) _then)
-      : super(_value, (v) => _then(v as Started));
+class _$LoadDocCopyWithImpl<$Res> extends _$DocEventCopyWithImpl<$Res>
+    implements $LoadDocCopyWith<$Res> {
+  _$LoadDocCopyWithImpl(LoadDoc _value, $Res Function(LoadDoc) _then)
+      : super(_value, (v) => _then(v as LoadDoc));
 
   @override
-  Started get _value => super._value as Started;
+  LoadDoc get _value => super._value as LoadDoc;
 }
 
 /// @nodoc
 
-class _$Started implements Started {
-  const _$Started();
+class _$LoadDoc implements LoadDoc {
+  const _$LoadDoc();
 
   @override
   String toString() {
-    return 'DocEvent.started()';
+    return 'DocEvent.loadDoc()';
   }
 
   @override
   bool operator ==(dynamic other) {
-    return identical(this, other) || (other is Started);
+    return identical(this, other) || (other is LoadDoc);
   }
 
   @override
@@ -102,19 +102,19 @@ class _$Started implements Started {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() started,
+    required TResult Function() loadDoc,
   }) {
-    return started();
+    return loadDoc();
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? started,
+    TResult Function()? loadDoc,
     required TResult orElse(),
   }) {
-    if (started != null) {
-      return started();
+    if (loadDoc != null) {
+      return loadDoc();
     }
     return orElse();
   }
@@ -122,26 +122,26 @@ class _$Started implements Started {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(Started value) started,
+    required TResult Function(LoadDoc value) loadDoc,
   }) {
-    return started(this);
+    return loadDoc(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(Started value)? started,
+    TResult Function(LoadDoc value)? loadDoc,
     required TResult orElse(),
   }) {
-    if (started != null) {
-      return started(this);
+    if (loadDoc != null) {
+      return loadDoc(this);
     }
     return orElse();
   }
 }
 
-abstract class Started implements DocEvent {
-  const factory Started() = _$Started;
+abstract class LoadDoc implements DocEvent {
+  const factory LoadDoc() = _$LoadDoc;
 }
 
 /// @nodoc
@@ -152,8 +152,8 @@ class _$DocStateTearOff {
     return const Loading();
   }
 
-  LoadDoc loadDoc(FlowyDoc doc) {
-    return LoadDoc(
+  LoadedDoc loadDoc(FlowyDoc doc) {
+    return LoadedDoc(
       doc,
     );
   }
@@ -188,14 +188,14 @@ mixin _$DocState {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(Loading value) loading,
-    required TResult Function(LoadDoc value) loadDoc,
+    required TResult Function(LoadedDoc value) loadDoc,
     required TResult Function(LoadFail value) loadFail,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Loading value)? loading,
-    TResult Function(LoadDoc value)? loadDoc,
+    TResult Function(LoadedDoc value)? loadDoc,
     TResult Function(LoadFail value)? loadFail,
     required TResult orElse(),
   }) =>
@@ -279,7 +279,7 @@ class _$Loading implements Loading {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(Loading value) loading,
-    required TResult Function(LoadDoc value) loadDoc,
+    required TResult Function(LoadedDoc value) loadDoc,
     required TResult Function(LoadFail value) loadFail,
   }) {
     return loading(this);
@@ -289,7 +289,7 @@ class _$Loading implements Loading {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Loading value)? loading,
-    TResult Function(LoadDoc value)? loadDoc,
+    TResult Function(LoadedDoc value)? loadDoc,
     TResult Function(LoadFail value)? loadFail,
     required TResult orElse(),
   }) {
@@ -305,26 +305,26 @@ abstract class Loading implements DocState {
 }
 
 /// @nodoc
-abstract class $LoadDocCopyWith<$Res> {
-  factory $LoadDocCopyWith(LoadDoc value, $Res Function(LoadDoc) then) =
-      _$LoadDocCopyWithImpl<$Res>;
+abstract class $LoadedDocCopyWith<$Res> {
+  factory $LoadedDocCopyWith(LoadedDoc value, $Res Function(LoadedDoc) then) =
+      _$LoadedDocCopyWithImpl<$Res>;
   $Res call({FlowyDoc doc});
 }
 
 /// @nodoc
-class _$LoadDocCopyWithImpl<$Res> extends _$DocStateCopyWithImpl<$Res>
-    implements $LoadDocCopyWith<$Res> {
-  _$LoadDocCopyWithImpl(LoadDoc _value, $Res Function(LoadDoc) _then)
-      : super(_value, (v) => _then(v as LoadDoc));
+class _$LoadedDocCopyWithImpl<$Res> extends _$DocStateCopyWithImpl<$Res>
+    implements $LoadedDocCopyWith<$Res> {
+  _$LoadedDocCopyWithImpl(LoadedDoc _value, $Res Function(LoadedDoc) _then)
+      : super(_value, (v) => _then(v as LoadedDoc));
 
   @override
-  LoadDoc get _value => super._value as LoadDoc;
+  LoadedDoc get _value => super._value as LoadedDoc;
 
   @override
   $Res call({
     Object? doc = freezed,
   }) {
-    return _then(LoadDoc(
+    return _then(LoadedDoc(
       doc == freezed
           ? _value.doc
           : doc // ignore: cast_nullable_to_non_nullable
@@ -335,8 +335,8 @@ class _$LoadDocCopyWithImpl<$Res> extends _$DocStateCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$LoadDoc implements LoadDoc {
-  const _$LoadDoc(this.doc);
+class _$LoadedDoc implements LoadedDoc {
+  const _$LoadedDoc(this.doc);
 
   @override
   final FlowyDoc doc;
@@ -349,7 +349,7 @@ class _$LoadDoc implements LoadDoc {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is LoadDoc &&
+        (other is LoadedDoc &&
             (identical(other.doc, doc) ||
                 const DeepCollectionEquality().equals(other.doc, doc)));
   }
@@ -360,8 +360,8 @@ class _$LoadDoc implements LoadDoc {
 
   @JsonKey(ignore: true)
   @override
-  $LoadDocCopyWith<LoadDoc> get copyWith =>
-      _$LoadDocCopyWithImpl<LoadDoc>(this, _$identity);
+  $LoadedDocCopyWith<LoadedDoc> get copyWith =>
+      _$LoadedDocCopyWithImpl<LoadedDoc>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -391,7 +391,7 @@ class _$LoadDoc implements LoadDoc {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(Loading value) loading,
-    required TResult Function(LoadDoc value) loadDoc,
+    required TResult Function(LoadedDoc value) loadDoc,
     required TResult Function(LoadFail value) loadFail,
   }) {
     return loadDoc(this);
@@ -401,7 +401,7 @@ class _$LoadDoc implements LoadDoc {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Loading value)? loading,
-    TResult Function(LoadDoc value)? loadDoc,
+    TResult Function(LoadedDoc value)? loadDoc,
     TResult Function(LoadFail value)? loadFail,
     required TResult orElse(),
   }) {
@@ -412,12 +412,13 @@ class _$LoadDoc implements LoadDoc {
   }
 }
 
-abstract class LoadDoc implements DocState {
-  const factory LoadDoc(FlowyDoc doc) = _$LoadDoc;
+abstract class LoadedDoc implements DocState {
+  const factory LoadedDoc(FlowyDoc doc) = _$LoadedDoc;
 
   FlowyDoc get doc => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $LoadDocCopyWith<LoadDoc> get copyWith => throw _privateConstructorUsedError;
+  $LoadedDocCopyWith<LoadedDoc> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -507,7 +508,7 @@ class _$LoadFail implements LoadFail {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(Loading value) loading,
-    required TResult Function(LoadDoc value) loadDoc,
+    required TResult Function(LoadedDoc value) loadDoc,
     required TResult Function(LoadFail value) loadFail,
   }) {
     return loadFail(this);
@@ -517,7 +518,7 @@ class _$LoadFail implements LoadFail {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Loading value)? loading,
-    TResult Function(LoadDoc value)? loadDoc,
+    TResult Function(LoadedDoc value)? loadDoc,
     TResult Function(LoadFail value)? loadFail,
     required TResult orElse(),
   }) {
