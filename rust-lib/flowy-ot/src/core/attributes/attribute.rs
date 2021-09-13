@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::core::{Attributes, REMOVE_FLAG};
+use crate::core::Attributes;
 use derive_more::Display;
 use lazy_static::lazy_static;
 use std::{collections::HashSet, fmt, fmt::Formatter, iter::FromIterator};
@@ -96,6 +96,7 @@ pub struct Attribute {
 }
 
 impl Attribute {
+    // inline
     inline_attribute!(Bold, bool);
     inline_attribute!(Italic, bool);
     inline_attribute!(Underline, bool);
@@ -106,6 +107,7 @@ impl Attribute {
     inline_attribute!(Size, usize);
     inline_attribute!(Background, String);
 
+    // block
     block_attribute!(Header, usize);
     block_attribute!(LeftAlignment, usize);
     block_attribute!(CenterAlignment, usize);
@@ -121,6 +123,7 @@ impl Attribute {
     block_attribute!(UnChecked, bool);
     block_attribute!(QuoteBlock, bool);
 
+    // ignore
     ignore_attribute!(Width, usize);
     ignore_attribute!(Height, usize);
 }
@@ -203,13 +206,7 @@ impl AsRef<str> for AttributeValue {
 }
 
 impl std::convert::From<&usize> for AttributeValue {
-    fn from(val: &usize) -> Self {
-        if *val > (0 as usize) {
-            AttributeValue(format!("{}", val))
-        } else {
-            AttributeValue(format!(""))
-        }
-    }
+    fn from(val: &usize) -> Self { AttributeValue::from(*val) }
 }
 
 impl std::convert::From<usize> for AttributeValue {
@@ -228,6 +225,10 @@ impl std::convert::From<&str> for AttributeValue {
 
 impl std::convert::From<String> for AttributeValue {
     fn from(val: String) -> Self { AttributeValue(val) }
+}
+
+impl std::convert::From<&bool> for AttributeValue {
+    fn from(val: &bool) -> Self { AttributeValue::from(*val) }
 }
 
 impl std::convert::From<bool> for AttributeValue {

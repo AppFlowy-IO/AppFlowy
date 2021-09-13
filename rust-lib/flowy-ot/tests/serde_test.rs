@@ -1,4 +1,7 @@
-use flowy_ot::{client::Document, core::*};
+use flowy_ot::{
+    client::{Document, PlainDoc},
+    core::*,
+};
 
 #[test]
 fn operation_insert_serialize_test() {
@@ -54,7 +57,7 @@ fn delta_serialize_test() {
 
 #[test]
 fn document_insert_serde_test() {
-    let mut document = Document::new();
+    let mut document = Document::new::<PlainDoc>();
     document.insert(0, "\n");
     document.insert(0, "123");
     let json = document.to_json();

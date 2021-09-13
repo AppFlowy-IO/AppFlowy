@@ -8,6 +8,20 @@ pub trait DocumentData {
     fn into_string(self) -> Result<String, OTError>;
 }
 
+pub trait CustomDocument {
+    fn init_delta() -> Delta;
+}
+
+pub struct PlainDoc();
+impl CustomDocument for PlainDoc {
+    fn init_delta() -> Delta { Delta::new() }
+}
+
+pub struct FlowyDoc();
+impl CustomDocument for FlowyDoc {
+    fn init_delta() -> Delta { DeltaBuilder::new().insert("\n").build() }
+}
+
 pub struct Document {
     delta: Delta,
     history: History,
@@ -17,10 +31,7 @@ pub struct Document {
 }
 
 impl Document {
-    pub fn new() -> Self {
-        let delta = Delta::new();
-        Self::from_delta(delta)
-    }
+    pub fn new<C: CustomDocument>() -> Self { Self::from_delta(C::init_delta()) }
 
     pub fn from_delta(delta: Delta) -> Self {
         Document {

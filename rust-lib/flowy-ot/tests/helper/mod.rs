@@ -1,5 +1,8 @@
 use derive_more::Display;
-use flowy_ot::{client::Document, core::*};
+use flowy_ot::{
+    client::{CustomDocument, Document},
+    core::*,
+};
 use rand::{prelude::*, Rng as WrappedRng};
 use std::{sync::Once, time::Duration};
 
@@ -59,11 +62,11 @@ pub enum TestOp {
     AssertOpsJson(usize, &'static str),
 }
 
-pub struct OpTester {
+pub struct TestBuilder {
     documents: Vec<Document>,
 }
 
-impl OpTester {
+impl TestBuilder {
     pub fn new() -> Self {
         static INIT: Once = Once::new();
         INIT.call_once(|| {
@@ -75,7 +78,7 @@ impl OpTester {
         Self { documents: vec![] }
     }
 
-    pub fn run_op(&mut self, op: &TestOp) {
+    fn run_op(&mut self, op: &TestOp) {
         log::debug!("***************** 😈{} *******************", &op);
         match op {
             TestOp::Insert(delta_i, s, index) => {
@@ -186,23 +189,8 @@ impl OpTester {
         }
     }
 
-    pub fn run_script(&mut self, script: Vec<TestOp>) {
-        let delta = Delta::new();
-        self.run(script, delta);
-    }
-
-    pub fn run_script_with_newline(&mut self, script: Vec<TestOp>) {
-        let mut delta = Delta::new();
-        delta.insert("\n", Attributes::default());
-        self.run(script, delta);
-    }
-
-    fn run(&mut self, script: Vec<TestOp>, delta: Delta) {
-        let mut documents = Vec::with_capacity(2);
-        for _ in 0..2 {
-            documents.push(Document::from_delta(delta.clone()));
-        }
-        self.documents = documents;
+    pub fn run_script<C: CustomDocument>(mut self, script: Vec<TestOp>) {
+        self.documents = vec![Document::new::<C>(), Document::new::<C>()];
         for (_i, op) in script.iter().enumerate() {
             self.run_op(op);
         }

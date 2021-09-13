@@ -2,7 +2,7 @@ pub mod helper;
 
 use crate::helper::TestOp::*;
 use bytecount::num_chars;
-use flowy_ot::core::*;
+use flowy_ot::{client::PlainDoc, core::*};
 use helper::*;
 
 #[test]
@@ -12,7 +12,7 @@ fn attributes_insert_text() {
         Insert(0, "456", 3),
         AssertOpsJson(0, r#"[{"insert":"123456"}]"#),
     ];
-    OpTester::new().run_script(ops);
+    TestBuilder::new().run_script::<PlainDoc>(ops);
 }
 
 #[test]
@@ -22,7 +22,7 @@ fn attributes_insert_text_at_head() {
         Insert(0, "456", 0),
         AssertOpsJson(0, r#"[{"insert":"456123"}]"#),
     ];
-    OpTester::new().run_script(ops);
+    TestBuilder::new().run_script::<PlainDoc>(ops);
 }
 
 #[test]
@@ -32,7 +32,7 @@ fn attributes_insert_text_at_middle() {
         Insert(0, "456", 1),
         AssertOpsJson(0, r#"[{"insert":"145623"}]"#),
     ];
-    OpTester::new().run_script(ops);
+    TestBuilder::new().run_script::<PlainDoc>(ops);
 }
 
 #[test]
@@ -471,7 +471,7 @@ fn transform2() {
         AssertOpsJson(0, r#"[{"insert":"123456"}]"#),
         AssertOpsJson(1, r#"[{"insert":"123456"}]"#),
     ];
-    OpTester::new().run_script(ops);
+    TestBuilder::new().run_script::<PlainDoc>(ops);
 }
 
 #[test]
@@ -523,7 +523,7 @@ fn delta_invert_no_attribute_delta2() {
         Invert(0, 1),
         AssertOpsJson(0, r#"[{"insert":"123"}]"#),
     ];
-    OpTester::new().run_script(ops);
+    TestBuilder::new().run_script::<PlainDoc>(ops);
 }
 
 #[test]
@@ -536,7 +536,7 @@ fn delta_invert_attribute_delta_with_no_attribute_delta() {
         Invert(0, 1),
         AssertOpsJson(0, r#"[{"insert":"123","attributes":{"bold":"true"}}]"#),
     ];
-    OpTester::new().run_script(ops);
+    TestBuilder::new().run_script::<PlainDoc>(ops);
 }
 
 #[test]
@@ -571,7 +571,7 @@ fn delta_invert_attribute_delta_with_no_attribute_delta2() {
             ]"#,
         ),
     ];
-    OpTester::new().run_script(ops);
+    TestBuilder::new().run_script::<PlainDoc>(ops);
 }
 
 #[test]
@@ -584,7 +584,7 @@ fn delta_invert_no_attribute_delta_with_attribute_delta() {
         Invert(0, 1),
         AssertOpsJson(0, r#"[{"insert":"123"}]"#),
     ];
-    OpTester::new().run_script(ops);
+    TestBuilder::new().run_script::<PlainDoc>(ops);
 }
 
 #[test]
@@ -605,7 +605,7 @@ fn delta_invert_no_attribute_delta_with_attribute_delta2() {
         Invert(0, 1),
         AssertOpsJson(0, r#"[{"insert":"123"}]"#),
     ];
-    OpTester::new().run_script(ops);
+    TestBuilder::new().run_script::<PlainDoc>(ops);
 }
 
 #[test]
@@ -646,5 +646,5 @@ fn delta_invert_attribute_delta_with_attribute_delta() {
             ]"#,
         ),
     ];
-    OpTester::new().run_script(ops);
+    TestBuilder::new().run_script::<PlainDoc>(ops);
 }
