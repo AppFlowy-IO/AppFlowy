@@ -71,10 +71,7 @@ fn delta_get_ops_in_interval_2() {
         vec![OpBuilder::insert("23").build()]
     );
 
-    assert_eq!(
-        DeltaIter::from_interval(&delta, Interval::new(0, 3)).ops(),
-        vec![insert_a.clone()]
-    );
+    assert_eq!(DeltaIter::from_interval(&delta, Interval::new(0, 3)).ops(), vec![insert_a.clone()]);
 
     assert_eq!(
         DeltaIter::from_interval(&delta, Interval::new(0, 4)).ops(),
@@ -114,25 +111,13 @@ fn delta_get_ops_in_interval_4() {
     delta.ops.push(insert_b.clone());
     delta.ops.push(insert_c.clone());
 
-    assert_eq!(
-        DeltaIter::from_interval(&delta, Interval::new(0, 2)).ops(),
-        vec![insert_a]
-    );
-    assert_eq!(
-        DeltaIter::from_interval(&delta, Interval::new(2, 4)).ops(),
-        vec![insert_b]
-    );
-    assert_eq!(
-        DeltaIter::from_interval(&delta, Interval::new(4, 6)).ops(),
-        vec![insert_c]
-    );
+    assert_eq!(DeltaIter::from_interval(&delta, Interval::new(0, 2)).ops(), vec![insert_a]);
+    assert_eq!(DeltaIter::from_interval(&delta, Interval::new(2, 4)).ops(), vec![insert_b]);
+    assert_eq!(DeltaIter::from_interval(&delta, Interval::new(4, 6)).ops(), vec![insert_c]);
 
     assert_eq!(
         DeltaIter::from_interval(&delta, Interval::new(2, 5)).ops(),
-        vec![
-            OpBuilder::insert("34").build(),
-            OpBuilder::insert("5").build()
-        ]
+        vec![OpBuilder::insert("34").build(), OpBuilder::insert("5").build()]
     );
 }
 
@@ -145,10 +130,7 @@ fn delta_get_ops_in_interval_5() {
     delta.ops.push(insert_b.clone());
     assert_eq!(
         DeltaIter::from_interval(&delta, Interval::new(4, 8)).ops(),
-        vec![
-            OpBuilder::insert("56").build(),
-            OpBuilder::insert("78").build()
-        ]
+        vec![OpBuilder::insert("56").build(), OpBuilder::insert("78").build()]
     );
 
     // assert_eq!(
@@ -182,10 +164,7 @@ fn delta_get_ops_in_interval_7() {
     assert_eq!(iter_1.next_op().unwrap(), OpBuilder::retain(3).build());
 
     let mut iter_2 = DeltaIter::new(&delta);
-    assert_eq!(
-        iter_2.next_op_with_len(2).unwrap(),
-        OpBuilder::insert("12").build()
-    );
+    assert_eq!(iter_2.next_op_with_len(2).unwrap(), OpBuilder::insert("12").build());
     assert_eq!(iter_2.next_op().unwrap(), OpBuilder::insert("345").build());
 
     assert_eq!(iter_2.next_op().unwrap(), OpBuilder::retain(3).build());
@@ -209,10 +188,7 @@ fn delta_seek_2() {
     delta.add(OpBuilder::insert("12345").build());
 
     let mut iter = DeltaIter::new(&delta);
-    assert_eq!(
-        iter.next_op_with_len(1).unwrap(),
-        OpBuilder::insert("1").build()
-    );
+    assert_eq!(iter.next_op_with_len(1).unwrap(), OpBuilder::insert("1").build());
 }
 
 #[test]
@@ -221,20 +197,11 @@ fn delta_seek_3() {
     delta.add(OpBuilder::insert("12345").build());
 
     let mut iter = DeltaIter::new(&delta);
-    assert_eq!(
-        iter.next_op_with_len(2).unwrap(),
-        OpBuilder::insert("12").build()
-    );
+    assert_eq!(iter.next_op_with_len(2).unwrap(), OpBuilder::insert("12").build());
 
-    assert_eq!(
-        iter.next_op_with_len(2).unwrap(),
-        OpBuilder::insert("34").build()
-    );
+    assert_eq!(iter.next_op_with_len(2).unwrap(), OpBuilder::insert("34").build());
 
-    assert_eq!(
-        iter.next_op_with_len(2).unwrap(),
-        OpBuilder::insert("5").build()
-    );
+    assert_eq!(iter.next_op_with_len(2).unwrap(), OpBuilder::insert("5").build());
 
     assert_eq!(iter.next_op_with_len(1), None);
 }
@@ -246,21 +213,18 @@ fn delta_seek_4() {
 
     let mut iter = DeltaIter::new(&delta);
     iter.seek::<CharMetric>(3);
-    assert_eq!(
-        iter.next_op_with_len(2).unwrap(),
-        OpBuilder::insert("45").build()
-    );
+    assert_eq!(iter.next_op_with_len(2).unwrap(), OpBuilder::insert("45").build());
 }
 
 #[test]
 fn delta_seek_5() {
     let mut delta = Delta::default();
-    let attributes = AttributeBuilder::new().bold(true).italic(true).build();
-    delta.add(
-        OpBuilder::insert("1234")
-            .attributes(attributes.clone())
-            .build(),
-    );
+    let attributes = AttributeBuilder::new()
+        .add(Attribute::Bold(true))
+        .add(Attribute::Italic(true))
+        .build();
+
+    delta.add(OpBuilder::insert("1234").attributes(attributes.clone()).build());
     delta.add(OpBuilder::insert("\n").build());
 
     let mut iter = DeltaIter::new(&delta);
@@ -280,10 +244,7 @@ fn delta_next_op_len_test() {
     let mut iter = DeltaIter::new(&delta);
     iter.seek::<CharMetric>(3);
     assert_eq!(iter.next_op_len().unwrap(), 2);
-    assert_eq!(
-        iter.next_op_with_len(1).unwrap(),
-        OpBuilder::insert("4").build()
-    );
+    assert_eq!(iter.next_op_with_len(1).unwrap(), OpBuilder::insert("4").build());
     assert_eq!(iter.next_op_len().unwrap(), 1);
     assert_eq!(iter.next_op().unwrap(), OpBuilder::insert("5").build());
 }
@@ -295,10 +256,7 @@ fn delta_next_op_len_test2() {
     let mut iter = DeltaIter::new(&delta);
 
     assert_eq!(iter.next_op_len().unwrap(), 5);
-    assert_eq!(
-        iter.next_op_with_len(5).unwrap(),
-        OpBuilder::insert("12345").build()
-    );
+    assert_eq!(iter.next_op_with_len(5).unwrap(), OpBuilder::insert("12345").build());
     assert_eq!(iter.next_op_len(), None);
 }
 
@@ -321,10 +279,7 @@ fn delta_next_op_with_len_cross_op_return_last() {
     let mut iter = DeltaIter::new(&delta);
     iter.seek::<CharMetric>(4);
     assert_eq!(iter.next_op_len().unwrap(), 1);
-    assert_eq!(
-        iter.next_op_with_len(2).unwrap(),
-        OpBuilder::retain(1).build()
-    );
+    assert_eq!(iter.next_op_with_len(2).unwrap(), OpBuilder::retain(1).build());
 }
 
 #[test]
@@ -523,7 +478,7 @@ fn transform2() {
 fn delta_transform_test() {
     let mut a = Delta::default();
     let mut a_s = String::new();
-    a.insert("123", AttributeBuilder::new().bold(true).build());
+    a.insert("123", AttributeBuilder::new().add(Attribute::Bold(true)).build());
     a_s = a.apply(&a_s).unwrap();
     assert_eq!(&a_s, "123");
 
@@ -625,10 +580,7 @@ fn delta_invert_no_attribute_delta_with_attribute_delta() {
         Insert(0, "123", 0),
         Insert(1, "4567", 0),
         Bold(1, Interval::new(0, 3), true),
-        AssertOpsJson(
-            1,
-            r#"[{"insert":"456","attributes":{"bold":"true"}},{"insert":"7"}]"#,
-        ),
+        AssertOpsJson(1, r#"[{"insert":"456","attributes":{"bold":"true"}},{"insert":"7"}]"#),
         Invert(0, 1),
         AssertOpsJson(0, r#"[{"insert":"123"}]"#),
     ];

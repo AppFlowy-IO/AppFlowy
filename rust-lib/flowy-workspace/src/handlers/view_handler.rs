@@ -54,6 +54,15 @@ pub(crate) async fn update_view_handler(
 
     Ok(())
 }
+#[tracing::instrument(skip(data, controller), err)]
+pub(crate) async fn update_view_data_handler(
+    data: Data<UpdateViewDataRequest>,
+    controller: Unit<Arc<ViewController>>,
+) -> Result<(), WorkspaceError> {
+    let params: UpdateDocParams = data.into_inner().try_into()?;
+    let _ = controller.update_view_data(params).await?;
+    Ok(())
+}
 
 #[tracing::instrument(skip(data, controller), err)]
 pub(crate) async fn delete_view_handler(
@@ -73,14 +82,4 @@ pub(crate) async fn open_view_handler(
     let params: QueryDocParams = data.into_inner().try_into()?;
     let doc = controller.open_view(params).await?;
     data_result(doc)
-}
-
-#[tracing::instrument(skip(data, controller), err)]
-pub(crate) async fn update_view_data_handler(
-    data: Data<UpdateViewDataRequest>,
-    controller: Unit<Arc<ViewController>>,
-) -> Result<(), WorkspaceError> {
-    let params: UpdateDocParams = data.into_inner().try_into()?;
-    let _ = controller.update_view_data(params).await?;
-    Ok(())
 }

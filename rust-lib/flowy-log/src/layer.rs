@@ -4,7 +4,7 @@ use std::{fmt, io::Write};
 use tracing::{Event, Id, Subscriber};
 use tracing_bunyan_formatter::JsonStorage;
 use tracing_core::{metadata::Level, span::Attributes};
-use tracing_log::AsLog;
+
 use tracing_subscriber::{fmt::MakeWriter, layer::Context, registry::SpanRef, Layer};
 const LEVEL: &str = "level";
 const TIME: &str = "time";

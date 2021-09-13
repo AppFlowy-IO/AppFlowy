@@ -28,10 +28,10 @@ pub enum TestOp {
     Italic(usize, Interval, bool),
 
     #[display(fmt = "Header")]
-    Header(usize, Interval, usize, bool),
+    Header(usize, Interval, usize),
 
     #[display(fmt = "Link")]
-    Link(usize, Interval, &'static str, bool),
+    Link(usize, Interval, &'static str),
 
     #[display(fmt = "Bullet")]
     Bullet(usize, Interval, bool),
@@ -93,48 +93,34 @@ impl OpTester {
             TestOp::InsertBold(delta_i, s, iv) => {
                 let document = &mut self.documents[*delta_i];
                 document.insert(iv.start, s).unwrap();
-                document
-                    .format(*iv, AttributeKey::Bold.value(true))
-                    .unwrap();
+                document.format(*iv, Attribute::Bold(true)).unwrap();
             },
             TestOp::Bold(delta_i, iv, enable) => {
                 let document = &mut self.documents[*delta_i];
-                let attribute = match *enable {
-                    true => AttributeKey::Bold.value(true),
-                    false => AttributeKey::Bold.remove(),
-                };
+                let attribute = Attribute::Bold(*enable);
                 document.format(*iv, attribute).unwrap();
             },
             TestOp::Italic(delta_i, iv, enable) => {
                 let document = &mut self.documents[*delta_i];
                 let attribute = match *enable {
-                    true => AttributeKey::Italic.value("true"),
-                    false => AttributeKey::Italic.remove(),
+                    true => Attribute::Italic(true),
+                    false => Attribute::Italic(false),
                 };
                 document.format(*iv, attribute).unwrap();
             },
-            TestOp::Header(delta_i, iv, level, enable) => {
+            TestOp::Header(delta_i, iv, level) => {
                 let document = &mut self.documents[*delta_i];
-                let attribute = match *enable {
-                    true => AttributeKey::Header.value(level),
-                    false => AttributeKey::Header.remove(),
-                };
+                let attribute = Attribute::Header(*level);
                 document.format(*iv, attribute).unwrap();
             },
-            TestOp::Link(delta_i, iv, link, enable) => {
+            TestOp::Link(delta_i, iv, link) => {
                 let document = &mut self.documents[*delta_i];
-                let attribute = match *enable {
-                    true => AttributeKey::Link.value(link.to_owned()),
-                    false => AttributeKey::Link.remove(),
-                };
+                let attribute = Attribute::Link(link.to_owned());
                 document.format(*iv, attribute).unwrap();
             },
             TestOp::Bullet(delta_i, iv, enable) => {
                 let document = &mut self.documents[*delta_i];
-                let attribute = match *enable {
-                    true => AttributeKey::Bullet.value("true"),
-                    false => AttributeKey::Bullet.remove(),
-                };
+                let attribute = Attribute::Bullet(*enable);
                 document.format(*iv, attribute).unwrap();
             },
             TestOp::Transform(delta_a_i, delta_b_i) => {
@@ -236,9 +222,7 @@ impl Default for Rng {
 impl Rng {
     pub fn from_seed(seed: [u8; 32]) -> Self { Rng(StdRng::from_seed(seed)) }
 
-    pub fn gen_string(&mut self, len: usize) -> String {
-        (0..len).map(|_| self.0.gen::<char>()).collect()
-    }
+    pub fn gen_string(&mut self, len: usize) -> String { (0..len).map(|_| self.0.gen::<char>()).collect() }
 
     pub fn gen_delta(&mut self, s: &str) -> Delta {
         let mut delta = Delta::default();
@@ -265,10 +249,7 @@ impl Rng {
             }
         }
         if self.0.gen_range(0.0, 1.0) < 0.3 {
-            delta.insert(
-                &("1".to_owned() + &self.gen_string(10)),
-                Attributes::default(),
-            );
+            delta.insert(&("1".to_owned() + &self.gen_string(10)), Attributes::default());
         }
         delta
     }

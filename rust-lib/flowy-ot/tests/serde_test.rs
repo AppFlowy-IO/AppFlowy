@@ -2,7 +2,10 @@ use flowy_ot::{client::Document, core::*};
 
 #[test]
 fn operation_insert_serialize_test() {
-    let attributes = AttributeBuilder::new().bold(true).italic(true).build();
+    let attributes = AttributeBuilder::new()
+        .add(Attribute::Bold(true))
+        .add(Attribute::Italic(true))
+        .build();
     let operation = OpBuilder::insert("123").attributes(attributes).build();
     let json = serde_json::to_string(&operation).unwrap();
     eprintln!("{}", json);
@@ -32,7 +35,10 @@ fn operation_delete_serialize_test() {
 fn delta_serialize_test() {
     let mut delta = Delta::default();
 
-    let attributes = AttributeBuilder::new().bold(true).italic(true).build();
+    let attributes = AttributeBuilder::new()
+        .add(Attribute::Bold(true))
+        .add(Attribute::Italic(true))
+        .build();
     let retain = OpBuilder::insert("123").attributes(attributes).build();
 
     delta.add(retain);

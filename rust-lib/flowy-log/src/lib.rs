@@ -5,9 +5,9 @@ use std::path::Path;
 use tracing::subscriber::set_global_default;
 
 use crate::layer::*;
-use tracing_bunyan_formatter::{BunyanFormattingLayer, JsonStorageLayer};
+use tracing_bunyan_formatter::JsonStorageLayer;
 use tracing_log::LogTracer;
-use tracing_subscriber::{fmt::format::FmtSpan, layer::SubscriberExt, EnvFilter};
+use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
 
 pub struct Builder {
     name: String,

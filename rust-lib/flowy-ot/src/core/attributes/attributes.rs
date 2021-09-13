@@ -4,36 +4,34 @@ use std::{collections::HashMap, fmt};
 pub const REMOVE_FLAG: &'static str = "";
 pub(crate) fn should_remove(val: &AttributeValue) -> bool { val.0 == REMOVE_FLAG }
 
-#[derive(Debug, Clone, Default, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Attributes {
     #[serde(skip_serializing_if = "HashMap::is_empty")]
     #[serde(flatten)]
     pub(crate) inner: HashMap<AttributeKey, AttributeValue>,
 }
 
-impl fmt::Display for Attributes {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_fmt(format_args!("{:?}", self.inner))
+impl std::default::Default for Attributes {
+    fn default() -> Self {
+        Self {
+            inner: HashMap::with_capacity(0),
+        }
     }
 }
 
-impl Attributes {
-    pub fn new() -> Self {
-        Attributes {
-            inner: HashMap::new(),
-        }
-    }
+impl fmt::Display for Attributes {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_fmt(format_args!("{:?}", self.inner)) }
+}
 
-    pub fn empty() -> Self { Self::default() }
+pub fn plain_attributes() -> Attributes { Attributes::default() }
+
+impl Attributes {
+    pub fn new() -> Self { Attributes { inner: HashMap::new() } }
 
     pub fn is_empty(&self) -> bool { self.inner.is_empty() }
 
     pub fn add(&mut self, attribute: Attribute) {
-        let Attribute {
-            key,
-            value,
-            scope: _,
-        } = attribute;
+        let Attribute { key, value, scope: _ } = attribute;
         self.inner.insert(key, value);
     }
 
@@ -45,9 +43,7 @@ impl Attributes {
     pub fn mark_all_as_removed_except(&mut self, attribute: Option<AttributeKey>) {
         match attribute {
             None => {
-                self.inner
-                    .iter_mut()
-                    .for_each(|(_k, v)| v.0 = REMOVE_FLAG.into());
+                self.inner.iter_mut().for_each(|(_k, v)| v.0 = REMOVE_FLAG.into());
             },
             Some(attribute) => {
                 self.inner.iter_mut().for_each(|(k, v)| {
@@ -153,24 +149,21 @@ pub fn transform_operation(left: &Option<Operation>, right: &Option<Operation>) 
 
     let left = attr_l.unwrap();
     let right = attr_r.unwrap();
-    left.iter()
-        .fold(Attributes::new(), |mut new_attributes, (k, v)| {
-            if !right.contains_key(k) {
-                new_attributes.insert(k.clone(), v.clone());
-            }
-            new_attributes
-        })
+    left.iter().fold(Attributes::new(), |mut new_attributes, (k, v)| {
+        if !right.contains_key(k) {
+            new_attributes.insert(k.clone(), v.clone());
+        }
+        new_attributes
+    })
 }
 
 pub fn invert_attributes(attr: Attributes, base: Attributes) -> Attributes {
-    let base_inverted = base
-        .iter()
-        .fold(Attributes::new(), |mut attributes, (k, v)| {
-            if base.get(k) != attr.get(k) && attr.contains_key(k) {
-                attributes.insert(k.clone(), v.clone());
-            }
-            attributes
-        });
+    let base_inverted = base.iter().fold(Attributes::new(), |mut attributes, (k, v)| {
+        if base.get(k) != attr.get(k) && attr.contains_key(k) {
+            attributes.insert(k.clone(), v.clone());
+        }
+        attributes
+    });
 
     let inverted = attr.iter().fold(base_inverted, |mut attributes, (k, _)| {
         if base.get(k) != attr.get(k) && !base.contains_key(k) {

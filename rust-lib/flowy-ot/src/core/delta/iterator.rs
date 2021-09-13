@@ -39,9 +39,7 @@ impl<'a> DeltaIter<'a> {
 
     pub fn next_op(&mut self) -> Option<Operation> { self.cursor.next() }
 
-    pub fn next_op_with_len(&mut self, len: usize) -> Option<Operation> {
-        self.cursor.next_with_len(Some(len))
-    }
+    pub fn next_op_with_len(&mut self, len: usize) -> Option<Operation> { self.cursor.next_with_len(Some(len)) }
 
     // find next op contains NEW_LINE
     pub fn next_op_with_newline(&mut self) -> Option<(Operation, usize)> {
@@ -210,9 +208,7 @@ impl OpNewline {
 
     pub fn is_not_found(&self) -> bool { self == &OpNewline::NotFound }
 
-    pub fn is_contain(&self) -> bool {
-        self.is_start() || self.is_end() || self.is_equal() || self == &OpNewline::Contain
-    }
+    pub fn is_contain(&self) -> bool { self.is_start() || self.is_end() || self.is_equal() || self == &OpNewline::Contain }
 
     pub fn is_equal(&self) -> bool { self == &OpNewline::Equal }
 }

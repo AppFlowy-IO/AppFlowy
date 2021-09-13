@@ -21,9 +21,7 @@ impl<'de> Deserialize<'de> for AttributeValue {
         impl<'de> Visitor<'de> for OperationSeqVisitor {
             type Value = AttributeValue;
 
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                formatter.write_str("a string")
-            }
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result { formatter.write_str("a string") }
 
             fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
             where

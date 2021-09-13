@@ -8,11 +8,7 @@ use flowy_ot::{
 
 #[test]
 fn history_insert_undo() {
-    let ops = vec![
-        Insert(0, "123", 0),
-        Undo(0),
-        AssertOpsJson(0, r#"[{"insert":"\n"}]"#),
-    ];
+    let ops = vec![Insert(0, "123", 0), Undo(0), AssertOpsJson(0, r#"[{"insert":"\n"}]"#)];
     OpTester::new().run_script_with_newline(ops);
 }
 
@@ -93,10 +89,7 @@ fn history_bold_redo() {
         Undo(0),
         AssertOpsJson(0, r#"[{"insert":"\n"}]"#),
         Redo(0),
-        AssertOpsJson(
-            0,
-            r#" [{"insert":"123","attributes":{"bold":"true"}},{"insert":"\n"}]"#,
-        ),
+        AssertOpsJson(0, r#" [{"insert":"123","attributes":{"bold":"true"}},{"insert":"\n"}]"#),
     ];
     OpTester::new().run_script_with_newline(ops);
 }
@@ -110,10 +103,7 @@ fn history_bold_redo_with_lagging() {
         Undo(0),
         AssertOpsJson(0, r#"[{"insert":"123\n"}]"#),
         Redo(0),
-        AssertOpsJson(
-            0,
-            r#"[{"insert":"123","attributes":{"bold":"true"}},{"insert":"\n"}]"#,
-        ),
+        AssertOpsJson(0, r#"[{"insert":"123","attributes":{"bold":"true"}},{"insert":"\n"}]"#),
     ];
     OpTester::new().run_script_with_newline(ops);
 }
@@ -226,10 +216,7 @@ fn history_replace_undo_with_lagging() {
             "#,
         ),
         Undo(0),
-        AssertOpsJson(
-            0,
-            r#"[{"insert":"123","attributes":{"bold":"true"}},{"insert":"\n"}]"#,
-        ),
+        AssertOpsJson(0, r#"[{"insert":"123","attributes":{"bold":"true"}},{"insert":"\n"}]"#),
     ];
     OpTester::new().run_script_with_newline(ops);
 }
@@ -257,7 +244,7 @@ fn history_replace_redo() {
 fn history_header_added_undo() {
     let ops = vec![
         Insert(0, "123456", 0),
-        Header(0, Interval::new(0, 6), 1, true),
+        Header(0, Interval::new(0, 6), 1),
         Insert(0, "\n", 3),
         Insert(0, "\n", 4),
         Undo(0),
@@ -278,7 +265,7 @@ fn history_link_added_undo() {
     let ops = vec![
         Insert(0, site, 0),
         Wait(RECORD_THRESHOLD),
-        Link(0, Interval::new(0, site.len()), site, true),
+        Link(0, Interval::new(0, site.len()), site),
         Undo(0),
         AssertOpsJson(0, r#"[{"insert":"https://appflowy.io\n"}]"#),
         Redo(0),
@@ -347,10 +334,7 @@ fn history_bullet_undo_with_lagging() {
             r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}},{"insert":"2"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
         ),
         Undo(0),
-        AssertOpsJson(
-            0,
-            r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
-        ),
+        AssertOpsJson(0, r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}}]"#),
         Undo(0),
         AssertOpsJson(0, r#"[{"insert":"\n"}]"#),
         Redo(0),
@@ -377,10 +361,7 @@ fn history_undo_attribute_on_merge_between_line() {
             r#"[{"insert":"123"},{"insert":"\n","attributes":{"bullet":"true"}},{"insert":"456"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
         ),
         Delete(0, Interval::new(3, 4)), // delete the newline
-        AssertOpsJson(
-            0,
-            r#"[{"insert":"123456"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
-        ),
+        AssertOpsJson(0, r#"[{"insert":"123456"},{"insert":"\n","attributes":{"bullet":"true"}}]"#),
         Undo(0),
         AssertOpsJson(
             0,

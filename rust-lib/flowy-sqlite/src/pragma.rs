@@ -24,12 +24,7 @@ pub trait PragmaExtension: ConnectionExtension {
         Ok(())
     }
 
-    fn pragma_ret<ST, T, D: std::fmt::Display>(
-        &self,
-        key: &str,
-        val: D,
-        schema: Option<&str>,
-    ) -> Result<T>
+    fn pragma_ret<ST, T, D: std::fmt::Display>(&self, key: &str, val: D, schema: Option<&str>) -> Result<T>
     where
         SqlLiteral<ST>: LoadQuery<SqliteConnection, T>,
     {
@@ -57,36 +52,22 @@ pub trait PragmaExtension: ConnectionExtension {
         self.pragma_ret::<Integer, i32, i32>("busy_timeout", timeout_ms, None)
     }
 
-    fn pragma_get_busy_timeout(&self) -> Result<i32> {
-        self.pragma_get::<Integer, i32>("busy_timeout", None)
-    }
+    fn pragma_get_busy_timeout(&self) -> Result<i32> { self.pragma_get::<Integer, i32>("busy_timeout", None) }
 
-    fn pragma_set_journal_mode(
-        &self,
-        mode: SQLiteJournalMode,
-        schema: Option<&str>,
-    ) -> Result<i32> {
+    fn pragma_set_journal_mode(&self, mode: SQLiteJournalMode, schema: Option<&str>) -> Result<i32> {
         self.pragma_ret::<Integer, i32, SQLiteJournalMode>("journal_mode", mode, schema)
     }
 
     fn pragma_get_journal_mode(&self, schema: Option<&str>) -> Result<SQLiteJournalMode> {
-        Ok(self
-            .pragma_get::<Text, String>("journal_mode", schema)?
-            .parse()?)
+        Ok(self.pragma_get::<Text, String>("journal_mode", schema)?.parse()?)
     }
 
-    fn pragma_set_synchronous(
-        &self,
-        synchronous: SQLiteSynchronous,
-        schema: Option<&str>,
-    ) -> Result<()> {
+    fn pragma_set_synchronous(&self, synchronous: SQLiteSynchronous, schema: Option<&str>) -> Result<()> {
         self.pragma("synchronous", synchronous as u8, schema)
     }
 
     fn pragma_get_synchronous(&self, schema: Option<&str>) -> Result<SQLiteSynchronous> {
-        Ok(self
-            .pragma_get::<Integer, i32>("synchronous", schema)?
-            .try_into()?)
+        Ok(self.pragma_get::<Integer, i32>("synchronous", schema)?.try_into()?)
     }
 }
 impl PragmaExtension for SqliteConnection {}

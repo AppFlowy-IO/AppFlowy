@@ -114,7 +114,7 @@ pub fn read_workspace(sdk: &FlowyTestSDK, request: QueryWorkspaceRequest) -> Opt
         .sync_send()
         .parse::<RepeatedWorkspace>();
 
-    let mut workspaces = vec![];
+    let mut workspaces;
     if let Some(workspace_id) = &request.workspace_id {
         workspaces = repeated_workspace
             .take_items()

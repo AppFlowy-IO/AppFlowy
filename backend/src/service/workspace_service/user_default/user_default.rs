@@ -4,7 +4,7 @@ use flowy_workspace::protobuf::{App, CreateViewParams, View, ViewType, Workspace
 use crate::{
     service::workspace_service::{
         app::sql_builder::NewAppSqlBuilder as AppBuilder,
-        view::{create_view_with_transaction, sql_builder::NewViewSqlBuilder as ViewBuilder},
+        view::create_view_with_transaction,
         workspace::sql_builder::NewWorkspaceBuilder as WorkspaceBuilder,
     },
     sqlx_ext::{map_sqlx_error, DBTransaction},

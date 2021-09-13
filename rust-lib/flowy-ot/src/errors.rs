@@ -7,12 +7,7 @@ pub struct OTError {
 }
 
 impl OTError {
-    pub fn new(code: OTErrorCode, msg: &str) -> OTError {
-        Self {
-            code,
-            msg: msg.to_owned(),
-        }
-    }
+    pub fn new(code: OTErrorCode, msg: &str) -> OTError { Self { code, msg: msg.to_owned() } }
 }
 
 impl fmt::Display for OTError {
@@ -24,11 +19,7 @@ impl Error for OTError {
 }
 
 impl std::convert::From<serde_json::Error> for OTError {
-    fn from(error: serde_json::Error) -> Self {
-        ErrorBuilder::new(OTErrorCode::SerdeError)
-            .error(error)
-            .build()
-    }
+    fn from(error: serde_json::Error) -> Self { ErrorBuilder::new(OTErrorCode::SerdeError).error(error).build() }
 }
 
 #[derive(Debug, Clone)]
@@ -68,7 +59,5 @@ impl ErrorBuilder {
         self
     }
 
-    pub fn build(mut self) -> OTError {
-        OTError::new(self.code, &self.msg.take().unwrap_or("".to_owned()))
-    }
+    pub fn build(mut self) -> OTError { OTError::new(self.code, &self.msg.take().unwrap_or("".to_owned())) }
 }

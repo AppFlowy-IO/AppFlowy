@@ -21,7 +21,7 @@ impl InsertExt for ResetLineFormatOnNewLine {
 
         let mut reset_attribute = Attributes::new();
         if next_op.get_attributes().contains_key(&AttributeKey::Header) {
-            reset_attribute.add(AttributeKey::Header.value(""));
+            reset_attribute.mark_as_removed(&AttributeKey::Header);
         }
 
         let len = index + replace_len;

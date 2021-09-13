@@ -1,12 +1,5 @@
 use crate::errors::*;
-use diesel::{
-    dsl::sql,
-    expression::SqlLiteral,
-    query_dsl::LoadQuery,
-    Connection,
-    RunQueryDsl,
-    SqliteConnection,
-};
+use diesel::{dsl::sql, expression::SqlLiteral, query_dsl::LoadQuery, Connection, RunQueryDsl, SqliteConnection};
 
 pub trait ConnectionExtension: Connection {
     fn query<ST, T>(&self, query: &str) -> Result<T>
@@ -24,7 +17,5 @@ impl ConnectionExtension for SqliteConnection {
         Ok(sql::<ST>(query).get_result(self)?)
     }
 
-    fn exec(&self, query: impl AsRef<str>) -> Result<usize> {
-        Ok(SqliteConnection::execute(self, query.as_ref())?)
-    }
+    fn exec(&self, query: impl AsRef<str>) -> Result<usize> { Ok(SqliteConnection::execute(self, query.as_ref())?) }
 }

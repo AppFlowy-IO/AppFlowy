@@ -76,18 +76,11 @@ fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream>
     }
 }
 
-fn gen_token_stream(
-    ctxt: &Ctxt,
-    member: &syn::Member,
-    ty: &syn::Type,
-    is_option: bool,
-) -> Option<TokenStream> {
+fn gen_token_stream(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_option: bool) -> Option<TokenStream> {
     let ty_info = parse_ty(ctxt, ty)?;
     match ident_category(ty_info.ident) {
         TypeCategory::Array => token_stream_for_vec(ctxt, &member, &ty_info.ty),
-        TypeCategory::Map => {
-            token_stream_for_map(ctxt, &member, &ty_info.bracket_ty_info.unwrap().ty)
-        },
+        TypeCategory::Map => token_stream_for_map(ctxt, &member, &ty_info.bracket_ty_info.unwrap().ty),
         TypeCategory::Str => {
             if is_option {
                 Some(quote! {
@@ -100,12 +93,8 @@ fn gen_token_stream(
                 Some(quote! { pb.#member = self.#member.clone(); })
             }
         },
-        TypeCategory::Protobuf => Some(
-            quote! { pb.#member =  ::protobuf::SingularPtrField::some(self.#member.try_into().unwrap()); },
-        ),
-        TypeCategory::Opt => {
-            gen_token_stream(ctxt, member, ty_info.bracket_ty_info.unwrap().ty, true)
-        },
+        TypeCategory::Protobuf => Some(quote! { pb.#member =  ::protobuf::SingularPtrField::some(self.#member.try_into().unwrap()); }),
+        TypeCategory::Opt => gen_token_stream(ctxt, member, ty_info.bracket_ty_info.unwrap().ty, true),
         TypeCategory::Enum => {
             // let pb_enum_ident = format_ident!("{}", ty_info.ident.to_string());
             // Some(quote! {

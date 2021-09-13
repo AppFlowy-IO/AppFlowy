@@ -13,9 +13,7 @@ pub trait Responder {
 macro_rules! impl_responder {
     ($res: ty) => {
         impl Responder for $res {
-            fn respond_to(self, _: &EventRequest) -> EventResponse {
-                ResponseBuilder::Ok().data(self).build()
-            }
+            fn respond_to(self, _: &EventRequest) -> EventResponse { ResponseBuilder::Ok().data(self).build() }
         }
     };
 }

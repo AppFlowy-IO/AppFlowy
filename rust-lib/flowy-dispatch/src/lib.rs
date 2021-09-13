@@ -16,13 +16,5 @@ pub mod macros;
 pub use errors::Error;
 
 pub mod prelude {
-    pub use crate::{
-        byte_trait::*,
-        data::*,
-        dispatch::*,
-        errors::*,
-        module::*,
-        request::*,
-        response::*,
-    };
+    pub use crate::{byte_trait::*, data::*, dispatch::*, errors::*, module::*, request::*, response::*};
 }

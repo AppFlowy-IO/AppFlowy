@@ -33,9 +33,7 @@ impl Interval {
 
     pub fn contains(&self, val: usize) -> bool { self.start <= val && val < self.end }
 
-    pub fn contains_range(&self, start: usize, end: usize) -> bool {
-        !self.intersect(Interval::new(start, end)).is_empty()
-    }
+    pub fn contains_range(&self, start: usize, end: usize) -> bool { !self.intersect(Interval::new(start, end)).is_empty() }
 
     pub fn is_after(&self, val: usize) -> bool { self.start > val }
 
@@ -101,9 +99,7 @@ impl std::default::Default for Interval {
 }
 
 impl fmt::Display for Interval {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "[{}, {})", self.start(), self.end())
-    }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "[{}, {})", self.start(), self.end()) }
 }
 
 impl fmt::Debug for Interval {
@@ -122,15 +118,11 @@ impl From<RangeTo<usize>> for Interval {
 }
 
 impl From<RangeInclusive<usize>> for Interval {
-    fn from(src: RangeInclusive<usize>) -> Interval {
-        Interval::new(*src.start(), src.end().saturating_add(1))
-    }
+    fn from(src: RangeInclusive<usize>) -> Interval { Interval::new(*src.start(), src.end().saturating_add(1)) }
 }
 
 impl From<RangeToInclusive<usize>> for Interval {
-    fn from(src: RangeToInclusive<usize>) -> Interval {
-        Interval::new(0, src.end.saturating_add(1))
-    }
+    fn from(src: RangeToInclusive<usize>) -> Interval { Interval::new(0, src.end.saturating_add(1)) }
 }
 
 #[cfg(test)]
@@ -186,29 +178,18 @@ mod tests {
 
     #[test]
     fn intersect() {
-        assert_eq!(
-            Interval::new(2, 3),
-            Interval::new(1, 3).intersect(Interval::new(2, 4))
-        );
-        assert!(Interval::new(1, 2)
-            .intersect(Interval::new(2, 43))
-            .is_empty());
+        assert_eq!(Interval::new(2, 3), Interval::new(1, 3).intersect(Interval::new(2, 4)));
+        assert!(Interval::new(1, 2).intersect(Interval::new(2, 43)).is_empty());
     }
 
     #[test]
     fn prefix() {
-        assert_eq!(
-            Interval::new(1, 2),
-            Interval::new(1, 4).prefix(Interval::new(2, 3))
-        );
+        assert_eq!(Interval::new(1, 2), Interval::new(1, 4).prefix(Interval::new(2, 3)));
     }
 
     #[test]
     fn suffix() {
-        assert_eq!(
-            Interval::new(3, 4),
-            Interval::new(1, 4).suffix(Interval::new(2, 3))
-        );
+        assert_eq!(Interval::new(3, 4), Interval::new(1, 4).suffix(Interval::new(2, 3)));
     }
 
     #[test]

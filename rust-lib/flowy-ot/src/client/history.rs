@@ -22,12 +22,7 @@ pub struct UndoResult {
 }
 
 impl UndoResult {
-    pub fn fail() -> Self {
-        UndoResult {
-            success: false,
-            len: 0,
-        }
-    }
+    pub fn fail() -> Self { UndoResult { success: false, len: 0 } }
 
     pub fn success(len: usize) -> Self { UndoResult { success: true, len } }
 }

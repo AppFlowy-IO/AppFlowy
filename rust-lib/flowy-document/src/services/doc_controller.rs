@@ -32,7 +32,7 @@ impl DocController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, conn), err)]
+    #[tracing::instrument(level = "debug", skip(self, conn, params), err)]
     pub fn update(&self, params: UpdateDocParams, conn: &SqliteConnection) -> Result<(), DocError> {
         let changeset = DocTableChangeset::new(params.clone());
         let _ = self.sql.update_doc_table(changeset, &*conn)?;
@@ -58,7 +58,7 @@ impl DocController {
 }
 
 impl DocController {
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    #[tracing::instrument(level = "debug", skip(self, params), err)]
     fn update_doc_on_server(&self, params: UpdateDocParams) -> Result<(), DocError> {
         let token = self.user.token()?;
         let server = self.server.clone();

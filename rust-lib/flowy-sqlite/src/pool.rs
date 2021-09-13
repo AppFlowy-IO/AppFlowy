@@ -119,9 +119,7 @@ impl ManageConnection for ConnectionManager {
 
     fn connect(&self) -> Result<Self::Connection> { Ok(SqliteConnection::establish(&self.db_uri)?) }
 
-    fn is_valid(&self, conn: &mut Self::Connection) -> Result<()> {
-        Ok(conn.execute("SELECT 1").map(|_| ())?)
-    }
+    fn is_valid(&self, conn: &mut Self::Connection) -> Result<()> { Ok(conn.execute("SELECT 1").map(|_| ())?) }
 
     fn has_broken(&self, _conn: &mut Self::Connection) -> bool { false }
 }

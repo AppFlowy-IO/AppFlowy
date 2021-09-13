@@ -102,7 +102,7 @@ impl Delta {
         }
     }
 
-    pub fn insert(&mut self, s: &str, attrs: Attributes) {
+    pub fn insert(&mut self, s: &str, attributes: Attributes) {
         if s.is_empty() {
             return;
         }
@@ -111,18 +111,18 @@ impl Delta {
         let new_last = match self.ops.as_mut_slice() {
             [.., Operation::Insert(insert)] => {
                 //
-                insert.merge_or_new_op(s, attrs)
+                insert.merge_or_new_op(s, attributes)
             },
             [.., Operation::Insert(pre_insert), Operation::Delete(_)] => {
                 //
-                pre_insert.merge_or_new_op(s, attrs)
+                pre_insert.merge_or_new_op(s, attributes)
             },
             [.., op_last @ Operation::Delete(_)] => {
                 let new_last = op_last.clone();
-                *op_last = OpBuilder::insert(s).attributes(attrs).build();
+                *op_last = OpBuilder::insert(s).attributes(attributes).build();
                 Some(new_last)
             },
-            _ => Some(OpBuilder::insert(s).attributes(attrs).build()),
+            _ => Some(OpBuilder::insert(s).attributes(attributes).build()),
         };
 
         match new_last {
@@ -131,7 +131,7 @@ impl Delta {
         }
     }
 
-    pub fn retain(&mut self, n: usize, attrs: Attributes) {
+    pub fn retain(&mut self, n: usize, attributes: Attributes) {
         if n == 0 {
             return;
         }
@@ -139,11 +139,11 @@ impl Delta {
         self.target_len += n as usize;
 
         if let Some(Operation::Retain(retain)) = self.ops.last_mut() {
-            if let Some(new_op) = retain.merge_or_new_op(n, attrs) {
+            if let Some(new_op) = retain.merge_or_new(n, attributes) {
                 self.ops.push(new_op);
             }
         } else {
-            self.ops.push(OpBuilder::retain(n).attributes(attrs).build());
+            self.ops.push(OpBuilder::retain(n).attributes(attributes).build());
         }
     }
 

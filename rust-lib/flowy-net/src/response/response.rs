@@ -16,10 +16,7 @@ impl FlowyResponse {
 
     pub fn success() -> Self { Self::new(Bytes::new(), None) }
 
-    pub fn data<T: TryInto<Bytes, Error = protobuf::ProtobufError>>(
-        mut self,
-        data: T,
-    ) -> Result<Self, ServerError> {
+    pub fn data<T: TryInto<Bytes, Error = protobuf::ProtobufError>>(mut self, data: T) -> Result<Self, ServerError> {
         let bytes: Bytes = data.try_into()?;
         self.data = bytes;
         Ok(self)

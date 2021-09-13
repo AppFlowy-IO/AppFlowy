@@ -1,3 +1,4 @@
+#![allow(non_snake_case)]
 use crate::core::{Attributes, REMOVE_FLAG};
 use derive_more::Display;
 use lazy_static::lazy_static;
@@ -31,8 +32,7 @@ lazy_static! {
         AttributeKey::Size,
         AttributeKey::Background,
     ]);
-    static ref INGORE_KEYS: HashSet<AttributeKey> =
-        HashSet::from_iter(vec![AttributeKey::Width, AttributeKey::Height,]);
+    static ref INGORE_KEYS: HashSet<AttributeKey> = HashSet::from_iter(vec![AttributeKey::Width, AttributeKey::Height,]);
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -43,11 +43,86 @@ pub enum AttributeScope {
     Ignore,
 }
 
+macro_rules! inline_attribute {
+    (
+        $key: ident,
+        $value: ty
+    ) => {
+        pub fn $key(value: $value) -> Self {
+            Self {
+                key: AttributeKey::$key,
+                value: value.into(),
+                scope: AttributeScope::Inline,
+            }
+        }
+    };
+}
+
+macro_rules! block_attribute {
+    (
+        $key: ident,
+        $value: ident
+    ) => {
+        pub fn $key(value: $value) -> Self {
+            Self {
+                key: AttributeKey::$key,
+                value: value.into(),
+                scope: AttributeScope::Block,
+            }
+        }
+    };
+}
+
+macro_rules! ignore_attribute {
+    (
+        $key: ident,
+        $value: ident
+    ) => {
+        pub fn $key(value: $value) -> Self {
+            Self {
+                key: AttributeKey::$key,
+                value: value.into(),
+                scope: AttributeScope::Ignore,
+            }
+        }
+    };
+}
+
 #[derive(Debug, Clone)]
 pub struct Attribute {
     pub key: AttributeKey,
     pub value: AttributeValue,
     pub scope: AttributeScope,
+}
+
+impl Attribute {
+    inline_attribute!(Bold, bool);
+    inline_attribute!(Italic, bool);
+    inline_attribute!(Underline, bool);
+    inline_attribute!(StrikeThrough, bool);
+    inline_attribute!(Link, &str);
+    inline_attribute!(Color, String);
+    inline_attribute!(Font, usize);
+    inline_attribute!(Size, usize);
+    inline_attribute!(Background, String);
+
+    block_attribute!(Header, usize);
+    block_attribute!(LeftAlignment, usize);
+    block_attribute!(CenterAlignment, usize);
+    block_attribute!(RightAlignment, usize);
+    block_attribute!(JustifyAlignment, bool);
+    block_attribute!(Indent, String);
+    block_attribute!(Align, String);
+    block_attribute!(CodeBlock, String);
+    block_attribute!(List, String);
+    block_attribute!(Bullet, bool);
+    block_attribute!(Ordered, bool);
+    block_attribute!(Checked, bool);
+    block_attribute!(UnChecked, bool);
+    block_attribute!(QuoteBlock, bool);
+
+    ignore_attribute!(Width, usize);
+    ignore_attribute!(Height, usize);
 }
 
 impl fmt::Display for Attribute {
@@ -120,91 +195,6 @@ pub enum AttributeKey {
     UnChecked,
 }
 
-impl AttributeKey {
-    pub fn remove(&self) -> Attribute { self.value(REMOVE_FLAG) }
-
-    pub fn value<T: Into<AttributeValue>>(&self, value: T) -> Attribute {
-        let key = self.clone();
-        let value: AttributeValue = value.into();
-        debug_assert_eq!(self.check_value(&value), true);
-
-        if INLINE_KEYS.contains(self) {
-            return Attribute {
-                key,
-                value,
-                scope: AttributeScope::Inline,
-            };
-        }
-
-        if BLOCK_KEYS.contains(self) {
-            return Attribute {
-                key,
-                value,
-                scope: AttributeScope::Block,
-            };
-        }
-
-        Attribute {
-            key,
-            value,
-            scope: AttributeScope::Ignore,
-        }
-    }
-
-    fn check_value(&self, value: &AttributeValue) -> bool {
-        if value.0.is_empty() {
-            return true;
-        }
-
-        match self {
-            AttributeKey::Bold
-            | AttributeKey::Italic
-            | AttributeKey::Underline
-            | AttributeKey::StrikeThrough
-            | AttributeKey::Indent
-            | AttributeKey::Align
-            | AttributeKey::CodeBlock
-            | AttributeKey::List
-            | AttributeKey::QuoteBlock
-            | AttributeKey::JustifyAlignment
-            | AttributeKey::Bullet
-            | AttributeKey::Ordered
-            | AttributeKey::Checked
-            | AttributeKey::UnChecked => {
-                if let Err(e) = value.0.parse::<bool>() {
-                    log::error!(
-                        "Parser failed: {:?}. expected bool, but receive {}",
-                        e,
-                        value.0
-                    );
-                    return false;
-                }
-            },
-
-            AttributeKey::Link | AttributeKey::Color | AttributeKey::Background => {},
-
-            AttributeKey::Header
-            | AttributeKey::Width
-            | AttributeKey::Height
-            | AttributeKey::Font
-            | AttributeKey::Size
-            | AttributeKey::LeftAlignment
-            | AttributeKey::CenterAlignment
-            | AttributeKey::RightAlignment => {
-                if let Err(e) = value.0.parse::<usize>() {
-                    log::error!(
-                        "Parser failed: {:?}. expected usize, but receive {}",
-                        e,
-                        value.0
-                    );
-                    return false;
-                }
-            },
-        }
-        true
-    }
-}
-
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct AttributeValue(pub(crate) String);
 
@@ -213,11 +203,31 @@ impl AsRef<str> for AttributeValue {
 }
 
 impl std::convert::From<&usize> for AttributeValue {
-    fn from(val: &usize) -> Self { AttributeValue(format!("{}", val)) }
+    fn from(val: &usize) -> Self {
+        if *val > (0 as usize) {
+            AttributeValue(format!("{}", val))
+        } else {
+            AttributeValue(format!(""))
+        }
+    }
+}
+
+impl std::convert::From<usize> for AttributeValue {
+    fn from(val: usize) -> Self {
+        if val > (0 as usize) {
+            AttributeValue(format!("{}", val))
+        } else {
+            AttributeValue(format!(""))
+        }
+    }
 }
 
 impl std::convert::From<&str> for AttributeValue {
     fn from(val: &str) -> Self { AttributeValue(val.to_owned()) }
+}
+
+impl std::convert::From<String> for AttributeValue {
+    fn from(val: String) -> Self { AttributeValue(val) }
 }
 
 impl std::convert::From<bool> for AttributeValue {

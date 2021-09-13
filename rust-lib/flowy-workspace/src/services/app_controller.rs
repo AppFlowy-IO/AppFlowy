@@ -149,7 +149,7 @@ impl AppController {
             match server.read_app(&token, params).await {
                 Ok(option) => match option {
                     None => {},
-                    Some(app) => {},
+                    Some(_app) => {},
                 },
                 Err(_) => {},
             }

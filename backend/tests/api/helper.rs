@@ -156,13 +156,6 @@ impl TestServer {
             .unwrap();
     }
 
-    pub async fn update_doc(&self, params: UpdateDocParams) {
-        let url = format!("{}/api/doc", self.address);
-        let _ = update_doc_request(self.user_token(), params, &url)
-            .await
-            .unwrap();
-    }
-
     pub async fn read_doc(&self, params: QueryDocParams) -> Option<Doc> {
         let url = format!("{}/api/doc", self.address);
         let doc = read_doc_request(self.user_token(), params, &url)

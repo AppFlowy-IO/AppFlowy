@@ -37,9 +37,7 @@ where
             Payload::None => ready(Err(unexpected_none_payload(req))),
             Payload::Bytes(bytes) => match T::parse_from_bytes(bytes.clone()) {
                 Ok(data) => ready(Ok(Data(data))),
-                Err(e) => ready(Err(
-                    InternalError::DeserializeFromBytes(format!("{}", e)).into()
-                )),
+                Err(e) => ready(Err(InternalError::DeserializeFromBytes(format!("{}", e)).into())),
             },
         }
     }
@@ -78,9 +76,7 @@ where
     T: FromBytes,
 {
     match payload {
-        Payload::None => {
-            Err(InternalError::UnexpectedNone(format!("Parse fail, expected payload")).into())
-        },
+        Payload::None => Err(InternalError::UnexpectedNone(format!("Parse fail, expected payload")).into()),
         Payload::Bytes(bytes) => {
             let data = T::parse_from_bytes(bytes.clone())?;
             Ok(Data(data))

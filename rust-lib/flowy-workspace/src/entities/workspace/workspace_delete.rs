@@ -22,11 +22,7 @@ impl TryInto<DeleteWorkspaceParams> for DeleteWorkspaceRequest {
 
     fn try_into(self) -> Result<DeleteWorkspaceParams, Self::Error> {
         let workspace_id = WorkspaceId::parse(self.workspace_id)
-            .map_err(|e| {
-                ErrorBuilder::new(ErrorCode::WorkspaceIdInvalid)
-                    .msg(e)
-                    .build()
-            })?
+            .map_err(|e| ErrorBuilder::new(ErrorCode::WorkspaceIdInvalid).msg(e).build())?
             .0;
 
         Ok(DeleteWorkspaceParams { workspace_id })

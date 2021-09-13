@@ -17,9 +17,6 @@ pub(crate) fn get_member_ident<'a>(ctxt: &Ctxt, member: &'a syn::Member) -> Opti
 
 pub fn assert_bracket_ty_is_some(ctxt: &Ctxt, ty_info: &TyInfo) {
     if ty_info.bracket_ty_info.is_none() {
-        ctxt.error_spanned_by(
-            ty_info.ty,
-            format!("Invalid bracketed type when gen de token steam"),
-        );
+        ctxt.error_spanned_by(ty_info.ty, format!("Invalid bracketed type when gen de token steam"));
     }
 }

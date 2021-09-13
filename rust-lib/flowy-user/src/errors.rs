@@ -3,10 +3,7 @@ use derive_more::Display;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_dispatch::prelude::{EventResponse, ResponseBuilder};
 
-use std::{
-    convert::TryInto,
-    fmt::{Debug, Formatter},
-};
+use std::{convert::TryInto, fmt::Debug};
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct UserError {

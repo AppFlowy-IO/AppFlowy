@@ -47,9 +47,7 @@ pub enum ASTData<'a> {
 impl<'a> ASTData<'a> {
     pub fn all_fields(&'a self) -> Box<dyn Iterator<Item = &'a ASTField<'a>> + 'a> {
         match self {
-            ASTData::Enum(variants) => {
-                Box::new(variants.iter().flat_map(|variant| variant.fields.iter()))
-            },
+            ASTData::Enum(variants) => Box::new(variants.iter().flat_map(|variant| variant.fields.iter())),
             ASTData::Struct(_, fields) => Box::new(fields.iter()),
         }
     }
@@ -120,10 +118,7 @@ impl<'a> ASTField<'a> {
             Some(inner) => {
                 match inner.primitive_ty {
                     PrimitiveTy::Map(map_info) => {
-                        bracket_category = Some(BracketCategory::Map((
-                            map_info.key.clone(),
-                            map_info.value.clone(),
-                        )))
+                        bracket_category = Some(BracketCategory::Map((map_info.key.clone(), map_info.value.clone())))
                     },
                     PrimitiveTy::Vec => {
                         bracket_category = Some(BracketCategory::Vec);
@@ -198,9 +193,7 @@ pub enum ASTStyle {
 pub fn struct_from_ast<'a>(cx: &Ctxt, fields: &'a syn::Fields) -> (ASTStyle, Vec<ASTField<'a>>) {
     match fields {
         syn::Fields::Named(fields) => (ASTStyle::Struct, fields_from_ast(cx, &fields.named)),
-        syn::Fields::Unnamed(fields) if fields.unnamed.len() == 1 => {
-            (ASTStyle::NewType, fields_from_ast(cx, &fields.unnamed))
-        },
+        syn::Fields::Unnamed(fields) if fields.unnamed.len() == 1 => (ASTStyle::NewType, fields_from_ast(cx, &fields.unnamed)),
         syn::Fields::Unnamed(fields) => (ASTStyle::Tuple, fields_from_ast(cx, &fields.unnamed)),
         syn::Fields::Unit => (ASTStyle::Unit, Vec::new()),
     }
@@ -228,10 +221,7 @@ pub fn enum_from_ast<'a>(
         .collect()
 }
 
-fn fields_from_ast<'a>(
-    cx: &Ctxt,
-    fields: &'a Punctuated<syn::Field, Token![,]>,
-) -> Vec<ASTField<'a>> {
+fn fields_from_ast<'a>(cx: &Ctxt, fields: &'a Punctuated<syn::Field, Token![,]>) -> Vec<ASTField<'a>> {
     fields
         .iter()
         .enumerate()

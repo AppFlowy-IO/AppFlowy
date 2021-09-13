@@ -7,7 +7,6 @@ use flowy_workspace::entities::{
         DeleteWorkspaceParams,
         QueryWorkspaceParams,
         UpdateWorkspaceParams,
-        Workspace,
     },
 };
 

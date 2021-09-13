@@ -1,15 +1,11 @@
-use crate::core::{Attributes, Delta, Operation};
+use crate::core::{plain_attributes, Attributes, Delta, Operation};
 
 pub struct DeltaBuilder {
     delta: Delta,
 }
 
 impl DeltaBuilder {
-    pub fn new() -> Self {
-        Self {
-            delta: Delta::new(),
-        }
-    }
+    pub fn new() -> Self { Self { delta: Delta::new() } }
 
     pub fn retain_with_attributes(mut self, n: usize, attrs: Attributes) -> Self {
         self.delta.retain(n, attrs);
@@ -17,7 +13,7 @@ impl DeltaBuilder {
     }
 
     pub fn retain(mut self, n: usize) -> Self {
-        self.delta.retain(n, Attributes::empty());
+        self.delta.retain(n, plain_attributes());
         self
     }
 
@@ -32,7 +28,7 @@ impl DeltaBuilder {
     }
 
     pub fn insert(mut self, s: &str) -> Self {
-        self.delta.insert(s, Attributes::empty());
+        self.delta.insert(s, plain_attributes());
         self
     }
 

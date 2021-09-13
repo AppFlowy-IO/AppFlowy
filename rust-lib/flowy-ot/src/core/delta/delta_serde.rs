@@ -32,9 +32,7 @@ impl<'de> Deserialize<'de> for Delta {
         impl<'de> Visitor<'de> for OperationSeqVisitor {
             type Value = Delta;
 
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                formatter.write_str("a sequence")
-            }
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result { formatter.write_str("a sequence") }
 
             fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
             where

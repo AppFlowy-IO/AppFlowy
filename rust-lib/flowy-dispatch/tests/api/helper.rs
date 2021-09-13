@@ -1,10 +1,10 @@
+#[rustfmt::skip]
 use flowy_dispatch::prelude::*;
 use std::sync::Once;
 
 #[allow(dead_code)]
 pub fn setup_env() {
     static INIT: Once = Once::new();
-    std::env::);
     INIT.call_once(|| env_logger::init());
 }
 

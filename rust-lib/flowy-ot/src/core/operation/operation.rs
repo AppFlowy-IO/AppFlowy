@@ -42,9 +42,7 @@ impl Operation {
 
     pub fn has_attribute(&self) -> bool { !self.get_attributes().is_empty() }
 
-    pub fn contain_attribute(&self, attribute: &Attribute) -> bool {
-        self.get_attributes().contains_key(&attribute.key)
-    }
+    pub fn contain_attribute(&self, attribute: &Attribute) -> bool { self.get_attributes().contains_key(&attribute.key) }
 
     pub fn len(&self) -> usize {
         match self {
@@ -72,11 +70,7 @@ impl Operation {
             },
             Operation::Insert(insert) => {
                 let attributes = self.get_attributes();
-                left = Some(
-                    OpBuilder::insert(&insert.s[0..index])
-                        .attributes(attributes.clone())
-                        .build(),
-                );
+                left = Some(OpBuilder::insert(&insert.s[0..index]).attributes(attributes.clone()).build());
                 right = Some(
                     OpBuilder::insert(&insert.s[index..insert.num_chars()])
                         .attributes(attributes)
@@ -99,13 +93,9 @@ impl Operation {
                     OpBuilder::insert("").build()
                 } else {
                     let chars = insert.chars().skip(interval.start);
-                    let s = &chars
-                        .take(min(interval.size(), insert.num_chars()))
-                        .collect::<String>();
+                    let s = &chars.take(min(interval.size(), insert.num_chars())).collect::<String>();
 
-                    OpBuilder::insert(s)
-                        .attributes(insert.attributes.clone())
-                        .build()
+                    OpBuilder::insert(s).attributes(insert.attributes.clone()).build()
                 }
             },
         };
@@ -166,22 +156,12 @@ pub struct Retain {
 }
 
 impl fmt::Display for Retain {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.write_fmt(format_args!(
-            "retain: {}, attributes: {}",
-            self.n, self.attributes
-        ))
-    }
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result { f.write_fmt(format_args!("retain: {}, attributes: {}", self.n, self.attributes)) }
 }
 
 impl Retain {
-    pub fn merge_or_new_op(&mut self, n: usize, attributes: Attributes) -> Option<Operation> {
-        log::debug!(
-            "merge_retain_or_new_op: len: {:?}, l: {} - r: {}",
-            n,
-            self.attributes,
-            attributes
-        );
+    pub fn merge_or_new(&mut self, n: usize, attributes: Attributes) -> Option<Operation> {
+        log::debug!("merge_retain_or_new_op: len: {:?}, l: {} - r: {}", n, self.attributes, attributes);
 
         if self.attributes == attributes {
             self.n += n;
@@ -232,10 +212,7 @@ impl fmt::Display for Insert {
             }
         }
 
-        f.write_fmt(format_args!(
-            "insert: {}, attributes: {}",
-            s, self.attributes
-        ))
+        f.write_fmt(format_args!("insert: {}, attributes: {}", s, self.attributes))
     }
 }
 

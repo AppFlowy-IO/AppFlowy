@@ -21,12 +21,7 @@ impl View {
         }
     }
 
-    pub(crate) fn insert(
-        &self,
-        delta: &Delta,
-        text: &str,
-        interval: Interval,
-    ) -> Result<Delta, OTError> {
+    pub(crate) fn insert(&self, delta: &Delta, text: &str, interval: Interval) -> Result<Delta, OTError> {
         let mut new_delta = None;
         for ext in &self.insert_exts {
             if let Some(delta) = ext.apply(delta, interval.size(), text, interval.start) {
@@ -58,12 +53,7 @@ impl View {
         }
     }
 
-    pub(crate) fn format(
-        &self,
-        delta: &Delta,
-        attribute: Attribute,
-        interval: Interval,
-    ) -> Result<Delta, OTError> {
+    pub(crate) fn format(&self, delta: &Delta, attribute: Attribute, interval: Interval) -> Result<Delta, OTError> {
         let mut new_delta = None;
         for ext in &self.format_exts {
             if let Some(delta) = ext.apply(delta, interval, &attribute) {
@@ -102,9 +92,4 @@ fn construct_format_exts() -> Vec<FormatExtension> {
     ]
 }
 
-fn construct_delete_exts() -> Vec<DeleteExtension> {
-    vec![
-        Box::new(PreserveLineFormatOnMerge {}),
-        Box::new(DefaultDelete {}),
-    ]
-}
+fn construct_delete_exts() -> Vec<DeleteExtension> { vec![Box::new(PreserveLineFormatOnMerge {}), Box::new(DefaultDelete {})] }

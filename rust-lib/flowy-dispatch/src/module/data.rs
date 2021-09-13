@@ -51,10 +51,7 @@ where
         if let Some(data) = req.module_data::<Unit<T>>() {
             ready(Ok(data.clone()))
         } else {
-            let msg = format!(
-                "Failed to get the module data of type: {}",
-                type_name::<T>()
-            );
+            let msg = format!("Failed to get the module data of type: {}", type_name::<T>());
             log::error!("{}", msg,);
             ready(Err(InternalError::Other(msg).into()))
         }

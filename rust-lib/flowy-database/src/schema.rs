@@ -58,10 +58,4 @@ table! {
     }
 }
 
-allow_tables_to_appear_in_same_query!(
-    app_table,
-    doc_table,
-    user_table,
-    view_table,
-    workspace_table,
-);
+allow_tables_to_appear_in_same_query!(app_table, doc_table, user_table, view_table, workspace_table,);

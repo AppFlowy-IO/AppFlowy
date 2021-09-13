@@ -44,10 +44,7 @@ impl FlowySystem {
 
         let system = Self { sys_cmd_tx };
         FlowySystem::set_current(system);
-        let runner = SystemRunner {
-            rt: runtime,
-            stop_rx,
-        };
+        let runner = SystemRunner { rt: runtime, stop_rx };
         runner
     }
 
@@ -112,10 +109,7 @@ impl SystemRunner {
         match rt.block_on(stop_rx) {
             Ok(code) => {
                 if code != 0 {
-                    Err(io::Error::new(
-                        io::ErrorKind::Other,
-                        format!("Non-zero exit code: {}", code),
-                    ))
+                    Err(io::Error::new(io::ErrorKind::Other, format!("Non-zero exit code: {}", code)))
                 } else {
                     Ok(())
                 }

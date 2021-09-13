@@ -1,6 +1,6 @@
 use crate::{
     client::{extensions::DeleteExt, util::is_newline},
-    core::{Attributes, CharMetric, Delta, DeltaBuilder, DeltaIter, Interval, NEW_LINE},
+    core::{plain_attributes, CharMetric, Delta, DeltaBuilder, DeltaIter, Interval, NEW_LINE},
 };
 
 pub struct PreserveLineFormatOnMerge {}
@@ -22,10 +22,7 @@ impl DeleteExt for PreserveLineFormatOnMerge {
         }
 
         iter.seek::<CharMetric>(interval.size() - 1);
-        let mut new_delta = DeltaBuilder::new()
-            .retain(interval.start)
-            .delete(interval.size())
-            .build();
+        let mut new_delta = DeltaBuilder::new().retain(interval.start).delete(interval.size()).build();
 
         while iter.has_next() {
             match iter.next() {
@@ -34,7 +31,7 @@ impl DeleteExt for PreserveLineFormatOnMerge {
                     //
                     match op.get_data().find(NEW_LINE) {
                         None => {
-                            new_delta.retain(op.len(), Attributes::empty());
+                            new_delta.retain(op.len(), plain_attributes());
                             continue;
                         },
                         Some(line_break) => {
@@ -45,7 +42,7 @@ impl DeleteExt for PreserveLineFormatOnMerge {
                                 attributes.extend(newline_op.get_attributes());
                             }
 
-                            new_delta.retain(line_break, Attributes::empty());
+                            new_delta.retain(line_break, plain_attributes());
                             new_delta.retain(1, attributes);
                             break;
                         },

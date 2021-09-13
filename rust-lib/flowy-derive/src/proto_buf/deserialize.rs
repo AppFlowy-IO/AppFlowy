@@ -6,20 +6,16 @@ pub fn make_de_token_steam(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStrea
     let pb_ty = ast.attrs.pb_struct_type()?;
     let struct_ident = &ast.ident;
 
-    let build_take_fields = ast
-        .data
-        .all_fields()
-        .filter(|f| !f.attrs.skip_deserializing())
-        .flat_map(|field| {
-            if let Some(func) = field.attrs.deserialize_with() {
-                let member = &field.member;
-                Some(quote! { o.#member=#struct_ident::#func(pb); })
-            } else if field.attrs.is_one_of() {
-                token_stream_for_one_of(ctxt, field)
-            } else {
-                token_stream_for_field(ctxt, &field.member, &field.ty, false)
-            }
-        });
+    let build_take_fields = ast.data.all_fields().filter(|f| !f.attrs.skip_deserializing()).flat_map(|field| {
+        if let Some(func) = field.attrs.deserialize_with() {
+            let member = &field.member;
+            Some(quote! { o.#member=#struct_ident::#func(pb); })
+        } else if field.attrs.is_one_of() {
+            token_stream_for_one_of(ctxt, field)
+        } else {
+            token_stream_for_field(ctxt, &field.member, &field.ty, false)
+        }
+    });
 
     let de_token_stream: TokenStream = quote! {
         impl std::convert::TryFrom<bytes::Bytes> for #struct_ident {
@@ -102,12 +98,7 @@ fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream>
     }
 }
 
-fn token_stream_for_field(
-    ctxt: &Ctxt,
-    member: &syn::Member,
-    ty: &syn::Type,
-    is_option: bool,
-) -> Option<TokenStream> {
+fn token_stream_for_field(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_option: bool) -> Option<TokenStream> {
     let ident = get_member_ident(ctxt, member)?;
     let ty_info = parse_ty(ctxt, ty)?;
     match ident_category(ty_info.ident) {
@@ -142,8 +133,7 @@ fn token_stream_for_field(
             })
         },
         TypeCategory::Str => {
-            let take_ident =
-                syn::Ident::new(&format!("take_{}", ident.to_string()), Span::call_site());
+            let take_ident = syn::Ident::new(&format!("take_{}", ident.to_string()), Span::call_site());
             if is_option {
                 Some(quote! {
                     if pb.#member.is_empty() {
@@ -158,9 +148,7 @@ fn token_stream_for_field(
                 })
             }
         },
-        TypeCategory::Opt => {
-            token_stream_for_field(ctxt, member, ty_info.bracket_ty_info.unwrap().ty, true)
-        },
+        TypeCategory::Opt => token_stream_for_field(ctxt, member, ty_info.bracket_ty_info.unwrap().ty, true),
         TypeCategory::Primitive | TypeCategory::Bytes => {
             // eprintln!("😄 #{:?}", &field.name().unwrap());
             if is_option {
@@ -172,11 +160,7 @@ fn token_stream_for_field(
     }
 }
 
-fn token_stream_for_vec(
-    ctxt: &Ctxt,
-    member: &syn::Member,
-    bracketed_type: &TyInfo,
-) -> Option<TokenStream> {
+fn token_stream_for_vec(ctxt: &Ctxt, member: &syn::Member, bracketed_type: &TyInfo) -> Option<TokenStream> {
     let ident = get_member_ident(ctxt, member)?;
 
     match ident_category(bracketed_type.ident) {
@@ -208,11 +192,7 @@ fn token_stream_for_vec(
     }
 }
 
-fn token_stream_for_map(
-    ctxt: &Ctxt,
-    member: &syn::Member,
-    bracketed_type: &TyInfo,
-) -> Option<TokenStream> {
+fn token_stream_for_map(ctxt: &Ctxt, member: &syn::Member, bracketed_type: &TyInfo) -> Option<TokenStream> {
     let ident = get_member_ident(ctxt, member)?;
 
     let take_ident = format_ident!("take_{}", ident.to_string());

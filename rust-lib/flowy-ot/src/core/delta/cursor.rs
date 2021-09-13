@@ -50,9 +50,7 @@ impl<'a> OpCursor<'a> {
         let mut consume_len = 0;
         while find_op.is_none() && next_op.is_some() {
             let op = next_op.take().unwrap();
-            let interval = self
-                .next_iv_before(force_end)
-                .unwrap_or(Interval::new(0, 0));
+            let interval = self.next_iv_before(force_end).unwrap_or(Interval::new(0, 0));
 
             // cache the op if the interval is empty. e.g. last_op_before(Some(0))
             if interval.is_empty() {
@@ -188,9 +186,7 @@ fn check_bound(current: usize, target: usize) -> Result<(), OTError> {
     debug_assert!(current <= target);
     if current > target {
         let msg = format!("{} should be greater than current: {}", target, current);
-        return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength)
-            .msg(&msg)
-            .build());
+        return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength).msg(&msg).build());
     }
     Ok(())
 }

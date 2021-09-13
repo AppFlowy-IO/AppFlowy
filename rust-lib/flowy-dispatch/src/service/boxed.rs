@@ -44,11 +44,8 @@ where
     fn new_service(&self, cfg: Cfg) -> Self::Future { self.0.new_service(cfg) }
 }
 
-pub type BoxService<Req, Res, Err> = Box<
-    dyn Service<Req, Response = Res, Error = Err, Future = BoxFuture<'static, Result<Res, Err>>>
-        + Sync
-        + Send,
->;
+pub type BoxService<Req, Res, Err> =
+    Box<dyn Service<Req, Response = Res, Error = Err, Future = BoxFuture<'static, Result<Res, Err>>> + Sync + Send>;
 
 // #[allow(dead_code)]
 // pub fn service<S, Req>(service: S) -> BoxService<Req, S::Response, S::Error>
@@ -112,9 +109,6 @@ where
 
     fn new_service(&self, cfg: Cfg) -> Self::Future {
         let f = self.0.new_service(cfg);
-        Box::pin(async {
-            f.await
-                .map(|s| Box::new(ServiceWrapper::new(s)) as Self::Service)
-        })
+        Box::pin(async { f.await.map(|s| Box::new(ServiceWrapper::new(s)) as Self::Service) })
     }
 }

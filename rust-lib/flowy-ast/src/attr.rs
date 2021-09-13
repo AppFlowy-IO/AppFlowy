@@ -22,12 +22,7 @@ impl AttrsContainer {
     pub fn from_ast(cx: &Ctxt, item: &syn::DeriveInput) -> Self {
         let mut pb_struct_type = ASTAttr::none(cx, PB_STRUCT);
         let mut pb_enum_type = ASTAttr::none(cx, PB_ENUM);
-        for meta_item in item
-            .attrs
-            .iter()
-            .flat_map(|attr| get_meta_items(cx, attr))
-            .flatten()
-        {
+        for meta_item in item.attrs.iter().flat_map(|attr| get_meta_items(cx, attr)).flatten() {
             match &meta_item {
                 // Parse `#[pb(struct = "Type")]
                 Meta(NameValue(m)) if m.path == PB_STRUCT => {
@@ -44,15 +39,8 @@ impl AttrsContainer {
                 },
 
                 Meta(meta_item) => {
-                    let path = meta_item
-                        .path()
-                        .into_token_stream()
-                        .to_string()
-                        .replace(' ', "");
-                    cx.error_spanned_by(
-                        meta_item.path(),
-                        format!("unknown pb container attribute `{}`", path),
-                    );
+                    let path = meta_item.path().into_token_stream().to_string().replace(' ', "");
+                    cx.error_spanned_by(meta_item.path(), format!("unknown pb container attribute `{}`", path));
                 },
 
                 Lit(lit) => {
@@ -103,8 +91,7 @@ impl<'c, T> ASTAttr<'c, T> {
         let tokens = obj.into_token_stream();
 
         if self.value.is_some() {
-            self.cx
-                .error_spanned_by(tokens, format!("duplicate attribute `{}`", self.name));
+            self.cx.error_spanned_by(tokens, format!("duplicate attribute `{}`", self.name));
         } else {
             self.tokens = tokens;
             self.value = Some(value);
@@ -160,12 +147,7 @@ impl ASTAttrField {
             None => index.to_string(),
         };
 
-        for meta_item in field
-            .attrs
-            .iter()
-            .flat_map(|attr| get_meta_items(cx, attr))
-            .flatten()
-        {
+        for meta_item in field.attrs.iter().flat_map(|attr| get_meta_items(cx, attr)).flatten() {
             match &meta_item {
                 // Parse `#[pb(skip)]`
                 Meta(Path(word)) if word == SKIP => {
@@ -200,15 +182,8 @@ impl ASTAttrField {
                 },
 
                 Meta(meta_item) => {
-                    let path = meta_item
-                        .path()
-                        .into_token_stream()
-                        .to_string()
-                        .replace(' ', "");
-                    cx.error_spanned_by(
-                        meta_item.path(),
-                        format!("unknown field attribute `{}`", path),
-                    );
+                    let path = meta_item.path().into_token_stream().to_string().replace(' ', "");
+                    cx.error_spanned_by(meta_item.path(), format!("unknown field attribute `{}`", path));
                 },
 
                 Lit(lit) => {
@@ -273,12 +248,7 @@ pub struct ASTEnumAttrVariant {
 }
 
 impl ASTEnumAttrVariant {
-    pub fn from_ast(
-        ctxt: &Ctxt,
-        ident: &syn::Ident,
-        variant: &syn::Variant,
-        enum_attrs: &Vec<syn::Attribute>,
-    ) -> Self {
+    pub fn from_ast(ctxt: &Ctxt, ident: &syn::Ident, variant: &syn::Variant, enum_attrs: &Vec<syn::Attribute>) -> Self {
         let enum_item_name = variant.ident.to_string();
         let enum_name = ident.to_string();
         let mut value = String::new();
@@ -311,11 +281,7 @@ impl ASTEnumAttrVariant {
     pub fn event_error(&self) -> String { self.event_attrs.error_ty.as_ref().unwrap().clone() }
 }
 
-fn get_event_attrs_from(
-    ctxt: &Ctxt,
-    variant_attrs: &Vec<syn::Attribute>,
-    enum_attrs: &Vec<syn::Attribute>,
-) -> EventAttrs {
+fn get_event_attrs_from(ctxt: &Ctxt, variant_attrs: &Vec<syn::Attribute>, enum_attrs: &Vec<syn::Attribute>) -> EventAttrs {
     let mut event_attrs = EventAttrs {
         input: None,
         output: None,
@@ -325,13 +291,7 @@ fn get_event_attrs_from(
 
     enum_attrs
         .iter()
-        .filter(|attr| {
-            attr.path
-                .segments
-                .iter()
-                .find(|s| s.ident == EVENT_ERR)
-                .is_some()
-        })
+        .filter(|attr| attr.path.segments.iter().find(|s| s.ident == EVENT_ERR).is_some())
         .for_each(|attr| {
             if let Ok(NameValue(named_value)) = attr.parse_meta() {
                 if let syn::Lit::Str(s) = named_value.lit {
@@ -344,48 +304,34 @@ fn get_event_attrs_from(
             }
         });
 
-    let mut extract_event_attr =
-        |attr: &syn::Attribute, meta_item: &syn::NestedMeta| match &meta_item {
-            Meta(NameValue(name_value)) => {
-                if name_value.path == EVENT_INPUT {
-                    if let syn::Lit::Str(s) = &name_value.lit {
-                        let input_type = parse_lit_str(s)
-                            .map_err(|_| {
-                                ctxt.error_spanned_by(
-                                    s,
-                                    format!("failed to parse request deserializer {:?}", s.value()),
-                                )
-                            })
-                            .unwrap();
-                        event_attrs.input = Some(input_type);
-                    }
+    let mut extract_event_attr = |attr: &syn::Attribute, meta_item: &syn::NestedMeta| match &meta_item {
+        Meta(NameValue(name_value)) => {
+            if name_value.path == EVENT_INPUT {
+                if let syn::Lit::Str(s) = &name_value.lit {
+                    let input_type = parse_lit_str(s)
+                        .map_err(|_| ctxt.error_spanned_by(s, format!("failed to parse request deserializer {:?}", s.value())))
+                        .unwrap();
+                    event_attrs.input = Some(input_type);
                 }
+            }
 
-                if name_value.path == EVENT_OUTPUT {
-                    if let syn::Lit::Str(s) = &name_value.lit {
-                        let output_type = parse_lit_str(s)
-                            .map_err(|_| {
-                                ctxt.error_spanned_by(
-                                    s,
-                                    format!(
-                                        "failed to parse response deserializer {:?}",
-                                        s.value()
-                                    ),
-                                )
-                            })
-                            .unwrap();
-                        event_attrs.output = Some(output_type);
-                    }
+            if name_value.path == EVENT_OUTPUT {
+                if let syn::Lit::Str(s) = &name_value.lit {
+                    let output_type = parse_lit_str(s)
+                        .map_err(|_| ctxt.error_spanned_by(s, format!("failed to parse response deserializer {:?}", s.value())))
+                        .unwrap();
+                    event_attrs.output = Some(output_type);
                 }
-            },
-            Meta(Path(word)) => {
-                if word == EVENT_IGNORE && attr.path == EVENT {
-                    event_attrs.ignore = true;
-                }
-            },
-            Lit(s) => ctxt.error_spanned_by(s, "unexpected attribute"),
-            _ => ctxt.error_spanned_by(meta_item, "unexpected attribute"),
-        };
+            }
+        },
+        Meta(Path(word)) => {
+            if word == EVENT_IGNORE && attr.path == EVENT {
+                event_attrs.ignore = true;
+            }
+        },
+        Lit(s) => ctxt.error_spanned_by(s, "unexpected attribute"),
+        _ => ctxt.error_spanned_by(meta_item, "unexpected attribute"),
+    };
 
     let attr_meta_items_info = variant_attrs
         .iter()
@@ -396,9 +342,7 @@ fn get_event_attrs_from(
         .collect::<Vec<(&syn::Attribute, Vec<syn::NestedMeta>)>>();
 
     for (attr, nested_metas) in attr_meta_items_info {
-        nested_metas
-            .iter()
-            .for_each(|meta_item| extract_event_attr(attr, meta_item))
+        nested_metas.iter().for_each(|meta_item| extract_event_attr(attr, meta_item))
     }
 
     // eprintln!("😁{:#?}", event_attrs);
@@ -426,15 +370,9 @@ pub fn get_meta_items(cx: &Ctxt, attr: &syn::Attribute) -> Result<Vec<syn::Neste
     }
 }
 
-fn parse_lit_into_expr_path(
-    cx: &Ctxt,
-    attr_name: Symbol,
-    lit: &syn::Lit,
-) -> Result<syn::ExprPath, ()> {
+fn parse_lit_into_expr_path(cx: &Ctxt, attr_name: Symbol, lit: &syn::Lit) -> Result<syn::ExprPath, ()> {
     let string = get_lit_str(cx, attr_name, lit)?;
-    parse_lit_str(string).map_err(|_| {
-        cx.error_spanned_by(lit, format!("failed to parse path: {:?}", string.value()))
-    })
+    parse_lit_str(string).map_err(|_| cx.error_spanned_by(lit, format!("failed to parse path: {:?}", string.value())))
 }
 
 fn get_lit_str<'a>(cx: &Ctxt, attr_name: Symbol, lit: &'a syn::Lit) -> Result<&'a syn::LitStr, ()> {
@@ -443,10 +381,7 @@ fn get_lit_str<'a>(cx: &Ctxt, attr_name: Symbol, lit: &'a syn::Lit) -> Result<&'
     } else {
         cx.error_spanned_by(
             lit,
-            format!(
-                "expected pb {} attribute to be a string: `{} = \"...\"`",
-                attr_name, attr_name
-            ),
+            format!("expected pb {} attribute to be a string: `{} = \"...\"`", attr_name, attr_name),
         );
         Err(())
     }
@@ -455,12 +390,7 @@ fn get_lit_str<'a>(cx: &Ctxt, attr_name: Symbol, lit: &'a syn::Lit) -> Result<&'
 fn parse_lit_into_ty(cx: &Ctxt, attr_name: Symbol, lit: &syn::Lit) -> Result<syn::Type, ()> {
     let string = get_lit_str(cx, attr_name, lit)?;
 
-    parse_lit_str(string).map_err(|_| {
-        cx.error_spanned_by(
-            lit,
-            format!("failed to parse type: {} = {:?}", attr_name, string.value()),
-        )
-    })
+    parse_lit_str(string).map_err(|_| cx.error_spanned_by(lit, format!("failed to parse type: {} = {:?}", attr_name, string.value())))
 }
 
 pub fn parse_lit_str<T>(s: &syn::LitStr) -> parse::Result<T>
@@ -477,10 +407,7 @@ fn spanned_tokens(s: &syn::LitStr) -> parse::Result<TokenStream> {
 }
 
 fn respan_token_stream(stream: TokenStream, span: Span) -> TokenStream {
-    stream
-        .into_iter()
-        .map(|token| respan_token_tree(token, span))
-        .collect()
+    stream.into_iter().map(|token| respan_token_tree(token, span)).collect()
 }
 
 fn respan_token_tree(mut token: TokenTree, span: Span) -> TokenTree {
@@ -499,10 +426,7 @@ fn default_pb_type(ctxt: &Ctxt, ident: &syn::Ident) -> syn::Type {
             return pb_struct_ty;
         }
     }
-    ctxt.error_spanned_by(
-        ident,
-        format!("❌ Can't find {} protobuf struct", take_ident),
-    );
+    ctxt.error_spanned_by(ident, format!("❌ Can't find {} protobuf struct", take_ident));
     panic!()
 }
 

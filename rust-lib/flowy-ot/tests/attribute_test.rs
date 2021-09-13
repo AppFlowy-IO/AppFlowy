@@ -39,10 +39,7 @@ fn attributes_bold_added_and_invert_partial_suffix() {
         Bold(0, Interval::new(0, 4), true),
         AssertOpsJson(0, r#"[{"insert":"1234","attributes":{"bold":"true"}}]"#),
         Bold(0, Interval::new(2, 4), false),
-        AssertOpsJson(
-            0,
-            r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34"}]"#,
-        ),
+        AssertOpsJson(0, r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34"}]"#),
     ];
     OpTester::new().run_script(ops);
 }
@@ -54,10 +51,7 @@ fn attributes_bold_added_and_invert_partial_suffix2() {
         Bold(0, Interval::new(0, 4), true),
         AssertOpsJson(0, r#"[{"insert":"1234","attributes":{"bold":"true"}}]"#),
         Bold(0, Interval::new(2, 4), false),
-        AssertOpsJson(
-            0,
-            r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34"}]"#,
-        ),
+        AssertOpsJson(0, r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34"}]"#),
         Bold(0, Interval::new(2, 4), true),
         AssertOpsJson(0, r#"[{"insert":"1234","attributes":{"bold":"true"}}]"#),
     ];
@@ -69,10 +63,7 @@ fn attributes_bold_added_with_new_line() {
     let ops = vec![
         Insert(0, "123456", 0),
         Bold(0, Interval::new(0, 6), true),
-        AssertOpsJson(
-            0,
-            r#"[{"insert":"123456","attributes":{"bold":"true"}},{"insert":"\n"}]"#,
-        ),
+        AssertOpsJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}},{"insert":"\n"}]"#),
         Insert(0, "\n", 3),
         AssertOpsJson(
             0,
@@ -99,10 +90,7 @@ fn attributes_bold_added_and_invert_partial_prefix() {
         Bold(0, Interval::new(0, 4), true),
         AssertOpsJson(0, r#"[{"insert":"1234","attributes":{"bold":"true"}}]"#),
         Bold(0, Interval::new(0, 2), false),
-        AssertOpsJson(
-            0,
-            r#"[{"insert":"12"},{"insert":"34","attributes":{"bold":"true"}}]"#,
-        ),
+        AssertOpsJson(0, r#"[{"insert":"12"},{"insert":"34","attributes":{"bold":"true"}}]"#),
     ];
     OpTester::new().run_script(ops);
 }
@@ -112,15 +100,9 @@ fn attributes_bold_added_consecutive() {
     let ops = vec![
         Insert(0, "1234", 0),
         Bold(0, Interval::new(0, 1), true),
-        AssertOpsJson(
-            0,
-            r#"[{"insert":"1","attributes":{"bold":"true"}},{"insert":"234"}]"#,
-        ),
+        AssertOpsJson(0, r#"[{"insert":"1","attributes":{"bold":"true"}},{"insert":"234"}]"#),
         Bold(0, Interval::new(1, 2), true),
-        AssertOpsJson(
-            0,
-            r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34"}]"#,
-        ),
+        AssertOpsJson(0, r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34"}]"#),
     ];
     OpTester::new().run_script(ops);
 }
@@ -239,10 +221,7 @@ fn attributes_bold_added_italic_delete() {
             "#,
         ),
         Delete(0, Interval::new(0, 5)),
-        AssertOpsJson(
-            0,
-            r#"[{"insert":"67"},{"insert":"89","attributes":{"bold":"true"}}]"#,
-        ),
+        AssertOpsJson(0, r#"[{"insert":"67"},{"insert":"89","attributes":{"bold":"true"}}]"#),
     ];
 
     OpTester::new().run_script(ops);
@@ -387,10 +366,7 @@ fn attributes_replace_with_text() {
         InsertBold(0, "123456", Interval::new(0, 6)),
         AssertOpsJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
         Replace(0, Interval::new(0, 3), "ab"),
-        AssertOpsJson(
-            0,
-            r#"[{"insert":"ab"},{"insert":"456","attributes":{"bold":"true"}}]"#,
-        ),
+        AssertOpsJson(0, r#"[{"insert":"ab"},{"insert":"456","attributes":{"bold":"true"}}]"#),
     ];
 
     OpTester::new().run_script(ops);
@@ -400,11 +376,8 @@ fn attributes_replace_with_text() {
 fn attributes_header_insert_newline_at_middle() {
     let ops = vec![
         Insert(0, "123456", 0),
-        Header(0, Interval::new(0, 6), 1, true),
-        AssertOpsJson(
-            0,
-            r#"[{"insert":"123456"},{"insert":"\n","attributes":{"header":"1"}}]"#,
-        ),
+        Header(0, Interval::new(0, 6), 1),
+        AssertOpsJson(0, r#"[{"insert":"123456"},{"insert":"\n","attributes":{"header":"1"}}]"#),
         Insert(0, "\n", 3),
         AssertOpsJson(
             0,
@@ -419,7 +392,7 @@ fn attributes_header_insert_newline_at_middle() {
 fn attributes_header_insert_double_newline_at_middle() {
     let ops = vec![
         Insert(0, "123456", 0),
-        Header(0, Interval::new(0, 6), 1, true),
+        Header(0, Interval::new(0, 6), 1),
         Insert(0, "\n", 3),
         AssertOpsJson(
             0,
@@ -444,7 +417,7 @@ fn attributes_header_insert_double_newline_at_middle() {
 fn attributes_header_insert_newline_at_trailing() {
     let ops = vec![
         Insert(0, "123456", 0),
-        Header(0, Interval::new(0, 6), 1, true),
+        Header(0, Interval::new(0, 6), 1),
         Insert(0, "\n", 6),
         AssertOpsJson(
             0,
@@ -459,7 +432,7 @@ fn attributes_header_insert_newline_at_trailing() {
 fn attributes_header_insert_double_newline_at_trailing() {
     let ops = vec![
         Insert(0, "123456", 0),
-        Header(0, Interval::new(0, 6), 1, true),
+        Header(0, Interval::new(0, 6), 1),
         Insert(0, "\n", 6),
         Insert(0, "\n", 7),
         AssertOpsJson(
@@ -475,7 +448,7 @@ fn attributes_header_insert_double_newline_at_trailing() {
 fn attributes_link_added() {
     let ops = vec![
         Insert(0, "123456", 0),
-        Link(0, Interval::new(0, 6), "https://appflowy.io", true),
+        Link(0, Interval::new(0, 6), "https://appflowy.io"),
         AssertOpsJson(
             0,
             r#"[{"insert":"123456","attributes":{"link":"https://appflowy.io"}},{"insert":"\n"}]"#,
@@ -489,7 +462,7 @@ fn attributes_link_added() {
 fn attributes_link_format_with_bold() {
     let ops = vec![
         Insert(0, "123456", 0),
-        Link(0, Interval::new(0, 6), "https://appflowy.io", true),
+        Link(0, Interval::new(0, 6), "https://appflowy.io"),
         Bold(0, Interval::new(0, 3), true),
         AssertOpsJson(
             0,
@@ -508,7 +481,7 @@ fn attributes_link_format_with_bold() {
 fn attributes_link_insert_char_at_head() {
     let ops = vec![
         Insert(0, "123456", 0),
-        Link(0, Interval::new(0, 6), "https://appflowy.io", true),
+        Link(0, Interval::new(0, 6), "https://appflowy.io"),
         AssertOpsJson(
             0,
             r#"[{"insert":"123456","attributes":{"link":"https://appflowy.io"}},{"insert":"\n"}]"#,
@@ -527,7 +500,7 @@ fn attributes_link_insert_char_at_head() {
 fn attributes_link_insert_char_at_middle() {
     let ops = vec![
         Insert(0, "1256", 0),
-        Link(0, Interval::new(0, 4), "https://appflowy.io", true),
+        Link(0, Interval::new(0, 4), "https://appflowy.io"),
         Insert(0, "34", 2),
         AssertOpsJson(
             0,
@@ -542,7 +515,7 @@ fn attributes_link_insert_char_at_middle() {
 fn attributes_link_insert_char_at_trailing() {
     let ops = vec![
         Insert(0, "123456", 0),
-        Link(0, Interval::new(0, 6), "https://appflowy.io", true),
+        Link(0, Interval::new(0, 6), "https://appflowy.io"),
         AssertOpsJson(
             0,
             r#"[{"insert":"123456","attributes":{"link":"https://appflowy.io"}},{"insert":"\n"}]"#,
@@ -561,7 +534,7 @@ fn attributes_link_insert_char_at_trailing() {
 fn attributes_link_insert_newline_at_middle() {
     let ops = vec![
         Insert(0, "123456", 0),
-        Link(0, Interval::new(0, 6), "https://appflowy.io", true),
+        Link(0, Interval::new(0, 6), "https://appflowy.io"),
         Insert(0, NEW_LINE, 3),
         AssertOpsJson(
             0,
@@ -593,7 +566,7 @@ fn attributes_link_auto_format_exist() {
     let site = "https://appflowy.io";
     let ops = vec![
         Insert(0, site, 0),
-        Link(0, Interval::new(0, site.len()), site, true),
+        Link(0, Interval::new(0, site.len()), site),
         Insert(0, WHITESPACE, site.len()),
         AssertOpsJson(
             0,
@@ -609,7 +582,7 @@ fn attributes_link_auto_format_exist2() {
     let site = "https://appflowy.io";
     let ops = vec![
         Insert(0, site, 0),
-        Link(0, Interval::new(0, site.len() / 2), site, true),
+        Link(0, Interval::new(0, site.len() / 2), site),
         Insert(0, WHITESPACE, site.len()),
         AssertOpsJson(
             0,
@@ -625,10 +598,7 @@ fn attributes_bullet_added() {
     let ops = vec![
         Insert(0, "12", 0),
         Bullet(0, Interval::new(0, 1), true),
-        AssertOpsJson(
-            0,
-            r#"[{"insert":"12"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
-        ),
+        AssertOpsJson(0, r#"[{"insert":"12"},{"insert":"\n","attributes":{"bullet":"true"}}]"#),
     ];
 
     OpTester::new().run_script_with_newline(ops);
@@ -639,15 +609,9 @@ fn attributes_bullet_added_2() {
     let ops = vec![
         Insert(0, "1", 0),
         Bullet(0, Interval::new(0, 1), true),
-        AssertOpsJson(
-            0,
-            r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
-        ),
+        AssertOpsJson(0, r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}}]"#),
         Insert(0, NEW_LINE, 1),
-        AssertOpsJson(
-            0,
-            r#"[{"insert":"1"},{"insert":"\n\n","attributes":{"bullet":"true"}}]"#,
-        ),
+        AssertOpsJson(0, r#"[{"insert":"1"},{"insert":"\n\n","attributes":{"bullet":"true"}}]"#),
         Insert(0, "2", 2),
         AssertOpsJson(
             0,
@@ -697,10 +661,7 @@ fn attributes_preserve_block_when_insert_newline_inside() {
         Insert(0, "12", 0),
         Bullet(0, Interval::new(0, 2), true),
         Insert(0, NEW_LINE, 2),
-        AssertOpsJson(
-            0,
-            r#"[{"insert":"12"},{"insert":"\n\n","attributes":{"bullet":"true"}}]"#,
-        ),
+        AssertOpsJson(0, r#"[{"insert":"12"},{"insert":"\n\n","attributes":{"bullet":"true"}}]"#),
         Insert(0, "34", 3),
         AssertOpsJson(
             0,
@@ -735,17 +696,14 @@ fn attributes_preserve_block_when_insert_newline_inside() {
 fn attributes_preserve_header_format_on_merge() {
     let ops = vec![
         Insert(0, "123456", 0),
-        Header(0, Interval::new(0, 6), 1, true),
+        Header(0, Interval::new(0, 6), 1),
         Insert(0, NEW_LINE, 3),
         AssertOpsJson(
             0,
             r#"[{"insert":"123"},{"insert":"\n","attributes":{"header":"1"}},{"insert":"456"},{"insert":"\n","attributes":{"header":"1"}}]"#,
         ),
         Delete(0, Interval::new(3, 4)),
-        AssertOpsJson(
-            0,
-            r#"[{"insert":"123456"},{"insert":"\n","attributes":{"header":"1"}}]"#,
-        ),
+        AssertOpsJson(0, r#"[{"insert":"123456"},{"insert":"\n","attributes":{"header":"1"}}]"#),
     ];
 
     OpTester::new().run_script_with_newline(ops);
@@ -762,10 +720,7 @@ fn attributes_preserve_list_format_on_merge() {
             r#"[{"insert":"123"},{"insert":"\n","attributes":{"bullet":"true"}},{"insert":"456"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
         ),
         Delete(0, Interval::new(3, 4)),
-        AssertOpsJson(
-            0,
-            r#"[{"insert":"123456"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
-        ),
+        AssertOpsJson(0, r#"[{"insert":"123456"},{"insert":"\n","attributes":{"bullet":"true"}}]"#),
     ];
 
     OpTester::new().run_script_with_newline(ops);

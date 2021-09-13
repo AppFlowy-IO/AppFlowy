@@ -3,7 +3,7 @@ use crate::{
         extensions::{format::helper::line_break, FormatExt},
         util::find_newline,
     },
-    core::{Attribute, AttributeScope, Attributes, Delta, DeltaBuilder, DeltaIter, Interval},
+    core::{plain_attributes, Attribute, AttributeScope, Delta, DeltaBuilder, DeltaIter, Interval},
 };
 
 pub struct ResolveBlockFormat {}
@@ -22,7 +22,7 @@ impl FormatExt for ResolveBlockFormat {
         while start < end && iter.has_next() {
             let next_op = iter.next_op_with_len(end - start).unwrap();
             match find_newline(next_op.get_data()) {
-                None => new_delta.retain(next_op.len(), Attributes::empty()),
+                None => new_delta.retain(next_op.len(), plain_attributes()),
                 Some(_) => {
                     let tmp_delta = line_break(&next_op, attribute, AttributeScope::Block);
                     new_delta.extend(tmp_delta);
@@ -33,14 +33,12 @@ impl FormatExt for ResolveBlockFormat {
         }
 
         while iter.has_next() {
-            let op = iter
-                .next_op()
-                .expect("Unexpected None, iter.has_next() must return op");
+            let op = iter.next_op().expect("Unexpected None, iter.has_next() must return op");
 
             match find_newline(op.get_data()) {
-                None => new_delta.retain(op.len(), Attributes::empty()),
+                None => new_delta.retain(op.len(), plain_attributes()),
                 Some(line_break) => {
-                    new_delta.retain(line_break, Attributes::empty());
+                    new_delta.retain(line_break, plain_attributes());
                     new_delta.retain(1, attribute.clone().into());
                     break;
                 },

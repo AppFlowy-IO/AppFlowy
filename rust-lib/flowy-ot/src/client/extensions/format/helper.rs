@@ -1,6 +1,6 @@
 use crate::{
     client::util::find_newline,
-    core::{Attribute, AttributeScope, Attributes, Delta, Operation},
+    core::{plain_attributes, Attribute, AttributeScope, Delta, Operation},
 };
 
 pub(crate) fn line_break(op: &Operation, attribute: &Attribute, scope: AttributeScope) -> Delta {
@@ -13,10 +13,10 @@ pub(crate) fn line_break(op: &Operation, attribute: &Attribute, scope: Attribute
         match scope {
             AttributeScope::Inline => {
                 new_delta.retain(line_break - start, attribute.clone().into());
-                new_delta.retain(1, Attributes::empty());
+                new_delta.retain(1, plain_attributes());
             },
             AttributeScope::Block => {
-                new_delta.retain(line_break - start, Attributes::empty());
+                new_delta.retain(line_break - start, plain_attributes());
                 new_delta.retain(1, attribute.clone().into());
             },
             _ => {
@@ -31,7 +31,7 @@ pub(crate) fn line_break(op: &Operation, attribute: &Attribute, scope: Attribute
     if start < end {
         match scope {
             AttributeScope::Inline => new_delta.retain(end - start, attribute.clone().into()),
-            AttributeScope::Block => new_delta.retain(end - start, Attributes::empty()),
+            AttributeScope::Block => new_delta.retain(end - start, plain_attributes()),
             _ => log::error!("Unsupported parser line break for {:?}", scope),
         }
     }

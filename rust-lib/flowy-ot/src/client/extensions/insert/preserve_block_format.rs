@@ -1,14 +1,6 @@
 use crate::{
     client::{extensions::InsertExt, util::is_newline},
-    core::{
-        attributes_except_header,
-        AttributeKey,
-        Attributes,
-        Delta,
-        DeltaBuilder,
-        DeltaIter,
-        NEW_LINE,
-    },
+    core::{attributes_except_header, plain_attributes, Attribute, AttributeKey, Attributes, Delta, DeltaBuilder, DeltaIter, NEW_LINE},
 };
 
 pub struct PreserveBlockFormatOnInsert {}
@@ -32,14 +24,14 @@ impl InsertExt for PreserveBlockFormatOnInsert {
 
                 let mut reset_attribute = Attributes::new();
                 if newline_attributes.contains_key(&AttributeKey::Header) {
-                    reset_attribute.add(AttributeKey::Header.value(""));
+                    reset_attribute.add(Attribute::Header(1));
                 }
 
                 let lines: Vec<_> = text.split(NEW_LINE).collect();
                 let mut new_delta = DeltaBuilder::new().retain(index + replace_len).build();
                 lines.iter().enumerate().for_each(|(i, line)| {
                     if !line.is_empty() {
-                        new_delta.insert(line, Attributes::empty());
+                        new_delta.insert(line, plain_attributes());
                     }
 
                     if i == 0 {
@@ -51,9 +43,9 @@ impl InsertExt for PreserveBlockFormatOnInsert {
                     }
                 });
                 if !reset_attribute.is_empty() {
-                    new_delta.retain(offset, Attributes::empty());
+                    new_delta.retain(offset, plain_attributes());
                     let len = newline_op.get_data().find(NEW_LINE).unwrap();
-                    new_delta.retain(len, Attributes::empty());
+                    new_delta.retain(len, plain_attributes());
                     new_delta.retain(1, reset_attribute.clone());
                 }
 

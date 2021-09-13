@@ -31,7 +31,7 @@ impl InsertExt for AutoFormatExt {
                     });
 
                     let next_attributes = match iter.next_op() {
-                        None => Attributes::empty(),
+                        None => plain_attributes(),
                         Some(op) => op.get_attributes(),
                     };
 
@@ -50,7 +50,7 @@ impl InsertExt for AutoFormatExt {
     }
 }
 
-use crate::core::{AttributeBuilder, Attributes, DeltaBuilder};
+use crate::core::{plain_attributes, Attribute, Attributes, DeltaBuilder};
 use bytecount::num_chars;
 use std::cmp::min;
 use url::Url;
@@ -62,7 +62,7 @@ pub enum AutoFormatter {
 impl AutoFormatter {
     pub fn to_attributes(&self) -> Attributes {
         match self {
-            AutoFormatter::Url(url) => AttributeBuilder::new().link(url.as_str(), true).build(),
+            AutoFormatter::Url(url) => Attribute::Link(url.as_str()).into(),
         }
     }
 

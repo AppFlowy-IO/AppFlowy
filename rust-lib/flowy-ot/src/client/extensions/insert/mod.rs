@@ -18,28 +18,12 @@ pub struct InsertEmbedsExt {}
 impl InsertExt for InsertEmbedsExt {
     fn ext_name(&self) -> &str { "InsertEmbedsExt" }
 
-    fn apply(
-        &self,
-        _delta: &Delta,
-        _replace_len: usize,
-        _text: &str,
-        _index: usize,
-    ) -> Option<Delta> {
-        None
-    }
+    fn apply(&self, _delta: &Delta, _replace_len: usize, _text: &str, _index: usize) -> Option<Delta> { None }
 }
 
 pub struct ForceNewlineForInsertsAroundEmbedExt {}
 impl InsertExt for ForceNewlineForInsertsAroundEmbedExt {
     fn ext_name(&self) -> &str { "ForceNewlineForInsertsAroundEmbedExt" }
 
-    fn apply(
-        &self,
-        _delta: &Delta,
-        _replace_len: usize,
-        _text: &str,
-        _index: usize,
-    ) -> Option<Delta> {
-        None
-    }
+    fn apply(&self, _delta: &Delta, _replace_len: usize, _text: &str, _index: usize) -> Option<Delta> { None }
 }
