@@ -8,9 +8,9 @@ mod delete;
 mod format;
 mod insert;
 
-pub type InsertExtension = Box<dyn InsertExt>;
-pub type FormatExtension = Box<dyn FormatExt>;
-pub type DeleteExtension = Box<dyn DeleteExt>;
+pub type InsertExtension = Box<dyn InsertExt + Send + Sync>;
+pub type FormatExtension = Box<dyn FormatExt + Send + Sync>;
+pub type DeleteExtension = Box<dyn DeleteExt + Send + Sync>;
 
 pub trait InsertExt {
     fn ext_name(&self) -> &str;

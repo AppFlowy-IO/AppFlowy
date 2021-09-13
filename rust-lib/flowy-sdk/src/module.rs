@@ -1,7 +1,7 @@
 use flowy_dispatch::prelude::Module;
 
 use crate::deps_resolve::{EditorUserImpl, WorkspaceDatabaseImpl, WorkspaceUserImpl};
-use flowy_document::module::Document;
+use flowy_document::module::FlowyDocument;
 use flowy_user::services::user::UserSessionBuilder;
 use std::sync::Arc;
 
@@ -24,7 +24,7 @@ pub fn build_modules(config: ModuleConfig) -> Vec<Module> {
         user_session: user_session.clone(),
     });
 
-    let document = Arc::new(Document::new(editor_user));
+    let document = Arc::new(FlowyDocument::new(editor_user));
 
     vec![
         flowy_user::module::create(user_session),

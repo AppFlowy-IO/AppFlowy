@@ -10,3 +10,7 @@ impl DocId {
         Ok(Self(s))
     }
 }
+
+impl AsRef<str> for DocId {
+    fn as_ref(&self) -> &str { &self.0 }
+}

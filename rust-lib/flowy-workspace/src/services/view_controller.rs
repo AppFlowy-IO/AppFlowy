@@ -15,7 +15,7 @@ use crate::{
 use flowy_database::SqliteConnection;
 use flowy_document::{
     entities::doc::{CreateDocParams, Doc, QueryDocParams, UpdateDocParams},
-    module::Document,
+    module::FlowyDocument,
 };
 use std::sync::Arc;
 
@@ -24,11 +24,16 @@ pub(crate) struct ViewController {
     sql: Arc<ViewTableSql>,
     server: Server,
     database: Arc<dyn WorkspaceDatabase>,
-    document: Arc<Document>,
+    document: Arc<FlowyDocument>,
 }
 
 impl ViewController {
-    pub(crate) fn new(user: Arc<dyn WorkspaceUser>, database: Arc<dyn WorkspaceDatabase>, server: Server, document: Arc<Document>) -> Self {
+    pub(crate) fn new(
+        user: Arc<dyn WorkspaceUser>,
+        database: Arc<dyn WorkspaceDatabase>,
+        server: Server,
+        document: Arc<FlowyDocument>,
+    ) -> Self {
         let sql = Arc::new(ViewTableSql {});
         Self {
             user,
@@ -45,7 +50,7 @@ impl ViewController {
         // TODO: rollback anything created before if failed?
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.save_view(view.clone(), conn)?;
-            self.document.doc.create(CreateDocParams::new(&view.id, &params.data), conn)?;
+            self.document.create(CreateDocParams::new(&view.id, &params.data), conn)?;
 
             let repeated_view = self.read_local_views_belong_to(&view.belong_to_id, conn)?;
             notify(&view.belong_to_id, WorkspaceObservable::AppCreateView)
@@ -72,7 +77,7 @@ impl ViewController {
     }
 
     pub(crate) async fn open_view(&self, params: QueryDocParams) -> Result<Doc, WorkspaceError> {
-        let doc = self.document.doc.open(params, self.database.db_pool()?).await?;
+        let doc = self.document.open(params, self.database.db_pool()?).await?;
         Ok(doc)
     }
 
@@ -82,7 +87,7 @@ impl ViewController {
 
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let view_table = self.sql.delete_view(&params.view_id, conn)?;
-            let _ = self.document.doc.delete(params.into(), conn)?;
+            let _ = self.document.delete(params.into(), conn)?;
 
             let repeated_view = self.read_local_views_belong_to(&view_table.belong_to_id, conn)?;
             notify(&view_table.belong_to_id, WorkspaceObservable::AppDeleteView)
@@ -121,7 +126,7 @@ impl ViewController {
 
     pub(crate) async fn update_view_data(&self, params: UpdateDocParams) -> Result<(), WorkspaceError> {
         let conn = &*self.database.db_connection()?;
-        let _ = self.document.doc.update(params, &*conn)?;
+        let _ = self.document.update(params, &*conn)?;
         Ok(())
     }
 }

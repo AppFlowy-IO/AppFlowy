@@ -1,8 +1,11 @@
 use crate::{
     errors::DocError,
-    services::{doc_controller::DocController, file_manager::FileManager, server::construct_doc_server},
+    services::{doc_controller::DocController, doc_manager::DocManager, server::construct_doc_server},
 };
 
+use crate::entities::doc::{CreateDocParams, Doc, QueryDocParams, UpdateDocParams};
+use diesel::SqliteConnection;
+use flowy_database::ConnectionPool;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -16,21 +19,37 @@ pub enum DocumentType {
     Doc,
 }
 
-pub struct Document {
-    user: Arc<dyn DocumentUser>,
-    file_manager: RwLock<FileManager>,
-    pub doc: Arc<DocController>,
+pub struct FlowyDocument {
+    controller: Arc<DocController>,
+    manager: Arc<DocManager>,
 }
 
-impl Document {
-    pub fn new(user: Arc<dyn DocumentUser>) -> Document {
+impl FlowyDocument {
+    pub fn new(user: Arc<dyn DocumentUser>) -> FlowyDocument {
         let server = construct_doc_server();
-        let doc_controller = Arc::new(DocController::new(server.clone(), user.clone()));
-        let file_manager = RwLock::new(FileManager::new(user.clone()));
-        Self {
-            user,
-            file_manager,
-            doc: doc_controller,
-        }
+        let manager = Arc::new(DocManager::new());
+        let controller = Arc::new(DocController::new(server.clone(), user.clone()));
+        Self { controller, manager }
+    }
+
+    pub fn create(&self, params: CreateDocParams, conn: &SqliteConnection) -> Result<(), DocError> {
+        let _ = self.controller.create(params, conn)?;
+        Ok(())
+    }
+
+    pub fn delete(&self, params: QueryDocParams, conn: &SqliteConnection) -> Result<(), DocError> {
+        let _ = self.controller.delete(params.into(), conn)?;
+        Ok(())
+    }
+
+    pub async fn open(&self, params: QueryDocParams, pool: Arc<ConnectionPool>) -> Result<Doc, DocError> {
+        let doc = self.controller.open(params, pool).await?;
+
+        Ok(doc)
+    }
+
+    pub fn update(&self, params: UpdateDocParams, conn: &SqliteConnection) -> Result<(), DocError> {
+        let _ = self.controller.update(params, conn)?;
+        Ok(())
     }
 }

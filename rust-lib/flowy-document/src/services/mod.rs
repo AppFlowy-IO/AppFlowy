@@ -1,3 +1,3 @@
 pub mod doc_controller;
-pub mod file_manager;
+pub(crate) mod doc_manager;
 pub mod server;
