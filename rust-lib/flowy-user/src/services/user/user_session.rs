@@ -149,7 +149,6 @@ impl UserSession {
                     notify(&token, UserObservable::UserProfileUpdated).payload(profile).send();
                 },
                 Err(e) => {
-                    log::error!("{:?}", e);
                     notify(&token, UserObservable::UserProfileUpdated).error(e).send();
                 },
             }

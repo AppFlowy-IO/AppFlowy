@@ -4,6 +4,7 @@ import '../quill_delta.dart';
 import 'insert.dart';
 import 'delete.dart';
 import 'format.dart';
+import 'package:flowy_log/flowy_log.dart';
 
 enum RuleType {
   INSERT,
@@ -70,7 +71,7 @@ class Rules {
         final result = rule.apply(delta, index,
             length: length, data: data, attribute: attribute);
         if (result != null) {
-          print('apply rule: $rule, result: $result');
+          Log.trace('apply rule: $rule, result: $result');
           return result..trim();
         }
       } catch (e) {

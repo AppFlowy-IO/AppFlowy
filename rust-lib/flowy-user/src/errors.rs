@@ -21,7 +21,7 @@ impl UserError {
     pub(crate) fn new(code: ErrorCode, msg: &str) -> Self { Self { code, msg: msg.to_owned() } }
 }
 
-#[derive(Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
+#[derive(Debug, Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
 pub enum ErrorCode {
     #[display(fmt = "Unknown")]
     Unknown              = 0,
@@ -68,14 +68,6 @@ pub enum ErrorCode {
 
     #[display(fmt = "Internal error")]
     InternalError        = 100,
-}
-
-impl Debug for ErrorCode {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str(&format!("{}", self)) }
-}
-
-impl ErrorCode {
-    pub fn to_string(&self) -> String { format!("{}", self) }
 }
 
 impl std::default::Default for ErrorCode {

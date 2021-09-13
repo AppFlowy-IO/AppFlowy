@@ -70,26 +70,24 @@ class Document {
       length: replaceLength,
     );
 
-    Log.trace('current document delta: $_delta');
-    Log.trace('insert delta: $delta');
     compose(delta, ChangeSource.LOCAL);
-    Log.trace('compose insert, current document $_delta');
-    Log.trace('compose end');
+    Log.trace('current document $_delta');
     return delta;
   }
 
   Delta delete(int index, int length) {
+    Log.trace('delete $length at $index');
     assert(index >= 0 && length > 0);
     final delta = _rules.apply(RuleType.DELETE, this, index, length: length);
     if (delta.isNotEmpty) {
-      Log.trace('current document delta: $_delta');
       compose(delta, ChangeSource.LOCAL);
-      Log.trace('compose delete, current document $_delta');
     }
+    Log.trace('current document $_delta');
     return delta;
   }
 
   Delta replace(int index, int length, Object? data) {
+    Log.trace('replace $length at $index with $data');
     assert(index >= 0);
     assert(data is String || data is Embeddable);
 
@@ -101,23 +99,21 @@ class Document {
     // We have to insert before applying delete rules
     // Otherwise delete would be operating on stale document snapshot.
     if (dataIsNotEmpty) {
-      Log.trace('insert $data at $index, replace len: $length');
       delta = insert(index, data, replaceLength: length);
     }
 
     if (length > 0) {
-      Log.trace('delete $length at $index, len: $length');
       final deleteDelta = delete(index, length);
       delta = delta.compose(deleteDelta);
     }
 
-    Log.trace('replace result $delta');
+    Log.trace('current document $delta');
     return delta;
   }
 
   Delta format(int index, int length, Attribute? attribute) {
     assert(index >= 0 && length >= 0 && attribute != null);
-
+    Log.trace('format $length at $index with $attribute');
     var delta = Delta();
 
     final formatDelta = _rules.apply(
@@ -128,9 +124,8 @@ class Document {
       attribute: attribute,
     );
     if (formatDelta.isNotEmpty) {
-      Log.trace('current document delta: $_delta');
       compose(formatDelta, ChangeSource.LOCAL);
-      Log.trace('compose format, current document $_delta');
+      Log.trace('current document $_delta');
       delta = delta.compose(formatDelta);
     }
 

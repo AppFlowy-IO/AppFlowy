@@ -146,10 +146,12 @@ impl AppController {
         let server = self.server.clone();
         spawn(async move {
             // Opti: retry?
-            let app = server.read_app(&token, params).await.unwrap();
-            match app {
-                None => {},
-                Some(_) => {},
+            match server.read_app(&token, params).await {
+                Ok(option) => match option {
+                    None => {},
+                    Some(app) => {},
+                },
+                Err(_) => {},
             }
         });
         Ok(())

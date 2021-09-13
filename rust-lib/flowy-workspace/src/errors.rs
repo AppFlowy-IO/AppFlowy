@@ -102,7 +102,10 @@ impl fmt::Display for WorkspaceError {
 pub type ErrorBuilder = flowy_infra::errors::Builder<ErrorCode, WorkspaceError>;
 
 impl flowy_infra::errors::Build<ErrorCode> for WorkspaceError {
-    fn build(code: ErrorCode, msg: String) -> Self { WorkspaceError::new(code, &msg) }
+    fn build(code: ErrorCode, msg: String) -> Self {
+        let msg = if msg.is_empty() { format!("{}", code) } else { msg };
+        WorkspaceError::new(code, &msg)
+    }
 }
 
 fn server_error_to_workspace_error(code: ServerErrorCode) -> ErrorCode {

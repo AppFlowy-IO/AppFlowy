@@ -1,10 +1,13 @@
+mod layer;
+
 use log::LevelFilter;
 use std::path::Path;
 use tracing::subscriber::set_global_default;
 
+use crate::layer::*;
 use tracing_bunyan_formatter::{BunyanFormattingLayer, JsonStorageLayer};
 use tracing_log::LogTracer;
-use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
+use tracing_subscriber::{fmt::format::FmtSpan, layer::SubscriberExt, EnvFilter};
 
 pub struct Builder {
     name: String,
@@ -37,23 +40,27 @@ impl Builder {
         let env_filter = EnvFilter::new(self.env_filter);
 
         let subscriber = tracing_subscriber::fmt()
-            .with_target(false)
+            // .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
+            .with_target(true)
             .with_max_level(tracing::Level::TRACE)
             .with_writer(std::io::stderr)
             .with_thread_ids(false)
-            .with_target(false)
             // .with_writer(non_blocking)
+            // .json()
             .compact()
             .finish()
             .with(env_filter);
 
-        if cfg!(feature = "use_bunyan") {
-            let formatting_layer = BunyanFormattingLayer::new(self.name.clone(), std::io::stdout);
-            let _ = set_global_default(subscriber.with(JsonStorageLayer).with(formatting_layer))
-                .map_err(|e| format!("{:?}", e))?;
-        } else {
-            let _ = set_global_default(subscriber).map_err(|e| format!("{:?}", e))?;
-        }
+        // if cfg!(feature = "use_bunyan") {
+        //     let formatting_layer = BunyanFormattingLayer::new(self.name.clone(),
+        // std::io::stdout);     let _ =
+        // set_global_default(subscriber.with(JsonStorageLayer).with(formatting_layer)).
+        // map_err(|e| format!("{:?}", e))?; } else {
+        //     let _ = set_global_default(subscriber).map_err(|e| format!("{:?}", e))?;
+        // }
+
+        let formatting_layer = FlowyFormattingLayer::new(std::io::stdout);
+        let _ = set_global_default(subscriber.with(JsonStorageLayer).with(formatting_layer)).map_err(|e| format!("{:?}", e))?;
 
         let _ = LogTracer::builder()
             .with_max_level(LevelFilter::Trace)
@@ -81,10 +88,7 @@ mod tests {
         let _ = Builder::new("flowy").env_filter("debug").build();
         tracing::info!("😁 Tracing info log");
 
-        let pos = Position {
-            x: 3.234,
-            y: -1.223,
-        };
+        let pos = Position { x: 3.234, y: -1.223 };
 
         tracing::debug!(?pos.x, ?pos.y);
         log::debug!("😁 bridge 'log' to 'tracing'");
