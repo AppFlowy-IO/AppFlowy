@@ -1,5 +1,6 @@
 use crate::{
     entities::view::{
+        ApplyChangesetRequest,
         CreateViewParams,
         CreateViewRequest,
         DeleteViewParams,
@@ -7,7 +8,7 @@ use crate::{
         OpenViewRequest,
         QueryViewParams,
         QueryViewRequest,
-        UpdateViewDataRequest,
+        SaveViewDataRequest,
         UpdateViewParams,
         UpdateViewRequest,
         View,
@@ -16,7 +17,7 @@ use crate::{
     services::ViewController,
 };
 use flowy_dispatch::prelude::{data_result, Data, DataResult, Unit};
-use flowy_document::entities::doc::{Doc, QueryDocParams, UpdateDocParams};
+use flowy_document::entities::doc::{ApplyChangesetParams, Doc, QueryDocParams, SaveDocParams};
 use std::{convert::TryInto, sync::Arc};
 
 #[tracing::instrument(skip(data, controller), err)]
@@ -56,11 +57,21 @@ pub(crate) async fn update_view_handler(
 }
 #[tracing::instrument(skip(data, controller), err)]
 pub(crate) async fn update_view_data_handler(
-    data: Data<UpdateViewDataRequest>,
+    data: Data<SaveViewDataRequest>,
     controller: Unit<Arc<ViewController>>,
 ) -> Result<(), WorkspaceError> {
-    let params: UpdateDocParams = data.into_inner().try_into()?;
+    let params: SaveDocParams = data.into_inner().try_into()?;
     let _ = controller.update_view_data(params).await?;
+    Ok(())
+}
+
+#[tracing::instrument(skip(data, controller), err)]
+pub(crate) async fn apply_changeset_handler(
+    data: Data<ApplyChangesetRequest>,
+    controller: Unit<Arc<ViewController>>,
+) -> Result<(), WorkspaceError> {
+    let params: ApplyChangesetParams = data.into_inner().try_into()?;
+    let _ = controller.apply_changeset(params).await?;
     Ok(())
 }
 

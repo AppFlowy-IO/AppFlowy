@@ -14,7 +14,7 @@ use crate::{
 };
 use flowy_database::SqliteConnection;
 use flowy_document::{
-    entities::doc::{CreateDocParams, Doc, QueryDocParams, UpdateDocParams},
+    entities::doc::{ApplyChangesetParams, CreateDocParams, Doc, QueryDocParams, SaveDocParams},
     module::FlowyDocument,
 };
 use std::sync::Arc;
@@ -50,7 +50,7 @@ impl ViewController {
         // TODO: rollback anything created before if failed?
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.save_view(view.clone(), conn)?;
-            self.document.create(CreateDocParams::new(&view.id, &params.data), conn)?;
+            self.document.create(CreateDocParams::new(&view.id, params.data), conn)?;
 
             let repeated_view = self.read_local_views_belong_to(&view.belong_to_id, conn)?;
             notify(&view.belong_to_id, WorkspaceObservable::AppCreateView)
@@ -124,9 +124,13 @@ impl ViewController {
         Ok(())
     }
 
-    pub(crate) async fn update_view_data(&self, params: UpdateDocParams) -> Result<(), WorkspaceError> {
-        let conn = &*self.database.db_connection()?;
-        let _ = self.document.update(params, &*conn)?;
+    pub(crate) async fn update_view_data(&self, params: SaveDocParams) -> Result<(), WorkspaceError> {
+        let _ = self.document.update(params, self.database.db_pool()?).await?;
+        Ok(())
+    }
+
+    pub(crate) async fn apply_changeset(&self, params: ApplyChangesetParams) -> Result<(), WorkspaceError> {
+        let _ = self.document.apply_changeset(params).await?;
         Ok(())
     }
 }

@@ -15,23 +15,16 @@ abstract class EditorPersistence {
 }
 
 class EditorController extends ChangeNotifier {
+  final Document document;
+  TextSelection selection;
   final EditorPersistence? persistence;
+  Style toggledStyle = Style();
+
   EditorController({
     required this.document,
     required this.selection,
     this.persistence,
   });
-
-  factory EditorController.basic() {
-    return EditorController(
-      document: Document(),
-      selection: const TextSelection.collapsed(offset: 0),
-    );
-  }
-
-  final Document document;
-  TextSelection selection;
-  Style toggledStyle = Style();
 
   // item1: Document state before [change].
   // item2: Change delta applied to the document.
@@ -67,7 +60,6 @@ class EditorController extends ChangeNotifier {
 
   void save() {
     if (persistence != null) {
-      final a = document.toPlainText();
       persistence!.save(document.toDelta().toJson());
     }
   }
@@ -97,6 +89,7 @@ class EditorController extends ChangeNotifier {
     // final change =
     //     document.format(index, length, LinkAttribute("www.baidu.com"));
     final change = document.format(index, length, attribute);
+
     final adjustedSelection = selection.copyWith(
       baseOffset: change.transformPosition(selection.baseOffset),
       extentOffset: change.transformPosition(selection.extentOffset),
@@ -114,6 +107,7 @@ class EditorController extends ChangeNotifier {
     Delta? delta;
     if (length > 0 || data is! String || data.isNotEmpty) {
       delta = document.replace(index, length, data);
+
       var shouldRetainDelta = toggledStyle.isNotEmpty &&
           delta.isNotEmpty &&
           delta.length <= 2 &&

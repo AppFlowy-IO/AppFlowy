@@ -3,6 +3,7 @@ use dashmap::{mapref::one::Ref, DashMap};
 use flowy_ot::{
     client::{Document, FlowyDoc},
     core::Delta,
+    errors::OTError,
 };
 use std::convert::TryInto;
 use tokio::sync::RwLock;
@@ -14,20 +15,24 @@ pub struct DocInfo {
     document: Document,
 }
 
-impl std::convert::From<String> for DocId {
-    fn from(s: String) -> Self { DocId(s) }
+impl<T> std::convert::From<T> for DocId
+where
+    T: ToString,
+{
+    fn from(s: T) -> Self { DocId(s.to_string()) }
 }
 
-pub(crate) struct DocManager {
+pub(crate) struct DocCache {
     inner: DashMap<DocId, RwLock<DocInfo>>,
 }
 
-impl DocManager {
+impl DocCache {
     pub(crate) fn new() -> Self { Self { inner: DashMap::new() } }
+
     pub(crate) fn open<T, D>(&self, id: T, data: D) -> Result<(), DocError>
     where
         T: Into<DocId>,
-        D: TryInto<Delta, Error = DocError>,
+        D: TryInto<Delta, Error = OTError>,
     {
         let doc_id = id.into();
         let delta = data.try_into()?;

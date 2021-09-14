@@ -3,7 +3,7 @@ use crate::{
     errors::{ErrorBuilder, ErrorCode, WorkspaceError},
 };
 use flowy_derive::ProtoBuf;
-use flowy_document::entities::doc::UpdateDocParams;
+use flowy_document::entities::doc::{ApplyChangesetParams, SaveDocParams};
 use std::convert::TryInto;
 
 #[derive(Default, ProtoBuf)]
@@ -111,24 +111,55 @@ impl TryInto<UpdateViewParams> for UpdateViewRequest {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct UpdateViewDataRequest {
+pub struct SaveViewDataRequest {
     #[pb(index = 1)]
     pub view_id: String,
 
     #[pb(index = 2)]
-    pub data: String,
+    pub data: Vec<u8>,
 }
 
-impl TryInto<UpdateDocParams> for UpdateViewDataRequest {
+impl TryInto<SaveDocParams> for SaveViewDataRequest {
     type Error = WorkspaceError;
 
-    fn try_into(self) -> Result<UpdateDocParams, Self::Error> {
+    fn try_into(self) -> Result<SaveDocParams, Self::Error> {
         let view_id = ViewId::parse(self.view_id)
             .map_err(|e| ErrorBuilder::new(ErrorCode::ViewIdInvalid).msg(e).build())?
             .0;
-        Ok(UpdateDocParams {
-            id: view_id,
-            data: Some(self.data),
-        })
+
+        // Opti: Vec<u8> -> Delta -> Vec<u8>
+        let data = DeltaData::parse(self.data)
+            .map_err(|e| ErrorBuilder::new(ErrorCode::ViewDataInvalid).msg(e).build())?
+            .0
+            .into_bytes();
+
+        Ok(SaveDocParams { id: view_id, data })
+    }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct ApplyChangesetRequest {
+    #[pb(index = 1)]
+    pub view_id: String,
+
+    #[pb(index = 2)]
+    pub data: Vec<u8>,
+}
+
+impl TryInto<ApplyChangesetParams> for ApplyChangesetRequest {
+    type Error = WorkspaceError;
+
+    fn try_into(self) -> Result<ApplyChangesetParams, Self::Error> {
+        let view_id = ViewId::parse(self.view_id)
+            .map_err(|e| ErrorBuilder::new(ErrorCode::ViewIdInvalid).msg(e).build())?
+            .0;
+
+        // Opti: Vec<u8> -> Delta -> Vec<u8>
+        let data = DeltaData::parse(self.data)
+            .map_err(|e| ErrorBuilder::new(ErrorCode::ViewDataInvalid).msg(e).build())?
+            .0
+            .into_bytes();
+
+        Ok(ApplyChangesetParams { id: view_id, data })
     }
 }

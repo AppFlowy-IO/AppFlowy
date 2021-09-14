@@ -22,6 +22,7 @@ class ErrorCode extends $pb.ProtobufEnum {
   static const ErrorCode ViewThumbnailInvalid = ErrorCode._(21, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewThumbnailInvalid');
   static const ErrorCode ViewIdInvalid = ErrorCode._(22, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewIdInvalid');
   static const ErrorCode ViewDescInvalid = ErrorCode._(23, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewDescInvalid');
+  static const ErrorCode ViewDataInvalid = ErrorCode._(24, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewDataInvalid');
   static const ErrorCode UserIdIsEmpty = ErrorCode._(100, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserIdIsEmpty');
   static const ErrorCode UserUnauthorized = ErrorCode._(101, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserUnauthorized');
   static const ErrorCode InternalError = ErrorCode._(1000, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'InternalError');
@@ -40,6 +41,7 @@ class ErrorCode extends $pb.ProtobufEnum {
     ViewThumbnailInvalid,
     ViewIdInvalid,
     ViewDescInvalid,
+    ViewDataInvalid,
     UserIdIsEmpty,
     UserUnauthorized,
     InternalError,

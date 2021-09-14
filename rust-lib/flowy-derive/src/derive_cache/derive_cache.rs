@@ -41,7 +41,8 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "CurrentWorkspace"
         | "UpdateViewRequest"
         | "UpdateViewParams"
-        | "UpdateViewDataRequest"
+        | "SaveViewDataRequest"
+        | "ApplyChangesetRequest"
         | "DeleteViewRequest"
         | "DeleteViewParams"
         | "QueryViewRequest"
@@ -54,7 +55,8 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "WorkspaceError"
         | "CreateDocParams"
         | "Doc"
-        | "UpdateDocParams"
+        | "SaveDocParams"
+        | "ApplyChangesetParams"
         | "QueryDocParams"
         | "DocError"
         | "FFIRequest"
@@ -69,17 +71,18 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "UserProfile"
         | "UpdateUserRequest"
         | "UpdateUserParams"
-        | "UserError" => TypeCategory::Protobuf,
+        | "UserError"
+        => TypeCategory::Protobuf,
         "ViewType"
         | "WorkspaceEvent"
         | "ErrorCode"
         | "WorkspaceObservable"
-        | "EditorEvent"
         | "DocObservable"
         | "FFIStatusCode"
         | "UserStatus"
         | "UserEvent"
-        | "UserObservable" => TypeCategory::Enum,
+        | "UserObservable"
+        => TypeCategory::Enum,
 
         "Option" => TypeCategory::Opt,
         _ => TypeCategory::Primitive,

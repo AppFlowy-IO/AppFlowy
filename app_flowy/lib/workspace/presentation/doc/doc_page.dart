@@ -14,11 +14,12 @@ class DocPage extends StatelessWidget {
   final FlowyDoc doc;
 
   DocPage({Key? key, required this.doc}) : super(key: key) {
+    // getIt<EditorChangesetSender>(param1: doc.id))
+
     controller = EditorController(
-      document: doc.data,
-      selection: const TextSelection.collapsed(offset: 0),
-      persistence: getIt<EditorPersistence>(param1: doc.id),
-    );
+        document: doc.data,
+        selection: const TextSelection.collapsed(offset: 0),
+        persistence: getIt<EditorPersistence>(param1: doc.id));
   }
 
   @override

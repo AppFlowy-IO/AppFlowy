@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/workspace/domain/i_doc.dart';
@@ -26,7 +28,12 @@ class DocBloc extends Bloc<DocEvent, DocState> {
     final docOrFail = await iDocImpl.readDoc();
     yield docOrFail.fold(
       (doc) {
-        final flowyDoc = FlowyDoc(doc: doc, data: _decodeToDocument(doc.data));
+        final flowyDoc = FlowyDoc(
+            doc: doc,
+            data: _decodeToDocument(
+              Uint8List.fromList(doc.data),
+            ),
+            iDocImpl: iDocImpl);
         return DocState.loadDoc(flowyDoc);
       },
       (error) {
@@ -35,8 +42,8 @@ class DocBloc extends Bloc<DocEvent, DocState> {
     );
   }
 
-  Document _decodeToDocument(String text) {
-    final json = jsonDecode(text);
+  Document _decodeToDocument(Uint8List data) {
+    final json = jsonDecode(utf8.decode(data));
     final document = Document.fromJson(json);
     return document;
   }

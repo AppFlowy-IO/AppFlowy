@@ -13,12 +13,14 @@ class DocEditBloc extends Bloc<DocEditEvent, DocEditState> {
   Stream<DocEditState> mapEventToState(DocEditEvent event) async* {
     yield* event.map(
         initial: (e) async* {},
-        close: (Close value) async* {},
+        close: (Close value) async* {
+          iDocImpl.closeDoc();
+        },
         changeset: (Changeset changeset) async* {
-          iDocImpl.updateWithChangeset(text: changeset.data);
+          iDocImpl.applyChangeset(json: changeset.data);
         },
         save: (Save save) async* {
-          iDocImpl.saveDoc(text: save.data);
+          iDocImpl.saveDoc(json: save.data);
         });
   }
 }

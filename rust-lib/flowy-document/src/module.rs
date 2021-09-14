@@ -1,9 +1,12 @@
 use crate::{
     errors::DocError,
-    services::{doc_controller::DocController, doc_manager::DocManager, server::construct_doc_server},
+    services::{doc_cache::DocCache, server::construct_doc_server},
 };
 
-use crate::entities::doc::{CreateDocParams, Doc, QueryDocParams, UpdateDocParams};
+use crate::{
+    entities::doc::{ApplyChangesetParams, CreateDocParams, Doc, QueryDocParams, SaveDocParams},
+    services::doc_controller::DocController,
+};
 use diesel::SqliteConnection;
 use flowy_database::ConnectionPool;
 use std::sync::Arc;
@@ -15,21 +18,17 @@ pub trait DocumentUser: Send + Sync {
     fn token(&self) -> Result<String, DocError>;
 }
 
-pub enum DocumentType {
-    Doc,
-}
-
 pub struct FlowyDocument {
     controller: Arc<DocController>,
-    manager: Arc<DocManager>,
+    cache: Arc<DocCache>,
 }
 
 impl FlowyDocument {
     pub fn new(user: Arc<dyn DocumentUser>) -> FlowyDocument {
         let server = construct_doc_server();
-        let manager = Arc::new(DocManager::new());
+        let cache = Arc::new(DocCache::new());
         let controller = Arc::new(DocController::new(server.clone(), user.clone()));
-        Self { controller, manager }
+        Self { controller, cache }
     }
 
     pub fn create(&self, params: CreateDocParams, conn: &SqliteConnection) -> Result<(), DocError> {
@@ -38,18 +37,32 @@ impl FlowyDocument {
     }
 
     pub fn delete(&self, params: QueryDocParams, conn: &SqliteConnection) -> Result<(), DocError> {
+        let _ = self.cache.close(&params.doc_id)?;
         let _ = self.controller.delete(params.into(), conn)?;
         Ok(())
     }
 
     pub async fn open(&self, params: QueryDocParams, pool: Arc<ConnectionPool>) -> Result<Doc, DocError> {
         let doc = self.controller.open(params, pool).await?;
+        let _ = self.cache.open(&doc.id, doc.data.clone())?;
 
         Ok(doc)
     }
 
-    pub fn update(&self, params: UpdateDocParams, conn: &SqliteConnection) -> Result<(), DocError> {
-        let _ = self.controller.update(params, conn)?;
+    pub async fn update(&self, params: SaveDocParams, pool: Arc<ConnectionPool>) -> Result<(), DocError> {
+        let _ = self.controller.update(params, &*pool.get().unwrap())?;
+        Ok(())
+    }
+
+    pub async fn apply_changeset(&self, params: ApplyChangesetParams) -> Result<(), DocError> {
+        let _ = self
+            .cache
+            .mut_doc(&params.id, |doc| {
+                log::debug!("Document:{} applying delta", &params.id);
+                let _ = doc.apply_changeset(params.data.clone())?;
+                Ok(())
+            })
+            .await?;
         Ok(())
     }
 }

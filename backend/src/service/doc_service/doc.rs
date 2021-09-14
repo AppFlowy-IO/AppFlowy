@@ -4,7 +4,7 @@ use crate::{
     sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
 use anyhow::Context;
-use flowy_document::protobuf::{CreateDocParams, Doc, QueryDocParams, UpdateDocParams};
+use flowy_document::protobuf::{CreateDocParams, Doc, QueryDocParams, SaveDocParams};
 use flowy_net::{errors::ServerError, response::FlowyResponse};
 use sqlx::{postgres::PgArguments, PgPool, Postgres};
 use uuid::Uuid;
@@ -55,7 +55,7 @@ pub(crate) async fn read_doc(
 
 pub(crate) async fn update_doc(
     pool: &PgPool,
-    mut params: UpdateDocParams,
+    mut params: SaveDocParams,
 ) -> Result<FlowyResponse, ServerError> {
     let doc_id = Uuid::parse_str(&params.id)?;
     let mut transaction = pool
@@ -63,10 +63,7 @@ pub(crate) async fn update_doc(
         .await
         .context("Failed to acquire a Postgres connection to update doc")?;
 
-    let data = match params.has_data() {
-        true => Some(params.take_data()),
-        false => None,
-    };
+    let data = Some(params.take_data());
 
     let (sql, args) = SqlBuilder::update(DOC_TABLE)
         .add_some_arg("data", data)

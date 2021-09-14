@@ -9,6 +9,7 @@ use crate::{
     },
     sqlx_ext::{map_sqlx_error, DBTransaction},
 };
+use flowy_workspace::entities::view::default_delta;
 
 pub async fn create_default_workspace(
     transaction: &mut DBTransaction<'_>,
@@ -63,10 +64,14 @@ async fn create_view(transaction: &mut DBTransaction<'_>, app: &App) -> Result<V
         desc: "View created by AppFlowy".to_string(),
         thumbnail: "123.png".to_string(),
         view_type: ViewType::Doc,
-        data: "[{\"insert\":\"\\n\"}]".to_string(),
+        data: default_delta(),
         unknown_fields: Default::default(),
         cached_size: Default::default(),
     };
+
+    let name = "DefaultView".to_string();
+    let desc = "View created by AppFlowy Server".to_string();
+    let thumbnail = "http://1.png".to_string();
 
     let view = create_view_with_transaction(transaction, params).await?;
 

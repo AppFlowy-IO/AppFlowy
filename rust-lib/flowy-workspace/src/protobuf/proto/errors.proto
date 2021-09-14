@@ -17,6 +17,7 @@ enum ErrorCode {
     ViewThumbnailInvalid = 21;
     ViewIdInvalid = 22;
     ViewDescInvalid = 23;
+    ViewDataInvalid = 24;
     UserIdIsEmpty = 100;
     UserUnauthorized = 101;
     InternalError = 1000;

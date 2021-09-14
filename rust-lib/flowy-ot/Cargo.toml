@@ -16,6 +16,7 @@ chrono = "0.4.19"
 lazy_static = "1.4.0"
 url = "2.2"
 
+
 [dev-dependencies]
 criterion = "0.3"
 rand = "0.7.3"

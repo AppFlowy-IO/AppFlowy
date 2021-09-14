@@ -65,7 +65,23 @@ pub struct CreateViewParams {
     pub view_type: ViewType,
 
     #[pb(index = 6)]
-    pub data: String,
+    pub data: Vec<u8>,
+}
+
+const VIEW_DEFAULT_DATA: &str = "[{\"insert\":\"\\n\"}]";
+pub fn default_delta() -> Vec<u8> { VIEW_DEFAULT_DATA.as_bytes().to_vec() }
+
+impl CreateViewParams {
+    pub fn new(belong_to_id: String, name: String, desc: String, view_type: ViewType, thumbnail: String) -> Self {
+        Self {
+            belong_to_id,
+            name,
+            desc,
+            thumbnail,
+            view_type,
+            data: default_delta(),
+        }
+    }
 }
 
 impl TryInto<CreateViewParams> for CreateViewRequest {
@@ -89,15 +105,7 @@ impl TryInto<CreateViewParams> for CreateViewRequest {
             },
         };
 
-        Ok(CreateViewParams {
-            belong_to_id,
-            name,
-            desc: self.desc,
-            thumbnail,
-            view_type: self.view_type,
-            // TODO: replace the placeholder
-            data: "[{\"insert\":\"\\n\"}]".to_owned(),
-        })
+        Ok(CreateViewParams::new(belong_to_id, name, self.desc, self.view_type, thumbnail))
     }
 }
 

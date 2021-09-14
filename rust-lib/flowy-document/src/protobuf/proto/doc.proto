@@ -2,15 +2,19 @@ syntax = "proto3";
 
 message CreateDocParams {
     string id = 1;
-    string data = 2;
+    bytes data = 2;
 }
 message Doc {
     string id = 1;
-    string data = 2;
+    bytes data = 2;
 }
-message UpdateDocParams {
+message SaveDocParams {
     string id = 1;
-    oneof one_of_data { string data = 2; };
+    bytes data = 2;
+}
+message ApplyChangesetParams {
+    string id = 1;
+    bytes data = 2;
 }
 message QueryDocParams {
     string doc_id = 1;

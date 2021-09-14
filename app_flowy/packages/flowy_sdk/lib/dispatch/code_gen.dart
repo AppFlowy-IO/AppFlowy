@@ -254,13 +254,30 @@ class WorkspaceEventOpenView {
     }
 }
 
-class WorkspaceEventUpdateViewData {
-     UpdateViewDataRequest request;
-     WorkspaceEventUpdateViewData(this.request);
+class WorkspaceEventSaveViewData {
+     SaveViewDataRequest request;
+     WorkspaceEventSaveViewData(this.request);
 
     Future<Either<Unit, WorkspaceError>> send() {
     final request = FFIRequest.create()
-          ..event = WorkspaceEvent.UpdateViewData.toString()
+          ..event = WorkspaceEvent.SaveViewData.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (bytes) => left(unit),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
+class WorkspaceEventApplyChangeset {
+     ApplyChangesetRequest request;
+     WorkspaceEventApplyChangeset(this.request);
+
+    Future<Either<Unit, WorkspaceError>> send() {
+    final request = FFIRequest.create()
+          ..event = WorkspaceEvent.ApplyChangeset.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)

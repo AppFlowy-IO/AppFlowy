@@ -57,6 +57,9 @@ pub enum ErrorCode {
     #[display(fmt = "Description of the View is invalid")]
     ViewDescInvalid      = 23,
 
+    #[display(fmt = "View data is invalid")]
+    ViewDataInvalid      = 24,
+
     #[display(fmt = "UserIn is empty")]
     UserIdIsEmpty        = 100,
 

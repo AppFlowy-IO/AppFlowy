@@ -7,9 +7,11 @@ use std::{
     cmp::{min, Ordering},
     fmt,
     iter::FromIterator,
+    str,
     str::FromStr,
 };
 
+// Opti: optimize the memory usage with Arc_mut or Cow
 #[derive(Clone, Debug, PartialEq)]
 pub struct Delta {
     pub ops: Vec<Operation>,
@@ -37,9 +39,14 @@ impl FromStr for Delta {
     }
 }
 
-impl<T: AsRef<str>> From<T> for Delta {
-    fn from(s: T) -> Delta { Delta::from_str(s.as_ref()).unwrap() }
+impl std::convert::TryFrom<Vec<u8>> for Delta {
+    type Error = OTError;
+    fn try_from(bytes: Vec<u8>) -> Result<Self, Self::Error> { Delta::from_bytes(bytes) }
 }
+
+// impl<T: AsRef<Vec<u8>>> std::convert::From<T> for Delta {
+//     fn from(bytes: T) -> Self {
+// Delta::from_bytes(bytes.as_ref().to_vec()).unwrap() } }
 
 impl fmt::Display for Delta {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -69,8 +76,22 @@ impl Delta {
     pub fn to_json(&self) -> String { serde_json::to_string(self).unwrap_or("".to_owned()) }
 
     pub fn from_json(json: &str) -> Result<Self, OTError> {
-        let delta: Delta = serde_json::from_str(json)?;
+        let delta: Delta = serde_json::from_str(json).map_err(|e| {
+            log::error!("Deserialize  Delta failed: {:?}", e);
+            log::error!("{:?}", json);
+            e
+        })?;
         Ok(delta)
+    }
+
+    pub fn from_bytes(bytes: Vec<u8>) -> Result<Self, OTError> {
+        let json = str::from_utf8(&bytes)?;
+        Self::from_json(json)
+    }
+
+    pub fn into_bytes(self) -> Vec<u8> {
+        let json = self.to_json();
+        json.into_bytes()
     }
 
     #[inline]

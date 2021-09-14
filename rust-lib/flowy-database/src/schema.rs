@@ -16,7 +16,7 @@ table! {
 table! {
     doc_table (id) {
         id -> Text,
-        data -> Text,
+        data -> Binary,
         version -> BigInt,
     }
 }
@@ -58,4 +58,10 @@ table! {
     }
 }
 
-allow_tables_to_appear_in_same_query!(app_table, doc_table, user_table, view_table, workspace_table,);
+allow_tables_to_appear_in_same_query!(
+    app_table,
+    doc_table,
+    user_table,
+    view_table,
+    workspace_table,
+);

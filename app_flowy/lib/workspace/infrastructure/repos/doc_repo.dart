@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-document/doc.pb.dart';
@@ -16,15 +18,19 @@ class DocRepository {
     return WorkspaceEventOpenView(request).send();
   }
 
-  Future<Either<Unit, WorkspaceError>> updateDoc({String? text}) {
-    final request = UpdateViewDataRequest.create()
+  Future<Either<Unit, WorkspaceError>> saveDoc({required Uint8List data}) {
+    final request = SaveViewDataRequest.create()
       ..viewId = docId
-      ..data = text ?? "";
-    return WorkspaceEventUpdateViewData(request).send();
+      ..data = data;
+    return WorkspaceEventSaveViewData(request).send();
   }
 
-  Future<Either<Unit, WorkspaceError>> updateWithChangeset({String? text}) {
-    throw UnimplementedError();
+  Future<Either<Unit, WorkspaceError>> applyChangeset(
+      {required Uint8List data}) {
+    final request = ApplyChangesetRequest.create()
+      ..viewId = docId
+      ..data = data;
+    return WorkspaceEventApplyChangeset(request).send();
   }
 
   Future<Either<Unit, WorkspaceError>> closeDoc(

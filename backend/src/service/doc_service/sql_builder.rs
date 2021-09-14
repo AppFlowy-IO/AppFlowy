@@ -14,14 +14,11 @@ pub struct NewDocSqlBuilder {
 
 impl NewDocSqlBuilder {
     pub fn new(id: Uuid) -> Self {
-        let table = DocTable {
-            id,
-            data: "".to_owned(),
-        };
+        let table = DocTable { id, data: vec![] };
         Self { table }
     }
 
-    pub fn data(mut self, data: String) -> Self {
+    pub fn data(mut self, data: Vec<u8>) -> Self {
         self.table.data = data;
         self
     }

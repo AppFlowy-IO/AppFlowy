@@ -48,6 +48,10 @@ impl std::convert::From<flowy_database::Error> for DocError {
     }
 }
 
+impl std::convert::From<flowy_ot::errors::OTError> for DocError {
+    fn from(error: flowy_ot::errors::OTError) -> Self { ErrorBuilder::new(ErrorCode::InternalError).error(error).build() }
+}
+
 // impl std::convert::From<::r2d2::Error> for DocError {
 //     fn from(error: r2d2::Error) -> Self {
 // ErrorBuilder::new(ErrorCode::InternalError).error(error).build() } }

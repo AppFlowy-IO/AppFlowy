@@ -41,7 +41,7 @@ impl Builder {
 
         let subscriber = tracing_subscriber::fmt()
             // .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
-            .with_target(true)
+            .with_target(false)
             .with_max_level(tracing::Level::TRACE)
             .with_writer(std::io::stderr)
             .with_thread_ids(false)

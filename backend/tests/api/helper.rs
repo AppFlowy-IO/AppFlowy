@@ -4,7 +4,7 @@ use backend::{
 };
 
 use flowy_document::{
-    entities::doc::{Doc, QueryDocParams, UpdateDocParams},
+    entities::doc::{Doc, QueryDocParams, SaveDocParams},
     prelude::*,
 };
 use flowy_user::{errors::UserError, prelude::*};
@@ -278,14 +278,11 @@ pub(crate) async fn create_test_app(server: &TestServer, workspace_id: &str) -> 
 }
 
 pub(crate) async fn create_test_view(application: &TestServer, app_id: &str) -> View {
-    let params = CreateViewParams {
-        belong_to_id: app_id.to_string(),
-        name: "My first view".to_string(),
-        desc: "This is my first view".to_string(),
-        thumbnail: "http://1.png".to_string(),
-        view_type: ViewType::Doc,
-        data: "".to_owned(),
-    };
+    let name = "My first view".to_string();
+    let desc = "This is my first view".to_string();
+    let thumbnail = "http://1.png".to_string();
+
+    let params = CreateViewParams::new(app_id.to_owned(), name, desc, ViewType::Doc, thumbnail);
     let app = application.create_view(params).await;
     app
 }

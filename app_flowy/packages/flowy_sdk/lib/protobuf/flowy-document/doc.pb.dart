@@ -12,14 +12,14 @@ import 'package:protobuf/protobuf.dart' as $pb;
 class CreateDocParams extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateDocParams', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data')
+    ..a<$core.List<$core.int>>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
     ..hasRequiredFields = false
   ;
 
   CreateDocParams._() : super();
   factory CreateDocParams({
     $core.String? id,
-    $core.String? data,
+    $core.List<$core.int>? data,
   }) {
     final _result = create();
     if (id != null) {
@@ -61,9 +61,9 @@ class CreateDocParams extends $pb.GeneratedMessage {
   void clearId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get data => $_getSZ(1);
+  $core.List<$core.int> get data => $_getN(1);
   @$pb.TagNumber(2)
-  set data($core.String v) { $_setString(1, v); }
+  set data($core.List<$core.int> v) { $_setBytes(1, v); }
   @$pb.TagNumber(2)
   $core.bool hasData() => $_has(1);
   @$pb.TagNumber(2)
@@ -73,14 +73,14 @@ class CreateDocParams extends $pb.GeneratedMessage {
 class Doc extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Doc', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data')
+    ..a<$core.List<$core.int>>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
     ..hasRequiredFields = false
   ;
 
   Doc._() : super();
   factory Doc({
     $core.String? id,
-    $core.String? data,
+    $core.List<$core.int>? data,
   }) {
     final _result = create();
     if (id != null) {
@@ -122,36 +122,26 @@ class Doc extends $pb.GeneratedMessage {
   void clearId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get data => $_getSZ(1);
+  $core.List<$core.int> get data => $_getN(1);
   @$pb.TagNumber(2)
-  set data($core.String v) { $_setString(1, v); }
+  set data($core.List<$core.int> v) { $_setBytes(1, v); }
   @$pb.TagNumber(2)
   $core.bool hasData() => $_has(1);
   @$pb.TagNumber(2)
   void clearData() => clearField(2);
 }
 
-enum UpdateDocParams_OneOfData {
-  data, 
-  notSet
-}
-
-class UpdateDocParams extends $pb.GeneratedMessage {
-  static const $core.Map<$core.int, UpdateDocParams_OneOfData> _UpdateDocParams_OneOfDataByTag = {
-    2 : UpdateDocParams_OneOfData.data,
-    0 : UpdateDocParams_OneOfData.notSet
-  };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UpdateDocParams', createEmptyInstance: create)
-    ..oo(0, [2])
+class SaveDocParams extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SaveDocParams', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data')
+    ..a<$core.List<$core.int>>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
     ..hasRequiredFields = false
   ;
 
-  UpdateDocParams._() : super();
-  factory UpdateDocParams({
+  SaveDocParams._() : super();
+  factory SaveDocParams({
     $core.String? id,
-    $core.String? data,
+    $core.List<$core.int>? data,
   }) {
     final _result = create();
     if (id != null) {
@@ -162,29 +152,26 @@ class UpdateDocParams extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory UpdateDocParams.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory UpdateDocParams.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory SaveDocParams.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory SaveDocParams.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  UpdateDocParams clone() => UpdateDocParams()..mergeFromMessage(this);
+  SaveDocParams clone() => SaveDocParams()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  UpdateDocParams copyWith(void Function(UpdateDocParams) updates) => super.copyWith((message) => updates(message as UpdateDocParams)) as UpdateDocParams; // ignore: deprecated_member_use
+  SaveDocParams copyWith(void Function(SaveDocParams) updates) => super.copyWith((message) => updates(message as SaveDocParams)) as SaveDocParams; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static UpdateDocParams create() => UpdateDocParams._();
-  UpdateDocParams createEmptyInstance() => create();
-  static $pb.PbList<UpdateDocParams> createRepeated() => $pb.PbList<UpdateDocParams>();
+  static SaveDocParams create() => SaveDocParams._();
+  SaveDocParams createEmptyInstance() => create();
+  static $pb.PbList<SaveDocParams> createRepeated() => $pb.PbList<SaveDocParams>();
   @$core.pragma('dart2js:noInline')
-  static UpdateDocParams getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UpdateDocParams>(create);
-  static UpdateDocParams? _defaultInstance;
-
-  UpdateDocParams_OneOfData whichOneOfData() => _UpdateDocParams_OneOfDataByTag[$_whichOneof(0)]!;
-  void clearOneOfData() => clearField($_whichOneof(0));
+  static SaveDocParams getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SaveDocParams>(create);
+  static SaveDocParams? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);
@@ -196,9 +183,70 @@ class UpdateDocParams extends $pb.GeneratedMessage {
   void clearId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get data => $_getSZ(1);
+  $core.List<$core.int> get data => $_getN(1);
   @$pb.TagNumber(2)
-  set data($core.String v) { $_setString(1, v); }
+  set data($core.List<$core.int> v) { $_setBytes(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasData() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearData() => clearField(2);
+}
+
+class ApplyChangesetParams extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ApplyChangesetParams', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
+    ..a<$core.List<$core.int>>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
+    ..hasRequiredFields = false
+  ;
+
+  ApplyChangesetParams._() : super();
+  factory ApplyChangesetParams({
+    $core.String? id,
+    $core.List<$core.int>? data,
+  }) {
+    final _result = create();
+    if (id != null) {
+      _result.id = id;
+    }
+    if (data != null) {
+      _result.data = data;
+    }
+    return _result;
+  }
+  factory ApplyChangesetParams.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ApplyChangesetParams.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ApplyChangesetParams clone() => ApplyChangesetParams()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ApplyChangesetParams copyWith(void Function(ApplyChangesetParams) updates) => super.copyWith((message) => updates(message as ApplyChangesetParams)) as ApplyChangesetParams; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static ApplyChangesetParams create() => ApplyChangesetParams._();
+  ApplyChangesetParams createEmptyInstance() => create();
+  static $pb.PbList<ApplyChangesetParams> createRepeated() => $pb.PbList<ApplyChangesetParams>();
+  @$core.pragma('dart2js:noInline')
+  static ApplyChangesetParams getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ApplyChangesetParams>(create);
+  static ApplyChangesetParams? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get id => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set id($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.List<$core.int> get data => $_getN(1);
+  @$pb.TagNumber(2)
+  set data($core.List<$core.int> v) { $_setBytes(1, v); }
   @$pb.TagNumber(2)
   $core.bool hasData() => $_has(1);
   @$pb.TagNumber(2)

@@ -4,7 +4,7 @@ use actix_web::{
 };
 use sqlx::PgPool;
 
-use flowy_document::protobuf::{QueryDocParams, UpdateDocParams};
+use flowy_document::protobuf::{QueryDocParams, SaveDocParams};
 use flowy_net::errors::ServerError;
 
 use crate::service::{
@@ -25,7 +25,7 @@ pub async fn update_handler(
     payload: Payload,
     pool: Data<PgPool>,
 ) -> Result<HttpResponse, ServerError> {
-    let params: UpdateDocParams = parse_from_payload(payload).await?;
+    let params: SaveDocParams = parse_from_payload(payload).await?;
     let response = update_doc(pool.get_ref(), params).await?;
     Ok(response.into())
 }

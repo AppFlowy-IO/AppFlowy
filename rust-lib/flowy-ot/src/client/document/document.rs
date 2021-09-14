@@ -3,6 +3,7 @@ use crate::{
     core::*,
     errors::{ErrorBuilder, OTError, OTErrorCode, OTErrorCode::*},
 };
+use std::convert::TryInto;
 
 pub trait DocumentData {
     fn into_string(self) -> Result<String, OTError>;
@@ -49,6 +50,17 @@ impl Document {
     }
 
     pub fn to_json(&self) -> String { self.delta.to_json() }
+
+    pub fn apply_changeset<T>(&mut self, changeset: T) -> Result<(), OTError>
+    where
+        T: TryInto<Delta, Error = OTError>,
+    {
+        let new_delta: Delta = changeset.try_into()?;
+        self.add_delta(&new_delta);
+
+        log::info!("Current delta: {:?}", self.to_json());
+        Ok(())
+    }
 
     pub fn insert<T: DocumentData>(&mut self, index: usize, data: T) -> Result<Delta, OTError> {
         let interval = Interval::new(index, index);

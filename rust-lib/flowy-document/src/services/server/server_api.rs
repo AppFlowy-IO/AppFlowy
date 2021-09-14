@@ -1,5 +1,5 @@
 use crate::{
-    entities::doc::{CreateDocParams, Doc, QueryDocParams, UpdateDocParams},
+    entities::doc::{CreateDocParams, Doc, QueryDocParams, SaveDocParams},
     errors::DocError,
     services::server::DocumentServerAPI,
 };
@@ -19,7 +19,7 @@ impl DocumentServerAPI for DocServer {
         ResultFuture::new(async move { read_doc_request(&token, params, DOC_URL.as_ref()).await })
     }
 
-    fn update_doc(&self, token: &str, params: UpdateDocParams) -> ResultFuture<(), DocError> {
+    fn update_doc(&self, token: &str, params: SaveDocParams) -> ResultFuture<(), DocError> {
         let token = token.to_owned();
         ResultFuture::new(async move { update_doc_request(&token, params, DOC_URL.as_ref()).await })
     }
@@ -53,7 +53,7 @@ pub async fn read_doc_request(token: &str, params: QueryDocParams, url: &str) ->
     Ok(doc)
 }
 
-pub async fn update_doc_request(token: &str, params: UpdateDocParams, url: &str) -> Result<(), DocError> {
+pub async fn update_doc_request(token: &str, params: SaveDocParams, url: &str) -> Result<(), DocError> {
     let _ = request_builder()
         .patch(&url.to_owned())
         .header(HEADER_TOKEN, token)

@@ -1,4 +1,4 @@
-use std::{error::Error, fmt};
+use std::{error::Error, fmt, str::Utf8Error};
 
 #[derive(Clone, Debug)]
 pub struct OTError {
@@ -20,6 +20,10 @@ impl Error for OTError {
 
 impl std::convert::From<serde_json::Error> for OTError {
     fn from(error: serde_json::Error) -> Self { ErrorBuilder::new(OTErrorCode::SerdeError).error(error).build() }
+}
+
+impl std::convert::From<Utf8Error> for OTError {
+    fn from(error: Utf8Error) -> Self { ErrorBuilder::new(OTErrorCode::SerdeError).error(error).build() }
 }
 
 #[derive(Debug, Clone)]

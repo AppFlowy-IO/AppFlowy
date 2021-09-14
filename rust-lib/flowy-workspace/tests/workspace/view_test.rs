@@ -36,7 +36,7 @@ fn view_update_doc() {
     let test = ViewTest::new();
 
     let new_data = "123";
-    let request = UpdateViewDataRequest {
+    let request = SaveViewDataRequest {
         view_id: test.view.id.clone(),
         data: new_data.to_string(),
     };
@@ -54,7 +54,7 @@ fn view_update_doc() {
 fn view_update_big_doc() {
     let test = ViewTest::new();
     let new_data = "flutter ❤️ rust".repeat(1000000);
-    let request = UpdateViewDataRequest {
+    let request = SaveViewDataRequest {
         view_id: test.view.id.clone(),
         data: new_data.to_string(),
     };
