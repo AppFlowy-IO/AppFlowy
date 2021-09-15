@@ -129,9 +129,9 @@ impl ViewController {
         Ok(())
     }
 
-    pub(crate) async fn apply_changeset(&self, params: ApplyChangesetParams) -> Result<(), WorkspaceError> {
-        let _ = self.document.apply_changeset(params).await?;
-        Ok(())
+    pub(crate) async fn apply_changeset(&self, params: ApplyChangesetParams) -> Result<Doc, WorkspaceError> {
+        let doc = self.document.apply_changeset(params).await?;
+        Ok(doc)
     }
 }
 

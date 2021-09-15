@@ -275,14 +275,14 @@ class WorkspaceEventApplyChangeset {
      ApplyChangesetRequest request;
      WorkspaceEventApplyChangeset(this.request);
 
-    Future<Either<Unit, WorkspaceError>> send() {
+    Future<Either<Doc, WorkspaceError>> send() {
     final request = FFIRequest.create()
           ..event = WorkspaceEvent.ApplyChangeset.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-           (bytes) => left(unit),
+           (okBytes) => left(Doc.fromBuffer(okBytes)),
            (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
         ));
     }

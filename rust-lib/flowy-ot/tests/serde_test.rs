@@ -82,10 +82,10 @@ fn delta_deserialize_test() {
 #[test]
 fn delta_deserialize_null_test() {
     let json = r#"[
-        {"retain":2,"attributes":{"italic":null}}
+        {"retain":7,"attributes":{"bold":null}}
      ]"#;
     let delta = Delta::from_json(json).unwrap();
-    eprintln!("{}", delta);
+    println!("{}", delta);
 }
 
 #[test]

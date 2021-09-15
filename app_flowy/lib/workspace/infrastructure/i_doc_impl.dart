@@ -33,7 +33,7 @@ class IDocImpl extends IDoc {
   }
 
   @override
-  Future<Either<Unit, WorkspaceError>> applyChangeset({String? json}) {
+  Future<Either<Doc, WorkspaceError>> applyChangeset({String? json}) {
     return repo.applyChangeset(data: _encodeText(json));
   }
 }

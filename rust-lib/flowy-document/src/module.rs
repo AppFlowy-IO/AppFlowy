@@ -9,6 +9,7 @@ use crate::{
 };
 use diesel::SqliteConnection;
 use flowy_database::ConnectionPool;
+use flowy_ot::client::Document;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -54,15 +55,25 @@ impl FlowyDocument {
         Ok(())
     }
 
-    pub async fn apply_changeset(&self, params: ApplyChangesetParams) -> Result<(), DocError> {
+    pub async fn apply_changeset(&self, params: ApplyChangesetParams) -> Result<Doc, DocError> {
         let _ = self
             .cache
             .mut_doc(&params.id, |doc| {
-                log::debug!("Document:{} applying delta", &params.id);
                 let _ = doc.apply_changeset(params.data.clone())?;
                 Ok(())
             })
             .await?;
-        Ok(())
+
+        let doc_str = match self.cache.read_doc(&params.id).await? {
+            None => "".to_owned(),
+            Some(doc_json) => doc_json,
+        };
+
+        let doc = Doc {
+            id: params.id,
+            data: doc_str.as_bytes().to_vec(),
+        };
+
+        Ok(doc)
     }
 }

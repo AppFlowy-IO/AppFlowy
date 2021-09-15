@@ -490,11 +490,11 @@ fn delta_transform_test() {
 
     let (a_prime, b_prime) = a.transform(&b).unwrap();
     assert_eq!(
-        r#"[{"insert":"123","attributes":{"bold":"true"}},{"retain":3}]"#,
+        r#"[{"insert":"123","attributes":{"bold":true}},{"retain":3}]"#,
         serde_json::to_string(&a_prime).unwrap()
     );
     assert_eq!(
-        r#"[{"retain":3,"attributes":{"bold":"true"}},{"insert":"456"}]"#,
+        r#"[{"retain":3,"attributes":{"bold":true}},{"insert":"456"}]"#,
         serde_json::to_string(&b_prime).unwrap()
     );
 }

@@ -1,16 +1,12 @@
 use flowy_ot::core::Delta;
 
 #[derive(Debug)]
-pub struct DeltaData(pub Delta);
+pub struct DeltaData(pub Vec<u8>);
 
 impl DeltaData {
     pub fn parse(data: Vec<u8>) -> Result<DeltaData, String> {
-        let delta = Delta::from_bytes(data).map_err(|e| format!("{:?}", e))?;
+        // let _ = Delta::from_bytes(data.clone()).map_err(|e| format!("{:?}", e))?;
 
-        Ok(Self(delta))
+        Ok(Self(data))
     }
-}
-
-impl AsRef<Delta> for DeltaData {
-    fn as_ref(&self) -> &Delta { &self.0 }
 }

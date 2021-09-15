@@ -130,8 +130,7 @@ impl TryInto<SaveDocParams> for SaveViewDataRequest {
         // Opti: Vec<u8> -> Delta -> Vec<u8>
         let data = DeltaData::parse(self.data)
             .map_err(|e| ErrorBuilder::new(ErrorCode::ViewDataInvalid).msg(e).build())?
-            .0
-            .into_bytes();
+            .0;
 
         Ok(SaveDocParams { id: view_id, data })
     }
@@ -157,8 +156,7 @@ impl TryInto<ApplyChangesetParams> for ApplyChangesetRequest {
         // Opti: Vec<u8> -> Delta -> Vec<u8>
         let data = DeltaData::parse(self.data)
             .map_err(|e| ErrorBuilder::new(ErrorCode::ViewDataInvalid).msg(e).build())?
-            .0
-            .into_bytes();
+            .0;
 
         Ok(ApplyChangesetParams { id: view_id, data })
     }

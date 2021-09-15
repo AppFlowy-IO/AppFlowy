@@ -11,7 +11,7 @@ use tokio::sync::RwLock;
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct DocId(pub(crate) String);
 
-pub struct DocInfo {
+pub struct OpenDocument {
     document: Document,
 }
 
@@ -23,7 +23,7 @@ where
 }
 
 pub(crate) struct DocCache {
-    inner: DashMap<DocId, RwLock<DocInfo>>,
+    inner: DashMap<DocId, RwLock<OpenDocument>>,
 }
 
 impl DocCache {
@@ -37,7 +37,7 @@ impl DocCache {
         let doc_id = id.into();
         let delta = data.try_into()?;
         let document = Document::from_delta(delta);
-        let doc_info = DocInfo { document };
+        let doc_info = OpenDocument { document };
         self.inner.insert(doc_id, RwLock::new(doc_info));
         Ok(())
     }
@@ -49,12 +49,25 @@ impl DocCache {
     {
         let doc_id = id.into();
         match self.inner.get(&doc_id) {
-            None => Err(ErrorBuilder::new(ErrorCode::DocNotfound)
-                .msg("Doc is close or you should call open first")
-                .build()),
+            None => Err(doc_not_found()),
             Some(doc_info) => {
                 let mut write_guard = doc_info.write().await;
                 f(&mut write_guard.document)
+            },
+        }
+    }
+
+    pub(crate) async fn read_doc<T>(&self, id: T) -> Result<Option<String>, DocError>
+    where
+        T: Into<DocId>,
+    {
+        let doc_id = id.into();
+        match self.inner.get(&doc_id) {
+            None => Err(doc_not_found()),
+            Some(doc_info) => {
+                let mut write_guard = doc_info.read().await;
+                let doc = &(*write_guard).document;
+                Ok(Some(doc.to_json()))
             },
         }
     }
@@ -67,4 +80,10 @@ impl DocCache {
         self.inner.remove(&doc_id);
         Ok(())
     }
+}
+
+fn doc_not_found() -> DocError {
+    ErrorBuilder::new(ErrorCode::DocNotfound)
+        .msg("Doc is close or you should call open first")
+        .build()
 }

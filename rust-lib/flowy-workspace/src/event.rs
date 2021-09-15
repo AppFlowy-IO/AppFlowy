@@ -52,6 +52,6 @@ pub enum WorkspaceEvent {
     #[event(input = "SaveViewDataRequest")]
     SaveViewData      = 206,
 
-    #[event(input = "ApplyChangesetRequest")]
+    #[event(input = "ApplyChangesetRequest", output = "Doc")]
     ApplyChangeset    = 207,
 }

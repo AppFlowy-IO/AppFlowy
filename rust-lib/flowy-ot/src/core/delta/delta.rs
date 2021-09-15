@@ -252,7 +252,7 @@ impl Delta {
                 },
                 (Some(Operation::Retain(retain)), Some(Operation::Retain(o_retain))) => {
                     let composed_attrs = compose_operation(&next_op1, &next_op2);
-                    log::debug!("[retain:{} - retain:{}]: {:?}", retain.n, o_retain.n, composed_attrs);
+                    log::trace!("[retain:{} - retain:{}]: {:?}", retain.n, o_retain.n, composed_attrs);
                     match retain.cmp(&o_retain) {
                         Ordering::Less => {
                             new_delta.retain(retain.n, composed_attrs);
@@ -299,7 +299,7 @@ impl Delta {
                     let mut composed_attrs = compose_operation(&next_op1, &next_op2);
                     composed_attrs.remove_empty();
 
-                    log::debug!("compose: [{} - {}], composed_attrs: {}", insert, o_retain, composed_attrs);
+                    log::trace!("compose: [{} - {}], composed_attrs: {}", insert, o_retain, composed_attrs);
                     match (insert.num_chars()).cmp(o_retain) {
                         Ordering::Less => {
                             new_delta.insert(&insert.s, composed_attrs.clone());
@@ -533,9 +533,9 @@ impl Delta {
         if other.is_empty() {
             return inverted;
         }
-        log::debug!("🌜Calculate invert delta");
-        log::debug!("current: {}", self);
-        log::debug!("other: {}", other);
+        log::trace!("🌜Calculate invert delta");
+        log::trace!("current: {}", self);
+        log::trace!("other: {}", other);
         let mut index = 0;
         for op in &self.ops {
             let len: usize = op.len() as usize;
@@ -548,20 +548,20 @@ impl Delta {
                     match op.has_attribute() {
                         true => invert_from_other(&mut inverted, other, op, index, index + len),
                         false => {
-                            log::debug!("invert retain: {} by retain {} {}", op, len, op.get_attributes());
+                            log::trace!("invert retain: {} by retain {} {}", op, len, op.get_attributes());
                             inverted.retain(len as usize, op.get_attributes())
                         },
                     }
                     index += len;
                 },
                 Operation::Insert(_) => {
-                    log::debug!("invert insert: {} by delete {}", op, len);
+                    log::trace!("invert insert: {} by delete {}", op, len);
                     inverted.delete(len as usize);
                 },
             }
         }
 
-        log::debug!("🌛invert result: {}", inverted);
+        log::trace!("🌛invert result: {}", inverted);
         inverted
     }
 
@@ -581,22 +581,22 @@ impl Delta {
 }
 
 fn invert_from_other(base: &mut Delta, other: &Delta, operation: &Operation, start: usize, end: usize) {
-    log::debug!("invert op: {} [{}:{}]", operation, start, end);
+    log::trace!("invert op: {} [{}:{}]", operation, start, end);
     let other_ops = DeltaIter::from_interval(other, Interval::new(start, end)).ops();
     other_ops.into_iter().for_each(|other_op| match operation {
         Operation::Delete(n) => {
-            log::debug!("invert delete: {} by add {}", n, other_op);
+            log::trace!("invert delete: {} by add {}", n, other_op);
             base.add(other_op);
         },
         Operation::Retain(retain) => {
-            log::debug!(
+            log::trace!(
                 "invert attributes: {:?}, {:?}",
                 operation.get_attributes(),
                 other_op.get_attributes()
             );
             let inverted_attrs = invert_attributes(operation.get_attributes(), other_op.get_attributes());
-            log::debug!("invert attributes result: {:?}", inverted_attrs);
-            log::debug!("invert retain: {} by retain len: {}, {}", retain, other_op.len(), inverted_attrs);
+            log::trace!("invert attributes result: {:?}", inverted_attrs);
+            log::trace!("invert retain: {} by retain len: {}, {}", retain, other_op.len(), inverted_attrs);
             base.retain(other_op.len(), inverted_attrs);
         },
         Operation::Insert(_) => {

@@ -69,10 +69,10 @@ pub(crate) async fn update_view_data_handler(
 pub(crate) async fn apply_changeset_handler(
     data: Data<ApplyChangesetRequest>,
     controller: Unit<Arc<ViewController>>,
-) -> Result<(), WorkspaceError> {
+) -> DataResult<Doc, WorkspaceError> {
     let params: ApplyChangesetParams = data.into_inner().try_into()?;
-    let _ = controller.apply_changeset(params).await?;
-    Ok(())
+    let doc = controller.apply_changeset(params).await?;
+    data_result(doc)
 }
 
 #[tracing::instrument(skip(data, controller), err)]

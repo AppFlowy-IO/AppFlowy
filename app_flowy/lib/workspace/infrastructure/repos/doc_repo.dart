@@ -25,7 +25,7 @@ class DocRepository {
     return WorkspaceEventSaveViewData(request).send();
   }
 
-  Future<Either<Unit, WorkspaceError>> applyChangeset(
+  Future<Either<Doc, WorkspaceError>> applyChangeset(
       {required Uint8List data}) {
     final request = ApplyChangesetRequest.create()
       ..viewId = docId

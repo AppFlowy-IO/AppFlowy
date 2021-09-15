@@ -51,14 +51,16 @@ impl Document {
 
     pub fn to_json(&self) -> String { self.delta.to_json() }
 
+    pub fn to_string(&self) -> String { self.delta.apply("").unwrap() }
+
     pub fn apply_changeset<T>(&mut self, changeset: T) -> Result<(), OTError>
     where
         T: TryInto<Delta, Error = OTError>,
     {
         let new_delta: Delta = changeset.try_into()?;
+        log::debug!("Apply delta: {}", new_delta);
         self.add_delta(&new_delta);
-
-        log::info!("Current delta: {:?}", self.to_json());
+        log::debug!("Current delta: {}", self.to_json());
         Ok(())
     }
 
@@ -68,7 +70,7 @@ impl Document {
 
         let text = data.into_string()?;
         let delta = self.view.insert(&self.delta, &text, interval)?;
-        log::debug!("👉 receive change: {}", delta);
+        log::trace!("👉 receive change: {}", delta);
         self.add_delta(&delta)?;
         Ok(delta)
     }
@@ -78,7 +80,7 @@ impl Document {
         debug_assert_eq!(interval.is_empty(), false);
         let delete = self.view.delete(&self.delta, interval)?;
         if !delete.is_empty() {
-            log::debug!("👉 receive change: {}", delete);
+            log::trace!("👉 receive change: {}", delete);
             let _ = self.add_delta(&delete)?;
         }
         Ok(delete)
@@ -86,10 +88,10 @@ impl Document {
 
     pub fn format(&mut self, interval: Interval, attribute: Attribute) -> Result<(), OTError> {
         let _ = validate_interval(&self.delta, &interval)?;
-        log::debug!("format with {} at {}", attribute, interval);
+        log::trace!("format with {} at {}", attribute, interval);
         let format_delta = self.view.format(&self.delta, attribute.clone(), interval).unwrap();
 
-        log::debug!("👉 receive change: {}", format_delta);
+        log::trace!("👉 receive change: {}", format_delta);
         self.add_delta(&format_delta)?;
         Ok(())
     }
@@ -100,7 +102,7 @@ impl Document {
         let text = data.into_string()?;
         if !text.is_empty() {
             delta = self.view.insert(&self.delta, &text, interval)?;
-            log::debug!("👉 receive change: {}", delta);
+            log::trace!("👉 receive change: {}", delta);
             self.add_delta(&delta)?;
         }
 
@@ -144,8 +146,6 @@ impl Document {
         }
     }
 
-    pub fn to_string(&self) -> String { self.delta.apply("").unwrap() }
-
     pub fn data(&self) -> &Delta { &self.delta }
 
     pub fn set_data(&mut self, data: Delta) { self.delta = data; }
@@ -160,21 +160,21 @@ impl Document {
         let now = chrono::Utc::now().timestamp_millis() as usize;
         if now - self.last_edit_time < RECORD_THRESHOLD {
             if let Some(last_delta) = self.history.undo() {
-                log::debug!("compose previous change");
-                log::debug!("current = {}", undo_delta);
-                log::debug!("previous = {}", last_delta);
+                log::trace!("compose previous change");
+                log::trace!("current = {}", undo_delta);
+                log::trace!("previous = {}", last_delta);
                 undo_delta = undo_delta.compose(&last_delta)?;
             }
         } else {
             self.last_edit_time = now;
         }
 
-        log::debug!("👉 receive change undo: {}", undo_delta);
+        log::trace!("👉 receive change undo: {}", undo_delta);
         if !undo_delta.is_empty() {
             self.history.record(undo_delta);
         }
 
-        log::debug!("document delta: {}", &composed_delta);
+        log::trace!("document delta: {}", &composed_delta);
         self.delta = composed_delta;
         Ok(())
     }
@@ -183,7 +183,7 @@ impl Document {
         // c = a.compose(b)
         // d = b.invert(a)
         // a = c.compose(d)
-        log::debug!("👉invert change {}", change);
+        log::trace!("👉invert change {}", change);
         let new_delta = self.delta.compose(change)?;
         let inverted_delta = change.invert(&self.delta);
         Ok((new_delta, inverted_delta))
