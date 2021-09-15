@@ -1,13 +1,10 @@
 use crate::core::{Attribute, AttributeKey, AttributeValue, Operation};
 use std::{collections::HashMap, fmt};
 
-pub const REMOVE_FLAG: &'static str = "";
-pub(crate) fn should_remove(val: &AttributeValue) -> bool { val.0 == REMOVE_FLAG }
-
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Attributes {
-    #[serde(skip_serializing_if = "HashMap::is_empty")]
-    #[serde(flatten)]
+    // #[serde(skip_serializing_if = "HashMap::is_empty")]
+    // #[serde(flatten)]
     pub(crate) inner: HashMap<AttributeKey, AttributeValue>,
 }
 
@@ -35,20 +32,19 @@ impl Attributes {
         self.inner.insert(key, value);
     }
 
-    pub fn mark_as_removed(&mut self, key: &AttributeKey) {
-        let value: AttributeValue = REMOVE_FLAG.into();
-        self.inner.insert(key.clone(), value);
-    }
+    pub fn add_kv(&mut self, key: AttributeKey, value: AttributeValue) { self.inner.insert(key, value); }
+
+    pub fn delete(&mut self, key: &AttributeKey) { self.inner.insert(key.clone(), AttributeValue(None)); }
 
     pub fn mark_all_as_removed_except(&mut self, attribute: Option<AttributeKey>) {
         match attribute {
             None => {
-                self.inner.iter_mut().for_each(|(_k, v)| v.0 = REMOVE_FLAG.into());
+                self.inner.iter_mut().for_each(|(_k, v)| v.0 = None);
             },
             Some(attribute) => {
                 self.inner.iter_mut().for_each(|(k, v)| {
                     if k != &attribute {
-                        v.0 = REMOVE_FLAG.into();
+                        v.0 = None;
                     }
                 });
             },
@@ -68,8 +64,8 @@ impl Attributes {
     //     new_attributes
     // }
 
-    // Remove the empty attribute which value is empty. e.g. {bold: ""}.
-    pub fn remove_empty(&mut self) { self.inner.retain(|_, v| !should_remove(v)); }
+    // Remove the empty attribute which value is None.
+    pub fn remove_empty(&mut self) { self.inner.retain(|_, v| v.0.is_some()); }
 
     pub fn extend(&mut self, other: Attributes) { self.inner.extend(other.inner); }
 
@@ -167,7 +163,7 @@ pub fn invert_attributes(attr: Attributes, base: Attributes) -> Attributes {
 
     let inverted = attr.iter().fold(base_inverted, |mut attributes, (k, _)| {
         if base.get(k) != attr.get(k) && !base.contains_key(k) {
-            attributes.mark_as_removed(k);
+            attributes.delete(k);
         }
         attributes
     });

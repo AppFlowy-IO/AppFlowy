@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_editor/src/model/quill_delta.dart';
+import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/protobuf/flowy-document/doc.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 
@@ -19,6 +20,7 @@ class FlowyDoc implements EditorChangesetSender {
   @override
   void sendDelta(Delta delta) {
     final json = jsonEncode(delta.toJson());
+    Log.debug("Send json: $json");
     iDocImpl.applyChangeset(json: json);
   }
 }

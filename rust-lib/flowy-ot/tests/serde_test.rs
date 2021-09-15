@@ -35,7 +35,19 @@ fn operation_delete_serialize_test() {
 }
 
 #[test]
-fn delta_serialize_test() {
+fn attributes_serialize_test() {
+    let attributes = AttributeBuilder::new()
+        .add(Attribute::Bold(true))
+        .add(Attribute::Italic(true))
+        .build();
+    let retain = OpBuilder::insert("123").attributes(attributes).build();
+
+    let json = serde_json::to_string(&retain).unwrap();
+    eprintln!("{}", json);
+}
+
+#[test]
+fn delta_serialize_multi_attribute_test() {
     let mut delta = Delta::default();
 
     let attributes = AttributeBuilder::new()
@@ -53,6 +65,27 @@ fn delta_serialize_test() {
 
     let delta_from_json = Delta::from_json(&json).unwrap();
     assert_eq!(delta_from_json, delta);
+}
+
+#[test]
+fn delta_deserialize_test() {
+    let json = r#"[
+        {"retain":2,"attributes":{"italic":true}},
+        {"retain":2,"attributes":{"italic":123}},
+        {"retain":2,"attributes":{"italic":"true","bold":"true"}},
+        {"retain":2,"attributes":{"italic":true,"bold":true}}
+     ]"#;
+    let delta = Delta::from_json(json).unwrap();
+    eprintln!("{}", delta);
+}
+
+#[test]
+fn delta_deserialize_null_test() {
+    let json = r#"[
+        {"retain":2,"attributes":{"italic":null}}
+     ]"#;
+    let delta = Delta::from_json(json).unwrap();
+    eprintln!("{}", delta);
 }
 
 #[test]

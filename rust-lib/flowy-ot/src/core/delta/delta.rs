@@ -77,8 +77,8 @@ impl Delta {
 
     pub fn from_json(json: &str) -> Result<Self, OTError> {
         let delta: Delta = serde_json::from_str(json).map_err(|e| {
-            log::error!("Deserialize  Delta failed: {:?}", e);
-            log::error!("{:?}", json);
+            log::trace!("Deserialize failed: {:?}", e);
+            log::trace!("{:?}", json);
             e
         })?;
         Ok(delta)

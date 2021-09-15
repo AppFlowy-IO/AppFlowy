@@ -21,8 +21,7 @@
 //             type Value = FlowyResponse<T>;
 //
 //             fn expecting(&self, formatter: &mut fmt::Formatter) ->
-// fmt::Result {                 formatter.write_str("struct Duration")
-//             }
+// fmt::Result { formatter.write_str("struct Duration") }
 //
 //             fn visit_map<V>(self, mut map: V) -> Result<Self::Value,
 // V::Error>             where
@@ -50,7 +49,7 @@
 //                                 return
 // Err(de::Error::duplicate_field("data"));                             }
 //                             data = match
-// MapAccess::next_value::<DeserializeWith<T>>(&mut map) {
+// MapAccess::next_value::<DeserializeWith<T>>(&mut map) {                      
 // Ok(wrapper) => wrapper.value,                                 Err(err) =>
 // return Err(err),                             };
 //                         },
@@ -59,16 +58,12 @@
 //                 }
 //                 let msg = msg.ok_or_else(||
 // de::Error::missing_field("msg"))?;                 let code =
-// code.ok_or_else(|| de::Error::missing_field("code"))?;
+// code.ok_or_else(|| de::Error::missing_field("code"))?;                 
 // Ok(Self::Value::new(data, msg, code))             }
 //         }
 //         const FIELDS: &'static [&'static str] = &["msg", "code", "data"];
-//         deserializer.deserialize_struct(
-//             "ServerResponse",
-//             FIELDS,
-//             ServerResponseVisitor(PhantomData),
-//         )
-//     }
+//         deserializer.deserialize_struct("ServerResponse", FIELDS,
+// ServerResponseVisitor(PhantomData))     }
 // }
 //
 // struct DeserializeWith<'de, T: ServerData<'de>> {
@@ -101,8 +96,7 @@
 //         type Value = Option<T>;
 //
 //         fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-//             formatter.write_str("string or struct impl deserialize")
-//         }
+// formatter.write_str("string or struct impl deserialize") }
 //
 //         fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
 //         where

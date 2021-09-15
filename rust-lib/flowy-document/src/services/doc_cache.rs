@@ -1,5 +1,5 @@
 use crate::errors::{DocError, ErrorBuilder, ErrorCode};
-use dashmap::{mapref::one::Ref, DashMap};
+use dashmap::DashMap;
 use flowy_ot::{
     client::{Document, FlowyDoc},
     core::Delta,
