@@ -79,7 +79,7 @@ impl TestBuilder {
     }
 
     fn run_op(&mut self, op: &TestOp) {
-        log::debug!("***************** 😈{} *******************", &op);
+        log::trace!("***************** 😈{} *******************", &op);
         match op {
             TestOp::Insert(delta_i, s, index) => {
                 let document = &mut self.documents[*delta_i];
@@ -123,7 +123,11 @@ impl TestBuilder {
             },
             TestOp::Bullet(delta_i, iv, enable) => {
                 let document = &mut self.documents[*delta_i];
-                let attribute = Attribute::Bullet(*enable);
+                let value = match *enable {
+                    true => "bullet",
+                    false => "",
+                };
+                let attribute = Attribute::List(value.to_owned());
                 document.format(*iv, attribute).unwrap();
             },
             TestOp::Transform(delta_a_i, delta_b_i) => {

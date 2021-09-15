@@ -306,14 +306,14 @@ fn history_bullet_undo() {
         Insert(0, "2", 2),
         AssertOpsJson(
             0,
-            r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}},{"insert":"2"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
+            r#"[{"insert":"1"},{"insert":"\n","attributes":{"list":"bullet"}},{"insert":"2"},{"insert":"\n","attributes":{"list":"bullet"}}]"#,
         ),
         Undo(0),
         AssertOpsJson(0, r#"[{"insert":"\n"}]"#),
         Redo(0),
         AssertOpsJson(
             0,
-            r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}},{"insert":"2"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
+            r#"[{"insert":"1"},{"insert":"\n","attributes":{"list":"bullet"}},{"insert":"2"},{"insert":"\n","attributes":{"list":"bullet"}}]"#,
         ),
     ];
 
@@ -331,17 +331,17 @@ fn history_bullet_undo_with_lagging() {
         Wait(RECORD_THRESHOLD),
         AssertOpsJson(
             0,
-            r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}},{"insert":"2"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
+            r#"[{"insert":"1"},{"insert":"\n","attributes":{"list":"bullet"}},{"insert":"2"},{"insert":"\n","attributes":{"list":"bullet"}}]"#,
         ),
         Undo(0),
-        AssertOpsJson(0, r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}}]"#),
+        AssertOpsJson(0, r#"[{"insert":"1"},{"insert":"\n","attributes":{"list":"bullet"}}]"#),
         Undo(0),
         AssertOpsJson(0, r#"[{"insert":"\n"}]"#),
         Redo(0),
         Redo(0),
         AssertOpsJson(
             0,
-            r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}},{"insert":"2"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
+            r#"[{"insert":"1"},{"insert":"\n","attributes":{"list":"bullet"}},{"insert":"2"},{"insert":"\n","attributes":{"list":"bullet"}}]"#,
         ),
     ];
 
@@ -358,14 +358,14 @@ fn history_undo_attribute_on_merge_between_line() {
         Wait(RECORD_THRESHOLD),
         AssertOpsJson(
             0,
-            r#"[{"insert":"123"},{"insert":"\n","attributes":{"bullet":"true"}},{"insert":"456"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
+            r#"[{"insert":"123"},{"insert":"\n","attributes":{"list":"bullet"}},{"insert":"456"},{"insert":"\n","attributes":{"list":"bullet"}}]"#,
         ),
         Delete(0, Interval::new(3, 4)), // delete the newline
-        AssertOpsJson(0, r#"[{"insert":"123456"},{"insert":"\n","attributes":{"bullet":"true"}}]"#),
+        AssertOpsJson(0, r#"[{"insert":"123456"},{"insert":"\n","attributes":{"list":"bullet"}}]"#),
         Undo(0),
         AssertOpsJson(
             0,
-            r#"[{"insert":"123"},{"insert":"\n","attributes":{"bullet":"true"}},{"insert":"456"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
+            r#"[{"insert":"123"},{"insert":"\n","attributes":{"list":"bullet"}},{"insert":"456"},{"insert":"\n","attributes":{"list":"bullet"}}]"#,
         ),
     ];
 

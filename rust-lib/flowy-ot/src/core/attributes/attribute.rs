@@ -29,10 +29,6 @@ impl Attribute {
     block_attribute!(Indent, usize);
     block_attribute!(Align, String);
     block_attribute!(List, String);
-    block_attribute!(Bullet, bool);
-    block_attribute!(Ordered, bool);
-    block_attribute!(Checked, bool);
-    block_attribute!(UnChecked, bool);
     block_attribute!(CodeBlock, bool);
     block_attribute!(QuoteBlock, bool);
 
@@ -94,14 +90,6 @@ pub enum AttributeKey {
     Height,
     #[serde(rename = "header")]
     Header,
-    #[serde(rename = "bullet")]
-    Bullet,
-    #[serde(rename = "ordered")]
-    Ordered,
-    #[serde(rename = "checked")]
-    Checked,
-    #[serde(rename = "unchecked")]
-    UnChecked,
 }
 
 // pub trait AttributeValueData<'a>: Serialize + Deserialize<'a> {}
@@ -127,7 +115,13 @@ impl std::convert::From<&str> for AttributeValue {
 }
 
 impl std::convert::From<String> for AttributeValue {
-    fn from(val: String) -> Self { AttributeValue(Some(val)) }
+    fn from(val: String) -> Self {
+        if val.is_empty() {
+            AttributeValue(None)
+        } else {
+            AttributeValue(Some(val))
+        }
+    }
 }
 
 impl std::convert::From<&bool> for AttributeValue {
@@ -158,10 +152,6 @@ lazy_static! {
         AttributeKey::Align,
         AttributeKey::CodeBlock,
         AttributeKey::List,
-        AttributeKey::Bullet,
-        AttributeKey::Ordered,
-        AttributeKey::Checked,
-        AttributeKey::UnChecked,
         AttributeKey::QuoteBlock,
     ]);
     static ref INLINE_KEYS: HashSet<AttributeKey> = HashSet::from_iter(vec![

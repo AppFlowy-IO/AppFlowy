@@ -601,7 +601,7 @@ fn attributes_bullet_added() {
     let ops = vec![
         Insert(0, "12", 0),
         Bullet(0, Interval::new(0, 1), true),
-        AssertOpsJson(0, r#"[{"insert":"12"},{"insert":"\n","attributes":{"bullet":"true"}}]"#),
+        AssertOpsJson(0, r#"[{"insert":"12"},{"insert":"\n","attributes":{"list":"bullet"}}]"#),
     ];
 
     TestBuilder::new().run_script::<FlowyDoc>(ops);
@@ -612,13 +612,13 @@ fn attributes_bullet_added_2() {
     let ops = vec![
         Insert(0, "1", 0),
         Bullet(0, Interval::new(0, 1), true),
-        AssertOpsJson(0, r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}}]"#),
+        AssertOpsJson(0, r#"[{"insert":"1"},{"insert":"\n","attributes":{"list":"bullet"}}]"#),
         Insert(0, NEW_LINE, 1),
-        AssertOpsJson(0, r#"[{"insert":"1"},{"insert":"\n\n","attributes":{"bullet":"true"}}]"#),
+        AssertOpsJson(0, r#"[{"insert":"1"},{"insert":"\n\n","attributes":{"list":"bullet"}}]"#),
         Insert(0, "2", 2),
         AssertOpsJson(
             0,
-            r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}},{"insert":"2"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
+            r#"[{"insert":"1"},{"insert":"\n","attributes":{"list":"bullet"}},{"insert":"2"},{"insert":"\n","attributes":{"list":"bullet"}}]"#,
         ),
     ];
 
@@ -635,7 +635,7 @@ fn attributes_bullet_remove_partial() {
         Bullet(0, Interval::new(2, 3), false),
         AssertOpsJson(
             0,
-            r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}},{"insert":"2\n"}]"#,
+            r#"[{"insert":"1"},{"insert":"\n","attributes":{"list":"bullet"}},{"insert":"2\n"}]"#,
         ),
     ];
 
@@ -651,7 +651,7 @@ fn attributes_bullet_auto_exit() {
         Insert(0, NEW_LINE, 2),
         AssertOpsJson(
             0,
-            r#"[{"insert":"1"},{"insert":"\n","attributes":{"bullet":"true"}},{"insert":"\n"}]"#,
+            r#"[{"insert":"1"},{"insert":"\n","attributes":{"list":"bullet"}},{"insert":"\n"}]"#,
         ),
     ];
 
@@ -664,30 +664,30 @@ fn attributes_preserve_block_when_insert_newline_inside() {
         Insert(0, "12", 0),
         Bullet(0, Interval::new(0, 2), true),
         Insert(0, NEW_LINE, 2),
-        AssertOpsJson(0, r#"[{"insert":"12"},{"insert":"\n\n","attributes":{"bullet":"true"}}]"#),
+        AssertOpsJson(0, r#"[{"insert":"12"},{"insert":"\n\n","attributes":{"list":"bullet"}}]"#),
         Insert(0, "34", 3),
         AssertOpsJson(
             0,
             r#"[
-            {"insert":"12"},{"insert":"\n","attributes":{"bullet":"true"}},
-            {"insert":"34"},{"insert":"\n","attributes":{"bullet":"true"}}
+            {"insert":"12"},{"insert":"\n","attributes":{"list":"bullet"}},
+            {"insert":"34"},{"insert":"\n","attributes":{"list":"bullet"}}
             ]"#,
         ),
         Insert(0, NEW_LINE, 3),
         AssertOpsJson(
             0,
             r#"[
-            {"insert":"12"},{"insert":"\n\n","attributes":{"bullet":"true"}},
-            {"insert":"34"},{"insert":"\n","attributes":{"bullet":"true"}}
+            {"insert":"12"},{"insert":"\n\n","attributes":{"list":"bullet"}},
+            {"insert":"34"},{"insert":"\n","attributes":{"list":"bullet"}}
             ]"#,
         ),
         Insert(0, "ab", 3),
         AssertOpsJson(
             0,
             r#"[
-            {"insert":"12"},{"insert":"\n","attributes":{"bullet":"true"}},
-            {"insert":"ab"},{"insert":"\n","attributes":{"bullet":"true"}},
-            {"insert":"34"},{"insert":"\n","attributes":{"bullet":"true"}}
+            {"insert":"12"},{"insert":"\n","attributes":{"list":"bullet"}},
+            {"insert":"ab"},{"insert":"\n","attributes":{"list":"bullet"}},
+            {"insert":"34"},{"insert":"\n","attributes":{"list":"bullet"}}
             ]"#,
         ),
     ];
@@ -720,10 +720,10 @@ fn attributes_preserve_list_format_on_merge() {
         Insert(0, NEW_LINE, 3),
         AssertOpsJson(
             0,
-            r#"[{"insert":"123"},{"insert":"\n","attributes":{"bullet":"true"}},{"insert":"456"},{"insert":"\n","attributes":{"bullet":"true"}}]"#,
+            r#"[{"insert":"123"},{"insert":"\n","attributes":{"list":"bullet"}},{"insert":"456"},{"insert":"\n","attributes":{"list":"bullet"}}]"#,
         ),
         Delete(0, Interval::new(3, 4)),
-        AssertOpsJson(0, r#"[{"insert":"123456"},{"insert":"\n","attributes":{"bullet":"true"}}]"#),
+        AssertOpsJson(0, r#"[{"insert":"123456"},{"insert":"\n","attributes":{"list":"bullet"}}]"#),
     ];
 
     TestBuilder::new().run_script::<FlowyDoc>(ops);

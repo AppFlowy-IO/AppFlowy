@@ -45,15 +45,7 @@ impl Serialize for Attributes {
                         Err(e) => log::error!("Serial {:?} failed. {:?}", k, e),
                     },
 
-                    AttributeKey::Link
-                    | AttributeKey::Color
-                    | AttributeKey::Background
-                    | AttributeKey::Align
-                    | AttributeKey::Bullet
-                    | AttributeKey::Ordered
-                    | AttributeKey::Checked
-                    | AttributeKey::UnChecked
-                    | AttributeKey::List => {
+                    AttributeKey::Link | AttributeKey::Color | AttributeKey::Background | AttributeKey::Align | AttributeKey::List => {
                         map.serialize_entry(k, v)?;
                     },
                 }
