@@ -38,19 +38,24 @@ abstract class Node extends LinkedListEntry<Node> {
   /// To get offset of this node in the document see [documentOffset].
   int get offset {
     var offset = 0;
+
     if (list == null || isFirst) {
       return offset;
     }
-    var curr = this;
+
+    var cur = this;
     do {
-      curr = curr.previous!;
-      offset += curr.length;
-    } while (!curr.isFirst);
+      cur = cur.previous!;
+      offset += cur.length;
+    } while (!cur.isFirst);
     return offset;
   }
 
   /// Offset in characters of this node in the document.
   int get documentOffset {
+    if (parent == null) {
+      return offset;
+    }
     final parentOffset = (parent is! Root) ? parent!.documentOffset : 0;
     return parentOffset + offset;
   }
@@ -58,16 +63,16 @@ abstract class Node extends LinkedListEntry<Node> {
   /// Returns `true` if this node contains character at specified [offset] in
   /// the document.
   bool containsOffset(int offset) {
-    final docOffset = documentOffset;
-    return docOffset <= offset && offset < docOffset + length;
+    final o = documentOffset;
+    return o <= offset && offset < o + length;
   }
 
   void applyAttribute(Attribute attribute) {
     _style = _style.merge(attribute);
   }
 
-  void applyStyle(Style otherStyle) {
-    _style = _style.mergeAll(otherStyle);
+  void applyStyle(Style value) {
+    _style = _style.mergeAll(value);
   }
 
   void clearStyle() {
@@ -97,7 +102,7 @@ abstract class Node extends LinkedListEntry<Node> {
 
   void adjust() {/* no-op */}
 
-  // Subclass overridden method
+  /// abstract methods begin
 
   Node newInstance();
 
@@ -107,9 +112,11 @@ abstract class Node extends LinkedListEntry<Node> {
 
   void insert(int index, Object data, Style? style);
 
-  void retain(int index, int? length, Style? style);
+  void retain(int index, int? len, Style? style);
 
-  void delete(int index, int? length);
+  void delete(int index, int? len);
+
+  /// abstract methods end
 }
 
 /// Root node of document tree.

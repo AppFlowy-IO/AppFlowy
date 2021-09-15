@@ -21,7 +21,6 @@ abstract class EditorChangesetSender {
 /// The rich text document
 class Document {
   EditorChangesetSender? sender;
-
   Document({this.sender}) : _delta = Delta()..insert('\n') {
     _loadDocument(_delta);
   }
@@ -31,7 +30,7 @@ class Document {
   }
 
   Document.fromDelta(Delta delta) : _delta = delta {
-    _loadDocument(_delta);
+    _loadDocument(delta);
   }
 
   /// The root node of the document tree
@@ -47,6 +46,10 @@ class Document {
 
   final Rules _rules = Rules.getInstance();
 
+  void setCustomRules(List<Rule> customRules) {
+    _rules.setCustomRules(customRules);
+  }
+
   final StreamController<Tuple3<Delta, Delta, ChangeSource>> _observer =
       StreamController.broadcast();
 
@@ -54,12 +57,7 @@ class Document {
 
   Stream<Tuple3<Delta, Delta, ChangeSource>> get changes => _observer.stream;
 
-  bool get hasUndo => _history.hasUndo;
-
-  bool get hasRedo => _history.hasRedo;
-
   Delta insert(int index, Object? data, {int replaceLength = 0}) {
-    Log.trace('insert $data at $index');
     assert(index >= 0);
     assert(data is String || data is Embeddable);
     if (data is Embeddable) {
@@ -68,79 +66,71 @@ class Document {
       return Delta();
     }
 
-    final delta = _rules.apply(
-      RuleType.INSERT,
-      this,
-      index,
-      data: data,
-      length: replaceLength,
-    );
-
+    final delta = _rules.apply(RuleType.INSERT, this, index,
+        data: data, len: replaceLength);
     compose(delta, ChangeSource.LOCAL);
-    Log.trace('current document $_delta');
     return delta;
   }
 
-  Delta delete(int index, int length) {
-    Log.trace('delete $length at $index');
-    assert(index >= 0 && length > 0);
-    final delta = _rules.apply(RuleType.DELETE, this, index, length: length);
+  Delta delete(int index, int len) {
+    assert(index >= 0 && len > 0);
+    final delta = _rules.apply(RuleType.DELETE, this, index, len: len);
     if (delta.isNotEmpty) {
       compose(delta, ChangeSource.LOCAL);
     }
-    Log.trace('current document $_delta');
     return delta;
   }
 
-  Delta replace(int index, int length, Object? data) {
-    Log.trace('replace $length at $index with $data');
+  Delta replace(int index, int len, Object? data) {
     assert(index >= 0);
     assert(data is String || data is Embeddable);
 
     final dataIsNotEmpty = (data is String) ? data.isNotEmpty : true;
-    assert(dataIsNotEmpty || length > 0);
+
+    assert(dataIsNotEmpty || len > 0);
 
     var delta = Delta();
 
     // We have to insert before applying delete rules
     // Otherwise delete would be operating on stale document snapshot.
     if (dataIsNotEmpty) {
-      delta = insert(index, data, replaceLength: length);
+      delta = insert(index, data, replaceLength: len);
     }
 
-    if (length > 0) {
-      final deleteDelta = delete(index, length);
+    if (len > 0) {
+      final deleteDelta = delete(index, len);
       delta = delta.compose(deleteDelta);
     }
 
-    Log.trace('current document $delta');
     return delta;
   }
 
-  Delta format(int index, int length, Attribute? attribute) {
-    assert(index >= 0 && length >= 0 && attribute != null);
-    Log.trace('format $length at $index with $attribute');
+  Delta format(int index, int len, Attribute? attribute) {
+    assert(index >= 0 && len >= 0 && attribute != null);
+
     var delta = Delta();
 
-    final formatDelta = _rules.apply(
-      RuleType.FORMAT,
-      this,
-      index,
-      length: length,
-      attribute: attribute,
-    );
+    final formatDelta = _rules.apply(RuleType.FORMAT, this, index,
+        len: len, attribute: attribute);
     if (formatDelta.isNotEmpty) {
       compose(formatDelta, ChangeSource.LOCAL);
-      Log.trace('current document $_delta');
       delta = delta.compose(formatDelta);
     }
 
     return delta;
   }
 
-  Style collectStyle(int index, int length) {
+  /// Only attributes applied to all characters within this range are
+  /// included in the result.
+  Style collectStyle(int index, int len) {
     final res = queryChild(index);
-    return (res.node as Line).collectStyle(res.offset, length);
+    return (res.node as Line).collectStyle(res.offset, len);
+  }
+
+  /// Returns all styles for any character within the specified text range.
+  List<Style> collectAllStyles(int index, int len) {
+    final res = queryChild(index);
+    return (res.node as Line).collectAllStyles(res.offset, len);
   }
 
   ChildQuery queryChild(int offset) {
@@ -152,10 +142,6 @@ class Document {
     return block.queryChild(res.offset, true);
   }
 
-  Tuple2 undo() => _history.undo(this);
-
-  Tuple2 redo() => _history.redo(this);
-
   void compose(Delta delta, ChangeSource changeSource) {
     assert(!_observer.isClosed);
     delta.trim();
@@ -163,7 +149,7 @@ class Document {
 
     var offset = 0;
     delta = _transform(delta);
-    final originDelta = toDelta();
+    final originalDelta = toDelta();
     for (final op in delta.toList()) {
       final style =
           op.attributes != null ? Style.fromJson(op.attributes) : null;
@@ -180,7 +166,6 @@ class Document {
         offset += op.length!;
       }
     }
-
     try {
       final changeset = delta;
 
@@ -194,10 +179,22 @@ class Document {
     if (_delta != _root.toDelta()) {
       throw 'Compose failed';
     }
-    final change = Tuple3(originDelta, delta, changeSource);
+    final change = Tuple3(originalDelta, delta, changeSource);
     _observer.add(change);
     _history.handleDocChange(change);
   }
+
+  Tuple2 undo() {
+    return _history.undo(this);
+  }
+
+  Tuple2 redo() {
+    return _history.redo(this);
+  }
+
+  bool get hasUndo => _history.hasUndo;
+
+  bool get hasRedo => _history.hasRedo;
 
   static Delta _transform(Delta delta) {
     final res = Delta();
@@ -205,26 +202,32 @@ class Document {
     for (var i = 0; i < ops.length; i++) {
       final op = ops[i];
       res.push(op);
-      _handleImageInsert(i, ops, op, res);
+      _autoAppendNewlineAfterEmbeddable(i, ops, op, res, 'video');
     }
     return res;
   }
 
-  static void _handleImageInsert(
-      int i, List<Operation> ops, Operation op, Delta res) {
-    final nextOpIsImage =
-        i + 1 < ops.length && ops[i + 1].isInsert && ops[i + 1].data is! String;
-    if (nextOpIsImage && !(op.data as String).endsWith('\n')) {
+  static void _autoAppendNewlineAfterEmbeddable(
+      int i, List<Operation> ops, Operation op, Delta res, String type) {
+    final nextOpIsEmbed = i + 1 < ops.length &&
+        ops[i + 1].isInsert &&
+        ops[i + 1].data is Map &&
+        (ops[i + 1].data as Map).containsKey(type);
+    if (nextOpIsEmbed &&
+        op.data is String &&
+        (op.data as String).isNotEmpty &&
+        !(op.data as String).endsWith('\n')) {
       res.push(Operation.insert('\n'));
     }
-    // Currently embed is equivalent to image and hence `is! String`
-    final opInsertImage = op.isInsert && op.data is! String;
+    // embed could be image or video
+    final opInsertEmbed =
+        op.isInsert && op.data is Map && (op.data as Map).containsKey(type);
     final nextOpIsLineBreak = i + 1 < ops.length &&
         ops[i + 1].isInsert &&
         ops[i + 1].data is String &&
         (ops[i + 1].data as String).startsWith('\n');
-    if (opInsertImage && (i + 1 == ops.length - 1 || !nextOpIsLineBreak)) {
-      // automatically append '\n' for image
+    if (opInsertEmbed && (i + 1 == ops.length - 1 || !nextOpIsLineBreak)) {
+      // automatically append '\n' for embeddable
       res.push(Operation.insert('\n'));
     }
   }
@@ -245,14 +248,20 @@ class Document {
     _history.clear();
   }
 
-  void _loadDocument(Delta delta) {
-    assert((delta.last.data as String).endsWith('\n'),
-        'Delta must ends with a line break.');
+  String toPlainText() => _root.children.map((e) => e.toPlainText()).join();
+
+  void _loadDocument(Delta doc) {
+    if (doc.isEmpty) {
+      throw ArgumentError.value(doc, 'Document Delta cannot be empty.');
+    }
+
+    assert((doc.last.data as String).endsWith('\n'));
+
     var offset = 0;
-    for (final op in delta.toList()) {
+    for (final op in doc.toList()) {
       if (!op.isInsert) {
-        throw ArgumentError.value(delta,
-            'Document Delta can only contain insert operations but ${op.key} found.');
+        throw ArgumentError.value(doc,
+            'Document can only contain insert operations but ${op.key} found.');
       }
       final style =
           op.attributes != null ? Style.fromJson(op.attributes) : null;
@@ -282,11 +291,7 @@ class Document {
     final delta = node.toDelta();
     return delta.length == 1 &&
         delta.first.data == '\n' &&
-        delta.first.key == Operation.insertKey;
-  }
-
-  String toPlainText() {
-    return root.children.map((child) => child.toPlainText()).join();
+        delta.first.key == 'insert';
   }
 }
 

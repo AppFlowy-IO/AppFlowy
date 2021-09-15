@@ -1,5 +1,5 @@
 import 'dart:math' as math;
-
+import 'package:collection/collection.dart';
 import '../../quill_delta.dart';
 import '../attribute.dart';
 import '../style.dart';
@@ -24,10 +24,7 @@ class Line extends Container<Leaf?> {
 
   /// Returns `true` if this line contains an embedded object.
   bool get hasEmbed {
-    if (childCount != 1) {
-      return false;
-    }
-    return children.single is Embed;
+    return children.any((child) => child is Embed);
   }
 
   /// Returns next [Line] or `null` if this is the last line in the document.
@@ -202,21 +199,42 @@ class Line extends Container<Leaf?> {
     } // No block-level changes
 
     if (parent is Block) {
-      final parentStyle = (parent as Block).style.getBlockExceptHeader();
-      if (blockStyle.value == null) {
+      final parentStyle = (parent as Block).style.getBlocksExceptHeader();
+      // Ensure that we're only unwrapping the block only if we unset a single
+      // block format in the `parentStyle` and there are no more block formats
+      // left to unset.
+      if (blockStyle.value == null &&
+          parentStyle.containsKey(blockStyle.key) &&
+          parentStyle.length == 1) {
         _unwrap();
-      } else if (blockStyle != parentStyle) {
+      } else if (!const MapEquality()
+          .equals(newStyle.getBlocksExceptHeader(), parentStyle)) {
         _unwrap();
-        final block = Block()..applyAttribute(blockStyle);
-        _wrap(block);
-        block.adjust();
+        // Block style now can contain multiple attributes
+        if (newStyle.attributes.keys
+            .any(Attribute.exclusiveBlockKeys.contains)) {
+          parentStyle.removeWhere(
+              (key, attr) => Attribute.exclusiveBlockKeys.contains(key));
+        }
+        parentStyle.removeWhere(
+            (key, attr) => newStyle?.attributes.keys.contains(key) ?? false);
+        final parentStyleToMerge = Style.attr(parentStyle);
+        newStyle = newStyle.mergeAll(parentStyleToMerge);
+        _applyBlockStyles(newStyle);
       } // else the same style, no-op.
     } else if (blockStyle.value != null) {
       // Only wrap with a new block if this is not an unset
-      final block = Block()..applyAttribute(blockStyle);
-      _wrap(block);
-      block.adjust();
+      _applyBlockStyles(newStyle);
     }
+  }
+
+  void _applyBlockStyles(Style newStyle) {
+    var block = Block();
+    for (final style in newStyle.getBlocksExceptHeader().values) {
+      block = block..applyAttribute(style);
+    }
+    _wrap(block);
+    block.adjust();
   }
 
   /// Wraps this line with new parent [block].
@@ -355,6 +373,38 @@ class Line extends Container<Leaf?> {
     if (remaining > 0) {
       final rest = nextLine!.collectStyle(0, remaining);
       _handle(rest);
+    }
+
+    return result;
+  }
+
+  /// Returns all styles for any character within the specified text range.
+  List<Style> collectAllStyles(int offset, int len) {
+    final local = math.min(length - offset, len);
+    final result = <Style>[];
+
+    final data = queryChild(offset, true);
+    var node = data.node as Leaf?;
+    if (node != null) {
+      result.add(node.style);
+      var pos = node.length - data.offset;
+      while (!node!.isLast && pos < local) {
+        node = node.next as Leaf?;
+        result.add(node!.style);
+        pos += node.length;
+      }
+    }
+
+    result.add(style);
+    if (parent is Block) {
+      final block = parent as Block;
+      result.add(block.style);
+    }
+
+    final remaining = len - local;
+    if (remaining > 0) {
+      final rest = nextLine!.collectAllStyles(0, remaining);
+      result.addAll(rest);
     }
 
     return result;

@@ -6,7 +6,7 @@ import 'node.dart';
 /// Represents a group of adjacent [Line]s with the same block style.
 ///
 /// Block elements are:
-/// - Quoteblock
+/// - Blockquote
 /// - Header
 /// - Indent
 /// - List
@@ -14,14 +14,12 @@ import 'node.dart';
 /// - Text Direction
 /// - Code Block
 class Block extends Container<Line?> {
-  @override
-  Line get defaultChild => Line();
-
   /// Creates new unmounted [Block].
   @override
-  Node newInstance() {
-    return Block();
-  }
+  Node newInstance() => Block();
+
+  @override
+  Line get defaultChild => Line();
 
   @override
   Delta toDelta() {
@@ -63,7 +61,7 @@ class Block extends Container<Line?> {
   @override
   String toString() {
     final block = style.attributes.toString();
-    final buffer = StringBuffer(' {$block}\n');
+    final buffer = StringBuffer('§ {$block}\n');
     for (final child in children) {
       final tree = child.isLast ? '└' : '├';
       buffer.write('  $tree $child');

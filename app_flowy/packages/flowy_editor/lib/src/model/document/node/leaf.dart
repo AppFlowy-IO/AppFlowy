@@ -6,7 +6,6 @@ import 'embed.dart';
 import 'line.dart';
 import 'node.dart';
 
-/// A leaf in Quill document tree.
 abstract class Leaf extends Node {
   /// Creates a new [Leaf] with specified [data].
   factory Leaf(Object data) {
@@ -194,8 +193,6 @@ abstract class Leaf extends Node {
   }
 }
 
-/* ---------------------------------- Impl ---------------------------------- */
-
 /// A span of formatted text within a line in a Quill document.
 ///
 /// Text is a leaf node of a document tree.
@@ -213,7 +210,7 @@ class Text extends Leaf {
         super.val(text);
 
   @override
-  Node newInstance() => Text();
+  Node newInstance() => Text(value);
 
   @override
   String get value => _value as String;

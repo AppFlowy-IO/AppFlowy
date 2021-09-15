@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:quiver/core.dart';
 
 enum AttributeScope {
@@ -14,9 +16,10 @@ class Attribute<T> {
   final AttributeScope scope;
   final T value;
 
-  static final Map<String, Attribute> _registry = {
+  static final Map<String, Attribute> _registry = LinkedHashMap.of({
     Attribute.bold.key: Attribute.bold,
     Attribute.italic.key: Attribute.italic,
+    Attribute.small.key: Attribute.small,
     Attribute.underline.key: Attribute.underline,
     Attribute.strikeThrough.key: Attribute.strikeThrough,
     Attribute.font.key: Attribute.font,
@@ -26,22 +29,22 @@ class Attribute<T> {
     Attribute.background.key: Attribute.background,
     Attribute.placeholder.key: Attribute.placeholder,
     Attribute.header.key: Attribute.header,
-    Attribute.indent.key: Attribute.indent,
     Attribute.align.key: Attribute.align,
     Attribute.list.key: Attribute.list,
     Attribute.codeBlock.key: Attribute.codeBlock,
     Attribute.quoteBlock.key: Attribute.quoteBlock,
+    Attribute.indent.key: Attribute.indent,
     Attribute.width.key: Attribute.width,
     Attribute.height.key: Attribute.height,
     Attribute.style.key: Attribute.style,
     Attribute.token.key: Attribute.token,
-  };
-
-  // Attribute Properties
+  });
 
   static final BoldAttribute bold = BoldAttribute();
 
   static final ItalicAttribute italic = ItalicAttribute();
+
+  static final SmallAttribute small = SmallAttribute();
 
   static final UnderlineAttribute underline = UnderlineAttribute();
 
@@ -79,67 +82,10 @@ class Attribute<T> {
 
   static final TokenAttribute token = TokenAttribute('');
 
-  static Attribute<int?> get h1 => HeaderAttribute(level: 1);
-
-  static Attribute<int?> get h2 => HeaderAttribute(level: 2);
-
-  static Attribute<int?> get h3 => HeaderAttribute(level: 3);
-
-  static Attribute<int?> get h4 => HeaderAttribute(level: 4);
-
-  static Attribute<int?> get h5 => HeaderAttribute(level: 5);
-
-  static Attribute<int?> get h6 => HeaderAttribute(level: 6);
-
-  static Attribute<String?> get leftAlignment => AlignAttribute('left');
-
-  static Attribute<String?> get centerAlignment => AlignAttribute('center');
-
-  static Attribute<String?> get rightAlignment => AlignAttribute('right');
-
-  static Attribute<String?> get justifyAlignment => AlignAttribute('justify');
-
-  static Attribute<String?> get bullet => ListAttribute('bullet');
-
-  static Attribute<String?> get ordered => ListAttribute('ordered');
-
-  static Attribute<String?> get checked => ListAttribute('checked');
-
-  static Attribute<String?> get unchecked => ListAttribute('unchecked');
-
-  static Attribute<int?> get indentL1 => IndentAttribute(level: 1);
-
-  static Attribute<int?> get indentL2 => IndentAttribute(level: 2);
-
-  static Attribute<int?> get indentL3 => IndentAttribute(level: 3);
-
-  static Attribute<int?> get indentL4 => IndentAttribute(level: 4);
-
-  static Attribute<int?> get indentL5 => IndentAttribute(level: 5);
-
-  static Attribute<int?> get indentL6 => IndentAttribute(level: 6);
-
-  static Attribute<int?> getIndentLevel(int? level) {
-    switch (level) {
-      case 1:
-        return indentL1;
-      case 2:
-        return indentL2;
-      case 3:
-        return indentL3;
-      case 4:
-        return indentL4;
-      case 5:
-        return indentL5;
-      default:
-        return indentL6;
-    }
-  }
-
-  // Keys Container
   static final Set<String> inlineKeys = {
     Attribute.bold.key,
     Attribute.italic.key,
+    Attribute.small.key,
     Attribute.underline.key,
     Attribute.strikeThrough.key,
     Attribute.link.key,
@@ -148,35 +94,107 @@ class Attribute<T> {
     Attribute.placeholder.key,
   };
 
-  static final Set<String> blockKeys = {
+  static final Set<String> blockKeys = LinkedHashSet.of({
     Attribute.header.key,
-    Attribute.indent.key,
     Attribute.align.key,
     Attribute.list.key,
     Attribute.codeBlock.key,
     Attribute.quoteBlock.key,
-  };
+    Attribute.indent.key,
+  });
 
-  static final Set<String> blockKeysExceptHeader = blockKeys
-    ..remove(Attribute.header.key);
+  static final Set<String> blockKeysExceptHeader = LinkedHashSet.of({
+    Attribute.list.key,
+    Attribute.align.key,
+    Attribute.codeBlock.key,
+    Attribute.quoteBlock.key,
+    Attribute.indent.key,
+  });
 
-  // Utils
+  static final Set<String> exclusiveBlockKeys = LinkedHashSet.of({
+    Attribute.header.key,
+    Attribute.list.key,
+    Attribute.codeBlock.key,
+    Attribute.quoteBlock.key,
+  });
 
-  bool get isInline => AttributeScope.INLINE == scope;
+  static Attribute<int?> get h1 => HeaderAttribute(level: 1);
 
-  bool get isIgnored => AttributeScope.IGNORE == scope;
+  static Attribute<int?> get h2 => HeaderAttribute(level: 2);
+
+  static Attribute<int?> get h3 => HeaderAttribute(level: 3);
+
+  // "attributes":{"align":"left"}
+  static Attribute<String?> get leftAlignment => AlignAttribute('left');
+
+  // "attributes":{"align":"center"}
+  static Attribute<String?> get centerAlignment => AlignAttribute('center');
+
+  // "attributes":{"align":"right"}
+  static Attribute<String?> get rightAlignment => AlignAttribute('right');
+
+  // "attributes":{"align":"justify"}
+  static Attribute<String?> get justifyAlignment => AlignAttribute('justify');
+
+  // "attributes":{"list":"bullet"}
+  static Attribute<String?> get bullet => ListAttribute('bullet');
+
+  // "attributes":{"list":"ordered"}
+  static Attribute<String?> get ordered => ListAttribute('ordered');
+
+  // "attributes":{"list":"checked"}
+  static Attribute<String?> get checked => ListAttribute('checked');
+
+  // "attributes":{"list":"unchecked"}
+  static Attribute<String?> get unchecked => ListAttribute('unchecked');
+
+  // "attributes":{"indent":1"}
+  static Attribute<int?> get indentL1 => IndentAttribute(level: 1);
+
+  // "attributes":{"indent":2"}
+  static Attribute<int?> get indentL2 => IndentAttribute(level: 2);
+
+  // "attributes":{"indent":3"}
+  static Attribute<int?> get indentL3 => IndentAttribute(level: 3);
+
+  static Attribute<int?> getIndentLevel(int? level) {
+    if (level == 1) {
+      return indentL1;
+    }
+    if (level == 2) {
+      return indentL2;
+    }
+    if (level == 3) {
+      return indentL3;
+    }
+    return IndentAttribute(level: level);
+  }
+
+  bool get isInline => scope == AttributeScope.INLINE;
 
   bool get isBlockExceptHeader => blockKeysExceptHeader.contains(key);
 
   Map<String, dynamic> toJson() => <String, dynamic>{key: value};
 
-  static Attribute fromKeyValue(String key, dynamic value) {
-    if (!_registry.containsKey(key)) {
-      throw ArgumentError.value(key, 'key "$key" not found.');
+  static Attribute? fromKeyValue(String key, dynamic value) {
+    final origin = _registry[key];
+    if (origin == null) {
+      return null;
     }
-    final origin = _registry[key]!;
     final attribute = clone(origin, value);
     return attribute;
+  }
+
+  static int getRegistryOrder(Attribute attribute) {
+    var order = 0;
+    for (final attr in _registry.values) {
+      if (attr.key == attribute.key) {
+        break;
+      }
+      order++;
+    }
+
+    return order;
   }
 
   static Attribute clone(Attribute origin, dynamic value) {
@@ -186,7 +204,7 @@ class Attribute<T> {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    if (other is! Attribute<T>) return false;
+    if (other is! Attribute) return false;
     final typedOther = other;
     return key == typedOther.key &&
         scope == typedOther.scope &&
@@ -202,12 +220,6 @@ class Attribute<T> {
   }
 }
 
-/* -------------------------------------------------------------------------- */
-/*                               Attributes Impl                              */
-/* -------------------------------------------------------------------------- */
-
-/* --------------------------------- INLINE --------------------------------- */
-
 class BoldAttribute extends Attribute<bool> {
   BoldAttribute() : super('bold', AttributeScope.INLINE, true);
 }
@@ -216,41 +228,43 @@ class ItalicAttribute extends Attribute<bool> {
   ItalicAttribute() : super('italic', AttributeScope.INLINE, true);
 }
 
+class SmallAttribute extends Attribute<bool> {
+  SmallAttribute() : super('small', AttributeScope.INLINE, true);
+}
+
 class UnderlineAttribute extends Attribute<bool> {
   UnderlineAttribute() : super('underline', AttributeScope.INLINE, true);
 }
 
 class StrikeThroughAttribute extends Attribute<bool> {
-  StrikeThroughAttribute()
-      : super('strikethrough', AttributeScope.INLINE, true);
+  StrikeThroughAttribute() : super('strike', AttributeScope.INLINE, true);
 }
 
 class FontAttribute extends Attribute<String?> {
-  FontAttribute(String? value) : super('font', AttributeScope.INLINE, value);
+  FontAttribute(String? val) : super('font', AttributeScope.INLINE, val);
 }
 
 class SizeAttribute extends Attribute<String?> {
-  SizeAttribute(String? value) : super('size', AttributeScope.INLINE, value);
+  SizeAttribute(String? val) : super('size', AttributeScope.INLINE, val);
 }
 
 class LinkAttribute extends Attribute<String?> {
-  LinkAttribute(String? value) : super('link', AttributeScope.INLINE, value);
+  LinkAttribute(String? val) : super('link', AttributeScope.INLINE, val);
 }
 
 class ColorAttribute extends Attribute<String?> {
-  ColorAttribute(String? value) : super('color', AttributeScope.INLINE, value);
+  ColorAttribute(String? val) : super('color', AttributeScope.INLINE, val);
 }
 
 class BackgroundAttribute extends Attribute<String?> {
-  BackgroundAttribute(String? value)
-      : super('background', AttributeScope.INLINE, value);
+  BackgroundAttribute(String? val)
+      : super('background', AttributeScope.INLINE, val);
 }
 
-class PlaceholderAttribute extends Attribute<bool?> {
+/// This is custom attribute for hint
+class PlaceholderAttribute extends Attribute<bool> {
   PlaceholderAttribute() : super('placeholder', AttributeScope.INLINE, true);
 }
-
-/* ---------------------------------- BLOCK --------------------------------- */
 
 class HeaderAttribute extends Attribute<int?> {
   HeaderAttribute({int? level}) : super('header', AttributeScope.BLOCK, level);
@@ -261,36 +275,33 @@ class IndentAttribute extends Attribute<int?> {
 }
 
 class AlignAttribute extends Attribute<String?> {
-  AlignAttribute(String? value) : super('align', AttributeScope.BLOCK, value);
+  AlignAttribute(String? val) : super('align', AttributeScope.BLOCK, val);
 }
 
 class ListAttribute extends Attribute<String?> {
-  ListAttribute(String? value) : super('list', AttributeScope.BLOCK, value);
+  ListAttribute(String? val) : super('list', AttributeScope.BLOCK, val);
 }
 
-class CodeBlockAttribute extends Attribute<bool?> {
-  CodeBlockAttribute() : super('code_block', AttributeScope.BLOCK, true);
+class CodeBlockAttribute extends Attribute<bool> {
+  CodeBlockAttribute() : super('code-block', AttributeScope.BLOCK, true);
 }
 
 class QuoteBlockAttribute extends Attribute<bool?> {
   QuoteBlockAttribute() : super('quote_block', AttributeScope.BLOCK, true);
 }
 
-/* --------------------------------- IGNORE --------------------------------- */
-
 class WidthAttribute extends Attribute<String?> {
-  WidthAttribute(String? value) : super('width', AttributeScope.IGNORE, value);
+  WidthAttribute(String? val) : super('width', AttributeScope.IGNORE, val);
 }
 
 class HeightAttribute extends Attribute<String?> {
-  HeightAttribute(String? value)
-      : super('height', AttributeScope.IGNORE, value);
+  HeightAttribute(String? val) : super('height', AttributeScope.IGNORE, val);
 }
 
 class StyleAttribute extends Attribute<String?> {
-  StyleAttribute(String? value) : super('style', AttributeScope.IGNORE, value);
+  StyleAttribute(String? val) : super('style', AttributeScope.IGNORE, val);
 }
 
-class TokenAttribute extends Attribute<String?> {
-  TokenAttribute(String? value) : super('token', AttributeScope.IGNORE, value);
+class TokenAttribute extends Attribute<String> {
+  TokenAttribute(String val) : super('token', AttributeScope.IGNORE, val);
 }

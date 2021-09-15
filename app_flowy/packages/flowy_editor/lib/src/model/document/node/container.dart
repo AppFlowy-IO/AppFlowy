@@ -40,12 +40,6 @@ abstract class Container<T extends Node?> extends Node {
   /// Always returns fresh instance.
   T get defaultChild;
 
-  /// Content length of this node's children.
-  ///
-  /// To get number of children in this node use [childCount].
-  @override
-  int get length => _children.fold(0, (curr, node) => curr + node.length);
-
   /// Adds [node] to the end of this container children list.
   void add(T node) {
     assert(node?.parent == null);
@@ -69,7 +63,9 @@ abstract class Container<T extends Node?> extends Node {
 
   /// Moves children of this node to [newParent].
   void moveChildToNewParent(Container? newParent) {
-    if (isEmpty) return;
+    if (isEmpty) {
+      return;
+    }
 
     final last = newParent!.isEmpty ? null : newParent.last as T?;
     while (isNotEmpty) {
@@ -83,7 +79,7 @@ abstract class Container<T extends Node?> extends Node {
     if (last != null) last.adjust();
   }
 
-  /// Queries the child [Node] at specified character [offset] in this container.
+  /// Queries the child [Node] at [offset] in this container.
   ///
   /// The result may contain the found node or `null` if no node is found
   /// at specified offset.
@@ -96,16 +92,24 @@ abstract class Container<T extends Node?> extends Node {
       return ChildQuery(null, 0);
     }
 
-    for (final child in children) {
-      final childLen = child.length;
-      if (offset < childLen ||
-          (inclusive && offset == childLen && (child.isLast))) {
-        return ChildQuery(child, offset);
+    for (final node in children) {
+      final len = node.length;
+      if (offset < len || (inclusive && offset == len && node.isLast)) {
+        return ChildQuery(node, offset);
       }
-      offset -= childLen;
+      offset -= len;
     }
     return ChildQuery(null, 0);
   }
+
+  @override
+  String toPlainText() => children.map((child) => child.toPlainText()).join();
+
+  /// Content length of this node's children.
+  ///
+  /// To get number of children in this node use [childCount].
+  @override
+  int get length => _children.fold(0, (cur, node) => cur + node.length);
 
   @override
   void insert(int index, Object data, Style? style) {
@@ -137,9 +141,6 @@ abstract class Container<T extends Node?> extends Node {
     final child = queryChild(index, false);
     child.node!.delete(child.offset, length);
   }
-
-  @override
-  String toPlainText() => children.map((child) => child.toPlainText()).join();
 
   @override
   String toString() => _children.join('\n');

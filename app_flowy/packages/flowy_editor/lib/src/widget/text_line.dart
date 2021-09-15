@@ -97,9 +97,6 @@ class TextLine extends StatelessWidget {
       Attribute.h1: defaultStyles.h1!.style,
       Attribute.h2: defaultStyles.h2!.style,
       Attribute.h3: defaultStyles.h3!.style,
-      Attribute.h4: defaultStyles.h4!.style,
-      Attribute.h5: defaultStyles.h5!.style,
-      Attribute.h6: defaultStyles.h6!.style,
     };
     textStyle =
         textStyle.merge(headerStyles[header] ?? defaultStyles.paragraph!.style);

@@ -9,8 +9,8 @@ abstract class DeleteRule extends Rule {
   RuleType get type => RuleType.DELETE;
 
   @override
-  void validateArgs(int? length, Object? data, Attribute? attribute) {
-    assert(length != null);
+  void validateArgs(int? len, Object? data, Attribute? attribute) {
+    assert(len != null);
     assert(data == null);
     assert(attribute == null);
   }
@@ -21,10 +21,10 @@ class CatchAllDeleteRule extends DeleteRule {
 
   @override
   Delta applyRule(Delta document, int index,
-      {int? length, Object? data, Attribute? attribute}) {
+      {int? len, Object? data, Attribute? attribute}) {
     return Delta()
       ..retain(index)
-      ..delete(length!);
+      ..delete(len!);
   }
 }
 
@@ -33,9 +33,9 @@ class PreserveLineStyleOnMergeRule extends DeleteRule {
 
   @override
   Delta? applyRule(Delta document, int index,
-      {int? length, Object? data, Attribute? attribute}) {
-    final it = DeltaIterator(document)..skip(index);
-    var op = it.next(1);
+      {int? len, Object? data, Attribute? attribute}) {
+    final itr = DeltaIterator(document)..skip(index);
+    var op = itr.next(1);
     if (op.data != '\n') {
       return null;
     }
@@ -43,13 +43,13 @@ class PreserveLineStyleOnMergeRule extends DeleteRule {
     final isNotPlain = op.isNotPlain;
     final attrs = op.attributes;
 
-    it.skip(length! - 1);
+    itr.skip(len! - 1);
     final delta = Delta()
       ..retain(index)
-      ..delete(length);
+      ..delete(len);
 
-    while (it.hasNext) {
-      op = it.next();
+    while (itr.hasNext) {
+      op = itr.next();
       final text = op.data is String ? (op.data as String?)! : '';
       final lineBreak = text.indexOf('\n');
       if (lineBreak == -1) {
@@ -66,7 +66,9 @@ class PreserveLineStyleOnMergeRule extends DeleteRule {
         attributes ??= <String, dynamic>{};
         attributes.addAll(attrs!);
       }
-      delta..retain(lineBreak)..retain(1, attributes);
+      delta
+        ..retain(lineBreak)
+        ..retain(1, attributes);
       break;
     }
     return delta;
@@ -78,23 +80,23 @@ class EnsureEmbedLineRule extends DeleteRule {
 
   @override
   Delta? applyRule(Delta document, int index,
-      {int? length, Object? data, Attribute? attribute}) {
-    final it = DeltaIterator(document);
+      {int? len, Object? data, Attribute? attribute}) {
+    final itr = DeltaIterator(document);
 
-    var op = it.skip(index);
-    int? indexDelta = 0, lengthDelta = 0, remain = length;
+    var op = itr.skip(index);
+    int? indexDelta = 0, lengthDelta = 0, remain = len;
     var embedFound = op != null && op.data is! String;
     final hasLineBreakBefore =
         !embedFound && (op == null || (op.data as String).endsWith('\n'));
     if (embedFound) {
-      var candidate = it.next(1);
+      var candidate = itr.next(1);
       if (remain != null) {
         remain--;
         if (candidate.data == '\n') {
           indexDelta++;
           lengthDelta--;
 
-          candidate = it.next(1);
+          candidate = itr.next(1);
           remain--;
           if (candidate.data == '\n') {
             lengthDelta++;
@@ -103,10 +105,10 @@ class EnsureEmbedLineRule extends DeleteRule {
       }
     }
 
-    op = it.skip(remain!);
+    op = itr.skip(remain!);
     if (op != null &&
         (op.data is String ? op.data as String? : '')!.endsWith('\n')) {
-      final candidate = it.next(1);
+      final candidate = itr.next(1);
       if (candidate.data is! String && !hasLineBreakBefore) {
         embedFound = true;
         lengthDelta--;
@@ -119,6 +121,6 @@ class EnsureEmbedLineRule extends DeleteRule {
 
     return Delta()
       ..retain(index + indexDelta)
-      ..delete(length! + lengthDelta);
+      ..delete(len! + lengthDelta);
   }
 }

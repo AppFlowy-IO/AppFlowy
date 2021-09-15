@@ -3,6 +3,7 @@ import 'package:quiver/core.dart';
 
 import 'attribute.dart';
 
+/* Collection of style attributes */
 class Style {
   Style() : _attributes = <String, Attribute>{};
 
@@ -14,49 +15,63 @@ class Style {
     if (attributes == null) {
       return Style();
     }
-    final result = attributes.map((key, value) {
+
+    final result = attributes.map((key, dynamic value) {
       final attr = Attribute.fromKeyValue(key, value);
-      return MapEntry<String, Attribute>(key, attr);
+      return MapEntry<String, Attribute>(
+          key, attr ?? Attribute(key, AttributeScope.IGNORE, value));
     });
     return Style.attr(result);
   }
 
   Map<String, dynamic>? toJson() => _attributes.isEmpty
       ? null
-      : _attributes.map<String, dynamic>((_, attr) {
-          return MapEntry<String, dynamic>(attr.key, attr.value);
-        });
-
-  // Properties
-
-  Map<String, Attribute> get attributes => _attributes;
+      : _attributes.map<String, dynamic>((_, attribute) =>
+          MapEntry<String, dynamic>(attribute.key, attribute.value));
 
   Iterable<String> get keys => _attributes.keys;
 
-  Iterable<Attribute> get values => _attributes.values;
+  Iterable<Attribute> get values => _attributes.values.sorted(
+      (a, b) => Attribute.getRegistryOrder(a) - Attribute.getRegistryOrder(b));
+
+  Map<String, Attribute> get attributes => _attributes;
 
   bool get isEmpty => _attributes.isEmpty;
 
   bool get isNotEmpty => _attributes.isNotEmpty;
 
-  bool get isInline => isNotEmpty && values.every((ele) => ele.isInline);
+  bool get isInline => isNotEmpty && values.every((item) => item.isInline);
 
-  bool get isIgnored => isNotEmpty && values.every((ele) => ele.isIgnored);
+  bool get isIgnored =>
+      isNotEmpty && values.every((item) => item.scope == AttributeScope.IGNORE);
 
-  Attribute get single => values.single;
+  Attribute get single => _attributes.values.single;
 
   bool containsKey(String key) => _attributes.containsKey(key);
 
   Attribute? getBlockExceptHeader() {
-    for (final value in values) {
-      if (value.isBlockExceptHeader) {
-        return value;
+    for (final val in values) {
+      if (val.isBlockExceptHeader && val.value != null) {
+        return val;
+      }
+    }
+    for (final val in values) {
+      if (val.isBlockExceptHeader) {
+        return val;
       }
     }
     return null;
   }
 
-  // Operators
+  Map<String, Attribute> getBlocksExceptHeader() {
+    final m = <String, Attribute>{};
+    attributes.forEach((key, value) {
+      if (Attribute.blockKeysExceptHeader.contains(key)) {
+        m[key] = value;
+      }
+    });
+    return m;
+  }
 
   Style merge(Attribute attribute) {
     final merged = Map<String, Attribute>.from(_attributes);
@@ -70,22 +85,22 @@ class Style {
 
   Style mergeAll(Style other) {
     var result = Style.attr(_attributes);
-    other.values.forEach((attr) {
-      result = result.merge(attr);
-    });
+    for (final attribute in other.values) {
+      result = result.merge(attribute);
+    }
     return result;
   }
 
   Style removeAll(Set<Attribute> attributes) {
     final merged = Map<String, Attribute>.from(_attributes);
-    attributes.map((ele) => ele.key).forEach(merged.remove);
+    attributes.map((item) => item.key).forEach(merged.remove);
     return Style.attr(merged);
   }
 
   Style put(Attribute attribute) {
-    final merged = Map<String, Attribute>.from(_attributes);
-    merged[attribute.key] = attribute;
-    return Style.attr(merged);
+    final m = Map<String, Attribute>.from(attributes);
+    m[attribute.key] = attribute;
+    return Style.attr(m);
   }
 
   @override
