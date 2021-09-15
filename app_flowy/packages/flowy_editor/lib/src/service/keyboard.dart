@@ -28,8 +28,8 @@ typedef OnDeleteCallback = void Function(
 
 /* -------------------------------- Listener -------------------------------- */
 
-class KeyboardListener {
-  KeyboardListener(this.onCursorMove, this.onShortcut, this.onDelete);
+class FlowyKeyboardListener {
+  FlowyKeyboardListener(this.onCursorMove, this.onShortcut, this.onDelete);
 
   final CursorMoveCallback onCursorMove;
   final InputShortcutCallback onShortcut;
