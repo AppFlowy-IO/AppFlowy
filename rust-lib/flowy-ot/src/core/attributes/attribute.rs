@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
-use crate::{block_attribute, core::Attributes, ignore_attribute, inline_attribute};
+use crate::{block_attribute, core::Attributes, ignore_attribute, inline_attribute, list_attribute};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, fmt, fmt::Formatter, iter::FromIterator};
@@ -28,13 +28,19 @@ impl Attribute {
     block_attribute!(Header, usize);
     block_attribute!(Indent, usize);
     block_attribute!(Align, String);
-    block_attribute!(List, String);
+    block_attribute!(List, &str);
     block_attribute!(CodeBlock, bool);
     block_attribute!(QuoteBlock, bool);
 
     // ignore
     ignore_attribute!(Width, usize);
     ignore_attribute!(Height, usize);
+
+    // List extension
+    list_attribute!(Bullet, "bullet");
+    list_attribute!(Ordered, "ordered");
+    list_attribute!(Checked, "checked");
+    list_attribute!(UnChecked, "unchecked");
 }
 
 impl fmt::Display for Attribute {
@@ -111,7 +117,7 @@ impl std::convert::From<usize> for AttributeValue {
 }
 
 impl std::convert::From<&str> for AttributeValue {
-    fn from(val: &str) -> Self { AttributeValue(Some(val.to_owned())) }
+    fn from(val: &str) -> Self { val.to_owned().into() }
 }
 
 impl std::convert::From<String> for AttributeValue {

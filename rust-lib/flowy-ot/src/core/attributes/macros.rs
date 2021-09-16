@@ -18,7 +18,7 @@ macro_rules! inline_attribute {
 macro_rules! block_attribute {
     (
         $key: ident,
-        $value: ident
+        $value: ty
     ) => {
         pub fn $key(value: $value) -> Self {
             Self {
@@ -26,6 +26,22 @@ macro_rules! block_attribute {
                 value: value.into(),
                 scope: AttributeScope::Block,
             }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! list_attribute {
+    (
+        $key: ident,
+        $value: expr
+    ) => {
+        pub fn $key(b: bool) -> Self {
+            let value = match b {
+                true => $value,
+                false => "",
+            };
+            Attribute::List(value)
         }
     };
 }

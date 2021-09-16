@@ -123,11 +123,7 @@ impl TestBuilder {
             },
             TestOp::Bullet(delta_i, iv, enable) => {
                 let document = &mut self.documents[*delta_i];
-                let value = match *enable {
-                    true => "bullet",
-                    false => "",
-                };
-                let attribute = Attribute::List(value.to_owned());
+                let attribute = Attribute::Bullet(*enable);
                 document.format(*iv, attribute).unwrap();
             },
             TestOp::Transform(delta_a_i, delta_b_i) => {

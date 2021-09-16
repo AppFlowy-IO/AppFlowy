@@ -1,5 +1,6 @@
 {
     "svgviewer.enableautopreview": true,
     "svgviewer.previewcolumn": "Active",
-    "svgviewer.showzoominout": true
+    "svgviewer.showzoominout": true,
+    "editor.wordWrapColumn": 120
 }
