@@ -11,7 +11,7 @@ use actix_web::{
 use actix_web_actors::ws;
 
 #[get("/{token}")]
-pub async fn start_connection(
+pub async fn establish_ws_connection(
     request: HttpRequest,
     payload: Payload,
     path: Path<String>,

@@ -33,10 +33,7 @@ impl LoggedUser {
 
     pub fn from_token(token: String) -> Result<Self, ServerError> {
         let user: LoggedUser = Token::decode_token(&token.into())?.into();
-        match AUTHORIZED_USERS.is_authorized(&user) {
-            true => Ok(user),
-            false => Err(ServerError::unauthorized()),
-        }
+        Ok(user)
     }
 
     pub fn get_user_id(&self) -> Result<uuid::Uuid, ServerError> {
@@ -68,7 +65,10 @@ impl std::convert::TryFrom<&HeaderValue> for LoggedUser {
     fn try_from(header: &HeaderValue) -> Result<Self, Self::Error> {
         match header.to_str() {
             Ok(val) => LoggedUser::from_token(val.to_owned()),
-            Err(_) => Err(ServerError::unauthorized()),
+            Err(e) => {
+                log::error!("Header to string failed: {:?}", e);
+                Err(ServerError::unauthorized())
+            },
         }
     }
 }
@@ -79,27 +79,36 @@ enum AuthStatus {
     NotAuthorized,
 }
 
+pub const EXPIRED_DURATION_DAYS: i64 = 5;
+
 pub struct AuthorizedUsers(DashMap<LoggedUser, AuthStatus>);
 impl AuthorizedUsers {
     pub fn new() -> Self { Self(DashMap::new()) }
 
     pub fn is_authorized(&self, user: &LoggedUser) -> bool {
         match self.0.get(user) {
-            None => false,
+            None => {
+                log::debug!("user not login yet or server was reboot");
+                false
+            },
             Some(status) => match *status {
                 AuthStatus::Authorized(last_time) => {
                     let current_time = Utc::now();
-                    (current_time - last_time).num_days() < 5
+                    let days = (current_time - last_time).num_days();
+                    log::debug!("user active {} from now", days);
+                    days < EXPIRED_DURATION_DAYS
                 },
-                AuthStatus::NotAuthorized => false,
+                AuthStatus::NotAuthorized => {
+                    log::debug!("user logout already");
+                    false
+                },
             },
         }
     }
 
     pub fn store_auth(&self, user: LoggedUser, is_auth: bool) -> Result<(), ServerError> {
-        let current_time = Utc::now();
         let status = if is_auth {
-            AuthStatus::Authorized(current_time)
+            AuthStatus::Authorized(Utc::now())
         } else {
             AuthStatus::NotAuthorized
         };

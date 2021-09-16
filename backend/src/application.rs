@@ -82,7 +82,7 @@ async fn period_check(_pool: Data<PgPool>) {
     }
 }
 
-fn ws_scope() -> Scope { web::scope("/ws").service(ws_service::router::start_connection) }
+fn ws_scope() -> Scope { web::scope("/ws").service(ws_service::router::establish_ws_connection) }
 
 fn user_scope() -> Scope {
     // https://developer.mozilla.org/en-US/docs/Web/HTTP
@@ -132,7 +132,9 @@ fn user_scope() -> Scope {
 }
 
 async fn init_app_context(configuration: &Settings) -> AppContext {
-    let _ = flowy_log::Builder::new("flowy").env_filter("Debug").build();
+    let _ = crate::service::log::Builder::new("flowy")
+        .env_filter("Debug")
+        .build();
     let pg_pool = get_connection_pool(&configuration.database)
         .await
         .expect(&format!(

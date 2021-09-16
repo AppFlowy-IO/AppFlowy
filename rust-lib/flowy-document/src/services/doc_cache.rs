@@ -38,6 +38,14 @@ impl DocCache {
         Ok(())
     }
 
+    pub(crate) fn is_opened<T>(&self, id: T) -> bool
+    where
+        T: Into<DocId>,
+    {
+        let doc_id = id.into();
+        self.inner.get(&doc_id).is_some()
+    }
+
     pub(crate) async fn mut_doc<T, F>(&self, id: T, f: F) -> Result<(), DocError>
     where
         T: Into<DocId>,
@@ -53,19 +61,19 @@ impl DocCache {
         }
     }
 
-    pub(crate) async fn read_doc<T>(&self, id: T) -> Result<Option<String>, DocError>
+    pub(crate) async fn read_doc<T>(&self, id: T) -> Result<Vec<u8>, DocError>
     where
-        T: Into<DocId>,
+        T: Into<DocId> + Clone,
     {
-        let doc_id = id.into();
-        match self.inner.get(&doc_id) {
-            None => Err(doc_not_found()),
-            Some(doc_info) => {
-                let write_guard = doc_info.read().await;
-                let doc = &(*write_guard).document;
-                Ok(Some(doc.to_json()))
-            },
+        if self.is_opened(id.clone()) {
+            return Err(doc_not_found());
         }
+
+        let doc_id = id.into();
+        let doc_info = self.inner.get(&doc_id).unwrap();
+        let write_guard = doc_info.read().await;
+        let doc = &(*write_guard).document;
+        Ok(doc.to_bytes())
     }
 
     pub(crate) fn close<T>(&self, id: T) -> Result<(), DocError>

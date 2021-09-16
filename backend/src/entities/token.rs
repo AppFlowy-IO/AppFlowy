@@ -28,7 +28,7 @@ impl Claim {
             sub: "auth".to_string(),
             user_id: user_id.to_string(),
             iat: Local::now().timestamp(),
-            exp: (Local::now() + Duration::hours(24)).timestamp(),
+            exp: (Local::now() + Duration::days(EXPIRED_DURATION_DAYS)).timestamp(),
         }
     }
 
@@ -74,6 +74,7 @@ impl Token {
     }
 }
 
+use crate::service::user_service::EXPIRED_DURATION_DAYS;
 use actix_web::{dev::Payload, FromRequest, HttpRequest};
 use flowy_net::config::HEADER_TOKEN;
 use futures::future::{ready, Ready};

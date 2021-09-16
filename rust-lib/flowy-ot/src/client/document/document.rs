@@ -51,6 +51,8 @@ impl Document {
 
     pub fn to_json(&self) -> String { self.delta.to_json() }
 
+    pub fn to_bytes(&self) -> Vec<u8> { self.delta.clone().into_bytes() }
+
     pub fn to_string(&self) -> String { self.delta.apply("").unwrap() }
 
     pub fn apply_changeset<T>(&mut self, changeset: T) -> Result<(), OTError>

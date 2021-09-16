@@ -44,8 +44,17 @@ impl FlowyDocument {
     }
 
     pub async fn open(&self, params: QueryDocParams, pool: Arc<ConnectionPool>) -> Result<Doc, DocError> {
-        let doc = self.controller.open(params, pool).await?;
-        let _ = self.cache.open(&doc.id, doc.data.clone())?;
+        let doc = match self.cache.is_opened(&params.doc_id) {
+            true => {
+                let data = self.cache.read_doc(&params.doc_id).await?;
+                Doc { id: params.doc_id, data }
+            },
+            false => {
+                let doc = self.controller.open(params, pool).await?;
+                let _ = self.cache.open(&doc.id, doc.data.clone())?;
+                doc
+            },
+        };
 
         Ok(doc)
     }
@@ -64,16 +73,8 @@ impl FlowyDocument {
             })
             .await?;
 
-        let doc_str = match self.cache.read_doc(&params.id).await? {
-            None => "".to_owned(),
-            Some(doc_json) => doc_json,
-        };
-
-        let doc = Doc {
-            id: params.id,
-            data: doc_str.as_bytes().to_vec(),
-        };
-
+        let data = self.cache.read_doc(&params.id).await?;
+        let doc = Doc { id: params.id, data };
         Ok(doc)
     }
 }

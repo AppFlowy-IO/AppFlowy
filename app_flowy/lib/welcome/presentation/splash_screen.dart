@@ -40,7 +40,7 @@ class SplashScreen extends StatelessWidget {
           (workspace) => getIt<ISplashRoute>()
               .pushHomeScreen(context, userProfile, workspace.id),
           (error) async {
-            assert(error.code == workspace.ErrorCode.CurrentWorkspaceNotFound);
+            assert(error.code == workspace.ErrorCode.RecordNotFound);
             getIt<ISplashRoute>().pushWelcomeScreen(context, userProfile);
           },
         );

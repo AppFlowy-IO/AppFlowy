@@ -65,11 +65,17 @@ where
         if !authenticate_pass {
             if let Some(header) = req.headers().get(HEADER_TOKEN) {
                 let result: Result<LoggedUser, ServerError> = header.try_into();
-                if let Ok(logged_user) = result {
-                    if AUTHORIZED_USERS.is_authorized(&logged_user) {
-                        authenticate_pass = true;
-                    }
+                match result {
+                    Ok(logged_user) => {
+                        authenticate_pass = AUTHORIZED_USERS.is_authorized(&logged_user);
+
+                        // Update user timestamp
+                        AUTHORIZED_USERS.store_auth(logged_user, true);
+                    },
+                    Err(e) => log::error!("{:?}", e),
                 }
+            } else {
+                log::debug!("Can't find any token from request: {:?}", req);
             }
         }
 
