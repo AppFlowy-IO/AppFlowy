@@ -9,9 +9,9 @@ use crate::{
 };
 use diesel::SqliteConnection;
 use flowy_database::ConnectionPool;
-use flowy_ot::client::Document;
+
+use crate::errors::internal_error;
 use std::sync::Arc;
-use tokio::sync::RwLock;
 
 pub trait DocumentUser: Send + Sync {
     fn user_doc_dir(&self) -> Result<String, DocError>;
@@ -51,7 +51,7 @@ impl FlowyDocument {
     }
 
     pub async fn update(&self, params: SaveDocParams, pool: Arc<ConnectionPool>) -> Result<(), DocError> {
-        let _ = self.controller.update(params, &*pool.get().unwrap())?;
+        let _ = self.controller.update(params, &*pool.get().map_err(internal_error)?)?;
         Ok(())
     }
 

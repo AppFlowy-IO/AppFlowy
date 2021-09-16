@@ -69,9 +69,9 @@ async fn create_view(transaction: &mut DBTransaction<'_>, app: &App) -> Result<V
         cached_size: Default::default(),
     };
 
-    let name = "DefaultView".to_string();
-    let desc = "View created by AppFlowy Server".to_string();
-    let thumbnail = "http://1.png".to_string();
+    let _name = "DefaultView".to_string();
+    let _desc = "View created by AppFlowy Server".to_string();
+    let _thumbnail = "http://1.png".to_string();
 
     let view = create_view_with_transaction(transaction, params).await?;
 

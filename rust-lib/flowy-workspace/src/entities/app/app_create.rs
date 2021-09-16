@@ -51,12 +51,11 @@ impl TryInto<CreateAppParams> for CreateAppRequest {
     type Error = WorkspaceError;
 
     fn try_into(self) -> Result<CreateAppParams, Self::Error> {
-        let name = AppName::parse(self.name).map_err(|e| ErrorBuilder::new(ErrorCode::AppNameInvalid).msg(e).build())?;
+        let name = AppName::parse(self.name).map_err(|e| WorkspaceError::app_name().context(e))?;
 
-        let id = WorkspaceId::parse(self.workspace_id).map_err(|e| ErrorBuilder::new(ErrorCode::WorkspaceIdInvalid).msg(e).build())?;
+        let id = WorkspaceId::parse(self.workspace_id).map_err(|e| WorkspaceError::workspace_id().context(e))?;
 
-        let color_style =
-            AppColorStyle::parse(self.color_style).map_err(|e| ErrorBuilder::new(ErrorCode::AppColorStyleInvalid).msg(e).build())?;
+        let color_style = AppColorStyle::parse(self.color_style).map_err(|e| WorkspaceError::color_style().context(e))?;
 
         Ok(CreateAppParams {
             workspace_id: id.0,

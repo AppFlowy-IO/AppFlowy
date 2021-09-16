@@ -1,4 +1,4 @@
-use crate::errors::{ErrorBuilder, ErrorCode, UserError};
+use crate::errors::UserError;
 use flowy_database::{DBConnection, Database};
 use flowy_sqlite::ConnectionPool;
 use lazy_static::lazy_static;
@@ -18,20 +18,18 @@ impl UserDB {
 
     fn open_user_db(&self, user_id: &str) -> Result<(), UserError> {
         if user_id.is_empty() {
-            return Err(ErrorBuilder::new(ErrorCode::UserDatabaseInitFailed).msg("user id is empty").build());
+            return Err(UserError::internal().context("user id is empty"));
         }
 
         log::info!("open user db {}", user_id);
         let dir = format!("{}/{}", self.db_dir, user_id);
         let db = flowy_database::init(&dir).map_err(|e| {
             log::error!("init user db failed, {:?}, user_id: {}", e, user_id);
-            ErrorBuilder::new(ErrorCode::UserDatabaseInitFailed).error(e).build()
+            UserError::internal().context(e)
         })?;
 
         match DB_MAP.try_write_for(Duration::from_millis(300)) {
-            None => Err(ErrorBuilder::new(ErrorCode::AcquireWriteLockedFailed)
-                .msg(format!("Open user db failed"))
-                .build()),
+            None => Err(UserError::internal().context(format!("Acquire write lock to save user db failed"))),
             Some(mut write_guard) => {
                 write_guard.insert(user_id.to_owned(), db);
                 Ok(())
@@ -41,9 +39,7 @@ impl UserDB {
 
     pub(crate) fn close_user_db(&self, user_id: &str) -> Result<(), UserError> {
         match DB_MAP.try_write_for(Duration::from_millis(300)) {
-            None => Err(ErrorBuilder::new(ErrorCode::AcquireWriteLockedFailed)
-                .msg(format!("Close user db failed"))
-                .build()),
+            None => Err(UserError::internal().context(format!("Acquire write lock to close user db failed"))),
             Some(mut write_guard) => {
                 set_user_db_init(false, user_id);
                 write_guard.remove(user_id);
@@ -71,13 +67,9 @@ impl UserDB {
         }
 
         match DB_MAP.try_read_for(Duration::from_millis(300)) {
-            None => Err(ErrorBuilder::new(ErrorCode::AcquireReadLockedFailed)
-                .msg(format!("Read user db failed"))
-                .build()),
+            None => Err(UserError::internal().context(format!("Acquire read lock to read user db failed"))),
             Some(read_guard) => match read_guard.get(user_id) {
-                None => Err(ErrorBuilder::new(ErrorCode::UserDatabaseInitFailed)
-                    .msg("Get connection failed. The database is not initialization")
-                    .build()),
+                None => Err(UserError::internal().context("Get connection failed. The database is not initialization")),
                 Some(database) => Ok(database.get_pool()),
             },
         }

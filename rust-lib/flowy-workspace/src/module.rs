@@ -1,5 +1,5 @@
 use crate::{
-    errors::{ErrorBuilder, ErrorCode, WorkspaceError},
+    errors::WorkspaceError,
     event::WorkspaceEvent,
     handlers::*,
     services::{server::construct_workspace_server, AppController, ViewController, WorkspaceController},
@@ -22,9 +22,7 @@ pub trait WorkspaceDatabase: Send + Sync {
 
     fn db_connection(&self) -> Result<DBConnection, WorkspaceError> {
         let pool = self.db_pool()?;
-        let conn = pool
-            .get()
-            .map_err(|e| ErrorBuilder::new(ErrorCode::InternalError).error(e).build())?;
+        let conn = pool.get().map_err(|e| WorkspaceError::internal().context(e))?;
         Ok(conn)
     }
 }

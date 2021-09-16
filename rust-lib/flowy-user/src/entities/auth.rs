@@ -39,8 +39,8 @@ impl TryInto<SignInParams> for SignInRequest {
     type Error = UserError;
 
     fn try_into(self) -> Result<SignInParams, Self::Error> {
-        let email = UserEmail::parse(self.email).map_err(|e| ErrorBuilder::new(e).build())?;
-        let password = UserPassword::parse(self.password).map_err(|e| ErrorBuilder::new(e).build())?;
+        let email = UserEmail::parse(self.email).map_err(|e| UserError::code(e))?;
+        let password = UserPassword::parse(self.password).map_err(|e| UserError::code(e))?;
 
         Ok(SignInParams {
             email: email.0,
@@ -64,9 +64,9 @@ impl TryInto<SignUpParams> for SignUpRequest {
     type Error = UserError;
 
     fn try_into(self) -> Result<SignUpParams, Self::Error> {
-        let email = UserEmail::parse(self.email).map_err(|e| ErrorBuilder::new(e).build())?;
-        let password = UserPassword::parse(self.password).map_err(|e| ErrorBuilder::new(e).build())?;
-        let name = UserName::parse(self.name).map_err(|e| ErrorBuilder::new(e).build())?;
+        let email = UserEmail::parse(self.email).map_err(|e| UserError::code(e))?;
+        let password = UserPassword::parse(self.password).map_err(|e| UserError::code(e))?;
+        let name = UserName::parse(self.name).map_err(|e| UserError::code(e))?;
 
         Ok(SignUpParams {
             email: email.0,

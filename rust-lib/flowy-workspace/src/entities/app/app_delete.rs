@@ -1,7 +1,4 @@
-use crate::{
-    entities::app::parser::AppId,
-    errors::{ErrorBuilder, ErrorCode, WorkspaceError},
-};
+use crate::{entities::app::parser::AppId, errors::WorkspaceError};
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
 
@@ -21,9 +18,7 @@ impl TryInto<DeleteAppParams> for DeleteAppRequest {
     type Error = WorkspaceError;
 
     fn try_into(self) -> Result<DeleteAppParams, Self::Error> {
-        let app_id = AppId::parse(self.app_id)
-            .map_err(|e| ErrorBuilder::new(ErrorCode::AppIdInvalid).msg(e).build())?
-            .0;
+        let app_id = AppId::parse(self.app_id).map_err(|e| WorkspaceError::app_id().context(e))?.0;
 
         Ok(DeleteAppParams { app_id })
     }

@@ -12,12 +12,10 @@ import 'dart:typed_data' as $typed_data;
 const ErrorCode$json = const {
   '1': 'ErrorCode',
   '2': const [
-    const {'1': 'Unknown', '2': 0},
-    const {'1': 'WorkspaceNameInvalid', '2': 1},
-    const {'1': 'WorkspaceIdInvalid', '2': 2},
-    const {'1': 'AppColorStyleInvalid', '2': 3},
-    const {'1': 'WorkspaceDescInvalid', '2': 4},
-    const {'1': 'CurrentWorkspaceNotFound', '2': 5},
+    const {'1': 'WorkspaceNameInvalid', '2': 0},
+    const {'1': 'WorkspaceIdInvalid', '2': 1},
+    const {'1': 'AppColorStyleInvalid', '2': 2},
+    const {'1': 'WorkspaceDescInvalid', '2': 3},
     const {'1': 'AppIdInvalid', '2': 10},
     const {'1': 'AppNameInvalid', '2': 11},
     const {'1': 'ViewNameInvalid', '2': 20},
@@ -25,15 +23,14 @@ const ErrorCode$json = const {
     const {'1': 'ViewIdInvalid', '2': 22},
     const {'1': 'ViewDescInvalid', '2': 23},
     const {'1': 'ViewDataInvalid', '2': 24},
-    const {'1': 'UserIdIsEmpty', '2': 100},
-    const {'1': 'UserUnauthorized', '2': 101},
+    const {'1': 'UserUnauthorized', '2': 100},
     const {'1': 'InternalError', '2': 1000},
     const {'1': 'RecordNotFound', '2': 1001},
   ],
 };
 
 /// Descriptor for `ErrorCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List errorCodeDescriptor = $convert.base64Decode('CglFcnJvckNvZGUSCwoHVW5rbm93bhAAEhgKFFdvcmtzcGFjZU5hbWVJbnZhbGlkEAESFgoSV29ya3NwYWNlSWRJbnZhbGlkEAISGAoUQXBwQ29sb3JTdHlsZUludmFsaWQQAxIYChRXb3Jrc3BhY2VEZXNjSW52YWxpZBAEEhwKGEN1cnJlbnRXb3Jrc3BhY2VOb3RGb3VuZBAFEhAKDEFwcElkSW52YWxpZBAKEhIKDkFwcE5hbWVJbnZhbGlkEAsSEwoPVmlld05hbWVJbnZhbGlkEBQSGAoUVmlld1RodW1ibmFpbEludmFsaWQQFRIRCg1WaWV3SWRJbnZhbGlkEBYSEwoPVmlld0Rlc2NJbnZhbGlkEBcSEwoPVmlld0RhdGFJbnZhbGlkEBgSEQoNVXNlcklkSXNFbXB0eRBkEhQKEFVzZXJVbmF1dGhvcml6ZWQQZRISCg1JbnRlcm5hbEVycm9yEOgHEhMKDlJlY29yZE5vdEZvdW5kEOkH');
+final $typed_data.Uint8List errorCodeDescriptor = $convert.base64Decode('CglFcnJvckNvZGUSGAoUV29ya3NwYWNlTmFtZUludmFsaWQQABIWChJXb3Jrc3BhY2VJZEludmFsaWQQARIYChRBcHBDb2xvclN0eWxlSW52YWxpZBACEhgKFFdvcmtzcGFjZURlc2NJbnZhbGlkEAMSEAoMQXBwSWRJbnZhbGlkEAoSEgoOQXBwTmFtZUludmFsaWQQCxITCg9WaWV3TmFtZUludmFsaWQQFBIYChRWaWV3VGh1bWJuYWlsSW52YWxpZBAVEhEKDVZpZXdJZEludmFsaWQQFhITCg9WaWV3RGVzY0ludmFsaWQQFxITCg9WaWV3RGF0YUludmFsaWQQGBIUChBVc2VyVW5hdXRob3JpemVkEGQSEgoNSW50ZXJuYWxFcnJvchDoBxITCg5SZWNvcmROb3RGb3VuZBDpBw==');
 @$core.Deprecated('Use workspaceErrorDescriptor instead')
 const WorkspaceError$json = const {
   '1': 'WorkspaceError',

@@ -1,6 +1,6 @@
 use crate::{
     entities::{SignInParams, SignUpParams, UpdateUserParams, UserProfile},
-    errors::{ErrorBuilder, ErrorCode, UserError},
+    errors::{ErrorCode, UserError},
     services::user::database::UserDB,
     sql_tables::{UserTable, UserTableChangeset},
 };
@@ -214,7 +214,7 @@ impl UserSession {
         }
 
         match session {
-            None => Err(ErrorBuilder::new(ErrorCode::UserUnauthorized).build()),
+            None => Err(UserError::unauthorized()),
             Some(session) => Ok(session),
         }
     }

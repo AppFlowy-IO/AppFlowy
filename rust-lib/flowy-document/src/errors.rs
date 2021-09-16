@@ -14,10 +14,39 @@ pub struct DocError {
     pub msg: String,
 }
 
+macro_rules! static_doc_error {
+    ($name:ident, $status:expr) => {
+        #[allow(non_snake_case, missing_docs)]
+        pub fn $name() -> DocError {
+            DocError {
+                code: $status,
+                msg: format!("{}", $status),
+            }
+        }
+    };
+}
+
 impl DocError {
     fn new(code: ErrorCode, msg: &str) -> Self { Self { code, msg: msg.to_owned() } }
 
+    pub fn context<T: Debug>(mut self, error: T) -> Self {
+        self.msg = format!("{:?}", error);
+        self
+    }
+
     pub fn is_record_not_found(&self) -> bool { self.code == ErrorCode::DocNotfound }
+
+    static_doc_error!(id_invalid, ErrorCode::DocIdInvalid);
+    static_doc_error!(internal, ErrorCode::InternalError);
+    static_doc_error!(not_found, ErrorCode::DocNotfound);
+    static_doc_error!(unauthorized, ErrorCode::UserUnauthorized);
+}
+
+pub fn internal_error<T>(e: T) -> DocError
+where
+    T: std::fmt::Debug,
+{
+    DocError::internal().context(e)
 }
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
@@ -42,14 +71,14 @@ impl std::default::Default for ErrorCode {
 impl std::convert::From<flowy_database::Error> for DocError {
     fn from(error: flowy_database::Error) -> Self {
         match error {
-            flowy_database::Error::NotFound => ErrorBuilder::new(ErrorCode::DocNotfound).error(error).build(),
-            _ => ErrorBuilder::new(ErrorCode::InternalError).error(error).build(),
+            flowy_database::Error::NotFound => DocError::not_found().context(error),
+            _ => DocError::internal().context(error),
         }
     }
 }
 
 impl std::convert::From<flowy_ot::errors::OTError> for DocError {
-    fn from(error: flowy_ot::errors::OTError) -> Self { ErrorBuilder::new(ErrorCode::InternalError).error(error).build() }
+    fn from(error: flowy_ot::errors::OTError) -> Self { DocError::internal().context(error) }
 }
 
 // impl std::convert::From<::r2d2::Error> for DocError {
@@ -63,11 +92,12 @@ impl std::convert::From<flowy_ot::errors::OTError> for DocError {
 impl std::convert::From<flowy_net::errors::ServerError> for DocError {
     fn from(error: ServerError) -> Self {
         let code = server_error_to_doc_error(error.code);
-        ErrorBuilder::new(code).error(error.msg).build()
+        DocError::new(code, &error.msg)
     }
 }
 
 use flowy_net::errors::ErrorCode as ServerErrorCode;
+use std::fmt::Debug;
 
 fn server_error_to_doc_error(code: ServerErrorCode) -> ErrorCode {
     match code {
@@ -86,9 +116,4 @@ impl flowy_dispatch::Error for DocError {
 
 impl fmt::Display for DocError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { write!(f, "{:?}: {}", &self.code, &self.msg) }
-}
-
-pub type ErrorBuilder = flowy_infra::errors::Builder<ErrorCode, DocError>;
-impl flowy_infra::errors::Build<ErrorCode> for DocError {
-    fn build(code: ErrorCode, msg: String) -> Self { DocError::new(code, &msg) }
 }

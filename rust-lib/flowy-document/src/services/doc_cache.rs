@@ -1,10 +1,6 @@
-use crate::errors::{DocError, ErrorBuilder, ErrorCode};
+use crate::errors::DocError;
 use dashmap::DashMap;
-use flowy_ot::{
-    client::{Document, FlowyDoc},
-    core::Delta,
-    errors::OTError,
-};
+use flowy_ot::{client::Document, core::Delta, errors::OTError};
 use std::convert::TryInto;
 use tokio::sync::RwLock;
 
@@ -65,7 +61,7 @@ impl DocCache {
         match self.inner.get(&doc_id) {
             None => Err(doc_not_found()),
             Some(doc_info) => {
-                let mut write_guard = doc_info.read().await;
+                let write_guard = doc_info.read().await;
                 let doc = &(*write_guard).document;
                 Ok(Some(doc.to_json()))
             },
@@ -82,8 +78,4 @@ impl DocCache {
     }
 }
 
-fn doc_not_found() -> DocError {
-    ErrorBuilder::new(ErrorCode::DocNotfound)
-        .msg("Doc is close or you should call open first")
-        .build()
-}
+fn doc_not_found() -> DocError { DocError::not_found().context("Doc is close or you should call open first") }

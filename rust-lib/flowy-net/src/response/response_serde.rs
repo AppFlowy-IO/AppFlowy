@@ -49,7 +49,7 @@
 //                                 return
 // Err(de::Error::duplicate_field("data"));                             }
 //                             data = match
-// MapAccess::next_value::<DeserializeWith<T>>(&mut map) {                      
+// MapAccess::next_value::<DeserializeWith<T>>(&mut map) {
 // Ok(wrapper) => wrapper.value,                                 Err(err) =>
 // return Err(err),                             };
 //                         },
@@ -58,7 +58,7 @@
 //                 }
 //                 let msg = msg.ok_or_else(||
 // de::Error::missing_field("msg"))?;                 let code =
-// code.ok_or_else(|| de::Error::missing_field("code"))?;                 
+// code.ok_or_else(|| de::Error::missing_field("code"))?;
 // Ok(Self::Value::new(data, msg, code))             }
 //         }
 //         const FIELDS: &'static [&'static str] = &["msg", "code", "data"];

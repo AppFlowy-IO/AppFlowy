@@ -117,9 +117,7 @@ impl WorkspaceController {
             set_current_workspace(&workspace.id);
             Ok(workspace)
         } else {
-            return Err(ErrorBuilder::new(ErrorCode::WorkspaceIdInvalid)
-                .msg("Opened workspace id should not be empty")
-                .build());
+            return Err(WorkspaceError::workspace_id().context("Opened workspace id should not be empty"));
         }
     }
 
@@ -172,9 +170,9 @@ impl WorkspaceController {
 
     fn read_local_workspace(&self, workspace_id: String, user_id: &str, conn: &SqliteConnection) -> Result<Workspace, WorkspaceError> {
         // Opti: fetch single workspace from local db
-        let mut repeated_workspace = self.read_local_workspaces(Some(workspace_id), user_id, conn)?;
+        let mut repeated_workspace = self.read_local_workspaces(Some(workspace_id.clone()), user_id, conn)?;
         if repeated_workspace.is_empty() {
-            return Err(ErrorBuilder::new(ErrorCode::RecordNotFound).build());
+            return Err(WorkspaceError::not_found().context(format!("{} workspace not found", workspace_id)));
         }
 
         debug_assert_eq!(repeated_workspace.len(), 1);
@@ -294,7 +292,7 @@ fn set_current_workspace(workspace: &str) { KV::set_str(CURRENT_WORKSPACE_ID, wo
 
 fn get_current_workspace() -> Result<String, WorkspaceError> {
     match KV::get_str(CURRENT_WORKSPACE_ID) {
-        None => Err(ErrorBuilder::new(ErrorCode::CurrentWorkspaceNotFound).build()),
+        None => Err(WorkspaceError::not_found().context("Current workspace not found or should call open workspace first")),
         Some(workspace_id) => Ok(workspace_id),
     }
 }

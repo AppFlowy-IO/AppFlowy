@@ -51,7 +51,7 @@ impl UserError {
         self.code
     }
     pub fn clear_code(&mut self) {
-        self.code = ErrorCode::Unknown;
+        self.code = ErrorCode::EmailIsEmpty;
     }
 
     // Param is passed by value, moved
@@ -113,7 +113,7 @@ impl ::protobuf::Message for UserError {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if self.code != ErrorCode::Unknown {
+        if self.code != ErrorCode::EmailIsEmpty {
             my_size += ::protobuf::rt::enum_size(1, self.code);
         }
         if !self.msg.is_empty() {
@@ -125,7 +125,7 @@ impl ::protobuf::Message for UserError {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if self.code != ErrorCode::Unknown {
+        if self.code != ErrorCode::EmailIsEmpty {
             os.write_enum(1, ::protobuf::ProtobufEnum::value(&self.code))?;
         }
         if !self.msg.is_empty() {
@@ -195,7 +195,7 @@ impl ::protobuf::Message for UserError {
 
 impl ::protobuf::Clear for UserError {
     fn clear(&mut self) {
-        self.code = ErrorCode::Unknown;
+        self.code = ErrorCode::EmailIsEmpty;
         self.msg.clear();
         self.unknown_fields.clear();
     }
@@ -215,26 +215,20 @@ impl ::protobuf::reflect::ProtobufValue for UserError {
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum ErrorCode {
-    Unknown = 0,
-    UserDatabaseInitFailed = 1,
-    AcquireWriteLockedFailed = 2,
-    AcquireReadLockedFailed = 3,
-    UserDatabaseDidNotMatch = 4,
-    EmailIsEmpty = 20,
-    EmailFormatInvalid = 21,
-    EmailAlreadyExists = 22,
-    PasswordIsEmpty = 30,
-    PasswordTooLong = 31,
-    PasswordContainsForbidCharacters = 32,
-    PasswordFormatInvalid = 33,
-    PasswordNotMatch = 34,
-    UserNameTooLong = 40,
-    ContainForbiddenCharacters = 41,
-    UserNameIsEmpty = 42,
-    UserWorkspaceInvalid = 50,
-    UserIdInvalid = 51,
-    UserUnauthorized = 54,
-    UserNotExist = 55,
+    EmailIsEmpty = 0,
+    EmailFormatInvalid = 1,
+    EmailAlreadyExists = 2,
+    PasswordIsEmpty = 10,
+    PasswordTooLong = 11,
+    PasswordContainsForbidCharacters = 12,
+    PasswordFormatInvalid = 13,
+    PasswordNotMatch = 14,
+    UserNameTooLong = 20,
+    UserNameContainForbiddenCharacters = 21,
+    UserNameIsEmpty = 22,
+    UserIdInvalid = 23,
+    UserUnauthorized = 24,
+    UserNotExist = 25,
     InternalError = 100,
 }
 
@@ -245,26 +239,20 @@ impl ::protobuf::ProtobufEnum for ErrorCode {
 
     fn from_i32(value: i32) -> ::std::option::Option<ErrorCode> {
         match value {
-            0 => ::std::option::Option::Some(ErrorCode::Unknown),
-            1 => ::std::option::Option::Some(ErrorCode::UserDatabaseInitFailed),
-            2 => ::std::option::Option::Some(ErrorCode::AcquireWriteLockedFailed),
-            3 => ::std::option::Option::Some(ErrorCode::AcquireReadLockedFailed),
-            4 => ::std::option::Option::Some(ErrorCode::UserDatabaseDidNotMatch),
-            20 => ::std::option::Option::Some(ErrorCode::EmailIsEmpty),
-            21 => ::std::option::Option::Some(ErrorCode::EmailFormatInvalid),
-            22 => ::std::option::Option::Some(ErrorCode::EmailAlreadyExists),
-            30 => ::std::option::Option::Some(ErrorCode::PasswordIsEmpty),
-            31 => ::std::option::Option::Some(ErrorCode::PasswordTooLong),
-            32 => ::std::option::Option::Some(ErrorCode::PasswordContainsForbidCharacters),
-            33 => ::std::option::Option::Some(ErrorCode::PasswordFormatInvalid),
-            34 => ::std::option::Option::Some(ErrorCode::PasswordNotMatch),
-            40 => ::std::option::Option::Some(ErrorCode::UserNameTooLong),
-            41 => ::std::option::Option::Some(ErrorCode::ContainForbiddenCharacters),
-            42 => ::std::option::Option::Some(ErrorCode::UserNameIsEmpty),
-            50 => ::std::option::Option::Some(ErrorCode::UserWorkspaceInvalid),
-            51 => ::std::option::Option::Some(ErrorCode::UserIdInvalid),
-            54 => ::std::option::Option::Some(ErrorCode::UserUnauthorized),
-            55 => ::std::option::Option::Some(ErrorCode::UserNotExist),
+            0 => ::std::option::Option::Some(ErrorCode::EmailIsEmpty),
+            1 => ::std::option::Option::Some(ErrorCode::EmailFormatInvalid),
+            2 => ::std::option::Option::Some(ErrorCode::EmailAlreadyExists),
+            10 => ::std::option::Option::Some(ErrorCode::PasswordIsEmpty),
+            11 => ::std::option::Option::Some(ErrorCode::PasswordTooLong),
+            12 => ::std::option::Option::Some(ErrorCode::PasswordContainsForbidCharacters),
+            13 => ::std::option::Option::Some(ErrorCode::PasswordFormatInvalid),
+            14 => ::std::option::Option::Some(ErrorCode::PasswordNotMatch),
+            20 => ::std::option::Option::Some(ErrorCode::UserNameTooLong),
+            21 => ::std::option::Option::Some(ErrorCode::UserNameContainForbiddenCharacters),
+            22 => ::std::option::Option::Some(ErrorCode::UserNameIsEmpty),
+            23 => ::std::option::Option::Some(ErrorCode::UserIdInvalid),
+            24 => ::std::option::Option::Some(ErrorCode::UserUnauthorized),
+            25 => ::std::option::Option::Some(ErrorCode::UserNotExist),
             100 => ::std::option::Option::Some(ErrorCode::InternalError),
             _ => ::std::option::Option::None
         }
@@ -272,11 +260,6 @@ impl ::protobuf::ProtobufEnum for ErrorCode {
 
     fn values() -> &'static [Self] {
         static values: &'static [ErrorCode] = &[
-            ErrorCode::Unknown,
-            ErrorCode::UserDatabaseInitFailed,
-            ErrorCode::AcquireWriteLockedFailed,
-            ErrorCode::AcquireReadLockedFailed,
-            ErrorCode::UserDatabaseDidNotMatch,
             ErrorCode::EmailIsEmpty,
             ErrorCode::EmailFormatInvalid,
             ErrorCode::EmailAlreadyExists,
@@ -286,9 +269,8 @@ impl ::protobuf::ProtobufEnum for ErrorCode {
             ErrorCode::PasswordFormatInvalid,
             ErrorCode::PasswordNotMatch,
             ErrorCode::UserNameTooLong,
-            ErrorCode::ContainForbiddenCharacters,
+            ErrorCode::UserNameContainForbiddenCharacters,
             ErrorCode::UserNameIsEmpty,
-            ErrorCode::UserWorkspaceInvalid,
             ErrorCode::UserIdInvalid,
             ErrorCode::UserUnauthorized,
             ErrorCode::UserNotExist,
@@ -310,7 +292,7 @@ impl ::std::marker::Copy for ErrorCode {
 
 impl ::std::default::Default for ErrorCode {
     fn default() -> Self {
-        ErrorCode::Unknown
+        ErrorCode::EmailIsEmpty
     }
 }
 
@@ -323,69 +305,54 @@ impl ::protobuf::reflect::ProtobufValue for ErrorCode {
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x0cerrors.proto\"=\n\tUserError\x12\x1e\n\x04code\x18\x01\x20\x01(\
     \x0e2\n.ErrorCodeR\x04code\x12\x10\n\x03msg\x18\x02\x20\x01(\tR\x03msg*\
-    \x81\x04\n\tErrorCode\x12\x0b\n\x07Unknown\x10\0\x12\x1a\n\x16UserDataba\
-    seInitFailed\x10\x01\x12\x1c\n\x18AcquireWriteLockedFailed\x10\x02\x12\
-    \x1b\n\x17AcquireReadLockedFailed\x10\x03\x12\x1b\n\x17UserDatabaseDidNo\
-    tMatch\x10\x04\x12\x10\n\x0cEmailIsEmpty\x10\x14\x12\x16\n\x12EmailForma\
-    tInvalid\x10\x15\x12\x16\n\x12EmailAlreadyExists\x10\x16\x12\x13\n\x0fPa\
-    sswordIsEmpty\x10\x1e\x12\x13\n\x0fPasswordTooLong\x10\x1f\x12$\n\x20Pas\
-    swordContainsForbidCharacters\x10\x20\x12\x19\n\x15PasswordFormatInvalid\
-    \x10!\x12\x14\n\x10PasswordNotMatch\x10\"\x12\x13\n\x0fUserNameTooLong\
-    \x10(\x12\x1e\n\x1aContainForbiddenCharacters\x10)\x12\x13\n\x0fUserName\
-    IsEmpty\x10*\x12\x18\n\x14UserWorkspaceInvalid\x102\x12\x11\n\rUserIdInv\
-    alid\x103\x12\x14\n\x10UserUnauthorized\x106\x12\x10\n\x0cUserNotExist\
-    \x107\x12\x11\n\rInternalError\x10dJ\x8d\x08\n\x06\x12\x04\0\0\x1c\x01\n\
-    \x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\
-    \n\x03\x04\0\x01\x12\x03\x02\x08\x11\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\
-    \x04\x17\n\x0c\n\x05\x04\0\x02\0\x06\x12\x03\x03\x04\r\n\x0c\n\x05\x04\0\
-    \x02\0\x01\x12\x03\x03\x0e\x12\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\
-    \x15\x16\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x13\n\x0c\n\x05\x04\0\
-    \x02\x01\x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\
-    \x0b\x0e\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x11\x12\n\n\n\x02\x05\
-    \0\x12\x04\x06\0\x1c\x01\n\n\n\x03\x05\0\x01\x12\x03\x06\x05\x0e\n\x0b\n\
-    \x04\x05\0\x02\0\x12\x03\x07\x04\x10\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\
-    \x07\x04\x0b\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x07\x0e\x0f\n\x0b\n\x04\
-    \x05\0\x02\x01\x12\x03\x08\x04\x1f\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\
-    \x08\x04\x1a\n\x0c\n\x05\x05\0\x02\x01\x02\x12\x03\x08\x1d\x1e\n\x0b\n\
-    \x04\x05\0\x02\x02\x12\x03\t\x04!\n\x0c\n\x05\x05\0\x02\x02\x01\x12\x03\
-    \t\x04\x1c\n\x0c\n\x05\x05\0\x02\x02\x02\x12\x03\t\x1f\x20\n\x0b\n\x04\
-    \x05\0\x02\x03\x12\x03\n\x04\x20\n\x0c\n\x05\x05\0\x02\x03\x01\x12\x03\n\
-    \x04\x1b\n\x0c\n\x05\x05\0\x02\x03\x02\x12\x03\n\x1e\x1f\n\x0b\n\x04\x05\
-    \0\x02\x04\x12\x03\x0b\x04\x20\n\x0c\n\x05\x05\0\x02\x04\x01\x12\x03\x0b\
-    \x04\x1b\n\x0c\n\x05\x05\0\x02\x04\x02\x12\x03\x0b\x1e\x1f\n\x0b\n\x04\
-    \x05\0\x02\x05\x12\x03\x0c\x04\x16\n\x0c\n\x05\x05\0\x02\x05\x01\x12\x03\
-    \x0c\x04\x10\n\x0c\n\x05\x05\0\x02\x05\x02\x12\x03\x0c\x13\x15\n\x0b\n\
-    \x04\x05\0\x02\x06\x12\x03\r\x04\x1c\n\x0c\n\x05\x05\0\x02\x06\x01\x12\
-    \x03\r\x04\x16\n\x0c\n\x05\x05\0\x02\x06\x02\x12\x03\r\x19\x1b\n\x0b\n\
-    \x04\x05\0\x02\x07\x12\x03\x0e\x04\x1c\n\x0c\n\x05\x05\0\x02\x07\x01\x12\
-    \x03\x0e\x04\x16\n\x0c\n\x05\x05\0\x02\x07\x02\x12\x03\x0e\x19\x1b\n\x0b\
-    \n\x04\x05\0\x02\x08\x12\x03\x0f\x04\x19\n\x0c\n\x05\x05\0\x02\x08\x01\
-    \x12\x03\x0f\x04\x13\n\x0c\n\x05\x05\0\x02\x08\x02\x12\x03\x0f\x16\x18\n\
-    \x0b\n\x04\x05\0\x02\t\x12\x03\x10\x04\x19\n\x0c\n\x05\x05\0\x02\t\x01\
-    \x12\x03\x10\x04\x13\n\x0c\n\x05\x05\0\x02\t\x02\x12\x03\x10\x16\x18\n\
-    \x0b\n\x04\x05\0\x02\n\x12\x03\x11\x04*\n\x0c\n\x05\x05\0\x02\n\x01\x12\
-    \x03\x11\x04$\n\x0c\n\x05\x05\0\x02\n\x02\x12\x03\x11')\n\x0b\n\x04\x05\
-    \0\x02\x0b\x12\x03\x12\x04\x1f\n\x0c\n\x05\x05\0\x02\x0b\x01\x12\x03\x12\
-    \x04\x19\n\x0c\n\x05\x05\0\x02\x0b\x02\x12\x03\x12\x1c\x1e\n\x0b\n\x04\
+    \xee\x02\n\tErrorCode\x12\x10\n\x0cEmailIsEmpty\x10\0\x12\x16\n\x12Email\
+    FormatInvalid\x10\x01\x12\x16\n\x12EmailAlreadyExists\x10\x02\x12\x13\n\
+    \x0fPasswordIsEmpty\x10\n\x12\x13\n\x0fPasswordTooLong\x10\x0b\x12$\n\
+    \x20PasswordContainsForbidCharacters\x10\x0c\x12\x19\n\x15PasswordFormat\
+    Invalid\x10\r\x12\x14\n\x10PasswordNotMatch\x10\x0e\x12\x13\n\x0fUserNam\
+    eTooLong\x10\x14\x12&\n\"UserNameContainForbiddenCharacters\x10\x15\x12\
+    \x13\n\x0fUserNameIsEmpty\x10\x16\x12\x11\n\rUserIdInvalid\x10\x17\x12\
+    \x14\n\x10UserUnauthorized\x10\x18\x12\x10\n\x0cUserNotExist\x10\x19\x12\
+    \x11\n\rInternalError\x10dJ\x97\x06\n\x06\x12\x04\0\0\x16\x01\n\x08\n\
+    \x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\
+    \x04\0\x01\x12\x03\x02\x08\x11\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\
+    \x17\n\x0c\n\x05\x04\0\x02\0\x06\x12\x03\x03\x04\r\n\x0c\n\x05\x04\0\x02\
+    \0\x01\x12\x03\x03\x0e\x12\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x15\
+    \x16\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x13\n\x0c\n\x05\x04\0\x02\
+    \x01\x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x0b\
+    \x0e\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x11\x12\n\n\n\x02\x05\0\
+    \x12\x04\x06\0\x16\x01\n\n\n\x03\x05\0\x01\x12\x03\x06\x05\x0e\n\x0b\n\
+    \x04\x05\0\x02\0\x12\x03\x07\x04\x15\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\
+    \x07\x04\x10\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x07\x13\x14\n\x0b\n\x04\
+    \x05\0\x02\x01\x12\x03\x08\x04\x1b\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\
+    \x08\x04\x16\n\x0c\n\x05\x05\0\x02\x01\x02\x12\x03\x08\x19\x1a\n\x0b\n\
+    \x04\x05\0\x02\x02\x12\x03\t\x04\x1b\n\x0c\n\x05\x05\0\x02\x02\x01\x12\
+    \x03\t\x04\x16\n\x0c\n\x05\x05\0\x02\x02\x02\x12\x03\t\x19\x1a\n\x0b\n\
+    \x04\x05\0\x02\x03\x12\x03\n\x04\x19\n\x0c\n\x05\x05\0\x02\x03\x01\x12\
+    \x03\n\x04\x13\n\x0c\n\x05\x05\0\x02\x03\x02\x12\x03\n\x16\x18\n\x0b\n\
+    \x04\x05\0\x02\x04\x12\x03\x0b\x04\x19\n\x0c\n\x05\x05\0\x02\x04\x01\x12\
+    \x03\x0b\x04\x13\n\x0c\n\x05\x05\0\x02\x04\x02\x12\x03\x0b\x16\x18\n\x0b\
+    \n\x04\x05\0\x02\x05\x12\x03\x0c\x04*\n\x0c\n\x05\x05\0\x02\x05\x01\x12\
+    \x03\x0c\x04$\n\x0c\n\x05\x05\0\x02\x05\x02\x12\x03\x0c')\n\x0b\n\x04\
+    \x05\0\x02\x06\x12\x03\r\x04\x1f\n\x0c\n\x05\x05\0\x02\x06\x01\x12\x03\r\
+    \x04\x19\n\x0c\n\x05\x05\0\x02\x06\x02\x12\x03\r\x1c\x1e\n\x0b\n\x04\x05\
+    \0\x02\x07\x12\x03\x0e\x04\x1a\n\x0c\n\x05\x05\0\x02\x07\x01\x12\x03\x0e\
+    \x04\x14\n\x0c\n\x05\x05\0\x02\x07\x02\x12\x03\x0e\x17\x19\n\x0b\n\x04\
+    \x05\0\x02\x08\x12\x03\x0f\x04\x19\n\x0c\n\x05\x05\0\x02\x08\x01\x12\x03\
+    \x0f\x04\x13\n\x0c\n\x05\x05\0\x02\x08\x02\x12\x03\x0f\x16\x18\n\x0b\n\
+    \x04\x05\0\x02\t\x12\x03\x10\x04,\n\x0c\n\x05\x05\0\x02\t\x01\x12\x03\
+    \x10\x04&\n\x0c\n\x05\x05\0\x02\t\x02\x12\x03\x10)+\n\x0b\n\x04\x05\0\
+    \x02\n\x12\x03\x11\x04\x19\n\x0c\n\x05\x05\0\x02\n\x01\x12\x03\x11\x04\
+    \x13\n\x0c\n\x05\x05\0\x02\n\x02\x12\x03\x11\x16\x18\n\x0b\n\x04\x05\0\
+    \x02\x0b\x12\x03\x12\x04\x17\n\x0c\n\x05\x05\0\x02\x0b\x01\x12\x03\x12\
+    \x04\x11\n\x0c\n\x05\x05\0\x02\x0b\x02\x12\x03\x12\x14\x16\n\x0b\n\x04\
     \x05\0\x02\x0c\x12\x03\x13\x04\x1a\n\x0c\n\x05\x05\0\x02\x0c\x01\x12\x03\
     \x13\x04\x14\n\x0c\n\x05\x05\0\x02\x0c\x02\x12\x03\x13\x17\x19\n\x0b\n\
-    \x04\x05\0\x02\r\x12\x03\x14\x04\x19\n\x0c\n\x05\x05\0\x02\r\x01\x12\x03\
-    \x14\x04\x13\n\x0c\n\x05\x05\0\x02\r\x02\x12\x03\x14\x16\x18\n\x0b\n\x04\
-    \x05\0\x02\x0e\x12\x03\x15\x04$\n\x0c\n\x05\x05\0\x02\x0e\x01\x12\x03\
-    \x15\x04\x1e\n\x0c\n\x05\x05\0\x02\x0e\x02\x12\x03\x15!#\n\x0b\n\x04\x05\
-    \0\x02\x0f\x12\x03\x16\x04\x19\n\x0c\n\x05\x05\0\x02\x0f\x01\x12\x03\x16\
-    \x04\x13\n\x0c\n\x05\x05\0\x02\x0f\x02\x12\x03\x16\x16\x18\n\x0b\n\x04\
-    \x05\0\x02\x10\x12\x03\x17\x04\x1e\n\x0c\n\x05\x05\0\x02\x10\x01\x12\x03\
-    \x17\x04\x18\n\x0c\n\x05\x05\0\x02\x10\x02\x12\x03\x17\x1b\x1d\n\x0b\n\
-    \x04\x05\0\x02\x11\x12\x03\x18\x04\x17\n\x0c\n\x05\x05\0\x02\x11\x01\x12\
-    \x03\x18\x04\x11\n\x0c\n\x05\x05\0\x02\x11\x02\x12\x03\x18\x14\x16\n\x0b\
-    \n\x04\x05\0\x02\x12\x12\x03\x19\x04\x1a\n\x0c\n\x05\x05\0\x02\x12\x01\
-    \x12\x03\x19\x04\x14\n\x0c\n\x05\x05\0\x02\x12\x02\x12\x03\x19\x17\x19\n\
-    \x0b\n\x04\x05\0\x02\x13\x12\x03\x1a\x04\x16\n\x0c\n\x05\x05\0\x02\x13\
-    \x01\x12\x03\x1a\x04\x10\n\x0c\n\x05\x05\0\x02\x13\x02\x12\x03\x1a\x13\
-    \x15\n\x0b\n\x04\x05\0\x02\x14\x12\x03\x1b\x04\x18\n\x0c\n\x05\x05\0\x02\
-    \x14\x01\x12\x03\x1b\x04\x11\n\x0c\n\x05\x05\0\x02\x14\x02\x12\x03\x1b\
-    \x14\x17b\x06proto3\
+    \x04\x05\0\x02\r\x12\x03\x14\x04\x16\n\x0c\n\x05\x05\0\x02\r\x01\x12\x03\
+    \x14\x04\x10\n\x0c\n\x05\x05\0\x02\r\x02\x12\x03\x14\x13\x15\n\x0b\n\x04\
+    \x05\0\x02\x0e\x12\x03\x15\x04\x18\n\x0c\n\x05\x05\0\x02\x0e\x01\x12\x03\
+    \x15\x04\x11\n\x0c\n\x05\x05\0\x02\x0e\x02\x12\x03\x15\x14\x17b\x06proto\
+    3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

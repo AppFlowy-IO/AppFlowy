@@ -1,7 +1,4 @@
-use crate::{
-    entities::workspace::parser::WorkspaceId,
-    errors::{ErrorBuilder, ErrorCode, WorkspaceError},
-};
+use crate::{entities::workspace::parser::WorkspaceId, errors::WorkspaceError};
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
 
@@ -22,7 +19,7 @@ impl TryInto<DeleteWorkspaceParams> for DeleteWorkspaceRequest {
 
     fn try_into(self) -> Result<DeleteWorkspaceParams, Self::Error> {
         let workspace_id = WorkspaceId::parse(self.workspace_id)
-            .map_err(|e| ErrorBuilder::new(ErrorCode::WorkspaceIdInvalid).msg(e).build())?
+            .map_err(|e| WorkspaceError::workspace_id().context(e))?
             .0;
 
         Ok(DeleteWorkspaceParams { workspace_id })

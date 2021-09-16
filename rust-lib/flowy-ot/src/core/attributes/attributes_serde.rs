@@ -1,6 +1,6 @@
 #[rustfmt::skip]
 use crate::core::AttributeValue;
-use crate::core::{Attribute, AttributeKey, Attributes};
+use crate::core::{AttributeKey, Attributes};
 use serde::{
     de,
     de::{MapAccess, Visitor},
@@ -10,7 +10,7 @@ use serde::{
     Serialize,
     Serializer,
 };
-use std::{collections::HashMap, fmt, marker::PhantomData, str::ParseBoolError};
+use std::fmt;
 
 impl Serialize for Attributes {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

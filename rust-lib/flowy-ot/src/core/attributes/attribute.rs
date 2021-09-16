@@ -2,7 +2,7 @@
 
 use crate::{block_attribute, core::Attributes, ignore_attribute, inline_attribute, list_attribute};
 use lazy_static::lazy_static;
-use serde::{Deserialize, Serialize};
+
 use std::{collections::HashSet, fmt, fmt::Formatter, iter::FromIterator};
 use strum_macros::Display;
 #[derive(Debug, Clone)]

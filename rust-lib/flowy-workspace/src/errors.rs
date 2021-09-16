@@ -4,7 +4,7 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_dispatch::prelude::{EventResponse, ResponseBuilder};
 use flowy_document::errors::DocError;
 use flowy_net::errors::ErrorCode as ServerErrorCode;
-use std::{convert::TryInto, fmt};
+use std::{convert::TryInto, fmt, fmt::Debug};
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct WorkspaceError {
@@ -15,29 +15,55 @@ pub struct WorkspaceError {
     pub msg: String,
 }
 
+macro_rules! static_workspace_error {
+    ($name:ident, $status:expr) => {
+        #[allow(non_snake_case, missing_docs)]
+        pub fn $name() -> WorkspaceError {
+            WorkspaceError {
+                code: $status,
+                msg: format!("{}", $status),
+            }
+        }
+    };
+}
+
 impl WorkspaceError {
     pub fn new(code: ErrorCode, msg: &str) -> Self { Self { code, msg: msg.to_owned() } }
+
+    static_workspace_error!(workspace_name, ErrorCode::WorkspaceNameInvalid);
+    static_workspace_error!(workspace_id, ErrorCode::WorkspaceIdInvalid);
+    static_workspace_error!(color_style, ErrorCode::AppColorStyleInvalid);
+    static_workspace_error!(workspace_desc, ErrorCode::WorkspaceDescInvalid);
+    static_workspace_error!(app_name, ErrorCode::AppNameInvalid);
+    static_workspace_error!(app_id, ErrorCode::AppIdInvalid);
+    static_workspace_error!(view_name, ErrorCode::ViewNameInvalid);
+    static_workspace_error!(view_thumbnail, ErrorCode::ViewThumbnailInvalid);
+    static_workspace_error!(view_id, ErrorCode::ViewIdInvalid);
+    static_workspace_error!(view_desc, ErrorCode::ViewDescInvalid);
+    static_workspace_error!(view_data, ErrorCode::ViewDataInvalid);
+    static_workspace_error!(unauthorized, ErrorCode::UserUnauthorized);
+    static_workspace_error!(internal, ErrorCode::InternalError);
+    static_workspace_error!(not_found, ErrorCode::RecordNotFound);
+
+    pub fn context<T: Debug>(mut self, error: T) -> Self {
+        self.msg = format!("{:?}", error);
+        self
+    }
 }
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
 pub enum ErrorCode {
-    #[display(fmt = "Unknown")]
-    Unknown              = 0,
-
     #[display(fmt = "Workspace name is invalid")]
-    WorkspaceNameInvalid = 1,
+    WorkspaceNameInvalid = 0,
 
     #[display(fmt = "Workspace id is invalid")]
-    WorkspaceIdInvalid   = 2,
+    WorkspaceIdInvalid   = 1,
 
     #[display(fmt = "Color style of the App is invalid")]
-    AppColorStyleInvalid = 3,
+    AppColorStyleInvalid = 2,
 
     #[display(fmt = "Workspace desc is invalid")]
-    WorkspaceDescInvalid = 4,
-
-    #[display(fmt = "Current workspace not found")]
-    CurrentWorkspaceNotFound = 5,
+    WorkspaceDescInvalid = 3,
 
     #[display(fmt = "Id of the App  is invalid")]
     AppIdInvalid         = 10,
@@ -60,11 +86,8 @@ pub enum ErrorCode {
     #[display(fmt = "View data is invalid")]
     ViewDataInvalid      = 24,
 
-    #[display(fmt = "UserIn is empty")]
-    UserIdIsEmpty        = 100,
-
     #[display(fmt = "User unauthorized")]
-    UserUnauthorized     = 101,
+    UserUnauthorized     = 100,
 
     #[display(fmt = "Server error")]
     InternalError        = 1000,
@@ -73,22 +96,22 @@ pub enum ErrorCode {
 }
 
 impl std::default::Default for ErrorCode {
-    fn default() -> Self { ErrorCode::Unknown }
+    fn default() -> Self { ErrorCode::InternalError }
 }
 
 impl std::convert::From<flowy_document::errors::DocError> for WorkspaceError {
-    fn from(error: DocError) -> Self { ErrorBuilder::new(ErrorCode::InternalError).error(error).build() }
+    fn from(error: DocError) -> Self { WorkspaceError::internal().context(error) }
 }
 
 impl std::convert::From<flowy_net::errors::ServerError> for WorkspaceError {
     fn from(error: flowy_net::errors::ServerError) -> Self {
         let code = server_error_to_workspace_error(error.code);
-        ErrorBuilder::new(code).error(error.msg).build()
+        WorkspaceError::new(code, &error.msg)
     }
 }
 
 impl std::convert::From<flowy_database::Error> for WorkspaceError {
-    fn from(error: flowy_database::Error) -> Self { ErrorBuilder::new(ErrorCode::InternalError).error(error).build() }
+    fn from(error: flowy_database::Error) -> Self { WorkspaceError::internal().context(error) }
 }
 
 impl flowy_dispatch::Error for WorkspaceError {
@@ -100,15 +123,6 @@ impl flowy_dispatch::Error for WorkspaceError {
 
 impl fmt::Display for WorkspaceError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { write!(f, "{:?}: {}", &self.code, &self.msg) }
-}
-
-pub type ErrorBuilder = flowy_infra::errors::Builder<ErrorCode, WorkspaceError>;
-
-impl flowy_infra::errors::Build<ErrorCode> for WorkspaceError {
-    fn build(code: ErrorCode, msg: String) -> Self {
-        let msg = if msg.is_empty() { format!("{}", code) } else { msg };
-        WorkspaceError::new(code, &msg)
-    }
 }
 
 fn server_error_to_workspace_error(code: ServerErrorCode) -> ErrorCode {

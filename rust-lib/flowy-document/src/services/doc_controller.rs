@@ -1,12 +1,13 @@
 use crate::{
     entities::doc::{CreateDocParams, Doc, QueryDocParams, SaveDocParams},
-    errors::{DocError, ErrorBuilder, ErrorCode},
+    errors::DocError,
     module::DocumentUser,
     services::server::Server,
     sql_tables::doc::{DocTable, DocTableChangeset, DocTableSql},
 };
 use flowy_database::{ConnectionPool, SqliteConnection};
 
+use crate::errors::internal_error;
 use std::sync::Arc;
 use tokio::task::JoinHandle;
 
@@ -86,10 +87,10 @@ impl DocController {
 
         Ok(tokio::spawn(async move {
             match server.read_doc(&token, params).await? {
-                None => Err(ErrorBuilder::new(ErrorCode::DocNotfound).build()),
+                None => Err(DocError::not_found()),
                 Some(doc) => {
                     let doc_table = DocTable::new(doc.clone());
-                    let _ = sql.create_doc_table(doc_table, &*(pool.get().unwrap()))?;
+                    let _ = sql.create_doc_table(doc_table, &*(pool.get().map_err(internal_error)?))?;
                     // TODO: notify
                     Ok(doc)
                 },
@@ -101,7 +102,7 @@ impl DocController {
     async fn sync_read_doc_from_server(&self, params: QueryDocParams) -> Result<Doc, DocError> {
         let token = self.user.token()?;
         match self.server.read_doc(&token, params).await? {
-            None => Err(ErrorBuilder::new(ErrorCode::DocNotfound).build()),
+            None => Err(DocError::not_found()),
             Some(doc) => Ok(doc),
         }
     }
@@ -123,7 +124,7 @@ impl DocController {
     }
 
     fn _open(&self, params: QueryDocParams, pool: Arc<ConnectionPool>) -> Result<Doc, DocError> {
-        let doc_table = self.sql.read_doc_table(&params.doc_id, &*(pool.get().unwrap()))?;
+        let doc_table = self.sql.read_doc_table(&params.doc_id, &*(pool.get().map_err(internal_error)?))?;
         let doc: Doc = doc_table.into();
         let _ = self.read_doc_from_server(params, pool.clone())?;
         Ok(doc)
@@ -137,11 +138,4 @@ impl DocController {
             Err(error)
         }
     }
-}
-
-fn internal_error<T>(e: T) -> DocError
-where
-    T: std::fmt::Debug,
-{
-    ErrorBuilder::new(ErrorCode::InternalError).error(e).build()
 }

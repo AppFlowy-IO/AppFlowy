@@ -3,7 +3,7 @@ use std::{fmt::Debug, marker::PhantomData};
 pub trait Build<C> {
     fn build(code: C, msg: String) -> Self;
 }
-
+#[allow(dead_code)]
 pub struct Builder<C, O> {
     pub code: C,
     pub msg: Option<String>,

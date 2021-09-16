@@ -34,7 +34,7 @@ pub struct UserProfile {
 
 use crate::{
     entities::parser::{UserEmail, UserId, UserName, UserPassword},
-    errors::{ErrorBuilder, ErrorCode, UserError},
+    errors::UserError,
     sql_tables::UserTable,
 };
 use std::convert::TryInto;
@@ -133,23 +133,21 @@ impl TryInto<UpdateUserParams> for UpdateUserRequest {
     type Error = UserError;
 
     fn try_into(self) -> Result<UpdateUserParams, Self::Error> {
-        let id = UserId::parse(self.id)
-            .map_err(|e| ErrorBuilder::new(ErrorCode::UserIdInvalid).msg(e).build())?
-            .0;
+        let id = UserId::parse(self.id).map_err(|e| UserError::user_id().context(e))?.0;
 
         let name = match self.name {
             None => None,
-            Some(name) => Some(UserName::parse(name).map_err(|e| ErrorBuilder::new(e).build())?.0),
+            Some(name) => Some(UserName::parse(name).map_err(|e| UserError::code(e))?.0),
         };
 
         let email = match self.email {
             None => None,
-            Some(email) => Some(UserEmail::parse(email).map_err(|e| ErrorBuilder::new(e).build())?.0),
+            Some(email) => Some(UserEmail::parse(email).map_err(|e| UserError::code(e))?.0),
         };
 
         let password = match self.password {
             None => None,
-            Some(password) => Some(UserPassword::parse(password).map_err(|e| ErrorBuilder::new(e).build())?.0),
+            Some(password) => Some(UserPassword::parse(password).map_err(|e| UserError::code(e))?.0),
         };
 
         Ok(UpdateUserParams { id, name, email, password })

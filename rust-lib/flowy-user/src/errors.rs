@@ -14,86 +14,111 @@ pub struct UserError {
     pub msg: String,
 }
 
+macro_rules! static_user_error {
+    ($name:ident, $status:expr) => {
+        #[allow(non_snake_case, missing_docs)]
+        pub fn $name() -> UserError {
+            UserError {
+                code: $status,
+                msg: format!("{}", $status),
+            }
+        }
+    };
+}
+
 impl UserError {
     pub(crate) fn new(code: ErrorCode, msg: &str) -> Self { Self { code, msg: msg.to_owned() } }
+
+    pub(crate) fn code(code: ErrorCode) -> Self { Self { code, msg: "".to_owned() } }
+
+    pub fn context<T: Debug>(mut self, error: T) -> Self {
+        self.msg = format!("{:?}", error);
+        self
+    }
+
+    static_user_error!(email_empty, ErrorCode::EmailIsEmpty);
+    static_user_error!(email_format, ErrorCode::EmailFormatInvalid);
+    static_user_error!(email_exist, ErrorCode::EmailAlreadyExists);
+    static_user_error!(password_empty, ErrorCode::PasswordIsEmpty);
+    static_user_error!(passworkd_too_long, ErrorCode::PasswordTooLong);
+    static_user_error!(password_forbid_char, ErrorCode::PasswordContainsForbidCharacters);
+    static_user_error!(password_format, ErrorCode::PasswordFormatInvalid);
+    static_user_error!(password_not_match, ErrorCode::PasswordNotMatch);
+    static_user_error!(name_too_long, ErrorCode::UserNameTooLong);
+    static_user_error!(name_forbid_char, ErrorCode::UserNameContainForbiddenCharacters);
+    static_user_error!(name_empty, ErrorCode::UserNameIsEmpty);
+    static_user_error!(user_id, ErrorCode::UserIdInvalid);
+    static_user_error!(unauthorized, ErrorCode::UserUnauthorized);
+    static_user_error!(user_not_exist, ErrorCode::UserNotExist);
+    static_user_error!(internal, ErrorCode::InternalError);
 }
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
 pub enum ErrorCode {
-    #[display(fmt = "Unknown")]
-    Unknown              = 0,
-    #[display(fmt = "Database init failed")]
-    UserDatabaseInitFailed = 1,
-    #[display(fmt = "Acquire database write lock failed")]
-    AcquireWriteLockedFailed = 2,
-    #[display(fmt = "Acquire database read lock failed")]
-    AcquireReadLockedFailed = 3,
-    #[display(fmt = "Opening database is not belonging to the current user")]
-    UserDatabaseDidNotMatch = 4,
-
     #[display(fmt = "Email can not be empty or whitespace")]
-    EmailIsEmpty         = 20,
+    EmailIsEmpty       = 0,
     #[display(fmt = "Email format is not valid")]
-    EmailFormatInvalid   = 21,
+    EmailFormatInvalid = 1,
     #[display(fmt = "Email already exists")]
-    EmailAlreadyExists   = 22,
+    EmailAlreadyExists = 2,
     #[display(fmt = "Password can not be empty or whitespace")]
-    PasswordIsEmpty      = 30,
+    PasswordIsEmpty    = 10,
     #[display(fmt = "Password format too long")]
-    PasswordTooLong      = 31,
+    PasswordTooLong    = 11,
     #[display(fmt = "Password contains forbidden characters.")]
-    PasswordContainsForbidCharacters = 32,
+    PasswordContainsForbidCharacters = 12,
     #[display(fmt = "Password should contain a minimum of 6 characters with 1 special 1 letter and 1 numeric")]
-    PasswordFormatInvalid = 33,
+    PasswordFormatInvalid = 13,
     #[display(fmt = "Password not match")]
-    PasswordNotMatch     = 34,
-
+    PasswordNotMatch   = 14,
     #[display(fmt = "User name is too long")]
-    UserNameTooLong      = 40,
+    UserNameTooLong    = 20,
     #[display(fmt = "User name contain forbidden characters")]
-    ContainForbiddenCharacters = 41,
+    UserNameContainForbiddenCharacters = 21,
     #[display(fmt = "User name can not be empty or whitespace")]
-    UserNameIsEmpty      = 42,
-    #[display(fmt = "User workspace is invalid")]
-    UserWorkspaceInvalid = 50,
+    UserNameIsEmpty    = 22,
     #[display(fmt = "User id is invalid")]
-    UserIdInvalid        = 51,
+    UserIdInvalid      = 23,
     #[display(fmt = "User token is invalid")]
-    UserUnauthorized     = 54,
+    UserUnauthorized   = 24,
     #[display(fmt = "User not exist")]
-    UserNotExist         = 55,
+    UserNotExist       = 25,
 
     #[display(fmt = "Internal error")]
-    InternalError        = 100,
+    InternalError      = 100,
+}
+
+impl std::convert::Into<UserError> for ErrorCode {
+    fn into(self) -> UserError { UserError::new(self, "") }
 }
 
 impl std::default::Default for ErrorCode {
-    fn default() -> Self { ErrorCode::Unknown }
+    fn default() -> Self { ErrorCode::InternalError }
 }
 
 impl std::convert::From<flowy_database::Error> for UserError {
     fn from(error: flowy_database::Error) -> Self {
         match error {
-            flowy_database::Error::NotFound => ErrorBuilder::new(ErrorCode::UserNotExist).error(error).build(),
-            _ => ErrorBuilder::new(ErrorCode::InternalError).error(error).build(),
+            flowy_database::Error::NotFound => UserError::user_not_exist().context(error),
+            _ => UserError::internal().context(error),
         }
     }
 }
 
 impl std::convert::From<::r2d2::Error> for UserError {
-    fn from(error: r2d2::Error) -> Self { ErrorBuilder::new(ErrorCode::InternalError).error(error).build() }
+    fn from(error: r2d2::Error) -> Self { UserError::internal().context(error) }
 }
 
 // use diesel::result::{Error, DatabaseErrorKind};
 // use flowy_sqlite::ErrorKind;
 impl std::convert::From<flowy_sqlite::Error> for UserError {
-    fn from(error: flowy_sqlite::Error) -> Self { ErrorBuilder::new(ErrorCode::InternalError).error(error).build() }
+    fn from(error: flowy_sqlite::Error) -> Self { UserError::internal().context(error) }
 }
 
 impl std::convert::From<flowy_net::errors::ServerError> for UserError {
     fn from(error: flowy_net::errors::ServerError) -> Self {
         let code = server_error_to_user_error(error.code);
-        ErrorBuilder::new(code).error(error.msg).build()
+        UserError::new(code, &error.msg)
     }
 }
 
@@ -111,14 +136,5 @@ impl flowy_dispatch::Error for UserError {
     fn as_response(&self) -> EventResponse {
         let bytes: Bytes = self.clone().try_into().unwrap();
         ResponseBuilder::Err().data(bytes).build()
-    }
-}
-
-pub type ErrorBuilder = flowy_infra::errors::Builder<ErrorCode, UserError>;
-
-impl flowy_infra::errors::Build<ErrorCode> for UserError {
-    fn build(code: ErrorCode, msg: String) -> Self {
-        let msg = if msg.is_empty() { format!("{}", code) } else { msg };
-        UserError::new(code, &msg)
     }
 }

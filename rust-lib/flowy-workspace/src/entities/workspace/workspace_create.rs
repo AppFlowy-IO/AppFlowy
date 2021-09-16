@@ -28,8 +28,8 @@ impl TryInto<CreateWorkspaceParams> for CreateWorkspaceRequest {
     type Error = WorkspaceError;
 
     fn try_into(self) -> Result<CreateWorkspaceParams, Self::Error> {
-        let name = WorkspaceName::parse(self.name).map_err(|e| ErrorBuilder::new(ErrorCode::WorkspaceNameInvalid).msg(e).build())?;
-        let desc = WorkspaceDesc::parse(self.desc).map_err(|e| ErrorBuilder::new(ErrorCode::WorkspaceDescInvalid).msg(e).build())?;
+        let name = WorkspaceName::parse(self.name).map_err(|e| WorkspaceError::workspace_name().context(e))?;
+        let desc = WorkspaceDesc::parse(self.desc).map_err(|e| WorkspaceError::workspace_desc().context(e))?;
 
         Ok(CreateWorkspaceParams {
             name: name.0,

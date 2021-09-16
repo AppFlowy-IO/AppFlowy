@@ -1,5 +1,4 @@
 use flowy_derive::ProtoBuf;
-use std::convert::TryInto;
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct CreateDocParams {

@@ -1,6 +1,6 @@
 use crate::{
     entities::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile},
-    errors::{ErrorBuilder, ErrorCode, UserError},
+    errors::UserError,
 };
 
 use crate::services::server::UserServerAPI;
@@ -40,6 +40,6 @@ impl UserServerAPI for UserServerMock {
     fn update_user(&self, _token: &str, _params: UpdateUserParams) -> ResultFuture<(), UserError> { ResultFuture::new(async { Ok(()) }) }
 
     fn get_user(&self, _token: &str) -> ResultFuture<UserProfile, UserError> {
-        ResultFuture::new(async { Err(ErrorBuilder::new(ErrorCode::Unknown).msg("mock data, ignore this error").build()) })
+        ResultFuture::new(async { Err(UserError::internal().context("mock data, ignore this error")) })
     }
 }

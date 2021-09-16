@@ -4,7 +4,7 @@ use flowy_infra::{kv::KV, uuid};
 
 use flowy_user::{
     entities::{SignInRequest, SignUpRequest, UserProfile},
-    errors::{ErrorBuilder, ErrorCode, UserError},
+    errors::UserError,
     event::UserEvent::{SignIn, SignOut, SignUp},
 };
 use flowy_workspace::{
@@ -44,7 +44,7 @@ const DEFAULT_WORKSPACE: &'static str = "Default_Workspace";
 pub(crate) fn create_default_workspace_if_need(dispatch: Arc<EventDispatch>, user_id: &str) -> Result<(), UserError> {
     let key = format!("{}{}", user_id, DEFAULT_WORKSPACE);
     if KV::get_bool(&key).unwrap_or(false) {
-        return Err(ErrorBuilder::new(ErrorCode::InternalError).build());
+        return Err(UserError::internal());
     }
     KV::set_bool(&key, true);
 
@@ -58,9 +58,9 @@ pub(crate) fn create_default_workspace_if_need(dispatch: Arc<EventDispatch>, use
     let request = ModuleRequest::new(CreateWorkspace).payload(payload);
     let result = EventDispatch::sync_send(dispatch.clone(), request)
         .parse::<Workspace, WorkspaceError>()
-        .map_err(|e| ErrorBuilder::new(ErrorCode::InternalError).error(e).build())?;
+        .map_err(|e| UserError::internal().context(e))?;
 
-    let workspace = result.map_err(|e| ErrorBuilder::new(ErrorCode::InternalError).error(e).build())?;
+    let workspace = result.map_err(|e| UserError::internal().context(e))?;
     let query: Bytes = QueryWorkspaceRequest {
         workspace_id: Some(workspace.id.clone()),
     }

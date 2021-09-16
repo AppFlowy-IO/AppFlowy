@@ -1,6 +1,6 @@
 use crate::{
     entities::view::parser::{ViewId, *},
-    errors::{ErrorBuilder, ErrorCode, WorkspaceError},
+    errors::WorkspaceError,
 };
 use flowy_derive::ProtoBuf;
 use flowy_document::entities::doc::{ApplyChangesetParams, SaveDocParams};
@@ -69,33 +69,23 @@ impl TryInto<UpdateViewParams> for UpdateViewRequest {
     type Error = WorkspaceError;
 
     fn try_into(self) -> Result<UpdateViewParams, Self::Error> {
-        let view_id = ViewId::parse(self.view_id)
-            .map_err(|e| ErrorBuilder::new(ErrorCode::ViewIdInvalid).msg(e).build())?
-            .0;
+        let view_id = ViewId::parse(self.view_id).map_err(|e| WorkspaceError::view_id().context(e))?.0;
 
         let name = match self.name {
             None => None,
-            Some(name) => Some(
-                ViewName::parse(name)
-                    .map_err(|e| ErrorBuilder::new(ErrorCode::ViewNameInvalid).msg(e).build())?
-                    .0,
-            ),
+            Some(name) => Some(ViewName::parse(name).map_err(|e| WorkspaceError::view_name().context(e))?.0),
         };
 
         let desc = match self.desc {
             None => None,
-            Some(desc) => Some(
-                ViewDesc::parse(desc)
-                    .map_err(|e| ErrorBuilder::new(ErrorCode::ViewDescInvalid).msg(e).build())?
-                    .0,
-            ),
+            Some(desc) => Some(ViewDesc::parse(desc).map_err(|e| WorkspaceError::view_desc().context(e))?.0),
         };
 
         let thumbnail = match self.thumbnail {
             None => None,
             Some(thumbnail) => Some(
                 ViewThumbnail::parse(thumbnail)
-                    .map_err(|e| ErrorBuilder::new(ErrorCode::ViewThumbnailInvalid).msg(e).build())?
+                    .map_err(|e| WorkspaceError::view_thumbnail().context(e))?
                     .0,
             ),
         };
@@ -123,14 +113,10 @@ impl TryInto<SaveDocParams> for SaveViewDataRequest {
     type Error = WorkspaceError;
 
     fn try_into(self) -> Result<SaveDocParams, Self::Error> {
-        let view_id = ViewId::parse(self.view_id)
-            .map_err(|e| ErrorBuilder::new(ErrorCode::ViewIdInvalid).msg(e).build())?
-            .0;
+        let view_id = ViewId::parse(self.view_id).map_err(|e| WorkspaceError::view_id().context(e))?.0;
 
         // Opti: Vec<u8> -> Delta -> Vec<u8>
-        let data = DeltaData::parse(self.data)
-            .map_err(|e| ErrorBuilder::new(ErrorCode::ViewDataInvalid).msg(e).build())?
-            .0;
+        let data = DeltaData::parse(self.data).map_err(|e| WorkspaceError::view_data().context(e))?.0;
 
         Ok(SaveDocParams { id: view_id, data })
     }
@@ -149,14 +135,10 @@ impl TryInto<ApplyChangesetParams> for ApplyChangesetRequest {
     type Error = WorkspaceError;
 
     fn try_into(self) -> Result<ApplyChangesetParams, Self::Error> {
-        let view_id = ViewId::parse(self.view_id)
-            .map_err(|e| ErrorBuilder::new(ErrorCode::ViewIdInvalid).msg(e).build())?
-            .0;
+        let view_id = ViewId::parse(self.view_id).map_err(|e| WorkspaceError::view_id().context(e))?.0;
 
         // Opti: Vec<u8> -> Delta -> Vec<u8>
-        let data = DeltaData::parse(self.data)
-            .map_err(|e| ErrorBuilder::new(ErrorCode::ViewDataInvalid).msg(e).build())?
-            .0;
+        let data = DeltaData::parse(self.data).map_err(|e| WorkspaceError::view_data().context(e))?.0;
 
         Ok(ApplyChangesetParams { id: view_id, data })
     }

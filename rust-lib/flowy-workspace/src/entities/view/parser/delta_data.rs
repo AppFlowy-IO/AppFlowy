@@ -1,5 +1,3 @@
-use flowy_ot::core::Delta;
-
 #[derive(Debug)]
 pub struct DeltaData(pub Vec<u8>);
 

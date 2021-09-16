@@ -3,7 +3,7 @@ use crate::{
         parser::{AppColorStyle, AppId, AppName},
         ColorStyle,
     },
-    errors::{ErrorBuilder, ErrorCode, WorkspaceError},
+    errors::WorkspaceError,
 };
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
@@ -72,24 +72,18 @@ impl TryInto<UpdateAppParams> for UpdateAppRequest {
     type Error = WorkspaceError;
 
     fn try_into(self) -> Result<UpdateAppParams, Self::Error> {
-        let app_id = AppId::parse(self.app_id)
-            .map_err(|e| ErrorBuilder::new(ErrorCode::AppIdInvalid).msg(e).build())?
-            .0;
+        let app_id = AppId::parse(self.app_id).map_err(|e| WorkspaceError::app_id().context(e))?.0;
 
         let name = match self.name {
             None => None,
-            Some(name) => Some(
-                AppName::parse(name)
-                    .map_err(|e| ErrorBuilder::new(ErrorCode::WorkspaceNameInvalid).msg(e).build())?
-                    .0,
-            ),
+            Some(name) => Some(AppName::parse(name).map_err(|e| WorkspaceError::workspace_name().context(e))?.0),
         };
 
         let color_style = match self.color_style {
             None => None,
             Some(color_style) => Some(
                 AppColorStyle::parse(color_style)
-                    .map_err(|e| ErrorBuilder::new(ErrorCode::AppColorStyleInvalid).msg(e).build())?
+                    .map_err(|e| WorkspaceError::color_style().context(e))?
                     .0,
             ),
         };

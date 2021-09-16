@@ -47,7 +47,7 @@ impl TryInto<QueryWorkspaceParams> for QueryWorkspaceRequest {
             None => None,
             Some(workspace_id) => Some(
                 WorkspaceId::parse(workspace_id)
-                    .map_err(|e| ErrorBuilder::new(ErrorCode::WorkspaceIdInvalid).msg(e).build())?
+                    .map_err(|e| WorkspaceError::workspace_id().context(e))?
                     .0,
             ),
         };
