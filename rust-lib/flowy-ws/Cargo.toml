@@ -1,0 +1,25 @@
+[package]
+name = "flowy-ws"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+flowy-derive = { path = "../flowy-derive" }
+
+tokio-tungstenite = "0.15"
+futures-util = "0.3.15"
+futures-channel = "0.3.15"
+tokio = {version = "1.6.0", features = ["full"]}
+futures = "0.3.15"
+lazy_static = "1.4"
+bytes = "0.5"
+pin-project = "1.0.0"
+futures-core = { version = "0.3", default-features = false }
+paste = "1"
+url = "2.2.2"
+log = "0.4"
+protobuf = {version = "2.18.0"}
+strum = "0.21"
+strum_macros = "0.21"

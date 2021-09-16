@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+message WsError {
+    ErrorCode code = 1;
+    string msg = 2;
+}
+enum ErrorCode {
+    InternalError = 0;
+}

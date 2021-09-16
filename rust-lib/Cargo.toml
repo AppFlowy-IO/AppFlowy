@@ -17,6 +17,7 @@ members = [
   "flowy-editor",
   "flowy-ot",
   "flowy-net",
+  "flowy-ws",
 ]
 
 exclude = ["../backend"]
