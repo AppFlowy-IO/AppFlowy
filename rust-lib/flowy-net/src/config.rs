@@ -14,7 +14,7 @@ lazy_static! {
     pub static ref WORKSPACE_URL: String = format!("{}/api/workspace", HOST);
     pub static ref APP_URL: String = format!("{}/api/app", HOST);
     pub static ref VIEW_URL: String = format!("{}/api/view", HOST);
-
-    //
     pub static ref DOC_URL: String = format!("{}/api/doc", HOST);
+
+    pub static ref WS_ADDR: String = format!("ws://localhost:8000/ws");
 }

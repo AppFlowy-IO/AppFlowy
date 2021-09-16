@@ -22,10 +22,11 @@ impl EventDispatch {
     where
         F: FnOnce() -> Vec<Module>,
     {
+        let runtime = tokio_default_runtime().unwrap();
         let modules = module_factory();
         log::trace!("{}", module_info(&modules));
         let module_map = as_module_map(modules);
-        let runtime = tokio_default_runtime().unwrap();
+
         let dispatch = EventDispatch { module_map, runtime };
         dispatch
     }
@@ -73,6 +74,13 @@ impl EventDispatch {
 
     pub fn sync_send(dispatch: Arc<EventDispatch>, request: ModuleRequest) -> EventResponse {
         futures::executor::block_on(async { EventDispatch::async_send_with_callback(dispatch, request, |_| Box::pin(async {})).await })
+    }
+
+    pub fn spawn<F>(&self, f: F)
+    where
+        F: Future<Output = ()> + Send + 'static,
+    {
+        self.runtime.spawn(f);
     }
 }
 

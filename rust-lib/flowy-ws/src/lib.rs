@@ -1,3 +1,5 @@
 pub mod errors;
 pub mod protobuf;
-pub mod ws;
+mod ws;
+
+pub use ws::*;
