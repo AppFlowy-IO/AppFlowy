@@ -87,3 +87,4 @@ once_cell = "1.7.2"
 linkify = "0.5.0"
 flowy-user = { path = "../rust-lib/flowy-user" }
 flowy-workspace = { path = "../rust-lib/flowy-workspace" }
+flowy-ws = { path = "../rust-lib/flowy-ws" }

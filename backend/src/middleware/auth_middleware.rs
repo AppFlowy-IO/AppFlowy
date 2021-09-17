@@ -56,6 +56,7 @@ where
     fn call(&self, req: ServiceRequest) -> Self::Future {
         let mut authenticate_pass: bool = false;
         for ignore_route in IGNORE_ROUTES.iter() {
+            log::info!("ignore: {}, path: {}", ignore_route, req.path());
             if req.path().starts_with(ignore_route) {
                 authenticate_pass = true;
                 break;
@@ -68,7 +69,6 @@ where
                 match result {
                     Ok(logged_user) => {
                         authenticate_pass = AUTHORIZED_USERS.is_authorized(&logged_user);
-
                         // Update user timestamp
                         AUTHORIZED_USERS.store_auth(logged_user, true);
                     },

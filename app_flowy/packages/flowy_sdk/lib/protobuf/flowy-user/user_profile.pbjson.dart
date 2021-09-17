@@ -8,18 +8,6 @@
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
 import 'dart:typed_data' as $typed_data;
-@$core.Deprecated('Use userStatusDescriptor instead')
-const UserStatus$json = const {
-  '1': 'UserStatus',
-  '2': const [
-    const {'1': 'Unknown', '2': 0},
-    const {'1': 'Login', '2': 1},
-    const {'1': 'Expired', '2': 2},
-  ],
-};
-
-/// Descriptor for `UserStatus`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List userStatusDescriptor = $convert.base64Decode('CgpVc2VyU3RhdHVzEgsKB1Vua25vd24QABIJCgVMb2dpbhABEgsKB0V4cGlyZWQQAg==');
 @$core.Deprecated('Use userTokenDescriptor instead')
 const UserToken$json = const {
   '1': 'UserToken',

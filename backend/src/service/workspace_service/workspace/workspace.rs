@@ -28,7 +28,7 @@ pub(crate) async fn create_workspace(
 ) -> Result<FlowyResponse, ServerError> {
     let name = WorkspaceName::parse(params.get_name().to_owned()).map_err(invalid_params)?;
     let desc = WorkspaceDesc::parse(params.get_desc().to_owned()).map_err(invalid_params)?;
-    let user_id = logged_user.get_user_id()?.to_string();
+    let user_id = logged_user.as_uuid()?.to_string();
 
     let mut transaction = pool
         .begin()
@@ -134,7 +134,7 @@ pub async fn read_workspaces(
     workspace_id: Option<String>,
     logged_user: LoggedUser,
 ) -> Result<FlowyResponse, ServerError> {
-    let user_id = logged_user.get_user_id()?.to_string();
+    let user_id = logged_user.as_uuid()?.to_string();
     let mut transaction = pool
         .begin()
         .await

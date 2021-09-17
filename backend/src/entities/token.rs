@@ -32,7 +32,7 @@ impl Claim {
         }
     }
 
-    pub fn get_user_id(self) -> String { self.user_id }
+    pub fn user_id(self) -> String { self.user_id }
 }
 
 // impl From<Claim> for User {

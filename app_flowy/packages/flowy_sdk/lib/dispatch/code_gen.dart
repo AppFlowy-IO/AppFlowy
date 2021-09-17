@@ -288,12 +288,12 @@ class WorkspaceEventApplyChangeset {
     }
 }
 
-class UserEventGetUserProfile {
-    UserEventGetUserProfile();
+class UserEventInitUser {
+    UserEventInitUser();
 
     Future<Either<UserProfile, UserError>> send() {
      final request = FFIRequest.create()
-        ..event = UserEvent.GetUserProfile.toString();
+        ..event = UserEvent.InitUser.toString();
 
      return Dispatch.asyncRequest(request).then((bytesResult) => bytesResult.fold(
         (okBytes) => left(UserProfile.fromBuffer(okBytes)),
@@ -364,6 +364,20 @@ class UserEventUpdateUser {
            (bytes) => left(unit),
            (errBytes) => right(UserError.fromBuffer(errBytes)),
         ));
+    }
+}
+
+class UserEventGetUserProfile {
+    UserEventGetUserProfile();
+
+    Future<Either<UserProfile, UserError>> send() {
+     final request = FFIRequest.create()
+        ..event = UserEvent.GetUserProfile.toString();
+
+     return Dispatch.asyncRequest(request).then((bytesResult) => bytesResult.fold(
+        (okBytes) => left(UserProfile.fromBuffer(okBytes)),
+        (errBytes) => right(UserError.fromBuffer(errBytes)),
+      ));
     }
 }
 

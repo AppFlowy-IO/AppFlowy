@@ -49,7 +49,7 @@ pub async fn sign_in(pool: &PgPool, params: SignInParams) -> Result<SignInRespon
     let token = Token::create_token(&user.id.to_string())?;
     let logged_user = LoggedUser::new(&user.id.to_string());
 
-    let _ = AUTHORIZED_USERS.store_auth(logged_user, true)?;
+    AUTHORIZED_USERS.store_auth(logged_user, true);
     let mut response_data = SignInResponse::default();
     response_data.set_user_id(user.id.to_string());
     response_data.set_name(user.name);
@@ -60,7 +60,7 @@ pub async fn sign_in(pool: &PgPool, params: SignInParams) -> Result<SignInRespon
 }
 
 pub async fn sign_out(logged_user: LoggedUser) -> Result<FlowyResponse, ServerError> {
-    let _ = AUTHORIZED_USERS.store_auth(logged_user, false)?;
+    AUTHORIZED_USERS.store_auth(logged_user, false);
     Ok(FlowyResponse::success())
 }
 
@@ -91,7 +91,7 @@ pub async fn register_user(
     .context("Failed to insert user")?;
 
     let logged_user = LoggedUser::new(&response_data.user_id);
-    let _ = AUTHORIZED_USERS.store_auth(logged_user, true)?;
+    AUTHORIZED_USERS.store_auth(logged_user, true);
     let _ = create_default_workspace(&mut transaction, response_data.get_user_id()).await?;
 
     transaction
@@ -112,7 +112,7 @@ pub(crate) async fn get_user_profile(
         .await
         .context("Failed to acquire a Postgres connection to get user detail")?;
 
-    let id = logged_user.get_user_id()?;
+    let id = logged_user.as_uuid()?;
     let user_table =
         sqlx::query_as::<Postgres, UserTable>("SELECT * FROM user_table WHERE id = $1")
             .bind(id)
@@ -126,7 +126,7 @@ pub(crate) async fn get_user_profile(
         .context("Failed to commit SQL transaction to get user detail.")?;
 
     // update the user active time
-    let _ = AUTHORIZED_USERS.store_auth(logged_user, true)?;
+    AUTHORIZED_USERS.store_auth(logged_user, true);
 
     let mut user_profile = UserProfile::default();
     user_profile.set_id(user_table.id.to_string());
@@ -178,7 +178,7 @@ pub(crate) async fn set_user_profile(
         .add_some_arg("name", name)
         .add_some_arg("email", email)
         .add_some_arg("password", password)
-        .and_where_eq("id", &logged_user.get_user_id()?)
+        .and_where_eq("id", &logged_user.as_uuid()?)
         .build()?;
 
     sqlx::query_with(&sql, args)

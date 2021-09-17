@@ -6,9 +6,10 @@ pub async fn hello() -> String { "say hello".to_string() }
 
 #[tokio::test]
 async fn test() {
-    setup_env();
+    env_logger::init();
+
     let event = "1";
-    let dispatch = Arc::new(init_dispatch(|| vec![Module::new().event(event, hello)]));
+    let dispatch = Arc::new(EventDispatch::construct(|| vec![Module::new().event(event, hello)]));
     let request = ModuleRequest::new(event);
     let _ = EventDispatch::async_send_with_callback(dispatch.clone(), request, |resp| {
         Box::pin(async move {

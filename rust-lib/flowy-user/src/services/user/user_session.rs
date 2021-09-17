@@ -18,6 +18,7 @@ use flowy_database::{
 };
 use flowy_infra::kv::KV;
 use flowy_sqlite::ConnectionPool;
+use flowy_ws::WsController;
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -34,24 +35,36 @@ impl UserSessionConfig {
     }
 }
 
+pub enum SessionStatus {
+    Login { token: String },
+    Expired { token: String },
+}
+pub type SessionStatusCallback = Arc<dyn Fn(SessionStatus) + Send + Sync>;
+
 pub struct UserSession {
     database: UserDB,
     config: UserSessionConfig,
     #[allow(dead_code)]
     server: Server,
     session: RwLock<Option<Session>>,
+    ws: RwLock<WsController>,
+    status_callback: SessionStatusCallback,
 }
 
 impl UserSession {
-    pub fn new(config: UserSessionConfig) -> Self {
+    pub fn new(config: UserSessionConfig, status_callback: SessionStatusCallback) -> Self {
         let db = UserDB::new(&config.root_dir);
         let server = construct_user_server();
-        Self {
+        let ws = RwLock::new(WsController::new());
+        let user_session = Self {
             database: db,
             config,
             server,
             session: RwLock::new(None),
-        }
+            ws,
+            status_callback,
+        };
+        user_session
     }
 
     pub fn db_connection(&self) -> Result<DBConnection, UserError> {
@@ -80,6 +93,9 @@ impl UserSession {
             let _ = self.set_session(Some(session))?;
             let user_table = self.save_user(resp.into()).await?;
             let user_profile = UserProfile::from(user_table);
+            (self.status_callback)(SessionStatus::Login {
+                token: user_profile.token.clone(),
+            });
             Ok(user_profile)
         }
     }
@@ -94,6 +110,9 @@ impl UserSession {
             let _ = self.set_session(Some(session))?;
             let user_table = self.save_user(resp.into()).await?;
             let user_profile = UserProfile::from(user_table);
+            (self.status_callback)(SessionStatus::Login {
+                token: user_profile.token.clone(),
+            });
             Ok(user_profile)
         }
     }
@@ -104,6 +123,9 @@ impl UserSession {
         let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&session.user_id))).execute(&*(self.db_connection()?))?;
         let _ = self.database.close_user_db(&session.user_id)?;
         let _ = self.set_session(None)?;
+        (self.status_callback)(SessionStatus::Expired {
+            token: session.token.clone(),
+        });
         let _ = self.sign_out_on_server(&session.token).await?;
 
         Ok(())
@@ -119,13 +141,26 @@ impl UserSession {
         Ok(())
     }
 
+    pub async fn init_user(&self) -> Result<UserProfile, UserError> {
+        let (user_id, token) = self.get_session()?.into_part();
+
+        let user = dsl::user_table
+            .filter(user_table::id.eq(&user_id))
+            .first::<UserTable>(&*(self.db_connection()?))?;
+
+        let _ = self.read_user_profile_on_server(&token)?;
+        let _ = self.start_ws_connection(&token)?;
+
+        Ok(UserProfile::from(user))
+    }
+
     pub async fn user_profile(&self) -> Result<UserProfile, UserError> {
         let (user_id, token) = self.get_session()?.into_part();
         let user = dsl::user_table
             .filter(user_table::id.eq(&user_id))
             .first::<UserTable>(&*(self.db_connection()?))?;
 
-        let _ = self.read_user_profile_on_server(&token).await?;
+        let _ = self.read_user_profile_on_server(&token)?;
         Ok(UserProfile::from(user))
     }
 
@@ -140,7 +175,7 @@ impl UserSession {
 }
 
 impl UserSession {
-    async fn read_user_profile_on_server(&self, token: &str) -> Result<(), UserError> {
+    fn read_user_profile_on_server(&self, token: &str) -> Result<(), UserError> {
         let server = self.server.clone();
         let token = token.to_owned();
         tokio::spawn(async move {
@@ -224,6 +259,25 @@ impl UserSession {
             Ok(session) => session.email == email,
             Err(_) => false,
         }
+    }
+
+    fn start_ws_connection(&self, token: &str) -> Result<(), UserError> {
+        let addr = format!("{}/{}", flowy_net::config::WS_ADDR.as_str(), token);
+        log::debug!("🐴 Try to connect: {}", &addr);
+        let (conn, handlers) = self.ws.write().make_connect(addr);
+        tokio::spawn(async {
+            match conn.await {
+                Ok(_) => {
+                    log::debug!("🐴 ws connect success");
+                    let _ = handlers.await;
+                },
+                Err(e) => {
+                    // TODO: retry?
+                    log::error!("ws connect failed: {}", e);
+                },
+            }
+        });
+        Ok(())
     }
 }
 

@@ -14,8 +14,6 @@ futures-util = "0.3.17"
 futures-channel = "0.3.17"
 tokio = {version = "1", features = ["full"]}
 futures = "0.3.17"
-lazy_static = "1.4"
-parking_lot = "0.11"
 bytes = "0.5"
 pin-project = "1.0.0"
 futures-core = { version = "0.3", default-features = false }
@@ -28,3 +26,4 @@ strum_macros = "0.21"
 
 [dev-dependencies]
 tokio = {version = "1", features = ["full"]}
+env_logger = "0.8.2"

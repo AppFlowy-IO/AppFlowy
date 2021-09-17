@@ -80,7 +80,6 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "WorkspaceObservable"
         | "DocObservable"
         | "FFIStatusCode"
-        | "UserStatus"
         | "UserEvent"
         | "UserObservable"
         => TypeCategory::Enum,

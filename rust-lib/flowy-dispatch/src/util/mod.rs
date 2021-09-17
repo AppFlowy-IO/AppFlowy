@@ -4,7 +4,7 @@ use tokio::runtime;
 
 pub mod ready;
 
-pub(crate) fn tokio_default_runtime() -> io::Result<tokio::runtime::Runtime> {
+pub fn tokio_default_runtime() -> io::Result<tokio::runtime::Runtime> {
     runtime::Builder::new_multi_thread()
         .thread_name("flowy-rt")
         .enable_io()

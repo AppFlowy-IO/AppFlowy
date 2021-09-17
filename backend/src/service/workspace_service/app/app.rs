@@ -31,7 +31,7 @@ pub(crate) async fn create_app(
 ) -> Result<FlowyResponse, ServerError> {
     let name = AppName::parse(params.take_name()).map_err(invalid_params)?;
     let workspace_id = WorkspaceId::parse(params.take_workspace_id()).map_err(invalid_params)?;
-    let user_id = logged_user.get_user_id()?.to_string();
+    let user_id = logged_user.as_uuid()?.to_string();
     let desc = AppDesc::parse(params.take_desc()).map_err(invalid_params)?;
     let mut transaction = pool
         .begin()

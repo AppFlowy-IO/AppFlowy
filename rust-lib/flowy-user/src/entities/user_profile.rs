@@ -1,20 +1,9 @@
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_derive::ProtoBuf;
 
 #[derive(Default, ProtoBuf)]
 pub struct UserToken {
     #[pb(index = 1)]
     pub token: String,
-}
-
-#[derive(Debug, ProtoBuf_Enum)]
-pub enum UserStatus {
-    Unknown = 0,
-    Login   = 1,
-    Expired = 2,
-}
-
-impl std::default::Default for UserStatus {
-    fn default() -> Self { UserStatus::Unknown }
 }
 
 #[derive(ProtoBuf, Default, Debug, PartialEq, Eq, Clone)]

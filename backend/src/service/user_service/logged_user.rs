@@ -13,13 +13,13 @@ lazy_static! {
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct LoggedUser {
-    user_id: String,
+    pub user_id: String,
 }
 
 impl std::convert::From<Claim> for LoggedUser {
     fn from(c: Claim) -> Self {
         Self {
-            user_id: c.get_user_id(),
+            user_id: c.user_id(),
         }
     }
 }
@@ -36,7 +36,7 @@ impl LoggedUser {
         Ok(user)
     }
 
-    pub fn get_user_id(&self) -> Result<uuid::Uuid, ServerError> {
+    pub fn as_uuid(&self) -> Result<uuid::Uuid, ServerError> {
         let id = uuid::Uuid::parse_str(&self.user_id)?;
         Ok(id)
     }
@@ -106,13 +106,12 @@ impl AuthorizedUsers {
         }
     }
 
-    pub fn store_auth(&self, user: LoggedUser, is_auth: bool) -> Result<(), ServerError> {
+    pub fn store_auth(&self, user: LoggedUser, is_auth: bool) {
         let status = if is_auth {
             AuthStatus::Authorized(Utc::now())
         } else {
             AuthStatus::NotAuthorized
         };
         self.0.insert(user, status);
-        Ok(())
     }
 }

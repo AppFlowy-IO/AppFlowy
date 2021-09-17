@@ -21,8 +21,3 @@ message UpdateUserParams {
     oneof one_of_email { string email = 3; };
     oneof one_of_password { string password = 4; };
 }
-enum UserStatus {
-    Unknown = 0;
-    Login = 1;
-    Expired = 2;
-}

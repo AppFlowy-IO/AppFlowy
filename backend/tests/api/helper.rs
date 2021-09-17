@@ -179,6 +179,10 @@ impl TestServer {
         let response = user_sign_up_request(params, &url).await.unwrap();
         response
     }
+
+    pub(crate) fn ws_addr(&self) -> String {
+        format!("{}/ws/{}", self.address, self.user_token.as_ref().unwrap())
+    }
 }
 pub async fn spawn_server() -> TestServer {
     let database_name = format!("{}", Uuid::new_v4().to_string());

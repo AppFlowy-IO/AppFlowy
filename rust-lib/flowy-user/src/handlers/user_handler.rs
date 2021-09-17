@@ -3,8 +3,14 @@ use flowy_dispatch::prelude::*;
 
 use std::{convert::TryInto, sync::Arc};
 
-#[tracing::instrument(name = "get_profile", skip(session))]
-pub async fn user_profile_handler(session: Unit<Arc<UserSession>>) -> DataResult<UserProfile, UserError> {
+#[tracing::instrument(skip(session))]
+pub async fn init_user_handler(session: Unit<Arc<UserSession>>) -> DataResult<UserProfile, UserError> {
+    let user_profile = session.init_user().await?;
+    data_result(user_profile)
+}
+
+#[tracing::instrument(skip(session))]
+pub async fn get_user_profile_handler(session: Unit<Arc<UserSession>>) -> DataResult<UserProfile, UserError> {
     let user_profile = session.user_profile().await?;
     data_result(user_profile)
 }

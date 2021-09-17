@@ -1,9 +1,8 @@
 use crate::errors::WsError;
+use flowy_net::{errors::ServerError, response::FlowyResponse};
 use futures_channel::mpsc::{UnboundedReceiver, UnboundedSender};
 use futures_core::{future::BoxFuture, ready, Stream};
 use futures_util::{pin_mut, FutureExt, StreamExt};
-use lazy_static::lazy_static;
-use parking_lot::RwLock;
 use pin_project::pin_project;
 use std::{
     future::Future,
@@ -14,20 +13,17 @@ use std::{
 use tokio::net::TcpStream;
 use tokio_tungstenite::{
     connect_async,
-    tungstenite::{handshake::client::Response, Error, Message},
+    tungstenite::{handshake::client::Response, http::StatusCode, Error, Message},
     MaybeTlsStream,
     WebSocketStream,
 };
-lazy_static! {
-    pub static ref WS: RwLock<WsController> = RwLock::new(WsController::new());
-}
-
-pub fn start_ws_connection() { WS.write().connect(flowy_net::config::WS_ADDR.as_ref()); }
 
 pub type MsgReceiver = UnboundedReceiver<Message>;
 pub type MsgSender = UnboundedSender<Message>;
 pub trait WsMessageHandler: Sync + Send + 'static {
-    fn handler_message(&self, msg: &Message);
+    fn can_handle(&self) -> bool;
+    fn receive_message(&self, msg: &Message);
+    fn send_message(&self, sender: Arc<WsSender>);
 }
 
 pub struct WsController {
@@ -47,13 +43,15 @@ impl WsController {
 
     pub fn add_handlers(&mut self, handler: Arc<dyn WsMessageHandler>) { self.handlers.push(handler); }
 
-    pub fn connect(&mut self, addr: &str) {
-        let (ws, handlers) = self.make_connect(&addr);
-        let _ = tokio::spawn(ws);
+    #[allow(dead_code)]
+    pub async fn connect(&mut self, addr: String) -> Result<(), ServerError> {
+        let (conn, handlers) = self.make_connect(addr);
+        let _ = conn.await?;
         let _ = tokio::spawn(handlers);
+        Ok(())
     }
 
-    fn make_connect(&mut self, addr: &str) -> (WsRaw, WsHandlers) {
+    pub fn make_connect(&mut self, addr: String) -> (WsConnection, WsHandlers) {
         //                Stream                             User
         //               ┌───────────────┐                 ┌──────────────┐
         // ┌──────┐      │  ┌─────────┐  │    ┌────────┐   │  ┌────────┐  │
@@ -64,15 +62,12 @@ impl WsController {
         //     └─────────┼──│ws_write │◀─┼────│ ws_rx  │◀──┼──│ ws_tx  │  │
         //               │  └─────────┘  │    └────────┘   │  └────────┘  │
         //               └───────────────┘                 └──────────────┘
-        let addr = addr.to_string();
         let (msg_tx, msg_rx) = futures_channel::mpsc::unbounded();
         let (ws_tx, ws_rx) = futures_channel::mpsc::unbounded();
         let sender = Arc::new(WsSender::new(ws_tx));
         let handlers = self.handlers.clone();
         self.sender = Some(sender.clone());
-        log::debug!("🐴ws prepare connection");
-
-        (WsRaw::new(msg_tx, ws_rx, addr), WsHandlers::new(handlers, msg_rx))
+        (WsConnection::new(msg_tx, ws_rx, addr), WsHandlers::new(handlers, msg_rx))
     }
 
     pub fn send_message(&self, msg: Message) -> Result<(), WsError> {
@@ -84,7 +79,7 @@ impl WsController {
 }
 
 #[pin_project]
-struct WsHandlers {
+pub struct WsHandlers {
     #[pin]
     msg_rx: MsgReceiver,
     handlers: Vec<Arc<dyn WsMessageHandler>>,
@@ -101,7 +96,7 @@ impl Future for WsHandlers {
             match ready!(self.as_mut().project().msg_rx.poll_next(cx)) {
                 None => return Poll::Ready(()),
                 Some(message) => self.handlers.iter().for_each(|handler| {
-                    handler.handler_message(&message);
+                    handler.receive_message(&message);
                 }),
             }
         }
@@ -109,16 +104,16 @@ impl Future for WsHandlers {
 }
 
 #[pin_project]
-pub struct WsRaw {
+pub struct WsConnection {
     msg_tx: Option<MsgSender>,
     ws_rx: Option<MsgReceiver>,
     #[pin]
     fut: BoxFuture<'static, Result<(WebSocketStream<MaybeTlsStream<TcpStream>>, Response), Error>>,
 }
 
-impl WsRaw {
+impl WsConnection {
     pub fn new(msg_tx: MsgSender, ws_rx: MsgReceiver, addr: String) -> Self {
-        WsRaw {
+        WsConnection {
             msg_tx: Some(msg_tx),
             ws_rx: Some(ws_rx),
             fut: Box::pin(async move { connect_async(&addr).await }),
@@ -126,8 +121,8 @@ impl WsRaw {
     }
 }
 
-impl Future for WsRaw {
-    type Output = ();
+impl Future for WsConnection {
+    type Output = Result<(), ServerError>;
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         // [[pin]]
         // poll async function.  The following methods not work.
@@ -147,50 +142,35 @@ impl Future for WsRaw {
         loop {
             return match ready!(self.as_mut().project().fut.poll(cx)) {
                 Ok((stream, _)) => {
-                    log::debug!("🐴 ws connect success");
                     let mut ws_stream = WsStream {
                         msg_tx: self.msg_tx.take(),
                         ws_rx: self.ws_rx.take(),
                         stream: Some(stream),
                     };
                     match Pin::new(&mut ws_stream).poll(cx) {
-                        Poll::Ready(_a) => Poll::Ready(()),
+                        Poll::Ready(_) => Poll::Ready(Ok(())),
                         Poll::Pending => Poll::Pending,
                     }
                 },
-                Err(e) => {
-                    log::error!("🐴 ws connect failed: {:?}", e);
-                    Poll::Ready(())
-                },
+                Err(error) => Poll::Ready(Err(error_to_flowy_response(error))),
             };
         }
     }
 }
 
-#[pin_project]
-struct WsConn {
-    #[pin]
-    fut: BoxFuture<'static, Result<(WebSocketStream<MaybeTlsStream<TcpStream>>, Response), Error>>,
-}
+fn error_to_flowy_response(error: tokio_tungstenite::tungstenite::Error) -> ServerError {
+    let error = match error {
+        Error::Http(response) => {
+            if response.status() == StatusCode::UNAUTHORIZED {
+                ServerError::unauthorized()
+            } else {
+                ServerError::internal().context(response)
+            }
+        },
+        _ => ServerError::internal().context(error),
+    };
 
-impl WsConn {
-    fn new(addr: String) -> Self {
-        Self {
-            fut: Box::pin(async move { connect_async(&addr).await }),
-        }
-    }
-}
-
-impl Future for WsConn {
-    type Output = Result<(WebSocketStream<MaybeTlsStream<TcpStream>>, Response), Error>;
-    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        loop {
-            return match ready!(self.as_mut().project().fut.poll(cx)) {
-                Ok(o) => Poll::Ready(Ok(o)),
-                Err(e) => Poll::Ready(Err(e)),
-            };
-        }
-    }
+    error
 }
 
 struct WsStream {
@@ -218,7 +198,7 @@ impl Future for WsStream {
         });
 
         pin_mut!(to_ws, from_ws);
-        log::debug!("🐴 ws start poll stream");
+        log::trace!("🐴 ws start poll stream");
         match to_ws.poll_unpin(cx) {
             Poll::Ready(_) => Poll::Ready(()),
             Poll::Pending => match from_ws.poll_unpin(cx) {
@@ -245,39 +225,18 @@ impl WsSender {
 #[cfg(test)]
 mod tests {
     use super::WsController;
-    use futures_util::{pin_mut, StreamExt};
-    use tokio_tungstenite::connect_async;
 
     #[tokio::test]
     async fn connect() {
+        std::env::set_var("RUST_LOG", "Debug");
+        env_logger::init();
+
         let mut controller = WsController::new();
         let addr = format!("{}/123", flowy_net::config::WS_ADDR.as_str());
-        let (a, b) = controller.make_connect(&addr);
+        let (a, b) = controller.make_connect(addr);
         tokio::select! {
-            _ = a => println!("write completed"),
+            r = a => println!("write completed {:?}", r),
             _ = b => println!("read completed"),
-        };
-    }
-
-    #[tokio::test]
-    async fn connect_raw() {
-        let _controller = WsController::new();
-        let addr = format!("{}/123", flowy_net::config::WS_ADDR.as_str());
-        let (tx, rx) = futures_channel::mpsc::unbounded();
-        let (ws_write, ws_read) = connect_async(&addr).await.unwrap().0.split();
-        let to_ws = rx.map(Ok).forward(ws_write);
-        let from_ws = ws_read.for_each(|message| async {
-            tx.unbounded_send(message.unwrap()).unwrap();
-        });
-
-        pin_mut!(to_ws, from_ws);
-        tokio::select! {
-            _ = to_ws => {
-                log::debug!("ws write completed")
-            }
-            _ = from_ws => {
-                log::debug!("ws read completed")
-            }
         };
     }
 }

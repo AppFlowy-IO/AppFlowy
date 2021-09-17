@@ -3,7 +3,6 @@ mod deps_resolve;
 pub mod module;
 
 use flowy_dispatch::prelude::*;
-use flowy_ws::start_ws_connection;
 use module::build_modules;
 pub use module::*;
 use std::sync::{
@@ -88,9 +87,5 @@ fn init_log(config: &FlowySDKConfig) {
 fn init_dispatch(root: &str) -> EventDispatch {
     let config = ModuleConfig { root: root.to_owned() };
     let dispatch = EventDispatch::construct(|| build_modules(config));
-
-    dispatch.spawn(async {
-        start_ws_connection();
-    });
     dispatch
 }

@@ -27,6 +27,7 @@ macro_rules! static_user_error {
 }
 
 impl WsError {
+    #[allow(dead_code)]
     pub(crate) fn new(code: ErrorCode) -> WsError { WsError { code, msg: "".to_string() } }
 
     pub fn context<T: Debug>(mut self, error: T) -> Self {
