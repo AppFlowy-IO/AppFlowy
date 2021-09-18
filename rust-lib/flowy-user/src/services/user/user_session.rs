@@ -18,10 +18,10 @@ use flowy_database::{
 };
 use flowy_infra::kv::KV;
 use flowy_sqlite::ConnectionPool;
-use flowy_ws::WsController;
+use flowy_ws::{WsController, WsMessage, WsMessageHandler};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 
 pub struct UserSessionConfig {
     root_dir: String,
@@ -47,7 +47,7 @@ pub struct UserSession {
     #[allow(dead_code)]
     server: Server,
     session: RwLock<Option<Session>>,
-    ws: RwLock<WsController>,
+    ws_controller: RwLock<WsController>,
     status_callback: SessionStatusCallback,
 }
 
@@ -55,13 +55,13 @@ impl UserSession {
     pub fn new(config: UserSessionConfig, status_callback: SessionStatusCallback) -> Self {
         let db = UserDB::new(&config.root_dir);
         let server = construct_user_server();
-        let ws = RwLock::new(WsController::new());
+        let ws_controller = RwLock::new(WsController::new());
         let user_session = Self {
             database: db,
             config,
             server,
             session: RwLock::new(None),
-            ws,
+            ws_controller,
             status_callback,
         };
         user_session
@@ -172,6 +172,21 @@ impl UserSession {
     pub fn user_id(&self) -> Result<String, UserError> { Ok(self.get_session()?.user_id) }
 
     pub fn token(&self) -> Result<String, UserError> { Ok(self.get_session()?.token) }
+
+    pub fn add_ws_msg_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), UserError> {
+        let _ = self.ws_controller.write().add_handler(handler)?;
+        Ok(())
+    }
+
+    pub fn send_ws_msg<T: Into<WsMessage>>(&self, msg: T) -> Result<(), UserError> {
+        match self.ws_controller.try_read_for(Duration::from_millis(300)) {
+            None => Err(UserError::internal().context("Send ws message timeout")),
+            Some(guard) => {
+                let _ = guard.send_msg(msg)?;
+                Ok(())
+            },
+        }
+    }
 }
 
 impl UserSession {
@@ -263,20 +278,7 @@ impl UserSession {
 
     fn start_ws_connection(&self, token: &str) -> Result<(), UserError> {
         let addr = format!("{}/{}", flowy_net::config::WS_ADDR.as_str(), token);
-        log::debug!("🐴 Try to connect: {}", &addr);
-        let (conn, handlers) = self.ws.write().make_connect(addr);
-        tokio::spawn(async {
-            match conn.await {
-                Ok(_) => {
-                    log::debug!("🐴 ws connect success");
-                    let _ = handlers.await;
-                },
-                Err(e) => {
-                    // TODO: retry?
-                    log::error!("ws connect failed: {}", e);
-                },
-            }
-        });
+        let _ = self.ws_controller.write().connect(addr);
         Ok(())
     }
 }

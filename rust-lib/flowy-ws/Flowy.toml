@@ -1,2 +1,2 @@
-proto_crates = ["src/errors.rs"]
+proto_crates = ["src/errors.rs", "src/msg.rs"]
 event_files = []

@@ -109,6 +109,10 @@ impl std::convert::From<::r2d2::Error> for UserError {
     fn from(error: r2d2::Error) -> Self { UserError::internal().context(error) }
 }
 
+impl std::convert::From<flowy_ws::errors::WsError> for UserError {
+    fn from(error: flowy_ws::errors::WsError) -> Self { UserError::internal().context(error) }
+}
+
 // use diesel::result::{Error, DatabaseErrorKind};
 // use flowy_sqlite::ErrorKind;
 impl std::convert::From<flowy_sqlite::Error> for UserError {

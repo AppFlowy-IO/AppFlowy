@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message WsMessage {
+    string source = 1;
+    bytes data = 2;
+}

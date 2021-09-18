@@ -13,11 +13,13 @@ const ErrorCode$json = const {
   '1': 'ErrorCode',
   '2': const [
     const {'1': 'InternalError', '2': 0},
+    const {'1': 'DuplicateSource', '2': 1},
+    const {'1': 'UnsupportedMessage', '2': 2},
   ],
 };
 
 /// Descriptor for `ErrorCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List errorCodeDescriptor = $convert.base64Decode('CglFcnJvckNvZGUSEQoNSW50ZXJuYWxFcnJvchAA');
+final $typed_data.Uint8List errorCodeDescriptor = $convert.base64Decode('CglFcnJvckNvZGUSEQoNSW50ZXJuYWxFcnJvchAAEhMKD0R1cGxpY2F0ZVNvdXJjZRABEhYKElVuc3VwcG9ydGVkTWVzc2FnZRAC');
 @$core.Deprecated('Use wsErrorDescriptor instead')
 const WsError$json = const {
   '1': 'WsError',

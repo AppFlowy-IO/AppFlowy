@@ -13,7 +13,7 @@ use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
 
 pub struct TestServer {
-    pub address: String,
+    pub host: String,
     pub port: u16,
     pub pg_pool: PgPool,
     pub user_token: Option<String>,
@@ -30,12 +30,12 @@ impl TestServer {
     }
 
     pub async fn sign_in(&self, params: SignInParams) -> Result<SignInResponse, UserError> {
-        let url = format!("{}/api/auth", self.address);
+        let url = format!("{}/api/auth", self.http_addr());
         user_sign_in_request(params, &url).await
     }
 
     pub async fn sign_out(&self) {
-        let url = format!("{}/api/auth", self.address);
+        let url = format!("{}/api/auth", self.http_addr());
         let _ = user_sign_out_request(self.user_token(), &url)
             .await
             .unwrap();
@@ -54,7 +54,7 @@ impl TestServer {
     }
 
     pub async fn get_user_profile(&self) -> UserProfile {
-        let url = format!("{}/api/user", self.address);
+        let url = format!("{}/api/user", self.http_addr());
         let user_profile = get_user_profile_request(self.user_token(), &url)
             .await
             .unwrap();
@@ -62,12 +62,12 @@ impl TestServer {
     }
 
     pub async fn update_user_profile(&self, params: UpdateUserParams) -> Result<(), UserError> {
-        let url = format!("{}/api/user", self.address);
+        let url = format!("{}/api/user", self.http_addr());
         update_user_profile_request(self.user_token(), params, &url).await
     }
 
     pub async fn create_workspace(&self, params: CreateWorkspaceParams) -> Workspace {
-        let url = format!("{}/api/workspace", self.address);
+        let url = format!("{}/api/workspace", self.http_addr());
         let workspace = create_workspace_request(self.user_token(), params, &url)
             .await
             .unwrap();
@@ -75,7 +75,7 @@ impl TestServer {
     }
 
     pub async fn read_workspaces(&self, params: QueryWorkspaceParams) -> RepeatedWorkspace {
-        let url = format!("{}/api/workspace", self.address);
+        let url = format!("{}/api/workspace", self.http_addr());
         let workspaces = read_workspaces_request(self.user_token(), params, &url)
             .await
             .unwrap();
@@ -83,21 +83,21 @@ impl TestServer {
     }
 
     pub async fn update_workspace(&self, params: UpdateWorkspaceParams) {
-        let url = format!("{}/api/workspace", self.address);
+        let url = format!("{}/api/workspace", self.http_addr());
         update_workspace_request(self.user_token(), params, &url)
             .await
             .unwrap();
     }
 
     pub async fn delete_workspace(&self, params: DeleteWorkspaceParams) {
-        let url = format!("{}/api/workspace", self.address);
+        let url = format!("{}/api/workspace", self.http_addr());
         delete_workspace_request(self.user_token(), params, &url)
             .await
             .unwrap();
     }
 
     pub async fn create_app(&self, params: CreateAppParams) -> App {
-        let url = format!("{}/api/app", self.address);
+        let url = format!("{}/api/app", self.http_addr());
         let app = create_app_request(self.user_token(), params, &url)
             .await
             .unwrap();
@@ -105,7 +105,7 @@ impl TestServer {
     }
 
     pub async fn read_app(&self, params: QueryAppParams) -> Option<App> {
-        let url = format!("{}/api/app", self.address);
+        let url = format!("{}/api/app", self.http_addr());
         let app = read_app_request(self.user_token(), params, &url)
             .await
             .unwrap();
@@ -113,21 +113,21 @@ impl TestServer {
     }
 
     pub async fn update_app(&self, params: UpdateAppParams) {
-        let url = format!("{}/api/app", self.address);
+        let url = format!("{}/api/app", self.http_addr());
         update_app_request(self.user_token(), params, &url)
             .await
             .unwrap();
     }
 
     pub async fn delete_app(&self, params: DeleteAppParams) {
-        let url = format!("{}/api/app", self.address);
+        let url = format!("{}/api/app", self.http_addr());
         delete_app_request(self.user_token(), params, &url)
             .await
             .unwrap();
     }
 
     pub async fn create_view(&self, params: CreateViewParams) -> View {
-        let url = format!("{}/api/view", self.address);
+        let url = format!("{}/api/view", self.http_addr());
         let view = create_view_request(self.user_token(), params, &url)
             .await
             .unwrap();
@@ -135,7 +135,7 @@ impl TestServer {
     }
 
     pub async fn read_view(&self, params: QueryViewParams) -> Option<View> {
-        let url = format!("{}/api/view", self.address);
+        let url = format!("{}/api/view", self.http_addr());
         let view = read_view_request(self.user_token(), params, &url)
             .await
             .unwrap();
@@ -143,21 +143,21 @@ impl TestServer {
     }
 
     pub async fn update_view(&self, params: UpdateViewParams) {
-        let url = format!("{}/api/view", self.address);
+        let url = format!("{}/api/view", self.http_addr());
         update_view_request(self.user_token(), params, &url)
             .await
             .unwrap();
     }
 
     pub async fn delete_view(&self, params: DeleteViewParams) {
-        let url = format!("{}/api/view", self.address);
+        let url = format!("{}/api/view", self.http_addr());
         delete_view_request(self.user_token(), params, &url)
             .await
             .unwrap();
     }
 
     pub async fn read_doc(&self, params: QueryDocParams) -> Option<Doc> {
-        let url = format!("{}/api/doc", self.address);
+        let url = format!("{}/api/doc", self.http_addr());
         let doc = read_doc_request(self.user_token(), params, &url)
             .await
             .unwrap();
@@ -175,13 +175,19 @@ impl TestServer {
     }
 
     pub(crate) async fn register(&self, params: SignUpParams) -> SignUpResponse {
-        let url = format!("{}/api/register", self.address);
+        let url = format!("{}/api/register", self.http_addr());
         let response = user_sign_up_request(params, &url).await.unwrap();
         response
     }
 
+    pub(crate) fn http_addr(&self) -> String { format!("http://{}", self.host) }
+
     pub(crate) fn ws_addr(&self) -> String {
-        format!("{}/ws/{}", self.address, self.user_token.as_ref().unwrap())
+        format!(
+            "ws://{}/ws/{}",
+            self.host,
+            self.user_token.as_ref().unwrap()
+        )
     }
 }
 pub async fn spawn_server() -> TestServer {
@@ -206,7 +212,7 @@ pub async fn spawn_server() -> TestServer {
     });
 
     TestServer {
-        address: format!("http://localhost:{}", application_port),
+        host: format!("localhost:{}", application_port),
         port: application_port,
         pg_pool: get_connection_pool(&configuration.database)
             .await

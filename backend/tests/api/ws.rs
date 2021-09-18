@@ -6,5 +6,5 @@ async fn ws_connect() {
     let server = TestServer::new().await;
     let mut controller = WsController::new();
     let addr = server.ws_addr();
-    let _ = controller.connect(addr).await.unwrap();
+    let _ = controller.connect(addr).unwrap().await;
 }

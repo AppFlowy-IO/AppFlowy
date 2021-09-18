@@ -54,6 +54,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "RepeatedView"
         | "WorkspaceError"
         | "WsError"
+        | "WsMessage"
         | "CreateDocParams"
         | "Doc"
         | "SaveDocParams"

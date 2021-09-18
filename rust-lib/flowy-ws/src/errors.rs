@@ -36,11 +36,15 @@ impl WsError {
     }
 
     static_user_error!(internal, ErrorCode::InternalError);
+    static_user_error!(duplicate_source, ErrorCode::DuplicateSource);
+    static_user_error!(unsupported_message, ErrorCode::UnsupportedMessage);
 }
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
 pub enum ErrorCode {
-    InternalError = 0,
+    InternalError      = 0,
+    DuplicateSource    = 1,
+    UnsupportedMessage = 2,
 }
 
 impl std::default::Default for ErrorCode {
@@ -49,6 +53,10 @@ impl std::default::Default for ErrorCode {
 
 impl std::convert::From<url::ParseError> for WsError {
     fn from(error: ParseError) -> Self { WsError::internal().context(error) }
+}
+
+impl std::convert::From<protobuf::ProtobufError> for WsError {
+    fn from(error: protobuf::ProtobufError) -> Self { WsError::internal().context(error) }
 }
 
 impl std::convert::From<futures_channel::mpsc::TrySendError<Message>> for WsError {

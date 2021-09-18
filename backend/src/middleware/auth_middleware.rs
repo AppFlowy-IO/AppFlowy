@@ -56,7 +56,7 @@ where
     fn call(&self, req: ServiceRequest) -> Self::Future {
         let mut authenticate_pass: bool = false;
         for ignore_route in IGNORE_ROUTES.iter() {
-            log::info!("ignore: {}, path: {}", ignore_route, req.path());
+            // log::info!("ignore: {}, path: {}", ignore_route, req.path());
             if req.path().starts_with(ignore_route) {
                 authenticate_pass = true;
                 break;

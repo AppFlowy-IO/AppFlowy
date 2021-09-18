@@ -60,7 +60,7 @@ pub fn parse_ty<'a>(ctxt: &Ctxt, ty: &'a syn::Type) -> Option<TyInfo<'a>> {
                 "Vec" => generate_vec_ty_info(ctxt, seg, bracketed),
                 "Option" => generate_option_ty_info(ctxt, ty, seg, bracketed),
                 _ => {
-                    panic!("Unsupported ty")
+                    panic!("Unsupported ty {}", seg.ident.to_string())
                 },
             }
         } else {
