@@ -1,14 +1,8 @@
 use crate::{connect::WsConnection, errors::WsError, WsMessage};
 use flowy_net::errors::ServerError;
 use futures_channel::mpsc::{UnboundedReceiver, UnboundedSender};
-use futures_core::{future::BoxFuture, ready, Stream};
-use futures_util::{
-    future,
-    future::{Either, Select},
-    pin_mut,
-    FutureExt,
-    StreamExt,
-};
+use futures_core::{ready, Stream};
+
 use pin_project::pin_project;
 use std::{
     collections::HashMap,
@@ -17,13 +11,8 @@ use std::{
     sync::Arc,
     task::{Context, Poll},
 };
-use tokio::{net::TcpStream, task::JoinHandle};
-use tokio_tungstenite::{
-    connect_async,
-    tungstenite::{handshake::client::Response, http::StatusCode, Error, Message},
-    MaybeTlsStream,
-    WebSocketStream,
-};
+use tokio::task::JoinHandle;
+use tokio_tungstenite::{tungstenite::Message, MaybeTlsStream, WebSocketStream};
 
 pub type MsgReceiver = UnboundedReceiver<Message>;
 pub type MsgSender = UnboundedSender<Message>;
@@ -56,7 +45,7 @@ impl WsController {
     }
 
     pub fn connect(&mut self, addr: String) -> Result<JoinHandle<()>, ServerError> {
-        log::debug!("🐴 Try to connect: {}", &addr);
+        log::debug!("🐴 ws connect: {}", &addr);
         let (connection, handlers) = self.make_connect(addr);
         Ok(tokio::spawn(async {
             tokio::select! {

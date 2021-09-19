@@ -62,3 +62,7 @@ impl std::convert::From<protobuf::ProtobufError> for WsError {
 impl std::convert::From<futures_channel::mpsc::TrySendError<Message>> for WsError {
     fn from(error: TrySendError<Message>) -> Self { WsError::internal().context(error) }
 }
+
+impl std::convert::From<tokio_tungstenite::tungstenite::Error> for WsError {
+    fn from(error: tokio_tungstenite::tungstenite::Error) -> Self { WsError::internal().context(error) }
+}
