@@ -37,7 +37,7 @@ impl WsConnection {
 }
 
 impl Future for WsConnection {
-    type Output = Result<WsStream, ServerError>;
+    type Output = Result<WsStream, WsError>;
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         // [[pin]]
         // poll async function.  The following methods not work.
@@ -65,7 +65,7 @@ impl Future for WsConnection {
                 },
                 Err(error) => {
                     log::debug!("🐴 ws connect failed: {:?}", error);
-                    Poll::Ready(Err(error_to_flowy_response(error)))
+                    Poll::Ready(Err(error.into()))
                 },
             };
         }
@@ -133,21 +133,6 @@ fn post_message(tx: MsgSender, message: Result<Message, Error>) {
         Ok(_) => {},
         Err(e) => log::error!("ws read error: {:?}", e),
     }
-}
-
-fn error_to_flowy_response(error: tokio_tungstenite::tungstenite::Error) -> ServerError {
-    let error = match error {
-        Error::Http(response) => {
-            if response.status() == StatusCode::UNAUTHORIZED {
-                ServerError::unauthorized()
-            } else {
-                ServerError::internal().context(response)
-            }
-        },
-        _ => ServerError::internal().context(error),
-    };
-
-    error
 }
 
 pub struct Retry<F> {

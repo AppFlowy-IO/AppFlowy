@@ -178,15 +178,16 @@ impl UserSession {
         Ok(())
     }
 
-    pub fn send_ws_msg<T: Into<WsMessage>>(&self, msg: T) -> Result<(), UserError> {
-        match self.ws_controller.try_read_for(Duration::from_millis(300)) {
-            None => Err(UserError::internal().context("Send ws message timeout")),
-            Some(guard) => {
-                let _ = guard.send_msg(msg)?;
-                Ok(())
-            },
-        }
-    }
+    // pub fn send_ws_msg<T: Into<WsMessage>>(&self, msg: T) -> Result<(),
+    // UserError> {     match self.ws_controller.try_read_for(Duration::
+    // from_millis(300)) {         None =>
+    // Err(UserError::internal().context("Send ws message timeout")),
+    //         Some(guard) => {
+    //             let _ = guard.send_msg(msg)?;
+    //             Ok(())
+    //         },
+    //     }
+    // }
 }
 
 impl UserSession {
