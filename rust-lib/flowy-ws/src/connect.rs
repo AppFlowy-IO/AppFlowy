@@ -56,8 +56,11 @@ impl Future for WsConnection {
         loop {
             return match ready!(self.as_mut().project().fut.poll(cx)) {
                 Ok((stream, _)) => {
-                    log::debug!("🐴 ws connect success: {:?}", error);
-                    let (msg_tx, ws_rx) = (self.msg_tx.take().unwrap(), self.ws_rx.take().unwrap());
+                    log::debug!("🐴 ws connect success");
+                    let (msg_tx, ws_rx) = (
+                        self.msg_tx.take().expect("WsConnection should be call once "),
+                        self.ws_rx.take().expect("WsConnection should be call once "),
+                    );
                     Poll::Ready(Ok(WsStream::new(msg_tx, ws_rx, stream)))
                 },
                 Err(error) => {
@@ -72,6 +75,7 @@ impl Future for WsConnection {
 type Fut = BoxFuture<'static, Result<(), WsError>>;
 #[pin_project]
 pub struct WsStream {
+    msg_tx: MsgSender,
     #[pin]
     inner: Option<(Fut, Fut)>,
 }
@@ -80,6 +84,7 @@ impl WsStream {
     pub fn new(msg_tx: MsgSender, ws_rx: MsgReceiver, stream: WebSocketStream<MaybeTlsStream<TcpStream>>) -> Self {
         let (ws_write, ws_read) = stream.split();
         Self {
+            msg_tx: msg_tx.clone(),
             inner: Some((
                 Box::pin(async move {
                     let _ = ws_read.for_each(|message| async { post_message(msg_tx.clone(), message) }).await;
@@ -102,15 +107,15 @@ impl Future for WsStream {
     type Output = Result<(), WsError>;
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        let (mut left, mut right) = self.inner.take().unwrap();
-        match left.poll_unpin(cx) {
+        let (mut ws_read, mut ws_write) = self.inner.take().unwrap();
+        match ws_read.poll_unpin(cx) {
             Poll::Ready(l) => Poll::Ready(l),
             Poll::Pending => {
                 //
-                match right.poll_unpin(cx) {
+                match ws_write.poll_unpin(cx) {
                     Poll::Ready(r) => Poll::Ready(r),
                     Poll::Pending => {
-                        self.inner = Some((left, right));
+                        self.inner = Some((ws_read, ws_write));
                         Poll::Pending
                     },
                 }
@@ -143,4 +148,36 @@ fn error_to_flowy_response(error: tokio_tungstenite::tungstenite::Error) -> Serv
     };
 
     error
+}
+
+pub struct Retry<F> {
+    f: F,
+    retry_time: usize,
+    addr: String,
+}
+
+impl<F> Retry<F>
+where
+    F: Fn(&str),
+{
+    pub fn new(addr: &str, f: F) -> Self {
+        Self {
+            f,
+            retry_time: 3,
+            addr: addr.to_owned(),
+        }
+    }
+}
+
+impl<F> Future for Retry<F>
+where
+    F: Fn(&str),
+{
+    type Output = ();
+
+    fn poll(mut self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Self::Output> {
+        (self.f)(&self.addr);
+
+        Poll::Ready(())
+    }
 }

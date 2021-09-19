@@ -3,10 +3,13 @@ use flowy_net::errors::ServerError;
 use futures_channel::mpsc::{UnboundedReceiver, UnboundedSender};
 use futures_core::{ready, Stream};
 
+use crate::connect::Retry;
+use futures_core::future::BoxFuture;
 use pin_project::pin_project;
 use std::{
     collections::HashMap,
     future::Future,
+    marker::PhantomData,
     pin::Pin,
     sync::Arc,
     task::{Context, Poll},
@@ -24,6 +27,7 @@ pub trait WsMessageHandler: Sync + Send + 'static {
 pub struct WsController {
     sender: Option<Arc<WsSender>>,
     handlers: HashMap<String, Arc<dyn WsMessageHandler>>,
+    addr: Option<String>,
 }
 
 impl WsController {
@@ -31,6 +35,7 @@ impl WsController {
         let controller = Self {
             sender: None,
             handlers: HashMap::new(),
+            addr: None,
         };
         controller
     }
@@ -44,25 +49,41 @@ impl WsController {
         Ok(())
     }
 
-    pub fn connect(&mut self, addr: String) -> Result<JoinHandle<()>, ServerError> {
+    pub fn connect(&mut self, addr: String) -> Result<JoinHandle<()>, ServerError> { self._connect(addr.clone(), None) }
+
+    pub fn connect_with_retry<F>(&mut self, addr: String, retry: Retry<F>) -> Result<JoinHandle<()>, ServerError>
+    where
+        F: Fn(&str) + Send + Sync + 'static,
+    {
+        self._connect(addr, Some(Box::pin(async { retry.await })))
+    }
+
+    fn _connect(&mut self, addr: String, retry: Option<BoxFuture<'static, ()>>) -> Result<JoinHandle<()>, ServerError> {
         log::debug!("🐴 ws connect: {}", &addr);
-        let (connection, handlers) = self.make_connect(addr);
-        Ok(tokio::spawn(async {
-            tokio::select! {
-                result = connection => {
-                    match result {
-                        Ok(stream) => {
-                            tokio::spawn(stream).await;
-                            // stream.start().await;
+        let (connection, handlers) = self.make_connect(addr.clone());
+        Ok(tokio::spawn(async move {
+            match connection.await {
+                Ok(stream) => {
+                    tokio::select! {
+                        result = stream => {
+                            match result {
+                                Ok(_) => {},
+                                Err(e) => {
+                                    // TODO: retry?
+                                    log::error!("ws stream error {:?}", e);
+                                }
+                            }
                         },
-                        Err(e) => {
-                            // TODO: retry?
-                            log::error!("ws connect failed {:?}", e);
-                        }
-                    }
+                        result = handlers => log::debug!("handlers completed {:?}", result),
+                    };
                 },
-                result = handlers => log::debug!("handlers completed {:?}", result),
-            };
+                Err(e) => match retry {
+                    None => log::error!("ws connect {} failed {:?}", addr, e),
+                    Some(retry) => {
+                        tokio::spawn(retry);
+                    },
+                },
+            }
         }))
     }
 
@@ -81,6 +102,7 @@ impl WsController {
         let (ws_tx, ws_rx) = futures_channel::mpsc::unbounded();
         let handlers = self.handlers.clone();
         self.sender = Some(Arc::new(WsSender::new(ws_tx)));
+        self.addr = Some(addr.clone());
         (WsConnection::new(msg_tx, ws_rx, addr), WsHandlers::new(handlers, msg_rx))
     }
 
@@ -109,10 +131,10 @@ impl Future for WsHandlers {
         loop {
             match ready!(self.as_mut().project().msg_rx.poll_next(cx)) {
                 None => {
-                    // log::debug!("🐴 ws handler done");
-                    return Poll::Pending;
+                    return Poll::Ready(());
                 },
                 Some(message) => {
+                    log::debug!("🐴 ws handler receive message");
                     let message = WsMessage::from(message);
                     match self.handlers.get(&message.source) {
                         None => log::error!("Can't find any handler for message: {:?}", message),

@@ -18,7 +18,7 @@ use flowy_database::{
 };
 use flowy_infra::kv::KV;
 use flowy_sqlite::ConnectionPool;
-use flowy_ws::{WsController, WsMessage, WsMessageHandler};
+use flowy_ws::{connect::Retry, WsController, WsMessage, WsMessageHandler};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::{sync::Arc, time::Duration};
@@ -47,7 +47,7 @@ pub struct UserSession {
     #[allow(dead_code)]
     server: Server,
     session: RwLock<Option<Session>>,
-    ws_controller: RwLock<WsController>,
+    ws_controller: Arc<RwLock<WsController>>,
     status_callback: SessionStatusCallback,
 }
 
@@ -55,7 +55,7 @@ impl UserSession {
     pub fn new(config: UserSessionConfig, status_callback: SessionStatusCallback) -> Self {
         let db = UserDB::new(&config.root_dir);
         let server = construct_user_server();
-        let ws_controller = RwLock::new(WsController::new());
+        let ws_controller = Arc::new(RwLock::new(WsController::new()));
         let user_session = Self {
             database: db,
             config,
@@ -278,7 +278,12 @@ impl UserSession {
 
     fn start_ws_connection(&self, token: &str) -> Result<(), UserError> {
         let addr = format!("{}/{}", flowy_net::config::WS_ADDR.as_str(), token);
-        let _ = self.ws_controller.write().connect(addr);
+        let ws_controller = self.ws_controller.clone();
+        let retry = Retry::new(&addr, move |addr| {
+            ws_controller.write().connect(addr.to_owned());
+        });
+
+        let _ = self.ws_controller.write().connect_with_retry(addr, retry);
         Ok(())
     }
 }

@@ -1,4 +1,4 @@
-mod connect;
+pub mod connect;
 pub mod errors;
 mod msg;
 pub mod protobuf;
