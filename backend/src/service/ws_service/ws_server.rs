@@ -1,6 +1,7 @@
 use crate::service::ws_service::{
     entities::{Connect, Disconnect, Session, SessionId},
     ClientMessage,
+    MessageData,
 };
 use actix::{Actor, Context, Handler};
 use dashmap::DashMap;
@@ -46,7 +47,13 @@ impl Handler<Disconnect> for WSServer {
 impl Handler<ClientMessage> for WSServer {
     type Result = ();
 
-    fn handle(&mut self, _msg: ClientMessage, _ctx: &mut Context<Self>) -> Self::Result {}
+    fn handle(&mut self, msg: ClientMessage, _ctx: &mut Context<Self>) -> Self::Result {
+        match msg.data {
+            MessageData::Binary(_) => {},
+            MessageData::Connect(_) => {},
+            MessageData::Disconnect(_) => {},
+        }
+    }
 }
 
 impl actix::Supervised for WSServer {

@@ -20,10 +20,7 @@ pub async fn establish_ws_connection(
 ) -> Result<HttpResponse, Error> {
     match LoggedUser::from_token(token.clone()) {
         Ok(user) => {
-            let client = WSClient::new(
-                SessionId::new(user.user_id.clone()),
-                server.get_ref().clone(),
-            );
+            let client = WSClient::new(&user.user_id, server.get_ref().clone());
             let result = ws::start(client, &request, payload);
             match result {
                 Ok(response) => Ok(response.into()),

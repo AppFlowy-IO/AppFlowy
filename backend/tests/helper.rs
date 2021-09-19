@@ -164,7 +164,7 @@ impl TestServer {
         doc
     }
 
-    pub(crate) async fn register_user(&self) -> SignUpResponse {
+    pub async fn register_user(&self) -> SignUpResponse {
         let params = SignUpParams {
             email: "annie@appflowy.io".to_string(),
             name: "annie".to_string(),
@@ -174,15 +174,15 @@ impl TestServer {
         self.register(params).await
     }
 
-    pub(crate) async fn register(&self, params: SignUpParams) -> SignUpResponse {
+    pub async fn register(&self, params: SignUpParams) -> SignUpResponse {
         let url = format!("{}/api/register", self.http_addr());
         let response = user_sign_up_request(params, &url).await.unwrap();
         response
     }
 
-    pub(crate) fn http_addr(&self) -> String { format!("http://{}", self.host) }
+    pub fn http_addr(&self) -> String { format!("http://{}", self.host) }
 
-    pub(crate) fn ws_addr(&self) -> String {
+    pub fn ws_addr(&self) -> String {
         format!(
             "ws://{}/ws/{}",
             self.host,
@@ -265,7 +265,7 @@ async fn drop_test_database(database_name: String) {
         .expect("Failed to drop database.");
 }
 
-pub(crate) async fn create_test_workspace(server: &TestServer) -> Workspace {
+pub async fn create_test_workspace(server: &TestServer) -> Workspace {
     let params = CreateWorkspaceParams {
         name: "My first workspace".to_string(),
         desc: "This is my first workspace".to_string(),
@@ -275,7 +275,7 @@ pub(crate) async fn create_test_workspace(server: &TestServer) -> Workspace {
     workspace
 }
 
-pub(crate) async fn create_test_app(server: &TestServer, workspace_id: &str) -> App {
+pub async fn create_test_app(server: &TestServer, workspace_id: &str) -> App {
     let params = CreateAppParams {
         workspace_id: workspace_id.to_owned(),
         name: "My first app".to_string(),
@@ -287,7 +287,7 @@ pub(crate) async fn create_test_app(server: &TestServer, workspace_id: &str) -> 
     app
 }
 
-pub(crate) async fn create_test_view(application: &TestServer, app_id: &str) -> View {
+pub async fn create_test_view(application: &TestServer, app_id: &str) -> View {
     let name = "My first view".to_string();
     let desc = "This is my first view".to_string();
     let thumbnail = "http://1.png".to_string();

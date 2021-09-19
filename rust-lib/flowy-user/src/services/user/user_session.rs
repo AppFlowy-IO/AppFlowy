@@ -18,10 +18,10 @@ use flowy_database::{
 };
 use flowy_infra::kv::KV;
 use flowy_sqlite::ConnectionPool;
-use flowy_ws::{connect::Retry, WsController, WsMessage, WsMessageHandler};
+use flowy_ws::{connect::Retry, WsController, WsMessageHandler};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
-use std::{sync::Arc, time::Duration};
+use std::sync::Arc;
 
 pub struct UserSessionConfig {
     root_dir: String,

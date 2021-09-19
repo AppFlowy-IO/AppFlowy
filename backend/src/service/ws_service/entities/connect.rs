@@ -7,8 +7,17 @@ use std::fmt::Formatter;
 pub type Socket = Recipient<ClientMessage>;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
-pub struct SessionId {
-    pub id: String,
+pub struct SessionId(pub String);
+
+impl<T: AsRef<str>> std::convert::From<T> for SessionId {
+    fn from(s: T) -> Self { SessionId(s.as_ref().to_owned()) }
+}
+
+impl std::fmt::Display for SessionId {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let desc = format!("{}", &self.0);
+        f.write_str(&desc)
+    }
 }
 
 pub struct Session {
@@ -22,17 +31,6 @@ impl std::convert::From<Connect> for Session {
             id: c.sid,
             socket: c.socket,
         }
-    }
-}
-
-impl SessionId {
-    pub fn new(id: String) -> Self { SessionId { id } }
-}
-
-impl std::fmt::Display for SessionId {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let desc = format!("{}", &self.id);
-        f.write_str(&desc)
     }
 }
 

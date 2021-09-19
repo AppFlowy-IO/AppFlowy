@@ -1,10 +1,8 @@
 use crate::entities::token::{Claim, Token};
-
+use actix_web::http::HeaderValue;
 use chrono::{DateTime, Utc};
 use dashmap::DashMap;
 use flowy_net::errors::ServerError;
-
-use actix_web::http::HeaderValue;
 use lazy_static::lazy_static;
 
 lazy_static! {

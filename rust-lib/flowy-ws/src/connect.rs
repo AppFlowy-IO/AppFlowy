@@ -1,19 +1,17 @@
 use crate::{errors::WsError, MsgReceiver, MsgSender};
-use flowy_net::errors::ServerError;
 use futures_core::{future::BoxFuture, ready};
-use futures_util::{FutureExt, StreamExt, TryStreamExt};
+use futures_util::{FutureExt, StreamExt};
 use pin_project::pin_project;
 use std::{
     fmt,
     future::Future,
     pin::Pin,
-    sync::Arc,
     task::{Context, Poll},
 };
 use tokio::net::TcpStream;
 use tokio_tungstenite::{
     connect_async,
-    tungstenite::{handshake::client::Response, http::StatusCode, Error, Message},
+    tungstenite::{handshake::client::Response, Error, Message},
     MaybeTlsStream,
     WebSocketStream,
 };
@@ -160,7 +158,7 @@ where
 {
     type Output = ();
 
-    fn poll(mut self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Self::Output> {
+    fn poll(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Self::Output> {
         (self.f)(&self.addr);
 
         Poll::Ready(())

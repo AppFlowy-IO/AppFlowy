@@ -1,20 +1,3 @@
-use std::time::Instant;
-
-use actix::{
-    fut,
-    Actor,
-    ActorContext,
-    ActorFutureExt,
-    Addr,
-    AsyncContext,
-    ContextFutureSpawner,
-    Handler,
-    Running,
-    StreamHandler,
-    WrapFuture,
-};
-use actix_web_actors::{ws, ws::Message::Text};
-
 use crate::{
     config::{HEARTBEAT_INTERVAL, PING_TIMEOUT},
     service::ws_service::{
@@ -24,37 +7,57 @@ use crate::{
         WSServer,
     },
 };
+use actix::*;
+use actix_web_actors::{ws, ws::Message::Text};
+use std::time::Instant;
 
+//    Frontend          │                       Backend
+//
+//                      │
+// ┌──────────┐   WsMessage   ┌───────────┐  ClientMessage    ┌──────────┐
+// │  user 1  │─────────┼────▶│ws_client_1│──────────────────▶│ws_server │
+// └──────────┘               └───────────┘                   └──────────┘
+//                      │                                           │
+//                WsMessage                                         ▼
+// ┌──────────┐         │     ┌───────────┐    ClientMessage     Group
+// │  user 2  │◀──────────────│ws_client_2│◀───────┐        ┌───────────────┐
+// └──────────┘         │     └───────────┘        │        │  ws_user_1    │
+//                                                 │        │               │
+//                      │                          └────────│  ws_user_2    │
+// ┌──────────┐               ┌───────────┐                 │               │
+// │  user 3  │─────────┼────▶│ws_client_3│                 └───────────────┘
+// └──────────┘               └───────────┘
+//                      │
 pub struct WSClient {
-    sid: SessionId,
+    session_id: SessionId,
     server: Addr<WSServer>,
     hb: Instant,
 }
 
 impl WSClient {
-    pub fn new(sid: SessionId, server: Addr<WSServer>) -> Self {
+    pub fn new<T: Into<SessionId>>(session_id: T, server: Addr<WSServer>) -> Self {
         Self {
-            sid,
+            session_id: session_id.into(),
             hb: Instant::now(),
             server,
         }
     }
 
     fn hb(&self, ctx: &mut ws::WebsocketContext<Self>) {
-        ctx.run_interval(HEARTBEAT_INTERVAL, |ws_session, ctx| {
-            if Instant::now().duration_since(ws_session.hb) > PING_TIMEOUT {
-                ws_session.server.do_send(Disconnect {
-                    sid: ws_session.sid.clone(),
+        ctx.run_interval(HEARTBEAT_INTERVAL, |client, ctx| {
+            if Instant::now().duration_since(client.hb) > PING_TIMEOUT {
+                client.server.do_send(Disconnect {
+                    sid: client.session_id.clone(),
                 });
                 ctx.stop();
-                return;
+            } else {
+                ctx.ping(b"");
             }
-            ctx.ping(b"");
         });
     }
 
     fn send(&self, data: MessageData) {
-        let msg = ClientMessage::new(self.sid.clone(), data);
+        let msg = ClientMessage::new(self.session_id.clone(), data);
         self.server.do_send(msg);
     }
 }
@@ -67,18 +70,16 @@ impl Actor for WSClient {
         let socket = ctx.address().recipient();
         let connect = Connect {
             socket,
-            sid: self.sid.clone(),
+            sid: self.session_id.clone(),
         };
         self.server
             .send(connect)
             .into_actor(self)
-            .then(|res, _ws_session, _ctx| {
+            .then(|res, client, _ctx| {
                 match res {
-                    Ok(Ok(_)) => {},
-                    Ok(Err(_e)) => {
-                        unimplemented!()
-                    },
-                    Err(_e) => unimplemented!(),
+                    Ok(Ok(_)) => log::trace!("Send connect message to server success"),
+                    Ok(Err(e)) => log::error!("Send connect message to server failed: {:?}", e),
+                    Err(e) => log::error!("Send connect message to server failed: {:?}", e),
                 }
                 fut::ready(())
             })
@@ -87,7 +88,7 @@ impl Actor for WSClient {
 
     fn stopping(&mut self, _: &mut Self::Context) -> Running {
         self.server.do_send(Disconnect {
-            sid: self.sid.clone(),
+            sid: self.session_id.clone(),
         });
 
         Running::Stop
@@ -98,39 +99,33 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSClient {
     fn handle(&mut self, msg: Result<ws::Message, ws::ProtocolError>, ctx: &mut Self::Context) {
         match msg {
             Ok(ws::Message::Ping(msg)) => {
-                log::debug!("Receive {} ping {:?}", &self.sid, &msg);
                 self.hb = Instant::now();
                 ctx.pong(&msg);
             },
             Ok(ws::Message::Pong(msg)) => {
-                log::debug!("Receive {} pong {:?}", &self.sid, &msg);
-                self.send(MessageData::Connect(self.sid.clone()));
+                log::debug!("Receive {} pong {:?}", &self.session_id, &msg);
                 self.hb = Instant::now();
             },
             Ok(ws::Message::Binary(bin)) => {
-                log::debug!(" Receive {} binary", &self.sid);
+                log::debug!(" Receive {} binary", &self.session_id);
                 self.send(MessageData::Binary(bin));
             },
+            Ok(Text(_)) => {
+                log::warn!("Receive unexpected text message");
+            },
             Ok(ws::Message::Close(reason)) => {
-                log::debug!("Receive {} close {:?}", &self.sid, &reason);
+                self.send(MessageData::Disconnect(self.session_id.clone()));
                 ctx.close(reason);
                 ctx.stop();
             },
-            Ok(ws::Message::Continuation(c)) => {
-                log::debug!("Receive {} continues message {:?}", &self.sid, &c);
-            },
-            Ok(ws::Message::Nop) => {
-                log::debug!("Receive Nop message");
-            },
-            Ok(Text(s)) => {
-                log::debug!("Receive {} text {:?}", &self.sid, &s);
-                self.send(MessageData::Text(s.to_string()));
-            },
-
+            Ok(ws::Message::Continuation(_)) => {},
+            Ok(ws::Message::Nop) => {},
             Err(e) => {
-                let msg = format!("{} error: {:?}", &self.sid, e);
-                log::error!("stream {}", msg);
-                ctx.text(msg);
+                log::error!(
+                    "[{}]: WebSocketStream protocol error {:?}",
+                    self.session_id,
+                    e
+                );
                 ctx.stop();
             },
         }
@@ -142,21 +137,11 @@ impl Handler<ClientMessage> for WSClient {
 
     fn handle(&mut self, msg: ClientMessage, ctx: &mut Self::Context) {
         match msg.data {
-            MessageData::Text(text) => {
-                ctx.text(text);
-            },
             MessageData::Binary(binary) => {
                 ctx.binary(binary);
             },
-            MessageData::Connect(sid) => {
-                let connect_msg = format!("{} connect", &sid);
-                ctx.text(connect_msg);
-            },
-            MessageData::Disconnect(text) => {
-                log::debug!("Session start disconnecting {}", self.sid);
-                ctx.text(text);
-                ctx.stop();
-            },
+            MessageData::Connect(_) => {},
+            MessageData::Disconnect(_) => {},
         }
     }
 }

@@ -57,6 +57,7 @@ tokio = { version = "1", features = ["full"] }
 flowy-user = { path = "../rust-lib/flowy-user" }
 flowy-workspace = { path = "../rust-lib/flowy-workspace" }
 flowy-document = { path = "../rust-lib/flowy-document" }
+flowy-ws = { path = "../rust-lib/flowy-ws" }
 flowy-net = { path = "../rust-lib/flowy-net", features = ["http_server"] }
 
 ormx = { version = "0.7", features = ["postgres"]}

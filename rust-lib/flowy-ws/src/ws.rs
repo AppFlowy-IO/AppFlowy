@@ -1,28 +1,23 @@
-use crate::{connect::WsConnection, errors::WsError, WsMessage};
+use crate::{
+    connect::{Retry, WsConnection},
+    errors::WsError,
+    WsMessage,
+};
 use flowy_net::errors::ServerError;
 use futures_channel::mpsc::{UnboundedReceiver, UnboundedSender};
-use futures_core::{ready, Stream};
-
-use crate::connect::Retry;
-use bytes::Buf;
-use futures_core::future::BoxFuture;
+use futures_core::{future::BoxFuture, ready, Stream};
 use pin_project::pin_project;
 use std::{
     collections::HashMap,
     future::Future,
-    marker::PhantomData,
     pin::Pin,
     sync::Arc,
     task::{Context, Poll},
 };
 use tokio::{sync::RwLock, task::JoinHandle};
-use tokio_tungstenite::{
-    tungstenite::{
-        protocol::{frame::coding::CloseCode, CloseFrame},
-        Message,
-    },
-    MaybeTlsStream,
-    WebSocketStream,
+use tokio_tungstenite::tungstenite::{
+    protocol::{frame::coding::CloseCode, CloseFrame},
+    Message,
 };
 
 pub type MsgReceiver = UnboundedReceiver<Message>;
@@ -187,18 +182,6 @@ impl Future for WsHandlers {
         }
     }
 }
-
-// impl WsSender for WsController {
-//     fn send_msg(&self, msg: WsMessage) -> Result<(), WsError> {
-//         match self.ws_tx.as_ref() {
-//             None => Err(WsError::internal().context("Should call make_connect
-// first")),             Some(sender) => {
-//                 let _ = sender.unbounded_send(msg.into()).map_err(|e|
-// WsError::internal().context(e))?;                 Ok(())
-//             },
-//         }
-//     }
-// }
 
 #[derive(Debug, Clone)]
 pub struct WsSender {
