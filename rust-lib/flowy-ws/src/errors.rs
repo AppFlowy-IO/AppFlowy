@@ -36,7 +36,6 @@ impl WsError {
     }
 
     static_user_error!(internal, ErrorCode::InternalError);
-    static_user_error!(duplicate_source, ErrorCode::DuplicateSource);
     static_user_error!(unsupported_message, ErrorCode::UnsupportedMessage);
     static_user_error!(unauthorized, ErrorCode::Unauthorized);
 }
@@ -44,9 +43,8 @@ impl WsError {
 #[derive(Debug, Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
 pub enum ErrorCode {
     InternalError      = 0,
-    DuplicateSource    = 1,
-    UnsupportedMessage = 2,
-    Unauthorized       = 3,
+    UnsupportedMessage = 1,
+    Unauthorized       = 2,
 }
 
 impl std::default::Default for ErrorCode {

@@ -75,7 +75,7 @@ impl Actor for WSClient {
         self.server
             .send(connect)
             .into_actor(self)
-            .then(|res, client, _ctx| {
+            .then(|res, _client, _ctx| {
                 match res {
                     Ok(Ok(_)) => log::trace!("Send connect message to server success"),
                     Ok(Err(e)) => log::error!("Send connect message to server failed: {:?}", e),

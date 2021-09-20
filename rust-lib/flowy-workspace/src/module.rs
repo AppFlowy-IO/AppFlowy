@@ -4,6 +4,7 @@ use crate::{
     handlers::*,
     services::{server::construct_workspace_server, AppController, ViewController, WorkspaceController},
 };
+
 use flowy_database::DBConnection;
 use flowy_dispatch::prelude::*;
 use flowy_document::module::FlowyDocument;

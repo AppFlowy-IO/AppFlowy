@@ -40,6 +40,7 @@ impl DocError {
     static_doc_error!(internal, ErrorCode::InternalError);
     static_doc_error!(not_found, ErrorCode::DocNotfound);
     static_doc_error!(unauthorized, ErrorCode::UserUnauthorized);
+    static_doc_error!(ws, ErrorCode::WsConnectError);
 }
 
 pub fn internal_error<T>(e: T) -> DocError
@@ -56,6 +57,9 @@ pub enum ErrorCode {
 
     #[display(fmt = "DocNotfound")]
     DocNotfound      = 1,
+
+    #[display(fmt = "Document websocket error")]
+    WsConnectError   = 10,
 
     #[display(fmt = "UserUnauthorized")]
     UserUnauthorized = 999,
@@ -79,6 +83,10 @@ impl std::convert::From<flowy_database::Error> for DocError {
 
 impl std::convert::From<flowy_ot::errors::OTError> for DocError {
     fn from(error: flowy_ot::errors::OTError) -> Self { DocError::internal().context(error) }
+}
+
+impl std::convert::From<std::io::Error> for DocError {
+    fn from(error: std::io::Error) -> Self { DocError::internal().context(error) }
 }
 
 // impl std::convert::From<::r2d2::Error> for DocError {

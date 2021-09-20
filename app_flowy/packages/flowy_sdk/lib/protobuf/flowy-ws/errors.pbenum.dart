@@ -11,13 +11,11 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 class ErrorCode extends $pb.ProtobufEnum {
   static const ErrorCode InternalError = ErrorCode._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'InternalError');
-  static const ErrorCode DuplicateSource = ErrorCode._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DuplicateSource');
-  static const ErrorCode UnsupportedMessage = ErrorCode._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UnsupportedMessage');
-  static const ErrorCode Unauthorized = ErrorCode._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unauthorized');
+  static const ErrorCode UnsupportedMessage = ErrorCode._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UnsupportedMessage');
+  static const ErrorCode Unauthorized = ErrorCode._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unauthorized');
 
   static const $core.List<ErrorCode> values = <ErrorCode> [
     InternalError,
-    DuplicateSource,
     UnsupportedMessage,
     Unauthorized,
   ];

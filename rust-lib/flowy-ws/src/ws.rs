@@ -1,5 +1,5 @@
 use crate::{
-    connect::{Retry, WsConnection},
+    connect::{Retry, WsConnectionFuture},
     errors::WsError,
     WsMessage,
 };
@@ -82,7 +82,7 @@ impl WsController {
     pub fn add_handler(&mut self, handler: Arc<dyn WsMessageHandler>) -> Result<(), WsError> {
         let source = handler.source();
         if self.handlers.contains_key(&source) {
-            return Err(WsError::duplicate_source());
+            log::error!("{} source is already registered", source);
         }
         self.handlers.insert(source, handler);
         Ok(())
@@ -95,6 +95,13 @@ impl WsController {
         F: Fn(&str) + Send + Sync + 'static,
     {
         self._connect(addr, Some(Box::pin(async { retry.await })))
+    }
+
+    pub fn get_sender(&self) -> Result<Arc<WsSender>, WsError> {
+        match &self.sender {
+            None => Err(WsError::internal().context("WsSender is not initialized")),
+            Some(sender) => Ok(sender.clone()),
+        }
     }
 
     fn _connect(&mut self, addr: String, retry: Option<BoxFuture<'static, ()>>) -> Result<JoinHandle<()>, ServerError> {
@@ -131,7 +138,7 @@ impl WsController {
         }))
     }
 
-    fn make_connect(&mut self, addr: String) -> (WsConnection, WsHandlers) {
+    fn make_connect(&mut self, addr: String) -> (WsConnectionFuture, WsHandlerFuture) {
         //                Stream                             User
         //               ┌───────────────┐                 ┌──────────────┐
         // ┌──────┐      │  ┌─────────┐  │    ┌────────┐   │  ┌────────┐  │
@@ -147,22 +154,22 @@ impl WsController {
         let handlers = self.handlers.clone();
         self.sender = Some(Arc::new(WsSender { ws_tx }));
         self.addr = Some(addr.clone());
-        (WsConnection::new(msg_tx, ws_rx, addr), WsHandlers::new(handlers, msg_rx))
+        (WsConnectionFuture::new(msg_tx, ws_rx, addr), WsHandlerFuture::new(handlers, msg_rx))
     }
 }
 
 #[pin_project]
-pub struct WsHandlers {
+pub struct WsHandlerFuture {
     #[pin]
     msg_rx: MsgReceiver,
     handlers: HashMap<String, Arc<dyn WsMessageHandler>>,
 }
 
-impl WsHandlers {
+impl WsHandlerFuture {
     fn new(handlers: HashMap<String, Arc<dyn WsMessageHandler>>, msg_rx: MsgReceiver) -> Self { Self { msg_rx, handlers } }
 }
 
-impl Future for WsHandlers {
+impl Future for WsHandlerFuture {
     type Output = ();
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         loop {

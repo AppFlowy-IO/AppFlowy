@@ -1,4 +1,4 @@
-use crate::service::ws_service::{entities::SessionId, WSClient, WSServer};
+use crate::service::ws_service::{WSClient, WSServer};
 use actix::Addr;
 
 use crate::service::user_service::LoggedUser;

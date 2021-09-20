@@ -29,6 +29,7 @@ bytes = { version = "1.0" }
 strum = "0.21"
 strum_macros = "0.21"
 dashmap = "4.0"
+parking_lot = "0.11"
 
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }

@@ -44,6 +44,7 @@ impl WorkspaceError {
     static_workspace_error!(unauthorized, ErrorCode::UserUnauthorized);
     static_workspace_error!(internal, ErrorCode::InternalError);
     static_workspace_error!(not_found, ErrorCode::RecordNotFound);
+    static_workspace_error!(ws, ErrorCode::WsConnectError);
 
     pub fn context<T: Debug>(mut self, error: T) -> Self {
         self.msg = format!("{:?}", error);
@@ -88,6 +89,9 @@ pub enum ErrorCode {
 
     #[display(fmt = "User unauthorized")]
     UserUnauthorized     = 100,
+
+    #[display(fmt = "Workspace websocket error")]
+    WsConnectError       = 200,
 
     #[display(fmt = "Server error")]
     InternalError        = 1000,

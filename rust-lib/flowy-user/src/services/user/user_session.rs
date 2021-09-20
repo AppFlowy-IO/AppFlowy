@@ -18,10 +18,10 @@ use flowy_database::{
 };
 use flowy_infra::kv::KV;
 use flowy_sqlite::ConnectionPool;
-use flowy_ws::{connect::Retry, WsController, WsMessageHandler};
+use flowy_ws::{connect::Retry, WsController, WsMessage, WsMessageHandler, WsSender};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 
 pub struct UserSessionConfig {
     root_dir: String,
@@ -173,21 +173,23 @@ impl UserSession {
 
     pub fn token(&self) -> Result<String, UserError> { Ok(self.get_session()?.token) }
 
-    pub fn add_ws_msg_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), UserError> {
-        let _ = self.ws_controller.write().add_handler(handler)?;
-        Ok(())
+    pub fn add_ws_handler(&self, handler: Arc<dyn WsMessageHandler>) { let _ = self.ws_controller.write().add_handler(handler); }
+
+    pub fn get_ws_sender(&self) -> Result<Arc<WsSender>, UserError> {
+        match self.ws_controller.try_read_for(Duration::from_millis(300)) {
+            None => Err(UserError::internal().context("Send ws message timeout")),
+            Some(guard) => {
+                let sender = guard.get_sender()?;
+                Ok(sender)
+            },
+        }
     }
 
-    // pub fn send_ws_msg<T: Into<WsMessage>>(&self, msg: T) -> Result<(),
-    // UserError> {     match self.ws_controller.try_read_for(Duration::
-    // from_millis(300)) {         None =>
-    // Err(UserError::internal().context("Send ws message timeout")),
-    //         Some(guard) => {
-    //             let _ = guard.send_msg(msg)?;
-    //             Ok(())
-    //         },
-    //     }
-    // }
+    pub fn send_ws_msg<T: Into<WsMessage>>(&self, msg: T) -> Result<(), UserError> {
+        let sender = self.get_ws_sender()?;
+        let _ = sender.send_msg(msg)?;
+        Ok(())
+    }
 }
 
 impl UserSession {

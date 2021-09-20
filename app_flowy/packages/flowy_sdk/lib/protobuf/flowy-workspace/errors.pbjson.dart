@@ -24,13 +24,14 @@ const ErrorCode$json = const {
     const {'1': 'ViewDescInvalid', '2': 23},
     const {'1': 'ViewDataInvalid', '2': 24},
     const {'1': 'UserUnauthorized', '2': 100},
+    const {'1': 'WsConnectError', '2': 200},
     const {'1': 'InternalError', '2': 1000},
     const {'1': 'RecordNotFound', '2': 1001},
   ],
 };
 
 /// Descriptor for `ErrorCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List errorCodeDescriptor = $convert.base64Decode('CglFcnJvckNvZGUSGAoUV29ya3NwYWNlTmFtZUludmFsaWQQABIWChJXb3Jrc3BhY2VJZEludmFsaWQQARIYChRBcHBDb2xvclN0eWxlSW52YWxpZBACEhgKFFdvcmtzcGFjZURlc2NJbnZhbGlkEAMSEAoMQXBwSWRJbnZhbGlkEAoSEgoOQXBwTmFtZUludmFsaWQQCxITCg9WaWV3TmFtZUludmFsaWQQFBIYChRWaWV3VGh1bWJuYWlsSW52YWxpZBAVEhEKDVZpZXdJZEludmFsaWQQFhITCg9WaWV3RGVzY0ludmFsaWQQFxITCg9WaWV3RGF0YUludmFsaWQQGBIUChBVc2VyVW5hdXRob3JpemVkEGQSEgoNSW50ZXJuYWxFcnJvchDoBxITCg5SZWNvcmROb3RGb3VuZBDpBw==');
+final $typed_data.Uint8List errorCodeDescriptor = $convert.base64Decode('CglFcnJvckNvZGUSGAoUV29ya3NwYWNlTmFtZUludmFsaWQQABIWChJXb3Jrc3BhY2VJZEludmFsaWQQARIYChRBcHBDb2xvclN0eWxlSW52YWxpZBACEhgKFFdvcmtzcGFjZURlc2NJbnZhbGlkEAMSEAoMQXBwSWRJbnZhbGlkEAoSEgoOQXBwTmFtZUludmFsaWQQCxITCg9WaWV3TmFtZUludmFsaWQQFBIYChRWaWV3VGh1bWJuYWlsSW52YWxpZBAVEhEKDVZpZXdJZEludmFsaWQQFhITCg9WaWV3RGVzY0ludmFsaWQQFxITCg9WaWV3RGF0YUludmFsaWQQGBIUChBVc2VyVW5hdXRob3JpemVkEGQSEwoOV3NDb25uZWN0RXJyb3IQyAESEgoNSW50ZXJuYWxFcnJvchDoBxITCg5SZWNvcmROb3RGb3VuZBDpBw==');
 @$core.Deprecated('Use workspaceErrorDescriptor instead')
 const WorkspaceError$json = const {
   '1': 'WorkspaceError',

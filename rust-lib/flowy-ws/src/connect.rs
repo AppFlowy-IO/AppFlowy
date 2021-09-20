@@ -17,16 +17,16 @@ use tokio_tungstenite::{
 };
 
 #[pin_project]
-pub struct WsConnection {
+pub struct WsConnectionFuture {
     msg_tx: Option<MsgSender>,
     ws_rx: Option<MsgReceiver>,
     #[pin]
     fut: BoxFuture<'static, Result<(WebSocketStream<MaybeTlsStream<TcpStream>>, Response), Error>>,
 }
 
-impl WsConnection {
+impl WsConnectionFuture {
     pub fn new(msg_tx: MsgSender, ws_rx: MsgReceiver, addr: String) -> Self {
-        WsConnection {
+        WsConnectionFuture {
             msg_tx: Some(msg_tx),
             ws_rx: Some(ws_rx),
             fut: Box::pin(async move { connect_async(&addr).await }),
@@ -34,7 +34,7 @@ impl WsConnection {
     }
 }
 
-impl Future for WsConnection {
+impl Future for WsConnectionFuture {
     type Output = Result<WsStream, WsError>;
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         // [[pin]]

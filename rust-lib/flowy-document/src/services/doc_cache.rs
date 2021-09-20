@@ -18,11 +18,11 @@ where
     fn from(s: T) -> Self { DocId(s.to_string()) }
 }
 
-pub(crate) struct DocCache {
+pub(crate) struct OpenedDocumentCache {
     inner: DashMap<DocId, RwLock<OpenDocument>>,
 }
 
-impl DocCache {
+impl OpenedDocumentCache {
     pub(crate) fn new() -> Self { Self { inner: DashMap::new() } }
 
     pub(crate) fn open<T, D>(&self, id: T, data: D) -> Result<(), DocError>

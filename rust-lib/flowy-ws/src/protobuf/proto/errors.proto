@@ -6,7 +6,6 @@ message WsError {
 }
 enum ErrorCode {
     InternalError = 0;
-    DuplicateSource = 1;
-    UnsupportedMessage = 2;
-    Unauthorized = 3;
+    UnsupportedMessage = 1;
+    Unauthorized = 2;
 }

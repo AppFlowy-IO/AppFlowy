@@ -22,6 +22,7 @@ class ErrorCode extends $pb.ProtobufEnum {
   static const ErrorCode ViewDescInvalid = ErrorCode._(23, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewDescInvalid');
   static const ErrorCode ViewDataInvalid = ErrorCode._(24, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewDataInvalid');
   static const ErrorCode UserUnauthorized = ErrorCode._(100, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserUnauthorized');
+  static const ErrorCode WsConnectError = ErrorCode._(200, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WsConnectError');
   static const ErrorCode InternalError = ErrorCode._(1000, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'InternalError');
   static const ErrorCode RecordNotFound = ErrorCode._(1001, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RecordNotFound');
 
@@ -38,6 +39,7 @@ class ErrorCode extends $pb.ProtobufEnum {
     ViewDescInvalid,
     ViewDataInvalid,
     UserUnauthorized,
+    WsConnectError,
     InternalError,
     RecordNotFound,
   ];

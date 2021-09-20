@@ -1,35 +1,38 @@
 use crate::{
     errors::DocError,
-    services::{doc_cache::DocCache, server::construct_doc_server},
+    services::{doc_cache::OpenedDocumentCache, server::construct_doc_server},
 };
 
 use crate::{
     entities::doc::{ApplyChangesetParams, CreateDocParams, Doc, QueryDocParams, SaveDocParams},
-    services::doc_controller::DocController,
+    errors::internal_error,
+    services::{doc_controller::DocController, ws_document::WsDocument},
 };
+
+
 use diesel::SqliteConnection;
 use flowy_database::ConnectionPool;
-
-use crate::errors::internal_error;
-use std::sync::Arc;
+use parking_lot::RwLock;
+use std::{sync::Arc};
 
 pub trait DocumentUser: Send + Sync {
-    fn user_doc_dir(&self) -> Result<String, DocError>;
+    fn user_dir(&self) -> Result<String, DocError>;
     fn user_id(&self) -> Result<String, DocError>;
     fn token(&self) -> Result<String, DocError>;
 }
 
 pub struct FlowyDocument {
     controller: Arc<DocController>,
-    cache: Arc<DocCache>,
+    ws: Arc<RwLock<WsDocument>>,
+    cache: Arc<OpenedDocumentCache>,
 }
 
 impl FlowyDocument {
-    pub fn new(user: Arc<dyn DocumentUser>) -> FlowyDocument {
+    pub fn new(user: Arc<dyn DocumentUser>, ws: Arc<RwLock<WsDocument>>) -> FlowyDocument {
         let server = construct_doc_server();
-        let cache = Arc::new(DocCache::new());
+        let cache = Arc::new(OpenedDocumentCache::new());
         let controller = Arc::new(DocController::new(server.clone(), user.clone()));
-        Self { controller, cache }
+        Self { controller, cache, ws }
     }
 
     pub fn create(&self, params: CreateDocParams, conn: &SqliteConnection) -> Result<(), DocError> {

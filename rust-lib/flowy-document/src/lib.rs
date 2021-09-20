@@ -10,5 +10,8 @@ mod sql_tables;
 extern crate flowy_database;
 
 pub mod prelude {
-    pub use crate::{module::*, services::server::*};
+    pub use crate::{
+        module::*,
+        services::{server::*, ws_document::*},
+    };
 }
