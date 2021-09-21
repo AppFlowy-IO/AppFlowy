@@ -37,7 +37,7 @@ pub struct ApplyChangesetParams {
     pub id: String,
 
     #[pb(index = 2)]
-    pub data: Vec<u8>,
+    pub data: Vec<u8>, // Delta
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]

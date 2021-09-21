@@ -55,15 +55,6 @@ pub(crate) async fn update_view_handler(
 
     Ok(())
 }
-#[tracing::instrument(skip(data, controller), err)]
-pub(crate) async fn update_view_data_handler(
-    data: Data<SaveViewDataRequest>,
-    controller: Unit<Arc<ViewController>>,
-) -> Result<(), WorkspaceError> {
-    let params: SaveDocParams = data.into_inner().try_into()?;
-    let _ = controller.update_view_data(params).await?;
-    Ok(())
-}
 
 #[tracing::instrument(skip(data, controller), err)]
 pub(crate) async fn apply_changeset_handler(

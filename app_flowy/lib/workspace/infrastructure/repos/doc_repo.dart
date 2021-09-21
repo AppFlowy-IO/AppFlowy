@@ -18,13 +18,6 @@ class DocRepository {
     return WorkspaceEventOpenView(request).send();
   }
 
-  Future<Either<Unit, WorkspaceError>> saveDoc({required Uint8List data}) {
-    final request = SaveViewDataRequest.create()
-      ..viewId = docId
-      ..data = data;
-    return WorkspaceEventSaveViewData(request).send();
-  }
-
   Future<Either<Doc, WorkspaceError>> applyChangeset(
       {required Uint8List data}) {
     final request = ApplyChangesetRequest.create()

@@ -12,6 +12,6 @@ extern crate flowy_database;
 pub mod prelude {
     pub use crate::{
         module::*,
-        services::{server::*, ws_document::*},
+        services::{server::*, ws::*},
     };
 }

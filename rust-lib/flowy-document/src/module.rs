@@ -1,19 +1,12 @@
 use crate::{
-    errors::DocError,
-    services::{doc_cache::OpenedDocumentCache, server::construct_doc_server},
-};
-
-use crate::{
     entities::doc::{ApplyChangesetParams, CreateDocParams, Doc, QueryDocParams, SaveDocParams},
-    errors::internal_error,
-    services::{doc_controller::DocController, ws_document::WsDocument},
+    errors::{internal_error, DocError},
+    services::{doc_controller::DocController, open_doc::OpenedDocManager, server::construct_doc_server, ws::WsManager},
 };
-
-
 use diesel::SqliteConnection;
 use flowy_database::ConnectionPool;
 use parking_lot::RwLock;
-use std::{sync::Arc};
+use std::sync::Arc;
 
 pub trait DocumentUser: Send + Sync {
     fn user_dir(&self) -> Result<String, DocError>;
@@ -23,16 +16,16 @@ pub trait DocumentUser: Send + Sync {
 
 pub struct FlowyDocument {
     controller: Arc<DocController>,
-    ws: Arc<RwLock<WsDocument>>,
-    cache: Arc<OpenedDocumentCache>,
+    doc_manager: Arc<OpenedDocManager>,
 }
 
 impl FlowyDocument {
-    pub fn new(user: Arc<dyn DocumentUser>, ws: Arc<RwLock<WsDocument>>) -> FlowyDocument {
+    pub fn new(user: Arc<dyn DocumentUser>, ws_manager: Arc<RwLock<WsManager>>) -> FlowyDocument {
         let server = construct_doc_server();
-        let cache = Arc::new(OpenedDocumentCache::new());
         let controller = Arc::new(DocController::new(server.clone(), user.clone()));
-        Self { controller, cache, ws }
+        let doc_manager = Arc::new(OpenedDocManager::new(ws_manager, controller.clone()));
+
+        Self { controller, doc_manager }
     }
 
     pub fn create(&self, params: CreateDocParams, conn: &SqliteConnection) -> Result<(), DocError> {
@@ -41,20 +34,20 @@ impl FlowyDocument {
     }
 
     pub fn delete(&self, params: QueryDocParams, conn: &SqliteConnection) -> Result<(), DocError> {
-        let _ = self.cache.close(&params.doc_id)?;
+        let _ = self.doc_manager.close(&params.doc_id)?;
         let _ = self.controller.delete(params.into(), conn)?;
         Ok(())
     }
 
     pub async fn open(&self, params: QueryDocParams, pool: Arc<ConnectionPool>) -> Result<Doc, DocError> {
-        let doc = match self.cache.is_opened(&params.doc_id) {
+        let doc = match self.doc_manager.is_opened(&params.doc_id) {
             true => {
-                let data = self.cache.read_doc(&params.doc_id).await?;
+                let data = self.doc_manager.read_doc(&params.doc_id).await?;
                 Doc { id: params.doc_id, data }
             },
             false => {
                 let doc = self.controller.open(params, pool).await?;
-                let _ = self.cache.open(&doc.id, doc.data.clone())?;
+                let _ = self.doc_manager.open(&doc.id, doc.data.clone())?;
                 doc
             },
         };
@@ -62,21 +55,9 @@ impl FlowyDocument {
         Ok(doc)
     }
 
-    pub async fn update(&self, params: SaveDocParams, pool: Arc<ConnectionPool>) -> Result<(), DocError> {
-        let _ = self.controller.update(params, &*pool.get().map_err(internal_error)?)?;
-        Ok(())
-    }
-
-    pub async fn apply_changeset(&self, params: ApplyChangesetParams) -> Result<Doc, DocError> {
-        let _ = self
-            .cache
-            .mut_doc(&params.id, |doc| {
-                let _ = doc.apply_changeset(params.data.clone())?;
-                Ok(())
-            })
-            .await?;
-
-        let data = self.cache.read_doc(&params.id).await?;
+    pub async fn apply_changeset(&self, params: ApplyChangesetParams, pool: Arc<ConnectionPool>) -> Result<Doc, DocError> {
+        let _ = self.doc_manager.apply_changeset(&params.id, params.data, pool).await?;
+        let data = self.doc_manager.read_doc(&params.id).await?;
         let doc = Doc { id: params.id, data };
         Ok(doc)
     }

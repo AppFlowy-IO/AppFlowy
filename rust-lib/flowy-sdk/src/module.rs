@@ -27,7 +27,7 @@ fn build_workspace_module(user_session: Arc<UserSession>) -> Module {
 
 fn build_document_module(user_session: Arc<UserSession>) -> Arc<FlowyDocument> {
     let document_deps = DocumentDepsResolver::new(user_session.clone());
-    let (user, ws) = document_deps.split_into();
-    let document = Arc::new(FlowyDocument::new(user, ws));
+    let (user, ws_manager) = document_deps.split_into();
+    let document = Arc::new(FlowyDocument::new(user, ws_manager));
     document
 }

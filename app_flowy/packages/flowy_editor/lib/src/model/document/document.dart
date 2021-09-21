@@ -14,13 +14,13 @@ import 'node/line.dart';
 import 'node/node.dart';
 import 'package:flowy_log/flowy_log.dart';
 
-abstract class EditorChangesetSender {
-  void sendDelta(Delta changeset, Delta delta);
+abstract class EditorDeltaSender {
+  void sendNewDelta(Delta changeset, Delta delta);
 }
 
 /// The rich text document
 class Document {
-  EditorChangesetSender? sender;
+  EditorDeltaSender? sender;
   Document({this.sender}) : _delta = Delta()..insert('\n') {
     _loadDocument(_delta);
   }
@@ -171,7 +171,7 @@ class Document {
 
       _delta = _delta.compose(delta);
 
-      sender?.sendDelta(changeset, _delta);
+      sender?.sendNewDelta(changeset, _delta);
     } catch (e) {
       throw '_delta compose failed';
     }

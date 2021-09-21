@@ -76,6 +76,7 @@ impl ViewController {
         Ok(view)
     }
 
+    #[tracing::instrument(level = "debug", skip(self), err)]
     pub(crate) async fn open_view(&self, params: QueryDocParams) -> Result<Doc, WorkspaceError> {
         let doc = self.document.open(params, self.database.db_pool()?).await?;
         Ok(doc)
@@ -124,13 +125,9 @@ impl ViewController {
         Ok(())
     }
 
-    pub(crate) async fn update_view_data(&self, params: SaveDocParams) -> Result<(), WorkspaceError> {
-        let _ = self.document.update(params, self.database.db_pool()?).await?;
-        Ok(())
-    }
-
     pub(crate) async fn apply_changeset(&self, params: ApplyChangesetParams) -> Result<Doc, WorkspaceError> {
-        let doc = self.document.apply_changeset(params).await?;
+        let pool = self.database.db_pool()?;
+        let doc = self.document.apply_changeset(params, pool).await?;
         Ok(doc)
     }
 }

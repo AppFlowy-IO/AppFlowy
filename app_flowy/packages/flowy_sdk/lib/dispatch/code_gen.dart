@@ -254,23 +254,6 @@ class WorkspaceEventOpenView {
     }
 }
 
-class WorkspaceEventSaveViewData {
-     SaveViewDataRequest request;
-     WorkspaceEventSaveViewData(this.request);
-
-    Future<Either<Unit, WorkspaceError>> send() {
-    final request = FFIRequest.create()
-          ..event = WorkspaceEvent.SaveViewData.toString()
-          ..payload = requestToBytes(this.request);
-
-    return Dispatch.asyncRequest(request)
-        .then((bytesResult) => bytesResult.fold(
-           (bytes) => left(unit),
-           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
-        ));
-    }
-}
-
 class WorkspaceEventApplyChangeset {
      ApplyChangesetRequest request;
      WorkspaceEventApplyChangeset(this.request);

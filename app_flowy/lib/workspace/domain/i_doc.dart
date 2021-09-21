@@ -8,7 +8,7 @@ import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/protobuf/flowy-document/doc.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 
-class FlowyDoc implements EditorChangesetSender {
+class FlowyDoc implements EditorDeltaSender {
   final Doc doc;
   final IDoc iDocImpl;
   Document data;
@@ -19,7 +19,7 @@ class FlowyDoc implements EditorChangesetSender {
   String get id => doc.id;
 
   @override
-  void sendDelta(Delta changeset, Delta delta) async {
+  void sendNewDelta(Delta changeset, Delta delta) async {
     final json = jsonEncode(changeset.toJson());
     Log.debug("Send json: $json");
     final result = await iDocImpl.applyChangeset(json: json);
@@ -41,7 +41,6 @@ class FlowyDoc implements EditorChangesetSender {
 
 abstract class IDoc {
   Future<Either<Doc, WorkspaceError>> readDoc();
-  Future<Either<Unit, WorkspaceError>> saveDoc({String? json});
   Future<Either<Doc, WorkspaceError>> applyChangeset({String? json});
   Future<Either<Unit, WorkspaceError>> closeDoc();
 }

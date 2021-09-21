@@ -7,7 +7,7 @@ use crate::{
 };
 use flowy_database::{ConnectionPool, SqliteConnection};
 
-use crate::errors::internal_error;
+use crate::{errors::internal_error, services::open_doc::OpenedDocPersistence};
 use std::sync::Arc;
 use tokio::task::JoinHandle;
 
@@ -30,15 +30,6 @@ impl DocController {
             data: params.data,
         };
         let _ = self.sql.create_doc_table(DocTable::new(doc), conn)?;
-        Ok(())
-    }
-
-    #[tracing::instrument(level = "debug", skip(self, conn, params), err)]
-    pub(crate) fn update(&self, params: SaveDocParams, conn: &SqliteConnection) -> Result<(), DocError> {
-        let changeset = DocTableChangeset::new(params.clone());
-        let _ = self.sql.update_doc_table(changeset, &*conn)?;
-        let _ = self.update_doc_on_server(params)?;
-
         Ok(())
     }
 
@@ -137,5 +128,15 @@ impl DocController {
         } else {
             Err(error)
         }
+    }
+}
+
+impl OpenedDocPersistence for DocController {
+    fn save(&self, params: SaveDocParams, pool: Arc<ConnectionPool>) -> Result<(), DocError> {
+        let changeset = DocTableChangeset::new(params.clone());
+        let _ = self.sql.update_doc_table(changeset, &*(pool.get().map_err(internal_error)?))?;
+        let _ = self.update_doc_on_server(params)?;
+
+        Ok(())
     }
 }

@@ -20,7 +20,7 @@ class DocEditBloc extends Bloc<DocEditEvent, DocEditState> {
           iDocImpl.applyChangeset(json: changeset.data);
         },
         save: (Save save) async* {
-          iDocImpl.saveDoc(json: save.data);
+          // no need to save
         });
   }
 }

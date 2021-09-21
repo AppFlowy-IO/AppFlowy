@@ -89,9 +89,6 @@ class HomeDepsResolver {
         (docId, _) => DocEditBloc(getIt<IDoc>(param1: docId)));
 
     // editor
-    getIt.registerFactoryParam<EditorPersistence, String, void>(
-        (docId, _) => EditorPersistenceImpl(repo: DocRepository(docId: docId)));
-
     getIt.registerFactoryParam<ViewListBloc, List<View>, void>(
         (views, _) => ViewListBloc(views: views));
 

@@ -10,20 +10,14 @@ import '../model/document/document.dart';
 import '../model/document/style.dart';
 import '../model/document/node/embed.dart';
 
-abstract class EditorPersistence {
-  Future<bool> save(List<dynamic> jsonList);
-}
-
 class EditorController extends ChangeNotifier {
   final Document document;
   TextSelection selection;
-  final EditorPersistence? persistence;
   Style toggledStyle = Style();
 
   EditorController({
     required this.document,
     required this.selection,
-    this.persistence,
   });
 
   // item1: Document state before [change].
@@ -59,9 +53,7 @@ class EditorController extends ChangeNotifier {
   }
 
   void save() {
-    if (persistence != null) {
-      persistence!.save(document.toDelta().toJson());
-    }
+    // no need to save, deprecated
   }
 
   @override

@@ -10,7 +10,11 @@ const LEVEL: &str = "level";
 const TIME: &str = "time";
 const MESSAGE: &str = "msg";
 
+const LOG_MODULE_PATH: &str = "log.module_path";
+const LOG_TARGET_PATH: &str = "log.target";
+
 const FLOWY_RESERVED_FIELDS: [&str; 3] = [LEVEL, TIME, MESSAGE];
+const IGNORE_FIELDS: [&str; 2] = [LOG_MODULE_PATH, LOG_TARGET_PATH];
 
 pub struct FlowyFormattingLayer<W: MakeWriter + 'static> {
     make_writer: W,
@@ -29,11 +33,11 @@ impl<W: MakeWriter + 'static> FlowyFormattingLayer<W> {
         &self,
         map_serializer: &mut impl SerializeMap<Error = serde_json::Error>,
         message: &str,
-        level: &Level,
+        _level: &Level,
     ) -> Result<(), std::io::Error> {
         map_serializer.serialize_entry(MESSAGE, &message)?;
-        map_serializer.serialize_entry(LEVEL, &format!("{}", level))?;
-        map_serializer.serialize_entry(TIME, &chrono::Utc::now().timestamp())?;
+        // map_serializer.serialize_entry(LEVEL, &format!("{}", level))?;
+        // map_serializer.serialize_entry(TIME, &chrono::Utc::now().timestamp())?;
         Ok(())
     }
 
@@ -57,7 +61,7 @@ impl<W: MakeWriter + 'static> FlowyFormattingLayer<W> {
         let extensions = span.extensions();
         if let Some(visitor) = extensions.get::<JsonStorage>() {
             for (key, value) in visitor.values() {
-                if !FLOWY_RESERVED_FIELDS.contains(key) {
+                if !FLOWY_RESERVED_FIELDS.contains(key) && !IGNORE_FIELDS.contains(key) {
                     map_serializer.serialize_entry(key, value)?;
                 } else {
                     tracing::debug!("{} is a reserved field in the bunyan log format. Skipping it.", key);
@@ -155,15 +159,15 @@ where
                 map_serializer.serialize_entry("target", event.metadata().target())?;
             }
 
-            map_serializer.serialize_entry("line", &event.metadata().line())?;
-            map_serializer.serialize_entry("file", &event.metadata().file())?;
+            // map_serializer.serialize_entry("line", &event.metadata().line())?;
+            // map_serializer.serialize_entry("file", &event.metadata().file())?;
 
             // Add all the other fields associated with the event, expect the message we
             // already used.
             for (key, value) in event_visitor
                 .values()
                 .iter()
-                .filter(|(&key, _)| key != "message" && !FLOWY_RESERVED_FIELDS.contains(&key))
+                .filter(|(&key, _)| key != "message" && !FLOWY_RESERVED_FIELDS.contains(&key) && !IGNORE_FIELDS.contains(&key))
             {
                 map_serializer.serialize_entry(key, value)?;
             }
@@ -173,7 +177,7 @@ where
                 let extensions = span.extensions();
                 if let Some(visitor) = extensions.get::<JsonStorage>() {
                     for (key, value) in visitor.values() {
-                        if !FLOWY_RESERVED_FIELDS.contains(key) {
+                        if !FLOWY_RESERVED_FIELDS.contains(key) && !IGNORE_FIELDS.contains(key) {
                             map_serializer.serialize_entry(key, value)?;
                         } else {
                             tracing::debug!("{} is a reserved field in the flowy log format. Skipping it.", key);

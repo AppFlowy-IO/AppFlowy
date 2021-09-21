@@ -60,9 +60,9 @@ impl Document {
         T: TryInto<Delta, Error = OTError>,
     {
         let new_delta: Delta = changeset.try_into()?;
-        log::debug!("Apply delta: {}", new_delta);
+        log::debug!("Delta changeset: {}", new_delta);
         self.add_delta(&new_delta);
-        log::debug!("Current delta: {}", self.to_json());
+        log::debug!("Document: {}", self.to_json());
         Ok(())
     }
 

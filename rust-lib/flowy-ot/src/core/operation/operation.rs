@@ -156,7 +156,13 @@ pub struct Retain {
 }
 
 impl fmt::Display for Retain {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result { f.write_fmt(format_args!("retain: {}, attributes: {}", self.n, self.attributes)) }
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        if self.attributes.is_empty() {
+            f.write_fmt(format_args!("retain: {}", self.n))
+        } else {
+            f.write_fmt(format_args!("retain: {}, attributes: {}", self.n, self.attributes))
+        }
+    }
 }
 
 impl Retain {
@@ -212,7 +218,11 @@ impl fmt::Display for Insert {
             }
         }
 
-        f.write_fmt(format_args!("insert: {}, attributes: {}", s, self.attributes))
+        if self.attributes.is_empty() {
+            f.write_fmt(format_args!("insert: {}", s))
+        } else {
+            f.write_fmt(format_args!("insert: {}, attributes: {}", s, self.attributes))
+        }
     }
 }
 
