@@ -4,8 +4,9 @@ use crate::{
         ws::{WsDocumentData, WsSource},
     },
     errors::DocError,
-    services::ws::WsHandler,
+    services::ws::{WsHandler, WsSender},
 };
+use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_ot::{client::Document, core::Delta};
 use parking_lot::RwLock;
@@ -30,23 +31,28 @@ pub(crate) trait OpenedDocPersistence: Send + Sync {
 pub(crate) struct OpenedDoc {
     pub(crate) id: DocId,
     document: RwLock<Document>,
+    ws_sender: Arc<dyn WsSender>,
     persistence: Arc<dyn OpenedDocPersistence>,
 }
 
 impl OpenedDoc {
-    pub(crate) fn new(id: DocId, delta: Delta, persistence: Arc<dyn OpenedDocPersistence>) -> Self {
+    pub(crate) fn new(id: DocId, delta: Delta, persistence: Arc<dyn OpenedDocPersistence>, ws_sender: Arc<dyn WsSender>) -> Self {
+        let document = RwLock::new(Document::from_delta(delta));
         Self {
             id,
-            document: RwLock::new(Document::from_delta(delta)),
+            document,
+            ws_sender,
             persistence,
         }
     }
 
     pub(crate) fn data(&self) -> Vec<u8> { self.document.read().to_bytes() }
 
-    pub(crate) fn apply_delta(&self, data: Vec<u8>, pool: Arc<ConnectionPool>) -> Result<(), DocError> {
+    pub(crate) fn apply_delta(&self, data: Bytes, pool: Arc<ConnectionPool>) -> Result<(), DocError> {
         let mut write_guard = self.document.write();
-        let _ = write_guard.apply_changeset(data)?;
+        let _ = write_guard.apply_changeset(data.clone())?;
+
+        self.ws_sender.send_data(data);
 
         // Opti: strategy to save the document
         let mut save = SaveDocParams {

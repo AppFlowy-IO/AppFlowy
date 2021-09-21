@@ -135,8 +135,6 @@ impl OpenedDocPersistence for DocController {
     fn save(&self, params: SaveDocParams, pool: Arc<ConnectionPool>) -> Result<(), DocError> {
         let changeset = DocTableChangeset::new(params.clone());
         let _ = self.sql.update_doc_table(changeset, &*(pool.get().map_err(internal_error)?))?;
-        let _ = self.update_doc_on_server(params)?;
-
         Ok(())
     }
 }

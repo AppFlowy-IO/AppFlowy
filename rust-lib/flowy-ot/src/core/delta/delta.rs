@@ -3,6 +3,8 @@ use crate::{
     errors::{ErrorBuilder, OTError, OTErrorCode},
 };
 use bytecount::num_chars;
+use bytes::Bytes;
+use serde::__private::TryFrom;
 use std::{
     cmp::{min, Ordering},
     fmt,
@@ -42,6 +44,15 @@ impl FromStr for Delta {
 impl std::convert::TryFrom<Vec<u8>> for Delta {
     type Error = OTError;
     fn try_from(bytes: Vec<u8>) -> Result<Self, Self::Error> { Delta::from_bytes(bytes) }
+}
+
+impl std::convert::TryFrom<Bytes> for Delta {
+    type Error = OTError;
+
+    fn try_from(value: Bytes) -> Result<Self, Self::Error> {
+        let bytes = value.to_vec();
+        Delta::from_bytes(bytes)
+    }
 }
 
 // impl<T: AsRef<Vec<u8>>> std::convert::From<T> for Delta {

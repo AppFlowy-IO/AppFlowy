@@ -77,7 +77,7 @@ enum AuthStatus {
     NotAuthorized,
 }
 
-pub const EXPIRED_DURATION_DAYS: i64 = 5;
+pub const EXPIRED_DURATION_DAYS: i64 = 30;
 
 pub struct AuthorizedUsers(DashMap<LoggedUser, AuthStatus>);
 impl AuthorizedUsers {

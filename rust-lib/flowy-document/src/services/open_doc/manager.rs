@@ -5,6 +5,7 @@ use crate::{
         ws::WsManager,
     },
 };
+use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_ot::{core::Delta, errors::OTError};
@@ -32,7 +33,12 @@ impl OpenedDocManager {
         T: Into<DocId> + Debug,
         D: TryInto<Delta, Error = OTError>,
     {
-        let doc = Arc::new(OpenedDoc::new(id.into(), data.try_into()?, self.persistence.clone()));
+        let doc = Arc::new(OpenedDoc::new(
+            id.into(),
+            data.try_into()?,
+            self.persistence.clone(),
+            self.ws_manager.read().sender.clone(),
+        ));
         self.ws_manager.write().register_handler(doc.id.as_ref(), doc.clone());
         self.doc_map.insert(doc.id.clone(), doc.clone());
         Ok(())
@@ -47,7 +53,7 @@ impl OpenedDocManager {
     }
 
     #[tracing::instrument(level = "debug", skip(self, changeset, pool), err)]
-    pub(crate) async fn apply_changeset<T>(&self, id: T, changeset: Vec<u8>, pool: Arc<ConnectionPool>) -> Result<(), DocError>
+    pub(crate) async fn apply_changeset<T>(&self, id: T, changeset: Bytes, pool: Arc<ConnectionPool>) -> Result<(), DocError>
     where
         T: Into<DocId> + Debug,
     {

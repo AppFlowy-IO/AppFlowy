@@ -3,6 +3,7 @@ use crate::{
     errors::{internal_error, DocError},
     services::{doc_controller::DocController, open_doc::OpenedDocManager, server::construct_doc_server, ws::WsManager},
 };
+use bytes::Bytes;
 use diesel::SqliteConnection;
 use flowy_database::ConnectionPool;
 use parking_lot::RwLock;
@@ -56,7 +57,7 @@ impl FlowyDocument {
     }
 
     pub async fn apply_changeset(&self, params: ApplyChangesetParams, pool: Arc<ConnectionPool>) -> Result<Doc, DocError> {
-        let _ = self.doc_manager.apply_changeset(&params.id, params.data, pool).await?;
+        let _ = self.doc_manager.apply_changeset(&params.id, Bytes::from(params.data), pool).await?;
         let data = self.doc_manager.read_doc(&params.id).await?;
         let doc = Doc { id: params.id, data };
         Ok(doc)

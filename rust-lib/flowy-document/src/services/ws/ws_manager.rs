@@ -12,12 +12,12 @@ lazy_static! {
 }
 
 pub struct WsManager {
-    sender: Box<dyn WsSender>,
+    pub(crate) sender: Arc<dyn WsSender>,
     doc_handlers: HashMap<String, Arc<dyn WsHandler>>,
 }
 
 impl WsManager {
-    pub fn new(sender: Box<dyn WsSender>) -> Self {
+    pub fn new(sender: Arc<dyn WsSender>) -> Self {
         Self {
             sender,
             doc_handlers: HashMap::new(),
@@ -45,9 +45,9 @@ impl WsManager {
             },
         }
     }
+
     pub fn send_data(&self, data: WsDocumentData) {
         let bytes: Bytes = data.try_into().unwrap();
-
         match self.sender.send_data(bytes) {
             Ok(_) => {},
             Err(e) => {

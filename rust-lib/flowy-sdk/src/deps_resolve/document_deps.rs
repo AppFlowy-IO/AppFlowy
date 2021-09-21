@@ -22,7 +22,7 @@ impl DocumentDepsResolver {
             user: self.user_session.clone(),
         });
 
-        let sender = Box::new(WsSenderImpl {
+        let sender = Arc::new(WsSenderImpl {
             user: self.user_session.clone(),
         });
 
