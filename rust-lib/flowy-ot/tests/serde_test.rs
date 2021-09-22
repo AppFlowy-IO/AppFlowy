@@ -91,8 +91,8 @@ fn delta_deserialize_null_test() {
 #[test]
 fn document_insert_serde_test() {
     let mut document = Document::new::<PlainDoc>();
-    document.insert(0, "\n");
-    document.insert(0, "123");
+    document.insert(0, "\n").unwrap();
+    document.insert(0, "123").unwrap();
     let json = document.to_json();
     assert_eq!(r#"[{"insert":"123\n"}]"#, json);
     assert_eq!(r#"[{"insert":"123\n"}]"#, Document::from_json(&json).unwrap().to_json());

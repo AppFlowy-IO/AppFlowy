@@ -1,10 +1,9 @@
 use crate::{
-    core::{attributes::*, operation::*, DeltaIter, Interval, MAX_IV_LEN},
+    core::{attributes::*, operation::*, DeltaIter, Interval, OperationTransformable, MAX_IV_LEN},
     errors::{ErrorBuilder, OTError, OTErrorCode},
 };
 use bytecount::num_chars;
 use bytes::Bytes;
-use serde::__private::TryFrom;
 use std::{
     cmp::{min, Ordering},
     fmt,
@@ -14,7 +13,7 @@ use std::{
 };
 
 // Opti: optimize the memory usage with Arc_mut or Cow
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Delta {
     pub ops: Vec<Operation>,
     pub base_len: usize,
@@ -84,8 +83,6 @@ impl FromIterator<Operation> for Delta {
 impl Delta {
     pub fn new() -> Self { Self::default() }
 
-    pub fn to_json(&self) -> String { serde_json::to_string(self).unwrap_or("".to_owned()) }
-
     pub fn from_json(json: &str) -> Result<Self, OTError> {
         let delta: Delta = serde_json::from_str(json).map_err(|e| {
             log::trace!("Deserialize failed: {:?}", e);
@@ -94,6 +91,8 @@ impl Delta {
         })?;
         Ok(delta)
     }
+
+    pub fn to_json(&self) -> String { serde_json::to_string(self).unwrap_or("".to_owned()) }
 
     pub fn from_bytes(bytes: Vec<u8>) -> Result<Self, OTError> {
         let json = str::from_utf8(&bytes)?;
@@ -179,12 +178,79 @@ impl Delta {
         }
     }
 
-    /// Merges the operation with `other` into one operation while preserving
-    /// the changes of both. Or, in other words, for each input string S and a
-    /// pair of consecutive operations A and B.
-    ///     `apply(apply(S, A), B) = apply(S, compose(A, B))`
-    /// must hold.
-    pub fn compose(&self, other: &Self) -> Result<Self, OTError> {
+    /// Applies an operation to a string, returning a new string.
+    pub fn apply(&self, s: &str) -> Result<String, OTError> {
+        if num_chars(s.as_bytes()) != self.base_len {
+            return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength).build());
+        }
+        let mut new_s = String::new();
+        let chars = &mut s.chars();
+        for op in &self.ops {
+            match &op {
+                Operation::Retain(retain) => {
+                    for c in chars.take(retain.n as usize) {
+                        new_s.push(c);
+                    }
+                },
+                Operation::Delete(delete) => {
+                    for _ in 0..*delete {
+                        chars.next();
+                    }
+                },
+                Operation::Insert(insert) => {
+                    new_s += &insert.s;
+                },
+            }
+        }
+        Ok(new_s)
+    }
+
+    /// Computes the inverse of an operation. The inverse of an operation is the
+    /// operation that reverts the effects of the operation
+    pub fn invert_str(&self, s: &str) -> Self {
+        let mut inverted = Delta::default();
+        let chars = &mut s.chars();
+        for op in &self.ops {
+            match &op {
+                Operation::Retain(retain) => {
+                    inverted.retain(retain.n, Attributes::default());
+                    // TODO: use advance_by instead, but it's unstable now
+                    // chars.advance_by(retain.num)
+                    for _ in 0..retain.n {
+                        chars.next();
+                    }
+                },
+                Operation::Insert(insert) => {
+                    inverted.delete(insert.num_chars());
+                },
+                Operation::Delete(delete) => {
+                    inverted.insert(&chars.take(*delete as usize).collect::<String>(), op.get_attributes());
+                },
+            }
+        }
+        inverted
+    }
+
+    /// Checks if this operation has no effect.
+    #[inline]
+    pub fn is_noop(&self) -> bool {
+        match self.ops.as_slice() {
+            [] => true,
+            [Operation::Retain(_)] => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_empty(&self) -> bool { self.ops.is_empty() }
+
+    pub fn extend(&mut self, other: Self) { other.ops.into_iter().for_each(|op| self.add(op)); }
+}
+
+impl OperationTransformable for Delta {
+    fn compose(&self, other: &Self) -> Result<Self, OTError>
+    where
+        Self: Sized,
+    {
         let mut new_delta = Delta::default();
         let mut iter = DeltaIter::new(self);
         let mut other_iter = DeltaIter::new(other);
@@ -206,18 +272,18 @@ impl Delta {
             );
 
             let op = iter.next_op_with_len(length).unwrap_or(OpBuilder::retain(length).build());
-
             let other_op = other_iter.next_op_with_len(length).unwrap_or(OpBuilder::retain(length).build());
 
             debug_assert_eq!(op.len(), other_op.len());
 
             match (&op, &other_op) {
                 (Operation::Retain(retain), Operation::Retain(other_retain)) => {
-                    let composed_attrs = compose_attributes(retain.attributes.clone(), other_retain.attributes.clone());
+                    let composed_attrs = retain.attributes.compose(&other_retain.attributes)?;
+
                     new_delta.add(OpBuilder::retain(retain.n).attributes(composed_attrs).build())
                 },
                 (Operation::Insert(insert), Operation::Retain(other_retain)) => {
-                    let mut composed_attrs = compose_attributes(insert.attributes.clone(), other_retain.attributes.clone());
+                    let mut composed_attrs = insert.attributes.compose(&other_retain.attributes)?;
                     composed_attrs.remove_empty();
                     new_delta.add(OpBuilder::insert(op.get_data()).attributes(composed_attrs).build())
                 },
@@ -235,137 +301,10 @@ impl Delta {
         Ok(new_delta)
     }
 
-    #[deprecated(note = "The same as compose except it requires the target_len of self must equal to other's base_len")]
-    pub fn compose2(&self, other: &Self) -> Result<Self, OTError> {
-        if self.target_len != other.base_len {
-            return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength).build());
-        }
-
-        let mut new_delta = Delta::default();
-        let mut ops1 = self.ops.iter().cloned();
-        let mut ops2 = other.ops.iter().cloned();
-
-        let mut next_op1 = ops1.next();
-        let mut next_op2 = ops2.next();
-        loop {
-            match (&next_op1, &next_op2) {
-                (None, None) => break,
-                (Some(Operation::Delete(i)), _) => {
-                    new_delta.delete(*i);
-                    next_op1 = ops1.next();
-                },
-                (_, Some(Operation::Insert(o_insert))) => {
-                    new_delta.insert(&o_insert.s, o_insert.attributes.clone());
-                    next_op2 = ops2.next();
-                },
-                (None, _) | (_, None) => {
-                    return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength).build());
-                },
-                (Some(Operation::Retain(retain)), Some(Operation::Retain(o_retain))) => {
-                    let composed_attrs = compose_operation(&next_op1, &next_op2);
-                    log::trace!("[retain:{} - retain:{}]: {:?}", retain.n, o_retain.n, composed_attrs);
-                    match retain.cmp(&o_retain) {
-                        Ordering::Less => {
-                            new_delta.retain(retain.n, composed_attrs);
-                            next_op2 = Some(
-                                OpBuilder::retain(o_retain.n - retain.n)
-                                    .attributes(o_retain.attributes.clone())
-                                    .build(),
-                            );
-                            next_op1 = ops1.next();
-                        },
-                        std::cmp::Ordering::Equal => {
-                            new_delta.retain(retain.n, composed_attrs);
-                            next_op1 = ops1.next();
-                            next_op2 = ops2.next();
-                        },
-                        std::cmp::Ordering::Greater => {
-                            new_delta.retain(o_retain.n, composed_attrs);
-                            next_op1 = Some(OpBuilder::retain(retain.n - o_retain.n).build());
-                            next_op2 = ops2.next();
-                        },
-                    }
-                },
-                (Some(Operation::Insert(insert)), Some(Operation::Delete(o_num))) => {
-                    match (num_chars(insert.as_bytes()) as usize).cmp(o_num) {
-                        Ordering::Less => {
-                            next_op2 = Some(
-                                OpBuilder::delete(*o_num - num_chars(insert.as_bytes()) as usize)
-                                    .attributes(insert.attributes.clone())
-                                    .build(),
-                            );
-                            next_op1 = ops1.next();
-                        },
-                        Ordering::Equal => {
-                            next_op1 = ops1.next();
-                            next_op2 = ops2.next();
-                        },
-                        Ordering::Greater => {
-                            next_op1 = Some(OpBuilder::insert(&insert.chars().skip(*o_num as usize).collect::<String>()).build());
-                            next_op2 = ops2.next();
-                        },
-                    }
-                },
-                (Some(Operation::Insert(insert)), Some(Operation::Retain(o_retain))) => {
-                    let mut composed_attrs = compose_operation(&next_op1, &next_op2);
-                    composed_attrs.remove_empty();
-
-                    log::trace!("compose: [{} - {}], composed_attrs: {}", insert, o_retain, composed_attrs);
-                    match (insert.num_chars()).cmp(o_retain) {
-                        Ordering::Less => {
-                            new_delta.insert(&insert.s, composed_attrs.clone());
-                            next_op2 = Some(
-                                OpBuilder::retain(o_retain.n - insert.num_chars())
-                                    .attributes(o_retain.attributes.clone())
-                                    .build(),
-                            );
-                            next_op1 = ops1.next();
-                        },
-                        Ordering::Equal => {
-                            new_delta.insert(&insert.s, composed_attrs);
-                            next_op1 = ops1.next();
-                            next_op2 = ops2.next();
-                        },
-                        Ordering::Greater => {
-                            let chars = &mut insert.chars();
-                            new_delta.insert(&chars.take(o_retain.n as usize).collect::<String>(), composed_attrs);
-                            next_op1 = Some(OpBuilder::insert(&chars.collect::<String>()).build());
-                            next_op2 = ops2.next();
-                        },
-                    }
-                },
-                (Some(Operation::Retain(retain)), Some(Operation::Delete(o_num))) => match retain.cmp(&o_num) {
-                    Ordering::Less => {
-                        new_delta.delete(retain.n);
-                        next_op2 = Some(OpBuilder::delete(*o_num - retain.n).build());
-                        next_op1 = ops1.next();
-                    },
-                    Ordering::Equal => {
-                        new_delta.delete(*o_num);
-                        next_op2 = ops2.next();
-                        next_op1 = ops1.next();
-                    },
-                    Ordering::Greater => {
-                        new_delta.delete(*o_num);
-                        next_op1 = Some(OpBuilder::retain(retain.n - *o_num).build());
-                        next_op2 = ops2.next();
-                    },
-                },
-            };
-        }
-        Ok(new_delta)
-    }
-
-    /// Transforms two operations A and B that happened concurrently and
-    /// produces two operations A' and B' (in an array) such that
-    ///     `apply(apply(S, A), B') = apply(apply(S, B), A')`.
-    /// This function is the heart of OT.
-    ///
-    /// # Error
-    ///
-    /// Returns an `OTError` if the operations cannot be transformed due to
-    /// length conflicts.
-    pub fn transform(&self, other: &Self) -> Result<(Self, Self), OTError> {
+    fn transform(&self, other: &Self) -> Result<(Self, Self), OTError>
+    where
+        Self: Sized,
+    {
         if self.base_len != other.base_len {
             return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength).build());
         }
@@ -388,7 +327,7 @@ impl Delta {
                     next_op1 = ops1.next();
                 },
                 (_, Some(Operation::Insert(o_insert))) => {
-                    let composed_attrs = transform_operation(&next_op1, &next_op2);
+                    let composed_attrs = transform_op_attribute(&next_op1, &next_op2);
                     a_prime.retain(o_insert.num_chars(), composed_attrs.clone());
                     b_prime.insert(&o_insert.s, composed_attrs);
                     next_op2 = ops2.next();
@@ -400,7 +339,7 @@ impl Delta {
                     return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength).build());
                 },
                 (Some(Operation::Retain(retain)), Some(Operation::Retain(o_retain))) => {
-                    let composed_attrs = transform_operation(&next_op1, &next_op2);
+                    let composed_attrs = transform_op_attribute(&next_op1, &next_op2);
                     match retain.cmp(&o_retain) {
                         Ordering::Less => {
                             a_prime.retain(retain.n, composed_attrs.clone());
@@ -480,66 +419,7 @@ impl Delta {
         Ok((a_prime, b_prime))
     }
 
-    /// Applies an operation to a string, returning a new string.
-    ///
-    /// # Error
-    ///
-    /// Returns an error if the operation cannot be applied due to length
-    /// conflicts.
-    pub fn apply(&self, s: &str) -> Result<String, OTError> {
-        if num_chars(s.as_bytes()) != self.base_len {
-            return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength).build());
-        }
-        let mut new_s = String::new();
-        let chars = &mut s.chars();
-        for op in &self.ops {
-            match &op {
-                Operation::Retain(retain) => {
-                    for c in chars.take(retain.n as usize) {
-                        new_s.push(c);
-                    }
-                },
-                Operation::Delete(delete) => {
-                    for _ in 0..*delete {
-                        chars.next();
-                    }
-                },
-                Operation::Insert(insert) => {
-                    new_s += &insert.s;
-                },
-            }
-        }
-        Ok(new_s)
-    }
-
-    /// Computes the inverse of an operation. The inverse of an operation is the
-    /// operation that reverts the effects of the operation
-    pub fn invert_str(&self, s: &str) -> Self {
-        let mut inverted = Delta::default();
-        let chars = &mut s.chars();
-        for op in &self.ops {
-            match &op {
-                Operation::Retain(retain) => {
-                    inverted.retain(retain.n, Attributes::default());
-
-                    // TODO: use advance_by instead, but it's unstable now
-                    // chars.advance_by(retain.num)
-                    for _ in 0..retain.n {
-                        chars.next();
-                    }
-                },
-                Operation::Insert(insert) => {
-                    inverted.delete(insert.num_chars());
-                },
-                Operation::Delete(delete) => {
-                    inverted.insert(&chars.take(*delete as usize).collect::<String>(), op.get_attributes());
-                },
-            }
-        }
-        inverted
-    }
-
-    pub fn invert(&self, other: &Delta) -> Delta {
+    fn invert(&self, other: &Self) -> Self {
         let mut inverted = Delta::default();
         if other.is_empty() {
             return inverted;
@@ -575,20 +455,6 @@ impl Delta {
         log::trace!("🌛invert result: {}", inverted);
         inverted
     }
-
-    /// Checks if this operation has no effect.
-    #[inline]
-    pub fn is_noop(&self) -> bool {
-        match self.ops.as_slice() {
-            [] => true,
-            [Operation::Retain(_)] => true,
-            _ => false,
-        }
-    }
-
-    pub fn is_empty(&self) -> bool { self.ops.is_empty() }
-
-    pub fn extend(&mut self, other: Self) { other.ops.into_iter().for_each(|op| self.add(op)); }
 }
 
 fn invert_from_other(base: &mut Delta, other: &Delta, operation: &Operation, start: usize, end: usize) {
@@ -599,19 +465,30 @@ fn invert_from_other(base: &mut Delta, other: &Delta, operation: &Operation, sta
             log::trace!("invert delete: {} by add {}", n, other_op);
             base.add(other_op);
         },
-        Operation::Retain(retain) => {
+        Operation::Retain(_retain) => {
             log::trace!(
                 "invert attributes: {:?}, {:?}",
                 operation.get_attributes(),
                 other_op.get_attributes()
             );
-            let inverted_attrs = invert_attributes(operation.get_attributes(), other_op.get_attributes());
-            log::trace!("invert attributes result: {:?}", inverted_attrs);
-            log::trace!("invert retain: {} by retain len: {}, {}", retain, other_op.len(), inverted_attrs);
+            let inverted_attrs = operation.get_attributes().invert(&other_op.get_attributes());
             base.retain(other_op.len(), inverted_attrs);
         },
         Operation::Insert(_) => {
             log::error!("Impossible to here. Insert operation should be treated as delete")
         },
     });
+}
+
+fn transform_op_attribute(left: &Option<Operation>, right: &Option<Operation>) -> Attributes {
+    if left.is_none() {
+        if right.is_none() {
+            return Attributes::default();
+        }
+        return right.as_ref().unwrap().get_attributes();
+    }
+    let left = left.as_ref().unwrap().get_attributes();
+    let right = right.as_ref().unwrap().get_attributes();
+    // TODO: It's ok to unwrap?
+    left.transform(&right).unwrap().0
 }

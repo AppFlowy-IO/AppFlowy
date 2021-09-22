@@ -380,11 +380,11 @@ fn attributes_header_insert_newline_at_middle() {
     let ops = vec![
         Insert(0, "123456", 0),
         Header(0, Interval::new(0, 6), 1),
-        AssertOpsJson(0, r#"[{"insert":"123456"},{"insert":"\n","attributes":{"header":"1"}}]"#),
+        AssertOpsJson(0, r#"[{"insert":"123456"},{"insert":"\n","attributes":{"header":1}}]"#),
         Insert(0, "\n", 3),
         AssertOpsJson(
             0,
-            r#"[{"insert":"123"},{"insert":"\n","attributes":{"header":"1"}},{"insert":"456"},{"insert":"\n","attributes":{"header":"1"}}]"#,
+            r#"[{"insert":"123"},{"insert":"\n","attributes":{"header":1}},{"insert":"456"},{"insert":"\n","attributes":{"header":1}}]"#,
         ),
     ];
 
@@ -399,17 +399,17 @@ fn attributes_header_insert_double_newline_at_middle() {
         Insert(0, "\n", 3),
         AssertOpsJson(
             0,
-            r#"[{"insert":"123"},{"insert":"\n","attributes":{"header":"1"}},{"insert":"456"},{"insert":"\n","attributes":{"header":"1"}}]"#,
+            r#"[{"insert":"123"},{"insert":"\n","attributes":{"header":1}},{"insert":"456"},{"insert":"\n","attributes":{"header":1}}]"#,
         ),
         Insert(0, "\n", 4),
         AssertOpsJson(
             0,
-            r#"[{"insert":"123"},{"insert":"\n\n","attributes":{"header":"1"}},{"insert":"456"},{"insert":"\n","attributes":{"header":"1"}}]"#,
+            r#"[{"insert":"123"},{"insert":"\n\n","attributes":{"header":1}},{"insert":"456"},{"insert":"\n","attributes":{"header":1}}]"#,
         ),
         Insert(0, "\n", 4),
         AssertOpsJson(
             0,
-            r#"[{"insert":"123"},{"insert":"\n\n","attributes":{"header":"1"}},{"insert":"\n456"},{"insert":"\n","attributes":{"header":"1"}}]"#,
+            r#"[{"insert":"123"},{"insert":"\n\n","attributes":{"header":1}},{"insert":"\n456"},{"insert":"\n","attributes":{"header":1}}]"#,
         ),
     ];
 
@@ -424,7 +424,7 @@ fn attributes_header_insert_newline_at_trailing() {
         Insert(0, "\n", 6),
         AssertOpsJson(
             0,
-            r#"[{"insert":"123456"},{"insert":"\n","attributes":{"header":"1"}},{"insert":"\n"}]"#,
+            r#"[{"insert":"123456"},{"insert":"\n","attributes":{"header":1}},{"insert":"\n"}]"#,
         ),
     ];
 
@@ -440,7 +440,7 @@ fn attributes_header_insert_double_newline_at_trailing() {
         Insert(0, "\n", 7),
         AssertOpsJson(
             0,
-            r#"[{"insert":"123456"},{"insert":"\n","attributes":{"header":"1"}},{"insert":"\n\n"}]"#,
+            r#"[{"insert":"123456"},{"insert":"\n","attributes":{"header":1}},{"insert":"\n\n"}]"#,
         ),
     ];
 
@@ -703,10 +703,10 @@ fn attributes_preserve_header_format_on_merge() {
         Insert(0, NEW_LINE, 3),
         AssertOpsJson(
             0,
-            r#"[{"insert":"123"},{"insert":"\n","attributes":{"header":"1"}},{"insert":"456"},{"insert":"\n","attributes":{"header":"1"}}]"#,
+            r#"[{"insert":"123"},{"insert":"\n","attributes":{"header":1}},{"insert":"456"},{"insert":"\n","attributes":{"header":1}}]"#,
         ),
         Delete(0, Interval::new(3, 4)),
-        AssertOpsJson(0, r#"[{"insert":"123456"},{"insert":"\n","attributes":{"header":"1"}}]"#),
+        AssertOpsJson(0, r#"[{"insert":"123456"},{"insert":"\n","attributes":{"header":1}}]"#),
     ];
 
     TestBuilder::new().run_script::<FlowyDoc>(ops);

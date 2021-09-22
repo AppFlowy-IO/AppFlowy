@@ -73,6 +73,7 @@ impl Future for WsConnectionFuture {
 type Fut = BoxFuture<'static, Result<(), WsError>>;
 #[pin_project]
 pub struct WsStream {
+    #[allow(dead_code)]
     msg_tx: MsgSender,
     #[pin]
     inner: Option<(Fut, Fut)>,
@@ -135,6 +136,7 @@ fn post_message(tx: MsgSender, message: Result<Message, Error>) {
 
 pub struct Retry<F> {
     f: F,
+    #[allow(dead_code)]
     retry_time: usize,
     addr: String,
 }

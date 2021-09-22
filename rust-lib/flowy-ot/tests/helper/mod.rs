@@ -176,7 +176,6 @@ impl TestBuilder {
 
             TestOp::AssertOpsJson(delta_i, expected) => {
                 let delta_i_json = self.documents[*delta_i].to_json();
-
                 let expected_delta: Delta = serde_json::from_str(expected).unwrap();
                 let target_delta: Delta = serde_json::from_str(&delta_i_json).unwrap();
 

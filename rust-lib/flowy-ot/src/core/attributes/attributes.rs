@@ -1,10 +1,11 @@
-use crate::core::{Attribute, AttributeKey, AttributeValue, Operation};
+use crate::{
+    core::{Attribute, AttributeKey, AttributeValue, Operation, OperationTransformable},
+    errors::OTError,
+};
 use std::{collections::HashMap, fmt};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Attributes {
-    // #[serde(skip_serializing_if = "HashMap::is_empty")]
-    // #[serde(flatten)]
     pub(crate) inner: HashMap<AttributeKey, AttributeValue>,
 }
 
@@ -84,6 +85,56 @@ impl Attributes {
     }
 }
 
+impl OperationTransformable for Attributes {
+    fn compose(&self, other: &Self) -> Result<Self, OTError>
+    where
+        Self: Sized,
+    {
+        let mut attributes = self.clone();
+        attributes.extend(other.clone());
+        Ok(attributes)
+    }
+
+    fn transform(&self, other: &Self) -> Result<(Self, Self), OTError>
+    where
+        Self: Sized,
+    {
+        let a = self.iter().fold(Attributes::new(), |mut new_attributes, (k, v)| {
+            if !other.contains_key(k) {
+                new_attributes.insert(k.clone(), v.clone());
+            }
+            new_attributes
+        });
+
+        let b = other.iter().fold(Attributes::new(), |mut new_attributes, (k, v)| {
+            if !self.contains_key(k) {
+                new_attributes.insert(k.clone(), v.clone());
+            }
+            new_attributes
+        });
+
+        Ok((a, b))
+    }
+
+    fn invert(&self, other: &Self) -> Self {
+        let base_inverted = other.iter().fold(Attributes::new(), |mut attributes, (k, v)| {
+            if other.get(k) != self.get(k) && self.contains_key(k) {
+                attributes.insert(k.clone(), v.clone());
+            }
+            attributes
+        });
+
+        let inverted = self.iter().fold(base_inverted, |mut attributes, (k, _)| {
+            if other.get(k) != self.get(k) && !other.contains_key(k) {
+                attributes.delete(k);
+            }
+            attributes
+        });
+
+        return inverted;
+    }
+}
+
 impl std::ops::Deref for Attributes {
     type Target = HashMap<AttributeKey, AttributeValue>;
 
@@ -92,88 +143,6 @@ impl std::ops::Deref for Attributes {
 
 impl std::ops::DerefMut for Attributes {
     fn deref_mut(&mut self) -> &mut Self::Target { &mut self.inner }
-}
-
-pub(crate) fn attributes_from(operation: &Option<Operation>) -> Option<Attributes> {
-    match operation {
-        None => None,
-        Some(operation) => Some(operation.get_attributes()),
-    }
-}
-
-pub fn compose_operation(left: &Option<Operation>, right: &Option<Operation>) -> Attributes {
-    if left.is_none() && right.is_none() {
-        return Attributes::default();
-    }
-    let attr_left = attributes_from(left);
-    let attr_right = attributes_from(right);
-
-    if attr_left.is_none() {
-        return attr_right.unwrap();
-    }
-
-    if attr_right.is_none() {
-        return attr_left.unwrap();
-    }
-
-    let left = attr_left.unwrap();
-    let right = attr_right.unwrap();
-    log::trace!("compose attributes: a: {:?}, b: {:?}", left, right);
-    let attr = merge_attributes(left, right);
-    log::trace!("compose attributes result: {:?}", attr);
-    attr
-}
-
-pub fn compose_attributes(left: Attributes, right: Attributes) -> Attributes {
-    log::trace!("compose attributes: a: {:?}, b: {:?}", left, right);
-    let attr = merge_attributes(left, right);
-    log::trace!("compose attributes result: {:?}", attr);
-    attr
-}
-
-pub fn transform_operation(left: &Option<Operation>, right: &Option<Operation>) -> Attributes {
-    let attr_l = attributes_from(left);
-    let attr_r = attributes_from(right);
-
-    if attr_l.is_none() {
-        if attr_r.is_none() {
-            return Attributes::default();
-        }
-
-        return attr_r.unwrap();
-    }
-
-    let left = attr_l.unwrap();
-    let right = attr_r.unwrap();
-    left.iter().fold(Attributes::new(), |mut new_attributes, (k, v)| {
-        if !right.contains_key(k) {
-            new_attributes.insert(k.clone(), v.clone());
-        }
-        new_attributes
-    })
-}
-
-pub fn invert_attributes(attr: Attributes, base: Attributes) -> Attributes {
-    let base_inverted = base.iter().fold(Attributes::new(), |mut attributes, (k, v)| {
-        if base.get(k) != attr.get(k) && attr.contains_key(k) {
-            attributes.insert(k.clone(), v.clone());
-        }
-        attributes
-    });
-
-    let inverted = attr.iter().fold(base_inverted, |mut attributes, (k, _)| {
-        if base.get(k) != attr.get(k) && !base.contains_key(k) {
-            attributes.delete(k);
-        }
-        attributes
-    });
-
-    return inverted;
-}
-
-pub fn merge_attributes(mut attributes: Attributes, other: Attributes) -> Attributes {
-    attributes.extend(other);
-    attributes
 }
 
 pub fn attributes_except_header(op: &Operation) -> Attributes {

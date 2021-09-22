@@ -42,7 +42,12 @@ impl WsTest {
 
     pub async fn run_scripts(&mut self) {
         let addr = self.server.ws_addr();
-        self.ws_controller.write().connect(addr).unwrap().await;
+        self.ws_controller
+            .write()
+            .connect(addr)
+            .unwrap()
+            .await
+            .unwrap();
     }
 }
 

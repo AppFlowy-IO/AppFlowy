@@ -102,8 +102,8 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSClient {
                 self.hb = Instant::now();
                 ctx.pong(&msg);
             },
-            Ok(ws::Message::Pong(msg)) => {
-                log::debug!("Receive {} pong {:?}", &self.session_id, &msg);
+            Ok(ws::Message::Pong(_msg)) => {
+                // log::debug!("Receive {} pong {:?}", &self.session_id, &msg);
                 self.hb = Instant::now();
             },
             Ok(ws::Message::Binary(bin)) => {

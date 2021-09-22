@@ -14,8 +14,8 @@ impl InsertExt for DefaultInsertAttribute {
         // Enable each line split by "\n" remains the block attributes. for example:
         // insert "\n" to "123456" at index 3
         //
-        // [{"insert":"123"},{"insert":"\n","attributes":{"header":"1"}},
-        // {"insert":"456"},{"insert":"\n","attributes":{"header":"1"}}]
+        // [{"insert":"123"},{"insert":"\n","attributes":{"header":1}},
+        // {"insert":"456"},{"insert":"\n","attributes":{"header":1}}]
         if text.ends_with(NEW_LINE) {
             match iter.last() {
                 None => {},

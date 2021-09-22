@@ -52,6 +52,7 @@ pub enum WsState {
 pub struct WsController {
     handlers: HashMap<String, Arc<dyn WsMessageHandler>>,
     state_notify: Arc<RwLock<WsStateNotify>>,
+    #[allow(dead_code)]
     addr: Option<String>,
     sender: Option<Arc<WsSender>>,
 }

@@ -103,6 +103,7 @@ async fn user_update_email() {
     assert_eq!(user.email, email);
 }
 
+#[allow(dead_code)]
 async fn sign_up_user(server: &TestServer) -> SignUpResponse {
     let email = "annie@appflowy.io";
     let password = "HelloWorld123!";

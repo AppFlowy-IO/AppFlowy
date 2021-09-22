@@ -71,6 +71,7 @@ impl WorkspaceController {
         Ok(workspace)
     }
 
+    #[allow(dead_code)]
     pub(crate) async fn update_workspace(&self, params: UpdateWorkspaceParams) -> Result<(), WorkspaceError> {
         let changeset = WorkspaceTableChangeset::new(params.clone());
         let workspace_id = changeset.id.clone();
@@ -91,6 +92,7 @@ impl WorkspaceController {
         Ok(())
     }
 
+    #[allow(dead_code)]
     pub(crate) async fn delete_workspace(&self, workspace_id: &str) -> Result<(), WorkspaceError> {
         let user_id = self.user.user_id()?;
         let token = self.user.token()?;

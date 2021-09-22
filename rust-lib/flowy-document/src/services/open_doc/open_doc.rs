@@ -52,10 +52,16 @@ impl OpenedDoc {
         let mut write_guard = self.document.write();
         let _ = write_guard.apply_changeset(data.clone())?;
 
-        self.ws_sender.send_data(data);
+        match self.ws_sender.send_data(data) {
+            Ok(_) => {},
+            Err(e) => {
+                // TODO: save to local and retry
+                log::error!("Send delta failed: {:?}", e);
+            },
+        }
 
         // Opti: strategy to save the document
-        let mut save = SaveDocParams {
+        let save = SaveDocParams {
             id: self.id.0.clone(),
             data: write_guard.to_bytes(),
         };

@@ -8,7 +8,7 @@ use std::{
     str::Chars,
 };
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum Operation {
     Delete(usize),
     Retain(Retain),
@@ -147,7 +147,7 @@ impl fmt::Display for Operation {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Retain {
     #[serde(rename(serialize = "retain", deserialize = "retain"))]
     pub n: usize,
@@ -168,7 +168,6 @@ impl fmt::Display for Retain {
 impl Retain {
     pub fn merge_or_new(&mut self, n: usize, attributes: Attributes) -> Option<Operation> {
         log::trace!("merge_retain_or_new_op: len: {:?}, l: {} - r: {}", n, self.attributes, attributes);
-
         if self.attributes == attributes {
             self.n += n;
             None
@@ -199,7 +198,7 @@ impl DerefMut for Retain {
     fn deref_mut(&mut self) -> &mut Self::Target { &mut self.n }
 }
 
-#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Insert {
     #[serde(rename(serialize = "insert", deserialize = "insert"))]
     pub s: String,
@@ -255,5 +254,4 @@ impl std::convert::From<String> for Insert {
 impl std::convert::From<&str> for Insert {
     fn from(s: &str) -> Self { Insert::from(s.to_owned()) }
 }
-
 fn is_empty(attributes: &Attributes) -> bool { attributes.is_empty() }

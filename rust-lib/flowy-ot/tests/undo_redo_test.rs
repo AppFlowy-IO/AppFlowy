@@ -252,7 +252,7 @@ fn history_header_added_undo() {
         Redo(0),
         AssertOpsJson(
             0,
-            r#"[{"insert":"123"},{"insert":"\n\n","attributes":{"header":"1"}},{"insert":"456"},{"insert":"\n","attributes":{"header":"1"}}]"#,
+            r#"[{"insert":"123"},{"insert":"\n\n","attributes":{"header":1}},{"insert":"456"},{"insert":"\n","attributes":{"header":1}}]"#,
         ),
     ];
 

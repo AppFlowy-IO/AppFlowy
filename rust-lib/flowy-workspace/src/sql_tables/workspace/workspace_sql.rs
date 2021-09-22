@@ -44,11 +44,13 @@ impl WorkspaceTableSql {
         Ok(workspaces)
     }
 
+    #[allow(dead_code)]
     pub(crate) fn update_workspace(&self, changeset: WorkspaceTableChangeset, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
         diesel_update_table!(workspace_table, changeset, conn);
         Ok(())
     }
 
+    #[allow(dead_code)]
     pub(crate) fn delete_workspace(&self, workspace_id: &str, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
         diesel_delete_table!(workspace_table, workspace_id, conn);
         Ok(())

@@ -283,10 +283,10 @@ impl UserSession {
         let addr = format!("{}/{}", flowy_net::config::WS_ADDR.as_str(), token);
         let ws_controller = self.ws_controller.clone();
         let retry = Retry::new(&addr, move |addr| {
-            ws_controller.write().connect(addr.to_owned());
+            let _ = ws_controller.write().connect(addr.to_owned());
         });
 
-        let _ = self.ws_controller.write().connect_with_retry(addr, retry);
+        let _ = self.ws_controller.write().connect_with_retry(addr, retry)?;
         Ok(())
     }
 }

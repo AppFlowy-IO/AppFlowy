@@ -1,6 +1,6 @@
 use crate::{
-    entities::doc::{ApplyChangesetParams, CreateDocParams, Doc, QueryDocParams, SaveDocParams},
-    errors::{internal_error, DocError},
+    entities::doc::{ApplyChangesetParams, CreateDocParams, Doc, QueryDocParams},
+    errors::DocError,
     services::{doc_controller::DocController, open_doc::OpenedDocManager, server::construct_doc_server, ws::WsManager},
 };
 use bytes::Bytes;

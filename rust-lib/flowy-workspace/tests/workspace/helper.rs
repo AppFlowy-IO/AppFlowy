@@ -211,10 +211,3 @@ pub fn open_view(sdk: &FlowyTestSDK, request: OpenViewRequest) -> Doc {
         .sync_send()
         .parse::<Doc>()
 }
-
-pub fn update_view_data(sdk: &FlowyTestSDK, request: SaveViewDataRequest) {
-    FlowyWorkspaceTest::new(sdk.clone())
-        .event(SaveViewData)
-        .request(request)
-        .sync_send();
-}

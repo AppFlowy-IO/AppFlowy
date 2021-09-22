@@ -28,10 +28,7 @@ impl DocumentDepsResolver {
 
         let ws_manager = Arc::new(RwLock::new(WsManager::new(sender)));
 
-        let ws_handler = Arc::new(WsDocumentResolver {
-            user: self.user_session.clone(),
-            inner: ws_manager.clone(),
-        });
+        let ws_handler = Arc::new(WsDocumentResolver { inner: ws_manager.clone() });
 
         self.user_session.add_ws_handler(ws_handler);
 
@@ -75,7 +72,6 @@ impl WsSender for WsSenderImpl {
 }
 
 struct WsDocumentResolver {
-    user: Arc<UserSession>,
     inner: Arc<RwLock<WsManager>>,
 }
 

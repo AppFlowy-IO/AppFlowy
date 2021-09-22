@@ -71,6 +71,7 @@ impl<'de> Deserialize<'de> for Attributes {
             {
                 let mut attributes = Attributes::new();
                 while let Some(key) = map.next_key::<AttributeKey>()? {
+                    log::warn!("{:?}", key);
                     let value = map.next_value::<AttributeValue>()?;
                     attributes.add_kv(key, value);
                 }
@@ -102,7 +103,10 @@ impl<'de> Deserialize<'de> for AttributeValue {
         struct AttributeValueVisitor;
         impl<'de> Visitor<'de> for AttributeValueVisitor {
             type Value = AttributeValue;
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result { formatter.write_str("Can't find any visit handler") }
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                //
+                formatter.write_str("bool, usize or string")
+            }
             fn visit_bool<E>(self, value: bool) -> Result<Self::Value, E>
             where
                 E: de::Error,

@@ -8,7 +8,6 @@ use crate::{
         OpenViewRequest,
         QueryViewParams,
         QueryViewRequest,
-        SaveViewDataRequest,
         UpdateViewParams,
         UpdateViewRequest,
         View,
@@ -17,7 +16,7 @@ use crate::{
     services::ViewController,
 };
 use flowy_dispatch::prelude::{data_result, Data, DataResult, Unit};
-use flowy_document::entities::doc::{ApplyChangesetParams, Doc, QueryDocParams, SaveDocParams};
+use flowy_document::entities::doc::{ApplyChangesetParams, Doc, QueryDocParams};
 use std::{convert::TryInto, sync::Arc};
 
 #[tracing::instrument(skip(data, controller), err)]

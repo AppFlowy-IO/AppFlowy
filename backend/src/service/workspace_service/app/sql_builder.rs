@@ -42,6 +42,7 @@ impl NewAppSqlBuilder {
         self
     }
 
+    #[allow(dead_code)]
     pub fn last_view_id(mut self, view_id: &str) -> Self {
         self.table.last_view_id = view_id.to_string();
         self

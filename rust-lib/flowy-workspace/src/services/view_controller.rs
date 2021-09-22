@@ -14,7 +14,7 @@ use crate::{
 };
 use flowy_database::SqliteConnection;
 use flowy_document::{
-    entities::doc::{ApplyChangesetParams, CreateDocParams, Doc, QueryDocParams, SaveDocParams},
+    entities::doc::{ApplyChangesetParams, CreateDocParams, Doc, QueryDocParams},
     module::FlowyDocument,
 };
 use std::sync::Arc;
