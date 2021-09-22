@@ -49,6 +49,6 @@ pub enum WorkspaceEvent {
     #[event(input = "OpenViewRequest", output = "Doc")]
     OpenView          = 205,
 
-    #[event(input = "ApplyChangesetRequest", output = "Doc")]
+    #[event(input = "DocChangeset", output = "Doc")]
     ApplyChangeset    = 206,
 }

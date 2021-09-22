@@ -3,7 +3,7 @@ use crate::{
     errors::WorkspaceError,
 };
 use flowy_derive::ProtoBuf;
-use flowy_document::entities::doc::{ApplyChangesetParams, SaveDocParams};
+use flowy_document::entities::doc::{DocChangeset, UpdateDocParams};
 use std::convert::TryInto;
 
 #[derive(Default, ProtoBuf)]
@@ -109,16 +109,19 @@ pub struct SaveViewDataRequest {
     pub data: Vec<u8>,
 }
 
-impl TryInto<SaveDocParams> for SaveViewDataRequest {
+impl TryInto<UpdateDocParams> for SaveViewDataRequest {
     type Error = WorkspaceError;
 
-    fn try_into(self) -> Result<SaveDocParams, Self::Error> {
+    fn try_into(self) -> Result<UpdateDocParams, Self::Error> {
         let view_id = ViewId::parse(self.view_id).map_err(|e| WorkspaceError::view_id().context(e))?.0;
 
         // Opti: Vec<u8> -> Delta -> Vec<u8>
         let data = DeltaData::parse(self.data).map_err(|e| WorkspaceError::view_data().context(e))?.0;
 
-        Ok(SaveDocParams { id: view_id, data })
+        Ok(UpdateDocParams {
+            id: view_id,
+            doc_data: data,
+        })
     }
 }
 
@@ -131,15 +134,15 @@ pub struct ApplyChangesetRequest {
     pub data: Vec<u8>,
 }
 
-impl TryInto<ApplyChangesetParams> for ApplyChangesetRequest {
+impl TryInto<DocChangeset> for ApplyChangesetRequest {
     type Error = WorkspaceError;
 
-    fn try_into(self) -> Result<ApplyChangesetParams, Self::Error> {
+    fn try_into(self) -> Result<DocChangeset, Self::Error> {
         let view_id = ViewId::parse(self.view_id).map_err(|e| WorkspaceError::view_id().context(e))?.0;
 
         // Opti: Vec<u8> -> Delta -> Vec<u8>
         let data = DeltaData::parse(self.data).map_err(|e| WorkspaceError::view_data().context(e))?.0;
 
-        Ok(ApplyChangesetParams { id: view_id, data })
+        Ok(DocChangeset { id: view_id, data })
     }
 }

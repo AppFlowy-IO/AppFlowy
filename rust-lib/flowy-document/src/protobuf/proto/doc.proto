@@ -7,12 +7,13 @@ message CreateDocParams {
 message Doc {
     string id = 1;
     bytes data = 2;
+    int64 revision = 3;
 }
-message SaveDocParams {
+message UpdateDocParams {
     string id = 1;
-    bytes data = 2;
+    bytes doc_data = 2;
 }
-message ApplyChangesetParams {
+message DocChangeset {
     string id = 1;
     bytes data = 2;
 }

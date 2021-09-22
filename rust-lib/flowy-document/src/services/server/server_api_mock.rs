@@ -1,5 +1,5 @@
 use crate::{
-    entities::doc::{CreateDocParams, Doc, QueryDocParams, SaveDocParams},
+    entities::doc::{CreateDocParams, Doc, QueryDocParams, UpdateDocParams},
     errors::DocError,
     services::server::DocumentServerAPI,
 };
@@ -13,7 +13,7 @@ impl DocumentServerAPI for DocServerMock {
         ResultFuture::new(async { Ok(None) })
     }
 
-    fn update_doc(&self, _token: &str, _params: SaveDocParams) -> ResultFuture<(), DocError> { ResultFuture::new(async { Ok(()) }) }
+    fn update_doc(&self, _token: &str, _params: UpdateDocParams) -> ResultFuture<(), DocError> { ResultFuture::new(async { Ok(()) }) }
 
     fn delete_doc(&self, _token: &str, _params: QueryDocParams) -> ResultFuture<(), DocError> { ResultFuture::new(async { Ok(()) }) }
 }

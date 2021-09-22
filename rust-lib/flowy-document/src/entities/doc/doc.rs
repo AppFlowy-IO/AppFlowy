@@ -20,19 +20,22 @@ pub struct Doc {
 
     #[pb(index = 2)]
     pub data: Vec<u8>,
+
+    #[pb(index = 3)]
+    pub revision: i64,
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct SaveDocParams {
+pub struct UpdateDocParams {
     #[pb(index = 1)]
     pub id: String,
 
     #[pb(index = 2)]
-    pub data: Vec<u8>,
+    pub doc_data: Vec<u8>,
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct ApplyChangesetParams {
+pub struct DocChangeset {
     #[pb(index = 1)]
     pub id: String,
 

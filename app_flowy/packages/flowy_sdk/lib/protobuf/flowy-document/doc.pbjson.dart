@@ -25,33 +25,34 @@ const Doc$json = const {
   '2': const [
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'data', '3': 2, '4': 1, '5': 12, '10': 'data'},
+    const {'1': 'revision', '3': 3, '4': 1, '5': 3, '10': 'revision'},
   ],
 };
 
 /// Descriptor for `Doc`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List docDescriptor = $convert.base64Decode('CgNEb2MSDgoCaWQYASABKAlSAmlkEhIKBGRhdGEYAiABKAxSBGRhdGE=');
-@$core.Deprecated('Use saveDocParamsDescriptor instead')
-const SaveDocParams$json = const {
-  '1': 'SaveDocParams',
+final $typed_data.Uint8List docDescriptor = $convert.base64Decode('CgNEb2MSDgoCaWQYASABKAlSAmlkEhIKBGRhdGEYAiABKAxSBGRhdGESGgoIcmV2aXNpb24YAyABKANSCHJldmlzaW9u');
+@$core.Deprecated('Use updateDocParamsDescriptor instead')
+const UpdateDocParams$json = const {
+  '1': 'UpdateDocParams',
+  '2': const [
+    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+    const {'1': 'doc_data', '3': 2, '4': 1, '5': 12, '10': 'docData'},
+  ],
+};
+
+/// Descriptor for `UpdateDocParams`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List updateDocParamsDescriptor = $convert.base64Decode('Cg9VcGRhdGVEb2NQYXJhbXMSDgoCaWQYASABKAlSAmlkEhkKCGRvY19kYXRhGAIgASgMUgdkb2NEYXRh');
+@$core.Deprecated('Use docChangesetDescriptor instead')
+const DocChangeset$json = const {
+  '1': 'DocChangeset',
   '2': const [
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'data', '3': 2, '4': 1, '5': 12, '10': 'data'},
   ],
 };
 
-/// Descriptor for `SaveDocParams`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List saveDocParamsDescriptor = $convert.base64Decode('Cg1TYXZlRG9jUGFyYW1zEg4KAmlkGAEgASgJUgJpZBISCgRkYXRhGAIgASgMUgRkYXRh');
-@$core.Deprecated('Use applyChangesetParamsDescriptor instead')
-const ApplyChangesetParams$json = const {
-  '1': 'ApplyChangesetParams',
-  '2': const [
-    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
-    const {'1': 'data', '3': 2, '4': 1, '5': 12, '10': 'data'},
-  ],
-};
-
-/// Descriptor for `ApplyChangesetParams`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List applyChangesetParamsDescriptor = $convert.base64Decode('ChRBcHBseUNoYW5nZXNldFBhcmFtcxIOCgJpZBgBIAEoCVICaWQSEgoEZGF0YRgCIAEoDFIEZGF0YQ==');
+/// Descriptor for `DocChangeset`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List docChangesetDescriptor = $convert.base64Decode('CgxEb2NDaGFuZ2VzZXQSDgoCaWQYASABKAlSAmlkEhIKBGRhdGEYAiABKAxSBGRhdGE=');
 @$core.Deprecated('Use queryDocParamsDescriptor instead')
 const QueryDocParams$json = const {
   '1': 'QueryDocParams',

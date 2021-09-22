@@ -15,13 +15,16 @@ const ErrorCode$json = const {
     const {'1': 'DocIdInvalid', '2': 0},
     const {'1': 'DocNotfound', '2': 1},
     const {'1': 'WsConnectError', '2': 10},
+    const {'1': 'UndoFail', '2': 200},
+    const {'1': 'RedoFail', '2': 201},
+    const {'1': 'OutOfBound', '2': 202},
     const {'1': 'UserUnauthorized', '2': 999},
     const {'1': 'InternalError', '2': 1000},
   ],
 };
 
 /// Descriptor for `ErrorCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List errorCodeDescriptor = $convert.base64Decode('CglFcnJvckNvZGUSEAoMRG9jSWRJbnZhbGlkEAASDwoLRG9jTm90Zm91bmQQARISCg5Xc0Nvbm5lY3RFcnJvchAKEhUKEFVzZXJVbmF1dGhvcml6ZWQQ5wcSEgoNSW50ZXJuYWxFcnJvchDoBw==');
+final $typed_data.Uint8List errorCodeDescriptor = $convert.base64Decode('CglFcnJvckNvZGUSEAoMRG9jSWRJbnZhbGlkEAASDwoLRG9jTm90Zm91bmQQARISCg5Xc0Nvbm5lY3RFcnJvchAKEg0KCFVuZG9GYWlsEMgBEg0KCFJlZG9GYWlsEMkBEg8KCk91dE9mQm91bmQQygESFQoQVXNlclVuYXV0aG9yaXplZBDnBxISCg1JbnRlcm5hbEVycm9yEOgH');
 @$core.Deprecated('Use docErrorDescriptor instead')
 const DocError$json = const {
   '1': 'DocError',

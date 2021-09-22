@@ -41,6 +41,9 @@ impl DocError {
     static_doc_error!(not_found, ErrorCode::DocNotfound);
     static_doc_error!(unauthorized, ErrorCode::UserUnauthorized);
     static_doc_error!(ws, ErrorCode::WsConnectError);
+    static_doc_error!(undo, ErrorCode::UndoFail);
+    static_doc_error!(redo, ErrorCode::RedoFail);
+    static_doc_error!(out_of_bound, ErrorCode::OutOfBound);
 }
 
 pub fn internal_error<T>(e: T) -> DocError
@@ -60,6 +63,14 @@ pub enum ErrorCode {
 
     #[display(fmt = "Document websocket error")]
     WsConnectError   = 10,
+
+    #[display(fmt = "Undo failed")]
+    UndoFail         = 200,
+    #[display(fmt = "Redo failed")]
+    RedoFail         = 201,
+
+    #[display(fmt = "Interval out of bound")]
+    OutOfBound       = 202,
 
     #[display(fmt = "UserUnauthorized")]
     UserUnauthorized = 999,
@@ -87,6 +98,10 @@ impl std::convert::From<flowy_ot::errors::OTError> for DocError {
 
 impl std::convert::From<std::io::Error> for DocError {
     fn from(error: std::io::Error) -> Self { DocError::internal().context(error) }
+}
+
+impl std::convert::From<serde_json::Error> for DocError {
+    fn from(error: serde_json::Error) -> Self { DocError::internal().context(error) }
 }
 
 // impl std::convert::From<::r2d2::Error> for DocError {

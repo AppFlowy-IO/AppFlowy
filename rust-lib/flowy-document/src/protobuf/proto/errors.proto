@@ -8,6 +8,9 @@ enum ErrorCode {
     DocIdInvalid = 0;
     DocNotfound = 1;
     WsConnectError = 10;
+    UndoFail = 200;
+    RedoFail = 201;
+    OutOfBound = 202;
     UserUnauthorized = 999;
     InternalError = 1000;
 }

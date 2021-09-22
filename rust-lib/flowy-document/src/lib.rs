@@ -3,7 +3,7 @@ pub mod errors;
 pub mod module;
 mod observable;
 pub mod protobuf;
-mod services;
+pub mod services;
 mod sql_tables;
 
 #[macro_use]
