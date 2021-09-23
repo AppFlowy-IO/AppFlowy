@@ -1,28 +1,34 @@
+use std::{convert::TryInto, fmt::Debug, sync::Arc};
+
+use bytes::Bytes;
+use dashmap::DashMap;
+use parking_lot::RwLock;
+
+use flowy_database::ConnectionPool;
+use flowy_ot::{core::Delta, errors::OTError};
+
 use crate::{
     entities::doc::Doc,
     errors::DocError,
     services::{
-        open_doc::{DocId, OpenedDoc},
+        doc::edit_context::{DocId, EditDocContext},
         ws::WsManager,
     },
 };
-use bytes::Bytes;
-use dashmap::DashMap;
-use flowy_database::ConnectionPool;
-use flowy_ot::{core::Delta, errors::OTError};
-use parking_lot::RwLock;
-use std::{convert::TryInto, fmt::Debug, sync::Arc};
 
 pub(crate) struct DocCache {
-    doc_map: DashMap<DocId, Arc<OpenedDoc>>,
+    doc_map: DashMap<DocId, Arc<EditDocContext>>,
 }
 
 impl DocCache {
     pub(crate) fn new() -> Self { Self { doc_map: DashMap::new() } }
 
-    pub(crate) fn set(&self, doc: Arc<OpenedDoc>) -> Result<(), DocError> {
+    pub(crate) fn set(&self, doc: Arc<EditDocContext>) {
+        let doc_id = doc.id.clone();
+        if self.doc_map.contains_key(&doc_id) {
+            log::warn!("Doc:{} already exists in cache", doc_id.as_ref());
+        }
         self.doc_map.insert(doc.id.clone(), doc);
-        Ok(())
     }
 
     pub(crate) fn is_opened(&self, doc_id: &str) -> bool {
@@ -30,7 +36,7 @@ impl DocCache {
         self.doc_map.get(&doc_id).is_some()
     }
 
-    pub(crate) fn get(&self, doc_id: &str) -> Result<Arc<OpenedDoc>, DocError> {
+    pub(crate) fn get(&self, doc_id: &str) -> Result<Arc<EditDocContext>, DocError> {
         if !self.is_opened(&doc_id) {
             return Err(doc_not_found());
         }

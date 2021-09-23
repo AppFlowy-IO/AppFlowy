@@ -20,10 +20,10 @@ class DocRepository {
 
   Future<Either<Doc, WorkspaceError>> applyChangeset(
       {required Uint8List data}) {
-    final request = ApplyChangesetRequest.create()
-      ..viewId = docId
+    final request = DocDelta.create()
+      ..docId = docId
       ..data = data;
-    return WorkspaceEventApplyChangeset(request).send();
+    return WorkspaceEventApplyDocDelta(request).send();
   }
 
   Future<Either<Unit, WorkspaceError>> closeDoc(

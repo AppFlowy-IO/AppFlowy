@@ -16,7 +16,7 @@ use crate::{
     services::ViewController,
 };
 use flowy_dispatch::prelude::{data_result, Data, DataResult, Unit};
-use flowy_document::entities::doc::{Doc, DocChangeset, QueryDocParams};
+use flowy_document::entities::doc::{Doc, DocDelta, QueryDocParams};
 use std::{convert::TryInto, sync::Arc};
 
 #[tracing::instrument(skip(data, controller), err)]
@@ -56,12 +56,12 @@ pub(crate) async fn update_view_handler(
 }
 
 #[tracing::instrument(skip(data, controller), err)]
-pub(crate) async fn apply_changeset_handler(
+pub(crate) async fn apply_doc_delta_handler(
     data: Data<ApplyChangesetRequest>,
     controller: Unit<Arc<ViewController>>,
 ) -> DataResult<Doc, WorkspaceError> {
-    let params: DocChangeset = data.into_inner().try_into()?;
-    let doc = controller.apply_changeset(params).await?;
+    let params: DocDelta = data.into_inner().try_into()?;
+    let doc = controller.apply_doc_delta(params).await?;
     data_result(doc)
 }
 

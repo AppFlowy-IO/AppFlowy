@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:dartz/dartz.dart';
 import 'package:app_flowy/workspace/domain/i_doc.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/doc_repo.dart';
-import 'package:flowy_editor/src/model/quill_delta.dart';
 import 'package:flowy_sdk/protobuf/flowy-document/doc.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 

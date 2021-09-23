@@ -16,5 +16,5 @@ enum WorkspaceEvent {
     UpdateView = 203;
     DeleteView = 204;
     OpenView = 205;
-    ApplyChangeset = 206;
+    ApplyDocDelta = 206;
 }

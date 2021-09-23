@@ -10,11 +10,11 @@ message Doc {
     int64 revision = 3;
 }
 message UpdateDocParams {
-    string id = 1;
-    bytes doc_data = 2;
+    string doc_id = 1;
+    bytes data = 2;
 }
-message DocChangeset {
-    string id = 1;
+message DocDelta {
+    string doc_id = 1;
     bytes data = 2;
 }
 message QueryDocParams {

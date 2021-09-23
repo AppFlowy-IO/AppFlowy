@@ -1,27 +1,25 @@
 use crate::{
-    entities::doc::{CreateDocParams, Doc, QueryDocParams, UpdateDocParams},
-    errors::DocError,
+    entities::doc::{CreateDocParams, Doc, DocDelta, QueryDocParams, UpdateDocParams},
+    errors::{internal_error, DocError},
     module::DocumentUser,
-    services::server::Server,
-    sql_tables::doc::{DocTable, DocTableChangeset, DocTableSql},
-};
-use flowy_database::{ConnectionPool, SqliteConnection};
-
-use crate::{
-    errors::internal_error,
     services::{
         cache::DocCache,
-        open_doc::{DocId, OpenedDoc, OpenedDocPersistence},
+        doc::edit_context::{DocId, EditDocContext, EditDocPersistence},
+        server::Server,
         ws::WsManager,
     },
+    sql_tables::doc::{DocTable, DocTableChangeset, DocTableSql, OpTableSql},
 };
+use bytes::Bytes;
+use flowy_database::{ConnectionPool, SqliteConnection};
 use parking_lot::RwLock;
 use std::sync::Arc;
 use tokio::task::JoinHandle;
 
 pub(crate) struct DocController {
     server: Server,
-    sql: Arc<DocTableSql>,
+    doc_sql: Arc<DocTableSql>,
+    op_sql: Arc<OpTableSql>,
     ws: Arc<RwLock<WsManager>>,
     cache: Arc<DocCache>,
     user: Arc<dyn DocumentUser>,
@@ -29,11 +27,13 @@ pub(crate) struct DocController {
 
 impl DocController {
     pub(crate) fn new(server: Server, user: Arc<dyn DocumentUser>, ws: Arc<RwLock<WsManager>>) -> Self {
-        let sql = Arc::new(DocTableSql {});
+        let doc_sql = Arc::new(DocTableSql {});
+        let op_sql = Arc::new(OpTableSql {});
         let cache = Arc::new(DocCache::new());
         Self {
-            sql,
             server,
+            doc_sql,
+            op_sql,
             user,
             ws,
             cache,
@@ -47,21 +47,21 @@ impl DocController {
             data: params.data,
             revision: 0,
         };
-        let _ = self.sql.create_doc_table(DocTable::new(doc), conn)?;
+        let _ = self.doc_sql.create_doc_table(DocTable::new(doc), conn)?;
         Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self, pool), err)]
-    pub(crate) async fn open(&self, params: QueryDocParams, pool: Arc<ConnectionPool>) -> Result<Arc<OpenedDoc>, DocError> {
+    pub(crate) async fn open(&self, params: QueryDocParams, pool: Arc<ConnectionPool>) -> Result<Arc<EditDocContext>, DocError> {
         if self.cache.is_opened(&params.doc_id) == false {
-            return match self._open(params.clone(), pool.clone()) {
+            return match self._open(params, pool).await {
                 Ok(doc) => Ok(doc),
                 Err(error) => Err(error),
             };
         }
 
-        let doc = self.cache.get(&params.doc_id)?;
-        Ok(doc)
+        let edit_doc_ctx = self.cache.get(&params.doc_id)?;
+        Ok(edit_doc_ctx)
     }
 
     pub(crate) fn close(&self, doc_id: &str) -> Result<(), DocError> {
@@ -70,30 +70,22 @@ impl DocController {
         Ok(())
     }
 
-    // #[tracing::instrument(level = "debug", skip(self, changeset, pool), err)]
-    // pub(crate) async fn apply_changeset<T>(&self, id: T, changeset: Bytes, pool:
-    // Arc<ConnectionPool>) -> Result<(), DocError>     where
-    //         T: Into<DocId> + Debug,
-    // {
-    //     let id = id.into();
-    //     match self.doc_map.get(&id) {
-    //         None => Err(doc_not_found()),
-    //         Some(doc) => {
-    //             let _ = doc.apply_delta(changeset, pool)?;
-    //             Ok(())
-    //         },
-    //     }
-    // }
-
     #[tracing::instrument(level = "debug", skip(self, conn), err)]
     pub(crate) fn delete(&self, params: QueryDocParams, conn: &SqliteConnection) -> Result<(), DocError> {
         let doc_id = &params.doc_id;
-        let _ = self.sql.delete_doc(doc_id, &*conn)?;
+        let _ = self.doc_sql.delete_doc(doc_id, &*conn)?;
 
         self.cache.remove(doc_id);
         self.ws.write().remove_handler(doc_id);
         let _ = self.delete_doc_on_server(params)?;
         Ok(())
+    }
+
+    #[tracing::instrument(level = "debug", skip(self, delta, pool), err)]
+    pub(crate) fn edit_doc(&self, delta: DocDelta, pool: Arc<ConnectionPool>) -> Result<Doc, DocError> {
+        let edit_doc_ctx = self.cache.get(&delta.doc_id)?;
+        let _ = edit_doc_ctx.apply_delta(Bytes::from(delta.data), pool)?;
+        Ok(edit_doc_ctx.doc())
     }
 }
 
@@ -119,19 +111,22 @@ impl DocController {
         &self,
         params: QueryDocParams,
         pool: Arc<ConnectionPool>,
-    ) -> Result<JoinHandle<Result<Doc, DocError>>, DocError> {
+    ) -> Result<JoinHandle<Result<Arc<EditDocContext>, DocError>>, DocError> {
         let token = self.user.token()?;
         let server = self.server.clone();
-        let sql = self.sql.clone();
+        let doc_sql = self.doc_sql.clone();
+        let op_sql = self.op_sql.clone();
+        let ws = self.ws.clone();
+        let cache = self.cache.clone();
 
         Ok(tokio::spawn(async move {
             match server.read_doc(&token, params).await? {
                 None => Err(DocError::not_found()),
                 Some(doc) => {
                     let doc_table = DocTable::new(doc.clone());
-                    let _ = sql.create_doc_table(doc_table, &*(pool.get().map_err(internal_error)?))?;
-                    // TODO: notify
-                    Ok(doc)
+                    let _ = doc_sql.create_doc_table(doc_table, &*(pool.get().map_err(internal_error)?))?;
+                    let edit_doc_ctx = make_edit_context(ws, cache, op_sql, doc)?;
+                    Ok(edit_doc_ctx)
                 },
             }
         }))
@@ -153,32 +148,45 @@ impl DocController {
         Ok(())
     }
 
-    fn _open(&self, params: QueryDocParams, pool: Arc<ConnectionPool>) -> Result<Arc<OpenedDoc>, DocError> {
-        match self.sql.read_doc_table(&params.doc_id, &*(pool.get().map_err(internal_error)?)) {
+    async fn _open(&self, params: QueryDocParams, pool: Arc<ConnectionPool>) -> Result<Arc<EditDocContext>, DocError> {
+        match self.doc_sql.read_doc_table(&params.doc_id, &*(pool.get().map_err(internal_error)?)) {
             Ok(doc_table) => {
-                let doc = Arc::new(OpenedDoc::new(doc_table.into(), self.ws.read().sender.clone())?);
-                self.ws.write().register_handler(doc.id.as_ref(), doc.clone());
-                self.cache.set(doc.clone());
-
-                Ok(doc)
+                let edit_doc_ctx = make_edit_context(self.ws.clone(), self.cache.clone(), self.op_sql.clone(), doc_table.into())?;
+                Ok(edit_doc_ctx)
             },
             Err(error) => {
                 if error.is_record_not_found() {
                     log::debug!("Doc:{} don't exist, reading from server", params.doc_id);
-                    // TODO: notify doc update
-                    let _ = self.read_doc_from_server(params, pool);
+                    match self.read_doc_from_server(params, pool)?.await.map_err(internal_error)? {
+                        Ok(edit_doc_ctx) => Ok(edit_doc_ctx),
+                        Err(error) => Err(error),
+                    }
+                } else {
+                    return Err(error);
                 }
-
-                return Err(error);
             },
         }
     }
 }
 
-impl OpenedDocPersistence for DocController {
+fn make_edit_context(
+    ws: Arc<RwLock<WsManager>>,
+    cache: Arc<DocCache>,
+    op_sql: Arc<OpTableSql>,
+    doc: Doc,
+) -> Result<Arc<EditDocContext>, DocError> {
+    // Opti: require upgradable_read lock and then upgrade to write lock using
+    // RwLockUpgradableReadGuard::upgrade(xx)
+    let edit_doc_ctx = Arc::new(EditDocContext::new(doc, ws.read().sender.clone(), op_sql)?);
+    ws.write().register_handler(edit_doc_ctx.id.as_ref(), edit_doc_ctx.clone());
+    cache.set(edit_doc_ctx.clone());
+    Ok(edit_doc_ctx)
+}
+
+impl EditDocPersistence for DocController {
     fn save(&self, params: UpdateDocParams, pool: Arc<ConnectionPool>) -> Result<(), DocError> {
         let changeset = DocTableChangeset::new(params.clone());
-        let _ = self.sql.update_doc_table(changeset, &*(pool.get().map_err(internal_error)?))?;
+        let _ = self.doc_sql.update_doc_table(changeset, &*(pool.get().map_err(internal_error)?))?;
         Ok(())
     }
 }

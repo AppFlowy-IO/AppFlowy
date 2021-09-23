@@ -22,6 +22,16 @@ table! {
 }
 
 table! {
+    op_table (rev) {
+        base_rev -> BigInt,
+        rev -> BigInt,
+        data -> Binary,
+        md5 -> Text,
+        state -> Integer,
+    }
+}
+
+table! {
     user_table (id) {
         id -> Text,
         name -> Text,
@@ -61,6 +71,7 @@ table! {
 allow_tables_to_appear_in_same_query!(
     app_table,
     doc_table,
+    op_table,
     user_table,
     view_table,
     workspace_table,

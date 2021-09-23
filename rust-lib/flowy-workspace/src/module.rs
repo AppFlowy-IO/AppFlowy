@@ -66,7 +66,7 @@ pub fn create(user: Arc<dyn WorkspaceUser>, database: Arc<dyn WorkspaceDatabase>
         .event(WorkspaceEvent::UpdateView, update_view_handler)
         .event(WorkspaceEvent::DeleteView, delete_view_handler)
         .event(WorkspaceEvent::OpenView, open_view_handler)
-        .event(WorkspaceEvent::ApplyChangeset, apply_changeset_handler);
+        .event(WorkspaceEvent::ApplyDocDelta, apply_doc_delta_handler);
 
     module
 }

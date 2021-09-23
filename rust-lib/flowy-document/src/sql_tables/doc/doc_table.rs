@@ -4,9 +4,9 @@ use flowy_database::schema::doc_table;
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
 #[table_name = "doc_table"]
 pub(crate) struct DocTable {
-    pub id: String,
-    pub data: Vec<u8>,
-    pub revision: i64,
+    pub(crate) id: String,
+    pub(crate) data: Vec<u8>,
+    pub(crate) revision: i64,
 }
 
 impl DocTable {
@@ -29,8 +29,8 @@ pub(crate) struct DocTableChangeset {
 impl DocTableChangeset {
     pub(crate) fn new(params: UpdateDocParams) -> Self {
         Self {
-            id: params.id,
-            data: params.doc_data,
+            id: params.doc_id,
+            data: params.data,
         }
     }
 }

@@ -254,13 +254,13 @@ class WorkspaceEventOpenView {
     }
 }
 
-class WorkspaceEventApplyChangeset {
-     ApplyChangesetRequest request;
-     WorkspaceEventApplyChangeset(this.request);
+class WorkspaceEventApplyDocDelta {
+     DocDelta request;
+     WorkspaceEventApplyDocDelta(this.request);
 
     Future<Either<Doc, WorkspaceError>> send() {
     final request = FFIRequest.create()
-          ..event = WorkspaceEvent.ApplyChangeset.toString()
+          ..event = WorkspaceEvent.ApplyDocDelta.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)

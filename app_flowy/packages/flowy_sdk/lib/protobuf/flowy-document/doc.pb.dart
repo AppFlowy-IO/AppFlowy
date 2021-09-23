@@ -148,22 +148,22 @@ class Doc extends $pb.GeneratedMessage {
 
 class UpdateDocParams extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UpdateDocParams', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
-    ..a<$core.List<$core.int>>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docData', $pb.PbFieldType.OY)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
+    ..a<$core.List<$core.int>>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
     ..hasRequiredFields = false
   ;
 
   UpdateDocParams._() : super();
   factory UpdateDocParams({
-    $core.String? id,
-    $core.List<$core.int>? docData,
+    $core.String? docId,
+    $core.List<$core.int>? data,
   }) {
     final _result = create();
-    if (id != null) {
-      _result.id = id;
+    if (docId != null) {
+      _result.docId = docId;
     }
-    if (docData != null) {
-      _result.docData = docData;
+    if (data != null) {
+      _result.data = data;
     }
     return _result;
   }
@@ -189,74 +189,74 @@ class UpdateDocParams extends $pb.GeneratedMessage {
   static UpdateDocParams? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get id => $_getSZ(0);
+  $core.String get docId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.String v) { $_setString(0, v); }
+  set docId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasId() => $_has(0);
+  $core.bool hasDocId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearId() => clearField(1);
+  void clearDocId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.List<$core.int> get docData => $_getN(1);
+  $core.List<$core.int> get data => $_getN(1);
   @$pb.TagNumber(2)
-  set docData($core.List<$core.int> v) { $_setBytes(1, v); }
+  set data($core.List<$core.int> v) { $_setBytes(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasDocData() => $_has(1);
+  $core.bool hasData() => $_has(1);
   @$pb.TagNumber(2)
-  void clearDocData() => clearField(2);
+  void clearData() => clearField(2);
 }
 
-class DocChangeset extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DocChangeset', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
+class DocDelta extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DocDelta', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
     ..a<$core.List<$core.int>>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
     ..hasRequiredFields = false
   ;
 
-  DocChangeset._() : super();
-  factory DocChangeset({
-    $core.String? id,
+  DocDelta._() : super();
+  factory DocDelta({
+    $core.String? docId,
     $core.List<$core.int>? data,
   }) {
     final _result = create();
-    if (id != null) {
-      _result.id = id;
+    if (docId != null) {
+      _result.docId = docId;
     }
     if (data != null) {
       _result.data = data;
     }
     return _result;
   }
-  factory DocChangeset.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory DocChangeset.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory DocDelta.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory DocDelta.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  DocChangeset clone() => DocChangeset()..mergeFromMessage(this);
+  DocDelta clone() => DocDelta()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  DocChangeset copyWith(void Function(DocChangeset) updates) => super.copyWith((message) => updates(message as DocChangeset)) as DocChangeset; // ignore: deprecated_member_use
+  DocDelta copyWith(void Function(DocDelta) updates) => super.copyWith((message) => updates(message as DocDelta)) as DocDelta; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static DocChangeset create() => DocChangeset._();
-  DocChangeset createEmptyInstance() => create();
-  static $pb.PbList<DocChangeset> createRepeated() => $pb.PbList<DocChangeset>();
+  static DocDelta create() => DocDelta._();
+  DocDelta createEmptyInstance() => create();
+  static $pb.PbList<DocDelta> createRepeated() => $pb.PbList<DocDelta>();
   @$core.pragma('dart2js:noInline')
-  static DocChangeset getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DocChangeset>(create);
-  static DocChangeset? _defaultInstance;
+  static DocDelta getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DocDelta>(create);
+  static DocDelta? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get id => $_getSZ(0);
+  $core.String get docId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.String v) { $_setString(0, v); }
+  set docId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasId() => $_has(0);
+  $core.bool hasDocId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearId() => clearField(1);
+  void clearDocId() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.List<$core.int> get data => $_getN(1);

@@ -8,6 +8,7 @@ use crate::{
         doc::Document,
         ws::{WsHandler, WsSender},
     },
+    sql_tables::doc::OpTableSql,
 };
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
@@ -27,19 +28,20 @@ where
     fn from(s: T) -> Self { DocId(s.to_string()) }
 }
 
-pub(crate) trait OpenedDocPersistence: Send + Sync {
+pub(crate) trait EditDocPersistence: Send + Sync {
     fn save(&self, params: UpdateDocParams, pool: Arc<ConnectionPool>) -> Result<(), DocError>;
 }
 
-pub(crate) struct OpenedDoc {
+pub(crate) struct EditDocContext {
     pub(crate) id: DocId,
     pub(crate) revision: i64,
     document: RwLock<Document>,
     ws_sender: Arc<dyn WsSender>,
+    op_sql: Arc<OpTableSql>,
 }
 
-impl OpenedDoc {
-    pub(crate) fn new(doc: Doc, ws_sender: Arc<dyn WsSender>) -> Result<Self, DocError> {
+impl EditDocContext {
+    pub(crate) fn new(doc: Doc, ws_sender: Arc<dyn WsSender>, op_sql: Arc<OpTableSql>) -> Result<Self, DocError> {
         let id: DocId = doc.id.into();
         let revision = doc.revision;
         let delta: Delta = doc.data.try_into()?;
@@ -50,6 +52,7 @@ impl OpenedDoc {
             revision,
             document,
             ws_sender,
+            op_sql,
         })
     }
 
@@ -75,8 +78,8 @@ impl OpenedDoc {
 
         // Opti: strategy to save the document
         let save = UpdateDocParams {
-            id: self.id.0.clone(),
-            doc_data: write_guard.to_bytes(),
+            doc_id: self.id.0.clone(),
+            data: write_guard.to_bytes(),
         };
         // let _ = self.persistence.save(save, pool)?;
 
@@ -84,7 +87,7 @@ impl OpenedDoc {
     }
 }
 
-impl WsHandler for OpenedDoc {
+impl WsHandler for EditDocContext {
     fn receive(&self, data: WsDocumentData) {
         match data.source {
             WsSource::Delta => {},

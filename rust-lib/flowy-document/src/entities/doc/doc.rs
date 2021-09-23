@@ -28,16 +28,16 @@ pub struct Doc {
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct UpdateDocParams {
     #[pb(index = 1)]
-    pub id: String,
+    pub doc_id: String,
 
     #[pb(index = 2)]
-    pub doc_data: Vec<u8>,
+    pub data: Vec<u8>,
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct DocChangeset {
+pub struct DocDelta {
     #[pb(index = 1)]
-    pub id: String,
+    pub doc_id: String,
 
     #[pb(index = 2)]
     pub data: Vec<u8>, // Delta

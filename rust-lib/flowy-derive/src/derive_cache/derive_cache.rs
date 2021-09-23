@@ -58,7 +58,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "CreateDocParams"
         | "Doc"
         | "UpdateDocParams"
-        | "DocChangeset"
+        | "DocDelta"
         | "QueryDocParams"
         | "WsDocumentData"
         | "DocError"

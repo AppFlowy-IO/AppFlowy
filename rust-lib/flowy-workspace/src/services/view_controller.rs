@@ -14,7 +14,7 @@ use crate::{
 };
 use flowy_database::SqliteConnection;
 use flowy_document::{
-    entities::doc::{CreateDocParams, Doc, DocChangeset, QueryDocParams},
+    entities::doc::{CreateDocParams, Doc, DocDelta, QueryDocParams},
     module::FlowyDocument,
 };
 use std::sync::Arc;
@@ -125,9 +125,9 @@ impl ViewController {
         Ok(())
     }
 
-    pub(crate) async fn apply_changeset(&self, params: DocChangeset) -> Result<Doc, WorkspaceError> {
+    pub(crate) async fn apply_doc_delta(&self, params: DocDelta) -> Result<Doc, WorkspaceError> {
         let pool = self.database.db_pool()?;
-        let doc = self.document.apply_changeset(params, pool).await?;
+        let doc = self.document.apply_doc_delta(params, pool).await?;
         Ok(doc)
     }
 }
