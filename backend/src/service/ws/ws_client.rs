@@ -9,13 +9,12 @@ use crate::{
         WsBizHandlers,
     },
 };
-use actix::{fut::wrap_future, *};
+use actix::*;
 use actix_web::web::Data;
 use actix_web_actors::{ws, ws::Message::Text};
 use bytes::Bytes;
-use flowy_ws::{WsMessage, WsSource};
-use std::{convert::TryFrom, pin::Pin, time::Instant};
-use tokio::sync::RwLock;
+use flowy_ws::WsMessage;
+use std::{convert::TryFrom, time::Instant};
 
 pub struct WSClient {
     session_id: SessionId,
@@ -55,18 +54,16 @@ impl WSClient {
         let msg = ClientMessage::new(self.session_id.clone(), data);
         self.server.do_send(msg);
     }
-}
 
-async fn handle_binary_message(biz_handlers: Data<WsBizHandlers>, bytes: Bytes) {
-    let message: WsMessage = WsMessage::try_from(bytes).unwrap();
-    match biz_handlers.get(&message.source) {
-        None => {
-            log::error!("Can't find the handler for {:?}", message.source);
-        },
-        Some(handler) => handler
-            .write()
-            .await
-            .receive_data(Bytes::from(message.data)),
+    fn handle_binary_message(&self, bytes: Bytes) {
+        // TODO: ok to unwrap?
+        let message: WsMessage = WsMessage::try_from(bytes).unwrap();
+        match self.biz_handlers.get(&message.module) {
+            None => {
+                log::error!("Can't find the handler for {:?}", message.module);
+            },
+            Some(handler) => handler.receive_data(Bytes::from(message.data)),
+        }
     }
 }
 
@@ -83,8 +80,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSClient {
             },
             Ok(ws::Message::Binary(bytes)) => {
                 log::debug!(" Receive {} binary", &self.session_id);
-                let biz_handlers = self.biz_handlers.clone();
-                ctx.spawn(wrap_future(handle_binary_message(biz_handlers, bytes)));
+                self.handle_binary_message(bytes);
             },
             Ok(Text(_)) => {
                 log::warn!("Receive unexpected text message");

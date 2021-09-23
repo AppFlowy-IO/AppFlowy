@@ -5,4 +5,5 @@ message Revision {
     int64 rev_id = 2;
     bytes delta = 3;
     string md5 = 4;
+    string doc_id = 5;
 }

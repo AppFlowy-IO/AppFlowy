@@ -1,31 +1,28 @@
 use bytes::Bytes;
-use dashmap::{mapref::one::Ref, DashMap};
-use flowy_ws::WsSource;
-use std::sync::Arc;
-use tokio::sync::RwLock;
+use flowy_ws::WsModule;
+use std::{collections::HashMap, sync::Arc};
 
 pub trait WsBizHandler: Send + Sync {
     fn receive_data(&self, data: Bytes);
 }
 
-pub type BizHandler = Arc<RwLock<dyn WsBizHandler>>;
-
+pub type BizHandler = Arc<dyn WsBizHandler>;
 pub struct WsBizHandlers {
-    inner: DashMap<WsSource, BizHandler>,
+    inner: HashMap<WsModule, BizHandler>,
 }
 
 impl WsBizHandlers {
     pub fn new() -> Self {
         Self {
-            inner: DashMap::new(),
+            inner: HashMap::new(),
         }
     }
 
-    pub fn register(&self, source: WsSource, handler: BizHandler) {
+    pub fn register(&mut self, source: WsModule, handler: BizHandler) {
         self.inner.insert(source, handler);
     }
 
-    pub fn get(&self, source: &WsSource) -> Option<BizHandler> {
+    pub fn get(&self, source: &WsModule) -> Option<BizHandler> {
         match self.inner.get(source) {
             None => None,
             Some(handler) => Some(handler.clone()),

@@ -53,6 +53,7 @@ jsonwebtoken = "7.2"
 sql-builder = "3.1.1"
 lazy_static = "1.4"
 tokio = { version = "1", features = ["full"] }
+parking_lot = "0.11"
 
 flowy-user = { path = "../rust-lib/flowy-user" }
 flowy-workspace = { path = "../rust-lib/flowy-workspace" }

@@ -16,8 +16,9 @@ const Revision$json = const {
     const {'1': 'rev_id', '3': 2, '4': 1, '5': 3, '10': 'revId'},
     const {'1': 'delta', '3': 3, '4': 1, '5': 12, '10': 'delta'},
     const {'1': 'md5', '3': 4, '4': 1, '5': 9, '10': 'md5'},
+    const {'1': 'doc_id', '3': 5, '4': 1, '5': 9, '10': 'docId'},
   ],
 };
 
 /// Descriptor for `Revision`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List revisionDescriptor = $convert.base64Decode('CghSZXZpc2lvbhIeCgtiYXNlX3Jldl9pZBgBIAEoA1IJYmFzZVJldklkEhUKBnJldl9pZBgCIAEoA1IFcmV2SWQSFAoFZGVsdGEYAyABKAxSBWRlbHRhEhAKA21kNRgEIAEoCVIDbWQ1');
+final $typed_data.Uint8List revisionDescriptor = $convert.base64Decode('CghSZXZpc2lvbhIeCgtiYXNlX3Jldl9pZBgBIAEoA1IJYmFzZVJldklkEhUKBnJldl9pZBgCIAEoA1IFcmV2SWQSFAoFZGVsdGEYAyABKAxSBWRlbHRhEhAKA21kNRgEIAEoCVIDbWQ1EhUKBmRvY19pZBgFIAEoCVIFZG9jSWQ=');

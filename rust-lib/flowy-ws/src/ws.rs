@@ -2,7 +2,7 @@ use crate::{
     connect::{Retry, WsConnectionFuture},
     errors::WsError,
     WsMessage,
-    WsSource,
+    WsModule,
 };
 use flowy_net::errors::ServerError;
 use futures_channel::mpsc::{UnboundedReceiver, UnboundedSender};
@@ -24,7 +24,7 @@ use tokio_tungstenite::tungstenite::{
 pub type MsgReceiver = UnboundedReceiver<Message>;
 pub type MsgSender = UnboundedSender<Message>;
 pub trait WsMessageHandler: Sync + Send + 'static {
-    fn source(&self) -> WsSource;
+    fn source(&self) -> WsModule;
     fn receive_message(&self, msg: WsMessage);
 }
 
@@ -51,7 +51,7 @@ pub enum WsState {
 }
 
 pub struct WsController {
-    handlers: HashMap<WsSource, Arc<dyn WsMessageHandler>>,
+    handlers: HashMap<WsModule, Arc<dyn WsMessageHandler>>,
     state_notify: Arc<RwLock<WsStateNotify>>,
     #[allow(dead_code)]
     addr: Option<String>,
@@ -164,11 +164,11 @@ impl WsController {
 pub struct WsHandlerFuture {
     #[pin]
     msg_rx: MsgReceiver,
-    handlers: HashMap<WsSource, Arc<dyn WsMessageHandler>>,
+    handlers: HashMap<WsModule, Arc<dyn WsMessageHandler>>,
 }
 
 impl WsHandlerFuture {
-    fn new(handlers: HashMap<WsSource, Arc<dyn WsMessageHandler>>, msg_rx: MsgReceiver) -> Self { Self { msg_rx, handlers } }
+    fn new(handlers: HashMap<WsModule, Arc<dyn WsMessageHandler>>, msg_rx: MsgReceiver) -> Self { Self { msg_rx, handlers } }
 }
 
 impl Future for WsHandlerFuture {
@@ -180,9 +180,8 @@ impl Future for WsHandlerFuture {
                     return Poll::Ready(());
                 },
                 Some(message) => {
-                    log::debug!("🐴 ws handler receive message");
                     let message = WsMessage::from(message);
-                    match self.handlers.get(&message.source) {
+                    match self.handlers.get(&message.module) {
                         None => log::error!("Can't find any handler for message: {:?}", message),
                         Some(handler) => handler.receive_message(message.clone()),
                     }
@@ -204,16 +203,19 @@ impl WsSender {
         Ok(())
     }
 
-    pub fn send_text(&self, source: WsSource, text: &str) -> Result<(), WsError> {
+    pub fn send_text(&self, source: &WsModule, text: &str) -> Result<(), WsError> {
         let msg = WsMessage {
-            source,
+            module: source.clone(),
             data: text.as_bytes().to_vec(),
         };
         self.send_msg(msg)
     }
 
-    pub fn send_binary(&self, source: WsSource, bytes: Vec<u8>) -> Result<(), WsError> {
-        let msg = WsMessage { source, data: bytes };
+    pub fn send_binary(&self, source: &WsModule, bytes: Vec<u8>) -> Result<(), WsError> {
+        let msg = WsMessage {
+            module: source.clone(),
+            data: bytes,
+        };
         self.send_msg(msg)
     }
 

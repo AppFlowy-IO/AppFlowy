@@ -2,13 +2,7 @@ use crate::{errors::*, pragma::*};
 use diesel::{connection::Connection, SqliteConnection};
 use r2d2::{CustomizeConnection, ManageConnection, Pool};
 use scheduled_thread_pool::ScheduledThreadPool;
-use std::{
-    sync::{
-        atomic::{AtomicUsize, Ordering::SeqCst},
-        Arc,
-    },
-    time::Duration,
-};
+use std::{sync::Arc, time::Duration};
 
 lazy_static::lazy_static! {
     static ref DB_POOL: Arc<ScheduledThreadPool> = Arc::new(

@@ -8,25 +8,26 @@
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
 import 'dart:typed_data' as $typed_data;
-@$core.Deprecated('Use wsSourceDescriptor instead')
-const WsSource$json = const {
-  '1': 'WsSource',
+@$core.Deprecated('Use wsDataTypeDescriptor instead')
+const WsDataType$json = const {
+  '1': 'WsDataType',
   '2': const [
-    const {'1': 'Delta', '2': 0},
+    const {'1': 'Command', '2': 0},
+    const {'1': 'Delta', '2': 1},
   ],
 };
 
-/// Descriptor for `WsSource`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List wsSourceDescriptor = $convert.base64Decode('CghXc1NvdXJjZRIJCgVEZWx0YRAA');
+/// Descriptor for `WsDataType`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List wsDataTypeDescriptor = $convert.base64Decode('CgpXc0RhdGFUeXBlEgsKB0NvbW1hbmQQABIJCgVEZWx0YRAB');
 @$core.Deprecated('Use wsDocumentDataDescriptor instead')
 const WsDocumentData$json = const {
   '1': 'WsDocumentData',
   '2': const [
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
-    const {'1': 'source', '3': 2, '4': 1, '5': 14, '6': '.WsSource', '10': 'source'},
+    const {'1': 'ty', '3': 2, '4': 1, '5': 14, '6': '.WsDataType', '10': 'ty'},
     const {'1': 'data', '3': 3, '4': 1, '5': 12, '10': 'data'},
   ],
 };
 
 /// Descriptor for `WsDocumentData`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List wsDocumentDataDescriptor = $convert.base64Decode('Cg5Xc0RvY3VtZW50RGF0YRIOCgJpZBgBIAEoCVICaWQSIQoGc291cmNlGAIgASgOMgkuV3NTb3VyY2VSBnNvdXJjZRISCgRkYXRhGAMgASgMUgRkYXRh');
+final $typed_data.Uint8List wsDocumentDataDescriptor = $convert.base64Decode('Cg5Xc0RvY3VtZW50RGF0YRIOCgJpZBgBIAEoCVICaWQSGwoCdHkYAiABKA4yCy5Xc0RhdGFUeXBlUgJ0eRISCgRkYXRhGAMgASgMUgRkYXRh');

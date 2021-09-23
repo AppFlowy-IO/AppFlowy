@@ -2,9 +2,10 @@ syntax = "proto3";
 
 message WsDocumentData {
     string id = 1;
-    WsSource source = 2;
+    WsDataType ty = 2;
     bytes data = 3;
 }
-enum WsSource {
-    Delta = 0;
+enum WsDataType {
+    Command = 0;
+    Delta = 1;
 }

@@ -30,6 +30,7 @@ pub struct Revision {
     pub rev_id: i64,
     pub delta: ::std::vec::Vec<u8>,
     pub md5: ::std::string::String,
+    pub doc_id: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -127,6 +128,32 @@ impl Revision {
     pub fn take_md5(&mut self) -> ::std::string::String {
         ::std::mem::replace(&mut self.md5, ::std::string::String::new())
     }
+
+    // string doc_id = 5;
+
+
+    pub fn get_doc_id(&self) -> &str {
+        &self.doc_id
+    }
+    pub fn clear_doc_id(&mut self) {
+        self.doc_id.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_doc_id(&mut self, v: ::std::string::String) {
+        self.doc_id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_doc_id(&mut self) -> &mut ::std::string::String {
+        &mut self.doc_id
+    }
+
+    // Take field
+    pub fn take_doc_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.doc_id, ::std::string::String::new())
+    }
 }
 
 impl ::protobuf::Message for Revision {
@@ -158,6 +185,9 @@ impl ::protobuf::Message for Revision {
                 4 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.md5)?;
                 },
+                5 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.doc_id)?;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -182,6 +212,9 @@ impl ::protobuf::Message for Revision {
         if !self.md5.is_empty() {
             my_size += ::protobuf::rt::string_size(4, &self.md5);
         }
+        if !self.doc_id.is_empty() {
+            my_size += ::protobuf::rt::string_size(5, &self.doc_id);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -199,6 +232,9 @@ impl ::protobuf::Message for Revision {
         }
         if !self.md5.is_empty() {
             os.write_string(4, &self.md5)?;
+        }
+        if !self.doc_id.is_empty() {
+            os.write_string(5, &self.doc_id)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -258,6 +294,11 @@ impl ::protobuf::Message for Revision {
                 |m: &Revision| { &m.md5 },
                 |m: &mut Revision| { &mut m.md5 },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "doc_id",
+                |m: &Revision| { &m.doc_id },
+                |m: &mut Revision| { &mut m.doc_id },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<Revision>(
                 "Revision",
                 fields,
@@ -278,6 +319,7 @@ impl ::protobuf::Clear for Revision {
         self.rev_id = 0;
         self.delta.clear();
         self.md5.clear();
+        self.doc_id.clear();
         self.unknown_fields.clear();
     }
 }
@@ -295,23 +337,26 @@ impl ::protobuf::reflect::ProtobufValue for Revision {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0erevision.proto\"i\n\x08Revision\x12\x1e\n\x0bbase_rev_id\x18\x01\
-    \x20\x01(\x03R\tbaseRevId\x12\x15\n\x06rev_id\x18\x02\x20\x01(\x03R\x05r\
-    evId\x12\x14\n\x05delta\x18\x03\x20\x01(\x0cR\x05delta\x12\x10\n\x03md5\
-    \x18\x04\x20\x01(\tR\x03md5J\x86\x02\n\x06\x12\x04\0\0\x07\x01\n\x08\n\
-    \x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x07\x01\n\n\n\x03\
-    \x04\0\x01\x12\x03\x02\x08\x10\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\
-    \x1a\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\t\n\x0c\n\x05\x04\0\x02\
-    \0\x01\x12\x03\x03\n\x15\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x18\x19\
-    \n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x15\n\x0c\n\x05\x04\0\x02\x01\
-    \x05\x12\x03\x04\x04\t\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\n\x10\n\
-    \x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x13\x14\n\x0b\n\x04\x04\0\x02\
-    \x02\x12\x03\x05\x04\x14\n\x0c\n\x05\x04\0\x02\x02\x05\x12\x03\x05\x04\t\
-    \n\x0c\n\x05\x04\0\x02\x02\x01\x12\x03\x05\n\x0f\n\x0c\n\x05\x04\0\x02\
-    \x02\x03\x12\x03\x05\x12\x13\n\x0b\n\x04\x04\0\x02\x03\x12\x03\x06\x04\
-    \x13\n\x0c\n\x05\x04\0\x02\x03\x05\x12\x03\x06\x04\n\n\x0c\n\x05\x04\0\
-    \x02\x03\x01\x12\x03\x06\x0b\x0e\n\x0c\n\x05\x04\0\x02\x03\x03\x12\x03\
-    \x06\x11\x12b\x06proto3\
+    \n\x0erevision.proto\"\x80\x01\n\x08Revision\x12\x1e\n\x0bbase_rev_id\
+    \x18\x01\x20\x01(\x03R\tbaseRevId\x12\x15\n\x06rev_id\x18\x02\x20\x01(\
+    \x03R\x05revId\x12\x14\n\x05delta\x18\x03\x20\x01(\x0cR\x05delta\x12\x10\
+    \n\x03md5\x18\x04\x20\x01(\tR\x03md5\x12\x15\n\x06doc_id\x18\x05\x20\x01\
+    (\tR\x05docIdJ\xbd\x02\n\x06\x12\x04\0\0\x08\x01\n\x08\n\x01\x0c\x12\x03\
+    \0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x08\x01\n\n\n\x03\x04\0\x01\x12\
+    \x03\x02\x08\x10\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x1a\n\x0c\n\x05\
+    \x04\0\x02\0\x05\x12\x03\x03\x04\t\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\
+    \x03\n\x15\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x18\x19\n\x0b\n\x04\
+    \x04\0\x02\x01\x12\x03\x04\x04\x15\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\
+    \x04\x04\t\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\n\x10\n\x0c\n\x05\
+    \x04\0\x02\x01\x03\x12\x03\x04\x13\x14\n\x0b\n\x04\x04\0\x02\x02\x12\x03\
+    \x05\x04\x14\n\x0c\n\x05\x04\0\x02\x02\x05\x12\x03\x05\x04\t\n\x0c\n\x05\
+    \x04\0\x02\x02\x01\x12\x03\x05\n\x0f\n\x0c\n\x05\x04\0\x02\x02\x03\x12\
+    \x03\x05\x12\x13\n\x0b\n\x04\x04\0\x02\x03\x12\x03\x06\x04\x13\n\x0c\n\
+    \x05\x04\0\x02\x03\x05\x12\x03\x06\x04\n\n\x0c\n\x05\x04\0\x02\x03\x01\
+    \x12\x03\x06\x0b\x0e\n\x0c\n\x05\x04\0\x02\x03\x03\x12\x03\x06\x11\x12\n\
+    \x0b\n\x04\x04\0\x02\x04\x12\x03\x07\x04\x16\n\x0c\n\x05\x04\0\x02\x04\
+    \x05\x12\x03\x07\x04\n\n\x0c\n\x05\x04\0\x02\x04\x01\x12\x03\x07\x0b\x11\
+    \n\x0c\n\x05\x04\0\x02\x04\x03\x12\x03\x07\x14\x15b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

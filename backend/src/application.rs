@@ -24,7 +24,6 @@ use crate::{
         ws::WSServer,
     },
 };
-use flowy_ws::WsSource;
 
 pub struct Application {
     port: u16,
@@ -55,7 +54,7 @@ pub fn run(listener: TcpListener, app_ctx: AppContext) -> Result<Server, std::io
     let pg_pool = Data::new(pg_pool);
     let domain = domain();
     let secret: String = secret();
-    let ws_biz_handlers = Data::new(make_ws_biz_handlers());
+    let ws_biz_handlers = Data::new(make_ws_biz_handlers(pg_pool.clone()));
     actix_rt::spawn(period_check(pg_pool.clone()));
 
     let server = HttpServer::new(move || {

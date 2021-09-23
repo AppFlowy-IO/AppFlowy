@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-
 use diesel::SqliteConnection;
 use parking_lot::RwLock;
 
@@ -9,7 +8,7 @@ use flowy_database::ConnectionPool;
 use crate::{
     entities::doc::{CreateDocParams, Doc, DocDelta, QueryDocParams},
     errors::DocError,
-    services::{doc::doc_controller::DocController, server::construct_doc_server, ws::WsManager},
+    services::{doc::doc_controller::DocController, server::construct_doc_server, ws::WsDocumentManager},
 };
 
 pub trait DocumentUser: Send + Sync {
@@ -23,7 +22,7 @@ pub struct FlowyDocument {
 }
 
 impl FlowyDocument {
-    pub fn new(user: Arc<dyn DocumentUser>, ws_manager: Arc<RwLock<WsManager>>) -> FlowyDocument {
+    pub fn new(user: Arc<dyn DocumentUser>, ws_manager: Arc<RwLock<WsDocumentManager>>) -> FlowyDocument {
         let server = construct_doc_server();
         let controller = Arc::new(DocController::new(server.clone(), user.clone(), ws_manager.clone()));
         Self { doc_ctrl: controller }

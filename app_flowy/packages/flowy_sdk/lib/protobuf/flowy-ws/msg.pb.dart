@@ -15,19 +15,19 @@ export 'msg.pbenum.dart';
 
 class WsMessage extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'WsMessage', createEmptyInstance: create)
-    ..e<WsSource>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'source', $pb.PbFieldType.OE, defaultOrMaker: WsSource.Doc, valueOf: WsSource.valueOf, enumValues: WsSource.values)
+    ..e<WsModule>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'module', $pb.PbFieldType.OE, defaultOrMaker: WsModule.Doc, valueOf: WsModule.valueOf, enumValues: WsModule.values)
     ..a<$core.List<$core.int>>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
     ..hasRequiredFields = false
   ;
 
   WsMessage._() : super();
   factory WsMessage({
-    WsSource? source,
+    WsModule? module,
     $core.List<$core.int>? data,
   }) {
     final _result = create();
-    if (source != null) {
-      _result.source = source;
+    if (module != null) {
+      _result.module = module;
     }
     if (data != null) {
       _result.data = data;
@@ -56,13 +56,13 @@ class WsMessage extends $pb.GeneratedMessage {
   static WsMessage? _defaultInstance;
 
   @$pb.TagNumber(1)
-  WsSource get source => $_getN(0);
+  WsModule get module => $_getN(0);
   @$pb.TagNumber(1)
-  set source(WsSource v) { setField(1, v); }
+  set module(WsModule v) { setField(1, v); }
   @$pb.TagNumber(1)
-  $core.bool hasSource() => $_has(0);
+  $core.bool hasModule() => $_has(0);
   @$pb.TagNumber(1)
-  void clearSource() => clearField(1);
+  void clearModule() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.List<$core.int> get data => $_getN(1);

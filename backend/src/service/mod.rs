@@ -1,7 +1,8 @@
 use crate::service::{doc::ws_handler::DocWsBizHandler, ws::WsBizHandlers};
-use flowy_ws::WsSource;
+use actix_web::web::Data;
+use flowy_ws::WsModule;
+use sqlx::PgPool;
 use std::sync::Arc;
-use tokio::sync::RwLock;
 
 pub mod app;
 pub mod doc;
@@ -12,15 +13,15 @@ pub mod view;
 pub mod workspace;
 pub mod ws;
 
-pub fn make_ws_biz_handlers() -> WsBizHandlers {
+pub fn make_ws_biz_handlers(pg_pool: Data<PgPool>) -> WsBizHandlers {
     let mut ws_biz_handlers = WsBizHandlers::new();
 
     // doc
-    let doc_biz_handler = DocWsBizHandler::new();
-    ws_biz_handlers.register(WsSource::Doc, wrap(doc_biz_handler));
+    let doc_biz_handler = DocWsBizHandler::new(pg_pool);
+    ws_biz_handlers.register(WsModule::Doc, wrap(doc_biz_handler));
 
     //
     ws_biz_handlers
 }
 
-fn wrap<T>(val: T) -> Arc<RwLock<T>> { Arc::new(RwLock::new(val)) }
+fn wrap<T>(val: T) -> Arc<T> { Arc::new(val) }

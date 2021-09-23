@@ -2,13 +2,14 @@ use bytes::Bytes;
 use flowy_document::{
     errors::DocError,
     module::DocumentUser,
-    prelude::{WsManager, WsSender},
+    prelude::{WsDocumentManager, WsDocumentSender},
 };
 
+use flowy_document::entities::ws::WsDocumentData;
 use flowy_user::{errors::ErrorCode, services::user::UserSession};
-use flowy_ws::{WsMessage, WsMessageHandler, WsSource};
+use flowy_ws::{WsMessage, WsMessageHandler, WsModule};
 use parking_lot::RwLock;
-use std::{path::Path, sync::Arc};
+use std::{convert::TryInto, path::Path, sync::Arc};
 
 pub struct DocumentDepsResolver {
     user_session: Arc<UserSession>,
@@ -17,7 +18,7 @@ pub struct DocumentDepsResolver {
 impl DocumentDepsResolver {
     pub fn new(user_session: Arc<UserSession>) -> Self { Self { user_session } }
 
-    pub fn split_into(self) -> (Arc<dyn DocumentUser>, Arc<RwLock<WsManager>>) {
+    pub fn split_into(self) -> (Arc<dyn DocumentUser>, Arc<RwLock<WsDocumentManager>>) {
         let user = Arc::new(DocumentUserImpl {
             user: self.user_session.clone(),
         });
@@ -26,9 +27,9 @@ impl DocumentDepsResolver {
             user: self.user_session.clone(),
         });
 
-        let ws_manager = Arc::new(RwLock::new(WsManager::new(sender)));
+        let ws_manager = Arc::new(RwLock::new(WsDocumentManager::new(sender)));
 
-        let ws_handler = Arc::new(WsDocumentResolver { inner: ws_manager.clone() });
+        let ws_handler = Arc::new(WsDocumentReceiver { inner: ws_manager.clone() });
 
         self.user_session.add_ws_handler(ws_handler);
 
@@ -70,23 +71,24 @@ struct WsSenderImpl {
     user: Arc<UserSession>,
 }
 
-impl WsSender for WsSenderImpl {
-    fn send_data(&self, data: Bytes) -> Result<(), DocError> {
+impl WsDocumentSender for WsSenderImpl {
+    fn send(&self, data: WsDocumentData) -> Result<(), DocError> {
+        let bytes: Bytes = data.try_into().unwrap();
         let msg = WsMessage {
-            source: WsSource::Doc,
-            data: data.to_vec(),
+            module: WsModule::Doc,
+            data: bytes.to_vec(),
         };
         let _ = self.user.send_ws_msg(msg).map_err(|e| DocError::internal().context(e))?;
         Ok(())
     }
 }
 
-struct WsDocumentResolver {
-    inner: Arc<RwLock<WsManager>>,
+struct WsDocumentReceiver {
+    inner: Arc<RwLock<WsDocumentManager>>,
 }
 
-impl WsMessageHandler for WsDocumentResolver {
-    fn source(&self) -> WsSource { WsSource::Doc }
+impl WsMessageHandler for WsDocumentReceiver {
+    fn source(&self) -> WsModule { WsModule::Doc }
 
     fn receive_message(&self, msg: WsMessage) {
         let data = Bytes::from(msg.data);

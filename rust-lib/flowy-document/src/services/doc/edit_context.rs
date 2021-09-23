@@ -1,23 +1,23 @@
 use crate::{
     entities::{
         doc::{Doc, Revision},
-        ws::{WsDocumentData, WsSource},
+        ws::{WsDataType, WsDocumentData},
     },
     errors::{internal_error, DocError},
     services::{
         doc::Document,
-        ws::{WsHandler, WsSender},
+        ws::{WsDocumentHandler, WsDocumentSender},
     },
-    sql_tables::doc::{OpState, OpTable, OpTableSql},
+    sql_tables::doc::{OpTable, OpTableSql},
 };
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_ot::core::Delta;
-use parking_lot::{lock_api::RwLockWriteGuard, RawRwLock, RwLock};
+use parking_lot::RwLock;
 use std::{
     convert::TryInto,
     sync::{
-        atomic::{AtomicI64, AtomicUsize, Ordering::SeqCst},
+        atomic::{AtomicI64, Ordering::SeqCst},
         Arc,
     },
 };
@@ -26,12 +26,12 @@ pub(crate) struct EditDocContext {
     pub(crate) id: DocId,
     pub(crate) rev_counter: RevCounter,
     document: RwLock<Document>,
-    ws_sender: Arc<dyn WsSender>,
+    ws: Arc<dyn WsDocumentSender>,
     op_sql: Arc<OpTableSql>,
 }
 
 impl EditDocContext {
-    pub(crate) fn new(doc: Doc, ws_sender: Arc<dyn WsSender>, op_sql: Arc<OpTableSql>) -> Result<Self, DocError> {
+    pub(crate) fn new(doc: Doc, ws: Arc<dyn WsDocumentSender>, op_sql: Arc<OpTableSql>) -> Result<Self, DocError> {
         let id: DocId = doc.id.into();
         let rev_counter = RevCounter::new(doc.revision);
         let delta: Delta = doc.data.try_into()?;
@@ -41,7 +41,7 @@ impl EditDocContext {
             id,
             rev_counter,
             document,
-            ws_sender,
+            ws,
             op_sql,
         })
     }
@@ -64,9 +64,9 @@ impl EditDocContext {
 
         // Opti: it is necessary to save the rev if send success?
         let md5 = format!("{:x}", md5::compute(json));
-        let revision = Revision::new(base_rev_id, rev_id, data.to_vec(), md5);
+        let revision = Revision::new(base_rev_id, rev_id, data.to_vec(), md5, self.id.clone().into());
         self.save_revision(revision.clone(), pool.clone());
-        match self.ws_sender.send_data(revision.try_into()?) {
+        match self.ws.send(revision.into()) {
             Ok(_) => {
                 // TODO: remove the rev if send success
                 // let _ = self.delete_revision(rev_id, pool)?;
@@ -101,10 +101,11 @@ impl EditDocContext {
     }
 }
 
-impl WsHandler for EditDocContext {
+impl WsDocumentHandler for EditDocContext {
     fn receive(&self, data: WsDocumentData) {
-        match data.source {
-            WsSource::Delta => {},
+        match data.ty {
+            WsDataType::Delta => {},
+            WsDataType::Command => {},
         }
     }
 }

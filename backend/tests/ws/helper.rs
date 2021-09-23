@@ -1,5 +1,5 @@
 use crate::helper::TestServer;
-use flowy_ws::{WsController, WsSender, WsState};
+use flowy_ws::{WsController, WsModule, WsSender, WsState};
 use parking_lot::RwLock;
 use std::sync::Arc;
 
@@ -26,7 +26,7 @@ impl WsTest {
                     WsScriptRunner {
                         scripts: scripts.clone(),
                         sender: sender.clone(),
-                        source: "editor".to_owned(),
+                        source: WsModule::Doc,
                     }
                     .run();
                 },
@@ -54,7 +54,7 @@ impl WsTest {
 struct WsScriptRunner {
     scripts: Vec<WsScript>,
     sender: Arc<WsSender>,
-    source: String,
+    source: WsModule,
 }
 
 impl WsScriptRunner {

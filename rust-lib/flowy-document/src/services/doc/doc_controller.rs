@@ -2,12 +2,11 @@ use crate::{
     entities::doc::{CreateDocParams, Doc, DocDelta, QueryDocParams, UpdateDocParams},
     errors::{internal_error, DocError},
     module::DocumentUser,
-    services::{cache::DocCache, doc::edit_context::EditDocContext, server::Server, ws::WsManager},
+    services::{cache::DocCache, doc::edit_context::EditDocContext, server::Server, ws::WsDocumentManager},
     sql_tables::doc::{DocTable, DocTableSql, OpTableSql},
 };
 use bytes::Bytes;
 use flowy_database::{ConnectionPool, SqliteConnection};
-use flowy_infra::future::ClosureFuture;
 
 use parking_lot::RwLock;
 use std::sync::Arc;
@@ -16,13 +15,13 @@ pub(crate) struct DocController {
     server: Server,
     doc_sql: Arc<DocTableSql>,
     op_sql: Arc<OpTableSql>,
-    ws: Arc<RwLock<WsManager>>,
+    ws: Arc<RwLock<WsDocumentManager>>,
     cache: Arc<DocCache>,
     user: Arc<dyn DocumentUser>,
 }
 
 impl DocController {
-    pub(crate) fn new(server: Server, user: Arc<dyn DocumentUser>, ws: Arc<RwLock<WsManager>>) -> Self {
+    pub(crate) fn new(server: Server, user: Arc<dyn DocumentUser>, ws: Arc<RwLock<WsDocumentManager>>) -> Self {
         let doc_sql = Arc::new(DocTableSql {});
         let op_sql = Arc::new(OpTableSql {});
         let cache = Arc::new(DocCache::new());
@@ -149,8 +148,8 @@ impl DocController {
     fn make_edit_context(&self, doc: Doc) -> Result<Arc<EditDocContext>, DocError> {
         // Opti: require upgradable_read lock and then upgrade to write lock using
         // RwLockUpgradableReadGuard::upgrade(xx) of ws
-        let sender = self.ws.read().sender.clone();
-        let edit_ctx = Arc::new(EditDocContext::new(doc, sender, self.op_sql.clone())?);
+        let ws = self.ws.read().sender();
+        let edit_ctx = Arc::new(EditDocContext::new(doc, ws, self.op_sql.clone())?);
         self.ws.write().register_handler(edit_ctx.id.as_ref(), edit_ctx.clone());
         self.cache.set(edit_ctx.clone());
         Ok(edit_ctx)

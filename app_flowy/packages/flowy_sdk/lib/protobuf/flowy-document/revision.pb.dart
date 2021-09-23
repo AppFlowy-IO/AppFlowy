@@ -16,6 +16,7 @@ class Revision extends $pb.GeneratedMessage {
     ..aInt64(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'revId')
     ..a<$core.List<$core.int>>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'delta', $pb.PbFieldType.OY)
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'md5')
+    ..aOS(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
     ..hasRequiredFields = false
   ;
 
@@ -25,6 +26,7 @@ class Revision extends $pb.GeneratedMessage {
     $fixnum.Int64? revId,
     $core.List<$core.int>? delta,
     $core.String? md5,
+    $core.String? docId,
   }) {
     final _result = create();
     if (baseRevId != null) {
@@ -38,6 +40,9 @@ class Revision extends $pb.GeneratedMessage {
     }
     if (md5 != null) {
       _result.md5 = md5;
+    }
+    if (docId != null) {
+      _result.docId = docId;
     }
     return _result;
   }
@@ -97,5 +102,14 @@ class Revision extends $pb.GeneratedMessage {
   $core.bool hasMd5() => $_has(3);
   @$pb.TagNumber(4)
   void clearMd5() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get docId => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set docId($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasDocId() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearDocId() => clearField(5);
 }
 
