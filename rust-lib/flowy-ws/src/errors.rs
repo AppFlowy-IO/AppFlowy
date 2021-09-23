@@ -8,10 +8,10 @@ use url::ParseError;
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct WsError {
     #[pb(index = 1)]
-    code: ErrorCode,
+    pub code: ErrorCode,
 
     #[pb(index = 2)]
-    msg: String,
+    pub msg: String,
 }
 
 macro_rules! static_user_error {

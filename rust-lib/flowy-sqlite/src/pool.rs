@@ -49,32 +49,6 @@ impl ConnectionPool {
     }
 }
 
-#[derive(Default, Debug, Clone)]
-pub struct ConnCounter(Arc<ConnCounterInner>);
-
-impl std::ops::Deref for ConnCounter {
-    type Target = ConnCounterInner;
-
-    fn deref(&self) -> &Self::Target { &*self.0 }
-}
-
-#[derive(Default, Debug)]
-pub struct ConnCounterInner {
-    max_number: AtomicUsize,
-    current_number: AtomicUsize,
-}
-
-impl ConnCounterInner {
-    pub fn get_max_num(&self) -> usize { self.max_number.load(SeqCst) }
-
-    pub fn reset(&self) {
-        // reset max_number to current_number
-        let _ = self
-            .max_number
-            .fetch_update(SeqCst, SeqCst, |_| Some(self.current_number.load(SeqCst)));
-    }
-}
-
 pub type OnExecFunc = Box<dyn Fn() -> Box<dyn Fn(&SqliteConnection, &str)> + Send + Sync>;
 
 pub struct PoolConfig {

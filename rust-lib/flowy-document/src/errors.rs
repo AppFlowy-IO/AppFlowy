@@ -104,6 +104,10 @@ impl std::convert::From<serde_json::Error> for DocError {
     fn from(error: serde_json::Error) -> Self { DocError::internal().context(error) }
 }
 
+impl std::convert::From<protobuf::ProtobufError> for DocError {
+    fn from(e: protobuf::ProtobufError) -> Self { DocError::internal().context(e) }
+}
+
 // impl std::convert::From<::r2d2::Error> for DocError {
 //     fn from(error: r2d2::Error) -> Self {
 // ErrorBuilder::new(ErrorCode::InternalError).error(error).build() } }

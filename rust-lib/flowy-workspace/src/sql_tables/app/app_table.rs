@@ -3,7 +3,6 @@ use crate::{
         app::{App, ColorStyle, UpdateAppParams},
         view::RepeatedView,
     },
-    impl_sql_binary_expression,
     sql_tables::workspace::WorkspaceTable,
 };
 use diesel::sql_types::Binary;

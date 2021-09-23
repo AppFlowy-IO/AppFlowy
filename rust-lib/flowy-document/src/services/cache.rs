@@ -1,19 +1,10 @@
-use std::{convert::TryInto, fmt::Debug, sync::Arc};
+use std::sync::Arc;
 
-use bytes::Bytes;
 use dashmap::DashMap;
-use parking_lot::RwLock;
-
-use flowy_database::ConnectionPool;
-use flowy_ot::{core::Delta, errors::OTError};
 
 use crate::{
-    entities::doc::Doc,
     errors::DocError,
-    services::{
-        doc::edit_context::{DocId, EditDocContext},
-        ws::WsManager,
-    },
+    services::doc::edit_context::{DocId, EditDocContext},
 };
 
 pub(crate) struct DocCache {

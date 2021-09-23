@@ -60,6 +60,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "UpdateDocParams"
         | "DocDelta"
         | "QueryDocParams"
+        | "Revision"
         | "WsDocumentData"
         | "DocError"
         | "FFIRequest"

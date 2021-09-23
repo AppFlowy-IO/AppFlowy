@@ -174,7 +174,7 @@ impl TestBuilder {
                 std::thread::sleep(Duration::from_millis(*mills_sec as u64));
             },
             TestOp::AssertStr(delta_i, expected) => {
-                assert_eq!(&self.documents[*delta_i].to_string(), expected);
+                assert_eq!(&self.documents[*delta_i].to_plain_string(), expected);
             },
 
             TestOp::AssertOpsJson(delta_i, expected) => {
@@ -199,10 +199,6 @@ impl TestBuilder {
     }
 }
 
-pub fn debug_print_delta(delta: &Delta) {
-    eprintln!("😁 {}", serde_json::to_string(delta).unwrap());
-}
-
 pub struct Rng(StdRng);
 
 impl Default for Rng {
@@ -210,6 +206,7 @@ impl Default for Rng {
 }
 
 impl Rng {
+    #[allow(dead_code)]
     pub fn from_seed(seed: [u8; 32]) -> Self { Rng(StdRng::from_seed(seed)) }
 
     pub fn gen_string(&mut self, len: usize) -> String { (0..len).map(|_| self.0.gen::<char>()).collect() }

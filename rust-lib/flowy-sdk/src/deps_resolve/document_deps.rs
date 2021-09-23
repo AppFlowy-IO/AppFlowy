@@ -5,7 +5,7 @@ use flowy_document::{
     prelude::{WsManager, WsSender, WS_ID},
 };
 
-use flowy_user::services::user::UserSession;
+use flowy_user::{errors::ErrorCode, services::user::UserSession};
 use flowy_ws::{WsMessage, WsMessageHandler};
 use parking_lot::RwLock;
 use std::{path::Path, sync::Arc};
@@ -51,9 +51,19 @@ impl DocumentUser for DocumentUserImpl {
         Ok(doc_dir)
     }
 
-    fn user_id(&self) -> Result<String, DocError> { self.user.user_id().map_err(|e| DocError::internal().context(e)) }
+    fn user_id(&self) -> Result<String, DocError> {
+        self.user.user_id().map_err(|e| match e.code {
+            ErrorCode::InternalError => DocError::internal().context(e.msg),
+            _ => DocError::internal().context(e),
+        })
+    }
 
-    fn token(&self) -> Result<String, DocError> { self.user.token().map_err(|e| DocError::internal().context(e)) }
+    fn token(&self) -> Result<String, DocError> {
+        self.user.token().map_err(|e| match e.code {
+            ErrorCode::InternalError => DocError::internal().context(e.msg),
+            _ => DocError::internal().context(e),
+        })
+    }
 }
 
 struct WsSenderImpl {

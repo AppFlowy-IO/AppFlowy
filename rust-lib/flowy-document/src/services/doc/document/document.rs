@@ -4,7 +4,6 @@ use crate::{
 };
 use bytes::Bytes;
 use flowy_ot::core::*;
-use std::convert::TryInto;
 
 pub trait DocumentData {
     fn into_string(self) -> Result<String, DocError>;
@@ -24,24 +23,10 @@ impl CustomDocument for FlowyDoc {
     fn init_delta() -> Delta { DeltaBuilder::new().insert("\n").build() }
 }
 
-#[derive(Debug, Clone)]
-pub struct RevId(pub usize);
-
-#[derive(Debug, Clone)]
-pub struct Revision {
-    rev_id: RevId,
-    pub delta: Delta,
-}
-
-impl Revision {
-    pub fn new(rev_id: RevId, delta: Delta) -> Revision { Self { rev_id, delta } }
-}
-
 pub struct Document {
     delta: Delta,
     history: History,
     view: View,
-    rev_id_counter: usize,
     last_edit_time: usize,
 }
 
@@ -53,7 +38,6 @@ impl Document {
             delta,
             history: History::new(),
             view: View::new(),
-            rev_id_counter: 1,
             last_edit_time: 0,
         }
     }
@@ -67,16 +51,11 @@ impl Document {
 
     pub fn to_bytes(&self) -> Vec<u8> { self.delta.clone().into_bytes() }
 
-    pub fn to_string(&self) -> String { self.delta.apply("").unwrap() }
+    pub fn to_plain_string(&self) -> String { self.delta.apply("").unwrap() }
 
     pub fn apply_delta(&mut self, data: Bytes) -> Result<(), DocError> {
         let new_delta = Delta::from_bytes(data.to_vec())?;
-
         log::debug!("Apply delta: {}", new_delta);
-
-        let rev_id = self.next_rev_id();
-        let revision = Revision::new(rev_id, new_delta.clone());
-
         let _ = self.add_delta(&new_delta)?;
         log::debug!("Document: {}", self.to_json());
         Ok(())
@@ -173,7 +152,6 @@ impl Document {
     fn add_delta(&mut self, delta: &Delta) -> Result<(), DocError> {
         let composed_delta = self.delta.compose(delta)?;
         let mut undo_delta = delta.invert(&self.delta);
-        self.rev_id_counter += 1;
 
         let now = chrono::Utc::now().timestamp_millis() as usize;
         if now - self.last_edit_time < RECORD_THRESHOLD {
@@ -206,9 +184,6 @@ impl Document {
         let inverted_delta = change.invert(&self.delta);
         Ok((new_delta, inverted_delta))
     }
-
-    #[allow(dead_code)]
-    fn next_rev_id(&self) -> RevId { RevId(self.rev_id_counter) }
 }
 
 fn validate_interval(delta: &Delta, interval: &Interval) -> Result<(), DocError> {

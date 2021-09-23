@@ -1,12 +1,14 @@
 use crate::{
-    errors::DocError,
+    errors::{internal_error, DocError},
     sql_tables::doc::{DocTable, DocTableChangeset},
 };
 use flowy_database::{
     prelude::*,
     schema::{doc_table, doc_table::dsl},
+    ConnectionPool,
     SqliteConnection,
 };
+use std::sync::Arc;
 
 pub struct DocTableSql {}
 
@@ -21,7 +23,8 @@ impl DocTableSql {
         Ok(())
     }
 
-    pub(crate) fn read_doc_table(&self, doc_id: &str, conn: &SqliteConnection) -> Result<DocTable, DocError> {
+    pub(crate) fn read_doc_table(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<DocTable, DocError> {
+        let conn = &*pool.get().map_err(internal_error)?;
         let doc_table = dsl::doc_table.filter(doc_table::id.eq(doc_id)).first::<DocTable>(conn)?;
 
         Ok(doc_table)

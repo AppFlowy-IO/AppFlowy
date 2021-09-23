@@ -44,3 +44,13 @@ impl std::convert::Into<Doc> for DocTable {
         }
     }
 }
+
+impl std::convert::From<Doc> for DocTable {
+    fn from(doc: Doc) -> Self {
+        Self {
+            id: doc.id,
+            data: doc.data,
+            revision: doc.revision,
+        }
+    }
+}

@@ -17,7 +17,7 @@ impl OpTableSql {
     }
 
     pub(crate) fn update_op_table(&self, changeset: OpChangeset, conn: &SqliteConnection) -> Result<(), DocError> {
-        let filter = dsl::op_table.filter(op_table::dsl::rev.eq(changeset.rev));
+        let filter = dsl::op_table.filter(op_table::dsl::rev_id.eq(changeset.rev_id));
         let affected_row = diesel::update(filter).set(changeset).execute(conn)?;
         debug_assert_eq!(affected_row, 1);
         Ok(())
@@ -28,8 +28,8 @@ impl OpTableSql {
         Ok(ops)
     }
 
-    pub(crate) fn delete_op_table(&self, rev: i64, conn: &SqliteConnection) -> Result<(), DocError> {
-        let filter = dsl::op_table.filter(op_table::dsl::rev.eq(rev));
+    pub(crate) fn delete_op_table(&self, rev_id: i64, conn: &SqliteConnection) -> Result<(), DocError> {
+        let filter = dsl::op_table.filter(op_table::dsl::rev_id.eq(rev_id));
         let affected_row = diesel::delete(filter).execute(conn)?;
         debug_assert_eq!(affected_row, 1);
         Ok(())

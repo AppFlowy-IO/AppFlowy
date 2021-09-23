@@ -1,6 +1,5 @@
 use crate::{
     entities::view::{RepeatedView, UpdateViewParams, View, ViewType},
-    impl_sql_integer_expression,
     sql_tables::app::AppTable,
 };
 use diesel::sql_types::Integer;

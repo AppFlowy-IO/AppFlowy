@@ -35,6 +35,8 @@ url = "2.2"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = {version = "1.0"}
 chrono = "0.4.19"
+futures-core = { version = "0.3", default-features = false }
+md5 = "0.7.0"
 
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }

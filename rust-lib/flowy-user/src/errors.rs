@@ -110,7 +110,12 @@ impl std::convert::From<::r2d2::Error> for UserError {
 }
 
 impl std::convert::From<flowy_ws::errors::WsError> for UserError {
-    fn from(error: flowy_ws::errors::WsError) -> Self { UserError::internal().context(error) }
+    fn from(error: flowy_ws::errors::WsError) -> Self {
+        match error.code {
+            flowy_ws::errors::ErrorCode::InternalError => UserError::internal().context(error.msg),
+            _ => UserError::internal().context(error),
+        }
+    }
 }
 
 // use diesel::result::{Error, DatabaseErrorKind};

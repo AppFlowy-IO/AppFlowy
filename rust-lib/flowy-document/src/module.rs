@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use bytes::Bytes;
+
 use diesel::SqliteConnection;
 use parking_lot::RwLock;
 

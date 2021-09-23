@@ -8,12 +8,12 @@ use std::{
 };
 
 #[pin_project]
-pub struct RequestFuture<T> {
+pub struct ClosureFuture<T> {
     #[pin]
     pub fut: Pin<Box<dyn Future<Output = T> + Sync + Send>>,
 }
 
-impl<T> Future for RequestFuture<T>
+impl<T> Future for ClosureFuture<T>
 where
     T: Send + Sync,
 {

@@ -22,9 +22,9 @@ table! {
 }
 
 table! {
-    op_table (rev) {
-        base_rev -> BigInt,
-        rev -> BigInt,
+    op_table (rev_id) {
+        base_rev_id -> BigInt,
+        rev_id -> BigInt,
         data -> Binary,
         md5 -> Text,
         state -> Integer,

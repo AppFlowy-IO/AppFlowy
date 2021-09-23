@@ -1,12 +1,13 @@
+use crate::entities::doc::Revision;
 use diesel::sql_types::Integer;
 use flowy_database::schema::op_table;
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
 #[table_name = "op_table"]
-#[primary_key(rev)]
+#[primary_key(rev_id)]
 pub(crate) struct OpTable {
-    pub(crate) base_rev: i64,
-    pub(crate) rev: i64,
+    pub(crate) base_rev_id: i64,
+    pub(crate) rev_id: i64,
     pub(crate) data: Vec<u8>,
     pub(crate) md5: String,
     pub(crate) state: OpState,
@@ -47,8 +48,20 @@ impl_sql_integer_expression!(OpState);
 
 #[derive(AsChangeset, Identifiable, Default, Debug)]
 #[table_name = "op_table"]
-#[primary_key(rev)]
+#[primary_key(rev_id)]
 pub(crate) struct OpChangeset {
-    pub(crate) rev: i64,
+    pub(crate) rev_id: i64,
     pub(crate) state: Option<OpState>,
+}
+
+impl std::convert::Into<OpTable> for Revision {
+    fn into(self) -> OpTable {
+        OpTable {
+            base_rev_id: self.base_rev_id,
+            rev_id: self.rev_id,
+            data: self.delta,
+            md5: self.md5,
+            state: OpState::Local,
+        }
+    }
 }

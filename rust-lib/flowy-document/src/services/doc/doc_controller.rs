@@ -2,19 +2,15 @@ use crate::{
     entities::doc::{CreateDocParams, Doc, DocDelta, QueryDocParams, UpdateDocParams},
     errors::{internal_error, DocError},
     module::DocumentUser,
-    services::{
-        cache::DocCache,
-        doc::edit_context::{DocId, EditDocContext, EditDocPersistence},
-        server::Server,
-        ws::WsManager,
-    },
-    sql_tables::doc::{DocTable, DocTableChangeset, DocTableSql, OpTableSql},
+    services::{cache::DocCache, doc::edit_context::EditDocContext, server::Server, ws::WsManager},
+    sql_tables::doc::{DocTable, DocTableSql, OpTableSql},
 };
 use bytes::Bytes;
 use flowy_database::{ConnectionPool, SqliteConnection};
+use flowy_infra::future::ClosureFuture;
+
 use parking_lot::RwLock;
 use std::sync::Arc;
-use tokio::task::JoinHandle;
 
 pub(crate) struct DocController {
     server: Server,
@@ -107,29 +103,17 @@ impl DocController {
     }
 
     #[tracing::instrument(level = "debug", skip(self, pool), err)]
-    fn read_doc_from_server(
-        &self,
-        params: QueryDocParams,
-        pool: Arc<ConnectionPool>,
-    ) -> Result<JoinHandle<Result<Arc<EditDocContext>, DocError>>, DocError> {
+    async fn read_doc_from_server(&self, params: QueryDocParams, pool: Arc<ConnectionPool>) -> Result<Arc<EditDocContext>, DocError> {
         let token = self.user.token()?;
-        let server = self.server.clone();
-        let doc_sql = self.doc_sql.clone();
-        let op_sql = self.op_sql.clone();
-        let ws = self.ws.clone();
-        let cache = self.cache.clone();
-
-        Ok(tokio::spawn(async move {
-            match server.read_doc(&token, params).await? {
-                None => Err(DocError::not_found()),
-                Some(doc) => {
-                    let doc_table = DocTable::new(doc.clone());
-                    let _ = doc_sql.create_doc_table(doc_table, &*(pool.get().map_err(internal_error)?))?;
-                    let edit_doc_ctx = make_edit_context(ws, cache, op_sql, doc)?;
-                    Ok(edit_doc_ctx)
-                },
-            }
-        }))
+        match self.server.read_doc(&token, params).await? {
+            None => Err(DocError::not_found()),
+            Some(doc) => {
+                let edit = self.make_edit_context(doc.clone())?;
+                let conn = &*(pool.get().map_err(internal_error)?);
+                let _ = self.doc_sql.create_doc_table(doc.into(), conn)?;
+                Ok(edit)
+            },
+        }
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
@@ -149,44 +133,26 @@ impl DocController {
     }
 
     async fn _open(&self, params: QueryDocParams, pool: Arc<ConnectionPool>) -> Result<Arc<EditDocContext>, DocError> {
-        match self.doc_sql.read_doc_table(&params.doc_id, &*(pool.get().map_err(internal_error)?)) {
-            Ok(doc_table) => {
-                let edit_doc_ctx = make_edit_context(self.ws.clone(), self.cache.clone(), self.op_sql.clone(), doc_table.into())?;
-                Ok(edit_doc_ctx)
-            },
+        match self.doc_sql.read_doc_table(&params.doc_id, pool.clone()) {
+            Ok(doc_table) => Ok(self.make_edit_context(doc_table.into())?),
             Err(error) => {
                 if error.is_record_not_found() {
                     log::debug!("Doc:{} don't exist, reading from server", params.doc_id);
-                    match self.read_doc_from_server(params, pool)?.await.map_err(internal_error)? {
-                        Ok(edit_doc_ctx) => Ok(edit_doc_ctx),
-                        Err(error) => Err(error),
-                    }
+                    Ok(self.read_doc_from_server(params, pool.clone()).await?)
                 } else {
                     return Err(error);
                 }
             },
         }
     }
-}
 
-fn make_edit_context(
-    ws: Arc<RwLock<WsManager>>,
-    cache: Arc<DocCache>,
-    op_sql: Arc<OpTableSql>,
-    doc: Doc,
-) -> Result<Arc<EditDocContext>, DocError> {
-    // Opti: require upgradable_read lock and then upgrade to write lock using
-    // RwLockUpgradableReadGuard::upgrade(xx)
-    let edit_doc_ctx = Arc::new(EditDocContext::new(doc, ws.read().sender.clone(), op_sql)?);
-    ws.write().register_handler(edit_doc_ctx.id.as_ref(), edit_doc_ctx.clone());
-    cache.set(edit_doc_ctx.clone());
-    Ok(edit_doc_ctx)
-}
-
-impl EditDocPersistence for DocController {
-    fn save(&self, params: UpdateDocParams, pool: Arc<ConnectionPool>) -> Result<(), DocError> {
-        let changeset = DocTableChangeset::new(params.clone());
-        let _ = self.doc_sql.update_doc_table(changeset, &*(pool.get().map_err(internal_error)?))?;
-        Ok(())
+    fn make_edit_context(&self, doc: Doc) -> Result<Arc<EditDocContext>, DocError> {
+        // Opti: require upgradable_read lock and then upgrade to write lock using
+        // RwLockUpgradableReadGuard::upgrade(xx) of ws
+        let sender = self.ws.read().sender.clone();
+        let edit_ctx = Arc::new(EditDocContext::new(doc, sender, self.op_sql.clone())?);
+        self.ws.write().register_handler(edit_ctx.id.as_ref(), edit_ctx.clone());
+        self.cache.set(edit_ctx.clone());
+        Ok(edit_ctx)
     }
 }
