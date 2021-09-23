@@ -1,7 +1,7 @@
-use crate::service::ws_service::{WSClient, WSServer};
+use crate::service::ws::{WSClient, WSServer};
 use actix::Addr;
 
-use crate::service::user_service::LoggedUser;
+use crate::service::user::LoggedUser;
 use actix_web::{
     get,
     web::{Data, Path, Payload},

@@ -14,15 +14,13 @@ use crate::{
     },
     context::AppContext,
     service::{
-        doc_service::router as doc,
-        user_service::router as user,
-        workspace_service::{
-            app::router as app,
-            view::router as view,
-            workspace::router as workspace,
-        },
-        ws_service,
-        ws_service::WSServer,
+        app::router as app,
+        doc::router as doc,
+        user::router as user,
+        view::router as view,
+        workspace::router as workspace,
+        ws,
+        ws::WSServer,
     },
 };
 
@@ -82,7 +80,7 @@ async fn period_check(_pool: Data<PgPool>) {
     }
 }
 
-fn ws_scope() -> Scope { web::scope("/ws").service(ws_service::router::establish_ws_connection) }
+fn ws_scope() -> Scope { web::scope("/ws").service(ws::router::establish_ws_connection) }
 
 fn user_scope() -> Scope {
     // https://developer.mozilla.org/en-US/docs/Web/HTTP

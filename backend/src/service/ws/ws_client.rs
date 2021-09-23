@@ -1,6 +1,6 @@
 use crate::{
     config::{HEARTBEAT_INTERVAL, PING_TIMEOUT},
-    service::ws_service::{
+    service::ws::{
         entities::{Connect, Disconnect, SessionId},
         ClientMessage,
         MessageData,

@@ -13,14 +13,9 @@ use flowy_workspace::protobuf::{
 };
 
 use crate::service::{
-    user_service::LoggedUser,
+    user::LoggedUser,
     util::parse_from_payload,
-    workspace_service::workspace::{
-        create_workspace,
-        delete_workspace,
-        read_workspaces,
-        update_workspace,
-    },
+    workspace::{create_workspace, delete_workspace, read_workspaces, update_workspace},
 };
 
 pub async fn create_handler(

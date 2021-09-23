@@ -17,10 +17,7 @@ use flowy_workspace::{
 
 use crate::{
     entities::workspace::{AppTable, APP_TABLE},
-    service::{
-        user_service::LoggedUser,
-        workspace_service::{app::sql_builder::*, view::read_views_belong_to_id},
-    },
+    service::{app::sql_builder::*, user::LoggedUser, view::read_views_belong_to_id},
     sqlx_ext::{map_sqlx_error, SqlBuilder},
 };
 

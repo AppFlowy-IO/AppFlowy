@@ -74,7 +74,7 @@ impl Token {
     }
 }
 
-use crate::service::user_service::EXPIRED_DURATION_DAYS;
+use crate::service::user::EXPIRED_DURATION_DAYS;
 use actix_web::{dev::Payload, FromRequest, HttpRequest};
 use flowy_net::config::HEADER_TOKEN;
 use futures::future::{ready, Ready};

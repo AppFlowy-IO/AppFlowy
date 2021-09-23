@@ -14,7 +14,7 @@ use flowy_workspace::protobuf::{
 
 use crate::service::{
     util::parse_from_payload,
-    workspace_service::view::{create_view, delete_view, read_view, update_view},
+    view::{create_view, delete_view, read_view, update_view},
 };
 
 pub async fn create_handler(

@@ -12,10 +12,7 @@ use flowy_workspace::{
 
 use crate::{
     entities::workspace::{AppTable, WorkspaceTable, WORKSPACE_TABLE},
-    service::{
-        user_service::LoggedUser,
-        workspace_service::{view::read_views_belong_to_id, workspace::sql_builder::*},
-    },
+    service::{user::LoggedUser, view::read_views_belong_to_id, workspace::sql_builder::*},
     sqlx_ext::*,
 };
 

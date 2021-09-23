@@ -1,15 +1,17 @@
 use flowy_net::errors::ServerError;
-use flowy_workspace::protobuf::{App, CreateViewParams, View, ViewType, Workspace};
+use flowy_workspace::{
+    entities::view::default_delta,
+    protobuf::{App, CreateViewParams, View, ViewType, Workspace},
+};
 
 use crate::{
-    service::workspace_service::{
+    service::{
         app::sql_builder::NewAppSqlBuilder as AppBuilder,
         view::create_view_with_transaction,
         workspace::sql_builder::NewWorkspaceBuilder as WorkspaceBuilder,
     },
     sqlx_ext::{map_sqlx_error, DBTransaction},
 };
-use flowy_workspace::entities::view::default_delta;
 
 pub async fn create_default_workspace(
     transaction: &mut DBTransaction<'_>,

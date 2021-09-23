@@ -1,4 +1,4 @@
-use crate::service::ws_service::{
+use crate::service::ws::{
     entities::{Connect, Disconnect, Session, SessionId},
     ClientMessage,
     MessageData,

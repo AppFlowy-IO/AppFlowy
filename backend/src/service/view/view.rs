@@ -2,6 +2,7 @@ use anyhow::Context;
 use chrono::Utc;
 use sqlx::{postgres::PgArguments, PgPool, Postgres};
 
+use flowy_document::protobuf::CreateDocParams;
 use flowy_net::{
     errors::{invalid_params, ServerError},
     response::FlowyResponse,
@@ -17,12 +18,11 @@ use flowy_workspace::{
 use crate::{
     entities::workspace::{ViewTable, VIEW_TABLE},
     service::{
-        doc_service::{create_doc, delete_doc},
-        workspace_service::view::sql_builder::*,
+        doc::{create_doc, delete_doc},
+        view::sql_builder::*,
     },
     sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
-use flowy_document::protobuf::CreateDocParams;
 
 pub(crate) async fn create_view(
     pool: &PgPool,

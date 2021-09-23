@@ -20,14 +20,12 @@ use flowy_user::{
 
 use crate::{
     entities::{token::Token, user::UserTable},
-    service::{
-        user_service::{hash_password, verify_password, LoggedUser},
-        workspace_service::user_default::create_default_workspace,
-    },
+    service::user::{hash_password, verify_password, LoggedUser},
     sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
 
 use super::AUTHORIZED_USERS;
+use crate::service::user::user_default::create_default_workspace;
 
 pub async fn sign_in(pool: &PgPool, params: SignInParams) -> Result<SignInResponse, ServerError> {
     let email =

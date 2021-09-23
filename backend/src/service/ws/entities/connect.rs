@@ -1,4 +1,4 @@
-use crate::service::ws_service::ClientMessage;
+use crate::service::ws::ClientMessage;
 use actix::{Message, Recipient};
 use flowy_net::errors::ServerError;
 use serde::{Deserialize, Serialize};

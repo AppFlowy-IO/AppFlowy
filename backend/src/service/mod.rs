@@ -1,6 +1,8 @@
-pub mod doc_service;
+pub mod app;
+pub mod doc;
 pub(crate) mod log;
-pub mod user_service;
+pub mod user;
 pub(crate) mod util;
-pub mod workspace_service;
-pub mod ws_service;
+pub mod view;
+pub mod workspace;
+pub mod ws;

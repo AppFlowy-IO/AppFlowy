@@ -8,7 +8,7 @@ use flowy_document::protobuf::{QueryDocParams, UpdateDocParams};
 use flowy_net::errors::ServerError;
 
 use crate::service::{
-    doc_service::{read_doc, update_doc},
+    doc::{read_doc, update_doc},
     util::parse_from_payload,
 };
 
