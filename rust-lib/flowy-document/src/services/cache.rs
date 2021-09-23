@@ -8,23 +8,23 @@ use crate::{
 };
 
 pub(crate) struct DocCache {
-    doc_map: DashMap<DocId, Arc<EditDocContext>>,
+    inner: DashMap<DocId, Arc<EditDocContext>>,
 }
 
 impl DocCache {
-    pub(crate) fn new() -> Self { Self { doc_map: DashMap::new() } }
+    pub(crate) fn new() -> Self { Self { inner: DashMap::new() } }
 
     pub(crate) fn set(&self, doc: Arc<EditDocContext>) {
         let doc_id = doc.id.clone();
-        if self.doc_map.contains_key(&doc_id) {
+        if self.inner.contains_key(&doc_id) {
             log::warn!("Doc:{} already exists in cache", doc_id.as_ref());
         }
-        self.doc_map.insert(doc.id.clone(), doc);
+        self.inner.insert(doc.id.clone(), doc);
     }
 
     pub(crate) fn is_opened(&self, doc_id: &str) -> bool {
         let doc_id: DocId = doc_id.into();
-        self.doc_map.get(&doc_id).is_some()
+        self.inner.get(&doc_id).is_some()
     }
 
     pub(crate) fn get(&self, doc_id: &str) -> Result<Arc<EditDocContext>, DocError> {
@@ -32,13 +32,13 @@ impl DocCache {
             return Err(doc_not_found());
         }
         let doc_id: DocId = doc_id.into();
-        let opened_doc = self.doc_map.get(&doc_id).unwrap();
+        let opened_doc = self.inner.get(&doc_id).unwrap();
         Ok(opened_doc.clone())
     }
 
     pub(crate) fn remove(&self, id: &str) {
         let doc_id: DocId = id.into();
-        self.doc_map.remove(&doc_id);
+        self.inner.remove(&doc_id);
     }
 }
 

@@ -16,6 +16,7 @@ use crate::{
     service::{
         app::router as app,
         doc::router as doc,
+        make_ws_biz_handlers,
         user::router as user,
         view::router as view,
         workspace::router as workspace,
@@ -23,6 +24,7 @@ use crate::{
         ws::WSServer,
     },
 };
+use flowy_ws::WsSource;
 
 pub struct Application {
     port: u16,
@@ -53,7 +55,7 @@ pub fn run(listener: TcpListener, app_ctx: AppContext) -> Result<Server, std::io
     let pg_pool = Data::new(pg_pool);
     let domain = domain();
     let secret: String = secret();
-
+    let ws_biz_handlers = Data::new(make_ws_biz_handlers());
     actix_rt::spawn(period_check(pg_pool.clone()));
 
     let server = HttpServer::new(move || {
@@ -67,6 +69,7 @@ pub fn run(listener: TcpListener, app_ctx: AppContext) -> Result<Server, std::io
             .service(user_scope())
             .app_data(ws_server.clone())
             .app_data(pg_pool.clone())
+            .app_data(ws_biz_handlers.clone())
     })
     .listen(listener)?
     .run();

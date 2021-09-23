@@ -5,41 +5,36 @@ use crate::{
         ClientMessage,
         MessageData,
         WSServer,
+        WsBizHandler,
+        WsBizHandlers,
     },
 };
-use actix::*;
+use actix::{fut::wrap_future, *};
+use actix_web::web::Data;
 use actix_web_actors::{ws, ws::Message::Text};
-use std::time::Instant;
+use bytes::Bytes;
+use flowy_ws::{WsMessage, WsSource};
+use std::{convert::TryFrom, pin::Pin, time::Instant};
+use tokio::sync::RwLock;
 
-//    Frontend          │                       Backend
-//
-//                      │
-// ┌──────────┐   WsMessage   ┌───────────┐  ClientMessage    ┌──────────┐
-// │  user 1  │─────────┼────▶│ws_client_1│──────────────────▶│ws_server │
-// └──────────┘               └───────────┘                   └──────────┘
-//                      │                                           │
-//                WsMessage                                         ▼
-// ┌──────────┐         │     ┌───────────┐    ClientMessage     Group
-// │  user 2  │◀──────────────│ws_client_2│◀───────┐        ┌───────────────┐
-// └──────────┘         │     └───────────┘        │        │  ws_user_1    │
-//                                                 │        │               │
-//                      │                          └────────│  ws_user_2    │
-// ┌──────────┐               ┌───────────┐                 │               │
-// │  user 3  │─────────┼────▶│ws_client_3│                 └───────────────┘
-// └──────────┘               └───────────┘
-//                      │
 pub struct WSClient {
     session_id: SessionId,
     server: Addr<WSServer>,
+    biz_handlers: Data<WsBizHandlers>,
     hb: Instant,
 }
 
 impl WSClient {
-    pub fn new<T: Into<SessionId>>(session_id: T, server: Addr<WSServer>) -> Self {
+    pub fn new<T: Into<SessionId>>(
+        session_id: T,
+        server: Addr<WSServer>,
+        biz_handlers: Data<WsBizHandlers>,
+    ) -> Self {
         Self {
             session_id: session_id.into(),
-            hb: Instant::now(),
             server,
+            biz_handlers,
+            hb: Instant::now(),
         }
     }
 
@@ -62,36 +57,16 @@ impl WSClient {
     }
 }
 
-impl Actor for WSClient {
-    type Context = ws::WebsocketContext<Self>;
-
-    fn started(&mut self, ctx: &mut Self::Context) {
-        self.hb(ctx);
-        let socket = ctx.address().recipient();
-        let connect = Connect {
-            socket,
-            sid: self.session_id.clone(),
-        };
-        self.server
-            .send(connect)
-            .into_actor(self)
-            .then(|res, _client, _ctx| {
-                match res {
-                    Ok(Ok(_)) => log::trace!("Send connect message to server success"),
-                    Ok(Err(e)) => log::error!("Send connect message to server failed: {:?}", e),
-                    Err(e) => log::error!("Send connect message to server failed: {:?}", e),
-                }
-                fut::ready(())
-            })
-            .wait(ctx);
-    }
-
-    fn stopping(&mut self, _: &mut Self::Context) -> Running {
-        self.server.do_send(Disconnect {
-            sid: self.session_id.clone(),
-        });
-
-        Running::Stop
+async fn handle_binary_message(biz_handlers: Data<WsBizHandlers>, bytes: Bytes) {
+    let message: WsMessage = WsMessage::try_from(bytes).unwrap();
+    match biz_handlers.get(&message.source) {
+        None => {
+            log::error!("Can't find the handler for {:?}", message.source);
+        },
+        Some(handler) => handler
+            .write()
+            .await
+            .receive_data(Bytes::from(message.data)),
     }
 }
 
@@ -106,9 +81,10 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSClient {
                 // log::debug!("Receive {} pong {:?}", &self.session_id, &msg);
                 self.hb = Instant::now();
             },
-            Ok(ws::Message::Binary(bin)) => {
+            Ok(ws::Message::Binary(bytes)) => {
                 log::debug!(" Receive {} binary", &self.session_id);
-                self.send(MessageData::Binary(bin));
+                let biz_handlers = self.biz_handlers.clone();
+                ctx.spawn(wrap_future(handle_binary_message(biz_handlers, bytes)));
             },
             Ok(Text(_)) => {
                 log::warn!("Receive unexpected text message");
@@ -143,5 +119,38 @@ impl Handler<ClientMessage> for WSClient {
             MessageData::Connect(_) => {},
             MessageData::Disconnect(_) => {},
         }
+    }
+}
+
+impl Actor for WSClient {
+    type Context = ws::WebsocketContext<Self>;
+
+    fn started(&mut self, ctx: &mut Self::Context) {
+        self.hb(ctx);
+        let socket = ctx.address().recipient();
+        let connect = Connect {
+            socket,
+            sid: self.session_id.clone(),
+        };
+        self.server
+            .send(connect)
+            .into_actor(self)
+            .then(|res, _client, _ctx| {
+                match res {
+                    Ok(Ok(_)) => log::trace!("Send connect message to server success"),
+                    Ok(Err(e)) => log::error!("Send connect message to server failed: {:?}", e),
+                    Err(e) => log::error!("Send connect message to server failed: {:?}", e),
+                }
+                fut::ready(())
+            })
+            .wait(ctx);
+    }
+
+    fn stopping(&mut self, _: &mut Self::Context) -> Running {
+        self.server.do_send(Disconnect {
+            sid: self.session_id.clone(),
+        });
+
+        Running::Stop
     }
 }

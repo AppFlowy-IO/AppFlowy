@@ -7,10 +7,6 @@ pub trait WsSender: Send + Sync {
     fn send_data(&self, data: Bytes) -> Result<(), DocError>;
 }
 
-lazy_static! {
-    pub static ref WS_ID: String = "Document".to_string();
-}
-
 pub struct WsManager {
     pub(crate) sender: Arc<dyn WsSender>,
     doc_handlers: HashMap<String, Arc<dyn WsHandler>>,

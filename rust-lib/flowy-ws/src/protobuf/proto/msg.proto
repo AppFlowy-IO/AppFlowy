@@ -1,6 +1,9 @@
 syntax = "proto3";
 
 message WsMessage {
-    string source = 1;
+    WsSource source = 1;
     bytes data = 2;
+}
+enum WsSource {
+    Doc = 0;
 }

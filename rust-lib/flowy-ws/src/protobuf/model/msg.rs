@@ -26,7 +26,7 @@
 #[derive(PartialEq,Clone,Default)]
 pub struct WsMessage {
     // message fields
-    pub source: ::std::string::String,
+    pub source: WsSource,
     pub data: ::std::vec::Vec<u8>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -44,30 +44,19 @@ impl WsMessage {
         ::std::default::Default::default()
     }
 
-    // string source = 1;
+    // .WsSource source = 1;
 
 
-    pub fn get_source(&self) -> &str {
-        &self.source
+    pub fn get_source(&self) -> WsSource {
+        self.source
     }
     pub fn clear_source(&mut self) {
-        self.source.clear();
+        self.source = WsSource::Doc;
     }
 
     // Param is passed by value, moved
-    pub fn set_source(&mut self, v: ::std::string::String) {
+    pub fn set_source(&mut self, v: WsSource) {
         self.source = v;
-    }
-
-    // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
-    pub fn mut_source(&mut self) -> &mut ::std::string::String {
-        &mut self.source
-    }
-
-    // Take field
-    pub fn take_source(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.source, ::std::string::String::new())
     }
 
     // bytes data = 2;
@@ -107,7 +96,7 @@ impl ::protobuf::Message for WsMessage {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.source)?;
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.source, 1, &mut self.unknown_fields)?
                 },
                 2 => {
                     ::protobuf::rt::read_singular_proto3_bytes_into(wire_type, is, &mut self.data)?;
@@ -124,8 +113,8 @@ impl ::protobuf::Message for WsMessage {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.source.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.source);
+        if self.source != WsSource::Doc {
+            my_size += ::protobuf::rt::enum_size(1, self.source);
         }
         if !self.data.is_empty() {
             my_size += ::protobuf::rt::bytes_size(2, &self.data);
@@ -136,8 +125,8 @@ impl ::protobuf::Message for WsMessage {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.source.is_empty() {
-            os.write_string(1, &self.source)?;
+        if self.source != WsSource::Doc {
+            os.write_enum(1, ::protobuf::ProtobufEnum::value(&self.source))?;
         }
         if !self.data.is_empty() {
             os.write_bytes(2, &self.data)?;
@@ -180,7 +169,7 @@ impl ::protobuf::Message for WsMessage {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<WsSource>>(
                 "source",
                 |m: &WsMessage| { &m.source },
                 |m: &mut WsMessage| { &mut m.source },
@@ -206,7 +195,7 @@ impl ::protobuf::Message for WsMessage {
 
 impl ::protobuf::Clear for WsMessage {
     fn clear(&mut self) {
-        self.source.clear();
+        self.source = WsSource::Doc;
         self.data.clear();
         self.unknown_fields.clear();
     }
@@ -224,17 +213,68 @@ impl ::protobuf::reflect::ProtobufValue for WsMessage {
     }
 }
 
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
+pub enum WsSource {
+    Doc = 0,
+}
+
+impl ::protobuf::ProtobufEnum for WsSource {
+    fn value(&self) -> i32 {
+        *self as i32
+    }
+
+    fn from_i32(value: i32) -> ::std::option::Option<WsSource> {
+        match value {
+            0 => ::std::option::Option::Some(WsSource::Doc),
+            _ => ::std::option::Option::None
+        }
+    }
+
+    fn values() -> &'static [Self] {
+        static values: &'static [WsSource] = &[
+            WsSource::Doc,
+        ];
+        values
+    }
+
+    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<WsSource>("WsSource", file_descriptor_proto())
+        })
+    }
+}
+
+impl ::std::marker::Copy for WsSource {
+}
+
+impl ::std::default::Default for WsSource {
+    fn default() -> Self {
+        WsSource::Doc
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for WsSource {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
+    }
+}
+
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\tmsg.proto\"7\n\tWsMessage\x12\x16\n\x06source\x18\x01\x20\x01(\tR\
-    \x06source\x12\x12\n\x04data\x18\x02\x20\x01(\x0cR\x04dataJ\x98\x01\n\
-    \x06\x12\x04\0\0\x05\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\
-    \x12\x04\x02\0\x05\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x11\n\x0b\n\
-    \x04\x04\0\x02\0\x12\x03\x03\x04\x16\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\
-    \x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\x11\n\x0c\n\x05\
-    \x04\0\x02\0\x03\x12\x03\x03\x14\x15\n\x0b\n\x04\x04\0\x02\x01\x12\x03\
-    \x04\x04\x13\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\t\n\x0c\n\x05\
-    \x04\0\x02\x01\x01\x12\x03\x04\n\x0e\n\x0c\n\x05\x04\0\x02\x01\x03\x12\
-    \x03\x04\x11\x12b\x06proto3\
+    \n\tmsg.proto\"B\n\tWsMessage\x12!\n\x06source\x18\x01\x20\x01(\x0e2\t.W\
+    sSourceR\x06source\x12\x12\n\x04data\x18\x02\x20\x01(\x0cR\x04data*\x13\
+    \n\x08WsSource\x12\x07\n\x03Doc\x10\0J\xd9\x01\n\x06\x12\x04\0\0\x08\x01\
+    \n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\
+    \n\n\x03\x04\0\x01\x12\x03\x02\x08\x11\n\x0b\n\x04\x04\0\x02\0\x12\x03\
+    \x03\x04\x18\n\x0c\n\x05\x04\0\x02\0\x06\x12\x03\x03\x04\x0c\n\x0c\n\x05\
+    \x04\0\x02\0\x01\x12\x03\x03\r\x13\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\
+    \x03\x16\x17\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x13\n\x0c\n\x05\
+    \x04\0\x02\x01\x05\x12\x03\x04\x04\t\n\x0c\n\x05\x04\0\x02\x01\x01\x12\
+    \x03\x04\n\x0e\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x11\x12\n\n\n\
+    \x02\x05\0\x12\x04\x06\0\x08\x01\n\n\n\x03\x05\0\x01\x12\x03\x06\x05\r\n\
+    \x0b\n\x04\x05\0\x02\0\x12\x03\x07\x04\x0c\n\x0c\n\x05\x05\0\x02\0\x01\
+    \x12\x03\x07\x04\x07\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x07\n\x0bb\x06p\
+    roto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

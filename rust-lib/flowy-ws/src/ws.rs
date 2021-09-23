@@ -2,6 +2,7 @@ use crate::{
     connect::{Retry, WsConnectionFuture},
     errors::WsError,
     WsMessage,
+    WsSource,
 };
 use flowy_net::errors::ServerError;
 use futures_channel::mpsc::{UnboundedReceiver, UnboundedSender};
@@ -23,7 +24,7 @@ use tokio_tungstenite::tungstenite::{
 pub type MsgReceiver = UnboundedReceiver<Message>;
 pub type MsgSender = UnboundedSender<Message>;
 pub trait WsMessageHandler: Sync + Send + 'static {
-    fn source(&self) -> String;
+    fn source(&self) -> WsSource;
     fn receive_message(&self, msg: WsMessage);
 }
 
@@ -50,7 +51,7 @@ pub enum WsState {
 }
 
 pub struct WsController {
-    handlers: HashMap<String, Arc<dyn WsMessageHandler>>,
+    handlers: HashMap<WsSource, Arc<dyn WsMessageHandler>>,
     state_notify: Arc<RwLock<WsStateNotify>>,
     #[allow(dead_code)]
     addr: Option<String>,
@@ -83,7 +84,7 @@ impl WsController {
     pub fn add_handler(&mut self, handler: Arc<dyn WsMessageHandler>) -> Result<(), WsError> {
         let source = handler.source();
         if self.handlers.contains_key(&source) {
-            log::error!("{} source is already registered", source);
+            log::error!("WsSource's {:?} is already registered", source);
         }
         self.handlers.insert(source, handler);
         Ok(())
@@ -163,11 +164,11 @@ impl WsController {
 pub struct WsHandlerFuture {
     #[pin]
     msg_rx: MsgReceiver,
-    handlers: HashMap<String, Arc<dyn WsMessageHandler>>,
+    handlers: HashMap<WsSource, Arc<dyn WsMessageHandler>>,
 }
 
 impl WsHandlerFuture {
-    fn new(handlers: HashMap<String, Arc<dyn WsMessageHandler>>, msg_rx: MsgReceiver) -> Self { Self { msg_rx, handlers } }
+    fn new(handlers: HashMap<WsSource, Arc<dyn WsMessageHandler>>, msg_rx: MsgReceiver) -> Self { Self { msg_rx, handlers } }
 }
 
 impl Future for WsHandlerFuture {
@@ -203,19 +204,16 @@ impl WsSender {
         Ok(())
     }
 
-    pub fn send_text(&self, source: &str, text: &str) -> Result<(), WsError> {
+    pub fn send_text(&self, source: WsSource, text: &str) -> Result<(), WsError> {
         let msg = WsMessage {
-            source: source.to_string(),
+            source,
             data: text.as_bytes().to_vec(),
         };
         self.send_msg(msg)
     }
 
-    pub fn send_binary(&self, source: &str, bytes: Vec<u8>) -> Result<(), WsError> {
-        let msg = WsMessage {
-            source: source.to_string(),
-            data: bytes,
-        };
+    pub fn send_binary(&self, source: WsSource, bytes: Vec<u8>) -> Result<(), WsError> {
+        let msg = WsMessage { source, data: bytes };
         self.send_msg(msg)
     }
 

@@ -2,11 +2,11 @@ use bytes::Bytes;
 use flowy_document::{
     errors::DocError,
     module::DocumentUser,
-    prelude::{WsManager, WsSender, WS_ID},
+    prelude::{WsManager, WsSender},
 };
 
 use flowy_user::{errors::ErrorCode, services::user::UserSession};
-use flowy_ws::{WsMessage, WsMessageHandler};
+use flowy_ws::{WsMessage, WsMessageHandler, WsSource};
 use parking_lot::RwLock;
 use std::{path::Path, sync::Arc};
 
@@ -73,7 +73,7 @@ struct WsSenderImpl {
 impl WsSender for WsSenderImpl {
     fn send_data(&self, data: Bytes) -> Result<(), DocError> {
         let msg = WsMessage {
-            source: WS_ID.clone(),
+            source: WsSource::Doc,
             data: data.to_vec(),
         };
         let _ = self.user.send_ws_msg(msg).map_err(|e| DocError::internal().context(e))?;
@@ -86,7 +86,7 @@ struct WsDocumentResolver {
 }
 
 impl WsMessageHandler for WsDocumentResolver {
-    fn source(&self) -> String { WS_ID.clone() }
+    fn source(&self) -> WsSource { WsSource::Doc }
 
     fn receive_message(&self, msg: WsMessage) {
         let data = Bytes::from(msg.data);
