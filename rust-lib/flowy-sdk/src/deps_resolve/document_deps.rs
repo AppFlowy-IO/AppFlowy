@@ -73,11 +73,7 @@ struct WsSenderImpl {
 
 impl WsDocumentSender for WsSenderImpl {
     fn send(&self, data: WsDocumentData) -> Result<(), DocError> {
-        let bytes: Bytes = data.try_into().unwrap();
-        let msg = WsMessage {
-            module: WsModule::Doc,
-            data: bytes.to_vec(),
-        };
+        let msg: WsMessage = data.into();
         let _ = self.user.send_ws_msg(msg).map_err(|e| DocError::internal().context(e))?;
         Ok(())
     }

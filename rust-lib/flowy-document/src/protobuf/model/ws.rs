@@ -78,7 +78,7 @@ impl WsDocumentData {
         self.ty
     }
     pub fn clear_ty(&mut self) {
-        self.ty = WsDataType::Command;
+        self.ty = WsDataType::Acked;
     }
 
     // Param is passed by value, moved
@@ -146,7 +146,7 @@ impl ::protobuf::Message for WsDocumentData {
         if !self.id.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.id);
         }
-        if self.ty != WsDataType::Command {
+        if self.ty != WsDataType::Acked {
             my_size += ::protobuf::rt::enum_size(2, self.ty);
         }
         if !self.data.is_empty() {
@@ -161,7 +161,7 @@ impl ::protobuf::Message for WsDocumentData {
         if !self.id.is_empty() {
             os.write_string(1, &self.id)?;
         }
-        if self.ty != WsDataType::Command {
+        if self.ty != WsDataType::Acked {
             os.write_enum(2, ::protobuf::ProtobufEnum::value(&self.ty))?;
         }
         if !self.data.is_empty() {
@@ -237,7 +237,7 @@ impl ::protobuf::Message for WsDocumentData {
 impl ::protobuf::Clear for WsDocumentData {
     fn clear(&mut self) {
         self.id.clear();
-        self.ty = WsDataType::Command;
+        self.ty = WsDataType::Acked;
         self.data.clear();
         self.unknown_fields.clear();
     }
@@ -257,7 +257,7 @@ impl ::protobuf::reflect::ProtobufValue for WsDocumentData {
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum WsDataType {
-    Command = 0,
+    Acked = 0,
     Delta = 1,
 }
 
@@ -268,7 +268,7 @@ impl ::protobuf::ProtobufEnum for WsDataType {
 
     fn from_i32(value: i32) -> ::std::option::Option<WsDataType> {
         match value {
-            0 => ::std::option::Option::Some(WsDataType::Command),
+            0 => ::std::option::Option::Some(WsDataType::Acked),
             1 => ::std::option::Option::Some(WsDataType::Delta),
             _ => ::std::option::Option::None
         }
@@ -276,7 +276,7 @@ impl ::protobuf::ProtobufEnum for WsDataType {
 
     fn values() -> &'static [Self] {
         static values: &'static [WsDataType] = &[
-            WsDataType::Command,
+            WsDataType::Acked,
             WsDataType::Delta,
         ];
         values
@@ -295,7 +295,7 @@ impl ::std::marker::Copy for WsDataType {
 
 impl ::std::default::Default for WsDataType {
     fn default() -> Self {
-        WsDataType::Command
+        WsDataType::Acked
     }
 }
 
@@ -308,8 +308,8 @@ impl ::protobuf::reflect::ProtobufValue for WsDataType {
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x08ws.proto\"Q\n\x0eWsDocumentData\x12\x0e\n\x02id\x18\x01\x20\x01(\t\
     R\x02id\x12\x1b\n\x02ty\x18\x02\x20\x01(\x0e2\x0b.WsDataTypeR\x02ty\x12\
-    \x12\n\x04data\x18\x03\x20\x01(\x0cR\x04data*$\n\nWsDataType\x12\x0b\n\
-    \x07Command\x10\0\x12\t\n\x05Delta\x10\x01J\xb9\x02\n\x06\x12\x04\0\0\n\
+    \x12\n\x04data\x18\x03\x20\x01(\x0cR\x04data*\"\n\nWsDataType\x12\t\n\
+    \x05Acked\x10\0\x12\t\n\x05Delta\x10\x01J\xb9\x02\n\x06\x12\x04\0\0\n\
     \x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x06\
     \x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x16\n\x0b\n\x04\x04\0\x02\0\x12\
     \x03\x03\x04\x12\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\
@@ -321,10 +321,10 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x05\x12\x03\x05\x04\t\n\x0c\n\x05\x04\0\x02\x02\x01\x12\x03\x05\n\x0e\n\
     \x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05\x11\x12\n\n\n\x02\x05\0\x12\x04\
     \x07\0\n\x01\n\n\n\x03\x05\0\x01\x12\x03\x07\x05\x0f\n\x0b\n\x04\x05\0\
-    \x02\0\x12\x03\x08\x04\x10\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\x08\x04\
-    \x0b\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x08\x0e\x0f\n\x0b\n\x04\x05\0\
-    \x02\x01\x12\x03\t\x04\x0e\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\t\x04\t\
-    \n\x0c\n\x05\x05\0\x02\x01\x02\x12\x03\t\x0c\rb\x06proto3\
+    \x02\0\x12\x03\x08\x04\x0e\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\x08\x04\t\
+    \n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x08\x0c\r\n\x0b\n\x04\x05\0\x02\x01\
+    \x12\x03\t\x04\x0e\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\t\x04\t\n\x0c\n\
+    \x05\x05\0\x02\x01\x02\x12\x03\t\x0c\rb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

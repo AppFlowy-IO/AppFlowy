@@ -130,7 +130,9 @@ fn post_message(tx: MsgSender, message: Result<Message, Error>) {
             Err(e) => log::error!("tx send error: {:?}", e),
         },
         Ok(_) => {},
-        Err(e) => log::error!("ws read error: {:?}", e),
+        Err(e) => {
+            log::error!("ws read error: {:?}", e)
+        },
     }
 }
 

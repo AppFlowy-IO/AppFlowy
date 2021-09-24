@@ -67,7 +67,7 @@ impl EditDocContext {
         // Opti: it is necessary to save the rev if send success?
         let md5 = format!("{:x}", md5::compute(json));
         let revision = Revision::new(base_rev_id, rev_id, data.to_vec(), md5, self.id.clone().into());
-        self.save_revision(revision.clone(), pool.clone());
+        let _ = self.save_revision(revision.clone(), pool.clone())?;
         match self.ws.send(revision.into()) {
             Ok(_) => {
                 // TODO: remove the rev if send success
@@ -84,11 +84,11 @@ impl EditDocContext {
 impl EditDocContext {
     fn save_revision(&self, revision: Revision, pool: Arc<ConnectionPool>) -> Result<(), DocError> {
         let conn = &*pool.get().map_err(internal_error)?;
-        conn.immediate_transaction::<_, DocError, _>(|| {
-            let op_table: OpTable = revision.into();
-            let _ = self.op_sql.create_op_table(op_table, conn)?;
-            Ok(())
-        })?;
+        // conn.immediate_transaction::<_, DocError, _>(|| {
+        //     let op_table: OpTable = revision.into();
+        //     let _ = self.op_sql.create_op_table(op_table, conn)?;
+        //     Ok(())
+        // })?;
 
         Ok(())
     }
@@ -103,11 +103,16 @@ impl EditDocContext {
     }
 }
 
+use byteorder::{BigEndian, ReadBytesExt};
+use std::io::Cursor;
 impl WsDocumentHandler for EditDocContext {
-    fn receive(&self, data: WsDocumentData) {
-        match data.ty {
+    fn receive(&self, doc_data: WsDocumentData) {
+        match doc_data.ty {
             WsDataType::Delta => {},
-            WsDataType::Command => {},
+            WsDataType::Acked => {
+                let mut rdr = Cursor::new(doc_data.data);
+                let rev = rdr.read_i64::<BigEndian>().unwrap();
+            },
         }
     }
 }

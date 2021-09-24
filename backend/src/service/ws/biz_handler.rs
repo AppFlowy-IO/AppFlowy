@@ -1,9 +1,10 @@
+use crate::service::ws::WsClientData;
 use bytes::Bytes;
 use flowy_ws::WsModule;
 use std::{collections::HashMap, sync::Arc};
 
 pub trait WsBizHandler: Send + Sync {
-    fn receive_data(&self, data: Bytes);
+    fn receive_data(&self, client_data: WsClientData);
 }
 
 pub type BizHandler = Arc<dyn WsBizHandler>;

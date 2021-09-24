@@ -1,12 +1,11 @@
 use crate::{
     config::{HEARTBEAT_INTERVAL, PING_TIMEOUT},
     service::ws::{
-        entities::{Connect, Disconnect, SessionId},
-        ClientMessage,
-        MessageData,
-        WSServer,
+        entities::{Connect, Disconnect, SessionId, Socket},
         WsBizHandler,
         WsBizHandlers,
+        WsMessageAdaptor,
+        WsServer,
     },
 };
 use actix::*;
@@ -16,17 +15,22 @@ use bytes::Bytes;
 use flowy_ws::WsMessage;
 use std::{convert::TryFrom, time::Instant};
 
-pub struct WSClient {
+pub struct WsClientData {
+    pub(crate) socket: Socket,
+    pub(crate) data: Bytes,
+}
+
+pub struct WsClient {
     session_id: SessionId,
-    server: Addr<WSServer>,
+    server: Addr<WsServer>,
     biz_handlers: Data<WsBizHandlers>,
     hb: Instant,
 }
 
-impl WSClient {
+impl WsClient {
     pub fn new<T: Into<SessionId>>(
         session_id: T,
-        server: Addr<WSServer>,
+        server: Addr<WsServer>,
         biz_handlers: Data<WsBizHandlers>,
     ) -> Self {
         Self {
@@ -50,24 +54,25 @@ impl WSClient {
         });
     }
 
-    fn send(&self, data: MessageData) {
-        let msg = ClientMessage::new(self.session_id.clone(), data);
-        self.server.do_send(msg);
-    }
-
-    fn handle_binary_message(&self, bytes: Bytes) {
+    fn handle_binary_message(&self, bytes: Bytes, socket: Socket) {
         // TODO: ok to unwrap?
         let message: WsMessage = WsMessage::try_from(bytes).unwrap();
         match self.biz_handlers.get(&message.module) {
             None => {
                 log::error!("Can't find the handler for {:?}", message.module);
             },
-            Some(handler) => handler.receive_data(Bytes::from(message.data)),
+            Some(handler) => {
+                let client_data = WsClientData {
+                    socket,
+                    data: Bytes::from(message.data),
+                };
+                handler.receive_data(client_data)
+            },
         }
     }
 }
 
-impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSClient {
+impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsClient {
     fn handle(&mut self, msg: Result<ws::Message, ws::ProtocolError>, ctx: &mut Self::Context) {
         match msg {
             Ok(ws::Message::Ping(msg)) => {
@@ -80,13 +85,13 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSClient {
             },
             Ok(ws::Message::Binary(bytes)) => {
                 log::debug!(" Receive {} binary", &self.session_id);
-                self.handle_binary_message(bytes);
+                let socket = ctx.address().recipient();
+                self.handle_binary_message(bytes, socket);
             },
             Ok(Text(_)) => {
                 log::warn!("Receive unexpected text message");
             },
             Ok(ws::Message::Close(reason)) => {
-                self.send(MessageData::Disconnect(self.session_id.clone()));
                 ctx.close(reason);
                 ctx.stop();
             },
@@ -104,21 +109,13 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSClient {
     }
 }
 
-impl Handler<ClientMessage> for WSClient {
+impl Handler<WsMessageAdaptor> for WsClient {
     type Result = ();
 
-    fn handle(&mut self, msg: ClientMessage, ctx: &mut Self::Context) {
-        match msg.data {
-            MessageData::Binary(binary) => {
-                ctx.binary(binary);
-            },
-            MessageData::Connect(_) => {},
-            MessageData::Disconnect(_) => {},
-        }
-    }
+    fn handle(&mut self, msg: WsMessageAdaptor, ctx: &mut Self::Context) { ctx.binary(msg.0); }
 }
 
-impl Actor for WSClient {
+impl Actor for WsClient {
     type Context = ws::WebsocketContext<Self>;
 
     fn started(&mut self, ctx: &mut Self::Context) {

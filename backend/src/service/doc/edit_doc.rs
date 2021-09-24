@@ -1,14 +1,22 @@
-use crate::service::doc::update_doc;
+use crate::service::{
+    doc::update_doc,
+    ws::{entities::Socket, WsClientData, WsMessageAdaptor},
+};
 use actix_web::web::Data;
+use byteorder::{BigEndian, ByteOrder, WriteBytesExt};
+use bytes::Bytes;
 use flowy_document::{
+    entities::ws::{WsDataType, WsDocumentData},
     protobuf::{Doc, Revision, UpdateDocParams},
     services::doc::Document,
 };
 use flowy_net::errors::{internal_error, ServerError};
 use flowy_ot::core::Delta;
+use flowy_ws::{protobuf::WsModule, WsMessage};
 use parking_lot::RwLock;
+use protobuf::Message;
 use sqlx::PgPool;
-use std::{sync::Arc, time::Duration};
+use std::{convert::TryInto, sync::Arc, time::Duration};
 
 pub(crate) struct EditDoc {
     doc_id: String,
@@ -27,15 +35,31 @@ impl EditDoc {
         })
     }
 
-    #[tracing::instrument(level = "debug", skip(self, revision))]
-    pub(crate) async fn apply_revision(&self, revision: Revision) -> Result<(), ServerError> {
+    #[tracing::instrument(level = "debug", skip(self, socket, revision))]
+    pub(crate) async fn apply_revision(
+        &self,
+        socket: Socket,
+        revision: Revision,
+    ) -> Result<(), ServerError> {
         let delta = Delta::from_bytes(revision.delta).map_err(internal_error)?;
         match self.document.try_write_for(Duration::from_millis(300)) {
             None => {
                 log::error!("Failed to acquire write lock of document");
             },
-            Some(mut w) => {
-                let _ = w.apply_delta(delta).map_err(internal_error)?;
+            Some(mut write_guard) => {
+                let _ = write_guard.apply_delta(delta).map_err(internal_error)?;
+                let mut wtr = vec![];
+                let _ = wtr.write_i64::<BigEndian>(revision.rev_id);
+
+                let data = WsDocumentData {
+                    id: self.doc_id.clone(),
+                    ty: WsDataType::Acked,
+                    data: wtr,
+                };
+
+                let msg: WsMessage = data.into();
+                let bytes: Bytes = msg.try_into().unwrap();
+                socket.do_send(WsMessageAdaptor(bytes));
             },
         }
 

@@ -6,6 +6,6 @@ message WsDocumentData {
     bytes data = 3;
 }
 enum WsDataType {
-    Command = 0;
+    Acked = 0;
     Delta = 1;
 }

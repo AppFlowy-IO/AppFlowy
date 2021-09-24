@@ -1,7 +1,8 @@
+use crate::errors::WsError;
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use std::convert::{TryFrom, TryInto};
-use tokio_tungstenite::tungstenite::Message as TokioMessage;
+use tokio_tungstenite::tungstenite::{Message as TokioMessage, Message};
 
 // Opti: using four bytes of the data to represent the source
 #[derive(ProtoBuf, Debug, Clone, Default)]
@@ -38,18 +39,6 @@ impl std::convert::Into<TokioMessage> for WsMessage {
             Err(e) => {
                 log::error!("WsMessage serialize error: {:?}", e);
                 TokioMessage::Binary(vec![])
-            },
-        }
-    }
-}
-
-impl std::convert::From<TokioMessage> for WsMessage {
-    fn from(value: TokioMessage) -> Self {
-        match value {
-            TokioMessage::Binary(bytes) => WsMessage::try_from(Bytes::from(bytes)).unwrap(),
-            _ => {
-                log::error!("WsMessage deserialize failed. Unsupported message");
-                WsMessage::default()
             },
         }
     }

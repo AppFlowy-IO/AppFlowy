@@ -12,13 +12,13 @@ import 'dart:typed_data' as $typed_data;
 const WsDataType$json = const {
   '1': 'WsDataType',
   '2': const [
-    const {'1': 'Command', '2': 0},
+    const {'1': 'Acked', '2': 0},
     const {'1': 'Delta', '2': 1},
   ],
 };
 
 /// Descriptor for `WsDataType`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List wsDataTypeDescriptor = $convert.base64Decode('CgpXc0RhdGFUeXBlEgsKB0NvbW1hbmQQABIJCgVEZWx0YRAB');
+final $typed_data.Uint8List wsDataTypeDescriptor = $convert.base64Decode('CgpXc0RhdGFUeXBlEgkKBUFja2VkEAASCQoFRGVsdGEQAQ==');
 @$core.Deprecated('Use wsDocumentDataDescriptor instead')
 const WsDocumentData$json = const {
   '1': 'WsDocumentData',

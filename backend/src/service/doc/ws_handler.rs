@@ -1,5 +1,9 @@
 use super::edit_doc::EditDoc;
-use crate::service::{doc::read_doc, util::parse_from_bytes, ws::WsBizHandler};
+use crate::service::{
+    doc::read_doc,
+    util::parse_from_bytes,
+    ws::{WsBizHandler, WsClientData},
+};
 use actix_web::web::Data;
 use bytes::Bytes;
 use flowy_document::{
@@ -13,22 +17,22 @@ use sqlx::PgPool;
 use std::{collections::HashMap, sync::Arc};
 
 pub struct DocWsBizHandler {
-    inner: Arc<Inner>,
+    doc_manager: Arc<EditDocManager>,
 }
 
 impl DocWsBizHandler {
     pub fn new(pg_pool: Data<PgPool>) -> Self {
         Self {
-            inner: Arc::new(Inner::new(pg_pool)),
+            doc_manager: Arc::new(EditDocManager::new(pg_pool)),
         }
     }
 }
 
 impl WsBizHandler for DocWsBizHandler {
-    fn receive_data(&self, data: Bytes) {
-        let inner = self.inner.clone();
+    fn receive_data(&self, client_data: WsClientData) {
+        let doc_manager = self.doc_manager.clone();
         actix_rt::spawn(async move {
-            let result = inner.handle(data).await;
+            let result = doc_manager.handle(client_data).await;
             match result {
                 Ok(_) => {},
                 Err(e) => log::error!("WsBizHandler handle data error: {:?}", e),
@@ -37,12 +41,12 @@ impl WsBizHandler for DocWsBizHandler {
     }
 }
 
-struct Inner {
+struct EditDocManager {
     pg_pool: Data<PgPool>,
     edit_docs: RwLock<HashMap<String, Arc<EditDoc>>>,
 }
 
-impl Inner {
+impl EditDocManager {
     fn new(pg_pool: Data<PgPool>) -> Self {
         Self {
             pg_pool,
@@ -50,16 +54,22 @@ impl Inner {
         }
     }
 
-    async fn handle(&self, data: Bytes) -> Result<(), ServerError> {
-        let document_data: WsDocumentData = parse_from_bytes(&data)?;
+    async fn handle(&self, client_data: WsClientData) -> Result<(), ServerError> {
+        let document_data: WsDocumentData = parse_from_bytes(&client_data.data)?;
 
         match document_data.ty {
-            WsDataType::Command => {},
+            WsDataType::Acked => {},
             WsDataType::Delta => {
                 let revision: Revision = parse_from_bytes(&document_data.data)?;
                 let edited_doc = self.get_edit_doc(&revision.doc_id).await?;
                 tokio::spawn(async move {
-                    edited_doc.apply_revision(revision).await.unwrap();
+                    match edited_doc
+                        .apply_revision(client_data.socket, revision)
+                        .await
+                    {
+                        Ok(_) => {},
+                        Err(e) => log::error!("Doc apply revision failed: {:?}", e),
+                    }
                 });
             },
         }

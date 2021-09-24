@@ -10,11 +10,11 @@ import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 class WsDataType extends $pb.ProtobufEnum {
-  static const WsDataType Command = WsDataType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Command');
+  static const WsDataType Acked = WsDataType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Acked');
   static const WsDataType Delta = WsDataType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Delta');
 
   static const $core.List<WsDataType> values = <WsDataType> [
-    Command,
+    Acked,
     Delta,
   ];
 

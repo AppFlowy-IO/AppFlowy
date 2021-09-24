@@ -1,10 +1,10 @@
-use crate::service::ws::ClientMessage;
+use crate::service::ws::WsMessageAdaptor;
 use actix::{Message, Recipient};
 use flowy_net::errors::ServerError;
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 
-pub type Socket = Recipient<ClientMessage>;
+pub type Socket = Recipient<WsMessageAdaptor>;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
 pub struct SessionId(pub String);

@@ -14,6 +14,7 @@ flowy-database = { path = "../flowy-database" }
 flowy-infra = { path = "../flowy-infra" }
 flowy-observable = { path = "../flowy-observable" }
 flowy-ot = { path = "../flowy-ot" }
+flowy-ws = { path = "../flowy-ws" }
 flowy-net = { path = "../flowy-net", features = ["flowy_request"] }
 
 
@@ -37,6 +38,7 @@ serde_json = {version = "1.0"}
 chrono = "0.4.19"
 futures-core = { version = "0.3", default-features = false }
 md5 = "0.7.0"
+byteorder = {version = "1.3.4"}
 
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }

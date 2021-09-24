@@ -1,32 +1,31 @@
 use crate::service::ws::{
     entities::{Connect, Disconnect, Session, SessionId},
-    ClientMessage,
-    MessageData,
+    WsMessageAdaptor,
 };
 use actix::{Actor, Context, Handler};
 use dashmap::DashMap;
 use flowy_net::errors::ServerError;
 
-pub struct WSServer {
+pub struct WsServer {
     sessions: DashMap<SessionId, Session>,
 }
 
-impl WSServer {
+impl WsServer {
     pub fn new() -> Self {
         Self {
             sessions: DashMap::new(),
         }
     }
 
-    pub fn send(&self, _msg: ClientMessage) { unimplemented!() }
+    pub fn send(&self, _msg: WsMessageAdaptor) { unimplemented!() }
 }
 
-impl Actor for WSServer {
+impl Actor for WsServer {
     type Context = Context<Self>;
     fn started(&mut self, _ctx: &mut Self::Context) {}
 }
 
-impl Handler<Connect> for WSServer {
+impl Handler<Connect> for WsServer {
     type Result = Result<(), ServerError>;
     fn handle(&mut self, msg: Connect, _ctx: &mut Context<Self>) -> Self::Result {
         let session: Session = msg.into();
@@ -36,7 +35,7 @@ impl Handler<Connect> for WSServer {
     }
 }
 
-impl Handler<Disconnect> for WSServer {
+impl Handler<Disconnect> for WsServer {
     type Result = Result<(), ServerError>;
     fn handle(&mut self, msg: Disconnect, _: &mut Context<Self>) -> Self::Result {
         self.sessions.remove(&msg.sid);
@@ -44,20 +43,16 @@ impl Handler<Disconnect> for WSServer {
     }
 }
 
-impl Handler<ClientMessage> for WSServer {
+impl Handler<WsMessageAdaptor> for WsServer {
     type Result = ();
 
-    fn handle(&mut self, msg: ClientMessage, _ctx: &mut Context<Self>) -> Self::Result {
-        match msg.data {
-            MessageData::Binary(_) => {},
-            MessageData::Connect(_) => {},
-            MessageData::Disconnect(_) => {},
-        }
+    fn handle(&mut self, _msg: WsMessageAdaptor, _ctx: &mut Context<Self>) -> Self::Result {
+        unimplemented!()
     }
 }
 
-impl actix::Supervised for WSServer {
-    fn restarting(&mut self, _ctx: &mut Context<WSServer>) {
+impl actix::Supervised for WsServer {
+    fn restarting(&mut self, _ctx: &mut Context<WsServer>) {
         log::warn!("restarting");
     }
 }

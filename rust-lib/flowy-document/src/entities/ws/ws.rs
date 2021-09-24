@@ -1,16 +1,17 @@
 use crate::entities::doc::Revision;
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_ws::{WsMessage, WsModule};
 use std::convert::TryInto;
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Eq, PartialEq, Hash)]
 pub enum WsDataType {
-    Command = 0,
-    Delta   = 1,
+    Acked = 0,
+    Delta = 1,
 }
 
 impl std::default::Default for WsDataType {
-    fn default() -> Self { WsDataType::Command }
+    fn default() -> Self { WsDataType::Acked }
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
@@ -35,5 +36,16 @@ impl std::convert::From<Revision> for WsDocumentData {
             ty: WsDataType::Delta,
             data,
         }
+    }
+}
+
+impl std::convert::Into<WsMessage> for WsDocumentData {
+    fn into(self) -> WsMessage {
+        let bytes: Bytes = self.try_into().unwrap();
+        let msg = WsMessage {
+            module: WsModule::Doc,
+            data: bytes.to_vec(),
+        };
+        msg
     }
 }

@@ -4,12 +4,14 @@ use crate::{
     WsMessage,
     WsModule,
 };
+use bytes::Bytes;
 use flowy_net::errors::ServerError;
 use futures_channel::mpsc::{UnboundedReceiver, UnboundedSender};
 use futures_core::{future::BoxFuture, ready, Stream};
 use pin_project::pin_project;
 use std::{
     collections::HashMap,
+    convert::{Infallible, TryFrom},
     future::Future,
     pin::Pin,
     sync::Arc,
@@ -169,6 +171,26 @@ pub struct WsHandlerFuture {
 
 impl WsHandlerFuture {
     fn new(handlers: HashMap<WsModule, Arc<dyn WsMessageHandler>>, msg_rx: MsgReceiver) -> Self { Self { msg_rx, handlers } }
+
+    fn handler_ws_message(&self, message: Message) {
+        match message {
+            Message::Binary(bytes) => self.handle_binary_message(bytes),
+            _ => {},
+        }
+    }
+
+    fn handle_binary_message(&self, bytes: Vec<u8>) {
+        let bytes = Bytes::from(bytes);
+        match WsMessage::try_from(bytes) {
+            Ok(message) => match self.handlers.get(&message.module) {
+                None => log::error!("Can't find any handler for message: {:?}", message),
+                Some(handler) => handler.receive_message(message.clone()),
+            },
+            Err(e) => {
+                log::error!("Deserialize binary ws message failed: {:?}", e);
+            },
+        }
+    }
 }
 
 impl Future for WsHandlerFuture {
@@ -179,13 +201,7 @@ impl Future for WsHandlerFuture {
                 None => {
                     return Poll::Ready(());
                 },
-                Some(message) => {
-                    let message = WsMessage::from(message);
-                    match self.handlers.get(&message.module) {
-                        None => log::error!("Can't find any handler for message: {:?}", message),
-                        Some(handler) => handler.receive_message(message.clone()),
-                    }
-                },
+                Some(message) => self.handler_ws_message(message),
             }
         }
     }

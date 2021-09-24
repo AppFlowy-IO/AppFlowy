@@ -21,7 +21,7 @@ use crate::{
         view::router as view,
         workspace::router as workspace,
         ws,
-        ws::WSServer,
+        ws::WsServer,
     },
 };
 
@@ -142,7 +142,7 @@ async fn init_app_context(configuration: &Settings) -> AppContext {
             configuration.database
         ));
 
-    let ws_server = WSServer::new().start();
+    let ws_server = WsServer::new().start();
 
     AppContext::new(ws_server, pg_pool)
 }
