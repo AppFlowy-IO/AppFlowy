@@ -58,7 +58,9 @@ impl EditDocContext {
         let mut guard = self.document.write();
         let base_rev_id = self.rev_counter.value();
         let rev_id = self.rev_counter.next();
-        let _ = guard.apply_delta(data.clone())?;
+        let delta = Delta::from_bytes(data.to_vec())?;
+
+        let _ = guard.apply_delta(delta)?;
         let json = guard.to_json();
         drop(guard);
 

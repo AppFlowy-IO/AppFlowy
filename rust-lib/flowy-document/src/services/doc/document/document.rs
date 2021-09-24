@@ -53,10 +53,14 @@ impl Document {
 
     pub fn to_plain_string(&self) -> String { self.delta.apply("").unwrap() }
 
-    pub fn apply_delta(&mut self, data: Bytes) -> Result<(), DocError> {
+    pub fn apply_delta_data(&mut self, data: Bytes) -> Result<(), DocError> {
         let new_delta = Delta::from_bytes(data.to_vec())?;
-        log::debug!("Apply delta: {}", new_delta);
-        let _ = self.add_delta(&new_delta)?;
+        self.apply_delta(new_delta)
+    }
+
+    pub fn apply_delta(&mut self, delta: Delta) -> Result<(), DocError> {
+        log::debug!("Apply delta: {}", delta);
+        let _ = self.add_delta(&delta)?;
         log::debug!("Document: {}", self.to_json());
         Ok(())
     }

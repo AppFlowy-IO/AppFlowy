@@ -23,10 +23,7 @@ pub(crate) async fn create_doc(
     Ok(())
 }
 
-pub(crate) async fn read_doc(
-    pool: &PgPool,
-    params: QueryDocParams,
-) -> Result<FlowyResponse, ServerError> {
+pub(crate) async fn read_doc(pool: &PgPool, params: QueryDocParams) -> Result<Doc, ServerError> {
     let doc_id = Uuid::parse_str(&params.doc_id)?;
     let mut transaction = pool
         .begin()
@@ -50,7 +47,7 @@ pub(crate) async fn read_doc(
         .await
         .context("Failed to commit SQL transaction to read doc.")?;
 
-    FlowyResponse::success().pb(doc)
+    Ok(doc)
 }
 
 pub(crate) async fn update_doc(

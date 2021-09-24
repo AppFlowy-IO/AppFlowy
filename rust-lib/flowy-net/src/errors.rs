@@ -47,6 +47,13 @@ impl ServerError {
     pub fn is_unauthorized(&self) -> bool { self.code == ErrorCode::UserUnauthorized }
 }
 
+pub fn internal_error<T>(e: T) -> ServerError
+where
+    T: std::fmt::Debug,
+{
+    ServerError::internal().context(e)
+}
+
 pub fn invalid_params<T: Debug>(e: T) -> ServerError { ServerError::params_invalid().context(e) }
 
 impl std::fmt::Display for ServerError {

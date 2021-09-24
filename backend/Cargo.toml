@@ -54,11 +54,13 @@ sql-builder = "3.1.1"
 lazy_static = "1.4"
 tokio = { version = "1", features = ["full"] }
 parking_lot = "0.11"
+md5 = "0.7.0"
 
 flowy-user = { path = "../rust-lib/flowy-user" }
 flowy-workspace = { path = "../rust-lib/flowy-workspace" }
 flowy-document = { path = "../rust-lib/flowy-document" }
 flowy-ws = { path = "../rust-lib/flowy-ws" }
+flowy-ot = { path = "../rust-lib/flowy-ot" }
 flowy-net = { path = "../rust-lib/flowy-net", features = ["http_server"] }
 
 ormx = { version = "0.7", features = ["postgres"]}

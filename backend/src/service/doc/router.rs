@@ -11,13 +11,15 @@ use crate::service::{
     doc::{read_doc, update_doc},
     util::parse_from_payload,
 };
+use flowy_net::response::FlowyResponse;
 
 pub async fn read_handler(
     payload: Payload,
     pool: Data<PgPool>,
 ) -> Result<HttpResponse, ServerError> {
     let params: QueryDocParams = parse_from_payload(payload).await?;
-    let response = read_doc(pool.get_ref(), params).await?;
+    let doc = read_doc(pool.get_ref(), params).await?;
+    let response = FlowyResponse::success().pb(doc)?;
     Ok(response.into())
 }
 
