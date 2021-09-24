@@ -28,6 +28,6 @@ pub async fn update_handler(
     pool: Data<PgPool>,
 ) -> Result<HttpResponse, ServerError> {
     let params: UpdateDocParams = parse_from_payload(payload).await?;
-    let response = update_doc(pool.get_ref(), params).await?;
-    Ok(response.into())
+    let _ = update_doc(pool.get_ref(), params).await?;
+    Ok(FlowyResponse::success().into())
 }

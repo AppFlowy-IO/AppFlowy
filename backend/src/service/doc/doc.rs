@@ -5,7 +5,7 @@ use crate::{
 };
 use anyhow::Context;
 use flowy_document::protobuf::{CreateDocParams, Doc, QueryDocParams, UpdateDocParams};
-use flowy_net::{errors::ServerError, response::FlowyResponse};
+use flowy_net::errors::ServerError;
 use sqlx::{postgres::PgArguments, PgPool, Postgres};
 use uuid::Uuid;
 
@@ -50,10 +50,11 @@ pub(crate) async fn read_doc(pool: &PgPool, params: QueryDocParams) -> Result<Do
     Ok(doc)
 }
 
+#[tracing::instrument(level = "debug", skip(pool, params), err)]
 pub(crate) async fn update_doc(
     pool: &PgPool,
     mut params: UpdateDocParams,
-) -> Result<FlowyResponse, ServerError> {
+) -> Result<(), ServerError> {
     let doc_id = Uuid::parse_str(&params.doc_id)?;
     let mut transaction = pool
         .begin()
@@ -77,7 +78,7 @@ pub(crate) async fn update_doc(
         .await
         .context("Failed to commit SQL transaction to update doc.")?;
 
-    Ok(FlowyResponse::success())
+    Ok(())
 }
 
 pub(crate) async fn delete_doc(

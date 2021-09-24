@@ -9,6 +9,9 @@ pub mod future;
 pub mod kv;
 mod protobuf;
 
+#[macro_use]
+pub mod macros;
+
 #[allow(dead_code)]
 pub fn uuid() -> String { uuid::Uuid::new_v4().to_string() }
 

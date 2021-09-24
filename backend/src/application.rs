@@ -133,7 +133,7 @@ fn user_scope() -> Scope {
 
 async fn init_app_context(configuration: &Settings) -> AppContext {
     let _ = crate::service::log::Builder::new("flowy")
-        .env_filter("Debug")
+        .env_filter("Trace")
         .build();
     let pg_pool = get_connection_pool(&configuration.database)
         .await

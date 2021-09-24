@@ -59,9 +59,9 @@ impl Document {
     }
 
     pub fn apply_delta(&mut self, delta: Delta) -> Result<(), DocError> {
-        log::debug!("Apply delta: {}", delta);
+        log::trace!("Apply delta: {}", delta);
         let _ = self.add_delta(&delta)?;
-        log::debug!("Document: {}", self.to_json());
+        log::trace!("Document: {}", self.to_json());
         Ok(())
     }
 
