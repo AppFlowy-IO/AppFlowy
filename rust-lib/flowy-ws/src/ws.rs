@@ -11,7 +11,7 @@ use futures_core::{future::BoxFuture, ready, Stream};
 use pin_project::pin_project;
 use std::{
     collections::HashMap,
-    convert::{Infallible, TryFrom},
+    convert::TryFrom,
     future::Future,
     pin::Pin,
     sync::Arc,

@@ -3,7 +3,7 @@ use crate::{
     errors::WorkspaceError,
 };
 use flowy_derive::ProtoBuf;
-use flowy_document::entities::doc::{DocDelta, UpdateDocParams};
+use flowy_document::entities::doc::DocDelta;
 use std::convert::TryInto;
 
 #[derive(Default, ProtoBuf)]
@@ -97,28 +97,6 @@ impl TryInto<UpdateViewParams> for UpdateViewRequest {
             thumbnail,
             is_trash: self.is_trash,
         })
-    }
-}
-
-#[derive(Default, ProtoBuf)]
-pub struct SaveViewDataRequest {
-    #[pb(index = 1)]
-    pub view_id: String,
-
-    #[pb(index = 2)]
-    pub data: Vec<u8>,
-}
-
-impl TryInto<UpdateDocParams> for SaveViewDataRequest {
-    type Error = WorkspaceError;
-
-    fn try_into(self) -> Result<UpdateDocParams, Self::Error> {
-        let view_id = ViewId::parse(self.view_id).map_err(|e| WorkspaceError::view_id().context(e))?.0;
-
-        // Opti: Vec<u8> -> Delta -> Vec<u8>
-        let data = DeltaData::parse(self.data).map_err(|e| WorkspaceError::view_data().context(e))?.0;
-
-        Ok(UpdateDocParams { doc_id: view_id, data })
     }
 }
 

@@ -1,1 +1,3 @@
-pub mod doc;
+pub(crate) mod doc;
+
+pub use doc::*;

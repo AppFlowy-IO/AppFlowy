@@ -141,7 +141,14 @@ impl UserSession {
         Ok(())
     }
 
-    pub async fn init_user(&self) -> Result<UserProfile, UserError> {
+    pub async fn init_user(&self) -> Result<(), UserError> {
+        let (_, token) = self.get_session()?.into_part();
+
+        let _ = self.start_ws_connection(&token)?;
+        Ok(())
+    }
+
+    pub async fn check_user(&self) -> Result<UserProfile, UserError> {
         let (user_id, token) = self.get_session()?.into_part();
 
         let user = dsl::user_table
@@ -149,8 +156,6 @@ impl UserSession {
             .first::<UserTable>(&*(self.db_connection()?))?;
 
         let _ = self.read_user_profile_on_server(&token)?;
-        let _ = self.start_ws_connection(&token)?;
-
         Ok(UserProfile::from(user))
     }
 

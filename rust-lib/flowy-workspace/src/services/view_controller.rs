@@ -126,8 +126,7 @@ impl ViewController {
     }
 
     pub(crate) async fn apply_doc_delta(&self, params: DocDelta) -> Result<Doc, WorkspaceError> {
-        let pool = self.database.db_pool()?;
-        let doc = self.document.apply_doc_delta(params, pool).await?;
+        let doc = self.document.apply_doc_delta(params).await?;
         Ok(doc)
     }
 }

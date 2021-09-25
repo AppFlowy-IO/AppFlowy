@@ -9,7 +9,7 @@ use flowy_document::entities::ws::WsDocumentData;
 use flowy_user::{errors::ErrorCode, services::user::UserSession};
 use flowy_ws::{WsMessage, WsMessageHandler, WsModule};
 use parking_lot::RwLock;
-use std::{convert::TryInto, path::Path, sync::Arc};
+use std::{path::Path, sync::Arc};
 
 pub struct DocumentDepsResolver {
     user_session: Arc<UserSession>,

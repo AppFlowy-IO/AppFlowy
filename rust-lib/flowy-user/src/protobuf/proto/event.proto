@@ -7,4 +7,5 @@ enum UserEvent {
     SignOut = 3;
     UpdateUser = 4;
     GetUserProfile = 5;
+    CheckUser = 6;
 }

@@ -4,7 +4,7 @@ use dashmap::DashMap;
 
 use crate::{
     errors::DocError,
-    services::doc::edit_context::{DocId, EditDocContext},
+    services::doc::edit_doc_context::{DocId, EditDocContext},
 };
 
 pub(crate) struct DocCache {
@@ -17,22 +17,18 @@ impl DocCache {
     pub(crate) fn set(&self, doc: Arc<EditDocContext>) {
         let doc_id = doc.id.clone();
         if self.inner.contains_key(&doc_id) {
-            log::warn!("Doc:{} already exists in cache", doc_id.as_ref());
+            log::warn!("Doc:{} already exists in cache", &doc_id);
         }
-        self.inner.insert(doc.id.clone(), doc);
+        self.inner.insert(doc_id, doc);
     }
 
-    pub(crate) fn is_opened(&self, doc_id: &str) -> bool {
-        let doc_id: DocId = doc_id.into();
-        self.inner.get(&doc_id).is_some()
-    }
+    pub(crate) fn is_opened(&self, doc_id: &str) -> bool { self.inner.get(doc_id).is_some() }
 
     pub(crate) fn get(&self, doc_id: &str) -> Result<Arc<EditDocContext>, DocError> {
         if !self.is_opened(&doc_id) {
             return Err(doc_not_found());
         }
-        let doc_id: DocId = doc_id.into();
-        let opened_doc = self.inner.get(&doc_id).unwrap();
+        let opened_doc = self.inner.get(doc_id).unwrap();
         Ok(opened_doc.clone())
     }
 

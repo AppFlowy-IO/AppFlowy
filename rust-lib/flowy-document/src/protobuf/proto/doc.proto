@@ -7,11 +7,12 @@ message CreateDocParams {
 message Doc {
     string id = 1;
     bytes data = 2;
-    int64 revision = 3;
+    int64 rev_id = 3;
 }
 message UpdateDocParams {
     string doc_id = 1;
     bytes data = 2;
+    int64 rev_id = 3;
 }
 message DocDelta {
     string doc_id = 1;

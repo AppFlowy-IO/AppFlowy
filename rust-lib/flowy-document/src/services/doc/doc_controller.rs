@@ -2,12 +2,14 @@ use crate::{
     entities::doc::{CreateDocParams, Doc, DocDelta, QueryDocParams, UpdateDocParams},
     errors::{internal_error, DocError},
     module::DocumentUser,
-    services::{cache::DocCache, doc::edit_context::EditDocContext, server::Server, ws::WsDocumentManager},
+    services::{cache::DocCache, doc::edit_doc_context::EditDocContext, server::Server, ws::WsDocumentManager},
     sql_tables::doc::{DocTable, DocTableSql, OpTableSql},
 };
 use bytes::Bytes;
 use flowy_database::{ConnectionPool, SqliteConnection};
 
+use crate::services::doc::rev_manager::RevisionManager;
+use flowy_ot::core::Delta;
 use parking_lot::RwLock;
 use std::sync::Arc;
 
@@ -40,7 +42,7 @@ impl DocController {
         let doc = Doc {
             id: params.id,
             data: params.data,
-            revision: 0,
+            rev_id: 0,
         };
         let _ = self.doc_sql.create_doc_table(DocTable::new(doc), conn)?;
         Ok(())
@@ -76,10 +78,10 @@ impl DocController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, delta, pool), err)]
-    pub(crate) fn edit_doc(&self, delta: DocDelta, pool: Arc<ConnectionPool>) -> Result<Doc, DocError> {
+    #[tracing::instrument(level = "debug", skip(self, delta), err)]
+    pub(crate) fn edit_doc(&self, delta: DocDelta) -> Result<Doc, DocError> {
         let edit_doc_ctx = self.cache.get(&delta.doc_id)?;
-        let _ = edit_doc_ctx.apply_delta(Bytes::from(delta.data), pool)?;
+        let _ = edit_doc_ctx.apply_local_delta(Bytes::from(delta.data))?;
         Ok(edit_doc_ctx.doc())
     }
 }
@@ -107,7 +109,7 @@ impl DocController {
         match self.server.read_doc(&token, params).await? {
             None => Err(DocError::not_found()),
             Some(doc) => {
-                let edit = self.make_edit_context(doc.clone())?;
+                let edit = self.make_edit_context(doc.clone(), pool.clone())?;
                 let conn = &*(pool.get().map_err(internal_error)?);
                 let _ = self.doc_sql.create_doc_table(doc.into(), conn)?;
                 Ok(edit)
@@ -133,7 +135,7 @@ impl DocController {
 
     async fn _open(&self, params: QueryDocParams, pool: Arc<ConnectionPool>) -> Result<Arc<EditDocContext>, DocError> {
         match self.doc_sql.read_doc_table(&params.doc_id, pool.clone()) {
-            Ok(doc_table) => Ok(self.make_edit_context(doc_table.into())?),
+            Ok(doc_table) => Ok(self.make_edit_context(doc_table.into(), pool.clone())?),
             Err(error) => {
                 if error.is_record_not_found() {
                     log::debug!("Doc:{} don't exist, reading from server", params.doc_id);
@@ -145,12 +147,15 @@ impl DocController {
         }
     }
 
-    fn make_edit_context(&self, doc: Doc) -> Result<Arc<EditDocContext>, DocError> {
+    fn make_edit_context(&self, doc: Doc, pool: Arc<ConnectionPool>) -> Result<Arc<EditDocContext>, DocError> {
         // Opti: require upgradable_read lock and then upgrade to write lock using
         // RwLockUpgradableReadGuard::upgrade(xx) of ws
-        let ws = self.ws.read().sender();
-        let edit_ctx = Arc::new(EditDocContext::new(doc, ws, self.op_sql.clone())?);
-        self.ws.write().register_handler(edit_ctx.id.as_ref(), edit_ctx.clone());
+        let doc_id = doc.id.clone();
+        let delta = Delta::from_bytes(doc.data)?;
+        let ws_sender = self.ws.read().sender();
+        let rev_manager = RevisionManager::new(&doc_id, doc.rev_id, self.op_sql.clone(), pool, ws_sender);
+        let edit_ctx = Arc::new(EditDocContext::new(&doc_id, delta, rev_manager)?);
+        self.ws.write().register_handler(&doc_id, edit_ctx.clone());
         self.cache.set(edit_ctx.clone());
         Ok(edit_ctx)
     }

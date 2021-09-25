@@ -274,12 +274,12 @@ class WorkspaceEventApplyDocDelta {
 class UserEventInitUser {
     UserEventInitUser();
 
-    Future<Either<UserProfile, UserError>> send() {
+    Future<Either<Unit, UserError>> send() {
      final request = FFIRequest.create()
         ..event = UserEvent.InitUser.toString();
 
      return Dispatch.asyncRequest(request).then((bytesResult) => bytesResult.fold(
-        (okBytes) => left(UserProfile.fromBuffer(okBytes)),
+        (bytes) => left(unit),
         (errBytes) => right(UserError.fromBuffer(errBytes)),
       ));
     }
@@ -356,6 +356,20 @@ class UserEventGetUserProfile {
     Future<Either<UserProfile, UserError>> send() {
      final request = FFIRequest.create()
         ..event = UserEvent.GetUserProfile.toString();
+
+     return Dispatch.asyncRequest(request).then((bytesResult) => bytesResult.fold(
+        (okBytes) => left(UserProfile.fromBuffer(okBytes)),
+        (errBytes) => right(UserError.fromBuffer(errBytes)),
+      ));
+    }
+}
+
+class UserEventCheckUser {
+    UserEventCheckUser();
+
+    Future<Either<UserProfile, UserError>> send() {
+     final request = FFIRequest.create()
+        ..event = UserEvent.CheckUser.toString();
 
      return Dispatch.asyncRequest(request).then((bytesResult) => bytesResult.fold(
         (okBytes) => left(UserProfile.fromBuffer(okBytes)),

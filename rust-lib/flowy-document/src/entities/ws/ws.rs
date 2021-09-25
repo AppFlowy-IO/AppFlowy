@@ -7,7 +7,7 @@ use std::convert::TryInto;
 #[derive(Debug, Clone, ProtoBuf_Enum, Eq, PartialEq, Hash)]
 pub enum WsDataType {
     Acked = 0,
-    Delta = 1,
+    Rev   = 1,
 }
 
 impl std::default::Default for WsDataType {
@@ -33,7 +33,7 @@ impl std::convert::From<Revision> for WsDocumentData {
         let data = bytes.to_vec();
         Self {
             id,
-            ty: WsDataType::Delta,
+            ty: WsDataType::Rev,
             data,
         }
     }

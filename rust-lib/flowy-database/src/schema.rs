@@ -22,7 +22,8 @@ table! {
 }
 
 table! {
-    op_table (rev_id) {
+    op_table (doc_id) {
+        doc_id -> Text,
         base_rev_id -> BigInt,
         rev_id -> BigInt,
         data -> Binary,

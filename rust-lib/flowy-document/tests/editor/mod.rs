@@ -131,20 +131,20 @@ impl TestBuilder {
             },
             TestOp::Transform(delta_a_i, delta_b_i) => {
                 let (a_prime, b_prime) = self.documents[*delta_a_i]
-                    .data()
-                    .transform(&self.documents[*delta_b_i].data())
+                    .delta()
+                    .transform(&self.documents[*delta_b_i].delta())
                     .unwrap();
                 log::trace!("a:{:?},b:{:?}", a_prime, b_prime);
 
-                let data_left = self.documents[*delta_a_i].data().compose(&b_prime).unwrap();
-                let data_right = self.documents[*delta_b_i].data().compose(&a_prime).unwrap();
+                let data_left = self.documents[*delta_a_i].delta().compose(&b_prime).unwrap();
+                let data_right = self.documents[*delta_b_i].delta().compose(&a_prime).unwrap();
 
-                self.documents[*delta_a_i].set_data(data_left);
-                self.documents[*delta_b_i].set_data(data_right);
+                self.documents[*delta_a_i].set_delta(data_left);
+                self.documents[*delta_b_i].set_delta(data_right);
             },
             TestOp::Invert(delta_a_i, delta_b_i) => {
-                let delta_a = &self.documents[*delta_a_i].data();
-                let delta_b = &self.documents[*delta_b_i].data();
+                let delta_a = &self.documents[*delta_a_i].delta();
+                let delta_b = &self.documents[*delta_b_i].delta();
                 log::debug!("Invert: ");
                 log::debug!("a: {}", delta_a.to_json());
                 log::debug!("b: {}", delta_b.to_json());
@@ -162,7 +162,7 @@ impl TestBuilder {
 
                 assert_eq!(delta_a, &&new_delta_after_undo);
 
-                self.documents[*delta_a_i].set_data(new_delta_after_undo);
+                self.documents[*delta_a_i].set_delta(new_delta_after_undo);
             },
             TestOp::Undo(delta_i) => {
                 self.documents[*delta_i].undo().unwrap();

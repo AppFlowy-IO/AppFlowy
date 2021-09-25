@@ -25,23 +25,24 @@ const Doc$json = const {
   '2': const [
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'data', '3': 2, '4': 1, '5': 12, '10': 'data'},
-    const {'1': 'revision', '3': 3, '4': 1, '5': 3, '10': 'revision'},
+    const {'1': 'rev_id', '3': 3, '4': 1, '5': 3, '10': 'revId'},
   ],
 };
 
 /// Descriptor for `Doc`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List docDescriptor = $convert.base64Decode('CgNEb2MSDgoCaWQYASABKAlSAmlkEhIKBGRhdGEYAiABKAxSBGRhdGESGgoIcmV2aXNpb24YAyABKANSCHJldmlzaW9u');
+final $typed_data.Uint8List docDescriptor = $convert.base64Decode('CgNEb2MSDgoCaWQYASABKAlSAmlkEhIKBGRhdGEYAiABKAxSBGRhdGESFQoGcmV2X2lkGAMgASgDUgVyZXZJZA==');
 @$core.Deprecated('Use updateDocParamsDescriptor instead')
 const UpdateDocParams$json = const {
   '1': 'UpdateDocParams',
   '2': const [
     const {'1': 'doc_id', '3': 1, '4': 1, '5': 9, '10': 'docId'},
     const {'1': 'data', '3': 2, '4': 1, '5': 12, '10': 'data'},
+    const {'1': 'rev_id', '3': 3, '4': 1, '5': 3, '10': 'revId'},
   ],
 };
 
 /// Descriptor for `UpdateDocParams`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List updateDocParamsDescriptor = $convert.base64Decode('Cg9VcGRhdGVEb2NQYXJhbXMSFQoGZG9jX2lkGAEgASgJUgVkb2NJZBISCgRkYXRhGAIgASgMUgRkYXRh');
+final $typed_data.Uint8List updateDocParamsDescriptor = $convert.base64Decode('Cg9VcGRhdGVEb2NQYXJhbXMSFQoGZG9jX2lkGAEgASgJUgVkb2NJZBISCgRkYXRhGAIgASgMUgRkYXRhEhUKBnJldl9pZBgDIAEoA1IFcmV2SWQ=');
 @$core.Deprecated('Use docDeltaDescriptor instead')
 const DocDelta$json = const {
   '1': 'DocDelta',

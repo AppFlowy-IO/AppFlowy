@@ -7,5 +7,5 @@ message WsDocumentData {
 }
 enum WsDataType {
     Acked = 0;
-    Delta = 1;
+    Rev = 1;
 }

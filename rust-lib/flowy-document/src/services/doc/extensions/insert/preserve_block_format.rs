@@ -1,4 +1,3 @@
-use crate::services::doc::{extensions::InsertExt, util::is_newline};
 use flowy_ot::core::{
     attributes_except_header,
     plain_attributes,
@@ -10,6 +9,8 @@ use flowy_ot::core::{
     DeltaIter,
     NEW_LINE,
 };
+
+use crate::services::{doc::extensions::InsertExt, util::is_newline};
 
 pub struct PreserveBlockFormatOnInsert {}
 impl InsertExt for PreserveBlockFormatOnInsert {

@@ -4,7 +4,7 @@ use strum_macros::Display;
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "UserError"]
 pub enum UserEvent {
-    #[event(output = "UserProfile")]
+    #[event()]
     InitUser       = 0,
 
     #[event(input = "SignInRequest", output = "UserProfile")]
@@ -21,4 +21,7 @@ pub enum UserEvent {
 
     #[event(output = "UserProfile")]
     GetUserProfile = 5,
+
+    #[event(output = "UserProfile")]
+    CheckUser      = 6,
 }

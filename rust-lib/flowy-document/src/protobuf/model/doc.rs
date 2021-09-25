@@ -229,7 +229,7 @@ pub struct Doc {
     // message fields
     pub id: ::std::string::String,
     pub data: ::std::vec::Vec<u8>,
-    pub revision: i64,
+    pub rev_id: i64,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -298,19 +298,19 @@ impl Doc {
         ::std::mem::replace(&mut self.data, ::std::vec::Vec::new())
     }
 
-    // int64 revision = 3;
+    // int64 rev_id = 3;
 
 
-    pub fn get_revision(&self) -> i64 {
-        self.revision
+    pub fn get_rev_id(&self) -> i64 {
+        self.rev_id
     }
-    pub fn clear_revision(&mut self) {
-        self.revision = 0;
+    pub fn clear_rev_id(&mut self) {
+        self.rev_id = 0;
     }
 
     // Param is passed by value, moved
-    pub fn set_revision(&mut self, v: i64) {
-        self.revision = v;
+    pub fn set_rev_id(&mut self, v: i64) {
+        self.rev_id = v;
     }
 }
 
@@ -334,7 +334,7 @@ impl ::protobuf::Message for Doc {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
                     let tmp = is.read_int64()?;
-                    self.revision = tmp;
+                    self.rev_id = tmp;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -354,8 +354,8 @@ impl ::protobuf::Message for Doc {
         if !self.data.is_empty() {
             my_size += ::protobuf::rt::bytes_size(2, &self.data);
         }
-        if self.revision != 0 {
-            my_size += ::protobuf::rt::value_size(3, self.revision, ::protobuf::wire_format::WireTypeVarint);
+        if self.rev_id != 0 {
+            my_size += ::protobuf::rt::value_size(3, self.rev_id, ::protobuf::wire_format::WireTypeVarint);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -369,8 +369,8 @@ impl ::protobuf::Message for Doc {
         if !self.data.is_empty() {
             os.write_bytes(2, &self.data)?;
         }
-        if self.revision != 0 {
-            os.write_int64(3, self.revision)?;
+        if self.rev_id != 0 {
+            os.write_int64(3, self.rev_id)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -421,9 +421,9 @@ impl ::protobuf::Message for Doc {
                 |m: &mut Doc| { &mut m.data },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt64>(
-                "revision",
-                |m: &Doc| { &m.revision },
-                |m: &mut Doc| { &mut m.revision },
+                "rev_id",
+                |m: &Doc| { &m.rev_id },
+                |m: &mut Doc| { &mut m.rev_id },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<Doc>(
                 "Doc",
@@ -443,7 +443,7 @@ impl ::protobuf::Clear for Doc {
     fn clear(&mut self) {
         self.id.clear();
         self.data.clear();
-        self.revision = 0;
+        self.rev_id = 0;
         self.unknown_fields.clear();
     }
 }
@@ -465,6 +465,7 @@ pub struct UpdateDocParams {
     // message fields
     pub doc_id: ::std::string::String,
     pub data: ::std::vec::Vec<u8>,
+    pub rev_id: i64,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -532,6 +533,21 @@ impl UpdateDocParams {
     pub fn take_data(&mut self) -> ::std::vec::Vec<u8> {
         ::std::mem::replace(&mut self.data, ::std::vec::Vec::new())
     }
+
+    // int64 rev_id = 3;
+
+
+    pub fn get_rev_id(&self) -> i64 {
+        self.rev_id
+    }
+    pub fn clear_rev_id(&mut self) {
+        self.rev_id = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_rev_id(&mut self, v: i64) {
+        self.rev_id = v;
+    }
 }
 
 impl ::protobuf::Message for UpdateDocParams {
@@ -548,6 +564,13 @@ impl ::protobuf::Message for UpdateDocParams {
                 },
                 2 => {
                     ::protobuf::rt::read_singular_proto3_bytes_into(wire_type, is, &mut self.data)?;
+                },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int64()?;
+                    self.rev_id = tmp;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -567,6 +590,9 @@ impl ::protobuf::Message for UpdateDocParams {
         if !self.data.is_empty() {
             my_size += ::protobuf::rt::bytes_size(2, &self.data);
         }
+        if self.rev_id != 0 {
+            my_size += ::protobuf::rt::value_size(3, self.rev_id, ::protobuf::wire_format::WireTypeVarint);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -578,6 +604,9 @@ impl ::protobuf::Message for UpdateDocParams {
         }
         if !self.data.is_empty() {
             os.write_bytes(2, &self.data)?;
+        }
+        if self.rev_id != 0 {
+            os.write_int64(3, self.rev_id)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -627,6 +656,11 @@ impl ::protobuf::Message for UpdateDocParams {
                 |m: &UpdateDocParams| { &m.data },
                 |m: &mut UpdateDocParams| { &mut m.data },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt64>(
+                "rev_id",
+                |m: &UpdateDocParams| { &m.rev_id },
+                |m: &mut UpdateDocParams| { &mut m.rev_id },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<UpdateDocParams>(
                 "UpdateDocParams",
                 fields,
@@ -645,6 +679,7 @@ impl ::protobuf::Clear for UpdateDocParams {
     fn clear(&mut self) {
         self.doc_id.clear();
         self.data.clear();
+        self.rev_id = 0;
         self.unknown_fields.clear();
     }
 }
@@ -1023,48 +1058,51 @@ impl ::protobuf::reflect::ProtobufValue for QueryDocParams {
 
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\tdoc.proto\"5\n\x0fCreateDocParams\x12\x0e\n\x02id\x18\x01\x20\x01(\t\
-    R\x02id\x12\x12\n\x04data\x18\x02\x20\x01(\x0cR\x04data\"E\n\x03Doc\x12\
+    R\x02id\x12\x12\n\x04data\x18\x02\x20\x01(\x0cR\x04data\"@\n\x03Doc\x12\
     \x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x12\n\x04data\x18\x02\x20\x01\
-    (\x0cR\x04data\x12\x1a\n\x08revision\x18\x03\x20\x01(\x03R\x08revision\"\
-    <\n\x0fUpdateDocParams\x12\x15\n\x06doc_id\x18\x01\x20\x01(\tR\x05docId\
-    \x12\x12\n\x04data\x18\x02\x20\x01(\x0cR\x04data\"5\n\x08DocDelta\x12\
-    \x15\n\x06doc_id\x18\x01\x20\x01(\tR\x05docId\x12\x12\n\x04data\x18\x02\
-    \x20\x01(\x0cR\x04data\"'\n\x0eQueryDocParams\x12\x15\n\x06doc_id\x18\
-    \x01\x20\x01(\tR\x05docIdJ\xb0\x05\n\x06\x12\x04\0\0\x15\x01\n\x08\n\x01\
-    \x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\
-    \0\x01\x12\x03\x02\x08\x17\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x12\n\
-    \x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\
-    \x12\x03\x03\x0b\r\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x10\x11\n\x0b\
-    \n\x04\x04\0\x02\x01\x12\x03\x04\x04\x13\n\x0c\n\x05\x04\0\x02\x01\x05\
-    \x12\x03\x04\x04\t\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\n\x0e\n\x0c\
-    \n\x05\x04\0\x02\x01\x03\x12\x03\x04\x11\x12\n\n\n\x02\x04\x01\x12\x04\
-    \x06\0\n\x01\n\n\n\x03\x04\x01\x01\x12\x03\x06\x08\x0b\n\x0b\n\x04\x04\
-    \x01\x02\0\x12\x03\x07\x04\x12\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x07\
-    \x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x07\x0b\r\n\x0c\n\x05\x04\
-    \x01\x02\0\x03\x12\x03\x07\x10\x11\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\
-    \x08\x04\x13\n\x0c\n\x05\x04\x01\x02\x01\x05\x12\x03\x08\x04\t\n\x0c\n\
-    \x05\x04\x01\x02\x01\x01\x12\x03\x08\n\x0e\n\x0c\n\x05\x04\x01\x02\x01\
-    \x03\x12\x03\x08\x11\x12\n\x0b\n\x04\x04\x01\x02\x02\x12\x03\t\x04\x17\n\
-    \x0c\n\x05\x04\x01\x02\x02\x05\x12\x03\t\x04\t\n\x0c\n\x05\x04\x01\x02\
-    \x02\x01\x12\x03\t\n\x12\n\x0c\n\x05\x04\x01\x02\x02\x03\x12\x03\t\x15\
-    \x16\n\n\n\x02\x04\x02\x12\x04\x0b\0\x0e\x01\n\n\n\x03\x04\x02\x01\x12\
-    \x03\x0b\x08\x17\n\x0b\n\x04\x04\x02\x02\0\x12\x03\x0c\x04\x16\n\x0c\n\
-    \x05\x04\x02\x02\0\x05\x12\x03\x0c\x04\n\n\x0c\n\x05\x04\x02\x02\0\x01\
-    \x12\x03\x0c\x0b\x11\n\x0c\n\x05\x04\x02\x02\0\x03\x12\x03\x0c\x14\x15\n\
-    \x0b\n\x04\x04\x02\x02\x01\x12\x03\r\x04\x13\n\x0c\n\x05\x04\x02\x02\x01\
-    \x05\x12\x03\r\x04\t\n\x0c\n\x05\x04\x02\x02\x01\x01\x12\x03\r\n\x0e\n\
-    \x0c\n\x05\x04\x02\x02\x01\x03\x12\x03\r\x11\x12\n\n\n\x02\x04\x03\x12\
-    \x04\x0f\0\x12\x01\n\n\n\x03\x04\x03\x01\x12\x03\x0f\x08\x10\n\x0b\n\x04\
-    \x04\x03\x02\0\x12\x03\x10\x04\x16\n\x0c\n\x05\x04\x03\x02\0\x05\x12\x03\
-    \x10\x04\n\n\x0c\n\x05\x04\x03\x02\0\x01\x12\x03\x10\x0b\x11\n\x0c\n\x05\
-    \x04\x03\x02\0\x03\x12\x03\x10\x14\x15\n\x0b\n\x04\x04\x03\x02\x01\x12\
-    \x03\x11\x04\x13\n\x0c\n\x05\x04\x03\x02\x01\x05\x12\x03\x11\x04\t\n\x0c\
-    \n\x05\x04\x03\x02\x01\x01\x12\x03\x11\n\x0e\n\x0c\n\x05\x04\x03\x02\x01\
-    \x03\x12\x03\x11\x11\x12\n\n\n\x02\x04\x04\x12\x04\x13\0\x15\x01\n\n\n\
-    \x03\x04\x04\x01\x12\x03\x13\x08\x16\n\x0b\n\x04\x04\x04\x02\0\x12\x03\
-    \x14\x04\x16\n\x0c\n\x05\x04\x04\x02\0\x05\x12\x03\x14\x04\n\n\x0c\n\x05\
-    \x04\x04\x02\0\x01\x12\x03\x14\x0b\x11\n\x0c\n\x05\x04\x04\x02\0\x03\x12\
-    \x03\x14\x14\x15b\x06proto3\
+    (\x0cR\x04data\x12\x15\n\x06rev_id\x18\x03\x20\x01(\x03R\x05revId\"S\n\
+    \x0fUpdateDocParams\x12\x15\n\x06doc_id\x18\x01\x20\x01(\tR\x05docId\x12\
+    \x12\n\x04data\x18\x02\x20\x01(\x0cR\x04data\x12\x15\n\x06rev_id\x18\x03\
+    \x20\x01(\x03R\x05revId\"5\n\x08DocDelta\x12\x15\n\x06doc_id\x18\x01\x20\
+    \x01(\tR\x05docId\x12\x12\n\x04data\x18\x02\x20\x01(\x0cR\x04data\"'\n\
+    \x0eQueryDocParams\x12\x15\n\x06doc_id\x18\x01\x20\x01(\tR\x05docIdJ\xe7\
+    \x05\n\x06\x12\x04\0\0\x16\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\
+    \x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x17\n\
+    \x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x12\n\x0c\n\x05\x04\0\x02\0\x05\
+    \x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\r\n\x0c\n\
+    \x05\x04\0\x02\0\x03\x12\x03\x03\x10\x11\n\x0b\n\x04\x04\0\x02\x01\x12\
+    \x03\x04\x04\x13\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\t\n\x0c\n\
+    \x05\x04\0\x02\x01\x01\x12\x03\x04\n\x0e\n\x0c\n\x05\x04\0\x02\x01\x03\
+    \x12\x03\x04\x11\x12\n\n\n\x02\x04\x01\x12\x04\x06\0\n\x01\n\n\n\x03\x04\
+    \x01\x01\x12\x03\x06\x08\x0b\n\x0b\n\x04\x04\x01\x02\0\x12\x03\x07\x04\
+    \x12\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x07\x04\n\n\x0c\n\x05\x04\x01\
+    \x02\0\x01\x12\x03\x07\x0b\r\n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\x07\
+    \x10\x11\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\x08\x04\x13\n\x0c\n\x05\x04\
+    \x01\x02\x01\x05\x12\x03\x08\x04\t\n\x0c\n\x05\x04\x01\x02\x01\x01\x12\
+    \x03\x08\n\x0e\n\x0c\n\x05\x04\x01\x02\x01\x03\x12\x03\x08\x11\x12\n\x0b\
+    \n\x04\x04\x01\x02\x02\x12\x03\t\x04\x15\n\x0c\n\x05\x04\x01\x02\x02\x05\
+    \x12\x03\t\x04\t\n\x0c\n\x05\x04\x01\x02\x02\x01\x12\x03\t\n\x10\n\x0c\n\
+    \x05\x04\x01\x02\x02\x03\x12\x03\t\x13\x14\n\n\n\x02\x04\x02\x12\x04\x0b\
+    \0\x0f\x01\n\n\n\x03\x04\x02\x01\x12\x03\x0b\x08\x17\n\x0b\n\x04\x04\x02\
+    \x02\0\x12\x03\x0c\x04\x16\n\x0c\n\x05\x04\x02\x02\0\x05\x12\x03\x0c\x04\
+    \n\n\x0c\n\x05\x04\x02\x02\0\x01\x12\x03\x0c\x0b\x11\n\x0c\n\x05\x04\x02\
+    \x02\0\x03\x12\x03\x0c\x14\x15\n\x0b\n\x04\x04\x02\x02\x01\x12\x03\r\x04\
+    \x13\n\x0c\n\x05\x04\x02\x02\x01\x05\x12\x03\r\x04\t\n\x0c\n\x05\x04\x02\
+    \x02\x01\x01\x12\x03\r\n\x0e\n\x0c\n\x05\x04\x02\x02\x01\x03\x12\x03\r\
+    \x11\x12\n\x0b\n\x04\x04\x02\x02\x02\x12\x03\x0e\x04\x15\n\x0c\n\x05\x04\
+    \x02\x02\x02\x05\x12\x03\x0e\x04\t\n\x0c\n\x05\x04\x02\x02\x02\x01\x12\
+    \x03\x0e\n\x10\n\x0c\n\x05\x04\x02\x02\x02\x03\x12\x03\x0e\x13\x14\n\n\n\
+    \x02\x04\x03\x12\x04\x10\0\x13\x01\n\n\n\x03\x04\x03\x01\x12\x03\x10\x08\
+    \x10\n\x0b\n\x04\x04\x03\x02\0\x12\x03\x11\x04\x16\n\x0c\n\x05\x04\x03\
+    \x02\0\x05\x12\x03\x11\x04\n\n\x0c\n\x05\x04\x03\x02\0\x01\x12\x03\x11\
+    \x0b\x11\n\x0c\n\x05\x04\x03\x02\0\x03\x12\x03\x11\x14\x15\n\x0b\n\x04\
+    \x04\x03\x02\x01\x12\x03\x12\x04\x13\n\x0c\n\x05\x04\x03\x02\x01\x05\x12\
+    \x03\x12\x04\t\n\x0c\n\x05\x04\x03\x02\x01\x01\x12\x03\x12\n\x0e\n\x0c\n\
+    \x05\x04\x03\x02\x01\x03\x12\x03\x12\x11\x12\n\n\n\x02\x04\x04\x12\x04\
+    \x14\0\x16\x01\n\n\n\x03\x04\x04\x01\x12\x03\x14\x08\x16\n\x0b\n\x04\x04\
+    \x04\x02\0\x12\x03\x15\x04\x16\n\x0c\n\x05\x04\x04\x02\0\x05\x12\x03\x15\
+    \x04\n\n\x0c\n\x05\x04\x04\x02\0\x01\x12\x03\x15\x0b\x11\n\x0c\n\x05\x04\
+    \x04\x02\0\x03\x12\x03\x15\x14\x15b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

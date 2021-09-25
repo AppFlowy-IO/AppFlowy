@@ -42,6 +42,11 @@ class IUserImpl extends IUser {
   Future<Either<List<Workspace>, WorkspaceError>> fetchWorkspaces() {
     return repo.getWorkspaces();
   }
+
+  @override
+  Future<Either<Unit, UserError>> initUser() {
+    return repo.initUser();
+  }
 }
 
 class IUserWatchImpl extends IUserWatch {

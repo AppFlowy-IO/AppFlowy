@@ -1,5 +1,5 @@
 mod doc;
-mod edit_doc;
+mod edit_doc_context;
 pub mod router;
 mod sql_builder;
 pub mod ws_handler;

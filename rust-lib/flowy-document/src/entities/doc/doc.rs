@@ -22,7 +22,7 @@ pub struct Doc {
     pub data: Vec<u8>,
 
     #[pb(index = 3)]
-    pub revision: i64,
+    pub rev_id: i64,
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
@@ -32,6 +32,9 @@ pub struct UpdateDocParams {
 
     #[pb(index = 2)]
     pub data: Vec<u8>,
+
+    #[pb(index = 3)]
+    pub rev_id: i64,
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]

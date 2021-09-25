@@ -14,7 +14,7 @@ bfcdd6369e89   postgres   "docker-entrypoint.s…"   19 minutes ago   Up 19 minu
 
 4. run `make init_database`. It will create the database scheme on remote specified by DATABASE_URL. You can connect you database using 
 pgAdmin.
-
+   
 ![img_2.png](img_2.png)
 
 The information you enter must be the same as the `make init_postgres`. e.g.

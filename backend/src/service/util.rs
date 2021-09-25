@@ -17,6 +17,12 @@ pub async fn parse_from_dev_payload<T: Message>(
     parse_from_bytes(&bytes)
 }
 
+#[inline]
+pub fn md5<T: AsRef<[u8]>>(data: T) -> String {
+    let md5 = format!("{:x}", md5::compute(data));
+    md5
+}
+
 pub fn parse_from_bytes<T: Message>(bytes: &[u8]) -> Result<T, ServerError> {
     let result: ProtobufResult<T> = Message::parse_from_bytes(&bytes);
     match result {

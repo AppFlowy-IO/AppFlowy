@@ -14,7 +14,11 @@ pub struct NewDocSqlBuilder {
 
 impl NewDocSqlBuilder {
     pub fn new(id: Uuid) -> Self {
-        let table = DocTable { id, data: vec![] };
+        let table = DocTable {
+            id,
+            data: vec![],
+            rev_id: 0,
+        };
         Self { table }
     }
 
@@ -27,6 +31,7 @@ impl NewDocSqlBuilder {
         let (sql, args) = SqlBuilder::create(DOC_TABLE)
             .add_arg("id", self.table.id)
             .add_arg("data", self.table.data)
+            .add_arg("rev_id", self.table.rev_id)
             .build()?;
 
         Ok((sql, args))

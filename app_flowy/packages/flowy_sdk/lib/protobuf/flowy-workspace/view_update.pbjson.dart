@@ -48,17 +48,6 @@ const UpdateViewParams$json = const {
 
 /// Descriptor for `UpdateViewParams`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List updateViewParamsDescriptor = $convert.base64Decode('ChBVcGRhdGVWaWV3UGFyYW1zEhcKB3ZpZXdfaWQYASABKAlSBnZpZXdJZBIUCgRuYW1lGAIgASgJSABSBG5hbWUSFAoEZGVzYxgDIAEoCUgBUgRkZXNjEh4KCXRodW1ibmFpbBgEIAEoCUgCUgl0aHVtYm5haWwSGwoIaXNfdHJhc2gYBSABKAhIA1IHaXNUcmFzaEINCgtvbmVfb2ZfbmFtZUINCgtvbmVfb2ZfZGVzY0ISChBvbmVfb2ZfdGh1bWJuYWlsQhEKD29uZV9vZl9pc190cmFzaA==');
-@$core.Deprecated('Use saveViewDataRequestDescriptor instead')
-const SaveViewDataRequest$json = const {
-  '1': 'SaveViewDataRequest',
-  '2': const [
-    const {'1': 'view_id', '3': 1, '4': 1, '5': 9, '10': 'viewId'},
-    const {'1': 'data', '3': 2, '4': 1, '5': 12, '10': 'data'},
-  ],
-};
-
-/// Descriptor for `SaveViewDataRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List saveViewDataRequestDescriptor = $convert.base64Decode('ChNTYXZlVmlld0RhdGFSZXF1ZXN0EhcKB3ZpZXdfaWQYASABKAlSBnZpZXdJZBISCgRkYXRhGAIgASgMUgRkYXRh');
 @$core.Deprecated('Use applyChangesetRequestDescriptor instead')
 const ApplyChangesetRequest$json = const {
   '1': 'ApplyChangesetRequest',

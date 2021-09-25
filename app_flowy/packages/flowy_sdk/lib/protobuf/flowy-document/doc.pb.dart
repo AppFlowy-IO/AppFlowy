@@ -75,7 +75,7 @@ class Doc extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Doc', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..a<$core.List<$core.int>>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
-    ..aInt64(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'revision')
+    ..aInt64(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'revId')
     ..hasRequiredFields = false
   ;
 
@@ -83,7 +83,7 @@ class Doc extends $pb.GeneratedMessage {
   factory Doc({
     $core.String? id,
     $core.List<$core.int>? data,
-    $fixnum.Int64? revision,
+    $fixnum.Int64? revId,
   }) {
     final _result = create();
     if (id != null) {
@@ -92,8 +92,8 @@ class Doc extends $pb.GeneratedMessage {
     if (data != null) {
       _result.data = data;
     }
-    if (revision != null) {
-      _result.revision = revision;
+    if (revId != null) {
+      _result.revId = revId;
     }
     return _result;
   }
@@ -137,19 +137,20 @@ class Doc extends $pb.GeneratedMessage {
   void clearData() => clearField(2);
 
   @$pb.TagNumber(3)
-  $fixnum.Int64 get revision => $_getI64(2);
+  $fixnum.Int64 get revId => $_getI64(2);
   @$pb.TagNumber(3)
-  set revision($fixnum.Int64 v) { $_setInt64(2, v); }
+  set revId($fixnum.Int64 v) { $_setInt64(2, v); }
   @$pb.TagNumber(3)
-  $core.bool hasRevision() => $_has(2);
+  $core.bool hasRevId() => $_has(2);
   @$pb.TagNumber(3)
-  void clearRevision() => clearField(3);
+  void clearRevId() => clearField(3);
 }
 
 class UpdateDocParams extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UpdateDocParams', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
     ..a<$core.List<$core.int>>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
+    ..aInt64(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'revId')
     ..hasRequiredFields = false
   ;
 
@@ -157,6 +158,7 @@ class UpdateDocParams extends $pb.GeneratedMessage {
   factory UpdateDocParams({
     $core.String? docId,
     $core.List<$core.int>? data,
+    $fixnum.Int64? revId,
   }) {
     final _result = create();
     if (docId != null) {
@@ -164,6 +166,9 @@ class UpdateDocParams extends $pb.GeneratedMessage {
     }
     if (data != null) {
       _result.data = data;
+    }
+    if (revId != null) {
+      _result.revId = revId;
     }
     return _result;
   }
@@ -205,6 +210,15 @@ class UpdateDocParams extends $pb.GeneratedMessage {
   $core.bool hasData() => $_has(1);
   @$pb.TagNumber(2)
   void clearData() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $fixnum.Int64 get revId => $_getI64(2);
+  @$pb.TagNumber(3)
+  set revId($fixnum.Int64 v) { $_setInt64(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasRevId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearRevId() => clearField(3);
 }
 
 class DocDelta extends $pb.GeneratedMessage {

@@ -1,4 +1,5 @@
 import 'package:app_flowy/workspace/domain/i_user.dart';
+import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/workspace_create.pb.dart';
@@ -22,6 +23,8 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
         watch.setProfileCallback(_profileUpdated);
         watch.setWorkspacesCallback(_workspacesUpdated);
         watch.startWatching();
+
+        await _initUser();
       },
       fetchWorkspaces: (_FetchWorkspaces value) async* {},
     );
@@ -31,6 +34,11 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
   Future<void> close() async {
     await watch.stopWatching();
     super.close();
+  }
+
+  Future<void> _initUser() async {
+    final result = await iUserImpl.initUser();
+    result.fold((l) => null, (error) => Log.error(error));
   }
 
   void _profileUpdated(Either<UserProfile, UserError> userOrFailed) {}

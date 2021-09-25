@@ -495,6 +495,18 @@ fn delta_transform_test() {
         r#"[{"retain":3,"attributes":{"bold":true}},{"insert":"456"}]"#,
         serde_json::to_string(&b_prime).unwrap()
     );
+
+    let new_a = a.compose(&b_prime).unwrap();
+    let new_b = b.compose(&a_prime).unwrap();
+    assert_eq!(
+        r#"[{"insert":"123","attributes":{"bold":true}},{"insert":"456"}]"#,
+        serde_json::to_string(&new_a).unwrap()
+    );
+
+    assert_eq!(
+        r#"[{"insert":"123","attributes":{"bold":true}},{"insert":"456"}]"#,
+        serde_json::to_string(&new_b).unwrap()
+    );
 }
 
 #[test]

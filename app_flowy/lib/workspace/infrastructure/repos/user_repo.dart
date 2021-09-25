@@ -28,6 +28,11 @@ class UserRepo {
     return UserEventSignOut().send();
   }
 
+  Future<Either<Unit, UserError>> initUser() {
+    final result = UserEventInitUser().send();
+    return result;
+  }
+
   Future<Either<List<Workspace>, WorkspaceError>> getWorkspaces() {
     final request = QueryWorkspaceRequest.create();
 

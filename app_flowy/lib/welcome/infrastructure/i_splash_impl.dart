@@ -18,7 +18,7 @@ export 'package:app_flowy/welcome/domain/i_splash.dart';
 class SplashUserImpl implements ISplashUser {
   @override
   Future<AuthState> currentUserProfile() {
-    final result = UserEventInitUser().send();
+    final result = UserEventCheckUser().send();
     return result.then((result) {
       return result.fold(
         (userProfile) {

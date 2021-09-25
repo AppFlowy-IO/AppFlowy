@@ -1,17 +1,14 @@
-use super::edit_doc::EditDoc;
+use super::edit_doc_context::EditDocContext;
 use crate::service::{
     doc::read_doc,
     util::parse_from_bytes,
     ws::{WsBizHandler, WsClientData},
 };
 use actix_web::web::Data;
-use bytes::Bytes;
-use flowy_document::{
-    protobuf::{QueryDocParams, Revision, WsDataType, WsDocumentData},
-    services::doc::Document,
-};
+
+use flowy_document::protobuf::{QueryDocParams, Revision, WsDataType, WsDocumentData};
 use flowy_net::errors::ServerError;
-use parking_lot::{Mutex, RwLock, RwLockUpgradableReadGuard};
+use parking_lot::{RwLock, RwLockUpgradableReadGuard};
 use protobuf::Message;
 use sqlx::PgPool;
 use std::{collections::HashMap, sync::Arc};
@@ -43,7 +40,7 @@ impl WsBizHandler for DocWsBizHandler {
 
 struct EditDocManager {
     pg_pool: Data<PgPool>,
-    edit_docs: RwLock<HashMap<String, Arc<EditDoc>>>,
+    edit_docs: RwLock<HashMap<String, Arc<EditDocContext>>>,
 }
 
 impl EditDocManager {
@@ -59,7 +56,7 @@ impl EditDocManager {
 
         match document_data.ty {
             WsDataType::Acked => {},
-            WsDataType::Delta => {
+            WsDataType::Rev => {
                 let revision: Revision = parse_from_bytes(&document_data.data)?;
                 let edited_doc = self.get_edit_doc(&revision.doc_id).await?;
                 tokio::spawn(async move {
@@ -77,7 +74,7 @@ impl EditDocManager {
         Ok(())
     }
 
-    async fn get_edit_doc(&self, doc_id: &str) -> Result<Arc<EditDoc>, ServerError> {
+    async fn get_edit_doc(&self, doc_id: &str) -> Result<Arc<EditDocContext>, ServerError> {
         // Opti: using lock free map instead?
         let edit_docs = self.edit_docs.upgradable_read();
         if let Some(doc) = edit_docs.get(doc_id) {
@@ -91,7 +88,7 @@ impl EditDocManager {
             };
 
             let doc = read_doc(pg_pool.get_ref(), params).await?;
-            let edit_doc = Arc::new(EditDoc::new(doc, self.pg_pool.clone())?);
+            let edit_doc = Arc::new(EditDocContext::new(doc, self.pg_pool.clone())?);
             edit_docs.insert(doc_id.to_string(), edit_doc.clone());
             Ok(edit_doc)
         }

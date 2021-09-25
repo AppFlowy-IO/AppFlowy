@@ -1,8 +1,11 @@
-use crate::services::doc::{extensions::InsertExt, util::is_whitespace};
-use bytecount::num_chars;
-use flowy_ot::core::{plain_attributes, Attribute, Attributes, Delta, DeltaBuilder, DeltaIter};
 use std::cmp::min;
+
+use bytecount::num_chars;
 use url::Url;
+
+use flowy_ot::core::{plain_attributes, Attribute, Attributes, Delta, DeltaBuilder, DeltaIter};
+
+use crate::services::{doc::extensions::InsertExt, util::is_whitespace};
 
 pub struct AutoFormatExt {}
 impl InsertExt for AutoFormatExt {

@@ -1,5 +1,5 @@
 use crate::service::ws::WsClientData;
-use bytes::Bytes;
+
 use flowy_ws::WsModule;
 use std::{collections::HashMap, sync::Arc};
 

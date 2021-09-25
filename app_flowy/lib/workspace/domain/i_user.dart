@@ -14,6 +14,7 @@ abstract class IUser {
   Future<Either<List<Workspace>, WorkspaceError>> fetchWorkspaces();
   Future<Either<Unit, WorkspaceError>> deleteWorkspace(String workspaceId);
   Future<Either<Unit, UserError>> signOut();
+  Future<Either<Unit, UserError>> initUser();
 }
 
 typedef UserProfileUpdateCallback = void Function(

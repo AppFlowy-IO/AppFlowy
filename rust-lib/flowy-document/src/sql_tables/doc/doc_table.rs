@@ -40,7 +40,7 @@ impl std::convert::Into<Doc> for DocTable {
         Doc {
             id: self.id,
             data: self.data,
-            revision: self.revision,
+            rev_id: self.revision,
         }
     }
 }
@@ -50,7 +50,7 @@ impl std::convert::From<Doc> for DocTable {
         Self {
             id: doc.id,
             data: doc.data,
-            revision: doc.revision,
+            revision: doc.rev_id,
         }
     }
 }

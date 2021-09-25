@@ -6,6 +6,7 @@ pub(crate) const DOC_TABLE: &'static str = "doc_table";
 pub struct DocTable {
     pub(crate) id: uuid::Uuid,
     pub(crate) data: Vec<u8>,
+    pub(crate) rev_id: i64,
 }
 
 impl std::convert::Into<Doc> for DocTable {
@@ -13,6 +14,7 @@ impl std::convert::Into<Doc> for DocTable {
         let mut doc = Doc::new();
         doc.set_id(self.id.to_string());
         doc.set_data(self.data);
+        doc.set_rev_id(self.rev_id);
         doc
     }
 }

@@ -65,6 +65,7 @@ pub(crate) async fn update_doc(
 
     let (sql, args) = SqlBuilder::update(DOC_TABLE)
         .add_some_arg("data", data)
+        .add_arg("rev_id", params.rev_id)
         .and_where_eq("id", doc_id)
         .build()?;
 
