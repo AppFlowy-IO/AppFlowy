@@ -3,7 +3,7 @@ use crate::{
     errors::WorkspaceError,
 };
 use flowy_derive::ProtoBuf;
-use flowy_document::entities::doc::DocDelta;
+
 use std::convert::TryInto;
 
 #[derive(Default, ProtoBuf)]
@@ -69,16 +69,26 @@ impl TryInto<UpdateViewParams> for UpdateViewRequest {
     type Error = WorkspaceError;
 
     fn try_into(self) -> Result<UpdateViewParams, Self::Error> {
-        let view_id = ViewId::parse(self.view_id).map_err(|e| WorkspaceError::view_id().context(e))?.0;
+        let view_id = ViewId::parse(self.view_id)
+            .map_err(|e| WorkspaceError::view_id().context(e))?
+            .0;
 
         let name = match self.name {
             None => None,
-            Some(name) => Some(ViewName::parse(name).map_err(|e| WorkspaceError::view_name().context(e))?.0),
+            Some(name) => Some(
+                ViewName::parse(name)
+                    .map_err(|e| WorkspaceError::view_name().context(e))?
+                    .0,
+            ),
         };
 
         let desc = match self.desc {
             None => None,
-            Some(desc) => Some(ViewDesc::parse(desc).map_err(|e| WorkspaceError::view_desc().context(e))?.0),
+            Some(desc) => Some(
+                ViewDesc::parse(desc)
+                    .map_err(|e| WorkspaceError::view_desc().context(e))?
+                    .0,
+            ),
         };
 
         let thumbnail = match self.thumbnail {
@@ -99,25 +109,23 @@ impl TryInto<UpdateViewParams> for UpdateViewRequest {
         })
     }
 }
-
-#[derive(Default, ProtoBuf)]
-pub struct ApplyChangesetRequest {
-    #[pb(index = 1)]
-    pub view_id: String,
-
-    #[pb(index = 2)]
-    pub data: Vec<u8>,
-}
-
-impl TryInto<DocDelta> for ApplyChangesetRequest {
-    type Error = WorkspaceError;
-
-    fn try_into(self) -> Result<DocDelta, Self::Error> {
-        let view_id = ViewId::parse(self.view_id).map_err(|e| WorkspaceError::view_id().context(e))?.0;
-
-        // Opti: Vec<u8> -> Delta -> Vec<u8>
-        let data = DeltaData::parse(self.data).map_err(|e| WorkspaceError::view_data().context(e))?.0;
-
-        Ok(DocDelta { doc_id: view_id, data })
-    }
-}
+// #[derive(Default, ProtoBuf)]
+// pub struct DocDeltaRequest {
+//     #[pb(index = 1)]
+//     pub view_id: String,
+//
+//     #[pb(index = 2)]
+//     pub data: String,
+// }
+//
+// impl TryInto<DocDelta> for DocDeltaRequest {
+//     type Error = WorkspaceError;
+//
+//     fn try_into(self) -> Result<DocDelta, Self::Error> {
+//         let view_id = ViewId::parse(self.view_id)
+//             .map_err(|e| WorkspaceError::view_id().context(e))?
+//             .0;
+//
+//         Ok(DocDelta { doc_id: view_id, data: self.data })
+//     }
+// }

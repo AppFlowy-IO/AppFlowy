@@ -30,8 +30,8 @@ class DocBloc extends Bloc<DocEvent, DocState> {
       (doc) {
         final flowyDoc = FlowyDoc(
             doc: doc,
-            data: _decodeToDocument(
-              Uint8List.fromList(doc.data),
+            data: _decodeJsonToDocument(
+              doc.data,
             ),
             iDocImpl: iDocImpl);
         return DocState.loadDoc(flowyDoc);
@@ -42,8 +42,14 @@ class DocBloc extends Bloc<DocEvent, DocState> {
     );
   }
 
-  Document _decodeToDocument(Uint8List data) {
+  Document _decodeListToDocument(Uint8List data) {
     final json = jsonDecode(utf8.decode(data));
+    final document = Document.fromJson(json);
+    return document;
+  }
+
+  Document _decodeJsonToDocument(String data) {
+    final json = jsonDecode(data);
     final document = Document.fromJson(json);
     return document;
   }

@@ -10,6 +10,10 @@ import 'dart:core' as $core;
 import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
+import 'revision.pbenum.dart';
+
+export 'revision.pbenum.dart';
+
 class Revision extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Revision', createEmptyInstance: create)
     ..aInt64(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'baseRevId')
@@ -17,6 +21,7 @@ class Revision extends $pb.GeneratedMessage {
     ..a<$core.List<$core.int>>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'delta', $pb.PbFieldType.OY)
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'md5')
     ..aOS(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
+    ..e<RevType>(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ty', $pb.PbFieldType.OE, defaultOrMaker: RevType.Local, valueOf: RevType.valueOf, enumValues: RevType.values)
     ..hasRequiredFields = false
   ;
 
@@ -27,6 +32,7 @@ class Revision extends $pb.GeneratedMessage {
     $core.List<$core.int>? delta,
     $core.String? md5,
     $core.String? docId,
+    RevType? ty,
   }) {
     final _result = create();
     if (baseRevId != null) {
@@ -43,6 +49,9 @@ class Revision extends $pb.GeneratedMessage {
     }
     if (docId != null) {
       _result.docId = docId;
+    }
+    if (ty != null) {
+      _result.ty = ty;
     }
     return _result;
   }
@@ -111,5 +120,14 @@ class Revision extends $pb.GeneratedMessage {
   $core.bool hasDocId() => $_has(4);
   @$pb.TagNumber(5)
   void clearDocId() => clearField(5);
+
+  @$pb.TagNumber(6)
+  RevType get ty => $_getN(5);
+  @$pb.TagNumber(6)
+  set ty(RevType v) { setField(6, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasTy() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearTy() => clearField(6);
 }
 

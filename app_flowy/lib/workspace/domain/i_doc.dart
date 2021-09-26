@@ -26,7 +26,7 @@ class FlowyDoc implements EditorDeltaSender {
 
     result.fold((rustDoc) {
       // final json = utf8.decode(doc.data);
-      final rustDelta = Delta.fromJson(jsonDecode(utf8.decode(rustDoc.data)));
+      final rustDelta = Delta.fromJson(jsonDecode(rustDoc.data));
 
       if (delta != rustDelta) {
         Log.error("Receive : $rustDelta");
@@ -41,6 +41,6 @@ class FlowyDoc implements EditorDeltaSender {
 
 abstract class IDoc {
   Future<Either<Doc, WorkspaceError>> readDoc();
-  Future<Either<Doc, WorkspaceError>> applyChangeset({String? json});
+  Future<Either<Doc, WorkspaceError>> applyChangeset({required String json});
   Future<Either<Unit, WorkspaceError>> closeDoc();
 }

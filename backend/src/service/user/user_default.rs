@@ -1,9 +1,3 @@
-use flowy_net::errors::ServerError;
-use flowy_workspace::{
-    entities::view::default_delta,
-    protobuf::{App, CreateViewParams, View, ViewType, Workspace},
-};
-
 use crate::{
     service::{
         app::sql_builder::NewAppSqlBuilder as AppBuilder,
@@ -11,6 +5,11 @@ use crate::{
         workspace::sql_builder::NewWorkspaceBuilder as WorkspaceBuilder,
     },
     sqlx_ext::{map_sqlx_error, DBTransaction},
+};
+use flowy_net::errors::ServerError;
+use flowy_workspace::{
+    entities::view::VIEW_DEFAULT_DATA,
+    protobuf::{App, CreateViewParams, View, ViewType, Workspace},
 };
 
 pub async fn create_default_workspace(
@@ -24,10 +23,7 @@ pub async fn create_default_workspace(
     Ok(workspace)
 }
 
-async fn create_workspace(
-    transaction: &mut DBTransaction<'_>,
-    user_id: &str,
-) -> Result<Workspace, ServerError> {
+async fn create_workspace(transaction: &mut DBTransaction<'_>, user_id: &str) -> Result<Workspace, ServerError> {
     let (sql, args, workspace) = WorkspaceBuilder::new(user_id.as_ref())
         .name("DefaultWorkspace")
         .desc("Workspace created by AppFlowy")
@@ -66,7 +62,7 @@ async fn create_view(transaction: &mut DBTransaction<'_>, app: &App) -> Result<V
         desc: "View created by AppFlowy".to_string(),
         thumbnail: "123.png".to_string(),
         view_type: ViewType::Doc,
-        data: default_delta(),
+        data: VIEW_DEFAULT_DATA.to_string(),
         unknown_fields: Default::default(),
         cached_size: Default::default(),
     };

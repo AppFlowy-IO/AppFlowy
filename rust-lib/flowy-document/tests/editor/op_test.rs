@@ -8,7 +8,7 @@ fn attributes_insert_text() {
     let ops = vec![
         Insert(0, "123", 0),
         Insert(0, "456", 3),
-        AssertOpsJson(0, r#"[{"insert":"123456"}]"#),
+        AssertDocJson(0, r#"[{"insert":"123456"}]"#),
     ];
     TestBuilder::new().run_script::<PlainDoc>(ops);
 }
@@ -18,7 +18,7 @@ fn attributes_insert_text_at_head() {
     let ops = vec![
         Insert(0, "123", 0),
         Insert(0, "456", 0),
-        AssertOpsJson(0, r#"[{"insert":"456123"}]"#),
+        AssertDocJson(0, r#"[{"insert":"456123"}]"#),
     ];
     TestBuilder::new().run_script::<PlainDoc>(ops);
 }
@@ -28,7 +28,7 @@ fn attributes_insert_text_at_middle() {
     let ops = vec![
         Insert(0, "123", 0),
         Insert(0, "456", 1),
-        AssertOpsJson(0, r#"[{"insert":"145623"}]"#),
+        AssertDocJson(0, r#"[{"insert":"145623"}]"#),
     ];
     TestBuilder::new().run_script::<PlainDoc>(ops);
 }
@@ -69,7 +69,10 @@ fn delta_get_ops_in_interval_2() {
         vec![OpBuilder::insert("23").build()]
     );
 
-    assert_eq!(DeltaIter::from_interval(&delta, Interval::new(0, 3)).ops(), vec![insert_a.clone()]);
+    assert_eq!(
+        DeltaIter::from_interval(&delta, Interval::new(0, 3)).ops(),
+        vec![insert_a.clone()]
+    );
 
     assert_eq!(
         DeltaIter::from_interval(&delta, Interval::new(0, 4)).ops(),
@@ -109,9 +112,18 @@ fn delta_get_ops_in_interval_4() {
     delta.ops.push(insert_b.clone());
     delta.ops.push(insert_c.clone());
 
-    assert_eq!(DeltaIter::from_interval(&delta, Interval::new(0, 2)).ops(), vec![insert_a]);
-    assert_eq!(DeltaIter::from_interval(&delta, Interval::new(2, 4)).ops(), vec![insert_b]);
-    assert_eq!(DeltaIter::from_interval(&delta, Interval::new(4, 6)).ops(), vec![insert_c]);
+    assert_eq!(
+        DeltaIter::from_interval(&delta, Interval::new(0, 2)).ops(),
+        vec![insert_a]
+    );
+    assert_eq!(
+        DeltaIter::from_interval(&delta, Interval::new(2, 4)).ops(),
+        vec![insert_b]
+    );
+    assert_eq!(
+        DeltaIter::from_interval(&delta, Interval::new(4, 6)).ops(),
+        vec![insert_c]
+    );
 
     assert_eq!(
         DeltaIter::from_interval(&delta, Interval::new(2, 5)).ops(),
@@ -443,7 +455,7 @@ fn compose() {
     }
 }
 #[test]
-fn transform() {
+fn transform_random_delta() {
     for _ in 0..1000 {
         let mut rng = Rng::default();
         let s = rng.gen_string(20);
@@ -461,19 +473,7 @@ fn transform() {
 }
 
 #[test]
-fn transform2() {
-    let ops = vec![
-        Insert(0, "123", 0),
-        Insert(1, "456", 0),
-        Transform(0, 1),
-        AssertOpsJson(0, r#"[{"insert":"123456"}]"#),
-        AssertOpsJson(1, r#"[{"insert":"123456"}]"#),
-    ];
-    TestBuilder::new().run_script::<PlainDoc>(ops);
-}
-
-#[test]
-fn delta_transform_test() {
+fn transform_with_two_delta_test() {
     let mut a = Delta::default();
     let mut a_s = String::new();
     a.insert("123", AttributeBuilder::new().add(Attribute::Bold(true)).build());
@@ -510,6 +510,65 @@ fn delta_transform_test() {
 }
 
 #[test]
+fn transform_two_plain_delta_test() {
+    let ops = vec![
+        Insert(0, "123", 0),
+        Insert(1, "456", 0),
+        Transform(0, 1),
+        AssertDocJson(0, r#"[{"insert":"123456"}]"#),
+        AssertDocJson(1, r#"[{"insert":"123456"}]"#),
+    ];
+    TestBuilder::new().run_script::<PlainDoc>(ops);
+}
+
+#[test]
+fn transform_two_plain_delta_test2() {
+    let ops = vec![
+        Insert(0, "123", 0),
+        Insert(1, "456", 0),
+        TransformPrime(0, 1),
+        DocComposePrime(0, 1),
+        DocComposePrime(1, 0),
+        AssertDocJson(0, r#"[{"insert":"123456"}]"#),
+        AssertDocJson(1, r#"[{"insert":"123456"}]"#),
+    ];
+    TestBuilder::new().run_script::<PlainDoc>(ops);
+}
+
+#[test]
+fn transform_two_non_seq_delta() {
+    let ops = vec![
+        Insert(0, "123", 0),
+        Insert(1, "456", 0),
+        TransformPrime(0, 1),
+        AssertPrimeJson(0, r#"[{"insert":"123"},{"retain":3}]"#),
+        AssertPrimeJson(1, r#"[{"retain":3},{"insert":"456"}]"#),
+        DocComposePrime(0, 1),
+        Insert(1, "78", 3),
+        Insert(1, "9", 5),
+        DocComposePrime(1, 0),
+        AssertDocJson(0, r#"[{"insert":"123456"}]"#),
+        AssertDocJson(1, r#"[{"insert":"123456789"}]"#),
+    ];
+    TestBuilder::new().run_script::<PlainDoc>(ops);
+}
+
+#[test]
+fn transform_two_conflict_non_seq_delta() {
+    let ops = vec![
+        Insert(0, "123", 0),
+        Insert(1, "456", 0),
+        TransformPrime(0, 1),
+        DocComposePrime(0, 1),
+        Insert(1, "78", 0),
+        DocComposePrime(1, 0),
+        AssertDocJson(0, r#"[{"insert":"123456"}]"#),
+        AssertDocJson(1, r#"[{"insert":"12378456"}]"#),
+    ];
+    TestBuilder::new().run_script::<PlainDoc>(ops);
+}
+
+#[test]
 fn delta_invert_no_attribute_delta() {
     let mut delta = Delta::default();
     delta.add(OpBuilder::insert("123").build());
@@ -531,7 +590,7 @@ fn delta_invert_no_attribute_delta2() {
         Insert(0, "123", 0),
         Insert(1, "4567", 0),
         Invert(0, 1),
-        AssertOpsJson(0, r#"[{"insert":"123"}]"#),
+        AssertDocJson(0, r#"[{"insert":"123"}]"#),
     ];
     TestBuilder::new().run_script::<PlainDoc>(ops);
 }
@@ -541,10 +600,10 @@ fn delta_invert_attribute_delta_with_no_attribute_delta() {
     let ops = vec![
         Insert(0, "123", 0),
         Bold(0, Interval::new(0, 3), true),
-        AssertOpsJson(0, r#"[{"insert":"123","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"123","attributes":{"bold":"true"}}]"#),
         Insert(1, "4567", 0),
         Invert(0, 1),
-        AssertOpsJson(0, r#"[{"insert":"123","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"123","attributes":{"bold":"true"}}]"#),
     ];
     TestBuilder::new().run_script::<PlainDoc>(ops);
 }
@@ -555,14 +614,14 @@ fn delta_invert_attribute_delta_with_no_attribute_delta2() {
         Insert(0, "123", 0),
         Bold(0, Interval::new(0, 3), true),
         Insert(0, "456", 3),
-        AssertOpsJson(
+        AssertDocJson(
             0,
             r#"[
             {"insert":"123456","attributes":{"bold":"true"}}]
             "#,
         ),
         Italic(0, Interval::new(2, 4), true),
-        AssertOpsJson(
+        AssertDocJson(
             0,
             r#"[
             {"insert":"12","attributes":{"bold":"true"}}, 
@@ -572,7 +631,7 @@ fn delta_invert_attribute_delta_with_no_attribute_delta2() {
         ),
         Insert(1, "abc", 0),
         Invert(0, 1),
-        AssertOpsJson(
+        AssertDocJson(
             0,
             r#"[
             {"insert":"12","attributes":{"bold":"true"}},
@@ -590,9 +649,9 @@ fn delta_invert_no_attribute_delta_with_attribute_delta() {
         Insert(0, "123", 0),
         Insert(1, "4567", 0),
         Bold(1, Interval::new(0, 3), true),
-        AssertOpsJson(1, r#"[{"insert":"456","attributes":{"bold":"true"}},{"insert":"7"}]"#),
+        AssertDocJson(1, r#"[{"insert":"456","attributes":{"bold":"true"}},{"insert":"7"}]"#),
         Invert(0, 1),
-        AssertOpsJson(0, r#"[{"insert":"123"}]"#),
+        AssertDocJson(0, r#"[{"insert":"123"}]"#),
     ];
     TestBuilder::new().run_script::<PlainDoc>(ops);
 }
@@ -601,19 +660,17 @@ fn delta_invert_no_attribute_delta_with_attribute_delta() {
 fn delta_invert_no_attribute_delta_with_attribute_delta2() {
     let ops = vec![
         Insert(0, "123", 0),
-        AssertOpsJson(0, r#"[{"insert":"123"}]"#),
+        AssertDocJson(0, r#"[{"insert":"123"}]"#),
         Insert(1, "abc", 0),
         Bold(1, Interval::new(0, 3), true),
         Insert(1, "d", 3),
         Italic(1, Interval::new(1, 3), true),
-        AssertOpsJson(
+        AssertDocJson(
             1,
-            r#"[{"insert":"a","attributes":{"bold":"true"}},{"insert":"bc","attributes":
-{"bold":"true","italic":"true"}},{"insert":"d","attributes":{"bold":"true"
-}}]"#,
+            r#"[{"insert":"a","attributes":{"bold":"true"}},{"insert":"bc","attributes":{"bold":"true","italic":"true"}},{"insert":"d","attributes":{"bold":"true"}}]"#,
         ),
         Invert(0, 1),
-        AssertOpsJson(0, r#"[{"insert":"123"}]"#),
+        AssertDocJson(0, r#"[{"insert":"123"}]"#),
     ];
     TestBuilder::new().run_script::<PlainDoc>(ops);
 }
@@ -624,9 +681,9 @@ fn delta_invert_attribute_delta_with_attribute_delta() {
         Insert(0, "123", 0),
         Bold(0, Interval::new(0, 3), true),
         Insert(0, "456", 3),
-        AssertOpsJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
         Italic(0, Interval::new(2, 4), true),
-        AssertOpsJson(
+        AssertDocJson(
             0,
             r#"[
             {"insert":"12","attributes":{"bold":"true"}},
@@ -638,7 +695,7 @@ fn delta_invert_attribute_delta_with_attribute_delta() {
         Bold(1, Interval::new(0, 3), true),
         Insert(1, "d", 3),
         Italic(1, Interval::new(1, 3), true),
-        AssertOpsJson(
+        AssertDocJson(
             1,
             r#"[
             {"insert":"a","attributes":{"bold":"true"}},
@@ -647,7 +704,7 @@ fn delta_invert_attribute_delta_with_attribute_delta() {
             ]"#,
         ),
         Invert(0, 1),
-        AssertOpsJson(
+        AssertDocJson(
             0,
             r#"[
             {"insert":"12","attributes":{"bold":"true"}},

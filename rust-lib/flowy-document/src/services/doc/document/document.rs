@@ -2,7 +2,7 @@ use crate::{
     errors::DocError,
     services::doc::{view::View, History, UndoResult, RECORD_THRESHOLD},
 };
-use bytes::Bytes;
+
 use flowy_ot::core::*;
 
 pub trait DocumentData {
@@ -57,10 +57,29 @@ impl Document {
 
     pub fn set_delta(&mut self, data: Delta) { self.delta = data; }
 
-    pub fn apply_delta(&mut self, delta: Delta) -> Result<(), DocError> {
-        log::trace!("Apply delta: {}", delta);
-        let _ = self.add_delta(&delta)?;
-        log::debug!("Document: {}", self.to_json());
+    pub fn compose_delta(&mut self, delta: &Delta) -> Result<(), DocError> {
+        let composed_delta = self.delta.compose(delta)?;
+        let mut undo_delta = delta.invert(&self.delta);
+
+        let now = chrono::Utc::now().timestamp_millis() as usize;
+        if now - self.last_edit_time < RECORD_THRESHOLD {
+            if let Some(last_delta) = self.history.undo() {
+                log::trace!("compose previous change");
+                log::trace!("current = {}", undo_delta);
+                log::trace!("previous = {}", last_delta);
+                undo_delta = undo_delta.compose(&last_delta)?;
+            }
+        } else {
+            self.last_edit_time = now;
+        }
+
+        log::trace!("👉 receive change undo: {}", undo_delta);
+        if !undo_delta.is_empty() {
+            self.history.record(undo_delta);
+        }
+
+        log::trace!("document delta: {}", &composed_delta);
+        self.delta = composed_delta;
         Ok(())
     }
 
@@ -71,7 +90,7 @@ impl Document {
         let text = data.into_string()?;
         let delta = self.view.insert(&self.delta, &text, interval)?;
         log::trace!("👉 receive change: {}", delta);
-        self.add_delta(&delta)?;
+        self.compose_delta(&delta)?;
         Ok(delta)
     }
 
@@ -81,19 +100,19 @@ impl Document {
         let delete = self.view.delete(&self.delta, interval)?;
         if !delete.is_empty() {
             log::trace!("👉 receive change: {}", delete);
-            let _ = self.add_delta(&delete)?;
+            let _ = self.compose_delta(&delete)?;
         }
         Ok(delete)
     }
 
-    pub fn format(&mut self, interval: Interval, attribute: Attribute) -> Result<(), DocError> {
+    pub fn format(&mut self, interval: Interval, attribute: Attribute) -> Result<Delta, DocError> {
         let _ = validate_interval(&self.delta, &interval)?;
         log::trace!("format with {} at {}", attribute, interval);
         let format_delta = self.view.format(&self.delta, attribute.clone(), interval).unwrap();
 
         log::trace!("👉 receive change: {}", format_delta);
-        self.add_delta(&format_delta)?;
-        Ok(())
+        self.compose_delta(&format_delta)?;
+        Ok(format_delta)
     }
 
     pub fn replace<T: DocumentData>(&mut self, interval: Interval, data: T) -> Result<Delta, DocError> {
@@ -103,7 +122,7 @@ impl Document {
         if !text.is_empty() {
             delta = self.view.insert(&self.delta, &text, interval)?;
             log::trace!("👉 receive change: {}", delta);
-            self.add_delta(&delta)?;
+            self.compose_delta(&delta)?;
         }
 
         if !interval.is_empty() {
@@ -148,32 +167,6 @@ impl Document {
 }
 
 impl Document {
-    fn add_delta(&mut self, delta: &Delta) -> Result<(), DocError> {
-        let composed_delta = self.delta.compose(delta)?;
-        let mut undo_delta = delta.invert(&self.delta);
-
-        let now = chrono::Utc::now().timestamp_millis() as usize;
-        if now - self.last_edit_time < RECORD_THRESHOLD {
-            if let Some(last_delta) = self.history.undo() {
-                log::trace!("compose previous change");
-                log::trace!("current = {}", undo_delta);
-                log::trace!("previous = {}", last_delta);
-                undo_delta = undo_delta.compose(&last_delta)?;
-            }
-        } else {
-            self.last_edit_time = now;
-        }
-
-        log::trace!("👉 receive change undo: {}", undo_delta);
-        if !undo_delta.is_empty() {
-            self.history.record(undo_delta);
-        }
-
-        log::trace!("document delta: {}", &composed_delta);
-        self.delta = composed_delta;
-        Ok(())
-    }
-
     fn invert_change(&self, change: &Delta) -> Result<(Delta, Delta), DocError> {
         // c = a.compose(b)
         // d = b.invert(a)

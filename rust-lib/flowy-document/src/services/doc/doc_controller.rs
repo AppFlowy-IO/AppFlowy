@@ -2,16 +2,21 @@ use crate::{
     entities::doc::{CreateDocParams, Doc, DocDelta, QueryDocParams, UpdateDocParams},
     errors::{internal_error, DocError},
     module::DocumentUser,
-    services::{cache::DocCache, doc::edit_doc_context::EditDocContext, server::Server, ws::WsDocumentManager},
+    services::{
+        cache::DocCache,
+        doc::{edit_doc_context::EditDocContext, rev_manager::RevisionManager},
+        server::Server,
+        ws::WsDocumentManager,
+    },
     sql_tables::doc::{DocTable, DocTableSql, OpTableSql},
 };
 use bytes::Bytes;
 use flowy_database::{ConnectionPool, SqliteConnection};
-
-use crate::services::doc::rev_manager::RevisionManager;
+use flowy_infra::future::{wrap_future, FnFuture};
 use flowy_ot::core::Delta;
 use parking_lot::RwLock;
 use std::sync::Arc;
+use tokio::time::{interval, Duration};
 
 pub(crate) struct DocController {
     server: Server,
@@ -27,14 +32,23 @@ impl DocController {
         let doc_sql = Arc::new(DocTableSql {});
         let op_sql = Arc::new(OpTableSql {});
         let cache = Arc::new(DocCache::new());
-        Self {
+
+        let controller = Self {
             server,
             doc_sql,
             op_sql,
             user,
             ws,
-            cache,
-        }
+            cache: cache.clone(),
+        };
+
+        // tokio::spawn(async move {
+        //     tokio::select! {
+        //         _ = event_loop(cache.clone()) => {},
+        //     }
+        // });
+
+        controller
     }
 
     #[tracing::instrument(skip(self, conn), err)]
@@ -49,7 +63,11 @@ impl DocController {
     }
 
     #[tracing::instrument(level = "debug", skip(self, pool), err)]
-    pub(crate) async fn open(&self, params: QueryDocParams, pool: Arc<ConnectionPool>) -> Result<Arc<EditDocContext>, DocError> {
+    pub(crate) async fn open(
+        &self,
+        params: QueryDocParams,
+        pool: Arc<ConnectionPool>,
+    ) -> Result<Arc<EditDocContext>, DocError> {
         if self.cache.is_opened(&params.doc_id) == false {
             return match self._open(params, pool).await {
                 Ok(doc) => Ok(doc),
@@ -81,7 +99,7 @@ impl DocController {
     #[tracing::instrument(level = "debug", skip(self, delta), err)]
     pub(crate) fn edit_doc(&self, delta: DocDelta) -> Result<Doc, DocError> {
         let edit_doc_ctx = self.cache.get(&delta.doc_id)?;
-        let _ = edit_doc_ctx.apply_local_delta(Bytes::from(delta.data))?;
+        let _ = edit_doc_ctx.compose_local_delta(Bytes::from(delta.data))?;
         Ok(edit_doc_ctx.doc())
     }
 }
@@ -104,7 +122,11 @@ impl DocController {
     }
 
     #[tracing::instrument(level = "debug", skip(self, pool), err)]
-    async fn read_doc_from_server(&self, params: QueryDocParams, pool: Arc<ConnectionPool>) -> Result<Arc<EditDocContext>, DocError> {
+    async fn read_doc_from_server(
+        &self,
+        params: QueryDocParams,
+        pool: Arc<ConnectionPool>,
+    ) -> Result<Arc<EditDocContext>, DocError> {
         let token = self.user.token()?;
         match self.server.read_doc(&token, params).await? {
             None => Err(DocError::not_found()),
@@ -151,7 +173,7 @@ impl DocController {
         // Opti: require upgradable_read lock and then upgrade to write lock using
         // RwLockUpgradableReadGuard::upgrade(xx) of ws
         let doc_id = doc.id.clone();
-        let delta = Delta::from_bytes(doc.data)?;
+        let delta = Delta::from_bytes(&doc.data)?;
         let ws_sender = self.ws.read().sender();
         let rev_manager = RevisionManager::new(&doc_id, doc.rev_id, self.op_sql.clone(), pool, ws_sender);
         let edit_ctx = Arc::new(EditDocContext::new(&doc_id, delta, rev_manager)?);
@@ -159,4 +181,15 @@ impl DocController {
         self.cache.set(edit_ctx.clone());
         Ok(edit_ctx)
     }
+}
+
+#[allow(dead_code)]
+fn event_loop(_cache: Arc<DocCache>) -> FnFuture<()> {
+    let mut i = interval(Duration::from_secs(3));
+    wrap_future(async move {
+        loop {
+            // cache.all_docs().iter().for_each(|doc| doc.tick());
+            i.tick().await;
+        }
+    })
 }

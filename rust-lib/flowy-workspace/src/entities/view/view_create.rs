@@ -65,10 +65,11 @@ pub struct CreateViewParams {
     pub view_type: ViewType,
 
     #[pb(index = 6)]
-    pub data: Vec<u8>,
+    pub data: String,
 }
 
-const VIEW_DEFAULT_DATA: &str = "[{\"insert\":\"\\n\"}]";
+pub const VIEW_DEFAULT_DATA: &str = "[{\"insert\":\"\\n\"}]";
+#[allow(dead_code)]
 pub fn default_delta() -> Vec<u8> { VIEW_DEFAULT_DATA.as_bytes().to_vec() }
 
 impl CreateViewParams {
@@ -79,7 +80,7 @@ impl CreateViewParams {
             desc,
             thumbnail,
             view_type,
-            data: default_delta(),
+            data: VIEW_DEFAULT_DATA.to_string(),
         }
     }
 }
@@ -88,9 +89,13 @@ impl TryInto<CreateViewParams> for CreateViewRequest {
     type Error = WorkspaceError;
 
     fn try_into(self) -> Result<CreateViewParams, Self::Error> {
-        let name = ViewName::parse(self.name).map_err(|e| WorkspaceError::view_name().context(e))?.0;
+        let name = ViewName::parse(self.name)
+            .map_err(|e| WorkspaceError::view_name().context(e))?
+            .0;
 
-        let belong_to_id = AppId::parse(self.belong_to_id).map_err(|e| WorkspaceError::app_id().context(e))?.0;
+        let belong_to_id = AppId::parse(self.belong_to_id)
+            .map_err(|e| WorkspaceError::app_id().context(e))?
+            .0;
 
         let thumbnail = match self.thumbnail {
             None => "".to_string(),
@@ -101,7 +106,13 @@ impl TryInto<CreateViewParams> for CreateViewRequest {
             },
         };
 
-        Ok(CreateViewParams::new(belong_to_id, name, self.desc, self.view_type, thumbnail))
+        Ok(CreateViewParams::new(
+            belong_to_id,
+            name,
+            self.desc,
+            self.view_type,
+            thumbnail,
+        ))
     }
 }
 

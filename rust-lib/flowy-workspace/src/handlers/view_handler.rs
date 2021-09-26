@@ -1,6 +1,5 @@
 use crate::{
     entities::view::{
-        ApplyChangesetRequest,
         CreateViewParams,
         CreateViewRequest,
         DeleteViewParams,
@@ -57,11 +56,11 @@ pub(crate) async fn update_view_handler(
 
 #[tracing::instrument(skip(data, controller), err)]
 pub(crate) async fn apply_doc_delta_handler(
-    data: Data<ApplyChangesetRequest>,
+    data: Data<DocDelta>,
     controller: Unit<Arc<ViewController>>,
 ) -> DataResult<Doc, WorkspaceError> {
-    let params: DocDelta = data.into_inner().try_into()?;
-    let doc = controller.apply_doc_delta(params).await?;
+    // let params: DocDelta = data.into_inner().try_into()?;
+    let doc = controller.apply_doc_delta(data.into_inner()).await?;
     data_result(doc)
 }
 

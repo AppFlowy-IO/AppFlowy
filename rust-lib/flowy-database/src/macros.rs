@@ -112,13 +112,18 @@ macro_rules! impl_sql_binary_expression {
             *const [u8]: diesel::deserialize::FromSql<diesel::sql_types::Binary, DB>,
         {
             fn from_sql(bytes: Option<&DB::RawValue>) -> diesel::deserialize::Result<Self> {
-                let slice_ptr = <*const [u8] as diesel::deserialize::FromSql<diesel::sql_types::Binary, DB>>::from_sql(bytes)?;
+                let slice_ptr =
+                    <*const [u8] as diesel::deserialize::FromSql<diesel::sql_types::Binary, DB>>::from_sql(bytes)?;
                 let bytes = unsafe { &*slice_ptr };
 
                 match $target::try_from(bytes) {
                     Ok(object) => Ok(object),
                     Err(e) => {
-                        log::error!("{:?} deserialize from bytes fail. {:?}", std::any::type_name::<$target>(), e);
+                        log::error!(
+                            "{:?} deserialize from bytes fail. {:?}",
+                            std::any::type_name::<$target>(),
+                            e
+                        );
                         panic!();
                     },
                 }
@@ -130,28 +135,25 @@ macro_rules! impl_sql_binary_expression {
 #[macro_export]
 macro_rules! impl_sql_integer_expression {
     ($target:ident) => {
-        use diesel::{
-            deserialize,
-            deserialize::FromSql,
-            serialize,
-            serialize::{Output, ToSql},
-        };
-        use std::io::Write;
-
-        impl<DB> ToSql<Integer, DB> for $target
+        impl<DB> diesel::serialize::ToSql<Integer, DB> for $target
         where
             DB: diesel::backend::Backend,
-            i32: ToSql<Integer, DB>,
+            i32: diesel::serialize::ToSql<Integer, DB>,
         {
-            fn to_sql<W: Write>(&self, out: &mut Output<W, DB>) -> serialize::Result { (*self as i32).to_sql(out) }
+            fn to_sql<W: std::io::Write>(
+                &self,
+                out: &mut diesel::serialize::Output<W, DB>,
+            ) -> diesel::serialize::Result {
+                (*self as i32).to_sql(out)
+            }
         }
 
-        impl<DB> FromSql<Integer, DB> for $target
+        impl<DB> diesel::deserialize::FromSql<Integer, DB> for $target
         where
             DB: diesel::backend::Backend,
-            i32: FromSql<Integer, DB>,
+            i32: diesel::deserialize::FromSql<Integer, DB>,
         {
-            fn from_sql(bytes: Option<&DB::RawValue>) -> deserialize::Result<Self> {
+            fn from_sql(bytes: Option<&DB::RawValue>) -> diesel::deserialize::Result<Self> {
                 let smaill_int = i32::from_sql(bytes)?;
                 Ok($target::from(smaill_int))
             }

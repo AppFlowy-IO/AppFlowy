@@ -31,6 +31,7 @@ pub struct Revision {
     pub delta: ::std::vec::Vec<u8>,
     pub md5: ::std::string::String,
     pub doc_id: ::std::string::String,
+    pub ty: RevType,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -154,6 +155,21 @@ impl Revision {
     pub fn take_doc_id(&mut self) -> ::std::string::String {
         ::std::mem::replace(&mut self.doc_id, ::std::string::String::new())
     }
+
+    // .RevType ty = 6;
+
+
+    pub fn get_ty(&self) -> RevType {
+        self.ty
+    }
+    pub fn clear_ty(&mut self) {
+        self.ty = RevType::Local;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_ty(&mut self, v: RevType) {
+        self.ty = v;
+    }
 }
 
 impl ::protobuf::Message for Revision {
@@ -188,6 +204,9 @@ impl ::protobuf::Message for Revision {
                 5 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.doc_id)?;
                 },
+                6 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.ty, 6, &mut self.unknown_fields)?
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -215,6 +234,9 @@ impl ::protobuf::Message for Revision {
         if !self.doc_id.is_empty() {
             my_size += ::protobuf::rt::string_size(5, &self.doc_id);
         }
+        if self.ty != RevType::Local {
+            my_size += ::protobuf::rt::enum_size(6, self.ty);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -235,6 +257,9 @@ impl ::protobuf::Message for Revision {
         }
         if !self.doc_id.is_empty() {
             os.write_string(5, &self.doc_id)?;
+        }
+        if self.ty != RevType::Local {
+            os.write_enum(6, ::protobuf::ProtobufEnum::value(&self.ty))?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -299,6 +324,11 @@ impl ::protobuf::Message for Revision {
                 |m: &Revision| { &m.doc_id },
                 |m: &mut Revision| { &mut m.doc_id },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<RevType>>(
+                "ty",
+                |m: &Revision| { &m.ty },
+                |m: &mut Revision| { &mut m.ty },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<Revision>(
                 "Revision",
                 fields,
@@ -320,6 +350,7 @@ impl ::protobuf::Clear for Revision {
         self.delta.clear();
         self.md5.clear();
         self.doc_id.clear();
+        self.ty = RevType::Local;
         self.unknown_fields.clear();
     }
 }
@@ -336,27 +367,87 @@ impl ::protobuf::reflect::ProtobufValue for Revision {
     }
 }
 
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
+pub enum RevType {
+    Local = 0,
+    Remote = 1,
+}
+
+impl ::protobuf::ProtobufEnum for RevType {
+    fn value(&self) -> i32 {
+        *self as i32
+    }
+
+    fn from_i32(value: i32) -> ::std::option::Option<RevType> {
+        match value {
+            0 => ::std::option::Option::Some(RevType::Local),
+            1 => ::std::option::Option::Some(RevType::Remote),
+            _ => ::std::option::Option::None
+        }
+    }
+
+    fn values() -> &'static [Self] {
+        static values: &'static [RevType] = &[
+            RevType::Local,
+            RevType::Remote,
+        ];
+        values
+    }
+
+    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<RevType>("RevType", file_descriptor_proto())
+        })
+    }
+}
+
+impl ::std::marker::Copy for RevType {
+}
+
+impl ::std::default::Default for RevType {
+    fn default() -> Self {
+        RevType::Local
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for RevType {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
+    }
+}
+
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0erevision.proto\"\x80\x01\n\x08Revision\x12\x1e\n\x0bbase_rev_id\
+    \n\x0erevision.proto\"\x9a\x01\n\x08Revision\x12\x1e\n\x0bbase_rev_id\
     \x18\x01\x20\x01(\x03R\tbaseRevId\x12\x15\n\x06rev_id\x18\x02\x20\x01(\
     \x03R\x05revId\x12\x14\n\x05delta\x18\x03\x20\x01(\x0cR\x05delta\x12\x10\
     \n\x03md5\x18\x04\x20\x01(\tR\x03md5\x12\x15\n\x06doc_id\x18\x05\x20\x01\
-    (\tR\x05docIdJ\xbd\x02\n\x06\x12\x04\0\0\x08\x01\n\x08\n\x01\x0c\x12\x03\
-    \0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x08\x01\n\n\n\x03\x04\0\x01\x12\
-    \x03\x02\x08\x10\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x1a\n\x0c\n\x05\
-    \x04\0\x02\0\x05\x12\x03\x03\x04\t\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\
-    \x03\n\x15\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x18\x19\n\x0b\n\x04\
-    \x04\0\x02\x01\x12\x03\x04\x04\x15\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\
-    \x04\x04\t\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\n\x10\n\x0c\n\x05\
-    \x04\0\x02\x01\x03\x12\x03\x04\x13\x14\n\x0b\n\x04\x04\0\x02\x02\x12\x03\
-    \x05\x04\x14\n\x0c\n\x05\x04\0\x02\x02\x05\x12\x03\x05\x04\t\n\x0c\n\x05\
-    \x04\0\x02\x02\x01\x12\x03\x05\n\x0f\n\x0c\n\x05\x04\0\x02\x02\x03\x12\
-    \x03\x05\x12\x13\n\x0b\n\x04\x04\0\x02\x03\x12\x03\x06\x04\x13\n\x0c\n\
-    \x05\x04\0\x02\x03\x05\x12\x03\x06\x04\n\n\x0c\n\x05\x04\0\x02\x03\x01\
-    \x12\x03\x06\x0b\x0e\n\x0c\n\x05\x04\0\x02\x03\x03\x12\x03\x06\x11\x12\n\
-    \x0b\n\x04\x04\0\x02\x04\x12\x03\x07\x04\x16\n\x0c\n\x05\x04\0\x02\x04\
-    \x05\x12\x03\x07\x04\n\n\x0c\n\x05\x04\0\x02\x04\x01\x12\x03\x07\x0b\x11\
-    \n\x0c\n\x05\x04\0\x02\x04\x03\x12\x03\x07\x14\x15b\x06proto3\
+    (\tR\x05docId\x12\x18\n\x02ty\x18\x06\x20\x01(\x0e2\x08.RevTypeR\x02ty*\
+    \x20\n\x07RevType\x12\t\n\x05Local\x10\0\x12\n\n\x06Remote\x10\x01J\xde\
+    \x03\n\x06\x12\x04\0\0\r\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\
+    \x04\0\x12\x04\x02\0\t\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x10\n\x0b\
+    \n\x04\x04\0\x02\0\x12\x03\x03\x04\x1a\n\x0c\n\x05\x04\0\x02\0\x05\x12\
+    \x03\x03\x04\t\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\n\x15\n\x0c\n\x05\
+    \x04\0\x02\0\x03\x12\x03\x03\x18\x19\n\x0b\n\x04\x04\0\x02\x01\x12\x03\
+    \x04\x04\x15\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\t\n\x0c\n\x05\
+    \x04\0\x02\x01\x01\x12\x03\x04\n\x10\n\x0c\n\x05\x04\0\x02\x01\x03\x12\
+    \x03\x04\x13\x14\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x04\x14\n\x0c\n\
+    \x05\x04\0\x02\x02\x05\x12\x03\x05\x04\t\n\x0c\n\x05\x04\0\x02\x02\x01\
+    \x12\x03\x05\n\x0f\n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05\x12\x13\n\
+    \x0b\n\x04\x04\0\x02\x03\x12\x03\x06\x04\x13\n\x0c\n\x05\x04\0\x02\x03\
+    \x05\x12\x03\x06\x04\n\n\x0c\n\x05\x04\0\x02\x03\x01\x12\x03\x06\x0b\x0e\
+    \n\x0c\n\x05\x04\0\x02\x03\x03\x12\x03\x06\x11\x12\n\x0b\n\x04\x04\0\x02\
+    \x04\x12\x03\x07\x04\x16\n\x0c\n\x05\x04\0\x02\x04\x05\x12\x03\x07\x04\n\
+    \n\x0c\n\x05\x04\0\x02\x04\x01\x12\x03\x07\x0b\x11\n\x0c\n\x05\x04\0\x02\
+    \x04\x03\x12\x03\x07\x14\x15\n\x0b\n\x04\x04\0\x02\x05\x12\x03\x08\x04\
+    \x13\n\x0c\n\x05\x04\0\x02\x05\x06\x12\x03\x08\x04\x0b\n\x0c\n\x05\x04\0\
+    \x02\x05\x01\x12\x03\x08\x0c\x0e\n\x0c\n\x05\x04\0\x02\x05\x03\x12\x03\
+    \x08\x11\x12\n\n\n\x02\x05\0\x12\x04\n\0\r\x01\n\n\n\x03\x05\0\x01\x12\
+    \x03\n\x05\x0c\n\x0b\n\x04\x05\0\x02\0\x12\x03\x0b\x04\x0e\n\x0c\n\x05\
+    \x05\0\x02\0\x01\x12\x03\x0b\x04\t\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\
+    \x0b\x0c\r\n\x0b\n\x04\x05\0\x02\x01\x12\x03\x0c\x04\x0f\n\x0c\n\x05\x05\
+    \0\x02\x01\x01\x12\x03\x0c\x04\n\n\x0c\n\x05\x05\0\x02\x01\x02\x12\x03\
+    \x0c\r\x0eb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

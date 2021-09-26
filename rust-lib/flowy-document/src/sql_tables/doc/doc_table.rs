@@ -5,7 +5,7 @@ use flowy_database::schema::doc_table;
 #[table_name = "doc_table"]
 pub(crate) struct DocTable {
     pub(crate) id: String,
-    pub(crate) data: Vec<u8>,
+    pub(crate) data: String,
     pub(crate) revision: i64,
 }
 
@@ -23,7 +23,7 @@ impl DocTable {
 #[table_name = "doc_table"]
 pub(crate) struct DocTableChangeset {
     pub id: String,
-    pub data: Vec<u8>,
+    pub data: String,
 }
 
 impl DocTableChangeset {

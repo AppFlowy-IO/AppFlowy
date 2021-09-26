@@ -319,15 +319,15 @@ class UpdateViewParams extends $pb.GeneratedMessage {
   void clearIsTrash() => clearField(5);
 }
 
-class ApplyChangesetRequest extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ApplyChangesetRequest', createEmptyInstance: create)
+class DocDeltaRequest extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DocDeltaRequest', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewId')
     ..a<$core.List<$core.int>>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
     ..hasRequiredFields = false
   ;
 
-  ApplyChangesetRequest._() : super();
-  factory ApplyChangesetRequest({
+  DocDeltaRequest._() : super();
+  factory DocDeltaRequest({
     $core.String? viewId,
     $core.List<$core.int>? data,
   }) {
@@ -340,26 +340,26 @@ class ApplyChangesetRequest extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory ApplyChangesetRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ApplyChangesetRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory DocDeltaRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory DocDeltaRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  ApplyChangesetRequest clone() => ApplyChangesetRequest()..mergeFromMessage(this);
+  DocDeltaRequest clone() => DocDeltaRequest()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  ApplyChangesetRequest copyWith(void Function(ApplyChangesetRequest) updates) => super.copyWith((message) => updates(message as ApplyChangesetRequest)) as ApplyChangesetRequest; // ignore: deprecated_member_use
+  DocDeltaRequest copyWith(void Function(DocDeltaRequest) updates) => super.copyWith((message) => updates(message as DocDeltaRequest)) as DocDeltaRequest; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static ApplyChangesetRequest create() => ApplyChangesetRequest._();
-  ApplyChangesetRequest createEmptyInstance() => create();
-  static $pb.PbList<ApplyChangesetRequest> createRepeated() => $pb.PbList<ApplyChangesetRequest>();
+  static DocDeltaRequest create() => DocDeltaRequest._();
+  DocDeltaRequest createEmptyInstance() => create();
+  static $pb.PbList<DocDeltaRequest> createRepeated() => $pb.PbList<DocDeltaRequest>();
   @$core.pragma('dart2js:noInline')
-  static ApplyChangesetRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ApplyChangesetRequest>(create);
-  static ApplyChangesetRequest? _defaultInstance;
+  static DocDeltaRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DocDeltaRequest>(create);
+  static DocDeltaRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get viewId => $_getSZ(0);

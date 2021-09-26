@@ -1,21 +1,20 @@
 use crate::{
-    entities::{
-        doc::Revision,
-        ws::{WsDataType, WsDocumentData},
-    },
+    entities::doc::{RevType, Revision},
     errors::{internal_error, DocError},
     services::{
-        util::{bytes_to_rev_id, RevIdCounter},
+        util::{md5, RevIdCounter},
         ws::{WsDocumentHandler, WsDocumentSender},
     },
-    sql_tables::{OpTable, OpTableSql},
+    sql_tables::{OpTableSql, RevTable},
 };
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
-use flowy_infra::future::wrap_future;
 use flowy_ot::core::Delta;
 use parking_lot::RwLock;
-use std::{collections::BTreeMap, sync::Arc};
+use std::{
+    collections::{BTreeMap, VecDeque},
+    sync::Arc,
+};
 use tokio::sync::{futures::Notified, Notify};
 
 pub struct RevisionManager {
@@ -24,7 +23,8 @@ pub struct RevisionManager {
     pool: Arc<ConnectionPool>,
     rev_id_counter: RevIdCounter,
     ws_sender: Arc<dyn WsDocumentSender>,
-    rev_cache: RwLock<BTreeMap<i64, Revision>>,
+    local_rev_cache: Arc<RwLock<BTreeMap<i64, Revision>>>,
+    remote_rev_cache: RwLock<VecDeque<Revision>>,
     notify: Notify,
 }
 
@@ -37,59 +37,90 @@ impl RevisionManager {
         ws_sender: Arc<dyn WsDocumentSender>,
     ) -> Self {
         let rev_id_counter = RevIdCounter::new(rev_id);
-        let rev_cache = RwLock::new(BTreeMap::new());
+        let local_rev_cache = Arc::new(RwLock::new(BTreeMap::new()));
+        let remote_rev_cache = RwLock::new(VecDeque::new());
         Self {
             doc_id: doc_id.to_owned(),
             op_sql,
             pool,
             rev_id_counter,
             ws_sender,
-            rev_cache,
+            local_rev_cache,
+            remote_rev_cache,
             notify: Notify::new(),
         }
     }
 
-    pub fn next_compose_delta(&self) -> Option<Delta> {
-        // let delta = Delta::from_bytes(revision.delta)?;
-        //
-        // log::debug!("Remote delta: {:?}", delta);
+    pub fn next_compose_delta<F>(&self, mut f: F)
+    where
+        F: FnMut(&Delta) -> Result<(), DocError>,
+    {
+        if let Some(rev) = self.remote_rev_cache.write().pop_front() {
+            match Delta::from_bytes(&rev.delta) {
+                Ok(delta) => match f(&delta) {
+                    Ok(_) => {},
+                    Err(e) => {
+                        log::error!("{}", e);
+                        self.remote_rev_cache.write().push_front(rev);
+                    },
+                },
+                Err(_) => {},
+            }
+        }
     }
 
-    pub fn notified(&self) -> Notified { self.notify.notified() }
+    #[tracing::instrument(level = "debug", skip(self, delta_data))]
+    pub fn add_delta(&self, delta_data: Bytes) -> Result<(), DocError> {
+        let (base_rev_id, rev_id) = self.next_rev_id();
+        let revision = Revision::new(
+            base_rev_id,
+            rev_id,
+            delta_data.to_vec(),
+            md5(&delta_data),
+            self.doc_id.clone(),
+            RevType::Local,
+        );
+        let _ = self.add_revision(revision)?;
+        Ok(())
+    }
 
-    pub fn next_rev(&self) -> (i64, i64) {
+    #[tracing::instrument(level = "debug", skip(self, revision))]
+    pub fn add_revision(&self, revision: Revision) -> Result<(), DocError> {
+        match revision.ty {
+            RevType::Local => {
+                self.local_rev_cache.write().insert(revision.rev_id, revision.clone());
+                // self.save_revision(revision.clone());
+                match self.ws_sender.send(revision.into()) {
+                    Ok(_) => {},
+                    Err(e) => {
+                        log::error!("Send delta failed: {:?}", e);
+                    },
+                }
+            },
+            RevType::Remote => {
+                self.remote_rev_cache.write().push_back(revision);
+                self.notify.notify_waiters();
+            },
+        }
+
+        Ok(())
+    }
+
+    pub fn remove(&self, rev_id: i64) -> Result<(), DocError> {
+        self.local_rev_cache.write().remove(&rev_id);
+        // self.delete_revision(rev_id);
+        Ok(())
+    }
+
+    pub fn rev_notified(&self) -> Notified { self.notify.notified() }
+
+    pub fn next_rev_id(&self) -> (i64, i64) {
         let cur = self.rev_id_counter.value();
         let next = self.rev_id_counter.next();
         (cur, next)
     }
 
-    pub fn rev(&self) -> i64 { self.rev_id_counter.value() }
-
-    pub fn add_local(&self, revision: Revision) -> Result<(), DocError> {
-        self.rev_cache.write().insert(revision.rev_id, revision.clone());
-        match self.ws_sender.send(revision.into()) {
-            Ok(_) => {},
-            Err(e) => {
-                log::error!("Send delta failed: {:?}", e);
-            },
-        }
-        // self.save_revision(revision.clone());
-        Ok(())
-    }
-
-    #[tracing::instrument(level = "debug", skip(self, revision))]
-    pub fn add_remote(&self, revision: Revision) -> Result<(), DocError> {
-        self.rev_cache.write().insert(revision.rev_id, revision);
-        // self.save_revision(revision.clone());
-        self.notify.notify_waiters();
-        Ok(())
-    }
-
-    pub fn remove(&self, rev_id: i64) -> Result<(), DocError> {
-        self.rev_cache.write().remove(&rev_id);
-        // self.delete_revision(rev_id);
-        Ok(())
-    }
+    pub fn rev_id(&self) -> i64 { self.rev_id_counter.value() }
 
     fn save_revision(&self, revision: Revision) {
         let op_sql = self.op_sql.clone();
@@ -97,7 +128,7 @@ impl RevisionManager {
         tokio::spawn(async move {
             let conn = &*pool.get().map_err(internal_error).unwrap();
             let result = conn.immediate_transaction::<_, DocError, _>(|| {
-                let op_table: OpTable = revision.into();
+                let op_table: RevTable = revision.into();
                 let _ = op_sql.create_op_table(op_table, conn).unwrap();
                 Ok(())
             });

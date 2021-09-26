@@ -24,12 +24,13 @@ class IDocImpl extends IDoc {
   }
 
   @override
-  Future<Either<Doc, WorkspaceError>> applyChangeset({String? json}) {
-    return repo.applyChangeset(data: _encodeText(json));
+  Future<Either<Doc, WorkspaceError>> applyChangeset({required String json}) {
+    return repo.applyDelta(data: json);
   }
 }
 
-Uint8List _encodeText(String? json) {
+// ignore: unused_element
+Uint8List _encodeJsonText(String? json) {
   final data = utf8.encode(json ?? "");
   return Uint8List.fromList(data);
 }

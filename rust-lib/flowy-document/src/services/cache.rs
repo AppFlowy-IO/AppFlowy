@@ -14,6 +14,13 @@ pub(crate) struct DocCache {
 impl DocCache {
     pub(crate) fn new() -> Self { Self { inner: DashMap::new() } }
 
+    pub(crate) fn all_docs(&self) -> Vec<Arc<EditDocContext>> {
+        self.inner
+            .iter()
+            .map(|kv| kv.value().clone())
+            .collect::<Vec<Arc<EditDocContext>>>()
+    }
+
     pub(crate) fn set(&self, doc: Arc<EditDocContext>) {
         let doc_id = doc.id.clone();
         if self.inner.contains_key(&doc_id) {

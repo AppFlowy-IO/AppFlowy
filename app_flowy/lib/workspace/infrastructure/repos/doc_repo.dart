@@ -18,8 +18,7 @@ class DocRepository {
     return WorkspaceEventOpenView(request).send();
   }
 
-  Future<Either<Doc, WorkspaceError>> applyChangeset(
-      {required Uint8List data}) {
+  Future<Either<Doc, WorkspaceError>> applyDelta({required String data}) {
     final request = DocDelta.create()
       ..docId = docId
       ..data = data;

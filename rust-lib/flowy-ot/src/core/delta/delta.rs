@@ -48,10 +48,7 @@ impl std::convert::TryFrom<Vec<u8>> for Delta {
 impl std::convert::TryFrom<Bytes> for Delta {
     type Error = OTError;
 
-    fn try_from(value: Bytes) -> Result<Self, Self::Error> {
-        let bytes = value.to_vec();
-        Delta::from_bytes(bytes)
-    }
+    fn try_from(bytes: Bytes) -> Result<Self, Self::Error> { Delta::from_bytes(&bytes) }
 }
 
 // impl<T: AsRef<Vec<u8>>> std::convert::From<T> for Delta {
@@ -94,8 +91,8 @@ impl Delta {
 
     pub fn to_json(&self) -> String { serde_json::to_string(self).unwrap_or("".to_owned()) }
 
-    pub fn from_bytes(bytes: Vec<u8>) -> Result<Self, OTError> {
-        let json = str::from_utf8(&bytes)?;
+    pub fn from_bytes<T: AsRef<[u8]>>(bytes: T) -> Result<Self, OTError> {
+        let json = str::from_utf8(bytes.as_ref())?;
         Self::from_json(json)
     }
 
@@ -271,8 +268,12 @@ impl OperationTransformable for Delta {
                 other_iter.next_op_len().unwrap_or(MAX_IV_LEN),
             );
 
-            let op = iter.next_op_with_len(length).unwrap_or(OpBuilder::retain(length).build());
-            let other_op = other_iter.next_op_with_len(length).unwrap_or(OpBuilder::retain(length).build());
+            let op = iter
+                .next_op_with_len(length)
+                .unwrap_or(OpBuilder::retain(length).build());
+            let other_op = other_iter
+                .next_op_with_len(length)
+                .unwrap_or(OpBuilder::retain(length).build());
 
             debug_assert_eq!(op.len(), other_op.len());
 

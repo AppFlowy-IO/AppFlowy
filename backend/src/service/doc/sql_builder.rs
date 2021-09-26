@@ -16,13 +16,13 @@ impl NewDocSqlBuilder {
     pub fn new(id: Uuid) -> Self {
         let table = DocTable {
             id,
-            data: vec![],
+            data: "".to_owned(),
             rev_id: 0,
         };
         Self { table }
     }
 
-    pub fn data(mut self, data: Vec<u8>) -> Self {
+    pub fn data(mut self, data: String) -> Self {
         self.table.data = data;
         self
     }

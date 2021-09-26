@@ -6,11 +6,16 @@ pub struct CreateDocParams {
     pub id: String,
 
     #[pb(index = 2)]
-    pub data: Vec<u8>,
+    pub data: String,
 }
 
 impl CreateDocParams {
-    pub fn new(id: &str, data: Vec<u8>) -> Self { Self { id: id.to_owned(), data } }
+    pub fn new(id: &str, data: String) -> Self {
+        Self {
+            id: id.to_owned(),
+            data,
+        }
+    }
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone, Eq, PartialEq)]
@@ -19,7 +24,7 @@ pub struct Doc {
     pub id: String,
 
     #[pb(index = 2)]
-    pub data: Vec<u8>,
+    pub data: String,
 
     #[pb(index = 3)]
     pub rev_id: i64,
@@ -31,7 +36,7 @@ pub struct UpdateDocParams {
     pub doc_id: String,
 
     #[pb(index = 2)]
-    pub data: Vec<u8>,
+    pub data: String,
 
     #[pb(index = 3)]
     pub rev_id: i64,
@@ -43,7 +48,7 @@ pub struct DocDelta {
     pub doc_id: String,
 
     #[pb(index = 2)]
-    pub data: Vec<u8>, // Delta
+    pub data: String, // Delta
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]

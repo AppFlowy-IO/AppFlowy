@@ -6,4 +6,9 @@ message Revision {
     bytes delta = 3;
     string md5 = 4;
     string doc_id = 5;
+    RevType ty = 6;
+}
+enum RevType {
+    Local = 0;
+    Remote = 1;
 }

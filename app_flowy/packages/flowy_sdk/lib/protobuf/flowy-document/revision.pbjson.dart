@@ -8,6 +8,17 @@
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
 import 'dart:typed_data' as $typed_data;
+@$core.Deprecated('Use revTypeDescriptor instead')
+const RevType$json = const {
+  '1': 'RevType',
+  '2': const [
+    const {'1': 'Local', '2': 0},
+    const {'1': 'Remote', '2': 1},
+  ],
+};
+
+/// Descriptor for `RevType`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List revTypeDescriptor = $convert.base64Decode('CgdSZXZUeXBlEgkKBUxvY2FsEAASCgoGUmVtb3RlEAE=');
 @$core.Deprecated('Use revisionDescriptor instead')
 const Revision$json = const {
   '1': 'Revision',
@@ -17,8 +28,9 @@ const Revision$json = const {
     const {'1': 'delta', '3': 3, '4': 1, '5': 12, '10': 'delta'},
     const {'1': 'md5', '3': 4, '4': 1, '5': 9, '10': 'md5'},
     const {'1': 'doc_id', '3': 5, '4': 1, '5': 9, '10': 'docId'},
+    const {'1': 'ty', '3': 6, '4': 1, '5': 14, '6': '.RevType', '10': 'ty'},
   ],
 };
 
 /// Descriptor for `Revision`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List revisionDescriptor = $convert.base64Decode('CghSZXZpc2lvbhIeCgtiYXNlX3Jldl9pZBgBIAEoA1IJYmFzZVJldklkEhUKBnJldl9pZBgCIAEoA1IFcmV2SWQSFAoFZGVsdGEYAyABKAxSBWRlbHRhEhAKA21kNRgEIAEoCVIDbWQ1EhUKBmRvY19pZBgFIAEoCVIFZG9jSWQ=');
+final $typed_data.Uint8List revisionDescriptor = $convert.base64Decode('CghSZXZpc2lvbhIeCgtiYXNlX3Jldl9pZBgBIAEoA1IJYmFzZVJldklkEhUKBnJldl9pZBgCIAEoA1IFcmV2SWQSFAoFZGVsdGEYAyABKAxSBWRlbHRhEhAKA21kNRgEIAEoCVIDbWQ1EhUKBmRvY19pZBgFIAEoCVIFZG9jSWQSGAoCdHkYBiABKA4yCC5SZXZUeXBlUgJ0eQ==');

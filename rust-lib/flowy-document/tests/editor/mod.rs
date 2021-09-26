@@ -45,6 +45,9 @@ pub enum TestOp {
     #[display(fmt = "Transform")]
     Transform(usize, usize),
 
+    #[display(fmt = "TransformPrime")]
+    TransformPrime(usize, usize),
+
     // invert the delta_a base on the delta_b
     #[display(fmt = "Invert")]
     Invert(usize, usize),
@@ -61,12 +64,23 @@ pub enum TestOp {
     #[display(fmt = "AssertStr")]
     AssertStr(usize, &'static str),
 
-    #[display(fmt = "AssertOpsJson")]
-    AssertOpsJson(usize, &'static str),
+    #[display(fmt = "AssertDocJson")]
+    AssertDocJson(usize, &'static str),
+
+    #[display(fmt = "AssertPrimeJson")]
+    AssertPrimeJson(usize, &'static str),
+
+    #[display(fmt = "DocComposeDelta")]
+    DocComposeDelta(usize, usize),
+
+    #[display(fmt = "ApplyPrimeDelta")]
+    DocComposePrime(usize, usize),
 }
 
 pub struct TestBuilder {
     documents: Vec<Document>,
+    deltas: Vec<Option<Delta>>,
+    primes: Vec<Option<Delta>>,
 }
 
 impl TestBuilder {
@@ -78,7 +92,11 @@ impl TestBuilder {
             env_logger::init();
         });
 
-        Self { documents: vec![] }
+        Self {
+            documents: vec![],
+            deltas: vec![],
+            primes: vec![],
+        }
     }
 
     fn run_op(&mut self, op: &TestOp) {
@@ -86,15 +104,18 @@ impl TestBuilder {
         match op {
             TestOp::Insert(delta_i, s, index) => {
                 let document = &mut self.documents[*delta_i];
-                document.insert(*index, s).unwrap();
+                let delta = document.insert(*index, s).unwrap();
+                self.deltas.insert(*delta_i, Some(delta));
             },
             TestOp::Delete(delta_i, iv) => {
                 let document = &mut self.documents[*delta_i];
-                document.replace(*iv, "").unwrap();
+                let delta = document.replace(*iv, "").unwrap();
+                self.deltas.insert(*delta_i, Some(delta));
             },
             TestOp::Replace(delta_i, iv, s) => {
                 let document = &mut self.documents[*delta_i];
-                document.replace(*iv, s).unwrap();
+                let delta = document.replace(*iv, s).unwrap();
+                self.deltas.insert(*delta_i, Some(delta));
             },
             TestOp::InsertBold(delta_i, s, iv) => {
                 let document = &mut self.documents[*delta_i];
@@ -104,7 +125,8 @@ impl TestBuilder {
             TestOp::Bold(delta_i, iv, enable) => {
                 let document = &mut self.documents[*delta_i];
                 let attribute = Attribute::Bold(*enable);
-                document.format(*iv, attribute).unwrap();
+                let delta = document.format(*iv, attribute).unwrap();
+                self.deltas.insert(*delta_i, Some(delta));
             },
             TestOp::Italic(delta_i, iv, enable) => {
                 let document = &mut self.documents[*delta_i];
@@ -112,22 +134,26 @@ impl TestBuilder {
                     true => Attribute::Italic(true),
                     false => Attribute::Italic(false),
                 };
-                document.format(*iv, attribute).unwrap();
+                let delta = document.format(*iv, attribute).unwrap();
+                self.deltas.insert(*delta_i, Some(delta));
             },
             TestOp::Header(delta_i, iv, level) => {
                 let document = &mut self.documents[*delta_i];
                 let attribute = Attribute::Header(*level);
-                document.format(*iv, attribute).unwrap();
+                let delta = document.format(*iv, attribute).unwrap();
+                self.deltas.insert(*delta_i, Some(delta));
             },
             TestOp::Link(delta_i, iv, link) => {
                 let document = &mut self.documents[*delta_i];
                 let attribute = Attribute::Link(link.to_owned());
-                document.format(*iv, attribute).unwrap();
+                let delta = document.format(*iv, attribute).unwrap();
+                self.deltas.insert(*delta_i, Some(delta));
             },
             TestOp::Bullet(delta_i, iv, enable) => {
                 let document = &mut self.documents[*delta_i];
                 let attribute = Attribute::Bullet(*enable);
-                document.format(*iv, attribute).unwrap();
+                let delta = document.format(*iv, attribute).unwrap();
+                self.deltas.insert(*delta_i, Some(delta));
             },
             TestOp::Transform(delta_a_i, delta_b_i) => {
                 let (a_prime, b_prime) = self.documents[*delta_a_i]
@@ -141,6 +167,15 @@ impl TestBuilder {
 
                 self.documents[*delta_a_i].set_delta(data_left);
                 self.documents[*delta_b_i].set_delta(data_right);
+            },
+            TestOp::TransformPrime(a_doc_index, b_doc_index) => {
+                let (prime_left, prime_right) = self.documents[*a_doc_index]
+                    .delta()
+                    .transform(&self.documents[*b_doc_index].delta())
+                    .unwrap();
+
+                self.primes.insert(*a_doc_index, Some(prime_left));
+                self.primes.insert(*b_doc_index, Some(prime_right));
             },
             TestOp::Invert(delta_a_i, delta_b_i) => {
                 let delta_a = &self.documents[*delta_a_i].delta();
@@ -177,22 +212,50 @@ impl TestBuilder {
                 assert_eq!(&self.documents[*delta_i].to_plain_string(), expected);
             },
 
-            TestOp::AssertOpsJson(delta_i, expected) => {
-                let delta_i_json = self.documents[*delta_i].to_json();
+            TestOp::AssertDocJson(delta_i, expected) => {
+                let delta_json = self.documents[*delta_i].to_json();
                 let expected_delta: Delta = serde_json::from_str(expected).unwrap();
-                let target_delta: Delta = serde_json::from_str(&delta_i_json).unwrap();
+                let target_delta: Delta = serde_json::from_str(&delta_json).unwrap();
 
                 if expected_delta != target_delta {
                     log::error!("✅ expect: {}", expected,);
-                    log::error!("❌ receive: {}", delta_i_json);
+                    log::error!("❌ receive: {}", delta_json);
                 }
                 assert_eq!(target_delta, expected_delta);
+            },
+
+            TestOp::AssertPrimeJson(doc_i, expected) => {
+                let prime_json = self.primes[*doc_i].as_ref().unwrap().to_json();
+                let expected_prime: Delta = serde_json::from_str(expected).unwrap();
+                let target_prime: Delta = serde_json::from_str(&prime_json).unwrap();
+
+                if expected_prime != target_prime {
+                    log::error!("✅ expect prime: {}", expected,);
+                    log::error!("❌ receive prime: {}", prime_json);
+                }
+                assert_eq!(target_prime, expected_prime);
+            },
+            TestOp::DocComposeDelta(doc_index, delta_i) => {
+                let delta = self.deltas.get(*delta_i).unwrap().as_ref().unwrap();
+                self.documents[*doc_index].compose_delta(delta);
+            },
+            TestOp::DocComposePrime(doc_index, prime_i) => {
+                let delta = self
+                    .primes
+                    .get(*prime_i)
+                    .expect("Must call TransformPrime first")
+                    .as_ref()
+                    .unwrap();
+                let new_delta = self.documents[*doc_index].delta().compose(delta).unwrap();
+                self.documents[*doc_index].set_delta(new_delta);
             },
         }
     }
 
     pub fn run_script<C: CustomDocument>(mut self, script: Vec<TestOp>) {
         self.documents = vec![Document::new::<C>(), Document::new::<C>()];
+        self.primes = vec![None, None];
+        self.deltas = vec![None, None];
         for (_i, op) in script.iter().enumerate() {
             self.run_op(op);
         }

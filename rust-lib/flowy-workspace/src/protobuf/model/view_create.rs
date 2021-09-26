@@ -387,7 +387,7 @@ pub struct CreateViewParams {
     pub desc: ::std::string::String,
     pub thumbnail: ::std::string::String,
     pub view_type: ViewType,
-    pub data: ::std::vec::Vec<u8>,
+    pub data: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -523,10 +523,10 @@ impl CreateViewParams {
         self.view_type = v;
     }
 
-    // bytes data = 6;
+    // string data = 6;
 
 
-    pub fn get_data(&self) -> &[u8] {
+    pub fn get_data(&self) -> &str {
         &self.data
     }
     pub fn clear_data(&mut self) {
@@ -534,19 +534,19 @@ impl CreateViewParams {
     }
 
     // Param is passed by value, moved
-    pub fn set_data(&mut self, v: ::std::vec::Vec<u8>) {
+    pub fn set_data(&mut self, v: ::std::string::String) {
         self.data = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_data(&mut self) -> &mut ::std::vec::Vec<u8> {
+    pub fn mut_data(&mut self) -> &mut ::std::string::String {
         &mut self.data
     }
 
     // Take field
-    pub fn take_data(&mut self) -> ::std::vec::Vec<u8> {
-        ::std::mem::replace(&mut self.data, ::std::vec::Vec::new())
+    pub fn take_data(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.data, ::std::string::String::new())
     }
 }
 
@@ -575,7 +575,7 @@ impl ::protobuf::Message for CreateViewParams {
                     ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.view_type, 5, &mut self.unknown_fields)?
                 },
                 6 => {
-                    ::protobuf::rt::read_singular_proto3_bytes_into(wire_type, is, &mut self.data)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.data)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -605,7 +605,7 @@ impl ::protobuf::Message for CreateViewParams {
             my_size += ::protobuf::rt::enum_size(5, self.view_type);
         }
         if !self.data.is_empty() {
-            my_size += ::protobuf::rt::bytes_size(6, &self.data);
+            my_size += ::protobuf::rt::string_size(6, &self.data);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -629,7 +629,7 @@ impl ::protobuf::Message for CreateViewParams {
             os.write_enum(5, ::protobuf::ProtobufEnum::value(&self.view_type))?;
         }
         if !self.data.is_empty() {
-            os.write_bytes(6, &self.data)?;
+            os.write_string(6, &self.data)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -694,7 +694,7 @@ impl ::protobuf::Message for CreateViewParams {
                 |m: &CreateViewParams| { &m.view_type },
                 |m: &mut CreateViewParams| { &mut m.view_type },
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBytes>(
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "data",
                 |m: &CreateViewParams| { &m.data },
                 |m: &mut CreateViewParams| { &mut m.data },
@@ -1441,7 +1441,7 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \nbelongToId\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x12\n\x04\
     desc\x18\x03\x20\x01(\tR\x04desc\x12\x1c\n\tthumbnail\x18\x04\x20\x01(\t\
     R\tthumbnail\x12&\n\tview_type\x18\x05\x20\x01(\x0e2\t.ViewTypeR\x08view\
-    Type\x12\x12\n\x04data\x18\x06\x20\x01(\x0cR\x04data\"\x97\x02\n\x04View\
+    Type\x12\x12\n\x04data\x18\x06\x20\x01(\tR\x04data\"\x97\x02\n\x04View\
     \x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x20\n\x0cbelong_to_id\x18\
     \x02\x20\x01(\tR\nbelongToId\x12\x12\n\x04name\x18\x03\x20\x01(\tR\x04na\
     me\x12\x12\n\x04desc\x18\x04\x20\x01(\tR\x04desc\x12&\n\tview_type\x18\
@@ -1483,9 +1483,9 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x12\x03\x0e\x04\x1b\n\x0c\n\x05\x04\x01\x02\x04\x06\x12\x03\x0e\x04\x0c\
     \n\x0c\n\x05\x04\x01\x02\x04\x01\x12\x03\x0e\r\x16\n\x0c\n\x05\x04\x01\
     \x02\x04\x03\x12\x03\x0e\x19\x1a\n\x0b\n\x04\x04\x01\x02\x05\x12\x03\x0f\
-    \x04\x13\n\x0c\n\x05\x04\x01\x02\x05\x05\x12\x03\x0f\x04\t\n\x0c\n\x05\
-    \x04\x01\x02\x05\x01\x12\x03\x0f\n\x0e\n\x0c\n\x05\x04\x01\x02\x05\x03\
-    \x12\x03\x0f\x11\x12\n\n\n\x02\x04\x02\x12\x04\x11\0\x1b\x01\n\n\n\x03\
+    \x04\x14\n\x0c\n\x05\x04\x01\x02\x05\x05\x12\x03\x0f\x04\n\n\x0c\n\x05\
+    \x04\x01\x02\x05\x01\x12\x03\x0f\x0b\x0f\n\x0c\n\x05\x04\x01\x02\x05\x03\
+    \x12\x03\x0f\x12\x13\n\n\n\x02\x04\x02\x12\x04\x11\0\x1b\x01\n\n\n\x03\
     \x04\x02\x01\x12\x03\x11\x08\x0c\n\x0b\n\x04\x04\x02\x02\0\x12\x03\x12\
     \x04\x12\n\x0c\n\x05\x04\x02\x02\0\x05\x12\x03\x12\x04\n\n\x0c\n\x05\x04\
     \x02\x02\0\x01\x12\x03\x12\x0b\r\n\x0c\n\x05\x04\x02\x02\0\x03\x12\x03\

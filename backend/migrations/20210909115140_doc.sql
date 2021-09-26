@@ -2,6 +2,7 @@
 CREATE TABLE IF NOT EXISTS doc_table(
     id uuid NOT NULL,
     PRIMARY KEY (id),
-    data bytea NOT NULL DEFAULT '',
+--     data bytea NOT NULL DEFAULT '',
+    data TEXT NOT NULL DEFAULT '',
     rev_id bigint NOT NULL DEFAULT 0
 );
