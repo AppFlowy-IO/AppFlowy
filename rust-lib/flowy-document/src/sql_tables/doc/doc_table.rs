@@ -1,4 +1,4 @@
-use crate::entities::doc::{Doc, UpdateDocParams};
+use crate::entities::doc::Doc;
 use flowy_database::schema::doc_table;
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
@@ -24,15 +24,7 @@ impl DocTable {
 pub(crate) struct DocTableChangeset {
     pub id: String,
     pub data: String,
-}
-
-impl DocTableChangeset {
-    pub(crate) fn new(params: UpdateDocParams) -> Self {
-        Self {
-            id: params.doc_id,
-            data: params.data,
-        }
-    }
+    pub revision: i64,
 }
 
 impl std::convert::Into<Doc> for DocTable {

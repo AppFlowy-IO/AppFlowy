@@ -1,6 +1,6 @@
 use crate::editor::{Rng, TestBuilder, TestOp::*};
 use bytecount::num_chars;
-use flowy_document::services::doc::PlainDoc;
+use flowy_document::services::doc::{FlowyDoc, PlainDoc};
 use flowy_ot::core::*;
 
 #[test]
@@ -714,4 +714,17 @@ fn delta_invert_attribute_delta_with_attribute_delta() {
         ),
     ];
     TestBuilder::new().run_script::<PlainDoc>(ops);
+}
+
+#[test]
+#[should_panic]
+fn delta_compose_with_missing_delta() {
+    let ops = vec![
+        Insert(0, "123", 0),
+        Insert(0, "4", 3),
+        DocComposeDelta(1, 0),
+        AssertDocJson(0, r#"[{"insert":"1234\n"}]"#),
+        AssertStr(1, r#"4\n"#),
+    ];
+    TestBuilder::new().run_script::<FlowyDoc>(ops);
 }

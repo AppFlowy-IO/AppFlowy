@@ -1,11 +1,12 @@
 use crate::service::{
     doc::update_doc,
     util::md5,
-    ws::{entities::Socket, WsMessageAdaptor},
+    ws::{entities::Socket, WsClientData, WsMessageAdaptor, WsUser},
 };
 use actix_web::web::Data;
 use byteorder::{BigEndian, WriteBytesExt};
 use bytes::Bytes;
+use dashmap::DashMap;
 use flowy_document::{
     entities::ws::{WsDataType, WsDocumentData},
     protobuf::{Doc, RevType, Revision, UpdateDocParams},
@@ -20,48 +21,93 @@ use flowy_ws::WsMessage;
 use parking_lot::RwLock;
 use protobuf::Message;
 use sqlx::PgPool;
-use std::{convert::TryInto, sync::Arc, time::Duration};
+use std::{
+    convert::TryInto,
+    sync::{
+        atomic::{AtomicI64, Ordering::SeqCst},
+        Arc,
+    },
+    time::Duration,
+};
+
+struct EditUser {
+    user: Arc<WsUser>,
+    socket: Socket,
+}
 
 pub(crate) struct EditDocContext {
     doc_id: String,
-    rev_id: i64,
+    rev_id: AtomicI64,
     document: Arc<RwLock<Document>>,
     pg_pool: Data<PgPool>,
+    users: DashMap<String, EditUser>,
 }
 
 impl EditDocContext {
     pub(crate) fn new(doc: Doc, pg_pool: Data<PgPool>) -> Result<Self, ServerError> {
         let delta = Delta::from_bytes(&doc.data).map_err(internal_error)?;
         let document = Arc::new(RwLock::new(Document::from_delta(delta)));
+        let users = DashMap::new();
         Ok(Self {
             doc_id: doc.id.clone(),
-            rev_id: doc.rev_id,
+            rev_id: AtomicI64::new(doc.rev_id),
             document,
             pg_pool,
+            users,
         })
     }
 
-    #[tracing::instrument(level = "debug", skip(self, socket, revision))]
-    pub(crate) async fn apply_revision(&self, socket: Socket, revision: Revision) -> Result<(), ServerError> {
+    #[tracing::instrument(level = "debug", skip(self, client_data, revision))]
+    pub(crate) async fn apply_revision(
+        &self,
+        client_data: WsClientData,
+        revision: Revision,
+    ) -> Result<(), ServerError> {
         let _ = self.verify_md5(&revision)?;
+        // Rest EditUser for each client websocket message to keep the socket available.
+        let user = EditUser {
+            user: client_data.user.clone(),
+            socket: client_data.socket.clone(),
+        };
+        self.users.insert(client_data.user.id().to_owned(), user);
 
-        if self.rev_id > revision.rev_id {
-            let (cli_prime, server_prime) = self.compose(&revision.delta).map_err(internal_error)?;
+        log::debug!(
+            "cur_base_rev_id: {}, expect_base_rev_id: {} rev_id: {}",
+            self.rev_id.load(SeqCst),
+            revision.base_rev_id,
+            revision.rev_id
+        );
+
+        let cli_socket = client_data.socket;
+        let cur_rev_id = self.rev_id.load(SeqCst);
+        // Transform the revision if client rev_id less than server rev_id. Sending the
+        // prime delta to client.
+        if cur_rev_id > revision.rev_id {
+            let (cli_prime, server_prime) = self.transform(&revision.delta).map_err(internal_error)?;
             let _ = self.update_document_delta(server_prime)?;
 
             log::debug!("{} client delta: {}", self.doc_id, cli_prime.to_json());
             let cli_revision = self.mk_revision(revision.rev_id, cli_prime);
             let ws_cli_revision = mk_rev_ws_message(&self.doc_id, cli_revision);
-            socket.do_send(ws_cli_revision).map_err(internal_error)?;
+            cli_socket.do_send(ws_cli_revision).map_err(internal_error)?;
+            Ok(())
+        } else if cur_rev_id < revision.rev_id {
+            if cur_rev_id != revision.base_rev_id {
+                let missing_rev_range = revision.rev_id - cur_rev_id;
+                // TODO: pull the missing revs from client
+            } else {
+                let delta = Delta::from_bytes(&revision.delta).map_err(internal_error)?;
+                let _ = self.update_document_delta(delta)?;
+                cli_socket.do_send(mk_acked_ws_message(&revision));
+                self.rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(revision.rev_id));
+
+                // Opti: save with multiple revisions
+                let _ = self.save_revision(&revision).await?;
+            }
+
             Ok(())
         } else {
-            let delta = Delta::from_bytes(&revision.delta).map_err(internal_error)?;
-            let _ = self.update_document_delta(delta)?;
-            socket.do_send(mk_acked_ws_message(&revision));
-
-            // Opti: save with multiple revisions
-            let _ = self.save_revision(&revision).await?;
-            Ok(())
+            log::error!("Client rev_id should not equal to server rev_id");
         }
     }
 
@@ -70,7 +116,7 @@ impl EditDocContext {
         let md5 = md5(&delta_data);
         let revision = Revision {
             base_rev_id,
-            rev_id: self.rev_id,
+            rev_id: self.rev_id.load(SeqCst),
             delta: delta_data,
             md5,
             doc_id: self.doc_id.to_string(),
@@ -81,10 +127,12 @@ impl EditDocContext {
     }
 
     #[tracing::instrument(level = "debug", skip(self, delta_data))]
-    fn compose(&self, delta_data: &Vec<u8>) -> Result<(Delta, Delta), OTError> {
-        log::debug!("{} document data: {}", self.doc_id, self.document.read().to_json());
+    fn transform(&self, delta_data: &Vec<u8>) -> Result<(Delta, Delta), OTError> {
+        log::debug!("Document: {}", self.document.read().to_json());
         let doc_delta = self.document.read().delta().clone();
         let cli_delta = Delta::from_bytes(delta_data)?;
+
+        log::debug!("Compose delta: {}", cli_delta);
         let (cli_prime, server_prime) = doc_delta.transform(&cli_delta)?;
 
         Ok((cli_prime, server_prime))
@@ -99,8 +147,7 @@ impl EditDocContext {
             },
             Some(mut write_guard) => {
                 let _ = write_guard.compose_delta(&delta).map_err(internal_error)?;
-
-                log::debug!("Document: {}", write_guard.to_plain_string());
+                log::debug!("Document: {}", write_guard.to_json());
             },
         }
         Ok(())

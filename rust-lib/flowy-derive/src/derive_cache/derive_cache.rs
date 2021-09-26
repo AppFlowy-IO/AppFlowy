@@ -41,7 +41,6 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "CurrentWorkspace"
         | "UpdateViewRequest"
         | "UpdateViewParams"
-        | "DocDeltaRequest"
         | "DeleteViewRequest"
         | "DeleteViewParams"
         | "QueryViewRequest"

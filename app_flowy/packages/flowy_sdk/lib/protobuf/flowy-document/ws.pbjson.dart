@@ -14,11 +14,12 @@ const WsDataType$json = const {
   '2': const [
     const {'1': 'Acked', '2': 0},
     const {'1': 'Rev', '2': 1},
+    const {'1': 'Conflict', '2': 2},
   ],
 };
 
 /// Descriptor for `WsDataType`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List wsDataTypeDescriptor = $convert.base64Decode('CgpXc0RhdGFUeXBlEgkKBUFja2VkEAASBwoDUmV2EAE=');
+final $typed_data.Uint8List wsDataTypeDescriptor = $convert.base64Decode('CgpXc0RhdGFUeXBlEgkKBUFja2VkEAASBwoDUmV2EAESDAoIQ29uZmxpY3QQAg==');
 @$core.Deprecated('Use wsDocumentDataDescriptor instead')
 const WsDocumentData$json = const {
   '1': 'WsDocumentData',

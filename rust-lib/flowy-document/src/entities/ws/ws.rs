@@ -6,8 +6,9 @@ use std::convert::TryInto;
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Eq, PartialEq, Hash)]
 pub enum WsDataType {
-    Acked = 0,
-    Rev   = 1,
+    Acked    = 0,
+    Rev      = 1,
+    Conflict = 2,
 }
 
 impl std::default::Default for WsDataType {

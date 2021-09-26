@@ -2,14 +2,14 @@ use crate::{
     entities::doc::{RevType, Revision},
     errors::{internal_error, DocError},
     services::{
-        util::{md5, RevIdCounter},
+        util::RevIdCounter,
         ws::{WsDocumentHandler, WsDocumentSender},
     },
     sql_tables::{OpTableSql, RevTable},
 };
-use bytes::Bytes;
+
 use flowy_database::ConnectionPool;
-use flowy_ot::core::Delta;
+
 use parking_lot::RwLock;
 use std::{
     collections::{BTreeMap, VecDeque},
@@ -29,13 +29,8 @@ pub struct RevisionManager {
 }
 
 impl RevisionManager {
-    pub fn new(
-        doc_id: &str,
-        rev_id: i64,
-        op_sql: Arc<OpTableSql>,
-        pool: Arc<ConnectionPool>,
-        ws_sender: Arc<dyn WsDocumentSender>,
-    ) -> Self {
+    pub fn new(doc_id: &str, rev_id: i64, pool: Arc<ConnectionPool>, ws_sender: Arc<dyn WsDocumentSender>) -> Self {
+        let op_sql = Arc::new(OpTableSql {});
         let rev_id_counter = RevIdCounter::new(rev_id);
         let local_rev_cache = Arc::new(RwLock::new(BTreeMap::new()));
         let remote_rev_cache = RwLock::new(VecDeque::new());
@@ -51,37 +46,19 @@ impl RevisionManager {
         }
     }
 
-    pub fn next_compose_delta<F>(&self, mut f: F)
+    pub fn next_compose_revision<F>(&self, mut f: F)
     where
-        F: FnMut(&Delta) -> Result<(), DocError>,
+        F: FnMut(&Revision) -> Result<(), DocError>,
     {
         if let Some(rev) = self.remote_rev_cache.write().pop_front() {
-            match Delta::from_bytes(&rev.delta) {
-                Ok(delta) => match f(&delta) {
-                    Ok(_) => {},
-                    Err(e) => {
-                        log::error!("{}", e);
-                        self.remote_rev_cache.write().push_front(rev);
-                    },
+            match f(&rev) {
+                Ok(_) => {},
+                Err(e) => {
+                    log::error!("{}", e);
+                    self.remote_rev_cache.write().push_front(rev);
                 },
-                Err(_) => {},
             }
         }
-    }
-
-    #[tracing::instrument(level = "debug", skip(self, delta_data))]
-    pub fn add_delta(&self, delta_data: Bytes) -> Result<(), DocError> {
-        let (base_rev_id, rev_id) = self.next_rev_id();
-        let revision = Revision::new(
-            base_rev_id,
-            rev_id,
-            delta_data.to_vec(),
-            md5(&delta_data),
-            self.doc_id.clone(),
-            RevType::Local,
-        );
-        let _ = self.add_revision(revision)?;
-        Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self, revision))]

@@ -1,4 +1,4 @@
-use crate::service::ws::{WsBizHandlers, WsClient, WsServer};
+use crate::service::ws::{WsBizHandlers, WsClient, WsServer, WsUser};
 use actix::Addr;
 
 use crate::service::user::LoggedUser;
@@ -21,7 +21,8 @@ pub async fn establish_ws_connection(
 ) -> Result<HttpResponse, Error> {
     match LoggedUser::from_token(token.clone()) {
         Ok(user) => {
-            let client = WsClient::new(&user.user_id, server.get_ref().clone(), biz_handlers);
+            let ws_user = WsUser::new(user.clone());
+            let client = WsClient::new(ws_user, server.get_ref().clone(), biz_handlers);
             let result = ws::start(client, &request, payload);
             match result {
                 Ok(response) => Ok(response.into()),

@@ -307,7 +307,12 @@ impl OperationTransformable for Delta {
         Self: Sized,
     {
         if self.base_len != other.base_len {
-            return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength).build());
+            return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength)
+                .msg(format!(
+                    "cur base length: {}, other base length: {}",
+                    self.base_len, other.base_len
+                ))
+                .build());
         }
 
         let mut a_prime = Delta::default();

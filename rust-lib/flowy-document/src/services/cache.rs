@@ -22,7 +22,7 @@ impl DocCache {
     }
 
     pub(crate) fn set(&self, doc: Arc<EditDocContext>) {
-        let doc_id = doc.id.clone();
+        let doc_id = doc.doc_id.clone();
         if self.inner.contains_key(&doc_id) {
             log::warn!("Doc:{} already exists in cache", &doc_id);
         }

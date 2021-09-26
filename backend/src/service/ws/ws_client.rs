@@ -1,11 +1,14 @@
 use crate::{
     config::{HEARTBEAT_INTERVAL, PING_TIMEOUT},
-    service::ws::{
-        entities::{Connect, Disconnect, SessionId, Socket},
-        WsBizHandler,
-        WsBizHandlers,
-        WsMessageAdaptor,
-        WsServer,
+    service::{
+        user::LoggedUser,
+        ws::{
+            entities::{Connect, Disconnect, SessionId, Socket},
+            WsBizHandler,
+            WsBizHandlers,
+            WsMessageAdaptor,
+            WsServer,
+        },
     },
 };
 use actix::*;
@@ -13,28 +16,35 @@ use actix_web::web::Data;
 use actix_web_actors::{ws, ws::Message::Text};
 use bytes::Bytes;
 use flowy_ws::WsMessage;
-use std::{convert::TryFrom, time::Instant};
+use std::{convert::TryFrom, sync::Arc, time::Instant};
+
+pub struct WsUser {
+    inner: LoggedUser,
+}
+
+impl WsUser {
+    pub fn new(inner: LoggedUser) -> Self { Self { inner } }
+
+    pub fn id(&self) -> &str { &self.inner.user_id }
+}
 
 pub struct WsClientData {
+    pub(crate) user: Arc<WsUser>,
     pub(crate) socket: Socket,
     pub(crate) data: Bytes,
 }
 
 pub struct WsClient {
-    session_id: SessionId,
+    user: Arc<WsUser>,
     server: Addr<WsServer>,
     biz_handlers: Data<WsBizHandlers>,
     hb: Instant,
 }
 
 impl WsClient {
-    pub fn new<T: Into<SessionId>>(
-        session_id: T,
-        server: Addr<WsServer>,
-        biz_handlers: Data<WsBizHandlers>,
-    ) -> Self {
+    pub fn new(user: WsUser, server: Addr<WsServer>, biz_handlers: Data<WsBizHandlers>) -> Self {
         Self {
-            session_id: session_id.into(),
+            user: Arc::new(user),
             server,
             biz_handlers,
             hb: Instant::now(),
@@ -45,7 +55,7 @@ impl WsClient {
         ctx.run_interval(HEARTBEAT_INTERVAL, |client, ctx| {
             if Instant::now().duration_since(client.hb) > PING_TIMEOUT {
                 client.server.do_send(Disconnect {
-                    sid: client.session_id.clone(),
+                    sid: client.user.id().into(),
                 });
                 ctx.stop();
             } else {
@@ -63,6 +73,7 @@ impl WsClient {
             },
             Some(handler) => {
                 let client_data = WsClientData {
+                    user: self.user.clone(),
                     socket,
                     data: Bytes::from(message.data),
                 };
@@ -84,7 +95,6 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsClient {
                 self.hb = Instant::now();
             },
             Ok(ws::Message::Binary(bytes)) => {
-                log::debug!(" Receive {} binary", &self.session_id);
                 let socket = ctx.address().recipient();
                 self.handle_binary_message(bytes, socket);
             },
@@ -98,11 +108,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsClient {
             Ok(ws::Message::Continuation(_)) => {},
             Ok(ws::Message::Nop) => {},
             Err(e) => {
-                log::error!(
-                    "[{}]: WebSocketStream protocol error {:?}",
-                    self.session_id,
-                    e
-                );
+                log::error!("[{}]: WebSocketStream protocol error {:?}", self.user.id(), e);
                 ctx.stop();
             },
         }
@@ -123,7 +129,7 @@ impl Actor for WsClient {
         let socket = ctx.address().recipient();
         let connect = Connect {
             socket,
-            sid: self.session_id.clone(),
+            sid: self.user.id().into(),
         };
         self.server
             .send(connect)
@@ -141,7 +147,7 @@ impl Actor for WsClient {
 
     fn stopping(&mut self, _: &mut Self::Context) -> Running {
         self.server.do_send(Disconnect {
-            sid: self.session_id.clone(),
+            sid: self.user.id().into(),
         });
 
         Running::Stop

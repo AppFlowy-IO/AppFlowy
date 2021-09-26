@@ -8,4 +8,5 @@ message WsDocumentData {
 enum WsDataType {
     Acked = 0;
     Rev = 1;
+    Conflict = 2;
 }
