@@ -14,6 +14,7 @@ flowy-workspace = { path = "../flowy-workspace" }
 flowy-database = { path = "../flowy-database" }
 flowy-document = { path = "../flowy-document" }
 flowy-ws = { path = "../flowy-ws" }
+flowy-net = { path = "../flowy-net" }
 tracing = { version = "0.1" }
 log = "0.4.14"
 futures-core = { version = "0.3", default-features = false }

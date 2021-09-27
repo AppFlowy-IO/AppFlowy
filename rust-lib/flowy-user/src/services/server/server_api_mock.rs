@@ -37,9 +37,13 @@ impl UserServerAPI for UserServerMock {
 
     fn sign_out(&self, _token: &str) -> ResultFuture<(), UserError> { ResultFuture::new(async { Ok(()) }) }
 
-    fn update_user(&self, _token: &str, _params: UpdateUserParams) -> ResultFuture<(), UserError> { ResultFuture::new(async { Ok(()) }) }
+    fn update_user(&self, _token: &str, _params: UpdateUserParams) -> ResultFuture<(), UserError> {
+        ResultFuture::new(async { Ok(()) })
+    }
 
     fn get_user(&self, _token: &str) -> ResultFuture<UserProfile, UserError> {
         ResultFuture::new(async { Err(UserError::internal().context("mock data, ignore this error")) })
     }
+
+    fn ws_addr(&self) -> String { "ws://localhost:8000/ws/".to_owned() }
 }

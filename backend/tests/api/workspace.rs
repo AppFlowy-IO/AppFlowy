@@ -2,12 +2,7 @@ use crate::helper::*;
 use flowy_workspace::entities::{
     app::{DeleteAppParams, QueryAppParams, UpdateAppParams},
     view::{DeleteViewParams, QueryViewParams, UpdateViewParams},
-    workspace::{
-        CreateWorkspaceParams,
-        DeleteWorkspaceParams,
-        QueryWorkspaceParams,
-        UpdateWorkspaceParams,
-    },
+    workspace::{CreateWorkspaceParams, DeleteWorkspaceParams, QueryWorkspaceParams, UpdateWorkspaceParams},
 };
 
 #[actix_rt::test]
@@ -173,7 +168,7 @@ async fn view_delete() {
 
 #[actix_rt::test]
 async fn workspace_list_read() {
-    let mut server = spawn_server().await;
+    let mut server = spawn_user_server().await;
     let token = server.register_user().await.token;
     server.user_token = Some(token);
     for i in 0..3 {

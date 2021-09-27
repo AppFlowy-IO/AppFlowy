@@ -22,7 +22,6 @@ use parking_lot::RwLock;
 use protobuf::Message;
 use sqlx::PgPool;
 use std::{
-    cmp::min,
     convert::TryInto,
     sync::{
         atomic::{AtomicI64, Ordering::SeqCst},

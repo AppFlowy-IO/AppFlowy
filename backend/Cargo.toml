@@ -96,3 +96,7 @@ linkify = "0.5.0"
 flowy-user = { path = "../rust-lib/flowy-user" }
 flowy-workspace = { path = "../rust-lib/flowy-workspace" }
 flowy-ws = { path = "../rust-lib/flowy-ws" }
+flowy-sdk = { path = "../rust-lib/flowy-sdk" }
+flowy-test = { path = "../rust-lib/flowy-test" }
+flowy-infra = { path = "../rust-lib/flowy-infra" }
+flowy-ot = { path = "../rust-lib/flowy-ot" }

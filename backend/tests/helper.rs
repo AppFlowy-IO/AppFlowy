@@ -12,7 +12,7 @@ use flowy_workspace::prelude::{server::*, *};
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
 
-pub struct TestServer {
+pub struct TestUserServer {
     pub host: String,
     pub port: u16,
     pub pg_pool: PgPool,
@@ -20,9 +20,9 @@ pub struct TestServer {
     pub user_id: Option<String>,
 }
 
-impl TestServer {
+impl TestUserServer {
     pub async fn new() -> Self {
-        let mut server = spawn_server().await;
+        let mut server: TestUserServer = spawn_server().await.into();
         let response = server.register_user().await;
         server.user_token = Some(response.token);
         server.user_id = Some(response.user_id);
@@ -36,28 +36,16 @@ impl TestServer {
 
     pub async fn sign_out(&self) {
         let url = format!("{}/api/auth", self.http_addr());
-        let _ = user_sign_out_request(self.user_token(), &url)
-            .await
-            .unwrap();
+        let _ = user_sign_out_request(self.user_token(), &url).await.unwrap();
     }
 
-    pub fn user_token(&self) -> &str {
-        self.user_token
-            .as_ref()
-            .expect("must call register_user first ")
-    }
+    pub fn user_token(&self) -> &str { self.user_token.as_ref().expect("must call register_user first ") }
 
-    pub fn user_id(&self) -> &str {
-        self.user_id
-            .as_ref()
-            .expect("must call register_user first ")
-    }
+    pub fn user_id(&self) -> &str { self.user_id.as_ref().expect("must call register_user first ") }
 
     pub async fn get_user_profile(&self) -> UserProfile {
         let url = format!("{}/api/user", self.http_addr());
-        let user_profile = get_user_profile_request(self.user_token(), &url)
-            .await
-            .unwrap();
+        let user_profile = get_user_profile_request(self.user_token(), &url).await.unwrap();
         user_profile
     }
 
@@ -68,99 +56,73 @@ impl TestServer {
 
     pub async fn create_workspace(&self, params: CreateWorkspaceParams) -> Workspace {
         let url = format!("{}/api/workspace", self.http_addr());
-        let workspace = create_workspace_request(self.user_token(), params, &url)
-            .await
-            .unwrap();
+        let workspace = create_workspace_request(self.user_token(), params, &url).await.unwrap();
         workspace
     }
 
     pub async fn read_workspaces(&self, params: QueryWorkspaceParams) -> RepeatedWorkspace {
         let url = format!("{}/api/workspace", self.http_addr());
-        let workspaces = read_workspaces_request(self.user_token(), params, &url)
-            .await
-            .unwrap();
+        let workspaces = read_workspaces_request(self.user_token(), params, &url).await.unwrap();
         workspaces
     }
 
     pub async fn update_workspace(&self, params: UpdateWorkspaceParams) {
         let url = format!("{}/api/workspace", self.http_addr());
-        update_workspace_request(self.user_token(), params, &url)
-            .await
-            .unwrap();
+        update_workspace_request(self.user_token(), params, &url).await.unwrap();
     }
 
     pub async fn delete_workspace(&self, params: DeleteWorkspaceParams) {
         let url = format!("{}/api/workspace", self.http_addr());
-        delete_workspace_request(self.user_token(), params, &url)
-            .await
-            .unwrap();
+        delete_workspace_request(self.user_token(), params, &url).await.unwrap();
     }
 
     pub async fn create_app(&self, params: CreateAppParams) -> App {
         let url = format!("{}/api/app", self.http_addr());
-        let app = create_app_request(self.user_token(), params, &url)
-            .await
-            .unwrap();
+        let app = create_app_request(self.user_token(), params, &url).await.unwrap();
         app
     }
 
     pub async fn read_app(&self, params: QueryAppParams) -> Option<App> {
         let url = format!("{}/api/app", self.http_addr());
-        let app = read_app_request(self.user_token(), params, &url)
-            .await
-            .unwrap();
+        let app = read_app_request(self.user_token(), params, &url).await.unwrap();
         app
     }
 
     pub async fn update_app(&self, params: UpdateAppParams) {
         let url = format!("{}/api/app", self.http_addr());
-        update_app_request(self.user_token(), params, &url)
-            .await
-            .unwrap();
+        update_app_request(self.user_token(), params, &url).await.unwrap();
     }
 
     pub async fn delete_app(&self, params: DeleteAppParams) {
         let url = format!("{}/api/app", self.http_addr());
-        delete_app_request(self.user_token(), params, &url)
-            .await
-            .unwrap();
+        delete_app_request(self.user_token(), params, &url).await.unwrap();
     }
 
     pub async fn create_view(&self, params: CreateViewParams) -> View {
         let url = format!("{}/api/view", self.http_addr());
-        let view = create_view_request(self.user_token(), params, &url)
-            .await
-            .unwrap();
+        let view = create_view_request(self.user_token(), params, &url).await.unwrap();
         view
     }
 
     pub async fn read_view(&self, params: QueryViewParams) -> Option<View> {
         let url = format!("{}/api/view", self.http_addr());
-        let view = read_view_request(self.user_token(), params, &url)
-            .await
-            .unwrap();
+        let view = read_view_request(self.user_token(), params, &url).await.unwrap();
         view
     }
 
     pub async fn update_view(&self, params: UpdateViewParams) {
         let url = format!("{}/api/view", self.http_addr());
-        update_view_request(self.user_token(), params, &url)
-            .await
-            .unwrap();
+        update_view_request(self.user_token(), params, &url).await.unwrap();
     }
 
     pub async fn delete_view(&self, params: DeleteViewParams) {
         let url = format!("{}/api/view", self.http_addr());
-        delete_view_request(self.user_token(), params, &url)
-            .await
-            .unwrap();
+        delete_view_request(self.user_token(), params, &url).await.unwrap();
     }
 
     pub async fn read_doc(&self, params: QueryDocParams) -> Option<Doc> {
         let url = format!("{}/api/doc", self.http_addr());
-        let doc = read_doc_request(self.user_token(), params, &url)
-            .await
-            .unwrap();
+        let doc = read_doc_request(self.user_token(), params, &url).await.unwrap();
         doc
     }
 
@@ -182,14 +144,32 @@ impl TestServer {
 
     pub fn http_addr(&self) -> String { format!("http://{}", self.host) }
 
-    pub fn ws_addr(&self) -> String {
-        format!(
-            "ws://{}/ws/{}",
-            self.host,
-            self.user_token.as_ref().unwrap()
-        )
+    pub fn ws_addr(&self) -> String { format!("ws://{}/ws/{}", self.host, self.user_token.as_ref().unwrap()) }
+}
+
+impl std::convert::From<TestServer> for TestUserServer {
+    fn from(server: TestServer) -> Self {
+        TestUserServer {
+            host: server.host,
+            port: server.port,
+            pg_pool: server.pg_pool,
+            user_token: None,
+            user_id: None,
+        }
     }
 }
+
+pub async fn spawn_user_server() -> TestUserServer {
+    let server: TestUserServer = spawn_server().await.into();
+    server
+}
+
+pub struct TestServer {
+    pub host: String,
+    pub port: u16,
+    pub pg_pool: PgPool,
+}
+
 pub async fn spawn_server() -> TestServer {
     let database_name = format!("{}", Uuid::new_v4().to_string());
     let configuration = {
@@ -217,8 +197,6 @@ pub async fn spawn_server() -> TestServer {
         pg_pool: get_connection_pool(&configuration.database)
             .await
             .expect("Failed to connect to the database"),
-        user_token: None,
-        user_id: None,
     }
 }
 
@@ -265,7 +243,7 @@ async fn drop_test_database(database_name: String) {
         .expect("Failed to drop database.");
 }
 
-pub async fn create_test_workspace(server: &TestServer) -> Workspace {
+pub async fn create_test_workspace(server: &TestUserServer) -> Workspace {
     let params = CreateWorkspaceParams {
         name: "My first workspace".to_string(),
         desc: "This is my first workspace".to_string(),
@@ -275,7 +253,7 @@ pub async fn create_test_workspace(server: &TestServer) -> Workspace {
     workspace
 }
 
-pub async fn create_test_app(server: &TestServer, workspace_id: &str) -> App {
+pub async fn create_test_app(server: &TestUserServer, workspace_id: &str) -> App {
     let params = CreateAppParams {
         workspace_id: workspace_id.to_owned(),
         name: "My first app".to_string(),
@@ -287,7 +265,7 @@ pub async fn create_test_app(server: &TestServer, workspace_id: &str) -> App {
     app
 }
 
-pub async fn create_test_view(application: &TestServer, app_id: &str) -> View {
+pub async fn create_test_view(application: &TestUserServer, app_id: &str) -> View {
     let name = "My first view".to_string();
     let desc = "This is my first view".to_string();
     let thumbnail = "http://1.png".to_string();
@@ -298,43 +276,37 @@ pub async fn create_test_view(application: &TestServer, app_id: &str) -> View {
 }
 
 pub struct WorkspaceTest {
-    pub server: TestServer,
+    pub server: TestUserServer,
     pub workspace: Workspace,
 }
 
 impl WorkspaceTest {
     pub async fn new() -> Self {
-        let server = TestServer::new().await;
+        let server = TestUserServer::new().await;
         let workspace = create_test_workspace(&server).await;
         Self { server, workspace }
     }
 
-    pub async fn create_app(&self) -> App {
-        create_test_app(&self.server, &self.workspace.id).await
-    }
+    pub async fn create_app(&self) -> App { create_test_app(&self.server, &self.workspace.id).await }
 }
 
 pub struct AppTest {
-    pub server: TestServer,
+    pub server: TestUserServer,
     pub workspace: Workspace,
     pub app: App,
 }
 
 impl AppTest {
     pub async fn new() -> Self {
-        let server = TestServer::new().await;
+        let server = TestUserServer::new().await;
         let workspace = create_test_workspace(&server).await;
         let app = create_test_app(&server, &workspace.id).await;
-        Self {
-            server,
-            workspace,
-            app,
-        }
+        Self { server, workspace, app }
     }
 }
 
 pub struct ViewTest {
-    pub server: TestServer,
+    pub server: TestUserServer,
     pub workspace: Workspace,
     pub app: App,
     pub view: View,
@@ -342,7 +314,7 @@ pub struct ViewTest {
 
 impl ViewTest {
     pub async fn new() -> Self {
-        let server = TestServer::new().await;
+        let server = TestUserServer::new().await;
         let workspace = create_test_workspace(&server).await;
         let app = create_test_app(&server, &workspace.id).await;
         let view = create_test_view(&server, &app.id).await;

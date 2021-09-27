@@ -10,6 +10,7 @@ use crate::{
     errors::UserError,
 };
 use flowy_infra::future::ResultFuture;
+use flowy_net::config::ServerConfig;
 
 pub trait UserServerAPI {
     fn sign_up(&self, params: SignUpParams) -> ResultFuture<SignUpResponse, UserError>;
@@ -17,12 +18,14 @@ pub trait UserServerAPI {
     fn sign_out(&self, token: &str) -> ResultFuture<(), UserError>;
     fn update_user(&self, token: &str, params: UpdateUserParams) -> ResultFuture<(), UserError>;
     fn get_user(&self, token: &str) -> ResultFuture<UserProfile, UserError>;
+    fn ws_addr(&self) -> String;
 }
 
-pub(crate) fn construct_user_server() -> Arc<dyn UserServerAPI + Send + Sync> {
+pub(crate) fn construct_user_server(config: &ServerConfig) -> Arc<dyn UserServerAPI + Send + Sync> {
     if cfg!(feature = "http_server") {
-        Arc::new(UserServer {})
+        Arc::new(UserServer::new(config.clone()))
     } else {
-        Arc::new(UserServerMock {})
+        // Arc::new(UserServerMock {})
+        Arc::new(UserServer::new(config.clone()))
     }
 }

@@ -1,15 +1,12 @@
 use crate::{
-    entities::doc::{RevType, Revision},
+    entities::doc::Revision,
     errors::DocError,
     sql_tables::{doc::RevTable, RevChangeset, RevState, RevTableType},
 };
-use diesel::{insert_into, select, update};
+use diesel::{insert_into, update};
 use flowy_database::{
     prelude::*,
-    schema::{
-        rev_table,
-        rev_table::{columns::*, dsl, dsl::doc_id},
-    },
+    schema::rev_table::{columns::*, dsl, dsl::doc_id},
     SqliteConnection,
 };
 

@@ -1,15 +1,12 @@
 use crate::{
     entities::doc::{RevType, Revision, RevisionRange},
     errors::{internal_error, DocError},
-    services::{
-        util::RevIdCounter,
-        ws::{WsDocumentHandler, WsDocumentSender},
-    },
-    sql_tables::{OpTableSql, RevChangeset, RevState, RevTable},
+    services::{util::RevIdCounter, ws::WsDocumentSender},
+    sql_tables::{OpTableSql, RevChangeset, RevState},
 };
-use dashmap::{DashMap, DashSet};
+use dashmap::DashSet;
 use flowy_database::ConnectionPool;
-use parking_lot::{lock_api::RwLockWriteGuard, RawRwLock, RwLock};
+use parking_lot::RwLock;
 use std::{
     collections::{HashMap, VecDeque},
     sync::Arc,

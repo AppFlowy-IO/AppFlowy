@@ -3,7 +3,7 @@ use crate::{
     service::{
         user::LoggedUser,
         ws::{
-            entities::{Connect, Disconnect, SessionId, Socket},
+            entities::{Connect, Disconnect, Socket},
             WsBizHandler,
             WsBizHandlers,
             WsMessageAdaptor,

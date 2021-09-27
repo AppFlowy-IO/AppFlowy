@@ -24,8 +24,8 @@ use std::{convert::TryFrom, sync::Arc};
 
 pub type DocId = String;
 
-pub(crate) struct EditDocContext {
-    pub(crate) doc_id: DocId,
+pub struct EditDocContext {
+    pub doc_id: DocId,
     document: Arc<RwLock<Document>>,
     rev_manager: Arc<RevisionManager>,
     pool: Arc<ConnectionPool>,
@@ -49,7 +49,7 @@ impl EditDocContext {
         Ok(edit_context)
     }
 
-    pub(crate) fn doc(&self) -> Doc {
+    pub fn doc(&self) -> Doc {
         Doc {
             id: self.doc_id.clone(),
             data: self.document.read().to_json(),

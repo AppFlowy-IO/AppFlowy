@@ -17,72 +17,100 @@ use crate::{
 use flowy_infra::future::ResultFuture;
 use flowy_net::{config::*, request::HttpRequestBuilder};
 
-pub struct WorkspaceServer {}
+pub struct WorkspaceServer {
+    config: ServerConfig,
+}
+
+impl WorkspaceServer {
+    pub fn new(config: ServerConfig) -> WorkspaceServer { Self { config } }
+}
 
 impl WorkspaceServerAPI for WorkspaceServer {
     fn create_workspace(&self, token: &str, params: CreateWorkspaceParams) -> ResultFuture<Workspace, WorkspaceError> {
         let token = token.to_owned();
-        ResultFuture::new(async move { create_workspace_request(&token, params, WORKSPACE_URL.as_ref()).await })
+        let url = self.config.workspace_url();
+        ResultFuture::new(async move { create_workspace_request(&token, params, &url).await })
     }
 
-    fn read_workspace(&self, token: &str, params: QueryWorkspaceParams) -> ResultFuture<RepeatedWorkspace, WorkspaceError> {
+    fn read_workspace(
+        &self,
+        token: &str,
+        params: QueryWorkspaceParams,
+    ) -> ResultFuture<RepeatedWorkspace, WorkspaceError> {
         let token = token.to_owned();
-        ResultFuture::new(async move { read_workspaces_request(&token, params, WORKSPACE_URL.as_ref()).await })
+        let url = self.config.workspace_url();
+        ResultFuture::new(async move { read_workspaces_request(&token, params, &url).await })
     }
 
     fn update_workspace(&self, token: &str, params: UpdateWorkspaceParams) -> ResultFuture<(), WorkspaceError> {
         let token = token.to_owned();
-        ResultFuture::new(async move { update_workspace_request(&token, params, WORKSPACE_URL.as_ref()).await })
+        let url = self.config.workspace_url();
+        ResultFuture::new(async move { update_workspace_request(&token, params, &url).await })
     }
 
     fn delete_workspace(&self, token: &str, params: DeleteWorkspaceParams) -> ResultFuture<(), WorkspaceError> {
         let token = token.to_owned();
-        ResultFuture::new(async move { delete_workspace_request(&token, params, WORKSPACE_URL.as_ref()).await })
+        let url = self.config.workspace_url();
+        ResultFuture::new(async move { delete_workspace_request(&token, params, &url).await })
     }
 
     fn create_view(&self, token: &str, params: CreateViewParams) -> ResultFuture<View, WorkspaceError> {
         let token = token.to_owned();
-        ResultFuture::new(async move { create_view_request(&token, params, VIEW_URL.as_ref()).await })
+        let url = self.config.view_url();
+        ResultFuture::new(async move { create_view_request(&token, params, &url).await })
     }
 
     fn read_view(&self, token: &str, params: QueryViewParams) -> ResultFuture<Option<View>, WorkspaceError> {
         let token = token.to_owned();
-        ResultFuture::new(async move { read_view_request(&token, params, VIEW_URL.as_ref()).await })
+        let url = self.config.view_url();
+        ResultFuture::new(async move { read_view_request(&token, params, &url).await })
     }
 
     fn delete_view(&self, token: &str, params: DeleteViewParams) -> ResultFuture<(), WorkspaceError> {
         let token = token.to_owned();
-        ResultFuture::new(async move { delete_view_request(&token, params, VIEW_URL.as_ref()).await })
+        let url = self.config.view_url();
+        ResultFuture::new(async move { delete_view_request(&token, params, &url).await })
     }
 
     fn update_view(&self, token: &str, params: UpdateViewParams) -> ResultFuture<(), WorkspaceError> {
         let token = token.to_owned();
-        ResultFuture::new(async move { update_view_request(&token, params, VIEW_URL.as_ref()).await })
+        let url = self.config.view_url();
+        ResultFuture::new(async move { update_view_request(&token, params, &url).await })
     }
 
     fn create_app(&self, token: &str, params: CreateAppParams) -> ResultFuture<App, WorkspaceError> {
         let token = token.to_owned();
-        ResultFuture::new(async move { create_app_request(&token, params, APP_URL.as_ref()).await })
+        let url = self.config.app_url();
+        ResultFuture::new(async move { create_app_request(&token, params, &url).await })
     }
 
     fn read_app(&self, token: &str, params: QueryAppParams) -> ResultFuture<Option<App>, WorkspaceError> {
         let token = token.to_owned();
-        ResultFuture::new(async move { read_app_request(&token, params, APP_URL.as_ref()).await })
+        let url = self.config.app_url();
+        ResultFuture::new(async move { read_app_request(&token, params, &url).await })
     }
 
     fn update_app(&self, token: &str, params: UpdateAppParams) -> ResultFuture<(), WorkspaceError> {
         let token = token.to_owned();
-        ResultFuture::new(async move { update_app_request(&token, params, APP_URL.as_ref()).await })
+        let url = self.config.app_url();
+        ResultFuture::new(async move { update_app_request(&token, params, &url).await })
     }
 
     fn delete_app(&self, token: &str, params: DeleteAppParams) -> ResultFuture<(), WorkspaceError> {
         let token = token.to_owned();
-        ResultFuture::new(async move { delete_app_request(&token, params, APP_URL.as_ref()).await })
+        let url = self.config.app_url();
+        ResultFuture::new(async move { delete_app_request(&token, params, &url).await })
     }
 }
 
-pub(crate) fn request_builder() -> HttpRequestBuilder { HttpRequestBuilder::new().middleware(super::middleware::MIDDLEWARE.clone()) }
-pub async fn create_workspace_request(token: &str, params: CreateWorkspaceParams, url: &str) -> Result<Workspace, WorkspaceError> {
+pub(crate) fn request_builder() -> HttpRequestBuilder {
+    HttpRequestBuilder::new().middleware(super::middleware::MIDDLEWARE.clone())
+}
+pub async fn create_workspace_request(
+    token: &str,
+    params: CreateWorkspaceParams,
+    url: &str,
+) -> Result<Workspace, WorkspaceError> {
     let workspace = request_builder()
         .post(&url.to_owned())
         .header(HEADER_TOKEN, token)
@@ -92,7 +120,11 @@ pub async fn create_workspace_request(token: &str, params: CreateWorkspaceParams
     Ok(workspace)
 }
 
-pub async fn read_workspaces_request(token: &str, params: QueryWorkspaceParams, url: &str) -> Result<RepeatedWorkspace, WorkspaceError> {
+pub async fn read_workspaces_request(
+    token: &str,
+    params: QueryWorkspaceParams,
+    url: &str,
+) -> Result<RepeatedWorkspace, WorkspaceError> {
     let repeated_workspace = request_builder()
         .get(&url.to_owned())
         .header(HEADER_TOKEN, token)
@@ -103,7 +135,11 @@ pub async fn read_workspaces_request(token: &str, params: QueryWorkspaceParams, 
     Ok(repeated_workspace)
 }
 
-pub async fn update_workspace_request(token: &str, params: UpdateWorkspaceParams, url: &str) -> Result<(), WorkspaceError> {
+pub async fn update_workspace_request(
+    token: &str,
+    params: UpdateWorkspaceParams,
+    url: &str,
+) -> Result<(), WorkspaceError> {
     let _ = request_builder()
         .patch(&url.to_owned())
         .header(HEADER_TOKEN, token)
@@ -113,7 +149,11 @@ pub async fn update_workspace_request(token: &str, params: UpdateWorkspaceParams
     Ok(())
 }
 
-pub async fn delete_workspace_request(token: &str, params: DeleteWorkspaceParams, url: &str) -> Result<(), WorkspaceError> {
+pub async fn delete_workspace_request(
+    token: &str,
+    params: DeleteWorkspaceParams,
+    url: &str,
+) -> Result<(), WorkspaceError> {
     let _ = request_builder()
         .delete(url)
         .header(HEADER_TOKEN, token)
@@ -176,7 +216,11 @@ pub async fn create_view_request(token: &str, params: CreateViewParams, url: &st
     Ok(view)
 }
 
-pub async fn read_view_request(token: &str, params: QueryViewParams, url: &str) -> Result<Option<View>, WorkspaceError> {
+pub async fn read_view_request(
+    token: &str,
+    params: QueryViewParams,
+    url: &str,
+) -> Result<Option<View>, WorkspaceError> {
     let view = request_builder()
         .get(&url.to_owned())
         .header(HEADER_TOKEN, token)

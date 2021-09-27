@@ -8,6 +8,7 @@ use crate::{
 use flowy_database::DBConnection;
 use flowy_dispatch::prelude::*;
 use flowy_document::module::FlowyDocument;
+use flowy_net::config::ServerConfig;
 use flowy_sqlite::ConnectionPool;
 use std::sync::Arc;
 
@@ -28,9 +29,19 @@ pub trait WorkspaceDatabase: Send + Sync {
     }
 }
 
-pub fn create(user: Arc<dyn WorkspaceUser>, database: Arc<dyn WorkspaceDatabase>, document: Arc<FlowyDocument>) -> Module {
-    let server = construct_workspace_server();
-    let view_controller = Arc::new(ViewController::new(user.clone(), database.clone(), server.clone(), document));
+pub fn create(
+    user: Arc<dyn WorkspaceUser>,
+    database: Arc<dyn WorkspaceDatabase>,
+    flowy_document: Arc<FlowyDocument>,
+    server_config: &ServerConfig,
+) -> Module {
+    let server = construct_workspace_server(server_config);
+    let view_controller = Arc::new(ViewController::new(
+        user.clone(),
+        database.clone(),
+        server.clone(),
+        flowy_document,
+    ));
     let app_controller = Arc::new(AppController::new(user.clone(), database.clone(), server.clone()));
 
     let workspace_controller = Arc::new(WorkspaceController::new(

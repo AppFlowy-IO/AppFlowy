@@ -2,7 +2,6 @@ use bytes::Bytes;
 use derive_more::Display;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_dispatch::prelude::{EventResponse, ResponseBuilder};
-
 use std::{convert::TryInto, fmt::Debug};
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
@@ -27,9 +26,19 @@ macro_rules! static_user_error {
 }
 
 impl UserError {
-    pub(crate) fn new(code: ErrorCode, msg: &str) -> Self { Self { code, msg: msg.to_owned() } }
+    pub(crate) fn new(code: ErrorCode, msg: &str) -> Self {
+        Self {
+            code,
+            msg: msg.to_owned(),
+        }
+    }
 
-    pub(crate) fn code(code: ErrorCode) -> Self { Self { code, msg: "".to_owned() } }
+    pub(crate) fn code(code: ErrorCode) -> Self {
+        Self {
+            code,
+            msg: "".to_owned(),
+        }
+    }
 
     pub fn context<T: Debug>(mut self, error: T) -> Self {
         self.msg = format!("{:?}", error);

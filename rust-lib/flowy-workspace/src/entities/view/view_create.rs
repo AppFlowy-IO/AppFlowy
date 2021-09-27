@@ -68,9 +68,9 @@ pub struct CreateViewParams {
     pub data: String,
 }
 
-pub const VIEW_DEFAULT_DATA: &str = "[{\"insert\":\"\\n\"}]";
+pub const DOC_DEFAULT_DATA: &str = "[{\"insert\":\"\\n\"}]";
 #[allow(dead_code)]
-pub fn default_delta() -> Vec<u8> { VIEW_DEFAULT_DATA.as_bytes().to_vec() }
+pub fn default_delta() -> Vec<u8> { DOC_DEFAULT_DATA.as_bytes().to_vec() }
 
 impl CreateViewParams {
     pub fn new(belong_to_id: String, name: String, desc: String, view_type: ViewType, thumbnail: String) -> Self {
@@ -80,7 +80,7 @@ impl CreateViewParams {
             desc,
             thumbnail,
             view_type,
-            data: VIEW_DEFAULT_DATA.to_string(),
+            data: DOC_DEFAULT_DATA.to_string(),
         }
     }
 }

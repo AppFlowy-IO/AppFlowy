@@ -103,7 +103,7 @@ impl WsController {
 
     pub fn get_sender(&self) -> Result<Arc<WsSender>, WsError> {
         match &self.sender {
-            None => Err(WsError::internal().context("WsSender is not initialized")),
+            None => Err(WsError::internal().context("WsSender is not initialized, should call connect first")),
             Some(sender) => Ok(sender.clone()),
         }
     }
@@ -112,7 +112,10 @@ impl WsController {
         log::debug!("🐴 ws connect: {}", &addr);
         let (connection, handlers) = self.make_connect(addr.clone());
         let state_notify = self.state_notify.clone();
-        let sender = self.sender.clone().expect("Sender should be not empty after calling make_connect");
+        let sender = self
+            .sender
+            .clone()
+            .expect("Sender should be not empty after calling make_connect");
         Ok(tokio::spawn(async move {
             match connection.await {
                 Ok(stream) => {
@@ -158,7 +161,10 @@ impl WsController {
         let handlers = self.handlers.clone();
         self.sender = Some(Arc::new(WsSender { ws_tx }));
         self.addr = Some(addr.clone());
-        (WsConnectionFuture::new(msg_tx, ws_rx, addr), WsHandlerFuture::new(handlers, msg_rx))
+        (
+            WsConnectionFuture::new(msg_tx, ws_rx, addr),
+            WsHandlerFuture::new(handlers, msg_rx),
+        )
     }
 }
 
@@ -170,7 +176,9 @@ pub struct WsHandlerFuture {
 }
 
 impl WsHandlerFuture {
-    fn new(handlers: HashMap<WsModule, Arc<dyn WsMessageHandler>>, msg_rx: MsgReceiver) -> Self { Self { msg_rx, handlers } }
+    fn new(handlers: HashMap<WsModule, Arc<dyn WsMessageHandler>>, msg_rx: MsgReceiver) -> Self {
+        Self { msg_rx, handlers }
+    }
 
     fn handler_ws_message(&self, message: Message) {
         match message {
@@ -215,7 +223,10 @@ pub struct WsSender {
 impl WsSender {
     pub fn send_msg<T: Into<WsMessage>>(&self, msg: T) -> Result<(), WsError> {
         let msg = msg.into();
-        let _ = self.ws_tx.unbounded_send(msg.into()).map_err(|e| WsError::internal().context(e))?;
+        let _ = self
+            .ws_tx
+            .unbounded_send(msg.into())
+            .map_err(|e| WsError::internal().context(e))?;
         Ok(())
     }
 
@@ -241,7 +252,10 @@ impl WsSender {
             reason: reason.to_owned().into(),
         };
         let msg = Message::Close(Some(frame));
-        let _ = self.ws_tx.unbounded_send(msg).map_err(|e| WsError::internal().context(e))?;
+        let _ = self
+            .ws_tx
+            .unbounded_send(msg)
+            .map_err(|e| WsError::internal().context(e))?;
         Ok(())
     }
 }

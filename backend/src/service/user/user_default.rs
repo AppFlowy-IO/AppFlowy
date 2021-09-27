@@ -8,7 +8,7 @@ use crate::{
 };
 use flowy_net::errors::ServerError;
 use flowy_workspace::{
-    entities::view::VIEW_DEFAULT_DATA,
+    entities::view::DOC_DEFAULT_DATA,
     protobuf::{App, CreateViewParams, View, ViewType, Workspace},
 };
 
@@ -62,7 +62,7 @@ async fn create_view(transaction: &mut DBTransaction<'_>, app: &App) -> Result<V
         desc: "View created by AppFlowy".to_string(),
         thumbnail: "123.png".to_string(),
         view_type: ViewType::Doc,
-        data: VIEW_DEFAULT_DATA.to_string(),
+        data: DOC_DEFAULT_DATA.to_string(),
         unknown_fields: Default::default(),
         cached_size: Default::default(),
     };

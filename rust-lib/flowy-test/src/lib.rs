@@ -21,7 +21,12 @@ pub struct FlowyEnv {
 
 impl FlowyEnv {
     pub fn setup() -> Self {
-        let sdk = init_test_sdk();
+        let host = "localhost";
+        let http_schema = "http";
+        let ws_schema = "ws";
+
+        let config = FlowySDKConfig::new(&root_dir(), host, http_schema, ws_schema).log_filter("debug");
+        let sdk = FlowySDK::new(config);
         let result = sign_up(sdk.dispatch());
         let env = Self {
             sdk,
@@ -35,6 +40,10 @@ impl FlowyEnv {
 }
 
 pub fn init_test_sdk() -> FlowyTestSDK {
-    let config = FlowySDKConfig::new(&root_dir()).log_filter("debug");
+    let host = "localhost";
+    let http_schema = "http";
+    let ws_schema = "ws";
+
+    let config = FlowySDKConfig::new(&root_dir(), host, http_schema, ws_schema).log_filter("debug");
     FlowySDK::new(config)
 }

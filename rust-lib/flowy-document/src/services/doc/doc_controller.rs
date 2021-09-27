@@ -2,18 +2,13 @@ use crate::{
     entities::doc::{CreateDocParams, Doc, DocDelta, QueryDocParams},
     errors::{internal_error, DocError},
     module::DocumentUser,
-    services::{
-        cache::DocCache,
-        doc::{edit_doc_context::EditDocContext, rev_manager::RevisionManager},
-        server::Server,
-        ws::WsDocumentManager,
-    },
-    sql_tables::doc::{DocTable, DocTableSql, OpTableSql},
+    services::{cache::DocCache, doc::edit_doc_context::EditDocContext, server::Server, ws::WsDocumentManager},
+    sql_tables::doc::{DocTable, DocTableSql},
 };
 use bytes::Bytes;
 use flowy_database::{ConnectionPool, SqliteConnection};
 use flowy_infra::future::{wrap_future, FnFuture};
-use flowy_ot::core::Delta;
+
 use parking_lot::RwLock;
 use std::sync::Arc;
 use tokio::time::{interval, Duration};

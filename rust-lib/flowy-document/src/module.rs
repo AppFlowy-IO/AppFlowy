@@ -8,7 +8,11 @@ use flowy_database::ConnectionPool;
 use crate::{
     entities::doc::{CreateDocParams, Doc, DocDelta, QueryDocParams},
     errors::DocError,
-    services::{doc::doc_controller::DocController, server::construct_doc_server, ws::WsDocumentManager},
+    services::{
+        doc::{doc_controller::DocController, edit_doc_context::EditDocContext},
+        server::construct_doc_server,
+        ws::WsDocumentManager,
+    },
 };
 
 pub trait DocumentUser: Send + Sync {
@@ -38,9 +42,13 @@ impl FlowyDocument {
         Ok(())
     }
 
-    pub async fn open(&self, params: QueryDocParams, pool: Arc<ConnectionPool>) -> Result<Doc, DocError> {
-        let open_doc = self.doc_ctrl.open(params, pool).await?;
-        Ok(open_doc.doc())
+    pub async fn open(
+        &self,
+        params: QueryDocParams,
+        pool: Arc<ConnectionPool>,
+    ) -> Result<Arc<EditDocContext>, DocError> {
+        let edit_context = self.doc_ctrl.open(params, pool).await?;
+        Ok(edit_context)
     }
 
     pub async fn apply_doc_delta(&self, params: DocDelta) -> Result<Doc, DocError> {

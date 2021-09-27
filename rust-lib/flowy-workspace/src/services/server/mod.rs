@@ -22,6 +22,7 @@ use crate::{
     errors::WorkspaceError,
 };
 use flowy_infra::future::ResultFuture;
+use flowy_net::config::ServerConfig;
 use std::sync::Arc;
 
 pub(crate) type Server = Arc<dyn WorkspaceServerAPI + Send + Sync>;
@@ -30,7 +31,11 @@ pub trait WorkspaceServerAPI {
     // Workspace
     fn create_workspace(&self, token: &str, params: CreateWorkspaceParams) -> ResultFuture<Workspace, WorkspaceError>;
 
-    fn read_workspace(&self, token: &str, params: QueryWorkspaceParams) -> ResultFuture<RepeatedWorkspace, WorkspaceError>;
+    fn read_workspace(
+        &self,
+        token: &str,
+        params: QueryWorkspaceParams,
+    ) -> ResultFuture<RepeatedWorkspace, WorkspaceError>;
 
     fn update_workspace(&self, token: &str, params: UpdateWorkspaceParams) -> ResultFuture<(), WorkspaceError>;
 
@@ -55,9 +60,9 @@ pub trait WorkspaceServerAPI {
     fn delete_app(&self, token: &str, params: DeleteAppParams) -> ResultFuture<(), WorkspaceError>;
 }
 
-pub(crate) fn construct_workspace_server() -> Arc<dyn WorkspaceServerAPI + Send + Sync> {
+pub(crate) fn construct_workspace_server(config: &ServerConfig) -> Arc<dyn WorkspaceServerAPI + Send + Sync> {
     if cfg!(feature = "http_server") {
-        Arc::new(WorkspaceServer {})
+        Arc::new(WorkspaceServer::new(config.clone()))
     } else {
         Arc::new(WorkspaceServerMock {})
     }

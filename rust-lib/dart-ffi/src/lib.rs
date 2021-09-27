@@ -24,7 +24,10 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
     let c_str: &CStr = unsafe { CStr::from_ptr(path) };
     let path: &str = c_str.to_str().unwrap();
 
-    let config = FlowySDKConfig::new(path).log_filter("debug");
+    let host = "localhost";
+    let http_schema = "http";
+    let ws_schema = "ws";
+    let config = FlowySDKConfig::new(path, host, http_schema, ws_schema).log_filter("debug");
     *FLOWY_SDK.write() = Some(Arc::new(FlowySDK::new(config)));
 
     return 1;
@@ -33,7 +36,12 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
 #[no_mangle]
 pub extern "C" fn async_command(port: i64, input: *const u8, len: usize) {
     let request: ModuleRequest = FFIRequest::from_u8_pointer(input, len).into();
-    log::trace!("[FFI]: {} Async Event: {:?} with {} port", &request.id, &request.event, port);
+    log::trace!(
+        "[FFI]: {} Async Event: {:?} with {} port",
+        &request.id,
+        &request.event,
+        port
+    );
 
     let _ = EventDispatch::async_send_with_callback(dispatch(), request, move |resp: EventResponse| {
         log::trace!("[FFI]: Post data to dart through {} port", port);

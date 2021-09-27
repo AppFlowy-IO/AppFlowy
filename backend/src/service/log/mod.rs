@@ -28,7 +28,7 @@ impl Builder {
         let env_filter = EnvFilter::new(self.env_filter);
         let subscriber = tracing_subscriber::fmt()
             .with_target(true)
-            .with_max_level(tracing::Level::TRACE)
+            .with_max_level(tracing::Level::DEBUG)
             .with_writer(std::io::stderr)
             .with_thread_ids(false)
             .compact()

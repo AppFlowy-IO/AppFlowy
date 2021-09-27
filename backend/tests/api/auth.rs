@@ -1,9 +1,9 @@
-use crate::helper::{spawn_server, TestServer};
+use crate::helper::{spawn_user_server, TestUserServer};
 use flowy_user::entities::{SignInParams, SignUpParams, SignUpResponse, UpdateUserParams};
 
 #[actix_rt::test]
 async fn user_register() {
-    let app = spawn_server().await;
+    let app = spawn_user_server().await;
     let response = register_user(&app, "annie@appflowy.io", "HelloWorld123!").await;
     log::info!("{:?}", response);
 }
@@ -11,7 +11,7 @@ async fn user_register() {
 #[actix_rt::test]
 #[should_panic]
 async fn user_sign_in_with_invalid_password() {
-    let app = spawn_server().await;
+    let app = spawn_user_server().await;
     let email = "annie@appflowy.io";
     let password = "123";
     let _ = register_user(&app, email, password).await;
@@ -20,7 +20,7 @@ async fn user_sign_in_with_invalid_password() {
 #[actix_rt::test]
 #[should_panic]
 async fn user_sign_in_with_invalid_email() {
-    let app = spawn_server().await;
+    let app = spawn_user_server().await;
     let email = "annie@gmail@";
     let password = "HelloWorld123!";
     let _ = register_user(&app, email, password).await;
@@ -28,7 +28,7 @@ async fn user_sign_in_with_invalid_email() {
 
 #[actix_rt::test]
 async fn user_sign_in() {
-    let app = spawn_server().await;
+    let app = spawn_user_server().await;
     let email = "annie@appflowy.io";
     let password = "HelloWorld123!";
     let _ = register_user(&app, email, password).await;
@@ -42,7 +42,7 @@ async fn user_sign_in() {
 #[actix_rt::test]
 #[should_panic]
 async fn user_sign_out() {
-    let server = TestServer::new().await;
+    let server = TestUserServer::new().await;
     server.sign_out().await;
 
     // user_detail will be empty because use was sign out.
@@ -51,13 +51,13 @@ async fn user_sign_out() {
 
 #[actix_rt::test]
 async fn user_get_detail() {
-    let server = TestServer::new().await;
+    let server = TestUserServer::new().await;
     log::info!("{:?}", server.get_user_profile().await);
 }
 
 #[actix_rt::test]
 async fn user_update_password() {
-    let mut server = spawn_server().await;
+    let mut server = spawn_user_server().await;
     let email = "annie@appflowy.io";
     let password = "HelloWorld123!";
     let sign_up_resp = register_user(&server, email, password).await;
@@ -82,7 +82,7 @@ async fn user_update_password() {
 
 #[actix_rt::test]
 async fn user_update_name() {
-    let server = TestServer::new().await;
+    let server = TestUserServer::new().await;
 
     let name = "tom".to_string();
     let params = UpdateUserParams::new(&server.user_id()).name(&name);
@@ -94,7 +94,7 @@ async fn user_update_name() {
 
 #[actix_rt::test]
 async fn user_update_email() {
-    let server = TestServer::new().await;
+    let server = TestUserServer::new().await;
     let email = "123@gmail.com".to_string();
     let params = UpdateUserParams::new(server.user_id()).email(&email);
     server.update_user_profile(params).await.unwrap();
@@ -104,14 +104,14 @@ async fn user_update_email() {
 }
 
 #[allow(dead_code)]
-async fn sign_up_user(server: &TestServer) -> SignUpResponse {
+async fn sign_up_user(server: &TestUserServer) -> SignUpResponse {
     let email = "annie@appflowy.io";
     let password = "HelloWorld123!";
     let response = register_user(server, email, password).await;
     response
 }
 
-async fn register_user(server: &TestServer, email: &str, password: &str) -> SignUpResponse {
+async fn register_user(server: &TestUserServer, email: &str, password: &str) -> SignUpResponse {
     let params = SignUpParams {
         email: email.to_string(),
         name: "annie".to_string(),

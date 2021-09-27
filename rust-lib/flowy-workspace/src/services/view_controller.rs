@@ -50,7 +50,8 @@ impl ViewController {
         // TODO: rollback anything created before if failed?
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.save_view(view.clone(), conn)?;
-            self.document.create(CreateDocParams::new(&view.id, params.data), conn)?;
+            self.document
+                .create(CreateDocParams::new(&view.id, params.data), conn)?;
 
             let repeated_view = self.read_local_views_belong_to(&view.belong_to_id, conn)?;
             notify(&view.belong_to_id, WorkspaceObservable::AppCreateView)
@@ -78,8 +79,8 @@ impl ViewController {
 
     #[tracing::instrument(level = "debug", skip(self), err)]
     pub(crate) async fn open_view(&self, params: QueryDocParams) -> Result<Doc, WorkspaceError> {
-        let doc = self.document.open(params, self.database.db_pool()?).await?;
-        Ok(doc)
+        let edit_context = self.document.open(params, self.database.db_pool()?).await?;
+        Ok(edit_context.doc())
     }
 
     pub(crate) async fn delete_view(&self, params: DeleteViewParams) -> Result<(), WorkspaceError> {
@@ -191,7 +192,11 @@ impl ViewController {
     }
 
     // belong_to_id will be the app_id or view_id.
-    fn read_local_views_belong_to(&self, belong_to_id: &str, conn: &SqliteConnection) -> Result<RepeatedView, WorkspaceError> {
+    fn read_local_views_belong_to(
+        &self,
+        belong_to_id: &str,
+        conn: &SqliteConnection,
+    ) -> Result<RepeatedView, WorkspaceError> {
         let views = self
             .sql
             .read_views_belong_to(belong_to_id, conn)?

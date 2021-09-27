@@ -17,6 +17,7 @@ use flowy_database::{
     UserDatabaseConnection,
 };
 use flowy_infra::kv::KV;
+use flowy_net::config::ServerConfig;
 use flowy_sqlite::ConnectionPool;
 use flowy_ws::{connect::Retry, WsController, WsMessage, WsMessageHandler, WsSender};
 use parking_lot::RwLock;
@@ -25,12 +26,14 @@ use std::{sync::Arc, time::Duration};
 
 pub struct UserSessionConfig {
     root_dir: String,
+    server_config: ServerConfig,
 }
 
 impl UserSessionConfig {
-    pub fn new(root_dir: &str) -> Self {
+    pub fn new(root_dir: &str, server_config: &ServerConfig) -> Self {
         Self {
             root_dir: root_dir.to_owned(),
+            server_config: server_config.clone(),
         }
     }
 }
@@ -54,7 +57,7 @@ pub struct UserSession {
 impl UserSession {
     pub fn new(config: UserSessionConfig, status_callback: SessionStatusCallback) -> Self {
         let db = UserDB::new(&config.root_dir);
-        let server = construct_user_server();
+        let server = construct_user_server(&config.server_config);
         let ws_controller = Arc::new(RwLock::new(WsController::new()));
         let user_session = Self {
             database: db,
@@ -120,7 +123,8 @@ impl UserSession {
     #[tracing::instrument(level = "debug", skip(self))]
     pub async fn sign_out(&self) -> Result<(), UserError> {
         let session = self.get_session()?;
-        let _ = diesel::delete(dsl::user_table.filter(dsl::id.eq(&session.user_id))).execute(&*(self.db_connection()?))?;
+        let _ =
+            diesel::delete(dsl::user_table.filter(dsl::id.eq(&session.user_id))).execute(&*(self.db_connection()?))?;
         let _ = self.database.close_user_db(&session.user_id)?;
         let _ = self.set_session(None)?;
         (self.status_callback)(SessionStatus::Expired {
@@ -178,7 +182,9 @@ impl UserSession {
 
     pub fn token(&self) -> Result<String, UserError> { Ok(self.get_session()?.token) }
 
-    pub fn add_ws_handler(&self, handler: Arc<dyn WsMessageHandler>) { let _ = self.ws_controller.write().add_handler(handler); }
+    pub fn add_ws_handler(&self, handler: Arc<dyn WsMessageHandler>) {
+        let _ = self.ws_controller.write().add_handler(handler);
+    }
 
     pub fn get_ws_sender(&self) -> Result<Arc<WsSender>, UserError> {
         match self.ws_controller.try_read_for(Duration::from_millis(300)) {
@@ -204,7 +210,9 @@ impl UserSession {
         tokio::spawn(async move {
             match server.get_user(&token).await {
                 Ok(profile) => {
-                    notify(&token, UserObservable::UserProfileUpdated).payload(profile).send();
+                    notify(&token, UserObservable::UserProfileUpdated)
+                        .payload(profile)
+                        .send();
                 },
                 Err(e) => {
                     notify(&token, UserObservable::UserProfileUpdated).error(e).send();
@@ -245,7 +253,9 @@ impl UserSession {
 
     async fn save_user(&self, user: UserTable) -> Result<UserTable, UserError> {
         let conn = self.db_connection()?;
-        let _ = diesel::insert_into(user_table::table).values(user.clone()).execute(&*conn)?;
+        let _ = diesel::insert_into(user_table::table)
+            .values(user.clone())
+            .execute(&*conn)?;
         Ok(user)
     }
 
@@ -285,7 +295,7 @@ impl UserSession {
     }
 
     fn start_ws_connection(&self, token: &str) -> Result<(), UserError> {
-        let addr = format!("{}/{}", flowy_net::config::WS_ADDR.as_str(), token);
+        let addr = format!("{}/{}", self.server.ws_addr(), token);
         let ws_controller = self.ws_controller.clone();
         let retry = Retry::new(&addr, move |addr| {
             let _ = ws_controller.write().connect(addr.to_owned());
@@ -296,7 +306,11 @@ impl UserSession {
     }
 }
 
-pub async fn update_user(_server: Server, pool: Arc<ConnectionPool>, params: UpdateUserParams) -> Result<(), UserError> {
+pub async fn update_user(
+    _server: Server,
+    pool: Arc<ConnectionPool>,
+    params: UpdateUserParams,
+) -> Result<(), UserError> {
     let changeset = UserTableChangeset::new(params);
     let conn = pool.get()?;
     diesel_update_table!(user_table, changeset, &*conn);

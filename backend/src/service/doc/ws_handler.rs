@@ -6,8 +6,7 @@ use crate::service::{
 };
 use actix_web::web::Data;
 
-use crate::service::ws::WsUser;
-use flowy_document::protobuf::{QueryDocParams, Revision, RevisionRange, WsDataType, WsDocumentData};
+use flowy_document::protobuf::{QueryDocParams, Revision, WsDataType, WsDocumentData};
 use flowy_net::errors::ServerError;
 use parking_lot::{RwLock, RwLockUpgradableReadGuard};
 use protobuf::Message;
