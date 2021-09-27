@@ -9,7 +9,7 @@ use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_document::{
     entities::ws::{WsDataType, WsDocumentData},
-    protobuf::{Doc, RevType, Revision, UpdateDocParams},
+    protobuf::{Doc, RevType, Revision, RevisionRange, UpdateDocParams},
     services::doc::Document,
 };
 use flowy_net::errors::{internal_error, ServerError};
@@ -22,6 +22,7 @@ use parking_lot::RwLock;
 use protobuf::Message;
 use sqlx::PgPool;
 use std::{
+    cmp::min,
     convert::TryInto,
     sync::{
         atomic::{AtomicI64, Ordering::SeqCst},
@@ -64,7 +65,7 @@ impl EditDocContext {
         revision: Revision,
     ) -> Result<(), ServerError> {
         let _ = self.verify_md5(&revision)?;
-        // Rest EditUser for each client websocket message to keep the socket available.
+        // Opti: find out another way to keep the user socket available.
         let user = EditUser {
             user: client_data.user.clone(),
             socket: client_data.socket.clone(),
@@ -80,34 +81,40 @@ impl EditDocContext {
 
         let cli_socket = client_data.socket;
         let cur_rev_id = self.rev_id.load(SeqCst);
-        // Transform the revision if client rev_id less than server rev_id. Sending the
-        // prime delta to client.
         if cur_rev_id > revision.rev_id {
+            // The client document is outdated. Transform the client revision delta and then
+            // send the prime delta to the client. Client should compose the this prime
+            // delta.
+
             let (cli_prime, server_prime) = self.transform(&revision.delta).map_err(internal_error)?;
             let _ = self.update_document_delta(server_prime)?;
 
             log::debug!("{} client delta: {}", self.doc_id, cli_prime.to_json());
             let cli_revision = self.mk_revision(revision.rev_id, cli_prime);
-            let ws_cli_revision = mk_rev_ws_message(&self.doc_id, cli_revision);
+            let ws_cli_revision = mk_push_rev_ws_message(&self.doc_id, cli_revision);
             cli_socket.do_send(ws_cli_revision).map_err(internal_error)?;
             Ok(())
         } else if cur_rev_id < revision.rev_id {
             if cur_rev_id != revision.base_rev_id {
-                let missing_rev_range = revision.rev_id - cur_rev_id;
-                // TODO: pull the missing revs from client
+                // The server document is outdated, try to get the missing revision from the
+                // client.
+                cli_socket
+                    .do_send(mk_pull_rev_ws_message(&self.doc_id, cur_rev_id, revision.rev_id))
+                    .map_err(internal_error)?;
             } else {
                 let delta = Delta::from_bytes(&revision.delta).map_err(internal_error)?;
                 let _ = self.update_document_delta(delta)?;
-                cli_socket.do_send(mk_acked_ws_message(&revision));
+                cli_socket
+                    .do_send(mk_acked_ws_message(&revision))
+                    .map_err(internal_error)?;
                 self.rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(revision.rev_id));
-
-                // Opti: save with multiple revisions
                 let _ = self.save_revision(&revision).await?;
             }
 
             Ok(())
         } else {
             log::error!("Client rev_id should not equal to server rev_id");
+            Ok(())
         }
     }
 
@@ -162,29 +169,41 @@ impl EditDocContext {
 
     #[tracing::instrument(level = "debug", skip(self, revision))]
     async fn save_revision(&self, revision: &Revision) -> Result<(), ServerError> {
+        // Opti: save with multiple revisions
         let mut params = UpdateDocParams::new();
         params.set_doc_id(self.doc_id.clone());
         params.set_data(self.document.read().to_json());
         params.set_rev_id(revision.rev_id);
-
         let _ = update_doc(self.pg_pool.get_ref(), params).await?;
-
         Ok(())
     }
 }
 
-fn mk_rev_ws_message(doc_id: &str, revision: Revision) -> WsMessageAdaptor {
+fn mk_push_rev_ws_message(doc_id: &str, revision: Revision) -> WsMessageAdaptor {
     let bytes = revision.write_to_bytes().unwrap();
-
     let data = WsDocumentData {
         id: doc_id.to_string(),
-        ty: WsDataType::Rev,
+        ty: WsDataType::PushRev,
         data: bytes,
     };
+    mk_ws_message(data)
+}
 
-    let msg: WsMessage = data.into();
-    let bytes: Bytes = msg.try_into().unwrap();
-    WsMessageAdaptor(bytes)
+fn mk_pull_rev_ws_message(doc_id: &str, from_rev_id: i64, to_rev_id: i64) -> WsMessageAdaptor {
+    let range = RevisionRange {
+        doc_id: doc_id.to_string(),
+        from_rev_id,
+        to_rev_id,
+        ..Default::default()
+    };
+
+    let bytes = range.write_to_bytes().unwrap();
+    let data = WsDocumentData {
+        id: doc_id.to_string(),
+        ty: WsDataType::PullRev,
+        data: bytes,
+    };
+    mk_ws_message(data)
 }
 
 fn mk_acked_ws_message(revision: &Revision) -> WsMessageAdaptor {
@@ -197,6 +216,10 @@ fn mk_acked_ws_message(revision: &Revision) -> WsMessageAdaptor {
         data: wtr,
     };
 
+    mk_ws_message(data)
+}
+
+fn mk_ws_message<T: Into<WsMessage>>(data: T) -> WsMessageAdaptor {
     let msg: WsMessage = data.into();
     let bytes: Bytes = msg.try_into().unwrap();
     WsMessageAdaptor(bytes)

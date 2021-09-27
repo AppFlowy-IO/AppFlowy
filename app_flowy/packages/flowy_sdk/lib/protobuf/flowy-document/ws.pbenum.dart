@@ -11,12 +11,14 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 class WsDataType extends $pb.ProtobufEnum {
   static const WsDataType Acked = WsDataType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Acked');
-  static const WsDataType Rev = WsDataType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Rev');
-  static const WsDataType Conflict = WsDataType._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Conflict');
+  static const WsDataType PushRev = WsDataType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'PushRev');
+  static const WsDataType PullRev = WsDataType._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'PullRev');
+  static const WsDataType Conflict = WsDataType._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Conflict');
 
   static const $core.List<WsDataType> values = <WsDataType> [
     Acked,
-    Rev,
+    PushRev,
+    PullRev,
     Conflict,
   ];
 

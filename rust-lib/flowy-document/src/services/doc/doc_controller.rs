@@ -115,18 +115,18 @@ impl DocController {
     ) -> Result<Arc<EditDocContext>, DocError> {
         // Opti: require upgradable_read lock and then upgrade to write lock using
         // RwLockUpgradableReadGuard::upgrade(xx) of ws
-        let delta = self.read_doc(doc_id, pool.clone()).await?;
+        let doc = self.read_doc(doc_id, pool.clone()).await?;
         let ws_sender = self.ws.read().sender();
-        let edit_ctx = Arc::new(EditDocContext::new(&doc_id, delta, pool, ws_sender).await?);
-        self.ws.write().register_handler(&doc_id, edit_ctx.clone());
+        let edit_ctx = Arc::new(EditDocContext::new(doc, pool, ws_sender).await?);
+        self.ws.write().register_handler(doc_id, edit_ctx.clone());
         self.cache.set(edit_ctx.clone());
         Ok(edit_ctx)
     }
 
     #[tracing::instrument(level = "debug", skip(self, pool), err)]
-    async fn read_doc(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<Delta, DocError> {
+    async fn read_doc(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<Doc, DocError> {
         match self.doc_sql.read_doc_table(doc_id, pool.clone()) {
-            Ok(doc_table) => Ok(Delta::from_bytes(doc_table.data)?),
+            Ok(doc_table) => Ok(doc_table.into()),
             Err(error) => {
                 if error.is_record_not_found() {
                     let token = self.user.token()?;
@@ -138,7 +138,7 @@ impl DocController {
                         Some(doc) => {
                             let conn = &*pool.get().map_err(internal_error)?;
                             let _ = self.doc_sql.create_doc_table(doc.clone().into(), conn)?;
-                            Ok(Delta::from_bytes(doc.data)?)
+                            Ok(doc)
                         },
                     }
                 } else {

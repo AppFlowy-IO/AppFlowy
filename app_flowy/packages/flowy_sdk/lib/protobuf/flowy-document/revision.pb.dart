@@ -131,3 +131,78 @@ class Revision extends $pb.GeneratedMessage {
   void clearTy() => clearField(6);
 }
 
+class RevisionRange extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RevisionRange', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
+    ..aInt64(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fromRevId')
+    ..aInt64(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'toRevId')
+    ..hasRequiredFields = false
+  ;
+
+  RevisionRange._() : super();
+  factory RevisionRange({
+    $core.String? docId,
+    $fixnum.Int64? fromRevId,
+    $fixnum.Int64? toRevId,
+  }) {
+    final _result = create();
+    if (docId != null) {
+      _result.docId = docId;
+    }
+    if (fromRevId != null) {
+      _result.fromRevId = fromRevId;
+    }
+    if (toRevId != null) {
+      _result.toRevId = toRevId;
+    }
+    return _result;
+  }
+  factory RevisionRange.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RevisionRange.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  RevisionRange clone() => RevisionRange()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  RevisionRange copyWith(void Function(RevisionRange) updates) => super.copyWith((message) => updates(message as RevisionRange)) as RevisionRange; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static RevisionRange create() => RevisionRange._();
+  RevisionRange createEmptyInstance() => create();
+  static $pb.PbList<RevisionRange> createRepeated() => $pb.PbList<RevisionRange>();
+  @$core.pragma('dart2js:noInline')
+  static RevisionRange getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RevisionRange>(create);
+  static RevisionRange? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get docId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set docId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasDocId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearDocId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $fixnum.Int64 get fromRevId => $_getI64(1);
+  @$pb.TagNumber(2)
+  set fromRevId($fixnum.Int64 v) { $_setInt64(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasFromRevId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearFromRevId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $fixnum.Int64 get toRevId => $_getI64(2);
+  @$pb.TagNumber(3)
+  set toRevId($fixnum.Int64 v) { $_setInt64(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasToRevId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearToRevId() => clearField(3);
+}
+

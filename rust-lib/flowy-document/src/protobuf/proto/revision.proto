@@ -8,6 +8,11 @@ message Revision {
     string doc_id = 5;
     RevType ty = 6;
 }
+message RevisionRange {
+    string doc_id = 1;
+    int64 from_rev_id = 2;
+    int64 to_rev_id = 3;
+}
 enum RevType {
     Local = 0;
     Remote = 1;

@@ -17,17 +17,17 @@ table! {
     doc_table (id) {
         id -> Text,
         data -> Text,
-        revision -> BigInt,
+        rev_id -> BigInt,
     }
 }
 
 table! {
-    rev_table (doc_id) {
+    rev_table (id) {
+        id -> Integer,
         doc_id -> Text,
         base_rev_id -> BigInt,
         rev_id -> BigInt,
         data -> Binary,
-        md5 -> Text,
         state -> Integer,
         ty -> Integer,
     }

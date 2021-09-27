@@ -59,6 +59,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "DocDelta"
         | "QueryDocParams"
         | "Revision"
+        | "RevisionRange"
         | "WsDocumentData"
         | "DocError"
         | "FFIRequest"

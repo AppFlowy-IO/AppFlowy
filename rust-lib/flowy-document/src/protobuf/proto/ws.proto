@@ -7,6 +7,7 @@ message WsDocumentData {
 }
 enum WsDataType {
     Acked = 0;
-    Rev = 1;
-    Conflict = 2;
+    PushRev = 1;
+    PullRev = 2;
+    Conflict = 3;
 }

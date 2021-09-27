@@ -13,7 +13,7 @@ use crate::{
 use bytes::Bytes;
 
 use crate::{
-    entities::doc::RevType,
+    entities::doc::{RevType, RevisionRange},
     services::ws::WsDocumentSender,
     sql_tables::{doc::DocTableSql, DocTableChangeset},
 };
@@ -33,16 +33,15 @@ pub(crate) struct EditDocContext {
 
 impl EditDocContext {
     pub(crate) async fn new(
-        doc_id: &str,
-        delta: Delta,
+        doc: Doc,
         pool: Arc<ConnectionPool>,
         ws_sender: Arc<dyn WsDocumentSender>,
     ) -> Result<Self, DocError> {
-        let doc_id = doc_id.to_owned();
-        let rev_manager = Arc::new(RevisionManager::new(&doc_id, 1, pool.clone(), ws_sender));
+        let delta = Delta::from_bytes(doc.data)?;
+        let rev_manager = Arc::new(RevisionManager::new(&doc.id, doc.rev_id, pool.clone(), ws_sender));
         let document = Arc::new(RwLock::new(Document::from_delta(delta)));
         let edit_context = Self {
-            doc_id,
+            doc_id: doc.id,
             document,
             rev_manager,
             pool,
@@ -71,7 +70,7 @@ impl EditDocContext {
         );
 
         let _ = self.update_document(&revision)?;
-        self.rev_manager.add_revision(revision);
+        let _ = self.rev_manager.add_revision(revision)?;
         Ok(())
     }
 
@@ -83,12 +82,12 @@ impl EditDocContext {
         let changeset = DocTableChangeset {
             id: self.doc_id.clone(),
             data,
-            revision: revision.rev_id,
+            rev_id: revision.rev_id,
         };
 
         let sql = DocTableSql {};
         let conn = self.pool.get().map_err(internal_error)?;
-        sql.update_doc_table(changeset, &*conn);
+        let _ = sql.update_doc_table(changeset, &*conn)?;
         Ok(())
     }
 
@@ -122,18 +121,22 @@ impl EditDocContext {
 impl WsDocumentHandler for EditDocContext {
     fn receive(&self, doc_data: WsDocumentData) {
         let f = |doc_data: WsDocumentData| {
+            let bytes = Bytes::from(doc_data.data);
             match doc_data.ty {
-                WsDataType::Rev => {
-                    let bytes = Bytes::from(doc_data.data);
+                WsDataType::PushRev => {
                     let revision = Revision::try_from(bytes)?;
-                    self.rev_manager.add_revision(revision);
+                    let _ = self.rev_manager.add_revision(revision)?;
                     let _ = self.compose_remote_delta()?;
                 },
-                WsDataType::Acked => {
-                    let rev_id = bytes_to_rev_id(doc_data.data)?;
-                    self.rev_manager.remove(rev_id);
+                WsDataType::PullRev => {
+                    let range = RevisionRange::try_from(bytes)?;
+                    let _ = self.rev_manager.send_rev_with_range(range)?;
                 },
-                _ => {},
+                WsDataType::Acked => {
+                    let rev_id = bytes_to_rev_id(bytes.to_vec())?;
+                    let _ = self.rev_manager.ack(rev_id);
+                },
+                WsDataType::Conflict => {},
             }
             Result::<(), DocError>::Ok(())
         };

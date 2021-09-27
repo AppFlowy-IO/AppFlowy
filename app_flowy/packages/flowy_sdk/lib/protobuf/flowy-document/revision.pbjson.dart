@@ -34,3 +34,15 @@ const Revision$json = const {
 
 /// Descriptor for `Revision`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List revisionDescriptor = $convert.base64Decode('CghSZXZpc2lvbhIeCgtiYXNlX3Jldl9pZBgBIAEoA1IJYmFzZVJldklkEhUKBnJldl9pZBgCIAEoA1IFcmV2SWQSFAoFZGVsdGEYAyABKAxSBWRlbHRhEhAKA21kNRgEIAEoCVIDbWQ1EhUKBmRvY19pZBgFIAEoCVIFZG9jSWQSGAoCdHkYBiABKA4yCC5SZXZUeXBlUgJ0eQ==');
+@$core.Deprecated('Use revisionRangeDescriptor instead')
+const RevisionRange$json = const {
+  '1': 'RevisionRange',
+  '2': const [
+    const {'1': 'doc_id', '3': 1, '4': 1, '5': 9, '10': 'docId'},
+    const {'1': 'from_rev_id', '3': 2, '4': 1, '5': 3, '10': 'fromRevId'},
+    const {'1': 'to_rev_id', '3': 3, '4': 1, '5': 3, '10': 'toRevId'},
+  ],
+};
+
+/// Descriptor for `RevisionRange`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List revisionRangeDescriptor = $convert.base64Decode('Cg1SZXZpc2lvblJhbmdlEhUKBmRvY19pZBgBIAEoCVIFZG9jSWQSHgoLZnJvbV9yZXZfaWQYAiABKANSCWZyb21SZXZJZBIaCgl0b19yZXZfaWQYAyABKANSB3RvUmV2SWQ=');

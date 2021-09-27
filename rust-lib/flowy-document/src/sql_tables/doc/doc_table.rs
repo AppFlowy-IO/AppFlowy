@@ -6,7 +6,7 @@ use flowy_database::schema::doc_table;
 pub(crate) struct DocTable {
     pub(crate) id: String,
     pub(crate) data: String,
-    pub(crate) revision: i64,
+    pub(crate) rev_id: i64,
 }
 
 impl DocTable {
@@ -14,7 +14,7 @@ impl DocTable {
         Self {
             id: doc.id,
             data: doc.data,
-            revision: 0,
+            rev_id: 0,
         }
     }
 }
@@ -24,7 +24,7 @@ impl DocTable {
 pub(crate) struct DocTableChangeset {
     pub id: String,
     pub data: String,
-    pub revision: i64,
+    pub rev_id: i64,
 }
 
 impl std::convert::Into<Doc> for DocTable {
@@ -32,7 +32,7 @@ impl std::convert::Into<Doc> for DocTable {
         Doc {
             id: self.id,
             data: self.data,
-            rev_id: self.revision,
+            rev_id: self.rev_id,
         }
     }
 }
@@ -42,7 +42,7 @@ impl std::convert::From<Doc> for DocTable {
         Self {
             id: doc.id,
             data: doc.data,
-            revision: doc.rev_id,
+            rev_id: doc.rev_id,
         }
     }
 }

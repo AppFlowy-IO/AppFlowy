@@ -43,3 +43,15 @@ impl Revision {
         }
     }
 }
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct RevisionRange {
+    #[pb(index = 1)]
+    pub doc_id: String,
+
+    #[pb(index = 2)]
+    pub from_rev_id: i64,
+
+    #[pb(index = 3)]
+    pub to_rev_id: i64,
+}

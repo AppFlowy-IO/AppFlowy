@@ -7,7 +7,7 @@ use crate::service::{
 use actix_web::web::Data;
 
 use crate::service::ws::WsUser;
-use flowy_document::protobuf::{QueryDocParams, Revision, WsDataType, WsDocumentData};
+use flowy_document::protobuf::{QueryDocParams, Revision, RevisionRange, WsDataType, WsDocumentData};
 use flowy_net::errors::ServerError;
 use parking_lot::{RwLock, RwLockUpgradableReadGuard};
 use protobuf::Message;
@@ -55,8 +55,10 @@ impl EditDocManager {
     async fn handle(&self, client_data: WsClientData) -> Result<(), ServerError> {
         let document_data: WsDocumentData = parse_from_bytes(&client_data.data)?;
         match document_data.ty {
-            WsDataType::Acked => {},
-            WsDataType::Rev => {
+            WsDataType::Acked => {
+                // Do nothing,
+            },
+            WsDataType::PushRev => {
                 let revision: Revision = parse_from_bytes(&document_data.data)?;
                 let edited_doc = self.get_edit_doc(&revision.doc_id).await?;
                 tokio::spawn(async move {
@@ -66,7 +68,12 @@ impl EditDocManager {
                     }
                 });
             },
-            _ => {},
+            WsDataType::PullRev => {
+                // Do nothing
+            },
+            WsDataType::Conflict => {
+                unimplemented!()
+            },
         }
 
         Ok(())

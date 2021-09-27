@@ -1,16 +1,18 @@
-use crate::entities::doc::{RevType, Revision};
+use crate::{
+    entities::doc::{RevType, Revision},
+    services::util::md5,
+};
 use diesel::sql_types::Integer;
 use flowy_database::schema::rev_table;
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
 #[table_name = "rev_table"]
-#[primary_key(doc_id)]
 pub(crate) struct RevTable {
+    id: i32,
     pub(crate) doc_id: String,
     pub(crate) base_rev_id: i64,
     pub(crate) rev_id: i64,
     pub(crate) data: Vec<u8>,
-    pub(crate) md5: String,
     pub(crate) state: RevState,
     pub(crate) ty: RevTableType,
 }
@@ -44,6 +46,38 @@ impl RevState {
 }
 impl_sql_integer_expression!(RevState);
 
+impl std::convert::Into<Revision> for RevTable {
+    fn into(self) -> Revision {
+        let md5 = md5(&self.data);
+        Revision {
+            base_rev_id: self.base_rev_id,
+            rev_id: self.rev_id,
+            delta: self.data,
+            md5,
+            doc_id: self.doc_id,
+            ty: self.ty.into(),
+        }
+    }
+}
+
+impl std::convert::Into<RevTableType> for RevType {
+    fn into(self) -> RevTableType {
+        match self {
+            RevType::Local => RevTableType::Local,
+            RevType::Remote => RevTableType::Remote,
+        }
+    }
+}
+
+impl std::convert::From<RevTableType> for RevType {
+    fn from(ty: RevTableType) -> Self {
+        match ty {
+            RevTableType::Local => RevType::Local,
+            RevTableType::Remote => RevType::Remote,
+        }
+    }
+}
+
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash, FromSqlRow, AsExpression)]
 #[repr(i32)]
 #[sql_type = "Integer"]
@@ -73,32 +107,8 @@ impl RevTableType {
 }
 impl_sql_integer_expression!(RevTableType);
 
-#[derive(AsChangeset, Identifiable, Default, Debug)]
-#[table_name = "rev_table"]
-#[primary_key(doc_id)]
 pub(crate) struct RevChangeset {
     pub(crate) doc_id: String,
     pub(crate) rev_id: i64,
-    pub(crate) state: Option<RevState>,
-}
-
-impl std::convert::Into<RevTable> for Revision {
-    fn into(self) -> RevTable {
-        RevTable {
-            doc_id: self.doc_id,
-            base_rev_id: self.base_rev_id,
-            rev_id: self.rev_id,
-            data: self.delta,
-            md5: self.md5,
-            state: RevState::Local,
-            ty: rev_ty_to_rev_state(self.ty),
-        }
-    }
-}
-
-fn rev_ty_to_rev_state(ty: RevType) -> RevTableType {
-    match ty {
-        RevType::Local => RevTableType::Local,
-        RevType::Remote => RevTableType::Remote,
-    }
+    pub(crate) state: RevState,
 }
