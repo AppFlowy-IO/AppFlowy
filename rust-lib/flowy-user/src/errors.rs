@@ -2,7 +2,7 @@ use bytes::Bytes;
 use derive_more::Display;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_dispatch::prelude::{EventResponse, ResponseBuilder};
-use std::{convert::TryInto, fmt::Debug};
+use std::{convert::TryInto, fmt, fmt::Debug};
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct UserError {
@@ -11,6 +11,10 @@ pub struct UserError {
 
     #[pb(index = 2)]
     pub msg: String,
+}
+
+impl std::fmt::Display for UserError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { write!(f, "{:?}: {}", &self.code, &self.msg) }
 }
 
 macro_rules! static_user_error {

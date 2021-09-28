@@ -24,10 +24,7 @@ use crate::{
     sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
 
-pub(crate) async fn create_view(
-    pool: &PgPool,
-    params: CreateViewParams,
-) -> Result<FlowyResponse, ServerError> {
+pub(crate) async fn create_view(pool: &PgPool, params: CreateViewParams) -> Result<FlowyResponse, ServerError> {
     let mut transaction = pool
         .begin()
         .await
@@ -41,6 +38,7 @@ pub(crate) async fn create_view(
     FlowyResponse::success().pb(view)
 }
 
+#[tracing::instrument(name = "create_view", level = "debug", skip(transaction), err)]
 pub(crate) async fn create_view_with_transaction(
     transaction: &mut DBTransaction<'_>,
     params: CreateViewParams,
@@ -69,10 +67,7 @@ pub(crate) async fn create_view_with_transaction(
     Ok(view)
 }
 
-pub(crate) async fn read_view(
-    pool: &PgPool,
-    params: QueryViewParams,
-) -> Result<FlowyResponse, ServerError> {
+pub(crate) async fn read_view(pool: &PgPool, params: QueryViewParams) -> Result<FlowyResponse, ServerError> {
     let view_id = check_view_id(params.view_id)?;
     let mut transaction = pool
         .begin()
@@ -109,28 +104,17 @@ pub(crate) async fn read_view(
     FlowyResponse::success().pb(view)
 }
 
-pub(crate) async fn update_view(
-    pool: &PgPool,
-    params: UpdateViewParams,
-) -> Result<FlowyResponse, ServerError> {
+pub(crate) async fn update_view(pool: &PgPool, params: UpdateViewParams) -> Result<FlowyResponse, ServerError> {
     let view_id = check_view_id(params.view_id.clone())?;
 
     let name = match params.has_name() {
         false => None,
-        true => Some(
-            ViewName::parse(params.get_name().to_owned())
-                .map_err(invalid_params)?
-                .0,
-        ),
+        true => Some(ViewName::parse(params.get_name().to_owned()).map_err(invalid_params)?.0),
     };
 
     let desc = match params.has_desc() {
         false => None,
-        true => Some(
-            ViewDesc::parse(params.get_desc().to_owned())
-                .map_err(invalid_params)?
-                .0,
-        ),
+        true => Some(ViewDesc::parse(params.get_desc().to_owned()).map_err(invalid_params)?.0),
     };
 
     let thumbnail = match params.has_thumbnail() {
@@ -169,19 +153,14 @@ pub(crate) async fn update_view(
     Ok(FlowyResponse::success())
 }
 
-pub(crate) async fn delete_view(
-    pool: &PgPool,
-    view_id: &str,
-) -> Result<FlowyResponse, ServerError> {
+pub(crate) async fn delete_view(pool: &PgPool, view_id: &str) -> Result<FlowyResponse, ServerError> {
     let view_id = check_view_id(view_id.to_owned())?;
     let mut transaction = pool
         .begin()
         .await
         .context("Failed to acquire a Postgres connection to delete view")?;
 
-    let (sql, args) = SqlBuilder::delete(VIEW_TABLE)
-        .and_where_eq("id", &view_id)
-        .build()?;
+    let (sql, args) = SqlBuilder::delete(VIEW_TABLE).and_where_eq("id", &view_id).build()?;
 
     let _ = sqlx::query_with(&sql, args)
         .execute(&mut transaction)
@@ -215,10 +194,7 @@ pub(crate) async fn read_views_belong_to_id<'c>(
         .await
         .map_err(map_sqlx_error)?;
 
-    let views = tables
-        .into_iter()
-        .map(|table| table.into())
-        .collect::<Vec<View>>();
+    let views = tables.into_iter().map(|table| table.into()).collect::<Vec<View>>();
 
     Ok(views)
 }

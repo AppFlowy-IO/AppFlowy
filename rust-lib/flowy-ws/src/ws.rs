@@ -260,21 +260,21 @@ impl WsSender {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::WsController;
-
-    #[tokio::test]
-    async fn connect() {
-        std::env::set_var("RUST_LOG", "Debug");
-        env_logger::init();
-
-        let mut controller = WsController::new();
-        let addr = format!("{}/123", flowy_net::config::WS_ADDR.as_str());
-        let (a, b) = controller.make_connect(addr);
-        tokio::select! {
-            r = a => println!("write completed {:?}", r),
-            _ = b => println!("read completed"),
-        };
-    }
-}
+// #[cfg(test)]
+// mod tests {
+//     use super::WsController;
+//
+//     #[tokio::test]
+//     async fn connect() {
+//         std::env::set_var("RUST_LOG", "Debug");
+//         env_logger::init();
+//
+//         let mut controller = WsController::new();
+//         let addr = format!("{}/123", flowy_net::config::WS_ADDR.as_str());
+//         let (a, b) = controller.make_connect(addr);
+//         tokio::select! {
+//             r = a => println!("write completed {:?}", r),
+//             _ = b => println!("read completed"),
+//         };
+//     }
+// }

@@ -97,6 +97,26 @@ pub fn sign_up(dispatch: Arc<EventDispatch>) -> SignUpContext {
         .unwrap()
         .unwrap();
 
+    SignUpContext { user_profile, password }
+}
+
+pub async fn async_sign_up(dispatch: Arc<EventDispatch>) -> SignUpContext {
+    let password = login_password();
+    let payload = SignUpRequest {
+        email: random_email(),
+        name: "app flowy".to_string(),
+        password: password.clone(),
+    }
+    .into_bytes()
+    .unwrap();
+
+    let request = ModuleRequest::new(SignUp).payload(payload);
+    let user_profile = EventDispatch::async_send(dispatch.clone(), request)
+        .await
+        .parse::<UserProfile, UserError>()
+        .unwrap()
+        .unwrap();
+
     // let _ = create_default_workspace_if_need(dispatch.clone(), &user_profile.id);
     SignUpContext { user_profile, password }
 }

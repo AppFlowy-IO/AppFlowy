@@ -9,6 +9,7 @@ use flowy_net::errors::ServerError;
 use sqlx::{postgres::PgArguments, PgPool, Postgres};
 use uuid::Uuid;
 
+#[tracing::instrument(level = "debug", skip(transaction), err)]
 pub(crate) async fn create_doc(
     transaction: &mut DBTransaction<'_>,
     params: CreateDocParams,
@@ -23,6 +24,7 @@ pub(crate) async fn create_doc(
     Ok(())
 }
 
+#[tracing::instrument(level = "debug", skip(pool), err)]
 pub(crate) async fn read_doc(pool: &PgPool, params: QueryDocParams) -> Result<Doc, ServerError> {
     let doc_id = Uuid::parse_str(&params.doc_id)?;
     let mut transaction = pool
@@ -30,9 +32,7 @@ pub(crate) async fn read_doc(pool: &PgPool, params: QueryDocParams) -> Result<Do
         .await
         .context("Failed to acquire a Postgres connection to read doc")?;
 
-    let builder = SqlBuilder::select(DOC_TABLE)
-        .add_field("*")
-        .and_where_eq("id", &doc_id);
+    let builder = SqlBuilder::select(DOC_TABLE).add_field("*").and_where_eq("id", &doc_id);
 
     let (sql, args) = builder.build()?;
     // TODO: benchmark the speed of different documents with different size
@@ -51,10 +51,7 @@ pub(crate) async fn read_doc(pool: &PgPool, params: QueryDocParams) -> Result<Do
 }
 
 #[tracing::instrument(level = "debug", skip(pool, params), err)]
-pub(crate) async fn update_doc(
-    pool: &PgPool,
-    mut params: UpdateDocParams,
-) -> Result<(), ServerError> {
+pub(crate) async fn update_doc(pool: &PgPool, mut params: UpdateDocParams) -> Result<(), ServerError> {
     let doc_id = Uuid::parse_str(&params.doc_id)?;
     let mut transaction = pool
         .begin()
@@ -82,13 +79,9 @@ pub(crate) async fn update_doc(
     Ok(())
 }
 
-pub(crate) async fn delete_doc(
-    transaction: &mut DBTransaction<'_>,
-    doc_id: Uuid,
-) -> Result<(), ServerError> {
-    let (sql, args) = SqlBuilder::delete(DOC_TABLE)
-        .and_where_eq("id", doc_id)
-        .build()?;
+#[tracing::instrument(level = "debug", skip(transaction), err)]
+pub(crate) async fn delete_doc(transaction: &mut DBTransaction<'_>, doc_id: Uuid) -> Result<(), ServerError> {
+    let (sql, args) = SqlBuilder::delete(DOC_TABLE).and_where_eq("id", doc_id).build()?;
 
     let _ = sqlx::query_with(&sql, args)
         .execute(transaction)

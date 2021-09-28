@@ -24,10 +24,8 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
     let c_str: &CStr = unsafe { CStr::from_ptr(path) };
     let path: &str = c_str.to_str().unwrap();
 
-    let host = "localhost";
-    let http_schema = "http";
-    let ws_schema = "ws";
-    let config = FlowySDKConfig::new(path, host, http_schema, ws_schema).log_filter("debug");
+    let server_config = ServerConfig::default();
+    let config = FlowySDKConfig::new(path, server_config).log_filter("debug");
     *FLOWY_SDK.write() = Some(Arc::new(FlowySDK::new(config)));
 
     return 1;
@@ -72,6 +70,8 @@ pub extern "C" fn set_stream_port(port: i64) -> i32 {
 pub extern "C" fn link_me_please() {}
 
 use flowy_dispatch::prelude::ToBytes;
+use flowy_net::config::ServerConfig;
+
 #[inline(always)]
 async fn post_to_flutter(response: EventResponse, port: i64) {
     let isolate = allo_isolate::Isolate::new(port);

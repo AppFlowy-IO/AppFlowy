@@ -32,10 +32,7 @@ pub struct Application {
 
 impl Application {
     pub async fn build(configuration: Settings) -> Result<Self, std::io::Error> {
-        let address = format!(
-            "{}:{}",
-            configuration.application.host, configuration.application.port
-        );
+        let address = format!("{}:{}", configuration.application.host, configuration.application.port);
         let listener = TcpListener::bind(&address)?;
         let port = listener.local_addr().unwrap().port();
         let app_ctx = init_app_context(&configuration).await;
@@ -122,6 +119,7 @@ fn user_scope() -> Scope {
             .route(web::patch().to(view::update_handler))
         )
         .service(web::resource("/doc")
+            .route(web::get().to(doc::create_handler))
             .route(web::get().to(doc::read_handler))
             .route(web::patch().to(doc::update_handler))
         )
@@ -132,15 +130,11 @@ fn user_scope() -> Scope {
 }
 
 async fn init_app_context(configuration: &Settings) -> AppContext {
-    let _ = crate::service::log::Builder::new("flowy")
-        .env_filter("Trace")
-        .build();
-    let pg_pool = get_connection_pool(&configuration.database)
-        .await
-        .expect(&format!(
-            "Failed to connect to Postgres at {:?}.",
-            configuration.database
-        ));
+    let _ = crate::service::log::Builder::new("flowy").env_filter("Trace").build();
+    let pg_pool = get_connection_pool(&configuration.database).await.expect(&format!(
+        "Failed to connect to Postgres at {:?}.",
+        configuration.database
+    ));
 
     let ws_server = WsServer::new().start();
 

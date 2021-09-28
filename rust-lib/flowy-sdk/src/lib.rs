@@ -23,8 +23,7 @@ pub struct FlowySDKConfig {
 }
 
 impl FlowySDKConfig {
-    pub fn new(root: &str, host: &str, http_schema: &str, ws_schema: &str) -> Self {
-        let server_config = ServerConfig::new(host, http_schema, ws_schema);
+    pub fn new(root: &str, server_config: ServerConfig) -> Self {
         FlowySDKConfig {
             root: root.to_owned(),
             log_filter: crate_log_filter(None),
@@ -71,7 +70,7 @@ impl FlowySDK {
                 .root_dir(&config.root, &config.server_config)
                 .build(),
         );
-        let flowy_document = build_document_module(user_session.clone());
+        let flowy_document = build_document_module(user_session.clone(), &config.server_config);
         let modules = build_modules(&config.server_config, user_session.clone(), flowy_document.clone());
         let dispatch = Arc::new(EventDispatch::construct(|| modules));
 

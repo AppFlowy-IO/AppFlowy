@@ -14,6 +14,7 @@ use crate::{
         ws::WsDocumentManager,
     },
 };
+use flowy_net::config::ServerConfig;
 
 pub trait DocumentUser: Send + Sync {
     fn user_dir(&self) -> Result<String, DocError>;
@@ -26,8 +27,12 @@ pub struct FlowyDocument {
 }
 
 impl FlowyDocument {
-    pub fn new(user: Arc<dyn DocumentUser>, ws_manager: Arc<RwLock<WsDocumentManager>>) -> FlowyDocument {
-        let server = construct_doc_server();
+    pub fn new(
+        user: Arc<dyn DocumentUser>,
+        ws_manager: Arc<RwLock<WsDocumentManager>>,
+        server_config: &ServerConfig,
+    ) -> FlowyDocument {
+        let server = construct_doc_server(server_config);
         let controller = Arc::new(DocController::new(server.clone(), user.clone(), ws_manager.clone()));
         Self { doc_ctrl: controller }
     }

@@ -1,32 +1,42 @@
+use crate::service::{
+    doc::{create_doc, read_doc, update_doc},
+    util::parse_from_payload,
+};
 use actix_web::{
     web::{Data, Payload},
     HttpResponse,
 };
+use anyhow::Context;
+use flowy_document::protobuf::{CreateDocParams, QueryDocParams, UpdateDocParams};
+use flowy_net::{errors::ServerError, response::FlowyResponse};
 use sqlx::PgPool;
 
-use flowy_document::protobuf::{QueryDocParams, UpdateDocParams};
-use flowy_net::errors::ServerError;
+pub async fn create_handler(payload: Payload, pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {
+    let params: CreateDocParams = parse_from_payload(payload).await?;
 
-use crate::service::{
-    doc::{read_doc, update_doc},
-    util::parse_from_payload,
-};
-use flowy_net::response::FlowyResponse;
+    let mut transaction = pool
+        .begin()
+        .await
+        .context("Failed to acquire a Postgres connection to create doc")?;
 
-pub async fn read_handler(
-    payload: Payload,
-    pool: Data<PgPool>,
-) -> Result<HttpResponse, ServerError> {
+    let _ = create_doc(&mut transaction, params).await?;
+
+    transaction
+        .commit()
+        .await
+        .context("Failed to commit SQL transaction to create doc.")?;
+
+    Ok(FlowyResponse::success().into())
+}
+
+pub async fn read_handler(payload: Payload, pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {
     let params: QueryDocParams = parse_from_payload(payload).await?;
     let doc = read_doc(pool.get_ref(), params).await?;
     let response = FlowyResponse::success().pb(doc)?;
     Ok(response.into())
 }
 
-pub async fn update_handler(
-    payload: Payload,
-    pool: Data<PgPool>,
-) -> Result<HttpResponse, ServerError> {
+pub async fn update_handler(payload: Payload, pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {
     let params: UpdateDocParams = parse_from_payload(payload).await?;
     let _ = update_doc(pool.get_ref(), params).await?;
     Ok(FlowyResponse::success().into())

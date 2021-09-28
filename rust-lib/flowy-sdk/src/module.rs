@@ -28,9 +28,9 @@ fn build_workspace_module(
     flowy_workspace::module::create(user, database, flowy_document, server_config)
 }
 
-pub fn build_document_module(user_session: Arc<UserSession>) -> Arc<FlowyDocument> {
+pub fn build_document_module(user_session: Arc<UserSession>, server_config: &ServerConfig) -> Arc<FlowyDocument> {
     let document_deps = DocumentDepsResolver::new(user_session.clone());
     let (user, ws_manager) = document_deps.split_into();
-    let document = Arc::new(FlowyDocument::new(user, ws_manager));
+    let document = Arc::new(FlowyDocument::new(user, ws_manager, server_config));
     document
 }

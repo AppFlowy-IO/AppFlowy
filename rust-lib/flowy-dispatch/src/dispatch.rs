@@ -8,7 +8,6 @@ use crate::{
 use derivative::*;
 use futures_core::future::BoxFuture;
 use futures_util::task::Context;
-
 use pin_project::pin_project;
 use std::{future::Future, sync::Arc};
 use tokio::macros::support::{Pin, Poll};
@@ -73,7 +72,9 @@ impl EventDispatch {
     }
 
     pub fn sync_send(dispatch: Arc<EventDispatch>, request: ModuleRequest) -> EventResponse {
-        futures::executor::block_on(async { EventDispatch::async_send_with_callback(dispatch, request, |_| Box::pin(async {})).await })
+        futures::executor::block_on(async {
+            EventDispatch::async_send_with_callback(dispatch, request, |_| Box::pin(async {})).await
+        })
     }
 
     pub fn spawn<F>(&self, f: F)

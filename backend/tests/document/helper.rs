@@ -1,20 +1,23 @@
-use crate::helper::*;
+// use crate::helper::*;
+use crate::helper::{spawn_server, TestServer};
 use flowy_document::{
-    entities::doc::{CreateDocParams, DocDelta, QueryDocParams},
+    entities::doc::{DocDelta, QueryDocParams},
     module::FlowyDocument,
     services::doc::edit_doc_context::EditDocContext,
 };
-use flowy_infra::uuid;
+
+use flowy_net::config::ServerConfig;
 use flowy_ot::core::Delta;
-use flowy_sdk::{FlowySDK, FlowySDKConfig};
-use flowy_test::{prelude::root_dir, FlowyTestSDK};
-use flowy_user::{entities::SignUpParams, services::user::UserSession};
-use flowy_workspace::prelude::DOC_DEFAULT_DATA;
+
+use flowy_test::{workspace::ViewTest, FlowyTest, FlowyTestSDK};
+use flowy_user::services::user::UserSession;
+
 use std::{str::FromStr, sync::Arc};
+use tokio::time::{interval, Duration};
 
 pub struct DocumentTest {
     server: TestServer,
-    sdk: FlowyTestSDK,
+    flowy_test: FlowyTest,
     flowy_document: Arc<FlowyDocument>,
     user_session: Arc<UserSession>,
     edit_context: Arc<EditDocContext>,
@@ -26,50 +29,20 @@ pub enum DocScript {
     SendBinary(Vec<u8>),
 }
 
-async fn create_doc(user_session: Arc<UserSession>, flowy_document: Arc<FlowyDocument>) -> Arc<EditDocContext> {
-    let conn = user_session.db_pool().unwrap().get().unwrap();
-    let doc_id = uuid();
-    let params = CreateDocParams {
-        id: doc_id.clone(),
-        data: DOC_DEFAULT_DATA.to_string(),
-    };
-    let _ = flowy_document.create(params, &*conn).unwrap();
-
-    let edit_context = flowy_document
-        .open(QueryDocParams { doc_id }, user_session.db_pool().unwrap())
-        .await
-        .unwrap();
-
-    edit_context
-}
-
-async fn init_user(user_session: Arc<UserSession>) {
-    let params = SignUpParams {
-        email: format!("{}@gmail.com", uuid()),
-        name: "nathan".to_string(),
-        password: "HelloWorld!@12".to_string(),
-    };
-
-    user_session.sign_up(params).await.unwrap();
-    user_session.init_user().await.unwrap();
-}
-
 impl DocumentTest {
     pub async fn new() -> Self {
         let server = spawn_server().await;
-        let config = FlowySDKConfig::new(&root_dir(), &server.host, "http", "ws").log_filter("debug");
-        let sdk = FlowySDK::new(config);
+        let server_config = ServerConfig::new(&server.host, "http", "ws");
+        let flowy_test = FlowyTest::setup_with(server_config);
 
-        let flowy_document = sdk.flowy_document.clone();
-        let user_session = sdk.user_session.clone();
+        init_user(&flowy_test).await;
 
-        init_user(user_session.clone()).await;
-
-        let edit_context = create_doc(user_session.clone(), flowy_document.clone()).await;
-
+        let edit_context = create_doc(&flowy_test).await;
+        let user_session = flowy_test.sdk.user_session.clone();
+        let flowy_document = flowy_test.sdk.flowy_document.clone();
         Self {
             server,
-            sdk,
+            flowy_test,
             flowy_document,
             user_session,
             edit_context,
@@ -93,5 +66,30 @@ impl DocumentTest {
             }
         }
         std::mem::forget(self);
+
+        let mut interval = interval(Duration::from_secs(5));
+        interval.tick().await;
+        interval.tick().await;
     }
+}
+
+async fn create_doc(flowy_test: &FlowyTest) -> Arc<EditDocContext> {
+    let view_test = ViewTest::new(flowy_test).await;
+    let doc_id = view_test.view.id.clone();
+    let user_session = flowy_test.sdk.user_session.clone();
+    let flowy_document = flowy_test.sdk.flowy_document.clone();
+
+    let edit_context = flowy_document
+        .open(QueryDocParams { doc_id }, user_session.db_pool().unwrap())
+        .await
+        .unwrap();
+
+    edit_context
+}
+
+async fn init_user(flowy_test: &FlowyTest) {
+    let _ = flowy_test.sign_up().await;
+
+    let user_session = flowy_test.sdk.user_session.clone();
+    user_session.init_user().await.unwrap();
 }

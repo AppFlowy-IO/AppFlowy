@@ -74,6 +74,13 @@ where
         self
     }
 
+    pub async fn async_send(mut self) -> Self {
+        let request = self.get_request();
+        let resp = EventDispatch::async_send(self.dispatch(), request).await;
+        self.context.response = Some(resp);
+        self
+    }
+
     pub fn parse<R>(self) -> R
     where
         R: FromBytes,
@@ -108,7 +115,13 @@ where
 
     fn dispatch(&self) -> Arc<EventDispatch> { self.context.sdk.dispatch() }
 
-    fn get_response(&self) -> EventResponse { self.context.response.as_ref().expect("must call sync_send first").clone() }
+    fn get_response(&self) -> EventResponse {
+        self.context
+            .response
+            .as_ref()
+            .expect("must call sync_send first")
+            .clone()
+    }
 
     fn get_request(&mut self) -> ModuleRequest { self.context.request.take().expect("must call event first") }
 }

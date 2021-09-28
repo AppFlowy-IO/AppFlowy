@@ -1,7 +1,9 @@
 pub mod builder;
 mod helper;
+pub mod workspace;
 
 use crate::helper::*;
+use flowy_net::config::ServerConfig;
 use flowy_sdk::{FlowySDK, FlowySDKConfig};
 use flowy_user::entities::UserProfile;
 
@@ -13,37 +15,34 @@ pub mod prelude {
 pub type FlowyTestSDK = FlowySDK;
 
 #[derive(Clone)]
-pub struct FlowyEnv {
+pub struct FlowyTest {
     pub sdk: FlowyTestSDK,
-    pub user: UserProfile,
-    pub password: String,
 }
 
-impl FlowyEnv {
+impl FlowyTest {
     pub fn setup() -> Self {
-        let host = "localhost";
-        let http_schema = "http";
-        let ws_schema = "ws";
+        let server_config = ServerConfig::default();
+        let test = Self::setup_with(server_config);
+        std::mem::forget(test.sdk.dispatch());
+        test
+    }
 
-        let config = FlowySDKConfig::new(&root_dir(), host, http_schema, ws_schema).log_filter("debug");
+    pub async fn sign_up(&self) -> SignUpContext {
+        let context = async_sign_up(self.sdk.dispatch()).await;
+        context
+    }
+
+    pub async fn init_user(&self) -> UserProfile {
+        let context = async_sign_up(self.sdk.dispatch()).await;
+        context.user_profile
+    }
+
+    pub fn setup_with(server_config: ServerConfig) -> Self {
+        let config = FlowySDKConfig::new(&root_dir(), server_config).log_filter("debug");
         let sdk = FlowySDK::new(config);
-        let result = sign_up(sdk.dispatch());
-        let env = Self {
-            sdk,
-            user: result.user_profile,
-            password: result.password,
-        };
-        env
+
+        Self { sdk }
     }
 
     pub fn sdk(&self) -> FlowyTestSDK { self.sdk.clone() }
-}
-
-pub fn init_test_sdk() -> FlowyTestSDK {
-    let host = "localhost";
-    let http_schema = "http";
-    let ws_schema = "ws";
-
-    let config = FlowySDKConfig::new(&root_dir(), host, http_schema, ws_schema).log_filter("debug");
-    FlowySDK::new(config)
 }

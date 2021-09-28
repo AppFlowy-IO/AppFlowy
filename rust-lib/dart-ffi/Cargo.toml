@@ -31,6 +31,7 @@ flowy-dispatch = {path = "../flowy-dispatch"}
 flowy-sdk = {path = "../flowy-sdk"}
 flowy-derive = {path = "../flowy-derive"}
 flowy-observable = {path = "../flowy-observable"}
+flowy-net = {path = "../flowy-net"}
 
 
 [features]

@@ -1,37 +1,39 @@
 use crate::helper::*;
 use flowy_infra::uuid;
-use flowy_test::{builder::UserTest, init_test_sdk, FlowyEnv};
+use flowy_test::{builder::UserTest, FlowyTest};
 use flowy_user::{errors::ErrorCode, event::UserEvent::*, prelude::*};
 use serial_test::*;
 
 #[test]
 #[serial]
 fn user_profile_get_failed() {
-    let sdk = init_test_sdk();
-    let result = UserTest::new(sdk).event(GetUserProfile).assert_error().sync_send();
+    let test = FlowyTest::setup();
+    let result = UserTest::new(test.sdk).event(GetUserProfile).assert_error().sync_send();
     assert!(result.user_profile().is_none())
 }
 
-#[test]
+#[tokio::test]
 #[serial]
-fn user_profile_get() {
-    let env = FlowyEnv::setup();
-    let user = UserTest::new(env.sdk.clone())
+async fn user_profile_get() {
+    let test = FlowyTest::setup();
+    let user_profile = test.init_user().await;
+    let user = UserTest::new(test.sdk.clone())
         .event(GetUserProfile)
         .sync_send()
         .parse::<UserProfile>();
-    assert_eq!(env.user, user);
+    assert_eq!(user_profile, user);
 }
 
-#[test]
+#[tokio::test]
 #[serial]
-fn user_update_with_name() {
-    let env = FlowyEnv::setup();
+async fn user_update_with_name() {
+    let test = FlowyTest::setup();
+    let user = test.init_user().await;
     let new_name = "hello_world".to_owned();
-    let request = UpdateUserRequest::new(&env.user.id).name(&new_name);
-    let _ = UserTest::new(env.sdk()).event(UpdateUser).request(request).sync_send();
+    let request = UpdateUserRequest::new(&user.id).name(&new_name);
+    let _ = UserTest::new(test.sdk()).event(UpdateUser).request(request).sync_send();
 
-    let user_profile = UserTest::new(env.sdk())
+    let user_profile = UserTest::new(test.sdk())
         .event(GetUserProfile)
         .assert_error()
         .sync_send()
@@ -40,14 +42,15 @@ fn user_update_with_name() {
     assert_eq!(user_profile.name, new_name,);
 }
 
-#[test]
+#[tokio::test]
 #[serial]
-fn user_update_with_email() {
-    let env = FlowyEnv::setup();
+async fn user_update_with_email() {
+    let test = FlowyTest::setup();
+    let user = test.init_user().await;
     let new_email = format!("{}@gmai.com", uuid());
-    let request = UpdateUserRequest::new(&env.user.id).email(&new_email);
-    let _ = UserTest::new(env.sdk()).event(UpdateUser).request(request).sync_send();
-    let user_profile = UserTest::new(env.sdk())
+    let request = UpdateUserRequest::new(&user.id).email(&new_email);
+    let _ = UserTest::new(test.sdk()).event(UpdateUser).request(request).sync_send();
+    let user_profile = UserTest::new(test.sdk())
         .event(GetUserProfile)
         .assert_error()
         .sync_send()
@@ -56,41 +59,49 @@ fn user_update_with_email() {
     assert_eq!(user_profile.email, new_email,);
 }
 
-#[test]
+#[tokio::test]
 #[serial]
-fn user_update_with_password() {
-    let env = FlowyEnv::setup();
+async fn user_update_with_password() {
+    let test = FlowyTest::setup();
+    let user = test.init_user().await;
     let new_password = "H123world!".to_owned();
-    let request = UpdateUserRequest::new(&env.user.id).password(&new_password);
+    let request = UpdateUserRequest::new(&user.id).password(&new_password);
 
-    let _ = UserTest::new(env.sdk())
+    let _ = UserTest::new(test.sdk())
         .event(UpdateUser)
         .request(request)
         .sync_send()
         .assert_success();
 }
 
-#[test]
+#[tokio::test]
 #[serial]
-fn user_update_with_invalid_email() {
-    let env = FlowyEnv::setup();
+async fn user_update_with_invalid_email() {
+    let test = FlowyTest::setup();
+    let user = test.init_user().await;
     for email in invalid_email_test_case() {
-        let request = UpdateUserRequest::new(&env.user.id).email(&email);
+        let request = UpdateUserRequest::new(&user.id).email(&email);
         assert_eq!(
-            UserTest::new(env.sdk()).event(UpdateUser).request(request).sync_send().error().code,
+            UserTest::new(test.sdk())
+                .event(UpdateUser)
+                .request(request)
+                .sync_send()
+                .error()
+                .code,
             ErrorCode::EmailFormatInvalid
         );
     }
 }
 
-#[test]
+#[tokio::test]
 #[serial]
-fn user_update_with_invalid_password() {
-    let env = FlowyEnv::setup();
+async fn user_update_with_invalid_password() {
+    let test = FlowyTest::setup();
+    let user = test.init_user().await;
     for password in invalid_password_test_case() {
-        let request = UpdateUserRequest::new(&env.user.id).password(&password);
+        let request = UpdateUserRequest::new(&user.id).password(&password);
 
-        UserTest::new(env.sdk())
+        UserTest::new(test.sdk())
             .event(UpdateUser)
             .request(request)
             .sync_send()
@@ -98,12 +109,13 @@ fn user_update_with_invalid_password() {
     }
 }
 
-#[test]
+#[tokio::test]
 #[serial]
-fn user_update_with_invalid_name() {
-    let env = FlowyEnv::setup();
-    let request = UpdateUserRequest::new(&env.user.id).name("");
-    UserTest::new(env.sdk())
+async fn user_update_with_invalid_name() {
+    let test = FlowyTest::setup();
+    let user = test.init_user().await;
+    let request = UpdateUserRequest::new(&user.id).name("");
+    UserTest::new(test.sdk())
         .event(UpdateUser)
         .request(request)
         .sync_send()

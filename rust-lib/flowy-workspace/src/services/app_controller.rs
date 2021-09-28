@@ -101,7 +101,6 @@ impl AppController {
     async fn create_app_on_server(&self, params: CreateAppParams) -> Result<App, WorkspaceError> {
         let token = self.user.token()?;
         let app = self.server.create_app(&token, params).await?;
-        log::info!("😁 {:?}", app);
         Ok(app)
     }
 

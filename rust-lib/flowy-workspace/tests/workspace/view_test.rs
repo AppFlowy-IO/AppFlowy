@@ -1,34 +1,41 @@
-use crate::helper::*;
-
+use flowy_test::{workspace::*, FlowyTest};
 use flowy_workspace::entities::view::*;
 
-#[test]
-fn view_move_to_trash() {
-    let test = ViewTest::new();
-    test.move_view_to_trash();
+#[tokio::test]
+async fn view_move_to_trash() {
+    let test = FlowyTest::setup();
+    let _ = test.init_user().await;
+
+    let test = ViewTest::new(&test).await;
+    test.move_view_to_trash().await;
 
     let query = QueryViewRequest::new(&test.view.id).trash();
-    let view = read_view(&test.sdk, query);
+    let view = read_view(&test.sdk, query).await;
     assert_eq!(view, test.view);
 }
 
-#[test]
+#[tokio::test]
 #[should_panic]
-fn view_move_to_trash2() {
-    let test = ViewTest::new();
-    test.move_view_to_trash();
+async fn view_move_to_trash2() {
+    let test = FlowyTest::setup();
+    let _ = test.init_user();
+
+    let test = ViewTest::new(&test).await;
+    test.move_view_to_trash().await;
     let query = QueryViewRequest::new(&test.view.id);
-    let _ = read_view(&test.sdk, query);
+    let _ = read_view(&test.sdk, query).await;
 }
 
-#[test]
-fn view_open_doc() {
-    let test = ViewTest::new();
+#[tokio::test]
+async fn view_open_doc() {
+    let test = FlowyTest::setup();
+    let _ = test.init_user().await;
 
+    let test = ViewTest::new(&test).await;
     let request = OpenViewRequest {
         view_id: test.view.id.clone(),
     };
-    let _ = open_view(&test.sdk, request);
+    let _ = open_view(&test.sdk, request).await;
 }
 
 #[test]

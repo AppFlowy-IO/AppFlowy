@@ -6,31 +6,43 @@ use crate::{
 use flowy_infra::future::ResultFuture;
 use flowy_net::{config::*, request::HttpRequestBuilder};
 
-pub struct DocServer {}
+pub struct DocServer {
+    config: ServerConfig,
+}
+
+impl DocServer {
+    pub fn new(config: ServerConfig) -> Self { Self { config } }
+}
 
 impl DocumentServerAPI for DocServer {
     fn create_doc(&self, token: &str, params: CreateDocParams) -> ResultFuture<(), DocError> {
         let token = token.to_owned();
-        ResultFuture::new(async move { create_doc_request(&token, params, DOC_URL.as_ref()).await })
+        let url = self.config.doc_url();
+        ResultFuture::new(async move { create_doc_request(&token, params, &url).await })
     }
 
     fn read_doc(&self, token: &str, params: QueryDocParams) -> ResultFuture<Option<Doc>, DocError> {
         let token = token.to_owned();
-        ResultFuture::new(async move { read_doc_request(&token, params, DOC_URL.as_ref()).await })
+        let url = self.config.doc_url();
+        ResultFuture::new(async move { read_doc_request(&token, params, &url).await })
     }
 
     fn update_doc(&self, token: &str, params: UpdateDocParams) -> ResultFuture<(), DocError> {
         let token = token.to_owned();
-        ResultFuture::new(async move { update_doc_request(&token, params, DOC_URL.as_ref()).await })
+        let url = self.config.doc_url();
+        ResultFuture::new(async move { update_doc_request(&token, params, &url).await })
     }
 
     fn delete_doc(&self, token: &str, params: QueryDocParams) -> ResultFuture<(), DocError> {
         let token = token.to_owned();
-        ResultFuture::new(async move { delete_doc_request(&token, params, DOC_URL.as_ref()).await })
+        let url = self.config.doc_url();
+        ResultFuture::new(async move { delete_doc_request(&token, params, &url).await })
     }
 }
 
-pub(crate) fn request_builder() -> HttpRequestBuilder { HttpRequestBuilder::new().middleware(super::middleware::MIDDLEWARE.clone()) }
+pub(crate) fn request_builder() -> HttpRequestBuilder {
+    HttpRequestBuilder::new().middleware(super::middleware::MIDDLEWARE.clone())
+}
 
 pub async fn create_doc_request(token: &str, params: CreateDocParams, url: &str) -> Result<(), DocError> {
     let _ = request_builder()

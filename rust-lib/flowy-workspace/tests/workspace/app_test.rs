@@ -1,27 +1,26 @@
-use crate::helper::*;
-
+use flowy_test::workspace::*;
 use flowy_workspace::entities::{app::QueryAppRequest, view::*};
 
-#[test]
+#[tokio::test]
 #[should_panic]
-fn app_delete() {
-    let test = AppTest::new();
+async fn app_delete() {
+    let test = AppTest::new().await;
     delete_app(&test.sdk, &test.app.id);
     let query = QueryAppRequest::new(&test.app.id);
     let _ = read_app(&test.sdk, query);
 }
 
-#[test]
-fn app_read() {
-    let test = AppTest::new();
+#[tokio::test]
+async fn app_read() {
+    let test = AppTest::new().await;
     let query = QueryAppRequest::new(&test.app.id);
     let app_from_db = read_app(&test.sdk, query);
     assert_eq!(app_from_db, test.app);
 }
 
-#[test]
-fn app_create_with_view() {
-    let test = AppTest::new();
+#[tokio::test]
+async fn app_create_with_view() {
+    let test = AppTest::new().await;
     let request_a = CreateViewRequest {
         belong_to_id: test.app.id.clone(),
         name: "View A".to_string(),
@@ -38,8 +37,8 @@ fn app_create_with_view() {
         view_type: ViewType::Doc,
     };
 
-    let view_a = create_view_with_request(&test.sdk, request_a);
-    let view_b = create_view_with_request(&test.sdk, request_b);
+    let view_a = create_view_with_request(&test.sdk, request_a).await;
+    let view_b = create_view_with_request(&test.sdk, request_b).await;
 
     let query = QueryAppRequest::new(&test.app.id).read_views();
     let view_from_db = read_app(&test.sdk, query);
@@ -48,20 +47,20 @@ fn app_create_with_view() {
     assert_eq!(view_from_db.belongings[1], view_b);
 }
 
-#[test]
-fn app_set_trash_flag() {
-    let test = AppTest::new();
-    test.move_app_to_trash();
+#[tokio::test]
+async fn app_set_trash_flag() {
+    let test = AppTest::new().await;
+    test.move_app_to_trash().await;
 
     let query = QueryAppRequest::new(&test.app.id).trash();
     let _ = read_app(&test.sdk, query);
 }
 
-#[test]
+#[tokio::test]
 #[should_panic]
-fn app_set_trash_flag_2() {
-    let test = AppTest::new();
-    test.move_app_to_trash();
+async fn app_set_trash_flag_2() {
+    let test = AppTest::new().await;
+    test.move_app_to_trash().await;
     let query = QueryAppRequest::new(&test.app.id);
     let _ = read_app(&test.sdk, query);
 }

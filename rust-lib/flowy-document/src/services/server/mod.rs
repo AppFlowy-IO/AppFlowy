@@ -9,6 +9,7 @@ use crate::{
     errors::DocError,
 };
 use flowy_infra::future::ResultFuture;
+use flowy_net::config::ServerConfig;
 pub use server_api_mock::*;
 use std::sync::Arc;
 
@@ -23,9 +24,9 @@ pub trait DocumentServerAPI {
     fn delete_doc(&self, token: &str, params: QueryDocParams) -> ResultFuture<(), DocError>;
 }
 
-pub(crate) fn construct_doc_server() -> Arc<dyn DocumentServerAPI + Send + Sync> {
+pub(crate) fn construct_doc_server(server_config: &ServerConfig) -> Arc<dyn DocumentServerAPI + Send + Sync> {
     if cfg!(feature = "http_server") {
-        Arc::new(DocServer {})
+        Arc::new(DocServer::new(server_config.clone()))
     } else {
         Arc::new(DocServerMock {})
     }
