@@ -1,9 +1,8 @@
 use crate::service::{
-    doc::update_doc,
     util::md5,
     ws::{entities::Socket, WsClientData, WsMessageAdaptor, WsUser},
 };
-use actix_web::web::Data;
+
 use byteorder::{BigEndian, WriteBytesExt};
 use bytes::Bytes;
 use dashmap::DashMap;
@@ -20,7 +19,7 @@ use flowy_ot::{
 use flowy_ws::WsMessage;
 use parking_lot::RwLock;
 use protobuf::Message;
-use sqlx::PgPool;
+
 use std::{
     convert::TryInto,
     sync::{
@@ -35,16 +34,15 @@ struct EditUser {
     socket: Socket,
 }
 
-pub(crate) struct EditDocContext {
+pub struct EditDocContext {
     doc_id: String,
     rev_id: AtomicI64,
     document: Arc<RwLock<Document>>,
-    pg_pool: Data<PgPool>,
     users: DashMap<String, EditUser>,
 }
 
 impl EditDocContext {
-    pub(crate) fn new(doc: Doc, pg_pool: Data<PgPool>) -> Result<Self, ServerError> {
+    pub fn new(doc: Doc) -> Result<Self, ServerError> {
         let delta = Delta::from_bytes(&doc.data).map_err(internal_error)?;
         let document = Arc::new(RwLock::new(Document::from_delta(delta)));
         let users = DashMap::new();
@@ -52,17 +50,14 @@ impl EditDocContext {
             doc_id: doc.id.clone(),
             rev_id: AtomicI64::new(doc.rev_id),
             document,
-            pg_pool,
             users,
         })
     }
 
+    pub fn doc_json(&self) -> String { self.document.read().to_json() }
+
     #[tracing::instrument(level = "debug", skip(self, client_data, revision))]
-    pub(crate) async fn apply_revision(
-        &self,
-        client_data: WsClientData,
-        revision: Revision,
-    ) -> Result<(), ServerError> {
+    pub async fn apply_revision(&self, client_data: WsClientData, revision: Revision) -> Result<(), ServerError> {
         let _ = self.verify_md5(&revision)?;
         // Opti: find out another way to keep the user socket available.
         let user = EditUser {
@@ -85,7 +80,7 @@ impl EditDocContext {
             // send the prime delta to the client. Client should compose the this prime
             // delta.
 
-            let (cli_prime, server_prime) = self.transform(&revision.delta).map_err(internal_error)?;
+            let (cli_prime, server_prime) = self.transform(&revision.delta_data).map_err(internal_error)?;
             let _ = self.update_document_delta(server_prime)?;
 
             log::debug!("{} client delta: {}", self.doc_id, cli_prime.to_json());
@@ -101,7 +96,7 @@ impl EditDocContext {
                     .do_send(mk_pull_rev_ws_message(&self.doc_id, cur_rev_id, revision.rev_id))
                     .map_err(internal_error)?;
             } else {
-                let delta = Delta::from_bytes(&revision.delta).map_err(internal_error)?;
+                let delta = Delta::from_bytes(&revision.delta_data).map_err(internal_error)?;
                 let _ = self.update_document_delta(delta)?;
                 cli_socket
                     .do_send(mk_acked_ws_message(&revision))
@@ -118,12 +113,12 @@ impl EditDocContext {
     }
 
     fn mk_revision(&self, base_rev_id: i64, delta: Delta) -> Revision {
-        let delta_data = delta.into_bytes();
+        let delta_data = delta.to_bytes().to_vec();
         let md5 = md5(&delta_data);
         let revision = Revision {
             base_rev_id,
             rev_id: self.rev_id.load(SeqCst),
-            delta: delta_data,
+            delta_data,
             md5,
             doc_id: self.doc_id.to_string(),
             ty: RevType::Remote,
@@ -160,7 +155,7 @@ impl EditDocContext {
     }
 
     fn verify_md5(&self, revision: &Revision) -> Result<(), ServerError> {
-        if md5(&revision.delta) != revision.md5 {
+        if md5(&revision.delta_data) != revision.md5 {
             return Err(ServerError::internal().context("Delta md5 not match"));
         }
         Ok(())
@@ -173,7 +168,7 @@ impl EditDocContext {
         params.set_doc_id(self.doc_id.clone());
         params.set_data(self.document.read().to_json());
         params.set_rev_id(revision.rev_id);
-        let _ = update_doc(self.pg_pool.get_ref(), params).await?;
+        // let _ = update_doc(self.pg_pool.get_ref(), params).await?;
         Ok(())
     }
 }

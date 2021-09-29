@@ -46,9 +46,7 @@ impl Handler<Disconnect> for WsServer {
 impl Handler<WsMessageAdaptor> for WsServer {
     type Result = ();
 
-    fn handle(&mut self, _msg: WsMessageAdaptor, _ctx: &mut Context<Self>) -> Self::Result {
-        unimplemented!()
-    }
+    fn handle(&mut self, _msg: WsMessageAdaptor, _ctx: &mut Context<Self>) -> Self::Result { unimplemented!() }
 }
 
 impl actix::Supervised for WsServer {

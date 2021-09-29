@@ -50,3 +50,4 @@ env_logger = "0.8.2"
 
 [features]
 http_server = []
+flowy_test = []

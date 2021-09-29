@@ -16,7 +16,6 @@ use crate::{
     service::{
         app::router as app,
         doc::router as doc,
-        make_ws_biz_handlers,
         user::router as user,
         view::router as view,
         workspace::router as workspace,
@@ -31,11 +30,10 @@ pub struct Application {
 }
 
 impl Application {
-    pub async fn build(configuration: Settings) -> Result<Self, std::io::Error> {
+    pub async fn build(configuration: Settings, app_ctx: AppContext) -> Result<Self, std::io::Error> {
         let address = format!("{}:{}", configuration.application.host, configuration.application.port);
         let listener = TcpListener::bind(&address)?;
         let port = listener.local_addr().unwrap().port();
-        let app_ctx = init_app_context(&configuration).await;
         let server = run(listener, app_ctx)?;
         Ok(Self { port, server })
     }
@@ -46,13 +44,9 @@ impl Application {
 }
 
 pub fn run(listener: TcpListener, app_ctx: AppContext) -> Result<Server, std::io::Error> {
-    let AppContext { ws_server, pg_pool } = app_ctx;
-    let ws_server = Data::new(ws_server);
-    let pg_pool = Data::new(pg_pool);
     let domain = domain();
     let secret: String = secret();
-    let ws_biz_handlers = Data::new(make_ws_biz_handlers(pg_pool.clone()));
-    actix_rt::spawn(period_check(pg_pool.clone()));
+    actix_rt::spawn(period_check(app_ctx.pg_pool.clone()));
 
     let server = HttpServer::new(move || {
         App::new()
@@ -63,9 +57,11 @@ pub fn run(listener: TcpListener, app_ctx: AppContext) -> Result<Server, std::io
             .app_data(web::JsonConfig::default().limit(4096))
             .service(ws_scope())
             .service(user_scope())
-            .app_data(ws_server.clone())
-            .app_data(pg_pool.clone())
-            .app_data(ws_biz_handlers.clone())
+            .app_data(app_ctx.ws_server.clone())
+            .app_data(app_ctx.pg_pool.clone())
+            .app_data(app_ctx.ws_bizs.clone())
+            .app_data(app_ctx.doc_biz.clone())
+            .app_data(app_ctx.runtime.clone())
     })
     .listen(listener)?
     .run();
@@ -129,8 +125,10 @@ fn user_scope() -> Scope {
         )
 }
 
-async fn init_app_context(configuration: &Settings) -> AppContext {
-    let _ = crate::service::log::Builder::new("flowy").env_filter("Trace").build();
+pub async fn init_app_context(configuration: &Settings) -> AppContext {
+    let _ = crate::service::log::Builder::new("flowy-server")
+        .env_filter("Trace")
+        .build();
     let pg_pool = get_connection_pool(&configuration.database).await.expect(&format!(
         "Failed to connect to Postgres at {:?}.",
         configuration.database

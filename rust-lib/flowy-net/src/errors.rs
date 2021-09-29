@@ -5,6 +5,8 @@ use std::{fmt, fmt::Debug};
 
 use crate::response::FlowyResponse;
 
+pub type Result<T> = std::result::Result<T, ServerError>;
+
 #[derive(thiserror::Error, Debug, Serialize, Deserialize, Clone)]
 pub struct ServerError {
     pub code: ErrorCode,

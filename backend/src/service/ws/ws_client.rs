@@ -1,5 +1,6 @@
 use crate::{
     config::{HEARTBEAT_INTERVAL, PING_TIMEOUT},
+    context::FlowyRuntime,
     service::{
         user::LoggedUser,
         ws::{
@@ -38,16 +39,23 @@ pub struct WsClient {
     user: Arc<WsUser>,
     server: Addr<WsServer>,
     biz_handlers: Data<WsBizHandlers>,
+    runtime: Data<FlowyRuntime>,
     hb: Instant,
 }
 
 impl WsClient {
-    pub fn new(user: WsUser, server: Addr<WsServer>, biz_handlers: Data<WsBizHandlers>) -> Self {
+    pub fn new(
+        user: WsUser,
+        server: Addr<WsServer>,
+        biz_handlers: Data<WsBizHandlers>,
+        runtime: Data<FlowyRuntime>,
+    ) -> Self {
         Self {
             user: Arc::new(user),
             server,
             biz_handlers,
             hb: Instant::now(),
+            runtime,
         }
     }
 
@@ -77,7 +85,7 @@ impl WsClient {
                     socket,
                     data: Bytes::from(message.data),
                 };
-                handler.receive_data(client_data)
+                handler.receive_data(client_data);
             },
         }
     }

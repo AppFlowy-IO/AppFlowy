@@ -18,7 +18,7 @@ class Revision extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Revision', createEmptyInstance: create)
     ..aInt64(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'baseRevId')
     ..aInt64(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'revId')
-    ..a<$core.List<$core.int>>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'delta', $pb.PbFieldType.OY)
+    ..a<$core.List<$core.int>>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'deltaData', $pb.PbFieldType.OY)
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'md5')
     ..aOS(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
     ..e<RevType>(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ty', $pb.PbFieldType.OE, defaultOrMaker: RevType.Local, valueOf: RevType.valueOf, enumValues: RevType.values)
@@ -29,7 +29,7 @@ class Revision extends $pb.GeneratedMessage {
   factory Revision({
     $fixnum.Int64? baseRevId,
     $fixnum.Int64? revId,
-    $core.List<$core.int>? delta,
+    $core.List<$core.int>? deltaData,
     $core.String? md5,
     $core.String? docId,
     RevType? ty,
@@ -41,8 +41,8 @@ class Revision extends $pb.GeneratedMessage {
     if (revId != null) {
       _result.revId = revId;
     }
-    if (delta != null) {
-      _result.delta = delta;
+    if (deltaData != null) {
+      _result.deltaData = deltaData;
     }
     if (md5 != null) {
       _result.md5 = md5;
@@ -95,13 +95,13 @@ class Revision extends $pb.GeneratedMessage {
   void clearRevId() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.List<$core.int> get delta => $_getN(2);
+  $core.List<$core.int> get deltaData => $_getN(2);
   @$pb.TagNumber(3)
-  set delta($core.List<$core.int> v) { $_setBytes(2, v); }
+  set deltaData($core.List<$core.int> v) { $_setBytes(2, v); }
   @$pb.TagNumber(3)
-  $core.bool hasDelta() => $_has(2);
+  $core.bool hasDeltaData() => $_has(2);
   @$pb.TagNumber(3)
-  void clearDelta() => clearField(3);
+  void clearDeltaData() => clearField(3);
 
   @$pb.TagNumber(4)
   $core.String get md5 => $_getSZ(3);

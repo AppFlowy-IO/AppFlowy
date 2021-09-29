@@ -51,10 +51,6 @@ impl std::convert::TryFrom<Bytes> for Delta {
     fn try_from(bytes: Bytes) -> Result<Self, Self::Error> { Delta::from_bytes(&bytes) }
 }
 
-// impl<T: AsRef<Vec<u8>>> std::convert::From<T> for Delta {
-//     fn from(bytes: T) -> Self {
-// Delta::from_bytes(bytes.as_ref().to_vec()).unwrap() } }
-
 impl fmt::Display for Delta {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // f.write_str(&serde_json::to_string(self).unwrap_or("".to_owned()))?;
@@ -96,9 +92,9 @@ impl Delta {
         Self::from_json(json)
     }
 
-    pub fn into_bytes(self) -> Vec<u8> {
+    pub fn to_bytes(&self) -> Bytes {
         let json = self.to_json();
-        json.into_bytes()
+        Bytes::from(json.into_bytes())
     }
 
     #[inline]

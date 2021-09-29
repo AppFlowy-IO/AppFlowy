@@ -11,3 +11,4 @@ Cargo.lock
 **/target/
 **/*.db
 .idea/
+/flowy-test/

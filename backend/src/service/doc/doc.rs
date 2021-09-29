@@ -1,92 +1,89 @@
-use super::sql_builder::*;
-use crate::{
-    entities::doc::{DocTable, DOC_TABLE},
-    sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
+use super::edit_doc::EditDocContext;
+use crate::service::{
+    doc::{
+        read_doc,
+        ws_actor::{DocWsMsg, DocWsMsgActor},
+    },
+    ws::{WsBizHandler, WsClientData},
 };
-use anyhow::Context;
-use flowy_document::protobuf::{CreateDocParams, Doc, QueryDocParams, UpdateDocParams};
+use actix_web::web::Data;
+use dashmap::DashMap;
+use flowy_document::protobuf::QueryDocParams;
 use flowy_net::errors::ServerError;
-use sqlx::{postgres::PgArguments, PgPool, Postgres};
-use uuid::Uuid;
 
-#[tracing::instrument(level = "debug", skip(transaction), err)]
-pub(crate) async fn create_doc(
-    transaction: &mut DBTransaction<'_>,
-    params: CreateDocParams,
-) -> Result<(), ServerError> {
-    let uuid = Uuid::parse_str(&params.id)?;
-    let (sql, args) = NewDocSqlBuilder::new(uuid).data(params.data).build()?;
-    let _ = sqlx::query_with(&sql, args)
-        .execute(transaction)
-        .await
-        .map_err(map_sqlx_error)?;
+use protobuf::Message;
+use sqlx::PgPool;
+use std::{sync::Arc, time::Duration};
+use tokio::sync::{mpsc, mpsc::error::SendError, oneshot};
 
-    Ok(())
+pub struct DocBiz {
+    pub manager: Arc<DocManager>,
+    sender: mpsc::Sender<DocWsMsg>,
+    pg_pool: Data<PgPool>,
 }
 
-#[tracing::instrument(level = "debug", skip(pool), err)]
-pub(crate) async fn read_doc(pool: &PgPool, params: QueryDocParams) -> Result<Doc, ServerError> {
-    let doc_id = Uuid::parse_str(&params.doc_id)?;
-    let mut transaction = pool
-        .begin()
-        .await
-        .context("Failed to acquire a Postgres connection to read doc")?;
-
-    let builder = SqlBuilder::select(DOC_TABLE).add_field("*").and_where_eq("id", &doc_id);
-
-    let (sql, args) = builder.build()?;
-    // TODO: benchmark the speed of different documents with different size
-    let doc: Doc = sqlx::query_as_with::<Postgres, DocTable, PgArguments>(&sql, args)
-        .fetch_one(&mut transaction)
-        .await
-        .map_err(map_sqlx_error)?
-        .into();
-
-    transaction
-        .commit()
-        .await
-        .context("Failed to commit SQL transaction to read doc.")?;
-
-    Ok(doc)
+impl DocBiz {
+    pub fn new(pg_pool: Data<PgPool>) -> Self {
+        let manager = Arc::new(DocManager::new());
+        let (tx, rx) = mpsc::channel(100);
+        let actor = DocWsMsgActor::new(rx, manager.clone());
+        tokio::task::spawn(actor.run());
+        Self {
+            manager,
+            sender: tx,
+            pg_pool,
+        }
+    }
 }
 
-#[tracing::instrument(level = "debug", skip(pool, params), err)]
-pub(crate) async fn update_doc(pool: &PgPool, mut params: UpdateDocParams) -> Result<(), ServerError> {
-    let doc_id = Uuid::parse_str(&params.doc_id)?;
-    let mut transaction = pool
-        .begin()
-        .await
-        .context("Failed to acquire a Postgres connection to update doc")?;
+impl WsBizHandler for DocBiz {
+    fn receive_data(&self, client_data: WsClientData) {
+        let (ret, rx) = oneshot::channel();
+        let sender = self.sender.clone();
+        let pool = self.pg_pool.clone();
 
-    let data = Some(params.take_data());
-
-    let (sql, args) = SqlBuilder::update(DOC_TABLE)
-        .add_some_arg("data", data)
-        .add_arg("rev_id", params.rev_id)
-        .and_where_eq("id", doc_id)
-        .build()?;
-
-    sqlx::query_with(&sql, args)
-        .execute(&mut transaction)
-        .await
-        .map_err(map_sqlx_error)?;
-
-    transaction
-        .commit()
-        .await
-        .context("Failed to commit SQL transaction to update doc.")?;
-
-    Ok(())
+        actix_rt::spawn(async move {
+            let msg = DocWsMsg::ClientData {
+                data: client_data,
+                ret,
+                pool,
+            };
+            match sender.send(msg).await {
+                Ok(_) => {},
+                Err(e) => log::error!("{}", e),
+            }
+            match rx.await {
+                Ok(_) => {},
+                Err(e) => log::error!("{:?}", e),
+            };
+        });
+    }
 }
 
-#[tracing::instrument(level = "debug", skip(transaction), err)]
-pub(crate) async fn delete_doc(transaction: &mut DBTransaction<'_>, doc_id: Uuid) -> Result<(), ServerError> {
-    let (sql, args) = SqlBuilder::delete(DOC_TABLE).and_where_eq("id", doc_id).build()?;
+pub struct DocManager {
+    docs_map: DashMap<String, Arc<EditDocContext>>,
+}
 
-    let _ = sqlx::query_with(&sql, args)
-        .execute(transaction)
-        .await
-        .map_err(map_sqlx_error)?;
+impl DocManager {
+    pub fn new() -> Self {
+        Self {
+            docs_map: DashMap::new(),
+        }
+    }
 
-    Ok(())
+    pub async fn get(&self, doc_id: &str, pg_pool: Data<PgPool>) -> Result<Option<Arc<EditDocContext>>, ServerError> {
+        match self.docs_map.get(doc_id) {
+            None => {
+                let params = QueryDocParams {
+                    doc_id: doc_id.to_string(),
+                    ..Default::default()
+                };
+                let doc = read_doc(pg_pool.get_ref(), params).await?;
+                let edit_doc = Arc::new(EditDocContext::new(doc)?);
+                self.docs_map.insert(doc_id.to_string(), edit_doc.clone());
+                Ok(Some(edit_doc))
+            },
+            Some(ctx) => Ok(Some(ctx.clone())),
+        }
+    }
 }

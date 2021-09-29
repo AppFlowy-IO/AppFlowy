@@ -1,3 +1,4 @@
+use crate::services::util::md5;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
 #[derive(Debug, ProtoBuf_Enum, Clone, Eq, PartialEq)]
@@ -19,7 +20,7 @@ pub struct Revision {
     pub rev_id: i64,
 
     #[pb(index = 3)]
-    pub delta: Vec<u8>,
+    pub delta_data: Vec<u8>,
 
     #[pb(index = 4)]
     pub md5: String,
@@ -32,11 +33,13 @@ pub struct Revision {
 }
 
 impl Revision {
-    pub fn new(base_rev_id: i64, rev_id: i64, delta: Vec<u8>, md5: String, doc_id: String, ty: RevType) -> Revision {
+    pub fn new(base_rev_id: i64, rev_id: i64, delta_data: Vec<u8>, doc_id: &str, ty: RevType) -> Revision {
+        let md5 = md5(&delta_data);
+        let doc_id = doc_id.to_owned();
         Self {
             base_rev_id,
             rev_id,
-            delta,
+            delta_data,
             md5,
             doc_id,
             ty,

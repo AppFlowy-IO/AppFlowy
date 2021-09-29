@@ -18,11 +18,13 @@ use flowy_workspace::{
 use crate::{
     entities::workspace::{ViewTable, VIEW_TABLE},
     service::{
-        doc::{create_doc, delete_doc},
+        doc::{create_doc, delete_doc, doc::DocBiz},
         view::sql_builder::*,
     },
     sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
+use actix_web::web::Data;
+use std::sync::Arc;
 
 pub(crate) async fn create_view(pool: &PgPool, params: CreateViewParams) -> Result<FlowyResponse, ServerError> {
     let mut transaction = pool
@@ -67,7 +69,11 @@ pub(crate) async fn create_view_with_transaction(
     Ok(view)
 }
 
-pub(crate) async fn read_view(pool: &PgPool, params: QueryViewParams) -> Result<FlowyResponse, ServerError> {
+pub(crate) async fn read_view(
+    pool: &PgPool,
+    params: QueryViewParams,
+    _doc_biz: Data<Arc<DocBiz>>,
+) -> Result<FlowyResponse, ServerError> {
     let view_id = check_view_id(params.view_id)?;
     let mut transaction = pool
         .begin()

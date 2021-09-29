@@ -28,7 +28,7 @@ impl OpTableSql {
                     doc_id.eq(revision.doc_id),
                     base_rev_id.eq(revision.base_rev_id),
                     rev_id.eq(revision.rev_id),
-                    data.eq(revision.delta),
+                    data.eq(revision.delta_data),
                     state.eq(new_state),
                     ty.eq(rev_ty),
                 )

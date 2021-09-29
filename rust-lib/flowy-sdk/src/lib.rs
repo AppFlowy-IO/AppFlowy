@@ -96,7 +96,7 @@ fn init_log(config: &FlowySDKConfig) {
     if !INIT_LOG.load(Ordering::SeqCst) {
         INIT_LOG.store(true, Ordering::SeqCst);
 
-        let _ = flowy_log::Builder::new("flowy")
+        let _ = flowy_log::Builder::new("flowy-client")
             .local(&config.root)
             .env_filter(&config.log_filter)
             .build();

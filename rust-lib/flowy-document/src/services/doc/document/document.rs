@@ -5,10 +5,6 @@ use crate::{
 
 use flowy_ot::core::*;
 
-pub trait DocumentData {
-    fn into_string(self) -> Result<String, DocError>;
-}
-
 pub trait CustomDocument {
     fn init_delta() -> Delta;
 }
@@ -49,7 +45,7 @@ impl Document {
 
     pub fn to_json(&self) -> String { self.delta.to_json() }
 
-    pub fn to_bytes(&self) -> Vec<u8> { self.delta.clone().into_bytes() }
+    pub fn to_bytes(&self) -> Vec<u8> { self.delta.clone().to_bytes().to_vec() }
 
     pub fn to_plain_string(&self) -> String { self.delta.apply("").unwrap() }
 
@@ -83,11 +79,11 @@ impl Document {
         Ok(())
     }
 
-    pub fn insert<T: DocumentData>(&mut self, index: usize, data: T) -> Result<Delta, DocError> {
+    pub fn insert<T: ToString>(&mut self, index: usize, data: T) -> Result<Delta, DocError> {
         let interval = Interval::new(index, index);
         let _ = validate_interval(&self.delta, &interval)?;
 
-        let text = data.into_string()?;
+        let text = data.to_string();
         let delta = self.view.insert(&self.delta, &text, interval)?;
         log::trace!("👉 receive change: {}", delta);
         self.compose_delta(&delta)?;
@@ -115,10 +111,10 @@ impl Document {
         Ok(format_delta)
     }
 
-    pub fn replace<T: DocumentData>(&mut self, interval: Interval, data: T) -> Result<Delta, DocError> {
+    pub fn replace<T: ToString>(&mut self, interval: Interval, data: T) -> Result<Delta, DocError> {
         let _ = validate_interval(&self.delta, &interval)?;
         let mut delta = Delta::default();
-        let text = data.into_string()?;
+        let text = data.to_string();
         if !text.is_empty() {
             delta = self.view.insert(&self.delta, &text, interval)?;
             log::trace!("👉 receive change: {}", delta);

@@ -30,7 +30,7 @@ impl Builder {
             .with_target(true)
             .with_max_level(tracing::Level::DEBUG)
             .with_writer(std::io::stderr)
-            .with_thread_ids(false)
+            .with_thread_ids(true)
             .compact()
             .finish()
             .with(env_filter);

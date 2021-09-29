@@ -8,14 +8,7 @@ use flowy_net::{
 };
 use flowy_user::{
     entities::parser::{UserEmail, UserName, UserPassword},
-    protobuf::{
-        SignInParams,
-        SignInResponse,
-        SignUpParams,
-        SignUpResponse,
-        UpdateUserParams,
-        UserProfile,
-    },
+    protobuf::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile},
 };
 
 use crate::{
@@ -28,10 +21,8 @@ use super::AUTHORIZED_USERS;
 use crate::service::user::user_default::create_default_workspace;
 
 pub async fn sign_in(pool: &PgPool, params: SignInParams) -> Result<SignInResponse, ServerError> {
-    let email =
-        UserEmail::parse(params.email).map_err(|e| ServerError::params_invalid().context(e))?;
-    let password = UserPassword::parse(params.password)
-        .map_err(|e| ServerError::params_invalid().context(e))?;
+    let email = UserEmail::parse(params.email).map_err(|e| ServerError::params_invalid().context(e))?;
+    let password = UserPassword::parse(params.password).map_err(|e| ServerError::params_invalid().context(e))?;
 
     let mut transaction = pool
         .begin()
@@ -62,16 +53,10 @@ pub async fn sign_out(logged_user: LoggedUser) -> Result<FlowyResponse, ServerEr
     Ok(FlowyResponse::success())
 }
 
-pub async fn register_user(
-    pool: &PgPool,
-    params: SignUpParams,
-) -> Result<FlowyResponse, ServerError> {
-    let name =
-        UserName::parse(params.name).map_err(|e| ServerError::params_invalid().context(e))?;
-    let email =
-        UserEmail::parse(params.email).map_err(|e| ServerError::params_invalid().context(e))?;
-    let password = UserPassword::parse(params.password)
-        .map_err(|e| ServerError::params_invalid().context(e))?;
+pub async fn register_user(pool: &PgPool, params: SignUpParams) -> Result<FlowyResponse, ServerError> {
+    let name = UserName::parse(params.name).map_err(|e| ServerError::params_invalid().context(e))?;
+    let email = UserEmail::parse(params.email).map_err(|e| ServerError::params_invalid().context(e))?;
+    let password = UserPassword::parse(params.password).map_err(|e| ServerError::params_invalid().context(e))?;
 
     let mut transaction = pool
         .begin()
@@ -79,14 +64,9 @@ pub async fn register_user(
         .context("Failed to acquire a Postgres connection to register user")?;
 
     let _ = is_email_exist(&mut transaction, email.as_ref()).await?;
-    let response_data = insert_new_user(
-        &mut transaction,
-        name.as_ref(),
-        email.as_ref(),
-        password.as_ref(),
-    )
-    .await
-    .context("Failed to insert user")?;
+    let response_data = insert_new_user(&mut transaction, name.as_ref(), email.as_ref(), password.as_ref())
+        .await
+        .context("Failed to insert user")?;
 
     let logged_user = LoggedUser::new(&response_data.user_id);
     AUTHORIZED_USERS.store_auth(logged_user, true);
@@ -111,12 +91,11 @@ pub(crate) async fn get_user_profile(
         .context("Failed to acquire a Postgres connection to get user detail")?;
 
     let id = logged_user.as_uuid()?;
-    let user_table =
-        sqlx::query_as::<Postgres, UserTable>("SELECT * FROM user_table WHERE id = $1")
-            .bind(id)
-            .fetch_one(&mut transaction)
-            .await
-            .map_err(|err| ServerError::internal().context(err))?;
+    let user_table = sqlx::query_as::<Postgres, UserTable>("SELECT * FROM user_table WHERE id = $1")
+        .bind(id)
+        .fetch_one(&mut transaction)
+        .await
+        .map_err(|err| ServerError::internal().context(err))?;
 
     transaction
         .commit()
@@ -146,11 +125,7 @@ pub(crate) async fn set_user_profile(
 
     let name = match params.has_name() {
         false => None,
-        true => Some(
-            UserName::parse(params.get_name().to_owned())
-                .map_err(invalid_params)?
-                .0,
-        ),
+        true => Some(UserName::parse(params.get_name().to_owned()).map_err(invalid_params)?.0),
     };
 
     let email = match params.has_email() {
@@ -165,8 +140,7 @@ pub(crate) async fn set_user_profile(
     let password = match params.has_password() {
         false => None,
         true => {
-            let password =
-                UserPassword::parse(params.get_password().to_owned()).map_err(invalid_params)?;
+            let password = UserPassword::parse(params.get_password().to_owned()).map_err(invalid_params)?;
             let password = hash_password(password.as_ref())?;
             Some(password)
         },
@@ -192,10 +166,7 @@ pub(crate) async fn set_user_profile(
     Ok(FlowyResponse::success())
 }
 
-async fn is_email_exist(
-    transaction: &mut DBTransaction<'_>,
-    email: &str,
-) -> Result<(), ServerError> {
+async fn is_email_exist(transaction: &mut DBTransaction<'_>, email: &str) -> Result<(), ServerError> {
     let result = sqlx::query(r#"SELECT email FROM user_table WHERE email = $1"#)
         .bind(email)
         .fetch_optional(transaction)

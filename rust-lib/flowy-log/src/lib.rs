@@ -44,7 +44,7 @@ impl Builder {
             .with_target(false)
             .with_max_level(tracing::Level::TRACE)
             .with_writer(std::io::stderr)
-            .with_thread_ids(false)
+            .with_thread_ids(true)
             // .with_writer(non_blocking)
             // .json()
             .compact()
@@ -60,7 +60,8 @@ impl Builder {
         // }
 
         let formatting_layer = FlowyFormattingLayer::new(std::io::stdout);
-        let _ = set_global_default(subscriber.with(JsonStorageLayer).with(formatting_layer)).map_err(|e| format!("{:?}", e))?;
+        let _ = set_global_default(subscriber.with(JsonStorageLayer).with(formatting_layer))
+            .map_err(|e| format!("{:?}", e))?;
 
         let _ = LogTracer::builder()
             .with_max_level(LevelFilter::Trace)

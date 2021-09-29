@@ -52,7 +52,7 @@ impl std::convert::Into<Revision> for RevTable {
         Revision {
             base_rev_id: self.base_rev_id,
             rev_id: self.rev_id,
-            delta: self.data,
+            delta_data: self.data,
             md5,
             doc_id: self.doc_id,
             ty: self.ty.into(),

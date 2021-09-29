@@ -1,8 +1,8 @@
-mod doc;
-mod edit_doc_context;
+pub mod crud;
+pub mod doc;
+pub mod edit_doc;
 pub mod router;
-mod sql_builder;
-pub mod ws_handler;
+mod ws_actor;
 
-pub(crate) use doc::*;
+pub(crate) use crud::*;
 pub use router::*;

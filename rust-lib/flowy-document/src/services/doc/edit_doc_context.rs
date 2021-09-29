@@ -1,24 +1,19 @@
 use crate::{
     entities::{
-        doc::{Doc, Revision},
+        doc::{Doc, RevType, Revision, RevisionRange},
         ws::{WsDataType, WsDocumentData},
     },
     errors::*,
     services::{
-        doc::{rev_manager::RevisionManager, Document},
-        util::{bytes_to_rev_id, md5},
-        ws::WsDocumentHandler,
+        doc::{rev_manager::RevisionManager, Document, UndoResult},
+        util::bytes_to_rev_id,
+        ws::{WsDocumentHandler, WsDocumentSender},
     },
-};
-use bytes::Bytes;
-
-use crate::{
-    entities::doc::{RevType, RevisionRange},
-    services::ws::WsDocumentSender,
     sql_tables::{doc::DocTableSql, DocTableChangeset},
 };
+use bytes::Bytes;
 use flowy_database::ConnectionPool;
-use flowy_ot::core::Delta;
+use flowy_ot::core::{Attribute, Delta, Interval};
 use parking_lot::RwLock;
 use std::{convert::TryFrom, sync::Arc};
 
@@ -49,6 +44,38 @@ impl EditDocContext {
         Ok(edit_context)
     }
 
+    pub fn insert<T: ToString>(&self, index: usize, data: T) -> Result<(), DocError> {
+        let delta_data = self.document.write().insert(index, data)?.to_bytes();
+        let _ = self.mk_revision(&delta_data)?;
+        Ok(())
+    }
+
+    pub fn delete(&self, interval: Interval) -> Result<(), DocError> {
+        let delta_data = self.document.write().delete(interval)?.to_bytes();
+        let _ = self.mk_revision(&delta_data)?;
+        Ok(())
+    }
+
+    pub fn format(&self, interval: Interval, attribute: Attribute) -> Result<(), DocError> {
+        let delta_data = self.document.write().format(interval, attribute)?.to_bytes();
+        let _ = self.mk_revision(&delta_data)?;
+        Ok(())
+    }
+
+    pub fn replace<T: ToString>(&mut self, interval: Interval, data: T) -> Result<(), DocError> {
+        let delta_data = self.document.write().replace(interval, data)?.to_bytes();
+        let _ = self.mk_revision(&delta_data)?;
+        Ok(())
+    }
+
+    pub fn can_undo(&self) -> bool { self.document.read().can_undo() }
+
+    pub fn can_redo(&self) -> bool { self.document.read().can_redo() }
+
+    pub fn undo(&self) -> Result<UndoResult, DocError> { self.document.write().undo() }
+
+    pub fn redo(&self) -> Result<UndoResult, DocError> { self.document.write().redo() }
+
     pub fn doc(&self) -> Doc {
         Doc {
             id: self.doc_id.clone(),
@@ -57,47 +84,51 @@ impl EditDocContext {
         }
     }
 
-    #[tracing::instrument(level = "debug", skip(self, data), err)]
-    pub(crate) fn compose_local_delta(&self, data: Bytes) -> Result<(), DocError> {
+    fn mk_revision(&self, delta_data: &Bytes) -> Result<(), DocError> {
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id();
-        let revision = Revision::new(
-            base_rev_id,
-            rev_id,
-            data.to_vec(),
-            md5(&data),
-            self.doc_id.clone(),
-            RevType::Local,
-        );
-
-        let _ = self.update_document(&revision)?;
+        let delta_data = delta_data.to_vec();
+        let revision = Revision::new(base_rev_id, rev_id, delta_data, &self.doc_id, RevType::Local);
+        let _ = self.save_to_disk(revision.rev_id)?;
         let _ = self.rev_manager.add_revision(revision)?;
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, revision), err)]
-    pub fn update_document(&self, revision: &Revision) -> Result<(), DocError> {
-        let delta = Delta::from_bytes(&revision.delta)?;
+    #[tracing::instrument(level = "debug", skip(self, data), err)]
+    pub(crate) fn compose_local_delta(&self, data: Bytes) -> Result<(), DocError> {
+        let delta = Delta::from_bytes(&data)?;
         self.document.write().compose_delta(&delta)?;
-        let data = self.document.read().to_json();
-        let changeset = DocTableChangeset {
-            id: self.doc_id.clone(),
-            data,
-            rev_id: revision.rev_id,
-        };
 
-        let sql = DocTableSql {};
-        let conn = self.pool.get().map_err(internal_error)?;
-        let _ = sql.update_doc_table(changeset, &*conn)?;
+        let _ = self.mk_revision(&data)?;
         Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
     fn compose_remote_delta(&self) -> Result<(), DocError> {
         self.rev_manager.next_compose_revision(|revision| {
-            let _ = self.update_document(revision)?;
+            let delta = Delta::from_bytes(&revision.delta_data)?;
+            self.document.write().compose_delta(&delta)?;
+            let _ = self.save_to_disk(revision.rev_id)?;
+
             log::debug!("😁Document: {:?}", self.document.read().to_plain_string());
             Ok(())
         });
+        Ok(())
+    }
+
+    #[cfg(feature = "flowy_test")]
+    pub fn doc_json(&self) -> String { self.document.read().to_json() }
+
+    #[tracing::instrument(level = "debug", skip(self, rev_id), err)]
+    fn save_to_disk(&self, rev_id: i64) -> Result<(), DocError> {
+        let data = self.document.read().to_json();
+        let changeset = DocTableChangeset {
+            id: self.doc_id.clone(),
+            data,
+            rev_id,
+        };
+        let sql = DocTableSql {};
+        let conn = self.pool.get().map_err(internal_error)?;
+        let _ = sql.update_doc_table(changeset, &*conn)?;
         Ok(())
     }
 

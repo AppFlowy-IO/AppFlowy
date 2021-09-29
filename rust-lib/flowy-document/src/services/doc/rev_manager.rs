@@ -80,7 +80,7 @@ impl RevisionManager {
     }
 
     pub fn ack(&self, rev_id: i64) -> Result<(), DocError> {
-        log::debug!("Receive {} acked", rev_id);
+        log::debug!("Receive rev_id: {} acked", rev_id);
         self.ack_rev_cache.insert(rev_id);
         self.update_revisions();
         Ok(())

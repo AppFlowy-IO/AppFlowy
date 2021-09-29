@@ -295,6 +295,7 @@ impl UserSession {
     }
 
     fn start_ws_connection(&self, token: &str) -> Result<(), UserError> {
+        log::debug!("start_ws_connection");
         let addr = format!("{}/{}", self.server.ws_addr(), token);
         let ws_controller = self.ws_controller.clone();
         let retry = Retry::new(&addr, move |addr| {

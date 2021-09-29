@@ -1,8 +1,10 @@
 use backend::{
     application::{get_connection_pool, Application},
     config::{get_configuration, DatabaseSettings},
+    context::AppContext,
 };
 
+use backend::application::init_app_context;
 use flowy_document::{
     entities::doc::{Doc, QueryDocParams},
     prelude::*,
@@ -168,6 +170,7 @@ pub struct TestServer {
     pub host: String,
     pub port: u16,
     pub pg_pool: PgPool,
+    pub app_ctx: AppContext,
 }
 
 pub async fn spawn_server() -> TestServer {
@@ -181,7 +184,8 @@ pub async fn spawn_server() -> TestServer {
     };
 
     let _ = configure_database(&configuration.database).await;
-    let application = Application::build(configuration.clone())
+    let app_ctx = init_app_context(&configuration).await;
+    let application = Application::build(configuration.clone(), app_ctx.clone())
         .await
         .expect("Failed to build application.");
     let application_port = application.port();
@@ -197,6 +201,7 @@ pub async fn spawn_server() -> TestServer {
         pg_pool: get_connection_pool(&configuration.database)
             .await
             .expect("Failed to connect to the database"),
+        app_ctx,
     }
 }
 
