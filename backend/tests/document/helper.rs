@@ -1,13 +1,16 @@
 // use crate::helper::*;
 use crate::helper::{spawn_server, TestServer};
-
 use actix_web::web::Data;
+use backend::service::doc::doc::DocManager;
 use flowy_document::{
     entities::doc::QueryDocParams,
     services::doc::edit_doc_context::EditDocContext as ClientEditDocContext,
 };
 use flowy_net::config::ServerConfig;
 use flowy_test::{workspace::ViewTest, FlowyTest};
+use flowy_user::services::user::UserSession;
+use futures_util::{stream, stream::StreamExt};
+use sqlx::PgPool;
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
@@ -17,6 +20,7 @@ pub struct DocumentTest {
 }
 #[derive(Clone)]
 pub enum DocScript {
+    ConnectWs,
     SendText(usize, &'static str),
     AssertClient(&'static str),
     AssertServer(&'static str),
@@ -31,42 +35,65 @@ impl DocumentTest {
     }
 
     pub async fn run_scripts(self, scripts: Vec<DocScript>) {
-        init_user(&self.flowy_test).await;
+        let _ = self.flowy_test.sign_up().await;
         let DocumentTest { server, flowy_test } = self;
-        run_scripts(server, flowy_test, scripts).await;
+        let script_context = ScriptContext {
+            client_edit_context: create_doc(&flowy_test).await,
+            user_session: flowy_test.sdk.user_session.clone(),
+            doc_manager: server.app_ctx.doc_biz.manager.clone(),
+            pool: Data::new(server.pg_pool.clone()),
+        };
+
+        run_scripts(script_context, scripts).await;
+        std::mem::forget(flowy_test);
         sleep(Duration::from_secs(5)).await;
     }
 }
 
-pub async fn run_scripts(server: TestServer, flowy_test: FlowyTest, scripts: Vec<DocScript>) {
-    let client_edit_context = create_doc(&flowy_test).await;
-    let doc_id = client_edit_context.doc_id.clone();
+#[derive(Clone)]
+struct ScriptContext {
+    client_edit_context: Arc<ClientEditDocContext>,
+    user_session: Arc<UserSession>,
+    doc_manager: Arc<DocManager>,
+    pool: Data<PgPool>,
+}
+
+async fn run_scripts(context: ScriptContext, scripts: Vec<DocScript>) {
+    let mut fut_scripts = vec![];
     for script in scripts {
-        match script {
-            DocScript::SendText(index, s) => {
-                client_edit_context.insert(index, s);
-            },
-            DocScript::AssertClient(s) => {
-                let json = client_edit_context.doc_json();
-                assert_eq(s, &json);
-            },
-            DocScript::AssertServer(s) => {
-                sleep(Duration::from_millis(100)).await;
-                let pool = server.pg_pool.clone();
-                let edit_context = server
-                    .app_ctx
-                    .doc_biz
-                    .manager
-                    .get(&doc_id, Data::new(pool))
-                    .await
-                    .unwrap()
-                    .unwrap();
-                let json = edit_context.doc_json();
-                assert_eq(s, &json);
-            },
-        }
+        let context = context.clone();
+        let fut = async move {
+            match script {
+                DocScript::ConnectWs => {
+                    let token = context.user_session.token().unwrap();
+                    let _ = context.user_session.start_ws_connection(&token).await.unwrap();
+                },
+                DocScript::SendText(index, s) => {
+                    context.client_edit_context.insert(index, s).unwrap();
+                },
+                DocScript::AssertClient(s) => {
+                    let json = context.client_edit_context.doc_json();
+                    assert_eq(s, &json);
+                },
+                DocScript::AssertServer(s) => {
+                    let edit_doc = context
+                        .doc_manager
+                        .get(&context.client_edit_context.doc_id, context.pool)
+                        .await
+                        .unwrap()
+                        .unwrap();
+                    let json = edit_doc.document_json().await.unwrap();
+                    assert_eq(s, &json);
+                },
+            }
+        };
+        fut_scripts.push(fut);
     }
-    std::mem::forget(flowy_test);
+
+    let mut stream = stream::iter(fut_scripts);
+    while let Some(script) = stream.next().await {
+        let _ = script.await;
+    }
 }
 
 fn assert_eq(expect: &str, receive: &str) {
@@ -89,11 +116,4 @@ async fn create_doc(flowy_test: &FlowyTest) -> Arc<ClientEditDocContext> {
         .unwrap();
 
     edit_context
-}
-
-async fn init_user(flowy_test: &FlowyTest) {
-    let _ = flowy_test.sign_up().await;
-
-    let user_session = flowy_test.sdk.user_session.clone();
-    user_session.init_user().await.unwrap();
 }

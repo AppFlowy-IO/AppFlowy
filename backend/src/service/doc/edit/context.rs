@@ -1,8 +1,4 @@
-use crate::service::{
-    util::md5,
-    ws::{entities::Socket, WsClientData, WsMessageAdaptor, WsUser},
-};
-
+use crate::service::{doc::edit::actor::EditUser, util::md5, ws::WsMessageAdaptor};
 use byteorder::{BigEndian, WriteBytesExt};
 use bytes::Bytes;
 use dashmap::DashMap;
@@ -19,7 +15,6 @@ use flowy_ot::{
 use flowy_ws::WsMessage;
 use parking_lot::RwLock;
 use protobuf::Message;
-
 use std::{
     convert::TryInto,
     sync::{
@@ -28,12 +23,6 @@ use std::{
     },
     time::Duration,
 };
-
-struct EditUser {
-    user: Arc<WsUser>,
-    socket: Socket,
-}
-
 pub struct EditDocContext {
     doc_id: String,
     rev_id: AtomicI64,
@@ -54,18 +43,11 @@ impl EditDocContext {
         })
     }
 
-    pub fn doc_json(&self) -> String { self.document.read().to_json() }
+    pub fn document_json(&self) -> String { self.document.read().to_json() }
 
-    #[tracing::instrument(level = "debug", skip(self, client_data, revision))]
-    pub async fn apply_revision(&self, client_data: WsClientData, revision: Revision) -> Result<(), ServerError> {
-        let _ = self.verify_md5(&revision)?;
+    pub async fn apply_revision(&self, user: EditUser, revision: Revision) -> Result<(), ServerError> {
         // Opti: find out another way to keep the user socket available.
-        let user = EditUser {
-            user: client_data.user.clone(),
-            socket: client_data.socket.clone(),
-        };
-        self.users.insert(client_data.user.id().to_owned(), user);
-
+        self.users.insert(user.id(), user.clone());
         log::debug!(
             "cur_base_rev_id: {}, expect_base_rev_id: {} rev_id: {}",
             self.rev_id.load(SeqCst),
@@ -73,7 +55,6 @@ impl EditDocContext {
             revision.rev_id
         );
 
-        let cli_socket = client_data.socket;
         let cur_rev_id = self.rev_id.load(SeqCst);
         if cur_rev_id > revision.rev_id {
             // The client document is outdated. Transform the client revision delta and then
@@ -86,19 +67,19 @@ impl EditDocContext {
             log::debug!("{} client delta: {}", self.doc_id, cli_prime.to_json());
             let cli_revision = self.mk_revision(revision.rev_id, cli_prime);
             let ws_cli_revision = mk_push_rev_ws_message(&self.doc_id, cli_revision);
-            cli_socket.do_send(ws_cli_revision).map_err(internal_error)?;
+            user.socket.do_send(ws_cli_revision).map_err(internal_error)?;
             Ok(())
         } else if cur_rev_id < revision.rev_id {
             if cur_rev_id != revision.base_rev_id {
                 // The server document is outdated, try to get the missing revision from the
                 // client.
-                cli_socket
+                user.socket
                     .do_send(mk_pull_rev_ws_message(&self.doc_id, cur_rev_id, revision.rev_id))
                     .map_err(internal_error)?;
             } else {
                 let delta = Delta::from_bytes(&revision.delta_data).map_err(internal_error)?;
                 let _ = self.update_document_delta(delta)?;
-                cli_socket
+                user.socket
                     .do_send(mk_acked_ws_message(&revision))
                     .map_err(internal_error)?;
                 self.rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(revision.rev_id));
@@ -150,13 +131,6 @@ impl EditDocContext {
                 let _ = write_guard.compose_delta(&delta).map_err(internal_error)?;
                 log::debug!("Document: {}", write_guard.to_json());
             },
-        }
-        Ok(())
-    }
-
-    fn verify_md5(&self, revision: &Revision) -> Result<(), ServerError> {
-        if md5(&revision.delta_data) != revision.md5 {
-            return Err(ServerError::internal().context("Delta md5 not match"));
         }
         Ok(())
     }

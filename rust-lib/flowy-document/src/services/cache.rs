@@ -14,6 +14,7 @@ pub(crate) struct DocCache {
 impl DocCache {
     pub(crate) fn new() -> Self { Self { inner: DashMap::new() } }
 
+    #[allow(dead_code)]
     pub(crate) fn all_docs(&self) -> Vec<Arc<EditDocContext>> {
         self.inner
             .iter()

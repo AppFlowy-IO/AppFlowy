@@ -86,7 +86,9 @@ impl WsStream {
             msg_tx: msg_tx.clone(),
             inner: Some((
                 Box::pin(async move {
-                    let _ = ws_read.for_each(|message| async { post_message(msg_tx.clone(), message) }).await;
+                    let _ = ws_read
+                        .for_each(|message| async { post_message(msg_tx.clone(), message) })
+                        .await;
                     Ok(())
                 }),
                 Box::pin(async move {
@@ -135,7 +137,7 @@ fn post_message(tx: MsgSender, message: Result<Message, Error>) {
         },
     }
 }
-
+#[allow(dead_code)]
 pub struct Retry<F> {
     f: F,
     #[allow(dead_code)]
@@ -147,6 +149,7 @@ impl<F> Retry<F>
 where
     F: Fn(&str),
 {
+    #[allow(dead_code)]
     pub fn new(addr: &str, f: F) -> Self {
         Self {
             f,

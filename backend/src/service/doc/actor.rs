@@ -1,9 +1,13 @@
-use crate::service::{doc::doc::DocManager, util::parse_from_bytes, ws::WsClientData};
+use crate::service::{
+    doc::doc::DocManager,
+    util::{md5, parse_from_bytes},
+    ws::{entities::Socket, WsClientData, WsUser},
+};
 use actix_rt::task::spawn_blocking;
 use actix_web::web::Data;
 use async_stream::stream;
 use flowy_document::protobuf::{Revision, WsDataType, WsDocumentData};
-use flowy_net::errors::{internal_error, Result as DocResult};
+use flowy_net::errors::{internal_error, Result as DocResult, ServerError};
 use futures::stream::StreamExt;
 use sqlx::PgPool;
 use std::sync::Arc;
@@ -11,7 +15,7 @@ use tokio::sync::{mpsc, oneshot};
 
 pub enum DocWsMsg {
     ClientData {
-        data: WsClientData,
+        client_data: WsClientData,
         pool: Data<PgPool>,
         ret: oneshot::Sender<DocResult<()>>,
     },
@@ -50,52 +54,60 @@ impl DocWsMsgActor {
 
     async fn handle_message(&self, msg: DocWsMsg) {
         match msg {
-            DocWsMsg::ClientData { data, pool, ret } => {
-                ret.send(self.handle_client_data(data, pool).await);
+            DocWsMsg::ClientData { client_data, pool, ret } => {
+                let _ = ret.send(self.handle_client_data(client_data, pool).await);
             },
         }
     }
 
-    async fn handle_client_data(&self, data: WsClientData, pool: Data<PgPool>) -> DocResult<()> {
-        let bytes = data.data.clone();
+    async fn handle_client_data(&self, client_data: WsClientData, pool: Data<PgPool>) -> DocResult<()> {
+        let WsClientData { user, socket, data } = client_data;
         let document_data = spawn_blocking(move || {
-            let document_data: WsDocumentData = parse_from_bytes(&bytes)?;
+            let document_data: WsDocumentData = parse_from_bytes(&data)?;
             DocResult::Ok(document_data)
         })
         .await
         .map_err(internal_error)??;
 
         match document_data.ty {
-            WsDataType::Acked => {},
-            WsDataType::PushRev => self.handle_push_rev(data, document_data.data, pool).await?,
-            WsDataType::PullRev => {},
-            WsDataType::Conflict => {},
+            WsDataType::Acked => Ok(()),
+            WsDataType::PushRev => self.handle_push_rev(user, socket, document_data.data, pool).await,
+            WsDataType::PullRev => Ok(()),
+            WsDataType::Conflict => Ok(()),
         }
-        Ok(())
     }
 
     async fn handle_push_rev(
         &self,
-        client_data: WsClientData,
+        user: Arc<WsUser>,
+        socket: Socket,
         revision_data: Vec<u8>,
         pool: Data<PgPool>,
     ) -> DocResult<()> {
         let revision = spawn_blocking(move || {
             let revision: Revision = parse_from_bytes(&revision_data)?;
+            let _ = verify_md5(&revision)?;
             DocResult::Ok(revision)
         })
         .await
         .map_err(internal_error)??;
 
         match self.doc_manager.get(&revision.doc_id, pool).await? {
-            Some(ctx) => {
-                ctx.apply_revision(client_data, revision).await;
+            Some(edit_doc) => {
+                edit_doc.apply_revision(user, socket, revision).await?;
                 Ok(())
             },
             None => {
-                //
+                log::error!("Document with id: {} not exist", &revision.doc_id);
                 Ok(())
             },
         }
     }
+}
+
+fn verify_md5(revision: &Revision) -> DocResult<()> {
+    if md5(&revision.delta_data) != revision.md5 {
+        return Err(ServerError::internal().context("Revision md5 not match"));
+    }
+    Ok(())
 }

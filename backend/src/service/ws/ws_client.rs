@@ -1,11 +1,9 @@
 use crate::{
     config::{HEARTBEAT_INTERVAL, PING_TIMEOUT},
-    context::FlowyRuntime,
     service::{
         user::LoggedUser,
         ws::{
             entities::{Connect, Disconnect, Socket},
-            WsBizHandler,
             WsBizHandlers,
             WsMessageAdaptor,
             WsServer,
@@ -19,6 +17,7 @@ use bytes::Bytes;
 use flowy_ws::WsMessage;
 use std::{convert::TryFrom, sync::Arc, time::Instant};
 
+#[derive(Debug)]
 pub struct WsUser {
     inner: LoggedUser,
 }
@@ -39,23 +38,16 @@ pub struct WsClient {
     user: Arc<WsUser>,
     server: Addr<WsServer>,
     biz_handlers: Data<WsBizHandlers>,
-    runtime: Data<FlowyRuntime>,
     hb: Instant,
 }
 
 impl WsClient {
-    pub fn new(
-        user: WsUser,
-        server: Addr<WsServer>,
-        biz_handlers: Data<WsBizHandlers>,
-        runtime: Data<FlowyRuntime>,
-    ) -> Self {
+    pub fn new(user: WsUser, server: Addr<WsServer>, biz_handlers: Data<WsBizHandlers>) -> Self {
         Self {
             user: Arc::new(user),
             server,
             biz_handlers,
             hb: Instant::now(),
-            runtime,
         }
     }
 

@@ -16,13 +16,14 @@ use flowy_database::{
     ExpressionMethods,
     UserDatabaseConnection,
 };
-use flowy_infra::kv::KV;
+use flowy_infra::{future::wrap_future, kv::KV};
 use flowy_net::config::ServerConfig;
 use flowy_sqlite::ConnectionPool;
 use flowy_ws::{connect::Retry, WsController, WsMessage, WsMessageHandler, WsSender};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::{sync::Arc, time::Duration};
+use tokio::task::JoinHandle;
 
 pub struct UserSessionConfig {
     root_dir: String,
@@ -50,7 +51,7 @@ pub struct UserSession {
     #[allow(dead_code)]
     server: Server,
     session: RwLock<Option<Session>>,
-    ws_controller: Arc<RwLock<WsController>>,
+    ws_controller: Arc<WsController>,
     status_callback: SessionStatusCallback,
 }
 
@@ -58,7 +59,7 @@ impl UserSession {
     pub fn new(config: UserSessionConfig, status_callback: SessionStatusCallback) -> Self {
         let db = UserDB::new(&config.root_dir);
         let server = construct_user_server(&config.server_config);
-        let ws_controller = Arc::new(RwLock::new(WsController::new()));
+        let ws_controller = Arc::new(WsController::new());
         let user_session = Self {
             database: db,
             config,
@@ -148,7 +149,7 @@ impl UserSession {
     pub async fn init_user(&self) -> Result<(), UserError> {
         let (_, token) = self.get_session()?.into_part();
 
-        let _ = self.start_ws_connection(&token)?;
+        let _ = self.start_ws_connection(&token).await?;
         Ok(())
     }
 
@@ -183,22 +184,12 @@ impl UserSession {
     pub fn token(&self) -> Result<String, UserError> { Ok(self.get_session()?.token) }
 
     pub fn add_ws_handler(&self, handler: Arc<dyn WsMessageHandler>) {
-        let _ = self.ws_controller.write().add_handler(handler);
-    }
-
-    pub fn get_ws_sender(&self) -> Result<Arc<WsSender>, UserError> {
-        match self.ws_controller.try_read_for(Duration::from_millis(300)) {
-            None => Err(UserError::internal().context("Send ws message timeout")),
-            Some(guard) => {
-                let sender = guard.get_sender()?;
-                Ok(sender)
-            },
-        }
+        let _ = self.ws_controller.add_handler(handler);
     }
 
     pub fn send_ws_msg<T: Into<WsMessage>>(&self, msg: T) -> Result<(), UserError> {
-        let sender = self.get_ws_sender()?;
-        let _ = sender.send_msg(msg)?;
+        let sender = self.ws_controller.sender()?;
+        sender.send_msg(msg)?;
         Ok(())
     }
 }
@@ -294,15 +285,10 @@ impl UserSession {
         }
     }
 
-    fn start_ws_connection(&self, token: &str) -> Result<(), UserError> {
+    pub async fn start_ws_connection(&self, token: &str) -> Result<(), UserError> {
         log::debug!("start_ws_connection");
         let addr = format!("{}/{}", self.server.ws_addr(), token);
-        let ws_controller = self.ws_controller.clone();
-        let retry = Retry::new(&addr, move |addr| {
-            let _ = ws_controller.write().connect(addr.to_owned());
-        });
-
-        let _ = self.ws_controller.write().connect_with_retry(addr, retry)?;
+        let _ = self.ws_controller.connect(addr).await?;
         Ok(())
     }
 }

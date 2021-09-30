@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use std::convert::{TryFrom, TryInto};
+use std::convert::TryInto;
 use tokio_tungstenite::tungstenite::Message as TokioMessage;
 
 // Opti: using four bytes of the data to represent the source

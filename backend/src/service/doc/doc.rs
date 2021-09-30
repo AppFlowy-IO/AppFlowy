@@ -1,20 +1,21 @@
-use super::edit_doc::EditDocContext;
 use crate::service::{
     doc::{
+        actor::{DocWsMsg, DocWsMsgActor},
+        edit::EditDoc,
         read_doc,
-        ws_actor::{DocWsMsg, DocWsMsgActor},
     },
     ws::{WsBizHandler, WsClientData},
 };
 use actix_web::web::Data;
 use dashmap::DashMap;
 use flowy_document::protobuf::QueryDocParams;
-use flowy_net::errors::ServerError;
-
-use protobuf::Message;
+use flowy_net::errors::{internal_error, ServerError};
 use sqlx::PgPool;
-use std::{sync::Arc, time::Duration};
-use tokio::sync::{mpsc, mpsc::error::SendError, oneshot};
+use std::sync::Arc;
+use tokio::{
+    sync::{mpsc, oneshot},
+    task::spawn_blocking,
+};
 
 pub struct DocBiz {
     pub manager: Arc<DocManager>,
@@ -43,11 +44,7 @@ impl WsBizHandler for DocBiz {
         let pool = self.pg_pool.clone();
 
         actix_rt::spawn(async move {
-            let msg = DocWsMsg::ClientData {
-                data: client_data,
-                ret,
-                pool,
-            };
+            let msg = DocWsMsg::ClientData { client_data, ret, pool };
             match sender.send(msg).await {
                 Ok(_) => {},
                 Err(e) => log::error!("{}", e),
@@ -61,7 +58,7 @@ impl WsBizHandler for DocBiz {
 }
 
 pub struct DocManager {
-    docs_map: DashMap<String, Arc<EditDocContext>>,
+    docs_map: DashMap<String, Arc<EditDoc>>,
 }
 
 impl DocManager {
@@ -71,7 +68,7 @@ impl DocManager {
         }
     }
 
-    pub async fn get(&self, doc_id: &str, pg_pool: Data<PgPool>) -> Result<Option<Arc<EditDocContext>>, ServerError> {
+    pub async fn get(&self, doc_id: &str, pg_pool: Data<PgPool>) -> Result<Option<Arc<EditDoc>>, ServerError> {
         match self.docs_map.get(doc_id) {
             None => {
                 let params = QueryDocParams {
@@ -79,7 +76,8 @@ impl DocManager {
                     ..Default::default()
                 };
                 let doc = read_doc(pg_pool.get_ref(), params).await?;
-                let edit_doc = Arc::new(EditDocContext::new(doc)?);
+                let edit_doc = spawn_blocking(|| EditDoc::new(doc)).await.map_err(internal_error)?;
+                let edit_doc = Arc::new(edit_doc?);
                 self.docs_map.insert(doc_id.to_string(), edit_doc.clone());
                 Ok(Some(edit_doc))
             },

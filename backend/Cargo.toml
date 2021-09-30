@@ -103,3 +103,4 @@ flowy-infra = { path = "../rust-lib/flowy-infra" }
 flowy-ot = { path = "../rust-lib/flowy-ot" }
 flowy-document = { path = "../rust-lib/flowy-document", features = ["flowy_test", "http_server"] }
 flowy-sqlite = { path = "../rust-lib/flowy-sqlite" }
+futures-util = "0.3.15"
