@@ -123,9 +123,13 @@ impl WorkspaceController {
         }
     }
 
-    pub(crate) async fn read_workspaces(&self, params: QueryWorkspaceParams) -> Result<RepeatedWorkspace, WorkspaceError> {
+    pub(crate) async fn read_workspaces(
+        &self,
+        params: QueryWorkspaceParams,
+    ) -> Result<RepeatedWorkspace, WorkspaceError> {
         let user_id = self.user.user_id()?;
-        let workspaces = self.read_local_workspaces(params.workspace_id.clone(), &user_id, &*self.database.db_connection()?)?;
+        let workspaces =
+            self.read_local_workspaces(params.workspace_id.clone(), &user_id, &*self.database.db_connection()?)?;
         let _ = self.read_workspaces_on_server(user_id.clone(), params.clone());
         Ok(workspaces)
     }
@@ -170,7 +174,12 @@ impl WorkspaceController {
         Ok(RepeatedWorkspace { items: workspaces })
     }
 
-    fn read_local_workspace(&self, workspace_id: String, user_id: &str, conn: &SqliteConnection) -> Result<Workspace, WorkspaceError> {
+    fn read_local_workspace(
+        &self,
+        workspace_id: String,
+        user_id: &str,
+        conn: &SqliteConnection,
+    ) -> Result<Workspace, WorkspaceError> {
         // Opti: fetch single workspace from local db
         let mut repeated_workspace = self.read_local_workspaces(Some(workspace_id.clone()), user_id, conn)?;
         if repeated_workspace.is_empty() {
@@ -280,7 +289,9 @@ impl WorkspaceController {
                 Ok(())
             })?;
 
-            notify(&token, WorkspaceObservable::WorkspaceListUpdated).payload(workspaces).send();
+            notify(&token, WorkspaceObservable::WorkspaceListUpdated)
+                .payload(workspaces)
+                .send();
             Result::<(), WorkspaceError>::Ok(())
         });
 
@@ -294,7 +305,9 @@ fn set_current_workspace(workspace: &str) { KV::set_str(CURRENT_WORKSPACE_ID, wo
 
 fn get_current_workspace() -> Result<String, WorkspaceError> {
     match KV::get_str(CURRENT_WORKSPACE_ID) {
-        None => Err(WorkspaceError::not_found().context("Current workspace not found or should call open workspace first")),
+        None => {
+            Err(WorkspaceError::not_found().context("Current workspace not found or should call open workspace first"))
+        },
         Some(workspace_id) => Ok(workspace_id),
     }
 }

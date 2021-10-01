@@ -1,18 +1,18 @@
-// use crate::helper::*;
-use crate::helper::{spawn_server, TestServer};
+use std::sync::Arc;
+
 use actix_web::web::Data;
+use futures_util::{stream, stream::StreamExt};
+use sqlx::PgPool;
+use tokio::time::{sleep, Duration};
+
 use backend::service::doc::doc::DocManager;
-use flowy_document::{
-    entities::doc::QueryDocParams,
-    services::doc::edit_doc_context::EditDocContext as ClientEditDocContext,
-};
+use flowy_document::{entities::doc::QueryDocParams, services::doc::edit::EditDocContext as ClientEditDocContext};
 use flowy_net::config::ServerConfig;
 use flowy_test::{workspace::ViewTest, FlowyTest};
 use flowy_user::services::user::UserSession;
-use futures_util::{stream, stream::StreamExt};
-use sqlx::PgPool;
-use std::sync::Arc;
-use tokio::time::{sleep, Duration};
+
+// use crate::helper::*;
+use crate::helper::{spawn_server, TestServer};
 
 pub struct DocumentTest {
     server: TestServer,
@@ -69,10 +69,10 @@ async fn run_scripts(context: ScriptContext, scripts: Vec<DocScript>) {
                     let _ = context.user_session.start_ws_connection(&token).await.unwrap();
                 },
                 DocScript::SendText(index, s) => {
-                    context.client_edit_context.insert(index, s).unwrap();
+                    context.client_edit_context.insert(index, s).await.unwrap();
                 },
                 DocScript::AssertClient(s) => {
-                    let json = context.client_edit_context.doc_json();
+                    let json = context.client_edit_context.doc_json().await.unwrap();
                     assert_eq(s, &json);
                 },
                 DocScript::AssertServer(s) => {

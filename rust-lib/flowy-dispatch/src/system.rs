@@ -109,7 +109,10 @@ impl SystemRunner {
         match rt.block_on(stop_rx) {
             Ok(code) => {
                 if code != 0 {
-                    Err(io::Error::new(io::ErrorKind::Other, format!("Non-zero exit code: {}", code)))
+                    Err(io::Error::new(
+                        io::ErrorKind::Other,
+                        format!("Non-zero exit code: {}", code),
+                    ))
                 } else {
                     Ok(())
                 }

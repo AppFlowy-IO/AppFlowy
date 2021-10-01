@@ -72,11 +72,17 @@ impl TryInto<UpdateAppParams> for UpdateAppRequest {
     type Error = WorkspaceError;
 
     fn try_into(self) -> Result<UpdateAppParams, Self::Error> {
-        let app_id = AppId::parse(self.app_id).map_err(|e| WorkspaceError::app_id().context(e))?.0;
+        let app_id = AppId::parse(self.app_id)
+            .map_err(|e| WorkspaceError::app_id().context(e))?
+            .0;
 
         let name = match self.name {
             None => None,
-            Some(name) => Some(AppName::parse(name).map_err(|e| WorkspaceError::workspace_name().context(e))?.0),
+            Some(name) => Some(
+                AppName::parse(name)
+                    .map_err(|e| WorkspaceError::workspace_name().context(e))?
+                    .0,
+            ),
         };
 
         let color_style = match self.color_style {

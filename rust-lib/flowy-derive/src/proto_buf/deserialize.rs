@@ -6,16 +6,20 @@ pub fn make_de_token_steam(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStrea
     let pb_ty = ast.attrs.pb_struct_type()?;
     let struct_ident = &ast.ident;
 
-    let build_take_fields = ast.data.all_fields().filter(|f| !f.attrs.skip_deserializing()).flat_map(|field| {
-        if let Some(func) = field.attrs.deserialize_with() {
-            let member = &field.member;
-            Some(quote! { o.#member=#struct_ident::#func(pb); })
-        } else if field.attrs.is_one_of() {
-            token_stream_for_one_of(ctxt, field)
-        } else {
-            token_stream_for_field(ctxt, &field.member, &field.ty, false)
-        }
-    });
+    let build_take_fields = ast
+        .data
+        .all_fields()
+        .filter(|f| !f.attrs.skip_deserializing())
+        .flat_map(|field| {
+            if let Some(func) = field.attrs.deserialize_with() {
+                let member = &field.member;
+                Some(quote! { o.#member=#struct_ident::#func(pb); })
+            } else if field.attrs.is_one_of() {
+                token_stream_for_one_of(ctxt, field)
+            } else {
+                token_stream_for_field(ctxt, &field.member, &field.ty, false)
+            }
+        });
 
     let de_token_stream: TokenStream = quote! {
         impl std::convert::TryFrom<bytes::Bytes> for #struct_ident {

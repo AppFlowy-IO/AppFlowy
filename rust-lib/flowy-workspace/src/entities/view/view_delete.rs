@@ -19,7 +19,9 @@ impl TryInto<DeleteViewParams> for DeleteViewRequest {
     type Error = WorkspaceError;
 
     fn try_into(self) -> Result<DeleteViewParams, Self::Error> {
-        let view_id = ViewId::parse(self.view_id).map_err(|e| WorkspaceError::view_id().context(e))?.0;
+        let view_id = ViewId::parse(self.view_id)
+            .map_err(|e| WorkspaceError::view_id().context(e))?
+            .0;
 
         Ok(DeleteViewParams { view_id })
     }

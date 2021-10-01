@@ -193,7 +193,9 @@ pub enum ASTStyle {
 pub fn struct_from_ast<'a>(cx: &Ctxt, fields: &'a syn::Fields) -> (ASTStyle, Vec<ASTField<'a>>) {
     match fields {
         syn::Fields::Named(fields) => (ASTStyle::Struct, fields_from_ast(cx, &fields.named)),
-        syn::Fields::Unnamed(fields) if fields.unnamed.len() == 1 => (ASTStyle::NewType, fields_from_ast(cx, &fields.unnamed)),
+        syn::Fields::Unnamed(fields) if fields.unnamed.len() == 1 => {
+            (ASTStyle::NewType, fields_from_ast(cx, &fields.unnamed))
+        },
         syn::Fields::Unnamed(fields) => (ASTStyle::Tuple, fields_from_ast(cx, &fields.unnamed)),
         syn::Fields::Unit => (ASTStyle::Unit, Vec::new()),
     }

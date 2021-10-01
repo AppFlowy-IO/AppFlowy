@@ -69,7 +69,9 @@ impl TryInto<QueryAppParams> for QueryAppRequest {
     type Error = WorkspaceError;
 
     fn try_into(self) -> Result<QueryAppParams, Self::Error> {
-        let app_id = AppId::parse(self.app_id).map_err(|e| WorkspaceError::app_id().context(e))?.0;
+        let app_id = AppId::parse(self.app_id)
+            .map_err(|e| WorkspaceError::app_id().context(e))?
+            .0;
 
         Ok(QueryAppParams {
             app_id,

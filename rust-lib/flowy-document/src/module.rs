@@ -4,17 +4,17 @@ use diesel::SqliteConnection;
 use parking_lot::RwLock;
 
 use flowy_database::ConnectionPool;
+use flowy_net::config::ServerConfig;
 
 use crate::{
     entities::doc::{CreateDocParams, Doc, DocDelta, QueryDocParams},
     errors::DocError,
     services::{
-        doc::{doc_controller::DocController, edit_doc_context::EditDocContext},
+        doc::{doc_controller::DocController, edit::EditDocContext},
         server::construct_doc_server,
         ws::WsDocumentManager,
     },
 };
-use flowy_net::config::ServerConfig;
 
 pub trait DocumentUser: Send + Sync {
     fn user_dir(&self) -> Result<String, DocError>;
@@ -59,7 +59,7 @@ impl FlowyDocument {
     pub async fn apply_doc_delta(&self, params: DocDelta) -> Result<Doc, DocError> {
         // workaround: compare the rust's delta with flutter's delta. Will be removed
         // very soon
-        let doc = self.doc_ctrl.edit_doc(params.clone())?;
+        let doc = self.doc_ctrl.edit_doc(params.clone()).await?;
         Ok(doc)
     }
 }

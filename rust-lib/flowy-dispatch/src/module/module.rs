@@ -16,7 +16,17 @@ use crate::{
     module::{container::ModuleDataMap, Unit},
     request::{payload::Payload, EventRequest, FromRequest},
     response::{EventResponse, Responder},
-    service::{factory, BoxService, BoxServiceFactory, Handler, HandlerService, Service, ServiceFactory, ServiceRequest, ServiceResponse},
+    service::{
+        factory,
+        BoxService,
+        BoxServiceFactory,
+        Handler,
+        HandlerService,
+        Service,
+        ServiceFactory,
+        ServiceRequest,
+        ServiceResponse,
+    },
 };
 use futures_core::future::BoxFuture;
 use std::sync::Arc;
@@ -135,7 +145,10 @@ impl ServiceFactory<ModuleRequest> for Module {
         let service_map = self.service_map.clone();
         let module_data = self.module_data.clone();
         Box::pin(async move {
-            let service = ModuleService { service_map, module_data };
+            let service = ModuleService {
+                service_map,
+                module_data,
+            };
             let module_service = Box::new(service) as Self::Service;
             Ok(module_service)
         })

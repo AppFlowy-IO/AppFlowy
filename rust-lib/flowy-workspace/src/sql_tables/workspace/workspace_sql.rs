@@ -14,7 +14,11 @@ use flowy_database::{
 pub(crate) struct WorkspaceTableSql {}
 
 impl WorkspaceTableSql {
-    pub(crate) fn create_workspace(&self, table: WorkspaceTable, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
+    pub(crate) fn create_workspace(
+        &self,
+        table: WorkspaceTable,
+        conn: &SqliteConnection,
+    ) -> Result<(), WorkspaceError> {
         match diesel_record_count!(workspace_table, &table.id, conn) {
             0 => diesel_insert_table!(workspace_table, &table, conn),
             _ => {
@@ -45,7 +49,11 @@ impl WorkspaceTableSql {
     }
 
     #[allow(dead_code)]
-    pub(crate) fn update_workspace(&self, changeset: WorkspaceTableChangeset, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
+    pub(crate) fn update_workspace(
+        &self,
+        changeset: WorkspaceTableChangeset,
+        conn: &SqliteConnection,
+    ) -> Result<(), WorkspaceError> {
         diesel_update_table!(workspace_table, changeset, conn);
         Ok(())
     }

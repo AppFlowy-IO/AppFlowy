@@ -33,7 +33,11 @@ impl WorkspaceServerAPI for WorkspaceServerMock {
         ResultFuture::new(async { Ok(workspace) })
     }
 
-    fn read_workspace(&self, _token: &str, _params: QueryWorkspaceParams) -> ResultFuture<RepeatedWorkspace, WorkspaceError> {
+    fn read_workspace(
+        &self,
+        _token: &str,
+        _params: QueryWorkspaceParams,
+    ) -> ResultFuture<RepeatedWorkspace, WorkspaceError> {
         ResultFuture::new(async {
             let repeated_workspace = RepeatedWorkspace { items: vec![] };
             Ok(repeated_workspace)
@@ -95,7 +99,11 @@ impl WorkspaceServerAPI for WorkspaceServerMock {
         ResultFuture::new(async { Ok(None) })
     }
 
-    fn update_app(&self, _token: &str, _params: UpdateAppParams) -> ResultFuture<(), WorkspaceError> { ResultFuture::new(async { Ok(()) }) }
+    fn update_app(&self, _token: &str, _params: UpdateAppParams) -> ResultFuture<(), WorkspaceError> {
+        ResultFuture::new(async { Ok(()) })
+    }
 
-    fn delete_app(&self, _token: &str, _params: DeleteAppParams) -> ResultFuture<(), WorkspaceError> { ResultFuture::new(async { Ok(()) }) }
+    fn delete_app(&self, _token: &str, _params: DeleteAppParams) -> ResultFuture<(), WorkspaceError> {
+        ResultFuture::new(async { Ok(()) })
+    }
 }

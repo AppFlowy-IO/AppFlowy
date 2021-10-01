@@ -28,7 +28,12 @@ macro_rules! static_workspace_error {
 }
 
 impl WorkspaceError {
-    pub fn new(code: ErrorCode, msg: &str) -> Self { Self { code, msg: msg.to_owned() } }
+    pub fn new(code: ErrorCode, msg: &str) -> Self {
+        Self {
+            code,
+            msg: msg.to_owned(),
+        }
+    }
 
     static_workspace_error!(workspace_name, ErrorCode::WorkspaceNameInvalid);
     static_workspace_error!(workspace_id, ErrorCode::WorkspaceIdInvalid);
@@ -97,6 +102,13 @@ pub enum ErrorCode {
     InternalError        = 1000,
     #[display(fmt = "Record not found")]
     RecordNotFound       = 1001,
+}
+
+pub fn internal_error<T>(e: T) -> WorkspaceError
+where
+    T: std::fmt::Debug,
+{
+    WorkspaceError::internal().context(e)
 }
 
 impl std::default::Default for ErrorCode {

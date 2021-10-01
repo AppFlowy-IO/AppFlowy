@@ -6,23 +6,19 @@ use crate::{
 };
 use bytes::Bytes;
 use dashmap::DashMap;
-use flowy_net::errors::{internal_error, ServerError};
+use flowy_net::errors::ServerError;
 use futures_channel::mpsc::{UnboundedReceiver, UnboundedSender};
-use futures_core::{future::BoxFuture, ready, Stream};
+use futures_core::{ready, Stream};
 use parking_lot::RwLock;
 use pin_project::pin_project;
 use std::{
-    collections::HashMap,
     convert::TryFrom,
     future::Future,
     pin::Pin,
     sync::Arc,
     task::{Context, Poll},
 };
-use tokio::{
-    sync::{broadcast, oneshot},
-    task::JoinHandle,
-};
+use tokio::sync::{broadcast, oneshot};
 use tokio_tungstenite::tungstenite::{
     protocol::{frame::coding::CloseCode, CloseFrame},
     Message,
@@ -35,22 +31,6 @@ type Handlers = DashMap<WsModule, Arc<dyn WsMessageHandler>>;
 pub trait WsMessageHandler: Sync + Send + 'static {
     fn source(&self) -> WsModule;
     fn receive_message(&self, msg: WsMessage);
-}
-
-type NotifyCallback = Arc<dyn Fn(&WsState) + Send + Sync + 'static>;
-struct WsStateNotify {
-    #[allow(dead_code)]
-    state: WsState,
-    callback: Option<NotifyCallback>,
-}
-
-impl WsStateNotify {
-    fn update_state(&mut self, state: WsState) {
-        if let Some(f) = &self.callback {
-            f(&state);
-        }
-        self.state = state;
-    }
 }
 
 #[derive(Clone)]
@@ -114,13 +94,13 @@ impl WsController {
         tokio::spawn(async move {
             match connection.await {
                 Ok(stream) => {
-                    state_notify.send(WsState::Connected(sender));
-                    ret.send(Ok(()));
+                    let _ = state_notify.send(WsState::Connected(sender));
+                    let _ = ret.send(Ok(()));
                     spawn_steam_and_handlers(stream, handlers, state_notify).await;
                 },
                 Err(e) => {
-                    state_notify.send(WsState::Disconnected(e.clone()));
-                    ret.send(Err(ServerError::internal().context(e)));
+                    let _ = state_notify.send(WsState::Disconnected(e.clone()));
+                    let _ = ret.send(Err(ServerError::internal().context(e)));
                 },
             }
         });
@@ -160,7 +140,7 @@ async fn spawn_steam_and_handlers(
                 Err(e) => {
                     // TODO: retry?
                     log::error!("ws stream error {:?}", e);
-                    state_notify.send(WsState::Disconnected(e));
+                    let _ = state_notify.send(WsState::Disconnected(e));
                 }
             }
         },

@@ -7,7 +7,12 @@ pub struct OTError {
 }
 
 impl OTError {
-    pub fn new(code: OTErrorCode, msg: &str) -> OTError { Self { code, msg: msg.to_owned() } }
+    pub fn new(code: OTErrorCode, msg: &str) -> OTError {
+        Self {
+            code,
+            msg: msg.to_owned(),
+        }
+    }
 }
 
 impl fmt::Display for OTError {

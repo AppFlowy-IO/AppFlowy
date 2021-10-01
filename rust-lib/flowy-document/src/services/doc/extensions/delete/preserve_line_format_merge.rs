@@ -21,7 +21,10 @@ impl DeleteExt for PreserveLineFormatOnMerge {
         }
 
         iter.seek::<CharMetric>(interval.size() - 1);
-        let mut new_delta = DeltaBuilder::new().retain(interval.start).delete(interval.size()).build();
+        let mut new_delta = DeltaBuilder::new()
+            .retain(interval.start)
+            .delete(interval.size())
+            .build();
 
         while iter.has_next() {
             match iter.next() {

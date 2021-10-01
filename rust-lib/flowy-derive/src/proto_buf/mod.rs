@@ -3,7 +3,11 @@ mod enum_serde;
 mod serialize;
 mod util;
 
-use crate::proto_buf::{deserialize::make_de_token_steam, enum_serde::make_enum_token_stream, serialize::make_se_token_stream};
+use crate::proto_buf::{
+    deserialize::make_de_token_steam,
+    enum_serde::make_enum_token_stream,
+    serialize::make_se_token_stream,
+};
 use flowy_ast::*;
 use proc_macro2::TokenStream;
 

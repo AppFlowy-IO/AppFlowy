@@ -14,7 +14,11 @@ pub(crate) struct UserDB {
 }
 
 impl UserDB {
-    pub(crate) fn new(db_dir: &str) -> Self { Self { db_dir: db_dir.to_owned() } }
+    pub(crate) fn new(db_dir: &str) -> Self {
+        Self {
+            db_dir: db_dir.to_owned(),
+        }
+    }
 
     fn open_user_db(&self, user_id: &str) -> Result<(), UserError> {
         if user_id.is_empty() {

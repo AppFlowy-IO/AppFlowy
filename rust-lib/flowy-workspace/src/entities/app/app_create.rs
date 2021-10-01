@@ -55,7 +55,8 @@ impl TryInto<CreateAppParams> for CreateAppRequest {
 
         let id = WorkspaceId::parse(self.workspace_id).map_err(|e| WorkspaceError::workspace_id().context(e))?;
 
-        let color_style = AppColorStyle::parse(self.color_style).map_err(|e| WorkspaceError::color_style().context(e))?;
+        let color_style =
+            AppColorStyle::parse(self.color_style).map_err(|e| WorkspaceError::color_style().context(e))?;
 
         Ok(CreateAppParams {
             workspace_id: id.0,

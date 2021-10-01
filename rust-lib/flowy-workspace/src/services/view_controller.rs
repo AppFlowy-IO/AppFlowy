@@ -9,6 +9,7 @@ use crate::{
 
 use crate::{
     entities::view::{DeleteViewParams, QueryViewParams, RepeatedView},
+    errors::internal_error,
     module::WorkspaceUser,
     observable::WorkspaceObservable,
 };
@@ -80,7 +81,7 @@ impl ViewController {
     #[tracing::instrument(level = "debug", skip(self), err)]
     pub(crate) async fn open_view(&self, params: QueryDocParams) -> Result<Doc, WorkspaceError> {
         let edit_context = self.document.open(params, self.database.db_pool()?).await?;
-        Ok(edit_context.doc())
+        Ok(edit_context.doc().await.map_err(internal_error)?)
     }
 
     pub(crate) async fn delete_view(&self, params: DeleteViewParams) -> Result<(), WorkspaceError> {

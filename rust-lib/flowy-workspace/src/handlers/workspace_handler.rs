@@ -18,13 +18,17 @@ pub(crate) async fn create_workspace_handler(
 }
 
 #[tracing::instrument(skip(controller), err)]
-pub(crate) async fn read_cur_workspace_handler(controller: Unit<Arc<WorkspaceController>>) -> DataResult<Workspace, WorkspaceError> {
+pub(crate) async fn read_cur_workspace_handler(
+    controller: Unit<Arc<WorkspaceController>>,
+) -> DataResult<Workspace, WorkspaceError> {
     let workspace = controller.read_cur_workspace().await?;
     data_result(workspace)
 }
 
 #[tracing::instrument(skip(controller), err)]
-pub(crate) async fn read_workspace_apps_handler(controller: Unit<Arc<WorkspaceController>>) -> DataResult<RepeatedApp, WorkspaceError> {
+pub(crate) async fn read_workspace_apps_handler(
+    controller: Unit<Arc<WorkspaceController>>,
+) -> DataResult<RepeatedApp, WorkspaceError> {
     let repeated_app = controller.read_workspace_apps().await?;
     data_result(repeated_app)
 }

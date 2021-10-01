@@ -4,6 +4,7 @@ use crate::{
 };
 
 use flowy_ot::core::*;
+use tokio::sync::mpsc;
 
 pub trait CustomDocument {
     fn init_delta() -> Delta;
@@ -24,6 +25,7 @@ pub struct Document {
     history: History,
     view: View,
     last_edit_time: usize,
+    notify: Option<mpsc::UnboundedSender<()>>,
 }
 
 impl Document {
@@ -35,6 +37,7 @@ impl Document {
             history: History::new(),
             view: View::new(),
             last_edit_time: 0,
+            notify: None,
         }
     }
 
@@ -51,7 +54,19 @@ impl Document {
 
     pub fn delta(&self) -> &Delta { &self.delta }
 
-    pub fn set_delta(&mut self, data: Delta) { self.delta = data; }
+    pub fn set_notify(&mut self, notify: mpsc::UnboundedSender<()>) { self.notify = Some(notify); }
+
+    pub fn set_delta(&mut self, data: Delta) {
+        self.delta = data;
+
+        match &self.notify {
+            None => {},
+            Some(notify) => {
+                let notify = notify.clone();
+                notify.send(());
+            },
+        }
+    }
 
     pub fn compose_delta(&mut self, delta: &Delta) -> Result<(), DocError> {
         let composed_delta = self.delta.compose(delta)?;
@@ -75,7 +90,7 @@ impl Document {
         }
 
         log::trace!("document delta: {}", &composed_delta);
-        self.delta = composed_delta;
+        self.set_delta(composed_delta);
         Ok(())
     }
 
@@ -139,7 +154,7 @@ impl Document {
             Some(undo_delta) => {
                 let (new_delta, inverted_delta) = self.invert_change(&undo_delta)?;
                 let result = UndoResult::success(new_delta.target_len as usize);
-                self.delta = new_delta;
+                self.set_delta(new_delta);
                 self.history.add_redo(inverted_delta);
 
                 Ok(result)
@@ -153,7 +168,7 @@ impl Document {
             Some(redo_delta) => {
                 let (new_delta, inverted_delta) = self.invert_change(&redo_delta)?;
                 let result = UndoResult::success(new_delta.target_len as usize);
-                self.delta = new_delta;
+                self.set_delta(new_delta);
 
                 self.history.add_undo(inverted_delta);
                 Ok(result)

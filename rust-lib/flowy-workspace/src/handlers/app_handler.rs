@@ -28,14 +28,20 @@ pub(crate) async fn create_app_handler(
 }
 
 #[tracing::instrument(skip(data, controller))]
-pub(crate) async fn delete_app_handler(data: Data<DeleteAppRequest>, controller: Unit<Arc<AppController>>) -> Result<(), WorkspaceError> {
+pub(crate) async fn delete_app_handler(
+    data: Data<DeleteAppRequest>,
+    controller: Unit<Arc<AppController>>,
+) -> Result<(), WorkspaceError> {
     let params: DeleteAppParams = data.into_inner().try_into()?;
     let _ = controller.delete_app(&params.app_id).await?;
     Ok(())
 }
 
 #[tracing::instrument(skip(data, controller))]
-pub(crate) async fn update_app_handler(data: Data<UpdateAppRequest>, controller: Unit<Arc<AppController>>) -> Result<(), WorkspaceError> {
+pub(crate) async fn update_app_handler(
+    data: Data<UpdateAppRequest>,
+    controller: Unit<Arc<AppController>>,
+) -> Result<(), WorkspaceError> {
     let params: UpdateAppParams = data.into_inner().try_into()?;
     let _ = controller.update_app(params).await?;
     Ok(())

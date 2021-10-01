@@ -28,7 +28,10 @@ pub async fn sign_out(session: Unit<Arc<UserSession>>) -> Result<(), UserError> 
 }
 
 #[tracing::instrument(name = "update_user", skip(data, session))]
-pub async fn update_user_handler(data: Data<UpdateUserRequest>, session: Unit<Arc<UserSession>>) -> Result<(), UserError> {
+pub async fn update_user_handler(
+    data: Data<UpdateUserRequest>,
+    session: Unit<Arc<UserSession>>,
+) -> Result<(), UserError> {
     let params: UpdateUserParams = data.into_inner().try_into()?;
     session.update_user(params).await?;
     Ok(())

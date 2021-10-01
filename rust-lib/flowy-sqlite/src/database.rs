@@ -21,7 +21,10 @@ impl Database {
         }
 
         let pool = ConnectionPool::new(pool_config, &uri)?;
-        Ok(Self { uri, pool: Arc::new(pool) })
+        Ok(Self {
+            uri,
+            pool: Arc::new(pool),
+        })
     }
 
     pub fn get_uri(&self) -> &str { &self.uri }

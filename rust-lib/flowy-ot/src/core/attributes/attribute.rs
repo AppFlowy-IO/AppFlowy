@@ -171,7 +171,8 @@ lazy_static! {
         AttributeKey::Size,
         AttributeKey::Background,
     ]);
-    static ref INGORE_KEYS: HashSet<AttributeKey> = HashSet::from_iter(vec![AttributeKey::Width, AttributeKey::Height,]);
+    static ref INGORE_KEYS: HashSet<AttributeKey> =
+        HashSet::from_iter(vec![AttributeKey::Width, AttributeKey::Height,]);
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]

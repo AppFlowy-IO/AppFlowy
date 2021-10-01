@@ -4,7 +4,7 @@ use dashmap::DashMap;
 
 use crate::{
     errors::DocError,
-    services::doc::edit_doc_context::{DocId, EditDocContext},
+    services::doc::edit::{DocId, EditDocContext},
 };
 
 pub(crate) struct DocCache {

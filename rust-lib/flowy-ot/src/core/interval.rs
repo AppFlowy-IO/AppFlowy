@@ -33,7 +33,9 @@ impl Interval {
 
     pub fn contains(&self, val: usize) -> bool { self.start <= val && val < self.end }
 
-    pub fn contains_range(&self, start: usize, end: usize) -> bool { !self.intersect(Interval::new(start, end)).is_empty() }
+    pub fn contains_range(&self, start: usize, end: usize) -> bool {
+        !self.intersect(Interval::new(start, end)).is_empty()
+    }
 
     pub fn is_after(&self, val: usize) -> bool { self.start > val }
 

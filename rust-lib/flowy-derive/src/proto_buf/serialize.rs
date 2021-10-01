@@ -93,7 +93,9 @@ fn gen_token_stream(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_option
                 Some(quote! { pb.#member = self.#member.clone(); })
             }
         },
-        TypeCategory::Protobuf => Some(quote! { pb.#member =  ::protobuf::SingularPtrField::some(self.#member.try_into().unwrap()); }),
+        TypeCategory::Protobuf => {
+            Some(quote! { pb.#member =  ::protobuf::SingularPtrField::some(self.#member.try_into().unwrap()); })
+        },
         TypeCategory::Opt => gen_token_stream(ctxt, member, ty_info.bracket_ty_info.unwrap().ty, true),
         TypeCategory::Enum => {
             // let pb_enum_ident = format_ident!("{}", ty_info.ident.to_string());

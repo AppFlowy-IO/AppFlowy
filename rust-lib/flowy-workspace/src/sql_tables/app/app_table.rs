@@ -67,7 +67,9 @@ impl std::convert::TryInto<Vec<u8>> for &ColorStyleCol {
 impl std::convert::TryFrom<&[u8]> for ColorStyleCol {
     type Error = String;
 
-    fn try_from(value: &[u8]) -> Result<Self, Self::Error> { bincode::deserialize(value).map_err(|e| format!("{:?}", e)) }
+    fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
+        bincode::deserialize(value).map_err(|e| format!("{:?}", e))
+    }
 }
 
 impl_sql_binary_expression!(ColorStyleCol);

@@ -1,17 +1,19 @@
+use std::sync::Arc;
+
+use bytes::Bytes;
+use parking_lot::RwLock;
+use tokio::time::{interval, Duration};
+
+use flowy_database::{ConnectionPool, SqliteConnection};
+use flowy_infra::future::{wrap_future, FnFuture};
+
 use crate::{
     entities::doc::{CreateDocParams, Doc, DocDelta, QueryDocParams},
     errors::{internal_error, DocError},
     module::DocumentUser,
-    services::{cache::DocCache, doc::edit_doc_context::EditDocContext, server::Server, ws::WsDocumentManager},
+    services::{cache::DocCache, doc::edit::EditDocContext, server::Server, ws::WsDocumentManager},
     sql_tables::doc::{DocTable, DocTableSql},
 };
-use bytes::Bytes;
-use flowy_database::{ConnectionPool, SqliteConnection};
-use flowy_infra::future::{wrap_future, FnFuture};
-
-use parking_lot::RwLock;
-use std::sync::Arc;
-use tokio::time::{interval, Duration};
 
 pub(crate) struct DocController {
     server: Server,
@@ -79,10 +81,10 @@ impl DocController {
     }
 
     #[tracing::instrument(level = "debug", skip(self, delta), err)]
-    pub(crate) fn edit_doc(&self, delta: DocDelta) -> Result<Doc, DocError> {
+    pub(crate) async fn edit_doc(&self, delta: DocDelta) -> Result<Doc, DocError> {
         let edit_doc_ctx = self.cache.get(&delta.doc_id)?;
-        let _ = edit_doc_ctx.compose_local_delta(Bytes::from(delta.data))?;
-        Ok(edit_doc_ctx.doc())
+        let _ = edit_doc_ctx.compose_local_delta(Bytes::from(delta.data)).await?;
+        Ok(edit_doc_ctx.doc().await?)
     }
 }
 

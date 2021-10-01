@@ -29,7 +29,9 @@ impl DocumentDepsResolver {
 
         let ws_manager = Arc::new(RwLock::new(WsDocumentManager::new(sender)));
 
-        let ws_handler = Arc::new(WsDocumentReceiver { inner: ws_manager.clone() });
+        let ws_handler = Arc::new(WsDocumentReceiver {
+            inner: ws_manager.clone(),
+        });
 
         self.user_session.add_ws_handler(ws_handler);
 
@@ -74,7 +76,10 @@ struct WsSenderImpl {
 impl WsDocumentSender for WsSenderImpl {
     fn send(&self, data: WsDocumentData) -> Result<(), DocError> {
         let msg: WsMessage = data.into();
-        let _ = self.user.send_ws_msg(msg).map_err(|e| DocError::internal().context(e))?;
+        let _ = self
+            .user
+            .send_ws_msg(msg)
+            .map_err(|e| DocError::internal().context(e))?;
         Ok(())
     }
 }

@@ -91,7 +91,8 @@ impl<'c, T> ASTAttr<'c, T> {
         let tokens = obj.into_token_stream();
 
         if self.value.is_some() {
-            self.cx.error_spanned_by(tokens, format!("duplicate attribute `{}`", self.name));
+            self.cx
+                .error_spanned_by(tokens, format!("duplicate attribute `{}`", self.name));
         } else {
             self.tokens = tokens;
             self.value = Some(value);
@@ -281,7 +282,11 @@ impl ASTEnumAttrVariant {
     pub fn event_error(&self) -> String { self.event_attrs.error_ty.as_ref().unwrap().clone() }
 }
 
-fn get_event_attrs_from(ctxt: &Ctxt, variant_attrs: &Vec<syn::Attribute>, enum_attrs: &Vec<syn::Attribute>) -> EventAttrs {
+fn get_event_attrs_from(
+    ctxt: &Ctxt,
+    variant_attrs: &Vec<syn::Attribute>,
+    enum_attrs: &Vec<syn::Attribute>,
+) -> EventAttrs {
     let mut event_attrs = EventAttrs {
         input: None,
         output: None,
@@ -309,7 +314,9 @@ fn get_event_attrs_from(ctxt: &Ctxt, variant_attrs: &Vec<syn::Attribute>, enum_a
             if name_value.path == EVENT_INPUT {
                 if let syn::Lit::Str(s) = &name_value.lit {
                     let input_type = parse_lit_str(s)
-                        .map_err(|_| ctxt.error_spanned_by(s, format!("failed to parse request deserializer {:?}", s.value())))
+                        .map_err(|_| {
+                            ctxt.error_spanned_by(s, format!("failed to parse request deserializer {:?}", s.value()))
+                        })
                         .unwrap();
                     event_attrs.input = Some(input_type);
                 }
@@ -318,7 +325,9 @@ fn get_event_attrs_from(ctxt: &Ctxt, variant_attrs: &Vec<syn::Attribute>, enum_a
             if name_value.path == EVENT_OUTPUT {
                 if let syn::Lit::Str(s) = &name_value.lit {
                     let output_type = parse_lit_str(s)
-                        .map_err(|_| ctxt.error_spanned_by(s, format!("failed to parse response deserializer {:?}", s.value())))
+                        .map_err(|_| {
+                            ctxt.error_spanned_by(s, format!("failed to parse response deserializer {:?}", s.value()))
+                        })
                         .unwrap();
                     event_attrs.output = Some(output_type);
                 }
@@ -342,7 +351,9 @@ fn get_event_attrs_from(ctxt: &Ctxt, variant_attrs: &Vec<syn::Attribute>, enum_a
         .collect::<Vec<(&syn::Attribute, Vec<syn::NestedMeta>)>>();
 
     for (attr, nested_metas) in attr_meta_items_info {
-        nested_metas.iter().for_each(|meta_item| extract_event_attr(attr, meta_item))
+        nested_metas
+            .iter()
+            .for_each(|meta_item| extract_event_attr(attr, meta_item))
     }
 
     // eprintln!("😁{:#?}", event_attrs);
@@ -381,7 +392,10 @@ fn get_lit_str<'a>(cx: &Ctxt, attr_name: Symbol, lit: &'a syn::Lit) -> Result<&'
     } else {
         cx.error_spanned_by(
             lit,
-            format!("expected pb {} attribute to be a string: `{} = \"...\"`", attr_name, attr_name),
+            format!(
+                "expected pb {} attribute to be a string: `{} = \"...\"`",
+                attr_name, attr_name
+            ),
         );
         Err(())
     }
@@ -390,7 +404,12 @@ fn get_lit_str<'a>(cx: &Ctxt, attr_name: Symbol, lit: &'a syn::Lit) -> Result<&'
 fn parse_lit_into_ty(cx: &Ctxt, attr_name: Symbol, lit: &syn::Lit) -> Result<syn::Type, ()> {
     let string = get_lit_str(cx, attr_name, lit)?;
 
-    parse_lit_str(string).map_err(|_| cx.error_spanned_by(lit, format!("failed to parse type: {} = {:?}", attr_name, string.value())))
+    parse_lit_str(string).map_err(|_| {
+        cx.error_spanned_by(
+            lit,
+            format!("failed to parse type: {} = {:?}", attr_name, string.value()),
+        )
+    })
 }
 
 pub fn parse_lit_str<T>(s: &syn::LitStr) -> parse::Result<T>

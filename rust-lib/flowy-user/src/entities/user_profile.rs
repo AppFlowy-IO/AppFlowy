@@ -139,6 +139,11 @@ impl TryInto<UpdateUserParams> for UpdateUserRequest {
             Some(password) => Some(UserPassword::parse(password).map_err(|e| UserError::code(e))?.0),
         };
 
-        Ok(UpdateUserParams { id, name, email, password })
+        Ok(UpdateUserParams {
+            id,
+            name,
+            email,
+            password,
+        })
     }
 }

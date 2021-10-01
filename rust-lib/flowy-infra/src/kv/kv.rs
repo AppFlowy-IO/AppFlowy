@@ -54,7 +54,9 @@ impl KV {
         let conn = database.get_connection().unwrap();
         SqliteConnection::execute(&*conn, KV_SQL).unwrap();
 
-        let mut store = KV_HOLDER.write().map_err(|e| format!("KVStore write failed: {:?}", e))?;
+        let mut store = KV_HOLDER
+            .write()
+            .map_err(|e| format!("KVStore write failed: {:?}", e))?;
         store.database = Some(database);
 
         Ok(())

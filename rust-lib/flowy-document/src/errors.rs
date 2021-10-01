@@ -5,6 +5,8 @@ use flowy_dispatch::prelude::{EventResponse, ResponseBuilder};
 use flowy_net::errors::ServerError;
 use std::{convert::TryInto, fmt};
 
+pub type DocResult<T> = std::result::Result<T, DocError>;
+
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct DocError {
     #[pb(index = 1)]
@@ -27,7 +29,12 @@ macro_rules! static_doc_error {
 }
 
 impl DocError {
-    fn new(code: ErrorCode, msg: &str) -> Self { Self { code, msg: msg.to_owned() } }
+    fn new(code: ErrorCode, msg: &str) -> Self {
+        Self {
+            code,
+            msg: msg.to_owned(),
+        }
+    }
 
     pub fn context<T: Debug>(mut self, error: T) -> Self {
         self.msg = format!("{:?}", error);

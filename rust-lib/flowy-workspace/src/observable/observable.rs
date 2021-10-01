@@ -26,4 +26,6 @@ impl std::convert::Into<i32> for WorkspaceObservable {
     fn into(self) -> i32 { self as i32 }
 }
 
-pub(crate) fn notify(id: &str, ty: WorkspaceObservable) -> NotifyBuilder { NotifyBuilder::new(id, ty, OBSERVABLE_CATEGORY) }
+pub(crate) fn notify(id: &str, ty: WorkspaceObservable) -> NotifyBuilder {
+    NotifyBuilder::new(id, ty, OBSERVABLE_CATEGORY)
+}

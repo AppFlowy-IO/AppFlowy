@@ -1,4 +1,3 @@
-
 use flowy_database::ConnectionPool;
 use flowy_user::services::user::UserSession;
 use flowy_workspace::{
@@ -32,12 +31,22 @@ impl WorkspaceDepsResolver {
 
 impl WorkspaceDatabase for Resolver {
     fn db_pool(&self) -> Result<Arc<ConnectionPool>, WorkspaceError> {
-        self.user_session.db_pool().map_err(|e| WorkspaceError::internal().context(e))
+        self.user_session
+            .db_pool()
+            .map_err(|e| WorkspaceError::internal().context(e))
     }
 }
 
 impl WorkspaceUser for Resolver {
-    fn user_id(&self) -> Result<String, WorkspaceError> { self.user_session.user_id().map_err(|e| WorkspaceError::internal().context(e)) }
+    fn user_id(&self) -> Result<String, WorkspaceError> {
+        self.user_session
+            .user_id()
+            .map_err(|e| WorkspaceError::internal().context(e))
+    }
 
-    fn token(&self) -> Result<String, WorkspaceError> { self.user_session.token().map_err(|e| WorkspaceError::internal().context(e)) }
+    fn token(&self) -> Result<String, WorkspaceError> {
+        self.user_session
+            .token()
+            .map_err(|e| WorkspaceError::internal().context(e))
+    }
 }

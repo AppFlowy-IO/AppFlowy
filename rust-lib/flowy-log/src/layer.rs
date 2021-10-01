@@ -98,7 +98,10 @@ impl fmt::Display for Type {
     }
 }
 
-fn format_span_context<S: Subscriber + for<'a> tracing_subscriber::registry::LookupSpan<'a>>(span: &SpanRef<S>, ty: Type) -> String {
+fn format_span_context<S: Subscriber + for<'a> tracing_subscriber::registry::LookupSpan<'a>>(
+    span: &SpanRef<S>,
+    ty: Type,
+) -> String {
     format!("[⛳ {} - {}]", span.metadata().name().to_uppercase(), ty)
 }
 
@@ -164,11 +167,9 @@ where
 
             // Add all the other fields associated with the event, expect the message we
             // already used.
-            for (key, value) in event_visitor
-                .values()
-                .iter()
-                .filter(|(&key, _)| key != "message" && !FLOWY_RESERVED_FIELDS.contains(&key) && !IGNORE_FIELDS.contains(&key))
-            {
+            for (key, value) in event_visitor.values().iter().filter(|(&key, _)| {
+                key != "message" && !FLOWY_RESERVED_FIELDS.contains(&key) && !IGNORE_FIELDS.contains(&key)
+            }) {
                 map_serializer.serialize_entry(key, value)?;
             }
 

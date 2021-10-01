@@ -45,7 +45,11 @@ impl Serialize for Attributes {
                         Err(e) => log::error!("Serial {:?} failed. {:?}", k, e),
                     },
 
-                    AttributeKey::Link | AttributeKey::Color | AttributeKey::Background | AttributeKey::Align | AttributeKey::List => {
+                    AttributeKey::Link
+                    | AttributeKey::Color
+                    | AttributeKey::Background
+                    | AttributeKey::Align
+                    | AttributeKey::List => {
                         map.serialize_entry(k, v)?;
                     },
                 }
@@ -102,7 +106,9 @@ impl<'de> Deserialize<'de> for AttributeValue {
         struct AttributeValueVisitor;
         impl<'de> Visitor<'de> for AttributeValueVisitor {
             type Value = AttributeValue;
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result { formatter.write_str("bool, usize or string") }
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("bool, usize or string")
+            }
             fn visit_bool<E>(self, value: bool) -> Result<Self::Value, E>
             where
                 E: de::Error,

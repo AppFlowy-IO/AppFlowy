@@ -7,6 +7,6 @@ mod history;
 mod view;
 
 pub(crate) mod doc_controller;
-pub mod edit_doc_context;
+pub mod edit;
 pub mod extensions;
 mod rev_manager;

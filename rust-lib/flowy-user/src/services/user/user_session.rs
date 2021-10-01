@@ -16,14 +16,13 @@ use flowy_database::{
     ExpressionMethods,
     UserDatabaseConnection,
 };
-use flowy_infra::{future::wrap_future, kv::KV};
+use flowy_infra::kv::KV;
 use flowy_net::config::ServerConfig;
 use flowy_sqlite::ConnectionPool;
-use flowy_ws::{connect::Retry, WsController, WsMessage, WsMessageHandler, WsSender};
+use flowy_ws::{WsController, WsMessage, WsMessageHandler};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
-use std::{sync::Arc, time::Duration};
-use tokio::task::JoinHandle;
+use std::sync::Arc;
 
 pub struct UserSessionConfig {
     root_dir: String,

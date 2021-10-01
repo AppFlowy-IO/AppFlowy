@@ -11,4 +11,6 @@ impl std::convert::Into<i32> for DocObservable {
 }
 
 #[allow(dead_code)]
-pub(crate) fn observable(id: &str, ty: DocObservable) -> NotifyBuilder { NotifyBuilder::new(id, ty, OBSERVABLE_CATEGORY) }
+pub(crate) fn observable(id: &str, ty: DocObservable) -> NotifyBuilder {
+    NotifyBuilder::new(id, ty, OBSERVABLE_CATEGORY)
+}

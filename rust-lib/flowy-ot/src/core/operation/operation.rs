@@ -42,7 +42,9 @@ impl Operation {
 
     pub fn has_attribute(&self) -> bool { !self.get_attributes().is_empty() }
 
-    pub fn contain_attribute(&self, attribute: &Attribute) -> bool { self.get_attributes().contains_key(&attribute.key) }
+    pub fn contain_attribute(&self, attribute: &Attribute) -> bool {
+        self.get_attributes().contains_key(&attribute.key)
+    }
 
     pub fn len(&self) -> usize {
         match self {
@@ -70,7 +72,11 @@ impl Operation {
             },
             Operation::Insert(insert) => {
                 let attributes = self.get_attributes();
-                left = Some(OpBuilder::insert(&insert.s[0..index]).attributes(attributes.clone()).build());
+                left = Some(
+                    OpBuilder::insert(&insert.s[0..index])
+                        .attributes(attributes.clone())
+                        .build(),
+                );
                 right = Some(
                     OpBuilder::insert(&insert.s[index..insert.num_chars()])
                         .attributes(attributes)
@@ -167,7 +173,12 @@ impl fmt::Display for Retain {
 
 impl Retain {
     pub fn merge_or_new(&mut self, n: usize, attributes: Attributes) -> Option<Operation> {
-        log::trace!("merge_retain_or_new_op: len: {:?}, l: {} - r: {}", n, self.attributes, attributes);
+        log::trace!(
+            "merge_retain_or_new_op: len: {:?}, l: {} - r: {}",
+            n,
+            self.attributes,
+            attributes
+        );
         if self.attributes == attributes {
             self.n += n;
             None
