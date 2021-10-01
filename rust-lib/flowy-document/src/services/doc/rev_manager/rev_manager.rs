@@ -25,7 +25,7 @@ impl RevisionManager {
     pub fn new(doc_id: &str, rev_id: i64, pool: Arc<ConnectionPool>, ws_sender: Arc<dyn WsDocumentSender>) -> Self {
         let (sender, receiver) = mpsc::channel::<StoreMsg>(50);
         let store = Store::new(doc_id, pool, receiver);
-        tokio::task::spawn_local(store.run());
+        tokio::spawn(store.run());
 
         let doc_id = doc_id.to_string();
         let rev_id_counter = RevIdCounter::new(rev_id);
@@ -38,21 +38,6 @@ impl RevisionManager {
             store_sender: sender,
         }
     }
-
-    // pub fn next_compose_revision<F>(&self, mut f: F)
-    // where
-    //     F: FnMut(&Revision) -> Result<(), DocError>,
-    // {
-    //     if let Some(rev) = self.pending_revs.write().pop_front() {
-    //         match f(&rev) {
-    //             Ok(_) => {},
-    //             Err(e) => {
-    //                 log::error!("{}", e);
-    //                 self.pending_revs.write().push_front(rev);
-    //             },
-    //         }
-    //     }
-    // }
 
     pub fn push_compose_revision(&self, revision: Revision) { self.pending_revs.write().push_front(revision); }
 

@@ -6,7 +6,7 @@ use crate::{
     errors::{internal_error, DocError, DocResult},
     services::{
         doc::{
-            edit::cache::{DocumentEditActor, EditMsg},
+            edit::{actor::DocumentEditActor, message::EditMsg},
             rev_manager::RevisionManager,
             UndoResult,
         },
@@ -38,7 +38,7 @@ impl EditDocContext {
         let delta = Delta::from_bytes(doc.data)?;
         let (sender, receiver) = mpsc::unbounded_channel::<EditMsg>();
         let edit_actor = DocumentEditActor::new(&doc.id, delta, pool.clone(), receiver);
-        tokio::task::spawn_local(edit_actor.run());
+        tokio::spawn(edit_actor.run());
 
         let rev_manager = Arc::new(RevisionManager::new(&doc.id, doc.rev_id, pool.clone(), ws_sender));
         let edit_context = Self {
@@ -170,7 +170,7 @@ impl WsDocumentHandler for EditDocContext {
     fn receive(&self, doc_data: WsDocumentData) {
         let document = self.document.clone();
         let rev_manager = self.rev_manager.clone();
-        let f = |doc_data: WsDocumentData| async move {
+        let handle_ws_message = |doc_data: WsDocumentData| async move {
             let bytes = Bytes::from(doc_data.data);
             match doc_data.ty {
                 WsDataType::PushRev => {
@@ -190,7 +190,7 @@ impl WsDocumentHandler for EditDocContext {
         };
 
         tokio::spawn(async move {
-            if let Err(e) = f(doc_data).await {
+            if let Err(e) = handle_ws_message(doc_data).await {
                 log::error!("{:?}", e);
             }
         });

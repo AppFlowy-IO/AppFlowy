@@ -5,6 +5,7 @@ use crate::{
 };
 use diesel::{insert_into, update};
 use flowy_database::{
+    insert_or_ignore_into,
     prelude::*,
     schema::rev_table::{columns::*, dsl, dsl::doc_id},
     SqliteConnection,
@@ -35,7 +36,7 @@ impl OpTableSql {
             })
             .collect::<Vec<_>>();
 
-        let _ = insert_into(dsl::rev_table).values(&records).execute(conn)?;
+        let _ = insert_or_ignore_into(dsl::rev_table).values(&records).execute(conn)?;
         Ok(())
     }
 

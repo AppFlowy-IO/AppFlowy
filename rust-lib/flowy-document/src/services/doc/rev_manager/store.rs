@@ -11,7 +11,7 @@ use futures::stream::StreamExt;
 
 use std::{cell::RefCell, sync::Arc, time::Duration};
 use tokio::{
-    sync::{mpsc, oneshot},
+    sync::{mpsc, oneshot, RwLock},
     task::JoinHandle,
 };
 
@@ -33,7 +33,7 @@ pub struct Store {
     op_sql: Arc<OpTableSql>,
     pool: Arc<ConnectionPool>,
     revs: Arc<DashMap<i64, RevisionOperation>>,
-    save_operation: RefCell<Option<JoinHandle<()>>>,
+    delay_save: RwLock<Option<JoinHandle<()>>>,
     receiver: Option<mpsc::Receiver<StoreMsg>>,
 }
 
@@ -41,7 +41,6 @@ impl Store {
     pub fn new(doc_id: &str, pool: Arc<ConnectionPool>, receiver: mpsc::Receiver<StoreMsg>) -> Store {
         let op_sql = Arc::new(OpTableSql {});
         let revs = Arc::new(DashMap::new());
-        let save_operation = RefCell::new(None);
         let doc_id = doc_id.to_owned();
 
         Self {
@@ -49,7 +48,7 @@ impl Store {
             op_sql,
             pool,
             revs,
-            save_operation,
+            delay_save: RwLock::new(None),
             receiver: Some(receiver),
         }
     }
@@ -70,10 +69,10 @@ impl Store {
     async fn handle_message(&self, msg: StoreMsg) {
         match msg {
             StoreMsg::Revision { revision } => {
-                self.handle_new_revision(revision);
+                self.handle_new_revision(revision).await;
             },
             StoreMsg::AckRevision { rev_id } => {
-                self.handle_revision_acked(rev_id);
+                self.handle_revision_acked(rev_id).await;
             },
             StoreMsg::SendRevisions { range: _, ret: _ } => {
                 unimplemented!()
@@ -81,32 +80,37 @@ impl Store {
         }
     }
 
-    pub fn handle_new_revision(&self, revision: Revision) {
+    async fn handle_new_revision(&self, revision: Revision) {
         let mut operation = RevisionOperation::new(&revision);
         let _receiver = operation.receiver();
         self.revs.insert(revision.rev_id, operation);
-        self.save_revisions();
+        self.save_revisions().await;
     }
 
-    pub fn handle_revision_acked(&self, rev_id: i64) {
+    async fn handle_revision_acked(&self, rev_id: i64) {
         match self.revs.get_mut(&rev_id) {
             None => {},
             Some(mut rev) => rev.value_mut().finish(),
         }
+        self.save_revisions().await;
     }
 
     pub fn revs_in_range(&self, _range: RevisionRange) -> DocResult<Vec<Revision>> { unimplemented!() }
 
-    fn save_revisions(&self) {
-        if let Some(handler) = self.save_operation.borrow_mut().take() {
+    async fn save_revisions(&self) {
+        if let Some(handler) = self.delay_save.write().await.take() {
             handler.abort();
+        }
+
+        if self.revs.is_empty() {
+            return;
         }
 
         let revs = self.revs.clone();
         let pool = self.pool.clone();
         let op_sql = self.op_sql.clone();
 
-        *self.save_operation.borrow_mut() = Some(tokio::spawn(async move {
+        *self.delay_save.write().await = Some(tokio::spawn(async move {
             tokio::time::sleep(Duration::from_millis(300)).await;
 
             let ids = revs.iter().map(|kv| kv.key().clone()).collect::<Vec<i64>>();
@@ -127,46 +131,45 @@ impl Store {
             }
         }));
     }
-
-    fn update_revisions(&self) {
-        let rev_ids = self
-            .revs
-            .iter()
-            .flat_map(|kv| match kv.state == RevState::Acked {
-                true => None,
-                false => Some(kv.key().clone()),
-            })
-            .collect::<Vec<i64>>();
-
-        if rev_ids.is_empty() {
-            return;
-        }
-
-        log::debug!("Try to update {:?} state", rev_ids);
-        match self.update(&rev_ids) {
-            Ok(_) => {
-                self.revs.retain(|k, _| !rev_ids.contains(k));
-            },
-            Err(e) => log::error!("Save revision failed: {:?}", e),
-        }
-    }
-
-    fn update(&self, rev_ids: &Vec<i64>) -> Result<(), DocError> {
-        let conn = &*self.pool.get().map_err(internal_error).unwrap();
-        let result = conn.immediate_transaction::<_, DocError, _>(|| {
-            for rev_id in rev_ids {
-                let changeset = RevChangeset {
-                    doc_id: self.doc_id.clone(),
-                    rev_id: rev_id.clone(),
-                    state: RevState::Acked,
-                };
-                let _ = self.op_sql.update_rev_table(changeset, conn)?;
-            }
-            Ok(())
-        });
-
-        result
-    }
+    // fn update_revisions(&self) {
+    //     let rev_ids = self
+    //         .revs
+    //         .iter()
+    //         .flat_map(|kv| match kv.state == RevState::Acked {
+    //             true => None,
+    //             false => Some(kv.key().clone()),
+    //         })
+    //         .collect::<Vec<i64>>();
+    //
+    //     if rev_ids.is_empty() {
+    //         return;
+    //     }
+    //
+    //     log::debug!("Try to update {:?} state", rev_ids);
+    //     match self.update(&rev_ids) {
+    //         Ok(_) => {
+    //             self.revs.retain(|k, _| !rev_ids.contains(k));
+    //         },
+    //         Err(e) => log::error!("Save revision failed: {:?}", e),
+    //     }
+    // }
+    //
+    // fn update(&self, rev_ids: &Vec<i64>) -> Result<(), DocError> {
+    //     let conn = &*self.pool.get().map_err(internal_error).unwrap();
+    //     let result = conn.immediate_transaction::<_, DocError, _>(|| {
+    //         for rev_id in rev_ids {
+    //             let changeset = RevChangeset {
+    //                 doc_id: self.doc_id.clone(),
+    //                 rev_id: rev_id.clone(),
+    //                 state: RevState::Acked,
+    //             };
+    //             let _ = self.op_sql.update_rev_table(changeset, conn)?;
+    //         }
+    //         Ok(())
+    //     });
+    //
+    //     result
+    // }
 
     // fn delete_revision(&self, rev_id: i64) {
     //     let op_sql = self.op_sql.clone();
