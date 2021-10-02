@@ -10,7 +10,7 @@ use crate::{
     entities::doc::{CreateDocParams, Doc, DocDelta, QueryDocParams},
     errors::DocError,
     services::{
-        doc::{doc_controller::DocController, edit::EditDocContext},
+        doc::{doc_controller::DocController, edit::ClientEditDoc},
         server::construct_doc_server,
         ws::WsDocumentManager,
     },
@@ -51,7 +51,7 @@ impl FlowyDocument {
         &self,
         params: QueryDocParams,
         pool: Arc<ConnectionPool>,
-    ) -> Result<Arc<EditDocContext>, DocError> {
+    ) -> Result<Arc<ClientEditDoc>, DocError> {
         let edit_context = self.doc_ctrl.open(params, pool).await?;
         Ok(edit_context)
     }

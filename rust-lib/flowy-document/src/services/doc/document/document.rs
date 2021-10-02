@@ -152,7 +152,7 @@ impl Document {
         match self.history.undo() {
             None => Err(DocError::undo().context("Undo stack is empty")),
             Some(undo_delta) => {
-                let (new_delta, inverted_delta) = self.invert_change(&undo_delta)?;
+                let (new_delta, inverted_delta) = self.invert(&undo_delta)?;
                 let result = UndoResult::success(new_delta.target_len as usize);
                 self.set_delta(new_delta);
                 self.history.add_redo(inverted_delta);
@@ -166,7 +166,7 @@ impl Document {
         match self.history.redo() {
             None => Err(DocError::redo()),
             Some(redo_delta) => {
-                let (new_delta, inverted_delta) = self.invert_change(&redo_delta)?;
+                let (new_delta, inverted_delta) = self.invert(&redo_delta)?;
                 let result = UndoResult::success(new_delta.target_len as usize);
                 self.set_delta(new_delta);
 
@@ -178,13 +178,13 @@ impl Document {
 }
 
 impl Document {
-    fn invert_change(&self, change: &Delta) -> Result<(Delta, Delta), DocError> {
+    fn invert(&self, delta: &Delta) -> Result<(Delta, Delta), DocError> {
         // c = a.compose(b)
         // d = b.invert(a)
         // a = c.compose(d)
-        log::trace!("👉invert change {}", change);
-        let new_delta = self.delta.compose(change)?;
-        let inverted_delta = change.invert(&self.delta);
+        log::trace!("Invert {}", delta);
+        let new_delta = self.delta.compose(delta)?;
+        let inverted_delta = delta.invert(&self.delta);
         Ok((new_delta, inverted_delta))
     }
 }

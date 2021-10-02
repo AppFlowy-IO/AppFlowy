@@ -29,6 +29,7 @@ pub async fn create_handler(payload: Payload, pool: Data<PgPool>) -> Result<Http
     Ok(FlowyResponse::success().into())
 }
 
+#[tracing::instrument(level = "debug", skip(payload, pool), err)]
 pub async fn read_handler(payload: Payload, pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {
     let params: QueryDocParams = parse_from_payload(payload).await?;
     let doc = read_doc(pool.get_ref(), params).await?;

@@ -1,5 +1,6 @@
 use crate::services::util::md5;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_ot::core::Delta;
 
 #[derive(Debug, ProtoBuf_Enum, Clone, Eq, PartialEq)]
 pub enum RevType {
@@ -11,7 +12,7 @@ impl std::default::Default for RevType {
     fn default() -> Self { RevType::Local }
 }
 
-#[derive(Debug, Clone, Default, ProtoBuf)]
+#[derive(Clone, Default, ProtoBuf)]
 pub struct Revision {
     #[pb(index = 1)]
     pub base_rev_id: i64,
@@ -30,6 +31,22 @@ pub struct Revision {
 
     #[pb(index = 6)]
     pub ty: RevType,
+}
+
+impl std::fmt::Debug for Revision {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        f.write_fmt(format_args!("doc_id {}, ", self.doc_id));
+        f.write_fmt(format_args!("rev_id {}, ", self.rev_id));
+        match Delta::from_bytes(&self.delta_data) {
+            Ok(delta) => {
+                f.write_fmt(format_args!("delta {:?}", delta.to_json()));
+            },
+            Err(e) => {
+                f.write_fmt(format_args!("delta {:?}", e));
+            },
+        }
+        Ok(())
+    }
 }
 
 impl Revision {

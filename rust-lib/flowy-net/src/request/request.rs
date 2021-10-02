@@ -2,13 +2,13 @@ use crate::{config::HEADER_TOKEN, errors::ServerError, response::FlowyResponse};
 use bytes::Bytes;
 use hyper::http;
 use protobuf::ProtobufError;
-use reqwest::{header::HeaderMap, Client, Method, Response};
+use reqwest::{header::HeaderMap, Client, Error, Method, Response};
 use std::{
     convert::{TryFrom, TryInto},
     sync::Arc,
     time::Duration,
 };
-use tokio::sync::oneshot;
+use tokio::sync::{oneshot, oneshot::error::RecvError};
 
 pub trait ResponseMiddleware {
     fn receive_response(&self, token: &Option<String>, response: &FlowyResponse);
@@ -144,15 +144,11 @@ impl HttpRequestBuilder {
             }
 
             let response = builder.send().await;
-            match tx.send(response) {
-                Ok(_) => {},
-                Err(e) => {
-                    log::error!("[{}] Send http request failed: {:?}", method, e);
-                },
-            }
+            let _ = tx.send(response);
         });
 
         let response = rx.await??;
+        log::trace!("Http Response: {:?}", response);
         let flowy_response = flowy_response_from(response).await?;
         let token = self.token();
         self.middleware.iter().for_each(|middleware| {

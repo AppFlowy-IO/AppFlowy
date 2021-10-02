@@ -1,5 +1,5 @@
 use crate::{
-    entities::doc::Revision,
+    entities::doc::{Revision, RevisionRange},
     errors::DocError,
     sql_tables::{doc::RevTable, RevChangeset, RevState, RevTableType},
 };
@@ -11,9 +11,9 @@ use flowy_database::{
     SqliteConnection,
 };
 
-pub struct OpTableSql {}
+pub struct RevTableSql {}
 
-impl OpTableSql {
+impl RevTableSql {
     pub(crate) fn create_rev_table(
         &self,
         revisions: Vec<(Revision, RevState)>,
@@ -49,16 +49,22 @@ impl OpTableSql {
         Ok(())
     }
 
-    pub(crate) fn read_rev_table(
+    pub(crate) fn read_rev_tables(
         &self,
         doc_id_s: &str,
-        rev_id_s: i64,
+        rev_id_s: Option<i64>,
         conn: &SqliteConnection,
     ) -> Result<Vec<Revision>, DocError> {
-        let rev_tables: Vec<RevTable> = dsl::rev_table
-            .filter(rev_id.eq(rev_id_s))
+        let mut filter = dsl::rev_table
             .filter(doc_id.eq(doc_id_s))
-            .load::<RevTable>(conn)?;
+            .order(rev_id.asc())
+            .into_boxed();
+
+        if let Some(rev_id_s) = rev_id_s {
+            filter = filter.filter(rev_id.eq(rev_id_s))
+        }
+
+        let rev_tables = filter.load::<RevTable>(conn)?;
 
         let revisions = rev_tables
             .into_iter()
@@ -67,16 +73,15 @@ impl OpTableSql {
         Ok(revisions)
     }
 
-    pub(crate) fn read_revs_table(
+    pub(crate) fn read_rev_tables_with_range(
         &self,
         doc_id_s: &str,
-        from_rev_id: i64,
-        to_rev_id: i64,
+        range: RevisionRange,
         conn: &SqliteConnection,
     ) -> Result<Vec<Revision>, DocError> {
         let rev_tables = dsl::rev_table
-            .filter(rev_id.ge(from_rev_id))
-            .filter(rev_id.lt(to_rev_id))
+            .filter(rev_id.ge(range.from_rev_id))
+            .filter(rev_id.lt(range.to_rev_id))
             .filter(doc_id.eq(doc_id_s))
             .load::<RevTable>(conn)?;
 

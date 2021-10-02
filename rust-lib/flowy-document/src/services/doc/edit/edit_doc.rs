@@ -7,9 +7,10 @@ use crate::{
     services::{
         doc::{
             edit::{actor::DocumentEditActor, message::EditMsg},
-            rev_manager::RevisionManager,
+            revision::{RevisionManager, RevisionServer},
             UndoResult,
         },
+        server::Server,
         util::bytes_to_rev_id,
         ws::{WsDocumentHandler, WsDocumentSender},
     },
@@ -22,27 +23,28 @@ use tokio::sync::{mpsc, mpsc::UnboundedSender, oneshot};
 
 pub type DocId = String;
 
-pub struct EditDocContext {
+pub struct ClientEditDoc {
     pub doc_id: DocId,
     rev_manager: Arc<RevisionManager>,
     document: UnboundedSender<EditMsg>,
     pool: Arc<ConnectionPool>,
 }
 
-impl EditDocContext {
+impl ClientEditDoc {
     pub(crate) async fn new(
-        doc: Doc,
+        doc_id: &str,
         pool: Arc<ConnectionPool>,
         ws_sender: Arc<dyn WsDocumentSender>,
-    ) -> Result<Self, DocError> {
-        let delta = Delta::from_bytes(doc.data)?;
+        server: Arc<dyn RevisionServer>,
+    ) -> DocResult<Self> {
+        let (rev_manager, delta) = RevisionManager::new(doc_id, pool.clone(), ws_sender, server).await?;
+        let rev_manager = Arc::new(rev_manager);
         let (sender, receiver) = mpsc::unbounded_channel::<EditMsg>();
-        let edit_actor = DocumentEditActor::new(&doc.id, delta, pool.clone(), receiver);
+        let edit_actor = DocumentEditActor::new(doc_id, delta, pool.clone(), receiver);
         tokio::spawn(edit_actor.run());
 
-        let rev_manager = Arc::new(RevisionManager::new(&doc.id, doc.rev_id, pool.clone(), ws_sender));
         let edit_context = Self {
-            doc_id: doc.id,
+            doc_id: doc_id.to_string(),
             rev_manager,
             document: sender,
             pool,
@@ -166,7 +168,7 @@ impl EditDocContext {
     }
 }
 
-impl WsDocumentHandler for EditDocContext {
+impl WsDocumentHandler for ClientEditDoc {
     fn receive(&self, doc_data: WsDocumentData) {
         let document = self.document.clone();
         let rev_manager = self.rev_manager.clone();

@@ -21,12 +21,12 @@ pub enum DocWsMsg {
     },
 }
 
-pub struct DocWsMsgActor {
+pub struct DocWsActor {
     receiver: Option<mpsc::Receiver<DocWsMsg>>,
     doc_manager: Arc<DocManager>,
 }
 
-impl DocWsMsgActor {
+impl DocWsActor {
     pub fn new(receiver: mpsc::Receiver<DocWsMsg>, manager: Arc<DocManager>) -> Self {
         Self {
             receiver: Some(receiver),

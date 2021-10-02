@@ -1,5 +1,5 @@
 mod actor;
-mod context;
+mod edit_doc;
 mod message;
 
-pub use context::*;
+pub use edit_doc::*;

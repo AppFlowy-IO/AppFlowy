@@ -6,7 +6,7 @@ use sqlx::PgPool;
 use tokio::time::{sleep, Duration};
 
 use backend::service::doc::doc::DocManager;
-use flowy_document::{entities::doc::QueryDocParams, services::doc::edit::EditDocContext as ClientEditDocContext};
+use flowy_document::{entities::doc::QueryDocParams, services::doc::edit::ClientEditDoc as ClientEditDocContext};
 use flowy_net::config::ServerConfig;
 use flowy_test::{workspace::ViewTest, FlowyTest};
 use flowy_user::services::user::UserSession;

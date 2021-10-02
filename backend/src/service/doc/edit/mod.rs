@@ -1,6 +1,6 @@
-mod actor;
-mod context;
+mod edit_actor;
 mod edit_doc;
+mod open_handle;
 
-pub use context::*;
 pub use edit_doc::*;
+pub use open_handle::*;

@@ -1,8 +1,8 @@
 use crate::service::{
     doc::{
-        actor::{DocWsMsg, DocWsMsgActor},
-        edit::EditDoc,
+        edit::DocHandle,
         read_doc,
+        ws_actor::{DocWsActor, DocWsMsg},
     },
     ws::{WsBizHandler, WsClientData},
 };
@@ -27,7 +27,7 @@ impl DocBiz {
     pub fn new(pg_pool: Data<PgPool>) -> Self {
         let manager = Arc::new(DocManager::new());
         let (tx, rx) = mpsc::channel(100);
-        let actor = DocWsMsgActor::new(rx, manager.clone());
+        let actor = DocWsActor::new(rx, manager.clone());
         tokio::task::spawn(actor.run());
         Self {
             manager,
@@ -58,7 +58,7 @@ impl WsBizHandler for DocBiz {
 }
 
 pub struct DocManager {
-    docs_map: DashMap<String, Arc<EditDoc>>,
+    docs_map: DashMap<String, Arc<DocHandle>>,
 }
 
 impl DocManager {
@@ -68,7 +68,7 @@ impl DocManager {
         }
     }
 
-    pub async fn get(&self, doc_id: &str, pg_pool: Data<PgPool>) -> Result<Option<Arc<EditDoc>>, ServerError> {
+    pub async fn get(&self, doc_id: &str, pg_pool: Data<PgPool>) -> Result<Option<Arc<DocHandle>>, ServerError> {
         match self.docs_map.get(doc_id) {
             None => {
                 let params = QueryDocParams {
@@ -76,10 +76,12 @@ impl DocManager {
                     ..Default::default()
                 };
                 let doc = read_doc(pg_pool.get_ref(), params).await?;
-                let edit_doc = spawn_blocking(|| EditDoc::new(doc)).await.map_err(internal_error)?;
-                let edit_doc = Arc::new(edit_doc?);
-                self.docs_map.insert(doc_id.to_string(), edit_doc.clone());
-                Ok(Some(edit_doc))
+                let handle = spawn_blocking(|| DocHandle::new(doc, pg_pool))
+                    .await
+                    .map_err(internal_error)?;
+                let handle = Arc::new(handle?);
+                self.docs_map.insert(doc_id.to_string(), handle.clone());
+                Ok(Some(handle))
             },
             Some(ctx) => Ok(Some(ctx.clone())),
         }

@@ -5,15 +5,24 @@ use parking_lot::RwLock;
 use tokio::time::{interval, Duration};
 
 use flowy_database::{ConnectionPool, SqliteConnection};
-use flowy_infra::future::{wrap_future, FnFuture};
+use flowy_infra::future::{wrap_future, FnFuture, ResultFuture};
 
 use crate::{
     entities::doc::{CreateDocParams, Doc, DocDelta, QueryDocParams},
-    errors::{internal_error, DocError},
+    errors::{internal_error, DocError, DocResult},
     module::DocumentUser,
-    services::{cache::DocCache, doc::edit::EditDocContext, server::Server, ws::WsDocumentManager},
+    services::{
+        cache::DocCache,
+        doc::{
+            edit::ClientEditDoc,
+            revision::{DocRevision, RevisionServer},
+        },
+        server::Server,
+        ws::WsDocumentManager,
+    },
     sql_tables::doc::{DocTable, DocTableSql},
 };
+use flowy_ot::core::Delta;
 
 pub(crate) struct DocController {
     server: Server,
@@ -53,7 +62,7 @@ impl DocController {
         &self,
         params: QueryDocParams,
         pool: Arc<ConnectionPool>,
-    ) -> Result<Arc<EditDocContext>, DocError> {
+    ) -> Result<Arc<ClientEditDoc>, DocError> {
         if self.cache.is_opened(&params.doc_id) == false {
             let edit_ctx = self.make_edit_context(&params.doc_id, pool.clone()).await?;
             return Ok(edit_ctx);
@@ -105,21 +114,24 @@ impl DocController {
         Ok(())
     }
 
-    async fn make_edit_context(
-        &self,
-        doc_id: &str,
-        pool: Arc<ConnectionPool>,
-    ) -> Result<Arc<EditDocContext>, DocError> {
+    async fn make_edit_context(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<Arc<ClientEditDoc>, DocError> {
         // Opti: require upgradable_read lock and then upgrade to write lock using
         // RwLockUpgradableReadGuard::upgrade(xx) of ws
-        let doc = self.read_doc(doc_id, pool.clone()).await?;
+        // let doc = self.read_doc(doc_id, pool.clone()).await?;
         let ws_sender = self.ws.read().sender();
-        let edit_ctx = Arc::new(EditDocContext::new(doc, pool, ws_sender).await?);
+        let token = self.user.token()?;
+        let server = Arc::new(RevisionServerImpl {
+            token,
+            server: self.server.clone(),
+        });
+
+        let edit_ctx = Arc::new(ClientEditDoc::new(doc_id, pool, ws_sender, server).await?);
         self.ws.write().register_handler(doc_id, edit_ctx.clone());
         self.cache.set(edit_ctx.clone());
         Ok(edit_ctx)
     }
 
+    #[allow(dead_code)]
     #[tracing::instrument(level = "debug", skip(self, pool), err)]
     async fn read_doc(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<Doc, DocError> {
         match self.doc_sql.read_doc_table(doc_id, pool.clone()) {
@@ -143,6 +155,34 @@ impl DocController {
                 }
             },
         }
+    }
+}
+
+struct RevisionServerImpl {
+    token: String,
+    server: Server,
+}
+
+impl RevisionServer for RevisionServerImpl {
+    fn fetch_document_from_remote(&self, doc_id: &str) -> ResultFuture<DocRevision, DocError> {
+        let params = QueryDocParams {
+            doc_id: doc_id.to_string(),
+        };
+        let server = self.server.clone();
+        let token = self.token.clone();
+
+        ResultFuture::new(async move {
+            match server.read_doc(&token, params).await? {
+                None => Err(DocError::not_found()),
+                Some(doc) => {
+                    let delta = Delta::from_bytes(doc.data)?;
+                    Ok(DocRevision {
+                        rev_id: doc.rev_id,
+                        delta,
+                    })
+                },
+            }
+        })
     }
 }
 

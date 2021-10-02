@@ -9,4 +9,4 @@ mod view;
 pub(crate) mod doc_controller;
 pub mod edit;
 pub mod extensions;
-mod rev_manager;
+mod revision;
