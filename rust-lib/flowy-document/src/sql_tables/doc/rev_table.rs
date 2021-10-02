@@ -1,5 +1,5 @@
 use crate::{
-    entities::doc::{RevType, Revision},
+    entities::doc::{RevId, RevType, Revision},
     services::util::md5,
 };
 use diesel::sql_types::Integer;
@@ -110,6 +110,6 @@ impl_sql_integer_expression!(RevTableType);
 #[allow(dead_code)]
 pub(crate) struct RevChangeset {
     pub(crate) doc_id: String,
-    pub(crate) rev_id: i64,
+    pub(crate) rev_id: RevId,
     pub(crate) state: RevState,
 }

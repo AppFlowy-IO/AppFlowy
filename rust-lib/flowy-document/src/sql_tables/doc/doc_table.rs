@@ -14,7 +14,7 @@ impl DocTable {
         Self {
             id: doc.id,
             data: doc.data,
-            rev_id: 0,
+            rev_id: doc.rev_id.into(),
         }
     }
 }
@@ -32,7 +32,7 @@ impl std::convert::Into<Doc> for DocTable {
         Doc {
             id: self.id,
             data: self.data,
-            rev_id: self.rev_id,
+            rev_id: self.rev_id.into(),
         }
     }
 }
@@ -42,7 +42,7 @@ impl std::convert::From<Doc> for DocTable {
         Self {
             id: doc.id,
             data: doc.data,
-            rev_id: doc.rev_id,
+            rev_id: doc.rev_id.into(),
         }
     }
 }

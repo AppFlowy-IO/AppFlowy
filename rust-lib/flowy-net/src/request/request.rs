@@ -2,13 +2,13 @@ use crate::{config::HEADER_TOKEN, errors::ServerError, response::FlowyResponse};
 use bytes::Bytes;
 use hyper::http;
 use protobuf::ProtobufError;
-use reqwest::{header::HeaderMap, Client, Error, Method, Response};
+use reqwest::{header::HeaderMap, Client, Method, Response};
 use std::{
     convert::{TryFrom, TryInto},
     sync::Arc,
     time::Duration,
 };
-use tokio::sync::{oneshot, oneshot::error::RecvError};
+use tokio::sync::oneshot;
 
 pub trait ResponseMiddleware {
     fn receive_response(&self, token: &Option<String>, response: &FlowyResponse);

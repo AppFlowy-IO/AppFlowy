@@ -15,7 +15,7 @@ export 'ws.pbenum.dart';
 
 class WsDocumentData extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'WsDocumentData', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
     ..e<WsDataType>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ty', $pb.PbFieldType.OE, defaultOrMaker: WsDataType.Acked, valueOf: WsDataType.valueOf, enumValues: WsDataType.values)
     ..a<$core.List<$core.int>>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
     ..hasRequiredFields = false
@@ -23,13 +23,13 @@ class WsDocumentData extends $pb.GeneratedMessage {
 
   WsDocumentData._() : super();
   factory WsDocumentData({
-    $core.String? id,
+    $core.String? docId,
     WsDataType? ty,
     $core.List<$core.int>? data,
   }) {
     final _result = create();
-    if (id != null) {
-      _result.id = id;
+    if (docId != null) {
+      _result.docId = docId;
     }
     if (ty != null) {
       _result.ty = ty;
@@ -61,13 +61,13 @@ class WsDocumentData extends $pb.GeneratedMessage {
   static WsDocumentData? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get id => $_getSZ(0);
+  $core.String get docId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.String v) { $_setString(0, v); }
+  set docId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasId() => $_has(0);
+  $core.bool hasDocId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearId() => clearField(1);
+  void clearDocId() => clearField(1);
 
   @$pb.TagNumber(2)
   WsDataType get ty => $_getN(1);

@@ -14,12 +14,14 @@ class WsDataType extends $pb.ProtobufEnum {
   static const WsDataType PushRev = WsDataType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'PushRev');
   static const WsDataType PullRev = WsDataType._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'PullRev');
   static const WsDataType Conflict = WsDataType._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Conflict');
+  static const WsDataType NewConnection = WsDataType._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'NewConnection');
 
   static const $core.List<WsDataType> values = <WsDataType> [
     Acked,
     PushRev,
     PullRev,
     Conflict,
+    NewConnection,
   ];
 
   static final $core.Map<$core.int, WsDataType> _byValue = $pb.ProtobufEnum.initByValue(values);

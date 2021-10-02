@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 message WsDocumentData {
-    string id = 1;
+    string doc_id = 1;
     WsDataType ty = 2;
     bytes data = 3;
 }
@@ -10,4 +10,5 @@ enum WsDataType {
     PushRev = 1;
     PullRev = 2;
     Conflict = 3;
+    NewConnection = 4;
 }

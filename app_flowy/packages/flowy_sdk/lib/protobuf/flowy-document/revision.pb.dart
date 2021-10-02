@@ -14,6 +14,53 @@ import 'revision.pbenum.dart';
 
 export 'revision.pbenum.dart';
 
+class RevId extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RevId', createEmptyInstance: create)
+    ..aInt64(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'inner')
+    ..hasRequiredFields = false
+  ;
+
+  RevId._() : super();
+  factory RevId({
+    $fixnum.Int64? inner,
+  }) {
+    final _result = create();
+    if (inner != null) {
+      _result.inner = inner;
+    }
+    return _result;
+  }
+  factory RevId.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RevId.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  RevId clone() => RevId()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  RevId copyWith(void Function(RevId) updates) => super.copyWith((message) => updates(message as RevId)) as RevId; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static RevId create() => RevId._();
+  RevId createEmptyInstance() => create();
+  static $pb.PbList<RevId> createRepeated() => $pb.PbList<RevId>();
+  @$core.pragma('dart2js:noInline')
+  static RevId getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RevId>(create);
+  static RevId? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $fixnum.Int64 get inner => $_getI64(0);
+  @$pb.TagNumber(1)
+  set inner($fixnum.Int64 v) { $_setInt64(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasInner() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearInner() => clearField(1);
+}
+
 class Revision extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Revision', createEmptyInstance: create)
     ..aInt64(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'baseRevId')

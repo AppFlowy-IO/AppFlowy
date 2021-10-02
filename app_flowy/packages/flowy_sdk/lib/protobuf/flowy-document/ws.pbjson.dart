@@ -16,20 +16,21 @@ const WsDataType$json = const {
     const {'1': 'PushRev', '2': 1},
     const {'1': 'PullRev', '2': 2},
     const {'1': 'Conflict', '2': 3},
+    const {'1': 'NewConnection', '2': 4},
   ],
 };
 
 /// Descriptor for `WsDataType`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List wsDataTypeDescriptor = $convert.base64Decode('CgpXc0RhdGFUeXBlEgkKBUFja2VkEAASCwoHUHVzaFJldhABEgsKB1B1bGxSZXYQAhIMCghDb25mbGljdBAD');
+final $typed_data.Uint8List wsDataTypeDescriptor = $convert.base64Decode('CgpXc0RhdGFUeXBlEgkKBUFja2VkEAASCwoHUHVzaFJldhABEgsKB1B1bGxSZXYQAhIMCghDb25mbGljdBADEhEKDU5ld0Nvbm5lY3Rpb24QBA==');
 @$core.Deprecated('Use wsDocumentDataDescriptor instead')
 const WsDocumentData$json = const {
   '1': 'WsDocumentData',
   '2': const [
-    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+    const {'1': 'doc_id', '3': 1, '4': 1, '5': 9, '10': 'docId'},
     const {'1': 'ty', '3': 2, '4': 1, '5': 14, '6': '.WsDataType', '10': 'ty'},
     const {'1': 'data', '3': 3, '4': 1, '5': 12, '10': 'data'},
   ],
 };
 
 /// Descriptor for `WsDocumentData`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List wsDocumentDataDescriptor = $convert.base64Decode('Cg5Xc0RvY3VtZW50RGF0YRIOCgJpZBgBIAEoCVICaWQSGwoCdHkYAiABKA4yCy5Xc0RhdGFUeXBlUgJ0eRISCgRkYXRhGAMgASgMUgRkYXRh');
+final $typed_data.Uint8List wsDocumentDataDescriptor = $convert.base64Decode('Cg5Xc0RvY3VtZW50RGF0YRIVCgZkb2NfaWQYASABKAlSBWRvY0lkEhsKAnR5GAIgASgOMgsuV3NEYXRhVHlwZVICdHkSEgoEZGF0YRgDIAEoDFIEZGF0YQ==');

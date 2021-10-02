@@ -4,12 +4,12 @@ use crate::service::{
     ws::WsMessageAdaptor,
 };
 use actix_web::web::Data;
-use byteorder::{BigEndian, WriteBytesExt};
+
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_document::{
     entities::ws::{WsDataType, WsDocumentData},
-    protobuf::{Doc, RevType, Revision, RevisionRange, UpdateDocParams},
+    protobuf::{Doc, RevId, RevType, Revision, RevisionRange, UpdateDocParams},
     services::doc::Document,
 };
 use flowy_net::errors::{internal_error, ServerError};
@@ -162,7 +162,7 @@ impl ServerEditDoc {
 fn mk_push_rev_ws_message(doc_id: &str, revision: Revision) -> WsMessageAdaptor {
     let bytes = revision.write_to_bytes().unwrap();
     let data = WsDocumentData {
-        id: doc_id.to_string(),
+        doc_id: doc_id.to_string(),
         ty: WsDataType::PushRev,
         data: bytes,
     };
@@ -179,7 +179,7 @@ fn mk_pull_rev_ws_message(doc_id: &str, from_rev_id: i64, to_rev_id: i64) -> WsM
 
     let bytes = range.write_to_bytes().unwrap();
     let data = WsDocumentData {
-        id: doc_id.to_string(),
+        doc_id: doc_id.to_string(),
         ty: WsDataType::PullRev,
         data: bytes,
     };
@@ -187,13 +187,17 @@ fn mk_pull_rev_ws_message(doc_id: &str, from_rev_id: i64, to_rev_id: i64) -> WsM
 }
 
 fn mk_acked_ws_message(revision: &Revision) -> WsMessageAdaptor {
-    let mut wtr = vec![];
-    let _ = wtr.write_i64::<BigEndian>(revision.rev_id);
+    // let mut wtr = vec![];
+    // let _ = wtr.write_i64::<BigEndian>(revision.rev_id);
+
+    let mut rev_id = RevId::new();
+    rev_id.set_inner(revision.rev_id);
+    let data = rev_id.write_to_bytes().unwrap();
 
     let data = WsDocumentData {
-        id: revision.doc_id.clone(),
+        doc_id: revision.doc_id.clone(),
         ty: WsDataType::Acked,
-        data: wtr,
+        data,
     };
 
     mk_ws_message(data)

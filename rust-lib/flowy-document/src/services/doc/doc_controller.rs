@@ -9,7 +9,7 @@ use flowy_infra::future::{wrap_future, FnFuture, ResultFuture};
 
 use crate::{
     entities::doc::{CreateDocParams, Doc, DocDelta, QueryDocParams},
-    errors::{internal_error, DocError, DocResult},
+    errors::{internal_error, DocError},
     module::DocumentUser,
     services::{
         cache::DocCache,
@@ -177,7 +177,7 @@ impl RevisionServer for RevisionServerImpl {
                 Some(doc) => {
                     let delta = Delta::from_bytes(doc.data)?;
                     Ok(DocRevision {
-                        rev_id: doc.rev_id,
+                        rev_id: doc.rev_id.into(),
                         delta,
                     })
                 },

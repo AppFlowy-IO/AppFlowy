@@ -58,6 +58,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "UpdateDocParams"
         | "DocDelta"
         | "QueryDocParams"
+        | "RevId"
         | "Revision"
         | "RevisionRange"
         | "WsDocumentData"
@@ -74,7 +75,8 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "UserProfile"
         | "UpdateUserRequest"
         | "UpdateUserParams"
-        | "UserError" => TypeCategory::Protobuf,
+        | "UserError"
+        => TypeCategory::Protobuf,
         "ViewType"
         | "WorkspaceEvent"
         | "ErrorCode"
@@ -85,7 +87,8 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "DocObservable"
         | "FFIStatusCode"
         | "UserEvent"
-        | "UserObservable" => TypeCategory::Enum,
+        | "UserObservable"
+        => TypeCategory::Enum,
 
         "Option" => TypeCategory::Opt,
         _ => TypeCategory::Primitive,

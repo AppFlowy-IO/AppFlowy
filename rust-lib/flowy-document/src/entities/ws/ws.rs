@@ -1,15 +1,25 @@
-use crate::entities::doc::Revision;
+use crate::{entities::doc::Revision, errors::DocError};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_ws::{WsMessage, WsModule};
-use std::convert::TryInto;
+use std::convert::{TryFrom, TryInto};
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Eq, PartialEq, Hash)]
 pub enum WsDataType {
-    Acked    = 0,
-    PushRev  = 1,
-    PullRev  = 2,
-    Conflict = 3,
+    Acked         = 0,
+    PushRev       = 1,
+    PullRev       = 2, // data should be Revision
+    Conflict      = 3,
+    NewConnection = 4,
+}
+
+impl WsDataType {
+    pub fn data<T>(&self, bytes: Bytes) -> Result<T, DocError>
+    where
+        T: TryFrom<Bytes, Error = DocError>,
+    {
+        T::try_from(bytes)
+    }
 }
 
 impl std::default::Default for WsDataType {
@@ -19,13 +29,14 @@ impl std::default::Default for WsDataType {
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct WsDocumentData {
     #[pb(index = 1)]
-    pub id: String,
+    pub doc_id: String,
 
     #[pb(index = 2)]
     pub ty: WsDataType,
 
+    // Opti: parse the data with  type constraints
     #[pb(index = 3)]
-    pub data: Vec<u8>, // Delta
+    pub data: Vec<u8>,
 }
 
 impl std::convert::From<Revision> for WsDocumentData {
@@ -34,7 +45,7 @@ impl std::convert::From<Revision> for WsDocumentData {
         let bytes: Bytes = revision.try_into().unwrap();
         let data = bytes.to_vec();
         Self {
-            id,
+            doc_id: id,
             ty: WsDataType::PushRev,
             data,
         }

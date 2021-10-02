@@ -1,21 +1,15 @@
 use crate::{
-    entities::doc::{Doc, Revision, RevisionRange},
+    entities::doc::{RevId, Revision, RevisionRange},
     errors::{internal_error, DocError, DocResult},
-    services::{
-        doc::revision::{util::RevisionOperation, DocRevision, RevisionServer},
-        server::Server,
-    },
-    sql_tables::{DocTableSql, RevChangeset, RevState, RevTableSql},
+    services::doc::revision::{util::RevisionOperation, DocRevision, RevisionServer},
+    sql_tables::{DocTableSql, RevState, RevTableSql},
 };
 use async_stream::stream;
 use dashmap::DashMap;
-use flowy_database::{ConnectionPool, SqliteConnection};
-use flowy_ot::{
-    core::{Attributes, Delta, OperationTransformable},
-    errors::OTError,
-};
+use flowy_database::ConnectionPool;
+use flowy_ot::core::{Attributes, Delta, OperationTransformable};
 use futures::{stream::StreamExt, TryFutureExt};
-use std::{cell::RefCell, sync::Arc, time::Duration};
+use std::{sync::Arc, time::Duration};
 use tokio::{
     sync::{mpsc, oneshot, RwLock},
     task::{spawn_blocking, JoinHandle},
@@ -26,7 +20,7 @@ pub enum StoreCmd {
         revision: Revision,
     },
     AckRevision {
-        rev_id: i64,
+        rev_id: RevId,
     },
     SendRevisions {
         range: RevisionRange,
@@ -106,8 +100,8 @@ impl RevisionStore {
         self.save_revisions().await;
     }
 
-    async fn handle_revision_acked(&self, rev_id: i64) {
-        match self.revs.get_mut(&rev_id) {
+    async fn handle_revision_acked(&self, rev_id: RevId) {
+        match self.revs.get_mut(rev_id.as_ref()) {
             None => {},
             Some(mut rev) => rev.value_mut().finish(),
         }
@@ -194,7 +188,7 @@ async fn fetch_from_local(doc_id: &str, persistence: Arc<Persistence>) -> DocRes
             return Err(DocError::not_found());
         }
 
-        let rev_id = revisions.last().unwrap().rev_id;
+        let rev_id: RevId = revisions.last().unwrap().rev_id.into();
         let mut delta = Delta::new();
         for revision in revisions {
             match Delta::from_bytes(revision.delta_data) {
@@ -282,7 +276,7 @@ impl Persistence {
 //     result
 // }
 
-// fn delete_revision(&self, rev_id: i64) {
+// fn delete_revision(&self, rev_id: RevId) {
 //     let op_sql = self.op_sql.clone();
 //     let pool = self.pool.clone();
 //     let doc_id = self.doc_id.clone();

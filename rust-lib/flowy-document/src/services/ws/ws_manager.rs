@@ -37,9 +37,9 @@ impl WsDocumentManager {
 
     pub fn receive_data(&self, data: Bytes) {
         let data: WsDocumentData = data.try_into().unwrap();
-        match self.ws_handlers.get(&data.id) {
+        match self.ws_handlers.get(&data.doc_id) {
             None => {
-                log::error!("Can't find any source handler for {:?}", data.id);
+                log::error!("Can't find any source handler for {:?}", data.doc_id);
             },
             Some(handler) => {
                 handler.receive(data);

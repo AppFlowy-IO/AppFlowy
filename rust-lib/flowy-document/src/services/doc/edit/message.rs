@@ -1,11 +1,9 @@
-use crate::{
-    errors::DocResult,
-    services::doc::{edit::DocId, Document, UndoResult},
-    sql_tables::{DocTableChangeset, DocTableSql},
-};
+use crate::{errors::DocResult, services::doc::UndoResult};
 use flowy_ot::core::{Attribute, Delta, Interval};
 
+use crate::entities::doc::RevId;
 use tokio::sync::oneshot;
+
 pub type Ret<T> = oneshot::Sender<DocResult<T>>;
 pub enum EditMsg {
     Delta {
@@ -48,7 +46,7 @@ pub enum EditMsg {
         ret: Ret<String>,
     },
     SaveRevision {
-        rev_id: i64,
+        rev_id: RevId,
         ret: Ret<()>,
     },
 }

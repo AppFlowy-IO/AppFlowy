@@ -3,7 +3,7 @@ use crate::{
     errors::DocError,
     sql_tables::{doc::RevTable, RevChangeset, RevState, RevTableType},
 };
-use diesel::{insert_into, update};
+use diesel::update;
 use flowy_database::{
     insert_or_ignore_into,
     prelude::*,
@@ -42,7 +42,7 @@ impl RevTableSql {
 
     pub(crate) fn update_rev_table(&self, changeset: RevChangeset, conn: &SqliteConnection) -> Result<(), DocError> {
         let filter = dsl::rev_table
-            .filter(rev_id.eq(changeset.rev_id))
+            .filter(rev_id.eq(changeset.rev_id.as_ref()))
             .filter(doc_id.eq(changeset.doc_id));
         let _ = update(filter).set(state.eq(changeset.state)).execute(conn)?;
         log::debug!("Set {} to {:?}", changeset.rev_id, changeset.state);

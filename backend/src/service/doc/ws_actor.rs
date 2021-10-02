@@ -72,6 +72,10 @@ impl DocWsActor {
         match document_data.ty {
             WsDataType::Acked => Ok(()),
             WsDataType::PushRev => self.handle_push_rev(user, socket, document_data.data, pool).await,
+            WsDataType::NewConnection => {
+                // TODO: send notifications to other users who visited the doc
+                Ok(())
+            },
             WsDataType::PullRev => Ok(()),
             WsDataType::Conflict => Ok(()),
         }

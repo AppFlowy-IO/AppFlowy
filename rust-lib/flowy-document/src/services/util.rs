@@ -1,10 +1,5 @@
-use crate::errors::DocError;
-use byteorder::{BigEndian, ReadBytesExt};
 use flowy_ot::core::{NEW_LINE, WHITESPACE};
-use std::{
-    io::Cursor,
-    sync::atomic::{AtomicI64, Ordering::SeqCst},
-};
+use std::sync::atomic::{AtomicI64, Ordering::SeqCst};
 
 #[inline]
 pub fn find_newline(s: &str) -> Option<usize> {
@@ -27,15 +22,6 @@ pub fn contain_newline(s: &str) -> bool { s.contains(NEW_LINE) }
 pub fn md5<T: AsRef<[u8]>>(data: T) -> String {
     let md5 = format!("{:x}", md5::compute(data));
     md5
-}
-
-#[inline]
-pub fn bytes_to_rev_id(bytes: Vec<u8>) -> Result<i64, DocError> {
-    let mut rdr = Cursor::new(bytes);
-    match rdr.read_i64::<BigEndian>() {
-        Ok(rev_id) => Ok(rev_id),
-        Err(e) => Err(DocError::internal().context(e)),
-    }
 }
 
 #[derive(Debug)]

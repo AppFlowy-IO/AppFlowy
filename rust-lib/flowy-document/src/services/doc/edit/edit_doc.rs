@@ -1,6 +1,6 @@
 use crate::{
     entities::{
-        doc::{Doc, RevType, Revision, RevisionRange},
+        doc::{Doc, RevId, RevType, Revision, RevisionRange},
         ws::{WsDataType, WsDocumentData},
     },
     errors::{internal_error, DocError, DocResult},
@@ -10,8 +10,6 @@ use crate::{
             revision::{RevisionManager, RevisionServer},
             UndoResult,
         },
-        server::Server,
-        util::bytes_to_rev_id,
         ws::{WsDocumentHandler, WsDocumentSender},
     },
 };
@@ -62,7 +60,7 @@ impl ClientEditDoc {
         let _ = self.document.send(msg);
         let delta_data = rx.await.map_err(internal_error)??.to_bytes();
         let rev_id = self.mk_revision(&delta_data).await?;
-        save(rev_id, self.document.clone()).await
+        save(rev_id.into(), self.document.clone()).await
     }
 
     pub async fn delete(&self, interval: Interval) -> Result<(), DocError> {
@@ -139,12 +137,12 @@ impl ClientEditDoc {
         Ok(Doc { id, data, rev_id })
     }
 
-    async fn mk_revision(&self, delta_data: &Bytes) -> Result<i64, DocError> {
+    async fn mk_revision(&self, delta_data: &Bytes) -> Result<RevId, DocError> {
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id();
         let delta_data = delta_data.to_vec();
         let revision = Revision::new(base_rev_id, rev_id, delta_data, &self.doc_id, RevType::Local);
         self.rev_manager.add_revision(revision).await;
-        Ok(rev_id)
+        Ok(rev_id.into())
     }
 
     #[tracing::instrument(level = "debug", skip(self, data), err)]
@@ -182,8 +180,9 @@ impl WsDocumentHandler for ClientEditDoc {
                     let range = RevisionRange::try_from(bytes)?;
                     let _ = rev_manager.send_revisions(range)?;
                 },
+                WsDataType::NewConnection => {},
                 WsDataType::Acked => {
-                    let rev_id = bytes_to_rev_id(bytes.to_vec())?;
+                    let rev_id = RevId::try_from(bytes)?;
                     let _ = rev_manager.ack_rev(rev_id);
                 },
                 WsDataType::Conflict => {},
@@ -199,7 +198,7 @@ impl WsDocumentHandler for ClientEditDoc {
     }
 }
 
-async fn save(rev_id: i64, document: UnboundedSender<EditMsg>) -> DocResult<()> {
+async fn save(rev_id: RevId, document: UnboundedSender<EditMsg>) -> DocResult<()> {
     let (ret, rx) = oneshot::channel::<DocResult<()>>();
     let _ = document.send(EditMsg::SaveRevision { rev_id, ret });
     let result = rx.await.map_err(internal_error)?;
@@ -222,7 +221,7 @@ async fn handle_push_rev(
             let _ = document.send(msg);
 
             match rx.await.map_err(internal_error)? {
-                Ok(_) => save(revision.rev_id, document).await,
+                Ok(_) => save(revision.rev_id.into(), document).await,
                 Err(e) => {
                     rev_manager.push_compose_revision(revision);
                     Err(e)

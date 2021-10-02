@@ -1,22 +1,18 @@
 use crate::{
-    errors::{internal_error, DocError, DocResult},
+    entities::doc::RevId,
+    errors::{internal_error, DocResult},
     services::doc::{
         edit::{message::EditMsg, DocId},
         Document,
-        UndoResult,
     },
     sql_tables::{DocTableChangeset, DocTableSql},
 };
 use async_stream::stream;
 use flowy_database::ConnectionPool;
-use flowy_ot::core::{Attribute, Delta, Interval};
+use flowy_ot::core::Delta;
 use futures::stream::StreamExt;
-use std::{cell::RefCell, sync::Arc};
-use tokio::{
-    macros::support::Future,
-    sync::{mpsc, oneshot, RwLock},
-    task::spawn_blocking,
-};
+use std::sync::Arc;
+use tokio::sync::{mpsc, RwLock};
 
 pub struct DocumentEditActor {
     doc_id: DocId,
@@ -115,12 +111,12 @@ impl DocumentEditActor {
     }
 
     #[tracing::instrument(level = "debug", skip(self, rev_id), err)]
-    async fn save_to_disk(&self, rev_id: i64) -> DocResult<()> {
+    async fn save_to_disk(&self, rev_id: RevId) -> DocResult<()> {
         let data = self.document.read().await.to_json();
         let changeset = DocTableChangeset {
             id: self.doc_id.clone(),
             data,
-            rev_id,
+            rev_id: rev_id.into(),
         };
         let sql = DocTableSql {};
         let conn = self.pool.get().map_err(internal_error)?;

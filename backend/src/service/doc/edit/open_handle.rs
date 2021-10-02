@@ -1,8 +1,5 @@
 use crate::service::{
-    doc::edit::{
-        edit_actor::{EditDocActor, EditMsg},
-        ServerEditDoc,
-    },
+    doc::edit::edit_actor::{EditDocActor, EditMsg},
     ws::{entities::Socket, WsUser},
 };
 use actix_web::web::Data;

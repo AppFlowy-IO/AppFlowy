@@ -8,16 +8,16 @@ use crate::{
     },
 };
 
-use crate::{entities::doc::Doc, errors::DocResult, services::server::Server};
+use crate::{entities::doc::RevId, errors::DocResult};
 use flowy_database::ConnectionPool;
 use flowy_infra::future::ResultFuture;
 use flowy_ot::core::Delta;
 use parking_lot::RwLock;
 use std::{collections::VecDeque, sync::Arc};
-use tokio::sync::{mpsc, oneshot, oneshot::error::RecvError};
+use tokio::sync::{mpsc, oneshot};
 
 pub struct DocRevision {
-    pub rev_id: i64,
+    pub rev_id: RevId,
     pub delta: Delta,
 }
 
@@ -37,7 +37,7 @@ impl RevisionManager {
     pub async fn new(
         doc_id: &str,
         pool: Arc<ConnectionPool>,
-        ws_sender: Arc<dyn WsDocumentSender>,
+        ws: Arc<dyn WsDocumentSender>,
         server: Arc<dyn RevisionServer>,
     ) -> DocResult<(Self, Delta)> {
         let (sender, receiver) = mpsc::channel::<StoreCmd>(50);
@@ -45,14 +45,15 @@ impl RevisionManager {
         tokio::spawn(store.run());
 
         let DocRevision { rev_id, delta } = fetch_document(sender.clone()).await?;
+        log::info!("😁Document delta: {:?}", delta);
 
         let doc_id = doc_id.to_string();
-        let rev_id_counter = RevIdCounter::new(rev_id);
+        let rev_id_counter = RevIdCounter::new(rev_id.into());
         let pending_revs = RwLock::new(VecDeque::new());
         let manager = Self {
             doc_id,
             rev_id_counter,
-            ws: ws_sender,
+            ws,
             pending_revs,
             store: sender,
         };
@@ -83,7 +84,7 @@ impl RevisionManager {
         Ok(())
     }
 
-    pub fn ack_rev(&self, rev_id: i64) -> Result<(), DocError> {
+    pub fn ack_rev(&self, rev_id: RevId) -> Result<(), DocError> {
         let sender = self.store.clone();
         tokio::spawn(async move {
             let _ = sender.send(StoreCmd::AckRevision { rev_id }).await;
