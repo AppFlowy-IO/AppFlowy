@@ -35,6 +35,12 @@ pub enum EditMsg {
     DocumentJson {
         ret: oneshot::Sender<DocResult<String>>,
     },
+    NewDocUser {
+        user: Arc<WsUser>,
+        socket: Socket,
+        rev_id: i64,
+        ret: oneshot::Sender<DocResult<()>>,
+    },
 }
 
 pub struct EditDocActor {
@@ -78,7 +84,6 @@ impl EditDocActor {
                 revision,
                 ret,
             } => {
-                // ret.send(self.handle_client_data(client_data, pool).await);
                 let user = EditUser {
                     user: user.clone(),
                     socket: socket.clone(),
@@ -91,6 +96,18 @@ impl EditDocActor {
                     .await
                     .map_err(internal_error);
                 let _ = ret.send(json);
+            },
+            EditMsg::NewDocUser {
+                user,
+                socket,
+                rev_id,
+                ret,
+            } => {
+                let user = EditUser {
+                    user: user.clone(),
+                    socket: socket.clone(),
+                };
+                let _ = ret.send(self.edit_doc.new_connection(user, rev_id, self.pg_pool.clone()).await);
             },
         }
     }

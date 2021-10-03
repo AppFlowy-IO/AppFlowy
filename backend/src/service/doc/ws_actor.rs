@@ -1,5 +1,5 @@
 use crate::service::{
-    doc::doc::DocManager,
+    doc::{doc::DocManager, edit::DocHandle},
     util::{md5, parse_from_bytes},
     ws::{entities::Socket, WsClientData, WsUser},
 };
@@ -74,21 +74,29 @@ impl DocWsActor {
         match document_data.ty {
             WsDataType::Acked => Ok(()),
             WsDataType::PushRev => self.handle_push_rev(user, socket, data, pool).await,
-            WsDataType::NewDocUser => self.handle_new_doc_user(socket, data).await,
+            WsDataType::NewDocUser => self.handle_new_doc_user(user, socket, data, pool).await,
             WsDataType::PullRev => Ok(()),
             WsDataType::Conflict => Ok(()),
         }
     }
 
-    async fn handle_new_doc_user(&self, _socket: Socket, data: Vec<u8>) -> DocResult<()> {
-        let _user = spawn_blocking(move || {
+    async fn handle_new_doc_user(
+        &self,
+        user: Arc<WsUser>,
+        socket: Socket,
+        data: Vec<u8>,
+        pool: Data<PgPool>,
+    ) -> DocResult<()> {
+        let doc_user = spawn_blocking(move || {
             let user: NewDocUser = parse_from_bytes(&data)?;
             DocResult::Ok(user)
         })
         .await
         .map_err(internal_error)??;
-
-        unimplemented!()
+        if let Some(handle) = self.doc_handle(&doc_user.doc_id, pool).await {
+            handle.handle_new_user(user, doc_user.rev_id, socket).await?;
+        }
+        Ok(())
     }
 
     async fn handle_push_rev(
@@ -105,15 +113,22 @@ impl DocWsActor {
         })
         .await
         .map_err(internal_error)??;
+        if let Some(handle) = self.doc_handle(&revision.doc_id, pool).await {
+            handle.apply_revision(user, socket, revision).await?;
+        }
+        Ok(())
+    }
 
-        match self.doc_manager.get(&revision.doc_id, pool).await? {
-            Some(edit_doc) => {
-                edit_doc.apply_revision(user, socket, revision).await?;
-                Ok(())
+    async fn doc_handle(&self, doc_id: &str, pool: Data<PgPool>) -> Option<Arc<DocHandle>> {
+        match self.doc_manager.get(doc_id, pool).await {
+            Ok(Some(edit_doc)) => Some(edit_doc),
+            Ok(None) => {
+                log::error!("Document with id: {} not exist", doc_id);
+                None
             },
-            None => {
-                log::error!("Document with id: {} not exist", &revision.doc_id);
-                Ok(())
+            Err(e) => {
+                log::error!("Get doc handle failed: {:?}", e);
+                None
             },
         }
     }

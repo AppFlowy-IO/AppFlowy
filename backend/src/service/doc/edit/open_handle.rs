@@ -10,7 +10,7 @@ use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot};
 
 pub struct DocHandle {
-    sender: mpsc::Sender<EditMsg>,
+    pub sender: mpsc::Sender<EditMsg>,
 }
 
 impl DocHandle {
@@ -20,6 +20,18 @@ impl DocHandle {
         tokio::task::spawn(actor.run());
 
         Ok(Self { sender })
+    }
+
+    pub async fn handle_new_user(&self, user: Arc<WsUser>, rev_id: i64, socket: Socket) -> Result<(), ServerError> {
+        let (ret, rx) = oneshot::channel();
+        let msg = EditMsg::NewDocUser {
+            user,
+            socket,
+            rev_id,
+            ret,
+        };
+        let _ = self.send(msg, rx).await?;
+        Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self, user, socket, revision))]
@@ -46,7 +58,7 @@ impl DocHandle {
         self.send(msg, rx).await?
     }
 
-    async fn send<T>(&self, msg: EditMsg, rx: oneshot::Receiver<T>) -> DocResult<T> {
+    pub(crate) async fn send<T>(&self, msg: EditMsg, rx: oneshot::Receiver<T>) -> DocResult<T> {
         let _ = self.sender.send(msg).await.map_err(internal_error)?;
         let result = rx.await?;
         Ok(result)

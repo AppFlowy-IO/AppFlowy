@@ -5,6 +5,7 @@ use crate::service::{
 };
 use actix_web::web::Data;
 
+use crate::service::doc::edit::interval::Interval;
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_document::{
@@ -22,6 +23,7 @@ use parking_lot::RwLock;
 use protobuf::Message;
 use sqlx::PgPool;
 use std::{
+    cmp::Ordering,
     convert::TryInto,
     sync::{
         atomic::{AtomicI64, Ordering::SeqCst},
@@ -52,6 +54,28 @@ impl ServerEditDoc {
 
     pub fn document_json(&self) -> String { self.document.read().to_json() }
 
+    pub async fn new_connection(&self, user: EditUser, rev_id: i64, _pg_pool: Data<PgPool>) -> Result<(), ServerError> {
+        self.users.insert(user.id(), user.clone());
+        let cur_rev_id = self.rev_id.load(SeqCst);
+        if cur_rev_id > rev_id {
+            let doc_delta = self.document.read().delta().clone();
+            let cli_revision = self.mk_revision(rev_id, doc_delta);
+            let ws_cli_revision = mk_push_rev_ws_message(&self.doc_id, cli_revision);
+            user.socket.do_send(ws_cli_revision).map_err(internal_error)?;
+        }
+
+        Ok(())
+    }
+
+    #[tracing::instrument(
+        level = "debug",
+        skip(self, user, pg_pool),
+        fields(
+            rev_id = %self.rev_id.load(SeqCst),
+            revision_rev_id = %revision.rev_id,
+            revision_base_rev_id = %revision.base_rev_id
+        )
+    )]
     pub async fn apply_revision(
         &self,
         user: EditUser,
@@ -60,49 +84,48 @@ impl ServerEditDoc {
     ) -> Result<(), ServerError> {
         // Opti: find out another way to keep the user socket available.
         self.users.insert(user.id(), user.clone());
-        log::debug!(
-            "cur_base_rev_id: {}, expect_base_rev_id: {} rev_id: {}",
-            self.rev_id.load(SeqCst),
-            revision.base_rev_id,
-            revision.rev_id
-        );
-
         let cur_rev_id = self.rev_id.load(SeqCst);
-        if cur_rev_id > revision.rev_id {
-            // The client document is outdated. Transform the client revision delta and then
-            // send the prime delta to the client. Client should compose the this prime
-            // delta.
-
-            let (cli_prime, server_prime) = self.transform(&revision.delta_data).map_err(internal_error)?;
-            let _ = self.update_document_delta(server_prime)?;
-
-            log::debug!("{} client delta: {}", self.doc_id, cli_prime.to_json());
-            let cli_revision = self.mk_revision(revision.rev_id, cli_prime);
-            let ws_cli_revision = mk_push_rev_ws_message(&self.doc_id, cli_revision);
-            user.socket.do_send(ws_cli_revision).map_err(internal_error)?;
-            Ok(())
-        } else if cur_rev_id < revision.rev_id {
-            if cur_rev_id != revision.base_rev_id {
-                // The server document is outdated, try to get the missing revision from the
-                // client.
-                user.socket
-                    .do_send(mk_pull_rev_ws_message(&self.doc_id, cur_rev_id, revision.rev_id))
-                    .map_err(internal_error)?;
-            } else {
-                let delta = Delta::from_bytes(&revision.delta_data).map_err(internal_error)?;
-                let _ = self.update_document_delta(delta)?;
-                user.socket
-                    .do_send(mk_acked_ws_message(&revision))
-                    .map_err(internal_error)?;
-                self.rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(revision.rev_id));
-                let _ = self.save_revision(&revision, pg_pool).await?;
-            }
-
-            Ok(())
-        } else {
-            log::error!("Client rev_id should not equal to server rev_id");
-            Ok(())
+        match cur_rev_id.cmp(&revision.rev_id) {
+            Ordering::Less => {
+                if cur_rev_id != revision.base_rev_id {
+                    // The server document is outdated, try to get the missing revision from the
+                    // client.
+                    user.socket
+                        .do_send(mk_pull_rev_ws_message(&self.doc_id, cur_rev_id, revision.rev_id))
+                        .map_err(internal_error)?;
+                } else {
+                    let _ = self.compose_revision(&revision, pg_pool).await?;
+                    user.socket
+                        .do_send(mk_acked_ws_message(&revision))
+                        .map_err(internal_error)?;
+                }
+            },
+            Ordering::Equal => {},
+            Ordering::Greater => {
+                // The client document is outdated. Transform the client revision delta and then
+                // send the prime delta to the client. Client should compose the this prime
+                // delta.
+                let cli_revision = self.transform_client_revision(&revision)?;
+                let ws_cli_revision = mk_push_rev_ws_message(&self.doc_id, cli_revision);
+                user.socket.do_send(ws_cli_revision).map_err(internal_error)?;
+            },
         }
+        Ok(())
+    }
+
+    async fn compose_revision(&self, revision: &Revision, pg_pool: Data<PgPool>) -> Result<(), ServerError> {
+        let delta = Delta::from_bytes(&revision.delta_data).map_err(internal_error)?;
+        let _ = self.compose_delta(delta)?;
+        let _ = self.rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(revision.rev_id));
+        let _ = self.save_revision(&revision, pg_pool).await?;
+        Ok(())
+    }
+
+    fn transform_client_revision(&self, revision: &Revision) -> Result<Revision, ServerError> {
+        let (cli_prime, server_prime) = self.transform(&revision.delta_data).map_err(internal_error)?;
+        let _ = self.compose_delta(server_prime)?;
+        let cli_revision = self.mk_revision(revision.rev_id, cli_prime);
+        Ok(cli_revision)
     }
 
     fn mk_revision(&self, base_rev_id: i64, delta: Delta) -> Revision {
@@ -133,7 +156,7 @@ impl ServerEditDoc {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    fn update_document_delta(&self, delta: Delta) -> Result<(), ServerError> {
+    fn compose_delta(&self, delta: Delta) -> Result<(), ServerError> {
         // Opti: push each revision into queue and process it one by one.
         match self.document.try_write_for(Duration::from_millis(300)) {
             None => {
