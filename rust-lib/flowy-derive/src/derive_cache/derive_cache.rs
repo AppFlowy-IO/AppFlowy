@@ -57,6 +57,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "Doc"
         | "UpdateDocParams"
         | "DocDelta"
+        | "NewDocUser"
         | "QueryDocParams"
         | "RevId"
         | "Revision"

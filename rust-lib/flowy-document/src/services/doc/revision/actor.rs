@@ -15,7 +15,7 @@ use tokio::{
     task::{spawn_blocking, JoinHandle},
 };
 
-pub enum StoreCmd {
+pub enum RevisionCmd {
     Revision {
         revision: Revision,
     },
@@ -31,22 +31,22 @@ pub enum StoreCmd {
     },
 }
 
-pub struct RevisionStore {
+pub struct RevisionStoreActor {
     doc_id: String,
     persistence: Arc<Persistence>,
     revs: Arc<DashMap<i64, RevisionOperation>>,
     delay_save: RwLock<Option<JoinHandle<()>>>,
-    receiver: Option<mpsc::Receiver<StoreCmd>>,
+    receiver: Option<mpsc::Receiver<RevisionCmd>>,
     server: Arc<dyn RevisionServer>,
 }
 
-impl RevisionStore {
+impl RevisionStoreActor {
     pub fn new(
         doc_id: &str,
         pool: Arc<ConnectionPool>,
-        receiver: mpsc::Receiver<StoreCmd>,
+        receiver: mpsc::Receiver<RevisionCmd>,
         server: Arc<dyn RevisionServer>,
-    ) -> RevisionStore {
+    ) -> RevisionStoreActor {
         let persistence = Arc::new(Persistence::new(pool));
         let revs = Arc::new(DashMap::new());
         let doc_id = doc_id.to_owned();
@@ -74,19 +74,19 @@ impl RevisionStore {
         stream.for_each(|msg| self.handle_message(msg)).await;
     }
 
-    async fn handle_message(&self, cmd: StoreCmd) {
+    async fn handle_message(&self, cmd: RevisionCmd) {
         match cmd {
-            StoreCmd::Revision { revision } => {
+            RevisionCmd::Revision { revision } => {
                 self.handle_new_revision(revision).await;
             },
-            StoreCmd::AckRevision { rev_id } => {
+            RevisionCmd::AckRevision { rev_id } => {
                 self.handle_revision_acked(rev_id).await;
             },
-            StoreCmd::SendRevisions { range, ret } => {
+            RevisionCmd::SendRevisions { range, ret } => {
                 let result = revs_in_range(&self.doc_id, self.persistence.clone(), range).await;
                 let _ = ret.send(result);
             },
-            StoreCmd::DocumentDelta { ret } => {
+            RevisionCmd::DocumentDelta { ret } => {
                 let delta = fetch_document(&self.doc_id, self.server.clone(), self.persistence.clone()).await;
                 let _ = ret.send(delta);
             },
@@ -224,15 +224,13 @@ async fn revs_in_range(doc_id: &str, persistence: Arc<Persistence>, range: Revis
 
 struct Persistence {
     rev_sql: Arc<RevTableSql>,
-    doc_sql: Arc<DocTableSql>,
     pool: Arc<ConnectionPool>,
 }
 
 impl Persistence {
     fn new(pool: Arc<ConnectionPool>) -> Self {
         let rev_sql = Arc::new(RevTableSql {});
-        let doc_sql = Arc::new(DocTableSql {});
-        Self { rev_sql, doc_sql, pool }
+        Self { rev_sql, pool }
     }
 }
 

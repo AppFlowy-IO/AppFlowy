@@ -18,6 +18,11 @@ message DocDelta {
     string doc_id = 1;
     string data = 2;
 }
+message NewDocUser {
+    string user_id = 1;
+    int64 rev_id = 2;
+    string doc_id = 3;
+}
 message QueryDocParams {
     string doc_id = 1;
 }

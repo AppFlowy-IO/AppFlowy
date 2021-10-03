@@ -6,7 +6,7 @@ use crate::service::{
 use actix_rt::task::spawn_blocking;
 use actix_web::web::Data;
 use async_stream::stream;
-use flowy_document::protobuf::{Revision, WsDataType, WsDocumentData};
+use flowy_document::protobuf::{NewDocUser, Revision, WsDataType, WsDocumentData};
 use flowy_net::errors::{internal_error, Result as DocResult, ServerError};
 use futures::stream::StreamExt;
 use sqlx::PgPool;
@@ -69,27 +69,37 @@ impl DocWsActor {
         .await
         .map_err(internal_error)??;
 
+        let data = document_data.data;
+
         match document_data.ty {
             WsDataType::Acked => Ok(()),
-            WsDataType::PushRev => self.handle_push_rev(user, socket, document_data.data, pool).await,
-            WsDataType::NewConnection => {
-                // TODO: send notifications to other users who visited the doc
-                Ok(())
-            },
+            WsDataType::PushRev => self.handle_push_rev(user, socket, data, pool).await,
+            WsDataType::NewDocUser => self.handle_new_doc_user(socket, data).await,
             WsDataType::PullRev => Ok(()),
             WsDataType::Conflict => Ok(()),
         }
+    }
+
+    async fn handle_new_doc_user(&self, socket: Socket, data: Vec<u8>) -> DocResult<()> {
+        let user = spawn_blocking(move || {
+            let user: NewDocUser = parse_from_bytes(&data)?;
+            DocResult::Ok(user)
+        })
+        .await
+        .map_err(internal_error)??;
+
+        unimplemented!()
     }
 
     async fn handle_push_rev(
         &self,
         user: Arc<WsUser>,
         socket: Socket,
-        revision_data: Vec<u8>,
+        data: Vec<u8>,
         pool: Data<PgPool>,
     ) -> DocResult<()> {
         let revision = spawn_blocking(move || {
-            let revision: Revision = parse_from_bytes(&revision_data)?;
+            let revision: Revision = parse_from_bytes(&data)?;
             let _ = verify_md5(&revision)?;
             DocResult::Ok(revision)
         })

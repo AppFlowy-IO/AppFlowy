@@ -62,8 +62,7 @@ impl Document {
         match &self.notify {
             None => {},
             Some(notify) => {
-                let notify = notify.clone();
-                notify.send(());
+                let _ = notify.send(());
             },
         }
     }

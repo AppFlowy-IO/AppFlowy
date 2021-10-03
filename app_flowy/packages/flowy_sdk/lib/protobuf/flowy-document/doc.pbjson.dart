@@ -54,6 +54,18 @@ const DocDelta$json = const {
 
 /// Descriptor for `DocDelta`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List docDeltaDescriptor = $convert.base64Decode('CghEb2NEZWx0YRIVCgZkb2NfaWQYASABKAlSBWRvY0lkEhIKBGRhdGEYAiABKAlSBGRhdGE=');
+@$core.Deprecated('Use newDocUserDescriptor instead')
+const NewDocUser$json = const {
+  '1': 'NewDocUser',
+  '2': const [
+    const {'1': 'user_id', '3': 1, '4': 1, '5': 9, '10': 'userId'},
+    const {'1': 'rev_id', '3': 2, '4': 1, '5': 3, '10': 'revId'},
+    const {'1': 'doc_id', '3': 3, '4': 1, '5': 9, '10': 'docId'},
+  ],
+};
+
+/// Descriptor for `NewDocUser`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List newDocUserDescriptor = $convert.base64Decode('CgpOZXdEb2NVc2VyEhcKB3VzZXJfaWQYASABKAlSBnVzZXJJZBIVCgZyZXZfaWQYAiABKANSBXJldklkEhUKBmRvY19pZBgDIAEoCVIFZG9jSWQ=');
 @$core.Deprecated('Use queryDocParamsDescriptor instead')
 const QueryDocParams$json = const {
   '1': 'QueryDocParams',

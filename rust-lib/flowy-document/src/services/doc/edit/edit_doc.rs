@@ -4,10 +4,11 @@ use crate::{
         ws::{WsDataType, WsDocumentData},
     },
     errors::{internal_error, DocError, DocResult},
+    module::DocumentUser,
     services::{
         doc::{
             edit::{actor::DocumentEditActor, message::EditMsg},
-            revision::{RevisionManager, RevisionServer},
+            revision::{DocRevision, RevisionCmd, RevisionManager, RevisionServer, RevisionStoreActor},
             UndoResult,
         },
         ws::{WsDocumentHandler, WsDocumentSender},
@@ -32,22 +33,25 @@ impl ClientEditDoc {
     pub(crate) async fn new(
         doc_id: &str,
         pool: Arc<ConnectionPool>,
-        ws_sender: Arc<dyn WsDocumentSender>,
+        ws: Arc<dyn WsDocumentSender>,
         server: Arc<dyn RevisionServer>,
+        user: Arc<dyn DocumentUser>,
     ) -> DocResult<Self> {
-        let (rev_manager, delta) = RevisionManager::new(doc_id, pool.clone(), ws_sender, server).await?;
-        let rev_manager = Arc::new(rev_manager);
-        let (sender, receiver) = mpsc::unbounded_channel::<EditMsg>();
-        let edit_actor = DocumentEditActor::new(doc_id, delta, pool.clone(), receiver);
-        tokio::spawn(edit_actor.run());
+        let user_id = user.user_id()?;
+        let rev_store = spawn_rev_store_actor(doc_id, pool.clone(), server.clone());
+        let DocRevision { rev_id, delta } = fetch_document(rev_store.clone()).await?;
 
-        let edit_context = Self {
-            doc_id: doc_id.to_string(),
+        log::info!("😁 Document delta: {:?}", delta);
+
+        let rev_manager = Arc::new(RevisionManager::new(doc_id, &user_id, rev_id, ws, rev_store));
+        let document = spawn_doc_edit_actor(doc_id, delta, pool.clone());
+        let doc_id = doc_id.to_string();
+        Ok(Self {
+            doc_id,
             rev_manager,
-            document: sender,
+            document,
             pool,
-        };
-        Ok(edit_context)
+        })
     }
 
     pub async fn insert<T: ToString>(&self, index: usize, data: T) -> Result<(), DocError> {
@@ -141,7 +145,7 @@ impl ClientEditDoc {
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id();
         let delta_data = delta_data.to_vec();
         let revision = Revision::new(base_rev_id, rev_id, delta_data, &self.doc_id, RevType::Local);
-        self.rev_manager.add_revision(revision).await;
+        let _ = self.rev_manager.add_revision(revision).await?;
         Ok(rev_id.into())
     }
 
@@ -180,7 +184,7 @@ impl WsDocumentHandler for ClientEditDoc {
                     let range = RevisionRange::try_from(bytes)?;
                     let _ = rev_manager.send_revisions(range)?;
                 },
-                WsDataType::NewConnection => {},
+                WsDataType::NewDocUser => {},
                 WsDataType::Acked => {
                     let rev_id = RevId::try_from(bytes)?;
                     let _ = rev_manager.ack_rev(rev_id);
@@ -227,6 +231,37 @@ async fn handle_push_rev(
                     Err(e)
                 },
             }
+        },
+    }
+}
+
+fn spawn_rev_store_actor(
+    doc_id: &str,
+    pool: Arc<ConnectionPool>,
+    server: Arc<dyn RevisionServer>,
+) -> mpsc::Sender<RevisionCmd> {
+    let (sender, receiver) = mpsc::channel::<RevisionCmd>(50);
+    let actor = RevisionStoreActor::new(doc_id, pool, receiver, server);
+    tokio::spawn(actor.run());
+    sender
+}
+
+fn spawn_doc_edit_actor(doc_id: &str, delta: Delta, pool: Arc<ConnectionPool>) -> UnboundedSender<EditMsg> {
+    let (sender, receiver) = mpsc::unbounded_channel::<EditMsg>();
+    let actor = DocumentEditActor::new(&doc_id, delta, pool.clone(), receiver);
+    tokio::spawn(actor.run());
+    sender
+}
+
+async fn fetch_document(sender: mpsc::Sender<RevisionCmd>) -> DocResult<DocRevision> {
+    let (ret, rx) = oneshot::channel();
+    let _ = sender.send(RevisionCmd::DocumentDelta { ret }).await;
+
+    match rx.await {
+        Ok(result) => Ok(result?),
+        Err(e) => {
+            log::error!("fetch_document: {}", e);
+            Err(DocError::internal().context(format!("fetch_document: {}", e)))
         },
     }
 }

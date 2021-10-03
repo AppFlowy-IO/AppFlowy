@@ -52,6 +52,18 @@ pub struct DocDelta {
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
+pub struct NewDocUser {
+    #[pb(index = 1)]
+    pub user_id: String,
+
+    #[pb(index = 2)]
+    pub rev_id: i64,
+
+    #[pb(index = 3)]
+    pub doc_id: String,
+}
+
+#[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct QueryDocParams {
     #[pb(index = 1)]
     pub doc_id: String,

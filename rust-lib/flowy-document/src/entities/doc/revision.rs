@@ -77,14 +77,14 @@ pub struct Revision {
 
 impl std::fmt::Debug for Revision {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        f.write_fmt(format_args!("doc_id {}, ", self.doc_id));
-        f.write_fmt(format_args!("rev_id {}, ", self.rev_id));
+        let _ = f.write_fmt(format_args!("doc_id {}, ", self.doc_id))?;
+        let _ = f.write_fmt(format_args!("rev_id {}, ", self.rev_id))?;
         match Delta::from_bytes(&self.delta_data) {
             Ok(delta) => {
-                f.write_fmt(format_args!("delta {:?}", delta.to_json()));
+                let _ = f.write_fmt(format_args!("delta {:?}", delta.to_json()))?;
             },
             Err(e) => {
-                f.write_fmt(format_args!("delta {:?}", e));
+                let _ = f.write_fmt(format_args!("delta {:?}", e))?;
             },
         }
         Ok(())

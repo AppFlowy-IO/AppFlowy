@@ -282,6 +282,81 @@ class DocDelta extends $pb.GeneratedMessage {
   void clearData() => clearField(2);
 }
 
+class NewDocUser extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'NewDocUser', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'userId')
+    ..aInt64(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'revId')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
+    ..hasRequiredFields = false
+  ;
+
+  NewDocUser._() : super();
+  factory NewDocUser({
+    $core.String? userId,
+    $fixnum.Int64? revId,
+    $core.String? docId,
+  }) {
+    final _result = create();
+    if (userId != null) {
+      _result.userId = userId;
+    }
+    if (revId != null) {
+      _result.revId = revId;
+    }
+    if (docId != null) {
+      _result.docId = docId;
+    }
+    return _result;
+  }
+  factory NewDocUser.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory NewDocUser.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  NewDocUser clone() => NewDocUser()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  NewDocUser copyWith(void Function(NewDocUser) updates) => super.copyWith((message) => updates(message as NewDocUser)) as NewDocUser; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static NewDocUser create() => NewDocUser._();
+  NewDocUser createEmptyInstance() => create();
+  static $pb.PbList<NewDocUser> createRepeated() => $pb.PbList<NewDocUser>();
+  @$core.pragma('dart2js:noInline')
+  static NewDocUser getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<NewDocUser>(create);
+  static NewDocUser? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get userId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set userId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasUserId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearUserId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $fixnum.Int64 get revId => $_getI64(1);
+  @$pb.TagNumber(2)
+  set revId($fixnum.Int64 v) { $_setInt64(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasRevId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearRevId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get docId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set docId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasDocId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearDocId() => clearField(3);
+}
+
 class QueryDocParams extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'QueryDocParams', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')

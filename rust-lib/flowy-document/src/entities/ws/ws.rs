@@ -1,4 +1,7 @@
-use crate::{entities::doc::Revision, errors::DocError};
+use crate::{
+    entities::doc::{NewDocUser, Revision},
+    errors::DocError,
+};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_ws::{WsMessage, WsModule};
@@ -6,11 +9,11 @@ use std::convert::{TryFrom, TryInto};
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Eq, PartialEq, Hash)]
 pub enum WsDataType {
-    Acked         = 0,
-    PushRev       = 1,
-    PullRev       = 2, // data should be Revision
-    Conflict      = 3,
-    NewConnection = 4,
+    Acked      = 0,
+    PushRev    = 1,
+    PullRev    = 2, // data should be Revision
+    Conflict   = 3,
+    NewDocUser = 4,
 }
 
 impl WsDataType {
@@ -41,13 +44,24 @@ pub struct WsDocumentData {
 
 impl std::convert::From<Revision> for WsDocumentData {
     fn from(revision: Revision) -> Self {
-        let id = revision.doc_id.clone();
+        let doc_id = revision.doc_id.clone();
         let bytes: Bytes = revision.try_into().unwrap();
-        let data = bytes.to_vec();
         Self {
-            doc_id: id,
+            doc_id,
             ty: WsDataType::PushRev,
-            data,
+            data: bytes.to_vec(),
+        }
+    }
+}
+
+impl std::convert::From<NewDocUser> for WsDocumentData {
+    fn from(user: NewDocUser) -> Self {
+        let doc_id = user.doc_id.clone();
+        let bytes: Bytes = user.try_into().unwrap();
+        Self {
+            doc_id,
+            ty: WsDataType::NewDocUser,
+            data: bytes.to_vec(),
         }
     }
 }

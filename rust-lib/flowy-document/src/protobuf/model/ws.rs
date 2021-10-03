@@ -261,7 +261,7 @@ pub enum WsDataType {
     PushRev = 1,
     PullRev = 2,
     Conflict = 3,
-    NewConnection = 4,
+    NewDocUser = 4,
 }
 
 impl ::protobuf::ProtobufEnum for WsDataType {
@@ -275,7 +275,7 @@ impl ::protobuf::ProtobufEnum for WsDataType {
             1 => ::std::option::Option::Some(WsDataType::PushRev),
             2 => ::std::option::Option::Some(WsDataType::PullRev),
             3 => ::std::option::Option::Some(WsDataType::Conflict),
-            4 => ::std::option::Option::Some(WsDataType::NewConnection),
+            4 => ::std::option::Option::Some(WsDataType::NewDocUser),
             _ => ::std::option::Option::None
         }
     }
@@ -286,7 +286,7 @@ impl ::protobuf::ProtobufEnum for WsDataType {
             WsDataType::PushRev,
             WsDataType::PullRev,
             WsDataType::Conflict,
-            WsDataType::NewConnection,
+            WsDataType::NewDocUser,
         ];
         values
     }
@@ -317,10 +317,10 @@ impl ::protobuf::reflect::ProtobufValue for WsDataType {
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x08ws.proto\"X\n\x0eWsDocumentData\x12\x15\n\x06doc_id\x18\x01\x20\
     \x01(\tR\x05docId\x12\x1b\n\x02ty\x18\x02\x20\x01(\x0e2\x0b.WsDataTypeR\
-    \x02ty\x12\x12\n\x04data\x18\x03\x20\x01(\x0cR\x04data*R\n\nWsDataType\
+    \x02ty\x12\x12\n\x04data\x18\x03\x20\x01(\x0cR\x04data*O\n\nWsDataType\
     \x12\t\n\x05Acked\x10\0\x12\x0b\n\x07PushRev\x10\x01\x12\x0b\n\x07PullRe\
-    v\x10\x02\x12\x0c\n\x08Conflict\x10\x03\x12\x11\n\rNewConnection\x10\x04\
-    J\xb4\x03\n\x06\x12\x04\0\0\r\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\
+    v\x10\x02\x12\x0c\n\x08Conflict\x10\x03\x12\x0e\n\nNewDocUser\x10\x04J\
+    \xb4\x03\n\x06\x12\x04\0\0\r\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\
     \x02\x04\0\x12\x04\x02\0\x06\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x16\
     \n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x16\n\x0c\n\x05\x04\0\x02\0\x05\
     \x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\x11\n\x0c\
@@ -339,8 +339,8 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x03\n\x04\x0b\n\x0c\n\x05\x05\0\x02\x02\x02\x12\x03\n\x0e\x0f\n\x0b\n\
     \x04\x05\0\x02\x03\x12\x03\x0b\x04\x11\n\x0c\n\x05\x05\0\x02\x03\x01\x12\
     \x03\x0b\x04\x0c\n\x0c\n\x05\x05\0\x02\x03\x02\x12\x03\x0b\x0f\x10\n\x0b\
-    \n\x04\x05\0\x02\x04\x12\x03\x0c\x04\x16\n\x0c\n\x05\x05\0\x02\x04\x01\
-    \x12\x03\x0c\x04\x11\n\x0c\n\x05\x05\0\x02\x04\x02\x12\x03\x0c\x14\x15b\
+    \n\x04\x05\0\x02\x04\x12\x03\x0c\x04\x13\n\x0c\n\x05\x05\0\x02\x04\x01\
+    \x12\x03\x0c\x04\x0e\n\x0c\n\x05\x05\0\x02\x04\x02\x12\x03\x0c\x11\x12b\
     \x06proto3\
 ";
 

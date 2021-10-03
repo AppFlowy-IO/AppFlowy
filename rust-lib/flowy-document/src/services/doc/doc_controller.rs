@@ -120,12 +120,13 @@ impl DocController {
         // let doc = self.read_doc(doc_id, pool.clone()).await?;
         let ws_sender = self.ws.read().sender();
         let token = self.user.token()?;
+        let user = self.user.clone();
         let server = Arc::new(RevisionServerImpl {
             token,
             server: self.server.clone(),
         });
 
-        let edit_ctx = Arc::new(ClientEditDoc::new(doc_id, pool, ws_sender, server).await?);
+        let edit_ctx = Arc::new(ClientEditDoc::new(doc_id, pool, ws_sender, server, user).await?);
         self.ws.write().register_handler(doc_id, edit_ctx.clone());
         self.cache.set(edit_ctx.clone());
         Ok(edit_ctx)
