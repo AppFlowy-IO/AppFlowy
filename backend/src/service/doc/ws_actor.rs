@@ -80,8 +80,8 @@ impl DocWsActor {
         }
     }
 
-    async fn handle_new_doc_user(&self, socket: Socket, data: Vec<u8>) -> DocResult<()> {
-        let user = spawn_blocking(move || {
+    async fn handle_new_doc_user(&self, _socket: Socket, data: Vec<u8>) -> DocResult<()> {
+        let _user = spawn_blocking(move || {
             let user: NewDocUser = parse_from_bytes(&data)?;
             DocResult::Ok(user)
         })

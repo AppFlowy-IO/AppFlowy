@@ -1,19 +1,19 @@
 use crate::{
-    entities::doc::{RevType, Revision, RevisionRange},
-    errors::DocError,
+    entities::doc::{RevId, RevType, Revision, RevisionRange},
+    errors::{DocError, DocResult},
     services::{
-        doc::revision::actor::{RevisionCmd, RevisionStoreActor},
+        doc::revision::{
+            actor::{RevisionCmd, RevisionStoreActor},
+            util::NotifyOpenDocAction,
+        },
         util::RevIdCounter,
         ws::WsDocumentSender,
     },
 };
-
-use crate::{
-    entities::doc::{NewDocUser, RevId},
-    errors::DocResult,
+use flowy_infra::{
+    future::ResultFuture,
+    retry::{ExponentialBackoff, Retry},
 };
-use flowy_database::ConnectionPool;
-use flowy_infra::future::ResultFuture;
 use flowy_ot::core::Delta;
 use parking_lot::RwLock;
 use std::{collections::VecDeque, sync::Arc};
@@ -112,15 +112,17 @@ impl RevisionManager {
     }
 }
 
+// FIXME:
+// user_id may be invalid if the user switch to another account while
+// theNotifyOpenDocAction is flying
 fn notify_open_doc(ws: &Arc<dyn WsDocumentSender>, user_id: &str, doc_id: &str, rev_id: &RevId) {
-    let new_doc_user = NewDocUser {
-        user_id: user_id.to_string(),
-        rev_id: rev_id.clone().into(),
-        doc_id: doc_id.to_string(),
-    };
-
-    match ws.send(new_doc_user.into()) {
-        Ok(_) => {},
-        Err(e) => log::error!("Send new_doc_user failed: {:?}", e),
-    }
+    let action = NotifyOpenDocAction::new(user_id, doc_id, rev_id, ws);
+    let strategy = ExponentialBackoff::from_millis(50).take(3);
+    let retry = Retry::spawn(strategy, action);
+    tokio::spawn(async move {
+        match retry.await {
+            Ok(_) => {},
+            Err(e) => log::error!("Notify open doc failed: {}", e),
+        }
+    });
 }

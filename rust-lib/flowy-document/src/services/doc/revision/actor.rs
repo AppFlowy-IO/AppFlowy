@@ -2,7 +2,7 @@ use crate::{
     entities::doc::{RevId, Revision, RevisionRange},
     errors::{internal_error, DocError, DocResult},
     services::doc::revision::{util::RevisionOperation, DocRevision, RevisionServer},
-    sql_tables::{DocTableSql, RevState, RevTableSql},
+    sql_tables::{RevState, RevTableSql},
 };
 use async_stream::stream;
 use dashmap::DashMap;

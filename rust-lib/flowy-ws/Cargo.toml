@@ -8,6 +8,7 @@ edition = "2018"
 [dependencies]
 flowy-derive = { path = "../flowy-derive" }
 flowy-net = { path = "../flowy-net" }
+flowy-infra = { path = "../flowy-infra" }
 
 tokio-tungstenite = "0.15"
 futures-util = "0.3.17"

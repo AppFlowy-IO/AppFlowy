@@ -96,7 +96,7 @@ impl WsController {
                 Ok(stream) => {
                     let _ = state_notify.send(WsState::Connected(sender));
                     let _ = ret.send(Ok(()));
-                    spawn_steam_and_handlers(stream, handlers, state_notify).await;
+                    spawn_stream_and_handlers(stream, handlers, state_notify).await;
                 },
                 Err(e) => {
                     let _ = state_notify.send(WsState::Disconnected(e.clone()));
@@ -128,7 +128,7 @@ impl WsController {
     }
 }
 
-async fn spawn_steam_and_handlers(
+async fn spawn_stream_and_handlers(
     stream: WsStream,
     handlers: WsHandlerFuture,
     state_notify: Arc<broadcast::Sender<WsState>>,
