@@ -164,7 +164,7 @@ where
 }
 
 /// An action can be run multiple times and produces a future.
-pub trait Action {
+pub trait Action: Send + Sync {
     type Future: Future<Output = Result<Self::Item, Self::Error>>;
     type Item;
     type Error;
@@ -172,13 +172,13 @@ pub trait Action {
     fn run(&mut self) -> Self::Future;
 }
 
-impl<R, E, T: Future<Output = Result<R, E>>, F: FnMut() -> T> Action for F {
-    type Future = T;
-    type Item = R;
-    type Error = E;
-
-    fn run(&mut self) -> Self::Future { self() }
-}
+// impl<R, E, T: Future<Output = Result<R, E>>, F: FnMut() -> T> Action for F {
+//     type Future = T;
+//     type Item = R;
+//     type Error = E;
+//
+//     fn run(&mut self) -> Self::Future { self() }
+// }
 
 pub trait Condition<E> {
     fn should_retry(&mut self, error: &E) -> bool;

@@ -16,7 +16,7 @@ use flowy_database::{
     ExpressionMethods,
     UserDatabaseConnection,
 };
-use flowy_infra::kv::KV;
+use flowy_infra::{future::wrap_future, kv::KV};
 use flowy_net::config::ServerConfig;
 use flowy_sqlite::ConnectionPool;
 use flowy_ws::{WsController, WsMessage, WsMessageHandler};

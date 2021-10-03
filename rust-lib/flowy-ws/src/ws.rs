@@ -6,7 +6,12 @@ use crate::{
 };
 use bytes::Bytes;
 use dashmap::DashMap;
+use flowy_infra::{
+    future::{wrap_future, FnFuture},
+    retry::{Action, ExponentialBackoff, Retry},
+};
 use flowy_net::errors::ServerError;
+use futures::future::BoxFuture;
 use futures_channel::mpsc::{UnboundedReceiver, UnboundedSender};
 use futures_core::{ready, Stream};
 use parking_lot::RwLock;
@@ -43,7 +48,7 @@ pub enum WsState {
 pub struct WsController {
     handlers: Handlers,
     state_notify: Arc<broadcast::Sender<WsState>>,
-    sender: RwLock<Option<Arc<WsSender>>>,
+    sender: Arc<RwLock<Option<Arc<WsSender>>>>,
 }
 
 impl WsController {
@@ -51,7 +56,7 @@ impl WsController {
         let (state_notify, _) = broadcast::channel(16);
         let controller = Self {
             handlers: DashMap::new(),
-            sender: RwLock::new(None),
+            sender: Arc::new(RwLock::new(None)),
             state_notify: Arc::new(state_notify),
         };
         controller
@@ -68,7 +73,39 @@ impl WsController {
 
     pub async fn connect(&self, addr: String) -> Result<(), ServerError> {
         let (ret, rx) = oneshot::channel::<Result<(), ServerError>>();
-        self._connect(addr.clone(), ret);
+
+        let action = WsConnectAction {
+            addr,
+            handlers: self.handlers.clone(),
+        };
+        let strategy = ExponentialBackoff::from_millis(100).take(3);
+        let retry = Retry::spawn(strategy, action);
+        let sender_holder = self.sender.clone();
+        let state_notify = self.state_notify.clone();
+
+        tokio::spawn(async move {
+            match retry.await {
+                Ok(result) => {
+                    let WsConnectResult {
+                        stream,
+                        handlers_fut,
+                        sender,
+                    } = result;
+                    let sender = Arc::new(sender);
+                    *sender_holder.write() = Some(sender.clone());
+
+                    let _ = state_notify.send(WsState::Connected(sender));
+                    let _ = ret.send(Ok(()));
+                    spawn_stream_and_handlers(stream, handlers_fut, state_notify).await;
+                },
+                Err(e) => {
+                    //
+                    let _ = state_notify.send(WsState::Disconnected(e.clone()));
+                    let _ = ret.send(Err(ServerError::internal().context(e)));
+                },
+            }
+        });
+
         rx.await?
     }
 
@@ -80,51 +117,6 @@ impl WsController {
             None => Err(WsError::internal().context("WsSender is not initialized, should call connect first")),
             Some(sender) => Ok(sender.clone()),
         }
-    }
-
-    fn _connect(&self, addr: String, ret: oneshot::Sender<Result<(), ServerError>>) {
-        log::debug!("🐴 ws connect: {}", &addr);
-        let (connection, handlers) = self.make_connect(addr.clone());
-        let state_notify = self.state_notify.clone();
-        let sender = self
-            .sender
-            .read()
-            .clone()
-            .expect("Sender should be not empty after calling make_connect");
-        tokio::spawn(async move {
-            match connection.await {
-                Ok(stream) => {
-                    let _ = state_notify.send(WsState::Connected(sender));
-                    let _ = ret.send(Ok(()));
-                    spawn_stream_and_handlers(stream, handlers, state_notify).await;
-                },
-                Err(e) => {
-                    let _ = state_notify.send(WsState::Disconnected(e.clone()));
-                    let _ = ret.send(Err(ServerError::internal().context(e)));
-                },
-            }
-        });
-    }
-
-    fn make_connect(&self, addr: String) -> (WsConnectionFuture, WsHandlerFuture) {
-        //                Stream                             User
-        //               ┌───────────────┐                 ┌──────────────┐
-        // ┌──────┐      │  ┌─────────┐  │    ┌────────┐   │  ┌────────┐  │
-        // │Server│──────┼─▶│ ws_read │──┼───▶│ msg_tx │───┼─▶│ msg_rx │  │
-        // └──────┘      │  └─────────┘  │    └────────┘   │  └────────┘  │
-        //     ▲         │               │                 │              │
-        //     │         │  ┌─────────┐  │    ┌────────┐   │  ┌────────┐  │
-        //     └─────────┼──│ws_write │◀─┼────│ ws_rx  │◀──┼──│ ws_tx  │  │
-        //               │  └─────────┘  │    └────────┘   │  └────────┘  │
-        //               └───────────────┘                 └──────────────┘
-        let (msg_tx, msg_rx) = futures_channel::mpsc::unbounded();
-        let (ws_tx, ws_rx) = futures_channel::mpsc::unbounded();
-        let handlers = self.handlers.clone();
-        *self.sender.write() = Some(Arc::new(WsSender { ws_tx }));
-        (
-            WsConnectionFuture::new(msg_tx, ws_rx, addr),
-            WsHandlerFuture::new(handlers, msg_rx),
-        )
     }
 }
 
@@ -239,21 +231,80 @@ impl WsSender {
     }
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use super::WsController;
-//
-//     #[tokio::test]
-//     async fn connect() {
-//         std::env::set_var("RUST_LOG", "Debug");
-//         env_logger::init();
-//
-//         let mut controller = WsController::new();
-//         let addr = format!("{}/123", flowy_net::config::WS_ADDR.as_str());
-//         let (a, b) = controller.make_connect(addr);
-//         tokio::select! {
-//             r = a => println!("write completed {:?}", r),
-//             _ = b => println!("read completed"),
-//         };
-//     }
-// }
+struct WsConnectAction {
+    addr: String,
+    handlers: Handlers,
+}
+
+struct WsConnectResult {
+    stream: WsStream,
+    handlers_fut: WsHandlerFuture,
+    sender: WsSender,
+}
+
+#[pin_project]
+struct WsConnectActionFut {
+    addr: String,
+    #[pin]
+    conn: WsConnectionFuture,
+    handlers_fut: Option<WsHandlerFuture>,
+    sender: Option<WsSender>,
+}
+
+impl WsConnectActionFut {
+    fn new(addr: String, handlers: Handlers) -> Self {
+        //                Stream                             User
+        //               ┌───────────────┐                 ┌──────────────┐
+        // ┌──────┐      │  ┌─────────┐  │    ┌────────┐   │  ┌────────┐  │
+        // │Server│──────┼─▶│ ws_read │──┼───▶│ msg_tx │───┼─▶│ msg_rx │  │
+        // └──────┘      │  └─────────┘  │    └────────┘   │  └────────┘  │
+        //     ▲         │               │                 │              │
+        //     │         │  ┌─────────┐  │    ┌────────┐   │  ┌────────┐  │
+        //     └─────────┼──│ws_write │◀─┼────│ ws_rx  │◀──┼──│ ws_tx  │  │
+        //               │  └─────────┘  │    └────────┘   │  └────────┘  │
+        //               └───────────────┘                 └──────────────┘
+        log::debug!("🐴 ws start connect: {}", &addr);
+        let (msg_tx, msg_rx) = futures_channel::mpsc::unbounded();
+        let (ws_tx, ws_rx) = futures_channel::mpsc::unbounded();
+        let sender = WsSender { ws_tx };
+        let handlers_fut = WsHandlerFuture::new(handlers, msg_rx);
+        let conn = WsConnectionFuture::new(msg_tx, ws_rx, addr.clone());
+        Self {
+            addr,
+            conn,
+            handlers_fut: Some(handlers_fut),
+            sender: Some(sender),
+        }
+    }
+}
+
+impl Future for WsConnectActionFut {
+    type Output = Result<WsConnectResult, WsError>;
+    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        let mut this = self.project();
+        match ready!(this.conn.as_mut().poll(cx)) {
+            Ok(stream) => {
+                let handlers_fut = this.handlers_fut.take().expect("Only take once");
+                let sender = this.sender.take().expect("Only take once");
+                Poll::Ready(Ok(WsConnectResult {
+                    stream,
+                    handlers_fut,
+                    sender,
+                }))
+            },
+            Err(e) => Poll::Ready(Err(WsError::internal().context(e))),
+        }
+    }
+}
+
+impl Action for WsConnectAction {
+    type Future = Pin<Box<dyn Future<Output = Result<Self::Item, Self::Error>> + Send + Sync>>;
+    type Item = WsConnectResult;
+    type Error = WsError;
+
+    fn run(&mut self) -> Self::Future {
+        let addr = self.addr.clone();
+        let handlers = self.handlers.clone();
+        Box::pin(WsConnectActionFut::new(addr, handlers))
+    }
+}

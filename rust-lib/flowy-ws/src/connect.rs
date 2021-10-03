@@ -21,7 +21,9 @@ pub struct WsConnectionFuture {
     msg_tx: Option<MsgSender>,
     ws_rx: Option<MsgReceiver>,
     #[pin]
-    fut: BoxFuture<'static, Result<(WebSocketStream<MaybeTlsStream<TcpStream>>, Response), Error>>,
+    fut: Pin<
+        Box<dyn Future<Output = Result<(WebSocketStream<MaybeTlsStream<TcpStream>>, Response), Error>> + Send + Sync>,
+    >,
 }
 
 impl WsConnectionFuture {
