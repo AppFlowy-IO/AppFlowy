@@ -2,10 +2,7 @@ use crate::{
     entities::doc::{RevId, RevType, Revision, RevisionRange},
     errors::{internal_error, DocError},
     services::{
-        doc::revision::{
-            store_actor::{RevisionCmd, RevisionStoreActor},
-            util::NotifyOpenDocAction,
-        },
+        doc::revision::store_actor::{RevisionCmd, RevisionStoreActor},
         util::RevIdCounter,
         ws::DocumentWebSocket,
     },
@@ -31,33 +28,22 @@ pub trait RevisionServer: Send + Sync {
 
 pub struct RevisionManager {
     doc_id: String,
-    user_id: String,
     rev_id_counter: RevIdCounter,
-    ws: Arc<dyn DocumentWebSocket>,
     rev_store: mpsc::Sender<RevisionCmd>,
 }
 
 impl RevisionManager {
-    pub fn new(
-        doc_id: &str,
-        user_id: &str,
-        rev_id: RevId,
-        ws: Arc<dyn DocumentWebSocket>,
-        rev_store: mpsc::Sender<RevisionCmd>,
-    ) -> Self {
-        notify_open_doc(&ws, user_id, doc_id, &rev_id);
+    pub fn new(doc_id: &str, rev_id: RevId, rev_store: mpsc::Sender<RevisionCmd>) -> Self {
         let rev_id_counter = RevIdCounter::new(rev_id.into());
         Self {
             doc_id: doc_id.to_string(),
-            user_id: user_id.to_string(),
             rev_id_counter,
-            ws,
             rev_store,
         }
     }
 
     #[tracing::instrument(level = "debug", skip(self))]
-    pub async fn add_revision(&self, revision: Revision) -> Result<(), DocError> {
+    pub async fn add_revision(&self, revision: &Revision) -> Result<(), DocError> {
         let (ret, rx) = oneshot::channel();
         let cmd = RevisionCmd::Revision {
             revision: revision.clone(),
@@ -65,13 +51,6 @@ impl RevisionManager {
         };
         let _ = self.rev_store.send(cmd).await;
         let result = rx.await.map_err(internal_error)?;
-        if result.is_ok() && revision.ty.is_local() {
-            match self.ws.send(revision.into()) {
-                Ok(_) => {},
-                Err(e) => log::error!("Send delta failed: {:?}", e),
-            };
-        }
-
         result
     }
 
@@ -91,6 +70,8 @@ impl RevisionManager {
         (cur, next)
     }
 
+    pub fn update_rev_id(&self, rev_id: i64) { self.rev_id_counter.set(rev_id); }
+
     pub async fn send_revisions(&self, range: RevisionRange) -> Result<(), DocError> {
         debug_assert!(&range.doc_id == &self.doc_id);
         let (ret, rx) = oneshot::channel();
@@ -101,38 +82,4 @@ impl RevisionManager {
         unimplemented!()
         // Ok(())
     }
-
-    #[tracing::instrument(
-        level = "debug",
-        skip(self),
-        fields(
-            doc_id = %self.doc_id.clone(),
-            rev_id = %self.rev_id(),
-        )
-    )]
-    pub fn handle_ws_state_changed(&self, state: &WsState) {
-        match state {
-            WsState::Init => {},
-            WsState::Connected(_) => {
-                let rev_id: RevId = self.rev_id().into();
-                notify_open_doc(&self.ws, &self.user_id, &self.doc_id, &rev_id);
-            },
-            WsState::Disconnected(_) => {},
-        }
-    }
-}
-
-// FIXME:
-// user_id may be invalid if the user switch to another account while
-// theNotifyOpenDocAction is flying
-fn notify_open_doc(ws: &Arc<dyn DocumentWebSocket>, user_id: &str, doc_id: &str, rev_id: &RevId) {
-    let action = NotifyOpenDocAction::new(user_id, doc_id, rev_id, ws);
-    let strategy = ExponentialBackoff::from_millis(50).take(3);
-    let retry = Retry::spawn(strategy, action);
-    tokio::spawn(async move {
-        match retry.await {
-            Ok(_) => {},
-            Err(e) => log::error!("Notify open doc failed: {}", e),
-        }
-    });
 }

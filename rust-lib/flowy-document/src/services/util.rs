@@ -34,4 +34,6 @@ impl RevIdCounter {
         self.value()
     }
     pub fn value(&self) -> i64 { self.0.load(SeqCst) }
+
+    pub fn set(&self, n: i64) { let _ = self.0.fetch_update(SeqCst, SeqCst, |_| Some(n)); }
 }

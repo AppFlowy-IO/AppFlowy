@@ -45,7 +45,7 @@ async fn sync_open_empty_doc_and_sync_from_server_using_ws() {
         DocScript::OpenDoc,
         DocScript::SetServerDocument(json, 3),
         DocScript::ConnectWs,
-        DocScript::AssertClient(r#"[{"insert":"123\n\n"}]"#),
+        DocScript::AssertClient(r#"[{"insert":"\n123\n"}]"#),
     ])
     .await;
 }
@@ -62,8 +62,8 @@ async fn sync_open_non_empty_doc_and_sync_with_sever() {
         DocScript::SetServerDocument(json, 3),
         DocScript::SendText(0, "abc"),
         DocScript::ConnectWs,
-        DocScript::AssertClient(r#"[{"insert":"123\nabc\n"}]"#),
-        // DocScript::AssertServer(r#"[{"insert":"123\nabc\n"}]"#),
+        DocScript::AssertClient(r#"[{"insert":"abc\n123\n"}]"#),
+        DocScript::AssertServer(r#"[{"insert":"abc\n123\n"}]"#),
     ])
     .await;
 }

@@ -39,7 +39,7 @@ impl std::default::Default for RevType {
 #[derive(Clone, Debug, ProtoBuf, Default)]
 pub struct RevId {
     #[pb(index = 1)]
-    inner: i64,
+    pub inner: i64,
 }
 
 impl AsRef<i64> for RevId {

@@ -1,6 +1,6 @@
 mod manager;
+mod model;
 mod store_actor;
-mod util;
 
 pub use manager::*;
 pub use store_actor::*;

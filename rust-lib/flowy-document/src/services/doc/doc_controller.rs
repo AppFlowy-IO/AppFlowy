@@ -14,7 +14,7 @@ use crate::{
     services::{
         cache::DocCache,
         doc::{
-            edit::ClientEditDoc,
+            edit::{ClientEditDoc, EditDocWsHandler},
             revision::{DocRevision, RevisionServer},
         },
         server::Server,
@@ -127,7 +127,8 @@ impl DocController {
         });
 
         let edit_ctx = Arc::new(ClientEditDoc::new(doc_id, pool, ws, server, user).await?);
-        self.ws_manager.register_handler(doc_id, edit_ctx.clone());
+        let ws_handler = Arc::new(EditDocWsHandler(edit_ctx.clone()));
+        self.ws_manager.register_handler(doc_id, ws_handler);
         self.cache.set(edit_ctx.clone());
         Ok(edit_ctx)
     }

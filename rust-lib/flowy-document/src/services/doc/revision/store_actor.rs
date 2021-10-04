@@ -1,7 +1,7 @@
 use crate::{
     entities::doc::{RevId, Revision, RevisionRange},
     errors::{internal_error, DocError, DocResult},
-    services::doc::revision::{util::RevisionOperation, DocRevision, RevisionServer},
+    services::doc::revision::{model::RevisionOperation, DocRevision, RevisionServer},
     sql_tables::{RevState, RevTableSql},
 };
 use async_stream::stream;

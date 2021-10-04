@@ -1,17 +1,20 @@
 use crate::{
-    entities::doc::RevId,
+    entities::doc::{RevId, Revision},
     errors::{internal_error, DocResult},
     services::doc::{
-        edit::{message::EditMsg, DocId},
+        edit::{
+            message::{EditMsg, TransformDeltas},
+            DocId,
+        },
         Document,
     },
     sql_tables::{DocTableChangeset, DocTableSql},
 };
 use async_stream::stream;
 use flowy_database::ConnectionPool;
-use flowy_ot::core::Delta;
+use flowy_ot::core::{Delta, OperationTransformable};
 use futures::stream::StreamExt;
-use std::sync::Arc;
+use std::{convert::TryFrom, sync::Arc};
 use tokio::sync::{mpsc, RwLock};
 
 pub struct DocumentEditActor {
@@ -61,13 +64,20 @@ impl DocumentEditActor {
     async fn handle_message(&self, msg: EditMsg) -> DocResult<()> {
         match msg {
             EditMsg::Delta { delta, ret } => {
-                let result = self.document.write().await.compose_delta(&delta);
-                log::debug!(
-                    "Compose push delta: {}. result: {}",
-                    delta.to_json(),
-                    self.document.read().await.to_json()
-                );
+                let result = self.compose_delta(delta).await;
                 let _ = ret.send(result);
+            },
+            EditMsg::RemoteRevision { bytes, ret } => {
+                let revision = Revision::try_from(bytes)?;
+                let delta = Delta::from_bytes(&revision.delta_data)?;
+                let rev_id: RevId = revision.rev_id.into();
+                let (server_prime, client_prime) = self.document.read().await.delta().transform(&delta)?;
+                let transform_delta = TransformDeltas {
+                    client_prime,
+                    server_prime,
+                    server_rev_id: rev_id,
+                };
+                let _ = ret.send(Ok(transform_delta));
             },
             EditMsg::Insert { index, data, ret } => {
                 let delta = self.document.write().await.insert(index, data);
@@ -113,6 +123,16 @@ impl DocumentEditActor {
             },
         }
         Ok(())
+    }
+
+    async fn compose_delta(&self, delta: Delta) -> DocResult<()> {
+        let result = self.document.write().await.compose_delta(&delta);
+        log::debug!(
+            "Compose push delta: {}. result: {}",
+            delta.to_json(),
+            self.document.read().await.to_json()
+        );
+        result
     }
 
     #[tracing::instrument(level = "debug", skip(self, rev_id), err)]

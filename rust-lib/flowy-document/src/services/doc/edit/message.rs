@@ -1,7 +1,8 @@
 use crate::{errors::DocResult, services::doc::UndoResult};
 use flowy_ot::core::{Attribute, Delta, Interval};
 
-use crate::entities::doc::RevId;
+use crate::entities::doc::{RevId, Revision};
+use bytes::Bytes;
 use tokio::sync::oneshot;
 
 pub type Ret<T> = oneshot::Sender<DocResult<T>>;
@@ -9,6 +10,10 @@ pub enum EditMsg {
     Delta {
         delta: Delta,
         ret: Ret<()>,
+    },
+    RemoteRevision {
+        bytes: Bytes,
+        ret: Ret<TransformDeltas>,
     },
     Insert {
         index: usize,
@@ -49,4 +54,10 @@ pub enum EditMsg {
         rev_id: RevId,
         ret: Ret<()>,
     },
+}
+
+pub struct TransformDeltas {
+    pub client_prime: Delta,
+    pub server_prime: Delta,
+    pub server_rev_id: RevId,
 }

@@ -68,6 +68,7 @@ impl ServerEditDoc {
         if cur_rev_id > rev_id {
             let doc_delta = self.document.read().delta().clone();
             let cli_revision = self.mk_revision(rev_id, doc_delta);
+            log::debug!("Server push rev");
             let ws_cli_revision = mk_push_rev_ws_message(&self.doc_id, cli_revision);
             user.socket.do_send(ws_cli_revision).map_err(internal_error)?;
         }
@@ -98,6 +99,7 @@ impl ServerEditDoc {
                 if cur_rev_id != revision.base_rev_id {
                     // The server document is outdated, try to get the missing revision from the
                     // client.
+                    log::debug!("Server push rev");
                     user.socket
                         .do_send(mk_pull_rev_ws_message(&self.doc_id, cur_rev_id, revision.rev_id))
                         .map_err(internal_error)?;
