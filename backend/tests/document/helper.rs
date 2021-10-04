@@ -114,7 +114,7 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
             let doc_id = context.read().doc_id.clone();
             match script {
                 DocScript::ConnectWs => {
-                    // sleep(Duration::from_millis(300)).await;
+                    sleep(Duration::from_millis(300)).await;
                     let user_session = context.read().user_session.clone();
                     let token = user_session.token().unwrap();
                     let _ = user_session.start_ws_connection(&token).await.unwrap();

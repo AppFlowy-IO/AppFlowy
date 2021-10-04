@@ -4,8 +4,10 @@ use crate::{
     services::{doc::revision::store_actor::RevisionCmd, util::RevIdCounter, ws::DocumentWebSocket},
 };
 use flowy_infra::future::ResultFuture;
-use flowy_ot::core::Delta;
+use flowy_ot::core::{Delta, OperationTransformable};
 
+use crate::entities::doc::RevType;
+use flowy_ot::errors::OTError;
 use tokio::sync::{mpsc, oneshot};
 
 pub struct DocRevision {
@@ -63,14 +65,35 @@ impl RevisionManager {
 
     pub fn update_rev_id(&self, rev_id: i64) { self.rev_id_counter.set(rev_id); }
 
-    pub async fn send_revisions(&self, range: RevisionRange) -> Result<(), DocError> {
+    pub async fn send_revisions(&self, range: RevisionRange) -> Result<Revision, DocError> {
         debug_assert!(&range.doc_id == &self.doc_id);
         let (ret, rx) = oneshot::channel();
         let sender = self.rev_store.clone();
-        let _ = sender.send(RevisionCmd::SendRevisions { range, ret }).await;
-        let _revisions = rx.await.map_err(internal_error)??;
+        let cmd = RevisionCmd::GetRevisions {
+            range: range.clone(),
+            ret,
+        };
+        let _ = sender.send(cmd).await;
+        let revisions = rx.await.map_err(internal_error)??;
+        let mut new_delta = Delta::new();
+        for revision in revisions {
+            match Delta::from_bytes(revision.delta_data) {
+                Ok(delta) => {
+                    new_delta = new_delta.compose(&delta)?;
+                },
+                Err(_) => {},
+            }
+        }
 
-        unimplemented!()
-        // Ok(())
+        let delta_data = new_delta.to_bytes();
+        let revision = Revision::new(
+            range.from_rev_id,
+            range.to_rev_id,
+            delta_data.to_vec(),
+            &self.doc_id,
+            RevType::Remote,
+        );
+
+        Ok(revision)
     }
 }

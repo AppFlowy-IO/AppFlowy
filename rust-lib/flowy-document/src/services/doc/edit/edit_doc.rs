@@ -47,8 +47,6 @@ impl ClientEditDoc {
     ) -> DocResult<Self> {
         let rev_store = spawn_rev_store_actor(doc_id, pool.clone(), server.clone());
         let DocRevision { rev_id, delta } = fetch_document(rev_store.clone()).await?;
-        log::info!("😁 Document delta: {:?}", delta);
-
         let rev_manager = Arc::new(RevisionManager::new(doc_id, rev_id, rev_store));
         let document = spawn_doc_edit_actor(doc_id, delta, pool.clone());
         let doc_id = doc_id.to_string();
@@ -262,7 +260,8 @@ impl ClientEditDoc {
             },
             WsDataType::PullRev => {
                 let range = RevisionRange::try_from(bytes)?;
-                let _ = self.rev_manager.send_revisions(range).await?;
+                let revision = self.rev_manager.send_revisions(range).await?;
+                self.ws.send(revision.into());
             },
             WsDataType::NewDocUser => {},
             WsDataType::Acked => {
@@ -290,7 +289,10 @@ impl WsDocumentHandler for EditDocWsHandler {
     fn state_changed(&self, state: &WsState) {
         match state {
             WsState::Init => {},
-            WsState::Connected(_) => self.0.notify_open_doc(),
+            WsState::Connected(_) => {
+                log::debug!("ws state changed: {}", state);
+                self.0.notify_open_doc()
+            },
             WsState::Disconnected(_) => {},
         }
     }

@@ -23,7 +23,7 @@ pub enum RevisionCmd {
     AckRevision {
         rev_id: RevId,
     },
-    SendRevisions {
+    GetRevisions {
         range: RevisionRange,
         ret: oneshot::Sender<DocResult<Vec<Revision>>>,
     },
@@ -84,7 +84,7 @@ impl RevisionStoreActor {
             RevisionCmd::AckRevision { rev_id } => {
                 self.handle_revision_acked(rev_id).await;
             },
-            RevisionCmd::SendRevisions { range, ret } => {
+            RevisionCmd::GetRevisions { range, ret } => {
                 let result = revs_in_range(&self.doc_id, self.persistence.clone(), range).await;
                 let _ = ret.send(result);
             },

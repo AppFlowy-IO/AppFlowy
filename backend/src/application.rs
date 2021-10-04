@@ -134,7 +134,6 @@ pub async fn init_app_context(configuration: &Settings) -> AppContext {
     ));
 
     let ws_server = WsServer::new().start();
-
     AppContext::new(ws_server, pg_pool)
 }
 

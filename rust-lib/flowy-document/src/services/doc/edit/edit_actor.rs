@@ -128,7 +128,7 @@ impl DocumentEditActor {
     async fn compose_delta(&self, delta: Delta) -> DocResult<()> {
         let result = self.document.write().await.compose_delta(&delta);
         log::debug!(
-            "Compose push delta: {}. result: {}",
+            "Client compose push delta: {}. result: {}",
             delta.to_json(),
             self.document.read().await.to_json()
         );

@@ -1,23 +1,49 @@
 use crate::document::helper::{DocScript, DocumentTest};
 use flowy_document::services::doc::{Document, FlowyDoc};
 
+#[rustfmt::skip]
+//                         ┌─────────┐       ┌─────────┐
+//                         │ Server  │       │ Client  │
+//                         └─────────┘       └─────────┘
+//           ┌────────────────┐ │                 │ ┌────────────────┐
+//           │ops: [] rev: 0  │◀┼─────   ws   ────┼─┤ops: [] rev: 0  │
+//           └────────────────┘ │                 │ └────────────────┘
+//       ┌────────────────────┐ │                 │ ┌────────────────────┐
+//       │ops: ["abc"] rev: 1 │◀┼─────   ws   ────┼─│ops: ["abc"] rev: 1 │
+//       └────────────────────┘ │                 │ └────────────────────┘
+// ┌──────────────────────────┐ │                 │ ┌──────────────────────┐
+// │ops: ["abc", "123"] rev: 2│◀┼─────   ws   ────┼─│ops: ["123"] rev: 2   │
+// └──────────────────────────┘ │                 │ └──────────────────────┘
+//                              │                 │
 #[actix_rt::test]
-async fn sync_doc_insert_text() {
+async fn delta_sync_after_ws_connection() {
     let test = DocumentTest::new().await;
     test.run_scripts(vec![
         DocScript::ConnectWs,
         DocScript::OpenDoc,
         DocScript::SendText(0, "abc"),
         DocScript::SendText(3, "123"),
-        DocScript::SendText(6, "efg"),
-        DocScript::AssertClient(r#"[{"insert":"abc123efg\n"}]"#),
-        DocScript::AssertServer(r#"[{"insert":"abc123efg\n"}]"#),
+        DocScript::AssertClient(r#"[{"insert":"abc123\n"}]"#),
+        DocScript::AssertServer(r#"[{"insert":"abc123\n"}]"#),
     ])
     .await;
 }
 
+#[rustfmt::skip]
+//                         ┌─────────┐       ┌─────────┐
+//                         │ Server  │       │ Client  │
+//                         └─────────┘       └─────────┘
+// ┌──────────────────────────┐ │                 │
+// │ops: ["123", "456"] rev: 2│ │                 │
+// └──────────────────────────┘ │                 │
+//                              │                 │
+//                              ◀── http request ─┤ Open doc
+//                              │                 │
+//                              │                 │  ┌──────────────────────────┐
+//                              ├──http response──┼─▶│ops: ["123", "456"] rev: 2│
+//                              │                 │  └──────────────────────────┘
 #[actix_rt::test]
-async fn sync_open_empty_doc_and_sync_from_server() {
+async fn delta_sync_with_http_request() {
     let test = DocumentTest::new().await;
     let mut document = Document::new::<FlowyDoc>();
     document.insert(0, "123").unwrap();
@@ -34,7 +60,7 @@ async fn sync_open_empty_doc_and_sync_from_server() {
 }
 
 #[actix_rt::test]
-async fn sync_open_empty_doc_and_sync_from_server_using_ws() {
+async fn delta_sync_with_server_push_delta() {
     let test = DocumentTest::new().await;
     let mut document = Document::new::<FlowyDoc>();
     document.insert(0, "123").unwrap();
@@ -49,8 +75,35 @@ async fn sync_open_empty_doc_and_sync_from_server_using_ws() {
     .await;
 }
 
+#[rustfmt::skip]
+//                         ┌─────────┐       ┌─────────┐
+//                         │ Server  │       │ Client  │
+//                         └─────────┘       └─────────┘
+//                              │                 │
+//                              │                 │
+//                              ◀── http request ─┤ Open doc
+//                              │                 │
+//                              │                 │  ┌───────────────┐
+//                              ├──http response──┼─▶│ops: [] rev: 0 │
+//         ┌───────────────────┐│                 │  └───────────────┘
+//         │ops: ["123"] rev: 3││                 │
+//         └───────────────────┘│                 │  ┌────────────────────┐
+//                              │                 │  │ops: ["abc"] rev: 1 │
+//                              │                 │  └────────────────────┘
+//                              │                 │
+//                              ◀─────────────────┤ start ws connection
+//                              │                 │
+//                              ◀─────────────────┤ notify with rev: 1
+//                              │                 │
+//        ┌───────────────────┐ │                 │ ┌──────────────────────────┐
+//        │ops: ["123"] rev: 3│ ├────Push Rev─────▶ │ops: ["abc", "123"] rev: 4│
+//        └───────────────────┘ │                 │ └──────────────────────────┘
+// ┌──────────────────────────┐ │                 │ ┌────────────────────┐
+// │ops: ["abc", "123"] rev: 4│ ◀────Push Rev─────┤ │ops: ["abc"] rev: 4 │
+// └──────────────────────────┘ │                 │ └────────────────────┘
+//                              │                 │
 #[actix_rt::test]
-async fn sync_open_non_empty_doc_and_sync_with_sever() {
+async fn delta_sync_while_local_rev_less_than_server_rev() {
     let test = DocumentTest::new().await;
     let mut document = Document::new::<FlowyDoc>();
     document.insert(0, "123").unwrap();
@@ -63,6 +116,26 @@ async fn sync_open_non_empty_doc_and_sync_with_sever() {
         DocScript::ConnectWs,
         DocScript::AssertClient(r#"[{"insert":"abc\n123\n"}]"#),
         DocScript::AssertServer(r#"[{"insert":"abc\n123\n"}]"#),
+    ])
+    .await;
+}
+
+#[actix_rt::test]
+async fn delta_sync_while_local_rev_greater_than_server_rev() {
+    let test = DocumentTest::new().await;
+    let mut document = Document::new::<FlowyDoc>();
+    document.insert(0, "123").unwrap();
+    let json = document.to_json();
+
+    test.run_scripts(vec![
+        DocScript::SetServerDocument(json, 1),
+        DocScript::OpenDoc,
+        DocScript::AssertClient(r#"[{"insert":"123\n"}]"#),
+        DocScript::SendText(3, "abc"),
+        DocScript::SendText(6, "efg"),
+        DocScript::ConnectWs,
+        DocScript::AssertClient(r#"[{"insert":"123abcefg\n"}]"#),
+        DocScript::AssertServer(r#"[{"insert":"123abcefg\n"}]"#),
     ])
     .await;
 }

@@ -81,8 +81,9 @@ impl RevTableSql {
     ) -> Result<Vec<Revision>, DocError> {
         let rev_tables = dsl::rev_table
             .filter(rev_id.ge(range.from_rev_id))
-            .filter(rev_id.lt(range.to_rev_id))
+            .filter(rev_id.le(range.to_rev_id))
             .filter(doc_id.eq(doc_id_s))
+            .order(rev_id.asc())
             .load::<RevTable>(conn)?;
 
         let revisions = rev_tables
