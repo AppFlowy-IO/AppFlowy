@@ -39,23 +39,23 @@ impl std::default::Default for RevType {
 #[derive(Clone, Debug, ProtoBuf, Default)]
 pub struct RevId {
     #[pb(index = 1)]
-    pub inner: i64,
+    pub value: i64,
 }
 
 impl AsRef<i64> for RevId {
-    fn as_ref(&self) -> &i64 { &self.inner }
+    fn as_ref(&self) -> &i64 { &self.value }
 }
 
 impl std::convert::Into<i64> for RevId {
-    fn into(self) -> i64 { self.inner }
+    fn into(self) -> i64 { self.value }
 }
 
 impl std::convert::From<i64> for RevId {
-    fn from(value: i64) -> Self { RevId { inner: value } }
+    fn from(value: i64) -> Self { RevId { value } }
 }
 
 impl std::fmt::Display for RevId {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_fmt(format_args!("{}", self.inner)) }
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_fmt(format_args!("{}", self.value)) }
 }
 
 #[derive(PartialEq, Eq, Clone, Default, ProtoBuf)]

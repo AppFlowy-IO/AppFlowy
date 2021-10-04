@@ -3,8 +3,7 @@ use bytes::Bytes;
 
 use dashmap::DashMap;
 use flowy_ws::WsState;
-use std::{collections::HashMap, convert::TryInto, sync::Arc};
-use tokio::sync::broadcast::error::RecvError;
+use std::{convert::TryInto, sync::Arc};
 
 pub(crate) trait WsDocumentHandler: Send + Sync {
     fn receive(&self, data: WsDocumentData);

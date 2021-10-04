@@ -1,20 +1,11 @@
 use crate::{
-    entities::doc::{RevId, RevType, Revision, RevisionRange},
+    entities::doc::{RevId, Revision, RevisionRange},
     errors::{internal_error, DocError},
-    services::{
-        doc::revision::store_actor::{RevisionCmd, RevisionStoreActor},
-        util::RevIdCounter,
-        ws::DocumentWebSocket,
-    },
+    services::{doc::revision::store_actor::RevisionCmd, util::RevIdCounter, ws::DocumentWebSocket},
 };
-use flowy_infra::{
-    future::ResultFuture,
-    retry::{ExponentialBackoff, Retry},
-};
+use flowy_infra::future::ResultFuture;
 use flowy_ot::core::Delta;
-use flowy_ws::WsState;
-use parking_lot::RwLock;
-use std::{collections::VecDeque, sync::Arc};
+
 use tokio::sync::{mpsc, oneshot};
 
 pub struct DocRevision {
@@ -77,7 +68,7 @@ impl RevisionManager {
         let (ret, rx) = oneshot::channel();
         let sender = self.rev_store.clone();
         let _ = sender.send(RevisionCmd::SendRevisions { range, ret }).await;
-        let revisions = rx.await.map_err(internal_error)??;
+        let _revisions = rx.await.map_err(internal_error)??;
 
         unimplemented!()
         // Ok(())

@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 message RevId {
-    int64 inner = 1;
+    int64 value = 1;
 }
 message Revision {
     int64 base_rev_id = 1;

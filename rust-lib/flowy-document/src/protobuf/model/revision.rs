@@ -26,7 +26,7 @@
 #[derive(PartialEq,Clone,Default)]
 pub struct RevId {
     // message fields
-    pub inner: i64,
+    pub value: i64,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -43,19 +43,19 @@ impl RevId {
         ::std::default::Default::default()
     }
 
-    // int64 inner = 1;
+    // int64 value = 1;
 
 
-    pub fn get_inner(&self) -> i64 {
-        self.inner
+    pub fn get_value(&self) -> i64 {
+        self.value
     }
-    pub fn clear_inner(&mut self) {
-        self.inner = 0;
+    pub fn clear_value(&mut self) {
+        self.value = 0;
     }
 
     // Param is passed by value, moved
-    pub fn set_inner(&mut self, v: i64) {
-        self.inner = v;
+    pub fn set_value(&mut self, v: i64) {
+        self.value = v;
     }
 }
 
@@ -73,7 +73,7 @@ impl ::protobuf::Message for RevId {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
                     let tmp = is.read_int64()?;
-                    self.inner = tmp;
+                    self.value = tmp;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -87,8 +87,8 @@ impl ::protobuf::Message for RevId {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if self.inner != 0 {
-            my_size += ::protobuf::rt::value_size(1, self.inner, ::protobuf::wire_format::WireTypeVarint);
+        if self.value != 0 {
+            my_size += ::protobuf::rt::value_size(1, self.value, ::protobuf::wire_format::WireTypeVarint);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -96,8 +96,8 @@ impl ::protobuf::Message for RevId {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if self.inner != 0 {
-            os.write_int64(1, self.inner)?;
+        if self.value != 0 {
+            os.write_int64(1, self.value)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -138,9 +138,9 @@ impl ::protobuf::Message for RevId {
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt64>(
-                "inner",
-                |m: &RevId| { &m.inner },
-                |m: &mut RevId| { &mut m.inner },
+                "value",
+                |m: &RevId| { &m.value },
+                |m: &mut RevId| { &mut m.value },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<RevId>(
                 "RevId",
@@ -158,7 +158,7 @@ impl ::protobuf::Message for RevId {
 
 impl ::protobuf::Clear for RevId {
     fn clear(&mut self) {
-        self.inner = 0;
+        self.value = 0;
         self.unknown_fields.clear();
     }
 }
@@ -799,8 +799,8 @@ impl ::protobuf::reflect::ProtobufValue for RevType {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0erevision.proto\"\x1d\n\x05RevId\x12\x14\n\x05inner\x18\x01\x20\x01\
-    (\x03R\x05inner\"\xa3\x01\n\x08Revision\x12\x1e\n\x0bbase_rev_id\x18\x01\
+    \n\x0erevision.proto\"\x1d\n\x05RevId\x12\x14\n\x05value\x18\x01\x20\x01\
+    (\x03R\x05value\"\xa3\x01\n\x08Revision\x12\x1e\n\x0bbase_rev_id\x18\x01\
     \x20\x01(\x03R\tbaseRevId\x12\x15\n\x06rev_id\x18\x02\x20\x01(\x03R\x05r\
     evId\x12\x1d\n\ndelta_data\x18\x03\x20\x01(\x0cR\tdeltaData\x12\x10\n\
     \x03md5\x18\x04\x20\x01(\tR\x03md5\x12\x15\n\x06doc_id\x18\x05\x20\x01(\

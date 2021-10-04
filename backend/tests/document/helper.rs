@@ -14,7 +14,7 @@ use flowy_user::services::user::UserSession;
 // use crate::helper::*;
 use crate::helper::{spawn_server, TestServer};
 use flowy_document::protobuf::UpdateDocParams;
-use flowy_ot::core::Delta;
+
 use parking_lot::RwLock;
 use serde::__private::Formatter;
 

@@ -19,7 +19,7 @@ use flowy_database::{
 use flowy_infra::kv::KV;
 use flowy_net::config::ServerConfig;
 use flowy_sqlite::ConnectionPool;
-use flowy_ws::{WsController, WsMessage, WsMessageHandler, WsState};
+use flowy_ws::{WsController, WsMessageHandler};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;

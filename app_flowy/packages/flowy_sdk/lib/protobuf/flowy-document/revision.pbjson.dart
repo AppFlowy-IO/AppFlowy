@@ -23,12 +23,12 @@ final $typed_data.Uint8List revTypeDescriptor = $convert.base64Decode('CgdSZXZUe
 const RevId$json = const {
   '1': 'RevId',
   '2': const [
-    const {'1': 'inner', '3': 1, '4': 1, '5': 3, '10': 'inner'},
+    const {'1': 'value', '3': 1, '4': 1, '5': 3, '10': 'value'},
   ],
 };
 
 /// Descriptor for `RevId`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List revIdDescriptor = $convert.base64Decode('CgVSZXZJZBIUCgVpbm5lchgBIAEoA1IFaW5uZXI=');
+final $typed_data.Uint8List revIdDescriptor = $convert.base64Decode('CgVSZXZJZBIUCgV2YWx1ZRgBIAEoA1IFdmFsdWU=');
 @$core.Deprecated('Use revisionDescriptor instead')
 const Revision$json = const {
   '1': 'Revision',

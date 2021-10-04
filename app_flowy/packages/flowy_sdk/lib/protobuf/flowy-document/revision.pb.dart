@@ -16,17 +16,17 @@ export 'revision.pbenum.dart';
 
 class RevId extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RevId', createEmptyInstance: create)
-    ..aInt64(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'inner')
+    ..aInt64(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'value')
     ..hasRequiredFields = false
   ;
 
   RevId._() : super();
   factory RevId({
-    $fixnum.Int64? inner,
+    $fixnum.Int64? value,
   }) {
     final _result = create();
-    if (inner != null) {
-      _result.inner = inner;
+    if (value != null) {
+      _result.value = value;
     }
     return _result;
   }
@@ -52,13 +52,13 @@ class RevId extends $pb.GeneratedMessage {
   static RevId? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $fixnum.Int64 get inner => $_getI64(0);
+  $fixnum.Int64 get value => $_getI64(0);
   @$pb.TagNumber(1)
-  set inner($fixnum.Int64 v) { $_setInt64(0, v); }
+  set value($fixnum.Int64 v) { $_setInt64(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasInner() => $_has(0);
+  $core.bool hasValue() => $_has(0);
   @$pb.TagNumber(1)
-  void clearInner() => clearField(1);
+  void clearValue() => clearField(1);
 }
 
 class Revision extends $pb.GeneratedMessage {

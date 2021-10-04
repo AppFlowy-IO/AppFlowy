@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use diesel::SqliteConnection;
-use parking_lot::RwLock;
 
 use flowy_database::ConnectionPool;
 use flowy_net::config::ServerConfig;

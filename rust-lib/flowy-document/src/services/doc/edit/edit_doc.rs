@@ -212,7 +212,7 @@ impl ClientEditDoc {
             server_rev_id,
         } = rx.await.map_err(internal_error)??;
 
-        if self.rev_manager.rev_id() >= server_rev_id.0 {
+        if self.rev_manager.rev_id() >= server_rev_id.value {
             // Ignore this push revision if local_rev_id >= server_rev_id
             return Ok(());
         }
@@ -232,7 +232,7 @@ impl ClientEditDoc {
 
         // save the revision
         let revision = Revision::new(
-            server_rev_id.0,
+            server_rev_id.value,
             local_rev_id,
             client_prime.to_bytes().to_vec(),
             &self.doc_id,
@@ -242,7 +242,7 @@ impl ClientEditDoc {
 
         // send the server_prime delta
         let revision = Revision::new(
-            server_rev_id.0,
+            server_rev_id.value,
             local_rev_id,
             server_prime.to_bytes().to_vec(),
             &self.doc_id,

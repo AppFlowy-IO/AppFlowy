@@ -1,6 +1,5 @@
 mod edit_actor;
 mod edit_doc;
-mod interval;
 mod open_handle;
 
 pub use edit_actor::*;

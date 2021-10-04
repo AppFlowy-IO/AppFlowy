@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use bytes::Bytes;
-use parking_lot::RwLock;
+
 use tokio::time::{interval, Duration};
 
 use flowy_database::{ConnectionPool, SqliteConnection};

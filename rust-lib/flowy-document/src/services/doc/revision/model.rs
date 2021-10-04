@@ -1,12 +1,5 @@
-use crate::{
-    entities::doc::{NewDocUser, RevId, Revision},
-    errors::{DocError, DocResult},
-    services::ws::DocumentWebSocket,
-    sql_tables::RevState,
-};
-use flowy_infra::retry::Action;
-use futures::future::BoxFuture;
-use std::{future, sync::Arc};
+use crate::{entities::doc::Revision, errors::DocResult, services::ws::DocumentWebSocket, sql_tables::RevState};
+
 use tokio::sync::oneshot;
 
 pub type Sender = oneshot::Sender<DocResult<()>>;

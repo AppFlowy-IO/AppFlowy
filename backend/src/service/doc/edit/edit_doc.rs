@@ -224,7 +224,7 @@ fn mk_acked_ws_message(revision: &Revision) -> WsMessageAdaptor {
     // let _ = wtr.write_i64::<BigEndian>(revision.rev_id);
 
     let mut rev_id = RevId::new();
-    rev_id.set_inner(revision.rev_id);
+    rev_id.set_value(revision.rev_id);
     let data = rev_id.write_to_bytes().unwrap();
 
     let data = WsDocumentData {

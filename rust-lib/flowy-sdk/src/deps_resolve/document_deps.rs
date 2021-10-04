@@ -8,7 +8,7 @@ use flowy_document::{
 use flowy_document::{entities::ws::WsDocumentData, errors::internal_error, services::ws::WsStateReceiver};
 use flowy_user::{errors::ErrorCode, services::user::UserSession};
 use flowy_ws::{WsMessage, WsMessageHandler, WsModule};
-use parking_lot::RwLock;
+
 use std::{path::Path, sync::Arc};
 
 pub struct DocumentDepsResolver {

@@ -1,6 +1,5 @@
 use crate::document::helper::{DocScript, DocumentTest};
 use flowy_document::services::doc::{Document, FlowyDoc};
-use flowy_ot::core::Delta;
 
 #[actix_rt::test]
 async fn sync_doc_insert_text() {

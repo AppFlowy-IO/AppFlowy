@@ -1,7 +1,7 @@
 use crate::{errors::DocResult, services::doc::UndoResult};
 use flowy_ot::core::{Attribute, Delta, Interval};
 
-use crate::entities::doc::{RevId, Revision};
+use crate::entities::doc::RevId;
 use bytes::Bytes;
 use tokio::sync::oneshot;
 
