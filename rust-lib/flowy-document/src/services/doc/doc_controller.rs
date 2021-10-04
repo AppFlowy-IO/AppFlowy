@@ -27,20 +27,20 @@ use flowy_ot::core::Delta;
 pub(crate) struct DocController {
     server: Server,
     doc_sql: Arc<DocTableSql>,
-    ws: Arc<RwLock<WsDocumentManager>>,
+    ws_manager: Arc<WsDocumentManager>,
     cache: Arc<DocCache>,
     user: Arc<dyn DocumentUser>,
 }
 
 impl DocController {
-    pub(crate) fn new(server: Server, user: Arc<dyn DocumentUser>, ws: Arc<RwLock<WsDocumentManager>>) -> Self {
+    pub(crate) fn new(server: Server, user: Arc<dyn DocumentUser>, ws: Arc<WsDocumentManager>) -> Self {
         let doc_sql = Arc::new(DocTableSql {});
         let cache = Arc::new(DocCache::new());
         let controller = Self {
             server,
             doc_sql,
             user,
-            ws,
+            ws_manager: ws,
             cache: cache.clone(),
         };
         controller
@@ -74,7 +74,7 @@ impl DocController {
 
     pub(crate) fn close(&self, doc_id: &str) -> Result<(), DocError> {
         self.cache.remove(doc_id);
-        self.ws.write().remove_handler(doc_id);
+        self.ws_manager.remove_handler(doc_id);
         Ok(())
     }
 
@@ -84,7 +84,7 @@ impl DocController {
         let _ = self.doc_sql.delete_doc(doc_id, &*conn)?;
 
         self.cache.remove(doc_id);
-        self.ws.write().remove_handler(doc_id);
+        self.ws_manager.remove_handler(doc_id);
         let _ = self.delete_doc_on_server(params)?;
         Ok(())
     }
@@ -118,7 +118,7 @@ impl DocController {
         // Opti: require upgradable_read lock and then upgrade to write lock using
         // RwLockUpgradableReadGuard::upgrade(xx) of ws
         // let doc = self.read_doc(doc_id, pool.clone()).await?;
-        let ws_sender = self.ws.read().sender();
+        let ws = self.ws_manager.ws();
         let token = self.user.token()?;
         let user = self.user.clone();
         let server = Arc::new(RevisionServerImpl {
@@ -126,8 +126,8 @@ impl DocController {
             server: self.server.clone(),
         });
 
-        let edit_ctx = Arc::new(ClientEditDoc::new(doc_id, pool, ws_sender, server, user).await?);
-        self.ws.write().register_handler(doc_id, edit_ctx.clone());
+        let edit_ctx = Arc::new(ClientEditDoc::new(doc_id, pool, ws, server, user).await?);
+        self.ws_manager.register_handler(doc_id, edit_ctx.clone());
         self.cache.set(edit_ctx.clone());
         Ok(edit_ctx)
     }

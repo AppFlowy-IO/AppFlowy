@@ -7,16 +7,17 @@ use crate::{
     module::DocumentUser,
     services::{
         doc::{
-            edit::{actor::DocumentEditActor, message::EditMsg},
+            edit::{edit_actor::DocumentEditActor, message::EditMsg},
             revision::{DocRevision, RevisionCmd, RevisionManager, RevisionServer, RevisionStoreActor},
             UndoResult,
         },
-        ws::{WsDocumentHandler, WsDocumentSender},
+        ws::{DocumentWebSocket, WsDocumentHandler},
     },
 };
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_ot::core::{Attribute, Delta, Interval};
+use flowy_ws::WsState;
 use std::{convert::TryFrom, sync::Arc};
 use tokio::sync::{mpsc, mpsc::UnboundedSender, oneshot};
 
@@ -33,7 +34,7 @@ impl ClientEditDoc {
     pub(crate) async fn new(
         doc_id: &str,
         pool: Arc<ConnectionPool>,
-        ws: Arc<dyn WsDocumentSender>,
+        ws: Arc<dyn DocumentWebSocket>,
         server: Arc<dyn RevisionServer>,
         user: Arc<dyn DocumentUser>,
     ) -> DocResult<Self> {
@@ -64,7 +65,7 @@ impl ClientEditDoc {
         let _ = self.document.send(msg);
         let delta_data = rx.await.map_err(internal_error)??.to_bytes();
         let rev_id = self.mk_revision(&delta_data).await?;
-        save(rev_id.into(), self.document.clone()).await
+        save_document(self.document.clone(), rev_id.into()).await
     }
 
     pub async fn delete(&self, interval: Interval) -> Result<(), DocError> {
@@ -158,7 +159,7 @@ impl ClientEditDoc {
         let _ = rx.await.map_err(internal_error)??;
 
         let rev_id = self.mk_revision(&data).await?;
-        save(rev_id, self.document.clone()).await
+        save_document(self.document.clone(), rev_id).await
     }
 
     #[cfg(feature = "flowy_test")]
@@ -182,7 +183,7 @@ impl WsDocumentHandler for ClientEditDoc {
                 },
                 WsDataType::PullRev => {
                     let range = RevisionRange::try_from(bytes)?;
-                    let _ = rev_manager.send_revisions(range)?;
+                    let _ = rev_manager.send_revisions(range).await?;
                 },
                 WsDataType::NewDocUser => {},
                 WsDataType::Acked => {
@@ -200,11 +201,12 @@ impl WsDocumentHandler for ClientEditDoc {
             }
         });
     }
+    fn state_changed(&self, state: &WsState) { let _ = self.rev_manager.handle_ws_state_changed(state); }
 }
 
-async fn save(rev_id: RevId, document: UnboundedSender<EditMsg>) -> DocResult<()> {
+async fn save_document(document: UnboundedSender<EditMsg>, rev_id: RevId) -> DocResult<()> {
     let (ret, rx) = oneshot::channel::<DocResult<()>>();
-    let _ = document.send(EditMsg::SaveRevision { rev_id, ret });
+    let _ = document.send(EditMsg::SaveDocument { rev_id, ret });
     let result = rx.await.map_err(internal_error)?;
     result
 }
@@ -215,24 +217,16 @@ async fn handle_push_rev(
     document: UnboundedSender<EditMsg>,
 ) -> DocResult<()> {
     let revision = Revision::try_from(rev_bytes)?;
-    let _ = rev_manager.add_revision(revision).await?;
-    match rev_manager.next_compose_revision() {
-        None => Ok(()),
-        Some(revision) => {
-            let delta = Delta::from_bytes(&revision.delta_data)?;
-            let (ret, rx) = oneshot::channel::<DocResult<()>>();
-            let msg = EditMsg::Delta { delta, ret };
-            let _ = document.send(msg);
+    let _ = rev_manager.add_revision(revision.clone()).await?;
 
-            match rx.await.map_err(internal_error)? {
-                Ok(_) => save(revision.rev_id.into(), document).await,
-                Err(e) => {
-                    rev_manager.push_compose_revision(revision);
-                    Err(e)
-                },
-            }
-        },
-    }
+    let delta = Delta::from_bytes(&revision.delta_data)?;
+    let (ret, rx) = oneshot::channel::<DocResult<()>>();
+    let msg = EditMsg::Delta { delta, ret };
+    let _ = document.send(msg);
+    let _ = rx.await.map_err(internal_error)??;
+
+    save_document(document, revision.rev_id.into()).await;
+    Ok(())
 }
 
 fn spawn_rev_store_actor(

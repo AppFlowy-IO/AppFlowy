@@ -51,6 +51,7 @@ impl DocError {
     static_doc_error!(undo, ErrorCode::UndoFail);
     static_doc_error!(redo, ErrorCode::RedoFail);
     static_doc_error!(out_of_bound, ErrorCode::OutOfBound);
+    static_doc_error!(duplicate_rev, ErrorCode::DuplicateRevision);
 }
 
 pub fn internal_error<T>(e: T) -> DocError
@@ -63,27 +64,30 @@ where
 #[derive(Debug, Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
 pub enum ErrorCode {
     #[display(fmt = "DocIdInvalid")]
-    DocIdInvalid     = 0,
+    DocIdInvalid      = 0,
 
     #[display(fmt = "DocNotfound")]
-    DocNotfound      = 1,
+    DocNotfound       = 1,
 
     #[display(fmt = "Document websocket error")]
-    WsConnectError   = 10,
+    WsConnectError    = 10,
 
     #[display(fmt = "Undo failed")]
-    UndoFail         = 200,
+    UndoFail          = 200,
     #[display(fmt = "Redo failed")]
-    RedoFail         = 201,
+    RedoFail          = 201,
 
     #[display(fmt = "Interval out of bound")]
-    OutOfBound       = 202,
+    OutOfBound        = 202,
+
+    #[display(fmt = "Duplicate revision")]
+    DuplicateRevision = 400,
 
     #[display(fmt = "UserUnauthorized")]
-    UserUnauthorized = 999,
+    UserUnauthorized  = 999,
 
     #[display(fmt = "InternalError")]
-    InternalError    = 1000,
+    InternalError     = 1000,
 }
 
 impl std::default::Default for ErrorCode {

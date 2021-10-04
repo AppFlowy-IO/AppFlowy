@@ -10,6 +10,10 @@ pub enum RevType {
     Remote = 1,
 }
 
+impl RevType {
+    pub fn is_local(&self) -> bool { self == &RevType::Local }
+}
+
 impl std::default::Default for RevType {
     fn default() -> Self { RevType::Local }
 }
@@ -54,7 +58,7 @@ impl std::fmt::Display for RevId {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_fmt(format_args!("{}", self.inner)) }
 }
 
-#[derive(Clone, Default, ProtoBuf)]
+#[derive(PartialEq, Eq, Clone, Default, ProtoBuf)]
 pub struct Revision {
     #[pb(index = 1)]
     pub base_rev_id: i64,

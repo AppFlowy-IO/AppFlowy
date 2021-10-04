@@ -107,7 +107,7 @@ impl EditDocActor {
                     user: user.clone(),
                     socket: socket.clone(),
                 };
-                let _ = ret.send(self.edit_doc.new_connection(user, rev_id, self.pg_pool.clone()).await);
+                let _ = ret.send(self.edit_doc.new_doc_user(user, rev_id).await);
             },
         }
     }

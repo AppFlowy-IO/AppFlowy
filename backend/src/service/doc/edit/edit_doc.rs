@@ -5,7 +5,6 @@ use crate::service::{
 };
 use actix_web::web::Data;
 
-use crate::service::doc::edit::interval::Interval;
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_document::{
@@ -54,9 +53,18 @@ impl ServerEditDoc {
 
     pub fn document_json(&self) -> String { self.document.read().to_json() }
 
-    pub async fn new_connection(&self, user: EditUser, rev_id: i64, _pg_pool: Data<PgPool>) -> Result<(), ServerError> {
+    #[tracing::instrument(
+        level = "debug",
+        skip(self, user),
+        fields(
+            user_id = %user.id(),
+            rev_id = %rev_id,
+        )
+    )]
+    pub async fn new_doc_user(&self, user: EditUser, rev_id: i64) -> Result<(), ServerError> {
         self.users.insert(user.id(), user.clone());
         let cur_rev_id = self.rev_id.load(SeqCst);
+
         if cur_rev_id > rev_id {
             let doc_delta = self.document.read().delta().clone();
             let cli_revision = self.mk_revision(rev_id, doc_delta);

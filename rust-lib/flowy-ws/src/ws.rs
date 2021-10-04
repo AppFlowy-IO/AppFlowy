@@ -6,18 +6,16 @@ use crate::{
 };
 use bytes::Bytes;
 use dashmap::DashMap;
-use flowy_infra::{
-    future::{wrap_future, FnFuture},
-    retry::{Action, ExponentialBackoff, Retry},
-};
+use flowy_infra::retry::{Action, ExponentialBackoff, Retry};
 use flowy_net::errors::ServerError;
-use futures::future::BoxFuture;
+
 use futures_channel::mpsc::{UnboundedReceiver, UnboundedSender};
 use futures_core::{ready, Stream};
 use parking_lot::RwLock;
 use pin_project::pin_project;
 use std::{
     convert::TryFrom,
+    fmt::Formatter,
     future::Future,
     pin::Pin,
     sync::Arc,
@@ -43,6 +41,20 @@ pub enum WsState {
     Init,
     Connected(Arc<WsSender>),
     Disconnected(WsError),
+}
+
+impl std::fmt::Display for WsState {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            WsState::Init => f.write_str("Init"),
+            WsState::Connected(_) => f.write_str("Connected"),
+            WsState::Disconnected(_) => f.write_str("Disconnected"),
+        }
+    }
+}
+
+impl std::fmt::Debug for WsState {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str(&format!("{}", self)) }
 }
 
 pub struct WsController {

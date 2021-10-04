@@ -62,6 +62,11 @@ impl DocumentEditActor {
         match msg {
             EditMsg::Delta { delta, ret } => {
                 let result = self.document.write().await.compose_delta(&delta);
+                log::debug!(
+                    "Compose push delta: {}. result: {}",
+                    delta.to_json(),
+                    self.document.read().await.to_json()
+                );
                 let _ = ret.send(result);
             },
             EditMsg::Insert { index, data, ret } => {
@@ -102,7 +107,7 @@ impl DocumentEditActor {
                 let data = self.document.read().await.to_json();
                 let _ = ret.send(Ok(data));
             },
-            EditMsg::SaveRevision { rev_id, ret } => {
+            EditMsg::SaveDocument { rev_id, ret } => {
                 let result = self.save_to_disk(rev_id).await;
                 let _ = ret.send(result);
             },

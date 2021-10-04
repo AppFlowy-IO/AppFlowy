@@ -45,7 +45,7 @@ pub enum EditMsg {
     Doc {
         ret: Ret<String>,
     },
-    SaveRevision {
+    SaveDocument {
         rev_id: RevId,
         ret: Ret<()>,
     },

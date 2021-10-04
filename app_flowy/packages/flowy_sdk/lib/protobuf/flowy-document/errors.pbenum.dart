@@ -16,6 +16,7 @@ class ErrorCode extends $pb.ProtobufEnum {
   static const ErrorCode UndoFail = ErrorCode._(200, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UndoFail');
   static const ErrorCode RedoFail = ErrorCode._(201, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RedoFail');
   static const ErrorCode OutOfBound = ErrorCode._(202, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'OutOfBound');
+  static const ErrorCode DuplicateRevision = ErrorCode._(400, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DuplicateRevision');
   static const ErrorCode UserUnauthorized = ErrorCode._(999, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserUnauthorized');
   static const ErrorCode InternalError = ErrorCode._(1000, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'InternalError');
 
@@ -26,6 +27,7 @@ class ErrorCode extends $pb.ProtobufEnum {
     UndoFail,
     RedoFail,
     OutOfBound,
+    DuplicateRevision,
     UserUnauthorized,
     InternalError,
   ];

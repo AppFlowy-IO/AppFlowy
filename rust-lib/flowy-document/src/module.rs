@@ -29,7 +29,7 @@ pub struct FlowyDocument {
 impl FlowyDocument {
     pub fn new(
         user: Arc<dyn DocumentUser>,
-        ws_manager: Arc<RwLock<WsDocumentManager>>,
+        ws_manager: Arc<WsDocumentManager>,
         server_config: &ServerConfig,
     ) -> FlowyDocument {
         let server = construct_doc_server(server_config);

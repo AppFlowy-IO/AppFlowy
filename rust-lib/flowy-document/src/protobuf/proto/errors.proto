@@ -11,6 +11,7 @@ enum ErrorCode {
     UndoFail = 200;
     RedoFail = 201;
     OutOfBound = 202;
+    DuplicateRevision = 400;
     UserUnauthorized = 999;
     InternalError = 1000;
 }

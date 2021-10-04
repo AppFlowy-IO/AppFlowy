@@ -50,7 +50,7 @@ pub(crate) async fn read_doc(pool: &PgPool, params: QueryDocParams) -> Result<Do
 }
 
 #[tracing::instrument(level = "debug", skip(pool, params), err)]
-pub(crate) async fn update_doc(pool: &PgPool, mut params: UpdateDocParams) -> Result<(), ServerError> {
+pub async fn update_doc(pool: &PgPool, mut params: UpdateDocParams) -> Result<(), ServerError> {
     let doc_id = Uuid::parse_str(&params.doc_id)?;
     let mut transaction = pool
         .begin()

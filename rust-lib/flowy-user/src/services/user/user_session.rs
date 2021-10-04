@@ -16,10 +16,10 @@ use flowy_database::{
     ExpressionMethods,
     UserDatabaseConnection,
 };
-use flowy_infra::{future::wrap_future, kv::KV};
+use flowy_infra::kv::KV;
 use flowy_net::config::ServerConfig;
 use flowy_sqlite::ConnectionPool;
-use flowy_ws::{WsController, WsMessage, WsMessageHandler};
+use flowy_ws::{WsController, WsMessage, WsMessageHandler, WsState};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -50,7 +50,7 @@ pub struct UserSession {
     #[allow(dead_code)]
     server: Server,
     session: RwLock<Option<Session>>,
-    ws_controller: Arc<WsController>,
+    pub ws_controller: Arc<WsController>,
     status_callback: SessionStatusCallback,
 }
 
@@ -184,12 +184,6 @@ impl UserSession {
 
     pub fn add_ws_handler(&self, handler: Arc<dyn WsMessageHandler>) {
         let _ = self.ws_controller.add_handler(handler);
-    }
-
-    pub fn send_ws_msg<T: Into<WsMessage>>(&self, msg: T) -> Result<(), UserError> {
-        let sender = self.ws_controller.sender()?;
-        sender.send_msg(msg)?;
-        Ok(())
     }
 }
 

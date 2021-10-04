@@ -1,7 +1,7 @@
 use crate::{
     entities::doc::{NewDocUser, RevId, Revision},
     errors::{DocError, DocResult},
-    services::ws::WsDocumentSender,
+    services::ws::DocumentWebSocket,
     sql_tables::RevState,
 };
 use flowy_infra::retry::Action;
@@ -54,11 +54,11 @@ pub(crate) struct NotifyOpenDocAction {
     user_id: String,
     rev_id: RevId,
     doc_id: String,
-    ws: Arc<dyn WsDocumentSender>,
+    ws: Arc<dyn DocumentWebSocket>,
 }
 
 impl NotifyOpenDocAction {
-    pub(crate) fn new(user_id: &str, doc_id: &str, rev_id: &RevId, ws: &Arc<dyn WsDocumentSender>) -> Self {
+    pub(crate) fn new(user_id: &str, doc_id: &str, rev_id: &RevId, ws: &Arc<dyn DocumentWebSocket>) -> Self {
         Self {
             user_id: user_id.to_owned(),
             rev_id: rev_id.clone(),

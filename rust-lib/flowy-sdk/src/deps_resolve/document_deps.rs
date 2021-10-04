@@ -2,10 +2,10 @@ use bytes::Bytes;
 use flowy_document::{
     errors::DocError,
     module::DocumentUser,
-    prelude::{WsDocumentManager, WsDocumentSender},
+    prelude::{DocumentWebSocket, WsDocumentManager},
 };
 
-use flowy_document::entities::ws::WsDocumentData;
+use flowy_document::{entities::ws::WsDocumentData, errors::internal_error, services::ws::WsStateReceiver};
 use flowy_user::{errors::ErrorCode, services::user::UserSession};
 use flowy_ws::{WsMessage, WsMessageHandler, WsModule};
 use parking_lot::RwLock;
@@ -18,7 +18,7 @@ pub struct DocumentDepsResolver {
 impl DocumentDepsResolver {
     pub fn new(user_session: Arc<UserSession>) -> Self { Self { user_session } }
 
-    pub fn split_into(self) -> (Arc<dyn DocumentUser>, Arc<RwLock<WsDocumentManager>>) {
+    pub fn split_into(self) -> (Arc<dyn DocumentUser>, Arc<WsDocumentManager>) {
         let user = Arc::new(DocumentUserImpl {
             user: self.user_session.clone(),
         });
@@ -27,7 +27,7 @@ impl DocumentDepsResolver {
             user: self.user_session.clone(),
         });
 
-        let ws_manager = Arc::new(RwLock::new(WsDocumentManager::new(sender)));
+        let ws_manager = Arc::new(WsDocumentManager::new(sender));
 
         let ws_handler = Arc::new(WsDocumentReceiver {
             inner: ws_manager.clone(),
@@ -73,19 +73,19 @@ struct WsSenderImpl {
     user: Arc<UserSession>,
 }
 
-impl WsDocumentSender for WsSenderImpl {
+impl DocumentWebSocket for WsSenderImpl {
     fn send(&self, data: WsDocumentData) -> Result<(), DocError> {
         let msg: WsMessage = data.into();
-        let _ = self
-            .user
-            .send_ws_msg(msg)
-            .map_err(|e| DocError::internal().context(e))?;
+        let sender = self.user.ws_controller.sender().map_err(internal_error)?;
+        sender.send_msg(msg).map_err(internal_error)?;
         Ok(())
     }
+
+    fn state_notify(&self) -> WsStateReceiver { self.user.ws_controller.state_subscribe() }
 }
 
 struct WsDocumentReceiver {
-    inner: Arc<RwLock<WsDocumentManager>>,
+    inner: Arc<WsDocumentManager>,
 }
 
 impl WsMessageHandler for WsDocumentReceiver {
@@ -93,6 +93,6 @@ impl WsMessageHandler for WsDocumentReceiver {
 
     fn receive_message(&self, msg: WsMessage) {
         let data = Bytes::from(msg.data);
-        self.inner.read().receive_data(data);
+        self.inner.handle_ws_data(data);
     }
 }

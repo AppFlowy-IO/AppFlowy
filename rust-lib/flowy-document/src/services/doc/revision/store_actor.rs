@@ -18,6 +18,7 @@ use tokio::{
 pub enum RevisionCmd {
     Revision {
         revision: Revision,
+        ret: oneshot::Sender<DocResult<()>>,
     },
     AckRevision {
         rev_id: RevId,
@@ -76,8 +77,9 @@ impl RevisionStoreActor {
 
     async fn handle_message(&self, cmd: RevisionCmd) {
         match cmd {
-            RevisionCmd::Revision { revision } => {
-                self.handle_new_revision(revision).await;
+            RevisionCmd::Revision { revision, ret } => {
+                let result = self.handle_new_revision(revision).await;
+                let _ = ret.send(result);
             },
             RevisionCmd::AckRevision { rev_id } => {
                 self.handle_revision_acked(rev_id).await;
@@ -93,11 +95,16 @@ impl RevisionStoreActor {
         }
     }
 
-    async fn handle_new_revision(&self, revision: Revision) {
+    async fn handle_new_revision(&self, revision: Revision) -> DocResult<()> {
+        if self.revs.contains_key(&revision.rev_id) {
+            return Err(DocError::duplicate_rev().context(format!("Duplicate revision id: {}", revision.rev_id)));
+        }
+
         let mut operation = RevisionOperation::new(&revision);
         let _receiver = operation.receiver();
         self.revs.insert(revision.rev_id, operation);
         self.save_revisions().await;
+        Ok(())
     }
 
     async fn handle_revision_acked(&self, rev_id: RevId) {
