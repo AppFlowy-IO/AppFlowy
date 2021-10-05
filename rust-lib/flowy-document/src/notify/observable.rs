@@ -1,5 +1,5 @@
+use flowy_dart_notify::DartNotifyBuilder;
 use flowy_derive::ProtoBuf_Enum;
-use flowy_observable::DartNotifyBuilder;
 const OBSERVABLE_CATEGORY: &'static str = "Doc";
 #[derive(ProtoBuf_Enum, Debug)]
 pub(crate) enum DocObservable {

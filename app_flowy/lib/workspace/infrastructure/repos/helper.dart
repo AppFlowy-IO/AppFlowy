@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import 'package:flowy_sdk/protobuf/flowy-observable/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-dart-notify/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/observable.pb.dart';

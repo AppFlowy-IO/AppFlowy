@@ -61,7 +61,7 @@ pub extern "C" fn sync_command(input: *const u8, len: usize) -> *const u8 {
 
 #[no_mangle]
 pub extern "C" fn set_stream_port(port: i64) -> i32 {
-    flowy_observable::dart::DartStreamSender::set_port(port);
+    flowy_dart_notify::dart::DartStreamSender::set_port(port);
     return 0;
 }
 

@@ -12,7 +12,7 @@ flowy-dispatch = { path = "../flowy-dispatch" }
 flowy-derive = { path = "../flowy-derive" }
 flowy-database = { path = "../flowy-database" }
 flowy-infra = { path = "../flowy-infra" }
-flowy-observable = { path = "../flowy-observable" }
+flowy-dart-notify = { path = "../flowy-dart-notify" }
 flowy-ot = { path = "../flowy-ot" }
 flowy-ws = { path = "../flowy-ws" }
 flowy-net = { path = "../flowy-net", features = ["flowy_request"] }

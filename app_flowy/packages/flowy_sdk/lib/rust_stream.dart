@@ -3,7 +3,7 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ffi';
 import 'package:flowy_log/flowy_log.dart';
-import 'protobuf/flowy-observable/subject.pb.dart';
+import 'protobuf/flowy-dart-notify/subject.pb.dart';
 
 typedef ObserverCallback = void Function(ObservableSubject observable);
 

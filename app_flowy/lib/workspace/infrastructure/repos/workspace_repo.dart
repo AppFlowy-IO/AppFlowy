@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-observable/subject.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-dart-notify/subject.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';

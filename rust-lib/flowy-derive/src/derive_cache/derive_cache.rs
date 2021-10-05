@@ -15,8 +15,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         "HashMap" => TypeCategory::Map,
         "u8" => TypeCategory::Bytes,
         "String" => TypeCategory::Str,
-        "ObservableSubject"
-        | "KeyValue"
+        "KeyValue"
         | "QueryAppRequest"
         | "QueryAppParams"
         | "CreateAppRequest"
@@ -66,6 +65,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "DocError"
         | "FFIRequest"
         | "FFIResponse"
+        | "ObservableSubject"
         | "SignInRequest"
         | "SignInParams"
         | "SignInResponse"

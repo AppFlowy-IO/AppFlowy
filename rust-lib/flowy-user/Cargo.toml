@@ -14,7 +14,7 @@ flowy-sqlite = { path = "../flowy-sqlite" }
 flowy-infra = { path = "../flowy-infra" }
 flowy-net = { path = "../flowy-net", features = ["flowy_request"] }
 flowy-ws = { path = "../flowy-ws"}
-flowy-observable = { path = "../flowy-observable" }
+flowy-dart-notify = { path = "../flowy-dart-notify" }
 
 tracing = { version = "0.1", features = ["log"] }
 bytes = "1.0"

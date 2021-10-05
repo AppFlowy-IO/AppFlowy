@@ -4,7 +4,7 @@ import 'package:app_flowy/workspace/infrastructure/repos/helper.dart';
 import 'package:dartz/dartz.dart';
 import 'package:app_flowy/workspace/domain/i_user.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
-import 'package:flowy_sdk/protobuf/flowy-observable/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-dart-notify/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart' as user_error;
 import 'package:flowy_sdk/protobuf/flowy-user/observable.pb.dart' as user;
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
