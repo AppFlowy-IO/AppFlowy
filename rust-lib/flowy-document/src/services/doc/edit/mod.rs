@@ -1,4 +1,4 @@
-mod edit_actor;
+mod doc_actor;
 mod edit_doc;
 mod message;
 mod model;

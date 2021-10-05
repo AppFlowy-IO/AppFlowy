@@ -2,7 +2,7 @@ use crate::{
     entities::app::{App, CreateAppParams, *},
     errors::*,
     module::{WorkspaceDatabase, WorkspaceUser},
-    observable::*,
+    notify::*,
     services::{helper::spawn, server::Server},
     sql_tables::app::{AppTable, AppTableChangeset, AppTableSql},
 };
@@ -36,7 +36,7 @@ impl AppController {
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.save_app(app.clone(), &*conn)?;
             let apps = self.read_local_apps(&app.workspace_id, &*conn)?;
-            notify(&app.workspace_id, WorkspaceObservable::WorkspaceCreateApp)
+            dart_notify(&app.workspace_id, WorkspaceObservable::WorkspaceCreateApp)
                 .payload(apps)
                 .send();
             Ok(())
@@ -64,7 +64,7 @@ impl AppController {
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let app = self.sql.delete_app(app_id, &*conn)?;
             let apps = self.read_local_apps(&app.workspace_id, &*conn)?;
-            notify(&app.workspace_id, WorkspaceObservable::WorkspaceDeleteApp)
+            dart_notify(&app.workspace_id, WorkspaceObservable::WorkspaceDeleteApp)
                 .payload(apps)
                 .send();
             Ok(())
@@ -87,7 +87,9 @@ impl AppController {
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.sql.update_app(changeset, conn)?;
             let app: App = self.sql.read_app(&app_id, None, conn)?.into();
-            notify(&app_id, WorkspaceObservable::AppUpdated).payload(app).send();
+            dart_notify(&app_id, WorkspaceObservable::AppUpdated)
+                .payload(app)
+                .send();
             Ok(())
         })?;
 

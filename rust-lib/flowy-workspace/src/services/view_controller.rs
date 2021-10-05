@@ -2,7 +2,7 @@ use crate::{
     entities::view::{CreateViewParams, UpdateViewParams, View},
     errors::WorkspaceError,
     module::WorkspaceDatabase,
-    observable::notify,
+    notify::dart_notify,
     services::{helper::spawn, server::Server},
     sql_tables::view::{ViewTable, ViewTableChangeset, ViewTableSql},
 };
@@ -11,7 +11,7 @@ use crate::{
     entities::view::{DeleteViewParams, QueryViewParams, RepeatedView},
     errors::internal_error,
     module::WorkspaceUser,
-    observable::WorkspaceObservable,
+    notify::WorkspaceObservable,
 };
 use flowy_database::SqliteConnection;
 use flowy_document::{
@@ -55,7 +55,7 @@ impl ViewController {
                 .create(CreateDocParams::new(&view.id, params.data), conn)?;
 
             let repeated_view = self.read_local_views_belong_to(&view.belong_to_id, conn)?;
-            notify(&view.belong_to_id, WorkspaceObservable::AppCreateView)
+            dart_notify(&view.belong_to_id, WorkspaceObservable::AppCreateView)
                 .payload(repeated_view)
                 .send();
             Ok(())
@@ -93,7 +93,7 @@ impl ViewController {
             let _ = self.document.delete(params.into(), conn)?;
 
             let repeated_view = self.read_local_views_belong_to(&view_table.belong_to_id, conn)?;
-            notify(&view_table.belong_to_id, WorkspaceObservable::AppDeleteView)
+            dart_notify(&view_table.belong_to_id, WorkspaceObservable::AppDeleteView)
                 .payload(repeated_view)
                 .send();
             Ok(())
@@ -119,7 +119,9 @@ impl ViewController {
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.sql.update_view(changeset, conn)?;
             let view: View = self.sql.read_view(&view_id, None, conn)?.into();
-            notify(&view_id, WorkspaceObservable::ViewUpdated).payload(view).send();
+            dart_notify(&view_id, WorkspaceObservable::ViewUpdated)
+                .payload(view)
+                .send();
             Ok(())
         })?;
 

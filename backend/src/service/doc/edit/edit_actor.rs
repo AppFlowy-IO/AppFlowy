@@ -8,7 +8,7 @@ use flowy_document::protobuf::{Doc, Revision};
 use flowy_net::errors::{internal_error, Result as DocResult, ServerError};
 use futures::stream::StreamExt;
 use sqlx::PgPool;
-use std::sync::Arc;
+use std::sync::{atomic::Ordering::SeqCst, Arc};
 use tokio::{
     sync::{mpsc, oneshot},
     task::spawn_blocking,
@@ -34,6 +34,9 @@ pub enum EditMsg {
     },
     DocumentJson {
         ret: oneshot::Sender<DocResult<String>>,
+    },
+    DocumentRevId {
+        ret: oneshot::Sender<DocResult<i64>>,
     },
     NewDocUser {
         user: Arc<WsUser>,
@@ -96,6 +99,10 @@ impl EditDocActor {
                     .await
                     .map_err(internal_error);
                 let _ = ret.send(json);
+            },
+            EditMsg::DocumentRevId { ret } => {
+                let edit_context = self.edit_doc.clone();
+                let _ = ret.send(Ok(edit_context.rev_id.load(SeqCst)));
             },
             EditMsg::NewDocUser {
                 user,

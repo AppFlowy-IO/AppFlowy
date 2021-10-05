@@ -6,7 +6,7 @@ lazy_static! {
 
 use crate::{
     errors::{ErrorCode, WorkspaceError},
-    observable::*,
+    notify::*,
 };
 use flowy_net::{request::ResponseMiddleware, response::FlowyResponse};
 
@@ -21,7 +21,9 @@ impl ResponseMiddleware for WorkspaceMiddleware {
                     None => {},
                     Some(token) => {
                         let error = WorkspaceError::new(ErrorCode::UserUnauthorized, "");
-                        notify(token, WorkspaceObservable::UserUnauthorized).error(error).send()
+                        dart_notify(token, WorkspaceObservable::UserUnauthorized)
+                            .error(error)
+                            .send()
                     },
                 }
             }

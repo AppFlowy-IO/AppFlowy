@@ -1,5 +1,6 @@
 use crate::document::helper::{DocScript, DocumentTest};
 use flowy_document::services::doc::{Document, FlowyDoc};
+use flowy_ot::core::{Attribute, Interval};
 
 #[rustfmt::skip]
 //                         ┌─────────┐       ┌─────────┐
@@ -16,15 +17,33 @@ use flowy_document::services::doc::{Document, FlowyDoc};
 // └──────────────────────────┘ │                 │ └──────────────────────┘
 //                              │                 │
 #[actix_rt::test]
-async fn delta_sync_after_ws_connection() {
+async fn delta_sync_while_editing() {
     let test = DocumentTest::new().await;
     test.run_scripts(vec![
         DocScript::ConnectWs,
         DocScript::OpenDoc,
-        DocScript::SendText(0, "abc"),
-        DocScript::SendText(3, "123"),
+        DocScript::InsertText(0, "abc"),
+        DocScript::InsertText(3, "123"),
         DocScript::AssertClient(r#"[{"insert":"abc123\n"}]"#),
-        DocScript::AssertServer(r#"[{"insert":"abc123\n"}]"#),
+        DocScript::AssertServer(r#"[{"insert":"abc123\n"}]"#, 2),
+    ])
+    .await;
+}
+
+#[actix_rt::test]
+async fn delta_sync_while_editing_with_attribute() {
+    let test = DocumentTest::new().await;
+    test.run_scripts(vec![
+        DocScript::ConnectWs,
+        DocScript::OpenDoc,
+        DocScript::InsertText(0, "abc"),
+        DocScript::FormatText(Interval::new(0, 3), Attribute::Bold(true)),
+        DocScript::AssertClient(r#"[{"insert":"abc","attributes":{"bold":true}},{"insert":"\n"}]"#),
+        DocScript::AssertServer(r#"[{"insert":"abc","attributes":{"bold":true}},{"insert":"\n"}]"#, 2),
+        DocScript::InsertText(3, "efg"),
+        DocScript::FormatText(Interval::new(3, 5), Attribute::Italic(true)),
+        DocScript::AssertClient(r#"[{"insert":"abc","attributes":{"bold":true}},{"insert":"ef","attributes":{"bold":true,"italic":true}},{"insert":"g","attributes":{"bold":true}},{"insert":"\n"}]"#),
+        DocScript::AssertServer(r#"[{"insert":"abc","attributes":{"bold":true}},{"insert":"ef","attributes":{"bold":true,"italic":true}},{"insert":"g","attributes":{"bold":true}},{"insert":"\n"}]"#, 4),
     ])
     .await;
 }
@@ -54,7 +73,7 @@ async fn delta_sync_with_http_request() {
         DocScript::SetServerDocument(json, 3),
         DocScript::OpenDoc,
         DocScript::AssertClient(r#"[{"insert":"123456\n"}]"#),
-        DocScript::AssertServer(r#"[{"insert":"123456\n"}]"#),
+        DocScript::AssertServer(r#"[{"insert":"123456\n"}]"#, 3),
     ])
     .await;
 }
@@ -116,10 +135,10 @@ async fn delta_sync_while_local_rev_less_than_server_rev() {
     test.run_scripts(vec![
         DocScript::OpenDoc,
         DocScript::SetServerDocument(json, 3),
-        DocScript::SendText(0, "abc"),
+        DocScript::InsertText(0, "abc"),
         DocScript::ConnectWs,
         DocScript::AssertClient(r#"[{"insert":"abc\n123\n"}]"#),
-        DocScript::AssertServer(r#"[{"insert":"abc\n123\n"}]"#),
+        DocScript::AssertServer(r#"[{"insert":"abc\n123\n"}]"#, 4),
     ])
     .await;
 }
@@ -160,11 +179,11 @@ async fn delta_sync_while_local_rev_greater_than_server_rev() {
         DocScript::SetServerDocument(json, 1),
         DocScript::OpenDoc,
         DocScript::AssertClient(r#"[{"insert":"123\n"}]"#),
-        DocScript::SendText(3, "abc"),
-        DocScript::SendText(6, "efg"),
+        DocScript::InsertText(3, "abc"),
+        DocScript::InsertText(6, "efg"),
         DocScript::ConnectWs,
         DocScript::AssertClient(r#"[{"insert":"123abcefg\n"}]"#),
-        DocScript::AssertServer(r#"[{"insert":"123abcefg\n"}]"#),
+        DocScript::AssertServer(r#"[{"insert":"123abcefg\n"}]"#, 3),
     ])
     .await;
 }

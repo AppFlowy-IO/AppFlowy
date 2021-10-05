@@ -4,10 +4,10 @@ pub mod dart;
 pub mod entities;
 mod protobuf;
 
-use crate::{dart::RustStreamSender, entities::ObservableSubject};
+use crate::{dart::DartStreamSender, entities::ObservableSubject};
 use flowy_dispatch::prelude::ToBytes;
 
-pub struct NotifyBuilder {
+pub struct DartNotifyBuilder {
     id: String,
     payload: Option<Bytes>,
     error: Option<Bytes>,
@@ -15,7 +15,7 @@ pub struct NotifyBuilder {
     ty: i32,
 }
 
-impl NotifyBuilder {
+impl DartNotifyBuilder {
     pub fn new<T: Into<i32>>(id: &str, ty: T, source: &str) -> Self {
         Self {
             id: id.to_owned(),
@@ -73,7 +73,7 @@ impl NotifyBuilder {
         };
 
         log::debug!("Notify {}", subject);
-        match RustStreamSender::post(subject) {
+        match DartStreamSender::post(subject) {
             Ok(_) => {},
             Err(error) => log::error!("Send observable subject failed: {}", error),
         }

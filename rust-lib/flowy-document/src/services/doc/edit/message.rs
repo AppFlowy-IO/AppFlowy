@@ -6,7 +6,7 @@ use bytes::Bytes;
 use tokio::sync::oneshot;
 
 pub type Ret<T> = oneshot::Sender<DocResult<T>>;
-pub enum EditMsg {
+pub enum DocumentMsg {
     Delta {
         delta: Delta,
         ret: Ret<()>,

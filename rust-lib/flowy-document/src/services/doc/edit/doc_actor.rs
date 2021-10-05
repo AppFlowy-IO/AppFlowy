@@ -3,7 +3,7 @@ use crate::{
     errors::{internal_error, DocResult},
     services::doc::{
         edit::{
-            message::{EditMsg, TransformDeltas},
+            message::{DocumentMsg, TransformDeltas},
             DocId,
         },
         Document,
@@ -17,19 +17,19 @@ use futures::stream::StreamExt;
 use std::{convert::TryFrom, sync::Arc};
 use tokio::sync::{mpsc, RwLock};
 
-pub struct DocumentEditActor {
+pub struct DocumentActor {
     doc_id: DocId,
     document: Arc<RwLock<Document>>,
     pool: Arc<ConnectionPool>,
-    receiver: Option<mpsc::UnboundedReceiver<EditMsg>>,
+    receiver: Option<mpsc::UnboundedReceiver<DocumentMsg>>,
 }
 
-impl DocumentEditActor {
+impl DocumentActor {
     pub fn new(
         doc_id: &str,
         delta: Delta,
         pool: Arc<ConnectionPool>,
-        receiver: mpsc::UnboundedReceiver<EditMsg>,
+        receiver: mpsc::UnboundedReceiver<DocumentMsg>,
     ) -> Self {
         let doc_id = doc_id.to_string();
         let document = Arc::new(RwLock::new(Document::from_delta(delta)));
@@ -61,13 +61,13 @@ impl DocumentEditActor {
             .await;
     }
 
-    async fn handle_message(&self, msg: EditMsg) -> DocResult<()> {
+    async fn handle_message(&self, msg: DocumentMsg) -> DocResult<()> {
         match msg {
-            EditMsg::Delta { delta, ret } => {
+            DocumentMsg::Delta { delta, ret } => {
                 let result = self.compose_delta(delta).await;
                 let _ = ret.send(result);
             },
-            EditMsg::RemoteRevision { bytes, ret } => {
+            DocumentMsg::RemoteRevision { bytes, ret } => {
                 let revision = Revision::try_from(bytes)?;
                 let delta = Delta::from_bytes(&revision.delta_data)?;
                 let rev_id: RevId = revision.rev_id.into();
@@ -79,15 +79,15 @@ impl DocumentEditActor {
                 };
                 let _ = ret.send(Ok(transform_delta));
             },
-            EditMsg::Insert { index, data, ret } => {
+            DocumentMsg::Insert { index, data, ret } => {
                 let delta = self.document.write().await.insert(index, data);
                 let _ = ret.send(delta);
             },
-            EditMsg::Delete { interval, ret } => {
+            DocumentMsg::Delete { interval, ret } => {
                 let result = self.document.write().await.delete(interval);
                 let _ = ret.send(result);
             },
-            EditMsg::Format {
+            DocumentMsg::Format {
                 interval,
                 attribute,
                 ret,
@@ -95,29 +95,29 @@ impl DocumentEditActor {
                 let result = self.document.write().await.format(interval, attribute);
                 let _ = ret.send(result);
             },
-            EditMsg::Replace { interval, data, ret } => {
+            DocumentMsg::Replace { interval, data, ret } => {
                 let result = self.document.write().await.replace(interval, data);
                 let _ = ret.send(result);
             },
-            EditMsg::CanUndo { ret } => {
+            DocumentMsg::CanUndo { ret } => {
                 let _ = ret.send(self.document.read().await.can_undo());
             },
-            EditMsg::CanRedo { ret } => {
+            DocumentMsg::CanRedo { ret } => {
                 let _ = ret.send(self.document.read().await.can_redo());
             },
-            EditMsg::Undo { ret } => {
+            DocumentMsg::Undo { ret } => {
                 let result = self.document.write().await.undo();
                 let _ = ret.send(result);
             },
-            EditMsg::Redo { ret } => {
+            DocumentMsg::Redo { ret } => {
                 let result = self.document.write().await.redo();
                 let _ = ret.send(result);
             },
-            EditMsg::Doc { ret } => {
+            DocumentMsg::Doc { ret } => {
                 let data = self.document.read().await.to_json();
                 let _ = ret.send(Ok(data));
             },
-            EditMsg::SaveDocument { rev_id, ret } => {
+            DocumentMsg::SaveDocument { rev_id, ret } => {
                 let result = self.save_to_disk(rev_id).await;
                 let _ = ret.send(result);
             },

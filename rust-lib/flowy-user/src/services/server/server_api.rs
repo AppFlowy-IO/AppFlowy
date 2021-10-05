@@ -52,7 +52,7 @@ impl UserServerAPI for UserServer {
     fn ws_addr(&self) -> String { self.config.ws_addr() }
 }
 
-use crate::{errors::ErrorCode, observable::*};
+use crate::{errors::ErrorCode, notify::*};
 use flowy_net::response::FlowyResponse;
 use lazy_static::lazy_static;
 use std::sync::Arc;
@@ -70,7 +70,7 @@ impl ResponseMiddleware for Middleware {
                     None => {},
                     Some(token) => {
                         let error = UserError::new(ErrorCode::UserUnauthorized, "");
-                        notify(token, UserObservable::UserUnauthorized).error(error).send()
+                        dart_notify(token, UserObservable::UserUnauthorized).error(error).send()
                     },
                 }
             }

@@ -1,6 +1,6 @@
 use flowy_derive::ProtoBuf_Enum;
 
-use flowy_observable::NotifyBuilder;
+use flowy_observable::DartNotifyBuilder;
 
 const OBSERVABLE_CATEGORY: &'static str = "User";
 
@@ -20,4 +20,6 @@ impl std::convert::Into<i32> for UserObservable {
     fn into(self) -> i32 { self as i32 }
 }
 
-pub(crate) fn notify(id: &str, ty: UserObservable) -> NotifyBuilder { NotifyBuilder::new(id, ty, OBSERVABLE_CATEGORY) }
+pub(crate) fn dart_notify(id: &str, ty: UserObservable) -> DartNotifyBuilder {
+    DartNotifyBuilder::new(id, ty, OBSERVABLE_CATEGORY)
+}

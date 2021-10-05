@@ -15,6 +15,7 @@ use flowy_user::services::user::UserSession;
 use crate::helper::{spawn_server, TestServer};
 use flowy_document::protobuf::UpdateDocParams;
 
+use flowy_ot::core::{Attribute, Interval};
 use parking_lot::RwLock;
 use serde::__private::Formatter;
 
@@ -25,25 +26,12 @@ pub struct DocumentTest {
 #[derive(Clone)]
 pub enum DocScript {
     ConnectWs,
-    SendText(usize, &'static str),
+    InsertText(usize, &'static str),
+    FormatText(Interval, Attribute),
     AssertClient(&'static str),
-    AssertServer(&'static str),
+    AssertServer(&'static str, i64),
     SetServerDocument(String, i64), // delta_json, rev_id
     OpenDoc,
-}
-
-impl std::fmt::Display for DocScript {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let name = match self {
-            DocScript::ConnectWs => "ConnectWs",
-            DocScript::SendText(_, _) => "SendText",
-            DocScript::AssertClient(_) => "AssertClient",
-            DocScript::AssertServer(_) => "AssertServer",
-            DocScript::SetServerDocument(_, _) => "SetServerDocument",
-            DocScript::OpenDoc => "OpenDoc",
-        };
-        f.write_str(&format!("******** {} *********", name))
-    }
 }
 
 impl DocumentTest {
@@ -122,19 +110,28 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
                 DocScript::OpenDoc => {
                     context.write().open_doc().await;
                 },
-                DocScript::SendText(index, s) => {
+                DocScript::InsertText(index, s) => {
                     context.read().client_edit_context().insert(index, s).await.unwrap();
+                },
+                DocScript::FormatText(interval, attribute) => {
+                    context
+                        .read()
+                        .client_edit_context()
+                        .format(interval, attribute)
+                        .await
+                        .unwrap();
                 },
                 DocScript::AssertClient(s) => {
                     sleep(Duration::from_millis(100)).await;
                     let json = context.read().client_edit_context().doc_json().await.unwrap();
                     assert_eq(s, &json);
                 },
-                DocScript::AssertServer(s) => {
+                DocScript::AssertServer(s, rev_id) => {
                     sleep(Duration::from_millis(100)).await;
                     let pg_pool = context.read().pool.clone();
                     let doc_manager = context.read().doc_manager.clone();
                     let edit_doc = doc_manager.get(&doc_id, pg_pool).await.unwrap().unwrap();
+                    assert_eq!(edit_doc.rev_id().await.unwrap(), rev_id);
                     let json = edit_doc.document_json().await.unwrap();
                     assert_eq(s, &json);
                 },

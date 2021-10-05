@@ -6,7 +6,7 @@ use crate::{
 };
 
 use crate::{
-    observable::*,
+    notify::*,
     services::server::{construct_user_server, Server},
 };
 use flowy_database::{
@@ -194,12 +194,12 @@ impl UserSession {
         tokio::spawn(async move {
             match server.get_user(&token).await {
                 Ok(profile) => {
-                    notify(&token, UserObservable::UserProfileUpdated)
+                    dart_notify(&token, UserObservable::UserProfileUpdated)
                         .payload(profile)
                         .send();
                 },
                 Err(e) => {
-                    notify(&token, UserObservable::UserProfileUpdated).error(e).send();
+                    dart_notify(&token, UserObservable::UserProfileUpdated).error(e).send();
                 },
             }
         });

@@ -18,7 +18,6 @@ impl DocHandle {
         let (sender, receiver) = mpsc::channel(100);
         let actor = EditDocActor::new(receiver, doc, pg_pool)?;
         tokio::task::spawn(actor.run());
-
         Ok(Self { sender })
     }
 
@@ -55,6 +54,12 @@ impl DocHandle {
     pub async fn document_json(&self) -> DocResult<String> {
         let (ret, rx) = oneshot::channel();
         let msg = EditMsg::DocumentJson { ret };
+        self.send(msg, rx).await?
+    }
+
+    pub async fn rev_id(&self) -> DocResult<i64> {
+        let (ret, rx) = oneshot::channel();
+        let msg = EditMsg::DocumentRevId { ret };
         self.send(msg, rx).await?
     }
 

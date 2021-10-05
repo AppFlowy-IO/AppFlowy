@@ -32,8 +32,8 @@ use std::{
 };
 
 pub struct ServerEditDoc {
-    doc_id: String,
-    rev_id: AtomicI64,
+    pub doc_id: String,
+    pub rev_id: AtomicI64,
     document: Arc<RwLock<Document>>,
     users: DashMap<String, EditUser>,
 }
@@ -121,7 +121,7 @@ impl ServerEditDoc {
                 // The client document is outdated. Transform the client revision delta and then
                 // send the prime delta to the client. Client should compose the this prime
                 // delta.
-                let cli_revision = self.transform_client_revision(&revision)?;
+                let cli_revision = self.transform_revision(&revision)?;
                 let ws_cli_revision = mk_push_rev_ws_message(&self.doc_id, cli_revision);
                 user.socket.do_send(ws_cli_revision).map_err(internal_error)?;
             },
@@ -137,8 +137,16 @@ impl ServerEditDoc {
         Ok(())
     }
 
-    fn transform_client_revision(&self, revision: &Revision) -> Result<Revision, ServerError> {
-        let (cli_prime, server_prime) = self.transform(&revision.delta_data).map_err(internal_error)?;
+    #[tracing::instrument(level = "debug", skip(self, revision))]
+    fn transform_revision(&self, revision: &Revision) -> Result<Revision, ServerError> {
+        let cli_delta = Delta::from_bytes(&revision.delta_data).map_err(internal_error)?;
+        let (cli_prime, server_prime) = self
+            .document
+            .read()
+            .delta()
+            .transform(&cli_delta)
+            .map_err(internal_error)?;
+
         let _ = self.compose_delta(server_prime)?;
         let cli_revision = self.mk_revision(revision.rev_id, cli_prime);
         Ok(cli_revision)
@@ -159,19 +167,14 @@ impl ServerEditDoc {
         revision
     }
 
-    #[tracing::instrument(level = "debug", skip(self, delta_data))]
-    fn transform(&self, delta_data: &Vec<u8>) -> Result<(Delta, Delta), OTError> {
-        log::debug!("Document: {}", self.document.read().to_json());
-        let doc_delta = self.document.read().delta().clone();
-        let cli_delta = Delta::from_bytes(delta_data)?;
-
-        log::debug!("Compose delta: {}", cli_delta);
-        let (cli_prime, server_prime) = doc_delta.transform(&cli_delta)?;
-
-        Ok((cli_prime, server_prime))
-    }
-
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    #[tracing::instrument(
+        level = "debug",
+        skip(self, delta),
+        fields(
+            delta = %delta.to_json(),
+            result,
+        )
+    )]
     fn compose_delta(&self, delta: Delta) -> Result<(), ServerError> {
         // Opti: push each revision into queue and process it one by one.
         match self.document.try_write_for(Duration::from_millis(300)) {
@@ -180,7 +183,7 @@ impl ServerEditDoc {
             },
             Some(mut write_guard) => {
                 let _ = write_guard.compose_delta(&delta).map_err(internal_error)?;
-                log::debug!("Document: {}", write_guard.to_json());
+                tracing::Span::current().record("result", &write_guard.to_json().as_str());
             },
         }
         Ok(())

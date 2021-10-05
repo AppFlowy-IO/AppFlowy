@@ -4,15 +4,15 @@ use lazy_static::lazy_static;
 use std::{convert::TryInto, sync::RwLock};
 
 lazy_static! {
-    static ref R2F_STREAM_SENDER: RwLock<RustStreamSender> = RwLock::new(RustStreamSender::new());
+    static ref DART_STREAM_SENDER: RwLock<DartStreamSender> = RwLock::new(DartStreamSender::new());
 }
 
-pub struct RustStreamSender {
+pub struct DartStreamSender {
     #[allow(dead_code)]
     isolate: Option<allo_isolate::Isolate>,
 }
 
-impl RustStreamSender {
+impl DartStreamSender {
     fn new() -> Self { Self { isolate: None } }
 
     fn inner_set_port(&mut self, port: i64) {
@@ -33,7 +33,7 @@ impl RustStreamSender {
     }
 
     pub fn set_port(port: i64) {
-        match R2F_STREAM_SENDER.write() {
+        match DART_STREAM_SENDER.write() {
             Ok(mut stream) => stream.inner_set_port(port),
             Err(e) => {
                 let msg = format!("Get rust to flutter stream lock fail. {:?}", e);
@@ -44,7 +44,7 @@ impl RustStreamSender {
 
     pub fn post(_observable_subject: ObservableSubject) -> Result<(), String> {
         #[cfg(feature = "dart")]
-        match R2F_STREAM_SENDER.read() {
+        match DART_STREAM_SENDER.read() {
             Ok(stream) => stream.inner_post(_observable_subject),
             Err(e) => Err(format!("Get rust to flutter stream lock fail. {:?}", e)),
         }

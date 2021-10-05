@@ -1,5 +1,5 @@
 mod handlers;
-mod observable;
+mod notify;
 mod services;
 mod sql_tables;
 

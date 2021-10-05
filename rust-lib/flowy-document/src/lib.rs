@@ -1,7 +1,7 @@
 pub mod entities;
 pub mod errors;
 pub mod module;
-mod observable;
+mod notify;
 pub mod protobuf;
 pub mod services;
 mod sql_tables;
