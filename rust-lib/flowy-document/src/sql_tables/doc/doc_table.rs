@@ -7,6 +7,7 @@ pub(crate) struct DocTable {
     pub(crate) id: String,
     pub(crate) data: String,
     pub(crate) rev_id: i64,
+    pub(crate) base_rev_id: i64,
 }
 
 impl DocTable {
@@ -15,6 +16,7 @@ impl DocTable {
             id: doc.id,
             data: doc.data,
             rev_id: doc.rev_id.into(),
+            base_rev_id: doc.base_rev_id.into(),
         }
     }
 }
@@ -33,6 +35,7 @@ impl std::convert::Into<Doc> for DocTable {
             id: self.id,
             data: self.data,
             rev_id: self.rev_id.into(),
+            base_rev_id: self.base_rev_id.into(),
         }
     }
 }
@@ -43,6 +46,7 @@ impl std::convert::From<Doc> for DocTable {
             id: doc.id,
             data: doc.data,
             rev_id: doc.rev_id.into(),
+            base_rev_id: doc.base_rev_id.into(),
         }
     }
 }

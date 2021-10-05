@@ -8,6 +8,7 @@ use flowy_ot::core::{Delta, OperationTransformable};
 use tokio::sync::{mpsc, oneshot};
 
 pub struct DocRevision {
+    pub base_rev_id: RevId,
     pub rev_id: RevId,
     pub delta: Delta,
 }

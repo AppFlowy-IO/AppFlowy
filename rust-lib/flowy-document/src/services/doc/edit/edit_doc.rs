@@ -46,7 +46,11 @@ impl ClientEditDoc {
         user: Arc<dyn DocumentUser>,
     ) -> DocResult<Self> {
         let rev_store = spawn_rev_store_actor(doc_id, pool.clone(), server.clone());
-        let DocRevision { rev_id, delta } = fetch_document(rev_store.clone()).await?;
+        let DocRevision {
+            base_rev_id: _,
+            rev_id,
+            delta,
+        } = load_document(rev_store.clone()).await?;
         let rev_manager = Arc::new(RevisionManager::new(doc_id, rev_id, rev_store));
         let document = spawn_doc_edit_actor(doc_id, delta, pool.clone());
         let doc_id = doc_id.to_string();
@@ -323,15 +327,9 @@ fn spawn_doc_edit_actor(doc_id: &str, delta: Delta, pool: Arc<ConnectionPool>) -
     sender
 }
 
-async fn fetch_document(sender: mpsc::Sender<RevisionCmd>) -> DocResult<DocRevision> {
+async fn load_document(sender: mpsc::Sender<RevisionCmd>) -> DocResult<DocRevision> {
     let (ret, rx) = oneshot::channel();
     let _ = sender.send(RevisionCmd::DocumentDelta { ret }).await;
-
-    match rx.await {
-        Ok(result) => Ok(result?),
-        Err(e) => {
-            log::error!("fetch_document: {}", e);
-            Err(DocError::internal().context(format!("fetch_document: {}", e)))
-        },
-    }
+    let result = rx.await.map_err(internal_error)?;
+    result
 }

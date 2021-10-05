@@ -1,5 +1,5 @@
 use crate::{
-    entities::doc::{RevId, Revision, RevisionRange},
+    entities::doc::{RevId, RevType, Revision, RevisionRange},
     errors::{internal_error, DocError, DocResult},
     services::doc::revision::{model::RevisionOperation, DocRevision, RevisionServer},
     sql_tables::{RevState, RevTableSql},
@@ -89,7 +89,7 @@ impl RevisionStoreActor {
                 let _ = ret.send(result);
             },
             RevisionCmd::DocumentDelta { ret } => {
-                let delta = fetch_document(&self.doc_id, self.server.clone(), self.persistence.clone()).await;
+                let delta = self.fetch_document().await;
                 let _ = ret.send(delta);
             },
         }
@@ -180,38 +180,29 @@ impl RevisionStoreActor {
             result
         }
     }
-}
 
-async fn fetch_document(
-    doc_id: &str,
-    server: Arc<dyn RevisionServer>,
-    persistence: Arc<Persistence>,
-) -> DocResult<DocRevision> {
-    let fetch_from_remote = server.fetch_document_from_remote(doc_id).or_else(|result| {
-        log::error!(
-            "Fetch document delta from remote failed: {:?}, try to fetch from local",
-            result
-        );
-        fetch_from_local(doc_id, persistence.clone())
-    });
+    async fn fetch_document(&self) -> DocResult<DocRevision> {
+        let result = fetch_from_local(&self.doc_id, self.persistence.clone()).await;
+        if result.is_ok() {
+            return result;
+        }
 
-    let fetch_from_local = fetch_from_local(doc_id, persistence.clone()).or_else(|result| async move {
-        log::error!(
-            "Fetch document delta from local failed: {:?}, try to fetch from remote",
-            result
-        );
-        server.fetch_document_from_remote(doc_id).await
-    });
+        match self.server.fetch_document_from_remote(&self.doc_id).await {
+            Ok(doc_revision) => {
+                let delta_data = doc_revision.delta.to_bytes();
+                let revision = Revision::new(
+                    doc_revision.base_rev_id.clone(),
+                    doc_revision.rev_id.clone(),
+                    delta_data.to_vec(),
+                    &self.doc_id,
+                    RevType::Remote,
+                );
+                self.handle_new_revision(revision);
 
-    tokio::select! {
-        result = fetch_from_remote => {
-            log::debug!("Finish fetching document from remote");
-            result
-        },
-        result = fetch_from_local => {
-            log::debug!("Finish fetching document from local");
-            result
-        },
+                Ok(doc_revision)
+            },
+            Err(e) => Err(e),
+        }
     }
 }
 
@@ -225,6 +216,7 @@ async fn fetch_from_local(doc_id: &str, persistence: Arc<Persistence>) -> DocRes
             return Err(DocError::not_found());
         }
 
+        let base_rev_id: RevId = revisions.last().unwrap().base_rev_id.into();
         let rev_id: RevId = revisions.last().unwrap().rev_id.into();
         let mut delta = Delta::new();
         for revision in revisions {
@@ -240,7 +232,11 @@ async fn fetch_from_local(doc_id: &str, persistence: Arc<Persistence>) -> DocRes
 
         delta.insert("\n", Attributes::default());
 
-        Result::<DocRevision, DocError>::Ok(DocRevision { rev_id, delta })
+        Result::<DocRevision, DocError>::Ok(DocRevision {
+            base_rev_id,
+            rev_id,
+            delta,
+        })
     })
     .await
     .map_err(internal_error)?

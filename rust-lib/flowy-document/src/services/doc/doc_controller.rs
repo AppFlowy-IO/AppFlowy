@@ -15,7 +15,6 @@ use crate::{
         server::Server,
         ws::WsDocumentManager,
     },
-    sql_tables::doc::DocTableSql,
 };
 use flowy_database::{ConnectionPool, SqliteConnection};
 use flowy_infra::future::{wrap_future, FnFuture, ResultFuture};
@@ -24,7 +23,6 @@ use tokio::time::{interval, Duration};
 
 pub(crate) struct DocController {
     server: Server,
-    doc_sql: Arc<DocTableSql>,
     ws_manager: Arc<WsDocumentManager>,
     cache: Arc<DocCache>,
     user: Arc<dyn DocumentUser>,
@@ -32,11 +30,9 @@ pub(crate) struct DocController {
 
 impl DocController {
     pub(crate) fn new(server: Server, user: Arc<dyn DocumentUser>, ws: Arc<WsDocumentManager>) -> Self {
-        let doc_sql = Arc::new(DocTableSql {});
         let cache = Arc::new(DocCache::new());
         let controller = Self {
             server,
-            doc_sql,
             user,
             ws_manager: ws,
             cache: cache.clone(),
@@ -51,11 +47,11 @@ impl DocController {
 
     #[tracing::instrument(skip(self, conn), err)]
     pub(crate) fn create(&self, params: CreateDocParams, conn: &SqliteConnection) -> Result<(), DocError> {
-        let _doc = Doc {
-            id: params.id,
-            data: params.data,
-            rev_id: 0,
-        };
+        // let _doc = Doc {
+        //     id: params.id,
+        //     data: params.data,
+        //     rev_id: 0,
+        // };
         // let _ = self.doc_sql.create_doc_table(DocTable::new(doc), conn)?;
         Ok(())
     }
@@ -84,8 +80,6 @@ impl DocController {
     #[tracing::instrument(level = "debug", skip(self, conn), err)]
     pub(crate) fn delete(&self, params: QueryDocParams, conn: &SqliteConnection) -> Result<(), DocError> {
         let doc_id = &params.doc_id;
-        let _ = self.doc_sql.delete_doc(doc_id, &*conn)?;
-
         self.cache.remove(doc_id);
         self.ws_manager.remove_handler(doc_id);
         let _ = self.delete_doc_on_server(params)?;
@@ -135,32 +129,6 @@ impl DocController {
         self.cache.set(edit_ctx.clone());
         Ok(edit_ctx)
     }
-
-    #[allow(dead_code)]
-    #[tracing::instrument(level = "debug", skip(self, pool), err)]
-    async fn read_doc(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<Doc, DocError> {
-        match self.doc_sql.read_doc_table(doc_id, pool.clone()) {
-            Ok(doc_table) => Ok(doc_table.into()),
-            Err(error) => {
-                if error.is_record_not_found() {
-                    let token = self.user.token()?;
-                    let params = QueryDocParams {
-                        doc_id: doc_id.to_string(),
-                    };
-                    match self.server.read_doc(&token, params).await? {
-                        None => Err(DocError::not_found()),
-                        Some(doc) => {
-                            let conn = &*pool.get().map_err(internal_error)?;
-                            let _ = self.doc_sql.create_doc_table(doc.clone().into(), conn)?;
-                            Ok(doc)
-                        },
-                    }
-                } else {
-                    return Err(error);
-                }
-            },
-        }
-    }
 }
 
 struct RevisionServerImpl {
@@ -182,6 +150,7 @@ impl RevisionServer for RevisionServerImpl {
                 Some(doc) => {
                     let delta = Delta::from_bytes(doc.data)?;
                     Ok(DocRevision {
+                        base_rev_id: 0.into(),
                         rev_id: doc.rev_id.into(),
                         delta,
                     })

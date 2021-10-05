@@ -8,7 +8,6 @@ use crate::{
         },
         Document,
     },
-    sql_tables::{DocTableChangeset, DocTableSql},
 };
 use async_stream::stream;
 use flowy_database::ConnectionPool;
@@ -133,20 +132,6 @@ impl DocumentActor {
             self.document.read().await.to_json()
         );
         result
-    }
-
-    #[tracing::instrument(level = "debug", skip(self, rev_id), err)]
-    async fn save_to_disk(&self, rev_id: RevId) -> DocResult<()> {
-        let data = self.document.read().await.to_json();
-        let changeset = DocTableChangeset {
-            id: self.doc_id.clone(),
-            data,
-            rev_id: rev_id.into(),
-        };
-        let sql = DocTableSql {};
-        let conn = self.pool.get().map_err(internal_error)?;
-        let _ = sql.update_doc_table(changeset, &*conn)?;
-        Ok(())
     }
 }
 
