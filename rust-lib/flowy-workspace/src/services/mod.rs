@@ -1,6 +1,6 @@
 pub(crate) use app_controller::*;
 pub(crate) use view_controller::*;
-pub(crate) use workspace_controller::*;
+pub use workspace_controller::*;
 
 mod app_controller;
 mod database;

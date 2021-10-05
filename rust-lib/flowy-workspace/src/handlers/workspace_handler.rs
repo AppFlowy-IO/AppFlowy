@@ -6,6 +6,12 @@ use crate::{
 use flowy_dispatch::prelude::{data_result, Data, DataResult, Unit};
 use std::{convert::TryInto, sync::Arc};
 
+#[tracing::instrument(skip(controller), err)]
+pub(crate) async fn init_workspace_handler(controller: Unit<Arc<WorkspaceController>>) -> Result<(), WorkspaceError> {
+    let _ = controller.init()?;
+    Ok(())
+}
+
 #[tracing::instrument(skip(data, controller), err)]
 pub(crate) async fn create_workspace_handler(
     data: Data<CreateWorkspaceRequest>,

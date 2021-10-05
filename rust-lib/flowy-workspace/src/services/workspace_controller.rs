@@ -13,12 +13,12 @@ use flowy_database::SqliteConnection;
 use flowy_infra::kv::KV;
 use std::sync::Arc;
 
-pub(crate) struct WorkspaceController {
+pub struct WorkspaceController {
     pub user: Arc<dyn WorkspaceUser>,
-    pub workspace_sql: Arc<WorkspaceTableSql>,
-    pub view_controller: Arc<ViewController>,
-    pub database: Arc<dyn WorkspaceDatabase>,
-    pub app_controller: Arc<AppController>,
+    pub(crate) workspace_sql: Arc<WorkspaceTableSql>,
+    pub(crate) view_controller: Arc<ViewController>,
+    pub(crate) database: Arc<dyn WorkspaceDatabase>,
+    pub(crate) app_controller: Arc<AppController>,
     server: Server,
 }
 
@@ -39,6 +39,11 @@ impl WorkspaceController {
             view_controller,
             server,
         }
+    }
+
+    pub fn init(&self) -> Result<(), WorkspaceError> {
+        let _ = self.view_controller.init()?;
+        Ok(())
     }
 
     pub(crate) async fn create_workspace(&self, params: CreateWorkspaceParams) -> Result<Workspace, WorkspaceError> {

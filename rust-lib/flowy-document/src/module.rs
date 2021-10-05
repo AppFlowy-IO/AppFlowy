@@ -36,6 +36,11 @@ impl FlowyDocument {
         Self { doc_ctrl: controller }
     }
 
+    pub fn init(&self) -> Result<(), DocError> {
+        let _ = self.doc_ctrl.init()?;
+        Ok(())
+    }
+
     pub fn create(&self, params: CreateDocParams, conn: &SqliteConnection) -> Result<(), DocError> {
         let _ = self.doc_ctrl.create(params, conn)?;
         Ok(())

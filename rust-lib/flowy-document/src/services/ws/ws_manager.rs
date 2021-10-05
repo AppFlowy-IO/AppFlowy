@@ -25,10 +25,10 @@ pub struct WsDocumentManager {
 impl WsDocumentManager {
     pub fn new(ws: Arc<dyn DocumentWebSocket>) -> Self {
         let handlers: Arc<DashMap<String, Arc<dyn WsDocumentHandler>>> = Arc::new(DashMap::new());
-        listen_ws_state_changed(ws.clone(), handlers.clone());
-
         Self { ws, handlers }
     }
+
+    pub(crate) fn init(&self) { listen_ws_state_changed(self.ws.clone(), self.handlers.clone()); }
 
     pub(crate) fn register_handler(&self, id: &str, handler: Arc<dyn WsDocumentHandler>) {
         if self.handlers.contains_key(id) {

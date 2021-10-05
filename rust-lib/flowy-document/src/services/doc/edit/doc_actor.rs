@@ -118,8 +118,8 @@ impl DocumentActor {
                 let _ = ret.send(Ok(data));
             },
             DocumentMsg::SaveDocument { rev_id, ret } => {
-                let result = self.save_to_disk(rev_id).await;
-                let _ = ret.send(result);
+                // let result = self.save_to_disk(rev_id).await;
+                let _ = ret.send(Ok(()));
             },
         }
         Ok(())

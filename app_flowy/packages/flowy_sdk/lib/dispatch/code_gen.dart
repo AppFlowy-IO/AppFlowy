@@ -271,6 +271,20 @@ class WorkspaceEventApplyDocDelta {
     }
 }
 
+class WorkspaceEventInitWorkspace {
+    WorkspaceEventInitWorkspace();
+
+    Future<Either<Unit, WorkspaceError>> send() {
+     final request = FFIRequest.create()
+        ..event = WorkspaceEvent.InitWorkspace.toString();
+
+     return Dispatch.asyncRequest(request).then((bytesResult) => bytesResult.fold(
+        (bytes) => left(unit),
+        (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+      ));
+    }
+}
+
 class UserEventInitUser {
     UserEventInitUser();
 

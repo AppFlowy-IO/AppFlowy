@@ -17,7 +17,6 @@ use flowy_document::protobuf::UpdateDocParams;
 
 use flowy_ot::core::{Attribute, Interval};
 use parking_lot::RwLock;
-use serde::__private::Formatter;
 
 pub struct DocumentTest {
     server: TestServer,
@@ -55,9 +54,9 @@ impl DocumentTest {
 struct ScriptContext {
     client_edit_context: Option<Arc<ClientEditDocContext>>,
     flowy_test: FlowyTest,
-    user_session: Arc<UserSession>,
-    doc_manager: Arc<DocManager>,
-    pool: Data<PgPool>,
+    client_user_session: Arc<UserSession>,
+    server_doc_manager: Arc<DocManager>,
+    server_pg_pool: Data<PgPool>,
     doc_id: String,
 }
 
@@ -69,16 +68,16 @@ impl ScriptContext {
         Self {
             client_edit_context: None,
             flowy_test,
-            user_session,
-            doc_manager: server.app_ctx.doc_biz.manager.clone(),
-            pool: Data::new(server.pg_pool.clone()),
+            client_user_session: user_session,
+            server_doc_manager: server.app_ctx.doc_biz.manager.clone(),
+            server_pg_pool: Data::new(server.pg_pool.clone()),
             doc_id,
         }
     }
 
     async fn open_doc(&mut self) {
         let flowy_document = self.flowy_test.sdk.flowy_document.clone();
-        let pool = self.user_session.db_pool().unwrap();
+        let pool = self.client_user_session.db_pool().unwrap();
         let doc_id = self.doc_id.clone();
 
         let edit_context = flowy_document.open(QueryDocParams { doc_id }, pool).await.unwrap();
@@ -103,7 +102,7 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
             match script {
                 DocScript::ConnectWs => {
                     // sleep(Duration::from_millis(300)).await;
-                    let user_session = context.read().user_session.clone();
+                    let user_session = context.read().client_user_session.clone();
                     let token = user_session.token().unwrap();
                     let _ = user_session.start_ws_connection(&token).await.unwrap();
                 },
@@ -128,15 +127,15 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
                 },
                 DocScript::AssertServer(s, rev_id) => {
                     sleep(Duration::from_millis(100)).await;
-                    let pg_pool = context.read().pool.clone();
-                    let doc_manager = context.read().doc_manager.clone();
+                    let pg_pool = context.read().server_pg_pool.clone();
+                    let doc_manager = context.read().server_doc_manager.clone();
                     let edit_doc = doc_manager.get(&doc_id, pg_pool).await.unwrap().unwrap();
                     assert_eq!(edit_doc.rev_id().await.unwrap(), rev_id);
                     let json = edit_doc.document_json().await.unwrap();
                     assert_eq(s, &json);
                 },
                 DocScript::SetServerDocument(json, rev_id) => {
-                    let pg_pool = context.read().pool.clone();
+                    let pg_pool = context.read().server_pg_pool.clone();
                     save_doc(&doc_id, json, rev_id, pg_pool).await;
                 },
             }

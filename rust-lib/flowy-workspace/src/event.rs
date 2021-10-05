@@ -51,4 +51,7 @@ pub enum WorkspaceEvent {
 
     #[event(input = "DocDelta", output = "Doc")]
     ApplyDocDelta     = 206,
+
+    #[event()]
+    InitWorkspace     = 1000,
 }

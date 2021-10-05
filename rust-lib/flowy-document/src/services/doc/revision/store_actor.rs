@@ -5,7 +5,7 @@ use crate::{
     sql_tables::{RevState, RevTableSql},
 };
 use async_stream::stream;
-use dashmap::{mapref::one::Ref, DashMap};
+use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_ot::core::{Attributes, Delta, OperationTransformable};
 use futures::{stream::StreamExt, TryFutureExt};
@@ -152,7 +152,7 @@ impl RevisionStoreActor {
     }
 
     async fn revs_in_range(&self, range: RevisionRange) -> DocResult<Vec<Revision>> {
-        let iter_range = (range.from_rev_id..=range.to_rev_id);
+        let iter_range = range.from_rev_id..=range.to_rev_id;
         let revs = iter_range
             .flat_map(|rev_id| {
                 //
@@ -162,8 +162,6 @@ impl RevisionStoreActor {
                 }
             })
             .collect::<Vec<Revision>>();
-
-        debug_assert!(revs.len() == range.len() as usize);
 
         if revs.len() == range.len() as usize {
             Ok(revs)

@@ -29,19 +29,21 @@ pub trait WorkspaceDatabase: Send + Sync {
     }
 }
 
-pub fn create(
+pub fn mk_workspace(
     user: Arc<dyn WorkspaceUser>,
     database: Arc<dyn WorkspaceDatabase>,
     flowy_document: Arc<FlowyDocument>,
     server_config: &ServerConfig,
-) -> Module {
+) -> Arc<WorkspaceController> {
     let server = construct_workspace_server(server_config);
+
     let view_controller = Arc::new(ViewController::new(
         user.clone(),
         database.clone(),
         server.clone(),
         flowy_document,
     ));
+
     let app_controller = Arc::new(AppController::new(user.clone(), database.clone(), server.clone()));
 
     let workspace_controller = Arc::new(WorkspaceController::new(
@@ -51,12 +53,16 @@ pub fn create(
         view_controller.clone(),
         server.clone(),
     ));
+    workspace_controller
+}
 
+pub fn create(workspace: Arc<WorkspaceController>) -> Module {
     let mut module = Module::new()
         .name("Flowy-Workspace")
-        .data(workspace_controller)
-        .data(app_controller)
-        .data(view_controller);
+        .data(workspace.clone())
+        .data(workspace.app_controller.clone())
+        .data(workspace.view_controller.clone())
+        .event(WorkspaceEvent::InitWorkspace, init_workspace_handler);
 
     module = module
         .event(WorkspaceEvent::CreateWorkspace, create_workspace_handler)

@@ -13,10 +13,7 @@ use flowy_document::{
     services::doc::Document,
 };
 use flowy_net::errors::{internal_error, ServerError};
-use flowy_ot::{
-    core::{Delta, OperationTransformable},
-    errors::OTError,
-};
+use flowy_ot::core::{Delta, OperationTransformable};
 use flowy_ws::WsMessage;
 use parking_lot::RwLock;
 use protobuf::Message;

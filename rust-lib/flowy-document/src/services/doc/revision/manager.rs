@@ -1,13 +1,10 @@
 use crate::{
-    entities::doc::{RevId, Revision, RevisionRange},
+    entities::doc::{RevId, RevType, Revision, RevisionRange},
     errors::{internal_error, DocError},
     services::{doc::revision::store_actor::RevisionCmd, util::RevIdCounter, ws::DocumentWebSocket},
 };
 use flowy_infra::future::ResultFuture;
 use flowy_ot::core::{Delta, OperationTransformable};
-
-use crate::entities::doc::RevType;
-use flowy_ot::errors::OTError;
 use tokio::sync::{mpsc, oneshot};
 
 pub struct DocRevision {

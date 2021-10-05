@@ -2,11 +2,13 @@ mod deps_resolve;
 // mod flowy_server;
 pub mod module;
 
+use crate::deps_resolve::{DocumentDepsResolver, WorkspaceDepsResolver};
 use flowy_dispatch::prelude::*;
 use flowy_document::prelude::FlowyDocument;
 use flowy_net::config::ServerConfig;
 use flowy_user::services::user::{UserSession, UserSessionBuilder};
-use module::build_modules;
+use flowy_workspace::prelude::WorkspaceController;
+use module::mk_modules;
 pub use module::*;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
@@ -56,6 +58,7 @@ pub struct FlowySDK {
     config: FlowySDKConfig,
     pub user_session: Arc<UserSession>,
     pub flowy_document: Arc<FlowyDocument>,
+    pub workspace: Arc<WorkspaceController>,
     pub dispatch: Arc<EventDispatch>,
 }
 
@@ -70,14 +73,16 @@ impl FlowySDK {
                 .root_dir(&config.root, &config.server_config)
                 .build(),
         );
-        let flowy_document = build_document_module(user_session.clone(), &config.server_config);
-        let modules = build_modules(&config.server_config, user_session.clone(), flowy_document.clone());
+        let flowy_document = mk_document_module(user_session.clone(), &config.server_config);
+        let workspace = mk_workspace(user_session.clone(), flowy_document.clone(), &config.server_config);
+        let modules = mk_modules(workspace.clone(), user_session.clone());
         let dispatch = Arc::new(EventDispatch::construct(|| modules));
 
         Self {
             config,
             user_session,
             flowy_document,
+            workspace,
             dispatch,
         }
     }
@@ -101,4 +106,15 @@ fn init_log(config: &FlowySDKConfig) {
             .env_filter(&config.log_filter)
             .build();
     }
+}
+
+fn mk_workspace(
+    user_session: Arc<UserSession>,
+    flowy_document: Arc<FlowyDocument>,
+    server_config: &ServerConfig,
+) -> Arc<WorkspaceController> {
+    let workspace_deps = WorkspaceDepsResolver::new(user_session.clone());
+    let (user, database) = workspace_deps.split_into();
+    let workspace_controller = flowy_workspace::module::mk_workspace(user, database, flowy_document, server_config);
+    workspace_controller
 }

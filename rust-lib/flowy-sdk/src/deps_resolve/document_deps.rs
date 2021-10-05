@@ -26,15 +26,11 @@ impl DocumentDepsResolver {
         let sender = Arc::new(WsSenderImpl {
             user: self.user_session.clone(),
         });
-
         let ws_manager = Arc::new(WsDocumentManager::new(sender));
-
         let ws_handler = Arc::new(WsDocumentReceiver {
             inner: ws_manager.clone(),
         });
-
         self.user_session.add_ws_handler(ws_handler);
-
         (user, ws_manager)
     }
 }

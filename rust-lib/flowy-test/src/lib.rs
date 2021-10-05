@@ -40,6 +40,7 @@ impl FlowyTest {
     pub fn setup_with(server_config: ServerConfig) -> Self {
         let config = FlowySDKConfig::new(&root_dir(), server_config).log_filter("debug");
         let sdk = FlowySDK::new(config);
+        let _ = sdk.workspace.init().unwrap();
 
         Self { sdk }
     }

@@ -1,11 +1,8 @@
-import 'dart:typed_data';
-
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-document/doc.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_query.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/view_update.pb.dart';
 
 class DocRepository {
   final String docId;

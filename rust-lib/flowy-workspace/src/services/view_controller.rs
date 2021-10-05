@@ -45,6 +45,11 @@ impl ViewController {
         }
     }
 
+    pub(crate) fn init(&self) -> Result<(), WorkspaceError> {
+        let _ = self.document.init()?;
+        Ok(())
+    }
+
     pub(crate) async fn create_view(&self, params: CreateViewParams) -> Result<View, WorkspaceError> {
         let view = self.create_view_on_server(params.clone()).await?;
         let conn = &*self.database.db_connection()?;

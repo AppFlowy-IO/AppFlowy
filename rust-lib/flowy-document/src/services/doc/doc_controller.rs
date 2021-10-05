@@ -2,14 +2,9 @@ use std::sync::Arc;
 
 use bytes::Bytes;
 
-use tokio::time::{interval, Duration};
-
-use flowy_database::{ConnectionPool, SqliteConnection};
-use flowy_infra::future::{wrap_future, FnFuture, ResultFuture};
-
 use crate::{
     entities::doc::{CreateDocParams, Doc, DocDelta, QueryDocParams},
-    errors::{internal_error, DocError},
+    errors::{internal_error, DocError, DocResult},
     module::DocumentUser,
     services::{
         cache::DocCache,
@@ -22,7 +17,10 @@ use crate::{
     },
     sql_tables::doc::{DocTable, DocTableSql},
 };
+use flowy_database::{ConnectionPool, SqliteConnection};
+use flowy_infra::future::{wrap_future, FnFuture, ResultFuture};
 use flowy_ot::core::Delta;
+use tokio::time::{interval, Duration};
 
 pub(crate) struct DocController {
     server: Server,
@@ -46,6 +44,11 @@ impl DocController {
         controller
     }
 
+    pub(crate) fn init(&self) -> DocResult<()> {
+        self.ws_manager.init();
+        Ok(())
+    }
+
     #[tracing::instrument(skip(self, conn), err)]
     pub(crate) fn create(&self, params: CreateDocParams, conn: &SqliteConnection) -> Result<(), DocError> {
         let doc = Doc {
@@ -53,7 +56,7 @@ impl DocController {
             data: params.data,
             rev_id: 0,
         };
-        let _ = self.doc_sql.create_doc_table(DocTable::new(doc), conn)?;
+        // let _ = self.doc_sql.create_doc_table(DocTable::new(doc), conn)?;
         Ok(())
     }
 

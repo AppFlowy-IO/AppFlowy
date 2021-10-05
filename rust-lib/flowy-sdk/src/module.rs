@@ -3,32 +3,20 @@ use flowy_dispatch::prelude::Module;
 use flowy_document::module::FlowyDocument;
 use flowy_net::config::ServerConfig;
 use flowy_user::services::user::UserSession;
+use flowy_workspace::{module::mk_workspace, prelude::WorkspaceController};
 use std::sync::Arc;
 
-pub fn build_modules(
-    server_config: &ServerConfig,
-    user_session: Arc<UserSession>,
-    flowy_document: Arc<FlowyDocument>,
-) -> Vec<Module> {
-    vec![
-        build_user_module(user_session.clone()),
-        build_workspace_module(&server_config, user_session, flowy_document),
-    ]
+pub fn mk_modules(workspace_controller: Arc<WorkspaceController>, user_session: Arc<UserSession>) -> Vec<Module> {
+    vec![mk_user_module(user_session), mk_workspace_module(workspace_controller)]
 }
 
-fn build_user_module(user_session: Arc<UserSession>) -> Module { flowy_user::module::create(user_session.clone()) }
+fn mk_user_module(user_session: Arc<UserSession>) -> Module { flowy_user::module::create(user_session.clone()) }
 
-fn build_workspace_module(
-    server_config: &ServerConfig,
-    user_session: Arc<UserSession>,
-    flowy_document: Arc<FlowyDocument>,
-) -> Module {
-    let workspace_deps = WorkspaceDepsResolver::new(user_session.clone());
-    let (user, database) = workspace_deps.split_into();
-    flowy_workspace::module::create(user, database, flowy_document, server_config)
+fn mk_workspace_module(workspace_controller: Arc<WorkspaceController>) -> Module {
+    flowy_workspace::module::create(workspace_controller)
 }
 
-pub fn build_document_module(user_session: Arc<UserSession>, server_config: &ServerConfig) -> Arc<FlowyDocument> {
+pub fn mk_document_module(user_session: Arc<UserSession>, server_config: &ServerConfig) -> Arc<FlowyDocument> {
     let document_deps = DocumentDepsResolver::new(user_session.clone());
     let (user, ws_manager) = document_deps.split_into();
     let document = Arc::new(FlowyDocument::new(user, ws_manager, server_config));
