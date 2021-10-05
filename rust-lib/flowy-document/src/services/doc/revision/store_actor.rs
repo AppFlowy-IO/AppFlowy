@@ -5,7 +5,7 @@ use crate::{
     sql_tables::{RevState, RevTableSql},
 };
 use async_stream::stream;
-use dashmap::DashMap;
+use dashmap::{mapref::one::Ref, DashMap};
 use flowy_database::ConnectionPool;
 use flowy_ot::core::{Attributes, Delta, OperationTransformable};
 use futures::{stream::StreamExt, TryFutureExt};
@@ -85,7 +85,7 @@ impl RevisionStoreActor {
                 self.handle_revision_acked(rev_id).await;
             },
             RevisionCmd::GetRevisions { range, ret } => {
-                let result = revs_in_range(&self.doc_id, self.persistence.clone(), range).await;
+                let result = self.revs_in_range(range).await;
                 let _ = ret.send(result);
             },
             RevisionCmd::DocumentDelta { ret } => {
@@ -149,6 +149,37 @@ impl RevisionStoreActor {
                 Err(e) => log::error!("Save revision failed: {:?}", e),
             }
         }));
+    }
+
+    async fn revs_in_range(&self, range: RevisionRange) -> DocResult<Vec<Revision>> {
+        let iter_range = (range.from_rev_id..=range.to_rev_id);
+        let revs = iter_range
+            .flat_map(|rev_id| {
+                //
+                match self.revs.get(&rev_id) {
+                    None => None,
+                    Some(rev) => Some((&*(*rev)).clone()),
+                }
+            })
+            .collect::<Vec<Revision>>();
+
+        debug_assert!(revs.len() == range.len() as usize);
+
+        if revs.len() == range.len() as usize {
+            Ok(revs)
+        } else {
+            let doc_id = self.doc_id.clone();
+            let persistence = self.persistence.clone();
+            let result = spawn_blocking(move || {
+                let conn = &*persistence.pool.get().map_err(internal_error)?;
+                let revisions = persistence.rev_sql.read_rev_tables_with_range(&doc_id, range, conn)?;
+                Ok(revisions)
+            })
+            .await
+            .map_err(internal_error)?;
+
+            result
+        }
     }
 }
 
@@ -214,19 +245,6 @@ async fn fetch_from_local(doc_id: &str, persistence: Arc<Persistence>) -> DocRes
     })
     .await
     .map_err(internal_error)?
-}
-
-async fn revs_in_range(doc_id: &str, persistence: Arc<Persistence>, range: RevisionRange) -> DocResult<Vec<Revision>> {
-    let doc_id = doc_id.to_owned();
-    let result = spawn_blocking(move || {
-        let conn = &*persistence.pool.get().map_err(internal_error)?;
-        let revisions = persistence.rev_sql.read_rev_tables_with_range(&doc_id, range, conn)?;
-        Ok(revisions)
-    })
-    .await
-    .map_err(internal_error)?;
-
-    result
 }
 
 struct Persistence {

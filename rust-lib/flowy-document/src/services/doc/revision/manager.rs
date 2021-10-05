@@ -65,7 +65,7 @@ impl RevisionManager {
 
     pub fn update_rev_id(&self, rev_id: i64) { self.rev_id_counter.set(rev_id); }
 
-    pub async fn send_revisions(&self, range: RevisionRange) -> Result<Revision, DocError> {
+    pub async fn construct_revisions(&self, range: RevisionRange) -> Result<Revision, DocError> {
         debug_assert!(&range.doc_id == &self.doc_id);
         let (ret, rx) = oneshot::channel();
         let sender = self.rev_store.clone();

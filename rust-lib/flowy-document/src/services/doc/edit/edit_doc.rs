@@ -260,7 +260,7 @@ impl ClientEditDoc {
             },
             WsDataType::PullRev => {
                 let range = RevisionRange::try_from(bytes)?;
-                let revision = self.rev_manager.send_revisions(range).await?;
+                let revision = self.rev_manager.construct_revisions(range).await?;
                 self.ws.send(revision.into());
             },
             WsDataType::NewDocUser => {},

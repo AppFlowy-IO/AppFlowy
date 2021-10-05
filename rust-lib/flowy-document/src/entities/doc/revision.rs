@@ -127,3 +127,14 @@ pub struct RevisionRange {
     #[pb(index = 3)]
     pub to_rev_id: i64,
 }
+
+impl RevisionRange {
+    pub fn len(&self) -> i64 {
+        debug_assert!(self.to_rev_id >= self.from_rev_id);
+        if self.to_rev_id >= self.from_rev_id {
+            self.to_rev_id - self.from_rev_id
+        } else {
+            0
+        }
+    }
+}
