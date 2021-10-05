@@ -6,9 +6,8 @@ use crate::{
 };
 use bytes::Bytes;
 use dashmap::DashMap;
-use flowy_infra::retry::{Action, ExponentialBackoff, Retry};
+use flowy_infra::retry::{Action, ExponentialBackoff, FixedInterval, Retry};
 use flowy_net::errors::ServerError;
-
 use futures_channel::mpsc::{UnboundedReceiver, UnboundedSender};
 use futures_core::{ready, Stream};
 use parking_lot::RwLock;
@@ -20,6 +19,7 @@ use std::{
     pin::Pin,
     sync::Arc,
     task::{Context, Poll},
+    time::Duration,
 };
 use tokio::sync::{broadcast, oneshot};
 use tokio_tungstenite::tungstenite::{
@@ -61,6 +61,7 @@ pub struct WsController {
     handlers: Handlers,
     state_notify: Arc<broadcast::Sender<WsState>>,
     sender: Arc<RwLock<Option<Arc<WsSender>>>>,
+    addr: Arc<RwLock<Option<String>>>,
 }
 
 impl WsController {
@@ -70,6 +71,7 @@ impl WsController {
             handlers: DashMap::new(),
             sender: Arc::new(RwLock::new(None)),
             state_notify: Arc::new(state_notify),
+            addr: Arc::new(RwLock::new(None)),
         };
         controller
     }
@@ -83,14 +85,26 @@ impl WsController {
         Ok(())
     }
 
-    pub async fn connect(&self, addr: String) -> Result<(), ServerError> {
+    pub async fn start_connect(&self, addr: String) -> Result<(), ServerError> {
+        *self.addr.write() = Some(addr.clone());
+
+        let strategy = ExponentialBackoff::from_millis(100).take(5);
+        self.connect(addr, strategy).await
+    }
+
+    async fn connect<T, I>(&self, addr: String, strategy: T) -> Result<(), ServerError>
+    where
+        T: IntoIterator<IntoIter = I, Item = Duration>,
+        I: Iterator<Item = Duration> + Send + 'static,
+    {
         let (ret, rx) = oneshot::channel::<Result<(), ServerError>>();
+        *self.addr.write() = Some(addr.clone());
 
         let action = WsConnectAction {
             addr,
             handlers: self.handlers.clone(),
         };
-        let strategy = ExponentialBackoff::from_millis(100).take(3);
+
         let retry = Retry::spawn(strategy, action);
         let sender_holder = self.sender.clone();
         let state_notify = self.state_notify.clone();
@@ -121,7 +135,17 @@ impl WsController {
         rx.await?
     }
 
-    #[allow(dead_code)]
+    pub async fn retry(&self) -> Result<(), ServerError> {
+        let addr = self
+            .addr
+            .read()
+            .as_ref()
+            .expect("must call start_connect first")
+            .clone();
+        let strategy = FixedInterval::from_millis(5000);
+        self.connect(addr, strategy).await
+    }
+
     pub fn state_subscribe(&self) -> broadcast::Receiver<WsState> { self.state_notify.subscribe() }
 
     pub fn sender(&self) -> Result<Arc<WsSender>, WsError> {
@@ -142,9 +166,8 @@ async fn spawn_stream_and_handlers(
             match result {
                 Ok(_) => {},
                 Err(e) => {
-                    // TODO: retry?
-                    log::error!("ws stream error {:?}", e);
-                    let _ = state_notify.send(WsState::Disconnected(e));
+                    log::error!("websocket error: {:?}", e);
+                    let _ = state_notify.send(WsState::Disconnected(e)).unwrap();
                 }
             }
         },
@@ -275,7 +298,6 @@ impl WsConnectActionFut {
         //     └─────────┼──│ws_write │◀─┼────│ ws_rx  │◀──┼──│ ws_tx  │  │
         //               │  └─────────┘  │    └────────┘   │  └────────┘  │
         //               └───────────────┘                 └──────────────┘
-        log::debug!("🐴 ws start connect: {}", &addr);
         let (msg_tx, msg_rx) = futures_channel::mpsc::unbounded();
         let (ws_tx, ws_rx) = futures_channel::mpsc::unbounded();
         let sender = WsSender { ws_tx };

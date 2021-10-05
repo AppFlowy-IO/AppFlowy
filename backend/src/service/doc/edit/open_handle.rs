@@ -33,7 +33,6 @@ impl DocHandle {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, user, socket, revision))]
     pub async fn apply_revision(
         &self,
         user: Arc<WsUser>,

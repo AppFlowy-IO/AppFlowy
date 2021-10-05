@@ -1,4 +1,8 @@
-use crate::{errors::WsError, MsgReceiver, MsgSender};
+use crate::{
+    errors::{internal_error, WsError},
+    MsgReceiver,
+    MsgSender,
+};
 use futures_core::{future::BoxFuture, ready};
 use futures_util::{FutureExt, StreamExt};
 use pin_project::pin_project;
@@ -88,14 +92,32 @@ impl WsStream {
             msg_tx: msg_tx.clone(),
             inner: Some((
                 Box::pin(async move {
+                    let (tx, mut rx) = tokio::sync::mpsc::channel(10);
                     let _ = ws_read
-                        .for_each(|message| async { post_message(msg_tx.clone(), message) })
+                        .for_each(|message| async {
+                            match tx.send(post_message(msg_tx.clone(), message)).await {
+                                Ok(_) => {},
+                                Err(e) => log::error!("WsStream tx closed unexpectedly: {} ", e),
+                            }
+                        })
                         .await;
-                    Ok(())
+
+                    loop {
+                        match rx.recv().await {
+                            None => {
+                                return Err(WsError::internal().context("WsStream rx closed unexpectedly"));
+                            },
+                            Some(result) => {
+                                if result.is_err() {
+                                    return result;
+                                }
+                            },
+                        }
+                    }
                 }),
                 Box::pin(async move {
-                    let _ = ws_rx.map(Ok).forward(ws_write).await?;
-                    Ok(())
+                    let result = ws_rx.map(Ok).forward(ws_write).await.map_err(internal_error);
+                    result
                 }),
             )),
         }
@@ -127,16 +149,11 @@ impl Future for WsStream {
     }
 }
 
-fn post_message(tx: MsgSender, message: Result<Message, Error>) {
+fn post_message(tx: MsgSender, message: Result<Message, Error>) -> Result<(), WsError> {
     match message {
-        Ok(Message::Binary(bytes)) => match tx.unbounded_send(Message::Binary(bytes)) {
-            Ok(_) => {},
-            Err(e) => log::error!("tx send error: {:?}", e),
-        },
-        Ok(_) => {},
-        Err(e) => {
-            log::error!("ws read error: {:?}", e)
-        },
+        Ok(Message::Binary(bytes)) => tx.unbounded_send(Message::Binary(bytes)).map_err(internal_error),
+        Ok(_) => Ok(()),
+        Err(e) => Err(WsError::internal().context(e)),
     }
 }
 #[allow(dead_code)]

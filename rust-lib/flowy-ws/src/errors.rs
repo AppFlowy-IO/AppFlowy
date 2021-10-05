@@ -45,6 +45,13 @@ impl WsError {
     static_user_error!(unauthorized, ErrorCode::Unauthorized);
 }
 
+pub fn internal_error<T>(e: T) -> WsError
+where
+    T: std::fmt::Debug,
+{
+    WsError::internal().context(e)
+}
+
 #[derive(Debug, Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
 pub enum ErrorCode {
     InternalError      = 0,

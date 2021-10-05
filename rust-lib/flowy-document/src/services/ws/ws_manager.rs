@@ -65,10 +65,7 @@ fn listen_ws_state_changed(ws: Arc<dyn DocumentWebSocket>, handlers: Arc<DashMap
                         handle.value().state_changed(&state);
                     });
                 },
-                Err(e) => {
-                    log::error!("Websocket state notify error: {:?}", e);
-                    break;
-                },
+                Err(_) => break,
             }
         }
     });

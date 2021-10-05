@@ -117,7 +117,7 @@ impl DocumentActor {
                 let data = self.document.read().await.to_json();
                 let _ = ret.send(Ok(data));
             },
-            DocumentMsg::SaveDocument { rev_id, ret } => {
+            DocumentMsg::SaveDocument { rev_id: _, ret } => {
                 // let result = self.save_to_disk(rev_id).await;
                 let _ = ret.send(Ok(()));
             },

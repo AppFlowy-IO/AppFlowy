@@ -1,9 +1,9 @@
-use crate::deps_resolve::{DocumentDepsResolver, WorkspaceDepsResolver};
+use crate::deps_resolve::DocumentDepsResolver;
 use flowy_dispatch::prelude::Module;
 use flowy_document::module::FlowyDocument;
 use flowy_net::config::ServerConfig;
 use flowy_user::services::user::UserSession;
-use flowy_workspace::{module::mk_workspace, prelude::WorkspaceController};
+use flowy_workspace::prelude::WorkspaceController;
 use std::sync::Arc;
 
 pub fn mk_modules(workspace_controller: Arc<WorkspaceController>, user_session: Arc<UserSession>) -> Vec<Module> {

@@ -82,7 +82,7 @@ impl ServerEditDoc {
 
     #[tracing::instrument(
         level = "debug",
-        skip(self, user, pg_pool),
+        skip(self, user, pg_pool, revision),
         fields(
             rev_id = %self.rev_id.load(SeqCst),
             revision_rev_id = %revision.rev_id,
@@ -186,7 +186,7 @@ impl ServerEditDoc {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, pg_pool), err)]
+    #[tracing::instrument(level = "debug", skip(self, revision, pg_pool), err)]
     async fn save_revision(&self, revision: &Revision, pg_pool: Data<PgPool>) -> Result<(), ServerError> {
         // Opti: save with multiple revisions
         let mut params = UpdateDocParams::new();

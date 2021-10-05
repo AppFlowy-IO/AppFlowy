@@ -289,11 +289,11 @@ impl WsDocumentHandler for EditDocWsHandler {
     fn state_changed(&self, state: &WsState) {
         match state {
             WsState::Init => {},
-            WsState::Connected(_) => {
-                log::debug!("ws state changed: {}", state);
-                self.0.notify_open_doc()
+            WsState::Connected(_) => self.0.notify_open_doc(),
+            WsState::Disconnected(e) => {
+                log::error!("websocket error: {:?}", e);
+                //
             },
-            WsState::Disconnected(_) => {},
         }
     }
 }

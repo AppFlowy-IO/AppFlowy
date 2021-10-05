@@ -2,7 +2,7 @@ mod deps_resolve;
 // mod flowy_server;
 pub mod module;
 
-use crate::deps_resolve::{DocumentDepsResolver, WorkspaceDepsResolver};
+use crate::deps_resolve::WorkspaceDepsResolver;
 use flowy_dispatch::prelude::*;
 use flowy_document::prelude::FlowyDocument;
 use flowy_net::config::ServerConfig;

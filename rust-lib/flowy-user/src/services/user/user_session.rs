@@ -19,7 +19,7 @@ use flowy_database::{
 use flowy_infra::kv::KV;
 use flowy_net::config::ServerConfig;
 use flowy_sqlite::ConnectionPool;
-use flowy_ws::{WsController, WsMessageHandler};
+use flowy_ws::{WsController, WsMessageHandler, WsState};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -278,11 +278,40 @@ impl UserSession {
         }
     }
 
+    #[tracing::instrument(level = "debug", skip(self, token))]
     pub async fn start_ws_connection(&self, token: &str) -> Result<(), UserError> {
-        log::debug!("start_ws_connection");
         let addr = format!("{}/{}", self.server.ws_addr(), token);
-        let _ = self.ws_controller.connect(addr).await?;
+        self.listen_on_websocket();
+
+        let _ = self.ws_controller.start_connect(addr).await?;
         Ok(())
+    }
+
+    #[tracing::instrument(level = "debug", skip(self))]
+    fn listen_on_websocket(&self) {
+        let mut notify = self.ws_controller.state_subscribe();
+        let ws_controller = self.ws_controller.clone();
+        let _ = tokio::spawn(async move {
+            log::debug!("listen ws state");
+            loop {
+                match notify.recv().await {
+                    Ok(state) => {
+                        log::info!("Websocket state changed: {}", state);
+                        match state {
+                            WsState::Init => {},
+                            WsState::Connected(_) => {},
+                            WsState::Disconnected(_) => {
+                                ws_controller.retry().await;
+                            },
+                        }
+                    },
+                    Err(e) => {
+                        log::error!("Websocket state notify error: {:?}", e);
+                        break;
+                    },
+                }
+            }
+        });
     }
 }
 

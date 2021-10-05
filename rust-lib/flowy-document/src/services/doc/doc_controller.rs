@@ -15,7 +15,7 @@ use crate::{
         server::Server,
         ws::WsDocumentManager,
     },
-    sql_tables::doc::{DocTable, DocTableSql},
+    sql_tables::doc::DocTableSql,
 };
 use flowy_database::{ConnectionPool, SqliteConnection};
 use flowy_infra::future::{wrap_future, FnFuture, ResultFuture};
@@ -51,7 +51,7 @@ impl DocController {
 
     #[tracing::instrument(skip(self, conn), err)]
     pub(crate) fn create(&self, params: CreateDocParams, conn: &SqliteConnection) -> Result<(), DocError> {
-        let doc = Doc {
+        let _doc = Doc {
             id: params.id,
             data: params.data,
             rev_id: 0,
