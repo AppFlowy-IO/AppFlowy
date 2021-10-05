@@ -88,7 +88,7 @@ impl WsController {
     pub async fn start_connect(&self, addr: String) -> Result<(), ServerError> {
         *self.addr.write() = Some(addr.clone());
 
-        let strategy = ExponentialBackoff::from_millis(100).take(5);
+        let strategy = FixedInterval::from_millis(5000).take(3);
         self.connect(addr, strategy).await
     }
 
@@ -326,7 +326,7 @@ impl Future for WsConnectActionFut {
                     sender,
                 }))
             },
-            Err(e) => Poll::Ready(Err(WsError::internal().context(e))),
+            Err(e) => Poll::Ready(Err(e)),
         }
     }
 }

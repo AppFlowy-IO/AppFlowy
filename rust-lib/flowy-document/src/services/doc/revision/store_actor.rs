@@ -95,6 +95,7 @@ impl RevisionStoreActor {
         }
     }
 
+    #[tracing::instrument(level = "debug", skip(self, revision))]
     async fn handle_new_revision(&self, revision: Revision) -> DocResult<()> {
         if self.revs.contains_key(&revision.rev_id) {
             return Err(DocError::duplicate_rev().context(format!("Duplicate revision id: {}", revision.rev_id)));
@@ -107,6 +108,7 @@ impl RevisionStoreActor {
         Ok(())
     }
 
+    #[tracing::instrument(level = "debug", skip(self, rev_id))]
     async fn handle_revision_acked(&self, rev_id: RevId) {
         match self.revs.get_mut(rev_id.as_ref()) {
             None => {},
@@ -138,7 +140,6 @@ impl RevisionStoreActor {
 
             // TODO: Ok to unwrap?
             let conn = &*persistence.pool.get().map_err(internal_error).unwrap();
-
             let result = conn.immediate_transaction::<_, DocError, _>(|| {
                 let _ = persistence.rev_sql.create_rev_table(revisions, conn).unwrap();
                 Ok(())

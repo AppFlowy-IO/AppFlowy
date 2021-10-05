@@ -292,7 +292,6 @@ impl UserSession {
         let mut notify = self.ws_controller.state_subscribe();
         let ws_controller = self.ws_controller.clone();
         let _ = tokio::spawn(async move {
-            log::debug!("listen ws state");
             loop {
                 match notify.recv().await {
                     Ok(state) => {

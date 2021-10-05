@@ -49,9 +49,7 @@ where
     type Error = Error;
     type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
 
-    fn poll_ready(&self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
-        self.service.poll_ready(cx)
-    }
+    fn poll_ready(&self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> { self.service.poll_ready(cx) }
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
         let mut authenticate_pass: bool = false;
@@ -68,9 +66,15 @@ where
                 let result: Result<LoggedUser, ServerError> = header.try_into();
                 match result {
                     Ok(logged_user) => {
-                        authenticate_pass = AUTHORIZED_USERS.is_authorized(&logged_user);
-                        // Update user timestamp
-                        AUTHORIZED_USERS.store_auth(logged_user, true);
+                        if cfg!(feature = "ignore_auth") {
+                            authenticate_pass = true;
+                            AUTHORIZED_USERS.store_auth(logged_user, true);
+                        } else {
+                            authenticate_pass = AUTHORIZED_USERS.is_authorized(&logged_user);
+                            if authenticate_pass {
+                                AUTHORIZED_USERS.store_auth(logged_user, true);
+                            }
+                        }
                     },
                     Err(e) => log::error!("{:?}", e),
                 }

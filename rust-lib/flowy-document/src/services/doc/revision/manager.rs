@@ -32,7 +32,6 @@ impl RevisionManager {
         }
     }
 
-    #[tracing::instrument(level = "debug", skip(self))]
     pub async fn add_revision(&self, revision: &Revision) -> Result<(), DocError> {
         let (ret, rx) = oneshot::channel();
         let cmd = RevisionCmd::Revision {

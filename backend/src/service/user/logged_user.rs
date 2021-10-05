@@ -15,11 +15,7 @@ pub struct LoggedUser {
 }
 
 impl std::convert::From<Claim> for LoggedUser {
-    fn from(c: Claim) -> Self {
-        Self {
-            user_id: c.user_id(),
-        }
-    }
+    fn from(c: Claim) -> Self { Self { user_id: c.user_id() } }
 }
 
 impl LoggedUser {
@@ -93,7 +89,6 @@ impl AuthorizedUsers {
                 AuthStatus::Authorized(last_time) => {
                     let current_time = Utc::now();
                     let days = (current_time - last_time).num_days();
-                    log::debug!("user active {} from now", days);
                     days < EXPIRED_DURATION_DAYS
                 },
                 AuthStatus::NotAuthorized => {

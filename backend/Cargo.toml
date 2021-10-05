@@ -92,6 +92,7 @@ path = "src/main.rs"
 
 [features]
 flowy_test = []
+ignore_auth = []
 
 [dev-dependencies]
 parking_lot = "0.11"
