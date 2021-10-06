@@ -10,12 +10,12 @@ class DocRepository {
     required this.docId,
   });
 
-  Future<Either<Doc, WorkspaceError>> readDoc() {
+  Future<Either<DocDelta, WorkspaceError>> readDoc() {
     final request = OpenViewRequest.create()..viewId = docId;
     return WorkspaceEventOpenView(request).send();
   }
 
-  Future<Either<Doc, WorkspaceError>> applyDelta({required String data}) {
+  Future<Either<DocDelta, WorkspaceError>> applyDelta({required String data}) {
     final request = DocDelta.create()
       ..docId = docId
       ..data = data;

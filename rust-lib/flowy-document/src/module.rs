@@ -1,12 +1,5 @@
-use std::sync::Arc;
-
-use diesel::SqliteConnection;
-
-use flowy_database::ConnectionPool;
-use flowy_net::config::ServerConfig;
-
 use crate::{
-    entities::doc::{CreateDocParams, Doc, DocDelta, QueryDocParams},
+    entities::doc::{CreateDocParams, DocDelta, QueryDocParams},
     errors::DocError,
     services::{
         doc::{doc_controller::DocController, edit::ClientEditDoc},
@@ -14,6 +7,9 @@ use crate::{
         ws::WsDocumentManager,
     },
 };
+use flowy_database::ConnectionPool;
+use flowy_net::config::ServerConfig;
+use std::sync::Arc;
 
 pub trait DocumentUser: Send + Sync {
     fn user_dir(&self) -> Result<String, DocError>;
@@ -41,13 +37,13 @@ impl FlowyDocument {
         Ok(())
     }
 
-    pub fn create(&self, params: CreateDocParams, conn: &SqliteConnection) -> Result<(), DocError> {
-        let _ = self.doc_ctrl.create(params, conn)?;
+    pub fn create(&self, params: CreateDocParams) -> Result<(), DocError> {
+        let _ = self.doc_ctrl.create(params)?;
         Ok(())
     }
 
-    pub fn delete(&self, params: QueryDocParams, conn: &SqliteConnection) -> Result<(), DocError> {
-        let _ = self.doc_ctrl.delete(params, conn)?;
+    pub fn delete(&self, params: QueryDocParams) -> Result<(), DocError> {
+        let _ = self.doc_ctrl.delete(params)?;
         Ok(())
     }
 
@@ -60,7 +56,7 @@ impl FlowyDocument {
         Ok(edit_context)
     }
 
-    pub async fn apply_doc_delta(&self, params: DocDelta) -> Result<Doc, DocError> {
+    pub async fn apply_doc_delta(&self, params: DocDelta) -> Result<DocDelta, DocError> {
         // workaround: compare the rust's delta with flutter's delta. Will be removed
         // very soon
         let doc = self.doc_ctrl.edit_doc(params.clone()).await?;

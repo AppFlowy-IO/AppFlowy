@@ -1,6 +1,6 @@
 use crate::{
     entities::doc::{RevId, Revision},
-    errors::{internal_error, DocResult},
+    errors::DocResult,
     services::doc::{
         edit::{
             message::{DocumentMsg, TransformDeltas},

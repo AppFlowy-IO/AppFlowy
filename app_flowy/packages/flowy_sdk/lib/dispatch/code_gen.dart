@@ -241,14 +241,14 @@ class WorkspaceEventOpenView {
      OpenViewRequest request;
      WorkspaceEventOpenView(this.request);
 
-    Future<Either<Doc, WorkspaceError>> send() {
+    Future<Either<DocDelta, WorkspaceError>> send() {
     final request = FFIRequest.create()
           ..event = WorkspaceEvent.OpenView.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-           (okBytes) => left(Doc.fromBuffer(okBytes)),
+           (okBytes) => left(DocDelta.fromBuffer(okBytes)),
            (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
         ));
     }
@@ -258,14 +258,14 @@ class WorkspaceEventApplyDocDelta {
      DocDelta request;
      WorkspaceEventApplyDocDelta(this.request);
 
-    Future<Either<Doc, WorkspaceError>> send() {
+    Future<Either<DocDelta, WorkspaceError>> send() {
     final request = FFIRequest.create()
           ..event = WorkspaceEvent.ApplyDocDelta.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-           (okBytes) => left(Doc.fromBuffer(okBytes)),
+           (okBytes) => left(DocDelta.fromBuffer(okBytes)),
            (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
         ));
     }

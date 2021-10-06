@@ -9,14 +9,14 @@ import 'package:flowy_sdk/protobuf/flowy-document/doc.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 
 class FlowyDoc implements EditorDeltaSender {
-  final Doc doc;
+  final DocDelta doc;
   final IDoc iDocImpl;
   Document data;
 
   FlowyDoc({required this.doc, required this.data, required this.iDocImpl}) {
     data.sender = this;
   }
-  String get id => doc.id;
+  String get id => doc.docId;
 
   @override
   void sendNewDelta(Delta changeset, Delta delta) async {
@@ -40,7 +40,8 @@ class FlowyDoc implements EditorDeltaSender {
 }
 
 abstract class IDoc {
-  Future<Either<Doc, WorkspaceError>> readDoc();
-  Future<Either<Doc, WorkspaceError>> applyChangeset({required String json});
+  Future<Either<DocDelta, WorkspaceError>> readDoc();
+  Future<Either<DocDelta, WorkspaceError>> applyChangeset(
+      {required String json});
   Future<Either<Unit, WorkspaceError>> closeDoc();
 }

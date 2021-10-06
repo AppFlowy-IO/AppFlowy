@@ -6,7 +6,7 @@ use crate::{
 };
 use bytes::Bytes;
 use dashmap::DashMap;
-use flowy_infra::retry::{Action, ExponentialBackoff, FixedInterval, Retry};
+use flowy_infra::retry::{Action, FixedInterval, Retry};
 use flowy_net::errors::ServerError;
 use futures_channel::mpsc::{UnboundedReceiver, UnboundedSender};
 use futures_core::{ready, Stream};

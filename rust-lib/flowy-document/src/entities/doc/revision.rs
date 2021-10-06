@@ -1,5 +1,6 @@
 use crate::services::util::md5;
 
+use crate::entities::doc::Doc;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_ot::core::Delta;
 use std::fmt::Formatter;
@@ -114,6 +115,18 @@ impl Revision {
             ty,
         }
     }
+}
+
+pub fn revision_from_doc(doc: Doc, ty: RevType) -> Revision {
+    let delta_data = doc.data.as_bytes();
+    let revision = Revision::new(
+        doc.base_rev_id.clone(),
+        doc.rev_id.clone(),
+        delta_data.to_owned(),
+        &doc.id,
+        ty,
+    );
+    revision
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]

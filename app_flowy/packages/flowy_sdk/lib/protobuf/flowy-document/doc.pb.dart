@@ -76,6 +76,7 @@ class Doc extends $pb.GeneratedMessage {
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data')
     ..aInt64(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'revId')
+    ..aInt64(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'baseRevId')
     ..hasRequiredFields = false
   ;
 
@@ -84,6 +85,7 @@ class Doc extends $pb.GeneratedMessage {
     $core.String? id,
     $core.String? data,
     $fixnum.Int64? revId,
+    $fixnum.Int64? baseRevId,
   }) {
     final _result = create();
     if (id != null) {
@@ -94,6 +96,9 @@ class Doc extends $pb.GeneratedMessage {
     }
     if (revId != null) {
       _result.revId = revId;
+    }
+    if (baseRevId != null) {
+      _result.baseRevId = baseRevId;
     }
     return _result;
   }
@@ -144,6 +149,15 @@ class Doc extends $pb.GeneratedMessage {
   $core.bool hasRevId() => $_has(2);
   @$pb.TagNumber(3)
   void clearRevId() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $fixnum.Int64 get baseRevId => $_getI64(3);
+  @$pb.TagNumber(4)
+  set baseRevId($fixnum.Int64 v) { $_setInt64(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasBaseRevId() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearBaseRevId() => clearField(4);
 }
 
 class UpdateDocParams extends $pb.GeneratedMessage {

@@ -18,13 +18,14 @@ class IDocImpl extends IDoc {
   }
 
   @override
-  Future<Either<Doc, WorkspaceError>> readDoc() async {
+  Future<Either<DocDelta, WorkspaceError>> readDoc() async {
     final docOrFail = await repo.readDoc();
     return docOrFail;
   }
 
   @override
-  Future<Either<Doc, WorkspaceError>> applyChangeset({required String json}) {
+  Future<Either<DocDelta, WorkspaceError>> applyChangeset(
+      {required String json}) {
     return repo.applyDelta(data: json);
   }
 }

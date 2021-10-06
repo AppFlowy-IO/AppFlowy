@@ -4,7 +4,7 @@ use bytes::Bytes;
 
 use crate::{
     entities::doc::{CreateDocParams, Doc, DocDelta, QueryDocParams},
-    errors::{internal_error, DocError, DocResult},
+    errors::{DocError, DocResult},
     module::DocumentUser,
     services::{
         cache::DocCache,
@@ -16,7 +16,7 @@ use crate::{
         ws::WsDocumentManager,
     },
 };
-use flowy_database::{ConnectionPool, SqliteConnection};
+use flowy_database::ConnectionPool;
 use flowy_infra::future::{wrap_future, FnFuture, ResultFuture};
 use flowy_ot::core::Delta;
 use tokio::time::{interval, Duration};
@@ -45,8 +45,8 @@ impl DocController {
         Ok(())
     }
 
-    #[tracing::instrument(skip(self, conn), err)]
-    pub(crate) fn create(&self, params: CreateDocParams, conn: &SqliteConnection) -> Result<(), DocError> {
+    #[tracing::instrument(skip(self), err)]
+    pub(crate) fn create(&self, params: CreateDocParams) -> Result<(), DocError> {
         // let _doc = Doc {
         //     id: params.id,
         //     data: params.data,
@@ -77,8 +77,8 @@ impl DocController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, conn), err)]
-    pub(crate) fn delete(&self, params: QueryDocParams, conn: &SqliteConnection) -> Result<(), DocError> {
+    #[tracing::instrument(level = "debug", skip(self), err)]
+    pub(crate) fn delete(&self, params: QueryDocParams) -> Result<(), DocError> {
         let doc_id = &params.doc_id;
         self.cache.remove(doc_id);
         self.ws_manager.remove_handler(doc_id);
@@ -87,10 +87,10 @@ impl DocController {
     }
 
     #[tracing::instrument(level = "debug", skip(self, delta), err)]
-    pub(crate) async fn edit_doc(&self, delta: DocDelta) -> Result<Doc, DocError> {
+    pub(crate) async fn edit_doc(&self, delta: DocDelta) -> Result<DocDelta, DocError> {
         let edit_doc_ctx = self.cache.get(&delta.doc_id)?;
         let _ = edit_doc_ctx.compose_local_delta(Bytes::from(delta.data)).await?;
-        Ok(edit_doc_ctx.doc().await?)
+        Ok(edit_doc_ctx.delta().await?)
     }
 }
 
@@ -137,7 +137,7 @@ struct RevisionServerImpl {
 }
 
 impl RevisionServer for RevisionServerImpl {
-    fn fetch_document_from_remote(&self, doc_id: &str) -> ResultFuture<DocRevision, DocError> {
+    fn fetch_document_from_remote(&self, doc_id: &str) -> ResultFuture<Doc, DocError> {
         let params = QueryDocParams {
             doc_id: doc_id.to_string(),
         };
@@ -147,14 +147,7 @@ impl RevisionServer for RevisionServerImpl {
         ResultFuture::new(async move {
             match server.read_doc(&token, params).await? {
                 None => Err(DocError::not_found()),
-                Some(doc) => {
-                    let delta = Delta::from_bytes(doc.data)?;
-                    Ok(DocRevision {
-                        base_rev_id: 0.into(),
-                        rev_id: doc.rev_id.into(),
-                        delta,
-                    })
-                },
+                Some(doc) => Ok(doc),
             }
         })
     }

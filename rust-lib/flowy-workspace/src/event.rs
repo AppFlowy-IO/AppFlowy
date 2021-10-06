@@ -46,10 +46,10 @@ pub enum WorkspaceEvent {
     #[event(input = "DeleteViewRequest")]
     DeleteView        = 204,
 
-    #[event(input = "OpenViewRequest", output = "Doc")]
+    #[event(input = "OpenViewRequest", output = "DocDelta")]
     OpenView          = 205,
 
-    #[event(input = "DocDelta", output = "Doc")]
+    #[event(input = "DocDelta", output = "DocDelta")]
     ApplyDocDelta     = 206,
 
     #[event()]

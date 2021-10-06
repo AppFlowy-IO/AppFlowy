@@ -15,7 +15,7 @@ use flowy_user::services::user::UserSession;
 use crate::helper::{spawn_server, TestServer};
 use flowy_document::protobuf::UpdateDocParams;
 
-use flowy_ot::core::{Attribute, Interval};
+use flowy_ot::core::{Attribute, Delta, Interval};
 use parking_lot::RwLock;
 
 pub struct DocumentTest {
@@ -152,11 +152,14 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
 }
 
 fn assert_eq(expect: &str, receive: &str) {
-    if expect != receive {
-        log::error!("expect: {}", expect);
-        log::error!("but receive: {}", receive);
+    let expected_delta: Delta = serde_json::from_str(expect).unwrap();
+    let target_delta: Delta = serde_json::from_str(receive).unwrap();
+
+    if expected_delta != target_delta {
+        log::error!("✅ expect: {}", expect,);
+        log::error!("❌ receive: {}", receive);
     }
-    assert_eq!(expect, receive);
+    assert_eq!(target_delta, expected_delta);
 }
 
 async fn create_doc(flowy_test: &FlowyTest) -> String {

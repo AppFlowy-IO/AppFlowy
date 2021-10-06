@@ -8,6 +8,7 @@ message Doc {
     string id = 1;
     string data = 2;
     int64 rev_id = 3;
+    int64 base_rev_id = 4;
 }
 message UpdateDocParams {
     string doc_id = 1;

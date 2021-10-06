@@ -1,6 +1,6 @@
 use crate::{
     entities::{
-        doc::{Doc, RevId, RevType, Revision, RevisionRange},
+        doc::{Doc, DocDelta, RevId, RevType, Revision, RevisionRange},
         ws::{WsDataType, WsDocumentData},
     },
     errors::{internal_error, DocError, DocResult},
@@ -46,12 +46,9 @@ impl ClientEditDoc {
         user: Arc<dyn DocumentUser>,
     ) -> DocResult<Self> {
         let rev_store = spawn_rev_store_actor(doc_id, pool.clone(), server.clone());
-        let DocRevision {
-            base_rev_id: _,
-            rev_id,
-            delta,
-        } = load_document(rev_store.clone()).await?;
-        let rev_manager = Arc::new(RevisionManager::new(doc_id, rev_id, rev_store));
+        let doc = load_document(rev_store.clone()).await?;
+        let delta = doc.delta()?;
+        let rev_manager = Arc::new(RevisionManager::new(doc_id, doc.rev_id.into(), rev_store));
         let document = spawn_doc_edit_actor(doc_id, delta, pool.clone());
         let doc_id = doc_id.to_string();
         let edit_doc = Self {
@@ -142,15 +139,16 @@ impl ClientEditDoc {
         rx.await.map_err(internal_error)?
     }
 
-    pub async fn doc(&self) -> DocResult<Doc> {
+    pub async fn delta(&self) -> DocResult<DocDelta> {
         let (ret, rx) = oneshot::channel::<DocResult<String>>();
         let msg = DocumentMsg::Doc { ret };
         let _ = self.document.send(msg);
         let data = rx.await.map_err(internal_error)??;
-        let rev_id = self.rev_manager.rev_id();
-        let id = self.doc_id.clone();
 
-        Ok(Doc { id, data, rev_id })
+        Ok(DocDelta {
+            doc_id: self.doc_id.clone(),
+            data,
+        })
     }
 
     async fn mk_revision(&self, delta_data: &Bytes) -> Result<RevId, DocError> {
@@ -229,7 +227,7 @@ impl ClientEditDoc {
         let _ = rx.await.map_err(internal_error)??;
 
         // update rev id
-        self.rev_manager.update_rev_id(server_rev_id.clone().into());
+        self.rev_manager.set_rev_id(server_rev_id.clone().into());
         let (_, local_rev_id) = self.rev_manager.next_rev_id();
 
         // save the revision
@@ -327,7 +325,7 @@ fn spawn_doc_edit_actor(doc_id: &str, delta: Delta, pool: Arc<ConnectionPool>) -
     sender
 }
 
-async fn load_document(sender: mpsc::Sender<RevisionCmd>) -> DocResult<DocRevision> {
+async fn load_document(sender: mpsc::Sender<RevisionCmd>) -> DocResult<Doc> {
     let (ret, rx) = oneshot::channel();
     let _ = sender.send(RevisionCmd::DocumentDelta { ret }).await;
     let result = rx.await.map_err(internal_error)?;

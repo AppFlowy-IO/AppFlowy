@@ -1,5 +1,5 @@
 use crate::{
-    entities::doc::{RevId, RevType, Revision, RevisionRange},
+    entities::doc::{Doc, RevId, RevType, Revision, RevisionRange},
     errors::{internal_error, DocError},
     services::{doc::revision::store_actor::RevisionCmd, util::RevIdCounter, ws::DocumentWebSocket},
 };
@@ -14,7 +14,7 @@ pub struct DocRevision {
 }
 
 pub trait RevisionServer: Send + Sync {
-    fn fetch_document_from_remote(&self, doc_id: &str) -> ResultFuture<DocRevision, DocError>;
+    fn fetch_document_from_remote(&self, doc_id: &str) -> ResultFuture<Doc, DocError>;
 }
 
 pub struct RevisionManager {
@@ -60,7 +60,7 @@ impl RevisionManager {
         (cur, next)
     }
 
-    pub fn update_rev_id(&self, rev_id: i64) { self.rev_id_counter.set(rev_id); }
+    pub fn set_rev_id(&self, rev_id: i64) { self.rev_id_counter.set(rev_id); }
 
     pub async fn construct_revisions(&self, range: RevisionRange) -> Result<Revision, DocError> {
         debug_assert!(&range.doc_id == &self.doc_id);

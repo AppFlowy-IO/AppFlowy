@@ -15,7 +15,7 @@ use crate::{
 };
 use flowy_database::SqliteConnection;
 use flowy_document::{
-    entities::doc::{CreateDocParams, Doc, DocDelta, QueryDocParams},
+    entities::doc::{CreateDocParams, DocDelta, QueryDocParams},
     module::FlowyDocument,
 };
 use std::sync::Arc;
@@ -56,8 +56,7 @@ impl ViewController {
         // TODO: rollback anything created before if failed?
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.save_view(view.clone(), conn)?;
-            self.document
-                .create(CreateDocParams::new(&view.id, params.data), conn)?;
+            self.document.create(CreateDocParams::new(&view.id, params.data))?;
 
             let repeated_view = self.read_local_views_belong_to(&view.belong_to_id, conn)?;
             dart_notify(&view.belong_to_id, WorkspaceObservable::AppCreateView)
@@ -84,9 +83,9 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    pub(crate) async fn open_view(&self, params: QueryDocParams) -> Result<Doc, WorkspaceError> {
+    pub(crate) async fn open_view(&self, params: QueryDocParams) -> Result<DocDelta, WorkspaceError> {
         let edit_context = self.document.open(params, self.database.db_pool()?).await?;
-        Ok(edit_context.doc().await.map_err(internal_error)?)
+        Ok(edit_context.delta().await.map_err(internal_error)?)
     }
 
     pub(crate) async fn delete_view(&self, params: DeleteViewParams) -> Result<(), WorkspaceError> {
@@ -95,7 +94,7 @@ impl ViewController {
 
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let view_table = self.sql.delete_view(&params.view_id, conn)?;
-            let _ = self.document.delete(params.into(), conn)?;
+            let _ = self.document.delete(params.into())?;
 
             let repeated_view = self.read_local_views_belong_to(&view_table.belong_to_id, conn)?;
             dart_notify(&view_table.belong_to_id, WorkspaceObservable::AppDeleteView)
@@ -134,7 +133,7 @@ impl ViewController {
         Ok(())
     }
 
-    pub(crate) async fn apply_doc_delta(&self, params: DocDelta) -> Result<Doc, WorkspaceError> {
+    pub(crate) async fn apply_doc_delta(&self, params: DocDelta) -> Result<DocDelta, WorkspaceError> {
         let doc = self.document.apply_doc_delta(params).await?;
         Ok(doc)
     }

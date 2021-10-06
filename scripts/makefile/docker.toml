@@ -1,0 +1,10 @@
+[tasks.show_usage]
+script = """
+docker system df -v
+# docker volume rm xxxxx
+docker volume prune
+"""
+
+#docker container ls -al
+#docker stop clever_mayer
+#docker rm clever_mayer

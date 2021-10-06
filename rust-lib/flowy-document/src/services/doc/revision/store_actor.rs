@@ -1,5 +1,5 @@
 use crate::{
-    entities::doc::{RevId, RevType, Revision, RevisionRange},
+    entities::doc::{revision_from_doc, Doc, RevId, RevType, Revision, RevisionRange},
     errors::{internal_error, DocError, DocResult},
     services::doc::revision::{model::RevisionOperation, DocRevision, RevisionServer},
     sql_tables::{RevState, RevTableSql},
@@ -28,7 +28,7 @@ pub enum RevisionCmd {
         ret: oneshot::Sender<DocResult<Vec<Revision>>>,
     },
     DocumentDelta {
-        ret: oneshot::Sender<DocResult<DocRevision>>,
+        ret: oneshot::Sender<DocResult<Doc>>,
     },
 }
 
@@ -181,35 +181,22 @@ impl RevisionStoreActor {
         }
     }
 
-    async fn fetch_document(&self) -> DocResult<DocRevision> {
+    async fn fetch_document(&self) -> DocResult<Doc> {
         let result = fetch_from_local(&self.doc_id, self.persistence.clone()).await;
         if result.is_ok() {
             return result;
         }
 
-        match self.server.fetch_document_from_remote(&self.doc_id).await {
-            Ok(doc_revision) => {
-                let delta_data = doc_revision.delta.to_bytes();
-                let revision = Revision::new(
-                    doc_revision.base_rev_id.clone(),
-                    doc_revision.rev_id.clone(),
-                    delta_data.to_vec(),
-                    &self.doc_id,
-                    RevType::Remote,
-                );
-                self.handle_new_revision(revision);
-
-                Ok(doc_revision)
-            },
-            Err(e) => Err(e),
-        }
+        let doc = self.server.fetch_document_from_remote(&self.doc_id).await?;
+        let revision = revision_from_doc(doc.clone(), RevType::Remote);
+        self.handle_new_revision(revision);
+        Ok(doc)
     }
 }
 
-async fn fetch_from_local(doc_id: &str, persistence: Arc<Persistence>) -> DocResult<DocRevision> {
+async fn fetch_from_local(doc_id: &str, persistence: Arc<Persistence>) -> DocResult<Doc> {
     let doc_id = doc_id.to_owned();
     spawn_blocking(move || {
-        // tokio::time::timeout
         let conn = &*persistence.pool.get().map_err(internal_error)?;
         let revisions = persistence.rev_sql.read_rev_tables(&doc_id, None, conn)?;
         if revisions.is_empty() {
@@ -230,12 +217,11 @@ async fn fetch_from_local(doc_id: &str, persistence: Arc<Persistence>) -> DocRes
             }
         }
 
-        delta.insert("\n", Attributes::default());
-
-        Result::<DocRevision, DocError>::Ok(DocRevision {
-            base_rev_id,
-            rev_id,
-            delta,
+        Result::<Doc, DocError>::Ok(Doc {
+            id: doc_id,
+            data: delta.to_json(),
+            rev_id: rev_id.into(),
+            base_rev_id: base_rev_id.into(),
         })
     })
     .await

@@ -2,6 +2,7 @@ extend = [
     { path = "scripts/makefile/desktop.toml" },
     { path = "scripts/makefile/protobuf.toml" },
     { path = "scripts/makefile/tests.toml" },
+    { path = "scripts/makefile/docker.toml" },
 ]
 
 [env]

@@ -15,7 +15,7 @@ use crate::{
     services::ViewController,
 };
 use flowy_dispatch::prelude::{data_result, Data, DataResult, Unit};
-use flowy_document::entities::doc::{Doc, DocDelta, QueryDocParams};
+use flowy_document::entities::doc::{DocDelta, QueryDocParams};
 use std::{convert::TryInto, sync::Arc};
 
 #[tracing::instrument(skip(data, controller), err)]
@@ -58,7 +58,7 @@ pub(crate) async fn update_view_handler(
 pub(crate) async fn apply_doc_delta_handler(
     data: Data<DocDelta>,
     controller: Unit<Arc<ViewController>>,
-) -> DataResult<Doc, WorkspaceError> {
+) -> DataResult<DocDelta, WorkspaceError> {
     // let params: DocDelta = data.into_inner().try_into()?;
     let doc = controller.apply_doc_delta(data.into_inner()).await?;
     data_result(doc)
@@ -78,7 +78,7 @@ pub(crate) async fn delete_view_handler(
 pub(crate) async fn open_view_handler(
     data: Data<OpenViewRequest>,
     controller: Unit<Arc<ViewController>>,
-) -> DataResult<Doc, WorkspaceError> {
+) -> DataResult<DocDelta, WorkspaceError> {
     let params: QueryDocParams = data.into_inner().try_into()?;
     let doc = controller.open_view(params).await?;
     data_result(doc)
