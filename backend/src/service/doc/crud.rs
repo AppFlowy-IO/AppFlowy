@@ -49,7 +49,7 @@ pub(crate) async fn read_doc(pool: &PgPool, params: QueryDocParams) -> Result<Do
     Ok(doc)
 }
 
-#[tracing::instrument(level = "debug", skip(pool, params), err)]
+#[tracing::instrument(level = "debug", skip(pool, params), fields(delta), err)]
 pub async fn update_doc(pool: &PgPool, mut params: UpdateDocParams) -> Result<(), ServerError> {
     let doc_id = Uuid::parse_str(&params.doc_id)?;
     let mut transaction = pool
@@ -58,6 +58,8 @@ pub async fn update_doc(pool: &PgPool, mut params: UpdateDocParams) -> Result<()
         .context("Failed to acquire a Postgres connection to update doc")?;
 
     let data = Some(params.take_data());
+
+    tracing::Span::current().record("result", &data.as_ref().unwrap_or(&"".to_owned()).as_str());
 
     let (sql, args) = SqlBuilder::update(DOC_TABLE)
         .add_some_arg("data", data)

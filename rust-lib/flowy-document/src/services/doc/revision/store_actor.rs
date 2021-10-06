@@ -153,14 +153,11 @@ impl RevisionStoreActor {
     }
 
     async fn revs_in_range(&self, range: RevisionRange) -> DocResult<Vec<Revision>> {
-        let iter_range = range.from_rev_id..=range.to_rev_id;
-        let revs = iter_range
-            .flat_map(|rev_id| {
-                //
-                match self.revs.get(&rev_id) {
-                    None => None,
-                    Some(rev) => Some((&*(*rev)).clone()),
-                }
+        let revs = range
+            .iter()
+            .flat_map(|rev_id| match self.revs.get(&rev_id) {
+                None => None,
+                Some(rev) => Some((&*(*rev)).clone()),
             })
             .collect::<Vec<Revision>>();
 
@@ -189,7 +186,7 @@ impl RevisionStoreActor {
 
         let doc = self.server.fetch_document_from_remote(&self.doc_id).await?;
         let revision = revision_from_doc(doc.clone(), RevType::Remote);
-        self.handle_new_revision(revision);
+        let _ = self.handle_new_revision(revision).await?;
         Ok(doc)
     }
 }

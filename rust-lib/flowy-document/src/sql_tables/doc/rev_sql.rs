@@ -80,8 +80,8 @@ impl RevTableSql {
         conn: &SqliteConnection,
     ) -> Result<Vec<Revision>, DocError> {
         let rev_tables = dsl::rev_table
-            .filter(rev_id.ge(range.from_rev_id))
-            .filter(rev_id.le(range.to_rev_id))
+            .filter(rev_id.ge(range.start))
+            .filter(rev_id.le(range.end))
             .filter(doc_id.eq(doc_id_s))
             .order(rev_id.asc())
             .load::<RevTable>(conn)?;

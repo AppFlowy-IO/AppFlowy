@@ -13,8 +13,8 @@ message Revision {
 }
 message RevisionRange {
     string doc_id = 1;
-    int64 from_rev_id = 2;
-    int64 to_rev_id = 3;
+    int64 start = 2;
+    int64 end = 3;
 }
 enum RevType {
     Local = 0;

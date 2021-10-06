@@ -10,7 +10,7 @@ use crate::{
             edit::{
                 doc_actor::DocumentActor,
                 message::{DocumentMsg, TransformDeltas},
-                model::NotifyOpenDocAction,
+                model::OpenDocAction,
             },
             revision::{DocRevision, RevisionCmd, RevisionManager, RevisionServer, RevisionStoreActor},
             UndoResult,
@@ -71,8 +71,8 @@ impl ClientEditDoc {
             ret,
         };
         let _ = self.document.send(msg);
-        let delta_data = rx.await.map_err(internal_error)??.to_bytes();
-        let rev_id = self.mk_revision(&delta_data).await?;
+        let delta = rx.await.map_err(internal_error)??;
+        let rev_id = self.mk_revision(delta).await?;
         save_document(self.document.clone(), rev_id.into()).await
     }
 
@@ -80,8 +80,8 @@ impl ClientEditDoc {
         let (ret, rx) = oneshot::channel::<DocResult<Delta>>();
         let msg = DocumentMsg::Delete { interval, ret };
         let _ = self.document.send(msg);
-        let delta_data = rx.await.map_err(internal_error)??.to_bytes();
-        let _ = self.mk_revision(&delta_data).await?;
+        let delta = rx.await.map_err(internal_error)??;
+        let _ = self.mk_revision(delta).await?;
         Ok(())
     }
 
@@ -93,8 +93,8 @@ impl ClientEditDoc {
             ret,
         };
         let _ = self.document.send(msg);
-        let delta_data = rx.await.map_err(internal_error)??.to_bytes();
-        let _ = self.mk_revision(&delta_data).await?;
+        let delta = rx.await.map_err(internal_error)??;
+        let _ = self.mk_revision(delta).await?;
         Ok(())
     }
 
@@ -106,8 +106,8 @@ impl ClientEditDoc {
             ret,
         };
         let _ = self.document.send(msg);
-        let delta_data = rx.await.map_err(internal_error)??.to_bytes();
-        let _ = self.mk_revision(&delta_data).await?;
+        let delta = rx.await.map_err(internal_error)??;
+        let _ = self.mk_revision(delta).await?;
         Ok(())
     }
 
@@ -151,14 +151,23 @@ impl ClientEditDoc {
         })
     }
 
-    async fn mk_revision(&self, delta_data: &Bytes) -> Result<RevId, DocError> {
+    #[tracing::instrument(level = "debug", skip(self, delta), fields(revision_delta = %delta.to_json(), send_state, base_rev_id, rev_id))]
+    async fn mk_revision(&self, delta: Delta) -> Result<RevId, DocError> {
+        let delta_data = delta.to_bytes();
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id();
+        tracing::Span::current().record("base_rev_id", &base_rev_id);
+        tracing::Span::current().record("rev_id", &rev_id);
+
         let delta_data = delta_data.to_vec();
         let revision = Revision::new(base_rev_id, rev_id, delta_data, &self.doc_id, RevType::Local);
         let _ = self.rev_manager.add_revision(&revision).await?;
         match self.ws.send(revision.into()) {
-            Ok(_) => {},
-            Err(e) => log::error!("Send delta failed: {:?}", e),
+            Ok(_) => {
+                tracing::Span::current().record("send_state", &"success");
+            },
+            Err(e) => {
+                tracing::Span::current().record("send_state", &format!("failed: {:?}", e).as_str());
+            },
         };
 
         Ok(rev_id.into())
@@ -168,11 +177,14 @@ impl ClientEditDoc {
     pub(crate) async fn compose_local_delta(&self, data: Bytes) -> Result<(), DocError> {
         let delta = Delta::from_bytes(&data)?;
         let (ret, rx) = oneshot::channel::<DocResult<()>>();
-        let msg = DocumentMsg::Delta { delta, ret };
+        let msg = DocumentMsg::Delta {
+            delta: delta.clone(),
+            ret,
+        };
         let _ = self.document.send(msg);
         let _ = rx.await.map_err(internal_error)??;
 
-        let rev_id = self.mk_revision(&data).await?;
+        let rev_id = self.mk_revision(delta).await?;
         save_document(self.document.clone(), rev_id).await
     }
 
@@ -189,7 +201,7 @@ impl ClientEditDoc {
         let rev_id: RevId = self.rev_manager.rev_id().into();
 
         if let Ok(user_id) = self.user.user_id() {
-            let action = NotifyOpenDocAction::new(&user_id, &self.doc_id, &rev_id, &self.ws);
+            let action = OpenDocAction::new(&user_id, &self.doc_id, &rev_id, &self.ws);
             let strategy = ExponentialBackoff::from_millis(50).take(3);
             let retry = Retry::spawn(strategy, action);
             tokio::spawn(async move {
@@ -228,11 +240,11 @@ impl ClientEditDoc {
 
         // update rev id
         self.rev_manager.set_rev_id(server_rev_id.clone().into());
-        let (_, local_rev_id) = self.rev_manager.next_rev_id();
+        let (local_base_rev_id, local_rev_id) = self.rev_manager.next_rev_id();
 
         // save the revision
         let revision = Revision::new(
-            server_rev_id.value,
+            local_base_rev_id,
             local_rev_id,
             client_prime.to_bytes().to_vec(),
             &self.doc_id,
@@ -242,7 +254,7 @@ impl ClientEditDoc {
 
         // send the server_prime delta
         let revision = Revision::new(
-            server_rev_id.value,
+            local_base_rev_id,
             local_rev_id,
             server_prime.to_bytes().to_vec(),
             &self.doc_id,

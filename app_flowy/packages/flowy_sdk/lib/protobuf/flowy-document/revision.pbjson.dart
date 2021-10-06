@@ -49,10 +49,10 @@ const RevisionRange$json = const {
   '1': 'RevisionRange',
   '2': const [
     const {'1': 'doc_id', '3': 1, '4': 1, '5': 9, '10': 'docId'},
-    const {'1': 'from_rev_id', '3': 2, '4': 1, '5': 3, '10': 'fromRevId'},
-    const {'1': 'to_rev_id', '3': 3, '4': 1, '5': 3, '10': 'toRevId'},
+    const {'1': 'start', '3': 2, '4': 1, '5': 3, '10': 'start'},
+    const {'1': 'end', '3': 3, '4': 1, '5': 3, '10': 'end'},
   ],
 };
 
 /// Descriptor for `RevisionRange`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List revisionRangeDescriptor = $convert.base64Decode('Cg1SZXZpc2lvblJhbmdlEhUKBmRvY19pZBgBIAEoCVIFZG9jSWQSHgoLZnJvbV9yZXZfaWQYAiABKANSCWZyb21SZXZJZBIaCgl0b19yZXZfaWQYAyABKANSB3RvUmV2SWQ=');
+final $typed_data.Uint8List revisionRangeDescriptor = $convert.base64Decode('Cg1SZXZpc2lvblJhbmdlEhUKBmRvY19pZBgBIAEoCVIFZG9jSWQSFAoFc3RhcnQYAiABKANSBXN0YXJ0EhAKA2VuZBgDIAEoA1IDZW5k');

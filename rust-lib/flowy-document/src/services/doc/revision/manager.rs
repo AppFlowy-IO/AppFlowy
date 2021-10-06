@@ -84,8 +84,8 @@ impl RevisionManager {
 
         let delta_data = new_delta.to_bytes();
         let revision = Revision::new(
-            range.from_rev_id,
-            range.to_rev_id,
+            range.start,
+            range.end,
             delta_data.to_vec(),
             &self.doc_id,
             RevType::Remote,

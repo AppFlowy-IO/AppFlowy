@@ -181,26 +181,26 @@ class Revision extends $pb.GeneratedMessage {
 class RevisionRange extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RevisionRange', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
-    ..aInt64(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fromRevId')
-    ..aInt64(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'toRevId')
+    ..aInt64(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'start')
+    ..aInt64(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'end')
     ..hasRequiredFields = false
   ;
 
   RevisionRange._() : super();
   factory RevisionRange({
     $core.String? docId,
-    $fixnum.Int64? fromRevId,
-    $fixnum.Int64? toRevId,
+    $fixnum.Int64? start,
+    $fixnum.Int64? end,
   }) {
     final _result = create();
     if (docId != null) {
       _result.docId = docId;
     }
-    if (fromRevId != null) {
-      _result.fromRevId = fromRevId;
+    if (start != null) {
+      _result.start = start;
     }
-    if (toRevId != null) {
-      _result.toRevId = toRevId;
+    if (end != null) {
+      _result.end = end;
     }
     return _result;
   }
@@ -235,21 +235,21 @@ class RevisionRange extends $pb.GeneratedMessage {
   void clearDocId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $fixnum.Int64 get fromRevId => $_getI64(1);
+  $fixnum.Int64 get start => $_getI64(1);
   @$pb.TagNumber(2)
-  set fromRevId($fixnum.Int64 v) { $_setInt64(1, v); }
+  set start($fixnum.Int64 v) { $_setInt64(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasFromRevId() => $_has(1);
+  $core.bool hasStart() => $_has(1);
   @$pb.TagNumber(2)
-  void clearFromRevId() => clearField(2);
+  void clearStart() => clearField(2);
 
   @$pb.TagNumber(3)
-  $fixnum.Int64 get toRevId => $_getI64(2);
+  $fixnum.Int64 get end => $_getI64(2);
   @$pb.TagNumber(3)
-  set toRevId($fixnum.Int64 v) { $_setInt64(2, v); }
+  set end($fixnum.Int64 v) { $_setInt64(2, v); }
   @$pb.TagNumber(3)
-  $core.bool hasToRevId() => $_has(2);
+  $core.bool hasEnd() => $_has(2);
   @$pb.TagNumber(3)
-  void clearToRevId() => clearField(3);
+  void clearEnd() => clearField(3);
 }
 

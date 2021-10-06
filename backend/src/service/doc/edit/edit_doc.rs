@@ -61,11 +61,10 @@ impl ServerEditDoc {
     pub async fn new_doc_user(&self, user: EditUser, rev_id: i64) -> Result<(), ServerError> {
         self.users.insert(user.id(), user.clone());
         let cur_rev_id = self.rev_id.load(SeqCst);
-
         match cur_rev_id.cmp(&rev_id) {
             Ordering::Less => {
                 user.socket
-                    .do_send(mk_pull_rev_ws_message(&self.doc_id, cur_rev_id, rev_id))
+                    .do_send(mk_pull_rev_ws_message(&self.doc_id, next(cur_rev_id), rev_id))
                     .map_err(internal_error)?;
             },
             Ordering::Equal => {},
@@ -84,9 +83,9 @@ impl ServerEditDoc {
         level = "debug",
         skip(self, user, pg_pool, revision),
         fields(
-            rev_id = %self.rev_id.load(SeqCst),
-            revision_rev_id = %revision.rev_id,
-            revision_base_rev_id = %revision.base_rev_id
+            cur_rev_id = %self.rev_id.load(SeqCst),
+            base_rev_id = %revision.base_rev_id,
+            rev_id = %revision.rev_id,
         )
     )]
     pub async fn apply_revision(
@@ -100,18 +99,19 @@ impl ServerEditDoc {
         let cur_rev_id = self.rev_id.load(SeqCst);
         match cur_rev_id.cmp(&revision.rev_id) {
             Ordering::Less => {
-                if cur_rev_id != revision.base_rev_id {
-                    // The server document is outdated, try to get the missing revision from the
-                    // client.
-                    user.socket
-                        .do_send(mk_pull_rev_ws_message(&self.doc_id, cur_rev_id, revision.rev_id))
-                        .map_err(internal_error)?;
-                } else {
+                let next_rev_id = next(cur_rev_id);
+                if next_rev_id == revision.base_rev_id || cur_rev_id == revision.base_rev_id {
                     let _ = self.compose_revision(&revision, pg_pool).await?;
                     user.socket
                         .do_send(mk_acked_ws_message(&revision))
                         .map_err(internal_error)?;
                 }
+
+                // The server document is outdated, try to get the missing revision from the
+                // client.
+                user.socket
+                    .do_send(mk_pull_rev_ws_message(&self.doc_id, next_rev_id, revision.rev_id))
+                    .map_err(internal_error)?;
             },
             Ordering::Equal => {},
             Ordering::Greater => {
@@ -168,12 +168,11 @@ impl ServerEditDoc {
         level = "debug",
         skip(self, delta),
         fields(
-            delta = %delta.to_json(),
+            revision_delta = %delta.to_json(),
             result,
         )
     )]
     fn compose_delta(&self, delta: Delta) -> Result<(), ServerError> {
-        // Opti: push each revision into queue and process it one by one.
         match self.document.try_write_for(Duration::from_millis(300)) {
             None => {
                 log::error!("Failed to acquire write lock of document");
@@ -211,8 +210,8 @@ fn mk_push_rev_ws_message(doc_id: &str, revision: Revision) -> WsMessageAdaptor 
 fn mk_pull_rev_ws_message(doc_id: &str, from_rev_id: i64, to_rev_id: i64) -> WsMessageAdaptor {
     let range = RevisionRange {
         doc_id: doc_id.to_string(),
-        from_rev_id,
-        to_rev_id,
+        start: from_rev_id,
+        end: to_rev_id,
         ..Default::default()
     };
 
@@ -247,3 +246,6 @@ fn mk_ws_message<T: Into<WsMessage>>(data: T) -> WsMessageAdaptor {
     let bytes: Bytes = msg.try_into().unwrap();
     WsMessageAdaptor(bytes)
 }
+
+#[inline]
+fn next(rev_id: i64) -> i64 { rev_id + 1 }

@@ -3,7 +3,7 @@ use crate::services::util::md5;
 use crate::entities::doc::Doc;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_ot::core::Delta;
-use std::fmt::Formatter;
+use std::{fmt::Formatter, ops::RangeInclusive};
 
 #[derive(Debug, ProtoBuf_Enum, Clone, Eq, PartialEq)]
 pub enum RevType {
@@ -97,18 +97,22 @@ impl std::fmt::Debug for Revision {
 }
 
 impl Revision {
-    pub fn new<T1: Into<i64>, T2: Into<i64>>(
-        base_rev_id: T1,
-        rev_id: T2,
-        delta_data: Vec<u8>,
-        doc_id: &str,
-        ty: RevType,
-    ) -> Revision {
-        let md5 = md5(&delta_data);
+    pub fn new<T1, T2, D>(base_rev_id: T1, rev_id: T2, delta: D, doc_id: &str, ty: RevType) -> Revision
+    where
+        T1: Into<i64>,
+        T2: Into<i64>,
+        D: AsRef<[u8]>,
+    {
+        let md5 = md5(&delta);
         let doc_id = doc_id.to_owned();
+        let delta_data = delta.as_ref().to_vec();
+        let base_rev_id = base_rev_id.into();
+        let rev_id = rev_id.into();
+        debug_assert!(base_rev_id != rev_id);
+
         Self {
-            base_rev_id: base_rev_id.into(),
-            rev_id: rev_id.into(),
+            base_rev_id,
+            rev_id,
             delta_data,
             md5,
             doc_id,
@@ -135,19 +139,24 @@ pub struct RevisionRange {
     pub doc_id: String,
 
     #[pb(index = 2)]
-    pub from_rev_id: i64,
+    pub start: i64,
 
     #[pb(index = 3)]
-    pub to_rev_id: i64,
+    pub end: i64,
 }
 
 impl RevisionRange {
     pub fn len(&self) -> i64 {
-        debug_assert!(self.to_rev_id >= self.from_rev_id);
-        if self.to_rev_id >= self.from_rev_id {
-            self.to_rev_id - self.from_rev_id
+        debug_assert!(self.end >= self.start);
+        if self.end >= self.start {
+            self.end - self.start
         } else {
             0
         }
+    }
+
+    pub fn iter(&self) -> RangeInclusive<i64> {
+        debug_assert!(self.start != self.end);
+        RangeInclusive::new(self.start, self.end)
     }
 }

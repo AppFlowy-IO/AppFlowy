@@ -7,14 +7,14 @@ use flowy_infra::retry::Action;
 use futures::future::BoxFuture;
 use std::{future, sync::Arc};
 
-pub(crate) struct NotifyOpenDocAction {
+pub(crate) struct OpenDocAction {
     user_id: String,
     rev_id: RevId,
     doc_id: String,
     ws: Arc<dyn DocumentWebSocket>,
 }
 
-impl NotifyOpenDocAction {
+impl OpenDocAction {
     pub(crate) fn new(user_id: &str, doc_id: &str, rev_id: &RevId, ws: &Arc<dyn DocumentWebSocket>) -> Self {
         Self {
             user_id: user_id.to_owned(),
@@ -25,7 +25,7 @@ impl NotifyOpenDocAction {
     }
 }
 
-impl Action for NotifyOpenDocAction {
+impl Action for OpenDocAction {
     type Future = BoxFuture<'static, Result<Self::Item, Self::Error>>;
     type Item = ();
     type Error = DocError;
