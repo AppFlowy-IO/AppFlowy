@@ -1,10 +1,12 @@
 use crate::{
     entities::doc::{Doc, RevId, RevType, Revision, RevisionRange},
-    errors::{internal_error, DocError},
-    services::{doc::revision::store_actor::RevisionCmd, util::RevIdCounter, ws::DocumentWebSocket},
+    errors::{internal_error, DocError, DocResult},
+    services::{doc::revision::RevisionStoreActor, util::RevIdCounter, ws::DocumentWebSocket},
 };
+use flowy_database::ConnectionPool;
 use flowy_infra::future::ResultFuture;
 use flowy_ot::core::{Delta, OperationTransformable};
+use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot};
 
 pub struct DocRevision {
@@ -20,12 +22,18 @@ pub trait RevisionServer: Send + Sync {
 pub struct RevisionManager {
     doc_id: String,
     rev_id_counter: RevIdCounter,
-    rev_store: mpsc::Sender<RevisionCmd>,
+    rev_store: Arc<RevisionStoreActor>,
 }
 
 impl RevisionManager {
-    pub fn new(doc_id: &str, rev_id: RevId, rev_store: mpsc::Sender<RevisionCmd>) -> Self {
-        let rev_id_counter = RevIdCounter::new(rev_id.into());
+    pub fn new(
+        doc_id: &str,
+        pool: Arc<ConnectionPool>,
+        server: Arc<dyn RevisionServer>,
+        pending_rev_sender: mpsc::Sender<Revision>,
+    ) -> Self {
+        let rev_store = Arc::new(RevisionStoreActor::new(doc_id, pool, server, pending_rev_sender));
+        let rev_id_counter = RevIdCounter::new(0);
         Self {
             doc_id: doc_id.to_string(),
             rev_id_counter,
@@ -33,21 +41,21 @@ impl RevisionManager {
         }
     }
 
+    pub async fn load_document(&mut self) -> DocResult<Delta> {
+        let doc = self.rev_store.fetch_document().await?;
+        self.set_rev_id(doc.rev_id);
+        Ok(doc.delta()?)
+    }
+
     pub async fn add_revision(&self, revision: &Revision) -> Result<(), DocError> {
-        let (ret, rx) = oneshot::channel();
-        let cmd = RevisionCmd::Revision {
-            revision: revision.clone(),
-            ret,
-        };
-        let _ = self.rev_store.send(cmd).await;
-        let result = rx.await.map_err(internal_error)?;
-        result
+        let _ = self.rev_store.handle_new_revision(revision.clone()).await?;
+        Ok(())
     }
 
     pub fn ack_rev(&self, rev_id: RevId) -> Result<(), DocError> {
-        let sender = self.rev_store.clone();
+        let rev_store = self.rev_store.clone();
         tokio::spawn(async move {
-            let _ = sender.send(RevisionCmd::AckRevision { rev_id }).await;
+            rev_store.handle_revision_acked(rev_id).await;
         });
         Ok(())
     }
@@ -64,14 +72,7 @@ impl RevisionManager {
 
     pub async fn construct_revisions(&self, range: RevisionRange) -> Result<Revision, DocError> {
         debug_assert!(&range.doc_id == &self.doc_id);
-        let (ret, rx) = oneshot::channel();
-        let sender = self.rev_store.clone();
-        let cmd = RevisionCmd::GetRevisions {
-            range: range.clone(),
-            ret,
-        };
-        let _ = sender.send(cmd).await;
-        let revisions = rx.await.map_err(internal_error)??;
+        let revisions = self.rev_store.revs_in_range(range.clone()).await?;
         let mut new_delta = Delta::new();
         for revision in revisions {
             match Delta::from_bytes(revision.delta_data) {

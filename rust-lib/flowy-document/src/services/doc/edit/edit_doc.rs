@@ -1,6 +1,6 @@
 use crate::{
     entities::{
-        doc::{Doc, DocDelta, RevId, RevType, Revision, RevisionRange},
+        doc::{DocDelta, RevId, RevType, Revision, RevisionRange},
         ws::{WsDataType, WsDocumentData},
     },
     errors::{internal_error, DocError, DocResult},
@@ -12,7 +12,7 @@ use crate::{
                 message::{DocumentMsg, TransformDeltas},
                 model::OpenDocAction,
             },
-            revision::{DocRevision, RevisionCmd, RevisionManager, RevisionServer, RevisionStoreActor},
+            revision::{DocRevision, RevisionManager, RevisionServer, RevisionStoreActor},
             UndoResult,
         },
         ws::{DocumentWebSocket, WsDocumentHandler},
@@ -45,12 +45,14 @@ impl ClientEditDoc {
         server: Arc<dyn RevisionServer>,
         user: Arc<dyn DocumentUser>,
     ) -> DocResult<Self> {
-        let rev_store = spawn_rev_store_actor(doc_id, pool.clone(), server.clone());
-        let doc = load_document(rev_store.clone()).await?;
-        let delta = doc.delta()?;
-        let rev_manager = Arc::new(RevisionManager::new(doc_id, doc.rev_id.into(), rev_store));
+        let (sender, mut receiver) = mpsc::channel(1);
+        let mut rev_manager = RevisionManager::new(doc_id, pool.clone(), server.clone(), sender);
+        spawn_rev_receiver(receiver, ws.clone());
+
+        let delta = rev_manager.load_document().await?;
         let document = spawn_doc_edit_actor(doc_id, delta, pool.clone());
         let doc_id = doc_id.to_string();
+        let rev_manager = Arc::new(rev_manager);
         let edit_doc = Self {
             doc_id,
             rev_manager,
@@ -72,7 +74,7 @@ impl ClientEditDoc {
         };
         let _ = self.document.send(msg);
         let delta = rx.await.map_err(internal_error)??;
-        let rev_id = self.mk_revision(delta).await?;
+        let rev_id = self.save_revision(delta).await?;
         save_document(self.document.clone(), rev_id.into()).await
     }
 
@@ -81,7 +83,7 @@ impl ClientEditDoc {
         let msg = DocumentMsg::Delete { interval, ret };
         let _ = self.document.send(msg);
         let delta = rx.await.map_err(internal_error)??;
-        let _ = self.mk_revision(delta).await?;
+        let _ = self.save_revision(delta).await?;
         Ok(())
     }
 
@@ -94,7 +96,7 @@ impl ClientEditDoc {
         };
         let _ = self.document.send(msg);
         let delta = rx.await.map_err(internal_error)??;
-        let _ = self.mk_revision(delta).await?;
+        let _ = self.save_revision(delta).await?;
         Ok(())
     }
 
@@ -107,7 +109,7 @@ impl ClientEditDoc {
         };
         let _ = self.document.send(msg);
         let delta = rx.await.map_err(internal_error)??;
-        let _ = self.mk_revision(delta).await?;
+        let _ = self.save_revision(delta).await?;
         Ok(())
     }
 
@@ -152,7 +154,7 @@ impl ClientEditDoc {
     }
 
     #[tracing::instrument(level = "debug", skip(self, delta), fields(revision_delta = %delta.to_json(), send_state, base_rev_id, rev_id))]
-    async fn mk_revision(&self, delta: Delta) -> Result<RevId, DocError> {
+    async fn save_revision(&self, delta: Delta) -> Result<RevId, DocError> {
         let delta_data = delta.to_bytes();
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id();
         tracing::Span::current().record("base_rev_id", &base_rev_id);
@@ -161,15 +163,6 @@ impl ClientEditDoc {
         let delta_data = delta_data.to_vec();
         let revision = Revision::new(base_rev_id, rev_id, delta_data, &self.doc_id, RevType::Local);
         let _ = self.rev_manager.add_revision(&revision).await?;
-        match self.ws.send(revision.into()) {
-            Ok(_) => {
-                tracing::Span::current().record("send_state", &"success");
-            },
-            Err(e) => {
-                tracing::Span::current().record("send_state", &format!("failed: {:?}", e).as_str());
-            },
-        };
-
         Ok(rev_id.into())
     }
 
@@ -184,7 +177,7 @@ impl ClientEditDoc {
         let _ = self.document.send(msg);
         let _ = rx.await.map_err(internal_error)??;
 
-        let rev_id = self.mk_revision(delta).await?;
+        let rev_id = self.save_revision(delta).await?;
         save_document(self.document.clone(), rev_id).await
     }
 
@@ -304,12 +297,22 @@ impl WsDocumentHandler for EditDocWsHandler {
         match state {
             WsState::Init => {},
             WsState::Connected(_) => self.0.notify_open_doc(),
-            WsState::Disconnected(e) => {
-                log::error!("websocket error: {:?}", e);
-                //
-            },
+            WsState::Disconnected(_e) => {},
         }
     }
+}
+
+fn spawn_rev_receiver(mut receiver: mpsc::Receiver<Revision>, ws: Arc<dyn DocumentWebSocket>) {
+    tokio::spawn(async move {
+        loop {
+            while let Some(revision) = receiver.recv().await {
+                match ws.send(revision.into()) {
+                    Ok(_) => {},
+                    Err(e) => log::error!("Send revision failed: {:?}", e),
+                };
+            }
+        }
+    });
 }
 
 async fn save_document(document: UnboundedSender<DocumentMsg>, rev_id: RevId) -> DocResult<()> {
@@ -319,27 +322,9 @@ async fn save_document(document: UnboundedSender<DocumentMsg>, rev_id: RevId) ->
     result
 }
 
-fn spawn_rev_store_actor(
-    doc_id: &str,
-    pool: Arc<ConnectionPool>,
-    server: Arc<dyn RevisionServer>,
-) -> mpsc::Sender<RevisionCmd> {
-    let (sender, receiver) = mpsc::channel::<RevisionCmd>(50);
-    let actor = RevisionStoreActor::new(doc_id, pool, receiver, server);
-    tokio::spawn(actor.run());
-    sender
-}
-
 fn spawn_doc_edit_actor(doc_id: &str, delta: Delta, pool: Arc<ConnectionPool>) -> UnboundedSender<DocumentMsg> {
     let (sender, receiver) = mpsc::unbounded_channel::<DocumentMsg>();
     let actor = DocumentActor::new(&doc_id, delta, pool.clone(), receiver);
     tokio::spawn(actor.run());
     sender
-}
-
-async fn load_document(sender: mpsc::Sender<RevisionCmd>) -> DocResult<Doc> {
-    let (ret, rx) = oneshot::channel();
-    let _ = sender.send(RevisionCmd::DocumentDelta { ret }).await;
-    let result = rx.await.map_err(internal_error)?;
-    result
 }

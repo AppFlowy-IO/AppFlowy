@@ -10,7 +10,7 @@ use crate::{
         cache::DocCache,
         doc::{
             edit::{ClientEditDoc, EditDocWsHandler},
-            revision::{DocRevision, RevisionServer},
+            revision::RevisionServer,
         },
         server::Server,
         ws::WsDocumentManager,
@@ -18,7 +18,7 @@ use crate::{
 };
 use flowy_database::ConnectionPool;
 use flowy_infra::future::{wrap_future, FnFuture, ResultFuture};
-use flowy_ot::core::Delta;
+
 use tokio::time::{interval, Duration};
 
 pub(crate) struct DocController {

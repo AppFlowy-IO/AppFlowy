@@ -2,43 +2,28 @@ use crate::{entities::doc::Revision, errors::DocResult, services::ws::DocumentWe
 
 use tokio::sync::oneshot;
 
-pub type Sender = oneshot::Sender<DocResult<()>>;
-pub type Receiver = oneshot::Receiver<DocResult<()>>;
+pub type PendingRevSender = oneshot::Sender<DocResult<()>>;
+pub type PendingRevReceiver = oneshot::Receiver<DocResult<()>>;
 
-pub struct RevisionOperation {
-    inner: Revision,
-    ret: Option<Sender>,
-    receiver: Option<Receiver>,
+pub struct RevisionContext {
+    pub revision: Revision,
     pub state: RevState,
 }
 
-impl RevisionOperation {
-    pub fn new(revision: &Revision) -> Self {
-        let (ret, receiver) = oneshot::channel::<DocResult<()>>();
-
+impl RevisionContext {
+    pub fn new(revision: Revision) -> Self {
         Self {
-            inner: revision.clone(),
-            ret: Some(ret),
-            receiver: Some(receiver),
+            revision,
             state: RevState::Local,
-        }
-    }
-
-    pub fn receiver(&mut self) -> Receiver { self.receiver.take().expect("Receiver should not be called twice") }
-
-    pub fn finish(&mut self) {
-        self.state = RevState::Acked;
-        match self.ret.take() {
-            None => {},
-            Some(ret) => {
-                let _ = ret.send(Ok(()));
-            },
         }
     }
 }
 
-impl std::ops::Deref for RevisionOperation {
-    type Target = Revision;
+pub(crate) struct PendingRevId {
+    pub rev_id: i64,
+    pub sender: PendingRevSender,
+}
 
-    fn deref(&self) -> &Self::Target { &self.inner }
+impl PendingRevId {
+    pub(crate) fn new(rev_id: i64, sender: PendingRevSender) -> Self { Self { rev_id, sender } }
 }

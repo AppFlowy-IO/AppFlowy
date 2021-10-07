@@ -48,8 +48,6 @@ impl ServerEditDoc {
         })
     }
 
-    pub fn document_json(&self) -> String { self.document.read().to_json() }
-
     #[tracing::instrument(
         level = "debug",
         skip(self, user),
@@ -64,14 +62,14 @@ impl ServerEditDoc {
         match cur_rev_id.cmp(&rev_id) {
             Ordering::Less => {
                 user.socket
-                    .do_send(mk_pull_rev_ws_message(&self.doc_id, next(cur_rev_id), rev_id))
+                    .do_send(mk_pull_message(&self.doc_id, next(cur_rev_id), rev_id))
                     .map_err(internal_error)?;
             },
             Ordering::Equal => {},
             Ordering::Greater => {
                 let doc_delta = self.document.read().delta().clone();
                 let cli_revision = self.mk_revision(rev_id, doc_delta);
-                let ws_cli_revision = mk_push_rev_ws_message(&self.doc_id, cli_revision);
+                let ws_cli_revision = mk_push_message(&self.doc_id, cli_revision);
                 user.socket.do_send(ws_cli_revision).map_err(internal_error)?;
             },
         }
@@ -94,37 +92,41 @@ impl ServerEditDoc {
         revision: Revision,
         pg_pool: Data<PgPool>,
     ) -> Result<(), ServerError> {
-        // Opti: find out another way to keep the user socket available.
         self.users.insert(user.id(), user.clone());
         let cur_rev_id = self.rev_id.load(SeqCst);
         match cur_rev_id.cmp(&revision.rev_id) {
             Ordering::Less => {
                 let next_rev_id = next(cur_rev_id);
-                if next_rev_id == revision.base_rev_id || cur_rev_id == revision.base_rev_id {
+                if cur_rev_id == revision.base_rev_id || next_rev_id == revision.base_rev_id {
+                    // The rev is in the right order, just compose it.
                     let _ = self.compose_revision(&revision, pg_pool).await?;
                     user.socket
-                        .do_send(mk_acked_ws_message(&revision))
+                        .do_send(mk_acked_message(&revision))
+                        .map_err(internal_error)?;
+                } else {
+                    // The server document is outdated, pull the missing revision from the client.
+                    user.socket
+                        .do_send(mk_pull_message(&self.doc_id, next_rev_id, revision.rev_id))
                         .map_err(internal_error)?;
                 }
-
-                // The server document is outdated, try to get the missing revision from the
-                // client.
-                user.socket
-                    .do_send(mk_pull_rev_ws_message(&self.doc_id, next_rev_id, revision.rev_id))
-                    .map_err(internal_error)?;
             },
-            Ordering::Equal => {},
+            Ordering::Equal => {
+                // Do nothing
+            },
             Ordering::Greater => {
                 // The client document is outdated. Transform the client revision delta and then
                 // send the prime delta to the client. Client should compose the this prime
                 // delta.
                 let cli_revision = self.transform_revision(&revision)?;
-                let ws_cli_revision = mk_push_rev_ws_message(&self.doc_id, cli_revision);
-                user.socket.do_send(ws_cli_revision).map_err(internal_error)?;
+                user.socket
+                    .do_send(mk_push_message(&self.doc_id, cli_revision))
+                    .map_err(internal_error)?;
             },
         }
         Ok(())
     }
+
+    pub fn document_json(&self) -> String { self.document.read().to_json() }
 
     async fn compose_revision(&self, revision: &Revision, pg_pool: Data<PgPool>) -> Result<(), ServerError> {
         let delta = Delta::from_bytes(&revision.delta_data).map_err(internal_error)?;
@@ -197,7 +199,7 @@ impl ServerEditDoc {
     }
 }
 
-fn mk_push_rev_ws_message(doc_id: &str, revision: Revision) -> WsMessageAdaptor {
+fn mk_push_message(doc_id: &str, revision: Revision) -> WsMessageAdaptor {
     let bytes = revision.write_to_bytes().unwrap();
     let data = WsDocumentData {
         doc_id: doc_id.to_string(),
@@ -207,7 +209,7 @@ fn mk_push_rev_ws_message(doc_id: &str, revision: Revision) -> WsMessageAdaptor 
     mk_ws_message(data)
 }
 
-fn mk_pull_rev_ws_message(doc_id: &str, from_rev_id: i64, to_rev_id: i64) -> WsMessageAdaptor {
+fn mk_pull_message(doc_id: &str, from_rev_id: i64, to_rev_id: i64) -> WsMessageAdaptor {
     let range = RevisionRange {
         doc_id: doc_id.to_string(),
         start: from_rev_id,
@@ -224,7 +226,7 @@ fn mk_pull_rev_ws_message(doc_id: &str, from_rev_id: i64, to_rev_id: i64) -> WsM
     mk_ws_message(data)
 }
 
-fn mk_acked_ws_message(revision: &Revision) -> WsMessageAdaptor {
+fn mk_acked_message(revision: &Revision) -> WsMessageAdaptor {
     // let mut wtr = vec![];
     // let _ = wtr.write_i64::<BigEndian>(revision.rev_id);
 

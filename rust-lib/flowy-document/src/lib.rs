@@ -1,3 +1,5 @@
+#![feature(vecdeque_binary_search)]
+
 pub mod entities;
 pub mod errors;
 pub mod module;

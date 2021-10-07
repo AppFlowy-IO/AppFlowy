@@ -31,6 +31,20 @@ async fn delta_sync_while_editing() {
 }
 
 #[actix_rt::test]
+async fn delta_sync_multi_revs() {
+    let test = DocumentTest::new().await;
+    test.run_scripts(vec![
+        DocScript::ConnectWs,
+        DocScript::OpenDoc,
+        DocScript::InsertText(0, "abc"),
+        DocScript::InsertText(3, "123"),
+        DocScript::InsertText(6, "efg"),
+        DocScript::InsertText(9, "456"),
+    ])
+    .await;
+}
+
+#[actix_rt::test]
 async fn delta_sync_while_editing_with_attribute() {
     let test = DocumentTest::new().await;
     test.run_scripts(vec![

@@ -80,6 +80,10 @@ pub struct Revision {
     pub ty: RevType,
 }
 
+impl Revision {
+    pub fn is_empty(&self) -> bool { self.base_rev_id == self.rev_id }
+}
+
 impl std::fmt::Debug for Revision {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let _ = f.write_fmt(format_args!("doc_id {}, ", self.doc_id))?;
@@ -108,7 +112,10 @@ impl Revision {
         let delta_data = delta.as_ref().to_vec();
         let base_rev_id = base_rev_id.into();
         let rev_id = rev_id.into();
-        debug_assert!(base_rev_id != rev_id);
+
+        if base_rev_id != 0 {
+            debug_assert!(base_rev_id != rev_id);
+        }
 
         Self {
             base_rev_id,
