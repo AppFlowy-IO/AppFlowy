@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:async';
-import 'package:flowy_editor/flowy_editor.dart';
 import 'package:dartz/dartz.dart';
 // ignore: implementation_imports
-import 'package:flowy_editor/src/model/quill_delta.dart';
+import 'package:editor/flutter_quill.dart';
+// import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/protobuf/flowy-document/doc.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';

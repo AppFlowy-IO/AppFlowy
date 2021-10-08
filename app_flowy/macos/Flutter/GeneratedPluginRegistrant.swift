@@ -5,6 +5,7 @@
 import FlutterMacOS
 import Foundation
 
+import editor
 import flowy_editor
 import flowy_infra_ui
 import flowy_sdk
@@ -13,6 +14,7 @@ import url_launcher_macos
 import window_size
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
+  EditorPlugin.register(with: registry.registrar(forPlugin: "EditorPlugin"))
   FlowyEditorPlugin.register(with: registry.registrar(forPlugin: "FlowyEditorPlugin"))
   FlowyInfraUIPlugin.register(with: registry.registrar(forPlugin: "FlowyInfraUIPlugin"))
   FlowySdkPlugin.register(with: registry.registrar(forPlugin: "FlowySdkPlugin"))
