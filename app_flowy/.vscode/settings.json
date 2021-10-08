@@ -2,5 +2,8 @@
     "svgviewer.enableautopreview": true,
     "svgviewer.previewcolumn": "Active",
     "svgviewer.showzoominout": true,
-    "editor.wordWrapColumn": 120
+    "editor.wordWrapColumn": 120,
+    "editor.minimap.maxColumn": 140,
+    "prettier.printWidth": 140,
+    "editor.wordWrap": "wordWrapColumn"
 }

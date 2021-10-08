@@ -474,7 +474,7 @@ class __CheckboxState extends State<_Checkbox> {
     return Container(
       alignment: AlignmentDirectional.topEnd,
       width: widget.width,
-      padding: const EdgeInsetsDirectional.only(end: 13),
+      padding: const EdgeInsetsDirectional.only(end: 2),
       child: Checkbox(
         value: widget.isChecked,
         onChanged: _onCheckboxChanged,
