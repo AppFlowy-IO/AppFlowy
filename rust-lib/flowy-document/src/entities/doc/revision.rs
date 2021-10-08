@@ -156,7 +156,7 @@ impl RevisionRange {
     pub fn len(&self) -> i64 {
         debug_assert!(self.end >= self.start);
         if self.end >= self.start {
-            self.end - self.start
+            self.end - self.start + 1
         } else {
             0
         }

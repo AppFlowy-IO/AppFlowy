@@ -1,13 +1,13 @@
 use crate::{
     entities::doc::{Doc, RevId, RevType, Revision, RevisionRange},
-    errors::{internal_error, DocError, DocResult},
-    services::{doc::revision::RevisionStoreActor, util::RevIdCounter, ws::DocumentWebSocket},
+    errors::{DocError, DocResult},
+    services::{doc::revision::RevisionStore, util::RevIdCounter},
 };
 use flowy_database::ConnectionPool;
 use flowy_infra::future::ResultFuture;
 use flowy_ot::core::{Delta, OperationTransformable};
 use std::sync::Arc;
-use tokio::sync::{mpsc, oneshot};
+use tokio::sync::mpsc;
 
 pub struct DocRevision {
     pub base_rev_id: RevId,
@@ -22,7 +22,7 @@ pub trait RevisionServer: Send + Sync {
 pub struct RevisionManager {
     doc_id: String,
     rev_id_counter: RevIdCounter,
-    rev_store: Arc<RevisionStoreActor>,
+    rev_store: Arc<RevisionStore>,
 }
 
 impl RevisionManager {
@@ -32,7 +32,7 @@ impl RevisionManager {
         server: Arc<dyn RevisionServer>,
         pending_rev_sender: mpsc::Sender<Revision>,
     ) -> Self {
-        let rev_store = Arc::new(RevisionStoreActor::new(doc_id, pool, server, pending_rev_sender));
+        let rev_store = RevisionStore::new(doc_id, pool, server, pending_rev_sender);
         let rev_id_counter = RevIdCounter::new(0);
         Self {
             doc_id: doc_id.to_string(),

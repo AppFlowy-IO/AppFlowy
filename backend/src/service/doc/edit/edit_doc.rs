@@ -112,6 +112,7 @@ impl ServerEditDoc {
             },
             Ordering::Equal => {
                 // Do nothing
+                log::warn!("Applied revision rev_id is the same as cur_rev_id");
             },
             Ordering::Greater => {
                 // The client document is outdated. Transform the client revision delta and then
@@ -175,6 +176,10 @@ impl ServerEditDoc {
         )
     )]
     fn compose_delta(&self, delta: Delta) -> Result<(), ServerError> {
+        if delta.is_empty() {
+            log::warn!("Composed delta is empty");
+        }
+
         match self.document.try_write_for(Duration::from_millis(300)) {
             None => {
                 log::error!("Failed to acquire write lock of document");

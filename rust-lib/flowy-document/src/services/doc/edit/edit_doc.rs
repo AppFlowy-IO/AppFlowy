@@ -12,7 +12,7 @@ use crate::{
                 message::{DocumentMsg, TransformDeltas},
                 model::OpenDocAction,
             },
-            revision::{DocRevision, RevisionManager, RevisionServer, RevisionStoreActor},
+            revision::{RevisionManager, RevisionServer},
             UndoResult,
         },
         ws::{DocumentWebSocket, WsDocumentHandler},
@@ -45,7 +45,7 @@ impl ClientEditDoc {
         server: Arc<dyn RevisionServer>,
         user: Arc<dyn DocumentUser>,
     ) -> DocResult<Self> {
-        let (sender, mut receiver) = mpsc::channel(1);
+        let (sender, receiver) = mpsc::channel(1);
         let mut rev_manager = RevisionManager::new(doc_id, pool.clone(), server.clone(), sender);
         spawn_rev_receiver(receiver, ws.clone());
 
@@ -255,7 +255,7 @@ impl ClientEditDoc {
         );
         let _ = self.ws.send(revision.into());
 
-        save_document(self.document.clone(), local_rev_id.into()).await;
+        let _ = save_document(self.document.clone(), local_rev_id.into()).await?;
         Ok(())
     }
 
@@ -306,6 +306,7 @@ fn spawn_rev_receiver(mut receiver: mpsc::Receiver<Revision>, ws: Arc<dyn Docume
     tokio::spawn(async move {
         loop {
             while let Some(revision) = receiver.recv().await {
+                log::debug!("Send revision:{} to server", revision.rev_id);
                 match ws.send(revision.into()) {
                     Ok(_) => {},
                     Err(e) => log::error!("Send revision failed: {:?}", e),
