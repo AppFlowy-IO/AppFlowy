@@ -92,28 +92,39 @@ impl WsStream {
             msg_tx: msg_tx.clone(),
             inner: Some((
                 Box::pin(async move {
-                    let (tx, mut rx) = tokio::sync::mpsc::channel(10);
-                    let _ = ws_read
-                        .for_each(|message| async {
-                            match tx.send(post_message(msg_tx.clone(), message)).await {
-                                Ok(_) => {},
-                                Err(e) => log::error!("WsStream tx closed unexpectedly: {} ", e),
-                            }
-                        })
-                        .await;
-
-                    loop {
-                        match rx.recv().await {
-                            None => {
-                                return Err(WsError::internal().context("WsStream rx closed unexpectedly"));
-                            },
-                            Some(result) => {
-                                if result.is_err() {
-                                    return result;
+                    let (tx, mut rx) = tokio::sync::mpsc::channel(100);
+                    let read = async {
+                        ws_read
+                            .for_each(|message| async {
+                                match tx.send(post_message(msg_tx.clone(), message)).await {
+                                    Ok(_) => {},
+                                    Err(e) => log::error!("WsStream tx closed unexpectedly: {} ", e),
                                 }
-                            },
+                            })
+                            .await;
+                        Ok(())
+                    };
+
+                    let ret = async {
+                        loop {
+                            match rx.recv().await {
+                                None => {
+                                    return Err(WsError::internal().context("WsStream rx closed unexpectedly"));
+                                },
+                                Some(result) => {
+                                    if result.is_err() {
+                                        return result;
+                                    }
+                                },
+                            }
                         }
-                    }
+                    };
+                    futures::pin_mut!(ret);
+                    futures::pin_mut!(read);
+                    tokio::select! {
+                        result = read => {return result},
+                        result = ret => {return result},
+                    };
                 }),
                 Box::pin(async move {
                     let result = ws_rx.map(Ok).forward(ws_write).await.map_err(internal_error);

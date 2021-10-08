@@ -30,7 +30,7 @@ impl RevisionManager {
         doc_id: &str,
         pool: Arc<ConnectionPool>,
         server: Arc<dyn RevisionServer>,
-        pending_rev_sender: mpsc::Sender<Revision>,
+        pending_rev_sender: mpsc::UnboundedSender<Revision>,
     ) -> Self {
         let rev_store = RevisionStore::new(doc_id, pool, server, pending_rev_sender);
         let rev_id_counter = RevIdCounter::new(0);
@@ -52,11 +52,8 @@ impl RevisionManager {
         Ok(())
     }
 
-    pub fn ack_rev(&self, rev_id: RevId) -> Result<(), DocError> {
-        let rev_store = self.rev_store.clone();
-        tokio::spawn(async move {
-            rev_store.handle_revision_acked(rev_id).await;
-        });
+    pub async fn ack_rev(&self, rev_id: RevId) -> Result<(), DocError> {
+        self.rev_store.handle_revision_acked(rev_id).await;
         Ok(())
     }
 

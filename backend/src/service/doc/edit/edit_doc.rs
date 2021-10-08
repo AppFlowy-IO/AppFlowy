@@ -5,6 +5,7 @@ use crate::service::{
 };
 use actix_web::web::Data;
 
+use crate::service::ws::entities::Socket;
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_document::{
@@ -84,7 +85,8 @@ impl ServerEditDoc {
             cur_rev_id = %self.rev_id.load(SeqCst),
             base_rev_id = %revision.base_rev_id,
             rev_id = %revision.rev_id,
-        )
+        ),
+        err
     )]
     pub async fn apply_revision(
         &self,
@@ -100,14 +102,10 @@ impl ServerEditDoc {
                 if cur_rev_id == revision.base_rev_id || next_rev_id == revision.base_rev_id {
                     // The rev is in the right order, just compose it.
                     let _ = self.compose_revision(&revision, pg_pool).await?;
-                    user.socket
-                        .do_send(mk_acked_message(&revision))
-                        .map_err(internal_error)?;
+                    let _ = send_acked_msg(&user.socket, &revision)?;
                 } else {
                     // The server document is outdated, pull the missing revision from the client.
-                    user.socket
-                        .do_send(mk_pull_message(&self.doc_id, next_rev_id, revision.rev_id))
-                        .map_err(internal_error)?;
+                    let _ = send_pull_message(&user.socket, &self.doc_id, next_rev_id, revision.rev_id)?;
                 }
             },
             Ordering::Equal => {
@@ -119,9 +117,7 @@ impl ServerEditDoc {
                 // send the prime delta to the client. Client should compose the this prime
                 // delta.
                 let cli_revision = self.transform_revision(&revision)?;
-                user.socket
-                    .do_send(mk_push_message(&self.doc_id, cli_revision))
-                    .map_err(internal_error)?;
+                let _ = send_push_message(&user.socket, &self.doc_id, cli_revision)?;
             },
         }
         Ok(())
@@ -204,6 +200,12 @@ impl ServerEditDoc {
     }
 }
 
+#[tracing::instrument(level = "debug", skip(socket, doc_id, revision), err)]
+fn send_push_message(socket: &Socket, doc_id: &str, revision: Revision) -> Result<(), ServerError> {
+    let msg = mk_push_message(doc_id, revision);
+    socket.try_send(msg).map_err(internal_error)
+}
+
 fn mk_push_message(doc_id: &str, revision: Revision) -> WsMessageAdaptor {
     let bytes = revision.write_to_bytes().unwrap();
     let data = WsDocumentData {
@@ -212,6 +214,12 @@ fn mk_push_message(doc_id: &str, revision: Revision) -> WsMessageAdaptor {
         data: bytes,
     };
     mk_ws_message(data)
+}
+
+#[tracing::instrument(level = "debug", skip(socket, doc_id), err)]
+fn send_pull_message(socket: &Socket, doc_id: &str, from_rev_id: i64, to_rev_id: i64) -> Result<(), ServerError> {
+    let msg = mk_pull_message(doc_id, from_rev_id, to_rev_id);
+    socket.try_send(msg).map_err(internal_error)
 }
 
 fn mk_pull_message(doc_id: &str, from_rev_id: i64, to_rev_id: i64) -> WsMessageAdaptor {
@@ -229,6 +237,12 @@ fn mk_pull_message(doc_id: &str, from_rev_id: i64, to_rev_id: i64) -> WsMessageA
         data: bytes,
     };
     mk_ws_message(data)
+}
+
+#[tracing::instrument(level = "debug", skip(socket, revision), err)]
+fn send_acked_msg(socket: &Socket, revision: &Revision) -> Result<(), ServerError> {
+    let msg = mk_acked_message(revision);
+    socket.try_send(msg).map_err(internal_error)
 }
 
 fn mk_acked_message(revision: &Revision) -> WsMessageAdaptor {

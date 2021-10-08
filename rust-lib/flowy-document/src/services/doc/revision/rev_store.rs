@@ -34,7 +34,7 @@ impl RevisionStore {
         doc_id: &str,
         pool: Arc<ConnectionPool>,
         server: Arc<dyn RevisionServer>,
-        next_revision: mpsc::Sender<Revision>,
+        next_revision: mpsc::UnboundedSender<Revision>,
     ) -> Arc<RevisionStore> {
         let doc_id = doc_id.to_owned();
         let persistence = Arc::new(Persistence::new(pool));
@@ -63,7 +63,7 @@ impl RevisionStore {
             return Err(DocError::duplicate_rev().context(format!("Duplicate revision id: {}", revision.rev_id)));
         }
 
-        let (sender, receiver) = broadcast::channel(1);
+        let (sender, receiver) = broadcast::channel(2);
         let revs_map = self.revs_map.clone();
         let mut rx = sender.subscribe();
         tokio::spawn(async move {

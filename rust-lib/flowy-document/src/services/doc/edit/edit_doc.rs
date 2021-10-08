@@ -45,7 +45,7 @@ impl ClientEditDoc {
         server: Arc<dyn RevisionServer>,
         user: Arc<dyn DocumentUser>,
     ) -> DocResult<Self> {
-        let (sender, receiver) = mpsc::channel(1);
+        let (sender, receiver) = mpsc::unbounded_channel();
         let mut rev_manager = RevisionManager::new(doc_id, pool.clone(), server.clone(), sender);
         spawn_rev_receiver(receiver, ws.clone());
 
@@ -273,7 +273,7 @@ impl ClientEditDoc {
             WsDataType::NewDocUser => {},
             WsDataType::Acked => {
                 let rev_id = RevId::try_from(bytes)?;
-                let _ = self.rev_manager.ack_rev(rev_id);
+                let _ = self.rev_manager.ack_rev(rev_id).await?;
             },
             WsDataType::Conflict => {},
         }
@@ -302,7 +302,7 @@ impl WsDocumentHandler for EditDocWsHandler {
     }
 }
 
-fn spawn_rev_receiver(mut receiver: mpsc::Receiver<Revision>, ws: Arc<dyn DocumentWebSocket>) {
+fn spawn_rev_receiver(mut receiver: mpsc::UnboundedReceiver<Revision>, ws: Arc<dyn DocumentWebSocket>) {
     tokio::spawn(async move {
         loop {
             while let Some(revision) = receiver.recv().await {

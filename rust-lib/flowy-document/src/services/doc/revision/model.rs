@@ -91,14 +91,14 @@ pub(crate) type PendingReceiver = mpsc::UnboundedReceiver<PendingMsg>;
 pub(crate) struct PendingRevisionStream {
     revisions: Arc<dyn RevisionIterator>,
     receiver: Option<PendingReceiver>,
-    next_revision: mpsc::Sender<Revision>,
+    next_revision: mpsc::UnboundedSender<Revision>,
 }
 
 impl PendingRevisionStream {
     pub(crate) fn new(
         revisions: Arc<dyn RevisionIterator>,
         pending_rx: PendingReceiver,
-        next_revision: mpsc::Sender<Revision>,
+        next_revision: mpsc::UnboundedSender<Revision>,
     ) -> Self {
         Self {
             revisions,
@@ -137,7 +137,7 @@ impl PendingRevisionStream {
         match self.revisions.next().await? {
             None => Ok(()),
             Some(revision) => {
-                self.next_revision.send(revision).await.map_err(internal_error);
+                self.next_revision.send(revision).map_err(internal_error);
                 let _ = tokio::time::timeout(Duration::from_millis(2000), ret.recv()).await;
                 Ok(())
             },
