@@ -24,9 +24,9 @@ class IDocImpl extends IDoc {
   }
 
   @override
-  Future<Either<DocDelta, WorkspaceError>> applyChangeset(
+  Future<Either<DocDelta, WorkspaceError>> composeDelta(
       {required String json}) {
-    return repo.applyDelta(data: json);
+    return repo.composeDelta(data: json);
   }
 }
 

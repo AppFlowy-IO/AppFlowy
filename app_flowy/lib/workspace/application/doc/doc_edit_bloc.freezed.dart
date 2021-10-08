@@ -20,18 +20,6 @@ class _$DocEditEventTearOff {
     return const Initial();
   }
 
-  Changeset changeset(String data) {
-    return Changeset(
-      data,
-    );
-  }
-
-  Save save(String data) {
-    return Save(
-      data,
-    );
-  }
-
   Close close() {
     return const Close();
   }
@@ -45,16 +33,12 @@ mixin _$DocEditEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
-    required TResult Function(String data) changeset,
-    required TResult Function(String data) save,
     required TResult Function() close,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
-    TResult Function(String data)? changeset,
-    TResult Function(String data)? save,
     TResult Function()? close,
     required TResult orElse(),
   }) =>
@@ -62,16 +46,12 @@ mixin _$DocEditEvent {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(Initial value) initial,
-    required TResult Function(Changeset value) changeset,
-    required TResult Function(Save value) save,
     required TResult Function(Close value) close,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Initial value)? initial,
-    TResult Function(Changeset value)? changeset,
-    TResult Function(Save value)? save,
     TResult Function(Close value)? close,
     required TResult orElse(),
   }) =>
@@ -132,8 +112,6 @@ class _$Initial implements Initial {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
-    required TResult Function(String data) changeset,
-    required TResult Function(String data) save,
     required TResult Function() close,
   }) {
     return initial();
@@ -143,8 +121,6 @@ class _$Initial implements Initial {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
-    TResult Function(String data)? changeset,
-    TResult Function(String data)? save,
     TResult Function()? close,
     required TResult orElse(),
   }) {
@@ -158,8 +134,6 @@ class _$Initial implements Initial {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(Initial value) initial,
-    required TResult Function(Changeset value) changeset,
-    required TResult Function(Save value) save,
     required TResult Function(Close value) close,
   }) {
     return initial(this);
@@ -169,8 +143,6 @@ class _$Initial implements Initial {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Initial value)? initial,
-    TResult Function(Changeset value)? changeset,
-    TResult Function(Save value)? save,
     TResult Function(Close value)? close,
     required TResult orElse(),
   }) {
@@ -183,247 +155,6 @@ class _$Initial implements Initial {
 
 abstract class Initial implements DocEditEvent {
   const factory Initial() = _$Initial;
-}
-
-/// @nodoc
-abstract class $ChangesetCopyWith<$Res> {
-  factory $ChangesetCopyWith(Changeset value, $Res Function(Changeset) then) =
-      _$ChangesetCopyWithImpl<$Res>;
-  $Res call({String data});
-}
-
-/// @nodoc
-class _$ChangesetCopyWithImpl<$Res> extends _$DocEditEventCopyWithImpl<$Res>
-    implements $ChangesetCopyWith<$Res> {
-  _$ChangesetCopyWithImpl(Changeset _value, $Res Function(Changeset) _then)
-      : super(_value, (v) => _then(v as Changeset));
-
-  @override
-  Changeset get _value => super._value as Changeset;
-
-  @override
-  $Res call({
-    Object? data = freezed,
-  }) {
-    return _then(Changeset(
-      data == freezed
-          ? _value.data
-          : data // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
-  }
-}
-
-/// @nodoc
-
-class _$Changeset implements Changeset {
-  const _$Changeset(this.data);
-
-  @override
-  final String data;
-
-  @override
-  String toString() {
-    return 'DocEditEvent.changeset(data: $data)';
-  }
-
-  @override
-  bool operator ==(dynamic other) {
-    return identical(this, other) ||
-        (other is Changeset &&
-            (identical(other.data, data) ||
-                const DeepCollectionEquality().equals(other.data, data)));
-  }
-
-  @override
-  int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(data);
-
-  @JsonKey(ignore: true)
-  @override
-  $ChangesetCopyWith<Changeset> get copyWith =>
-      _$ChangesetCopyWithImpl<Changeset>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() initial,
-    required TResult Function(String data) changeset,
-    required TResult Function(String data) save,
-    required TResult Function() close,
-  }) {
-    return changeset(data);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? initial,
-    TResult Function(String data)? changeset,
-    TResult Function(String data)? save,
-    TResult Function()? close,
-    required TResult orElse(),
-  }) {
-    if (changeset != null) {
-      return changeset(data);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(Initial value) initial,
-    required TResult Function(Changeset value) changeset,
-    required TResult Function(Save value) save,
-    required TResult Function(Close value) close,
-  }) {
-    return changeset(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(Initial value)? initial,
-    TResult Function(Changeset value)? changeset,
-    TResult Function(Save value)? save,
-    TResult Function(Close value)? close,
-    required TResult orElse(),
-  }) {
-    if (changeset != null) {
-      return changeset(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class Changeset implements DocEditEvent {
-  const factory Changeset(String data) = _$Changeset;
-
-  String get data => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $ChangesetCopyWith<Changeset> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class $SaveCopyWith<$Res> {
-  factory $SaveCopyWith(Save value, $Res Function(Save) then) =
-      _$SaveCopyWithImpl<$Res>;
-  $Res call({String data});
-}
-
-/// @nodoc
-class _$SaveCopyWithImpl<$Res> extends _$DocEditEventCopyWithImpl<$Res>
-    implements $SaveCopyWith<$Res> {
-  _$SaveCopyWithImpl(Save _value, $Res Function(Save) _then)
-      : super(_value, (v) => _then(v as Save));
-
-  @override
-  Save get _value => super._value as Save;
-
-  @override
-  $Res call({
-    Object? data = freezed,
-  }) {
-    return _then(Save(
-      data == freezed
-          ? _value.data
-          : data // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
-  }
-}
-
-/// @nodoc
-
-class _$Save implements Save {
-  const _$Save(this.data);
-
-  @override
-  final String data;
-
-  @override
-  String toString() {
-    return 'DocEditEvent.save(data: $data)';
-  }
-
-  @override
-  bool operator ==(dynamic other) {
-    return identical(this, other) ||
-        (other is Save &&
-            (identical(other.data, data) ||
-                const DeepCollectionEquality().equals(other.data, data)));
-  }
-
-  @override
-  int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(data);
-
-  @JsonKey(ignore: true)
-  @override
-  $SaveCopyWith<Save> get copyWith =>
-      _$SaveCopyWithImpl<Save>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() initial,
-    required TResult Function(String data) changeset,
-    required TResult Function(String data) save,
-    required TResult Function() close,
-  }) {
-    return save(data);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? initial,
-    TResult Function(String data)? changeset,
-    TResult Function(String data)? save,
-    TResult Function()? close,
-    required TResult orElse(),
-  }) {
-    if (save != null) {
-      return save(data);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(Initial value) initial,
-    required TResult Function(Changeset value) changeset,
-    required TResult Function(Save value) save,
-    required TResult Function(Close value) close,
-  }) {
-    return save(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(Initial value)? initial,
-    TResult Function(Changeset value)? changeset,
-    TResult Function(Save value)? save,
-    TResult Function(Close value)? close,
-    required TResult orElse(),
-  }) {
-    if (save != null) {
-      return save(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class Save implements DocEditEvent {
-  const factory Save(String data) = _$Save;
-
-  String get data => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $SaveCopyWith<Save> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -464,8 +195,6 @@ class _$Close implements Close {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
-    required TResult Function(String data) changeset,
-    required TResult Function(String data) save,
     required TResult Function() close,
   }) {
     return close();
@@ -475,8 +204,6 @@ class _$Close implements Close {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
-    TResult Function(String data)? changeset,
-    TResult Function(String data)? save,
     TResult Function()? close,
     required TResult orElse(),
   }) {
@@ -490,8 +217,6 @@ class _$Close implements Close {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(Initial value) initial,
-    required TResult Function(Changeset value) changeset,
-    required TResult Function(Save value) save,
     required TResult Function(Close value) close,
   }) {
     return close(this);
@@ -501,8 +226,6 @@ class _$Close implements Close {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Initial value)? initial,
-    TResult Function(Changeset value)? changeset,
-    TResult Function(Save value)? save,
     TResult Function(Close value)? close,
     required TResult orElse(),
   }) {

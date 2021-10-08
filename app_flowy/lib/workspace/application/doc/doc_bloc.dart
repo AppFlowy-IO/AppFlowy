@@ -28,12 +28,7 @@ class DocBloc extends Bloc<DocEvent, DocState> {
     final docOrFail = await iDocImpl.readDoc();
     yield docOrFail.fold(
       (doc) {
-        final flowyDoc = FlowyDoc(
-            doc: doc,
-            data: _decodeJsonToDocument(
-              doc.data,
-            ),
-            iDocImpl: iDocImpl);
+        final flowyDoc = FlowyDoc(doc: doc, iDocImpl: iDocImpl);
         return DocState.loadDoc(flowyDoc);
       },
       (error) {

@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-document/doc.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
@@ -15,7 +16,8 @@ class DocRepository {
     return WorkspaceEventOpenView(request).send();
   }
 
-  Future<Either<DocDelta, WorkspaceError>> applyDelta({required String data}) {
+  Future<Either<DocDelta, WorkspaceError>> composeDelta(
+      {required String data}) {
     final request = DocDelta.create()
       ..docId = docId
       ..data = data;
@@ -24,6 +26,9 @@ class DocRepository {
 
   Future<Either<Unit, WorkspaceError>> closeDoc(
       {String? name, String? desc, String? text}) {
-    throw UnimplementedError();
+    Log.error('Close the doc');
+    return Future(() {
+      return left(unit);
+    });
   }
 }

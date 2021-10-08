@@ -8,36 +8,50 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 // ignore: must_be_immutable
-class DocPage extends StatelessWidget {
-  final FocusNode _focusNode = FocusNode();
+class DocPage extends StatefulWidget {
   late EditorController controller;
+  late DocEditBloc editBloc;
   final FlowyDoc doc;
 
   DocPage({Key? key, required this.doc}) : super(key: key) {
-    // getIt<EditorDeltaSender>(param1: doc.id))
-
+    editBloc = getIt<DocEditBloc>(param1: doc.id);
     controller = EditorController(
-      document: doc.data,
+      document: doc.document,
       selection: const TextSelection.collapsed(offset: 0),
     );
   }
 
   @override
+  State<DocPage> createState() => _DocPageState();
+}
+
+class _DocPageState extends State<DocPage> {
+  final FocusNode _focusNode = FocusNode();
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<DocEditBloc>(param1: doc.id),
+    return BlocProvider.value(
+      value: widget.editBloc,
       child: BlocBuilder<DocEditBloc, DocEditState>(
         builder: (ctx, state) {
           return Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _renderEditor(controller),
-              _renderToolbar(controller),
+              _renderEditor(widget.controller),
+              _renderToolbar(widget.controller),
             ],
           );
         },
       ),
     );
+  }
+
+  @override
+  Future<void> dispose() async {
+    widget.editBloc.add(const DocEditEvent.close());
+    widget.editBloc.close();
+    super.dispose();
+    await widget.doc.close();
   }
 
   Widget _renderEditor(EditorController controller) {

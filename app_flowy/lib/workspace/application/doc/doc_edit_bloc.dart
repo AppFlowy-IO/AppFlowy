@@ -12,24 +12,17 @@ class DocEditBloc extends Bloc<DocEditEvent, DocEditState> {
   @override
   Stream<DocEditState> mapEventToState(DocEditEvent event) async* {
     yield* event.map(
-        initial: (e) async* {},
-        close: (Close value) async* {
-          iDocImpl.closeDoc();
-        },
-        changeset: (Changeset changeset) async* {
-          iDocImpl.applyChangeset(json: changeset.data);
-        },
-        save: (Save save) async* {
-          // no need to save
-        });
+      initial: (e) async* {},
+      close: (Close value) async* {
+        iDocImpl.closeDoc();
+      },
+    );
   }
 }
 
 @freezed
 abstract class DocEditEvent with _$DocEditEvent {
   const factory DocEditEvent.initial() = Initial;
-  const factory DocEditEvent.changeset(String data) = Changeset;
-  const factory DocEditEvent.save(String data) = Save;
   const factory DocEditEvent.close() = Close;
 }
 
