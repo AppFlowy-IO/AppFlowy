@@ -21,13 +21,13 @@ class DocEditBloc extends Bloc<DocEditEvent, DocEditState> {
 }
 
 @freezed
-abstract class DocEditEvent with _$DocEditEvent {
+class DocEditEvent with _$DocEditEvent {
   const factory DocEditEvent.initial() = Initial;
   const factory DocEditEvent.close() = Close;
 }
 
 @freezed
-abstract class DocEditState implements _$DocEditState {
+class DocEditState with _$DocEditState {
   const factory DocEditState({
     required bool isSaving,
   }) = _DocEditState;

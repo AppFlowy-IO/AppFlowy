@@ -1,5 +1,5 @@
-import 'package:app_flowy/welcome/domain/auth_state.dart';
-import 'package:app_flowy/welcome/domain/i_splash.dart';
+import 'package:app_flowy/user/domain/auth_state.dart';
+import 'package:app_flowy/user/domain/i_splash.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -21,12 +21,12 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
 }
 
 @freezed
-abstract class SplashEvent with _$SplashEvent {
+class SplashEvent with _$SplashEvent {
   const factory SplashEvent.getUser() = _GetUser;
 }
 
 @freezed
-abstract class SplashState implements _$SplashState {
+class SplashState with _$SplashState {
   const factory SplashState({
     required AuthState auth,
   }) = _SplashState;

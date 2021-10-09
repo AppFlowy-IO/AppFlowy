@@ -44,14 +44,14 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 }
 
 @freezed
-abstract class AppEvent with _$AppEvent {
+class AppEvent with _$AppEvent {
   const factory AppEvent.initial() = Initial;
   const factory AppEvent.createView(
       String name, String desc, ViewType viewType) = CreateView;
 }
 
 @freezed
-abstract class AppState implements _$AppState {
+class AppState with _$AppState {
   const factory AppState({
     required bool isLoading,
     required List<View>? views,

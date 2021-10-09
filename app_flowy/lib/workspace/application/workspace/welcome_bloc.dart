@@ -87,7 +87,7 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
 }
 
 @freezed
-abstract class WelcomeEvent with _$WelcomeEvent {
+class WelcomeEvent with _$WelcomeEvent {
   const factory WelcomeEvent.initial() = Initial;
   // const factory WelcomeEvent.fetchWorkspaces() = FetchWorkspace;
   const factory WelcomeEvent.createWorkspace(String name, String desc) =
@@ -100,7 +100,7 @@ abstract class WelcomeEvent with _$WelcomeEvent {
 }
 
 @freezed
-abstract class WelcomeState implements _$WelcomeState {
+class WelcomeState with _$WelcomeState {
   const factory WelcomeState({
     required bool isLoading,
     required List<Workspace> workspaces,

@@ -36,14 +36,14 @@ class AppWatchBloc extends Bloc<AppWatchEvent, AppWatchState> {
 }
 
 @freezed
-abstract class AppWatchEvent with _$AppWatchEvent {
+class AppWatchEvent with _$AppWatchEvent {
   const factory AppWatchEvent.started() = _Started;
   const factory AppWatchEvent.viewsReceived(
       Either<List<View>, WorkspaceError> viewsOrFail) = ViewsReceived;
 }
 
 @freezed
-abstract class AppWatchState implements _$AppWatchState {
+class AppWatchState with _$AppWatchState {
   const factory AppWatchState.initial() = _Initial;
 
   const factory AppWatchState.loadViews(

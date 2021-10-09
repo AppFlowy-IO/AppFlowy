@@ -26,7 +26,7 @@ class EditPannelBloc extends Bloc<EditPannelEvent, EditPannelState> {
 }
 
 @freezed
-abstract class EditPannelEvent with _$EditPannelEvent {
+class EditPannelEvent with _$EditPannelEvent {
   const factory EditPannelEvent.startEdit(EditPannelContext context) =
       _StartEdit;
 
@@ -34,7 +34,7 @@ abstract class EditPannelEvent with _$EditPannelEvent {
 }
 
 @freezed
-abstract class EditPannelState implements _$EditPannelState {
+class EditPannelState with _$EditPannelState {
   const factory EditPannelState({
     required bool isEditing,
     required Option<EditPannelContext> editContext,

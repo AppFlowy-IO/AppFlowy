@@ -23,12 +23,12 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
 }
 
 @freezed
-abstract class ViewEvent with _$ViewEvent {
+class ViewEvent with _$ViewEvent {
   const factory ViewEvent.initial() = Initial;
 }
 
 @freezed
-abstract class ViewState implements _$ViewState {
+class ViewState with _$ViewState {
   const factory ViewState({
     required bool isLoading,
     required Option<View> view,

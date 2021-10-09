@@ -48,14 +48,14 @@ class MenuWatchBloc extends Bloc<MenuWatchEvent, MenuWatchState> {
 }
 
 @freezed
-abstract class MenuWatchEvent with _$MenuWatchEvent {
+class MenuWatchEvent with _$MenuWatchEvent {
   const factory MenuWatchEvent.started() = _Started;
   const factory MenuWatchEvent.appsReceived(
       Either<List<App>, WorkspaceError> appsOrFail) = AppsReceived;
 }
 
 @freezed
-abstract class MenuWatchState with _$MenuWatchState {
+class MenuWatchState with _$MenuWatchState {
   const factory MenuWatchState.initial() = _Initial;
 
   const factory MenuWatchState.loadApps(

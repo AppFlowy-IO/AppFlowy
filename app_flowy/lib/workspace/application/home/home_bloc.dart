@@ -34,7 +34,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 }
 
 @freezed
-abstract class HomeEvent with _$HomeEvent {
+class HomeEvent with _$HomeEvent {
   const factory HomeEvent.showLoading(bool isLoading) = _ShowLoading;
   const factory HomeEvent.forceCollapse(bool forceCollapse) = _ForceCollapse;
   const factory HomeEvent.setEditPannel(EditPannelContext editContext) =
@@ -43,7 +43,7 @@ abstract class HomeEvent with _$HomeEvent {
 }
 
 @freezed
-abstract class HomeState implements _$HomeState {
+class HomeState with _$HomeState {
   const factory HomeState({
     required bool isLoading,
     required bool forceCollapse,

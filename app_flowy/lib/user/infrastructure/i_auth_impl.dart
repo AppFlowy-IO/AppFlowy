@@ -1,6 +1,6 @@
 import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/user/domain/i_splash.dart';
 import 'package:app_flowy/user/presentation/sign_up_screen.dart';
-import 'package:app_flowy/welcome/domain/i_splash.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra_ui/widget/route/animation.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';

@@ -2,7 +2,6 @@ import 'package:app_flowy/workspace/infrastructure/deps_resolver.dart';
 import 'package:app_flowy/startup/launch.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/infrastructure/deps_resolver.dart';
-import 'package:app_flowy/welcome/infrastructure/deps_resolver.dart';
 import 'package:flowy_sdk/flowy_sdk.dart';
 import 'package:get_it/get_it.dart';
 
@@ -16,6 +15,5 @@ Future<void> initGetIt(
   getIt.registerLazySingleton<AppLauncher>(() => AppLauncher(env, getIt));
 
   await UserDepsResolver.resolve(getIt);
-  await WelcomeDepsResolver.resolve(getIt);
   await HomeDepsResolver.resolve(getIt);
 }

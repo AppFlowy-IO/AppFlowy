@@ -29,7 +29,7 @@ class ViewListEvent with _$ViewListEvent {
 }
 
 @freezed
-abstract class ViewListState implements _$ViewListState {
+class ViewListState with _$ViewListState {
   const factory ViewListState({
     required bool isLoading,
     required Option<String> openedView,
