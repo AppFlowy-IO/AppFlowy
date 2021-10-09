@@ -15,8 +15,8 @@ import 'package:styled_widget/styled_widget.dart';
 import 'app_header.dart';
 
 class AppPageSize {
-  static double expandedIconSize = 24;
-  static double expandedIconRightSpace = 8;
+  static double expandedIconSize = 20;
+  static double expandedIconRightSpace = 6;
   static double scale = 1;
   static double get expandedPadding =>
       expandedIconSize * scale + expandedIconRightSpace;

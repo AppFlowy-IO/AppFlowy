@@ -1,6 +1,7 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:app_flowy/workspace/presentation/widgets/menu/menu_list.dart';
+import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter/material.dart';
@@ -18,23 +19,27 @@ class MenuUser extends MenuItem {
       create: (context) =>
           getIt<MenuUserBloc>(param1: user)..add(const MenuUserEvent.initial()),
       child: BlocBuilder<MenuUserBloc, MenuUserState>(
-        builder: (context, state) => Row(children: [
-          _renderAvatar(context),
-          const HSpace(10),
-          _renderUserName(context),
-          const HSpace(10),
-          _renderDropButton(context),
-        ]),
+        builder: (context, state) => Row(
+          children: [
+            _renderAvatar(context),
+            const HSpace(12),
+            _renderUserName(context),
+            const HSpace(4),
+            _renderDropButton(context),
+          ],
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+        ),
       ),
     );
   }
 
   Widget _renderAvatar(BuildContext context) {
     return SizedBox(
-      width: 30,
-      height: 30,
+      width: 20,
+      height: 20,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(4),
         child: const Image(image: AssetImage('assets/images/avatar.jpg')),
       ),
     );
@@ -46,15 +51,15 @@ class MenuUser extends MenuItem {
       name = context.read<MenuUserBloc>().state.user.email;
     }
     return Flexible(
-      child: FlowyText(name, fontSize: 18),
+      child: FlowyText(name, fontSize: 12),
     );
   }
 
   Widget _renderDropButton(BuildContext context) {
     return FlowyIconButton(
-      width: 30,
-      iconRatio: 0.8,
-      icon: const Icon(Icons.arrow_drop_down),
+      width: 20,
+      iconRatio: 1.0,
+      icon: svg("home/drop_down_show"),
       onPressed: () {
         debugPrint('show user profile');
       },

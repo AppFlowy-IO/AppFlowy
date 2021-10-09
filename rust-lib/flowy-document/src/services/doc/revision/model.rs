@@ -6,7 +6,7 @@ use crate::{
 use async_stream::stream;
 use flowy_database::ConnectionPool;
 use flowy_infra::future::ResultFuture;
-use futures::{stream::StreamExt, TryFutureExt};
+use futures::{stream::StreamExt};
 use std::{sync::Arc, time::Duration};
 use tokio::sync::{broadcast, mpsc};
 
@@ -39,7 +39,7 @@ impl PendingRevId {
         if self.rev_id > rev_id {
             false
         } else {
-            self.sender.send(self.rev_id);
+            let _ = self.sender.send(self.rev_id);
             true
         }
     }
@@ -137,7 +137,7 @@ impl PendingRevisionStream {
         match self.revisions.next().await? {
             None => Ok(()),
             Some(revision) => {
-                self.next_revision.send(revision).map_err(internal_error);
+                let _ = self.next_revision.send(revision).map_err(internal_error);
                 let _ = tokio::time::timeout(Duration::from_millis(2000), ret.recv()).await;
                 Ok(())
             },

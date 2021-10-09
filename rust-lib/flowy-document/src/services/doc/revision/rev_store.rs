@@ -12,10 +12,9 @@ use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_infra::future::ResultFuture;
 use flowy_ot::core::{Delta, OperationTransformable};
-use futures::{stream::StreamExt, TryFutureExt};
 use std::{collections::VecDeque, sync::Arc, time::Duration};
 use tokio::{
-    sync::{broadcast, mpsc, oneshot, RwLock},
+    sync::{broadcast, mpsc, RwLock},
     task::{spawn_blocking, JoinHandle},
 };
 

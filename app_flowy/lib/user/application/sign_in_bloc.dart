@@ -21,16 +21,24 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
         );
       },
       emailChanged: (EmailChanged value) async* {
-        yield state.copyWith(email: value.email, successOrFail: none());
+        yield state.copyWith(
+            email: value.email, emailError: none(), successOrFail: none());
       },
       passwordChanged: (PasswordChanged value) async* {
-        yield state.copyWith(password: value.password, successOrFail: none());
+        yield state.copyWith(
+            password: value.password,
+            passwordError: none(),
+            successOrFail: none());
       },
     );
   }
 
   Stream<SignInState> _performActionOnSignIn(SignInState state) async* {
-    yield state.copyWith(isSubmitting: true);
+    yield state.copyWith(
+        isSubmitting: true,
+        emailError: none(),
+        passwordError: none(),
+        successOrFail: none());
 
     final result = await authImpl.signIn(state.email, state.password);
     yield result.fold(

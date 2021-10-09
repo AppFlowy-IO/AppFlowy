@@ -17,18 +17,25 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     yield* event.map(signUpWithUserEmailAndPassword: (e) async* {
       yield* _performActionOnSignUp();
     }, emailChanged: (EmailChanged value) async* {
-      yield state.copyWith(email: value.email, successOrFail: none());
+      yield state.copyWith(
+          email: value.email, emailError: none(), successOrFail: none());
     }, passwordChanged: (PasswordChanged value) async* {
-      yield state.copyWith(password: value.password, successOrFail: none());
+      yield state.copyWith(
+          password: value.password,
+          passwordError: none(),
+          successOrFail: none());
     }, repeatPasswordChanged: (RepeatPasswordChanged value) async* {
       yield state.copyWith(
-          repeatedPassword: value.password, successOrFail: none());
+          repeatedPassword: value.password,
+          repeatPasswordError: none(),
+          successOrFail: none());
     });
   }
 
   Stream<SignUpState> _performActionOnSignUp() async* {
     yield state.copyWith(
       isSubmitting: true,
+      successOrFail: none(),
     );
 
     final password = state.password;
@@ -81,14 +88,18 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     switch (error.code) {
       case ErrorCode.EmailFormatInvalid:
         return state.copyWith(
-            isSubmitting: false,
-            emailError: some(error.msg),
-            passwordError: none());
+          isSubmitting: false,
+          emailError: some(error.msg),
+          passwordError: none(),
+          successOrFail: none(),
+        );
       case ErrorCode.PasswordFormatInvalid:
         return state.copyWith(
-            isSubmitting: false,
-            passwordError: some(error.msg),
-            emailError: none());
+          isSubmitting: false,
+          passwordError: some(error.msg),
+          emailError: none(),
+          successOrFail: none(),
+        );
       default:
         return state.copyWith(
             isSubmitting: false, successOrFail: some(right(error)));

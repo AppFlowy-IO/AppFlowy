@@ -4,38 +4,29 @@ use crate::{
     services::doc::{
         edit::{
             message::{DocumentMsg, TransformDeltas},
-            DocId,
         },
         Document,
     },
 };
 use async_stream::stream;
-use flowy_database::ConnectionPool;
 use flowy_ot::core::{Delta, OperationTransformable};
 use futures::stream::StreamExt;
 use std::{convert::TryFrom, sync::Arc};
 use tokio::sync::{mpsc, RwLock};
 
 pub struct DocumentActor {
-    doc_id: DocId,
     document: Arc<RwLock<Document>>,
-    pool: Arc<ConnectionPool>,
     receiver: Option<mpsc::UnboundedReceiver<DocumentMsg>>,
 }
 
 impl DocumentActor {
     pub fn new(
-        doc_id: &str,
         delta: Delta,
-        pool: Arc<ConnectionPool>,
         receiver: mpsc::UnboundedReceiver<DocumentMsg>,
     ) -> Self {
-        let doc_id = doc_id.to_string();
         let document = Arc::new(RwLock::new(Document::from_delta(delta)));
         Self {
-            doc_id,
             document,
-            pool,
             receiver: Some(receiver),
         }
     }

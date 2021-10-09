@@ -39,8 +39,8 @@ impl UserError {
 
     pub(crate) fn code(code: ErrorCode) -> Self {
         Self {
+            msg: format!("{}", &code),
             code,
-            msg: "".to_owned(),
         }
     }
 
@@ -97,6 +97,9 @@ pub enum ErrorCode {
     #[display(fmt = "User not exist")]
     UserNotExist       = 25,
 
+    #[display(fmt = "Server is offline, try again later")]
+    ServerOffline       = 26,
+
     #[display(fmt = "Internal error")]
     InternalError      = 100,
 }
@@ -139,18 +142,26 @@ impl std::convert::From<flowy_sqlite::Error> for UserError {
 
 impl std::convert::From<flowy_net::errors::ServerError> for UserError {
     fn from(error: flowy_net::errors::ServerError) -> Self {
-        let code = server_error_to_user_error(error.code);
-        UserError::new(code, &error.msg)
+        let (code, msg) = server_error_to_user_error(error);
+        UserError::new(code, &msg)
     }
 }
 
 use flowy_net::errors::ErrorCode as ServerErrorCode;
-fn server_error_to_user_error(code: ServerErrorCode) -> ErrorCode {
-    match code {
+fn server_error_to_user_error(error: flowy_net::errors::ServerError) -> (ErrorCode, String) {
+    let code = match error.code {
         ServerErrorCode::UserUnauthorized => ErrorCode::UserUnauthorized,
         ServerErrorCode::PasswordNotMatch => ErrorCode::PasswordNotMatch,
         ServerErrorCode::RecordNotFound => ErrorCode::UserNotExist,
+        ServerErrorCode::ConnectRefused | ServerErrorCode::ConnectTimeout | ServerErrorCode::ConnectClose => ErrorCode::ServerOffline,
         _ => ErrorCode::InternalError,
+    };
+
+    if code != ErrorCode::InternalError {
+        let msg = format!("{}", &code);
+        (code, msg)
+    } else {
+        (code, error.msg)
     }
 }
 

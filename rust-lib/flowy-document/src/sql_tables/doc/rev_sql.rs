@@ -104,6 +104,7 @@ impl RevTableSql {
         Ok(revisions)
     }
 
+    #[allow(dead_code)]
     pub(crate) fn delete_rev_table(
         &self,
         doc_id_s: &str,

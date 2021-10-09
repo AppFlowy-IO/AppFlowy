@@ -1,4 +1,6 @@
+import 'package:flowy_infra/theme.dart';
 import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
 
 class FlowyText extends StatelessWidget {
   final String title;
@@ -13,11 +15,14 @@ class FlowyText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      title,
-      overflow: overflow,
-      softWrap: false,
-      style: TextStyle(fontSize: fontSize),
-    );
+    final theme = context.watch<AppTheme>();
+    return Text(title,
+        overflow: overflow,
+        softWrap: false,
+        style: TextStyle(
+          color: theme.shader1,
+          fontWeight: FontWeight.w500,
+          fontSize: fontSize + 2,
+        ));
   }
 }

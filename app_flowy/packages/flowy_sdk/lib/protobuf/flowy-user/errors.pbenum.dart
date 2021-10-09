@@ -24,6 +24,7 @@ class ErrorCode extends $pb.ProtobufEnum {
   static const ErrorCode UserIdInvalid = ErrorCode._(23, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserIdInvalid');
   static const ErrorCode UserUnauthorized = ErrorCode._(24, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserUnauthorized');
   static const ErrorCode UserNotExist = ErrorCode._(25, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserNotExist');
+  static const ErrorCode ServerOffline = ErrorCode._(26, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ServerOffline');
   static const ErrorCode InternalError = ErrorCode._(100, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'InternalError');
 
   static const $core.List<ErrorCode> values = <ErrorCode> [
@@ -41,6 +42,7 @@ class ErrorCode extends $pb.ProtobufEnum {
     UserIdInvalid,
     UserUnauthorized,
     UserNotExist,
+    ServerOffline,
     InternalError,
   ];
 

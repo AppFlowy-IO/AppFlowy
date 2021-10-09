@@ -8,6 +8,7 @@ import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
@@ -37,11 +38,7 @@ class SignUpScreen extends StatelessWidget {
       BuildContext context, Either<UserProfile, UserError> result) {
     result.fold(
       (user) => router.pushWelcomeScreen(context, user),
-      (error) => ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(error.msg),
-        ),
-      ),
+      (error) => showSnapBar(context, error.msg),
     );
   }
 }
@@ -140,8 +137,8 @@ class PasswordTextField extends StatelessWidget {
       builder: (context, state) {
         return RoundedInputField(
           obscureText: true,
-          obscureIcon: svgWidgetWithName("home/Hide.svg"),
-          obscureHideIcon: svgWidgetWithName("home/Show.svg"),
+          obscureIcon: svg("home/Hide"),
+          obscureHideIcon: svg("home/Show"),
           fontSize: 14,
           fontWeight: FontWeight.w500,
           hintText: "Password",
@@ -175,8 +172,8 @@ class RepeatPasswordTextField extends StatelessWidget {
       builder: (context, state) {
         return RoundedInputField(
           obscureText: true,
-          obscureIcon: svgWidgetWithName("home/Hide.svg"),
-          obscureHideIcon: svgWidgetWithName("home/Show.svg"),
+          obscureIcon: svg("home/Hide"),
+          obscureHideIcon: svg("home/Show"),
           fontSize: 14,
           fontWeight: FontWeight.w500,
           hintText: "Repeate password",

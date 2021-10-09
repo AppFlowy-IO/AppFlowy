@@ -19,5 +19,6 @@ enum ErrorCode {
     UserIdInvalid = 23;
     UserUnauthorized = 24;
     UserNotExist = 25;
+    ServerOffline = 26;
     InternalError = 100;
 }

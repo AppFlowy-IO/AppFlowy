@@ -33,7 +33,6 @@ pub struct ClientEditDoc {
     rev_manager: Arc<RevisionManager>,
     document: UnboundedSender<DocumentMsg>,
     ws: Arc<dyn DocumentWebSocket>,
-    pool: Arc<ConnectionPool>,
     user: Arc<dyn DocumentUser>,
 }
 
@@ -57,7 +56,6 @@ impl ClientEditDoc {
             doc_id,
             rev_manager,
             document,
-            pool,
             ws,
             user,
         };
@@ -323,9 +321,9 @@ async fn save_document(document: UnboundedSender<DocumentMsg>, rev_id: RevId) ->
     result
 }
 
-fn spawn_doc_edit_actor(doc_id: &str, delta: Delta, pool: Arc<ConnectionPool>) -> UnboundedSender<DocumentMsg> {
+fn spawn_doc_edit_actor(_doc_id: &str, delta: Delta, _pool: Arc<ConnectionPool>) -> UnboundedSender<DocumentMsg> {
     let (sender, receiver) = mpsc::unbounded_channel::<DocumentMsg>();
-    let actor = DocumentActor::new(&doc_id, delta, pool.clone(), receiver);
+    let actor = DocumentActor::new(delta, receiver);
     tokio::spawn(actor.run());
     sender
 }

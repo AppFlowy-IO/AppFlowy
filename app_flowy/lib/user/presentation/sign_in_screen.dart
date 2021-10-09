@@ -6,6 +6,7 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter/material.dart';
@@ -39,15 +40,7 @@ class SignInScreen extends StatelessWidget {
       Either<UserProfile, UserError> result, BuildContext context) {
     result.fold(
       (user) => router.pushWelcomeScreen(context, user),
-      (error) => _showErrorMessage(context, error.msg),
-    );
-  }
-
-  void _showErrorMessage(BuildContext context, String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(msg),
-      ),
+      (error) => showSnapBar(context, error.msg),
     );
   }
 }
@@ -179,8 +172,8 @@ class PasswordTextField extends StatelessWidget {
         return RoundedInputField(
           obscureText: true,
           fontSize: 14,
-          obscureIcon: svgWidgetWithName("home/Hide.svg"),
-          obscureHideIcon: svgWidgetWithName("home/Show.svg"),
+          obscureIcon: svg("home/Hide"),
+          obscureHideIcon: svg("home/Show"),
           hintText: 'Password',
           normalBorderColor: theme.shader4,
           highlightBorderColor: theme.red,

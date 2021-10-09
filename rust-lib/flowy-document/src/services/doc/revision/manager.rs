@@ -9,12 +9,6 @@ use flowy_ot::core::{Delta, OperationTransformable};
 use std::sync::Arc;
 use tokio::sync::mpsc;
 
-pub struct DocRevision {
-    pub base_rev_id: RevId,
-    pub rev_id: RevId,
-    pub delta: Delta,
-}
-
 pub trait RevisionServer: Send + Sync {
     fn fetch_document_from_remote(&self, doc_id: &str) -> ResultFuture<Doc, DocError>;
 }

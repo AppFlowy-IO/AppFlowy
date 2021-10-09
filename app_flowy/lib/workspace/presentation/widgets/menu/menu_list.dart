@@ -28,7 +28,13 @@ class MenuList extends StatelessWidget {
       child: Expanded(
         child: ListView.separated(
           itemCount: menuItems.length,
-          separatorBuilder: (context, index) => const VSpace(10),
+          separatorBuilder: (context, index) {
+            if (index == 0) {
+              return const VSpace(29);
+            } else {
+              return const VSpace(9);
+            }
+          },
           physics: const BouncingScrollPhysics(),
           itemBuilder: (BuildContext context, int index) {
             return menuItems[index];

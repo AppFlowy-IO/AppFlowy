@@ -7,18 +7,17 @@ AssetImage assetImageForViewType(ViewType type) {
   return AssetImage('assets/images/$imageName');
 }
 
-Widget svgImageForViewType(ViewType type) {
+Widget svgForViewType(ViewType type) {
   final imageName = imageNameForViewType(type);
-  final Widget svg = svgWidgetWithName(imageName);
-
-  return svg;
+  final Widget widget = svg(imageName);
+  return widget;
 }
 
 String imageNameForViewType(ViewType type) {
   switch (type) {
     case ViewType.Doc:
-      return "file_icon.svg";
+      return "file_icon";
     default:
-      return "file_icon.svg";
+      return "file_icon";
   }
 }

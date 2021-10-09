@@ -4,7 +4,7 @@ class FlowyIconButton extends StatelessWidget {
   final double width;
   final double? height;
   final double iconRatio;
-  final Icon icon;
+  final Widget icon;
   final VoidCallback? onPressed;
 
   const FlowyIconButton({

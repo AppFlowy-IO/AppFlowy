@@ -26,12 +26,13 @@ const ErrorCode$json = const {
     const {'1': 'UserIdInvalid', '2': 23},
     const {'1': 'UserUnauthorized', '2': 24},
     const {'1': 'UserNotExist', '2': 25},
+    const {'1': 'ServerOffline', '2': 26},
     const {'1': 'InternalError', '2': 100},
   ],
 };
 
 /// Descriptor for `ErrorCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List errorCodeDescriptor = $convert.base64Decode('CglFcnJvckNvZGUSEAoMRW1haWxJc0VtcHR5EAASFgoSRW1haWxGb3JtYXRJbnZhbGlkEAESFgoSRW1haWxBbHJlYWR5RXhpc3RzEAISEwoPUGFzc3dvcmRJc0VtcHR5EAoSEwoPUGFzc3dvcmRUb29Mb25nEAsSJAogUGFzc3dvcmRDb250YWluc0ZvcmJpZENoYXJhY3RlcnMQDBIZChVQYXNzd29yZEZvcm1hdEludmFsaWQQDRIUChBQYXNzd29yZE5vdE1hdGNoEA4SEwoPVXNlck5hbWVUb29Mb25nEBQSJgoiVXNlck5hbWVDb250YWluRm9yYmlkZGVuQ2hhcmFjdGVycxAVEhMKD1VzZXJOYW1lSXNFbXB0eRAWEhEKDVVzZXJJZEludmFsaWQQFxIUChBVc2VyVW5hdXRob3JpemVkEBgSEAoMVXNlck5vdEV4aXN0EBkSEQoNSW50ZXJuYWxFcnJvchBk');
+final $typed_data.Uint8List errorCodeDescriptor = $convert.base64Decode('CglFcnJvckNvZGUSEAoMRW1haWxJc0VtcHR5EAASFgoSRW1haWxGb3JtYXRJbnZhbGlkEAESFgoSRW1haWxBbHJlYWR5RXhpc3RzEAISEwoPUGFzc3dvcmRJc0VtcHR5EAoSEwoPUGFzc3dvcmRUb29Mb25nEAsSJAogUGFzc3dvcmRDb250YWluc0ZvcmJpZENoYXJhY3RlcnMQDBIZChVQYXNzd29yZEZvcm1hdEludmFsaWQQDRIUChBQYXNzd29yZE5vdE1hdGNoEA4SEwoPVXNlck5hbWVUb29Mb25nEBQSJgoiVXNlck5hbWVDb250YWluRm9yYmlkZGVuQ2hhcmFjdGVycxAVEhMKD1VzZXJOYW1lSXNFbXB0eRAWEhEKDVVzZXJJZEludmFsaWQQFxIUChBVc2VyVW5hdXRob3JpemVkEBgSEAoMVXNlck5vdEV4aXN0EBkSEQoNU2VydmVyT2ZmbGluZRAaEhEKDUludGVybmFsRXJyb3IQZA==');
 @$core.Deprecated('Use userErrorDescriptor instead')
 const UserError$json = const {
   '1': 'UserError',

@@ -300,7 +300,12 @@ impl UserSession {
                             WsState::Init => {},
                             WsState::Connected(_) => {},
                             WsState::Disconnected(_) => {
-                                ws_controller.retry().await;
+                                match ws_controller.retry().await {
+                                    Ok(_) => {},
+                                    Err(e) => {
+                                        log::error!("Retry websocket connect failed: {:?}", e);
+                                    }
+                                }
                             },
                         }
                     },

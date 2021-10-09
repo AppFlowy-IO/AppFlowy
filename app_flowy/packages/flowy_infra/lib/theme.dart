@@ -118,7 +118,6 @@ class AppTheme {
     var t = ThemeData(
       textTheme: (isDark ? ThemeData.dark() : ThemeData.light()).textTheme,
       textSelectionTheme: TextSelectionThemeData(cursorColor: main1),
-      visualDensity: VisualDensity.adaptivePlatformDensity,
       colorScheme: ColorScheme(
           brightness: isDark ? Brightness.dark : Brightness.light,
           primary: main1,

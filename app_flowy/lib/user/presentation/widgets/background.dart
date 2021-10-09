@@ -44,7 +44,7 @@ class AuthFormTitle extends StatelessWidget {
         children: [
           SizedBox.fromSize(
             size: const Size.square(40),
-            child: svgWidgetWithName("flowy_logo.svg"),
+            child: svg("flowy_logo"),
           ),
           const VSpace(30),
           Text(

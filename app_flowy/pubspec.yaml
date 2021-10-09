@@ -89,6 +89,11 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  fonts:
+    - family: FlowyIconData
+      fonts:
+        - asset: fonts/FlowyIconData.ttf
+
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/

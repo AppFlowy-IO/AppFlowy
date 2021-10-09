@@ -1,7 +1,11 @@
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:expandable/expandable.dart';
+import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_infra_ui/style_widget/text_button.dart';
+import 'package:flowy_infra/flowy_icon_data_icons.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
@@ -18,8 +22,9 @@ class AppHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         InkWell(
@@ -30,9 +35,9 @@ class AppHeader extends StatelessWidget {
           },
           child: ExpandableIcon(
             theme: ExpandableThemeData(
-              expandIcon: Icons.arrow_drop_up,
-              collapseIcon: Icons.arrow_drop_down,
-              iconColor: Colors.black,
+              expandIcon: FlowyIconData.drop_down_show,
+              collapseIcon: FlowyIconData.drop_down_hide,
+              iconColor: theme.shader1,
               iconSize: AppPageSize.expandedIconSize,
               iconPadding: EdgeInsets.zero,
               hasIcon: false,
@@ -41,13 +46,18 @@ class AppHeader extends StatelessWidget {
         ),
         HSpace(AppPageSize.expandedIconRightSpace),
         Expanded(
-          child: FlowyTextButton(
+            child: GestureDetector(
+          onTapDown: (_) {
+            ExpandableController.of(context,
+                    rebuildOnChange: false, required: true)
+                ?.toggle();
+          },
+          child: FlowyText(
             app.name,
-            onPressed: () {
-              debugPrint('show app');
-            },
+            fontSize: 12,
           ),
-        ),
+        )),
+
         // FlowyIconButton(
         //   icon: const Icon(Icons.add),
         //   onPressed: () {
@@ -57,9 +67,9 @@ class AppHeader extends StatelessWidget {
         //   },
         // ),
         PopupMenuButton(
-            iconSize: 20,
+            iconSize: 16,
             tooltip: 'create new view',
-            icon: const Icon(Icons.add),
+            icon: svg("home/add"),
             padding: EdgeInsets.zero,
             onSelected: (viewType) =>
                 _createView(viewType as ViewType, context),

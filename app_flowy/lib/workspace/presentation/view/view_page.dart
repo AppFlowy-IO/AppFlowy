@@ -47,7 +47,7 @@ class ViewPage extends StatelessWidget {
       SizedBox(
           width: width,
           height: width,
-          child: svgImageForViewType(viewCtx.view.viewType)),
+          child: svgForViewType(viewCtx.view.viewType)),
       const HSpace(6),
       Text(
         viewCtx.view.name,
