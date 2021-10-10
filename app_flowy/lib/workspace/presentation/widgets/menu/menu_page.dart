@@ -3,6 +3,7 @@ import 'package:app_flowy/workspace/presentation/widgets/menu/menu_top_bar.dart'
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
 import 'package:flutter/material.dart';
@@ -38,13 +39,10 @@ class HomeMenu extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<MenuBloc>(
-            create: (context) =>
-                getIt<MenuBloc>(param1: user, param2: workspaceId)
-                  ..add(const MenuEvent.initial())),
+            create: (context) => getIt<MenuBloc>(param1: user, param2: workspaceId)..add(const MenuEvent.initial())),
         BlocProvider(
             create: (context) =>
-                getIt<MenuWatchBloc>(param1: user, param2: workspaceId)
-                  ..add(const MenuWatchEvent.started())),
+                getIt<MenuWatchBloc>(param1: user, param2: workspaceId)..add(const MenuWatchEvent.started())),
       ],
       child: MultiBlocListener(
         listeners: [
@@ -76,6 +74,7 @@ class HomeMenu extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 _renderTopBar(context),
+                const VSpace(32),
                 _renderMenuList(context),
               ],
             ).padding(horizontal: Insets.l),
@@ -104,16 +103,12 @@ class HomeMenu extends StatelessWidget {
 
   Widget _renderNewAppButton(BuildContext context) {
     return NewAppButton(
-      press: (appName) =>
-          context.read<MenuBloc>().add(MenuEvent.createApp(appName, desc: "")),
+      press: (appName) => context.read<MenuBloc>().add(MenuEvent.createApp(appName, desc: "")),
     );
   }
 
   Widget _renderTopBar(BuildContext context) {
-    return SizedBox(
-      height: HomeSizes.menuTopBarHeight,
-      child: const MenuTopBar(),
-    );
+    return const MenuTopBar();
   }
 
   List<MenuItem> menuItemsWithApps(Option<List<App>> someApps) {

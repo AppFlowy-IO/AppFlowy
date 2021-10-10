@@ -15,11 +15,10 @@ import 'package:styled_widget/styled_widget.dart';
 import 'app_header.dart';
 
 class AppPageSize {
-  static double expandedIconSize = 20;
+  static double expandedIconSize = 16;
   static double expandedIconRightSpace = 6;
   static double scale = 1;
-  static double get expandedPadding =>
-      expandedIconSize * scale + expandedIconRightSpace;
+  static double get expandedPadding => expandedIconSize * scale + expandedIconRightSpace;
 }
 
 class ViewListData extends ChangeNotifier {

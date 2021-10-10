@@ -51,7 +51,7 @@ class HomeTopBar extends StatelessWidget {
   }
 
   Widget _renderMoreButton() {
-    return FlowyMoreButton(
+    return ViewMoreButton(
       width: 24,
       onPressed: () {
         debugPrint('show more');
@@ -79,11 +79,7 @@ class HomeTitle extends StatelessWidget {
     return Flexible(
       child: Row(
         children: [
-          Image(
-              fit: BoxFit.scaleDown,
-              width: 15,
-              height: 15,
-              image: assetImageForViewType(type)),
+          Image(fit: BoxFit.scaleDown, width: 15, height: 15, image: assetImageForViewType(type)),
           const HSpace(6),
           FlowyText(title, fontSize: 16),
         ],

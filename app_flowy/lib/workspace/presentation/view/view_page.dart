@@ -1,10 +1,13 @@
+import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:app_flowy/workspace/domain/image.dart';
 import 'package:app_flowy/workspace/presentation/app/app_page.dart';
+import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 class ViewWidgetContext {
@@ -21,16 +24,13 @@ class ViewPage extends StatelessWidget {
   final ViewWidgetContext viewCtx;
   final bool isSelected;
   final OpenViewCallback onOpen;
-  ViewPage(
-      {Key? key,
-      required this.viewCtx,
-      required this.onOpen,
-      required this.isSelected})
+  ViewPage({Key? key, required this.viewCtx, required this.onOpen, required this.isSelected})
       : super(key: viewCtx.valueKey());
 
   @override
   Widget build(BuildContext context) {
-    final config = HoverDisplayConfig(hoverColor: Colors.grey.shade200);
+    final theme = context.watch<AppTheme>();
+    final config = HoverDisplayConfig(hoverColor: theme.bg3);
     return InkWell(
       onTap: _openView(context),
       child: FlowyHover(
@@ -40,30 +40,37 @@ class ViewPage extends StatelessWidget {
     );
   }
 
-  Widget _render(
-      BuildContext context, bool onHover, HoverDisplayConfig config) {
-    const double width = 22;
+  Widget _render(BuildContext context, bool onHover, HoverDisplayConfig config) {
     List<Widget> children = [
       SizedBox(
-          width: width,
-          height: width,
-          child: svgForViewType(viewCtx.view.viewType)),
+        width: 16,
+        height: 16,
+        child: svgForViewType(viewCtx.view.viewType),
+      ),
       const HSpace(6),
-      Text(
+      FlowyText.regular(
         viewCtx.view.name,
-        textAlign: TextAlign.start,
-        style: const TextStyle(fontSize: 15),
+        fontSize: 12,
       ),
     ];
 
     if (onHover) {
-      _addedHover(children, width);
+      children.add(const Spacer());
+      children.add(ViewMoreButton(
+        width: 16,
+        onPressed: () {
+          debugPrint('show view setting');
+        },
+      ));
     }
 
-    Widget widget = Row(children: children).padding(
-      vertical: 5,
-      left: AppPageSize.expandedPadding,
-      right: 5,
+    Widget widget = Container(
+      child: Row(children: children).padding(
+        left: AppPageSize.expandedPadding,
+        right: 12,
+      ),
+      height: 24,
+      alignment: Alignment.centerLeft,
     );
 
     if (isSelected) {
@@ -75,18 +82,5 @@ class ViewPage extends StatelessWidget {
 
   Function() _openView(BuildContext context) {
     return () => onOpen(viewCtx.view);
-  }
-
-  void _addedHover(List<Widget> children, double hoverWidth) {
-    children.add(const Spacer());
-    children.add(Align(
-      alignment: Alignment.center,
-      child: FlowyMoreButton(
-        width: hoverWidth,
-        onPressed: () {
-          debugPrint('show view setting');
-        },
-      ),
-    ));
   }
 }

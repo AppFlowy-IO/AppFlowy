@@ -17,5 +17,6 @@
     "editor.wordWrapColumn": 120,
     "editor.minimap.maxColumn": 140,
     "prettier.printWidth": 140,
-    "editor.wordWrap": "wordWrapColumn"
+    "editor.wordWrap": "wordWrapColumn",
+    "dart.lineLength": 120
 }

@@ -1,3 +1,4 @@
+import 'package:flowy_infra/image.dart';
 import 'package:flutter/material.dart';
 
 class FlowyIconButton extends StatelessWidget {
@@ -32,12 +33,12 @@ class FlowyIconButton extends StatelessWidget {
   }
 }
 
-class FlowyMoreButton extends StatelessWidget {
+class ViewMoreButton extends StatelessWidget {
   final double width;
   final double? height;
   final VoidCallback? onPressed;
 
-  const FlowyMoreButton({
+  const ViewMoreButton({
     Key? key,
     this.height,
     this.onPressed,
@@ -49,7 +50,7 @@ class FlowyMoreButton extends StatelessWidget {
     return FlowyIconButton(
       width: width,
       height: height,
-      icon: const Icon(Icons.more_vert),
+      icon: svg("editor/details"),
       onPressed: onPressed,
     );
   }

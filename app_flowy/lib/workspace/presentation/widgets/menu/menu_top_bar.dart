@@ -9,19 +9,21 @@ class MenuTopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<MenuBloc, MenuState>(
       builder: (context, state) {
-        return Row(
-          children: [
-            svgWithSize("flowy_logo_with_text", const Size(92, 17)),
-            const Spacer(),
-            IconButton(
-              iconSize: 16,
-              icon: svg("home/hide_menu"),
-              alignment: Alignment.centerRight,
-              padding: EdgeInsets.zero,
-              onPressed: () =>
-                  context.read<MenuBloc>().add(const MenuEvent.collapse()),
-            ),
-          ],
+        return SizedBox(
+          height: 48,
+          child: Row(
+            children: [
+              svgWithSize("flowy_logo_with_text", const Size(92, 17)),
+              const Spacer(),
+              IconButton(
+                iconSize: 16,
+                icon: svg("home/hide_menu"),
+                alignment: Alignment.centerRight,
+                padding: EdgeInsets.zero,
+                onPressed: () => context.read<MenuBloc>().add(const MenuEvent.collapse()),
+              ),
+            ],
+          ),
         );
       },
     );

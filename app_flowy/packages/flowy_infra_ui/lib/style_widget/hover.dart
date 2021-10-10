@@ -23,17 +23,14 @@ class _FlowyHoverState extends State<FlowyHover> {
 
   @override
   Widget build(BuildContext context) {
-    final hoverColor = _onHover
-        ? widget.config.hoverColor
-        : Theme.of(context).colorScheme.background;
+    final hoverColor = _onHover ? widget.config.hoverColor : Theme.of(context).colorScheme.background;
     final config = widget.config.copyWith(hoverColor: hoverColor);
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (p) => setOnHover(true),
       onExit: (p) => setOnHover(false),
-      child: FlowyHoverBackground(
-          config: config, child: widget.builder(context, _onHover)),
+      child: FlowyHoverBackground(config: config, child: widget.builder(context, _onHover)),
     );
   }
 
@@ -49,15 +46,16 @@ class HoverDisplayConfig {
   const HoverDisplayConfig(
       {this.borderColor = Colors.transparent,
       this.borderWidth = 0,
-      this.borderRadius = const BorderRadius.all(Radius.circular(8)),
+      this.borderRadius = const BorderRadius.all(Radius.circular(6)),
       this.hoverColor});
 
   HoverDisplayConfig copyWith({Color? hoverColor}) {
     return HoverDisplayConfig(
-        borderColor: borderColor,
-        borderWidth: borderWidth,
-        borderRadius: borderRadius,
-        hoverColor: hoverColor);
+      borderColor: borderColor,
+      borderWidth: borderWidth,
+      borderRadius: borderRadius,
+      hoverColor: hoverColor,
+    );
   }
 }
 

@@ -23,8 +23,7 @@ class MenuList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ExpandableTheme(
-      data: ExpandableThemeData(
-          useInkWell: true, animationDuration: Durations.medium),
+      data: ExpandableThemeData(useInkWell: true, animationDuration: Durations.medium),
       child: Expanded(
         child: ListView.separated(
           itemCount: menuItems.length,
@@ -32,7 +31,7 @@ class MenuList extends StatelessWidget {
             if (index == 0) {
               return const VSpace(29);
             } else {
-              return const VSpace(9);
+              return const VSpace(24);
             }
           },
           physics: const BouncingScrollPhysics(),

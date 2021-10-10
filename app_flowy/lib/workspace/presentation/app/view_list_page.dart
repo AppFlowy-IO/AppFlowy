@@ -67,7 +67,7 @@ class ViewListPage extends StatelessWidget {
       );
 
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
+        padding: const EdgeInsets.symmetric(vertical: 4),
         child: viewWidget,
       );
     }).toList(growable: false);
