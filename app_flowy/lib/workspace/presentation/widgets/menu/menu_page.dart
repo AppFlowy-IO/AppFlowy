@@ -1,5 +1,4 @@
-import 'package:app_flowy/workspace/presentation/widgets/menu/menu_new_app.dart';
-import 'package:app_flowy/workspace/presentation/widgets/menu/menu_top_bar.dart';
+import 'package:app_flowy/workspace/presentation/widgets/menu/widget/top_bar.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
@@ -14,11 +13,11 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_watch.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
-import 'package:app_flowy/workspace/presentation/app/app_page.dart';
-import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
-import 'package:app_flowy/workspace/presentation/widgets/menu/menu_user.dart';
+import 'package:app_flowy/workspace/presentation/widgets/menu/widget/user.dart';
 
 import 'menu_list.dart';
+import 'widget/app/app.dart';
+import 'widget/app/create_button.dart';
 
 class HomeMenu extends StatelessWidget {
   final Function(HomeStackView?) pageContextChanged;

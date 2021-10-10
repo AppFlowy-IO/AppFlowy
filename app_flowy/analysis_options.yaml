@@ -15,6 +15,7 @@ analyzer:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
     - "packages/flowy_editor/**"
+    - "packages/editor/**"
     # - "packages/flowy_infra_ui/**"
     
 linter:

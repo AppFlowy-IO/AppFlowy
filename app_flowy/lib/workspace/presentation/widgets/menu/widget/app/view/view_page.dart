@@ -1,3 +1,4 @@
+import 'package:app_flowy/workspace/presentation/widgets/menu/widget/app/app.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
@@ -6,7 +7,6 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:app_flowy/workspace/domain/image.dart';
-import 'package:app_flowy/workspace/presentation/app/app_page.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 

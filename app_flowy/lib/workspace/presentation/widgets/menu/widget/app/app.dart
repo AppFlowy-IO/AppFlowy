@@ -1,36 +1,24 @@
+import 'package:app_flowy/workspace/presentation/widgets/menu/widget/app/header.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:app_flowy/workspace/application/app/app_watch_bloc.dart';
-import 'package:app_flowy/workspace/presentation/app/view_list_page.dart';
 import 'package:app_flowy/workspace/presentation/widgets/menu/menu_list.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
-import 'app_header.dart';
+
+import 'view/view_list.dart';
 
 class AppPageSize {
   static double expandedIconSize = 16;
   static double expandedIconRightSpace = 6;
   static double scale = 1;
   static double get expandedPadding => expandedIconSize * scale + expandedIconRightSpace;
-}
-
-class ViewListData extends ChangeNotifier {
-  List<View>? innerViews;
-  ViewListData();
-
-  set views(List<View> views) {
-    innerViews = views;
-    notifyListeners();
-  }
-
-  List<View> get views => innerViews ?? [];
 }
 
 class AppPageContext {

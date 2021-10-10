@@ -1,11 +1,7 @@
-import 'dart:typed_data';
-
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/workspace/domain/i_doc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:flowy_editor/flowy_editor.dart';
-import 'dart:convert';
 part 'doc_bloc.freezed.dart';
 
 class DocBloc extends Bloc<DocEvent, DocState> {
@@ -37,17 +33,17 @@ class DocBloc extends Bloc<DocEvent, DocState> {
     );
   }
 
-  Document _decodeListToDocument(Uint8List data) {
-    final json = jsonDecode(utf8.decode(data));
-    final document = Document.fromJson(json);
-    return document;
-  }
+  // Document _decodeListToDocument(Uint8List data) {
+  //   final json = jsonDecode(utf8.decode(data));
+  //   final document = Document.fromJson(json);
+  //   return document;
+  // }
 
-  Document _decodeJsonToDocument(String data) {
-    final json = jsonDecode(data);
-    final document = Document.fromJson(json);
-    return document;
-  }
+  // Document _decodeJsonToDocument(String data) {
+  //   final json = jsonDecode(data);
+  //   final document = Document.fromJson(json);
+  //   return document;
+  // }
 }
 
 @freezed

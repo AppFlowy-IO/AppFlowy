@@ -23,8 +23,7 @@ class HomeScreen extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<HomeAuthBloc>(
-          create: (context) => getIt<HomeAuthBloc>(param1: user)
-            ..add(const HomeAuthEvent.started()),
+          create: (context) => getIt<HomeAuthBloc>(param1: user)..add(const HomeAuthEvent.started()),
         ),
         BlocProvider<HomeBloc>(create: (context) => getIt<HomeBloc>()),
       ],
@@ -46,8 +45,7 @@ class HomeScreen extends StatelessWidget {
               return FlowyContainer(
                 Theme.of(context).colorScheme.surface,
                 // Colors.white,
-                child: _buildBody(
-                    state, context.read<HomeBloc>().state.forceCollapse),
+                child: _buildBody(state, context.read<HomeBloc>().state.forceCollapse),
               );
             },
           ),
@@ -70,17 +68,12 @@ class HomeScreen extends StatelessWidget {
           layout: layout,
           context: context,
         );
-        return _layoutWidgets(
-            layout: layout,
-            homePage: homePage,
-            homeMenu: menu,
-            editPannel: editPannel);
+        return _layoutWidgets(layout: layout, homePage: homePage, homeMenu: menu, editPannel: editPannel);
       },
     );
   }
 
-  Widget _buildHomeMenu(
-      {required HomeLayout layout, required BuildContext context}) {
+  Widget _buildHomeMenu({required HomeLayout layout, required BuildContext context}) {
     final homeBloc = context.read<HomeBloc>();
     Widget homeMenu = HomeMenu(
       pageContextChanged: (pageContext) {
@@ -97,10 +90,7 @@ class HomeScreen extends StatelessWidget {
     return homeMenu;
   }
 
-  Widget _buildEditPannel(
-      {required HomeState homeState,
-      required BuildContext context,
-      required HomeLayout layout}) {
+  Widget _buildEditPannel({required HomeState homeState, required BuildContext context, required HomeLayout layout}) {
     final homeBloc = context.read<HomeBloc>();
     Widget editPannel = EditPannel(
       context: homeState.editContext,
@@ -112,10 +102,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _layoutWidgets(
-      {required HomeLayout layout,
-      required Widget homeMenu,
-      required Widget homePage,
-      required Widget editPannel}) {
+      {required HomeLayout layout, required Widget homeMenu, required Widget homePage, required Widget editPannel}) {
     return Stack(
       children: [
         homeMenu
@@ -123,21 +110,11 @@ class HomeScreen extends StatelessWidget {
               closeX: -layout.menuWidth,
               isClosed: !layout.showMenu,
             )
-            .positioned(
-                left: 0,
-                top: 0,
-                width: layout.menuWidth,
-                bottom: 0,
-                animate: true)
+            .positioned(left: 0, top: 0, width: layout.menuWidth, bottom: 0, animate: true)
             .animate(layout.animDuration, Curves.easeOut),
         homePage
             .constrained(minWidth: 500)
-            .positioned(
-                left: layout.homePageLOffset,
-                right: layout.homePageROffset,
-                bottom: 0,
-                top: 0,
-                animate: true)
+            .positioned(left: layout.homePageLOffset, right: layout.homePageROffset, bottom: 0, top: 0, animate: true)
             .animate(layout.animDuration, Curves.easeOut),
         editPannel
             .animatedPanelX(
@@ -145,8 +122,7 @@ class HomeScreen extends StatelessWidget {
               closeX: layout.editPannelWidth,
               isClosed: !layout.showEditPannel,
             )
-            .positioned(
-                right: 0, top: 0, bottom: 0, width: layout.editPannelWidth),
+            .positioned(right: 0, top: 0, bottom: 0, width: layout.editPannelWidth),
       ],
     );
   }

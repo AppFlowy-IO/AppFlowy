@@ -1,4 +1,3 @@
-import 'package:app_flowy/workspace/presentation/app/app_page.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/foundation.dart';
@@ -7,7 +6,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
-import 'package:app_flowy/workspace/presentation/view/view_page.dart';
+
+import 'view_page.dart';
+
+class ViewListData extends ChangeNotifier {
+  List<View>? innerViews;
+  ViewListData();
+
+  set views(List<View> views) {
+    innerViews = views;
+    notifyListeners();
+  }
+
+  List<View> get views => innerViews ?? [];
+}
 
 class ViewListNotifier with ChangeNotifier {
   List<View> innerViews;

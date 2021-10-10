@@ -12,15 +12,13 @@ class SecondaryTextButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
 
-  const SecondaryTextButton(this.label, {Key? key, this.onPressed})
-      : super(key: key);
+  const SecondaryTextButton(this.label, {Key? key, this.onPressed}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     TextStyle txtStyle = TextStyles.Footnote.textColor(theme.shader1);
-    return SecondaryButton(
-        onPressed: onPressed, child: Text(label, style: txtStyle));
+    return SecondaryButton(onPressed: onPressed, child: Text(label, style: txtStyle));
   }
 }
 
@@ -31,7 +29,7 @@ class SecondaryIconButton extends StatelessWidget {
   final Color? color;
 
   const SecondaryIconButton(this.icon, {Key? key, this.onPressed, this.color})
-      : assert((icon is AssetImage) || (icon is IconData)),
+      : assert((icon is IconData)),
         super(key: key);
 
   @override

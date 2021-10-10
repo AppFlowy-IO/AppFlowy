@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 import 'dart:collection';
 
 import 'package:quiver/core.dart';
@@ -209,9 +211,7 @@ class Attribute<T> {
     if (identical(this, other)) return true;
     if (other is! Attribute) return false;
     final typedOther = other;
-    return key == typedOther.key &&
-        scope == typedOther.scope &&
-        value == typedOther.value;
+    return key == typedOther.key && scope == typedOther.scope && value == typedOther.value;
   }
 
   @override
@@ -264,8 +264,7 @@ class ColorAttribute extends Attribute<String?> {
 }
 
 class BackgroundAttribute extends Attribute<String?> {
-  BackgroundAttribute(String? val)
-      : super('background', AttributeScope.INLINE, val);
+  BackgroundAttribute(String? val) : super('background', AttributeScope.INLINE, val);
 }
 
 /// This is custom attribute for hint
