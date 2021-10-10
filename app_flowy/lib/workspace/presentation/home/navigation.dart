@@ -1,5 +1,4 @@
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
-import 'package:app_flowy/workspace/presentation/widgets/home_top_bar.dart';
 import 'package:flowy_infra_ui/style_widget/text_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -7,34 +6,38 @@ import 'package:styled_widget/styled_widget.dart';
 
 typedef NaviAction = void Function();
 
-abstract class NaviItem {
-  String get identifier;
-  String get title;
-  NaviAction get action;
-}
-
 class NavigationNotifier with ChangeNotifier {
-  HomeStackNotifier pageStackNotifier;
-  NavigationNotifier(this.pageStackNotifier);
+  HomeStackNotifier homeStackNotifier;
+  NavigationNotifier(this.homeStackNotifier);
 
   void update(HomeStackNotifier notifier) {
-    pageStackNotifier = notifier;
+    homeStackNotifier = notifier;
     notifyListeners();
   }
 
-  List<NaviItem> get naviItems {
-    List<NaviItem> items = [
-      ViewNaviItemImpl(pageStackNotifier.context),
-      // ViewNaviItemImpl(pageStackNotifier.view),
-      // ViewNaviItemImpl(pageStackNotifier.view),
-      // ViewNaviItemImpl(pageStackNotifier.view),
-      // ViewNaviItemImpl(pageStackNotifier.view),
-      // ViewNaviItemImpl(pageStackNotifier.view)
-    ];
-    return items;
-  }
+  List<NavigationItem> get naviItems => homeStackNotifier.context.navigationItems;
 }
 
+// [[Navigation]]
+//                                                                              ┌───────────────────────┐
+//                     2.notify listeners                                ┌──────│DefaultHomeStackContext│
+//  ┌────────────────┐           ┌───────────┐   ┌────────────────┐      │      └───────────────────────┘
+//  │HomeStackNotifie│◀──────────│ HomeStack │◀──│HomeStackContext│◀─ impl
+//  └────────────────┘           └───────────┘   └────────────────┘      │       ┌───────────────────┐
+//           │                         ▲                                 └───────│  DocStackContext  │
+//           │                         │                                         └───────────────────┘
+//    3.notify change            1.set context
+//           │                         │
+//           ▼                         │
+// ┌───────────────────┐     ┌──────────────────┐
+// │NavigationNotifier │     │ ViewSectionItem  │
+// └───────────────────┘     └──────────────────┘
+//           │
+//           │
+//           ▼
+//  ┌─────────────────┐
+//  │ FlowyNavigation │   4.render navigation items
+//  └─────────────────┘
 class FlowyNavigation extends StatelessWidget {
   const FlowyNavigation({Key? key}) : super(key: key);
 
@@ -42,10 +45,7 @@ class FlowyNavigation extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProxyProvider<HomeStackNotifier, NavigationNotifier>(
       create: (_) => NavigationNotifier(
-        Provider.of<HomeStackNotifier>(
-          context,
-          listen: false,
-        ),
+        Provider.of<HomeStackNotifier>(context, listen: false),
       ),
       update: (_, notifier, controller) => controller!..update(notifier),
       child: Consumer(builder: (ctx, NavigationNotifier notifier, child) {
@@ -54,12 +54,12 @@ class FlowyNavigation extends StatelessWidget {
     );
   }
 
-  List<Widget> _renderChildren(List<NaviItem> items) {
+  List<Widget> _renderChildren(List<NavigationItem> items) {
     if (items.isEmpty) {
       return [];
     }
 
-    List<NaviItem> newItems = _filter(items);
+    List<NavigationItem> newItems = _filter(items);
     Widget last = NaviItemWidget(newItems.removeLast());
 
     List<Widget> widgets = List.empty(growable: true);
@@ -69,7 +69,7 @@ class FlowyNavigation extends StatelessWidget {
     return widgets;
   }
 
-  List<NaviItem> _filter(List<NaviItem> items) {
+  List<NavigationItem> _filter(List<NavigationItem> items) {
     final length = items.length;
     if (length > 4) {
       final first = items[0];
@@ -87,16 +87,17 @@ class FlowyNavigation extends StatelessWidget {
 }
 
 class NaviItemWidget extends StatelessWidget {
-  final NaviItem item;
+  final NavigationItem item;
   const NaviItemWidget(this.item, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 30,
+      height: 24,
       child: FlowyTextButton(
         item.title,
-        fontSize: 14,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        fontSize: 12,
         onPressed: () {
           debugPrint('show app document');
         },
@@ -117,18 +118,18 @@ class NaviItemDivider extends StatelessWidget {
   }
 }
 
-class EllipsisNaviItem extends NaviItem {
-  final List<NaviItem> items;
+class EllipsisNaviItem extends NavigationItem {
+  final List<NavigationItem> items;
   EllipsisNaviItem({
     required this.items,
   });
 
   @override
-  NaviAction get action => throw UnimplementedError();
+  String get title => "...";
+
+  @override
+  NavigationCallback get action => (id) {};
 
   @override
   String get identifier => "Ellipsis";
-
-  @override
-  String get title => "...";
 }

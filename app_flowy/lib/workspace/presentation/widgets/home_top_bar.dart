@@ -1,4 +1,3 @@
-import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/domain/image.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
@@ -85,19 +84,4 @@ class HomeTitle extends StatelessWidget {
       ),
     );
   }
-}
-
-class ViewNaviItemImpl extends NaviItem {
-  final HomeStackContext view;
-
-  ViewNaviItemImpl(this.view);
-
-  @override
-  NaviAction get action => () => getIt<HomeStack>().setStack(view);
-
-  @override
-  String get identifier => view.identifier;
-
-  @override
-  String get title => view.title;
 }

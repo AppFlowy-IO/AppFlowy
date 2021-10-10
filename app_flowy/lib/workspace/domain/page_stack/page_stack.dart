@@ -1,16 +1,36 @@
-import 'package:app_flowy/workspace/presentation/stack_page/doc/doc_stack_page.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/blank/blank_page.dart';
+import 'package:app_flowy/workspace/presentation/stack_page/doc/doc_stack_page.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/fading_index_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/prelude.dart';
 
-abstract class HomeStackContext extends Equatable {
+typedef NavigationCallback = void Function(String id);
+
+abstract class NavigationItem {
   String get title;
   String get identifier;
+
+  NavigationCallback get action => (id) {
+        getIt<HomeStack>().setStackWithId(id);
+      };
+}
+
+abstract class HomeStackContext extends Equatable with NavigationItem {
+  List<NavigationItem> get navigationItems;
+
+  @override
+  String get title;
+
+  @override
+  String get identifier;
+
   ViewType get type;
+
   Widget render();
 }
 
@@ -27,10 +47,7 @@ HomeStackContext stackCtxFromView(View view) {
 
 class HomeStackNotifier extends ChangeNotifier {
   HomeStackContext inner;
-
-  HomeStackNotifier({
-    HomeStackContext? context,
-  }) : inner = context ?? DefaultHomeStackContext();
+  HomeStackNotifier({HomeStackContext? context}) : inner = context ?? DefaultHomeStackContext();
 
   set context(HomeStackContext context) {
     inner = context;
@@ -40,7 +57,7 @@ class HomeStackNotifier extends ChangeNotifier {
   HomeStackContext get context => inner;
 }
 
-// HomePageStack is initialized as singleton to controll the page stack.
+// HomeStack is initialized as singleton to controll the page stack.
 class HomeStack {
   final HomeStackNotifier _notifier = HomeStackNotifier();
   HomeStack();
@@ -52,6 +69,8 @@ class HomeStack {
   void setStack(HomeStackContext context) {
     _notifier.context = context;
   }
+
+  void setStackWithId(String id) {}
 
   Widget stackTopBar() {
     return MultiProvider(

@@ -19,6 +19,9 @@ class DefaultHomeStackContext extends HomeStackContext {
   Widget render() {
     return const AnnouncementStackPage();
   }
+
+  @override
+  List<NavigationItem> get navigationItems => [this];
 }
 
 class AnnouncementStackPage extends StatefulWidget {

@@ -28,6 +28,21 @@ class DocStackContext extends HomeStackContext {
   Widget render() {
     return DocStackPage(_view, key: ValueKey(_view.id));
   }
+
+  @override
+  List<NavigationItem> get navigationItems => makeNavigationItems();
+
+  // List<NavigationItem> get navigationItems => naviStacks.map((stack) {
+  //       return NavigationItemImpl(context: stack);
+  //     }).toList();
+
+  List<NavigationItem> makeNavigationItems() {
+    return [
+      this,
+      this,
+      this,
+    ];
+  }
 }
 
 class DocStackPage extends StatefulWidget {

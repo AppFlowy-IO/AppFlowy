@@ -1,7 +1,9 @@
+import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
 
 class FlowyTextButton extends StatelessWidget {
   final String text;
@@ -17,12 +19,11 @@ class FlowyTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
     return InkWell(
       onTap: onPressed,
       child: FlowyHover(
-        config: HoverDisplayConfig(
-            borderRadius: BorderRadius.circular(8),
-            hoverColor: Colors.grey.shade300),
+        config: HoverDisplayConfig(borderRadius: BorderRadius.circular(6), hoverColor: theme.bg3),
         builder: (context, onHover) => _render(),
       ),
     );
