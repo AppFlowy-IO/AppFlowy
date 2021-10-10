@@ -14,17 +14,17 @@ abstract class NaviItem {
 }
 
 class NavigationNotifier with ChangeNotifier {
-  PageStackNotifier pageStackNotifier;
+  HomeStackNotifier pageStackNotifier;
   NavigationNotifier(this.pageStackNotifier);
 
-  void update(PageStackNotifier notifier) {
+  void update(HomeStackNotifier notifier) {
     pageStackNotifier = notifier;
     notifyListeners();
   }
 
   List<NaviItem> get naviItems {
     List<NaviItem> items = [
-      ViewNaviItemImpl(pageStackNotifier.view),
+      ViewNaviItemImpl(pageStackNotifier.context),
       // ViewNaviItemImpl(pageStackNotifier.view),
       // ViewNaviItemImpl(pageStackNotifier.view),
       // ViewNaviItemImpl(pageStackNotifier.view),
@@ -35,14 +35,14 @@ class NavigationNotifier with ChangeNotifier {
   }
 }
 
-class StyledNavigationList extends StatelessWidget {
-  const StyledNavigationList({Key? key}) : super(key: key);
+class FlowyNavigation extends StatelessWidget {
+  const FlowyNavigation({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProxyProvider<PageStackNotifier, NavigationNotifier>(
+    return ChangeNotifierProxyProvider<HomeStackNotifier, NavigationNotifier>(
       create: (_) => NavigationNotifier(
-        Provider.of<PageStackNotifier>(
+        Provider.of<HomeStackNotifier>(
           context,
           listen: false,
         ),
@@ -63,9 +63,7 @@ class StyledNavigationList extends StatelessWidget {
     Widget last = NaviItemWidget(newItems.removeLast());
 
     List<Widget> widgets = List.empty(growable: true);
-    widgets.addAll(newItems
-        .map((item) => NaviItemDivider(child: NaviItemWidget(item)))
-        .toList());
+    widgets.addAll(newItems.map((item) => NaviItemDivider(child: NaviItemWidget(item))).toList());
     widgets.add(last);
 
     return widgets;

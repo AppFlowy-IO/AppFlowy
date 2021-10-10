@@ -20,7 +20,7 @@ import 'widget/app/app.dart';
 import 'widget/app/create_button.dart';
 
 class HomeMenu extends StatelessWidget {
-  final Function(HomeStackView?) pageContextChanged;
+  final Function(HomeStackContext) pageContextChanged;
   final Function(bool) isCollapseChanged;
   final UserProfile user;
   final String workspaceId;
@@ -46,8 +46,8 @@ class HomeMenu extends StatelessWidget {
       child: MultiBlocListener(
         listeners: [
           BlocListener<MenuBloc, MenuState>(
-            listenWhen: (p, c) => p.stackView != c.stackView,
-            listener: (context, state) => pageContextChanged(state.stackView),
+            listenWhen: (p, c) => p.context != c.context,
+            listener: (context, state) => pageContextChanged(state.context),
           ),
           BlocListener<MenuBloc, MenuState>(
             listenWhen: (p, c) => p.isCollapse != c.isCollapse,

@@ -6,12 +6,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
+import 'item.dart';
 
-import 'view_page.dart';
-
-class ViewListData extends ChangeNotifier {
+class ViewSectionData extends ChangeNotifier {
   List<View>? innerViews;
-  ViewListData();
+  ViewSectionData();
 
   set views(List<View> views) {
     innerViews = views;
@@ -21,10 +20,10 @@ class ViewListData extends ChangeNotifier {
   List<View> get views => innerViews ?? [];
 }
 
-class ViewListNotifier with ChangeNotifier {
+class ViewSectionNotifier with ChangeNotifier {
   List<View> innerViews;
   View? _selectedView;
-  ViewListNotifier(this.innerViews);
+  ViewSectionNotifier(this.innerViews);
 
   set views(List<View> views) => innerViews = views;
   List<View> get views => innerViews;
@@ -36,51 +35,51 @@ class ViewListNotifier with ChangeNotifier {
 
   View? get selectedView => _selectedView;
 
-  void update(ViewListData notifier) {
+  void update(ViewSectionData notifier) {
     innerViews = notifier.views;
     notifyListeners();
   }
 }
 
-class ViewListPage extends StatelessWidget {
+class ViewSection extends StatelessWidget {
   final List<View> views;
-  const ViewListPage(this.views, {Key? key}) : super(key: key);
+  const ViewSection(this.views, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     // The ViewListNotifier will be updated after ViewListData changed passed by parent widget
-    return ChangeNotifierProxyProvider<ViewListData, ViewListNotifier>(
-      create: (_) => ViewListNotifier(
-        Provider.of<ViewListData>(
+    return ChangeNotifierProxyProvider<ViewSectionData, ViewSectionNotifier>(
+      create: (_) => ViewSectionNotifier(
+        Provider.of<ViewSectionData>(
           context,
           listen: false,
         ).views,
       ),
       update: (_, notifier, controller) => controller!..update(notifier),
-      child: Consumer(builder: (context, ViewListNotifier notifier, child) {
-        return _renderViews(context, notifier.views);
+      child: Consumer(builder: (context, ViewSectionNotifier notifier, child) {
+        return _renderItems(context, notifier.views);
       }),
     );
   }
 
-  Widget _renderViews(BuildContext context, List<View> views) {
+  Widget _renderItems(BuildContext context, List<View> views) {
     var viewWidgets = views.map((view) {
       final viewCtx = ViewWidgetContext(view);
 
-      final viewWidget = ViewPage(
+      final item = ViewSectionItem(
         viewCtx: viewCtx,
         isSelected: _isViewSelected(context, view.id),
         onOpen: (view) {
           Log.debug("Open view: $view");
-          context.read<ViewListNotifier>().setSelectedView(view);
-          final stackView = stackViewFromView(viewCtx.view);
-          getIt<HomePageStack>().setStackView(stackView);
+          context.read<ViewSectionNotifier>().setSelectedView(view);
+          final stackView = stackCtxFromView(viewCtx.view);
+          getIt<HomeStack>().setStack(stackView);
         },
       );
 
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 4),
-        child: viewWidget,
+        child: item,
       );
     }).toList(growable: false);
 
@@ -90,7 +89,7 @@ class ViewListPage extends StatelessWidget {
   }
 
   bool _isViewSelected(BuildContext context, String viewId) {
-    final view = context.read<ViewListNotifier>().selectedView;
+    final view = context.read<ViewSectionNotifier>().selectedView;
     if (view != null) {
       return view.id == viewId;
     } else {

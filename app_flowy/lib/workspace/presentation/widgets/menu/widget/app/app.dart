@@ -11,19 +11,18 @@ import 'package:app_flowy/workspace/application/app/app_watch_bloc.dart';
 import 'package:app_flowy/workspace/presentation/widgets/menu/menu_list.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
-
-import 'view/view_list.dart';
+import 'section/section.dart';
 
 class AppPageSize {
   static double expandedIconSize = 16;
-  static double expandedIconRightSpace = 6;
+  static double expandedIconPadding = 6;
   static double scale = 1;
-  static double get expandedPadding => expandedIconSize * scale + expandedIconRightSpace;
+  static double get expandedPadding => expandedIconSize * scale + expandedIconPadding;
 }
 
 class AppPageContext {
   final App app;
-  final viewListData = ViewListData();
+  final viewListData = ViewSectionData();
 
   AppPageContext(
     this.app,
@@ -55,9 +54,9 @@ class AppPage extends MenuItem {
         builder: (context, state) {
           final child = state.map(
             initial: (_) => BlocBuilder<AppBloc, AppState>(
-              builder: (context, state) => _renderViewList(state.views),
+              builder: (context, state) => _renderViewSection(state.views),
             ),
-            loadViews: (s) => _renderViewList(s.views),
+            loadViews: (s) => _renderViewSection(s.views),
             loadFail: (s) => FlowyErrorPage(s.error.toString()),
           );
 
@@ -93,14 +92,14 @@ class AppPage extends MenuItem {
     );
   }
 
-  Widget _renderViewList(List<View>? views) {
+  Widget _renderViewSection(List<View>? views) {
     appCtx.viewListData.views = views ?? List.empty(growable: false);
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: appCtx.viewListData),
       ],
-      child: Consumer(builder: (context, ViewListData notifier, child) {
-        return ViewListPage(notifier.views).padding(vertical: 8);
+      child: Consumer(builder: (context, ViewSectionData notifier, child) {
+        return ViewSection(notifier.views).padding(vertical: 8);
       }),
     );
   }

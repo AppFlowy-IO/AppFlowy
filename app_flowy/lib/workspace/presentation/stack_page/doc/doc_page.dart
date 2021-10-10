@@ -1,25 +1,23 @@
 import 'dart:io';
-
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/doc/doc_edit_bloc.dart';
 import 'package:app_flowy/workspace/domain/i_doc.dart';
-// import 'package:flowy_editor/flowy_editor.dart';
 import 'package:editor/flutter_quill.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DocPage extends StatefulWidget {
-  late QuillController controller;
-  late DocEditBloc editBloc;
+  final QuillController controller;
+  final DocEditBloc editBloc;
   final FlowyDoc doc;
 
-  DocPage({Key? key, required this.doc}) : super(key: key) {
-    editBloc = getIt<DocEditBloc>(param1: doc.id);
-    controller = QuillController(
-      document: doc.document,
-      selection: const TextSelection.collapsed(offset: 0),
-    );
-  }
+  DocPage({Key? key, required this.doc})
+      : controller = QuillController(
+          document: doc.document,
+          selection: const TextSelection.collapsed(offset: 0),
+        ),
+        editBloc = getIt<DocEditBloc>(param1: doc.id),
+        super(key: key);
 
   @override
   State<DocPage> createState() => _DocPageState();

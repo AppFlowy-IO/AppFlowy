@@ -2,7 +2,7 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/domain/image.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
-import 'package:app_flowy/workspace/presentation/home/navigation_list.dart';
+import 'package:app_flowy/workspace/presentation/home/navigation.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
@@ -13,7 +13,7 @@ import 'package:flowy_infra_ui/style_widget/extension.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 
 class HomeTopBar extends StatelessWidget {
-  final HomeStackView view;
+  final HomeStackContext view;
   const HomeTopBar({Key? key, required this.view}) : super(key: key);
 
   @override
@@ -23,7 +23,7 @@ class HomeTopBar extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          _renderNavigationList(view),
+          _renderNavigation(view),
           const Spacer(),
           _renderShareButton(),
           _renderMoreButton(),
@@ -52,15 +52,14 @@ class HomeTopBar extends StatelessWidget {
 
   Widget _renderMoreButton() {
     return ViewMoreButton(
-      width: 24,
       onPressed: () {
         debugPrint('show more');
       },
     );
   }
 
-  Widget _renderNavigationList(HomeStackView view) {
-    return const StyledNavigationList();
+  Widget _renderNavigation(HomeStackContext view) {
+    return const FlowyNavigation();
   }
 }
 
@@ -89,12 +88,12 @@ class HomeTitle extends StatelessWidget {
 }
 
 class ViewNaviItemImpl extends NaviItem {
-  final HomeStackView view;
+  final HomeStackContext view;
 
   ViewNaviItemImpl(this.view);
 
   @override
-  NaviAction get action => () => getIt<HomePageStack>().setStackView(view);
+  NaviAction get action => () => getIt<HomeStack>().setStack(view);
 
   @override
   String get identifier => view.identifier;

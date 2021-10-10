@@ -1,48 +1,56 @@
+import 'package:app_flowy/workspace/presentation/stack_page/doc/doc_stack_page.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:app_flowy/workspace/presentation/doc/doc_stack_page.dart';
-import 'package:app_flowy/workspace/presentation/widgets/blank_page.dart';
-import 'package:app_flowy/workspace/presentation/widgets/fading_index_stack.dart';
+import 'package:app_flowy/workspace/presentation/stack_page/blank/blank_page.dart';
+import 'package:app_flowy/workspace/presentation/stack_page/fading_index_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/prelude.dart';
 
-abstract class HomeStackView extends Equatable {
-  final ViewType type;
-  final String title;
-  final String identifier;
-  const HomeStackView(
-      {required this.type, required this.title, required this.identifier});
+abstract class HomeStackContext extends Equatable {
+  String get title;
+  String get identifier;
+  ViewType get type;
+  Widget render();
 }
 
-class PageStackNotifier extends ChangeNotifier {
-  HomeStackView? innerView;
+HomeStackContext stackCtxFromView(View view) {
+  switch (view.viewType) {
+    case ViewType.Blank:
+      return DefaultHomeStackContext();
+    case ViewType.Doc:
+      return DocStackContext(view: view);
+    default:
+      return DefaultHomeStackContext();
+  }
+}
 
-  PageStackNotifier({
-    this.innerView,
-  });
+class HomeStackNotifier extends ChangeNotifier {
+  HomeStackContext inner;
 
-  set view(HomeStackView view) {
-    innerView = view;
+  HomeStackNotifier({
+    HomeStackContext? context,
+  }) : inner = context ?? DefaultHomeStackContext();
+
+  set context(HomeStackContext context) {
+    inner = context;
     notifyListeners();
   }
 
-  HomeStackView get view {
-    return innerView ?? const AnnouncementStackView();
-  }
+  HomeStackContext get context => inner;
 }
 
 // HomePageStack is initialized as singleton to controll the page stack.
-class HomePageStack {
-  final PageStackNotifier _notifier = PageStackNotifier();
-  HomePageStack();
+class HomeStack {
+  final HomeStackNotifier _notifier = HomeStackNotifier();
+  HomeStack();
 
   String title() {
-    return _notifier.view.title;
+    return _notifier.context.title;
   }
 
-  void setStackView(HomeStackView? stackView) {
-    _notifier.view = stackView ?? const AnnouncementStackView();
+  void setStack(HomeStackContext context) {
+    _notifier.context = context;
   }
 
   Widget stackTopBar() {
@@ -50,8 +58,8 @@ class HomePageStack {
       providers: [
         ChangeNotifierProvider.value(value: _notifier),
       ],
-      child: Consumer(builder: (ctx, PageStackNotifier notifier, child) {
-        return HomeTopBar(view: notifier.view);
+      child: Consumer(builder: (ctx, HomeStackNotifier notifier, child) {
+        return HomeTopBar(view: notifier.context);
       }),
     );
   }
@@ -61,10 +69,16 @@ class HomePageStack {
       providers: [
         ChangeNotifierProvider.value(value: _notifier),
       ],
-      child: Consumer(builder: (ctx, PageStackNotifier notifier, child) {
+      child: Consumer(builder: (ctx, HomeStackNotifier notifier, child) {
         return FadingIndexedStack(
-          index: pages.indexOf(notifier.view.type),
-          children: _buildStackWidget(notifier.view),
+          index: pages.indexOf(notifier.context.type),
+          children: ViewType.values.map((viewType) {
+            if (viewType == notifier.context.type) {
+              return notifier.context.render();
+            } else {
+              return const AnnouncementStackPage();
+            }
+          }).toList(),
         );
       }),
     );
@@ -72,40 +86,3 @@ class HomePageStack {
 }
 
 List<ViewType> pages = ViewType.values.toList();
-
-List<Widget> _buildStackWidget(HomeStackView stackView) {
-  return ViewType.values.map((viewType) {
-    if (viewType == stackView.type) {
-      switch (stackView.type) {
-        case ViewType.Blank:
-          return AnnouncementStackPage(
-              stackView: stackView as AnnouncementStackView);
-        case ViewType.Doc:
-          final docView = stackView as DocPageStackView;
-          return DocStackPage(
-              key: ValueKey(docView.view.id), stackView: docView);
-        default:
-          return AnnouncementStackPage(
-              stackView: stackView as AnnouncementStackView);
-      }
-    } else {
-      return const AnnouncementStackPage(stackView: AnnouncementStackView());
-    }
-  }).toList();
-}
-
-HomeStackView stackViewFromView(View view) {
-  switch (view.viewType) {
-    case ViewType.Blank:
-      return const AnnouncementStackView();
-    case ViewType.Doc:
-      return DocPageStackView(view);
-    default:
-      return const AnnouncementStackView();
-  }
-}
-
-abstract class HomeStackWidget extends StatefulWidget {
-  final HomeStackView stackView;
-  const HomeStackWidget({Key? key, required this.stackView}) : super(key: key);
-}

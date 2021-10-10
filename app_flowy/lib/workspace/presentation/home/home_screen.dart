@@ -77,7 +77,7 @@ class HomeScreen extends StatelessWidget {
     final homeBloc = context.read<HomeBloc>();
     Widget homeMenu = HomeMenu(
       pageContextChanged: (pageContext) {
-        getIt<HomePageStack>().setStackView(pageContext);
+        getIt<HomeStack>().setStack(pageContext);
       },
       isCollapseChanged: (isCollapse) {
         homeBloc.add(HomeEvent.forceCollapse(isCollapse));
@@ -139,12 +139,12 @@ class HomePage extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        getIt<HomePageStack>().stackTopBar(),
+        getIt<HomeStack>().stackTopBar(),
         Expanded(
           child: Container(
             color: Colors.white,
             child: FocusTraversalGroup(
-              child: getIt<HomePageStack>().stackWidget(),
+              child: getIt<HomeStack>().stackWidget(),
             ),
           ),
         ),
@@ -152,30 +152,3 @@ class HomePage extends StatelessWidget {
     );
   }
 }
-
-// class HomeIndexStack extends StatelessWidget {
-//   const HomeIndexStack({Key? key}) : super(key: key);
-//   @override
-//   Widget build(BuildContext context) {
-//     return BlocBuilder<HomeBloc, HomeState>(
-//       buildWhen: (p, c) {
-//         if (p.pageContext != c.pageContext) {
-//           Log.info(
-//               'PageContext switch from ${p.pageContext.pageType} to ${c.pageContext.pageType}');
-//         }
-//         return p.pageContext != c.pageContext;
-//       },
-//       builder: (context, state) {
-//         final pageContext = context.read<HomeBloc>().state.pageContext;
-//         return Expanded(
-//           child: Container(
-//             color: Colors.white,
-//             child: FocusTraversalGroup(
-//               child: getIt<FlowyHomeIndexStack>().indexStack(pageContext),
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
-// }

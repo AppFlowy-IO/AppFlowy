@@ -20,11 +20,11 @@ class ViewWidgetContext {
 
 typedef OpenViewCallback = void Function(View);
 
-class ViewPage extends StatelessWidget {
+class ViewSectionItem extends StatelessWidget {
   final ViewWidgetContext viewCtx;
   final bool isSelected;
   final OpenViewCallback onOpen;
-  ViewPage({Key? key, required this.viewCtx, required this.onOpen, required this.isSelected})
+  ViewSectionItem({Key? key, required this.viewCtx, required this.onOpen, required this.isSelected})
       : super(key: viewCtx.valueKey());
 
   @override
@@ -57,7 +57,6 @@ class ViewPage extends StatelessWidget {
     if (onHover) {
       children.add(const Spacer());
       children.add(ViewMoreButton(
-        width: 16,
         onPressed: () {
           debugPrint('show view setting');
         },
@@ -67,7 +66,7 @@ class ViewPage extends StatelessWidget {
     Widget widget = Container(
       child: Row(children: children).padding(
         left: AppPageSize.expandedPadding,
-        right: 12,
+        right: AppPageSize.expandedIconPadding,
       ),
       height: 24,
       alignment: Alignment.centerLeft,

@@ -1,7 +1,7 @@
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:expandable/expandable.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_infra/flowy_icon_data_icons.dart';
@@ -9,6 +9,7 @@ import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:styled_widget/styled_widget.dart';
 
 import 'app.dart';
 
@@ -43,7 +44,7 @@ class AppHeader extends StatelessWidget {
               ),
             ),
           ),
-          HSpace(AppPageSize.expandedIconRightSpace),
+          HSpace(AppPageSize.expandedIconPadding),
           Expanded(
               child: GestureDetector(
             onTapDown: (_) {
@@ -55,21 +56,20 @@ class AppHeader extends StatelessWidget {
             ),
           )),
 
-          // FlowyIconButton(
-          //   icon: const Icon(Icons.add),
-          //   onPressed: () {
-          //     debugPrint('add view');
-          //     FlowyOverlay.of(context)
-          //         .insert(widget: Text('test'), identifier: 'identifier');
-          //   },
-          // ),
-          PopupMenuButton(
-              iconSize: 16,
-              tooltip: 'create new view',
-              icon: svg("home/add"),
-              padding: EdgeInsets.zero,
-              onSelected: (viewType) => _createView(viewType as ViewType, context),
-              itemBuilder: (context) => menuItemBuilder())
+          ViewAddButton(
+            onPressed: () {
+              debugPrint('add view');
+              // FlowyOverlay.of(context)
+              //     .insert(widget: Text('test'), identifier: 'identifier');
+            },
+          ).padding(right: AppPageSize.expandedIconPadding),
+          // PopupMenuButton(
+          //     iconSize: 16,
+          //     tooltip: 'create new view',
+          //     icon: svg("home/add"),
+          //     padding: EdgeInsets.zero,
+          //     onSelected: (viewType) => _createView(viewType as ViewType, context),
+          //     itemBuilder: (context) => menuItemBuilder())
         ],
       ),
     );

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 class FlowyIconButton extends StatelessWidget {
   final double width;
   final double? height;
-  final double iconRatio;
   final Widget icon;
   final VoidCallback? onPressed;
 
@@ -14,7 +13,6 @@ class FlowyIconButton extends StatelessWidget {
     this.onPressed,
     this.width = 30,
     required this.icon,
-    this.iconRatio = 0.5,
   }) : super(key: key);
 
   @override
@@ -25,7 +23,7 @@ class FlowyIconButton extends StatelessWidget {
       child: IconButton(
         icon: icon,
         padding: EdgeInsets.zero,
-        iconSize: width * iconRatio,
+        iconSize: width,
         alignment: Alignment.center,
         onPressed: onPressed,
       ),
@@ -33,25 +31,53 @@ class FlowyIconButton extends StatelessWidget {
   }
 }
 
-class ViewMoreButton extends StatelessWidget {
-  final double width;
-  final double? height;
+class FlowyDropdownButton extends StatelessWidget {
   final VoidCallback? onPressed;
-
-  const ViewMoreButton({
+  const FlowyDropdownButton({
     Key? key,
-    this.height,
     this.onPressed,
-    required this.width,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return FlowyIconButton(
-      width: width,
-      height: height,
-      icon: svg("editor/details"),
+      width: 16,
       onPressed: onPressed,
+      icon: svg("home/drop_down_show"),
+    );
+  }
+}
+
+class ViewAddButton extends StatelessWidget {
+  final VoidCallback? onPressed;
+  const ViewAddButton({
+    Key? key,
+    this.onPressed,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyIconButton(
+      width: 16,
+      onPressed: onPressed,
+      icon: svg("home/add"),
+    );
+  }
+}
+
+class ViewMoreButton extends StatelessWidget {
+  final VoidCallback? onPressed;
+  const ViewMoreButton({
+    Key? key,
+    this.onPressed,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyIconButton(
+      width: 16,
+      onPressed: onPressed,
+      icon: svg("editor/details"),
     );
   }
 }

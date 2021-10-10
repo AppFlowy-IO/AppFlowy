@@ -1,7 +1,6 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:app_flowy/workspace/presentation/widgets/menu/menu_list.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter/material.dart';
@@ -16,8 +15,7 @@ class MenuUser extends MenuItem {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<MenuUserBloc>(
-      create: (context) =>
-          getIt<MenuUserBloc>(param1: user)..add(const MenuUserEvent.initial()),
+      create: (context) => getIt<MenuUserBloc>(param1: user)..add(const MenuUserEvent.initial()),
       child: BlocBuilder<MenuUserBloc, MenuUserState>(
         builder: (context, state) => Row(
           children: [
@@ -56,10 +54,7 @@ class MenuUser extends MenuItem {
   }
 
   Widget _renderDropButton(BuildContext context) {
-    return FlowyIconButton(
-      width: 20,
-      iconRatio: 1.0,
-      icon: svg("home/drop_down_show"),
+    return FlowyDropdownButton(
       onPressed: () {
         debugPrint('show user profile');
       },

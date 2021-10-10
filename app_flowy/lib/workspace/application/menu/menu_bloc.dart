@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:app_flowy/workspace/domain/i_workspace.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
+import 'package:app_flowy/workspace/presentation/stack_page/blank/blank_page.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
@@ -37,12 +38,11 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
   }
 
   Stream<MenuState> _performActionOnOpenPage(OpenPage e) async* {
-    yield state.copyWith(stackView: e.stackView);
+    yield state.copyWith(context: e.context);
   }
 
   Stream<MenuState> _performActionOnCreateApp(CreateApp event) async* {
-    final result =
-        await workspace.createApp(name: event.name, desc: event.desc);
+    final result = await workspace.createApp(name: event.name, desc: event.desc);
     yield result.fold(
       (app) => state.copyWith(apps: some([app])),
       (error) {
@@ -69,7 +69,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
 class MenuEvent with _$MenuEvent {
   const factory MenuEvent.initial() = _Initial;
   const factory MenuEvent.collapse() = Collapse;
-  const factory MenuEvent.openPage(HomeStackView stackView) = OpenPage;
+  const factory MenuEvent.openPage(HomeStackContext context) = OpenPage;
   const factory MenuEvent.createApp(String name, {String? desc}) = CreateApp;
 }
 
@@ -79,12 +79,13 @@ class MenuState with _$MenuState {
     required bool isCollapse,
     required Option<List<App>> apps,
     required Either<Unit, WorkspaceError> successOrFailure,
-    HomeStackView? stackView,
+    required HomeStackContext context,
   }) = _MenuState;
 
   factory MenuState.initial() => MenuState(
         isCollapse: false,
         apps: none(),
         successOrFailure: left(unit),
+        context: DefaultHomeStackContext(),
       );
 }
