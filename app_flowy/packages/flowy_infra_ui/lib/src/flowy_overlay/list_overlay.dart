@@ -30,12 +30,14 @@ class ListOverlay extends StatelessWidget {
             BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 1, blurRadius: 20.0),
           ],
         ),
-        child: ListView.builder(
-          shrinkWrap: true,
-          itemBuilder: itemBuilder,
-          itemCount: itemCount,
-          controller: controller,
-        ),
+        child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemBuilder: itemBuilder,
+              itemCount: itemCount,
+              controller: controller,
+            )),
       ),
     );
   }

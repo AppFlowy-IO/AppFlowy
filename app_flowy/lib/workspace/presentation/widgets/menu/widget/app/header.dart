@@ -59,7 +59,7 @@ class MenuAppHeader extends StatelessWidget {
               fontSize: 12,
             ),
           )),
-          DisclosureButton(
+          AddButton(
             onSelected: (viewType) {
               context.read<AppBloc>().add(AppEvent.createView("New view", "", viewType));
             },
@@ -70,9 +70,9 @@ class MenuAppHeader extends StatelessWidget {
   }
 }
 
-class DisclosureButton extends StatelessWidget {
+class AddButton extends StatelessWidget {
   final Function(ViewType) onSelected;
-  const DisclosureButton({
+  const AddButton({
     Key? key,
     required this.onSelected,
   }) : super(key: key);
@@ -82,7 +82,7 @@ class DisclosureButton extends StatelessWidget {
     return FlowyIconButton(
       width: 16,
       onPressed: () {
-        DisclosureButtonActionList(
+        ActionList(
           anchorContext: context,
           onSelected: onSelected,
         ).show(context);
@@ -92,12 +92,12 @@ class DisclosureButton extends StatelessWidget {
   }
 }
 
-class DisclosureButtonActionList {
+class ActionList {
   final Function(ViewType) onSelected;
   final BuildContext anchorContext;
   final String _identifier = 'DisclosureButtonActionList';
 
-  const DisclosureButtonActionList({required this.anchorContext, required this.onSelected});
+  const ActionList({required this.anchorContext, required this.onSelected});
 
   void show(BuildContext buildContext) {
     final items = ViewType.values.where((element) => element != ViewType.Blank).map((ty) {
@@ -134,19 +134,17 @@ class CreateItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    final config = HoverDisplayConfig(hoverColor: theme.bg3);
+    final config = HoverDisplayConfig(hoverColor: theme.hover);
 
     return FlowyHover(
       config: config,
       builder: (context, onHover) {
         return GestureDetector(
-          onTap: () {
-            onSelected(viewType);
-          },
+          onTap: () => onSelected(viewType),
           child: FlowyText.medium(
             viewType.name,
             fontSize: 12,
-          ).padding(horizontal: 10, vertical: 10),
+          ).padding(horizontal: 10, vertical: 6),
         );
       },
     );

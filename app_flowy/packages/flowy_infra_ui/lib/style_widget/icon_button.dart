@@ -47,20 +47,3 @@ class FlowyDropdownButton extends StatelessWidget {
     );
   }
 }
-
-class ViewMoreButton extends StatelessWidget {
-  final VoidCallback? onPressed;
-  const ViewMoreButton({
-    Key? key,
-    this.onPressed,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return FlowyIconButton(
-      width: 16,
-      onPressed: onPressed,
-      icon: svg("editor/details"),
-    );
-  }
-}

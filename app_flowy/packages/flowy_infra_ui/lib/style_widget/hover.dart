@@ -4,14 +4,18 @@ import 'package:flowy_infra/time/duration.dart';
 
 typedef HoverBuilder = Widget Function(BuildContext context, bool onHover);
 
+typedef IsOnSelected = bool Function();
+
 class FlowyHover extends StatefulWidget {
   final HoverDisplayConfig config;
   final HoverBuilder builder;
+  final IsOnSelected? isOnSelected;
 
   const FlowyHover({
     Key? key,
     required this.builder,
     required this.config,
+    this.isOnSelected,
   }) : super(key: key);
 
   @override
@@ -34,7 +38,13 @@ class _FlowyHoverState extends State<FlowyHover> {
   void setOnHover(bool value) => setState(() => _onHover = value);
 
   Widget render() {
-    if (_onHover) {
+    var showHover = _onHover;
+
+    if (showHover == false && widget.isOnSelected != null) {
+      showHover = widget.isOnSelected!();
+    }
+
+    if (showHover) {
       return FlowyHoverBackground(
         config: widget.config,
         child: widget.builder(context, _onHover),

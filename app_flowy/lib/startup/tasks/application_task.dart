@@ -20,8 +20,6 @@ class AppWidgetTask extends LaunchTask {
   }
 }
 
-final GlobalKey<FlowyOverlayState> _key = GlobalKey<FlowyOverlayState>();
-
 class ApplicationWidget extends StatelessWidget {
   final Widget child;
   const ApplicationWidget({
@@ -38,7 +36,7 @@ class ApplicationWidget extends StatelessWidget {
     setWindowFrame(const Rect.fromLTRB(0, 0, launchWidth, launchWidth / ratio));
 
     final theme = AppTheme.fromType(ThemeType.light);
-    FlowyOverlayConfig config = FlowyOverlayConfig(barrierColor: theme.bg3.withOpacity(0.3));
+    FlowyOverlayConfig config = FlowyOverlayConfig(barrierColor: Colors.transparent);
     return Provider.value(
         value: theme,
         child: MaterialApp(

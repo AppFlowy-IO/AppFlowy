@@ -7,7 +7,6 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pbenum.dart';
 import 'package:flutter/material.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/extension.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 
@@ -25,7 +24,7 @@ class HomeTopBar extends StatelessWidget {
           _renderNavigation(view),
           const Spacer(),
           _renderShareButton(),
-          _renderMoreButton(),
+          // _renderMoreButton(),
         ],
       )
           .padding(
@@ -45,14 +44,6 @@ class HomeTopBar extends StatelessWidget {
       color: Colors.lightBlue,
       press: () {
         debugPrint('share page');
-      },
-    );
-  }
-
-  Widget _renderMoreButton() {
-    return ViewMoreButton(
-      onPressed: () {
-        debugPrint('show more');
       },
     );
   }

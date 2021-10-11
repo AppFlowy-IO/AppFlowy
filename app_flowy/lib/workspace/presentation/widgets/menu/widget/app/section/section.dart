@@ -70,7 +70,7 @@ class ViewSection extends StatelessWidget {
         viewCtx: viewCtx,
         isSelected: _isViewSelected(context, view.id),
         onOpen: (view) {
-          Log.debug("Open view: $view");
+          Log.debug("Open: $view");
           context.read<ViewSectionNotifier>().setSelectedView(view);
           final stackView = stackCtxFromView(viewCtx.view);
           getIt<HomeStackManager>().setStack(stackView);
