@@ -11,11 +11,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 
-import 'app.dart';
+import 'menu_app.dart';
 
-class AppHeader extends StatelessWidget {
+class MenuAppHeader extends StatelessWidget {
   final App app;
-  const AppHeader(
+  const MenuAppHeader(
     this.app, {
     Key? key,
   }) : super(key: key);
@@ -38,13 +38,13 @@ class AppHeader extends StatelessWidget {
                 expandIcon: FlowyIconData.drop_down_show,
                 collapseIcon: FlowyIconData.drop_down_hide,
                 iconColor: theme.shader1,
-                iconSize: AppPageSize.expandedIconSize,
+                iconSize: MenuAppSizes.expandedIconSize,
                 iconPadding: EdgeInsets.zero,
                 hasIcon: false,
               ),
             ),
           ),
-          HSpace(AppPageSize.expandedIconPadding),
+          HSpace(MenuAppSizes.expandedIconPadding),
           Expanded(
               child: GestureDetector(
             onTapDown: (_) {
@@ -62,7 +62,7 @@ class AppHeader extends StatelessWidget {
               // FlowyOverlay.of(context)
               //     .insert(widget: Text('test'), identifier: 'identifier');
             },
-          ).padding(right: AppPageSize.expandedIconPadding),
+          ).padding(right: MenuAppSizes.expandedIconPadding),
           // PopupMenuButton(
           //     iconSize: 16,
           //     tooltip: 'create new view',

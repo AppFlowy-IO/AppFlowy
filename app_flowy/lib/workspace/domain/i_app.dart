@@ -2,23 +2,18 @@ import 'package:flowy_sdk/protobuf/flowy-workspace/protobuf.dart';
 import 'package:dartz/dartz.dart';
 
 typedef AppUpdatedCallback = void Function(String name, String desc);
-typedef AppCreateViewCallback = void Function(
-    Either<List<View>, WorkspaceError> viewsOrFailed);
+typedef AppCreateViewCallback = void Function(Either<List<View>, WorkspaceError> viewsOrFailed);
 
-typedef AppDeleteViewCallback = void Function(
-    Either<List<View>, WorkspaceError> viewsOrFailed);
+typedef AppDeleteViewCallback = void Function(Either<List<View>, WorkspaceError> viewsOrFailed);
 
 abstract class IApp {
   Future<Either<List<View>, WorkspaceError>> getViews();
 
-  Future<Either<View, WorkspaceError>> createView(
-      {required String name, String? desc, required ViewType viewType});
+  Future<Either<View, WorkspaceError>> createView({required String name, String? desc, required ViewType viewType});
 }
 
-abstract class IAppWatch {
-  void startWatching(
-      {AppCreateViewCallback? addViewCallback,
-      AppUpdatedCallback? updatedCallback});
+abstract class IAppListenr {
+  void start({AppCreateViewCallback? addViewCallback, AppUpdatedCallback? updatedCallback});
 
-  Future<void> stopWatching();
+  Future<void> stop();
 }

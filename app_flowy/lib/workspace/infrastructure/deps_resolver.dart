@@ -1,10 +1,10 @@
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
-import 'package:app_flowy/workspace/application/app/app_watch_bloc.dart';
+import 'package:app_flowy/workspace/application/app/app_listen_bloc.dart';
 import 'package:app_flowy/workspace/application/doc/doc_bloc.dart';
 import 'package:app_flowy/workspace/application/doc/doc_edit_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_user_bloc.dart';
-import 'package:app_flowy/workspace/application/menu/menu_watch.dart';
+import 'package:app_flowy/workspace/application/menu/menu_listen.dart';
 import 'package:app_flowy/workspace/application/view/view_bloc.dart';
 import 'package:app_flowy/workspace/application/view/view_list_bloc.dart';
 import 'package:app_flowy/workspace/application/workspace/welcome_bloc.dart';
@@ -28,11 +28,11 @@ import 'i_view_impl.dart';
 class HomeDepsResolver {
   static Future<void> resolve(GetIt getIt) async {
     //
-    getIt.registerLazySingleton<HomeStack>(() => HomeStack());
+    getIt.registerLazySingleton<HomeStackManager>(() => HomeStackManager());
 
     //App
     getIt.registerFactoryParam<IApp, String, void>((appId, _) => IAppImpl(repo: AppRepository(appId: appId)));
-    getIt.registerFactoryParam<IAppWatch, String, void>(
+    getIt.registerFactoryParam<IAppListenr, String, void>(
         (appId, _) => IAppWatchImpl(repo: AppWatchRepository(appId: appId)));
 
     //workspace
@@ -51,20 +51,21 @@ class HomeDepsResolver {
 
     // User
     getIt.registerFactoryParam<IUser, UserProfile, void>((user, _) => IUserImpl(repo: UserRepo(user: user)));
-    getIt.registerFactoryParam<IUserWatch, UserProfile, void>((user, _) => IUserWatchImpl(user: user));
+    getIt.registerFactoryParam<IUserListener, UserProfile, void>((user, _) => IUserWatchImpl(user: user));
 
     //Menu Bloc
     getIt.registerFactoryParam<MenuBloc, UserProfile, String>(
         (user, workspaceId) => MenuBloc(getIt<IWorkspace>(param1: user, param2: workspaceId)));
-    getIt.registerFactoryParam<MenuWatchBloc, UserProfile, String>(
-        (user, workspaceId) => MenuWatchBloc(getIt<IWorkspaceWatch>(param1: user, param2: workspaceId)));
+    getIt.registerFactoryParam<MenuListenBloc, UserProfile, String>(
+        (user, workspaceId) => MenuListenBloc(getIt<IWorkspaceWatch>(param1: user, param2: workspaceId)));
 
     getIt.registerFactoryParam<MenuUserBloc, UserProfile, void>(
-        (user, _) => MenuUserBloc(getIt<IUser>(param1: user), getIt<IUserWatch>(param1: user)));
+        (user, _) => MenuUserBloc(getIt<IUser>(param1: user), getIt<IUserListener>(param1: user)));
 
     //
     getIt.registerFactoryParam<AppBloc, String, void>((appId, _) => AppBloc(getIt<IApp>(param1: appId)));
-    getIt.registerFactoryParam<AppWatchBloc, String, void>((appId, _) => AppWatchBloc(getIt<IAppWatch>(param1: appId)));
+    getIt.registerFactoryParam<AppListenBloc, String, void>(
+        (appId, _) => AppListenBloc(getIt<IAppListenr>(param1: appId)));
 
     getIt
         .registerFactoryParam<ViewBloc, String, void>((viewId, _) => ViewBloc(iViewImpl: getIt<IView>(param1: viewId)));
@@ -79,7 +80,7 @@ class HomeDepsResolver {
     getIt.registerFactoryParam<WelcomeBloc, UserProfile, void>(
       (user, _) => WelcomeBloc(
         repo: UserRepo(user: user),
-        watch: getIt<IUserWatch>(param1: user),
+        watch: getIt<IUserListener>(param1: user),
       ),
     );
 

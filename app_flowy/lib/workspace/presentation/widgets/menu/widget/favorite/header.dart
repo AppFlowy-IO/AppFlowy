@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../menu_list.dart';
+import '../../menu.dart';
 
 class FavoriteHeader extends MenuItem {
   const FavoriteHeader({Key? key}) : super(key: key);

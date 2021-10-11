@@ -1,4 +1,4 @@
-import 'package:app_flowy/workspace/presentation/widgets/menu/widget/app/app.dart';
+import 'package:app_flowy/workspace/presentation/widgets/menu/widget/app/menu_app.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
@@ -65,8 +65,8 @@ class ViewSectionItem extends StatelessWidget {
 
     Widget widget = Container(
       child: Row(children: children).padding(
-        left: AppPageSize.expandedPadding,
-        right: AppPageSize.expandedIconPadding,
+        left: MenuAppSizes.expandedPadding,
+        right: MenuAppSizes.expandedIconPadding,
       ),
       height: 24,
       alignment: Alignment.centerLeft,

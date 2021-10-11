@@ -7,14 +7,14 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
 
-part 'menu_watch.freezed.dart';
+part 'menu_listen.freezed.dart';
 
-class MenuWatchBloc extends Bloc<MenuWatchEvent, MenuWatchState> {
+class MenuListenBloc extends Bloc<MenuListenEvent, MenuListenState> {
   final IWorkspaceWatch watch;
-  MenuWatchBloc(this.watch) : super(const MenuWatchState.initial());
+  MenuListenBloc(this.watch) : super(const MenuListenState.initial());
 
   @override
-  Stream<MenuWatchState> mapEventToState(MenuWatchEvent event) async* {
+  Stream<MenuListenState> mapEventToState(MenuListenEvent event) async* {
     yield* event.map(
       started: (_) async* {
         watch.startWatching(
@@ -23,8 +23,8 @@ class MenuWatchBloc extends Bloc<MenuWatchEvent, MenuWatchState> {
       },
       appsReceived: (e) async* {
         yield e.appsOrFail.fold(
-          (apps) => MenuWatchState.loadApps(apps),
-          (error) => MenuWatchState.loadFail(error),
+          (apps) => MenuListenState.loadApps(apps),
+          (error) => MenuListenState.loadFail(error),
         );
       },
     );
@@ -38,31 +38,30 @@ class MenuWatchBloc extends Bloc<MenuWatchEvent, MenuWatchState> {
 
   void _handleAppsOrFail(Either<List<App>, WorkspaceError> appsOrFail) {
     appsOrFail.fold(
-      (apps) => add(MenuWatchEvent.appsReceived(left(apps))),
+      (apps) => add(MenuListenEvent.appsReceived(left(apps))),
       (error) {
         Log.error(error);
-        add(MenuWatchEvent.appsReceived(right(error)));
+        add(MenuListenEvent.appsReceived(right(error)));
       },
     );
   }
 }
 
 @freezed
-class MenuWatchEvent with _$MenuWatchEvent {
-  const factory MenuWatchEvent.started() = _Started;
-  const factory MenuWatchEvent.appsReceived(
-      Either<List<App>, WorkspaceError> appsOrFail) = AppsReceived;
+class MenuListenEvent with _$MenuListenEvent {
+  const factory MenuListenEvent.started() = _Started;
+  const factory MenuListenEvent.appsReceived(Either<List<App>, WorkspaceError> appsOrFail) = AppsReceived;
 }
 
 @freezed
-class MenuWatchState with _$MenuWatchState {
-  const factory MenuWatchState.initial() = _Initial;
+class MenuListenState with _$MenuListenState {
+  const factory MenuListenState.initial() = _Initial;
 
-  const factory MenuWatchState.loadApps(
+  const factory MenuListenState.loadApps(
     List<App> apps,
   ) = _LoadApps;
 
-  const factory MenuWatchState.loadFail(
+  const factory MenuListenState.loadFail(
     WorkspaceError error,
   ) = _LoadFail;
 }

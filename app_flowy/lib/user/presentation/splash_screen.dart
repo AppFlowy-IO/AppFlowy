@@ -8,6 +8,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart' as workspace;
 
+// [[diagram: splash screen]]
+// ┌────────────────┐1.get user ┌──────────┐     ┌────────────┐ 2.send UserEventCheckUser
+// │  SplashScreen  │──────────▶│SplashBloc│────▶│ISplashUser │─────┐
+// └────────────────┘           └──────────┘     └────────────┘     │
+//                                                                  │
+//                                                                  ▼
+//    ┌───────────┐            ┌─────────────┐                 ┌────────┐
+//    │HomeScreen │◀───────────│BlocListener │◀────────────────│RustSDK │
+//    └───────────┘            └─────────────┘                 └────────┘
+//           4. Show HomeScreen or SignIn      3.return AuthState
 class SplashScreen extends StatelessWidget {
   const SplashScreen({Key? key}) : super(key: key);
 
@@ -37,8 +47,7 @@ class SplashScreen extends StatelessWidget {
     WorkspaceEventReadCurWorkspace().send().then(
       (result) {
         return result.fold(
-          (workspace) => getIt<ISplashRoute>()
-              .pushHomeScreen(context, userProfile, workspace.id),
+          (workspace) => getIt<ISplashRoute>().pushHomeScreen(context, userProfile, workspace.id),
           (error) async {
             assert(error.code == workspace.ErrorCode.RecordNotFound);
             getIt<ISplashRoute>().pushWelcomeScreen(context, userProfile);
@@ -70,8 +79,7 @@ class Body extends StatelessWidget {
                 fit: BoxFit.cover,
                 width: size.width,
                 height: size.height,
-                image: const AssetImage(
-                    'assets/images/appflowy_launch_splash.jpg')),
+                image: const AssetImage('assets/images/appflowy_launch_splash.jpg')),
             const CircularProgressIndicator.adaptive(),
           ],
         ),

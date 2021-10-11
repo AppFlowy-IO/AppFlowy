@@ -86,6 +86,6 @@ class MenuState with _$MenuState {
         isCollapse: false,
         apps: none(),
         successOrFailure: left(unit),
-        context: DefaultHomeStackContext(),
+        context: BlankStackContext(),
       );
 }

@@ -7,33 +7,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
-import 'package:app_flowy/workspace/application/app/app_watch_bloc.dart';
-import 'package:app_flowy/workspace/presentation/widgets/menu/menu_list.dart';
+import 'package:app_flowy/workspace/application/app/app_listen_bloc.dart';
+import 'package:app_flowy/workspace/presentation/widgets/menu/menu.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'section/section.dart';
 
-class AppPageSize {
+class MenuAppSizes {
   static double expandedIconSize = 16;
   static double expandedIconPadding = 6;
   static double scale = 1;
   static double get expandedPadding => expandedIconSize * scale + expandedIconPadding;
 }
 
-class AppPageContext {
+class MenuAppContext {
   final App app;
   final viewListData = ViewSectionData();
 
-  AppPageContext(
-    this.app,
-  );
+  MenuAppContext(this.app);
 
   Key valueKey() => ValueKey("${app.id}${app.version}");
 }
 
-class AppPage extends MenuItem {
-  final AppPageContext appCtx;
-  AppPage(this.appCtx, {Key? key}) : super(key: appCtx.valueKey());
+class MenuApp extends MenuItem {
+  final MenuAppContext appCtx;
+  MenuApp(this.appCtx, {Key? key}) : super(key: appCtx.valueKey());
 
   @override
   Widget build(BuildContext context) {
@@ -44,13 +42,13 @@ class AppPage extends MenuItem {
           appBloc.add(const AppEvent.initial());
           return appBloc;
         }),
-        BlocProvider<AppWatchBloc>(create: (context) {
-          final watchBloc = getIt<AppWatchBloc>(param1: appCtx.app.id);
-          watchBloc.add(const AppWatchEvent.started());
+        BlocProvider<AppListenBloc>(create: (context) {
+          final watchBloc = getIt<AppListenBloc>(param1: appCtx.app.id);
+          watchBloc.add(const AppListenEvent.started());
           return watchBloc;
         }),
       ],
-      child: BlocBuilder<AppWatchBloc, AppWatchState>(
+      child: BlocBuilder<AppListenBloc, AppListenState>(
         builder: (context, state) {
           final child = state.map(
             initial: (_) => BlocBuilder<AppBloc, AppState>(
@@ -82,7 +80,7 @@ class AppPage extends MenuItem {
                 iconPadding: EdgeInsets.zero,
                 hasIcon: false,
               ),
-              header: AppHeader(appCtx.app),
+              header: MenuAppHeader(appCtx.app),
               expanded: child,
               collapsed: const SizedBox(),
             ),

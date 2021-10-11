@@ -2,7 +2,7 @@ import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 
-class DefaultHomeStackContext extends HomeStackContext {
+class BlankStackContext extends HomeStackContext {
   @override
   String get identifier => "1";
 
@@ -17,21 +17,21 @@ class DefaultHomeStackContext extends HomeStackContext {
 
   @override
   Widget render() {
-    return const AnnouncementStackPage();
+    return const BlankStackPage();
   }
 
   @override
   List<NavigationItem> get navigationItems => [this];
 }
 
-class AnnouncementStackPage extends StatefulWidget {
-  const AnnouncementStackPage({Key? key}) : super(key: key);
+class BlankStackPage extends StatefulWidget {
+  const BlankStackPage({Key? key}) : super(key: key);
 
   @override
-  State<AnnouncementStackPage> createState() => _AnnouncementPage();
+  State<BlankStackPage> createState() => _AnnouncementPage();
 }
 
-class _AnnouncementPage extends State<AnnouncementStackPage> {
+class _AnnouncementPage extends State<BlankStackPage> {
   @override
   Widget build(BuildContext context) {
     return SizedBox.expand(

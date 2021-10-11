@@ -11,9 +11,8 @@ part 'welcome_bloc.freezed.dart';
 
 class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
   final UserRepo repo;
-  final IUserWatch watch;
-  WelcomeBloc({required this.repo, required this.watch})
-      : super(WelcomeState.initial());
+  final IUserListener watch;
+  WelcomeBloc({required this.repo, required this.watch}) : super(WelcomeState.initial());
 
   @override
   Stream<WelcomeState> mapEventToState(
@@ -21,7 +20,7 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
   ) async* {
     yield* event.map(initial: (e) async* {
       watch.setWorkspacesCallback(_workspacesUpdated);
-      watch.startWatching();
+      watch.start();
       //
       yield* _fetchWorkspaces();
     }, openWorkspace: (e) async* {
@@ -30,8 +29,7 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
       yield* _createWorkspace(e.name, e.desc);
     }, workspacesReveived: (e) async* {
       yield e.workspacesOrFail.fold(
-        (workspaces) => state.copyWith(
-            workspaces: workspaces, successOrFailure: left(unit)),
+        (workspaces) => state.copyWith(workspaces: workspaces, successOrFailure: left(unit)),
         (error) => state.copyWith(successOrFailure: right(error)),
       );
     });
@@ -39,15 +37,14 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
 
   @override
   Future<void> close() async {
-    await watch.stopWatching();
+    await watch.stop();
     super.close();
   }
 
   Stream<WelcomeState> _fetchWorkspaces() async* {
     final workspacesOrFailed = await repo.getWorkspaces();
     yield workspacesOrFailed.fold(
-      (workspaces) =>
-          state.copyWith(workspaces: workspaces, successOrFailure: left(unit)),
+      (workspaces) => state.copyWith(workspaces: workspaces, successOrFailure: left(unit)),
       (error) {
         Log.error(error);
         return state.copyWith(successOrFailure: right(error));
@@ -80,8 +77,7 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
     );
   }
 
-  void _workspacesUpdated(
-      Either<List<Workspace>, WorkspaceError> workspacesOrFail) {
+  void _workspacesUpdated(Either<List<Workspace>, WorkspaceError> workspacesOrFail) {
     add(WelcomeEvent.workspacesReveived(workspacesOrFail));
   }
 }
@@ -90,12 +86,10 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
 class WelcomeEvent with _$WelcomeEvent {
   const factory WelcomeEvent.initial() = Initial;
   // const factory WelcomeEvent.fetchWorkspaces() = FetchWorkspace;
-  const factory WelcomeEvent.createWorkspace(String name, String desc) =
-      CreateWorkspace;
+  const factory WelcomeEvent.createWorkspace(String name, String desc) = CreateWorkspace;
   const factory WelcomeEvent.openWorkspace(Workspace workspace) = OpenWorkspace;
 
-  const factory WelcomeEvent.workspacesReveived(
-          Either<List<Workspace>, WorkspaceError> workspacesOrFail) =
+  const factory WelcomeEvent.workspacesReveived(Either<List<Workspace>, WorkspaceError> workspacesOrFail) =
       WorkspacesReceived;
 }
 

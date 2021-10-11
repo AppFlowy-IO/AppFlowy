@@ -11,18 +11,17 @@ part 'menu_user_bloc.freezed.dart';
 
 class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
   final IUser iUserImpl;
-  final IUserWatch watch;
+  final IUserListener listener;
 
-  MenuUserBloc(this.iUserImpl, this.watch)
-      : super(MenuUserState.initial(iUserImpl.user));
+  MenuUserBloc(this.iUserImpl, this.listener) : super(MenuUserState.initial(iUserImpl.user));
 
   @override
   Stream<MenuUserState> mapEventToState(MenuUserEvent event) async* {
     yield* event.map(
       initial: (_) async* {
-        watch.setProfileCallback(_profileUpdated);
-        watch.setWorkspacesCallback(_workspacesUpdated);
-        watch.startWatching();
+        listener.setProfileCallback(_profileUpdated);
+        listener.setWorkspacesCallback(_workspacesUpdated);
+        listener.start();
 
         await _initUser();
       },
@@ -32,7 +31,7 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
 
   @override
   Future<void> close() async {
-    await watch.stopWatching();
+    await listener.stop();
     super.close();
   }
 
@@ -42,8 +41,7 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
   }
 
   void _profileUpdated(Either<UserProfile, UserError> userOrFailed) {}
-  void _workspacesUpdated(
-      Either<List<Workspace>, WorkspaceError> workspacesOrFailed) {
+  void _workspacesUpdated(Either<List<Workspace>, WorkspaceError> workspacesOrFailed) {
     // fetch workspaces
     // iUserImpl.fetchWorkspaces().then((result) {
     //   result.fold(

@@ -17,18 +17,16 @@ abstract class IUser {
   Future<Either<Unit, UserError>> initUser();
 }
 
-typedef UserProfileUpdateCallback = void Function(
-    Either<UserProfile, UserError>);
+typedef UserProfileUpdateCallback = void Function(Either<UserProfile, UserError>);
 
 typedef AuthChangedCallback = void Function(Either<Unit, UserError>);
-typedef WorkspacesUpdatedCallback = void Function(
-    Either<List<Workspace>, WorkspaceError> workspacesOrFailed);
+typedef WorkspacesUpdatedCallback = void Function(Either<List<Workspace>, WorkspaceError> workspacesOrFailed);
 
-abstract class IUserWatch {
-  void startWatching();
+abstract class IUserListener {
+  void start();
   void setProfileCallback(UserProfileUpdateCallback profileCallback);
   void setAuthCallback(AuthChangedCallback authCallback);
   void setWorkspacesCallback(WorkspacesUpdatedCallback workspacesCallback);
 
-  Future<void> stopWatching();
+  Future<void> stop();
 }

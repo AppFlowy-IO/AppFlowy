@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/blank/blank_page.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/doc/doc_stack_page.dart';
-import 'package:app_flowy/workspace/presentation/stack_page/fading_index_stack.dart';
+import 'package:app_flowy/workspace/presentation/stack_page/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/prelude.dart';
 
 typedef NavigationCallback = void Function(String id);
@@ -16,7 +16,7 @@ abstract class NavigationItem {
   String get identifier;
 
   NavigationCallback get action => (id) {
-        getIt<HomeStack>().setStackWithId(id);
+        getIt<HomeStackManager>().setStackWithId(id);
       };
 }
 
@@ -37,17 +37,17 @@ abstract class HomeStackContext extends Equatable with NavigationItem {
 HomeStackContext stackCtxFromView(View view) {
   switch (view.viewType) {
     case ViewType.Blank:
-      return DefaultHomeStackContext();
+      return BlankStackContext();
     case ViewType.Doc:
       return DocStackContext(view: view);
     default:
-      return DefaultHomeStackContext();
+      return BlankStackContext();
   }
 }
 
 class HomeStackNotifier extends ChangeNotifier {
   HomeStackContext inner;
-  HomeStackNotifier({HomeStackContext? context}) : inner = context ?? DefaultHomeStackContext();
+  HomeStackNotifier({HomeStackContext? context}) : inner = context ?? BlankStackContext();
 
   set context(HomeStackContext context) {
     inner = context;
@@ -58,9 +58,9 @@ class HomeStackNotifier extends ChangeNotifier {
 }
 
 // HomeStack is initialized as singleton to controll the page stack.
-class HomeStack {
+class HomeStackManager {
   final HomeStackNotifier _notifier = HomeStackNotifier();
-  HomeStack();
+  HomeStackManager();
 
   String title() {
     return _notifier.context.title;
@@ -95,7 +95,7 @@ class HomeStack {
             if (viewType == notifier.context.type) {
               return notifier.context.render();
             } else {
-              return const AnnouncementStackPage();
+              return const BlankStackPage();
             }
           }).toList(),
         );

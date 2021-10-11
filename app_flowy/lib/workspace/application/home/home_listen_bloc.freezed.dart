@@ -1,7 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
-part of 'home_auth_bloc.dart';
+part of 'home_listen_bloc.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -13,8 +13,8 @@ final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more informations: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
 /// @nodoc
-class _$HomeAuthEventTearOff {
-  const _$HomeAuthEventTearOff();
+class _$HomeListenEventTearOff {
+  const _$HomeListenEventTearOff();
 
   _Started started() {
     return const _Started();
@@ -32,10 +32,10 @@ class _$HomeAuthEventTearOff {
 }
 
 /// @nodoc
-const $HomeAuthEvent = _$HomeAuthEventTearOff();
+const $HomeListenEvent = _$HomeListenEventTearOff();
 
 /// @nodoc
-mixin _$HomeAuthEvent {
+mixin _$HomeListenEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() started,
@@ -69,20 +69,20 @@ mixin _$HomeAuthEvent {
 }
 
 /// @nodoc
-abstract class $HomeAuthEventCopyWith<$Res> {
-  factory $HomeAuthEventCopyWith(
-          HomeAuthEvent value, $Res Function(HomeAuthEvent) then) =
-      _$HomeAuthEventCopyWithImpl<$Res>;
+abstract class $HomeListenEventCopyWith<$Res> {
+  factory $HomeListenEventCopyWith(
+          HomeListenEvent value, $Res Function(HomeListenEvent) then) =
+      _$HomeListenEventCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class _$HomeAuthEventCopyWithImpl<$Res>
-    implements $HomeAuthEventCopyWith<$Res> {
-  _$HomeAuthEventCopyWithImpl(this._value, this._then);
+class _$HomeListenEventCopyWithImpl<$Res>
+    implements $HomeListenEventCopyWith<$Res> {
+  _$HomeListenEventCopyWithImpl(this._value, this._then);
 
-  final HomeAuthEvent _value;
+  final HomeListenEvent _value;
   // ignore: unused_field
-  final $Res Function(HomeAuthEvent) _then;
+  final $Res Function(HomeListenEvent) _then;
 }
 
 /// @nodoc
@@ -92,7 +92,7 @@ abstract class _$StartedCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$StartedCopyWithImpl<$Res> extends _$HomeAuthEventCopyWithImpl<$Res>
+class __$StartedCopyWithImpl<$Res> extends _$HomeListenEventCopyWithImpl<$Res>
     implements _$StartedCopyWith<$Res> {
   __$StartedCopyWithImpl(_Started _value, $Res Function(_Started) _then)
       : super(_value, (v) => _then(v as _Started));
@@ -108,7 +108,7 @@ class _$_Started implements _Started {
 
   @override
   String toString() {
-    return 'HomeAuthEvent.started()';
+    return 'HomeListenEvent.started()';
   }
 
   @override
@@ -168,7 +168,7 @@ class _$_Started implements _Started {
   }
 }
 
-abstract class _Started implements HomeAuthEvent {
+abstract class _Started implements HomeListenEvent {
   const factory _Started() = _$_Started;
 }
 
@@ -179,7 +179,7 @@ abstract class _$StopCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$StopCopyWithImpl<$Res> extends _$HomeAuthEventCopyWithImpl<$Res>
+class __$StopCopyWithImpl<$Res> extends _$HomeListenEventCopyWithImpl<$Res>
     implements _$StopCopyWith<$Res> {
   __$StopCopyWithImpl(_Stop _value, $Res Function(_Stop) _then)
       : super(_value, (v) => _then(v as _Stop));
@@ -195,7 +195,7 @@ class _$_Stop implements _Stop {
 
   @override
   String toString() {
-    return 'HomeAuthEvent.stop()';
+    return 'HomeListenEvent.stop()';
   }
 
   @override
@@ -255,7 +255,7 @@ class _$_Stop implements _Stop {
   }
 }
 
-abstract class _Stop implements HomeAuthEvent {
+abstract class _Stop implements HomeListenEvent {
   const factory _Stop() = _$_Stop;
 }
 
@@ -269,7 +269,7 @@ abstract class _$UnauthorizedCopyWith<$Res> {
 
 /// @nodoc
 class __$UnauthorizedCopyWithImpl<$Res>
-    extends _$HomeAuthEventCopyWithImpl<$Res>
+    extends _$HomeListenEventCopyWithImpl<$Res>
     implements _$UnauthorizedCopyWith<$Res> {
   __$UnauthorizedCopyWithImpl(
       _Unauthorized _value, $Res Function(_Unauthorized) _then)
@@ -301,7 +301,7 @@ class _$_Unauthorized implements _Unauthorized {
 
   @override
   String toString() {
-    return 'HomeAuthEvent.unauthorized(msg: $msg)';
+    return 'HomeListenEvent.unauthorized(msg: $msg)';
   }
 
   @override
@@ -370,7 +370,7 @@ class _$_Unauthorized implements _Unauthorized {
   }
 }
 
-abstract class _Unauthorized implements HomeAuthEvent {
+abstract class _Unauthorized implements HomeListenEvent {
   const factory _Unauthorized(String msg) = _$_Unauthorized;
 
   String get msg => throw _privateConstructorUsedError;
@@ -380,8 +380,8 @@ abstract class _Unauthorized implements HomeAuthEvent {
 }
 
 /// @nodoc
-class _$HomeAuthStateTearOff {
-  const _$HomeAuthStateTearOff();
+class _$HomeListenStateTearOff {
+  const _$HomeListenStateTearOff();
 
   Loading loading() {
     return const Loading();
@@ -395,10 +395,10 @@ class _$HomeAuthStateTearOff {
 }
 
 /// @nodoc
-const $HomeAuthState = _$HomeAuthStateTearOff();
+const $HomeListenState = _$HomeListenStateTearOff();
 
 /// @nodoc
-mixin _$HomeAuthState {
+mixin _$HomeListenState {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
@@ -428,20 +428,20 @@ mixin _$HomeAuthState {
 }
 
 /// @nodoc
-abstract class $HomeAuthStateCopyWith<$Res> {
-  factory $HomeAuthStateCopyWith(
-          HomeAuthState value, $Res Function(HomeAuthState) then) =
-      _$HomeAuthStateCopyWithImpl<$Res>;
+abstract class $HomeListenStateCopyWith<$Res> {
+  factory $HomeListenStateCopyWith(
+          HomeListenState value, $Res Function(HomeListenState) then) =
+      _$HomeListenStateCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class _$HomeAuthStateCopyWithImpl<$Res>
-    implements $HomeAuthStateCopyWith<$Res> {
-  _$HomeAuthStateCopyWithImpl(this._value, this._then);
+class _$HomeListenStateCopyWithImpl<$Res>
+    implements $HomeListenStateCopyWith<$Res> {
+  _$HomeListenStateCopyWithImpl(this._value, this._then);
 
-  final HomeAuthState _value;
+  final HomeListenState _value;
   // ignore: unused_field
-  final $Res Function(HomeAuthState) _then;
+  final $Res Function(HomeListenState) _then;
 }
 
 /// @nodoc
@@ -451,7 +451,7 @@ abstract class $LoadingCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$LoadingCopyWithImpl<$Res> extends _$HomeAuthStateCopyWithImpl<$Res>
+class _$LoadingCopyWithImpl<$Res> extends _$HomeListenStateCopyWithImpl<$Res>
     implements $LoadingCopyWith<$Res> {
   _$LoadingCopyWithImpl(Loading _value, $Res Function(Loading) _then)
       : super(_value, (v) => _then(v as Loading));
@@ -467,7 +467,7 @@ class _$Loading implements Loading {
 
   @override
   String toString() {
-    return 'HomeAuthState.loading()';
+    return 'HomeListenState.loading()';
   }
 
   @override
@@ -523,7 +523,7 @@ class _$Loading implements Loading {
   }
 }
 
-abstract class Loading implements HomeAuthState {
+abstract class Loading implements HomeListenState {
   const factory Loading() = _$Loading;
 }
 
@@ -536,7 +536,8 @@ abstract class $UnauthorizedCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$UnauthorizedCopyWithImpl<$Res> extends _$HomeAuthStateCopyWithImpl<$Res>
+class _$UnauthorizedCopyWithImpl<$Res>
+    extends _$HomeListenStateCopyWithImpl<$Res>
     implements $UnauthorizedCopyWith<$Res> {
   _$UnauthorizedCopyWithImpl(
       Unauthorized _value, $Res Function(Unauthorized) _then)
@@ -568,7 +569,7 @@ class _$Unauthorized implements Unauthorized {
 
   @override
   String toString() {
-    return 'HomeAuthState.unauthorized(msg: $msg)';
+    return 'HomeListenState.unauthorized(msg: $msg)';
   }
 
   @override
@@ -633,7 +634,7 @@ class _$Unauthorized implements Unauthorized {
   }
 }
 
-abstract class Unauthorized implements HomeAuthState {
+abstract class Unauthorized implements HomeListenState {
   const factory Unauthorized(String msg) = _$Unauthorized;
 
   String get msg => throw _privateConstructorUsedError;

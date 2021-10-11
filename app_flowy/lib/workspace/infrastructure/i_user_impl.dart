@@ -49,7 +49,7 @@ class IUserImpl extends IUser {
   }
 }
 
-class IUserWatchImpl extends IUserWatch {
+class IUserWatchImpl extends IUserListener {
   StreamSubscription<ObservableSubject>? _subscription;
   WorkspacesUpdatedCallback? _workspacesUpdated;
   AuthChangedCallback? _authChanged;
@@ -65,12 +65,10 @@ class IUserWatchImpl extends IUserWatch {
   }
 
   @override
-  void startWatching() {
-    _workspaceParser = WorkspaceObservableParser(
-        id: _user.token, callback: _workspaceObservableCallback);
+  void start() {
+    _workspaceParser = WorkspaceObservableParser(id: _user.token, callback: _workspaceObservableCallback);
 
-    _userParser = UserObservableParser(
-        id: _user.token, callback: _userObservableCallback);
+    _userParser = UserObservableParser(id: _user.token, callback: _userObservableCallback);
 
     _subscription = RustStreamReceiver.listen((observable) {
       _workspaceParser.parse(observable);
@@ -79,7 +77,7 @@ class IUserWatchImpl extends IUserWatch {
   }
 
   @override
-  Future<void> stopWatching() async {
+  Future<void> stop() async {
     await _subscription?.cancel();
   }
 
@@ -98,8 +96,7 @@ class IUserWatchImpl extends IUserWatch {
     _workspacesUpdated = workspacesCallback;
   }
 
-  void _workspaceObservableCallback(
-      WorkspaceObservable ty, Either<Uint8List, WorkspaceError> result) {
+  void _workspaceObservableCallback(WorkspaceObservable ty, Either<Uint8List, WorkspaceError> result) {
     switch (ty) {
       case WorkspaceObservable.UserCreateWorkspace:
       case WorkspaceObservable.UserDeleteWorkspace:
@@ -118,10 +115,7 @@ class IUserWatchImpl extends IUserWatch {
         if (_authChanged != null) {
           result.fold(
             (_) {},
-            (error) => {
-              _authChanged!(right(UserError.create()
-                ..code = user_error.ErrorCode.UserUnauthorized))
-            },
+            (error) => {_authChanged!(right(UserError.create()..code = user_error.ErrorCode.UserUnauthorized))},
           );
         }
         break;
@@ -130,8 +124,7 @@ class IUserWatchImpl extends IUserWatch {
     }
   }
 
-  void _userObservableCallback(
-      user.UserObservable ty, Either<Uint8List, UserError> result) {
+  void _userObservableCallback(user.UserObservable ty, Either<Uint8List, UserError> result) {
     switch (ty) {
       case user.UserObservable.UserUnauthorized:
         if (_profileUpdated != null) {

@@ -1,7 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
-part of 'menu_watch.dart';
+part of 'app_listen_bloc.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -13,70 +13,70 @@ final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more informations: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
 /// @nodoc
-class _$MenuWatchEventTearOff {
-  const _$MenuWatchEventTearOff();
+class _$AppListenEventTearOff {
+  const _$AppListenEventTearOff();
 
   _Started started() {
     return const _Started();
   }
 
-  AppsReceived appsReceived(Either<List<App>, WorkspaceError> appsOrFail) {
-    return AppsReceived(
-      appsOrFail,
+  ViewsReceived viewsReceived(Either<List<View>, WorkspaceError> viewsOrFail) {
+    return ViewsReceived(
+      viewsOrFail,
     );
   }
 }
 
 /// @nodoc
-const $MenuWatchEvent = _$MenuWatchEventTearOff();
+const $AppListenEvent = _$AppListenEventTearOff();
 
 /// @nodoc
-mixin _$MenuWatchEvent {
+mixin _$AppListenEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() started,
-    required TResult Function(Either<List<App>, WorkspaceError> appsOrFail)
-        appsReceived,
+    required TResult Function(Either<List<View>, WorkspaceError> viewsOrFail)
+        viewsReceived,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? started,
-    TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
-        appsReceived,
+    TResult Function(Either<List<View>, WorkspaceError> viewsOrFail)?
+        viewsReceived,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_Started value) started,
-    required TResult Function(AppsReceived value) appsReceived,
+    required TResult Function(ViewsReceived value) viewsReceived,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Started value)? started,
-    TResult Function(AppsReceived value)? appsReceived,
+    TResult Function(ViewsReceived value)? viewsReceived,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $MenuWatchEventCopyWith<$Res> {
-  factory $MenuWatchEventCopyWith(
-          MenuWatchEvent value, $Res Function(MenuWatchEvent) then) =
-      _$MenuWatchEventCopyWithImpl<$Res>;
+abstract class $AppListenEventCopyWith<$Res> {
+  factory $AppListenEventCopyWith(
+          AppListenEvent value, $Res Function(AppListenEvent) then) =
+      _$AppListenEventCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class _$MenuWatchEventCopyWithImpl<$Res>
-    implements $MenuWatchEventCopyWith<$Res> {
-  _$MenuWatchEventCopyWithImpl(this._value, this._then);
+class _$AppListenEventCopyWithImpl<$Res>
+    implements $AppListenEventCopyWith<$Res> {
+  _$AppListenEventCopyWithImpl(this._value, this._then);
 
-  final MenuWatchEvent _value;
+  final AppListenEvent _value;
   // ignore: unused_field
-  final $Res Function(MenuWatchEvent) _then;
+  final $Res Function(AppListenEvent) _then;
 }
 
 /// @nodoc
@@ -86,7 +86,7 @@ abstract class _$StartedCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$StartedCopyWithImpl<$Res> extends _$MenuWatchEventCopyWithImpl<$Res>
+class __$StartedCopyWithImpl<$Res> extends _$AppListenEventCopyWithImpl<$Res>
     implements _$StartedCopyWith<$Res> {
   __$StartedCopyWithImpl(_Started _value, $Res Function(_Started) _then)
       : super(_value, (v) => _then(v as _Started));
@@ -102,7 +102,7 @@ class _$_Started implements _Started {
 
   @override
   String toString() {
-    return 'MenuWatchEvent.started()';
+    return 'AppListenEvent.started()';
   }
 
   @override
@@ -117,8 +117,8 @@ class _$_Started implements _Started {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() started,
-    required TResult Function(Either<List<App>, WorkspaceError> appsOrFail)
-        appsReceived,
+    required TResult Function(Either<List<View>, WorkspaceError> viewsOrFail)
+        viewsReceived,
   }) {
     return started();
   }
@@ -127,8 +127,8 @@ class _$_Started implements _Started {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? started,
-    TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
-        appsReceived,
+    TResult Function(Either<List<View>, WorkspaceError> viewsOrFail)?
+        viewsReceived,
     required TResult orElse(),
   }) {
     if (started != null) {
@@ -141,7 +141,7 @@ class _$_Started implements _Started {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_Started value) started,
-    required TResult Function(AppsReceived value) appsReceived,
+    required TResult Function(ViewsReceived value) viewsReceived,
   }) {
     return started(this);
   }
@@ -150,7 +150,7 @@ class _$_Started implements _Started {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Started value)? started,
-    TResult Function(AppsReceived value)? appsReceived,
+    TResult Function(ViewsReceived value)? viewsReceived,
     required TResult orElse(),
   }) {
     if (started != null) {
@@ -160,93 +160,93 @@ class _$_Started implements _Started {
   }
 }
 
-abstract class _Started implements MenuWatchEvent {
+abstract class _Started implements AppListenEvent {
   const factory _Started() = _$_Started;
 }
 
 /// @nodoc
-abstract class $AppsReceivedCopyWith<$Res> {
-  factory $AppsReceivedCopyWith(
-          AppsReceived value, $Res Function(AppsReceived) then) =
-      _$AppsReceivedCopyWithImpl<$Res>;
-  $Res call({Either<List<App>, WorkspaceError> appsOrFail});
+abstract class $ViewsReceivedCopyWith<$Res> {
+  factory $ViewsReceivedCopyWith(
+          ViewsReceived value, $Res Function(ViewsReceived) then) =
+      _$ViewsReceivedCopyWithImpl<$Res>;
+  $Res call({Either<List<View>, WorkspaceError> viewsOrFail});
 }
 
 /// @nodoc
-class _$AppsReceivedCopyWithImpl<$Res>
-    extends _$MenuWatchEventCopyWithImpl<$Res>
-    implements $AppsReceivedCopyWith<$Res> {
-  _$AppsReceivedCopyWithImpl(
-      AppsReceived _value, $Res Function(AppsReceived) _then)
-      : super(_value, (v) => _then(v as AppsReceived));
+class _$ViewsReceivedCopyWithImpl<$Res>
+    extends _$AppListenEventCopyWithImpl<$Res>
+    implements $ViewsReceivedCopyWith<$Res> {
+  _$ViewsReceivedCopyWithImpl(
+      ViewsReceived _value, $Res Function(ViewsReceived) _then)
+      : super(_value, (v) => _then(v as ViewsReceived));
 
   @override
-  AppsReceived get _value => super._value as AppsReceived;
+  ViewsReceived get _value => super._value as ViewsReceived;
 
   @override
   $Res call({
-    Object? appsOrFail = freezed,
+    Object? viewsOrFail = freezed,
   }) {
-    return _then(AppsReceived(
-      appsOrFail == freezed
-          ? _value.appsOrFail
-          : appsOrFail // ignore: cast_nullable_to_non_nullable
-              as Either<List<App>, WorkspaceError>,
+    return _then(ViewsReceived(
+      viewsOrFail == freezed
+          ? _value.viewsOrFail
+          : viewsOrFail // ignore: cast_nullable_to_non_nullable
+              as Either<List<View>, WorkspaceError>,
     ));
   }
 }
 
 /// @nodoc
 
-class _$AppsReceived implements AppsReceived {
-  const _$AppsReceived(this.appsOrFail);
+class _$ViewsReceived implements ViewsReceived {
+  const _$ViewsReceived(this.viewsOrFail);
 
   @override
-  final Either<List<App>, WorkspaceError> appsOrFail;
+  final Either<List<View>, WorkspaceError> viewsOrFail;
 
   @override
   String toString() {
-    return 'MenuWatchEvent.appsReceived(appsOrFail: $appsOrFail)';
+    return 'AppListenEvent.viewsReceived(viewsOrFail: $viewsOrFail)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is AppsReceived &&
-            (identical(other.appsOrFail, appsOrFail) ||
+        (other is ViewsReceived &&
+            (identical(other.viewsOrFail, viewsOrFail) ||
                 const DeepCollectionEquality()
-                    .equals(other.appsOrFail, appsOrFail)));
+                    .equals(other.viewsOrFail, viewsOrFail)));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(appsOrFail);
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(viewsOrFail);
 
   @JsonKey(ignore: true)
   @override
-  $AppsReceivedCopyWith<AppsReceived> get copyWith =>
-      _$AppsReceivedCopyWithImpl<AppsReceived>(this, _$identity);
+  $ViewsReceivedCopyWith<ViewsReceived> get copyWith =>
+      _$ViewsReceivedCopyWithImpl<ViewsReceived>(this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() started,
-    required TResult Function(Either<List<App>, WorkspaceError> appsOrFail)
-        appsReceived,
+    required TResult Function(Either<List<View>, WorkspaceError> viewsOrFail)
+        viewsReceived,
   }) {
-    return appsReceived(appsOrFail);
+    return viewsReceived(viewsOrFail);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? started,
-    TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
-        appsReceived,
+    TResult Function(Either<List<View>, WorkspaceError> viewsOrFail)?
+        viewsReceived,
     required TResult orElse(),
   }) {
-    if (appsReceived != null) {
-      return appsReceived(appsOrFail);
+    if (viewsReceived != null) {
+      return viewsReceived(viewsOrFail);
     }
     return orElse();
   }
@@ -255,47 +255,47 @@ class _$AppsReceived implements AppsReceived {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_Started value) started,
-    required TResult Function(AppsReceived value) appsReceived,
+    required TResult Function(ViewsReceived value) viewsReceived,
   }) {
-    return appsReceived(this);
+    return viewsReceived(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Started value)? started,
-    TResult Function(AppsReceived value)? appsReceived,
+    TResult Function(ViewsReceived value)? viewsReceived,
     required TResult orElse(),
   }) {
-    if (appsReceived != null) {
-      return appsReceived(this);
+    if (viewsReceived != null) {
+      return viewsReceived(this);
     }
     return orElse();
   }
 }
 
-abstract class AppsReceived implements MenuWatchEvent {
-  const factory AppsReceived(Either<List<App>, WorkspaceError> appsOrFail) =
-      _$AppsReceived;
+abstract class ViewsReceived implements AppListenEvent {
+  const factory ViewsReceived(Either<List<View>, WorkspaceError> viewsOrFail) =
+      _$ViewsReceived;
 
-  Either<List<App>, WorkspaceError> get appsOrFail =>
+  Either<List<View>, WorkspaceError> get viewsOrFail =>
       throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $AppsReceivedCopyWith<AppsReceived> get copyWith =>
+  $ViewsReceivedCopyWith<ViewsReceived> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-class _$MenuWatchStateTearOff {
-  const _$MenuWatchStateTearOff();
+class _$AppListenStateTearOff {
+  const _$AppListenStateTearOff();
 
   _Initial initial() {
     return const _Initial();
   }
 
-  _LoadApps loadApps(List<App> apps) {
-    return _LoadApps(
-      apps,
+  _LoadViews loadViews(List<View> views) {
+    return _LoadViews(
+      views,
     );
   }
 
@@ -307,21 +307,21 @@ class _$MenuWatchStateTearOff {
 }
 
 /// @nodoc
-const $MenuWatchState = _$MenuWatchStateTearOff();
+const $AppListenState = _$AppListenStateTearOff();
 
 /// @nodoc
-mixin _$MenuWatchState {
+mixin _$AppListenState {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
-    required TResult Function(List<App> apps) loadApps,
+    required TResult Function(List<View> views) loadViews,
     required TResult Function(WorkspaceError error) loadFail,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
-    TResult Function(List<App> apps)? loadApps,
+    TResult Function(List<View> views)? loadViews,
     TResult Function(WorkspaceError error)? loadFail,
     required TResult orElse(),
   }) =>
@@ -329,14 +329,14 @@ mixin _$MenuWatchState {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_Initial value) initial,
-    required TResult Function(_LoadApps value) loadApps,
+    required TResult Function(_LoadViews value) loadViews,
     required TResult Function(_LoadFail value) loadFail,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
-    TResult Function(_LoadApps value)? loadApps,
+    TResult Function(_LoadViews value)? loadViews,
     TResult Function(_LoadFail value)? loadFail,
     required TResult orElse(),
   }) =>
@@ -344,20 +344,20 @@ mixin _$MenuWatchState {
 }
 
 /// @nodoc
-abstract class $MenuWatchStateCopyWith<$Res> {
-  factory $MenuWatchStateCopyWith(
-          MenuWatchState value, $Res Function(MenuWatchState) then) =
-      _$MenuWatchStateCopyWithImpl<$Res>;
+abstract class $AppListenStateCopyWith<$Res> {
+  factory $AppListenStateCopyWith(
+          AppListenState value, $Res Function(AppListenState) then) =
+      _$AppListenStateCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class _$MenuWatchStateCopyWithImpl<$Res>
-    implements $MenuWatchStateCopyWith<$Res> {
-  _$MenuWatchStateCopyWithImpl(this._value, this._then);
+class _$AppListenStateCopyWithImpl<$Res>
+    implements $AppListenStateCopyWith<$Res> {
+  _$AppListenStateCopyWithImpl(this._value, this._then);
 
-  final MenuWatchState _value;
+  final AppListenState _value;
   // ignore: unused_field
-  final $Res Function(MenuWatchState) _then;
+  final $Res Function(AppListenState) _then;
 }
 
 /// @nodoc
@@ -367,7 +367,7 @@ abstract class _$InitialCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$InitialCopyWithImpl<$Res> extends _$MenuWatchStateCopyWithImpl<$Res>
+class __$InitialCopyWithImpl<$Res> extends _$AppListenStateCopyWithImpl<$Res>
     implements _$InitialCopyWith<$Res> {
   __$InitialCopyWithImpl(_Initial _value, $Res Function(_Initial) _then)
       : super(_value, (v) => _then(v as _Initial));
@@ -383,7 +383,7 @@ class _$_Initial implements _Initial {
 
   @override
   String toString() {
-    return 'MenuWatchState.initial()';
+    return 'AppListenState.initial()';
   }
 
   @override
@@ -398,7 +398,7 @@ class _$_Initial implements _Initial {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
-    required TResult Function(List<App> apps) loadApps,
+    required TResult Function(List<View> views) loadViews,
     required TResult Function(WorkspaceError error) loadFail,
   }) {
     return initial();
@@ -408,7 +408,7 @@ class _$_Initial implements _Initial {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
-    TResult Function(List<App> apps)? loadApps,
+    TResult Function(List<View> views)? loadViews,
     TResult Function(WorkspaceError error)? loadFail,
     required TResult orElse(),
   }) {
@@ -422,7 +422,7 @@ class _$_Initial implements _Initial {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_Initial value) initial,
-    required TResult Function(_LoadApps value) loadApps,
+    required TResult Function(_LoadViews value) loadViews,
     required TResult Function(_LoadFail value) loadFail,
   }) {
     return initial(this);
@@ -432,7 +432,7 @@ class _$_Initial implements _Initial {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
-    TResult Function(_LoadApps value)? loadApps,
+    TResult Function(_LoadViews value)? loadViews,
     TResult Function(_LoadFail value)? loadFail,
     required TResult orElse(),
   }) {
@@ -443,89 +443,90 @@ class _$_Initial implements _Initial {
   }
 }
 
-abstract class _Initial implements MenuWatchState {
+abstract class _Initial implements AppListenState {
   const factory _Initial() = _$_Initial;
 }
 
 /// @nodoc
-abstract class _$LoadAppsCopyWith<$Res> {
-  factory _$LoadAppsCopyWith(_LoadApps value, $Res Function(_LoadApps) then) =
-      __$LoadAppsCopyWithImpl<$Res>;
-  $Res call({List<App> apps});
+abstract class _$LoadViewsCopyWith<$Res> {
+  factory _$LoadViewsCopyWith(
+          _LoadViews value, $Res Function(_LoadViews) then) =
+      __$LoadViewsCopyWithImpl<$Res>;
+  $Res call({List<View> views});
 }
 
 /// @nodoc
-class __$LoadAppsCopyWithImpl<$Res> extends _$MenuWatchStateCopyWithImpl<$Res>
-    implements _$LoadAppsCopyWith<$Res> {
-  __$LoadAppsCopyWithImpl(_LoadApps _value, $Res Function(_LoadApps) _then)
-      : super(_value, (v) => _then(v as _LoadApps));
+class __$LoadViewsCopyWithImpl<$Res> extends _$AppListenStateCopyWithImpl<$Res>
+    implements _$LoadViewsCopyWith<$Res> {
+  __$LoadViewsCopyWithImpl(_LoadViews _value, $Res Function(_LoadViews) _then)
+      : super(_value, (v) => _then(v as _LoadViews));
 
   @override
-  _LoadApps get _value => super._value as _LoadApps;
+  _LoadViews get _value => super._value as _LoadViews;
 
   @override
   $Res call({
-    Object? apps = freezed,
+    Object? views = freezed,
   }) {
-    return _then(_LoadApps(
-      apps == freezed
-          ? _value.apps
-          : apps // ignore: cast_nullable_to_non_nullable
-              as List<App>,
+    return _then(_LoadViews(
+      views == freezed
+          ? _value.views
+          : views // ignore: cast_nullable_to_non_nullable
+              as List<View>,
     ));
   }
 }
 
 /// @nodoc
 
-class _$_LoadApps implements _LoadApps {
-  const _$_LoadApps(this.apps);
+class _$_LoadViews implements _LoadViews {
+  const _$_LoadViews(this.views);
 
   @override
-  final List<App> apps;
+  final List<View> views;
 
   @override
   String toString() {
-    return 'MenuWatchState.loadApps(apps: $apps)';
+    return 'AppListenState.loadViews(views: $views)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _LoadApps &&
-            (identical(other.apps, apps) ||
-                const DeepCollectionEquality().equals(other.apps, apps)));
+        (other is _LoadViews &&
+            (identical(other.views, views) ||
+                const DeepCollectionEquality().equals(other.views, views)));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(apps);
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(views);
 
   @JsonKey(ignore: true)
   @override
-  _$LoadAppsCopyWith<_LoadApps> get copyWith =>
-      __$LoadAppsCopyWithImpl<_LoadApps>(this, _$identity);
+  _$LoadViewsCopyWith<_LoadViews> get copyWith =>
+      __$LoadViewsCopyWithImpl<_LoadViews>(this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
-    required TResult Function(List<App> apps) loadApps,
+    required TResult Function(List<View> views) loadViews,
     required TResult Function(WorkspaceError error) loadFail,
   }) {
-    return loadApps(apps);
+    return loadViews(views);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
-    TResult Function(List<App> apps)? loadApps,
+    TResult Function(List<View> views)? loadViews,
     TResult Function(WorkspaceError error)? loadFail,
     required TResult orElse(),
   }) {
-    if (loadApps != null) {
-      return loadApps(apps);
+    if (loadViews != null) {
+      return loadViews(views);
     }
     return orElse();
   }
@@ -534,33 +535,33 @@ class _$_LoadApps implements _LoadApps {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_Initial value) initial,
-    required TResult Function(_LoadApps value) loadApps,
+    required TResult Function(_LoadViews value) loadViews,
     required TResult Function(_LoadFail value) loadFail,
   }) {
-    return loadApps(this);
+    return loadViews(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
-    TResult Function(_LoadApps value)? loadApps,
+    TResult Function(_LoadViews value)? loadViews,
     TResult Function(_LoadFail value)? loadFail,
     required TResult orElse(),
   }) {
-    if (loadApps != null) {
-      return loadApps(this);
+    if (loadViews != null) {
+      return loadViews(this);
     }
     return orElse();
   }
 }
 
-abstract class _LoadApps implements MenuWatchState {
-  const factory _LoadApps(List<App> apps) = _$_LoadApps;
+abstract class _LoadViews implements AppListenState {
+  const factory _LoadViews(List<View> views) = _$_LoadViews;
 
-  List<App> get apps => throw _privateConstructorUsedError;
+  List<View> get views => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  _$LoadAppsCopyWith<_LoadApps> get copyWith =>
+  _$LoadViewsCopyWith<_LoadViews> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -572,7 +573,7 @@ abstract class _$LoadFailCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$LoadFailCopyWithImpl<$Res> extends _$MenuWatchStateCopyWithImpl<$Res>
+class __$LoadFailCopyWithImpl<$Res> extends _$AppListenStateCopyWithImpl<$Res>
     implements _$LoadFailCopyWith<$Res> {
   __$LoadFailCopyWithImpl(_LoadFail _value, $Res Function(_LoadFail) _then)
       : super(_value, (v) => _then(v as _LoadFail));
@@ -603,7 +604,7 @@ class _$_LoadFail implements _LoadFail {
 
   @override
   String toString() {
-    return 'MenuWatchState.loadFail(error: $error)';
+    return 'AppListenState.loadFail(error: $error)';
   }
 
   @override
@@ -627,7 +628,7 @@ class _$_LoadFail implements _LoadFail {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
-    required TResult Function(List<App> apps) loadApps,
+    required TResult Function(List<View> views) loadViews,
     required TResult Function(WorkspaceError error) loadFail,
   }) {
     return loadFail(error);
@@ -637,7 +638,7 @@ class _$_LoadFail implements _LoadFail {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
-    TResult Function(List<App> apps)? loadApps,
+    TResult Function(List<View> views)? loadViews,
     TResult Function(WorkspaceError error)? loadFail,
     required TResult orElse(),
   }) {
@@ -651,7 +652,7 @@ class _$_LoadFail implements _LoadFail {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_Initial value) initial,
-    required TResult Function(_LoadApps value) loadApps,
+    required TResult Function(_LoadViews value) loadViews,
     required TResult Function(_LoadFail value) loadFail,
   }) {
     return loadFail(this);
@@ -661,7 +662,7 @@ class _$_LoadFail implements _LoadFail {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
-    TResult Function(_LoadApps value)? loadApps,
+    TResult Function(_LoadViews value)? loadViews,
     TResult Function(_LoadFail value)? loadFail,
     required TResult orElse(),
   }) {
@@ -672,7 +673,7 @@ class _$_LoadFail implements _LoadFail {
   }
 }
 
-abstract class _LoadFail implements MenuWatchState {
+abstract class _LoadFail implements AppListenState {
   const factory _LoadFail(WorkspaceError error) = _$_LoadFail;
 
   WorkspaceError get error => throw _privateConstructorUsedError;

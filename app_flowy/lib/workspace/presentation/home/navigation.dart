@@ -18,7 +18,7 @@ class NavigationNotifier with ChangeNotifier {
   List<NavigationItem> get naviItems => homeStackNotifier.context.navigationItems;
 }
 
-// [[Navigation]]
+// [[diagram: HomeStack navigation flow]]
 //                                                                              ┌───────────────────────┐
 //                     2.notify listeners                                ┌──────│DefaultHomeStackContext│
 //  ┌────────────────┐           ┌───────────┐   ┌────────────────┐      │      └───────────────────────┘

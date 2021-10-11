@@ -4,7 +4,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:window_size/window_size.dart';
-import 'package:app_flowy/startup/launch.dart';
+import 'package:app_flowy/startup/launcher.dart';
 
 class AppWidgetTask extends LaunchTask {
   @override
@@ -30,8 +30,10 @@ class ApplicationWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const ratio = 1.73;
-    setWindowMinSize(const Size(500, 500 / ratio));
-    setWindowFrame(const Rect.fromLTRB(0, 0, 1310, 1310 / ratio));
+    const minWidth = 500.0;
+    const launchWidth = 1310.0;
+    setWindowMinSize(const Size(minWidth, minWidth / ratio));
+    setWindowFrame(const Rect.fromLTRB(0, 0, launchWidth, launchWidth / ratio));
 
     final theme = AppTheme.fromType(ThemeType.light);
     return Provider.value(

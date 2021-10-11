@@ -1,6 +1,7 @@
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
-import 'package:app_flowy/workspace/application/home/home_auth_bloc.dart';
+import 'package:app_flowy/workspace/application/home/home_listen_bloc.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
+import 'package:app_flowy/workspace/presentation/stack_page/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/prelude.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:flowy_log/flowy_log.dart';
@@ -12,6 +13,29 @@ import 'package:styled_widget/styled_widget.dart';
 
 import 'home_layout.dart';
 
+// [[diagram: Home's widget structure]]
+//                                1.start listening user auth state
+//                    ┌────────────────┐         ┌──────────────┐
+//                 ┌─▶│ HomeListenBloc │────────▶│IUserListener │
+//                 │  └────────────────┘         └──────────────┘
+// ┌────────────┐  │
+// │ HomeScreen │──┤
+// └────────────┘  │                      ┌──────────────┐
+//                 │                 ┌───▶│ BlocListener │
+//                 │                 │    └──────────────┘
+//                 │  ┌─────────┐    │                           ┌──────────┐
+//                 └─▶│HomeBloc │────┤                      ┌───▶│HomeStack │
+//                    └─────────┘    │                      │    └──────────┘
+//                                   │   ┌──────────────┐   │    ┌──────────┐
+//                                   └──▶│ BlocBuilder  │───┼───▶│ HomeMenu │
+//                                       └──────────────┘   │    └──────────┘
+//                                                          │    ┌──────────┐
+//                 2.1 show login screen if user            └───▶│EditPannel│
+//                 session is invalid                            └──────────┘
+//
+//                 2.2 build home screen
+//
+//
 class HomeScreen extends StatelessWidget {
   static GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
   final UserProfile user;
@@ -22,14 +46,14 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<HomeAuthBloc>(
-          create: (context) => getIt<HomeAuthBloc>(param1: user)..add(const HomeAuthEvent.started()),
+        BlocProvider<HomeListenBloc>(
+          create: (context) => getIt<HomeListenBloc>(param1: user)..add(const HomeListenEvent.started()),
         ),
         BlocProvider<HomeBloc>(create: (context) => getIt<HomeBloc>()),
       ],
       child: Scaffold(
         key: HomeScreen.scaffoldKey,
-        body: BlocListener<HomeAuthBloc, HomeAuthState>(
+        body: BlocListener<HomeListenBloc, HomeListenState>(
           listener: (context, state) {
             state.map(
               loading: (_) {},
@@ -58,7 +82,7 @@ class HomeScreen extends StatelessWidget {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         final layout = HomeLayout(context, constraints, forceCollapse);
-        const homePage = HomePage();
+        const homeStack = HomeStack();
         final menu = _buildHomeMenu(
           layout: layout,
           context: context,
@@ -68,7 +92,7 @@ class HomeScreen extends StatelessWidget {
           layout: layout,
           context: context,
         );
-        return _layoutWidgets(layout: layout, homePage: homePage, homeMenu: menu, editPannel: editPannel);
+        return _layoutWidgets(layout: layout, homeStack: homeStack, homeMenu: menu, editPannel: editPannel);
       },
     );
   }
@@ -77,7 +101,7 @@ class HomeScreen extends StatelessWidget {
     final homeBloc = context.read<HomeBloc>();
     Widget homeMenu = HomeMenu(
       pageContextChanged: (pageContext) {
-        getIt<HomeStack>().setStack(pageContext);
+        getIt<HomeStackManager>().setStack(pageContext);
       },
       isCollapseChanged: (isCollapse) {
         homeBloc.add(HomeEvent.forceCollapse(isCollapse));
@@ -102,7 +126,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _layoutWidgets(
-      {required HomeLayout layout, required Widget homeMenu, required Widget homePage, required Widget editPannel}) {
+      {required HomeLayout layout, required Widget homeMenu, required Widget homeStack, required Widget editPannel}) {
     return Stack(
       children: [
         homeMenu
@@ -112,7 +136,7 @@ class HomeScreen extends StatelessWidget {
             )
             .positioned(left: 0, top: 0, width: layout.menuWidth, bottom: 0, animate: true)
             .animate(layout.animDuration, Curves.easeOut),
-        homePage
+        homeStack
             .constrained(minWidth: 500)
             .positioned(left: layout.homePageLOffset, right: layout.homePageROffset, bottom: 0, top: 0, animate: true)
             .animate(layout.animDuration, Curves.easeOut),
@@ -123,31 +147,6 @@ class HomeScreen extends StatelessWidget {
               isClosed: !layout.showEditPannel,
             )
             .positioned(right: 0, top: 0, bottom: 0, width: layout.editPannelWidth),
-      ],
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  static GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
-  // final Size size;
-  const HomePage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    Log.info('HomePage build');
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        getIt<HomeStack>().stackTopBar(),
-        Expanded(
-          child: Container(
-            color: Colors.white,
-            child: FocusTraversalGroup(
-              child: getIt<HomeStack>().stackWidget(),
-            ),
-          ),
-        ),
       ],
     );
   }
