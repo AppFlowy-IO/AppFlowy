@@ -19,9 +19,9 @@ class AppListenBloc extends Bloc<AppListenEvent, AppListenState> {
       listener.start(
         addViewCallback: (viewsOrFail) => _handleViewsOrFail(viewsOrFail),
       );
-    }, viewsReceived: (ViewsReceived value) async* {
+    }, didReceiveViews: (ViewsReceived value) async* {
       yield value.viewsOrFail.fold(
-        (views) => AppListenState.loadViews(views),
+        (views) => AppListenState.didReceiveViews(views),
         (error) => AppListenState.loadFail(error),
       );
     });
@@ -29,8 +29,8 @@ class AppListenBloc extends Bloc<AppListenEvent, AppListenState> {
 
   void _handleViewsOrFail(Either<List<View>, WorkspaceError> viewsOrFail) {
     viewsOrFail.fold(
-      (views) => add(AppListenEvent.viewsReceived(left(views))),
-      (error) => add(AppListenEvent.viewsReceived(right(error))),
+      (views) => add(AppListenEvent.didReceiveViews(left(views))),
+      (error) => add(AppListenEvent.didReceiveViews(right(error))),
     );
   }
 }
@@ -38,14 +38,14 @@ class AppListenBloc extends Bloc<AppListenEvent, AppListenState> {
 @freezed
 class AppListenEvent with _$AppListenEvent {
   const factory AppListenEvent.started() = _Started;
-  const factory AppListenEvent.viewsReceived(Either<List<View>, WorkspaceError> viewsOrFail) = ViewsReceived;
+  const factory AppListenEvent.didReceiveViews(Either<List<View>, WorkspaceError> viewsOrFail) = ViewsReceived;
 }
 
 @freezed
 class AppListenState with _$AppListenState {
   const factory AppListenState.initial() = _Initial;
 
-  const factory AppListenState.loadViews(
+  const factory AppListenState.didReceiveViews(
     List<View> views,
   ) = _LoadViews;
 

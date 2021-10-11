@@ -40,6 +40,8 @@ class ViewSectionItem extends StatefulWidget {
   State<ViewSectionItem> createState() => _ViewSectionItemState();
 }
 
+// [[Widget: LifeCycle]]
+// https://flutterbyexample.com/lesson/stateful-widget-lifecycle
 class _ViewSectionItemState extends State<ViewSectionItem> {
   bool isOnSelected = false;
 
@@ -75,15 +77,14 @@ class _ViewSectionItemState extends State<ViewSectionItem> {
       children.add(const Spacer());
       children.add(ViewDisclosureButton(
         onTap: () {
-          setState(() {
-            isOnSelected = true;
-          });
+          setState(
+            () => isOnSelected = true,
+          );
         },
         onSelected: (selected) {
           selected.fold(() => null, (action) {
             debugPrint('$action.name');
           });
-
           setState(() {
             isOnSelected = false;
           });

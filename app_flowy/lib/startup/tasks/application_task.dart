@@ -31,9 +31,9 @@ class ApplicationWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     const ratio = 1.73;
     const minWidth = 500.0;
-    const launchWidth = 1310.0;
     setWindowMinSize(const Size(minWidth, minWidth / ratio));
-    setWindowFrame(const Rect.fromLTRB(0, 0, launchWidth, launchWidth / ratio));
+    // const launchWidth = 1310.0;
+    // setWindowFrame(const Rect.fromLTWH(0, 0, launchWidth, launchWidth / ratio));
 
     final theme = AppTheme.fromType(ThemeType.light);
     FlowyOverlayConfig config = FlowyOverlayConfig(barrierColor: Colors.transparent);

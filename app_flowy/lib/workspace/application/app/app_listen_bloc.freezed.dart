@@ -20,7 +20,8 @@ class _$AppListenEventTearOff {
     return const _Started();
   }
 
-  ViewsReceived viewsReceived(Either<List<View>, WorkspaceError> viewsOrFail) {
+  ViewsReceived didReceiveViews(
+      Either<List<View>, WorkspaceError> viewsOrFail) {
     return ViewsReceived(
       viewsOrFail,
     );
@@ -36,27 +37,27 @@ mixin _$AppListenEvent {
   TResult when<TResult extends Object?>({
     required TResult Function() started,
     required TResult Function(Either<List<View>, WorkspaceError> viewsOrFail)
-        viewsReceived,
+        didReceiveViews,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? started,
     TResult Function(Either<List<View>, WorkspaceError> viewsOrFail)?
-        viewsReceived,
+        didReceiveViews,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_Started value) started,
-    required TResult Function(ViewsReceived value) viewsReceived,
+    required TResult Function(ViewsReceived value) didReceiveViews,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Started value)? started,
-    TResult Function(ViewsReceived value)? viewsReceived,
+    TResult Function(ViewsReceived value)? didReceiveViews,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -118,7 +119,7 @@ class _$_Started implements _Started {
   TResult when<TResult extends Object?>({
     required TResult Function() started,
     required TResult Function(Either<List<View>, WorkspaceError> viewsOrFail)
-        viewsReceived,
+        didReceiveViews,
   }) {
     return started();
   }
@@ -128,7 +129,7 @@ class _$_Started implements _Started {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? started,
     TResult Function(Either<List<View>, WorkspaceError> viewsOrFail)?
-        viewsReceived,
+        didReceiveViews,
     required TResult orElse(),
   }) {
     if (started != null) {
@@ -141,7 +142,7 @@ class _$_Started implements _Started {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_Started value) started,
-    required TResult Function(ViewsReceived value) viewsReceived,
+    required TResult Function(ViewsReceived value) didReceiveViews,
   }) {
     return started(this);
   }
@@ -150,7 +151,7 @@ class _$_Started implements _Started {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Started value)? started,
-    TResult Function(ViewsReceived value)? viewsReceived,
+    TResult Function(ViewsReceived value)? didReceiveViews,
     required TResult orElse(),
   }) {
     if (started != null) {
@@ -206,7 +207,7 @@ class _$ViewsReceived implements ViewsReceived {
 
   @override
   String toString() {
-    return 'AppListenEvent.viewsReceived(viewsOrFail: $viewsOrFail)';
+    return 'AppListenEvent.didReceiveViews(viewsOrFail: $viewsOrFail)';
   }
 
   @override
@@ -232,9 +233,9 @@ class _$ViewsReceived implements ViewsReceived {
   TResult when<TResult extends Object?>({
     required TResult Function() started,
     required TResult Function(Either<List<View>, WorkspaceError> viewsOrFail)
-        viewsReceived,
+        didReceiveViews,
   }) {
-    return viewsReceived(viewsOrFail);
+    return didReceiveViews(viewsOrFail);
   }
 
   @override
@@ -242,11 +243,11 @@ class _$ViewsReceived implements ViewsReceived {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? started,
     TResult Function(Either<List<View>, WorkspaceError> viewsOrFail)?
-        viewsReceived,
+        didReceiveViews,
     required TResult orElse(),
   }) {
-    if (viewsReceived != null) {
-      return viewsReceived(viewsOrFail);
+    if (didReceiveViews != null) {
+      return didReceiveViews(viewsOrFail);
     }
     return orElse();
   }
@@ -255,20 +256,20 @@ class _$ViewsReceived implements ViewsReceived {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_Started value) started,
-    required TResult Function(ViewsReceived value) viewsReceived,
+    required TResult Function(ViewsReceived value) didReceiveViews,
   }) {
-    return viewsReceived(this);
+    return didReceiveViews(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Started value)? started,
-    TResult Function(ViewsReceived value)? viewsReceived,
+    TResult Function(ViewsReceived value)? didReceiveViews,
     required TResult orElse(),
   }) {
-    if (viewsReceived != null) {
-      return viewsReceived(this);
+    if (didReceiveViews != null) {
+      return didReceiveViews(this);
     }
     return orElse();
   }
@@ -293,7 +294,7 @@ class _$AppListenStateTearOff {
     return const _Initial();
   }
 
-  _LoadViews loadViews(List<View> views) {
+  _LoadViews didReceiveViews(List<View> views) {
     return _LoadViews(
       views,
     );
@@ -314,14 +315,14 @@ mixin _$AppListenState {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
-    required TResult Function(List<View> views) loadViews,
+    required TResult Function(List<View> views) didReceiveViews,
     required TResult Function(WorkspaceError error) loadFail,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
-    TResult Function(List<View> views)? loadViews,
+    TResult Function(List<View> views)? didReceiveViews,
     TResult Function(WorkspaceError error)? loadFail,
     required TResult orElse(),
   }) =>
@@ -329,14 +330,14 @@ mixin _$AppListenState {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_Initial value) initial,
-    required TResult Function(_LoadViews value) loadViews,
+    required TResult Function(_LoadViews value) didReceiveViews,
     required TResult Function(_LoadFail value) loadFail,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
-    TResult Function(_LoadViews value)? loadViews,
+    TResult Function(_LoadViews value)? didReceiveViews,
     TResult Function(_LoadFail value)? loadFail,
     required TResult orElse(),
   }) =>
@@ -398,7 +399,7 @@ class _$_Initial implements _Initial {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
-    required TResult Function(List<View> views) loadViews,
+    required TResult Function(List<View> views) didReceiveViews,
     required TResult Function(WorkspaceError error) loadFail,
   }) {
     return initial();
@@ -408,7 +409,7 @@ class _$_Initial implements _Initial {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
-    TResult Function(List<View> views)? loadViews,
+    TResult Function(List<View> views)? didReceiveViews,
     TResult Function(WorkspaceError error)? loadFail,
     required TResult orElse(),
   }) {
@@ -422,7 +423,7 @@ class _$_Initial implements _Initial {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_Initial value) initial,
-    required TResult Function(_LoadViews value) loadViews,
+    required TResult Function(_LoadViews value) didReceiveViews,
     required TResult Function(_LoadFail value) loadFail,
   }) {
     return initial(this);
@@ -432,7 +433,7 @@ class _$_Initial implements _Initial {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
-    TResult Function(_LoadViews value)? loadViews,
+    TResult Function(_LoadViews value)? didReceiveViews,
     TResult Function(_LoadFail value)? loadFail,
     required TResult orElse(),
   }) {
@@ -487,7 +488,7 @@ class _$_LoadViews implements _LoadViews {
 
   @override
   String toString() {
-    return 'AppListenState.loadViews(views: $views)';
+    return 'AppListenState.didReceiveViews(views: $views)';
   }
 
   @override
@@ -511,22 +512,22 @@ class _$_LoadViews implements _LoadViews {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
-    required TResult Function(List<View> views) loadViews,
+    required TResult Function(List<View> views) didReceiveViews,
     required TResult Function(WorkspaceError error) loadFail,
   }) {
-    return loadViews(views);
+    return didReceiveViews(views);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
-    TResult Function(List<View> views)? loadViews,
+    TResult Function(List<View> views)? didReceiveViews,
     TResult Function(WorkspaceError error)? loadFail,
     required TResult orElse(),
   }) {
-    if (loadViews != null) {
-      return loadViews(views);
+    if (didReceiveViews != null) {
+      return didReceiveViews(views);
     }
     return orElse();
   }
@@ -535,22 +536,22 @@ class _$_LoadViews implements _LoadViews {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_Initial value) initial,
-    required TResult Function(_LoadViews value) loadViews,
+    required TResult Function(_LoadViews value) didReceiveViews,
     required TResult Function(_LoadFail value) loadFail,
   }) {
-    return loadViews(this);
+    return didReceiveViews(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
-    TResult Function(_LoadViews value)? loadViews,
+    TResult Function(_LoadViews value)? didReceiveViews,
     TResult Function(_LoadFail value)? loadFail,
     required TResult orElse(),
   }) {
-    if (loadViews != null) {
-      return loadViews(this);
+    if (didReceiveViews != null) {
+      return didReceiveViews(this);
     }
     return orElse();
   }
@@ -628,7 +629,7 @@ class _$_LoadFail implements _LoadFail {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
-    required TResult Function(List<View> views) loadViews,
+    required TResult Function(List<View> views) didReceiveViews,
     required TResult Function(WorkspaceError error) loadFail,
   }) {
     return loadFail(error);
@@ -638,7 +639,7 @@ class _$_LoadFail implements _LoadFail {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
-    TResult Function(List<View> views)? loadViews,
+    TResult Function(List<View> views)? didReceiveViews,
     TResult Function(WorkspaceError error)? loadFail,
     required TResult orElse(),
   }) {
@@ -652,7 +653,7 @@ class _$_LoadFail implements _LoadFail {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_Initial value) initial,
-    required TResult Function(_LoadViews value) loadViews,
+    required TResult Function(_LoadViews value) didReceiveViews,
     required TResult Function(_LoadFail value) loadFail,
   }) {
     return loadFail(this);
@@ -662,7 +663,7 @@ class _$_LoadFail implements _LoadFail {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
-    TResult Function(_LoadViews value)? loadViews,
+    TResult Function(_LoadViews value)? didReceiveViews,
     TResult Function(_LoadFail value)? loadFail,
     required TResult orElse(),
   }) {

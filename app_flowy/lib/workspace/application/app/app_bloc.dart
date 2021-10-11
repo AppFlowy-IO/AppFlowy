@@ -21,8 +21,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         yield* _fetchViews();
       },
       createView: (CreateView value) async* {
-        final viewOrFailed = await iAppImpl.createView(
-            name: value.name, desc: value.desc, viewType: value.viewType);
+        final viewOrFailed = await iAppImpl.createView(name: value.name, desc: value.desc, viewType: value.viewType);
         yield viewOrFailed.fold((view) => state, (error) {
           Log.error(error);
           return state.copyWith(successOrFailure: right(error));
@@ -46,8 +45,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 @freezed
 class AppEvent with _$AppEvent {
   const factory AppEvent.initial() = Initial;
-  const factory AppEvent.createView(
-      String name, String desc, ViewType viewType) = CreateView;
+  const factory AppEvent.createView(String name, String desc, ViewType viewType) = CreateView;
 }
 
 @freezed

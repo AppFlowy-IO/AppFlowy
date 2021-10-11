@@ -8,16 +8,16 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'item.dart';
 
-class ViewSectionData extends ChangeNotifier {
-  List<View>? innerViews;
-  ViewSectionData();
+class ViewListNotifier extends ChangeNotifier {
+  List<View>? views;
+  ViewListNotifier();
 
-  set views(List<View> views) {
-    innerViews = views;
+  set items(List<View> items) {
+    views = items;
     notifyListeners();
   }
 
-  List<View> get views => innerViews ?? [];
+  List<View> get items => views ?? [];
 }
 
 class ViewSectionNotifier with ChangeNotifier {
@@ -35,8 +35,8 @@ class ViewSectionNotifier with ChangeNotifier {
 
   View? get selectedView => _selectedView;
 
-  void update(ViewSectionData notifier) {
-    innerViews = notifier.views;
+  void update(ViewListNotifier notifier) {
+    innerViews = notifier.items;
     notifyListeners();
   }
 }
@@ -48,12 +48,12 @@ class ViewSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // The ViewListNotifier will be updated after ViewListData changed passed by parent widget
-    return ChangeNotifierProxyProvider<ViewSectionData, ViewSectionNotifier>(
+    return ChangeNotifierProxyProvider<ViewListNotifier, ViewSectionNotifier>(
       create: (_) => ViewSectionNotifier(
-        Provider.of<ViewSectionData>(
+        Provider.of<ViewListNotifier>(
           context,
           listen: false,
-        ).views,
+        ).items,
       ),
       update: (_, notifier, controller) => controller!..update(notifier),
       child: Consumer(builder: (context, ViewSectionNotifier notifier, child) {

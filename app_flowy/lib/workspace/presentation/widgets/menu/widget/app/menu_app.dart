@@ -2,7 +2,6 @@ import 'package:app_flowy/workspace/presentation/widgets/menu/widget/app/header.
 import 'package:expandable/expandable.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/startup/startup.dart';
@@ -22,12 +21,39 @@ class MenuAppSizes {
 
 class MenuAppContext {
   final App app;
-  final viewListData = ViewSectionData();
+  final viewList = ViewListNotifier();
 
   MenuAppContext(this.app);
 
   Key valueKey() => ValueKey("${app.id}${app.version}");
 }
+
+// [[diagram: MenuApp]]
+//                     ┌────────┐
+//               ┌────▶│AppBloc │────────────────┐
+//               │     └────────┘                │
+//               │                               │
+//               │ 1.1 fetch views               │
+//               │ 1.2 update the MenuAppContext │
+//               │ with the views                │
+//               │                               ▼      3.render sections
+// ┌────────┐    │                       ┌──────────────┐     ┌──────────────┐
+// │MenuApp │────┤                       │MenuAppContext│─┬──▶│ ViewSection  │────────────────┐
+// └────────┘    │                       └──────────────┘ │   └──────────────┘                │
+//               │                               ▲        │                                   │
+//               │                               │        │                                   │
+//               │                               │   hold │                                   │
+//               │                               │        │                     bind          ▼
+//               │                               │        │  ┌─────────────────┐   ┌────────────────────┐
+//               │    ┌──────────────┐           │        └─▶│ViewListNotifier │──▶│ViewSectionNotifier │
+//               └───▶│AppListenBloc │───────────┘           └─────────────────┘   └────────────────────┘
+//                    └──────────────┘
+//                                                                    4.notifier binding. So The ViewSection
+//                 2.1 listen on the app                              will be re rebuild if the the number of
+//                 2.2 notify if the number of the app's view         the views in MenuAppContext was changed.
+//                 was changed
+//                 2.3 update MenuAppContext with the new
+//                 views
 
 class MenuApp extends MenuItem {
   final MenuAppContext appCtx;
@@ -43,23 +69,35 @@ class MenuApp extends MenuItem {
           return appBloc;
         }),
         BlocProvider<AppListenBloc>(create: (context) {
-          final watchBloc = getIt<AppListenBloc>(param1: appCtx.app.id);
-          watchBloc.add(const AppListenEvent.started());
-          return watchBloc;
+          final listener = getIt<AppListenBloc>(param1: appCtx.app.id);
+          listener.add(const AppListenEvent.started());
+          return listener;
         }),
       ],
-      child: BlocBuilder<AppListenBloc, AppListenState>(
-        builder: (context, state) {
-          final child = state.map(
-            initial: (_) => BlocBuilder<AppBloc, AppState>(
-              builder: (context, state) => _renderViewSection(state.views),
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<AppListenBloc, AppListenState>(
+            listenWhen: (p, c) => p != c,
+            listener: (context, state) => state.map(
+              initial: (_) => {},
+              didReceiveViews: (state) => appCtx.viewList.items = state.views,
+              loadFail: (s) => appCtx.viewList.items = [],
             ),
-            loadViews: (s) => _renderViewSection(s.views),
-            loadFail: (s) => FlowyErrorPage(s.error.toString()),
-          );
-
-          return expandableWrapper(context, child);
-        },
+          ),
+        ],
+        child: BlocBuilder<AppListenBloc, AppListenState>(
+          builder: (context, state) {
+            final child = state.map(
+              initial: (_) => BlocBuilder<AppBloc, AppState>(builder: (context, state) {
+                appCtx.viewList.items = state.views ?? List.empty(growable: false);
+                return _renderViewSection(appCtx.viewList);
+              }),
+              didReceiveViews: (state) => _renderViewSection(appCtx.viewList),
+              loadFail: (s) => FlowyErrorPage(s.error.toString()),
+            );
+            return expandableWrapper(context, child);
+          },
+        ),
       ),
     );
   }
@@ -90,14 +128,13 @@ class MenuApp extends MenuItem {
     );
   }
 
-  Widget _renderViewSection(List<View>? views) {
-    appCtx.viewListData.views = views ?? List.empty(growable: false);
+  Widget _renderViewSection(ViewListNotifier viewListNotifier) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(value: appCtx.viewListData),
+        ChangeNotifierProvider.value(value: viewListNotifier),
       ],
-      child: Consumer(builder: (context, ViewSectionData notifier, child) {
-        return ViewSection(notifier.views).padding(vertical: 8);
+      child: Consumer(builder: (context, ViewListNotifier notifier, child) {
+        return ViewSection(notifier.items).padding(vertical: 8);
       }),
     );
   }
