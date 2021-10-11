@@ -17,6 +17,26 @@ class ListOverlay extends StatelessWidget {
   final double maxWidth;
   final double maxHeight;
 
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: BoxConstraints.tight(Size(maxWidth, maxHeight)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.all(Radius.circular(6)),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 1, blurRadius: 20.0),
+        ],
+      ),
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemBuilder: itemBuilder,
+        itemCount: itemCount,
+        controller: controller,
+      ),
+    );
+  }
+
   static void showWithAnchor(
     BuildContext context, {
     required String identifier,
@@ -75,25 +95,6 @@ class ListOverlay extends StatelessWidget {
       anchorDirection: anchorDirection,
       delegate: delegate,
       overlapBehaviour: overlapBehaviour,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      constraints: BoxConstraints.tight(Size(maxWidth, maxHeight)),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.all(Radius.circular(6)),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 1, blurRadius: 20.0),
-        ],
-      ),
-      child: ListView.builder(
-        shrinkWrap: true,
-        itemBuilder: itemBuilder,
-        itemCount: itemCount,
-      ),
     );
   }
 }

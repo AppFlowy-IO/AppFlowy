@@ -1,7 +1,7 @@
 // ignore_for_file: unused_element
 
 import 'package:dartz/dartz.dart' show Tuple3;
-import 'package:flowy_infra_ui/src/flowy_overlay/overlay_layout_delegate.dart';
+import 'package:flowy_infra_ui/src/flowy_overlay/layout.dart';
 import 'package:flutter/material.dart';
 
 /// Specifies how overlay are anchored to the SourceWidget
@@ -55,13 +55,21 @@ enum OnBackBehavior {
   dismiss,
 }
 
+class FlowyOverlayConfig {
+  final Color barrierColor;
+
+  FlowyOverlayConfig({required this.barrierColor});
+
+  const FlowyOverlayConfig.defualt() : barrierColor = Colors.transparent;
+}
+
 final GlobalKey<FlowyOverlayState> _key = GlobalKey<FlowyOverlayState>();
 
 /// Invoke this method in app generation process
-TransitionBuilder overlayManagerBuilder() {
+TransitionBuilder overlayManagerBuilder({FlowyOverlayConfig config = const FlowyOverlayConfig.defualt()}) {
   return (context, child) {
     assert(child != null, 'Child can\'t be null.');
-    return FlowyOverlay(key: _key, child: child!);
+    return FlowyOverlay(key: _key, child: child!, config: config);
   };
 }
 
@@ -70,50 +78,33 @@ abstract class FlowyOverlayDelegate {
 }
 
 class FlowyOverlay extends StatefulWidget {
-  const FlowyOverlay({
-    Key? key,
-    required this.child,
-    this.barrierColor = Colors.transparent,
-  }) : super(key: key);
+  const FlowyOverlay({Key? key, required this.child, required this.config}) : super(key: key);
 
   final Widget child;
 
-  final Color? barrierColor;
+  final FlowyOverlayConfig config;
 
-  static FlowyOverlayState of(
-    BuildContext context, {
-    bool rootOverlay = false,
-  }) {
-    FlowyOverlayState? overlayManager;
-    if (rootOverlay) {
-      overlayManager = context.findRootAncestorStateOfType<FlowyOverlayState>() ?? overlayManager;
-    } else {
-      overlayManager = overlayManager ?? context.findAncestorStateOfType<FlowyOverlayState>();
-    }
-
+  static FlowyOverlayState of(BuildContext context, {bool rootOverlay = false}) {
+    FlowyOverlayState? state = maybeOf(context, rootOverlay: rootOverlay);
     assert(() {
-      if (overlayManager == null) {
+      if (state == null) {
         throw FlutterError(
           'Can\'t find overlay manager in current context, please check if already wrapped by overlay manager.',
         );
       }
       return true;
     }());
-    return overlayManager!;
+    return state!;
   }
 
-  static FlowyOverlayState? maybeOf(
-    BuildContext context, {
-    bool rootOverlay = false,
-  }) {
-    FlowyOverlayState? overlayManager;
+  static FlowyOverlayState? maybeOf(BuildContext context, {bool rootOverlay = false}) {
+    FlowyOverlayState? state;
     if (rootOverlay) {
-      overlayManager = context.findRootAncestorStateOfType<FlowyOverlayState>() ?? overlayManager;
+      state = context.findRootAncestorStateOfType<FlowyOverlayState>();
     } else {
-      overlayManager = overlayManager ?? context.findAncestorStateOfType<FlowyOverlayState>();
+      state = context.findAncestorStateOfType<FlowyOverlayState>();
     }
-
-    return overlayManager;
+    return state;
   }
 
   @override
@@ -239,8 +230,7 @@ class FlowyOverlayState extends State<FlowyOverlay> {
       overlay = CustomSingleChildLayout(
         delegate: OverlayLayoutDelegate(
           anchorRect: anchorRect,
-          anchorDirection:
-              shouldAnchor ? anchorDirection ?? AnchorDirection.rightWithTopAligned : AnchorDirection.custom,
+          anchorDirection: anchorDirection ?? AnchorDirection.rightWithTopAligned,
           overlapBehaviour: overlapBehaviour ?? OverlapBehaviour.stretch,
         ),
         child: widget,
@@ -259,7 +249,7 @@ class FlowyOverlayState extends State<FlowyOverlay> {
       widget.child,
       if (overlays.isNotEmpty)
         Container(
-          color: widget.barrierColor,
+          color: widget.config.barrierColor,
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: _handleTapOnBackground,
