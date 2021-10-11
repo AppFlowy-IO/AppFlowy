@@ -17,8 +17,7 @@ class HomeLayout {
   late double homePageROffset;
   late Duration animDuration;
 
-  HomeLayout(BuildContext context, BoxConstraints homeScreenConstraint,
-      bool forceCollapse) {
+  HomeLayout(BuildContext context, BoxConstraints homeScreenConstraint, bool forceCollapse) {
     final homeBlocState = context.read<HomeBloc>().state;
 
     showEditPannel = homeBlocState.editContext.isSome();

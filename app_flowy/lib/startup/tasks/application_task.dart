@@ -29,7 +29,9 @@ class ApplicationWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    setWindowMinSize(const Size(500, 500));
+    const ratio = 1.73;
+    setWindowMinSize(const Size(500, 500 / ratio));
+    setWindowFrame(const Rect.fromLTRB(0, 0, 1310, 1310 / ratio));
 
     final theme = AppTheme.fromType(ThemeType.light);
     return Provider.value(

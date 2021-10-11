@@ -52,9 +52,7 @@ class Sizes {
 
   static double get iconMed => 20;
 
-  static double get sideBarSm => 200 * hitScale;
-
-  static double get sideBarMed => 240 * hitScale;
+  static double get sideBarMed => 225 * hitScale;
 
   static double get sideBarLg => 290 * hitScale;
 }

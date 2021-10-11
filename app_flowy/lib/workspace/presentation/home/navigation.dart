@@ -86,6 +86,26 @@ class FlowyNavigation extends StatelessWidget {
   }
 }
 
+class IconNaviItemWidget extends StatelessWidget {
+  final NavigationItem item;
+  const IconNaviItemWidget(this.item, {Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 24,
+      child: FlowyTextButton(
+        item.title,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        fontSize: 12,
+        onPressed: () {
+          debugPrint('show app document');
+        },
+      ),
+    );
+  }
+}
+
 class NaviItemWidget extends StatelessWidget {
   final NavigationItem item;
   const NaviItemWidget(this.item, {Key? key}) : super(key: key);
