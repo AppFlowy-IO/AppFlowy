@@ -3,6 +3,7 @@ import 'package:flowy_infra/flowy_icon_data_icons.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -132,14 +133,22 @@ class CreateItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        onSelected(viewType);
+    final theme = context.watch<AppTheme>();
+    final config = HoverDisplayConfig(hoverColor: theme.bg3);
+
+    return FlowyHover(
+      config: config,
+      builder: (context, onHover) {
+        return GestureDetector(
+          onTap: () {
+            onSelected(viewType);
+          },
+          child: FlowyText.medium(
+            viewType.name,
+            fontSize: 12,
+          ).padding(horizontal: 10, vertical: 10),
+        );
       },
-      child: FlowyText.medium(
-        viewType.name,
-        fontSize: 12,
-      ).padding(horizontal: 10, vertical: 10),
     );
   }
 }
