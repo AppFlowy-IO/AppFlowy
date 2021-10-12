@@ -11,6 +11,8 @@ import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 class MenuUser extends MenuItem {
   final UserProfile user;
   MenuUser(this.user, {Key? key}) : super(key: ValueKey(user.id));
+  @override
+  MenuItemType get type => MenuItemType.userProfile;
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +62,4 @@ class MenuUser extends MenuItem {
       },
     );
   }
-
-  @override
-  MenuItemType get type => MenuItemType.userProfile;
 }

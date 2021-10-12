@@ -1,6 +1,7 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/view/view_bloc.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
+import 'package:app_flowy/workspace/domain/view_ext.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -44,7 +45,7 @@ class ViewSectionItem extends StatelessWidget {
           return InkWell(
             onTap: () {
               onSelected(context.read<ViewBloc>().state.view);
-              getIt<HomeStackManager>().setStack(state.view.intoStackContext());
+              getIt<HomeStackManager>().setStack(state.view.stackContext());
             },
             child: FlowyHover(
               config: HoverDisplayConfig(hoverColor: theme.bg3),

@@ -1,4 +1,5 @@
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 
@@ -10,10 +11,10 @@ class BlankStackContext extends HomeStackContext {
   List<Object?> get props => ["1"];
 
   @override
-  String get title => "Blank page";
+  Widget get titleWidget => const FlowyText.medium('Blank page', fontSize: 12);
 
   @override
-  ViewType get type => ViewType.Blank;
+  HomeStackType get type => HomeStackType.blank;
 
   @override
   Widget render() {
@@ -28,10 +29,10 @@ class BlankStackPage extends StatefulWidget {
   const BlankStackPage({Key? key}) : super(key: key);
 
   @override
-  State<BlankStackPage> createState() => _AnnouncementPage();
+  State<BlankStackPage> createState() => _BlankStackPageState();
 }
 
-class _AnnouncementPage extends State<BlankStackPage> {
+class _BlankStackPageState extends State<BlankStackPage> {
   @override
   Widget build(BuildContext context) {
     return SizedBox.expand(

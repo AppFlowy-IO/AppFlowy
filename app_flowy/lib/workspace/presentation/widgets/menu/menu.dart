@@ -18,6 +18,7 @@ import 'package:app_flowy/workspace/presentation/widgets/menu/widget/menu_user.d
 
 import 'widget/app/menu_app.dart';
 import 'widget/app/create_button.dart';
+import 'widget/menu_trash.dart';
 
 // [[diagram: HomeMenu's widget structure]]
 //                                                                                    get user profile or modify user
@@ -101,6 +102,9 @@ class HomeMenu extends StatelessWidget {
               ],
             ).padding(horizontal: Insets.l),
           ),
+          const VSpace(20),
+          _renderTrash(context).padding(horizontal: Insets.l),
+          const VSpace(20),
           _renderNewAppButton(context),
         ],
       ),
@@ -112,15 +116,19 @@ class HomeMenu extends StatelessWidget {
       builder: (context, state) {
         return state.map(
           initial: (_) => MenuList(
-            menuItems: menuItemsWithApps(context.read<MenuBloc>().state.apps),
+            menuItems: buildMenuItems(context.read<MenuBloc>().state.apps),
           ),
           loadApps: (s) => MenuList(
-            menuItems: menuItemsWithApps(some(s.apps)),
+            menuItems: buildMenuItems(some(s.apps)),
           ),
           loadFail: (s) => FlowyErrorPage(s.error.toString()),
         );
       },
     );
+  }
+
+  Widget _renderTrash(BuildContext context) {
+    return const MenuTrash();
   }
 
   Widget _renderNewAppButton(BuildContext context) {
@@ -133,31 +141,14 @@ class HomeMenu extends StatelessWidget {
     return const MenuTopBar();
   }
 
-  List<MenuItem> menuItemsWithApps(Option<List<App>> someApps) {
-    return MenuItemBuilder().withUser(user).withApps(someApps).build();
-  }
-}
-
-class MenuItemBuilder {
-  List<MenuItem> items = [];
-
-  MenuItemBuilder();
-
-  MenuItemBuilder withUser(UserProfile user) {
+  List<MenuItem> buildMenuItems(Option<List<App>> apps) {
+    List<MenuItem> items = [];
     items.add(MenuUser(user));
-    return this;
-  }
 
-  MenuItemBuilder withApps(Option<List<App>> someApps) {
-    List<MenuItem> appWidgets = someApps.foldRight(
-      [],
-      (apps, _) => apps.map((app) => MenuApp(MenuAppContext(app))).toList(),
-    );
+    List<MenuItem> appWidgets =
+        apps.foldRight([], (apps, _) => apps.map((app) => MenuApp(MenuAppContext(app))).toList());
+
     items.addAll(appWidgets);
-    return this;
-  }
-
-  List<MenuItem> build() {
     return items;
   }
 }

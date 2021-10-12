@@ -1,4 +1,5 @@
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -94,14 +95,12 @@ class IconNaviItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 24,
-      child: FlowyTextButton(
-        item.title,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-        fontSize: 12,
-        onPressed: () {
+      child: InkWell(
+        child: item.titleWidget,
+        onTap: () {
           debugPrint('show app document');
         },
-      ),
+      ).padding(horizontal: 8, vertical: 2),
     );
   }
 }
@@ -114,14 +113,12 @@ class NaviItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 24,
-      child: FlowyTextButton(
-        item.title,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-        fontSize: 12,
-        onPressed: () {
+      child: InkWell(
+        child: item.titleWidget,
+        onTap: () {
           debugPrint('show app document');
         },
-      ),
+      ).padding(horizontal: 8, vertical: 2),
     );
   }
 }
@@ -145,7 +142,7 @@ class EllipsisNaviItem extends NavigationItem {
   });
 
   @override
-  String get title => "...";
+  Widget get titleWidget => const FlowyText.medium('...');
 
   @override
   NavigationCallback get action => (id) {};

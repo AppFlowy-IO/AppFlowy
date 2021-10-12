@@ -1,6 +1,8 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/doc/doc_bloc.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
+import 'package:app_flowy/workspace/domain/view_ext.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
@@ -15,11 +17,11 @@ class DocStackContext extends HomeStackContext {
   DocStackContext({required View view, Key? key}) : _view = view;
 
   @override
-  String get title => _view.name;
+  Widget get titleWidget => FlowyText.medium(_view.name, fontSize: 12);
   @override
   String get identifier => _view.id;
   @override
-  ViewType get type => _view.viewType;
+  HomeStackType get type => _view.stackType();
 
   @override
   List<Object?> get props => [_view.id];

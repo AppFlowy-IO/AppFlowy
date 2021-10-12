@@ -1,18 +1,15 @@
 import 'package:equatable/equatable.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/blank/blank_page.dart';
-import 'package:app_flowy/workspace/presentation/stack_page/doc/doc_stack_page.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/prelude.dart';
 
 typedef NavigationCallback = void Function(String id);
 
 abstract class NavigationItem {
-  String get title;
+  Widget get titleWidget;
   String get identifier;
 
   NavigationCallback get action => (id) {
@@ -20,31 +17,26 @@ abstract class NavigationItem {
       };
 }
 
+enum HomeStackType {
+  blank,
+  doc,
+  trash,
+}
+
+List<HomeStackType> pages = HomeStackType.values.toList();
+
 abstract class HomeStackContext extends Equatable with NavigationItem {
   List<NavigationItem> get navigationItems;
 
   @override
-  String get title;
+  Widget get titleWidget;
 
   @override
   String get identifier;
 
-  ViewType get type;
+  HomeStackType get type;
 
   Widget render();
-}
-
-extension ViewStackContext on View {
-  HomeStackContext intoStackContext() {
-    switch (viewType) {
-      case ViewType.Blank:
-        return BlankStackContext();
-      case ViewType.Doc:
-        return DocStackContext(view: this);
-      default:
-        return BlankStackContext();
-    }
-  }
 }
 
 class HomeStackNotifier extends ChangeNotifier {
@@ -64,8 +56,8 @@ class HomeStackManager {
   final HomeStackNotifier _notifier = HomeStackNotifier();
   HomeStackManager();
 
-  String title() {
-    return _notifier.context.title;
+  Widget title() {
+    return _notifier.context.titleWidget;
   }
 
   void setStack(HomeStackContext context) {
@@ -93,7 +85,7 @@ class HomeStackManager {
       child: Consumer(builder: (ctx, HomeStackNotifier notifier, child) {
         return FadingIndexedStack(
           index: pages.indexOf(notifier.context.type),
-          children: ViewType.values.map((viewType) {
+          children: HomeStackType.values.map((viewType) {
             if (viewType == notifier.context.type) {
               return notifier.context.render();
             } else {
@@ -105,5 +97,3 @@ class HomeStackManager {
     );
   }
 }
-
-List<ViewType> pages = ViewType.values.toList();
