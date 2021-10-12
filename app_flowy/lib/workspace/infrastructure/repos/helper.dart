@@ -34,12 +34,10 @@ import 'package:dartz/dartz.dart';
 //   }
 // }
 
-typedef UserObservableCallback = void Function(
-    UserObservable, Either<Uint8List, UserError>);
+typedef UserObservableCallback = void Function(UserObservable, Either<Uint8List, UserError>);
 
 class UserObservableParser extends ObservableParser<UserObservable, UserError> {
-  UserObservableParser(
-      {required String id, required UserObservableCallback callback})
+  UserObservableParser({required String id, required UserObservableCallback callback})
       : super(
           id: id,
           callback: callback,
@@ -48,13 +46,10 @@ class UserObservableParser extends ObservableParser<UserObservable, UserError> {
         );
 }
 
-typedef WorkspaceObservableCallback = void Function(
-    WorkspaceObservable, Either<Uint8List, WorkspaceError>);
+typedef WorkspaceObservableCallback = void Function(WorkspaceObservable, Either<Uint8List, WorkspaceError>);
 
-class WorkspaceObservableParser
-    extends ObservableParser<WorkspaceObservable, WorkspaceError> {
-  WorkspaceObservableParser(
-      {required String id, required WorkspaceObservableCallback callback})
+class WorkspaceObservableParser extends ObservableParser<WorkspaceObservable, WorkspaceError> {
+  WorkspaceObservableParser({required String id, required WorkspaceObservableCallback callback})
       : super(
           id: id,
           callback: callback,
@@ -70,11 +65,7 @@ class ObservableParser<T, E> {
   T? Function(int) tyParser;
   E Function(Uint8List) errorParser;
 
-  ObservableParser(
-      {required this.id,
-      required this.callback,
-      required this.errorParser,
-      required this.tyParser});
+  ObservableParser({required this.id, required this.callback, required this.errorParser, required this.tyParser});
   void parse(ObservableSubject subject) {
     if (subject.id != id) {
       return;

@@ -40,7 +40,7 @@ pub enum WorkspaceEvent {
     #[event(input = "QueryViewRequest", output = "View")]
     ReadView          = 202,
 
-    #[event(input = "UpdateViewRequest")]
+    #[event(input = "UpdateViewRequest", output = "View")]
     UpdateView        = 203,
 
     #[event(input = "DeleteViewRequest")]

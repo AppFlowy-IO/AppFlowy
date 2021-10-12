@@ -207,14 +207,14 @@ class WorkspaceEventUpdateView {
      UpdateViewRequest request;
      WorkspaceEventUpdateView(this.request);
 
-    Future<Either<Unit, WorkspaceError>> send() {
+    Future<Either<View, WorkspaceError>> send() {
     final request = FFIRequest.create()
           ..event = WorkspaceEvent.UpdateView.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-           (bytes) => left(unit),
+           (okBytes) => left(View.fromBuffer(okBytes)),
            (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
         ));
     }

@@ -9,7 +9,7 @@ abstract class IView {
 
   Future<Either<Unit, WorkspaceError>> pushIntoTrash();
 
-  Future<Either<Unit, WorkspaceError>> rename(String newName);
+  Future<Either<View, WorkspaceError>> rename(String newName);
 }
 
 abstract class IViewListener {

@@ -35,12 +35,15 @@ class IAppListenerhImpl extends IAppListenr {
   });
 
   @override
-  void start({AppCreateViewCallback? addViewCallback, AppUpdatedCallback? updatedCallback}) {
-    repo.startListen(createView: addViewCallback, update: updatedCallback);
+  Future<void> stop() async {
+    await repo.close();
   }
 
   @override
-  Future<void> stop() async {
-    await repo.close();
+  void start(
+      {AppCreateViewCallback? addViewCallback,
+      AppDeleteViewCallback? deleteViewCallback,
+      AppUpdatedCallback? updatedCallback}) {
+    repo.startListen(createView: addViewCallback, deleteView: deleteViewCallback, update: updatedCallback);
   }
 }

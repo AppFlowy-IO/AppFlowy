@@ -72,7 +72,6 @@ impl DartNotifyBuilder {
             error,
         };
 
-        log::debug!("Notify {}", subject);
         match DartStreamSender::post(subject) {
             Ok(_) => {},
             Err(error) => log::error!("Send observable subject failed: {}", error),

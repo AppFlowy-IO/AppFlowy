@@ -14,11 +14,16 @@ class IViewImpl extends IView {
 
   @override
   Future<Either<Unit, WorkspaceError>> pushIntoTrash() {
-    return repo.updateView(isTrash: true);
+    return repo.updateView(isTrash: true).then((result) {
+      return result.fold(
+        (_) => left(unit),
+        (error) => right(error),
+      );
+    });
   }
 
   @override
-  Future<Either<Unit, WorkspaceError>> rename(String newName) {
+  Future<Either<View, WorkspaceError>> rename(String newName) {
     return repo.updateView(name: newName);
   }
 }

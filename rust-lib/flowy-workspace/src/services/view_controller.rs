@@ -58,7 +58,7 @@ impl ViewController {
             let _ = self.save_view(view.clone(), conn)?;
             self.document.create(CreateDocParams::new(&view.id, params.data))?;
 
-            let repeated_view = self.read_local_views_belong_to(&view.belong_to_id, conn)?;
+            let repeated_view = self.sql.read_views_belong_to(&view.belong_to_id, Some(false), conn)?;
             dart_notify(&view.belong_to_id, WorkspaceObservable::AppCreateView)
                 .payload(repeated_view)
                 .send();
@@ -96,7 +96,10 @@ impl ViewController {
             let view_table = self.sql.delete_view(&params.view_id, conn)?;
             let _ = self.document.delete(params.into())?;
 
-            let repeated_view = self.read_local_views_belong_to(&view_table.belong_to_id, conn)?;
+            let repeated_view = self
+                .sql
+                .read_views_belong_to(&view_table.belong_to_id, Some(false), conn)?;
+
             dart_notify(&view_table.belong_to_id, WorkspaceObservable::AppDeleteView)
                 .payload(repeated_view)
                 .send();
@@ -111,26 +114,45 @@ impl ViewController {
     pub(crate) async fn read_views_belong_to(&self, belong_to_id: &str) -> Result<RepeatedView, WorkspaceError> {
         // TODO: read from server
         let conn = self.database.db_connection()?;
-        let repeated_view = self.read_local_views_belong_to(belong_to_id, &*conn)?;
+        let repeated_view = self.sql.read_views_belong_to(belong_to_id, Some(false), &*conn)?;
         Ok(repeated_view)
     }
 
-    pub(crate) async fn update_view(&self, params: UpdateViewParams) -> Result<(), WorkspaceError> {
+    #[tracing::instrument(level = "debug", skip(self, params), fields(dart_notify)  err)]
+    pub(crate) async fn update_view(&self, params: UpdateViewParams) -> Result<View, WorkspaceError> {
         let conn = &*self.database.db_connection()?;
         let changeset = ViewTableChangeset::new(params.clone());
         let view_id = changeset.id.clone();
 
-        conn.immediate_transaction::<_, WorkspaceError, _>(|| {
+        let updated_view = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.sql.update_view(changeset, conn)?;
             let view: View = self.sql.read_view(&view_id, None, conn)?.into();
-            dart_notify(&view_id, WorkspaceObservable::ViewUpdated)
-                .payload(view)
-                .send();
-            Ok(())
+
+            if params.is_trash.is_some() {
+                let repeated_view = self.sql.read_views_belong_to(&view.belong_to_id, Some(false), conn)?;
+                tracing::Span::current().record(
+                    "dart_notify",
+                    &format!("{:?}: {}", WorkspaceObservable::AppDeleteView, &view.belong_to_id).as_str(),
+                );
+                dart_notify(&view.belong_to_id, WorkspaceObservable::AppDeleteView)
+                    .payload(repeated_view)
+                    .send();
+            } else {
+                tracing::Span::current().record(
+                    "dart_notify",
+                    &format!("{:?}: {}", WorkspaceObservable::ViewUpdated, &view_id).as_str(),
+                );
+
+                dart_notify(&view_id, WorkspaceObservable::ViewUpdated)
+                    .payload(view.clone())
+                    .send();
+            }
+
+            Ok(view)
         })?;
 
         let _ = self.update_view_on_server(params);
-        Ok(())
+        Ok(updated_view)
     }
 
     pub(crate) async fn apply_doc_delta(&self, params: DocDelta) -> Result<DocDelta, WorkspaceError> {
@@ -196,21 +218,5 @@ impl ViewController {
             }
         });
         Ok(())
-    }
-
-    // belong_to_id will be the app_id or view_id.
-    fn read_local_views_belong_to(
-        &self,
-        belong_to_id: &str,
-        conn: &SqliteConnection,
-    ) -> Result<RepeatedView, WorkspaceError> {
-        let views = self
-            .sql
-            .read_views_belong_to(belong_to_id, conn)?
-            .into_iter()
-            .map(|view_table| view_table.into())
-            .collect::<Vec<View>>();
-
-        Ok(RepeatedView { items: views })
     }
 }

@@ -13,7 +13,10 @@ abstract class IApp {
 }
 
 abstract class IAppListenr {
-  void start({AppCreateViewCallback? addViewCallback, AppUpdatedCallback? updatedCallback});
+  void start(
+      {AppCreateViewCallback? addViewCallback,
+      AppDeleteViewCallback? deleteViewCallback,
+      AppUpdatedCallback? updatedCallback});
 
   Future<void> stop();
 }

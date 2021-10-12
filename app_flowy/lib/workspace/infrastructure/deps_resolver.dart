@@ -67,7 +67,12 @@ class HomeDepsResolver {
     getIt.registerFactoryParam<AppListenBloc, String, void>(
         (appId, _) => AppListenBloc(getIt<IAppListenr>(param1: appId)));
 
-    getIt.registerFactoryParam<ViewBloc, View, void>((view, _) => ViewBloc(iViewImpl: getIt<IView>(param1: view)));
+    getIt.registerFactoryParam<ViewBloc, View, void>(
+      (view, _) => ViewBloc(
+        iViewImpl: getIt<IView>(param1: view),
+        listener: getIt<IViewListener>(param1: view),
+      ),
+    );
 
     getIt.registerFactoryParam<DocBloc, String, void>((docId, _) => DocBloc(iDocImpl: getIt<IDoc>(param1: docId)));
 

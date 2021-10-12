@@ -26,7 +26,7 @@ class ViewRepository {
     return WorkspaceEventReadView(request).send();
   }
 
-  Future<Either<Unit, WorkspaceError>> updateView({String? name, String? desc, bool? isTrash}) {
+  Future<Either<View, WorkspaceError>> updateView({String? name, String? desc, bool? isTrash}) {
     final request = UpdateViewRequest.create()..viewId = view.id;
 
     if (name != null) {

@@ -16,10 +16,8 @@ final _privateConstructorUsedError = UnsupportedError(
 class _$ViewEventTearOff {
   const _$ViewEventTearOff();
 
-  SetSelected setIsSelected(bool isSelected) {
-    return SetSelected(
-      isSelected,
-    );
+  Initial initial() {
+    return const Initial();
   }
 
   SetEditing setIsEditing(bool isEditing) {
@@ -28,9 +26,19 @@ class _$ViewEventTearOff {
     );
   }
 
-  SetAction setAction(Option<ViewAction> action) {
-    return SetAction(
-      action,
+  Rename rename(String newName) {
+    return Rename(
+      newName,
+    );
+  }
+
+  Delete delete() {
+    return const Delete();
+  }
+
+  ViewDidUpdate viewDidUpdate(Either<View, WorkspaceError> result) {
+    return ViewDidUpdate(
+      result,
     );
   }
 }
@@ -42,31 +50,40 @@ const $ViewEvent = _$ViewEventTearOff();
 mixin _$ViewEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(bool isSelected) setIsSelected,
+    required TResult Function() initial,
     required TResult Function(bool isEditing) setIsEditing,
-    required TResult Function(Option<ViewAction> action) setAction,
+    required TResult Function(String newName) rename,
+    required TResult Function() delete,
+    required TResult Function(Either<View, WorkspaceError> result)
+        viewDidUpdate,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(bool isSelected)? setIsSelected,
+    TResult Function()? initial,
     TResult Function(bool isEditing)? setIsEditing,
-    TResult Function(Option<ViewAction> action)? setAction,
+    TResult Function(String newName)? rename,
+    TResult Function()? delete,
+    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(SetSelected value) setIsSelected,
+    required TResult Function(Initial value) initial,
     required TResult Function(SetEditing value) setIsEditing,
-    required TResult Function(SetAction value) setAction,
+    required TResult Function(Rename value) rename,
+    required TResult Function(Delete value) delete,
+    required TResult Function(ViewDidUpdate value) viewDidUpdate,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(SetSelected value)? setIsSelected,
+    TResult Function(Initial value)? initial,
     TResult Function(SetEditing value)? setIsEditing,
-    TResult Function(SetAction value)? setAction,
+    TResult Function(Rename value)? rename,
+    TResult Function(Delete value)? delete,
+    TResult Function(ViewDidUpdate value)? viewDidUpdate,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -88,87 +105,64 @@ class _$ViewEventCopyWithImpl<$Res> implements $ViewEventCopyWith<$Res> {
 }
 
 /// @nodoc
-abstract class $SetSelectedCopyWith<$Res> {
-  factory $SetSelectedCopyWith(
-          SetSelected value, $Res Function(SetSelected) then) =
-      _$SetSelectedCopyWithImpl<$Res>;
-  $Res call({bool isSelected});
+abstract class $InitialCopyWith<$Res> {
+  factory $InitialCopyWith(Initial value, $Res Function(Initial) then) =
+      _$InitialCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class _$SetSelectedCopyWithImpl<$Res> extends _$ViewEventCopyWithImpl<$Res>
-    implements $SetSelectedCopyWith<$Res> {
-  _$SetSelectedCopyWithImpl(
-      SetSelected _value, $Res Function(SetSelected) _then)
-      : super(_value, (v) => _then(v as SetSelected));
+class _$InitialCopyWithImpl<$Res> extends _$ViewEventCopyWithImpl<$Res>
+    implements $InitialCopyWith<$Res> {
+  _$InitialCopyWithImpl(Initial _value, $Res Function(Initial) _then)
+      : super(_value, (v) => _then(v as Initial));
 
   @override
-  SetSelected get _value => super._value as SetSelected;
-
-  @override
-  $Res call({
-    Object? isSelected = freezed,
-  }) {
-    return _then(SetSelected(
-      isSelected == freezed
-          ? _value.isSelected
-          : isSelected // ignore: cast_nullable_to_non_nullable
-              as bool,
-    ));
-  }
+  Initial get _value => super._value as Initial;
 }
 
 /// @nodoc
 
-class _$SetSelected implements SetSelected {
-  const _$SetSelected(this.isSelected);
-
-  @override
-  final bool isSelected;
+class _$Initial implements Initial {
+  const _$Initial();
 
   @override
   String toString() {
-    return 'ViewEvent.setIsSelected(isSelected: $isSelected)';
+    return 'ViewEvent.initial()';
   }
 
   @override
   bool operator ==(dynamic other) {
-    return identical(this, other) ||
-        (other is SetSelected &&
-            (identical(other.isSelected, isSelected) ||
-                const DeepCollectionEquality()
-                    .equals(other.isSelected, isSelected)));
+    return identical(this, other) || (other is Initial);
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(isSelected);
-
-  @JsonKey(ignore: true)
-  @override
-  $SetSelectedCopyWith<SetSelected> get copyWith =>
-      _$SetSelectedCopyWithImpl<SetSelected>(this, _$identity);
+  int get hashCode => runtimeType.hashCode;
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(bool isSelected) setIsSelected,
+    required TResult Function() initial,
     required TResult Function(bool isEditing) setIsEditing,
-    required TResult Function(Option<ViewAction> action) setAction,
+    required TResult Function(String newName) rename,
+    required TResult Function() delete,
+    required TResult Function(Either<View, WorkspaceError> result)
+        viewDidUpdate,
   }) {
-    return setIsSelected(isSelected);
+    return initial();
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(bool isSelected)? setIsSelected,
+    TResult Function()? initial,
     TResult Function(bool isEditing)? setIsEditing,
-    TResult Function(Option<ViewAction> action)? setAction,
+    TResult Function(String newName)? rename,
+    TResult Function()? delete,
+    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
     required TResult orElse(),
   }) {
-    if (setIsSelected != null) {
-      return setIsSelected(isSelected);
+    if (initial != null) {
+      return initial();
     }
     return orElse();
   }
@@ -176,35 +170,34 @@ class _$SetSelected implements SetSelected {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(SetSelected value) setIsSelected,
+    required TResult Function(Initial value) initial,
     required TResult Function(SetEditing value) setIsEditing,
-    required TResult Function(SetAction value) setAction,
+    required TResult Function(Rename value) rename,
+    required TResult Function(Delete value) delete,
+    required TResult Function(ViewDidUpdate value) viewDidUpdate,
   }) {
-    return setIsSelected(this);
+    return initial(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(SetSelected value)? setIsSelected,
+    TResult Function(Initial value)? initial,
     TResult Function(SetEditing value)? setIsEditing,
-    TResult Function(SetAction value)? setAction,
+    TResult Function(Rename value)? rename,
+    TResult Function(Delete value)? delete,
+    TResult Function(ViewDidUpdate value)? viewDidUpdate,
     required TResult orElse(),
   }) {
-    if (setIsSelected != null) {
-      return setIsSelected(this);
+    if (initial != null) {
+      return initial(this);
     }
     return orElse();
   }
 }
 
-abstract class SetSelected implements ViewEvent {
-  const factory SetSelected(bool isSelected) = _$SetSelected;
-
-  bool get isSelected => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $SetSelectedCopyWith<SetSelected> get copyWith =>
-      throw _privateConstructorUsedError;
+abstract class Initial implements ViewEvent {
+  const factory Initial() = _$Initial;
 }
 
 /// @nodoc
@@ -271,9 +264,12 @@ class _$SetEditing implements SetEditing {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(bool isSelected) setIsSelected,
+    required TResult Function() initial,
     required TResult Function(bool isEditing) setIsEditing,
-    required TResult Function(Option<ViewAction> action) setAction,
+    required TResult Function(String newName) rename,
+    required TResult Function() delete,
+    required TResult Function(Either<View, WorkspaceError> result)
+        viewDidUpdate,
   }) {
     return setIsEditing(isEditing);
   }
@@ -281,9 +277,11 @@ class _$SetEditing implements SetEditing {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(bool isSelected)? setIsSelected,
+    TResult Function()? initial,
     TResult Function(bool isEditing)? setIsEditing,
-    TResult Function(Option<ViewAction> action)? setAction,
+    TResult Function(String newName)? rename,
+    TResult Function()? delete,
+    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
     required TResult orElse(),
   }) {
     if (setIsEditing != null) {
@@ -295,9 +293,11 @@ class _$SetEditing implements SetEditing {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(SetSelected value) setIsSelected,
+    required TResult Function(Initial value) initial,
     required TResult Function(SetEditing value) setIsEditing,
-    required TResult Function(SetAction value) setAction,
+    required TResult Function(Rename value) rename,
+    required TResult Function(Delete value) delete,
+    required TResult Function(ViewDidUpdate value) viewDidUpdate,
   }) {
     return setIsEditing(this);
   }
@@ -305,9 +305,11 @@ class _$SetEditing implements SetEditing {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(SetSelected value)? setIsSelected,
+    TResult Function(Initial value)? initial,
     TResult Function(SetEditing value)? setIsEditing,
-    TResult Function(SetAction value)? setAction,
+    TResult Function(Rename value)? rename,
+    TResult Function(Delete value)? delete,
+    TResult Function(ViewDidUpdate value)? viewDidUpdate,
     required TResult orElse(),
   }) {
     if (setIsEditing != null) {
@@ -327,84 +329,89 @@ abstract class SetEditing implements ViewEvent {
 }
 
 /// @nodoc
-abstract class $SetActionCopyWith<$Res> {
-  factory $SetActionCopyWith(SetAction value, $Res Function(SetAction) then) =
-      _$SetActionCopyWithImpl<$Res>;
-  $Res call({Option<ViewAction> action});
+abstract class $RenameCopyWith<$Res> {
+  factory $RenameCopyWith(Rename value, $Res Function(Rename) then) =
+      _$RenameCopyWithImpl<$Res>;
+  $Res call({String newName});
 }
 
 /// @nodoc
-class _$SetActionCopyWithImpl<$Res> extends _$ViewEventCopyWithImpl<$Res>
-    implements $SetActionCopyWith<$Res> {
-  _$SetActionCopyWithImpl(SetAction _value, $Res Function(SetAction) _then)
-      : super(_value, (v) => _then(v as SetAction));
+class _$RenameCopyWithImpl<$Res> extends _$ViewEventCopyWithImpl<$Res>
+    implements $RenameCopyWith<$Res> {
+  _$RenameCopyWithImpl(Rename _value, $Res Function(Rename) _then)
+      : super(_value, (v) => _then(v as Rename));
 
   @override
-  SetAction get _value => super._value as SetAction;
+  Rename get _value => super._value as Rename;
 
   @override
   $Res call({
-    Object? action = freezed,
+    Object? newName = freezed,
   }) {
-    return _then(SetAction(
-      action == freezed
-          ? _value.action
-          : action // ignore: cast_nullable_to_non_nullable
-              as Option<ViewAction>,
+    return _then(Rename(
+      newName == freezed
+          ? _value.newName
+          : newName // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 }
 
 /// @nodoc
 
-class _$SetAction implements SetAction {
-  const _$SetAction(this.action);
+class _$Rename implements Rename {
+  const _$Rename(this.newName);
 
   @override
-  final Option<ViewAction> action;
+  final String newName;
 
   @override
   String toString() {
-    return 'ViewEvent.setAction(action: $action)';
+    return 'ViewEvent.rename(newName: $newName)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is SetAction &&
-            (identical(other.action, action) ||
-                const DeepCollectionEquality().equals(other.action, action)));
+        (other is Rename &&
+            (identical(other.newName, newName) ||
+                const DeepCollectionEquality().equals(other.newName, newName)));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(action);
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(newName);
 
   @JsonKey(ignore: true)
   @override
-  $SetActionCopyWith<SetAction> get copyWith =>
-      _$SetActionCopyWithImpl<SetAction>(this, _$identity);
+  $RenameCopyWith<Rename> get copyWith =>
+      _$RenameCopyWithImpl<Rename>(this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(bool isSelected) setIsSelected,
+    required TResult Function() initial,
     required TResult Function(bool isEditing) setIsEditing,
-    required TResult Function(Option<ViewAction> action) setAction,
+    required TResult Function(String newName) rename,
+    required TResult Function() delete,
+    required TResult Function(Either<View, WorkspaceError> result)
+        viewDidUpdate,
   }) {
-    return setAction(action);
+    return rename(newName);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(bool isSelected)? setIsSelected,
+    TResult Function()? initial,
     TResult Function(bool isEditing)? setIsEditing,
-    TResult Function(Option<ViewAction> action)? setAction,
+    TResult Function(String newName)? rename,
+    TResult Function()? delete,
+    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
     required TResult orElse(),
   }) {
-    if (setAction != null) {
-      return setAction(action);
+    if (rename != null) {
+      return rename(newName);
     }
     return orElse();
   }
@@ -412,34 +419,262 @@ class _$SetAction implements SetAction {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(SetSelected value) setIsSelected,
+    required TResult Function(Initial value) initial,
     required TResult Function(SetEditing value) setIsEditing,
-    required TResult Function(SetAction value) setAction,
+    required TResult Function(Rename value) rename,
+    required TResult Function(Delete value) delete,
+    required TResult Function(ViewDidUpdate value) viewDidUpdate,
   }) {
-    return setAction(this);
+    return rename(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(SetSelected value)? setIsSelected,
+    TResult Function(Initial value)? initial,
     TResult Function(SetEditing value)? setIsEditing,
-    TResult Function(SetAction value)? setAction,
+    TResult Function(Rename value)? rename,
+    TResult Function(Delete value)? delete,
+    TResult Function(ViewDidUpdate value)? viewDidUpdate,
     required TResult orElse(),
   }) {
-    if (setAction != null) {
-      return setAction(this);
+    if (rename != null) {
+      return rename(this);
     }
     return orElse();
   }
 }
 
-abstract class SetAction implements ViewEvent {
-  const factory SetAction(Option<ViewAction> action) = _$SetAction;
+abstract class Rename implements ViewEvent {
+  const factory Rename(String newName) = _$Rename;
 
-  Option<ViewAction> get action => throw _privateConstructorUsedError;
+  String get newName => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $SetActionCopyWith<SetAction> get copyWith =>
+  $RenameCopyWith<Rename> get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $DeleteCopyWith<$Res> {
+  factory $DeleteCopyWith(Delete value, $Res Function(Delete) then) =
+      _$DeleteCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class _$DeleteCopyWithImpl<$Res> extends _$ViewEventCopyWithImpl<$Res>
+    implements $DeleteCopyWith<$Res> {
+  _$DeleteCopyWithImpl(Delete _value, $Res Function(Delete) _then)
+      : super(_value, (v) => _then(v as Delete));
+
+  @override
+  Delete get _value => super._value as Delete;
+}
+
+/// @nodoc
+
+class _$Delete implements Delete {
+  const _$Delete();
+
+  @override
+  String toString() {
+    return 'ViewEvent.delete()';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) || (other is Delete);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function(bool isEditing) setIsEditing,
+    required TResult Function(String newName) rename,
+    required TResult Function() delete,
+    required TResult Function(Either<View, WorkspaceError> result)
+        viewDidUpdate,
+  }) {
+    return delete();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(bool isEditing)? setIsEditing,
+    TResult Function(String newName)? rename,
+    TResult Function()? delete,
+    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
+    required TResult orElse(),
+  }) {
+    if (delete != null) {
+      return delete();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(Initial value) initial,
+    required TResult Function(SetEditing value) setIsEditing,
+    required TResult Function(Rename value) rename,
+    required TResult Function(Delete value) delete,
+    required TResult Function(ViewDidUpdate value) viewDidUpdate,
+  }) {
+    return delete(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(SetEditing value)? setIsEditing,
+    TResult Function(Rename value)? rename,
+    TResult Function(Delete value)? delete,
+    TResult Function(ViewDidUpdate value)? viewDidUpdate,
+    required TResult orElse(),
+  }) {
+    if (delete != null) {
+      return delete(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class Delete implements ViewEvent {
+  const factory Delete() = _$Delete;
+}
+
+/// @nodoc
+abstract class $ViewDidUpdateCopyWith<$Res> {
+  factory $ViewDidUpdateCopyWith(
+          ViewDidUpdate value, $Res Function(ViewDidUpdate) then) =
+      _$ViewDidUpdateCopyWithImpl<$Res>;
+  $Res call({Either<View, WorkspaceError> result});
+}
+
+/// @nodoc
+class _$ViewDidUpdateCopyWithImpl<$Res> extends _$ViewEventCopyWithImpl<$Res>
+    implements $ViewDidUpdateCopyWith<$Res> {
+  _$ViewDidUpdateCopyWithImpl(
+      ViewDidUpdate _value, $Res Function(ViewDidUpdate) _then)
+      : super(_value, (v) => _then(v as ViewDidUpdate));
+
+  @override
+  ViewDidUpdate get _value => super._value as ViewDidUpdate;
+
+  @override
+  $Res call({
+    Object? result = freezed,
+  }) {
+    return _then(ViewDidUpdate(
+      result == freezed
+          ? _value.result
+          : result // ignore: cast_nullable_to_non_nullable
+              as Either<View, WorkspaceError>,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$ViewDidUpdate implements ViewDidUpdate {
+  const _$ViewDidUpdate(this.result);
+
+  @override
+  final Either<View, WorkspaceError> result;
+
+  @override
+  String toString() {
+    return 'ViewEvent.viewDidUpdate(result: $result)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is ViewDidUpdate &&
+            (identical(other.result, result) ||
+                const DeepCollectionEquality().equals(other.result, result)));
+  }
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(result);
+
+  @JsonKey(ignore: true)
+  @override
+  $ViewDidUpdateCopyWith<ViewDidUpdate> get copyWith =>
+      _$ViewDidUpdateCopyWithImpl<ViewDidUpdate>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function(bool isEditing) setIsEditing,
+    required TResult Function(String newName) rename,
+    required TResult Function() delete,
+    required TResult Function(Either<View, WorkspaceError> result)
+        viewDidUpdate,
+  }) {
+    return viewDidUpdate(result);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(bool isEditing)? setIsEditing,
+    TResult Function(String newName)? rename,
+    TResult Function()? delete,
+    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
+    required TResult orElse(),
+  }) {
+    if (viewDidUpdate != null) {
+      return viewDidUpdate(result);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(Initial value) initial,
+    required TResult Function(SetEditing value) setIsEditing,
+    required TResult Function(Rename value) rename,
+    required TResult Function(Delete value) delete,
+    required TResult Function(ViewDidUpdate value) viewDidUpdate,
+  }) {
+    return viewDidUpdate(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(SetEditing value)? setIsEditing,
+    TResult Function(Rename value)? rename,
+    TResult Function(Delete value)? delete,
+    TResult Function(ViewDidUpdate value)? viewDidUpdate,
+    required TResult orElse(),
+  }) {
+    if (viewDidUpdate != null) {
+      return viewDidUpdate(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class ViewDidUpdate implements ViewEvent {
+  const factory ViewDidUpdate(Either<View, WorkspaceError> result) =
+      _$ViewDidUpdate;
+
+  Either<View, WorkspaceError> get result => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $ViewDidUpdateCopyWith<ViewDidUpdate> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -449,15 +684,11 @@ class _$ViewStateTearOff {
 
   _ViewState call(
       {required View view,
-      required bool isSelected,
       required bool isEditing,
-      required Option<ViewAction> action,
       required Either<Unit, WorkspaceError> successOrFailure}) {
     return _ViewState(
       view: view,
-      isSelected: isSelected,
       isEditing: isEditing,
-      action: action,
       successOrFailure: successOrFailure,
     );
   }
@@ -469,9 +700,7 @@ const $ViewState = _$ViewStateTearOff();
 /// @nodoc
 mixin _$ViewState {
   View get view => throw _privateConstructorUsedError;
-  bool get isSelected => throw _privateConstructorUsedError;
   bool get isEditing => throw _privateConstructorUsedError;
-  Option<ViewAction> get action => throw _privateConstructorUsedError;
   Either<Unit, WorkspaceError> get successOrFailure =>
       throw _privateConstructorUsedError;
 
@@ -486,9 +715,7 @@ abstract class $ViewStateCopyWith<$Res> {
       _$ViewStateCopyWithImpl<$Res>;
   $Res call(
       {View view,
-      bool isSelected,
       bool isEditing,
-      Option<ViewAction> action,
       Either<Unit, WorkspaceError> successOrFailure});
 }
 
@@ -503,9 +730,7 @@ class _$ViewStateCopyWithImpl<$Res> implements $ViewStateCopyWith<$Res> {
   @override
   $Res call({
     Object? view = freezed,
-    Object? isSelected = freezed,
     Object? isEditing = freezed,
-    Object? action = freezed,
     Object? successOrFailure = freezed,
   }) {
     return _then(_value.copyWith(
@@ -513,18 +738,10 @@ class _$ViewStateCopyWithImpl<$Res> implements $ViewStateCopyWith<$Res> {
           ? _value.view
           : view // ignore: cast_nullable_to_non_nullable
               as View,
-      isSelected: isSelected == freezed
-          ? _value.isSelected
-          : isSelected // ignore: cast_nullable_to_non_nullable
-              as bool,
       isEditing: isEditing == freezed
           ? _value.isEditing
           : isEditing // ignore: cast_nullable_to_non_nullable
               as bool,
-      action: action == freezed
-          ? _value.action
-          : action // ignore: cast_nullable_to_non_nullable
-              as Option<ViewAction>,
       successOrFailure: successOrFailure == freezed
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
@@ -541,9 +758,7 @@ abstract class _$ViewStateCopyWith<$Res> implements $ViewStateCopyWith<$Res> {
   @override
   $Res call(
       {View view,
-      bool isSelected,
       bool isEditing,
-      Option<ViewAction> action,
       Either<Unit, WorkspaceError> successOrFailure});
 }
 
@@ -559,9 +774,7 @@ class __$ViewStateCopyWithImpl<$Res> extends _$ViewStateCopyWithImpl<$Res>
   @override
   $Res call({
     Object? view = freezed,
-    Object? isSelected = freezed,
     Object? isEditing = freezed,
-    Object? action = freezed,
     Object? successOrFailure = freezed,
   }) {
     return _then(_ViewState(
@@ -569,18 +782,10 @@ class __$ViewStateCopyWithImpl<$Res> extends _$ViewStateCopyWithImpl<$Res>
           ? _value.view
           : view // ignore: cast_nullable_to_non_nullable
               as View,
-      isSelected: isSelected == freezed
-          ? _value.isSelected
-          : isSelected // ignore: cast_nullable_to_non_nullable
-              as bool,
       isEditing: isEditing == freezed
           ? _value.isEditing
           : isEditing // ignore: cast_nullable_to_non_nullable
               as bool,
-      action: action == freezed
-          ? _value.action
-          : action // ignore: cast_nullable_to_non_nullable
-              as Option<ViewAction>,
       successOrFailure: successOrFailure == freezed
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
@@ -594,25 +799,19 @@ class __$ViewStateCopyWithImpl<$Res> extends _$ViewStateCopyWithImpl<$Res>
 class _$_ViewState implements _ViewState {
   const _$_ViewState(
       {required this.view,
-      required this.isSelected,
       required this.isEditing,
-      required this.action,
       required this.successOrFailure});
 
   @override
   final View view;
   @override
-  final bool isSelected;
-  @override
   final bool isEditing;
-  @override
-  final Option<ViewAction> action;
   @override
   final Either<Unit, WorkspaceError> successOrFailure;
 
   @override
   String toString() {
-    return 'ViewState(view: $view, isSelected: $isSelected, isEditing: $isEditing, action: $action, successOrFailure: $successOrFailure)';
+    return 'ViewState(view: $view, isEditing: $isEditing, successOrFailure: $successOrFailure)';
   }
 
   @override
@@ -621,14 +820,9 @@ class _$_ViewState implements _ViewState {
         (other is _ViewState &&
             (identical(other.view, view) ||
                 const DeepCollectionEquality().equals(other.view, view)) &&
-            (identical(other.isSelected, isSelected) ||
-                const DeepCollectionEquality()
-                    .equals(other.isSelected, isSelected)) &&
             (identical(other.isEditing, isEditing) ||
                 const DeepCollectionEquality()
                     .equals(other.isEditing, isEditing)) &&
-            (identical(other.action, action) ||
-                const DeepCollectionEquality().equals(other.action, action)) &&
             (identical(other.successOrFailure, successOrFailure) ||
                 const DeepCollectionEquality()
                     .equals(other.successOrFailure, successOrFailure)));
@@ -638,9 +832,7 @@ class _$_ViewState implements _ViewState {
   int get hashCode =>
       runtimeType.hashCode ^
       const DeepCollectionEquality().hash(view) ^
-      const DeepCollectionEquality().hash(isSelected) ^
       const DeepCollectionEquality().hash(isEditing) ^
-      const DeepCollectionEquality().hash(action) ^
       const DeepCollectionEquality().hash(successOrFailure);
 
   @JsonKey(ignore: true)
@@ -652,19 +844,13 @@ class _$_ViewState implements _ViewState {
 abstract class _ViewState implements ViewState {
   const factory _ViewState(
       {required View view,
-      required bool isSelected,
       required bool isEditing,
-      required Option<ViewAction> action,
       required Either<Unit, WorkspaceError> successOrFailure}) = _$_ViewState;
 
   @override
   View get view => throw _privateConstructorUsedError;
   @override
-  bool get isSelected => throw _privateConstructorUsedError;
-  @override
   bool get isEditing => throw _privateConstructorUsedError;
-  @override
-  Option<ViewAction> get action => throw _privateConstructorUsedError;
   @override
   Either<Unit, WorkspaceError> get successOrFailure =>
       throw _privateConstructorUsedError;

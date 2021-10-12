@@ -18,6 +18,7 @@ class AppListenBloc extends Bloc<AppListenEvent, AppListenState> {
     yield* event.map(started: (_) async* {
       listener.start(
         addViewCallback: (viewsOrFail) => _handleViewsOrFail(viewsOrFail),
+        deleteViewCallback: (viewsOrFail) => _handleViewsOrFail(viewsOrFail),
       );
     }, didReceiveViews: (ViewsReceived value) async* {
       yield value.viewsOrFail.fold(

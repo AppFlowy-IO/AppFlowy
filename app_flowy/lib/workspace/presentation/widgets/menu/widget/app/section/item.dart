@@ -9,7 +9,6 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,50 +21,43 @@ import 'package:app_flowy/workspace/presentation/widgets/menu/widget/app/menu_ap
 
 // ignore: must_be_immutable
 class ViewSectionItem extends StatelessWidget {
-  final ViewBloc bloc;
+  final bool isSelected;
+  final View view;
   final void Function(View) onSelected;
 
   ViewSectionItem({
     Key? key,
-    required View view,
-    required bool isSelected,
+    required this.view,
+    required this.isSelected,
     required this.onSelected,
-  })  : bloc = getIt<ViewBloc>(param1: view),
-        super(key: ValueKey(view.id)) {
-    bloc.add(ViewEvent.setIsSelected(isSelected));
-  }
+  }) : super(key: ValueKey('$view.id/$isSelected'));
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-
-    return BlocProvider.value(
-      value: bloc,
-      child: BlocListener<ViewBloc, ViewState>(
-        listenWhen: (p, c) => p.action != c.action,
-        listener: (context, state) {
-          state.action.fold(() => null, (action) {
-            Log.info('$action');
-          });
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (ctx) => getIt<ViewBloc>(param1: view)..add(const ViewEvent.initial())),
+      ],
+      child: BlocBuilder<ViewBloc, ViewState>(
+        builder: (context, state) {
+          return InkWell(
+            onTap: () {
+              onSelected(context.read<ViewBloc>().state.view);
+              getIt<HomeStackManager>().setStack(state.view.intoStackContext());
+            },
+            child: FlowyHover(
+              config: HoverDisplayConfig(hoverColor: theme.bg3),
+              builder: (context, onHover) => _render(context, onHover, state),
+              isOnSelected: () => state.isEditing || isSelected,
+            ),
+          );
         },
-        child: BlocBuilder<ViewBloc, ViewState>(
-          builder: (context, state) {
-            return InkWell(
-              onTap: () => onSelected(context.read<ViewBloc>().state.view),
-              child: FlowyHover(
-                config: HoverDisplayConfig(hoverColor: theme.bg3),
-                builder: (context, onHover) => _render(context, onHover),
-                isOnSelected: () => state.isEditing || state.isSelected,
-              ),
-            );
-          },
-        ),
       ),
     );
   }
 
-  Widget _render(BuildContext context, bool onHover) {
-    final state = context.read<ViewBloc>().state;
+  Widget _render(BuildContext context, bool onHover, ViewState state) {
     List<Widget> children = [
       SizedBox(width: 16, height: 16, child: state.view.thumbnail()),
       const HSpace(6),
@@ -75,13 +67,10 @@ class ViewSectionItem extends StatelessWidget {
     if (onHover || state.isEditing) {
       children.add(const Spacer());
       children.add(ViewDisclosureButton(
-        onTap: () {
-          context.read<ViewBloc>().add(const ViewEvent.setIsEditing(true));
-          getIt<HomeStackManager>().setStack(state.view.intoStackContext());
-        },
+        onTap: () => context.read<ViewBloc>().add(const ViewEvent.setIsEditing(true)),
         onSelected: (action) {
           context.read<ViewBloc>().add(const ViewEvent.setIsEditing(false));
-          context.read<ViewBloc>().add(ViewEvent.setAction(action));
+          _handleAction(context, action);
         },
       ));
     }
@@ -93,6 +82,20 @@ class ViewSectionItem extends StatelessWidget {
         right: MenuAppSizes.expandedIconPadding,
       ),
     );
+  }
+
+  void _handleAction(BuildContext context, dartz.Option<ViewAction> action) {
+    action.foldRight({}, (action, previous) {
+      switch (action) {
+        case ViewAction.rename:
+
+          // TODO: Handle this case.
+          break;
+        case ViewAction.delete:
+          context.read<ViewBloc>().add(const ViewEvent.delete());
+          break;
+      }
+    });
   }
 }
 
