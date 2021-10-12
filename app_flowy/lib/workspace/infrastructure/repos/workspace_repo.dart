@@ -62,7 +62,7 @@ class WorkspaceRepo {
   }
 }
 
-class WorkspaceWatchRepo {
+class WorkspaceListenerRepo {
   StreamSubscription<ObservableSubject>? _subscription;
   WorkspaceCreateAppCallback? _createApp;
   WorkspaceDeleteAppCallback? _deleteApp;
@@ -71,12 +71,12 @@ class WorkspaceWatchRepo {
   final UserProfile user;
   final String workspaceId;
 
-  WorkspaceWatchRepo({
+  WorkspaceListenerRepo({
     required this.user,
     required this.workspaceId,
   });
 
-  void startWatching({
+  void startListen({
     WorkspaceCreateAppCallback? createApp,
     WorkspaceDeleteAppCallback? deleteApp,
     WorkspaceUpdatedCallback? update,
@@ -92,12 +92,10 @@ class WorkspaceWatchRepo {
       },
     );
 
-    _subscription =
-        RustStreamReceiver.listen((observable) => _extractor.parse(observable));
+    _subscription = RustStreamReceiver.listen((observable) => _extractor.parse(observable));
   }
 
-  void _handleObservableType(
-      WorkspaceObservable ty, Either<Uint8List, WorkspaceError> result) {
+  void _handleObservableType(WorkspaceObservable ty, Either<Uint8List, WorkspaceError> result) {
     switch (ty) {
       case WorkspaceObservable.WorkspaceUpdated:
         if (_update != null) {

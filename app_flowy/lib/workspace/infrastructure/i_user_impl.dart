@@ -49,7 +49,7 @@ class IUserImpl extends IUser {
   }
 }
 
-class IUserWatchImpl extends IUserListener {
+class IUserListenerImpl extends IUserListener {
   StreamSubscription<ObservableSubject>? _subscription;
   WorkspacesUpdatedCallback? _workspacesUpdated;
   AuthChangedCallback? _authChanged;
@@ -58,7 +58,7 @@ class IUserWatchImpl extends IUserListener {
   late WorkspaceObservableParser _workspaceParser;
   late UserObservableParser _userParser;
   late UserProfile _user;
-  IUserWatchImpl({
+  IUserListenerImpl({
     required UserProfile user,
   }) {
     _user = user;

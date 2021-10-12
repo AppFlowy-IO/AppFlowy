@@ -6,7 +6,9 @@ import 'package:flowy_sdk/protobuf/flowy-dart-notify/subject.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/observable.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/view_delete.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_query.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/view_update.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 
 import 'package:app_flowy/workspace/domain/i_view.dart';
@@ -23,15 +25,38 @@ class ViewRepository {
     final request = QueryViewRequest.create()..viewId = view.id;
     return WorkspaceEventReadView(request).send();
   }
+
+  Future<Either<Unit, WorkspaceError>> updateView({String? name, String? desc, bool? isTrash}) {
+    final request = UpdateViewRequest.create()..viewId = view.id;
+
+    if (name != null) {
+      request.name = name;
+    }
+
+    if (desc != null) {
+      request.desc = desc;
+    }
+
+    if (isTrash != null) {
+      request.isTrash = isTrash;
+    }
+
+    return WorkspaceEventUpdateView(request).send();
+  }
+
+  Future<Either<Unit, WorkspaceError>> delete() {
+    final request = DeleteViewRequest.create()..viewId = view.id;
+    return WorkspaceEventDeleteView(request).send();
+  }
 }
 
-class ViewWatchRepository {
+class ViewListenerRepository {
   StreamSubscription<ObservableSubject>? _subscription;
   ViewUpdatedCallback? _update;
   late WorkspaceObservableParser _extractor;
   View view;
 
-  ViewWatchRepository({
+  ViewListenerRepository({
     required this.view,
   });
 
@@ -46,12 +71,10 @@ class ViewWatchRepository {
       },
     );
 
-    _subscription =
-        RustStreamReceiver.listen((observable) => _extractor.parse(observable));
+    _subscription = RustStreamReceiver.listen((observable) => _extractor.parse(observable));
   }
 
-  void _handleObservableType(
-      WorkspaceObservable ty, Either<Uint8List, WorkspaceError> result) {
+  void _handleObservableType(WorkspaceObservable ty, Either<Uint8List, WorkspaceError> result) {
     switch (ty) {
       case WorkspaceObservable.ViewUpdated:
         if (_update != null) {

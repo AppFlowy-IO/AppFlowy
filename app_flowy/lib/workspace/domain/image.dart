@@ -3,17 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:flowy_infra/image.dart';
 
 AssetImage assetImageForViewType(ViewType type) {
-  final imageName = imageNameForViewType(type);
+  final imageName = _imageNameForViewType(type);
   return AssetImage('assets/images/$imageName');
 }
 
-Widget svgForViewType(ViewType type) {
-  final imageName = imageNameForViewType(type);
-  final Widget widget = svg(imageName);
-  return widget;
+extension SvgViewType on View {
+  Widget thumbnail() {
+    final imageName = _imageNameForViewType(viewType);
+    final Widget widget = svg(imageName);
+    return widget;
+  }
 }
 
-String imageNameForViewType(ViewType type) {
+String _imageNameForViewType(ViewType type) {
   switch (type) {
     case ViewType.Doc:
       return "file_icon";

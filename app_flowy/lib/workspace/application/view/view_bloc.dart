@@ -1,3 +1,4 @@
+import 'package:app_flowy/workspace/domain/view_edit.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
@@ -12,32 +13,46 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
 
   ViewBloc({
     required this.iViewImpl,
-  }) : super(ViewState.initial());
+  }) : super(ViewState.initial(iViewImpl.view));
 
   @override
   Stream<ViewState> mapEventToState(ViewEvent event) async* {
-    yield* event.map(initial: (_) async* {
-      yield state;
-    });
+    yield* event.map(
+      setIsSelected: (e) async* {
+        yield state.copyWith(isSelected: e.isSelected);
+      },
+      setIsEditing: (e) async* {
+        yield state.copyWith(isEditing: e.isEditing);
+      },
+      setAction: (e) async* {
+        yield state.copyWith(action: e.action);
+      },
+    );
   }
 }
 
 @freezed
 class ViewEvent with _$ViewEvent {
-  const factory ViewEvent.initial() = Initial;
+  const factory ViewEvent.setIsSelected(bool isSelected) = SetSelected;
+  const factory ViewEvent.setIsEditing(bool isEditing) = SetEditing;
+  const factory ViewEvent.setAction(Option<ViewAction> action) = SetAction;
 }
 
 @freezed
 class ViewState with _$ViewState {
   const factory ViewState({
-    required bool isLoading,
-    required Option<View> view,
+    required View view,
+    required bool isSelected,
+    required bool isEditing,
+    required Option<ViewAction> action,
     required Either<Unit, WorkspaceError> successOrFailure,
   }) = _ViewState;
 
-  factory ViewState.initial() => ViewState(
-        isLoading: false,
-        view: none(),
+  factory ViewState.initial(View view) => ViewState(
+        view: view,
+        isSelected: false,
+        isEditing: false,
+        action: none(),
         successOrFailure: left(unit),
       );
 }

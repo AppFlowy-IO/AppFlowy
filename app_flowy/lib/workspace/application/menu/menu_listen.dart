@@ -10,14 +10,14 @@ import 'package:dartz/dartz.dart';
 part 'menu_listen.freezed.dart';
 
 class MenuListenBloc extends Bloc<MenuListenEvent, MenuListenState> {
-  final IWorkspaceWatch watch;
-  MenuListenBloc(this.watch) : super(const MenuListenState.initial());
+  final IWorkspaceListener listener;
+  MenuListenBloc(this.listener) : super(const MenuListenState.initial());
 
   @override
   Stream<MenuListenState> mapEventToState(MenuListenEvent event) async* {
     yield* event.map(
       started: (_) async* {
-        watch.startWatching(
+        listener.start(
           addAppCallback: (appsOrFail) => _handleAppsOrFail(appsOrFail),
         );
       },
@@ -32,7 +32,7 @@ class MenuListenBloc extends Bloc<MenuListenEvent, MenuListenState> {
 
   @override
   Future<void> close() async {
-    await watch.stopWatching();
+    await listener.stop();
     return super.close();
   }
 

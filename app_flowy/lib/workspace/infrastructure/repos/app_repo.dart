@@ -28,8 +28,7 @@ class AppRepository {
     return WorkspaceEventReadApp(request).send();
   }
 
-  Future<Either<View, WorkspaceError>> createView(
-      String name, String desc, ViewType viewType) {
+  Future<Either<View, WorkspaceError>> createView(String name, String desc, ViewType viewType) {
     final request = CreateViewRequest.create()
       ..belongToId = appId
       ..name = name
@@ -53,7 +52,7 @@ class AppRepository {
   }
 }
 
-class AppWatchRepository {
+class AppListenerRepository {
   StreamSubscription<ObservableSubject>? _subscription;
   AppCreateViewCallback? _createView;
   AppDeleteViewCallback? _deleteView;
@@ -61,25 +60,19 @@ class AppWatchRepository {
   late WorkspaceObservableParser _extractor;
   String appId;
 
-  AppWatchRepository({
+  AppListenerRepository({
     required this.appId,
   });
 
-  void startWatching(
-      {AppCreateViewCallback? createView,
-      AppDeleteViewCallback? deleteView,
-      AppUpdatedCallback? update}) {
+  void startListen({AppCreateViewCallback? createView, AppDeleteViewCallback? deleteView, AppUpdatedCallback? update}) {
     _createView = createView;
     _deleteView = deleteView;
     _update = update;
-    _extractor =
-        WorkspaceObservableParser(id: appId, callback: _bservableCallback);
-    _subscription =
-        RustStreamReceiver.listen((observable) => _extractor.parse(observable));
+    _extractor = WorkspaceObservableParser(id: appId, callback: _bservableCallback);
+    _subscription = RustStreamReceiver.listen((observable) => _extractor.parse(observable));
   }
 
-  void _bservableCallback(
-      WorkspaceObservable ty, Either<Uint8List, WorkspaceError> result) {
+  void _bservableCallback(WorkspaceObservable ty, Either<Uint8List, WorkspaceError> result) {
     switch (ty) {
       case WorkspaceObservable.AppCreateView:
         if (_createView != null) {

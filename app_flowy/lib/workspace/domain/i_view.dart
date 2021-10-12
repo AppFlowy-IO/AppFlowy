@@ -5,11 +5,15 @@ import 'package:dartz/dartz.dart';
 typedef ViewUpdatedCallback = void Function(Either<View, WorkspaceError>);
 
 abstract class IView {
-  Future<Either<View, WorkspaceError>> readView();
+  View get view;
+
+  Future<Either<Unit, WorkspaceError>> pushIntoTrash();
+
+  Future<Either<Unit, WorkspaceError>> rename(String newName);
 }
 
-abstract class IViewWatch {
-  void startWatching({ViewUpdatedCallback? updatedCallback});
+abstract class IViewListener {
+  void start({ViewUpdatedCallback? updatedCallback});
 
-  Future<void> stopWatching();
+  Future<void> stop();
 }

@@ -34,14 +34,16 @@ abstract class HomeStackContext extends Equatable with NavigationItem {
   Widget render();
 }
 
-HomeStackContext stackCtxFromView(View view) {
-  switch (view.viewType) {
-    case ViewType.Blank:
-      return BlankStackContext();
-    case ViewType.Doc:
-      return DocStackContext(view: view);
-    default:
-      return BlankStackContext();
+extension ViewStackContext on View {
+  HomeStackContext intoStackContext() {
+    switch (viewType) {
+      case ViewType.Blank:
+        return BlankStackContext();
+      case ViewType.Doc:
+        return DocStackContext(view: this);
+      default:
+        return BlankStackContext();
+    }
   }
 }
 

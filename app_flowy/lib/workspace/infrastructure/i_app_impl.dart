@@ -28,15 +28,15 @@ class IAppImpl extends IApp {
   }
 }
 
-class IAppWatchImpl extends IAppListenr {
-  AppWatchRepository repo;
-  IAppWatchImpl({
+class IAppListenerhImpl extends IAppListenr {
+  AppListenerRepository repo;
+  IAppListenerhImpl({
     required this.repo,
   });
 
   @override
   void start({AppCreateViewCallback? addViewCallback, AppUpdatedCallback? updatedCallback}) {
-    repo.startWatching(createView: addViewCallback, update: updatedCallback);
+    repo.startListen(createView: addViewCallback, update: updatedCallback);
   }
 
   @override

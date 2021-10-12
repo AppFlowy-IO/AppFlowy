@@ -13,8 +13,7 @@ class IWorkspaceImpl extends IWorkspace {
   });
 
   @override
-  Future<Either<App, WorkspaceError>> createApp(
-      {required String name, String? desc}) {
+  Future<Either<App, WorkspaceError>> createApp({required String name, String? desc}) {
     return repo.createApp(name, desc ?? "");
   }
 
@@ -29,21 +28,19 @@ class IWorkspaceImpl extends IWorkspace {
   }
 }
 
-class IWorkspaceWatchImpl extends IWorkspaceWatch {
-  WorkspaceWatchRepo repo;
-  IWorkspaceWatchImpl({
+class IWorkspaceListenerImpl extends IWorkspaceListener {
+  WorkspaceListenerRepo repo;
+  IWorkspaceListenerImpl({
     required this.repo,
   });
 
   @override
-  void startWatching(
-      {WorkspaceCreateAppCallback? addAppCallback,
-      WorkspaceUpdatedCallback? updatedCallback}) {
-    repo.startWatching(createApp: addAppCallback, update: updatedCallback);
+  void start({WorkspaceCreateAppCallback? addAppCallback, WorkspaceUpdatedCallback? updatedCallback}) {
+    repo.startListen(createApp: addAppCallback, update: updatedCallback);
   }
 
   @override
-  Future<void> stopWatching() async {
+  Future<void> stop() async {
     await repo.close();
   }
 }

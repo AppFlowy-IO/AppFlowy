@@ -6,7 +6,7 @@ import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_listen.dart';
 import 'package:app_flowy/workspace/application/view/view_bloc.dart';
-import 'package:app_flowy/workspace/application/view/view_list_bloc.dart';
+import 'package:app_flowy/workspace/application/view/view_edit_bloc.dart';
 import 'package:app_flowy/workspace/application/workspace/welcome_bloc.dart';
 import 'package:app_flowy/workspace/domain/i_doc.dart';
 import 'package:app_flowy/workspace/domain/i_view.dart';
@@ -33,31 +33,31 @@ class HomeDepsResolver {
     //App
     getIt.registerFactoryParam<IApp, String, void>((appId, _) => IAppImpl(repo: AppRepository(appId: appId)));
     getIt.registerFactoryParam<IAppListenr, String, void>(
-        (appId, _) => IAppWatchImpl(repo: AppWatchRepository(appId: appId)));
+        (appId, _) => IAppListenerhImpl(repo: AppListenerRepository(appId: appId)));
 
     //workspace
     getIt.registerFactoryParam<IWorkspace, UserProfile, String>(
         (user, workspaceId) => IWorkspaceImpl(repo: WorkspaceRepo(user: user, workspaceId: workspaceId)));
-    getIt.registerFactoryParam<IWorkspaceWatch, UserProfile, String>(
-        (user, workspaceId) => IWorkspaceWatchImpl(repo: WorkspaceWatchRepo(user: user, workspaceId: workspaceId)));
+    getIt.registerFactoryParam<IWorkspaceListener, UserProfile, String>((user, workspaceId) =>
+        IWorkspaceListenerImpl(repo: WorkspaceListenerRepo(user: user, workspaceId: workspaceId)));
 
     // View
     getIt.registerFactoryParam<IView, View, void>((view, _) => IViewImpl(repo: ViewRepository(view: view)));
-    getIt.registerFactoryParam<IViewWatch, View, void>(
-        (view, _) => IViewWatchImpl(repo: ViewWatchRepository(view: view)));
+    getIt.registerFactoryParam<IViewListener, View, void>(
+        (view, _) => IViewListenerImpl(repo: ViewListenerRepository(view: view)));
 
     // Doc
     getIt.registerFactoryParam<IDoc, String, void>((docId, _) => IDocImpl(repo: DocRepository(docId: docId)));
 
     // User
     getIt.registerFactoryParam<IUser, UserProfile, void>((user, _) => IUserImpl(repo: UserRepo(user: user)));
-    getIt.registerFactoryParam<IUserListener, UserProfile, void>((user, _) => IUserWatchImpl(user: user));
+    getIt.registerFactoryParam<IUserListener, UserProfile, void>((user, _) => IUserListenerImpl(user: user));
 
     //Menu Bloc
     getIt.registerFactoryParam<MenuBloc, UserProfile, String>(
         (user, workspaceId) => MenuBloc(getIt<IWorkspace>(param1: user, param2: workspaceId)));
     getIt.registerFactoryParam<MenuListenBloc, UserProfile, String>(
-        (user, workspaceId) => MenuListenBloc(getIt<IWorkspaceWatch>(param1: user, param2: workspaceId)));
+        (user, workspaceId) => MenuListenBloc(getIt<IWorkspaceListener>(param1: user, param2: workspaceId)));
 
     getIt.registerFactoryParam<MenuUserBloc, UserProfile, void>(
         (user, _) => MenuUserBloc(getIt<IUser>(param1: user), getIt<IUserListener>(param1: user)));
@@ -67,15 +67,11 @@ class HomeDepsResolver {
     getIt.registerFactoryParam<AppListenBloc, String, void>(
         (appId, _) => AppListenBloc(getIt<IAppListenr>(param1: appId)));
 
-    getIt
-        .registerFactoryParam<ViewBloc, String, void>((viewId, _) => ViewBloc(iViewImpl: getIt<IView>(param1: viewId)));
+    getIt.registerFactoryParam<ViewBloc, View, void>((view, _) => ViewBloc(iViewImpl: getIt<IView>(param1: view)));
 
     getIt.registerFactoryParam<DocBloc, String, void>((docId, _) => DocBloc(iDocImpl: getIt<IDoc>(param1: docId)));
 
     getIt.registerFactoryParam<DocEditBloc, String, void>((docId, _) => DocEditBloc(getIt<IDoc>(param1: docId)));
-
-    // editor
-    getIt.registerFactoryParam<ViewListBloc, List<View>, void>((views, _) => ViewListBloc(views: views));
 
     getIt.registerFactoryParam<WelcomeBloc, UserProfile, void>(
       (user, _) => WelcomeBloc(
@@ -83,8 +79,5 @@ class HomeDepsResolver {
         watch: getIt<IUserListener>(param1: user),
       ),
     );
-
-    // getIt.registerFactoryParam<ViewBloc, String, void>(
-    //     (viewId, _) => ViewBloc(iViewImpl: getIt<IView>(param1: viewId)));
   }
 }

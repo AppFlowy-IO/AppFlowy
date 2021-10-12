@@ -1,11 +1,8 @@
-import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
-import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'item.dart';
 
 class ViewListNotifier extends ChangeNotifier {
@@ -49,32 +46,26 @@ class ViewSection extends StatelessWidget {
   Widget build(BuildContext context) {
     // The ViewListNotifier will be updated after ViewListData changed passed by parent widget
     return ChangeNotifierProxyProvider<ViewListNotifier, ViewSectionNotifier>(
-      create: (_) => ViewSectionNotifier(
-        Provider.of<ViewListNotifier>(
+      create: (_) {
+        final views = Provider.of<ViewListNotifier>(
           context,
           listen: false,
-        ).items,
-      ),
+        ).items;
+        return ViewSectionNotifier(views);
+      },
       update: (_, notifier, controller) => controller!..update(notifier),
       child: Consumer(builder: (context, ViewSectionNotifier notifier, child) {
-        return _renderItems(context, notifier.views);
+        return _renderSectionItems(context, notifier.views);
       }),
     );
   }
 
-  Widget _renderItems(BuildContext context, List<View> views) {
+  Widget _renderSectionItems(BuildContext context, List<View> views) {
     var viewWidgets = views.map((view) {
-      final viewCtx = ViewWidgetContext(view);
-
       final item = ViewSectionItem(
-        viewCtx: viewCtx,
+        view: view,
         isSelected: _isViewSelected(context, view.id),
-        onOpen: (view) {
-          Log.debug("Open: $view");
-          context.read<ViewSectionNotifier>().setSelectedView(view);
-          final stackView = stackCtxFromView(viewCtx.view);
-          getIt<HomeStackManager>().setStack(stackView);
-        },
+        onSelected: (view) => context.read<ViewSectionNotifier>().setSelectedView(view),
       );
 
       return Padding(
@@ -83,17 +74,14 @@ class ViewSection extends StatelessWidget {
       );
     }).toList(growable: false);
 
-    return Column(
-      children: viewWidgets,
-    );
+    return Column(children: viewWidgets);
   }
 
   bool _isViewSelected(BuildContext context, String viewId) {
     final view = context.read<ViewSectionNotifier>().selectedView;
-    if (view != null) {
-      return view.id == viewId;
-    } else {
+    if (view == null) {
       return false;
     }
+    return view.id == viewId;
   }
 }
