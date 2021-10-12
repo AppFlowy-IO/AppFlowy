@@ -42,3 +42,11 @@ CREATE TABLE view_table (
     version BIGINT NOT NULL DEFAULT 0,
     is_trash Boolean NOT NULL DEFAULT false
 );
+
+CREATE TABLE trash_table (
+    id TEXT NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL DEFAULT '',
+    desc TEXT NOT NULL DEFAULT '',
+    modified_time BIGINT NOT NULL DEFAULT 0,
+    create_time BIGINT NOT NULL DEFAULT 0
+);

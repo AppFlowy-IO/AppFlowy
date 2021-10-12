@@ -271,6 +271,20 @@ class WorkspaceEventApplyDocDelta {
     }
 }
 
+class WorkspaceEventReadTrash {
+    WorkspaceEventReadTrash();
+
+    Future<Either<RepeatedView, WorkspaceError>> send() {
+     final request = FFIRequest.create()
+        ..event = WorkspaceEvent.ReadTrash.toString();
+
+     return Dispatch.asyncRequest(request).then((bytesResult) => bytesResult.fold(
+        (okBytes) => left(RepeatedView.fromBuffer(okBytes)),
+        (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+      ));
+    }
+}
+
 class WorkspaceEventInitWorkspace {
     WorkspaceEventInitWorkspace();
 

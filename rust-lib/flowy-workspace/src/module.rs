@@ -5,6 +5,7 @@ use crate::{
     services::{server::construct_workspace_server, AppController, ViewController, WorkspaceController},
 };
 
+use crate::services::TrashController;
 use flowy_database::DBConnection;
 use flowy_dispatch::prelude::*;
 use flowy_document::module::FlowyDocument;
@@ -37,6 +38,8 @@ pub fn mk_workspace(
 ) -> Arc<WorkspaceController> {
     let server = construct_workspace_server(server_config);
 
+    let trash_controller = Arc::new(TrashController::new());
+
     let view_controller = Arc::new(ViewController::new(
         user.clone(),
         database.clone(),
@@ -51,6 +54,7 @@ pub fn mk_workspace(
         database.clone(),
         app_controller.clone(),
         view_controller.clone(),
+        trash_controller.clone(),
         server.clone(),
     ));
     workspace_controller
@@ -62,6 +66,7 @@ pub fn create(workspace: Arc<WorkspaceController>) -> Module {
         .data(workspace.clone())
         .data(workspace.app_controller.clone())
         .data(workspace.view_controller.clone())
+        .data(workspace.trash_controller.clone())
         .event(WorkspaceEvent::InitWorkspace, init_workspace_handler);
 
     module = module
@@ -84,6 +89,8 @@ pub fn create(workspace: Arc<WorkspaceController>) -> Module {
         .event(WorkspaceEvent::DeleteView, delete_view_handler)
         .event(WorkspaceEvent::OpenView, open_view_handler)
         .event(WorkspaceEvent::ApplyDocDelta, apply_doc_delta_handler);
+
+    module = module.event(WorkspaceEvent::ReadTrash, read_trash_handler);
 
     module
 }

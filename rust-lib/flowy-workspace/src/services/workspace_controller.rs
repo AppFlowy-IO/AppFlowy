@@ -6,7 +6,7 @@ use crate::{
     errors::*,
     module::{WorkspaceDatabase, WorkspaceUser},
     notify::*,
-    services::{helper::spawn, server::Server, AppController, ViewController},
+    services::{helper::spawn, server::Server, AppController, TrashController, ViewController},
     sql_tables::workspace::{WorkspaceTable, WorkspaceTableChangeset, WorkspaceTableSql},
 };
 use flowy_database::SqliteConnection;
@@ -19,6 +19,7 @@ pub struct WorkspaceController {
     pub(crate) view_controller: Arc<ViewController>,
     pub(crate) database: Arc<dyn WorkspaceDatabase>,
     pub(crate) app_controller: Arc<AppController>,
+    pub(crate) trash_controller: Arc<TrashController>,
     server: Server,
 }
 
@@ -28,6 +29,7 @@ impl WorkspaceController {
         database: Arc<dyn WorkspaceDatabase>,
         app_controller: Arc<AppController>,
         view_controller: Arc<ViewController>,
+        trash_controller: Arc<TrashController>,
         server: Server,
     ) -> Self {
         let workspace_sql = Arc::new(WorkspaceTableSql {});
@@ -37,6 +39,7 @@ impl WorkspaceController {
             database,
             app_controller,
             view_controller,
+            trash_controller,
             server,
         }
     }

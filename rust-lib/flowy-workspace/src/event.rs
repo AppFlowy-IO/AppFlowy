@@ -52,6 +52,9 @@ pub enum WorkspaceEvent {
     #[event(input = "DocDelta", output = "DocDelta")]
     ApplyDocDelta     = 206,
 
+    #[event(output = "DocDelta", output = "RepeatedView")]
+    ReadTrash         = 300,
+
     #[event()]
     InitWorkspace     = 1000,
 }

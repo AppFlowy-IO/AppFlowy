@@ -17,5 +17,6 @@ enum WorkspaceEvent {
     DeleteView = 204;
     OpenView = 205;
     ApplyDocDelta = 206;
+    ReadTrash = 300;
     InitWorkspace = 1000;
 }
