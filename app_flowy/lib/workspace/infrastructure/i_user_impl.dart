@@ -55,8 +55,8 @@ class IUserListenerImpl extends IUserListener {
   AuthChangedCallback? _authChanged;
   UserProfileUpdateCallback? _profileUpdated;
 
-  late WorkspaceObservableParser _workspaceParser;
-  late UserObservableParser _userParser;
+  late WorkspaceNotificationParser _workspaceParser;
+  late UserNotificationParser _userParser;
   late UserProfile _user;
   IUserListenerImpl({
     required UserProfile user,
@@ -66,9 +66,9 @@ class IUserListenerImpl extends IUserListener {
 
   @override
   void start() {
-    _workspaceParser = WorkspaceObservableParser(id: _user.token, callback: _workspaceObservableCallback);
+    _workspaceParser = WorkspaceNotificationParser(id: _user.token, callback: _NotificationCallback);
 
-    _userParser = UserObservableParser(id: _user.token, callback: _userObservableCallback);
+    _userParser = UserNotificationParser(id: _user.token, callback: _userObservableCallback);
 
     _subscription = RustStreamReceiver.listen((observable) {
       _workspaceParser.parse(observable);
@@ -96,11 +96,11 @@ class IUserListenerImpl extends IUserListener {
     _workspacesUpdated = workspacesCallback;
   }
 
-  void _workspaceObservableCallback(WorkspaceObservable ty, Either<Uint8List, WorkspaceError> result) {
+  void _NotificationCallback(Notification ty, Either<Uint8List, WorkspaceError> result) {
     switch (ty) {
-      case WorkspaceObservable.UserCreateWorkspace:
-      case WorkspaceObservable.UserDeleteWorkspace:
-      case WorkspaceObservable.WorkspaceListUpdated:
+      case Notification.UserCreateWorkspace:
+      case Notification.UserDeleteWorkspace:
+      case Notification.WorkspaceListUpdated:
         if (_workspacesUpdated != null) {
           result.fold(
             (payload) {
@@ -111,7 +111,7 @@ class IUserListenerImpl extends IUserListener {
           );
         }
         break;
-      case WorkspaceObservable.UserUnauthorized:
+      case Notification.UserUnauthorized:
         if (_authChanged != null) {
           result.fold(
             (_) {},

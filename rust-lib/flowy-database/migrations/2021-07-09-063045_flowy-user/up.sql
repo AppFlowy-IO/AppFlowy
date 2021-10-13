@@ -48,5 +48,6 @@ CREATE TABLE trash_table (
     name TEXT NOT NULL DEFAULT '',
     desc TEXT NOT NULL DEFAULT '',
     modified_time BIGINT NOT NULL DEFAULT 0,
-    create_time BIGINT NOT NULL DEFAULT 0
+    create_time BIGINT NOT NULL DEFAULT 0,
+    source INTEGER NOT NULL DEFAULT 0
 );

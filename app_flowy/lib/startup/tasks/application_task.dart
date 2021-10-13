@@ -38,14 +38,15 @@ class ApplicationWidget extends StatelessWidget {
     final theme = AppTheme.fromType(ThemeType.light);
     FlowyOverlayConfig config = FlowyOverlayConfig(barrierColor: Colors.transparent);
     return Provider.value(
-        value: theme,
-        child: MaterialApp(
-          builder: overlayManagerBuilder(config: config),
-          debugShowCheckedModeBanner: false,
-          theme: theme.themeData,
-          navigatorKey: AppGlobals.rootNavKey,
-          home: child,
-        ));
+      value: theme,
+      child: MaterialApp(
+        builder: overlayManagerBuilder(config: config),
+        debugShowCheckedModeBanner: false,
+        theme: theme.themeData,
+        navigatorKey: AppGlobals.rootNavKey,
+        home: child,
+      ),
+    );
   }
 }
 

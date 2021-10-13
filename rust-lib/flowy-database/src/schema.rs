@@ -40,6 +40,7 @@ table! {
         desc -> Text,
         modified_time -> BigInt,
         create_time -> BigInt,
+        source -> Integer,
     }
 }
 

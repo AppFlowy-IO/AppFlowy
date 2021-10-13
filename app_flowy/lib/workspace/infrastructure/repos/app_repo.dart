@@ -54,48 +54,36 @@ class AppRepository {
 
 class AppListenerRepository {
   StreamSubscription<ObservableSubject>? _subscription;
-  AppCreateViewCallback? _createView;
-  AppDeleteViewCallback? _deleteView;
+  AppViewsChangeCallback? _viewsChanged;
   AppUpdatedCallback? _update;
-  late WorkspaceObservableParser _extractor;
+  late WorkspaceNotificationParser _extractor;
   String appId;
 
   AppListenerRepository({
     required this.appId,
   });
 
-  void startListen({AppCreateViewCallback? createView, AppDeleteViewCallback? deleteView, AppUpdatedCallback? update}) {
-    _createView = createView;
-    _deleteView = deleteView;
+  void startListen({AppViewsChangeCallback? viewsChanged, AppUpdatedCallback? update}) {
+    _viewsChanged = viewsChanged;
     _update = update;
-    _extractor = WorkspaceObservableParser(id: appId, callback: _bservableCallback);
+    _extractor = WorkspaceNotificationParser(id: appId, callback: _bservableCallback);
     _subscription = RustStreamReceiver.listen((observable) => _extractor.parse(observable));
   }
 
-  void _bservableCallback(WorkspaceObservable ty, Either<Uint8List, WorkspaceError> result) {
+  void _bservableCallback(Notification ty, Either<Uint8List, WorkspaceError> result) {
     switch (ty) {
-      case WorkspaceObservable.AppCreateView:
-        if (_createView != null) {
+      case Notification.AppViewsChanged:
+        if (_viewsChanged != null) {
           result.fold(
             (payload) {
               final repeatedView = RepeatedView.fromBuffer(payload);
-              _createView!(left(repeatedView.items));
+              _viewsChanged!(left(repeatedView.items));
             },
-            (error) => _createView!(right(error)),
+            (error) => _viewsChanged!(right(error)),
           );
         }
         break;
-      case WorkspaceObservable.AppDeleteView:
-        if (_deleteView != null) {
-          result.fold(
-            (payload) => _deleteView!(
-              left(RepeatedView.fromBuffer(payload).items),
-            ),
-            (error) => _deleteView!(right(error)),
-          );
-        }
-        break;
-      case WorkspaceObservable.AppUpdated:
+      case Notification.AppUpdated:
         if (_update != null) {
           result.fold(
             (payload) {

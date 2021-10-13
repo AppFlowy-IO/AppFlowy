@@ -91,7 +91,10 @@ pub fn create(workspace: Arc<WorkspaceController>) -> Module {
         .event(WorkspaceEvent::OpenView, open_view_handler)
         .event(WorkspaceEvent::ApplyDocDelta, apply_doc_delta_handler);
 
-    module = module.event(WorkspaceEvent::ReadTrash, read_trash_handler);
+    module = module
+        .event(WorkspaceEvent::ReadTrash, read_trash_handler)
+        .event(WorkspaceEvent::PutbackTrash, putback_trash_handler)
+        .event(WorkspaceEvent::DeleteTrash, delete_trash_handler);
 
     module
 }

@@ -2,7 +2,7 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/workspace/welcome_bloc.dart';
 import 'package:app_flowy/workspace/domain/i_user.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
-import 'package:flowy_infra_ui/style_widget/text_button.dart';
+import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/workspace_create.pb.dart';
 import 'package:flutter/material.dart';
@@ -19,8 +19,7 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => getIt<WelcomeBloc>(param1: repo.user)
-        ..add(const WelcomeEvent.initial()),
+      create: (_) => getIt<WelcomeBloc>(param1: repo.user)..add(const WelcomeEvent.initial()),
       child: BlocBuilder<WelcomeBloc, WelcomeState>(
         builder: (context, state) {
           return Scaffold(
@@ -55,9 +54,7 @@ class WelcomeScreen extends StatelessWidget {
         "Create workspace",
         fontSize: 14,
         onPressed: () {
-          context
-              .read<WelcomeBloc>()
-              .add(const WelcomeEvent.createWorkspace("workspace", ""));
+          context.read<WelcomeBloc>().add(const WelcomeEvent.createWorkspace("workspace", ""));
         },
       ),
     );
@@ -88,9 +85,7 @@ class WelcomeScreen extends StatelessWidget {
 class WorkspaceItem extends StatelessWidget {
   final Workspace workspace;
   final void Function(Workspace workspace) onPressed;
-  const WorkspaceItem(
-      {Key? key, required this.workspace, required this.onPressed})
-      : super(key: key);
+  const WorkspaceItem({Key? key, required this.workspace, required this.onPressed}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

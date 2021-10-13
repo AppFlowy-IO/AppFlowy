@@ -12,8 +12,7 @@ pub(crate) enum Notification {
     WorkspaceDeleteApp   = 14,
     WorkspaceListUpdated = 15,
     AppUpdated           = 21,
-    AppCreateView        = 23,
-    AppDeleteView        = 24,
+    AppViewsChanged      = 24,
     ViewUpdated          = 31,
     UserUnauthorized     = 100,
 }

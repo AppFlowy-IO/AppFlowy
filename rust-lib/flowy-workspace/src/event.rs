@@ -52,8 +52,14 @@ pub enum WorkspaceEvent {
     #[event(input = "DocDelta", output = "DocDelta")]
     ApplyDocDelta     = 206,
 
-    #[event(output = "DocDelta", output = "RepeatedView")]
+    #[event(output = "RepeatedTrash")]
     ReadTrash         = 300,
+
+    #[event(input = "TrashIdentifier")]
+    PutbackTrash      = 301,
+
+    #[event(input = "TrashIdentifier")]
+    DeleteTrash       = 302,
 
     #[event()]
     InitWorkspace     = 1000,

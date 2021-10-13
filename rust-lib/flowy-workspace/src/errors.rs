@@ -6,6 +6,8 @@ use flowy_document::errors::DocError;
 use flowy_net::errors::ErrorCode as ServerErrorCode;
 use std::{convert::TryInto, fmt, fmt::Debug};
 
+pub type WorkspaceResult<T> = std::result::Result<T, WorkspaceError>;
+
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct WorkspaceError {
     #[pb(index = 1)]

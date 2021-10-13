@@ -16,6 +16,7 @@ flowy-document = { path = "../flowy-document" }
 flowy-ot = { path = "../flowy-ot" }
 flowy-net = { path = "../flowy-net", features = ["flowy_request"] }
 
+parking_lot = "0.11"
 protobuf = {version = "2.18.0"}
 log = "0.4.14"
 diesel = {version = "1.4.7", features = ["sqlite"]}
@@ -24,6 +25,7 @@ diesel_derives = {version = "1.4.1", features = ["sqlite"]}
 #diesel_derives = { git = "https://github.com/diesel-rs/diesel.git", branch = "master",features = ["sqlite"] }
 
 futures-core = { version = "0.3", default-features = false }
+futures = "0.3.15"
 pin-project = "1.0.0"
 strum = "0.21"
 strum_macros = "0.21"

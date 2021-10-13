@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+message TrashIdentifier {
+    string id = 1;
+}

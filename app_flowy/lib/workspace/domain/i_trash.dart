@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 
 abstract class TrashObject {
   String get id;

@@ -27,6 +27,8 @@ class WorkspaceEvent extends $pb.ProtobufEnum {
   static const WorkspaceEvent OpenView = WorkspaceEvent._(205, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'OpenView');
   static const WorkspaceEvent ApplyDocDelta = WorkspaceEvent._(206, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ApplyDocDelta');
   static const WorkspaceEvent ReadTrash = WorkspaceEvent._(300, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ReadTrash');
+  static const WorkspaceEvent PutbackTrash = WorkspaceEvent._(301, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'PutbackTrash');
+  static const WorkspaceEvent DeleteTrash = WorkspaceEvent._(302, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DeleteTrash');
   static const WorkspaceEvent InitWorkspace = WorkspaceEvent._(1000, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'InitWorkspace');
 
   static const $core.List<WorkspaceEvent> values = <WorkspaceEvent> [
@@ -47,6 +49,8 @@ class WorkspaceEvent extends $pb.ProtobufEnum {
     OpenView,
     ApplyDocDelta,
     ReadTrash,
+    PutbackTrash,
+    DeleteTrash,
     InitWorkspace,
   ];
 

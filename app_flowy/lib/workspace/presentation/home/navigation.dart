@@ -1,6 +1,6 @@
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/style_widget/text_button.dart';
+import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-enum WorkspaceObservable {
+enum Notification {
     Unknown = 0;
     UserCreateWorkspace = 10;
     UserDeleteWorkspace = 11;
@@ -9,8 +9,7 @@ enum WorkspaceObservable {
     WorkspaceDeleteApp = 14;
     WorkspaceListUpdated = 15;
     AppUpdated = 21;
-    AppCreateView = 23;
-    AppDeleteView = 24;
+    AppViewsChanged = 24;
     ViewUpdated = 31;
     UserUnauthorized = 100;
 }

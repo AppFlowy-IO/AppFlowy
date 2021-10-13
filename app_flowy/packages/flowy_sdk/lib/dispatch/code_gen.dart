@@ -274,14 +274,48 @@ class WorkspaceEventApplyDocDelta {
 class WorkspaceEventReadTrash {
     WorkspaceEventReadTrash();
 
-    Future<Either<RepeatedView, WorkspaceError>> send() {
+    Future<Either<RepeatedTrash, WorkspaceError>> send() {
      final request = FFIRequest.create()
         ..event = WorkspaceEvent.ReadTrash.toString();
 
      return Dispatch.asyncRequest(request).then((bytesResult) => bytesResult.fold(
-        (okBytes) => left(RepeatedView.fromBuffer(okBytes)),
+        (okBytes) => left(RepeatedTrash.fromBuffer(okBytes)),
         (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
       ));
+    }
+}
+
+class WorkspaceEventPutbackTrash {
+     TrashIdentifier request;
+     WorkspaceEventPutbackTrash(this.request);
+
+    Future<Either<Unit, WorkspaceError>> send() {
+    final request = FFIRequest.create()
+          ..event = WorkspaceEvent.PutbackTrash.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (bytes) => left(unit),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
+class WorkspaceEventDeleteTrash {
+     TrashIdentifier request;
+     WorkspaceEventDeleteTrash(this.request);
+
+    Future<Either<Unit, WorkspaceError>> send() {
+    final request = FFIRequest.create()
+          ..event = WorkspaceEvent.DeleteTrash.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (bytes) => left(unit),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
     }
 }
 

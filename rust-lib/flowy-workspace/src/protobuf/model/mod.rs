@@ -18,6 +18,9 @@ pub use observable::*;
 mod errors; 
 pub use errors::*; 
 
+mod trash_delete; 
+pub use trash_delete::*; 
+
 mod workspace_update; 
 pub use workspace_update::*; 
 
@@ -44,6 +47,9 @@ pub use app_update::*;
 
 mod view_query; 
 pub use view_query::*; 
+
+mod trash_create; 
+pub use trash_create::*; 
 
 mod app_delete; 
 pub use app_delete::*; 

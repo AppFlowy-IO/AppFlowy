@@ -31,13 +31,14 @@ class ListOverlay extends StatelessWidget {
           ],
         ),
         child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemBuilder: itemBuilder,
-              itemCount: itemCount,
-              controller: controller,
-            )),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemBuilder: itemBuilder,
+            itemCount: itemCount,
+            controller: controller,
+          ),
+        ),
       ),
     );
   }

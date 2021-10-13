@@ -15,6 +15,11 @@ class FlowyText extends StatelessWidget {
     this.fontWeight = FontWeight.w500,
   }) : super(key: key);
 
+  const FlowyText.semibold(this.title, {Key? key, this.fontSize = 16, TextOverflow? overflow})
+      : fontWeight = FontWeight.w600,
+        overflow = overflow ?? TextOverflow.ellipsis,
+        super(key: key);
+
   const FlowyText.medium(this.title, {Key? key, this.fontSize = 16, TextOverflow? overflow})
       : fontWeight = FontWeight.w500,
         overflow = overflow ?? TextOverflow.ellipsis,

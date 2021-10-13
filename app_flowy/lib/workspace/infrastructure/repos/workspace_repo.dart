@@ -67,7 +67,7 @@ class WorkspaceListenerRepo {
   WorkspaceCreateAppCallback? _createApp;
   WorkspaceDeleteAppCallback? _deleteApp;
   WorkspaceUpdatedCallback? _update;
-  late WorkspaceObservableParser _extractor;
+  late WorkspaceNotificationParser _extractor;
   final UserProfile user;
   final String workspaceId;
 
@@ -85,7 +85,7 @@ class WorkspaceListenerRepo {
     _deleteApp = deleteApp;
     _update = update;
 
-    _extractor = WorkspaceObservableParser(
+    _extractor = WorkspaceNotificationParser(
       id: workspaceId,
       callback: (ty, result) {
         _handleObservableType(ty, result);
@@ -95,9 +95,9 @@ class WorkspaceListenerRepo {
     _subscription = RustStreamReceiver.listen((observable) => _extractor.parse(observable));
   }
 
-  void _handleObservableType(WorkspaceObservable ty, Either<Uint8List, WorkspaceError> result) {
+  void _handleObservableType(Notification ty, Either<Uint8List, WorkspaceError> result) {
     switch (ty) {
-      case WorkspaceObservable.WorkspaceUpdated:
+      case Notification.WorkspaceUpdated:
         if (_update != null) {
           result.fold(
             (payload) {
@@ -108,7 +108,7 @@ class WorkspaceListenerRepo {
           );
         }
         break;
-      case WorkspaceObservable.WorkspaceCreateApp:
+      case Notification.WorkspaceCreateApp:
         if (_createApp != null) {
           result.fold(
             (payload) => _createApp!(
@@ -118,7 +118,7 @@ class WorkspaceListenerRepo {
           );
         }
         break;
-      case WorkspaceObservable.WorkspaceDeleteApp:
+      case Notification.WorkspaceDeleteApp:
         if (_deleteApp != null) {
           result.fold(
             (payload) => _deleteApp!(

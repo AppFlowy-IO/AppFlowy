@@ -36,7 +36,7 @@ impl AppController {
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.save_app(app.clone(), &*conn)?;
             let apps = self.read_local_apps(&app.workspace_id, &*conn)?;
-            dart_notify(&app.workspace_id, WorkspaceObservable::WorkspaceCreateApp)
+            dart_notify(&app.workspace_id, Notification::WorkspaceCreateApp)
                 .payload(apps)
                 .send();
             Ok(())
@@ -59,13 +59,13 @@ impl AppController {
         Ok(app_table.into())
     }
 
-    #[tracing::instrument(level = "debug", skip(self), fields(dart_notify)  err)]
+    #[tracing::instrument(level = "debug", skip(self), err)]
     pub(crate) async fn delete_app(&self, app_id: &str) -> Result<(), WorkspaceError> {
         let conn = &*self.database.db_connection()?;
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let app = self.sql.delete_app(app_id, &*conn)?;
             let apps = self.read_local_apps(&app.workspace_id, &*conn)?;
-            dart_notify(&app.workspace_id, WorkspaceObservable::WorkspaceDeleteApp)
+            dart_notify(&app.workspace_id, Notification::WorkspaceDeleteApp)
                 .payload(apps)
                 .send();
             Ok(())
@@ -88,9 +88,7 @@ impl AppController {
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.sql.update_app(changeset, conn)?;
             let app: App = self.sql.read_app(&app_id, None, conn)?.into();
-            dart_notify(&app_id, WorkspaceObservable::AppUpdated)
-                .payload(app)
-                .send();
+            dart_notify(&app_id, Notification::AppUpdated).payload(app).send();
             Ok(())
         })?;
 

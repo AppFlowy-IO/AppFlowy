@@ -1,4 +1,4 @@
-use crate::errors::WorkspaceError;
+use crate::{errors::WorkspaceError, impl_def_and_def_mut};
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
 
@@ -37,3 +37,5 @@ pub struct RepeatedTrash {
     #[pb(index = 1)]
     pub items: Vec<Trash>,
 }
+
+impl_def_and_def_mut!(RepeatedTrash, Trash);
