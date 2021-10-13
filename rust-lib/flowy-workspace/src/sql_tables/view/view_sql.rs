@@ -39,7 +39,7 @@ impl ViewTableSql {
     }
 
     // belong_to_id will be the app_id or view_id.
-    pub(crate) fn read_views_belong_to(
+    pub(crate) fn read_views(
         &self,
         belong_to_id: &str,
         is_trash: Option<bool>,

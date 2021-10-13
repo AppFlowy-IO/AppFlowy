@@ -8,10 +8,14 @@ use crate::{
 };
 
 use crate::{
-    entities::view::{DeleteViewParams, QueryViewParams, RepeatedView},
+    entities::{
+        trash::Trash,
+        view::{DeleteViewParams, QueryViewParams, RepeatedView},
+    },
     errors::internal_error,
     module::WorkspaceUser,
     notify::WorkspaceObservable,
+    services::TrashCan,
 };
 use flowy_database::SqliteConnection;
 use flowy_document::{
@@ -25,6 +29,7 @@ pub(crate) struct ViewController {
     sql: Arc<ViewTableSql>,
     server: Server,
     database: Arc<dyn WorkspaceDatabase>,
+    trash_can: Arc<TrashCan>,
     document: Arc<FlowyDocument>,
 }
 
@@ -33,6 +38,7 @@ impl ViewController {
         user: Arc<dyn WorkspaceUser>,
         database: Arc<dyn WorkspaceDatabase>,
         server: Server,
+        trash_can: Arc<TrashCan>,
         document: Arc<FlowyDocument>,
     ) -> Self {
         let sql = Arc::new(ViewTableSql {});
@@ -41,6 +47,7 @@ impl ViewController {
             sql,
             server,
             database,
+            trash_can,
             document,
         }
     }
@@ -50,6 +57,7 @@ impl ViewController {
         Ok(())
     }
 
+    #[tracing::instrument(level = "debug", skip(self, params), fields(dart_notify)  err)]
     pub(crate) async fn create_view(&self, params: CreateViewParams) -> Result<View, WorkspaceError> {
         let view = self.create_view_on_server(params.clone()).await?;
         let conn = &*self.database.db_connection()?;
@@ -58,7 +66,7 @@ impl ViewController {
             let _ = self.save_view(view.clone(), conn)?;
             self.document.create(CreateDocParams::new(&view.id, params.data))?;
 
-            let repeated_view = self.sql.read_views_belong_to(&view.belong_to_id, Some(false), conn)?;
+            let repeated_view = self.sql.read_views(&view.belong_to_id, Some(false), conn)?;
             dart_notify(&view.belong_to_id, WorkspaceObservable::AppCreateView)
                 .payload(repeated_view)
                 .send();
@@ -88,6 +96,7 @@ impl ViewController {
         Ok(edit_context.delta().await.map_err(internal_error)?)
     }
 
+    #[tracing::instrument(level = "debug", skip(self, params), fields(dart_notify)  err)]
     pub(crate) async fn delete_view(&self, params: DeleteViewParams) -> Result<(), WorkspaceError> {
         let conn = &*self.database.db_connection()?;
         let _ = self.delete_view_on_server(&params.view_id);
@@ -96,9 +105,7 @@ impl ViewController {
             let view_table = self.sql.delete_view(&params.view_id, conn)?;
             let _ = self.document.delete(params.into())?;
 
-            let repeated_view = self
-                .sql
-                .read_views_belong_to(&view_table.belong_to_id, Some(false), conn)?;
+            let repeated_view = self.sql.read_views(&view_table.belong_to_id, Some(false), conn)?;
 
             dart_notify(&view_table.belong_to_id, WorkspaceObservable::AppDeleteView)
                 .payload(repeated_view)
@@ -114,7 +121,7 @@ impl ViewController {
     pub(crate) async fn read_views_belong_to(&self, belong_to_id: &str) -> Result<RepeatedView, WorkspaceError> {
         // TODO: read from server
         let conn = self.database.db_connection()?;
-        let repeated_view = self.sql.read_views_belong_to(belong_to_id, Some(false), &*conn)?;
+        let repeated_view = self.sql.read_views(belong_to_id, Some(false), &*conn)?;
         Ok(repeated_view)
     }
 
@@ -127,22 +134,33 @@ impl ViewController {
         let updated_view = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.sql.update_view(changeset, conn)?;
             let view: View = self.sql.read_view(&view_id, None, conn)?.into();
+            let _ = self.add_to_trash_if_need(view.clone(), params.is_trash.clone())?;
+
+            match params.is_trash {
+                None => {
+                    dart_notify(&view_id, WorkspaceObservable::ViewUpdated)
+                        .payload(view.clone())
+                        .send();
+                },
+                Some(is_trash) => {
+                    let repeated_view = self.sql.read_views(&view.belong_to_id, Some(false), conn)?;
+                    dart_notify(&view.belong_to_id, WorkspaceObservable::AppDeleteView)
+                        .payload(repeated_view)
+                        .send();
+
+                    match is_trash {
+                        true => self.trash_can.add(view.clone()),
+                        false => self.trash_can.remove(&view.id),
+                    }
+                },
+            }
 
             if params.is_trash.is_some() {
-                let repeated_view = self.sql.read_views_belong_to(&view.belong_to_id, Some(false), conn)?;
-                tracing::Span::current().record(
-                    "dart_notify",
-                    &format!("{:?}: {}", WorkspaceObservable::AppDeleteView, &view.belong_to_id).as_str(),
-                );
+                let repeated_view = self.sql.read_views(&view.belong_to_id, Some(false), conn)?;
                 dart_notify(&view.belong_to_id, WorkspaceObservable::AppDeleteView)
                     .payload(repeated_view)
                     .send();
             } else {
-                tracing::Span::current().record(
-                    "dart_notify",
-                    &format!("{:?}: {}", WorkspaceObservable::ViewUpdated, &view_id).as_str(),
-                );
-
                 dart_notify(&view_id, WorkspaceObservable::ViewUpdated)
                     .payload(view.clone())
                     .send();

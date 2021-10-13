@@ -59,6 +59,7 @@ impl AppController {
         Ok(app_table.into())
     }
 
+    #[tracing::instrument(level = "debug", skip(self), fields(dart_notify)  err)]
     pub(crate) async fn delete_app(&self, app_id: &str) -> Result<(), WorkspaceError> {
         let conn = &*self.database.db_connection()?;
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
