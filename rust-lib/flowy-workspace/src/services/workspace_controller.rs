@@ -69,7 +69,7 @@ impl WorkspaceController {
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             self.workspace_sql.create_workspace(workspace_table, conn)?;
             let repeated_workspace = self.read_local_workspaces(None, &user_id, conn)?;
-            dart_notify(&token, Notification::UserCreateWorkspace)
+            send_dart_notification(&token, WorkspaceNotification::UserCreateWorkspace)
                 .payload(repeated_workspace)
                 .send();
 
@@ -88,7 +88,7 @@ impl WorkspaceController {
             let _ = self.workspace_sql.update_workspace(changeset, conn)?;
             let user_id = self.user.user_id()?;
             let workspace = self.read_local_workspace(workspace_id.clone(), &user_id, conn)?;
-            dart_notify(&workspace_id, Notification::WorkspaceUpdated)
+            send_dart_notification(&workspace_id, WorkspaceNotification::WorkspaceUpdated)
                 .payload(workspace)
                 .send();
 
@@ -108,7 +108,7 @@ impl WorkspaceController {
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.workspace_sql.delete_workspace(workspace_id, conn)?;
             let repeated_workspace = self.read_local_workspaces(None, &user_id, conn)?;
-            dart_notify(&token, Notification::UserDeleteWorkspace)
+            send_dart_notification(&token, WorkspaceNotification::UserDeleteWorkspace)
                 .payload(repeated_workspace)
                 .send();
 
@@ -297,7 +297,7 @@ impl WorkspaceController {
                 Ok(())
             })?;
 
-            dart_notify(&token, Notification::WorkspaceListUpdated)
+            send_dart_notification(&token, WorkspaceNotification::WorkspaceListUpdated)
                 .payload(workspaces)
                 .send();
             Result::<(), WorkspaceError>::Ok(())

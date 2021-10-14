@@ -2,6 +2,7 @@ use crate::{
     entities::trash::{RepeatedTrash, Trash},
     errors::{WorkspaceError, WorkspaceResult},
     module::WorkspaceDatabase,
+    notify::{send_anonymous_dart_notification, WorkspaceNotification},
     sql_tables::trash::{TrashSource, TrashTable, TrashTableSql},
 };
 use flowy_database::SqliteConnection;
@@ -60,16 +61,20 @@ impl TrashCan {
     #[tracing::instrument(level = "debug", skip(self), fields(putback)  err)]
     pub fn putback(&self, trash_id: &str) -> WorkspaceResult<()> {
         let conn = self.database.db_connection()?;
-        // Opti: transaction
-        let trash_table = TrashTableSql::read(trash_id, &*conn)?;
-        let _ = TrashTableSql::delete_trash(trash_id, &*conn)?;
-        tracing::Span::current().record(
-            "putback",
-            &format!("{:?}: {}", &trash_table.source, trash_table.id).as_str(),
-        );
+        let _ = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
+            let trash_table = TrashTableSql::read(trash_id, &*conn)?;
+            let _ = TrashTableSql::delete_trash(trash_id, &*conn)?;
+            tracing::Span::current().record(
+                "putback",
+                &format!("{:?}: {}", &trash_table.source, trash_table.id).as_str(),
+            );
 
-        self.notify
-            .send(TrashEvent::Putback(trash_table.source, trash_table.id));
+            self.notify
+                .send(TrashEvent::Putback(trash_table.source, trash_table.id));
+
+            let _ = self.notify_dart_trash_did_update(&conn)?;
+            Ok(())
+        })?;
 
         Ok(())
     }
@@ -80,7 +85,7 @@ impl TrashCan {
         let trash_table = TrashTableSql::read(trash_id, &*conn)?;
         let _ = TrashTableSql::delete_trash(trash_id, &*conn)?;
 
-        self.notify.send(TrashEvent::Delete(trash_table.source, trash_table.id));
+        let _ = self.notify.send(TrashEvent::Delete(trash_table.source, trash_table.id));
         Ok(())
     }
 
@@ -108,8 +113,19 @@ impl TrashCan {
             &format!("{:?}: {}", &trash_table.source, trash_table.id).as_str(),
         );
 
-        let trash_id = trash_table.id.clone();
         let _ = TrashTableSql::create_trash(trash_table, &*conn)?;
+        let _ = self.notify_dart_trash_did_update(&conn)?;
+
+        Ok(())
+    }
+
+    fn notify_dart_trash_did_update(&self, conn: &SqliteConnection) -> WorkspaceResult<()> {
+        // Opti: only push the changeset
+        let repeated_trash = TrashTableSql::read_all(conn)?;
+        send_anonymous_dart_notification(WorkspaceNotification::TrashUpdated)
+            .payload(repeated_trash)
+            .send();
+
         Ok(())
     }
 }

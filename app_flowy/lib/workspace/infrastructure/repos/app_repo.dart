@@ -53,26 +53,26 @@ class AppRepository {
 }
 
 class AppListenerRepository {
-  StreamSubscription<ObservableSubject>? _subscription;
+  StreamSubscription<SubscribeObject>? _subscription;
   AppViewsChangeCallback? _viewsChanged;
   AppUpdatedCallback? _update;
-  late WorkspaceNotificationParser _extractor;
+  late WorkspaceNotificationParser _parser;
   String appId;
 
   AppListenerRepository({
     required this.appId,
   });
 
-  void startListen({AppViewsChangeCallback? viewsChanged, AppUpdatedCallback? update}) {
+  void startListening({AppViewsChangeCallback? viewsChanged, AppUpdatedCallback? update}) {
     _viewsChanged = viewsChanged;
     _update = update;
-    _extractor = WorkspaceNotificationParser(id: appId, callback: _bservableCallback);
-    _subscription = RustStreamReceiver.listen((observable) => _extractor.parse(observable));
+    _parser = WorkspaceNotificationParser(id: appId, callback: _bservableCallback);
+    _subscription = RustStreamReceiver.listen((observable) => _parser.parse(observable));
   }
 
-  void _bservableCallback(Notification ty, Either<Uint8List, WorkspaceError> result) {
+  void _bservableCallback(WorkspaceNotification ty, Either<Uint8List, WorkspaceError> result) {
     switch (ty) {
-      case Notification.AppViewsChanged:
+      case WorkspaceNotification.AppViewsChanged:
         if (_viewsChanged != null) {
           result.fold(
             (payload) {
@@ -83,7 +83,7 @@ class AppListenerRepository {
           );
         }
         break;
-      case Notification.AppUpdated:
+      case WorkspaceNotification.AppUpdated:
         if (_update != null) {
           result.fold(
             (payload) {

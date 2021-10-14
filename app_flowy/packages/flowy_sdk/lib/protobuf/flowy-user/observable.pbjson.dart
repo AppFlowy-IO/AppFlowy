@@ -8,9 +8,9 @@
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
 import 'dart:typed_data' as $typed_data;
-@$core.Deprecated('Use userObservableDescriptor instead')
-const UserObservable$json = const {
-  '1': 'UserObservable',
+@$core.Deprecated('Use userNotificationDescriptor instead')
+const UserNotification$json = const {
+  '1': 'UserNotification',
   '2': const [
     const {'1': 'Unknown', '2': 0},
     const {'1': 'UserAuthChanged', '2': 1},
@@ -19,5 +19,5 @@ const UserObservable$json = const {
   ],
 };
 
-/// Descriptor for `UserObservable`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List userObservableDescriptor = $convert.base64Decode('Cg5Vc2VyT2JzZXJ2YWJsZRILCgdVbmtub3duEAASEwoPVXNlckF1dGhDaGFuZ2VkEAESFgoSVXNlclByb2ZpbGVVcGRhdGVkEAISFAoQVXNlclVuYXV0aG9yaXplZBAD');
+/// Descriptor for `UserNotification`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List userNotificationDescriptor = $convert.base64Decode('ChBVc2VyTm90aWZpY2F0aW9uEgsKB1Vua25vd24QABITCg9Vc2VyQXV0aENoYW5nZWQQARIWChJVc2VyUHJvZmlsZVVwZGF0ZWQQAhIUChBVc2VyVW5hdXRob3JpemVkEAM=');

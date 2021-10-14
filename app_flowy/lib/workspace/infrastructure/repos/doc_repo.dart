@@ -16,17 +16,16 @@ class DocRepository {
     return WorkspaceEventOpenView(request).send();
   }
 
-  Future<Either<DocDelta, WorkspaceError>> composeDelta(
-      {required String data}) {
+  Future<Either<DocDelta, WorkspaceError>> composeDelta({required String data}) {
     final request = DocDelta.create()
       ..docId = docId
       ..data = data;
     return WorkspaceEventApplyDocDelta(request).send();
   }
 
-  Future<Either<Unit, WorkspaceError>> closeDoc(
-      {String? name, String? desc, String? text}) {
+  Future<Either<Unit, WorkspaceError>> closeDoc({String? name, String? desc, String? text}) {
     Log.error('Close the doc');
+
     return Future(() {
       return left(unit);
     });

@@ -36,7 +36,7 @@ impl AppController {
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.save_app(app.clone(), &*conn)?;
             let apps = self.read_local_apps(&app.workspace_id, &*conn)?;
-            dart_notify(&app.workspace_id, Notification::WorkspaceCreateApp)
+            send_dart_notification(&app.workspace_id, WorkspaceNotification::WorkspaceCreateApp)
                 .payload(apps)
                 .send();
             Ok(())
@@ -65,7 +65,7 @@ impl AppController {
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let app = self.sql.delete_app(app_id, &*conn)?;
             let apps = self.read_local_apps(&app.workspace_id, &*conn)?;
-            dart_notify(&app.workspace_id, Notification::WorkspaceDeleteApp)
+            send_dart_notification(&app.workspace_id, WorkspaceNotification::WorkspaceDeleteApp)
                 .payload(apps)
                 .send();
             Ok(())
@@ -88,7 +88,9 @@ impl AppController {
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.sql.update_app(changeset, conn)?;
             let app: App = self.sql.read_app(&app_id, None, conn)?.into();
-            dart_notify(&app_id, Notification::AppUpdated).payload(app).send();
+            send_dart_notification(&app_id, WorkspaceNotification::AppUpdated)
+                .payload(app)
+                .send();
             Ok(())
         })?;
 

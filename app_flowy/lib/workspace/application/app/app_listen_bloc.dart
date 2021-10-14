@@ -33,6 +33,12 @@ class AppListenBloc extends Bloc<AppListenEvent, AppListenState> {
       (error) => add(AppListenEvent.didReceiveViews(right(error))),
     );
   }
+
+  @override
+  Future<void> close() async {
+    await listener.stop();
+    return super.close();
+  }
 }
 
 @freezed

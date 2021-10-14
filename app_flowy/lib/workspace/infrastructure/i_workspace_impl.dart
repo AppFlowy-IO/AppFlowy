@@ -36,7 +36,7 @@ class IWorkspaceListenerImpl extends IWorkspaceListener {
 
   @override
   void start({WorkspaceCreateAppCallback? addAppCallback, WorkspaceUpdatedCallback? updatedCallback}) {
-    repo.startListen(createApp: addAppCallback, update: updatedCallback);
+    repo.startListening(createApp: addAppCallback, update: updatedCallback);
   }
 
   @override

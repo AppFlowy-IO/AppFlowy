@@ -9,22 +9,22 @@
 import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
-class UserObservable extends $pb.ProtobufEnum {
-  static const UserObservable Unknown = UserObservable._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unknown');
-  static const UserObservable UserAuthChanged = UserObservable._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserAuthChanged');
-  static const UserObservable UserProfileUpdated = UserObservable._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserProfileUpdated');
-  static const UserObservable UserUnauthorized = UserObservable._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserUnauthorized');
+class UserNotification extends $pb.ProtobufEnum {
+  static const UserNotification Unknown = UserNotification._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unknown');
+  static const UserNotification UserAuthChanged = UserNotification._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserAuthChanged');
+  static const UserNotification UserProfileUpdated = UserNotification._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserProfileUpdated');
+  static const UserNotification UserUnauthorized = UserNotification._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserUnauthorized');
 
-  static const $core.List<UserObservable> values = <UserObservable> [
+  static const $core.List<UserNotification> values = <UserNotification> [
     Unknown,
     UserAuthChanged,
     UserProfileUpdated,
     UserUnauthorized,
   ];
 
-  static final $core.Map<$core.int, UserObservable> _byValue = $pb.ProtobufEnum.initByValue(values);
-  static UserObservable? valueOf($core.int value) => _byValue[value];
+  static final $core.Map<$core.int, UserNotification> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static UserNotification? valueOf($core.int value) => _byValue[value];
 
-  const UserObservable._($core.int v, $core.String n) : super(v, n);
+  const UserNotification._($core.int v, $core.String n) : super(v, n);
 }
 

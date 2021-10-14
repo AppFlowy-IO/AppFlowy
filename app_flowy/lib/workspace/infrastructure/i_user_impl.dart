@@ -50,7 +50,7 @@ class IUserImpl extends IUser {
 }
 
 class IUserListenerImpl extends IUserListener {
-  StreamSubscription<ObservableSubject>? _subscription;
+  StreamSubscription<SubscribeObject>? _subscription;
   WorkspacesUpdatedCallback? _workspacesUpdated;
   AuthChangedCallback? _authChanged;
   UserProfileUpdateCallback? _profileUpdated;
@@ -68,7 +68,7 @@ class IUserListenerImpl extends IUserListener {
   void start() {
     _workspaceParser = WorkspaceNotificationParser(id: _user.token, callback: _NotificationCallback);
 
-    _userParser = UserNotificationParser(id: _user.token, callback: _userObservableCallback);
+    _userParser = UserNotificationParser(id: _user.token, callback: _UserNotificationCallback);
 
     _subscription = RustStreamReceiver.listen((observable) {
       _workspaceParser.parse(observable);
@@ -96,11 +96,11 @@ class IUserListenerImpl extends IUserListener {
     _workspacesUpdated = workspacesCallback;
   }
 
-  void _NotificationCallback(Notification ty, Either<Uint8List, WorkspaceError> result) {
+  void _NotificationCallback(WorkspaceNotification ty, Either<Uint8List, WorkspaceError> result) {
     switch (ty) {
-      case Notification.UserCreateWorkspace:
-      case Notification.UserDeleteWorkspace:
-      case Notification.WorkspaceListUpdated:
+      case WorkspaceNotification.UserCreateWorkspace:
+      case WorkspaceNotification.UserDeleteWorkspace:
+      case WorkspaceNotification.WorkspaceListUpdated:
         if (_workspacesUpdated != null) {
           result.fold(
             (payload) {
@@ -111,7 +111,7 @@ class IUserListenerImpl extends IUserListener {
           );
         }
         break;
-      case Notification.UserUnauthorized:
+      case WorkspaceNotification.UserUnauthorized:
         if (_authChanged != null) {
           result.fold(
             (_) {},
@@ -124,9 +124,9 @@ class IUserListenerImpl extends IUserListener {
     }
   }
 
-  void _userObservableCallback(user.UserObservable ty, Either<Uint8List, UserError> result) {
+  void _UserNotificationCallback(user.UserNotification ty, Either<Uint8List, UserError> result) {
     switch (ty) {
-      case user.UserObservable.UserUnauthorized:
+      case user.UserNotification.UserUnauthorized:
         if (_profileUpdated != null) {
           result.fold(
             (payload) {

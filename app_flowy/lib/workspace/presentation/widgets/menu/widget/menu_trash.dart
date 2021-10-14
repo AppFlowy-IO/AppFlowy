@@ -1,6 +1,6 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
-import 'package:app_flowy/workspace/presentation/stack_page/trash_page.dart';
+import 'package:app_flowy/workspace/presentation/stack_page/trash/trash_page.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';

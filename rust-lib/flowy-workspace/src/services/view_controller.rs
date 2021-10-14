@@ -2,7 +2,7 @@ use crate::{
     entities::view::{CreateViewParams, UpdateViewParams, View},
     errors::WorkspaceError,
     module::WorkspaceDatabase,
-    notify::dart_notify,
+    notify::send_dart_notification,
     services::{helper::spawn, server::Server},
     sql_tables::view::{ViewTable, ViewTableChangeset, ViewTableSql},
 };
@@ -14,7 +14,7 @@ use crate::{
     },
     errors::internal_error,
     module::WorkspaceUser,
-    notify::Notification,
+    notify::WorkspaceNotification,
     services::{TrashCan, TrashEvent},
     sql_tables::trash::TrashSource,
 };
@@ -70,7 +70,7 @@ impl ViewController {
             self.document.create(CreateDocParams::new(&view.id, params.data))?;
 
             let repeated_view = ViewTableSql::read_views(&view.belong_to_id, conn)?;
-            dart_notify(&view.belong_to_id, Notification::AppViewsChanged)
+            send_dart_notification(&view.belong_to_id, WorkspaceNotification::AppViewsChanged)
                 .payload(repeated_view)
                 .send();
             Ok(())
@@ -110,7 +110,7 @@ impl ViewController {
 
             let repeated_view = ViewTableSql::read_views(&view_table.belong_to_id, conn)?;
 
-            dart_notify(&view_table.belong_to_id, Notification::AppViewsChanged)
+            send_dart_notification(&view_table.belong_to_id, WorkspaceNotification::AppViewsChanged)
                 .payload(repeated_view)
                 .send();
             Ok(())
@@ -139,7 +139,7 @@ impl ViewController {
             let view: View = ViewTableSql::read_view(&view_id, conn)?.into();
             match params.is_trash {
                 None => {
-                    dart_notify(&view_id, Notification::ViewUpdated)
+                    send_dart_notification(&view_id, WorkspaceNotification::ViewUpdated)
                         .payload(view.clone())
                         .send();
                 },
@@ -245,7 +245,7 @@ impl ViewController {
 
 fn notify_view_num_did_change(belong_to_id: &str, conn: &SqliteConnection) -> WorkspaceResult<()> {
     let repeated_view = ViewTableSql::read_views(belong_to_id, conn)?;
-    dart_notify(belong_to_id, Notification::AppViewsChanged)
+    send_dart_notification(belong_to_id, WorkspaceNotification::AppViewsChanged)
         .payload(repeated_view)
         .send();
     Ok(())

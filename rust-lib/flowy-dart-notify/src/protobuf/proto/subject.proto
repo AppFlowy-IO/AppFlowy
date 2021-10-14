@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-message ObservableSubject {
+message SubscribeObject {
     string source = 1;
     int32 ty = 2;
     string id = 3;

@@ -9,20 +9,21 @@
 import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
-class Notification extends $pb.ProtobufEnum {
-  static const Notification Unknown = Notification._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unknown');
-  static const Notification UserCreateWorkspace = Notification._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserCreateWorkspace');
-  static const Notification UserDeleteWorkspace = Notification._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDeleteWorkspace');
-  static const Notification WorkspaceUpdated = Notification._(12, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceUpdated');
-  static const Notification WorkspaceCreateApp = Notification._(13, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceCreateApp');
-  static const Notification WorkspaceDeleteApp = Notification._(14, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceDeleteApp');
-  static const Notification WorkspaceListUpdated = Notification._(15, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceListUpdated');
-  static const Notification AppUpdated = Notification._(21, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppUpdated');
-  static const Notification AppViewsChanged = Notification._(24, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppViewsChanged');
-  static const Notification ViewUpdated = Notification._(31, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewUpdated');
-  static const Notification UserUnauthorized = Notification._(100, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserUnauthorized');
+class WorkspaceNotification extends $pb.ProtobufEnum {
+  static const WorkspaceNotification Unknown = WorkspaceNotification._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unknown');
+  static const WorkspaceNotification UserCreateWorkspace = WorkspaceNotification._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserCreateWorkspace');
+  static const WorkspaceNotification UserDeleteWorkspace = WorkspaceNotification._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDeleteWorkspace');
+  static const WorkspaceNotification WorkspaceUpdated = WorkspaceNotification._(12, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceUpdated');
+  static const WorkspaceNotification WorkspaceCreateApp = WorkspaceNotification._(13, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceCreateApp');
+  static const WorkspaceNotification WorkspaceDeleteApp = WorkspaceNotification._(14, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceDeleteApp');
+  static const WorkspaceNotification WorkspaceListUpdated = WorkspaceNotification._(15, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceListUpdated');
+  static const WorkspaceNotification AppUpdated = WorkspaceNotification._(21, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppUpdated');
+  static const WorkspaceNotification AppViewsChanged = WorkspaceNotification._(24, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppViewsChanged');
+  static const WorkspaceNotification ViewUpdated = WorkspaceNotification._(31, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewUpdated');
+  static const WorkspaceNotification UserUnauthorized = WorkspaceNotification._(100, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserUnauthorized');
+  static const WorkspaceNotification TrashUpdated = WorkspaceNotification._(1000, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'TrashUpdated');
 
-  static const $core.List<Notification> values = <Notification> [
+  static const $core.List<WorkspaceNotification> values = <WorkspaceNotification> [
     Unknown,
     UserCreateWorkspace,
     UserDeleteWorkspace,
@@ -34,11 +35,12 @@ class Notification extends $pb.ProtobufEnum {
     AppViewsChanged,
     ViewUpdated,
     UserUnauthorized,
+    TrashUpdated,
   ];
 
-  static final $core.Map<$core.int, Notification> _byValue = $pb.ProtobufEnum.initByValue(values);
-  static Notification? valueOf($core.int value) => _byValue[value];
+  static final $core.Map<$core.int, WorkspaceNotification> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static WorkspaceNotification? valueOf($core.int value) => _byValue[value];
 
-  const Notification._($core.int v, $core.String n) : super(v, n);
+  const WorkspaceNotification._($core.int v, $core.String n) : super(v, n);
 }
 

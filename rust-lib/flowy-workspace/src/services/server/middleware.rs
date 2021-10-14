@@ -21,7 +21,9 @@ impl ResponseMiddleware for WorkspaceMiddleware {
                     None => {},
                     Some(token) => {
                         let error = WorkspaceError::new(ErrorCode::UserUnauthorized, "");
-                        dart_notify(token, Notification::UserUnauthorized).error(error).send()
+                        send_dart_notification(token, WorkspaceNotification::UserUnauthorized)
+                            .error(error)
+                            .send()
                     },
                 }
             }

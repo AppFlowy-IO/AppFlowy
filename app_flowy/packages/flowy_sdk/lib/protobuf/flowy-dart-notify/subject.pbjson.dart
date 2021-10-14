@@ -8,9 +8,9 @@
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
 import 'dart:typed_data' as $typed_data;
-@$core.Deprecated('Use observableSubjectDescriptor instead')
-const ObservableSubject$json = const {
-  '1': 'ObservableSubject',
+@$core.Deprecated('Use subscribeObjectDescriptor instead')
+const SubscribeObject$json = const {
+  '1': 'SubscribeObject',
   '2': const [
     const {'1': 'source', '3': 1, '4': 1, '5': 9, '10': 'source'},
     const {'1': 'ty', '3': 2, '4': 1, '5': 5, '10': 'ty'},
@@ -24,5 +24,5 @@ const ObservableSubject$json = const {
   ],
 };
 
-/// Descriptor for `ObservableSubject`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List observableSubjectDescriptor = $convert.base64Decode('ChFPYnNlcnZhYmxlU3ViamVjdBIWCgZzb3VyY2UYASABKAlSBnNvdXJjZRIOCgJ0eRgCIAEoBVICdHkSDgoCaWQYAyABKAlSAmlkEhoKB3BheWxvYWQYBCABKAxIAFIHcGF5bG9hZBIWCgVlcnJvchgFIAEoDEgBUgVlcnJvckIQCg5vbmVfb2ZfcGF5bG9hZEIOCgxvbmVfb2ZfZXJyb3I=');
+/// Descriptor for `SubscribeObject`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List subscribeObjectDescriptor = $convert.base64Decode('Cg9TdWJzY3JpYmVPYmplY3QSFgoGc291cmNlGAEgASgJUgZzb3VyY2USDgoCdHkYAiABKAVSAnR5Eg4KAmlkGAMgASgJUgJpZBIaCgdwYXlsb2FkGAQgASgMSABSB3BheWxvYWQSFgoFZXJyb3IYBSABKAxIAVIFZXJyb3JCEAoOb25lX29mX3BheWxvYWRCDgoMb25lX29mX2Vycm9y');

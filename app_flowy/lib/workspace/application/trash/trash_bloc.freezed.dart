@@ -19,6 +19,12 @@ class _$TrashEventTearOff {
   Initial initial() {
     return const Initial();
   }
+
+  ReceiveTrash didReceiveTrash(List<Trash> trash) {
+    return ReceiveTrash(
+      trash,
+    );
+  }
 }
 
 /// @nodoc
@@ -29,22 +35,26 @@ mixin _$TrashEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
+    required TResult Function(List<Trash> trash) didReceiveTrash,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
+    TResult Function(List<Trash> trash)? didReceiveTrash,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(Initial value) initial,
+    required TResult Function(ReceiveTrash value) didReceiveTrash,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Initial value)? initial,
+    TResult Function(ReceiveTrash value)? didReceiveTrash,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -104,6 +114,7 @@ class _$Initial implements Initial {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
+    required TResult Function(List<Trash> trash) didReceiveTrash,
   }) {
     return initial();
   }
@@ -112,6 +123,7 @@ class _$Initial implements Initial {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
+    TResult Function(List<Trash> trash)? didReceiveTrash,
     required TResult orElse(),
   }) {
     if (initial != null) {
@@ -124,6 +136,7 @@ class _$Initial implements Initial {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(Initial value) initial,
+    required TResult Function(ReceiveTrash value) didReceiveTrash,
   }) {
     return initial(this);
   }
@@ -132,6 +145,7 @@ class _$Initial implements Initial {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Initial value)? initial,
+    TResult Function(ReceiveTrash value)? didReceiveTrash,
     required TResult orElse(),
   }) {
     if (initial != null) {
@@ -146,11 +160,126 @@ abstract class Initial implements TrashEvent {
 }
 
 /// @nodoc
+abstract class $ReceiveTrashCopyWith<$Res> {
+  factory $ReceiveTrashCopyWith(
+          ReceiveTrash value, $Res Function(ReceiveTrash) then) =
+      _$ReceiveTrashCopyWithImpl<$Res>;
+  $Res call({List<Trash> trash});
+}
+
+/// @nodoc
+class _$ReceiveTrashCopyWithImpl<$Res> extends _$TrashEventCopyWithImpl<$Res>
+    implements $ReceiveTrashCopyWith<$Res> {
+  _$ReceiveTrashCopyWithImpl(
+      ReceiveTrash _value, $Res Function(ReceiveTrash) _then)
+      : super(_value, (v) => _then(v as ReceiveTrash));
+
+  @override
+  ReceiveTrash get _value => super._value as ReceiveTrash;
+
+  @override
+  $Res call({
+    Object? trash = freezed,
+  }) {
+    return _then(ReceiveTrash(
+      trash == freezed
+          ? _value.trash
+          : trash // ignore: cast_nullable_to_non_nullable
+              as List<Trash>,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$ReceiveTrash implements ReceiveTrash {
+  const _$ReceiveTrash(this.trash);
+
+  @override
+  final List<Trash> trash;
+
+  @override
+  String toString() {
+    return 'TrashEvent.didReceiveTrash(trash: $trash)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is ReceiveTrash &&
+            (identical(other.trash, trash) ||
+                const DeepCollectionEquality().equals(other.trash, trash)));
+  }
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(trash);
+
+  @JsonKey(ignore: true)
+  @override
+  $ReceiveTrashCopyWith<ReceiveTrash> get copyWith =>
+      _$ReceiveTrashCopyWithImpl<ReceiveTrash>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function(List<Trash> trash) didReceiveTrash,
+  }) {
+    return didReceiveTrash(trash);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(List<Trash> trash)? didReceiveTrash,
+    required TResult orElse(),
+  }) {
+    if (didReceiveTrash != null) {
+      return didReceiveTrash(trash);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(Initial value) initial,
+    required TResult Function(ReceiveTrash value) didReceiveTrash,
+  }) {
+    return didReceiveTrash(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(ReceiveTrash value)? didReceiveTrash,
+    required TResult orElse(),
+  }) {
+    if (didReceiveTrash != null) {
+      return didReceiveTrash(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class ReceiveTrash implements TrashEvent {
+  const factory ReceiveTrash(List<Trash> trash) = _$ReceiveTrash;
+
+  List<Trash> get trash => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $ReceiveTrashCopyWith<ReceiveTrash> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
 class _$TrashStateTearOff {
   const _$TrashStateTearOff();
 
   _TrashState call(
-      {required List<TrashObject> objects,
+      {required List<Trash> objects,
       required Either<Unit, WorkspaceError> successOrFailure}) {
     return _TrashState(
       objects: objects,
@@ -164,7 +293,7 @@ const $TrashState = _$TrashStateTearOff();
 
 /// @nodoc
 mixin _$TrashState {
-  List<TrashObject> get objects => throw _privateConstructorUsedError;
+  List<Trash> get objects => throw _privateConstructorUsedError;
   Either<Unit, WorkspaceError> get successOrFailure =>
       throw _privateConstructorUsedError;
 
@@ -179,8 +308,7 @@ abstract class $TrashStateCopyWith<$Res> {
           TrashState value, $Res Function(TrashState) then) =
       _$TrashStateCopyWithImpl<$Res>;
   $Res call(
-      {List<TrashObject> objects,
-      Either<Unit, WorkspaceError> successOrFailure});
+      {List<Trash> objects, Either<Unit, WorkspaceError> successOrFailure});
 }
 
 /// @nodoc
@@ -200,7 +328,7 @@ class _$TrashStateCopyWithImpl<$Res> implements $TrashStateCopyWith<$Res> {
       objects: objects == freezed
           ? _value.objects
           : objects // ignore: cast_nullable_to_non_nullable
-              as List<TrashObject>,
+              as List<Trash>,
       successOrFailure: successOrFailure == freezed
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
@@ -216,8 +344,7 @@ abstract class _$TrashStateCopyWith<$Res> implements $TrashStateCopyWith<$Res> {
       __$TrashStateCopyWithImpl<$Res>;
   @override
   $Res call(
-      {List<TrashObject> objects,
-      Either<Unit, WorkspaceError> successOrFailure});
+      {List<Trash> objects, Either<Unit, WorkspaceError> successOrFailure});
 }
 
 /// @nodoc
@@ -239,7 +366,7 @@ class __$TrashStateCopyWithImpl<$Res> extends _$TrashStateCopyWithImpl<$Res>
       objects: objects == freezed
           ? _value.objects
           : objects // ignore: cast_nullable_to_non_nullable
-              as List<TrashObject>,
+              as List<Trash>,
       successOrFailure: successOrFailure == freezed
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
@@ -254,7 +381,7 @@ class _$_TrashState implements _TrashState {
   const _$_TrashState({required this.objects, required this.successOrFailure});
 
   @override
-  final List<TrashObject> objects;
+  final List<Trash> objects;
   @override
   final Either<Unit, WorkspaceError> successOrFailure;
 
@@ -289,11 +416,11 @@ class _$_TrashState implements _TrashState {
 
 abstract class _TrashState implements TrashState {
   const factory _TrashState(
-      {required List<TrashObject> objects,
+      {required List<Trash> objects,
       required Either<Unit, WorkspaceError> successOrFailure}) = _$_TrashState;
 
   @override
-  List<TrashObject> get objects => throw _privateConstructorUsedError;
+  List<Trash> get objects => throw _privateConstructorUsedError;
   @override
   Either<Unit, WorkspaceError> get successOrFailure =>
       throw _privateConstructorUsedError;

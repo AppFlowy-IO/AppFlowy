@@ -9,26 +9,26 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-enum ObservableSubject_OneOfPayload {
+enum SubscribeObject_OneOfPayload {
   payload, 
   notSet
 }
 
-enum ObservableSubject_OneOfError {
+enum SubscribeObject_OneOfError {
   error, 
   notSet
 }
 
-class ObservableSubject extends $pb.GeneratedMessage {
-  static const $core.Map<$core.int, ObservableSubject_OneOfPayload> _ObservableSubject_OneOfPayloadByTag = {
-    4 : ObservableSubject_OneOfPayload.payload,
-    0 : ObservableSubject_OneOfPayload.notSet
+class SubscribeObject extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, SubscribeObject_OneOfPayload> _SubscribeObject_OneOfPayloadByTag = {
+    4 : SubscribeObject_OneOfPayload.payload,
+    0 : SubscribeObject_OneOfPayload.notSet
   };
-  static const $core.Map<$core.int, ObservableSubject_OneOfError> _ObservableSubject_OneOfErrorByTag = {
-    5 : ObservableSubject_OneOfError.error,
-    0 : ObservableSubject_OneOfError.notSet
+  static const $core.Map<$core.int, SubscribeObject_OneOfError> _SubscribeObject_OneOfErrorByTag = {
+    5 : SubscribeObject_OneOfError.error,
+    0 : SubscribeObject_OneOfError.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ObservableSubject', createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SubscribeObject', createEmptyInstance: create)
     ..oo(0, [4])
     ..oo(1, [5])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'source')
@@ -39,8 +39,8 @@ class ObservableSubject extends $pb.GeneratedMessage {
     ..hasRequiredFields = false
   ;
 
-  ObservableSubject._() : super();
-  factory ObservableSubject({
+  SubscribeObject._() : super();
+  factory SubscribeObject({
     $core.String? source,
     $core.int? ty,
     $core.String? id,
@@ -65,31 +65,31 @@ class ObservableSubject extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory ObservableSubject.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ObservableSubject.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory SubscribeObject.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory SubscribeObject.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  ObservableSubject clone() => ObservableSubject()..mergeFromMessage(this);
+  SubscribeObject clone() => SubscribeObject()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  ObservableSubject copyWith(void Function(ObservableSubject) updates) => super.copyWith((message) => updates(message as ObservableSubject)) as ObservableSubject; // ignore: deprecated_member_use
+  SubscribeObject copyWith(void Function(SubscribeObject) updates) => super.copyWith((message) => updates(message as SubscribeObject)) as SubscribeObject; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static ObservableSubject create() => ObservableSubject._();
-  ObservableSubject createEmptyInstance() => create();
-  static $pb.PbList<ObservableSubject> createRepeated() => $pb.PbList<ObservableSubject>();
+  static SubscribeObject create() => SubscribeObject._();
+  SubscribeObject createEmptyInstance() => create();
+  static $pb.PbList<SubscribeObject> createRepeated() => $pb.PbList<SubscribeObject>();
   @$core.pragma('dart2js:noInline')
-  static ObservableSubject getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ObservableSubject>(create);
-  static ObservableSubject? _defaultInstance;
+  static SubscribeObject getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SubscribeObject>(create);
+  static SubscribeObject? _defaultInstance;
 
-  ObservableSubject_OneOfPayload whichOneOfPayload() => _ObservableSubject_OneOfPayloadByTag[$_whichOneof(0)]!;
+  SubscribeObject_OneOfPayload whichOneOfPayload() => _SubscribeObject_OneOfPayloadByTag[$_whichOneof(0)]!;
   void clearOneOfPayload() => clearField($_whichOneof(0));
 
-  ObservableSubject_OneOfError whichOneOfError() => _ObservableSubject_OneOfErrorByTag[$_whichOneof(1)]!;
+  SubscribeObject_OneOfError whichOneOfError() => _SubscribeObject_OneOfErrorByTag[$_whichOneof(1)]!;
   void clearOneOfError() => clearField($_whichOneof(1));
 
   @$pb.TagNumber(1)

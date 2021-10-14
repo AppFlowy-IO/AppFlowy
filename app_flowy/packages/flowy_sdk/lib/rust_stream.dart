@@ -5,17 +5,17 @@ import 'dart:ffi';
 import 'package:flowy_log/flowy_log.dart';
 import 'protobuf/flowy-dart-notify/subject.pb.dart';
 
-typedef ObserverCallback = void Function(ObservableSubject observable);
+typedef ObserverCallback = void Function(SubscribeObject observable);
 
 class RustStreamReceiver {
   static RustStreamReceiver shared = RustStreamReceiver._internal();
   late RawReceivePort _ffiPort;
   late StreamController<Uint8List> _streamController;
-  late StreamController<ObservableSubject> _observableController;
+  late StreamController<SubscribeObject> _observableController;
   late StreamSubscription<Uint8List> _ffiSubscription;
 
   int get port => _ffiPort.sendPort.nativePort;
-  StreamController<ObservableSubject> get observable => _observableController;
+  StreamController<SubscribeObject> get observable => _observableController;
 
   RustStreamReceiver._internal() {
     _ffiPort = RawReceivePort();
@@ -30,17 +30,16 @@ class RustStreamReceiver {
     return shared;
   }
 
-  static listen(void Function(ObservableSubject subject) callback) {
+  static listen(void Function(SubscribeObject subject) callback) {
     RustStreamReceiver.shared.observable.stream.listen(callback);
   }
 
   void streamCallback(Uint8List bytes) {
     try {
-      final observable = ObservableSubject.fromBuffer(bytes);
+      final observable = SubscribeObject.fromBuffer(bytes);
       _observableController.add(observable);
     } catch (e, s) {
-      Log.error(
-          'RustStreamReceiver ObservableSubject deserialize error: ${e.runtimeType}');
+      Log.error('RustStreamReceiver SubscribeObject deserialize error: ${e.runtimeType}');
       Log.error('Stack trace \n $s');
       rethrow;
     }

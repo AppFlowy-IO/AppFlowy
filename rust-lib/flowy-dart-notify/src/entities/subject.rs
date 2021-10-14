@@ -2,7 +2,7 @@ use flowy_derive::ProtoBuf;
 use std::{fmt, fmt::Formatter};
 
 #[derive(Debug, Clone, ProtoBuf)]
-pub struct ObservableSubject {
+pub struct SubscribeObject {
     #[pb(index = 1)]
     pub source: String,
 
@@ -19,7 +19,7 @@ pub struct ObservableSubject {
     pub error: Option<Vec<u8>>,
 }
 
-impl std::fmt::Display for ObservableSubject {
+impl std::fmt::Display for SubscribeObject {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let _ = f.write_str(&format!("{} changed: ", &self.source))?;
         if let Some(payload) = &self.payload {
@@ -34,7 +34,7 @@ impl std::fmt::Display for ObservableSubject {
     }
 }
 
-impl std::default::Default for ObservableSubject {
+impl std::default::Default for SubscribeObject {
     fn default() -> Self {
         Self {
             source: "".to_string(),

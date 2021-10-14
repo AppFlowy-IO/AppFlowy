@@ -70,7 +70,9 @@ impl ResponseMiddleware for Middleware {
                     None => {},
                     Some(token) => {
                         let error = UserError::new(ErrorCode::UserUnauthorized, "");
-                        dart_notify(token, UserObservable::UserUnauthorized).error(error).send()
+                        dart_notify(token, UserNotification::UserUnauthorized)
+                            .error(error)
+                            .send()
                     },
                 }
             }

@@ -1,4 +1,4 @@
-use crate::entities::ObservableSubject;
+use crate::entities::SubscribeObject;
 use bytes::Bytes;
 use lazy_static::lazy_static;
 use std::{convert::TryInto, sync::RwLock};
@@ -21,7 +21,7 @@ impl DartStreamSender {
     }
 
     #[allow(dead_code)]
-    fn inner_post(&self, observable_subject: ObservableSubject) -> Result<(), String> {
+    fn inner_post(&self, observable_subject: SubscribeObject) -> Result<(), String> {
         match self.isolate {
             Some(ref isolate) => {
                 let bytes: Bytes = observable_subject.try_into().unwrap();
@@ -42,7 +42,7 @@ impl DartStreamSender {
         }
     }
 
-    pub fn post(_observable_subject: ObservableSubject) -> Result<(), String> {
+    pub fn post(_observable_subject: SubscribeObject) -> Result<(), String> {
         #[cfg(feature = "dart")]
         match DART_STREAM_SENDER.read() {
             Ok(stream) => stream.inner_post(_observable_subject),

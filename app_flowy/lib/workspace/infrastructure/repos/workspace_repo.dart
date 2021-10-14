@@ -63,11 +63,11 @@ class WorkspaceRepo {
 }
 
 class WorkspaceListenerRepo {
-  StreamSubscription<ObservableSubject>? _subscription;
+  StreamSubscription<SubscribeObject>? _subscription;
   WorkspaceCreateAppCallback? _createApp;
   WorkspaceDeleteAppCallback? _deleteApp;
   WorkspaceUpdatedCallback? _update;
-  late WorkspaceNotificationParser _extractor;
+  late WorkspaceNotificationParser _parser;
   final UserProfile user;
   final String workspaceId;
 
@@ -76,7 +76,7 @@ class WorkspaceListenerRepo {
     required this.workspaceId,
   });
 
-  void startListen({
+  void startListening({
     WorkspaceCreateAppCallback? createApp,
     WorkspaceDeleteAppCallback? deleteApp,
     WorkspaceUpdatedCallback? update,
@@ -85,19 +85,19 @@ class WorkspaceListenerRepo {
     _deleteApp = deleteApp;
     _update = update;
 
-    _extractor = WorkspaceNotificationParser(
+    _parser = WorkspaceNotificationParser(
       id: workspaceId,
       callback: (ty, result) {
         _handleObservableType(ty, result);
       },
     );
 
-    _subscription = RustStreamReceiver.listen((observable) => _extractor.parse(observable));
+    _subscription = RustStreamReceiver.listen((observable) => _parser.parse(observable));
   }
 
-  void _handleObservableType(Notification ty, Either<Uint8List, WorkspaceError> result) {
+  void _handleObservableType(WorkspaceNotification ty, Either<Uint8List, WorkspaceError> result) {
     switch (ty) {
-      case Notification.WorkspaceUpdated:
+      case WorkspaceNotification.WorkspaceUpdated:
         if (_update != null) {
           result.fold(
             (payload) {
@@ -108,7 +108,7 @@ class WorkspaceListenerRepo {
           );
         }
         break;
-      case Notification.WorkspaceCreateApp:
+      case WorkspaceNotification.WorkspaceCreateApp:
         if (_createApp != null) {
           result.fold(
             (payload) => _createApp!(
@@ -118,7 +118,7 @@ class WorkspaceListenerRepo {
           );
         }
         break;
-      case Notification.WorkspaceDeleteApp:
+      case WorkspaceNotification.WorkspaceDeleteApp:
         if (_deleteApp != null) {
           result.fold(
             (payload) => _deleteApp!(

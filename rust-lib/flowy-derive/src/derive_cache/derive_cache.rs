@@ -69,7 +69,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "DocError"
         | "FFIRequest"
         | "FFIResponse"
-        | "ObservableSubject"
+        | "SubscribeObject"
         | "SignInRequest"
         | "SignInParams"
         | "SignInResponse"
@@ -85,14 +85,14 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         "ViewType"
         | "WorkspaceEvent"
         | "ErrorCode"
-        | "Notification"
+        | "WorkspaceNotification"
         | "WsModule"
         | "RevType"
         | "WsDataType"
         | "DocObservable"
         | "FFIStatusCode"
         | "UserEvent"
-        | "UserObservable"
+        | "UserNotification"
         => TypeCategory::Enum,
 
         "Option" => TypeCategory::Opt,

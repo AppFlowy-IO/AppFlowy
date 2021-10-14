@@ -194,12 +194,14 @@ impl UserSession {
         tokio::spawn(async move {
             match server.get_user(&token).await {
                 Ok(profile) => {
-                    dart_notify(&token, UserObservable::UserProfileUpdated)
+                    dart_notify(&token, UserNotification::UserProfileUpdated)
                         .payload(profile)
                         .send();
                 },
                 Err(e) => {
-                    dart_notify(&token, UserObservable::UserProfileUpdated).error(e).send();
+                    dart_notify(&token, UserNotification::UserProfileUpdated)
+                        .error(e)
+                        .send();
                 },
             }
         });
@@ -299,13 +301,11 @@ impl UserSession {
                         match state {
                             WsState::Init => {},
                             WsState::Connected(_) => {},
-                            WsState::Disconnected(_) => {
-                                match ws_controller.retry().await {
-                                    Ok(_) => {},
-                                    Err(e) => {
-                                        log::error!("Retry websocket connect failed: {:?}", e);
-                                    }
-                                }
+                            WsState::Disconnected(_) => match ws_controller.retry().await {
+                                Ok(_) => {},
+                                Err(e) => {
+                                    log::error!("Retry websocket connect failed: {:?}", e);
+                                },
                             },
                         }
                     },

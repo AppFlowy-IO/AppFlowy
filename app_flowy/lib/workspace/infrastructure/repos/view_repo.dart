@@ -51,9 +51,9 @@ class ViewRepository {
 }
 
 class ViewListenerRepository {
-  StreamSubscription<ObservableSubject>? _subscription;
+  StreamSubscription<SubscribeObject>? _subscription;
   ViewUpdatedCallback? _update;
-  late WorkspaceNotificationParser _extractor;
+  late WorkspaceNotificationParser _parser;
   View view;
 
   ViewListenerRepository({
@@ -64,19 +64,19 @@ class ViewListenerRepository {
     ViewUpdatedCallback? update,
   }) {
     _update = update;
-    _extractor = WorkspaceNotificationParser(
+    _parser = WorkspaceNotificationParser(
       id: view.id,
       callback: (ty, result) {
         _handleObservableType(ty, result);
       },
     );
 
-    _subscription = RustStreamReceiver.listen((observable) => _extractor.parse(observable));
+    _subscription = RustStreamReceiver.listen((observable) => _parser.parse(observable));
   }
 
-  void _handleObservableType(Notification ty, Either<Uint8List, WorkspaceError> result) {
+  void _handleObservableType(WorkspaceNotification ty, Either<Uint8List, WorkspaceError> result) {
     switch (ty) {
-      case Notification.ViewUpdated:
+      case WorkspaceNotification.ViewUpdated:
         if (_update != null) {
           result.fold(
             (payload) {

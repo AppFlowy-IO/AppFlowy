@@ -4,7 +4,7 @@ pub mod dart;
 pub mod entities;
 mod protobuf;
 
-use crate::{dart::DartStreamSender, entities::ObservableSubject};
+use crate::{dart::DartStreamSender, entities::SubscribeObject};
 use flowy_dispatch::prelude::ToBytes;
 
 pub struct DartNotifyBuilder {
@@ -64,7 +64,7 @@ impl DartNotifyBuilder {
             Some(bytes) => Some(bytes.to_vec()),
         };
 
-        let subject = ObservableSubject {
+        let subject = SubscribeObject {
             source: self.source,
             ty: self.ty,
             id: self.id,
