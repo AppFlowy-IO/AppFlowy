@@ -32,6 +32,7 @@ class TrashCell extends StatelessWidget {
           onPressed: onDelete,
           icon: svg("editor/delete"),
         ),
+        const HSpace(20),
       ],
     );
   }

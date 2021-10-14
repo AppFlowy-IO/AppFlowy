@@ -25,6 +25,26 @@ class _$TrashEventTearOff {
       trash,
     );
   }
+
+  Putback putback(String trashId) {
+    return Putback(
+      trashId,
+    );
+  }
+
+  Delete delete(String trashId) {
+    return Delete(
+      trashId,
+    );
+  }
+
+  RestoreAll restoreAll() {
+    return const RestoreAll();
+  }
+
+  DeleteAll deleteAll() {
+    return const DeleteAll();
+  }
 }
 
 /// @nodoc
@@ -36,12 +56,20 @@ mixin _$TrashEvent {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function(List<Trash> trash) didReceiveTrash,
+    required TResult Function(String trashId) putback,
+    required TResult Function(String trashId) delete,
+    required TResult Function() restoreAll,
+    required TResult Function() deleteAll,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(List<Trash> trash)? didReceiveTrash,
+    TResult Function(String trashId)? putback,
+    TResult Function(String trashId)? delete,
+    TResult Function()? restoreAll,
+    TResult Function()? deleteAll,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -49,12 +77,20 @@ mixin _$TrashEvent {
   TResult map<TResult extends Object?>({
     required TResult Function(Initial value) initial,
     required TResult Function(ReceiveTrash value) didReceiveTrash,
+    required TResult Function(Putback value) putback,
+    required TResult Function(Delete value) delete,
+    required TResult Function(RestoreAll value) restoreAll,
+    required TResult Function(DeleteAll value) deleteAll,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Initial value)? initial,
     TResult Function(ReceiveTrash value)? didReceiveTrash,
+    TResult Function(Putback value)? putback,
+    TResult Function(Delete value)? delete,
+    TResult Function(RestoreAll value)? restoreAll,
+    TResult Function(DeleteAll value)? deleteAll,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -115,6 +151,10 @@ class _$Initial implements Initial {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function(List<Trash> trash) didReceiveTrash,
+    required TResult Function(String trashId) putback,
+    required TResult Function(String trashId) delete,
+    required TResult Function() restoreAll,
+    required TResult Function() deleteAll,
   }) {
     return initial();
   }
@@ -124,6 +164,10 @@ class _$Initial implements Initial {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(List<Trash> trash)? didReceiveTrash,
+    TResult Function(String trashId)? putback,
+    TResult Function(String trashId)? delete,
+    TResult Function()? restoreAll,
+    TResult Function()? deleteAll,
     required TResult orElse(),
   }) {
     if (initial != null) {
@@ -137,6 +181,10 @@ class _$Initial implements Initial {
   TResult map<TResult extends Object?>({
     required TResult Function(Initial value) initial,
     required TResult Function(ReceiveTrash value) didReceiveTrash,
+    required TResult Function(Putback value) putback,
+    required TResult Function(Delete value) delete,
+    required TResult Function(RestoreAll value) restoreAll,
+    required TResult Function(DeleteAll value) deleteAll,
   }) {
     return initial(this);
   }
@@ -146,6 +194,10 @@ class _$Initial implements Initial {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Initial value)? initial,
     TResult Function(ReceiveTrash value)? didReceiveTrash,
+    TResult Function(Putback value)? putback,
+    TResult Function(Delete value)? delete,
+    TResult Function(RestoreAll value)? restoreAll,
+    TResult Function(DeleteAll value)? deleteAll,
     required TResult orElse(),
   }) {
     if (initial != null) {
@@ -225,6 +277,10 @@ class _$ReceiveTrash implements ReceiveTrash {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function(List<Trash> trash) didReceiveTrash,
+    required TResult Function(String trashId) putback,
+    required TResult Function(String trashId) delete,
+    required TResult Function() restoreAll,
+    required TResult Function() deleteAll,
   }) {
     return didReceiveTrash(trash);
   }
@@ -234,6 +290,10 @@ class _$ReceiveTrash implements ReceiveTrash {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(List<Trash> trash)? didReceiveTrash,
+    TResult Function(String trashId)? putback,
+    TResult Function(String trashId)? delete,
+    TResult Function()? restoreAll,
+    TResult Function()? deleteAll,
     required TResult orElse(),
   }) {
     if (didReceiveTrash != null) {
@@ -247,6 +307,10 @@ class _$ReceiveTrash implements ReceiveTrash {
   TResult map<TResult extends Object?>({
     required TResult Function(Initial value) initial,
     required TResult Function(ReceiveTrash value) didReceiveTrash,
+    required TResult Function(Putback value) putback,
+    required TResult Function(Delete value) delete,
+    required TResult Function(RestoreAll value) restoreAll,
+    required TResult Function(DeleteAll value) deleteAll,
   }) {
     return didReceiveTrash(this);
   }
@@ -256,6 +320,10 @@ class _$ReceiveTrash implements ReceiveTrash {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Initial value)? initial,
     TResult Function(ReceiveTrash value)? didReceiveTrash,
+    TResult Function(Putback value)? putback,
+    TResult Function(Delete value)? delete,
+    TResult Function(RestoreAll value)? restoreAll,
+    TResult Function(DeleteAll value)? deleteAll,
     required TResult orElse(),
   }) {
     if (didReceiveTrash != null) {
@@ -272,6 +340,461 @@ abstract class ReceiveTrash implements TrashEvent {
   @JsonKey(ignore: true)
   $ReceiveTrashCopyWith<ReceiveTrash> get copyWith =>
       throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $PutbackCopyWith<$Res> {
+  factory $PutbackCopyWith(Putback value, $Res Function(Putback) then) =
+      _$PutbackCopyWithImpl<$Res>;
+  $Res call({String trashId});
+}
+
+/// @nodoc
+class _$PutbackCopyWithImpl<$Res> extends _$TrashEventCopyWithImpl<$Res>
+    implements $PutbackCopyWith<$Res> {
+  _$PutbackCopyWithImpl(Putback _value, $Res Function(Putback) _then)
+      : super(_value, (v) => _then(v as Putback));
+
+  @override
+  Putback get _value => super._value as Putback;
+
+  @override
+  $Res call({
+    Object? trashId = freezed,
+  }) {
+    return _then(Putback(
+      trashId == freezed
+          ? _value.trashId
+          : trashId // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$Putback implements Putback {
+  const _$Putback(this.trashId);
+
+  @override
+  final String trashId;
+
+  @override
+  String toString() {
+    return 'TrashEvent.putback(trashId: $trashId)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is Putback &&
+            (identical(other.trashId, trashId) ||
+                const DeepCollectionEquality().equals(other.trashId, trashId)));
+  }
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(trashId);
+
+  @JsonKey(ignore: true)
+  @override
+  $PutbackCopyWith<Putback> get copyWith =>
+      _$PutbackCopyWithImpl<Putback>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function(List<Trash> trash) didReceiveTrash,
+    required TResult Function(String trashId) putback,
+    required TResult Function(String trashId) delete,
+    required TResult Function() restoreAll,
+    required TResult Function() deleteAll,
+  }) {
+    return putback(trashId);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(List<Trash> trash)? didReceiveTrash,
+    TResult Function(String trashId)? putback,
+    TResult Function(String trashId)? delete,
+    TResult Function()? restoreAll,
+    TResult Function()? deleteAll,
+    required TResult orElse(),
+  }) {
+    if (putback != null) {
+      return putback(trashId);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(Initial value) initial,
+    required TResult Function(ReceiveTrash value) didReceiveTrash,
+    required TResult Function(Putback value) putback,
+    required TResult Function(Delete value) delete,
+    required TResult Function(RestoreAll value) restoreAll,
+    required TResult Function(DeleteAll value) deleteAll,
+  }) {
+    return putback(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(ReceiveTrash value)? didReceiveTrash,
+    TResult Function(Putback value)? putback,
+    TResult Function(Delete value)? delete,
+    TResult Function(RestoreAll value)? restoreAll,
+    TResult Function(DeleteAll value)? deleteAll,
+    required TResult orElse(),
+  }) {
+    if (putback != null) {
+      return putback(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class Putback implements TrashEvent {
+  const factory Putback(String trashId) = _$Putback;
+
+  String get trashId => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $PutbackCopyWith<Putback> get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $DeleteCopyWith<$Res> {
+  factory $DeleteCopyWith(Delete value, $Res Function(Delete) then) =
+      _$DeleteCopyWithImpl<$Res>;
+  $Res call({String trashId});
+}
+
+/// @nodoc
+class _$DeleteCopyWithImpl<$Res> extends _$TrashEventCopyWithImpl<$Res>
+    implements $DeleteCopyWith<$Res> {
+  _$DeleteCopyWithImpl(Delete _value, $Res Function(Delete) _then)
+      : super(_value, (v) => _then(v as Delete));
+
+  @override
+  Delete get _value => super._value as Delete;
+
+  @override
+  $Res call({
+    Object? trashId = freezed,
+  }) {
+    return _then(Delete(
+      trashId == freezed
+          ? _value.trashId
+          : trashId // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$Delete implements Delete {
+  const _$Delete(this.trashId);
+
+  @override
+  final String trashId;
+
+  @override
+  String toString() {
+    return 'TrashEvent.delete(trashId: $trashId)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is Delete &&
+            (identical(other.trashId, trashId) ||
+                const DeepCollectionEquality().equals(other.trashId, trashId)));
+  }
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(trashId);
+
+  @JsonKey(ignore: true)
+  @override
+  $DeleteCopyWith<Delete> get copyWith =>
+      _$DeleteCopyWithImpl<Delete>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function(List<Trash> trash) didReceiveTrash,
+    required TResult Function(String trashId) putback,
+    required TResult Function(String trashId) delete,
+    required TResult Function() restoreAll,
+    required TResult Function() deleteAll,
+  }) {
+    return delete(trashId);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(List<Trash> trash)? didReceiveTrash,
+    TResult Function(String trashId)? putback,
+    TResult Function(String trashId)? delete,
+    TResult Function()? restoreAll,
+    TResult Function()? deleteAll,
+    required TResult orElse(),
+  }) {
+    if (delete != null) {
+      return delete(trashId);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(Initial value) initial,
+    required TResult Function(ReceiveTrash value) didReceiveTrash,
+    required TResult Function(Putback value) putback,
+    required TResult Function(Delete value) delete,
+    required TResult Function(RestoreAll value) restoreAll,
+    required TResult Function(DeleteAll value) deleteAll,
+  }) {
+    return delete(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(ReceiveTrash value)? didReceiveTrash,
+    TResult Function(Putback value)? putback,
+    TResult Function(Delete value)? delete,
+    TResult Function(RestoreAll value)? restoreAll,
+    TResult Function(DeleteAll value)? deleteAll,
+    required TResult orElse(),
+  }) {
+    if (delete != null) {
+      return delete(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class Delete implements TrashEvent {
+  const factory Delete(String trashId) = _$Delete;
+
+  String get trashId => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $DeleteCopyWith<Delete> get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $RestoreAllCopyWith<$Res> {
+  factory $RestoreAllCopyWith(
+          RestoreAll value, $Res Function(RestoreAll) then) =
+      _$RestoreAllCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class _$RestoreAllCopyWithImpl<$Res> extends _$TrashEventCopyWithImpl<$Res>
+    implements $RestoreAllCopyWith<$Res> {
+  _$RestoreAllCopyWithImpl(RestoreAll _value, $Res Function(RestoreAll) _then)
+      : super(_value, (v) => _then(v as RestoreAll));
+
+  @override
+  RestoreAll get _value => super._value as RestoreAll;
+}
+
+/// @nodoc
+
+class _$RestoreAll implements RestoreAll {
+  const _$RestoreAll();
+
+  @override
+  String toString() {
+    return 'TrashEvent.restoreAll()';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) || (other is RestoreAll);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function(List<Trash> trash) didReceiveTrash,
+    required TResult Function(String trashId) putback,
+    required TResult Function(String trashId) delete,
+    required TResult Function() restoreAll,
+    required TResult Function() deleteAll,
+  }) {
+    return restoreAll();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(List<Trash> trash)? didReceiveTrash,
+    TResult Function(String trashId)? putback,
+    TResult Function(String trashId)? delete,
+    TResult Function()? restoreAll,
+    TResult Function()? deleteAll,
+    required TResult orElse(),
+  }) {
+    if (restoreAll != null) {
+      return restoreAll();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(Initial value) initial,
+    required TResult Function(ReceiveTrash value) didReceiveTrash,
+    required TResult Function(Putback value) putback,
+    required TResult Function(Delete value) delete,
+    required TResult Function(RestoreAll value) restoreAll,
+    required TResult Function(DeleteAll value) deleteAll,
+  }) {
+    return restoreAll(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(ReceiveTrash value)? didReceiveTrash,
+    TResult Function(Putback value)? putback,
+    TResult Function(Delete value)? delete,
+    TResult Function(RestoreAll value)? restoreAll,
+    TResult Function(DeleteAll value)? deleteAll,
+    required TResult orElse(),
+  }) {
+    if (restoreAll != null) {
+      return restoreAll(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class RestoreAll implements TrashEvent {
+  const factory RestoreAll() = _$RestoreAll;
+}
+
+/// @nodoc
+abstract class $DeleteAllCopyWith<$Res> {
+  factory $DeleteAllCopyWith(DeleteAll value, $Res Function(DeleteAll) then) =
+      _$DeleteAllCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class _$DeleteAllCopyWithImpl<$Res> extends _$TrashEventCopyWithImpl<$Res>
+    implements $DeleteAllCopyWith<$Res> {
+  _$DeleteAllCopyWithImpl(DeleteAll _value, $Res Function(DeleteAll) _then)
+      : super(_value, (v) => _then(v as DeleteAll));
+
+  @override
+  DeleteAll get _value => super._value as DeleteAll;
+}
+
+/// @nodoc
+
+class _$DeleteAll implements DeleteAll {
+  const _$DeleteAll();
+
+  @override
+  String toString() {
+    return 'TrashEvent.deleteAll()';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) || (other is DeleteAll);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function(List<Trash> trash) didReceiveTrash,
+    required TResult Function(String trashId) putback,
+    required TResult Function(String trashId) delete,
+    required TResult Function() restoreAll,
+    required TResult Function() deleteAll,
+  }) {
+    return deleteAll();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(List<Trash> trash)? didReceiveTrash,
+    TResult Function(String trashId)? putback,
+    TResult Function(String trashId)? delete,
+    TResult Function()? restoreAll,
+    TResult Function()? deleteAll,
+    required TResult orElse(),
+  }) {
+    if (deleteAll != null) {
+      return deleteAll();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(Initial value) initial,
+    required TResult Function(ReceiveTrash value) didReceiveTrash,
+    required TResult Function(Putback value) putback,
+    required TResult Function(Delete value) delete,
+    required TResult Function(RestoreAll value) restoreAll,
+    required TResult Function(DeleteAll value) deleteAll,
+  }) {
+    return deleteAll(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(ReceiveTrash value)? didReceiveTrash,
+    TResult Function(Putback value)? putback,
+    TResult Function(Delete value)? delete,
+    TResult Function(RestoreAll value)? restoreAll,
+    TResult Function(DeleteAll value)? deleteAll,
+    required TResult orElse(),
+  }) {
+    if (deleteAll != null) {
+      return deleteAll(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class DeleteAll implements TrashEvent {
+  const factory DeleteAll() = _$DeleteAll;
 }
 
 /// @nodoc

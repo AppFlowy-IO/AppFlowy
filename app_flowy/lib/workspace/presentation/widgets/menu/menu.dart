@@ -1,6 +1,7 @@
 import 'package:app_flowy/workspace/presentation/widgets/menu/widget/top_bar.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
@@ -175,21 +176,26 @@ class MenuList extends StatelessWidget {
     return ExpandableTheme(
       data: ExpandableThemeData(useInkWell: true, animationDuration: Durations.medium),
       child: Expanded(
-        child: ListView.separated(
-          itemCount: menuItems.length,
-          separatorBuilder: (context, index) {
-            if (index == 0) {
-              return const VSpace(29);
-            } else {
-              return const VSpace(24);
-            }
-          },
-          physics: const BouncingScrollPhysics(),
-          itemBuilder: (BuildContext context, int index) {
-            return menuItems[index];
-          },
+        child: ScrollConfiguration(
+          behavior: const ScrollBehavior(),
+          child: ListView.separated(
+            itemCount: menuItems.length,
+            separatorBuilder: (context, index) {
+              if (index == 0) {
+                return const VSpace(29);
+              } else {
+                return const VSpace(24);
+              }
+            },
+            physics: StyledScrollPhysics(),
+            itemBuilder: (BuildContext context, int index) {
+              return menuItems[index];
+            },
+          ),
         ),
       ),
     );
   }
 }
+
+class _NoGlowBehavior extends ScrollBehavior {}

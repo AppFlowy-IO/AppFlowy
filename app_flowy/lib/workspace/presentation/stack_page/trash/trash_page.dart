@@ -52,37 +52,45 @@ class _TrashStackPageState extends State<TrashStackPage> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
+    const horizontalPadding = 80.0;
     return SizedBox.expand(
       child: Column(
         children: [
           _renderTopBar(theme),
           const VSpace(32),
-          Expanded(
-            child: ScrollbarListStack(
-              axis: Axis.vertical,
-              controller: _scrollController,
-              barSize: 10,
-              child: StyledSingleChildScrollView(
-                controller: ScrollController(),
-                axis: Axis.horizontal,
-                child: SizedBox(
-                  width: TrashSizes.totalWidth,
-                  child: CustomScrollView(
-                    shrinkWrap: true,
-                    physics: StyledScrollPhysics(),
-                    controller: _scrollController,
-                    slivers: [
-                      _renderListHeader(context),
-                      _renderListBody(context),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
+          _renderTrashList(context),
         ],
         mainAxisAlignment: MainAxisAlignment.start,
-      ).padding(horizontal: 80, vertical: 48),
+      ).padding(horizontal: horizontalPadding, vertical: 48),
+    );
+  }
+
+  Widget _renderTrashList(BuildContext context) {
+    const barSize = 6.0;
+
+    return Expanded(
+      child: ScrollbarListStack(
+        axis: Axis.vertical,
+        controller: _scrollController,
+        scrollbarPadding: EdgeInsets.only(top: TrashSizes.headerHeight),
+        barSize: barSize,
+        child: StyledSingleChildScrollView(
+          controller: ScrollController(),
+          axis: Axis.horizontal,
+          child: SizedBox(
+            width: TrashSizes.totalWidth,
+            child: CustomScrollView(
+              shrinkWrap: true,
+              physics: StyledScrollPhysics(),
+              controller: _scrollController,
+              slivers: [
+                _renderListHeader(context),
+                _renderListBody(context),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -99,7 +107,7 @@ class _TrashStackPageState extends State<TrashStackPage> {
               text: const FlowyText.medium('Restore all', fontSize: 12),
               icon: svg('editor/restore'),
               hoverColor: theme.hover,
-              onTap: () {},
+              onTap: () => context.read<TrashBloc>().add(const TrashEvent.restoreAll()),
             ),
           ),
           const HSpace(6),
@@ -109,7 +117,7 @@ class _TrashStackPageState extends State<TrashStackPage> {
               text: const FlowyText.medium('Delete all', fontSize: 12),
               icon: svg('editor/delete'),
               hoverColor: theme.hover,
-              onTap: () {},
+              onTap: () => context.read<TrashBloc>().add(const TrashEvent.deleteAll()),
             ),
           )
         ],
@@ -133,16 +141,18 @@ class _TrashStackPageState extends State<TrashStackPage> {
           return SliverList(
             delegate: SliverChildBuilderDelegate(
               (BuildContext context, int index) {
+                final object = state.objects[index];
                 return SizedBox(
                   height: 42,
                   child: TrashCell(
-                    object: state.objects[index],
-                    onRestore: () {},
-                    onDelete: () {},
+                    object: object,
+                    onRestore: () => context.read<TrashBloc>().add(TrashEvent.putback(object.id)),
+                    onDelete: () => context.read<TrashBloc>().add(TrashEvent.delete(object.id)),
                   ),
                 );
               },
               childCount: state.objects.length,
+              addAutomaticKeepAlives: false,
             ),
           );
         },

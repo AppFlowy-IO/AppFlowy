@@ -18,6 +18,16 @@ class ITrashImpl implements ITrash {
       );
     });
   }
+
+  @override
+  Future<Either<Unit, WorkspaceError>> putback(String trashId) {
+    return repo.putback(trashId);
+  }
+
+  @override
+  Future<Either<Unit, WorkspaceError>> delete(String trashId) {
+    return repo.delete(trashId);
+  }
 }
 
 class ITrashListenerImpl extends ITrashListener {

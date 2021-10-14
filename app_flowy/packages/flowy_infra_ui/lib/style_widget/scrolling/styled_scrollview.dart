@@ -9,6 +9,7 @@ class StyledSingleChildScrollView extends StatefulWidget {
   final Color? trackColor;
   final Color? handleColor;
   final ScrollController? controller;
+  final EdgeInsets? scrollbarPadding;
 
   final Widget? child;
 
@@ -20,6 +21,7 @@ class StyledSingleChildScrollView extends StatefulWidget {
     this.trackColor,
     this.handleColor,
     this.controller,
+    this.scrollbarPadding,
   }) : super(key: key);
 
   @override
@@ -55,6 +57,7 @@ class _StyledSingleChildScrollViewState extends State<StyledSingleChildScrollVie
       contentSize: widget.contentSize,
       axis: widget.axis,
       controller: scrollController,
+      scrollbarPadding: widget.scrollbarPadding,
       barSize: 12,
       trackColor: widget.trackColor,
       handleColor: widget.handleColor,

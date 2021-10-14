@@ -56,14 +56,6 @@ class ScrollbarState extends State<StyledScrollbar> {
     super.didUpdateWidget(oldWidget);
   }
 
-//  void calculateSize() {
-//    //[SB] Only hack I can find  to make the ScrollController update it's maxExtents.
-//    //Call this whenever the content changes, so the scrollbar can recalculate it's size
-//    widget.controller.jumpTo(widget.controller.position.pixels + 1);
-//    Future.microtask(() => widget.controller
-//        .animateTo(widget.controller.position.pixels - 1, duration: 100.milliseconds, curve: Curves.linear));
-//  }
-
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
@@ -100,8 +92,7 @@ class ScrollbarState extends State<StyledScrollbar> {
         // Calculate the alignment for the handle, this is a value between 0 and 1,
         // it automatically takes the handle size into acct
         // ignore: omit_local_variable_types
-        double handleAlignment =
-            maxExtent == 0 ? 0 : widget.controller.offset / maxExtent;
+        double handleAlignment = maxExtent == 0 ? 0 : widget.controller.offset / maxExtent;
 
         // Convert handle alignment from [0, 1] to [-1, 1]
         handleAlignment *= 2.0;
@@ -116,13 +107,9 @@ class ScrollbarState extends State<StyledScrollbar> {
         // Hide the handle if content is < the viewExtent
         var showHandle = contentExtent > _viewExtent && contentExtent > 0;
         // Handle color
-        var handleColor = widget.handleColor ??
-            (theme.isDark ? theme.bg2.withOpacity(.2) : theme.bg2);
+        var handleColor = widget.handleColor ?? (theme.isDark ? theme.bg2.withOpacity(.2) : theme.bg2);
         // Track color
-        var trackColor = widget.trackColor ??
-            (theme.isDark
-                ? theme.bg2.withOpacity(.1)
-                : theme.bg2.withOpacity(.3));
+        var trackColor = widget.trackColor ?? (theme.isDark ? theme.bg2.withOpacity(.1) : theme.bg2.withOpacity(.3));
 
         //Layout the stack, it just contains a child, and
         return Stack(children: <Widget>[
@@ -132,12 +119,8 @@ class ScrollbarState extends State<StyledScrollbar> {
               alignment: const Alignment(1, 1),
               child: Container(
                 color: trackColor,
-                width: widget.axis == Axis.vertical
-                    ? widget.size
-                    : double.infinity,
-                height: widget.axis == Axis.horizontal
-                    ? widget.size
-                    : double.infinity,
+                width: widget.axis == Axis.vertical ? widget.size : double.infinity,
+                height: widget.axis == Axis.horizontal ? widget.size : double.infinity,
               ),
             ),
 
@@ -154,14 +137,10 @@ class ScrollbarState extends State<StyledScrollbar> {
               // HANDLE SHAPE
               child: MouseHoverBuilder(
                 builder: (_, isHovered) => Container(
-                  width:
-                      widget.axis == Axis.vertical ? widget.size : handleExtent,
-                  height: widget.axis == Axis.horizontal
-                      ? widget.size
-                      : handleExtent,
+                  width: widget.axis == Axis.vertical ? widget.size : handleExtent,
+                  height: widget.axis == Axis.horizontal ? widget.size : handleExtent,
                   decoration: BoxDecoration(
-                      color: handleColor.withOpacity(isHovered ? 1 : .85),
-                      borderRadius: Corners.s3Border),
+                      color: handleColor.withOpacity(isHovered ? 1 : .85), borderRadius: Corners.s3Border),
                 ),
               ),
             ),
@@ -173,19 +152,15 @@ class ScrollbarState extends State<StyledScrollbar> {
 
   void _handleHorizontalDrag(DragUpdateDetails details) {
     var pos = widget.controller.offset;
-    var pxRatio = (widget.controller.position.maxScrollExtent + _viewExtent) /
-        _viewExtent;
-    widget.controller.jumpTo((pos + details.delta.dx * pxRatio)
-        .clamp(0.0, widget.controller.position.maxScrollExtent));
+    var pxRatio = (widget.controller.position.maxScrollExtent + _viewExtent) / _viewExtent;
+    widget.controller.jumpTo((pos + details.delta.dx * pxRatio).clamp(0.0, widget.controller.position.maxScrollExtent));
     widget.onDrag?.call(details.delta.dx);
   }
 
   void _handleVerticalDrag(DragUpdateDetails details) {
     var pos = widget.controller.offset;
-    var pxRatio = (widget.controller.position.maxScrollExtent + _viewExtent) /
-        _viewExtent;
-    widget.controller.jumpTo((pos + details.delta.dy * pxRatio)
-        .clamp(0.0, widget.controller.position.maxScrollExtent));
+    var pxRatio = (widget.controller.position.maxScrollExtent + _viewExtent) / _viewExtent;
+    widget.controller.jumpTo((pos + details.delta.dy * pxRatio).clamp(0.0, widget.controller.position.maxScrollExtent));
     widget.onDrag?.call(details.delta.dy);
   }
 }

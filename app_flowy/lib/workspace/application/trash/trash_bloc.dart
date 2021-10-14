@@ -26,6 +26,16 @@ class TrashBloc extends Bloc<TrashEvent, TrashState> {
       didReceiveTrash: (e) async* {
         yield state.copyWith(objects: e.trash);
       },
+      putback: (e) async* {
+        final result = await iTrash.putback(e.trashId);
+        result.fold((l) {}, (error) {});
+      },
+      delete: (e) async* {
+        final result = await iTrash.delete(e.trashId);
+        result.fold((l) {}, (error) {});
+      },
+      deleteAll: (e) async* {},
+      restoreAll: (e) async* {},
     );
   }
 
@@ -51,6 +61,10 @@ class TrashBloc extends Bloc<TrashEvent, TrashState> {
 class TrashEvent with _$TrashEvent {
   const factory TrashEvent.initial() = Initial;
   const factory TrashEvent.didReceiveTrash(List<Trash> trash) = ReceiveTrash;
+  const factory TrashEvent.putback(String trashId) = Putback;
+  const factory TrashEvent.delete(String trashId) = Delete;
+  const factory TrashEvent.restoreAll() = RestoreAll;
+  const factory TrashEvent.deleteAll() = DeleteAll;
 }
 
 @freezed
