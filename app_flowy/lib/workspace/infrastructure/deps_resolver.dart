@@ -78,7 +78,12 @@ class HomeDepsResolver {
         (user, _) => MenuUserBloc(getIt<IUser>(param1: user), getIt<IUserListener>(param1: user)));
 
     // App
-    getIt.registerFactoryParam<AppBloc, String, void>((appId, _) => AppBloc(getIt<IApp>(param1: appId)));
+    getIt.registerFactoryParam<AppBloc, String, void>(
+      (appId, _) => AppBloc(
+        iAppImpl: getIt<IApp>(param1: appId),
+        listener: getIt<IAppListenr>(param1: appId),
+      ),
+    );
     getIt.registerFactoryParam<AppListenBloc, String, void>(
         (appId, _) => AppListenBloc(getIt<IAppListenr>(param1: appId)));
 

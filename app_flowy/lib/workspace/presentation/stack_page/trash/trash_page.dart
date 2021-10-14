@@ -1,9 +1,13 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/trash/trash_bloc.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
+import 'package:app_flowy/workspace/presentation/stack_page/trash/widget/sizes.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/trash/widget/trash_cell.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
+import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
+import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -29,7 +33,7 @@ class TrashStackContext extends HomeStackContext {
 
   @override
   Widget render() {
-    return const TrashStackPage(key: ObjectKey('TrashStackPage'));
+    return const TrashStackPage(key: ValueKey('TrashStackPage'));
   }
 
   @override
@@ -44,6 +48,7 @@ class TrashStackPage extends StatefulWidget {
 }
 
 class _TrashStackPageState extends State<TrashStackPage> {
+  final ScrollController _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
@@ -53,12 +58,26 @@ class _TrashStackPageState extends State<TrashStackPage> {
           _renderTopBar(theme),
           const VSpace(32),
           Expanded(
-            child: CustomScrollView(
-              controller: ScrollController(),
-              slivers: [
-                _renderListHeader(context),
-                _renderListBody(context),
-              ],
+            child: ScrollbarListStack(
+              axis: Axis.vertical,
+              controller: _scrollController,
+              barSize: 10,
+              child: StyledSingleChildScrollView(
+                controller: ScrollController(),
+                axis: Axis.horizontal,
+                child: SizedBox(
+                  width: TrashSizes.totalWidth,
+                  child: CustomScrollView(
+                    shrinkWrap: true,
+                    physics: StyledScrollPhysics(),
+                    controller: _scrollController,
+                    slivers: [
+                      _renderListHeader(context),
+                      _renderListBody(context),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ],

@@ -23,12 +23,10 @@ class StyledSingleChildScrollView extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _StyledSingleChildScrollViewState createState() =>
-      _StyledSingleChildScrollViewState();
+  _StyledSingleChildScrollViewState createState() => _StyledSingleChildScrollViewState();
 }
 
-class _StyledSingleChildScrollViewState
-    extends State<StyledSingleChildScrollView> {
+class _StyledSingleChildScrollViewState extends State<StyledSingleChildScrollView> {
   late ScrollController scrollController;
 
   @override

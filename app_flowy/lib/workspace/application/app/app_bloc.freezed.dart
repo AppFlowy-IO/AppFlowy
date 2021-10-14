@@ -27,6 +27,12 @@ class _$AppEventTearOff {
       viewType,
     );
   }
+
+  ReceiveViews didReceiveViews(List<View> views) {
+    return ReceiveViews(
+      views,
+    );
+  }
 }
 
 /// @nodoc
@@ -39,12 +45,14 @@ mixin _$AppEvent {
     required TResult Function() initial,
     required TResult Function(String name, String desc, ViewType viewType)
         createView,
+    required TResult Function(List<View> views) didReceiveViews,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(String name, String desc, ViewType viewType)? createView,
+    TResult Function(List<View> views)? didReceiveViews,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -52,12 +60,14 @@ mixin _$AppEvent {
   TResult map<TResult extends Object?>({
     required TResult Function(Initial value) initial,
     required TResult Function(CreateView value) createView,
+    required TResult Function(ReceiveViews value) didReceiveViews,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Initial value)? initial,
     TResult Function(CreateView value)? createView,
+    TResult Function(ReceiveViews value)? didReceiveViews,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -118,6 +128,7 @@ class _$Initial implements Initial {
     required TResult Function() initial,
     required TResult Function(String name, String desc, ViewType viewType)
         createView,
+    required TResult Function(List<View> views) didReceiveViews,
   }) {
     return initial();
   }
@@ -127,6 +138,7 @@ class _$Initial implements Initial {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(String name, String desc, ViewType viewType)? createView,
+    TResult Function(List<View> views)? didReceiveViews,
     required TResult orElse(),
   }) {
     if (initial != null) {
@@ -140,6 +152,7 @@ class _$Initial implements Initial {
   TResult map<TResult extends Object?>({
     required TResult Function(Initial value) initial,
     required TResult Function(CreateView value) createView,
+    required TResult Function(ReceiveViews value) didReceiveViews,
   }) {
     return initial(this);
   }
@@ -149,6 +162,7 @@ class _$Initial implements Initial {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Initial value)? initial,
     TResult Function(CreateView value)? createView,
+    TResult Function(ReceiveViews value)? didReceiveViews,
     required TResult orElse(),
   }) {
     if (initial != null) {
@@ -250,6 +264,7 @@ class _$CreateView implements CreateView {
     required TResult Function() initial,
     required TResult Function(String name, String desc, ViewType viewType)
         createView,
+    required TResult Function(List<View> views) didReceiveViews,
   }) {
     return createView(name, desc, viewType);
   }
@@ -259,6 +274,7 @@ class _$CreateView implements CreateView {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(String name, String desc, ViewType viewType)? createView,
+    TResult Function(List<View> views)? didReceiveViews,
     required TResult orElse(),
   }) {
     if (createView != null) {
@@ -272,6 +288,7 @@ class _$CreateView implements CreateView {
   TResult map<TResult extends Object?>({
     required TResult Function(Initial value) initial,
     required TResult Function(CreateView value) createView,
+    required TResult Function(ReceiveViews value) didReceiveViews,
   }) {
     return createView(this);
   }
@@ -281,6 +298,7 @@ class _$CreateView implements CreateView {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Initial value)? initial,
     TResult Function(CreateView value)? createView,
+    TResult Function(ReceiveViews value)? didReceiveViews,
     required TResult orElse(),
   }) {
     if (createView != null) {
@@ -299,6 +317,126 @@ abstract class CreateView implements AppEvent {
   ViewType get viewType => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $CreateViewCopyWith<CreateView> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ReceiveViewsCopyWith<$Res> {
+  factory $ReceiveViewsCopyWith(
+          ReceiveViews value, $Res Function(ReceiveViews) then) =
+      _$ReceiveViewsCopyWithImpl<$Res>;
+  $Res call({List<View> views});
+}
+
+/// @nodoc
+class _$ReceiveViewsCopyWithImpl<$Res> extends _$AppEventCopyWithImpl<$Res>
+    implements $ReceiveViewsCopyWith<$Res> {
+  _$ReceiveViewsCopyWithImpl(
+      ReceiveViews _value, $Res Function(ReceiveViews) _then)
+      : super(_value, (v) => _then(v as ReceiveViews));
+
+  @override
+  ReceiveViews get _value => super._value as ReceiveViews;
+
+  @override
+  $Res call({
+    Object? views = freezed,
+  }) {
+    return _then(ReceiveViews(
+      views == freezed
+          ? _value.views
+          : views // ignore: cast_nullable_to_non_nullable
+              as List<View>,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$ReceiveViews implements ReceiveViews {
+  const _$ReceiveViews(this.views);
+
+  @override
+  final List<View> views;
+
+  @override
+  String toString() {
+    return 'AppEvent.didReceiveViews(views: $views)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is ReceiveViews &&
+            (identical(other.views, views) ||
+                const DeepCollectionEquality().equals(other.views, views)));
+  }
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(views);
+
+  @JsonKey(ignore: true)
+  @override
+  $ReceiveViewsCopyWith<ReceiveViews> get copyWith =>
+      _$ReceiveViewsCopyWithImpl<ReceiveViews>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function(String name, String desc, ViewType viewType)
+        createView,
+    required TResult Function(List<View> views) didReceiveViews,
+  }) {
+    return didReceiveViews(views);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(String name, String desc, ViewType viewType)? createView,
+    TResult Function(List<View> views)? didReceiveViews,
+    required TResult orElse(),
+  }) {
+    if (didReceiveViews != null) {
+      return didReceiveViews(views);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(Initial value) initial,
+    required TResult Function(CreateView value) createView,
+    required TResult Function(ReceiveViews value) didReceiveViews,
+  }) {
+    return didReceiveViews(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(CreateView value)? createView,
+    TResult Function(ReceiveViews value)? didReceiveViews,
+    required TResult orElse(),
+  }) {
+    if (didReceiveViews != null) {
+      return didReceiveViews(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class ReceiveViews implements AppEvent {
+  const factory ReceiveViews(List<View> views) = _$ReceiveViews;
+
+  List<View> get views => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $ReceiveViewsCopyWith<ReceiveViews> get copyWith =>
       throw _privateConstructorUsedError;
 }
 

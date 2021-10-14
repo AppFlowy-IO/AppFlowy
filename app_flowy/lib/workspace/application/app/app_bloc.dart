@@ -10,7 +10,8 @@ part 'app_bloc.freezed.dart';
 
 class AppBloc extends Bloc<AppEvent, AppState> {
   final IApp iAppImpl;
-  AppBloc(this.iAppImpl) : super(AppState.initial());
+  final IAppListenr listener;
+  AppBloc({required this.iAppImpl, required this.listener}) : super(AppState.initial());
 
   @override
   Stream<AppState> mapEventToState(
@@ -18,6 +19,8 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   ) async* {
     yield* event.map(
       initial: (e) async* {
+        listener.start(viewsChangeCallback: _handleViewsOrFail);
+
         yield* _fetchViews();
       },
       createView: (CreateView value) async* {
@@ -26,6 +29,24 @@ class AppBloc extends Bloc<AppEvent, AppState> {
           Log.error(error);
           return state.copyWith(successOrFailure: right(error));
         });
+      },
+      didReceiveViews: (e) async* {
+        yield state.copyWith(views: e.views);
+      },
+    );
+  }
+
+  @override
+  Future<void> close() async {
+    await listener.stop();
+    return super.close();
+  }
+
+  void _handleViewsOrFail(Either<List<View>, WorkspaceError> viewsOrFail) {
+    viewsOrFail.fold(
+      (views) => add(AppEvent.didReceiveViews(views)),
+      (error) {
+        Log.error(error);
       },
     );
   }
@@ -46,6 +67,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 class AppEvent with _$AppEvent {
   const factory AppEvent.initial() = Initial;
   const factory AppEvent.createView(String name, String desc, ViewType viewType) = CreateView;
+  const factory AppEvent.didReceiveViews(List<View> views) = ReceiveViews;
 }
 
 @freezed

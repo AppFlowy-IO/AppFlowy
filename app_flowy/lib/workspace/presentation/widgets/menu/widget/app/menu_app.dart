@@ -1,12 +1,10 @@
 import 'package:app_flowy/workspace/presentation/widgets/menu/widget/app/header.dart';
 import 'package:expandable/expandable.dart';
-import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
-import 'package:app_flowy/workspace/application/app/app_listen_bloc.dart';
 import 'package:app_flowy/workspace/presentation/widgets/menu/menu.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
@@ -68,36 +66,13 @@ class MenuApp extends MenuItem {
           appBloc.add(const AppEvent.initial());
           return appBloc;
         }),
-        BlocProvider<AppListenBloc>(create: (context) {
-          final listener = getIt<AppListenBloc>(param1: appCtx.app.id);
-          listener.add(const AppListenEvent.started());
-          return listener;
-        }),
       ],
-      child: MultiBlocListener(
-        listeners: [
-          BlocListener<AppListenBloc, AppListenState>(
-            listenWhen: (p, c) => p != c,
-            listener: (context, state) => state.map(
-              initial: (_) => {},
-              didReceiveViews: (state) => appCtx.viewList.items = state.views,
-              loadFail: (s) => appCtx.viewList.items = [],
-            ),
-          ),
-        ],
-        child: BlocBuilder<AppListenBloc, AppListenState>(
-          builder: (context, state) {
-            final child = state.map(
-              initial: (_) => BlocBuilder<AppBloc, AppState>(builder: (context, state) {
-                appCtx.viewList.items = state.views ?? List.empty(growable: false);
-                return _renderViewSection(appCtx.viewList);
-              }),
-              didReceiveViews: (state) => _renderViewSection(appCtx.viewList),
-              loadFail: (s) => FlowyErrorPage(s.error.toString()),
-            );
-            return expandableWrapper(context, child);
-          },
-        ),
+      child: BlocBuilder<AppBloc, AppState>(
+        builder: (context, state) {
+          appCtx.viewList.items = state.views ?? List.empty(growable: false);
+          final child = _renderViewSection(appCtx.viewList);
+          return expandableWrapper(context, child);
+        },
       ),
     );
   }
