@@ -12,23 +12,18 @@ import 'package:protobuf/protobuf.dart' as $pb;
 class QueryViewRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'QueryViewRequest', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewId')
-    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isTrash')
-    ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'readBelongings')
+    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'readBelongings')
     ..hasRequiredFields = false
   ;
 
   QueryViewRequest._() : super();
   factory QueryViewRequest({
     $core.String? viewId,
-    $core.bool? isTrash,
     $core.bool? readBelongings,
   }) {
     final _result = create();
     if (viewId != null) {
       _result.viewId = viewId;
-    }
-    if (isTrash != null) {
-      _result.isTrash = isTrash;
     }
     if (readBelongings != null) {
       _result.readBelongings = readBelongings;
@@ -66,44 +61,30 @@ class QueryViewRequest extends $pb.GeneratedMessage {
   void clearViewId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.bool get isTrash => $_getBF(1);
+  $core.bool get readBelongings => $_getBF(1);
   @$pb.TagNumber(2)
-  set isTrash($core.bool v) { $_setBool(1, v); }
+  set readBelongings($core.bool v) { $_setBool(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasIsTrash() => $_has(1);
+  $core.bool hasReadBelongings() => $_has(1);
   @$pb.TagNumber(2)
-  void clearIsTrash() => clearField(2);
-
-  @$pb.TagNumber(3)
-  $core.bool get readBelongings => $_getBF(2);
-  @$pb.TagNumber(3)
-  set readBelongings($core.bool v) { $_setBool(2, v); }
-  @$pb.TagNumber(3)
-  $core.bool hasReadBelongings() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearReadBelongings() => clearField(3);
+  void clearReadBelongings() => clearField(2);
 }
 
 class QueryViewParams extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'QueryViewParams', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewId')
-    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isTrash')
-    ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'readBelongings')
+    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'readBelongings')
     ..hasRequiredFields = false
   ;
 
   QueryViewParams._() : super();
   factory QueryViewParams({
     $core.String? viewId,
-    $core.bool? isTrash,
     $core.bool? readBelongings,
   }) {
     final _result = create();
     if (viewId != null) {
       _result.viewId = viewId;
-    }
-    if (isTrash != null) {
-      _result.isTrash = isTrash;
     }
     if (readBelongings != null) {
       _result.readBelongings = readBelongings;
@@ -141,22 +122,13 @@ class QueryViewParams extends $pb.GeneratedMessage {
   void clearViewId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.bool get isTrash => $_getBF(1);
+  $core.bool get readBelongings => $_getBF(1);
   @$pb.TagNumber(2)
-  set isTrash($core.bool v) { $_setBool(1, v); }
+  set readBelongings($core.bool v) { $_setBool(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasIsTrash() => $_has(1);
+  $core.bool hasReadBelongings() => $_has(1);
   @$pb.TagNumber(2)
-  void clearIsTrash() => clearField(2);
-
-  @$pb.TagNumber(3)
-  $core.bool get readBelongings => $_getBF(2);
-  @$pb.TagNumber(3)
-  set readBelongings($core.bool v) { $_setBool(2, v); }
-  @$pb.TagNumber(3)
-  $core.bool hasReadBelongings() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearReadBelongings() => clearField(3);
+  void clearReadBelongings() => clearField(2);
 }
 
 class OpenViewRequest extends $pb.GeneratedMessage {

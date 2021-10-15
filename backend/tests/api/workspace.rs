@@ -152,19 +152,19 @@ async fn view_update() {
     assert_eq!(&view.name, new_name);
 }
 
-#[actix_rt::test]
-async fn view_delete() {
-    let test = ViewTest::new().await;
-    // delete
-    let delete_params = DeleteViewParams {
-        view_ids: vec![test.view.id.clone()],
-    };
-    test.server.delete_view(delete_params).await;
-
-    // read
-    let read_params = QueryViewParams::new(&test.view.id).trash();
-    assert_eq!(test.server.read_view(read_params).await.is_none(), true);
-}
+// #[actix_rt::test]
+// async fn view_delete() {
+//     let test = ViewTest::new().await;
+//     // delete
+//     let delete_params = DeleteViewParams {
+//         view_ids: vec![test.view.id.clone()],
+//     };
+//     test.server.delete_view(delete_params).await;
+//
+//     // read
+//     let read_params = QueryViewParams::new(&test.view.id).trash();
+//     assert_eq!(test.server.read_view(read_params).await.is_none(), true);
+// }
 
 #[actix_rt::test]
 async fn workspace_list_read() {

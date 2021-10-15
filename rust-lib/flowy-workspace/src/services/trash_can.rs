@@ -60,7 +60,7 @@ impl TrashCan {
         );
         let _ = self
             .notify
-            .send(TrashEvent::Putback(trash_table.ty.into(), vec![trash_table.id], tx))?;
+            .send(TrashEvent::Putback(trash_table.ty.into(), vec![trash_table.id], tx));
 
         let _ = rx.recv().await.unwrap()?;
         let conn = self.database.db_connection()?;

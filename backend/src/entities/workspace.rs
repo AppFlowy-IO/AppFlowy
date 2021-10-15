@@ -1,10 +1,11 @@
 use chrono::Utc;
-use flowy_workspace::protobuf::{App, RepeatedView, View, ViewType};
+use flowy_workspace::protobuf::{App, RepeatedView, Trash, TrashType, View, ViewType};
 use protobuf::ProtobufEnum;
 
 pub(crate) const WORKSPACE_TABLE: &'static str = "workspace_table";
 pub(crate) const APP_TABLE: &'static str = "app_table";
 pub(crate) const VIEW_TABLE: &'static str = "view_table";
+pub(crate) const TRASH_TABLE: &'static str = "trash_table";
 
 #[derive(Debug, Clone, sqlx::FromRow)]
 pub struct WorkspaceTable {
@@ -55,8 +56,8 @@ pub struct ViewTable {
     pub(crate) create_time: chrono::DateTime<Utc>,
     pub(crate) thumbnail: String,
     pub(crate) view_type: i32,
-    pub(crate) is_trash: bool,
 }
+
 impl std::convert::Into<View> for ViewTable {
     fn into(self) -> View {
         let view_type = ViewType::from_i32(self.view_type).unwrap_or(ViewType::Doc);
@@ -73,4 +74,25 @@ impl std::convert::Into<View> for ViewTable {
 
         view
     }
+}
+
+impl std::convert::Into<Trash> for ViewTable {
+    fn into(self) -> Trash {
+        Trash {
+            id: self.id.to_string(),
+            name: self.name,
+            modified_time: self.modified_time.timestamp(),
+            create_time: self.create_time.timestamp(),
+            ty: TrashType::View,
+            unknown_fields: Default::default(),
+            cached_size: Default::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, sqlx::FromRow)]
+pub struct TrashTable {
+    pub(crate) id: uuid::Uuid,
+    pub(crate) user_id: String,
+    pub(crate) ty: i32,
 }

@@ -47,14 +47,14 @@ async fn app_create_with_view() {
     assert_eq!(view_from_db.belongings[1], view_b);
 }
 
-#[tokio::test]
-async fn app_set_trash_flag() {
-    let test = AppTest::new().await;
-    test.move_app_to_trash().await;
-
-    let query = QueryAppRequest::new(&test.app.id).trash();
-    let _ = read_app(&test.sdk, query);
-}
+// #[tokio::test]
+// async fn app_set_trash_flag() {
+//     let test = AppTest::new().await;
+//     test.move_app_to_trash().await;
+//
+//     let query = QueryAppRequest::new(&test.app.id).trash();
+//     let _ = read_app(&test.sdk, query);
+// }
 
 #[tokio::test]
 #[should_panic]

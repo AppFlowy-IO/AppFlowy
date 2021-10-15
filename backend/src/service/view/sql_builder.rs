@@ -30,7 +30,6 @@ impl NewViewSqlBuilder {
             create_time: time,
             thumbnail: "".to_string(),
             view_type: ViewType::Doc.value(),
-            is_trash: false,
         };
 
         Self { table }

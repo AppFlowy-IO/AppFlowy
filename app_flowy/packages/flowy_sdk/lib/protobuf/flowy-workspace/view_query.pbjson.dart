@@ -13,25 +13,23 @@ const QueryViewRequest$json = const {
   '1': 'QueryViewRequest',
   '2': const [
     const {'1': 'view_id', '3': 1, '4': 1, '5': 9, '10': 'viewId'},
-    const {'1': 'is_trash', '3': 2, '4': 1, '5': 8, '10': 'isTrash'},
-    const {'1': 'read_belongings', '3': 3, '4': 1, '5': 8, '10': 'readBelongings'},
+    const {'1': 'read_belongings', '3': 2, '4': 1, '5': 8, '10': 'readBelongings'},
   ],
 };
 
 /// Descriptor for `QueryViewRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List queryViewRequestDescriptor = $convert.base64Decode('ChBRdWVyeVZpZXdSZXF1ZXN0EhcKB3ZpZXdfaWQYASABKAlSBnZpZXdJZBIZCghpc190cmFzaBgCIAEoCFIHaXNUcmFzaBInCg9yZWFkX2JlbG9uZ2luZ3MYAyABKAhSDnJlYWRCZWxvbmdpbmdz');
+final $typed_data.Uint8List queryViewRequestDescriptor = $convert.base64Decode('ChBRdWVyeVZpZXdSZXF1ZXN0EhcKB3ZpZXdfaWQYASABKAlSBnZpZXdJZBInCg9yZWFkX2JlbG9uZ2luZ3MYAiABKAhSDnJlYWRCZWxvbmdpbmdz');
 @$core.Deprecated('Use queryViewParamsDescriptor instead')
 const QueryViewParams$json = const {
   '1': 'QueryViewParams',
   '2': const [
     const {'1': 'view_id', '3': 1, '4': 1, '5': 9, '10': 'viewId'},
-    const {'1': 'is_trash', '3': 2, '4': 1, '5': 8, '10': 'isTrash'},
-    const {'1': 'read_belongings', '3': 3, '4': 1, '5': 8, '10': 'readBelongings'},
+    const {'1': 'read_belongings', '3': 2, '4': 1, '5': 8, '10': 'readBelongings'},
   ],
 };
 
 /// Descriptor for `QueryViewParams`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List queryViewParamsDescriptor = $convert.base64Decode('Cg9RdWVyeVZpZXdQYXJhbXMSFwoHdmlld19pZBgBIAEoCVIGdmlld0lkEhkKCGlzX3RyYXNoGAIgASgIUgdpc1RyYXNoEicKD3JlYWRfYmVsb25naW5ncxgDIAEoCFIOcmVhZEJlbG9uZ2luZ3M=');
+final $typed_data.Uint8List queryViewParamsDescriptor = $convert.base64Decode('Cg9RdWVyeVZpZXdQYXJhbXMSFwoHdmlld19pZBgBIAEoCVIGdmlld0lkEicKD3JlYWRfYmVsb25naW5ncxgCIAEoCFIOcmVhZEJlbG9uZ2luZ3M=');
 @$core.Deprecated('Use openViewRequestDescriptor instead')
 const OpenViewRequest$json = const {
   '1': 'OpenViewRequest',

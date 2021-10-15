@@ -7,6 +7,18 @@ pub enum TrashType {
     View    = 1,
 }
 
+impl std::convert::TryFrom<i32> for TrashType {
+    type Error = String;
+
+    fn try_from(value: i32) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(TrashType::Unknown),
+            1 => Ok(TrashType::View),
+            _ => Err(format!("Invalid trash type: {}", value)),
+        }
+    }
+}
+
 impl std::default::Default for TrashType {
     fn default() -> Self { TrashType::Unknown }
 }

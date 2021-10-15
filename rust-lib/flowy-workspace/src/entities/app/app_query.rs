@@ -27,11 +27,6 @@ impl QueryAppRequest {
         self.read_belongings = true;
         self
     }
-
-    pub fn trash(mut self) -> Self {
-        self.is_trash = true;
-        self
-    }
 }
 
 #[derive(ProtoBuf, Default, Clone, Debug)]

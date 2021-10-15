@@ -25,6 +25,7 @@ use crate::{
 };
 use actix_web::web::Data;
 use std::sync::Arc;
+use uuid::Uuid;
 
 pub(crate) async fn create_view(pool: &PgPool, params: CreateViewParams) -> Result<FlowyResponse, ServerError> {
     let mut transaction = pool
@@ -69,6 +70,22 @@ pub(crate) async fn create_view_with_transaction(
     Ok(view)
 }
 
+pub(crate) async fn read_view_with_transaction(
+    view_id: Uuid,
+    transaction: &mut DBTransaction<'_>,
+) -> Result<ViewTable, ServerError> {
+    let (sql, args) = SqlBuilder::select(VIEW_TABLE)
+        .add_field("*")
+        .and_where_eq("id", view_id)
+        .build()?;
+
+    let table = sqlx::query_as_with::<Postgres, ViewTable, PgArguments>(&sql, args)
+        .fetch_one(transaction as &mut DBTransaction<'_>)
+        .await
+        .map_err(map_sqlx_error)?;
+    Ok(table)
+}
+
 pub(crate) async fn read_view(
     pool: &PgPool,
     params: QueryViewParams,
@@ -79,17 +96,7 @@ pub(crate) async fn read_view(
         .begin()
         .await
         .context("Failed to acquire a Postgres connection to read view")?;
-
-    let (sql, args) = SqlBuilder::select(VIEW_TABLE)
-        .add_field("*")
-        .and_where_eq("id", view_id)
-        .build()?;
-
-    let table = sqlx::query_as_with::<Postgres, ViewTable, PgArguments>(&sql, args)
-        .fetch_one(&mut transaction)
-        .await
-        .map_err(map_sqlx_error)?;
-
+    let table = read_view_with_transaction(view_id, &mut transaction).await?;
     let mut views = RepeatedView::default();
     if params.read_belongings {
         views.set_items(
@@ -142,7 +149,6 @@ pub(crate) async fn update_view(pool: &PgPool, params: UpdateViewParams) -> Resu
         .add_some_arg("description", desc)
         .add_some_arg("thumbnail", thumbnail)
         .add_some_arg("modified_time", Some(Utc::now()))
-        .add_arg_if(params.has_is_trash(), "is_trash", params.get_is_trash())
         .and_where_eq("id", view_id)
         .build()?;
 
@@ -193,7 +199,6 @@ pub(crate) async fn read_views_belong_to_id<'c>(
     let (sql, args) = SqlBuilder::select(VIEW_TABLE)
         .add_field("*")
         .and_where_eq("belong_to_id", id)
-        .and_where_eq("is_trash", false)
         .build()?;
 
     let tables = sqlx::query_as_with::<Postgres, ViewTable, PgArguments>(&sql, args)
