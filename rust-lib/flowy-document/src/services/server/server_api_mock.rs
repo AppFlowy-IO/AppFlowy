@@ -1,5 +1,5 @@
 use crate::{
-    entities::doc::{CreateDocParams, Doc, QueryDocParams, UpdateDocParams},
+    entities::doc::{CreateDocParams, Doc, DocIdentifier, UpdateDocParams},
     errors::DocError,
     services::server::DocumentServerAPI,
 };
@@ -11,7 +11,7 @@ impl DocumentServerAPI for DocServerMock {
         ResultFuture::new(async { Ok(()) })
     }
 
-    fn read_doc(&self, _token: &str, _params: QueryDocParams) -> ResultFuture<Option<Doc>, DocError> {
+    fn read_doc(&self, _token: &str, _params: DocIdentifier) -> ResultFuture<Option<Doc>, DocError> {
         ResultFuture::new(async { Ok(None) })
     }
 
@@ -19,7 +19,7 @@ impl DocumentServerAPI for DocServerMock {
         ResultFuture::new(async { Ok(()) })
     }
 
-    fn delete_doc(&self, _token: &str, _params: QueryDocParams) -> ResultFuture<(), DocError> {
+    fn delete_doc(&self, _token: &str, _params: DocIdentifier) -> ResultFuture<(), DocError> {
         ResultFuture::new(async { Ok(()) })
     }
 }

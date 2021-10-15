@@ -6,7 +6,7 @@ use backend::{
 
 use backend::application::init_app_context;
 use flowy_document::{
-    entities::doc::{Doc, QueryDocParams},
+    entities::doc::{Doc, DocIdentifier},
     prelude::*,
 };
 use flowy_user::{errors::UserError, prelude::*};
@@ -122,7 +122,7 @@ impl TestUserServer {
         delete_view_request(self.user_token(), params, &url).await.unwrap();
     }
 
-    pub async fn read_doc(&self, params: QueryDocParams) -> Option<Doc> {
+    pub async fn read_doc(&self, params: DocIdentifier) -> Option<Doc> {
         let url = format!("{}/api/doc", self.http_addr());
         let doc = read_doc_request(self.user_token(), params, &url).await.unwrap();
         doc

@@ -1,5 +1,5 @@
 use crate::{
-    entities::doc::{CreateDocParams, DocDelta, QueryDocParams},
+    entities::doc::{CreateDocParams, DocDelta, DocIdentifier},
     errors::DocError,
     services::{
         doc::{doc_controller::DocController, edit::ClientEditDoc},
@@ -42,16 +42,12 @@ impl FlowyDocument {
         Ok(())
     }
 
-    pub fn delete(&self, params: QueryDocParams) -> Result<(), DocError> {
+    pub fn delete(&self, params: DocIdentifier) -> Result<(), DocError> {
         let _ = self.doc_ctrl.delete(params)?;
         Ok(())
     }
 
-    pub async fn open(
-        &self,
-        params: QueryDocParams,
-        pool: Arc<ConnectionPool>,
-    ) -> Result<Arc<ClientEditDoc>, DocError> {
+    pub async fn open(&self, params: DocIdentifier, pool: Arc<ConnectionPool>) -> Result<Arc<ClientEditDoc>, DocError> {
         let edit_context = self.doc_ctrl.open(params, pool).await?;
         Ok(edit_context)
     }

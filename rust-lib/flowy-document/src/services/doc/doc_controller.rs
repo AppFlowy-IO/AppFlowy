@@ -3,7 +3,7 @@ use std::sync::Arc;
 use bytes::Bytes;
 
 use crate::{
-    entities::doc::{CreateDocParams, Doc, DocDelta, QueryDocParams},
+    entities::doc::{CreateDocParams, Doc, DocDelta, DocIdentifier},
     errors::{DocError, DocResult},
     module::DocumentUser,
     services::{
@@ -59,7 +59,7 @@ impl DocController {
     #[tracing::instrument(level = "debug", skip(self, pool), err)]
     pub(crate) async fn open(
         &self,
-        params: QueryDocParams,
+        params: DocIdentifier,
         pool: Arc<ConnectionPool>,
     ) -> Result<Arc<ClientEditDoc>, DocError> {
         if self.cache.is_opened(&params.doc_id) == false {
@@ -78,7 +78,7 @@ impl DocController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    pub(crate) fn delete(&self, params: QueryDocParams) -> Result<(), DocError> {
+    pub(crate) fn delete(&self, params: DocIdentifier) -> Result<(), DocError> {
         let doc_id = &params.doc_id;
         self.cache.remove(doc_id);
         self.ws_manager.remove_handler(doc_id);
@@ -96,7 +96,7 @@ impl DocController {
 
 impl DocController {
     #[tracing::instrument(level = "debug", skip(self), err)]
-    fn delete_doc_on_server(&self, params: QueryDocParams) -> Result<(), DocError> {
+    fn delete_doc_on_server(&self, params: DocIdentifier) -> Result<(), DocError> {
         let token = self.user.token()?;
         let server = self.server.clone();
         tokio::spawn(async move {
@@ -138,7 +138,7 @@ struct RevisionServerImpl {
 
 impl RevisionServer for RevisionServerImpl {
     fn fetch_document_from_remote(&self, doc_id: &str) -> ResultFuture<Doc, DocError> {
-        let params = QueryDocParams {
+        let params = DocIdentifier {
             doc_id: doc_id.to_string(),
         };
         let server = self.server.clone();

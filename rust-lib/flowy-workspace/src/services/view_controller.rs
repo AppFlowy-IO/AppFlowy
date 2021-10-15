@@ -8,25 +8,21 @@ use crate::{
 };
 
 use crate::{
-    entities::{
-        view::{DeleteViewParams, QueryViewParams, RepeatedView},
-    },
+    entities::view::{DeleteViewParams, QueryViewParams, RepeatedView},
     errors::internal_error,
     module::WorkspaceUser,
     notify::WorkspaceNotification,
     services::{TrashCan, TrashEvent},
-    sql_tables::trash::TrashSource,
 };
 use flowy_database::SqliteConnection;
 use flowy_document::{
-    entities::doc::{CreateDocParams, DocDelta, QueryDocParams},
+    entities::doc::{CreateDocParams, DocDelta, DocIdentifier},
     module::FlowyDocument,
 };
 
-use crate::errors::WorkspaceResult;
-use futures::{FutureExt, StreamExt, TryStreamExt};
+use crate::{entities::trash::TrashType, errors::WorkspaceResult};
+use futures::{FutureExt, StreamExt};
 use std::sync::Arc;
-
 
 pub(crate) struct ViewController {
     user: Arc<dyn WorkspaceUser>,
@@ -93,7 +89,7 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    pub(crate) async fn open_view(&self, params: QueryDocParams) -> Result<DocDelta, WorkspaceError> {
+    pub(crate) async fn open_view(&self, params: DocIdentifier) -> Result<DocDelta, WorkspaceError> {
         let edit_context = self.document.open(params, self.database.db_pool()?).await?;
         Ok(edit_context.delta().await.map_err(internal_error)?)
     }
@@ -149,7 +145,7 @@ impl ViewController {
             },
             Some(is_trash) => {
                 if is_trash {
-                    self.trash_can.add(updated_view.clone(), TrashSource::View, conn)?;
+                    self.trash_can.add(updated_view.clone(), TrashType::View, conn)?;
                 }
                 let _ = notify_view_num_did_change(&updated_view.belong_to_id, conn)?;
             },
@@ -229,7 +225,7 @@ impl ViewController {
             loop {
                 let mut stream = Box::pin(rx.recv().into_stream().filter_map(|result| async move {
                     match result {
-                        Ok(event) => event.select(TrashSource::View),
+                        Ok(event) => event.select(TrashType::View),
                         Err(_) => None,
                     }
                 }));
@@ -270,7 +266,7 @@ fn handle_trash_event(database: Arc<dyn WorkspaceDatabase>, event: TrashEvent) {
                 })?;
                 Ok::<(), WorkspaceError>(())
             };
-            ret.send(result());
+            let _ = ret.send(result());
         },
         TrashEvent::Delete(_, delete_ids, ret) => {
             let result = || {
@@ -288,7 +284,7 @@ fn handle_trash_event(database: Arc<dyn WorkspaceDatabase>, event: TrashEvent) {
                 })?;
                 Ok::<(), WorkspaceError>(())
             };
-            ret.send(result());
+            let _ = ret.send(result());
         },
     }
 }

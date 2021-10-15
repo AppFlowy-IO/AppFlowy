@@ -16,6 +16,7 @@ use crate::{
     service::{
         app::router as app,
         doc::router as doc,
+        trash::router as trash,
         user::router as user,
         view::router as view,
         workspace::router as workspace,
@@ -117,6 +118,11 @@ fn user_scope() -> Scope {
             .route(web::post().to(doc::create_handler))
             .route(web::get().to(doc::read_handler))
             .route(web::patch().to(doc::update_handler))
+        )
+        .service(web::resource("/trash")
+            .route(web::post().to(trash::create_handler))
+            .route(web::delete().to(trash::delete_handler))
+            .route(web::get().to(trash::read_handler))
         )
         // password
         .service(web::resource("/password_change")

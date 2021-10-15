@@ -1,5 +1,5 @@
 use crate::{
-    entities::doc::{CreateDocParams, Doc, QueryDocParams, UpdateDocParams},
+    entities::doc::{CreateDocParams, Doc, DocIdentifier, UpdateDocParams},
     errors::DocError,
     services::server::DocumentServerAPI,
 };
@@ -21,7 +21,7 @@ impl DocumentServerAPI for DocServer {
         ResultFuture::new(async move { create_doc_request(&token, params, &url).await })
     }
 
-    fn read_doc(&self, token: &str, params: QueryDocParams) -> ResultFuture<Option<Doc>, DocError> {
+    fn read_doc(&self, token: &str, params: DocIdentifier) -> ResultFuture<Option<Doc>, DocError> {
         let token = token.to_owned();
         let url = self.config.doc_url();
         ResultFuture::new(async move { read_doc_request(&token, params, &url).await })
@@ -33,7 +33,7 @@ impl DocumentServerAPI for DocServer {
         ResultFuture::new(async move { update_doc_request(&token, params, &url).await })
     }
 
-    fn delete_doc(&self, token: &str, params: QueryDocParams) -> ResultFuture<(), DocError> {
+    fn delete_doc(&self, token: &str, params: DocIdentifier) -> ResultFuture<(), DocError> {
         let token = token.to_owned();
         let url = self.config.doc_url();
         ResultFuture::new(async move { delete_doc_request(&token, params, &url).await })
@@ -54,7 +54,7 @@ pub async fn create_doc_request(token: &str, params: CreateDocParams, url: &str)
     Ok(())
 }
 
-pub async fn read_doc_request(token: &str, params: QueryDocParams, url: &str) -> Result<Option<Doc>, DocError> {
+pub async fn read_doc_request(token: &str, params: DocIdentifier, url: &str) -> Result<Option<Doc>, DocError> {
     let doc = request_builder()
         .get(&url.to_owned())
         .header(HEADER_TOKEN, token)
@@ -75,7 +75,7 @@ pub async fn update_doc_request(token: &str, params: UpdateDocParams, url: &str)
     Ok(())
 }
 
-pub async fn delete_doc_request(token: &str, params: QueryDocParams, url: &str) -> Result<(), DocError> {
+pub async fn delete_doc_request(token: &str, params: DocIdentifier, url: &str) -> Result<(), DocError> {
     let _ = request_builder()
         .delete(url)
         .header(HEADER_TOKEN, token)

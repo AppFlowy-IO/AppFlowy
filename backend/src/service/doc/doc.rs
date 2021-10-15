@@ -8,7 +8,7 @@ use crate::service::{
 };
 use actix_web::web::Data;
 use dashmap::DashMap;
-use flowy_document::protobuf::QueryDocParams;
+use flowy_document::protobuf::DocIdentifier;
 use flowy_net::errors::{internal_error, ServerError};
 use sqlx::PgPool;
 use std::sync::Arc;
@@ -71,7 +71,7 @@ impl DocManager {
     pub async fn get(&self, doc_id: &str, pg_pool: Data<PgPool>) -> Result<Option<Arc<DocHandle>>, ServerError> {
         match self.docs_map.get(doc_id) {
             None => {
-                let params = QueryDocParams {
+                let params = DocIdentifier {
                     doc_id: doc_id.to_string(),
                     ..Default::default()
                 };

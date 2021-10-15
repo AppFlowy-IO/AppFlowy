@@ -8,19 +8,28 @@
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
 import 'dart:typed_data' as $typed_data;
+@$core.Deprecated('Use trashTypeDescriptor instead')
+const TrashType$json = const {
+  '1': 'TrashType',
+  '2': const [
+    const {'1': 'Unknown', '2': 0},
+    const {'1': 'View', '2': 1},
+  ],
+};
+
+/// Descriptor for `TrashType`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List trashTypeDescriptor = $convert.base64Decode('CglUcmFzaFR5cGUSCwoHVW5rbm93bhAAEggKBFZpZXcQAQ==');
 @$core.Deprecated('Use createTrashParamsDescriptor instead')
 const CreateTrashParams$json = const {
   '1': 'CreateTrashParams',
   '2': const [
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
-    const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
-    const {'1': 'modified_time', '3': 3, '4': 1, '5': 3, '10': 'modifiedTime'},
-    const {'1': 'create_time', '3': 4, '4': 1, '5': 3, '10': 'createTime'},
+    const {'1': 'ty', '3': 2, '4': 1, '5': 14, '6': '.TrashType', '10': 'ty'},
   ],
 };
 
 /// Descriptor for `CreateTrashParams`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List createTrashParamsDescriptor = $convert.base64Decode('ChFDcmVhdGVUcmFzaFBhcmFtcxIOCgJpZBgBIAEoCVICaWQSEgoEbmFtZRgCIAEoCVIEbmFtZRIjCg1tb2RpZmllZF90aW1lGAMgASgDUgxtb2RpZmllZFRpbWUSHwoLY3JlYXRlX3RpbWUYBCABKANSCmNyZWF0ZVRpbWU=');
+final $typed_data.Uint8List createTrashParamsDescriptor = $convert.base64Decode('ChFDcmVhdGVUcmFzaFBhcmFtcxIOCgJpZBgBIAEoCVICaWQSGgoCdHkYAiABKA4yCi5UcmFzaFR5cGVSAnR5');
 @$core.Deprecated('Use trashDescriptor instead')
 const Trash$json = const {
   '1': 'Trash',
@@ -29,11 +38,12 @@ const Trash$json = const {
     const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
     const {'1': 'modified_time', '3': 3, '4': 1, '5': 3, '10': 'modifiedTime'},
     const {'1': 'create_time', '3': 4, '4': 1, '5': 3, '10': 'createTime'},
+    const {'1': 'ty', '3': 5, '4': 1, '5': 14, '6': '.TrashType', '10': 'ty'},
   ],
 };
 
 /// Descriptor for `Trash`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List trashDescriptor = $convert.base64Decode('CgVUcmFzaBIOCgJpZBgBIAEoCVICaWQSEgoEbmFtZRgCIAEoCVIEbmFtZRIjCg1tb2RpZmllZF90aW1lGAMgASgDUgxtb2RpZmllZFRpbWUSHwoLY3JlYXRlX3RpbWUYBCABKANSCmNyZWF0ZVRpbWU=');
+final $typed_data.Uint8List trashDescriptor = $convert.base64Decode('CgVUcmFzaBIOCgJpZBgBIAEoCVICaWQSEgoEbmFtZRgCIAEoCVIEbmFtZRIjCg1tb2RpZmllZF90aW1lGAMgASgDUgxtb2RpZmllZFRpbWUSHwoLY3JlYXRlX3RpbWUYBCABKANSCmNyZWF0ZVRpbWUSGgoCdHkYBSABKA4yCi5UcmFzaFR5cGVSAnR5');
 @$core.Deprecated('Use repeatedTrashDescriptor instead')
 const RepeatedTrash$json = const {
   '1': 'RepeatedTrash',

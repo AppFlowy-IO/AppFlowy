@@ -6,7 +6,7 @@ use sqlx::PgPool;
 use tokio::time::{sleep, Duration};
 
 use backend::service::doc::{crud::update_doc, doc::DocManager};
-use flowy_document::{entities::doc::QueryDocParams, services::doc::edit::ClientEditDoc as ClientEditDocContext};
+use flowy_document::{entities::doc::DocIdentifier, services::doc::edit::ClientEditDoc as ClientEditDocContext};
 use flowy_net::config::ServerConfig;
 use flowy_test::{workspace::ViewTest, FlowyTest};
 use flowy_user::services::user::UserSession;
@@ -80,7 +80,7 @@ impl ScriptContext {
         let pool = self.client_user_session.db_pool().unwrap();
         let doc_id = self.doc_id.clone();
 
-        let edit_context = flowy_document.open(QueryDocParams { doc_id }, pool).await.unwrap();
+        let edit_context = flowy_document.open(DocIdentifier { doc_id }, pool).await.unwrap();
         self.client_edit_context = Some(edit_context);
     }
 

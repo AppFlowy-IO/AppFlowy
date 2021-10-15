@@ -56,3 +56,44 @@ class TrashIdentifier extends $pb.GeneratedMessage {
   void clearId() => clearField(1);
 }
 
+class TrashIdentifiers extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'TrashIdentifiers', createEmptyInstance: create)
+    ..pPS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ids')
+    ..hasRequiredFields = false
+  ;
+
+  TrashIdentifiers._() : super();
+  factory TrashIdentifiers({
+    $core.Iterable<$core.String>? ids,
+  }) {
+    final _result = create();
+    if (ids != null) {
+      _result.ids.addAll(ids);
+    }
+    return _result;
+  }
+  factory TrashIdentifiers.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory TrashIdentifiers.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  TrashIdentifiers clone() => TrashIdentifiers()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  TrashIdentifiers copyWith(void Function(TrashIdentifiers) updates) => super.copyWith((message) => updates(message as TrashIdentifiers)) as TrashIdentifiers; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static TrashIdentifiers create() => TrashIdentifiers._();
+  TrashIdentifiers createEmptyInstance() => create();
+  static $pb.PbList<TrashIdentifiers> createRepeated() => $pb.PbList<TrashIdentifiers>();
+  @$core.pragma('dart2js:noInline')
+  static TrashIdentifiers getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<TrashIdentifiers>(create);
+  static TrashIdentifiers? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<$core.String> get ids => $_getList(0);
+}
+

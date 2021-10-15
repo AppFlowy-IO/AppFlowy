@@ -3,3 +3,6 @@ syntax = "proto3";
 message TrashIdentifier {
     string id = 1;
 }
+message TrashIdentifiers {
+    repeated string ids = 1;
+}

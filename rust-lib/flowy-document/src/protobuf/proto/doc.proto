@@ -24,6 +24,6 @@ message NewDocUser {
     int64 rev_id = 2;
     string doc_id = 3;
 }
-message QueryDocParams {
+message DocIdentifier {
     string doc_id = 1;
 }

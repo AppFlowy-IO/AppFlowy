@@ -371,14 +371,14 @@ class NewDocUser extends $pb.GeneratedMessage {
   void clearDocId() => clearField(3);
 }
 
-class QueryDocParams extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'QueryDocParams', createEmptyInstance: create)
+class DocIdentifier extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DocIdentifier', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
     ..hasRequiredFields = false
   ;
 
-  QueryDocParams._() : super();
-  factory QueryDocParams({
+  DocIdentifier._() : super();
+  factory DocIdentifier({
     $core.String? docId,
   }) {
     final _result = create();
@@ -387,26 +387,26 @@ class QueryDocParams extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory QueryDocParams.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory QueryDocParams.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory DocIdentifier.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory DocIdentifier.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  QueryDocParams clone() => QueryDocParams()..mergeFromMessage(this);
+  DocIdentifier clone() => DocIdentifier()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  QueryDocParams copyWith(void Function(QueryDocParams) updates) => super.copyWith((message) => updates(message as QueryDocParams)) as QueryDocParams; // ignore: deprecated_member_use
+  DocIdentifier copyWith(void Function(DocIdentifier) updates) => super.copyWith((message) => updates(message as DocIdentifier)) as DocIdentifier; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static QueryDocParams create() => QueryDocParams._();
-  QueryDocParams createEmptyInstance() => create();
-  static $pb.PbList<QueryDocParams> createRepeated() => $pb.PbList<QueryDocParams>();
+  static DocIdentifier create() => DocIdentifier._();
+  DocIdentifier createEmptyInstance() => create();
+  static $pb.PbList<DocIdentifier> createRepeated() => $pb.PbList<DocIdentifier>();
   @$core.pragma('dart2js:noInline')
-  static QueryDocParams getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<QueryDocParams>(create);
-  static QueryDocParams? _defaultInstance;
+  static DocIdentifier getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DocIdentifier>(create);
+  static DocIdentifier? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get docId => $_getSZ(0);

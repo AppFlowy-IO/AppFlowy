@@ -10,34 +10,28 @@ import 'dart:core' as $core;
 import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
+import 'trash_create.pbenum.dart';
+
+export 'trash_create.pbenum.dart';
+
 class CreateTrashParams extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateTrashParams', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
-    ..aInt64(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'modifiedTime')
-    ..aInt64(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'createTime')
+    ..e<TrashType>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ty', $pb.PbFieldType.OE, defaultOrMaker: TrashType.Unknown, valueOf: TrashType.valueOf, enumValues: TrashType.values)
     ..hasRequiredFields = false
   ;
 
   CreateTrashParams._() : super();
   factory CreateTrashParams({
     $core.String? id,
-    $core.String? name,
-    $fixnum.Int64? modifiedTime,
-    $fixnum.Int64? createTime,
+    TrashType? ty,
   }) {
     final _result = create();
     if (id != null) {
       _result.id = id;
     }
-    if (name != null) {
-      _result.name = name;
-    }
-    if (modifiedTime != null) {
-      _result.modifiedTime = modifiedTime;
-    }
-    if (createTime != null) {
-      _result.createTime = createTime;
+    if (ty != null) {
+      _result.ty = ty;
     }
     return _result;
   }
@@ -72,31 +66,13 @@ class CreateTrashParams extends $pb.GeneratedMessage {
   void clearId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get name => $_getSZ(1);
+  TrashType get ty => $_getN(1);
   @$pb.TagNumber(2)
-  set name($core.String v) { $_setString(1, v); }
+  set ty(TrashType v) { setField(2, v); }
   @$pb.TagNumber(2)
-  $core.bool hasName() => $_has(1);
+  $core.bool hasTy() => $_has(1);
   @$pb.TagNumber(2)
-  void clearName() => clearField(2);
-
-  @$pb.TagNumber(3)
-  $fixnum.Int64 get modifiedTime => $_getI64(2);
-  @$pb.TagNumber(3)
-  set modifiedTime($fixnum.Int64 v) { $_setInt64(2, v); }
-  @$pb.TagNumber(3)
-  $core.bool hasModifiedTime() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearModifiedTime() => clearField(3);
-
-  @$pb.TagNumber(4)
-  $fixnum.Int64 get createTime => $_getI64(3);
-  @$pb.TagNumber(4)
-  set createTime($fixnum.Int64 v) { $_setInt64(3, v); }
-  @$pb.TagNumber(4)
-  $core.bool hasCreateTime() => $_has(3);
-  @$pb.TagNumber(4)
-  void clearCreateTime() => clearField(4);
+  void clearTy() => clearField(2);
 }
 
 class Trash extends $pb.GeneratedMessage {
@@ -105,6 +81,7 @@ class Trash extends $pb.GeneratedMessage {
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aInt64(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'modifiedTime')
     ..aInt64(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'createTime')
+    ..e<TrashType>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ty', $pb.PbFieldType.OE, defaultOrMaker: TrashType.Unknown, valueOf: TrashType.valueOf, enumValues: TrashType.values)
     ..hasRequiredFields = false
   ;
 
@@ -114,6 +91,7 @@ class Trash extends $pb.GeneratedMessage {
     $core.String? name,
     $fixnum.Int64? modifiedTime,
     $fixnum.Int64? createTime,
+    TrashType? ty,
   }) {
     final _result = create();
     if (id != null) {
@@ -127,6 +105,9 @@ class Trash extends $pb.GeneratedMessage {
     }
     if (createTime != null) {
       _result.createTime = createTime;
+    }
+    if (ty != null) {
+      _result.ty = ty;
     }
     return _result;
   }
@@ -186,6 +167,15 @@ class Trash extends $pb.GeneratedMessage {
   $core.bool hasCreateTime() => $_has(3);
   @$pb.TagNumber(4)
   void clearCreateTime() => clearField(4);
+
+  @$pb.TagNumber(5)
+  TrashType get ty => $_getN(4);
+  @$pb.TagNumber(5)
+  set ty(TrashType v) { setField(5, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasTy() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearTy() => clearField(5);
 }
 
 class RepeatedTrash extends $pb.GeneratedMessage {

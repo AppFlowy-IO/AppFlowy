@@ -7,7 +7,7 @@ use actix_web::{
     HttpResponse,
 };
 use anyhow::Context;
-use flowy_document::protobuf::{CreateDocParams, QueryDocParams, UpdateDocParams};
+use flowy_document::protobuf::{CreateDocParams, DocIdentifier, UpdateDocParams};
 use flowy_net::{errors::ServerError, response::FlowyResponse};
 use sqlx::PgPool;
 
@@ -31,7 +31,7 @@ pub async fn create_handler(payload: Payload, pool: Data<PgPool>) -> Result<Http
 
 #[tracing::instrument(level = "debug", skip(payload, pool), err)]
 pub async fn read_handler(payload: Payload, pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {
-    let params: QueryDocParams = parse_from_payload(payload).await?;
+    let params: DocIdentifier = parse_from_payload(payload).await?;
     let doc = read_doc(pool.get_ref(), params).await?;
     let response = FlowyResponse::success().pb(doc)?;
     Ok(response.into())

@@ -1,12 +1,12 @@
 use crate::helper::ViewTest;
-use flowy_document::entities::doc::QueryDocParams;
+use flowy_document::entities::doc::DocIdentifier;
 use flowy_workspace::entities::view::DeleteViewParams;
 
 #[actix_rt::test]
 async fn doc_read() {
     let test = ViewTest::new().await;
 
-    let params = QueryDocParams {
+    let params = DocIdentifier {
         doc_id: test.view.id.clone(),
     };
 
@@ -22,7 +22,7 @@ async fn doc_delete() {
     };
     test.server.delete_view(delete_params).await;
 
-    let params = QueryDocParams {
+    let params = DocIdentifier {
         doc_id: test.view.id.clone(),
     };
     let doc = test.server.read_doc(params).await;

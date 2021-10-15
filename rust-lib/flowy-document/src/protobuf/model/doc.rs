@@ -1169,7 +1169,7 @@ impl ::protobuf::reflect::ProtobufValue for NewDocUser {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct QueryDocParams {
+pub struct DocIdentifier {
     // message fields
     pub doc_id: ::std::string::String,
     // special fields
@@ -1177,14 +1177,14 @@ pub struct QueryDocParams {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a QueryDocParams {
-    fn default() -> &'a QueryDocParams {
-        <QueryDocParams as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a DocIdentifier {
+    fn default() -> &'a DocIdentifier {
+        <DocIdentifier as ::protobuf::Message>::default_instance()
     }
 }
 
-impl QueryDocParams {
-    pub fn new() -> QueryDocParams {
+impl DocIdentifier {
+    pub fn new() -> DocIdentifier {
         ::std::default::Default::default()
     }
 
@@ -1215,7 +1215,7 @@ impl QueryDocParams {
     }
 }
 
-impl ::protobuf::Message for QueryDocParams {
+impl ::protobuf::Message for DocIdentifier {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -1281,8 +1281,8 @@ impl ::protobuf::Message for QueryDocParams {
         Self::descriptor_static()
     }
 
-    fn new() -> QueryDocParams {
-        QueryDocParams::new()
+    fn new() -> DocIdentifier {
+        DocIdentifier::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -1291,37 +1291,37 @@ impl ::protobuf::Message for QueryDocParams {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "doc_id",
-                |m: &QueryDocParams| { &m.doc_id },
-                |m: &mut QueryDocParams| { &mut m.doc_id },
+                |m: &DocIdentifier| { &m.doc_id },
+                |m: &mut DocIdentifier| { &mut m.doc_id },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<QueryDocParams>(
-                "QueryDocParams",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<DocIdentifier>(
+                "DocIdentifier",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static QueryDocParams {
-        static instance: ::protobuf::rt::LazyV2<QueryDocParams> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(QueryDocParams::new)
+    fn default_instance() -> &'static DocIdentifier {
+        static instance: ::protobuf::rt::LazyV2<DocIdentifier> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(DocIdentifier::new)
     }
 }
 
-impl ::protobuf::Clear for QueryDocParams {
+impl ::protobuf::Clear for DocIdentifier {
     fn clear(&mut self) {
         self.doc_id.clear();
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for QueryDocParams {
+impl ::std::fmt::Debug for DocIdentifier {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for QueryDocParams {
+impl ::protobuf::reflect::ProtobufValue for DocIdentifier {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -1339,14 +1339,14 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     cId\x12\x12\n\x04data\x18\x02\x20\x01(\tR\x04data\"S\n\nNewDocUser\x12\
     \x17\n\x07user_id\x18\x01\x20\x01(\tR\x06userId\x12\x15\n\x06rev_id\x18\
     \x02\x20\x01(\x03R\x05revId\x12\x15\n\x06doc_id\x18\x03\x20\x01(\tR\x05d\
-    ocId\"'\n\x0eQueryDocParams\x12\x15\n\x06doc_id\x18\x01\x20\x01(\tR\x05d\
-    ocIdJ\xdb\x07\n\x06\x12\x04\0\0\x1c\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\
-    \n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\
-    \x08\x17\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x12\n\x0c\n\x05\x04\0\
-    \x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\
-    \r\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x10\x11\n\x0b\n\x04\x04\0\x02\
-    \x01\x12\x03\x04\x04\x14\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\n\
-    \n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x0b\x0f\n\x0c\n\x05\x04\0\x02\
+    ocId\"&\n\rDocIdentifier\x12\x15\n\x06doc_id\x18\x01\x20\x01(\tR\x05docI\
+    dJ\xdb\x07\n\x06\x12\x04\0\0\x1c\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\
+    \n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\
+    \x17\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x12\n\x0c\n\x05\x04\0\x02\0\
+    \x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\r\n\
+    \x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x10\x11\n\x0b\n\x04\x04\0\x02\x01\
+    \x12\x03\x04\x04\x14\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\n\n\
+    \x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x0b\x0f\n\x0c\n\x05\x04\0\x02\
     \x01\x03\x12\x03\x04\x12\x13\n\n\n\x02\x04\x01\x12\x04\x06\0\x0b\x01\n\n\
     \n\x03\x04\x01\x01\x12\x03\x06\x08\x0b\n\x0b\n\x04\x04\x01\x02\0\x12\x03\
     \x07\x04\x12\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x07\x04\n\n\x0c\n\x05\
@@ -1386,7 +1386,7 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x0c\n\x05\x04\x04\x02\x02\x05\x12\x03\x18\x04\n\n\x0c\n\x05\x04\x04\x02\
     \x02\x01\x12\x03\x18\x0b\x11\n\x0c\n\x05\x04\x04\x02\x02\x03\x12\x03\x18\
     \x14\x15\n\n\n\x02\x04\x05\x12\x04\x1a\0\x1c\x01\n\n\n\x03\x04\x05\x01\
-    \x12\x03\x1a\x08\x16\n\x0b\n\x04\x04\x05\x02\0\x12\x03\x1b\x04\x16\n\x0c\
+    \x12\x03\x1a\x08\x15\n\x0b\n\x04\x04\x05\x02\0\x12\x03\x1b\x04\x16\n\x0c\
     \n\x05\x04\x05\x02\0\x05\x12\x03\x1b\x04\n\n\x0c\n\x05\x04\x05\x02\0\x01\
     \x12\x03\x1b\x0b\x11\n\x0c\n\x05\x04\x05\x02\0\x03\x12\x03\x1b\x14\x15b\
     \x06proto3\

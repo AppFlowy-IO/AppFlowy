@@ -5,7 +5,7 @@ mod server_api_mock;
 pub use server_api::*;
 // TODO: ignore mock files in production
 use crate::{
-    entities::doc::{CreateDocParams, Doc, QueryDocParams, UpdateDocParams},
+    entities::doc::{CreateDocParams, Doc, DocIdentifier, UpdateDocParams},
     errors::DocError,
 };
 use flowy_infra::future::ResultFuture;
@@ -17,11 +17,11 @@ pub(crate) type Server = Arc<dyn DocumentServerAPI + Send + Sync>;
 pub trait DocumentServerAPI {
     fn create_doc(&self, token: &str, params: CreateDocParams) -> ResultFuture<(), DocError>;
 
-    fn read_doc(&self, token: &str, params: QueryDocParams) -> ResultFuture<Option<Doc>, DocError>;
+    fn read_doc(&self, token: &str, params: DocIdentifier) -> ResultFuture<Option<Doc>, DocError>;
 
     fn update_doc(&self, token: &str, params: UpdateDocParams) -> ResultFuture<(), DocError>;
 
-    fn delete_doc(&self, token: &str, params: QueryDocParams) -> ResultFuture<(), DocError>;
+    fn delete_doc(&self, token: &str, params: DocIdentifier) -> ResultFuture<(), DocError>;
 }
 
 pub(crate) fn construct_doc_server(server_config: &ServerConfig) -> Arc<dyn DocumentServerAPI + Send + Sync> {

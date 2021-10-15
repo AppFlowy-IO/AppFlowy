@@ -1,23 +1,22 @@
 use crate::{
-    entities::trash::{RepeatedTrash, Trash},
+    entities::trash::{RepeatedTrash, Trash, TrashType},
     errors::{WorkspaceError, WorkspaceResult},
     module::WorkspaceDatabase,
     notify::{send_anonymous_dart_notification, WorkspaceNotification},
-    sql_tables::trash::{TrashSource, TrashTable, TrashTableSql},
+    sql_tables::trash::{TrashTable, TrashTableSql},
 };
 use flowy_database::SqliteConnection;
-
-use std::{sync::Arc};
+use std::sync::Arc;
 use tokio::sync::{broadcast, mpsc};
 
 #[derive(Clone)]
 pub enum TrashEvent {
-    Putback(TrashSource, Vec<String>, mpsc::Sender<WorkspaceResult<()>>),
-    Delete(TrashSource, Vec<String>, mpsc::Sender<WorkspaceResult<()>>),
+    Putback(TrashType, Vec<String>, mpsc::Sender<WorkspaceResult<()>>),
+    Delete(TrashType, Vec<String>, mpsc::Sender<WorkspaceResult<()>>),
 }
 
 impl TrashEvent {
-    pub fn select(self, s: TrashSource) -> Option<TrashEvent> {
+    pub fn select(self, s: TrashType) -> Option<TrashEvent> {
         match &self {
             TrashEvent::Putback(source, _, _) => {
                 if source == &s {
@@ -57,10 +56,11 @@ impl TrashCan {
         let trash_table = TrashTableSql::read(trash_id, &*self.database.db_connection()?)?;
         tracing::Span::current().record(
             "putback",
-            &format!("{:?}: {}", &trash_table.source, trash_table.id).as_str(),
+            &format!("{:?}: {}", &trash_table.ty, trash_table.id).as_str(),
         );
-        self.notify
-            .send(TrashEvent::Putback(trash_table.source, vec![trash_table.id], tx));
+        let _ = self
+            .notify
+            .send(TrashEvent::Putback(trash_table.ty.into(), vec![trash_table.id], tx))?;
 
         let _ = rx.recv().await.unwrap()?;
         let conn = self.database.db_connection()?;
@@ -84,7 +84,7 @@ impl TrashCan {
         let trash_table = TrashTableSql::read(trash_id, &*self.database.db_connection()?)?;
         let _ = self
             .notify
-            .send(TrashEvent::Delete(trash_table.source, vec![trash_table.id], tx));
+            .send(TrashEvent::Delete(trash_table.ty.into(), vec![trash_table.id], tx));
 
         let _ = rx.recv().await.unwrap()?;
         let _ = TrashTableSql::delete_trash(trash_id, &*self.database.db_connection()?)?;
@@ -98,13 +98,8 @@ impl TrashCan {
     // DELETE operations. It’s not possible for us to use these commands to
     // CREATE and DROP tables operations because those are auto-commit in the
     // database.
-    #[tracing::instrument(level = "debug", skip(self, trash, source, conn), fields(add_trash)  err)]
-    pub fn add<T: Into<Trash>>(
-        &self,
-        trash: T,
-        source: TrashSource,
-        conn: &SqliteConnection,
-    ) -> Result<(), WorkspaceError> {
+    #[tracing::instrument(level = "debug", skip(self, trash, ty, conn), fields(add_trash)  err)]
+    pub fn add<T: Into<Trash>>(&self, trash: T, ty: TrashType, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
         let trash = trash.into();
         let trash_table = TrashTable {
             id: trash.id,
@@ -112,12 +107,12 @@ impl TrashCan {
             desc: "".to_owned(),
             modified_time: trash.modified_time,
             create_time: trash.create_time,
-            source,
+            ty: ty.into(),
         };
 
         tracing::Span::current().record(
             "add_trash",
-            &format!("{:?}: {}", &trash_table.source, trash_table.id).as_str(),
+            &format!("{:?}: {}", &trash_table.ty, trash_table.id).as_str(),
         );
 
         let _ = TrashTableSql::create_trash(trash_table, &*conn)?;

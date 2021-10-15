@@ -76,11 +76,11 @@ pub struct NewDocUser {
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct QueryDocParams {
+pub struct DocIdentifier {
     #[pb(index = 1)]
     pub doc_id: String,
 }
 
-impl std::convert::From<String> for QueryDocParams {
-    fn from(doc_id: String) -> Self { QueryDocParams { doc_id } }
+impl std::convert::From<String> for DocIdentifier {
+    fn from(doc_id: String) -> Self { DocIdentifier { doc_id } }
 }

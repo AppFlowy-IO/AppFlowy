@@ -1,5 +1,9 @@
 use crate::{
-    entities::{app::parser::AppId, trash::Trash, view::parser::*},
+    entities::{
+        app::parser::AppId,
+        trash::{Trash, TrashType},
+        view::parser::*,
+    },
     errors::WorkspaceError,
     impl_def_and_def_mut,
 };
@@ -161,6 +165,7 @@ impl std::convert::Into<Trash> for View {
             name: self.name,
             modified_time: self.modified_time,
             create_time: self.create_time,
+            ty: TrashType::View,
         }
     }
 }

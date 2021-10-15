@@ -2,16 +2,19 @@ syntax = "proto3";
 
 message CreateTrashParams {
     string id = 1;
-    string name = 2;
-    int64 modified_time = 3;
-    int64 create_time = 4;
+    TrashType ty = 2;
 }
 message Trash {
     string id = 1;
     string name = 2;
     int64 modified_time = 3;
     int64 create_time = 4;
+    TrashType ty = 5;
 }
 message RepeatedTrash {
     repeated Trash items = 1;
+}
+enum TrashType {
+    Unknown = 0;
+    View = 1;
 }

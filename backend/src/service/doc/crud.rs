@@ -3,7 +3,7 @@ use crate::{
     sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
 use anyhow::Context;
-use flowy_document::protobuf::{CreateDocParams, Doc, QueryDocParams, UpdateDocParams};
+use flowy_document::protobuf::{CreateDocParams, Doc, DocIdentifier, UpdateDocParams};
 use flowy_net::errors::ServerError;
 use sqlx::{postgres::PgArguments, PgPool, Postgres};
 use uuid::Uuid;
@@ -24,7 +24,7 @@ pub(crate) async fn create_doc(
 }
 
 #[tracing::instrument(level = "debug", skip(pool), err)]
-pub(crate) async fn read_doc(pool: &PgPool, params: QueryDocParams) -> Result<Doc, ServerError> {
+pub(crate) async fn read_doc(pool: &PgPool, params: DocIdentifier) -> Result<Doc, ServerError> {
     let doc_id = Uuid::parse_str(&params.doc_id)?;
     let mut transaction = pool
         .begin()

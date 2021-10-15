@@ -2,10 +2,9 @@ use actix_web::{
     web::{Data, Payload},
     HttpResponse,
 };
-use sqlx::PgPool;
-
 use flowy_net::errors::ServerError;
 use flowy_workspace::protobuf::{CreateViewParams, DeleteViewParams, QueryViewParams, UpdateViewParams};
+use sqlx::PgPool;
 
 use crate::service::{
     doc::doc::DocBiz,
