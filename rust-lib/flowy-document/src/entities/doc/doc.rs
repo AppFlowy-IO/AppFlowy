@@ -80,3 +80,7 @@ pub struct QueryDocParams {
     #[pb(index = 1)]
     pub doc_id: String,
 }
+
+impl std::convert::From<String> for QueryDocParams {
+    fn from(doc_id: String) -> Self { QueryDocParams { doc_id } }
+}

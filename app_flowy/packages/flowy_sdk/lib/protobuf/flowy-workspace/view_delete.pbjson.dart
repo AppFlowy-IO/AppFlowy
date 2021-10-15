@@ -12,19 +12,19 @@ import 'dart:typed_data' as $typed_data;
 const DeleteViewRequest$json = const {
   '1': 'DeleteViewRequest',
   '2': const [
-    const {'1': 'view_id', '3': 1, '4': 1, '5': 9, '10': 'viewId'},
+    const {'1': 'view_ids', '3': 1, '4': 3, '5': 9, '10': 'viewIds'},
   ],
 };
 
 /// Descriptor for `DeleteViewRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List deleteViewRequestDescriptor = $convert.base64Decode('ChFEZWxldGVWaWV3UmVxdWVzdBIXCgd2aWV3X2lkGAEgASgJUgZ2aWV3SWQ=');
+final $typed_data.Uint8List deleteViewRequestDescriptor = $convert.base64Decode('ChFEZWxldGVWaWV3UmVxdWVzdBIZCgh2aWV3X2lkcxgBIAMoCVIHdmlld0lkcw==');
 @$core.Deprecated('Use deleteViewParamsDescriptor instead')
 const DeleteViewParams$json = const {
   '1': 'DeleteViewParams',
   '2': const [
-    const {'1': 'view_id', '3': 1, '4': 1, '5': 9, '10': 'viewId'},
+    const {'1': 'view_ids', '3': 1, '4': 3, '5': 9, '10': 'viewIds'},
   ],
 };
 
 /// Descriptor for `DeleteViewParams`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List deleteViewParamsDescriptor = $convert.base64Decode('ChBEZWxldGVWaWV3UGFyYW1zEhcKB3ZpZXdfaWQYASABKAlSBnZpZXdJZA==');
+final $typed_data.Uint8List deleteViewParamsDescriptor = $convert.base64Decode('ChBEZWxldGVWaWV3UGFyYW1zEhkKCHZpZXdfaWRzGAEgAygJUgd2aWV3SWRz');

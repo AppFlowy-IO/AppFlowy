@@ -1,8 +1,8 @@
 syntax = "proto3";
 
 message DeleteViewRequest {
-    string view_id = 1;
+    repeated string view_ids = 1;
 }
 message DeleteViewParams {
-    string view_id = 1;
+    repeated string view_ids = 1;
 }

@@ -5,7 +5,7 @@ use crate::{
 };
 use flowy_database::{
     prelude::*,
-    schema::{trash_table, trash_table::dsl::id as trash_id, view_table, view_table::dsl},
+    schema::{trash_table, view_table, view_table::dsl},
     SqliteConnection,
 };
 
@@ -36,7 +36,7 @@ impl ViewTableSql {
             .first::<ViewTable>(conn)?;
 
         let repeated_trash: Vec<String> = trash_table::dsl::trash_table
-            .select((trash_table::dsl::id))
+            .select(trash_table::dsl::id)
             .load(conn)?;
 
         if repeated_trash.contains(&view_table.id) {
@@ -54,7 +54,7 @@ impl ViewTableSql {
             .load::<ViewTable>(conn)?;
 
         let repeated_trash: Vec<String> = trash_table::dsl::trash_table
-            .select((trash_table::dsl::id))
+            .select(trash_table::dsl::id)
             .load(conn)?;
 
         view_tables = view_tables

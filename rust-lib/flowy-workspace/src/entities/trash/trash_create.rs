@@ -1,4 +1,4 @@
-use crate::{errors::WorkspaceError, impl_def_and_def_mut};
+use crate::{impl_def_and_def_mut};
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
 

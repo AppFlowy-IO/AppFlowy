@@ -6,8 +6,8 @@ use crate::{
     sql_tables::trash::{TrashSource, TrashTable, TrashTableSql},
 };
 use flowy_database::SqliteConnection;
-use parking_lot::RwLock;
-use std::{collections::HashSet, sync::Arc};
+
+use std::{sync::Arc};
 use tokio::sync::{broadcast, mpsc};
 
 #[derive(Clone)]

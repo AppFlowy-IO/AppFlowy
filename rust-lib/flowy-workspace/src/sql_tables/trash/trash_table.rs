@@ -1,5 +1,5 @@
 use crate::entities::trash::Trash;
-use diesel::sql_types::{Binary, Integer};
+use diesel::sql_types::{Integer};
 use flowy_database::schema::trash_table;
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]

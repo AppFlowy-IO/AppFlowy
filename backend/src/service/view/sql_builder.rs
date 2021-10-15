@@ -74,8 +74,12 @@ impl NewViewSqlBuilder {
     }
 }
 
-pub(crate) fn check_view_id(id: String) -> Result<Uuid, ServerError> {
-    let view_id = ViewId::parse(id).map_err(invalid_params)?;
-    let view_id = Uuid::parse_str(view_id.as_ref())?;
-    Ok(view_id)
+pub(crate) fn check_view_ids(ids: Vec<String>) -> Result<Vec<Uuid>, ServerError> {
+    let mut view_ids = vec![];
+    for id in ids {
+        let view_id = ViewId::parse(id).map_err(invalid_params)?;
+        let view_id = Uuid::parse_str(view_id.as_ref())?;
+        view_ids.push(view_id);
+    }
+    Ok(view_ids)
 }

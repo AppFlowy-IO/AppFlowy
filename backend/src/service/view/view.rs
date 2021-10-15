@@ -74,7 +74,7 @@ pub(crate) async fn read_view(
     params: QueryViewParams,
     _doc_biz: Data<Arc<DocBiz>>,
 ) -> Result<FlowyResponse, ServerError> {
-    let view_id = check_view_id(params.view_id)?;
+    let view_id = check_view_ids(vec![params.view_id])?.pop().unwrap();
     let mut transaction = pool
         .begin()
         .await
@@ -111,7 +111,7 @@ pub(crate) async fn read_view(
 }
 
 pub(crate) async fn update_view(pool: &PgPool, params: UpdateViewParams) -> Result<FlowyResponse, ServerError> {
-    let view_id = check_view_id(params.view_id.clone())?;
+    let view_id = check_view_ids(vec![params.view_id.clone()])?.pop().unwrap();
 
     let name = match params.has_name() {
         false => None,
@@ -159,21 +159,22 @@ pub(crate) async fn update_view(pool: &PgPool, params: UpdateViewParams) -> Resu
     Ok(FlowyResponse::success())
 }
 
-pub(crate) async fn delete_view(pool: &PgPool, view_id: &str) -> Result<FlowyResponse, ServerError> {
-    let view_id = check_view_id(view_id.to_owned())?;
+pub(crate) async fn delete_views(pool: &PgPool, view_ids: Vec<String>) -> Result<FlowyResponse, ServerError> {
+    let view_ids = check_view_ids(view_ids)?;
     let mut transaction = pool
         .begin()
         .await
         .context("Failed to acquire a Postgres connection to delete view")?;
 
-    let (sql, args) = SqlBuilder::delete(VIEW_TABLE).and_where_eq("id", &view_id).build()?;
+    for view_id in view_ids {
+        let (sql, args) = SqlBuilder::delete(VIEW_TABLE).and_where_eq("id", &view_id).build()?;
+        let _ = sqlx::query_with(&sql, args)
+            .execute(&mut transaction)
+            .await
+            .map_err(map_sqlx_error)?;
 
-    let _ = sqlx::query_with(&sql, args)
-        .execute(&mut transaction)
-        .await
-        .map_err(map_sqlx_error)?;
-
-    let _ = delete_doc(&mut transaction, view_id).await?;
+        let _ = delete_doc(&mut transaction, view_id).await?;
+    }
 
     transaction
         .commit()

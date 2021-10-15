@@ -10,7 +10,7 @@ use flowy_workspace::protobuf::{CreateViewParams, DeleteViewParams, QueryViewPar
 use crate::service::{
     doc::doc::DocBiz,
     util::parse_from_payload,
-    view::{create_view, delete_view, read_view, update_view},
+    view::{create_view, delete_views, read_view, update_view},
 };
 use std::sync::Arc;
 
@@ -42,6 +42,6 @@ pub async fn update_handler(payload: Payload, pool: Data<PgPool>) -> Result<Http
 
 pub async fn delete_handler(payload: Payload, pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {
     let params: DeleteViewParams = parse_from_payload(payload).await?;
-    let resp = delete_view(pool.get_ref(), &params.view_id).await?;
+    let resp = delete_views(pool.get_ref(), params.view_ids.into_vec()).await?;
     Ok(resp.into())
 }

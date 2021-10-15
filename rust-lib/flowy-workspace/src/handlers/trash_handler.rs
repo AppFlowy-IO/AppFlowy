@@ -1,13 +1,12 @@
 use crate::{
     entities::{
         trash::{RepeatedTrash, TrashIdentifier},
-        view::RepeatedView,
     },
     errors::WorkspaceError,
     services::TrashCan,
 };
 use flowy_dispatch::prelude::{data_result, Data, DataResult, Unit};
-use std::{convert::TryInto, sync::Arc};
+use std::{sync::Arc};
 
 #[tracing::instrument(skip(controller), err)]
 pub(crate) async fn read_trash_handler(controller: Unit<Arc<TrashCan>>) -> DataResult<RepeatedTrash, WorkspaceError> {

@@ -11,17 +11,17 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 class DeleteViewRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DeleteViewRequest', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewId')
+    ..pPS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewIds')
     ..hasRequiredFields = false
   ;
 
   DeleteViewRequest._() : super();
   factory DeleteViewRequest({
-    $core.String? viewId,
+    $core.Iterable<$core.String>? viewIds,
   }) {
     final _result = create();
-    if (viewId != null) {
-      _result.viewId = viewId;
+    if (viewIds != null) {
+      _result.viewIds.addAll(viewIds);
     }
     return _result;
   }
@@ -47,28 +47,22 @@ class DeleteViewRequest extends $pb.GeneratedMessage {
   static DeleteViewRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get viewId => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set viewId($core.String v) { $_setString(0, v); }
-  @$pb.TagNumber(1)
-  $core.bool hasViewId() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearViewId() => clearField(1);
+  $core.List<$core.String> get viewIds => $_getList(0);
 }
 
 class DeleteViewParams extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DeleteViewParams', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewId')
+    ..pPS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewIds')
     ..hasRequiredFields = false
   ;
 
   DeleteViewParams._() : super();
   factory DeleteViewParams({
-    $core.String? viewId,
+    $core.Iterable<$core.String>? viewIds,
   }) {
     final _result = create();
-    if (viewId != null) {
-      _result.viewId = viewId;
+    if (viewIds != null) {
+      _result.viewIds.addAll(viewIds);
     }
     return _result;
   }
@@ -94,12 +88,6 @@ class DeleteViewParams extends $pb.GeneratedMessage {
   static DeleteViewParams? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get viewId => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set viewId($core.String v) { $_setString(0, v); }
-  @$pb.TagNumber(1)
-  $core.bool hasViewId() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearViewId() => clearField(1);
+  $core.List<$core.String> get viewIds => $_getList(0);
 }
 

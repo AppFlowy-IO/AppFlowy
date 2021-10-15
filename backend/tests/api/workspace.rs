@@ -157,7 +157,7 @@ async fn view_delete() {
     let test = ViewTest::new().await;
     // delete
     let delete_params = DeleteViewParams {
-        view_id: test.view.id.clone(),
+        view_ids: vec![test.view.id.clone()],
     };
     test.server.delete_view(delete_params).await;
 

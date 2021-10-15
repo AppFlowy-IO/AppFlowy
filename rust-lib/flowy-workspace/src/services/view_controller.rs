@@ -9,7 +9,6 @@ use crate::{
 
 use crate::{
     entities::{
-        trash::Trash,
         view::{DeleteViewParams, QueryViewParams, RepeatedView},
     },
     errors::internal_error,
@@ -25,9 +24,9 @@ use flowy_document::{
 };
 
 use crate::errors::WorkspaceResult;
-use futures::{future, FutureExt, StreamExt, TryStreamExt};
+use futures::{FutureExt, StreamExt, TryStreamExt};
 use std::sync::Arc;
-use tokio::sync::broadcast::error::RecvError;
+
 
 pub(crate) struct ViewController {
     user: Arc<dyn WorkspaceUser>,
@@ -102,17 +101,19 @@ impl ViewController {
     #[tracing::instrument(level = "debug", skip(self, params), err)]
     pub(crate) async fn delete_view(&self, params: DeleteViewParams) -> Result<(), WorkspaceError> {
         let conn = &*self.database.db_connection()?;
-        let _ = self.delete_view_on_server(&params.view_id);
+        let _ = self.delete_view_on_server(params.view_ids.clone());
 
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
-            let view_table = ViewTableSql::delete_view(&params.view_id, conn)?;
-            let _ = self.document.delete(params.into())?;
+            for view_id in params.view_ids {
+                let view_table = ViewTableSql::delete_view(&view_id, conn)?;
+                let _ = self.document.delete(view_id.into())?;
 
-            let repeated_view = ViewTableSql::read_views(&view_table.belong_to_id, conn)?;
+                let repeated_view = ViewTableSql::read_views(&view_table.belong_to_id, conn)?;
 
-            send_dart_notification(&view_table.belong_to_id, WorkspaceNotification::AppViewsChanged)
-                .payload(repeated_view)
-                .send();
+                send_dart_notification(&view_table.belong_to_id, WorkspaceNotification::AppViewsChanged)
+                    .payload(repeated_view)
+                    .send();
+            }
             Ok(())
         })?;
 
@@ -189,12 +190,10 @@ impl ViewController {
     }
 
     #[tracing::instrument(skip(self), err)]
-    fn delete_view_on_server(&self, view_id: &str) -> Result<(), WorkspaceError> {
+    fn delete_view_on_server(&self, view_ids: Vec<String>) -> Result<(), WorkspaceError> {
         let token = self.user.token()?;
         let server = self.server.clone();
-        let params = DeleteViewParams {
-            view_id: view_id.to_string(),
-        };
+        let params = DeleteViewParams { view_ids };
         spawn(async move {
             match server.delete_view(&token, params).await {
                 Ok(_) => {},
