@@ -94,7 +94,9 @@ pub fn create(workspace: Arc<WorkspaceController>) -> Module {
     module = module
         .event(WorkspaceEvent::ReadTrash, read_trash_handler)
         .event(WorkspaceEvent::PutbackTrash, putback_trash_handler)
-        .event(WorkspaceEvent::DeleteTrash, delete_trash_handler);
+        .event(WorkspaceEvent::DeleteTrash, delete_trash_handler)
+        .event(WorkspaceEvent::RestoreAll, restore_all_handler)
+        .event(WorkspaceEvent::DeleteAll, delete_all_handler);
 
     module
 }

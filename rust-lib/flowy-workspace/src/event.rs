@@ -62,5 +62,11 @@ pub enum WorkspaceEvent {
     DeleteTrash       = 302,
 
     #[event()]
+    RestoreAll        = 303,
+
+    #[event()]
+    DeleteAll         = 304,
+
+    #[event()]
     InitWorkspace     = 1000,
 }

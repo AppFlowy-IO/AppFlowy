@@ -137,21 +137,22 @@ impl ViewController {
         let updated_view = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = ViewTableSql::update_view(changeset, conn)?;
             let view: View = ViewTableSql::read_view(&view_id, conn)?.into();
-            match params.is_trash {
-                None => {
-                    send_dart_notification(&view_id, WorkspaceNotification::ViewUpdated)
-                        .payload(view.clone())
-                        .send();
-                },
-                Some(is_trash) => {
-                    if is_trash {
-                        self.trash_can.add(view.clone(), TrashSource::View, conn);
-                    }
-                    let _ = notify_view_num_did_change(&view.belong_to_id, conn)?;
-                },
-            }
             Ok(view)
         })?;
+
+        match params.is_trash {
+            None => {
+                send_dart_notification(&view_id, WorkspaceNotification::ViewUpdated)
+                    .payload(updated_view.clone())
+                    .send();
+            },
+            Some(is_trash) => {
+                if is_trash {
+                    self.trash_can.add(updated_view.clone(), TrashSource::View, conn)?;
+                }
+                let _ = notify_view_num_did_change(&updated_view.belong_to_id, conn)?;
+            },
+        }
 
         let _ = self.update_view_on_server(params);
         Ok(updated_view)
@@ -252,27 +253,43 @@ fn notify_view_num_did_change(belong_to_id: &str, conn: &SqliteConnection) -> Wo
 }
 
 fn handle_trash_event(database: Arc<dyn WorkspaceDatabase>, event: TrashEvent) {
-    let result = || {
-        let conn = &*database.db_connection()?;
-        match event {
-            TrashEvent::Putback(_, pub_back_id) => {
+    let db_result = database.db_connection();
+    match event {
+        TrashEvent::Putback(_, putback_ids, ret) => {
+            let result = || {
+                let conn = &*db_result?;
                 let _ = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
-                    let view_table = ViewTableSql::read_view(&pub_back_id, conn)?;
-                    notify_view_num_did_change(&view_table.belong_to_id, conn)
+                    for putback_id in putback_ids {
+                        match ViewTableSql::read_view(&putback_id, conn) {
+                            Ok(view_table) => {
+                                let _ = notify_view_num_did_change(&view_table.belong_to_id, conn)?;
+                            },
+                            Err(e) => log::error!("Putback view: {} failed: {:?}", putback_id, e),
+                        }
+                    }
+                    Ok(())
                 })?;
-            },
-            TrashEvent::Delete(_, delete_id) => {
+                Ok::<(), WorkspaceError>(())
+            };
+            ret.send(result());
+        },
+        TrashEvent::Delete(_, delete_ids, ret) => {
+            let result = || {
+                let conn = &*db_result?;
                 let _ = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
-                    let view_table = ViewTableSql::delete_view(&delete_id, conn)?;
-                    notify_view_num_did_change(&view_table.belong_to_id, conn)
+                    for delete_id in delete_ids {
+                        match ViewTableSql::delete_view(&delete_id, conn) {
+                            Ok(view_table) => {
+                                let _ = notify_view_num_did_change(&view_table.belong_to_id, conn)?;
+                            },
+                            Err(e) => log::error!("Delete view: {} failed: {:?}", delete_id, e),
+                        }
+                    }
+                    Ok(())
                 })?;
-            },
-        }
-        Ok::<(), WorkspaceError>(())
-    };
-
-    match result() {
-        Ok(_) => {},
-        Err(e) => log::error!("{:?}", e),
+                Ok::<(), WorkspaceError>(())
+            };
+            ret.send(result());
+        },
     }
 }

@@ -20,5 +20,7 @@ enum WorkspaceEvent {
     ReadTrash = 300;
     PutbackTrash = 301;
     DeleteTrash = 302;
+    RestoreAll = 303;
+    DeleteAll = 304;
     InitWorkspace = 1000;
 }

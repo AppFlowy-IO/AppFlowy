@@ -44,6 +44,8 @@ pub enum WorkspaceEvent {
     ReadTrash = 300,
     PutbackTrash = 301,
     DeleteTrash = 302,
+    RestoreAll = 303,
+    DeleteAll = 304,
     InitWorkspace = 1000,
 }
 
@@ -73,6 +75,8 @@ impl ::protobuf::ProtobufEnum for WorkspaceEvent {
             300 => ::std::option::Option::Some(WorkspaceEvent::ReadTrash),
             301 => ::std::option::Option::Some(WorkspaceEvent::PutbackTrash),
             302 => ::std::option::Option::Some(WorkspaceEvent::DeleteTrash),
+            303 => ::std::option::Option::Some(WorkspaceEvent::RestoreAll),
+            304 => ::std::option::Option::Some(WorkspaceEvent::DeleteAll),
             1000 => ::std::option::Option::Some(WorkspaceEvent::InitWorkspace),
             _ => ::std::option::Option::None
         }
@@ -99,6 +103,8 @@ impl ::protobuf::ProtobufEnum for WorkspaceEvent {
             WorkspaceEvent::ReadTrash,
             WorkspaceEvent::PutbackTrash,
             WorkspaceEvent::DeleteTrash,
+            WorkspaceEvent::RestoreAll,
+            WorkspaceEvent::DeleteAll,
             WorkspaceEvent::InitWorkspace,
         ];
         values
@@ -128,7 +134,7 @@ impl ::protobuf::reflect::ProtobufValue for WorkspaceEvent {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0bevent.proto*\xf6\x02\n\x0eWorkspaceEvent\x12\x13\n\x0fCreateWorksp\
+    \n\x0bevent.proto*\x97\x03\n\x0eWorkspaceEvent\x12\x13\n\x0fCreateWorksp\
     ace\x10\0\x12\x14\n\x10ReadCurWorkspace\x10\x01\x12\x12\n\x0eReadWorkspa\
     ces\x10\x02\x12\x13\n\x0fDeleteWorkspace\x10\x03\x12\x11\n\rOpenWorkspac\
     e\x10\x04\x12\x15\n\x11ReadWorkspaceApps\x10\x05\x12\r\n\tCreateApp\x10e\
@@ -137,10 +143,11 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x12\x0f\n\nUpdateView\x10\xcb\x01\x12\x0f\n\nDeleteView\x10\xcc\x01\x12\
     \r\n\x08OpenView\x10\xcd\x01\x12\x12\n\rApplyDocDelta\x10\xce\x01\x12\
     \x0e\n\tReadTrash\x10\xac\x02\x12\x11\n\x0cPutbackTrash\x10\xad\x02\x12\
-    \x10\n\x0bDeleteTrash\x10\xae\x02\x12\x12\n\rInitWorkspace\x10\xe8\x07J\
-    \xde\x06\n\x06\x12\x04\0\0\x17\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\
-    \x02\x05\0\x12\x04\x02\0\x17\x01\n\n\n\x03\x05\0\x01\x12\x03\x02\x05\x13\
-    \n\x0b\n\x04\x05\0\x02\0\x12\x03\x03\x04\x18\n\x0c\n\x05\x05\0\x02\0\x01\
+    \x10\n\x0bDeleteTrash\x10\xae\x02\x12\x0f\n\nRestoreAll\x10\xaf\x02\x12\
+    \x0e\n\tDeleteAll\x10\xb0\x02\x12\x12\n\rInitWorkspace\x10\xe8\x07J\xb0\
+    \x07\n\x06\x12\x04\0\0\x19\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\
+    \x05\0\x12\x04\x02\0\x19\x01\n\n\n\x03\x05\0\x01\x12\x03\x02\x05\x13\n\
+    \x0b\n\x04\x05\0\x02\0\x12\x03\x03\x04\x18\n\x0c\n\x05\x05\0\x02\0\x01\
     \x12\x03\x03\x04\x13\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x03\x16\x17\n\
     \x0b\n\x04\x05\0\x02\x01\x12\x03\x04\x04\x19\n\x0c\n\x05\x05\0\x02\x01\
     \x01\x12\x03\x04\x04\x14\n\x0c\n\x05\x05\0\x02\x01\x02\x12\x03\x04\x17\
@@ -179,8 +186,12 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x02\x12\x03\x14\x13\x16\n\x0b\n\x04\x05\0\x02\x12\x12\x03\x15\x04\x16\n\
     \x0c\n\x05\x05\0\x02\x12\x01\x12\x03\x15\x04\x0f\n\x0c\n\x05\x05\0\x02\
     \x12\x02\x12\x03\x15\x12\x15\n\x0b\n\x04\x05\0\x02\x13\x12\x03\x16\x04\
-    \x19\n\x0c\n\x05\x05\0\x02\x13\x01\x12\x03\x16\x04\x11\n\x0c\n\x05\x05\0\
-    \x02\x13\x02\x12\x03\x16\x14\x18b\x06proto3\
+    \x15\n\x0c\n\x05\x05\0\x02\x13\x01\x12\x03\x16\x04\x0e\n\x0c\n\x05\x05\0\
+    \x02\x13\x02\x12\x03\x16\x11\x14\n\x0b\n\x04\x05\0\x02\x14\x12\x03\x17\
+    \x04\x14\n\x0c\n\x05\x05\0\x02\x14\x01\x12\x03\x17\x04\r\n\x0c\n\x05\x05\
+    \0\x02\x14\x02\x12\x03\x17\x10\x13\n\x0b\n\x04\x05\0\x02\x15\x12\x03\x18\
+    \x04\x19\n\x0c\n\x05\x05\0\x02\x15\x01\x12\x03\x18\x04\x11\n\x0c\n\x05\
+    \x05\0\x02\x15\x02\x12\x03\x18\x14\x18b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

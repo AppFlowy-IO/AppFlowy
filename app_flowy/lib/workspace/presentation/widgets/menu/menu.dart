@@ -177,7 +177,7 @@ class MenuList extends StatelessWidget {
       data: ExpandableThemeData(useInkWell: true, animationDuration: Durations.medium),
       child: Expanded(
         child: ScrollConfiguration(
-          behavior: const ScrollBehavior(),
+          behavior: const ScrollBehavior().copyWith(scrollbars: false),
           child: ListView.separated(
             itemCount: menuItems.length,
             separatorBuilder: (context, index) {
@@ -197,5 +197,3 @@ class MenuList extends StatelessWidget {
     );
   }
 }
-
-class _NoGlowBehavior extends ScrollBehavior {}

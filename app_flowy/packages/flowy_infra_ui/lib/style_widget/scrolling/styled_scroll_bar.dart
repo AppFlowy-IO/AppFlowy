@@ -208,7 +208,6 @@ class ScrollbarListStack extends StatelessWidget {
             contentSize: contentSize,
             trackColor: trackColor,
             handleColor: handleColor,
-            showTrack: true,
           ),
         ),
       ],

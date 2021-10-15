@@ -8,36 +8,29 @@ use crate::{
 use flowy_database::SqliteConnection;
 use parking_lot::RwLock;
 use std::{collections::HashSet, sync::Arc};
-use tokio::sync::broadcast;
+use tokio::sync::{broadcast, mpsc};
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone)]
 pub enum TrashEvent {
-    Putback(TrashSource, String),
-    Delete(TrashSource, String),
+    Putback(TrashSource, Vec<String>, mpsc::Sender<WorkspaceResult<()>>),
+    Delete(TrashSource, Vec<String>, mpsc::Sender<WorkspaceResult<()>>),
 }
 
 impl TrashEvent {
     pub fn select(self, s: TrashSource) -> Option<TrashEvent> {
         match &self {
-            TrashEvent::Putback(source, id) => {
+            TrashEvent::Putback(source, _, _) => {
                 if source == &s {
                     return Some(self);
                 }
             },
-            TrashEvent::Delete(source, id) => {
+            TrashEvent::Delete(source, _, _) => {
                 if source == &s {
                     return Some(self);
                 }
             },
         }
         None
-    }
-
-    fn split(self) -> (TrashSource, String) {
-        match self {
-            TrashEvent::Putback(source, id) => (source, id),
-            TrashEvent::Delete(source, id) => (source, id),
-        }
     }
 }
 
@@ -59,38 +52,52 @@ impl TrashCan {
     }
 
     #[tracing::instrument(level = "debug", skip(self), fields(putback)  err)]
-    pub fn putback(&self, trash_id: &str) -> WorkspaceResult<()> {
+    pub async fn putback(&self, trash_id: &str) -> WorkspaceResult<()> {
+        let (tx, mut rx) = mpsc::channel::<WorkspaceResult<()>>(1);
+        let trash_table = TrashTableSql::read(trash_id, &*self.database.db_connection()?)?;
+        tracing::Span::current().record(
+            "putback",
+            &format!("{:?}: {}", &trash_table.source, trash_table.id).as_str(),
+        );
+        self.notify
+            .send(TrashEvent::Putback(trash_table.source, vec![trash_table.id], tx));
+
+        let _ = rx.recv().await.unwrap()?;
         let conn = self.database.db_connection()?;
         let _ = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
-            let trash_table = TrashTableSql::read(trash_id, &*conn)?;
             let _ = TrashTableSql::delete_trash(trash_id, &*conn)?;
-            tracing::Span::current().record(
-                "putback",
-                &format!("{:?}: {}", &trash_table.source, trash_table.id).as_str(),
-            );
-
-            self.notify
-                .send(TrashEvent::Putback(trash_table.source, trash_table.id));
-
             let _ = self.notify_dart_trash_did_update(&conn)?;
             Ok(())
         })?;
-
         Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self)  err)]
-    pub fn delete_trash(&self, trash_id: &str) -> WorkspaceResult<()> {
-        let conn = self.database.db_connection()?;
-        let trash_table = TrashTableSql::read(trash_id, &*conn)?;
-        let _ = TrashTableSql::delete_trash(trash_id, &*conn)?;
+    pub fn restore_all(&self) -> WorkspaceResult<()> { Ok(()) }
 
-        let _ = self.notify.send(TrashEvent::Delete(trash_table.source, trash_table.id));
+    #[tracing::instrument(level = "debug", skip(self)  err)]
+    pub fn delete_all(&self) -> WorkspaceResult<()> { Ok(()) }
+
+    #[tracing::instrument(level = "debug", skip(self)  err)]
+    pub async fn delete(&self, trash_id: &str) -> WorkspaceResult<()> {
+        let (tx, mut rx) = mpsc::channel::<WorkspaceResult<()>>(1);
+        let trash_table = TrashTableSql::read(trash_id, &*self.database.db_connection()?)?;
+        let _ = self
+            .notify
+            .send(TrashEvent::Delete(trash_table.source, vec![trash_table.id], tx));
+
+        let _ = rx.recv().await.unwrap()?;
+        let _ = TrashTableSql::delete_trash(trash_id, &*self.database.db_connection()?)?;
+
         Ok(())
     }
 
-    pub fn subscribe(&self) -> broadcast::Receiver<TrashEvent> { self.notify.subscribe() }
-
+    // [[ transaction ]]
+    // https://www.tutlane.com/tutorial/sqlite/sqlite-transactions-begin-commit-rollback
+    // We can use these commands only when we are performing INSERT, UPDATE, and
+    // DELETE operations. It’s not possible for us to use these commands to
+    // CREATE and DROP tables operations because those are auto-commit in the
+    // database.
     #[tracing::instrument(level = "debug", skip(self, trash, source, conn), fields(add_trash)  err)]
     pub fn add<T: Into<Trash>>(
         &self,
@@ -118,6 +125,8 @@ impl TrashCan {
 
         Ok(())
     }
+
+    pub fn subscribe(&self) -> broadcast::Receiver<TrashEvent> { self.notify.subscribe() }
 
     fn notify_dart_trash_did_update(&self, conn: &SqliteConnection) -> WorkspaceResult<()> {
         // Opti: only push the changeset

@@ -20,7 +20,7 @@ pub(crate) async fn putback_trash_handler(
     identifier: Data<TrashIdentifier>,
     controller: Unit<Arc<TrashCan>>,
 ) -> Result<(), WorkspaceError> {
-    let _ = controller.putback(&identifier.id)?;
+    let _ = controller.putback(&identifier.id).await?;
     Ok(())
 }
 
@@ -29,6 +29,18 @@ pub(crate) async fn delete_trash_handler(
     identifier: Data<TrashIdentifier>,
     controller: Unit<Arc<TrashCan>>,
 ) -> Result<(), WorkspaceError> {
-    let _ = controller.delete_trash(&identifier.id)?;
+    let _ = controller.delete(&identifier.id).await?;
+    Ok(())
+}
+
+#[tracing::instrument(skip(controller), err)]
+pub(crate) async fn restore_all_handler(controller: Unit<Arc<TrashCan>>) -> Result<(), WorkspaceError> {
+    let _ = controller.restore_all()?;
+    Ok(())
+}
+
+#[tracing::instrument(skip(controller), err)]
+pub(crate) async fn delete_all_handler(controller: Unit<Arc<TrashCan>>) -> Result<(), WorkspaceError> {
+    let _ = controller.delete_all()?;
     Ok(())
 }

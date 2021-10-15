@@ -79,14 +79,17 @@ class _TrashStackPageState extends State<TrashStackPage> {
           axis: Axis.horizontal,
           child: SizedBox(
             width: TrashSizes.totalWidth,
-            child: CustomScrollView(
-              shrinkWrap: true,
-              physics: StyledScrollPhysics(),
-              controller: _scrollController,
-              slivers: [
-                _renderListHeader(context),
-                _renderListBody(context),
-              ],
+            child: ScrollConfiguration(
+              behavior: const ScrollBehavior().copyWith(scrollbars: false),
+              child: CustomScrollView(
+                shrinkWrap: true,
+                physics: StyledScrollPhysics(),
+                controller: _scrollController,
+                slivers: [
+                  _renderListHeader(context),
+                  _renderListBody(context),
+                ],
+              ),
             ),
           ),
         ),
@@ -160,3 +163,14 @@ class _TrashStackPageState extends State<TrashStackPage> {
     );
   }
 }
+// class TrashScrollbar extends ScrollBehavior {
+//   @override
+//   Widget buildScrollbar(BuildContext context, Widget child, ScrollableDetails details) {
+//     return ScrollbarListStack(
+//       controller: details.controller,
+//       axis: Axis.vertical,
+//       barSize: 6,
+//       child: child,
+//     );
+//   }
+// }
