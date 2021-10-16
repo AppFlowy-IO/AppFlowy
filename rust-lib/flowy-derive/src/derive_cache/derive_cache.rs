@@ -17,7 +17,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         "String" => TypeCategory::Str,
         "KeyValue"
         | "QueryAppRequest"
-        | "QueryAppParams"
+        | "AppIdentifier"
         | "CreateAppRequest"
         | "ColorStyle"
         | "CreateAppParams"

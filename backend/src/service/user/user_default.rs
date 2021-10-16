@@ -1,7 +1,7 @@
 use crate::{
     service::{
         app::sql_builder::NewAppSqlBuilder as AppBuilder,
-        view::create_view_with_transaction,
+        view::create_view,
         workspace::sql_builder::NewWorkspaceBuilder as WorkspaceBuilder,
     },
     sqlx_ext::{map_sqlx_error, DBTransaction},
@@ -19,7 +19,7 @@ pub async fn create_default_workspace(
 ) -> Result<Workspace, ServerError> {
     let workspace = create_workspace(transaction, user_id).await?;
     let app = create_app(transaction, user_id, &workspace).await?;
-    let _ = create_view(transaction, &app).await?;
+    let _ = create_default_view(transaction, &app).await?;
 
     Ok(workspace)
 }
@@ -56,7 +56,7 @@ async fn create_app(
     Ok(app)
 }
 
-async fn create_view(transaction: &mut DBTransaction<'_>, app: &App) -> Result<View, ServerError> {
+async fn create_default_view(transaction: &mut DBTransaction<'_>, app: &App) -> Result<View, ServerError> {
     let params = CreateViewParams {
         belong_to_id: app.id.clone(),
         name: "DefaultView".to_string(),
@@ -68,11 +68,7 @@ async fn create_view(transaction: &mut DBTransaction<'_>, app: &App) -> Result<V
         cached_size: Default::default(),
     };
 
-    let _name = "DefaultView".to_string();
-    let _desc = "View created by AppFlowy Server".to_string();
-    let _thumbnail = "http://1.png".to_string();
-
-    let view = create_view_with_transaction(transaction, params).await?;
+    let view = create_view(transaction, params).await?;
 
     Ok(view)
 }

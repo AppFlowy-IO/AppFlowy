@@ -27,7 +27,6 @@
 pub struct QueryAppRequest {
     // message fields
     pub app_id: ::std::string::String,
-    pub read_belongings: bool,
     pub is_trash: bool,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -71,22 +70,7 @@ impl QueryAppRequest {
         ::std::mem::replace(&mut self.app_id, ::std::string::String::new())
     }
 
-    // bool read_belongings = 2;
-
-
-    pub fn get_read_belongings(&self) -> bool {
-        self.read_belongings
-    }
-    pub fn clear_read_belongings(&mut self) {
-        self.read_belongings = false;
-    }
-
-    // Param is passed by value, moved
-    pub fn set_read_belongings(&mut self, v: bool) {
-        self.read_belongings = v;
-    }
-
-    // bool is_trash = 3;
+    // bool is_trash = 2;
 
 
     pub fn get_is_trash(&self) -> bool {
@@ -119,13 +103,6 @@ impl ::protobuf::Message for QueryAppRequest {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
                     let tmp = is.read_bool()?;
-                    self.read_belongings = tmp;
-                },
-                3 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_bool()?;
                     self.is_trash = tmp;
                 },
                 _ => {
@@ -143,9 +120,6 @@ impl ::protobuf::Message for QueryAppRequest {
         if !self.app_id.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.app_id);
         }
-        if self.read_belongings != false {
-            my_size += 2;
-        }
         if self.is_trash != false {
             my_size += 2;
         }
@@ -158,11 +132,8 @@ impl ::protobuf::Message for QueryAppRequest {
         if !self.app_id.is_empty() {
             os.write_string(1, &self.app_id)?;
         }
-        if self.read_belongings != false {
-            os.write_bool(2, self.read_belongings)?;
-        }
         if self.is_trash != false {
-            os.write_bool(3, self.is_trash)?;
+            os.write_bool(2, self.is_trash)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -208,11 +179,6 @@ impl ::protobuf::Message for QueryAppRequest {
                 |m: &mut QueryAppRequest| { &mut m.app_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
-                "read_belongings",
-                |m: &QueryAppRequest| { &m.read_belongings },
-                |m: &mut QueryAppRequest| { &mut m.read_belongings },
-            ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
                 "is_trash",
                 |m: &QueryAppRequest| { &m.is_trash },
                 |m: &mut QueryAppRequest| { &mut m.is_trash },
@@ -234,7 +200,6 @@ impl ::protobuf::Message for QueryAppRequest {
 impl ::protobuf::Clear for QueryAppRequest {
     fn clear(&mut self) {
         self.app_id.clear();
-        self.read_belongings = false;
         self.is_trash = false;
         self.unknown_fields.clear();
     }
@@ -253,24 +218,22 @@ impl ::protobuf::reflect::ProtobufValue for QueryAppRequest {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct QueryAppParams {
+pub struct AppIdentifier {
     // message fields
     pub app_id: ::std::string::String,
-    pub read_belongings: bool,
-    pub is_trash: bool,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a QueryAppParams {
-    fn default() -> &'a QueryAppParams {
-        <QueryAppParams as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a AppIdentifier {
+    fn default() -> &'a AppIdentifier {
+        <AppIdentifier as ::protobuf::Message>::default_instance()
     }
 }
 
-impl QueryAppParams {
-    pub fn new() -> QueryAppParams {
+impl AppIdentifier {
+    pub fn new() -> AppIdentifier {
         ::std::default::Default::default()
     }
 
@@ -299,39 +262,9 @@ impl QueryAppParams {
     pub fn take_app_id(&mut self) -> ::std::string::String {
         ::std::mem::replace(&mut self.app_id, ::std::string::String::new())
     }
-
-    // bool read_belongings = 2;
-
-
-    pub fn get_read_belongings(&self) -> bool {
-        self.read_belongings
-    }
-    pub fn clear_read_belongings(&mut self) {
-        self.read_belongings = false;
-    }
-
-    // Param is passed by value, moved
-    pub fn set_read_belongings(&mut self, v: bool) {
-        self.read_belongings = v;
-    }
-
-    // bool is_trash = 3;
-
-
-    pub fn get_is_trash(&self) -> bool {
-        self.is_trash
-    }
-    pub fn clear_is_trash(&mut self) {
-        self.is_trash = false;
-    }
-
-    // Param is passed by value, moved
-    pub fn set_is_trash(&mut self, v: bool) {
-        self.is_trash = v;
-    }
 }
 
-impl ::protobuf::Message for QueryAppParams {
+impl ::protobuf::Message for AppIdentifier {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -342,20 +275,6 @@ impl ::protobuf::Message for QueryAppParams {
             match field_number {
                 1 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.app_id)?;
-                },
-                2 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_bool()?;
-                    self.read_belongings = tmp;
-                },
-                3 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_bool()?;
-                    self.is_trash = tmp;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -372,12 +291,6 @@ impl ::protobuf::Message for QueryAppParams {
         if !self.app_id.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.app_id);
         }
-        if self.read_belongings != false {
-            my_size += 2;
-        }
-        if self.is_trash != false {
-            my_size += 2;
-        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -386,12 +299,6 @@ impl ::protobuf::Message for QueryAppParams {
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
         if !self.app_id.is_empty() {
             os.write_string(1, &self.app_id)?;
-        }
-        if self.read_belongings != false {
-            os.write_bool(2, self.read_belongings)?;
-        }
-        if self.is_trash != false {
-            os.write_bool(3, self.is_trash)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -423,8 +330,8 @@ impl ::protobuf::Message for QueryAppParams {
         Self::descriptor_static()
     }
 
-    fn new() -> QueryAppParams {
-        QueryAppParams::new()
+    fn new() -> AppIdentifier {
+        AppIdentifier::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -433,81 +340,58 @@ impl ::protobuf::Message for QueryAppParams {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "app_id",
-                |m: &QueryAppParams| { &m.app_id },
-                |m: &mut QueryAppParams| { &mut m.app_id },
+                |m: &AppIdentifier| { &m.app_id },
+                |m: &mut AppIdentifier| { &mut m.app_id },
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
-                "read_belongings",
-                |m: &QueryAppParams| { &m.read_belongings },
-                |m: &mut QueryAppParams| { &mut m.read_belongings },
-            ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
-                "is_trash",
-                |m: &QueryAppParams| { &m.is_trash },
-                |m: &mut QueryAppParams| { &mut m.is_trash },
-            ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<QueryAppParams>(
-                "QueryAppParams",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<AppIdentifier>(
+                "AppIdentifier",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static QueryAppParams {
-        static instance: ::protobuf::rt::LazyV2<QueryAppParams> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(QueryAppParams::new)
+    fn default_instance() -> &'static AppIdentifier {
+        static instance: ::protobuf::rt::LazyV2<AppIdentifier> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(AppIdentifier::new)
     }
 }
 
-impl ::protobuf::Clear for QueryAppParams {
+impl ::protobuf::Clear for AppIdentifier {
     fn clear(&mut self) {
         self.app_id.clear();
-        self.read_belongings = false;
-        self.is_trash = false;
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for QueryAppParams {
+impl ::std::fmt::Debug for AppIdentifier {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for QueryAppParams {
+impl ::protobuf::reflect::ProtobufValue for AppIdentifier {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0fapp_query.proto\"l\n\x0fQueryAppRequest\x12\x15\n\x06app_id\x18\
-    \x01\x20\x01(\tR\x05appId\x12'\n\x0fread_belongings\x18\x02\x20\x01(\x08\
-    R\x0ereadBelongings\x12\x19\n\x08is_trash\x18\x03\x20\x01(\x08R\x07isTra\
-    sh\"k\n\x0eQueryAppParams\x12\x15\n\x06app_id\x18\x01\x20\x01(\tR\x05app\
-    Id\x12'\n\x0fread_belongings\x18\x02\x20\x01(\x08R\x0ereadBelongings\x12\
-    \x19\n\x08is_trash\x18\x03\x20\x01(\x08R\x07isTrashJ\x8c\x03\n\x06\x12\
-    \x04\0\0\x0b\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\
-    \x02\0\x06\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x17\n\x0b\n\x04\x04\0\
-    \x02\0\x12\x03\x03\x04\x16\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\
-    \n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\x11\n\x0c\n\x05\x04\0\x02\0\
-    \x03\x12\x03\x03\x14\x15\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x1d\n\
-    \x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\x08\n\x0c\n\x05\x04\0\x02\
-    \x01\x01\x12\x03\x04\t\x18\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x1b\
-    \x1c\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x04\x16\n\x0c\n\x05\x04\0\x02\
-    \x02\x05\x12\x03\x05\x04\x08\n\x0c\n\x05\x04\0\x02\x02\x01\x12\x03\x05\t\
-    \x11\n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05\x14\x15\n\n\n\x02\x04\x01\
-    \x12\x04\x07\0\x0b\x01\n\n\n\x03\x04\x01\x01\x12\x03\x07\x08\x16\n\x0b\n\
-    \x04\x04\x01\x02\0\x12\x03\x08\x04\x16\n\x0c\n\x05\x04\x01\x02\0\x05\x12\
-    \x03\x08\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x08\x0b\x11\n\x0c\n\
-    \x05\x04\x01\x02\0\x03\x12\x03\x08\x14\x15\n\x0b\n\x04\x04\x01\x02\x01\
-    \x12\x03\t\x04\x1d\n\x0c\n\x05\x04\x01\x02\x01\x05\x12\x03\t\x04\x08\n\
-    \x0c\n\x05\x04\x01\x02\x01\x01\x12\x03\t\t\x18\n\x0c\n\x05\x04\x01\x02\
-    \x01\x03\x12\x03\t\x1b\x1c\n\x0b\n\x04\x04\x01\x02\x02\x12\x03\n\x04\x16\
-    \n\x0c\n\x05\x04\x01\x02\x02\x05\x12\x03\n\x04\x08\n\x0c\n\x05\x04\x01\
-    \x02\x02\x01\x12\x03\n\t\x11\n\x0c\n\x05\x04\x01\x02\x02\x03\x12\x03\n\
-    \x14\x15b\x06proto3\
+    \n\x0fapp_query.proto\"C\n\x0fQueryAppRequest\x12\x15\n\x06app_id\x18\
+    \x01\x20\x01(\tR\x05appId\x12\x19\n\x08is_trash\x18\x02\x20\x01(\x08R\
+    \x07isTrash\"&\n\rAppIdentifier\x12\x15\n\x06app_id\x18\x01\x20\x01(\tR\
+    \x05appIdJ\xe7\x01\n\x06\x12\x04\0\0\x08\x01\n\x08\n\x01\x0c\x12\x03\0\0\
+    \x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\0\x01\x12\x03\
+    \x02\x08\x17\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x16\n\x0c\n\x05\x04\
+    \0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\
+    \x0b\x11\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x14\x15\n\x0b\n\x04\x04\
+    \0\x02\x01\x12\x03\x04\x04\x16\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\
+    \x04\x08\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\t\x11\n\x0c\n\x05\x04\
+    \0\x02\x01\x03\x12\x03\x04\x14\x15\n\n\n\x02\x04\x01\x12\x04\x06\0\x08\
+    \x01\n\n\n\x03\x04\x01\x01\x12\x03\x06\x08\x15\n\x0b\n\x04\x04\x01\x02\0\
+    \x12\x03\x07\x04\x16\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x07\x04\n\n\
+    \x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x07\x0b\x11\n\x0c\n\x05\x04\x01\x02\
+    \0\x03\x12\x03\x07\x14\x15b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

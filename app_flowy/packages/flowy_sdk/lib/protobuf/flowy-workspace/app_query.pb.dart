@@ -12,23 +12,18 @@ import 'package:protobuf/protobuf.dart' as $pb;
 class QueryAppRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'QueryAppRequest', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'appId')
-    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'readBelongings')
-    ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isTrash')
+    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isTrash')
     ..hasRequiredFields = false
   ;
 
   QueryAppRequest._() : super();
   factory QueryAppRequest({
     $core.String? appId,
-    $core.bool? readBelongings,
     $core.bool? isTrash,
   }) {
     final _result = create();
     if (appId != null) {
       _result.appId = appId;
-    }
-    if (readBelongings != null) {
-      _result.readBelongings = readBelongings;
     }
     if (isTrash != null) {
       _result.isTrash = isTrash;
@@ -66,70 +61,51 @@ class QueryAppRequest extends $pb.GeneratedMessage {
   void clearAppId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.bool get readBelongings => $_getBF(1);
+  $core.bool get isTrash => $_getBF(1);
   @$pb.TagNumber(2)
-  set readBelongings($core.bool v) { $_setBool(1, v); }
+  set isTrash($core.bool v) { $_setBool(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasReadBelongings() => $_has(1);
+  $core.bool hasIsTrash() => $_has(1);
   @$pb.TagNumber(2)
-  void clearReadBelongings() => clearField(2);
-
-  @$pb.TagNumber(3)
-  $core.bool get isTrash => $_getBF(2);
-  @$pb.TagNumber(3)
-  set isTrash($core.bool v) { $_setBool(2, v); }
-  @$pb.TagNumber(3)
-  $core.bool hasIsTrash() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearIsTrash() => clearField(3);
+  void clearIsTrash() => clearField(2);
 }
 
-class QueryAppParams extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'QueryAppParams', createEmptyInstance: create)
+class AppIdentifier extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'AppIdentifier', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'appId')
-    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'readBelongings')
-    ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isTrash')
     ..hasRequiredFields = false
   ;
 
-  QueryAppParams._() : super();
-  factory QueryAppParams({
+  AppIdentifier._() : super();
+  factory AppIdentifier({
     $core.String? appId,
-    $core.bool? readBelongings,
-    $core.bool? isTrash,
   }) {
     final _result = create();
     if (appId != null) {
       _result.appId = appId;
     }
-    if (readBelongings != null) {
-      _result.readBelongings = readBelongings;
-    }
-    if (isTrash != null) {
-      _result.isTrash = isTrash;
-    }
     return _result;
   }
-  factory QueryAppParams.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory QueryAppParams.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory AppIdentifier.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory AppIdentifier.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  QueryAppParams clone() => QueryAppParams()..mergeFromMessage(this);
+  AppIdentifier clone() => AppIdentifier()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  QueryAppParams copyWith(void Function(QueryAppParams) updates) => super.copyWith((message) => updates(message as QueryAppParams)) as QueryAppParams; // ignore: deprecated_member_use
+  AppIdentifier copyWith(void Function(AppIdentifier) updates) => super.copyWith((message) => updates(message as AppIdentifier)) as AppIdentifier; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static QueryAppParams create() => QueryAppParams._();
-  QueryAppParams createEmptyInstance() => create();
-  static $pb.PbList<QueryAppParams> createRepeated() => $pb.PbList<QueryAppParams>();
+  static AppIdentifier create() => AppIdentifier._();
+  AppIdentifier createEmptyInstance() => create();
+  static $pb.PbList<AppIdentifier> createRepeated() => $pb.PbList<AppIdentifier>();
   @$core.pragma('dart2js:noInline')
-  static QueryAppParams getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<QueryAppParams>(create);
-  static QueryAppParams? _defaultInstance;
+  static AppIdentifier getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AppIdentifier>(create);
+  static AppIdentifier? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get appId => $_getSZ(0);
@@ -139,23 +115,5 @@ class QueryAppParams extends $pb.GeneratedMessage {
   $core.bool hasAppId() => $_has(0);
   @$pb.TagNumber(1)
   void clearAppId() => clearField(1);
-
-  @$pb.TagNumber(2)
-  $core.bool get readBelongings => $_getBF(1);
-  @$pb.TagNumber(2)
-  set readBelongings($core.bool v) { $_setBool(1, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasReadBelongings() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearReadBelongings() => clearField(2);
-
-  @$pb.TagNumber(3)
-  $core.bool get isTrash => $_getBF(2);
-  @$pb.TagNumber(3)
-  set isTrash($core.bool v) { $_setBool(2, v); }
-  @$pb.TagNumber(3)
-  $core.bool hasIsTrash() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearIsTrash() => clearField(3);
 }
 

@@ -1,6 +1,7 @@
 use crate::{
     entities::{
-        app::{App, CreateAppParams, DeleteAppParams, QueryAppParams, UpdateAppParams},
+        app::{App, AppIdentifier, CreateAppParams, DeleteAppParams, UpdateAppParams},
+        trash::CreateTrashParams,
         view::{CreateViewParams, DeleteViewParams, QueryViewParams, UpdateViewParams, View},
         workspace::{
             CreateWorkspaceParams,
@@ -14,6 +15,8 @@ use crate::{
     errors::WorkspaceError,
     services::server::WorkspaceServerAPI,
 };
+
+use crate::entities::trash::{RepeatedTrash, TrashIdentifiers};
 use flowy_infra::future::ResultFuture;
 use flowy_net::{config::*, request::HttpRequestBuilder};
 
@@ -84,7 +87,7 @@ impl WorkspaceServerAPI for WorkspaceServer {
         ResultFuture::new(async move { create_app_request(&token, params, &url).await })
     }
 
-    fn read_app(&self, token: &str, params: QueryAppParams) -> ResultFuture<Option<App>, WorkspaceError> {
+    fn read_app(&self, token: &str, params: AppIdentifier) -> ResultFuture<Option<App>, WorkspaceError> {
         let token = token.to_owned();
         let url = self.config.app_url();
         ResultFuture::new(async move { read_app_request(&token, params, &url).await })
@@ -174,7 +177,7 @@ pub async fn create_app_request(token: &str, params: CreateAppParams, url: &str)
     Ok(app)
 }
 
-pub async fn read_app_request(token: &str, params: QueryAppParams, url: &str) -> Result<Option<App>, WorkspaceError> {
+pub async fn read_app_request(token: &str, params: AppIdentifier, url: &str) -> Result<Option<App>, WorkspaceError> {
     let app = request_builder()
         .get(&url.to_owned())
         .header(HEADER_TOKEN, token)
@@ -249,4 +252,33 @@ pub async fn delete_view_request(token: &str, params: DeleteViewParams, url: &st
         .send()
         .await?;
     Ok(())
+}
+
+pub async fn create_trash_request(token: &str, params: CreateTrashParams, url: &str) -> Result<(), WorkspaceError> {
+    let _ = request_builder()
+        .post(&url.to_owned())
+        .header(HEADER_TOKEN, token)
+        .protobuf(params)?
+        .send()
+        .await?;
+    Ok(())
+}
+
+pub async fn delete_trash_request(token: &str, params: TrashIdentifiers, url: &str) -> Result<(), WorkspaceError> {
+    let _ = request_builder()
+        .delete(&url.to_owned())
+        .header(HEADER_TOKEN, token)
+        .protobuf(params)?
+        .send()
+        .await?;
+    Ok(())
+}
+
+pub async fn read_trash_request(token: &str, url: &str) -> Result<RepeatedTrash, WorkspaceError> {
+    let repeated_trash = request_builder()
+        .get(&url.to_owned())
+        .header(HEADER_TOKEN, token)
+        .response::<RepeatedTrash>()
+        .await?;
+    Ok(repeated_trash)
 }

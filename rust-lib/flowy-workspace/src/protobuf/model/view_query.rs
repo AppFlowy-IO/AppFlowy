@@ -27,7 +27,6 @@
 pub struct QueryViewRequest {
     // message fields
     pub view_id: ::std::string::String,
-    pub read_belongings: bool,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -69,21 +68,6 @@ impl QueryViewRequest {
     pub fn take_view_id(&mut self) -> ::std::string::String {
         ::std::mem::replace(&mut self.view_id, ::std::string::String::new())
     }
-
-    // bool read_belongings = 2;
-
-
-    pub fn get_read_belongings(&self) -> bool {
-        self.read_belongings
-    }
-    pub fn clear_read_belongings(&mut self) {
-        self.read_belongings = false;
-    }
-
-    // Param is passed by value, moved
-    pub fn set_read_belongings(&mut self, v: bool) {
-        self.read_belongings = v;
-    }
 }
 
 impl ::protobuf::Message for QueryViewRequest {
@@ -97,13 +81,6 @@ impl ::protobuf::Message for QueryViewRequest {
             match field_number {
                 1 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.view_id)?;
-                },
-                2 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_bool()?;
-                    self.read_belongings = tmp;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -120,9 +97,6 @@ impl ::protobuf::Message for QueryViewRequest {
         if !self.view_id.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.view_id);
         }
-        if self.read_belongings != false {
-            my_size += 2;
-        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -131,9 +105,6 @@ impl ::protobuf::Message for QueryViewRequest {
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
         if !self.view_id.is_empty() {
             os.write_string(1, &self.view_id)?;
-        }
-        if self.read_belongings != false {
-            os.write_bool(2, self.read_belongings)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -178,11 +149,6 @@ impl ::protobuf::Message for QueryViewRequest {
                 |m: &QueryViewRequest| { &m.view_id },
                 |m: &mut QueryViewRequest| { &mut m.view_id },
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
-                "read_belongings",
-                |m: &QueryViewRequest| { &m.read_belongings },
-                |m: &mut QueryViewRequest| { &mut m.read_belongings },
-            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<QueryViewRequest>(
                 "QueryViewRequest",
                 fields,
@@ -200,7 +166,6 @@ impl ::protobuf::Message for QueryViewRequest {
 impl ::protobuf::Clear for QueryViewRequest {
     fn clear(&mut self) {
         self.view_id.clear();
-        self.read_belongings = false;
         self.unknown_fields.clear();
     }
 }
@@ -221,7 +186,6 @@ impl ::protobuf::reflect::ProtobufValue for QueryViewRequest {
 pub struct QueryViewParams {
     // message fields
     pub view_id: ::std::string::String,
-    pub read_belongings: bool,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -263,21 +227,6 @@ impl QueryViewParams {
     pub fn take_view_id(&mut self) -> ::std::string::String {
         ::std::mem::replace(&mut self.view_id, ::std::string::String::new())
     }
-
-    // bool read_belongings = 2;
-
-
-    pub fn get_read_belongings(&self) -> bool {
-        self.read_belongings
-    }
-    pub fn clear_read_belongings(&mut self) {
-        self.read_belongings = false;
-    }
-
-    // Param is passed by value, moved
-    pub fn set_read_belongings(&mut self, v: bool) {
-        self.read_belongings = v;
-    }
 }
 
 impl ::protobuf::Message for QueryViewParams {
@@ -291,13 +240,6 @@ impl ::protobuf::Message for QueryViewParams {
             match field_number {
                 1 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.view_id)?;
-                },
-                2 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_bool()?;
-                    self.read_belongings = tmp;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -314,9 +256,6 @@ impl ::protobuf::Message for QueryViewParams {
         if !self.view_id.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.view_id);
         }
-        if self.read_belongings != false {
-            my_size += 2;
-        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -325,9 +264,6 @@ impl ::protobuf::Message for QueryViewParams {
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
         if !self.view_id.is_empty() {
             os.write_string(1, &self.view_id)?;
-        }
-        if self.read_belongings != false {
-            os.write_bool(2, self.read_belongings)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -372,11 +308,6 @@ impl ::protobuf::Message for QueryViewParams {
                 |m: &QueryViewParams| { &m.view_id },
                 |m: &mut QueryViewParams| { &mut m.view_id },
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
-                "read_belongings",
-                |m: &QueryViewParams| { &m.read_belongings },
-                |m: &mut QueryViewParams| { &mut m.read_belongings },
-            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<QueryViewParams>(
                 "QueryViewParams",
                 fields,
@@ -394,7 +325,6 @@ impl ::protobuf::Message for QueryViewParams {
 impl ::protobuf::Clear for QueryViewParams {
     fn clear(&mut self) {
         self.view_id.clear();
-        self.read_belongings = false;
         self.unknown_fields.clear();
     }
 }
@@ -571,30 +501,22 @@ impl ::protobuf::reflect::ProtobufValue for OpenViewRequest {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x10view_query.proto\"T\n\x10QueryViewRequest\x12\x17\n\x07view_id\x18\
-    \x01\x20\x01(\tR\x06viewId\x12'\n\x0fread_belongings\x18\x02\x20\x01(\
-    \x08R\x0ereadBelongings\"S\n\x0fQueryViewParams\x12\x17\n\x07view_id\x18\
-    \x01\x20\x01(\tR\x06viewId\x12'\n\x0fread_belongings\x18\x02\x20\x01(\
-    \x08R\x0ereadBelongings\"*\n\x0fOpenViewRequest\x12\x17\n\x07view_id\x18\
-    \x01\x20\x01(\tR\x06viewIdJ\xed\x02\n\x06\x12\x04\0\0\x0c\x01\n\x08\n\
-    \x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\
-    \x04\0\x01\x12\x03\x02\x08\x18\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\
-    \x17\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\
-    \0\x01\x12\x03\x03\x0b\x12\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x15\
-    \x16\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x1d\n\x0c\n\x05\x04\0\x02\
-    \x01\x05\x12\x03\x04\x04\x08\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\t\
-    \x18\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x1b\x1c\n\n\n\x02\x04\x01\
-    \x12\x04\x06\0\t\x01\n\n\n\x03\x04\x01\x01\x12\x03\x06\x08\x17\n\x0b\n\
-    \x04\x04\x01\x02\0\x12\x03\x07\x04\x17\n\x0c\n\x05\x04\x01\x02\0\x05\x12\
-    \x03\x07\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x07\x0b\x12\n\x0c\n\
-    \x05\x04\x01\x02\0\x03\x12\x03\x07\x15\x16\n\x0b\n\x04\x04\x01\x02\x01\
-    \x12\x03\x08\x04\x1d\n\x0c\n\x05\x04\x01\x02\x01\x05\x12\x03\x08\x04\x08\
-    \n\x0c\n\x05\x04\x01\x02\x01\x01\x12\x03\x08\t\x18\n\x0c\n\x05\x04\x01\
-    \x02\x01\x03\x12\x03\x08\x1b\x1c\n\n\n\x02\x04\x02\x12\x04\n\0\x0c\x01\n\
-    \n\n\x03\x04\x02\x01\x12\x03\n\x08\x17\n\x0b\n\x04\x04\x02\x02\0\x12\x03\
-    \x0b\x04\x17\n\x0c\n\x05\x04\x02\x02\0\x05\x12\x03\x0b\x04\n\n\x0c\n\x05\
-    \x04\x02\x02\0\x01\x12\x03\x0b\x0b\x12\n\x0c\n\x05\x04\x02\x02\0\x03\x12\
-    \x03\x0b\x15\x16b\x06proto3\
+    \n\x10view_query.proto\"+\n\x10QueryViewRequest\x12\x17\n\x07view_id\x18\
+    \x01\x20\x01(\tR\x06viewId\"*\n\x0fQueryViewParams\x12\x17\n\x07view_id\
+    \x18\x01\x20\x01(\tR\x06viewId\"*\n\x0fOpenViewRequest\x12\x17\n\x07view\
+    _id\x18\x01\x20\x01(\tR\x06viewIdJ\xff\x01\n\x06\x12\x04\0\0\n\x01\n\x08\
+    \n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x04\x01\n\n\n\
+    \x03\x04\0\x01\x12\x03\x02\x08\x18\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\
+    \x04\x17\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\
+    \x02\0\x01\x12\x03\x03\x0b\x12\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\
+    \x15\x16\n\n\n\x02\x04\x01\x12\x04\x05\0\x07\x01\n\n\n\x03\x04\x01\x01\
+    \x12\x03\x05\x08\x17\n\x0b\n\x04\x04\x01\x02\0\x12\x03\x06\x04\x17\n\x0c\
+    \n\x05\x04\x01\x02\0\x05\x12\x03\x06\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\
+    \x12\x03\x06\x0b\x12\n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\x06\x15\x16\n\
+    \n\n\x02\x04\x02\x12\x04\x08\0\n\x01\n\n\n\x03\x04\x02\x01\x12\x03\x08\
+    \x08\x17\n\x0b\n\x04\x04\x02\x02\0\x12\x03\t\x04\x17\n\x0c\n\x05\x04\x02\
+    \x02\0\x05\x12\x03\t\x04\n\n\x0c\n\x05\x04\x02\x02\0\x01\x12\x03\t\x0b\
+    \x12\n\x0c\n\x05\x04\x02\x02\0\x03\x12\x03\t\x15\x16b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

@@ -20,7 +20,7 @@ extern crate flowy_database;
 
 pub mod prelude {
     pub use crate::{
-        entities::{app::*, view::*, workspace::*},
+        entities::{app::*, trash::*, view::*, workspace::*},
         errors::*,
         module::*,
         services::*,

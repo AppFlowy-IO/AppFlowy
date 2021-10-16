@@ -51,10 +51,8 @@ impl AppController {
         Ok(())
     }
 
-    pub(crate) async fn read_app(&self, params: QueryAppParams) -> Result<App, WorkspaceError> {
-        let app_table = self
-            .sql
-            .read_app(&params.app_id, Some(params.is_trash), &*self.database.db_connection()?)?;
+    pub(crate) async fn read_app(&self, params: AppIdentifier) -> Result<App, WorkspaceError> {
+        let app_table = self.sql.read_app(&params.app_id, &*self.database.db_connection()?)?;
         let _ = self.read_app_on_server(params)?;
         Ok(app_table.into())
     }
@@ -87,7 +85,7 @@ impl AppController {
         let conn = &*self.database.db_connection()?;
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.sql.update_app(changeset, conn)?;
-            let app: App = self.sql.read_app(&app_id, None, conn)?.into();
+            let app: App = self.sql.read_app(&app_id, conn)?.into();
             send_dart_notification(&app_id, WorkspaceNotification::AppUpdated)
                 .payload(app)
                 .send();
@@ -143,7 +141,7 @@ impl AppController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    fn read_app_on_server(&self, params: QueryAppParams) -> Result<(), WorkspaceError> {
+    fn read_app_on_server(&self, params: AppIdentifier) -> Result<(), WorkspaceError> {
         let token = self.user.token()?;
         let server = self.server.clone();
         spawn(async move {

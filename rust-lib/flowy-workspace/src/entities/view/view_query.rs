@@ -7,16 +7,12 @@ use std::convert::TryInto;
 pub struct QueryViewRequest {
     #[pb(index = 1)]
     pub view_id: String,
-
-    #[pb(index = 2)]
-    pub read_belongings: bool,
 }
 
 impl QueryViewRequest {
     pub fn new(view_id: &str) -> Self {
         Self {
             view_id: view_id.to_owned(),
-            read_belongings: false,
         }
     }
 }
@@ -25,22 +21,13 @@ impl QueryViewRequest {
 pub struct QueryViewParams {
     #[pb(index = 1)]
     pub view_id: String,
-
-    #[pb(index = 2)]
-    pub read_belongings: bool,
 }
 
 impl QueryViewParams {
     pub fn new(view_id: &str) -> Self {
         Self {
             view_id: view_id.to_owned(),
-            ..Default::default()
         }
-    }
-
-    pub fn read_belongings(mut self) -> Self {
-        self.read_belongings = true;
-        self
     }
 }
 
@@ -55,10 +42,7 @@ impl TryInto<QueryViewParams> for QueryViewRequest {
             .map_err(|e| WorkspaceError::view_id().context(e))?
             .0;
 
-        Ok(QueryViewParams {
-            view_id,
-            read_belongings: self.read_belongings,
-        })
+        Ok(QueryViewParams { view_id })
     }
 }
 

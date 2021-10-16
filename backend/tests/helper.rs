@@ -84,7 +84,7 @@ impl TestUserServer {
         app
     }
 
-    pub async fn read_app(&self, params: QueryAppParams) -> Option<App> {
+    pub async fn read_app(&self, params: AppIdentifier) -> Option<App> {
         let url = format!("{}/api/app", self.http_addr());
         let app = read_app_request(self.user_token(), params, &url).await.unwrap();
         app
@@ -120,6 +120,21 @@ impl TestUserServer {
     pub async fn delete_view(&self, params: DeleteViewParams) {
         let url = format!("{}/api/view", self.http_addr());
         delete_view_request(self.user_token(), params, &url).await.unwrap();
+    }
+
+    pub async fn create_trash(&self, params: CreateTrashParams) {
+        let url = format!("{}/api/trash", self.http_addr());
+        create_trash_request(self.user_token(), params, &url).await.unwrap();
+    }
+
+    pub async fn delete_trash(&self, params: TrashIdentifiers) {
+        let url = format!("{}/api/trash", self.http_addr());
+        delete_trash_request(self.user_token(), params, &url).await.unwrap();
+    }
+
+    pub async fn read_trash(&self) -> RepeatedTrash {
+        let url = format!("{}/api/trash", self.http_addr());
+        read_trash_request(self.user_token(), &url).await.unwrap()
     }
 
     pub async fn read_doc(&self, params: DocIdentifier) -> Option<Doc> {

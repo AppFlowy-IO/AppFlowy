@@ -2,11 +2,8 @@ syntax = "proto3";
 
 message QueryAppRequest {
     string app_id = 1;
-    bool read_belongings = 2;
-    bool is_trash = 3;
+    bool is_trash = 2;
 }
-message QueryAppParams {
+message AppIdentifier {
     string app_id = 1;
-    bool read_belongings = 2;
-    bool is_trash = 3;
 }

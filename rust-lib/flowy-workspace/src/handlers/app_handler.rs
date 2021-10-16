@@ -1,11 +1,11 @@
 use crate::{
     entities::app::{
         App,
+        AppIdentifier,
         CreateAppParams,
         CreateAppRequest,
         DeleteAppParams,
         DeleteAppRequest,
-        QueryAppParams,
         QueryAppRequest,
         UpdateAppParams,
         UpdateAppRequest,
@@ -53,13 +53,9 @@ pub(crate) async fn read_app_handler(
     app_controller: Unit<Arc<AppController>>,
     view_controller: Unit<Arc<ViewController>>,
 ) -> DataResult<App, WorkspaceError> {
-    let params: QueryAppParams = data.into_inner().try_into()?;
+    let params: AppIdentifier = data.into_inner().try_into()?;
     let mut app = app_controller.read_app(params.clone()).await?;
-
-    // The View's belonging is the view indexed by the belong_to_id for now
-    if params.read_belongings {
-        app.belongings = view_controller.read_views_belong_to(&params.app_id).await?;
-    }
+    app.belongings = view_controller.read_views_belong_to(&params.app_id).await?;
 
     data_result(app)
 }

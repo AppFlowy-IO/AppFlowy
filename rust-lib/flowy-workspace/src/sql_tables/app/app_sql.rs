@@ -31,17 +31,12 @@ impl AppTableSql {
         Ok(())
     }
 
-    pub(crate) fn read_app(
-        &self,
-        app_id: &str,
-        is_trash: Option<bool>,
-        conn: &SqliteConnection,
-    ) -> Result<AppTable, WorkspaceError> {
-        let mut filter = dsl::app_table.filter(app_table::id.eq(app_id)).into_boxed();
+    pub(crate) fn read_app(&self, app_id: &str, conn: &SqliteConnection) -> Result<AppTable, WorkspaceError> {
+        let filter = dsl::app_table.filter(app_table::id.eq(app_id)).into_boxed();
 
-        if let Some(is_trash) = is_trash {
-            filter = filter.filter(app_table::is_trash.eq(is_trash));
-        }
+        // if let Some(is_trash) = is_trash {
+        //     filter = filter.filter(app_table::is_trash.eq(is_trash));
+        // }
 
         let app_table = filter.first::<AppTable>(conn)?;
         Ok(app_table)

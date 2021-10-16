@@ -54,6 +54,7 @@ impl UpdateViewParams {
         self.is_trash = Some(true);
         self
     }
+
     pub fn name(mut self, name: &str) -> Self {
         self.name = Some(name.to_owned());
         self

@@ -35,10 +35,7 @@ pub(crate) async fn read_view_handler(
 ) -> DataResult<View, WorkspaceError> {
     let params: QueryViewParams = data.into_inner().try_into()?;
     let mut view = controller.read_view(params.clone()).await?;
-
-    if params.read_belongings {
-        view.belongings = controller.read_views_belong_to(&params.view_id).await?;
-    }
+    view.belongings = controller.read_views_belong_to(&params.view_id).await?;
 
     data_result(view)
 }

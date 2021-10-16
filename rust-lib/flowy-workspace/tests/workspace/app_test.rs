@@ -40,7 +40,7 @@ async fn app_create_with_view() {
     let view_a = create_view_with_request(&test.sdk, request_a).await;
     let view_b = create_view_with_request(&test.sdk, request_b).await;
 
-    let query = QueryAppRequest::new(&test.app.id).read_views();
+    let query = QueryAppRequest::new(&test.app.id);
     let view_from_db = read_app(&test.sdk, query);
 
     assert_eq!(view_from_db.belongings[0], view_a);
