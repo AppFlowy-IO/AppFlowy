@@ -4,13 +4,14 @@ use crate::{
     sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
 use ::protobuf::ProtobufEnum;
-use flowy_net::{errors::ServerError, response::FlowyResponse};
-use flowy_workspace::protobuf::{CreateTrashParams, RepeatedTrash, Trash, TrashIdentifiers, TrashType};
+use flowy_net::errors::ServerError;
+use flowy_workspace::protobuf::{RepeatedTrash, Trash, TrashIdentifiers, TrashType};
 use sqlx::{postgres::PgArguments, Postgres};
+use uuid::Uuid;
 
 pub(crate) async fn create_trash(
     transaction: &mut DBTransaction<'_>,
-    trash_id: &str,
+    trash_id: Uuid,
     ty: i32,
     user: LoggedUser,
 ) -> Result<(), ServerError> {
@@ -28,10 +29,7 @@ pub(crate) async fn create_trash(
     Ok(())
 }
 
-pub(crate) async fn delete_trash(
-    transaction: &mut DBTransaction<'_>,
-    trash_ids: Vec<String>,
-) -> Result<(), ServerError> {
+pub(crate) async fn delete_trash(transaction: &mut DBTransaction<'_>, trash_ids: Vec<Uuid>) -> Result<(), ServerError> {
     for trash_id in trash_ids {
         let (sql, args) = SqlBuilder::delete(TRASH_TABLE).and_where_eq("id", &trash_id).build()?;
         let _ = sqlx::query_with(&sql, args)
@@ -43,15 +41,21 @@ pub(crate) async fn delete_trash(
 }
 
 pub(crate) async fn read_trash_ids(
-    _user: &LoggedUser,
-    _transaction: &mut DBTransaction<'_>,
+    user: &LoggedUser,
+    transaction: &mut DBTransaction<'_>,
 ) -> Result<Vec<String>, ServerError> {
-    Ok(vec![])
+    let repeated_trash = read_trash(transaction, user).await?.take_items().into_vec();
+    let ids = repeated_trash
+        .into_iter()
+        .map(|trash| trash.id)
+        .collect::<Vec<String>>();
+
+    Ok(ids)
 }
 
 pub(crate) async fn read_trash(
     transaction: &mut DBTransaction<'_>,
-    user: LoggedUser,
+    user: &LoggedUser,
 ) -> Result<RepeatedTrash, ServerError> {
     let (sql, args) = SqlBuilder::select(TRASH_TABLE)
         .add_field("*")

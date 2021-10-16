@@ -92,6 +92,12 @@ pub(crate) async fn read_view(
     transaction: &mut DBTransaction<'_>,
 ) -> Result<View, ServerError> {
     let table = read_view_table(view_id, transaction as &mut DBTransaction<'_>).await?;
+
+    let read_trash_ids = read_trash_ids(user, transaction).await?;
+    if read_trash_ids.contains(&table.id.to_string()) {
+        return Err(ServerError::record_not_found());
+    }
+
     let mut views = RepeatedView::default();
     views.set_items(
         read_view_belong_to_id(&user, transaction, &table.id.to_string())

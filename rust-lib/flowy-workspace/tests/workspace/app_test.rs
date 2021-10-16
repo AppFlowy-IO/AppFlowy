@@ -50,17 +50,17 @@ async fn app_create_with_view() {
 // #[tokio::test]
 // async fn app_set_trash_flag() {
 //     let test = AppTest::new().await;
-//     test.move_app_to_trash().await;
+//     test.delete().await;
 //
 //     let query = QueryAppRequest::new(&test.app.id).trash();
 //     let _ = read_app(&test.sdk, query);
 // }
-
-#[tokio::test]
-#[should_panic]
-async fn app_set_trash_flag_2() {
-    let test = AppTest::new().await;
-    test.move_app_to_trash().await;
-    let query = QueryAppRequest::new(&test.app.id);
-    let _ = read_app(&test.sdk, query);
-}
+//
+// #[tokio::test]
+// #[should_panic]
+// async fn app_set_trash_flag_2() {
+//     let test = AppTest::new().await;
+//     test.move_app_to_trash().await;
+//     let query = QueryAppRequest::new(&test.app.id);
+//     let _ = read_app(&test.sdk, query);
+// }

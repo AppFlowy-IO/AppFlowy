@@ -48,7 +48,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "DeleteViewRequest"
         | "DeleteViewParams"
         | "QueryViewRequest"
-        | "QueryViewParams"
+        | "ViewIdentifier"
         | "OpenViewRequest"
         | "CreateViewRequest"
         | "CreateViewParams"

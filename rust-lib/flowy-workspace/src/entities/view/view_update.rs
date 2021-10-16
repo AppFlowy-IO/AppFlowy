@@ -19,9 +19,6 @@ pub struct UpdateViewRequest {
 
     #[pb(index = 4, one_of)]
     pub thumbnail: Option<String>,
-
-    #[pb(index = 5, one_of)]
-    pub is_trash: Option<bool>,
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
@@ -37,9 +34,6 @@ pub struct UpdateViewParams {
 
     #[pb(index = 4, one_of)]
     pub thumbnail: Option<String>,
-
-    #[pb(index = 5, one_of)]
-    pub is_trash: Option<bool>,
 }
 
 impl UpdateViewParams {
@@ -48,11 +42,6 @@ impl UpdateViewParams {
             view_id: view_id.to_owned(),
             ..Default::default()
         }
-    }
-
-    pub fn trash(mut self) -> Self {
-        self.is_trash = Some(true);
-        self
     }
 
     pub fn name(mut self, name: &str) -> Self {
@@ -106,7 +95,6 @@ impl TryInto<UpdateViewParams> for UpdateViewRequest {
             name,
             desc,
             thumbnail,
-            is_trash: self.is_trash,
         })
     }
 }

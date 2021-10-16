@@ -36,6 +36,7 @@ impl ServerError {
     static_error!(connect_close, ErrorCode::ConnectClose);
     static_error!(connect_cancel, ErrorCode::ConnectCancel);
     static_error!(connect_refused, ErrorCode::ConnectRefused);
+    static_error!(record_not_found, ErrorCode::RecordNotFound);
 
     pub fn new(msg: String, code: ErrorCode) -> Self { Self { code, msg } }
 

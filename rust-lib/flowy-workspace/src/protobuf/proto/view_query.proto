@@ -3,7 +3,7 @@ syntax = "proto3";
 message QueryViewRequest {
     string view_id = 1;
 }
-message QueryViewParams {
+message ViewIdentifier {
     string view_id = 1;
 }
 message OpenViewRequest {

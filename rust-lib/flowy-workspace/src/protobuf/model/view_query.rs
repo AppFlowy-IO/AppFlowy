@@ -183,7 +183,7 @@ impl ::protobuf::reflect::ProtobufValue for QueryViewRequest {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct QueryViewParams {
+pub struct ViewIdentifier {
     // message fields
     pub view_id: ::std::string::String,
     // special fields
@@ -191,14 +191,14 @@ pub struct QueryViewParams {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a QueryViewParams {
-    fn default() -> &'a QueryViewParams {
-        <QueryViewParams as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a ViewIdentifier {
+    fn default() -> &'a ViewIdentifier {
+        <ViewIdentifier as ::protobuf::Message>::default_instance()
     }
 }
 
-impl QueryViewParams {
-    pub fn new() -> QueryViewParams {
+impl ViewIdentifier {
+    pub fn new() -> ViewIdentifier {
         ::std::default::Default::default()
     }
 
@@ -229,7 +229,7 @@ impl QueryViewParams {
     }
 }
 
-impl ::protobuf::Message for QueryViewParams {
+impl ::protobuf::Message for ViewIdentifier {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -295,8 +295,8 @@ impl ::protobuf::Message for QueryViewParams {
         Self::descriptor_static()
     }
 
-    fn new() -> QueryViewParams {
-        QueryViewParams::new()
+    fn new() -> ViewIdentifier {
+        ViewIdentifier::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -305,37 +305,37 @@ impl ::protobuf::Message for QueryViewParams {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "view_id",
-                |m: &QueryViewParams| { &m.view_id },
-                |m: &mut QueryViewParams| { &mut m.view_id },
+                |m: &ViewIdentifier| { &m.view_id },
+                |m: &mut ViewIdentifier| { &mut m.view_id },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<QueryViewParams>(
-                "QueryViewParams",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<ViewIdentifier>(
+                "ViewIdentifier",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static QueryViewParams {
-        static instance: ::protobuf::rt::LazyV2<QueryViewParams> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(QueryViewParams::new)
+    fn default_instance() -> &'static ViewIdentifier {
+        static instance: ::protobuf::rt::LazyV2<ViewIdentifier> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(ViewIdentifier::new)
     }
 }
 
-impl ::protobuf::Clear for QueryViewParams {
+impl ::protobuf::Clear for ViewIdentifier {
     fn clear(&mut self) {
         self.view_id.clear();
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for QueryViewParams {
+impl ::std::fmt::Debug for ViewIdentifier {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for QueryViewParams {
+impl ::protobuf::reflect::ProtobufValue for ViewIdentifier {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -502,7 +502,7 @@ impl ::protobuf::reflect::ProtobufValue for OpenViewRequest {
 
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x10view_query.proto\"+\n\x10QueryViewRequest\x12\x17\n\x07view_id\x18\
-    \x01\x20\x01(\tR\x06viewId\"*\n\x0fQueryViewParams\x12\x17\n\x07view_id\
+    \x01\x20\x01(\tR\x06viewId\")\n\x0eViewIdentifier\x12\x17\n\x07view_id\
     \x18\x01\x20\x01(\tR\x06viewId\"*\n\x0fOpenViewRequest\x12\x17\n\x07view\
     _id\x18\x01\x20\x01(\tR\x06viewIdJ\xff\x01\n\x06\x12\x04\0\0\n\x01\n\x08\
     \n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x04\x01\n\n\n\
@@ -510,7 +510,7 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x04\x17\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\
     \x02\0\x01\x12\x03\x03\x0b\x12\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\
     \x15\x16\n\n\n\x02\x04\x01\x12\x04\x05\0\x07\x01\n\n\n\x03\x04\x01\x01\
-    \x12\x03\x05\x08\x17\n\x0b\n\x04\x04\x01\x02\0\x12\x03\x06\x04\x17\n\x0c\
+    \x12\x03\x05\x08\x16\n\x0b\n\x04\x04\x01\x02\0\x12\x03\x06\x04\x17\n\x0c\
     \n\x05\x04\x01\x02\0\x05\x12\x03\x06\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\
     \x12\x03\x06\x0b\x12\n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\x06\x15\x16\n\
     \n\n\x02\x04\x02\x12\x04\x08\0\n\x01\n\n\n\x03\x04\x02\x01\x12\x03\x08\

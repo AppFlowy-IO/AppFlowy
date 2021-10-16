@@ -35,9 +35,7 @@ impl ViewTableSql {
             .filter(view_table::id.eq(view_id))
             .first::<ViewTable>(conn)?;
 
-        let repeated_trash: Vec<String> = trash_table::dsl::trash_table
-            .select(trash_table::dsl::id)
-            .load(conn)?;
+        let repeated_trash: Vec<String> = trash_table::dsl::trash_table.select(trash_table::dsl::id).load(conn)?;
 
         if repeated_trash.contains(&view_table.id) {
             return Err(WorkspaceError::not_found());
@@ -53,9 +51,7 @@ impl ViewTableSql {
             .into_boxed()
             .load::<ViewTable>(conn)?;
 
-        let repeated_trash: Vec<String> = trash_table::dsl::trash_table
-            .select(trash_table::dsl::id)
-            .load(conn)?;
+        let repeated_trash: Vec<String> = trash_table::dsl::trash_table.select(trash_table::dsl::id).load(conn)?;
 
         view_tables = view_tables
             .into_iter()
@@ -75,12 +71,9 @@ impl ViewTableSql {
         Ok(())
     }
 
-    pub(crate) fn delete_view(view_id: &str, conn: &SqliteConnection) -> Result<ViewTable, WorkspaceError> {
-        let view_table = dsl::view_table
-            .filter(view_table::id.eq(view_id))
-            .first::<ViewTable>(conn)?;
+    pub(crate) fn delete_view(view_id: &str, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
         diesel_delete_table!(view_table, view_id, conn);
-        Ok(view_table)
+        Ok(())
     }
 }
 

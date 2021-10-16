@@ -37,6 +37,8 @@ bincode = { version = "1.3"}
 unicode-segmentation = "1.7.1"
 tracing = { version = "0.1", features = ["log"] }
 bytes = { version = "1.0" }
+crossbeam = "0.8.1"
+crossbeam-utils = "0.8"
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }
 serial_test = "0.5.1"

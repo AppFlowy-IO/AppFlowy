@@ -6,7 +6,7 @@ use std::convert::TryInto;
 #[derive(Default, ProtoBuf)]
 pub struct DeleteViewRequest {
     #[pb(index = 1)]
-    view_ids: Vec<String>,
+    pub view_ids: Vec<String>,
 }
 
 #[derive(Default, ProtoBuf)]

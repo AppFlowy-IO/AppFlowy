@@ -2,7 +2,7 @@ use crate::{
     entities::{
         app::{App, AppIdentifier, CreateAppParams, DeleteAppParams, UpdateAppParams},
         trash::CreateTrashParams,
-        view::{CreateViewParams, DeleteViewParams, QueryViewParams, UpdateViewParams, View},
+        view::{CreateViewParams, DeleteViewParams, UpdateViewParams, View, ViewIdentifier},
         workspace::{
             CreateWorkspaceParams,
             DeleteWorkspaceParams,
@@ -63,7 +63,7 @@ impl WorkspaceServerAPI for WorkspaceServer {
         ResultFuture::new(async move { create_view_request(&token, params, &url).await })
     }
 
-    fn read_view(&self, token: &str, params: QueryViewParams) -> ResultFuture<Option<View>, WorkspaceError> {
+    fn read_view(&self, token: &str, params: ViewIdentifier) -> ResultFuture<Option<View>, WorkspaceError> {
         let token = token.to_owned();
         let url = self.config.view_url();
         ResultFuture::new(async move { read_view_request(&token, params, &url).await })
@@ -219,11 +219,7 @@ pub async fn create_view_request(token: &str, params: CreateViewParams, url: &st
     Ok(view)
 }
 
-pub async fn read_view_request(
-    token: &str,
-    params: QueryViewParams,
-    url: &str,
-) -> Result<Option<View>, WorkspaceError> {
+pub async fn read_view_request(token: &str, params: ViewIdentifier, url: &str) -> Result<Option<View>, WorkspaceError> {
     let view = request_builder()
         .get(&url.to_owned())
         .header(HEADER_TOKEN, token)

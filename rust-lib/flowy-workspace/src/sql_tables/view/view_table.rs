@@ -1,5 +1,8 @@
 use crate::{
-    entities::view::{RepeatedView, UpdateViewParams, View, ViewType},
+    entities::{
+        trash::{Trash, TrashType},
+        view::{RepeatedView, UpdateViewParams, View, ViewType},
+    },
     sql_tables::app::AppTable,
 };
 use diesel::sql_types::Integer;
@@ -65,6 +68,18 @@ impl std::convert::Into<View> for ViewTable {
     }
 }
 
+impl std::convert::Into<Trash> for ViewTable {
+    fn into(self) -> Trash {
+        Trash {
+            id: self.id,
+            name: self.name,
+            modified_time: self.modified_time,
+            create_time: self.create_time,
+            ty: TrashType::View,
+        }
+    }
+}
+
 #[derive(AsChangeset, Identifiable, Clone, Default, Debug)]
 #[table_name = "view_table"]
 pub(crate) struct ViewTableChangeset {
@@ -73,7 +88,6 @@ pub(crate) struct ViewTableChangeset {
     pub desc: Option<String>,
     pub thumbnail: Option<String>,
     pub modified_time: i64,
-    pub is_trash: Option<bool>,
 }
 
 impl ViewTableChangeset {
@@ -84,7 +98,6 @@ impl ViewTableChangeset {
             desc: params.desc,
             thumbnail: params.thumbnail,
             modified_time: timestamp(),
-            is_trash: params.is_trash,
         }
     }
 
@@ -95,7 +108,6 @@ impl ViewTableChangeset {
             desc: Some(table.desc),
             thumbnail: Some(table.thumbnail),
             modified_time: table.modified_time,
-            is_trash: Some(table.is_trash),
         }
     }
 }

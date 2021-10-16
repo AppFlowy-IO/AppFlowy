@@ -1,27 +1,14 @@
 use flowy_test::{workspace::*, FlowyTest};
 use flowy_workspace::entities::view::*;
 
-// #[tokio::test]
-// async fn view_move_to_trash() {
-//     let test = FlowyTest::setup();
-//     let _ = test.init_user().await;
-//
-//     let test = ViewTest::new(&test).await;
-//     test.move_view_to_trash().await;
-//
-//     let query = QueryViewRequest::new(&test.view.id).trash();
-//     let view = read_view(&test.sdk, query).await;
-//     assert_eq!(view, test.view);
-// }
-
 #[tokio::test]
 #[should_panic]
-async fn view_move_to_trash2() {
+async fn view_move_to_trash() {
     let test = FlowyTest::setup();
     let _ = test.init_user();
 
     let test = ViewTest::new(&test).await;
-    test.move_view_to_trash().await;
+    test.delete().await;
     let query = QueryViewRequest::new(&test.view.id);
     let _ = read_view(&test.sdk, query).await;
 }

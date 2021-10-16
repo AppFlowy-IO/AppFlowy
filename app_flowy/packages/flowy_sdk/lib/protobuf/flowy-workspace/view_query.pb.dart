@@ -56,14 +56,14 @@ class QueryViewRequest extends $pb.GeneratedMessage {
   void clearViewId() => clearField(1);
 }
 
-class QueryViewParams extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'QueryViewParams', createEmptyInstance: create)
+class ViewIdentifier extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ViewIdentifier', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewId')
     ..hasRequiredFields = false
   ;
 
-  QueryViewParams._() : super();
-  factory QueryViewParams({
+  ViewIdentifier._() : super();
+  factory ViewIdentifier({
     $core.String? viewId,
   }) {
     final _result = create();
@@ -72,26 +72,26 @@ class QueryViewParams extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory QueryViewParams.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory QueryViewParams.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory ViewIdentifier.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ViewIdentifier.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  QueryViewParams clone() => QueryViewParams()..mergeFromMessage(this);
+  ViewIdentifier clone() => ViewIdentifier()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  QueryViewParams copyWith(void Function(QueryViewParams) updates) => super.copyWith((message) => updates(message as QueryViewParams)) as QueryViewParams; // ignore: deprecated_member_use
+  ViewIdentifier copyWith(void Function(ViewIdentifier) updates) => super.copyWith((message) => updates(message as ViewIdentifier)) as ViewIdentifier; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static QueryViewParams create() => QueryViewParams._();
-  QueryViewParams createEmptyInstance() => create();
-  static $pb.PbList<QueryViewParams> createRepeated() => $pb.PbList<QueryViewParams>();
+  static ViewIdentifier create() => ViewIdentifier._();
+  ViewIdentifier createEmptyInstance() => create();
+  static $pb.PbList<ViewIdentifier> createRepeated() => $pb.PbList<ViewIdentifier>();
   @$core.pragma('dart2js:noInline')
-  static QueryViewParams getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<QueryViewParams>(create);
-  static QueryViewParams? _defaultInstance;
+  static ViewIdentifier getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ViewIdentifier>(create);
+  static ViewIdentifier? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get viewId => $_getSZ(0);

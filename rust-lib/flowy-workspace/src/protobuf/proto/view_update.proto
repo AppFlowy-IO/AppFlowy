@@ -5,12 +5,10 @@ message UpdateViewRequest {
     oneof one_of_name { string name = 2; };
     oneof one_of_desc { string desc = 3; };
     oneof one_of_thumbnail { string thumbnail = 4; };
-    oneof one_of_is_trash { bool is_trash = 5; };
 }
 message UpdateViewParams {
     string view_id = 1;
     oneof one_of_name { string name = 2; };
     oneof one_of_desc { string desc = 3; };
     oneof one_of_thumbnail { string thumbnail = 4; };
-    oneof one_of_is_trash { bool is_trash = 5; };
 }

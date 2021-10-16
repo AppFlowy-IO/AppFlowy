@@ -106,7 +106,7 @@ impl TestUserServer {
         view
     }
 
-    pub async fn read_view(&self, params: QueryViewParams) -> Option<View> {
+    pub async fn read_view(&self, params: ViewIdentifier) -> Option<View> {
         let url = format!("{}/api/view", self.http_addr());
         let view = read_view_request(self.user_token(), params, &url).await.unwrap();
         view

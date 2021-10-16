@@ -1,7 +1,8 @@
 use crate::helper::*;
 use flowy_workspace::entities::{
     app::{AppIdentifier, DeleteAppParams, UpdateAppParams},
-    view::UpdateViewParams,
+    trash::{CreateTrashParams, TrashType},
+    view::{UpdateViewParams, ViewIdentifier},
     workspace::{CreateWorkspaceParams, DeleteWorkspaceParams, QueryWorkspaceParams, UpdateWorkspaceParams},
 };
 
@@ -97,9 +98,11 @@ async fn app_read_with_belongs_in_trash() {
     let _ = create_test_view(&test.server, &test.app.id).await;
     let view = create_test_view(&test.server, &test.app.id).await;
 
-    let update_params = UpdateViewParams::new(&view.id).trash();
-    // create trash
-    test.server.update_view(update_params).await;
+    let params = CreateTrashParams {
+        id: view.id.clone(),
+        ty: TrashType::View,
+    };
+    test.server.create_trash(params).await;
 
     let read_params = AppIdentifier::new(&test.app.id);
     let app = test.server.read_app(read_params).await.unwrap();
@@ -138,35 +141,36 @@ async fn view_create() {
     log::info!("{:?}", test.view);
 }
 
-// #[actix_rt::test]
-// async fn view_update() {
-//     let test = ViewTest::new().await;
-//     let new_name = "name view name";
-//
-//     // update
-//     let update_params =
-// UpdateViewParams::new(&test.view.id).trash().name(new_name);     test.server.
-// update_view(update_params).await;
-//
-//     // read
-//     let read_params = QueryViewParams::new(&test.view.id).trash();
-//     let view = test.server.read_view(read_params).await.unwrap();
-//     assert_eq!(&view.name, new_name);
-// }
+#[actix_rt::test]
+async fn view_update() {
+    let test = ViewTest::new().await;
+    let new_name = "name view name";
 
-// #[actix_rt::test]
-// async fn view_delete() {
-//     let test = ViewTest::new().await;
-//     // delete
-//     let delete_params = DeleteViewParams {
-//         view_ids: vec![test.view.id.clone()],
-//     };
-//     test.server.delete_view(delete_params).await;
-//
-//     // read
-//     let read_params = QueryViewParams::new(&test.view.id).trash();
-//     assert_eq!(test.server.read_view(read_params).await.is_none(), true);
-// }
+    // update
+    let update_params = UpdateViewParams::new(&test.view.id).name(new_name);
+    test.server.update_view(update_params).await;
+
+    // read
+    let read_params = ViewIdentifier::new(&test.view.id);
+    let view = test.server.read_view(read_params).await.unwrap();
+    assert_eq!(&view.name, new_name);
+}
+
+#[actix_rt::test]
+async fn view_delete() {
+    let test = ViewTest::new().await;
+
+    // delete
+    let params = CreateTrashParams {
+        id: test.view.id.clone(),
+        ty: TrashType::View,
+    };
+    test.server.create_trash(params).await;
+
+    // read
+    let read_params = ViewIdentifier::new(&test.view.id);
+    assert_eq!(test.server.read_view(read_params).await.is_none(), true);
+}
 
 #[actix_rt::test]
 async fn workspace_list_read() {

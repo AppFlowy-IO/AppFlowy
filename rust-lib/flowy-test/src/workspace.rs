@@ -77,15 +77,11 @@ impl ViewTest {
         }
     }
 
-    pub async fn move_view_to_trash(&self) {
-        let request = UpdateViewRequest {
-            view_id: self.view.id.clone(),
-            name: None,
-            desc: None,
-            thumbnail: None,
-            is_trash: Some(true),
+    pub async fn delete(&self) {
+        let request = DeleteViewRequest {
+            view_ids: vec![self.view.id.clone()],
         };
-        update_view(&self.sdk, request).await;
+        delete_view(&self.sdk, request).await;
     }
 }
 
@@ -227,6 +223,14 @@ pub async fn read_view(sdk: &FlowyTestSDK, request: QueryViewRequest) -> View {
         .async_send()
         .await
         .parse::<View>()
+}
+
+pub async fn delete_view(sdk: &FlowyTestSDK, request: DeleteViewRequest) {
+    FlowyWorkspaceTest::new(sdk.clone())
+        .event(DeleteView)
+        .request(request)
+        .async_send()
+        .await;
 }
 
 pub async fn open_view(sdk: &FlowyTestSDK, request: OpenViewRequest) -> Doc {

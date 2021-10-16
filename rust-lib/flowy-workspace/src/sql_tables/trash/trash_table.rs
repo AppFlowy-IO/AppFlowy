@@ -24,6 +24,19 @@ impl std::convert::Into<Trash> for TrashTable {
     }
 }
 
+impl std::convert::From<Trash> for TrashTable {
+    fn from(trash: Trash) -> Self {
+        TrashTable {
+            id: trash.id,
+            name: trash.name,
+            desc: "".to_owned(),
+            modified_time: trash.modified_time,
+            create_time: trash.create_time,
+            ty: trash.ty.into(),
+        }
+    }
+}
+
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash, FromSqlRow, AsExpression)]
 #[repr(i32)]
 #[sql_type = "Integer"]
@@ -40,10 +53,6 @@ impl std::convert::From<i32> for SqlTrashType {
             _o => SqlTrashType::Unknown,
         }
     }
-}
-
-impl SqlTrashType {
-    pub(crate) fn value(&self) -> i32 { *self as i32 }
 }
 
 impl_sql_integer_expression!(SqlTrashType);

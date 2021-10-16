@@ -18,12 +18,12 @@ impl QueryViewRequest {
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
-pub struct QueryViewParams {
+pub struct ViewIdentifier {
     #[pb(index = 1)]
     pub view_id: String,
 }
 
-impl QueryViewParams {
+impl ViewIdentifier {
     pub fn new(view_id: &str) -> Self {
         Self {
             view_id: view_id.to_owned(),
@@ -31,18 +31,22 @@ impl QueryViewParams {
     }
 }
 
-impl std::convert::Into<DocIdentifier> for QueryViewParams {
+impl std::convert::From<String> for ViewIdentifier {
+    fn from(view_id: String) -> Self { ViewIdentifier { view_id } }
+}
+
+impl std::convert::Into<DocIdentifier> for ViewIdentifier {
     fn into(self) -> DocIdentifier { DocIdentifier { doc_id: self.view_id } }
 }
 
-impl TryInto<QueryViewParams> for QueryViewRequest {
+impl TryInto<ViewIdentifier> for QueryViewRequest {
     type Error = WorkspaceError;
-    fn try_into(self) -> Result<QueryViewParams, Self::Error> {
+    fn try_into(self) -> Result<ViewIdentifier, Self::Error> {
         let view_id = ViewId::parse(self.view_id)
             .map_err(|e| WorkspaceError::view_id().context(e))?
             .0;
 
-        Ok(QueryViewParams { view_id })
+        Ok(ViewIdentifier { view_id })
     }
 }
 

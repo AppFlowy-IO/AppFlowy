@@ -14,10 +14,11 @@ use flowy_net::{
     response::FlowyResponse,
 };
 use flowy_workspace::{
-    entities::trash::parser::{TrashId, TrashIds, TrashTypeParser},
+    entities::trash::parser::{TrashId, TrashTypeParser},
     protobuf::{CreateTrashParams, TrashIdentifiers},
 };
 use sqlx::PgPool;
+use uuid::Uuid;
 
 pub async fn create_handler(
     payload: Payload,
@@ -30,9 +31,9 @@ pub async fn create_handler(
         .await
         .context("Failed to acquire a Postgres connection to create trash")?;
 
-    let trash_id = TrashId::parse(params.id).map_err(invalid_params)?;
+    let trash_id = check_trash_id(params.id)?;
     let ty = TrashTypeParser::parse(params.ty.value()).map_err(invalid_params)?;
-    let _ = create_trash(&mut transaction, trash_id.as_ref(), ty, logged_user).await?;
+    let _ = create_trash(&mut transaction, trash_id, ty, logged_user).await?;
 
     transaction
         .commit()
@@ -49,8 +50,8 @@ pub async fn delete_handler(payload: Payload, pool: Data<PgPool>) -> Result<Http
         .await
         .context("Failed to acquire a Postgres connection to delete trash")?;
 
-    let trash_ids = TrashIds::parse(params.ids.into_vec()).map_err(invalid_params)?;
-    let _ = delete_trash(&mut transaction, trash_ids.0).await?;
+    let trash_ids = check_trash_ids(params.ids.into_vec())?;
+    let _ = delete_trash(&mut transaction, trash_ids).await?;
     transaction
         .commit()
         .await
@@ -65,7 +66,7 @@ pub async fn read_handler(pool: Data<PgPool>, logged_user: LoggedUser) -> Result
         .await
         .context("Failed to acquire a Postgres connection to read trash")?;
 
-    let repeated_trash = read_trash(&mut transaction, logged_user).await?;
+    let repeated_trash = read_trash(&mut transaction, &logged_user).await?;
 
     transaction
         .commit()
@@ -73,4 +74,18 @@ pub async fn read_handler(pool: Data<PgPool>, logged_user: LoggedUser) -> Result
         .context("Failed to commit SQL transaction to read view.")?;
 
     Ok(FlowyResponse::success().pb(repeated_trash)?.into())
+}
+
+fn check_trash_id(id: String) -> Result<Uuid, ServerError> {
+    let trash_id = TrashId::parse(id).map_err(invalid_params)?;
+    let trash_id = Uuid::parse_str(trash_id.as_ref())?;
+    Ok(trash_id)
+}
+
+fn check_trash_ids(ids: Vec<String>) -> Result<Vec<Uuid>, ServerError> {
+    let mut trash_ids = vec![];
+    for id in ids {
+        trash_ids.push(check_trash_id(id)?)
+    }
+    Ok(trash_ids)
 }

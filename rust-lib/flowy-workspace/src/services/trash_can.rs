@@ -3,14 +3,16 @@ use crate::{
     errors::{WorkspaceError, WorkspaceResult},
     module::WorkspaceDatabase,
     notify::{send_anonymous_dart_notification, WorkspaceNotification},
-    sql_tables::trash::{TrashTable, TrashTableSql},
+    sql_tables::trash::TrashTableSql,
 };
+use crossbeam_utils::thread;
 use flowy_database::SqliteConnection;
 use std::sync::Arc;
 use tokio::sync::{broadcast, mpsc};
 
 #[derive(Clone)]
 pub enum TrashEvent {
+    NewTrash(TrashType, Vec<String>, mpsc::Sender<WorkspaceResult<()>>),
     Putback(TrashType, Vec<String>, mpsc::Sender<WorkspaceResult<()>>),
     Delete(TrashType, Vec<String>, mpsc::Sender<WorkspaceResult<()>>),
 }
@@ -24,6 +26,11 @@ impl TrashEvent {
                 }
             },
             TrashEvent::Delete(source, _, _) => {
+                if source == &s {
+                    return Some(self);
+                }
+            },
+            TrashEvent::NewTrash(source, _, _) => {
                 if source == &s {
                     return Some(self);
                 }
@@ -98,25 +105,37 @@ impl TrashCan {
     // DELETE operations. It’s not possible for us to use these commands to
     // CREATE and DROP tables operations because those are auto-commit in the
     // database.
-    #[tracing::instrument(level = "debug", skip(self, trash, ty, conn), fields(add_trash)  err)]
-    pub fn add<T: Into<Trash>>(&self, trash: T, ty: TrashType, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
-        let trash = trash.into();
-        let trash_table = TrashTable {
-            id: trash.id,
-            name: trash.name,
-            desc: "".to_owned(),
-            modified_time: trash.modified_time,
-            create_time: trash.create_time,
-            ty: ty.into(),
-        };
+    #[tracing::instrument(level = "debug", skip(self, trash), err)]
+    pub async fn add<T: Into<Trash>>(&self, trash: Vec<T>) -> Result<(), WorkspaceError> {
+        let (tx, mut rx) = mpsc::channel::<WorkspaceResult<()>>(1);
+        let trash = trash.into_iter().map(|t| t.into()).collect::<Vec<Trash>>();
+        let mut ids = vec![];
+        let mut trash_type = None;
+        let _ = thread::scope(|_s| {
+            let conn = self.database.db_connection()?;
+            conn.immediate_transaction::<_, WorkspaceError, _>(|| {
+                for t in trash {
+                    if trash_type == None {
+                        trash_type = Some(t.ty.clone());
+                    }
 
-        tracing::Span::current().record(
-            "add_trash",
-            &format!("{:?}: {}", &trash_table.ty, trash_table.id).as_str(),
-        );
+                    if trash_type.as_ref().unwrap() != &t.ty {
+                        return Err(WorkspaceError::internal());
+                    }
 
-        let _ = TrashTableSql::create_trash(trash_table, &*conn)?;
-        let _ = self.notify_dart_trash_did_update(&conn)?;
+                    ids.push(t.id.clone());
+                    let _ = TrashTableSql::create_trash(t.into(), &*conn)?;
+                }
+                Ok(())
+            })?;
+            Ok::<(), WorkspaceError>(())
+        })
+        .unwrap()?;
+
+        if let Some(trash_type) = trash_type {
+            let _ = self.notify.send(TrashEvent::NewTrash(trash_type, ids, tx));
+            let _ = rx.recv().await.unwrap()?;
+        }
 
         Ok(())
     }
