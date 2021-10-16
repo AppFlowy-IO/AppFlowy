@@ -35,28 +35,15 @@ impl ViewTableSql {
             .filter(view_table::id.eq(view_id))
             .first::<ViewTable>(conn)?;
 
-        let repeated_trash: Vec<String> = trash_table::dsl::trash_table.select(trash_table::dsl::id).load(conn)?;
-
-        if repeated_trash.contains(&view_table.id) {
-            return Err(WorkspaceError::not_found());
-        }
-
         Ok(view_table)
     }
 
     // belong_to_id will be the app_id or view_id.
     pub(crate) fn read_views(belong_to_id: &str, conn: &SqliteConnection) -> Result<RepeatedView, WorkspaceError> {
-        let mut view_tables = dsl::view_table
+        let view_tables = dsl::view_table
             .filter(view_table::belong_to_id.eq(belong_to_id))
             .into_boxed()
             .load::<ViewTable>(conn)?;
-
-        let repeated_trash: Vec<String> = trash_table::dsl::trash_table.select(trash_table::dsl::id).load(conn)?;
-
-        view_tables = view_tables
-            .into_iter()
-            .filter(|table| !repeated_trash.contains(&table.id))
-            .collect::<Vec<ViewTable>>();
 
         let views = view_tables
             .into_iter()

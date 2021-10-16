@@ -28,7 +28,10 @@ class TrashBloc extends Bloc<TrashEvent, TrashState> {
       },
       putback: (e) async* {
         final result = await iTrash.putback(e.trashId);
-        result.fold((l) {}, (error) {});
+        yield result.fold(
+          (l) => state.copyWith(successOrFailure: left(unit)),
+          (error) => state.copyWith(successOrFailure: right(error)),
+        );
       },
       delete: (e) async* {
         final result = await iTrash.delete(e.trashId);

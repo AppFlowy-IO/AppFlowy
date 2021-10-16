@@ -41,7 +41,7 @@ impl TrashEvent {
 }
 
 pub struct TrashCan {
-    database: Arc<dyn WorkspaceDatabase>,
+    pub database: Arc<dyn WorkspaceDatabase>,
     notify: broadcast::Sender<TrashEvent>,
 }
 
@@ -51,16 +51,36 @@ impl TrashCan {
 
         Self { database, notify: tx }
     }
-    pub fn read_trash(&self) -> Result<RepeatedTrash, WorkspaceError> {
-        let conn = self.database.db_connection()?;
+
+    pub fn read_trash(&self, conn: &SqliteConnection) -> Result<RepeatedTrash, WorkspaceError> {
         let repeated_trash = TrashTableSql::read_all(&*conn)?;
         Ok(repeated_trash)
+    }
+
+    pub fn trash_ids(&self, conn: &SqliteConnection) -> Result<Vec<String>, WorkspaceError> {
+        let ids = TrashTableSql::read_all(&*conn)?
+            .take_items()
+            .into_iter()
+            .map(|item| item.id)
+            .collect::<Vec<String>>();
+        Ok(ids)
     }
 
     #[tracing::instrument(level = "debug", skip(self), fields(putback)  err)]
     pub async fn putback(&self, trash_id: &str) -> WorkspaceResult<()> {
         let (tx, mut rx) = mpsc::channel::<WorkspaceResult<()>>(1);
         let trash_table = TrashTableSql::read(trash_id, &*self.database.db_connection()?)?;
+        let _ = thread::scope(|_s| {
+            let conn = self.database.db_connection()?;
+            let _ = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
+                let _ = TrashTableSql::delete_trash(trash_id, &*conn)?;
+                let _ = self.notify_dart_trash_did_update(&conn)?;
+                Ok(())
+            })?;
+            Ok::<(), WorkspaceError>(())
+        })
+        .unwrap()?;
+
         tracing::Span::current().record(
             "putback",
             &format!("{:?}: {}", &trash_table.ty, trash_table.id).as_str(),
@@ -70,12 +90,6 @@ impl TrashCan {
             .send(TrashEvent::Putback(trash_table.ty.into(), vec![trash_table.id], tx));
 
         let _ = rx.recv().await.unwrap()?;
-        let conn = self.database.db_connection()?;
-        let _ = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
-            let _ = TrashTableSql::delete_trash(trash_id, &*conn)?;
-            let _ = self.notify_dart_trash_did_update(&conn)?;
-            Ok(())
-        })?;
         Ok(())
     }
 
@@ -122,10 +136,12 @@ impl TrashCan {
                     if trash_type.as_ref().unwrap() != &t.ty {
                         return Err(WorkspaceError::internal());
                     }
-
-                    ids.push(t.id.clone());
+                    let trash_id = t.id.clone();
+                    log::debug!("create trash: {:?}", t);
                     let _ = TrashTableSql::create_trash(t.into(), &*conn)?;
+                    ids.push(trash_id);
                 }
+                let _ = self.notify_dart_trash_did_update(&conn)?;
                 Ok(())
             })?;
             Ok::<(), WorkspaceError>(())

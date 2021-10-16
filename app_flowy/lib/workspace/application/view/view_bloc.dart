@@ -32,7 +32,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
         (error) => state.copyWith(successOrFailure: right(error)),
       );
     }, delete: (e) async* {
-      final result = await iViewImpl.pushIntoTrash();
+      final result = await iViewImpl.delete();
       yield result.fold(
         (l) => state.copyWith(successOrFailure: left(unit)),
         (error) => state.copyWith(successOrFailure: right(error)),

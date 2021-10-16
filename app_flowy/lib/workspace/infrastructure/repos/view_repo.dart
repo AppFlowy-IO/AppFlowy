@@ -26,7 +26,7 @@ class ViewRepository {
     return WorkspaceEventReadView(request).send();
   }
 
-  Future<Either<View, WorkspaceError>> updateView({String? name, String? desc, bool? isTrash}) {
+  Future<Either<View, WorkspaceError>> updateView({String? name, String? desc}) {
     final request = UpdateViewRequest.create()..viewId = view.id;
 
     if (name != null) {
@@ -37,15 +37,11 @@ class ViewRepository {
       request.desc = desc;
     }
 
-    if (isTrash != null) {
-      request.isTrash = isTrash;
-    }
-
     return WorkspaceEventUpdateView(request).send();
   }
 
   Future<Either<Unit, WorkspaceError>> delete() {
-    final request = DeleteViewRequest.create()..viewId = view.id;
+    final request = DeleteViewRequest.create()..viewIds.add(view.id);
     return WorkspaceEventDeleteView(request).send();
   }
 }

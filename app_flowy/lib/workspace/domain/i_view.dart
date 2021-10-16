@@ -7,7 +7,7 @@ typedef ViewUpdatedCallback = void Function(Either<View, WorkspaceError>);
 abstract class IView {
   View get view;
 
-  Future<Either<Unit, WorkspaceError>> pushIntoTrash();
+  Future<Either<Unit, WorkspaceError>> delete();
 
   Future<Either<View, WorkspaceError>> rename(String newName);
 }

@@ -21,9 +21,7 @@ class AppRepository {
   });
 
   Future<Either<App, WorkspaceError>> getAppDesc() {
-    final request = QueryAppRequest.create()
-      ..appId = appId
-      ..readBelongings = false;
+    final request = QueryAppRequest.create()..appId = appId;
 
     return WorkspaceEventReadApp(request).send();
   }
@@ -39,9 +37,7 @@ class AppRepository {
   }
 
   Future<Either<List<View>, WorkspaceError>> getViews() {
-    final request = QueryAppRequest.create()
-      ..appId = appId
-      ..readBelongings = true;
+    final request = QueryAppRequest.create()..appId = appId;
 
     return WorkspaceEventReadApp(request).send().then((result) {
       return result.fold(

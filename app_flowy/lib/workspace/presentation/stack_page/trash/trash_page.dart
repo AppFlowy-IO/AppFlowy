@@ -149,7 +149,9 @@ class _TrashStackPageState extends State<TrashStackPage> {
                   height: 42,
                   child: TrashCell(
                     object: object,
-                    onRestore: () => context.read<TrashBloc>().add(TrashEvent.putback(object.id)),
+                    onRestore: () {
+                      context.read<TrashBloc>().add(TrashEvent.putback(object.id));
+                    },
                     onDelete: () => context.read<TrashBloc>().add(TrashEvent.delete(object.id)),
                   ),
                 );

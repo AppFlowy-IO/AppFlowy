@@ -13,8 +13,8 @@ class IViewImpl extends IView {
   View get view => repo.view;
 
   @override
-  Future<Either<Unit, WorkspaceError>> pushIntoTrash() {
-    return repo.updateView(isTrash: true).then((result) {
+  Future<Either<Unit, WorkspaceError>> delete() {
+    return repo.delete().then((result) {
       return result.fold(
         (_) => left(unit),
         (error) => right(error),
