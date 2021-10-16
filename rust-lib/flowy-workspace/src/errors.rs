@@ -50,7 +50,7 @@ impl WorkspaceError {
     static_workspace_error!(view_data, ErrorCode::ViewDataInvalid);
     static_workspace_error!(unauthorized, ErrorCode::UserUnauthorized);
     static_workspace_error!(internal, ErrorCode::InternalError);
-    static_workspace_error!(not_found, ErrorCode::RecordNotFound);
+    static_workspace_error!(record_not_found, ErrorCode::RecordNotFound);
     static_workspace_error!(ws, ErrorCode::WsConnectError);
 
     pub fn context<T: Debug>(mut self, error: T) -> Self {

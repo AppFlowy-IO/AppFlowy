@@ -1,9 +1,9 @@
 use flowy_test::{workspace::*, FlowyTest};
-use flowy_workspace::entities::view::*;
+use flowy_workspace::entities::{trash::TrashIdentifier, view::*};
 
 #[tokio::test]
 #[should_panic]
-async fn view_move_to_trash() {
+async fn view_delete() {
     let test = FlowyTest::setup();
     let _ = test.init_user();
 
@@ -11,6 +11,26 @@ async fn view_move_to_trash() {
     test.delete().await;
     let query = QueryViewRequest::new(&test.view.id);
     let _ = read_view(&test.sdk, query).await;
+}
+
+#[tokio::test]
+async fn view_delete_and_putback() {
+    let test = FlowyTest::setup();
+    let _ = test.init_user();
+
+    let test = ViewTest::new(&test).await;
+    test.delete().await;
+    putback_trash(
+        &test.sdk,
+        TrashIdentifier {
+            id: test.view.id.clone(),
+        },
+    )
+    .await;
+
+    let query = QueryViewRequest::new(&test.view.id);
+    let view = read_view(&test.sdk, query).await;
+    assert_eq!(&view, &test.view);
 }
 
 #[tokio::test]

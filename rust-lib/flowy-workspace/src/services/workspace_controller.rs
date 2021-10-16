@@ -191,7 +191,7 @@ impl WorkspaceController {
         // Opti: fetch single workspace from local db
         let mut repeated_workspace = self.read_local_workspaces(Some(workspace_id.clone()), user_id, conn)?;
         if repeated_workspace.is_empty() {
-            return Err(WorkspaceError::not_found().context(format!("{} workspace not found", workspace_id)));
+            return Err(WorkspaceError::record_not_found().context(format!("{} workspace not found", workspace_id)));
         }
 
         debug_assert_eq!(repeated_workspace.len(), 1);
@@ -313,9 +313,8 @@ fn set_current_workspace(workspace: &str) { KV::set_str(CURRENT_WORKSPACE_ID, wo
 
 fn get_current_workspace() -> Result<String, WorkspaceError> {
     match KV::get_str(CURRENT_WORKSPACE_ID) {
-        None => {
-            Err(WorkspaceError::not_found().context("Current workspace not found or should call open workspace first"))
-        },
+        None => Err(WorkspaceError::record_not_found()
+            .context("Current workspace not found or should call open workspace first")),
         Some(workspace_id) => Ok(workspace_id),
     }
 }

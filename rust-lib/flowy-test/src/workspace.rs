@@ -1,7 +1,12 @@
 use crate::prelude::*;
 use flowy_document::entities::doc::Doc;
 use flowy_workspace::{
-    entities::{app::*, view::*, workspace::*},
+    entities::{
+        app::*,
+        trash::{RepeatedTrash, TrashIdentifier},
+        view::*,
+        workspace::*,
+    },
     event::WorkspaceEvent::*,
 };
 
@@ -229,6 +234,22 @@ pub async fn delete_view(sdk: &FlowyTestSDK, request: DeleteViewRequest) {
     FlowyWorkspaceTest::new(sdk.clone())
         .event(DeleteView)
         .request(request)
+        .async_send()
+        .await;
+}
+
+pub async fn read_trash(sdk: &FlowyTestSDK) -> RepeatedTrash {
+    FlowyWorkspaceTest::new(sdk.clone())
+        .event(ReadTrash)
+        .async_send()
+        .await
+        .parse::<RepeatedTrash>()
+}
+
+pub async fn putback_trash(sdk: &FlowyTestSDK, id: TrashIdentifier) {
+    FlowyWorkspaceTest::new(sdk.clone())
+        .event(PutbackTrash)
+        .request(id)
         .async_send()
         .await;
 }

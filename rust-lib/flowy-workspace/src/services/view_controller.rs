@@ -83,6 +83,12 @@ impl ViewController {
     pub(crate) async fn read_view(&self, params: ViewIdentifier) -> Result<View, WorkspaceError> {
         let conn = self.database.db_connection()?;
         let view_table = ViewTableSql::read_view(&params.view_id, &*conn)?;
+
+        let trash_ids = self.trash_can.trash_ids(&conn)?;
+        if trash_ids.contains(&view_table.id) {
+            return Err(WorkspaceError::record_not_found());
+        }
+
         let view: View = view_table.into();
         let _ = self.read_view_on_server(params);
         Ok(view)
