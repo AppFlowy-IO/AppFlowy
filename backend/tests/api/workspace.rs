@@ -1,7 +1,7 @@
 use crate::helper::*;
 use flowy_workspace::entities::{
     app::{AppIdentifier, DeleteAppParams, UpdateAppParams},
-    trash::{CreateTrashParams, TrashType},
+    trash::{CreateTrashParams, TrashIdentifiers, TrashType},
     view::{UpdateViewParams, ViewIdentifier},
     workspace::{CreateWorkspaceParams, DeleteWorkspaceParams, QueryWorkspaceParams, UpdateWorkspaceParams},
 };
@@ -167,9 +167,37 @@ async fn view_delete() {
     };
     test.server.create_trash(params).await;
 
+    let trash_ids = test
+        .server
+        .read_trash()
+        .await
+        .items
+        .into_iter()
+        .map(|item| item.id)
+        .collect::<Vec<String>>();
     // read
     let read_params = ViewIdentifier::new(&test.view.id);
+
+    // the view can't read from the server. it should be in the trash
     assert_eq!(test.server.read_view(read_params).await.is_none(), true);
+    assert_eq!(trash_ids.contains(&test.view.id), true);
+}
+
+#[actix_rt::test]
+async fn view_delete_and_then_delete_the_trash_record() {
+    let test = ViewTest::new().await;
+    let params = CreateTrashParams {
+        id: test.view.id.clone(),
+        ty: TrashType::View,
+    };
+    test.server.create_trash(params).await;
+    test.server
+        .delete_trash(TrashIdentifiers {
+            ids: vec![test.view.id.clone()],
+        })
+        .await;
+
+    assert_eq!(test.server.read_trash().await.is_empty(), true);
 }
 
 #[actix_rt::test]

@@ -43,7 +43,11 @@ pub async fn create_handler(
     Ok(FlowyResponse::success().into())
 }
 
-pub async fn delete_handler(payload: Payload, pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {
+pub async fn delete_handler(
+    payload: Payload,
+    pool: Data<PgPool>,
+    logged_user: LoggedUser,
+) -> Result<HttpResponse, ServerError> {
     let params: TrashIdentifiers = parse_from_payload(payload).await?;
     let mut transaction = pool
         .begin()
@@ -51,7 +55,7 @@ pub async fn delete_handler(payload: Payload, pool: Data<PgPool>) -> Result<Http
         .context("Failed to acquire a Postgres connection to delete trash")?;
 
     let trash_ids = check_trash_ids(params.ids.into_vec())?;
-    let _ = delete_trash(&mut transaction, trash_ids).await?;
+    let _ = delete_trash(&mut transaction, trash_ids, &logged_user).await?;
     transaction
         .commit()
         .await

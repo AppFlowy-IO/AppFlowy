@@ -1,6 +1,9 @@
 use crate::{
     entities::workspace::{TrashTable, TRASH_TABLE},
-    service::{user::LoggedUser, view::read_view_table},
+    service::{
+        user::LoggedUser,
+        view::{delete_view, read_view_table},
+    },
     sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
 use ::protobuf::ProtobufEnum;
@@ -29,8 +32,34 @@ pub(crate) async fn create_trash(
     Ok(())
 }
 
-pub(crate) async fn delete_trash(transaction: &mut DBTransaction<'_>, trash_ids: Vec<Uuid>) -> Result<(), ServerError> {
+pub(crate) async fn delete_trash(
+    transaction: &mut DBTransaction<'_>,
+    trash_ids: Vec<Uuid>,
+    _user: &LoggedUser,
+) -> Result<(), ServerError> {
     for trash_id in trash_ids {
+        // Read the trash_table and delete the original table according to the TrashType
+        let (sql, args) = SqlBuilder::select(TRASH_TABLE)
+            .add_field("*")
+            .and_where_eq("id", trash_id)
+            .build()?;
+
+        let trash_table = sqlx::query_as_with::<Postgres, TrashTable, PgArguments>(&sql, args)
+            .fetch_one(transaction as &mut DBTransaction<'_>)
+            .await
+            .map_err(map_sqlx_error)?;
+
+        match TrashType::from_i32(trash_table.ty) {
+            None => log::error!("Parser trash type with value: {} failed", trash_table.ty),
+            Some(ty) => match ty {
+                TrashType::Unknown => {},
+                TrashType::View => {
+                    let _ = delete_view(transaction as &mut DBTransaction<'_>, vec![trash_table.id]).await;
+                },
+            },
+        }
+
+        // Delete the trash table
         let (sql, args) = SqlBuilder::delete(TRASH_TABLE).and_where_eq("id", &trash_id).build()?;
         let _ = sqlx::query_with(&sql, args)
             .execute(transaction as &mut DBTransaction<'_>)
