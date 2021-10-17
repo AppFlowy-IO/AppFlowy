@@ -15,25 +15,24 @@ use flowy_net::{
 };
 use flowy_workspace::{
     entities::trash::parser::{TrashId, TrashTypeParser},
-    protobuf::{CreateTrashParams, TrashIdentifiers},
+    protobuf::TrashIdentifiers,
 };
 use sqlx::PgPool;
 use uuid::Uuid;
 
+#[tracing::instrument(skip(payload, pool, logged_user), err)]
 pub async fn create_handler(
     payload: Payload,
     pool: Data<PgPool>,
     logged_user: LoggedUser,
 ) -> Result<HttpResponse, ServerError> {
-    let params: CreateTrashParams = parse_from_payload(payload).await?;
+    let params: TrashIdentifiers = parse_from_payload(payload).await?;
     let mut transaction = pool
         .begin()
         .await
         .context("Failed to acquire a Postgres connection to create trash")?;
-
-    let trash_id = check_trash_id(params.id)?;
-    let ty = TrashTypeParser::parse(params.ty.value()).map_err(invalid_params)?;
-    let _ = create_trash(&mut transaction, trash_id, ty, logged_user).await?;
+    log::error!("😁create handler: {:?}", params);
+    let _ = create_trash(&mut transaction, make_records(params)?, logged_user).await?;
 
     transaction
         .commit()
@@ -54,8 +53,7 @@ pub async fn delete_handler(
         .await
         .context("Failed to acquire a Postgres connection to delete trash")?;
 
-    let trash_ids = check_trash_ids(params.ids.into_vec())?;
-    let _ = delete_trash(&mut transaction, trash_ids, &logged_user).await?;
+    let _ = delete_trash(&mut transaction, make_records(params)?, &logged_user).await?;
     transaction
         .commit()
         .await
@@ -86,10 +84,11 @@ fn check_trash_id(id: String) -> Result<Uuid, ServerError> {
     Ok(trash_id)
 }
 
-fn check_trash_ids(ids: Vec<String>) -> Result<Vec<Uuid>, ServerError> {
-    let mut trash_ids = vec![];
-    for id in ids {
-        trash_ids.push(check_trash_id(id)?)
+fn make_records(identifiers: TrashIdentifiers) -> Result<Vec<(Uuid, i32)>, ServerError> {
+    let mut records = vec![];
+    for identifier in identifiers.items {
+        let ty = TrashTypeParser::parse(identifier.ty.value()).map_err(invalid_params)?;
+        records.push((check_trash_id(identifier.id.to_owned())?, ty));
     }
-    Ok(trash_ids)
+    Ok(records)
 }

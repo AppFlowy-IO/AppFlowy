@@ -122,14 +122,27 @@ impl TestUserServer {
         delete_view_request(self.user_token(), params, &url).await.unwrap();
     }
 
-    pub async fn create_trash(&self, params: CreateTrashParams) {
+    pub async fn create_view_trash(&self, view_id: &str) {
+        let identifier = TrashIdentifier {
+            id: view_id.to_string(),
+            ty: TrashType::View,
+        };
         let url = format!("{}/api/trash", self.http_addr());
-        create_trash_request(self.user_token(), params, &url).await.unwrap();
+        create_trash_request(self.user_token(), vec![identifier].into(), &url)
+            .await
+            .unwrap();
     }
 
-    pub async fn delete_trash(&self, params: TrashIdentifiers) {
+    pub async fn delete_view_trash(&self, trash_id: &str) {
         let url = format!("{}/api/trash", self.http_addr());
-        delete_trash_request(self.user_token(), params, &url).await.unwrap();
+
+        let identifier = TrashIdentifier {
+            id: trash_id.to_string(),
+            ty: TrashType::View,
+        };
+        delete_trash_request(self.user_token(), vec![identifier].into(), &url)
+            .await
+            .unwrap();
     }
 
     pub async fn read_trash(&self) -> RepeatedTrash {

@@ -8,24 +8,18 @@ use crate::{
 };
 
 use flowy_database::SqliteConnection;
+
 use std::sync::Arc;
 
 pub(crate) struct AppController {
     user: Arc<dyn WorkspaceUser>,
-    sql: Arc<AppTableSql>,
     database: Arc<dyn WorkspaceDatabase>,
     server: Server,
 }
 
 impl AppController {
     pub(crate) fn new(user: Arc<dyn WorkspaceUser>, database: Arc<dyn WorkspaceDatabase>, server: Server) -> Self {
-        let sql = Arc::new(AppTableSql {});
-        Self {
-            user,
-            sql,
-            database,
-            server,
-        }
+        Self { user, database, server }
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
@@ -47,12 +41,12 @@ impl AppController {
 
     pub(crate) fn save_app(&self, app: App, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
         let app_table = AppTable::new(app.clone());
-        let _ = self.sql.create_app(app_table, &*conn)?;
+        let _ = AppTableSql::create_app(app_table, &*conn)?;
         Ok(())
     }
 
     pub(crate) async fn read_app(&self, params: AppIdentifier) -> Result<App, WorkspaceError> {
-        let app_table = self.sql.read_app(&params.app_id, &*self.database.db_connection()?)?;
+        let app_table = AppTableSql::read_app(&params.app_id, &*self.database.db_connection()?)?;
         let _ = self.read_app_on_server(params)?;
         Ok(app_table.into())
     }
@@ -61,7 +55,7 @@ impl AppController {
     pub(crate) async fn delete_app(&self, app_id: &str) -> Result<(), WorkspaceError> {
         let conn = &*self.database.db_connection()?;
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
-            let app = self.sql.delete_app(app_id, &*conn)?;
+            let app = AppTableSql::delete_app(app_id, &*conn)?;
             let apps = self.read_local_apps(&app.workspace_id, &*conn)?;
             send_dart_notification(&app.workspace_id, WorkspaceNotification::WorkspaceDeleteApp)
                 .payload(apps)
@@ -74,7 +68,7 @@ impl AppController {
     }
 
     fn read_local_apps(&self, workspace_id: &str, conn: &SqliteConnection) -> Result<RepeatedApp, WorkspaceError> {
-        let app_tables = self.sql.read_apps(workspace_id, false, conn)?;
+        let app_tables = AppTableSql::read_apps(workspace_id, false, conn)?;
         let apps = app_tables.into_iter().map(|table| table.into()).collect::<Vec<App>>();
         Ok(RepeatedApp { items: apps })
     }
@@ -84,8 +78,8 @@ impl AppController {
         let app_id = changeset.id.clone();
         let conn = &*self.database.db_connection()?;
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
-            let _ = self.sql.update_app(changeset, conn)?;
-            let app: App = self.sql.read_app(&app_id, conn)?.into();
+            let _ = AppTableSql::update_app(changeset, conn)?;
+            let app: App = AppTableSql::read_app(&app_id, conn)?.into();
             send_dart_notification(&app_id, WorkspaceNotification::AppUpdated)
                 .payload(app)
                 .send();
@@ -137,6 +131,18 @@ impl AppController {
                 },
             }
         });
+        // let action = RetryAction::new(self.server.clone(), self.user.clone(), move
+        // |token, server| {     let params = params.clone();
+        //     async move {
+        //         match server.delete_app(&token, params).await {
+        //             Ok(_) => {},
+        //             Err(e) => log::error!("Delete app failed: {:?}", e),
+        //         }
+        //         Ok::<(), WorkspaceError>(())
+        //     }
+        // });
+        //
+        // spawn_retry(500, 3, action);
         Ok(())
     }
 
@@ -144,14 +150,27 @@ impl AppController {
     fn read_app_on_server(&self, params: AppIdentifier) -> Result<(), WorkspaceError> {
         let token = self.user.token()?;
         let server = self.server.clone();
+        let pool = self.database.db_pool()?;
         spawn(async move {
             // Opti: retry?
             match server.read_app(&token, params).await {
-                Ok(option) => match option {
-                    None => {},
-                    Some(_app) => {},
+                Ok(Some(app)) => match pool.get() {
+                    Ok(conn) => {
+                        let app_table = AppTable::new(app.clone());
+                        let result = AppTableSql::create_app(app_table, &*conn);
+                        match result {
+                            Ok(_) => {
+                                send_dart_notification(&app.id, WorkspaceNotification::AppUpdated)
+                                    .payload(app)
+                                    .send();
+                            },
+                            Err(e) => log::error!("Save app failed: {:?}", e),
+                        }
+                    },
+                    Err(e) => log::error!("Require db connection failed: {:?}", e),
                 },
-                Err(_) => {},
+                Ok(None) => {},
+                Err(e) => log::error!("Read app failed: {:?}", e),
             }
         });
         Ok(())

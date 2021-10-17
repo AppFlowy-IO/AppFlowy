@@ -38,7 +38,7 @@ pub fn mk_workspace(
 ) -> Arc<WorkspaceController> {
     let server = construct_workspace_server(server_config);
 
-    let trash_can = Arc::new(TrashCan::new(database.clone()));
+    let trash_can = Arc::new(TrashCan::new(database.clone(), server.clone(), user.clone()));
 
     let view_controller = Arc::new(ViewController::new(
         user.clone(),

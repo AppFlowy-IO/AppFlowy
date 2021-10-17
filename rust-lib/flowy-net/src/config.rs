@@ -47,5 +47,7 @@ impl ServerConfig {
 
     pub fn doc_url(&self) -> String { format!("{}{}/api/doc", self.scheme(), self.host) }
 
+    pub fn trash_url(&self) -> String { format!("{}{}/api/trash", self.scheme(), self.host) }
+
     pub fn ws_addr(&self) -> String { format!("{}://{}/ws", self.ws_schema, self.host) }
 }

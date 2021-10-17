@@ -8,5 +8,6 @@ mod database;
 mod helper;
 pub mod server;
 mod trash_can;
+mod util;
 mod view_controller;
 mod workspace_controller;

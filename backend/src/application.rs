@@ -2,7 +2,7 @@ use std::{net::TcpListener, time::Duration};
 
 use actix::Actor;
 use actix_identity::{CookieIdentityPolicy, IdentityService};
-use actix_web::{dev::Server, web, web::Data, App, HttpServer, Scope};
+use actix_web::{dev::Server, middleware, web, web::Data, App, HttpServer, Scope};
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tokio::time::interval;
 
@@ -51,7 +51,7 @@ pub fn run(listener: TcpListener, app_ctx: AppContext) -> Result<Server, std::io
 
     let server = HttpServer::new(move || {
         App::new()
-            // .wrap(middleware::Logger::default())
+            .wrap(middleware::Logger::default())
             .wrap(identify_service(&domain, &secret))
             .wrap(crate::middleware::default_cors())
             .wrap(crate::middleware::AuthenticationService)

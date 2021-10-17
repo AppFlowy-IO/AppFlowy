@@ -34,7 +34,7 @@ class TrashBloc extends Bloc<TrashEvent, TrashState> {
         );
       },
       delete: (e) async* {
-        final result = await iTrash.delete(e.trashId);
+        final result = await iTrash.deleteViews([e.trashId]);
         result.fold((l) {}, (error) {});
       },
       deleteAll: (e) async* {},

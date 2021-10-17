@@ -1,5 +1,8 @@
 use flowy_test::{workspace::*, FlowyTest};
-use flowy_workspace::entities::{trash::TrashIdentifier, view::*};
+use flowy_workspace::entities::{
+    trash::{TrashIdentifier, TrashType},
+    view::*,
+};
 
 #[tokio::test]
 #[should_panic]
@@ -24,6 +27,7 @@ async fn view_delete_and_putback() {
         &test.sdk,
         TrashIdentifier {
             id: test.view.id.clone(),
+            ty: TrashType::View,
         },
     )
     .await;

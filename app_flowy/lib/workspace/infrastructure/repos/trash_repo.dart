@@ -8,7 +8,6 @@ import 'package:flowy_sdk/protobuf/flowy-dart-notify/subject.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/observable.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/trash_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/trash_delete.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 
 class TrashRepo {
@@ -22,9 +21,13 @@ class TrashRepo {
     return WorkspaceEventPutbackTrash(id).send();
   }
 
-  Future<Either<Unit, WorkspaceError>> delete(String trashId) {
-    final id = TrashIdentifier.create()..id = trashId;
-    return WorkspaceEventDeleteTrash(id).send();
+  Future<Either<Unit, WorkspaceError>> deleteViews(List<String> viewIds) {
+    final trashIdentifiers = TrashIdentifiers(
+        items: viewIds.map((id) => TrashIdentifier.create()
+          ..id = id
+          ..ty = TrashType.View));
+
+    return WorkspaceEventDeleteTrash(trashIdentifiers).send();
   }
 }
 

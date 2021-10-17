@@ -1,6 +1,7 @@
 use crate::{
     entities::{
         app::{App, AppIdentifier, CreateAppParams, DeleteAppParams, RepeatedApp, UpdateAppParams},
+        trash::{RepeatedTrash, TrashIdentifiers},
         view::{CreateViewParams, DeleteViewParams, RepeatedView, UpdateViewParams, View, ViewIdentifier},
         workspace::{
             CreateWorkspaceParams,
@@ -105,5 +106,20 @@ impl WorkspaceServerAPI for WorkspaceServerMock {
 
     fn delete_app(&self, _token: &str, _params: DeleteAppParams) -> ResultFuture<(), WorkspaceError> {
         ResultFuture::new(async { Ok(()) })
+    }
+
+    fn create_trash(&self, _token: &str, _params: TrashIdentifiers) -> ResultFuture<(), WorkspaceError> {
+        ResultFuture::new(async { Ok(()) })
+    }
+
+    fn delete_trash(&self, _token: &str, _params: TrashIdentifiers) -> ResultFuture<(), WorkspaceError> {
+        ResultFuture::new(async { Ok(()) })
+    }
+
+    fn read_trash(&self, _token: &str) -> ResultFuture<RepeatedTrash, WorkspaceError> {
+        ResultFuture::new(async {
+            let repeated_trash = RepeatedTrash { items: vec![] };
+            Ok(repeated_trash)
+        })
     }
 }

@@ -5,7 +5,7 @@ use crate::{
 };
 use flowy_database::{
     prelude::*,
-    schema::{trash_table, view_table, view_table::dsl},
+    schema::{view_table, view_table::dsl},
     SqliteConnection,
 };
 

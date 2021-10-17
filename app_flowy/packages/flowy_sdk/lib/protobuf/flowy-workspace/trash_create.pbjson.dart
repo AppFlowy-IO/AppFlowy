@@ -19,17 +19,27 @@ const TrashType$json = const {
 
 /// Descriptor for `TrashType`. Decode as a `google.protobuf.EnumDescriptorProto`.
 final $typed_data.Uint8List trashTypeDescriptor = $convert.base64Decode('CglUcmFzaFR5cGUSCwoHVW5rbm93bhAAEggKBFZpZXcQAQ==');
-@$core.Deprecated('Use createTrashParamsDescriptor instead')
-const CreateTrashParams$json = const {
-  '1': 'CreateTrashParams',
+@$core.Deprecated('Use trashIdentifiersDescriptor instead')
+const TrashIdentifiers$json = const {
+  '1': 'TrashIdentifiers',
+  '2': const [
+    const {'1': 'items', '3': 1, '4': 3, '5': 11, '6': '.TrashIdentifier', '10': 'items'},
+  ],
+};
+
+/// Descriptor for `TrashIdentifiers`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List trashIdentifiersDescriptor = $convert.base64Decode('ChBUcmFzaElkZW50aWZpZXJzEiYKBWl0ZW1zGAEgAygLMhAuVHJhc2hJZGVudGlmaWVyUgVpdGVtcw==');
+@$core.Deprecated('Use trashIdentifierDescriptor instead')
+const TrashIdentifier$json = const {
+  '1': 'TrashIdentifier',
   '2': const [
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'ty', '3': 2, '4': 1, '5': 14, '6': '.TrashType', '10': 'ty'},
   ],
 };
 
-/// Descriptor for `CreateTrashParams`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List createTrashParamsDescriptor = $convert.base64Decode('ChFDcmVhdGVUcmFzaFBhcmFtcxIOCgJpZBgBIAEoCVICaWQSGgoCdHkYAiABKA4yCi5UcmFzaFR5cGVSAnR5');
+/// Descriptor for `TrashIdentifier`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List trashIdentifierDescriptor = $convert.base64Decode('Cg9UcmFzaElkZW50aWZpZXISDgoCaWQYASABKAlSAmlkEhoKAnR5GAIgASgOMgouVHJhc2hUeXBlUgJ0eQ==');
 @$core.Deprecated('Use trashDescriptor instead')
 const Trash$json = const {
   '1': 'Trash',

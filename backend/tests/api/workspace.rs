@@ -1,7 +1,6 @@
 use crate::helper::*;
 use flowy_workspace::entities::{
     app::{AppIdentifier, DeleteAppParams, UpdateAppParams},
-    trash::{CreateTrashParams, TrashIdentifiers, TrashType},
     view::{UpdateViewParams, ViewIdentifier},
     workspace::{CreateWorkspaceParams, DeleteWorkspaceParams, QueryWorkspaceParams, UpdateWorkspaceParams},
 };
@@ -98,11 +97,7 @@ async fn app_read_with_belongs_in_trash() {
     let _ = create_test_view(&test.server, &test.app.id).await;
     let view = create_test_view(&test.server, &test.app.id).await;
 
-    let params = CreateTrashParams {
-        id: view.id.clone(),
-        ty: TrashType::View,
-    };
-    test.server.create_trash(params).await;
+    test.server.create_view_trash(&view.id).await;
 
     let read_params = AppIdentifier::new(&test.app.id);
     let app = test.server.read_app(read_params).await.unwrap();
@@ -159,13 +154,7 @@ async fn view_update() {
 #[actix_rt::test]
 async fn view_delete() {
     let test = ViewTest::new().await;
-
-    // delete
-    let params = CreateTrashParams {
-        id: test.view.id.clone(),
-        ty: TrashType::View,
-    };
-    test.server.create_trash(params).await;
+    test.server.create_view_trash(&test.view.id).await;
 
     let trash_ids = test
         .server
@@ -186,16 +175,8 @@ async fn view_delete() {
 #[actix_rt::test]
 async fn view_delete_and_then_delete_the_trash_record() {
     let test = ViewTest::new().await;
-    let params = CreateTrashParams {
-        id: test.view.id.clone(),
-        ty: TrashType::View,
-    };
-    test.server.create_trash(params).await;
-    test.server
-        .delete_trash(TrashIdentifiers {
-            ids: vec![test.view.id.clone()],
-        })
-        .await;
+    test.server.create_view_trash(&test.view.id).await;
+    test.server.delete_view_trash(&test.view.id).await;
 
     assert_eq!(test.server.read_trash().await.is_empty(), true);
 }

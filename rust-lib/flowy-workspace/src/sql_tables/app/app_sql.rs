@@ -11,7 +11,7 @@ use flowy_database::{
 pub struct AppTableSql {}
 
 impl AppTableSql {
-    pub(crate) fn create_app(&self, app_table: AppTable, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
+    pub(crate) fn create_app(app_table: AppTable, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
         match diesel_record_count!(app_table, &app_table.id, conn) {
             0 => diesel_insert_table!(app_table, &app_table, conn),
             _ => {
@@ -22,16 +22,12 @@ impl AppTableSql {
         Ok(())
     }
 
-    pub(crate) fn update_app(
-        &self,
-        changeset: AppTableChangeset,
-        conn: &SqliteConnection,
-    ) -> Result<(), WorkspaceError> {
+    pub(crate) fn update_app(changeset: AppTableChangeset, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
         diesel_update_table!(app_table, changeset, conn);
         Ok(())
     }
 
-    pub(crate) fn read_app(&self, app_id: &str, conn: &SqliteConnection) -> Result<AppTable, WorkspaceError> {
+    pub(crate) fn read_app(app_id: &str, conn: &SqliteConnection) -> Result<AppTable, WorkspaceError> {
         let filter = dsl::app_table.filter(app_table::id.eq(app_id)).into_boxed();
 
         // if let Some(is_trash) = is_trash {
@@ -43,7 +39,6 @@ impl AppTableSql {
     }
 
     pub(crate) fn read_apps(
-        &self,
         workspace_id: &str,
         is_trash: bool,
         conn: &SqliteConnection,
@@ -56,7 +51,7 @@ impl AppTableSql {
         Ok(app_table)
     }
 
-    pub(crate) fn delete_app(&self, app_id: &str, conn: &SqliteConnection) -> Result<AppTable, WorkspaceError> {
+    pub(crate) fn delete_app(app_id: &str, conn: &SqliteConnection) -> Result<AppTable, WorkspaceError> {
         let app_table = dsl::app_table
             .filter(app_table::id.eq(app_id))
             .first::<AppTable>(conn)?;

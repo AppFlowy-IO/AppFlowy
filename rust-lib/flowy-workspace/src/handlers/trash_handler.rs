@@ -1,5 +1,5 @@
 use crate::{
-    entities::trash::{RepeatedTrash, TrashIdentifier},
+    entities::trash::{RepeatedTrash, TrashIdentifier, TrashIdentifiers},
     errors::WorkspaceError,
     services::TrashCan,
 };
@@ -22,12 +22,12 @@ pub(crate) async fn putback_trash_handler(
     Ok(())
 }
 
-#[tracing::instrument(skip(identifier, controller), err)]
+#[tracing::instrument(skip(identifiers, controller), err)]
 pub(crate) async fn delete_trash_handler(
-    identifier: Data<TrashIdentifier>,
+    identifiers: Data<TrashIdentifiers>,
     controller: Unit<Arc<TrashCan>>,
 ) -> Result<(), WorkspaceError> {
-    let _ = controller.delete(&identifier.id).await?;
+    let _ = controller.delete(identifiers.into_inner()).await?;
     Ok(())
 }
 

@@ -8,7 +8,7 @@ use crate::{
 };
 
 use crate::{
-    entities::view::{DeleteViewParams, RepeatedView, ViewIdentifier},
+    entities::view::{RepeatedView, ViewIdentifier},
     errors::internal_error,
     module::WorkspaceUser,
     notify::WorkspaceNotification,
@@ -21,6 +21,7 @@ use flowy_document::{
 };
 
 use crate::{entities::trash::TrashType, errors::WorkspaceResult};
+
 use futures::{FutureExt, StreamExt};
 use std::sync::Arc;
 
@@ -171,34 +172,31 @@ impl ViewController {
         Ok(())
     }
 
-    // #[tracing::instrument(skip(self), err)]
-    // fn delete_view_on_server(&self, view_ids: Vec<String>) -> Result<(),
-    // WorkspaceError> {     let token = self.user.token()?;
-    //     let server = self.server.clone();
-    //     let params = DeleteViewParams { view_ids };
-    //     spawn(async move {
-    //         match server.delete_view(&token, params).await {
-    //             Ok(_) => {},
-    //             Err(e) => {
-    //                 // TODO: retry?
-    //                 log::error!("Delete view failed: {:?}", e);
-    //             },
-    //         }
-    //     });
-    //     Ok(())
-    // }
-
     #[tracing::instrument(skip(self), err)]
     fn read_view_on_server(&self, params: ViewIdentifier) -> Result<(), WorkspaceError> {
         let token = self.user.token()?;
         let server = self.server.clone();
+        let pool = self.database.db_pool()?;
+        // Opti: retry?
         spawn(async move {
             match server.read_view(&token, params).await {
-                Ok(_) => {},
-                Err(e) => {
-                    // TODO: retry?
-                    log::error!("Read view failed: {:?}", e);
+                Ok(Some(view)) => match pool.get() {
+                    Ok(conn) => {
+                        let view_table = ViewTable::new(view.clone());
+                        let result = ViewTableSql::create_view(view_table, &conn);
+                        match result {
+                            Ok(_) => {
+                                send_dart_notification(&view.id, WorkspaceNotification::ViewUpdated)
+                                    .payload(view.clone())
+                                    .send();
+                            },
+                            Err(e) => log::error!("Save view failed: {:?}", e),
+                        }
+                    },
+                    Err(e) => log::error!("Require db connection failed: {:?}", e),
                 },
+                Ok(None) => {},
+                Err(e) => log::error!("Read view failed: {:?}", e),
             }
         });
         Ok(())
@@ -238,12 +236,12 @@ async fn handle_trash_event(
     let db_result = database.db_connection();
 
     match event {
-        TrashEvent::NewTrash(_, view_ids, ret) | TrashEvent::Putback(_, view_ids, ret) => {
+        TrashEvent::NewTrash(identifiers, ret) | TrashEvent::Putback(identifiers, ret) => {
             let result = || {
                 let conn = &*db_result?;
                 let _ = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
-                    for view_id in view_ids {
-                        let _ = notify_view_num_did_change(&view_id, conn, trash_can.clone())?;
+                    for identifier in identifiers.items {
+                        let _ = notify_view_num_changed(&identifier.id, conn, trash_can.clone())?;
                     }
                     Ok(())
                 })?;
@@ -251,14 +249,14 @@ async fn handle_trash_event(
             };
             let _ = ret.send(result()).await;
         },
-        TrashEvent::Delete(_, delete_ids, ret) => {
+        TrashEvent::Delete(identifiers, ret) => {
             let result = || {
                 let conn = &*db_result?;
                 let _ = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
-                    for view_id in delete_ids {
-                        let _ = ViewTableSql::delete_view(&view_id, conn)?;
-                        let _ = document.delete(view_id.clone().into())?;
-                        let _ = notify_view_num_did_change(&view_id, conn, trash_can.clone())?;
+                    for identifier in identifiers.items {
+                        let _ = ViewTableSql::delete_view(&identifier.id, conn)?;
+                        let _ = document.delete(identifier.id.clone().into())?;
+                        let _ = notify_view_num_changed(&identifier.id, conn, trash_can.clone())?;
                     }
                     Ok(())
                 })?;
@@ -270,9 +268,10 @@ async fn handle_trash_event(
 }
 
 #[tracing::instrument(skip(conn, trash_can), err)]
-fn notify_view_num_did_change(view_id: &str, conn: &SqliteConnection, trash_can: Arc<TrashCan>) -> WorkspaceResult<()> {
+fn notify_view_num_changed(view_id: &str, conn: &SqliteConnection, trash_can: Arc<TrashCan>) -> WorkspaceResult<()> {
     let view_table = ViewTableSql::read_view(view_id, conn)?;
     let repeated_view = read_belonging_view(&view_table.belong_to_id, trash_can, conn)?;
+
     send_dart_notification(&view_table.belong_to_id, WorkspaceNotification::AppViewsChanged)
         .payload(repeated_view)
         .send();

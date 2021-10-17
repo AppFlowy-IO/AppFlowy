@@ -14,15 +14,56 @@ import 'trash_create.pbenum.dart';
 
 export 'trash_create.pbenum.dart';
 
-class CreateTrashParams extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateTrashParams', createEmptyInstance: create)
+class TrashIdentifiers extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'TrashIdentifiers', createEmptyInstance: create)
+    ..pc<TrashIdentifier>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'items', $pb.PbFieldType.PM, subBuilder: TrashIdentifier.create)
+    ..hasRequiredFields = false
+  ;
+
+  TrashIdentifiers._() : super();
+  factory TrashIdentifiers({
+    $core.Iterable<TrashIdentifier>? items,
+  }) {
+    final _result = create();
+    if (items != null) {
+      _result.items.addAll(items);
+    }
+    return _result;
+  }
+  factory TrashIdentifiers.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory TrashIdentifiers.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  TrashIdentifiers clone() => TrashIdentifiers()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  TrashIdentifiers copyWith(void Function(TrashIdentifiers) updates) => super.copyWith((message) => updates(message as TrashIdentifiers)) as TrashIdentifiers; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static TrashIdentifiers create() => TrashIdentifiers._();
+  TrashIdentifiers createEmptyInstance() => create();
+  static $pb.PbList<TrashIdentifiers> createRepeated() => $pb.PbList<TrashIdentifiers>();
+  @$core.pragma('dart2js:noInline')
+  static TrashIdentifiers getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<TrashIdentifiers>(create);
+  static TrashIdentifiers? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<TrashIdentifier> get items => $_getList(0);
+}
+
+class TrashIdentifier extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'TrashIdentifier', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..e<TrashType>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ty', $pb.PbFieldType.OE, defaultOrMaker: TrashType.Unknown, valueOf: TrashType.valueOf, enumValues: TrashType.values)
     ..hasRequiredFields = false
   ;
 
-  CreateTrashParams._() : super();
-  factory CreateTrashParams({
+  TrashIdentifier._() : super();
+  factory TrashIdentifier({
     $core.String? id,
     TrashType? ty,
   }) {
@@ -35,26 +76,26 @@ class CreateTrashParams extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory CreateTrashParams.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory CreateTrashParams.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory TrashIdentifier.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory TrashIdentifier.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  CreateTrashParams clone() => CreateTrashParams()..mergeFromMessage(this);
+  TrashIdentifier clone() => TrashIdentifier()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  CreateTrashParams copyWith(void Function(CreateTrashParams) updates) => super.copyWith((message) => updates(message as CreateTrashParams)) as CreateTrashParams; // ignore: deprecated_member_use
+  TrashIdentifier copyWith(void Function(TrashIdentifier) updates) => super.copyWith((message) => updates(message as TrashIdentifier)) as TrashIdentifier; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static CreateTrashParams create() => CreateTrashParams._();
-  CreateTrashParams createEmptyInstance() => create();
-  static $pb.PbList<CreateTrashParams> createRepeated() => $pb.PbList<CreateTrashParams>();
+  static TrashIdentifier create() => TrashIdentifier._();
+  TrashIdentifier createEmptyInstance() => create();
+  static $pb.PbList<TrashIdentifier> createRepeated() => $pb.PbList<TrashIdentifier>();
   @$core.pragma('dart2js:noInline')
-  static CreateTrashParams getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CreateTrashParams>(create);
-  static CreateTrashParams? _defaultInstance;
+  static TrashIdentifier getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<TrashIdentifier>(create);
+  static TrashIdentifier? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get id => $_getSZ(0);

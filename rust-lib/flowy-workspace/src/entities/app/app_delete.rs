@@ -8,7 +8,7 @@ pub struct DeleteAppRequest {
     pub app_id: String,
 }
 
-#[derive(Default, ProtoBuf)]
+#[derive(Default, ProtoBuf, Clone)]
 pub struct DeleteAppParams {
     #[pb(index = 1)]
     pub app_id: String,

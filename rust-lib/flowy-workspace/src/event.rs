@@ -58,7 +58,7 @@ pub enum WorkspaceEvent {
     #[event(input = "TrashIdentifier")]
     PutbackTrash      = 301,
 
-    #[event(input = "TrashIdentifier")]
+    #[event(input = "TrashIdentifiers")]
     DeleteTrash       = 302,
 
     #[event()]

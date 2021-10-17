@@ -24,7 +24,28 @@ impl std::default::Default for TrashType {
 }
 
 #[derive(PartialEq, ProtoBuf, Default, Debug, Clone)]
-pub struct CreateTrashParams {
+pub struct TrashIdentifiers {
+    #[pb(index = 1)]
+    pub items: Vec<TrashIdentifier>,
+}
+
+impl std::convert::From<Vec<TrashIdentifier>> for TrashIdentifiers {
+    fn from(items: Vec<TrashIdentifier>) -> Self { TrashIdentifiers { items } }
+}
+
+impl std::convert::From<Vec<Trash>> for TrashIdentifiers {
+    fn from(trash: Vec<Trash>) -> Self {
+        let items = trash
+            .into_iter()
+            .map(|t| TrashIdentifier { id: t.id, ty: t.ty })
+            .collect::<Vec<_>>();
+
+        TrashIdentifiers { items }
+    }
+}
+
+#[derive(PartialEq, ProtoBuf, Default, Debug, Clone)]
+pub struct TrashIdentifier {
     #[pb(index = 1)]
     pub id: String,
 

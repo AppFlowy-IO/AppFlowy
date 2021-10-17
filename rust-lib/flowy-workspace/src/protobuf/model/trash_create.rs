@@ -24,7 +24,173 @@
 // const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_22_1;
 
 #[derive(PartialEq,Clone,Default)]
-pub struct CreateTrashParams {
+pub struct TrashIdentifiers {
+    // message fields
+    pub items: ::protobuf::RepeatedField<TrashIdentifier>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a TrashIdentifiers {
+    fn default() -> &'a TrashIdentifiers {
+        <TrashIdentifiers as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl TrashIdentifiers {
+    pub fn new() -> TrashIdentifiers {
+        ::std::default::Default::default()
+    }
+
+    // repeated .TrashIdentifier items = 1;
+
+
+    pub fn get_items(&self) -> &[TrashIdentifier] {
+        &self.items
+    }
+    pub fn clear_items(&mut self) {
+        self.items.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_items(&mut self, v: ::protobuf::RepeatedField<TrashIdentifier>) {
+        self.items = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_items(&mut self) -> &mut ::protobuf::RepeatedField<TrashIdentifier> {
+        &mut self.items
+    }
+
+    // Take field
+    pub fn take_items(&mut self) -> ::protobuf::RepeatedField<TrashIdentifier> {
+        ::std::mem::replace(&mut self.items, ::protobuf::RepeatedField::new())
+    }
+}
+
+impl ::protobuf::Message for TrashIdentifiers {
+    fn is_initialized(&self) -> bool {
+        for v in &self.items {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.items)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        for value in &self.items {
+            let len = value.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        };
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        for v in &self.items {
+            os.write_tag(1, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        };
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> TrashIdentifiers {
+        TrashIdentifiers::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<TrashIdentifier>>(
+                "items",
+                |m: &TrashIdentifiers| { &m.items },
+                |m: &mut TrashIdentifiers| { &mut m.items },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<TrashIdentifiers>(
+                "TrashIdentifiers",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static TrashIdentifiers {
+        static instance: ::protobuf::rt::LazyV2<TrashIdentifiers> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(TrashIdentifiers::new)
+    }
+}
+
+impl ::protobuf::Clear for TrashIdentifiers {
+    fn clear(&mut self) {
+        self.items.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for TrashIdentifiers {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for TrashIdentifiers {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct TrashIdentifier {
     // message fields
     pub id: ::std::string::String,
     pub ty: TrashType,
@@ -33,14 +199,14 @@ pub struct CreateTrashParams {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a CreateTrashParams {
-    fn default() -> &'a CreateTrashParams {
-        <CreateTrashParams as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a TrashIdentifier {
+    fn default() -> &'a TrashIdentifier {
+        <TrashIdentifier as ::protobuf::Message>::default_instance()
     }
 }
 
-impl CreateTrashParams {
-    pub fn new() -> CreateTrashParams {
+impl TrashIdentifier {
+    pub fn new() -> TrashIdentifier {
         ::std::default::Default::default()
     }
 
@@ -86,7 +252,7 @@ impl CreateTrashParams {
     }
 }
 
-impl ::protobuf::Message for CreateTrashParams {
+impl ::protobuf::Message for TrashIdentifier {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -161,8 +327,8 @@ impl ::protobuf::Message for CreateTrashParams {
         Self::descriptor_static()
     }
 
-    fn new() -> CreateTrashParams {
-        CreateTrashParams::new()
+    fn new() -> TrashIdentifier {
+        TrashIdentifier::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -171,29 +337,29 @@ impl ::protobuf::Message for CreateTrashParams {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "id",
-                |m: &CreateTrashParams| { &m.id },
-                |m: &mut CreateTrashParams| { &mut m.id },
+                |m: &TrashIdentifier| { &m.id },
+                |m: &mut TrashIdentifier| { &mut m.id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<TrashType>>(
                 "ty",
-                |m: &CreateTrashParams| { &m.ty },
-                |m: &mut CreateTrashParams| { &mut m.ty },
+                |m: &TrashIdentifier| { &m.ty },
+                |m: &mut TrashIdentifier| { &mut m.ty },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<CreateTrashParams>(
-                "CreateTrashParams",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<TrashIdentifier>(
+                "TrashIdentifier",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static CreateTrashParams {
-        static instance: ::protobuf::rt::LazyV2<CreateTrashParams> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(CreateTrashParams::new)
+    fn default_instance() -> &'static TrashIdentifier {
+        static instance: ::protobuf::rt::LazyV2<TrashIdentifier> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(TrashIdentifier::new)
     }
 }
 
-impl ::protobuf::Clear for CreateTrashParams {
+impl ::protobuf::Clear for TrashIdentifier {
     fn clear(&mut self) {
         self.id.clear();
         self.ty = TrashType::Unknown;
@@ -201,13 +367,13 @@ impl ::protobuf::Clear for CreateTrashParams {
     }
 }
 
-impl ::std::fmt::Debug for CreateTrashParams {
+impl ::std::fmt::Debug for TrashIdentifier {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for CreateTrashParams {
+impl ::protobuf::reflect::ProtobufValue for TrashIdentifier {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -732,47 +898,52 @@ impl ::protobuf::reflect::ProtobufValue for TrashType {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x12trash_create.proto\"?\n\x11CreateTrashParams\x12\x0e\n\x02id\x18\
-    \x01\x20\x01(\tR\x02id\x12\x1a\n\x02ty\x18\x02\x20\x01(\x0e2\n.TrashType\
-    R\x02ty\"\x8d\x01\n\x05Trash\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\
-    \x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12#\n\rmodified_time\x18\
-    \x03\x20\x01(\x03R\x0cmodifiedTime\x12\x1f\n\x0bcreate_time\x18\x04\x20\
-    \x01(\x03R\ncreateTime\x12\x1a\n\x02ty\x18\x05\x20\x01(\x0e2\n.TrashType\
-    R\x02ty\"-\n\rRepeatedTrash\x12\x1c\n\x05items\x18\x01\x20\x03(\x0b2\x06\
-    .TrashR\x05items*\"\n\tTrashType\x12\x0b\n\x07Unknown\x10\0\x12\x08\n\
-    \x04View\x10\x01J\x8a\x05\n\x06\x12\x04\0\0\x13\x01\n\x08\n\x01\x0c\x12\
-    \x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\0\x01\
-    \x12\x03\x02\x08\x19\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x12\n\x0c\n\
-    \x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\
-    \x03\x03\x0b\r\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x10\x11\n\x0b\n\
-    \x04\x04\0\x02\x01\x12\x03\x04\x04\x15\n\x0c\n\x05\x04\0\x02\x01\x06\x12\
-    \x03\x04\x04\r\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x0e\x10\n\x0c\n\
-    \x05\x04\0\x02\x01\x03\x12\x03\x04\x13\x14\n\n\n\x02\x04\x01\x12\x04\x06\
-    \0\x0c\x01\n\n\n\x03\x04\x01\x01\x12\x03\x06\x08\r\n\x0b\n\x04\x04\x01\
-    \x02\0\x12\x03\x07\x04\x12\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x07\x04\
-    \n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x07\x0b\r\n\x0c\n\x05\x04\x01\
-    \x02\0\x03\x12\x03\x07\x10\x11\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\x08\
-    \x04\x14\n\x0c\n\x05\x04\x01\x02\x01\x05\x12\x03\x08\x04\n\n\x0c\n\x05\
-    \x04\x01\x02\x01\x01\x12\x03\x08\x0b\x0f\n\x0c\n\x05\x04\x01\x02\x01\x03\
-    \x12\x03\x08\x12\x13\n\x0b\n\x04\x04\x01\x02\x02\x12\x03\t\x04\x1c\n\x0c\
-    \n\x05\x04\x01\x02\x02\x05\x12\x03\t\x04\t\n\x0c\n\x05\x04\x01\x02\x02\
-    \x01\x12\x03\t\n\x17\n\x0c\n\x05\x04\x01\x02\x02\x03\x12\x03\t\x1a\x1b\n\
-    \x0b\n\x04\x04\x01\x02\x03\x12\x03\n\x04\x1a\n\x0c\n\x05\x04\x01\x02\x03\
-    \x05\x12\x03\n\x04\t\n\x0c\n\x05\x04\x01\x02\x03\x01\x12\x03\n\n\x15\n\
-    \x0c\n\x05\x04\x01\x02\x03\x03\x12\x03\n\x18\x19\n\x0b\n\x04\x04\x01\x02\
-    \x04\x12\x03\x0b\x04\x15\n\x0c\n\x05\x04\x01\x02\x04\x06\x12\x03\x0b\x04\
-    \r\n\x0c\n\x05\x04\x01\x02\x04\x01\x12\x03\x0b\x0e\x10\n\x0c\n\x05\x04\
-    \x01\x02\x04\x03\x12\x03\x0b\x13\x14\n\n\n\x02\x04\x02\x12\x04\r\0\x0f\
-    \x01\n\n\n\x03\x04\x02\x01\x12\x03\r\x08\x15\n\x0b\n\x04\x04\x02\x02\0\
-    \x12\x03\x0e\x04\x1d\n\x0c\n\x05\x04\x02\x02\0\x04\x12\x03\x0e\x04\x0c\n\
-    \x0c\n\x05\x04\x02\x02\0\x06\x12\x03\x0e\r\x12\n\x0c\n\x05\x04\x02\x02\0\
-    \x01\x12\x03\x0e\x13\x18\n\x0c\n\x05\x04\x02\x02\0\x03\x12\x03\x0e\x1b\
-    \x1c\n\n\n\x02\x05\0\x12\x04\x10\0\x13\x01\n\n\n\x03\x05\0\x01\x12\x03\
-    \x10\x05\x0e\n\x0b\n\x04\x05\0\x02\0\x12\x03\x11\x04\x10\n\x0c\n\x05\x05\
-    \0\x02\0\x01\x12\x03\x11\x04\x0b\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x11\
-    \x0e\x0f\n\x0b\n\x04\x05\0\x02\x01\x12\x03\x12\x04\r\n\x0c\n\x05\x05\0\
-    \x02\x01\x01\x12\x03\x12\x04\x08\n\x0c\n\x05\x05\0\x02\x01\x02\x12\x03\
-    \x12\x0b\x0cb\x06proto3\
+    \n\x12trash_create.proto\":\n\x10TrashIdentifiers\x12&\n\x05items\x18\
+    \x01\x20\x03(\x0b2\x10.TrashIdentifierR\x05items\"=\n\x0fTrashIdentifier\
+    \x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x1a\n\x02ty\x18\x02\x20\
+    \x01(\x0e2\n.TrashTypeR\x02ty\"\x8d\x01\n\x05Trash\x12\x0e\n\x02id\x18\
+    \x01\x20\x01(\tR\x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\
+    #\n\rmodified_time\x18\x03\x20\x01(\x03R\x0cmodifiedTime\x12\x1f\n\x0bcr\
+    eate_time\x18\x04\x20\x01(\x03R\ncreateTime\x12\x1a\n\x02ty\x18\x05\x20\
+    \x01(\x0e2\n.TrashTypeR\x02ty\"-\n\rRepeatedTrash\x12\x1c\n\x05items\x18\
+    \x01\x20\x03(\x0b2\x06.TrashR\x05items*\"\n\tTrashType\x12\x0b\n\x07Unkn\
+    own\x10\0\x12\x08\n\x04View\x10\x01J\xe7\x05\n\x06\x12\x04\0\0\x16\x01\n\
+    \x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x04\x01\n\n\
+    \n\x03\x04\0\x01\x12\x03\x02\x08\x18\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\
+    \x04'\n\x0c\n\x05\x04\0\x02\0\x04\x12\x03\x03\x04\x0c\n\x0c\n\x05\x04\0\
+    \x02\0\x06\x12\x03\x03\r\x1c\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x1d\
+    \"\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03%&\n\n\n\x02\x04\x01\x12\x04\
+    \x05\0\x08\x01\n\n\n\x03\x04\x01\x01\x12\x03\x05\x08\x17\n\x0b\n\x04\x04\
+    \x01\x02\0\x12\x03\x06\x04\x12\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x06\
+    \x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x06\x0b\r\n\x0c\n\x05\x04\
+    \x01\x02\0\x03\x12\x03\x06\x10\x11\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\
+    \x07\x04\x15\n\x0c\n\x05\x04\x01\x02\x01\x06\x12\x03\x07\x04\r\n\x0c\n\
+    \x05\x04\x01\x02\x01\x01\x12\x03\x07\x0e\x10\n\x0c\n\x05\x04\x01\x02\x01\
+    \x03\x12\x03\x07\x13\x14\n\n\n\x02\x04\x02\x12\x04\t\0\x0f\x01\n\n\n\x03\
+    \x04\x02\x01\x12\x03\t\x08\r\n\x0b\n\x04\x04\x02\x02\0\x12\x03\n\x04\x12\
+    \n\x0c\n\x05\x04\x02\x02\0\x05\x12\x03\n\x04\n\n\x0c\n\x05\x04\x02\x02\0\
+    \x01\x12\x03\n\x0b\r\n\x0c\n\x05\x04\x02\x02\0\x03\x12\x03\n\x10\x11\n\
+    \x0b\n\x04\x04\x02\x02\x01\x12\x03\x0b\x04\x14\n\x0c\n\x05\x04\x02\x02\
+    \x01\x05\x12\x03\x0b\x04\n\n\x0c\n\x05\x04\x02\x02\x01\x01\x12\x03\x0b\
+    \x0b\x0f\n\x0c\n\x05\x04\x02\x02\x01\x03\x12\x03\x0b\x12\x13\n\x0b\n\x04\
+    \x04\x02\x02\x02\x12\x03\x0c\x04\x1c\n\x0c\n\x05\x04\x02\x02\x02\x05\x12\
+    \x03\x0c\x04\t\n\x0c\n\x05\x04\x02\x02\x02\x01\x12\x03\x0c\n\x17\n\x0c\n\
+    \x05\x04\x02\x02\x02\x03\x12\x03\x0c\x1a\x1b\n\x0b\n\x04\x04\x02\x02\x03\
+    \x12\x03\r\x04\x1a\n\x0c\n\x05\x04\x02\x02\x03\x05\x12\x03\r\x04\t\n\x0c\
+    \n\x05\x04\x02\x02\x03\x01\x12\x03\r\n\x15\n\x0c\n\x05\x04\x02\x02\x03\
+    \x03\x12\x03\r\x18\x19\n\x0b\n\x04\x04\x02\x02\x04\x12\x03\x0e\x04\x15\n\
+    \x0c\n\x05\x04\x02\x02\x04\x06\x12\x03\x0e\x04\r\n\x0c\n\x05\x04\x02\x02\
+    \x04\x01\x12\x03\x0e\x0e\x10\n\x0c\n\x05\x04\x02\x02\x04\x03\x12\x03\x0e\
+    \x13\x14\n\n\n\x02\x04\x03\x12\x04\x10\0\x12\x01\n\n\n\x03\x04\x03\x01\
+    \x12\x03\x10\x08\x15\n\x0b\n\x04\x04\x03\x02\0\x12\x03\x11\x04\x1d\n\x0c\
+    \n\x05\x04\x03\x02\0\x04\x12\x03\x11\x04\x0c\n\x0c\n\x05\x04\x03\x02\0\
+    \x06\x12\x03\x11\r\x12\n\x0c\n\x05\x04\x03\x02\0\x01\x12\x03\x11\x13\x18\
+    \n\x0c\n\x05\x04\x03\x02\0\x03\x12\x03\x11\x1b\x1c\n\n\n\x02\x05\0\x12\
+    \x04\x13\0\x16\x01\n\n\n\x03\x05\0\x01\x12\x03\x13\x05\x0e\n\x0b\n\x04\
+    \x05\0\x02\0\x12\x03\x14\x04\x10\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\x14\
+    \x04\x0b\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x14\x0e\x0f\n\x0b\n\x04\x05\
+    \0\x02\x01\x12\x03\x15\x04\r\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\x15\
+    \x04\x08\n\x0c\n\x05\x05\0\x02\x01\x02\x12\x03\x15\x0b\x0cb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

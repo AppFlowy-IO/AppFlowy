@@ -1,3 +1,4 @@
+use crate::retry::FixedInterval;
 use pin_project::pin_project;
 use std::{
     future::Future,
@@ -5,7 +6,10 @@ use std::{
     pin::Pin,
     task::{Context, Poll},
 };
-use tokio::time::{sleep_until, Duration, Instant, Sleep};
+use tokio::{
+    task::JoinHandle,
+    time::{sleep_until, Duration, Instant, Sleep},
+};
 
 #[pin_project(project = RetryStateProj)]
 enum RetryState<A>
@@ -171,9 +175,8 @@ pub trait Action: Send + Sync {
 
     fn run(&mut self) -> Self::Future;
 }
-
-// impl<R, E, T: Future<Output = Result<R, E>>, F: FnMut() -> T> Action for F {
-//     type Future = T;
+// impl<R, E, T: Future<Output = Result<R, E>>, F: FnMut() -> T + Send + Sync>
+// Action for F {     type Future = T;
 //     type Item = R;
 //     type Error = E;
 //
@@ -186,4 +189,19 @@ pub trait Condition<E> {
 
 impl<E, F: FnMut(&E) -> bool> Condition<E> for F {
     fn should_retry(&mut self, error: &E) -> bool { self(error) }
+}
+
+pub fn spawn_retry<A: Action + 'static>(
+    millis: u64,
+    retry_count: usize,
+    action: A,
+) -> JoinHandle<Result<A::Item, A::Error>>
+where
+    A::Item: Send + Sync,
+    A::Error: Send + Sync,
+    <A as Action>::Future: Send + Sync,
+{
+    let strategy = FixedInterval::from_millis(millis).take(retry_count);
+    let retry = Retry::spawn(strategy, action);
+    tokio::spawn(async move { retry.await })
 }

@@ -5,7 +5,6 @@ export './app_query.pb.dart';
 export './workspace_delete.pb.dart';
 export './observable.pb.dart';
 export './errors.pb.dart';
-export './trash_delete.pb.dart';
 export './workspace_update.pb.dart';
 export './app_create.pb.dart';
 export './workspace_query.pb.dart';

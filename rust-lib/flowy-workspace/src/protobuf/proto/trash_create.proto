@@ -1,6 +1,9 @@
 syntax = "proto3";
 
-message CreateTrashParams {
+message TrashIdentifiers {
+    repeated TrashIdentifier items = 1;
+}
+message TrashIdentifier {
     string id = 1;
     TrashType ty = 2;
 }

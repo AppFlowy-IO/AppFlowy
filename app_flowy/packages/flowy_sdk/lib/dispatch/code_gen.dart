@@ -303,7 +303,7 @@ class WorkspaceEventPutbackTrash {
 }
 
 class WorkspaceEventDeleteTrash {
-     TrashIdentifier request;
+     TrashIdentifiers request;
      WorkspaceEventDeleteTrash(this.request);
 
     Future<Either<Unit, WorkspaceError>> send() {
@@ -316,6 +316,34 @@ class WorkspaceEventDeleteTrash {
            (bytes) => left(unit),
            (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
         ));
+    }
+}
+
+class WorkspaceEventRestoreAll {
+    WorkspaceEventRestoreAll();
+
+    Future<Either<Unit, WorkspaceError>> send() {
+     final request = FFIRequest.create()
+        ..event = WorkspaceEvent.RestoreAll.toString();
+
+     return Dispatch.asyncRequest(request).then((bytesResult) => bytesResult.fold(
+        (bytes) => left(unit),
+        (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+      ));
+    }
+}
+
+class WorkspaceEventDeleteAll {
+    WorkspaceEventDeleteAll();
+
+    Future<Either<Unit, WorkspaceError>> send() {
+     final request = FFIRequest.create()
+        ..event = WorkspaceEvent.DeleteAll.toString();
+
+     return Dispatch.asyncRequest(request).then((bytesResult) => bytesResult.fold(
+        (bytes) => left(unit),
+        (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+      ));
     }
 }
 

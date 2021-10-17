@@ -1,7 +1,7 @@
 use crate::{
     entities::{
         app::{App, AppIdentifier, CreateAppParams, DeleteAppParams, UpdateAppParams},
-        trash::CreateTrashParams,
+        trash::{RepeatedTrash, TrashIdentifiers},
         view::{CreateViewParams, DeleteViewParams, UpdateViewParams, View, ViewIdentifier},
         workspace::{
             CreateWorkspaceParams,
@@ -15,8 +15,6 @@ use crate::{
     errors::WorkspaceError,
     services::server::WorkspaceServerAPI,
 };
-
-use crate::entities::trash::{RepeatedTrash, TrashIdentifiers};
 use flowy_infra::future::ResultFuture;
 use flowy_net::{config::*, request::HttpRequestBuilder};
 
@@ -103,6 +101,24 @@ impl WorkspaceServerAPI for WorkspaceServer {
         let token = token.to_owned();
         let url = self.config.app_url();
         ResultFuture::new(async move { delete_app_request(&token, params, &url).await })
+    }
+
+    fn create_trash(&self, token: &str, params: TrashIdentifiers) -> ResultFuture<(), WorkspaceError> {
+        let token = token.to_owned();
+        let url = self.config.trash_url();
+        ResultFuture::new(async move { create_trash_request(&token, params, &url).await })
+    }
+
+    fn delete_trash(&self, token: &str, params: TrashIdentifiers) -> ResultFuture<(), WorkspaceError> {
+        let token = token.to_owned();
+        let url = self.config.trash_url();
+        ResultFuture::new(async move { delete_trash_request(&token, params, &url).await })
+    }
+
+    fn read_trash(&self, token: &str) -> ResultFuture<RepeatedTrash, WorkspaceError> {
+        let token = token.to_owned();
+        let url = self.config.trash_url();
+        ResultFuture::new(async move { read_trash_request(&token, &url).await })
     }
 }
 
@@ -250,7 +266,7 @@ pub async fn delete_view_request(token: &str, params: DeleteViewParams, url: &st
     Ok(())
 }
 
-pub async fn create_trash_request(token: &str, params: CreateTrashParams, url: &str) -> Result<(), WorkspaceError> {
+pub async fn create_trash_request(token: &str, params: TrashIdentifiers, url: &str) -> Result<(), WorkspaceError> {
     let _ = request_builder()
         .post(&url.to_owned())
         .header(HEADER_TOKEN, token)
