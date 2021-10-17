@@ -56,9 +56,8 @@ impl TrashCan {
         let _ = thread::scope(|_s| {
             let conn = self.database.db_connection()?;
             let _ = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
-                let repeated_trash = TrashTableSql::read_all(&conn)?;
                 let _ = TrashTableSql::delete_trash(trash_id, &*conn)?;
-                notify_trash_num_changed(repeated_trash);
+                notify_trash_num_changed(TrashTableSql::read_all(&conn)?);
                 Ok(())
             })?;
             Ok::<(), WorkspaceError>(())
@@ -128,8 +127,7 @@ impl TrashCan {
                     let _ = TrashTableSql::create_trash(t.clone().into(), &*conn)?;
                 }
                 self.create_trash_on_server(trash);
-                let repeated_trash = TrashTableSql::read_all(&conn)?;
-                notify_trash_num_changed(repeated_trash);
+                notify_trash_num_changed(TrashTableSql::read_all(&conn)?);
                 Ok(())
             })?;
             Ok::<(), WorkspaceError>(())

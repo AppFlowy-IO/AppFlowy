@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/protobuf/flowy-dart-notify/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
@@ -49,15 +50,13 @@ class NotificationParser<T, E> {
       return;
     }
 
-    if (subject.hasPayload()) {
-      final bytes = Uint8List.fromList(subject.payload);
-      callback(ty, left(bytes));
-    } else if (subject.hasError()) {
+    if (subject.hasError()) {
       final bytes = Uint8List.fromList(subject.error);
       final error = errorParser(bytes);
       callback(ty, right(error));
     } else {
-      // do nothing
+      final bytes = Uint8List.fromList(subject.payload);
+      callback(ty, left(bytes));
     }
   }
 }
