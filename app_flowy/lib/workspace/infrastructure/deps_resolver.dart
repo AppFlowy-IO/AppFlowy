@@ -3,7 +3,6 @@ import 'package:app_flowy/workspace/application/doc/doc_bloc.dart';
 import 'package:app_flowy/workspace/application/doc/doc_edit_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_user_bloc.dart';
-import 'package:app_flowy/workspace/application/menu/menu_listen.dart';
 import 'package:app_flowy/workspace/application/trash/trash_bloc.dart';
 import 'package:app_flowy/workspace/application/view/view_bloc.dart';
 import 'package:app_flowy/workspace/application/workspace/welcome_bloc.dart';
@@ -69,9 +68,11 @@ class HomeDepsResolver {
 
     //Menu Bloc
     getIt.registerFactoryParam<MenuBloc, UserProfile, String>(
-        (user, workspaceId) => MenuBloc(getIt<IWorkspace>(param1: user, param2: workspaceId)));
-    getIt.registerFactoryParam<MenuListenBloc, UserProfile, String>(
-        (user, workspaceId) => MenuListenBloc(getIt<IWorkspaceListener>(param1: user, param2: workspaceId)));
+      (user, workspaceId) => MenuBloc(
+        workspaceManager: getIt<IWorkspace>(param1: user, param2: workspaceId),
+        listener: getIt<IWorkspaceListener>(param1: user, param2: workspaceId),
+      ),
+    );
 
     getIt.registerFactoryParam<MenuUserBloc, UserProfile, void>(
         (user, _) => MenuUserBloc(getIt<IUser>(param1: user), getIt<IUserListener>(param1: user)));

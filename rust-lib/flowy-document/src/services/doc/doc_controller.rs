@@ -109,6 +109,7 @@ struct RevisionServerImpl {
 }
 
 impl RevisionServer for RevisionServerImpl {
+    #[tracing::instrument(level = "debug", skip(self))]
     fn fetch_document_from_remote(&self, doc_id: &str) -> ResultFuture<Doc, DocError> {
         let params = DocIdentifier {
             doc_id: doc_id.to_string(),

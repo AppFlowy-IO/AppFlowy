@@ -13,7 +13,6 @@ import 'package:expandable/expandable.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
-import 'package:app_flowy/workspace/application/menu/menu_listen.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/menu/widget/menu_user.dart';
 
@@ -64,9 +63,6 @@ class HomeMenu extends StatelessWidget {
       providers: [
         BlocProvider<MenuBloc>(
             create: (context) => getIt<MenuBloc>(param1: user, param2: workspaceId)..add(const MenuEvent.initial())),
-        BlocProvider(
-            create: (context) =>
-                getIt<MenuListenBloc>(param1: user, param2: workspaceId)..add(const MenuListenEvent.started())),
       ],
       child: MultiBlocListener(
         listeners: [
@@ -113,18 +109,8 @@ class HomeMenu extends StatelessWidget {
   }
 
   Widget _renderMenuList(BuildContext context) {
-    return BlocBuilder<MenuListenBloc, MenuListenState>(
-      builder: (context, state) {
-        return state.map(
-          initial: (_) => MenuList(
-            menuItems: buildMenuItems(context.read<MenuBloc>().state.apps),
-          ),
-          loadApps: (s) => MenuList(
-            menuItems: buildMenuItems(some(s.apps)),
-          ),
-          loadFail: (s) => FlowyErrorPage(s.error.toString()),
-        );
-      },
+    return MenuList(
+      menuItems: buildMenuItems(context.read<MenuBloc>().state.apps),
     );
   }
 

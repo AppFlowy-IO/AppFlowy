@@ -14,27 +14,41 @@ part 'menu_bloc.freezed.dart';
 
 class MenuBloc extends Bloc<MenuEvent, MenuState> {
   final IWorkspace workspaceManager;
-  MenuBloc(this.workspaceManager) : super(MenuState.initial());
+  final IWorkspaceListener listener;
+  MenuBloc({required this.workspaceManager, required this.listener}) : super(MenuState.initial());
 
   @override
   Stream<MenuState> mapEventToState(
     MenuEvent event,
   ) async* {
     yield* event.map(
-      initial: (value) async* {
+      initial: (e) async* {
+        listener.start(addAppCallback: _handleAppsOrFail);
         yield* _fetchApps();
       },
       collapse: (e) async* {
         final isCollapse = state.isCollapse;
         yield state.copyWith(isCollapse: !isCollapse);
       },
-      openPage: (OpenPage e) async* {
+      openPage: (e) async* {
         yield* _performActionOnOpenPage(e);
       },
       createApp: (CreateApp event) async* {
         yield* _performActionOnCreateApp(event);
       },
+      didReceiveApps: (e) async* {
+        yield e.appsOrFail.fold(
+          (apps) => state.copyWith(apps: some(apps), successOrFailure: left(unit)),
+          (err) => state.copyWith(successOrFailure: right(err)),
+        );
+      },
     );
+  }
+
+  @override
+  Future<void> close() async {
+    await listener.stop();
+    return super.close();
   }
 
   Stream<MenuState> _performActionOnOpenPage(OpenPage e) async* {
@@ -63,6 +77,13 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
       },
     );
   }
+
+  void _handleAppsOrFail(Either<List<App>, WorkspaceError> appsOrFail) {
+    appsOrFail.fold(
+      (apps) => add(MenuEvent.didReceiveApps(left(apps))),
+      (error) => add(MenuEvent.didReceiveApps(right(error))),
+    );
+  }
 }
 
 @freezed
@@ -71,6 +92,7 @@ class MenuEvent with _$MenuEvent {
   const factory MenuEvent.collapse() = Collapse;
   const factory MenuEvent.openPage(HomeStackContext context) = OpenPage;
   const factory MenuEvent.createApp(String name, {String? desc}) = CreateApp;
+  const factory MenuEvent.didReceiveApps(Either<List<App>, WorkspaceError> appsOrFail) = ReceiveApps;
 }
 
 @freezed
