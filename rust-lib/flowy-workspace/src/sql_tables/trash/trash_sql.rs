@@ -35,6 +35,11 @@ impl TrashTableSql {
         Ok(RepeatedTrash { items })
     }
 
+    pub(crate) fn delete_all(conn: &SqliteConnection) -> Result<(), WorkspaceError> {
+        let _ = diesel::delete(dsl::trash_table).execute(conn)?;
+        Ok(())
+    }
+
     pub(crate) fn read(trash_id: &str, conn: &SqliteConnection) -> Result<TrashTable, WorkspaceError> {
         let trash_table = dsl::trash_table
             .filter(trash_table::id.eq(trash_id))

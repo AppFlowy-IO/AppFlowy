@@ -20,8 +20,6 @@ pub trait DocumentServerAPI {
     fn read_doc(&self, token: &str, params: DocIdentifier) -> ResultFuture<Option<Doc>, DocError>;
 
     fn update_doc(&self, token: &str, params: UpdateDocParams) -> ResultFuture<(), DocError>;
-
-    fn delete_doc(&self, token: &str, params: DocIdentifier) -> ResultFuture<(), DocError>;
 }
 
 pub(crate) fn construct_doc_server(server_config: &ServerConfig) -> Arc<dyn DocumentServerAPI + Send + Sync> {

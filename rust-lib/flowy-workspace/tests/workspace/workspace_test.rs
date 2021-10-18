@@ -29,8 +29,8 @@ async fn workspace_create_with_apps() {
     assert_eq!(&app, workspace_from_db.apps.first_or_crash());
 }
 
-#[test]
-fn workspace_create_with_invalid_name() {
+#[tokio::test]
+async fn workspace_create_with_invalid_name() {
     for name in invalid_workspace_name_test_case() {
         let sdk = FlowyTest::setup().sdk;
         let request = CreateWorkspaceRequest {
@@ -41,7 +41,8 @@ fn workspace_create_with_invalid_name() {
             FlowyWorkspaceTest::new(sdk)
                 .event(CreateWorkspace)
                 .request(request)
-                .sync_send()
+                .async_send()
+                .await
                 .error()
                 .code,
             ErrorCode::WorkspaceNameInvalid
@@ -49,8 +50,8 @@ fn workspace_create_with_invalid_name() {
     }
 }
 
-#[test]
-fn workspace_update_with_invalid_name() {
+#[tokio::test]
+async fn workspace_update_with_invalid_name() {
     let sdk = FlowyTest::setup().sdk;
     for name in invalid_workspace_name_test_case() {
         let request = CreateWorkspaceRequest {
@@ -61,7 +62,8 @@ fn workspace_update_with_invalid_name() {
             FlowyWorkspaceTest::new(sdk.clone())
                 .event(CreateWorkspace)
                 .request(request)
-                .sync_send()
+                .async_send()
+                .await
                 .error()
                 .code,
             ErrorCode::WorkspaceNameInvalid

@@ -3,9 +3,8 @@ use flowy_test::{builder::UserTest, FlowyTest};
 use flowy_user::{errors::ErrorCode, event::UserEvent::*, prelude::*};
 use serial_test::*;
 
-#[test]
-#[serial]
-fn sign_up_with_invalid_email() {
+#[tokio::test]
+async fn sign_up_with_invalid_email() {
     for email in invalid_email_test_case() {
         let test = FlowyTest::setup();
         let request = SignUpRequest {
@@ -18,16 +17,16 @@ fn sign_up_with_invalid_email() {
             UserTest::new(test.sdk)
                 .event(SignUp)
                 .request(request)
-                .sync_send()
+                .async_send()
+                .await
                 .error()
                 .code,
             ErrorCode::EmailFormatInvalid
         );
     }
 }
-#[test]
-#[serial]
-fn sign_up_with_invalid_password() {
+#[tokio::test]
+async fn sign_up_with_invalid_password() {
     for password in invalid_password_test_case() {
         let test = FlowyTest::setup();
         let request = SignUpRequest {
@@ -39,7 +38,8 @@ fn sign_up_with_invalid_password() {
         UserTest::new(test.sdk)
             .event(SignUp)
             .request(request)
-            .sync_send()
+            .async_send()
+            .await
             .assert_error();
     }
 }
@@ -58,14 +58,14 @@ async fn sign_in_success() {
     let response = UserTest::new(test.sdk())
         .event(SignIn)
         .request(request)
-        .sync_send()
+        .async_send()
+        .await
         .parse::<UserProfile>();
     dbg!(&response);
 }
 
-#[test]
-#[serial]
-fn sign_in_with_invalid_email() {
+#[tokio::test]
+async fn sign_in_with_invalid_email() {
     for email in invalid_email_test_case() {
         let test = FlowyTest::setup();
         let request = SignInRequest {
@@ -77,7 +77,8 @@ fn sign_in_with_invalid_email() {
             UserTest::new(test.sdk)
                 .event(SignIn)
                 .request(request)
-                .sync_send()
+                .async_send()
+                .await
                 .error()
                 .code,
             ErrorCode::EmailFormatInvalid
@@ -85,9 +86,8 @@ fn sign_in_with_invalid_email() {
     }
 }
 
-#[test]
-#[serial]
-fn sign_in_with_invalid_password() {
+#[tokio::test]
+async fn sign_in_with_invalid_password() {
     for password in invalid_password_test_case() {
         let test = FlowyTest::setup();
 
@@ -99,7 +99,8 @@ fn sign_in_with_invalid_password() {
         UserTest::new(test.sdk)
             .event(SignIn)
             .request(request)
-            .sync_send()
+            .async_send()
+            .await
             .assert_error();
     }
 }

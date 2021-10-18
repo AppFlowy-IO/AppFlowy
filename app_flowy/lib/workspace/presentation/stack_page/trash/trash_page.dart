@@ -53,21 +53,27 @@ class _TrashStackPageState extends State<TrashStackPage> {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     const horizontalPadding = 80.0;
-    return SizedBox.expand(
-      child: Column(
-        children: [
-          _renderTopBar(theme),
-          const VSpace(32),
-          _renderTrashList(context),
-        ],
-        mainAxisAlignment: MainAxisAlignment.start,
-      ).padding(horizontal: horizontalPadding, vertical: 48),
+    return BlocProvider(
+      create: (context) => getIt<TrashBloc>()..add(const TrashEvent.initial()),
+      child: BlocBuilder<TrashBloc, TrashState>(
+        builder: (context, state) {
+          return SizedBox.expand(
+            child: Column(
+              children: [
+                _renderTopBar(context, theme, state),
+                const VSpace(32),
+                _renderTrashList(context, state),
+              ],
+              mainAxisAlignment: MainAxisAlignment.start,
+            ).padding(horizontal: horizontalPadding, vertical: 48),
+          );
+        },
+      ),
     );
   }
 
-  Widget _renderTrashList(BuildContext context) {
+  Widget _renderTrashList(BuildContext context, TrashState state) {
     const barSize = 6.0;
-
     return Expanded(
       child: ScrollbarListStack(
         axis: Axis.vertical,
@@ -86,8 +92,8 @@ class _TrashStackPageState extends State<TrashStackPage> {
                 physics: StyledScrollPhysics(),
                 controller: _scrollController,
                 slivers: [
-                  _renderListHeader(context),
-                  _renderListBody(context),
+                  _renderListHeader(context, state),
+                  _renderListBody(context, state),
                 ],
               ),
             ),
@@ -97,7 +103,7 @@ class _TrashStackPageState extends State<TrashStackPage> {
     );
   }
 
-  Widget _renderTopBar(AppTheme theme) {
+  Widget _renderTopBar(BuildContext context, AppTheme theme, TrashState state) {
     return SizedBox(
       height: 36,
       child: Row(
@@ -128,7 +134,7 @@ class _TrashStackPageState extends State<TrashStackPage> {
     );
   }
 
-  Widget _renderListHeader(BuildContext context) {
+  Widget _renderListHeader(BuildContext context, TrashState state) {
     return SliverPersistentHeader(
       delegate: TrashHeaderDelegate(),
       floating: true,
@@ -136,31 +142,24 @@ class _TrashStackPageState extends State<TrashStackPage> {
     );
   }
 
-  Widget _renderListBody(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<TrashBloc>()..add(const TrashEvent.initial()),
-      child: BlocBuilder<TrashBloc, TrashState>(
-        builder: (context, state) {
-          return SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (BuildContext context, int index) {
-                final object = state.objects[index];
-                return SizedBox(
-                  height: 42,
-                  child: TrashCell(
-                    object: object,
-                    onRestore: () {
-                      context.read<TrashBloc>().add(TrashEvent.putback(object.id));
-                    },
-                    onDelete: () => context.read<TrashBloc>().add(TrashEvent.delete(object.id)),
-                  ),
-                );
+  Widget _renderListBody(BuildContext context, TrashState state) {
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (BuildContext context, int index) {
+          final object = state.objects[index];
+          return SizedBox(
+            height: 42,
+            child: TrashCell(
+              object: object,
+              onRestore: () {
+                context.read<TrashBloc>().add(TrashEvent.putback(object.id));
               },
-              childCount: state.objects.length,
-              addAutomaticKeepAlives: false,
+              onDelete: () => context.read<TrashBloc>().add(TrashEvent.delete(object.id)),
             ),
           );
         },
+        childCount: state.objects.length,
+        addAutomaticKeepAlives: false,
       ),
     );
   }

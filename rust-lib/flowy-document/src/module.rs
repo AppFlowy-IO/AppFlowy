@@ -37,11 +37,6 @@ impl FlowyDocument {
         Ok(())
     }
 
-    pub fn create(&self, params: CreateDocParams) -> Result<(), DocError> {
-        let _ = self.doc_ctrl.create(params)?;
-        Ok(())
-    }
-
     pub fn delete(&self, params: DocIdentifier) -> Result<(), DocError> {
         let _ = self.doc_ctrl.delete(params)?;
         Ok(())

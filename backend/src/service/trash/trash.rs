@@ -33,6 +33,22 @@ pub(crate) async fn create_trash(
     Ok(())
 }
 
+pub(crate) async fn delete_all_trash(
+    transaction: &mut DBTransaction<'_>,
+    user: &LoggedUser,
+) -> Result<(), ServerError> {
+    let (sql, args) = SqlBuilder::delete(TRASH_TABLE)
+        .and_where_eq("user_id", &user.user_id)
+        .build()?;
+    let result = sqlx::query_with(&sql, args)
+        .execute(transaction as &mut DBTransaction<'_>)
+        .await
+        .map_err(map_sqlx_error)?;
+
+    tracing::Span::current().record("affected_row", &result.rows_affected());
+    Ok(())
+}
+
 pub(crate) async fn delete_trash(
     transaction: &mut DBTransaction<'_>,
     records: Vec<(Uuid, i32)>,

@@ -18,8 +18,4 @@ impl DocumentServerAPI for DocServerMock {
     fn update_doc(&self, _token: &str, _params: UpdateDocParams) -> ResultFuture<(), DocError> {
         ResultFuture::new(async { Ok(()) })
     }
-
-    fn delete_doc(&self, _token: &str, _params: DocIdentifier) -> ResultFuture<(), DocError> {
-        ResultFuture::new(async { Ok(()) })
-    }
 }

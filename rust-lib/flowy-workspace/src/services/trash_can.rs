@@ -55,11 +55,12 @@ impl TrashCan {
         let trash_table = TrashTableSql::read(trash_id, &*self.database.db_connection()?)?;
         let _ = thread::scope(|_s| {
             let conn = self.database.db_connection()?;
-            let _ = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
+            conn.immediate_transaction::<_, WorkspaceError, _>(|| {
                 let _ = TrashTableSql::delete_trash(trash_id, &*conn)?;
                 notify_trash_num_changed(TrashTableSql::read_all(&conn)?);
                 Ok(())
             })?;
+
             Ok::<(), WorkspaceError>(())
         })
         .unwrap()?;
@@ -71,6 +72,7 @@ impl TrashCan {
 
         let _ = self.delete_trash_on_server(TrashIdentifiers {
             items: vec![identifier.clone()],
+            delete_all: false,
         })?;
 
         tracing::Span::current().record("putback", &format!("{:?}", &identifier).as_str());
@@ -80,16 +82,45 @@ impl TrashCan {
     }
 
     #[tracing::instrument(level = "debug", skip(self)  err)]
-    pub fn restore_all(&self) -> WorkspaceResult<()> { Ok(()) }
+    pub async fn restore_all(&self) -> WorkspaceResult<()> {
+        let repeated_trash = self.delete_all_trash_on_local()?;
+        let identifiers: TrashIdentifiers = repeated_trash.items.clone().into();
+        let (tx, mut rx) = mpsc::channel::<WorkspaceResult<()>>(1);
+        let _ = self.notify.send(TrashEvent::Putback(identifiers, tx));
+        let _ = rx.recv().await;
+
+        notify_trash_num_changed(RepeatedTrash { items: vec![] });
+        let _ = self.delete_all_trash_on_server().await?;
+        Ok(())
+    }
 
     #[tracing::instrument(level = "debug", skip(self)  err)]
-    pub fn delete_all(&self) -> WorkspaceResult<()> { Ok(()) }
+    pub async fn delete_all(&self) -> WorkspaceResult<()> {
+        let repeated_trash = self.delete_all_trash_on_local()?;
+        let identifiers: TrashIdentifiers = repeated_trash.items.clone().into();
+        let (tx, mut rx) = mpsc::channel::<WorkspaceResult<()>>(1);
+        let _ = self.notify.send(TrashEvent::Delete(identifiers, tx));
+        let _ = rx.recv().await;
+
+        notify_trash_num_changed(RepeatedTrash { items: vec![] });
+        let _ = self.delete_all_trash_on_server().await?;
+        Ok(())
+    }
+
+    fn delete_all_trash_on_local(&self) -> WorkspaceResult<RepeatedTrash> {
+        let conn = self.database.db_connection()?;
+        conn.immediate_transaction::<_, WorkspaceError, _>(|| {
+            let repeated_trash = TrashTableSql::read_all(&*conn)?;
+            let _ = TrashTableSql::delete_all(&*conn)?;
+            Ok(repeated_trash)
+        })
+    }
 
     #[tracing::instrument(level = "debug", skip(self)  err)]
     pub async fn delete(&self, trash_identifiers: TrashIdentifiers) -> WorkspaceResult<()> {
         let (tx, mut rx) = mpsc::channel::<WorkspaceResult<()>>(1);
         let _ = self.notify.send(TrashEvent::Delete(trash_identifiers.clone(), tx));
-        let _ = rx.recv().await.unwrap()?;
+        let _ = rx.recv().await;
 
         let conn = self.database.db_connection()?;
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
@@ -99,6 +130,7 @@ impl TrashCan {
             Ok(())
         })?;
 
+        notify_trash_num_changed(TrashTableSql::read_all(&conn)?);
         let _ = self.delete_trash_on_server(trash_identifiers)?;
 
         Ok(())
@@ -122,7 +154,8 @@ impl TrashCan {
             let conn = self.database.db_connection()?;
             conn.immediate_transaction::<_, WorkspaceError, _>(|| {
                 let _ = TrashTableSql::create_trash(repeated_trash.clone(), &*conn)?;
-                self.create_trash_on_server(repeated_trash);
+                let _ = self.create_trash_on_server(repeated_trash);
+
                 notify_trash_num_changed(TrashTableSql::read_all(&conn)?);
                 Ok(())
             })?;
@@ -201,6 +234,13 @@ impl TrashCan {
             }
         });
         Ok(())
+    }
+
+    #[tracing::instrument(level = "debug", skip(self), err)]
+    async fn delete_all_trash_on_server(&self) -> WorkspaceResult<()> {
+        let token = self.user.token()?;
+        let server = self.server.clone();
+        server.delete_trash(&token, TrashIdentifiers::all()).await
     }
 }
 

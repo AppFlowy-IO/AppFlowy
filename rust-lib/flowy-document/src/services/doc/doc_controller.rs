@@ -45,17 +45,6 @@ impl DocController {
         Ok(())
     }
 
-    #[tracing::instrument(skip(self), err)]
-    pub(crate) fn create(&self, params: CreateDocParams) -> Result<(), DocError> {
-        // let _doc = Doc {
-        //     id: params.id,
-        //     data: params.data,
-        //     rev_id: 0,
-        // };
-        // let _ = self.doc_sql.create_doc_table(DocTable::new(doc), conn)?;
-        Ok(())
-    }
-
     #[tracing::instrument(level = "debug", skip(self, pool), err)]
     pub(crate) async fn open(
         &self,
@@ -82,7 +71,6 @@ impl DocController {
         let doc_id = &params.doc_id;
         self.cache.remove(doc_id);
         self.ws_manager.remove_handler(doc_id);
-        let _ = self.delete_doc_on_server(params)?;
         Ok(())
     }
 
@@ -95,22 +83,6 @@ impl DocController {
 }
 
 impl DocController {
-    #[tracing::instrument(level = "debug", skip(self), err)]
-    fn delete_doc_on_server(&self, params: DocIdentifier) -> Result<(), DocError> {
-        let token = self.user.token()?;
-        let server = self.server.clone();
-        tokio::spawn(async move {
-            match server.delete_doc(&token, params).await {
-                Ok(_) => {},
-                Err(e) => {
-                    // TODO: retry?
-                    log::error!("Delete doc failed: {:?}", e);
-                },
-            }
-        });
-        Ok(())
-    }
-
     async fn make_edit_context(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<Arc<ClientEditDoc>, DocError> {
         // Opti: require upgradable_read lock and then upgrade to write lock using
         // RwLockUpgradableReadGuard::upgrade(xx) of ws
@@ -146,7 +118,7 @@ impl RevisionServer for RevisionServerImpl {
 
         ResultFuture::new(async move {
             match server.read_doc(&token, params).await? {
-                None => Err(DocError::not_found()),
+                None => Err(DocError::record_not_found().context("Remote doesn't have this document")),
                 Some(doc) => Ok(doc),
             }
         })

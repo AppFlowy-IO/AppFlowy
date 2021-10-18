@@ -4,11 +4,14 @@ use flowy_test::{builder::UserTest, FlowyTest};
 use flowy_user::{errors::ErrorCode, event::UserEvent::*, prelude::*};
 use serial_test::*;
 
-#[test]
-#[serial]
-fn user_profile_get_failed() {
+#[tokio::test]
+async fn user_profile_get_failed() {
     let test = FlowyTest::setup();
-    let result = UserTest::new(test.sdk).event(GetUserProfile).assert_error().sync_send();
+    let result = UserTest::new(test.sdk)
+        .event(GetUserProfile)
+        .assert_error()
+        .async_send()
+        .await;
     assert!(result.user_profile().is_none())
 }
 

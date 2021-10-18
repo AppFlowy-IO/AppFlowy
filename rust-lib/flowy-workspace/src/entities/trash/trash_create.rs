@@ -27,10 +27,27 @@ impl std::default::Default for TrashType {
 pub struct TrashIdentifiers {
     #[pb(index = 1)]
     pub items: Vec<TrashIdentifier>,
+
+    #[pb(index = 2)]
+    pub delete_all: bool,
+}
+
+impl TrashIdentifiers {
+    pub fn all() -> TrashIdentifiers {
+        TrashIdentifiers {
+            items: vec![],
+            delete_all: true,
+        }
+    }
 }
 
 impl std::convert::From<Vec<TrashIdentifier>> for TrashIdentifiers {
-    fn from(items: Vec<TrashIdentifier>) -> Self { TrashIdentifiers { items } }
+    fn from(items: Vec<TrashIdentifier>) -> Self {
+        TrashIdentifiers {
+            items,
+            delete_all: false,
+        }
+    }
 }
 
 impl std::convert::From<Vec<Trash>> for TrashIdentifiers {
@@ -40,7 +57,10 @@ impl std::convert::From<Vec<Trash>> for TrashIdentifiers {
             .map(|t| TrashIdentifier { id: t.id, ty: t.ty })
             .collect::<Vec<_>>();
 
-        TrashIdentifiers { items }
+        TrashIdentifiers {
+            items,
+            delete_all: false,
+        }
     }
 }
 

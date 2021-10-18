@@ -133,7 +133,7 @@ pub fn read_workspace(sdk: &FlowyTestSDK, request: QueryWorkspaceRequest) -> Opt
     let mut workspaces;
     if let Some(workspace_id) = &request.workspace_id {
         workspaces = repeated_workspace
-            .take_items()
+            .into_inner()
             .into_iter()
             .filter(|workspace| &workspace.id == workspace_id)
             .collect::<Vec<Workspace>>();

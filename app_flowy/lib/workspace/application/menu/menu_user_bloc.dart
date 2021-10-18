@@ -10,10 +10,10 @@ import 'package:dartz/dartz.dart';
 part 'menu_user_bloc.freezed.dart';
 
 class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
-  final IUser iUserImpl;
+  final IUser userManager;
   final IUserListener listener;
 
-  MenuUserBloc(this.iUserImpl, this.listener) : super(MenuUserState.initial(iUserImpl.user));
+  MenuUserBloc(this.userManager, this.listener) : super(MenuUserState.initial(userManager.user));
 
   @override
   Stream<MenuUserState> mapEventToState(MenuUserEvent event) async* {
@@ -36,7 +36,7 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
   }
 
   Future<void> _initUser() async {
-    final result = await iUserImpl.initUser();
+    final result = await userManager.initUser();
     result.fold((l) => null, (error) => Log.error(error));
   }
 

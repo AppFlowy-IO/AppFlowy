@@ -32,12 +32,6 @@ impl DocumentServerAPI for DocServer {
         let url = self.config.doc_url();
         ResultFuture::new(async move { update_doc_request(&token, params, &url).await })
     }
-
-    fn delete_doc(&self, token: &str, params: DocIdentifier) -> ResultFuture<(), DocError> {
-        let token = token.to_owned();
-        let url = self.config.doc_url();
-        ResultFuture::new(async move { delete_doc_request(&token, params, &url).await })
-    }
 }
 
 pub(crate) fn request_builder() -> HttpRequestBuilder {
@@ -68,16 +62,6 @@ pub async fn read_doc_request(token: &str, params: DocIdentifier, url: &str) -> 
 pub async fn update_doc_request(token: &str, params: UpdateDocParams, url: &str) -> Result<(), DocError> {
     let _ = request_builder()
         .patch(&url.to_owned())
-        .header(HEADER_TOKEN, token)
-        .protobuf(params)?
-        .send()
-        .await?;
-    Ok(())
-}
-
-pub async fn delete_doc_request(token: &str, params: DocIdentifier, url: &str) -> Result<(), DocError> {
-    let _ = request_builder()
-        .delete(url)
         .header(HEADER_TOKEN, token)
         .protobuf(params)?
         .send()

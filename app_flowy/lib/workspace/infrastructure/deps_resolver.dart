@@ -34,7 +34,7 @@ class HomeDepsResolver {
     getIt.registerFactoryParam<WelcomeBloc, UserProfile, void>(
       (user, _) => WelcomeBloc(
         repo: UserRepo(user: user),
-        watch: getIt<IUserListener>(param1: user),
+        listener: getIt<IUserListener>(param1: user),
       ),
     );
 

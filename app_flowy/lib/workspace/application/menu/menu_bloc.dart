@@ -13,8 +13,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'menu_bloc.freezed.dart';
 
 class MenuBloc extends Bloc<MenuEvent, MenuState> {
-  final IWorkspace workspace;
-  MenuBloc(this.workspace) : super(MenuState.initial());
+  final IWorkspace workspaceManager;
+  MenuBloc(this.workspaceManager) : super(MenuState.initial());
 
   @override
   Stream<MenuState> mapEventToState(
@@ -42,7 +42,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
   }
 
   Stream<MenuState> _performActionOnCreateApp(CreateApp event) async* {
-    final result = await workspace.createApp(name: event.name, desc: event.desc);
+    final result = await workspaceManager.createApp(name: event.name, desc: event.desc);
     yield result.fold(
       (app) => state.copyWith(apps: some([app])),
       (error) {
@@ -54,7 +54,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
 
   // ignore: unused_element
   Stream<MenuState> _fetchApps() async* {
-    final appsOrFail = await workspace.getApps();
+    final appsOrFail = await workspaceManager.getApps();
     yield appsOrFail.fold(
       (apps) => state.copyWith(apps: some(apps)),
       (error) {

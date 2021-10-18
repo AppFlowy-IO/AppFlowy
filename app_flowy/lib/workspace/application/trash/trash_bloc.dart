@@ -8,16 +8,16 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'trash_bloc.freezed.dart';
 
 class TrashBloc extends Bloc<TrashEvent, TrashState> {
-  final ITrash iTrash;
+  final ITrash trasnManager;
   final ITrashListener listener;
-  TrashBloc({required this.iTrash, required this.listener}) : super(TrashState.init());
+  TrashBloc({required this.trasnManager, required this.listener}) : super(TrashState.init());
 
   @override
   Stream<TrashState> mapEventToState(TrashEvent event) async* {
     yield* event.map(
       initial: (e) async* {
         listener.start(_listenTrashUpdated);
-        final result = await iTrash.readTrash();
+        final result = await trasnManager.readTrash();
         yield result.fold(
           (objects) => state.copyWith(objects: objects, successOrFailure: left(unit)),
           (error) => state.copyWith(successOrFailure: right(error)),
@@ -27,18 +27,21 @@ class TrashBloc extends Bloc<TrashEvent, TrashState> {
         yield state.copyWith(objects: e.trash);
       },
       putback: (e) async* {
-        final result = await iTrash.putback(e.trashId);
+        final result = await trasnManager.putback(e.trashId);
         yield* _handleResult(result);
       },
       delete: (e) async* {
-        final result = await iTrash.deleteViews([e.trashId]);
+        final result = await trasnManager.deleteViews([e.trashId]);
         yield* _handleResult(result);
       },
       deleteAll: (e) async* {
-        final result = await iTrash.deleteAll();
+        final result = await trasnManager.deleteAll();
         yield* _handleResult(result);
       },
-      restoreAll: (e) async* {},
+      restoreAll: (e) async* {
+        final result = await trasnManager.restoreAll();
+        yield* _handleResult(result);
+      },
     );
   }
 

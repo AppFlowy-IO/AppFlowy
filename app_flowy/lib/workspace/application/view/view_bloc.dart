@@ -8,13 +8,13 @@ import 'package:app_flowy/workspace/domain/i_view.dart';
 part 'view_bloc.freezed.dart';
 
 class ViewBloc extends Bloc<ViewEvent, ViewState> {
-  final IView iViewImpl;
+  final IView viewManager;
   final IViewListener listener;
 
   ViewBloc({
-    required this.iViewImpl,
+    required this.viewManager,
     required this.listener,
-  }) : super(ViewState.init(iViewImpl.view));
+  }) : super(ViewState.init(viewManager.view));
 
   @override
   Stream<ViewState> mapEventToState(ViewEvent event) async* {
@@ -26,13 +26,13 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
     }, viewDidUpdate: (e) async* {
       yield* _handleViewDidUpdate(e.result);
     }, rename: (e) async* {
-      final result = await iViewImpl.rename(e.newName);
+      final result = await viewManager.rename(e.newName);
       yield result.fold(
         (l) => state.copyWith(successOrFailure: left(unit)),
         (error) => state.copyWith(successOrFailure: right(error)),
       );
     }, delete: (e) async* {
-      final result = await iViewImpl.delete();
+      final result = await viewManager.delete();
       yield result.fold(
         (l) => state.copyWith(successOrFailure: left(unit)),
         (error) => state.copyWith(successOrFailure: right(error)),

@@ -24,11 +24,12 @@ const TrashIdentifiers$json = const {
   '1': 'TrashIdentifiers',
   '2': const [
     const {'1': 'items', '3': 1, '4': 3, '5': 11, '6': '.TrashIdentifier', '10': 'items'},
+    const {'1': 'delete_all', '3': 2, '4': 1, '5': 8, '10': 'deleteAll'},
   ],
 };
 
 /// Descriptor for `TrashIdentifiers`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List trashIdentifiersDescriptor = $convert.base64Decode('ChBUcmFzaElkZW50aWZpZXJzEiYKBWl0ZW1zGAEgAygLMhAuVHJhc2hJZGVudGlmaWVyUgVpdGVtcw==');
+final $typed_data.Uint8List trashIdentifiersDescriptor = $convert.base64Decode('ChBUcmFzaElkZW50aWZpZXJzEiYKBWl0ZW1zGAEgAygLMhAuVHJhc2hJZGVudGlmaWVyUgVpdGVtcxIdCgpkZWxldGVfYWxsGAIgASgIUglkZWxldGVBbGw=');
 @$core.Deprecated('Use trashIdentifierDescriptor instead')
 const TrashIdentifier$json = const {
   '1': 'TrashIdentifier',

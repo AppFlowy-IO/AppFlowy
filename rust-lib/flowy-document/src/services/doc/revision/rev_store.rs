@@ -180,7 +180,7 @@ async fn fetch_from_local(doc_id: &str, persistence: Arc<Persistence>) -> DocRes
         let conn = &*persistence.pool.get().map_err(internal_error)?;
         let revisions = persistence.rev_sql.read_rev_tables(&doc_id, None, conn)?;
         if revisions.is_empty() {
-            return Err(DocError::not_found());
+            return Err(DocError::record_not_found().context("Local doesn't have this document"));
         }
 
         let base_rev_id: RevId = revisions.last().unwrap().base_rev_id.into();
