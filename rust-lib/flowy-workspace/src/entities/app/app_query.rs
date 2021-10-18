@@ -2,7 +2,7 @@ use crate::{entities::app::parser::AppId, errors::*};
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
 
-#[derive(Default, ProtoBuf)]
+#[derive(Default, ProtoBuf, Clone)]
 pub struct QueryAppRequest {
     #[pb(index = 1)]
     pub app_id: String,

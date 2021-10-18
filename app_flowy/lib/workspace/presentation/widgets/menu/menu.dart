@@ -38,10 +38,7 @@ import 'widget/menu_trash.dart';
 //                                              │               │  └────────┘
 //                                              │   ┌────────┐  │
 //                                              └───│MenuApp │──┤
-//                                                  └────────┘  │
-//                                                              │  ┌──────────────┐
-//                                                              └─▶│AppListenBloc │  Receive view changes
-//                                                                 └──────────────┘
+//                                                  └────────┘
 
 class HomeMenu extends StatelessWidget {
   final Function(HomeStackContext) pageContextChanged;

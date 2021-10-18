@@ -133,14 +133,10 @@ impl TestUserServer {
             .unwrap();
     }
 
-    pub async fn delete_view_trash(&self, trash_id: &str) {
+    pub async fn delete_view_trash(&self, trash_identifiers: TrashIdentifiers) {
         let url = format!("{}/api/trash", self.http_addr());
 
-        let identifier = TrashIdentifier {
-            id: trash_id.to_string(),
-            ty: TrashType::View,
-        };
-        delete_trash_request(self.user_token(), vec![identifier].into(), &url)
+        delete_trash_request(self.user_token(), trash_identifiers, &url)
             .await
             .unwrap();
     }

@@ -82,11 +82,16 @@ impl ViewTest {
         }
     }
 
-    pub async fn delete(&self) {
-        let request = DeleteViewRequest {
-            view_ids: vec![self.view.id.clone()],
-        };
+    pub async fn delete_view(&self, view_ids: Vec<String>) {
+        let request = DeleteViewRequest { view_ids };
         delete_view(&self.sdk, request).await;
+    }
+
+    pub async fn delete_all_view(&self) {
+        FlowyWorkspaceTest::new(self.sdk.clone())
+            .event(DeleteAll)
+            .async_send()
+            .await;
     }
 }
 
@@ -123,11 +128,12 @@ async fn open_workspace(sdk: &FlowyTestSDK, workspace_id: &str) {
         .await;
 }
 
-pub fn read_workspace(sdk: &FlowyTestSDK, request: QueryWorkspaceRequest) -> Option<Workspace> {
+pub async fn read_workspace(sdk: &FlowyTestSDK, request: QueryWorkspaceRequest) -> Option<Workspace> {
     let mut repeated_workspace = FlowyWorkspaceTest::new(sdk.clone())
         .event(ReadWorkspaces)
         .request(request.clone())
-        .sync_send()
+        .async_send()
+        .await
         .parse::<RepeatedWorkspace>();
 
     let mut workspaces;
@@ -162,7 +168,7 @@ pub async fn create_app(sdk: &FlowyTestSDK, name: &str, desc: &str, workspace_id
     app
 }
 
-pub fn delete_app(sdk: &FlowyTestSDK, app_id: &str) {
+pub async fn delete_app(sdk: &FlowyTestSDK, app_id: &str) {
     let delete_app_request = DeleteAppRequest {
         app_id: app_id.to_string(),
     };
@@ -170,7 +176,8 @@ pub fn delete_app(sdk: &FlowyTestSDK, app_id: &str) {
     FlowyWorkspaceTest::new(sdk.clone())
         .event(DeleteApp)
         .request(delete_app_request)
-        .sync_send();
+        .async_send()
+        .await;
 }
 
 pub async fn update_app(sdk: &FlowyTestSDK, request: UpdateAppRequest) {
@@ -181,11 +188,12 @@ pub async fn update_app(sdk: &FlowyTestSDK, request: UpdateAppRequest) {
         .await;
 }
 
-pub fn read_app(sdk: &FlowyTestSDK, request: QueryAppRequest) -> App {
+pub async fn read_app(sdk: &FlowyTestSDK, request: QueryAppRequest) -> App {
     let app = FlowyWorkspaceTest::new(sdk.clone())
         .event(ReadApp)
         .request(request)
-        .sync_send()
+        .async_send()
+        .await
         .parse::<App>();
 
     app

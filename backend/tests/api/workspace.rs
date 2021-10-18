@@ -1,6 +1,7 @@
 use crate::helper::*;
 use flowy_workspace::entities::{
     app::{AppIdentifier, DeleteAppParams, UpdateAppParams},
+    trash::{TrashIdentifier, TrashIdentifiers, TrashType},
     view::{UpdateViewParams, ViewIdentifier},
     workspace::{CreateWorkspaceParams, DeleteWorkspaceParams, QueryWorkspaceParams, UpdateWorkspaceParams},
 };
@@ -173,11 +174,25 @@ async fn view_delete() {
 }
 
 #[actix_rt::test]
-async fn view_delete_and_then_delete_the_trash_record() {
+async fn trash_delete() {
     let test = ViewTest::new().await;
     test.server.create_view_trash(&test.view.id).await;
-    test.server.delete_view_trash(&test.view.id).await;
 
+    let identifier = TrashIdentifier {
+        id: test.view.id.clone(),
+        ty: TrashType::View,
+    };
+    test.server.delete_view_trash(vec![identifier].into()).await;
+
+    assert_eq!(test.server.read_trash().await.is_empty(), true);
+}
+
+#[actix_rt::test]
+async fn trash_delete_all() {
+    let test = ViewTest::new().await;
+    test.server.create_view_trash(&test.view.id).await;
+
+    test.server.delete_view_trash(TrashIdentifiers::all()).await;
     assert_eq!(test.server.read_trash().await.is_empty(), true);
 }
 
