@@ -23,7 +23,7 @@ macro_rules! impl_def_and_def_mut {
 
         impl $target {
             #[allow(dead_code)]
-            pub fn take_items(&mut self) -> Vec<$item> { ::std::mem::replace(&mut self.items, vec![]) }
+            pub fn into_inner(&mut self) -> Vec<$item> { ::std::mem::replace(&mut self.items, vec![]) }
 
             #[allow(dead_code)]
             pub fn push(&mut self, item: $item) {

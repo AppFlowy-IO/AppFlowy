@@ -28,6 +28,16 @@ class ITrashImpl implements ITrash {
   Future<Either<Unit, WorkspaceError>> deleteViews(List<String> trashIds) {
     return repo.deleteViews(trashIds);
   }
+
+  @override
+  Future<Either<Unit, WorkspaceError>> deleteAll() {
+    return repo.deleteAll();
+  }
+
+  @override
+  Future<Either<Unit, WorkspaceError>> restoreAll() {
+    return repo.restoreAll();
+  }
 }
 
 class ITrashListenerImpl extends ITrashListener {

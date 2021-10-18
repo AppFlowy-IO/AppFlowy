@@ -9,6 +9,10 @@ abstract class ITrash {
   Future<Either<Unit, WorkspaceError>> putback(String trashId);
 
   Future<Either<Unit, WorkspaceError>> deleteViews(List<String> trashIds);
+
+  Future<Either<Unit, WorkspaceError>> restoreAll();
+
+  Future<Either<Unit, WorkspaceError>> deleteAll();
 }
 
 typedef TrashUpdatedCallback = void Function(Either<List<Trash>, WorkspaceError> trashOrFailed);

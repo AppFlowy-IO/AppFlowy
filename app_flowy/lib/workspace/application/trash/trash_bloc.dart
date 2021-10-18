@@ -28,17 +28,24 @@ class TrashBloc extends Bloc<TrashEvent, TrashState> {
       },
       putback: (e) async* {
         final result = await iTrash.putback(e.trashId);
-        yield result.fold(
-          (l) => state.copyWith(successOrFailure: left(unit)),
-          (error) => state.copyWith(successOrFailure: right(error)),
-        );
+        yield* _handleResult(result);
       },
       delete: (e) async* {
         final result = await iTrash.deleteViews([e.trashId]);
-        result.fold((l) {}, (error) {});
+        yield* _handleResult(result);
       },
-      deleteAll: (e) async* {},
+      deleteAll: (e) async* {
+        final result = await iTrash.deleteAll();
+        yield* _handleResult(result);
+      },
       restoreAll: (e) async* {},
+    );
+  }
+
+  Stream<TrashState> _handleResult(Either<dynamic, WorkspaceError> result) async* {
+    yield result.fold(
+      (l) => state.copyWith(successOrFailure: left(unit)),
+      (error) => state.copyWith(successOrFailure: right(error)),
     );
   }
 

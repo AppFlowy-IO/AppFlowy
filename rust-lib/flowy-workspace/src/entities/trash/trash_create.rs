@@ -53,6 +53,15 @@ pub struct TrashIdentifier {
     pub ty: TrashType,
 }
 
+impl std::convert::From<&Trash> for TrashIdentifier {
+    fn from(trash: &Trash) -> Self {
+        TrashIdentifier {
+            id: trash.id.clone(),
+            ty: trash.ty.clone(),
+        }
+    }
+}
+
 #[derive(PartialEq, ProtoBuf, Default, Debug, Clone)]
 pub struct Trash {
     #[pb(index = 1)]

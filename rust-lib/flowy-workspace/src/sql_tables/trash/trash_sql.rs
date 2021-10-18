@@ -1,4 +1,8 @@
-use crate::{entities::trash::RepeatedTrash, errors::WorkspaceError, sql_tables::trash::TrashTable};
+use crate::{
+    entities::trash::RepeatedTrash,
+    errors::WorkspaceError,
+    sql_tables::trash::{TrashTable, TrashTableChangeset},
+};
 
 use crate::entities::trash::Trash;
 use flowy_database::{
@@ -10,8 +14,18 @@ use flowy_database::{
 pub struct TrashTableSql {}
 
 impl TrashTableSql {
-    pub(crate) fn create_trash(trash_table: TrashTable, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
-        diesel_insert_table!(trash_table, &trash_table, conn);
+    pub(crate) fn create_trash(repeated_trash: Vec<Trash>, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
+        for trash in repeated_trash {
+            let trash_table: TrashTable = trash.into();
+            match diesel_record_count!(trash_table, &trash_table.id, conn) {
+                0 => diesel_insert_table!(trash_table, &trash_table, conn),
+                _ => {
+                    let changeset = TrashTableChangeset::from(trash_table);
+                    diesel_update_table!(trash_table, changeset, conn)
+                },
+            }
+        }
+
         Ok(())
     }
 

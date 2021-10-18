@@ -1,5 +1,4 @@
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
-import 'package:app_flowy/workspace/application/app/app_listen_bloc.dart';
 import 'package:app_flowy/workspace/application/doc/doc_bloc.dart';
 import 'package:app_flowy/workspace/application/doc/doc_edit_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
@@ -56,7 +55,7 @@ class HomeDepsResolver {
         (view, _) => IViewListenerImpl(repo: ViewListenerRepository(view: view)));
     getIt.registerFactoryParam<ViewBloc, View, void>(
       (view, _) => ViewBloc(
-        iViewImpl: getIt<IView>(param1: view),
+        viewManager: getIt<IView>(param1: view),
         listener: getIt<IViewListener>(param1: view),
       ),
     );
@@ -80,12 +79,10 @@ class HomeDepsResolver {
     // App
     getIt.registerFactoryParam<AppBloc, String, void>(
       (appId, _) => AppBloc(
-        iAppImpl: getIt<IApp>(param1: appId),
+        appManager: getIt<IApp>(param1: appId),
         listener: getIt<IAppListenr>(param1: appId),
       ),
     );
-    getIt.registerFactoryParam<AppListenBloc, String, void>(
-        (appId, _) => AppListenBloc(getIt<IAppListenr>(param1: appId)));
 
     // Doc
     getIt.registerFactoryParam<DocBloc, String, void>((docId, _) => DocBloc(iDocImpl: getIt<IDoc>(param1: docId)));
@@ -96,6 +93,6 @@ class HomeDepsResolver {
     getIt.registerLazySingleton<TrashListenerRepo>(() => TrashListenerRepo());
     getIt.registerFactory<ITrash>(() => ITrashImpl(repo: getIt<TrashRepo>()));
     getIt.registerFactory<ITrashListener>(() => ITrashListenerImpl(repo: getIt<TrashListenerRepo>()));
-    getIt.registerFactory<TrashBloc>(() => TrashBloc(iTrash: getIt<ITrash>(), listener: getIt<ITrashListener>()));
+    getIt.registerFactory<TrashBloc>(() => TrashBloc(trasnManager: getIt<ITrash>(), listener: getIt<ITrashListener>()));
   }
 }

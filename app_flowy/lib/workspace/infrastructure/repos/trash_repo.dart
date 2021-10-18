@@ -29,6 +29,14 @@ class TrashRepo {
 
     return WorkspaceEventDeleteTrash(trashIdentifiers).send();
   }
+
+  Future<Either<Unit, WorkspaceError>> restoreAll() {
+    return WorkspaceEventRestoreAll().send();
+  }
+
+  Future<Either<Unit, WorkspaceError>> deleteAll() {
+    return WorkspaceEventDeleteAll().send();
+  }
 }
 
 class TrashListenerRepo {

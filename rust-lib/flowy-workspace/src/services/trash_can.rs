@@ -42,7 +42,7 @@ impl TrashCan {
 
     pub fn trash_ids(&self, conn: &SqliteConnection) -> Result<Vec<String>, WorkspaceError> {
         let ids = TrashTableSql::read_all(&*conn)?
-            .take_items()
+            .into_inner()
             .into_iter()
             .map(|item| item.id)
             .collect::<Vec<String>>();
@@ -113,20 +113,16 @@ impl TrashCan {
     #[tracing::instrument(level = "debug", skip(self, trash), err)]
     pub async fn add<T: Into<Trash>>(&self, trash: Vec<T>) -> Result<(), WorkspaceError> {
         let (tx, mut rx) = mpsc::channel::<WorkspaceResult<()>>(1);
-        let trash = trash.into_iter().map(|t| t.into()).collect::<Vec<Trash>>();
-        let mut items = vec![];
+        let repeated_trash = trash.into_iter().map(|t| t.into()).collect::<Vec<Trash>>();
+        let identifiers = repeated_trash
+            .iter()
+            .map(|t| t.into())
+            .collect::<Vec<TrashIdentifier>>();
         let _ = thread::scope(|_s| {
             let conn = self.database.db_connection()?;
             conn.immediate_transaction::<_, WorkspaceError, _>(|| {
-                for t in &trash {
-                    log::debug!("create trash: {:?}", t);
-                    items.push(TrashIdentifier {
-                        id: t.id.clone(),
-                        ty: t.ty.clone(),
-                    });
-                    let _ = TrashTableSql::create_trash(t.clone().into(), &*conn)?;
-                }
-                self.create_trash_on_server(trash);
+                let _ = TrashTableSql::create_trash(repeated_trash.clone(), &*conn)?;
+                self.create_trash_on_server(repeated_trash);
                 notify_trash_num_changed(TrashTableSql::read_all(&conn)?);
                 Ok(())
             })?;
@@ -134,7 +130,7 @@ impl TrashCan {
         })
         .unwrap()?;
 
-        let _ = self.notify.send(TrashEvent::NewTrash(items.into(), tx));
+        let _ = self.notify.send(TrashEvent::NewTrash(identifiers.into(), tx));
         let _ = rx.recv().await.unwrap()?;
 
         Ok(())
@@ -185,10 +181,7 @@ impl TrashCan {
                     match pool.get() {
                         Ok(conn) => {
                             let result = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
-                                for trash in &repeated_trash.items {
-                                    let _ = TrashTableSql::create_trash(trash.clone().into(), &*conn)?;
-                                }
-                                Ok(())
+                                TrashTableSql::create_trash(repeated_trash.items.clone(), &*conn)
                             });
 
                             match result {
@@ -214,7 +207,6 @@ impl TrashCan {
 #[tracing::instrument(skip(repeated_trash), fields(trash_count))]
 fn notify_trash_num_changed(repeated_trash: RepeatedTrash) {
     tracing::Span::current().record("trash_count", &repeated_trash.len());
-
     send_anonymous_dart_notification(WorkspaceNotification::TrashUpdated)
         .payload(repeated_trash)
         .send();

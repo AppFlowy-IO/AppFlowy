@@ -37,6 +37,24 @@ impl std::convert::From<Trash> for TrashTable {
     }
 }
 
+#[derive(AsChangeset, Identifiable, Clone, Default, Debug)]
+#[table_name = "trash_table"]
+pub(crate) struct TrashTableChangeset {
+    pub id: String,
+    pub name: Option<String>,
+    pub modified_time: i64,
+}
+
+impl std::convert::From<TrashTable> for TrashTableChangeset {
+    fn from(trash: TrashTable) -> Self {
+        TrashTableChangeset {
+            id: trash.id,
+            name: Some(trash.name),
+            modified_time: trash.modified_time,
+        }
+    }
+}
+
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash, FromSqlRow, AsExpression)]
 #[repr(i32)]
 #[sql_type = "Integer"]
