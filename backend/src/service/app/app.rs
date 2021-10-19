@@ -13,7 +13,6 @@ use flowy_workspace::{
     },
     protobuf::{App, CreateAppParams, RepeatedView},
 };
-use protobuf::Message;
 use sqlx::{postgres::PgArguments, Postgres};
 use uuid::Uuid;
 

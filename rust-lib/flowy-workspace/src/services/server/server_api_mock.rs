@@ -2,7 +2,7 @@ use crate::{
     entities::{
         app::{App, AppIdentifier, CreateAppParams, DeleteAppParams, RepeatedApp, UpdateAppParams},
         trash::{RepeatedTrash, TrashIdentifiers},
-        view::{CreateViewParams, DeleteViewParams, RepeatedView, UpdateViewParams, View, ViewIdentifier},
+        view::{CreateViewParams, RepeatedView, UpdateViewParams, View, ViewIdentifier, ViewIdentifiers},
         workspace::{
             CreateWorkspaceParams,
             DeleteWorkspaceParams,
@@ -73,7 +73,7 @@ impl WorkspaceServerAPI for WorkspaceServerMock {
         ResultFuture::new(async { Ok(None) })
     }
 
-    fn delete_view(&self, _token: &str, _params: DeleteViewParams) -> ResultFuture<(), WorkspaceError> {
+    fn delete_view(&self, _token: &str, _params: ViewIdentifiers) -> ResultFuture<(), WorkspaceError> {
         ResultFuture::new(async { Ok(()) })
     }
 

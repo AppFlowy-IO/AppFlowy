@@ -12,12 +12,12 @@ import 'dart:typed_data' as $typed_data;
 const QueryViewRequest$json = const {
   '1': 'QueryViewRequest',
   '2': const [
-    const {'1': 'view_id', '3': 1, '4': 1, '5': 9, '10': 'viewId'},
+    const {'1': 'view_ids', '3': 1, '4': 3, '5': 9, '10': 'viewIds'},
   ],
 };
 
 /// Descriptor for `QueryViewRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List queryViewRequestDescriptor = $convert.base64Decode('ChBRdWVyeVZpZXdSZXF1ZXN0EhcKB3ZpZXdfaWQYASABKAlSBnZpZXdJZA==');
+final $typed_data.Uint8List queryViewRequestDescriptor = $convert.base64Decode('ChBRdWVyeVZpZXdSZXF1ZXN0EhkKCHZpZXdfaWRzGAEgAygJUgd2aWV3SWRz');
 @$core.Deprecated('Use viewIdentifierDescriptor instead')
 const ViewIdentifier$json = const {
   '1': 'ViewIdentifier',
@@ -28,13 +28,13 @@ const ViewIdentifier$json = const {
 
 /// Descriptor for `ViewIdentifier`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List viewIdentifierDescriptor = $convert.base64Decode('Cg5WaWV3SWRlbnRpZmllchIXCgd2aWV3X2lkGAEgASgJUgZ2aWV3SWQ=');
-@$core.Deprecated('Use openViewRequestDescriptor instead')
-const OpenViewRequest$json = const {
-  '1': 'OpenViewRequest',
+@$core.Deprecated('Use viewIdentifiersDescriptor instead')
+const ViewIdentifiers$json = const {
+  '1': 'ViewIdentifiers',
   '2': const [
-    const {'1': 'view_id', '3': 1, '4': 1, '5': 9, '10': 'viewId'},
+    const {'1': 'view_ids', '3': 1, '4': 3, '5': 9, '10': 'viewIds'},
   ],
 };
 
-/// Descriptor for `OpenViewRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List openViewRequestDescriptor = $convert.base64Decode('Cg9PcGVuVmlld1JlcXVlc3QSFwoHdmlld19pZBgBIAEoCVIGdmlld0lk');
+/// Descriptor for `ViewIdentifiers`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List viewIdentifiersDescriptor = $convert.base64Decode('Cg9WaWV3SWRlbnRpZmllcnMSGQoIdmlld19pZHMYASADKAlSB3ZpZXdJZHM=');

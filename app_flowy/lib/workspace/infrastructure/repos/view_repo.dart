@@ -6,7 +6,6 @@ import 'package:flowy_sdk/protobuf/flowy-dart-notify/subject.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/observable.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/view_delete.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_query.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_update.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
@@ -22,7 +21,7 @@ class ViewRepository {
   });
 
   Future<Either<View, WorkspaceError>> readView() {
-    final request = QueryViewRequest.create()..viewId = view.id;
+    final request = QueryViewRequest(viewIds: [view.id]);
     return WorkspaceEventReadView(request).send();
   }
 
@@ -41,7 +40,7 @@ class ViewRepository {
   }
 
   Future<Either<Unit, WorkspaceError>> delete() {
-    final request = DeleteViewRequest.create()..viewIds.add(view.id);
+    final request = QueryViewRequest.create()..viewIds.add(view.id);
     return WorkspaceEventDeleteView(request).send();
   }
 }

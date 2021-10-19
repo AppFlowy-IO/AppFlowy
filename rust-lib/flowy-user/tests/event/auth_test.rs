@@ -1,7 +1,6 @@
 use crate::helper::*;
 use flowy_test::{builder::UserTest, FlowyTest};
 use flowy_user::{errors::ErrorCode, event::UserEvent::*, prelude::*};
-use serial_test::*;
 
 #[tokio::test]
 async fn sign_up_with_invalid_email() {

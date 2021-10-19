@@ -33,22 +33,6 @@ impl TrashCan {
 
     pub(crate) fn init(&self) -> Result<(), WorkspaceError> { Ok(()) }
 
-    pub fn read_trash(&self, conn: &SqliteConnection) -> Result<RepeatedTrash, WorkspaceError> {
-        let repeated_trash = TrashTableSql::read_all(&*conn)?;
-
-        let _ = self.read_trash_on_server()?;
-        Ok(repeated_trash)
-    }
-
-    pub fn trash_ids(&self, conn: &SqliteConnection) -> Result<Vec<String>, WorkspaceError> {
-        let ids = TrashTableSql::read_all(&*conn)?
-            .into_inner()
-            .into_iter()
-            .map(|item| item.id)
-            .collect::<Vec<String>>();
-        Ok(ids)
-    }
-
     #[tracing::instrument(level = "debug", skip(self), fields(putback)  err)]
     pub async fn putback(&self, trash_id: &str) -> WorkspaceResult<()> {
         let (tx, mut rx) = mpsc::channel::<WorkspaceResult<()>>(1);
@@ -98,6 +82,7 @@ impl TrashCan {
     pub async fn delete_all(&self) -> WorkspaceResult<()> {
         let repeated_trash = self.delete_all_trash_on_local()?;
         let identifiers: TrashIdentifiers = repeated_trash.items.clone().into();
+
         let (tx, mut rx) = mpsc::channel::<WorkspaceResult<()>>(1);
         let _ = self.notify.send(TrashEvent::Delete(identifiers, tx));
         let _ = rx.recv().await;
@@ -170,6 +155,22 @@ impl TrashCan {
     }
 
     pub fn subscribe(&self) -> broadcast::Receiver<TrashEvent> { self.notify.subscribe() }
+
+    pub fn read_trash(&self, conn: &SqliteConnection) -> Result<RepeatedTrash, WorkspaceError> {
+        let repeated_trash = TrashTableSql::read_all(&*conn)?;
+
+        let _ = self.read_trash_on_server()?;
+        Ok(repeated_trash)
+    }
+
+    pub fn trash_ids(&self, conn: &SqliteConnection) -> Result<Vec<String>, WorkspaceError> {
+        let ids = TrashTableSql::read_all(&*conn)?
+            .into_inner()
+            .into_iter()
+            .map(|item| item.id)
+            .collect::<Vec<String>>();
+        Ok(ids)
+    }
 }
 
 impl TrashCan {

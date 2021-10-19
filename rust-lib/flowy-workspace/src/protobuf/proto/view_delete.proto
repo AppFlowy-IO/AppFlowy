@@ -1,8 +1,0 @@
-syntax = "proto3";
-
-message DeleteViewRequest {
-    repeated string view_ids = 1;
-}
-message DeleteViewParams {
-    repeated string view_ids = 1;
-}

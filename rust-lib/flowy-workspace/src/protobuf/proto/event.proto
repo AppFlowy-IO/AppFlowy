@@ -16,7 +16,8 @@ enum WorkspaceEvent {
     UpdateView = 203;
     DeleteView = 204;
     OpenView = 205;
-    ApplyDocDelta = 206;
+    CloseView = 206;
+    ApplyDocDelta = 207;
     ReadTrash = 300;
     PutbackTrash = 301;
     DeleteTrash = 302;

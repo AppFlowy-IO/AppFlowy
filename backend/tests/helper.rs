@@ -117,7 +117,7 @@ impl TestUserServer {
         update_view_request(self.user_token(), params, &url).await.unwrap();
     }
 
-    pub async fn delete_view(&self, params: DeleteViewParams) {
+    pub async fn delete_view(&self, params: ViewIdentifiers) {
         let url = format!("{}/api/view", self.http_addr());
         delete_view_request(self.user_token(), params, &url).await.unwrap();
     }

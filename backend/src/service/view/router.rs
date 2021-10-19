@@ -15,7 +15,7 @@ use flowy_net::{
 };
 use flowy_workspace::{
     entities::view::parser::{ViewDesc, ViewName, ViewThumbnail},
-    protobuf::{CreateViewParams, DeleteViewParams, UpdateViewParams, ViewIdentifier},
+    protobuf::{CreateViewParams, QueryViewRequest, UpdateViewParams, ViewIdentifier},
 };
 use sqlx::PgPool;
 use std::sync::Arc;
@@ -96,7 +96,7 @@ pub async fn update_handler(payload: Payload, pool: Data<PgPool>) -> Result<Http
 }
 
 pub async fn delete_handler(payload: Payload, pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {
-    let params: DeleteViewParams = parse_from_payload(payload).await?;
+    let params: QueryViewRequest = parse_from_payload(payload).await?;
     let view_ids = check_view_ids(params.view_ids.to_vec())?;
     let mut transaction = pool
         .begin()

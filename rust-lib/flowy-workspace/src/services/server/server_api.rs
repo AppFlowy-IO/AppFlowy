@@ -2,7 +2,7 @@ use crate::{
     entities::{
         app::{App, AppIdentifier, CreateAppParams, DeleteAppParams, UpdateAppParams},
         trash::{RepeatedTrash, TrashIdentifiers},
-        view::{CreateViewParams, DeleteViewParams, UpdateViewParams, View, ViewIdentifier},
+        view::{CreateViewParams, UpdateViewParams, View, ViewIdentifier, ViewIdentifiers},
         workspace::{
             CreateWorkspaceParams,
             DeleteWorkspaceParams,
@@ -67,7 +67,7 @@ impl WorkspaceServerAPI for WorkspaceServer {
         ResultFuture::new(async move { read_view_request(&token, params, &url).await })
     }
 
-    fn delete_view(&self, token: &str, params: DeleteViewParams) -> ResultFuture<(), WorkspaceError> {
+    fn delete_view(&self, token: &str, params: ViewIdentifiers) -> ResultFuture<(), WorkspaceError> {
         let token = token.to_owned();
         let url = self.config.view_url();
         ResultFuture::new(async move { delete_view_request(&token, params, &url).await })
@@ -256,7 +256,7 @@ pub async fn update_view_request(token: &str, params: UpdateViewParams, url: &st
     Ok(())
 }
 
-pub async fn delete_view_request(token: &str, params: DeleteViewParams, url: &str) -> Result<(), WorkspaceError> {
+pub async fn delete_view_request(token: &str, params: ViewIdentifiers, url: &str) -> Result<(), WorkspaceError> {
     let _ = request_builder()
         .delete(&url.to_owned())
         .header(HEADER_TOKEN, token)

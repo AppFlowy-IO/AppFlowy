@@ -60,7 +60,7 @@ impl TryInto<UpdateViewParams> for UpdateViewRequest {
 
     fn try_into(self) -> Result<UpdateViewParams, Self::Error> {
         let view_id = ViewId::parse(self.view_id)
-            .map_err(|e| WorkspaceError::view_id().context(e))?
+            .map_err(|e| WorkspaceError::invalid_view_id().context(e))?
             .0;
 
         let name = match self.name {

@@ -84,3 +84,11 @@ pub struct DocIdentifier {
 impl std::convert::From<String> for DocIdentifier {
     fn from(doc_id: String) -> Self { DocIdentifier { doc_id } }
 }
+
+impl std::convert::From<&String> for DocIdentifier {
+    fn from(doc_id: &String) -> Self {
+        DocIdentifier {
+            doc_id: doc_id.to_owned(),
+        }
+    }
+}

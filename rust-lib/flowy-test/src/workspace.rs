@@ -82,12 +82,15 @@ impl ViewTest {
         }
     }
 
-    pub async fn delete_view(&self, view_ids: Vec<String>) {
-        let request = DeleteViewRequest { view_ids };
+    pub async fn delete_views(&self, view_ids: Vec<String>) {
+        let request = QueryViewRequest { view_ids };
         delete_view(&self.sdk, request).await;
     }
 
-    pub async fn delete_all_view(&self) {
+    pub async fn delete_views_permanent(&self, view_ids: Vec<String>) {
+        let request = QueryViewRequest { view_ids };
+        delete_view(&self.sdk, request).await;
+
         FlowyWorkspaceTest::new(self.sdk.clone())
             .event(DeleteAll)
             .async_send()
@@ -238,7 +241,7 @@ pub async fn read_view(sdk: &FlowyTestSDK, request: QueryViewRequest) -> View {
         .parse::<View>()
 }
 
-pub async fn delete_view(sdk: &FlowyTestSDK, request: DeleteViewRequest) {
+pub async fn delete_view(sdk: &FlowyTestSDK, request: QueryViewRequest) {
     FlowyWorkspaceTest::new(sdk.clone())
         .event(DeleteView)
         .request(request)
@@ -262,7 +265,7 @@ pub async fn putback_trash(sdk: &FlowyTestSDK, id: TrashIdentifier) {
         .await;
 }
 
-pub async fn open_view(sdk: &FlowyTestSDK, request: OpenViewRequest) -> Doc {
+pub async fn open_view(sdk: &FlowyTestSDK, request: QueryViewRequest) -> Doc {
     FlowyWorkspaceTest::new(sdk.clone())
         .event(OpenView)
         .request(request)

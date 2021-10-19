@@ -45,7 +45,7 @@ impl WorkspaceError {
     static_workspace_error!(app_id, ErrorCode::AppIdInvalid);
     static_workspace_error!(view_name, ErrorCode::ViewNameInvalid);
     static_workspace_error!(view_thumbnail, ErrorCode::ViewThumbnailInvalid);
-    static_workspace_error!(view_id, ErrorCode::ViewIdInvalid);
+    static_workspace_error!(invalid_view_id, ErrorCode::ViewIdInvalid);
     static_workspace_error!(view_desc, ErrorCode::ViewDescInvalid);
     static_workspace_error!(view_data, ErrorCode::ViewDataInvalid);
     static_workspace_error!(unauthorized, ErrorCode::UserUnauthorized);

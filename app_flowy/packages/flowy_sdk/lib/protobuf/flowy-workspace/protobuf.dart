@@ -1,6 +1,5 @@
 // Auto-generated, do not edit 
 export './view_update.pb.dart';
-export './view_delete.pb.dart';
 export './app_query.pb.dart';
 export './workspace_delete.pb.dart';
 export './observable.pb.dart';

@@ -221,7 +221,7 @@ class WorkspaceEventUpdateView {
 }
 
 class WorkspaceEventDeleteView {
-     DeleteViewRequest request;
+     QueryViewRequest request;
      WorkspaceEventDeleteView(this.request);
 
     Future<Either<Unit, WorkspaceError>> send() {
@@ -238,7 +238,7 @@ class WorkspaceEventDeleteView {
 }
 
 class WorkspaceEventOpenView {
-     OpenViewRequest request;
+     QueryViewRequest request;
      WorkspaceEventOpenView(this.request);
 
     Future<Either<DocDelta, WorkspaceError>> send() {
@@ -249,6 +249,23 @@ class WorkspaceEventOpenView {
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
            (okBytes) => left(DocDelta.fromBuffer(okBytes)),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
+class WorkspaceEventCloseView {
+     QueryViewRequest request;
+     WorkspaceEventCloseView(this.request);
+
+    Future<Either<Unit, WorkspaceError>> send() {
+    final request = FFIRequest.create()
+          ..event = WorkspaceEvent.CloseView.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (bytes) => left(unit),
            (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
         ));
     }

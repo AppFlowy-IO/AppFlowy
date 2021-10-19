@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-document/doc.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
@@ -12,7 +11,7 @@ class DocRepository {
   });
 
   Future<Either<DocDelta, WorkspaceError>> readDoc() {
-    final request = OpenViewRequest.create()..viewId = docId;
+    final request = QueryViewRequest(viewIds: [docId]);
     return WorkspaceEventOpenView(request).send();
   }
 
@@ -23,11 +22,8 @@ class DocRepository {
     return WorkspaceEventApplyDocDelta(request).send();
   }
 
-  Future<Either<Unit, WorkspaceError>> closeDoc({String? name, String? desc, String? text}) {
-    Log.error('Close the doc');
-
-    return Future(() {
-      return left(unit);
-    });
+  Future<Either<Unit, WorkspaceError>> closeDoc() {
+    final request = QueryViewRequest(viewIds: [docId]);
+    return WorkspaceEventCloseView(request).send();
   }
 }

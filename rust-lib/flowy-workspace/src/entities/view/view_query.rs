@@ -6,29 +6,13 @@ use std::convert::TryInto;
 #[derive(Default, ProtoBuf)]
 pub struct QueryViewRequest {
     #[pb(index = 1)]
-    pub view_id: String,
-}
-
-impl QueryViewRequest {
-    pub fn new(view_id: &str) -> Self {
-        Self {
-            view_id: view_id.to_owned(),
-        }
-    }
+    pub view_ids: Vec<String>,
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
 pub struct ViewIdentifier {
     #[pb(index = 1)]
     pub view_id: String,
-}
-
-impl ViewIdentifier {
-    pub fn new(view_id: &str) -> Self {
-        Self {
-            view_id: view_id.to_owned(),
-        }
-    }
 }
 
 impl std::convert::From<String> for ViewIdentifier {
@@ -42,8 +26,14 @@ impl std::convert::Into<DocIdentifier> for ViewIdentifier {
 impl TryInto<ViewIdentifier> for QueryViewRequest {
     type Error = WorkspaceError;
     fn try_into(self) -> Result<ViewIdentifier, Self::Error> {
-        let view_id = ViewId::parse(self.view_id)
-            .map_err(|e| WorkspaceError::view_id().context(e))?
+        debug_assert!(self.view_ids.len() == 1);
+        if self.view_ids.len() != 1 {
+            return Err(WorkspaceError::invalid_view_id().context("The len of view_ids should be equal to 1"));
+        }
+
+        let view_id = self.view_ids.first().unwrap().clone();
+        let view_id = ViewId::parse(view_id)
+            .map_err(|e| WorkspaceError::invalid_view_id().context(e))?
             .0;
 
         Ok(ViewIdentifier { view_id })
@@ -51,18 +41,24 @@ impl TryInto<ViewIdentifier> for QueryViewRequest {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct OpenViewRequest {
+pub struct ViewIdentifiers {
     #[pb(index = 1)]
-    pub view_id: String,
+    pub view_ids: Vec<String>,
 }
 
-impl std::convert::TryInto<DocIdentifier> for OpenViewRequest {
+impl TryInto<ViewIdentifiers> for QueryViewRequest {
     type Error = WorkspaceError;
 
-    fn try_into(self) -> Result<DocIdentifier, Self::Error> {
-        let view_id = ViewId::parse(self.view_id)
-            .map_err(|e| WorkspaceError::view_id().context(e))?
-            .0;
-        Ok(DocIdentifier { doc_id: view_id })
+    fn try_into(self) -> Result<ViewIdentifiers, Self::Error> {
+        let mut view_ids = vec![];
+        for view_id in self.view_ids {
+            let view_id = ViewId::parse(view_id)
+                .map_err(|e| WorkspaceError::invalid_view_id().context(e))?
+                .0;
+
+            view_ids.push(view_id);
+        }
+
+        Ok(ViewIdentifiers { view_ids })
     }
 }

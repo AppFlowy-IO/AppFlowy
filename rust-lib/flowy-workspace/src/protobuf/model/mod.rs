@@ -3,9 +3,6 @@
 mod view_update; 
 pub use view_update::*; 
 
-mod view_delete; 
-pub use view_delete::*; 
-
 mod app_query; 
 pub use app_query::*; 
 

@@ -147,7 +147,7 @@ async fn view_update() {
     test.server.update_view(update_params).await;
 
     // read
-    let read_params = ViewIdentifier::new(&test.view.id);
+    let read_params: ViewIdentifier = test.view.id.clone().into();
     let view = test.server.read_view(read_params).await.unwrap();
     assert_eq!(&view.name, new_name);
 }
@@ -166,7 +166,7 @@ async fn view_delete() {
         .map(|item| item.id)
         .collect::<Vec<String>>();
     // read
-    let read_params = ViewIdentifier::new(&test.view.id);
+    let read_params: ViewIdentifier = test.view.id.clone().into();
 
     // the view can't read from the server. it should be in the trash
     assert_eq!(test.server.read_view(read_params).await.is_none(), true);

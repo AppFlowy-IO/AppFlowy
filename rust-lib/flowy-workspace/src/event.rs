@@ -43,14 +43,17 @@ pub enum WorkspaceEvent {
     #[event(input = "UpdateViewRequest", output = "View")]
     UpdateView        = 203,
 
-    #[event(input = "DeleteViewRequest")]
+    #[event(input = "QueryViewRequest")]
     DeleteView        = 204,
 
-    #[event(input = "OpenViewRequest", output = "DocDelta")]
+    #[event(input = "QueryViewRequest", output = "DocDelta")]
     OpenView          = 205,
 
+    #[event(input = "QueryViewRequest")]
+    CloseView         = 206,
+
     #[event(input = "DocDelta", output = "DocDelta")]
-    ApplyDocDelta     = 206,
+    ApplyDocDelta     = 207,
 
     #[event(output = "RepeatedTrash")]
     ReadTrash         = 300,

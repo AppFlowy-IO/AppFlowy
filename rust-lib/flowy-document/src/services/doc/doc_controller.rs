@@ -3,7 +3,7 @@ use std::sync::Arc;
 use bytes::Bytes;
 
 use crate::{
-    entities::doc::{CreateDocParams, Doc, DocDelta, DocIdentifier},
+    entities::doc::{Doc, DocDelta, DocIdentifier},
     errors::{DocError, DocResult},
     module::DocumentUser,
     services::{

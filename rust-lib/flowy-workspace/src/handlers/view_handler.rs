@@ -4,21 +4,19 @@ use crate::{
         view::{
             CreateViewParams,
             CreateViewRequest,
-            DeleteViewParams,
-            DeleteViewRequest,
-            OpenViewRequest,
             QueryViewRequest,
             UpdateViewParams,
             UpdateViewRequest,
             View,
             ViewIdentifier,
+            ViewIdentifiers,
         },
     },
     errors::WorkspaceError,
     services::{TrashCan, ViewController},
 };
 use flowy_dispatch::prelude::{data_result, Data, DataResult, Unit};
-use flowy_document::entities::doc::{DocDelta, DocIdentifier};
+use flowy_document::entities::doc::DocDelta;
 use std::{convert::TryInto, sync::Arc};
 
 #[tracing::instrument(skip(data, controller), err)]
@@ -66,11 +64,15 @@ pub(crate) async fn apply_doc_delta_handler(
 
 #[tracing::instrument(skip(data, controller, trash_can), err)]
 pub(crate) async fn delete_view_handler(
-    data: Data<DeleteViewRequest>,
+    data: Data<QueryViewRequest>,
     controller: Unit<Arc<ViewController>>,
     trash_can: Unit<Arc<TrashCan>>,
 ) -> Result<(), WorkspaceError> {
-    let params: DeleteViewParams = data.into_inner().try_into()?;
+    let params: ViewIdentifiers = data.into_inner().try_into()?;
+    for view_id in &params.view_ids {
+        let _ = controller.close_view(view_id.into()).await;
+    }
+
     let trash = controller
         .read_view_tables(params.view_ids)?
         .into_iter()
@@ -83,10 +85,20 @@ pub(crate) async fn delete_view_handler(
 
 #[tracing::instrument(skip(data, controller), err)]
 pub(crate) async fn open_view_handler(
-    data: Data<OpenViewRequest>,
+    data: Data<QueryViewRequest>,
     controller: Unit<Arc<ViewController>>,
 ) -> DataResult<DocDelta, WorkspaceError> {
-    let params: DocIdentifier = data.into_inner().try_into()?;
-    let doc = controller.open_view(params).await?;
+    let params: ViewIdentifier = data.into_inner().try_into()?;
+    let doc = controller.open_view(params.into()).await?;
     data_result(doc)
+}
+
+#[tracing::instrument(skip(data, controller), err)]
+pub(crate) async fn close_view_handler(
+    data: Data<QueryViewRequest>,
+    controller: Unit<Arc<ViewController>>,
+) -> Result<(), WorkspaceError> {
+    let params: ViewIdentifier = data.into_inner().try_into()?;
+    let _ = controller.close_view(params.into()).await?;
+    Ok(())
 }

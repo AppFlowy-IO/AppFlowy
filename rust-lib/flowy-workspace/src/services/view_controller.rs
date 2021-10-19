@@ -16,7 +16,7 @@ use crate::{
 };
 use flowy_database::SqliteConnection;
 use flowy_document::{
-    entities::doc::{CreateDocParams, DocDelta, DocIdentifier},
+    entities::doc::{DocDelta, DocIdentifier},
     module::FlowyDocument,
 };
 
@@ -111,6 +111,12 @@ impl ViewController {
     pub(crate) async fn open_view(&self, params: DocIdentifier) -> Result<DocDelta, WorkspaceError> {
         let edit_context = self.document.open(params, self.database.db_pool()?).await?;
         Ok(edit_context.delta().await.map_err(internal_error)?)
+    }
+
+    #[tracing::instrument(level = "debug", skip(self), err)]
+    pub(crate) async fn close_view(&self, params: DocIdentifier) -> Result<(), WorkspaceError> {
+        let _ = self.document.close(params).await?;
+        Ok(())
     }
 
     // belong_to_id will be the app_id or view_id.
@@ -211,11 +217,10 @@ impl ViewController {
                 let mut stream = Box::pin(rx.recv().into_stream().filter_map(|result| async move {
                     match result {
                         Ok(event) => event.select(TrashType::View),
-                        Err(_) => None,
+                        Err(_e) => None,
                     }
                 }));
-                let event: Option<TrashEvent> = stream.next().await;
-                match event {
+                match stream.next().await {
                     Some(event) => {
                         handle_trash_event(database.clone(), document.clone(), trash_can.clone(), event).await
                     },

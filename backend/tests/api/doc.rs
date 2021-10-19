@@ -1,6 +1,6 @@
 use crate::helper::ViewTest;
 use flowy_document::entities::doc::DocIdentifier;
-use flowy_workspace::entities::view::DeleteViewParams;
+use flowy_workspace::entities::view::ViewIdentifiers;
 
 #[actix_rt::test]
 async fn doc_read() {
@@ -17,7 +17,7 @@ async fn doc_read() {
 #[actix_rt::test]
 async fn doc_delete() {
     let test = ViewTest::new().await;
-    let delete_params = DeleteViewParams {
+    let delete_params = ViewIdentifiers {
         view_ids: vec![test.view.id.clone()],
     };
     test.server.delete_view(delete_params).await;
