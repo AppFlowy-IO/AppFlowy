@@ -1,6 +1,5 @@
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:app_flowy/workspace/application/doc/doc_bloc.dart';
-import 'package:app_flowy/workspace/application/doc/doc_edit_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:app_flowy/workspace/application/trash/trash_bloc.dart';
@@ -86,8 +85,7 @@ class HomeDepsResolver {
     );
 
     // Doc
-    getIt.registerFactoryParam<DocBloc, String, void>((docId, _) => DocBloc(iDocImpl: getIt<IDoc>(param1: docId)));
-    getIt.registerFactoryParam<DocEditBloc, String, void>((docId, _) => DocEditBloc(getIt<IDoc>(param1: docId)));
+    getIt.registerFactoryParam<DocBloc, String, void>((docId, _) => DocBloc(docManager: getIt<IDoc>(param1: docId)));
 
     // trash
     getIt.registerLazySingleton<TrashRepo>(() => TrashRepo());

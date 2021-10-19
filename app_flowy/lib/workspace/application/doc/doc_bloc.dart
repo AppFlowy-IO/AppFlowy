@@ -2,33 +2,47 @@ import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/workspace/domain/i_doc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:dartz/dartz.dart';
+
 part 'doc_bloc.freezed.dart';
 
 class DocBloc extends Bloc<DocEvent, DocState> {
-  final IDoc iDocImpl;
+  final IDoc docManager;
 
-  DocBloc({
-    required this.iDocImpl,
-  }) : super(const DocState.loading());
+  DocBloc({required this.docManager}) : super(DocState.initial());
 
   @override
   Stream<DocState> mapEventToState(DocEvent event) async* {
     yield* event.map(
-      loadDoc: (_) async* {
-        yield* _readDoc();
-      },
+      initial: _initial,
     );
   }
 
-  Stream<DocState> _readDoc() async* {
-    final docOrFail = await iDocImpl.readDoc();
-    yield docOrFail.fold(
+  @override
+  Future<void> close() async {
+    docManager.closeDoc();
+
+    await state.doc.fold(() => null, (doc) async {
+      await doc.close();
+    });
+    return super.close();
+  }
+
+  Stream<DocState> _initial(Initial value) async* {
+    final result = await docManager.readDoc();
+    yield result.fold(
       (doc) {
-        final flowyDoc = FlowyDoc(doc: doc, iDocImpl: iDocImpl);
-        return DocState.loadDoc(flowyDoc);
+        final flowyDoc = FlowyDoc(doc: doc, iDocImpl: docManager);
+        return state.copyWith(
+          doc: some(flowyDoc),
+          loadState: DocLoadState.finish(left(flowyDoc)),
+        );
       },
-      (error) {
-        return DocState.loadFail(error);
+      (err) {
+        return state.copyWith(
+          doc: none(),
+          loadState: DocLoadState.finish(right(err)),
+        );
       },
     );
   }
@@ -48,12 +62,18 @@ class DocBloc extends Bloc<DocEvent, DocState> {
 
 @freezed
 class DocEvent with _$DocEvent {
-  const factory DocEvent.loadDoc() = LoadDoc;
+  const factory DocEvent.initial() = Initial;
 }
 
 @freezed
 class DocState with _$DocState {
-  const factory DocState.loading() = Loading;
-  const factory DocState.loadDoc(FlowyDoc doc) = LoadedDoc;
-  const factory DocState.loadFail(WorkspaceError error) = LoadFail;
+  const factory DocState({required Option<FlowyDoc> doc, required DocLoadState loadState}) = _DocState;
+
+  factory DocState.initial() => DocState(doc: none(), loadState: const _Loading());
+}
+
+@freezed
+class DocLoadState with _$DocLoadState {
+  const factory DocLoadState.loading() = _Loading;
+  const factory DocLoadState.finish(Either<FlowyDoc, WorkspaceError> successOrFail) = _Finish;
 }

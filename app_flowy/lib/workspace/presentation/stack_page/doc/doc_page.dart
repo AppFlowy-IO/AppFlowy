@@ -1,55 +1,69 @@
 import 'dart:io';
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/application/doc/doc_edit_bloc.dart';
+import 'package:app_flowy/workspace/application/doc/doc_bloc.dart';
 import 'package:app_flowy/workspace/domain/i_doc.dart';
 import 'package:editor/flutter_quill.dart';
+import 'package:flowy_infra_ui/style_widget/progress_indicator.dart';
+import 'package:flowy_infra_ui/widget/error_page.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DocPage extends StatefulWidget {
-  final QuillController controller;
-  final DocEditBloc editBloc;
-  final FlowyDoc doc;
+  final View view;
 
-  DocPage({Key? key, required this.doc})
-      : controller = QuillController(
-          document: doc.document,
-          selection: const TextSelection.collapsed(offset: 0),
-        ),
-        editBloc = getIt<DocEditBloc>(param1: doc.id),
-        super(key: key);
+  const DocPage({Key? key, required this.view}) : super(key: key);
 
   @override
   State<DocPage> createState() => _DocPageState();
 }
 
 class _DocPageState extends State<DocPage> {
+  late DocBloc docBloc;
   final FocusNode _focusNode = FocusNode();
 
   @override
+  void initState() {
+    docBloc = getIt<DocBloc>(param1: super.widget.view.id)..add(const DocEvent.initial());
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: widget.editBloc,
-      child: BlocBuilder<DocEditBloc, DocEditState>(
-        builder: (ctx, state) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _renderEditor(widget.controller),
-              _renderToolbar(widget.controller),
-            ],
-          );
-        },
-      ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<DocBloc>.value(value: docBloc),
+      ],
+      child: BlocBuilder<DocBloc, DocState>(builder: (context, state) {
+        return state.loadState.map(
+          loading: (_) => const FlowyProgressIndicator(),
+          finish: (result) => result.successOrFail.fold(
+            (doc) => _renderDoc(context, doc),
+            (err) => FlowyErrorPage(err.toString()),
+          ),
+        );
+      }),
     );
   }
 
   @override
   Future<void> dispose() async {
-    widget.editBloc.add(const DocEditEvent.close());
-    widget.editBloc.close();
+    docBloc.close();
     super.dispose();
-    await widget.doc.close();
+  }
+
+  Widget _renderDoc(BuildContext context, FlowyDoc doc) {
+    QuillController controller = QuillController(
+      document: doc.document,
+      selection: const TextSelection.collapsed(offset: 0),
+    );
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        _renderEditor(controller),
+        _renderToolbar(controller),
+      ],
+    );
   }
 
   Widget _renderEditor(QuillController controller) {

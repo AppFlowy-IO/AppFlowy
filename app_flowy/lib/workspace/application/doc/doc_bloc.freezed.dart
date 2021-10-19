@@ -16,8 +16,8 @@ final _privateConstructorUsedError = UnsupportedError(
 class _$DocEventTearOff {
   const _$DocEventTearOff();
 
-  LoadDoc loadDoc() {
-    return const LoadDoc();
+  Initial initial() {
+    return const Initial();
   }
 }
 
@@ -28,23 +28,23 @@ const $DocEvent = _$DocEventTearOff();
 mixin _$DocEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadDoc,
+    required TResult Function() initial,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadDoc,
+    TResult Function()? initial,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(LoadDoc value) loadDoc,
+    required TResult Function(Initial value) initial,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(LoadDoc value)? loadDoc,
+    TResult Function(Initial value)? initial,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -66,34 +66,34 @@ class _$DocEventCopyWithImpl<$Res> implements $DocEventCopyWith<$Res> {
 }
 
 /// @nodoc
-abstract class $LoadDocCopyWith<$Res> {
-  factory $LoadDocCopyWith(LoadDoc value, $Res Function(LoadDoc) then) =
-      _$LoadDocCopyWithImpl<$Res>;
+abstract class $InitialCopyWith<$Res> {
+  factory $InitialCopyWith(Initial value, $Res Function(Initial) then) =
+      _$InitialCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class _$LoadDocCopyWithImpl<$Res> extends _$DocEventCopyWithImpl<$Res>
-    implements $LoadDocCopyWith<$Res> {
-  _$LoadDocCopyWithImpl(LoadDoc _value, $Res Function(LoadDoc) _then)
-      : super(_value, (v) => _then(v as LoadDoc));
+class _$InitialCopyWithImpl<$Res> extends _$DocEventCopyWithImpl<$Res>
+    implements $InitialCopyWith<$Res> {
+  _$InitialCopyWithImpl(Initial _value, $Res Function(Initial) _then)
+      : super(_value, (v) => _then(v as Initial));
 
   @override
-  LoadDoc get _value => super._value as LoadDoc;
+  Initial get _value => super._value as Initial;
 }
 
 /// @nodoc
 
-class _$LoadDoc implements LoadDoc {
-  const _$LoadDoc();
+class _$Initial implements Initial {
+  const _$Initial();
 
   @override
   String toString() {
-    return 'DocEvent.loadDoc()';
+    return 'DocEvent.initial()';
   }
 
   @override
   bool operator ==(dynamic other) {
-    return identical(this, other) || (other is LoadDoc);
+    return identical(this, other) || (other is Initial);
   }
 
   @override
@@ -102,19 +102,19 @@ class _$LoadDoc implements LoadDoc {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadDoc,
+    required TResult Function() initial,
   }) {
-    return loadDoc();
+    return initial();
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadDoc,
+    TResult Function()? initial,
     required TResult orElse(),
   }) {
-    if (loadDoc != null) {
-      return loadDoc();
+    if (initial != null) {
+      return initial();
     }
     return orElse();
   }
@@ -122,45 +122,37 @@ class _$LoadDoc implements LoadDoc {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(LoadDoc value) loadDoc,
+    required TResult Function(Initial value) initial,
   }) {
-    return loadDoc(this);
+    return initial(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(LoadDoc value)? loadDoc,
+    TResult Function(Initial value)? initial,
     required TResult orElse(),
   }) {
-    if (loadDoc != null) {
-      return loadDoc(this);
+    if (initial != null) {
+      return initial(this);
     }
     return orElse();
   }
 }
 
-abstract class LoadDoc implements DocEvent {
-  const factory LoadDoc() = _$LoadDoc;
+abstract class Initial implements DocEvent {
+  const factory Initial() = _$Initial;
 }
 
 /// @nodoc
 class _$DocStateTearOff {
   const _$DocStateTearOff();
 
-  Loading loading() {
-    return const Loading();
-  }
-
-  LoadedDoc loadDoc(FlowyDoc doc) {
-    return LoadedDoc(
-      doc,
-    );
-  }
-
-  LoadFail loadFail(WorkspaceError error) {
-    return LoadFail(
-      error,
+  _DocState call(
+      {required Option<FlowyDoc> doc, required DocLoadState loadState}) {
+    return _DocState(
+      doc: doc,
+      loadState: loadState,
     );
   }
 }
@@ -170,35 +162,11 @@ const $DocState = _$DocStateTearOff();
 
 /// @nodoc
 mixin _$DocState {
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loading,
-    required TResult Function(FlowyDoc doc) loadDoc,
-    required TResult Function(WorkspaceError error) loadFail,
-  }) =>
-      throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loading,
-    TResult Function(FlowyDoc doc)? loadDoc,
-    TResult Function(WorkspaceError error)? loadFail,
-    required TResult orElse(),
-  }) =>
-      throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(Loading value) loading,
-    required TResult Function(LoadedDoc value) loadDoc,
-    required TResult Function(LoadFail value) loadFail,
-  }) =>
-      throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(Loading value)? loading,
-    TResult Function(LoadedDoc value)? loadDoc,
-    TResult Function(LoadFail value)? loadFail,
-    required TResult orElse(),
-  }) =>
+  Option<FlowyDoc> get doc => throw _privateConstructorUsedError;
+  DocLoadState get loadState => throw _privateConstructorUsedError;
+
+  @JsonKey(ignore: true)
+  $DocStateCopyWith<DocState> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -206,6 +174,9 @@ mixin _$DocState {
 abstract class $DocStateCopyWith<$Res> {
   factory $DocStateCopyWith(DocState value, $Res Function(DocState) then) =
       _$DocStateCopyWithImpl<$Res>;
+  $Res call({Option<FlowyDoc> doc, DocLoadState loadState});
+
+  $DocLoadStateCopyWith<$Res> get loadState;
 }
 
 /// @nodoc
@@ -215,37 +186,217 @@ class _$DocStateCopyWithImpl<$Res> implements $DocStateCopyWith<$Res> {
   final DocState _value;
   // ignore: unused_field
   final $Res Function(DocState) _then;
-}
-
-/// @nodoc
-abstract class $LoadingCopyWith<$Res> {
-  factory $LoadingCopyWith(Loading value, $Res Function(Loading) then) =
-      _$LoadingCopyWithImpl<$Res>;
-}
-
-/// @nodoc
-class _$LoadingCopyWithImpl<$Res> extends _$DocStateCopyWithImpl<$Res>
-    implements $LoadingCopyWith<$Res> {
-  _$LoadingCopyWithImpl(Loading _value, $Res Function(Loading) _then)
-      : super(_value, (v) => _then(v as Loading));
 
   @override
-  Loading get _value => super._value as Loading;
+  $Res call({
+    Object? doc = freezed,
+    Object? loadState = freezed,
+  }) {
+    return _then(_value.copyWith(
+      doc: doc == freezed
+          ? _value.doc
+          : doc // ignore: cast_nullable_to_non_nullable
+              as Option<FlowyDoc>,
+      loadState: loadState == freezed
+          ? _value.loadState
+          : loadState // ignore: cast_nullable_to_non_nullable
+              as DocLoadState,
+    ));
+  }
+
+  @override
+  $DocLoadStateCopyWith<$Res> get loadState {
+    return $DocLoadStateCopyWith<$Res>(_value.loadState, (value) {
+      return _then(_value.copyWith(loadState: value));
+    });
+  }
+}
+
+/// @nodoc
+abstract class _$DocStateCopyWith<$Res> implements $DocStateCopyWith<$Res> {
+  factory _$DocStateCopyWith(_DocState value, $Res Function(_DocState) then) =
+      __$DocStateCopyWithImpl<$Res>;
+  @override
+  $Res call({Option<FlowyDoc> doc, DocLoadState loadState});
+
+  @override
+  $DocLoadStateCopyWith<$Res> get loadState;
+}
+
+/// @nodoc
+class __$DocStateCopyWithImpl<$Res> extends _$DocStateCopyWithImpl<$Res>
+    implements _$DocStateCopyWith<$Res> {
+  __$DocStateCopyWithImpl(_DocState _value, $Res Function(_DocState) _then)
+      : super(_value, (v) => _then(v as _DocState));
+
+  @override
+  _DocState get _value => super._value as _DocState;
+
+  @override
+  $Res call({
+    Object? doc = freezed,
+    Object? loadState = freezed,
+  }) {
+    return _then(_DocState(
+      doc: doc == freezed
+          ? _value.doc
+          : doc // ignore: cast_nullable_to_non_nullable
+              as Option<FlowyDoc>,
+      loadState: loadState == freezed
+          ? _value.loadState
+          : loadState // ignore: cast_nullable_to_non_nullable
+              as DocLoadState,
+    ));
+  }
 }
 
 /// @nodoc
 
-class _$Loading implements Loading {
-  const _$Loading();
+class _$_DocState implements _DocState {
+  const _$_DocState({required this.doc, required this.loadState});
+
+  @override
+  final Option<FlowyDoc> doc;
+  @override
+  final DocLoadState loadState;
 
   @override
   String toString() {
-    return 'DocState.loading()';
+    return 'DocState(doc: $doc, loadState: $loadState)';
   }
 
   @override
   bool operator ==(dynamic other) {
-    return identical(this, other) || (other is Loading);
+    return identical(this, other) ||
+        (other is _DocState &&
+            (identical(other.doc, doc) ||
+                const DeepCollectionEquality().equals(other.doc, doc)) &&
+            (identical(other.loadState, loadState) ||
+                const DeepCollectionEquality()
+                    .equals(other.loadState, loadState)));
+  }
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^
+      const DeepCollectionEquality().hash(doc) ^
+      const DeepCollectionEquality().hash(loadState);
+
+  @JsonKey(ignore: true)
+  @override
+  _$DocStateCopyWith<_DocState> get copyWith =>
+      __$DocStateCopyWithImpl<_DocState>(this, _$identity);
+}
+
+abstract class _DocState implements DocState {
+  const factory _DocState(
+      {required Option<FlowyDoc> doc,
+      required DocLoadState loadState}) = _$_DocState;
+
+  @override
+  Option<FlowyDoc> get doc => throw _privateConstructorUsedError;
+  @override
+  DocLoadState get loadState => throw _privateConstructorUsedError;
+  @override
+  @JsonKey(ignore: true)
+  _$DocStateCopyWith<_DocState> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+class _$DocLoadStateTearOff {
+  const _$DocLoadStateTearOff();
+
+  _Loading loading() {
+    return const _Loading();
+  }
+
+  _Finish finish(Either<FlowyDoc, WorkspaceError> successOrFail) {
+    return _Finish(
+      successOrFail,
+    );
+  }
+}
+
+/// @nodoc
+const $DocLoadState = _$DocLoadStateTearOff();
+
+/// @nodoc
+mixin _$DocLoadState {
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() loading,
+    required TResult Function(Either<FlowyDoc, WorkspaceError> successOrFail)
+        finish,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? loading,
+    TResult Function(Either<FlowyDoc, WorkspaceError> successOrFail)? finish,
+    required TResult orElse(),
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_Loading value) loading,
+    required TResult Function(_Finish value) finish,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_Loading value)? loading,
+    TResult Function(_Finish value)? finish,
+    required TResult orElse(),
+  }) =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $DocLoadStateCopyWith<$Res> {
+  factory $DocLoadStateCopyWith(
+          DocLoadState value, $Res Function(DocLoadState) then) =
+      _$DocLoadStateCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class _$DocLoadStateCopyWithImpl<$Res> implements $DocLoadStateCopyWith<$Res> {
+  _$DocLoadStateCopyWithImpl(this._value, this._then);
+
+  final DocLoadState _value;
+  // ignore: unused_field
+  final $Res Function(DocLoadState) _then;
+}
+
+/// @nodoc
+abstract class _$LoadingCopyWith<$Res> {
+  factory _$LoadingCopyWith(_Loading value, $Res Function(_Loading) then) =
+      __$LoadingCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$LoadingCopyWithImpl<$Res> extends _$DocLoadStateCopyWithImpl<$Res>
+    implements _$LoadingCopyWith<$Res> {
+  __$LoadingCopyWithImpl(_Loading _value, $Res Function(_Loading) _then)
+      : super(_value, (v) => _then(v as _Loading));
+
+  @override
+  _Loading get _value => super._value as _Loading;
+}
+
+/// @nodoc
+
+class _$_Loading implements _Loading {
+  const _$_Loading();
+
+  @override
+  String toString() {
+    return 'DocLoadState.loading()';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) || (other is _Loading);
   }
 
   @override
@@ -255,8 +406,8 @@ class _$Loading implements Loading {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
-    required TResult Function(FlowyDoc doc) loadDoc,
-    required TResult Function(WorkspaceError error) loadFail,
+    required TResult Function(Either<FlowyDoc, WorkspaceError> successOrFail)
+        finish,
   }) {
     return loading();
   }
@@ -265,8 +416,7 @@ class _$Loading implements Loading {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
-    TResult Function(FlowyDoc doc)? loadDoc,
-    TResult Function(WorkspaceError error)? loadFail,
+    TResult Function(Either<FlowyDoc, WorkspaceError> successOrFail)? finish,
     required TResult orElse(),
   }) {
     if (loading != null) {
@@ -278,9 +428,8 @@ class _$Loading implements Loading {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(Loading value) loading,
-    required TResult Function(LoadedDoc value) loadDoc,
-    required TResult Function(LoadFail value) loadFail,
+    required TResult Function(_Loading value) loading,
+    required TResult Function(_Finish value) finish,
   }) {
     return loading(this);
   }
@@ -288,9 +437,8 @@ class _$Loading implements Loading {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(Loading value)? loading,
-    TResult Function(LoadedDoc value)? loadDoc,
-    TResult Function(LoadFail value)? loadFail,
+    TResult Function(_Loading value)? loading,
+    TResult Function(_Finish value)? finish,
     required TResult orElse(),
   }) {
     if (loading != null) {
@@ -300,89 +448,89 @@ class _$Loading implements Loading {
   }
 }
 
-abstract class Loading implements DocState {
-  const factory Loading() = _$Loading;
+abstract class _Loading implements DocLoadState {
+  const factory _Loading() = _$_Loading;
 }
 
 /// @nodoc
-abstract class $LoadedDocCopyWith<$Res> {
-  factory $LoadedDocCopyWith(LoadedDoc value, $Res Function(LoadedDoc) then) =
-      _$LoadedDocCopyWithImpl<$Res>;
-  $Res call({FlowyDoc doc});
+abstract class _$FinishCopyWith<$Res> {
+  factory _$FinishCopyWith(_Finish value, $Res Function(_Finish) then) =
+      __$FinishCopyWithImpl<$Res>;
+  $Res call({Either<FlowyDoc, WorkspaceError> successOrFail});
 }
 
 /// @nodoc
-class _$LoadedDocCopyWithImpl<$Res> extends _$DocStateCopyWithImpl<$Res>
-    implements $LoadedDocCopyWith<$Res> {
-  _$LoadedDocCopyWithImpl(LoadedDoc _value, $Res Function(LoadedDoc) _then)
-      : super(_value, (v) => _then(v as LoadedDoc));
+class __$FinishCopyWithImpl<$Res> extends _$DocLoadStateCopyWithImpl<$Res>
+    implements _$FinishCopyWith<$Res> {
+  __$FinishCopyWithImpl(_Finish _value, $Res Function(_Finish) _then)
+      : super(_value, (v) => _then(v as _Finish));
 
   @override
-  LoadedDoc get _value => super._value as LoadedDoc;
+  _Finish get _value => super._value as _Finish;
 
   @override
   $Res call({
-    Object? doc = freezed,
+    Object? successOrFail = freezed,
   }) {
-    return _then(LoadedDoc(
-      doc == freezed
-          ? _value.doc
-          : doc // ignore: cast_nullable_to_non_nullable
-              as FlowyDoc,
+    return _then(_Finish(
+      successOrFail == freezed
+          ? _value.successOrFail
+          : successOrFail // ignore: cast_nullable_to_non_nullable
+              as Either<FlowyDoc, WorkspaceError>,
     ));
   }
 }
 
 /// @nodoc
 
-class _$LoadedDoc implements LoadedDoc {
-  const _$LoadedDoc(this.doc);
+class _$_Finish implements _Finish {
+  const _$_Finish(this.successOrFail);
 
   @override
-  final FlowyDoc doc;
+  final Either<FlowyDoc, WorkspaceError> successOrFail;
 
   @override
   String toString() {
-    return 'DocState.loadDoc(doc: $doc)';
+    return 'DocLoadState.finish(successOrFail: $successOrFail)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is LoadedDoc &&
-            (identical(other.doc, doc) ||
-                const DeepCollectionEquality().equals(other.doc, doc)));
+        (other is _Finish &&
+            (identical(other.successOrFail, successOrFail) ||
+                const DeepCollectionEquality()
+                    .equals(other.successOrFail, successOrFail)));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(doc);
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(successOrFail);
 
   @JsonKey(ignore: true)
   @override
-  $LoadedDocCopyWith<LoadedDoc> get copyWith =>
-      _$LoadedDocCopyWithImpl<LoadedDoc>(this, _$identity);
+  _$FinishCopyWith<_Finish> get copyWith =>
+      __$FinishCopyWithImpl<_Finish>(this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
-    required TResult Function(FlowyDoc doc) loadDoc,
-    required TResult Function(WorkspaceError error) loadFail,
+    required TResult Function(Either<FlowyDoc, WorkspaceError> successOrFail)
+        finish,
   }) {
-    return loadDoc(doc);
+    return finish(successOrFail);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
-    TResult Function(FlowyDoc doc)? loadDoc,
-    TResult Function(WorkspaceError error)? loadFail,
+    TResult Function(Either<FlowyDoc, WorkspaceError> successOrFail)? finish,
     required TResult orElse(),
   }) {
-    if (loadDoc != null) {
-      return loadDoc(doc);
+    if (finish != null) {
+      return finish(successOrFail);
     }
     return orElse();
   }
@@ -390,150 +538,32 @@ class _$LoadedDoc implements LoadedDoc {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(Loading value) loading,
-    required TResult Function(LoadedDoc value) loadDoc,
-    required TResult Function(LoadFail value) loadFail,
+    required TResult Function(_Loading value) loading,
+    required TResult Function(_Finish value) finish,
   }) {
-    return loadDoc(this);
+    return finish(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(Loading value)? loading,
-    TResult Function(LoadedDoc value)? loadDoc,
-    TResult Function(LoadFail value)? loadFail,
+    TResult Function(_Loading value)? loading,
+    TResult Function(_Finish value)? finish,
     required TResult orElse(),
   }) {
-    if (loadDoc != null) {
-      return loadDoc(this);
+    if (finish != null) {
+      return finish(this);
     }
     return orElse();
   }
 }
 
-abstract class LoadedDoc implements DocState {
-  const factory LoadedDoc(FlowyDoc doc) = _$LoadedDoc;
+abstract class _Finish implements DocLoadState {
+  const factory _Finish(Either<FlowyDoc, WorkspaceError> successOrFail) =
+      _$_Finish;
 
-  FlowyDoc get doc => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $LoadedDocCopyWith<LoadedDoc> get copyWith =>
+  Either<FlowyDoc, WorkspaceError> get successOrFail =>
       throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class $LoadFailCopyWith<$Res> {
-  factory $LoadFailCopyWith(LoadFail value, $Res Function(LoadFail) then) =
-      _$LoadFailCopyWithImpl<$Res>;
-  $Res call({WorkspaceError error});
-}
-
-/// @nodoc
-class _$LoadFailCopyWithImpl<$Res> extends _$DocStateCopyWithImpl<$Res>
-    implements $LoadFailCopyWith<$Res> {
-  _$LoadFailCopyWithImpl(LoadFail _value, $Res Function(LoadFail) _then)
-      : super(_value, (v) => _then(v as LoadFail));
-
-  @override
-  LoadFail get _value => super._value as LoadFail;
-
-  @override
-  $Res call({
-    Object? error = freezed,
-  }) {
-    return _then(LoadFail(
-      error == freezed
-          ? _value.error
-          : error // ignore: cast_nullable_to_non_nullable
-              as WorkspaceError,
-    ));
-  }
-}
-
-/// @nodoc
-
-class _$LoadFail implements LoadFail {
-  const _$LoadFail(this.error);
-
-  @override
-  final WorkspaceError error;
-
-  @override
-  String toString() {
-    return 'DocState.loadFail(error: $error)';
-  }
-
-  @override
-  bool operator ==(dynamic other) {
-    return identical(this, other) ||
-        (other is LoadFail &&
-            (identical(other.error, error) ||
-                const DeepCollectionEquality().equals(other.error, error)));
-  }
-
-  @override
-  int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(error);
-
   @JsonKey(ignore: true)
-  @override
-  $LoadFailCopyWith<LoadFail> get copyWith =>
-      _$LoadFailCopyWithImpl<LoadFail>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loading,
-    required TResult Function(FlowyDoc doc) loadDoc,
-    required TResult Function(WorkspaceError error) loadFail,
-  }) {
-    return loadFail(error);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loading,
-    TResult Function(FlowyDoc doc)? loadDoc,
-    TResult Function(WorkspaceError error)? loadFail,
-    required TResult orElse(),
-  }) {
-    if (loadFail != null) {
-      return loadFail(error);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(Loading value) loading,
-    required TResult Function(LoadedDoc value) loadDoc,
-    required TResult Function(LoadFail value) loadFail,
-  }) {
-    return loadFail(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(Loading value)? loading,
-    TResult Function(LoadedDoc value)? loadDoc,
-    TResult Function(LoadFail value)? loadFail,
-    required TResult orElse(),
-  }) {
-    if (loadFail != null) {
-      return loadFail(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class LoadFail implements DocState {
-  const factory LoadFail(WorkspaceError error) = _$LoadFail;
-
-  WorkspaceError get error => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $LoadFailCopyWith<LoadFail> get copyWith =>
-      throw _privateConstructorUsedError;
+  _$FinishCopyWith<_Finish> get copyWith => throw _privateConstructorUsedError;
 }

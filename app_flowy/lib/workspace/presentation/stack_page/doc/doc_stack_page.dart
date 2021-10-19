@@ -1,14 +1,8 @@
-import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/application/doc/doc_bloc.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/domain/view_ext.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_log/flowy_log.dart';
-import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flowy_infra_ui/style_widget/progress_indicator.dart';
 
 import 'doc_page.dart';
 
@@ -41,8 +35,6 @@ class DocStackContext extends HomeStackContext {
   List<NavigationItem> makeNavigationItems() {
     return [
       this,
-      this,
-      this,
     ];
   }
 }
@@ -58,22 +50,7 @@ class DocStackPage extends StatefulWidget {
 class _DocStackPageState extends State<DocStackPage> {
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<DocBloc>(
-            create: (context) => getIt<DocBloc>(param1: widget.view.id)..add(const DocEvent.loadDoc())),
-      ],
-      child: BlocBuilder<DocBloc, DocState>(builder: (context, state) {
-        return state.map(
-          loading: (_) => const FlowyProgressIndicator(),
-          loadDoc: (s) => DocPage(doc: s.doc),
-          loadFail: (s) {
-            Log.error("$s");
-            return FlowyErrorPage(s.error.toString());
-          },
-        );
-      }),
-    );
+    return DocPage(view: widget.view);
   }
 
   @override
