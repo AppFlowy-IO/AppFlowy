@@ -2,10 +2,10 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/view/view_bloc.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/domain/view_ext.dart';
+import 'package:app_flowy/workspace/presentation/widgets/pop_up_window.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -19,6 +19,8 @@ import 'package:styled_widget/styled_widget.dart';
 import 'package:app_flowy/workspace/domain/image.dart';
 import 'package:app_flowy/workspace/domain/view_edit.dart';
 import 'package:app_flowy/workspace/presentation/widgets/menu/widget/app/menu_app.dart';
+
+import 'action.dart';
 
 // ignore: must_be_immutable
 class ViewSectionItem extends StatelessWidget {
@@ -89,8 +91,12 @@ class ViewSectionItem extends StatelessWidget {
     action.foldRight({}, (action, previous) {
       switch (action) {
         case ViewAction.rename:
-
-          // TODO: Handle this case.
+          FlowyPoppuWindow.show(
+            context,
+            child: ViewRenamePannel(renameCallback: (name) {
+              context.read<ViewBloc>().add(ViewEvent.rename(name));
+            }),
+          );
           break;
         case ViewAction.delete:
           context.read<ViewBloc>().add(const ViewEvent.delete());
@@ -128,69 +134,12 @@ class ViewDisclosureButton extends StatelessWidget {
   }
 }
 
-class ViewActionList implements FlowyOverlayDelegate {
-  final Function(dartz.Option<ViewAction>) onSelected;
-  final BuildContext anchorContext;
-  final String _identifier = 'ViewActionList';
-
-  const ViewActionList({required this.anchorContext, required this.onSelected});
-
-  void show(BuildContext buildContext) {
-    final items = ViewAction.values
-        .map((action) => ActionItem(
-            action: action,
-            onSelected: (action) {
-              FlowyOverlay.of(buildContext).remove(_identifier);
-              onSelected(dartz.some(action));
-            }))
-        .toList();
-
-    ListOverlay.showWithAnchor(
-      buildContext,
-      identifier: _identifier,
-      itemCount: items.length,
-      itemBuilder: (context, index) => items[index],
-      anchorContext: anchorContext,
-      anchorDirection: AnchorDirection.bottomRight,
-      maxWidth: 120,
-      maxHeight: 80,
-      delegate: this,
-    );
-  }
-
-  @override
-  void didRemove() {
-    onSelected(dartz.none());
-  }
-}
-
-class ActionItem extends StatelessWidget {
-  final ViewAction action;
-  final Function(ViewAction) onSelected;
-  const ActionItem({
-    Key? key,
-    required this.action,
-    required this.onSelected,
-  }) : super(key: key);
+class ViewRenamePannel extends StatelessWidget {
+  final void Function(String) renameCallback;
+  const ViewRenamePannel({Key? key, required this.renameCallback}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-
-    return FlowyHover(
-      config: HoverDisplayConfig(hoverColor: theme.hover),
-      builder: (context, onHover) {
-        return GestureDetector(
-          onTap: () => onSelected(action),
-          child: FlowyText.medium(
-            action.name,
-            fontSize: 12,
-          ).padding(
-            horizontal: 10,
-            vertical: 6,
-          ),
-        );
-      },
-    );
+    return SizedBox(width: 100, height: 200, child: Container(color: Colors.black));
   }
 }

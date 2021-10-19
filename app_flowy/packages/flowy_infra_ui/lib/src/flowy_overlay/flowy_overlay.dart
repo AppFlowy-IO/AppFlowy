@@ -3,6 +3,7 @@
 import 'package:dartz/dartz.dart' show Tuple3;
 import 'package:flowy_infra_ui/src/flowy_overlay/layout.dart';
 import 'package:flutter/material.dart';
+import 'dart:ui';
 
 /// Specifies how overlay are anchored to the SourceWidget
 enum AnchorDirection {
@@ -11,6 +12,7 @@ enum AnchorDirection {
   topRight,
   bottomLeft,
   bottomRight,
+  center,
 
   // Edge aligned with a edge of the SourceWidget
   topWithLeftAligned,
@@ -55,21 +57,20 @@ enum OnBackBehavior {
   dismiss,
 }
 
-class FlowyOverlayConfig {
+class FlowyOverlayStyle {
   final Color barrierColor;
+  bool blur;
 
-  FlowyOverlayConfig({required this.barrierColor});
-
-  const FlowyOverlayConfig.defualt() : barrierColor = Colors.transparent;
+  FlowyOverlayStyle({this.barrierColor = Colors.transparent, this.blur = false});
 }
 
 final GlobalKey<FlowyOverlayState> _key = GlobalKey<FlowyOverlayState>();
 
 /// Invoke this method in app generation process
-TransitionBuilder overlayManagerBuilder({FlowyOverlayConfig config = const FlowyOverlayConfig.defualt()}) {
+TransitionBuilder overlayManagerBuilder() {
   return (context, child) {
     assert(child != null, 'Child can\'t be null.');
-    return FlowyOverlay(key: _key, child: child!, config: config);
+    return FlowyOverlay(key: _key, child: child!);
   };
 }
 
@@ -78,11 +79,9 @@ abstract class FlowyOverlayDelegate {
 }
 
 class FlowyOverlay extends StatefulWidget {
-  const FlowyOverlay({Key? key, required this.child, required this.config}) : super(key: key);
+  const FlowyOverlay({Key? key, required this.child}) : super(key: key);
 
   final Widget child;
-
-  final FlowyOverlayConfig config;
 
   static FlowyOverlayState of(BuildContext context, {bool rootOverlay = false}) {
     FlowyOverlayState? state = maybeOf(context, rootOverlay: rootOverlay);
@@ -113,6 +112,7 @@ class FlowyOverlay extends StatefulWidget {
 
 class FlowyOverlayState extends State<FlowyOverlay> {
   List<Tuple3<Widget, String, FlowyOverlayDelegate?>> _overlayList = [];
+  FlowyOverlayStyle style = FlowyOverlayStyle();
 
   /// Insert a overlay widget which frame is set by the widget, not the component.
   /// Be sure to specify the offset and size using a anchorable widget (like `Postition`, `CompositedTransformFollower`)
@@ -137,7 +137,12 @@ class FlowyOverlayState extends State<FlowyOverlay> {
     AnchorDirection? anchorDirection,
     FlowyOverlayDelegate? delegate,
     OverlapBehaviour? overlapBehaviour,
+    FlowyOverlayStyle? style,
   }) {
+    if (style != null) {
+      this.style = style;
+    }
+
     _showOverlay(
       widget: widget,
       identifier: identifier,
@@ -157,7 +162,10 @@ class FlowyOverlayState extends State<FlowyOverlay> {
     AnchorDirection? anchorDirection,
     FlowyOverlayDelegate? delegate,
     OverlapBehaviour? overlapBehaviour,
+    FlowyOverlayStyle? style,
   }) {
+    this.style = style ?? FlowyOverlayStyle();
+
     _showOverlay(
       widget: widget,
       identifier: identifier,
@@ -245,17 +253,30 @@ class FlowyOverlayState extends State<FlowyOverlay> {
   @override
   Widget build(BuildContext context) {
     final overlays = _overlayList.map((ele) => ele.value1);
-    final children = <Widget>[
-      widget.child,
-      if (overlays.isNotEmpty)
-        Container(
-          color: widget.config.barrierColor,
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: _handleTapOnBackground,
-          ),
+    List<Widget> children = <Widget>[widget.child];
+
+    Widget? child;
+    if (overlays.isNotEmpty) {
+      child = Container(
+        color: style.barrierColor,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: _handleTapOnBackground,
         ),
-    ];
+      );
+
+      if (style.blur) {
+        child = BackdropFilter(
+          child: child,
+          filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+        );
+      }
+    }
+
+    if (child != null) {
+      children.add(child);
+    }
+
     return Stack(
       children: children..addAll(overlays),
     );

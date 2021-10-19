@@ -36,11 +36,10 @@ class ApplicationWidget extends StatelessWidget {
     // setWindowFrame(const Rect.fromLTWH(0, 0, launchWidth, launchWidth / ratio));
 
     final theme = AppTheme.fromType(ThemeType.light);
-    FlowyOverlayConfig config = FlowyOverlayConfig(barrierColor: Colors.transparent);
     return Provider.value(
       value: theme,
       child: MaterialApp(
-        builder: overlayManagerBuilder(config: config),
+        builder: overlayManagerBuilder(),
         debugShowCheckedModeBanner: false,
         theme: theme.themeData,
         navigatorKey: AppGlobals.rootNavKey,

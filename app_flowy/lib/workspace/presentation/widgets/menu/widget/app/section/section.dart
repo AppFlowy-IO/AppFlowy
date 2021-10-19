@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:styled_widget/styled_widget.dart';
 import 'item.dart';
 
 class ViewListNotifier extends ChangeNotifier {
@@ -47,10 +48,7 @@ class ViewSection extends StatelessWidget {
     // The ViewListNotifier will be updated after ViewListData changed passed by parent widget
     return ChangeNotifierProxyProvider<ViewListNotifier, ViewSectionNotifier>(
       create: (_) {
-        final views = Provider.of<ViewListNotifier>(
-          context,
-          listen: false,
-        ).items;
+        final views = Provider.of<ViewListNotifier>(context, listen: false).items;
         return ViewSectionNotifier(views);
       },
       update: (_, notifier, controller) => controller!..update(notifier),
@@ -61,20 +59,15 @@ class ViewSection extends StatelessWidget {
   }
 
   Widget _renderSectionItems(BuildContext context, List<View> views) {
-    var viewWidgets = views.map((view) {
-      final item = ViewSectionItem(
+    var viewWidgets = views.map(
+      (view) => ViewSectionItem(
         view: view,
         isSelected: _isViewSelected(context, view.id),
         onSelected: (view) => context.read<ViewSectionNotifier>().setSelectedView(view),
-      );
+      ).padding(vertical: 4),
+    );
 
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: item,
-      );
-    }).toList(growable: false);
-
-    return Column(children: viewWidgets);
+    return Column(children: viewWidgets.toList(growable: false));
   }
 
   bool _isViewSelected(BuildContext context, String viewId) {

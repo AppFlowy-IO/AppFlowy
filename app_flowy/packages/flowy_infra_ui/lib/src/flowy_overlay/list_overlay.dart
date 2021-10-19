@@ -55,6 +55,7 @@ class ListOverlay extends StatelessWidget {
     AnchorDirection? anchorDirection,
     FlowyOverlayDelegate? delegate,
     OverlapBehaviour? overlapBehaviour,
+    FlowyOverlayStyle? style,
   }) {
     FlowyOverlay.of(context).insertWithAnchor(
       widget: ListOverlay(
@@ -69,6 +70,7 @@ class ListOverlay extends StatelessWidget {
       anchorDirection: anchorDirection,
       delegate: delegate,
       overlapBehaviour: overlapBehaviour,
+      style: style,
     );
   }
 
@@ -86,6 +88,7 @@ class ListOverlay extends StatelessWidget {
     AnchorDirection? anchorDirection,
     FlowyOverlayDelegate? delegate,
     OverlapBehaviour? overlapBehaviour,
+    FlowyOverlayStyle? style,
   }) {
     FlowyOverlay.of(context).insertWithRect(
       widget: ListOverlay(
@@ -101,6 +104,7 @@ class ListOverlay extends StatelessWidget {
       anchorDirection: anchorDirection,
       delegate: delegate,
       overlapBehaviour: overlapBehaviour,
+      style: style,
     );
   }
 }
