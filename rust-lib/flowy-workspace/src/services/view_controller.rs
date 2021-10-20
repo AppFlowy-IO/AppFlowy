@@ -119,6 +119,27 @@ impl ViewController {
         Ok(())
     }
 
+    #[tracing::instrument(level = "debug", skip(self), err)]
+    pub(crate) async fn duplicate_view(&self, params: DocIdentifier) -> Result<(), WorkspaceError> {
+        let view: View = ViewTableSql::read_view(&params.doc_id, &*self.database.db_connection()?)?.into();
+        let delta_data = self
+            .document
+            .read_document_data(params, self.database.db_pool()?)
+            .await?;
+
+        let duplicate_params = CreateViewParams {
+            belong_to_id: view.belong_to_id.clone(),
+            name: format!("{}_copy", &view.name),
+            desc: view.desc.clone(),
+            thumbnail: "".to_owned(),
+            view_type: view.view_type.clone(),
+            data: delta_data.data,
+        };
+
+        let _ = self.create_view(duplicate_params).await?;
+        Ok(())
+    }
+
     // belong_to_id will be the app_id or view_id.
     #[tracing::instrument(level = "debug", skip(self), err)]
     pub(crate) async fn read_views_belong_to(&self, belong_to_id: &str) -> Result<RepeatedView, WorkspaceError> {

@@ -26,6 +26,11 @@ class IViewImpl extends IView {
   Future<Either<View, WorkspaceError>> rename(String newName) {
     return repo.updateView(name: newName);
   }
+
+  @override
+  Future<Either<Unit, WorkspaceError>> duplicate() {
+    return repo.duplicate();
+  }
 }
 
 class IViewListenerImpl extends IViewListener {

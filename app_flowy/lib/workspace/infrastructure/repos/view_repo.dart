@@ -43,6 +43,11 @@ class ViewRepository {
     final request = QueryViewRequest.create()..viewIds.add(view.id);
     return WorkspaceEventDeleteView(request).send();
   }
+
+  Future<Either<Unit, WorkspaceError>> duplicate() {
+    final request = QueryViewRequest.create()..viewIds.add(view.id);
+    return WorkspaceEventDuplicateView(request).send();
+  }
 }
 
 class ViewListenerRepository {

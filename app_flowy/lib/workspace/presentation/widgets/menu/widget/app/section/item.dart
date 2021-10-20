@@ -103,6 +103,9 @@ class ViewSectionItem extends StatelessWidget {
         case ViewAction.delete:
           context.read<ViewBloc>().add(const ViewEvent.delete());
           break;
+        case ViewAction.duplicate:
+          context.read<ViewBloc>().add(const ViewEvent.duplicate());
+          break;
       }
     });
   }

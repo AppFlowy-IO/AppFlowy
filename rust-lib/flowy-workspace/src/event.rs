@@ -46,14 +46,17 @@ pub enum WorkspaceEvent {
     #[event(input = "QueryViewRequest")]
     DeleteView        = 204,
 
+    #[event(input = "QueryViewRequest")]
+    DuplicateView     = 205,
+
+    #[event()]
+    CopyLink          = 206,
+
     #[event(input = "QueryViewRequest", output = "DocDelta")]
-    OpenView          = 205,
+    OpenView          = 207,
 
     #[event(input = "QueryViewRequest")]
-    CloseView         = 206,
-
-    #[event(input = "DocDelta", output = "DocDelta")]
-    ApplyDocDelta     = 207,
+    CloseView         = 208,
 
     #[event(output = "RepeatedTrash")]
     ReadTrash         = 300,
@@ -69,6 +72,9 @@ pub enum WorkspaceEvent {
 
     #[event()]
     DeleteAll         = 304,
+
+    #[event(input = "DocDelta", output = "DocDelta")]
+    ApplyDocDelta     = 400,
 
     #[event()]
     InitWorkspace     = 1000,

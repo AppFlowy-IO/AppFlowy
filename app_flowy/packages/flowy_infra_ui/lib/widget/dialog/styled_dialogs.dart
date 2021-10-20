@@ -108,7 +108,7 @@ class StyledDialogRoute<T> extends PopupRoute<T> {
   StyledDialogRoute({
     required RoutePageBuilder pageBuilder,
     required this.barrier,
-    Duration transitionDuration = const Duration(milliseconds: 360),
+    Duration transitionDuration = const Duration(milliseconds: 300),
     RouteTransitionsBuilder? transitionBuilder,
     RouteSettings? settings,
   })  : _pageBuilder = pageBuilder,

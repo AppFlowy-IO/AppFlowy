@@ -163,6 +163,7 @@ class FlowyOverlayState extends State<FlowyOverlay> {
     FlowyOverlayDelegate? delegate,
     OverlapBehaviour? overlapBehaviour,
     FlowyOverlayStyle? style,
+    Offset? anchorPosition,
   }) {
     this.style = style ?? FlowyOverlayStyle();
 
@@ -174,6 +175,7 @@ class FlowyOverlayState extends State<FlowyOverlay> {
       anchorContext: anchorContext,
       anchorDirection: anchorDirection,
       overlapBehaviour: overlapBehaviour,
+      anchorPosition: anchorPosition,
     );
   }
 

@@ -3,6 +3,7 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -33,8 +34,8 @@ class ViewActionList implements FlowyOverlayDelegate {
       itemBuilder: (context, index) => items[index],
       anchorContext: anchorContext,
       anchorDirection: AnchorDirection.bottomRight,
-      maxWidth: 120,
-      maxHeight: 80,
+      maxWidth: 162,
+      maxHeight: ViewAction.values.length * 32,
       delegate: this,
     );
   }
@@ -63,11 +64,17 @@ class ActionItem extends StatelessWidget {
       builder: (context, onHover) {
         return GestureDetector(
           onTap: () => onSelected(action),
-          child: FlowyText.medium(
-            action.name,
-            fontSize: 12,
+          child: Row(
+            children: [
+              action.icon,
+              const HSpace(10),
+              FlowyText.medium(
+                action.name,
+                fontSize: 12,
+              ),
+            ],
           ).padding(
-            horizontal: 10,
+            horizontal: 6,
             vertical: 6,
           ),
         );

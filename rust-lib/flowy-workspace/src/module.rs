@@ -88,6 +88,7 @@ pub fn create(workspace: Arc<WorkspaceController>) -> Module {
         .event(WorkspaceEvent::ReadView, read_view_handler)
         .event(WorkspaceEvent::UpdateView, update_view_handler)
         .event(WorkspaceEvent::DeleteView, delete_view_handler)
+        .event(WorkspaceEvent::DuplicateView, duplicate_view_handler)
         .event(WorkspaceEvent::OpenView, open_view_handler)
         .event(WorkspaceEvent::CloseView, close_view_handler)
         .event(WorkspaceEvent::ApplyDocDelta, apply_doc_delta_handler);

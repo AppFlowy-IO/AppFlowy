@@ -18,26 +18,39 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
 
   @override
   Stream<ViewState> mapEventToState(ViewEvent event) async* {
-    yield* event.map(initial: (e) async* {
-      listener.start(updatedCallback: (result) => add(ViewEvent.viewDidUpdate(result)));
-      yield state;
-    }, setIsEditing: (e) async* {
-      yield state.copyWith(isEditing: e.isEditing);
-    }, viewDidUpdate: (e) async* {
-      yield* _handleViewDidUpdate(e.result);
-    }, rename: (e) async* {
-      final result = await viewManager.rename(e.newName);
-      yield result.fold(
-        (l) => state.copyWith(successOrFailure: left(unit)),
-        (error) => state.copyWith(successOrFailure: right(error)),
-      );
-    }, delete: (e) async* {
-      final result = await viewManager.delete();
-      yield result.fold(
-        (l) => state.copyWith(successOrFailure: left(unit)),
-        (error) => state.copyWith(successOrFailure: right(error)),
-      );
-    });
+    yield* event.map(
+      initial: (e) async* {
+        listener.start(updatedCallback: (result) => add(ViewEvent.viewDidUpdate(result)));
+        yield state;
+      },
+      setIsEditing: (e) async* {
+        yield state.copyWith(isEditing: e.isEditing);
+      },
+      viewDidUpdate: (e) async* {
+        yield* _handleViewDidUpdate(e.result);
+      },
+      rename: (e) async* {
+        final result = await viewManager.rename(e.newName);
+        yield result.fold(
+          (l) => state.copyWith(successOrFailure: left(unit)),
+          (error) => state.copyWith(successOrFailure: right(error)),
+        );
+      },
+      delete: (e) async* {
+        final result = await viewManager.delete();
+        yield result.fold(
+          (l) => state.copyWith(successOrFailure: left(unit)),
+          (error) => state.copyWith(successOrFailure: right(error)),
+        );
+      },
+      duplicate: (e) async* {
+        final result = await viewManager.duplicate();
+        yield result.fold(
+          (l) => state.copyWith(successOrFailure: left(unit)),
+          (error) => state.copyWith(successOrFailure: right(error)),
+        );
+      },
+    );
   }
 
   Stream<ViewState> _handleViewDidUpdate(Either<View, WorkspaceError> result) async* {
@@ -60,6 +73,7 @@ class ViewEvent with _$ViewEvent {
   const factory ViewEvent.setIsEditing(bool isEditing) = SetEditing;
   const factory ViewEvent.rename(String newName) = Rename;
   const factory ViewEvent.delete() = Delete;
+  const factory ViewEvent.duplicate() = Duplicate;
   const factory ViewEvent.viewDidUpdate(Either<View, WorkspaceError> result) = ViewDidUpdate;
 }
 

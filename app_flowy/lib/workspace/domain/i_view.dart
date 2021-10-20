@@ -10,6 +10,8 @@ abstract class IView {
   Future<Either<Unit, WorkspaceError>> delete();
 
   Future<Either<View, WorkspaceError>> rename(String newName);
+
+  Future<Either<Unit, WorkspaceError>> duplicate();
 }
 
 abstract class IViewListener {

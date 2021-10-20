@@ -1,13 +1,13 @@
 import 'dart:io';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/doc/doc_bloc.dart';
-import 'package:app_flowy/workspace/domain/i_doc.dart';
 import 'package:editor/flutter_quill.dart';
 import 'package:flowy_infra_ui/style_widget/progress_indicator.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:styled_widget/styled_widget.dart';
 
 class DocPage extends StatefulWidget {
   final View view;
@@ -38,7 +38,7 @@ class _DocPageState extends State<DocPage> {
         return state.loadState.map(
           loading: (_) => const FlowyProgressIndicator(),
           finish: (result) => result.successOrFail.fold(
-            (doc) => _renderDoc(context, doc),
+            (_) => _renderDoc(context),
             (err) => FlowyErrorPage(err.toString()),
           ),
         );
@@ -52,9 +52,9 @@ class _DocPageState extends State<DocPage> {
     super.dispose();
   }
 
-  Widget _renderDoc(BuildContext context, FlowyDoc doc) {
+  Widget _renderDoc(BuildContext context) {
     QuillController controller = QuillController(
-      document: doc.document,
+      document: context.read<DocBloc>().document,
       selection: const TextSelection.collapsed(offset: 0),
     );
     return Column(
@@ -63,7 +63,7 @@ class _DocPageState extends State<DocPage> {
         _renderEditor(controller),
         _renderToolbar(controller),
       ],
-    );
+    ).padding(horizontal: 80, vertical: 48);
   }
 
   Widget _renderEditor(QuillController controller) {

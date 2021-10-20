@@ -36,6 +36,10 @@ class _$ViewEventTearOff {
     return const Delete();
   }
 
+  Duplicate duplicate() {
+    return const Duplicate();
+  }
+
   ViewDidUpdate viewDidUpdate(Either<View, WorkspaceError> result) {
     return ViewDidUpdate(
       result,
@@ -54,6 +58,7 @@ mixin _$ViewEvent {
     required TResult Function(bool isEditing) setIsEditing,
     required TResult Function(String newName) rename,
     required TResult Function() delete,
+    required TResult Function() duplicate,
     required TResult Function(Either<View, WorkspaceError> result)
         viewDidUpdate,
   }) =>
@@ -64,6 +69,7 @@ mixin _$ViewEvent {
     TResult Function(bool isEditing)? setIsEditing,
     TResult Function(String newName)? rename,
     TResult Function()? delete,
+    TResult Function()? duplicate,
     TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
     required TResult orElse(),
   }) =>
@@ -74,6 +80,7 @@ mixin _$ViewEvent {
     required TResult Function(SetEditing value) setIsEditing,
     required TResult Function(Rename value) rename,
     required TResult Function(Delete value) delete,
+    required TResult Function(Duplicate value) duplicate,
     required TResult Function(ViewDidUpdate value) viewDidUpdate,
   }) =>
       throw _privateConstructorUsedError;
@@ -83,6 +90,7 @@ mixin _$ViewEvent {
     TResult Function(SetEditing value)? setIsEditing,
     TResult Function(Rename value)? rename,
     TResult Function(Delete value)? delete,
+    TResult Function(Duplicate value)? duplicate,
     TResult Function(ViewDidUpdate value)? viewDidUpdate,
     required TResult orElse(),
   }) =>
@@ -145,6 +153,7 @@ class _$Initial implements Initial {
     required TResult Function(bool isEditing) setIsEditing,
     required TResult Function(String newName) rename,
     required TResult Function() delete,
+    required TResult Function() duplicate,
     required TResult Function(Either<View, WorkspaceError> result)
         viewDidUpdate,
   }) {
@@ -158,6 +167,7 @@ class _$Initial implements Initial {
     TResult Function(bool isEditing)? setIsEditing,
     TResult Function(String newName)? rename,
     TResult Function()? delete,
+    TResult Function()? duplicate,
     TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
     required TResult orElse(),
   }) {
@@ -174,6 +184,7 @@ class _$Initial implements Initial {
     required TResult Function(SetEditing value) setIsEditing,
     required TResult Function(Rename value) rename,
     required TResult Function(Delete value) delete,
+    required TResult Function(Duplicate value) duplicate,
     required TResult Function(ViewDidUpdate value) viewDidUpdate,
   }) {
     return initial(this);
@@ -186,6 +197,7 @@ class _$Initial implements Initial {
     TResult Function(SetEditing value)? setIsEditing,
     TResult Function(Rename value)? rename,
     TResult Function(Delete value)? delete,
+    TResult Function(Duplicate value)? duplicate,
     TResult Function(ViewDidUpdate value)? viewDidUpdate,
     required TResult orElse(),
   }) {
@@ -268,6 +280,7 @@ class _$SetEditing implements SetEditing {
     required TResult Function(bool isEditing) setIsEditing,
     required TResult Function(String newName) rename,
     required TResult Function() delete,
+    required TResult Function() duplicate,
     required TResult Function(Either<View, WorkspaceError> result)
         viewDidUpdate,
   }) {
@@ -281,6 +294,7 @@ class _$SetEditing implements SetEditing {
     TResult Function(bool isEditing)? setIsEditing,
     TResult Function(String newName)? rename,
     TResult Function()? delete,
+    TResult Function()? duplicate,
     TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
     required TResult orElse(),
   }) {
@@ -297,6 +311,7 @@ class _$SetEditing implements SetEditing {
     required TResult Function(SetEditing value) setIsEditing,
     required TResult Function(Rename value) rename,
     required TResult Function(Delete value) delete,
+    required TResult Function(Duplicate value) duplicate,
     required TResult Function(ViewDidUpdate value) viewDidUpdate,
   }) {
     return setIsEditing(this);
@@ -309,6 +324,7 @@ class _$SetEditing implements SetEditing {
     TResult Function(SetEditing value)? setIsEditing,
     TResult Function(Rename value)? rename,
     TResult Function(Delete value)? delete,
+    TResult Function(Duplicate value)? duplicate,
     TResult Function(ViewDidUpdate value)? viewDidUpdate,
     required TResult orElse(),
   }) {
@@ -394,6 +410,7 @@ class _$Rename implements Rename {
     required TResult Function(bool isEditing) setIsEditing,
     required TResult Function(String newName) rename,
     required TResult Function() delete,
+    required TResult Function() duplicate,
     required TResult Function(Either<View, WorkspaceError> result)
         viewDidUpdate,
   }) {
@@ -407,6 +424,7 @@ class _$Rename implements Rename {
     TResult Function(bool isEditing)? setIsEditing,
     TResult Function(String newName)? rename,
     TResult Function()? delete,
+    TResult Function()? duplicate,
     TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
     required TResult orElse(),
   }) {
@@ -423,6 +441,7 @@ class _$Rename implements Rename {
     required TResult Function(SetEditing value) setIsEditing,
     required TResult Function(Rename value) rename,
     required TResult Function(Delete value) delete,
+    required TResult Function(Duplicate value) duplicate,
     required TResult Function(ViewDidUpdate value) viewDidUpdate,
   }) {
     return rename(this);
@@ -435,6 +454,7 @@ class _$Rename implements Rename {
     TResult Function(SetEditing value)? setIsEditing,
     TResult Function(Rename value)? rename,
     TResult Function(Delete value)? delete,
+    TResult Function(Duplicate value)? duplicate,
     TResult Function(ViewDidUpdate value)? viewDidUpdate,
     required TResult orElse(),
   }) {
@@ -494,6 +514,7 @@ class _$Delete implements Delete {
     required TResult Function(bool isEditing) setIsEditing,
     required TResult Function(String newName) rename,
     required TResult Function() delete,
+    required TResult Function() duplicate,
     required TResult Function(Either<View, WorkspaceError> result)
         viewDidUpdate,
   }) {
@@ -507,6 +528,7 @@ class _$Delete implements Delete {
     TResult Function(bool isEditing)? setIsEditing,
     TResult Function(String newName)? rename,
     TResult Function()? delete,
+    TResult Function()? duplicate,
     TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
     required TResult orElse(),
   }) {
@@ -523,6 +545,7 @@ class _$Delete implements Delete {
     required TResult Function(SetEditing value) setIsEditing,
     required TResult Function(Rename value) rename,
     required TResult Function(Delete value) delete,
+    required TResult Function(Duplicate value) duplicate,
     required TResult Function(ViewDidUpdate value) viewDidUpdate,
   }) {
     return delete(this);
@@ -535,6 +558,7 @@ class _$Delete implements Delete {
     TResult Function(SetEditing value)? setIsEditing,
     TResult Function(Rename value)? rename,
     TResult Function(Delete value)? delete,
+    TResult Function(Duplicate value)? duplicate,
     TResult Function(ViewDidUpdate value)? viewDidUpdate,
     required TResult orElse(),
   }) {
@@ -547,6 +571,106 @@ class _$Delete implements Delete {
 
 abstract class Delete implements ViewEvent {
   const factory Delete() = _$Delete;
+}
+
+/// @nodoc
+abstract class $DuplicateCopyWith<$Res> {
+  factory $DuplicateCopyWith(Duplicate value, $Res Function(Duplicate) then) =
+      _$DuplicateCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class _$DuplicateCopyWithImpl<$Res> extends _$ViewEventCopyWithImpl<$Res>
+    implements $DuplicateCopyWith<$Res> {
+  _$DuplicateCopyWithImpl(Duplicate _value, $Res Function(Duplicate) _then)
+      : super(_value, (v) => _then(v as Duplicate));
+
+  @override
+  Duplicate get _value => super._value as Duplicate;
+}
+
+/// @nodoc
+
+class _$Duplicate implements Duplicate {
+  const _$Duplicate();
+
+  @override
+  String toString() {
+    return 'ViewEvent.duplicate()';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) || (other is Duplicate);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function(bool isEditing) setIsEditing,
+    required TResult Function(String newName) rename,
+    required TResult Function() delete,
+    required TResult Function() duplicate,
+    required TResult Function(Either<View, WorkspaceError> result)
+        viewDidUpdate,
+  }) {
+    return duplicate();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(bool isEditing)? setIsEditing,
+    TResult Function(String newName)? rename,
+    TResult Function()? delete,
+    TResult Function()? duplicate,
+    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
+    required TResult orElse(),
+  }) {
+    if (duplicate != null) {
+      return duplicate();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(Initial value) initial,
+    required TResult Function(SetEditing value) setIsEditing,
+    required TResult Function(Rename value) rename,
+    required TResult Function(Delete value) delete,
+    required TResult Function(Duplicate value) duplicate,
+    required TResult Function(ViewDidUpdate value) viewDidUpdate,
+  }) {
+    return duplicate(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(SetEditing value)? setIsEditing,
+    TResult Function(Rename value)? rename,
+    TResult Function(Delete value)? delete,
+    TResult Function(Duplicate value)? duplicate,
+    TResult Function(ViewDidUpdate value)? viewDidUpdate,
+    required TResult orElse(),
+  }) {
+    if (duplicate != null) {
+      return duplicate(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class Duplicate implements ViewEvent {
+  const factory Duplicate() = _$Duplicate;
 }
 
 /// @nodoc
@@ -617,6 +741,7 @@ class _$ViewDidUpdate implements ViewDidUpdate {
     required TResult Function(bool isEditing) setIsEditing,
     required TResult Function(String newName) rename,
     required TResult Function() delete,
+    required TResult Function() duplicate,
     required TResult Function(Either<View, WorkspaceError> result)
         viewDidUpdate,
   }) {
@@ -630,6 +755,7 @@ class _$ViewDidUpdate implements ViewDidUpdate {
     TResult Function(bool isEditing)? setIsEditing,
     TResult Function(String newName)? rename,
     TResult Function()? delete,
+    TResult Function()? duplicate,
     TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
     required TResult orElse(),
   }) {
@@ -646,6 +772,7 @@ class _$ViewDidUpdate implements ViewDidUpdate {
     required TResult Function(SetEditing value) setIsEditing,
     required TResult Function(Rename value) rename,
     required TResult Function(Delete value) delete,
+    required TResult Function(Duplicate value) duplicate,
     required TResult Function(ViewDidUpdate value) viewDidUpdate,
   }) {
     return viewDidUpdate(this);
@@ -658,6 +785,7 @@ class _$ViewDidUpdate implements ViewDidUpdate {
     TResult Function(SetEditing value)? setIsEditing,
     TResult Function(Rename value)? rename,
     TResult Function(Delete value)? delete,
+    TResult Function(Duplicate value)? duplicate,
     TResult Function(ViewDidUpdate value)? viewDidUpdate,
     required TResult orElse(),
   }) {

@@ -15,13 +15,15 @@ enum WorkspaceEvent {
     ReadView = 202;
     UpdateView = 203;
     DeleteView = 204;
-    OpenView = 205;
-    CloseView = 206;
-    ApplyDocDelta = 207;
+    DuplicateView = 205;
+    CopyLink = 206;
+    OpenView = 207;
+    CloseView = 208;
     ReadTrash = 300;
     PutbackTrash = 301;
     DeleteTrash = 302;
     RestoreAll = 303;
     DeleteAll = 304;
+    ApplyDocDelta = 400;
     InitWorkspace = 1000;
 }

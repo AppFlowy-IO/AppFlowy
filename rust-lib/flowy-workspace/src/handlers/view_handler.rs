@@ -102,3 +102,13 @@ pub(crate) async fn close_view_handler(
     let _ = controller.close_view(params.into()).await?;
     Ok(())
 }
+
+#[tracing::instrument(skip(data, controller), err)]
+pub(crate) async fn duplicate_view_handler(
+    data: Data<QueryViewRequest>,
+    controller: Unit<Arc<ViewController>>,
+) -> Result<(), WorkspaceError> {
+    let params: ViewIdentifier = data.into_inner().try_into()?;
+    let _ = controller.duplicate_view(params.into()).await?;
+    Ok(())
+}

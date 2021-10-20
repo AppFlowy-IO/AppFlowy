@@ -52,6 +52,16 @@ impl FlowyDocument {
         Ok(())
     }
 
+    pub async fn read_document_data(
+        &self,
+        params: DocIdentifier,
+        pool: Arc<ConnectionPool>,
+    ) -> Result<DocDelta, DocError> {
+        let edit_context = self.doc_ctrl.open(params, pool).await?;
+        let delta = edit_context.delta().await?;
+        Ok(delta)
+    }
+
     pub async fn apply_doc_delta(&self, params: DocDelta) -> Result<DocDelta, DocError> {
         // workaround: compare the rust's delta with flutter's delta. Will be removed
         // very soon
