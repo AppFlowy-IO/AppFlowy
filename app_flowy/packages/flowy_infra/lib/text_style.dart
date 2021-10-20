@@ -65,19 +65,16 @@ class TextStyles {
   static TextStyle get Body3 => lato.size(FontSizes.s11);
 
   // ignore: non_constant_identifier_names
-  static TextStyle get Callout =>
-      quicksand.size(FontSizes.s14).letterSpace(1.75);
+  static TextStyle get Callout => quicksand.size(FontSizes.s14).letterSpace(1.75);
 
   // ignore: non_constant_identifier_names
   static TextStyle get CalloutFocus => Callout.bold;
 
   // ignore: non_constant_identifier_names
-  static TextStyle get Btn =>
-      quicksand.bold.size(FontSizes.s14).letterSpace(1.75);
+  static TextStyle get Btn => quicksand.bold.size(FontSizes.s14).letterSpace(1.75);
 
   // ignore: non_constant_identifier_names
-  static TextStyle get BtnSelected =>
-      quicksand.size(FontSizes.s14).letterSpace(1.75);
+  static TextStyle get BtnSelected => quicksand.size(FontSizes.s14).letterSpace(1.75);
 
   // ignore: non_constant_identifier_names
   static TextStyle get Footnote => quicksand.bold.size(FontSizes.s11);

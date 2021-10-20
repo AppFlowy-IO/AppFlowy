@@ -1,4 +1,3 @@
-import 'package:flowy_infra_ui/style_widget/image_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 // ignore: import_of_legacy_library_into_null_safe
@@ -11,84 +10,39 @@ import 'base_styled_button.dart';
 class SecondaryTextButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
+  final bool bigMode;
 
-  const SecondaryTextButton(this.label, {Key? key, this.onPressed}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-    TextStyle txtStyle = TextStyles.Footnote.textColor(theme.shader1);
-    return SecondaryButton(onPressed: onPressed, child: Text(label, style: txtStyle));
-  }
-}
-
-class SecondaryIconButton extends StatelessWidget {
-  /// Must be either an `AssetImage` for an `ImageIcon` or an `IconData` for a regular `Icon`
-  final AssetImage icon;
-  final Function()? onPressed;
-  final Color? color;
-
-  const SecondaryIconButton(this.icon, {Key? key, this.onPressed, this.color})
-      : assert((icon is IconData)),
-        super(key: key);
+  const SecondaryTextButton(this.label, {Key? key, this.onPressed, this.bigMode = false}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    return SecondaryButton(
-      onPressed: onPressed,
-      minHeight: 36,
-      minWidth: 36,
-      contentPadding: Insets.sm,
-      child: FlowyImageIcon(icon, size: 20, color: color ?? theme.shader4),
-    );
+    TextStyle txtStyle = TextStyles.Footnote.textColor(theme.main1);
+    return SecondaryButton(bigMode: bigMode, onPressed: onPressed, child: Text(label, style: txtStyle));
   }
 }
 
-class SecondaryButton extends StatefulWidget {
+class SecondaryButton extends StatelessWidget {
   final Widget child;
   final VoidCallback? onPressed;
-  final double? minWidth;
-  final double? minHeight;
-  final double? contentPadding;
-  final Function(bool)? onFocusChanged;
+  final bool bigMode;
 
-  const SecondaryButton(
-      {Key? key,
-      required this.child,
-      this.onPressed,
-      this.minWidth,
-      this.minHeight,
-      this.contentPadding,
-      this.onFocusChanged})
-      : super(key: key);
-
-  @override
-  _SecondaryButtonState createState() => _SecondaryButtonState();
-}
-
-class _SecondaryButtonState extends State<SecondaryButton> {
-  bool _isMouseOver = false;
+  const SecondaryButton({Key? key, required this.child, this.onPressed, this.bigMode = false}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isMouseOver = true),
-      onExit: (_) => setState(() => _isMouseOver = false),
-      child: BaseStyledButton(
-        minWidth: widget.minWidth ?? 78,
-        minHeight: widget.minHeight ?? 42,
-        contentPadding: EdgeInsets.all(widget.contentPadding ?? Insets.m),
-        bgColor: theme.bg1,
-        outlineColor: (_isMouseOver ? theme.hover : theme.shader6),
-        hoverColor: theme.hover,
-        onFocusChanged: widget.onFocusChanged,
-        downColor: theme.selector,
-        borderRadius: Corners.s5,
-        child: IgnorePointer(child: widget.child),
-        onPressed: widget.onPressed,
-      ),
+    return BaseStyledButton(
+      minWidth: bigMode ? 170 : 78,
+      minHeight: bigMode ? 48 : 28,
+      contentPadding: EdgeInsets.all(bigMode ? Insets.sm : Insets.l),
+      bgColor: theme.shader7,
+      hoverColor: theme.hover,
+      downColor: theme.main1,
+      outlineColor: theme.main1,
+      borderRadius: bigMode ? Corners.s12Border : Corners.s8Border,
+      child: child,
+      onPressed: onPressed,
     );
   }
 }

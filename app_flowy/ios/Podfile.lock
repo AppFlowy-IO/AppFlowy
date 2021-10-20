@@ -6,11 +6,23 @@ PODS:
   - flowy_sdk (0.0.1):
     - Flutter
   - Flutter (1.0.0)
+  - flutter_inappwebview (0.0.1):
+    - Flutter
+    - flutter_inappwebview/Core (= 0.0.1)
+    - OrderedSet (~> 5.0)
+  - flutter_inappwebview/Core (0.0.1):
+    - Flutter
+    - OrderedSet (~> 5.0)
   - flutter_keyboard_visibility (0.0.1):
     - Flutter
+  - image_picker (0.0.1):
+    - Flutter
+  - OrderedSet (5.0.0)
   - path_provider (0.0.1):
     - Flutter
   - url_launcher (0.0.1):
+    - Flutter
+  - video_player (0.0.1):
     - Flutter
 
 DEPENDENCIES:
@@ -18,9 +30,16 @@ DEPENDENCIES:
   - flowy_infra_ui (from `.symlinks/plugins/flowy_infra_ui/ios`)
   - flowy_sdk (from `.symlinks/plugins/flowy_sdk/ios`)
   - Flutter (from `Flutter`)
+  - flutter_inappwebview (from `.symlinks/plugins/flutter_inappwebview/ios`)
   - flutter_keyboard_visibility (from `.symlinks/plugins/flutter_keyboard_visibility/ios`)
+  - image_picker (from `.symlinks/plugins/image_picker/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
   - url_launcher (from `.symlinks/plugins/url_launcher/ios`)
+  - video_player (from `.symlinks/plugins/video_player/ios`)
+
+SPEC REPOS:
+  trunk:
+    - OrderedSet
 
 EXTERNAL SOURCES:
   flowy_editor:
@@ -31,21 +50,31 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flowy_sdk/ios"
   Flutter:
     :path: Flutter
+  flutter_inappwebview:
+    :path: ".symlinks/plugins/flutter_inappwebview/ios"
   flutter_keyboard_visibility:
     :path: ".symlinks/plugins/flutter_keyboard_visibility/ios"
+  image_picker:
+    :path: ".symlinks/plugins/image_picker/ios"
   path_provider:
     :path: ".symlinks/plugins/path_provider/ios"
   url_launcher:
     :path: ".symlinks/plugins/url_launcher/ios"
+  video_player:
+    :path: ".symlinks/plugins/video_player/ios"
 
 SPEC CHECKSUMS:
   flowy_editor: bf8d58894ddb03453bd4d8521c57267ad638b837
   flowy_infra_ui: 146c88346fd55d2ee6a41ae35059a5bf095cfbb3
   flowy_sdk: c416222c639e678828776789bf0c1a1d0d59df3c
   Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
+  flutter_inappwebview: bfd58618f49dc62f2676de690fc6dcda1d6c3721
   flutter_keyboard_visibility: 0339d06371254c3eb25eeb90ba8d17dca8f9c069
+  image_picker: 9aa50e1d8cdacdbed739e925b7eea16d014367e6
+  OrderedSet: aaeb196f7fef5a9edf55d89760da9176ad40b93c
   path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
   url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
+  video_player: ecd305f42e9044793efd34846e1ce64c31ea6fcb
 
 PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
 

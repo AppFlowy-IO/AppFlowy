@@ -30,7 +30,7 @@ class ApplicationWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const ratio = 1.73;
-    const minWidth = 500.0;
+    const minWidth = 1000.0;
     setWindowMinSize(const Size(minWidth, minWidth / ratio));
     // const launchWidth = 1310.0;
     // setWindowFrame(const Rect.fromLTWH(0, 0, launchWidth, launchWidth / ratio));

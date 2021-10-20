@@ -58,35 +58,21 @@ class Sizes {
 }
 
 class Corners {
-  static double get btn => s5;
+  static const BorderRadius s3Border = BorderRadius.all(s3Radius);
+  static const Radius s3Radius = Radius.circular(3);
 
-  static double get dialog => 12;
+  static const BorderRadius s5Border = BorderRadius.all(s5Radius);
+  static const Radius s5Radius = Radius.circular(5);
 
-  /// Xs
-  static double get s3 => 3;
+  static const BorderRadius s6Border = BorderRadius.all(s6Radius);
+  static const Radius s6Radius = Radius.circular(6);
 
-  static BorderRadius get s3Border => BorderRadius.all(s3Radius);
+  static const BorderRadius s8Border = BorderRadius.all(s8Radius);
+  static const Radius s8Radius = Radius.circular(8);
 
-  static Radius get s3Radius => Radius.circular(s3);
+  static const BorderRadius s10Border = BorderRadius.all(s10Radius);
+  static const Radius s10Radius = Radius.circular(10);
 
-  /// Small
-  static double get s5 => 5;
-
-  static BorderRadius get s5Border => BorderRadius.all(s5Radius);
-
-  static Radius get s5Radius => Radius.circular(s5);
-
-  /// Medium
-  static double get s8 => 8;
-
-  static BorderRadius get s8Border => BorderRadius.all(s8Radius);
-
-  static Radius get s8Radius => Radius.circular(s8);
-
-  /// Large
-  static double get s10 => 10;
-
-  static BorderRadius get s10Border => BorderRadius.all(s10Radius);
-
-  static Radius get s10Radius => Radius.circular(s10);
+  static const BorderRadius s12Border = BorderRadius.all(s12Radius);
+  static const Radius s12Radius = Radius.circular(12);
 }

@@ -1,3 +1,4 @@
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -26,7 +27,7 @@ class FlowyButton extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: FlowyHover(
-        config: HoverDisplayConfig(borderRadius: BorderRadius.circular(6), hoverColor: hoverColor),
+        config: HoverDisplayConfig(borderRadius: Corners.s6Border, hoverColor: hoverColor),
         builder: (context, onHover) => _render(),
       ),
     );

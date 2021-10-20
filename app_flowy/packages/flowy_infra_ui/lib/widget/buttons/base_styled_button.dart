@@ -18,7 +18,7 @@ class BaseStyledButton extends StatefulWidget {
   final EdgeInsets? contentPadding;
   final double? minWidth;
   final double? minHeight;
-  final double? borderRadius;
+  final BorderRadius? borderRadius;
   final bool useBtnText;
   final bool autoFocus;
 
@@ -78,19 +78,12 @@ class _BaseStyledBtnState extends State<BaseStyledButton> {
     return Container(
       decoration: BoxDecoration(
         color: widget.bgColor ?? theme.surface,
-        borderRadius: BorderRadius.circular(widget.borderRadius ?? Corners.s5),
+        borderRadius: widget.borderRadius ?? Corners.s10Border,
         boxShadow: _isFocused
             ? [
+                BoxShadow(color: theme.shader6, offset: Offset.zero, blurRadius: 8.0, spreadRadius: 0.0),
                 BoxShadow(
-                    color: theme.shader6,
-                    offset: Offset.zero,
-                    blurRadius: 8.0,
-                    spreadRadius: 0.0),
-                BoxShadow(
-                    color: widget.bgColor ?? theme.surface,
-                    offset: Offset.zero,
-                    blurRadius: 8.0,
-                    spreadRadius: -4.0),
+                    color: widget.bgColor ?? theme.surface, offset: Offset.zero, blurRadius: 8.0, spreadRadius: -4.0),
               ]
             : [],
       ),
@@ -101,8 +94,7 @@ class _BaseStyledBtnState extends State<BaseStyledButton> {
                   width: 1.8,
                   color: theme.shader6,
                 ),
-                borderRadius:
-                    BorderRadius.circular(widget.borderRadius ?? Corners.s5),
+                borderRadius: widget.borderRadius ?? Corners.s10Border,
               ),
             )
           : null,
@@ -129,14 +121,13 @@ class _BaseStyledBtnState extends State<BaseStyledButton> {
           ),
           opacity: widget.onPressed != null ? 1 : .7,
         ),
-        constraints: BoxConstraints(
-            minHeight: widget.minHeight ?? 0, minWidth: widget.minWidth ?? 0),
+        constraints: BoxConstraints(minHeight: widget.minHeight ?? 0, minWidth: widget.minWidth ?? 0),
         onPressed: widget.onPressed,
         shape: widget.shape ??
             RoundedRectangleBorder(
-                side: BorderSide(color: widget.outlineColor, width: 1.5),
-                borderRadius:
-                    BorderRadius.circular(widget.borderRadius ?? Corners.s5)),
+              side: BorderSide(color: widget.outlineColor, width: 1.5),
+              borderRadius: widget.borderRadius ?? Corners.s10Border,
+            ),
       ),
     );
   }

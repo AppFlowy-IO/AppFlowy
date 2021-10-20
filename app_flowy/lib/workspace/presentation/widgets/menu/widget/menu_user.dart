@@ -1,6 +1,7 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:app_flowy/workspace/presentation/widgets/menu/menu.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter/material.dart';
@@ -35,12 +36,12 @@ class MenuUser extends MenuItem {
   }
 
   Widget _renderAvatar(BuildContext context) {
-    return SizedBox(
+    return const SizedBox(
       width: 20,
       height: 20,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(4),
-        child: const Image(image: AssetImage('assets/images/avatar.jpg')),
+        borderRadius: Corners.s5Border,
+        child: Image(image: AssetImage('assets/images/avatar.jpg')),
       ),
     );
   }

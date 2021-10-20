@@ -2,6 +2,7 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/application/sign_up_bloc.dart';
 import 'package:app_flowy/user/domain/i_auth.dart';
 import 'package:app_flowy/user/presentation/widgets/background.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
@@ -34,8 +35,7 @@ class SignUpScreen extends StatelessWidget {
     );
   }
 
-  void _handleSuccessOrFail(
-      BuildContext context, Either<UserProfile, UserError> result) {
+  void _handleSuccessOrFail(BuildContext context, Either<UserProfile, UserError> result) {
     result.fold(
       (user) => router.pushWelcomeScreen(context, user),
       (error) => showSnapBar(context, error.msg),
@@ -112,12 +112,9 @@ class SignUpButton extends StatelessWidget {
     return RoundedTextButton(
       title: 'Get Started',
       height: 48,
-      borderRadius: BorderRadius.circular(10),
       color: theme.main1,
-      press: () {
-        context
-            .read<SignUpBloc>()
-            .add(const SignUpEvent.signUpWithUserEmailAndPassword());
+      onPressed: () {
+        context.read<SignUpBloc>().add(const SignUpEvent.signUpWithUserEmailAndPassword());
       },
     );
   }
@@ -132,26 +129,19 @@ class PasswordTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return BlocBuilder<SignUpBloc, SignUpState>(
-      buildWhen: (previous, current) =>
-          previous.passwordError != current.passwordError,
+      buildWhen: (previous, current) => previous.passwordError != current.passwordError,
       builder: (context, state) {
         return RoundedInputField(
           obscureText: true,
           obscureIcon: svg("home/Hide"),
           obscureHideIcon: svg("home/Show"),
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
           hintText: "Password",
           normalBorderColor: theme.shader4,
           highlightBorderColor: theme.red,
-          errorText: context
-              .read<SignUpBloc>()
-              .state
-              .passwordError
-              .fold(() => "", (error) => error),
-          onChanged: (value) => context
-              .read<SignUpBloc>()
-              .add(SignUpEvent.passwordChanged(value)),
+          cursorColor: theme.main1,
+          errorText: context.read<SignUpBloc>().state.passwordError.fold(() => "", (error) => error),
+          onChanged: (value) => context.read<SignUpBloc>().add(SignUpEvent.passwordChanged(value)),
         );
       },
     );
@@ -167,26 +157,19 @@ class RepeatPasswordTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return BlocBuilder<SignUpBloc, SignUpState>(
-      buildWhen: (previous, current) =>
-          previous.repeatPasswordError != current.repeatPasswordError,
+      buildWhen: (previous, current) => previous.repeatPasswordError != current.repeatPasswordError,
       builder: (context, state) {
         return RoundedInputField(
           obscureText: true,
           obscureIcon: svg("home/Hide"),
           obscureHideIcon: svg("home/Show"),
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
           hintText: "Repeate password",
           normalBorderColor: theme.shader4,
           highlightBorderColor: theme.red,
-          errorText: context
-              .read<SignUpBloc>()
-              .state
-              .repeatPasswordError
-              .fold(() => "", (error) => error),
-          onChanged: (value) => context
-              .read<SignUpBloc>()
-              .add(SignUpEvent.repeatPasswordChanged(value)),
+          cursorColor: theme.main1,
+          errorText: context.read<SignUpBloc>().state.repeatPasswordError.fold(() => "", (error) => error),
+          onChanged: (value) => context.read<SignUpBloc>().add(SignUpEvent.repeatPasswordChanged(value)),
         );
       },
     );
@@ -202,21 +185,16 @@ class EmailTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return BlocBuilder<SignUpBloc, SignUpState>(
-      buildWhen: (previous, current) =>
-          previous.emailError != current.emailError,
+      buildWhen: (previous, current) => previous.emailError != current.emailError,
       builder: (context, state) {
         return RoundedInputField(
           hintText: 'Email',
-          fontSize: 14,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
           normalBorderColor: theme.shader4,
           highlightBorderColor: theme.red,
-          errorText: context
-              .read<SignUpBloc>()
-              .state
-              .emailError
-              .fold(() => "", (error) => error),
-          onChanged: (value) =>
-              context.read<SignUpBloc>().add(SignUpEvent.emailChanged(value)),
+          cursorColor: theme.main1,
+          errorText: context.read<SignUpBloc>().state.emailError.fold(() => "", (error) => error),
+          onChanged: (value) => context.read<SignUpBloc>().add(SignUpEvent.emailChanged(value)),
         );
       },
     );

@@ -1,0 +1,167 @@
+import 'package:flowy_infra/strings.dart';
+import 'package:flowy_infra/text_style.dart';
+import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
+import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:app_flowy/startup/tasks/application_task.dart';
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra_ui/style_widget/text_input.dart';
+import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
+import 'package:textstyle_extensions/textstyle_extensions.dart';
+export 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
+
+class RenameDialog extends StatefulWidget {
+  final String name;
+  final String title;
+  final void Function()? cancel;
+  final void Function(String) confirm;
+
+  const RenameDialog({
+    required this.title,
+    required this.name,
+    required this.confirm,
+    this.cancel,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<RenameDialog> createState() => _CreateRenameDialog();
+}
+
+class _CreateRenameDialog extends State<RenameDialog> {
+  String newViewName = "";
+
+  @override
+  void initState() {
+    newViewName = widget.name;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    return StyledDialog(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          ...[
+            FlowyText.medium(widget.title, color: theme.shader4),
+            VSpace(Insets.sm * 1.5),
+          ],
+          FlowyFormTextInput(
+            hintText: widget.name,
+            onChanged: (text) {
+              newViewName = text;
+            },
+          ),
+          SizedBox(height: Insets.l),
+          SizedBox(
+            height: 40,
+            child: OkCancelButton(
+              onOkPressed: () {
+                widget.confirm(newViewName);
+              },
+              onCancelPressed: () {
+                if (widget.cancel != null) {
+                  widget.cancel!();
+                }
+              },
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class OkCancelDialog extends StatelessWidget {
+  final VoidCallback? onOkPressed;
+  final VoidCallback? onCancelPressed;
+  final String? okTitle;
+  final String? cancelTitle;
+  final String? title;
+  final String message;
+  final double? maxWidth;
+
+  const OkCancelDialog(
+      {Key? key,
+      this.onOkPressed,
+      this.onCancelPressed,
+      this.okTitle,
+      this.cancelTitle,
+      this.title,
+      required this.message,
+      this.maxWidth})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    return StyledDialog(
+      maxWidth: maxWidth ?? 500,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          if (title != null) ...[
+            Text(title!.toUpperCase(), style: TextStyles.T1.textColor(theme.shader1)),
+            VSpace(Insets.sm * 1.5),
+            Container(color: theme.bg1, height: 1),
+            VSpace(Insets.m * 1.5),
+          ],
+          Text(message, style: TextStyles.Body1.textHeight(1.5)),
+          SizedBox(height: Insets.l),
+          OkCancelButton(
+            onOkPressed: onOkPressed,
+            onCancelPressed: onCancelPressed,
+            okTitle: okTitle?.toUpperCase(),
+            cancelTitle: cancelTitle?.toUpperCase(),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class OkCancelButton extends StatelessWidget {
+  final VoidCallback? onOkPressed;
+  final VoidCallback? onCancelPressed;
+  final String? okTitle;
+  final String? cancelTitle;
+  final double? minHeight;
+
+  const OkCancelButton(
+      {Key? key, this.onOkPressed, this.onCancelPressed, this.okTitle, this.cancelTitle, this.minHeight})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[
+        if (onCancelPressed != null)
+          SecondaryTextButton(
+            cancelTitle ?? S.BTN_CANCEL,
+            onPressed: () {
+              onCancelPressed!();
+              AppGlobals.nav.pop();
+            },
+            bigMode: true,
+          ),
+        HSpace(Insets.m),
+        if (onOkPressed != null)
+          PrimaryTextButton(
+            okTitle ?? S.BTN_OK,
+            onPressed: () {
+              onOkPressed!();
+              AppGlobals.nav.pop();
+            },
+            bigMode: true,
+          ),
+      ],
+    );
+  }
+}

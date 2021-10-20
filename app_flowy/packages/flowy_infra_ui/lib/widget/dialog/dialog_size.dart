@@ -1,3 +1,3 @@
 class DialogSize {
-  static double get minDialogWidth => 380;
+  static double get minDialogWidth => 480;
 }

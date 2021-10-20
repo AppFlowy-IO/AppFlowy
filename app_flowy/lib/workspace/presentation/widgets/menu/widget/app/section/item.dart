@@ -2,7 +2,7 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/view/view_bloc.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/domain/view_ext.dart';
-import 'package:app_flowy/workspace/presentation/widgets/pop_up_window.dart';
+import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -51,7 +51,7 @@ class ViewSectionItem extends StatelessWidget {
             },
             child: FlowyHover(
               config: HoverDisplayConfig(hoverColor: theme.bg3),
-              builder: (context, onHover) => _render(context, onHover, state),
+              builder: (_, onHover) => _render(context, onHover, state),
               isOnSelected: () => state.isEditing || isSelected,
             ),
           );
@@ -91,12 +91,14 @@ class ViewSectionItem extends StatelessWidget {
     action.foldRight({}, (action, previous) {
       switch (action) {
         case ViewAction.rename:
-          FlowyPoppuWindow.show(
-            context,
-            child: ViewRenamePannel(renameCallback: (name) {
-              context.read<ViewBloc>().add(ViewEvent.rename(name));
-            }),
-          );
+          RenameDialog(
+            title: 'Rename',
+            name: context.read<ViewBloc>().state.view.name,
+            confirm: (newName) {
+              context.read<ViewBloc>().add(ViewEvent.rename(newName));
+            },
+          ).show(context);
+
           break;
         case ViewAction.delete:
           context.read<ViewBloc>().add(const ViewEvent.delete());
@@ -131,15 +133,5 @@ class ViewDisclosureButton extends StatelessWidget {
       },
       icon: svg("editor/details"),
     );
-  }
-}
-
-class ViewRenamePannel extends StatelessWidget {
-  final void Function(String) renameCallback;
-  const ViewRenamePannel({Key? key, required this.renameCallback}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(width: 100, height: 200, child: Container(color: Colors.black));
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
+import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
 
 class ListOverlay extends StatelessWidget {
@@ -23,13 +24,7 @@ class ListOverlay extends StatelessWidget {
       type: MaterialType.transparency,
       child: Container(
         constraints: BoxConstraints.tight(Size(maxWidth, maxHeight)),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadius.all(Radius.circular(6)),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 1, blurRadius: 20.0),
-          ],
-        ),
+        decoration: FlowyDecoration.decoration(),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
           child: ListView.builder(

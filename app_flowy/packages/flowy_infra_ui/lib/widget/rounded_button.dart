@@ -1,7 +1,8 @@
+import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 
 class RoundedTextButton extends StatelessWidget {
-  final VoidCallback? press;
+  final VoidCallback? onPressed;
   final String? title;
   final double? width;
   final double? height;
@@ -13,11 +14,11 @@ class RoundedTextButton extends StatelessWidget {
 
   const RoundedTextButton({
     Key? key,
-    this.press,
+    this.onPressed,
     this.title,
     this.width,
     this.height,
-    this.borderRadius = BorderRadius.zero,
+    this.borderRadius = Corners.s12Border,
     this.borderColor = Colors.transparent,
     this.color = Colors.transparent,
     this.textColor = Colors.white,
@@ -45,7 +46,7 @@ class RoundedTextButton extends StatelessWidget {
               title ?? '',
               style: TextStyle(color: textColor, fontSize: fontSize),
             ),
-            onPressed: press,
+            onPressed: onPressed,
           ),
         ),
       ),
@@ -79,8 +80,7 @@ class RoundedImageButton extends StatelessWidget {
       child: TextButton(
         onPressed: press,
         style: ButtonStyle(
-            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                RoundedRectangleBorder(
+            shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
           borderRadius: borderRadius,
         ))),
         child: child,

@@ -2,6 +2,7 @@ import 'package:app_flowy/workspace/domain/image.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:app_flowy/workspace/presentation/home/navigation.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
@@ -40,9 +41,9 @@ class HomeTopBar extends StatelessWidget {
       height: 30,
       width: 60,
       fontSize: 12,
-      borderRadius: BorderRadius.circular(6),
+      borderRadius: Corners.s6Border,
       color: Colors.lightBlue,
-      press: () {
+      onPressed: () {
         debugPrint('share page');
       },
     );
