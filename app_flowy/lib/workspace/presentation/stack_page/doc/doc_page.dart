@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 
+import 'widget/toolbar/tool_bar.dart';
+
 class DocPage extends StatefulWidget {
   final View view;
 
@@ -63,7 +65,7 @@ class _DocPageState extends State<DocPage> {
         _renderEditor(controller),
         _renderToolbar(controller),
       ],
-    ).padding(horizontal: 80, vertical: 48);
+    ).padding(horizontal: 80, top: 48);
   }
 
   Widget _renderEditor(QuillController controller) {
@@ -84,13 +86,9 @@ class _DocPageState extends State<DocPage> {
   }
 
   Widget _renderToolbar(QuillController controller) {
-    return QuillToolbar.basic(
+    return EditorToolbar.basic(
       controller: controller,
     );
-  }
-
-  Future<String> _onImageSelection(File file) {
-    throw UnimplementedError();
   }
 }
 

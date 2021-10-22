@@ -117,7 +117,11 @@ class AppTheme {
   ThemeData get themeData {
     var t = ThemeData(
       textTheme: (isDark ? ThemeData.dark() : ThemeData.light()).textTheme,
-      textSelectionTheme: TextSelectionThemeData(cursorColor: main1),
+      textSelectionTheme: TextSelectionThemeData(cursorColor: main2),
+      primaryIconTheme: IconThemeData(color: hover),
+      iconTheme: IconThemeData(color: shader1),
+      canvasColor: shader6,
+      // hoverColor: hover,
       colorScheme: ColorScheme(
           brightness: isDark ? Brightness.dark : Brightness.light,
           primary: main1,
@@ -141,6 +145,5 @@ class AppTheme {
         toggleableActiveColor: main1);
   }
 
-  Color shift(Color c, double d) =>
-      ColorUtils.shiftHsl(c, d * (isDark ? -1 : 1));
+  Color shift(Color c, double d) => ColorUtils.shiftHsl(c, d * (isDark ? -1 : 1));
 }

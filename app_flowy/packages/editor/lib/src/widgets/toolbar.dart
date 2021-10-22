@@ -35,16 +35,15 @@ export 'toolbar/select_header_style_button.dart';
 export 'toolbar/toggle_check_list_button.dart';
 export 'toolbar/toggle_style_button.dart';
 export 'toolbar/video_button.dart';
+export 'toolbar/image_video_utils.dart';
+export 'toolbar/arrow_indicated_button_list.dart';
 
 typedef OnImagePickCallback = Future<String?> Function(File file);
 typedef OnVideoPickCallback = Future<String?> Function(File file);
 typedef FilePickImpl = Future<String?> Function(BuildContext context);
-typedef WebImagePickImpl = Future<String?> Function(
-    OnImagePickCallback onImagePickCallback);
-typedef WebVideoPickImpl = Future<String?> Function(
-    OnVideoPickCallback onImagePickCallback);
-typedef MediaPickSettingSelector = Future<MediaPickSetting?> Function(
-    BuildContext context);
+typedef WebImagePickImpl = Future<String?> Function(OnImagePickCallback onImagePickCallback);
+typedef WebVideoPickImpl = Future<String?> Function(OnVideoPickCallback onImagePickCallback);
+typedef MediaPickSettingSelector = Future<MediaPickSetting?> Function(BuildContext context);
 
 // The default size of the icon of a button.
 const double kDefaultIconSize = 18;
@@ -218,8 +217,7 @@ class QuillToolbar extends StatelessWidget implements PreferredSizeWidget {
             webVideoPickImpl: webImagePickImpl,
             mediaPickSettingSelector: mediaPickSettingSelector,
           ),
-        if ((onImagePickCallback != null || onVideoPickCallback != null) &&
-            showCameraButton)
+        if ((onImagePickCallback != null || onVideoPickCallback != null) && showCameraButton)
           CameraButton(
               icon: Icons.photo_camera,
               iconSize: toolbarIconSize,
@@ -246,10 +244,7 @@ class QuillToolbar extends StatelessWidget implements PreferredSizeWidget {
             iconSize: toolbarIconSize,
           ),
         if (isButtonGroupShown[1] &&
-            (isButtonGroupShown[2] ||
-                isButtonGroupShown[3] ||
-                isButtonGroupShown[4] ||
-                isButtonGroupShown[5]))
+            (isButtonGroupShown[2] || isButtonGroupShown[3] || isButtonGroupShown[4] || isButtonGroupShown[5]))
           VerticalDivider(
             indent: 12,
             endIndent: 12,
@@ -260,10 +255,7 @@ class QuillToolbar extends StatelessWidget implements PreferredSizeWidget {
             controller: controller,
             iconSize: toolbarIconSize,
           ),
-        if (isButtonGroupShown[2] &&
-            (isButtonGroupShown[3] ||
-                isButtonGroupShown[4] ||
-                isButtonGroupShown[5]))
+        if (isButtonGroupShown[2] && (isButtonGroupShown[3] || isButtonGroupShown[4] || isButtonGroupShown[5]))
           VerticalDivider(
             indent: 12,
             endIndent: 12,
@@ -297,8 +289,7 @@ class QuillToolbar extends StatelessWidget implements PreferredSizeWidget {
             icon: Icons.code,
             iconSize: toolbarIconSize,
           ),
-        if (isButtonGroupShown[3] &&
-            (isButtonGroupShown[4] || isButtonGroupShown[5]))
+        if (isButtonGroupShown[3] && (isButtonGroupShown[4] || isButtonGroupShown[5]))
           VerticalDivider(
             indent: 12,
             endIndent: 12,
