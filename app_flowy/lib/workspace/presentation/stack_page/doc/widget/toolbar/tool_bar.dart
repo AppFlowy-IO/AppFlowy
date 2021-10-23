@@ -2,9 +2,10 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:editor/flutter_quill.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flutter/material.dart';
+import 'package:styled_widget/styled_widget.dart';
 import 'check_button.dart';
+import 'header_button.dart';
 import 'image_button.dart';
 import 'link_button.dart';
 import 'toggle_button.dart';
@@ -16,7 +17,7 @@ class EditorToolbar extends StatelessWidget implements PreferredSizeWidget {
 
   const EditorToolbar({
     required this.children,
-    this.toolBarHeight = 36,
+    this.toolBarHeight = 46,
     this.color,
     Key? key,
   }) : super(key: key);
@@ -26,7 +27,7 @@ class EditorToolbar extends StatelessWidget implements PreferredSizeWidget {
     return Container(
       color: Theme.of(context).canvasColor,
       constraints: BoxConstraints.tightFor(height: preferredSize.height),
-      child: ToolbarButtonList(buttons: children),
+      child: ToolbarButtonList(buttons: children).padding(horizontal: 4, vertical: 4),
     );
   }
 
@@ -62,25 +63,25 @@ class EditorToolbar extends StatelessWidget implements PreferredSizeWidget {
         ),
         FlowyToggleStyleButton(
           attribute: Attribute.bold,
-          icon: svg('editor/bold'),
+          normalIcon: 'editor/bold',
           iconSize: toolbarIconSize,
           controller: controller,
         ),
         FlowyToggleStyleButton(
           attribute: Attribute.italic,
-          icon: svg("editor/restore"),
+          normalIcon: 'editor/restore',
           iconSize: toolbarIconSize,
           controller: controller,
         ),
         FlowyToggleStyleButton(
           attribute: Attribute.underline,
-          icon: svg('editor/underline'),
+          normalIcon: 'editor/underline',
           iconSize: toolbarIconSize,
           controller: controller,
         ),
         FlowyToggleStyleButton(
           attribute: Attribute.strikeThrough,
-          icon: svg('editor/strikethrough'),
+          normalIcon: 'editor/strikethrough',
           iconSize: toolbarIconSize,
           controller: controller,
         ),
@@ -98,20 +99,20 @@ class EditorToolbar extends StatelessWidget implements PreferredSizeWidget {
           webImagePickImpl: webImagePickImpl,
           mediaPickSettingSelector: mediaPickSettingSelector,
         ),
-        SelectHeaderStyleButton(
+        FlowyHeaderStyleButton(
           controller: controller,
           iconSize: toolbarIconSize,
         ),
         FlowyToggleStyleButton(
           attribute: Attribute.ol,
           controller: controller,
-          icon: svg('editor/numbers'),
+          normalIcon: 'editor/numbers',
           iconSize: toolbarIconSize,
         ),
         FlowyToggleStyleButton(
           attribute: Attribute.ul,
           controller: controller,
-          icon: svg('editor/bullet_list'),
+          normalIcon: 'editor/bullet_list',
           iconSize: toolbarIconSize,
         ),
         FlowyCheckListButton(
@@ -122,31 +123,13 @@ class EditorToolbar extends StatelessWidget implements PreferredSizeWidget {
         FlowyToggleStyleButton(
           attribute: Attribute.inlineCode,
           controller: controller,
-          icon: svg('editor/inline_block'),
+          normalIcon: 'editor/inline_block',
           iconSize: toolbarIconSize,
         ),
         FlowyToggleStyleButton(
           attribute: Attribute.blockQuote,
           controller: controller,
-          icon: svg('editor/quote'),
-          iconSize: toolbarIconSize,
-        ),
-        FlowyToggleStyleButton(
-          attribute: Attribute.blockQuote,
-          controller: controller,
-          icon: svg('editor/quote'),
-          iconSize: toolbarIconSize,
-        ),
-        FlowyToggleStyleButton(
-          attribute: Attribute.blockQuote,
-          controller: controller,
-          icon: svg('editor/quote'),
-          iconSize: toolbarIconSize,
-        ),
-        FlowyToggleStyleButton(
-          attribute: Attribute.blockQuote,
-          controller: controller,
-          icon: svg('editor/quote'),
+          normalIcon: 'editor/quote',
           iconSize: toolbarIconSize,
         ),
         FlowyLinkStyleButton(
@@ -191,14 +174,25 @@ class _ToolbarButtonListState extends State<ToolbarButtonList> with WidgetsBindi
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
+        List<Widget> children = [];
+        double width = (widget.buttons.length + 2) * kDefaultIconSize * kIconButtonFactor;
+        final isFit = constraints.maxWidth > width;
+        if (!isFit) {
+          children.add(_buildLeftArrow());
+          width = width + 18;
+        }
+
+        children.add(_buildScrollableList(constraints));
+
+        if (!isFit) {
+          children.add(_buildRightArrow());
+          width = width + 18;
+        }
+
         return SizedBox(
-          width: min(constraints.maxWidth, (widget.buttons.length + 3) * kDefaultIconSize * kIconButtonFactor + 16),
+          width: min(constraints.maxWidth, width),
           child: Row(
-            children: <Widget>[
-              _buildLeftArrow(),
-              _buildScrollableList(constraints),
-              _buildRightColor(),
-            ],
+            children: children,
           ),
         );
       },
@@ -261,7 +255,7 @@ class _ToolbarButtonListState extends State<ToolbarButtonList> with WidgetsBindi
     );
   }
 
-  Widget _buildRightColor() {
+  Widget _buildRightArrow() {
     return SizedBox(
       width: 8,
       child: Transform.translate(
@@ -273,7 +267,6 @@ class _ToolbarButtonListState extends State<ToolbarButtonList> with WidgetsBindi
   }
 }
 
-/// ScrollBehavior without the Material glow effect.
 class _NoGlowBehavior extends ScrollBehavior {
   @override
   Widget buildViewportChrome(BuildContext _, Widget child, AxisDirection __) {

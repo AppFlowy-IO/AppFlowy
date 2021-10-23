@@ -1,20 +1,18 @@
 import 'package:editor/flutter_quill.dart';
 import 'package:editor/models/documents/style.dart';
-
-import 'package:flowy_infra/theme.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+
+import 'toolbar_icon_button.dart';
 
 class FlowyToggleStyleButton extends StatefulWidget {
   final Attribute attribute;
-  final Widget icon;
+  final String normalIcon;
   final double iconSize;
   final QuillController controller;
 
   const FlowyToggleStyleButton({
     required this.attribute,
-    required this.icon,
+    required this.normalIcon,
     required this.controller,
     this.iconSize = kDefaultIconSize,
     Key? key,
@@ -36,14 +34,11 @@ class _ToggleStyleButtonState extends State<FlowyToggleStyleButton> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-
-    return FlowyIconButton(
+    return ToolbarIconButton(
       onPressed: _toggleAttribute,
       width: widget.iconSize * kIconButtonFactor,
-      icon: widget.icon,
-      highlightColor: _isToggled == true ? theme.shader5 : theme.shader6,
-      hoverColor: theme.shader5,
+      isToggled: _isToggled ?? false,
+      iconName: widget.normalIcon,
     );
   }
 

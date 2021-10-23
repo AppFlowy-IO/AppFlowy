@@ -80,14 +80,14 @@ class AddButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyIconButton(
-      width: 16,
+      width: 22,
       onPressed: () {
         ActionList(
           anchorContext: context,
           onSelected: onSelected,
         ).show(context);
       },
-      icon: svg("home/add"),
+      icon: svg("home/add").padding(horizontal: 3, vertical: 3),
     );
   }
 }

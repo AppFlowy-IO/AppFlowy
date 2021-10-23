@@ -63,23 +63,25 @@ class ViewSectionItem extends StatelessWidget {
   Widget _render(BuildContext context, bool onHover, ViewState state) {
     List<Widget> children = [
       SizedBox(width: 16, height: 16, child: state.view.thumbnail()),
-      const HSpace(6),
+      const HSpace(2),
       FlowyText.regular(state.view.name, fontSize: 12),
     ];
 
     if (onHover || state.isEditing) {
       children.add(const Spacer());
-      children.add(ViewDisclosureButton(
-        onTap: () => context.read<ViewBloc>().add(const ViewEvent.setIsEditing(true)),
-        onSelected: (action) {
-          context.read<ViewBloc>().add(const ViewEvent.setIsEditing(false));
-          _handleAction(context, action);
-        },
-      ));
+      children.add(
+        ViewDisclosureButton(
+          onTap: () => context.read<ViewBloc>().add(const ViewEvent.setIsEditing(true)),
+          onSelected: (action) {
+            context.read<ViewBloc>().add(const ViewEvent.setIsEditing(false));
+            _handleAction(context, action);
+          },
+        ),
+      );
     }
 
     return SizedBox(
-      height: 24,
+      height: 26,
       child: Row(children: children).padding(
         left: MenuAppSizes.expandedPadding,
         right: MenuAppSizes.expandedIconPadding,
@@ -91,11 +93,11 @@ class ViewSectionItem extends StatelessWidget {
     action.foldRight({}, (action, previous) {
       switch (action) {
         case ViewAction.rename:
-          RenameDialog(
+          TextFieldDialog(
             title: 'Rename',
-            name: context.read<ViewBloc>().state.view.name,
-            confirm: (newName) {
-              context.read<ViewBloc>().add(ViewEvent.rename(newName));
+            value: context.read<ViewBloc>().state.view.name,
+            confirm: (newValue) {
+              context.read<ViewBloc>().add(ViewEvent.rename(newValue));
             },
           ).show(context);
 
@@ -126,7 +128,8 @@ class ViewDisclosureButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyIconButton(
-      width: 16,
+      iconPadding: const EdgeInsets.all(5),
+      width: 26,
       onPressed: () {
         onTap();
         ViewActionList(

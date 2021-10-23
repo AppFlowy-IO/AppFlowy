@@ -14,30 +14,30 @@ import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:textstyle_extensions/textstyle_extensions.dart';
 export 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 
-class RenameDialog extends StatefulWidget {
-  final String name;
+class TextFieldDialog extends StatefulWidget {
+  final String value;
   final String title;
   final void Function()? cancel;
   final void Function(String) confirm;
 
-  const RenameDialog({
+  const TextFieldDialog({
     required this.title,
-    required this.name,
+    required this.value,
     required this.confirm,
     this.cancel,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<RenameDialog> createState() => _CreateRenameDialog();
+  State<TextFieldDialog> createState() => _CreateTextFieldDialog();
 }
 
-class _CreateRenameDialog extends State<RenameDialog> {
-  String newViewName = "";
+class _CreateTextFieldDialog extends State<TextFieldDialog> {
+  String newValue = "";
 
   @override
   void initState() {
-    newViewName = widget.name;
+    newValue = widget.value;
     super.initState();
   }
 
@@ -53,9 +53,10 @@ class _CreateRenameDialog extends State<RenameDialog> {
             VSpace(Insets.sm * 1.5),
           ],
           FlowyFormTextInput(
-            hintText: widget.name,
+            hintText: widget.value,
+            autoFocus: true,
             onChanged: (text) {
-              newViewName = text;
+              newValue = text;
             },
           ),
           SizedBox(height: Insets.l),
@@ -63,7 +64,7 @@ class _CreateRenameDialog extends State<RenameDialog> {
             height: 40,
             child: OkCancelButton(
               onOkPressed: () {
-                widget.confirm(newViewName);
+                widget.confirm(newValue);
               },
               onCancelPressed: () {
                 if (widget.cancel != null) {

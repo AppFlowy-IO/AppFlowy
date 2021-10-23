@@ -1,3 +1,4 @@
+import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:editor/flutter_quill.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -47,33 +48,39 @@ class _FlowyLinkStyleButtonState extends State<FlowyLinkStyleButton> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
     final isEnabled = !widget.controller.selection.isCollapsed;
     final pressedHandler = isEnabled ? () => _openLinkDialog(context) : null;
-
-    final theme = context.watch<AppTheme>();
+    final icon = isEnabled ? svg('editor/share') : svg('editor/share', color: theme.shader4);
 
     return FlowyIconButton(
       onPressed: pressedHandler,
-      icon: svg('editor/share'),
-      highlightColor: isEnabled == true ? theme.shader5 : theme.shader6,
+      iconPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+      icon: icon,
+      fillColor: theme.shader6,
       hoverColor: theme.shader5,
       width: widget.iconSize * kIconButtonFactor,
     );
   }
 
   void _openLinkDialog(BuildContext context) {
-    // showDialog<String>(
-    //   context: context,
-    //   builder: (ctx) {
-    //     return const LinkDialog();
-    //   },
-    // ).then(_linkSubmitted);
-  }
-
-  void _linkSubmitted(String? value) {
-    if (value == null || value.isEmpty) {
-      return;
+    final style = widget.controller.getSelectionStyle();
+    final values = style.values.where((v) => v.key == Attribute.link.key).map((v) => v.value);
+    String value = "";
+    if (values.isNotEmpty) {
+      assert(values.length == 1);
+      value = values.first;
     }
-    widget.controller.formatSelection(LinkAttribute(value));
+
+    TextFieldDialog(
+      title: 'URL',
+      value: value,
+      confirm: (newValue) {
+        if (newValue.isEmpty) {
+          return;
+        }
+        widget.controller.formatSelection(LinkAttribute(newValue));
+      },
+    ).show(context);
   }
 }

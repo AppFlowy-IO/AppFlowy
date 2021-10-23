@@ -1,10 +1,8 @@
 import 'package:editor/flutter_quill.dart';
 import 'package:editor/models/documents/style.dart';
-import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+
+import 'toolbar_icon_button.dart';
 
 class FlowyCheckListButton extends StatefulWidget {
   const FlowyCheckListButton({
@@ -77,13 +75,11 @@ class _FlowyCheckListButtonState extends State<FlowyCheckListButton> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-    return FlowyIconButton(
+    return ToolbarIconButton(
       onPressed: _toggleAttribute,
       width: widget.iconSize * kIconButtonFactor,
-      icon: svg('editor/checkbox'),
-      highlightColor: _isToggled == true ? theme.shader5 : theme.shader6,
-      hoverColor: theme.shader5,
+      iconName: 'editor/checkbox',
+      isToggled: _isToggled ?? false,
     );
   }
 

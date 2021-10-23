@@ -1,8 +1,8 @@
 import 'package:editor/flutter_quill.dart';
-import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+
+import 'toolbar_icon_button.dart';
 
 class FlowyImageButton extends StatelessWidget {
   const FlowyImageButton({
@@ -32,13 +32,11 @@ class FlowyImageButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return FlowyIconButton(
-      icon: svg('editor/image'),
+    return ToolbarIconButton(
+      iconName: 'editor/image',
       width: iconSize * 1.77,
-      highlightColor: theme.canvasColor,
       onPressed: () => _onPressedHandler(context),
+      isToggled: false,
     );
   }
 
