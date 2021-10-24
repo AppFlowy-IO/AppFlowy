@@ -68,7 +68,7 @@ packages:
       name: flutter_colorpicker
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.5.0"
+    version: "0.6.0"
   flutter_keyboard_visibility:
     dependency: "direct main"
     description:
@@ -145,12 +145,10 @@ packages:
   photo_view:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "0.11.1-bugfix.1"
-      resolved-ref: "2b1915d8e798d887137397ec66511a14af30dadb"
-      url: "git@github.com:App-Flowy/photo_view.git"
-    source: git
-    version: "0.11.1-bugfix.1"
+      name: photo_view
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.13.0"
   plugin_platform_interface:
     dependency: transitive
     description:

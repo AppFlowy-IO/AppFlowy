@@ -1,14 +1,16 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:editor/flutter_quill.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter/material.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'check_button.dart';
+import 'color_picker.dart';
 import 'header_button.dart';
 import 'image_button.dart';
 import 'link_button.dart';
 import 'toggle_button.dart';
+import 'toolbar_icon_button.dart';
 
 class EditorToolbar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget> children;
@@ -36,7 +38,7 @@ class EditorToolbar extends StatelessWidget implements PreferredSizeWidget {
 
   factory EditorToolbar.basic({
     required QuillController controller,
-    double toolbarIconSize = kDefaultIconSize,
+    double toolbarIconSize = defaultIconSize,
     OnImagePickCallback? onImagePickCallback,
     OnVideoPickCallback? onVideoPickCallback,
     MediaPickSettingSelector? mediaPickSettingSelector,
@@ -85,7 +87,7 @@ class EditorToolbar extends StatelessWidget implements PreferredSizeWidget {
           iconSize: toolbarIconSize,
           controller: controller,
         ),
-        ColorButton(
+        FlowyColorButton(
           icon: Icons.format_color_fill,
           iconSize: toolbarIconSize,
           controller: controller,
@@ -175,14 +177,14 @@ class _ToolbarButtonListState extends State<ToolbarButtonList> with WidgetsBindi
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         List<Widget> children = [];
-        double width = (widget.buttons.length + 2) * kDefaultIconSize * kIconButtonFactor;
+        double width = (widget.buttons.length + 2) * defaultIconSize * kIconButtonFactor;
         final isFit = constraints.maxWidth > width;
         if (!isFit) {
           children.add(_buildLeftArrow());
           width = width + 18;
         }
 
-        children.add(_buildScrollableList(constraints));
+        children.add(_buildScrollableList(constraints, isFit));
 
         if (!isFit) {
           children.add(_buildRightArrow());
@@ -228,31 +230,38 @@ class _ToolbarButtonListState extends State<ToolbarButtonList> with WidgetsBindi
     );
   }
 
-  Widget _buildScrollableList(BoxConstraints constraints) {
-    return ScrollConfiguration(
-      // Remove the glowing effect, as we already have the arrow indicators
-      behavior: _NoGlowBehavior(),
-      // The CustomScrollView is necessary so that the children are not
-      // stretched to the height of the toolbar, https://bit.ly/3uC3bjI
-      child: Expanded(
-        child: CustomScrollView(
-          scrollDirection: Axis.horizontal,
-          controller: _controller,
-          physics: const ClampingScrollPhysics(),
-          slivers: [
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (BuildContext context, int index) {
-                  return widget.buttons[index];
-                },
-                childCount: widget.buttons.length,
-                addAutomaticKeepAlives: false,
-              ),
-            )
-          ],
-        ),
+  // [[sliver: https://medium.com/flutter/slivers-demystified-6ff68ab0296f]]
+  Widget _buildScrollableList(BoxConstraints constraints, bool isFit) {
+    Widget child = Expanded(
+      child: CustomScrollView(
+        scrollDirection: Axis.horizontal,
+        controller: _controller,
+        physics: const ClampingScrollPhysics(),
+        slivers: [
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (BuildContext context, int index) {
+                return widget.buttons[index];
+              },
+              childCount: widget.buttons.length,
+              addAutomaticKeepAlives: false,
+            ),
+          )
+        ],
       ),
     );
+
+    if (!isFit) {
+      child = ScrollConfiguration(
+        // Remove the glowing effect, as we already have the arrow indicators
+        behavior: _NoGlowBehavior(),
+        // The CustomScrollView is necessary so that the children are not
+        // stretched to the height of the toolbar, https://bit.ly/3uC3bjI
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   Widget _buildRightArrow() {

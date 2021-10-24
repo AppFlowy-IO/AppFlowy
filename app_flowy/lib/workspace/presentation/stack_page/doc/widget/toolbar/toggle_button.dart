@@ -1,5 +1,5 @@
-import 'package:editor/flutter_quill.dart';
-import 'package:editor/models/documents/style.dart';
+import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill/models/documents/style.dart';
 import 'package:flutter/material.dart';
 
 import 'toolbar_icon_button.dart';
@@ -14,7 +14,7 @@ class FlowyToggleStyleButton extends StatefulWidget {
     required this.attribute,
     required this.normalIcon,
     required this.controller,
-    this.iconSize = kDefaultIconSize,
+    this.iconSize = defaultIconSize,
     Key? key,
   }) : super(key: key);
 

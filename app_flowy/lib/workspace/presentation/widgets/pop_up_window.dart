@@ -9,7 +9,10 @@ class FlowyPoppuWindow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return child;
+    return Material(
+      child: child,
+      type: MaterialType.transparency,
+    );
   }
 
   static Future<void> show(
@@ -27,7 +30,7 @@ class FlowyPoppuWindow extends StatelessWidget {
       anchorPosition: Offset(-size.width / 2.0, -size.height / 2.0),
       anchorSize: window.frame.size,
       anchorDirection: AnchorDirection.center,
-      style: FlowyOverlayStyle(blur: true),
+      style: FlowyOverlayStyle(blur: false),
     );
   }
 }
@@ -41,14 +44,11 @@ class PopupTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child: RoundedInputField(
-        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-        hintText: '',
-        normalBorderColor: const Color(0xffbdbdbd),
-        onChanged: textDidChange,
-      ),
-      type: MaterialType.transparency,
+    return RoundedInputField(
+      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+      hintText: '',
+      normalBorderColor: const Color(0xffbdbdbd),
+      onChanged: textDidChange,
     );
   }
 

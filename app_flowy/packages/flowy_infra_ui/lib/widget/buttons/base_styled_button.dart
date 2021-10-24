@@ -103,7 +103,7 @@ class _BaseStyledBtnState extends State<BaseStyledButton> {
         autofocus: widget.autoFocus,
         textStyle: widget.useBtnText ? TextStyles.Btn : null,
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        visualDensity: VisualDensity.compact,
+        // visualDensity: VisualDensity.compact,
         splashColor: Colors.transparent,
         mouseCursor: SystemMouseCursors.click,
         elevation: 0,

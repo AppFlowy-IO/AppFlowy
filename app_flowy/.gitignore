@@ -46,3 +46,4 @@ app.*.map.json
 /android/app/release
 
 /packages/flowy_protobuf
+/packages/flutter-quill

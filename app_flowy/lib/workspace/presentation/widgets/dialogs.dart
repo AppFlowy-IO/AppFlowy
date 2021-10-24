@@ -54,24 +54,22 @@ class _CreateTextFieldDialog extends State<TextFieldDialog> {
           ],
           FlowyFormTextInput(
             hintText: widget.value,
+            textStyle: const TextStyle(fontSize: 28, fontWeight: FontWeight.w400),
             autoFocus: true,
             onChanged: (text) {
               newValue = text;
             },
           ),
-          SizedBox(height: Insets.l),
-          SizedBox(
-            height: 40,
-            child: OkCancelButton(
-              onOkPressed: () {
-                widget.confirm(newValue);
-              },
-              onCancelPressed: () {
-                if (widget.cancel != null) {
-                  widget.cancel!();
-                }
-              },
-            ),
+          const VSpace(10),
+          OkCancelButton(
+            onOkPressed: () {
+              widget.confirm(newValue);
+            },
+            onCancelPressed: () {
+              if (widget.cancel != null) {
+                widget.cancel!();
+              }
+            },
           )
         ],
       ),
@@ -140,29 +138,32 @@ class OkCancelButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: <Widget>[
-        if (onCancelPressed != null)
-          SecondaryTextButton(
-            cancelTitle ?? S.BTN_CANCEL,
-            onPressed: () {
-              onCancelPressed!();
-              AppGlobals.nav.pop();
-            },
-            bigMode: true,
-          ),
-        HSpace(Insets.m),
-        if (onOkPressed != null)
-          PrimaryTextButton(
-            okTitle ?? S.BTN_OK,
-            onPressed: () {
-              onOkPressed!();
-              AppGlobals.nav.pop();
-            },
-            bigMode: true,
-          ),
-      ],
+    return SizedBox(
+      height: 48,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          if (onCancelPressed != null)
+            SecondaryTextButton(
+              cancelTitle ?? S.BTN_CANCEL,
+              onPressed: () {
+                onCancelPressed!();
+                AppGlobals.nav.pop();
+              },
+              bigMode: true,
+            ),
+          HSpace(Insets.m),
+          if (onOkPressed != null)
+            PrimaryTextButton(
+              okTitle ?? S.BTN_OK,
+              onPressed: () {
+                onOkPressed!();
+                AppGlobals.nav.pop();
+              },
+              bigMode: true,
+            ),
+        ],
+      ),
     );
   }
 }

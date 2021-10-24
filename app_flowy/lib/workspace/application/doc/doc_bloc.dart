@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:editor/flutter_quill.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

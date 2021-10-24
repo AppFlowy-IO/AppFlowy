@@ -22,8 +22,8 @@ dependencies:
   url_launcher: ^6.0.3
   string_validator: ^0.3.0
   flutter_keyboard_visibility: ^5.0.1
-  flutter_colorpicker: ^0.5.0
-  photo_view: ^0.12.0
+  flutter_colorpicker: ^0.6.0
+  photo_view: ^0.13.0
 
   # Notus Lib (To be removed)
   meta: ^1.1.0

@@ -1,4 +1,0 @@
-enum MediaPickSetting {
-  Gallery,
-  Link,
-}

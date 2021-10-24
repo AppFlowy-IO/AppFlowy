@@ -35,7 +35,7 @@ class SecondaryButton extends StatelessWidget {
     return BaseStyledButton(
       minWidth: bigMode ? 170 : 78,
       minHeight: bigMode ? 48 : 28,
-      contentPadding: EdgeInsets.all(bigMode ? Insets.sm : Insets.l),
+      contentPadding: EdgeInsets.zero,
       bgColor: theme.shader7,
       hoverColor: theme.hover,
       downColor: theme.main1,

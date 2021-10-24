@@ -1,5 +1,5 @@
-import 'package:editor/flutter_quill.dart';
-import 'package:editor/models/documents/style.dart';
+import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill/models/documents/style.dart';
 import 'package:flutter/material.dart';
 
 import 'toolbar_icon_button.dart';
@@ -8,7 +8,7 @@ class FlowyCheckListButton extends StatefulWidget {
   const FlowyCheckListButton({
     required this.controller,
     required this.attribute,
-    this.iconSize = kDefaultIconSize,
+    this.iconSize = defaultIconSize,
     this.fillColor,
     this.childBuilder = defaultToggleStyleButtonBuilder,
     Key? key,

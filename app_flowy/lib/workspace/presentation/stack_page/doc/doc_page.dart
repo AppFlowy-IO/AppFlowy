@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/doc/doc_bloc.dart';
-import 'package:editor/flutter_quill.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flowy_infra_ui/style_widget/progress_indicator.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';

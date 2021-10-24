@@ -4,6 +4,8 @@ import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+const double defaultIconSize = 18;
+
 class ToolbarIconButton extends StatelessWidget {
   final double width;
   final VoidCallback? onPressed;

@@ -1,18 +1,14 @@
-import 'package:editor/flutter_quill.dart';
-import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter/foundation.dart';
-import 'package:editor/models/documents/style.dart';
+import 'package:flutter_quill/models/documents/style.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import 'toolbar_icon_button.dart';
 
 class FlowyHeaderStyleButton extends StatefulWidget {
   const FlowyHeaderStyleButton({
     required this.controller,
-    this.iconSize = kDefaultIconSize,
+    this.iconSize = defaultIconSize,
     Key? key,
   }) : super(key: key);
 

@@ -33,14 +33,17 @@ dependencies:
     path: packages/flowy_sdk
   flowy_editor:
     path: packages/flowy_editor
-  editor:
-    path: packages/editor
   flowy_infra_ui:
     path: packages/flowy_infra_ui
   flowy_infra:
     path: packages/flowy_infra
   flowy_log:
     path: packages/flowy_log
+  flutter_quill:
+    path: packages/flutter-quill
+    # git:
+    #   url: git@github.com:appflowy/flutter-quill.git
+    #   ref: master
   
   #  third party packages
   time: '>=2.0.0'
@@ -58,6 +61,7 @@ dependencies:
   styled_widget: '>=0.3.1'
   expandable: ^5.0.1
   flutter_svg: ^0.22.0
+  flutter_colorpicker: ^0.6.0
 
 
   # The following adds the Cupertino Icons font to your application.
