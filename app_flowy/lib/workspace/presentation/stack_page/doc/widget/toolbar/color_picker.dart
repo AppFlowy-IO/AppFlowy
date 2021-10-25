@@ -83,13 +83,6 @@ class _FlowyColorButtonState extends State<FlowyColorButton> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final iconColor = _isToggledColor && !widget.background && !_isWhite
-        ? stringToColor(_selectionStyle.attributes['color']!.value)
-        : (widget.iconTheme?.iconUnselectedColor ?? theme.iconTheme.color);
-
-    final iconColorBackground = _isToggledBackground && widget.background && !_isWhitebackground
-        ? stringToColor(_selectionStyle.attributes['background']!.value)
-        : (widget.iconTheme?.iconUnselectedColor ?? theme.iconTheme.color);
 
     final fillColor = _isToggledColor && !widget.background && _isWhite
         ? stringToColor('#ffffff')
@@ -102,7 +95,7 @@ class _FlowyColorButtonState extends State<FlowyColorButton> {
       highlightElevation: 0,
       hoverElevation: 0,
       size: widget.iconSize * kIconButtonFactor,
-      icon: Icon(widget.icon, size: widget.iconSize, color: widget.background ? iconColorBackground : iconColor),
+      icon: Icon(widget.icon, size: widget.iconSize, color: theme.iconTheme.color),
       fillColor: widget.background ? fillColorBackground : fillColor,
       onPressed: _showColorPicker,
     );
@@ -167,7 +160,6 @@ class FlowyColorPicker extends StatefulWidget {
     0xfffff2cd,
     0xfff5ffdc,
     0xffddffd6,
-    0xffdefff1,
     0xffdefff1,
   ];
   final Function(Color?) onColorChanged;

@@ -73,7 +73,7 @@ class _DocPageState extends State<DocPage> {
       controller: controller,
       focusNode: _focusNode,
       scrollable: true,
-      autoFocus: false,
+      autoFocus: controller.document.isEmpty(),
       expands: false,
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       readOnly: false,
