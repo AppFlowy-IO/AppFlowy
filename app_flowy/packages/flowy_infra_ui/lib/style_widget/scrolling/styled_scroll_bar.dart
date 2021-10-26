@@ -1,4 +1,6 @@
 import 'dart:math';
+import 'dart:async';
+import 'package:async/async.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/mouse_hover_builder.dart';
@@ -38,10 +40,34 @@ class StyledScrollbar extends StatefulWidget {
 
 class ScrollbarState extends State<StyledScrollbar> {
   double _viewExtent = 100;
+  CancelableOperation? _hideScrollbarOperation;
+  bool hideHandler = false;
 
   @override
   void initState() {
-    widget.controller.addListener(() => setState(() {}));
+    // widget.controller.addListener(() => setState(() {}));
+    widget.controller.position.isScrollingNotifier.addListener(
+      () {
+        if (!mounted) {
+          return;
+        }
+        _hideScrollbarOperation?.cancel();
+        if (!widget.controller.position.isScrollingNotifier.value) {
+          // scroll is stopped
+          _hideScrollbarOperation = CancelableOperation.fromFuture(
+            Future.delayed(const Duration(seconds: 2), () {
+              // Opti: hide with animation
+              hideHandler = true;
+              setState(() {});
+            }),
+          );
+        } else {
+          // Do nothing
+          hideHandler = false;
+          setState(() {});
+        }
+      },
+    );
     super.initState();
   }
 
@@ -106,6 +132,10 @@ class ScrollbarState extends State<StyledScrollbar> {
         }
         // Hide the handle if content is < the viewExtent
         var showHandle = contentExtent > _viewExtent && contentExtent > 0;
+        if (hideHandler) {
+          showHandle = false;
+        }
+
         // Handle color
         var handleColor = widget.handleColor ?? (theme.isDark ? theme.bg2.withOpacity(.2) : theme.bg2);
         // Track color
