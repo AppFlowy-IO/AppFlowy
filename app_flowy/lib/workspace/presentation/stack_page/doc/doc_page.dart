@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/doc/doc_bloc.dart';
+import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flowy_infra_ui/style_widget/progress_indicator.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
@@ -22,6 +24,7 @@ class DocPage extends StatefulWidget {
 
 class _DocPageState extends State<DocPage> {
   late DocBloc docBloc;
+  final scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
 
   @override
@@ -63,9 +66,11 @@ class _DocPageState extends State<DocPage> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         _renderEditor(controller),
+        const VSpace(10),
         _renderToolbar(controller),
+        const VSpace(10),
       ],
-    ).padding(horizontal: 80, top: 48);
+    ).padding(horizontal: 40, top: 28);
   }
 
   Widget _renderEditor(QuillController controller) {
@@ -78,10 +83,16 @@ class _DocPageState extends State<DocPage> {
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       readOnly: false,
       scrollBottomInset: 0,
-      scrollController: ScrollController(),
+      scrollController: scrollController,
     );
+
     return Expanded(
-      child: Padding(padding: const EdgeInsets.all(10), child: editor),
+      child: ScrollbarListStack(
+        axis: Axis.vertical,
+        controller: scrollController,
+        barSize: 6.0,
+        child: Padding(padding: EdgeInsets.zero, child: editor),
+      ),
     );
   }
 
