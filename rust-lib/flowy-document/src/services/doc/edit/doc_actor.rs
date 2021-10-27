@@ -2,16 +2,14 @@ use crate::{
     entities::doc::{RevId, Revision},
     errors::DocResult,
     services::doc::{
-        edit::{
-            message::{DocumentMsg, TransformDeltas},
-        },
+        edit::message::{DocumentMsg, TransformDeltas},
         Document,
     },
 };
 use async_stream::stream;
 use flowy_ot::core::{Delta, OperationTransformable};
 use futures::stream::StreamExt;
-use std::{convert::TryFrom, sync::Arc};
+use std::{convert::TryFrom, sync::Arc, thread};
 use tokio::sync::{mpsc, RwLock};
 
 pub struct DocumentActor {
@@ -20,10 +18,7 @@ pub struct DocumentActor {
 }
 
 impl DocumentActor {
-    pub fn new(
-        delta: Delta,
-        receiver: mpsc::UnboundedReceiver<DocumentMsg>,
-    ) -> Self {
+    pub fn new(delta: Delta, receiver: mpsc::UnboundedReceiver<DocumentMsg>) -> Self {
         let document = Arc::new(RwLock::new(Document::from_delta(delta)));
         Self {
             document,
@@ -116,12 +111,16 @@ impl DocumentActor {
     }
 
     async fn compose_delta(&self, delta: Delta) -> DocResult<()> {
-        let result = self.document.write().await.compose_delta(&delta);
+        // log::debug!("{:?} thread handle_message", thread::current(),);
+        let mut document = self.document.write().await;
+        let result = document.compose_delta(&delta);
         log::debug!(
             "Client compose push delta: {}. result: {}",
             delta.to_json(),
-            self.document.read().await.to_json()
+            document.to_json()
         );
+        drop(document);
+
         result
     }
 }

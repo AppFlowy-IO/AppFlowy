@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:provider/provider.dart';
 import 'package:tuple/tuple.dart';
 import 'package:flowy_infra/theme.dart';
 
@@ -7,8 +8,10 @@ DefaultStyles customStyles(BuildContext context) {
   const baseSpacing = Tuple2<double, double>(6, 0);
   final defaultTextStyle = DefaultTextStyle.of(context);
   final baseStyle = defaultTextStyle.style.copyWith(
-    fontSize: 16,
+    fontSize: 18,
     height: 1.3,
+    fontWeight: FontWeight.w400,
+    letterSpacing: 0.6,
   );
   final theme = context.watch<AppTheme>();
   final themeData = theme.themeData;

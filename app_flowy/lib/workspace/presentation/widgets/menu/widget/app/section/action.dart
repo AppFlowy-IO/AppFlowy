@@ -63,6 +63,7 @@ class ActionItem extends StatelessWidget {
       config: HoverDisplayConfig(hoverColor: theme.hover),
       builder: (context, onHover) {
         return GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTap: () => onSelected(action),
           child: Row(
             children: [
