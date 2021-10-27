@@ -45,7 +45,7 @@ class ScrollbarState extends State<StyledScrollbar> {
 
   @override
   void initState() {
-    // widget.controller.addListener(() => setState(() {}));
+    widget.controller.addListener(() => setState(() {}));
     widget.controller.position.isScrollingNotifier.addListener(
       () {
         if (!mounted) {
@@ -55,16 +55,14 @@ class ScrollbarState extends State<StyledScrollbar> {
         if (!widget.controller.position.isScrollingNotifier.value) {
           // scroll is stopped
           _hideScrollbarOperation = CancelableOperation.fromFuture(
-            Future.delayed(const Duration(seconds: 2), () {
-              // Opti: hide with animation
-              hideHandler = true;
-              setState(() {});
-            }),
-          );
+            Future.delayed(const Duration(seconds: 2), () {}),
+          ).then((_) {
+            // Opti: hide with animation
+            hideHandler = true;
+            setState(() {});
+          });
         } else {
-          // Do nothing
           hideHandler = false;
-          setState(() {});
         }
       },
     );
@@ -175,7 +173,7 @@ class ScrollbarState extends State<StyledScrollbar> {
               ),
             ),
           )
-        ]).opacity(showHandle ? 1.0 : 0.0, animate: false);
+        ]).opacity(showHandle ? 1.0 : 0.0, animate: true);
       },
     );
   }
