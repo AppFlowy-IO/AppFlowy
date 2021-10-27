@@ -91,7 +91,7 @@ class _DocPageState extends State<DocPage> {
         axis: Axis.vertical,
         controller: scrollController,
         barSize: 6.0,
-        child: Padding(padding: EdgeInsets.zero, child: editor),
+        child: SizedBox.expand(child: editor),
       ),
     );
   }
