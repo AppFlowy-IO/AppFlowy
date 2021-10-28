@@ -2,6 +2,7 @@ import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:styled_widget/styled_widget.dart';
@@ -23,21 +24,19 @@ class NewAppButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // final theme = context.watch<AppTheme>();
+
+    final child = FlowyTextButton(
+      'New App',
+      fontSize: 12,
+      enableHover: false,
+      onPressed: () async => await _showCreateAppDialog(context),
+      heading: svgWithSize("home/new_app", const Size(16, 16)),
+      padding: EdgeInsets.symmetric(horizontal: Insets.l, vertical: 20),
+    );
+
     return SizedBox(
       height: HomeSizes.menuAddButtonHeight,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          svgWithSize("home/new_app", const Size(16, 16)),
-          TextButton(
-            onPressed: () async => await _showCreateAppDialog(context),
-            child: const FlowyText(
-              'New App',
-              fontSize: 12,
-            ),
-          )
-        ],
-      ).padding(horizontal: Insets.l),
+      child: child,
     ).topBorder(color: Colors.grey.shade300);
   }
 

@@ -57,33 +57,53 @@ class FlowyTextButton extends StatelessWidget {
   final double fontSize;
   final VoidCallback? onPressed;
   final EdgeInsets padding;
-  const FlowyTextButton(this.text,
-      {Key? key,
-      this.onPressed,
-      this.fontSize = 16,
-      this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 6)})
-      : super(key: key);
+  final bool enableHover;
+  final Widget? heading;
+  const FlowyTextButton(
+    this.text, {
+    Key? key,
+    this.onPressed,
+    this.fontSize = 16,
+    this.enableHover = true,
+    this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+    this.heading,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    return InkWell(
-      onTap: onPressed,
-      child: FlowyHover(
-        config: HoverDisplayConfig(borderRadius: BorderRadius.circular(6), hoverColor: theme.bg3),
-        builder: (context, onHover) => _render(),
-      ),
-    );
-  }
 
-  Widget _render() {
-    return Padding(
+    List<Widget> children = [];
+    if (heading != null) {
+      children.add(heading!);
+      children.add(const HSpace(6));
+    }
+    children.add(FlowyText(text, fontSize: fontSize));
+
+    Widget child = Padding(
       padding: padding,
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: FlowyText(text, fontSize: fontSize),
+      child: Expanded(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: children,
+        ),
       ),
     );
+
+    if (enableHover) {
+      return InkWell(
+        onTap: onPressed,
+        child: FlowyHover(
+          config: HoverDisplayConfig(borderRadius: BorderRadius.circular(6), hoverColor: theme.bg3),
+          builder: (context, onHover) => child,
+        ),
+      );
+    } else {
+      return InkWell(
+        onTap: onPressed,
+        child: child,
+      );
+    }
   }
 }
 // return TextButton(

@@ -51,6 +51,7 @@ class MenuAppHeader extends StatelessWidget {
           HSpace(MenuAppSizes.expandedIconPadding),
           Expanded(
               child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTapDown: (_) {
               ExpandableController.of(context, rebuildOnChange: false, required: true)?.toggle();
             },
