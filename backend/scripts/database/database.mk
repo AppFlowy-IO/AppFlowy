@@ -9,7 +9,7 @@ export ROOT = "./scripts/database"
 init_postgres:
 	${ROOT}/init_postgres.sh
 
-init_database:
+init_database: init_postgres
 	${ROOT}/init_database.sh
 
 reset_db:

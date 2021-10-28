@@ -67,7 +67,16 @@ impl TrashCan {
 
     #[tracing::instrument(level = "debug", skip(self)  err)]
     pub async fn restore_all(&self) -> WorkspaceResult<()> {
-        let repeated_trash = self.delete_all_trash_on_local()?;
+        let repeated_trash = thread::scope(|_s| {
+            let conn = self.database.db_connection()?;
+            conn.immediate_transaction::<_, WorkspaceError, _>(|| {
+                let repeated_trash = TrashTableSql::read_all(&*conn)?;
+                let _ = TrashTableSql::delete_all(&*conn)?;
+                Ok(repeated_trash)
+            })
+        })
+        .unwrap()?;
+
         let identifiers: TrashIdentifiers = repeated_trash.items.clone().into();
         let (tx, mut rx) = mpsc::channel::<WorkspaceResult<()>>(1);
         let _ = self.notify.send(TrashEvent::Putback(identifiers, tx));
@@ -78,34 +87,39 @@ impl TrashCan {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self)  err)]
+    #[tracing::instrument(level = "debug", skip(self), err)]
     pub async fn delete_all(&self) -> WorkspaceResult<()> {
-        let repeated_trash = self.delete_all_trash_on_local()?;
-        let identifiers: TrashIdentifiers = repeated_trash.items.clone().into();
-
-        let (tx, mut rx) = mpsc::channel::<WorkspaceResult<()>>(1);
-        let _ = self.notify.send(TrashEvent::Delete(identifiers, tx));
-        let _ = rx.recv().await;
+        let repeated_trash = TrashTableSql::read_all(&*(self.database.db_connection()?))?;
+        let trash_identifiers: TrashIdentifiers = repeated_trash.items.clone().into();
+        let _ = self.delete_with_identifiers(trash_identifiers.clone()).await?;
 
         notify_trash_num_changed(RepeatedTrash { items: vec![] });
         let _ = self.delete_all_trash_on_server().await?;
         Ok(())
     }
 
-    fn delete_all_trash_on_local(&self) -> WorkspaceResult<RepeatedTrash> {
-        let conn = self.database.db_connection()?;
-        conn.immediate_transaction::<_, WorkspaceError, _>(|| {
-            let repeated_trash = TrashTableSql::read_all(&*conn)?;
-            let _ = TrashTableSql::delete_all(&*conn)?;
-            Ok(repeated_trash)
-        })
+    #[tracing::instrument(level = "debug", skip(self), err)]
+    pub async fn delete(&self, trash_identifiers: TrashIdentifiers) -> WorkspaceResult<()> {
+        let _ = self.delete_with_identifiers(trash_identifiers.clone()).await?;
+        notify_trash_num_changed(TrashTableSql::read_all(&*(self.database.db_connection()?))?);
+        let _ = self.delete_trash_on_server(trash_identifiers)?;
+
+        Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self)  err)]
-    pub async fn delete(&self, trash_identifiers: TrashIdentifiers) -> WorkspaceResult<()> {
+    #[tracing::instrument(level = "debug", skip(self), fields(delete_trash_ids), err)]
+    pub async fn delete_with_identifiers(&self, trash_identifiers: TrashIdentifiers) -> WorkspaceResult<()> {
         let (tx, mut rx) = mpsc::channel::<WorkspaceResult<()>>(1);
+        tracing::Span::current().record("delete_trash_ids", &format!("{}", trash_identifiers).as_str());
         let _ = self.notify.send(TrashEvent::Delete(trash_identifiers.clone(), tx));
-        let _ = rx.recv().await;
+
+        match rx.recv().await {
+            None => {},
+            Some(result) => match result {
+                Ok(_) => {},
+                Err(e) => log::error!("{}", e),
+            },
+        }
 
         let conn = self.database.db_connection()?;
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
@@ -114,10 +128,6 @@ impl TrashCan {
             }
             Ok(())
         })?;
-
-        notify_trash_num_changed(TrashTableSql::read_all(&conn)?);
-        let _ = self.delete_trash_on_server(trash_identifiers)?;
-
         Ok(())
     }
 
@@ -212,6 +222,7 @@ impl TrashCan {
         spawn(async move {
             match server.read_trash(&token).await {
                 Ok(repeated_trash) => {
+                    log::debug!("Remote trash count: {}", repeated_trash.items.len());
                     match pool.get() {
                         Ok(conn) => {
                             let result = conn.immediate_transaction::<_, WorkspaceError, _>(|| {

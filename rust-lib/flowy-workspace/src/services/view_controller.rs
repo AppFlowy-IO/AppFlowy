@@ -302,8 +302,9 @@ async fn handle_trash_event(
     }
 }
 
-#[tracing::instrument(skip(repeated_view), err)]
+#[tracing::instrument(skip(repeated_view), fields(view_count), err)]
 fn notify_view_num_changed(belong_to_id: &str, repeated_view: RepeatedView) -> WorkspaceResult<()> {
+    tracing::Span::current().record("view_count", &format!("{}", repeated_view.len()).as_str());
     send_dart_notification(&belong_to_id, WorkspaceNotification::AppViewsChanged)
         .payload(repeated_view)
         .send();

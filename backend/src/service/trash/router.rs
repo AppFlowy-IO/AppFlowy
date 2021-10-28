@@ -31,7 +31,7 @@ pub async fn create_handler(
         .begin()
         .await
         .context("Failed to acquire a Postgres connection to create trash")?;
-    log::error!("😁create handler: {:?}", params);
+
     let _ = create_trash(&mut transaction, make_records(params)?, logged_user).await?;
 
     transaction

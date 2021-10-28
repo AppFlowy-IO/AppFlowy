@@ -173,7 +173,7 @@ class ScrollbarState extends State<StyledScrollbar> {
               ),
             ),
           )
-        ]).opacity(showHandle ? 1.0 : 0.0, animate: true);
+        ]).opacity(showHandle ? 1.0 : 0.0, animate: false);
       },
     );
   }

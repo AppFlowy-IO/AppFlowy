@@ -1,5 +1,6 @@
 use crate::impl_def_and_def_mut;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use std::fmt::Formatter;
 
 #[derive(PartialEq, Debug, ProtoBuf_Enum, Clone)]
 pub enum TrashType {
@@ -30,6 +31,15 @@ pub struct TrashIdentifiers {
 
     #[pb(index = 2)]
     pub delete_all: bool,
+}
+
+impl std::fmt::Display for TrashIdentifiers {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&format!(
+            "{:?}",
+            &self.items.iter().map(|item| &item.id).collect::<Vec<_>>()
+        ))
+    }
 }
 
 impl TrashIdentifiers {

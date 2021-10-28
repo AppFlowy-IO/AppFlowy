@@ -9,7 +9,7 @@ use crate::{
 use ::protobuf::ProtobufEnum;
 use flowy_net::errors::ServerError;
 use flowy_workspace::protobuf::{RepeatedTrash, Trash, TrashType};
-use sqlx::{postgres::PgArguments, Postgres};
+use sqlx::{postgres::PgArguments, Postgres, Row};
 use uuid::Uuid;
 
 pub(crate) async fn create_trash(
@@ -33,10 +33,25 @@ pub(crate) async fn create_trash(
     Ok(())
 }
 
+#[tracing::instrument(skip(transaction, user), fields(delete_rows), err)]
 pub(crate) async fn delete_all_trash(
     transaction: &mut DBTransaction<'_>,
     user: &LoggedUser,
 ) -> Result<(), ServerError> {
+    let (sql, args) = SqlBuilder::select(TRASH_TABLE)
+        .and_where_eq("user_id", &user.user_id)
+        .build()?;
+    let rows = sqlx::query_with(&sql, args)
+        .fetch_all(transaction as &mut DBTransaction<'_>)
+        .await
+        .map_err(map_sqlx_error)?
+        .into_iter()
+        .map(|row| (row.get("id"), row.get("ty")))
+        .collect::<Vec<(Uuid, i32)>>();
+    tracing::Span::current().record("delete_rows", &format!("{:?}", rows).as_str());
+    let affected_row_count = rows.len();
+    let _ = delete_trash_targets(transaction as &mut DBTransaction<'_>, rows).await?;
+
     let (sql, args) = SqlBuilder::delete(TRASH_TABLE)
         .and_where_eq("user_id", &user.user_id)
         .build()?;
@@ -44,8 +59,9 @@ pub(crate) async fn delete_all_trash(
         .execute(transaction as &mut DBTransaction<'_>)
         .await
         .map_err(map_sqlx_error)?;
-
     tracing::Span::current().record("affected_row", &result.rows_affected());
+    debug_assert_eq!(affected_row_count as u64, result.rows_affected());
+
     Ok(())
 }
 
@@ -76,6 +92,12 @@ pub(crate) async fn delete_trash(
             },
         }
 
+        let _ = delete_trash_targets(
+            transaction as &mut DBTransaction<'_>,
+            vec![(trash_table.id.clone(), trash_table.ty)],
+        )
+        .await?;
+
         // Delete the trash table
         let (sql, args) = SqlBuilder::delete(TRASH_TABLE).and_where_eq("id", &trash_id).build()?;
         let _ = sqlx::query_with(&sql, args)
@@ -83,6 +105,25 @@ pub(crate) async fn delete_trash(
             .await
             .map_err(map_sqlx_error)?;
     }
+    Ok(())
+}
+
+async fn delete_trash_targets(
+    transaction: &mut DBTransaction<'_>,
+    targets: Vec<(Uuid, i32)>,
+) -> Result<(), ServerError> {
+    for (id, ty) in targets {
+        match TrashType::from_i32(ty) {
+            None => log::error!("Parser trash type with value: {} failed", ty),
+            Some(ty) => match ty {
+                TrashType::Unknown => {},
+                TrashType::View => {
+                    let _ = delete_view(transaction as &mut DBTransaction<'_>, vec![id]).await;
+                },
+            },
+        }
+    }
+
     Ok(())
 }
 
