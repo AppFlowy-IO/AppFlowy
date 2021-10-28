@@ -173,7 +173,7 @@ class ScrollbarState extends State<StyledScrollbar> {
               ),
             ),
           )
-        ]).opacity(showHandle ? 1.0 : 0.0, animate: false);
+        ]).opacity(showHandle ? 1.0 : 0.0, animate: true);
       },
     );
   }
@@ -237,7 +237,9 @@ class ScrollbarListStack extends StatelessWidget {
             trackColor: trackColor,
             handleColor: handleColor,
           ),
-        ),
+        )
+            // The animate will be used by the children that using styled_widget.
+            .animate(const Duration(milliseconds: 250), Curves.easeOut),
       ],
     );
   }
