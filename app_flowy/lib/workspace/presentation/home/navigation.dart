@@ -8,15 +8,13 @@ import 'package:styled_widget/styled_widget.dart';
 typedef NaviAction = void Function();
 
 class NavigationNotifier with ChangeNotifier {
-  HomeStackNotifier homeStackNotifier;
-  NavigationNotifier(this.homeStackNotifier);
+  List<NavigationItem> navigationItems;
+  NavigationNotifier({required this.navigationItems});
 
   void update(HomeStackNotifier notifier) {
-    homeStackNotifier = notifier;
+    navigationItems = notifier.context.navigationItems;
     notifyListeners();
   }
-
-  List<NavigationItem> get naviItems => homeStackNotifier.context.navigationItems;
 }
 
 // [[diagram: HomeStack navigation flow]]
@@ -45,12 +43,15 @@ class FlowyNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProxyProvider<HomeStackNotifier, NavigationNotifier>(
-      create: (_) => NavigationNotifier(
-        Provider.of<HomeStackNotifier>(context, listen: false),
-      ),
+      create: (_) {
+        final notifier = Provider.of<HomeStackNotifier>(context, listen: false);
+        return NavigationNotifier(
+          navigationItems: notifier.context.navigationItems,
+        );
+      },
       update: (_, notifier, controller) => controller!..update(notifier),
       child: Consumer(builder: (ctx, NavigationNotifier notifier, child) {
-        return Row(children: _renderChildren(notifier.naviItems));
+        return Row(children: _renderChildren(notifier.navigationItems));
       }),
     );
   }
@@ -96,7 +97,7 @@ class IconNaviItemWidget extends StatelessWidget {
     return SizedBox(
       height: 24,
       child: InkWell(
-        child: item.titleWidget,
+        child: item.naviTitle,
         onTap: () {
           debugPrint('show app document');
         },
@@ -114,7 +115,7 @@ class NaviItemWidget extends StatelessWidget {
     return SizedBox(
       height: 24,
       child: InkWell(
-        child: item.titleWidget,
+        child: item.naviTitle,
         onTap: () {
           debugPrint('show app document');
         },
@@ -142,7 +143,7 @@ class EllipsisNaviItem extends NavigationItem {
   });
 
   @override
-  Widget get titleWidget => const FlowyText.medium('...');
+  Widget get naviTitle => const FlowyText.medium('...');
 
   @override
   NavigationCallback get action => (id) {};

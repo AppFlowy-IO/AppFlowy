@@ -1,28 +1,32 @@
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 
 class BlankStackContext extends HomeStackContext {
+  final ValueNotifier<bool> _isUpdated = ValueNotifier<bool>(false);
+
   @override
   String get identifier => "1";
 
   @override
-  List<Object?> get props => ["1"];
-
-  @override
-  Widget get titleWidget => const FlowyText.medium('Blank page', fontSize: 12);
+  Widget get naviTitle => const FlowyText.medium('Blank page', fontSize: 12);
 
   @override
   HomeStackType get type => HomeStackType.blank;
 
   @override
-  Widget render() {
+  Widget buildWidget() {
     return const BlankStackPage();
   }
 
   @override
   List<NavigationItem> get navigationItems => [this];
+
+  @override
+  ValueNotifier<bool> get isUpdated => _isUpdated;
+
+  @override
+  void dispose() {}
 }
 
 class BlankStackPage extends StatefulWidget {

@@ -1,5 +1,4 @@
 import 'package:app_flowy/workspace/domain/image.dart';
-import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:app_flowy/workspace/presentation/home/navigation.dart';
 import 'package:flowy_infra/size.dart';
@@ -12,8 +11,7 @@ import 'package:flowy_infra_ui/style_widget/extension.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 
 class HomeTopBar extends StatelessWidget {
-  final HomeStackContext view;
-  const HomeTopBar({Key? key, required this.view}) : super(key: key);
+  const HomeTopBar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +20,7 @@ class HomeTopBar extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          _renderNavigation(view),
+          const FlowyNavigation(),
           const Spacer(),
           _renderShareButton(),
           // _renderMoreButton(),
@@ -47,10 +45,6 @@ class HomeTopBar extends StatelessWidget {
         debugPrint('share page');
       },
     );
-  }
-
-  Widget _renderNavigation(HomeStackContext view) {
-    return const FlowyNavigation();
   }
 }
 

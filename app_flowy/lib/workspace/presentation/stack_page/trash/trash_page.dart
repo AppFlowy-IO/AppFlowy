@@ -19,25 +19,30 @@ import 'package:styled_widget/styled_widget.dart';
 import 'widget/trash_header.dart';
 
 class TrashStackContext extends HomeStackContext {
+  final ValueNotifier<bool> _isUpdated = ValueNotifier<bool>(false);
+
   @override
   String get identifier => "TrashStackContext";
 
   @override
-  List<Object?> get props => ["TrashStackContext"];
-
-  @override
-  Widget get titleWidget => const FlowyText.medium('Trash', fontSize: 12);
+  Widget get naviTitle => const FlowyText.medium('Trash', fontSize: 12);
 
   @override
   HomeStackType get type => HomeStackType.trash;
 
   @override
-  Widget render() {
+  Widget buildWidget() {
     return const TrashStackPage(key: ValueKey('TrashStackPage'));
   }
 
   @override
   List<NavigationItem> get navigationItems => [this];
+
+  @override
+  ValueNotifier<bool> get isUpdated => _isUpdated;
+
+  @override
+  void dispose() {}
 }
 
 class TrashStackPage extends StatefulWidget {
