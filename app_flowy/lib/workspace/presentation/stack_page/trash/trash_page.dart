@@ -82,6 +82,7 @@ class _TrashStackPageState extends State<TrashStackPage> {
         barSize: barSize,
         child: StyledSingleChildScrollView(
           controller: ScrollController(),
+          barSize: barSize,
           axis: Axis.horizontal,
           child: SizedBox(
             width: TrashSizes.totalWidth,
