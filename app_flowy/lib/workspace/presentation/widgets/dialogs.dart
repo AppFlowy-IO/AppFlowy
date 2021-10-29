@@ -54,7 +54,7 @@ class _CreateTextFieldDialog extends State<TextFieldDialog> {
           ],
           FlowyFormTextInput(
             hintText: widget.value,
-            textStyle: const TextStyle(fontSize: 28, fontWeight: FontWeight.w400),
+            textStyle: const TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
             autoFocus: true,
             onChanged: (text) {
               newValue = text;

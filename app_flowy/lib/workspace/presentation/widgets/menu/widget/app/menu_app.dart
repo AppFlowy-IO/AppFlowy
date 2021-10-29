@@ -1,6 +1,7 @@
 import 'package:app_flowy/workspace/presentation/widgets/menu/widget/app/header.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/startup/startup.dart';
@@ -9,23 +10,6 @@ import 'package:app_flowy/workspace/presentation/widgets/menu/menu.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'section/section.dart';
-
-class MenuAppSizes {
-  static double expandedIconSize = 16;
-  static double expandedIconPadding = 6;
-  static double scale = 1;
-  static double get expandedPadding => expandedIconSize * scale + expandedIconPadding;
-}
-
-class MenuAppContext {
-  final App app;
-  final viewList = ViewListNotifier();
-
-  MenuAppContext(this.app);
-
-  Key valueKey() => ValueKey("${app.id}${app.version}");
-}
-
 // [[diagram: MenuApp]]
 //                     ┌────────┐
 //               ┌────▶│AppBloc │────────────────┐
@@ -61,18 +45,25 @@ class MenuApp extends MenuItem {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<AppBloc>(create: (context) {
-          final appBloc = getIt<AppBloc>(param1: appCtx.app.id);
-          appBloc.add(const AppEvent.initial());
-          return appBloc;
-        }),
+        BlocProvider<AppBloc>(
+          create: (context) {
+            final appBloc = getIt<AppBloc>(param1: appCtx.app.id);
+            appBloc.add(const AppEvent.initial());
+            return appBloc;
+          },
+        ),
       ],
-      child: BlocBuilder<AppBloc, AppState>(
-        builder: (context, state) {
-          appCtx.viewList.items = state.views ?? List.empty(growable: false);
-          final child = _renderViewSection(appCtx.viewList);
-          return expandableWrapper(context, child);
-        },
+      child: BlocListener<AppBloc, AppState>(
+        listenWhen: (p, c) => p.selectedView != c.selectedView,
+        listener: (context, state) => appCtx.viewList.selectView = state.selectedView,
+        child: BlocBuilder<AppBloc, AppState>(
+          buildWhen: (p, c) => p.views != c.views,
+          builder: (context, state) {
+            appCtx.viewList.views = state.views;
+            final child = _renderViewSection(appCtx.viewList);
+            return expandableWrapper(context, child);
+          },
+        ),
       ),
     );
   }
@@ -109,11 +100,47 @@ class MenuApp extends MenuItem {
         ChangeNotifierProvider.value(value: viewListNotifier),
       ],
       child: Consumer(builder: (context, ViewListNotifier notifier, child) {
-        return ViewSection(notifier.items).padding(vertical: 8);
+        return const ViewSection().padding(vertical: 8);
       }),
     );
   }
 
   @override
   MenuItemType get type => MenuItemType.app;
+}
+
+class MenuAppSizes {
+  static double expandedIconSize = 16;
+  static double expandedIconPadding = 6;
+  static double scale = 1;
+  static double get expandedPadding => expandedIconSize * scale + expandedIconPadding;
+}
+
+class ViewListNotifier extends ChangeNotifier {
+  List<View> _views = [];
+  View? _selectedView;
+  ViewListNotifier();
+
+  set views(List<View>? items) {
+    _views = items ?? List.empty(growable: false);
+    notifyListeners();
+  }
+
+  set selectView(View? view) {
+    _selectedView = view;
+    notifyListeners();
+  }
+
+  get selectedView => _selectedView;
+
+  List<View> get views => _views;
+}
+
+class MenuAppContext {
+  final App app;
+  final viewList = ViewListNotifier();
+
+  MenuAppContext(this.app);
+
+  Key valueKey() => ValueKey("${app.id}${app.version}");
 }

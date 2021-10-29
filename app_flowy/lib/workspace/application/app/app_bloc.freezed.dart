@@ -447,10 +447,12 @@ class _$AppStateTearOff {
   _AppState call(
       {required bool isLoading,
       required List<View>? views,
+      View? selectedView,
       required Either<Unit, WorkspaceError> successOrFailure}) {
     return _AppState(
       isLoading: isLoading,
       views: views,
+      selectedView: selectedView,
       successOrFailure: successOrFailure,
     );
   }
@@ -463,6 +465,7 @@ const $AppState = _$AppStateTearOff();
 mixin _$AppState {
   bool get isLoading => throw _privateConstructorUsedError;
   List<View>? get views => throw _privateConstructorUsedError;
+  View? get selectedView => throw _privateConstructorUsedError;
   Either<Unit, WorkspaceError> get successOrFailure =>
       throw _privateConstructorUsedError;
 
@@ -478,6 +481,7 @@ abstract class $AppStateCopyWith<$Res> {
   $Res call(
       {bool isLoading,
       List<View>? views,
+      View? selectedView,
       Either<Unit, WorkspaceError> successOrFailure});
 }
 
@@ -493,6 +497,7 @@ class _$AppStateCopyWithImpl<$Res> implements $AppStateCopyWith<$Res> {
   $Res call({
     Object? isLoading = freezed,
     Object? views = freezed,
+    Object? selectedView = freezed,
     Object? successOrFailure = freezed,
   }) {
     return _then(_value.copyWith(
@@ -504,6 +509,10 @@ class _$AppStateCopyWithImpl<$Res> implements $AppStateCopyWith<$Res> {
           ? _value.views
           : views // ignore: cast_nullable_to_non_nullable
               as List<View>?,
+      selectedView: selectedView == freezed
+          ? _value.selectedView
+          : selectedView // ignore: cast_nullable_to_non_nullable
+              as View?,
       successOrFailure: successOrFailure == freezed
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
@@ -520,6 +529,7 @@ abstract class _$AppStateCopyWith<$Res> implements $AppStateCopyWith<$Res> {
   $Res call(
       {bool isLoading,
       List<View>? views,
+      View? selectedView,
       Either<Unit, WorkspaceError> successOrFailure});
 }
 
@@ -536,6 +546,7 @@ class __$AppStateCopyWithImpl<$Res> extends _$AppStateCopyWithImpl<$Res>
   $Res call({
     Object? isLoading = freezed,
     Object? views = freezed,
+    Object? selectedView = freezed,
     Object? successOrFailure = freezed,
   }) {
     return _then(_AppState(
@@ -547,6 +558,10 @@ class __$AppStateCopyWithImpl<$Res> extends _$AppStateCopyWithImpl<$Res>
           ? _value.views
           : views // ignore: cast_nullable_to_non_nullable
               as List<View>?,
+      selectedView: selectedView == freezed
+          ? _value.selectedView
+          : selectedView // ignore: cast_nullable_to_non_nullable
+              as View?,
       successOrFailure: successOrFailure == freezed
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
@@ -561,6 +576,7 @@ class _$_AppState implements _AppState {
   const _$_AppState(
       {required this.isLoading,
       required this.views,
+      this.selectedView,
       required this.successOrFailure});
 
   @override
@@ -568,11 +584,13 @@ class _$_AppState implements _AppState {
   @override
   final List<View>? views;
   @override
+  final View? selectedView;
+  @override
   final Either<Unit, WorkspaceError> successOrFailure;
 
   @override
   String toString() {
-    return 'AppState(isLoading: $isLoading, views: $views, successOrFailure: $successOrFailure)';
+    return 'AppState(isLoading: $isLoading, views: $views, selectedView: $selectedView, successOrFailure: $successOrFailure)';
   }
 
   @override
@@ -584,6 +602,9 @@ class _$_AppState implements _AppState {
                     .equals(other.isLoading, isLoading)) &&
             (identical(other.views, views) ||
                 const DeepCollectionEquality().equals(other.views, views)) &&
+            (identical(other.selectedView, selectedView) ||
+                const DeepCollectionEquality()
+                    .equals(other.selectedView, selectedView)) &&
             (identical(other.successOrFailure, successOrFailure) ||
                 const DeepCollectionEquality()
                     .equals(other.successOrFailure, successOrFailure)));
@@ -594,6 +615,7 @@ class _$_AppState implements _AppState {
       runtimeType.hashCode ^
       const DeepCollectionEquality().hash(isLoading) ^
       const DeepCollectionEquality().hash(views) ^
+      const DeepCollectionEquality().hash(selectedView) ^
       const DeepCollectionEquality().hash(successOrFailure);
 
   @JsonKey(ignore: true)
@@ -606,12 +628,15 @@ abstract class _AppState implements AppState {
   const factory _AppState(
       {required bool isLoading,
       required List<View>? views,
+      View? selectedView,
       required Either<Unit, WorkspaceError> successOrFailure}) = _$_AppState;
 
   @override
   bool get isLoading => throw _privateConstructorUsedError;
   @override
   List<View>? get views => throw _privateConstructorUsedError;
+  @override
+  View? get selectedView => throw _privateConstructorUsedError;
   @override
   Either<Unit, WorkspaceError> get successOrFailure =>
       throw _privateConstructorUsedError;

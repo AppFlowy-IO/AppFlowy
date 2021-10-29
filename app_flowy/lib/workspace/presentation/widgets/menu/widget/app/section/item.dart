@@ -45,10 +45,7 @@ class ViewSectionItem extends StatelessWidget {
       child: BlocBuilder<ViewBloc, ViewState>(
         builder: (context, state) {
           return InkWell(
-            onTap: () {
-              onSelected(context.read<ViewBloc>().state.view);
-              getIt<HomeStackManager>().setStack(state.view.stackContext());
-            },
+            onTap: () => onSelected(context.read<ViewBloc>().state.view),
             child: FlowyHover(
               config: HoverDisplayConfig(hoverColor: theme.bg3),
               builder: (_, onHover) => _render(context, onHover, state),

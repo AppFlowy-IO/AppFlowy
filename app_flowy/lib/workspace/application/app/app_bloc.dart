@@ -25,10 +25,16 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       },
       createView: (CreateView value) async* {
         final viewOrFailed = await appManager.createView(name: value.name, desc: value.desc, viewType: value.viewType);
-        yield viewOrFailed.fold((view) => state, (error) {
-          Log.error(error);
-          return state.copyWith(successOrFailure: right(error));
-        });
+        yield viewOrFailed.fold(
+          (view) => state.copyWith(
+            selectedView: view,
+            successOrFailure: left(unit),
+          ),
+          (error) {
+            Log.error(error);
+            return state.copyWith(successOrFailure: right(error));
+          },
+        );
       },
       didReceiveViews: (e) async* {
         yield state.copyWith(views: e.views);
@@ -75,12 +81,14 @@ class AppState with _$AppState {
   const factory AppState({
     required bool isLoading,
     required List<View>? views,
+    View? selectedView,
     required Either<Unit, WorkspaceError> successOrFailure,
   }) = _AppState;
 
   factory AppState.initial() => AppState(
         isLoading: false,
         views: null,
+        selectedView: null,
         successOrFailure: left(unit),
       );
 }
