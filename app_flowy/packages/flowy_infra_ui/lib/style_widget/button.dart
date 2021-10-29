@@ -82,11 +82,9 @@ class FlowyTextButton extends StatelessWidget {
 
     Widget child = Padding(
       padding: padding,
-      child: Expanded(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: children,
-        ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: children,
       ),
     );
 
