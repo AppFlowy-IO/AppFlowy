@@ -9,7 +9,7 @@ use crate::{
 use async_stream::stream;
 use flowy_ot::core::{Delta, OperationTransformable};
 use futures::stream::StreamExt;
-use std::{convert::TryFrom, sync::Arc, thread};
+use std::{convert::TryFrom, sync::Arc};
 use tokio::sync::{mpsc, RwLock};
 
 pub struct DocumentActor {

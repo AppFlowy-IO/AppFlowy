@@ -164,6 +164,9 @@ impl ViewController {
             .payload(updated_view.clone())
             .send();
 
+        //
+        let _ = notify_view_num_changed(&updated_view.belong_to_id, self.trash_can.clone(), conn)?;
+
         let _ = self.update_view_on_server(params);
         Ok(updated_view)
     }
@@ -267,8 +270,7 @@ async fn handle_trash_event(
                 let _ = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
                     for identifier in identifiers.items {
                         let view_table = ViewTableSql::read_view(&identifier.id, conn)?;
-                        let repeated_view = read_belonging_view(&view_table.belong_to_id, trash_can.clone(), conn)?;
-                        let _ = notify_view_num_changed(&view_table.belong_to_id, repeated_view)?;
+                        let _ = notify_view_num_changed(&view_table.belong_to_id, trash_can.clone(), conn)?;
                     }
                     Ok(())
                 })?;
@@ -289,8 +291,7 @@ async fn handle_trash_event(
                     }
 
                     for notify_id in notify_ids {
-                        let repeated_view = read_belonging_view(&notify_id, trash_can.clone(), conn)?;
-                        let _ = notify_view_num_changed(&notify_id, repeated_view)?;
+                        let _ = notify_view_num_changed(&notify_id, trash_can.clone(), conn)?;
                     }
 
                     Ok(())
@@ -302,8 +303,13 @@ async fn handle_trash_event(
     }
 }
 
-#[tracing::instrument(skip(repeated_view), fields(view_count), err)]
-fn notify_view_num_changed(belong_to_id: &str, repeated_view: RepeatedView) -> WorkspaceResult<()> {
+#[tracing::instrument(skip(belong_to_id, trash_can, conn), fields(view_count), err)]
+fn notify_view_num_changed(
+    belong_to_id: &str,
+    trash_can: Arc<TrashCan>,
+    conn: &SqliteConnection,
+) -> WorkspaceResult<()> {
+    let repeated_view = read_belonging_view(belong_to_id, trash_can.clone(), conn)?;
     tracing::Span::current().record("view_count", &format!("{}", repeated_view.len()).as_str());
     send_dart_notification(&belong_to_id, WorkspaceNotification::AppViewsChanged)
         .payload(repeated_view)

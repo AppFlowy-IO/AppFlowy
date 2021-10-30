@@ -12,19 +12,19 @@ import 'item.dart';
 import 'package:async/async.dart';
 
 class ViewSectionNotifier with ChangeNotifier {
-  List<View> innerViews;
+  List<View> _views;
   View? _selectedView;
   CancelableOperation? _notifyListenerOperation;
-  ViewSectionNotifier(this.innerViews);
+  ViewSectionNotifier(List<View> views) : _views = views;
 
-  set views(List<View> views) => innerViews = views;
-  List<View> get views => innerViews;
-  set setViews(List<View> views) {
-    if (innerViews != views) {
-      innerViews = views;
+  set views(List<View> views) {
+    if (_views != views) {
+      _views = views;
       _notifyListeners();
     }
   }
+
+  List<View> get views => _views;
 
   set selectView(View? view) {
     if (_selectedView == view) {
@@ -48,8 +48,8 @@ class ViewSectionNotifier with ChangeNotifier {
 
   View? get selectedView => _selectedView;
 
-  void update(ViewListNotifier notifier) {
-    setViews = notifier.views;
+  void update(AppDataNotifier notifier) {
+    views = notifier.views;
     selectView = notifier.selectedView;
   }
 
@@ -69,9 +69,9 @@ class ViewSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // The ViewListNotifier will be updated after ViewListData changed passed by parent widget
-    return ChangeNotifierProxyProvider<ViewListNotifier, ViewSectionNotifier>(
+    return ChangeNotifierProxyProvider<AppDataNotifier, ViewSectionNotifier>(
       create: (_) {
-        final views = Provider.of<ViewListNotifier>(context, listen: false).views;
+        final views = Provider.of<AppDataNotifier>(context, listen: false).views;
         return ViewSectionNotifier(views);
       },
       update: (_, notifier, controller) => controller!..update(notifier),

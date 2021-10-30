@@ -128,8 +128,7 @@ class HomeMenu extends StatelessWidget {
     List<MenuItem> items = [];
     items.add(MenuUser(user));
 
-    List<MenuItem> appWidgets =
-        apps.foldRight([], (apps, _) => apps.map((app) => MenuApp(MenuAppContext(app))).toList());
+    List<MenuItem> appWidgets = apps.foldRight([], (apps, _) => apps.map((app) => MenuApp(app)).toList());
 
     items.addAll(appWidgets);
     return items;
@@ -166,7 +165,7 @@ class MenuList extends StatelessWidget {
               if (index == 0) {
                 return const VSpace(29);
               } else {
-                return const VSpace(24);
+                return VSpace(MenuAppSizes.appVPadding);
               }
             },
             physics: StyledScrollPhysics(),

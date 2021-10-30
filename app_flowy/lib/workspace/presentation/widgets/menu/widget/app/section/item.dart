@@ -1,13 +1,10 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/view/view_bloc.dart';
-import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
-import 'package:app_flowy/workspace/domain/view_ext.dart';
+import 'package:app_flowy/workspace/domain/edit_action/view_edit.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:dartz/dartz.dart' as dartz;
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
@@ -15,12 +12,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
-
 import 'package:app_flowy/workspace/domain/image.dart';
-import 'package:app_flowy/workspace/domain/view_edit.dart';
 import 'package:app_flowy/workspace/presentation/widgets/menu/widget/app/menu_app.dart';
 
-import 'action.dart';
+import 'disclosure_action.dart';
 
 // ignore: must_be_immutable
 class ViewSectionItem extends StatelessWidget {
@@ -81,15 +76,15 @@ class ViewSectionItem extends StatelessWidget {
       height: 26,
       child: Row(children: children).padding(
         left: MenuAppSizes.expandedPadding,
-        right: MenuAppSizes.expandedIconPadding,
+        right: MenuAppSizes.headerPadding,
       ),
     );
   }
 
-  void _handleAction(BuildContext context, dartz.Option<ViewAction> action) {
+  void _handleAction(BuildContext context, dartz.Option<ViewDisclosureAction> action) {
     action.foldRight({}, (action, previous) {
       switch (action) {
-        case ViewAction.rename:
+        case ViewDisclosureAction.rename:
           TextFieldDialog(
             title: 'Rename',
             value: context.read<ViewBloc>().state.view.name,
@@ -99,42 +94,13 @@ class ViewSectionItem extends StatelessWidget {
           ).show(context);
 
           break;
-        case ViewAction.delete:
+        case ViewDisclosureAction.delete:
           context.read<ViewBloc>().add(const ViewEvent.delete());
           break;
-        case ViewAction.duplicate:
+        case ViewDisclosureAction.duplicate:
           context.read<ViewBloc>().add(const ViewEvent.duplicate());
           break;
       }
     });
-  }
-}
-
-// [[Widget: LifeCycle]]
-// https://flutterbyexample.com/lesson/stateful-widget-lifecycle
-
-class ViewDisclosureButton extends StatelessWidget {
-  final Function() onTap;
-  final Function(dartz.Option<ViewAction>) onSelected;
-  const ViewDisclosureButton({
-    Key? key,
-    required this.onTap,
-    required this.onSelected,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return FlowyIconButton(
-      iconPadding: const EdgeInsets.all(5),
-      width: 26,
-      onPressed: () {
-        onTap();
-        ViewActionList(
-          anchorContext: context,
-          onSelected: onSelected,
-        ).show(context);
-      },
-      icon: svg("editor/details"),
-    );
   }
 }

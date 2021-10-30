@@ -1,32 +1,27 @@
 import 'package:flowy_infra/image.dart';
 import 'package:flutter/material.dart';
 
-enum ViewAction {
+enum AppDisclosureAction {
   rename,
   delete,
-  duplicate,
 }
 
-extension ViewActionExtension on ViewAction {
+extension AppDisclosureExtension on AppDisclosureAction {
   String get name {
     switch (this) {
-      case ViewAction.rename:
+      case AppDisclosureAction.rename:
         return 'rename';
-      case ViewAction.delete:
+      case AppDisclosureAction.delete:
         return 'delete';
-      case ViewAction.duplicate:
-        return 'duplicate';
     }
   }
 
   Widget get icon {
     switch (this) {
-      case ViewAction.rename:
+      case AppDisclosureAction.rename:
         return svg('editor/edit');
-      case ViewAction.delete:
+      case AppDisclosureAction.delete:
         return svg('editor/delete');
-      case ViewAction.duplicate:
-        return svg('editor/copy');
     }
   }
 }

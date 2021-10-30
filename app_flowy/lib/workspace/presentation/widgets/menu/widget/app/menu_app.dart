@@ -1,4 +1,4 @@
-import 'package:app_flowy/workspace/presentation/widgets/menu/widget/app/header.dart';
+import 'package:app_flowy/workspace/presentation/widgets/menu/widget/app/header/header.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
@@ -10,36 +10,12 @@ import 'package:app_flowy/workspace/presentation/widgets/menu/menu.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'section/section.dart';
-// [[diagram: MenuApp]]
-//                     ┌────────┐
-//               ┌────▶│AppBloc │────────────────┐
-//               │     └────────┘                │
-//               │                               │
-//               │ 1.1 fetch views               │
-//               │ 1.2 update the MenuAppContext │
-//               │ with the views                │
-//               │                               ▼      3.render sections
-// ┌────────┐    │                       ┌──────────────┐     ┌──────────────┐
-// │MenuApp │────┤                       │MenuAppContext│─┬──▶│ ViewSection  │────────────────┐
-// └────────┘    │                       └──────────────┘ │   └──────────────┘                │
-//               │                               ▲        │                                   │
-//               │                               │        │                                   │
-//               │                               │   hold │                                   │
-//               │                               │        │                     bind          ▼
-//               │                               │        │  ┌─────────────────┐   ┌────────────────────┐
-//               │    ┌──────────────┐           │        └─▶│ViewListNotifier │──▶│ViewSectionNotifier │
-//               └───▶│AppListenBloc │───────────┘           └─────────────────┘   └────────────────────┘
-//                    └──────────────┘
-//                                                                    4.notifier binding. So The ViewSection
-//                 2.1 listen on the app                              will be re rebuild if the the number of
-//                 2.2 notify if the number of the app's view         the views in MenuAppContext was changed.
-//                 was changed
-//                 2.3 update MenuAppContext with the new
-//                 views
 
 class MenuApp extends MenuItem {
-  final MenuAppContext appCtx;
-  MenuApp(this.appCtx, {Key? key}) : super(key: appCtx.valueKey());
+  final App app;
+  final notifier = AppDataNotifier();
+
+  MenuApp(this.app, {Key? key}) : super(key: ValueKey("${app.id}${app.version}"));
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +23,7 @@ class MenuApp extends MenuItem {
       providers: [
         BlocProvider<AppBloc>(
           create: (context) {
-            final appBloc = getIt<AppBloc>(param1: appCtx.app.id);
+            final appBloc = getIt<AppBloc>(param1: app.id);
             appBloc.add(const AppEvent.initial());
             return appBloc;
           },
@@ -55,13 +31,12 @@ class MenuApp extends MenuItem {
       ],
       child: BlocListener<AppBloc, AppState>(
         listenWhen: (p, c) => p.selectedView != c.selectedView,
-        listener: (context, state) => appCtx.viewList.selectView = state.selectedView,
+        listener: (context, state) => notifier.selectView = state.selectedView,
         child: BlocBuilder<AppBloc, AppState>(
           buildWhen: (p, c) => p.views != c.views,
           builder: (context, state) {
-            appCtx.viewList.views = state.views;
-            final child = _renderViewSection(appCtx.viewList);
-            return expandableWrapper(context, child);
+            notifier.views = state.views;
+            return expandableWrapper(context, _renderViewSection(notifier));
           },
         ),
       ),
@@ -71,7 +46,7 @@ class MenuApp extends MenuItem {
   ExpandableNotifier expandableWrapper(BuildContext context, Widget child) {
     return ExpandableNotifier(
       child: ScrollOnExpand(
-        scrollOnExpand: true,
+        scrollOnExpand: false,
         scrollOnCollapse: false,
         child: Column(
           children: <Widget>[
@@ -84,7 +59,7 @@ class MenuApp extends MenuItem {
                 iconPadding: EdgeInsets.zero,
                 hasIcon: false,
               ),
-              header: MenuAppHeader(appCtx.app),
+              header: MenuAppHeader(app),
               expanded: child,
               collapsed: const SizedBox(),
             ),
@@ -94,12 +69,10 @@ class MenuApp extends MenuItem {
     );
   }
 
-  Widget _renderViewSection(ViewListNotifier viewListNotifier) {
+  Widget _renderViewSection(AppDataNotifier viewListNotifier) {
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider.value(value: viewListNotifier),
-      ],
-      child: Consumer(builder: (context, ViewListNotifier notifier, child) {
+      providers: [ChangeNotifierProvider.value(value: viewListNotifier)],
+      child: Consumer(builder: (context, AppDataNotifier notifier, child) {
         return const ViewSection().padding(vertical: 8);
       }),
     );
@@ -110,16 +83,19 @@ class MenuApp extends MenuItem {
 }
 
 class MenuAppSizes {
-  static double expandedIconSize = 16;
-  static double expandedIconPadding = 6;
+  static double iconSize = 16;
+  static double headerHeight = 26;
+  static double headerPadding = 6;
+  static double iconPadding = 6;
+  static double appVPadding = 14;
   static double scale = 1;
-  static double get expandedPadding => expandedIconSize * scale + expandedIconPadding;
+  static double get expandedPadding => iconSize * scale + headerPadding;
 }
 
-class ViewListNotifier extends ChangeNotifier {
+class AppDataNotifier extends ChangeNotifier {
   List<View> _views = [];
   View? _selectedView;
-  ViewListNotifier();
+  AppDataNotifier();
 
   set views(List<View>? items) {
     _views = items ?? List.empty(growable: false);
@@ -134,13 +110,4 @@ class ViewListNotifier extends ChangeNotifier {
   get selectedView => _selectedView;
 
   List<View> get views => _views;
-}
-
-class MenuAppContext {
-  final App app;
-  final viewList = ViewListNotifier();
-
-  MenuAppContext(this.app);
-
-  Key valueKey() => ValueKey("${app.id}${app.version}");
 }

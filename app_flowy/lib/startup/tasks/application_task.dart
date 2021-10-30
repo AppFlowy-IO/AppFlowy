@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:window_size/window_size.dart';
 import 'package:app_flowy/startup/launcher.dart';
+import 'package:bloc/bloc.dart';
+import 'package:flowy_log/flowy_log.dart';
 
 class AppWidgetTask extends LaunchTask {
   @override
@@ -14,6 +16,7 @@ class AppWidgetTask extends LaunchTask {
   Future<void> initialize(LaunchContext context) {
     final widget = context.getIt<EntryPoint>().create();
     final app = ApplicationWidget(child: widget);
+    Bloc.observer = ApplicationBlocObserver();
     runApp(app);
 
     return Future(() => {});
@@ -52,4 +55,20 @@ class ApplicationWidget extends StatelessWidget {
 class AppGlobals {
   static GlobalKey<NavigatorState> rootNavKey = GlobalKey();
   static NavigatorState get nav => rootNavKey.currentState!;
+}
+
+class ApplicationBlocObserver extends BlocObserver {
+  @override
+  // ignore: unnecessary_overrides
+  void onTransition(Bloc bloc, Transition transition) {
+    // Log.debug("[current]: ${transition.currentState} \n\n[next]: ${transition.nextState}");
+    Log.debug("${transition.nextState}");
+    super.onTransition(bloc, transition);
+  }
+
+  @override
+  void onError(BlocBase bloc, Object error, StackTrace stackTrace) {
+    Log.debug(error);
+    super.onError(bloc, error, stackTrace);
+  }
 }

@@ -20,13 +20,14 @@ class ListOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const padding = EdgeInsets.symmetric(horizontal: 6, vertical: 6);
     return Material(
       type: MaterialType.transparency,
       child: Container(
-        constraints: BoxConstraints.tight(Size(maxWidth, maxHeight)),
+        constraints: BoxConstraints.tight(Size(maxWidth, maxHeight + padding.vertical)),
         decoration: FlowyDecoration.decoration(),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+          padding: padding,
           child: ListView.builder(
             shrinkWrap: true,
             itemBuilder: itemBuilder,
