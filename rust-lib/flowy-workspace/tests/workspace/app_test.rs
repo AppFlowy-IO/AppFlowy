@@ -1,5 +1,9 @@
 use flowy_test::workspace::*;
-use flowy_workspace::entities::{app::QueryAppRequest, view::*};
+use flowy_workspace::entities::{
+    app::QueryAppRequest,
+    trash::{TrashIdentifier, TrashType},
+    view::*,
+};
 
 #[tokio::test]
 #[should_panic]
@@ -10,6 +14,26 @@ async fn app_delete() {
         app_ids: vec![test.app.id.clone()],
     };
     let _ = read_app(&test.sdk, query).await;
+}
+
+#[tokio::test]
+async fn app_delete_then_putback() {
+    let test = AppTest::new().await;
+    delete_app(&test.sdk, &test.app.id).await;
+    putback_trash(
+        &test.sdk,
+        TrashIdentifier {
+            id: test.app.id.clone(),
+            ty: TrashType::App,
+        },
+    )
+    .await;
+
+    let query = QueryAppRequest {
+        app_ids: vec![test.app.id.clone()],
+    };
+    let app = read_app(&test.sdk, query).await;
+    assert_eq!(&app, &test.app);
 }
 
 #[tokio::test]
