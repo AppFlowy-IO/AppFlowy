@@ -1,5 +1,4 @@
 use crate::{
-    entities::view::{RepeatedView, View},
     errors::WorkspaceError,
     sql_tables::view::{ViewTable, ViewTableChangeset},
 };
@@ -39,18 +38,13 @@ impl ViewTableSql {
     }
 
     // belong_to_id will be the app_id or view_id.
-    pub(crate) fn read_views(belong_to_id: &str, conn: &SqliteConnection) -> Result<RepeatedView, WorkspaceError> {
+    pub(crate) fn read_views(belong_to_id: &str, conn: &SqliteConnection) -> Result<Vec<ViewTable>, WorkspaceError> {
         let view_tables = dsl::view_table
             .filter(view_table::belong_to_id.eq(belong_to_id))
             .into_boxed()
             .load::<ViewTable>(conn)?;
 
-        let views = view_tables
-            .into_iter()
-            .map(|view_table| view_table.into())
-            .collect::<Vec<View>>();
-
-        Ok(RepeatedView { items: views })
+        Ok(view_tables)
     }
 
     pub(crate) fn update_view(changeset: ViewTableChangeset, conn: &SqliteConnection) -> Result<(), WorkspaceError> {

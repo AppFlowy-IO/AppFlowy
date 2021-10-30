@@ -46,6 +46,20 @@ impl std::convert::Into<App> for AppTable {
     }
 }
 
+impl std::convert::Into<Trash> for AppTable {
+    fn into(self) -> Trash {
+        Trash {
+            id: self.id.to_string(),
+            name: self.name,
+            modified_time: self.modified_time.timestamp(),
+            create_time: self.create_time.timestamp(),
+            ty: TrashType::App,
+            unknown_fields: Default::default(),
+            cached_size: Default::default(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, sqlx::FromRow)]
 pub struct ViewTable {
     pub(crate) id: uuid::Uuid,

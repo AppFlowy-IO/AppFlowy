@@ -25,8 +25,6 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "RepeatedApp"
         | "UpdateAppRequest"
         | "UpdateAppParams"
-        | "DeleteAppRequest"
-        | "DeleteAppParams"
         | "UpdateWorkspaceRequest"
         | "UpdateWorkspaceParams"
         | "DeleteWorkspaceRequest"

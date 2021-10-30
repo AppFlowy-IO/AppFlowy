@@ -14,9 +14,8 @@ class WorkspaceNotification extends $pb.ProtobufEnum {
   static const WorkspaceNotification UserCreateWorkspace = WorkspaceNotification._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserCreateWorkspace');
   static const WorkspaceNotification UserDeleteWorkspace = WorkspaceNotification._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserDeleteWorkspace');
   static const WorkspaceNotification WorkspaceUpdated = WorkspaceNotification._(12, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceUpdated');
-  static const WorkspaceNotification WorkspaceCreateApp = WorkspaceNotification._(13, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceCreateApp');
-  static const WorkspaceNotification WorkspaceDeleteApp = WorkspaceNotification._(14, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceDeleteApp');
-  static const WorkspaceNotification WorkspaceListUpdated = WorkspaceNotification._(15, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceListUpdated');
+  static const WorkspaceNotification WorkspaceListUpdated = WorkspaceNotification._(13, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceListUpdated');
+  static const WorkspaceNotification WorkspaceAppsChanged = WorkspaceNotification._(14, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WorkspaceAppsChanged');
   static const WorkspaceNotification AppUpdated = WorkspaceNotification._(21, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppUpdated');
   static const WorkspaceNotification AppViewsChanged = WorkspaceNotification._(24, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppViewsChanged');
   static const WorkspaceNotification ViewUpdated = WorkspaceNotification._(31, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewUpdated');
@@ -28,9 +27,8 @@ class WorkspaceNotification extends $pb.ProtobufEnum {
     UserCreateWorkspace,
     UserDeleteWorkspace,
     WorkspaceUpdated,
-    WorkspaceCreateApp,
-    WorkspaceDeleteApp,
     WorkspaceListUpdated,
+    WorkspaceAppsChanged,
     AppUpdated,
     AppViewsChanged,
     ViewUpdated,

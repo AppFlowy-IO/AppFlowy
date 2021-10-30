@@ -61,6 +61,7 @@ impl std::convert::From<TrashTable> for TrashTableChangeset {
 pub(crate) enum SqlTrashType {
     Unknown = 0,
     View    = 1,
+    App     = 2,
 }
 
 impl std::convert::From<i32> for SqlTrashType {
@@ -68,6 +69,7 @@ impl std::convert::From<i32> for SqlTrashType {
         match value {
             0 => SqlTrashType::Unknown,
             1 => SqlTrashType::View,
+            2 => SqlTrashType::App,
             _o => SqlTrashType::Unknown,
         }
     }
@@ -80,6 +82,7 @@ impl std::convert::Into<TrashType> for SqlTrashType {
         match self {
             SqlTrashType::Unknown => TrashType::Unknown,
             SqlTrashType::View => TrashType::View,
+            SqlTrashType::App => TrashType::App,
         }
     }
 }
@@ -89,6 +92,7 @@ impl std::convert::From<TrashType> for SqlTrashType {
         match ty {
             TrashType::Unknown => SqlTrashType::Unknown,
             TrashType::View => SqlTrashType::View,
+            TrashType::App => SqlTrashType::App,
         }
     }
 }

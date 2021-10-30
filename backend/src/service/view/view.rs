@@ -100,7 +100,7 @@ pub(crate) async fn read_view(
 
     let mut views = RepeatedView::default();
     views.set_items(
-        read_view_belong_to_id(&user, transaction, &table.id.to_string())
+        read_view_belong_to_id(&table.id.to_string(), &user, transaction)
             .await?
             .into(),
     );
@@ -128,9 +128,9 @@ pub(crate) async fn read_view_table(
 
 // transaction must be commit from caller
 pub(crate) async fn read_view_belong_to_id<'c>(
+    id: &str,
     user: &LoggedUser,
     transaction: &mut DBTransaction<'_>,
-    id: &str,
 ) -> Result<Vec<View>, ServerError> {
     // TODO: add index for app_table
     let (sql, args) = SqlBuilder::select(VIEW_TABLE)

@@ -95,7 +95,7 @@ impl TestUserServer {
         update_app_request(self.user_token(), params, &url).await.unwrap();
     }
 
-    pub async fn delete_app(&self, params: DeleteAppParams) {
+    pub async fn delete_app(&self, params: AppIdentifier) {
         let url = format!("{}/api/app", self.http_addr());
         delete_app_request(self.user_token(), params, &url).await.unwrap();
     }

@@ -1,17 +1,18 @@
 use crate::{
-    entities::app::{
-        App,
-        AppIdentifier,
-        CreateAppParams,
-        CreateAppRequest,
-        DeleteAppParams,
-        DeleteAppRequest,
-        QueryAppRequest,
-        UpdateAppParams,
-        UpdateAppRequest,
+    entities::{
+        app::{
+            App,
+            AppIdentifier,
+            CreateAppParams,
+            CreateAppRequest,
+            QueryAppRequest,
+            UpdateAppParams,
+            UpdateAppRequest,
+        },
+        trash::Trash,
     },
     errors::WorkspaceError,
-    services::{AppController, ViewController},
+    services::{AppController, TrashCan, ViewController},
 };
 use flowy_dispatch::prelude::{data_result, Data, DataResult, Unit};
 use std::{convert::TryInto, sync::Arc};
@@ -27,13 +28,20 @@ pub(crate) async fn create_app_handler(
     data_result(detail)
 }
 
-#[tracing::instrument(skip(data, controller))]
+#[tracing::instrument(skip(data, controller, trash_can))]
 pub(crate) async fn delete_app_handler(
-    data: Data<DeleteAppRequest>,
+    data: Data<QueryAppRequest>,
     controller: Unit<Arc<AppController>>,
+    trash_can: Unit<Arc<TrashCan>>,
 ) -> Result<(), WorkspaceError> {
-    let params: DeleteAppParams = data.into_inner().try_into()?;
-    let _ = controller.delete_app(&params.app_id).await?;
+    let params: AppIdentifier = data.into_inner().try_into()?;
+    let trash = controller
+        .read_app_tables(vec![params.app_id])?
+        .into_iter()
+        .map(|view_table| view_table.into())
+        .collect::<Vec<Trash>>();
+
+    let _ = trash_can.add(trash).await?;
     Ok(())
 }
 

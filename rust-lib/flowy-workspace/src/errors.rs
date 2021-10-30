@@ -42,7 +42,7 @@ impl WorkspaceError {
     static_workspace_error!(color_style, ErrorCode::AppColorStyleInvalid);
     static_workspace_error!(workspace_desc, ErrorCode::WorkspaceDescInvalid);
     static_workspace_error!(app_name, ErrorCode::AppNameInvalid);
-    static_workspace_error!(app_id, ErrorCode::AppIdInvalid);
+    static_workspace_error!(invalid_app_id, ErrorCode::AppIdInvalid);
     static_workspace_error!(view_name, ErrorCode::ViewNameInvalid);
     static_workspace_error!(view_thumbnail, ErrorCode::ViewThumbnailInvalid);
     static_workspace_error!(invalid_view_id, ErrorCode::ViewIdInvalid);

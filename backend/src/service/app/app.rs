@@ -4,6 +4,7 @@ use crate::{
     sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
 
+use crate::service::trash::read_trash_ids;
 use chrono::Utc;
 use flowy_net::errors::{invalid_params, ServerError};
 use flowy_workspace::{
@@ -44,6 +45,26 @@ pub(crate) async fn read_app(
     app_id: Uuid,
     user: &LoggedUser,
 ) -> Result<App, ServerError> {
+    let table = read_app_table(app_id, transaction).await?;
+
+    let read_trash_ids = read_trash_ids(user, transaction).await?;
+    if read_trash_ids.contains(&table.id.to_string()) {
+        return Err(ServerError::record_not_found());
+    }
+
+    let mut views = RepeatedView::default();
+    views.set_items(
+        read_view_belong_to_id(&table.id.to_string(), user, transaction as &mut DBTransaction<'_>)
+            .await?
+            .into(),
+    );
+
+    let mut app: App = table.into();
+    app.set_belongings(views);
+    Ok(app)
+}
+
+pub(crate) async fn read_app_table(app_id: Uuid, transaction: &mut DBTransaction<'_>) -> Result<AppTable, ServerError> {
     let (sql, args) = SqlBuilder::select(APP_TABLE)
         .add_field("*")
         .and_where_eq("id", app_id)
@@ -54,16 +75,7 @@ pub(crate) async fn read_app(
         .await
         .map_err(map_sqlx_error)?;
 
-    let mut views = RepeatedView::default();
-    views.set_items(
-        read_view_belong_to_id(user, transaction as &mut DBTransaction<'_>, &table.id.to_string())
-            .await?
-            .into(),
-    );
-
-    let mut app: App = table.into();
-    app.set_belongings(views);
-    Ok(app)
+    Ok(table)
 }
 
 pub(crate) async fn update_app(

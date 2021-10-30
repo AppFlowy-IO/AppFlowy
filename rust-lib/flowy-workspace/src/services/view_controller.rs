@@ -64,10 +64,8 @@ impl ViewController {
 
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.save_view(view.clone(), conn)?;
-            let repeated_view = read_belonging_view(&view.belong_to_id, trash_can, &conn)?;
-            send_dart_notification(&view.belong_to_id, WorkspaceNotification::AppViewsChanged)
-                .payload(repeated_view)
-                .send();
+            let _ = notify_view_num_changed(&view.belong_to_id, trash_can, &conn)?;
+
             Ok(())
         })?;
 
@@ -145,7 +143,7 @@ impl ViewController {
     pub(crate) async fn read_views_belong_to(&self, belong_to_id: &str) -> Result<RepeatedView, WorkspaceError> {
         // TODO: read from server
         let conn = self.database.db_connection()?;
-        let repeated_view = read_belonging_view(belong_to_id, self.trash_can.clone(), &conn)?;
+        let repeated_view = read_local_belonging_view(belong_to_id, self.trash_can.clone(), &conn)?;
         Ok(repeated_view)
     }
 
@@ -309,7 +307,7 @@ fn notify_view_num_changed(
     trash_can: Arc<TrashCan>,
     conn: &SqliteConnection,
 ) -> WorkspaceResult<()> {
-    let repeated_view = read_belonging_view(belong_to_id, trash_can.clone(), conn)?;
+    let repeated_view = read_local_belonging_view(belong_to_id, trash_can.clone(), conn)?;
     tracing::Span::current().record("view_count", &format!("{}", repeated_view.len()).as_str());
     send_dart_notification(&belong_to_id, WorkspaceNotification::AppViewsChanged)
         .payload(repeated_view)
@@ -317,13 +315,19 @@ fn notify_view_num_changed(
     Ok(())
 }
 
-fn read_belonging_view(
+fn read_local_belonging_view(
     belong_to_id: &str,
     trash_can: Arc<TrashCan>,
     conn: &SqliteConnection,
 ) -> WorkspaceResult<RepeatedView> {
-    let mut repeated_view = ViewTableSql::read_views(belong_to_id, conn)?;
+    let mut view_tables = ViewTableSql::read_views(belong_to_id, conn)?;
     let trash_ids = trash_can.trash_ids(conn)?;
-    repeated_view.retain(|view| !trash_ids.contains(&view.id));
-    Ok(repeated_view)
+    view_tables.retain(|view_table| !trash_ids.contains(&view_table.id));
+
+    let views = view_tables
+        .into_iter()
+        .map(|view_table| view_table.into())
+        .collect::<Vec<View>>();
+
+    Ok(RepeatedView { items: views })
 }

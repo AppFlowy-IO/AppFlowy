@@ -119,7 +119,7 @@ class WorkspaceEventCreateApp {
 }
 
 class WorkspaceEventDeleteApp {
-     DeleteAppRequest request;
+     QueryAppRequest request;
      WorkspaceEventDeleteApp(this.request);
 
     Future<Either<Unit, WorkspaceError>> send() {

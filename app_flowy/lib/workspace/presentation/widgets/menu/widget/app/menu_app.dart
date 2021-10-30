@@ -23,7 +23,7 @@ class MenuApp extends MenuItem {
       providers: [
         BlocProvider<AppBloc>(
           create: (context) {
-            final appBloc = getIt<AppBloc>(param1: app.id);
+            final appBloc = getIt<AppBloc>(param1: app);
             appBloc.add(const AppEvent.initial());
             return appBloc;
           },

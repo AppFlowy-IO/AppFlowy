@@ -16,9 +16,8 @@ const WorkspaceNotification$json = const {
     const {'1': 'UserCreateWorkspace', '2': 10},
     const {'1': 'UserDeleteWorkspace', '2': 11},
     const {'1': 'WorkspaceUpdated', '2': 12},
-    const {'1': 'WorkspaceCreateApp', '2': 13},
-    const {'1': 'WorkspaceDeleteApp', '2': 14},
-    const {'1': 'WorkspaceListUpdated', '2': 15},
+    const {'1': 'WorkspaceListUpdated', '2': 13},
+    const {'1': 'WorkspaceAppsChanged', '2': 14},
     const {'1': 'AppUpdated', '2': 21},
     const {'1': 'AppViewsChanged', '2': 24},
     const {'1': 'ViewUpdated', '2': 31},
@@ -28,4 +27,4 @@ const WorkspaceNotification$json = const {
 };
 
 /// Descriptor for `WorkspaceNotification`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List workspaceNotificationDescriptor = $convert.base64Decode('ChVXb3Jrc3BhY2VOb3RpZmljYXRpb24SCwoHVW5rbm93bhAAEhcKE1VzZXJDcmVhdGVXb3Jrc3BhY2UQChIXChNVc2VyRGVsZXRlV29ya3NwYWNlEAsSFAoQV29ya3NwYWNlVXBkYXRlZBAMEhYKEldvcmtzcGFjZUNyZWF0ZUFwcBANEhYKEldvcmtzcGFjZURlbGV0ZUFwcBAOEhgKFFdvcmtzcGFjZUxpc3RVcGRhdGVkEA8SDgoKQXBwVXBkYXRlZBAVEhMKD0FwcFZpZXdzQ2hhbmdlZBAYEg8KC1ZpZXdVcGRhdGVkEB8SFAoQVXNlclVuYXV0aG9yaXplZBBkEhEKDFRyYXNoVXBkYXRlZBDoBw==');
+final $typed_data.Uint8List workspaceNotificationDescriptor = $convert.base64Decode('ChVXb3Jrc3BhY2VOb3RpZmljYXRpb24SCwoHVW5rbm93bhAAEhcKE1VzZXJDcmVhdGVXb3Jrc3BhY2UQChIXChNVc2VyRGVsZXRlV29ya3NwYWNlEAsSFAoQV29ya3NwYWNlVXBkYXRlZBAMEhgKFFdvcmtzcGFjZUxpc3RVcGRhdGVkEA0SGAoUV29ya3NwYWNlQXBwc0NoYW5nZWQQDhIOCgpBcHBVcGRhdGVkEBUSEwoPQXBwVmlld3NDaGFuZ2VkEBgSDwoLVmlld1VwZGF0ZWQQHxIUChBVc2VyVW5hdXRob3JpemVkEGQSEQoMVHJhc2hVcGRhdGVkEOgH');

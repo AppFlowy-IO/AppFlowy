@@ -12,13 +12,12 @@ import 'dart:typed_data' as $typed_data;
 const QueryAppRequest$json = const {
   '1': 'QueryAppRequest',
   '2': const [
-    const {'1': 'app_id', '3': 1, '4': 1, '5': 9, '10': 'appId'},
-    const {'1': 'is_trash', '3': 2, '4': 1, '5': 8, '10': 'isTrash'},
+    const {'1': 'app_ids', '3': 1, '4': 3, '5': 9, '10': 'appIds'},
   ],
 };
 
 /// Descriptor for `QueryAppRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List queryAppRequestDescriptor = $convert.base64Decode('Cg9RdWVyeUFwcFJlcXVlc3QSFQoGYXBwX2lkGAEgASgJUgVhcHBJZBIZCghpc190cmFzaBgCIAEoCFIHaXNUcmFzaA==');
+final $typed_data.Uint8List queryAppRequestDescriptor = $convert.base64Decode('Cg9RdWVyeUFwcFJlcXVlc3QSFwoHYXBwX2lkcxgBIAMoCVIGYXBwSWRz');
 @$core.Deprecated('Use appIdentifierDescriptor instead')
 const AppIdentifier$json = const {
   '1': 'AppIdentifier',

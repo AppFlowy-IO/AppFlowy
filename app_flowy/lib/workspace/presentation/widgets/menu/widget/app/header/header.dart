@@ -1,3 +1,5 @@
+import 'package:app_flowy/workspace/domain/edit_action/app_edit.dart';
+import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_infra/flowy_icon_data_icons.dart';
 import 'package:flowy_infra/theme.dart';
@@ -10,6 +12,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
+import 'package:dartz/dartz.dart';
 
 import '../menu_app.dart';
 import 'add_button.dart';
@@ -67,13 +70,15 @@ class MenuAppHeader extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
-          // Open the document
           ExpandableController.of(context, rebuildOnChange: false, required: true)?.toggle();
         },
         onSecondaryTap: () {
-          AppDisclosureActions(onSelected: (action) {
-            print(action);
-          }).show(context, context, anchorDirection: AnchorDirection.bottomWithCenterAligned);
+          final actionList = AppDisclosureActions(onSelected: (action) => _handleAction(context, action));
+          actionList.show(
+            context,
+            context,
+            anchorDirection: AnchorDirection.bottomWithCenterAligned,
+          );
         },
         child: FlowyText.medium(
           app.name,
@@ -89,5 +94,25 @@ class MenuAppHeader extends StatelessWidget {
         context.read<AppBloc>().add(AppEvent.createView("New view", "", viewType));
       },
     ).padding(right: MenuAppSizes.headerPadding);
+  }
+
+  void _handleAction(BuildContext context, Option<AppDisclosureAction> action) {
+    action.fold(() {}, (action) {
+      switch (action) {
+        case AppDisclosureAction.rename:
+          TextFieldDialog(
+            title: 'Rename',
+            value: context.read<AppBloc>().state.app.name,
+            confirm: (newValue) {
+              context.read<AppBloc>().add(AppEvent.rename(newValue));
+            },
+          ).show(context);
+
+          break;
+        case AppDisclosureAction.delete:
+          context.read<AppBloc>().add(const AppEvent.delete());
+          break;
+      }
+    });
   }
 }

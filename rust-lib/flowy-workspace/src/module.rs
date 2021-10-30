@@ -48,7 +48,12 @@ pub fn mk_workspace(
         flowy_document,
     ));
 
-    let app_controller = Arc::new(AppController::new(user.clone(), database.clone(), server.clone()));
+    let app_controller = Arc::new(AppController::new(
+        user.clone(),
+        database.clone(),
+        trash_can.clone(),
+        server.clone(),
+    ));
 
     let workspace_controller = Arc::new(WorkspaceController::new(
         user.clone(),

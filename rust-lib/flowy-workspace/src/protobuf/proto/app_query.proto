@@ -1,8 +1,7 @@
 syntax = "proto3";
 
 message QueryAppRequest {
-    string app_id = 1;
-    bool is_trash = 2;
+    repeated string app_ids = 1;
 }
 message AppIdentifier {
     string app_id = 1;

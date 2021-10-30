@@ -11,22 +11,17 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 class QueryAppRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'QueryAppRequest', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'appId')
-    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isTrash')
+    ..pPS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'appIds')
     ..hasRequiredFields = false
   ;
 
   QueryAppRequest._() : super();
   factory QueryAppRequest({
-    $core.String? appId,
-    $core.bool? isTrash,
+    $core.Iterable<$core.String>? appIds,
   }) {
     final _result = create();
-    if (appId != null) {
-      _result.appId = appId;
-    }
-    if (isTrash != null) {
-      _result.isTrash = isTrash;
+    if (appIds != null) {
+      _result.appIds.addAll(appIds);
     }
     return _result;
   }
@@ -52,22 +47,7 @@ class QueryAppRequest extends $pb.GeneratedMessage {
   static QueryAppRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get appId => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set appId($core.String v) { $_setString(0, v); }
-  @$pb.TagNumber(1)
-  $core.bool hasAppId() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearAppId() => clearField(1);
-
-  @$pb.TagNumber(2)
-  $core.bool get isTrash => $_getBF(1);
-  @$pb.TagNumber(2)
-  set isTrash($core.bool v) { $_setBool(1, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasIsTrash() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearIsTrash() => clearField(2);
+  $core.List<$core.String> get appIds => $_getList(0);
 }
 
 class AppIdentifier extends $pb.GeneratedMessage {

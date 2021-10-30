@@ -28,6 +28,16 @@ class _$AppEventTearOff {
     );
   }
 
+  Delete delete() {
+    return const Delete();
+  }
+
+  Rename rename(String newName) {
+    return Rename(
+      newName,
+    );
+  }
+
   ReceiveViews didReceiveViews(List<View> views) {
     return ReceiveViews(
       views,
@@ -45,6 +55,8 @@ mixin _$AppEvent {
     required TResult Function() initial,
     required TResult Function(String name, String desc, ViewType viewType)
         createView,
+    required TResult Function() delete,
+    required TResult Function(String newName) rename,
     required TResult Function(List<View> views) didReceiveViews,
   }) =>
       throw _privateConstructorUsedError;
@@ -52,6 +64,8 @@ mixin _$AppEvent {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(String name, String desc, ViewType viewType)? createView,
+    TResult Function()? delete,
+    TResult Function(String newName)? rename,
     TResult Function(List<View> views)? didReceiveViews,
     required TResult orElse(),
   }) =>
@@ -60,6 +74,8 @@ mixin _$AppEvent {
   TResult map<TResult extends Object?>({
     required TResult Function(Initial value) initial,
     required TResult Function(CreateView value) createView,
+    required TResult Function(Delete value) delete,
+    required TResult Function(Rename value) rename,
     required TResult Function(ReceiveViews value) didReceiveViews,
   }) =>
       throw _privateConstructorUsedError;
@@ -67,6 +83,8 @@ mixin _$AppEvent {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Initial value)? initial,
     TResult Function(CreateView value)? createView,
+    TResult Function(Delete value)? delete,
+    TResult Function(Rename value)? rename,
     TResult Function(ReceiveViews value)? didReceiveViews,
     required TResult orElse(),
   }) =>
@@ -128,6 +146,8 @@ class _$Initial implements Initial {
     required TResult Function() initial,
     required TResult Function(String name, String desc, ViewType viewType)
         createView,
+    required TResult Function() delete,
+    required TResult Function(String newName) rename,
     required TResult Function(List<View> views) didReceiveViews,
   }) {
     return initial();
@@ -138,6 +158,8 @@ class _$Initial implements Initial {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(String name, String desc, ViewType viewType)? createView,
+    TResult Function()? delete,
+    TResult Function(String newName)? rename,
     TResult Function(List<View> views)? didReceiveViews,
     required TResult orElse(),
   }) {
@@ -152,6 +174,8 @@ class _$Initial implements Initial {
   TResult map<TResult extends Object?>({
     required TResult Function(Initial value) initial,
     required TResult Function(CreateView value) createView,
+    required TResult Function(Delete value) delete,
+    required TResult Function(Rename value) rename,
     required TResult Function(ReceiveViews value) didReceiveViews,
   }) {
     return initial(this);
@@ -162,6 +186,8 @@ class _$Initial implements Initial {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Initial value)? initial,
     TResult Function(CreateView value)? createView,
+    TResult Function(Delete value)? delete,
+    TResult Function(Rename value)? rename,
     TResult Function(ReceiveViews value)? didReceiveViews,
     required TResult orElse(),
   }) {
@@ -264,6 +290,8 @@ class _$CreateView implements CreateView {
     required TResult Function() initial,
     required TResult Function(String name, String desc, ViewType viewType)
         createView,
+    required TResult Function() delete,
+    required TResult Function(String newName) rename,
     required TResult Function(List<View> views) didReceiveViews,
   }) {
     return createView(name, desc, viewType);
@@ -274,6 +302,8 @@ class _$CreateView implements CreateView {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(String name, String desc, ViewType viewType)? createView,
+    TResult Function()? delete,
+    TResult Function(String newName)? rename,
     TResult Function(List<View> views)? didReceiveViews,
     required TResult orElse(),
   }) {
@@ -288,6 +318,8 @@ class _$CreateView implements CreateView {
   TResult map<TResult extends Object?>({
     required TResult Function(Initial value) initial,
     required TResult Function(CreateView value) createView,
+    required TResult Function(Delete value) delete,
+    required TResult Function(Rename value) rename,
     required TResult Function(ReceiveViews value) didReceiveViews,
   }) {
     return createView(this);
@@ -298,6 +330,8 @@ class _$CreateView implements CreateView {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Initial value)? initial,
     TResult Function(CreateView value)? createView,
+    TResult Function(Delete value)? delete,
+    TResult Function(Rename value)? rename,
     TResult Function(ReceiveViews value)? didReceiveViews,
     required TResult orElse(),
   }) {
@@ -318,6 +352,227 @@ abstract class CreateView implements AppEvent {
   @JsonKey(ignore: true)
   $CreateViewCopyWith<CreateView> get copyWith =>
       throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $DeleteCopyWith<$Res> {
+  factory $DeleteCopyWith(Delete value, $Res Function(Delete) then) =
+      _$DeleteCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class _$DeleteCopyWithImpl<$Res> extends _$AppEventCopyWithImpl<$Res>
+    implements $DeleteCopyWith<$Res> {
+  _$DeleteCopyWithImpl(Delete _value, $Res Function(Delete) _then)
+      : super(_value, (v) => _then(v as Delete));
+
+  @override
+  Delete get _value => super._value as Delete;
+}
+
+/// @nodoc
+
+class _$Delete implements Delete {
+  const _$Delete();
+
+  @override
+  String toString() {
+    return 'AppEvent.delete()';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) || (other is Delete);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function(String name, String desc, ViewType viewType)
+        createView,
+    required TResult Function() delete,
+    required TResult Function(String newName) rename,
+    required TResult Function(List<View> views) didReceiveViews,
+  }) {
+    return delete();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(String name, String desc, ViewType viewType)? createView,
+    TResult Function()? delete,
+    TResult Function(String newName)? rename,
+    TResult Function(List<View> views)? didReceiveViews,
+    required TResult orElse(),
+  }) {
+    if (delete != null) {
+      return delete();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(Initial value) initial,
+    required TResult Function(CreateView value) createView,
+    required TResult Function(Delete value) delete,
+    required TResult Function(Rename value) rename,
+    required TResult Function(ReceiveViews value) didReceiveViews,
+  }) {
+    return delete(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(CreateView value)? createView,
+    TResult Function(Delete value)? delete,
+    TResult Function(Rename value)? rename,
+    TResult Function(ReceiveViews value)? didReceiveViews,
+    required TResult orElse(),
+  }) {
+    if (delete != null) {
+      return delete(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class Delete implements AppEvent {
+  const factory Delete() = _$Delete;
+}
+
+/// @nodoc
+abstract class $RenameCopyWith<$Res> {
+  factory $RenameCopyWith(Rename value, $Res Function(Rename) then) =
+      _$RenameCopyWithImpl<$Res>;
+  $Res call({String newName});
+}
+
+/// @nodoc
+class _$RenameCopyWithImpl<$Res> extends _$AppEventCopyWithImpl<$Res>
+    implements $RenameCopyWith<$Res> {
+  _$RenameCopyWithImpl(Rename _value, $Res Function(Rename) _then)
+      : super(_value, (v) => _then(v as Rename));
+
+  @override
+  Rename get _value => super._value as Rename;
+
+  @override
+  $Res call({
+    Object? newName = freezed,
+  }) {
+    return _then(Rename(
+      newName == freezed
+          ? _value.newName
+          : newName // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$Rename implements Rename {
+  const _$Rename(this.newName);
+
+  @override
+  final String newName;
+
+  @override
+  String toString() {
+    return 'AppEvent.rename(newName: $newName)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is Rename &&
+            (identical(other.newName, newName) ||
+                const DeepCollectionEquality().equals(other.newName, newName)));
+  }
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(newName);
+
+  @JsonKey(ignore: true)
+  @override
+  $RenameCopyWith<Rename> get copyWith =>
+      _$RenameCopyWithImpl<Rename>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function(String name, String desc, ViewType viewType)
+        createView,
+    required TResult Function() delete,
+    required TResult Function(String newName) rename,
+    required TResult Function(List<View> views) didReceiveViews,
+  }) {
+    return rename(newName);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(String name, String desc, ViewType viewType)? createView,
+    TResult Function()? delete,
+    TResult Function(String newName)? rename,
+    TResult Function(List<View> views)? didReceiveViews,
+    required TResult orElse(),
+  }) {
+    if (rename != null) {
+      return rename(newName);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(Initial value) initial,
+    required TResult Function(CreateView value) createView,
+    required TResult Function(Delete value) delete,
+    required TResult Function(Rename value) rename,
+    required TResult Function(ReceiveViews value) didReceiveViews,
+  }) {
+    return rename(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(CreateView value)? createView,
+    TResult Function(Delete value)? delete,
+    TResult Function(Rename value)? rename,
+    TResult Function(ReceiveViews value)? didReceiveViews,
+    required TResult orElse(),
+  }) {
+    if (rename != null) {
+      return rename(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class Rename implements AppEvent {
+  const factory Rename(String newName) = _$Rename;
+
+  String get newName => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $RenameCopyWith<Rename> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -387,6 +642,8 @@ class _$ReceiveViews implements ReceiveViews {
     required TResult Function() initial,
     required TResult Function(String name, String desc, ViewType viewType)
         createView,
+    required TResult Function() delete,
+    required TResult Function(String newName) rename,
     required TResult Function(List<View> views) didReceiveViews,
   }) {
     return didReceiveViews(views);
@@ -397,6 +654,8 @@ class _$ReceiveViews implements ReceiveViews {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(String name, String desc, ViewType viewType)? createView,
+    TResult Function()? delete,
+    TResult Function(String newName)? rename,
     TResult Function(List<View> views)? didReceiveViews,
     required TResult orElse(),
   }) {
@@ -411,6 +670,8 @@ class _$ReceiveViews implements ReceiveViews {
   TResult map<TResult extends Object?>({
     required TResult Function(Initial value) initial,
     required TResult Function(CreateView value) createView,
+    required TResult Function(Delete value) delete,
+    required TResult Function(Rename value) rename,
     required TResult Function(ReceiveViews value) didReceiveViews,
   }) {
     return didReceiveViews(this);
@@ -421,6 +682,8 @@ class _$ReceiveViews implements ReceiveViews {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Initial value)? initial,
     TResult Function(CreateView value)? createView,
+    TResult Function(Delete value)? delete,
+    TResult Function(Rename value)? rename,
     TResult Function(ReceiveViews value)? didReceiveViews,
     required TResult orElse(),
   }) {
@@ -445,11 +708,13 @@ class _$AppStateTearOff {
   const _$AppStateTearOff();
 
   _AppState call(
-      {required bool isLoading,
+      {required App app,
+      required bool isLoading,
       required List<View>? views,
       View? selectedView,
       required Either<Unit, WorkspaceError> successOrFailure}) {
     return _AppState(
+      app: app,
       isLoading: isLoading,
       views: views,
       selectedView: selectedView,
@@ -463,6 +728,7 @@ const $AppState = _$AppStateTearOff();
 
 /// @nodoc
 mixin _$AppState {
+  App get app => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
   List<View>? get views => throw _privateConstructorUsedError;
   View? get selectedView => throw _privateConstructorUsedError;
@@ -479,7 +745,8 @@ abstract class $AppStateCopyWith<$Res> {
   factory $AppStateCopyWith(AppState value, $Res Function(AppState) then) =
       _$AppStateCopyWithImpl<$Res>;
   $Res call(
-      {bool isLoading,
+      {App app,
+      bool isLoading,
       List<View>? views,
       View? selectedView,
       Either<Unit, WorkspaceError> successOrFailure});
@@ -495,12 +762,17 @@ class _$AppStateCopyWithImpl<$Res> implements $AppStateCopyWith<$Res> {
 
   @override
   $Res call({
+    Object? app = freezed,
     Object? isLoading = freezed,
     Object? views = freezed,
     Object? selectedView = freezed,
     Object? successOrFailure = freezed,
   }) {
     return _then(_value.copyWith(
+      app: app == freezed
+          ? _value.app
+          : app // ignore: cast_nullable_to_non_nullable
+              as App,
       isLoading: isLoading == freezed
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
@@ -527,7 +799,8 @@ abstract class _$AppStateCopyWith<$Res> implements $AppStateCopyWith<$Res> {
       __$AppStateCopyWithImpl<$Res>;
   @override
   $Res call(
-      {bool isLoading,
+      {App app,
+      bool isLoading,
       List<View>? views,
       View? selectedView,
       Either<Unit, WorkspaceError> successOrFailure});
@@ -544,12 +817,17 @@ class __$AppStateCopyWithImpl<$Res> extends _$AppStateCopyWithImpl<$Res>
 
   @override
   $Res call({
+    Object? app = freezed,
     Object? isLoading = freezed,
     Object? views = freezed,
     Object? selectedView = freezed,
     Object? successOrFailure = freezed,
   }) {
     return _then(_AppState(
+      app: app == freezed
+          ? _value.app
+          : app // ignore: cast_nullable_to_non_nullable
+              as App,
       isLoading: isLoading == freezed
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
@@ -574,11 +852,14 @@ class __$AppStateCopyWithImpl<$Res> extends _$AppStateCopyWithImpl<$Res>
 
 class _$_AppState implements _AppState {
   const _$_AppState(
-      {required this.isLoading,
+      {required this.app,
+      required this.isLoading,
       required this.views,
       this.selectedView,
       required this.successOrFailure});
 
+  @override
+  final App app;
   @override
   final bool isLoading;
   @override
@@ -590,13 +871,15 @@ class _$_AppState implements _AppState {
 
   @override
   String toString() {
-    return 'AppState(isLoading: $isLoading, views: $views, selectedView: $selectedView, successOrFailure: $successOrFailure)';
+    return 'AppState(app: $app, isLoading: $isLoading, views: $views, selectedView: $selectedView, successOrFailure: $successOrFailure)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other is _AppState &&
+            (identical(other.app, app) ||
+                const DeepCollectionEquality().equals(other.app, app)) &&
             (identical(other.isLoading, isLoading) ||
                 const DeepCollectionEquality()
                     .equals(other.isLoading, isLoading)) &&
@@ -613,6 +896,7 @@ class _$_AppState implements _AppState {
   @override
   int get hashCode =>
       runtimeType.hashCode ^
+      const DeepCollectionEquality().hash(app) ^
       const DeepCollectionEquality().hash(isLoading) ^
       const DeepCollectionEquality().hash(views) ^
       const DeepCollectionEquality().hash(selectedView) ^
@@ -626,11 +910,14 @@ class _$_AppState implements _AppState {
 
 abstract class _AppState implements AppState {
   const factory _AppState(
-      {required bool isLoading,
+      {required App app,
+      required bool isLoading,
       required List<View>? views,
       View? selectedView,
       required Either<Unit, WorkspaceError> successOrFailure}) = _$_AppState;
 
+  @override
+  App get app => throw _privateConstructorUsedError;
   @override
   bool get isLoading => throw _privateConstructorUsedError;
   @override

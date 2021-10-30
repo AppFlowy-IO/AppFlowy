@@ -19,6 +19,7 @@ import 'package:app_flowy/workspace/infrastructure/repos/trash_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/workspace_repo.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:get_it/get_it.dart';
 
@@ -77,10 +78,11 @@ class HomeDepsResolver {
         (user, _) => MenuUserBloc(getIt<IUser>(param1: user), getIt<IUserListener>(param1: user)));
 
     // App
-    getIt.registerFactoryParam<AppBloc, String, void>(
-      (appId, _) => AppBloc(
-        appManager: getIt<IApp>(param1: appId),
-        listener: getIt<IAppListenr>(param1: appId),
+    getIt.registerFactoryParam<AppBloc, App, void>(
+      (app, _) => AppBloc(
+        app: app,
+        appManager: getIt<IApp>(param1: app.id),
+        listener: getIt<IAppListenr>(param1: app.id),
       ),
     );
 

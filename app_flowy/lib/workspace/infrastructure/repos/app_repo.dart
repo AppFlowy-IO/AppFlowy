@@ -6,7 +6,9 @@ import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-dart-notify/subject.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/app_delete.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_query.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/app_update.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/observable.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
@@ -21,7 +23,7 @@ class AppRepository {
   });
 
   Future<Either<App, WorkspaceError>> getAppDesc() {
-    final request = QueryAppRequest.create()..appId = appId;
+    final request = QueryAppRequest.create()..appIds.add(appId);
 
     return WorkspaceEventReadApp(request).send();
   }
@@ -37,7 +39,7 @@ class AppRepository {
   }
 
   Future<Either<List<View>, WorkspaceError>> getViews() {
-    final request = QueryAppRequest.create()..appId = appId;
+    final request = QueryAppRequest.create()..appIds.add(appId);
 
     return WorkspaceEventReadApp(request).send().then((result) {
       return result.fold(
@@ -45,6 +47,20 @@ class AppRepository {
         (error) => right(error),
       );
     });
+  }
+
+  Future<Either<Unit, WorkspaceError>> delete() {
+    final request = QueryAppRequest.create()..appIds.add(appId);
+    return WorkspaceEventDeleteApp(request).send();
+  }
+
+  Future<Either<Unit, WorkspaceError>> updateApp({String? name}) {
+    UpdateAppRequest request = UpdateAppRequest.create()..appId = appId;
+
+    if (name != null) {
+      request.name = name;
+    }
+    return WorkspaceEventUpdateApp(request).send();
   }
 }
 

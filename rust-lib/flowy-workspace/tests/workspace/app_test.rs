@@ -6,14 +6,18 @@ use flowy_workspace::entities::{app::QueryAppRequest, view::*};
 async fn app_delete() {
     let test = AppTest::new().await;
     delete_app(&test.sdk, &test.app.id).await;
-    let query = QueryAppRequest::new(&test.app.id);
+    let query = QueryAppRequest {
+        app_ids: vec![test.app.id.clone()],
+    };
     let _ = read_app(&test.sdk, query).await;
 }
 
 #[tokio::test]
 async fn app_read() {
     let test = AppTest::new().await;
-    let query = QueryAppRequest::new(&test.app.id);
+    let query = QueryAppRequest {
+        app_ids: vec![test.app.id.clone()],
+    };
     let app_from_db = read_app(&test.sdk, query).await;
     assert_eq!(app_from_db, test.app);
 }
@@ -40,7 +44,9 @@ async fn app_create_with_view() {
     let view_a = create_view_with_request(&test.sdk, request_a).await;
     let view_b = create_view_with_request(&test.sdk, request_b).await;
 
-    let query = QueryAppRequest::new(&test.app.id);
+    let query = QueryAppRequest {
+        app_ids: vec![test.app.id.clone()],
+    };
     let view_from_db = read_app(&test.sdk, query).await;
 
     assert_eq!(view_from_db.belongings[0], view_a);

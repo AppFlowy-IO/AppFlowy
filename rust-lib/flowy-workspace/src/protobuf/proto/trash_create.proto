@@ -21,4 +21,5 @@ message RepeatedTrash {
 enum TrashType {
     Unknown = 0;
     View = 1;
+    App = 2;
 }

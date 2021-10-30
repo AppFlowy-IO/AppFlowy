@@ -5,9 +5,8 @@ enum WorkspaceNotification {
     UserCreateWorkspace = 10;
     UserDeleteWorkspace = 11;
     WorkspaceUpdated = 12;
-    WorkspaceCreateApp = 13;
-    WorkspaceDeleteApp = 14;
-    WorkspaceListUpdated = 15;
+    WorkspaceListUpdated = 13;
+    WorkspaceAppsChanged = 14;
     AppUpdated = 21;
     AppViewsChanged = 24;
     ViewUpdated = 31;

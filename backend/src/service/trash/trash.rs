@@ -1,6 +1,7 @@
 use crate::{
     entities::workspace::{TrashTable, TRASH_TABLE},
     service::{
+        app::app::{delete_app, read_app_table},
         user::LoggedUser,
         view::{delete_view, read_view_table},
     },
@@ -82,16 +83,6 @@ pub(crate) async fn delete_trash(
             .await
             .map_err(map_sqlx_error)?;
 
-        match TrashType::from_i32(trash_table.ty) {
-            None => log::error!("Parser trash type with value: {} failed", trash_table.ty),
-            Some(ty) => match ty {
-                TrashType::Unknown => {},
-                TrashType::View => {
-                    let _ = delete_view(transaction as &mut DBTransaction<'_>, vec![trash_table.id]).await;
-                },
-            },
-        }
-
         let _ = delete_trash_targets(
             transaction as &mut DBTransaction<'_>,
             vec![(trash_table.id.clone(), trash_table.ty)],
@@ -119,6 +110,9 @@ async fn delete_trash_targets(
                 TrashType::Unknown => {},
                 TrashType::View => {
                     let _ = delete_view(transaction as &mut DBTransaction<'_>, vec![id]).await;
+                },
+                TrashType::App => {
+                    let _ = delete_app(transaction as &mut DBTransaction<'_>, id).await;
                 },
             },
         }
@@ -162,6 +156,9 @@ pub(crate) async fn read_trash(
                 TrashType::Unknown => {},
                 TrashType::View => {
                     trash.push(read_view_table(table.id, transaction).await?.into());
+                },
+                TrashType::App => {
+                    trash.push(read_app_table(table.id, transaction).await?.into());
                 },
             },
         }

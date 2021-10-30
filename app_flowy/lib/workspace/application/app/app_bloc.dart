@@ -1,5 +1,6 @@
 import 'package:app_flowy/workspace/domain/i_app.dart';
 import 'package:flowy_log/flowy_log.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -11,7 +12,7 @@ part 'app_bloc.freezed.dart';
 class AppBloc extends Bloc<AppEvent, AppState> {
   final IApp appManager;
   final IAppListenr listener;
-  AppBloc({required this.appManager, required this.listener}) : super(AppState.initial());
+  AppBloc({required App app, required this.appManager, required this.listener}) : super(AppState.initial(app));
 
   @override
   Stream<AppState> mapEventToState(
@@ -20,7 +21,6 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     yield* event.map(
       initial: (e) async* {
         listener.start(viewsChangeCallback: _handleViewsOrFail);
-
         yield* _fetchViews();
       },
       createView: (CreateView value) async* {
@@ -38,6 +38,20 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       },
       didReceiveViews: (e) async* {
         yield state.copyWith(views: e.views);
+      },
+      delete: (e) async* {
+        final result = await appManager.delete();
+        yield result.fold(
+          (l) => state.copyWith(successOrFailure: left(unit)),
+          (error) => state.copyWith(successOrFailure: right(error)),
+        );
+      },
+      rename: (e) async* {
+        final result = await appManager.rename(e.newName);
+        yield result.fold(
+          (l) => state.copyWith(successOrFailure: left(unit)),
+          (error) => state.copyWith(successOrFailure: right(error)),
+        );
       },
     );
   }
@@ -73,19 +87,23 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 class AppEvent with _$AppEvent {
   const factory AppEvent.initial() = Initial;
   const factory AppEvent.createView(String name, String desc, ViewType viewType) = CreateView;
+  const factory AppEvent.delete() = Delete;
+  const factory AppEvent.rename(String newName) = Rename;
   const factory AppEvent.didReceiveViews(List<View> views) = ReceiveViews;
 }
 
 @freezed
 class AppState with _$AppState {
   const factory AppState({
+    required App app,
     required bool isLoading,
     required List<View>? views,
     View? selectedView,
     required Either<Unit, WorkspaceError> successOrFailure,
   }) = _AppState;
 
-  factory AppState.initial() => AppState(
+  factory AppState.initial(App app) => AppState(
+        app: app,
         isLoading: false,
         views: null,
         selectedView: null,

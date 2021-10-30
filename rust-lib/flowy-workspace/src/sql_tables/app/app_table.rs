@@ -8,6 +8,7 @@ use crate::{
 use diesel::sql_types::Binary;
 use flowy_database::schema::app_table;
 
+use crate::entities::trash::{Trash, TrashType};
 use serde::{Deserialize, Serialize, __private::TryFrom};
 use std::convert::TryInto;
 
@@ -40,6 +41,18 @@ impl AppTable {
             create_time: app.create_time,
             version: 0,
             is_trash: false,
+        }
+    }
+}
+
+impl std::convert::Into<Trash> for AppTable {
+    fn into(self) -> Trash {
+        Trash {
+            id: self.id,
+            name: self.name,
+            modified_time: self.modified_time,
+            create_time: self.create_time,
+            ty: TrashType::App,
         }
     }
 }

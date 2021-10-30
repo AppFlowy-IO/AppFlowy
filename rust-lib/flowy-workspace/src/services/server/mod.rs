@@ -8,7 +8,7 @@ pub use server_api_mock::*;
 
 use crate::{
     entities::{
-        app::{App, AppIdentifier, CreateAppParams, DeleteAppParams, UpdateAppParams},
+        app::{App, AppIdentifier, CreateAppParams, UpdateAppParams},
         trash::{RepeatedTrash, TrashIdentifiers},
         view::{CreateViewParams, UpdateViewParams, View, ViewIdentifier, ViewIdentifiers},
         workspace::{
@@ -58,7 +58,7 @@ pub trait WorkspaceServerAPI {
 
     fn update_app(&self, token: &str, params: UpdateAppParams) -> ResultFuture<(), WorkspaceError>;
 
-    fn delete_app(&self, token: &str, params: DeleteAppParams) -> ResultFuture<(), WorkspaceError>;
+    fn delete_app(&self, token: &str, params: AppIdentifier) -> ResultFuture<(), WorkspaceError>;
 
     // Trash
     fn create_trash(&self, token: &str, params: TrashIdentifiers) -> ResultFuture<(), WorkspaceError>;

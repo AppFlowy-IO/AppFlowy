@@ -5,19 +5,7 @@ use std::convert::TryInto;
 #[derive(Default, ProtoBuf, Clone)]
 pub struct QueryAppRequest {
     #[pb(index = 1)]
-    pub app_id: String,
-
-    #[pb(index = 2)]
-    pub is_trash: bool,
-}
-
-impl QueryAppRequest {
-    pub fn new(app_id: &str) -> Self {
-        QueryAppRequest {
-            app_id: app_id.to_string(),
-            is_trash: false,
-        }
-    }
+    pub app_ids: Vec<String>,
 }
 
 #[derive(ProtoBuf, Default, Clone, Debug)]
@@ -30,7 +18,6 @@ impl AppIdentifier {
     pub fn new(app_id: &str) -> Self {
         Self {
             app_id: app_id.to_string(),
-            ..Default::default()
         }
     }
 }
@@ -39,10 +26,15 @@ impl TryInto<AppIdentifier> for QueryAppRequest {
     type Error = WorkspaceError;
 
     fn try_into(self) -> Result<AppIdentifier, Self::Error> {
-        let app_id = AppId::parse(self.app_id)
-            .map_err(|e| WorkspaceError::app_id().context(e))?
-            .0;
+        debug_assert!(self.app_ids.len() == 1);
+        if self.app_ids.len() != 1 {
+            return Err(WorkspaceError::invalid_view_id().context("The len of app_ids should be equal to 1"));
+        }
 
+        let app_id = self.app_ids.first().unwrap().clone();
+        let app_id = AppId::parse(app_id)
+            .map_err(|e| WorkspaceError::invalid_app_id().context(e))?
+            .0;
         Ok(AppIdentifier { app_id })
     }
 }

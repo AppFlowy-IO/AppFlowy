@@ -64,8 +64,7 @@ class WorkspaceRepo {
 
 class WorkspaceListenerRepo {
   StreamSubscription<SubscribeObject>? _subscription;
-  WorkspaceCreateAppCallback? _createApp;
-  WorkspaceDeleteAppCallback? _deleteApp;
+  WorkspaceAppsChangedCallback? _appsChanged;
   WorkspaceUpdatedCallback? _update;
   late WorkspaceNotificationParser _parser;
   final UserProfile user;
@@ -77,12 +76,10 @@ class WorkspaceListenerRepo {
   });
 
   void startListening({
-    WorkspaceCreateAppCallback? createApp,
-    WorkspaceDeleteAppCallback? deleteApp,
+    WorkspaceAppsChangedCallback? appsChanged,
     WorkspaceUpdatedCallback? update,
   }) {
-    _createApp = createApp;
-    _deleteApp = deleteApp;
+    _appsChanged = appsChanged;
     _update = update;
 
     _parser = WorkspaceNotificationParser(
@@ -108,23 +105,13 @@ class WorkspaceListenerRepo {
           );
         }
         break;
-      case WorkspaceNotification.WorkspaceCreateApp:
-        if (_createApp != null) {
+      case WorkspaceNotification.WorkspaceAppsChanged:
+        if (_appsChanged != null) {
           result.fold(
-            (payload) => _createApp!(
+            (payload) => _appsChanged!(
               left(RepeatedApp.fromBuffer(payload).items),
             ),
-            (error) => _createApp!(right(error)),
-          );
-        }
-        break;
-      case WorkspaceNotification.WorkspaceDeleteApp:
-        if (_deleteApp != null) {
-          result.fold(
-            (payload) => _deleteApp!(
-              left(RepeatedApp.fromBuffer(payload).items),
-            ),
-            (error) => _deleteApp!(right(error)),
+            (error) => _appsChanged!(right(error)),
           );
         }
         break;

@@ -73,7 +73,7 @@ impl TryInto<UpdateAppParams> for UpdateAppRequest {
 
     fn try_into(self) -> Result<UpdateAppParams, Self::Error> {
         let app_id = AppId::parse(self.app_id)
-            .map_err(|e| WorkspaceError::app_id().context(e))?
+            .map_err(|e| WorkspaceError::invalid_app_id().context(e))?
             .0;
 
         let name = match self.name {

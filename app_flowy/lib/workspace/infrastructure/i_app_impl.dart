@@ -26,6 +26,16 @@ class IAppImpl extends IApp {
       );
     });
   }
+
+  @override
+  Future<Either<Unit, workspace.WorkspaceError>> delete() {
+    return repo.delete();
+  }
+
+  @override
+  Future<Either<Unit, workspace.WorkspaceError>> rename(String newName) {
+    return repo.updateApp(name: newName);
+  }
 }
 
 class IAppListenerhImpl extends IAppListenr {

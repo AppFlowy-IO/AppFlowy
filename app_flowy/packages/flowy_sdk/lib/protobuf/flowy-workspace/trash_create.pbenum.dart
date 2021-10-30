@@ -12,10 +12,12 @@ import 'package:protobuf/protobuf.dart' as $pb;
 class TrashType extends $pb.ProtobufEnum {
   static const TrashType Unknown = TrashType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Unknown');
   static const TrashType View = TrashType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'View');
+  static const TrashType App = TrashType._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'App');
 
   static const $core.List<TrashType> values = <TrashType> [
     Unknown,
     View,
+    App,
   ];
 
   static final $core.Map<$core.int, TrashType> _byValue = $pb.ProtobufEnum.initByValue(values);

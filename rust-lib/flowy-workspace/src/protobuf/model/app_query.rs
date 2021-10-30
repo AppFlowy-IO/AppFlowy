@@ -26,8 +26,7 @@
 #[derive(PartialEq,Clone,Default)]
 pub struct QueryAppRequest {
     // message fields
-    pub app_id: ::std::string::String,
-    pub is_trash: bool,
+    pub app_ids: ::protobuf::RepeatedField<::std::string::String>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -44,45 +43,29 @@ impl QueryAppRequest {
         ::std::default::Default::default()
     }
 
-    // string app_id = 1;
+    // repeated string app_ids = 1;
 
 
-    pub fn get_app_id(&self) -> &str {
-        &self.app_id
+    pub fn get_app_ids(&self) -> &[::std::string::String] {
+        &self.app_ids
     }
-    pub fn clear_app_id(&mut self) {
-        self.app_id.clear();
+    pub fn clear_app_ids(&mut self) {
+        self.app_ids.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_app_id(&mut self, v: ::std::string::String) {
-        self.app_id = v;
+    pub fn set_app_ids(&mut self, v: ::protobuf::RepeatedField<::std::string::String>) {
+        self.app_ids = v;
     }
 
     // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
-    pub fn mut_app_id(&mut self) -> &mut ::std::string::String {
-        &mut self.app_id
+    pub fn mut_app_ids(&mut self) -> &mut ::protobuf::RepeatedField<::std::string::String> {
+        &mut self.app_ids
     }
 
     // Take field
-    pub fn take_app_id(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.app_id, ::std::string::String::new())
-    }
-
-    // bool is_trash = 2;
-
-
-    pub fn get_is_trash(&self) -> bool {
-        self.is_trash
-    }
-    pub fn clear_is_trash(&mut self) {
-        self.is_trash = false;
-    }
-
-    // Param is passed by value, moved
-    pub fn set_is_trash(&mut self, v: bool) {
-        self.is_trash = v;
+    pub fn take_app_ids(&mut self) -> ::protobuf::RepeatedField<::std::string::String> {
+        ::std::mem::replace(&mut self.app_ids, ::protobuf::RepeatedField::new())
     }
 }
 
@@ -96,14 +79,7 @@ impl ::protobuf::Message for QueryAppRequest {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.app_id)?;
-                },
-                2 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_bool()?;
-                    self.is_trash = tmp;
+                    ::protobuf::rt::read_repeated_string_into(wire_type, is, &mut self.app_ids)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -117,24 +93,18 @@ impl ::protobuf::Message for QueryAppRequest {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if !self.app_id.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.app_id);
-        }
-        if self.is_trash != false {
-            my_size += 2;
-        }
+        for value in &self.app_ids {
+            my_size += ::protobuf::rt::string_size(1, &value);
+        };
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.app_id.is_empty() {
-            os.write_string(1, &self.app_id)?;
-        }
-        if self.is_trash != false {
-            os.write_bool(2, self.is_trash)?;
-        }
+        for v in &self.app_ids {
+            os.write_string(1, &v)?;
+        };
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
     }
@@ -173,15 +143,10 @@ impl ::protobuf::Message for QueryAppRequest {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "app_id",
-                |m: &QueryAppRequest| { &m.app_id },
-                |m: &mut QueryAppRequest| { &mut m.app_id },
-            ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
-                "is_trash",
-                |m: &QueryAppRequest| { &m.is_trash },
-                |m: &mut QueryAppRequest| { &mut m.is_trash },
+            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "app_ids",
+                |m: &QueryAppRequest| { &m.app_ids },
+                |m: &mut QueryAppRequest| { &mut m.app_ids },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<QueryAppRequest>(
                 "QueryAppRequest",
@@ -199,8 +164,7 @@ impl ::protobuf::Message for QueryAppRequest {
 
 impl ::protobuf::Clear for QueryAppRequest {
     fn clear(&mut self) {
-        self.app_id.clear();
-        self.is_trash = false;
+        self.app_ids.clear();
         self.unknown_fields.clear();
     }
 }
@@ -377,21 +341,18 @@ impl ::protobuf::reflect::ProtobufValue for AppIdentifier {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0fapp_query.proto\"C\n\x0fQueryAppRequest\x12\x15\n\x06app_id\x18\
-    \x01\x20\x01(\tR\x05appId\x12\x19\n\x08is_trash\x18\x02\x20\x01(\x08R\
-    \x07isTrash\"&\n\rAppIdentifier\x12\x15\n\x06app_id\x18\x01\x20\x01(\tR\
-    \x05appIdJ\xe7\x01\n\x06\x12\x04\0\0\x08\x01\n\x08\n\x01\x0c\x12\x03\0\0\
-    \x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\0\x01\x12\x03\
-    \x02\x08\x17\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x16\n\x0c\n\x05\x04\
-    \0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\
-    \x0b\x11\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x14\x15\n\x0b\n\x04\x04\
-    \0\x02\x01\x12\x03\x04\x04\x16\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\
-    \x04\x08\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\t\x11\n\x0c\n\x05\x04\
-    \0\x02\x01\x03\x12\x03\x04\x14\x15\n\n\n\x02\x04\x01\x12\x04\x06\0\x08\
-    \x01\n\n\n\x03\x04\x01\x01\x12\x03\x06\x08\x15\n\x0b\n\x04\x04\x01\x02\0\
-    \x12\x03\x07\x04\x16\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x07\x04\n\n\
-    \x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x07\x0b\x11\n\x0c\n\x05\x04\x01\x02\
-    \0\x03\x12\x03\x07\x14\x15b\x06proto3\
+    \n\x0fapp_query.proto\"*\n\x0fQueryAppRequest\x12\x17\n\x07app_ids\x18\
+    \x01\x20\x03(\tR\x06appIds\"&\n\rAppIdentifier\x12\x15\n\x06app_id\x18\
+    \x01\x20\x01(\tR\x05appIdJ\xbe\x01\n\x06\x12\x04\0\0\x07\x01\n\x08\n\x01\
+    \x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x04\x01\n\n\n\x03\x04\
+    \0\x01\x12\x03\x02\x08\x17\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x20\n\
+    \x0c\n\x05\x04\0\x02\0\x04\x12\x03\x03\x04\x0c\n\x0c\n\x05\x04\0\x02\0\
+    \x05\x12\x03\x03\r\x13\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x14\x1b\n\
+    \x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x1e\x1f\n\n\n\x02\x04\x01\x12\x04\
+    \x05\0\x07\x01\n\n\n\x03\x04\x01\x01\x12\x03\x05\x08\x15\n\x0b\n\x04\x04\
+    \x01\x02\0\x12\x03\x06\x04\x16\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x06\
+    \x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x06\x0b\x11\n\x0c\n\x05\x04\
+    \x01\x02\0\x03\x12\x03\x06\x14\x15b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

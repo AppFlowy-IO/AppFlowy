@@ -1,6 +1,6 @@
 use crate::{
     entities::{
-        app::{App, AppIdentifier, CreateAppParams, DeleteAppParams, RepeatedApp, UpdateAppParams},
+        app::{App, AppIdentifier, CreateAppParams, RepeatedApp, UpdateAppParams},
         trash::{RepeatedTrash, TrashIdentifiers},
         view::{CreateViewParams, RepeatedView, UpdateViewParams, View, ViewIdentifier, ViewIdentifiers},
         workspace::{
@@ -104,7 +104,7 @@ impl WorkspaceServerAPI for WorkspaceServerMock {
         ResultFuture::new(async { Ok(()) })
     }
 
-    fn delete_app(&self, _token: &str, _params: DeleteAppParams) -> ResultFuture<(), WorkspaceError> {
+    fn delete_app(&self, _token: &str, _params: AppIdentifier) -> ResultFuture<(), WorkspaceError> {
         ResultFuture::new(async { Ok(()) })
     }
 

@@ -1,6 +1,6 @@
 use crate::helper::*;
 use flowy_workspace::entities::{
-    app::{AppIdentifier, DeleteAppParams, UpdateAppParams},
+    app::{AppIdentifier, UpdateAppParams},
     trash::{TrashIdentifier, TrashIdentifiers, TrashType},
     view::{UpdateViewParams, ViewIdentifier},
     workspace::{CreateWorkspaceParams, DeleteWorkspaceParams, QueryWorkspaceParams, UpdateWorkspaceParams},
@@ -123,7 +123,7 @@ async fn app_update() {
 async fn app_delete() {
     let test = AppTest::new().await;
 
-    let delete_params = DeleteAppParams {
+    let delete_params = AppIdentifier {
         app_id: test.app.id.clone(),
     };
     test.server.delete_app(delete_params).await;

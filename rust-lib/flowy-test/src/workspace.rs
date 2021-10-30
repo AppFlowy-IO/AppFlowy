@@ -172,7 +172,7 @@ pub async fn create_app(sdk: &FlowyTestSDK, name: &str, desc: &str, workspace_id
 }
 
 pub async fn delete_app(sdk: &FlowyTestSDK, app_id: &str) {
-    let delete_app_request = DeleteAppRequest {
+    let delete_app_request = AppIdentifier {
         app_id: app_id.to_string(),
     };
 

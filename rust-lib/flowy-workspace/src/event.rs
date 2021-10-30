@@ -25,7 +25,7 @@ pub enum WorkspaceEvent {
     #[event(input = "CreateAppRequest", output = "App")]
     CreateApp         = 101,
 
-    #[event(input = "DeleteAppRequest")]
+    #[event(input = "QueryAppRequest")]
     DeleteApp         = 102,
 
     #[event(input = "QueryAppRequest", output = "App")]

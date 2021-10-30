@@ -6,6 +6,7 @@ use std::fmt::Formatter;
 pub enum TrashType {
     Unknown = 0,
     View    = 1,
+    App     = 2,
 }
 
 impl std::convert::TryFrom<i32> for TrashType {
@@ -15,6 +16,7 @@ impl std::convert::TryFrom<i32> for TrashType {
         match value {
             0 => Ok(TrashType::Unknown),
             1 => Ok(TrashType::View),
+            2 => Ok(TrashType::App),
             _ => Err(format!("Invalid trash type: {}", value)),
         }
     }

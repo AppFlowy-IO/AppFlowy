@@ -98,7 +98,7 @@ impl TryInto<CreateViewParams> for CreateViewRequest {
             .0;
 
         let belong_to_id = AppId::parse(self.belong_to_id)
-            .map_err(|e| WorkspaceError::app_id().context(e))?
+            .map_err(|e| WorkspaceError::invalid_app_id().context(e))?
             .0;
 
         let thumbnail = match self.thumbnail {
