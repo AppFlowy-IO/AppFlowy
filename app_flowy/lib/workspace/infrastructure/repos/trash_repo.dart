@@ -21,11 +21,11 @@ class TrashRepo {
     return WorkspaceEventPutbackTrash(id).send();
   }
 
-  Future<Either<Unit, WorkspaceError>> deleteViews(List<Trash> trashList) {
+  Future<Either<Unit, WorkspaceError>> deleteViews(List<Tuple2<String, TrashType>> trashList) {
     final items = trashList.map((trash) {
       return TrashIdentifier.create()
-        ..id = trash.id
-        ..ty = trash.ty;
+        ..id = trash.value1
+        ..ty = trash.value2;
     });
 
     final trashIdentifiers = TrashIdentifiers(items: items);

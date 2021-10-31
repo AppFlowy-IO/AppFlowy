@@ -580,10 +580,14 @@ abstract class DeletePermanently implements DocEvent {
 class _$DocStateTearOff {
   const _$DocStateTearOff();
 
-  _DocState call({required DocLoadState loadState, required bool isDeleted}) {
+  _DocState call(
+      {required DocLoadState loadState,
+      required bool isDeleted,
+      required bool forceClose}) {
     return _DocState(
       loadState: loadState,
       isDeleted: isDeleted,
+      forceClose: forceClose,
     );
   }
 }
@@ -595,6 +599,7 @@ const $DocState = _$DocStateTearOff();
 mixin _$DocState {
   DocLoadState get loadState => throw _privateConstructorUsedError;
   bool get isDeleted => throw _privateConstructorUsedError;
+  bool get forceClose => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $DocStateCopyWith<DocState> get copyWith =>
@@ -605,7 +610,7 @@ mixin _$DocState {
 abstract class $DocStateCopyWith<$Res> {
   factory $DocStateCopyWith(DocState value, $Res Function(DocState) then) =
       _$DocStateCopyWithImpl<$Res>;
-  $Res call({DocLoadState loadState, bool isDeleted});
+  $Res call({DocLoadState loadState, bool isDeleted, bool forceClose});
 
   $DocLoadStateCopyWith<$Res> get loadState;
 }
@@ -622,6 +627,7 @@ class _$DocStateCopyWithImpl<$Res> implements $DocStateCopyWith<$Res> {
   $Res call({
     Object? loadState = freezed,
     Object? isDeleted = freezed,
+    Object? forceClose = freezed,
   }) {
     return _then(_value.copyWith(
       loadState: loadState == freezed
@@ -631,6 +637,10 @@ class _$DocStateCopyWithImpl<$Res> implements $DocStateCopyWith<$Res> {
       isDeleted: isDeleted == freezed
           ? _value.isDeleted
           : isDeleted // ignore: cast_nullable_to_non_nullable
+              as bool,
+      forceClose: forceClose == freezed
+          ? _value.forceClose
+          : forceClose // ignore: cast_nullable_to_non_nullable
               as bool,
     ));
   }
@@ -648,7 +658,7 @@ abstract class _$DocStateCopyWith<$Res> implements $DocStateCopyWith<$Res> {
   factory _$DocStateCopyWith(_DocState value, $Res Function(_DocState) then) =
       __$DocStateCopyWithImpl<$Res>;
   @override
-  $Res call({DocLoadState loadState, bool isDeleted});
+  $Res call({DocLoadState loadState, bool isDeleted, bool forceClose});
 
   @override
   $DocLoadStateCopyWith<$Res> get loadState;
@@ -667,6 +677,7 @@ class __$DocStateCopyWithImpl<$Res> extends _$DocStateCopyWithImpl<$Res>
   $Res call({
     Object? loadState = freezed,
     Object? isDeleted = freezed,
+    Object? forceClose = freezed,
   }) {
     return _then(_DocState(
       loadState: loadState == freezed
@@ -677,6 +688,10 @@ class __$DocStateCopyWithImpl<$Res> extends _$DocStateCopyWithImpl<$Res>
           ? _value.isDeleted
           : isDeleted // ignore: cast_nullable_to_non_nullable
               as bool,
+      forceClose: forceClose == freezed
+          ? _value.forceClose
+          : forceClose // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -684,16 +699,21 @@ class __$DocStateCopyWithImpl<$Res> extends _$DocStateCopyWithImpl<$Res>
 /// @nodoc
 
 class _$_DocState implements _DocState {
-  const _$_DocState({required this.loadState, required this.isDeleted});
+  const _$_DocState(
+      {required this.loadState,
+      required this.isDeleted,
+      required this.forceClose});
 
   @override
   final DocLoadState loadState;
   @override
   final bool isDeleted;
+  @override
+  final bool forceClose;
 
   @override
   String toString() {
-    return 'DocState(loadState: $loadState, isDeleted: $isDeleted)';
+    return 'DocState(loadState: $loadState, isDeleted: $isDeleted, forceClose: $forceClose)';
   }
 
   @override
@@ -705,14 +725,18 @@ class _$_DocState implements _DocState {
                     .equals(other.loadState, loadState)) &&
             (identical(other.isDeleted, isDeleted) ||
                 const DeepCollectionEquality()
-                    .equals(other.isDeleted, isDeleted)));
+                    .equals(other.isDeleted, isDeleted)) &&
+            (identical(other.forceClose, forceClose) ||
+                const DeepCollectionEquality()
+                    .equals(other.forceClose, forceClose)));
   }
 
   @override
   int get hashCode =>
       runtimeType.hashCode ^
       const DeepCollectionEquality().hash(loadState) ^
-      const DeepCollectionEquality().hash(isDeleted);
+      const DeepCollectionEquality().hash(isDeleted) ^
+      const DeepCollectionEquality().hash(forceClose);
 
   @JsonKey(ignore: true)
   @override
@@ -722,12 +746,16 @@ class _$_DocState implements _DocState {
 
 abstract class _DocState implements DocState {
   const factory _DocState(
-      {required DocLoadState loadState, required bool isDeleted}) = _$_DocState;
+      {required DocLoadState loadState,
+      required bool isDeleted,
+      required bool forceClose}) = _$_DocState;
 
   @override
   DocLoadState get loadState => throw _privateConstructorUsedError;
   @override
   bool get isDeleted => throw _privateConstructorUsedError;
+  @override
+  bool get forceClose => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
   _$DocStateCopyWith<_DocState> get copyWith =>

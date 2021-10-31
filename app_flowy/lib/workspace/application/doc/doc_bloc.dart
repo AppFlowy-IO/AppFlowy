@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:app_flowy/workspace/domain/i_trash.dart';
 import 'package:app_flowy/workspace/domain/i_view.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/trash_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flowy_log/flowy_log.dart';
@@ -39,9 +40,10 @@ class DocBloc extends Bloc<DocEvent, DocState> {
         yield state.copyWith(isDeleted: false);
       },
       deletePermanently: (DeletePermanently value) async* {
-        // final result = await trasnManager.deleteViews([e.trash]);
-        // yield* _handleResult(result);
-        yield state;
+        final result = await trasnManager.deleteViews([Tuple2(view.id, TrashType.View)]);
+        yield result.fold((l) => state.copyWith(forceClose: true), (r) {
+          return state;
+        });
       },
       restorePage: (RestorePage value) async* {
         final result = await trasnManager.putback(view.id);
@@ -136,11 +138,13 @@ class DocState with _$DocState {
   const factory DocState({
     required DocLoadState loadState,
     required bool isDeleted,
+    required bool forceClose,
   }) = _DocState;
 
   factory DocState.initial() => const DocState(
         loadState: _Loading(),
         isDeleted: false,
+        forceClose: false,
       );
 }
 

@@ -43,7 +43,13 @@ class _DocPageState extends State<DocPage> {
         return state.loadState.map(
           loading: (_) => const FlowyProgressIndicator(),
           finish: (result) => result.successOrFail.fold(
-            (_) => _renderDoc(context, state),
+            (_) {
+              if (state.forceClose) {
+                return _renderAppPage();
+              } else {
+                return _renderDoc(context, state);
+              }
+            },
             (err) => FlowyErrorPage(err.toString()),
           ),
         );
@@ -118,6 +124,12 @@ class _DocPageState extends State<DocPage> {
   Widget _renderToolbar(quill.QuillController controller) {
     return EditorToolbar.basic(
       controller: controller,
+    );
+  }
+
+  Widget _renderAppPage() {
+    return Container(
+      color: Colors.black,
     );
   }
 }

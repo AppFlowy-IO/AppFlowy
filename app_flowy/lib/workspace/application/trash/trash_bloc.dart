@@ -31,7 +31,7 @@ class TrashBloc extends Bloc<TrashEvent, TrashState> {
         yield* _handleResult(result);
       },
       delete: (e) async* {
-        final result = await trasnManager.deleteViews([e.trash]);
+        final result = await trasnManager.deleteViews([Tuple2(e.trash.id, e.trash.ty)]);
         yield* _handleResult(result);
       },
       deleteAll: (e) async* {

@@ -25,11 +25,6 @@ class ITrashImpl implements ITrash {
   }
 
   @override
-  Future<Either<Unit, WorkspaceError>> deleteViews(List<Trash> trashList) {
-    return repo.deleteViews(trashList);
-  }
-
-  @override
   Future<Either<Unit, WorkspaceError>> deleteAll() {
     return repo.deleteAll();
   }
@@ -37,6 +32,11 @@ class ITrashImpl implements ITrash {
   @override
   Future<Either<Unit, WorkspaceError>> restoreAll() {
     return repo.restoreAll();
+  }
+
+  @override
+  Future<Either<Unit, WorkspaceError>> deleteViews(List<Tuple2<String, TrashType>> trashList) {
+    return repo.deleteViews(trashList);
   }
 }
 
