@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'package:app_flowy/workspace/domain/i_trash.dart';
 import 'package:app_flowy/workspace/domain/i_view.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
@@ -12,12 +14,19 @@ import 'dart:async';
 part 'doc_bloc.freezed.dart';
 
 class DocBloc extends Bloc<DocEvent, DocState> {
+  final View view;
   final IDoc docManager;
   final IViewListener listener;
+  final ITrash trasnManager;
   late Document document;
   late StreamSubscription _subscription;
 
-  DocBloc({required this.docManager, required this.listener}) : super(DocState.initial());
+  DocBloc({
+    required this.view,
+    required this.docManager,
+    required this.listener,
+    required this.trasnManager,
+  }) : super(DocState.initial());
 
   @override
   Stream<DocState> mapEventToState(DocEvent event) async* {
@@ -28,6 +37,17 @@ class DocBloc extends Bloc<DocEvent, DocState> {
       },
       restore: (Restore value) async* {
         yield state.copyWith(isDeleted: false);
+      },
+      deletePermanently: (DeletePermanently value) async* {
+        // final result = await trasnManager.deleteViews([e.trash]);
+        // yield* _handleResult(result);
+        yield state;
+      },
+      restorePage: (RestorePage value) async* {
+        final result = await trasnManager.putback(view.id);
+        yield result.fold((l) => state.copyWith(isDeleted: false), (r) {
+          return state;
+        });
       },
     );
   }
@@ -107,6 +127,8 @@ class DocEvent with _$DocEvent {
   const factory DocEvent.initial() = Initial;
   const factory DocEvent.deleted() = Deleted;
   const factory DocEvent.restore() = Restore;
+  const factory DocEvent.restorePage() = RestorePage;
+  const factory DocEvent.deletePermanently() = DeletePermanently;
 }
 
 @freezed

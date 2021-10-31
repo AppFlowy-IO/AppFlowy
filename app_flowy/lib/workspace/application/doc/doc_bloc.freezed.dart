@@ -27,6 +27,14 @@ class _$DocEventTearOff {
   Restore restore() {
     return const Restore();
   }
+
+  RestorePage restorePage() {
+    return const RestorePage();
+  }
+
+  DeletePermanently deletePermanently() {
+    return const DeletePermanently();
+  }
 }
 
 /// @nodoc
@@ -39,6 +47,8 @@ mixin _$DocEvent {
     required TResult Function() initial,
     required TResult Function() deleted,
     required TResult Function() restore,
+    required TResult Function() restorePage,
+    required TResult Function() deletePermanently,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -46,6 +56,8 @@ mixin _$DocEvent {
     TResult Function()? initial,
     TResult Function()? deleted,
     TResult Function()? restore,
+    TResult Function()? restorePage,
+    TResult Function()? deletePermanently,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -54,6 +66,8 @@ mixin _$DocEvent {
     required TResult Function(Initial value) initial,
     required TResult Function(Deleted value) deleted,
     required TResult Function(Restore value) restore,
+    required TResult Function(RestorePage value) restorePage,
+    required TResult Function(DeletePermanently value) deletePermanently,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -61,6 +75,8 @@ mixin _$DocEvent {
     TResult Function(Initial value)? initial,
     TResult Function(Deleted value)? deleted,
     TResult Function(Restore value)? restore,
+    TResult Function(RestorePage value)? restorePage,
+    TResult Function(DeletePermanently value)? deletePermanently,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -121,6 +137,8 @@ class _$Initial implements Initial {
     required TResult Function() initial,
     required TResult Function() deleted,
     required TResult Function() restore,
+    required TResult Function() restorePage,
+    required TResult Function() deletePermanently,
   }) {
     return initial();
   }
@@ -131,6 +149,8 @@ class _$Initial implements Initial {
     TResult Function()? initial,
     TResult Function()? deleted,
     TResult Function()? restore,
+    TResult Function()? restorePage,
+    TResult Function()? deletePermanently,
     required TResult orElse(),
   }) {
     if (initial != null) {
@@ -145,6 +165,8 @@ class _$Initial implements Initial {
     required TResult Function(Initial value) initial,
     required TResult Function(Deleted value) deleted,
     required TResult Function(Restore value) restore,
+    required TResult Function(RestorePage value) restorePage,
+    required TResult Function(DeletePermanently value) deletePermanently,
   }) {
     return initial(this);
   }
@@ -155,6 +177,8 @@ class _$Initial implements Initial {
     TResult Function(Initial value)? initial,
     TResult Function(Deleted value)? deleted,
     TResult Function(Restore value)? restore,
+    TResult Function(RestorePage value)? restorePage,
+    TResult Function(DeletePermanently value)? deletePermanently,
     required TResult orElse(),
   }) {
     if (initial != null) {
@@ -208,6 +232,8 @@ class _$Deleted implements Deleted {
     required TResult Function() initial,
     required TResult Function() deleted,
     required TResult Function() restore,
+    required TResult Function() restorePage,
+    required TResult Function() deletePermanently,
   }) {
     return deleted();
   }
@@ -218,6 +244,8 @@ class _$Deleted implements Deleted {
     TResult Function()? initial,
     TResult Function()? deleted,
     TResult Function()? restore,
+    TResult Function()? restorePage,
+    TResult Function()? deletePermanently,
     required TResult orElse(),
   }) {
     if (deleted != null) {
@@ -232,6 +260,8 @@ class _$Deleted implements Deleted {
     required TResult Function(Initial value) initial,
     required TResult Function(Deleted value) deleted,
     required TResult Function(Restore value) restore,
+    required TResult Function(RestorePage value) restorePage,
+    required TResult Function(DeletePermanently value) deletePermanently,
   }) {
     return deleted(this);
   }
@@ -242,6 +272,8 @@ class _$Deleted implements Deleted {
     TResult Function(Initial value)? initial,
     TResult Function(Deleted value)? deleted,
     TResult Function(Restore value)? restore,
+    TResult Function(RestorePage value)? restorePage,
+    TResult Function(DeletePermanently value)? deletePermanently,
     required TResult orElse(),
   }) {
     if (deleted != null) {
@@ -295,6 +327,8 @@ class _$Restore implements Restore {
     required TResult Function() initial,
     required TResult Function() deleted,
     required TResult Function() restore,
+    required TResult Function() restorePage,
+    required TResult Function() deletePermanently,
   }) {
     return restore();
   }
@@ -305,6 +339,8 @@ class _$Restore implements Restore {
     TResult Function()? initial,
     TResult Function()? deleted,
     TResult Function()? restore,
+    TResult Function()? restorePage,
+    TResult Function()? deletePermanently,
     required TResult orElse(),
   }) {
     if (restore != null) {
@@ -319,6 +355,8 @@ class _$Restore implements Restore {
     required TResult Function(Initial value) initial,
     required TResult Function(Deleted value) deleted,
     required TResult Function(Restore value) restore,
+    required TResult Function(RestorePage value) restorePage,
+    required TResult Function(DeletePermanently value) deletePermanently,
   }) {
     return restore(this);
   }
@@ -329,6 +367,8 @@ class _$Restore implements Restore {
     TResult Function(Initial value)? initial,
     TResult Function(Deleted value)? deleted,
     TResult Function(Restore value)? restore,
+    TResult Function(RestorePage value)? restorePage,
+    TResult Function(DeletePermanently value)? deletePermanently,
     required TResult orElse(),
   }) {
     if (restore != null) {
@@ -340,6 +380,200 @@ class _$Restore implements Restore {
 
 abstract class Restore implements DocEvent {
   const factory Restore() = _$Restore;
+}
+
+/// @nodoc
+abstract class $RestorePageCopyWith<$Res> {
+  factory $RestorePageCopyWith(
+          RestorePage value, $Res Function(RestorePage) then) =
+      _$RestorePageCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class _$RestorePageCopyWithImpl<$Res> extends _$DocEventCopyWithImpl<$Res>
+    implements $RestorePageCopyWith<$Res> {
+  _$RestorePageCopyWithImpl(
+      RestorePage _value, $Res Function(RestorePage) _then)
+      : super(_value, (v) => _then(v as RestorePage));
+
+  @override
+  RestorePage get _value => super._value as RestorePage;
+}
+
+/// @nodoc
+
+class _$RestorePage implements RestorePage {
+  const _$RestorePage();
+
+  @override
+  String toString() {
+    return 'DocEvent.restorePage()';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) || (other is RestorePage);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() deleted,
+    required TResult Function() restore,
+    required TResult Function() restorePage,
+    required TResult Function() deletePermanently,
+  }) {
+    return restorePage();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? deleted,
+    TResult Function()? restore,
+    TResult Function()? restorePage,
+    TResult Function()? deletePermanently,
+    required TResult orElse(),
+  }) {
+    if (restorePage != null) {
+      return restorePage();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(Initial value) initial,
+    required TResult Function(Deleted value) deleted,
+    required TResult Function(Restore value) restore,
+    required TResult Function(RestorePage value) restorePage,
+    required TResult Function(DeletePermanently value) deletePermanently,
+  }) {
+    return restorePage(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(Deleted value)? deleted,
+    TResult Function(Restore value)? restore,
+    TResult Function(RestorePage value)? restorePage,
+    TResult Function(DeletePermanently value)? deletePermanently,
+    required TResult orElse(),
+  }) {
+    if (restorePage != null) {
+      return restorePage(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class RestorePage implements DocEvent {
+  const factory RestorePage() = _$RestorePage;
+}
+
+/// @nodoc
+abstract class $DeletePermanentlyCopyWith<$Res> {
+  factory $DeletePermanentlyCopyWith(
+          DeletePermanently value, $Res Function(DeletePermanently) then) =
+      _$DeletePermanentlyCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class _$DeletePermanentlyCopyWithImpl<$Res> extends _$DocEventCopyWithImpl<$Res>
+    implements $DeletePermanentlyCopyWith<$Res> {
+  _$DeletePermanentlyCopyWithImpl(
+      DeletePermanently _value, $Res Function(DeletePermanently) _then)
+      : super(_value, (v) => _then(v as DeletePermanently));
+
+  @override
+  DeletePermanently get _value => super._value as DeletePermanently;
+}
+
+/// @nodoc
+
+class _$DeletePermanently implements DeletePermanently {
+  const _$DeletePermanently();
+
+  @override
+  String toString() {
+    return 'DocEvent.deletePermanently()';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) || (other is DeletePermanently);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() deleted,
+    required TResult Function() restore,
+    required TResult Function() restorePage,
+    required TResult Function() deletePermanently,
+  }) {
+    return deletePermanently();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? deleted,
+    TResult Function()? restore,
+    TResult Function()? restorePage,
+    TResult Function()? deletePermanently,
+    required TResult orElse(),
+  }) {
+    if (deletePermanently != null) {
+      return deletePermanently();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(Initial value) initial,
+    required TResult Function(Deleted value) deleted,
+    required TResult Function(Restore value) restore,
+    required TResult Function(RestorePage value) restorePage,
+    required TResult Function(DeletePermanently value) deletePermanently,
+  }) {
+    return deletePermanently(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(Deleted value)? deleted,
+    TResult Function(Restore value)? restore,
+    TResult Function(RestorePage value)? restorePage,
+    TResult Function(DeletePermanently value)? deletePermanently,
+    required TResult orElse(),
+  }) {
+    if (deletePermanently != null) {
+      return deletePermanently(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class DeletePermanently implements DocEvent {
+  const factory DeletePermanently() = _$DeletePermanently;
 }
 
 /// @nodoc

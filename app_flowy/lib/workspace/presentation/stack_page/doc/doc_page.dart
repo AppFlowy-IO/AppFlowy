@@ -2,7 +2,7 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/doc/doc_bloc.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flowy_infra_ui/style_widget/progress_indicator.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'styles.dart';
+import 'widget/banner.dart';
 import 'widget/toolbar/tool_bar.dart';
 
 class DocPage extends StatefulWidget {
@@ -42,7 +43,7 @@ class _DocPageState extends State<DocPage> {
         return state.loadState.map(
           loading: (_) => const FlowyProgressIndicator(),
           finish: (result) => result.successOrFail.fold(
-            (_) => _renderDoc(context),
+            (_) => _renderDoc(context, state),
             (err) => FlowyErrorPage(err.toString()),
           ),
         );
@@ -56,24 +57,42 @@ class _DocPageState extends State<DocPage> {
     super.dispose();
   }
 
-  Widget _renderDoc(BuildContext context) {
-    QuillController controller = QuillController(
+  Widget _renderDoc(BuildContext context, DocState state) {
+    quill.QuillController controller = quill.QuillController(
       document: context.read<DocBloc>().document,
       selection: const TextSelection.collapsed(offset: 0),
     );
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _renderEditor(controller),
-        const VSpace(10),
-        _renderToolbar(controller),
-        const VSpace(10),
+        if (state.isDeleted) _renderBanner(context),
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _renderEditor(controller),
+              const VSpace(10),
+              _renderToolbar(controller),
+              const VSpace(10),
+            ],
+          ).padding(horizontal: 40, top: 28),
+        ),
       ],
-    ).padding(horizontal: 40, top: 28);
+    );
   }
 
-  Widget _renderEditor(QuillController controller) {
-    final editor = QuillEditor(
+  Widget _renderBanner(BuildContext context) {
+    return DocBanner(
+      onRestore: () {
+        context.read<DocBloc>().add(const DocEvent.restorePage());
+      },
+      onDelete: () {
+        context.read<DocBloc>().add(const DocEvent.deletePermanently());
+      },
+    );
+  }
+
+  Widget _renderEditor(quill.QuillController controller) {
+    final editor = quill.QuillEditor(
       controller: controller,
       focusNode: _focusNode,
       scrollable: true,
@@ -96,7 +115,7 @@ class _DocPageState extends State<DocPage> {
     );
   }
 
-  Widget _renderToolbar(QuillController controller) {
+  Widget _renderToolbar(quill.QuillController controller) {
     return EditorToolbar.basic(
       controller: controller,
     );

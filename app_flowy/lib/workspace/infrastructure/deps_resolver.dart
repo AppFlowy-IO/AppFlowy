@@ -89,8 +89,10 @@ class HomeDepsResolver {
     // Doc
     getIt.registerFactoryParam<DocBloc, View, void>(
       (view, _) => DocBloc(
+        view: view,
         docManager: getIt<IDoc>(param1: view.id),
         listener: getIt<IViewListener>(param1: view),
+        trasnManager: getIt<ITrash>(),
       ),
     );
 
