@@ -42,7 +42,7 @@ packages:
       name: bloc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "7.0.0"
+    version: "7.2.1"
   boolean_selector:
     dependency: transitive
     description:
@@ -313,7 +313,7 @@ packages:
       name: flutter_bloc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "7.0.1"
+    version: "7.3.1"
   flutter_colorpicker:
     dependency: "direct main"
     description:
@@ -369,7 +369,7 @@ packages:
       path: "packages/flutter-quill"
       relative: true
     source: path
-    version: "2.0.10"
+    version: "2.0.11"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -710,12 +710,12 @@ packages:
     source: hosted
     version: "2.0.0"
   provider:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: provider
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "5.0.0"
+    version: "6.0.1"
   pub_semver:
     dependency: transitive
     description:

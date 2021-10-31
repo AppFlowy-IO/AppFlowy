@@ -1,7 +1,7 @@
 import 'package:flowy_sdk/protobuf/flowy-workspace/protobuf.dart';
 import 'package:dartz/dartz.dart';
 
-typedef AppUpdatedCallback = void Function(String name, String desc);
+typedef AppUpdatedCallback = void Function(App app);
 typedef AppViewsChangeCallback = void Function(Either<List<View>, WorkspaceError> viewsOrFailed);
 
 abstract class IApp {

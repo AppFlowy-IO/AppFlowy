@@ -43,6 +43,12 @@ class _$AppEventTearOff {
       views,
     );
   }
+
+  AppDidUpdate appDidUpdate(App app) {
+    return AppDidUpdate(
+      app,
+    );
+  }
 }
 
 /// @nodoc
@@ -58,6 +64,7 @@ mixin _$AppEvent {
     required TResult Function() delete,
     required TResult Function(String newName) rename,
     required TResult Function(List<View> views) didReceiveViews,
+    required TResult Function(App app) appDidUpdate,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -67,6 +74,7 @@ mixin _$AppEvent {
     TResult Function()? delete,
     TResult Function(String newName)? rename,
     TResult Function(List<View> views)? didReceiveViews,
+    TResult Function(App app)? appDidUpdate,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -77,6 +85,7 @@ mixin _$AppEvent {
     required TResult Function(Delete value) delete,
     required TResult Function(Rename value) rename,
     required TResult Function(ReceiveViews value) didReceiveViews,
+    required TResult Function(AppDidUpdate value) appDidUpdate,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -86,6 +95,7 @@ mixin _$AppEvent {
     TResult Function(Delete value)? delete,
     TResult Function(Rename value)? rename,
     TResult Function(ReceiveViews value)? didReceiveViews,
+    TResult Function(AppDidUpdate value)? appDidUpdate,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -149,6 +159,7 @@ class _$Initial implements Initial {
     required TResult Function() delete,
     required TResult Function(String newName) rename,
     required TResult Function(List<View> views) didReceiveViews,
+    required TResult Function(App app) appDidUpdate,
   }) {
     return initial();
   }
@@ -161,6 +172,7 @@ class _$Initial implements Initial {
     TResult Function()? delete,
     TResult Function(String newName)? rename,
     TResult Function(List<View> views)? didReceiveViews,
+    TResult Function(App app)? appDidUpdate,
     required TResult orElse(),
   }) {
     if (initial != null) {
@@ -177,6 +189,7 @@ class _$Initial implements Initial {
     required TResult Function(Delete value) delete,
     required TResult Function(Rename value) rename,
     required TResult Function(ReceiveViews value) didReceiveViews,
+    required TResult Function(AppDidUpdate value) appDidUpdate,
   }) {
     return initial(this);
   }
@@ -189,6 +202,7 @@ class _$Initial implements Initial {
     TResult Function(Delete value)? delete,
     TResult Function(Rename value)? rename,
     TResult Function(ReceiveViews value)? didReceiveViews,
+    TResult Function(AppDidUpdate value)? appDidUpdate,
     required TResult orElse(),
   }) {
     if (initial != null) {
@@ -293,6 +307,7 @@ class _$CreateView implements CreateView {
     required TResult Function() delete,
     required TResult Function(String newName) rename,
     required TResult Function(List<View> views) didReceiveViews,
+    required TResult Function(App app) appDidUpdate,
   }) {
     return createView(name, desc, viewType);
   }
@@ -305,6 +320,7 @@ class _$CreateView implements CreateView {
     TResult Function()? delete,
     TResult Function(String newName)? rename,
     TResult Function(List<View> views)? didReceiveViews,
+    TResult Function(App app)? appDidUpdate,
     required TResult orElse(),
   }) {
     if (createView != null) {
@@ -321,6 +337,7 @@ class _$CreateView implements CreateView {
     required TResult Function(Delete value) delete,
     required TResult Function(Rename value) rename,
     required TResult Function(ReceiveViews value) didReceiveViews,
+    required TResult Function(AppDidUpdate value) appDidUpdate,
   }) {
     return createView(this);
   }
@@ -333,6 +350,7 @@ class _$CreateView implements CreateView {
     TResult Function(Delete value)? delete,
     TResult Function(Rename value)? rename,
     TResult Function(ReceiveViews value)? didReceiveViews,
+    TResult Function(AppDidUpdate value)? appDidUpdate,
     required TResult orElse(),
   }) {
     if (createView != null) {
@@ -397,6 +415,7 @@ class _$Delete implements Delete {
     required TResult Function() delete,
     required TResult Function(String newName) rename,
     required TResult Function(List<View> views) didReceiveViews,
+    required TResult Function(App app) appDidUpdate,
   }) {
     return delete();
   }
@@ -409,6 +428,7 @@ class _$Delete implements Delete {
     TResult Function()? delete,
     TResult Function(String newName)? rename,
     TResult Function(List<View> views)? didReceiveViews,
+    TResult Function(App app)? appDidUpdate,
     required TResult orElse(),
   }) {
     if (delete != null) {
@@ -425,6 +445,7 @@ class _$Delete implements Delete {
     required TResult Function(Delete value) delete,
     required TResult Function(Rename value) rename,
     required TResult Function(ReceiveViews value) didReceiveViews,
+    required TResult Function(AppDidUpdate value) appDidUpdate,
   }) {
     return delete(this);
   }
@@ -437,6 +458,7 @@ class _$Delete implements Delete {
     TResult Function(Delete value)? delete,
     TResult Function(Rename value)? rename,
     TResult Function(ReceiveViews value)? didReceiveViews,
+    TResult Function(AppDidUpdate value)? appDidUpdate,
     required TResult orElse(),
   }) {
     if (delete != null) {
@@ -518,6 +540,7 @@ class _$Rename implements Rename {
     required TResult Function() delete,
     required TResult Function(String newName) rename,
     required TResult Function(List<View> views) didReceiveViews,
+    required TResult Function(App app) appDidUpdate,
   }) {
     return rename(newName);
   }
@@ -530,6 +553,7 @@ class _$Rename implements Rename {
     TResult Function()? delete,
     TResult Function(String newName)? rename,
     TResult Function(List<View> views)? didReceiveViews,
+    TResult Function(App app)? appDidUpdate,
     required TResult orElse(),
   }) {
     if (rename != null) {
@@ -546,6 +570,7 @@ class _$Rename implements Rename {
     required TResult Function(Delete value) delete,
     required TResult Function(Rename value) rename,
     required TResult Function(ReceiveViews value) didReceiveViews,
+    required TResult Function(AppDidUpdate value) appDidUpdate,
   }) {
     return rename(this);
   }
@@ -558,6 +583,7 @@ class _$Rename implements Rename {
     TResult Function(Delete value)? delete,
     TResult Function(Rename value)? rename,
     TResult Function(ReceiveViews value)? didReceiveViews,
+    TResult Function(AppDidUpdate value)? appDidUpdate,
     required TResult orElse(),
   }) {
     if (rename != null) {
@@ -645,6 +671,7 @@ class _$ReceiveViews implements ReceiveViews {
     required TResult Function() delete,
     required TResult Function(String newName) rename,
     required TResult Function(List<View> views) didReceiveViews,
+    required TResult Function(App app) appDidUpdate,
   }) {
     return didReceiveViews(views);
   }
@@ -657,6 +684,7 @@ class _$ReceiveViews implements ReceiveViews {
     TResult Function()? delete,
     TResult Function(String newName)? rename,
     TResult Function(List<View> views)? didReceiveViews,
+    TResult Function(App app)? appDidUpdate,
     required TResult orElse(),
   }) {
     if (didReceiveViews != null) {
@@ -673,6 +701,7 @@ class _$ReceiveViews implements ReceiveViews {
     required TResult Function(Delete value) delete,
     required TResult Function(Rename value) rename,
     required TResult Function(ReceiveViews value) didReceiveViews,
+    required TResult Function(AppDidUpdate value) appDidUpdate,
   }) {
     return didReceiveViews(this);
   }
@@ -685,6 +714,7 @@ class _$ReceiveViews implements ReceiveViews {
     TResult Function(Delete value)? delete,
     TResult Function(Rename value)? rename,
     TResult Function(ReceiveViews value)? didReceiveViews,
+    TResult Function(AppDidUpdate value)? appDidUpdate,
     required TResult orElse(),
   }) {
     if (didReceiveViews != null) {
@@ -700,6 +730,138 @@ abstract class ReceiveViews implements AppEvent {
   List<View> get views => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $ReceiveViewsCopyWith<ReceiveViews> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $AppDidUpdateCopyWith<$Res> {
+  factory $AppDidUpdateCopyWith(
+          AppDidUpdate value, $Res Function(AppDidUpdate) then) =
+      _$AppDidUpdateCopyWithImpl<$Res>;
+  $Res call({App app});
+}
+
+/// @nodoc
+class _$AppDidUpdateCopyWithImpl<$Res> extends _$AppEventCopyWithImpl<$Res>
+    implements $AppDidUpdateCopyWith<$Res> {
+  _$AppDidUpdateCopyWithImpl(
+      AppDidUpdate _value, $Res Function(AppDidUpdate) _then)
+      : super(_value, (v) => _then(v as AppDidUpdate));
+
+  @override
+  AppDidUpdate get _value => super._value as AppDidUpdate;
+
+  @override
+  $Res call({
+    Object? app = freezed,
+  }) {
+    return _then(AppDidUpdate(
+      app == freezed
+          ? _value.app
+          : app // ignore: cast_nullable_to_non_nullable
+              as App,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$AppDidUpdate implements AppDidUpdate {
+  const _$AppDidUpdate(this.app);
+
+  @override
+  final App app;
+
+  @override
+  String toString() {
+    return 'AppEvent.appDidUpdate(app: $app)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is AppDidUpdate &&
+            (identical(other.app, app) ||
+                const DeepCollectionEquality().equals(other.app, app)));
+  }
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(app);
+
+  @JsonKey(ignore: true)
+  @override
+  $AppDidUpdateCopyWith<AppDidUpdate> get copyWith =>
+      _$AppDidUpdateCopyWithImpl<AppDidUpdate>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function(String name, String desc, ViewType viewType)
+        createView,
+    required TResult Function() delete,
+    required TResult Function(String newName) rename,
+    required TResult Function(List<View> views) didReceiveViews,
+    required TResult Function(App app) appDidUpdate,
+  }) {
+    return appDidUpdate(app);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(String name, String desc, ViewType viewType)? createView,
+    TResult Function()? delete,
+    TResult Function(String newName)? rename,
+    TResult Function(List<View> views)? didReceiveViews,
+    TResult Function(App app)? appDidUpdate,
+    required TResult orElse(),
+  }) {
+    if (appDidUpdate != null) {
+      return appDidUpdate(app);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(Initial value) initial,
+    required TResult Function(CreateView value) createView,
+    required TResult Function(Delete value) delete,
+    required TResult Function(Rename value) rename,
+    required TResult Function(ReceiveViews value) didReceiveViews,
+    required TResult Function(AppDidUpdate value) appDidUpdate,
+  }) {
+    return appDidUpdate(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(CreateView value)? createView,
+    TResult Function(Delete value)? delete,
+    TResult Function(Rename value)? rename,
+    TResult Function(ReceiveViews value)? didReceiveViews,
+    TResult Function(AppDidUpdate value)? appDidUpdate,
+    required TResult orElse(),
+  }) {
+    if (appDidUpdate != null) {
+      return appDidUpdate(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class AppDidUpdate implements AppEvent {
+  const factory AppDidUpdate(App app) = _$AppDidUpdate;
+
+  App get app => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $AppDidUpdateCopyWith<AppDidUpdate> get copyWith =>
       throw _privateConstructorUsedError;
 }
 

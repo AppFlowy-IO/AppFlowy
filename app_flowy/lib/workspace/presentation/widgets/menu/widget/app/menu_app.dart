@@ -29,16 +29,15 @@ class MenuApp extends MenuItem {
           },
         ),
       ],
-      child: BlocListener<AppBloc, AppState>(
-        listenWhen: (p, c) => p.selectedView != c.selectedView,
-        listener: (context, state) => notifier.selectView = state.selectedView,
-        child: BlocBuilder<AppBloc, AppState>(
-          buildWhen: (p, c) => p.views != c.views,
-          builder: (context, state) {
-            notifier.views = state.views;
-            return expandableWrapper(context, _renderViewSection(notifier));
-          },
-        ),
+      child: BlocSelector<AppBloc, AppState, AppDataNotifier>(
+        selector: (state) {
+          notifier.selectView = state.selectedView;
+          notifier.views = state.views;
+          return notifier;
+        },
+        builder: (context, state) {
+          return expandableWrapper(context, _renderViewSection(state));
+        },
       ),
     );
   }
@@ -69,9 +68,9 @@ class MenuApp extends MenuItem {
     );
   }
 
-  Widget _renderViewSection(AppDataNotifier viewListNotifier) {
+  Widget _renderViewSection(AppDataNotifier notifier) {
     return MultiProvider(
-      providers: [ChangeNotifierProvider.value(value: viewListNotifier)],
+      providers: [ChangeNotifierProvider.value(value: notifier)],
       child: Consumer(builder: (context, AppDataNotifier notifier, child) {
         return const ViewSection().padding(vertical: 8);
       }),
@@ -98,13 +97,25 @@ class AppDataNotifier extends ChangeNotifier {
   AppDataNotifier();
 
   set views(List<View>? items) {
-    _views = items ?? List.empty(growable: false);
-    notifyListeners();
+    if (items == null) {
+      if (_views.isNotEmpty) {
+        _views = List.empty(growable: false);
+        notifyListeners();
+      }
+      return;
+    }
+
+    if (_views != items) {
+      _views = items;
+      notifyListeners();
+    }
   }
 
   set selectView(View? view) {
-    _selectedView = view;
-    notifyListeners();
+    if (_selectedView != view) {
+      _selectedView = view;
+      notifyListeners();
+    }
   }
 
   get selectedView => _selectedView;

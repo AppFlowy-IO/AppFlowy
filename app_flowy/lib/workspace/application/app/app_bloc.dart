@@ -18,42 +18,41 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   Stream<AppState> mapEventToState(
     AppEvent event,
   ) async* {
-    yield* event.map(
-      initial: (e) async* {
-        listener.start(viewsChangeCallback: _handleViewsOrFail);
-        yield* _fetchViews();
-      },
-      createView: (CreateView value) async* {
-        final viewOrFailed = await appManager.createView(name: value.name, desc: value.desc, viewType: value.viewType);
-        yield viewOrFailed.fold(
-          (view) => state.copyWith(
-            selectedView: view,
-            successOrFailure: left(unit),
-          ),
-          (error) {
-            Log.error(error);
-            return state.copyWith(successOrFailure: right(error));
-          },
-        );
-      },
-      didReceiveViews: (e) async* {
-        yield state.copyWith(views: e.views);
-      },
-      delete: (e) async* {
-        final result = await appManager.delete();
-        yield result.fold(
-          (l) => state.copyWith(successOrFailure: left(unit)),
-          (error) => state.copyWith(successOrFailure: right(error)),
-        );
-      },
-      rename: (e) async* {
-        final result = await appManager.rename(e.newName);
-        yield result.fold(
-          (l) => state.copyWith(successOrFailure: left(unit)),
-          (error) => state.copyWith(successOrFailure: right(error)),
-        );
-      },
-    );
+    yield* event.map(initial: (e) async* {
+      listener.start(
+        viewsChangeCallback: _handleViewsOrFail,
+        updatedCallback: (app) => add(AppEvent.appDidUpdate(app)),
+      );
+      yield* _fetchViews();
+    }, createView: (CreateView value) async* {
+      final viewOrFailed = await appManager.createView(name: value.name, desc: value.desc, viewType: value.viewType);
+      yield viewOrFailed.fold(
+        (view) => state.copyWith(
+          selectedView: view,
+          successOrFailure: left(unit),
+        ),
+        (error) {
+          Log.error(error);
+          return state.copyWith(successOrFailure: right(error));
+        },
+      );
+    }, didReceiveViews: (e) async* {
+      yield state.copyWith(views: e.views);
+    }, delete: (e) async* {
+      final result = await appManager.delete();
+      yield result.fold(
+        (l) => state.copyWith(successOrFailure: left(unit)),
+        (error) => state.copyWith(successOrFailure: right(error)),
+      );
+    }, rename: (e) async* {
+      final result = await appManager.rename(e.newName);
+      yield result.fold(
+        (l) => state.copyWith(successOrFailure: left(unit)),
+        (error) => state.copyWith(successOrFailure: right(error)),
+      );
+    }, appDidUpdate: (e) async* {
+      yield state.copyWith(app: e.app);
+    });
   }
 
   @override
@@ -90,6 +89,7 @@ class AppEvent with _$AppEvent {
   const factory AppEvent.delete() = Delete;
   const factory AppEvent.rename(String newName) = Rename;
   const factory AppEvent.didReceiveViews(List<View> views) = ReceiveViews;
+  const factory AppEvent.appDidUpdate(App app) = AppDidUpdate;
 }
 
 @freezed

@@ -100,7 +100,7 @@ class AppListenerRepository {
           result.fold(
             (payload) {
               final app = App.fromBuffer(payload);
-              _update!(app.name, app.desc);
+              _update!(app);
             },
             (error) => Log.error(error),
           );
