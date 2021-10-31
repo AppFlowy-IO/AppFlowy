@@ -64,7 +64,7 @@ impl ViewController {
 
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.save_view(view.clone(), conn)?;
-            let _ = notify_view_num_changed(&view.belong_to_id, trash_can, &conn)?;
+            let _ = notify_views_changed(&view.belong_to_id, trash_can, &conn)?;
 
             Ok(())
         })?;
@@ -163,7 +163,7 @@ impl ViewController {
             .send();
 
         //
-        let _ = notify_view_num_changed(&updated_view.belong_to_id, self.trash_can.clone(), conn)?;
+        let _ = notify_views_changed(&updated_view.belong_to_id, self.trash_can.clone(), conn)?;
 
         let _ = self.update_view_on_server(params);
         Ok(updated_view)
@@ -253,6 +253,7 @@ impl ViewController {
     }
 }
 
+#[tracing::instrument(level = "debug", skip(database, document, trash_can))]
 async fn handle_trash_event(
     database: Arc<dyn WorkspaceDatabase>,
     document: Arc<FlowyDocument>,
@@ -268,7 +269,7 @@ async fn handle_trash_event(
                 let _ = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
                     for identifier in identifiers.items {
                         let view_table = ViewTableSql::read_view(&identifier.id, conn)?;
-                        let _ = notify_view_num_changed(&view_table.belong_to_id, trash_can.clone(), conn)?;
+                        let _ = notify_views_changed(&view_table.belong_to_id, trash_can.clone(), conn)?;
                     }
                     Ok(())
                 })?;
@@ -289,7 +290,7 @@ async fn handle_trash_event(
                     }
 
                     for notify_id in notify_ids {
-                        let _ = notify_view_num_changed(&notify_id, trash_can.clone(), conn)?;
+                        let _ = notify_views_changed(&notify_id, trash_can.clone(), conn)?;
                     }
 
                     Ok(())
@@ -302,11 +303,7 @@ async fn handle_trash_event(
 }
 
 #[tracing::instrument(skip(belong_to_id, trash_can, conn), fields(view_count), err)]
-fn notify_view_num_changed(
-    belong_to_id: &str,
-    trash_can: Arc<TrashCan>,
-    conn: &SqliteConnection,
-) -> WorkspaceResult<()> {
+fn notify_views_changed(belong_to_id: &str, trash_can: Arc<TrashCan>, conn: &SqliteConnection) -> WorkspaceResult<()> {
     let repeated_view = read_local_belonging_view(belong_to_id, trash_can.clone(), conn)?;
     tracing::Span::current().record("view_count", &format!("{}", repeated_view.len()).as_str());
     send_dart_notification(&belong_to_id, WorkspaceNotification::AppViewsChanged)

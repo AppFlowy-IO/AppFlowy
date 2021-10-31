@@ -32,9 +32,9 @@ class _$TrashEventTearOff {
     );
   }
 
-  Delete delete(String trashId) {
+  Delete delete(Trash trash) {
     return Delete(
-      trashId,
+      trash,
     );
   }
 
@@ -57,7 +57,7 @@ mixin _$TrashEvent {
     required TResult Function() initial,
     required TResult Function(List<Trash> trash) didReceiveTrash,
     required TResult Function(String trashId) putback,
-    required TResult Function(String trashId) delete,
+    required TResult Function(Trash trash) delete,
     required TResult Function() restoreAll,
     required TResult Function() deleteAll,
   }) =>
@@ -67,7 +67,7 @@ mixin _$TrashEvent {
     TResult Function()? initial,
     TResult Function(List<Trash> trash)? didReceiveTrash,
     TResult Function(String trashId)? putback,
-    TResult Function(String trashId)? delete,
+    TResult Function(Trash trash)? delete,
     TResult Function()? restoreAll,
     TResult Function()? deleteAll,
     required TResult orElse(),
@@ -152,7 +152,7 @@ class _$Initial implements Initial {
     required TResult Function() initial,
     required TResult Function(List<Trash> trash) didReceiveTrash,
     required TResult Function(String trashId) putback,
-    required TResult Function(String trashId) delete,
+    required TResult Function(Trash trash) delete,
     required TResult Function() restoreAll,
     required TResult Function() deleteAll,
   }) {
@@ -165,7 +165,7 @@ class _$Initial implements Initial {
     TResult Function()? initial,
     TResult Function(List<Trash> trash)? didReceiveTrash,
     TResult Function(String trashId)? putback,
-    TResult Function(String trashId)? delete,
+    TResult Function(Trash trash)? delete,
     TResult Function()? restoreAll,
     TResult Function()? deleteAll,
     required TResult orElse(),
@@ -278,7 +278,7 @@ class _$ReceiveTrash implements ReceiveTrash {
     required TResult Function() initial,
     required TResult Function(List<Trash> trash) didReceiveTrash,
     required TResult Function(String trashId) putback,
-    required TResult Function(String trashId) delete,
+    required TResult Function(Trash trash) delete,
     required TResult Function() restoreAll,
     required TResult Function() deleteAll,
   }) {
@@ -291,7 +291,7 @@ class _$ReceiveTrash implements ReceiveTrash {
     TResult Function()? initial,
     TResult Function(List<Trash> trash)? didReceiveTrash,
     TResult Function(String trashId)? putback,
-    TResult Function(String trashId)? delete,
+    TResult Function(Trash trash)? delete,
     TResult Function()? restoreAll,
     TResult Function()? deleteAll,
     required TResult orElse(),
@@ -407,7 +407,7 @@ class _$Putback implements Putback {
     required TResult Function() initial,
     required TResult Function(List<Trash> trash) didReceiveTrash,
     required TResult Function(String trashId) putback,
-    required TResult Function(String trashId) delete,
+    required TResult Function(Trash trash) delete,
     required TResult Function() restoreAll,
     required TResult Function() deleteAll,
   }) {
@@ -420,7 +420,7 @@ class _$Putback implements Putback {
     TResult Function()? initial,
     TResult Function(List<Trash> trash)? didReceiveTrash,
     TResult Function(String trashId)? putback,
-    TResult Function(String trashId)? delete,
+    TResult Function(Trash trash)? delete,
     TResult Function()? restoreAll,
     TResult Function()? deleteAll,
     required TResult orElse(),
@@ -474,7 +474,7 @@ abstract class Putback implements TrashEvent {
 abstract class $DeleteCopyWith<$Res> {
   factory $DeleteCopyWith(Delete value, $Res Function(Delete) then) =
       _$DeleteCopyWithImpl<$Res>;
-  $Res call({String trashId});
+  $Res call({Trash trash});
 }
 
 /// @nodoc
@@ -488,13 +488,13 @@ class _$DeleteCopyWithImpl<$Res> extends _$TrashEventCopyWithImpl<$Res>
 
   @override
   $Res call({
-    Object? trashId = freezed,
+    Object? trash = freezed,
   }) {
     return _then(Delete(
-      trashId == freezed
-          ? _value.trashId
-          : trashId // ignore: cast_nullable_to_non_nullable
-              as String,
+      trash == freezed
+          ? _value.trash
+          : trash // ignore: cast_nullable_to_non_nullable
+              as Trash,
     ));
   }
 }
@@ -502,27 +502,27 @@ class _$DeleteCopyWithImpl<$Res> extends _$TrashEventCopyWithImpl<$Res>
 /// @nodoc
 
 class _$Delete implements Delete {
-  const _$Delete(this.trashId);
+  const _$Delete(this.trash);
 
   @override
-  final String trashId;
+  final Trash trash;
 
   @override
   String toString() {
-    return 'TrashEvent.delete(trashId: $trashId)';
+    return 'TrashEvent.delete(trash: $trash)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other is Delete &&
-            (identical(other.trashId, trashId) ||
-                const DeepCollectionEquality().equals(other.trashId, trashId)));
+            (identical(other.trash, trash) ||
+                const DeepCollectionEquality().equals(other.trash, trash)));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(trashId);
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(trash);
 
   @JsonKey(ignore: true)
   @override
@@ -535,11 +535,11 @@ class _$Delete implements Delete {
     required TResult Function() initial,
     required TResult Function(List<Trash> trash) didReceiveTrash,
     required TResult Function(String trashId) putback,
-    required TResult Function(String trashId) delete,
+    required TResult Function(Trash trash) delete,
     required TResult Function() restoreAll,
     required TResult Function() deleteAll,
   }) {
-    return delete(trashId);
+    return delete(trash);
   }
 
   @override
@@ -548,13 +548,13 @@ class _$Delete implements Delete {
     TResult Function()? initial,
     TResult Function(List<Trash> trash)? didReceiveTrash,
     TResult Function(String trashId)? putback,
-    TResult Function(String trashId)? delete,
+    TResult Function(Trash trash)? delete,
     TResult Function()? restoreAll,
     TResult Function()? deleteAll,
     required TResult orElse(),
   }) {
     if (delete != null) {
-      return delete(trashId);
+      return delete(trash);
     }
     return orElse();
   }
@@ -591,9 +591,9 @@ class _$Delete implements Delete {
 }
 
 abstract class Delete implements TrashEvent {
-  const factory Delete(String trashId) = _$Delete;
+  const factory Delete(Trash trash) = _$Delete;
 
-  String get trashId => throw _privateConstructorUsedError;
+  Trash get trash => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $DeleteCopyWith<Delete> get copyWith => throw _privateConstructorUsedError;
 }
@@ -639,7 +639,7 @@ class _$RestoreAll implements RestoreAll {
     required TResult Function() initial,
     required TResult Function(List<Trash> trash) didReceiveTrash,
     required TResult Function(String trashId) putback,
-    required TResult Function(String trashId) delete,
+    required TResult Function(Trash trash) delete,
     required TResult Function() restoreAll,
     required TResult Function() deleteAll,
   }) {
@@ -652,7 +652,7 @@ class _$RestoreAll implements RestoreAll {
     TResult Function()? initial,
     TResult Function(List<Trash> trash)? didReceiveTrash,
     TResult Function(String trashId)? putback,
-    TResult Function(String trashId)? delete,
+    TResult Function(Trash trash)? delete,
     TResult Function()? restoreAll,
     TResult Function()? deleteAll,
     required TResult orElse(),
@@ -738,7 +738,7 @@ class _$DeleteAll implements DeleteAll {
     required TResult Function() initial,
     required TResult Function(List<Trash> trash) didReceiveTrash,
     required TResult Function(String trashId) putback,
-    required TResult Function(String trashId) delete,
+    required TResult Function(Trash trash) delete,
     required TResult Function() restoreAll,
     required TResult Function() deleteAll,
   }) {
@@ -751,7 +751,7 @@ class _$DeleteAll implements DeleteAll {
     TResult Function()? initial,
     TResult Function(List<Trash> trash)? didReceiveTrash,
     TResult Function(String trashId)? putback,
-    TResult Function(String trashId)? delete,
+    TResult Function(Trash trash)? delete,
     TResult Function()? restoreAll,
     TResult Function()? deleteAll,
     required TResult orElse(),

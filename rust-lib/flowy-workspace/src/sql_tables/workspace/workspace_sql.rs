@@ -1,9 +1,6 @@
 use crate::{
     errors::WorkspaceError,
-    sql_tables::{
-        app::AppTable,
-        workspace::{WorkspaceTable, WorkspaceTableChangeset},
-    },
+    sql_tables::workspace::{WorkspaceTable, WorkspaceTableChangeset},
 };
 use diesel::SqliteConnection;
 use flowy_database::{
@@ -62,17 +59,5 @@ impl WorkspaceTableSql {
     pub(crate) fn delete_workspace(&self, workspace_id: &str, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
         diesel_delete_table!(workspace_table, workspace_id, conn);
         Ok(())
-    }
-
-    pub(crate) fn read_apps_belong_to_workspace(
-        &self,
-        workspace_id: &str,
-        conn: &SqliteConnection,
-    ) -> Result<Vec<AppTable>, WorkspaceError> {
-        let workspace_table: WorkspaceTable = dsl::workspace_table
-            .filter(workspace_table::id.eq(workspace_id))
-            .first::<WorkspaceTable>(conn)?;
-        let apps = AppTable::belonging_to(&workspace_table).load::<AppTable>(conn)?;
-        Ok(apps)
     }
 }

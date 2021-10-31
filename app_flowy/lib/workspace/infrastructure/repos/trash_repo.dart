@@ -21,12 +21,14 @@ class TrashRepo {
     return WorkspaceEventPutbackTrash(id).send();
   }
 
-  Future<Either<Unit, WorkspaceError>> deleteViews(List<String> viewIds) {
-    final trashIdentifiers = TrashIdentifiers(
-        items: viewIds.map((id) => TrashIdentifier.create()
-          ..id = id
-          ..ty = TrashType.View));
+  Future<Either<Unit, WorkspaceError>> deleteViews(List<Trash> trashList) {
+    final items = trashList.map((trash) {
+      return TrashIdentifier.create()
+        ..id = trash.id
+        ..ty = trash.ty;
+    });
 
+    final trashIdentifiers = TrashIdentifiers(items: items);
     return WorkspaceEventDeleteTrash(trashIdentifiers).send();
   }
 

@@ -66,6 +66,7 @@ pub(crate) async fn delete_workspace(
     Ok(())
 }
 
+#[tracing::instrument(skip(transaction, logged_user), err)]
 pub async fn read_workspaces(
     transaction: &mut DBTransaction<'_>,
     workspace_id: Option<String>,
@@ -109,7 +110,7 @@ pub async fn read_workspaces(
     Ok(repeated_workspace)
 }
 
-// transaction must be commit from caller
+#[tracing::instrument(skip(transaction, user), fields(app_count), err)]
 async fn read_workspace_apps<'c>(
     user: &LoggedUser,
     transaction: &mut DBTransaction<'_>,
@@ -126,6 +127,7 @@ async fn read_workspace_apps<'c>(
         .await
         .map_err(map_sqlx_error)?;
 
+    tracing::Span::current().record("app_count", &app_tables.len());
     let mut apps = vec![];
     for table in app_tables {
         let app = read_app(transaction, table.id, user).await?;

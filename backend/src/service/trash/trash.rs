@@ -13,6 +13,7 @@ use flowy_workspace::protobuf::{RepeatedTrash, Trash, TrashType};
 use sqlx::{postgres::PgArguments, Postgres, Row};
 use uuid::Uuid;
 
+#[tracing::instrument(skip(transaction, user), err)]
 pub(crate) async fn create_trash(
     transaction: &mut DBTransaction<'_>,
     records: Vec<(Uuid, i32)>,
@@ -66,10 +67,10 @@ pub(crate) async fn delete_all_trash(
     Ok(())
 }
 
+#[tracing::instrument(skip(transaction), err)]
 pub(crate) async fn delete_trash(
     transaction: &mut DBTransaction<'_>,
     records: Vec<(Uuid, i32)>,
-    _user: &LoggedUser,
 ) -> Result<(), ServerError> {
     for (trash_id, _) in records {
         // Read the trash_table and delete the original table according to the TrashType
@@ -99,6 +100,7 @@ pub(crate) async fn delete_trash(
     Ok(())
 }
 
+#[tracing::instrument(skip(transaction, targets), err)]
 async fn delete_trash_targets(
     transaction: &mut DBTransaction<'_>,
     targets: Vec<(Uuid, i32)>,
@@ -134,6 +136,7 @@ pub(crate) async fn read_trash_ids(
     Ok(ids)
 }
 
+#[tracing::instrument(skip(transaction, user), err)]
 pub(crate) async fn read_trash(
     transaction: &mut DBTransaction<'_>,
     user: &LoggedUser,

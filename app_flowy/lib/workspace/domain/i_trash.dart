@@ -8,7 +8,7 @@ abstract class ITrash {
 
   Future<Either<Unit, WorkspaceError>> putback(String trashId);
 
-  Future<Either<Unit, WorkspaceError>> deleteViews(List<String> trashIds);
+  Future<Either<Unit, WorkspaceError>> deleteViews(List<Trash> trashList);
 
   Future<Either<Unit, WorkspaceError>> restoreAll();
 

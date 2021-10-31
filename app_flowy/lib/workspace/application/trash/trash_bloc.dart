@@ -31,7 +31,7 @@ class TrashBloc extends Bloc<TrashEvent, TrashState> {
         yield* _handleResult(result);
       },
       delete: (e) async* {
-        final result = await trasnManager.deleteViews([e.trashId]);
+        final result = await trasnManager.deleteViews([e.trash]);
         yield* _handleResult(result);
       },
       deleteAll: (e) async* {
@@ -75,7 +75,7 @@ class TrashEvent with _$TrashEvent {
   const factory TrashEvent.initial() = Initial;
   const factory TrashEvent.didReceiveTrash(List<Trash> trash) = ReceiveTrash;
   const factory TrashEvent.putback(String trashId) = Putback;
-  const factory TrashEvent.delete(String trashId) = Delete;
+  const factory TrashEvent.delete(Trash trash) = Delete;
   const factory TrashEvent.restoreAll() = RestoreAll;
   const factory TrashEvent.deleteAll() = DeleteAll;
 }

@@ -59,7 +59,7 @@ pub async fn delete_handler(
         let _ = delete_all_trash(&mut transaction, &logged_user).await?;
     } else {
         let records = make_records(params)?;
-        let _ = delete_trash(&mut transaction, records, &logged_user).await?;
+        let _ = delete_trash(&mut transaction, records).await?;
     }
 
     transaction

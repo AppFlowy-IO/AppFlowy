@@ -25,8 +25,8 @@ class ITrashImpl implements ITrash {
   }
 
   @override
-  Future<Either<Unit, WorkspaceError>> deleteViews(List<String> trashIds) {
-    return repo.deleteViews(trashIds);
+  Future<Either<Unit, WorkspaceError>> deleteViews(List<Trash> trashList) {
+    return repo.deleteViews(trashList);
   }
 
   @override

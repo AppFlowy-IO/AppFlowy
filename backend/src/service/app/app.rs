@@ -101,6 +101,7 @@ pub(crate) async fn update_app(
     Ok(())
 }
 
+#[tracing::instrument(skip(transaction), err)]
 pub(crate) async fn delete_app(transaction: &mut DBTransaction<'_>, app_id: Uuid) -> Result<(), ServerError> {
     let (sql, args) = SqlBuilder::delete(APP_TABLE).and_where_eq("id", app_id).build()?;
     let _ = sqlx::query_with(&sql, args)

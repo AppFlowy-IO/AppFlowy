@@ -6,7 +6,7 @@ use crate::{
     errors::*,
     module::{WorkspaceDatabase, WorkspaceUser},
     notify::*,
-    services::{helper::spawn, server::Server, AppController, TrashCan, ViewController},
+    services::{helper::spawn, read_local_workspace_apps, server::Server, AppController, TrashCan, ViewController},
     sql_tables::workspace::{WorkspaceTable, WorkspaceTableChangeset, WorkspaceTableSql},
 };
 use flowy_database::SqliteConnection;
@@ -159,9 +159,9 @@ impl WorkspaceController {
     pub(crate) async fn read_workspace_apps(&self) -> Result<RepeatedApp, WorkspaceError> {
         let workspace_id = get_current_workspace()?;
         let conn = self.database.db_connection()?;
-        let apps = self.read_local_apps(&workspace_id, &*conn)?;
+        let repeated_app = self.read_local_apps(&workspace_id, &*conn)?;
         // TODO: read from server
-        Ok(RepeatedApp { items: apps })
+        Ok(repeated_app)
     }
 
     #[tracing::instrument(level = "debug", skip(self, conn), err)]
@@ -176,7 +176,7 @@ impl WorkspaceController {
 
         let mut workspaces = vec![];
         for table in workspace_tables {
-            let apps = self.read_local_apps(&table.id, conn)?;
+            let apps = self.read_local_apps(&table.id, conn)?.into_inner();
             let mut workspace: Workspace = table.into();
             workspace.apps.items = apps;
             workspaces.push(workspace);
@@ -202,15 +202,9 @@ impl WorkspaceController {
     }
 
     #[tracing::instrument(level = "debug", skip(self, conn), err)]
-    fn read_local_apps(&self, workspace_id: &str, conn: &SqliteConnection) -> Result<Vec<App>, WorkspaceError> {
-        let apps = self
-            .workspace_sql
-            .read_apps_belong_to_workspace(workspace_id, conn)?
-            .into_iter()
-            .map(|app_table| app_table.into())
-            .collect::<Vec<App>>();
-
-        Ok(apps)
+    fn read_local_apps(&self, workspace_id: &str, conn: &SqliteConnection) -> Result<RepeatedApp, WorkspaceError> {
+        let repeated_app = read_local_workspace_apps(workspace_id, self.trash_can.clone(), conn)?;
+        Ok(repeated_app)
     }
 }
 

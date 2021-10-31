@@ -47,7 +47,7 @@ impl AppController {
 
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.save_app(app.clone(), &*conn)?;
-            let _ = notify_app_num_changed(&app.workspace_id, self.trash_can.clone(), conn)?;
+            let _ = notify_apps_changed(&app.workspace_id, self.trash_can.clone(), conn)?;
             Ok(())
         })?;
 
@@ -179,6 +179,7 @@ impl AppController {
     }
 }
 
+#[tracing::instrument(level = "debug", skip(database, trash_can))]
 async fn handle_trash_event(database: Arc<dyn WorkspaceDatabase>, trash_can: Arc<TrashCan>, event: TrashEvent) {
     let db_result = database.db_connection();
     match event {
@@ -188,7 +189,7 @@ async fn handle_trash_event(database: Arc<dyn WorkspaceDatabase>, trash_can: Arc
                 let _ = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
                     for identifier in identifiers.items {
                         let app_table = AppTableSql::read_app(&identifier.id, conn)?;
-                        let _ = notify_app_num_changed(&app_table.workspace_id, trash_can.clone(), conn)?;
+                        let _ = notify_apps_changed(&app_table.workspace_id, trash_can.clone(), conn)?;
                     }
                     Ok(())
                 })?;
@@ -208,7 +209,7 @@ async fn handle_trash_event(database: Arc<dyn WorkspaceDatabase>, trash_can: Arc
                     }
 
                     for notify_id in notify_ids {
-                        let _ = notify_app_num_changed(&notify_id, trash_can.clone(), conn)?;
+                        let _ = notify_apps_changed(&notify_id, trash_can.clone(), conn)?;
                     }
                     Ok(())
                 })?;
@@ -220,11 +221,7 @@ async fn handle_trash_event(database: Arc<dyn WorkspaceDatabase>, trash_can: Arc
 }
 
 #[tracing::instrument(skip(workspace_id, trash_can, conn), err)]
-fn notify_app_num_changed(
-    workspace_id: &str,
-    trash_can: Arc<TrashCan>,
-    conn: &SqliteConnection,
-) -> WorkspaceResult<()> {
+fn notify_apps_changed(workspace_id: &str, trash_can: Arc<TrashCan>, conn: &SqliteConnection) -> WorkspaceResult<()> {
     let repeated_app = read_local_workspace_apps(workspace_id, trash_can, conn)?;
     send_dart_notification(workspace_id, WorkspaceNotification::WorkspaceAppsChanged)
         .payload(repeated_app)
@@ -232,7 +229,7 @@ fn notify_app_num_changed(
     Ok(())
 }
 
-fn read_local_workspace_apps(
+pub fn read_local_workspace_apps(
     workspace_id: &str,
     trash_can: Arc<TrashCan>,
     conn: &SqliteConnection,

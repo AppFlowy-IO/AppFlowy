@@ -160,7 +160,7 @@ class _TrashStackPageState extends State<TrashStackPage> {
               onRestore: () {
                 context.read<TrashBloc>().add(TrashEvent.putback(object.id));
               },
-              onDelete: () => context.read<TrashBloc>().add(TrashEvent.delete(object.id)),
+              onDelete: () => context.read<TrashBloc>().add(TrashEvent.delete(object)),
             ),
           );
         },

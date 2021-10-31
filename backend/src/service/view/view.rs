@@ -44,6 +44,7 @@ pub(crate) async fn update_view(
     Ok(())
 }
 
+#[tracing::instrument(skip(transaction), err)]
 pub(crate) async fn delete_view(transaction: &mut DBTransaction<'_>, view_ids: Vec<Uuid>) -> Result<(), ServerError> {
     for view_id in view_ids {
         let (sql, args) = SqlBuilder::delete(VIEW_TABLE).and_where_eq("id", &view_id).build()?;
