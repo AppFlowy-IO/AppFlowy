@@ -11,6 +11,7 @@ import 'package:flowy_sdk/protobuf/flowy-workspace/view_update.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 
 import 'package:app_flowy/workspace/domain/i_view.dart';
+import 'package:flowy_infra/notifier.dart';
 
 import 'helper.dart';
 
@@ -52,7 +53,9 @@ class ViewRepository {
 
 class ViewListenerRepository {
   StreamSubscription<SubscribeObject>? _subscription;
-  ViewUpdatedCallback? _update;
+  PublishNotifier<UpdateNotifierValue> updatedNotifier = PublishNotifier<UpdateNotifierValue>();
+  PublishNotifier<DeleteNotifierValue> deletedNotifier = PublishNotifier<DeleteNotifierValue>();
+  PublishNotifier<RestoreNotifierValue> restoredNotifier = PublishNotifier<RestoreNotifierValue>();
   late WorkspaceNotificationParser _parser;
   View view;
 
@@ -60,10 +63,7 @@ class ViewListenerRepository {
     required this.view,
   });
 
-  void startWatching({
-    ViewUpdatedCallback? update,
-  }) {
-    _update = update;
+  void start() {
     _parser = WorkspaceNotificationParser(
       id: view.id,
       callback: (ty, result) {
@@ -77,15 +77,22 @@ class ViewListenerRepository {
   void _handleObservableType(WorkspaceNotification ty, Either<Uint8List, WorkspaceError> result) {
     switch (ty) {
       case WorkspaceNotification.ViewUpdated:
-        if (_update != null) {
-          result.fold(
-            (payload) {
-              final view = View.fromBuffer(payload);
-              _update!(left(view));
-            },
-            (error) => _update!(right(error)),
-          );
-        }
+        result.fold(
+          (payload) => updatedNotifier.value = left(View.fromBuffer(payload)),
+          (error) => updatedNotifier.value = right(error),
+        );
+        break;
+      case WorkspaceNotification.ViewDeleted:
+        result.fold(
+          (payload) => deletedNotifier.value = left(View.fromBuffer(payload)),
+          (error) => deletedNotifier.value = right(error),
+        );
+        break;
+      case WorkspaceNotification.ViewRestored:
+        result.fold(
+          (payload) => restoredNotifier.value = left(View.fromBuffer(payload)),
+          (error) => restoredNotifier.value = right(error),
+        );
         break;
       default:
         break;

@@ -20,7 +20,10 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
   Stream<ViewState> mapEventToState(ViewEvent event) async* {
     yield* event.map(
       initial: (e) async* {
-        listener.start(updatedCallback: (result) => add(ViewEvent.viewDidUpdate(result)));
+        listener.updatedNotifier.addPublishListener((result) {
+          add(ViewEvent.viewDidUpdate(result));
+        });
+        listener.start();
         yield state;
       },
       setIsEditing: (e) async* {

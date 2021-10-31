@@ -20,7 +20,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   ) async* {
     yield* event.map(initial: (e) async* {
       listener.start(
-        viewsChangeCallback: _handleViewsOrFail,
+        viewsChangeCallback: _handleViewsChanged,
         updatedCallback: (app) => add(AppEvent.appDidUpdate(app)),
       );
       yield* _fetchViews();
@@ -37,11 +37,11 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         },
       );
     }, didReceiveViews: (e) async* {
-      yield state.copyWith(views: e.views);
+      yield* handleDidReceiveViews(e.views);
     }, delete: (e) async* {
       final result = await appManager.delete();
       yield result.fold(
-        (l) => state.copyWith(successOrFailure: left(unit)),
+        (unit) => state.copyWith(successOrFailure: left(unit)),
         (error) => state.copyWith(successOrFailure: right(error)),
       );
     }, rename: (e) async* {
@@ -61,13 +61,26 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     return super.close();
   }
 
-  void _handleViewsOrFail(Either<List<View>, WorkspaceError> viewsOrFail) {
-    viewsOrFail.fold(
+  void _handleViewsChanged(Either<List<View>, WorkspaceError> result) {
+    result.fold(
       (views) => add(AppEvent.didReceiveViews(views)),
       (error) {
         Log.error(error);
       },
     );
+  }
+
+  Stream<AppState> handleDidReceiveViews(List<View> views) async* {
+    final selectedView = state.selectedView;
+    AppState newState = state.copyWith(views: views);
+    if (selectedView != null) {
+      final index = views.indexWhere((element) => element.id == selectedView.id);
+      if (index != -1) {
+        newState = newState.copyWith(selectedView: null);
+      }
+    }
+
+    yield newState;
   }
 
   Stream<AppState> _fetchViews() async* {

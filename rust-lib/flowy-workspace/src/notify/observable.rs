@@ -2,6 +2,8 @@ use flowy_dart_notify::DartNotifyBuilder;
 use flowy_derive::ProtoBuf_Enum;
 const OBSERVABLE_CATEGORY: &'static str = "Workspace";
 
+// Opti: Using the Rust macro to generate the serde code automatically that can
+// be use directly in flutter
 #[derive(ProtoBuf_Enum, Debug)]
 pub(crate) enum WorkspaceNotification {
     Unknown              = 0,
@@ -13,6 +15,8 @@ pub(crate) enum WorkspaceNotification {
     AppUpdated           = 21,
     AppViewsChanged      = 24,
     ViewUpdated          = 31,
+    ViewDeleted          = 32,
+    ViewRestored         = 33,
     UserUnauthorized     = 100,
     TrashUpdated         = 1000,
 }

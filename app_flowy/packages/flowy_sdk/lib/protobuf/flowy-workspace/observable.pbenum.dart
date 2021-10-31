@@ -19,6 +19,8 @@ class WorkspaceNotification extends $pb.ProtobufEnum {
   static const WorkspaceNotification AppUpdated = WorkspaceNotification._(21, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppUpdated');
   static const WorkspaceNotification AppViewsChanged = WorkspaceNotification._(24, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'AppViewsChanged');
   static const WorkspaceNotification ViewUpdated = WorkspaceNotification._(31, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewUpdated');
+  static const WorkspaceNotification ViewDeleted = WorkspaceNotification._(32, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewDeleted');
+  static const WorkspaceNotification ViewRestored = WorkspaceNotification._(33, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ViewRestored');
   static const WorkspaceNotification UserUnauthorized = WorkspaceNotification._(100, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserUnauthorized');
   static const WorkspaceNotification TrashUpdated = WorkspaceNotification._(1000, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'TrashUpdated');
 
@@ -32,6 +34,8 @@ class WorkspaceNotification extends $pb.ProtobufEnum {
     AppUpdated,
     AppViewsChanged,
     ViewUpdated,
+    ViewDeleted,
+    ViewRestored,
     UserUnauthorized,
     TrashUpdated,
   ];

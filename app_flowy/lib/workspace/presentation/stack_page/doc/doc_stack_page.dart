@@ -15,7 +15,7 @@ class DocStackContext extends HomeStackContext {
 
   DocStackContext({required View view, Key? key}) : _view = view {
     _listener = getIt<IViewListener>(param1: view);
-    _listener.start(updatedCallback: (result) {
+    _listener.updatedNotifier.addPublishListener((result) {
       result.fold(
         (newView) {
           _view = newView;
@@ -24,6 +24,7 @@ class DocStackContext extends HomeStackContext {
         (error) {},
       );
     });
+    _listener.start();
   }
 
   @override

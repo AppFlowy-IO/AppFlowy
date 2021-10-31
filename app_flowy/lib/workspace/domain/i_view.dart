@@ -1,8 +1,13 @@
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flowy_infra/notifier.dart';
 
 typedef ViewUpdatedCallback = void Function(Either<View, WorkspaceError>);
+
+typedef DeleteNotifierValue = Either<View, WorkspaceError>;
+typedef UpdateNotifierValue = Either<View, WorkspaceError>;
+typedef RestoreNotifierValue = Either<View, WorkspaceError>;
 
 abstract class IView {
   View get view;
@@ -15,7 +20,13 @@ abstract class IView {
 }
 
 abstract class IViewListener {
-  void start({ViewUpdatedCallback? updatedCallback});
+  void start();
+
+  PublishNotifier<UpdateNotifierValue> get updatedNotifier;
+
+  PublishNotifier<DeleteNotifierValue> get deletedNotifier;
+
+  PublishNotifier<RestoreNotifierValue> get restoredNotifier;
 
   Future<void> stop();
 }

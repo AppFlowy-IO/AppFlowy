@@ -21,10 +21,12 @@ const WorkspaceNotification$json = const {
     const {'1': 'AppUpdated', '2': 21},
     const {'1': 'AppViewsChanged', '2': 24},
     const {'1': 'ViewUpdated', '2': 31},
+    const {'1': 'ViewDeleted', '2': 32},
+    const {'1': 'ViewRestored', '2': 33},
     const {'1': 'UserUnauthorized', '2': 100},
     const {'1': 'TrashUpdated', '2': 1000},
   ],
 };
 
 /// Descriptor for `WorkspaceNotification`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List workspaceNotificationDescriptor = $convert.base64Decode('ChVXb3Jrc3BhY2VOb3RpZmljYXRpb24SCwoHVW5rbm93bhAAEhcKE1VzZXJDcmVhdGVXb3Jrc3BhY2UQChIXChNVc2VyRGVsZXRlV29ya3NwYWNlEAsSFAoQV29ya3NwYWNlVXBkYXRlZBAMEhgKFFdvcmtzcGFjZUxpc3RVcGRhdGVkEA0SGAoUV29ya3NwYWNlQXBwc0NoYW5nZWQQDhIOCgpBcHBVcGRhdGVkEBUSEwoPQXBwVmlld3NDaGFuZ2VkEBgSDwoLVmlld1VwZGF0ZWQQHxIUChBVc2VyVW5hdXRob3JpemVkEGQSEQoMVHJhc2hVcGRhdGVkEOgH');
+final $typed_data.Uint8List workspaceNotificationDescriptor = $convert.base64Decode('ChVXb3Jrc3BhY2VOb3RpZmljYXRpb24SCwoHVW5rbm93bhAAEhcKE1VzZXJDcmVhdGVXb3Jrc3BhY2UQChIXChNVc2VyRGVsZXRlV29ya3NwYWNlEAsSFAoQV29ya3NwYWNlVXBkYXRlZBAMEhgKFFdvcmtzcGFjZUxpc3RVcGRhdGVkEA0SGAoUV29ya3NwYWNlQXBwc0NoYW5nZWQQDhIOCgpBcHBVcGRhdGVkEBUSEwoPQXBwVmlld3NDaGFuZ2VkEBgSDwoLVmlld1VwZGF0ZWQQHxIPCgtWaWV3RGVsZXRlZBAgEhAKDFZpZXdSZXN0b3JlZBAhEhQKEFVzZXJVbmF1dGhvcml6ZWQQZBIRCgxUcmFzaFVwZGF0ZWQQ6Ac=');

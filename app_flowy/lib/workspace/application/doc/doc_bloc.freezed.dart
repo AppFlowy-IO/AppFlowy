@@ -19,6 +19,14 @@ class _$DocEventTearOff {
   Initial initial() {
     return const Initial();
   }
+
+  Deleted deleted() {
+    return const Deleted();
+  }
+
+  Restore restore() {
+    return const Restore();
+  }
 }
 
 /// @nodoc
@@ -29,22 +37,30 @@ mixin _$DocEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
+    required TResult Function() deleted,
+    required TResult Function() restore,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
+    TResult Function()? deleted,
+    TResult Function()? restore,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(Initial value) initial,
+    required TResult Function(Deleted value) deleted,
+    required TResult Function(Restore value) restore,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Initial value)? initial,
+    TResult Function(Deleted value)? deleted,
+    TResult Function(Restore value)? restore,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -103,6 +119,8 @@ class _$Initial implements Initial {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
+    required TResult Function() deleted,
+    required TResult Function() restore,
   }) {
     return initial();
   }
@@ -111,6 +129,8 @@ class _$Initial implements Initial {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
+    TResult Function()? deleted,
+    TResult Function()? restore,
     required TResult orElse(),
   }) {
     if (initial != null) {
@@ -123,6 +143,8 @@ class _$Initial implements Initial {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(Initial value) initial,
+    required TResult Function(Deleted value) deleted,
+    required TResult Function(Restore value) restore,
   }) {
     return initial(this);
   }
@@ -131,6 +153,8 @@ class _$Initial implements Initial {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(Initial value)? initial,
+    TResult Function(Deleted value)? deleted,
+    TResult Function(Restore value)? restore,
     required TResult orElse(),
   }) {
     if (initial != null) {
@@ -145,12 +169,187 @@ abstract class Initial implements DocEvent {
 }
 
 /// @nodoc
+abstract class $DeletedCopyWith<$Res> {
+  factory $DeletedCopyWith(Deleted value, $Res Function(Deleted) then) =
+      _$DeletedCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class _$DeletedCopyWithImpl<$Res> extends _$DocEventCopyWithImpl<$Res>
+    implements $DeletedCopyWith<$Res> {
+  _$DeletedCopyWithImpl(Deleted _value, $Res Function(Deleted) _then)
+      : super(_value, (v) => _then(v as Deleted));
+
+  @override
+  Deleted get _value => super._value as Deleted;
+}
+
+/// @nodoc
+
+class _$Deleted implements Deleted {
+  const _$Deleted();
+
+  @override
+  String toString() {
+    return 'DocEvent.deleted()';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) || (other is Deleted);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() deleted,
+    required TResult Function() restore,
+  }) {
+    return deleted();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? deleted,
+    TResult Function()? restore,
+    required TResult orElse(),
+  }) {
+    if (deleted != null) {
+      return deleted();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(Initial value) initial,
+    required TResult Function(Deleted value) deleted,
+    required TResult Function(Restore value) restore,
+  }) {
+    return deleted(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(Deleted value)? deleted,
+    TResult Function(Restore value)? restore,
+    required TResult orElse(),
+  }) {
+    if (deleted != null) {
+      return deleted(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class Deleted implements DocEvent {
+  const factory Deleted() = _$Deleted;
+}
+
+/// @nodoc
+abstract class $RestoreCopyWith<$Res> {
+  factory $RestoreCopyWith(Restore value, $Res Function(Restore) then) =
+      _$RestoreCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class _$RestoreCopyWithImpl<$Res> extends _$DocEventCopyWithImpl<$Res>
+    implements $RestoreCopyWith<$Res> {
+  _$RestoreCopyWithImpl(Restore _value, $Res Function(Restore) _then)
+      : super(_value, (v) => _then(v as Restore));
+
+  @override
+  Restore get _value => super._value as Restore;
+}
+
+/// @nodoc
+
+class _$Restore implements Restore {
+  const _$Restore();
+
+  @override
+  String toString() {
+    return 'DocEvent.restore()';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) || (other is Restore);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() deleted,
+    required TResult Function() restore,
+  }) {
+    return restore();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? deleted,
+    TResult Function()? restore,
+    required TResult orElse(),
+  }) {
+    if (restore != null) {
+      return restore();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(Initial value) initial,
+    required TResult Function(Deleted value) deleted,
+    required TResult Function(Restore value) restore,
+  }) {
+    return restore(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(Deleted value)? deleted,
+    TResult Function(Restore value)? restore,
+    required TResult orElse(),
+  }) {
+    if (restore != null) {
+      return restore(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class Restore implements DocEvent {
+  const factory Restore() = _$Restore;
+}
+
+/// @nodoc
 class _$DocStateTearOff {
   const _$DocStateTearOff();
 
-  _DocState call({required DocLoadState loadState}) {
+  _DocState call({required DocLoadState loadState, required bool isDeleted}) {
     return _DocState(
       loadState: loadState,
+      isDeleted: isDeleted,
     );
   }
 }
@@ -161,6 +360,7 @@ const $DocState = _$DocStateTearOff();
 /// @nodoc
 mixin _$DocState {
   DocLoadState get loadState => throw _privateConstructorUsedError;
+  bool get isDeleted => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $DocStateCopyWith<DocState> get copyWith =>
@@ -171,7 +371,7 @@ mixin _$DocState {
 abstract class $DocStateCopyWith<$Res> {
   factory $DocStateCopyWith(DocState value, $Res Function(DocState) then) =
       _$DocStateCopyWithImpl<$Res>;
-  $Res call({DocLoadState loadState});
+  $Res call({DocLoadState loadState, bool isDeleted});
 
   $DocLoadStateCopyWith<$Res> get loadState;
 }
@@ -187,12 +387,17 @@ class _$DocStateCopyWithImpl<$Res> implements $DocStateCopyWith<$Res> {
   @override
   $Res call({
     Object? loadState = freezed,
+    Object? isDeleted = freezed,
   }) {
     return _then(_value.copyWith(
       loadState: loadState == freezed
           ? _value.loadState
           : loadState // ignore: cast_nullable_to_non_nullable
               as DocLoadState,
+      isDeleted: isDeleted == freezed
+          ? _value.isDeleted
+          : isDeleted // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 
@@ -209,7 +414,7 @@ abstract class _$DocStateCopyWith<$Res> implements $DocStateCopyWith<$Res> {
   factory _$DocStateCopyWith(_DocState value, $Res Function(_DocState) then) =
       __$DocStateCopyWithImpl<$Res>;
   @override
-  $Res call({DocLoadState loadState});
+  $Res call({DocLoadState loadState, bool isDeleted});
 
   @override
   $DocLoadStateCopyWith<$Res> get loadState;
@@ -227,12 +432,17 @@ class __$DocStateCopyWithImpl<$Res> extends _$DocStateCopyWithImpl<$Res>
   @override
   $Res call({
     Object? loadState = freezed,
+    Object? isDeleted = freezed,
   }) {
     return _then(_DocState(
       loadState: loadState == freezed
           ? _value.loadState
           : loadState // ignore: cast_nullable_to_non_nullable
               as DocLoadState,
+      isDeleted: isDeleted == freezed
+          ? _value.isDeleted
+          : isDeleted // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -240,14 +450,16 @@ class __$DocStateCopyWithImpl<$Res> extends _$DocStateCopyWithImpl<$Res>
 /// @nodoc
 
 class _$_DocState implements _DocState {
-  const _$_DocState({required this.loadState});
+  const _$_DocState({required this.loadState, required this.isDeleted});
 
   @override
   final DocLoadState loadState;
+  @override
+  final bool isDeleted;
 
   @override
   String toString() {
-    return 'DocState(loadState: $loadState)';
+    return 'DocState(loadState: $loadState, isDeleted: $isDeleted)';
   }
 
   @override
@@ -256,12 +468,17 @@ class _$_DocState implements _DocState {
         (other is _DocState &&
             (identical(other.loadState, loadState) ||
                 const DeepCollectionEquality()
-                    .equals(other.loadState, loadState)));
+                    .equals(other.loadState, loadState)) &&
+            (identical(other.isDeleted, isDeleted) ||
+                const DeepCollectionEquality()
+                    .equals(other.isDeleted, isDeleted)));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(loadState);
+      runtimeType.hashCode ^
+      const DeepCollectionEquality().hash(loadState) ^
+      const DeepCollectionEquality().hash(isDeleted);
 
   @JsonKey(ignore: true)
   @override
@@ -270,10 +487,13 @@ class _$_DocState implements _DocState {
 }
 
 abstract class _DocState implements DocState {
-  const factory _DocState({required DocLoadState loadState}) = _$_DocState;
+  const factory _DocState(
+      {required DocLoadState loadState, required bool isDeleted}) = _$_DocState;
 
   @override
   DocLoadState get loadState => throw _privateConstructorUsedError;
+  @override
+  bool get isDeleted => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
   _$DocStateCopyWith<_DocState> get copyWith =>

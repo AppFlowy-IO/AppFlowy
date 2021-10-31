@@ -22,6 +22,7 @@ use flowy_document::{
 
 use crate::{entities::trash::TrashType, errors::WorkspaceResult};
 
+use crate::entities::trash::TrashIdentifiers;
 use futures::{FutureExt, StreamExt};
 use std::{collections::HashSet, sync::Arc};
 
@@ -263,16 +264,26 @@ async fn handle_trash_event(
     let db_result = database.db_connection();
 
     match event {
-        TrashEvent::NewTrash(identifiers, ret) | TrashEvent::Putback(identifiers, ret) => {
+        TrashEvent::NewTrash(identifiers, ret) => {
             let result = || {
                 let conn = &*db_result?;
-                let _ = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
-                    for identifier in identifiers.items {
-                        let view_table = ViewTableSql::read_view(&identifier.id, conn)?;
-                        let _ = notify_views_changed(&view_table.belong_to_id, trash_can.clone(), conn)?;
-                    }
-                    Ok(())
-                })?;
+                let view_tables = get_view_table_from(identifiers, conn)?;
+                for view_table in view_tables {
+                    let _ = notify_views_changed(&view_table.belong_to_id, trash_can.clone(), conn)?;
+                    notify_dart(view_table, WorkspaceNotification::ViewDeleted);
+                }
+                Ok::<(), WorkspaceError>(())
+            };
+            let _ = ret.send(result()).await;
+        },
+        TrashEvent::Putback(identifiers, ret) => {
+            let result = || {
+                let conn = &*db_result?;
+                let view_tables = get_view_table_from(identifiers, conn)?;
+                for view_table in view_tables {
+                    let _ = notify_views_changed(&view_table.belong_to_id, trash_can.clone(), conn)?;
+                    notify_dart(view_table, WorkspaceNotification::ViewRestored);
+                }
                 Ok::<(), WorkspaceError>(())
             };
             let _ = ret.send(result()).await;
@@ -300,6 +311,26 @@ async fn handle_trash_event(
             let _ = ret.send(result()).await;
         },
     }
+}
+
+fn get_view_table_from(
+    identifiers: TrashIdentifiers,
+    conn: &SqliteConnection,
+) -> Result<Vec<ViewTable>, WorkspaceError> {
+    let mut view_tables = vec![];
+    let _ = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
+        for identifier in identifiers.items {
+            let view_table = ViewTableSql::read_view(&identifier.id, conn)?;
+            view_tables.push(view_table);
+        }
+        Ok(())
+    })?;
+    Ok(view_tables)
+}
+
+fn notify_dart(view_table: ViewTable, notification: WorkspaceNotification) {
+    let view: View = view_table.into();
+    send_dart_notification(&view.id, notification).payload(view).send();
 }
 
 #[tracing::instrument(skip(belong_to_id, trash_can, conn), fields(view_count), err)]

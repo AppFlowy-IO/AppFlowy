@@ -87,7 +87,12 @@ class HomeDepsResolver {
     );
 
     // Doc
-    getIt.registerFactoryParam<DocBloc, String, void>((docId, _) => DocBloc(docManager: getIt<IDoc>(param1: docId)));
+    getIt.registerFactoryParam<DocBloc, View, void>(
+      (view, _) => DocBloc(
+        docManager: getIt<IDoc>(param1: view.id),
+        listener: getIt<IViewListener>(param1: view),
+      ),
+    );
 
     // trash
     getIt.registerLazySingleton<TrashRepo>(() => TrashRepo());

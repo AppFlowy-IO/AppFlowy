@@ -68,7 +68,7 @@ class ViewSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // The ViewListNotifier will be updated after ViewListData changed passed by parent widget
+    // The ViewSectionNotifier will be updated after AppDataNotifier changed passed by parent widget
     return ChangeNotifierProxyProvider<AppDataNotifier, ViewSectionNotifier>(
       create: (_) {
         final views = Provider.of<AppDataNotifier>(context, listen: false).views;

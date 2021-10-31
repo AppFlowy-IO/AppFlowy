@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:app_flowy/workspace/domain/i_view.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
@@ -12,24 +13,50 @@ part 'doc_bloc.freezed.dart';
 
 class DocBloc extends Bloc<DocEvent, DocState> {
   final IDoc docManager;
+  final IViewListener listener;
   late Document document;
   late StreamSubscription _subscription;
 
-  DocBloc({required this.docManager}) : super(DocState.initial());
+  DocBloc({required this.docManager, required this.listener}) : super(DocState.initial());
 
   @override
   Stream<DocState> mapEventToState(DocEvent event) async* {
-    yield* event.map(initial: _initial);
+    yield* event.map(
+      initial: _initial,
+      deleted: (Deleted value) async* {
+        yield state.copyWith(isDeleted: true);
+      },
+      restore: (Restore value) async* {
+        yield state.copyWith(isDeleted: false);
+      },
+    );
   }
 
   @override
   Future<void> close() async {
+    await listener.stop();
     await _subscription.cancel();
     docManager.closeDoc();
     return super.close();
   }
 
   Stream<DocState> _initial(Initial value) async* {
+    listener.deletedNotifier.addPublishListener((result) {
+      result.fold(
+        (view) => add(const DocEvent.deleted()),
+        (error) {},
+      );
+    });
+
+    listener.restoredNotifier.addPublishListener((result) {
+      result.fold(
+        (view) => add(const DocEvent.restore()),
+        (error) {},
+      );
+    });
+
+    listener.start();
+
     final result = await docManager.readDoc();
     yield result.fold(
       (doc) {
@@ -78,15 +105,21 @@ class DocBloc extends Bloc<DocEvent, DocState> {
 @freezed
 class DocEvent with _$DocEvent {
   const factory DocEvent.initial() = Initial;
+  const factory DocEvent.deleted() = Deleted;
+  const factory DocEvent.restore() = Restore;
 }
 
 @freezed
 class DocState with _$DocState {
   const factory DocState({
     required DocLoadState loadState,
+    required bool isDeleted,
   }) = _DocState;
 
-  factory DocState.initial() => const DocState(loadState: _Loading());
+  factory DocState.initial() => const DocState(
+        loadState: _Loading(),
+        isDeleted: false,
+      );
 }
 
 @freezed

@@ -28,7 +28,7 @@ class _DocPageState extends State<DocPage> {
 
   @override
   void initState() {
-    docBloc = getIt<DocBloc>(param1: super.widget.view.id)..add(const DocEvent.initial());
+    docBloc = getIt<DocBloc>(param1: super.widget.view)..add(const DocEvent.initial());
     super.initState();
   }
 
