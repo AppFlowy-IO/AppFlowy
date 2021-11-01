@@ -75,7 +75,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     AppState newState = state.copyWith(views: views);
     if (selectedView != null) {
       final index = views.indexWhere((element) => element.id == selectedView.id);
-      if (index != -1) {
+      if (index == -1) {
         newState = newState.copyWith(selectedView: null);
       }
     }

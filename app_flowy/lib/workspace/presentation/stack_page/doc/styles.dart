@@ -4,13 +4,15 @@ import 'package:provider/provider.dart';
 import 'package:tuple/tuple.dart';
 import 'package:flowy_infra/theme.dart';
 
+import 'widget/style_widgets/style_widgets.dart';
+
 DefaultStyles customStyles(BuildContext context) {
   const baseSpacing = Tuple2<double, double>(6, 0);
   final defaultTextStyle = DefaultTextStyle.of(context);
   final baseStyle = defaultTextStyle.style.copyWith(
     fontSize: 18,
     height: 1.3,
-    fontWeight: FontWeight.w400,
+    fontWeight: FontWeight.w300,
     letterSpacing: 0.6,
   );
   final theme = context.watch<AppTheme>();
@@ -72,7 +74,8 @@ DefaultStyles customStyles(BuildContext context) {
           const Tuple2(0, 0),
           const Tuple2(0, 0),
           null),
-      lists: DefaultTextBlockStyle(baseStyle, baseSpacing, const Tuple2(0, 6), null),
+      lists:
+          DefaultListBlockStyle(baseStyle, baseSpacing, const Tuple2(0, 6), null, StyleWidgetBuilder.checkbox(theme)),
       quote: DefaultTextBlockStyle(
           TextStyle(color: baseStyle.color!.withOpacity(0.6)),
           baseSpacing,

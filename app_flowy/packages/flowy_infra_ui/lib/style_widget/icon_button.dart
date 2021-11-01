@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flowy_infra/image.dart';
 import 'package:flutter/material.dart';
 
@@ -12,9 +14,9 @@ class FlowyIconButton extends StatelessWidget {
 
   const FlowyIconButton({
     Key? key,
+    this.width = 30,
     this.height,
     this.onPressed,
-    this.width = 30,
     this.fillColor = Colors.transparent,
     this.hoverColor = Colors.transparent,
     this.iconPadding = EdgeInsets.zero,
@@ -34,9 +36,16 @@ class FlowyIconButton extends StatelessWidget {
     //     child: child,
     //   );
     // }
+    final size = Size(width, height ?? width);
+
+    assert(size.width > iconPadding.horizontal);
+    assert(size.height > iconPadding.vertical);
+
+    final childWidth = min(size.width - iconPadding.horizontal, size.height - iconPadding.vertical);
+    final childSize = Size(childWidth, childWidth);
 
     return ConstrainedBox(
-      constraints: BoxConstraints.tightFor(width: width, height: width),
+      constraints: BoxConstraints.tightFor(width: size.width, height: size.height),
       child: RawMaterialButton(
         visualDensity: VisualDensity.compact,
         hoverElevation: 0,
@@ -51,7 +60,7 @@ class FlowyIconButton extends StatelessWidget {
         onPressed: onPressed,
         child: Padding(
           padding: iconPadding,
-          child: SizedBox.fromSize(child: child, size: Size(width, width)),
+          child: SizedBox.fromSize(child: child, size: childSize),
         ),
       ),
     );
