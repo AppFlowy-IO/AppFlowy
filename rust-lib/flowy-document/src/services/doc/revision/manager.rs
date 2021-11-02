@@ -61,7 +61,7 @@ impl RevisionManager {
 
     pub fn set_rev_id(&self, rev_id: i64) { self.rev_id_counter.set(rev_id); }
 
-    pub async fn construct_revisions(&self, range: RevisionRange) -> Result<Revision, DocError> {
+    pub async fn mk_revisions(&self, range: RevisionRange) -> Result<Revision, DocError> {
         debug_assert!(&range.doc_id == &self.doc_id);
         let revisions = self.rev_store.revs_in_range(range.clone()).await?;
         let mut new_delta = Delta::new();

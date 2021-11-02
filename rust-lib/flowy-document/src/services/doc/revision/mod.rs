@@ -1,6 +1,6 @@
 mod manager;
 mod model;
-mod rev_store;
+mod persistence;
 
 pub use manager::*;
-pub use rev_store::*;
+pub use persistence::*;

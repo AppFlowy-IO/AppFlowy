@@ -1,8 +1,5 @@
 use crate::{
-    entities::{
-        app::{App, RepeatedApp},
-        workspace::*,
-    },
+    entities::{app::RepeatedApp, workspace::*},
     errors::*,
     module::{WorkspaceDatabase, WorkspaceUser},
     notify::*,

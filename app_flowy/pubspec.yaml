@@ -47,7 +47,7 @@ dependencies:
   
   #  third party packages
   time: '>=2.0.0'
-  equatable: '>=2.0.2'
+  equatable: '>=2.0.3'
   freezed_annotation:
   get_it: '>=7.1.3'
   flutter_bloc: '>=7.3.1'

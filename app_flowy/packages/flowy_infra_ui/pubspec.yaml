@@ -17,7 +17,7 @@ dependencies:
   dartz: '0.10.0-nullsafety.2'
   provider: ^6.0.1
   styled_widget: '>=0.3.1'
-  equatable: '>=2.0.2'
+  equatable: '>=2.0.3'
   animations: ^2.0.0
   loading_indicator: ^3.0.1
 

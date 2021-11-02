@@ -3,12 +3,12 @@ use crate::{
     errors::{internal_error, DocError, DocResult},
     sql_tables::{RevState, RevTableSql},
 };
-use async_stream::stream;
+
 use flowy_database::ConnectionPool;
 use flowy_infra::future::ResultFuture;
-use futures::{stream::StreamExt};
-use std::{sync::Arc, time::Duration};
-use tokio::sync::{broadcast, mpsc};
+
+use std::sync::Arc;
+use tokio::sync::broadcast;
 
 pub type RevIdReceiver = broadcast::Receiver<i64>;
 pub type RevIdSender = broadcast::Sender<i64>;
@@ -56,10 +56,10 @@ impl Persistence {
         Self { rev_sql, pool }
     }
 
-    pub(crate) fn create_revs(&self, revisions_state: Vec<(Revision, RevState)>) -> DocResult<()> {
+    pub(crate) fn create_revs(&self, revisions: Vec<(Revision, RevState)>) -> DocResult<()> {
         let conn = &*self.pool.get().map_err(internal_error)?;
         conn.immediate_transaction::<_, DocError, _>(|| {
-            let _ = self.rev_sql.create_rev_table(revisions_state, conn)?;
+            let _ = self.rev_sql.create_rev_table(revisions, conn)?;
             Ok(())
         })
     }
@@ -79,68 +79,4 @@ impl Persistence {
 
 pub trait RevisionIterator: Send + Sync {
     fn next(&self) -> ResultFuture<Option<Revision>, DocError>;
-}
-
-pub(crate) enum PendingMsg {
-    Revision { ret: RevIdReceiver },
-}
-
-pub(crate) type PendingSender = mpsc::UnboundedSender<PendingMsg>;
-pub(crate) type PendingReceiver = mpsc::UnboundedReceiver<PendingMsg>;
-
-pub(crate) struct PendingRevisionStream {
-    revisions: Arc<dyn RevisionIterator>,
-    receiver: Option<PendingReceiver>,
-    next_revision: mpsc::UnboundedSender<Revision>,
-}
-
-impl PendingRevisionStream {
-    pub(crate) fn new(
-        revisions: Arc<dyn RevisionIterator>,
-        pending_rx: PendingReceiver,
-        next_revision: mpsc::UnboundedSender<Revision>,
-    ) -> Self {
-        Self {
-            revisions,
-            receiver: Some(pending_rx),
-            next_revision,
-        }
-    }
-
-    pub async fn run(mut self) {
-        let mut receiver = self.receiver.take().expect("Should only call once");
-        let stream = stream! {
-            loop {
-                match receiver.recv().await {
-                    Some(msg) => yield msg,
-                    None => break,
-                }
-            }
-        };
-        stream
-            .for_each(|msg| async {
-                match self.handle_msg(msg).await {
-                    Ok(_) => {},
-                    Err(e) => log::error!("{:?}", e),
-                }
-            })
-            .await;
-    }
-
-    async fn handle_msg(&self, msg: PendingMsg) -> DocResult<()> {
-        match msg {
-            PendingMsg::Revision { ret } => self.prepare_next_pending_rev(ret).await,
-        }
-    }
-
-    async fn prepare_next_pending_rev(&self, mut ret: RevIdReceiver) -> DocResult<()> {
-        match self.revisions.next().await? {
-            None => Ok(()),
-            Some(revision) => {
-                let _ = self.next_revision.send(revision).map_err(internal_error);
-                let _ = tokio::time::timeout(Duration::from_millis(2000), ret.recv()).await;
-                Ok(())
-            },
-        }
-    }
 }

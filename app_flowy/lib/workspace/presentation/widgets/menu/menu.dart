@@ -164,6 +164,7 @@ class MenuSharedState extends ChangeNotifier {
     super.addListener(() {
       if (_forcedOpenView != null) {
         callback(_forcedOpenView!);
+        _forcedOpenView = null;
       }
     });
   }

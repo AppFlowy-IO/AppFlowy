@@ -115,7 +115,7 @@ impl DocumentActor {
         let mut document = self.document.write().await;
         let result = document.compose_delta(&delta);
         log::debug!(
-            "Client compose push delta: {}. result: {}",
+            "Compose push delta: {}. result: {}",
             delta.to_json(),
             document.to_json()
         );
