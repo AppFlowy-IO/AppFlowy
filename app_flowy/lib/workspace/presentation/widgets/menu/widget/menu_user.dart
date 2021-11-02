@@ -1,6 +1,5 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/menu/menu_user_bloc.dart';
-import 'package:app_flowy/workspace/presentation/widgets/menu/menu.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
@@ -9,11 +8,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 
-class MenuUser extends MenuItem {
+class MenuUser extends StatelessWidget {
   final UserProfile user;
   MenuUser(this.user, {Key? key}) : super(key: ValueKey(user.id));
-  @override
-  MenuItemType get type => MenuItemType.userProfile;
 
   @override
   Widget build(BuildContext context) {

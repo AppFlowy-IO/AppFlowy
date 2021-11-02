@@ -5,8 +5,10 @@ import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_infra/time/duration.dart';
@@ -58,7 +60,8 @@ class HomeMenu extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<MenuBloc>(
-            create: (context) => getIt<MenuBloc>(param1: user, param2: workspaceId)..add(const MenuEvent.initial())),
+          create: (context) => getIt<MenuBloc>(param1: user, param2: workspaceId)..add(const MenuEvent.initial()),
+        ),
       ],
       child: MultiBlocListener(
         listeners: [
@@ -91,7 +94,7 @@ class HomeMenu extends StatelessWidget {
               children: [
                 _renderTopBar(context),
                 const VSpace(32),
-                _renderMenuList(context),
+                _renderApps(context),
               ],
             ).padding(horizontal: Insets.l),
           ),
@@ -104,9 +107,41 @@ class HomeMenu extends StatelessWidget {
     );
   }
 
-  Widget _renderMenuList(BuildContext context) {
-    return MenuList(
-      menuItems: buildMenuItems(context.read<MenuBloc>().state.apps),
+  Widget _renderTopBar(BuildContext context) {
+    return const MenuTopBar();
+  }
+
+  Widget _renderApps(BuildContext context) {
+    final apps = context.read<MenuBloc>().state.apps;
+    List<Widget> menuItems = [];
+    menuItems.add(MenuUser(user));
+    List<MenuApp> appWidgets = apps.foldRight([], (apps, _) => apps.map((app) => MenuApp(app)).toList());
+    menuItems.addAll(appWidgets);
+
+    return ExpandableTheme(
+      data: ExpandableThemeData(useInkWell: true, animationDuration: Durations.medium),
+      child: Expanded(
+        child: ScrollConfiguration(
+          behavior: const ScrollBehavior().copyWith(scrollbars: false),
+          child: ChangeNotifierProvider(
+            create: (_) => MenuSharedState(),
+            child: ListView.separated(
+              itemCount: menuItems.length,
+              separatorBuilder: (context, index) {
+                if (index == 0) {
+                  return const VSpace(29);
+                } else {
+                  return VSpace(MenuAppSizes.appVPadding);
+                }
+              },
+              physics: StyledScrollPhysics(),
+              itemBuilder: (BuildContext context, int index) {
+                return menuItems[index];
+              },
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -119,62 +154,40 @@ class HomeMenu extends StatelessWidget {
       press: (appName) => context.read<MenuBloc>().add(MenuEvent.createApp(appName, desc: "")),
     );
   }
-
-  Widget _renderTopBar(BuildContext context) {
-    return const MenuTopBar();
-  }
-
-  List<MenuItem> buildMenuItems(Option<List<App>> apps) {
-    List<MenuItem> items = [];
-    items.add(MenuUser(user));
-
-    List<MenuItem> appWidgets = apps.foldRight([], (apps, _) => apps.map((app) => MenuApp(app)).toList());
-
-    items.addAll(appWidgets);
-    return items;
-  }
 }
 
-enum MenuItemType {
-  userProfile,
-  dashboard,
-  favorites,
-  app,
-}
+class MenuSharedState extends ChangeNotifier {
+  View? _view;
+  View? _forcedOpenView;
 
-abstract class MenuItem extends StatelessWidget {
-  const MenuItem({Key? key}) : super(key: key);
-
-  MenuItemType get type;
-}
-
-class MenuList extends StatelessWidget {
-  final List<MenuItem> menuItems;
-  const MenuList({required this.menuItems, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ExpandableTheme(
-      data: ExpandableThemeData(useInkWell: true, animationDuration: Durations.medium),
-      child: Expanded(
-        child: ScrollConfiguration(
-          behavior: const ScrollBehavior().copyWith(scrollbars: false),
-          child: ListView.separated(
-            itemCount: menuItems.length,
-            separatorBuilder: (context, index) {
-              if (index == 0) {
-                return const VSpace(29);
-              } else {
-                return VSpace(MenuAppSizes.appVPadding);
-              }
-            },
-            physics: StyledScrollPhysics(),
-            itemBuilder: (BuildContext context, int index) {
-              return menuItems[index];
-            },
-          ),
-        ),
-      ),
-    );
+  void addForcedOpenViewListener(void Function(View) callback) {
+    super.addListener(() {
+      if (_forcedOpenView != null) {
+        callback(_forcedOpenView!);
+      }
+    });
   }
+
+  void addSelectedViewListener(void Function(View?) callback) {
+    super.addListener(() {
+      callback(_view);
+    });
+  }
+
+  set forcedOpenView(View? view) {
+    if (_forcedOpenView != view) {
+      _forcedOpenView = view;
+      selectedView = view;
+      notifyListeners();
+    }
+  }
+
+  set selectedView(View? view) {
+    if (_view != view) {
+      _view = view;
+      notifyListeners();
+    }
+  }
+
+  View? get selecedtView => _view;
 }

@@ -1,3 +1,4 @@
+import 'package:app_flowy/workspace/presentation/widgets/menu/menu.dart';
 import 'package:app_flowy/workspace/presentation/widgets/menu/widget/app/header/header.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
@@ -6,16 +7,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
-import 'package:app_flowy/workspace/presentation/widgets/menu/menu.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'section/section.dart';
 
-class MenuApp extends MenuItem {
+class MenuApp extends StatefulWidget {
   final App app;
-  final notifier = AppDataNotifier();
-
   MenuApp(this.app, {Key? key}) : super(key: ValueKey("${app.id}${app.version}"));
+
+  @override
+  State<MenuApp> createState() => _MenuAppState();
+}
+
+class _MenuAppState extends State<MenuApp> {
+  final notifier = AppDataNotifier();
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +28,7 @@ class MenuApp extends MenuItem {
       providers: [
         BlocProvider<AppBloc>(
           create: (context) {
-            final appBloc = getIt<AppBloc>(param1: app);
+            final appBloc = getIt<AppBloc>(param1: widget.app);
             appBloc.add(const AppEvent.initial());
             return appBloc;
           },
@@ -31,7 +36,9 @@ class MenuApp extends MenuItem {
       ],
       child: BlocSelector<AppBloc, AppState, AppDataNotifier>(
         selector: (state) {
-          notifier.selectView = state.selectedView;
+          if (state.latestCreatedView != null) {
+            Provider.of<MenuSharedState>(context, listen: false).forcedOpenView = state.latestCreatedView;
+          }
           notifier.views = state.views;
           return notifier;
         },
@@ -58,7 +65,7 @@ class MenuApp extends MenuItem {
                 iconPadding: EdgeInsets.zero,
                 hasIcon: false,
               ),
-              header: MenuAppHeader(app),
+              header: MenuAppHeader(widget.app),
               expanded: child,
               collapsed: const SizedBox(),
             ),
@@ -76,9 +83,6 @@ class MenuApp extends MenuItem {
       }),
     );
   }
-
-  @override
-  MenuItemType get type => MenuItemType.app;
 }
 
 class MenuAppSizes {
@@ -93,7 +97,6 @@ class MenuAppSizes {
 
 class AppDataNotifier extends ChangeNotifier {
   List<View> _views = [];
-  View? _selectedView;
   AppDataNotifier();
 
   set views(List<View>? items) {
@@ -110,15 +113,6 @@ class AppDataNotifier extends ChangeNotifier {
       notifyListeners();
     }
   }
-
-  set selectView(View? view) {
-    if (_selectedView != view) {
-      _selectedView = view;
-      notifyListeners();
-    }
-  }
-
-  get selectedView => _selectedView;
 
   List<View> get views => _views;
 }

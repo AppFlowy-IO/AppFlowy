@@ -873,13 +873,13 @@ class _$AppStateTearOff {
       {required App app,
       required bool isLoading,
       required List<View>? views,
-      View? selectedView,
+      View? latestCreatedView,
       required Either<Unit, WorkspaceError> successOrFailure}) {
     return _AppState(
       app: app,
       isLoading: isLoading,
       views: views,
-      selectedView: selectedView,
+      latestCreatedView: latestCreatedView,
       successOrFailure: successOrFailure,
     );
   }
@@ -893,7 +893,7 @@ mixin _$AppState {
   App get app => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
   List<View>? get views => throw _privateConstructorUsedError;
-  View? get selectedView => throw _privateConstructorUsedError;
+  View? get latestCreatedView => throw _privateConstructorUsedError;
   Either<Unit, WorkspaceError> get successOrFailure =>
       throw _privateConstructorUsedError;
 
@@ -910,7 +910,7 @@ abstract class $AppStateCopyWith<$Res> {
       {App app,
       bool isLoading,
       List<View>? views,
-      View? selectedView,
+      View? latestCreatedView,
       Either<Unit, WorkspaceError> successOrFailure});
 }
 
@@ -927,7 +927,7 @@ class _$AppStateCopyWithImpl<$Res> implements $AppStateCopyWith<$Res> {
     Object? app = freezed,
     Object? isLoading = freezed,
     Object? views = freezed,
-    Object? selectedView = freezed,
+    Object? latestCreatedView = freezed,
     Object? successOrFailure = freezed,
   }) {
     return _then(_value.copyWith(
@@ -943,9 +943,9 @@ class _$AppStateCopyWithImpl<$Res> implements $AppStateCopyWith<$Res> {
           ? _value.views
           : views // ignore: cast_nullable_to_non_nullable
               as List<View>?,
-      selectedView: selectedView == freezed
-          ? _value.selectedView
-          : selectedView // ignore: cast_nullable_to_non_nullable
+      latestCreatedView: latestCreatedView == freezed
+          ? _value.latestCreatedView
+          : latestCreatedView // ignore: cast_nullable_to_non_nullable
               as View?,
       successOrFailure: successOrFailure == freezed
           ? _value.successOrFailure
@@ -964,7 +964,7 @@ abstract class _$AppStateCopyWith<$Res> implements $AppStateCopyWith<$Res> {
       {App app,
       bool isLoading,
       List<View>? views,
-      View? selectedView,
+      View? latestCreatedView,
       Either<Unit, WorkspaceError> successOrFailure});
 }
 
@@ -982,7 +982,7 @@ class __$AppStateCopyWithImpl<$Res> extends _$AppStateCopyWithImpl<$Res>
     Object? app = freezed,
     Object? isLoading = freezed,
     Object? views = freezed,
-    Object? selectedView = freezed,
+    Object? latestCreatedView = freezed,
     Object? successOrFailure = freezed,
   }) {
     return _then(_AppState(
@@ -998,9 +998,9 @@ class __$AppStateCopyWithImpl<$Res> extends _$AppStateCopyWithImpl<$Res>
           ? _value.views
           : views // ignore: cast_nullable_to_non_nullable
               as List<View>?,
-      selectedView: selectedView == freezed
-          ? _value.selectedView
-          : selectedView // ignore: cast_nullable_to_non_nullable
+      latestCreatedView: latestCreatedView == freezed
+          ? _value.latestCreatedView
+          : latestCreatedView // ignore: cast_nullable_to_non_nullable
               as View?,
       successOrFailure: successOrFailure == freezed
           ? _value.successOrFailure
@@ -1017,7 +1017,7 @@ class _$_AppState implements _AppState {
       {required this.app,
       required this.isLoading,
       required this.views,
-      this.selectedView,
+      this.latestCreatedView,
       required this.successOrFailure});
 
   @override
@@ -1027,13 +1027,13 @@ class _$_AppState implements _AppState {
   @override
   final List<View>? views;
   @override
-  final View? selectedView;
+  final View? latestCreatedView;
   @override
   final Either<Unit, WorkspaceError> successOrFailure;
 
   @override
   String toString() {
-    return 'AppState(app: $app, isLoading: $isLoading, views: $views, selectedView: $selectedView, successOrFailure: $successOrFailure)';
+    return 'AppState(app: $app, isLoading: $isLoading, views: $views, latestCreatedView: $latestCreatedView, successOrFailure: $successOrFailure)';
   }
 
   @override
@@ -1047,9 +1047,9 @@ class _$_AppState implements _AppState {
                     .equals(other.isLoading, isLoading)) &&
             (identical(other.views, views) ||
                 const DeepCollectionEquality().equals(other.views, views)) &&
-            (identical(other.selectedView, selectedView) ||
+            (identical(other.latestCreatedView, latestCreatedView) ||
                 const DeepCollectionEquality()
-                    .equals(other.selectedView, selectedView)) &&
+                    .equals(other.latestCreatedView, latestCreatedView)) &&
             (identical(other.successOrFailure, successOrFailure) ||
                 const DeepCollectionEquality()
                     .equals(other.successOrFailure, successOrFailure)));
@@ -1061,7 +1061,7 @@ class _$_AppState implements _AppState {
       const DeepCollectionEquality().hash(app) ^
       const DeepCollectionEquality().hash(isLoading) ^
       const DeepCollectionEquality().hash(views) ^
-      const DeepCollectionEquality().hash(selectedView) ^
+      const DeepCollectionEquality().hash(latestCreatedView) ^
       const DeepCollectionEquality().hash(successOrFailure);
 
   @JsonKey(ignore: true)
@@ -1075,7 +1075,7 @@ abstract class _AppState implements AppState {
       {required App app,
       required bool isLoading,
       required List<View>? views,
-      View? selectedView,
+      View? latestCreatedView,
       required Either<Unit, WorkspaceError> successOrFailure}) = _$_AppState;
 
   @override
@@ -1085,7 +1085,7 @@ abstract class _AppState implements AppState {
   @override
   List<View>? get views => throw _privateConstructorUsedError;
   @override
-  View? get selectedView => throw _privateConstructorUsedError;
+  View? get latestCreatedView => throw _privateConstructorUsedError;
   @override
   Either<Unit, WorkspaceError> get successOrFailure =>
       throw _privateConstructorUsedError;

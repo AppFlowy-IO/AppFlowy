@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../menu.dart';
 
-class FavoriteHeader extends MenuItem {
+class FavoriteHeader extends StatelessWidget {
   const FavoriteHeader({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     throw UnimplementedError();
   }
-
-  @override
-  MenuItemType get type => MenuItemType.favorites;
 }

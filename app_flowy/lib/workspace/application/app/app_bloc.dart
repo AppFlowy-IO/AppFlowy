@@ -28,7 +28,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       final viewOrFailed = await appManager.createView(name: value.name, desc: value.desc, viewType: value.viewType);
       yield viewOrFailed.fold(
         (view) => state.copyWith(
-          selectedView: view,
+          latestCreatedView: view,
           successOrFailure: left(unit),
         ),
         (error) {
@@ -71,12 +71,12 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   }
 
   Stream<AppState> handleDidReceiveViews(List<View> views) async* {
-    final selectedView = state.selectedView;
+    final latestCreatedView = state.latestCreatedView;
     AppState newState = state.copyWith(views: views);
-    if (selectedView != null) {
-      final index = views.indexWhere((element) => element.id == selectedView.id);
+    if (latestCreatedView != null) {
+      final index = views.indexWhere((element) => element.id == latestCreatedView.id);
       if (index == -1) {
-        newState = newState.copyWith(selectedView: null);
+        newState = newState.copyWith(latestCreatedView: null);
       }
     }
 
@@ -111,7 +111,7 @@ class AppState with _$AppState {
     required App app,
     required bool isLoading,
     required List<View>? views,
-    View? selectedView,
+    View? latestCreatedView,
     required Either<Unit, WorkspaceError> successOrFailure,
   }) = _AppState;
 
@@ -119,7 +119,7 @@ class AppState with _$AppState {
         app: app,
         isLoading: false,
         views: null,
-        selectedView: null,
+        latestCreatedView: null,
         successOrFailure: left(unit),
       );
 }

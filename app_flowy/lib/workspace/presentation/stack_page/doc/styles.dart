@@ -8,16 +8,19 @@ import 'widget/style_widgets/style_widgets.dart';
 
 DefaultStyles customStyles(BuildContext context) {
   const baseSpacing = Tuple2<double, double>(6, 0);
+
+  final theme = context.watch<AppTheme>();
+  final themeData = theme.themeData;
+  final fontFamily = makeFontFamily(themeData);
+
   final defaultTextStyle = DefaultTextStyle.of(context);
   final baseStyle = defaultTextStyle.style.copyWith(
     fontSize: 18,
     height: 1.3,
     fontWeight: FontWeight.w300,
     letterSpacing: 0.6,
+    fontFamily: fontFamily,
   );
-  final theme = context.watch<AppTheme>();
-  final themeData = theme.themeData;
-  final fontFamily = makeFontFamily(themeData);
 
   return DefaultStyles(
       h1: DefaultTextBlockStyle(
@@ -111,7 +114,7 @@ String makeFontFamily(ThemeData themeData) {
   switch (themeData.platform) {
     case TargetPlatform.iOS:
     case TargetPlatform.macOS:
-      fontFamily = 'Menlo';
+      fontFamily = 'Mulish';
       break;
     case TargetPlatform.android:
     case TargetPlatform.fuchsia:

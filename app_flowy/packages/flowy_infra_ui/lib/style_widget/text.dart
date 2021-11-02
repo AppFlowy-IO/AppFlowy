@@ -43,6 +43,7 @@ class FlowyText extends StatelessWidget {
           color: textColor,
           fontWeight: fontWeight,
           fontSize: fontSize + 2,
+          fontFamily: 'Mulish',
         ));
   }
 }

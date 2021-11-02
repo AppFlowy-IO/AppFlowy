@@ -66,30 +66,35 @@ class MenuAppHeader extends StatelessWidget {
   }
 
   Widget _renderTitle(BuildContext context) {
-    return BlocSelector<AppBloc, AppState, App>(
-      selector: (state) => state.app,
-      builder: (context, state) {
-        return Expanded(
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              ExpandableController.of(context, rebuildOnChange: false, required: true)?.toggle();
-            },
-            onSecondaryTap: () {
-              final actionList = AppDisclosureActions(onSelected: (action) => _handleAction(context, action));
-              actionList.show(
-                context,
-                context,
-                anchorDirection: AnchorDirection.bottomWithCenterAligned,
-              );
-            },
-            child: FlowyText.medium(
-              state.name,
+    return Expanded(
+      child: BlocListener<AppBloc, AppState>(
+        listenWhen: (p, c) => (p.latestCreatedView == null && c.latestCreatedView != null),
+        listener: (context, state) {
+          final expandableController = ExpandableController.of(context, rebuildOnChange: false, required: true)!;
+          if (!expandableController.expanded) {
+            expandableController.toggle();
+          }
+        },
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => ExpandableController.of(context, rebuildOnChange: false, required: true)?.toggle(),
+          onSecondaryTap: () {
+            final actionList = AppDisclosureActions(onSelected: (action) => _handleAction(context, action));
+            actionList.show(
+              context,
+              context,
+              anchorDirection: AnchorDirection.bottomWithCenterAligned,
+            );
+          },
+          child: BlocSelector<AppBloc, AppState, App>(
+            selector: (state) => state.app,
+            builder: (context, app) => FlowyText.medium(
+              app.name,
               fontSize: 12,
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 

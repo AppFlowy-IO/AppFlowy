@@ -1,6 +1,7 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/domain/view_ext.dart';
+import 'package:app_flowy/workspace/presentation/widgets/menu/menu.dart';
 import 'package:app_flowy/workspace/presentation/widgets/menu/widget/app/menu_app.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/foundation.dart';
@@ -11,58 +12,6 @@ import 'package:styled_widget/styled_widget.dart';
 import 'item.dart';
 import 'package:async/async.dart';
 
-class ViewSectionNotifier with ChangeNotifier {
-  List<View> _views;
-  View? _selectedView;
-  CancelableOperation? _notifyListenerOperation;
-  ViewSectionNotifier(List<View> views) : _views = views;
-
-  set views(List<View> views) {
-    if (_views != views) {
-      _views = views;
-      _notifyListeners();
-    }
-  }
-
-  List<View> get views => _views;
-
-  set selectView(View? view) {
-    if (_selectedView == view) {
-      return;
-    }
-
-    if (view != null) {
-      _selectedView = view;
-
-      WidgetsBinding.instance?.addPostFrameCallback((_) {
-        getIt<HomeStackManager>().setStack(view.stackContext());
-      });
-
-      _notifyListeners();
-    } else {
-      // WidgetsBinding.instance?.addPostFrameCallback((_) {
-      //   getIt<HomeStackManager>().setStack(BlankStackContext());
-      // });
-    }
-  }
-
-  View? get selectedView => _selectedView;
-
-  void update(AppDataNotifier notifier) {
-    views = notifier.views;
-    selectView = notifier.selectedView;
-  }
-
-  void _notifyListeners() {
-    _notifyListenerOperation?.cancel();
-    _notifyListenerOperation = CancelableOperation.fromFuture(
-      Future.delayed(const Duration(milliseconds: 30), () {}),
-    ).then((_) {
-      notifyListeners();
-    });
-  }
-}
-
 class ViewSection extends StatelessWidget {
   const ViewSection({Key? key}) : super(key: key);
 
@@ -72,7 +21,7 @@ class ViewSection extends StatelessWidget {
     return ChangeNotifierProxyProvider<AppDataNotifier, ViewSectionNotifier>(
       create: (_) {
         final views = Provider.of<AppDataNotifier>(context, listen: false).views;
-        return ViewSectionNotifier(views);
+        return ViewSectionNotifier(views, context);
       },
       update: (_, notifier, controller) => controller!..update(notifier),
       child: Consumer(builder: (context, ViewSectionNotifier notifier, child) {
@@ -87,7 +36,8 @@ class ViewSection extends StatelessWidget {
         view: view,
         isSelected: _isViewSelected(context, view.id),
         onSelected: (view) {
-          context.read<ViewSectionNotifier>().selectView = view;
+          context.read<ViewSectionNotifier>().selectedView = view;
+          Provider.of<MenuSharedState>(context, listen: false).selectedView = view;
         },
       ).padding(vertical: 4),
     );
@@ -101,5 +51,63 @@ class ViewSection extends StatelessWidget {
       return false;
     }
     return view.id == viewId;
+  }
+}
+
+class ViewSectionNotifier with ChangeNotifier {
+  List<View> _views;
+  View? _selectedView;
+  CancelableOperation? _notifyListenerOperation;
+  ViewSectionNotifier(List<View> views, BuildContext context) : _views = views {
+    final menuSharedState = Provider.of<MenuSharedState>(context, listen: false);
+    menuSharedState.addForcedOpenViewListener((forcedOpenView) {
+      selectedView = forcedOpenView;
+    });
+
+    menuSharedState.addSelectedViewListener((currentSelectedView) {
+      if (currentSelectedView != selectedView) {
+        selectedView = null;
+      }
+    });
+  }
+
+  set views(List<View> views) {
+    if (_views != views) {
+      _views = views;
+      _notifyListeners();
+    }
+  }
+
+  List<View> get views => _views;
+
+  set selectedView(View? view) {
+    if (_selectedView == view) {
+      return;
+    }
+    _selectedView = view;
+    _notifyListeners();
+
+    if (view != null) {
+      WidgetsBinding.instance?.addPostFrameCallback((_) {
+        getIt<HomeStackManager>().setStack(view.stackContext());
+      });
+    } else {
+      // do nothing
+    }
+  }
+
+  View? get selectedView => _selectedView;
+
+  void update(AppDataNotifier notifier) {
+    views = notifier.views;
+  }
+
+  void _notifyListeners() {
+    _notifyListenerOperation?.cancel();
+    _notifyListenerOperation = CancelableOperation.fromFuture(
+      Future.delayed(const Duration(milliseconds: 30), () {}),
+    ).then((_) {
+      notifyListeners();
+    });
   }
 }
