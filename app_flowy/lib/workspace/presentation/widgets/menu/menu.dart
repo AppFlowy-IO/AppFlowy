@@ -85,24 +85,27 @@ class HomeMenu extends StatelessWidget {
     // nested cloumn: https://siddharthmolleti.com/flutter-box-constraints-nested-column-s-row-s-3dfacada7361
     return Container(
       color: Theme.of(context).colorScheme.background,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                _renderTopBar(context),
-                const VSpace(32),
-                _renderApps(context),
-              ],
-            ).padding(horizontal: Insets.l),
-          ),
-          const VSpace(20),
-          _renderTrash(context).padding(horizontal: Insets.l),
-          const VSpace(20),
-          _renderNewAppButton(context),
-        ],
+      child: ChangeNotifierProvider(
+        create: (_) => MenuSharedState(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  _renderTopBar(context),
+                  const VSpace(32),
+                  _renderApps(context),
+                ],
+              ).padding(horizontal: Insets.l),
+            ),
+            const VSpace(20),
+            _renderTrash(context).padding(horizontal: Insets.l),
+            const VSpace(20),
+            _renderNewAppButton(context),
+          ],
+        ),
       ),
     );
   }
@@ -123,22 +126,19 @@ class HomeMenu extends StatelessWidget {
       child: Expanded(
         child: ScrollConfiguration(
           behavior: const ScrollBehavior().copyWith(scrollbars: false),
-          child: ChangeNotifierProvider(
-            create: (_) => MenuSharedState(),
-            child: ListView.separated(
-              itemCount: menuItems.length,
-              separatorBuilder: (context, index) {
-                if (index == 0) {
-                  return const VSpace(29);
-                } else {
-                  return VSpace(MenuAppSizes.appVPadding);
-                }
-              },
-              physics: StyledScrollPhysics(),
-              itemBuilder: (BuildContext context, int index) {
-                return menuItems[index];
-              },
-            ),
+          child: ListView.separated(
+            itemCount: menuItems.length,
+            separatorBuilder: (context, index) {
+              if (index == 0) {
+                return const VSpace(29);
+              } else {
+                return VSpace(MenuAppSizes.appVPadding);
+              }
+            },
+            physics: StyledScrollPhysics(),
+            itemBuilder: (BuildContext context, int index) {
+              return menuItems[index];
+            },
           ),
         ),
       ),

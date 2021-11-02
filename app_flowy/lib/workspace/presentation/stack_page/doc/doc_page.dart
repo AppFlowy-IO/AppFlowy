@@ -88,12 +88,8 @@ class _DocPageState extends State<DocPage> {
 
   Widget _renderBanner(BuildContext context) {
     return DocBanner(
-      onRestore: () {
-        context.read<DocBloc>().add(const DocEvent.restorePage());
-      },
-      onDelete: () {
-        context.read<DocBloc>().add(const DocEvent.deletePermanently());
-      },
+      onRestore: () => context.read<DocBloc>().add(const DocEvent.restorePage()),
+      onDelete: () => context.read<DocBloc>().add(const DocEvent.deletePermanently()),
     );
   }
 
