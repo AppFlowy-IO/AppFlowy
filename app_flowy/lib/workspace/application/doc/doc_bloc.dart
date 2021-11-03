@@ -58,7 +58,10 @@ class DocBloc extends Bloc<DocEvent, DocState> {
   Future<void> close() async {
     await listener.stop();
 
-    await _subscription?.cancel();
+    if (_subscription != null) {
+      await _subscription?.cancel();
+    }
+
     docManager.closeDoc();
     return super.close();
   }

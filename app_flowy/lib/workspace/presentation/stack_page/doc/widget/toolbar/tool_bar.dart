@@ -71,7 +71,7 @@ class EditorToolbar extends StatelessWidget implements PreferredSizeWidget {
         ),
         FlowyToggleStyleButton(
           attribute: Attribute.italic,
-          normalIcon: 'editor/restore',
+          normalIcon: 'editor/italic',
           iconSize: toolbarIconSize,
           controller: controller,
         ),

@@ -80,7 +80,7 @@ pub enum AttributeKey {
     Italic,
     #[serde(rename = "underline")]
     Underline,
-    #[serde(rename = "strikethrough")]
+    #[serde(rename = "strike")]
     StrikeThrough,
     #[serde(rename = "font")]
     Font,
