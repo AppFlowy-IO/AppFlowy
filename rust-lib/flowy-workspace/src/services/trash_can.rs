@@ -223,7 +223,7 @@ impl TrashCan {
         spawn(async move {
             match server.read_trash(&token).await {
                 Ok(repeated_trash) => {
-                    log::debug!("Remote trash count: {}", repeated_trash.items.len());
+                    tracing::debug!("Remote trash count: {}", repeated_trash.items.len());
                     match pool.get() {
                         Ok(conn) => {
                             let result = conn.immediate_transaction::<_, WorkspaceError, _>(|| {

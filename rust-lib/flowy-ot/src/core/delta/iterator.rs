@@ -154,13 +154,13 @@ impl<'a> Iterator for AttributesIter<'a> {
         match next_op.unwrap() {
             Operation::Delete(_n) => {},
             Operation::Retain(retain) => {
-                log::trace!("extend retain attributes with {} ", &retain.attributes);
+                tracing::trace!("extend retain attributes with {} ", &retain.attributes);
                 attributes.extend(retain.attributes.clone());
 
                 length = retain.n;
             },
             Operation::Insert(insert) => {
-                log::trace!("extend insert attributes with {} ", &insert.attributes);
+                tracing::trace!("extend insert attributes with {} ", &insert.attributes);
                 attributes.extend(insert.attributes.clone());
                 length = insert.num_chars();
             },

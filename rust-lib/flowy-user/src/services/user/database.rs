@@ -25,7 +25,7 @@ impl UserDB {
             return Err(UserError::internal().context("user id is empty"));
         }
 
-        log::info!("open user db {}", user_id);
+        tracing::info!("open user db {}", user_id);
         let dir = format!("{}/{}", self.db_dir, user_id);
         let db = flowy_database::init(&dir).map_err(|e| {
             log::error!("init user db failed, {:?}, user_id: {}", e, user_id);

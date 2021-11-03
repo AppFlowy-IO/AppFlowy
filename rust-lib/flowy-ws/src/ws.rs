@@ -171,7 +171,7 @@ async fn spawn_stream_and_handlers(
                 }
             }
         },
-        result = handlers => log::debug!("handlers completed {:?}", result),
+        result = handlers => tracing::debug!("handlers completed {:?}", result),
     };
 }
 

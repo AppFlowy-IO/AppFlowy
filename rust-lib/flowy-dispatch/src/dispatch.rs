@@ -23,7 +23,7 @@ impl EventDispatch {
     {
         let runtime = tokio_default_runtime().unwrap();
         let modules = module_factory();
-        log::trace!("{}", module_info(&modules));
+        tracing::trace!("{}", module_info(&modules));
         let module_map = as_module_map(modules);
 
         let dispatch = EventDispatch { module_map, runtime };
@@ -49,7 +49,7 @@ impl EventDispatch {
         let request: ModuleRequest = request.into();
         let module_map = dispatch.module_map.clone();
         let service = Box::new(DispatchService { module_map });
-        log::trace!("Async event: {:?}", &request.event);
+        tracing::trace!("Async event: {:?}", &request.event);
         let service_ctx = DispatchContext {
             request,
             callback: Some(Box::new(callback)),
@@ -157,7 +157,7 @@ impl Service<DispatchContext> for DispatchService {
             };
 
             let response = result.unwrap_or_else(|e| e.into());
-            log::trace!("Dispatch result: {:?}", response);
+            tracing::trace!("Dispatch result: {:?}", response);
             if let Some(callback) = callback {
                 callback(response.clone()).await;
             }
@@ -179,6 +179,6 @@ fn module_info(modules: &Vec<Module>) -> String {
 #[allow(dead_code)]
 fn print_module_map_info(module_map: &ModuleMap) {
     module_map.iter().for_each(|(k, v)| {
-        log::info!("Event: {:?} module: {:?}", k, v.name);
+        tracing::info!("Event: {:?} module: {:?}", k, v.name);
     })
 }

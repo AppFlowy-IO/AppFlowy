@@ -48,7 +48,7 @@ pub fn save_content_to_file_with_diff_prompt(content: &str, output_file: &str, _
             //     if Confirm::new().with_prompt("Override?").interact().unwrap() {
             //         write_to_file()
             //     } else {
-            //         log::info!("never mind then :(");
+            //         tracing::info!("never mind then :(");
             //     }
             // }
         }

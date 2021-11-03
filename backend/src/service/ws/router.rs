@@ -20,7 +20,7 @@ pub async fn establish_ws_connection(
     server: Data<Addr<WsServer>>,
     biz_handlers: Data<WsBizHandlers>,
 ) -> Result<HttpResponse, Error> {
-    log::info!("establish_ws_connection");
+    tracing::info!("establish_ws_connection");
     match LoggedUser::from_token(token.clone()) {
         Ok(user) => {
             let ws_user = WsUser::new(user.clone());

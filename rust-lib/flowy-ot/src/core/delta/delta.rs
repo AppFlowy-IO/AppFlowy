@@ -78,8 +78,8 @@ impl Delta {
 
     pub fn from_json(json: &str) -> Result<Self, OTError> {
         let delta: Delta = serde_json::from_str(json).map_err(|e| {
-            log::trace!("Deserialize failed: {:?}", e);
-            log::trace!("{:?}", json);
+            tracing::trace!("Deserialize failed: {:?}", e);
+            tracing::trace!("{:?}", json);
             e
         })?;
         Ok(delta)
@@ -426,9 +426,9 @@ impl OperationTransformable for Delta {
         if other.is_empty() {
             return inverted;
         }
-        log::trace!("🌜Calculate invert delta");
-        log::trace!("current: {}", self);
-        log::trace!("other: {}", other);
+        tracing::trace!("🌜Calculate invert delta");
+        tracing::trace!("current: {}", self);
+        tracing::trace!("other: {}", other);
         let mut index = 0;
         for op in &self.ops {
             let len: usize = op.len() as usize;
@@ -441,34 +441,34 @@ impl OperationTransformable for Delta {
                     match op.has_attribute() {
                         true => invert_from_other(&mut inverted, other, op, index, index + len),
                         false => {
-                            log::trace!("invert retain: {} by retain {} {}", op, len, op.get_attributes());
+                            tracing::trace!("invert retain: {} by retain {} {}", op, len, op.get_attributes());
                             inverted.retain(len as usize, op.get_attributes())
                         },
                     }
                     index += len;
                 },
                 Operation::Insert(_) => {
-                    log::trace!("invert insert: {} by delete {}", op, len);
+                    tracing::trace!("invert insert: {} by delete {}", op, len);
                     inverted.delete(len as usize);
                 },
             }
         }
 
-        log::trace!("🌛invert result: {}", inverted);
+        tracing::trace!("🌛invert result: {}", inverted);
         inverted
     }
 }
 
 fn invert_from_other(base: &mut Delta, other: &Delta, operation: &Operation, start: usize, end: usize) {
-    log::trace!("invert op: {} [{}:{}]", operation, start, end);
+    tracing::trace!("invert op: {} [{}:{}]", operation, start, end);
     let other_ops = DeltaIter::from_interval(other, Interval::new(start, end)).ops();
     other_ops.into_iter().for_each(|other_op| match operation {
         Operation::Delete(n) => {
-            log::trace!("invert delete: {} by add {}", n, other_op);
+            tracing::trace!("invert delete: {} by add {}", n, other_op);
             base.add(other_op);
         },
         Operation::Retain(_retain) => {
-            log::trace!(
+            tracing::trace!(
                 "invert attributes: {:?}, {:?}",
                 operation.get_attributes(),
                 other_op.get_attributes()

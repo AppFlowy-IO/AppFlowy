@@ -173,7 +173,7 @@ impl fmt::Display for Retain {
 
 impl Retain {
     pub fn merge_or_new(&mut self, n: usize, attributes: Attributes) -> Option<Operation> {
-        log::trace!(
+        tracing::trace!(
             "merge_retain_or_new_op: len: {:?}, l: {} - r: {}",
             n,
             self.attributes,

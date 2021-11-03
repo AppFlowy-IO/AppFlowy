@@ -15,6 +15,7 @@ serde_repr = "0.1"
 pin-project = "1.0.0"
 futures-core = { version = "0.3", default-features = false }
 log = "0.4"
+tracing = { version = "0.1", features = ["log"] }
 bytes = { version = "1.0", features = ["serde"]}
 lazy_static = "1.4.0"
 tokio = { version = "1", features = ["full"] }

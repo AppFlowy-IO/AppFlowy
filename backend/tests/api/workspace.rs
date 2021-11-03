@@ -9,14 +9,14 @@ use flowy_workspace::entities::{
 #[actix_rt::test]
 async fn workspace_create() {
     let test = WorkspaceTest::new().await;
-    log::info!("{:?}", test.workspace);
+    tracing::info!("{:?}", test.workspace);
 }
 
 #[actix_rt::test]
 async fn workspace_read() {
     let test = WorkspaceTest::new().await;
     let read_params = QueryWorkspaceParams::new().workspace_id(&test.workspace.id);
-    log::info!("{:?}", test.server.read_workspaces(read_params).await);
+    tracing::info!("{:?}", test.server.read_workspaces(read_params).await);
 }
 
 #[actix_rt::test]
@@ -69,7 +69,7 @@ async fn workspace_delete() {
 #[actix_rt::test]
 async fn app_create() {
     let test = AppTest::new().await;
-    log::info!("{:?}", test.app);
+    tracing::info!("{:?}", test.app);
 }
 
 #[actix_rt::test]
@@ -134,7 +134,7 @@ async fn app_delete() {
 #[actix_rt::test]
 async fn view_create() {
     let test = ViewTest::new().await;
-    log::info!("{:?}", test.view);
+    tracing::info!("{:?}", test.view);
 }
 
 #[actix_rt::test]

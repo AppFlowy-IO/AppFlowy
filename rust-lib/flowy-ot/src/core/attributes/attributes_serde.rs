@@ -4,7 +4,6 @@ use crate::core::{Attribute, AttributeKey, Attributes};
 use serde::{
     de,
     de::{MapAccess, Visitor},
-    ser,
     ser::SerializeMap,
     Deserialize,
     Deserializer,

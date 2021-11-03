@@ -25,7 +25,7 @@ impl View {
         let mut new_delta = None;
         for ext in &self.insert_exts {
             if let Some(delta) = ext.apply(delta, interval.size(), text, interval.start) {
-                log::trace!("[{}]: applied, delta: {}", ext.ext_name(), delta);
+                tracing::trace!("[{}]: applied, delta: {}", ext.ext_name(), delta);
                 new_delta = Some(delta);
                 break;
             }
@@ -41,7 +41,7 @@ impl View {
         let mut new_delta = None;
         for ext in &self.delete_exts {
             if let Some(delta) = ext.apply(delta, interval) {
-                log::trace!("[{}]: applied, delta: {}", ext.ext_name(), delta);
+                tracing::trace!("[{}]: applied, delta: {}", ext.ext_name(), delta);
                 new_delta = Some(delta);
                 break;
             }
@@ -57,7 +57,7 @@ impl View {
         let mut new_delta = None;
         for ext in &self.format_exts {
             if let Some(delta) = ext.apply(delta, interval, &attribute) {
-                log::trace!("[{}]: applied, delta: {}", ext.ext_name(), delta);
+                tracing::trace!("[{}]: applied, delta: {}", ext.ext_name(), delta);
                 new_delta = Some(delta);
                 break;
             }

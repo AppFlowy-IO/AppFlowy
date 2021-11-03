@@ -111,10 +111,10 @@ impl DocumentActor {
     }
 
     async fn compose_delta(&self, delta: Delta) -> DocResult<()> {
-        // log::debug!("{:?} thread handle_message", thread::current(),);
+        // tracing::debug!("{:?} thread handle_message", thread::current(),);
         let mut document = self.document.write().await;
         let result = document.compose_delta(&delta);
-        log::debug!(
+        tracing::debug!(
             "Compose push delta: {}. result: {}",
             delta.to_json(),
             document.to_json()

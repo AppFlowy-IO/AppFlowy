@@ -263,14 +263,14 @@ impl WorkspaceController {
             // Opti: handle the error and retry?
             let workspaces = server.read_workspace(&token, params).await?;
             let _ = (&*conn).immediate_transaction::<_, WorkspaceError, _>(|| {
-                log::debug!("Save {} workspace", workspaces.len());
+                tracing::debug!("Save {} workspace", workspaces.len());
                 for workspace in &workspaces.items {
                     let mut m_workspace = workspace.clone();
                     let apps = m_workspace.apps.into_inner();
                     let workspace_table = WorkspaceTable::new(m_workspace, &user_id);
 
                     let _ = workspace_sql.create_workspace(workspace_table, &*conn)?;
-                    log::debug!("Save {} apps", apps.len());
+                    tracing::debug!("Save {} apps", apps.len());
                     for mut app in apps {
                         let views = app.belongings.into_inner();
                         match app_ctrl.save_app(app, &*conn) {
@@ -278,7 +278,7 @@ impl WorkspaceController {
                             Err(e) => log::error!("create app failed: {:?}", e),
                         }
 
-                        log::debug!("Save {} views", views.len());
+                        tracing::debug!("Save {} views", views.len());
                         for view in views {
                             match view_ctrl.save_view(view, &*conn) {
                                 Ok(_) => {},

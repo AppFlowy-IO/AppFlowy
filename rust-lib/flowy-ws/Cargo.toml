@@ -21,6 +21,7 @@ futures-core = { version = "0.3", default-features = false }
 paste = "1"
 url = "2.2.2"
 log = "0.4"
+tracing = { version = "0.1", features = ["log"] }
 protobuf = {version = "2.18.0"}
 strum = "0.21"
 strum_macros = "0.21"

@@ -219,7 +219,7 @@ async fn fetch_from_local(doc_id: &str, persistence: Arc<Persistence>) -> DocRes
 //         return;
 //     }
 //
-//     log::debug!("Try to update {:?} state", rev_ids);
+//     tracing::debug!("Try to update {:?} state", rev_ids);
 //     match self.update(&rev_ids) {
 //         Ok(_) => {
 //             self.revs.retain(|k, _| !rev_ids.contains(k));

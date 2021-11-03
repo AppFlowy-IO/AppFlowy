@@ -246,7 +246,7 @@ impl UserSession {
     }
 
     fn set_session(&self, session: Option<Session>) -> Result<(), UserError> {
-        log::debug!("Set user session: {:?}", session);
+        tracing::debug!("Set user session: {:?}", session);
         match &session {
             None => KV::remove(SESSION_CACHE_KEY).map_err(|e| UserError::new(ErrorCode::InternalError, &e))?,
             Some(session) => KV::set_str(SESSION_CACHE_KEY, session.clone().into()),
@@ -297,7 +297,7 @@ impl UserSession {
             loop {
                 match notify.recv().await {
                     Ok(state) => {
-                        log::info!("Websocket state changed: {}", state);
+                        tracing::info!("Websocket state changed: {}", state);
                         match state {
                             WsState::Init => {},
                             WsState::Connected(_) => {},

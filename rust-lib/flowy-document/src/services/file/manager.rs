@@ -64,7 +64,7 @@ impl FileManager {
     pub(crate) fn create_file(&mut self, id: &str, dir: &str, text: &str) -> Result<PathBuf, FileError> {
         let path = PathBuf::from(format!("{}/{}", dir, id));
         let file_id: FileId = id.to_owned().into();
-        log::info!("Create doc at: {:?}", path);
+        tracing::info!("Create doc at: {:?}", path);
         let _ = self.save_new(&path, text, &file_id)?;
         Ok(path)
     }
@@ -89,7 +89,8 @@ impl FileManager {
 
     #[allow(dead_code)]
     fn save_new(&mut self, path: &Path, text: &str, id: &FileId) -> Result<(), FileError> {
-        try_save(path, text, CharacterEncoding::Utf8, self.get_info(id)).map_err(|e| FileError::Io(e, path.to_owned()))?;
+        try_save(path, text, CharacterEncoding::Utf8, self.get_info(id))
+            .map_err(|e| FileError::Io(e, path.to_owned()))?;
         let info = FileInfo {
             encoding: CharacterEncoding::Utf8,
             path: path.to_owned(),

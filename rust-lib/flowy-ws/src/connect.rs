@@ -60,7 +60,7 @@ impl Future for WsConnectionFuture {
         loop {
             return match ready!(self.as_mut().project().fut.poll(cx)) {
                 Ok((stream, _)) => {
-                    log::debug!("🐴 ws connect success");
+                    tracing::debug!("🐴 ws connect success");
                     let (msg_tx, ws_rx) = (
                         self.msg_tx.take().expect("WsConnection should be call once "),
                         self.ws_rx.take().expect("WsConnection should be call once "),
@@ -68,7 +68,7 @@ impl Future for WsConnectionFuture {
                     Poll::Ready(Ok(WsStream::new(msg_tx, ws_rx, stream)))
                 },
                 Err(error) => {
-                    log::debug!("🐴 ws connect failed: {:?}", error);
+                    tracing::debug!("🐴 ws connect failed: {:?}", error);
                     Poll::Ready(Err(error.into()))
                 },
             };

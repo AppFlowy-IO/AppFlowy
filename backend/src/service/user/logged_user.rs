@@ -82,7 +82,7 @@ impl AuthorizedUsers {
     pub fn is_authorized(&self, user: &LoggedUser) -> bool {
         match self.0.get(user) {
             None => {
-                log::debug!("user not login yet or server was reboot");
+                tracing::debug!("user not login yet or server was reboot");
                 false
             },
             Some(status) => match *status {
@@ -92,7 +92,7 @@ impl AuthorizedUsers {
                     days < EXPIRED_DURATION_DAYS
                 },
                 AuthStatus::NotAuthorized => {
-                    log::debug!("user logout already");
+                    tracing::debug!("user logout already");
                     false
                 },
             },

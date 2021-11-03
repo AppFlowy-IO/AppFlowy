@@ -91,7 +91,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsClient {
                 ctx.pong(&msg);
             },
             Ok(ws::Message::Pong(_msg)) => {
-                // log::debug!("Receive {} pong {:?}", &self.session_id, &msg);
+                // tracing::debug!("Receive {} pong {:?}", &self.session_id, &msg);
                 self.hb = Instant::now();
             },
             Ok(ws::Message::Binary(bytes)) => {
@@ -136,7 +136,7 @@ impl Actor for WsClient {
             .into_actor(self)
             .then(|res, _client, _ctx| {
                 match res {
-                    Ok(Ok(_)) => log::trace!("Send connect message to server success"),
+                    Ok(Ok(_)) => tracing::trace!("Send connect message to server success"),
                     Ok(Err(e)) => log::error!("Send connect message to server failed: {:?}", e),
                     Err(e) => log::error!("Send connect message to server failed: {:?}", e),
                 }

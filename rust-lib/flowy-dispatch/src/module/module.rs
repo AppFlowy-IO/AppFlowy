@@ -228,7 +228,7 @@ impl Future for ModuleServiceFuture {
 //
 //                 match sys_rx.recv().await {
 //                     Some(cmd) => {
-//                         log::info!("{:?}", cmd);
+//                         tracing::info!("{:?}", cmd);
 //                     },
 //                     None => panic!(""),
 //                 }

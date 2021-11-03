@@ -10,14 +10,14 @@ pub fn tokio_default_runtime() -> io::Result<tokio::runtime::Runtime> {
         .enable_io()
         .enable_time()
         .on_thread_start(move || {
-            log::trace!(
+            tracing::trace!(
                 "{:?} thread started: thread_id= {}",
                 thread::current(),
                 thread_id::get()
             );
         })
         .on_thread_stop(move || {
-            log::trace!(
+            tracing::trace!(
                 "{:?} thread stopping: thread_id= {}",
                 thread::current(),
                 thread_id::get(),

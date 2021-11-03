@@ -148,7 +148,7 @@ impl HttpRequestBuilder {
         });
 
         let response = rx.await??;
-        log::trace!("Http Response: {:?}", response);
+        tracing::trace!("Http Response: {:?}", response);
         let flowy_response = flowy_response_from(response).await?;
         let token = self.token();
         self.middleware.iter().for_each(|middleware| {

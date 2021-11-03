@@ -5,7 +5,7 @@ use flowy_user::entities::{SignInParams, SignUpParams, SignUpResponse, UpdateUse
 async fn user_register() {
     let app = spawn_user_server().await;
     let response = register_user(&app, "annie@appflowy.io", "HelloWorld123!").await;
-    log::info!("{:?}", response);
+    tracing::info!("{:?}", response);
 }
 
 #[actix_rt::test]
@@ -52,7 +52,7 @@ async fn user_sign_out() {
 #[actix_rt::test]
 async fn user_get_detail() {
     let server = TestUserServer::new().await;
-    log::info!("{:?}", server.get_user_profile().await);
+    tracing::info!("{:?}", server.get_user_profile().await);
 }
 
 #[actix_rt::test]

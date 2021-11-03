@@ -304,7 +304,7 @@ fn spawn_rev_receiver(mut receiver: mpsc::UnboundedReceiver<Revision>, ws: Arc<d
     tokio::spawn(async move {
         loop {
             while let Some(revision) = receiver.recv().await {
-                log::debug!("Send revision:{} to server", revision.rev_id);
+                tracing::debug!("Send revision:{} to server", revision.rev_id);
                 match ws.send(revision.into()) {
                     Ok(_) => {},
                     Err(e) => log::error!("Send revision failed: {:?}", e),
