@@ -68,6 +68,7 @@ impl Document {
     }
 
     pub fn compose_delta(&mut self, delta: &Delta) -> Result<(), DocError> {
+        log::trace!("😁 {} compose {}", &self.delta.to_json(), delta.to_json());
         let composed_delta = self.delta.compose(delta)?;
         let mut undo_delta = delta.invert(&self.delta);
 
@@ -88,7 +89,7 @@ impl Document {
             self.history.record(undo_delta);
         }
 
-        log::trace!("document delta: {}", &composed_delta);
+        log::trace!("😁😁 compose result: {}", composed_delta.to_json());
         self.set_delta(composed_delta);
         Ok(())
     }

@@ -4,7 +4,6 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -164,7 +163,6 @@ class MenuSharedState extends ChangeNotifier {
     super.addListener(() {
       if (_forcedOpenView != null) {
         callback(_forcedOpenView!);
-        _forcedOpenView = null;
       }
     });
   }
@@ -181,6 +179,7 @@ class MenuSharedState extends ChangeNotifier {
       selectedView = view;
       notifyListeners();
     }
+    _forcedOpenView = null;
   }
 
   set selectedView(View? view) {

@@ -105,16 +105,20 @@ impl TestBuilder {
             TestOp::Insert(delta_i, s, index) => {
                 let document = &mut self.documents[*delta_i];
                 let delta = document.insert(*index, s).unwrap();
+                log::debug!("Insert delta: {}", delta.to_json());
+
                 self.deltas.insert(*delta_i, Some(delta));
             },
             TestOp::Delete(delta_i, iv) => {
                 let document = &mut self.documents[*delta_i];
                 let delta = document.replace(*iv, "").unwrap();
+                log::trace!("Delete delta: {}", delta.to_json());
                 self.deltas.insert(*delta_i, Some(delta));
             },
             TestOp::Replace(delta_i, iv, s) => {
                 let document = &mut self.documents[*delta_i];
                 let delta = document.replace(*iv, s).unwrap();
+                log::trace!("Replace delta: {}", delta.to_json());
                 self.deltas.insert(*delta_i, Some(delta));
             },
             TestOp::InsertBold(delta_i, s, iv) => {
@@ -126,6 +130,7 @@ impl TestBuilder {
                 let document = &mut self.documents[*delta_i];
                 let attribute = Attribute::Bold(*enable);
                 let delta = document.format(*iv, attribute).unwrap();
+                log::trace!("Bold delta: {}", delta.to_json());
                 self.deltas.insert(*delta_i, Some(delta));
             },
             TestOp::Italic(delta_i, iv, enable) => {
@@ -135,24 +140,29 @@ impl TestBuilder {
                     false => Attribute::Italic(false),
                 };
                 let delta = document.format(*iv, attribute).unwrap();
+                log::trace!("Italic delta: {}", delta.to_json());
                 self.deltas.insert(*delta_i, Some(delta));
             },
             TestOp::Header(delta_i, iv, level) => {
                 let document = &mut self.documents[*delta_i];
                 let attribute = Attribute::Header(*level);
                 let delta = document.format(*iv, attribute).unwrap();
+                log::trace!("Header delta: {}", delta.to_json());
                 self.deltas.insert(*delta_i, Some(delta));
             },
             TestOp::Link(delta_i, iv, link) => {
                 let document = &mut self.documents[*delta_i];
                 let attribute = Attribute::Link(link.to_owned());
                 let delta = document.format(*iv, attribute).unwrap();
+                log::trace!("Link delta: {}", delta.to_json());
                 self.deltas.insert(*delta_i, Some(delta));
             },
             TestOp::Bullet(delta_i, iv, enable) => {
                 let document = &mut self.documents[*delta_i];
                 let attribute = Attribute::Bullet(*enable);
                 let delta = document.format(*iv, attribute).unwrap();
+                log::debug!("Bullet delta: {}", delta.to_json());
+
                 self.deltas.insert(*delta_i, Some(delta));
             },
             TestOp::Transform(delta_a_i, delta_b_i) => {

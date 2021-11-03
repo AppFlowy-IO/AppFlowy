@@ -41,7 +41,8 @@ class _DocPageState extends State<DocPage> {
       ],
       child: BlocBuilder<DocBloc, DocState>(builder: (context, state) {
         return state.loadState.map(
-          loading: (_) => const FlowyProgressIndicator(),
+          // loading: (_) => const FlowyProgressIndicator(),
+          loading: (_) => SizedBox.expand(child: Container(color: Colors.white)),
           finish: (result) => result.successOrFail.fold(
             (_) {
               if (state.forceClose) {

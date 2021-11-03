@@ -19,10 +19,10 @@ use tokio::{
 pub struct RevisionStore {
     doc_id: String,
     persistence: Arc<Persistence>,
-    revs_map: Arc<DashMap<i64, RevisionContext>>,
+    revs_map: Arc<DashMap<i64, RevisionRecord>>,
     pending_tx: PendingSender,
     pending_revs: Arc<RwLock<VecDeque<PendingRevId>>>,
-    delay_save: RwLock<Option<JoinHandle<()>>>,
+    defer_save_oper: RwLock<Option<JoinHandle<()>>>,
     server: Arc<dyn RevisionServer>,
 }
 
@@ -45,7 +45,7 @@ impl RevisionStore {
             revs_map,
             pending_revs,
             pending_tx,
-            delay_save: RwLock::new(None),
+            defer_save_oper: RwLock::new(None),
             server,
         });
 
@@ -75,7 +75,7 @@ impl RevisionStore {
 
         let pending_rev = PendingRevId::new(revision.rev_id, sender);
         self.pending_revs.write().await.push_back(pending_rev);
-        self.revs_map.insert(revision.rev_id, RevisionContext::new(revision));
+        self.revs_map.insert(revision.rev_id, RevisionRecord::new(revision));
 
         let _ = self.pending_tx.send(PendingMsg::Revision { ret: receiver });
         self.save_revisions().await;
@@ -94,7 +94,7 @@ impl RevisionStore {
     }
 
     async fn save_revisions(&self) {
-        if let Some(handler) = self.delay_save.write().await.take() {
+        if let Some(handler) = self.defer_save_oper.write().await.take() {
             handler.abort();
         }
 
@@ -105,7 +105,7 @@ impl RevisionStore {
         let revs_map = self.revs_map.clone();
         let persistence = self.persistence.clone();
 
-        *self.delay_save.write().await = Some(tokio::spawn(async move {
+        *self.defer_save_oper.write().await = Some(tokio::spawn(async move {
             tokio::time::sleep(Duration::from_millis(300)).await;
             let ids = revs_map.iter().map(|kv| kv.key().clone()).collect::<Vec<i64>>();
             let revisions_state = revs_map
@@ -194,7 +194,6 @@ async fn fetch_from_local(doc_id: &str, persistence: Arc<Persistence>) -> DocRes
                 },
             }
         }
-
         Result::<Doc, DocError>::Ok(Doc {
             id: doc_id,
             data: delta.to_json(),

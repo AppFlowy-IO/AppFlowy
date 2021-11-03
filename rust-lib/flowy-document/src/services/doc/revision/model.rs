@@ -13,12 +13,12 @@ use tokio::sync::broadcast;
 pub type RevIdReceiver = broadcast::Receiver<i64>;
 pub type RevIdSender = broadcast::Sender<i64>;
 
-pub struct RevisionContext {
+pub struct RevisionRecord {
     pub revision: Revision,
     pub state: RevState,
 }
 
-impl RevisionContext {
+impl RevisionRecord {
     pub fn new(revision: Revision) -> Self {
         Self {
             revision,

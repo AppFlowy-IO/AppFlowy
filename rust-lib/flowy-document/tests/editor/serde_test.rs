@@ -82,8 +82,21 @@ fn delta_deserialize_null_test() {
     let json = r#"[
         {"retain":7,"attributes":{"bold":null}}
      ]"#;
-    let delta = Delta::from_json(json).unwrap();
-    println!("{}", delta);
+    let delta1 = Delta::from_json(json).unwrap();
+
+    let mut attribute = Attribute::Bold(true);
+    attribute.value = AttributeValue(None);
+    let delta2 = DeltaBuilder::new().retain_with_attributes(7, attribute.into()).build();
+
+    assert_eq!(delta2.to_json(), r#"[{"retain":7,"attributes":{"bold":""}}]"#);
+    assert_eq!(delta1, delta2);
+}
+
+#[test]
+fn delta_serde_null_test() {
+    let mut attribute = Attribute::Bold(true);
+    attribute.value = AttributeValue(None);
+    assert_eq!(attribute.to_json(), r#"{"bold":""}"#);
 }
 
 #[test]

@@ -1,6 +1,7 @@
 use crate::editor::{TestBuilder, TestOp::*};
 use flowy_document::services::doc::{FlowyDoc, PlainDoc};
-use flowy_ot::core::{Interval, NEW_LINE, WHITESPACE};
+use flowy_ot::core::{Delta, DeltaBuilder, Interval, OperationTransformable, NEW_LINE, WHITESPACE};
+use std::str::FromStr;
 
 #[test]
 fn attributes_bold_added() {
@@ -731,6 +732,45 @@ fn attributes_preserve_list_format_on_merge() {
         AssertDocJson(
             0,
             r#"[{"insert":"123456"},{"insert":"\n","attributes":{"list":"bullet"}}]"#,
+        ),
+    ];
+
+    TestBuilder::new().run_script::<FlowyDoc>(ops);
+}
+
+#[test]
+fn delta_compose() {
+    let mut delta = Delta::from_json(r#"[{"insert":"\n"}]"#).unwrap();
+    let deltas = vec![
+        Delta::from_json(r#"[{"retain":1,"attributes":{"list":"unchecked"}}]"#).unwrap(),
+        Delta::from_json(r#"[{"insert":"a"}]"#).unwrap(),
+        Delta::from_json(r#"[{"retain":1},{"insert":"\n","attributes":{"list":"unchecked"}}]"#).unwrap(),
+        Delta::from_json(r#"[{"retain":2},{"retain":1,"attributes":{"list":""}}]"#).unwrap(),
+    ];
+
+    for d in deltas {
+        delta = delta.compose(&d).unwrap();
+    }
+    assert_eq!(
+        delta.to_json(),
+        r#"[{"insert":"a"},{"insert":"\n","attributes":{"list":"unchecked"}},{"insert":"\n"}]"#
+    );
+
+    let ops = vec![
+        AssertDocJson(0, r#"[{"insert":"\n"}]"#),
+        Insert(0, "a", 0),
+        AssertDocJson(0, r#"[{"insert":"a\n"}]"#),
+        Bullet(0, Interval::new(0, 1), true),
+        AssertDocJson(0, r#"[{"insert":"a"},{"insert":"\n","attributes":{"list":"bullet"}}]"#),
+        Insert(0, NEW_LINE, 1),
+        AssertDocJson(
+            0,
+            r#"[{"insert":"a"},{"insert":"\n\n","attributes":{"list":"bullet"}}]"#,
+        ),
+        Insert(0, NEW_LINE, 2),
+        AssertDocJson(
+            0,
+            r#"[{"insert":"a"},{"insert":"\n","attributes":{"list":"bullet"}},{"insert":"\n"}]"#,
         ),
     ];
 

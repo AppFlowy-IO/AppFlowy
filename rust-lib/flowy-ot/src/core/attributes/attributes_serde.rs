@@ -1,9 +1,10 @@
 #[rustfmt::skip]
 use crate::core::AttributeValue;
-use crate::core::{AttributeKey, Attributes};
+use crate::core::{Attribute, AttributeKey, Attributes};
 use serde::{
     de,
     de::{MapAccess, Visitor},
+    ser,
     ser::SerializeMap,
     Deserialize,
     Deserializer,
@@ -11,6 +12,17 @@ use serde::{
     Serializer,
 };
 use std::fmt;
+
+impl Serialize for Attribute {
+    fn serialize<S>(&self, serializer: S) -> Result<<S as Serializer>::Ok, <S as Serializer>::Error>
+    where
+        S: Serializer,
+    {
+        let mut map = serializer.serialize_map(Some(1))?;
+        let _ = serial_attribute(&mut map, &self.key, &self.value)?;
+        map.end()
+    }
+}
 
 impl Serialize for Attributes {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -23,40 +35,51 @@ impl Serialize for Attributes {
 
         let mut map = serializer.serialize_map(Some(self.inner.len()))?;
         for (k, v) in &self.inner {
-            if let Some(v) = &v.0 {
-                match k {
-                    AttributeKey::Bold
-                    | AttributeKey::Italic
-                    | AttributeKey::Underline
-                    | AttributeKey::StrikeThrough
-                    | AttributeKey::CodeBlock
-                    | AttributeKey::QuoteBlock => match &v.parse::<bool>() {
-                        Ok(value) => map.serialize_entry(k, value)?,
-                        Err(e) => log::error!("Serial {:?} failed. {:?}", k, e),
-                    },
-
-                    AttributeKey::Font
-                    | AttributeKey::Size
-                    | AttributeKey::Header
-                    | AttributeKey::Indent
-                    | AttributeKey::Width
-                    | AttributeKey::Height => match &v.parse::<i32>() {
-                        Ok(value) => map.serialize_entry(k, value)?,
-                        Err(e) => log::error!("Serial {:?} failed. {:?}", k, e),
-                    },
-
-                    AttributeKey::Link
-                    | AttributeKey::Color
-                    | AttributeKey::Background
-                    | AttributeKey::Align
-                    | AttributeKey::List => {
-                        map.serialize_entry(k, v)?;
-                    },
-                }
-            }
+            let _ = serial_attribute(&mut map, k, v)?;
         }
         map.end()
     }
+}
+
+fn serial_attribute<S, E>(map_serializer: &mut S, key: &AttributeKey, value: &AttributeValue) -> Result<(), E>
+where
+    S: SerializeMap,
+    E: From<<S as SerializeMap>::Error>,
+{
+    if let Some(v) = &value.0 {
+        match key {
+            AttributeKey::Bold
+            | AttributeKey::Italic
+            | AttributeKey::Underline
+            | AttributeKey::StrikeThrough
+            | AttributeKey::CodeBlock
+            | AttributeKey::QuoteBlock => match &v.parse::<bool>() {
+                Ok(value) => map_serializer.serialize_entry(&key, value)?,
+                Err(e) => log::error!("Serial {:?} failed. {:?}", &key, e),
+            },
+
+            AttributeKey::Font
+            | AttributeKey::Size
+            | AttributeKey::Header
+            | AttributeKey::Indent
+            | AttributeKey::Width
+            | AttributeKey::Height => match &v.parse::<i32>() {
+                Ok(value) => map_serializer.serialize_entry(&key, value)?,
+                Err(e) => log::error!("Serial {:?} failed. {:?}", &key, e),
+            },
+
+            AttributeKey::Link
+            | AttributeKey::Color
+            | AttributeKey::Background
+            | AttributeKey::Align
+            | AttributeKey::List => {
+                map_serializer.serialize_entry(&key, v)?;
+            },
+        }
+    } else {
+        map_serializer.serialize_entry(&key, "")?;
+    }
+    Ok(())
 }
 
 impl<'de> Deserialize<'de> for Attributes {
@@ -190,6 +213,7 @@ impl<'de> Deserialize<'de> for AttributeValue {
             where
                 E: de::Error,
             {
+                // the value that contains null will be processed here.
                 Ok(AttributeValue(None))
             }
 

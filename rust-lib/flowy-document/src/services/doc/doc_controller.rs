@@ -74,6 +74,10 @@ impl DocController {
         Ok(())
     }
 
+    // the delta's data that contains attributes with null value will be considered
+    // as None e.g.
+    // json : {"retain":7,"attributes":{"bold":null}}
+    // deserialize delta: [ {retain: 7, attributes: {Bold: AttributeValue(None)}} ]
     #[tracing::instrument(level = "debug", skip(self, delta), err)]
     pub(crate) async fn edit_doc(&self, delta: DocDelta) -> Result<DocDelta, DocError> {
         let edit_doc_ctx = self.cache.get(&delta.doc_id)?;

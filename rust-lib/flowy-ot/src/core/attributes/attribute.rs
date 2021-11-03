@@ -3,8 +3,10 @@
 use crate::{block_attribute, core::Attributes, ignore_attribute, inline_attribute, list_attribute};
 use lazy_static::lazy_static;
 
+use serde_json::Error;
 use std::{collections::HashSet, fmt, fmt::Formatter, iter::FromIterator};
 use strum_macros::Display;
+
 #[derive(Debug, Clone)]
 pub struct Attribute {
     pub key: AttributeKey,
@@ -41,6 +43,16 @@ impl Attribute {
     list_attribute!(Ordered, "ordered");
     list_attribute!(Checked, "checked");
     list_attribute!(UnChecked, "unchecked");
+
+    pub fn to_json(&self) -> String {
+        match serde_json::to_string(self) {
+            Ok(json) => json,
+            Err(e) => {
+                log::error!("Attribute serialize to str failed: {}", e);
+                "".to_owned()
+            },
+        }
+    }
 }
 
 impl fmt::Display for Attribute {
@@ -100,7 +112,7 @@ pub enum AttributeKey {
 
 // pub trait AttributeValueData<'a>: Serialize + Deserialize<'a> {}
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct AttributeValue(pub(crate) Option<String>);
+pub struct AttributeValue(pub Option<String>);
 
 impl std::convert::From<&usize> for AttributeValue {
     fn from(val: &usize) -> Self { AttributeValue::from(*val) }
