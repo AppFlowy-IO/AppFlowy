@@ -93,14 +93,14 @@ class EditorToolbar extends StatelessWidget implements PreferredSizeWidget {
           controller: controller,
           background: true,
         ),
-        FlowyImageButton(
-          iconSize: toolbarIconSize,
-          controller: controller,
-          onImagePickCallback: onImagePickCallback,
-          filePickImpl: filePickImpl,
-          webImagePickImpl: webImagePickImpl,
-          mediaPickSettingSelector: mediaPickSettingSelector,
-        ),
+        // FlowyImageButton(
+        //   iconSize: toolbarIconSize,
+        //   controller: controller,
+        //   onImagePickCallback: onImagePickCallback,
+        //   filePickImpl: filePickImpl,
+        //   webImagePickImpl: webImagePickImpl,
+        //   mediaPickSettingSelector: mediaPickSettingSelector,
+        // ),
         FlowyHeaderStyleButton(
           controller: controller,
           iconSize: toolbarIconSize,

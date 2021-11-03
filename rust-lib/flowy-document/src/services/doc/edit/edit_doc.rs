@@ -321,9 +321,9 @@ async fn save_document(document: UnboundedSender<DocumentMsg>, rev_id: RevId) ->
     result
 }
 
-fn spawn_doc_edit_actor(_doc_id: &str, delta: Delta, _pool: Arc<ConnectionPool>) -> UnboundedSender<DocumentMsg> {
+fn spawn_doc_edit_actor(doc_id: &str, delta: Delta, _pool: Arc<ConnectionPool>) -> UnboundedSender<DocumentMsg> {
     let (sender, receiver) = mpsc::unbounded_channel::<DocumentMsg>();
-    let actor = DocumentActor::new(delta, receiver);
+    let actor = DocumentActor::new(doc_id, delta, receiver);
     tokio::spawn(actor.run());
     sender
 }

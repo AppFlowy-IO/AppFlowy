@@ -52,7 +52,8 @@ where
             | AttributeKey::Underline
             | AttributeKey::StrikeThrough
             | AttributeKey::CodeBlock
-            | AttributeKey::QuoteBlock => match &v.parse::<bool>() {
+            | AttributeKey::InlineCode
+            | AttributeKey::BlockQuote => match &v.parse::<bool>() {
                 Ok(value) => map_serializer.serialize_entry(&key, value)?,
                 Err(e) => log::error!("Serial {:?} failed. {:?}", &key, e),
             },

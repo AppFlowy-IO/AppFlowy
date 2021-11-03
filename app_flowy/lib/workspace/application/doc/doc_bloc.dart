@@ -20,7 +20,7 @@ class DocBloc extends Bloc<DocEvent, DocState> {
   final IViewListener listener;
   final ITrash trasnManager;
   late Document document;
-  late StreamSubscription _subscription;
+  late StreamSubscription? _subscription;
 
   DocBloc({
     required this.view,
@@ -57,7 +57,8 @@ class DocBloc extends Bloc<DocEvent, DocState> {
   @override
   Future<void> close() async {
     await listener.stop();
-    await _subscription.cancel();
+
+    await _subscription?.cancel();
     docManager.closeDoc();
     return super.close();
   }
@@ -104,7 +105,7 @@ class DocBloc extends Bloc<DocEvent, DocState> {
 
   void _composeDelta(Delta composedDelta, Delta documentDelta) async {
     final json = jsonEncode(composedDelta.toJson());
-    Log.debug("Send json: $json");
+    Log.debug("doc_id: $view.id - Send json: $json");
     final result = await docManager.composeDelta(json: json);
 
     result.fold((rustDoc) {

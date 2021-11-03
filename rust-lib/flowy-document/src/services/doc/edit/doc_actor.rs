@@ -13,14 +13,16 @@ use std::{convert::TryFrom, sync::Arc};
 use tokio::sync::{mpsc, RwLock};
 
 pub struct DocumentActor {
+    doc_id: String,
     document: Arc<RwLock<Document>>,
     receiver: Option<mpsc::UnboundedReceiver<DocumentMsg>>,
 }
 
 impl DocumentActor {
-    pub fn new(delta: Delta, receiver: mpsc::UnboundedReceiver<DocumentMsg>) -> Self {
+    pub fn new(doc_id: &str, delta: Delta, receiver: mpsc::UnboundedReceiver<DocumentMsg>) -> Self {
         let document = Arc::new(RwLock::new(Document::from_delta(delta)));
         Self {
+            doc_id: doc_id.to_owned(),
             document,
             receiver: Some(receiver),
         }
@@ -114,11 +116,7 @@ impl DocumentActor {
         // tracing::debug!("{:?} thread handle_message", thread::current(),);
         let mut document = self.document.write().await;
         let result = document.compose_delta(&delta);
-        tracing::debug!(
-            "Compose push delta: {}. result: {}",
-            delta.to_json(),
-            document.to_json()
-        );
+        tracing::debug!("doc_id:{} - Compose push delta: {}", &self.doc_id, delta.to_json(),);
         drop(document);
 
         result

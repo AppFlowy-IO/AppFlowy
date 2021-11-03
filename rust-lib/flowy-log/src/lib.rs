@@ -39,7 +39,7 @@ impl Builder {
     pub fn local(mut self, directory: impl AsRef<Path>) -> Self {
         let directory = directory.as_ref().to_str().unwrap().to_owned();
         let local_file_name = format!("{}.log", &self.name);
-        self.file_appender = Some(tracing_appender::rolling::hourly(directory, local_file_name));
+        self.file_appender = Some(tracing_appender::rolling::daily(directory, local_file_name));
 
         self
     }
@@ -48,29 +48,22 @@ impl Builder {
         let env_filter = EnvFilter::new(self.env_filter);
         let file_appender = self.file_appender.unwrap();
         let (non_blocking, guard) = tracing_appender::non_blocking(file_appender);
-        let formatting_layer = FlowyFormattingLayer::new(std::io::stdout);
-
-        let formatter =
-            // Construct a custom formatter for `Debug` fields
-            format::debug_fn(|writer, field, value| write!(writer, "{}: {:?}", field, value))
-                // Use the `tracing_subscriber::MakeFmtExt` trait to wrap the
-                // formatter so that a delimiter is added between fields.
-                .delimited(", ");
-
         let subscriber = tracing_subscriber::fmt()
             // .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
-            // .without_time()
             .with_ansi(false)
             .with_target(false)
             .with_max_level(tracing::Level::TRACE)
             .with_writer(std::io::stderr)
-            .fmt_fields(formatter)
-            // .with_thread_ids(true)
-            .with_writer(non_blocking)
+            .with_thread_ids(true)
+            // .with_writer(non_blocking)
             .json()
+            .with_current_span(true)
+            .with_span_list(true)
             .compact()
             .finish()
-            .with(env_filter).with(JsonStorageLayer).with(formatting_layer);
+            .with(env_filter).with(JsonStorageLayer)
+            .with(FlowyFormattingLayer::new(std::io::stdout))
+            .with(FlowyFormattingLayer::new(non_blocking));
 
         // if cfg!(feature = "use_bunyan") {
         //     let formatting_layer = BunyanFormattingLayer::new(self.name.clone(),

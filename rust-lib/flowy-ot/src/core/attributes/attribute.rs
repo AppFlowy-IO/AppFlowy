@@ -24,6 +24,7 @@ impl Attribute {
     inline_attribute!(Font, usize);
     inline_attribute!(Size, usize);
     inline_attribute!(Background, String);
+    inline_attribute!(InlineCode, bool);
 
     // block
     block_attribute!(Header, usize);
@@ -31,7 +32,7 @@ impl Attribute {
     block_attribute!(Align, String);
     block_attribute!(List, &str);
     block_attribute!(CodeBlock, bool);
-    block_attribute!(QuoteBlock, bool);
+    block_attribute!(BlockQuote, bool);
 
     // ignore
     ignore_attribute!(Width, usize);
@@ -97,10 +98,12 @@ pub enum AttributeKey {
     Align,
     #[serde(rename = "code_block")]
     CodeBlock,
+    #[serde(rename = "code")]
+    InlineCode,
     #[serde(rename = "list")]
     List,
-    #[serde(rename = "quote_block")]
-    QuoteBlock,
+    #[serde(rename = "blockquote")]
+    BlockQuote,
     #[serde(rename = "width")]
     Width,
     #[serde(rename = "height")]
@@ -169,7 +172,7 @@ lazy_static! {
         AttributeKey::Align,
         AttributeKey::CodeBlock,
         AttributeKey::List,
-        AttributeKey::QuoteBlock,
+        AttributeKey::BlockQuote,
     ]);
     static ref INLINE_KEYS: HashSet<AttributeKey> = HashSet::from_iter(vec![
         AttributeKey::Bold,
@@ -181,6 +184,7 @@ lazy_static! {
         AttributeKey::Font,
         AttributeKey::Size,
         AttributeKey::Background,
+        AttributeKey::InlineCode,
     ]);
     static ref INGORE_KEYS: HashSet<AttributeKey> =
         HashSet::from_iter(vec![AttributeKey::Width, AttributeKey::Height,]);

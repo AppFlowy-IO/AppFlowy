@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt::skip)]
 use crate::editor::{TestBuilder, TestOp::*};
 use flowy_document::services::doc::{FlowyDoc, PlainDoc};
 use flowy_ot::core::{Delta, DeltaBuilder, Interval, OperationTransformable, NEW_LINE, WHITESPACE};
