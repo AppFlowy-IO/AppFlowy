@@ -1,14 +1,39 @@
 
-[tasks.flowy-macos-ui]
+[tasks.flowy-macos]
+dependencies = ["flowy-sdk-build"]
+run_task = { name = ["flutter-build", "copy-to-product"] }
+script_runner = "@shell"
+
+[tasks.flutter-build]
 script = [
   """
-  flutter clean
-  flutter pub get
-  flutter build macos --release
-  flowy-sdk-release
+  cd app_flowy/
+#  flutter clean
+#  flutter pub get
+#  flutter build ${CROSS_PLATFORM} --${BUILD_FLAG}
   """,
 ]
 script_runner = "@shell"
+
+
+[tasks.copy-to-product]
+script = [
+  """
+  product_path=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/product
+  output_path=${product_path}/${FLUTTER_OUTPUT_DIR}
+  if [ -d "${output_path}" ]; then
+    rm -rf ${output_path}/
+  fi
+
+  cd ${product_path}
+  mkdir ${FLUTTER_OUTPUT_DIR}
+
+  cp -R ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/build/${CROSS_PLATFORM}/Build/Products/${FLUTTER_OUTPUT_DIR}/app_flowy.app \
+  ${output_path}/app_flowy.app
+  """,
+]
+script_runner = "@shell"
+
 
 [tasks.freeze_setup]
 script = [

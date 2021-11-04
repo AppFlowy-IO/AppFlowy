@@ -12,5 +12,5 @@ rustup show
 #   2. ~/.bashrc
 #   3. ~/.profile
 #   4. ~/.zshrc
-cargo make desktop
+cargo make --profile development-mac flowy-sdk
 #cargo make gen_dart_event
