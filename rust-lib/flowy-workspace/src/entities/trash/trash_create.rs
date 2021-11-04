@@ -39,7 +39,7 @@ impl std::fmt::Display for TrashIdentifiers {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.write_str(&format!(
             "{:?}",
-            &self.items.iter().map(|item| &item.id).collect::<Vec<_>>()
+            &self.items.iter().map(|item| format!("{}", item)).collect::<Vec<_>>()
         ))
     }
 }
@@ -92,6 +92,10 @@ impl std::convert::From<&Trash> for TrashIdentifier {
             ty: trash.ty.clone(),
         }
     }
+}
+
+impl std::fmt::Display for TrashIdentifier {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str(&format!("{:?}:{}", self.ty, self.id)) }
 }
 
 #[derive(PartialEq, ProtoBuf, Default, Debug, Clone)]

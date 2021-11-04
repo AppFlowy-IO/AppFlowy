@@ -19,7 +19,6 @@ use flowy_dispatch::prelude::{data_result, Data, DataResult, Unit};
 use flowy_document::entities::doc::DocDelta;
 use std::{convert::TryInto, sync::Arc};
 
-#[tracing::instrument(skip(data, controller), err)]
 pub(crate) async fn create_view_handler(
     data: Data<CreateViewRequest>,
     controller: Unit<Arc<ViewController>>,
@@ -29,7 +28,6 @@ pub(crate) async fn create_view_handler(
     data_result(view)
 }
 
-#[tracing::instrument(skip(data, controller), err)]
 pub(crate) async fn read_view_handler(
     data: Data<QueryViewRequest>,
     controller: Unit<Arc<ViewController>>,
@@ -52,7 +50,6 @@ pub(crate) async fn update_view_handler(
     Ok(())
 }
 
-#[tracing::instrument(skip(data, controller), err)]
 pub(crate) async fn apply_doc_delta_handler(
     data: Data<DocDelta>,
     controller: Unit<Arc<ViewController>>,
@@ -62,7 +59,6 @@ pub(crate) async fn apply_doc_delta_handler(
     data_result(doc)
 }
 
-#[tracing::instrument(skip(data, controller, trash_can), err)]
 pub(crate) async fn delete_view_handler(
     data: Data<QueryViewRequest>,
     controller: Unit<Arc<ViewController>>,
@@ -83,7 +79,6 @@ pub(crate) async fn delete_view_handler(
     Ok(())
 }
 
-#[tracing::instrument(skip(data, controller), err)]
 pub(crate) async fn open_view_handler(
     data: Data<QueryViewRequest>,
     controller: Unit<Arc<ViewController>>,
@@ -93,7 +88,6 @@ pub(crate) async fn open_view_handler(
     data_result(doc)
 }
 
-#[tracing::instrument(skip(data, controller), err)]
 pub(crate) async fn close_view_handler(
     data: Data<QueryViewRequest>,
     controller: Unit<Arc<ViewController>>,

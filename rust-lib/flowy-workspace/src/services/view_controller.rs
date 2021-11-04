@@ -57,7 +57,7 @@ impl ViewController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, params), err)]
+    #[tracing::instrument(level = "debug", skip(self, params), fields(name = %params.name), err)]
     pub(crate) async fn create_view(&self, params: CreateViewParams) -> Result<View, WorkspaceError> {
         let view = self.create_view_on_server(params.clone()).await?;
         let conn = &*self.database.db_connection()?;
@@ -79,6 +79,7 @@ impl ViewController {
         Ok(())
     }
 
+    #[tracing::instrument(skip(self, params), fields(view_id = %params.view_id), err)]
     pub(crate) async fn read_view(&self, params: ViewIdentifier) -> Result<View, WorkspaceError> {
         let conn = self.database.db_connection()?;
         let view_table = ViewTableSql::read_view(&params.view_id, &*conn)?;
@@ -106,19 +107,19 @@ impl ViewController {
         Ok(view_tables)
     }
 
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    #[tracing::instrument(level = "debug", skip(self, params), fields(doc_id = %params.doc_id), err)]
     pub(crate) async fn open_view(&self, params: DocIdentifier) -> Result<DocDelta, WorkspaceError> {
         let edit_context = self.document.open(params, self.database.db_pool()?).await?;
         Ok(edit_context.delta().await.map_err(internal_error)?)
     }
 
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    #[tracing::instrument(level = "debug", skip(self,params), fields(doc_id = %params.doc_id), err)]
     pub(crate) async fn close_view(&self, params: DocIdentifier) -> Result<(), WorkspaceError> {
         let _ = self.document.close(params).await?;
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    #[tracing::instrument(level = "debug", skip(self, params), fields(doc_id = %params.doc_id), err)]
     pub(crate) async fn duplicate_view(&self, params: DocIdentifier) -> Result<(), WorkspaceError> {
         let view: View = ViewTableSql::read_view(&params.doc_id, &*self.database.db_connection()?)?.into();
         let delta_data = self
@@ -254,7 +255,7 @@ impl ViewController {
     }
 }
 
-#[tracing::instrument(level = "debug", skip(database, document, trash_can))]
+#[tracing::instrument(level = "trace", skip(database, document, trash_can))]
 async fn handle_trash_event(
     database: Arc<dyn WorkspaceDatabase>,
     document: Arc<FlowyDocument>,

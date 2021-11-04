@@ -19,15 +19,18 @@ lazy_static! {
 pub struct Builder {
     name: String,
     env_filter: String,
-    file_appender: Option<RollingFileAppender>,
+    file_appender: RollingFileAppender,
 }
 
 impl Builder {
-    pub fn new(name: &str) -> Self {
+    pub fn new(name: &str, directory: &str) -> Self {
+        // let directory = directory.as_ref().to_str().unwrap().to_owned();
+        let local_file_name = format!("{}.log", name);
+
         Builder {
             name: name.to_owned(),
             env_filter: "Info".to_owned(),
-            file_appender: None,
+            file_appender: tracing_appender::rolling::daily(directory, local_file_name),
         }
     }
 
@@ -36,18 +39,10 @@ impl Builder {
         self
     }
 
-    pub fn local(mut self, directory: impl AsRef<Path>) -> Self {
-        let directory = directory.as_ref().to_str().unwrap().to_owned();
-        let local_file_name = format!("{}.log", &self.name);
-        self.file_appender = Some(tracing_appender::rolling::daily(directory, local_file_name));
-
-        self
-    }
-
     pub fn build(self) -> std::result::Result<(), String> {
         let env_filter = EnvFilter::new(self.env_filter);
-        let file_appender = self.file_appender.unwrap();
-        let (non_blocking, guard) = tracing_appender::non_blocking(file_appender);
+
+        let (non_blocking, guard) = tracing_appender::non_blocking(self.file_appender);
         let subscriber = tracing_subscriber::fmt()
             // .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
             .with_ansi(false)
@@ -61,7 +56,8 @@ impl Builder {
             .with_span_list(true)
             .compact()
             .finish()
-            .with(env_filter).with(JsonStorageLayer)
+            .with(env_filter)
+            .with(JsonStorageLayer)
             .with(FlowyFormattingLayer::new(std::io::stdout))
             .with(FlowyFormattingLayer::new(non_blocking));
 
@@ -98,7 +94,7 @@ mod tests {
     // run  cargo test --features="use_bunyan" or  cargo test
     #[test]
     fn test_log() {
-        let _ = Builder::new("flowy").local(".").env_filter("debug").build().unwrap();
+        let _ = Builder::new("flowy", ".").env_filter("debug").build().unwrap();
         tracing::info!("😁  tracing::info call");
         log::debug!("😁 log::debug call");
 

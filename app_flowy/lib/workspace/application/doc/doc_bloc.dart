@@ -20,7 +20,7 @@ class DocBloc extends Bloc<DocEvent, DocState> {
   final IViewListener listener;
   final ITrash trasnManager;
   late Document document;
-  late StreamSubscription? _subscription;
+  StreamSubscription? _subscription;
 
   DocBloc({
     required this.view,

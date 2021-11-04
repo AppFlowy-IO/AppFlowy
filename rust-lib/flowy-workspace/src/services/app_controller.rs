@@ -40,7 +40,7 @@ impl AppController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self), err)]
+    #[tracing::instrument(level = "debug", skip(self, params), fields(name = %params.name) err)]
     pub(crate) async fn create_app(&self, params: CreateAppParams) -> Result<App, WorkspaceError> {
         let app = self.create_app_on_server(params).await?;
         let conn = &*self.database.db_connection()?;
@@ -179,7 +179,7 @@ impl AppController {
     }
 }
 
-#[tracing::instrument(level = "debug", skip(database, trash_can))]
+#[tracing::instrument(level = "trace", skip(database, trash_can))]
 async fn handle_trash_event(database: Arc<dyn WorkspaceDatabase>, trash_can: Arc<TrashCan>, event: TrashEvent) {
     let db_result = database.db_connection();
     match event {

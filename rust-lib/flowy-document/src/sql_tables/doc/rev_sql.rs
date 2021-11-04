@@ -23,7 +23,6 @@ impl RevTableSql {
         let records = revisions
             .into_iter()
             .map(|(revision, new_state)| {
-                tracing::debug!("Set {} to {:?}", revision.rev_id, new_state);
                 let rev_ty: RevTableType = revision.ty.into();
                 (
                     doc_id.eq(revision.doc_id),

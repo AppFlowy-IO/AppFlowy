@@ -65,7 +65,7 @@ impl FlowyDocument {
     pub async fn apply_doc_delta(&self, params: DocDelta) -> Result<DocDelta, DocError> {
         // workaround: compare the rust's delta with flutter's delta. Will be removed
         // very soon
-        let doc = self.doc_ctrl.edit_doc(params.clone()).await?;
+        let doc = self.doc_ctrl.apply_local_delta(params.clone()).await?;
         Ok(doc)
     }
 }

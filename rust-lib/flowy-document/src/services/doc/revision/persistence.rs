@@ -55,7 +55,7 @@ impl RevisionStore {
     }
 
     #[tracing::instrument(level = "debug", skip(self, revision))]
-    pub async fn handle_new_revision(&self, revision: Revision) -> DocResult<()> {
+    pub async fn add_revision(&self, revision: Revision) -> DocResult<()> {
         if self.revs_map.contains_key(&revision.rev_id) {
             return Err(DocError::duplicate_rev().context(format!("Duplicate revision id: {}", revision.rev_id)));
         }
@@ -82,8 +82,8 @@ impl RevisionStore {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self))]
-    pub async fn handle_revision_acked(&self, rev_id: RevId) {
+    #[tracing::instrument(level = "debug", skip(self, rev_id), fields(rev_id = %rev_id.as_ref()))]
+    pub async fn ack_revision(&self, rev_id: RevId) {
         let rev_id = rev_id.value;
         self.pending_revs
             .write()
@@ -113,8 +113,14 @@ impl RevisionStore {
                 .map(|kv| (kv.revision.clone(), kv.state))
                 .collect::<Vec<(Revision, RevState)>>();
 
-            match persistence.create_revs(revisions_state) {
-                Ok(_) => revs_map.retain(|k, _| !ids.contains(k)),
+            match persistence.create_revs(revisions_state.clone()) {
+                Ok(_) => {
+                    tracing::debug!(
+                        "Revision State Changed: {:?}",
+                        revisions_state.iter().map(|s| (s.0.rev_id, s.1)).collect::<Vec<_>>()
+                    );
+                    revs_map.retain(|k, _| !ids.contains(k));
+                },
                 Err(e) => log::error!("Save revision failed: {:?}", e),
             }
         }));

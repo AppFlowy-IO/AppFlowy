@@ -87,6 +87,7 @@ impl Revision {
 impl std::fmt::Debug for Revision {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         let _ = f.write_fmt(format_args!("doc_id {}, ", self.doc_id))?;
+        let _ = f.write_fmt(format_args!("base_rev_id {}, ", self.base_rev_id))?;
         let _ = f.write_fmt(format_args!("rev_id {}, ", self.rev_id))?;
         match Delta::from_bytes(&self.delta_data) {
             Ok(delta) => {

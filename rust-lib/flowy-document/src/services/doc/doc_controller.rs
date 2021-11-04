@@ -45,7 +45,6 @@ impl DocController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, pool), err)]
     pub(crate) async fn open(
         &self,
         params: DocIdentifier,
@@ -78,10 +77,10 @@ impl DocController {
     // as None e.g.
     // json : {"retain":7,"attributes":{"bold":null}}
     // deserialize delta: [ {retain: 7, attributes: {Bold: AttributeValue(None)}} ]
-    #[tracing::instrument(level = "debug", skip(self, delta), err)]
-    pub(crate) async fn edit_doc(&self, delta: DocDelta) -> Result<DocDelta, DocError> {
+    #[tracing::instrument(level = "debug", skip(self, delta), fields(doc_id = %delta.doc_id), err)]
+    pub(crate) async fn apply_local_delta(&self, delta: DocDelta) -> Result<DocDelta, DocError> {
         let edit_doc_ctx = self.cache.get(&delta.doc_id)?;
-        let _ = edit_doc_ctx.compose_local_delta(Bytes::from(delta.data)).await?;
+        let _ = edit_doc_ctx.composing_local_delta(Bytes::from(delta.data)).await?;
         Ok(edit_doc_ctx.delta().await?)
     }
 }

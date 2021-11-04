@@ -51,7 +51,7 @@ impl DocumentActor {
     async fn handle_message(&self, msg: DocumentMsg) -> DocResult<()> {
         match msg {
             DocumentMsg::Delta { delta, ret } => {
-                let result = self.compose_delta(delta).await;
+                let result = self.composed_delta(delta).await;
                 let _ = ret.send(result);
             },
             DocumentMsg::RemoteRevision { bytes, ret } => {
@@ -112,11 +112,15 @@ impl DocumentActor {
         Ok(())
     }
 
-    async fn compose_delta(&self, delta: Delta) -> DocResult<()> {
+    #[tracing::instrument(level = "debug", skip(self, delta), fields(compose_result), err)]
+    async fn composed_delta(&self, delta: Delta) -> DocResult<()> {
         // tracing::debug!("{:?} thread handle_message", thread::current(),);
         let mut document = self.document.write().await;
         let result = document.compose_delta(&delta);
-        tracing::debug!("doc_id:{} - Compose push delta: {}", &self.doc_id, delta.to_json(),);
+        tracing::Span::current().record(
+            "compose_result",
+            &format!("doc_id:{} - {}", &self.doc_id, delta.to_json()).as_str(),
+        );
         drop(document);
 
         result

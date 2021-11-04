@@ -42,12 +42,12 @@ impl RevisionManager {
     }
 
     pub async fn add_revision(&self, revision: &Revision) -> Result<(), DocError> {
-        let _ = self.rev_store.handle_new_revision(revision.clone()).await?;
+        let _ = self.rev_store.add_revision(revision.clone()).await?;
         Ok(())
     }
 
-    pub async fn ack_rev(&self, rev_id: RevId) -> Result<(), DocError> {
-        self.rev_store.handle_revision_acked(rev_id).await;
+    pub async fn ack_revision(&self, rev_id: RevId) -> Result<(), DocError> {
+        self.rev_store.ack_revision(rev_id).await;
         Ok(())
     }
 

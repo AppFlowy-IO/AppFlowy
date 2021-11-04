@@ -137,7 +137,7 @@ impl TrashCan {
     // DELETE operations. It’s not possible for us to use these commands to
     // CREATE and DROP tables operations because those are auto-commit in the
     // database.
-    #[tracing::instrument(level = "debug", skip(self, trash), fields(trash_count), err)]
+    #[tracing::instrument(name = "add_trash", level = "debug", skip(self, trash), fields(trash_ids), err)]
     pub async fn add<T: Into<Trash>>(&self, trash: Vec<T>) -> Result<(), WorkspaceError> {
         let (tx, mut rx) = mpsc::channel::<WorkspaceResult<()>>(1);
         let repeated_trash = trash.into_iter().map(|t| t.into()).collect::<Vec<Trash>>();
@@ -146,7 +146,17 @@ impl TrashCan {
             .map(|t| t.into())
             .collect::<Vec<TrashIdentifier>>();
 
-        tracing::Span::current().record("trash_count", &identifiers.len());
+        tracing::Span::current().record(
+            "trash_ids",
+            &format!(
+                "{:?}",
+                identifiers
+                    .iter()
+                    .map(|identifier| format!("{:?}:{}", identifier.ty, identifier.id))
+                    .collect::<Vec<_>>()
+            )
+            .as_str(),
+        );
         let _ = thread::scope(|_s| {
             let conn = self.database.db_connection()?;
             conn.immediate_transaction::<_, WorkspaceError, _>(|| {
@@ -257,9 +267,9 @@ impl TrashCan {
     }
 }
 
-#[tracing::instrument(skip(repeated_trash), fields(trash_count))]
+#[tracing::instrument(skip(repeated_trash), fields(n_trash))]
 fn notify_trash_changed(repeated_trash: RepeatedTrash) {
-    tracing::Span::current().record("trash_count", &repeated_trash.len());
+    tracing::Span::current().record("n_trash", &repeated_trash.len());
     send_anonymous_dart_notification(WorkspaceNotification::TrashUpdated)
         .payload(repeated_trash)
         .send();

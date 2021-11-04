@@ -17,7 +17,6 @@ use crate::{
 use flowy_dispatch::prelude::{data_result, Data, DataResult, Unit};
 use std::{convert::TryInto, sync::Arc};
 
-#[tracing::instrument(skip(data, controller), err)]
 pub(crate) async fn create_app_handler(
     data: Data<CreateAppRequest>,
     controller: Unit<Arc<AppController>>,
@@ -28,7 +27,6 @@ pub(crate) async fn create_app_handler(
     data_result(detail)
 }
 
-#[tracing::instrument(skip(data, controller, trash_can))]
 pub(crate) async fn delete_app_handler(
     data: Data<QueryAppRequest>,
     controller: Unit<Arc<AppController>>,
