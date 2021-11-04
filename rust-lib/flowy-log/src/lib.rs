@@ -1,7 +1,7 @@
 mod layer;
 
 use log::LevelFilter;
-use std::path::Path;
+
 use tracing::subscriber::set_global_default;
 
 use crate::layer::*;
@@ -10,7 +10,7 @@ use std::sync::RwLock;
 use tracing_appender::{non_blocking::WorkerGuard, rolling::RollingFileAppender};
 use tracing_bunyan_formatter::JsonStorageLayer;
 use tracing_log::LogTracer;
-use tracing_subscriber::{field::MakeExt, fmt::format, layer::SubscriberExt, EnvFilter};
+use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
 
 lazy_static! {
     static ref LOG_GUARD: RwLock<Option<WorkerGuard>> = RwLock::new(None);

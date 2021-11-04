@@ -1,16 +1,15 @@
 # cargo make --profile production task
 
-[tasks.desktop]
+[tasks.flowy-sdk]
 category = "Build"
 condition = { profiles = [ "development-mac" ], channels = ["nightly"] }
-run_task = { name = ["setup-crate-type","desktop-build", "post-desktop", "restore-crate-type"] }
+run_task = { name = ["setup-crate-type","sdk_build", "post-desktop", "restore-crate-type"] }
 
-[tasks.desktop-release]
+[tasks.flowy-sdk-release]
 condition = { channels = ["nightly"] }
-run_task = "desktop-build"
+run_task = "sdk_build"
 
-[tasks.desktop-build]
-category = "Build"
+[tasks.sdk_build]
 condition = { platforms = ["mac"], env_true = ["DEV"] }
 description = "Build desktop targets."
 script = [

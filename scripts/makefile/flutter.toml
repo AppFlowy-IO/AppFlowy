@@ -1,3 +1,15 @@
+
+[tasks.flowy-macos-ui]
+script = [
+  """
+  flutter clean
+  flutter pub get
+  flutter build macos --release
+  flowy-sdk-release
+  """,
+]
+script_runner = "@shell"
+
 [tasks.freeze_setup]
 script = [
   """
