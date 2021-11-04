@@ -8,18 +8,24 @@ run_task = { name = ["copy-to-sys-tmpdir"] }
 
 [tasks.flowy-sdk-build]
 condition = { channels = ["nightly"] }
-run_task = { name = ["setup-crate-type","sdk_build", "post-desktop", "restore-crate-type"] }
+run_task = { name = ["setup-crate-type","sdk-build", "post-desktop", "restore-crate-type"] }
 
-[tasks.sdk_build]
+[tasks.sdk-build]
 condition = { platforms = ["mac"] }
 description = "Build desktop targets."
 script = [
   """
     cd rust-lib/
-    cargo build --${BUILD_FLAG} --package=dart-ffi --target ${DESKTOP_TARGET} --features="observable","http_server"
+    if [ ${PROD} == true ]
+    then
+      cargo build --${BUILD_FLAG} --package=dart-ffi --target ${DESKTOP_TARGET} --features="flutter","http_server"
+    else
+      cargo build --package=dart-ffi --target ${DESKTOP_TARGET} --features="flutter","http_server"
+    fi
     cd ../
   """,
 ]
+
 
 [tasks.post-desktop]
 private = true
@@ -49,12 +55,4 @@ script = [
   """,
 ]
 script_runner = "@duckscript"
-
-#[tasks.export-env]
-#script = [
-#  """
-#  export MACOSX_DEPLOYMENT_TARGET=10.11
-#  """,
-#]
-#script_runner = "@shell"
 

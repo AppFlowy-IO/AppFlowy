@@ -48,5 +48,5 @@ app.*.map.json
 /packages/flowy_protobuf
 /packages/flutter-quill
 
-product/Release
-product/Debug
+product/**/Release
+product/**/Debug

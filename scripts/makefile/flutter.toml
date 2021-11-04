@@ -8,9 +8,9 @@ script_runner = "@shell"
 script = [
   """
   cd app_flowy/
-#  flutter clean
-#  flutter pub get
-#  flutter build ${CROSS_PLATFORM} --${BUILD_FLAG}
+  flutter clean
+  flutter pub get
+  flutter build ${FLUTTER_PLATFORM} --${BUILD_FLAG} --build-name=${VERSION}
   """,
 ]
 script_runner = "@shell"
@@ -19,17 +19,15 @@ script_runner = "@shell"
 [tasks.copy-to-product]
 script = [
   """
-  product_path=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/product
+  product_path=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/product/${VERSION}
   output_path=${product_path}/${FLUTTER_OUTPUT_DIR}
   if [ -d "${output_path}" ]; then
     rm -rf ${output_path}/
   fi
+  mkdir -p ${output_path}
 
-  cd ${product_path}
-  mkdir ${FLUTTER_OUTPUT_DIR}
-
-  cp -R ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/build/${CROSS_PLATFORM}/Build/Products/${FLUTTER_OUTPUT_DIR}/app_flowy.app \
-  ${output_path}/app_flowy.app
+  cp -R ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/build/${FLUTTER_PLATFORM}/Build/Products/${FLUTTER_OUTPUT_DIR}/${PRODUCT_NAME} \
+  ${output_path}/${PRODUCT_NAME}
   """,
 ]
 script_runner = "@shell"

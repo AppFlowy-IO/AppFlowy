@@ -8,7 +8,7 @@ use async_stream::stream;
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_infra::future::ResultFuture;
-use flowy_ot::core::{Delta, OperationTransformable};
+use flowy_ot::core::{Delta, Operation, OperationTransformable};
 use futures::stream::StreamExt;
 use std::{collections::VecDeque, sync::Arc, time::Duration};
 use tokio::{
@@ -200,6 +200,16 @@ async fn fetch_from_local(doc_id: &str, persistence: Arc<Persistence>) -> DocRes
                 },
             }
         }
+        match delta.ops.last() {
+            None => {},
+            Some(op) => {
+                let data = op.get_data();
+                if !data.ends_with("\n") {
+                    log::error!("The op must end with newline");
+                }
+            },
+        }
+
         Result::<Doc, DocError>::Ok(Doc {
             id: doc_id,
             data: delta.to_json(),

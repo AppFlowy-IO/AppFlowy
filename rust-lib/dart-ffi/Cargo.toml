@@ -35,7 +35,7 @@ flowy-net = {path = "../flowy-net"}
 
 
 [features]
-observable = ["flowy-dart-notify/dart"]
+flutter = ["flowy-dart-notify/dart"]
 http_server = ["flowy-sdk/http_server", "flowy-sdk/use_bunyan"]
 #use_serde = ["bincode"]
 #use_protobuf= ["protobuf"]

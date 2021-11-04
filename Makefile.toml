@@ -10,61 +10,67 @@ extend = [
 CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 CARGO_MAKE_CRATE_FS_NAME = "dart_ffi"
 CARGO_MAKE_CRATE_NAME = "dart-ffi"
+VERSION = "0.0.1"
 
-#crate_type: https://doc.rust-lang.org/reference/linkage.html
+#CRATE_TYPE: https://doc.rust-lang.org/reference/linkage.html
 [env.development-mac]
 DEV = true
 PROD = false
 TARGET_OS = "macos"
 DESKTOP_TARGET = "x86_64-apple-darwin"
-crate_type = "cdylib"
+CRATE_TYPE = "cdylib"
 BUILD_FLAG = "debug"
-CROSS_PLATFORM = "macos"
+FLUTTER_PLATFORM = "macos"
 FLUTTER_OUTPUT_DIR = "Debug"
+PRODUCT_NAME = "app_flowy.app"
 
 [env.production-mac]
 DEV = false
 PROD = true
 TARGET_OS = "macos"
 DESKTOP_TARGET = "x86_64-apple-darwin"
-crate_type = "cdylib"
+CRATE_TYPE = "cdylib"
 BUILD_FLAG = "release"
-CROSS_PLATFORM = "macos"
+FLUTTER_PLATFORM = "macos"
 FLUTTER_OUTPUT_DIR = "Release"
+PRODUCT_NAME = "app_flowy.app"
 
 [env.production-ios]
 DEV = false
 PROD = true
 TARGET_OS = "ios"
-crate_type = "staticlib"
+CRATE_TYPE = "staticlib"
 BUILD_FLAG = "release"
-CROSS_PLATFORM = "ios"
+FLUTTER_PLATFORM = "ios"
 FLUTTER_OUTPUT_DIR = "Release"
+PRODUCT_NAME = "app_flowy.ipa"
 
 [env.production-android]
 DEV = false
 PROD = true
 TARGET_OS = "android"
-crate_type = "cdylib"
+CRATE_TYPE = "cdylib"
 BUILD_FLAG = "release"
-CROSS_PLATFORM = "apk"
+FLUTTER_PLATFORM = "apk"
 FLUTTER_OUTPUT_DIR = "Release"
+PRODUCT_NAME = "app_flowy.apk"
 
 [env.production-win]
 DEV = false
 PROD = true
 TARGET_OS = "windows"
-crate_type = "cdylib"
+CRATE_TYPE = "cdylib"
 BUILD_FLAG = "release"
-CROSS_PLATFORM = "apk"
+FLUTTER_PLATFORM = "apk"
 FLUTTER_OUTPUT_DIR = "Release"
+PRODUCT_NAME = "app_flowy.exe"
 
 [tasks.setup-crate-type]
 private = true
 script = [
     """
       toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
-      val = replace ${toml} "rlib" ${crate_type}
+      val = replace ${toml} "rlib" ${CRATE_TYPE}
       result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
       assert ${result}
       """,
@@ -76,7 +82,7 @@ private = true
 script = [
     """
       toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
-      val = replace ${toml} ${crate_type} "rlib"
+      val = replace ${toml} ${CRATE_TYPE} "rlib"
       result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
       assert ${result}
       """,
