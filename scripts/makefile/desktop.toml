@@ -1,26 +1,17 @@
+# cargo make --profile production task
 
 [tasks.desktop]
 category = "Build"
-dependencies = ["desktop-debug", "desktop-release", "post-desktop"]
-description = "Build desktop targets"
-
-[tasks.desktop-debug]
-condition = { env_true = ["DEV"] }
-env = { DESKTOP_TARGET = "x86_64-apple-darwin" }
-private = true
-run_task = { name = ["desktop-build", "post-desktop-dylib-to-system"] }
-
+condition = { profiles = [ "development-mac" ], channels = ["nightly"] }
+run_task = { name = ["setup-crate-type","desktop-build", "post-desktop", "restore-crate-type"] }
 
 [tasks.desktop-release]
-condition = { env_true = ["RELEASE"] }
-env = { DESKTOP_TARGET = "x86_64-apple-darwin" }
-private = true
+condition = { channels = ["nightly"] }
 run_task = "desktop-build"
 
 [tasks.desktop-build]
 category = "Build"
 condition = { platforms = ["mac"], env_true = ["DEV"] }
-dependencies = ["export-env", "setup-crate-type-macos"]
 description = "Build desktop targets."
 script = [
   """
@@ -32,7 +23,6 @@ script = [
 
 [tasks.post-desktop]
 condition = { platforms = ["mac"] }
-dependencies = ["restore-crate-type"]
 script = [
   """
     echo "🚀 🚀 🚀  Flowy-SDK build success"
@@ -43,42 +33,20 @@ script = [
     cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h \
     ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages/flowy_sdk/macos/Classes/binding.h
   """,
-]
-script_runner = "@duckscript"
-
-[tasks.setup-crate-type-macos]
-env = { TARGET_OS = "macos" }
-private = true
-run_task = "setup-crate-type"
-
-[tasks.export-env]
-script = [
   """
-  export MACOSX_DEPLOYMENT_TARGET=10.11
-  """,
-]
-script_runner = "@shell"
-
-[tasks.post-desktop-dylib-to-system]
-condition = { platforms = ["mac"] }
-script = [
-  """
-    target_path = set ${TMPDIR}/appflowy_client/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib
+  # post the dylib target_path that use for flutter unit test
+  target_path = set ${TMPDIR}/appflowy_client/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib
     rm ${target_path}
-#    echo "🚀 🚀 🚀 Copy Flowy-SDK to system"
     cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/x86_64-apple-darwin/${LIB_OUT_DIR}/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib ${target_path}
   """,
 ]
 script_runner = "@duckscript"
 
-[tasks.clean-flowy-sdk]
-condition = { platforms = ["mac"] }
-script = [
-  """
-    cd ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/flutter-lib/packages/flowy_sdk
-    flutter clean
-  """,
-]
-script_runner = "@shell"
-
+#[tasks.export-env]
+#script = [
+#  """
+#  export MACOSX_DEPLOYMENT_TARGET=10.11
+#  """,
+#]
+#script_runner = "@shell"
 

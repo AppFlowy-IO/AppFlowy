@@ -9,35 +9,50 @@ extend = [
 CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 CARGO_MAKE_CRATE_FS_NAME = "dart_ffi"
 CARGO_MAKE_CRATE_NAME = "dart-ffi"
+
+#crate_type: https://doc.rust-lang.org/reference/linkage.html
+[env.development-mac]
 DEV = true
+PROD = false
+TARGET_OS = "macos"
+DESKTOP_TARGET = "x86_64-apple-darwin"
+crate_type = "cdylib"
 LIB_OUT_DIR = "debug"
-RELEASE = false
-#TARGET_OS = "unknown"
+
+[env.production-mac]
+DEV = false
+PROD = true
+TARGET_OS = "macos"
+DESKTOP_TARGET = "x86_64-apple-darwin"
+crate_type = "cdylib"
+LIB_OUT_DIR = "release"
+
+[env.production-ios]
+DEV = false
+PROD = true
+TARGET_OS = "ios"
+crate_type = "staticlib"
+LIB_OUT_DIR = "release"
+
+[env.production-android]
+DEV = false
+PROD = true
+TARGET_OS = "android"
+crate_type = "cdylib"
+LIB_OUT_DIR = "release"
+
+[env.production-win]
+DEV = false
+PROD = true
+TARGET_OS = "windows"
+crate_type = "cdylib"
+LIB_OUT_DIR = "release"
 
 [tasks.setup-crate-type]
 private = true
 script = [
     """
       toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
-      crate_type = set ""
-      os = get_env TARGET_OS
-      is_android = eq ${os} "android"
-      is_ios = eq ${os} "ios"
-      is_macos = eq ${os} "macos"
-      is_pad = eq ${os} "pad"
-
-      if ${is_android}
-        crate_type = set "cdylib"
-      elseif ${is_ios}
-        crate_type = set "staticlib"
-      elseif ${is_macos}
-        crate_type = set "cdylib"
-      elseif ${is_pad}
-        crate_type = set "cdylib"
-      else
-        crate_type = set "rlib"
-      end
-
       val = replace ${toml} "rlib" ${crate_type}
       result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
       assert ${result}
@@ -45,31 +60,11 @@ script = [
 ]
 script_runner = "@duckscript"
 
-
 [tasks.restore-crate-type]
 private = true
 script = [
     """
       toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
-      crate_type = set ""
-      os = get_env TARGET_OS
-      is_android = eq ${os} "android"
-      is_ios = eq ${os} "ios"
-      is_macos = eq ${os} "macos"
-      is_pad = eq ${os} "pad"
-
-      if ${is_android}
-        crate_type = set "cdylib"
-      elseif ${is_ios}
-        crate_type = set "staticlib"
-      elseif ${is_macos}
-        crate_type = set "cdylib"
-      elseif ${is_pad}
-        crate_type = set "cdylib"
-      else
-        crate_type = set "rlib"
-      end
-
       val = replace ${toml} ${crate_type} "rlib"
       result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
       assert ${result}
