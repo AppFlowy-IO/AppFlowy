@@ -57,5 +57,5 @@ class IViewListenerImpl extends IViewListener {
   PublishNotifier<UpdateNotifierValue> get updatedNotifier => repo.updatedNotifier;
 
   @override
-  PublishNotifier<RestoreNotifierValue> get restoredNotifier => repo.updatedNotifier;
+  PublishNotifier<RestoreNotifierValue> get restoredNotifier => repo.restoredNotifier;
 }

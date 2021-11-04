@@ -55,6 +55,7 @@ class ViewSection extends StatelessWidget {
 }
 
 class ViewSectionNotifier with ChangeNotifier {
+  bool isDisposed = false;
   List<View> _views;
   View? _selectedView;
   CancelableOperation? _notifyListenerOperation;
@@ -107,7 +108,16 @@ class ViewSectionNotifier with ChangeNotifier {
     _notifyListenerOperation = CancelableOperation.fromFuture(
       Future.delayed(const Duration(milliseconds: 30), () {}),
     ).then((_) {
-      notifyListeners();
+      if (!isDisposed) {
+        notifyListeners();
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    isDisposed = true;
+    _notifyListenerOperation?.cancel();
+    super.dispose();
   }
 }

@@ -59,7 +59,9 @@ class ScrollbarState extends State<StyledScrollbar> {
           ).then((_) {
             // Opti: hide with animation
             hideHandler = true;
-            setState(() {});
+            if (mounted) {
+              setState(() {});
+            }
           });
         } else {
           hideHandler = false;
