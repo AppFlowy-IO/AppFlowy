@@ -14,12 +14,9 @@ class NewAppButton extends StatelessWidget {
   const NewAppButton({this.press, Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    // final theme = context.watch<AppTheme>();
-
     final child = FlowyTextButton(
       'New App',
       fontSize: 12,
-      enableHover: false,
       onPressed: () async => await _showCreateAppDialog(context),
       heading: svgWithSize("home/new_app", const Size(16, 16)),
       padding: EdgeInsets.symmetric(horizontal: Insets.l, vertical: 20),

@@ -2,6 +2,7 @@ import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:app_flowy/workspace/application/home/home_listen_bloc.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/home_stack.dart';
+import 'package:app_flowy/workspace/presentation/widgets/float_bubble/question_bubble.dart';
 import 'package:app_flowy/workspace/presentation/widgets/prelude.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:flowy_log/flowy_log.dart';
@@ -13,29 +14,6 @@ import 'package:styled_widget/styled_widget.dart';
 
 import 'home_layout.dart';
 
-// [[diagram: Home's widget structure]]
-//                                1.start listening user auth state
-//                    ┌────────────────┐         ┌──────────────┐
-//                 ┌─▶│ HomeListenBloc │────────▶│IUserListener │
-//                 │  └────────────────┘         └──────────────┘
-// ┌────────────┐  │
-// │ HomeScreen │──┤
-// └────────────┘  │                      ┌──────────────┐
-//                 │                 ┌───▶│ BlocListener │
-//                 │                 │    └──────────────┘
-//                 │  ┌─────────┐    │                           ┌──────────┐
-//                 └─▶│HomeBloc │────┤                      ┌───▶│HomeStack │
-//                    └─────────┘    │                      │    └──────────┘
-//                                   │   ┌──────────────┐   │    ┌──────────┐
-//                                   └──▶│ BlocBuilder  │───┼───▶│ HomeMenu │
-//                                       └──────────────┘   │    └──────────┘
-//                                                          │    ┌──────────┐
-//                 2.1 show login screen if user            └───▶│EditPannel│
-//                 session is invalid                            └──────────┘
-//
-//                 2.2 build home screen
-//
-//
 class HomeScreen extends StatelessWidget {
   static GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
   final UserProfile user;
@@ -92,7 +70,14 @@ class HomeScreen extends StatelessWidget {
           layout: layout,
           context: context,
         );
-        return _layoutWidgets(layout: layout, homeStack: homeStack, homeMenu: menu, editPannel: editPannel);
+        const bubble = QuestionBubble();
+        return _layoutWidgets(
+          layout: layout,
+          homeStack: homeStack,
+          homeMenu: menu,
+          editPannel: editPannel,
+          bubble: bubble,
+        );
       },
     );
   }
@@ -124,8 +109,13 @@ class HomeScreen extends StatelessWidget {
     return editPannel;
   }
 
-  Widget _layoutWidgets(
-      {required HomeLayout layout, required Widget homeMenu, required Widget homeStack, required Widget editPannel}) {
+  Widget _layoutWidgets({
+    required HomeLayout layout,
+    required Widget homeMenu,
+    required Widget homeStack,
+    required Widget editPannel,
+    required Widget bubble,
+  }) {
     return Stack(
       children: [
         homeMenu
@@ -146,6 +136,13 @@ class HomeScreen extends StatelessWidget {
               isClosed: !layout.showEditPannel,
             )
             .positioned(right: 0, top: 0, bottom: 0, width: layout.editPannelWidth),
+        bubble
+            .positioned(
+              right: 20,
+              bottom: 20,
+              animate: true,
+            )
+            .animate(layout.animDuration, Curves.easeOut),
       ],
     );
   }

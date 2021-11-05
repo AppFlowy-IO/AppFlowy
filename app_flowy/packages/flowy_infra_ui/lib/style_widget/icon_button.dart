@@ -11,6 +11,7 @@ class FlowyIconButton extends StatelessWidget {
   final Color? fillColor;
   final Color? hoverColor;
   final EdgeInsets iconPadding;
+  final BorderRadius? radius;
 
   const FlowyIconButton({
     Key? key,
@@ -20,6 +21,7 @@ class FlowyIconButton extends StatelessWidget {
     this.fillColor = Colors.transparent,
     this.hoverColor = Colors.transparent,
     this.iconPadding = EdgeInsets.zero,
+    this.radius,
     required this.icon,
   }) : super(key: key);
 
@@ -50,7 +52,7 @@ class FlowyIconButton extends StatelessWidget {
         visualDensity: VisualDensity.compact,
         hoverElevation: 0,
         highlightElevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+        shape: RoundedRectangleBorder(borderRadius: radius ?? BorderRadius.circular(2)),
         fillColor: fillColor,
         hoverColor: hoverColor,
         focusColor: Colors.transparent,

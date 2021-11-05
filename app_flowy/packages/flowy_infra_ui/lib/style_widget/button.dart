@@ -55,53 +55,88 @@ class FlowyButton extends StatelessWidget {
 class FlowyTextButton extends StatelessWidget {
   final String text;
   final double fontSize;
+  final TextOverflow overflow;
+  final FontWeight fontWeight;
+
   final VoidCallback? onPressed;
   final EdgeInsets padding;
-  final bool enableHover;
   final Widget? heading;
+  final Color? hoverColor;
+  final Color? fillColor;
+  final BorderRadius? radius;
+  final MainAxisAlignment mainAxisAlignment;
+
+  // final HoverDisplayConfig? hoverDisplay;
   const FlowyTextButton(
     this.text, {
     Key? key,
     this.onPressed,
     this.fontSize = 16,
-    this.enableHover = true,
+    this.overflow = TextOverflow.ellipsis,
+    this.fontWeight = FontWeight.w400,
     this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+    this.hoverColor,
+    this.fillColor,
     this.heading,
+    this.radius,
+    this.mainAxisAlignment = MainAxisAlignment.start,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-
     List<Widget> children = [];
     if (heading != null) {
       children.add(heading!);
       children.add(const HSpace(6));
     }
-    children.add(FlowyText(text, fontSize: fontSize));
+    children.add(
+      FlowyText(
+        text,
+        overflow: overflow,
+        fontWeight: fontWeight,
+        fontSize: fontSize,
+        textAlign: TextAlign.center,
+      ),
+    );
 
     Widget child = Padding(
       padding: padding,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: mainAxisAlignment,
         children: children,
       ),
     );
 
-    if (enableHover) {
-      return InkWell(
-        onTap: onPressed,
-        child: FlowyHover(
-          config: HoverDisplayConfig(borderRadius: BorderRadius.circular(6), hoverColor: theme.bg3),
-          builder: (context, onHover) => child,
-        ),
-      );
-    } else {
-      return InkWell(
-        onTap: onPressed,
-        child: child,
-      );
-    }
+    return RawMaterialButton(
+      visualDensity: VisualDensity.compact,
+      hoverElevation: 0,
+      highlightElevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: radius ?? BorderRadius.circular(2)),
+      fillColor: fillColor,
+      hoverColor: hoverColor ?? Colors.transparent,
+      focusColor: Colors.transparent,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      elevation: 0,
+      onPressed: onPressed,
+      child: child,
+    );
+
+    // if (hoverColor != null) {
+    //   return InkWell(
+    //     onTap: onPressed,
+    //     child: FlowyHover(
+    //       config: HoverDisplayConfig(borderRadius: radius ?? BorderRadius.circular(6), hoverColor: hoverColor!),
+    //       builder: (context, onHover) => child,
+    //     ),
+    //   );
+    // } else {
+    //   return InkWell(
+    //     onTap: onPressed,
+    //     child: child,
+    //   );
+    // }
   }
 }
 // return TextButton(

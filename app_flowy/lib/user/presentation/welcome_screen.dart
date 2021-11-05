@@ -1,6 +1,7 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/workspace/welcome_bloc.dart';
 import 'package:app_flowy/workspace/domain/i_user.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
@@ -47,12 +48,15 @@ class WelcomeScreen extends StatelessWidget {
   }
 
   Widget _renderCreateButton(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+
     return SizedBox(
       width: 200,
       height: 40,
       child: FlowyTextButton(
         "Create workspace",
         fontSize: 14,
+        hoverColor: theme.bg3,
         onPressed: () {
           context.read<WelcomeBloc>().add(const WelcomeEvent.createWorkspace("workspace", ""));
         },
@@ -89,10 +93,13 @@ class WorkspaceItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+
     return SizedBox(
       height: 46,
       child: FlowyTextButton(
         workspace.name,
+        hoverColor: theme.bg3,
         fontSize: 14,
         onPressed: () => onPressed(workspace),
       ),
