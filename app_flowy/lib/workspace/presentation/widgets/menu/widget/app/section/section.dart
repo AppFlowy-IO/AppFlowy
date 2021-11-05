@@ -90,7 +90,7 @@ class ViewSectionNotifier with ChangeNotifier {
 
     if (view != null) {
       WidgetsBinding.instance?.addPostFrameCallback((_) {
-        getIt<HomeStackManager>().setStack(view.stackContext());
+        getIt<HomeStackManager>().switchStack(view.stackContext());
       });
     } else {
       // do nothing

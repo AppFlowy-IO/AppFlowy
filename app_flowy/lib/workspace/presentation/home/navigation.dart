@@ -1,6 +1,9 @@
+import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
+import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/notifier.dart';
+import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
@@ -9,11 +12,19 @@ typedef NaviAction = void Function();
 
 class NavigationNotifier with ChangeNotifier {
   List<NavigationItem> navigationItems;
-  NavigationNotifier({required this.navigationItems});
+  PublishNotifier<bool> collapasedNotifier;
+  NavigationNotifier({required this.navigationItems, required this.collapasedNotifier});
 
   void update(HomeStackNotifier notifier) {
-    navigationItems = notifier.context.navigationItems;
-    notifyListeners();
+    bool shouldNotify = false;
+    if (navigationItems != notifier.context.navigationItems) {
+      navigationItems = notifier.context.navigationItems;
+      shouldNotify = true;
+    }
+
+    if (shouldNotify) {
+      notifyListeners();
+    }
   }
 }
 
@@ -47,16 +58,47 @@ class FlowyNavigation extends StatelessWidget {
         final notifier = Provider.of<HomeStackNotifier>(context, listen: false);
         return NavigationNotifier(
           navigationItems: notifier.context.navigationItems,
+          collapasedNotifier: notifier.collapsedNotifier,
         );
       },
       update: (_, notifier, controller) => controller!..update(notifier),
-      child: Consumer(builder: (ctx, NavigationNotifier notifier, child) {
-        return Row(children: _renderChildren(notifier.navigationItems));
-      }),
+      child: Row(children: [
+        Selector<NavigationNotifier, PublishNotifier<bool>>(
+            selector: (context, notifier) => notifier.collapasedNotifier,
+            builder: (ctx, collapsedNotifier, child) => _renderCollapse(ctx, collapsedNotifier)),
+        Selector<NavigationNotifier, List<NavigationItem>>(
+            selector: (context, notifier) => notifier.navigationItems,
+            builder: (ctx, items, child) => Row(children: _renderNavigationItems(items))),
+      ]),
     );
   }
 
-  List<Widget> _renderChildren(List<NavigationItem> items) {
+  Widget _renderCollapse(BuildContext context, PublishNotifier<bool> collapsedNotifier) {
+    return ChangeNotifierProvider.value(
+      value: collapsedNotifier,
+      child: Consumer(
+        builder: (ctx, PublishNotifier<bool> notifier, child) {
+          if (notifier.currentValue ?? false) {
+            return RotationTransition(
+              turns: const AlwaysStoppedAnimation(180 / 360),
+              child: FlowyIconButton(
+                width: 24,
+                onPressed: () {
+                  notifier.value = false;
+                },
+                iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
+                icon: svg("home/hide_menu"),
+              ),
+            );
+          } else {
+            return Container();
+          }
+        },
+      ),
+    );
+  }
+
+  List<Widget> _renderNavigationItems(List<NavigationItem> items) {
     if (items.isEmpty) {
       return [];
     }

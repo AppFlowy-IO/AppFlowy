@@ -1,5 +1,6 @@
 import 'package:app_flowy/workspace/presentation/widgets/menu/widget/top_bar.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -41,17 +42,16 @@ import 'widget/menu_trash.dart';
 //                                                  └────────┘
 
 class HomeMenu extends StatelessWidget {
-  final Function(HomeStackContext) pageContextChanged;
-  final Function(bool) isCollapseChanged;
+  final PublishNotifier<HomeStackContext> pageContext = PublishNotifier();
+  final PublishNotifier<bool> collapsedNotifier;
   final UserProfile user;
   final String workspaceId;
 
-  const HomeMenu({
+  HomeMenu({
     Key? key,
-    required this.pageContextChanged,
-    required this.isCollapseChanged,
     required this.user,
     required this.workspaceId,
+    required this.collapsedNotifier,
   }) : super(key: key);
 
   @override
@@ -59,18 +59,22 @@ class HomeMenu extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<MenuBloc>(
-          create: (context) => getIt<MenuBloc>(param1: user, param2: workspaceId)..add(const MenuEvent.initial()),
+          create: (context) {
+            final menuBloc = getIt<MenuBloc>(param1: user, param2: workspaceId);
+            menuBloc.add(const MenuEvent.initial());
+            return menuBloc;
+          },
         ),
       ],
       child: MultiBlocListener(
         listeners: [
           BlocListener<MenuBloc, MenuState>(
             listenWhen: (p, c) => p.context != c.context,
-            listener: (context, state) => pageContextChanged(state.context),
+            listener: (context, state) => pageContext.value = state.context,
           ),
           BlocListener<MenuBloc, MenuState>(
             listenWhen: (p, c) => p.isCollapse != c.isCollapse,
-            listener: (context, state) => isCollapseChanged(state.isCollapse),
+            listener: (context, state) => collapsedNotifier.value = state.isCollapse,
           )
         ],
         child: BlocBuilder<MenuBloc, MenuState>(
@@ -94,7 +98,7 @@ class HomeMenu extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   _renderTopBar(context),
-                  const VSpace(32),
+                  const VSpace(16),
                   _renderApps(context),
                 ],
               ).padding(horizontal: Insets.l),

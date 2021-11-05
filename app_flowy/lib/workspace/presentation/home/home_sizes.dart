@@ -1,5 +1,4 @@
 class HomeSizes {
-  static double get menuTopBarHeight => 48;
   static double get menuAddButtonHeight => 60;
   static double get topBarHeight => 60;
   static double get editPannelTopBarHeight => 60;

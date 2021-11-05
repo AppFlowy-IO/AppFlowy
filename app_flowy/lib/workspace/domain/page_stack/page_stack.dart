@@ -1,3 +1,4 @@
+import 'package:flowy_infra/notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:app_flowy/startup/startup.dart';
@@ -44,20 +45,18 @@ abstract class HomeStackContext<T> with NavigationItem {
 
 class HomeStackNotifier extends ChangeNotifier {
   HomeStackContext stackContext;
+  PublishNotifier<bool> collapsedNotifier = PublishNotifier();
+
   Widget get titleWidget => stackContext.naviTitle;
 
   HomeStackNotifier({HomeStackContext? context}) : stackContext = context ?? BlankStackContext();
 
   set context(HomeStackContext context) {
-    notifyChange() {
-      notifyListeners();
-    }
-
-    stackContext.isUpdated.removeListener(notifyChange);
+    stackContext.isUpdated.removeListener(notifyListeners);
     stackContext.dispose();
 
     stackContext = context;
-    stackContext.isUpdated.addListener(notifyChange);
+    stackContext.isUpdated.addListener(notifyListeners);
     notifyListeners();
   }
 
@@ -73,7 +72,9 @@ class HomeStackManager {
     return _notifier.context.naviTitle;
   }
 
-  void setStack(HomeStackContext context) {
+  PublishNotifier<bool> get collapsedNotifier => _notifier.collapsedNotifier;
+
+  void switchStack(HomeStackContext context) {
     _notifier.context = context;
   }
 

@@ -99,19 +99,18 @@ class HomeScreen extends StatelessWidget {
 
   Widget _buildHomeMenu({required HomeLayout layout, required BuildContext context}) {
     final homeBloc = context.read<HomeBloc>();
-    Widget homeMenu = HomeMenu(
-      pageContextChanged: (pageContext) {
-        getIt<HomeStackManager>().setStack(pageContext);
-      },
-      isCollapseChanged: (isCollapse) {
-        homeBloc.add(HomeEvent.forceCollapse(isCollapse));
-      },
-      user: user,
-      workspaceId: workspaceId,
-    );
-    homeMenu = RepaintBoundary(child: homeMenu);
-    homeMenu = FocusTraversalGroup(child: homeMenu);
-    return homeMenu;
+    final collapasedNotifier = getIt<HomeStackManager>().collapsedNotifier;
+
+    HomeMenu homeMenu = HomeMenu(user: user, workspaceId: workspaceId, collapsedNotifier: collapasedNotifier);
+    collapasedNotifier.addPublishListener((isCollapsed) {
+      homeBloc.add(HomeEvent.forceCollapse(isCollapsed));
+    });
+
+    homeMenu.pageContext.addPublishListener((pageContext) {
+      getIt<HomeStackManager>().switchStack(pageContext);
+    });
+
+    return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));
   }
 
   Widget _buildEditPannel({required HomeState homeState, required BuildContext context, required HomeLayout layout}) {
