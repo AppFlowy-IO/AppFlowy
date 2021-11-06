@@ -5,6 +5,7 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
+import 'package:tuple/tuple.dart';
 
 // [[Widget: LifeCycle]]
 // https://flutterbyexample.com/lesson/stateful-widget-lifecycle
@@ -38,9 +39,6 @@ class ViewDisclosureButton extends StatelessWidget
   List<ViewDisclosureActionWrapper> get items => _items;
 
   @override
-  double get maxWidth => 162;
-
-  @override
   void Function(dartz.Option<ViewDisclosureActionWrapper> p1) get selectCallback => (result) {
         result.fold(
           () => onSelected(dartz.none()),
@@ -55,6 +53,9 @@ class ViewDisclosureButton extends StatelessWidget
   void didRemove() {
     onSelected(dartz.none());
   }
+
+  @override
+  ListOverlayFooter? get footer => null;
 }
 
 class ViewDisclosureActionWrapper extends ActionItemData {
@@ -62,7 +63,7 @@ class ViewDisclosureActionWrapper extends ActionItemData {
 
   ViewDisclosureActionWrapper(this.inner);
   @override
-  Widget get icon => inner.icon;
+  Widget? get icon => inner.icon;
 
   @override
   String get name => inner.name;

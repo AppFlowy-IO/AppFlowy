@@ -163,7 +163,7 @@ class FlowyOverlayState extends State<FlowyOverlay> {
     FlowyOverlayDelegate? delegate,
     OverlapBehaviour? overlapBehaviour,
     FlowyOverlayStyle? style,
-    Offset? anchorPosition,
+    Offset? anchorOffset,
   }) {
     this.style = style ?? FlowyOverlayStyle();
 
@@ -175,7 +175,7 @@ class FlowyOverlayState extends State<FlowyOverlay> {
       anchorContext: anchorContext,
       anchorDirection: anchorDirection,
       overlapBehaviour: overlapBehaviour,
-      anchorPosition: anchorPosition,
+      anchorOffset: anchorOffset,
     );
   }
 
@@ -209,10 +209,12 @@ class FlowyOverlayState extends State<FlowyOverlay> {
     Size? anchorSize,
     AnchorDirection? anchorDirection,
     BuildContext? anchorContext,
+    Offset? anchorOffset,
     OverlapBehaviour? overlapBehaviour,
     FlowyOverlayDelegate? delegate,
   }) {
     Widget overlay = widget;
+    final offset = anchorOffset ?? Offset.zero;
 
     if (shouldAnchor) {
       assert(
@@ -232,8 +234,8 @@ class FlowyOverlayState extends State<FlowyOverlay> {
         targetAnchorSize = renderBox.size;
       }
       final anchorRect = Rect.fromLTWH(
-        targetAnchorPosition.dx,
-        targetAnchorPosition.dy,
+        targetAnchorPosition.dx + offset.dx,
+        targetAnchorPosition.dy + offset.dy,
         targetAnchorSize.width,
         targetAnchorSize.height,
       );

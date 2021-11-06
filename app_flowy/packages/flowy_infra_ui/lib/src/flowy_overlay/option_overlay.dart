@@ -22,14 +22,14 @@ class OptionOverlay<T> extends StatelessWidget {
 
   static void showWithAnchor<T>(
     BuildContext context, {
-    required String identifier,
     required List<T> items,
+    required String identifier,
+    required BuildContext anchorContext,
     IndexedValueCallback<T>? onHover,
     IndexedValueCallback<T>? onTap,
-    required BuildContext anchorContext,
     AnchorDirection? anchorDirection,
-    FlowyOverlayDelegate? delegate,
     OverlapBehaviour? overlapBehaviour,
+    FlowyOverlayDelegate? delegate,
   }) {
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OptionOverlay(

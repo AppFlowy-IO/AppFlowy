@@ -55,8 +55,8 @@ class ActionList {
       itemBuilder: (context, index) => items[index],
       anchorContext: anchorContext,
       anchorDirection: AnchorDirection.bottomRight,
-      maxWidth: 120,
-      maxHeight: 80,
+      width: 120,
+      height: 80,
     );
   }
 }

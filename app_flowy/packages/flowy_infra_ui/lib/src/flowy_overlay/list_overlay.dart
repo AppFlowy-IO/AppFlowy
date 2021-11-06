@@ -2,37 +2,67 @@ import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
 
+class ListOverlayFooter {
+  Widget widget;
+  double height;
+  EdgeInsets padding;
+  ListOverlayFooter({
+    required this.widget,
+    required this.height,
+    this.padding = EdgeInsets.zero,
+  });
+}
+
 class ListOverlay extends StatelessWidget {
   const ListOverlay({
     Key? key,
     required this.itemBuilder,
     this.itemCount,
     this.controller,
-    this.maxWidth = double.infinity,
-    this.maxHeight = double.infinity,
+    this.width = double.infinity,
+    this.height = double.infinity,
+    this.footer,
   }) : super(key: key);
 
   final IndexedWidgetBuilder itemBuilder;
   final int? itemCount;
   final ScrollController? controller;
-  final double maxWidth;
-  final double maxHeight;
+  final double width;
+  final double height;
+  final ListOverlayFooter? footer;
 
   @override
   Widget build(BuildContext context) {
     const padding = EdgeInsets.symmetric(horizontal: 6, vertical: 6);
+    double totalHeight = height + padding.vertical;
+    if (footer != null) {
+      totalHeight = totalHeight + footer!.height + footer!.padding.vertical;
+    }
+
     return Material(
       type: MaterialType.transparency,
       child: Container(
-        constraints: BoxConstraints.tight(Size(maxWidth, maxHeight + padding.vertical)),
         decoration: FlowyDecoration.decoration(),
+        constraints: BoxConstraints.tight(Size(width, totalHeight)),
         child: Padding(
           padding: padding,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemBuilder: itemBuilder,
-            itemCount: itemCount,
-            controller: controller,
+          child: Column(
+            children: [
+              ListView.builder(
+                shrinkWrap: true,
+                itemBuilder: itemBuilder,
+                itemCount: itemCount,
+                controller: controller,
+              ),
+              if (footer != null)
+                SizedBox(
+                  height: footer!.height,
+                  child: Padding(
+                    padding: footer!.padding,
+                    child: SizedBox.expand(child: footer!.widget),
+                  ),
+                ),
+            ],
           ),
         ),
       ),
@@ -45,27 +75,31 @@ class ListOverlay extends StatelessWidget {
     required IndexedWidgetBuilder itemBuilder,
     int? itemCount,
     ScrollController? controller,
-    double maxWidth = double.infinity,
-    double maxHeight = double.infinity,
+    double width = double.infinity,
+    double height = double.infinity,
     required BuildContext anchorContext,
     AnchorDirection? anchorDirection,
     FlowyOverlayDelegate? delegate,
     OverlapBehaviour? overlapBehaviour,
     FlowyOverlayStyle? style,
+    Offset? anchorOffset,
+    ListOverlayFooter? footer,
   }) {
     FlowyOverlay.of(context).insertWithAnchor(
       widget: ListOverlay(
         itemBuilder: itemBuilder,
         itemCount: itemCount,
         controller: controller,
-        maxWidth: maxWidth,
-        maxHeight: maxHeight,
+        width: width,
+        height: height,
+        footer: footer,
       ),
       identifier: identifier,
       anchorContext: anchorContext,
       anchorDirection: anchorDirection,
       delegate: delegate,
       overlapBehaviour: overlapBehaviour,
+      anchorOffset: anchorOffset,
       style: style,
     );
   }
@@ -91,8 +125,8 @@ class ListOverlay extends StatelessWidget {
         itemBuilder: itemBuilder,
         itemCount: itemCount,
         controller: controller,
-        maxWidth: maxWidth,
-        maxHeight: maxHeight,
+        width: maxWidth,
+        height: maxHeight,
       ),
       identifier: identifier,
       anchorPosition: anchorPosition,

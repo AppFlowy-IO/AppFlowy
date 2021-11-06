@@ -65,6 +65,7 @@ class FlowyTextButton extends StatelessWidget {
   final Color? fillColor;
   final BorderRadius? radius;
   final MainAxisAlignment mainAxisAlignment;
+  final String? tooltip;
 
   // final HoverDisplayConfig? hoverDisplay;
   const FlowyTextButton(
@@ -80,6 +81,7 @@ class FlowyTextButton extends StatelessWidget {
     this.heading,
     this.radius,
     this.mainAxisAlignment = MainAxisAlignment.start,
+    this.tooltip,
   }) : super(key: key);
 
   @override
@@ -108,7 +110,7 @@ class FlowyTextButton extends StatelessWidget {
       ),
     );
 
-    return RawMaterialButton(
+    child = RawMaterialButton(
       visualDensity: VisualDensity.compact,
       hoverElevation: 0,
       highlightElevation: 0,
@@ -123,20 +125,14 @@ class FlowyTextButton extends StatelessWidget {
       child: child,
     );
 
-    // if (hoverColor != null) {
-    //   return InkWell(
-    //     onTap: onPressed,
-    //     child: FlowyHover(
-    //       config: HoverDisplayConfig(borderRadius: radius ?? BorderRadius.circular(6), hoverColor: hoverColor!),
-    //       builder: (context, onHover) => child,
-    //     ),
-    //   );
-    // } else {
-    //   return InkWell(
-    //     onTap: onPressed,
-    //     child: child,
-    //   );
-    // }
+    if (tooltip != null) {
+      child = Tooltip(
+        message: tooltip!,
+        child: child,
+      );
+    }
+
+    return child;
   }
 }
 // return TextButton(

@@ -15,22 +15,32 @@ abstract class ActionList<T extends ActionItemData> {
 
   double get maxWidth => 162;
 
+  double get itemHeight => ActionListSizes.itemHeight;
+
+  ListOverlayFooter? get footer;
+
   void Function(dartz.Option<T>) get selectCallback;
 
   FlowyOverlayDelegate? get delegate;
 
-  void show(BuildContext buildContext, BuildContext anchorContext,
-      {AnchorDirection anchorDirection = AnchorDirection.bottomRight}) {
+  void show(
+    BuildContext buildContext,
+    BuildContext anchorContext, {
+    AnchorDirection anchorDirection = AnchorDirection.bottomRight,
+    Offset? anchorOffset,
+  }) {
     final widgets = items
-        .map((action) => ActionItem<T>(
+        .map(
+          (action) => ActionItem<T>(
             action: action,
+            itemHeight: itemHeight,
             onSelected: (action) {
               FlowyOverlay.of(buildContext).remove(identifier);
               selectCallback(dartz.some(action));
-            }))
+            },
+          ),
+        )
         .toList();
-
-    double totalHeight = widgets.length * (ActionListSizes.itemHeight + ActionListSizes.padding * 2);
 
     ListOverlay.showWithAnchor(
       buildContext,
@@ -39,9 +49,11 @@ abstract class ActionList<T extends ActionItemData> {
       itemBuilder: (context, index) => widgets[index],
       anchorContext: anchorContext,
       anchorDirection: anchorDirection,
-      maxWidth: maxWidth,
-      maxHeight: totalHeight,
+      width: maxWidth,
+      height: widgets.length * (itemHeight + ActionListSizes.padding * 2),
       delegate: delegate,
+      anchorOffset: anchorOffset,
+      footer: footer,
     );
   }
 }
@@ -60,10 +72,12 @@ class ActionListSizes {
 class ActionItem<T extends ActionItemData> extends StatelessWidget {
   final T action;
   final Function(T) onSelected;
+  final double itemHeight;
   const ActionItem({
     Key? key,
     required this.action,
     required this.onSelected,
+    required this.itemHeight,
   }) : super(key: key);
 
   @override
@@ -77,7 +91,7 @@ class ActionItem<T extends ActionItemData> extends StatelessWidget {
           behavior: HitTestBehavior.opaque,
           onTap: () => onSelected(action),
           child: SizedBox(
-            height: ActionListSizes.itemHeight,
+            height: itemHeight,
             child: Row(
               children: [
                 if (action.icon != null) action.icon!,

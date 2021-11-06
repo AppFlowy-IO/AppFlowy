@@ -188,8 +188,8 @@ class OverlayScreen extends StatelessWidget {
                           anchorContext: buttonContext,
                           anchorDirection: providerContext.read<OverlayDemoConfiguration>().anchorDirection,
                           overlapBehaviour: providerContext.read<OverlayDemoConfiguration>().overlapBehaviour,
-                          maxWidth: 200.0,
-                          maxHeight: 200.0,
+                          width: 200.0,
+                          height: 200.0,
                         );
                       },
                       child: const Text('Show List Overlay'),
