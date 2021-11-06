@@ -11,9 +11,9 @@ import 'package:dartz/dartz.dart' as dartz;
 abstract class ActionList<T extends ActionItemData> {
   List<T> get items;
 
-  String get identifier;
+  String get identifier => toString();
 
-  double get maxWidth;
+  double get maxWidth => 162;
 
   void Function(dartz.Option<T>) get selectCallback;
 
@@ -47,7 +47,7 @@ abstract class ActionList<T extends ActionItemData> {
 }
 
 abstract class ActionItemData {
-  Widget get icon;
+  Widget? get icon;
   String get name;
 }
 
@@ -80,7 +80,7 @@ class ActionItem<T extends ActionItemData> extends StatelessWidget {
             height: ActionListSizes.itemHeight,
             child: Row(
               children: [
-                action.icon,
+                if (action.icon != null) action.icon!,
                 HSpace(ActionListSizes.itemHPadding),
                 FlowyText.medium(
                   action.name,

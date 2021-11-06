@@ -13,19 +13,15 @@ class AppDisclosureActions with ActionList<AppDisclosureActionWrapper> implement
   });
 
   @override
-  String get identifier => "ViewDisclosureActions";
-
-  @override
   List<AppDisclosureActionWrapper> get items => _items;
-
-  @override
-  double get maxWidth => 162;
 
   @override
   void Function(dartz.Option<AppDisclosureActionWrapper> p1) get selectCallback => (result) {
         result.fold(
           () => onSelected(dartz.none()),
-          (wrapper) => onSelected(dartz.some(wrapper.inner)),
+          (wrapper) => onSelected(
+            dartz.some(wrapper.inner),
+          ),
         );
       };
 

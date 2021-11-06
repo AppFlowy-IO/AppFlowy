@@ -35,9 +35,6 @@ class ViewDisclosureButton extends StatelessWidget
   }
 
   @override
-  String get identifier => "ViewDisclosureActions";
-
-  @override
   List<ViewDisclosureActionWrapper> get items => _items;
 
   @override
