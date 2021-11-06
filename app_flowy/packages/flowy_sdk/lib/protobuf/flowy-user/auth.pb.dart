@@ -13,6 +13,7 @@ class SignInRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SignInRequest', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'email')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'password')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..hasRequiredFields = false
   ;
 
@@ -20,6 +21,7 @@ class SignInRequest extends $pb.GeneratedMessage {
   factory SignInRequest({
     $core.String? email,
     $core.String? password,
+    $core.String? name,
   }) {
     final _result = create();
     if (email != null) {
@@ -27,6 +29,9 @@ class SignInRequest extends $pb.GeneratedMessage {
     }
     if (password != null) {
       _result.password = password;
+    }
+    if (name != null) {
+      _result.name = name;
     }
     return _result;
   }
@@ -68,12 +73,22 @@ class SignInRequest extends $pb.GeneratedMessage {
   $core.bool hasPassword() => $_has(1);
   @$pb.TagNumber(2)
   void clearPassword() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get name => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set name($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasName() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearName() => clearField(3);
 }
 
 class SignInParams extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SignInParams', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'email')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'password')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..hasRequiredFields = false
   ;
 
@@ -81,6 +96,7 @@ class SignInParams extends $pb.GeneratedMessage {
   factory SignInParams({
     $core.String? email,
     $core.String? password,
+    $core.String? name,
   }) {
     final _result = create();
     if (email != null) {
@@ -88,6 +104,9 @@ class SignInParams extends $pb.GeneratedMessage {
     }
     if (password != null) {
       _result.password = password;
+    }
+    if (name != null) {
+      _result.name = name;
     }
     return _result;
   }
@@ -129,6 +148,15 @@ class SignInParams extends $pb.GeneratedMessage {
   $core.bool hasPassword() => $_has(1);
   @$pb.TagNumber(2)
   void clearPassword() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get name => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set name($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasName() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearName() => clearField(3);
 }
 
 class SignInResponse extends $pb.GeneratedMessage {

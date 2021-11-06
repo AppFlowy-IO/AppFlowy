@@ -71,9 +71,12 @@ struct WsSenderImpl {
 
 impl DocumentWebSocket for WsSenderImpl {
     fn send(&self, data: WsDocumentData) -> Result<(), DocError> {
-        let msg: WsMessage = data.into();
-        let sender = self.user.ws_controller.sender().map_err(internal_error)?;
-        sender.send_msg(msg).map_err(internal_error)?;
+        if cfg!(feature = "http_server") {
+            let msg: WsMessage = data.into();
+            let sender = self.user.ws_controller.sender().map_err(internal_error)?;
+            sender.send_msg(msg).map_err(internal_error)?;
+        }
+
         Ok(())
     }
 

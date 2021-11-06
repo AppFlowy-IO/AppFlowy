@@ -14,22 +14,24 @@ const SignInRequest$json = const {
   '2': const [
     const {'1': 'email', '3': 1, '4': 1, '5': 9, '10': 'email'},
     const {'1': 'password', '3': 2, '4': 1, '5': 9, '10': 'password'},
+    const {'1': 'name', '3': 3, '4': 1, '5': 9, '10': 'name'},
   ],
 };
 
 /// Descriptor for `SignInRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List signInRequestDescriptor = $convert.base64Decode('Cg1TaWduSW5SZXF1ZXN0EhQKBWVtYWlsGAEgASgJUgVlbWFpbBIaCghwYXNzd29yZBgCIAEoCVIIcGFzc3dvcmQ=');
+final $typed_data.Uint8List signInRequestDescriptor = $convert.base64Decode('Cg1TaWduSW5SZXF1ZXN0EhQKBWVtYWlsGAEgASgJUgVlbWFpbBIaCghwYXNzd29yZBgCIAEoCVIIcGFzc3dvcmQSEgoEbmFtZRgDIAEoCVIEbmFtZQ==');
 @$core.Deprecated('Use signInParamsDescriptor instead')
 const SignInParams$json = const {
   '1': 'SignInParams',
   '2': const [
     const {'1': 'email', '3': 1, '4': 1, '5': 9, '10': 'email'},
     const {'1': 'password', '3': 2, '4': 1, '5': 9, '10': 'password'},
+    const {'1': 'name', '3': 3, '4': 1, '5': 9, '10': 'name'},
   ],
 };
 
 /// Descriptor for `SignInParams`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List signInParamsDescriptor = $convert.base64Decode('CgxTaWduSW5QYXJhbXMSFAoFZW1haWwYASABKAlSBWVtYWlsEhoKCHBhc3N3b3JkGAIgASgJUghwYXNzd29yZA==');
+final $typed_data.Uint8List signInParamsDescriptor = $convert.base64Decode('CgxTaWduSW5QYXJhbXMSFAoFZW1haWwYASABKAlSBWVtYWlsEhoKCHBhc3N3b3JkGAIgASgJUghwYXNzd29yZBISCgRuYW1lGAMgASgJUgRuYW1l');
 @$core.Deprecated('Use signInResponseDescriptor instead')
 const SignInResponse$json = const {
   '1': 'SignInResponse',

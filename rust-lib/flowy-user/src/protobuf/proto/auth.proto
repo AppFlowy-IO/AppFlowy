@@ -3,10 +3,12 @@ syntax = "proto3";
 message SignInRequest {
     string email = 1;
     string password = 2;
+    string name = 3;
 }
 message SignInParams {
     string email = 1;
     string password = 2;
+    string name = 3;
 }
 message SignInResponse {
     string user_id = 1;

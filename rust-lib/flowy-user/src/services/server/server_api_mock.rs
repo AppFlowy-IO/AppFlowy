@@ -28,7 +28,7 @@ impl UserServerAPI for UserServerMock {
         ResultFuture::new(async {
             Ok(SignInResponse {
                 user_id: user_id.clone(),
-                name: "fake name".to_owned(),
+                name: params.name,
                 email: params.email,
                 token: user_id,
             })
@@ -42,7 +42,7 @@ impl UserServerAPI for UserServerMock {
     }
 
     fn get_user(&self, _token: &str) -> ResultFuture<UserProfile, UserError> {
-        ResultFuture::new(async { Err(UserError::internal().context("mock data, ignore this error")) })
+        ResultFuture::new(async { Ok(UserProfile::default()) })
     }
 
     fn ws_addr(&self) -> String { "ws://localhost:8000/ws/".to_owned() }

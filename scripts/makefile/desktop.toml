@@ -18,9 +18,9 @@ script = [
     cd rust-lib/
     if [ ${PROD} == true ]
     then
-      cargo build --${BUILD_FLAG} --package=dart-ffi --target ${DESKTOP_TARGET} --features="flutter","http_server"
+      cargo build --${BUILD_FLAG} --package=dart-ffi --target ${DESKTOP_TARGET} --features=${FEATURES}
     else
-      cargo build --package=dart-ffi --target ${DESKTOP_TARGET} --features="flutter","http_server"
+      cargo build --package=dart-ffi --target ${DESKTOP_TARGET} --features=${FEATURES}
     fi
     cd ../
   """,

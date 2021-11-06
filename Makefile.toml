@@ -11,6 +11,8 @@ CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 CARGO_MAKE_CRATE_FS_NAME = "dart_ffi"
 CARGO_MAKE_CRATE_NAME = "dart-ffi"
 VERSION = "0.0.1"
+FEATURES = "flutter,http_server"
+PRODUCT_NAME = "AppFlowy"
 
 #CRATE_TYPE: https://doc.rust-lang.org/reference/linkage.html
 [env.development-mac]
@@ -22,7 +24,9 @@ CRATE_TYPE = "cdylib"
 BUILD_FLAG = "debug"
 FLUTTER_PLATFORM = "macos"
 FLUTTER_OUTPUT_DIR = "Debug"
-PRODUCT_NAME = "app_flowy.app"
+FEATURES = "flutter"
+PRODUCT_EXT = "app"
+
 
 [env.production-mac]
 DEV = false
@@ -33,7 +37,8 @@ CRATE_TYPE = "cdylib"
 BUILD_FLAG = "release"
 FLUTTER_PLATFORM = "macos"
 FLUTTER_OUTPUT_DIR = "Release"
-PRODUCT_NAME = "app_flowy.app"
+FEATURES = "flutter"
+PRODUCT_EXT = "app"
 
 [env.production-ios]
 DEV = false
@@ -43,7 +48,7 @@ CRATE_TYPE = "staticlib"
 BUILD_FLAG = "release"
 FLUTTER_PLATFORM = "ios"
 FLUTTER_OUTPUT_DIR = "Release"
-PRODUCT_NAME = "app_flowy.ipa"
+PRODUCT_EXT = "ipa"
 
 [env.production-android]
 DEV = false
@@ -53,7 +58,7 @@ CRATE_TYPE = "cdylib"
 BUILD_FLAG = "release"
 FLUTTER_PLATFORM = "apk"
 FLUTTER_OUTPUT_DIR = "Release"
-PRODUCT_NAME = "app_flowy.apk"
+PRODUCT_EXT = "apk"
 
 [env.production-win]
 DEV = false
@@ -63,7 +68,7 @@ CRATE_TYPE = "cdylib"
 BUILD_FLAG = "release"
 FLUTTER_PLATFORM = "apk"
 FLUTTER_OUTPUT_DIR = "Release"
-PRODUCT_NAME = "app_flowy.exe"
+PRODUCT_EXT = "exe"
 
 [tasks.setup-crate-type]
 private = true

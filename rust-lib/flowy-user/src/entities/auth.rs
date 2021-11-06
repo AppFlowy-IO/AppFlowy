@@ -9,6 +9,9 @@ pub struct SignInRequest {
 
     #[pb(index = 2)]
     pub password: String,
+
+    #[pb(index = 3)]
+    pub name: String,
 }
 
 #[derive(Default, ProtoBuf, Debug)]
@@ -18,6 +21,9 @@ pub struct SignInParams {
 
     #[pb(index = 2)]
     pub password: String,
+
+    #[pb(index = 3)]
+    pub name: String,
 }
 
 #[derive(Debug, Default, ProtoBuf)]
@@ -45,6 +51,7 @@ impl TryInto<SignInParams> for SignInRequest {
         Ok(SignInParams {
             email: email.0,
             password: password.0,
+            name: self.name,
         })
     }
 }

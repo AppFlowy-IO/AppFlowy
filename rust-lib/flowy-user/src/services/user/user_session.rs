@@ -147,8 +147,8 @@ impl UserSession {
 
     pub async fn init_user(&self) -> Result<(), UserError> {
         let (_, token) = self.get_session()?.into_part();
-
         let _ = self.start_ws_connection(&token).await?;
+
         Ok(())
     }
 
@@ -282,10 +282,11 @@ impl UserSession {
 
     #[tracing::instrument(level = "debug", skip(self, token))]
     pub async fn start_ws_connection(&self, token: &str) -> Result<(), UserError> {
-        let addr = format!("{}/{}", self.server.ws_addr(), token);
-        self.listen_on_websocket();
-
-        let _ = self.ws_controller.start_connect(addr).await?;
+        if cfg!(feature = "http_server") {
+            let addr = format!("{}/{}", self.server.ws_addr(), token);
+            self.listen_on_websocket();
+            let _ = self.ws_controller.start_connect(addr).await?;
+        }
         Ok(())
     }
 
