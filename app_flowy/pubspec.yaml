@@ -40,10 +40,10 @@ dependencies:
   flowy_log:
     path: packages/flowy_log
   flutter_quill:
-    path: packages/flutter-quill
-    # git:
-    #   url: git@github.com:appflowy/flutter-quill.git
-    #   ref: develop
+    # path: packages/flutter-quill
+    git:
+      url: git@github.com:appflowy/flutter-quill.git
+      ref: develop
   
   #  third party packages
   time: '>=2.0.0'

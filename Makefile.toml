@@ -3,6 +3,7 @@ extend = [
     { path = "scripts/makefile/protobuf.toml" },
     { path = "scripts/makefile/tests.toml" },
     { path = "scripts/makefile/docker.toml" },
+    { path = "scripts/makefile/env.toml" },
     { path = "scripts/makefile/flutter.toml" },
 ]
 

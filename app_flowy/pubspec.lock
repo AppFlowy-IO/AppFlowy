@@ -366,10 +366,12 @@ packages:
   flutter_quill:
     dependency: "direct main"
     description:
-      path: "packages/flutter-quill"
-      relative: true
-    source: path
-    version: "2.0.11"
+      path: "."
+      ref: develop
+      resolved-ref: "8a4c23dcdbb8c38d49b7dea42575231877b1e56d"
+      url: "git@github.com:appflowy/flutter-quill.git"
+    source: git
+    version: "2.0.13"
   flutter_svg:
     dependency: "direct main"
     description:
