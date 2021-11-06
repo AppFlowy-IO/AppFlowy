@@ -15,9 +15,19 @@ impl CustomDocument for PlainDoc {
     fn init_delta() -> Delta { Delta::new() }
 }
 
+#[allow(dead_code)]
+#[inline]
+pub fn doc_initial_delta() -> Delta { DeltaBuilder::new().insert("\n").build() }
+#[allow(dead_code)]
+#[inline]
+pub fn doc_initial_string() -> String { doc_initial_delta().to_json() }
+#[allow(dead_code)]
+#[inline]
+pub fn doc_initial_bytes() -> Vec<u8> { doc_initial_string().into_bytes() }
+
 pub struct FlowyDoc();
 impl CustomDocument for FlowyDoc {
-    fn init_delta() -> Delta { DeltaBuilder::new().insert("\n").build() }
+    fn init_delta() -> Delta { doc_initial_delta() }
 }
 
 pub struct Document {

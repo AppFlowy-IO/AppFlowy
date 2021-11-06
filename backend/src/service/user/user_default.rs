@@ -7,11 +7,9 @@ use crate::{
     sqlx_ext::{map_sqlx_error, DBTransaction},
 };
 
+use flowy_document::services::doc::doc_initial_string;
 use flowy_net::errors::ServerError;
-use flowy_workspace::{
-    entities::view::DOC_DEFAULT_DATA,
-    protobuf::{App, CreateViewParams, View, ViewType, Workspace},
-};
+use flowy_workspace::protobuf::{App, CreateViewParams, View, ViewType, Workspace};
 
 pub async fn create_default_workspace(
     transaction: &mut DBTransaction<'_>,
@@ -63,7 +61,7 @@ async fn create_default_view(transaction: &mut DBTransaction<'_>, app: &App) -> 
         desc: "View created by AppFlowy".to_string(),
         thumbnail: "123.png".to_string(),
         view_type: ViewType::Doc,
-        data: DOC_DEFAULT_DATA.to_string(),
+        data: doc_initial_string(),
         unknown_fields: Default::default(),
         cached_size: Default::default(),
     };

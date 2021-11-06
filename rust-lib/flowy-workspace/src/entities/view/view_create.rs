@@ -8,6 +8,7 @@ use crate::{
     impl_def_and_def_mut,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_document::services::doc::doc_initial_string;
 use std::convert::TryInto;
 
 #[derive(PartialEq, Debug, ProtoBuf_Enum, Clone)]
@@ -72,10 +73,6 @@ pub struct CreateViewParams {
     pub data: String,
 }
 
-pub const DOC_DEFAULT_DATA: &str = "[{\"insert\":\"\\n\"}]";
-#[allow(dead_code)]
-pub fn default_delta() -> Vec<u8> { DOC_DEFAULT_DATA.as_bytes().to_vec() }
-
 impl CreateViewParams {
     pub fn new(belong_to_id: String, name: String, desc: String, view_type: ViewType, thumbnail: String) -> Self {
         Self {
@@ -84,7 +81,7 @@ impl CreateViewParams {
             desc,
             thumbnail,
             view_type,
-            data: DOC_DEFAULT_DATA.to_string(),
+            data: doc_initial_string(),
         }
     }
 }
