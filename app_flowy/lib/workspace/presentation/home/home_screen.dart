@@ -129,6 +129,13 @@ class HomeScreen extends StatelessWidget {
             .constrained(minWidth: 500)
             .positioned(left: layout.homePageLOffset, right: layout.homePageROffset, bottom: 0, top: 0, animate: true)
             .animate(layout.animDuration, Curves.easeOut),
+        bubble
+            .positioned(
+              right: 20,
+              bottom: 16,
+              animate: true,
+            )
+            .animate(layout.animDuration, Curves.easeOut),
         editPannel
             .animatedPanelX(
               duration: layout.animDuration.inMilliseconds * 0.001,
@@ -136,13 +143,6 @@ class HomeScreen extends StatelessWidget {
               isClosed: !layout.showEditPannel,
             )
             .positioned(right: 0, top: 0, bottom: 0, width: layout.editPannelWidth),
-        bubble
-            .positioned(
-              right: 20,
-              bottom: 20,
-              animate: true,
-            )
-            .animate(layout.animDuration, Curves.easeOut),
       ],
     );
   }
