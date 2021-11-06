@@ -43,7 +43,7 @@ dependencies:
     path: packages/flutter-quill
     # git:
     #   url: git@github.com:appflowy/flutter-quill.git
-    #   ref: master
+    #   ref: develop
   
   #  third party packages
   time: '>=2.0.0'
