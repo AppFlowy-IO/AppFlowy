@@ -95,7 +95,7 @@ impl UserSession {
             let session = Session::new(&resp.user_id, &resp.token, &resp.email);
             let _ = self.set_session(Some(session))?;
             let user_table = self.save_user(resp.into()).await?;
-            let user_profile = UserProfile::from(user_table);
+            let user_profile: UserProfile = user_table.into();
             (self.status_callback)(SessionStatus::Login {
                 token: user_profile.token.clone(),
             });
@@ -112,7 +112,7 @@ impl UserSession {
             let session = Session::new(&resp.user_id, &resp.token, &resp.email);
             let _ = self.set_session(Some(session))?;
             let user_table = self.save_user(resp.into()).await?;
-            let user_profile = UserProfile::from(user_table);
+            let user_profile: UserProfile = user_table.into();
             (self.status_callback)(SessionStatus::Login {
                 token: user_profile.token.clone(),
             });
@@ -160,7 +160,7 @@ impl UserSession {
             .first::<UserTable>(&*(self.db_connection()?))?;
 
         let _ = self.read_user_profile_on_server(&token)?;
-        Ok(UserProfile::from(user))
+        Ok(user.into())
     }
 
     pub async fn user_profile(&self) -> Result<UserProfile, UserError> {
@@ -170,7 +170,7 @@ impl UserSession {
             .first::<UserTable>(&*(self.db_connection()?))?;
 
         let _ = self.read_user_profile_on_server(&token)?;
-        Ok(UserProfile::from(user))
+        Ok(user.into())
     }
 
     pub fn user_dir(&self) -> Result<String, UserError> {

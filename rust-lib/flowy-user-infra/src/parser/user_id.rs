@@ -1,11 +1,13 @@
+use crate::errors::ErrorCode;
+
 #[derive(Debug)]
 pub struct UserId(pub String);
 
 impl UserId {
-    pub fn parse(s: String) -> Result<UserId, String> {
+    pub fn parse(s: String) -> Result<UserId, ErrorCode> {
         let is_empty_or_whitespace = s.trim().is_empty();
         if is_empty_or_whitespace {
-            return Err(format!("user id is empty or whitespace"));
+            return Err(ErrorCode::UserIdInvalid);
         }
         Ok(Self(s))
     }

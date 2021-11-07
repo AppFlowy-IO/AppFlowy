@@ -52,8 +52,9 @@ impl UserServerAPI for UserServer {
     fn ws_addr(&self) -> String { self.config.ws_addr() }
 }
 
-use crate::{errors::ErrorCode, notify::*};
+use crate::notify::*;
 use flowy_net::response::FlowyResponse;
+use flowy_user_infra::errors::ErrorCode;
 use lazy_static::lazy_static;
 use std::sync::Arc;
 lazy_static! {

@@ -1,5 +1,6 @@
 use crate::entities::{SignInResponse, SignUpResponse, UpdateUserParams};
 use flowy_database::schema::user_table;
+use flowy_user_infra::entities::UserProfile;
 
 #[derive(Clone, Default, Queryable, Identifiable, Insertable)]
 #[table_name = "user_table"]
@@ -34,6 +35,17 @@ impl std::convert::From<SignUpResponse> for UserTable {
 
 impl std::convert::From<SignInResponse> for UserTable {
     fn from(resp: SignInResponse) -> Self { UserTable::new(resp.user_id, resp.name, resp.email, resp.token) }
+}
+
+impl std::convert::Into<UserProfile> for UserTable {
+    fn into(self) -> UserProfile {
+        UserProfile {
+            id: self.id,
+            email: self.email,
+            name: self.name,
+            token: self.token,
+        }
+    }
 }
 
 #[derive(AsChangeset, Identifiable, Default, Debug)]

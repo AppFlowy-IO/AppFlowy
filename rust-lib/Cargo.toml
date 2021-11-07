@@ -5,6 +5,7 @@ members = [
   "dart-ffi",
   "flowy-log",
   "flowy-user",
+  "flowy-user-infra",
   "flowy-ast",
   "flowy-derive",
   "flowy-test",

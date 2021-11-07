@@ -1,6 +1,8 @@
-use crate::{entities::parser::*, errors::*};
-use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
+
+use flowy_derive::ProtoBuf;
+
+use crate::{errors::*, parser::*};
 
 #[derive(ProtoBuf, Default)]
 pub struct SignInRequest {
@@ -42,11 +44,11 @@ pub struct SignInResponse {
 }
 
 impl TryInto<SignInParams> for SignInRequest {
-    type Error = UserError;
+    type Error = ErrorCode;
 
     fn try_into(self) -> Result<SignInParams, Self::Error> {
-        let email = UserEmail::parse(self.email).map_err(|e| UserError::code(e))?;
-        let password = UserPassword::parse(self.password).map_err(|e| UserError::code(e))?;
+        let email = UserEmail::parse(self.email)?;
+        let password = UserPassword::parse(self.password)?;
 
         Ok(SignInParams {
             email: email.0,
@@ -68,12 +70,12 @@ pub struct SignUpRequest {
     pub password: String,
 }
 impl TryInto<SignUpParams> for SignUpRequest {
-    type Error = UserError;
+    type Error = ErrorCode;
 
     fn try_into(self) -> Result<SignUpParams, Self::Error> {
-        let email = UserEmail::parse(self.email).map_err(|e| UserError::code(e))?;
-        let password = UserPassword::parse(self.password).map_err(|e| UserError::code(e))?;
-        let name = UserName::parse(self.name).map_err(|e| UserError::code(e))?;
+        let email = UserEmail::parse(self.email)?;
+        let password = UserPassword::parse(self.password)?;
+        let name = UserName::parse(self.name)?;
 
         Ok(SignUpParams {
             email: email.0,

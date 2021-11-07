@@ -1,13 +1,14 @@
 use bytes::Bytes;
-use derive_more::Display;
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+
+use flowy_derive::ProtoBuf;
 use flowy_dispatch::prelude::{EventResponse, ResponseBuilder};
+pub use flowy_user_infra::errors::ErrorCode;
 use std::{convert::TryInto, fmt, fmt::Debug};
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct UserError {
     #[pb(index = 1)]
-    pub code: ErrorCode,
+    pub code: i32,
 
     #[pb(index = 2)]
     pub msg: String,
@@ -18,29 +19,17 @@ impl std::fmt::Display for UserError {
 }
 
 macro_rules! static_user_error {
-    ($name:ident, $status:expr) => {
+    ($name:ident, $code:expr) => {
         #[allow(non_snake_case, missing_docs)]
-        pub fn $name() -> UserError {
-            UserError {
-                code: $status,
-                msg: format!("{}", $status),
-            }
-        }
+        pub fn $name() -> UserError { $code.into() }
     };
 }
 
 impl UserError {
     pub(crate) fn new(code: ErrorCode, msg: &str) -> Self {
         Self {
-            code,
+            code: code.value(),
             msg: msg.to_owned(),
-        }
-    }
-
-    pub(crate) fn code(code: ErrorCode) -> Self {
-        Self {
-            msg: format!("{}", &code),
-            code,
         }
     }
 
@@ -66,50 +55,13 @@ impl UserError {
     static_user_error!(internal, ErrorCode::InternalError);
 }
 
-#[derive(Debug, Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
-pub enum ErrorCode {
-    #[display(fmt = "Email can not be empty or whitespace")]
-    EmailIsEmpty       = 0,
-    #[display(fmt = "Email format is not valid")]
-    EmailFormatInvalid = 1,
-    #[display(fmt = "Email already exists")]
-    EmailAlreadyExists = 2,
-    #[display(fmt = "Password can not be empty or whitespace")]
-    PasswordIsEmpty    = 10,
-    #[display(fmt = "Password format too long")]
-    PasswordTooLong    = 11,
-    #[display(fmt = "Password contains forbidden characters.")]
-    PasswordContainsForbidCharacters = 12,
-    #[display(fmt = "Password should contain a minimum of 6 characters with 1 special 1 letter and 1 numeric")]
-    PasswordFormatInvalid = 13,
-    #[display(fmt = "Password not match")]
-    PasswordNotMatch   = 14,
-    #[display(fmt = "User name is too long")]
-    UserNameTooLong    = 20,
-    #[display(fmt = "User name contain forbidden characters")]
-    UserNameContainForbiddenCharacters = 21,
-    #[display(fmt = "User name can not be empty or whitespace")]
-    UserNameIsEmpty    = 22,
-    #[display(fmt = "User id is invalid")]
-    UserIdInvalid      = 23,
-    #[display(fmt = "User token is invalid")]
-    UserUnauthorized   = 24,
-    #[display(fmt = "User not exist")]
-    UserNotExist       = 25,
-
-    #[display(fmt = "Server is offline, try again later")]
-    ServerOffline       = 26,
-
-    #[display(fmt = "Internal error")]
-    InternalError      = 100,
-}
-
-impl std::convert::Into<UserError> for ErrorCode {
-    fn into(self) -> UserError { UserError::new(self, "") }
-}
-
-impl std::default::Default for ErrorCode {
-    fn default() -> Self { ErrorCode::InternalError }
+impl std::convert::From<ErrorCode> for UserError {
+    fn from(code: ErrorCode) -> Self {
+        UserError {
+            code: code.value(),
+            msg: format!("{}", code),
+        }
+    }
 }
 
 impl std::convert::From<flowy_database::Error> for UserError {
@@ -153,7 +105,9 @@ fn server_error_to_user_error(error: flowy_net::errors::ServerError) -> (ErrorCo
         ServerErrorCode::UserUnauthorized => ErrorCode::UserUnauthorized,
         ServerErrorCode::PasswordNotMatch => ErrorCode::PasswordNotMatch,
         ServerErrorCode::RecordNotFound => ErrorCode::UserNotExist,
-        ServerErrorCode::ConnectRefused | ServerErrorCode::ConnectTimeout | ServerErrorCode::ConnectClose => ErrorCode::ServerOffline,
+        ServerErrorCode::ConnectRefused | ServerErrorCode::ConnectTimeout | ServerErrorCode::ConnectClose => {
+            ErrorCode::ServerError
+        },
         _ => ErrorCode::InternalError,
     };
 

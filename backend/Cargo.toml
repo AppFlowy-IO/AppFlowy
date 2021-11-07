@@ -60,7 +60,7 @@ pin-project = "1.0.0"
 byteorder = {version = "1.3.4"}
 async-stream = "0.3.2"
 
-flowy-user = { path = "../rust-lib/flowy-user" }
+flowy-user-infra = { path = "../rust-lib/flowy-user-infra" }
 flowy-workspace = { path = "../rust-lib/flowy-workspace", default-features = false, features = ["backend_service"]}
 flowy-document = { path = "../rust-lib/flowy-document" }
 flowy-ws = { path = "../rust-lib/flowy-ws" }

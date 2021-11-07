@@ -1,8 +1,9 @@
 mod handlers;
 mod sql_tables;
 
-pub mod entities;
+pub use flowy_user_infra::entities;
 pub mod errors;
+
 pub mod event;
 pub mod module;
 mod notify;

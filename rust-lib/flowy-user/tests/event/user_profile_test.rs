@@ -91,7 +91,7 @@ async fn user_update_with_invalid_email() {
                 .sync_send()
                 .error()
                 .code,
-            ErrorCode::EmailFormatInvalid
+            ErrorCode::EmailFormatInvalid.value()
         );
     }
 }

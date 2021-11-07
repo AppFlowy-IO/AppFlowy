@@ -9,6 +9,7 @@ use flowy_document::{entities::ws::WsDocumentData, errors::internal_error, servi
 use flowy_user::{errors::ErrorCode, services::user::UserSession};
 use flowy_ws::{WsMessage, WsMessageHandler, WsModule};
 
+use flowy_user::errors::UserError;
 use std::{path::Path, sync::Arc};
 
 pub struct DocumentDepsResolver {
@@ -39,6 +40,15 @@ struct DocumentUserImpl {
     user: Arc<UserSession>,
 }
 
+impl DocumentUserImpl {}
+
+fn map_user_error(error: UserError) -> DocError {
+    match ErrorCode::from_i32(error.code) {
+        ErrorCode::InternalError => DocError::internal().context(error.msg),
+        _ => DocError::internal().context(error),
+    }
+}
+
 impl DocumentUser for DocumentUserImpl {
     fn user_dir(&self) -> Result<String, DocError> {
         let dir = self.user.user_dir().map_err(|e| DocError::unauthorized().context(e))?;
@@ -50,19 +60,9 @@ impl DocumentUser for DocumentUserImpl {
         Ok(doc_dir)
     }
 
-    fn user_id(&self) -> Result<String, DocError> {
-        self.user.user_id().map_err(|e| match e.code {
-            ErrorCode::InternalError => DocError::internal().context(e.msg),
-            _ => DocError::internal().context(e),
-        })
-    }
+    fn user_id(&self) -> Result<String, DocError> { self.user.user_id().map_err(map_user_error) }
 
-    fn token(&self) -> Result<String, DocError> {
-        self.user.token().map_err(|e| match e.code {
-            ErrorCode::InternalError => DocError::internal().context(e.msg),
-            _ => DocError::internal().context(e),
-        })
-    }
+    fn token(&self) -> Result<String, DocError> { self.user.token().map_err(map_user_error) }
 }
 
 struct WsSenderImpl {

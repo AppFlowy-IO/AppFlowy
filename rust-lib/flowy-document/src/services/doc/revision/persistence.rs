@@ -8,7 +8,7 @@ use async_stream::stream;
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_infra::future::ResultFuture;
-use flowy_ot::core::{Delta, Operation, OperationTransformable};
+use flowy_ot::core::{Delta, OperationTransformable};
 use futures::stream::StreamExt;
 use std::{collections::VecDeque, sync::Arc, time::Duration};
 use tokio::{

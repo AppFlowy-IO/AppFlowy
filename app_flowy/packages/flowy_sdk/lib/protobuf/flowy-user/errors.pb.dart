@@ -9,20 +9,16 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-import 'errors.pbenum.dart';
-
-export 'errors.pbenum.dart';
-
 class UserError extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UserError', createEmptyInstance: create)
-    ..e<ErrorCode>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'code', $pb.PbFieldType.OE, defaultOrMaker: ErrorCode.EmailIsEmpty, valueOf: ErrorCode.valueOf, enumValues: ErrorCode.values)
+    ..a<$core.int>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'code', $pb.PbFieldType.O3)
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'msg')
     ..hasRequiredFields = false
   ;
 
   UserError._() : super();
   factory UserError({
-    ErrorCode? code,
+    $core.int? code,
     $core.String? msg,
   }) {
     final _result = create();
@@ -56,9 +52,9 @@ class UserError extends $pb.GeneratedMessage {
   static UserError? _defaultInstance;
 
   @$pb.TagNumber(1)
-  ErrorCode get code => $_getN(0);
+  $core.int get code => $_getIZ(0);
   @$pb.TagNumber(1)
-  set code(ErrorCode v) { setField(1, v); }
+  set code($core.int v) { $_setSignedInt32(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasCode() => $_has(0);
   @$pb.TagNumber(1)

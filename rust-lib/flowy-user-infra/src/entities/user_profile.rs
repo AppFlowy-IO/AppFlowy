@@ -1,4 +1,10 @@
 use flowy_derive::ProtoBuf;
+use std::convert::TryInto;
+
+use crate::{
+    errors::ErrorCode,
+    parser::{UserEmail, UserId, UserName, UserPassword},
+};
 
 #[derive(Default, ProtoBuf)]
 pub struct UserToken {
@@ -19,24 +25,6 @@ pub struct UserProfile {
 
     #[pb(index = 4)]
     pub token: String,
-}
-
-use crate::{
-    entities::parser::{UserEmail, UserId, UserName, UserPassword},
-    errors::UserError,
-    sql_tables::UserTable,
-};
-use std::convert::TryInto;
-
-impl std::convert::From<UserTable> for UserProfile {
-    fn from(user: UserTable) -> Self {
-        UserProfile {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            token: user.token,
-        }
-    }
 }
 
 #[derive(ProtoBuf, Default)]
@@ -119,24 +107,24 @@ impl UpdateUserParams {
 }
 
 impl TryInto<UpdateUserParams> for UpdateUserRequest {
-    type Error = UserError;
+    type Error = ErrorCode;
 
     fn try_into(self) -> Result<UpdateUserParams, Self::Error> {
-        let id = UserId::parse(self.id).map_err(|e| UserError::user_id().context(e))?.0;
+        let id = UserId::parse(self.id)?.0;
 
         let name = match self.name {
             None => None,
-            Some(name) => Some(UserName::parse(name).map_err(|e| UserError::code(e))?.0),
+            Some(name) => Some(UserName::parse(name)?.0),
         };
 
         let email = match self.email {
             None => None,
-            Some(email) => Some(UserEmail::parse(email).map_err(|e| UserError::code(e))?.0),
+            Some(email) => Some(UserEmail::parse(email)?.0),
         };
 
         let password = match self.password {
             None => None,
-            Some(password) => Some(UserPassword::parse(password).map_err(|e| UserError::code(e))?.0),
+            Some(password) => Some(UserPassword::parse(password)?.0),
         };
 
         Ok(UpdateUserParams {

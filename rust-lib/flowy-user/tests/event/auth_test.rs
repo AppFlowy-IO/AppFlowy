@@ -20,7 +20,7 @@ async fn sign_up_with_invalid_email() {
                 .await
                 .error()
                 .code,
-            ErrorCode::EmailFormatInvalid
+            ErrorCode::EmailFormatInvalid.value()
         );
     }
 }
@@ -52,6 +52,7 @@ async fn sign_in_success() {
     let request = SignInRequest {
         email: sign_up_context.user_profile.email.clone(),
         password: sign_up_context.password.clone(),
+        name: "".to_string(),
     };
 
     let response = UserTest::new(test.sdk())
@@ -70,6 +71,7 @@ async fn sign_in_with_invalid_email() {
         let request = SignInRequest {
             email: email.to_string(),
             password: login_password(),
+            name: "".to_string(),
         };
 
         assert_eq!(
@@ -80,7 +82,7 @@ async fn sign_in_with_invalid_email() {
                 .await
                 .error()
                 .code,
-            ErrorCode::EmailFormatInvalid
+            ErrorCode::EmailFormatInvalid.value()
         );
     }
 }
@@ -93,6 +95,7 @@ async fn sign_in_with_invalid_password() {
         let request = SignInRequest {
             email: random_email(),
             password,
+            name: "".to_string(),
         };
 
         UserTest::new(test.sdk)

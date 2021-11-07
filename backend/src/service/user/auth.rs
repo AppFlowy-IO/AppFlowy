@@ -6,8 +6,8 @@ use flowy_net::{
     errors::{invalid_params, ErrorCode, ServerError},
     response::FlowyResponse,
 };
-use flowy_user::{
-    entities::parser::{UserEmail, UserName, UserPassword},
+use flowy_user_infra::{
+    parser::{UserEmail, UserName, UserPassword},
     protobuf::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile},
 };
 
