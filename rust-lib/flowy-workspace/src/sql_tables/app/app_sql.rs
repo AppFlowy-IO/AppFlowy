@@ -41,6 +41,7 @@ impl AppTableSql {
         let app_table = dsl::app_table
             .filter(app_table::workspace_id.eq(workspace_id))
             .filter(app_table::is_trash.eq(is_trash))
+            .order(app_table::create_time.asc())
             .load::<AppTable>(conn)?;
 
         Ok(app_table)

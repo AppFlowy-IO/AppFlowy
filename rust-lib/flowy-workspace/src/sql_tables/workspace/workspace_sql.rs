@@ -32,15 +32,16 @@ impl WorkspaceTableSql {
         user_id: &str,
         conn: &SqliteConnection,
     ) -> Result<Vec<WorkspaceTable>, WorkspaceError> {
-        let workspaces = match workspace_id {
-            None => dsl::workspace_table
-                .filter(workspace_table::user_id.eq(user_id))
-                .load::<WorkspaceTable>(conn)?,
-            Some(workspace_id) => dsl::workspace_table
-                .filter(workspace_table::user_id.eq(user_id))
-                .filter(workspace_table::id.eq(&workspace_id))
-                .load::<WorkspaceTable>(conn)?,
+        let mut filter = dsl::workspace_table
+            .filter(workspace_table::user_id.eq(user_id))
+            .order(workspace_table::create_time.asc())
+            .into_boxed();
+
+        if let Some(workspace_id) = workspace_id {
+            filter = filter.filter(workspace_table::id.eq(workspace_id.to_owned()));
         };
+
+        let workspaces = filter.load::<WorkspaceTable>(conn)?;
 
         Ok(workspaces)
     }

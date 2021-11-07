@@ -141,7 +141,7 @@ impl WorkspaceController {
         Ok(workspaces)
     }
 
-    pub(crate) async fn read_cur_workspace(&self) -> Result<Workspace, WorkspaceError> {
+    pub(crate) async fn read_current_workspace(&self) -> Result<Workspace, WorkspaceError> {
         let workspace_id = get_current_workspace()?;
         let user_id = self.user.user_id()?;
         let params = QueryWorkspaceParams {
@@ -153,7 +153,7 @@ impl WorkspaceController {
         Ok(workspace)
     }
 
-    pub(crate) async fn read_workspace_apps(&self) -> Result<RepeatedApp, WorkspaceError> {
+    pub(crate) async fn read_current_workspace_apps(&self) -> Result<RepeatedApp, WorkspaceError> {
         let workspace_id = get_current_workspace()?;
         let conn = self.database.db_connection()?;
         let repeated_app = self.read_local_apps(&workspace_id, &*conn)?;

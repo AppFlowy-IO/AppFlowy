@@ -41,6 +41,7 @@ impl ViewTableSql {
     pub(crate) fn read_views(belong_to_id: &str, conn: &SqliteConnection) -> Result<Vec<ViewTable>, WorkspaceError> {
         let view_tables = dsl::view_table
             .filter(view_table::belong_to_id.eq(belong_to_id))
+            .order(view_table::create_time.asc())
             .into_boxed()
             .load::<ViewTable>(conn)?;
 
