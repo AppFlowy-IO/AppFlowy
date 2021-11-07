@@ -1,5 +1,5 @@
 use chrono::Utc;
-use flowy_workspace::backend_service::{App, RepeatedView, Trash, TrashType, View, ViewType};
+use flowy_workspace_infra::protobuf::{App, RepeatedView, Trash, TrashType, View, ViewType};
 use protobuf::ProtobufEnum;
 
 pub(crate) const WORKSPACE_TABLE: &'static str = "workspace_table";

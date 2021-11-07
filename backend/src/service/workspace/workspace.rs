@@ -6,8 +6,8 @@ use crate::{
 };
 use anyhow::Context;
 use flowy_net::errors::{invalid_params, ServerError};
-use flowy_workspace::{
-    entities::workspace::parser::WorkspaceId,
+use flowy_workspace_infra::{
+    parser::workspace::WorkspaceId,
     protobuf::{RepeatedApp, RepeatedWorkspace, Workspace},
 };
 use sqlx::{postgres::PgArguments, Postgres};

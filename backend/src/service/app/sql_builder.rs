@@ -4,8 +4,8 @@ use crate::{
 };
 use chrono::Utc;
 use flowy_net::errors::{invalid_params, ServerError};
-use flowy_workspace::{
-    entities::app::parser::AppId,
+use flowy_workspace_infra::{
+    parser::app::AppId,
     protobuf::{App, ColorStyle},
 };
 use protobuf::Message;
@@ -54,9 +54,7 @@ impl NewAppSqlBuilder {
     }
 
     pub fn color_style(mut self, color_style: ColorStyle) -> Self {
-        self.table.color_style = color_style
-            .write_to_bytes()
-            .unwrap_or(default_color_style());
+        self.table.color_style = color_style.write_to_bytes().unwrap_or(default_color_style());
         self
     }
 

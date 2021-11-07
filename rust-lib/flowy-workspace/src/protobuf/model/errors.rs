@@ -26,7 +26,7 @@
 #[derive(PartialEq,Clone,Default)]
 pub struct WorkspaceError {
     // message fields
-    pub code: ErrorCode,
+    pub code: i32,
     pub msg: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -44,18 +44,18 @@ impl WorkspaceError {
         ::std::default::Default::default()
     }
 
-    // .ErrorCode code = 1;
+    // int32 code = 1;
 
 
-    pub fn get_code(&self) -> ErrorCode {
+    pub fn get_code(&self) -> i32 {
         self.code
     }
     pub fn clear_code(&mut self) {
-        self.code = ErrorCode::WorkspaceNameInvalid;
+        self.code = 0;
     }
 
     // Param is passed by value, moved
-    pub fn set_code(&mut self, v: ErrorCode) {
+    pub fn set_code(&mut self, v: i32) {
         self.code = v;
     }
 
@@ -96,7 +96,11 @@ impl ::protobuf::Message for WorkspaceError {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.code, 1, &mut self.unknown_fields)?
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_int32()?;
+                    self.code = tmp;
                 },
                 2 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.msg)?;
@@ -113,8 +117,8 @@ impl ::protobuf::Message for WorkspaceError {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if self.code != ErrorCode::WorkspaceNameInvalid {
-            my_size += ::protobuf::rt::enum_size(1, self.code);
+        if self.code != 0 {
+            my_size += ::protobuf::rt::value_size(1, self.code, ::protobuf::wire_format::WireTypeVarint);
         }
         if !self.msg.is_empty() {
             my_size += ::protobuf::rt::string_size(2, &self.msg);
@@ -125,8 +129,8 @@ impl ::protobuf::Message for WorkspaceError {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if self.code != ErrorCode::WorkspaceNameInvalid {
-            os.write_enum(1, ::protobuf::ProtobufEnum::value(&self.code))?;
+        if self.code != 0 {
+            os.write_int32(1, self.code)?;
         }
         if !self.msg.is_empty() {
             os.write_string(2, &self.msg)?;
@@ -169,7 +173,7 @@ impl ::protobuf::Message for WorkspaceError {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<ErrorCode>>(
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt32>(
                 "code",
                 |m: &WorkspaceError| { &m.code },
                 |m: &mut WorkspaceError| { &mut m.code },
@@ -195,7 +199,7 @@ impl ::protobuf::Message for WorkspaceError {
 
 impl ::protobuf::Clear for WorkspaceError {
     fn clear(&mut self) {
-        self.code = ErrorCode::WorkspaceNameInvalid;
+        self.code = 0;
         self.msg.clear();
         self.unknown_fields.clear();
     }
@@ -213,146 +217,17 @@ impl ::protobuf::reflect::ProtobufValue for WorkspaceError {
     }
 }
 
-#[derive(Clone,PartialEq,Eq,Debug,Hash)]
-pub enum ErrorCode {
-    WorkspaceNameInvalid = 0,
-    WorkspaceIdInvalid = 1,
-    AppColorStyleInvalid = 2,
-    WorkspaceDescInvalid = 3,
-    AppIdInvalid = 10,
-    AppNameInvalid = 11,
-    ViewNameInvalid = 20,
-    ViewThumbnailInvalid = 21,
-    ViewIdInvalid = 22,
-    ViewDescInvalid = 23,
-    ViewDataInvalid = 24,
-    UserUnauthorized = 100,
-    WsConnectError = 200,
-    InternalError = 1000,
-    RecordNotFound = 1001,
-}
-
-impl ::protobuf::ProtobufEnum for ErrorCode {
-    fn value(&self) -> i32 {
-        *self as i32
-    }
-
-    fn from_i32(value: i32) -> ::std::option::Option<ErrorCode> {
-        match value {
-            0 => ::std::option::Option::Some(ErrorCode::WorkspaceNameInvalid),
-            1 => ::std::option::Option::Some(ErrorCode::WorkspaceIdInvalid),
-            2 => ::std::option::Option::Some(ErrorCode::AppColorStyleInvalid),
-            3 => ::std::option::Option::Some(ErrorCode::WorkspaceDescInvalid),
-            10 => ::std::option::Option::Some(ErrorCode::AppIdInvalid),
-            11 => ::std::option::Option::Some(ErrorCode::AppNameInvalid),
-            20 => ::std::option::Option::Some(ErrorCode::ViewNameInvalid),
-            21 => ::std::option::Option::Some(ErrorCode::ViewThumbnailInvalid),
-            22 => ::std::option::Option::Some(ErrorCode::ViewIdInvalid),
-            23 => ::std::option::Option::Some(ErrorCode::ViewDescInvalid),
-            24 => ::std::option::Option::Some(ErrorCode::ViewDataInvalid),
-            100 => ::std::option::Option::Some(ErrorCode::UserUnauthorized),
-            200 => ::std::option::Option::Some(ErrorCode::WsConnectError),
-            1000 => ::std::option::Option::Some(ErrorCode::InternalError),
-            1001 => ::std::option::Option::Some(ErrorCode::RecordNotFound),
-            _ => ::std::option::Option::None
-        }
-    }
-
-    fn values() -> &'static [Self] {
-        static values: &'static [ErrorCode] = &[
-            ErrorCode::WorkspaceNameInvalid,
-            ErrorCode::WorkspaceIdInvalid,
-            ErrorCode::AppColorStyleInvalid,
-            ErrorCode::WorkspaceDescInvalid,
-            ErrorCode::AppIdInvalid,
-            ErrorCode::AppNameInvalid,
-            ErrorCode::ViewNameInvalid,
-            ErrorCode::ViewThumbnailInvalid,
-            ErrorCode::ViewIdInvalid,
-            ErrorCode::ViewDescInvalid,
-            ErrorCode::ViewDataInvalid,
-            ErrorCode::UserUnauthorized,
-            ErrorCode::WsConnectError,
-            ErrorCode::InternalError,
-            ErrorCode::RecordNotFound,
-        ];
-        values
-    }
-
-    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
-        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
-        descriptor.get(|| {
-            ::protobuf::reflect::EnumDescriptor::new_pb_name::<ErrorCode>("ErrorCode", file_descriptor_proto())
-        })
-    }
-}
-
-impl ::std::marker::Copy for ErrorCode {
-}
-
-impl ::std::default::Default for ErrorCode {
-    fn default() -> Self {
-        ErrorCode::WorkspaceNameInvalid
-    }
-}
-
-impl ::protobuf::reflect::ProtobufValue for ErrorCode {
-    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
-        ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
-    }
-}
-
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0cerrors.proto\"B\n\x0eWorkspaceError\x12\x1e\n\x04code\x18\x01\x20\
-    \x01(\x0e2\n.ErrorCodeR\x04code\x12\x10\n\x03msg\x18\x02\x20\x01(\tR\x03\
-    msg*\xd7\x02\n\tErrorCode\x12\x18\n\x14WorkspaceNameInvalid\x10\0\x12\
-    \x16\n\x12WorkspaceIdInvalid\x10\x01\x12\x18\n\x14AppColorStyleInvalid\
-    \x10\x02\x12\x18\n\x14WorkspaceDescInvalid\x10\x03\x12\x10\n\x0cAppIdInv\
-    alid\x10\n\x12\x12\n\x0eAppNameInvalid\x10\x0b\x12\x13\n\x0fViewNameInva\
-    lid\x10\x14\x12\x18\n\x14ViewThumbnailInvalid\x10\x15\x12\x11\n\rViewIdI\
-    nvalid\x10\x16\x12\x13\n\x0fViewDescInvalid\x10\x17\x12\x13\n\x0fViewDat\
-    aInvalid\x10\x18\x12\x14\n\x10UserUnauthorized\x10d\x12\x13\n\x0eWsConne\
-    ctError\x10\xc8\x01\x12\x12\n\rInternalError\x10\xe8\x07\x12\x13\n\x0eRe\
-    cordNotFound\x10\xe9\x07J\x97\x06\n\x06\x12\x04\0\0\x16\x01\n\x08\n\x01\
-    \x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\
-    \0\x01\x12\x03\x02\x08\x16\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x17\n\
-    \x0c\n\x05\x04\0\x02\0\x06\x12\x03\x03\x04\r\n\x0c\n\x05\x04\0\x02\0\x01\
-    \x12\x03\x03\x0e\x12\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x15\x16\n\
-    \x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x13\n\x0c\n\x05\x04\0\x02\x01\
-    \x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x0b\x0e\
-    \n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x11\x12\n\n\n\x02\x05\0\x12\
-    \x04\x06\0\x16\x01\n\n\n\x03\x05\0\x01\x12\x03\x06\x05\x0e\n\x0b\n\x04\
-    \x05\0\x02\0\x12\x03\x07\x04\x1d\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\x07\
-    \x04\x18\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x07\x1b\x1c\n\x0b\n\x04\x05\
-    \0\x02\x01\x12\x03\x08\x04\x1b\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\x08\
-    \x04\x16\n\x0c\n\x05\x05\0\x02\x01\x02\x12\x03\x08\x19\x1a\n\x0b\n\x04\
-    \x05\0\x02\x02\x12\x03\t\x04\x1d\n\x0c\n\x05\x05\0\x02\x02\x01\x12\x03\t\
-    \x04\x18\n\x0c\n\x05\x05\0\x02\x02\x02\x12\x03\t\x1b\x1c\n\x0b\n\x04\x05\
-    \0\x02\x03\x12\x03\n\x04\x1d\n\x0c\n\x05\x05\0\x02\x03\x01\x12\x03\n\x04\
-    \x18\n\x0c\n\x05\x05\0\x02\x03\x02\x12\x03\n\x1b\x1c\n\x0b\n\x04\x05\0\
-    \x02\x04\x12\x03\x0b\x04\x16\n\x0c\n\x05\x05\0\x02\x04\x01\x12\x03\x0b\
-    \x04\x10\n\x0c\n\x05\x05\0\x02\x04\x02\x12\x03\x0b\x13\x15\n\x0b\n\x04\
-    \x05\0\x02\x05\x12\x03\x0c\x04\x18\n\x0c\n\x05\x05\0\x02\x05\x01\x12\x03\
-    \x0c\x04\x12\n\x0c\n\x05\x05\0\x02\x05\x02\x12\x03\x0c\x15\x17\n\x0b\n\
-    \x04\x05\0\x02\x06\x12\x03\r\x04\x19\n\x0c\n\x05\x05\0\x02\x06\x01\x12\
-    \x03\r\x04\x13\n\x0c\n\x05\x05\0\x02\x06\x02\x12\x03\r\x16\x18\n\x0b\n\
-    \x04\x05\0\x02\x07\x12\x03\x0e\x04\x1e\n\x0c\n\x05\x05\0\x02\x07\x01\x12\
-    \x03\x0e\x04\x18\n\x0c\n\x05\x05\0\x02\x07\x02\x12\x03\x0e\x1b\x1d\n\x0b\
-    \n\x04\x05\0\x02\x08\x12\x03\x0f\x04\x17\n\x0c\n\x05\x05\0\x02\x08\x01\
-    \x12\x03\x0f\x04\x11\n\x0c\n\x05\x05\0\x02\x08\x02\x12\x03\x0f\x14\x16\n\
-    \x0b\n\x04\x05\0\x02\t\x12\x03\x10\x04\x19\n\x0c\n\x05\x05\0\x02\t\x01\
-    \x12\x03\x10\x04\x13\n\x0c\n\x05\x05\0\x02\t\x02\x12\x03\x10\x16\x18\n\
-    \x0b\n\x04\x05\0\x02\n\x12\x03\x11\x04\x19\n\x0c\n\x05\x05\0\x02\n\x01\
-    \x12\x03\x11\x04\x13\n\x0c\n\x05\x05\0\x02\n\x02\x12\x03\x11\x16\x18\n\
-    \x0b\n\x04\x05\0\x02\x0b\x12\x03\x12\x04\x1b\n\x0c\n\x05\x05\0\x02\x0b\
-    \x01\x12\x03\x12\x04\x14\n\x0c\n\x05\x05\0\x02\x0b\x02\x12\x03\x12\x17\
-    \x1a\n\x0b\n\x04\x05\0\x02\x0c\x12\x03\x13\x04\x19\n\x0c\n\x05\x05\0\x02\
-    \x0c\x01\x12\x03\x13\x04\x12\n\x0c\n\x05\x05\0\x02\x0c\x02\x12\x03\x13\
-    \x15\x18\n\x0b\n\x04\x05\0\x02\r\x12\x03\x14\x04\x19\n\x0c\n\x05\x05\0\
-    \x02\r\x01\x12\x03\x14\x04\x11\n\x0c\n\x05\x05\0\x02\r\x02\x12\x03\x14\
-    \x14\x18\n\x0b\n\x04\x05\0\x02\x0e\x12\x03\x15\x04\x1a\n\x0c\n\x05\x05\0\
-    \x02\x0e\x01\x12\x03\x15\x04\x12\n\x0c\n\x05\x05\0\x02\x0e\x02\x12\x03\
-    \x15\x15\x19b\x06proto3\
+    \n\x0cerrors.proto\"6\n\x0eWorkspaceError\x12\x12\n\x04code\x18\x01\x20\
+    \x01(\x05R\x04code\x12\x10\n\x03msg\x18\x02\x20\x01(\tR\x03msgJ\x98\x01\
+    \n\x06\x12\x04\0\0\x05\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\
+    \0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x16\n\x0b\n\
+    \x04\x04\0\x02\0\x12\x03\x03\x04\x13\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\
+    \x03\x04\t\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\n\x0e\n\x0c\n\x05\x04\
+    \0\x02\0\x03\x12\x03\x03\x11\x12\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\
+    \x04\x13\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\
+    \0\x02\x01\x01\x12\x03\x04\x0b\x0e\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\
+    \x04\x11\x12b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

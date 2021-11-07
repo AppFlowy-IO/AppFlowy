@@ -13,6 +13,7 @@ members = [
   "flowy-database",
   "flowy-infra",
   "flowy-workspace",
+  "flowy-workspace-infra",
   "flowy-dart-notify",
   "flowy-document",
   "flowy-ot",

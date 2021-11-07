@@ -11,10 +11,10 @@ use crate::{
 use chrono::Utc;
 use flowy_document::protobuf::CreateDocParams;
 use flowy_net::errors::{invalid_params, ServerError};
-use flowy_workspace::{
-    entities::{
-        app::parser::AppId,
-        view::parser::{ViewDesc, ViewName, ViewThumbnail},
+use flowy_workspace_infra::{
+    parser::{
+        app::AppId,
+        view::{ViewDesc, ViewName, ViewThumbnail},
     },
     protobuf::{CreateViewParams, RepeatedView, View},
 };

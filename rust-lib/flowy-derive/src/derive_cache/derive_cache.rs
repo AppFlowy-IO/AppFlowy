@@ -15,8 +15,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         "HashMap" => TypeCategory::Map,
         "u8" => TypeCategory::Bytes,
         "String" => TypeCategory::Str,
-        "KeyValue"
-        | "QueryAppRequest"
+        "QueryAppRequest"
         | "AppIdentifier"
         | "CreateAppRequest"
         | "ColorStyle"
@@ -49,6 +48,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "CreateViewParams"
         | "View"
         | "RepeatedView"
+        | "KeyValue"
         | "WorkspaceError"
         | "WsError"
         | "WsMessage"
@@ -80,8 +80,8 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         => TypeCategory::Protobuf,
         "TrashType"
         | "ViewType"
-        | "WorkspaceEvent"
         | "ErrorCode"
+        | "WorkspaceEvent"
         | "WorkspaceNotification"
         | "WsModule"
         | "RevType"

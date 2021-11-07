@@ -4,8 +4,8 @@ use crate::{
 };
 use chrono::Utc;
 use flowy_net::errors::{invalid_params, ServerError};
-use flowy_workspace::{
-    entities::workspace::parser::WorkspaceId,
+use flowy_workspace_infra::{
+    parser::workspace::WorkspaceId,
     protobuf::{RepeatedApp, Workspace},
 };
 use sqlx::postgres::PgArguments;
@@ -58,10 +58,7 @@ impl NewWorkspaceBuilder {
     }
 }
 
-pub(crate) fn make_workspace_from_table(
-    table: WorkspaceTable,
-    apps: Option<RepeatedApp>,
-) -> Workspace {
+pub(crate) fn make_workspace_from_table(table: WorkspaceTable, apps: Option<RepeatedApp>) -> Workspace {
     let mut workspace = Workspace {
         id: table.id.to_string(),
         name: table.name,

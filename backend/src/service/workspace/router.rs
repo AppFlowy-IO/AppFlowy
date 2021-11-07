@@ -18,8 +18,8 @@ use flowy_net::{
     errors::{invalid_params, ServerError},
     response::FlowyResponse,
 };
-use flowy_workspace::{
-    entities::workspace::parser::{WorkspaceDesc, WorkspaceName},
+use flowy_workspace_infra::{
+    parser::workspace::{WorkspaceDesc, WorkspaceName},
     protobuf::{CreateWorkspaceParams, DeleteWorkspaceParams, QueryWorkspaceParams, UpdateWorkspaceParams},
 };
 use sqlx::PgPool;

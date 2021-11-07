@@ -45,7 +45,7 @@ async fn workspace_create_with_invalid_name() {
                 .await
                 .error()
                 .code,
-            ErrorCode::WorkspaceNameInvalid
+            ErrorCode::WorkspaceNameInvalid.value()
         )
     }
 }
@@ -66,7 +66,7 @@ async fn workspace_update_with_invalid_name() {
                 .await
                 .error()
                 .code,
-            ErrorCode::WorkspaceNameInvalid
+            ErrorCode::WorkspaceNameInvalid.value()
         )
     }
 }

@@ -1,8 +1,0 @@
-syntax = "proto3";
-
-message DeleteAppRequest {
-    string app_id = 1;
-}
-message DeleteAppParams {
-    string app_id = 1;
-}

@@ -13,8 +13,8 @@ use flowy_net::{
     errors::{invalid_params, ServerError},
     response::FlowyResponse,
 };
-use flowy_workspace::{
-    entities::view::parser::{ViewDesc, ViewName, ViewThumbnail},
+use flowy_workspace_infra::{
+    parser::view::{ViewDesc, ViewName, ViewThumbnail},
     protobuf::{CreateViewParams, QueryViewRequest, UpdateViewParams, ViewIdentifier},
 };
 use sqlx::PgPool;

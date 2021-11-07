@@ -7,10 +7,10 @@ use crate::{
 use crate::service::trash::read_trash_ids;
 use chrono::Utc;
 use flowy_net::errors::{invalid_params, ServerError};
-use flowy_workspace::{
-    entities::{
-        app::parser::{AppDesc, AppName},
-        workspace::parser::WorkspaceId,
+use flowy_workspace_infra::{
+    parser::{
+        app::{AppDesc, AppName},
+        workspace::WorkspaceId,
     },
     protobuf::{App, CreateAppParams, RepeatedView},
 };

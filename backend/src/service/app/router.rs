@@ -3,13 +3,13 @@ use actix_web::{
     HttpResponse,
 };
 use flowy_net::errors::{invalid_params, ServerError};
-use flowy_workspace::backend_service::{AppIdentifier, CreateAppParams, DeleteAppParams, UpdateAppParams};
+use flowy_workspace_infra::protobuf::{AppIdentifier, CreateAppParams, UpdateAppParams};
 use protobuf::Message;
 use sqlx::PgPool;
 
 use crate::service::{
     app::{
-        app::{create_app, delete_app, read_app, update_app},
+        app::{create_app, read_app, update_app},
         sql_builder::check_app_id,
     },
     user::LoggedUser,
@@ -17,7 +17,7 @@ use crate::service::{
 };
 use anyhow::Context;
 use flowy_net::response::FlowyResponse;
-use flowy_workspace::entities::app::parser::{AppDesc, AppName};
+use flowy_workspace_infra::parser::app::{AppDesc, AppName};
 
 pub async fn create_handler(
     payload: Payload,
@@ -92,20 +92,20 @@ pub async fn update_handler(payload: Payload, pool: Data<PgPool>) -> Result<Http
     Ok(FlowyResponse::success().into())
 }
 
-pub async fn delete_handler(payload: Payload, pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {
-    let params: DeleteAppParams = parse_from_payload(payload).await?;
-    let app_id = check_app_id(params.app_id.to_owned())?;
-    let mut transaction = pool
-        .begin()
-        .await
-        .context("Failed to acquire a Postgres connection to delete app")?;
-
-    let _ = delete_app(&mut transaction, app_id).await?;
-
-    transaction
-        .commit()
-        .await
-        .context("Failed to commit SQL transaction to delete app.")?;
-
-    Ok(FlowyResponse::success().into())
-}
+// pub async fn delete_handler(payload: Payload, pool: Data<PgPool>) ->
+// Result<HttpResponse, ServerError> {     let params: DeleteAppParams =
+// parse_from_payload(payload).await?;     let app_id =
+// check_app_id(params.app_id.to_owned())?;     let mut transaction = pool
+//         .begin()
+//         .await
+//         .context("Failed to acquire a Postgres connection to delete app")?;
+//
+//     let _ = delete_app(&mut transaction, app_id).await?;
+//
+//     transaction
+//         .commit()
+//         .await
+//         .context("Failed to commit SQL transaction to delete app.")?;
+//
+//     Ok(FlowyResponse::success().into())
+// }

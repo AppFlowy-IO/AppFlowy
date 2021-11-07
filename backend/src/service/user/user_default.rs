@@ -9,7 +9,7 @@ use crate::{
 
 use flowy_document::services::doc::doc_initial_string;
 use flowy_net::errors::ServerError;
-use flowy_workspace::backend_service::{App, CreateViewParams, View, ViewType, Workspace};
+use flowy_workspace_infra::protobuf::{App, CreateViewParams, View, ViewType, Workspace};
 
 pub async fn create_default_workspace(
     transaction: &mut DBTransaction<'_>,

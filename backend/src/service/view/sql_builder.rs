@@ -4,8 +4,8 @@ use crate::{
 };
 use chrono::Utc;
 use flowy_net::errors::{invalid_params, ServerError};
-use flowy_workspace::{
-    entities::view::parser::ViewId,
+use flowy_workspace_infra::{
+    parser::view::ViewId,
     protobuf::{View, ViewType},
 };
 use protobuf::ProtobufEnum;
