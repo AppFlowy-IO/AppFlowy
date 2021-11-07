@@ -1,16 +1,18 @@
+use std::convert::TryInto;
+
+use diesel::sql_types::Binary;
+use serde::{Deserialize, Serialize, __private::TryFrom};
+
+use flowy_database::schema::app_table;
+
 use crate::{
     entities::{
         app::{App, ColorStyle, UpdateAppParams},
+        trash::{Trash, TrashType},
         view::RepeatedView,
     },
-    sql_tables::workspace::WorkspaceTable,
+    services::sql_tables::workspace::WorkspaceTable,
 };
-use diesel::sql_types::Binary;
-use flowy_database::schema::app_table;
-
-use crate::entities::trash::{Trash, TrashType};
-use serde::{Deserialize, Serialize, __private::TryFrom};
-use std::convert::TryInto;
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
 #[belongs_to(WorkspaceTable, foreign_key = "workspace_id")]

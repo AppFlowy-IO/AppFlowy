@@ -1,11 +1,12 @@
-use crate::{
-    errors::WorkspaceError,
-    sql_tables::app::{AppTable, AppTableChangeset},
-};
 use flowy_database::{
     prelude::*,
     schema::{app_table, app_table::dsl},
     SqliteConnection,
+};
+
+use crate::{
+    errors::WorkspaceError,
+    services::sql_tables::app::{AppTable, AppTableChangeset},
 };
 
 pub struct AppTableSql {}

@@ -1,16 +1,21 @@
+use std::{fmt::Formatter, sync::Arc};
+
+use crossbeam_utils::thread;
+use tokio::sync::{broadcast, mpsc};
+
+use flowy_database::SqliteConnection;
+
 use crate::{
     entities::trash::{RepeatedTrash, Trash, TrashIdentifier, TrashIdentifiers, TrashType},
     errors::{WorkspaceError, WorkspaceResult},
     module::{WorkspaceDatabase, WorkspaceUser},
-    notify::{send_anonymous_dart_notification, WorkspaceNotification},
-    services::{helper::spawn, server::Server},
-    sql_tables::trash::TrashTableSql,
+    services::{
+        helper::spawn,
+        notify::{send_anonymous_dart_notification, WorkspaceNotification},
+        server::Server,
+        sql_tables::trash::TrashTableSql,
+    },
 };
-use crossbeam_utils::thread;
-use flowy_database::SqliteConnection;
-
-use std::{fmt::Formatter, sync::Arc};
-use tokio::sync::{broadcast, mpsc};
 
 pub struct TrashCan {
     pub database: Arc<dyn WorkspaceDatabase>,

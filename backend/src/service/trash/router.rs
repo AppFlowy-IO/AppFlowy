@@ -13,10 +13,7 @@ use flowy_net::{
     errors::{invalid_params, ServerError},
     response::FlowyResponse,
 };
-use flowy_workspace::{
-    entities::trash::parser::{TrashId, TrashTypeParser},
-    protobuf::TrashIdentifiers,
-};
+use flowy_workspace::{backend_service::TrashType, entities::trash::parser::TrashId, protobuf::TrashIdentifiers};
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -95,8 +92,11 @@ fn check_trash_id(id: String) -> Result<Uuid, ServerError> {
 fn make_records(identifiers: TrashIdentifiers) -> Result<Vec<(Uuid, i32)>, ServerError> {
     let mut records = vec![];
     for identifier in identifiers.items {
-        let ty = TrashTypeParser::parse(identifier.ty.value()).map_err(invalid_params)?;
-        records.push((check_trash_id(identifier.id.to_owned())?, ty));
+        // match TrashType::from_i32(identifier.ty.value()) {
+        //     None => {}
+        //     Some(ty) => {}
+        // }
+        records.push((check_trash_id(identifier.id.to_owned())?, identifier.ty.value()));
     }
     Ok(records)
 }

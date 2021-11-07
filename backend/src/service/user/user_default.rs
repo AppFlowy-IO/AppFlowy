@@ -9,7 +9,7 @@ use crate::{
 
 use flowy_document::services::doc::doc_initial_string;
 use flowy_net::errors::ServerError;
-use flowy_workspace::protobuf::{App, CreateViewParams, View, ViewType, Workspace};
+use flowy_workspace::backend_service::{App, CreateViewParams, View, ViewType, Workspace};
 
 pub async fn create_default_workspace(
     transaction: &mut DBTransaction<'_>,
@@ -42,8 +42,8 @@ async fn create_app(
     workspace: &Workspace,
 ) -> Result<App, ServerError> {
     let (sql, args, app) = AppBuilder::new(user_id, &workspace.id)
-        .name("DefaultApp")
-        .desc("App created by AppFlowy")
+        .name("Getting Started")
+        .desc("")
         .build()?;
 
     let _ = sqlx::query_with(&sql, args)
@@ -57,9 +57,9 @@ async fn create_app(
 async fn create_default_view(transaction: &mut DBTransaction<'_>, app: &App) -> Result<View, ServerError> {
     let params = CreateViewParams {
         belong_to_id: app.id.clone(),
-        name: "DefaultView".to_string(),
-        desc: "View created by AppFlowy".to_string(),
-        thumbnail: "123.png".to_string(),
+        name: "Read Me".to_string(),
+        desc: "".to_string(),
+        thumbnail: "".to_string(),
         view_type: ViewType::Doc,
         data: doc_initial_string(),
         unknown_fields: Default::default(),

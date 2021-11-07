@@ -1,3 +1,9 @@
+use std::{collections::HashSet, sync::Arc};
+
+use futures::{FutureExt, StreamExt};
+
+use flowy_database::SqliteConnection;
+
 use crate::{
     entities::{
         app::{App, CreateAppParams, *},
@@ -5,13 +11,15 @@ use crate::{
     },
     errors::*,
     module::{WorkspaceDatabase, WorkspaceUser},
-    notify::*,
-    services::{helper::spawn, server::Server, TrashCan, TrashEvent},
-    sql_tables::app::{AppTable, AppTableChangeset, AppTableSql},
+    services::{
+        helper::spawn,
+        notify::*,
+        server::Server,
+        sql_tables::app::{AppTable, AppTableChangeset, AppTableSql},
+        TrashCan,
+        TrashEvent,
+    },
 };
-use flowy_database::SqliteConnection;
-use futures::{FutureExt, StreamExt};
-use std::{collections::HashSet, sync::Arc};
 
 pub(crate) struct AppController {
     user: Arc<dyn WorkspaceUser>,

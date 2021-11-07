@@ -6,7 +6,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-dispatch = { path = "../flowy-dispatch", features = ["use_tracing"]}
+flowy-dispatch = { path = "../flowy-dispatch"}
 flowy-log = { path = "../flowy-log" }
 flowy-user = { path = "../flowy-user" }
 flowy-infra = { path = "../flowy-infra" }

@@ -1,14 +1,13 @@
-use crate::{
-    entities::trash::RepeatedTrash,
-    errors::WorkspaceError,
-    sql_tables::trash::{TrashTable, TrashTableChangeset},
-};
-
-use crate::entities::trash::Trash;
 use flowy_database::{
     prelude::*,
     schema::{trash_table, trash_table::dsl},
     SqliteConnection,
+};
+
+use crate::{
+    entities::trash::{RepeatedTrash, Trash},
+    errors::WorkspaceError,
+    services::sql_tables::trash::{TrashTable, TrashTableChangeset},
 };
 
 pub struct TrashTableSql {}

@@ -1,13 +1,15 @@
+use diesel::sql_types::Integer;
+
+use flowy_database::schema::view_table;
+use flowy_infra::timestamp;
+
 use crate::{
     entities::{
         trash::{Trash, TrashType},
         view::{RepeatedView, UpdateViewParams, View, ViewType},
     },
-    sql_tables::app::AppTable,
+    services::sql_tables::app::AppTable,
 };
-use diesel::sql_types::Integer;
-use flowy_database::schema::view_table;
-use flowy_infra::timestamp;
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
 #[belongs_to(AppTable, foreign_key = "belong_to_id")]

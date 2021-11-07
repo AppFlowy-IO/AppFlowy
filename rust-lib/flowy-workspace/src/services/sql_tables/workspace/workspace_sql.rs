@@ -1,11 +1,13 @@
-use crate::{
-    errors::WorkspaceError,
-    sql_tables::workspace::{WorkspaceTable, WorkspaceTableChangeset},
-};
 use diesel::SqliteConnection;
+
 use flowy_database::{
     prelude::*,
     schema::{workspace_table, workspace_table::dsl},
+};
+
+use crate::{
+    errors::WorkspaceError,
+    services::sql_tables::workspace::{WorkspaceTable, WorkspaceTableChangeset},
 };
 
 pub(crate) struct WorkspaceTableSql {}

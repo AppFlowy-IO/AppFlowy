@@ -1,14 +1,17 @@
-use lazy_static::lazy_static;
 use std::sync::Arc;
-lazy_static! {
-    pub(crate) static ref MIDDLEWARE: Arc<WorkspaceMiddleware> = Arc::new(WorkspaceMiddleware {});
-}
+
+use lazy_static::lazy_static;
+
+use flowy_net::{request::ResponseMiddleware, response::FlowyResponse};
 
 use crate::{
     errors::{ErrorCode, WorkspaceError},
-    notify::*,
+    services::notify::*,
 };
-use flowy_net::{request::ResponseMiddleware, response::FlowyResponse};
+
+lazy_static! {
+    pub(crate) static ref MIDDLEWARE: Arc<WorkspaceMiddleware> = Arc::new(WorkspaceMiddleware {});
+}
 
 pub(crate) struct WorkspaceMiddleware {}
 impl ResponseMiddleware for WorkspaceMiddleware {

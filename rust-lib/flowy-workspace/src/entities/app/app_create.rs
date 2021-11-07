@@ -55,15 +55,23 @@ impl TryInto<CreateAppParams> for CreateAppRequest {
 
         let id = WorkspaceId::parse(self.workspace_id).map_err(|e| WorkspaceError::workspace_id().context(e))?;
 
-        let color_style =
-            AppColorStyle::parse(self.color_style).map_err(|e| WorkspaceError::color_style().context(e))?;
+        let color_style = AppColorStyle::parse(self.color_style.theme_color.clone())
+            .map_err(|e| WorkspaceError::color_style().context(e))?;
 
         Ok(CreateAppParams {
             workspace_id: id.0,
             name: name.0,
             desc: self.desc,
-            color_style: color_style.0,
+            color_style: color_style.into(),
         })
+    }
+}
+
+impl std::convert::From<AppColorStyle> for ColorStyle {
+    fn from(data: AppColorStyle) -> Self {
+        ColorStyle {
+            theme_color: data.theme_color,
+        }
     }
 }
 

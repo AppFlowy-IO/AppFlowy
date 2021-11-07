@@ -1,30 +1,29 @@
-use crate::{
-    entities::view::{CreateViewParams, UpdateViewParams, View},
-    errors::WorkspaceError,
-    module::WorkspaceDatabase,
-    notify::send_dart_notification,
-    services::{helper::spawn, server::Server},
-    sql_tables::view::{ViewTable, ViewTableChangeset, ViewTableSql},
-};
+use std::{collections::HashSet, sync::Arc};
 
-use crate::{
-    entities::view::{RepeatedView, ViewIdentifier},
-    errors::internal_error,
-    module::WorkspaceUser,
-    notify::WorkspaceNotification,
-    services::{TrashCan, TrashEvent},
-};
+use futures::{FutureExt, StreamExt};
+
 use flowy_database::SqliteConnection;
 use flowy_document::{
     entities::doc::{DocDelta, DocIdentifier},
     module::FlowyDocument,
 };
 
-use crate::{entities::trash::TrashType, errors::WorkspaceResult};
-
-use crate::entities::trash::TrashIdentifiers;
-use futures::{FutureExt, StreamExt};
-use std::{collections::HashSet, sync::Arc};
+use crate::{
+    entities::{
+        trash::{TrashIdentifiers, TrashType},
+        view::{CreateViewParams, RepeatedView, UpdateViewParams, View, ViewIdentifier},
+    },
+    errors::{internal_error, WorkspaceError, WorkspaceResult},
+    module::{WorkspaceDatabase, WorkspaceUser},
+    services::{
+        helper::spawn,
+        notify::{send_dart_notification, WorkspaceNotification},
+        server::Server,
+        sql_tables::view::{ViewTable, ViewTableChangeset, ViewTableSql},
+        TrashCan,
+        TrashEvent,
+    },
+};
 
 pub(crate) struct ViewController {
     user: Arc<dyn WorkspaceUser>,

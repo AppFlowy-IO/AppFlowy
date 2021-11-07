@@ -3,7 +3,7 @@ use actix_web::{
     HttpResponse,
 };
 use flowy_net::errors::{invalid_params, ServerError};
-use flowy_workspace::protobuf::{AppIdentifier, CreateAppParams, DeleteAppParams, UpdateAppParams};
+use flowy_workspace::backend_service::{AppIdentifier, CreateAppParams, DeleteAppParams, UpdateAppParams};
 use protobuf::Message;
 use sqlx::PgPool;
 

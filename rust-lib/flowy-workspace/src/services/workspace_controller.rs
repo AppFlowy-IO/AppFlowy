@@ -1,14 +1,23 @@
+use std::sync::Arc;
+
+use flowy_database::SqliteConnection;
+use flowy_infra::kv::KV;
+
 use crate::{
     entities::{app::RepeatedApp, workspace::*},
     errors::*,
     module::{WorkspaceDatabase, WorkspaceUser},
-    notify::*,
-    services::{helper::spawn, read_local_workspace_apps, server::Server, AppController, TrashCan, ViewController},
-    sql_tables::workspace::{WorkspaceTable, WorkspaceTableChangeset, WorkspaceTableSql},
+    services::{
+        helper::spawn,
+        notify::*,
+        read_local_workspace_apps,
+        server::Server,
+        sql_tables::workspace::{WorkspaceTable, WorkspaceTableChangeset, WorkspaceTableSql},
+        AppController,
+        TrashCan,
+        ViewController,
+    },
 };
-use flowy_database::SqliteConnection;
-use flowy_infra::kv::KV;
-use std::sync::Arc;
 
 pub struct WorkspaceController {
     pub user: Arc<dyn WorkspaceUser>,

@@ -1,11 +1,12 @@
-use crate::{
-    errors::WorkspaceError,
-    sql_tables::view::{ViewTable, ViewTableChangeset},
-};
 use flowy_database::{
     prelude::*,
     schema::{view_table, view_table::dsl},
     SqliteConnection,
+};
+
+use crate::{
+    errors::WorkspaceError,
+    services::sql_tables::view::{ViewTable, ViewTableChangeset},
 };
 
 pub struct ViewTableSql {}
