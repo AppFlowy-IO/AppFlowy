@@ -3,6 +3,7 @@ import 'package:app_flowy/user/domain/auth_state.dart';
 import 'package:app_flowy/user/domain/i_auth.dart';
 import 'package:app_flowy/user/domain/i_splash.dart';
 import 'package:app_flowy/user/presentation/sign_in_screen.dart';
+import 'package:app_flowy/user/presentation/skip_log_in_screen.dart';
 import 'package:app_flowy/user/presentation/welcome_screen.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
 import 'package:app_flowy/workspace/presentation/home/home_screen.dart';
@@ -46,12 +47,10 @@ class SplashRoute implements ISplashRoute {
   }
 
   @override
-  void pushHomeScreen(
-      BuildContext context, UserProfile userProfile, String workspaceId) {
+  void pushHomeScreen(BuildContext context, UserProfile userProfile, String workspaceId) {
     Navigator.push(
       context,
-      PageRoutes.fade(() => HomeScreen(userProfile, workspaceId),
-          RouteDurations.slow.inMilliseconds * .001),
+      PageRoutes.fade(() => HomeScreen(userProfile, workspaceId), RouteDurations.slow.inMilliseconds * .001),
     );
   }
 
@@ -59,8 +58,7 @@ class SplashRoute implements ISplashRoute {
   void pushSignInScreen(BuildContext context) {
     Navigator.push(
       context,
-      PageRoutes.fade(() => SignInScreen(router: getIt<IAuthRouter>()),
-          RouteDurations.slow.inMilliseconds * .001),
+      PageRoutes.fade(() => SkipLogInScreen(router: getIt<IAuthRouter>()), RouteDurations.slow.inMilliseconds * .001),
     );
   }
 }

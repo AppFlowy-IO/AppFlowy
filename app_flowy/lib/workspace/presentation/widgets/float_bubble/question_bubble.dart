@@ -34,11 +34,11 @@ class QuestionBubble extends StatelessWidget {
               switch (action) {
                 case QuestionBubbleAction.whatsNews:
                   // TODO: annie replace the URL with real ones
-                  _launchURL("https://www.google.com");
+                  _launchURL("https://www.appflowy.io/whatsnew");
                   break;
                 case QuestionBubbleAction.help:
                   // TODO: annie replace the URL with real ones
-                  _launchURL("https://www.google.com");
+                  _launchURL("https://discord.gg/9Q2xaN37tV");
                   break;
               }
             });
@@ -165,7 +165,7 @@ extension QuestionBubbleExtension on QuestionBubbleAction {
   String get name {
     switch (this) {
       case QuestionBubbleAction.whatsNews:
-        return "What's new";
+        return "What's new?";
       case QuestionBubbleAction.help:
         return "Help & Support";
     }
@@ -174,9 +174,9 @@ extension QuestionBubbleExtension on QuestionBubbleAction {
   Widget get emoji {
     switch (this) {
       case QuestionBubbleAction.whatsNews:
-        return const Text('😘', style: TextStyle(fontSize: 16));
+        return const Text('⭐️', style: TextStyle(fontSize: 16));
       case QuestionBubbleAction.help:
-        return const Text('💁🏻', style: TextStyle(fontSize: 16));
+        return const Text('👥', style: TextStyle(fontSize: 16));
     }
   }
 }
