@@ -25,7 +25,7 @@ pub async fn create_default_workspace(
 async fn create_workspace(transaction: &mut DBTransaction<'_>, user_id: &str) -> Result<Workspace, ServerError> {
     let (sql, args, workspace) = WorkspaceBuilder::new(user_id.as_ref())
         .name("DefaultWorkspace")
-        .desc("Workspace created by AppFlowy")
+        .desc("")
         .build()?;
 
     let _ = sqlx::query_with(&sql, args)

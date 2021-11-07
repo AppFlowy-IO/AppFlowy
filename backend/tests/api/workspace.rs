@@ -16,7 +16,8 @@ async fn workspace_create() {
 async fn workspace_read() {
     let test = WorkspaceTest::new().await;
     let read_params = QueryWorkspaceParams::new().workspace_id(&test.workspace.id);
-    tracing::info!("{:?}", test.server.read_workspaces(read_params).await);
+    let repeated_workspace = test.server.read_workspaces(read_params).await;
+    tracing::info!("{:?}", repeated_workspace);
 }
 
 #[actix_rt::test]

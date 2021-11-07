@@ -126,6 +126,7 @@ fn sign_in(dispatch: Arc<EventDispatch>) -> UserProfile {
     let payload = SignInRequest {
         email: login_email(),
         password: login_password(),
+        name: "rust".to_owned(),
     }
     .into_bytes()
     .unwrap();

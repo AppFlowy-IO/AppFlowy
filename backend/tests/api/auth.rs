@@ -35,6 +35,7 @@ async fn user_sign_in() {
     let params = SignInParams {
         email: email.to_string(),
         password: password.to_string(),
+        name: "rust".to_string(),
     };
     let _ = app.sign_in(params).await.unwrap();
 }
@@ -70,6 +71,7 @@ async fn user_update_password() {
     let sign_in_params = SignInParams {
         email: email.to_string(),
         password: password.to_string(),
+        name: "rust".to_string(),
     };
 
     match server.sign_in(sign_in_params).await {
