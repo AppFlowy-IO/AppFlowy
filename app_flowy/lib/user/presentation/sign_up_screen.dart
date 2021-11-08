@@ -53,7 +53,7 @@ class SignUpForm extends StatelessWidget {
       alignment: Alignment.center,
       child: AuthFormContainer(
         children: [
-          const AuthFormTitle(
+          const FlowyLogoTitle(
             title: 'Sign Up to Appflowy',
             logoSize: Size(60, 60),
           ),

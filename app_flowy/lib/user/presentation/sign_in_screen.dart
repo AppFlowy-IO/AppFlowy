@@ -58,7 +58,7 @@ class SignInForm extends StatelessWidget {
       alignment: Alignment.center,
       child: AuthFormContainer(
         children: [
-          const AuthFormTitle(
+          const FlowyLogoTitle(
             title: 'Login to Appflowy',
             logoSize: Size(60, 60),
           ),

@@ -58,7 +58,20 @@ class SplashRoute implements ISplashRoute {
   void pushSignInScreen(BuildContext context) {
     Navigator.push(
       context,
-      PageRoutes.fade(() => SkipLogInScreen(router: getIt<IAuthRouter>()), RouteDurations.slow.inMilliseconds * .001),
+      PageRoutes.fade(() => SignInScreen(router: getIt<IAuthRouter>()), RouteDurations.slow.inMilliseconds * .001),
+    );
+  }
+
+  @override
+  void pushSkipLoginScreen(BuildContext context) {
+    Navigator.push(
+      context,
+      PageRoutes.fade(
+          () => SkipLogInScreen(
+                router: getIt<IAuthRouter>(),
+                authManager: getIt<IAuth>(),
+              ),
+          RouteDurations.slow.inMilliseconds * .001),
     );
   }
 }

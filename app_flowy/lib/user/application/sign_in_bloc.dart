@@ -8,8 +8,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'sign_in_bloc.freezed.dart';
 
 class SignInBloc extends Bloc<SignInEvent, SignInState> {
-  final IAuth authImpl;
-  SignInBloc(this.authImpl) : super(SignInState.initial());
+  final IAuth authManager;
+  SignInBloc(this.authManager) : super(SignInState.initial());
 
   @override
   Stream<SignInState> mapEventToState(
@@ -33,7 +33,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   Stream<SignInState> _performActionOnSignIn(SignInState state) async* {
     yield state.copyWith(isSubmitting: true, emailError: none(), passwordError: none(), successOrFail: none());
 
-    final result = await authImpl.signIn(state.email, state.password);
+    final result = await authManager.signIn(state.email, state.password);
     yield result.fold(
       (userProfile) => state.copyWith(isSubmitting: false, successOrFail: some(left(userProfile))),
       (error) => stateFromCode(error),

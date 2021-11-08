@@ -26,13 +26,13 @@ class AuthFormContainer extends StatelessWidget {
   }
 }
 
-class AuthFormTitle extends StatelessWidget {
+class FlowyLogoTitle extends StatelessWidget {
   final String title;
   final Size logoSize;
-  const AuthFormTitle({
+  const FlowyLogoTitle({
     Key? key,
     required this.title,
-    required this.logoSize,
+    this.logoSize = const Size.square(40),
   }) : super(key: key);
 
   @override
@@ -43,7 +43,7 @@ class AuthFormTitle extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox.fromSize(
-            size: const Size.square(40),
+            size: logoSize,
             child: svg("flowy_logo"),
           ),
           const VSpace(30),

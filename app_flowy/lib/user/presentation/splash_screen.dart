@@ -59,7 +59,9 @@ class SplashScreen extends StatelessWidget {
 
   void _handleUnauthenticated(BuildContext context, Unauthenticated result) {
     Log.error(result.error);
-    getIt<ISplashRoute>().pushSignInScreen(context);
+    // getIt<ISplashRoute>().pushSignInScreen(context);
+
+    getIt<ISplashRoute>().pushSkipLoginScreen(context);
   }
 }
 

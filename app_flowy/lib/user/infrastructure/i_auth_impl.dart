@@ -15,14 +15,12 @@ class AuthImpl extends IAuth {
   });
 
   @override
-  Future<Either<UserProfile, UserError>> signIn(
-      String? email, String? password) {
+  Future<Either<UserProfile, UserError>> signIn(String? email, String? password) {
     return repo.signIn(email: email, password: password);
   }
 
   @override
-  Future<Either<UserProfile, UserError>> signUp(
-      String? name, String? password, String? email) {
+  Future<Either<UserProfile, UserError>> signUp(String? name, String? password, String? email) {
     return repo.signUp(name: name, password: password, email: email);
   }
 
