@@ -66,9 +66,9 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
 
     final result = await authManager.signUp(state.email, state.password, state.email);
     yield result.fold(
-      (newUser) => state.copyWith(
+      (profile) => state.copyWith(
         isSubmitting: false,
-        successOrFail: some(left(newUser.profile)),
+        successOrFail: some(left(profile)),
         emailError: none(),
         passwordError: none(),
         repeatPasswordError: none(),

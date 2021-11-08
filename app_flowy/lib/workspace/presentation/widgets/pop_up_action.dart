@@ -93,6 +93,7 @@ class ActionItem<T extends ActionItemData> extends StatelessWidget {
           child: SizedBox(
             height: itemHeight,
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 if (action.icon != null) action.icon!,
                 HSpace(ActionListSizes.itemHPadding),

@@ -15,7 +15,7 @@ class HomeListenBloc extends Bloc<HomeListenEvent, HomeListenState> {
   ) async* {
     yield* event.map(
       started: (_) async* {
-        listener.setAuthCallback(_authStateChanged);
+        listener.authDidChangedNotifier.addPublishListener(_authDidChanged);
         listener.start();
       },
       stop: (_) async* {},
@@ -31,7 +31,7 @@ class HomeListenBloc extends Bloc<HomeListenEvent, HomeListenState> {
     super.close();
   }
 
-  void _authStateChanged(Either<Unit, UserError> errorOrNothing) {
+  void _authDidChanged(Either<Unit, UserError> errorOrNothing) {
     errorOrNothing.fold((_) {}, (error) {
       if (error.code == ErrorCode.UserUnauthorized.value) {
         add(HomeListenEvent.unauthorized(error.msg));

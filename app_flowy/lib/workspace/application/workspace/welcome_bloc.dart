@@ -19,7 +19,7 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
     WelcomeEvent event,
   ) async* {
     yield* event.map(initial: (e) async* {
-      listener.setWorkspacesCallback(_workspacesUpdated);
+      listener.workspaceUpdatedNotifier.addPublishListener(_workspacesUpdated);
       listener.start();
       //
       yield* _fetchWorkspaces();

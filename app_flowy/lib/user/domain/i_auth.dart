@@ -13,7 +13,7 @@ class NewUser {
 
 abstract class IAuth {
   Future<Either<UserProfile, UserError>> signIn(String? email, String? password);
-  Future<Either<NewUser, UserError>> signUp(String? name, String? password, String? email);
+  Future<Either<UserProfile, UserError>> signUp(String? name, String? password, String? email);
   Future<Either<Unit, UserError>> signOut();
 }
 

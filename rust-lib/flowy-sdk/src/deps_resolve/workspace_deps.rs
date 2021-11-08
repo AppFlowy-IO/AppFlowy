@@ -4,7 +4,6 @@ use flowy_workspace::{
     errors::WorkspaceError,
     module::{WorkspaceDatabase, WorkspaceUser},
 };
-
 use std::sync::Arc;
 
 pub struct WorkspaceDepsResolver {

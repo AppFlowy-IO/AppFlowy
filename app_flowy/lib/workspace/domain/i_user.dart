@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_create.pb.dart';
@@ -15,16 +16,16 @@ abstract class IUser {
   Future<Either<Unit, UserError>> initUser();
 }
 
-typedef UserProfileUpdateCallback = void Function(Either<UserProfile, UserError>);
-
-typedef AuthChangedCallback = void Function(Either<Unit, UserError>);
-typedef WorkspacesUpdatedCallback = void Function(Either<List<Workspace>, WorkspaceError> workspacesOrFailed);
+typedef UserProfileUpdatedNotifierValue = Either<UserProfile, UserError>;
+typedef AuthNotifierValue = Either<Unit, UserError>;
+typedef WorkspaceUpdatedNotifierValue = Either<List<Workspace>, WorkspaceError>;
 
 abstract class IUserListener {
   void start();
-  void setProfileCallback(UserProfileUpdateCallback profileCallback);
-  void setAuthCallback(AuthChangedCallback authCallback);
-  void setWorkspacesCallback(WorkspacesUpdatedCallback workspacesCallback);
+
+  PublishNotifier<UserProfileUpdatedNotifierValue> get profileUpdatedNotifier;
+  PublishNotifier<AuthNotifierValue> get authDidChangedNotifier;
+  PublishNotifier<WorkspaceUpdatedNotifierValue> get workspaceUpdatedNotifier;
 
   Future<void> stop();
 }

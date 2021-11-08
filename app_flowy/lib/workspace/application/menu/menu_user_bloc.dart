@@ -19,8 +19,8 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
   Stream<MenuUserState> mapEventToState(MenuUserEvent event) async* {
     yield* event.map(
       initial: (_) async* {
-        listener.setProfileCallback(_profileUpdated);
-        listener.setWorkspacesCallback(_workspacesUpdated);
+        listener.profileUpdatedNotifier.addPublishListener(_profileUpdated);
+        listener.workspaceUpdatedNotifier.addPublishListener(_workspacesUpdated);
         listener.start();
 
         await _initUser();

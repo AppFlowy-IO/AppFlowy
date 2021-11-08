@@ -51,7 +51,6 @@ class SkipLogInScreen extends StatelessWidget {
                 _launchURL('https://github.com/AppFlowy-IO/appflowy');
               },
             ),
-            const Spacer(),
             InkWell(
               child: const Text(
                 'Subscribe to Newsletter',

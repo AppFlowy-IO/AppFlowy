@@ -6,7 +6,10 @@ use crate::deps_resolve::WorkspaceDepsResolver;
 use flowy_dispatch::prelude::*;
 use flowy_document::prelude::FlowyDocument;
 use flowy_net::config::ServerConfig;
-use flowy_user::services::user::{UserSession, UserSessionBuilder};
+use flowy_user::{
+    entities::UserStatus,
+    services::user::{UserSession, UserSessionBuilder},
+};
 use flowy_workspace::prelude::WorkspaceController;
 use module::mk_modules;
 pub use module::*;
@@ -14,6 +17,7 @@ use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
 };
+use tokio::sync::broadcast;
 
 static INIT_LOG: AtomicBool = AtomicBool::new(false);
 
@@ -66,8 +70,8 @@ impl FlowySDK {
     pub fn new(config: FlowySDKConfig) -> Self {
         init_log(&config);
         init_kv(&config.root);
-
         tracing::debug!("🔥 {:?}", config);
+
         let user_session = Arc::new(
             UserSessionBuilder::new()
                 .root_dir(&config.root, &config.server_config)
@@ -77,6 +81,9 @@ impl FlowySDK {
         let workspace = mk_workspace(user_session.clone(), flowy_document.clone(), &config.server_config);
         let modules = mk_modules(workspace.clone(), user_session.clone());
         let dispatch = Arc::new(EventDispatch::construct(|| modules));
+
+        let subscribe = user_session.status_subscribe();
+        listen_on_user_status_changed(&dispatch, subscribe, workspace.clone());
 
         Self {
             config,
@@ -88,6 +95,32 @@ impl FlowySDK {
     }
 
     pub fn dispatch(&self) -> Arc<EventDispatch> { self.dispatch.clone() }
+}
+
+fn listen_on_user_status_changed(
+    dispatch: &EventDispatch,
+    mut subscribe: broadcast::Receiver<UserStatus>,
+    workspace_controller: Arc<WorkspaceController>,
+) {
+    dispatch.spawn(async move {
+        //
+        loop {
+            match subscribe.recv().await {
+                Ok(status) => match status {
+                    UserStatus::Login { .. } => {
+                        workspace_controller.user_did_login();
+                    },
+                    UserStatus::Expired { .. } => {
+                        workspace_controller.user_session_expired();
+                    },
+                    UserStatus::SignUp { .. } => {
+                        workspace_controller.user_did_sign_up().await;
+                    },
+                },
+                Err(_) => {},
+            }
+        }
+    });
 }
 
 fn init_kv(root: &str) {

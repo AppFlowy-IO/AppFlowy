@@ -22,17 +22,8 @@ class AuthImpl extends IAuth {
   }
 
   @override
-  Future<Either<NewUser, UserError>> signUp(String? name, String? password, String? email) {
-    return repo.signUp(name: name, password: password, email: email).then((result) {
-      return result.fold(
-          (tuple) => left(
-                NewUser(
-                  profile: tuple.value1,
-                  workspaceId: tuple.value2,
-                ),
-              ),
-          (error) => right(error));
-    });
+  Future<Either<UserProfile, UserError>> signUp(String? name, String? password, String? email) {
+    return repo.signUp(name: name, password: password, email: email);
   }
 
   @override

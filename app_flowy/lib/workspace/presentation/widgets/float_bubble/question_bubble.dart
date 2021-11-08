@@ -174,9 +174,9 @@ extension QuestionBubbleExtension on QuestionBubbleAction {
   Widget get emoji {
     switch (this) {
       case QuestionBubbleAction.whatsNews:
-        return const Text('⭐️', style: TextStyle(fontSize: 16));
+        return const Text('⭐️', style: TextStyle(fontSize: 12));
       case QuestionBubbleAction.help:
-        return const Text('👥', style: TextStyle(fontSize: 16));
+        return const Text('👥', style: TextStyle(fontSize: 12));
     }
   }
 }

@@ -1,17 +1,15 @@
-use std::sync::Arc;
-
-use flowy_database::DBConnection;
-use flowy_dispatch::prelude::*;
-use flowy_document::module::FlowyDocument;
-use flowy_net::config::ServerConfig;
-use flowy_sqlite::ConnectionPool;
-
 use crate::{
     errors::WorkspaceError,
     event::WorkspaceEvent,
     handlers::*,
     services::{server::construct_workspace_server, AppController, TrashCan, ViewController, WorkspaceController},
 };
+use flowy_database::DBConnection;
+use flowy_dispatch::prelude::*;
+use flowy_document::module::FlowyDocument;
+use flowy_net::config::ServerConfig;
+use flowy_sqlite::ConnectionPool;
+use std::sync::Arc;
 
 pub trait WorkspaceDeps: WorkspaceUser + WorkspaceDatabase {}
 

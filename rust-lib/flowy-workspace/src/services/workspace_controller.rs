@@ -5,9 +5,13 @@ use crate::{
     services::{helper::spawn, read_local_workspace_apps, server::Server, AppController, TrashCan, ViewController},
     sql_tables::workspace::{WorkspaceTable, WorkspaceTableChangeset, WorkspaceTableSql},
 };
+use chrono::Utc;
 use flowy_database::SqliteConnection;
 use flowy_infra::kv::KV;
-use flowy_workspace_infra::entities::{app::RepeatedApp, workspace::*};
+use flowy_workspace_infra::{
+    entities::{app::RepeatedApp, workspace::*},
+    user_default,
+};
 use std::sync::Arc;
 
 pub struct WorkspaceController {
@@ -46,7 +50,40 @@ impl WorkspaceController {
         let _ = self.trash_can.init()?;
         let _ = self.view_controller.init()?;
         let _ = self.app_controller.init()?;
+
         Ok(())
+    }
+
+    pub fn user_did_login(&self) {}
+
+    pub fn user_session_expired(&self) {}
+
+    pub async fn user_did_sign_up(&self) {
+        log::debug!("Create user default workspace");
+        let time = Utc::now();
+        let mut workspace = user_default::create_default_workspace(time);
+        let apps = workspace.take_apps().into_inner();
+
+        let _ = self.create_workspace(workspace).await?;
+        for mut app in apps {
+            let views = app.take_belongings().into_inner();
+            let _ = self.app_controller.create_app(app).await?;
+            for view in views {
+                let _ = self.view_controller.create_view(view).await?;
+            }
+        }
+
+        match self.user.token() {
+            Ok(token) => {
+                let repeated_workspace = RepeatedWorkspace { items: vec![workspace] };
+                send_dart_notification(&token, WorkspaceNotification::UserCreateWorkspace)
+                    .payload(repeated_workspace)
+                    .send();
+            },
+            Err(e) => {
+                log::error!("{:?}", e);
+            },
+        }
     }
 
     pub(crate) async fn create_workspace_from_params(

@@ -19,10 +19,12 @@ use flowy_database::{
 use flowy_infra::kv::KV;
 use flowy_net::config::ServerConfig;
 use flowy_sqlite::ConnectionPool;
+use flowy_user_infra::entities::UserStatus;
 use flowy_ws::{WsController, WsMessageHandler, WsState};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
+use tokio::sync::broadcast;
 
 pub struct UserSessionConfig {
     root_dir: String,
@@ -38,12 +40,6 @@ impl UserSessionConfig {
     }
 }
 
-pub enum SessionStatus {
-    Login { token: String },
-    Expired { token: String },
-}
-pub type SessionStatusCallback = Arc<dyn Fn(SessionStatus) + Send + Sync>;
-
 pub struct UserSession {
     database: UserDB,
     config: UserSessionConfig,
@@ -51,24 +47,27 @@ pub struct UserSession {
     server: Server,
     session: RwLock<Option<Session>>,
     pub ws_controller: Arc<WsController>,
-    status_callback: SessionStatusCallback,
+    status_notifier: broadcast::Sender<UserStatus>,
 }
 
 impl UserSession {
-    pub fn new(config: UserSessionConfig, status_callback: SessionStatusCallback) -> Self {
+    pub fn new(config: UserSessionConfig) -> Self {
         let db = UserDB::new(&config.root_dir);
         let server = construct_user_server(&config.server_config);
         let ws_controller = Arc::new(WsController::new());
+        let (status_notifier, _) = broadcast::channel(10);
         let user_session = Self {
             database: db,
             config,
             server,
             session: RwLock::new(None),
             ws_controller,
-            status_callback,
+            status_notifier,
         };
         user_session
     }
+
+    pub fn status_subscribe(&self) -> broadcast::Receiver<UserStatus> { self.status_notifier.subscribe() }
 
     pub fn db_connection(&self) -> Result<DBConnection, UserError> {
         let user_id = self.get_session()?.user_id;
@@ -96,7 +95,7 @@ impl UserSession {
             let _ = self.set_session(Some(session))?;
             let user_table = self.save_user(resp.into()).await?;
             let user_profile: UserProfile = user_table.into();
-            (self.status_callback)(SessionStatus::Login {
+            let _ = self.status_notifier.send(UserStatus::Login {
                 token: user_profile.token.clone(),
             });
             Ok(user_profile)
@@ -113,8 +112,8 @@ impl UserSession {
             let _ = self.set_session(Some(session))?;
             let user_table = self.save_user(resp.into()).await?;
             let user_profile: UserProfile = user_table.into();
-            (self.status_callback)(SessionStatus::Login {
-                token: user_profile.token.clone(),
+            let _ = self.status_notifier.send(UserStatus::SignUp {
+                profile: user_profile.clone(),
             });
             Ok(user_profile)
         }
@@ -127,7 +126,7 @@ impl UserSession {
             diesel::delete(dsl::user_table.filter(dsl::id.eq(&session.user_id))).execute(&*(self.db_connection()?))?;
         let _ = self.database.close_user_db(&session.user_id)?;
         let _ = self.set_session(None)?;
-        (self.status_callback)(SessionStatus::Expired {
+        let _ = self.status_notifier.send(UserStatus::Expired {
             token: session.token.clone(),
         });
         let _ = self.sign_out_on_server(&session.token).await?;
