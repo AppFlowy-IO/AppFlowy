@@ -15,14 +15,9 @@ use crate::{
     },
     errors::{internal_error, WorkspaceError, WorkspaceResult},
     module::{WorkspaceDatabase, WorkspaceUser},
-    services::{
-        helper::spawn,
-        notify::{send_dart_notification, WorkspaceNotification},
-        server::Server,
-        sql_tables::view::{ViewTable, ViewTableChangeset, ViewTableSql},
-        TrashCan,
-        TrashEvent,
-    },
+    notify::{send_dart_notification, WorkspaceNotification},
+    services::{helper::spawn, server::Server, TrashCan, TrashEvent},
+    sql_tables::view::{ViewTable, ViewTableChangeset, ViewTableSql},
 };
 
 pub(crate) struct ViewController {

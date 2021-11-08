@@ -7,16 +7,9 @@ use crate::{
     entities::{app::RepeatedApp, workspace::*},
     errors::*,
     module::{WorkspaceDatabase, WorkspaceUser},
-    services::{
-        helper::spawn,
-        notify::*,
-        read_local_workspace_apps,
-        server::Server,
-        sql_tables::workspace::{WorkspaceTable, WorkspaceTableChangeset, WorkspaceTableSql},
-        AppController,
-        TrashCan,
-        ViewController,
-    },
+    notify::*,
+    services::{helper::spawn, read_local_workspace_apps, server::Server, AppController, TrashCan, ViewController},
+    sql_tables::workspace::{WorkspaceTable, WorkspaceTableChangeset, WorkspaceTableSql},
 };
 
 pub struct WorkspaceController {

@@ -11,7 +11,7 @@ use crate::{
         trash::{Trash, TrashType},
         view::RepeatedView,
     },
-    services::sql_tables::workspace::WorkspaceTable,
+    sql_tables::workspace::WorkspaceTable,
 };
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]

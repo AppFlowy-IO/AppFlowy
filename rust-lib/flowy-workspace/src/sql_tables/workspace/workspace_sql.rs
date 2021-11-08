@@ -7,7 +7,7 @@ use flowy_database::{
 
 use crate::{
     errors::WorkspaceError,
-    services::sql_tables::workspace::{WorkspaceTable, WorkspaceTableChangeset},
+    sql_tables::workspace::{WorkspaceTable, WorkspaceTableChangeset},
 };
 
 pub(crate) struct WorkspaceTableSql {}

@@ -6,7 +6,7 @@ use flowy_database::{
 
 use crate::{
     errors::WorkspaceError,
-    services::sql_tables::view::{ViewTable, ViewTableChangeset},
+    sql_tables::view::{ViewTable, ViewTableChangeset},
 };
 
 pub struct ViewTableSql {}

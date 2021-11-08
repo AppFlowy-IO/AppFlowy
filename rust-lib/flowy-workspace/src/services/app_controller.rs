@@ -11,14 +11,9 @@ use crate::{
     },
     errors::*,
     module::{WorkspaceDatabase, WorkspaceUser},
-    services::{
-        helper::spawn,
-        notify::*,
-        server::Server,
-        sql_tables::app::{AppTable, AppTableChangeset, AppTableSql},
-        TrashCan,
-        TrashEvent,
-    },
+    notify::*,
+    services::{helper::spawn, server::Server, TrashCan, TrashEvent},
+    sql_tables::app::{AppTable, AppTableChangeset, AppTableSql},
 };
 
 pub(crate) struct AppController {

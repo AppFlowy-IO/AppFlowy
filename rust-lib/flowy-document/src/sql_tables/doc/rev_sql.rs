@@ -39,6 +39,7 @@ impl RevTableSql {
         Ok(())
     }
 
+    #[allow(dead_code)]
     pub(crate) fn update_rev_table(&self, changeset: RevChangeset, conn: &SqliteConnection) -> Result<(), DocError> {
         let filter = dsl::rev_table
             .filter(rev_id.eq(changeset.rev_id.as_ref()))

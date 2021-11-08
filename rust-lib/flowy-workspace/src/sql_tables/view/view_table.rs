@@ -8,7 +8,7 @@ use crate::{
         trash::{Trash, TrashType},
         view::{RepeatedView, UpdateViewParams, View, ViewType},
     },
-    services::sql_tables::app::AppTable,
+    sql_tables::app::AppTable,
 };
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]

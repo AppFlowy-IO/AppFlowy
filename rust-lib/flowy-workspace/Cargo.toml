@@ -46,7 +46,4 @@ serial_test = "0.5.1"
 
 
 [features]
-default = ["flowy_client_sdk", "backend_service"]
 http_server = []
-flowy_client_sdk = []
-backend_service = []

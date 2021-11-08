@@ -9,14 +9,8 @@ use flowy_sqlite::ConnectionPool;
 use crate::{
     errors::WorkspaceError,
     event::WorkspaceEvent,
-    services::{
-        handlers::*,
-        server::construct_workspace_server,
-        AppController,
-        TrashCan,
-        ViewController,
-        WorkspaceController,
-    },
+    handlers::*,
+    services::{server::construct_workspace_server, AppController, TrashCan, ViewController, WorkspaceController},
 };
 
 pub trait WorkspaceDeps: WorkspaceUser + WorkspaceDatabase {}

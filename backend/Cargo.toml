@@ -100,7 +100,7 @@ once_cell = "1.7.2"
 linkify = "0.5.0"
 backend = { path = ".", features = ["flowy_test"]}
 flowy-user = { path = "../rust-lib/flowy-user", features = ["http_server"] }
-flowy-workspace = { path = "../rust-lib/flowy-workspace", default-features = false, features = ["http_server", "backend_service"] }
+flowy-workspace = { path = "../rust-lib/flowy-workspace", default-features = false, features = ["http_server"] }
 flowy-ws = { path = "../rust-lib/flowy-ws" }
 flowy-sdk = { path = "../rust-lib/flowy-sdk", features = ["http_server"] }
 flowy-test = { path = "../rust-lib/flowy-test" }

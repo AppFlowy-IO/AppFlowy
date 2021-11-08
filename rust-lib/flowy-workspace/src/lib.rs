@@ -1,11 +1,8 @@
-#[cfg(feature = "flowy_client_sdk")]
-pub mod event;
-#[cfg(feature = "flowy_client_sdk")]
-pub mod module;
-#[cfg(feature = "flowy_client_sdk")]
-mod services;
-
 pub use flowy_workspace_infra::entities;
+
+pub mod event;
+pub mod module;
+mod services;
 
 #[macro_use]
 mod macros;
@@ -14,10 +11,13 @@ mod macros;
 extern crate flowy_database;
 
 pub mod errors;
+pub mod handlers;
+mod notify;
 pub mod protobuf;
+mod sql_tables;
 
-#[cfg(feature = "flowy_client_sdk")]
 pub mod prelude {
-    pub use crate::{errors::*, module::*, services::*};
     pub use flowy_workspace_infra::entities::{app::*, trash::*, view::*, workspace::*};
+
+    pub use crate::{errors::*, module::*, services::*};
 }

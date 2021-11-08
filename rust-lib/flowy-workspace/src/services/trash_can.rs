@@ -9,12 +9,9 @@ use crate::{
     entities::trash::{RepeatedTrash, Trash, TrashIdentifier, TrashIdentifiers, TrashType},
     errors::{WorkspaceError, WorkspaceResult},
     module::{WorkspaceDatabase, WorkspaceUser},
-    services::{
-        helper::spawn,
-        notify::{send_anonymous_dart_notification, WorkspaceNotification},
-        server::Server,
-        sql_tables::trash::TrashTableSql,
-    },
+    notify::{send_anonymous_dart_notification, WorkspaceNotification},
+    services::{helper::spawn, server::Server},
+    sql_tables::trash::TrashTableSql,
 };
 
 pub struct TrashCan {

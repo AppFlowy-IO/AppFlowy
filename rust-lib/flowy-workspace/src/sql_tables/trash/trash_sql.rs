@@ -7,7 +7,7 @@ use flowy_database::{
 use crate::{
     entities::trash::{RepeatedTrash, Trash},
     errors::WorkspaceError,
-    services::sql_tables::trash::{TrashTable, TrashTableChangeset},
+    sql_tables::trash::{TrashTable, TrashTableChangeset},
 };
 
 pub struct TrashTableSql {}

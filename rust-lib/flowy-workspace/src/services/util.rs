@@ -11,6 +11,7 @@ use std::{
 
 pub(crate) type Builder<Fut> = Box<dyn Fn(String, Server) -> Fut + Send + Sync>;
 
+#[allow(dead_code)]
 pub(crate) struct RetryAction<Fut, T, E> {
     token: String,
     server: Server,
@@ -20,6 +21,7 @@ pub(crate) struct RetryAction<Fut, T, E> {
 }
 
 impl<Fut, T, E> RetryAction<Fut, T, E> {
+    #[allow(dead_code)]
     pub(crate) fn new<F>(server: Server, user: Arc<dyn WorkspaceUser>, builder: F) -> Self
     where
         Fut: Future<Output = Result<T, E>> + Send + Sync + 'static,

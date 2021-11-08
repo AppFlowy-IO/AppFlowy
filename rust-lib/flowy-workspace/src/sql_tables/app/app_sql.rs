@@ -6,7 +6,7 @@ use flowy_database::{
 
 use crate::{
     errors::WorkspaceError,
-    services::sql_tables::app::{AppTable, AppTableChangeset},
+    sql_tables::app::{AppTable, AppTableChangeset},
 };
 
 pub struct AppTableSql {}

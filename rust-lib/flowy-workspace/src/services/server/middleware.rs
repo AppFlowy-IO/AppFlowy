@@ -6,7 +6,7 @@ use flowy_net::{request::ResponseMiddleware, response::FlowyResponse};
 
 use crate::{
     errors::{ErrorCode, WorkspaceError},
-    services::notify::*,
+    notify::*,
 };
 
 lazy_static! {
