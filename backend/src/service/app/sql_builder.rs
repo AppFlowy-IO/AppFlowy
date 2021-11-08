@@ -2,7 +2,7 @@ use crate::{
     entities::workspace::{AppTable, APP_TABLE},
     sqlx_ext::SqlBuilder,
 };
-use chrono::Utc;
+use chrono::{DateTime, NaiveDateTime, Utc};
 use flowy_net::errors::{invalid_params, ServerError};
 use flowy_workspace_infra::{
     parser::app::AppId,
@@ -31,10 +31,29 @@ impl NewAppSqlBuilder {
             modified_time: time,
             create_time: time,
             user_id: user_id.to_string(),
-            is_trash: false,
         };
 
         Self { table }
+    }
+
+    pub fn from_app(user_id: &str, app: App) -> Result<Self, ServerError> {
+        let app_id = check_app_id(app.id)?;
+        let create_time = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(app.create_time, 0), Utc);
+        let modified_time = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(app.modified_time, 0), Utc);
+
+        let table = AppTable {
+            id: app_id,
+            workspace_id: app.workspace_id,
+            name: app.name,
+            description: app.desc,
+            color_style: default_color_style(),
+            last_view_id: "".to_string(),
+            modified_time,
+            create_time,
+            user_id: user_id.to_string(),
+        };
+
+        Ok(Self { table })
     }
 
     pub fn name(mut self, name: &str) -> Self {

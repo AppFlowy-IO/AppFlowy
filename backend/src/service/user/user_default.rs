@@ -7,66 +7,43 @@ use crate::{
     sqlx_ext::{map_sqlx_error, DBTransaction},
 };
 
+use crate::service::view::{create_view_with_args, sql_builder::NewViewSqlBuilder};
+use chrono::Utc;
 use flowy_document::services::doc::doc_initial_string;
 use flowy_net::errors::ServerError;
 use flowy_workspace_infra::protobuf::{App, CreateViewParams, View, ViewType, Workspace};
+use std::convert::TryInto;
 
 pub async fn create_default_workspace(
     transaction: &mut DBTransaction<'_>,
     user_id: &str,
 ) -> Result<Workspace, ServerError> {
-    let workspace = create_workspace(transaction, user_id).await?;
-    let app = create_app(transaction, user_id, &workspace).await?;
-    let _ = create_default_view(transaction, &app).await?;
+    let time = Utc::now();
+    let workspace: Workspace = flowy_workspace_infra::user_default::create_default_workspace(time)
+        .try_into()
+        .unwrap();
 
-    Ok(workspace)
-}
+    let mut cloned_workspace = workspace.clone();
+    let mut apps = cloned_workspace.take_apps();
 
-async fn create_workspace(transaction: &mut DBTransaction<'_>, user_id: &str) -> Result<Workspace, ServerError> {
-    let (sql, args, workspace) = WorkspaceBuilder::new(user_id.as_ref())
-        .name("DefaultWorkspace")
-        .desc("")
-        .build()?;
-
+    let (sql, args, _) = WorkspaceBuilder::from_workspace(user_id, cloned_workspace)?.build()?;
     let _ = sqlx::query_with(&sql, args)
-        .execute(transaction)
+        .execute(transaction as &mut DBTransaction<'_>)
         .await
         .map_err(map_sqlx_error)?;
 
+    for mut app in apps.take_items() {
+        let mut views = app.take_belongings();
+        let (sql, args, _) = AppBuilder::from_app(user_id, app)?.build()?;
+        let _ = sqlx::query_with(&sql, args)
+            .execute(transaction as &mut DBTransaction<'_>)
+            .await
+            .map_err(map_sqlx_error)?;
+
+        for view in views.take_items() {
+            let (sql, args, view) = NewViewSqlBuilder::from_view(view)?.build()?;
+            let _ = create_view_with_args(transaction, sql, args, view, doc_initial_string()).await?;
+        }
+    }
     Ok(workspace)
-}
-
-async fn create_app(
-    transaction: &mut DBTransaction<'_>,
-    user_id: &str,
-    workspace: &Workspace,
-) -> Result<App, ServerError> {
-    let (sql, args, app) = AppBuilder::new(user_id, &workspace.id)
-        .name("Getting Started")
-        .desc("")
-        .build()?;
-
-    let _ = sqlx::query_with(&sql, args)
-        .execute(transaction)
-        .await
-        .map_err(map_sqlx_error)?;
-
-    Ok(app)
-}
-
-async fn create_default_view(transaction: &mut DBTransaction<'_>, app: &App) -> Result<View, ServerError> {
-    let params = CreateViewParams {
-        belong_to_id: app.id.clone(),
-        name: "Read Me".to_string(),
-        desc: "".to_string(),
-        thumbnail: "".to_string(),
-        view_type: ViewType::Doc,
-        data: doc_initial_string(),
-        unknown_fields: Default::default(),
-        cached_size: Default::default(),
-    };
-
-    let view = create_view(transaction, params).await?;
-
-    Ok(view)
 }

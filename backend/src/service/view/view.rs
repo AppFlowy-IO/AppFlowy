@@ -75,13 +75,24 @@ pub(crate) async fn create_view(
         .view_type(params.view_type)
         .build()?;
 
+    let view = create_view_with_args(transaction, sql, args, view, params.data).await?;
+    Ok(view)
+}
+
+pub(crate) async fn create_view_with_args(
+    transaction: &mut DBTransaction<'_>,
+    sql: String,
+    args: PgArguments,
+    view: View,
+    view_data: String,
+) -> Result<View, ServerError> {
     let _ = sqlx::query_with(&sql, args)
         .execute(transaction as &mut DBTransaction<'_>)
         .await
         .map_err(map_sqlx_error)?;
 
     let mut create_doc_params = CreateDocParams::new();
-    create_doc_params.set_data(params.data);
+    create_doc_params.set_data(view_data);
     create_doc_params.set_id(view.id.clone());
     let _ = create_doc(transaction, create_doc_params).await?;
     Ok(view)

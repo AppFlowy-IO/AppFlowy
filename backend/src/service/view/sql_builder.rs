@@ -2,7 +2,7 @@ use crate::{
     entities::workspace::{ViewTable, VIEW_TABLE},
     sqlx_ext::SqlBuilder,
 };
-use chrono::Utc;
+use chrono::{DateTime, NaiveDateTime, Utc};
 use flowy_net::errors::{invalid_params, ServerError};
 use flowy_workspace_infra::{
     parser::view::ViewId,
@@ -33,6 +33,25 @@ impl NewViewSqlBuilder {
         };
 
         Self { table }
+    }
+
+    pub fn from_view(view: View) -> Result<Self, ServerError> {
+        let view_id = ViewId::parse(view.id).map_err(invalid_params)?;
+        let view_id = Uuid::parse_str(view_id.as_ref())?;
+        let create_time = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(view.create_time, 0), Utc);
+        let modified_time = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(view.modified_time, 0), Utc);
+
+        let table = ViewTable {
+            id: view_id,
+            belong_to_id: view.belong_to_id,
+            name: view.name,
+            description: view.desc,
+            modified_time,
+            create_time,
+            thumbnail: "".to_string(),
+            view_type: view.view_type.value(),
+        };
+        Ok(Self { table })
     }
 
     pub fn name(mut self, name: &str) -> Self {

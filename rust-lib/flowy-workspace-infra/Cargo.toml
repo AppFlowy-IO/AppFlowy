@@ -15,7 +15,8 @@ strum_macros = "0.21"
 derive_more = {version = "0.99", features = ["display"]}
 log = "0.4.14"
 flowy-document = { path = "../flowy-document" }
-
+uuid = { version = "0.8", features = ["serde", "v4"] }
+chrono = { version = "0.4" }
 
 [features]
 default = []

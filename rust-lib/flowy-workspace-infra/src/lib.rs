@@ -7,3 +7,4 @@ mod macros;
 
 // #[cfg(feature = "backend")]
 pub mod protobuf;
+pub mod user_default;

@@ -1,5 +1,5 @@
 use chrono::Utc;
-use flowy_workspace_infra::protobuf::{App, RepeatedView, Trash, TrashType, View, ViewType};
+use flowy_workspace_infra::protobuf::{App, RepeatedView, Trash, TrashType, View, ViewType, Workspace};
 use protobuf::ProtobufEnum;
 
 pub(crate) const WORKSPACE_TABLE: &'static str = "workspace_table";
@@ -17,6 +17,18 @@ pub struct WorkspaceTable {
     pub(crate) user_id: String,
 }
 
+impl std::convert::Into<Workspace> for WorkspaceTable {
+    fn into(self) -> Workspace {
+        let mut workspace = Workspace::default();
+        workspace.set_id(self.id.to_string());
+        workspace.set_name(self.name.clone());
+        workspace.set_desc(self.description.clone());
+        workspace.set_modified_time(self.modified_time.timestamp());
+        workspace.set_create_time(self.create_time.timestamp());
+        workspace
+    }
+}
+
 #[derive(Debug, Clone, sqlx::FromRow)]
 pub struct AppTable {
     pub(crate) id: uuid::Uuid,
@@ -28,7 +40,6 @@ pub struct AppTable {
     pub(crate) modified_time: chrono::DateTime<Utc>,
     pub(crate) create_time: chrono::DateTime<Utc>,
     pub(crate) user_id: String,
-    pub(crate) is_trash: bool,
 }
 
 impl std::convert::Into<App> for AppTable {
