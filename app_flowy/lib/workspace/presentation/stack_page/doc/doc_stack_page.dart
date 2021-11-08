@@ -3,7 +3,7 @@ import 'package:app_flowy/workspace/domain/i_view.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/domain/view_ext.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pb.dart';
 import 'package:flutter/material.dart';
 
 import 'doc_page.dart';

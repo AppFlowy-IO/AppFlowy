@@ -1,10 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/workspace_create.pb.dart';
-
-export 'package:flowy_sdk/protobuf/flowy-workspace/workspace_create.pb.dart';
 export 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
 export 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 

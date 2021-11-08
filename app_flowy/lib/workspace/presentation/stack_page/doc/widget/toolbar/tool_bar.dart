@@ -7,7 +7,6 @@ import 'package:styled_widget/styled_widget.dart';
 import 'check_button.dart';
 import 'color_picker.dart';
 import 'header_button.dart';
-import 'image_button.dart';
 import 'link_button.dart';
 import 'toggle_button.dart';
 import 'toolbar_icon_button.dart';

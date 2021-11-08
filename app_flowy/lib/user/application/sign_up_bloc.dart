@@ -1,5 +1,7 @@
 import 'package:app_flowy/user/domain/i_auth.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flowy_sdk/protobuf/flowy-user-infra/errors.pb.dart';
+
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,18 +19,11 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     yield* event.map(signUpWithUserEmailAndPassword: (e) async* {
       yield* _performActionOnSignUp();
     }, emailChanged: (EmailChanged value) async* {
-      yield state.copyWith(
-          email: value.email, emailError: none(), successOrFail: none());
+      yield state.copyWith(email: value.email, emailError: none(), successOrFail: none());
     }, passwordChanged: (PasswordChanged value) async* {
-      yield state.copyWith(
-          password: value.password,
-          passwordError: none(),
-          successOrFail: none());
+      yield state.copyWith(password: value.password, passwordError: none(), successOrFail: none());
     }, repeatPasswordChanged: (RepeatPasswordChanged value) async* {
-      yield state.copyWith(
-          repeatedPassword: value.password,
-          repeatPasswordError: none(),
-          successOrFail: none());
+      yield state.copyWith(repeatedPassword: value.password, repeatPasswordError: none(), successOrFail: none());
     });
   }
 
@@ -59,8 +54,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     if (password != repeatedPassword) {
       yield state.copyWith(
         isSubmitting: false,
-        repeatPasswordError:
-            some("Repeat password is not the same as password"),
+        repeatPasswordError: some("Repeat password is not the same as password"),
       );
       return;
     }
@@ -70,8 +64,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
       repeatPasswordError: none(),
     );
 
-    final result =
-        await authImpl.signUp(state.email, state.password, state.email);
+    final result = await authImpl.signUp(state.email, state.password, state.email);
     yield result.fold(
       (userProfile) => state.copyWith(
         isSubmitting: false,
@@ -85,7 +78,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
   }
 
   SignUpState stateFromCode(UserError error) {
-    switch (error.code) {
+    switch (ErrorCode.valueOf(error.code)!) {
       case ErrorCode.EmailFormatInvalid:
         return state.copyWith(
           isSubmitting: false,
@@ -101,20 +94,17 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
           successOrFail: none(),
         );
       default:
-        return state.copyWith(
-            isSubmitting: false, successOrFail: some(right(error)));
+        return state.copyWith(isSubmitting: false, successOrFail: some(right(error)));
     }
   }
 }
 
 @freezed
 class SignUpEvent with _$SignUpEvent {
-  const factory SignUpEvent.signUpWithUserEmailAndPassword() =
-      SignUpWithUserEmailAndPassword;
+  const factory SignUpEvent.signUpWithUserEmailAndPassword() = SignUpWithUserEmailAndPassword;
   const factory SignUpEvent.emailChanged(String email) = EmailChanged;
   const factory SignUpEvent.passwordChanged(String password) = PasswordChanged;
-  const factory SignUpEvent.repeatPasswordChanged(String password) =
-      RepeatPasswordChanged;
+  const factory SignUpEvent.repeatPasswordChanged(String password) = RepeatPasswordChanged;
 }
 
 @freezed

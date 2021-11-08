@@ -1,9 +1,9 @@
 import 'package:app_flowy/workspace/domain/i_view.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
 import 'package:flowy_infra/notifier.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 
 class IViewImpl extends IView {
   ViewRepository repo;

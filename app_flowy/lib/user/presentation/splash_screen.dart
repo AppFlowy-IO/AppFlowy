@@ -4,9 +4,9 @@ import 'package:app_flowy/user/domain/auth_state.dart';
 import 'package:app_flowy/user/domain/i_splash.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace-infra/errors.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart' as workspace;
 
 // [[diagram: splash screen]]
 // ┌────────────────┐1.get user ┌──────────┐     ┌────────────┐ 2.send UserEventCheckUser
@@ -49,7 +49,7 @@ class SplashScreen extends StatelessWidget {
         return result.fold(
           (workspace) => getIt<ISplashRoute>().pushHomeScreen(context, userProfile, workspace.id),
           (error) async {
-            assert(error.code == workspace.ErrorCode.RecordNotFound);
+            assert(error.code == ErrorCode.RecordNotFound.value);
             getIt<ISplashRoute>().pushWelcomeScreen(context, userProfile);
           },
         );

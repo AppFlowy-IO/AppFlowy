@@ -1,5 +1,6 @@
 import 'package:app_flowy/user/domain/i_auth.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flowy_sdk/protobuf/flowy-user-infra/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,56 +22,39 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
         );
       },
       emailChanged: (EmailChanged value) async* {
-        yield state.copyWith(
-            email: value.email, emailError: none(), successOrFail: none());
+        yield state.copyWith(email: value.email, emailError: none(), successOrFail: none());
       },
       passwordChanged: (PasswordChanged value) async* {
-        yield state.copyWith(
-            password: value.password,
-            passwordError: none(),
-            successOrFail: none());
+        yield state.copyWith(password: value.password, passwordError: none(), successOrFail: none());
       },
     );
   }
 
   Stream<SignInState> _performActionOnSignIn(SignInState state) async* {
-    yield state.copyWith(
-        isSubmitting: true,
-        emailError: none(),
-        passwordError: none(),
-        successOrFail: none());
+    yield state.copyWith(isSubmitting: true, emailError: none(), passwordError: none(), successOrFail: none());
 
     final result = await authImpl.signIn(state.email, state.password);
     yield result.fold(
-      (userProfile) => state.copyWith(
-          isSubmitting: false, successOrFail: some(left(userProfile))),
+      (userProfile) => state.copyWith(isSubmitting: false, successOrFail: some(left(userProfile))),
       (error) => stateFromCode(error),
     );
   }
 
   SignInState stateFromCode(UserError error) {
-    switch (error.code) {
+    switch (ErrorCode.valueOf(error.code)!) {
       case ErrorCode.EmailFormatInvalid:
-        return state.copyWith(
-            isSubmitting: false,
-            emailError: some(error.msg),
-            passwordError: none());
+        return state.copyWith(isSubmitting: false, emailError: some(error.msg), passwordError: none());
       case ErrorCode.PasswordFormatInvalid:
-        return state.copyWith(
-            isSubmitting: false,
-            passwordError: some(error.msg),
-            emailError: none());
+        return state.copyWith(isSubmitting: false, passwordError: some(error.msg), emailError: none());
       default:
-        return state.copyWith(
-            isSubmitting: false, successOrFail: some(right(error)));
+        return state.copyWith(isSubmitting: false, successOrFail: some(right(error)));
     }
   }
 }
 
 @freezed
 abstract class SignInEvent with _$SignInEvent {
-  const factory SignInEvent.signedInWithUserEmailAndPassword() =
-      SignedInWithUserEmailAndPassword;
+  const factory SignInEvent.signedInWithUserEmailAndPassword() = SignedInWithUserEmailAndPassword;
   const factory SignInEvent.emailChanged(String email) = EmailChanged;
   const factory SignInEvent.passwordChanged(String password) = PasswordChanged;
 }

@@ -1,7 +1,7 @@
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/view_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/notifier.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 
 typedef ViewUpdatedCallback = void Function(Either<View, WorkspaceError>);
 

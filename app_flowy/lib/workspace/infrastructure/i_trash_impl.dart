@@ -1,8 +1,8 @@
 import 'package:app_flowy/workspace/domain/i_trash.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/trash_repo.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/trash_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace-infra/trash_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 
 class ITrashImpl implements ITrash {
   TrashRepo repo;

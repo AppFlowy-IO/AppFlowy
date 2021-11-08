@@ -1,7 +1,5 @@
-import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter/material.dart';
-
 import 'toolbar_icon_button.dart';
 
 class FlowyImageButton extends StatelessWidget {
@@ -65,19 +63,19 @@ class FlowyImageButton extends StatelessWidget {
   //       webImagePickImpl: webImagePickImpl,
   //     );
 
-  void _typeLink(BuildContext context) {
-    TextFieldDialog(
-      title: 'URL',
-      value: "",
-      confirm: (newValue) {
-        if (newValue.isEmpty) {
-          return;
-        }
-        final index = controller.selection.baseOffset;
-        final length = controller.selection.extentOffset - index;
+  // void _typeLink(BuildContext context) {
+  //   TextFieldDialog(
+  //     title: 'URL',
+  //     value: "",
+  //     confirm: (newValue) {
+  //       if (newValue.isEmpty) {
+  //         return;
+  //       }
+  //       final index = controller.selection.baseOffset;
+  //       final length = controller.selection.extentOffset - index;
 
-        controller.replaceText(index, length, BlockEmbed.image(newValue), null);
-      },
-    ).show(context);
-  }
+  //       controller.replaceText(index, length, BlockEmbed.image(newValue), null);
+  //     },
+  //   ).show(context);
+  // }
 }

@@ -3,7 +3,6 @@ import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:tuple/tuple.dart';
 
 class AppDisclosureActions with ActionList<AppDisclosureActionWrapper> implements FlowyOverlayDelegate {
   final Function(dartz.Option<AppDisclosureAction>) onSelected;

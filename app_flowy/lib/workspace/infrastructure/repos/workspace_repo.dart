@@ -6,11 +6,11 @@ import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-dart-notify/subject.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/app_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace-infra/app_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_query.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/observable.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/workspace_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/workspace_query.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 
 import 'package:app_flowy/workspace/domain/i_workspace.dart';

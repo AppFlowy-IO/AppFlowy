@@ -5,8 +5,10 @@ import 'package:dartz/dartz.dart';
 import 'package:app_flowy/workspace/domain/i_user.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
 import 'package:flowy_sdk/protobuf/flowy-dart-notify/protobuf.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart' as user_error;
+import 'package:flowy_sdk/protobuf/flowy-user-infra/errors.pb.dart';
+// import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart' as user_error;
 import 'package:flowy_sdk/protobuf/flowy-user/observable.pb.dart' as user;
+import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/observable.pb.dart';
 export 'package:app_flowy/workspace/domain/i_user.dart';
@@ -66,9 +68,9 @@ class IUserListenerImpl extends IUserListener {
 
   @override
   void start() {
-    _workspaceParser = WorkspaceNotificationParser(id: _user.token, callback: _NotificationCallback);
+    _workspaceParser = WorkspaceNotificationParser(id: _user.token, callback: _notificationCallback);
 
-    _userParser = UserNotificationParser(id: _user.token, callback: _UserNotificationCallback);
+    _userParser = UserNotificationParser(id: _user.token, callback: _userNotificationCallback);
 
     _subscription = RustStreamReceiver.listen((observable) {
       _workspaceParser.parse(observable);
@@ -96,7 +98,7 @@ class IUserListenerImpl extends IUserListener {
     _workspacesUpdated = workspacesCallback;
   }
 
-  void _NotificationCallback(WorkspaceNotification ty, Either<Uint8List, WorkspaceError> result) {
+  void _notificationCallback(WorkspaceNotification ty, Either<Uint8List, WorkspaceError> result) {
     switch (ty) {
       case WorkspaceNotification.UserCreateWorkspace:
       case WorkspaceNotification.UserDeleteWorkspace:
@@ -115,7 +117,7 @@ class IUserListenerImpl extends IUserListener {
         if (_authChanged != null) {
           result.fold(
             (_) {},
-            (error) => {_authChanged!(right(UserError.create()..code = user_error.ErrorCode.UserUnauthorized))},
+            (error) => {_authChanged!(right(UserError.create()..code = ErrorCode.UserUnauthorized.value))},
           );
         }
         break;
@@ -124,7 +126,7 @@ class IUserListenerImpl extends IUserListener {
     }
   }
 
-  void _UserNotificationCallback(user.UserNotification ty, Either<Uint8List, UserError> result) {
+  void _userNotificationCallback(user.UserNotification ty, Either<Uint8List, UserError> result) {
     switch (ty) {
       case user.UserNotification.UserUnauthorized:
         if (_profileUpdated != null) {

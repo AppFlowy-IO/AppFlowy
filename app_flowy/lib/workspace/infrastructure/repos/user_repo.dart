@@ -3,10 +3,10 @@ import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/workspace_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/workspace_query.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_query.pb.dart';
 import 'package:app_flowy/workspace/domain/i_user.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 
 class UserRepo {
   final UserProfile user;
@@ -14,13 +14,11 @@ class UserRepo {
     required this.user,
   });
 
-  Future<Either<UserProfile, UserError>> fetchUserProfile(
-      {required String userId}) {
+  Future<Either<UserProfile, UserError>> fetchUserProfile({required String userId}) {
     return UserEventGetUserProfile().send();
   }
 
-  Future<Either<Unit, WorkspaceError>> deleteWorkspace(
-      {required String workspaceId}) {
+  Future<Either<Unit, WorkspaceError>> deleteWorkspace({required String workspaceId}) {
     throw UnimplementedError();
   }
 
@@ -57,8 +55,7 @@ class UserRepo {
     });
   }
 
-  Future<Either<Workspace, WorkspaceError>> createWorkspace(
-      String name, String desc) {
+  Future<Either<Workspace, WorkspaceError>> createWorkspace(String name, String desc) {
     final request = CreateWorkspaceRequest.create()
       ..name = name
       ..desc = desc;
