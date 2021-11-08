@@ -13,10 +13,10 @@ use crate::{
         workspace::{
             CreateWorkspaceParams,
             DeleteWorkspaceParams,
-            QueryWorkspaceParams,
             RepeatedWorkspace,
             UpdateWorkspaceParams,
             Workspace,
+            WorkspaceIdentifier,
         },
     },
     errors::WorkspaceError,
@@ -36,7 +36,7 @@ pub trait WorkspaceServerAPI {
     fn read_workspace(
         &self,
         token: &str,
-        params: QueryWorkspaceParams,
+        params: WorkspaceIdentifier,
     ) -> ResultFuture<RepeatedWorkspace, WorkspaceError>;
 
     fn update_workspace(&self, token: &str, params: UpdateWorkspaceParams) -> ResultFuture<(), WorkspaceError>;

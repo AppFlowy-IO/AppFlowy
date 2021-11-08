@@ -22,6 +22,9 @@ pub enum WorkspaceEvent {
     #[event(input = "QueryWorkspaceRequest", output = "RepeatedApp")]
     ReadWorkspaceApps = 5,
 
+    #[event(output = "WorkspaceIdentifier")]
+    CreateDefaultWorkspace = 6,
+
     #[event(input = "CreateAppRequest", output = "App")]
     CreateApp         = 101,
 

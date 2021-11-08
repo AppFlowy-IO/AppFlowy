@@ -1,16 +1,14 @@
-use std::sync::Arc;
-
-use flowy_database::SqliteConnection;
-use flowy_infra::kv::KV;
-
 use crate::{
-    entities::{app::RepeatedApp, workspace::*},
     errors::*,
     module::{WorkspaceDatabase, WorkspaceUser},
     notify::*,
     services::{helper::spawn, read_local_workspace_apps, server::Server, AppController, TrashCan, ViewController},
     sql_tables::workspace::{WorkspaceTable, WorkspaceTableChangeset, WorkspaceTableSql},
 };
+use flowy_database::SqliteConnection;
+use flowy_infra::kv::KV;
+use flowy_workspace_infra::entities::{app::RepeatedApp, workspace::*};
+use std::sync::Arc;
 
 pub struct WorkspaceController {
     pub user: Arc<dyn WorkspaceUser>,
@@ -51,8 +49,15 @@ impl WorkspaceController {
         Ok(())
     }
 
-    pub(crate) async fn create_workspace(&self, params: CreateWorkspaceParams) -> Result<Workspace, WorkspaceError> {
+    pub(crate) async fn create_workspace_from_params(
+        &self,
+        params: CreateWorkspaceParams,
+    ) -> Result<Workspace, WorkspaceError> {
         let workspace = self.create_workspace_on_server(params.clone()).await?;
+        self.create_workspace(workspace).await
+    }
+
+    pub(crate) async fn create_workspace(&self, workspace: Workspace) -> Result<Workspace, WorkspaceError> {
         let user_id = self.user.user_id()?;
         let token = self.user.token()?;
         let workspace_table = WorkspaceTable::new(workspace.clone(), &user_id);
@@ -77,6 +82,8 @@ impl WorkspaceController {
 
             Ok(())
         })?;
+
+        set_current_workspace(&workspace.id);
 
         Ok(workspace)
     }
@@ -121,7 +128,7 @@ impl WorkspaceController {
         Ok(())
     }
 
-    pub(crate) async fn open_workspace(&self, params: QueryWorkspaceParams) -> Result<Workspace, WorkspaceError> {
+    pub(crate) async fn open_workspace(&self, params: WorkspaceIdentifier) -> Result<Workspace, WorkspaceError> {
         let user_id = self.user.user_id()?;
         let conn = self.database.db_connection()?;
         if let Some(workspace_id) = params.workspace_id.clone() {
@@ -135,7 +142,7 @@ impl WorkspaceController {
 
     pub(crate) async fn read_workspaces(
         &self,
-        params: QueryWorkspaceParams,
+        params: WorkspaceIdentifier,
     ) -> Result<RepeatedWorkspace, WorkspaceError> {
         let user_id = self.user.user_id()?;
         let workspaces =
@@ -147,7 +154,7 @@ impl WorkspaceController {
     pub(crate) async fn read_current_workspace(&self) -> Result<Workspace, WorkspaceError> {
         let workspace_id = get_current_workspace()?;
         let user_id = self.user.user_id()?;
-        let params = QueryWorkspaceParams {
+        let params = WorkspaceIdentifier {
             workspace_id: Some(workspace_id.clone()),
         };
         let workspace = self.read_local_workspace(workspace_id, &user_id, &*self.database.db_connection()?)?;
@@ -256,7 +263,7 @@ impl WorkspaceController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    fn read_workspaces_on_server(&self, user_id: String, params: QueryWorkspaceParams) -> Result<(), WorkspaceError> {
+    fn read_workspaces_on_server(&self, user_id: String, params: WorkspaceIdentifier) -> Result<(), WorkspaceError> {
         let (token, server) = self.token_with_server()?;
         let workspace_sql = self.workspace_sql.clone();
         let app_ctrl = self.app_controller.clone();

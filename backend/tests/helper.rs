@@ -66,7 +66,7 @@ impl TestUserServer {
         workspace
     }
 
-    pub async fn read_workspaces(&self, params: QueryWorkspaceParams) -> RepeatedWorkspace {
+    pub async fn read_workspaces(&self, params: WorkspaceIdentifier) -> RepeatedWorkspace {
         let url = format!("{}/api/workspace", self.http_addr());
         let workspaces = read_workspaces_request(self.user_token(), params, &url).await.unwrap();
         workspaces

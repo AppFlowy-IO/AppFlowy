@@ -6,10 +6,10 @@ use crate::{
         workspace::{
             CreateWorkspaceParams,
             DeleteWorkspaceParams,
-            QueryWorkspaceParams,
             RepeatedWorkspace,
             UpdateWorkspaceParams,
             Workspace,
+            WorkspaceIdentifier,
         },
     },
     errors::WorkspaceError,
@@ -59,7 +59,7 @@ impl WorkspaceServerAPI for WorkspaceServer {
     fn read_workspace(
         &self,
         token: &str,
-        params: QueryWorkspaceParams,
+        params: WorkspaceIdentifier,
     ) -> ResultFuture<RepeatedWorkspace, WorkspaceError> {
         let token = token.to_owned();
         let url = self.config.workspace_url();

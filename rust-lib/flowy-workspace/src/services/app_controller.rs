@@ -44,10 +44,13 @@ impl AppController {
     }
 
     #[tracing::instrument(level = "debug", skip(self, params), fields(name = %params.name) err)]
-    pub(crate) async fn create_app(&self, params: CreateAppParams) -> Result<App, WorkspaceError> {
+    pub(crate) async fn create_app_from_params(&self, params: CreateAppParams) -> Result<App, WorkspaceError> {
         let app = self.create_app_on_server(params).await?;
-        let conn = &*self.database.db_connection()?;
+        self.create_app(app).await
+    }
 
+    pub(crate) async fn create_app(&self, app: App) -> Result<App, WorkspaceError> {
+        let conn = &*self.database.db_connection()?;
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
             let _ = self.save_app(app.clone(), &*conn)?;
             let _ = notify_apps_changed(&app.workspace_id, self.trash_can.clone(), conn)?;

@@ -24,7 +24,7 @@ pub(crate) async fn create_view_handler(
     controller: Unit<Arc<ViewController>>,
 ) -> DataResult<View, WorkspaceError> {
     let params: CreateViewParams = data.into_inner().try_into()?;
-    let view = controller.create_view(params).await?;
+    let view = controller.create_view_from_params(params).await?;
     data_result(view)
 }
 

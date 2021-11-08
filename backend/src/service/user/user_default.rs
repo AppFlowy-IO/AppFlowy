@@ -1,7 +1,6 @@
 use crate::{
     service::{
         app::sql_builder::NewAppSqlBuilder as AppBuilder,
-        view::create_view,
         workspace::sql_builder::NewWorkspaceBuilder as WorkspaceBuilder,
     },
     sqlx_ext::{map_sqlx_error, DBTransaction},
@@ -11,7 +10,7 @@ use crate::service::view::{create_view_with_args, sql_builder::NewViewSqlBuilder
 use chrono::Utc;
 use flowy_document::services::doc::doc_initial_string;
 use flowy_net::errors::ServerError;
-use flowy_workspace_infra::protobuf::{App, CreateViewParams, View, ViewType, Workspace};
+use flowy_workspace_infra::protobuf::Workspace;
 use std::convert::TryInto;
 
 pub async fn create_default_workspace(

@@ -60,6 +60,9 @@ pub struct Workspace {
     pub create_time: i64,
 }
 
+impl Workspace {
+    pub fn take_apps(&mut self) -> RepeatedApp { ::std::mem::replace(&mut self.apps, RepeatedApp::default()) }
+}
 #[derive(PartialEq, Debug, Default, ProtoBuf)]
 pub struct RepeatedWorkspace {
     #[pb(index = 1)]

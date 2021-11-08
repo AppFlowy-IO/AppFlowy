@@ -25,6 +25,7 @@ CRATE_TYPE = "cdylib"
 BUILD_FLAG = "debug"
 FLUTTER_PLATFORM = "macos"
 FLUTTER_OUTPUT_DIR = "Debug"
+FEATURES = "flutter"
 PRODUCT_EXT = "app"
 
 

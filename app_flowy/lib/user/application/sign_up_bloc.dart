@@ -9,8 +9,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'sign_up_bloc.freezed.dart';
 
 class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
-  final IAuth authImpl;
-  SignUpBloc(this.authImpl) : super(SignUpState.initial());
+  final IAuth authManager;
+  SignUpBloc(this.authManager) : super(SignUpState.initial());
 
   @override
   Stream<SignUpState> mapEventToState(
@@ -64,11 +64,11 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
       repeatPasswordError: none(),
     );
 
-    final result = await authImpl.signUp(state.email, state.password, state.email);
+    final result = await authManager.signUp(state.email, state.password, state.email);
     yield result.fold(
-      (userProfile) => state.copyWith(
+      (newUser) => state.copyWith(
         isSubmitting: false,
-        successOrFail: some(left(userProfile)),
+        successOrFail: some(left(newUser.profile)),
         emailError: none(),
         passwordError: none(),
         repeatPasswordError: none(),

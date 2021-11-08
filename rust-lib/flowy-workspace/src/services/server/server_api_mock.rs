@@ -6,10 +6,10 @@ use crate::{
         workspace::{
             CreateWorkspaceParams,
             DeleteWorkspaceParams,
-            QueryWorkspaceParams,
             RepeatedWorkspace,
             UpdateWorkspaceParams,
             Workspace,
+            WorkspaceIdentifier,
         },
     },
     errors::WorkspaceError,
@@ -39,7 +39,7 @@ impl WorkspaceServerAPI for WorkspaceServerMock {
     fn read_workspace(
         &self,
         _token: &str,
-        _params: QueryWorkspaceParams,
+        _params: WorkspaceIdentifier,
     ) -> ResultFuture<RepeatedWorkspace, WorkspaceError> {
         ResultFuture::new(async {
             let repeated_workspace = RepeatedWorkspace { items: vec![] };

@@ -20,7 +20,7 @@ use flowy_net::{
 };
 use flowy_workspace_infra::{
     parser::workspace::{WorkspaceDesc, WorkspaceName},
-    protobuf::{CreateWorkspaceParams, DeleteWorkspaceParams, QueryWorkspaceParams, UpdateWorkspaceParams},
+    protobuf::{CreateWorkspaceParams, DeleteWorkspaceParams, UpdateWorkspaceParams, WorkspaceIdentifier},
 };
 use sqlx::PgPool;
 
@@ -50,7 +50,7 @@ pub async fn read_handler(
     pool: Data<PgPool>,
     logged_user: LoggedUser,
 ) -> Result<HttpResponse, ServerError> {
-    let params: QueryWorkspaceParams = parse_from_payload(payload).await?;
+    let params: WorkspaceIdentifier = parse_from_payload(payload).await?;
     let mut transaction = pool
         .begin()
         .await

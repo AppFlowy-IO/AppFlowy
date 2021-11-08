@@ -98,6 +98,12 @@ pub struct App {
     pub create_time: i64,
 }
 
+impl App {
+    pub fn take_belongings(&mut self) -> RepeatedView {
+        ::std::mem::replace(&mut self.belongings, RepeatedView::default())
+    }
+}
+
 #[derive(PartialEq, Debug, Default, ProtoBuf, Clone)]
 pub struct RepeatedApp {
     #[pb(index = 1)]

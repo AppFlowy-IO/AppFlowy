@@ -35,7 +35,7 @@ class MenuAppHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           _renderExpandedIcon(context, theme),
-          HSpace(MenuAppSizes.iconPadding),
+          // HSpace(MenuAppSizes.iconPadding),
           _renderTitle(context),
           _renderAddButton(context),
         ],
@@ -57,7 +57,7 @@ class MenuAppHeader extends StatelessWidget {
             collapseIcon: FlowyIconData.drop_down_hide,
             iconColor: theme.shader1,
             iconSize: MenuAppSizes.iconSize,
-            iconPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+            iconPadding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
             hasIcon: false,
           ),
         ),

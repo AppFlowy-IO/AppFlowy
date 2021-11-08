@@ -22,7 +22,7 @@ pub(crate) async fn create_app_handler(
     controller: Unit<Arc<AppController>>,
 ) -> DataResult<App, WorkspaceError> {
     let params: CreateAppParams = data.into_inner().try_into()?;
-    let detail = controller.create_app(params).await?;
+    let detail = controller.create_app_from_params(params).await?;
 
     data_result(detail)
 }

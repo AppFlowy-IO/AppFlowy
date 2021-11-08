@@ -101,6 +101,20 @@ class WorkspaceEventReadWorkspaceApps {
     }
 }
 
+class WorkspaceEventCreateDefaultWorkspace {
+    WorkspaceEventCreateDefaultWorkspace();
+
+    Future<Either<WorkspaceIdentifier, WorkspaceError>> send() {
+     final request = FFIRequest.create()
+        ..event = WorkspaceEvent.CreateDefaultWorkspace.toString();
+
+     return Dispatch.asyncRequest(request).then((bytesResult) => bytesResult.fold(
+        (okBytes) => left(WorkspaceIdentifier.fromBuffer(okBytes)),
+        (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+      ));
+    }
+}
+
 class WorkspaceEventCreateApp {
      CreateAppRequest request;
      WorkspaceEventCreateApp(this.request);

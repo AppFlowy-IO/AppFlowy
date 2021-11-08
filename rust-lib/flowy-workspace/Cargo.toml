@@ -39,7 +39,7 @@ tracing = { version = "0.1", features = ["log"] }
 bytes = { version = "1.0" }
 crossbeam = "0.8.1"
 crossbeam-utils = "0.8"
-
+chrono = "0.4"
 
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }

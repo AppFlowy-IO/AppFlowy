@@ -52,8 +52,12 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self, params), fields(name = %params.name), err)]
-    pub(crate) async fn create_view(&self, params: CreateViewParams) -> Result<View, WorkspaceError> {
+    pub(crate) async fn create_view_from_params(&self, params: CreateViewParams) -> Result<View, WorkspaceError> {
         let view = self.create_view_on_server(params.clone()).await?;
+        self.create_view(view).await
+    }
+
+    pub(crate) async fn create_view(&self, view: View) -> Result<View, WorkspaceError> {
         let conn = &*self.database.db_connection()?;
         let trash_can = self.trash_can.clone();
 
@@ -130,7 +134,7 @@ impl ViewController {
             data: delta_data.data,
         };
 
-        let _ = self.create_view(duplicate_params).await?;
+        let _ = self.create_view_from_params(duplicate_params).await?;
         Ok(())
     }
 

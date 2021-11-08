@@ -4,7 +4,6 @@ use crate::entities::{
     workspace::Workspace,
 };
 use chrono::Utc;
-use uuid::Uuid;
 
 pub fn create_default_workspace(time: chrono::DateTime<Utc>) -> Workspace {
     let workspace_id = uuid::Uuid::new_v4();

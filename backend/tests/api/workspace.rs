@@ -3,7 +3,7 @@ use flowy_workspace_infra::entities::{
     app::{AppIdentifier, UpdateAppParams},
     trash::{TrashIdentifier, TrashIdentifiers, TrashType},
     view::{UpdateViewParams, ViewIdentifier},
-    workspace::{CreateWorkspaceParams, DeleteWorkspaceParams, QueryWorkspaceParams, UpdateWorkspaceParams},
+    workspace::{CreateWorkspaceParams, DeleteWorkspaceParams, UpdateWorkspaceParams, WorkspaceIdentifier},
 };
 
 #[actix_rt::test]
@@ -15,7 +15,7 @@ async fn workspace_create() {
 #[actix_rt::test]
 async fn workspace_read() {
     let test = WorkspaceTest::new().await;
-    let read_params = QueryWorkspaceParams::new().workspace_id(&test.workspace.id);
+    let read_params = WorkspaceIdentifier::new(Some(test.workspace.id.clone()));
     let repeated_workspace = test.server.read_workspaces(read_params).await;
     tracing::info!("{:?}", repeated_workspace);
 }
@@ -28,7 +28,7 @@ async fn workspace_read_with_belongs() {
     let _ = test.create_app().await;
     let _ = test.create_app().await;
 
-    let read_params = QueryWorkspaceParams::new().workspace_id(&test.workspace.id);
+    let read_params = WorkspaceIdentifier::new(Some(test.workspace.id.clone()));
     let workspaces = test.server.read_workspaces(read_params).await;
     let workspace = workspaces.items.first().unwrap();
     assert_eq!(workspace.apps.len(), 3);
@@ -46,7 +46,7 @@ async fn workspace_update() {
         desc: Some(new_desc.to_string()),
     };
     test.server.update_workspace(update_params).await;
-    let read_params = QueryWorkspaceParams::new().workspace_id(&test.workspace.id);
+    let read_params = WorkspaceIdentifier::new(Some(test.workspace.id.clone()));
     let repeated_workspace = test.server.read_workspaces(read_params).await;
 
     let workspace = repeated_workspace.first().unwrap();
@@ -62,7 +62,7 @@ async fn workspace_delete() {
     };
 
     let _ = test.server.delete_workspace(delete_params).await;
-    let read_params = QueryWorkspaceParams::new().workspace_id(&test.workspace.id);
+    let read_params = WorkspaceIdentifier::new(Some(test.workspace.id.clone()));
     let repeated_workspace = test.server.read_workspaces(read_params).await;
     assert_eq!(repeated_workspace.len(), 0);
 }
@@ -210,7 +210,7 @@ async fn workspace_list_read() {
         let _ = server.create_workspace(params).await;
     }
 
-    let read_params = QueryWorkspaceParams::new();
+    let read_params = WorkspaceIdentifier::new();
     let workspaces = server.read_workspaces(read_params).await;
     assert_eq!(workspaces.len(), 4);
 }

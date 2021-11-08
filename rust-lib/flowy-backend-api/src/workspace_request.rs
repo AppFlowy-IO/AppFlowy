@@ -21,7 +21,7 @@ pub async fn create_workspace_request(
 
 pub async fn read_workspaces_request(
     token: &str,
-    params: QueryWorkspaceParams,
+    params: WorkspaceIdentifier,
     url: &str,
 ) -> Result<RepeatedWorkspace, ServerError> {
     let repeated_workspace = request_builder()
