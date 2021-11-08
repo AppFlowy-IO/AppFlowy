@@ -7,6 +7,7 @@ edition = "2018"
 
 [dependencies]
 flowy-user-infra = { path = "../flowy-user-infra" }
+flowy-backend-api = { path = "../flowy-backend-api" }
 derive_more = {version = "0.99", features = ["display"]}
 flowy-dispatch = { path = "../flowy-dispatch" }
 flowy-derive = { path = "../flowy-derive" }

@@ -61,6 +61,7 @@ impl SqlBuilder {
         self
     }
 
+    #[allow(dead_code)]
     pub fn add_arg_if<'a, T>(self, add: bool, field: &str, arg: T) -> Self
     where
         T: 'a + Send + Encode<'a, Postgres> + Type<Postgres>,
@@ -123,12 +124,9 @@ impl SqlBuilder {
                     inner.field(field);
                 });
 
-                self.filters
-                    .into_iter()
-                    .enumerate()
-                    .for_each(|(index, filter)| {
-                        inner.and_where_eq(filter, format!("${}", index + 1));
-                    });
+                self.filters.into_iter().enumerate().for_each(|(index, filter)| {
+                    inner.and_where_eq(filter, format!("${}", index + 1));
+                });
 
                 let sql = inner.sql()?;
                 Ok((sql, self.fields_args))
@@ -136,32 +134,23 @@ impl SqlBuilder {
             BuilderType::Update => {
                 let mut inner = InnerBuilder::update_table(&self.table);
                 let field_len = self.fields.len();
-                self.fields
-                    .into_iter()
-                    .enumerate()
-                    .for_each(|(index, field)| {
-                        inner.set(&field, format!("${}", index + 1));
-                    });
+                self.fields.into_iter().enumerate().for_each(|(index, field)| {
+                    inner.set(&field, format!("${}", index + 1));
+                });
 
-                self.filters
-                    .into_iter()
-                    .enumerate()
-                    .for_each(|(index, filter)| {
-                        let index = index + field_len;
-                        inner.and_where_eq(filter, format!("${}", index + 1));
-                    });
+                self.filters.into_iter().enumerate().for_each(|(index, filter)| {
+                    let index = index + field_len;
+                    inner.and_where_eq(filter, format!("${}", index + 1));
+                });
 
                 let sql = inner.sql()?;
                 Ok((sql, self.fields_args))
             },
             BuilderType::Delete => {
                 let mut inner = InnerBuilder::delete_from(&self.table);
-                self.filters
-                    .into_iter()
-                    .enumerate()
-                    .for_each(|(index, filter)| {
-                        inner.and_where_eq(filter, format!("${}", index + 1));
-                    });
+                self.filters.into_iter().enumerate().for_each(|(index, filter)| {
+                    inner.and_where_eq(filter, format!("${}", index + 1));
+                });
                 let sql = inner.sql()?;
                 Ok((sql, self.fields_args))
             },

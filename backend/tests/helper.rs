@@ -5,12 +5,14 @@ use backend::{
 };
 
 use backend::application::init_app_context;
+use flowy_backend_api::{user_request::*, workspace_request::*};
 use flowy_document::{
     entities::doc::{Doc, DocIdentifier},
     prelude::*,
 };
-use flowy_user::{errors::UserError, prelude::*};
-use flowy_workspace::prelude::{server::*, *};
+use flowy_net::errors::ServerError;
+use flowy_user_infra::entities::*;
+use flowy_workspace_infra::entities::prelude::*;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
 
@@ -31,9 +33,10 @@ impl TestUserServer {
         server
     }
 
-    pub async fn sign_in(&self, params: SignInParams) -> Result<SignInResponse, UserError> {
+    pub async fn sign_in(&self, params: SignInParams) -> Result<SignInResponse, ServerError> {
         let url = format!("{}/api/auth", self.http_addr());
-        user_sign_in_request(params, &url).await
+        let resp = user_sign_in_request(params, &url).await?;
+        Ok(resp)
     }
 
     pub async fn sign_out(&self) {
@@ -51,9 +54,10 @@ impl TestUserServer {
         user_profile
     }
 
-    pub async fn update_user_profile(&self, params: UpdateUserParams) -> Result<(), UserError> {
+    pub async fn update_user_profile(&self, params: UpdateUserParams) -> Result<(), ServerError> {
         let url = format!("{}/api/user", self.http_addr());
-        update_user_profile_request(self.user_token(), params, &url).await
+        let _ = update_user_profile_request(self.user_token(), params, &url).await?;
+        Ok(())
     }
 
     pub async fn create_workspace(&self, params: CreateWorkspaceParams) -> Workspace {

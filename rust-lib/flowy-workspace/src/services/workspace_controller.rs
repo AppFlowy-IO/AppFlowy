@@ -44,6 +44,7 @@ impl WorkspaceController {
     }
 
     pub fn init(&self) -> Result<(), WorkspaceError> {
+        let _ = self.server.init();
         let _ = self.trash_can.init()?;
         let _ = self.view_controller.init()?;
         let _ = self.app_controller.init()?;

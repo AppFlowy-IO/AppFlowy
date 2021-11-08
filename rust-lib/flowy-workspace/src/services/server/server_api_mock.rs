@@ -20,6 +20,8 @@ use flowy_infra::{future::ResultFuture, timestamp, uuid};
 pub struct WorkspaceServerMock {}
 
 impl WorkspaceServerAPI for WorkspaceServerMock {
+    fn init(&self) {}
+
     fn create_workspace(&self, _token: &str, params: CreateWorkspaceParams) -> ResultFuture<Workspace, WorkspaceError> {
         let time = timestamp();
         let workspace = Workspace {

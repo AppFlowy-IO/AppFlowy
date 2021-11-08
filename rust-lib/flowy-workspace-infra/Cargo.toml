@@ -15,3 +15,9 @@ strum_macros = "0.21"
 derive_more = {version = "0.99", features = ["display"]}
 log = "0.4.14"
 flowy-document = { path = "../flowy-document" }
+
+
+[features]
+default = []
+backend = []
+frontend = []

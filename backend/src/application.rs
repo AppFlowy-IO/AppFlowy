@@ -105,6 +105,7 @@ fn user_scope() -> Scope {
         .service(web::resource("/app")
             .route(web::post().to(app::create_handler))
             .route(web::get().to(app::read_handler))
+            .route(web::delete().to(app::delete_handler))
             .route(web::patch().to(app::update_handler))
         )
         .service(web::resource("/view")

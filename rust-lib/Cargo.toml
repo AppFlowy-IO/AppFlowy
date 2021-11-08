@@ -19,6 +19,7 @@ members = [
   "flowy-ot",
   "flowy-net",
   "flowy-ws",
+  "flowy-backend-api",
 ]
 
 exclude = ["../backend"]

@@ -10,7 +10,7 @@ flowy-dispatch = { path = "../flowy-dispatch"}
 flowy-log = { path = "../flowy-log" }
 flowy-user = { path = "../flowy-user" }
 flowy-infra = { path = "../flowy-infra" }
-flowy-workspace = { path = "../flowy-workspace" }
+flowy-workspace = { path = "../flowy-workspace", default-features = false }
 flowy-database = { path = "../flowy-database" }
 flowy-document = { path = "../flowy-document" }
 flowy-ws = { path = "../flowy-ws" }

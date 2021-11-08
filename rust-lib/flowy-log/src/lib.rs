@@ -17,6 +17,7 @@ lazy_static! {
 }
 
 pub struct Builder {
+    #[allow(dead_code)]
     name: String,
     env_filter: String,
     file_appender: RollingFileAppender,

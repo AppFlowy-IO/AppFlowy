@@ -1,4 +1,3 @@
-mod middleware;
 mod server_api;
 mod server_api_mock;
 
@@ -29,6 +28,8 @@ use std::sync::Arc;
 pub(crate) type Server = Arc<dyn WorkspaceServerAPI + Send + Sync>;
 
 pub trait WorkspaceServerAPI {
+    fn init(&self);
+
     // Workspace
     fn create_workspace(&self, token: &str, params: CreateWorkspaceParams) -> ResultFuture<Workspace, WorkspaceError>;
 

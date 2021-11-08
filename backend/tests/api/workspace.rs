@@ -1,5 +1,5 @@
 use crate::helper::*;
-use flowy_workspace::entities::{
+use flowy_workspace_infra::entities::{
     app::{AppIdentifier, UpdateAppParams},
     trash::{TrashIdentifier, TrashIdentifiers, TrashType},
     view::{UpdateViewParams, ViewIdentifier},

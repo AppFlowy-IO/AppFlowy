@@ -16,6 +16,7 @@ flowy-dart-notify = { path = "../flowy-dart-notify" }
 flowy-document = { path = "../flowy-document" }
 flowy-ot = { path = "../flowy-ot" }
 flowy-net = { path = "../flowy-net", features = ["flowy_request"] }
+flowy-backend-api = { path = "../flowy-backend-api"}
 
 parking_lot = "0.11"
 protobuf = {version = "2.18.0"}
@@ -44,6 +45,6 @@ crossbeam-utils = "0.8"
 flowy-test = { path = "../flowy-test" }
 serial_test = "0.5.1"
 
-
 [features]
+default = []
 http_server = []

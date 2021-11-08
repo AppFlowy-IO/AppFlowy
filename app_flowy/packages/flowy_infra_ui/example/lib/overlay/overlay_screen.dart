@@ -154,7 +154,7 @@ class OverlayScreen extends StatelessWidget {
                             color: Colors.orange[200],
                             child: GestureDetector(
                               // ignore: avoid_print
-                              onTapDown: (_) => print('Hello Flutter'),
+                              onTapDown: (_) => debugPrint('Hello Flutter'),
                               child: const Center(child: FlutterLogo(size: 100)),
                             ),
                           ),
@@ -202,8 +202,8 @@ class OverlayScreen extends StatelessWidget {
                         OptionOverlay.showWithAnchor(
                           context,
                           items: <String>['Alpha', 'Beta', 'Charlie', 'Delta', 'Echo', 'Foxtrot', 'Golf', 'Hotel'],
-                          onHover: (value, index) => print('Did hover option $index, value $value'),
-                          onTap: (value, index) => print('Did tap option $index, value $value'),
+                          onHover: (value, index) => debugPrint('Did hover option $index, value $value'),
+                          onTap: (value, index) => debugPrint('Did tap option $index, value $value'),
                           identifier: 'overlay_options',
                           anchorContext: buttonContext,
                           anchorDirection: providerContext.read<OverlayDemoConfiguration>().anchorDirection,

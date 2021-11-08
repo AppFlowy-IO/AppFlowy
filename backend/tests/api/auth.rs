@@ -1,5 +1,6 @@
 use crate::helper::{spawn_user_server, TestUserServer};
-use flowy_user::entities::{SignInParams, SignUpParams, SignUpResponse, UpdateUserParams};
+use flowy_net::errors::ErrorCode;
+use flowy_user_infra::entities::{SignInParams, SignUpParams, SignUpResponse, UpdateUserParams};
 
 #[actix_rt::test]
 async fn user_register() {
@@ -77,7 +78,7 @@ async fn user_update_password() {
     match server.sign_in(sign_in_params).await {
         Ok(_) => {},
         Err(e) => {
-            assert_eq!(e.code, flowy_user::errors::ErrorCode::PasswordNotMatch.value());
+            assert_eq!(e.code, ErrorCode::PasswordNotMatch);
         },
     }
 }
