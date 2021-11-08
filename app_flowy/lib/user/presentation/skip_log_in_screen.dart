@@ -1,5 +1,7 @@
+import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/domain/i_auth.dart';
 import 'package:app_flowy/user/presentation/widgets/background.dart';
+import 'package:app_flowy/workspace/domain/i_user.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra/uuid.dart';
@@ -10,10 +12,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class SkipLogInScreen extends StatelessWidget {
+class SkipLogInScreen extends StatefulWidget {
   final IAuthRouter router;
   final IAuth authManager;
-  const SkipLogInScreen({Key? key, required this.router, required this.authManager}) : super(key: key);
+
+  const SkipLogInScreen({
+    Key? key,
+    required this.router,
+    required this.authManager,
+  }) : super(key: key);
+
+  @override
+  State<SkipLogInScreen> createState() => _SkipLogInScreenState();
+}
+
+class _SkipLogInScreenState extends State<SkipLogInScreen> {
+  IUserListener? userListener;
 
   @override
   Widget build(BuildContext context) {
@@ -78,10 +92,12 @@ class SkipLogInScreen extends StatelessWidget {
     const password = "AppFlowy123@";
     final uid = uuid();
     final userEmail = "$uid@appflowy.io";
-    final result = await authManager.signUp("FlowyUser", password, userEmail);
+    final result = await widget.authManager.signUp("FlowyUser", password, userEmail);
     result.fold(
-      (newUser) {
-        router.pushHomeScreen(context, newUser.profile, newUser.workspaceId);
+      (user) {
+        userListener = getIt<IUserListener>(param1: user);
+
+        // router.pushHomeScreen(context, newUser.profile, newUser.workspaceId);
       },
       (error) {
         Log.error(error);
