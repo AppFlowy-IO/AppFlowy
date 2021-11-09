@@ -1,5 +1,5 @@
 use anyhow::Context;
-use chrono::Utc;
+
 use sqlx::{PgPool, Postgres};
 
 use flowy_net::{

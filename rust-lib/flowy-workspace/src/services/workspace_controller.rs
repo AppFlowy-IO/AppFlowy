@@ -12,7 +12,12 @@ use flowy_workspace_infra::{
     entities::{app::RepeatedApp, workspace::*},
     user_default,
 };
-use std::sync::Arc;
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc,
+};
+
+static INIT_WORKSPACE: AtomicBool = AtomicBool::new(false);
 
 pub struct WorkspaceController {
     pub user: Arc<dyn WorkspaceUser>,
@@ -45,7 +50,13 @@ impl WorkspaceController {
         }
     }
 
-    pub fn init(&self) -> Result<(), WorkspaceError> {
+    fn init(&self) -> Result<(), WorkspaceError> {
+        if INIT_WORKSPACE.load(Ordering::SeqCst) {
+            return Ok(());
+        }
+
+        log::debug!("workspace initialize");
+        INIT_WORKSPACE.store(true, Ordering::SeqCst);
         let _ = self.server.init();
         let _ = self.trash_can.init()?;
         let _ = self.view_controller.init()?;
@@ -54,9 +65,19 @@ impl WorkspaceController {
         Ok(())
     }
 
-    pub fn user_did_login(&self) {}
+    pub fn user_did_login(&self) -> WorkspaceResult<()> {
+        // TODO: (nathan) do something here
+        let _ = self.init()?;
+        Ok(())
+    }
 
-    pub fn user_session_expired(&self) {}
+    pub fn user_did_logout(&self) {
+        // TODO: (nathan) do something here
+    }
+
+    pub fn user_session_expired(&self) {
+        // TODO: (nathan) do something here
+    }
 
     pub async fn user_did_sign_up(&self) -> WorkspaceResult<()> {
         log::debug!("Create user default workspace");
@@ -78,9 +99,11 @@ impl WorkspaceController {
         let repeated_workspace = RepeatedWorkspace {
             items: vec![cloned_workspace],
         };
+
         send_dart_notification(&token, WorkspaceNotification::UserCreateWorkspace)
             .payload(repeated_workspace)
             .send();
+        let _ = self.init()?;
         Ok(())
     }
 
@@ -347,7 +370,7 @@ impl WorkspaceController {
 
 const CURRENT_WORKSPACE_ID: &str = "current_workspace_id";
 
-fn set_current_workspace(workspace: &str) { KV::set_str(CURRENT_WORKSPACE_ID, workspace.to_owned()); }
+fn set_current_workspace(workspace_id: &str) { KV::set_str(CURRENT_WORKSPACE_ID, workspace_id.to_owned()); }
 
 fn get_current_workspace() -> Result<String, WorkspaceError> {
     match KV::get_str(CURRENT_WORKSPACE_ID) {

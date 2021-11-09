@@ -6,11 +6,8 @@ use crate::deps_resolve::WorkspaceDepsResolver;
 use flowy_dispatch::prelude::*;
 use flowy_document::prelude::FlowyDocument;
 use flowy_net::config::ServerConfig;
-use flowy_user::{
-    entities::UserStatus,
-    services::user::{UserSession, UserSessionBuilder},
-};
-use flowy_workspace::prelude::WorkspaceController;
+use flowy_user::services::user::{UserSession, UserSessionBuilder, UserStatus};
+use flowy_workspace::{errors::WorkspaceError, prelude::WorkspaceController};
 use module::mk_modules;
 pub use module::*;
 use std::sync::{
@@ -53,7 +50,8 @@ fn crate_log_filter(level: Option<String>) -> String {
     filters.push(format!("flowy_dart_notify={}", level));
     filters.push(format!("flowy_ot={}", level));
     filters.push(format!("flowy_ws={}", level));
-    filters.push(format!("info"));
+    filters.push(format!("flowy_ws={}", level));
+    filters.push(format!("flowy_infra={}", level));
     filters.join(",")
 }
 
@@ -81,9 +79,7 @@ impl FlowySDK {
         let workspace = mk_workspace(user_session.clone(), flowy_document.clone(), &config.server_config);
         let modules = mk_modules(workspace.clone(), user_session.clone());
         let dispatch = Arc::new(EventDispatch::construct(|| modules));
-
-        let subscribe = user_session.status_subscribe();
-        listen_on_user_status_changed(&dispatch, subscribe, workspace.clone());
+        _init(&dispatch, user_session.clone(), workspace.clone());
 
         Self {
             config,
@@ -97,30 +93,47 @@ impl FlowySDK {
     pub fn dispatch(&self) -> Arc<EventDispatch> { self.dispatch.clone() }
 }
 
-fn listen_on_user_status_changed(
-    dispatch: &EventDispatch,
+fn _init(dispatch: &EventDispatch, user_session: Arc<UserSession>, workspace_controller: Arc<WorkspaceController>) {
+    let subscribe = user_session.status_subscribe();
+    dispatch.spawn(async move {
+        user_session.init();
+        _listen_user_status(subscribe, workspace_controller).await;
+    });
+}
+
+async fn _listen_user_status(
     mut subscribe: broadcast::Receiver<UserStatus>,
     workspace_controller: Arc<WorkspaceController>,
 ) {
-    dispatch.spawn(async move {
-        //
-        loop {
-            match subscribe.recv().await {
-                Ok(status) => match status {
-                    UserStatus::Login { .. } => {
-                        workspace_controller.user_did_login();
-                    },
-                    UserStatus::Expired { .. } => {
-                        workspace_controller.user_session_expired();
-                    },
-                    UserStatus::SignUp { .. } => {
-                        let _ = workspace_controller.user_did_sign_up().await;
-                    },
-                },
-                Err(_) => {},
-            }
+    loop {
+        match subscribe.recv().await {
+            Ok(status) => {
+                let result = || async {
+                    match status {
+                        UserStatus::Login { .. } => {
+                            let _ = workspace_controller.user_did_login()?;
+                        },
+                        UserStatus::Logout { .. } => {
+                            workspace_controller.user_did_logout();
+                        },
+                        UserStatus::Expired { .. } => {
+                            workspace_controller.user_session_expired();
+                        },
+                        UserStatus::SignUp { .. } => {
+                            let _ = workspace_controller.user_did_sign_up().await?;
+                        },
+                    }
+                    Ok::<(), WorkspaceError>(())
+                };
+
+                match result().await {
+                    Ok(_) => {},
+                    Err(e) => log::error!("{}", e),
+                }
+            },
+            Err(_) => {},
         }
-    });
+    }
 }
 
 fn init_kv(root: &str) {

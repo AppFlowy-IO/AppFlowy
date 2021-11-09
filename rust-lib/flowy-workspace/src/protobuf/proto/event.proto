@@ -7,7 +7,6 @@ enum WorkspaceEvent {
     DeleteWorkspace = 3;
     OpenWorkspace = 4;
     ReadWorkspaceApps = 5;
-    CreateDefaultWorkspace = 6;
     CreateApp = 101;
     DeleteApp = 102;
     ReadApp = 103;
@@ -26,5 +25,4 @@ enum WorkspaceEvent {
     RestoreAll = 303;
     DeleteAll = 304;
     ApplyDocDelta = 400;
-    InitWorkspace = 1000;
 }

@@ -16,7 +16,6 @@ class WorkspaceEvent extends $pb.ProtobufEnum {
   static const WorkspaceEvent DeleteWorkspace = WorkspaceEvent._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DeleteWorkspace');
   static const WorkspaceEvent OpenWorkspace = WorkspaceEvent._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'OpenWorkspace');
   static const WorkspaceEvent ReadWorkspaceApps = WorkspaceEvent._(5, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ReadWorkspaceApps');
-  static const WorkspaceEvent CreateDefaultWorkspace = WorkspaceEvent._(6, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateDefaultWorkspace');
   static const WorkspaceEvent CreateApp = WorkspaceEvent._(101, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CreateApp');
   static const WorkspaceEvent DeleteApp = WorkspaceEvent._(102, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DeleteApp');
   static const WorkspaceEvent ReadApp = WorkspaceEvent._(103, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ReadApp');
@@ -35,7 +34,6 @@ class WorkspaceEvent extends $pb.ProtobufEnum {
   static const WorkspaceEvent RestoreAll = WorkspaceEvent._(303, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RestoreAll');
   static const WorkspaceEvent DeleteAll = WorkspaceEvent._(304, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DeleteAll');
   static const WorkspaceEvent ApplyDocDelta = WorkspaceEvent._(400, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ApplyDocDelta');
-  static const WorkspaceEvent InitWorkspace = WorkspaceEvent._(1000, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'InitWorkspace');
 
   static const $core.List<WorkspaceEvent> values = <WorkspaceEvent> [
     CreateWorkspace,
@@ -44,7 +42,6 @@ class WorkspaceEvent extends $pb.ProtobufEnum {
     DeleteWorkspace,
     OpenWorkspace,
     ReadWorkspaceApps,
-    CreateDefaultWorkspace,
     CreateApp,
     DeleteApp,
     ReadApp,
@@ -63,7 +60,6 @@ class WorkspaceEvent extends $pb.ProtobufEnum {
     RestoreAll,
     DeleteAll,
     ApplyDocDelta,
-    InitWorkspace,
   ];
 
   static final $core.Map<$core.int, WorkspaceEvent> _byValue = $pb.ProtobufEnum.initByValue(values);

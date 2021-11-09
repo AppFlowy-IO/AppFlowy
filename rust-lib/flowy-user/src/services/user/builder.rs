@@ -1,6 +1,5 @@
 use crate::services::user::{UserSession, UserSessionConfig};
 use flowy_net::config::ServerConfig;
-use std::sync::Arc;
 
 pub struct UserSessionBuilder {
     config: Option<UserSessionConfig>,

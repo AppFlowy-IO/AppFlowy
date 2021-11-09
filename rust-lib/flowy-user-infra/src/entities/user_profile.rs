@@ -6,13 +6,6 @@ use crate::{
     parser::{UserEmail, UserId, UserName, UserPassword},
 };
 
-#[derive(Clone)]
-pub enum UserStatus {
-    Login { token: String },
-    Expired { token: String },
-    SignUp { profile: UserProfile },
-}
-
 #[derive(Default, ProtoBuf)]
 pub struct UserToken {
     #[pb(index = 1)]

@@ -70,8 +70,7 @@ pub fn create(workspace: Arc<WorkspaceController>) -> Module {
         .data(workspace.clone())
         .data(workspace.app_controller.clone())
         .data(workspace.view_controller.clone())
-        .data(workspace.trash_can.clone())
-        .event(WorkspaceEvent::InitWorkspace, init_workspace_handler);
+        .data(workspace.trash_can.clone());
 
     module = module
         .event(WorkspaceEvent::CreateWorkspace, create_workspace_handler)

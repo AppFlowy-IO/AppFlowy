@@ -19,12 +19,19 @@ use flowy_database::{
 use flowy_infra::kv::KV;
 use flowy_net::config::ServerConfig;
 use flowy_sqlite::ConnectionPool;
-use flowy_user_infra::entities::UserStatus;
 use flowy_ws::{WsController, WsMessageHandler, WsState};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::broadcast;
+
+#[derive(Clone)]
+pub enum UserStatus {
+    Login { token: String },
+    Logout { token: String },
+    Expired { token: String },
+    SignUp { profile: UserProfile },
+}
 
 pub struct UserSessionConfig {
     root_dir: String,
@@ -65,6 +72,16 @@ impl UserSession {
             status_notifier,
         };
         user_session
+    }
+
+    pub fn init(&self) {
+        log::debug!("😁😁😁 user did login");
+        match self.get_session() {
+            Ok(session) => {
+                let _ = self.status_notifier.send(UserStatus::Login { token: session.token });
+            },
+            Err(_) => {},
+        }
     }
 
     pub fn status_subscribe(&self) -> broadcast::Receiver<UserStatus> { self.status_notifier.subscribe() }
@@ -126,7 +143,7 @@ impl UserSession {
             diesel::delete(dsl::user_table.filter(dsl::id.eq(&session.user_id))).execute(&*(self.db_connection()?))?;
         let _ = self.database.close_user_db(&session.user_id)?;
         let _ = self.set_session(None)?;
-        let _ = self.status_notifier.send(UserStatus::Expired {
+        let _ = self.status_notifier.send(UserStatus::Logout {
             token: session.token.clone(),
         });
         let _ = self.sign_out_on_server(&session.token).await?;

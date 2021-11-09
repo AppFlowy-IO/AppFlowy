@@ -18,7 +18,6 @@ const WorkspaceEvent$json = const {
     const {'1': 'DeleteWorkspace', '2': 3},
     const {'1': 'OpenWorkspace', '2': 4},
     const {'1': 'ReadWorkspaceApps', '2': 5},
-    const {'1': 'CreateDefaultWorkspace', '2': 6},
     const {'1': 'CreateApp', '2': 101},
     const {'1': 'DeleteApp', '2': 102},
     const {'1': 'ReadApp', '2': 103},
@@ -37,9 +36,8 @@ const WorkspaceEvent$json = const {
     const {'1': 'RestoreAll', '2': 303},
     const {'1': 'DeleteAll', '2': 304},
     const {'1': 'ApplyDocDelta', '2': 400},
-    const {'1': 'InitWorkspace', '2': 1000},
   ],
 };
 
 /// Descriptor for `WorkspaceEvent`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List workspaceEventDescriptor = $convert.base64Decode('Cg5Xb3Jrc3BhY2VFdmVudBITCg9DcmVhdGVXb3Jrc3BhY2UQABIUChBSZWFkQ3VyV29ya3NwYWNlEAESEgoOUmVhZFdvcmtzcGFjZXMQAhITCg9EZWxldGVXb3Jrc3BhY2UQAxIRCg1PcGVuV29ya3NwYWNlEAQSFQoRUmVhZFdvcmtzcGFjZUFwcHMQBRIaChZDcmVhdGVEZWZhdWx0V29ya3NwYWNlEAYSDQoJQ3JlYXRlQXBwEGUSDQoJRGVsZXRlQXBwEGYSCwoHUmVhZEFwcBBnEg0KCVVwZGF0ZUFwcBBoEg8KCkNyZWF0ZVZpZXcQyQESDQoIUmVhZFZpZXcQygESDwoKVXBkYXRlVmlldxDLARIPCgpEZWxldGVWaWV3EMwBEhIKDUR1cGxpY2F0ZVZpZXcQzQESDQoIQ29weUxpbmsQzgESDQoIT3BlblZpZXcQzwESDgoJQ2xvc2VWaWV3ENABEg4KCVJlYWRUcmFzaBCsAhIRCgxQdXRiYWNrVHJhc2gQrQISEAoLRGVsZXRlVHJhc2gQrgISDwoKUmVzdG9yZUFsbBCvAhIOCglEZWxldGVBbGwQsAISEgoNQXBwbHlEb2NEZWx0YRCQAxISCg1Jbml0V29ya3NwYWNlEOgH');
+final $typed_data.Uint8List workspaceEventDescriptor = $convert.base64Decode('Cg5Xb3Jrc3BhY2VFdmVudBITCg9DcmVhdGVXb3Jrc3BhY2UQABIUChBSZWFkQ3VyV29ya3NwYWNlEAESEgoOUmVhZFdvcmtzcGFjZXMQAhITCg9EZWxldGVXb3Jrc3BhY2UQAxIRCg1PcGVuV29ya3NwYWNlEAQSFQoRUmVhZFdvcmtzcGFjZUFwcHMQBRINCglDcmVhdGVBcHAQZRINCglEZWxldGVBcHAQZhILCgdSZWFkQXBwEGcSDQoJVXBkYXRlQXBwEGgSDwoKQ3JlYXRlVmlldxDJARINCghSZWFkVmlldxDKARIPCgpVcGRhdGVWaWV3EMsBEg8KCkRlbGV0ZVZpZXcQzAESEgoNRHVwbGljYXRlVmlldxDNARINCghDb3B5TGluaxDOARINCghPcGVuVmlldxDPARIOCglDbG9zZVZpZXcQ0AESDgoJUmVhZFRyYXNoEKwCEhEKDFB1dGJhY2tUcmFzaBCtAhIQCgtEZWxldGVUcmFzaBCuAhIPCgpSZXN0b3JlQWxsEK8CEg4KCURlbGV0ZUFsbBCwAhISCg1BcHBseURvY0RlbHRhEJAD');

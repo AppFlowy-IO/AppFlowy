@@ -1,20 +1,8 @@
-use crate::{
-    errors::WorkspaceError,
-    services::{AppController, ViewController, WorkspaceController},
-};
-use chrono::Utc;
-use flowy_dispatch::prelude::{data_result, Data, DataResult, Unit};
-use flowy_workspace_infra::{
-    entities::{app::RepeatedApp, workspace::*},
-    user_default,
-};
-use std::{convert::TryInto, sync::Arc};
+use crate::{errors::WorkspaceError, services::WorkspaceController};
 
-#[tracing::instrument(skip(controller), err)]
-pub(crate) async fn init_workspace_handler(controller: Unit<Arc<WorkspaceController>>) -> Result<(), WorkspaceError> {
-    let _ = controller.init()?;
-    Ok(())
-}
+use flowy_dispatch::prelude::{data_result, Data, DataResult, Unit};
+use flowy_workspace_infra::entities::{app::RepeatedApp, workspace::*};
+use std::{convert::TryInto, sync::Arc};
 
 #[tracing::instrument(skip(data, controller), err)]
 pub(crate) async fn create_workspace_handler(

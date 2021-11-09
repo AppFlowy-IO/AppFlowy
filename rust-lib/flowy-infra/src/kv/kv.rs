@@ -4,21 +4,35 @@ use diesel::{Connection, SqliteConnection};
 use flowy_derive::ProtoBuf;
 use flowy_sqlite::{DBConnection, Database, PoolConfig};
 use lazy_static::lazy_static;
-use std::{path::Path, sync::RwLock};
+use std::{
+    collections::HashMap,
+    path::Path,
+    sync::{PoisonError, RwLock, RwLockWriteGuard},
+};
 
 const DB_NAME: &str = "kv.db";
 lazy_static! {
-    static ref KV_HOLDER: RwLock<KV> = RwLock::new(KV { database: None });
+    static ref KV_HOLDER: RwLock<KV> = RwLock::new(KV::new());
 }
 
 pub struct KV {
     database: Option<Database>,
+    cache: HashMap<String, KeyValue>,
 }
 
 impl KV {
-    fn set(item: KeyValue) -> Result<(), String> {
+    fn new() -> Self {
+        KV {
+            database: None,
+            cache: HashMap::new(),
+        }
+    }
+
+    fn set(value: KeyValue) -> Result<(), String> {
+        update_cache(value.clone());
+
         let _ = diesel::replace_into(kv_table::table)
-            .values(&item)
+            .values(&value)
             .execute(&*(get_connection()?))
             .map_err(|e| format!("KV set error: {:?}", e))?;
 
@@ -26,16 +40,30 @@ impl KV {
     }
 
     fn get(key: &str) -> Result<KeyValue, String> {
+        if let Some(value) = read_cache(key) {
+            return Ok(value);
+        }
+
         let conn = get_connection()?;
-        let item = dsl::kv_table
+        let value = dsl::kv_table
             .filter(kv_table::key.eq(key))
             .first::<KeyValue>(&*conn)
             .map_err(|e| format!("KV get error: {:?}", e))?;
-        Ok(item)
+
+        update_cache(value.clone());
+
+        Ok(value)
     }
 
     #[allow(dead_code)]
     pub fn remove(key: &str) -> Result<(), String> {
+        match KV_HOLDER.write() {
+            Ok(mut guard) => {
+                guard.cache.remove(key);
+            },
+            Err(e) => log::error!("Require write lock failed: {:?}", e),
+        };
+
         let conn = get_connection()?;
         let sql = dsl::kv_table.filter(kv_table::key.eq(key));
         let _ = diesel::delete(sql)
@@ -61,6 +89,25 @@ impl KV {
 
         Ok(())
     }
+}
+
+fn read_cache(key: &str) -> Option<KeyValue> {
+    match KV_HOLDER.read() {
+        Ok(guard) => guard.cache.get(key).cloned(),
+        Err(e) => {
+            log::error!("Require read lock failed: {:?}", e);
+            None
+        },
+    }
+}
+
+fn update_cache(value: KeyValue) {
+    match KV_HOLDER.write() {
+        Ok(mut guard) => {
+            guard.cache.insert(value.key.clone(), value);
+        },
+        Err(e) => log::error!("Require write lock failed: {:?}", e),
+    };
 }
 
 macro_rules! impl_get_func {

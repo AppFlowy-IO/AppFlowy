@@ -27,11 +27,7 @@ class UserRepo {
   }
 
   Future<Either<Unit, UserError>> initUser() async {
-    return Future(() async {
-      final result = await UserEventInitUser().send();
-      await WorkspaceEventInitWorkspace().send();
-      return result;
-    });
+    return UserEventInitUser().send();
   }
 
   Future<Either<List<Workspace>, WorkspaceError>> getWorkspaces() {
