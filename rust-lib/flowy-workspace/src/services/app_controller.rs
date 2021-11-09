@@ -12,7 +12,7 @@ use crate::{
     errors::*,
     module::{WorkspaceDatabase, WorkspaceUser},
     notify::*,
-    services::{helper::spawn, server::Server, TrashCan, TrashEvent},
+    services::{server::Server, TrashCan, TrashEvent},
     sql_tables::app::{AppTable, AppTableChangeset, AppTableSql},
 };
 
@@ -122,7 +122,7 @@ impl AppController {
     fn update_app_on_server(&self, params: UpdateAppParams) -> Result<(), WorkspaceError> {
         let token = self.user.token()?;
         let server = self.server.clone();
-        spawn(async move {
+        tokio::spawn(async move {
             match server.update_app(&token, params).await {
                 Ok(_) => {},
                 Err(e) => {
@@ -139,7 +139,7 @@ impl AppController {
         let token = self.user.token()?;
         let server = self.server.clone();
         let pool = self.database.db_pool()?;
-        spawn(async move {
+        tokio::spawn(async move {
             // Opti: retry?
             match server.read_app(&token, params).await {
                 Ok(Some(app)) => match pool.get() {

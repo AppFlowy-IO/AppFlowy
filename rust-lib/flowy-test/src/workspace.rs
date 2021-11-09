@@ -7,6 +7,7 @@ use flowy_workspace::{
         view::*,
         workspace::*,
     },
+    errors::ErrorCode,
     event::WorkspaceEvent::*,
 };
 
@@ -98,11 +99,11 @@ impl ViewTest {
     }
 }
 
-pub fn invalid_workspace_name_test_case() -> Vec<String> {
-    vec!["", "1234".repeat(100).as_str()]
-        .iter()
-        .map(|s| s.to_string())
-        .collect::<Vec<_>>()
+pub fn invalid_workspace_name_test_case() -> Vec<(String, ErrorCode)> {
+    vec![
+        ("".to_owned(), ErrorCode::WorkspaceNameInvalid),
+        ("1234".repeat(100), ErrorCode::WorkspaceNameTooLong),
+    ]
 }
 
 pub async fn create_workspace(sdk: &FlowyTestSDK, name: &str, desc: &str) -> Workspace {
@@ -131,7 +132,7 @@ async fn open_workspace(sdk: &FlowyTestSDK, workspace_id: &str) {
         .await;
 }
 
-pub async fn read_workspace(sdk: &FlowyTestSDK, request: QueryWorkspaceRequest) -> Option<Workspace> {
+pub async fn read_workspace(sdk: &FlowyTestSDK, request: QueryWorkspaceRequest) -> Vec<Workspace> {
     let mut repeated_workspace = FlowyWorkspaceTest::new(sdk.clone())
         .event(ReadWorkspaces)
         .request(request.clone())
@@ -139,7 +140,7 @@ pub async fn read_workspace(sdk: &FlowyTestSDK, request: QueryWorkspaceRequest) 
         .await
         .parse::<RepeatedWorkspace>();
 
-    let mut workspaces;
+    let workspaces;
     if let Some(workspace_id) = &request.workspace_id {
         workspaces = repeated_workspace
             .into_inner()
@@ -151,7 +152,7 @@ pub async fn read_workspace(sdk: &FlowyTestSDK, request: QueryWorkspaceRequest) 
         workspaces = repeated_workspace.items;
     }
 
-    workspaces.drain(..1).collect::<Vec<Workspace>>().pop()
+    workspaces
 }
 
 pub async fn create_app(sdk: &FlowyTestSDK, name: &str, desc: &str, workspace_id: &str) -> App {

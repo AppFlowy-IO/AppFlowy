@@ -4,11 +4,7 @@ use diesel::{Connection, SqliteConnection};
 use flowy_derive::ProtoBuf;
 use flowy_sqlite::{DBConnection, Database, PoolConfig};
 use lazy_static::lazy_static;
-use std::{
-    collections::HashMap,
-    path::Path,
-    sync::{PoisonError, RwLock, RwLockWriteGuard},
-};
+use std::{collections::HashMap, path::Path, sync::RwLock};
 
 const DB_NAME: &str = "kv.db";
 lazy_static! {

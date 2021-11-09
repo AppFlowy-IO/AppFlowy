@@ -15,6 +15,7 @@ pub mod handlers;
 mod notify;
 pub mod protobuf;
 mod sql_tables;
+mod util;
 
 pub mod prelude {
     pub use flowy_workspace_infra::entities::{app::*, trash::*, view::*, workspace::*};

@@ -16,7 +16,7 @@ use crate::{
     errors::{internal_error, WorkspaceError, WorkspaceResult},
     module::{WorkspaceDatabase, WorkspaceUser},
     notify::{send_dart_notification, WorkspaceNotification},
-    services::{helper::spawn, server::Server, TrashCan, TrashEvent},
+    services::{server::Server, TrashCan, TrashEvent},
     sql_tables::view::{ViewTable, ViewTableChangeset, ViewTableSql},
 };
 
@@ -187,7 +187,7 @@ impl ViewController {
     fn update_view_on_server(&self, params: UpdateViewParams) -> Result<(), WorkspaceError> {
         let token = self.user.token()?;
         let server = self.server.clone();
-        spawn(async move {
+        tokio::spawn(async move {
             match server.update_view(&token, params).await {
                 Ok(_) => {},
                 Err(e) => {
@@ -205,7 +205,7 @@ impl ViewController {
         let server = self.server.clone();
         let pool = self.database.db_pool()?;
         // Opti: retry?
-        spawn(async move {
+        tokio::spawn(async move {
             match server.read_view(&token, params).await {
                 Ok(Some(view)) => match pool.get() {
                     Ok(conn) => {

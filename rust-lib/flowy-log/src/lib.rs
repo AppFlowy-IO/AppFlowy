@@ -102,37 +102,6 @@ mod tests {
         say("hello world");
     }
 
-    #[test]
-    fn test_log2() {
-        let env_filter = EnvFilter::new("Debug");
-        let file_appender = tracing_appender::rolling::daily(".", "flowy_log_test");
-        let (non_blocking, _guard) = tracing_appender::non_blocking(file_appender);
-
-        let subscriber = tracing_subscriber::fmt()
-            .with_target(false)
-            .with_max_level(tracing::Level::TRACE)
-            .with_writer(std::io::stderr)
-            .with_thread_ids(true)
-            .with_writer(non_blocking)
-            .json()
-            .compact()
-            .finish()
-            .with(env_filter);
-
-        let formatting_layer = FlowyFormattingLayer::new(std::io::stdout);
-        let _ = set_global_default(subscriber.with(JsonStorageLayer).with(formatting_layer))
-            .map_err(|e| format!("{:?}", e))
-            .unwrap();
-
-        let _ = LogTracer::builder()
-            .with_max_level(LevelFilter::Trace)
-            .init()
-            .map_err(|e| format!("{:?}", e))
-            .unwrap();
-
-        tracing::info!("😁");
-    }
-
     #[tracing::instrument(name = "say")]
     fn say(s: &str) {
         tracing::info!("{}", s);

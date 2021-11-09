@@ -10,7 +10,7 @@ use crate::{
     errors::{WorkspaceError, WorkspaceResult},
     module::{WorkspaceDatabase, WorkspaceUser},
     notify::{send_anonymous_dart_notification, WorkspaceNotification},
-    services::{helper::spawn, server::Server},
+    services::server::Server,
     sql_tables::trash::TrashTableSql,
 };
 
@@ -232,7 +232,7 @@ impl TrashCan {
         let server = self.server.clone();
         let pool = self.database.db_pool()?;
 
-        spawn(async move {
+        tokio::spawn(async move {
             match server.read_trash(&token).await {
                 Ok(repeated_trash) => {
                     tracing::debug!("Remote trash count: {}", repeated_trash.items.len());

@@ -50,7 +50,7 @@ async fn user_update_with_name() {
 async fn user_update_with_email() {
     let test = FlowyTest::setup();
     let user = test.init_user().await;
-    let new_email = format!("{}@gmai.com", uuid());
+    let new_email = format!("{}@gmail.com", uuid());
     let request = UpdateUserRequest::new(&user.id).email(&new_email);
     let _ = UserTest::new(test.sdk()).event(UpdateUser).request(request).sync_send();
     let user_profile = UserTest::new(test.sdk())

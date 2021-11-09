@@ -75,7 +75,6 @@ impl UserSession {
     }
 
     pub fn init(&self) {
-        log::debug!("😁😁😁 user did login");
         match self.get_session() {
             Ok(session) => {
                 let _ = self.status_notifier.send(UserStatus::Login { token: session.token });

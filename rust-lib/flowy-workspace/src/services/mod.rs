@@ -5,9 +5,7 @@ pub use workspace_controller::*;
 
 mod app_controller;
 mod database;
-mod helper;
-pub mod server;
+pub(crate) mod server;
 mod trash_can;
-mod util;
 mod view_controller;
 mod workspace_controller;

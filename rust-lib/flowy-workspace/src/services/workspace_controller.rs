@@ -2,7 +2,7 @@ use crate::{
     errors::*,
     module::{WorkspaceDatabase, WorkspaceUser},
     notify::*,
-    services::{helper::spawn, read_local_workspace_apps, server::Server, AppController, TrashCan, ViewController},
+    services::{read_local_workspace_apps, server::Server, AppController, TrashCan, ViewController},
     sql_tables::workspace::{WorkspaceTable, WorkspaceTableChangeset, WorkspaceTableSql},
 };
 use chrono::Utc;
@@ -12,12 +12,19 @@ use flowy_workspace_infra::{
     entities::{app::RepeatedApp, workspace::*},
     user_default,
 };
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc,
+use lazy_static::lazy_static;
+use parking_lot::RwLock;
+use std::{
+    collections::HashMap,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
 };
 
-static INIT_WORKSPACE: AtomicBool = AtomicBool::new(false);
+lazy_static! {
+    static ref INIT_WORKSPACE: RwLock<HashMap<String, bool>> = RwLock::new(HashMap::new());
+}
 
 pub struct WorkspaceController {
     pub user: Arc<dyn WorkspaceUser>,
@@ -50,13 +57,14 @@ impl WorkspaceController {
         }
     }
 
-    fn init(&self) -> Result<(), WorkspaceError> {
-        if INIT_WORKSPACE.load(Ordering::SeqCst) {
-            return Ok(());
+    fn init(&self, token: &str) -> Result<(), WorkspaceError> {
+        if let Some(is_init) = INIT_WORKSPACE.read().get(token) {
+            if *is_init {
+                return Ok(());
+            }
         }
+        INIT_WORKSPACE.write().insert(token.to_owned(), true);
 
-        log::debug!("workspace initialize");
-        INIT_WORKSPACE.store(true, Ordering::SeqCst);
         let _ = self.server.init();
         let _ = self.trash_can.init()?;
         let _ = self.view_controller.init()?;
@@ -65,9 +73,11 @@ impl WorkspaceController {
         Ok(())
     }
 
-    pub fn user_did_login(&self) -> WorkspaceResult<()> {
+    pub fn user_did_sign_in(&self, token: &str) -> WorkspaceResult<()> {
         // TODO: (nathan) do something here
-        let _ = self.init()?;
+
+        log::debug!("workspace initialize after sign in");
+        let _ = self.init(token)?;
         Ok(())
     }
 
@@ -79,7 +89,7 @@ impl WorkspaceController {
         // TODO: (nathan) do something here
     }
 
-    pub async fn user_did_sign_up(&self) -> WorkspaceResult<()> {
+    pub async fn user_did_sign_up(&self, _token: &str) -> WorkspaceResult<()> {
         log::debug!("Create user default workspace");
         let time = Utc::now();
         let mut workspace = user_default::create_default_workspace(time);
@@ -103,7 +113,9 @@ impl WorkspaceController {
         send_dart_notification(&token, WorkspaceNotification::UserCreateWorkspace)
             .payload(repeated_workspace)
             .send();
-        let _ = self.init()?;
+
+        log::debug!("workspace initialize after sign up");
+        let _ = self.init(&token)?;
         Ok(())
     }
 
@@ -290,7 +302,7 @@ impl WorkspaceController {
     #[tracing::instrument(level = "debug", skip(self), err)]
     fn update_workspace_on_server(&self, params: UpdateWorkspaceParams) -> Result<(), WorkspaceError> {
         let (token, server) = self.token_with_server()?;
-        spawn(async move {
+        tokio::spawn(async move {
             match server.update_workspace(&token, params).await {
                 Ok(_) => {},
                 Err(e) => {
@@ -308,7 +320,7 @@ impl WorkspaceController {
             workspace_id: workspace_id.to_string(),
         };
         let (token, server) = self.token_with_server()?;
-        spawn(async move {
+        tokio::spawn(async move {
             match server.delete_workspace(&token, params).await {
                 Ok(_) => {},
                 Err(e) => {
@@ -327,7 +339,7 @@ impl WorkspaceController {
         let app_ctrl = self.app_controller.clone();
         let view_ctrl = self.view_controller.clone();
         let conn = self.database.db_connection()?;
-        spawn(async move {
+        tokio::spawn(async move {
             // Opti: handle the error and retry?
             let workspaces = server.read_workspace(&token, params).await?;
             let _ = (&*conn).immediate_transaction::<_, WorkspaceError, _>(|| {

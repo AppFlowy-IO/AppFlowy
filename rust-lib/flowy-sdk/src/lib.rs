@@ -110,8 +110,8 @@ async fn _listen_user_status(
             Ok(status) => {
                 let result = || async {
                     match status {
-                        UserStatus::Login { .. } => {
-                            let _ = workspace_controller.user_did_login()?;
+                        UserStatus::Login { token } => {
+                            let _ = workspace_controller.user_did_sign_in(&token)?;
                         },
                         UserStatus::Logout { .. } => {
                             workspace_controller.user_did_logout();
@@ -119,8 +119,8 @@ async fn _listen_user_status(
                         UserStatus::Expired { .. } => {
                             workspace_controller.user_session_expired();
                         },
-                        UserStatus::SignUp { .. } => {
-                            let _ = workspace_controller.user_did_sign_up().await?;
+                        UserStatus::SignUp { profile } => {
+                            let _ = workspace_controller.user_did_sign_up(&profile.token).await?;
                         },
                     }
                     Ok::<(), WorkspaceError>(())

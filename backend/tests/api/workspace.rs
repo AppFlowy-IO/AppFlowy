@@ -210,7 +210,7 @@ async fn workspace_list_read() {
         let _ = server.create_workspace(params).await;
     }
 
-    let read_params = WorkspaceIdentifier::new();
+    let read_params = WorkspaceIdentifier::new(None);
     let workspaces = server.read_workspaces(read_params).await;
     assert_eq!(workspaces.len(), 4);
 }

@@ -10,12 +10,7 @@ pub struct QueryWorkspaceRequest {
 }
 
 impl QueryWorkspaceRequest {
-    pub fn new() -> Self { Self { workspace_id: None } }
-
-    pub fn workspace_id(mut self, workspace_id: &str) -> Self {
-        self.workspace_id = Some(workspace_id.to_owned());
-        self
-    }
+    pub fn new(workspace_id: Option<String>) -> Self { Self { workspace_id } }
 }
 
 // Read all workspaces if the workspace_id is None

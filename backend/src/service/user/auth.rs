@@ -1,7 +1,10 @@
+use crate::{
+    entities::{token::Token, user::UserTable},
+    service::user::{hash_password, verify_password, LoggedUser},
+    sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
+};
 use anyhow::Context;
-
-use sqlx::{PgPool, Postgres};
-
+use chrono::Utc;
 use flowy_net::{
     errors::{invalid_params, ErrorCode, ServerError},
     response::FlowyResponse,
@@ -10,12 +13,7 @@ use flowy_user_infra::{
     parser::{UserEmail, UserName, UserPassword},
     protobuf::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile},
 };
-
-use crate::{
-    entities::{token::Token, user::UserTable},
-    service::user::{hash_password, verify_password, LoggedUser},
-    sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
-};
+use sqlx::{PgPool, Postgres};
 
 use super::AUTHORIZED_USERS;
 use crate::service::user::user_default::create_default_workspace;
