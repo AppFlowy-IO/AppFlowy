@@ -102,18 +102,6 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
         WorkspaceEventReadCurWorkspace().send().then((result) {
           _openCurrentWorkspace(context, user, result);
         });
-        userListener = getIt<IUserListener>(param1: user);
-        userListener!.workspaceUpdatedNotifier.addPublishListener((result) {
-          result.fold(
-            (workspace) {
-              assert(workspace.length == 1);
-              if (workspace.isNotEmpty) {
-                _openCurrentWorkspace(context, user, dartz.left(workspace[0]));
-              }
-            },
-            (error) => _openCurrentWorkspace(context, user, dartz.right(error)),
-          );
-        });
       },
       (error) {
         Log.error(error);

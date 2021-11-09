@@ -25,6 +25,7 @@ impl KV {
     }
 
     fn set(value: KeyValue) -> Result<(), String> {
+        log::debug!("set value: {:?}", value);
         update_cache(value.clone());
 
         let _ = diesel::replace_into(kv_table::table)
@@ -53,6 +54,7 @@ impl KV {
 
     #[allow(dead_code)]
     pub fn remove(key: &str) -> Result<(), String> {
+        log::debug!("remove key: {}", key);
         match KV_HOLDER.write() {
             Ok(mut guard) => {
                 guard.cache.remove(key);
