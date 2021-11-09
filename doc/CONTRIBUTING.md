@@ -41,8 +41,6 @@ There can help in multiple ways - even if you don't write code, you can still gi
     - Spread the word on the media to get more people to join the community. To name a few channels, Product Hunt, Hacker Noon, Quora, Reddit, and Stack Overflow are good choices.
     - Give a lightning talk at your local hackerspace on why you love AppFlowy
     - Write a review of the pros and cons of similar open source apps
-- Really want a fix or feature? Contact annie@appflowy.io
-
 
 ### Coding Contributions
 
