@@ -20,14 +20,16 @@ static INIT_LOG: AtomicBool = AtomicBool::new(false);
 
 #[derive(Debug, Clone)]
 pub struct FlowySDKConfig {
+    name: String,
     root: String,
     log_filter: String,
     server_config: ServerConfig,
 }
 
 impl FlowySDKConfig {
-    pub fn new(root: &str, server_config: ServerConfig) -> Self {
+    pub fn new(root: &str, server_config: ServerConfig, name: &str) -> Self {
         FlowySDKConfig {
+            name: name.to_owned(),
             root: root.to_owned(),
             log_filter: crate_log_filter(None),
             server_config,
@@ -70,9 +72,10 @@ impl FlowySDK {
         init_kv(&config.root);
         tracing::debug!("🔥 {:?}", config);
 
+        let session_cache_key = format!("{}_session_cache", &config.name);
         let user_session = Arc::new(
             UserSessionBuilder::new()
-                .root_dir(&config.root, &config.server_config)
+                .root_dir(&config.root, &config.server_config, &session_cache_key)
                 .build(),
         );
         let flowy_document = mk_document_module(user_session.clone(), &config.server_config);

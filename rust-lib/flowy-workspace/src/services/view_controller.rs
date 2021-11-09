@@ -139,7 +139,7 @@ impl ViewController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, params), err)]
+    #[tracing::instrument(level = "debug", skip(self), err)]
     pub(crate) async fn export_doc(&self, _params: ExportParams) -> Result<ExportData, WorkspaceError> {
         unimplemented!()
     }

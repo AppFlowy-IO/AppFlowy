@@ -3,6 +3,7 @@ mod helper;
 pub mod workspace;
 
 use crate::helper::*;
+use flowy_infra::uuid;
 use flowy_net::config::ServerConfig;
 use flowy_sdk::{FlowySDK, FlowySDKConfig};
 use flowy_user::entities::UserProfile;
@@ -38,7 +39,7 @@ impl FlowyTest {
     }
 
     pub fn setup_with(server_config: ServerConfig) -> Self {
-        let config = FlowySDKConfig::new(&root_dir(), server_config).log_filter("debug");
+        let config = FlowySDKConfig::new(&root_dir(), server_config, &uuid().to_string()).log_filter("debug");
         let sdk = FlowySDK::new(config);
         Self { sdk }
     }

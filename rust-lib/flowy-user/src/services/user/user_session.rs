@@ -36,13 +36,15 @@ pub enum UserStatus {
 pub struct UserSessionConfig {
     root_dir: String,
     server_config: ServerConfig,
+    session_cache_key: String,
 }
 
 impl UserSessionConfig {
-    pub fn new(root_dir: &str, server_config: &ServerConfig) -> Self {
+    pub fn new(root_dir: &str, server_config: &ServerConfig, session_cache_key: &str) -> Self {
         Self {
             root_dir: root_dir.to_owned(),
             server_config: server_config.clone(),
+            session_cache_key: session_cache_key.to_owned(),
         }
     }
 }
@@ -263,8 +265,10 @@ impl UserSession {
     fn set_session(&self, session: Option<Session>) -> Result<(), UserError> {
         tracing::debug!("Set user session: {:?}", session);
         match &session {
-            None => KV::remove(SESSION_CACHE_KEY).map_err(|e| UserError::new(ErrorCode::InternalError, &e))?,
-            Some(session) => KV::set_str(SESSION_CACHE_KEY, session.clone().into()),
+            None => {
+                KV::remove(&self.config.session_cache_key).map_err(|e| UserError::new(ErrorCode::InternalError, &e))?
+            },
+            Some(session) => KV::set_str(&self.config.session_cache_key, session.clone().into()),
         }
         *self.session.write() = session;
         Ok(())
@@ -273,7 +277,7 @@ impl UserSession {
     fn get_session(&self) -> Result<Session, UserError> {
         let mut session = { (*self.session.read()).clone() };
         if session.is_none() {
-            match KV::get_str(SESSION_CACHE_KEY) {
+            match KV::get_str(&self.config.session_cache_key) {
                 None => {},
                 Some(s) => {
                     session = Some(Session::from(s));
@@ -349,8 +353,6 @@ pub async fn update_user(
 impl UserDatabaseConnection for UserSession {
     fn get_connection(&self) -> Result<DBConnection, String> { self.db_connection().map_err(|e| format!("{:?}", e)) }
 }
-
-const SESSION_CACHE_KEY: &str = "session_cache_key";
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 struct Session {

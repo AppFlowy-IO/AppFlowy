@@ -34,7 +34,7 @@ pub struct ExportRequest {
     pub export_type: ExportType,
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct ExportParams {
     pub doc_id: String,
     pub export_type: ExportType,
