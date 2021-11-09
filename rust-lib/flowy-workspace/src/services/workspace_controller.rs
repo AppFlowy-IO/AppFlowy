@@ -14,13 +14,7 @@ use flowy_workspace_infra::{
 };
 use lazy_static::lazy_static;
 use parking_lot::RwLock;
-use std::{
-    collections::HashMap,
-    sync::{
-        atomic::{AtomicBool, Ordering},
-        Arc,
-    },
-};
+use std::{collections::HashMap, sync::Arc};
 
 lazy_static! {
     static ref INIT_WORKSPACE: RwLock<HashMap<String, bool>> = RwLock::new(HashMap::new());

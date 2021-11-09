@@ -110,7 +110,7 @@ pub(crate) async fn duplicate_view_handler(
 
 #[tracing::instrument(skip(data, controller), err)]
 pub(crate) async fn export_handler(
-    data: Data<QueryViewRequest>,
+    data: Data<ExportRequest>,
     controller: Unit<Arc<ViewController>>,
 ) -> Result<(), WorkspaceError> {
     let params: ExportParams = data.into_inner().try_into()?;

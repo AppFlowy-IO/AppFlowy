@@ -19,7 +19,7 @@ impl std::convert::From<i32> for ExportType {
             1 => ExportType::RichText,
             _ => {
                 log::error!("Invalid export type: {}", val);
-                ViewType::Text
+                ExportType::Text
             },
         }
     }

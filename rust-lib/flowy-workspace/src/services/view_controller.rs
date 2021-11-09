@@ -19,7 +19,7 @@ use crate::{
     services::{server::Server, TrashCan, TrashEvent},
     sql_tables::view::{ViewTable, ViewTableChangeset, ViewTableSql},
 };
-use flowy_workspace_infra::entities::share::{ExportData, ExportParams, ExportRequest};
+use flowy_workspace_infra::entities::share::{ExportData, ExportParams};
 
 pub(crate) struct ViewController {
     user: Arc<dyn WorkspaceUser>,
@@ -140,7 +140,7 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self, params), err)]
-    pub(crate) async fn export_doc(&self, params: ExportParams) -> Result<ExportData, WorkspaceError> {
+    pub(crate) async fn export_doc(&self, _params: ExportParams) -> Result<ExportData, WorkspaceError> {
         unimplemented!()
     }
 
