@@ -29,7 +29,7 @@ class TrashStackContext extends HomeStackContext {
   Widget get naviTitle => const FlowyText.medium('Trash', fontSize: 12);
 
   @override
-  Widget? Function(BuildContext context) get buildNavigationActions => (_) => null;
+  Widget? Function(BuildContext context) get buildNaviAction => (_) => null;
 
   @override
   HomeStackType get type => HomeStackType.trash;

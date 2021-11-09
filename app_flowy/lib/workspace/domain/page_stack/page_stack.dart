@@ -31,7 +31,7 @@ abstract class HomeStackContext<T, S> with NavigationItem {
   @override
   Widget get naviTitle;
 
-  Widget? Function(BuildContext context) get buildNavigationActions;
+  Widget? Function(BuildContext context) get buildNaviAction;
 
   @override
   String get identifier;
