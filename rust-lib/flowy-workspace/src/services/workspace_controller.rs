@@ -58,11 +58,12 @@ impl WorkspaceController {
 
     pub fn user_session_expired(&self) {}
 
-    pub async fn user_did_sign_up(&self) {
+    pub async fn user_did_sign_up(&self) -> WorkspaceResult<()> {
         log::debug!("Create user default workspace");
         let time = Utc::now();
         let mut workspace = user_default::create_default_workspace(time);
         let apps = workspace.take_apps().into_inner();
+        let cloned_workspace = workspace.clone();
 
         let _ = self.create_workspace(workspace).await?;
         for mut app in apps {
@@ -73,17 +74,14 @@ impl WorkspaceController {
             }
         }
 
-        match self.user.token() {
-            Ok(token) => {
-                let repeated_workspace = RepeatedWorkspace { items: vec![workspace] };
-                send_dart_notification(&token, WorkspaceNotification::UserCreateWorkspace)
-                    .payload(repeated_workspace)
-                    .send();
-            },
-            Err(e) => {
-                log::error!("{:?}", e);
-            },
-        }
+        let token = self.user.token()?;
+        let repeated_workspace = RepeatedWorkspace {
+            items: vec![cloned_workspace],
+        };
+        send_dart_notification(&token, WorkspaceNotification::UserCreateWorkspace)
+            .payload(repeated_workspace)
+            .send();
+        Ok(())
     }
 
     pub(crate) async fn create_workspace_from_params(

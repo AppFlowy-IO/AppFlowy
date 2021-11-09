@@ -114,7 +114,7 @@ fn listen_on_user_status_changed(
                         workspace_controller.user_session_expired();
                     },
                     UserStatus::SignUp { .. } => {
-                        workspace_controller.user_did_sign_up().await;
+                        let _ = workspace_controller.user_did_sign_up().await;
                     },
                 },
                 Err(_) => {},

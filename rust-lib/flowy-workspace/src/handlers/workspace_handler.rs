@@ -43,31 +43,6 @@ pub(crate) async fn read_workspace_apps_handler(
     data_result(repeated_app)
 }
 
-#[tracing::instrument(skip(workspace_controller, app_controller, view_controller), err)]
-pub(crate) async fn create_default_workspace_handler(
-    workspace_controller: Unit<Arc<WorkspaceController>>,
-    app_controller: Unit<Arc<AppController>>,
-    view_controller: Unit<Arc<ViewController>>,
-) -> DataResult<WorkspaceIdentifier, WorkspaceError> {
-    let time = Utc::now();
-    let mut workspace = user_default::create_default_workspace(time);
-    let workspace_id = workspace.id.clone();
-    let apps = workspace.take_apps().into_inner();
-
-    let _ = workspace_controller.create_workspace(workspace).await?;
-    for mut app in apps {
-        let views = app.take_belongings().into_inner();
-        let _ = app_controller.create_app(app).await?;
-        for view in views {
-            let _ = view_controller.create_view(view).await?;
-        }
-    }
-
-    data_result(WorkspaceIdentifier {
-        workspace_id: Some(workspace_id),
-    })
-}
-
 #[tracing::instrument(skip(data, controller), err)]
 pub(crate) async fn read_workspaces_handler(
     data: Data<QueryWorkspaceRequest>,

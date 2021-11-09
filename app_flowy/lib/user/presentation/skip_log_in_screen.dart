@@ -8,9 +8,13 @@ import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_log/flowy_log.dart';
+import 'package:flowy_sdk/dispatch/dispatch.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:dartz/dartz.dart' as dartz;
 
 class SkipLogInScreen extends StatefulWidget {
   final IAuthRouter router;
@@ -95,9 +99,36 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
     final result = await widget.authManager.signUp("FlowyUser", password, userEmail);
     result.fold(
       (user) {
+        WorkspaceEventReadCurWorkspace().send().then((result) {
+          _openCurrentWorkspace(context, user, result);
+        });
         userListener = getIt<IUserListener>(param1: user);
+        userListener!.workspaceUpdatedNotifier.addPublishListener((result) {
+          result.fold(
+            (workspace) {
+              assert(workspace.length == 1);
+              if (workspace.isNotEmpty) {
+                _openCurrentWorkspace(context, user, dartz.left(workspace[0]));
+              }
+            },
+            (error) => _openCurrentWorkspace(context, user, dartz.right(error)),
+          );
+        });
+      },
+      (error) {
+        Log.error(error);
+      },
+    );
+  }
 
-        // router.pushHomeScreen(context, newUser.profile, newUser.workspaceId);
+  void _openCurrentWorkspace(
+    BuildContext context,
+    UserProfile user,
+    dartz.Either<Workspace, WorkspaceError> workspacesOrError,
+  ) {
+    workspacesOrError.fold(
+      (workspace) {
+        widget.router.pushHomeScreen(context, user, workspace.id);
       },
       (error) {
         Log.error(error);
