@@ -57,7 +57,7 @@ class ViewDisclosureButton extends StatelessWidget
   ListOverlayFooter? get footer => null;
 }
 
-class ViewDisclosureActionWrapper extends ActionItemData {
+class ViewDisclosureActionWrapper extends ActionItem {
   final ViewDisclosureAction inner;
 
   ViewDisclosureActionWrapper(this.inner);

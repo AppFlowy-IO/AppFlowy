@@ -5,7 +5,6 @@ import 'package:flowy_infra/flowy_icon_data_icons.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/app_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -79,7 +78,7 @@ class MenuAppHeader extends StatelessWidget {
           behavior: HitTestBehavior.opaque,
           onTap: () => ExpandableController.of(context, rebuildOnChange: false, required: true)?.toggle(),
           onSecondaryTap: () {
-            final actionList = AppDisclosureActions(onSelected: (action) => _handleAction(context, action));
+            final actionList = AppDisclosureActionSheet(onSelected: (action) => _handleAction(context, action));
             actionList.show(
               context,
               context,

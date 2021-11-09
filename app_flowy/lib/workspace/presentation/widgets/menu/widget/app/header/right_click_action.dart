@@ -4,19 +4,19 @@ import 'package:dartz/dartz.dart' as dartz;
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
-class AppDisclosureActions with ActionList<AppDisclosureActionWrapper> implements FlowyOverlayDelegate {
+class AppDisclosureActionSheet with ActionList<DisclosureActionWrapper> implements FlowyOverlayDelegate {
   final Function(dartz.Option<AppDisclosureAction>) onSelected;
-  final _items = AppDisclosureAction.values.map((action) => AppDisclosureActionWrapper(action)).toList();
+  final _items = AppDisclosureAction.values.map((action) => DisclosureActionWrapper(action)).toList();
 
-  AppDisclosureActions({
+  AppDisclosureActionSheet({
     required this.onSelected,
   });
 
   @override
-  List<AppDisclosureActionWrapper> get items => _items;
+  List<DisclosureActionWrapper> get items => _items;
 
   @override
-  void Function(dartz.Option<AppDisclosureActionWrapper> p1) get selectCallback => (result) {
+  void Function(dartz.Option<DisclosureActionWrapper> p1) get selectCallback => (result) {
         result.fold(
           () => onSelected(dartz.none()),
           (wrapper) => onSelected(
@@ -37,10 +37,10 @@ class AppDisclosureActions with ActionList<AppDisclosureActionWrapper> implement
   ListOverlayFooter? get footer => null;
 }
 
-class AppDisclosureActionWrapper extends ActionItemData {
+class DisclosureActionWrapper extends ActionItem {
   final AppDisclosureAction inner;
 
-  AppDisclosureActionWrapper(this.inner);
+  DisclosureActionWrapper(this.inner);
   @override
   Widget? get icon => inner.icon;
 

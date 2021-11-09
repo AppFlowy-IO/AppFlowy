@@ -24,7 +24,7 @@ class _$MenuEventTearOff {
     return const Collapse();
   }
 
-  OpenPage openPage(HomeStackContext<dynamic> context) {
+  OpenPage openPage(HomeStackContext<dynamic, dynamic> context) {
     return OpenPage(
       context,
     );
@@ -53,7 +53,8 @@ mixin _$MenuEvent {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() collapse,
-    required TResult Function(HomeStackContext<dynamic> context) openPage,
+    required TResult Function(HomeStackContext<dynamic, dynamic> context)
+        openPage,
     required TResult Function(String name, String? desc) createApp,
     required TResult Function(Either<List<App>, WorkspaceError> appsOrFail)
         didReceiveApps,
@@ -63,7 +64,7 @@ mixin _$MenuEvent {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
-    TResult Function(HomeStackContext<dynamic> context)? openPage,
+    TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
     TResult Function(String name, String? desc)? createApp,
     TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
         didReceiveApps,
@@ -145,7 +146,8 @@ class _$_Initial implements _Initial {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() collapse,
-    required TResult Function(HomeStackContext<dynamic> context) openPage,
+    required TResult Function(HomeStackContext<dynamic, dynamic> context)
+        openPage,
     required TResult Function(String name, String? desc) createApp,
     required TResult Function(Either<List<App>, WorkspaceError> appsOrFail)
         didReceiveApps,
@@ -158,7 +160,7 @@ class _$_Initial implements _Initial {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
-    TResult Function(HomeStackContext<dynamic> context)? openPage,
+    TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
     TResult Function(String name, String? desc)? createApp,
     TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
         didReceiveApps,
@@ -242,7 +244,8 @@ class _$Collapse implements Collapse {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() collapse,
-    required TResult Function(HomeStackContext<dynamic> context) openPage,
+    required TResult Function(HomeStackContext<dynamic, dynamic> context)
+        openPage,
     required TResult Function(String name, String? desc) createApp,
     required TResult Function(Either<List<App>, WorkspaceError> appsOrFail)
         didReceiveApps,
@@ -255,7 +258,7 @@ class _$Collapse implements Collapse {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
-    TResult Function(HomeStackContext<dynamic> context)? openPage,
+    TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
     TResult Function(String name, String? desc)? createApp,
     TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
         didReceiveApps,
@@ -304,7 +307,7 @@ abstract class Collapse implements MenuEvent {
 abstract class $OpenPageCopyWith<$Res> {
   factory $OpenPageCopyWith(OpenPage value, $Res Function(OpenPage) then) =
       _$OpenPageCopyWithImpl<$Res>;
-  $Res call({HomeStackContext<dynamic> context});
+  $Res call({HomeStackContext<dynamic, dynamic> context});
 }
 
 /// @nodoc
@@ -324,7 +327,7 @@ class _$OpenPageCopyWithImpl<$Res> extends _$MenuEventCopyWithImpl<$Res>
       context == freezed
           ? _value.context
           : context // ignore: cast_nullable_to_non_nullable
-              as HomeStackContext<dynamic>,
+              as HomeStackContext<dynamic, dynamic>,
     ));
   }
 }
@@ -335,7 +338,7 @@ class _$OpenPage implements OpenPage {
   const _$OpenPage(this.context);
 
   @override
-  final HomeStackContext<dynamic> context;
+  final HomeStackContext<dynamic, dynamic> context;
 
   @override
   String toString() {
@@ -364,7 +367,8 @@ class _$OpenPage implements OpenPage {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() collapse,
-    required TResult Function(HomeStackContext<dynamic> context) openPage,
+    required TResult Function(HomeStackContext<dynamic, dynamic> context)
+        openPage,
     required TResult Function(String name, String? desc) createApp,
     required TResult Function(Either<List<App>, WorkspaceError> appsOrFail)
         didReceiveApps,
@@ -377,7 +381,7 @@ class _$OpenPage implements OpenPage {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
-    TResult Function(HomeStackContext<dynamic> context)? openPage,
+    TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
     TResult Function(String name, String? desc)? createApp,
     TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
         didReceiveApps,
@@ -419,9 +423,11 @@ class _$OpenPage implements OpenPage {
 }
 
 abstract class OpenPage implements MenuEvent {
-  const factory OpenPage(HomeStackContext<dynamic> context) = _$OpenPage;
+  const factory OpenPage(HomeStackContext<dynamic, dynamic> context) =
+      _$OpenPage;
 
-  HomeStackContext<dynamic> get context => throw _privateConstructorUsedError;
+  HomeStackContext<dynamic, dynamic> get context =>
+      throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $OpenPageCopyWith<OpenPage> get copyWith =>
       throw _privateConstructorUsedError;
@@ -502,7 +508,8 @@ class _$CreateApp implements CreateApp {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() collapse,
-    required TResult Function(HomeStackContext<dynamic> context) openPage,
+    required TResult Function(HomeStackContext<dynamic, dynamic> context)
+        openPage,
     required TResult Function(String name, String? desc) createApp,
     required TResult Function(Either<List<App>, WorkspaceError> appsOrFail)
         didReceiveApps,
@@ -515,7 +522,7 @@ class _$CreateApp implements CreateApp {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
-    TResult Function(HomeStackContext<dynamic> context)? openPage,
+    TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
     TResult Function(String name, String? desc)? createApp,
     TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
         didReceiveApps,
@@ -633,7 +640,8 @@ class _$ReceiveApps implements ReceiveApps {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() collapse,
-    required TResult Function(HomeStackContext<dynamic> context) openPage,
+    required TResult Function(HomeStackContext<dynamic, dynamic> context)
+        openPage,
     required TResult Function(String name, String? desc) createApp,
     required TResult Function(Either<List<App>, WorkspaceError> appsOrFail)
         didReceiveApps,
@@ -646,7 +654,7 @@ class _$ReceiveApps implements ReceiveApps {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
-    TResult Function(HomeStackContext<dynamic> context)? openPage,
+    TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
     TResult Function(String name, String? desc)? createApp,
     TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
         didReceiveApps,
@@ -706,7 +714,7 @@ class _$MenuStateTearOff {
       {required bool isCollapse,
       required Option<List<App>> apps,
       required Either<Unit, WorkspaceError> successOrFailure,
-      required HomeStackContext<dynamic> context}) {
+      required HomeStackContext<dynamic, dynamic> context}) {
     return _MenuState(
       isCollapse: isCollapse,
       apps: apps,
@@ -725,7 +733,8 @@ mixin _$MenuState {
   Option<List<App>> get apps => throw _privateConstructorUsedError;
   Either<Unit, WorkspaceError> get successOrFailure =>
       throw _privateConstructorUsedError;
-  HomeStackContext<dynamic> get context => throw _privateConstructorUsedError;
+  HomeStackContext<dynamic, dynamic> get context =>
+      throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $MenuStateCopyWith<MenuState> get copyWith =>
@@ -740,7 +749,7 @@ abstract class $MenuStateCopyWith<$Res> {
       {bool isCollapse,
       Option<List<App>> apps,
       Either<Unit, WorkspaceError> successOrFailure,
-      HomeStackContext<dynamic> context});
+      HomeStackContext<dynamic, dynamic> context});
 }
 
 /// @nodoc
@@ -774,7 +783,7 @@ class _$MenuStateCopyWithImpl<$Res> implements $MenuStateCopyWith<$Res> {
       context: context == freezed
           ? _value.context
           : context // ignore: cast_nullable_to_non_nullable
-              as HomeStackContext<dynamic>,
+              as HomeStackContext<dynamic, dynamic>,
     ));
   }
 }
@@ -789,7 +798,7 @@ abstract class _$MenuStateCopyWith<$Res> implements $MenuStateCopyWith<$Res> {
       {bool isCollapse,
       Option<List<App>> apps,
       Either<Unit, WorkspaceError> successOrFailure,
-      HomeStackContext<dynamic> context});
+      HomeStackContext<dynamic, dynamic> context});
 }
 
 /// @nodoc
@@ -824,7 +833,7 @@ class __$MenuStateCopyWithImpl<$Res> extends _$MenuStateCopyWithImpl<$Res>
       context: context == freezed
           ? _value.context
           : context // ignore: cast_nullable_to_non_nullable
-              as HomeStackContext<dynamic>,
+              as HomeStackContext<dynamic, dynamic>,
     ));
   }
 }
@@ -845,7 +854,7 @@ class _$_MenuState implements _MenuState {
   @override
   final Either<Unit, WorkspaceError> successOrFailure;
   @override
-  final HomeStackContext<dynamic> context;
+  final HomeStackContext<dynamic, dynamic> context;
 
   @override
   String toString() {
@@ -887,7 +896,7 @@ abstract class _MenuState implements MenuState {
       {required bool isCollapse,
       required Option<List<App>> apps,
       required Either<Unit, WorkspaceError> successOrFailure,
-      required HomeStackContext<dynamic> context}) = _$_MenuState;
+      required HomeStackContext<dynamic, dynamic> context}) = _$_MenuState;
 
   @override
   bool get isCollapse => throw _privateConstructorUsedError;
@@ -897,7 +906,8 @@ abstract class _MenuState implements MenuState {
   Either<Unit, WorkspaceError> get successOrFailure =>
       throw _privateConstructorUsedError;
   @override
-  HomeStackContext<dynamic> get context => throw _privateConstructorUsedError;
+  HomeStackContext<dynamic, dynamic> get context =>
+      throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
   _$MenuStateCopyWith<_MenuState> get copyWith =>

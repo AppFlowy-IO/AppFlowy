@@ -3,6 +3,7 @@ import 'package:app_flowy/workspace/application/trash/trash_bloc.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/trash/widget/sizes.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/trash/widget/trash_cell.dart';
+import 'package:app_flowy/workspace/presentation/widgets/home_top_bar.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
@@ -26,6 +27,9 @@ class TrashStackContext extends HomeStackContext {
 
   @override
   Widget get naviTitle => const FlowyText.medium('Trash', fontSize: 12);
+
+  @override
+  Widget? Function(BuildContext context) get buildNavigationActions => (_) => null;
 
   @override
   HomeStackType get type => HomeStackType.trash;

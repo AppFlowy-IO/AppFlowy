@@ -12,6 +12,9 @@ class BlankStackContext extends HomeStackContext {
   Widget get naviTitle => const FlowyText.medium('Blank page', fontSize: 12);
 
   @override
+  Widget? Function(BuildContext context) get buildNavigationActions => (_) => null;
+
+  @override
   HomeStackType get type => HomeStackType.blank;
 
   @override

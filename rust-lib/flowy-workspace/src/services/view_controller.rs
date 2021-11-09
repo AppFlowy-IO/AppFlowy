@@ -139,9 +139,15 @@ impl ViewController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self), err)]
-    pub(crate) async fn export_doc(&self, _params: ExportParams) -> Result<ExportData, WorkspaceError> {
-        unimplemented!()
+    #[tracing::instrument(level = "debug", skip(self, params), err)]
+    pub(crate) async fn export_doc(&self, params: ExportParams) -> Result<ExportData, WorkspaceError> {
+        let doc_identifier: DocIdentifier = params.doc_id.into();
+        let doc = self
+            .document
+            .read_document_data(doc_identifier, self.database.db_pool()?)
+            .await?;
+
+        Ok(ExportData { data: doc.data })
     }
 
     // belong_to_id will be the app_id or view_id.

@@ -17,7 +17,7 @@ use crate::{
 };
 use flowy_dispatch::prelude::{data_result, Data, DataResult, Unit};
 use flowy_document::entities::doc::DocDelta;
-use flowy_workspace_infra::entities::share::{ExportParams, ExportRequest};
+use flowy_workspace_infra::entities::share::{ExportData, ExportParams, ExportRequest};
 use std::{convert::TryInto, sync::Arc};
 
 pub(crate) async fn create_view_handler(
@@ -112,8 +112,8 @@ pub(crate) async fn duplicate_view_handler(
 pub(crate) async fn export_handler(
     data: Data<ExportRequest>,
     controller: Unit<Arc<ViewController>>,
-) -> Result<(), WorkspaceError> {
+) -> DataResult<ExportData, WorkspaceError> {
     let params: ExportParams = data.into_inner().try_into()?;
-    let _ = controller.export_doc(params.into()).await?;
-    Ok(())
+    let data = controller.export_doc(params.into()).await?;
+    data_result(data)
 }

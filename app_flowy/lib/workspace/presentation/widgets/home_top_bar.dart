@@ -1,14 +1,14 @@
 import 'package:app_flowy/workspace/domain/image.dart';
+import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:app_flowy/workspace/presentation/home/navigation.dart';
-import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pbenum.dart';
 import 'package:flutter/material.dart';
 import 'package:flowy_infra_ui/style_widget/extension.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:provider/provider.dart';
 
 class HomeTopBar extends StatelessWidget {
   const HomeTopBar({Key? key}) : super(key: key);
@@ -22,28 +22,20 @@ class HomeTopBar extends StatelessWidget {
         children: [
           const FlowyNavigation(),
           const Spacer(),
-          _renderShareButton(),
-          // _renderMoreButton(),
+          ChangeNotifierProvider.value(
+            value: Provider.of<HomeStackNotifier>(context, listen: false),
+            child: Consumer(
+              builder: (BuildContext context, HomeStackNotifier notifier, Widget? child) {
+                return notifier.stackContext.buildNavigationActions(context) ?? const SizedBox();
+              },
+            ),
+          ) // _renderMoreButton(),
         ],
       )
           .padding(
             horizontal: HomeInsets.topBarTitlePadding,
           )
           .bottomBorder(color: Colors.grey.shade300),
-    );
-  }
-
-  Widget _renderShareButton() {
-    return RoundedTextButton(
-      title: 'Share',
-      height: 30,
-      width: 60,
-      fontSize: 12,
-      borderRadius: Corners.s6Border,
-      color: Colors.lightBlue,
-      onPressed: () {
-        debugPrint('share page');
-      },
     );
   }
 }

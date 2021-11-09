@@ -22,21 +22,21 @@ class QuestionBubble extends StatelessWidget {
       height: 30,
       child: FlowyTextButton(
         '?',
-        tooltip: QuestionBubbleAction.values.map((action) => action.name).toList().join(','),
+        tooltip: BubbleAction.values.map((action) => action.name).toList().join(','),
         fontSize: 12,
         fontWeight: FontWeight.w600,
         fillColor: theme.selector,
         mainAxisAlignment: MainAxisAlignment.center,
         radius: BorderRadius.circular(10),
         onPressed: () {
-          final actionList = QuestionBubbleActions(onSelected: (result) {
+          final actionList = QuestionBubbleActionSheet(onSelected: (result) {
             result.fold(() {}, (action) {
               switch (action) {
-                case QuestionBubbleAction.whatsNews:
+                case BubbleAction.whatsNews:
                   // TODO: annie replace the URL with real ones
                   _launchURL("https://www.appflowy.io/whatsnew");
                   break;
-                case QuestionBubbleAction.help:
+                case BubbleAction.help:
                   // TODO: annie replace the URL with real ones
                   _launchURL("https://discord.gg/9Q2xaN37tV");
                   break;
@@ -63,11 +63,11 @@ class QuestionBubble extends StatelessWidget {
   }
 }
 
-class QuestionBubbleActions with ActionList<QuestionBubbleActionWrapper> implements FlowyOverlayDelegate {
-  final Function(dartz.Option<QuestionBubbleAction>) onSelected;
-  final _items = QuestionBubbleAction.values.map((action) => QuestionBubbleActionWrapper(action)).toList();
+class QuestionBubbleActionSheet with ActionList<BubbleActionWrapper> implements FlowyOverlayDelegate {
+  final Function(dartz.Option<BubbleAction>) onSelected;
+  final _items = BubbleAction.values.map((action) => BubbleActionWrapper(action)).toList();
 
-  QuestionBubbleActions({
+  QuestionBubbleActionSheet({
     required this.onSelected,
   });
 
@@ -78,10 +78,10 @@ class QuestionBubbleActions with ActionList<QuestionBubbleActionWrapper> impleme
   double get itemHeight => 22;
 
   @override
-  List<QuestionBubbleActionWrapper> get items => _items;
+  List<BubbleActionWrapper> get items => _items;
 
   @override
-  void Function(dartz.Option<QuestionBubbleActionWrapper> p1) get selectCallback => (result) {
+  void Function(dartz.Option<BubbleActionWrapper> p1) get selectCallback => (result) {
         result.fold(
           () => onSelected(dartz.none()),
           (wrapper) => onSelected(
@@ -145,15 +145,15 @@ class FlowyVersionDescription extends StatelessWidget {
   }
 }
 
-enum QuestionBubbleAction {
+enum BubbleAction {
   whatsNews,
   help,
 }
 
-class QuestionBubbleActionWrapper extends ActionItemData {
-  final QuestionBubbleAction inner;
+class BubbleActionWrapper extends ActionItem {
+  final BubbleAction inner;
 
-  QuestionBubbleActionWrapper(this.inner);
+  BubbleActionWrapper(this.inner);
   @override
   Widget? get icon => inner.emoji;
 
@@ -161,21 +161,21 @@ class QuestionBubbleActionWrapper extends ActionItemData {
   String get name => inner.name;
 }
 
-extension QuestionBubbleExtension on QuestionBubbleAction {
+extension QuestionBubbleExtension on BubbleAction {
   String get name {
     switch (this) {
-      case QuestionBubbleAction.whatsNews:
+      case BubbleAction.whatsNews:
         return "What's new?";
-      case QuestionBubbleAction.help:
+      case BubbleAction.help:
         return "Help & Support";
     }
   }
 
   Widget get emoji {
     switch (this) {
-      case QuestionBubbleAction.whatsNews:
+      case BubbleAction.whatsNews:
         return const Text('⭐️', style: TextStyle(fontSize: 12));
-      case QuestionBubbleAction.help:
+      case BubbleAction.help:
         return const Text('👥', style: TextStyle(fontSize: 12));
     }
   }

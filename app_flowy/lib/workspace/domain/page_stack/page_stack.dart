@@ -25,11 +25,13 @@ enum HomeStackType {
 
 List<HomeStackType> pages = HomeStackType.values.toList();
 
-abstract class HomeStackContext<T> with NavigationItem {
+abstract class HomeStackContext<T, S> with NavigationItem {
   List<NavigationItem> get navigationItems;
 
   @override
   Widget get naviTitle;
+
+  Widget? Function(BuildContext context) get buildNavigationActions;
 
   @override
   String get identifier;

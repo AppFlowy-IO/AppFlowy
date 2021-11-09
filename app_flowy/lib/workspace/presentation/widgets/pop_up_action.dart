@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:dartz/dartz.dart' as dartz;
 
-abstract class ActionList<T extends ActionItemData> {
+abstract class ActionList<T extends ActionItem> {
   List<T> get items;
 
   String get identifier => toString();
@@ -31,7 +31,7 @@ abstract class ActionList<T extends ActionItemData> {
   }) {
     final widgets = items
         .map(
-          (action) => ActionItem<T>(
+          (action) => ActionCell<T>(
             action: action,
             itemHeight: itemHeight,
             onSelected: (action) {
@@ -58,7 +58,7 @@ abstract class ActionList<T extends ActionItemData> {
   }
 }
 
-abstract class ActionItemData {
+abstract class ActionItem {
   Widget? get icon;
   String get name;
 }
@@ -69,11 +69,11 @@ class ActionListSizes {
   static double padding = 6;
 }
 
-class ActionItem<T extends ActionItemData> extends StatelessWidget {
+class ActionCell<T extends ActionItem> extends StatelessWidget {
   final T action;
   final Function(T) onSelected;
   final double itemHeight;
-  const ActionItem({
+  const ActionCell({
     Key? key,
     required this.action,
     required this.onSelected,
