@@ -67,9 +67,9 @@ We love to receive Pull Requests.
     - Fix a typo in code
     - Fix a typo in the documentation (WIP)
     - Awesome issues for beginners or newcomers (WIP)
-    - Provide feedback on the proposed features (link)
-    - Review Pull Requests (link)
-- If you are ready to code (maybe a lot), please submit a patch!
+    - Provide feedback on the proposed features ([link](https://github.com/AppFlowy-IO/appflowy/issues))
+    - Review Pull Requests ([link](https://github.com/AppFlowy-IO/appflowy/pulls))
+- If you are ready to code (maybe a lot), please submit a [patch](https://github.com/AppFlowy-IO/appflowy/pulls)!
     - (WIP: guidelines)
     - (WIP: Code Style)
 
@@ -77,8 +77,8 @@ We love to receive Pull Requests.
 
 Not feeling quite up to contributing? Tell us your suggestions!
 - Submit feature requests ([see this section](#non-coded-contributions))
-- Provide your suggestions on the forum (tag them with #general-suggestions)
-- Review Pull Requests
+- Provide your suggestions on the [forum](https://github.com/AppFlowy-IO/appflowy/discussions)
+- Review Pull Requests ([link](https://github.com/AppFlowy-IO/appflowy/pulls))
 - Provide feedback on the proposed features ([link](https://github.com/AppFlowy-IO/appflowy/issues))
 
 [Back to TOC](#table-of-contents)
@@ -96,13 +96,13 @@ Sponsoring is another great way to contribute to the community.
 
 If your Pull Request was accepted as it fixes a bug, adds functionality, or makes AppFlowy's codebase significantly easier to use or understand, congratulations! You are now an official contributor to AppFlowy. Get in touch with us ([link](https://tally.so/r/mKP5z3)) to receive the very special Contributor T-shirt!
 
-Proudly wear your T-shirt and show it to us by tagging @appflowy on Twitter
+Proudly wear your T-shirt and show it to us by tagging [@appflowy](https://twitter.com/appflowy) on Twitter.
 
 [Back to TOC](#table-of-contents)
 
 ## Code of Conduct
 
-Please report a code of conduct violation to annie@appflowy.io
+Please report a code of conduct violation to annie@appflowy.io.
 Let's encourage the behavior we want to see in the world and constantly foster a welcoming environment!
 
 [Contributor Covenant](https://www.contributor-covenant.org/version/2/0/code_of_conduct/)
