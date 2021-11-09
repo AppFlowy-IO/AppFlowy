@@ -23,14 +23,23 @@ use flowy_ws::{WsController, WsMessageHandler, WsState};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use tokio::sync::broadcast;
+use tokio::sync::{broadcast, mpsc};
 
 #[derive(Clone)]
 pub enum UserStatus {
-    Login { token: String },
-    Logout { token: String },
-    Expired { token: String },
-    SignUp { profile: UserProfile },
+    Login {
+        token: String,
+    },
+    Logout {
+        token: String,
+    },
+    Expired {
+        token: String,
+    },
+    SignUp {
+        profile: UserProfile,
+        ret: mpsc::Sender<()>,
+    },
 }
 
 pub struct UserSessionConfig {
@@ -130,9 +139,13 @@ impl UserSession {
             let _ = self.set_session(Some(session))?;
             let user_table = self.save_user(resp.into()).await?;
             let user_profile: UserProfile = user_table.into();
+            let (ret, mut tx) = mpsc::channel(1);
             let _ = self.status_notifier.send(UserStatus::SignUp {
                 profile: user_profile.clone(),
+                ret,
             });
+
+            let _ = tx.recv().await;
             Ok(user_profile)
         }
     }

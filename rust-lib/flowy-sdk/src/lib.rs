@@ -122,8 +122,9 @@ async fn _listen_user_status(
                         UserStatus::Expired { .. } => {
                             workspace_controller.user_session_expired();
                         },
-                        UserStatus::SignUp { profile } => {
+                        UserStatus::SignUp { profile, ret } => {
                             let _ = workspace_controller.user_did_sign_up(&profile.token).await?;
+                            let _ = ret.send(());
                         },
                     }
                     Ok::<(), WorkspaceError>(())
