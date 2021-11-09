@@ -19,6 +19,7 @@ use crate::{
     services::{server::Server, TrashCan, TrashEvent},
     sql_tables::view::{ViewTable, ViewTableChangeset, ViewTableSql},
 };
+use flowy_workspace_infra::entities::share::{ExportData, ExportParams, ExportRequest};
 
 pub(crate) struct ViewController {
     user: Arc<dyn WorkspaceUser>,
@@ -136,6 +137,11 @@ impl ViewController {
 
         let _ = self.create_view_from_params(duplicate_params).await?;
         Ok(())
+    }
+
+    #[tracing::instrument(level = "debug", skip(self, params), err)]
+    pub(crate) async fn export_doc(&self, params: ExportParams) -> Result<ExportData, WorkspaceError> {
+        unimplemented!()
     }
 
     // belong_to_id will be the app_id or view_id.

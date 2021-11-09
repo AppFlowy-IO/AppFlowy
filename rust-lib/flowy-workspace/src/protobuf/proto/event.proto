@@ -25,4 +25,5 @@ enum WorkspaceEvent {
     RestoreAll = 303;
     DeleteAll = 304;
     ApplyDocDelta = 400;
+    ExportDocument = 500;
 }

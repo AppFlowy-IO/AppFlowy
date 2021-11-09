@@ -34,6 +34,7 @@ class WorkspaceEvent extends $pb.ProtobufEnum {
   static const WorkspaceEvent RestoreAll = WorkspaceEvent._(303, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RestoreAll');
   static const WorkspaceEvent DeleteAll = WorkspaceEvent._(304, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DeleteAll');
   static const WorkspaceEvent ApplyDocDelta = WorkspaceEvent._(400, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ApplyDocDelta');
+  static const WorkspaceEvent ExportDocument = WorkspaceEvent._(500, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ExportDocument');
 
   static const $core.List<WorkspaceEvent> values = <WorkspaceEvent> [
     CreateWorkspace,
@@ -60,6 +61,7 @@ class WorkspaceEvent extends $pb.ProtobufEnum {
     RestoreAll,
     DeleteAll,
     ApplyDocDelta,
+    ExportDocument,
   ];
 
   static final $core.Map<$core.int, WorkspaceEvent> _byValue = $pb.ProtobufEnum.initByValue(values);

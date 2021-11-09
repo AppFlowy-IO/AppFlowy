@@ -36,8 +36,9 @@ const WorkspaceEvent$json = const {
     const {'1': 'RestoreAll', '2': 303},
     const {'1': 'DeleteAll', '2': 304},
     const {'1': 'ApplyDocDelta', '2': 400},
+    const {'1': 'ExportDocument', '2': 500},
   ],
 };
 
 /// Descriptor for `WorkspaceEvent`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List workspaceEventDescriptor = $convert.base64Decode('Cg5Xb3Jrc3BhY2VFdmVudBITCg9DcmVhdGVXb3Jrc3BhY2UQABIUChBSZWFkQ3VyV29ya3NwYWNlEAESEgoOUmVhZFdvcmtzcGFjZXMQAhITCg9EZWxldGVXb3Jrc3BhY2UQAxIRCg1PcGVuV29ya3NwYWNlEAQSFQoRUmVhZFdvcmtzcGFjZUFwcHMQBRINCglDcmVhdGVBcHAQZRINCglEZWxldGVBcHAQZhILCgdSZWFkQXBwEGcSDQoJVXBkYXRlQXBwEGgSDwoKQ3JlYXRlVmlldxDJARINCghSZWFkVmlldxDKARIPCgpVcGRhdGVWaWV3EMsBEg8KCkRlbGV0ZVZpZXcQzAESEgoNRHVwbGljYXRlVmlldxDNARINCghDb3B5TGluaxDOARINCghPcGVuVmlldxDPARIOCglDbG9zZVZpZXcQ0AESDgoJUmVhZFRyYXNoEKwCEhEKDFB1dGJhY2tUcmFzaBCtAhIQCgtEZWxldGVUcmFzaBCuAhIPCgpSZXN0b3JlQWxsEK8CEg4KCURlbGV0ZUFsbBCwAhISCg1BcHBseURvY0RlbHRhEJAD');
+final $typed_data.Uint8List workspaceEventDescriptor = $convert.base64Decode('Cg5Xb3Jrc3BhY2VFdmVudBITCg9DcmVhdGVXb3Jrc3BhY2UQABIUChBSZWFkQ3VyV29ya3NwYWNlEAESEgoOUmVhZFdvcmtzcGFjZXMQAhITCg9EZWxldGVXb3Jrc3BhY2UQAxIRCg1PcGVuV29ya3NwYWNlEAQSFQoRUmVhZFdvcmtzcGFjZUFwcHMQBRINCglDcmVhdGVBcHAQZRINCglEZWxldGVBcHAQZhILCgdSZWFkQXBwEGcSDQoJVXBkYXRlQXBwEGgSDwoKQ3JlYXRlVmlldxDJARINCghSZWFkVmlldxDKARIPCgpVcGRhdGVWaWV3EMsBEg8KCkRlbGV0ZVZpZXcQzAESEgoNRHVwbGljYXRlVmlldxDNARINCghDb3B5TGluaxDOARINCghPcGVuVmlldxDPARIOCglDbG9zZVZpZXcQ0AESDgoJUmVhZFRyYXNoEKwCEhEKDFB1dGJhY2tUcmFzaBCtAhIQCgtEZWxldGVUcmFzaBCuAhIPCgpSZXN0b3JlQWxsEK8CEg4KCURlbGV0ZUFsbBCwAhISCg1BcHBseURvY0RlbHRhEJADEhMKDkV4cG9ydERvY3VtZW50EPQD');

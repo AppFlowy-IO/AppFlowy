@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+message ExportRequest {
+    string doc_id = 1;
+    ExportType export_type = 2;
+}
+message ExportData {
+    string data = 1;
+}
+enum ExportType {
+    Text = 0;
+    RichText = 1;
+}

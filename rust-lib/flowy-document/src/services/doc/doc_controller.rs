@@ -1,7 +1,3 @@
-use std::sync::Arc;
-
-use bytes::Bytes;
-
 use crate::{
     entities::doc::{Doc, DocDelta, DocIdentifier},
     errors::{DocError, DocResult},
@@ -16,8 +12,10 @@ use crate::{
         ws::WsDocumentManager,
     },
 };
+use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_infra::future::{wrap_future, FnFuture, ResultFuture};
+use std::sync::Arc;
 
 use tokio::time::{interval, Duration};
 

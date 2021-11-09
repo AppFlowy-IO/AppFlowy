@@ -102,5 +102,7 @@ pub fn create(workspace: Arc<WorkspaceController>) -> Module {
         .event(WorkspaceEvent::RestoreAll, restore_all_handler)
         .event(WorkspaceEvent::DeleteAll, delete_all_handler);
 
+    module = module.event(WorkspaceEvent::ExportDocument, export_handler);
+
     module
 }

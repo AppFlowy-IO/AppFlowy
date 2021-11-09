@@ -12,3 +12,4 @@ export './workspace_create.pb.dart';
 export './app_update.pb.dart';
 export './view_query.pb.dart';
 export './trash_create.pb.dart';
+export './export.pb.dart';

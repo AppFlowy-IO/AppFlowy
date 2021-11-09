@@ -75,4 +75,7 @@ pub enum WorkspaceEvent {
 
     #[event(input = "DocDelta", output = "DocDelta")]
     ApplyDocDelta     = 400,
+
+    #[event(input = "ExportRequest", output = "ExportData")]
+    ExportDocument    = 500,
 }

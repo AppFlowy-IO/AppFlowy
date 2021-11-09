@@ -395,6 +395,23 @@ class WorkspaceEventApplyDocDelta {
     }
 }
 
+class WorkspaceEventExportDocument {
+     ExportRequest request;
+     WorkspaceEventExportDocument(this.request);
+
+    Future<Either<ExportData, WorkspaceError>> send() {
+    final request = FFIRequest.create()
+          ..event = WorkspaceEvent.ExportDocument.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (okBytes) => left(ExportData.fromBuffer(okBytes)),
+           (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
+        ));
+    }
+}
+
 class UserEventInitUser {
     UserEventInitUser();
 

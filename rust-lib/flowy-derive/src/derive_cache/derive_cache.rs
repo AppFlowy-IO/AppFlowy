@@ -48,6 +48,8 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "CreateViewParams"
         | "View"
         | "RepeatedView"
+        | "ExportRequest"
+        | "ExportData"
         | "KeyValue"
         | "WorkspaceError"
         | "WsError"
@@ -80,6 +82,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         => TypeCategory::Protobuf,
         "TrashType"
         | "ViewType"
+        | "ExportType"
         | "ErrorCode"
         | "WorkspaceEvent"
         | "WsModule"
