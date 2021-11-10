@@ -61,14 +61,22 @@ class FlowyNavigation extends StatelessWidget {
         );
       },
       update: (_, notifier, controller) => controller!..update(notifier),
-      child: Row(children: [
-        Selector<NavigationNotifier, PublishNotifier<bool>>(
-            selector: (context, notifier) => notifier.collapasedNotifier,
-            builder: (ctx, collapsedNotifier, child) => _renderCollapse(ctx, collapsedNotifier)),
-        Selector<NavigationNotifier, List<NavigationItem>>(
+      child: Expanded(
+        child: Row(children: [
+          Selector<NavigationNotifier, PublishNotifier<bool>>(
+              selector: (context, notifier) => notifier.collapasedNotifier,
+              builder: (ctx, collapsedNotifier, child) => _renderCollapse(ctx, collapsedNotifier)),
+          Selector<NavigationNotifier, List<NavigationItem>>(
             selector: (context, notifier) => notifier.navigationItems,
-            builder: (ctx, items, child) => Row(children: _renderNavigationItems(items))),
-      ]),
+            builder: (ctx, items, child) => Expanded(
+              child: Row(
+                children: _renderNavigationItems(items),
+                // crossAxisAlignment: WrapCrossAlignment.start,
+              ),
+            ),
+          ),
+        ]),
+      ),
     );
   }
 
@@ -106,7 +114,13 @@ class FlowyNavigation extends StatelessWidget {
     Widget last = NaviItemWidget(newItems.removeLast());
 
     List<Widget> widgets = List.empty(growable: true);
-    widgets.addAll(newItems.map((item) => NaviItemDivider(child: NaviItemWidget(item))).toList());
+    // widgets.addAll(newItems.map((item) => NaviItemDivider(child: NaviItemWidget(item))).toList());
+
+    for (final item in newItems) {
+      widgets.add(NaviItemWidget(item));
+      widgets.add(const Text('/'));
+    }
+
     widgets.add(last);
 
     return widgets;
@@ -129,39 +143,13 @@ class FlowyNavigation extends StatelessWidget {
   }
 }
 
-class IconNaviItemWidget extends StatelessWidget {
-  final NavigationItem item;
-  const IconNaviItemWidget(this.item, {Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 24,
-      child: InkWell(
-        child: item.naviTitle,
-        onTap: () {
-          debugPrint('show app document');
-        },
-      ).padding(horizontal: 8, vertical: 2),
-    );
-  }
-}
-
 class NaviItemWidget extends StatelessWidget {
   final NavigationItem item;
   const NaviItemWidget(this.item, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 24,
-      child: InkWell(
-        child: item.naviTitle,
-        onTap: () {
-          debugPrint('show app document');
-        },
-      ).padding(horizontal: 8, vertical: 2),
-    );
+    return Expanded(child: item.leftBarItem.padding(horizontal: 2, vertical: 2));
   }
 }
 
@@ -172,7 +160,7 @@ class NaviItemDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      children: [child, const Text('/').padding(horizontal: 2)],
+      children: [child, const Text('/')],
     );
   }
 }
@@ -184,7 +172,7 @@ class EllipsisNaviItem extends NavigationItem {
   });
 
   @override
-  Widget get naviTitle => const FlowyText.medium('...');
+  Widget get leftBarItem => const FlowyText.medium('...');
 
   @override
   NavigationCallback get action => (id) {};

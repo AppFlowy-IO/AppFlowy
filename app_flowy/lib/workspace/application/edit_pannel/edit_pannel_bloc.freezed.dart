@@ -1,3 +1,4 @@
+// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
@@ -43,6 +44,12 @@ mixin _$EditPannelEvent {
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(EditPannelContext context)? startEdit,
+    TResult Function(EditPannelContext context)? endEdit,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(EditPannelContext context)? startEdit,
     TResult Function(EditPannelContext context)? endEdit,
@@ -53,6 +60,12 @@ mixin _$EditPannelEvent {
   TResult map<TResult extends Object?>({
     required TResult Function(_StartEdit value) startEdit,
     required TResult Function(_EndEdit value) endEdit,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_StartEdit value)? startEdit,
+    TResult Function(_EndEdit value)? endEdit,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -171,6 +184,15 @@ class _$_StartEdit implements _StartEdit {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(EditPannelContext context)? startEdit,
+    TResult Function(EditPannelContext context)? endEdit,
+  }) {
+    return startEdit?.call(context);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(EditPannelContext context)? startEdit,
     TResult Function(EditPannelContext context)? endEdit,
@@ -189,6 +211,15 @@ class _$_StartEdit implements _StartEdit {
     required TResult Function(_EndEdit value) endEdit,
   }) {
     return startEdit(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_StartEdit value)? startEdit,
+    TResult Function(_EndEdit value)? endEdit,
+  }) {
+    return startEdit?.call(this);
   }
 
   @override
@@ -288,6 +319,15 @@ class _$_EndEdit implements _EndEdit {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(EditPannelContext context)? startEdit,
+    TResult Function(EditPannelContext context)? endEdit,
+  }) {
+    return endEdit?.call(context);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(EditPannelContext context)? startEdit,
     TResult Function(EditPannelContext context)? endEdit,
@@ -306,6 +346,15 @@ class _$_EndEdit implements _EndEdit {
     required TResult Function(_EndEdit value) endEdit,
   }) {
     return endEdit(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_StartEdit value)? startEdit,
+    TResult Function(_EndEdit value)? endEdit,
+  }) {
+    return endEdit?.call(this);
   }
 
   @override

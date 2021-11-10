@@ -52,9 +52,6 @@ class ViewDisclosureButton extends StatelessWidget
   void didRemove() {
     onSelected(dartz.none());
   }
-
-  @override
-  ListOverlayFooter? get footer => null;
 }
 
 class ViewDisclosureActionWrapper extends ActionItem {

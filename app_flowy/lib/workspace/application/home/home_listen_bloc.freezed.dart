@@ -1,3 +1,4 @@
+// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
@@ -44,6 +45,13 @@ mixin _$HomeListenEvent {
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? started,
+    TResult Function()? stop,
+    TResult Function(String msg)? unauthorized,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? started,
     TResult Function()? stop,
@@ -56,6 +64,13 @@ mixin _$HomeListenEvent {
     required TResult Function(_Started value) started,
     required TResult Function(_Stop value) stop,
     required TResult Function(_Unauthorized value) unauthorized,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_Started value)? started,
+    TResult Function(_Stop value)? stop,
+    TResult Function(_Unauthorized value)? unauthorized,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -131,6 +146,16 @@ class _$_Started implements _Started {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? started,
+    TResult Function()? stop,
+    TResult Function(String msg)? unauthorized,
+  }) {
+    return started?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? started,
     TResult Function()? stop,
@@ -151,6 +176,16 @@ class _$_Started implements _Started {
     required TResult Function(_Unauthorized value) unauthorized,
   }) {
     return started(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_Started value)? started,
+    TResult Function(_Stop value)? stop,
+    TResult Function(_Unauthorized value)? unauthorized,
+  }) {
+    return started?.call(this);
   }
 
   @override
@@ -218,6 +253,16 @@ class _$_Stop implements _Stop {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? started,
+    TResult Function()? stop,
+    TResult Function(String msg)? unauthorized,
+  }) {
+    return stop?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? started,
     TResult Function()? stop,
@@ -238,6 +283,16 @@ class _$_Stop implements _Stop {
     required TResult Function(_Unauthorized value) unauthorized,
   }) {
     return stop(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_Started value)? started,
+    TResult Function(_Stop value)? stop,
+    TResult Function(_Unauthorized value)? unauthorized,
+  }) {
+    return stop?.call(this);
   }
 
   @override
@@ -333,6 +388,16 @@ class _$_Unauthorized implements _Unauthorized {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? started,
+    TResult Function()? stop,
+    TResult Function(String msg)? unauthorized,
+  }) {
+    return unauthorized?.call(msg);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? started,
     TResult Function()? stop,
@@ -353,6 +418,16 @@ class _$_Unauthorized implements _Unauthorized {
     required TResult Function(_Unauthorized value) unauthorized,
   }) {
     return unauthorized(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_Started value)? started,
+    TResult Function(_Stop value)? stop,
+    TResult Function(_Unauthorized value)? unauthorized,
+  }) {
+    return unauthorized?.call(this);
   }
 
   @override
@@ -406,6 +481,12 @@ mixin _$HomeListenState {
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? loading,
+    TResult Function(String msg)? unauthorized,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
     TResult Function(String msg)? unauthorized,
@@ -416,6 +497,12 @@ mixin _$HomeListenState {
   TResult map<TResult extends Object?>({
     required TResult Function(Loading value) loading,
     required TResult Function(Unauthorized value) unauthorized,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Loading value)? loading,
+    TResult Function(Unauthorized value)? unauthorized,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -489,6 +576,15 @@ class _$Loading implements Loading {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? loading,
+    TResult Function(String msg)? unauthorized,
+  }) {
+    return loading?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
     TResult Function(String msg)? unauthorized,
@@ -507,6 +603,15 @@ class _$Loading implements Loading {
     required TResult Function(Unauthorized value) unauthorized,
   }) {
     return loading(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Loading value)? loading,
+    TResult Function(Unauthorized value)? unauthorized,
+  }) {
+    return loading?.call(this);
   }
 
   @override
@@ -600,6 +705,15 @@ class _$Unauthorized implements Unauthorized {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? loading,
+    TResult Function(String msg)? unauthorized,
+  }) {
+    return unauthorized?.call(msg);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
     TResult Function(String msg)? unauthorized,
@@ -618,6 +732,15 @@ class _$Unauthorized implements Unauthorized {
     required TResult Function(Unauthorized value) unauthorized,
   }) {
     return unauthorized(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Loading value)? loading,
+    TResult Function(Unauthorized value)? unauthorized,
+  }) {
+    return unauthorized?.call(this);
   }
 
   @override

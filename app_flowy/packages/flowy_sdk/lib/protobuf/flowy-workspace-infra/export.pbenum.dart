@@ -11,11 +11,13 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 class ExportType extends $pb.ProtobufEnum {
   static const ExportType Text = ExportType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Text');
-  static const ExportType RichText = ExportType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RichText');
+  static const ExportType Markdown = ExportType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Markdown');
+  static const ExportType Link = ExportType._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Link');
 
   static const $core.List<ExportType> values = <ExportType> [
     Text,
-    RichText,
+    Markdown,
+    Link,
   ];
 
   static final $core.Map<$core.int, ExportType> _byValue = $pb.ProtobufEnum.initByValue(values);

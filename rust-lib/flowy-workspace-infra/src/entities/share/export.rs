@@ -5,7 +5,8 @@ use std::convert::TryInto;
 #[derive(PartialEq, Debug, ProtoBuf_Enum, Clone)]
 pub enum ExportType {
     Text     = 0,
-    RichText = 1,
+    Markdown = 1,
+    Link     = 2,
 }
 
 impl std::default::Default for ExportType {
@@ -16,7 +17,8 @@ impl std::convert::From<i32> for ExportType {
     fn from(val: i32) -> Self {
         match val {
             0 => ExportType::Text,
-            1 => ExportType::RichText,
+            1 => ExportType::Markdown,
+            2 => ExportType::Link,
             _ => {
                 log::error!("Invalid export type: {}", val);
                 ExportType::Text
@@ -54,4 +56,7 @@ impl TryInto<ExportParams> for ExportRequest {
 pub struct ExportData {
     #[pb(index = 1)]
     pub data: String,
+
+    #[pb(index = 2)]
+    pub export_type: ExportType,
 }

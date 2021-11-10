@@ -1,3 +1,4 @@
+// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
@@ -53,6 +54,14 @@ mixin _$HomeEvent {
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(bool isLoading)? showLoading,
+    TResult Function(bool forceCollapse)? forceCollapse,
+    TResult Function(EditPannelContext editContext)? setEditPannel,
+    TResult Function()? dismissEditPannel,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(bool isLoading)? showLoading,
     TResult Function(bool forceCollapse)? forceCollapse,
@@ -67,6 +76,14 @@ mixin _$HomeEvent {
     required TResult Function(_ForceCollapse value) forceCollapse,
     required TResult Function(_ShowEditPannel value) setEditPannel,
     required TResult Function(_DismissEditPannel value) dismissEditPannel,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_ShowLoading value)? showLoading,
+    TResult Function(_ForceCollapse value)? forceCollapse,
+    TResult Function(_ShowEditPannel value)? setEditPannel,
+    TResult Function(_DismissEditPannel value)? dismissEditPannel,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -170,6 +187,17 @@ class _$_ShowLoading implements _ShowLoading {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(bool isLoading)? showLoading,
+    TResult Function(bool forceCollapse)? forceCollapse,
+    TResult Function(EditPannelContext editContext)? setEditPannel,
+    TResult Function()? dismissEditPannel,
+  }) {
+    return showLoading?.call(isLoading);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(bool isLoading)? showLoading,
     TResult Function(bool forceCollapse)? forceCollapse,
@@ -192,6 +220,17 @@ class _$_ShowLoading implements _ShowLoading {
     required TResult Function(_DismissEditPannel value) dismissEditPannel,
   }) {
     return showLoading(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_ShowLoading value)? showLoading,
+    TResult Function(_ForceCollapse value)? forceCollapse,
+    TResult Function(_ShowEditPannel value)? setEditPannel,
+    TResult Function(_DismissEditPannel value)? dismissEditPannel,
+  }) {
+    return showLoading?.call(this);
   }
 
   @override
@@ -294,6 +333,17 @@ class _$_ForceCollapse implements _ForceCollapse {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(bool isLoading)? showLoading,
+    TResult Function(bool forceCollapse)? forceCollapse,
+    TResult Function(EditPannelContext editContext)? setEditPannel,
+    TResult Function()? dismissEditPannel,
+  }) {
+    return forceCollapse?.call(this.forceCollapse);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(bool isLoading)? showLoading,
     TResult Function(bool forceCollapse)? forceCollapse,
@@ -316,6 +366,17 @@ class _$_ForceCollapse implements _ForceCollapse {
     required TResult Function(_DismissEditPannel value) dismissEditPannel,
   }) {
     return forceCollapse(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_ShowLoading value)? showLoading,
+    TResult Function(_ForceCollapse value)? forceCollapse,
+    TResult Function(_ShowEditPannel value)? setEditPannel,
+    TResult Function(_DismissEditPannel value)? dismissEditPannel,
+  }) {
+    return forceCollapse?.call(this);
   }
 
   @override
@@ -418,6 +479,17 @@ class _$_ShowEditPannel implements _ShowEditPannel {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(bool isLoading)? showLoading,
+    TResult Function(bool forceCollapse)? forceCollapse,
+    TResult Function(EditPannelContext editContext)? setEditPannel,
+    TResult Function()? dismissEditPannel,
+  }) {
+    return setEditPannel?.call(editContext);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(bool isLoading)? showLoading,
     TResult Function(bool forceCollapse)? forceCollapse,
@@ -440,6 +512,17 @@ class _$_ShowEditPannel implements _ShowEditPannel {
     required TResult Function(_DismissEditPannel value) dismissEditPannel,
   }) {
     return setEditPannel(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_ShowLoading value)? showLoading,
+    TResult Function(_ForceCollapse value)? forceCollapse,
+    TResult Function(_ShowEditPannel value)? setEditPannel,
+    TResult Function(_DismissEditPannel value)? dismissEditPannel,
+  }) {
+    return setEditPannel?.call(this);
   }
 
   @override
@@ -518,6 +601,17 @@ class _$_DismissEditPannel implements _DismissEditPannel {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(bool isLoading)? showLoading,
+    TResult Function(bool forceCollapse)? forceCollapse,
+    TResult Function(EditPannelContext editContext)? setEditPannel,
+    TResult Function()? dismissEditPannel,
+  }) {
+    return dismissEditPannel?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(bool isLoading)? showLoading,
     TResult Function(bool forceCollapse)? forceCollapse,
@@ -540,6 +634,17 @@ class _$_DismissEditPannel implements _DismissEditPannel {
     required TResult Function(_DismissEditPannel value) dismissEditPannel,
   }) {
     return dismissEditPannel(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_ShowLoading value)? showLoading,
+    TResult Function(_ForceCollapse value)? forceCollapse,
+    TResult Function(_ShowEditPannel value)? setEditPannel,
+    TResult Function(_DismissEditPannel value)? dismissEditPannel,
+  }) {
+    return dismissEditPannel?.call(this);
   }
 
   @override

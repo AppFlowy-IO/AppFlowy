@@ -26,10 +26,10 @@ class TrashStackContext extends HomeStackContext {
   String get identifier => "TrashStackContext";
 
   @override
-  Widget get naviTitle => const FlowyText.medium('Trash', fontSize: 12);
+  Widget get leftBarItem => const FlowyText.medium('Trash', fontSize: 12);
 
   @override
-  Widget? Function(BuildContext context) get buildNaviAction => (_) => null;
+  Widget? get rightBarItem => null;
 
   @override
   HomeStackType get type => HomeStackType.trash;

@@ -1,3 +1,4 @@
+// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
@@ -46,6 +47,13 @@ mixin _$SignInEvent {
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? signedInWithUserEmailAndPassword,
+    TResult Function(String email)? emailChanged,
+    TResult Function(String password)? passwordChanged,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? signedInWithUserEmailAndPassword,
     TResult Function(String email)? emailChanged,
@@ -59,6 +67,14 @@ mixin _$SignInEvent {
         signedInWithUserEmailAndPassword,
     required TResult Function(EmailChanged value) emailChanged,
     required TResult Function(PasswordChanged value) passwordChanged,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(SignedInWithUserEmailAndPassword value)?
+        signedInWithUserEmailAndPassword,
+    TResult Function(EmailChanged value)? emailChanged,
+    TResult Function(PasswordChanged value)? passwordChanged,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -142,6 +158,16 @@ class _$SignedInWithUserEmailAndPassword
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? signedInWithUserEmailAndPassword,
+    TResult Function(String email)? emailChanged,
+    TResult Function(String password)? passwordChanged,
+  }) {
+    return signedInWithUserEmailAndPassword?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? signedInWithUserEmailAndPassword,
     TResult Function(String email)? emailChanged,
@@ -163,6 +189,17 @@ class _$SignedInWithUserEmailAndPassword
     required TResult Function(PasswordChanged value) passwordChanged,
   }) {
     return signedInWithUserEmailAndPassword(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(SignedInWithUserEmailAndPassword value)?
+        signedInWithUserEmailAndPassword,
+    TResult Function(EmailChanged value)? emailChanged,
+    TResult Function(PasswordChanged value)? passwordChanged,
+  }) {
+    return signedInWithUserEmailAndPassword?.call(this);
   }
 
   @override
@@ -259,6 +296,16 @@ class _$EmailChanged implements EmailChanged {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? signedInWithUserEmailAndPassword,
+    TResult Function(String email)? emailChanged,
+    TResult Function(String password)? passwordChanged,
+  }) {
+    return emailChanged?.call(email);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? signedInWithUserEmailAndPassword,
     TResult Function(String email)? emailChanged,
@@ -280,6 +327,17 @@ class _$EmailChanged implements EmailChanged {
     required TResult Function(PasswordChanged value) passwordChanged,
   }) {
     return emailChanged(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(SignedInWithUserEmailAndPassword value)?
+        signedInWithUserEmailAndPassword,
+    TResult Function(EmailChanged value)? emailChanged,
+    TResult Function(PasswordChanged value)? passwordChanged,
+  }) {
+    return emailChanged?.call(this);
   }
 
   @override
@@ -382,6 +440,16 @@ class _$PasswordChanged implements PasswordChanged {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? signedInWithUserEmailAndPassword,
+    TResult Function(String email)? emailChanged,
+    TResult Function(String password)? passwordChanged,
+  }) {
+    return passwordChanged?.call(password);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? signedInWithUserEmailAndPassword,
     TResult Function(String email)? emailChanged,
@@ -403,6 +471,17 @@ class _$PasswordChanged implements PasswordChanged {
     required TResult Function(PasswordChanged value) passwordChanged,
   }) {
     return passwordChanged(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(SignedInWithUserEmailAndPassword value)?
+        signedInWithUserEmailAndPassword,
+    TResult Function(EmailChanged value)? emailChanged,
+    TResult Function(PasswordChanged value)? passwordChanged,
+  }) {
+    return passwordChanged?.call(this);
   }
 
   @override

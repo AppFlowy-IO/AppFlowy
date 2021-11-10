@@ -147,7 +147,10 @@ impl ViewController {
             .read_document_data(doc_identifier, self.database.db_pool()?)
             .await?;
 
-        Ok(ExportData { data: doc.data })
+        Ok(ExportData {
+            data: doc.data,
+            export_type: params.export_type,
+        })
     }
 
     // belong_to_id will be the app_id or view_id.

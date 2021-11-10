@@ -53,7 +53,8 @@ class _CreateTextFieldDialog extends State<TextFieldDialog> {
             VSpace(Insets.sm * 1.5),
           ],
           FlowyFormTextInput(
-            hintText: widget.value,
+            hintText: "Page name",
+            initialValue: widget.value,
             textStyle: const TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
             autoFocus: true,
             onChanged: (text) {
@@ -71,6 +72,52 @@ class _CreateTextFieldDialog extends State<TextFieldDialog> {
               }
             },
           )
+        ],
+      ),
+    );
+  }
+}
+
+class FlowyAlertDialog extends StatefulWidget {
+  final String title;
+  final void Function()? cancel;
+  final void Function()? confirm;
+
+  const FlowyAlertDialog({
+    required this.title,
+    this.confirm,
+    this.cancel,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<FlowyAlertDialog> createState() => _CreateFlowyAlertDialog();
+}
+
+class _CreateFlowyAlertDialog extends State<FlowyAlertDialog> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    return StyledDialog(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          ...[
+            FlowyText.medium(widget.title, color: theme.shader4),
+          ],
+          if (widget.confirm != null) ...[
+            const VSpace(20),
+            OkCancelButton(
+              onOkPressed: widget.confirm!,
+              onCancelPressed: widget.confirm,
+            )
+          ]
         ],
       ),
     );

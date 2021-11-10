@@ -1,3 +1,4 @@
+// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
@@ -68,6 +69,16 @@ mixin _$AppEvent {
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(String name, String desc, ViewType viewType)? createView,
+    TResult Function()? delete,
+    TResult Function(String newName)? rename,
+    TResult Function(List<View> views)? didReceiveViews,
+    TResult Function(App app)? appDidUpdate,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(String name, String desc, ViewType viewType)? createView,
@@ -86,6 +97,16 @@ mixin _$AppEvent {
     required TResult Function(Rename value) rename,
     required TResult Function(ReceiveViews value) didReceiveViews,
     required TResult Function(AppDidUpdate value) appDidUpdate,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(CreateView value)? createView,
+    TResult Function(Delete value)? delete,
+    TResult Function(Rename value)? rename,
+    TResult Function(ReceiveViews value)? didReceiveViews,
+    TResult Function(AppDidUpdate value)? appDidUpdate,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -166,6 +187,19 @@ class _$Initial implements Initial {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(String name, String desc, ViewType viewType)? createView,
+    TResult Function()? delete,
+    TResult Function(String newName)? rename,
+    TResult Function(List<View> views)? didReceiveViews,
+    TResult Function(App app)? appDidUpdate,
+  }) {
+    return initial?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(String name, String desc, ViewType viewType)? createView,
@@ -192,6 +226,19 @@ class _$Initial implements Initial {
     required TResult Function(AppDidUpdate value) appDidUpdate,
   }) {
     return initial(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(CreateView value)? createView,
+    TResult Function(Delete value)? delete,
+    TResult Function(Rename value)? rename,
+    TResult Function(ReceiveViews value)? didReceiveViews,
+    TResult Function(AppDidUpdate value)? appDidUpdate,
+  }) {
+    return initial?.call(this);
   }
 
   @override
@@ -314,6 +361,19 @@ class _$CreateView implements CreateView {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(String name, String desc, ViewType viewType)? createView,
+    TResult Function()? delete,
+    TResult Function(String newName)? rename,
+    TResult Function(List<View> views)? didReceiveViews,
+    TResult Function(App app)? appDidUpdate,
+  }) {
+    return createView?.call(name, desc, viewType);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(String name, String desc, ViewType viewType)? createView,
@@ -340,6 +400,19 @@ class _$CreateView implements CreateView {
     required TResult Function(AppDidUpdate value) appDidUpdate,
   }) {
     return createView(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(CreateView value)? createView,
+    TResult Function(Delete value)? delete,
+    TResult Function(Rename value)? rename,
+    TResult Function(ReceiveViews value)? didReceiveViews,
+    TResult Function(AppDidUpdate value)? appDidUpdate,
+  }) {
+    return createView?.call(this);
   }
 
   @override
@@ -422,6 +495,19 @@ class _$Delete implements Delete {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(String name, String desc, ViewType viewType)? createView,
+    TResult Function()? delete,
+    TResult Function(String newName)? rename,
+    TResult Function(List<View> views)? didReceiveViews,
+    TResult Function(App app)? appDidUpdate,
+  }) {
+    return delete?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(String name, String desc, ViewType viewType)? createView,
@@ -448,6 +534,19 @@ class _$Delete implements Delete {
     required TResult Function(AppDidUpdate value) appDidUpdate,
   }) {
     return delete(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(CreateView value)? createView,
+    TResult Function(Delete value)? delete,
+    TResult Function(Rename value)? rename,
+    TResult Function(ReceiveViews value)? didReceiveViews,
+    TResult Function(AppDidUpdate value)? appDidUpdate,
+  }) {
+    return delete?.call(this);
   }
 
   @override
@@ -547,6 +646,19 @@ class _$Rename implements Rename {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(String name, String desc, ViewType viewType)? createView,
+    TResult Function()? delete,
+    TResult Function(String newName)? rename,
+    TResult Function(List<View> views)? didReceiveViews,
+    TResult Function(App app)? appDidUpdate,
+  }) {
+    return rename?.call(newName);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(String name, String desc, ViewType viewType)? createView,
@@ -573,6 +685,19 @@ class _$Rename implements Rename {
     required TResult Function(AppDidUpdate value) appDidUpdate,
   }) {
     return rename(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(CreateView value)? createView,
+    TResult Function(Delete value)? delete,
+    TResult Function(Rename value)? rename,
+    TResult Function(ReceiveViews value)? didReceiveViews,
+    TResult Function(AppDidUpdate value)? appDidUpdate,
+  }) {
+    return rename?.call(this);
   }
 
   @override
@@ -678,6 +803,19 @@ class _$ReceiveViews implements ReceiveViews {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(String name, String desc, ViewType viewType)? createView,
+    TResult Function()? delete,
+    TResult Function(String newName)? rename,
+    TResult Function(List<View> views)? didReceiveViews,
+    TResult Function(App app)? appDidUpdate,
+  }) {
+    return didReceiveViews?.call(views);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(String name, String desc, ViewType viewType)? createView,
@@ -704,6 +842,19 @@ class _$ReceiveViews implements ReceiveViews {
     required TResult Function(AppDidUpdate value) appDidUpdate,
   }) {
     return didReceiveViews(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(CreateView value)? createView,
+    TResult Function(Delete value)? delete,
+    TResult Function(Rename value)? rename,
+    TResult Function(ReceiveViews value)? didReceiveViews,
+    TResult Function(AppDidUpdate value)? appDidUpdate,
+  }) {
+    return didReceiveViews?.call(this);
   }
 
   @override
@@ -810,6 +961,19 @@ class _$AppDidUpdate implements AppDidUpdate {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(String name, String desc, ViewType viewType)? createView,
+    TResult Function()? delete,
+    TResult Function(String newName)? rename,
+    TResult Function(List<View> views)? didReceiveViews,
+    TResult Function(App app)? appDidUpdate,
+  }) {
+    return appDidUpdate?.call(app);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(String name, String desc, ViewType viewType)? createView,
@@ -836,6 +1000,19 @@ class _$AppDidUpdate implements AppDidUpdate {
     required TResult Function(AppDidUpdate value) appDidUpdate,
   }) {
     return appDidUpdate(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(CreateView value)? createView,
+    TResult Function(Delete value)? delete,
+    TResult Function(Rename value)? rename,
+    TResult Function(ReceiveViews value)? didReceiveViews,
+    TResult Function(AppDidUpdate value)? appDidUpdate,
+  }) {
+    return appDidUpdate?.call(this);
   }
 
   @override

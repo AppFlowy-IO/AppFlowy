@@ -6,8 +6,10 @@ message ExportRequest {
 }
 message ExportData {
     string data = 1;
+    ExportType export_type = 2;
 }
 enum ExportType {
     Text = 0;
-    RichText = 1;
+    Markdown = 1;
+    Link = 2;
 }

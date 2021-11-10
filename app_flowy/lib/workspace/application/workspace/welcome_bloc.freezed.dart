@@ -1,3 +1,4 @@
+// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
@@ -57,6 +58,15 @@ mixin _$WelcomeEvent {
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(String name, String desc)? createWorkspace,
+    TResult Function(Workspace workspace)? openWorkspace,
+    TResult Function(Either<List<Workspace>, WorkspaceError> workspacesOrFail)?
+        workspacesReveived,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(String name, String desc)? createWorkspace,
@@ -72,6 +82,14 @@ mixin _$WelcomeEvent {
     required TResult Function(CreateWorkspace value) createWorkspace,
     required TResult Function(OpenWorkspace value) openWorkspace,
     required TResult Function(WorkspacesReceived value) workspacesReveived,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(CreateWorkspace value)? createWorkspace,
+    TResult Function(OpenWorkspace value)? openWorkspace,
+    TResult Function(WorkspacesReceived value)? workspacesReveived,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -150,6 +168,18 @@ class _$Initial implements Initial {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(String name, String desc)? createWorkspace,
+    TResult Function(Workspace workspace)? openWorkspace,
+    TResult Function(Either<List<Workspace>, WorkspaceError> workspacesOrFail)?
+        workspacesReveived,
+  }) {
+    return initial?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(String name, String desc)? createWorkspace,
@@ -173,6 +203,17 @@ class _$Initial implements Initial {
     required TResult Function(WorkspacesReceived value) workspacesReveived,
   }) {
     return initial(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(CreateWorkspace value)? createWorkspace,
+    TResult Function(OpenWorkspace value)? openWorkspace,
+    TResult Function(WorkspacesReceived value)? workspacesReveived,
+  }) {
+    return initial?.call(this);
   }
 
   @override
@@ -283,6 +324,18 @@ class _$CreateWorkspace implements CreateWorkspace {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(String name, String desc)? createWorkspace,
+    TResult Function(Workspace workspace)? openWorkspace,
+    TResult Function(Either<List<Workspace>, WorkspaceError> workspacesOrFail)?
+        workspacesReveived,
+  }) {
+    return createWorkspace?.call(name, desc);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(String name, String desc)? createWorkspace,
@@ -306,6 +359,17 @@ class _$CreateWorkspace implements CreateWorkspace {
     required TResult Function(WorkspacesReceived value) workspacesReveived,
   }) {
     return createWorkspace(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(CreateWorkspace value)? createWorkspace,
+    TResult Function(OpenWorkspace value)? openWorkspace,
+    TResult Function(WorkspacesReceived value)? workspacesReveived,
+  }) {
+    return createWorkspace?.call(this);
   }
 
   @override
@@ -411,6 +475,18 @@ class _$OpenWorkspace implements OpenWorkspace {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(String name, String desc)? createWorkspace,
+    TResult Function(Workspace workspace)? openWorkspace,
+    TResult Function(Either<List<Workspace>, WorkspaceError> workspacesOrFail)?
+        workspacesReveived,
+  }) {
+    return openWorkspace?.call(workspace);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(String name, String desc)? createWorkspace,
@@ -434,6 +510,17 @@ class _$OpenWorkspace implements OpenWorkspace {
     required TResult Function(WorkspacesReceived value) workspacesReveived,
   }) {
     return openWorkspace(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(CreateWorkspace value)? createWorkspace,
+    TResult Function(OpenWorkspace value)? openWorkspace,
+    TResult Function(WorkspacesReceived value)? workspacesReveived,
+  }) {
+    return openWorkspace?.call(this);
   }
 
   @override
@@ -540,6 +627,18 @@ class _$WorkspacesReceived implements WorkspacesReceived {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(String name, String desc)? createWorkspace,
+    TResult Function(Workspace workspace)? openWorkspace,
+    TResult Function(Either<List<Workspace>, WorkspaceError> workspacesOrFail)?
+        workspacesReveived,
+  }) {
+    return workspacesReveived?.call(workspacesOrFail);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(String name, String desc)? createWorkspace,
@@ -563,6 +662,17 @@ class _$WorkspacesReceived implements WorkspacesReceived {
     required TResult Function(WorkspacesReceived value) workspacesReveived,
   }) {
     return workspacesReveived(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(CreateWorkspace value)? createWorkspace,
+    TResult Function(OpenWorkspace value)? openWorkspace,
+    TResult Function(WorkspacesReceived value)? workspacesReveived,
+  }) {
+    return workspacesReveived?.call(this);
   }
 
   @override

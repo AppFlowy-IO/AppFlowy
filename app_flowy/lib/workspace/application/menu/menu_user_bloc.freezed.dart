@@ -1,3 +1,4 @@
+// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
@@ -37,6 +38,12 @@ mixin _$MenuUserEvent {
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? fetchWorkspaces,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? fetchWorkspaces,
@@ -47,6 +54,12 @@ mixin _$MenuUserEvent {
   TResult map<TResult extends Object?>({
     required TResult Function(_Initial value) initial,
     required TResult Function(_FetchWorkspaces value) fetchWorkspaces,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
+    TResult Function(_FetchWorkspaces value)? fetchWorkspaces,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -120,6 +133,15 @@ class _$_Initial implements _Initial {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? fetchWorkspaces,
+  }) {
+    return initial?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? fetchWorkspaces,
@@ -138,6 +160,15 @@ class _$_Initial implements _Initial {
     required TResult Function(_FetchWorkspaces value) fetchWorkspaces,
   }) {
     return initial(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
+    TResult Function(_FetchWorkspaces value)? fetchWorkspaces,
+  }) {
+    return initial?.call(this);
   }
 
   @override
@@ -206,6 +237,15 @@ class _$_FetchWorkspaces implements _FetchWorkspaces {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? fetchWorkspaces,
+  }) {
+    return fetchWorkspaces?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? fetchWorkspaces,
@@ -224,6 +264,15 @@ class _$_FetchWorkspaces implements _FetchWorkspaces {
     required TResult Function(_FetchWorkspaces value) fetchWorkspaces,
   }) {
     return fetchWorkspaces(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
+    TResult Function(_FetchWorkspaces value)? fetchWorkspaces,
+  }) {
+    return fetchWorkspaces?.call(this);
   }
 
   @override

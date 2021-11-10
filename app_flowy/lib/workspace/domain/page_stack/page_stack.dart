@@ -9,7 +9,8 @@ import 'package:app_flowy/workspace/presentation/widgets/prelude.dart';
 typedef NavigationCallback = void Function(String id);
 
 abstract class NavigationItem {
-  Widget get naviTitle;
+  Widget get leftBarItem;
+  Widget? get rightBarItem => null;
   String get identifier;
 
   NavigationCallback get action => (id) {
@@ -29,9 +30,10 @@ abstract class HomeStackContext<T, S> with NavigationItem {
   List<NavigationItem> get navigationItems;
 
   @override
-  Widget get naviTitle;
+  Widget get leftBarItem;
 
-  Widget? Function(BuildContext context) get buildNaviAction;
+  @override
+  Widget? get rightBarItem;
 
   @override
   String get identifier;
@@ -49,7 +51,7 @@ class HomeStackNotifier extends ChangeNotifier {
   HomeStackContext stackContext;
   PublishNotifier<bool> collapsedNotifier = PublishNotifier();
 
-  Widget get titleWidget => stackContext.naviTitle;
+  Widget get titleWidget => stackContext.leftBarItem;
 
   HomeStackNotifier({HomeStackContext? context}) : stackContext = context ?? BlankStackContext();
 
@@ -71,7 +73,7 @@ class HomeStackManager {
   HomeStackManager();
 
   Widget title() {
-    return _notifier.context.naviTitle;
+    return _notifier.context.leftBarItem;
   }
 
   PublishNotifier<bool> get collapsedNotifier => _notifier.collapsedNotifier;

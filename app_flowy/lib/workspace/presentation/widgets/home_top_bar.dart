@@ -21,12 +21,12 @@ class HomeTopBar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const FlowyNavigation(),
-          const Spacer(),
+          const HSpace(16),
           ChangeNotifierProvider.value(
             value: Provider.of<HomeStackNotifier>(context, listen: false),
             child: Consumer(
               builder: (BuildContext context, HomeStackNotifier notifier, Widget? child) {
-                return notifier.stackContext.buildNaviAction(context) ?? const SizedBox();
+                return notifier.stackContext.rightBarItem ?? const SizedBox();
               },
             ),
           ) // _renderMoreButton(),

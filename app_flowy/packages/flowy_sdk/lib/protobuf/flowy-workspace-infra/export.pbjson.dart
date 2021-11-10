@@ -13,12 +13,13 @@ const ExportType$json = const {
   '1': 'ExportType',
   '2': const [
     const {'1': 'Text', '2': 0},
-    const {'1': 'RichText', '2': 1},
+    const {'1': 'Markdown', '2': 1},
+    const {'1': 'Link', '2': 2},
   ],
 };
 
 /// Descriptor for `ExportType`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List exportTypeDescriptor = $convert.base64Decode('CgpFeHBvcnRUeXBlEggKBFRleHQQABIMCghSaWNoVGV4dBAB');
+final $typed_data.Uint8List exportTypeDescriptor = $convert.base64Decode('CgpFeHBvcnRUeXBlEggKBFRleHQQABIMCghNYXJrZG93bhABEggKBExpbmsQAg==');
 @$core.Deprecated('Use exportRequestDescriptor instead')
 const ExportRequest$json = const {
   '1': 'ExportRequest',
@@ -35,8 +36,9 @@ const ExportData$json = const {
   '1': 'ExportData',
   '2': const [
     const {'1': 'data', '3': 1, '4': 1, '5': 9, '10': 'data'},
+    const {'1': 'export_type', '3': 2, '4': 1, '5': 14, '6': '.ExportType', '10': 'exportType'},
   ],
 };
 
 /// Descriptor for `ExportData`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List exportDataDescriptor = $convert.base64Decode('CgpFeHBvcnREYXRhEhIKBGRhdGEYASABKAlSBGRhdGE=');
+final $typed_data.Uint8List exportDataDescriptor = $convert.base64Decode('CgpFeHBvcnREYXRhEhIKBGRhdGEYASABKAlSBGRhdGESLAoLZXhwb3J0X3R5cGUYAiABKA4yCy5FeHBvcnRUeXBlUgpleHBvcnRUeXBl');

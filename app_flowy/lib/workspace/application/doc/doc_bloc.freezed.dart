@@ -1,3 +1,4 @@
+// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
@@ -52,6 +53,15 @@ mixin _$DocEvent {
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? deleted,
+    TResult Function()? restore,
+    TResult Function()? restorePage,
+    TResult Function()? deletePermanently,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? deleted,
@@ -68,6 +78,15 @@ mixin _$DocEvent {
     required TResult Function(Restore value) restore,
     required TResult Function(RestorePage value) restorePage,
     required TResult Function(DeletePermanently value) deletePermanently,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(Deleted value)? deleted,
+    TResult Function(Restore value)? restore,
+    TResult Function(RestorePage value)? restorePage,
+    TResult Function(DeletePermanently value)? deletePermanently,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -145,6 +164,18 @@ class _$Initial implements Initial {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? deleted,
+    TResult Function()? restore,
+    TResult Function()? restorePage,
+    TResult Function()? deletePermanently,
+  }) {
+    return initial?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? deleted,
@@ -169,6 +200,18 @@ class _$Initial implements Initial {
     required TResult Function(DeletePermanently value) deletePermanently,
   }) {
     return initial(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(Deleted value)? deleted,
+    TResult Function(Restore value)? restore,
+    TResult Function(RestorePage value)? restorePage,
+    TResult Function(DeletePermanently value)? deletePermanently,
+  }) {
+    return initial?.call(this);
   }
 
   @override
@@ -240,6 +283,18 @@ class _$Deleted implements Deleted {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? deleted,
+    TResult Function()? restore,
+    TResult Function()? restorePage,
+    TResult Function()? deletePermanently,
+  }) {
+    return deleted?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? deleted,
@@ -264,6 +319,18 @@ class _$Deleted implements Deleted {
     required TResult Function(DeletePermanently value) deletePermanently,
   }) {
     return deleted(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(Deleted value)? deleted,
+    TResult Function(Restore value)? restore,
+    TResult Function(RestorePage value)? restorePage,
+    TResult Function(DeletePermanently value)? deletePermanently,
+  }) {
+    return deleted?.call(this);
   }
 
   @override
@@ -335,6 +402,18 @@ class _$Restore implements Restore {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? deleted,
+    TResult Function()? restore,
+    TResult Function()? restorePage,
+    TResult Function()? deletePermanently,
+  }) {
+    return restore?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? deleted,
@@ -359,6 +438,18 @@ class _$Restore implements Restore {
     required TResult Function(DeletePermanently value) deletePermanently,
   }) {
     return restore(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(Deleted value)? deleted,
+    TResult Function(Restore value)? restore,
+    TResult Function(RestorePage value)? restorePage,
+    TResult Function(DeletePermanently value)? deletePermanently,
+  }) {
+    return restore?.call(this);
   }
 
   @override
@@ -432,6 +523,18 @@ class _$RestorePage implements RestorePage {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? deleted,
+    TResult Function()? restore,
+    TResult Function()? restorePage,
+    TResult Function()? deletePermanently,
+  }) {
+    return restorePage?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? deleted,
@@ -456,6 +559,18 @@ class _$RestorePage implements RestorePage {
     required TResult Function(DeletePermanently value) deletePermanently,
   }) {
     return restorePage(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(Deleted value)? deleted,
+    TResult Function(Restore value)? restore,
+    TResult Function(RestorePage value)? restorePage,
+    TResult Function(DeletePermanently value)? deletePermanently,
+  }) {
+    return restorePage?.call(this);
   }
 
   @override
@@ -529,6 +644,18 @@ class _$DeletePermanently implements DeletePermanently {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? deleted,
+    TResult Function()? restore,
+    TResult Function()? restorePage,
+    TResult Function()? deletePermanently,
+  }) {
+    return deletePermanently?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? deleted,
@@ -553,6 +680,18 @@ class _$DeletePermanently implements DeletePermanently {
     required TResult Function(DeletePermanently value) deletePermanently,
   }) {
     return deletePermanently(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(Deleted value)? deleted,
+    TResult Function(Restore value)? restore,
+    TResult Function(RestorePage value)? restorePage,
+    TResult Function(DeletePermanently value)? deletePermanently,
+  }) {
+    return deletePermanently?.call(this);
   }
 
   @override
@@ -790,6 +929,12 @@ mixin _$DocLoadState {
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? loading,
+    TResult Function(Either<Unit, WorkspaceError> successOrFail)? finish,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
     TResult Function(Either<Unit, WorkspaceError> successOrFail)? finish,
@@ -800,6 +945,12 @@ mixin _$DocLoadState {
   TResult map<TResult extends Object?>({
     required TResult Function(_Loading value) loading,
     required TResult Function(_Finish value) finish,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_Loading value)? loading,
+    TResult Function(_Finish value)? finish,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -873,6 +1024,15 @@ class _$_Loading implements _Loading {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? loading,
+    TResult Function(Either<Unit, WorkspaceError> successOrFail)? finish,
+  }) {
+    return loading?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
     TResult Function(Either<Unit, WorkspaceError> successOrFail)? finish,
@@ -891,6 +1051,15 @@ class _$_Loading implements _Loading {
     required TResult Function(_Finish value) finish,
   }) {
     return loading(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_Loading value)? loading,
+    TResult Function(_Finish value)? finish,
+  }) {
+    return loading?.call(this);
   }
 
   @override
@@ -983,6 +1152,15 @@ class _$_Finish implements _Finish {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? loading,
+    TResult Function(Either<Unit, WorkspaceError> successOrFail)? finish,
+  }) {
+    return finish?.call(successOrFail);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
     TResult Function(Either<Unit, WorkspaceError> successOrFail)? finish,
@@ -1001,6 +1179,15 @@ class _$_Finish implements _Finish {
     required TResult Function(_Finish value) finish,
   }) {
     return finish(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_Loading value)? loading,
+    TResult Function(_Finish value)? finish,
+  }) {
+    return finish?.call(this);
   }
 
   @override

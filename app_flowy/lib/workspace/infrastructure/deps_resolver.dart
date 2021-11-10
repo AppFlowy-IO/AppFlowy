@@ -1,11 +1,13 @@
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:app_flowy/workspace/application/doc/doc_bloc.dart';
+import 'package:app_flowy/workspace/application/doc/share_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_bloc.dart';
 import 'package:app_flowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:app_flowy/workspace/application/trash/trash_bloc.dart';
 import 'package:app_flowy/workspace/application/view/view_bloc.dart';
 import 'package:app_flowy/workspace/application/workspace/welcome_bloc.dart';
 import 'package:app_flowy/workspace/domain/i_doc.dart';
+import 'package:app_flowy/workspace/domain/i_share.dart';
 import 'package:app_flowy/workspace/domain/i_trash.dart';
 import 'package:app_flowy/workspace/domain/i_view.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
@@ -23,8 +25,10 @@ import 'package:flowy_sdk/protobuf/flowy-workspace-infra/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pb.dart';
 import 'package:get_it/get_it.dart';
 
+import 'i_share_impl.dart';
 import 'i_user_impl.dart';
 import 'i_view_impl.dart';
+import 'repos/share_repo.dart';
 
 class HomeDepsResolver {
   static Future<void> resolve(GetIt getIt) async {
@@ -102,5 +106,11 @@ class HomeDepsResolver {
     getIt.registerFactory<ITrash>(() => ITrashImpl(repo: getIt<TrashRepo>()));
     getIt.registerFactory<ITrashListener>(() => ITrashListenerImpl(repo: getIt<TrashListenerRepo>()));
     getIt.registerFactory<TrashBloc>(() => TrashBloc(trasnManager: getIt<ITrash>(), listener: getIt<ITrashListener>()));
+
+    // share
+    getIt.registerLazySingleton<ShareRepo>(() => ShareRepo());
+    getIt.registerFactory<IShare>(() => IShareImpl(repo: getIt<ShareRepo>()));
+    getIt.registerFactoryParam<DocShareBloc, View, void>(
+        (view, _) => DocShareBloc(view: view, shareManager: getIt<IShare>()));
   }
 }

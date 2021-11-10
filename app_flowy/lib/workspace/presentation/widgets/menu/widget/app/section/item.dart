@@ -56,11 +56,10 @@ class ViewSectionItem extends StatelessWidget {
     List<Widget> children = [
       SizedBox(width: 16, height: 16, child: state.view.thumbnail()),
       const HSpace(2),
-      FlowyText.regular(state.view.name, fontSize: 12),
+      Expanded(child: FlowyText.regular(state.view.name, fontSize: 12)),
     ];
 
     if (onHover || state.isEditing) {
-      children.add(const Spacer());
       children.add(
         ViewDisclosureButton(
           onTap: () => context.read<ViewBloc>().add(const ViewEvent.setIsEditing(true)),
