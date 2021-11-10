@@ -53,7 +53,8 @@ class _CreateTextFieldDialog extends State<TextFieldDialog> {
             VSpace(Insets.sm * 1.5),
           ],
           FlowyFormTextInput(
-            hintText: widget.value,
+            hintText: "Page name",
+            initialValue: widget.value,
             textStyle: const TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
             autoFocus: true,
             onChanged: (text) {
