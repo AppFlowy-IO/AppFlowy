@@ -1,3 +1,4 @@
+// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
@@ -46,6 +47,13 @@ mixin _$AuthState {
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(UserProfile userProfile)? authenticated,
+    TResult Function(UserError error)? unauthenticated,
+    TResult Function()? initial,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(UserProfile userProfile)? authenticated,
     TResult Function(UserError error)? unauthenticated,
@@ -58,6 +66,13 @@ mixin _$AuthState {
     required TResult Function(Authenticated value) authenticated,
     required TResult Function(Unauthenticated value) unauthenticated,
     required TResult Function(_Initial value) initial,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Authenticated value)? authenticated,
+    TResult Function(Unauthenticated value)? unauthenticated,
+    TResult Function(_Initial value)? initial,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -159,6 +174,16 @@ class _$Authenticated implements Authenticated {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(UserProfile userProfile)? authenticated,
+    TResult Function(UserError error)? unauthenticated,
+    TResult Function()? initial,
+  }) {
+    return authenticated?.call(userProfile);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(UserProfile userProfile)? authenticated,
     TResult Function(UserError error)? unauthenticated,
@@ -179,6 +204,16 @@ class _$Authenticated implements Authenticated {
     required TResult Function(_Initial value) initial,
   }) {
     return authenticated(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Authenticated value)? authenticated,
+    TResult Function(Unauthenticated value)? unauthenticated,
+    TResult Function(_Initial value)? initial,
+  }) {
+    return authenticated?.call(this);
   }
 
   @override
@@ -278,6 +313,16 @@ class _$Unauthenticated implements Unauthenticated {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(UserProfile userProfile)? authenticated,
+    TResult Function(UserError error)? unauthenticated,
+    TResult Function()? initial,
+  }) {
+    return unauthenticated?.call(error);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(UserProfile userProfile)? authenticated,
     TResult Function(UserError error)? unauthenticated,
@@ -298,6 +343,16 @@ class _$Unauthenticated implements Unauthenticated {
     required TResult Function(_Initial value) initial,
   }) {
     return unauthenticated(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Authenticated value)? authenticated,
+    TResult Function(Unauthenticated value)? unauthenticated,
+    TResult Function(_Initial value)? initial,
+  }) {
+    return unauthenticated?.call(this);
   }
 
   @override
@@ -370,6 +425,16 @@ class _$_Initial implements _Initial {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(UserProfile userProfile)? authenticated,
+    TResult Function(UserError error)? unauthenticated,
+    TResult Function()? initial,
+  }) {
+    return initial?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(UserProfile userProfile)? authenticated,
     TResult Function(UserError error)? unauthenticated,
@@ -390,6 +455,16 @@ class _$_Initial implements _Initial {
     required TResult Function(_Initial value) initial,
   }) {
     return initial(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Authenticated value)? authenticated,
+    TResult Function(Unauthenticated value)? unauthenticated,
+    TResult Function(_Initial value)? initial,
+  }) {
+    return initial?.call(this);
   }
 
   @override

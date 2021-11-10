@@ -26,7 +26,7 @@ class HomeTopBar extends StatelessWidget {
             value: Provider.of<HomeStackNotifier>(context, listen: false),
             child: Consumer(
               builder: (BuildContext context, HomeStackNotifier notifier, Widget? child) {
-                return notifier.stackContext.buildNaviAction(context) ?? const SizedBox();
+                return notifier.stackContext.rightBarItem ?? const SizedBox();
               },
             ),
           ) // _renderMoreButton(),

@@ -1,3 +1,4 @@
+// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
@@ -64,6 +65,16 @@ mixin _$ViewEvent {
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(bool isEditing)? setIsEditing,
+    TResult Function(String newName)? rename,
+    TResult Function()? delete,
+    TResult Function()? duplicate,
+    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(bool isEditing)? setIsEditing,
@@ -82,6 +93,16 @@ mixin _$ViewEvent {
     required TResult Function(Delete value) delete,
     required TResult Function(Duplicate value) duplicate,
     required TResult Function(ViewDidUpdate value) viewDidUpdate,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(SetEditing value)? setIsEditing,
+    TResult Function(Rename value)? rename,
+    TResult Function(Delete value)? delete,
+    TResult Function(Duplicate value)? duplicate,
+    TResult Function(ViewDidUpdate value)? viewDidUpdate,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -162,6 +183,19 @@ class _$Initial implements Initial {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(bool isEditing)? setIsEditing,
+    TResult Function(String newName)? rename,
+    TResult Function()? delete,
+    TResult Function()? duplicate,
+    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
+  }) {
+    return initial?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(bool isEditing)? setIsEditing,
@@ -188,6 +222,19 @@ class _$Initial implements Initial {
     required TResult Function(ViewDidUpdate value) viewDidUpdate,
   }) {
     return initial(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(SetEditing value)? setIsEditing,
+    TResult Function(Rename value)? rename,
+    TResult Function(Delete value)? delete,
+    TResult Function(Duplicate value)? duplicate,
+    TResult Function(ViewDidUpdate value)? viewDidUpdate,
+  }) {
+    return initial?.call(this);
   }
 
   @override
@@ -289,6 +336,19 @@ class _$SetEditing implements SetEditing {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(bool isEditing)? setIsEditing,
+    TResult Function(String newName)? rename,
+    TResult Function()? delete,
+    TResult Function()? duplicate,
+    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
+  }) {
+    return setIsEditing?.call(isEditing);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(bool isEditing)? setIsEditing,
@@ -315,6 +375,19 @@ class _$SetEditing implements SetEditing {
     required TResult Function(ViewDidUpdate value) viewDidUpdate,
   }) {
     return setIsEditing(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(SetEditing value)? setIsEditing,
+    TResult Function(Rename value)? rename,
+    TResult Function(Delete value)? delete,
+    TResult Function(Duplicate value)? duplicate,
+    TResult Function(ViewDidUpdate value)? viewDidUpdate,
+  }) {
+    return setIsEditing?.call(this);
   }
 
   @override
@@ -419,6 +492,19 @@ class _$Rename implements Rename {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(bool isEditing)? setIsEditing,
+    TResult Function(String newName)? rename,
+    TResult Function()? delete,
+    TResult Function()? duplicate,
+    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
+  }) {
+    return rename?.call(newName);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(bool isEditing)? setIsEditing,
@@ -445,6 +531,19 @@ class _$Rename implements Rename {
     required TResult Function(ViewDidUpdate value) viewDidUpdate,
   }) {
     return rename(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(SetEditing value)? setIsEditing,
+    TResult Function(Rename value)? rename,
+    TResult Function(Delete value)? delete,
+    TResult Function(Duplicate value)? duplicate,
+    TResult Function(ViewDidUpdate value)? viewDidUpdate,
+  }) {
+    return rename?.call(this);
   }
 
   @override
@@ -523,6 +622,19 @@ class _$Delete implements Delete {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(bool isEditing)? setIsEditing,
+    TResult Function(String newName)? rename,
+    TResult Function()? delete,
+    TResult Function()? duplicate,
+    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
+  }) {
+    return delete?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(bool isEditing)? setIsEditing,
@@ -549,6 +661,19 @@ class _$Delete implements Delete {
     required TResult Function(ViewDidUpdate value) viewDidUpdate,
   }) {
     return delete(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(SetEditing value)? setIsEditing,
+    TResult Function(Rename value)? rename,
+    TResult Function(Delete value)? delete,
+    TResult Function(Duplicate value)? duplicate,
+    TResult Function(ViewDidUpdate value)? viewDidUpdate,
+  }) {
+    return delete?.call(this);
   }
 
   @override
@@ -623,6 +748,19 @@ class _$Duplicate implements Duplicate {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(bool isEditing)? setIsEditing,
+    TResult Function(String newName)? rename,
+    TResult Function()? delete,
+    TResult Function()? duplicate,
+    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
+  }) {
+    return duplicate?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(bool isEditing)? setIsEditing,
@@ -649,6 +787,19 @@ class _$Duplicate implements Duplicate {
     required TResult Function(ViewDidUpdate value) viewDidUpdate,
   }) {
     return duplicate(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(SetEditing value)? setIsEditing,
+    TResult Function(Rename value)? rename,
+    TResult Function(Delete value)? delete,
+    TResult Function(Duplicate value)? duplicate,
+    TResult Function(ViewDidUpdate value)? viewDidUpdate,
+  }) {
+    return duplicate?.call(this);
   }
 
   @override
@@ -750,6 +901,19 @@ class _$ViewDidUpdate implements ViewDidUpdate {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(bool isEditing)? setIsEditing,
+    TResult Function(String newName)? rename,
+    TResult Function()? delete,
+    TResult Function()? duplicate,
+    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
+  }) {
+    return viewDidUpdate?.call(result);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(bool isEditing)? setIsEditing,
@@ -776,6 +940,19 @@ class _$ViewDidUpdate implements ViewDidUpdate {
     required TResult Function(ViewDidUpdate value) viewDidUpdate,
   }) {
     return viewDidUpdate(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(SetEditing value)? setIsEditing,
+    TResult Function(Rename value)? rename,
+    TResult Function(Delete value)? delete,
+    TResult Function(Duplicate value)? duplicate,
+    TResult Function(ViewDidUpdate value)? viewDidUpdate,
+  }) {
+    return viewDidUpdate?.call(this);
   }
 
   @override

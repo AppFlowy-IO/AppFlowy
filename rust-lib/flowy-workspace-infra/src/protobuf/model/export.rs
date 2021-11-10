@@ -217,6 +217,7 @@ impl ::protobuf::reflect::ProtobufValue for ExportRequest {
 pub struct ExportData {
     // message fields
     pub data: ::std::string::String,
+    pub export_type: ExportType,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -258,6 +259,21 @@ impl ExportData {
     pub fn take_data(&mut self) -> ::std::string::String {
         ::std::mem::replace(&mut self.data, ::std::string::String::new())
     }
+
+    // .ExportType export_type = 2;
+
+
+    pub fn get_export_type(&self) -> ExportType {
+        self.export_type
+    }
+    pub fn clear_export_type(&mut self) {
+        self.export_type = ExportType::Text;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_export_type(&mut self, v: ExportType) {
+        self.export_type = v;
+    }
 }
 
 impl ::protobuf::Message for ExportData {
@@ -271,6 +287,9 @@ impl ::protobuf::Message for ExportData {
             match field_number {
                 1 => {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.data)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.export_type, 2, &mut self.unknown_fields)?
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -287,6 +306,9 @@ impl ::protobuf::Message for ExportData {
         if !self.data.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.data);
         }
+        if self.export_type != ExportType::Text {
+            my_size += ::protobuf::rt::enum_size(2, self.export_type);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -295,6 +317,9 @@ impl ::protobuf::Message for ExportData {
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
         if !self.data.is_empty() {
             os.write_string(1, &self.data)?;
+        }
+        if self.export_type != ExportType::Text {
+            os.write_enum(2, ::protobuf::ProtobufEnum::value(&self.export_type))?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -339,6 +364,11 @@ impl ::protobuf::Message for ExportData {
                 |m: &ExportData| { &m.data },
                 |m: &mut ExportData| { &mut m.data },
             ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<ExportType>>(
+                "export_type",
+                |m: &ExportData| { &m.export_type },
+                |m: &mut ExportData| { &mut m.export_type },
+            ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<ExportData>(
                 "ExportData",
                 fields,
@@ -356,6 +386,7 @@ impl ::protobuf::Message for ExportData {
 impl ::protobuf::Clear for ExportData {
     fn clear(&mut self) {
         self.data.clear();
+        self.export_type = ExportType::Text;
         self.unknown_fields.clear();
     }
 }
@@ -375,7 +406,8 @@ impl ::protobuf::reflect::ProtobufValue for ExportData {
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum ExportType {
     Text = 0,
-    RichText = 1,
+    Markdown = 1,
+    Link = 2,
 }
 
 impl ::protobuf::ProtobufEnum for ExportType {
@@ -386,7 +418,8 @@ impl ::protobuf::ProtobufEnum for ExportType {
     fn from_i32(value: i32) -> ::std::option::Option<ExportType> {
         match value {
             0 => ::std::option::Option::Some(ExportType::Text),
-            1 => ::std::option::Option::Some(ExportType::RichText),
+            1 => ::std::option::Option::Some(ExportType::Markdown),
+            2 => ::std::option::Option::Some(ExportType::Link),
             _ => ::std::option::Option::None
         }
     }
@@ -394,7 +427,8 @@ impl ::protobuf::ProtobufEnum for ExportType {
     fn values() -> &'static [Self] {
         static values: &'static [ExportType] = &[
             ExportType::Text,
-            ExportType::RichText,
+            ExportType::Markdown,
+            ExportType::Link,
         ];
         values
     }
@@ -425,25 +459,31 @@ impl ::protobuf::reflect::ProtobufValue for ExportType {
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x0cexport.proto\"T\n\rExportRequest\x12\x15\n\x06doc_id\x18\x01\x20\
     \x01(\tR\x05docId\x12,\n\x0bexport_type\x18\x02\x20\x01(\x0e2\x0b.Export\
-    TypeR\nexportType\"\x20\n\nExportData\x12\x12\n\x04data\x18\x01\x20\x01(\
-    \tR\x04data*$\n\nExportType\x12\x08\n\x04Text\x10\0\x12\x0c\n\x08RichTex\
-    t\x10\x01J\xd1\x02\n\x06\x12\x04\0\0\x0c\x01\n\x08\n\x01\x0c\x12\x03\0\0\
-    \x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x04\0\x01\x12\x03\
-    \x02\x08\x15\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x16\n\x0c\n\x05\x04\
-    \0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\
-    \x0b\x11\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x14\x15\n\x0b\n\x04\x04\
-    \0\x02\x01\x12\x03\x04\x04\x1f\n\x0c\n\x05\x04\0\x02\x01\x06\x12\x03\x04\
-    \x04\x0e\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x0f\x1a\n\x0c\n\x05\
-    \x04\0\x02\x01\x03\x12\x03\x04\x1d\x1e\n\n\n\x02\x04\x01\x12\x04\x06\0\
-    \x08\x01\n\n\n\x03\x04\x01\x01\x12\x03\x06\x08\x12\n\x0b\n\x04\x04\x01\
-    \x02\0\x12\x03\x07\x04\x14\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x07\x04\
-    \n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x07\x0b\x0f\n\x0c\n\x05\x04\x01\
-    \x02\0\x03\x12\x03\x07\x12\x13\n\n\n\x02\x05\0\x12\x04\t\0\x0c\x01\n\n\n\
-    \x03\x05\0\x01\x12\x03\t\x05\x0f\n\x0b\n\x04\x05\0\x02\0\x12\x03\n\x04\r\
-    \n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\n\x04\x08\n\x0c\n\x05\x05\0\x02\0\
-    \x02\x12\x03\n\x0b\x0c\n\x0b\n\x04\x05\0\x02\x01\x12\x03\x0b\x04\x11\n\
-    \x0c\n\x05\x05\0\x02\x01\x01\x12\x03\x0b\x04\x0c\n\x0c\n\x05\x05\0\x02\
-    \x01\x02\x12\x03\x0b\x0f\x10b\x06proto3\
+    TypeR\nexportType\"N\n\nExportData\x12\x12\n\x04data\x18\x01\x20\x01(\tR\
+    \x04data\x12,\n\x0bexport_type\x18\x02\x20\x01(\x0e2\x0b.ExportTypeR\nex\
+    portType*.\n\nExportType\x12\x08\n\x04Text\x10\0\x12\x0c\n\x08Markdown\
+    \x10\x01\x12\x08\n\x04Link\x10\x02J\xb1\x03\n\x06\x12\x04\0\0\x0e\x01\n\
+    \x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\
+    \n\x03\x04\0\x01\x12\x03\x02\x08\x15\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\
+    \x04\x16\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\
+    \x02\0\x01\x12\x03\x03\x0b\x11\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\
+    \x14\x15\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x1f\n\x0c\n\x05\x04\0\
+    \x02\x01\x06\x12\x03\x04\x04\x0e\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\
+    \x04\x0f\x1a\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x1d\x1e\n\n\n\x02\
+    \x04\x01\x12\x04\x06\0\t\x01\n\n\n\x03\x04\x01\x01\x12\x03\x06\x08\x12\n\
+    \x0b\n\x04\x04\x01\x02\0\x12\x03\x07\x04\x14\n\x0c\n\x05\x04\x01\x02\0\
+    \x05\x12\x03\x07\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x07\x0b\x0f\
+    \n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\x07\x12\x13\n\x0b\n\x04\x04\x01\
+    \x02\x01\x12\x03\x08\x04\x1f\n\x0c\n\x05\x04\x01\x02\x01\x06\x12\x03\x08\
+    \x04\x0e\n\x0c\n\x05\x04\x01\x02\x01\x01\x12\x03\x08\x0f\x1a\n\x0c\n\x05\
+    \x04\x01\x02\x01\x03\x12\x03\x08\x1d\x1e\n\n\n\x02\x05\0\x12\x04\n\0\x0e\
+    \x01\n\n\n\x03\x05\0\x01\x12\x03\n\x05\x0f\n\x0b\n\x04\x05\0\x02\0\x12\
+    \x03\x0b\x04\r\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\x0b\x04\x08\n\x0c\n\
+    \x05\x05\0\x02\0\x02\x12\x03\x0b\x0b\x0c\n\x0b\n\x04\x05\0\x02\x01\x12\
+    \x03\x0c\x04\x11\n\x0c\n\x05\x05\0\x02\x01\x01\x12\x03\x0c\x04\x0c\n\x0c\
+    \n\x05\x05\0\x02\x01\x02\x12\x03\x0c\x0f\x10\n\x0b\n\x04\x05\0\x02\x02\
+    \x12\x03\r\x04\r\n\x0c\n\x05\x05\0\x02\x02\x01\x12\x03\r\x04\x08\n\x0c\n\
+    \x05\x05\0\x02\x02\x02\x12\x03\r\x0b\x0cb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

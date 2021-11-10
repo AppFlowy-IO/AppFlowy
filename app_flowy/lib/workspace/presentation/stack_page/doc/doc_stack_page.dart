@@ -1,4 +1,5 @@
 import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/workspace/application/doc/share_bloc.dart';
 import 'package:app_flowy/workspace/domain/i_view.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/domain/view_ext.dart';
@@ -7,9 +8,13 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace-infra/export.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:dartz/dartz.dart' as dartz;
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:clipboard/clipboard.dart';
 
 import 'doc_page.dart';
 
@@ -33,10 +38,10 @@ class DocStackContext extends HomeStackContext<String, ShareActionWrapper> {
   }
 
   @override
-  Widget get naviTitle => FlowyText.medium(_view.name, fontSize: 12);
+  Widget get leftBarItem => FlowyText.medium(_view.name, fontSize: 12);
 
   @override
-  Widget? Function(BuildContext context) get buildNaviAction => _buildNaviAction;
+  Widget? get rightBarItem => DocShareButton(view: _view);
 
   @override
   String get identifier => _view.id;
@@ -45,7 +50,7 @@ class DocStackContext extends HomeStackContext<String, ShareActionWrapper> {
   HomeStackType get type => _view.stackType();
 
   @override
-  Widget buildWidget() => DocStackPage(_view, key: ValueKey(_view.id));
+  Widget buildWidget() => DocPage(view: _view, key: ValueKey(_view.id));
 
   @override
   List<NavigationItem> get navigationItems => _makeNavigationItems();
@@ -65,74 +70,99 @@ class DocStackContext extends HomeStackContext<String, ShareActionWrapper> {
   void dispose() {
     _listener.stop();
   }
-
-  Widget _buildNaviAction(BuildContext context) {
-    return const DocShareButton();
-  }
 }
 
 class DocShareButton extends StatelessWidget {
-  const DocShareButton({Key? key}) : super(key: key);
+  final View view;
+  DocShareButton({Key? key, required this.view}) : super(key: ValueKey(view.id));
 
   @override
   Widget build(BuildContext context) {
     double buttonWidth = 60;
-    return RoundedTextButton(
-      title: 'Share',
-      height: 30,
-      width: buttonWidth,
-      fontSize: 12,
-      borderRadius: Corners.s6Border,
-      color: Colors.lightBlue,
-      onPressed: () {
-        final actionList = ShareActions(onSelected: (result) {
-          result.fold(() {}, (action) {
-            switch (action) {
-              case ShareAction.markdown:
-                break;
-              case ShareAction.copyLink:
-                break;
-            }
-          });
-        });
-        actionList.show(
-          context,
-          context,
-          anchorDirection: AnchorDirection.bottomWithCenterAligned,
-          anchorOffset: Offset(-(buttonWidth / 2), 10),
+    return BlocProvider(
+      create: (context) => getIt<DocShareBloc>(param1: view),
+      child: BlocListener<DocShareBloc, DocShareState>(
+        listener: (context, state) {
+          state.map(
+            initial: (_) {},
+            loading: (_) {},
+            finish: (state) {
+              state.successOrFail.fold(
+                _handleExportData,
+                _handleExportError,
+              );
+            },
+          );
+        },
+        child: BlocBuilder<DocShareBloc, DocShareState>(
+          builder: (context, state) {
+            return RoundedTextButton(
+              title: 'Share',
+              height: 30,
+              width: buttonWidth,
+              fontSize: 12,
+              borderRadius: Corners.s6Border,
+              color: Colors.lightBlue,
+              onPressed: () => _showActionList(context, Offset(-(buttonWidth / 2), 10)),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  void _handleExportData(ExportData exportData) {
+    switch (exportData.exportType) {
+      case ExportType.Link:
+        // TODO: Handle this case.
+        break;
+      case ExportType.Markdown:
+        FlutterClipboard.copy(exportData.data).then(
+          (value) => print('copied'),
+        );
+        break;
+      case ExportType.Text:
+        // TODO: Handle this case.
+        break;
+    }
+  }
+
+  void _handleExportError(WorkspaceError error) {}
+
+  void _showActionList(BuildContext context, Offset offset) {
+    final actionList = ShareActions(onSelected: (result) {
+      result.fold(() {}, (action) {
+        switch (action) {
+          case ShareAction.markdown:
+            context.read<DocShareBloc>().add(const DocShareEvent.shareMarkdown());
+            break;
+          case ShareAction.copyLink:
+            showWorkInProgressDialog(context);
+            break;
+        }
+      });
+    });
+    actionList.show(
+      context,
+      context,
+      anchorDirection: AnchorDirection.bottomWithCenterAligned,
+      anchorOffset: offset,
+    );
+  }
+
+  void showWorkInProgressDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: const Text('Select Color'),
+          backgroundColor: Theme.of(context).canvasColor,
+          content: SingleChildScrollView(
+            child: Text("WIP"),
+          ),
         );
       },
     );
-  }
-}
-
-class DocStackPage extends StatefulWidget {
-  final View view;
-  const DocStackPage(this.view, {Key? key}) : super(key: key);
-
-  @override
-  _DocStackPageState createState() => _DocStackPageState();
-}
-
-class _DocStackPageState extends State<DocStackPage> {
-  @override
-  Widget build(BuildContext context) {
-    return DocPage(view: widget.view);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
-  void deactivate() {
-    super.deactivate();
-  }
-
-  @override
-  void didUpdateWidget(covariant DocStackPage oldWidget) {
-    super.didUpdateWidget(oldWidget);
   }
 }
 
@@ -140,9 +170,7 @@ class ShareActions with ActionList<ShareActionWrapper> implements FlowyOverlayDe
   final Function(dartz.Option<ShareAction>) onSelected;
   final _items = ShareAction.values.map((action) => ShareActionWrapper(action)).toList();
 
-  ShareActions({
-    required this.onSelected,
-  });
+  ShareActions({required this.onSelected});
 
   @override
   double get maxWidth => 130;
@@ -167,12 +195,7 @@ class ShareActions with ActionList<ShareActionWrapper> implements FlowyOverlayDe
   FlowyOverlayDelegate? get delegate => this;
 
   @override
-  void didRemove() {
-    onSelected(dartz.none());
-  }
-
-  @override
-  ListOverlayFooter? get footer => null;
+  void didRemove() => onSelected(dartz.none());
 }
 
 enum ShareAction {

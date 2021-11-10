@@ -1,3 +1,4 @@
+// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
@@ -61,6 +62,16 @@ mixin _$MenuEvent {
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? collapse,
+    TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
+    TResult Function(String name, String? desc)? createApp,
+    TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
+        didReceiveApps,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
@@ -78,6 +89,15 @@ mixin _$MenuEvent {
     required TResult Function(OpenPage value) openPage,
     required TResult Function(CreateApp value) createApp,
     required TResult Function(ReceiveApps value) didReceiveApps,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
+    TResult Function(Collapse value)? collapse,
+    TResult Function(OpenPage value)? openPage,
+    TResult Function(CreateApp value)? createApp,
+    TResult Function(ReceiveApps value)? didReceiveApps,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -157,6 +177,19 @@ class _$_Initial implements _Initial {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? collapse,
+    TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
+    TResult Function(String name, String? desc)? createApp,
+    TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
+        didReceiveApps,
+  }) {
+    return initial?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
@@ -182,6 +215,18 @@ class _$_Initial implements _Initial {
     required TResult Function(ReceiveApps value) didReceiveApps,
   }) {
     return initial(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
+    TResult Function(Collapse value)? collapse,
+    TResult Function(OpenPage value)? openPage,
+    TResult Function(CreateApp value)? createApp,
+    TResult Function(ReceiveApps value)? didReceiveApps,
+  }) {
+    return initial?.call(this);
   }
 
   @override
@@ -255,6 +300,19 @@ class _$Collapse implements Collapse {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? collapse,
+    TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
+    TResult Function(String name, String? desc)? createApp,
+    TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
+        didReceiveApps,
+  }) {
+    return collapse?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
@@ -280,6 +338,18 @@ class _$Collapse implements Collapse {
     required TResult Function(ReceiveApps value) didReceiveApps,
   }) {
     return collapse(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
+    TResult Function(Collapse value)? collapse,
+    TResult Function(OpenPage value)? openPage,
+    TResult Function(CreateApp value)? createApp,
+    TResult Function(ReceiveApps value)? didReceiveApps,
+  }) {
+    return collapse?.call(this);
   }
 
   @override
@@ -378,6 +448,19 @@ class _$OpenPage implements OpenPage {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? collapse,
+    TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
+    TResult Function(String name, String? desc)? createApp,
+    TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
+        didReceiveApps,
+  }) {
+    return openPage?.call(context);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
@@ -403,6 +486,18 @@ class _$OpenPage implements OpenPage {
     required TResult Function(ReceiveApps value) didReceiveApps,
   }) {
     return openPage(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
+    TResult Function(Collapse value)? collapse,
+    TResult Function(OpenPage value)? openPage,
+    TResult Function(CreateApp value)? createApp,
+    TResult Function(ReceiveApps value)? didReceiveApps,
+  }) {
+    return openPage?.call(this);
   }
 
   @override
@@ -519,6 +614,19 @@ class _$CreateApp implements CreateApp {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? collapse,
+    TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
+    TResult Function(String name, String? desc)? createApp,
+    TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
+        didReceiveApps,
+  }) {
+    return createApp?.call(name, desc);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
@@ -544,6 +652,18 @@ class _$CreateApp implements CreateApp {
     required TResult Function(ReceiveApps value) didReceiveApps,
   }) {
     return createApp(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
+    TResult Function(Collapse value)? collapse,
+    TResult Function(OpenPage value)? openPage,
+    TResult Function(CreateApp value)? createApp,
+    TResult Function(ReceiveApps value)? didReceiveApps,
+  }) {
+    return createApp?.call(this);
   }
 
   @override
@@ -651,6 +771,19 @@ class _$ReceiveApps implements ReceiveApps {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? collapse,
+    TResult Function(HomeStackContext<dynamic, dynamic> context)? openPage,
+    TResult Function(String name, String? desc)? createApp,
+    TResult Function(Either<List<App>, WorkspaceError> appsOrFail)?
+        didReceiveApps,
+  }) {
+    return didReceiveApps?.call(appsOrFail);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? collapse,
@@ -676,6 +809,18 @@ class _$ReceiveApps implements ReceiveApps {
     required TResult Function(ReceiveApps value) didReceiveApps,
   }) {
     return didReceiveApps(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
+    TResult Function(Collapse value)? collapse,
+    TResult Function(OpenPage value)? openPage,
+    TResult Function(CreateApp value)? createApp,
+    TResult Function(ReceiveApps value)? didReceiveApps,
+  }) {
+    return didReceiveApps?.call(this);
   }
 
   @override

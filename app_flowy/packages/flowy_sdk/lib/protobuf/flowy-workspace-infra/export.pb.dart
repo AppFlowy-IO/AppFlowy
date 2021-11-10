@@ -77,16 +77,21 @@ class ExportRequest extends $pb.GeneratedMessage {
 class ExportData extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ExportData', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data')
+    ..e<ExportType>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'exportType', $pb.PbFieldType.OE, defaultOrMaker: ExportType.Text, valueOf: ExportType.valueOf, enumValues: ExportType.values)
     ..hasRequiredFields = false
   ;
 
   ExportData._() : super();
   factory ExportData({
     $core.String? data,
+    ExportType? exportType,
   }) {
     final _result = create();
     if (data != null) {
       _result.data = data;
+    }
+    if (exportType != null) {
+      _result.exportType = exportType;
     }
     return _result;
   }
@@ -119,5 +124,14 @@ class ExportData extends $pb.GeneratedMessage {
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
   void clearData() => clearField(1);
+
+  @$pb.TagNumber(2)
+  ExportType get exportType => $_getN(1);
+  @$pb.TagNumber(2)
+  set exportType(ExportType v) { setField(2, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasExportType() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearExportType() => clearField(2);
 }
 

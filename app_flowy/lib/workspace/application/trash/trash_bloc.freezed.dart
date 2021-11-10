@@ -1,3 +1,4 @@
+// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
@@ -63,6 +64,16 @@ mixin _$TrashEvent {
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(List<Trash> trash)? didReceiveTrash,
+    TResult Function(String trashId)? putback,
+    TResult Function(Trash trash)? delete,
+    TResult Function()? restoreAll,
+    TResult Function()? deleteAll,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(List<Trash> trash)? didReceiveTrash,
@@ -81,6 +92,16 @@ mixin _$TrashEvent {
     required TResult Function(Delete value) delete,
     required TResult Function(RestoreAll value) restoreAll,
     required TResult Function(DeleteAll value) deleteAll,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(ReceiveTrash value)? didReceiveTrash,
+    TResult Function(Putback value)? putback,
+    TResult Function(Delete value)? delete,
+    TResult Function(RestoreAll value)? restoreAll,
+    TResult Function(DeleteAll value)? deleteAll,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -161,6 +182,19 @@ class _$Initial implements Initial {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(List<Trash> trash)? didReceiveTrash,
+    TResult Function(String trashId)? putback,
+    TResult Function(Trash trash)? delete,
+    TResult Function()? restoreAll,
+    TResult Function()? deleteAll,
+  }) {
+    return initial?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(List<Trash> trash)? didReceiveTrash,
@@ -187,6 +221,19 @@ class _$Initial implements Initial {
     required TResult Function(DeleteAll value) deleteAll,
   }) {
     return initial(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(ReceiveTrash value)? didReceiveTrash,
+    TResult Function(Putback value)? putback,
+    TResult Function(Delete value)? delete,
+    TResult Function(RestoreAll value)? restoreAll,
+    TResult Function(DeleteAll value)? deleteAll,
+  }) {
+    return initial?.call(this);
   }
 
   @override
@@ -287,6 +334,19 @@ class _$ReceiveTrash implements ReceiveTrash {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(List<Trash> trash)? didReceiveTrash,
+    TResult Function(String trashId)? putback,
+    TResult Function(Trash trash)? delete,
+    TResult Function()? restoreAll,
+    TResult Function()? deleteAll,
+  }) {
+    return didReceiveTrash?.call(trash);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(List<Trash> trash)? didReceiveTrash,
@@ -313,6 +373,19 @@ class _$ReceiveTrash implements ReceiveTrash {
     required TResult Function(DeleteAll value) deleteAll,
   }) {
     return didReceiveTrash(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(ReceiveTrash value)? didReceiveTrash,
+    TResult Function(Putback value)? putback,
+    TResult Function(Delete value)? delete,
+    TResult Function(RestoreAll value)? restoreAll,
+    TResult Function(DeleteAll value)? deleteAll,
+  }) {
+    return didReceiveTrash?.call(this);
   }
 
   @override
@@ -416,6 +489,19 @@ class _$Putback implements Putback {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(List<Trash> trash)? didReceiveTrash,
+    TResult Function(String trashId)? putback,
+    TResult Function(Trash trash)? delete,
+    TResult Function()? restoreAll,
+    TResult Function()? deleteAll,
+  }) {
+    return putback?.call(trashId);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(List<Trash> trash)? didReceiveTrash,
@@ -442,6 +528,19 @@ class _$Putback implements Putback {
     required TResult Function(DeleteAll value) deleteAll,
   }) {
     return putback(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(ReceiveTrash value)? didReceiveTrash,
+    TResult Function(Putback value)? putback,
+    TResult Function(Delete value)? delete,
+    TResult Function(RestoreAll value)? restoreAll,
+    TResult Function(DeleteAll value)? deleteAll,
+  }) {
+    return putback?.call(this);
   }
 
   @override
@@ -544,6 +643,19 @@ class _$Delete implements Delete {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(List<Trash> trash)? didReceiveTrash,
+    TResult Function(String trashId)? putback,
+    TResult Function(Trash trash)? delete,
+    TResult Function()? restoreAll,
+    TResult Function()? deleteAll,
+  }) {
+    return delete?.call(trash);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(List<Trash> trash)? didReceiveTrash,
@@ -570,6 +682,19 @@ class _$Delete implements Delete {
     required TResult Function(DeleteAll value) deleteAll,
   }) {
     return delete(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(ReceiveTrash value)? didReceiveTrash,
+    TResult Function(Putback value)? putback,
+    TResult Function(Delete value)? delete,
+    TResult Function(RestoreAll value)? restoreAll,
+    TResult Function(DeleteAll value)? deleteAll,
+  }) {
+    return delete?.call(this);
   }
 
   @override
@@ -648,6 +773,19 @@ class _$RestoreAll implements RestoreAll {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(List<Trash> trash)? didReceiveTrash,
+    TResult Function(String trashId)? putback,
+    TResult Function(Trash trash)? delete,
+    TResult Function()? restoreAll,
+    TResult Function()? deleteAll,
+  }) {
+    return restoreAll?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(List<Trash> trash)? didReceiveTrash,
@@ -674,6 +812,19 @@ class _$RestoreAll implements RestoreAll {
     required TResult Function(DeleteAll value) deleteAll,
   }) {
     return restoreAll(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(ReceiveTrash value)? didReceiveTrash,
+    TResult Function(Putback value)? putback,
+    TResult Function(Delete value)? delete,
+    TResult Function(RestoreAll value)? restoreAll,
+    TResult Function(DeleteAll value)? deleteAll,
+  }) {
+    return restoreAll?.call(this);
   }
 
   @override
@@ -747,6 +898,19 @@ class _$DeleteAll implements DeleteAll {
 
   @override
   @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(List<Trash> trash)? didReceiveTrash,
+    TResult Function(String trashId)? putback,
+    TResult Function(Trash trash)? delete,
+    TResult Function()? restoreAll,
+    TResult Function()? deleteAll,
+  }) {
+    return deleteAll?.call();
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function(List<Trash> trash)? didReceiveTrash,
@@ -773,6 +937,19 @@ class _$DeleteAll implements DeleteAll {
     required TResult Function(DeleteAll value) deleteAll,
   }) {
     return deleteAll(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(Initial value)? initial,
+    TResult Function(ReceiveTrash value)? didReceiveTrash,
+    TResult Function(Putback value)? putback,
+    TResult Function(Delete value)? delete,
+    TResult Function(RestoreAll value)? restoreAll,
+    TResult Function(DeleteAll value)? deleteAll,
+  }) {
+    return deleteAll?.call(this);
   }
 
   @override

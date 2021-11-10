@@ -32,9 +32,6 @@ class AppDisclosureActionSheet with ActionList<DisclosureActionWrapper> implemen
   void didRemove() {
     onSelected(dartz.none());
   }
-
-  @override
-  ListOverlayFooter? get footer => null;
 }
 
 class DisclosureActionWrapper extends ActionItem {

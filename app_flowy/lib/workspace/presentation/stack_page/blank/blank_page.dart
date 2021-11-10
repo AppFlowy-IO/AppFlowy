@@ -9,10 +9,10 @@ class BlankStackContext extends HomeStackContext {
   String get identifier => "1";
 
   @override
-  Widget get naviTitle => const FlowyText.medium('Blank page', fontSize: 12);
+  Widget get leftBarItem => const FlowyText.medium('Blank page', fontSize: 12);
 
   @override
-  Widget? Function(BuildContext context) get buildNaviAction => (_) => null;
+  Widget? get rightBarItem => null;
 
   @override
   HomeStackType get type => HomeStackType.blank;

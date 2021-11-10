@@ -138,7 +138,7 @@ class IconNaviItemWidget extends StatelessWidget {
     return SizedBox(
       height: 24,
       child: InkWell(
-        child: item.naviTitle,
+        child: item.leftBarItem,
         onTap: () {
           debugPrint('show app document');
         },
@@ -156,7 +156,7 @@ class NaviItemWidget extends StatelessWidget {
     return SizedBox(
       height: 24,
       child: InkWell(
-        child: item.naviTitle,
+        child: item.leftBarItem,
         onTap: () {
           debugPrint('show app document');
         },
@@ -184,7 +184,7 @@ class EllipsisNaviItem extends NavigationItem {
   });
 
   @override
-  Widget get naviTitle => const FlowyText.medium('...');
+  Widget get leftBarItem => const FlowyText.medium('...');
 
   @override
   NavigationCallback get action => (id) {};

@@ -17,7 +17,7 @@ abstract class ActionList<T extends ActionItem> {
 
   double get itemHeight => ActionListSizes.itemHeight;
 
-  ListOverlayFooter? get footer;
+  ListOverlayFooter? get footer => null;
 
   void Function(dartz.Option<T>) get selectCallback;
 
