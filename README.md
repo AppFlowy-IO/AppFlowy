@@ -71,7 +71,7 @@ Development environment setup:
 
 **Step 4:**
 
-* Open the `app_flowy`  (locate at xx/appflowy/app_flowy) folder using Visual Studio or other IDEs at your disposal
+* Open the `app_flowy` folder located at xx/appflowy/app_flowy with Visual Studio or other IDEs at your disposal
 * Go to the Run and Debug tab and then click the run button.
 ![Run the project](https://github.com/AppFlowy-IO/appflowy/blob/main/doc/imgs/run.png)
 
