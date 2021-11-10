@@ -1,4 +1,5 @@
 import 'package:app_flowy/workspace/domain/i_share.dart';
+import 'package:app_flowy/workspace/infrastructure/markdown/delta_markdown.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/export.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
@@ -16,7 +17,7 @@ class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
         shareMarkdown: (ShareMarkdown value) async {
           await shareManager.exportMarkdown(view.id).then((result) {
             result.fold(
-              (value) => emit(DocShareState.finish(left(value))),
+              (value) => emit(DocShareState.finish(left(_convertDeltaToMarkdown(value)))),
               (error) => emit(DocShareState.finish(right(error))),
             );
           });
@@ -27,6 +28,12 @@ class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
         shareText: (ShareText value) {},
       );
     });
+  }
+
+  ExportData _convertDeltaToMarkdown(ExportData value) {
+    final result = deltaToMarkdown(value.data);
+    value.data = result;
+    return value;
   }
 }
 

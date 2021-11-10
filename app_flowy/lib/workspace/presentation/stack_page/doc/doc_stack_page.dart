@@ -8,6 +8,7 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
+import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/export.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
@@ -117,9 +118,7 @@ class DocShareButton extends StatelessWidget {
         // TODO: Handle this case.
         break;
       case ExportType.Markdown:
-        FlutterClipboard.copy(exportData.data).then(
-          (value) => print('copied'),
-        );
+        FlutterClipboard.copy(exportData.data).then((value) => Log.info('copied to clipboard'));
         break;
       case ExportType.Text:
         // TODO: Handle this case.
