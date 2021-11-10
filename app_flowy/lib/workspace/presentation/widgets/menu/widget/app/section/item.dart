@@ -60,7 +60,6 @@ class ViewSectionItem extends StatelessWidget {
     ];
 
     if (onHover || state.isEditing) {
-      children.add(const Spacer());
       children.add(
         ViewDisclosureButton(
           onTap: () => context.read<ViewBloc>().add(const ViewEvent.setIsEditing(true)),

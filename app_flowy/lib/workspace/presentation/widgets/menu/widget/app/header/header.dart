@@ -98,11 +98,14 @@ class MenuAppHeader extends StatelessWidget {
   }
 
   Widget _renderAddButton(BuildContext context) {
-    return AddButton(
-      onSelected: (viewType) {
-        context.read<AppBloc>().add(AppEvent.createView("New view", "", viewType));
-      },
-    ).padding(right: MenuAppSizes.headerPadding);
+    return Tooltip(
+      message: "Quickly add a page inside",
+      child: AddButton(
+        onSelected: (viewType) {
+          context.read<AppBloc>().add(AppEvent.createView("New view", "", viewType));
+        },
+      ).padding(right: MenuAppSizes.headerPadding),
+    );
   }
 
   void _handleAction(BuildContext context, Option<AppDisclosureAction> action) {
