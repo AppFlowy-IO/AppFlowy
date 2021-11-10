@@ -23,15 +23,14 @@ You are in charge of your data and customizations.
 </p>  
 
 <p align="center"><img src="" alt="The Open Source Notion Alternative." width="1000px" /></p>
-# About the Project
 
-GIF
+
 
 ## Built With
 
-[Flutter](https://flutter.dev/)
+* [Flutter](https://flutter.dev/)
 
-[Rust](https://www.rust-lang.org/)
+* [Rust](https://www.rust-lang.org/)
 
 ## Stay Up-to-Date
 
@@ -43,44 +42,38 @@ To get a local copy up and running, please follow these simple steps.
 
 Development environment setup:
 
-Step 1:
+**Step 1:**
 
-git clone  [https://github.com/AppFlowy-IO/appflowy.git](https://github.com/AppFlowy-IO/appflowy.git)
+* git clone  [https://github.com/AppFlowy-IO/appflowy.git](https://github.com/AppFlowy-IO/appflowy.git)
 
-Step 2:
+**Step 2:**
 
-- cd appflowy
-- make `install_rust`
+- `cd appflowy`
+- `make install_rust`
 
 > skip if you already installed it
 > 
-- make `install_cargo_make`
+- `make nstall_cargo_make`
 
-> AppFlowy use the [https://github.com/sagiegurari/cargo-make](https://github.com/sagiegurari/cargo-make) to construct the build scripts
+> AppFlowy uses [https://github.com/sagiegurari/cargo-make](https://github.com/sagiegurari/cargo-make) to construct the build scripts
 > 
-- *`cargo*make flowy_dev`
+- `cargo make flowy_dev`
+> It's located at xxx/appflowy/scripts/makefile/env.toml. `flowy_dev` consists of three tasks:
+> * `install_targets`
+> * `install_diesel`
+> * `install_protobuf`
 
-> locate at xxx/appflowy/scripts/makefile/env.toml
-> 
+**Step 3:**
 
-The `flowy_dev` consists of three tasks:
+* Follow the instructions [here](https://flutter.dev/docs/get-started/install) to install Flutter. As AppFlowy uses the `dev` channel, you need to switch the channel. Just type:
 
- 1.   *`install_targets`*
+`flutter channel dev`
 
-1. `install_diesel`
-2. `install_protobuf`
+**Step 4:**
 
-Step 3:
-
-Follow the instructions on `[https://flutter.dev/docs/get-started/install](https://flutter.dev/docs/get-started/install)`  to install the flutter. Flowy uses the dev channel, so you should switch to dev channel by running the command:
-
-%`flutter channel dev`
-
-Step 4:
-
-Open the `app_flowy`  (locate at xx/appflowy/app_flowy) folder using Visual Studio or other IDEs at your disposal, go to the RUN and BUILD tag and then click the run button.
-
-![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/9a22f8b4-4651-4042-9c2c-25099f9ce477/Untitled.png)
+* Open the `app_flowy`  (locate at xx/appflowy/app_flowy) folder using Visual Studio or other IDEs at your disposal
+* Go to the Run and Debug tab and then click the run button.
+![Run the project](https://github.com/AppFlowy-IO/appflowy/blob/main/doc/imgs/run.png)
 
 ## Roadmap
 
