@@ -3,12 +3,15 @@ import 'package:app_flowy/workspace/application/doc/share_bloc.dart';
 import 'package:app_flowy/workspace/domain/i_view.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/domain/view_ext.dart';
+import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
+import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/export.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pb.dart';
@@ -40,7 +43,7 @@ class DocStackContext extends HomeStackContext<String, ShareActionWrapper> {
   }
 
   @override
-  Widget get leftBarItem => FlowyText.medium(_view.name, fontSize: 12);
+  Widget get leftBarItem => DocLeftBarItem(view: _view);
 
   @override
   Widget? get rightBarItem => DocShareButton(view: _view);
@@ -65,12 +68,82 @@ class DocStackContext extends HomeStackContext<String, ShareActionWrapper> {
   //     }).toList();
 
   List<NavigationItem> _makeNavigationItems() {
-    return [this];
+    return [
+      this,
+    ];
   }
 
   @override
   void dispose() {
     _listener.stop();
+  }
+}
+
+class DocLeftBarItem extends StatefulWidget {
+  final View view;
+
+  const DocLeftBarItem({required this.view, Key? key}) : super(key: key);
+
+  @override
+  State<DocLeftBarItem> createState() => _DocLeftBarItemState();
+}
+
+class _DocLeftBarItemState extends State<DocLeftBarItem> {
+  final _controller = TextEditingController();
+  final _focusNode = FocusNode();
+  late ViewRepository repo;
+
+  @override
+  void initState() {
+    repo = ViewRepository(view: widget.view);
+    _focusNode.addListener(_handleFocusChanged);
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _controller.text = widget.view.name;
+
+    final theme = context.watch<AppTheme>();
+    return IntrinsicWidth(
+      child: TextField(
+        controller: _controller,
+        focusNode: _focusNode,
+        scrollPadding: EdgeInsets.zero,
+        decoration: const InputDecoration(
+          contentPadding: EdgeInsets.zero,
+          border: InputBorder.none,
+          isDense: true,
+        ),
+        style: TextStyle(
+          color: theme.shader1,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          overflow: TextOverflow.ellipsis,
+        ),
+        // cursorColor: widget.cursorColor,
+        // obscureText: widget.enableObscure,
+      ),
+    );
+  }
+
+  void _handleFocusChanged() {
+    if (_controller.text.isEmpty) {
+      _controller.text = widget.view.name;
+      return;
+    }
+
+    if (_controller.text != widget.view.name) {
+      repo.updateView(name: _controller.text);
+    }
   }
 }
 

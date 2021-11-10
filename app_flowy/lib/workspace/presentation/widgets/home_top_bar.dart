@@ -21,7 +21,7 @@ class HomeTopBar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const FlowyNavigation(),
-          const Spacer(),
+          const HSpace(16),
           ChangeNotifierProvider.value(
             value: Provider.of<HomeStackNotifier>(context, listen: false),
             child: Consumer(
