@@ -1,3 +1,28 @@
+<h1 align="center" style="border-bottom: none">
+    <b>
+        <a href="https://www.appflowy.io">AppFlowy.IO</a><br>
+    </b>
+    ⭐️ The Open Source Notion Alternative ⭐️ <br>
+</h1>
+
+<p align="center">
+You are in charge of your data and customizations.
+</p>
+
+
+<div align="center">
+ 
+![GitHub stars](https://img.shields.io/github/stars/{AppFlowy-IO}/{appflowy}.svg)
+
+</div>
+
+<p align="center">
+    <a href="http://www.appflowy.io"><b>Website</b></a> •
+    <a href="https://discord.gg/9Q2xaN37tV"><b>Discord</b></a> •
+    <a href="https://twitter.com/appflowy"><b>Twitter</b></a> •
+</p>  
+
+<p align="center"><img src="" alt="The Open Source Notion Alternative." width="1000px" /></p>
 # About the Project
 
 GIF
