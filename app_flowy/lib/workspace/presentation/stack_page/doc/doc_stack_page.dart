@@ -3,6 +3,7 @@ import 'package:app_flowy/workspace/application/doc/share_bloc.dart';
 import 'package:app_flowy/workspace/domain/i_view.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/domain/view_ext.dart';
+import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -150,18 +151,7 @@ class DocShareButton extends StatelessWidget {
   }
 
   void showWorkInProgressDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) {
-        return AlertDialog(
-          title: const Text('Select Color'),
-          backgroundColor: Theme.of(context).canvasColor,
-          content: SingleChildScrollView(
-            child: Text("WIP"),
-          ),
-        );
-      },
-    );
+    const FlowyAlertDialog(title: "Work in progress").show(context);
   }
 }
 
