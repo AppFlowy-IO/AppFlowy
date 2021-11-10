@@ -69,9 +69,9 @@ class FlowyNavigation extends StatelessWidget {
           Selector<NavigationNotifier, List<NavigationItem>>(
             selector: (context, notifier) => notifier.navigationItems,
             builder: (ctx, items, child) => Expanded(
-              child: Wrap(
+              child: Row(
                 children: _renderNavigationItems(items),
-                crossAxisAlignment: WrapCrossAlignment.start,
+                // crossAxisAlignment: WrapCrossAlignment.start,
               ),
             ),
           ),
@@ -149,7 +149,7 @@ class NaviItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return item.leftBarItem.padding(horizontal: 2, vertical: 2);
+    return Expanded(child: item.leftBarItem.padding(horizontal: 2, vertical: 2));
   }
 }
 
