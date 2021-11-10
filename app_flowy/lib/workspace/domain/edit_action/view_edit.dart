@@ -11,11 +11,11 @@ extension ViewDisclosureExtension on ViewDisclosureAction {
   String get name {
     switch (this) {
       case ViewDisclosureAction.rename:
-        return 'rename';
+        return 'Rename';
       case ViewDisclosureAction.delete:
-        return 'delete';
+        return 'Delete';
       case ViewDisclosureAction.duplicate:
-        return 'duplicate';
+        return 'Duplicate';
     }
   }
 

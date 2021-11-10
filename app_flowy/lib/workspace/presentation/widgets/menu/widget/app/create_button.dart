@@ -15,7 +15,7 @@ class NewAppButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final child = FlowyTextButton(
-      'New App',
+      'New page',
       fontSize: 12,
       onPressed: () async => await _showCreateAppDialog(context),
       heading: svgWithSize("home/new_app", const Size(16, 16)),
@@ -30,7 +30,7 @@ class NewAppButton extends StatelessWidget {
 
   Future<void> _showCreateAppDialog(BuildContext context) async {
     return TextFieldDialog(
-      title: 'New App',
+      title: 'New page',
       value: "",
       confirm: (newValue) {
         if (newValue.isNotEmpty && press != null) {

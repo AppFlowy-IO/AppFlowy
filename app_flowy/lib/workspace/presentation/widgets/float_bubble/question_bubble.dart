@@ -22,7 +22,7 @@ class QuestionBubble extends StatelessWidget {
       height: 30,
       child: FlowyTextButton(
         '?',
-        tooltip: BubbleAction.values.map((action) => action.name).toList().join(','),
+        tooltip: 'Help and Support',
         fontSize: 12,
         fontWeight: FontWeight.w600,
         fillColor: theme.selector,
@@ -33,7 +33,6 @@ class QuestionBubble extends StatelessWidget {
             result.fold(() {}, (action) {
               switch (action) {
                 case BubbleAction.whatsNews:
-                  // TODO: annie replace the URL with real ones
                   _launchURL("https://www.appflowy.io/whatsnew");
                   break;
                 case BubbleAction.help:

@@ -6,7 +6,8 @@ import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
+//import 'package:flowy_infra_ui/style_widget/icon_button.dart';
+import 'package:avatars/avatars.dart';
 
 class MenuUser extends StatelessWidget {
   final UserProfile user;
@@ -23,7 +24,9 @@ class MenuUser extends StatelessWidget {
             const HSpace(12),
             _renderUserName(context),
             const HSpace(4),
-            _renderDropButton(context),
+            //ToDo: when the user is allowed to create another workspace,
+            //we get the below block back
+            //_renderDropButton(context),
           ],
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -33,12 +36,16 @@ class MenuUser extends StatelessWidget {
   }
 
   Widget _renderAvatar(BuildContext context) {
-    return const SizedBox(
-      width: 20,
-      height: 20,
+    return SizedBox(
+      width: 30,
+      height: 30,
       child: ClipRRect(
         borderRadius: Corners.s5Border,
-        child: Image(image: AssetImage('assets/images/avatar.jpg')),
+        child: Avatar(
+          value: 'M',
+          shape: AvatarShape.circle(20),
+          placeholderColors: const [Color.fromRGBO(132, 39, 224, 1.0)],
+        ),
       ),
     );
   }
@@ -52,12 +59,13 @@ class MenuUser extends StatelessWidget {
       child: FlowyText(name, fontSize: 12),
     );
   }
-
-  Widget _renderDropButton(BuildContext context) {
-    return FlowyDropdownButton(
-      onPressed: () {
-        debugPrint('show user profile');
-      },
-    );
-  }
+  //ToDo: when the user is allowed to create another workspace,
+  //we get the below block back
+  // Widget _renderDropButton(BuildContext context) {
+  //   return FlowyDropdownButton(
+  //     onPressed: () {
+  //       debugPrint('show user profile');
+  //     },
+  //   );
+  // }
 }

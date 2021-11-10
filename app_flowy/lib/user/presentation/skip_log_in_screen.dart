@@ -96,7 +96,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
     const password = "AppFlowy123@";
     final uid = uuid();
     final userEmail = "$uid@appflowy.io";
-    final result = await widget.authManager.signUp("FlowyUser", password, userEmail);
+    final result = await widget.authManager.signUp("Me", password, userEmail);
     result.fold(
       (user) {
         WorkspaceEventReadCurWorkspace().send().then((result) {
