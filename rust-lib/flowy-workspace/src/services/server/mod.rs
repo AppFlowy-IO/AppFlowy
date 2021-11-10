@@ -10,14 +10,7 @@ use crate::{
         app::{App, AppIdentifier, CreateAppParams, UpdateAppParams},
         trash::{RepeatedTrash, TrashIdentifiers},
         view::{CreateViewParams, UpdateViewParams, View, ViewIdentifier, ViewIdentifiers},
-        workspace::{
-            CreateWorkspaceParams,
-            DeleteWorkspaceParams,
-            RepeatedWorkspace,
-            UpdateWorkspaceParams,
-            Workspace,
-            WorkspaceIdentifier,
-        },
+        workspace::{CreateWorkspaceParams, RepeatedWorkspace, UpdateWorkspaceParams, Workspace, WorkspaceIdentifier},
     },
     errors::WorkspaceError,
 };
@@ -41,7 +34,7 @@ pub trait WorkspaceServerAPI {
 
     fn update_workspace(&self, token: &str, params: UpdateWorkspaceParams) -> ResultFuture<(), WorkspaceError>;
 
-    fn delete_workspace(&self, token: &str, params: DeleteWorkspaceParams) -> ResultFuture<(), WorkspaceError>;
+    fn delete_workspace(&self, token: &str, params: WorkspaceIdentifier) -> ResultFuture<(), WorkspaceError>;
 
     // View
     fn create_view(&self, token: &str, params: CreateViewParams) -> ResultFuture<View, WorkspaceError>;

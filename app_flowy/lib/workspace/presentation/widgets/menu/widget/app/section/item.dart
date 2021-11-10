@@ -28,7 +28,7 @@ class ViewSectionItem extends StatelessWidget {
     required this.view,
     required this.isSelected,
     required this.onSelected,
-  }) : super(key: ValueKey('$view.id/$isSelected'));
+  }) : super(key: ValueKey(view.hashCode));
 
   @override
   Widget build(BuildContext context) {

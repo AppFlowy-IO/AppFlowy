@@ -48,11 +48,7 @@ pub async fn update_workspace_request(
     Ok(())
 }
 
-pub async fn delete_workspace_request(
-    token: &str,
-    params: DeleteWorkspaceParams,
-    url: &str,
-) -> Result<(), ServerError> {
+pub async fn delete_workspace_request(token: &str, params: WorkspaceIdentifier, url: &str) -> Result<(), ServerError> {
     let _ = request_builder()
         .delete(url)
         .header(HEADER_TOKEN, token)

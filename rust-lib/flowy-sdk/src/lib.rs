@@ -114,13 +114,13 @@ async fn _listen_user_status(
                 let result = || async {
                     match status {
                         UserStatus::Login { token } => {
-                            let _ = workspace_controller.user_did_sign_in(&token)?;
+                            let _ = workspace_controller.user_did_sign_in(&token).await?;
                         },
                         UserStatus::Logout { .. } => {
-                            workspace_controller.user_did_logout();
+                            workspace_controller.user_did_logout().await;
                         },
                         UserStatus::Expired { .. } => {
-                            workspace_controller.user_session_expired();
+                            workspace_controller.user_session_expired().await;
                         },
                         UserStatus::SignUp { profile, ret } => {
                             let _ = workspace_controller.user_did_sign_up(&profile.token).await?;

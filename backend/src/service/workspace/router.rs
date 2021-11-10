@@ -20,7 +20,7 @@ use flowy_net::{
 };
 use flowy_workspace_infra::{
     parser::workspace::{WorkspaceDesc, WorkspaceName},
-    protobuf::{CreateWorkspaceParams, DeleteWorkspaceParams, UpdateWorkspaceParams, WorkspaceIdentifier},
+    protobuf::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceIdentifier},
 };
 use sqlx::PgPool;
 
@@ -76,7 +76,7 @@ pub async fn delete_handler(
     pool: Data<PgPool>,
     _logged_user: LoggedUser,
 ) -> Result<HttpResponse, ServerError> {
-    let params: DeleteWorkspaceParams = parse_from_payload(payload).await?;
+    let params: WorkspaceIdentifier = parse_from_payload(payload).await?;
     let workspace_id = check_workspace_id(params.get_workspace_id().to_owned())?;
     let mut transaction = pool
         .begin()

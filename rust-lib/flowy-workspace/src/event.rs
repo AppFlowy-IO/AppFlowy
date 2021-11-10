@@ -7,13 +7,13 @@ pub enum WorkspaceEvent {
     #[event(input = "CreateWorkspaceRequest", output = "Workspace")]
     CreateWorkspace   = 0,
 
-    #[event(output = "Workspace")]
+    #[event(output = "CurrentWorkspaceSetting")]
     ReadCurWorkspace  = 1,
 
     #[event(input = "QueryWorkspaceRequest", output = "RepeatedWorkspace")]
     ReadWorkspaces    = 2,
 
-    #[event(input = "DeleteWorkspaceRequest")]
+    #[event(input = "QueryWorkspaceRequest")]
     DeleteWorkspace   = 3,
 
     #[event(input = "QueryWorkspaceRequest", output = "Workspace")]

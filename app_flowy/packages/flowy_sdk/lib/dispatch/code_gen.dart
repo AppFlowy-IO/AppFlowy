@@ -22,12 +22,12 @@ class WorkspaceEventCreateWorkspace {
 class WorkspaceEventReadCurWorkspace {
     WorkspaceEventReadCurWorkspace();
 
-    Future<Either<Workspace, WorkspaceError>> send() {
+    Future<Either<CurrentWorkspaceSetting, WorkspaceError>> send() {
      final request = FFIRequest.create()
         ..event = WorkspaceEvent.ReadCurWorkspace.toString();
 
      return Dispatch.asyncRequest(request).then((bytesResult) => bytesResult.fold(
-        (okBytes) => left(Workspace.fromBuffer(okBytes)),
+        (okBytes) => left(CurrentWorkspaceSetting.fromBuffer(okBytes)),
         (errBytes) => right(WorkspaceError.fromBuffer(errBytes)),
       ));
     }
@@ -51,7 +51,7 @@ class WorkspaceEventReadWorkspaces {
 }
 
 class WorkspaceEventDeleteWorkspace {
-     DeleteWorkspaceRequest request;
+     QueryWorkspaceRequest request;
      WorkspaceEventDeleteWorkspace(this.request);
 
     Future<Either<Unit, WorkspaceError>> send() {

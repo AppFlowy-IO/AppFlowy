@@ -3,7 +3,7 @@ use flowy_workspace_infra::entities::{
     app::{AppIdentifier, UpdateAppParams},
     trash::{TrashIdentifier, TrashIdentifiers, TrashType},
     view::{UpdateViewParams, ViewIdentifier},
-    workspace::{CreateWorkspaceParams, DeleteWorkspaceParams, UpdateWorkspaceParams, WorkspaceIdentifier},
+    workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceIdentifier},
 };
 
 #[actix_rt::test]
@@ -57,7 +57,7 @@ async fn workspace_update() {
 #[actix_rt::test]
 async fn workspace_delete() {
     let test = WorkspaceTest::new().await;
-    let delete_params = DeleteWorkspaceParams {
+    let delete_params = WorkspaceIdentifier {
         workspace_id: test.workspace.id.clone(),
     };
 

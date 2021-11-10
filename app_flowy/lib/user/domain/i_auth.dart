@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace-infra/protobuf.dart';
 import 'package:flutter/material.dart';
 
 class NewUser {
@@ -21,5 +22,5 @@ abstract class IAuthRouter {
   void pushWelcomeScreen(BuildContext context, UserProfile userProfile);
   void pushSignUpScreen(BuildContext context);
   void pushForgetPasswordScreen(BuildContext context);
-  void pushHomeScreen(BuildContext context, UserProfile profile, String workspaceId);
+  void pushHomeScreen(BuildContext context, UserProfile profile, CurrentWorkspaceSetting workspaceSetting);
 }

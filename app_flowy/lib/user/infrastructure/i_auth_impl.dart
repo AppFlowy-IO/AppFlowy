@@ -8,6 +8,7 @@ import 'package:flowy_infra_ui/widget/route/animation.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:app_flowy/user/domain/i_auth.dart';
 import 'package:app_flowy/user/infrastructure/repos/auth_repo.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace-infra/protobuf.dart';
 import 'package:flutter/material.dart';
 
 class AuthImpl extends IAuth {
@@ -53,10 +54,10 @@ class AuthRouterImpl extends IAuthRouter {
   }
 
   @override
-  void pushHomeScreen(BuildContext context, UserProfile profile, String workspaceId) {
+  void pushHomeScreen(BuildContext context, UserProfile profile, CurrentWorkspaceSetting workspaceSetting) {
     Navigator.push(
       context,
-      PageRoutes.fade(() => HomeScreen(profile, workspaceId), RouteDurations.slow.inMilliseconds * .001),
+      PageRoutes.fade(() => HomeScreen(profile, workspaceSetting), RouteDurations.slow.inMilliseconds * .001),
     );
   }
 }

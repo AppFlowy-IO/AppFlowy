@@ -19,7 +19,10 @@ use crate::{
     services::{server::Server, TrashCan, TrashEvent},
     sql_tables::view::{ViewTable, ViewTableChangeset, ViewTableSql},
 };
+use flowy_infra::kv::KV;
 use flowy_workspace_infra::entities::share::{ExportData, ExportParams};
+
+const LATEST_VIEW_ID: &str = "latest_view_id";
 
 pub(crate) struct ViewController {
     user: Arc<dyn WorkspaceUser>,
@@ -108,7 +111,10 @@ impl ViewController {
 
     #[tracing::instrument(level = "debug", skip(self, params), fields(doc_id = %params.doc_id), err)]
     pub(crate) async fn open_view(&self, params: DocIdentifier) -> Result<DocDelta, WorkspaceError> {
+        let doc_id = params.doc_id.clone();
         let edit_context = self.document.open(params, self.database.db_pool()?).await?;
+
+        KV::set_str(LATEST_VIEW_ID, doc_id);
         Ok(edit_context.delta().await.map_err(internal_error)?)
     }
 
@@ -188,6 +194,19 @@ impl ViewController {
         let doc = self.document.apply_doc_delta(params).await?;
         Ok(doc)
     }
+
+    pub(crate) fn latest_visit_view(&self) -> WorkspaceResult<Option<View>> {
+        match KV::get_str(LATEST_VIEW_ID) {
+            None => Ok(None),
+            Some(view_id) => {
+                let conn = self.database.db_connection()?;
+                let view_table = ViewTableSql::read_view(&view_id, &*conn)?;
+                Ok(Some(view_table.into()))
+            },
+        }
+    }
+
+    pub(crate) fn set_latest_view(&self, view: &View) { KV::set_str(LATEST_VIEW_ID, view.id.clone()); }
 }
 
 impl ViewController {

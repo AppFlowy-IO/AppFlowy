@@ -13,7 +13,7 @@ import 'section/section.dart';
 
 class MenuApp extends StatefulWidget {
   final App app;
-  MenuApp(this.app, {Key? key}) : super(key: ValueKey("${app.id}${app.version}"));
+  MenuApp(this.app, {Key? key}) : super(key: ValueKey(app.hashCode));
 
   @override
   State<MenuApp> createState() => _MenuAppState();

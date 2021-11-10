@@ -80,7 +80,7 @@ class DocStackContext extends HomeStackContext<String, ShareActionWrapper> {
 class DocLeftBarItem extends StatefulWidget {
   final View view;
 
-  const DocLeftBarItem({required this.view, Key? key}) : super(key: key);
+  DocLeftBarItem({required this.view, Key? key}) : super(key: ValueKey(view.hashCode));
 
   @override
   State<DocLeftBarItem> createState() => _DocLeftBarItemState();
@@ -95,7 +95,6 @@ class _DocLeftBarItemState extends State<DocLeftBarItem> {
   void initState() {
     repo = ViewRepository(view: widget.view);
     _focusNode.addListener(_handleFocusChanged);
-
     super.initState();
   }
 
@@ -147,7 +146,7 @@ class _DocLeftBarItemState extends State<DocLeftBarItem> {
 
 class DocShareButton extends StatelessWidget {
   final View view;
-  DocShareButton({Key? key, required this.view}) : super(key: ValueKey(view.id));
+  DocShareButton({Key? key, required this.view}) : super(key: ValueKey(view.hashCode));
 
   @override
   Widget build(BuildContext context) {

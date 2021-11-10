@@ -77,7 +77,7 @@ impl TestUserServer {
         update_workspace_request(self.user_token(), params, &url).await.unwrap();
     }
 
-    pub async fn delete_workspace(&self, params: DeleteWorkspaceParams) {
+    pub async fn delete_workspace(&self, params: WorkspaceIdentifier) {
         let url = format!("{}/api/workspace", self.http_addr());
         delete_workspace_request(self.user_token(), params, &url).await.unwrap();
     }

@@ -1,4 +1,5 @@
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace-infra/protobuf.dart';
 import 'package:flutter/widgets.dart';
 
 import 'auth_state.dart';
@@ -20,5 +21,5 @@ abstract class ISplashRoute {
   void pushSkipLoginScreen(BuildContext context);
 
   Future<void> pushWelcomeScreen(BuildContext context, UserProfile profile);
-  void pushHomeScreen(BuildContext context, UserProfile profile, String workspaceId);
+  void pushHomeScreen(BuildContext context, UserProfile profile, CurrentWorkspaceSetting workspaceSetting);
 }

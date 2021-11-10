@@ -1,6 +1,7 @@
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:app_flowy/workspace/application/home/home_listen_bloc.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
+import 'package:app_flowy/workspace/presentation/stack_page/doc/doc_stack_page.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/float_bubble/question_bubble.dart';
 import 'package:app_flowy/workspace/presentation/widgets/prelude.dart';
@@ -8,17 +9,19 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_infra_ui/style_widget/container.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace-infra/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
+import 'package:app_flowy/workspace/domain/view_ext.dart';
 
 import 'home_layout.dart';
 
 class HomeScreen extends StatelessWidget {
   static GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
   final UserProfile user;
-  final String workspaceId;
-  const HomeScreen(this.user, this.workspaceId, {Key? key}) : super(key: key);
+  final CurrentWorkspaceSetting workspaceSetting;
+  const HomeScreen(this.user, this.workspaceSetting, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +89,8 @@ class HomeScreen extends StatelessWidget {
     final homeBloc = context.read<HomeBloc>();
     final collapasedNotifier = getIt<HomeStackManager>().collapsedNotifier;
 
-    HomeMenu homeMenu = HomeMenu(user: user, workspaceId: workspaceId, collapsedNotifier: collapasedNotifier);
+    HomeMenu homeMenu =
+        HomeMenu(user: user, workspaceId: workspaceSetting.workspace.id, collapsedNotifier: collapasedNotifier);
     collapasedNotifier.addPublishListener((isCollapsed) {
       homeBloc.add(HomeEvent.forceCollapse(isCollapsed));
     });
@@ -94,6 +98,10 @@ class HomeScreen extends StatelessWidget {
     homeMenu.pageContext.addPublishListener((pageContext) {
       getIt<HomeStackManager>().switchStack(pageContext);
     });
+
+    if (workspaceSetting.hasLatestView()) {
+      getIt<HomeStackManager>().switchStack(workspaceSetting.latestView.stackContext());
+    }
 
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));
   }

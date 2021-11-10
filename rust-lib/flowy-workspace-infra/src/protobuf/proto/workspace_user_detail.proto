@@ -1,5 +1,0 @@
-syntax = "proto3";
-
-message CurrentWorkspace {
-    string workspace_id = 1;
-}

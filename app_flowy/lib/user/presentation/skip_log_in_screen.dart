@@ -9,6 +9,7 @@ import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace-infra/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flutter/material.dart';
@@ -112,11 +113,11 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
   void _openCurrentWorkspace(
     BuildContext context,
     UserProfile user,
-    dartz.Either<Workspace, WorkspaceError> workspacesOrError,
+    dartz.Either<CurrentWorkspaceSetting, WorkspaceError> workspacesOrError,
   ) {
     workspacesOrError.fold(
-      (workspace) {
-        widget.router.pushHomeScreen(context, user, workspace.id);
+      (workspaceSetting) {
+        widget.router.pushHomeScreen(context, user, workspaceSetting);
       },
       (error) {
         Log.error(error);

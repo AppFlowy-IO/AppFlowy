@@ -3,11 +3,11 @@
 mod view_update; 
 pub use view_update::*; 
 
+mod workspace_setting; 
+pub use workspace_setting::*; 
+
 mod app_query; 
 pub use app_query::*; 
-
-mod workspace_delete; 
-pub use workspace_delete::*; 
 
 mod errors; 
 pub use errors::*; 
@@ -23,9 +23,6 @@ pub use workspace_query::*;
 
 mod view_create; 
 pub use view_create::*; 
-
-mod workspace_user_detail; 
-pub use workspace_user_detail::*; 
 
 mod workspace_create; 
 pub use workspace_create::*; 

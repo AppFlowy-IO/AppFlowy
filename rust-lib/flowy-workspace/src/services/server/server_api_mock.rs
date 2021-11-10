@@ -3,14 +3,7 @@ use crate::{
         app::{App, AppIdentifier, CreateAppParams, RepeatedApp, UpdateAppParams},
         trash::{RepeatedTrash, TrashIdentifiers},
         view::{CreateViewParams, RepeatedView, UpdateViewParams, View, ViewIdentifier, ViewIdentifiers},
-        workspace::{
-            CreateWorkspaceParams,
-            DeleteWorkspaceParams,
-            RepeatedWorkspace,
-            UpdateWorkspaceParams,
-            Workspace,
-            WorkspaceIdentifier,
-        },
+        workspace::{CreateWorkspaceParams, RepeatedWorkspace, UpdateWorkspaceParams, Workspace, WorkspaceIdentifier},
     },
     errors::WorkspaceError,
     services::server::WorkspaceServerAPI,
@@ -51,7 +44,7 @@ impl WorkspaceServerAPI for WorkspaceServerMock {
         ResultFuture::new(async { Ok(()) })
     }
 
-    fn delete_workspace(&self, _token: &str, _params: DeleteWorkspaceParams) -> ResultFuture<(), WorkspaceError> {
+    fn delete_workspace(&self, _token: &str, _params: WorkspaceIdentifier) -> ResultFuture<(), WorkspaceError> {
         ResultFuture::new(async { Ok(()) })
     }
 

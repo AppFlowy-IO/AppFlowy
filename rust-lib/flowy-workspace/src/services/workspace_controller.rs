@@ -9,7 +9,7 @@ use chrono::Utc;
 use flowy_database::SqliteConnection;
 use flowy_infra::kv::KV;
 use flowy_workspace_infra::{
-    entities::{app::RepeatedApp, workspace::*},
+    entities::{app::RepeatedApp, view::View, workspace::*},
     user_default,
 };
 use lazy_static::lazy_static;
@@ -51,14 +51,13 @@ impl WorkspaceController {
         }
     }
 
-    fn init(&self, token: &str) -> Result<(), WorkspaceError> {
+    async fn init(&self, token: &str) -> Result<(), WorkspaceError> {
         if let Some(is_init) = INIT_WORKSPACE.read().get(token) {
             if *is_init {
                 return Ok(());
             }
         }
         INIT_WORKSPACE.write().insert(token.to_owned(), true);
-
         let _ = self.server.init();
         let _ = self.trash_can.init()?;
         let _ = self.view_controller.init()?;
@@ -67,19 +66,19 @@ impl WorkspaceController {
         Ok(())
     }
 
-    pub fn user_did_sign_in(&self, token: &str) -> WorkspaceResult<()> {
+    pub async fn user_did_sign_in(&self, token: &str) -> WorkspaceResult<()> {
         // TODO: (nathan) do something here
 
         log::debug!("workspace initialize after sign in");
-        let _ = self.init(token)?;
+        let _ = self.init(token).await?;
         Ok(())
     }
 
-    pub fn user_did_logout(&self) {
+    pub async fn user_did_logout(&self) {
         // TODO: (nathan) do something here
     }
 
-    pub fn user_session_expired(&self) {
+    pub async fn user_session_expired(&self) {
         // TODO: (nathan) do something here
     }
 
@@ -94,7 +93,10 @@ impl WorkspaceController {
         for mut app in apps {
             let views = app.take_belongings().into_inner();
             let _ = self.app_controller.create_app(app).await?;
-            for view in views {
+            for (index, view) in views.into_iter().enumerate() {
+                if index == 0 {
+                    self.view_controller.set_latest_view(&view);
+                }
                 let _ = self.view_controller.create_view(view).await?;
             }
         }
@@ -109,7 +111,7 @@ impl WorkspaceController {
             .send();
 
         log::debug!("workspace initialize after sign up");
-        let _ = self.init(&token)?;
+        let _ = self.init(&token).await?;
         Ok(())
     }
 
@@ -215,7 +217,7 @@ impl WorkspaceController {
         Ok(workspaces)
     }
 
-    pub(crate) async fn read_current_workspace(&self) -> Result<Workspace, WorkspaceError> {
+    pub(crate) async fn read_current_workspace(&self) -> Result<CurrentWorkspaceSetting, WorkspaceError> {
         let workspace_id = get_current_workspace()?;
         let user_id = self.user.user_id()?;
         let params = WorkspaceIdentifier {
@@ -223,8 +225,14 @@ impl WorkspaceController {
         };
         let workspace = self.read_local_workspace(workspace_id, &user_id, &*self.database.db_connection()?)?;
 
+        let mut latest_view: Option<View> = None;
+        match self.view_controller.latest_visit_view() {
+            Ok(view) => latest_view = view,
+            Err(_) => {},
+        }
+        let setting = CurrentWorkspaceSetting { workspace, latest_view };
         let _ = self.read_workspaces_on_server(user_id.clone(), params)?;
-        Ok(workspace)
+        Ok(setting)
     }
 
     pub(crate) async fn read_current_workspace_apps(&self) -> Result<RepeatedApp, WorkspaceError> {
@@ -310,8 +318,8 @@ impl WorkspaceController {
 
     #[tracing::instrument(level = "debug", skip(self), err)]
     fn delete_workspace_on_server(&self, workspace_id: &str) -> Result<(), WorkspaceError> {
-        let params = DeleteWorkspaceParams {
-            workspace_id: workspace_id.to_string(),
+        let params = WorkspaceIdentifier {
+            workspace_id: Some(workspace_id.to_string()),
         };
         let (token, server) = self.token_with_server()?;
         tokio::spawn(async move {

@@ -18,7 +18,7 @@ pub(crate) async fn create_workspace_handler(
 #[tracing::instrument(skip(controller), err)]
 pub(crate) async fn read_cur_workspace_handler(
     controller: Unit<Arc<WorkspaceController>>,
-) -> DataResult<Workspace, WorkspaceError> {
+) -> DataResult<CurrentWorkspaceSetting, WorkspaceError> {
     let workspace = controller.read_current_workspace().await?;
     data_result(workspace)
 }
