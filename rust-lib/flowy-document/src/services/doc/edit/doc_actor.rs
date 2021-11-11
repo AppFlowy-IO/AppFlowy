@@ -118,7 +118,7 @@ impl DocumentActor {
         let mut document = self.document.write().await;
         let result = document.compose_delta(&delta);
         tracing::Span::current().record(
-            "compose_result",
+            "composed_delta",
             &format!("doc_id:{} - {}", &self.doc_id, delta.to_json()).as_str(),
         );
         drop(document);

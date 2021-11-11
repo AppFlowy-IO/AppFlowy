@@ -5,6 +5,7 @@ import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_setting.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -41,17 +42,25 @@ import 'widget/menu_trash.dart';
 //                                                  └────────┘
 
 class HomeMenu extends StatelessWidget {
-  final PublishNotifier<HomeStackContext> pageContext = PublishNotifier();
-  final PublishNotifier<bool> collapsedNotifier;
+  final PublishNotifier<HomeStackContext> _pageContext;
+  final PublishNotifier<bool> _collapsedNotifier;
   final UserProfile user;
-  final String workspaceId;
+  final CurrentWorkspaceSetting workspaceSetting;
 
   HomeMenu({
     Key? key,
     required this.user,
-    required this.workspaceId,
-    required this.collapsedNotifier,
-  }) : super(key: key);
+    required this.workspaceSetting,
+    required PublishNotifier<bool> collapsedNotifier,
+    required PublishNotifier<HomeStackContext> pageContext,
+    HomeStackContext? initialStackContext,
+  })  : _pageContext = pageContext,
+        _collapsedNotifier = collapsedNotifier,
+        super(key: key) {
+    if (initialStackContext != null) {
+      pageContext.value = initialStackContext;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +68,7 @@ class HomeMenu extends StatelessWidget {
       providers: [
         BlocProvider<MenuBloc>(
           create: (context) {
-            final menuBloc = getIt<MenuBloc>(param1: user, param2: workspaceId);
+            final menuBloc = getIt<MenuBloc>(param1: user, param2: workspaceSetting.workspace.id);
             menuBloc.add(const MenuEvent.initial());
             return menuBloc;
           },
@@ -69,11 +78,11 @@ class HomeMenu extends StatelessWidget {
         listeners: [
           BlocListener<MenuBloc, MenuState>(
             listenWhen: (p, c) => p.context != c.context,
-            listener: (context, state) => pageContext.value = state.context,
+            listener: (context, state) => _pageContext.value = state.context,
           ),
           BlocListener<MenuBloc, MenuState>(
             listenWhen: (p, c) => p.isCollapse != c.isCollapse,
-            listener: (context, state) => collapsedNotifier.value = state.isCollapse,
+            listener: (context, state) => _collapsedNotifier.value = state.isCollapse,
           )
         ],
         child: BlocBuilder<MenuBloc, MenuState>(
@@ -88,7 +97,7 @@ class HomeMenu extends StatelessWidget {
     return Container(
       color: Theme.of(context).colorScheme.background,
       child: ChangeNotifierProvider(
-        create: (_) => MenuSharedState(),
+        create: (_) => MenuSharedState(view: workspaceSetting.hasLatestView() ? workspaceSetting.latestView : null),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -162,6 +171,8 @@ class MenuSharedState extends ChangeNotifier {
   View? _view;
   View? _forcedOpenView;
 
+  MenuSharedState({View? view}) : _view = view;
+
   void addForcedOpenViewListener(void Function(View) callback) {
     super.addListener(() {
       if (_forcedOpenView != null) {
@@ -192,5 +203,5 @@ class MenuSharedState extends ChangeNotifier {
     }
   }
 
-  View? get selecedtView => _view;
+  View? get selectedView => _view;
 }

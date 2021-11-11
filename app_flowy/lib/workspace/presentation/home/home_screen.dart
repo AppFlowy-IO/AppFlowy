@@ -6,6 +6,7 @@ import 'package:app_flowy/workspace/presentation/stack_page/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/float_bubble/question_bubble.dart';
 import 'package:app_flowy/workspace/presentation/widgets/prelude.dart';
 import 'package:app_flowy/startup/startup.dart';
+import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_infra_ui/style_widget/container.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
@@ -87,21 +88,29 @@ class HomeScreen extends StatelessWidget {
 
   Widget _buildHomeMenu({required HomeLayout layout, required BuildContext context}) {
     final homeBloc = context.read<HomeBloc>();
-    final collapasedNotifier = getIt<HomeStackManager>().collapsedNotifier;
 
-    HomeMenu homeMenu =
-        HomeMenu(user: user, workspaceId: workspaceSetting.workspace.id, collapsedNotifier: collapasedNotifier);
+    final collapasedNotifier = getIt<HomeStackManager>().collapsedNotifier;
     collapasedNotifier.addPublishListener((isCollapsed) {
       homeBloc.add(HomeEvent.forceCollapse(isCollapsed));
     });
 
-    homeMenu.pageContext.addPublishListener((pageContext) {
+    final pageContext = PublishNotifier<HomeStackContext>();
+    pageContext.addPublishListener((pageContext) {
       getIt<HomeStackManager>().switchStack(pageContext);
     });
 
+    HomeStackContext? initialStackContext;
     if (workspaceSetting.hasLatestView()) {
-      getIt<HomeStackManager>().switchStack(workspaceSetting.latestView.stackContext());
+      initialStackContext = workspaceSetting.latestView.stackContext();
     }
+
+    HomeMenu homeMenu = HomeMenu(
+      user: user,
+      workspaceSetting: workspaceSetting,
+      collapsedNotifier: collapasedNotifier,
+      pageContext: pageContext,
+      initialStackContext: initialStackContext,
+    );
 
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));
   }

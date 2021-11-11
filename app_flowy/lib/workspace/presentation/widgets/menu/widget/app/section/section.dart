@@ -21,7 +21,11 @@ class ViewSection extends StatelessWidget {
     return ChangeNotifierProxyProvider<AppDataNotifier, ViewSectionNotifier>(
       create: (_) {
         final views = Provider.of<AppDataNotifier>(context, listen: false).views;
-        return ViewSectionNotifier(views, context);
+        return ViewSectionNotifier(
+          context: context,
+          views: views,
+          selectedView: Provider.of<MenuSharedState>(context, listen: false).selectedView,
+        );
       },
       update: (_, notifier, controller) => controller!..update(notifier),
       child: Consumer(builder: (context, ViewSectionNotifier notifier, child) {
@@ -59,7 +63,13 @@ class ViewSectionNotifier with ChangeNotifier {
   List<View> _views;
   View? _selectedView;
   CancelableOperation? _notifyListenerOperation;
-  ViewSectionNotifier(List<View> views, BuildContext context) : _views = views {
+
+  ViewSectionNotifier({
+    required BuildContext context,
+    required List<View> views,
+    View? selectedView,
+  })  : _views = views,
+        _selectedView = selectedView {
     final menuSharedState = Provider.of<MenuSharedState>(context, listen: false);
     menuSharedState.addForcedOpenViewListener((forcedOpenView) {
       selectedView = forcedOpenView;
