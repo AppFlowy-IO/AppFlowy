@@ -36,21 +36,30 @@ class _MenuAppState extends State<MenuApp> {
       ],
       child: BlocSelector<AppBloc, AppState, AppDataNotifier>(
         selector: (state) {
+          final menuState = Provider.of<MenuSharedState>(context, listen: false);
           if (state.latestCreatedView != null) {
-            Provider.of<MenuSharedState>(context, listen: false).forcedOpenView = state.latestCreatedView;
+            menuState.forcedOpenView = state.latestCreatedView;
           }
+
           notifier.views = state.views;
+          notifier.selectedView = menuState.selectedView;
           return notifier;
         },
-        builder: (context, state) {
-          return expandableWrapper(context, _renderViewSection(state));
-        },
+        builder: (context, notifier) => ChangeNotifierProvider.value(
+          value: notifier,
+          child: Consumer(
+            builder: (BuildContext context, AppDataNotifier notifier, Widget? child) {
+              return expandableWrapper(context, notifier);
+            },
+          ),
+        ),
       ),
     );
   }
 
-  ExpandableNotifier expandableWrapper(BuildContext context, Widget child) {
+  ExpandableNotifier expandableWrapper(BuildContext context, AppDataNotifier notifier) {
     return ExpandableNotifier(
+      controller: notifier.expandController,
       child: ScrollOnExpand(
         scrollOnExpand: false,
         scrollOnCollapse: false,
@@ -66,7 +75,7 @@ class _MenuAppState extends State<MenuApp> {
                 hasIcon: false,
               ),
               header: MenuAppHeader(widget.app),
-              expanded: child,
+              expanded: _renderViewSection(notifier),
               collapsed: const SizedBox(),
             ),
           ],
@@ -83,6 +92,12 @@ class _MenuAppState extends State<MenuApp> {
       }),
     );
   }
+
+  @override
+  void dispose() {
+    notifier.dispose();
+    super.dispose();
+  }
 }
 
 class MenuAppSizes {
@@ -97,10 +112,24 @@ class MenuAppSizes {
 
 class AppDataNotifier extends ChangeNotifier {
   List<View> _views = [];
+  ExpandableController expandController = ExpandableController(initialExpanded: false);
+
   AppDataNotifier();
 
-  set views(List<View>? items) {
-    if (items == null) {
+  set selectedView(View? selectedView) {
+    if (selectedView != null) {
+      final isExpanded = _views.contains(selectedView);
+      if (expandController.expanded == false && expandController.expanded != isExpanded) {
+        // Workaround: Delay 150 milliseconds to make the smooth animation while expanding
+        Future.delayed(const Duration(milliseconds: 150), () {
+          expandController.expanded = isExpanded;
+        });
+      }
+    }
+  }
+
+  set views(List<View>? views) {
+    if (views == null) {
       if (_views.isNotEmpty) {
         _views = List.empty(growable: false);
         notifyListeners();
@@ -108,8 +137,8 @@ class AppDataNotifier extends ChangeNotifier {
       return;
     }
 
-    if (_views != items) {
-      _views = items;
+    if (_views != views) {
+      _views = views;
       notifyListeners();
     }
   }

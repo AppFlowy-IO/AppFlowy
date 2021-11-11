@@ -21,10 +21,12 @@ class ViewSection extends StatelessWidget {
     return ChangeNotifierProxyProvider<AppDataNotifier, ViewSectionNotifier>(
       create: (_) {
         final views = Provider.of<AppDataNotifier>(context, listen: false).views;
+        final menuState = Provider.of<MenuSharedState>(context, listen: false);
+
         return ViewSectionNotifier(
           context: context,
           views: views,
-          selectedView: Provider.of<MenuSharedState>(context, listen: false).selectedView,
+          initialSelectedView: menuState.selectedView,
         );
       },
       update: (_, notifier, controller) => controller!..update(notifier),
@@ -67,16 +69,19 @@ class ViewSectionNotifier with ChangeNotifier {
   ViewSectionNotifier({
     required BuildContext context,
     required List<View> views,
-    View? selectedView,
+    View? initialSelectedView,
   })  : _views = views,
-        _selectedView = selectedView {
+        _selectedView = initialSelectedView {
     final menuSharedState = Provider.of<MenuSharedState>(context, listen: false);
+    // The forcedOpenView will be the view after creating the new view
     menuSharedState.addForcedOpenViewListener((forcedOpenView) {
       selectedView = forcedOpenView;
     });
 
     menuSharedState.addSelectedViewListener((currentSelectedView) {
-      if (currentSelectedView != selectedView) {
+      // Cancel the selected view of this section by setting the selectedView to null
+      // that will notify the listener to refresh the ViewSection UI
+      if (currentSelectedView != _selectedView) {
         selectedView = null;
       }
     });
