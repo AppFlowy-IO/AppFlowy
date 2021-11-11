@@ -13,20 +13,18 @@ import 'item.dart';
 import 'package:async/async.dart';
 
 class ViewSection extends StatelessWidget {
-  const ViewSection({Key? key}) : super(key: key);
+  final AppDataNotifier appData;
+  const ViewSection({Key? key, required this.appData}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     // The ViewSectionNotifier will be updated after AppDataNotifier changed passed by parent widget
     return ChangeNotifierProxyProvider<AppDataNotifier, ViewSectionNotifier>(
       create: (_) {
-        final views = Provider.of<AppDataNotifier>(context, listen: false).views;
-        final menuState = Provider.of<MenuSharedState>(context, listen: false);
-
         return ViewSectionNotifier(
           context: context,
-          views: views,
-          initialSelectedView: menuState.selectedView,
+          views: appData.views,
+          initialSelectedView: appData.selectedView,
         );
       },
       update: (_, notifier, controller) => controller!..update(notifier),
@@ -47,7 +45,7 @@ class ViewSection extends StatelessWidget {
               isSelected: _isViewSelected(context, view.id),
               onSelected: (view) {
                 context.read<ViewSectionNotifier>().selectedView = view;
-                Provider.of<MenuSharedState>(context, listen: false).selectedView = view;
+                Provider.of<MenuSharedState>(context, listen: false).selectedView.value = view;
               },
             ).padding(vertical: 4),
           )
@@ -80,14 +78,14 @@ class ViewSectionNotifier with ChangeNotifier {
         _selectedView = initialSelectedView {
     final menuSharedState = Provider.of<MenuSharedState>(context, listen: false);
     // The forcedOpenView will be the view after creating the new view
-    menuSharedState.addForcedOpenViewListener((forcedOpenView) {
+    menuSharedState.forcedOpenView.addPublishListener((forcedOpenView) {
       selectedView = forcedOpenView;
     });
 
-    menuSharedState.addSelectedViewListener((currentSelectedView) {
+    menuSharedState.selectedView.addListener(() {
       // Cancel the selected view of this section by setting the selectedView to null
       // that will notify the listener to refresh the ViewSection UI
-      if (currentSelectedView != _selectedView) {
+      if (menuSharedState.selectedView.value != _selectedView) {
         selectedView = null;
       }
     });

@@ -38,11 +38,11 @@ class _MenuAppState extends State<MenuApp> {
         selector: (state) {
           final menuState = Provider.of<MenuSharedState>(context, listen: false);
           if (state.latestCreatedView != null) {
-            menuState.forcedOpenView = state.latestCreatedView;
+            menuState.forcedOpenView.value = state.latestCreatedView!;
           }
 
           notifier.views = state.views;
-          notifier.selectedView = menuState.selectedView;
+          notifier.selectedView = menuState.selectedView.value;
           return notifier;
         },
         builder: (context, notifier) => ChangeNotifierProvider.value(
@@ -88,7 +88,7 @@ class _MenuAppState extends State<MenuApp> {
     return MultiProvider(
       providers: [ChangeNotifierProvider.value(value: notifier)],
       child: Consumer(builder: (context, AppDataNotifier notifier, child) {
-        return const ViewSection();
+        return ViewSection(appData: notifier);
       }),
     );
   }
@@ -112,13 +112,16 @@ class MenuAppSizes {
 
 class AppDataNotifier extends ChangeNotifier {
   List<View> _views = [];
+  View? _selectedView;
   ExpandableController expandController = ExpandableController(initialExpanded: false);
 
   AppDataNotifier();
 
-  set selectedView(View? selectedView) {
-    if (selectedView != null) {
-      final isExpanded = _views.contains(selectedView);
+  set selectedView(View? view) {
+    _selectedView = view;
+
+    if (view != null) {
+      final isExpanded = _views.contains(view);
       if (expandController.expanded == false && expandController.expanded != isExpanded) {
         // Workaround: Delay 150 milliseconds to make the smooth animation while expanding
         Future.delayed(const Duration(milliseconds: 150), () {
@@ -127,6 +130,8 @@ class AppDataNotifier extends ChangeNotifier {
       }
     }
   }
+
+  View? get selectedView => _selectedView;
 
   set views(List<View>? views) {
     if (views == null) {

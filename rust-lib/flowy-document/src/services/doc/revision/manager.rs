@@ -37,7 +37,7 @@ impl RevisionManager {
 
     pub async fn load_document(&mut self) -> DocResult<Delta> {
         let doc = self.rev_store.fetch_document().await?;
-        self.set_rev_id(doc.rev_id);
+        self.update_rev_id_counter_value(doc.rev_id);
         Ok(doc.delta()?)
     }
 
@@ -59,7 +59,7 @@ impl RevisionManager {
         (cur, next)
     }
 
-    pub fn set_rev_id(&self, rev_id: i64) { self.rev_id_counter.set(rev_id); }
+    pub fn update_rev_id_counter_value(&self, rev_id: i64) { self.rev_id_counter.set(rev_id); }
 
     pub async fn mk_revisions(&self, range: RevisionRange) -> Result<Revision, DocError> {
         debug_assert!(&range.doc_id == &self.doc_id);

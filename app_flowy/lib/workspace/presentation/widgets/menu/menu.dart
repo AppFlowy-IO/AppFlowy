@@ -42,25 +42,17 @@ import 'widget/menu_trash.dart';
 //                                                  └────────┘
 
 class HomeMenu extends StatelessWidget {
-  final PublishNotifier<HomeStackContext> _pageContext;
   final PublishNotifier<bool> _collapsedNotifier;
   final UserProfile user;
   final CurrentWorkspaceSetting workspaceSetting;
 
-  HomeMenu({
+  const HomeMenu({
     Key? key,
     required this.user,
     required this.workspaceSetting,
     required PublishNotifier<bool> collapsedNotifier,
-    required PublishNotifier<HomeStackContext> pageContext,
-    HomeStackContext? initialStackContext,
-  })  : _pageContext = pageContext,
-        _collapsedNotifier = collapsedNotifier,
-        super(key: key) {
-    if (initialStackContext != null) {
-      pageContext.value = initialStackContext;
-    }
-  }
+  })  : _collapsedNotifier = collapsedNotifier,
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +70,9 @@ class HomeMenu extends StatelessWidget {
         listeners: [
           BlocListener<MenuBloc, MenuState>(
             listenWhen: (p, c) => p.context != c.context,
-            listener: (context, state) => _pageContext.value = state.context,
+            listener: (context, state) {
+              getIt<HomeStackManager>().switchStack(state.context);
+            },
           ),
           BlocListener<MenuBloc, MenuState>(
             listenWhen: (p, c) => p.isCollapse != c.isCollapse,
@@ -168,40 +162,40 @@ class HomeMenu extends StatelessWidget {
 }
 
 class MenuSharedState extends ChangeNotifier {
-  View? _view;
-  View? _forcedOpenView;
+  PublishNotifier<View> forcedOpenView = PublishNotifier();
+  ValueNotifier<View?> selectedView = ValueNotifier<View?>(null);
 
-  MenuSharedState({View? view}) : _view = view;
+  MenuSharedState({View? view}) {
+    if (view != null) {
+      selectedView.value = view;
+    }
 
-  void addForcedOpenViewListener(void Function(View) callback) {
-    super.addListener(() {
-      if (_forcedOpenView != null) {
-        callback(_forcedOpenView!);
-      }
+    forcedOpenView.addPublishListener((view) {
+      selectedView.value = view;
     });
   }
 
-  void addSelectedViewListener(void Function(View?) callback) {
-    super.addListener(() {
-      callback(_view);
-    });
-  }
+  // void addForcedOpenViewListener(void Function(View) callback) {
+  //   super.addListener(() {
+  //     if (_forcedOpenView != null) {
+  //       callback(_forcedOpenView!);
+  //     }
+  //   });
+  // }
 
-  set forcedOpenView(View? view) {
-    if (_forcedOpenView != view) {
-      _forcedOpenView = view;
-      selectedView = view;
-      notifyListeners();
-    }
-    _forcedOpenView = null;
-  }
+  // void addSelectedViewListener(void Function(View?) callback) {
+  //   super.addListener(() {
+  //     callback(_view);
+  //   });
+  // }
 
-  set selectedView(View? view) {
-    if (_view != view) {
-      _view = view;
-      notifyListeners();
-    }
-  }
+  // set forcedOpenView(View? view) {
+  //   if (_forcedOpenView != view) {
+  //     _forcedOpenView = view;
 
-  View? get selectedView => _view;
+  //     selectedView = view;
+  //     notifyListeners();
+  //   }
+  // }
+
 }

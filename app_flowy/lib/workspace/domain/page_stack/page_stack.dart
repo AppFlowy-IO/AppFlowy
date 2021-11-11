@@ -56,6 +56,10 @@ class HomeStackNotifier extends ChangeNotifier {
   HomeStackNotifier({HomeStackContext? context}) : stackContext = context ?? BlankStackContext();
 
   set context(HomeStackContext context) {
+    if (stackContext.identifier == context.identifier) {
+      return;
+    }
+
     stackContext.isUpdated.removeListener(notifyListeners);
     stackContext.dispose();
 

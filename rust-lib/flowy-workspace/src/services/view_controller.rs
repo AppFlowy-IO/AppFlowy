@@ -128,7 +128,7 @@ impl ViewController {
     pub(crate) async fn delete_view(&self, params: DocIdentifier) -> Result<(), WorkspaceError> {
         if let Some(view_id) = KV::get_str(LATEST_VIEW_ID) {
             if view_id == params.doc_id {
-                KV::remove(LATEST_VIEW_ID);
+                let _ = KV::remove(LATEST_VIEW_ID);
             }
         }
         let _ = self.document.close(params).await?;

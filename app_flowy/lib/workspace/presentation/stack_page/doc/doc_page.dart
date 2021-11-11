@@ -15,7 +15,7 @@ import 'widget/toolbar/tool_bar.dart';
 class DocPage extends StatefulWidget {
   final View view;
 
-  const DocPage({Key? key, required this.view}) : super(key: key);
+  DocPage({Key? key, required this.view}) : super(key: ValueKey(view.id));
 
   @override
   State<DocPage> createState() => _DocPageState();

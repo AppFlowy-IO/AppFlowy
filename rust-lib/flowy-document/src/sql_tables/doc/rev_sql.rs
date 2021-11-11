@@ -4,12 +4,7 @@ use crate::{
     sql_tables::{doc::RevTable, RevChangeset, RevState, RevTableType},
 };
 use diesel::update;
-use flowy_database::{
-    insert_or_ignore_into,
-    prelude::*,
-    schema::rev_table::{columns::*, dsl, dsl::doc_id},
-    SqliteConnection,
-};
+use flowy_database::{insert_or_ignore_into, prelude::*, schema::rev_table::dsl, SqliteConnection};
 
 pub struct RevTableSql {}
 
@@ -25,12 +20,12 @@ impl RevTableSql {
             .map(|(revision, new_state)| {
                 let rev_ty: RevTableType = revision.ty.into();
                 (
-                    doc_id.eq(revision.doc_id),
-                    base_rev_id.eq(revision.base_rev_id),
-                    rev_id.eq(revision.rev_id),
-                    data.eq(revision.delta_data),
-                    state.eq(new_state),
-                    ty.eq(rev_ty),
+                    dsl::doc_id.eq(revision.doc_id),
+                    dsl::base_rev_id.eq(revision.base_rev_id),
+                    dsl::rev_id.eq(revision.rev_id),
+                    dsl::data.eq(revision.delta_data),
+                    dsl::state.eq(new_state),
+                    dsl::ty.eq(rev_ty),
                 )
             })
             .collect::<Vec<_>>();
@@ -42,24 +37,18 @@ impl RevTableSql {
     #[allow(dead_code)]
     pub(crate) fn update_rev_table(&self, changeset: RevChangeset, conn: &SqliteConnection) -> Result<(), DocError> {
         let filter = dsl::rev_table
-            .filter(rev_id.eq(changeset.rev_id.as_ref()))
-            .filter(doc_id.eq(changeset.doc_id));
-        let _ = update(filter).set(state.eq(changeset.state)).execute(conn)?;
+            .filter(dsl::rev_id.eq(changeset.rev_id.as_ref()))
+            .filter(dsl::doc_id.eq(changeset.doc_id));
+        let _ = update(filter).set(dsl::state.eq(changeset.state)).execute(conn)?;
         tracing::debug!("Set {} to {:?}", changeset.rev_id, changeset.state);
         Ok(())
     }
 
-    pub(crate) fn read_rev_tables(
-        &self,
-        did: &str,
-        rid: Option<i64>,
-        conn: &SqliteConnection,
-    ) -> Result<Vec<Revision>, DocError> {
-        let mut filter = dsl::rev_table.filter(doc_id.eq(did)).order(rev_id.asc()).into_boxed();
-        if let Some(rid) = rid {
-            filter = filter.filter(rev_id.eq(rid))
-        }
-
+    pub(crate) fn read_rev_tables(&self, doc_id: &str, conn: &SqliteConnection) -> Result<Vec<Revision>, DocError> {
+        let filter = dsl::rev_table
+            .filter(dsl::doc_id.eq(doc_id))
+            .order(dsl::rev_id.asc())
+            .into_boxed();
         let rev_tables = filter.load::<RevTable>(conn)?;
         let revisions = rev_tables
             .into_iter()
@@ -70,11 +59,13 @@ impl RevTableSql {
 
     pub(crate) fn read_rev_table(
         &self,
-        did: &str,
-        rid: &i64,
+        doc_id: &str,
+        revision_id: &i64,
         conn: &SqliteConnection,
     ) -> Result<Option<Revision>, DocError> {
-        let filter = dsl::rev_table.filter(doc_id.eq(did)).filter(rev_id.eq(rid));
+        let filter = dsl::rev_table
+            .filter(dsl::doc_id.eq(doc_id))
+            .filter(dsl::rev_id.eq(revision_id));
         let result = filter.first::<RevTable>(conn);
 
         if Err(diesel::NotFound) == result {
@@ -91,10 +82,10 @@ impl RevTableSql {
         conn: &SqliteConnection,
     ) -> Result<Vec<Revision>, DocError> {
         let rev_tables = dsl::rev_table
-            .filter(rev_id.ge(range.start))
-            .filter(rev_id.le(range.end))
-            .filter(doc_id.eq(doc_id_s))
-            .order(rev_id.asc())
+            .filter(dsl::rev_id.ge(range.start))
+            .filter(dsl::rev_id.le(range.end))
+            .filter(dsl::doc_id.eq(doc_id_s))
+            .order(dsl::rev_id.asc())
             .load::<RevTable>(conn)?;
 
         let revisions = rev_tables
@@ -111,7 +102,9 @@ impl RevTableSql {
         rev_id_s: i64,
         conn: &SqliteConnection,
     ) -> Result<(), DocError> {
-        let filter = dsl::rev_table.filter(rev_id.eq(rev_id_s)).filter(doc_id.eq(doc_id_s));
+        let filter = dsl::rev_table
+            .filter(dsl::rev_id.eq(rev_id_s))
+            .filter(dsl::doc_id.eq(doc_id_s));
         let affected_row = diesel::delete(filter).execute(conn)?;
         debug_assert_eq!(affected_row, 1);
         Ok(())

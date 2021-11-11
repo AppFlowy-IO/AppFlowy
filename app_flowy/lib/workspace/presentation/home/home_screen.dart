@@ -1,7 +1,6 @@
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:app_flowy/workspace/application/home/home_listen_bloc.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
-import 'package:app_flowy/workspace/presentation/stack_page/doc/doc_stack_page.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/float_bubble/question_bubble.dart';
 import 'package:app_flowy/workspace/presentation/widgets/prelude.dart';
@@ -18,18 +17,25 @@ import 'package:app_flowy/workspace/domain/view_ext.dart';
 
 import 'home_layout.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   static GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
   final UserProfile user;
   final CurrentWorkspaceSetting workspaceSetting;
   const HomeScreen(this.user, this.workspaceSetting, {Key? key}) : super(key: key);
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  View? initialView;
+
+  @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider<HomeListenBloc>(
-          create: (context) => getIt<HomeListenBloc>(param1: user)..add(const HomeListenEvent.started()),
+          create: (context) => getIt<HomeListenBloc>(param1: widget.user)..add(const HomeListenEvent.started()),
         ),
         BlocProvider<HomeBloc>(create: (context) => getIt<HomeBloc>()),
       ],
@@ -94,22 +100,15 @@ class HomeScreen extends StatelessWidget {
       homeBloc.add(HomeEvent.forceCollapse(isCollapsed));
     });
 
-    final pageContext = PublishNotifier<HomeStackContext>();
-    pageContext.addPublishListener((pageContext) {
-      getIt<HomeStackManager>().switchStack(pageContext);
-    });
-
-    HomeStackContext? initialStackContext;
-    if (workspaceSetting.hasLatestView()) {
-      initialStackContext = workspaceSetting.latestView.stackContext();
+    if (initialView == null && widget.workspaceSetting.hasLatestView()) {
+      initialView = widget.workspaceSetting.latestView;
+      getIt<HomeStackManager>().switchStack(initialView!.stackContext());
     }
 
     HomeMenu homeMenu = HomeMenu(
-      user: user,
-      workspaceSetting: workspaceSetting,
+      user: widget.user,
+      workspaceSetting: widget.workspaceSetting,
       collapsedNotifier: collapasedNotifier,
-      pageContext: pageContext,
-      initialStackContext: initialStackContext,
     );
 
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));

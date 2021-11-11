@@ -21,10 +21,10 @@ import 'package:clipboard/clipboard.dart';
 
 import 'doc_page.dart';
 
-class DocStackContext extends HomeStackContext<String, ShareActionWrapper> {
+class DocStackContext extends HomeStackContext<int, ShareActionWrapper> {
   View _view;
   late IViewListener _listener;
-  final ValueNotifier<String> _isUpdated = ValueNotifier<String>("");
+  final ValueNotifier<int> _isUpdated = ValueNotifier<int>(0);
 
   DocStackContext({required View view, Key? key}) : _view = view {
     _listener = getIt<IViewListener>(param1: view);
@@ -32,7 +32,7 @@ class DocStackContext extends HomeStackContext<String, ShareActionWrapper> {
       result.fold(
         (newView) {
           _view = newView;
-          _isUpdated.value = _view.name;
+          _isUpdated.value = _view.hashCode;
         },
         (error) {},
       );
@@ -59,7 +59,7 @@ class DocStackContext extends HomeStackContext<String, ShareActionWrapper> {
   List<NavigationItem> get navigationItems => _makeNavigationItems();
 
   @override
-  ValueNotifier<String> get isUpdated => _isUpdated;
+  ValueNotifier<int> get isUpdated => _isUpdated;
 
   // List<NavigationItem> get navigationItems => naviStacks.map((stack) {
   //       return NavigationItemImpl(context: stack);
@@ -111,6 +111,7 @@ class _DocLeftBarItemState extends State<DocLeftBarItem> {
 
     final theme = context.watch<AppTheme>();
     return IntrinsicWidth(
+      key: ValueKey(_controller.text),
       child: TextField(
         controller: _controller,
         focusNode: _focusNode,

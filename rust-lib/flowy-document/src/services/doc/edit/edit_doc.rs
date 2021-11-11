@@ -226,7 +226,8 @@ impl ClientEditDoc {
         let _ = rx.await.map_err(internal_error)??;
 
         // update rev id
-        self.rev_manager.set_rev_id(server_rev_id.clone().into());
+        self.rev_manager
+            .update_rev_id_counter_value(server_rev_id.clone().into());
         let (local_base_rev_id, local_rev_id) = self.rev_manager.next_rev_id();
 
         // save the revision

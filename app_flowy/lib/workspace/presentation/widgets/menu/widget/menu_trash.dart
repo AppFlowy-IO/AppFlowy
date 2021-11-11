@@ -18,7 +18,7 @@ class MenuTrash extends StatelessWidget {
       height: 26,
       child: InkWell(
         onTap: () {
-          Provider.of<MenuSharedState>(context, listen: false).selectedView = null;
+          Provider.of<MenuSharedState>(context, listen: false).selectedView.value = null;
           getIt<HomeStackManager>().switchStack(TrashStackContext());
         },
         child: _render(context),
