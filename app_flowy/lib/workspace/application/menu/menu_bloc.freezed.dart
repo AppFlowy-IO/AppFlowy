@@ -859,12 +859,12 @@ class _$MenuStateTearOff {
       {required bool isCollapse,
       required Option<List<App>> apps,
       required Either<Unit, WorkspaceError> successOrFailure,
-      required HomeStackContext<dynamic, dynamic> context}) {
+      required HomeStackContext<dynamic, dynamic> stackContext}) {
     return _MenuState(
       isCollapse: isCollapse,
       apps: apps,
       successOrFailure: successOrFailure,
-      context: context,
+      stackContext: stackContext,
     );
   }
 }
@@ -878,7 +878,7 @@ mixin _$MenuState {
   Option<List<App>> get apps => throw _privateConstructorUsedError;
   Either<Unit, WorkspaceError> get successOrFailure =>
       throw _privateConstructorUsedError;
-  HomeStackContext<dynamic, dynamic> get context =>
+  HomeStackContext<dynamic, dynamic> get stackContext =>
       throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
@@ -894,7 +894,7 @@ abstract class $MenuStateCopyWith<$Res> {
       {bool isCollapse,
       Option<List<App>> apps,
       Either<Unit, WorkspaceError> successOrFailure,
-      HomeStackContext<dynamic, dynamic> context});
+      HomeStackContext<dynamic, dynamic> stackContext});
 }
 
 /// @nodoc
@@ -910,7 +910,7 @@ class _$MenuStateCopyWithImpl<$Res> implements $MenuStateCopyWith<$Res> {
     Object? isCollapse = freezed,
     Object? apps = freezed,
     Object? successOrFailure = freezed,
-    Object? context = freezed,
+    Object? stackContext = freezed,
   }) {
     return _then(_value.copyWith(
       isCollapse: isCollapse == freezed
@@ -925,9 +925,9 @@ class _$MenuStateCopyWithImpl<$Res> implements $MenuStateCopyWith<$Res> {
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
               as Either<Unit, WorkspaceError>,
-      context: context == freezed
-          ? _value.context
-          : context // ignore: cast_nullable_to_non_nullable
+      stackContext: stackContext == freezed
+          ? _value.stackContext
+          : stackContext // ignore: cast_nullable_to_non_nullable
               as HomeStackContext<dynamic, dynamic>,
     ));
   }
@@ -943,7 +943,7 @@ abstract class _$MenuStateCopyWith<$Res> implements $MenuStateCopyWith<$Res> {
       {bool isCollapse,
       Option<List<App>> apps,
       Either<Unit, WorkspaceError> successOrFailure,
-      HomeStackContext<dynamic, dynamic> context});
+      HomeStackContext<dynamic, dynamic> stackContext});
 }
 
 /// @nodoc
@@ -960,7 +960,7 @@ class __$MenuStateCopyWithImpl<$Res> extends _$MenuStateCopyWithImpl<$Res>
     Object? isCollapse = freezed,
     Object? apps = freezed,
     Object? successOrFailure = freezed,
-    Object? context = freezed,
+    Object? stackContext = freezed,
   }) {
     return _then(_MenuState(
       isCollapse: isCollapse == freezed
@@ -975,9 +975,9 @@ class __$MenuStateCopyWithImpl<$Res> extends _$MenuStateCopyWithImpl<$Res>
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
               as Either<Unit, WorkspaceError>,
-      context: context == freezed
-          ? _value.context
-          : context // ignore: cast_nullable_to_non_nullable
+      stackContext: stackContext == freezed
+          ? _value.stackContext
+          : stackContext // ignore: cast_nullable_to_non_nullable
               as HomeStackContext<dynamic, dynamic>,
     ));
   }
@@ -990,7 +990,7 @@ class _$_MenuState implements _MenuState {
       {required this.isCollapse,
       required this.apps,
       required this.successOrFailure,
-      required this.context});
+      required this.stackContext});
 
   @override
   final bool isCollapse;
@@ -999,11 +999,11 @@ class _$_MenuState implements _MenuState {
   @override
   final Either<Unit, WorkspaceError> successOrFailure;
   @override
-  final HomeStackContext<dynamic, dynamic> context;
+  final HomeStackContext<dynamic, dynamic> stackContext;
 
   @override
   String toString() {
-    return 'MenuState(isCollapse: $isCollapse, apps: $apps, successOrFailure: $successOrFailure, context: $context)';
+    return 'MenuState(isCollapse: $isCollapse, apps: $apps, successOrFailure: $successOrFailure, stackContext: $stackContext)';
   }
 
   @override
@@ -1018,8 +1018,9 @@ class _$_MenuState implements _MenuState {
             (identical(other.successOrFailure, successOrFailure) ||
                 const DeepCollectionEquality()
                     .equals(other.successOrFailure, successOrFailure)) &&
-            (identical(other.context, context) ||
-                const DeepCollectionEquality().equals(other.context, context)));
+            (identical(other.stackContext, stackContext) ||
+                const DeepCollectionEquality()
+                    .equals(other.stackContext, stackContext)));
   }
 
   @override
@@ -1028,7 +1029,7 @@ class _$_MenuState implements _MenuState {
       const DeepCollectionEquality().hash(isCollapse) ^
       const DeepCollectionEquality().hash(apps) ^
       const DeepCollectionEquality().hash(successOrFailure) ^
-      const DeepCollectionEquality().hash(context);
+      const DeepCollectionEquality().hash(stackContext);
 
   @JsonKey(ignore: true)
   @override
@@ -1041,7 +1042,7 @@ abstract class _MenuState implements MenuState {
       {required bool isCollapse,
       required Option<List<App>> apps,
       required Either<Unit, WorkspaceError> successOrFailure,
-      required HomeStackContext<dynamic, dynamic> context}) = _$_MenuState;
+      required HomeStackContext<dynamic, dynamic> stackContext}) = _$_MenuState;
 
   @override
   bool get isCollapse => throw _privateConstructorUsedError;
@@ -1051,7 +1052,7 @@ abstract class _MenuState implements MenuState {
   Either<Unit, WorkspaceError> get successOrFailure =>
       throw _privateConstructorUsedError;
   @override
-  HomeStackContext<dynamic, dynamic> get context =>
+  HomeStackContext<dynamic, dynamic> get stackContext =>
       throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)

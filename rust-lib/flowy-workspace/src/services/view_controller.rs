@@ -145,7 +145,7 @@ impl ViewController {
 
         let duplicate_params = CreateViewParams {
             belong_to_id: view.belong_to_id.clone(),
-            name: format!("{}_copy", &view.name),
+            name: format!("{} (copy)", &view.name),
             desc: view.desc.clone(),
             thumbnail: "".to_owned(),
             view_type: view.view_type.clone(),

@@ -52,7 +52,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
   }
 
   Stream<MenuState> _performActionOnOpenPage(OpenPage e) async* {
-    yield state.copyWith(context: e.context);
+    yield state.copyWith(stackContext: e.context);
   }
 
   Stream<MenuState> _performActionOnCreateApp(CreateApp event) async* {
@@ -101,13 +101,13 @@ class MenuState with _$MenuState {
     required bool isCollapse,
     required Option<List<App>> apps,
     required Either<Unit, WorkspaceError> successOrFailure,
-    required HomeStackContext context,
+    required HomeStackContext stackContext,
   }) = _MenuState;
 
   factory MenuState.initial() => MenuState(
         isCollapse: false,
         apps: none(),
         successOrFailure: left(unit),
-        context: BlankStackContext(),
+        stackContext: BlankStackContext(),
       );
 }

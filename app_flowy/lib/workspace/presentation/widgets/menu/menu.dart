@@ -69,9 +69,9 @@ class HomeMenu extends StatelessWidget {
       child: MultiBlocListener(
         listeners: [
           BlocListener<MenuBloc, MenuState>(
-            listenWhen: (p, c) => p.context != c.context,
+            listenWhen: (p, c) => p.stackContext != c.stackContext,
             listener: (context, state) {
-              getIt<HomeStackManager>().switchStack(state.context);
+              getIt<HomeStackManager>().setStack(state.stackContext);
             },
           ),
           BlocListener<MenuBloc, MenuState>(
@@ -92,58 +92,60 @@ class HomeMenu extends StatelessWidget {
       color: Theme.of(context).colorScheme.background,
       child: ChangeNotifierProvider(
         create: (_) => MenuSharedState(view: workspaceSetting.hasLatestView() ? workspaceSetting.latestView : null),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  _renderTopBar(context),
-                  const VSpace(16),
-                  _renderApps(context),
-                ],
-              ).padding(horizontal: Insets.l),
-            ),
-            const VSpace(20),
-            _renderTrash(context).padding(horizontal: Insets.l),
-            const VSpace(20),
-            _renderNewAppButton(context),
-          ],
-        ),
+        child: Consumer(builder: (context, MenuSharedState sharedState, child) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const MenuTopBar(),
+                    const VSpace(16),
+                    _renderApps(context),
+                  ],
+                ).padding(horizontal: Insets.l),
+              ),
+              const VSpace(20),
+              _renderTrash(context).padding(horizontal: Insets.l),
+              const VSpace(20),
+              _renderNewAppButton(context),
+            ],
+          );
+        }),
       ),
     );
   }
 
-  Widget _renderTopBar(BuildContext context) {
-    return const MenuTopBar();
-  }
-
   Widget _renderApps(BuildContext context) {
-    final apps = context.read<MenuBloc>().state.apps;
-    List<Widget> menuItems = [];
-    menuItems.add(MenuUser(user));
-    List<MenuApp> appWidgets = apps.foldRight([], (apps, _) => apps.map((app) => MenuApp(app)).toList());
-    menuItems.addAll(appWidgets);
-
     return ExpandableTheme(
       data: ExpandableThemeData(useInkWell: true, animationDuration: Durations.medium),
       child: Expanded(
         child: ScrollConfiguration(
           behavior: const ScrollBehavior().copyWith(scrollbars: false),
-          child: ListView.separated(
-            itemCount: menuItems.length,
-            separatorBuilder: (context, index) {
-              if (index == 0) {
-                return const VSpace(29);
-              } else {
-                return VSpace(MenuAppSizes.appVPadding);
-              }
+          child: BlocSelector<MenuBloc, MenuState, List<Widget>>(
+            selector: (state) {
+              List<Widget> menuItems = [];
+              menuItems.add(MenuUser(user));
+              List<MenuApp> appWidgets =
+                  state.apps.foldRight([], (apps, _) => apps.map((app) => MenuApp(app)).toList());
+              menuItems.addAll(appWidgets);
+              return menuItems;
             },
-            physics: StyledScrollPhysics(),
-            itemBuilder: (BuildContext context, int index) {
-              return menuItems[index];
-            },
+            builder: (context, menuItems) => ListView.separated(
+              itemCount: menuItems.length,
+              separatorBuilder: (context, index) {
+                if (index == 0) {
+                  return const VSpace(29);
+                } else {
+                  return VSpace(MenuAppSizes.appVPadding);
+                }
+              },
+              physics: StyledScrollPhysics(),
+              itemBuilder: (BuildContext context, int index) {
+                return menuItems[index];
+              },
+            ),
           ),
         ),
       ),
@@ -174,28 +176,4 @@ class MenuSharedState extends ChangeNotifier {
       selectedView.value = view;
     });
   }
-
-  // void addForcedOpenViewListener(void Function(View) callback) {
-  //   super.addListener(() {
-  //     if (_forcedOpenView != null) {
-  //       callback(_forcedOpenView!);
-  //     }
-  //   });
-  // }
-
-  // void addSelectedViewListener(void Function(View?) callback) {
-  //   super.addListener(() {
-  //     callback(_view);
-  //   });
-  // }
-
-  // set forcedOpenView(View? view) {
-  //   if (_forcedOpenView != view) {
-  //     _forcedOpenView = view;
-
-  //     selectedView = view;
-  //     notifyListeners();
-  //   }
-  // }
-
 }

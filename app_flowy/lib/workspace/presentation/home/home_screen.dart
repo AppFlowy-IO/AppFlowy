@@ -5,7 +5,6 @@ import 'package:app_flowy/workspace/presentation/stack_page/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/float_bubble/question_bubble.dart';
 import 'package:app_flowy/workspace/presentation/widgets/prelude.dart';
 import 'package:app_flowy/startup/startup.dart';
-import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_infra_ui/style_widget/container.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
@@ -31,6 +30,17 @@ class _HomeScreenState extends State<HomeScreen> {
   View? initialView;
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant HomeScreen oldWidget) {
+    initialView = null;
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
@@ -54,6 +64,10 @@ class _HomeScreenState extends State<HomeScreen> {
           child: BlocBuilder<HomeBloc, HomeState>(
             buildWhen: (previous, current) => previous != current,
             builder: (context, state) {
+              final collapasedNotifier = getIt<HomeStackManager>().collapsedNotifier;
+              collapasedNotifier.addPublishListener((isCollapsed) {
+                context.read<HomeBloc>().add(HomeEvent.forceCollapse(isCollapsed));
+              });
               return FlowyContainer(
                 Theme.of(context).colorScheme.surface,
                 // Colors.white,
@@ -93,22 +107,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHomeMenu({required HomeLayout layout, required BuildContext context}) {
-    final homeBloc = context.read<HomeBloc>();
-
-    final collapasedNotifier = getIt<HomeStackManager>().collapsedNotifier;
-    collapasedNotifier.addPublishListener((isCollapsed) {
-      homeBloc.add(HomeEvent.forceCollapse(isCollapsed));
-    });
-
     if (initialView == null && widget.workspaceSetting.hasLatestView()) {
       initialView = widget.workspaceSetting.latestView;
-      getIt<HomeStackManager>().switchStack(initialView!.stackContext());
+      getIt<HomeStackManager>().setStack(initialView!.stackContext());
     }
 
     HomeMenu homeMenu = HomeMenu(
       user: widget.user,
       workspaceSetting: widget.workspaceSetting,
-      collapsedNotifier: collapasedNotifier,
+      collapsedNotifier: getIt<HomeStackManager>().collapsedNotifier,
     );
 
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));

@@ -82,7 +82,7 @@ class HomeStackManager {
 
   PublishNotifier<bool> get collapsedNotifier => _notifier.collapsedNotifier;
 
-  void switchStack(HomeStackContext context) {
+  void setStack(HomeStackContext context) {
     _notifier.context = context;
   }
 

@@ -1,4 +1,3 @@
-import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/domain/i_auth.dart';
 import 'package:app_flowy/user/presentation/widgets/background.dart';
 import 'package:app_flowy/workspace/domain/i_user.dart';
@@ -10,7 +9,6 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/protobuf.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

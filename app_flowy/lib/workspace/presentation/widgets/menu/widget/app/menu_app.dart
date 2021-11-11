@@ -8,7 +8,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:provider/provider.dart';
-import 'package:styled_widget/styled_widget.dart';
 import 'section/section.dart';
 
 class MenuApp extends StatefulWidget {
@@ -20,7 +19,13 @@ class MenuApp extends StatefulWidget {
 }
 
 class _MenuAppState extends State<MenuApp> {
-  final notifier = AppDataNotifier();
+  late AppDataNotifier notifier;
+
+  @override
+  void initState() {
+    notifier = AppDataNotifier();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +125,7 @@ class AppDataNotifier extends ChangeNotifier {
   set selectedView(View? view) {
     _selectedView = view;
 
-    if (view != null) {
+    if (view != null && _views.isNotEmpty) {
       final isExpanded = _views.contains(view);
       if (expandController.expanded == false && expandController.expanded != isExpanded) {
         // Workaround: Delay 150 milliseconds to make the smooth animation while expanding

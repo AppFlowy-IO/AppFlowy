@@ -2,7 +2,6 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/application/splash_bloc.dart';
 import 'package:app_flowy/user/domain/auth_state.dart';
 import 'package:app_flowy/user/domain/i_splash.dart';
-import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/errors.pb.dart';
 import 'package:flutter/material.dart';
