@@ -88,7 +88,7 @@ class _MenuAppState extends State<MenuApp> {
     return MultiProvider(
       providers: [ChangeNotifierProvider.value(value: notifier)],
       child: Consumer(builder: (context, AppDataNotifier notifier, child) {
-        return const ViewSection().padding(vertical: 8);
+        return const ViewSection();
       }),
     );
   }

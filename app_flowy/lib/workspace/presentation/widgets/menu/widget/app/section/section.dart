@@ -37,18 +37,24 @@ class ViewSection extends StatelessWidget {
   }
 
   Widget _renderSectionItems(BuildContext context, List<View> views) {
-    var viewWidgets = views.map(
-      (view) => ViewSectionItem(
-        view: view,
-        isSelected: _isViewSelected(context, view.id),
-        onSelected: (view) {
-          context.read<ViewSectionNotifier>().selectedView = view;
-          Provider.of<MenuSharedState>(context, listen: false).selectedView = view;
-        },
-      ).padding(vertical: 4),
-    );
+    List<Widget> viewWidgets = [];
 
-    return Column(children: viewWidgets.toList(growable: false));
+    if (views.isNotEmpty) {
+      viewWidgets = views
+          .map(
+            (view) => ViewSectionItem(
+              view: view,
+              isSelected: _isViewSelected(context, view.id),
+              onSelected: (view) {
+                context.read<ViewSectionNotifier>().selectedView = view;
+                Provider.of<MenuSharedState>(context, listen: false).selectedView = view;
+              },
+            ).padding(vertical: 4),
+          )
+          .toList(growable: false);
+    }
+
+    return Column(children: viewWidgets);
   }
 
   bool _isViewSelected(BuildContext context, String viewId) {
