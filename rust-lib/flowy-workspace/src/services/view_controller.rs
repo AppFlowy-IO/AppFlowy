@@ -124,6 +124,17 @@ impl ViewController {
         Ok(())
     }
 
+    #[tracing::instrument(level = "debug", skip(self,params), fields(doc_id = %params.doc_id), err)]
+    pub(crate) async fn delete_view(&self, params: DocIdentifier) -> Result<(), WorkspaceError> {
+        if let Some(view_id) = KV::get_str(LATEST_VIEW_ID) {
+            if view_id == params.doc_id {
+                KV::remove(LATEST_VIEW_ID);
+            }
+        }
+        let _ = self.document.close(params).await?;
+        Ok(())
+    }
+
     #[tracing::instrument(level = "debug", skip(self, params), fields(doc_id = %params.doc_id), err)]
     pub(crate) async fn duplicate_view(&self, params: DocIdentifier) -> Result<(), WorkspaceError> {
         let view: View = ViewTableSql::read_view(&params.doc_id, &*self.database.db_connection()?)?.into();

@@ -67,7 +67,7 @@ pub(crate) async fn delete_view_handler(
 ) -> Result<(), WorkspaceError> {
     let params: ViewIdentifiers = data.into_inner().try_into()?;
     for view_id in &params.view_ids {
-        let _ = controller.close_view(view_id.into()).await;
+        let _ = controller.delete_view(view_id.into()).await;
     }
 
     let trash = controller
