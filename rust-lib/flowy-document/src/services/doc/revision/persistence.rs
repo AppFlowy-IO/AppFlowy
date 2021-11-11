@@ -206,6 +206,7 @@ async fn fetch_from_local(doc_id: &str, persistence: Arc<Persistence>) -> DocRes
                 let data = op.get_data();
                 if !data.ends_with("\n") {
                     log::error!("The op must end with newline");
+                    log::debug!("Invalid delta: {}", delta.to_json());
                 }
             },
         }

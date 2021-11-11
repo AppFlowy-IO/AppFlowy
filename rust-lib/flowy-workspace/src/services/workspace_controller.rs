@@ -39,6 +39,10 @@ impl WorkspaceController {
         trash_can: Arc<TrashCan>,
         server: Server,
     ) -> Self {
+        if let Ok(token) = user.token() {
+            INIT_WORKSPACE.write().insert(token, false);
+        }
+
         let workspace_sql = Arc::new(WorkspaceTableSql {});
         Self {
             user,
@@ -52,11 +56,13 @@ impl WorkspaceController {
     }
 
     async fn init(&self, token: &str) -> Result<(), WorkspaceError> {
+        log::debug!("Start initializing workspace");
         if let Some(is_init) = INIT_WORKSPACE.read().get(token) {
             if *is_init {
                 return Ok(());
             }
         }
+        log::debug!("Finish initializing workspace");
         INIT_WORKSPACE.write().insert(token.to_owned(), true);
         let _ = self.server.init();
         let _ = self.trash_can.init()?;
