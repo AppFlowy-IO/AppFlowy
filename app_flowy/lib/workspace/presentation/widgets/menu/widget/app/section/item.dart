@@ -56,7 +56,7 @@ class ViewSectionItem extends StatelessWidget {
     List<Widget> children = [
       SizedBox(width: 16, height: 16, child: state.view.thumbnail()),
       const HSpace(2),
-      Expanded(child: FlowyText.regular(state.view.name, fontSize: 12)),
+      Expanded(child: FlowyText.regular(state.view.name, fontSize: 12, overflow: TextOverflow.clip)),
     ];
 
     if (onHover || state.isEditing) {

@@ -101,7 +101,7 @@ class HomeMenu extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     const MenuTopBar(),
-                    const VSpace(16),
+                    const VSpace(10),
                     _renderApps(context),
                   ],
                 ).padding(horizontal: Insets.l),
@@ -136,7 +136,7 @@ class HomeMenu extends StatelessWidget {
               itemCount: menuItems.length,
               separatorBuilder: (context, index) {
                 if (index == 0) {
-                  return const VSpace(29);
+                  return const VSpace(20);
                 } else {
                   return VSpace(MenuAppSizes.appVPadding);
                 }

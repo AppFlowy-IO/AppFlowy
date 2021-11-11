@@ -60,6 +60,10 @@ class _CreateTextFieldDialog extends State<TextFieldDialog> {
             onChanged: (text) {
               newValue = text;
             },
+            onEditingComplete: () {
+              widget.confirm(newValue);
+              AppGlobals.nav.pop();
+            },
           ),
           const VSpace(10),
           OkCancelButton(
