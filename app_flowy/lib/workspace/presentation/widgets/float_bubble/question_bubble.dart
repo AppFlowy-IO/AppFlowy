@@ -36,7 +36,6 @@ class QuestionBubble extends StatelessWidget {
                   _launchURL("https://www.appflowy.io/whatsnew");
                   break;
                 case BubbleAction.help:
-                  // TODO: annie replace the URL with real ones
                   _launchURL("https://discord.gg/9Q2xaN37tV");
                   break;
               }
