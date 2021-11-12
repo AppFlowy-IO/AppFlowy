@@ -122,6 +122,10 @@ class DocBloc extends Bloc<DocEvent, DocState> {
   }
 
   Document _decodeJsonToDocument(String data) {
+    // String d = r'''
+    //     "[{"insert":"\n👋 Welcome to AppFlowy!\n"},{"insert":"\n","attributes":{"header":1}},{"insert":"Here are the basics\n"},{"insert":"C","attributes":{"header":2}},{"insert":"lick anywhere and just start typing\n"},{"insert":"H","attributes":{"list":"unchecked"}},{"insert":"ighlight any text, and use the menu at the bottom to style your writing however you like\n"},{"insert":"C","attributes":{"list":"unchecked"}},{"insert":"lick + New Page button at the bottom of your sidebar to add a new page\n"},{"insert":"C","attributes":{"list":"unchecked"}},{"insert":"lick the +  next to any page title in the sidebar to quickly add a new subpage\n"},{"insert":"\n","attributes":{"list":"unchecked"}},{"insert":"Have a question? \n"},{"insert":"C","attributes":{"header":2}},{"insert":"lick the '?' at the bottom right for help and support.\n\nLike AppFlowy? Follow us:\n"},{"insert":"G","attributes":{"header":2}},{"insert":"ithub: https://github.com/AppFlowy-IO/appflowy\n"},{"insert":"T","attributes":{"blockquote":true}},{"insert":"witter: https://twitter.com/appflowy\n"},{"insert":"N","attributes":{"blockquote":true}},{"insert":"ewsletter: https://www.appflowy.io/blog\n"},{"retain":1,"attributes":{"blockquote":true}},{"insert":"\n"}]"
+    //     ''';
+
     final json = jsonDecode(data);
     final document = Document.fromJson(json);
     return document;

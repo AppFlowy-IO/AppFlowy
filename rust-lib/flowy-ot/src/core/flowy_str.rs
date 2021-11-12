@@ -7,9 +7,7 @@ pub struct FlowyStr(pub String);
 impl FlowyStr {
     pub fn count_utf16_code_units(&self) -> usize { count_utf16_code_units(&self.0) }
 
-    pub fn utf16_iter(&self) -> FlowyUtf16Iterator { FlowyUtf16Iterator::new(self, 0) }
-
-    pub fn code_point_iter(&self) -> CodePointIterator { CodePointIterator::new(self) }
+    pub fn iter(&self) -> FlowyUtf16Iterator { FlowyUtf16Iterator::new(self, 0) }
 
     pub fn sub_str(&self, interval: Interval) -> String {
         match self.with_interval(interval) {
@@ -232,7 +230,7 @@ mod tests {
     #[test]
     fn flowy_str_utf16_test() {
         let s: FlowyStr = "👋😁👋😁".into();
-        let mut iter = s.utf16_iter();
+        let mut iter = s.iter();
         assert_eq!(iter.next().unwrap(), "👋".to_string());
         assert_eq!(iter.next().unwrap(), "😁".to_string());
         assert_eq!(iter.next().unwrap(), "👋".to_string());
@@ -243,7 +241,7 @@ mod tests {
     #[test]
     fn flowy_str_utf16_iter_test() {
         let s: FlowyStr = "👋👋😁😁👋👋".into();
-        let iter = s.utf16_iter();
+        let iter = s.iter();
         let result = iter.skip(2).take(2).collect::<String>();
         assert_eq!(result, "😁😁".to_string());
     }
