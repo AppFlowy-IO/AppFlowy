@@ -34,7 +34,7 @@ You are in charge of your data and customizations.
 
 ## Stay Up-to-Date
 
-GIF (how to star)
+<p align="center"><img src="https://github.com/AppFlowy-IO/appflowy/blob/main/doc/imgs/howtostar.gif" alt="AppFlowy Github" width="1000px" /></p>
 
 ## Getting Started
 
