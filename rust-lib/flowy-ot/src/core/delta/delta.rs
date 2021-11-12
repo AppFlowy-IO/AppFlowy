@@ -1,8 +1,7 @@
 use crate::{
-    core::{attributes::*, operation::*, DeltaIter, Interval, OperationTransformable, MAX_IV_LEN},
+    core::{attributes::*, operation::*, DeltaIter, FlowyStr, Interval, OperationTransformable, MAX_IV_LEN},
     errors::{ErrorBuilder, OTError, OTErrorCode},
 };
-use bytecount::num_chars;
 use bytes::Bytes;
 use std::{
     cmp::{min, Ordering},
@@ -127,26 +126,27 @@ impl Delta {
     }
 
     pub fn insert(&mut self, s: &str, attributes: Attributes) {
+        let s: FlowyStr = s.into();
         if s.is_empty() {
             return;
         }
 
-        self.target_len += num_chars(s.as_bytes());
+        self.target_len += s.count_utf16_code_units();
         let new_last = match self.ops.as_mut_slice() {
             [.., Operation::Insert(insert)] => {
                 //
-                insert.merge_or_new_op(s, attributes)
+                insert.merge_or_new_op(&s, attributes)
             },
             [.., Operation::Insert(pre_insert), Operation::Delete(_)] => {
                 //
-                pre_insert.merge_or_new_op(s, attributes)
+                pre_insert.merge_or_new_op(&s, attributes)
             },
             [.., op_last @ Operation::Delete(_)] => {
                 let new_last = op_last.clone();
-                *op_last = OpBuilder::insert(s).attributes(attributes).build();
+                *op_last = OpBuilder::insert(&s).attributes(attributes).build();
                 Some(new_last)
             },
-            _ => Some(OpBuilder::insert(s).attributes(attributes).build()),
+            _ => Some(OpBuilder::insert(&s).attributes(attributes).build()),
         };
 
         match new_last {
@@ -173,7 +173,8 @@ impl Delta {
 
     /// Applies an operation to a string, returning a new string.
     pub fn apply(&self, s: &str) -> Result<String, OTError> {
-        if num_chars(s.as_bytes()) != self.base_len {
+        let s: FlowyStr = s.into();
+        if s.count_utf16_code_units() != self.base_len {
             return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength).build());
         }
         let mut new_s = String::new();
@@ -214,7 +215,7 @@ impl Delta {
                     }
                 },
                 Operation::Insert(insert) => {
-                    inverted.delete(insert.num_chars());
+                    inverted.delete(insert.count_of_code_units());
                 },
                 Operation::Delete(delete) => {
                     inverted.insert(&chars.take(*delete as usize).collect::<String>(), op.get_attributes());
@@ -325,12 +326,12 @@ impl OperationTransformable for Delta {
                 (Some(Operation::Insert(insert)), _) => {
                     // let composed_attrs = transform_attributes(&next_op1, &next_op2, true);
                     a_prime.insert(&insert.s, insert.attributes.clone());
-                    b_prime.retain(insert.num_chars(), insert.attributes.clone());
+                    b_prime.retain(insert.count_of_code_units(), insert.attributes.clone());
                     next_op1 = ops1.next();
                 },
                 (_, Some(Operation::Insert(o_insert))) => {
                     let composed_attrs = transform_op_attribute(&next_op1, &next_op2);
-                    a_prime.retain(o_insert.num_chars(), composed_attrs.clone());
+                    a_prime.retain(o_insert.count_of_code_units(), composed_attrs.clone());
                     b_prime.insert(&o_insert.s, composed_attrs);
                     next_op2 = ops2.next();
                 },
@@ -417,7 +418,6 @@ impl OperationTransformable for Delta {
                 },
             }
         }
-
         Ok((a_prime, b_prime))
     }
 

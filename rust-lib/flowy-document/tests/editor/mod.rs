@@ -247,7 +247,7 @@ impl TestBuilder {
             },
             TestOp::DocComposeDelta(doc_index, delta_i) => {
                 let delta = self.deltas.get(*delta_i).unwrap().as_ref().unwrap();
-                self.documents[*doc_index].compose_delta(delta).unwrap();
+                self.documents[*doc_index].compose_delta(delta.clone()).unwrap();
             },
             TestOp::DocComposePrime(doc_index, prime_i) => {
                 let delta = self

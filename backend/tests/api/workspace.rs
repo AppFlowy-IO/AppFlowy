@@ -58,7 +58,7 @@ async fn workspace_update() {
 async fn workspace_delete() {
     let test = WorkspaceTest::new().await;
     let delete_params = WorkspaceIdentifier {
-        workspace_id: test.workspace.id.clone(),
+        workspace_id: Some(test.workspace.id.clone()),
     };
 
     let _ = test.server.delete_workspace(delete_params).await;

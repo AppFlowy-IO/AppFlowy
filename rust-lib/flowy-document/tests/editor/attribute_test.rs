@@ -1,8 +1,8 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
 use crate::editor::{TestBuilder, TestOp::*};
 use flowy_document::services::doc::{FlowyDoc, PlainDoc};
-use flowy_ot::core::{Delta, Interval, OperationTransformable, NEW_LINE, WHITESPACE};
-
+use flowy_ot::core::{Delta, Interval, OperationTransformable, NEW_LINE, WHITESPACE, FlowyStr};
+use unicode_segmentation::UnicodeSegmentation;
 
 #[test]
 fn attributes_bold_added() {
@@ -716,6 +716,25 @@ fn attributes_preserve_header_format_on_merge() {
         AssertDocJson(0, r#"[{"insert":"123456"},{"insert":"\n","attributes":{"header":1}}]"#),
     ];
 
+    TestBuilder::new().run_script::<FlowyDoc>(ops);
+}
+
+#[test]
+fn attributes_format_emoji() {
+    let emoji_s = "👋 ";
+    let s: FlowyStr = emoji_s.into();
+    let len = s.count_utf16_code_units();
+    assert_eq!(3, len);
+    assert_eq!(2, s.graphemes(true).count());
+    let ops = vec![
+        Insert(0, emoji_s, 0),
+        AssertDocJson(0, r#"[{"insert":"👋 \n"}]"#),
+        Header(0, Interval::new(0, len), 1),
+        AssertDocJson(
+            0,
+            r#"[{"insert":"👋 "},{"insert":"\n","attributes":{"header":1}}]"#,
+        ),
+    ];
     TestBuilder::new().run_script::<FlowyDoc>(ops);
 }
 

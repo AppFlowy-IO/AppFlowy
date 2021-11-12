@@ -1,4 +1,5 @@
 use super::extensions::*;
+use crate::services::doc::trim;
 use flowy_ot::{
     core::{Attribute, Delta, Interval},
     errors::{ErrorBuilder, OTError, OTErrorCode},
@@ -24,7 +25,8 @@ impl View {
     pub(crate) fn insert(&self, delta: &Delta, text: &str, interval: Interval) -> Result<Delta, OTError> {
         let mut new_delta = None;
         for ext in &self.insert_exts {
-            if let Some(delta) = ext.apply(delta, interval.size(), text, interval.start) {
+            if let Some(mut delta) = ext.apply(delta, interval.size(), text, interval.start) {
+                trim(&mut delta);
                 tracing::trace!("[{}]: applied, delta: {}", ext.ext_name(), delta);
                 new_delta = Some(delta);
                 break;
@@ -40,7 +42,8 @@ impl View {
     pub(crate) fn delete(&self, delta: &Delta, interval: Interval) -> Result<Delta, OTError> {
         let mut new_delta = None;
         for ext in &self.delete_exts {
-            if let Some(delta) = ext.apply(delta, interval) {
+            if let Some(mut delta) = ext.apply(delta, interval) {
+                trim(&mut delta);
                 tracing::trace!("[{}]: applied, delta: {}", ext.ext_name(), delta);
                 new_delta = Some(delta);
                 break;
@@ -56,7 +59,8 @@ impl View {
     pub(crate) fn format(&self, delta: &Delta, attribute: Attribute, interval: Interval) -> Result<Delta, OTError> {
         let mut new_delta = None;
         for ext in &self.format_exts {
-            if let Some(delta) = ext.apply(delta, interval, &attribute) {
+            if let Some(mut delta) = ext.apply(delta, interval, &attribute) {
+                trim(&mut delta);
                 tracing::trace!("[{}]: applied, delta: {}", ext.ext_name(), delta);
                 new_delta = Some(delta);
                 break;

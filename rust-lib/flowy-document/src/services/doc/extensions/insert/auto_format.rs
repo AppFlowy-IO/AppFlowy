@@ -1,9 +1,7 @@
 use std::cmp::min;
-
-use bytecount::num_chars;
 use url::Url;
 
-use flowy_ot::core::{plain_attributes, Attribute, Attributes, Delta, DeltaBuilder, DeltaIter};
+use flowy_ot::core::{count_utf16_code_units, plain_attributes, Attribute, Attributes, Delta, DeltaBuilder, DeltaIter};
 
 use crate::services::{doc::extensions::InsertExt, util::is_whitespace};
 
@@ -70,7 +68,7 @@ impl AutoFormatter {
             AutoFormatter::Url(url) => url.to_string(),
         };
 
-        num_chars(s.as_bytes())
+        count_utf16_code_units(&s)
     }
 }
 

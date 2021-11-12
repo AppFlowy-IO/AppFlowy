@@ -104,10 +104,6 @@ impl DocumentActor {
                 let data = self.document.read().await.to_json();
                 let _ = ret.send(Ok(data));
             },
-            DocumentMsg::SaveDocument { rev_id: _, ret } => {
-                // let result = self.save_to_disk(rev_id).await;
-                let _ = ret.send(Ok(()));
-            },
         }
         Ok(())
     }
@@ -116,11 +112,12 @@ impl DocumentActor {
     async fn composed_delta(&self, delta: Delta) -> DocResult<()> {
         // tracing::debug!("{:?} thread handle_message", thread::current(),);
         let mut document = self.document.write().await;
-        let result = document.compose_delta(&delta);
         tracing::Span::current().record(
             "composed_delta",
             &format!("doc_id:{} - {}", &self.doc_id, delta.to_json()).as_str(),
         );
+
+        let result = document.compose_delta(delta);
         drop(document);
 
         result

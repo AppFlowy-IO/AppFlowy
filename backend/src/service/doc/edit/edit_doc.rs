@@ -181,7 +181,7 @@ impl ServerEditDoc {
                 log::error!("Failed to acquire write lock of document");
             },
             Some(mut write_guard) => {
-                let _ = write_guard.compose_delta(&delta).map_err(internal_error)?;
+                let _ = write_guard.compose_delta(delta).map_err(internal_error)?;
                 tracing::Span::current().record("result", &write_guard.to_json().as_str());
             },
         }

@@ -162,7 +162,7 @@ impl<'a> Iterator for AttributesIter<'a> {
             Operation::Insert(insert) => {
                 tracing::trace!("extend insert attributes with {} ", &insert.attributes);
                 attributes.extend(insert.attributes.clone());
-                length = insert.num_chars();
+                length = insert.count_of_code_units();
             },
         }
 

@@ -77,9 +77,10 @@ impl Document {
         }
     }
 
-    pub fn compose_delta(&mut self, delta: &Delta) -> Result<(), DocError> {
+    pub fn compose_delta(&mut self, mut delta: Delta) -> Result<(), DocError> {
+        trim(&mut delta);
         tracing::trace!("{} compose {}", &self.delta.to_json(), delta.to_json());
-        let composed_delta = self.delta.compose(delta)?;
+        let mut composed_delta = self.delta.compose(&delta)?;
         let mut undo_delta = delta.invert(&self.delta);
 
         let now = chrono::Utc::now().timestamp_millis() as usize;
@@ -100,6 +101,8 @@ impl Document {
         }
 
         tracing::trace!("compose result: {}", composed_delta.to_json());
+        trim(&mut composed_delta);
+
         self.set_delta(composed_delta);
         Ok(())
     }
@@ -111,7 +114,7 @@ impl Document {
         let text = data.to_string();
         let delta = self.view.insert(&self.delta, &text, interval)?;
         tracing::trace!("👉 receive change: {}", delta);
-        self.compose_delta(&delta)?;
+        self.compose_delta(delta.clone())?;
         Ok(delta)
     }
 
@@ -121,7 +124,7 @@ impl Document {
         let delete = self.view.delete(&self.delta, interval)?;
         if !delete.is_empty() {
             tracing::trace!("👉 receive change: {}", delete);
-            let _ = self.compose_delta(&delete)?;
+            let _ = self.compose_delta(delete.clone())?;
         }
         Ok(delete)
     }
@@ -132,7 +135,7 @@ impl Document {
         let format_delta = self.view.format(&self.delta, attribute.clone(), interval).unwrap();
 
         tracing::trace!("👉 receive change: {}", format_delta);
-        self.compose_delta(&format_delta)?;
+        self.compose_delta(format_delta.clone())?;
         Ok(format_delta)
     }
 
@@ -143,7 +146,7 @@ impl Document {
         if !text.is_empty() {
             delta = self.view.insert(&self.delta, &text, interval)?;
             tracing::trace!("👉 receive change: {}", delta);
-            self.compose_delta(&delta)?;
+            self.compose_delta(delta.clone())?;
         }
 
         if !interval.is_empty() {
@@ -205,4 +208,13 @@ fn validate_interval(delta: &Delta, interval: &Interval) -> Result<(), DocError>
         return Err(DocError::out_of_bound());
     }
     Ok(())
+}
+
+/// Removes trailing retain operation with empty attributes, if present.
+pub fn trim(delta: &mut Delta) {
+    if let Some(last) = delta.ops.last() {
+        if last.is_retain() && last.is_plain() {
+            delta.ops.pop();
+        }
+    }
 }

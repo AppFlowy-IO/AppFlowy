@@ -72,8 +72,8 @@ impl ClientEditDoc {
         };
         let _ = self.document.send(msg);
         let delta = rx.await.map_err(internal_error)??;
-        let rev_id = self.save_local_delta(delta).await?;
-        save_document(self.document.clone(), rev_id.into()).await
+        let _ = self.save_local_delta(delta).await?;
+        Ok(())
     }
 
     pub async fn delete(&self, interval: Interval) -> Result<(), DocError> {
@@ -171,8 +171,8 @@ impl ClientEditDoc {
         let _ = self.document.send(msg);
         let _ = rx.await.map_err(internal_error)??;
 
-        let rev_id = self.save_local_delta(delta).await?;
-        save_document(self.document.clone(), rev_id).await
+        let _ = self.save_local_delta(delta).await?;
+        Ok(())
     }
 
     #[cfg(feature = "flowy_test")]
@@ -249,8 +249,6 @@ impl ClientEditDoc {
             RevType::Remote,
         );
         let _ = self.ws.send(revision.into());
-
-        let _ = save_document(self.document.clone(), local_rev_id.into()).await?;
         Ok(())
     }
 
@@ -309,13 +307,6 @@ fn spawn_rev_receiver(mut receiver: mpsc::UnboundedReceiver<Revision>, ws: Arc<d
             }
         }
     });
-}
-
-async fn save_document(document: UnboundedSender<DocumentMsg>, rev_id: RevId) -> DocResult<()> {
-    let (ret, rx) = oneshot::channel::<DocResult<()>>();
-    let _ = document.send(DocumentMsg::SaveDocument { rev_id, ret });
-    let result = rx.await.map_err(internal_error)?;
-    result
 }
 
 fn spawn_doc_edit_actor(doc_id: &str, delta: Delta, _pool: Arc<ConnectionPool>) -> UnboundedSender<DocumentMsg> {

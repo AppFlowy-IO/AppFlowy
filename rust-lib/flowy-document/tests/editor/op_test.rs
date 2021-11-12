@@ -1,5 +1,4 @@
 use crate::editor::{Rng, TestBuilder, TestOp::*};
-use bytecount::num_chars;
 use flowy_document::services::doc::{FlowyDoc, PlainDoc};
 use flowy_ot::core::*;
 
@@ -326,9 +325,9 @@ fn sequence() {
 fn apply_1000() {
     for _ in 0..1000 {
         let mut rng = Rng::default();
-        let s = rng.gen_string(50);
+        let s: FlowyStr = rng.gen_string(50).into();
         let delta = rng.gen_delta(&s);
-        assert_eq!(num_chars(s.as_bytes()), delta.base_len);
+        assert_eq!(s.count_utf16_code_units(), delta.base_len);
         assert_eq!(delta.apply(&s).unwrap().chars().count(), delta.target_len);
     }
 }
@@ -441,16 +440,16 @@ fn compose() {
         let mut rng = Rng::default();
         let s = rng.gen_string(20);
         let a = rng.gen_delta(&s);
-        let after_a = a.apply(&s).unwrap();
-        assert_eq!(a.target_len, num_chars(after_a.as_bytes()));
+        let after_a: FlowyStr = a.apply(&s).unwrap().into();
+        assert_eq!(a.target_len, after_a.count_utf16_code_units());
 
         let b = rng.gen_delta(&after_a);
-        let after_b = b.apply(&after_a).unwrap();
-        assert_eq!(b.target_len, num_chars(after_b.as_bytes()));
+        let after_b: FlowyStr = b.apply(&after_a).unwrap().into();
+        assert_eq!(b.target_len, after_b.count_utf16_code_units());
 
         let ab = a.compose(&b).unwrap();
         assert_eq!(ab.target_len, b.target_len);
-        let after_ab = ab.apply(&s).unwrap();
+        let after_ab: FlowyStr = ab.apply(&s).unwrap().into();
         assert_eq!(after_b, after_ab);
     }
 }

@@ -50,10 +50,6 @@ pub enum DocumentMsg {
     Doc {
         ret: Ret<String>,
     },
-    SaveDocument {
-        rev_id: RevId,
-        ret: Ret<()>,
-    },
 }
 
 pub struct TransformDeltas {

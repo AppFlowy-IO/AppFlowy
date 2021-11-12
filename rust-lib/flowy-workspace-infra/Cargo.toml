@@ -9,7 +9,7 @@ edition = "2018"
 flowy-derive = { path = "../flowy-derive" }
 protobuf = {version = "2.18.0"}
 bytes = "1.0"
-unicode-segmentation = "1.7.1"
+unicode-segmentation = "1.8"
 strum = "0.21"
 strum_macros = "0.21"
 derive_more = {version = "0.99", features = ["display"]}

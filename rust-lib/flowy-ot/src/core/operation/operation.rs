@@ -1,11 +1,9 @@
-use crate::core::{Attribute, Attributes, Interval, OpBuilder};
-use bytecount::num_chars;
+use crate::core::{Attribute, Attributes, FlowyStr, Interval, OpBuilder};
 use serde::__private::Formatter;
 use std::{
     cmp::min,
     fmt,
     ops::{Deref, DerefMut},
-    str::Chars,
 };
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -47,11 +45,12 @@ impl Operation {
     }
 
     pub fn len(&self) -> usize {
-        match self {
+        let len = match self {
             Operation::Delete(n) => *n,
             Operation::Retain(r) => r.n,
-            Operation::Insert(i) => i.num_chars(),
-        }
+            Operation::Insert(i) => i.count_of_code_units(),
+        };
+        len
     }
 
     pub fn is_empty(&self) -> bool { self.len() == 0 }
@@ -78,7 +77,7 @@ impl Operation {
                         .build(),
                 );
                 right = Some(
-                    OpBuilder::insert(&insert.s[index..insert.num_chars()])
+                    OpBuilder::insert(&insert.s[index..insert.count_of_code_units()])
                         .attributes(attributes)
                         .build(),
                 );
@@ -95,13 +94,18 @@ impl Operation {
                 .attributes(retain.attributes.clone())
                 .build(),
             Operation::Insert(insert) => {
-                if interval.start > insert.num_chars() {
+                if interval.start > insert.count_of_code_units() {
                     OpBuilder::insert("").build()
                 } else {
-                    let chars = insert.chars().skip(interval.start);
-                    let s = &chars.take(min(interval.size(), insert.num_chars())).collect::<String>();
+                    // let s = &insert
+                    //     .s
+                    //     .chars()
+                    //     .skip(interval.start)
+                    //     .take(min(interval.size(), insert.count_of_code_units()))
+                    //     .collect::<String>();
 
-                    OpBuilder::insert(s).attributes(insert.attributes.clone()).build()
+                    let s = insert.s.sub_str(interval);
+                    OpBuilder::insert(&s).attributes(insert.attributes.clone()).build()
                 }
             },
         };
@@ -131,6 +135,14 @@ impl Operation {
             return true;
         }
         false
+    }
+
+    pub fn is_plain(&self) -> bool {
+        match self {
+            Operation::Delete(_) => true,
+            Operation::Retain(retain) => retain.is_plain(),
+            Operation::Insert(insert) => insert.is_plain(),
+        }
     }
 }
 
@@ -212,7 +224,7 @@ impl DerefMut for Retain {
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Insert {
     #[serde(rename(serialize = "insert", deserialize = "insert"))]
-    pub s: String,
+    pub s: FlowyStr,
 
     #[serde(skip_serializing_if = "is_empty")]
     pub attributes: Attributes,
@@ -224,7 +236,7 @@ impl fmt::Display for Insert {
         if s.ends_with("\n") {
             s.pop();
             if s.is_empty() {
-                s = "new_line".to_owned();
+                s = "new_line".into();
             }
         }
 
@@ -237,11 +249,7 @@ impl fmt::Display for Insert {
 }
 
 impl Insert {
-    pub fn as_bytes(&self) -> &[u8] { self.s.as_bytes() }
-
-    pub fn chars(&self) -> Chars<'_> { self.s.chars() }
-
-    pub fn num_chars(&self) -> usize { num_chars(self.s.as_bytes()) as _ }
+    pub fn count_of_code_units(&self) -> usize { self.s.count_utf16_code_units() }
 
     pub fn merge_or_new_op(&mut self, s: &str, attributes: Attributes) -> Option<Operation> {
         if self.attributes == attributes {
@@ -251,12 +259,14 @@ impl Insert {
             Some(OpBuilder::insert(s).attributes(attributes).build())
         }
     }
+
+    pub fn is_plain(&self) -> bool { self.attributes.is_empty() }
 }
 
 impl std::convert::From<String> for Insert {
     fn from(s: String) -> Self {
         Insert {
-            s,
+            s: s.into(),
             attributes: Attributes::default(),
         }
     }
@@ -265,4 +275,14 @@ impl std::convert::From<String> for Insert {
 impl std::convert::From<&str> for Insert {
     fn from(s: &str) -> Self { Insert::from(s.to_owned()) }
 }
+
+impl std::convert::From<FlowyStr> for Insert {
+    fn from(s: FlowyStr) -> Self {
+        Insert {
+            s,
+            attributes: Attributes::default(),
+        }
+    }
+}
+
 fn is_empty(attributes: &Attributes) -> bool { attributes.is_empty() }
