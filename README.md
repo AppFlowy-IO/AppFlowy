@@ -22,7 +22,7 @@ You are in charge of your data and customizations.
     <a href="https://twitter.com/appflowy"><b>Twitter</b></a> •
 </p>  
 
-<p align="center"><img src="" alt="The Open Source Notion Alternative." width="1000px" /></p>
+<p align="center"><img src="https://github.com/AppFlowy-IO/appflowy/blob/main/doc/imgs/welcome.png" alt="The Open Source Notion Alternative." width="1000px" /></p>
 
 
 
