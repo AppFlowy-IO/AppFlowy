@@ -218,3 +218,15 @@ pub fn trim(delta: &mut Delta) {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use flowy_ot::core::Delta;
+
+    #[test]
+    fn load_read_me() {
+        let json = include_str!("../../../READ_ME.json");
+        let delta = Delta::from_json(json).unwrap();
+        assert_eq!(delta.to_json(), json);
+    }
+}

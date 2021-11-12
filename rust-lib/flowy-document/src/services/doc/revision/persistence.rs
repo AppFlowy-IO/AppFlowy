@@ -191,14 +191,11 @@ async fn fetch_from_local(doc_id: &str, persistence: Arc<Persistence>) -> DocRes
         let rev_id: RevId = revisions.last().unwrap().rev_id.into();
         let mut delta = Delta::new();
         let mut pre_rev_id = 0;
-        for (index, revision) in revisions.into_iter().enumerate() {
-            if cfg!(debug_assertions) {
-                if index == 0 {
-                    pre_rev_id = revision.rev_id;
-                } else {
-                    validate_rev_id(pre_rev_id, revision.rev_id);
-                }
-            }
+        for (_, revision) in revisions.into_iter().enumerate() {
+            pre_rev_id = revision.rev_id;
+
+            #[cfg(debug_assertions)]
+            validate_rev_id(pre_rev_id, revision.rev_id);
 
             match Delta::from_bytes(revision.delta_data) {
                 Ok(local_delta) => {
@@ -210,9 +207,8 @@ async fn fetch_from_local(doc_id: &str, persistence: Arc<Persistence>) -> DocRes
             }
         }
 
-        if cfg!(debug_assertions) {
-            validate_delta(&doc_id, persistence, conn, &delta);
-        }
+        #[cfg(debug_assertions)]
+        validate_delta(&doc_id, persistence, conn, &delta);
 
         match delta.ops.last() {
             None => {},
