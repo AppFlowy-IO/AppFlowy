@@ -28,7 +28,7 @@ pub fn create_default_workspace(time: chrono::DateTime<Utc>) -> Workspace {
 
 fn create_default_app(workspace_id: String, time: chrono::DateTime<Utc>) -> App {
     let app_id = uuid::Uuid::new_v4();
-    let name = "Getting Started".to_string();
+    let name = "⭐️ Getting started".to_string();
     let desc = "".to_string();
 
     let views = RepeatedView {

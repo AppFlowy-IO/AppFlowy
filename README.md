@@ -52,7 +52,7 @@ How to build on MacOS, please follow these simple steps.
 - `cargo make install_targets`
 
 >
-> 
+>
 > 🚀 Skip install_rust or install_cargo_make if you already installed it. 
 > FYI, AppFlowy uses [https://github.com/sagiegurari/cargo-make](https://github.com/sagiegurari/cargo-make) to construct the build scripts
 
