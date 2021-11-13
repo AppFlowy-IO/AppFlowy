@@ -5,7 +5,14 @@
     ⭐️ The Open Source Notion Alternative ⭐️ <br>
 </h1>
 
-[![Discord](https://img.shields.io/badge/AppFlowy.IO-discord-orange)](https://discord.gg/9Q2xaN37tV)
+
+<p align="center">
+<a href="https://discord.gg/9Q2xaN37tV"><img src="https://img.shields.io/badge/AppFlowy.IO-discord-orange"></a>
+<a href="https://github.com/AppFlowy-IO/appflowy"><img src="https://img.shields.io/github/stars/AppFlowy-IO/appflowy.svg?style=flat&logo=github&colorB=deeppink&label=stars"></a>
+<a href="https://github.com/AppFlowy-IO/appflowy"><img src="https://img.shields.io/github/forks/AppFlowy-IO/appflowy.svg"></a>
+<a href="https://opensource.org/licenses/AGPL-3.0"><img src="https://img.shields.io/badge/license-APGL-purple.svg" alt="License: AGPL"></a>
+
+</p>
 
 
 
@@ -18,6 +25,10 @@ You are in charge of your data and customizations.
     <a href="http://www.appflowy.io"><b>Website</b></a> •
     <a href="https://discord.gg/9Q2xaN37tV"><b>Discord</b></a> •
     <a href="https://twitter.com/appflowy"><b>Twitter</b></a> •
+    
+    
+
+    
 </p>  
 
 <p align="center"><img src="https://github.com/AppFlowy-IO/appflowy/blob/main/doc/imgs/welcome.png" alt="The Open Source Notion Alternative." width="1000px" /></p>
