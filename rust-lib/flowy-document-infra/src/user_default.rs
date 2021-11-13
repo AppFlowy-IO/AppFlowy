@@ -16,7 +16,6 @@ pub fn initial_read_me() -> Delta {
 #[cfg(test)]
 mod tests {
     use crate::user_default::initial_read_me;
-    use flowy_ot::core::Delta;
 
     #[test]
     fn load_read_me() {

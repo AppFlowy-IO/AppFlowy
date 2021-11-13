@@ -38,9 +38,7 @@ You are in charge of your data and customizations.
 
 ## Getting Started
 
-To get a local copy up and running, please follow these simple steps.
-
-Development environment setup:
+How to build on MacOS, please follow these simple steps.
 
 **Step 1:**
 
@@ -50,24 +48,19 @@ Development environment setup:
 
 - `cd appflowy`
 - `make install_rust`
+- `make install_cargo_make`
+- `cargo make install_targets`
 
-> skip if you already installed it
+>
 > 
-- `make nstall_cargo_make`
-
-> AppFlowy uses [https://github.com/sagiegurari/cargo-make](https://github.com/sagiegurari/cargo-make) to construct the build scripts
-> 
-- `cargo make flowy_dev`
-> It's located at xxx/appflowy/scripts/makefile/env.toml. `flowy_dev` consists of three tasks:
-> * `install_targets`
-> * `install_diesel`
-> * `install_protobuf`
+> 🚀 Skip install_rust or install_cargo_make if you already installed it. 
+> FYI, AppFlowy uses [https://github.com/sagiegurari/cargo-make](https://github.com/sagiegurari/cargo-make) to construct the build scripts
 
 **Step 3:**
 
-* Follow the instructions [here](https://flutter.dev/docs/get-started/install) to install Flutter. As AppFlowy uses the `dev` channel, you need to switch the channel. Just type:
+Follow the instructions [here](https://flutter.dev/docs/get-started/install) to install Flutter. As AppFlowy uses the `dev` channel, you need to switch the channel. Just type:
 
-`flutter channel dev`
+* `flutter channel dev`
 
 **Step 4:**
 
