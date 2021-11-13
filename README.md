@@ -64,7 +64,7 @@ Follow the instructions [here](https://flutter.dev/docs/get-started/install) to 
 
 **Step 4:**
 
-* Open the `app_flowy` folder located at xx/appflowy/app_flowy with Visual Studio or other IDEs at your disposal
+* Open the `app_flowy` folder located at xx/appflowy/app_flowy with Visual Studio or other IDEs at your disposal.
 * Go to the Run and Debug tab and then click the run button.
 ![Run the project](https://github.com/AppFlowy-IO/appflowy/blob/main/doc/imgs/run.png)
 
@@ -72,7 +72,7 @@ Follow the instructions [here](https://flutter.dev/docs/get-started/install) to 
 
 [AppFlowy Roadmap](https://trello.com/b/NCyXCXXh/appflowy-roadmap)
 
-If you'd like to propose a feature, submit an issue [here](https://github.com/AppFlowy-IO/appflowy/issues)
+If you'd like to propose a feature, submit an issue [here](https://github.com/AppFlowy-IO/appflowy/issues).
 
 ## **Releases**
 
