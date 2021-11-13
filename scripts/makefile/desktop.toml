@@ -18,9 +18,9 @@ script = [
     cd rust-lib/
     if [ ${PROD} == true ]
     then
-      cargo build --${BUILD_FLAG} --package=dart-ffi --target ${DESKTOP_TARGET} --features=${FEATURES}
+      cargo build --${BUILD_FLAG} --package=dart-ffi --target ${DEPLOY_TARGET} --features=${FEATURES}
     else
-      cargo build --package=dart-ffi --target ${DESKTOP_TARGET} --features=${FEATURES}
+      cargo build --package=dart-ffi --target ${DEPLOY_TARGET} --features=${FEATURES}
     fi
     cd ../
   """,
@@ -33,7 +33,7 @@ condition = { platforms = ["mac"] }
 script = [
   """
     echo "🚀 🚀 🚀  Flowy-SDK build success"
-    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/x86_64-apple-darwin/${BUILD_FLAG}/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib \
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${DEPLOY_TARGET}/${BUILD_FLAG}/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib \
     ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages/flowy_sdk/macos/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib
   """,
   """
@@ -51,7 +51,7 @@ script = [
   # post the dylib target_path that use for flutter unit test
   target_path = set ${TMPDIR}/appflowy_client/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib
     rm ${target_path}
-    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/x86_64-apple-darwin/${BUILD_FLAG}/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib ${target_path}
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${DEPLOY_TARGET}/${BUILD_FLAG}/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib ${target_path}
   """,
 ]
 script_runner = "@duckscript"
