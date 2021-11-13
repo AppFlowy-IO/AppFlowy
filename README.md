@@ -5,16 +5,14 @@
     ⭐️ The Open Source Notion Alternative ⭐️ <br>
 </h1>
 
+[![Discord](https://img.shields.io/badge/AppFlowy.IO-discord-orange)](https://discord.gg/9Q2xaN37tV)
+
+
+
 <p align="center">
 You are in charge of your data and customizations.
 </p>
 
-
-<div align="center">
- 
-![GitHub stars](https://img.shields.io/github/stars/{AppFlowy-IO}/{appflowy}.svg)
-
-</div>
 
 <p align="center">
     <a href="http://www.appflowy.io"><b>Website</b></a> •
