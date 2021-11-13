@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 //import 'package:flowy_infra_ui/style_widget/icon_button.dart';
-import 'package:avatars/avatars.dart';
 
 class MenuUser extends StatelessWidget {
   final UserProfile user;
@@ -36,17 +35,22 @@ class MenuUser extends StatelessWidget {
   }
 
   Widget _renderAvatar(BuildContext context) {
-    return SizedBox(
-      width: 30,
-      height: 30,
+    return const SizedBox(
+      width: 25,
+      height: 25,
       child: ClipRRect(
-        borderRadius: Corners.s5Border,
-        child: Avatar(
-          value: 'M',
-          shape: AvatarShape.circle(20),
-          placeholderColors: const [Color.fromRGBO(132, 39, 224, 1.0)],
-        ),
-      ),
+          borderRadius: Corners.s5Border,
+          child: CircleAvatar(
+            backgroundColor: Color.fromRGBO(132, 39, 224, 1.0),
+            child: Text(
+              'M',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w300,
+                color: Colors.white,
+              ),
+            ),
+          )),
     );
   }
 
