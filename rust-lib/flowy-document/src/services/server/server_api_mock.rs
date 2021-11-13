@@ -1,7 +1,7 @@
 use crate::{errors::DocError, services::server::DocumentServerAPI};
 use flowy_document_infra::{
-    document_default::doc_initial_string,
     entities::doc::{CreateDocParams, Doc, DocIdentifier, UpdateDocParams},
+    user_default::doc_initial_string,
 };
 use flowy_infra::future::ResultFuture;
 

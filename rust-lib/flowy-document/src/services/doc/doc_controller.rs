@@ -47,7 +47,7 @@ impl DocController {
         params: DocIdentifier,
         pool: Arc<ConnectionPool>,
     ) -> Result<Arc<ClientEditDoc>, DocError> {
-        if self.cache.is_opened(&params.doc_id) == false {
+        if self.cache.contains(&params.doc_id) == false {
             let edit_ctx = self.make_edit_context(&params.doc_id, pool.clone()).await?;
             return Ok(edit_ctx);
         }
@@ -74,8 +74,17 @@ impl DocController {
     // as None e.g.
     // json : {"retain":7,"attributes":{"bold":null}}
     // deserialize delta: [ {retain: 7, attributes: {Bold: AttributeValue(None)}} ]
-    #[tracing::instrument(level = "debug", skip(self, delta), fields(doc_id = %delta.doc_id), err)]
-    pub(crate) async fn apply_local_delta(&self, delta: DocDelta) -> Result<DocDelta, DocError> {
+    #[tracing::instrument(level = "debug", skip(self, delta, db_pool), fields(doc_id = %delta.doc_id), err)]
+    pub(crate) async fn apply_local_delta(
+        &self,
+        delta: DocDelta,
+        db_pool: Arc<ConnectionPool>,
+    ) -> Result<DocDelta, DocError> {
+        if !self.cache.contains(&delta.doc_id) {
+            let doc_identifier: DocIdentifier = delta.doc_id.clone().into();
+            let _ = self.open(doc_identifier, db_pool).await?;
+        }
+
         let edit_doc_ctx = self.cache.get(&delta.doc_id)?;
         let _ = edit_doc_ctx.composing_local_delta(Bytes::from(delta.data)).await?;
         Ok(edit_doc_ctx.delta().await?)

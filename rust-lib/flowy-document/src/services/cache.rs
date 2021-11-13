@@ -30,10 +30,10 @@ impl DocCache {
         self.inner.insert(doc_id, doc);
     }
 
-    pub(crate) fn is_opened(&self, doc_id: &str) -> bool { self.inner.get(doc_id).is_some() }
+    pub(crate) fn contains(&self, doc_id: &str) -> bool { self.inner.get(doc_id).is_some() }
 
     pub(crate) fn get(&self, doc_id: &str) -> Result<Arc<ClientEditDoc>, DocError> {
-        if !self.is_opened(&doc_id) {
+        if !self.contains(&doc_id) {
             return Err(doc_not_found());
         }
         let opened_doc = self.inner.get(doc_id).unwrap();

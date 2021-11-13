@@ -7,6 +7,7 @@ use crate::{
 };
 use chrono::Utc;
 use flowy_database::SqliteConnection;
+use flowy_document_infra::{entities::doc::DocDelta, user_default::initial_read_me};
 use flowy_infra::kv::KV;
 use flowy_workspace_infra::{
     entities::{app::RepeatedApp, view::View, workspace::*},
@@ -101,6 +102,13 @@ impl WorkspaceController {
             let _ = self.app_controller.create_app(app).await?;
             for (index, view) in views.into_iter().enumerate() {
                 if index == 0 {
+                    let delta = initial_read_me();
+                    let doc_delta = DocDelta {
+                        doc_id: view.id.clone(),
+                        data: delta.to_json(),
+                    };
+                    let _ = self.view_controller.apply_doc_delta(doc_delta).await?;
+
                     self.view_controller.set_latest_view(&view);
                 }
                 let _ = self.view_controller.create_view(view).await?;

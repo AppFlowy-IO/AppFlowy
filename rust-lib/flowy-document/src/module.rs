@@ -15,10 +15,12 @@ pub trait DocumentUser: Send + Sync {
     fn user_dir(&self) -> Result<String, DocError>;
     fn user_id(&self) -> Result<String, DocError>;
     fn token(&self) -> Result<String, DocError>;
+    fn db_pool(&self) -> Result<Arc<ConnectionPool>, DocError>;
 }
 
 pub struct FlowyDocument {
     doc_ctrl: Arc<DocController>,
+    user: Arc<dyn DocumentUser>,
 }
 
 impl FlowyDocument {
@@ -28,8 +30,8 @@ impl FlowyDocument {
         server_config: &ServerConfig,
     ) -> FlowyDocument {
         let server = construct_doc_server(server_config);
-        let controller = Arc::new(DocController::new(server.clone(), user.clone(), ws_manager.clone()));
-        Self { doc_ctrl: controller }
+        let doc_ctrl = Arc::new(DocController::new(server.clone(), user.clone(), ws_manager.clone()));
+        Self { doc_ctrl, user }
     }
 
     pub fn init(&self) -> Result<(), DocError> {
@@ -42,8 +44,8 @@ impl FlowyDocument {
         Ok(())
     }
 
-    pub async fn open(&self, params: DocIdentifier, pool: Arc<ConnectionPool>) -> Result<Arc<ClientEditDoc>, DocError> {
-        let edit_context = self.doc_ctrl.open(params, pool).await?;
+    pub async fn open(&self, params: DocIdentifier) -> Result<Arc<ClientEditDoc>, DocError> {
+        let edit_context = self.doc_ctrl.open(params, self.user.db_pool()?).await?;
         Ok(edit_context)
     }
 
@@ -65,7 +67,10 @@ impl FlowyDocument {
     pub async fn apply_doc_delta(&self, params: DocDelta) -> Result<DocDelta, DocError> {
         // workaround: compare the rust's delta with flutter's delta. Will be removed
         // very soon
-        let doc = self.doc_ctrl.apply_local_delta(params.clone()).await?;
+        let doc = self
+            .doc_ctrl
+            .apply_local_delta(params.clone(), self.user.db_pool()?)
+            .await?;
         Ok(doc)
     }
 }

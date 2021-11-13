@@ -2,7 +2,7 @@ use crate::{
     errors::DocError,
     services::doc::{view::View, History, UndoResult, RECORD_THRESHOLD},
 };
-use flowy_document_infra::document_default::doc_initial_delta;
+use flowy_document_infra::user_default::doc_initial_delta;
 use flowy_ot::core::*;
 use tokio::sync::mpsc;
 

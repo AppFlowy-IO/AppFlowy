@@ -108,7 +108,7 @@ impl ViewController {
     #[tracing::instrument(level = "debug", skip(self, params), fields(doc_id = %params.doc_id), err)]
     pub(crate) async fn open_view(&self, params: DocIdentifier) -> Result<DocDelta, WorkspaceError> {
         let doc_id = params.doc_id.clone();
-        let edit_context = self.document.open(params, self.database.db_pool()?).await?;
+        let edit_context = self.document.open(params).await?;
 
         KV::set_str(LATEST_VIEW_ID, doc_id);
         Ok(edit_context.delta().await.map_err(internal_error)?)

@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/flowy-document/doc.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-document-infra/doc.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 
 abstract class IDoc {

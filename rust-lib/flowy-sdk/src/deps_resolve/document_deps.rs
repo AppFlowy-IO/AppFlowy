@@ -8,6 +8,7 @@ use flowy_document::{
 use flowy_user::{errors::ErrorCode, services::user::UserSession};
 use flowy_ws::{WsMessage, WsMessageHandler, WsModule};
 
+use flowy_database::ConnectionPool;
 use flowy_document::services::ws::{DocumentWebSocket, WsDocumentManager};
 use flowy_user::errors::UserError;
 use std::{path::Path, sync::Arc};
@@ -63,6 +64,8 @@ impl DocumentUser for DocumentUserImpl {
     fn user_id(&self) -> Result<String, DocError> { self.user.user_id().map_err(map_user_error) }
 
     fn token(&self) -> Result<String, DocError> { self.user.token().map_err(map_user_error) }
+
+    fn db_pool(&self) -> Result<Arc<ConnectionPool>, DocError> { self.user.db_pool().map_err(map_user_error) }
 }
 
 struct WsSenderImpl {

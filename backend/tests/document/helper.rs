@@ -73,10 +73,9 @@ impl ScriptContext {
 
     async fn open_doc(&mut self) {
         let flowy_document = self.flowy_test.sdk.flowy_document.clone();
-        let pool = self.client_user_session.db_pool().unwrap();
         let doc_id = self.doc_id.clone();
 
-        let edit_context = flowy_document.open(DocIdentifier { doc_id }, pool).await.unwrap();
+        let edit_context = flowy_document.open(DocIdentifier { doc_id }).await.unwrap();
         self.client_edit_context = Some(edit_context);
     }
 
