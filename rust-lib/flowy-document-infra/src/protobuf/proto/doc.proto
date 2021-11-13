@@ -1,5 +1,4 @@
 syntax = "proto3";
-
 message CreateDocParams {
     string id = 1;
     string data = 2;

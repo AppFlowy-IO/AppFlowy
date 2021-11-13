@@ -1,18 +1,15 @@
 use crate::{
-    entities::{
-        doc::{DocDelta, RevId, RevType, Revision, RevisionRange},
-        ws::{WsDataType, WsDocumentData},
-    },
+    entities::ws::{WsDataType, WsDocumentData},
     errors::{internal_error, DocError, DocResult},
     module::DocumentUser,
     services::{
         doc::{
-            edit::{
-                doc_actor::DocumentActor,
-                message::{DocumentMsg, TransformDeltas},
-                model::OpenDocAction,
-            },
-            revision::{RevisionManager, RevisionServer},
+            DocumentActor,
+            DocumentMsg,
+            OpenDocAction,
+            RevisionManager,
+            RevisionServer,
+            TransformDeltas,
             UndoResult,
         },
         ws::{DocumentWebSocket, WsDocumentHandler},
@@ -20,6 +17,7 @@ use crate::{
 };
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
+use flowy_document_infra::entities::doc::{DocDelta, RevId, RevType, Revision, RevisionRange};
 use flowy_infra::retry::{ExponentialBackoff, Retry};
 use flowy_ot::core::{Attribute, Delta, Interval};
 use flowy_ws::WsState;

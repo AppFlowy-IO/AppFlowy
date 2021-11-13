@@ -1,16 +1,14 @@
 use crate::{
-    entities::doc::{RevId, Revision},
     errors::DocResult,
-    services::doc::{
-        edit::message::{DocumentMsg, TransformDeltas},
-        Document,
-    },
+    services::doc::{Document, UndoResult},
 };
 use async_stream::stream;
-use flowy_ot::core::{Delta, OperationTransformable};
+use bytes::Bytes;
+use flowy_document_infra::entities::doc::{RevId, Revision};
+use flowy_ot::core::{Attribute, Delta, Interval, OperationTransformable};
 use futures::stream::StreamExt;
 use std::{convert::TryFrom, sync::Arc};
-use tokio::sync::{mpsc, RwLock};
+use tokio::sync::{mpsc, oneshot, RwLock};
 
 pub struct DocumentActor {
     doc_id: String,
@@ -139,3 +137,56 @@ impl DocumentActor {
 //     });
 //     Ok(())
 // }
+
+pub type Ret<T> = oneshot::Sender<DocResult<T>>;
+pub enum DocumentMsg {
+    Delta {
+        delta: Delta,
+        ret: Ret<()>,
+    },
+    RemoteRevision {
+        bytes: Bytes,
+        ret: Ret<TransformDeltas>,
+    },
+    Insert {
+        index: usize,
+        data: String,
+        ret: Ret<Delta>,
+    },
+    Delete {
+        interval: Interval,
+        ret: Ret<Delta>,
+    },
+    Format {
+        interval: Interval,
+        attribute: Attribute,
+        ret: Ret<Delta>,
+    },
+
+    Replace {
+        interval: Interval,
+        data: String,
+        ret: Ret<Delta>,
+    },
+    CanUndo {
+        ret: oneshot::Sender<bool>,
+    },
+    CanRedo {
+        ret: oneshot::Sender<bool>,
+    },
+    Undo {
+        ret: Ret<UndoResult>,
+    },
+    Redo {
+        ret: Ret<UndoResult>,
+    },
+    Doc {
+        ret: Ret<String>,
+    },
+}
+
+pub struct TransformDeltas {
+    pub client_prime: Delta,
+    pub server_prime: Delta,
+    pub server_rev_id: RevId,
+}

@@ -7,7 +7,7 @@ use actix_web::{
     HttpResponse,
 };
 use anyhow::Context;
-use flowy_document::protobuf::{CreateDocParams, DocIdentifier, UpdateDocParams};
+use flowy_document_infra::protobuf::{CreateDocParams, DocIdentifier, UpdateDocParams};
 use flowy_net::{errors::ServerError, response::FlowyResponse};
 use sqlx::PgPool;
 

@@ -4,7 +4,7 @@ use crate::service::{
 };
 use actix_web::web::Data;
 use async_stream::stream;
-use flowy_document::protobuf::{Doc, Revision};
+use flowy_document_infra::protobuf::{Doc, Revision};
 use flowy_net::errors::{internal_error, Result as DocResult, ServerError};
 use futures::stream::StreamExt;
 use sqlx::PgPool;

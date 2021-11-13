@@ -1,6 +1,5 @@
-use crate::errors::DocResult;
 use flowy_derive::ProtoBuf;
-use flowy_ot::core::Delta;
+use flowy_ot::{core::Delta, errors::OTError};
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct CreateDocParams {
@@ -36,7 +35,7 @@ pub struct Doc {
 }
 
 impl Doc {
-    pub fn delta(&self) -> DocResult<Delta> {
+    pub fn delta(&self) -> Result<Delta, OTError> {
         let delta = Delta::from_bytes(&self.data)?;
         Ok(delta)
     }

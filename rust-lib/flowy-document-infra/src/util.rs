@@ -25,7 +25,7 @@ pub fn md5<T: AsRef<[u8]>>(data: T) -> String {
 }
 
 #[derive(Debug)]
-pub(crate) struct RevIdCounter(pub AtomicI64);
+pub struct RevIdCounter(pub AtomicI64);
 
 impl RevIdCounter {
     pub fn new(n: i64) -> Self { Self(AtomicI64::new(n)) }

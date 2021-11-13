@@ -1,8 +1,5 @@
-use crate::{
-    entities::doc::{CreateDocParams, Doc, DocIdentifier, UpdateDocParams},
-    errors::DocError,
-    services::server::DocumentServerAPI,
-};
+use crate::{errors::DocError, services::server::DocumentServerAPI};
+use flowy_document_infra::entities::doc::{CreateDocParams, Doc, DocIdentifier, UpdateDocParams};
 use flowy_infra::future::ResultFuture;
 use flowy_net::{config::*, request::HttpRequestBuilder};
 

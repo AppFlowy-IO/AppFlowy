@@ -1,5 +1,5 @@
 use crate::helper::ViewTest;
-use flowy_document::entities::doc::DocIdentifier;
+use flowy_document_infra::entities::doc::DocIdentifier;
 use flowy_workspace_infra::entities::view::ViewIdentifiers;
 
 #[actix_rt::test]

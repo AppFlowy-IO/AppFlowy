@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use flowy_document::entities::doc::Doc;
+use flowy_document_infra::entities::doc::Doc;
 use flowy_workspace::{
     entities::{
         app::*,

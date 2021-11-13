@@ -8,7 +8,7 @@ use crate::service::{
 };
 use actix_web::web::Data;
 use dashmap::DashMap;
-use flowy_document::protobuf::DocIdentifier;
+use flowy_document_infra::protobuf::DocIdentifier;
 use flowy_net::errors::{internal_error, ServerError};
 use sqlx::PgPool;
 use std::sync::Arc;

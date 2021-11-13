@@ -1,9 +1,7 @@
-use crate::{
-    entities::doc::{NewDocUser, Revision},
-    errors::DocError,
-};
+use crate::errors::DocError;
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_document_infra::entities::doc::{NewDocUser, Revision};
 use flowy_ws::{WsMessage, WsModule};
 use std::convert::{TryFrom, TryInto};
 

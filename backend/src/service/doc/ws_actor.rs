@@ -6,7 +6,8 @@ use crate::service::{
 use actix_rt::task::spawn_blocking;
 use actix_web::web::Data;
 use async_stream::stream;
-use flowy_document::protobuf::{NewDocUser, Revision, WsDataType, WsDocumentData};
+use flowy_document::protobuf::{WsDataType, WsDocumentData};
+use flowy_document_infra::protobuf::{NewDocUser, Revision};
 use flowy_net::errors::{internal_error, Result as DocResult, ServerError};
 use futures::stream::StreamExt;
 use sqlx::PgPool;

@@ -4,10 +4,8 @@ mod server_api_mock;
 
 pub use server_api::*;
 // TODO: ignore mock files in production
-use crate::{
-    entities::doc::{CreateDocParams, Doc, DocIdentifier, UpdateDocParams},
-    errors::DocError,
-};
+use crate::errors::DocError;
+use flowy_document_infra::entities::doc::{CreateDocParams, Doc, DocIdentifier, UpdateDocParams};
 use flowy_infra::future::ResultFuture;
 use flowy_net::config::ServerConfig;
 pub use server_api_mock::*;

@@ -1,9 +1,12 @@
 use crate::{
-    entities::doc::{Doc, RevId, RevType, Revision, RevisionRange},
     errors::{DocError, DocResult},
-    services::{doc::revision::RevisionStore, util::RevIdCounter},
+    services::doc::revision::RevisionStore,
 };
 use flowy_database::ConnectionPool;
+use flowy_document_infra::{
+    entities::doc::{Doc, RevId, RevType, Revision, RevisionRange},
+    util::RevIdCounter,
+};
 use flowy_infra::future::ResultFuture;
 use flowy_ot::core::{Delta, OperationTransformable};
 use std::sync::Arc;

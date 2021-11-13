@@ -1,12 +1,7 @@
-use std::{collections::HashSet, sync::Arc};
-
-use futures::{FutureExt, StreamExt};
-
 use flowy_database::SqliteConnection;
-use flowy_document::{
-    entities::doc::{DocDelta, DocIdentifier},
-    module::FlowyDocument,
-};
+use flowy_document_infra::entities::doc::{DocDelta, DocIdentifier};
+use futures::{FutureExt, StreamExt};
+use std::{collections::HashSet, sync::Arc};
 
 use crate::{
     entities::{
@@ -19,6 +14,7 @@ use crate::{
     services::{server::Server, TrashCan, TrashEvent},
     sql_tables::view::{ViewTable, ViewTableChangeset, ViewTableSql},
 };
+use flowy_document::module::FlowyDocument;
 use flowy_infra::kv::KV;
 use flowy_workspace_infra::entities::share::{ExportData, ExportParams};
 

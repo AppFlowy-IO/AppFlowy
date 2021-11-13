@@ -10,7 +10,8 @@ use flowy_ot::core::{
     NEW_LINE,
 };
 
-use crate::services::{doc::extensions::InsertExt, util::is_newline};
+use crate::services::doc::extensions::InsertExt;
+use flowy_document_infra::util::is_newline;
 
 pub struct PreserveBlockFormatOnInsert {}
 impl InsertExt for PreserveBlockFormatOnInsert {

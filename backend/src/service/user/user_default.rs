@@ -8,7 +8,7 @@ use crate::{
 
 use crate::service::view::{create_view_with_args, sql_builder::NewViewSqlBuilder};
 use chrono::Utc;
-use flowy_document::services::doc::doc_initial_string;
+use flowy_document_infra::document_default::doc_initial_string;
 use flowy_net::errors::ServerError;
 use flowy_workspace_infra::protobuf::Workspace;
 use std::convert::TryInto;

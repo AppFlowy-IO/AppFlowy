@@ -1,15 +1,11 @@
 use backend::{
-    application::{get_connection_pool, Application},
+    application::{get_connection_pool, init_app_context, Application},
     config::{get_configuration, DatabaseSettings},
     context::AppContext,
 };
-
-use backend::application::init_app_context;
 use flowy_backend_api::{user_request::*, workspace_request::*};
-use flowy_document::{
-    entities::doc::{Doc, DocIdentifier},
-    prelude::*,
-};
+use flowy_document::services::server::read_doc_request;
+use flowy_document_infra::entities::doc::{Doc, DocIdentifier};
 use flowy_net::errors::ServerError;
 use flowy_user_infra::entities::*;
 use flowy_workspace_infra::entities::prelude::*;

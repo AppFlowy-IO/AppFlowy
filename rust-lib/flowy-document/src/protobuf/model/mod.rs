@@ -8,12 +8,3 @@ pub use observable::*;
 
 mod errors; 
 pub use errors::*; 
-
-mod revision; 
-pub use revision::*; 
-
-mod event; 
-pub use event::*; 
-
-mod doc; 
-pub use doc::*; 

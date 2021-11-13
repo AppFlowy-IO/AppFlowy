@@ -1,10 +1,9 @@
 use crate::{
-    entities::doc::{Revision, RevisionRange},
     errors::{internal_error, DocError, DocResult},
     sql_tables::{RevState, RevTableSql},
 };
-
 use flowy_database::ConnectionPool;
+use flowy_document_infra::entities::doc::{Revision, RevisionRange};
 use flowy_infra::future::ResultFuture;
 
 use std::sync::Arc;

@@ -2,6 +2,3 @@
 export './ws.pb.dart';
 export './observable.pb.dart';
 export './errors.pb.dart';
-export './revision.pb.dart';
-export './event.pb.dart';
-export './doc.pb.dart';

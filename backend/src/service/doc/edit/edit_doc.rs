@@ -10,9 +10,9 @@ use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_document::{
     entities::ws::{WsDataType, WsDocumentData},
-    protobuf::{Doc, RevId, RevType, Revision, RevisionRange, UpdateDocParams},
     services::doc::Document,
 };
+use flowy_document_infra::protobuf::{Doc, RevId, RevType, Revision, RevisionRange, UpdateDocParams};
 use flowy_net::errors::{internal_error, ServerError};
 use flowy_ot::core::{Delta, OperationTransformable};
 use flowy_ws::WsMessage;

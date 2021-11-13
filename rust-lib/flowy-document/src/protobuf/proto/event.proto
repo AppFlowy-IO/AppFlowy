@@ -1,8 +1,0 @@
-syntax = "proto3";
-
-enum EditorEvent {
-    CreateDoc = 0;
-    UpdateDoc = 1;
-    ReadDoc = 2;
-    DeleteDoc = 3;
-}

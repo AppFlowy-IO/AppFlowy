@@ -1,10 +1,10 @@
 use crate::{
-    entities::doc::{Revision, RevisionRange},
     errors::DocError,
     sql_tables::{doc::RevTable, RevChangeset, RevState, RevTableType},
 };
 use diesel::update;
 use flowy_database::{insert_or_ignore_into, prelude::*, schema::rev_table::dsl, SqliteConnection};
+use flowy_document_infra::entities::doc::{Revision, RevisionRange};
 
 pub struct RevTableSql {}
 

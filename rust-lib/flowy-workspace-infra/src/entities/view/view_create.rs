@@ -8,7 +8,7 @@ use crate::{
     },
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_document::services::doc::doc_initial_string;
+use flowy_document_infra::document_default::doc_initial_string;
 use std::convert::TryInto;
 
 #[derive(PartialEq, Debug, ProtoBuf_Enum, Clone)]

@@ -1,9 +1,9 @@
-use crate::{
-    entities::doc::{RevId, RevType, Revision},
-    services::util::md5,
-};
 use diesel::sql_types::Integer;
 use flowy_database::schema::rev_table;
+use flowy_document_infra::{
+    entities::doc::{RevId, RevType, Revision},
+    util::md5,
+};
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
 #[table_name = "rev_table"]

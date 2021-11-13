@@ -1,4 +1,4 @@
-use crate::services::util::find_newline;
+use flowy_document_infra::util::find_newline;
 use flowy_ot::core::{plain_attributes, Attribute, AttributeScope, Delta, Operation};
 
 pub(crate) fn line_break(op: &Operation, attribute: &Attribute, scope: AttributeScope) -> Delta {

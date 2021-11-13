@@ -62,6 +62,7 @@ async-stream = "0.3.2"
 
 flowy-user-infra = { path = "../rust-lib/flowy-user-infra" }
 flowy-workspace-infra = { path = "../rust-lib/flowy-workspace-infra" }
+flowy-document-infra = { path = "../rust-lib/flowy-document-infra" }
 flowy-document = { path = "../rust-lib/flowy-document" }
 flowy-ws = { path = "../rust-lib/flowy-ws" }
 flowy-ot = { path = "../rust-lib/flowy-ot" }

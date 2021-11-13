@@ -7,6 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+flowy-document-infra = { path = "../flowy-document-infra" }
 derive_more = {version = "0.99", features = ["display"]}
 flowy-dispatch = { path = "../flowy-dispatch" }
 flowy-derive = { path = "../flowy-derive" }
@@ -37,7 +38,6 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = {version = "1.0"}
 chrono = "0.4.19"
 futures-core = { version = "0.3", default-features = false }
-md5 = "0.7.0"
 byteorder = {version = "1.3.4"}
 async-stream = "0.3.2"
 futures = "0.3.15"

@@ -1,5 +1,4 @@
 use crate::{
-    entities::doc::{revision_from_doc, Doc, RevId, RevType, Revision, RevisionRange},
     errors::{internal_error, DocError, DocResult},
     services::doc::revision::{model::*, RevisionServer},
     sql_tables::RevState,
@@ -7,6 +6,7 @@ use crate::{
 use async_stream::stream;
 use dashmap::DashMap;
 use flowy_database::{ConnectionPool, SqliteConnection};
+use flowy_document_infra::entities::doc::{revision_from_doc, Doc, RevId, RevType, Revision, RevisionRange};
 use flowy_infra::future::ResultFuture;
 use flowy_ot::core::{Delta, Operation, OperationTransformable};
 use futures::stream::StreamExt;
@@ -190,13 +190,7 @@ async fn fetch_from_local(doc_id: &str, persistence: Arc<Persistence>) -> DocRes
         let base_rev_id: RevId = revisions.last().unwrap().base_rev_id.into();
         let rev_id: RevId = revisions.last().unwrap().rev_id.into();
         let mut delta = Delta::new();
-        let mut pre_rev_id = 0;
         for (_, revision) in revisions.into_iter().enumerate() {
-            pre_rev_id = revision.rev_id;
-
-            #[cfg(debug_assertions)]
-            validate_rev_id(pre_rev_id, revision.rev_id);
-
             match Delta::from_bytes(revision.delta_data) {
                 Ok(local_delta) => {
                     delta = delta.compose(&local_delta)?;
@@ -229,13 +223,6 @@ async fn fetch_from_local(doc_id: &str, persistence: Arc<Persistence>) -> DocRes
     })
     .await
     .map_err(internal_error)?
-}
-
-#[cfg(debug_assertions)]
-fn validate_rev_id(current: i64, next: i64) {
-    if current >= next {
-        log::error!("The next revision id should be greater than the previous");
-    }
 }
 
 #[cfg(debug_assertions)]

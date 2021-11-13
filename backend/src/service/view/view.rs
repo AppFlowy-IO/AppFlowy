@@ -9,7 +9,7 @@ use crate::{
     sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
 use chrono::Utc;
-use flowy_document::protobuf::CreateDocParams;
+use flowy_document_infra::protobuf::CreateDocParams;
 use flowy_net::errors::{invalid_params, ServerError};
 use flowy_workspace_infra::{
     parser::{

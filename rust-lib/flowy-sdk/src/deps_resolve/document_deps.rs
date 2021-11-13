@@ -1,14 +1,14 @@
 use bytes::Bytes;
 use flowy_document::{
-    errors::DocError,
+    entities::ws::WsDocumentData,
+    errors::{internal_error, DocError},
     module::DocumentUser,
-    prelude::{DocumentWebSocket, WsDocumentManager},
+    services::ws::WsStateReceiver,
 };
-
-use flowy_document::{entities::ws::WsDocumentData, errors::internal_error, services::ws::WsStateReceiver};
 use flowy_user::{errors::ErrorCode, services::user::UserSession};
 use flowy_ws::{WsMessage, WsMessageHandler, WsModule};
 
+use flowy_document::services::ws::{DocumentWebSocket, WsDocumentManager};
 use flowy_user::errors::UserError;
 use std::{path::Path, sync::Arc};
 

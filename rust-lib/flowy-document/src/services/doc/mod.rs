@@ -7,6 +7,10 @@ mod history;
 mod view;
 
 pub(crate) mod doc_controller;
-pub mod edit;
-pub mod extensions;
+mod edit;
+mod extensions;
 mod revision;
+
+pub use edit::*;
+
+pub(crate) use revision::*;

@@ -4,7 +4,7 @@ pub mod module;
 
 use crate::deps_resolve::WorkspaceDepsResolver;
 use flowy_dispatch::prelude::*;
-use flowy_document::prelude::FlowyDocument;
+use flowy_document::module::FlowyDocument;
 use flowy_net::config::ServerConfig;
 use flowy_user::services::user::{UserSession, UserSessionBuilder, UserStatus};
 use flowy_workspace::{errors::WorkspaceError, prelude::WorkspaceController};

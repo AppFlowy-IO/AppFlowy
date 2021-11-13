@@ -16,6 +16,7 @@ members = [
   "flowy-workspace-infra",
   "flowy-dart-notify",
   "flowy-document",
+  "flowy-document-infra",
   "flowy-ot",
   "flowy-net",
   "flowy-ws",

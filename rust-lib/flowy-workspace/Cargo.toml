@@ -7,13 +7,14 @@ edition = "2018"
 
 [dependencies]
 flowy-workspace-infra = { path = "../flowy-workspace-infra" }
+flowy-document-infra = { path = "../flowy-document-infra" }
+flowy-document = { path = "../flowy-document" }
 flowy-dispatch = { path = "../flowy-dispatch" }
 flowy-derive = { path = "../flowy-derive" }
 flowy-database = { path = "../flowy-database" }
 flowy-sqlite = { path = "../flowy-sqlite" }
 flowy-infra = { path = "../flowy-infra" }
 flowy-dart-notify = { path = "../flowy-dart-notify" }
-flowy-document = { path = "../flowy-document" }
 flowy-ot = { path = "../flowy-ot" }
 flowy-net = { path = "../flowy-net", features = ["flowy_request"] }
 flowy-backend-api = { path = "../flowy-backend-api"}

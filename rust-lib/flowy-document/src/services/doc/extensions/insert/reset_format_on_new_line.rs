@@ -1,6 +1,6 @@
+use crate::services::doc::extensions::InsertExt;
+use flowy_document_infra::util::is_newline;
 use flowy_ot::core::{AttributeKey, Attributes, CharMetric, Delta, DeltaBuilder, DeltaIter, NEW_LINE};
-
-use crate::services::{doc::extensions::InsertExt, util::is_newline};
 
 pub struct ResetLineFormatOnNewLine {}
 impl InsertExt for ResetLineFormatOnNewLine {

@@ -1,13 +1,13 @@
 use crate::{
-    entities::doc::{DocDelta, DocIdentifier},
     errors::DocError,
     services::{
-        doc::{doc_controller::DocController, edit::ClientEditDoc},
+        doc::{doc_controller::DocController, ClientEditDoc},
         server::construct_doc_server,
         ws::WsDocumentManager,
     },
 };
 use flowy_database::ConnectionPool;
+use flowy_document_infra::entities::doc::{DocDelta, DocIdentifier};
 use flowy_net::config::ServerConfig;
 use std::sync::Arc;
 

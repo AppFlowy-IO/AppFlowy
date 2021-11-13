@@ -1,9 +1,6 @@
+use crate::services::doc::extensions::{format::helper::line_break, FormatExt};
+use flowy_document_infra::util::find_newline;
 use flowy_ot::core::{Attribute, AttributeScope, Delta, DeltaBuilder, DeltaIter, Interval};
-
-use crate::services::{
-    doc::extensions::{format::helper::line_break, FormatExt},
-    util::find_newline,
-};
 
 pub struct ResolveInlineFormat {}
 impl FormatExt for ResolveInlineFormat {

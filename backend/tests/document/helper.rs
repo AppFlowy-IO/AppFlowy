@@ -1,20 +1,16 @@
-use std::sync::Arc;
-
 use actix_web::web::Data;
-use futures_util::{stream, stream::StreamExt};
-use sqlx::PgPool;
-use tokio::time::{sleep, Duration};
-
 use backend::service::doc::{crud::update_doc, doc::DocManager};
-use flowy_document::{entities::doc::DocIdentifier, services::doc::edit::ClientEditDoc as ClientEditDocContext};
+use flowy_document::services::doc::ClientEditDoc as ClientEditDocContext;
 use flowy_net::config::ServerConfig;
 use flowy_test::{workspace::ViewTest, FlowyTest};
 use flowy_user::services::user::UserSession;
-
+use futures_util::{stream, stream::StreamExt};
+use sqlx::PgPool;
+use std::sync::Arc;
+use tokio::time::{sleep, Duration};
 // use crate::helper::*;
 use crate::helper::{spawn_server, TestServer};
-use flowy_document::protobuf::UpdateDocParams;
-
+use flowy_document_infra::{entities::doc::DocIdentifier, protobuf::UpdateDocParams};
 use flowy_ot::core::{Attribute, Delta, Interval};
 use parking_lot::RwLock;
 

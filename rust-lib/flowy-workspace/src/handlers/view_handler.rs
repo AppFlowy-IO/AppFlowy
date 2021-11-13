@@ -16,7 +16,7 @@ use crate::{
     services::{TrashCan, ViewController},
 };
 use flowy_dispatch::prelude::{data_result, Data, DataResult, Unit};
-use flowy_document::entities::doc::DocDelta;
+use flowy_document_infra::entities::doc::DocDelta;
 use flowy_workspace_infra::entities::share::{ExportData, ExportParams, ExportRequest};
 use std::{convert::TryInto, sync::Arc};
 

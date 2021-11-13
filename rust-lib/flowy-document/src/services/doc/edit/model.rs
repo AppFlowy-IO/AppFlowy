@@ -1,8 +1,5 @@
-use crate::{
-    entities::doc::{NewDocUser, RevId},
-    errors::DocError,
-    services::ws::DocumentWebSocket,
-};
+use crate::{errors::DocError, services::ws::DocumentWebSocket};
+use flowy_document_infra::entities::doc::{NewDocUser, RevId};
 use flowy_infra::retry::Action;
 use futures::future::BoxFuture;
 use std::{future, sync::Arc};

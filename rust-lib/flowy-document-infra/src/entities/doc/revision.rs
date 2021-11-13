@@ -1,6 +1,4 @@
-use crate::services::util::md5;
-
-use crate::entities::doc::Doc;
+use crate::{entities::doc::Doc, util::md5};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_ot::core::Delta;
 use std::{fmt::Formatter, ops::RangeInclusive};
