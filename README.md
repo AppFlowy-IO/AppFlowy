@@ -51,7 +51,9 @@ How to build on MacOS, please follow these simple steps.
 
 **Step 1:**
 
-* git clone  [https://github.com/AppFlowy-IO/appflowy.git](https://github.com/AppFlowy-IO/appflowy.git)
+```shell
+git clone https://github.com/AppFlowy-IO/appflowy.git
+```
 
 **Step 2:**
 
@@ -69,7 +71,9 @@ How to build on MacOS, please follow these simple steps.
 
 Follow the instructions [here](https://flutter.dev/docs/get-started/install) to install Flutter. As AppFlowy uses the `dev` channel, you need to switch the channel. Just type:
 
-* `flutter channel dev`
+```shell
+flutter channel dev
+```
 
 **Step 4:**
 
