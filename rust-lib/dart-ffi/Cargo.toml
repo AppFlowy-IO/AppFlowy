@@ -7,11 +7,8 @@ edition = "2018"
 [lib]
 name = "dart_ffi"
 # this value will change depending on the target os
-# for iOS it would be ``
-# for Macos it would be ``
-# for android it would be `c-dylib`
-# default 
-crate-type = [""]
+# default dylib
+crate-type = ["dylib"]
 
 
 [dependencies]
