@@ -1,9 +1,26 @@
 # About
 
-AppFlowy is an open-source alternative to Notion and Airtable, a no-code platform for anyone to build apps that suit their needs well.
+AppFlowy is an open-source Notion alternative.
+You are in charge of your data and customizations.
 
-Design and modify AppFlowy your way, with a single codebase written in Flutter and Rust supporting multiple platforms armed with long-term maintainability.
+## Built for teams that need more control and flexibility
+### 100% data control
+* You can host AppFlowy wherever you want; no vendor lock-in.
+### Unlimited customizations
+* Design and modify AppFlowy your way with an open core codebase.
+### One codebase supporting multiple platforms
+* AppFlowy is built with Flutter and Rust. What does this mean? Faster development, better native experience, and more reliable performance.
 
-And you have **100%** control of your data.
+## Built for individuals who care about data security and mobile experience
+### 100% control of your data
+* Download and install AppFlowy on your local machine. You own and control your personal data.
+### Extensively extensible
+* For those with no coding experience, AppFlowy enables you to create apps that suit your needs. It's built on a community-driven toolbox, including templates, plugins, themes, and more.
+### Truely native experience
+* Faster, more stable with support for offline mode. It's also better integrated with different devices. Moreover, AppFlowy enables users to access features and possibilities not available on the web.
 
-Most workplace SaaS tools are limited in terms of customizations and data control. We don't believe that one workplace SaaS solution can fit all companies or individuals not to mention that a glass ceiling on what's possible in the future. Our mission is to make it possible for anyone to create apps that suit their needs well. Therefore, we are dedicated to creating AppFlowy, a powerful no-code open-source solution. This would not only democratize the knowledge of making complex workplace SaaS tools but also enable people and businesses to make beautiful things on their own.
+## Community for hackers | Community for creators | Community for builders
+### Let’s democratize the knowledge and wheels of making complex workplace collaboration tools
+* It takes tremendous resources and expertise to build a great collaborative productivity tool. Don’t reinvent the wheels, let’s create the best open-source building blocks as infra to power others.
+### We collaboratively create apps that suit others’ needs by developing a versatile toolbox of plugins, templates, and more
+* Join us to build a toolbox that enable anyone to create their own system - play and tweak without a glass ceiling on what’s possible.
