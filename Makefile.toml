@@ -61,13 +61,13 @@ FLUTTER_PLATFORM = "apk"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "apk"
 
-[env.production-win]
+[env.production-window]
 DEV = false
 PROD = true
 TARGET_OS = "windows"
 CRATE_TYPE = "cdylib"
 BUILD_FLAG = "release"
-FLUTTER_PLATFORM = "apk"
+FLUTTER_PLATFORM = "windows"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "exe"
 

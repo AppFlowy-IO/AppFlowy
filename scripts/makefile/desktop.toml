@@ -2,7 +2,7 @@
 
 [tasks.flowy-sdk]
 category = "Build"
-condition = { profiles = [ "development-mac" ], channels = ["nightly"] }
+condition = { channels = ["nightly"] }
 dependencies = ["flowy-sdk-build"]
 run_task = { name = ["copy-to-sys-tmpdir"] }
 
@@ -11,7 +11,6 @@ condition = { channels = ["nightly"] }
 run_task = { name = ["setup-crate-type","sdk-build", "post-desktop", "restore-crate-type"] }
 
 [tasks.sdk-build]
-condition = { platforms = ["mac"] }
 description = "Build desktop targets."
 script = [
   """
@@ -45,7 +44,7 @@ script_runner = "@duckscript"
 
 [tasks.copy-to-sys-tmpdir]
 private = true
-condition = { platforms = ["mac"] }
+condition = { profiles = [ "development-mac" ], platforms = ["mac"] }
 script = [
   """
   # post the dylib target_path that use for flutter unit test
