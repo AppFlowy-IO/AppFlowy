@@ -23,4 +23,4 @@ You are in charge of your data and customizations.
 ### Let’s democratize the knowledge and wheels of making complex workplace collaboration tools
 * It takes tremendous resources and expertise to build a great collaborative productivity tool. Don’t reinvent the wheels, let’s create the best open-source building blocks as infra to power others.
 ### We collaboratively create apps that suit others’ needs by developing a versatile toolbox of plugins, templates, and more
-* Join us to build a toolbox that enable anyone to create their own system - play and tweak without a glass ceiling on what’s possible.
+* Join us to build a toolbox that empowers anyone to create their own system - play and tweak without a glass ceiling on what’s possible.
