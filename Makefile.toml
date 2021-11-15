@@ -17,8 +17,8 @@ VERSION = "0.0.2"
 FEATURES = "flutter"
 PRODUCT_NAME = "AppFlowy"
 #CRATE_TYPE: https://doc.rust-lang.org/reference/linkage.html
-CRATE_TYPE = "cdylib"
-
+CRATE_TYPE = "staticlib"
+SDK_EXT = "a"
 
 [env.development-mac]
 TARGET_OS = "macos"
@@ -40,7 +40,6 @@ TARGET_OS = "macos"
 RUST_COMPILE_TARGET = "x86_64-apple-darwin"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "app"
-CRATE_TYPE = "staticlib"
 
 [env.production-desktop-windows-x86]
 BUILD_FLAG = "release"
@@ -76,7 +75,7 @@ private = true
 script = [
     """
       toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
-      val = replace ${toml} "dylib" ${CRATE_TYPE}
+      val = replace ${toml} "cdylib" ${CRATE_TYPE}
       result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
       assert ${result}
       """,
@@ -88,7 +87,7 @@ private = true
 script = [
     """
       toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
-      val = replace ${toml} ${CRATE_TYPE} "dylib"
+      val = replace ${toml} ${CRATE_TYPE} "cdylib"
       result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
       assert ${result}
       """,

@@ -44,9 +44,9 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/window_size/macos
 
 SPEC CHECKSUMS:
-  flowy_editor: 26060a984848e6afac1f6a4455511f4114119d8d
-  flowy_infra_ui: 9d5021b1610fe0476eb1191bf7cd41c4a4138d8f
-  flowy_sdk: b7efddcc3af4ea87dc2f842c22dc37283bb9e169
+  flowy_editor: 0e67fc03e2a7466116f2d068b636d30d96c4f38d
+  flowy_infra_ui: c34d49d615ed9fe552cd47f90d7850815a74e9e9
+  flowy_sdk: 57c926d0979a826d6bdc6bd784b2bb7682895fe7
   FlutterMacOS: 57701585bf7de1b3fc2bb61f6378d73bbdea8424
   package_info_plus_macos: f010621b07802a241d96d01876d6705f15e77c1c
   path_provider_macos: 160cab0d5461f0c0e02995469a98f24bdb9a3f1f

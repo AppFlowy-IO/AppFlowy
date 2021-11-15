@@ -33,8 +33,8 @@ private = true
 script = [
   """
     echo "🚀 🚀 🚀  Flowy-SDK build success"
-    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/lib${CARGO_MAKE_CRATE_FS_NAME}.a \
-    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages/flowy_sdk/macos/lib${CARGO_MAKE_CRATE_FS_NAME}.a
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/lib${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT} \
+    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages/flowy_sdk/macos/lib${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT}
   """,
   """
     cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h \
