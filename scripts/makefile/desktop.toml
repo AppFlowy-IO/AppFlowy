@@ -3,11 +3,11 @@
 [tasks.flowy-sdk]
 category = "Build"
 condition = { channels = ["nightly"] }
-dependencies = ["flowy-sdk-build"]
+dependencies = ["echo_env", "flowy-sdk-build"]
 run_task = { name = ["copy-to-sys-tmpdir"] }
 
 [tasks.flowy-sdk-build]
-condition = { channels = ["nightly"] }
+condition = { env_set = [ "BUILD_FLAG", "RUST_COMPILE_TARGET", "CRATE_TYPE", "TARGET_OS"] }
 run_task = { name = ["setup-crate-type","sdk-build", "post-desktop", "restore-crate-type"] }
 
 [tasks.sdk-build]
@@ -15,7 +15,7 @@ description = "Build desktop targets."
 script = [
   """
     cd rust-lib/
-    if [ ${PROD} == true ]
+    if [ ${BUILD_FLAG} == release ]
     then
       cargo build --${BUILD_FLAG} --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features=${FEATURES}
     else

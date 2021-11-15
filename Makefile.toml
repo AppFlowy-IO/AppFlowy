@@ -1,3 +1,5 @@
+#https://github.com/sagiegurari/cargo-make
+
 extend = [
     { path = "scripts/makefile/desktop.toml" },
     { path = "scripts/makefile/protobuf.toml" },
@@ -12,65 +14,60 @@ CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 CARGO_MAKE_CRATE_FS_NAME = "dart_ffi"
 CARGO_MAKE_CRATE_NAME = "dart-ffi"
 VERSION = "0.0.1"
-FEATURES = "flutter,http_server"
+FEATURES = "flutter"
 PRODUCT_NAME = "AppFlowy"
-
 #CRATE_TYPE: https://doc.rust-lang.org/reference/linkage.html
+CRATE_TYPE = "cdylib"
+
+
 [env.development-mac]
-DEV = true
-PROD = false
 TARGET_OS = "macos"
 RUST_COMPILE_TARGET = "x86_64-apple-darwin"
-CRATE_TYPE = "cdylib"
 BUILD_FLAG = "debug"
-FLUTTER_PLATFORM = "macos"
 FLUTTER_OUTPUT_DIR = "Debug"
-FEATURES = "flutter"
 PRODUCT_EXT = "app"
 
-
-[env.production-mac]
-DEV = false
-PROD = true
+[env.production-desktop-mac-aarch64]
+BUILD_FLAG = "release"
 TARGET_OS = "macos"
 RUST_COMPILE_TARGET = "aarch64-apple-darwin"
-CRATE_TYPE = "cdylib"
-BUILD_FLAG = "release"
-FLUTTER_PLATFORM = "macos"
 FLUTTER_OUTPUT_DIR = "Release"
-FEATURES = "flutter"
 PRODUCT_EXT = "app"
 
+[env.production-desktop-mac-x86]
+BUILD_FLAG = "release"
+TARGET_OS = "macos"
+RUST_COMPILE_TARGET = "x86_64-apple-darwin"
+FLUTTER_OUTPUT_DIR = "Release"
+PRODUCT_EXT = "app"
+
+[env.production-desktop-windows-x86]
+BUILD_FLAG = "release"
+TARGET_OS = "windows"
+RUST_COMPILE_TARGET = "x86_64-pc-windows-gnu"
+FLUTTER_OUTPUT_DIR = "Release"
+PRODUCT_EXT = "exe"
+
+[tasks.echo_env]
+script = [
+    '''
+    echo BUILD_FLAG: ${BUILD_FLAG}
+    echo TARGET_OS: ${TARGET_OS}
+    echo RUST_COMPILE_TARGET: ${RUST_COMPILE_TARGET}
+    echo FEATURES: ${FEATURES}
+    echo PRODUCT_EXT: ${PRODUCT_EXT}
+    echo ${platforms}
+    '''
+]
+
 [env.production-ios]
-DEV = false
-PROD = true
+BUILD_FLAG = "release"
 TARGET_OS = "ios"
 CRATE_TYPE = "staticlib"
 BUILD_FLAG = "release"
-FLUTTER_PLATFORM = "ios"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "ipa"
 
-[env.production-android]
-DEV = false
-PROD = true
-TARGET_OS = "android"
-CRATE_TYPE = "cdylib"
-BUILD_FLAG = "release"
-FLUTTER_PLATFORM = "apk"
-FLUTTER_OUTPUT_DIR = "Release"
-PRODUCT_EXT = "apk"
-
-[env.production-window]
-DEV = false
-PROD = true
-TARGET_OS = "windows"
-RUST_COMPILE_TARGET = "x86_64-pc-windows-gnu"
-CRATE_TYPE = "cdylib"
-BUILD_FLAG = "release"
-FLUTTER_PLATFORM = "windows"
-FLUTTER_OUTPUT_DIR = "Release"
-PRODUCT_EXT = "exe"
 
 [tasks.setup-crate-type]
 private = true

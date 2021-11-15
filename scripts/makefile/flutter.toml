@@ -10,7 +10,7 @@ script = [
   cd app_flowy/
   flutter clean
   flutter pub get
-  flutter build ${FLUTTER_PLATFORM} --${BUILD_FLAG} --build-name=${VERSION}
+  flutter build ${TARGET_OS} --${BUILD_FLAG} --build-name=${VERSION}
   """,
 ]
 script_runner = "@shell"
@@ -28,7 +28,7 @@ script = [
 
   product=${PRODUCT_NAME}.${PRODUCT_EXT}
 
-  cp -R ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/build/${FLUTTER_PLATFORM}/Build/Products/${FLUTTER_OUTPUT_DIR}/${product} \
+  cp -R ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/build/${TARGET_OS}/Build/Products/${FLUTTER_OUTPUT_DIR}/${product} \
   ${output_path}/${product}
   """,
 ]
