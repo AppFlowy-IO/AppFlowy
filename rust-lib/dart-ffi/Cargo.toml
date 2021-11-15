@@ -7,8 +7,8 @@ edition = "2018"
 [lib]
 name = "dart_ffi"
 # this value will change depending on the target os
-# default dylib
-crate-type = ["dylib"]
+# default cdylib
+crate-type = ["cdylib"]
 
 
 [dependencies]
