@@ -40,6 +40,7 @@ TARGET_OS = "macos"
 RUST_COMPILE_TARGET = "x86_64-apple-darwin"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "app"
+CRATE_TYPE = "staticlib"
 
 [env.production-desktop-windows-x86]
 BUILD_FLAG = "release"
@@ -51,6 +52,7 @@ PRODUCT_EXT = "exe"
 [tasks.echo_env]
 script = [
     '''
+    echo CRATE_TYPE: ${CRATE_TYPE}
     echo BUILD_FLAG: ${BUILD_FLAG}
     echo TARGET_OS: ${TARGET_OS}
     echo RUST_COMPILE_TARGET: ${RUST_COMPILE_TARGET}
@@ -74,7 +76,7 @@ private = true
 script = [
     """
       toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
-      val = replace ${toml} "rlib" ${CRATE_TYPE}
+      val = replace ${toml} "dylib" ${CRATE_TYPE}
       result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
       assert ${result}
       """,
@@ -86,7 +88,7 @@ private = true
 script = [
     """
       toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
-      val = replace ${toml} ${CRATE_TYPE} "rlib"
+      val = replace ${toml} ${CRATE_TYPE} "dylib"
       result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
       assert ${result}
       """,

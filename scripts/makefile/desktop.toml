@@ -3,10 +3,11 @@
 [tasks.flowy-sdk]
 category = "Build"
 condition = { channels = ["nightly"] }
-dependencies = ["echo_env", "flowy-sdk-build"]
+dependencies = ["flowy-sdk-build"]
 run_task = { name = ["copy-to-sys-tmpdir"] }
 
 [tasks.flowy-sdk-build]
+dependencies = ["echo_env"]
 condition = { env_set = [ "BUILD_FLAG", "RUST_COMPILE_TARGET", "CRATE_TYPE", "TARGET_OS"] }
 run_task = { name = ["setup-crate-type","sdk-build", "post-desktop", "restore-crate-type"] }
 
@@ -29,12 +30,11 @@ script_runner = "@shell"
 
 [tasks.post-desktop]
 private = true
-condition = { platforms = ["mac"] }
 script = [
   """
     echo "🚀 🚀 🚀  Flowy-SDK build success"
-    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib \
-    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages/flowy_sdk/macos/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/lib${CARGO_MAKE_CRATE_FS_NAME}.a \
+    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages/flowy_sdk/macos/lib${CARGO_MAKE_CRATE_FS_NAME}.a
   """,
   """
     cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h \

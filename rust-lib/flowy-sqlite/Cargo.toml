@@ -7,6 +7,7 @@ edition = "2018"
 
 [dependencies]
 r2d2 = "0.8.9"
+libsqlite3-sys = {version = "0.9.1", features = ["bundled"]}
 diesel = {version = "1.4.7", features = ["sqlite"]}
 diesel_derives = {version = "1.4.1", features = ["sqlite"]}
 diesel_migrations = {version = "1.4.0", features = ["sqlite"]}
