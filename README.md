@@ -57,10 +57,18 @@ git clone https://github.com/AppFlowy-IO/appflowy.git
 
 **Step 2:**
 
-- `cd appflowy`
-- `make install_rust`
-- `make install_cargo_make`
-- `cargo make install_targets`
+```shell
+cd appflowy
+```
+```shell
+make install_rust
+```
+```shell
+make install_cargo_make
+```
+```shell
+cargo make install_targets
+```
 
 >
 >
