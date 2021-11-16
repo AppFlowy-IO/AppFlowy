@@ -4,6 +4,8 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/trash_create.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:fixnum/fixnum.dart' as $fixnum;
 
 import 'sizes.dart';
 
@@ -18,8 +20,8 @@ class TrashCell extends StatelessWidget {
     return Row(
       children: [
         SizedBox(width: TrashSizes.fileNameWidth, child: FlowyText(object.name, fontSize: 12)),
-        SizedBox(width: TrashSizes.lashModifyWidth, child: FlowyText("${object.modifiedTime}", fontSize: 12)),
-        SizedBox(width: TrashSizes.createTimeWidth, child: FlowyText("${object.createTime}", fontSize: 12)),
+        SizedBox(width: TrashSizes.lashModifyWidth, child: FlowyText(dateFormatter(object.modifiedTime), fontSize: 12)),
+        SizedBox(width: TrashSizes.createTimeWidth, child: FlowyText(dateFormatter(object.createTime), fontSize: 12)),
         const Spacer(),
         FlowyIconButton(
           width: 16,
@@ -34,5 +36,12 @@ class TrashCell extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  String dateFormatter($fixnum.Int64 inputTimestamps) {
+    var outputFormat = DateFormat('MM/dd/yyyy hh:mm a');
+    var date = DateTime.fromMillisecondsSinceEpoch(inputTimestamps.toInt() * 1000);
+    var outputDate = outputFormat.format(date);
+    return outputDate;
   }
 }
