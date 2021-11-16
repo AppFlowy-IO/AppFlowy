@@ -4,7 +4,7 @@
 category = "Build"
 condition = { channels = ["nightly"] }
 dependencies = ["flowy-sdk-build"]
-run_task = { name = ["copy-to-sys-tmpdir"] }
+#run_task = { name = ["copy-to-sys-tmpdir"] }
 
 [tasks.flowy-sdk-build]
 dependencies = ["echo_env"]
@@ -49,9 +49,9 @@ condition = { profiles = [ "development-mac" ], platforms = ["mac"] }
 script = [
   """
   # post the dylib target_path that use for flutter unit test
-  target_path = set ${TMPDIR}/appflowy_client/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib
+  target_path = set ${TMPDIR}/appflowy/lib${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT}
     rm ${target_path}
-    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib ${target_path}
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/lib${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT} ${target_path}
   """,
 ]
 script_runner = "@duckscript"
