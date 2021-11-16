@@ -1,3 +1,3 @@
-brew 'protobuf@3.13'
+brew 'protobuf'
 brew 'sqlite3'
 brew 'rustup-init'
