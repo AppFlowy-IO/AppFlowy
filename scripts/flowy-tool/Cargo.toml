@@ -12,7 +12,7 @@ syn = { version = "1.0.60", features = ["extra-traits", "parsing", "derive", "fu
 tera = { version = "1.5.0" }
 log = "0.4.11"
 env_logger = "0.8.2"
-shell = { git="https://github.com/google/rust-shell.git"}
+#shell = { git="https://github.com/google/rust-shell.git"}
 cmd_lib = "1.1"
 flowy-ast = { path = "../../rust-lib/flowy-ast" }
 console = "0.14.0"

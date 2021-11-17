@@ -9,7 +9,7 @@ script_runner = "@shell"
 
 [tasks.appflowy-windows]
 dependencies = ["flowy-sdk-release"]
-run_task = { name = ["flutter-build", "copy-to-product"] }
+run_task = { name = ["flutter-build", "copy-dll-to-build-folder", "copy-to-product"] }
 
 [tasks.copy-to-product]
 mac_alias = "copy-to-product-macos"
@@ -32,12 +32,23 @@ script = [
 ]
 script_runner = "@shell"
 
+[tasks.copy-dll-to-build-folder]
+script = [
+  """
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT} \
+    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/build/${TARGET_OS}/runner/${BUILD_FLAG}/${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT}
+  """,
+]
+script_runner = "@duckscript"
+
 [tasks.copy-to-product-windows]
 script = [
   """
+  # TODO:
+  echo TBD...
   """,
 ]
-script_runner = "@powershell"
+script_runner = "@duckscript"
 
 
 [tasks.flutter-build]
@@ -50,6 +61,17 @@ script = [
   """,
 ]
 script_runner = "@shell"
+
+[tasks.flutter-build.windows]
+script = [
+  """
+  cd app_flowy
+  exec cmd.exe /c flutter clean
+  exec cmd.exe /c flutter pub get
+  exec cmd.exe /c flutter build ${TARGET_OS} --${BUILD_FLAG}
+  """,
+]
+script_runner = "@duckscript"
 
 [tasks.freeze_setup]
 script = [

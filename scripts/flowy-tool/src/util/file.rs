@@ -97,8 +97,13 @@ pub fn get_tera(directory: &str) -> Tera {
         .as_path()
         .display()
         .to_string();
+    let mut template_path = format!("{}/**/*.tera", root_absolute_path);
+    if cfg!(windows)
+    {
+        // remove "\\?\" prefix on windows
+        template_path = format!("{}/**/*.tera", &root_absolute_path[4..]);
+    }
 
-    let template_path = format!("{}/**/*.tera", root_absolute_path);
     match Tera::new(template_path.as_ref()) {
         Ok(t) => t,
         Err(e) => {

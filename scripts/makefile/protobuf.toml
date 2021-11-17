@@ -23,6 +23,27 @@ script = [
 script_runner = "@shell"
 
 
+[tasks.gen_pb_file.windows]
+script = [
+    """
+    flowy_tool=set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/scripts/flowy-tool/Cargo.toml
+    rust_source=set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/
+    rust_lib=set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib
+    flutter_lib=set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages
+
+    derive_meta=set ${rust_lib}/flowy-derive/src/derive_cache/derive_cache.rs
+    flutter_package_lib=set ${flutter_lib}/flowy_sdk/lib
+
+    exec cmd /c cargo run \
+     --manifest-path ${flowy_tool} pb-gen \
+     --rust_source=${rust_source} \
+     --derive_meta=${derive_meta} \
+     --flutter_package_lib=${flutter_package_lib}
+    """,
+]
+script_runner = "@duckscript"
+
+
 [tasks.gen_dart_event]
 script = [
     """
@@ -39,3 +60,20 @@ script = [
     """,
 ]
 script_runner = "@shell"
+
+[tasks.gen_dart_event.windows]
+script = [
+    """
+    flowy_tool=set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/scripts/flowy-tool/Cargo.toml
+    flutter_lib=set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages
+
+    rust_source=set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/
+    output=set ${flutter_lib}/flowy_sdk/lib/dispatch/code_gen.dart
+
+    exec cmd.exe /c cargo run \
+     --manifest-path ${flowy_tool} dart-event \
+     --rust_source=${rust_source} \
+     --output=${output}
+    """,
+]
+script_runner = "@duckscript"
