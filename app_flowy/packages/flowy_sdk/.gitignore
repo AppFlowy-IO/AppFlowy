@@ -76,3 +76,4 @@ build/
 **/*.dylib
 **/*.a
 **/*.lib
+**/*.dll
