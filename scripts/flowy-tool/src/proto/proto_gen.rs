@@ -159,10 +159,7 @@ fn run_flutter_protoc(crate_infos: &Vec<CrateProtoInfo>, package_info: &FlutterP
 
 fn remove_everything_in_dir(dir: &str) {
     if Path::new(dir).exists() {
-        if cmd_lib::run_cmd! {
-            rm -rf ${dir}
-        }
-        .is_err()
+        if std::fs::remove_dir_all(dir).is_err()
         {
             panic!("Reset protobuf directory failed")
         };
