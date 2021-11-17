@@ -1,48 +1,92 @@
 # cargo make --profile production task
 
-[tasks.flowy-sdk]
-category = "Build"
-condition = { channels = ["nightly"] }
-dependencies = ["flowy-sdk-build"]
-#run_task = { name = ["copy-to-sys-tmpdir"] }
+# Run the task with profile, e.g.
+# cargo make --profile development-mac flowy-sdk-dev
+# cargo make --profile production-desktop-windows-x86 flowy-sdk-dev
 
-[tasks.flowy-sdk-build]
+[tasks.env_check]
 dependencies = ["echo_env"]
-condition = { env_set = [ "BUILD_FLAG", "RUST_COMPILE_TARGET", "CRATE_TYPE", "TARGET_OS"] }
+condition = { env_set = [ "BUILD_FLAG", "RUST_COMPILE_TARGET", "CRATE_TYPE", "TARGET_OS"],  channels = ["nightly"] }
+
+[tasks.flowy-sdk-dev]
+mac_alias = "flowy-sdk-dev-macos"
+windows_alias = "flowy-sdk-dev-windows"
+
+[tasks.flowy-sdk-dev-macos]
+category = "Build"
+dependencies = ["env_check"]
 run_task = { name = ["setup-crate-type","sdk-build", "post-desktop", "restore-crate-type"] }
 
+[tasks.flowy-sdk-dev-windows]
+category = "Build"
+dependencies = ["env_check"]
+run_task = { name = ["setup-crate-type","sdk-build", "post-desktop", "restore-crate-type"] }
+
+#
 [tasks.sdk-build]
-description = "Build desktop targets."
+private = true
 script = [
   """
     cd rust-lib/
-    if [ ${BUILD_FLAG} == release ]
-    then
-      cargo build --${BUILD_FLAG} --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features=${FEATURES}
-    else
-      cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features=${FEATURES}
-    fi
+    cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features=${FEATURES}
     cd ../
   """,
 ]
 script_runner = "@shell"
 
+#
+[tasks.flowy-sdk-release]
+description = "Build flowy sdk in release mode"
+category = "Build"
+dependencies = ["env_check"]
+run_task = { name = ["setup-crate-type","sdk-release-build", "post-desktop", "restore-crate-type"] }
 
+#
+[tasks.sdk-release-build]
+script = [
+  """
+    cd rust-lib/
+    cargo build --${BUILD_FLAG} --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features=${FEATURES}
+    cd ../
+  """,
+]
+script_runner = "@shell"
+
+#
 [tasks.post-desktop]
+mac_alias = "post-desktop-macos"
+windows_alias = "post-desktop-windows"
+
+[tasks.post-desktop-macos]
 private = true
 script = [
   """
-    echo "🚀 🚀 🚀  Flowy-SDK build success"
+    echo "🚀 🚀 🚀  Flowy-SDK(macOS) build success"
     cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/lib${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT} \
-    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages/flowy_sdk/macos/lib${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT}
-  """,
-  """
+    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages/flowy_sdk/${TARGET_OS}/lib${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT}
+
     cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h \
-    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages/flowy_sdk/macos/Classes/binding.h
+    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages/flowy_sdk/${TARGET_OS}/Classes/binding.h
   """,
 ]
 script_runner = "@duckscript"
 
+
+[tasks.post-desktop-windows]
+private = true
+script = [
+  """
+    echo "🚀 🚀 🚀  Flowy-SDK(windows) build success"
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT} \
+    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages/flowy_sdk/${TARGET_OS}/dart_ffi/${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT}
+
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h \
+    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages/flowy_sdk/${TARGET_OS}/dart_ffi/binding.h
+  """,
+]
+script_runner = "@duckscript"
+
+#
 [tasks.copy-to-sys-tmpdir]
 private = true
 condition = { profiles = [ "development-mac" ], platforms = ["mac"] }

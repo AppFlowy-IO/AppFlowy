@@ -19,7 +19,7 @@ flowy-ws = { path = "../flowy-ws" }
 flowy-net = { path = "../flowy-net", features = ["flowy_request"] }
 
 
-diesel = {version = "1.4.7", features = ["sqlite"]}
+diesel = {version = "1.4.8", features = ["sqlite"]}
 diesel_derives = {version = "1.4.1", features = ["sqlite"]}
 protobuf = {version = "2.18.0"}
 unicode-segmentation = "1.8"

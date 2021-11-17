@@ -75,3 +75,4 @@ build/
 
 **/*.dylib
 **/*.a
+**/*.lib

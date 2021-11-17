@@ -15,6 +15,7 @@ DynamicLibrary _open() {
   if (Platform.isAndroid) return DynamicLibrary.open('libdart_ffi.so');
   if (Platform.isMacOS) return DynamicLibrary.executable();
   if (Platform.isIOS) return DynamicLibrary.executable();
+  if (Platform.isWindows) return DynamicLibrary.executable();
   throw UnsupportedError('This platform is not supported.');
 }
 

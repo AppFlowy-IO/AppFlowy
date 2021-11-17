@@ -41,12 +41,22 @@ RUST_COMPILE_TARGET = "x86_64-apple-darwin"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "app"
 
+
+[env.development-windows]
+TARGET_OS = "windows"
+RUST_COMPILE_TARGET = "x86_64-pc-windows-msvc"
+BUILD_FLAG = "debug"
+FLUTTER_OUTPUT_DIR = "Debug"
+PRODUCT_EXT = "exe"
+SDK_EXT = "lib"
+
 [env.production-desktop-windows-x86]
 BUILD_FLAG = "release"
 TARGET_OS = "windows"
-RUST_COMPILE_TARGET = "x86_64-pc-windows-gnu"
+RUST_COMPILE_TARGET = "x86_64-pc-windows-msvc"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "exe"
+SDK_EXT = "lib"
 
 [tasks.echo_env]
 script = [
