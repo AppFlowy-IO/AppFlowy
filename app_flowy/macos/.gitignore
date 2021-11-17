@@ -4,3 +4,4 @@
 
 # Xcode-related
 **/xcuserdata/
+Podfile.lock
