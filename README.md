@@ -64,6 +64,9 @@ cd appflowy
 make install_rust
 ```
 ```shell
+source $HOME/.cargo/env
+```
+```shell
 make install_cargo_make
 ```
 ```shell
