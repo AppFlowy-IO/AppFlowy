@@ -9,7 +9,7 @@ script_runner = "@shell"
 
 [tasks.appflowy-windows]
 dependencies = ["flowy-sdk-release"]
-run_task = { name = ["flutter-build", "copy-dll-to-build-folder", "copy-to-product"] }
+run_task = { name = ["flutter-build", "copy-to-product"] }
 
 [tasks.copy-to-product]
 mac_alias = "copy-to-product-macos"
@@ -32,20 +32,20 @@ script = [
 ]
 script_runner = "@shell"
 
-[tasks.copy-dll-to-build-folder]
-script = [
-  """
-    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT} \
-    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/build/${TARGET_OS}/runner/${BUILD_FLAG}/${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT}
-  """,
-]
-script_runner = "@duckscript"
 
 [tasks.copy-to-product-windows]
 script = [
   """
-  # TODO:
-  echo TBD...
+  product_path= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/product/${VERSION}
+  output_path= set ${product_path}/${TARGET_OS}
+  if is_path_exists ${output_path}
+    rm -r ${output_path}/
+  fi
+  mkdir ${output_path}
+
+  product= set ${PRODUCT_NAME}
+  glob_cp  ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/build/${TARGET_OS}/runner/${FLUTTER_OUTPUT_DIR}/**/* \
+  ${output_path}/${product}
   """,
 ]
 script_runner = "@duckscript"

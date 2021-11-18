@@ -77,11 +77,15 @@ private = true
 script = [
   """
     echo "🚀 🚀 🚀  Flowy-SDK(windows) build success"
-    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT} \
-    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages/flowy_sdk/${TARGET_OS}/dart_ffi/${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT}
+    dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/windows/flutter/dart_ffi
 
+    # copy dll
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT} \
+    ${dart_ffi_dir}/${CARGO_MAKE_CRATE_FS_NAME}.${SDK_EXT}
+
+    # copy binding.h
     cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h \
-    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages/flowy_sdk/${TARGET_OS}/dart_ffi/binding.h
+    ${dart_ffi_dir}/binding.h
   """,
 ]
 script_runner = "@duckscript"

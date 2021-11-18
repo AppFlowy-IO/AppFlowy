@@ -15,3 +15,8 @@ target_compile_definitions(${BINARY_NAME} PRIVATE "NOMINMAX")
 target_link_libraries(${BINARY_NAME} PRIVATE flutter flutter_wrapper_app)
 target_include_directories(${BINARY_NAME} PRIVATE "${CMAKE_SOURCE_DIR}")
 add_dependencies(${BINARY_NAME} flutter_assemble)
+
+
+# === Flutter Library ===
+#set(DART_FFI "${CMAKE_CURRENT_SOURCE_DIR}/dart_ffi/dart_ffi.dll")
+#set(DART_FFI ${DART_FFI} PARENT_SCOPE)

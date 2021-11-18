@@ -13,6 +13,9 @@ rustup show
 #   3. ~/.profile
 #   4. ~/.zshrc
 
+
+# TODO: Automatically exec the script base on the current system
+
 # for macos
 cargo make --profile development-mac flowy-sdk-dev
 
