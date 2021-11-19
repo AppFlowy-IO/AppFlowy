@@ -10,7 +10,7 @@ use flowy_user::{
     errors::{ErrorCode, UserError},
     services::user::UserSession,
 };
-use flowy_ws::{WsMessage, WsMessageHandler, WsModule};
+use lib_ws::{WsMessage, WsMessageHandler, WsModule};
 use std::{convert::TryInto, path::Path, sync::Arc};
 
 pub struct DocumentDepsResolver {

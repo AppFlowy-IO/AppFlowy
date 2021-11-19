@@ -1,6 +1,6 @@
 use crate::editor::{TestBuilder, TestOp::*};
 use flowy_document_infra::core::{FlowyDoc, PlainDoc, RECORD_THRESHOLD};
-use flowy_ot::core::{Interval, NEW_LINE, WHITESPACE};
+use lib_ot::core::{Interval, NEW_LINE, WHITESPACE};
 
 #[test]
 fn history_insert_undo() {

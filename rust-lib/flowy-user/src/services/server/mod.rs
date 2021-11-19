@@ -9,8 +9,8 @@ use crate::{
     entities::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile},
     errors::UserError,
 };
-use flowy_infra::future::ResultFuture;
 use flowy_net::config::ServerConfig;
+use lib_infra::future::ResultFuture;
 
 pub trait UserServerAPI {
     fn sign_up(&self, params: SignUpParams) -> ResultFuture<SignUpResponse, UserError>;

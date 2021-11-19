@@ -1,4 +1,4 @@
-use flowy_ot::core::{Delta, DeltaBuilder};
+use lib_ot::core::{Delta, DeltaBuilder};
 
 #[inline]
 pub fn doc_initial_delta() -> Delta { DeltaBuilder::new().insert("\n").build() }

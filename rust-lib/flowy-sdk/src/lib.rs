@@ -3,11 +3,11 @@ mod deps_resolve;
 pub mod module;
 
 use crate::deps_resolve::WorkspaceDepsResolver;
-use flowy_dispatch::prelude::*;
 use flowy_document::module::FlowyDocument;
 use flowy_net::config::ServerConfig;
 use flowy_user::services::user::{UserSession, UserSessionBuilder, UserStatus};
 use flowy_workspace::{errors::WorkspaceError, prelude::WorkspaceController};
+use lib_dispatch::prelude::*;
 use module::mk_modules;
 pub use module::*;
 use std::sync::{
@@ -141,7 +141,7 @@ async fn _listen_user_status(
 }
 
 fn init_kv(root: &str) {
-    match flowy_infra::kv::KV::init(root) {
+    match lib_infra::kv::KV::init(root) {
         Ok(_) => {},
         Err(e) => tracing::error!("Init kv store failedL: {}", e),
     }

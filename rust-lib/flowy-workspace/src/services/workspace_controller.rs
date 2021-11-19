@@ -8,12 +8,12 @@ use crate::{
 use chrono::Utc;
 use flowy_database::SqliteConnection;
 use flowy_document_infra::{entities::doc::DocDelta, user_default::initial_read_me};
-use flowy_infra::kv::KV;
 use flowy_workspace_infra::{
     entities::{app::RepeatedApp, view::View, workspace::*},
     user_default,
 };
 use lazy_static::lazy_static;
+use lib_infra::kv::KV;
 use parking_lot::RwLock;
 use std::{collections::HashMap, sync::Arc};
 

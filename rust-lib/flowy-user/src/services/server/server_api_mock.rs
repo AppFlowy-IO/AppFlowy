@@ -4,7 +4,7 @@ use crate::{
 };
 
 use crate::services::server::UserServerAPI;
-use flowy_infra::{future::ResultFuture, uuid};
+use lib_infra::{future::ResultFuture, uuid};
 
 pub struct UserServerMock {}
 

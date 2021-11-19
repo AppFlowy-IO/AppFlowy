@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
-use flowy_dispatch::prelude::ModuleRequest;
+use lib_dispatch::prelude::ModuleRequest;
 use std::convert::TryFrom;
 
 #[derive(Default, ProtoBuf)]

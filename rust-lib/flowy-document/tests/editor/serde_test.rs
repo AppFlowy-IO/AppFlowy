@@ -1,5 +1,5 @@
 use flowy_document_infra::core::{Document, PlainDoc};
-use flowy_ot::core::*;
+use lib_ot::core::*;
 
 #[test]
 fn operation_insert_serialize_test() {

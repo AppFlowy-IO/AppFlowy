@@ -1,5 +1,5 @@
 use crate::{core::extensions::InsertExt, util::is_whitespace};
-use flowy_ot::core::{count_utf16_code_units, plain_attributes, Attribute, Attributes, Delta, DeltaBuilder, DeltaIter};
+use lib_ot::core::{count_utf16_code_units, plain_attributes, Attribute, Attributes, Delta, DeltaBuilder, DeltaIter};
 use std::cmp::min;
 use url::Url;
 

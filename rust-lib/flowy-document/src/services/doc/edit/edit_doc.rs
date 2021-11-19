@@ -16,9 +16,9 @@ use flowy_document_infra::{
     },
     errors::DocumentResult,
 };
-use flowy_infra::retry::{ExponentialBackoff, Retry};
-use flowy_ot::core::{Attribute, Delta, Interval};
-use flowy_ws::WsState;
+use lib_infra::retry::{ExponentialBackoff, Retry};
+use lib_ot::core::{Attribute, Delta, Interval};
+use lib_ws::WsState;
 use std::{convert::TryFrom, sync::Arc};
 use tokio::sync::{mpsc, mpsc::UnboundedSender, oneshot};
 

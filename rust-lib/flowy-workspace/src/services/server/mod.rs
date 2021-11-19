@@ -14,8 +14,8 @@ use crate::{
     },
     errors::WorkspaceError,
 };
-use flowy_infra::future::ResultFuture;
 use flowy_net::config::ServerConfig;
+use lib_infra::future::ResultFuture;
 use std::sync::Arc;
 
 pub(crate) type Server = Arc<dyn WorkspaceServerAPI + Send + Sync>;

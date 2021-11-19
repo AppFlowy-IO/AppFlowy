@@ -1,7 +1,7 @@
 use diesel::sql_types::Integer;
 
 use flowy_database::schema::view_table;
-use flowy_infra::timestamp;
+use lib_infra::timestamp;
 
 use crate::{
     entities::{

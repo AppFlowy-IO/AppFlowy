@@ -1,7 +1,7 @@
 use crate::errors::UserError;
 use flowy_database::{DBConnection, Database};
-use flowy_sqlite::ConnectionPool;
 use lazy_static::lazy_static;
+use lib_sqlite::ConnectionPool;
 use once_cell::sync::Lazy;
 use parking_lot::{Mutex, RwLock};
 use std::{collections::HashMap, sync::Arc, time::Duration};

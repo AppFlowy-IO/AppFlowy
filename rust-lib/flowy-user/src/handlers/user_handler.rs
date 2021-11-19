@@ -1,5 +1,5 @@
 use crate::{entities::*, errors::UserError, services::user::UserSession};
-use flowy_dispatch::prelude::*;
+use lib_dispatch::prelude::*;
 
 use std::{convert::TryInto, sync::Arc};
 

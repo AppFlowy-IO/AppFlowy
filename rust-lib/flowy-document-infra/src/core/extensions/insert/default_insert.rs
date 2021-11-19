@@ -1,5 +1,5 @@
 use crate::core::extensions::InsertExt;
-use flowy_ot::core::{AttributeKey, Attributes, Delta, DeltaBuilder, DeltaIter, NEW_LINE};
+use lib_ot::core::{AttributeKey, Attributes, Delta, DeltaBuilder, DeltaIter, NEW_LINE};
 
 pub struct DefaultInsertAttribute {}
 impl InsertExt for DefaultInsertAttribute {

@@ -1,4 +1,4 @@
-use flowy_dispatch::prelude::*;
+use lib_dispatch::prelude::*;
 
 use crate::{event::UserEvent, handlers::*, services::user::UserSession};
 use std::sync::Arc;

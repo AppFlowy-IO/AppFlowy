@@ -3,7 +3,7 @@ use flowy_document_infra::{
     entities::doc::{CreateDocParams, Doc, DocIdentifier, UpdateDocParams},
     user_default::doc_initial_string,
 };
-use flowy_infra::future::ResultFuture;
+use lib_infra::future::ResultFuture;
 
 pub struct DocServerMock {}
 

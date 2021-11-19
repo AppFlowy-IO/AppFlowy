@@ -1,10 +1,10 @@
 use bytes::Bytes;
 
 use flowy_derive::ProtoBuf;
-use flowy_dispatch::prelude::{EventResponse, ResponseBuilder};
 use flowy_document::errors::DocError;
 use flowy_net::errors::ErrorCode as ServerErrorCode;
 pub use flowy_workspace_infra::errors::ErrorCode;
+use lib_dispatch::prelude::{EventResponse, ResponseBuilder};
 use std::{convert::TryInto, fmt, fmt::Debug};
 
 pub type WorkspaceResult<T> = std::result::Result<T, WorkspaceError>;
@@ -86,7 +86,7 @@ impl std::convert::From<flowy_database::Error> for WorkspaceError {
     fn from(error: flowy_database::Error) -> Self { WorkspaceError::internal().context(error) }
 }
 
-impl flowy_dispatch::Error for WorkspaceError {
+impl lib_dispatch::Error for WorkspaceError {
     fn as_response(&self) -> EventResponse {
         let bytes: Bytes = self.clone().try_into().unwrap();
         ResponseBuilder::Err().data(bytes).build()

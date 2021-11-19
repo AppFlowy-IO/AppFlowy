@@ -1,6 +1,6 @@
 use crate::document::helper::{DocScript, DocumentTest};
 use flowy_document_infra::core::{Document, FlowyDoc};
-use flowy_ot::core::{Attribute, Interval};
+use lib_ot::core::{Attribute, Interval};
 
 #[rustfmt::skip]
 //                         ┌─────────┐       ┌─────────┐

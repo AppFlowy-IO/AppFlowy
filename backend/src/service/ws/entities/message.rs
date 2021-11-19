@@ -1,7 +1,7 @@
 use actix::Message;
 use bytes::Bytes;
 use flowy_document_infra::entities::ws::WsDocumentData;
-use flowy_ws::{WsMessage, WsModule};
+use lib_ws::{WsMessage, WsModule};
 use std::convert::TryInto;
 
 #[derive(Debug, Message, Clone)]

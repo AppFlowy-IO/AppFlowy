@@ -2,7 +2,7 @@ use crate::{
     core::extensions::InsertExt,
     util::{contain_newline, is_newline},
 };
-use flowy_ot::core::{plain_attributes, AttributeKey, Delta, DeltaBuilder, DeltaIter, OpNewline, NEW_LINE};
+use lib_ot::core::{plain_attributes, AttributeKey, Delta, DeltaBuilder, DeltaIter, OpNewline, NEW_LINE};
 
 pub struct PreserveInlineFormat {}
 impl InsertExt for PreserveInlineFormat {

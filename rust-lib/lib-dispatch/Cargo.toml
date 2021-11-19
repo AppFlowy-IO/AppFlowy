@@ -1,5 +1,5 @@
 [package]
-name = "flowy-dispatch"
+name = "lib-dispatch"
 version = "0.1.0"
 edition = "2018"
 

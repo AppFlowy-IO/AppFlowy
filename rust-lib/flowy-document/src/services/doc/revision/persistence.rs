@@ -7,9 +7,9 @@ use async_stream::stream;
 use dashmap::DashMap;
 use flowy_database::{ConnectionPool, SqliteConnection};
 use flowy_document_infra::entities::doc::{revision_from_doc, Doc, RevId, RevType, Revision, RevisionRange};
-use flowy_infra::future::ResultFuture;
-use flowy_ot::core::{Delta, Operation, OperationTransformable};
 use futures::stream::StreamExt;
+use lib_infra::future::ResultFuture;
+use lib_ot::core::{Delta, Operation, OperationTransformable};
 use std::{collections::VecDeque, sync::Arc, time::Duration};
 use tokio::{
     sync::{broadcast, mpsc, RwLock},

@@ -1,8 +1,8 @@
 use bytes::Bytes;
 
 use flowy_derive::ProtoBuf;
-use flowy_dispatch::prelude::{EventResponse, ResponseBuilder};
 pub use flowy_user_infra::errors::ErrorCode;
+use lib_dispatch::prelude::{EventResponse, ResponseBuilder};
 use std::{convert::TryInto, fmt, fmt::Debug};
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
@@ -77,19 +77,19 @@ impl std::convert::From<::r2d2::Error> for UserError {
     fn from(error: r2d2::Error) -> Self { UserError::internal().context(error) }
 }
 
-impl std::convert::From<flowy_ws::errors::WsError> for UserError {
-    fn from(error: flowy_ws::errors::WsError) -> Self {
+impl std::convert::From<lib_ws::errors::WsError> for UserError {
+    fn from(error: lib_ws::errors::WsError) -> Self {
         match error.code {
-            flowy_ws::errors::ErrorCode::InternalError => UserError::internal().context(error.msg),
+            lib_ws::errors::ErrorCode::InternalError => UserError::internal().context(error.msg),
             _ => UserError::internal().context(error),
         }
     }
 }
 
 // use diesel::result::{Error, DatabaseErrorKind};
-// use flowy_sqlite::ErrorKind;
-impl std::convert::From<flowy_sqlite::Error> for UserError {
-    fn from(error: flowy_sqlite::Error) -> Self { UserError::internal().context(error) }
+// use lib_sqlite::ErrorKind;
+impl std::convert::From<lib_sqlite::Error> for UserError {
+    fn from(error: lib_sqlite::Error) -> Self { UserError::internal().context(error) }
 }
 
 impl std::convert::From<flowy_net::errors::ServerError> for UserError {
@@ -119,7 +119,7 @@ fn server_error_to_user_error(error: flowy_net::errors::ServerError) -> (ErrorCo
     }
 }
 
-impl flowy_dispatch::Error for UserError {
+impl lib_dispatch::Error for UserError {
     fn as_response(&self) -> EventResponse {
         let bytes: Bytes = self.clone().try_into().unwrap();
         ResponseBuilder::Err().data(bytes).build()

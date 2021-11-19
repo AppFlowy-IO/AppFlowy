@@ -5,10 +5,10 @@ use crate::{
     services::{server::construct_workspace_server, AppController, TrashCan, ViewController, WorkspaceController},
 };
 use flowy_database::DBConnection;
-use flowy_dispatch::prelude::*;
 use flowy_document::module::FlowyDocument;
 use flowy_net::config::ServerConfig;
-use flowy_sqlite::ConnectionPool;
+use lib_dispatch::prelude::*;
+use lib_sqlite::ConnectionPool;
 use std::sync::Arc;
 
 pub trait WorkspaceDeps: WorkspaceUser + WorkspaceDatabase {}

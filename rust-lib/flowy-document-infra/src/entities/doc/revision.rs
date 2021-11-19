@@ -1,6 +1,6 @@
 use crate::{entities::doc::Doc, util::md5};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_ot::core::Delta;
+use lib_ot::core::Delta;
 use std::{fmt::Formatter, ops::RangeInclusive};
 
 #[derive(Debug, ProtoBuf_Enum, Clone, Eq, PartialEq)]

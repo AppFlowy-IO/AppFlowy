@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "lib-dispatch",
+  "lib-dispatch",
   "flowy-sdk",
   "dart-ffi",
   "flowy-log",
@@ -14,10 +14,10 @@ members = [
   "lib-infra",
   "flowy-workspace",
   "flowy-workspace-infra",
-    "dart-notify",
+  "dart-notify",
   "flowy-document",
   "flowy-document-infra",
-    "lib-ot",
+  "lib-ot",
   "flowy-net",
   "lib-ws",
   "flowy-backend-api",

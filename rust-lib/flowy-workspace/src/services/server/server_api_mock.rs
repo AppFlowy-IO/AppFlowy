@@ -8,7 +8,7 @@ use crate::{
     errors::WorkspaceError,
     services::server::WorkspaceServerAPI,
 };
-use flowy_infra::{future::ResultFuture, timestamp, uuid};
+use lib_infra::{future::ResultFuture, timestamp, uuid};
 
 pub struct WorkspaceServerMock {}
 

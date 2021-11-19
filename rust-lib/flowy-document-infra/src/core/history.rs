@@ -1,4 +1,4 @@
-use flowy_ot::core::Delta;
+use lib_ot::core::Delta;
 
 const MAX_UNDOS: usize = 20;
 

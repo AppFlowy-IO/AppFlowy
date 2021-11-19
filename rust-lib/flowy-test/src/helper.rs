@@ -1,6 +1,6 @@
 use bytes::Bytes;
-use flowy_dispatch::prelude::{EventDispatch, ModuleRequest, ToBytes};
-use flowy_infra::{kv::KV, uuid};
+use lib_dispatch::prelude::{EventDispatch, ModuleRequest, ToBytes};
+use lib_infra::{kv::KV, uuid};
 
 use flowy_user::{
     entities::{SignInRequest, SignUpRequest, UserProfile},

@@ -1,5 +1,5 @@
 use crate::{module::WorkspaceUser, services::server::Server};
-use flowy_infra::retry::Action;
+use lib_infra::retry::Action;
 use pin_project::pin_project;
 use std::{
     future::Future,

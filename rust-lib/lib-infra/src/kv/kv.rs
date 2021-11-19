@@ -2,8 +2,8 @@ use crate::kv::schema::{kv_table, kv_table::dsl, KV_SQL};
 use ::diesel::{query_dsl::*, ExpressionMethods};
 use diesel::{Connection, SqliteConnection};
 use flowy_derive::ProtoBuf;
-use flowy_sqlite::{DBConnection, Database, PoolConfig};
 use lazy_static::lazy_static;
+use lib_sqlite::{DBConnection, Database, PoolConfig};
 use std::{collections::HashMap, path::Path, sync::RwLock};
 
 const DB_NAME: &str = "kv.db";

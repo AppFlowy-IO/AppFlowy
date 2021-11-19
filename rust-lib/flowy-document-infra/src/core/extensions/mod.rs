@@ -2,7 +2,7 @@ pub use delete::*;
 pub use format::*;
 pub use insert::*;
 
-use flowy_ot::core::{Attribute, Delta, Interval};
+use lib_ot::core::{Attribute, Delta, Interval};
 
 mod delete;
 mod format;

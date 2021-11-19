@@ -1,6 +1,6 @@
 use crate::service::ws::WsClientData;
 
-use flowy_ws::WsModule;
+use lib_ws::WsModule;
 use std::{collections::HashMap, sync::Arc};
 
 pub trait WsBizHandler: Send + Sync {
@@ -13,15 +13,9 @@ pub struct WsBizHandlers {
 }
 
 impl WsBizHandlers {
-    pub fn new() -> Self {
-        Self {
-            inner: HashMap::new(),
-        }
-    }
+    pub fn new() -> Self { Self { inner: HashMap::new() } }
 
-    pub fn register(&mut self, source: WsModule, handler: BizHandler) {
-        self.inner.insert(source, handler);
-    }
+    pub fn register(&mut self, source: WsModule, handler: BizHandler) { self.inner.insert(source, handler); }
 
     pub fn get(&self, source: &WsModule) -> Option<BizHandler> {
         match self.inner.get(source) {

@@ -1,7 +1,7 @@
 use crate::{errors::DocError, services::server::DocumentServerAPI};
 use flowy_document_infra::entities::doc::{CreateDocParams, Doc, DocIdentifier, UpdateDocParams};
-use flowy_infra::future::ResultFuture;
 use flowy_net::{config::*, request::HttpRequestBuilder};
+use lib_infra::future::ResultFuture;
 
 pub struct DocServer {
     config: ServerConfig,

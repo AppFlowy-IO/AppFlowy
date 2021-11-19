@@ -6,10 +6,10 @@ use crate::{
 };
 use bytes::Bytes;
 use dashmap::DashMap;
-use flowy_infra::retry::{Action, FixedInterval, Retry};
 use flowy_net::errors::ServerError;
 use futures_channel::mpsc::{UnboundedReceiver, UnboundedSender};
 use futures_core::{ready, Stream};
+use lib_infra::retry::{Action, FixedInterval, Retry};
 use parking_lot::RwLock;
 use pin_project::pin_project;
 use std::{

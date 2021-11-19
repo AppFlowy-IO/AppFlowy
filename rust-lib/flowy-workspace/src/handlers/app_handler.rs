@@ -14,7 +14,7 @@ use crate::{
     errors::WorkspaceError,
     services::{AppController, TrashCan, ViewController},
 };
-use flowy_dispatch::prelude::{data_result, Data, DataResult, Unit};
+use lib_dispatch::prelude::{data_result, Data, DataResult, Unit};
 use std::{convert::TryInto, sync::Arc};
 
 pub(crate) async fn create_app_handler(

@@ -1,4 +1,4 @@
-use flowy_ot::core::{NEW_LINE, WHITESPACE};
+use lib_ot::core::{NEW_LINE, WHITESPACE};
 use std::sync::atomic::{AtomicI64, Ordering::SeqCst};
 
 #[inline]

@@ -11,7 +11,7 @@ use tokio::time::{sleep, Duration};
 // use crate::helper::*;
 use crate::util::helper::{spawn_server, TestServer};
 use flowy_document_infra::{entities::doc::DocIdentifier, protobuf::UpdateDocParams};
-use flowy_ot::core::{Attribute, Delta, Interval};
+use lib_ot::core::{Attribute, Delta, Interval};
 use parking_lot::RwLock;
 
 pub struct DocumentTest {

@@ -11,7 +11,7 @@ use flowy_document_infra::{
     protobuf::{Doc, RevId, RevType, Revision, RevisionRange, UpdateDocParams},
 };
 use flowy_net::errors::{internal_error, ServerError};
-use flowy_ot::core::{Delta, OperationTransformable};
+use lib_ot::core::{Delta, OperationTransformable};
 use parking_lot::RwLock;
 use protobuf::Message;
 use sqlx::PgPool;

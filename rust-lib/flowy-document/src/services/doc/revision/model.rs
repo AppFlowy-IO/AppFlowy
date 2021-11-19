@@ -4,7 +4,7 @@ use crate::{
 };
 use flowy_database::ConnectionPool;
 use flowy_document_infra::entities::doc::{Revision, RevisionRange};
-use flowy_infra::future::ResultFuture;
+use lib_infra::future::ResultFuture;
 
 use std::sync::Arc;
 use tokio::sync::broadcast;

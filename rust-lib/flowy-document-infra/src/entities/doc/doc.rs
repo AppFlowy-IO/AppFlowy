@@ -1,5 +1,5 @@
 use flowy_derive::ProtoBuf;
-use flowy_ot::{core::Delta, errors::OTError};
+use lib_ot::{core::Delta, errors::OTError};
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct CreateDocParams {

@@ -16,10 +16,10 @@ use flowy_database::{
     ExpressionMethods,
     UserDatabaseConnection,
 };
-use flowy_infra::kv::KV;
 use flowy_net::config::ServerConfig;
-use flowy_sqlite::ConnectionPool;
-use flowy_ws::{WsController, WsMessageHandler, WsState};
+use lib_infra::kv::KV;
+use lib_sqlite::ConnectionPool;
+use lib_ws::{WsController, WsMessageHandler, WsState};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;

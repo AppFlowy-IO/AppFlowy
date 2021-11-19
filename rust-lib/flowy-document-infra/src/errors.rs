@@ -54,10 +54,8 @@ pub enum ErrorCode {
     InternalError = 1000,
 }
 
-impl std::convert::From<flowy_ot::errors::OTError> for DocumentError {
-    fn from(error: flowy_ot::errors::OTError) -> Self {
-        DocumentError::new(ErrorCode::InternalError, "").context(error)
-    }
+impl std::convert::From<lib_ot::errors::OTError> for DocumentError {
+    fn from(error: lib_ot::errors::OTError) -> Self { DocumentError::new(ErrorCode::InternalError, "").context(error) }
 }
 
 impl std::convert::From<protobuf::ProtobufError> for DocumentError {

@@ -7,8 +7,8 @@ use flowy_document_infra::{
     entities::doc::{Doc, RevId, RevType, Revision, RevisionRange},
     util::RevIdCounter,
 };
-use flowy_infra::future::ResultFuture;
-use flowy_ot::core::{Delta, OperationTransformable};
+use lib_infra::future::ResultFuture;
+use lib_ot::core::{Delta, OperationTransformable};
 use std::sync::Arc;
 use tokio::sync::mpsc;
 

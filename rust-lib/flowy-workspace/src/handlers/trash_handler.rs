@@ -3,7 +3,7 @@ use crate::{
     errors::WorkspaceError,
     services::TrashCan,
 };
-use flowy_dispatch::prelude::{data_result, Data, DataResult, Unit};
+use lib_dispatch::prelude::{data_result, Data, DataResult, Unit};
 use std::sync::Arc;
 
 #[tracing::instrument(skip(controller), err)]

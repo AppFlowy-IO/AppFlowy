@@ -1,7 +1,7 @@
 use crate::helper::*;
-use flowy_infra::uuid;
 use flowy_test::{builder::UserTest, FlowyTest};
 use flowy_user::{errors::ErrorCode, event::UserEvent::*, prelude::*};
+use lib_infra::uuid;
 use serial_test::*;
 
 #[tokio::test]

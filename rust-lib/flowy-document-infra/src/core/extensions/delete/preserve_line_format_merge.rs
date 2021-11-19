@@ -1,5 +1,5 @@
 use crate::{core::extensions::DeleteExt, util::is_newline};
-use flowy_ot::core::{plain_attributes, CharMetric, Delta, DeltaBuilder, DeltaIter, Interval, NEW_LINE};
+use lib_ot::core::{plain_attributes, CharMetric, Delta, DeltaBuilder, DeltaIter, Interval, NEW_LINE};
 
 pub struct PreserveLineFormatOnMerge {}
 impl DeleteExt for PreserveLineFormatOnMerge {

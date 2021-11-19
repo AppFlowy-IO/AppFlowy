@@ -15,8 +15,8 @@ use crate::{
     sql_tables::view::{ViewTable, ViewTableChangeset, ViewTableSql},
 };
 use flowy_document::module::FlowyDocument;
-use flowy_infra::kv::KV;
 use flowy_workspace_infra::entities::share::{ExportData, ExportParams};
+use lib_infra::kv::KV;
 
 const LATEST_VIEW_ID: &str = "latest_view_id";
 

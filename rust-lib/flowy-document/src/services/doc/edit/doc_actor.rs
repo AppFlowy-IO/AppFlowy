@@ -5,8 +5,8 @@ use flowy_document_infra::{
     entities::doc::{RevId, Revision},
     errors::DocumentError,
 };
-use flowy_ot::core::{Attribute, Delta, Interval, OperationTransformable};
 use futures::stream::StreamExt;
+use lib_ot::core::{Attribute, Delta, Interval, OperationTransformable};
 use std::{convert::TryFrom, sync::Arc};
 use tokio::sync::{mpsc, oneshot, RwLock};
 

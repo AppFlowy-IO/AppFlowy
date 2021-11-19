@@ -6,7 +6,7 @@ use crate::{
     errors::DocumentError,
     user_default::doc_initial_delta,
 };
-use flowy_ot::core::*;
+use lib_ot::core::*;
 use tokio::sync::mpsc;
 
 pub trait CustomDocument {

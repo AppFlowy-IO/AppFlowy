@@ -1,5 +1,5 @@
 [package]
-name = "flowy-ws"
+name = "lib-ws"
 version = "0.1.0"
 edition = "2018"
 
@@ -8,7 +8,7 @@ edition = "2018"
 [dependencies]
 flowy-derive = { path = "../flowy-derive" }
 flowy-net = { path = "../flowy-net" }
-flowy-infra = { path = "../lib-infra" }
+lib-infra = { path = "../lib-infra" }
 
 tokio-tungstenite = "0.15"
 futures-util = "0.3.17"

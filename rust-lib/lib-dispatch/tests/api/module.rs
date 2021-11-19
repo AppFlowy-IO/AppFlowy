@@ -1,4 +1,4 @@
-use flowy_dispatch::prelude::*;
+use lib_dispatch::prelude::*;
 use std::sync::Arc;
 
 pub async fn hello() -> String { "say hello".to_string() }

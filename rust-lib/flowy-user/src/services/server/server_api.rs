@@ -4,8 +4,8 @@ use crate::{
     services::server::UserServerAPI,
 };
 use flowy_backend_api::user_request::*;
-use flowy_infra::future::ResultFuture;
 use flowy_net::config::*;
+use lib_infra::future::ResultFuture;
 
 pub struct UserServer {
     config: ServerConfig,

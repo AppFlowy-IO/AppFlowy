@@ -2,7 +2,7 @@ use crate::{
     core::extensions::{format::helper::line_break, FormatExt},
     util::find_newline,
 };
-use flowy_ot::core::{Attribute, AttributeScope, Delta, DeltaBuilder, DeltaIter, Interval};
+use lib_ot::core::{Attribute, AttributeScope, Delta, DeltaBuilder, DeltaIter, Interval};
 
 pub struct ResolveInlineFormat {}
 impl FormatExt for ResolveInlineFormat {

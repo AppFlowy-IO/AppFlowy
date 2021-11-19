@@ -5,7 +5,7 @@ pub mod entities;
 mod protobuf;
 
 use crate::{dart::DartStreamSender, entities::SubscribeObject};
-use flowy_dispatch::prelude::ToBytes;
+use lib_dispatch::prelude::ToBytes;
 
 pub struct DartNotifyBuilder {
     id: String,

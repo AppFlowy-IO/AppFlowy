@@ -1,5 +1,5 @@
 use crate::{entities::*, errors::UserError, services::user::UserSession};
-use flowy_dispatch::prelude::*;
+use lib_dispatch::prelude::*;
 use std::{convert::TryInto, sync::Arc};
 
 // tracing instrument 👉🏻 https://docs.rs/tracing/0.1.26/tracing/attr.instrument.html

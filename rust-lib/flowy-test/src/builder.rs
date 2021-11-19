@@ -1,12 +1,12 @@
-use flowy_dispatch::prelude::{EventDispatch, EventResponse, FromBytes, ModuleRequest, StatusCode, ToBytes};
 use flowy_user::entities::UserProfile;
+use lib_dispatch::prelude::{EventDispatch, EventResponse, FromBytes, ModuleRequest, StatusCode, ToBytes};
 use std::{
     fmt::{Debug, Display},
     hash::Hash,
 };
 
 use crate::FlowyTestSDK;
-use flowy_dispatch::prelude::*;
+use lib_dispatch::prelude::*;
 
 use flowy_sdk::*;
 use flowy_user::errors::UserError;

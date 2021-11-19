@@ -1,5 +1,5 @@
 use crate::core::extensions::*;
-use flowy_ot::{
+use lib_ot::{
     core::{trim, Attribute, Delta, Interval},
     errors::{ErrorBuilder, OTError, OTErrorCode},
 };

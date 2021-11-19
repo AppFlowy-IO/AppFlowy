@@ -1,5 +1,5 @@
 use crate::core::extensions::DeleteExt;
-use flowy_ot::core::{Delta, DeltaBuilder, Interval};
+use lib_ot::core::{Delta, DeltaBuilder, Interval};
 
 pub struct DefaultDelete {}
 impl DeleteExt for DefaultDelete {

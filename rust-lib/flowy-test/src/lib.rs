@@ -3,14 +3,14 @@ mod helper;
 pub mod workspace;
 
 use crate::helper::*;
-use flowy_infra::uuid;
 use flowy_net::config::ServerConfig;
 use flowy_sdk::{FlowySDK, FlowySDKConfig};
 use flowy_user::entities::UserProfile;
+use lib_infra::uuid;
 
 pub mod prelude {
     pub use crate::{builder::*, helper::*, *};
-    pub use flowy_dispatch::prelude::*;
+    pub use lib_dispatch::prelude::*;
 }
 
 pub type FlowyTestSDK = FlowySDK;

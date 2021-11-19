@@ -1,5 +1,5 @@
 use crate::util::find_newline;
-use flowy_ot::core::{plain_attributes, Attribute, AttributeScope, Delta, Operation};
+use lib_ot::core::{plain_attributes, Attribute, AttributeScope, Delta, Operation};
 
 pub(crate) fn line_break(op: &Operation, attribute: &Attribute, scope: AttributeScope) -> Delta {
     let mut new_delta = Delta::new();

@@ -5,7 +5,7 @@ mod undo_redo_test;
 
 use derive_more::Display;
 use flowy_document_infra::core::{CustomDocument, Document};
-use flowy_ot::core::*;
+use lib_ot::core::*;
 use rand::{prelude::*, Rng as WrappedRng};
 use std::{sync::Once, time::Duration};
 

@@ -63,8 +63,8 @@ async-stream = "0.3.2"
 flowy-user-infra = { path = "../rust-lib/flowy-user-infra" }
 flowy-workspace-infra = { path = "../rust-lib/flowy-workspace-infra" }
 flowy-document-infra = { path = "../rust-lib/flowy-document-infra" }
-flowy-ws = { path = "../rust-lib/lib-ws" }
-flowy-ot = { path = "../rust-lib/lib-ot" }
+lib-ws = { path = "../rust-lib/lib-ws" }
+lib-ot = { path = "../rust-lib/lib-ot" }
 flowy-net = { path = "../rust-lib/flowy-net", features = ["http_server"] }
 
 ormx = { version = "0.7", features = ["postgres"]}
@@ -104,9 +104,9 @@ flowy-sdk = { path = "../rust-lib/flowy-sdk", features = ["http_server"] }
 flowy-user = { path = "../rust-lib/flowy-user", features = ["http_server"] }
 flowy-document = { path = "../rust-lib/flowy-document", features = ["flowy_test", "http_server"] }
 
-flowy-ws = { path = "../rust-lib/lib-ws" }
+lib-ws = { path = "../rust-lib/lib-ws" }
 flowy-test = { path = "../rust-lib/flowy-test" }
-flowy-infra = { path = "../rust-lib/lib-infra" }
-flowy-ot = { path = "../rust-lib/lib-ot" }
-flowy-sqlite = { path = "../rust-lib/lib-sqlite" }
+lib-infra = { path = "../rust-lib/lib-infra" }
+lib-ot = { path = "../rust-lib/lib-ot" }
+lib-sqlite = { path = "../rust-lib/lib-sqlite" }
 futures-util = "0.3.15"

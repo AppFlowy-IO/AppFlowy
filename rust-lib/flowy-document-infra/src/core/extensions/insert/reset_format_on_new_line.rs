@@ -1,5 +1,5 @@
 use crate::{core::extensions::InsertExt, util::is_newline};
-use flowy_ot::core::{AttributeKey, Attributes, CharMetric, Delta, DeltaBuilder, DeltaIter, NEW_LINE};
+use lib_ot::core::{AttributeKey, Attributes, CharMetric, Delta, DeltaBuilder, DeltaIter, NEW_LINE};
 
 pub struct ResetLineFormatOnNewLine {}
 impl InsertExt for ResetLineFormatOnNewLine {

@@ -14,7 +14,7 @@ use crate::{
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_document_infra::entities::doc::{Doc, DocDelta, DocIdentifier};
-use flowy_infra::future::{wrap_future, FnFuture, ResultFuture};
+use lib_infra::future::{wrap_future, FnFuture, ResultFuture};
 use std::sync::Arc;
 use tokio::time::{interval, Duration};
 

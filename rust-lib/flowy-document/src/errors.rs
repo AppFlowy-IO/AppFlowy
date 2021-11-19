@@ -1,8 +1,8 @@
 use bytes::Bytes;
 use derive_more::Display;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_dispatch::prelude::{EventResponse, ResponseBuilder};
 use flowy_net::errors::ServerError;
+use lib_dispatch::prelude::{EventResponse, ResponseBuilder};
 use std::{convert::TryInto, fmt};
 
 pub type DocResult<T> = std::result::Result<T, DocError>;
@@ -43,9 +43,9 @@ impl DocError {
 
     pub fn is_record_not_found(&self) -> bool { self.code == ErrorCode::DocNotfound }
 
+    static_doc_error!(ws, ErrorCode::WsConnectError);
     static_doc_error!(internal, ErrorCode::InternalError);
     static_doc_error!(unauthorized, ErrorCode::UserUnauthorized);
-    static_doc_error!(ws, ErrorCode::WsConnectError);
     static_doc_error!(record_not_found, ErrorCode::DocNotfound);
     static_doc_error!(duplicate_rev, ErrorCode::DuplicateRevision);
 }
@@ -69,7 +69,7 @@ pub enum ErrorCode {
     DuplicateRevision = 2,
 
     #[display(fmt = "UserUnauthorized")]
-    UserUnauthorized  = 999,
+    UserUnauthorized  = 10,
 
     #[display(fmt = "InternalError")]
     InternalError     = 1000,
@@ -88,8 +88,8 @@ impl std::convert::From<flowy_database::Error> for DocError {
     }
 }
 
-impl std::convert::From<flowy_ot::errors::OTError> for DocError {
-    fn from(error: flowy_ot::errors::OTError) -> Self { DocError::internal().context(error) }
+impl std::convert::From<lib_ot::errors::OTError> for DocError {
+    fn from(error: lib_ot::errors::OTError) -> Self { DocError::internal().context(error) }
 }
 
 impl std::convert::From<flowy_document_infra::errors::DocumentError> for DocError {
@@ -107,14 +107,6 @@ impl std::convert::From<serde_json::Error> for DocError {
 impl std::convert::From<protobuf::ProtobufError> for DocError {
     fn from(e: protobuf::ProtobufError) -> Self { DocError::internal().context(e) }
 }
-
-// impl std::convert::From<::r2d2::Error> for DocError {
-//     fn from(error: r2d2::Error) -> Self {
-// ErrorBuilder::new(ErrorCode::InternalError).error(error).build() } }
-
-// impl std::convert::From<flowy_sqlite::Error> for DocError {
-//     fn from(error: flowy_sqlite::Error) -> Self {
-// ErrorBuilder::new(ErrorCode::InternalError).error(error).build() } }
 
 impl std::convert::From<flowy_net::errors::ServerError> for DocError {
     fn from(error: ServerError) -> Self {
@@ -134,7 +126,7 @@ fn server_error_to_doc_error(code: ServerErrorCode) -> ErrorCode {
     }
 }
 
-impl flowy_dispatch::Error for DocError {
+impl lib_dispatch::Error for DocError {
     fn as_response(&self) -> EventResponse {
         let bytes: Bytes = self.clone().try_into().unwrap();
         ResponseBuilder::Err().data(bytes).build()

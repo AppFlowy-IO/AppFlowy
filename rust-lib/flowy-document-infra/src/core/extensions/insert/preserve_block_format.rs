@@ -1,5 +1,5 @@
 use crate::{core::extensions::InsertExt, util::is_newline};
-use flowy_ot::core::{
+use lib_ot::core::{
     attributes_except_header,
     plain_attributes,
     Attribute,
