@@ -1,6 +1,7 @@
 [tasks.appflowy]
 mac_alias = "appflowy-macos"
 windows_alias = "appflowy-windows"
+linux_alias = "appflowy-linux"
 
 [tasks.appflowy-macos]
 dependencies = ["flowy-sdk-release"]
@@ -11,9 +12,15 @@ script_runner = "@shell"
 dependencies = ["flowy-sdk-release"]
 run_task = { name = ["flutter-build", "copy-to-product"] }
 
+[tasks.appflowy-linux]
+dependencies = ["flowy-sdk-release"]
+run_task = { name = ["flutter-build", "copy-to-product"] }
+script_runner = "@shell"
+
 [tasks.copy-to-product]
 mac_alias = "copy-to-product-macos"
 windows_alias = "copy-to-product-windows"
+linux_alias = "copy-to-product-linux"
 
 [tasks.copy-to-product-macos]
 script = [
@@ -32,6 +39,22 @@ script = [
 ]
 script_runner = "@shell"
 
+[tasks.copy-to-product-linux]
+script = [
+  """
+  product_path=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/product/${VERSION}
+  output_path=${product_path}/${TARGET_OS}/${FLUTTER_OUTPUT_DIR}
+  if [ -d "${output_path}" ]; then
+    rm -rf ${output_path}/
+  fi
+  mkdir -p ${output_path}
+
+  product=${PRODUCT_NAME}
+  cp -R ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/build/${TARGET_OS}/x64/${BUILD_FLAG}/bundle \
+  ${output_path}/${product}
+  """,
+]
+script_runner = "@shell"
 
 [tasks.copy-to-product-windows]
 script = [
@@ -58,6 +81,17 @@ script = [
   flutter clean
   flutter pub get
   flutter build ${TARGET_OS} --${BUILD_FLAG} --build-name=${VERSION}
+  """,
+]
+script_runner = "@shell"
+
+[tasks.flutter-build.linux]
+script = [
+  """
+  cd app_flowy/
+  flutter clean
+  flutter pub get
+  flutter build ${TARGET_OS} --${BUILD_FLAG}
   """,
 ]
 script_runner = "@shell"

@@ -39,14 +39,17 @@ dev_dependencies:
 flutter:
   plugin:
     platforms:
-      android:
-        package: com.example.flowy_infra_ui
-        pluginClass: FlowyInfraUIPlugin
+      # TODO: uncomment android part will fail the Linux build process, will resolve later
+      # android:
+      #   package: com.example.flowy_infra_ui
+      #   pluginClass: FlowyInfraUIPlugin
       ios:
         pluginClass: FlowyInfraUIPlugin
       macos:
         pluginClass: FlowyInfraUIPlugin
       windows:
+        pluginClass: FlowyInfraUIPlugin
+      linux:
         pluginClass: FlowyInfraUIPlugin
       web:
         default_package: flowy_infra_ui_web

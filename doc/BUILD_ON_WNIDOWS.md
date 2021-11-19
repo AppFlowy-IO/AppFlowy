@@ -40,13 +40,17 @@ cargo make flowy_dev
 ```shell
 cargo make -p development-windows pb
 ```
-10. Build flowy-sdk-dev (dart-ffi)
+10. Build flowy-sdk (dart-ffi)
 ```shell
-cargo make --profile development-windows flowy-sdk-dev
+# TODO: for development
+# for production
+cargo make --profile production-desktop-windows-x86 flowy-sdk-release
 ```
 11. Build app_flowy
 ```shell
-cargo make -p development-windows appflowy-windows
+# TODO: for development
+# for production
+cargo make -p production-desktop-windows-x86 appflowy-windows
 ```
 
 **Step 3:**  Server side application
