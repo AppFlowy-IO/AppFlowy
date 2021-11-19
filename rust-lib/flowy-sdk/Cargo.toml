@@ -7,7 +7,7 @@ edition = "2018"
 
 [dependencies]
 lib-dispatch = { path = "../lib-dispatch" }
-flowy-log = { path = "../flowy-log" }
+lib-log = { path = "../lib-log" }
 flowy-user = { path = "../flowy-user" }
 lib-infra = { path = "../lib-infra" }
 flowy-workspace = { path = "../flowy-workspace", default-features = false }
@@ -34,4 +34,4 @@ futures-util = "0.3.15"
 
 [features]
 http_server = ["flowy-user/http_server", "flowy-workspace/http_server", "flowy-document/http_server"]
-use_bunyan = ["flowy-log/use_bunyan"]
+use_bunyan = ["lib-log/use_bunyan"]

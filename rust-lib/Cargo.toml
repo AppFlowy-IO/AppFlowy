@@ -3,7 +3,7 @@ members = [
   "lib-dispatch",
   "flowy-sdk",
   "dart-ffi",
-  "flowy-log",
+    "lib-log",
   "flowy-user",
   "flowy-user-infra",
   "flowy-ast",
