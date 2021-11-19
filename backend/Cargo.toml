@@ -64,7 +64,7 @@ flowy-user-infra = { path = "../rust-lib/flowy-user-infra" }
 flowy-workspace-infra = { path = "../rust-lib/flowy-workspace-infra" }
 flowy-document-infra = { path = "../rust-lib/flowy-document-infra" }
 flowy-ws = { path = "../rust-lib/flowy-ws" }
-flowy-ot = { path = "../rust-lib/flowy-ot" }
+flowy-ot = { path = "../rust-lib/lib-ot" }
 flowy-net = { path = "../rust-lib/flowy-net", features = ["http_server"] }
 
 ormx = { version = "0.7", features = ["postgres"]}
@@ -106,7 +106,7 @@ flowy-document = { path = "../rust-lib/flowy-document", features = ["flowy_test"
 
 flowy-ws = { path = "../rust-lib/flowy-ws" }
 flowy-test = { path = "../rust-lib/flowy-test" }
-flowy-infra = { path = "../rust-lib/flowy-infra" }
-flowy-ot = { path = "../rust-lib/flowy-ot" }
-flowy-sqlite = { path = "../rust-lib/flowy-sqlite" }
+flowy-infra = { path = "../rust-lib/lib-infra" }
+flowy-ot = { path = "../rust-lib/lib-ot" }
+flowy-sqlite = { path = "../rust-lib/lib-sqlite" }
 futures-util = "0.3.15"

@@ -9,4 +9,4 @@ edition = "2018"
 diesel = {version = "1.4.8", features = ["sqlite"]}
 diesel_derives = {version = "1.4.1", features = ["sqlite"]}
 diesel_migrations = {version = "1.4.0", features = ["sqlite"]}
-flowy-sqlite = {path = "../flowy-sqlite" }
+flowy-sqlite = {path = "../lib-sqlite" }

@@ -9,7 +9,7 @@ edition = "2018"
 flowy-dispatch = { path = "../flowy-dispatch"}
 flowy-log = { path = "../flowy-log" }
 flowy-user = { path = "../flowy-user" }
-flowy-infra = { path = "../flowy-infra" }
+flowy-infra = { path = "../lib-infra" }
 flowy-workspace = { path = "../flowy-workspace", default-features = false }
 flowy-database = { path = "../flowy-database" }
 flowy-document = { path = "../flowy-document" }

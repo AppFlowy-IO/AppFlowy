@@ -22,7 +22,7 @@ tokio = { version = "1", features = ["full"] }
 actix-web = {version = "4.0.0-beta.8", optional = true}
 derive_more = {version = "0.99", features = ["display"]}
 flowy-derive = { path = "../flowy-derive" }
-flowy-infra = { path = "../flowy-infra"}
+flowy-infra = { path = "../lib-infra" }
 anyhow = "1.0"
 thiserror = "1.0.24"
 uuid = { version = "0.8", features = ["v4"] }
