@@ -1,5 +1,5 @@
 [package]
-name = "flowy-dart-notify"
+name = "dart-notify"
 version = "0.1.0"
 edition = "2018"
 

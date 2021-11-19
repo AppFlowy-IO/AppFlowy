@@ -27,12 +27,12 @@ parking_lot = "0.11"
 lib-dispatch = {path = "../lib-dispatch" }
 flowy-sdk = {path = "../flowy-sdk"}
 flowy-derive = {path = "../flowy-derive"}
-flowy-dart-notify = {path = "../dart-notify" }
+dart-notify = {path = "../dart-notify" }
 flowy-net = {path = "../flowy-net"}
 
 
 [features]
-flutter = ["flowy-dart-notify/dart"]
+flutter = ["dart-notify/dart"]
 http_server = ["flowy-sdk/http_server", "flowy-sdk/use_bunyan"]
 #use_serde = ["bincode"]
 #use_protobuf= ["protobuf"]

@@ -3,7 +3,7 @@ use crate::{
     errors::UserError,
     services::server::UserServerAPI,
 };
-use flowy_backend_api::user_request::*;
+use backend_api::user_request::*;
 use flowy_net::config::*;
 use lib_infra::future::ResultFuture;
 

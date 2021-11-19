@@ -1,6 +1,6 @@
 use flowy_derive::ProtoBuf_Enum;
 
-use flowy_dart_notify::DartNotifyBuilder;
+use dart_notify::DartNotifyBuilder;
 
 const OBSERVABLE_CATEGORY: &'static str = "User";
 

@@ -1,4 +1,4 @@
-use flowy_dart_notify::DartNotifyBuilder;
+use dart_notify::DartNotifyBuilder;
 use flowy_derive::ProtoBuf_Enum;
 const OBSERVABLE_CATEGORY: &'static str = "Workspace";
 

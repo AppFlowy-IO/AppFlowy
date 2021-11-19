@@ -3,7 +3,7 @@ use backend::{
     config::{get_configuration, DatabaseSettings},
     context::AppContext,
 };
-use flowy_backend_api::{user_request::*, workspace_request::*};
+use backend_api::{user_request::*, workspace_request::*};
 use flowy_document::services::server::read_doc_request;
 use flowy_document_infra::entities::doc::{Doc, DocIdentifier};
 use flowy_net::errors::ServerError;

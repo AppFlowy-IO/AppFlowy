@@ -20,7 +20,7 @@ members = [
   "lib-ot",
   "flowy-net",
   "lib-ws",
-  "flowy-backend-api",
+    "backend-api",
 ]
 
 exclude = ["../backend"]

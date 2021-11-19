@@ -9,7 +9,7 @@ use crate::{
     notify::{send_dart_notification, WorkspaceNotification},
     services::server::WorkspaceServerAPI,
 };
-use flowy_backend_api::{middleware::*, workspace_request::*};
+use backend_api::{middleware::*, workspace_request::*};
 use flowy_net::config::ServerConfig;
 use flowy_workspace_infra::errors::ErrorCode;
 use lib_infra::future::ResultFuture;
