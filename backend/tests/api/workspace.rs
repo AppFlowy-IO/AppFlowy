@@ -1,4 +1,4 @@
-use crate::helper::*;
+use crate::util::helper::*;
 use flowy_workspace_infra::entities::{
     app::{AppIdentifier, UpdateAppParams},
     trash::{TrashIdentifier, TrashIdentifiers, TrashType},

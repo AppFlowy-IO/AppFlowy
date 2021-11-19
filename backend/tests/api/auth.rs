@@ -1,4 +1,4 @@
-use crate::helper::{spawn_user_server, TestUserServer};
+use crate::util::helper::{spawn_user_server, TestUserServer};
 use flowy_net::errors::ErrorCode;
 use flowy_user_infra::entities::{SignInParams, SignUpParams, SignUpResponse, UpdateUserParams};
 

@@ -243,7 +243,6 @@ fn send_acked_msg(socket: &Socket, revision: &Revision) -> Result<(), ServerErro
 fn mk_acked_message(revision: &Revision) -> WsMessageAdaptor {
     // let mut wtr = vec![];
     // let _ = wtr.write_i64::<BigEndian>(revision.rev_id);
-
     let mut rev_id = RevId::new();
     rev_id.set_value(revision.rev_id);
     let data = rev_id.write_to_bytes().unwrap();
