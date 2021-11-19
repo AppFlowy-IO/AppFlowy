@@ -16,6 +16,7 @@ DynamicLibrary _open() {
   if (Platform.isMacOS) return DynamicLibrary.executable();
   if (Platform.isIOS) return DynamicLibrary.executable();
   if (Platform.isWindows) return DynamicLibrary.open('dart_ffi.dll');
+  if (Platform.isLinux) return DynamicLibrary.open('libdart_ffi.so');
   throw UnsupportedError('This platform is not supported.');
 }
 
