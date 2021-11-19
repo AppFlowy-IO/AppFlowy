@@ -9,12 +9,12 @@ edition = "2018"
 flowy-workspace-infra = { path = "../flowy-workspace-infra" }
 flowy-document-infra = { path = "../flowy-document-infra" }
 flowy-document = { path = "../flowy-document" }
-flowy-dispatch = { path = "../flowy-dispatch" }
+flowy-dispatch = { path = "../lib-dispatch" }
 flowy-derive = { path = "../flowy-derive" }
 flowy-database = { path = "../flowy-database" }
 flowy-sqlite = { path = "../lib-sqlite" }
 flowy-infra = { path = "../lib-infra" }
-flowy-dart-notify = { path = "../flowy-dart-notify" }
+flowy-dart-notify = { path = "../dart-notify" }
 flowy-ot = { path = "../lib-ot" }
 flowy-net = { path = "../flowy-net", features = ["flowy_request"] }
 flowy-backend-api = { path = "../flowy-backend-api"}

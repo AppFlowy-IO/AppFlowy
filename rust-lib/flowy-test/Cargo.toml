@@ -7,7 +7,7 @@ edition = "2018"
 
 [dependencies]
 flowy-sdk = { path = "../flowy-sdk"}
-flowy-dispatch = { path = "../flowy-dispatch"}
+flowy-dispatch = { path = "../lib-dispatch" }
 flowy-user = { path = "../flowy-user"}
 flowy-workspace = { path = "../flowy-workspace", default-features = false}
 flowy-infra = { path = "../lib-infra" }

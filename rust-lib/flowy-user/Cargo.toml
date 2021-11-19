@@ -9,14 +9,14 @@ edition = "2018"
 flowy-user-infra = { path = "../flowy-user-infra" }
 flowy-backend-api = { path = "../flowy-backend-api" }
 derive_more = {version = "0.99", features = ["display"]}
-flowy-dispatch = { path = "../flowy-dispatch" }
+flowy-dispatch = { path = "../lib-dispatch" }
 flowy-derive = { path = "../flowy-derive" }
 flowy-database = { path = "../flowy-database" }
 flowy-sqlite = { path = "../lib-sqlite" }
 flowy-infra = { path = "../lib-infra" }
 flowy-net = { path = "../flowy-net", features = ["flowy_request"] }
-flowy-ws = { path = "../flowy-ws"}
-flowy-dart-notify = { path = "../flowy-dart-notify" }
+flowy-ws = { path = "../lib-ws" }
+flowy-dart-notify = { path = "../dart-notify" }
 
 tracing = { version = "0.1", features = ["log"] }
 bytes = "1.0"

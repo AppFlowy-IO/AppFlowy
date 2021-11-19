@@ -1,4 +1,4 @@
-use flowy_document::services::doc::{Document, PlainDoc};
+use flowy_document_infra::core::{Document, PlainDoc};
 use flowy_ot::core::*;
 
 #[test]

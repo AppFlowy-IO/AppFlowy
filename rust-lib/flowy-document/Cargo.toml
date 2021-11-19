@@ -9,13 +9,13 @@ edition = "2018"
 [dependencies]
 flowy-document-infra = { path = "../flowy-document-infra" }
 derive_more = {version = "0.99", features = ["display"]}
-flowy-dispatch = { path = "../flowy-dispatch" }
+flowy-dispatch = { path = "../lib-dispatch" }
 flowy-derive = { path = "../flowy-derive" }
 flowy-database = { path = "../flowy-database" }
 flowy-infra = { path = "../lib-infra" }
-flowy-dart-notify = { path = "../flowy-dart-notify" }
+flowy-dart-notify = { path = "../dart-notify" }
 flowy-ot = { path = "../lib-ot" }
-flowy-ws = { path = "../flowy-ws" }
+flowy-ws = { path = "../lib-ws" }
 flowy-net = { path = "../flowy-net", features = ["flowy_request"] }
 
 

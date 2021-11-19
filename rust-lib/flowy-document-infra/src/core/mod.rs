@@ -5,3 +5,4 @@ pub mod history;
 mod view;
 
 pub use document::*;
+pub use view::RECORD_THRESHOLD;

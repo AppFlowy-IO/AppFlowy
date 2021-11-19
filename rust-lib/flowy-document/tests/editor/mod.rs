@@ -4,7 +4,7 @@ mod serde_test;
 mod undo_redo_test;
 
 use derive_more::Display;
-use flowy_document::services::doc::{CustomDocument, Document};
+use flowy_document_infra::core::{CustomDocument, Document};
 use flowy_ot::core::*;
 use rand::{prelude::*, Rng as WrappedRng};
 use std::{sync::Once, time::Duration};
@@ -282,7 +282,14 @@ impl Rng {
     #[allow(dead_code)]
     pub fn from_seed(seed: [u8; 32]) -> Self { Rng(StdRng::from_seed(seed)) }
 
-    pub fn gen_string(&mut self, len: usize) -> String { (0..len).map(|_| self.0.gen::<char>()).collect() }
+    pub fn gen_string(&mut self, len: usize) -> String {
+        (0..len)
+            .map(|_| {
+                let c = self.0.gen::<char>();
+                format!("{:x}", c as u32)
+            })
+            .collect()
+    }
 
     pub fn gen_delta(&mut self, s: &str) -> Delta {
         let mut delta = Delta::default();

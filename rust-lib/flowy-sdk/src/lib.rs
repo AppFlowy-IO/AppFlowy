@@ -49,11 +49,11 @@ fn crate_log_filter(level: Option<String>) -> String {
     filters.push(format!("flowy_workspace={}", level));
     filters.push(format!("flowy_user={}", level));
     filters.push(format!("flowy_document={}", level));
-    filters.push(format!("flowy_dart_notify={}", level));
-    filters.push(format!("flowy_ot={}", level));
-    filters.push(format!("flowy_ws={}", level));
-    filters.push(format!("flowy_ws={}", level));
-    filters.push(format!("flowy_infra={}", level));
+    filters.push(format!("flowy_document_infra={}", level));
+    filters.push(format!("dart_notify={}", level));
+    filters.push(format!("lib_ot={}", level));
+    filters.push(format!("lib_ws={}", level));
+    filters.push(format!("lib_infra={}", level));
     filters.join(",")
 }
 

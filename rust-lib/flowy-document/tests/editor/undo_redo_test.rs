@@ -1,5 +1,5 @@
 use crate::editor::{TestBuilder, TestOp::*};
-use flowy_document::services::doc::{FlowyDoc, PlainDoc, RECORD_THRESHOLD};
+use flowy_document_infra::core::{FlowyDoc, PlainDoc, RECORD_THRESHOLD};
 use flowy_ot::core::{Interval, NEW_LINE, WHITESPACE};
 
 #[test]

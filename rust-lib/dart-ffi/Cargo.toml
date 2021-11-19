@@ -24,10 +24,10 @@ serde_json = {version = "1.0"}
 bytes = { version = "1.0" }
 parking_lot = "0.11"
 
-flowy-dispatch = {path = "../flowy-dispatch"}
+flowy-dispatch = {path = "../lib-dispatch" }
 flowy-sdk = {path = "../flowy-sdk"}
 flowy-derive = {path = "../flowy-derive"}
-flowy-dart-notify = {path = "../flowy-dart-notify" }
+flowy-dart-notify = {path = "../dart-notify" }
 flowy-net = {path = "../flowy-net"}
 
 

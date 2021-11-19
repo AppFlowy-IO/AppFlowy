@@ -1,6 +1,6 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
 use crate::editor::{TestBuilder, TestOp::*};
-use flowy_document::services::doc::{FlowyDoc, PlainDoc};
+use flowy_document_infra::core::{FlowyDoc, PlainDoc};
 use flowy_ot::core::{Delta, Interval, OperationTransformable, NEW_LINE, WHITESPACE, FlowyStr};
 use unicode_segmentation::UnicodeSegmentation;
 
