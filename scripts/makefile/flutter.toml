@@ -50,7 +50,7 @@ script = [
   mkdir -p ${output_path}
 
   product=${PRODUCT_NAME}
-  cp -R ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/build/${TARGET_OS}/x64/${BUILD_FLAG}/bundle \
+  cp -R ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/build/${TARGET_OS}/${LINUX_ARCH}/${BUILD_FLAG}/bundle \
   ${output_path}/${product}
   """,
 ]

@@ -21,3 +21,10 @@ cargo make --profile development-mac flowy-sdk-dev
 
 # for window
 #cargo make --profile development-windows flowy-sdk-dev
+
+
+# for linux aarch64
+#cargo make --profile development-linux-x86 flowy-sdk-dev
+
+# for linux aarch64
+#cargo make --profile development-linux-aarch64 flowy-sdk-dev
