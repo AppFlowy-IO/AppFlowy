@@ -5,13 +5,9 @@ message DocError {
     string msg = 2;
 }
 enum ErrorCode {
-    DocIdInvalid = 0;
+    WsConnectError = 0;
     DocNotfound = 1;
-    WsConnectError = 10;
-    UndoFail = 200;
-    RedoFail = 201;
-    OutOfBound = 202;
-    DuplicateRevision = 400;
+    DuplicateRevision = 2;
     UserUnauthorized = 999;
     InternalError = 1000;
 }

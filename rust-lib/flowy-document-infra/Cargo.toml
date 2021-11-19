@@ -12,3 +12,10 @@ protobuf = {version = "2.18.0"}
 bytes = "1.0"
 log = "0.4.14"
 md5 = "0.7.0"
+tokio = {version = "1", features = ["sync"]}
+serde = { version = "1.0", features = ["derive"] }
+tracing = { version = "0.1", features = ["log"] }
+url = "2.2"
+strum = "0.21"
+strum_macros = "0.21"
+chrono = "0.4.19"

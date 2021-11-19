@@ -1,8 +1,11 @@
 use crate::{
-    errors::DocError,
-    services::doc::{view::View, History, UndoResult, RECORD_THRESHOLD},
+    core::{
+        history::{History, UndoResult},
+        view::{View, RECORD_THRESHOLD},
+    },
+    errors::DocumentError,
+    user_default::doc_initial_delta,
 };
-use flowy_document_infra::user_default::doc_initial_delta;
 use flowy_ot::core::*;
 use tokio::sync::mpsc;
 
@@ -41,7 +44,7 @@ impl Document {
         }
     }
 
-    pub fn from_json(json: &str) -> Result<Self, DocError> {
+    pub fn from_json(json: &str) -> Result<Self, DocumentError> {
         let delta = Delta::from_json(json)?;
         Ok(Self::from_delta(delta))
     }
@@ -67,7 +70,7 @@ impl Document {
         }
     }
 
-    pub fn compose_delta(&mut self, mut delta: Delta) -> Result<(), DocError> {
+    pub fn compose_delta(&mut self, mut delta: Delta) -> Result<(), DocumentError> {
         trim(&mut delta);
         tracing::trace!("{} compose {}", &self.delta.to_json(), delta.to_json());
         let mut composed_delta = self.delta.compose(&delta)?;
@@ -97,7 +100,7 @@ impl Document {
         Ok(())
     }
 
-    pub fn insert<T: ToString>(&mut self, index: usize, data: T) -> Result<Delta, DocError> {
+    pub fn insert<T: ToString>(&mut self, index: usize, data: T) -> Result<Delta, DocumentError> {
         let interval = Interval::new(index, index);
         let _ = validate_interval(&self.delta, &interval)?;
 
@@ -108,7 +111,7 @@ impl Document {
         Ok(delta)
     }
 
-    pub fn delete(&mut self, interval: Interval) -> Result<Delta, DocError> {
+    pub fn delete(&mut self, interval: Interval) -> Result<Delta, DocumentError> {
         let _ = validate_interval(&self.delta, &interval)?;
         debug_assert_eq!(interval.is_empty(), false);
         let delete = self.view.delete(&self.delta, interval)?;
@@ -119,7 +122,7 @@ impl Document {
         Ok(delete)
     }
 
-    pub fn format(&mut self, interval: Interval, attribute: Attribute) -> Result<Delta, DocError> {
+    pub fn format(&mut self, interval: Interval, attribute: Attribute) -> Result<Delta, DocumentError> {
         let _ = validate_interval(&self.delta, &interval)?;
         tracing::trace!("format with {} at {}", attribute, interval);
         let format_delta = self.view.format(&self.delta, attribute.clone(), interval).unwrap();
@@ -129,7 +132,7 @@ impl Document {
         Ok(format_delta)
     }
 
-    pub fn replace<T: ToString>(&mut self, interval: Interval, data: T) -> Result<Delta, DocError> {
+    pub fn replace<T: ToString>(&mut self, interval: Interval, data: T) -> Result<Delta, DocumentError> {
         let _ = validate_interval(&self.delta, &interval)?;
         let mut delta = Delta::default();
         let text = data.to_string();
@@ -151,9 +154,9 @@ impl Document {
 
     pub fn can_redo(&self) -> bool { self.history.can_redo() }
 
-    pub fn undo(&mut self) -> Result<UndoResult, DocError> {
+    pub fn undo(&mut self) -> Result<UndoResult, DocumentError> {
         match self.history.undo() {
-            None => Err(DocError::undo().context("Undo stack is empty")),
+            None => Err(DocumentError::undo().context("Undo stack is empty")),
             Some(undo_delta) => {
                 let (new_delta, inverted_delta) = self.invert(&undo_delta)?;
                 let result = UndoResult::success(new_delta.target_len as usize);
@@ -165,9 +168,9 @@ impl Document {
         }
     }
 
-    pub fn redo(&mut self) -> Result<UndoResult, DocError> {
+    pub fn redo(&mut self) -> Result<UndoResult, DocumentError> {
         match self.history.redo() {
-            None => Err(DocError::redo()),
+            None => Err(DocumentError::redo()),
             Some(redo_delta) => {
                 let (new_delta, inverted_delta) = self.invert(&redo_delta)?;
                 let result = UndoResult::success(new_delta.target_len as usize);
@@ -181,7 +184,7 @@ impl Document {
 }
 
 impl Document {
-    fn invert(&self, delta: &Delta) -> Result<(Delta, Delta), DocError> {
+    fn invert(&self, delta: &Delta) -> Result<(Delta, Delta), DocumentError> {
         // c = a.compose(b)
         // d = b.invert(a)
         // a = c.compose(d)
@@ -192,10 +195,10 @@ impl Document {
     }
 }
 
-fn validate_interval(delta: &Delta, interval: &Interval) -> Result<(), DocError> {
+fn validate_interval(delta: &Delta, interval: &Interval) -> Result<(), DocumentError> {
     if delta.target_len < interval.end {
         log::error!("{:?} out of bounds. should 0..{}", interval, delta.target_len);
-        return Err(DocError::out_of_bound());
+        return Err(DocumentError::out_of_bound());
     }
     Ok(())
 }

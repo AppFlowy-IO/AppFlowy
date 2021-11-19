@@ -43,14 +43,10 @@ impl DocError {
 
     pub fn is_record_not_found(&self) -> bool { self.code == ErrorCode::DocNotfound }
 
-    static_doc_error!(id_invalid, ErrorCode::DocIdInvalid);
     static_doc_error!(internal, ErrorCode::InternalError);
-    static_doc_error!(record_not_found, ErrorCode::DocNotfound);
     static_doc_error!(unauthorized, ErrorCode::UserUnauthorized);
     static_doc_error!(ws, ErrorCode::WsConnectError);
-    static_doc_error!(undo, ErrorCode::UndoFail);
-    static_doc_error!(redo, ErrorCode::RedoFail);
-    static_doc_error!(out_of_bound, ErrorCode::OutOfBound);
+    static_doc_error!(record_not_found, ErrorCode::DocNotfound);
     static_doc_error!(duplicate_rev, ErrorCode::DuplicateRevision);
 }
 
@@ -63,25 +59,14 @@ where
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
 pub enum ErrorCode {
-    #[display(fmt = "DocIdInvalid")]
-    DocIdInvalid      = 0,
+    #[display(fmt = "Document websocket error")]
+    WsConnectError    = 0,
 
     #[display(fmt = "DocNotfound")]
     DocNotfound       = 1,
 
-    #[display(fmt = "Document websocket error")]
-    WsConnectError    = 10,
-
-    #[display(fmt = "Undo failed")]
-    UndoFail          = 200,
-    #[display(fmt = "Redo failed")]
-    RedoFail          = 201,
-
-    #[display(fmt = "Interval out of bound")]
-    OutOfBound        = 202,
-
     #[display(fmt = "Duplicate revision")]
-    DuplicateRevision = 400,
+    DuplicateRevision = 2,
 
     #[display(fmt = "UserUnauthorized")]
     UserUnauthorized  = 999,
@@ -105,6 +90,10 @@ impl std::convert::From<flowy_database::Error> for DocError {
 
 impl std::convert::From<flowy_ot::errors::OTError> for DocError {
     fn from(error: flowy_ot::errors::OTError) -> Self { DocError::internal().context(error) }
+}
+
+impl std::convert::From<flowy_document_infra::errors::DocumentError> for DocError {
+    fn from(error: flowy_document_infra::errors::DocumentError) -> Self { DocError::internal().context(error) }
 }
 
 impl std::convert::From<std::io::Error> for DocError {

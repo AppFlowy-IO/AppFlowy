@@ -1,8 +1,9 @@
-use crate::errors::DocError;
+use crate::{
+    entities::doc::{NewDocUser, Revision},
+    errors::DocumentError,
+};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_document_infra::entities::doc::{NewDocUser, Revision};
-use flowy_ws::{WsMessage, WsModule};
 use std::convert::{TryFrom, TryInto};
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Eq, PartialEq, Hash)]
@@ -15,9 +16,9 @@ pub enum WsDataType {
 }
 
 impl WsDataType {
-    pub fn data<T>(&self, bytes: Bytes) -> Result<T, DocError>
+    pub fn data<T>(&self, bytes: Bytes) -> Result<T, DocumentError>
     where
-        T: TryFrom<Bytes, Error = DocError>,
+        T: TryFrom<Bytes, Error = DocumentError>,
     {
         T::try_from(bytes)
     }
@@ -61,16 +62,5 @@ impl std::convert::From<NewDocUser> for WsDocumentData {
             ty: WsDataType::NewDocUser,
             data: bytes.to_vec(),
         }
-    }
-}
-
-impl std::convert::Into<WsMessage> for WsDocumentData {
-    fn into(self) -> WsMessage {
-        let bytes: Bytes = self.try_into().unwrap();
-        let msg = WsMessage {
-            module: WsModule::Doc,
-            data: bytes.to_vec(),
-        };
-        msg
     }
 }

@@ -1,17 +1,17 @@
 use bytes::Bytes;
+use flowy_database::ConnectionPool;
 use flowy_document::{
-    entities::ws::WsDocumentData,
     errors::{internal_error, DocError},
     module::DocumentUser,
-    services::ws::WsStateReceiver,
+    services::ws::{DocumentWebSocket, WsDocumentManager, WsStateReceiver},
 };
-use flowy_user::{errors::ErrorCode, services::user::UserSession};
+use flowy_document_infra::entities::ws::WsDocumentData;
+use flowy_user::{
+    errors::{ErrorCode, UserError},
+    services::user::UserSession,
+};
 use flowy_ws::{WsMessage, WsMessageHandler, WsModule};
-
-use flowy_database::ConnectionPool;
-use flowy_document::services::ws::{DocumentWebSocket, WsDocumentManager};
-use flowy_user::errors::UserError;
-use std::{path::Path, sync::Arc};
+use std::{convert::TryInto, path::Path, sync::Arc};
 
 pub struct DocumentDepsResolver {
     user_session: Arc<UserSession>,
@@ -75,7 +75,11 @@ struct WsSenderImpl {
 impl DocumentWebSocket for WsSenderImpl {
     fn send(&self, data: WsDocumentData) -> Result<(), DocError> {
         if cfg!(feature = "http_server") {
-            let msg: WsMessage = data.into();
+            let bytes: Bytes = data.try_into().unwrap();
+            let msg = WsMessage {
+                module: WsModule::Doc,
+                data: bytes.to_vec(),
+            };
             let sender = self.user.ws_controller.sender().map_err(internal_error)?;
             sender.send_msg(msg).map_err(internal_error)?;
         }

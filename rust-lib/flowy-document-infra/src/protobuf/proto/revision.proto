@@ -1,4 +1,5 @@
 syntax = "proto3";
+
 message RevId {
     int64 value = 1;
 }

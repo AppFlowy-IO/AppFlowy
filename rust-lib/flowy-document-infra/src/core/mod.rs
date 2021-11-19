@@ -1,6 +1,7 @@
 mod data;
 mod document;
-mod selection;
+mod extensions;
+pub mod history;
+mod view;
 
-pub use data::*;
 pub use document::*;

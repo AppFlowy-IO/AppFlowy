@@ -1,23 +1,21 @@
 use crate::{
-    entities::ws::{WsDataType, WsDocumentData},
     errors::{internal_error, DocError, DocResult},
     module::DocumentUser,
     services::{
-        doc::{
-            DocumentActor,
-            DocumentMsg,
-            OpenDocAction,
-            RevisionManager,
-            RevisionServer,
-            TransformDeltas,
-            UndoResult,
-        },
+        doc::{DocumentActor, DocumentMsg, OpenDocAction, RevisionManager, RevisionServer, TransformDeltas},
         ws::{DocumentWebSocket, WsDocumentHandler},
     },
 };
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
-use flowy_document_infra::entities::doc::{DocDelta, RevId, RevType, Revision, RevisionRange};
+use flowy_document_infra::{
+    core::history::UndoResult,
+    entities::{
+        doc::{DocDelta, RevId, RevType, Revision, RevisionRange},
+        ws::{WsDataType, WsDocumentData},
+    },
+    errors::DocumentResult,
+};
 use flowy_infra::retry::{ExponentialBackoff, Retry};
 use flowy_ot::core::{Attribute, Delta, Interval};
 use flowy_ws::WsState;
@@ -62,7 +60,7 @@ impl ClientEditDoc {
     }
 
     pub async fn insert<T: ToString>(&self, index: usize, data: T) -> Result<(), DocError> {
-        let (ret, rx) = oneshot::channel::<DocResult<Delta>>();
+        let (ret, rx) = oneshot::channel::<DocumentResult<Delta>>();
         let msg = DocumentMsg::Insert {
             index,
             data: data.to_string(),
@@ -75,7 +73,7 @@ impl ClientEditDoc {
     }
 
     pub async fn delete(&self, interval: Interval) -> Result<(), DocError> {
-        let (ret, rx) = oneshot::channel::<DocResult<Delta>>();
+        let (ret, rx) = oneshot::channel::<DocumentResult<Delta>>();
         let msg = DocumentMsg::Delete { interval, ret };
         let _ = self.document.send(msg);
         let delta = rx.await.map_err(internal_error)??;
@@ -84,7 +82,7 @@ impl ClientEditDoc {
     }
 
     pub async fn format(&self, interval: Interval, attribute: Attribute) -> Result<(), DocError> {
-        let (ret, rx) = oneshot::channel::<DocResult<Delta>>();
+        let (ret, rx) = oneshot::channel::<DocumentResult<Delta>>();
         let msg = DocumentMsg::Format {
             interval,
             attribute,
@@ -97,7 +95,7 @@ impl ClientEditDoc {
     }
 
     pub async fn replace<T: ToString>(&mut self, interval: Interval, data: T) -> Result<(), DocError> {
-        let (ret, rx) = oneshot::channel::<DocResult<Delta>>();
+        let (ret, rx) = oneshot::channel::<DocumentResult<Delta>>();
         let msg = DocumentMsg::Replace {
             interval,
             data: data.to_string(),
@@ -124,21 +122,23 @@ impl ClientEditDoc {
     }
 
     pub async fn undo(&self) -> Result<UndoResult, DocError> {
-        let (ret, rx) = oneshot::channel::<DocResult<UndoResult>>();
+        let (ret, rx) = oneshot::channel::<DocumentResult<UndoResult>>();
         let msg = DocumentMsg::Undo { ret };
         let _ = self.document.send(msg);
-        rx.await.map_err(internal_error)?
+        let r = rx.await.map_err(internal_error)??;
+        Ok(r)
     }
 
     pub async fn redo(&self) -> Result<UndoResult, DocError> {
-        let (ret, rx) = oneshot::channel::<DocResult<UndoResult>>();
+        let (ret, rx) = oneshot::channel::<DocumentResult<UndoResult>>();
         let msg = DocumentMsg::Redo { ret };
         let _ = self.document.send(msg);
-        rx.await.map_err(internal_error)?
+        let r = rx.await.map_err(internal_error)??;
+        Ok(r)
     }
 
     pub async fn delta(&self) -> DocResult<DocDelta> {
-        let (ret, rx) = oneshot::channel::<DocResult<String>>();
+        let (ret, rx) = oneshot::channel::<DocumentResult<String>>();
         let msg = DocumentMsg::Doc { ret };
         let _ = self.document.send(msg);
         let data = rx.await.map_err(internal_error)??;
@@ -161,7 +161,7 @@ impl ClientEditDoc {
     #[tracing::instrument(level = "debug", skip(self, data), err)]
     pub(crate) async fn composing_local_delta(&self, data: Bytes) -> Result<(), DocError> {
         let delta = Delta::from_bytes(&data)?;
-        let (ret, rx) = oneshot::channel::<DocResult<()>>();
+        let (ret, rx) = oneshot::channel::<DocumentResult<()>>();
         let msg = DocumentMsg::Delta {
             delta: delta.clone(),
             ret,
@@ -175,10 +175,11 @@ impl ClientEditDoc {
 
     #[cfg(feature = "flowy_test")]
     pub async fn doc_json(&self) -> DocResult<String> {
-        let (ret, rx) = oneshot::channel::<DocResult<String>>();
+        let (ret, rx) = oneshot::channel::<DocumentResult<String>>();
         let msg = DocumentMsg::Doc { ret };
         let _ = self.document.send(msg);
-        rx.await.map_err(internal_error)?
+        let s = rx.await.map_err(internal_error)??;
+        Ok(s)
     }
 
     #[tracing::instrument(level = "debug", skip(self))]
@@ -201,7 +202,7 @@ impl ClientEditDoc {
     #[tracing::instrument(level = "debug", skip(self))]
     async fn handle_push_rev(&self, bytes: Bytes) -> DocResult<()> {
         // Transform the revision
-        let (ret, rx) = oneshot::channel::<DocResult<TransformDeltas>>();
+        let (ret, rx) = oneshot::channel::<DocumentResult<TransformDeltas>>();
         let _ = self.document.send(DocumentMsg::RemoteRevision { bytes, ret });
         let TransformDeltas {
             client_prime,
@@ -215,7 +216,7 @@ impl ClientEditDoc {
         }
 
         // compose delta
-        let (ret, rx) = oneshot::channel::<DocResult<()>>();
+        let (ret, rx) = oneshot::channel::<DocumentResult<()>>();
         let msg = DocumentMsg::Delta {
             delta: client_prime.clone(),
             ret,

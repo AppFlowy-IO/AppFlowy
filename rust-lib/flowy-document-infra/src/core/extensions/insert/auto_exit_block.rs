@@ -1,5 +1,4 @@
-use crate::services::doc::extensions::InsertExt;
-use flowy_document_infra::util::is_newline;
+use crate::{core::extensions::InsertExt, util::is_newline};
 use flowy_ot::core::{attributes_except_header, is_empty_line_at_index, AttributeKey, Delta, DeltaBuilder, DeltaIter};
 
 pub struct AutoExitBlock {}

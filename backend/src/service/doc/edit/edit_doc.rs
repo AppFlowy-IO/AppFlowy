@@ -1,27 +1,22 @@
 use crate::service::{
     doc::{edit::edit_actor::EditUser, update_doc},
     util::md5,
-    ws::WsMessageAdaptor,
+    ws::{entities::Socket, WsMessageAdaptor},
 };
 use actix_web::web::Data;
-
-use crate::service::ws::entities::Socket;
-use bytes::Bytes;
 use dashmap::DashMap;
-use flowy_document::{
+use flowy_document_infra::{
+    core::Document,
     entities::ws::{WsDataType, WsDocumentData},
-    services::doc::Document,
+    protobuf::{Doc, RevId, RevType, Revision, RevisionRange, UpdateDocParams},
 };
-use flowy_document_infra::protobuf::{Doc, RevId, RevType, Revision, RevisionRange, UpdateDocParams};
 use flowy_net::errors::{internal_error, ServerError};
 use flowy_ot::core::{Delta, OperationTransformable};
-use flowy_ws::WsMessage;
 use parking_lot::RwLock;
 use protobuf::Message;
 use sqlx::PgPool;
 use std::{
     cmp::Ordering,
-    convert::TryInto,
     sync::{
         atomic::{AtomicI64, Ordering::SeqCst},
         Arc,
@@ -213,7 +208,7 @@ fn mk_push_message(doc_id: &str, revision: Revision) -> WsMessageAdaptor {
         ty: WsDataType::PushRev,
         data: bytes,
     };
-    mk_ws_message(data)
+    data.into()
 }
 
 #[tracing::instrument(level = "debug", skip(socket, doc_id), err)]
@@ -236,7 +231,7 @@ fn mk_pull_message(doc_id: &str, from_rev_id: i64, to_rev_id: i64) -> WsMessageA
         ty: WsDataType::PullRev,
         data: bytes,
     };
-    mk_ws_message(data)
+    data.into()
 }
 
 #[tracing::instrument(level = "debug", skip(socket, revision), err)]
@@ -259,13 +254,7 @@ fn mk_acked_message(revision: &Revision) -> WsMessageAdaptor {
         data,
     };
 
-    mk_ws_message(data)
-}
-
-fn mk_ws_message<T: Into<WsMessage>>(data: T) -> WsMessageAdaptor {
-    let msg: WsMessage = data.into();
-    let bytes: Bytes = msg.try_into().unwrap();
-    WsMessageAdaptor(bytes)
+    data.into()
 }
 
 #[inline]

@@ -1,5 +1,7 @@
-use crate::services::doc::extensions::InsertExt;
-use flowy_document_infra::util::{contain_newline, is_newline};
+use crate::{
+    core::extensions::InsertExt,
+    util::{contain_newline, is_newline},
+};
 use flowy_ot::core::{plain_attributes, AttributeKey, Delta, DeltaBuilder, DeltaIter, OpNewline, NEW_LINE};
 
 pub struct PreserveInlineFormat {}

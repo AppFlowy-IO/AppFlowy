@@ -1,10 +1,10 @@
-use crate::{
-    errors::DocResult,
-    services::doc::{Document, UndoResult},
-};
 use async_stream::stream;
 use bytes::Bytes;
-use flowy_document_infra::entities::doc::{RevId, Revision};
+use flowy_document_infra::{
+    core::{history::UndoResult, Document},
+    entities::doc::{RevId, Revision},
+    errors::DocumentError,
+};
 use flowy_ot::core::{Attribute, Delta, Interval, OperationTransformable};
 use futures::stream::StreamExt;
 use std::{convert::TryFrom, sync::Arc};
@@ -46,7 +46,7 @@ impl DocumentActor {
             .await;
     }
 
-    async fn handle_message(&self, msg: DocumentMsg) -> DocResult<()> {
+    async fn handle_message(&self, msg: DocumentMsg) -> Result<(), DocumentError> {
         match msg {
             DocumentMsg::Delta { delta, ret } => {
                 let result = self.composed_delta(delta).await;
@@ -107,7 +107,7 @@ impl DocumentActor {
     }
 
     #[tracing::instrument(level = "debug", skip(self, delta), fields(compose_result), err)]
-    async fn composed_delta(&self, delta: Delta) -> DocResult<()> {
+    async fn composed_delta(&self, delta: Delta) -> Result<(), DocumentError> {
         // tracing::debug!("{:?} thread handle_message", thread::current(),);
         let mut document = self.document.write().await;
         tracing::Span::current().record(
@@ -122,23 +122,7 @@ impl DocumentActor {
     }
 }
 
-// #[tracing::instrument(level = "debug", skip(self, params), err)]
-// fn update_doc_on_server(&self, params: UpdateDocParams) -> Result<(),
-//     DocError> {     let token = self.user.token()?;
-//     let server = self.server.clone();
-//     tokio::spawn(async move {
-//         match server.update_doc(&token, params).await {
-//             Ok(_) => {},
-//             Err(e) => {
-//                 // TODO: retry?
-//                 log::error!("Update doc failed: {}", e);
-//             },
-//         }
-//     });
-//     Ok(())
-// }
-
-pub type Ret<T> = oneshot::Sender<DocResult<T>>;
+pub type Ret<T> = oneshot::Sender<Result<T, DocumentError>>;
 pub enum DocumentMsg {
     Delta {
         delta: Delta,

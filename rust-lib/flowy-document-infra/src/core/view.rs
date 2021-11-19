@@ -1,7 +1,6 @@
-use super::extensions::*;
-use crate::services::doc::trim;
+use crate::core::extensions::*;
 use flowy_ot::{
-    core::{Attribute, Delta, Interval},
+    core::{trim, Attribute, Delta, Interval},
     errors::{ErrorBuilder, OTError, OTErrorCode},
 };
 
