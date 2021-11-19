@@ -76,6 +76,14 @@ CRATE_TYPE = "cdylib"
 FLUTTER_OUTPUT_DIR = "Release"
 SDK_EXT = "so"
 
+[env.production-linux-aarch64]
+BUILD_FLAG = "release"
+TARGET_OS = "linux"
+RUST_COMPILE_TARGET = "aarch64-unknown-linux-gnu"
+CRATE_TYPE = "cdylib"
+FLUTTER_OUTPUT_DIR = "Release"
+SDK_EXT = "so"
+
 [tasks.echo_env]
 script = [
     '''

@@ -50,3 +50,9 @@ app.*.map.json
 
 product/**
 windows/flutter/dart_ffi/
+
+**/**/*.dylib
+**/**/*.a
+**/**/*.lib
+**/**/*.dll
+**/**/*.so
