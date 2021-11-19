@@ -35,7 +35,7 @@ abstract class EntryPoint {
 
 class System {
   static void run(EntryPoint f) {
-    // Specify the evn
+    // Specify the env
     const env = IntegrationEnv.dev;
 
     // Config the deps graph
