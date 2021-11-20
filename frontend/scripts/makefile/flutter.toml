@@ -17,6 +17,25 @@ dependencies = ["flowy-sdk-release"]
 run_task = { name = ["flutter-build", "copy-to-product"] }
 script_runner = "@shell"
 
+[tasks.appflowy-dev]
+mac_alias = "appflowy-macos-dev"
+windows_alias = "appflowy-windows-dev"
+linux_alias = "appflowy-linux-dev"
+
+[tasks.appflowy-macos-dev]
+dependencies = ["flowy-sdk-dev"]
+run_task = { name = ["flutter-build", "copy-to-product"] }
+script_runner = "@shell"
+
+[tasks.appflowy-windows-dev]
+dependencies = ["flowy-sdk-dev"]
+run_task = { name = ["flutter-build", "copy-to-product"] }
+
+[tasks.appflowy-linux-dev]
+dependencies = ["flowy-sdk-dev"]
+run_task = { name = ["flutter-build", "copy-to-product"] }
+script_runner = "@shell"
+
 [tasks.copy-to-product]
 mac_alias = "copy-to-product-macos"
 windows_alias = "copy-to-product-windows"

@@ -8,41 +8,41 @@ git clone https://github.com/AppFlowy-IO/appflowy.git
 
 **Step 2:**
 
-Note: Follow steps are verified on Ubuntu 20.04
+Note:
+1. Following steps are verified on
+    - [x] lubuntu 20.04 - X86_64
+    - [ ] ubuntu 20.04 - aarch64
+    - [ ] redhat - X86_64
+    - [ ] Arch Linux - X86_64
+    - [ ] Deepin - X86_64
+    - [ ] Raspberry Pi OS - aarch64
+2. You may need to disable hardware 3D acceleration if you are running in a VM. Otherwise certain GL failures will prevent app from launching
 
 1. Install pre-requests
 ```shell
-sudo apt-get install build-essential
-sudo apt-get install libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
+sudo apt-get install curl build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
 ```
-2. Install brew on Linux (TODO: rust installation should not depend on brew)
+2. Install rust on Linux
 ```shell
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/user/.profile
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source $HOME/.cargo/env
+rustup toolchain install nightly
+rustup default nightly
 ```
 3. Install flutter according to https://docs.flutter.dev/get-started/install/linux
 ```shell
 git clone https://github.com/flutter/flutter.git
 cd flutter
 echo "export PATH=\$PATH:"`pwd`"/bin" >> ~/.profile
-export PATH="$PATH:`pwd`/flutter/bin"
+export PATH="$PATH:`pwd`/bin"
 flutter channel dev
 flutter config --enable-linux-desktop
 ```
 4. Fix problem reported by flutter doctor
 ```shell
 flutter doctor
-# install Android toolchian (optional)
+# install Android toolchain (optional)
 # install Chrome (optional)
-```
-5. Install rust
-```shell
-# TODO: replace by rust offical installation step
-brew install rustup-init
-source $HOME/.cargo/env
-rustup toolchain install nightly
-rustup default nightly
 ```
 5. Install cargo make
 ```shell
@@ -61,21 +61,25 @@ cargo make flowy_dev
 ```shell
 cargo make -p development-linux-x86 pb
 ```
-9. Build flowy-sdk-dev (dart-ffi)
+9. Build flowy-sdk-dev (dart-ffi) (optional), step 10 covers this step
 ```shell
-# TODO: for development
+# for development
+cargo make --profile development-linux-x86 flowy-sdk-dev
 
 # for production
 cargo make --profile production-linux-x86 flowy-sdk-release
 ```
 10. Build app_flowy
 ```shell
-# TODO: for development
+# for development
+cargo make -p development-linux-x86 appflowy-linux-dev
 
-# for production
+# for production, find binary from app_flowy/product/<version>/linux/<build type>/AppFlowy/
 cargo make -p production-linux-x86 appflowy-linux
-### tips
+
+# tips
 # run Linux GUI application through x11 on windows (use MobaXterm)
+# for instance:
 # export DISPLAY=localhost:10
 # cd app_flowy/product/0.0.2/linux/Release/AppFlowy
 # ./app_flowy
