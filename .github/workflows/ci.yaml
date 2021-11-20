@@ -10,12 +10,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-      - name: Build and Test
+      - name: Env install
         run: cd frontend && make install_rust && make install_cargo_make && cargo make install_targets
-      - uses: actions/checkout@v2
-  unit_test:
-    runs-on: macOS-latest
-    steps:
       - name: Run frontend tests
         run: cd frontend/rust-lib && cargo test
       - name: Run shared-lib tests
