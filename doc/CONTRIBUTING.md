@@ -105,12 +105,5 @@ Let's encourage the behavior we want to see in the world and constantly foster a
 
 [Contributor Covenant](https://www.contributor-covenant.org/version/2/0/code_of_conduct/)
 
-## Sign the CLA Agreement
-
-That we do not have any potential problems later it is sadly necessary to sign a Contributor License Agreement. That can be done literally with the push of a button.
-
-We used the most simple one that exists. It is from Indie Open Source which uses plain English and is literally only a few lines long.
-
-A bot will automatically comment on the pull request once it got opened asking for the agreement to be signed. Before it did not get signed it is sadly not possible to merge it in.
 
 [Back to TOC](#table-of-contents)
