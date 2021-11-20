@@ -1,4 +1,4 @@
-name: Frontend_test
+name: integration_test
 
 on:
   push:
