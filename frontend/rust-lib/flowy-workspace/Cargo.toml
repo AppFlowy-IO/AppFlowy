@@ -6,17 +6,20 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-workspace-infra = { path = "../flowy-workspace-infra" }
-flowy-document-infra = { path = "../flowy-document-infra" }
+flowy-workspace-infra = { path = "../../../shared-lib/flowy-workspace-infra" }
+flowy-document-infra = { path = "../../../shared-lib/flowy-document-infra" }
+flowy-derive = { path = "../../../shared-lib/flowy-derive" }
+lib-ot = { path = "../../../shared-lib/lib-ot" }
+backend-service = { path = "../../../shared-lib/backend-service" }
+
+
 flowy-document = { path = "../flowy-document" }
-lib-dispatch = { path = "../lib-dispatch" }
-flowy-derive = { path = "../flowy-derive" }
 flowy-database = { path = "../flowy-database" }
-lib-sqlite = { path = "../lib-sqlite" }
-lib-infra = { path = "../lib-infra" }
 dart-notify = { path = "../dart-notify" }
-lib-ot = { path = "../lib-ot" }
-backend-service = { path = "../backend-service" }
+lib-dispatch = { path = "../lib-dispatch" }
+lib-infra = { path = "../lib-infra" }
+lib-sqlite = { path = "../lib-sqlite" }
+
 
 parking_lot = "0.11"
 protobuf = {version = "2.18.0"}

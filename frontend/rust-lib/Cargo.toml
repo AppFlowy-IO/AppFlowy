@@ -1,25 +1,17 @@
 [workspace]
 members = [
   "lib-dispatch",
+  "lib-log",
+  "lib-sqlite",
+  "lib-infra",
   "flowy-sdk",
   "dart-ffi",
-  "lib-log",
   "flowy-user",
-  "flowy-user-infra",
-  "flowy-ast",
-  "flowy-derive",
   "flowy-test",
-  "lib-sqlite",
   "flowy-database",
-  "lib-infra",
   "flowy-workspace",
-  "flowy-workspace-infra",
   "dart-notify",
   "flowy-document",
-  "flowy-document-infra",
-  "lib-ot",
-  "lib-ws",
-  "backend-service",
 ]
 
 exclude = ["../backend"]

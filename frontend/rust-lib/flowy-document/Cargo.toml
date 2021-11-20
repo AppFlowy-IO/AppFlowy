@@ -7,16 +7,17 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-document-infra = { path = "../flowy-document-infra" }
+flowy-document-infra = { path = "../../../shared-lib/flowy-document-infra" }
+flowy-derive = { path = "../../../shared-lib/flowy-derive" }
+lib-ot = { path = "../../../shared-lib/lib-ot" }
+lib-ws = { path = "../../../shared-lib/lib-ws" }
+backend-service = { path = "../../../shared-lib/backend-service" }
+
 derive_more = {version = "0.99", features = ["display"]}
 lib-dispatch = { path = "../lib-dispatch" }
-flowy-derive = { path = "../flowy-derive" }
-flowy-database = { path = "../flowy-database" }
 lib-infra = { path = "../lib-infra" }
+flowy-database = { path = "../flowy-database" }
 dart-notify = { path = "../dart-notify" }
-lib-ot = { path = "../lib-ot" }
-lib-ws = { path = "../lib-ws" }
-backend-service = { path = "../backend-service" }
 
 
 diesel = {version = "1.4.8", features = ["sqlite"]}

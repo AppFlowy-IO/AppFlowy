@@ -26,9 +26,10 @@ parking_lot = "0.11"
 
 lib-dispatch = {path = "../lib-dispatch" }
 flowy-sdk = {path = "../flowy-sdk"}
-flowy-derive = {path = "../flowy-derive"}
 dart-notify = {path = "../dart-notify" }
-backend-service = { path = "../backend-service" }
+
+flowy-derive = {path = "../../../shared-lib/flowy-derive" }
+backend-service = { path = "../../../shared-lib/backend-service" }
 
 
 [features]

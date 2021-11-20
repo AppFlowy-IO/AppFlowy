@@ -12,7 +12,7 @@ allo-isolate = {version = "^0.1", features = ["catch-unwind",]}
 log = "0.4.14"
 bytes = { version = "1.0" }
 
-flowy-derive = {path = "../flowy-derive"}
+flowy-derive = {path = "../../../shared-lib/flowy-derive" }
 lib-dispatch = {path = "../lib-dispatch" }
 
 [features]

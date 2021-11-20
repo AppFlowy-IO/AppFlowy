@@ -1,0 +1,14 @@
+[workspace]
+members = [
+  "flowy-user-infra",
+  "flowy-workspace-infra",
+  "flowy-document-infra",
+  "lib-ot",
+  "lib-ws",
+  "backend-service",
+  "flowy-derive",
+  "flowy-ast",
+]
+
+[profile.dev]
+split-debuginfo = "unpacked"
