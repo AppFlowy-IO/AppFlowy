@@ -60,12 +60,12 @@ pin-project = "1.0.0"
 byteorder = {version = "1.3.4"}
 async-stream = "0.3.2"
 
-flowy-user-infra = { path = "../rust-lib/flowy-user-infra" }
-flowy-workspace-infra = { path = "../rust-lib/flowy-workspace-infra" }
-flowy-document-infra = { path = "../rust-lib/flowy-document-infra" }
-lib-ws = { path = "../rust-lib/lib-ws" }
-lib-ot = { path = "../rust-lib/lib-ot" }
-backend-service = { path = "../rust-lib/backend-service", features = ["http_server"] }
+flowy-user-infra = { path = "../frontend/rust-lib/flowy-user-infra" }
+flowy-workspace-infra = { path = "../frontend/rust-lib/flowy-workspace-infra" }
+flowy-document-infra = { path = "../frontend/rust-lib/flowy-document-infra" }
+lib-ws = { path = "../frontend/rust-lib/lib-ws" }
+lib-ot = { path = "../frontend/rust-lib/lib-ot" }
+backend-service = { path = "../frontend/rust-lib/backend-service", features = ["http_server"] }
 
 ormx = { version = "0.7", features = ["postgres"]}
 [dependencies.sqlx]
@@ -98,14 +98,14 @@ ignore_auth = []
 parking_lot = "0.11"
 once_cell = "1.7.2"
 linkify = "0.5.0"
-backend = { path = ".", features = ["flowy_test"]}
-flowy-sdk = { path = "../rust-lib/flowy-sdk", features = ["http_server"] }
-flowy-user = { path = "../rust-lib/flowy-user", features = ["http_server"] }
-flowy-document = { path = "../rust-lib/flowy-document", features = ["flowy_test", "http_server"] }
-
-lib-ws = { path = "../rust-lib/lib-ws" }
-flowy-test = { path = "../rust-lib/flowy-test" }
-lib-infra = { path = "../rust-lib/lib-infra" }
-lib-ot = { path = "../rust-lib/lib-ot" }
-lib-sqlite = { path = "../rust-lib/lib-sqlite" }
 futures-util = "0.3.15"
+
+backend = { path = ".", features = ["flowy_test"]}
+flowy-sdk = { path = "../frontend/rust-lib/flowy-sdk", features = ["http_server"] }
+flowy-user = { path = "../frontend/rust-lib/flowy-user", features = ["http_server"] }
+flowy-document = { path = "../frontend/rust-lib/flowy-document", features = ["flowy_test", "http_server"] }
+lib-ws = { path = "../frontend/rust-lib/lib-ws" }
+flowy-test = { path = "../frontend/rust-lib/flowy-test" }
+lib-infra = { path = "../frontend/rust-lib/lib-infra" }
+lib-ot = { path = "../frontend/rust-lib/lib-ot" }
+lib-sqlite = { path = "../frontend/rust-lib/lib-sqlite" }
