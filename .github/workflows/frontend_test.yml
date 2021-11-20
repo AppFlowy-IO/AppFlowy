@@ -14,5 +14,7 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Run tests
+    - name: Run frontend tests
       run: cd frontend/rust-lib && cargo test
+    - name: Run shared-lib tests
+      run: cd shared-lib && cargo test
