@@ -11,4 +11,5 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
       - name: Build and Test
-        run: make install_rust && make install_cargo_make && cargo make install_targets
+        run: cd frontend && make install_rust && make install_cargo_make && cargo make install_targets
+ 
