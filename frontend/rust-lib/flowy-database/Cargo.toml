@@ -1,0 +1,12 @@
+[package]
+name = "flowy-database"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+diesel = {version = "1.4.8", features = ["sqlite"]}
+diesel_derives = {version = "1.4.1", features = ["sqlite"]}
+diesel_migrations = {version = "1.4.0", features = ["sqlite"]}
+lib-sqlite = {path = "../lib-sqlite" }

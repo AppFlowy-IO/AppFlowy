@@ -1,5 +1,5 @@
-use crate::helper::{spawn_user_server, TestUserServer};
-use flowy_net::errors::ErrorCode;
+use crate::util::helper::{spawn_user_server, TestUserServer};
+use backend_service::errors::ErrorCode;
 use flowy_user_infra::entities::{SignInParams, SignUpParams, SignUpResponse, UpdateUserParams};
 
 #[actix_rt::test]

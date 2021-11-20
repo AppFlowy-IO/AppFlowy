@@ -14,7 +14,7 @@ use actix::*;
 use actix_web::web::Data;
 use actix_web_actors::{ws, ws::Message::Text};
 use bytes::Bytes;
-use flowy_ws::WsMessage;
+use lib_ws::WsMessage;
 use std::{convert::TryFrom, sync::Arc, time::Instant};
 
 #[derive(Debug)]

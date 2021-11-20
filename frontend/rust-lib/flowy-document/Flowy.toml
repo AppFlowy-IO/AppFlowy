@@ -1,0 +1,3 @@
+
+proto_crates = ["src/event.rs", "src/errors.rs", "src/notify"]
+event_files = []

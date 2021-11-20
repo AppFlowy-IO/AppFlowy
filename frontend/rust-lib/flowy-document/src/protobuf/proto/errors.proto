@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+message DocError {
+    ErrorCode code = 1;
+    string msg = 2;
+}
+enum ErrorCode {
+    WsConnectError = 0;
+    DocNotfound = 1;
+    DuplicateRevision = 2;
+    UserUnauthorized = 10;
+    InternalError = 1000;
+}

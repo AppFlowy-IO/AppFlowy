@@ -3,8 +3,8 @@ use crate::service::ws::{
     WsMessageAdaptor,
 };
 use actix::{Actor, Context, Handler};
+use backend_service::errors::ServerError;
 use dashmap::DashMap;
-use flowy_net::errors::ServerError;
 
 pub struct WsServer {
     sessions: DashMap<SessionId, Session>,

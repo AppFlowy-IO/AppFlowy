@@ -1,0 +1,23 @@
+[package]
+name = "lib-infra"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+uuid = { version = "0.8", features = ["serde", "v4"] }
+diesel = {version = "1.4.8", features = ["sqlite"]}
+diesel_derives = {version = "1.4.1", features = ["sqlite"]}
+diesel_migrations = {version = "1.4.0", features = ["sqlite"]}
+flowy-derive = { path = "../flowy-derive"}
+lib-sqlite = { path = "../lib-sqlite" }
+lazy_static = "1.4.0"
+protobuf = {version = "2.18.0"}
+log = "0.4.14"
+chrono = "0.4.19"
+bytes = { version = "1.0" }
+pin-project = "1.0"
+futures-core = { version = "0.3", default-features = false }
+tokio = { version = "1.0", features = ["time", "rt"] }
+rand = "0.8.3"

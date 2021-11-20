@@ -3,8 +3,8 @@ use crate::service::{
     ws::{entities::Socket, WsUser},
 };
 use actix_web::web::Data;
+use backend_service::errors::{internal_error, Result as DocResult, ServerError};
 use flowy_document_infra::protobuf::{Doc, Revision};
-use flowy_net::errors::{internal_error, Result as DocResult, ServerError};
 use sqlx::PgPool;
 use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot};

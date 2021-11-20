@@ -1,0 +1,46 @@
+[package]
+name = "flowy-user"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+flowy-user-infra = { path = "../flowy-user-infra" }
+backend-service = { path = "../backend-service" }
+derive_more = {version = "0.99", features = ["display"]}
+lib-dispatch = { path = "../lib-dispatch" }
+flowy-derive = { path = "../flowy-derive" }
+flowy-database = { path = "../flowy-database" }
+lib-sqlite = { path = "../lib-sqlite" }
+lib-infra = { path = "../lib-infra" }
+lib-ws = { path = "../lib-ws" }
+dart-notify = { path = "../dart-notify" }
+
+tracing = { version = "0.1", features = ["log"] }
+bytes = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = {version = "1.0"}
+log = "0.4.14"
+protobuf = {version = "2.18.0"}
+lazy_static = "1.4.0"
+diesel = {version = "1.4.8", features = ["sqlite"]}
+diesel_derives = {version = "1.4.1", features = ["sqlite"]}
+thread_local = "1.1.3"
+thread-id = "3.3.0"
+once_cell = "1.7.2"
+parking_lot = "0.11"
+strum = "0.21"
+strum_macros = "0.21"
+tokio = { version = "1", features = ["rt"] }
+pin-project = "1.0.0"
+futures-core = { version = "0.3", default-features = false }
+r2d2 = "0.8.9"
+
+[dev-dependencies]
+flowy-test = { path = "../flowy-test" }
+futures = "0.3.15"
+serial_test = "0.5.1"
+
+[features]
+http_server = []

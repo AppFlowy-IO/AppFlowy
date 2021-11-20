@@ -4,7 +4,7 @@ use crate::service::{
 };
 use actix::Addr;
 use actix_web::web::Data;
-use flowy_ws::WsModule;
+use lib_ws::WsModule;
 use sqlx::PgPool;
 use std::sync::Arc;
 

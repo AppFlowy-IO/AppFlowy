@@ -1,0 +1,33 @@
+[package]
+name = "lib-ws"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+flowy-derive = { path = "../flowy-derive" }
+backend-service = { path = "../backend-service" }
+lib-infra = { path = "../lib-infra" }
+
+tokio-tungstenite = "0.15"
+futures-util = "0.3.17"
+futures-channel = "0.3.17"
+tokio = {version = "1", features = ["full"]}
+futures = "0.3.17"
+bytes = "1.0"
+pin-project = "1.0.0"
+futures-core = { version = "0.3", default-features = false }
+paste = "1"
+url = "2.2.2"
+log = "0.4"
+tracing = { version = "0.1", features = ["log"] }
+protobuf = {version = "2.18.0"}
+strum = "0.21"
+strum_macros = "0.21"
+parking_lot = "0.11"
+dashmap = "4.0"
+
+[dev-dependencies]
+tokio = {version = "1", features = ["full"]}
+env_logger = "0.8.2"

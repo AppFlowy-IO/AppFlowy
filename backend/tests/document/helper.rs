@@ -1,7 +1,7 @@
 use actix_web::web::Data;
 use backend::service::doc::{crud::update_doc, doc::DocManager};
+use backend_service::config::ServerConfig;
 use flowy_document::services::doc::ClientEditDoc as ClientEditDocContext;
-use flowy_net::config::ServerConfig;
 use flowy_test::{workspace::ViewTest, FlowyTest};
 use flowy_user::services::user::UserSession;
 use futures_util::{stream, stream::StreamExt};
@@ -9,9 +9,9 @@ use sqlx::PgPool;
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 // use crate::helper::*;
-use crate::helper::{spawn_server, TestServer};
+use crate::util::helper::{spawn_server, TestServer};
 use flowy_document_infra::{entities::doc::DocIdentifier, protobuf::UpdateDocParams};
-use flowy_ot::core::{Attribute, Delta, Interval};
+use lib_ot::core::{Attribute, Delta, Interval};
 use parking_lot::RwLock;
 
 pub struct DocumentTest {
@@ -20,13 +20,13 @@ pub struct DocumentTest {
 }
 #[derive(Clone)]
 pub enum DocScript {
-    ConnectWs,
-    InsertText(usize, &'static str),
-    FormatText(Interval, Attribute),
+    ClientConnectWs,
+    ClientInsertText(usize, &'static str),
+    ClientFormatText(Interval, Attribute),
+    ClientOpenDoc,
     AssertClient(&'static str),
     AssertServer(&'static str, i64),
-    SetServerDocument(String, i64), // delta_json, rev_id
-    OpenDoc,
+    ServerSaveDocument(String, i64), // delta_json, rev_id
 }
 
 impl DocumentTest {
@@ -95,19 +95,19 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
         let fut = async move {
             let doc_id = context.read().doc_id.clone();
             match script {
-                DocScript::ConnectWs => {
+                DocScript::ClientConnectWs => {
                     // sleep(Duration::from_millis(300)).await;
                     let user_session = context.read().client_user_session.clone();
                     let token = user_session.token().unwrap();
                     let _ = user_session.start_ws_connection(&token).await.unwrap();
                 },
-                DocScript::OpenDoc => {
+                DocScript::ClientOpenDoc => {
                     context.write().open_doc().await;
                 },
-                DocScript::InsertText(index, s) => {
+                DocScript::ClientInsertText(index, s) => {
                     context.read().client_edit_context().insert(index, s).await.unwrap();
                 },
-                DocScript::FormatText(interval, attribute) => {
+                DocScript::ClientFormatText(interval, attribute) => {
                     context
                         .read()
                         .client_edit_context()
@@ -129,7 +129,7 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
                     let json = edit_doc.document_json().await.unwrap();
                     assert_eq(s, &json);
                 },
-                DocScript::SetServerDocument(json, rev_id) => {
+                DocScript::ServerSaveDocument(json, rev_id) => {
                     let pg_pool = context.read().server_pg_pool.clone();
                     save_doc(&doc_id, json, rev_id, pg_pool).await;
                 },
