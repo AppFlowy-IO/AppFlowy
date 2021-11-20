@@ -88,10 +88,22 @@ flutter channel dev
 
 **Step 4:**
 
+You should enable the specified platform first if you don't enable it before and then select the desktop device.
+```shell
+# for windows
+flutter config --enable-windows-desktop
+
+# for macos
+flutter config --enable-macos-desktop
+
+# for linux
+flutter config --enable-linux-desktop
+```
+
 * Open the `app_flowy` folder located at xx/appflowy/app_flowy with Visual Studio or other IDEs at your disposal.
 * Go to the Run and Debug tab and then click the run button.
 ![Run the project](https://github.com/AppFlowy-IO/appflowy/blob/main/doc/imgs/run.png)
-
+  
 ## Roadmap
 
 [AppFlowy Roadmap](https://trello.com/b/NCyXCXXh/appflowy-roadmap)
