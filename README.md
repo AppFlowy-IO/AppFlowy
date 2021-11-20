@@ -58,7 +58,7 @@ git clone https://github.com/AppFlowy-IO/appflowy.git
 **Step 2:**
 
 ```shell
-cd appflowy
+cd appflowy/frontend
 ```
 ```shell
 make install_rust
@@ -100,7 +100,7 @@ flutter config --enable-macos-desktop
 flutter config --enable-linux-desktop
 ```
 
-* Open the `app_flowy` folder located at xx/appflowy/app_flowy with Visual Studio or other IDEs at your disposal.
+* Open the `app_flowy` folder located at xx/frontend/app_flowy with Visual Studio or other IDEs at your disposal.
 * Go to the Run and Debug tab and then click the run button.
 ![Run the project](https://github.com/AppFlowy-IO/appflowy/blob/main/doc/imgs/run.png)
   
