@@ -4,9 +4,9 @@ use crate::{
     WsMessage,
     WsModule,
 };
+use backend_service::errors::ServerError;
 use bytes::Bytes;
 use dashmap::DashMap;
-use flowy_net::errors::ServerError;
 use futures_channel::mpsc::{UnboundedReceiver, UnboundedSender};
 use futures_core::{ready, Stream};
 use lib_infra::retry::{Action, FixedInterval, Retry};

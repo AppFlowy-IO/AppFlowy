@@ -4,9 +4,9 @@ use crate::{
     handlers::*,
     services::{server::construct_workspace_server, AppController, TrashCan, ViewController, WorkspaceController},
 };
+use backend_service::config::ServerConfig;
 use flowy_database::DBConnection;
 use flowy_document::module::FlowyDocument;
-use flowy_net::config::ServerConfig;
 use lib_dispatch::prelude::*;
 use lib_sqlite::ConnectionPool;
 use std::sync::Arc;

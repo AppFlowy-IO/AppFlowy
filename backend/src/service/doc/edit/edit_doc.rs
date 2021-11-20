@@ -4,13 +4,13 @@ use crate::service::{
     ws::{entities::Socket, WsMessageAdaptor},
 };
 use actix_web::web::Data;
+use backend_service::errors::{internal_error, ServerError};
 use dashmap::DashMap;
 use flowy_document_infra::{
     core::Document,
     entities::ws::{WsDataType, WsDocumentData},
     protobuf::{Doc, RevId, RevType, Revision, RevisionRange, UpdateDocParams},
 };
-use flowy_net::errors::{internal_error, ServerError};
 use lib_ot::core::{Delta, OperationTransformable};
 use parking_lot::RwLock;
 use protobuf::Message;

@@ -1,6 +1,6 @@
 use crate::deps_resolve::DocumentDepsResolver;
+use backend_service::config::ServerConfig;
 use flowy_document::module::FlowyDocument;
-use flowy_net::config::ServerConfig;
 use flowy_user::services::user::UserSession;
 use flowy_workspace::prelude::WorkspaceController;
 use lib_dispatch::prelude::Module;

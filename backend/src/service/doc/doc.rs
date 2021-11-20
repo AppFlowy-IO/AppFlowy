@@ -7,9 +7,9 @@ use crate::service::{
     ws::{WsBizHandler, WsClientData},
 };
 use actix_web::web::Data;
+use backend_service::errors::{internal_error, ServerError};
 use dashmap::DashMap;
 use flowy_document_infra::protobuf::DocIdentifier;
-use flowy_net::errors::{internal_error, ServerError};
 use sqlx::PgPool;
 use std::sync::Arc;
 use tokio::{

@@ -1,5 +1,5 @@
 use crate::services::user::{UserSession, UserSessionConfig};
-use flowy_net::config::ServerConfig;
+use backend_service::config::ServerConfig;
 
 pub struct UserSessionBuilder {
     config: Option<UserSessionConfig>,

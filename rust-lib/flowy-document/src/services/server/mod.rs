@@ -5,8 +5,8 @@ mod server_api_mock;
 pub use server_api::*;
 // TODO: ignore mock files in production
 use crate::errors::DocError;
+use backend_service::config::ServerConfig;
 use flowy_document_infra::entities::doc::{CreateDocParams, Doc, DocIdentifier, UpdateDocParams};
-use flowy_net::config::ServerConfig;
 use lib_infra::future::ResultFuture;
 pub use server_api_mock::*;
 use std::sync::Arc;

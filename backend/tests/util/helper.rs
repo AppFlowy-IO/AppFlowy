@@ -3,10 +3,9 @@ use backend::{
     config::{get_configuration, DatabaseSettings},
     context::AppContext,
 };
-use backend_api::{user_request::*, workspace_request::*};
+use backend_service::{errors::ServerError, user_request::*, workspace_request::*};
 use flowy_document::services::server::read_doc_request;
 use flowy_document_infra::entities::doc::{Doc, DocIdentifier};
-use flowy_net::errors::ServerError;
 use flowy_user_infra::entities::*;
 use flowy_workspace_infra::entities::prelude::*;
 use sqlx::{Connection, Executor, PgConnection, PgPool};

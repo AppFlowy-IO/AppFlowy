@@ -14,7 +14,7 @@ use actix_web::{
     HttpResponse,
 };
 use anyhow::Context;
-use flowy_net::{
+use backend_service::{
     errors::{invalid_params, ServerError},
     response::FlowyResponse,
 };

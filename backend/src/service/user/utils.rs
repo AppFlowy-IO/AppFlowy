@@ -1,5 +1,5 @@
+use backend_service::errors::{ErrorCode, ServerError};
 use bcrypt::{hash, verify, DEFAULT_COST};
-use flowy_net::errors::{ErrorCode, ServerError};
 
 #[allow(dead_code)]
 pub fn uuid() -> String { uuid::Uuid::new_v4().to_string() }

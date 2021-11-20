@@ -6,9 +6,9 @@ use crate::{
         ws::WsDocumentManager,
     },
 };
+use backend_service::config::ServerConfig;
 use flowy_database::ConnectionPool;
 use flowy_document_infra::entities::doc::{DocDelta, DocIdentifier};
-use flowy_net::config::ServerConfig;
 use std::sync::Arc;
 
 pub trait DocumentUser: Send + Sync {

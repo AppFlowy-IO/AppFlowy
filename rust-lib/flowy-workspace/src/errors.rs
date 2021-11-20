@@ -1,8 +1,8 @@
 use bytes::Bytes;
 
+use backend_service::errors::ErrorCode as ServerErrorCode;
 use flowy_derive::ProtoBuf;
 use flowy_document::errors::DocError;
-use flowy_net::errors::ErrorCode as ServerErrorCode;
 pub use flowy_workspace_infra::errors::ErrorCode;
 use lib_dispatch::prelude::{EventResponse, ResponseBuilder};
 use std::{convert::TryInto, fmt, fmt::Debug};
@@ -75,8 +75,8 @@ impl std::convert::From<flowy_document::errors::DocError> for WorkspaceError {
     fn from(error: DocError) -> Self { WorkspaceError::internal().context(error) }
 }
 
-impl std::convert::From<flowy_net::errors::ServerError> for WorkspaceError {
-    fn from(error: flowy_net::errors::ServerError) -> Self {
+impl std::convert::From<backend_service::errors::ServerError> for WorkspaceError {
+    fn from(error: backend_service::errors::ServerError) -> Self {
         let code = server_error_to_workspace_error(error.code);
         WorkspaceError::new(code, &error.msg)
     }

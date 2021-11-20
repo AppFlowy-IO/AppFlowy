@@ -1,4 +1,4 @@
-use flowy_net::errors::{ErrorCode, ServerError};
+use backend_service::errors::{ErrorCode, ServerError};
 use sqlx::{Error, Postgres, Transaction};
 
 pub type DBTransaction<'a> = Transaction<'a, Postgres>;

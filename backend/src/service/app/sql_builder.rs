@@ -2,8 +2,8 @@ use crate::{
     entities::workspace::{AppTable, APP_TABLE},
     sqlx_ext::SqlBuilder,
 };
+use backend_service::errors::{invalid_params, ServerError};
 use chrono::{DateTime, NaiveDateTime, Utc};
-use flowy_net::errors::{invalid_params, ServerError};
 use flowy_workspace_infra::{
     parser::app::AppId,
     protobuf::{App, ColorStyle},

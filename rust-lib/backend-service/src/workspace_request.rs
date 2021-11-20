@@ -1,8 +1,8 @@
-use flowy_net::{config::HEADER_TOKEN, errors::ServerError, request::HttpRequestBuilder};
+use crate::{config::HEADER_TOKEN, errors::ServerError, request::HttpRequestBuilder};
 use flowy_workspace_infra::entities::prelude::*;
 
 pub(crate) fn request_builder() -> HttpRequestBuilder {
-    HttpRequestBuilder::new().middleware(super::middleware::BACKEND_API_MIDDLEWARE.clone())
+    HttpRequestBuilder::new().middleware(crate::middleware::BACKEND_API_MIDDLEWARE.clone())
 }
 
 pub async fn create_workspace_request(

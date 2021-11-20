@@ -1,7 +1,7 @@
 use crate::config::env::{domain, jwt_secret};
+use backend_service::errors::ServerError;
 use chrono::{Duration, Local};
 use derive_more::{From, Into};
-use flowy_net::errors::ServerError;
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 
@@ -76,7 +76,7 @@ impl Token {
 
 use crate::service::user::EXPIRED_DURATION_DAYS;
 use actix_web::{dev::Payload, FromRequest, HttpRequest};
-use flowy_net::config::HEADER_TOKEN;
+use backend_service::config::HEADER_TOKEN;
 use futures::future::{ready, Ready};
 
 impl FromRequest for Token {

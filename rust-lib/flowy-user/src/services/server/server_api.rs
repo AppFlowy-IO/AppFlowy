@@ -3,8 +3,7 @@ use crate::{
     errors::UserError,
     services::server::UserServerAPI,
 };
-use backend_api::user_request::*;
-use flowy_net::config::*;
+use backend_service::{config::*, user_request::*};
 use lib_infra::future::ResultFuture;
 
 pub struct UserServer {
@@ -62,7 +61,7 @@ impl UserServerAPI for UserServer {
 }
 
 // use crate::notify::*;
-// use flowy_net::response::FlowyResponse;
+// use backend_service::response::FlowyResponse;
 // use flowy_user_infra::errors::ErrorCode;
 
 // struct Middleware {}

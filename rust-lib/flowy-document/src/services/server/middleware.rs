@@ -1,4 +1,4 @@
-use flowy_net::{request::ResponseMiddleware, response::FlowyResponse};
+use backend_service::{request::ResponseMiddleware, response::FlowyResponse};
 use lazy_static::lazy_static;
 use std::sync::Arc;
 

@@ -5,7 +5,7 @@ use crate::{
     sqlx_ext::*,
 };
 use anyhow::Context;
-use flowy_net::errors::{invalid_params, ServerError};
+use backend_service::errors::{invalid_params, ServerError};
 use flowy_workspace_infra::{
     parser::workspace::WorkspaceId,
     protobuf::{RepeatedApp, RepeatedWorkspace, Workspace},

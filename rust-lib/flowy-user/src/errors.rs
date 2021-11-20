@@ -92,15 +92,15 @@ impl std::convert::From<lib_sqlite::Error> for UserError {
     fn from(error: lib_sqlite::Error) -> Self { UserError::internal().context(error) }
 }
 
-impl std::convert::From<flowy_net::errors::ServerError> for UserError {
-    fn from(error: flowy_net::errors::ServerError) -> Self {
+impl std::convert::From<backend_service::errors::ServerError> for UserError {
+    fn from(error: backend_service::errors::ServerError) -> Self {
         let (code, msg) = server_error_to_user_error(error);
         UserError::new(code, &msg)
     }
 }
 
-use flowy_net::errors::ErrorCode as ServerErrorCode;
-fn server_error_to_user_error(error: flowy_net::errors::ServerError) -> (ErrorCode, String) {
+use backend_service::errors::ErrorCode as ServerErrorCode;
+fn server_error_to_user_error(error: backend_service::errors::ServerError) -> (ErrorCode, String) {
     let code = match error.code {
         ServerErrorCode::UserUnauthorized => ErrorCode::UserUnauthorized,
         ServerErrorCode::PasswordNotMatch => ErrorCode::PasswordNotMatch,

@@ -69,7 +69,7 @@ pub extern "C" fn set_stream_port(port: i64) -> i32 {
 #[no_mangle]
 pub extern "C" fn link_me_please() {}
 
-use flowy_net::config::ServerConfig;
+use backend_service::config::ServerConfig;
 use lib_dispatch::prelude::ToBytes;
 
 #[inline(always)]

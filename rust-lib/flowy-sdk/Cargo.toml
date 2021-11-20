@@ -15,7 +15,7 @@ flowy-database = { path = "../flowy-database" }
 flowy-document = { path = "../flowy-document" }
 flowy-document-infra = { path = "../flowy-document-infra" }
 lib-ws = { path = "../lib-ws" }
-flowy-net = { path = "../flowy-net" }
+backend-service = { path = "../backend-service" }
 tracing = { version = "0.1" }
 log = "0.4.14"
 futures-core = { version = "0.3", default-features = false }

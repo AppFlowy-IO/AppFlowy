@@ -3,8 +3,8 @@ use crate::{
     sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
 use anyhow::Context;
+use backend_service::errors::ServerError;
 use flowy_document_infra::protobuf::{CreateDocParams, Doc, DocIdentifier, UpdateDocParams};
-use flowy_net::errors::ServerError;
 use sqlx::{postgres::PgArguments, PgPool, Postgres};
 use uuid::Uuid;
 

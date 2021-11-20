@@ -4,11 +4,11 @@ use crate::{
     sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
 use anyhow::Context;
-use chrono::Utc;
-use flowy_net::{
+use backend_service::{
     errors::{invalid_params, ErrorCode, ServerError},
     response::FlowyResponse,
 };
+use chrono::Utc;
 use flowy_user_infra::{
     parser::{UserEmail, UserName, UserPassword},
     protobuf::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile},

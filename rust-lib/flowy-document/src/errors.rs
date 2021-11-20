@@ -1,7 +1,7 @@
+use backend_service::errors::ServerError;
 use bytes::Bytes;
 use derive_more::Display;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_net::errors::ServerError;
 use lib_dispatch::prelude::{EventResponse, ResponseBuilder};
 use std::{convert::TryInto, fmt};
 
@@ -108,14 +108,14 @@ impl std::convert::From<protobuf::ProtobufError> for DocError {
     fn from(e: protobuf::ProtobufError) -> Self { DocError::internal().context(e) }
 }
 
-impl std::convert::From<flowy_net::errors::ServerError> for DocError {
+impl std::convert::From<backend_service::errors::ServerError> for DocError {
     fn from(error: ServerError) -> Self {
         let code = server_error_to_doc_error(error.code);
         DocError::new(code, &error.msg)
     }
 }
 
-use flowy_net::errors::ErrorCode as ServerErrorCode;
+use backend_service::errors::ErrorCode as ServerErrorCode;
 use std::fmt::Debug;
 
 fn server_error_to_doc_error(code: ServerErrorCode) -> ErrorCode {

@@ -16,7 +16,7 @@ lib-infra = { path = "../lib-infra" }
 dart-notify = { path = "../dart-notify" }
 lib-ot = { path = "../lib-ot" }
 lib-ws = { path = "../lib-ws" }
-flowy-net = { path = "../flowy-net", features = ["flowy_request"] }
+backend-service = { path = "../backend-service" }
 
 
 diesel = {version = "1.4.8", features = ["sqlite"]}

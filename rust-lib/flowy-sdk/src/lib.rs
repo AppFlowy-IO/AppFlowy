@@ -3,8 +3,8 @@ mod deps_resolve;
 pub mod module;
 
 use crate::deps_resolve::WorkspaceDepsResolver;
+use backend_service::config::ServerConfig;
 use flowy_document::module::FlowyDocument;
-use flowy_net::config::ServerConfig;
 use flowy_user::services::user::{UserSession, UserSessionBuilder, UserStatus};
 use flowy_workspace::{errors::WorkspaceError, prelude::WorkspaceController};
 use lib_dispatch::prelude::*;

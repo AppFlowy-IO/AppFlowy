@@ -13,7 +13,7 @@ flowy-workspace = { path = "../flowy-workspace", default-features = false}
 lib-infra = { path = "../lib-infra" }
 flowy-document = { path = "../flowy-document"}
 flowy-document-infra = { path = "../flowy-document-infra"}
-flowy-net = { path = "../flowy-net"}
+backend-service = { path = "../backend-service" }
 
 serde = { version = "1.0", features = ["derive"] }
 bincode = { version = "1.3"}

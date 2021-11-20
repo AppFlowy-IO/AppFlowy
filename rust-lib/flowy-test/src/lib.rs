@@ -3,7 +3,7 @@ mod helper;
 pub mod workspace;
 
 use crate::helper::*;
-use flowy_net::config::ServerConfig;
+use backend_service::config::ServerConfig;
 use flowy_sdk::{FlowySDK, FlowySDKConfig};
 use flowy_user::entities::UserProfile;
 use lib_infra::uuid;

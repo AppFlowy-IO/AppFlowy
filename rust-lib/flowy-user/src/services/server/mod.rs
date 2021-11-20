@@ -9,7 +9,7 @@ use crate::{
     entities::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile},
     errors::UserError,
 };
-use flowy_net::config::ServerConfig;
+use backend_service::config::ServerConfig;
 use lib_infra::future::ResultFuture;
 
 pub trait UserServerAPI {

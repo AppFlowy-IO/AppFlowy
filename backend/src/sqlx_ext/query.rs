@@ -1,4 +1,4 @@
-use flowy_net::errors::ServerError;
+use backend_service::errors::ServerError;
 use sql_builder::SqlBuilder as InnerBuilder;
 use sqlx::{postgres::PgArguments, Arguments, Encode, Postgres, Type};
 

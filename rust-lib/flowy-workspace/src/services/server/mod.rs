@@ -14,7 +14,7 @@ use crate::{
     },
     errors::WorkspaceError,
 };
-use flowy_net::config::ServerConfig;
+use backend_service::config::ServerConfig;
 use lib_infra::future::ResultFuture;
 use std::sync::Arc;
 

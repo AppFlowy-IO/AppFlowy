@@ -16,8 +16,7 @@ lib-sqlite = { path = "../lib-sqlite" }
 lib-infra = { path = "../lib-infra" }
 dart-notify = { path = "../dart-notify" }
 lib-ot = { path = "../lib-ot" }
-flowy-net = { path = "../flowy-net", features = ["flowy_request"] }
-backend-api = { path = "../backend-api" }
+backend-service = { path = "../backend-service" }
 
 parking_lot = "0.11"
 protobuf = {version = "2.18.0"}
