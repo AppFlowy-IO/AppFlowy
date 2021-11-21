@@ -1,16 +1,23 @@
 
-FROM rust:1.53.0
+FROM rust:latest
 # Let's switch our working directory to `app` (equivalent to `cd app`)
 # The `app` folder will be created for us by Docker in case it does not
 # exist already.
 WORKDIR /app
 
-COPY . .
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends git \
+    # Clean up
+    && apt-get autoremove -y \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN git clone https://github.com/AppFlowy-IO/appflowy.git .
 
 WORKDIR /app/backend
 ENV SQLX_OFFLINE true
 ENV APP_ENVIRONMENT production
-RUN cargo build --release
+RUN RUSTFLAGS="-C opt-level=2" cargo build --release
 
 # When `docker run` is executed, launch the binary!
 ENTRYPOINT ["./target/release/backend"]
