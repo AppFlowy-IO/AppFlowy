@@ -37,7 +37,7 @@ jobs:
         run: |
           git clone https://github.com/flutter/flutter.git
           cd flutter
-          echo "export PATH=\$PATH:"`pwd`"/bin" >> ~/.profile
+          echo `pwd`"/bin" >> $GITHUB_PATH
           export PATH="$PATH:`pwd`/bin"
           flutter channel dev
           flutter config --enable-linux-desktop
