@@ -5,6 +5,7 @@
     "version": "0.2.0",
     "configurations": [
     
+    
         {
             "name": "app_flowy",
             "request": "launch",

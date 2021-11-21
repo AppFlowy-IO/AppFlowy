@@ -1,24 +1,15 @@
-## How to build on Windows, please follow these simple steps.
+## How to build on Windows 10, please follow these simple steps.
 
-## Step 1: Get source code
-------------------------------
+**Step 1:**
 
 ```shell
 git clone https://github.com/AppFlowy-IO/appflowy.git
 ```
 
-## Step 2: Build app_flowy (Flutter GUI application)
-------------------------------
+**Step 2:**
 
-Note:
-* Please run the commands in windows cmd rather than powershell
-* Following steps are verified on
-    - [x] Windows 10 X86_64
-    - [ ] Windows 10 arm64
-    - [ ] Windows 11 X86_64
-    - [ ] Windows 11 arm64
+Note: Please run the commands in windows cmd rather than powershell
 
-### Detail steps
 1. Install Visual Studio 2019 community. See: https://visualstudio.microsoft.com/downloads/
     - Note: Didn't test Visual Studio 2022. It should also work.
 2. Install choco according to https://chocolatey.org/install
@@ -34,7 +25,7 @@ rustup toolchain install nightly
 ```
 6. Install cargo make
 ```shell
-cd appflowy/frontend
+cd appflowy
 cargo install --force cargo-make
 ```
 7. Install duckscript
@@ -45,7 +36,7 @@ cargo install --force duckscript_cli
 ```shell
 cargo make flowy_dev
 ```
-9. Generate protobuf for dart (optional, if you modify the shared-lib's entities)
+9. Generate protobuf for dart
 ```shell
 cargo make -p development-windows pb
 ```
@@ -62,8 +53,7 @@ cargo make --profile production-desktop-windows-x86 flowy-sdk-release
 cargo make -p production-desktop-windows-x86 appflowy-windows
 ```
 
-## Step 3: Build Server side application (optional if you don't need to host web service locally)
-------------------------------
+**Step 3:**  Server side application
 
 Note: You can launch postgresql server by using docker container
 

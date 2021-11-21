@@ -1,31 +1,26 @@
-# How to build on Linux, please follow these simple steps.
+## How to build on Linux, please follow these simple steps.
 
-## Step 1: Get source code
-------------------------------
+**Step 1:**
 
 ```shell
 git clone https://github.com/AppFlowy-IO/appflowy.git
 ```
 
-## Step 2: Build app_flowy (Flutter GUI application)
-------------------------------
+**Step 2:**
 
 Note:
-* Following steps are verified on
+1. Following steps are verified on
     - [x] lubuntu 20.04 - X86_64
     - [ ] ubuntu 20.04 - aarch64
     - [ ] redhat - X86_64
     - [ ] Arch Linux - X86_64
     - [ ] Deepin - X86_64
     - [ ] Raspberry Pi OS - aarch64
-* You may need to disable hardware 3D acceleration if you are running in a VM. Otherwise certain GL failures will prevent app from launching
+2. You may need to disable hardware 3D acceleration if you are running in a VM. Otherwise certain GL failures will prevent app from launching
 
-### Detail steps
 1. Install pre-requests
 ```shell
 sudo apt-get install curl build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
-# optional, for generating protobuf in step 8 only
-sudo apt-get install protobuf-compiler
 ```
 2. Install rust on Linux
 ```shell
@@ -51,7 +46,7 @@ flutter doctor
 ```
 5. Install cargo make
 ```shell
-cd appflowy/frontend
+cd appflowy
 cargo install --force cargo-make
 ```
 6. Install duckscript
@@ -62,7 +57,7 @@ cargo install --force duckscript_cli
 ```shell
 cargo make flowy_dev
 ```
-8. Generate protobuf for dart (optional, if you modify the shared-lib's entities)
+8. Generate protobuf for dart (optional)
 ```shell
 cargo make -p development-linux-x86 pb
 ```
@@ -90,8 +85,7 @@ cargo make -p production-linux-x86 appflowy-linux
 # ./app_flowy
 ```
 
-## Step 3: Build Server side application (optional if you don't need to host web service locally)
-------------------------------
+**Step 3:**  Server side application
 
 Note: You can launch postgresql server by using docker container
 
