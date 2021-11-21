@@ -36,7 +36,7 @@ cargo install --force duckscript_cli
 ```shell
 cargo make flowy_dev
 ```
-9. Generate protobuf for dart
+9. Generate protobuf for dart (optional, if you modify the shared-lib's entities)
 ```shell
 cargo make -p development-windows pb
 ```
