@@ -39,4 +39,10 @@ jobs:
           flutter config --enable-linux-desktop
           flutter doctor
       - name: Deps
-        run: cargo install --force cargo-make && cargo install --force duckscript_cli && cargo make flowy_dev && cargo make -p development-linux-x86 pb && cargo make -p development-linux-x86 appflowy-linux-dev
+        run: |
+          cargo install --force cargo-make
+          cargo install --force duckscript_cli
+          cd frontend
+          cargo make flowy_dev
+          cargo make -p development-linux-x86 pb
+          cargo make -p development-linux-x86 appflowy-linux-dev
