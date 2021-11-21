@@ -17,7 +17,7 @@ jobs:
       - name: Run shared-lib tests
         run: cd shared-lib && cargo test
   build-linux:
-    runs-on: linux-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
