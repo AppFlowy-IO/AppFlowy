@@ -25,7 +25,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y curl build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
       - name: Rust
         run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -- -y
           source $HOME/.cargo/env
           rustup toolchain install nightly
           rustup default nightly
