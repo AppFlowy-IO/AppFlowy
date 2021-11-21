@@ -5,18 +5,38 @@ on:
   pull_request:
     branches: [main]
 jobs:
-  build:
+  build-macos:
     runs-on: macOS-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: Env install
         run: cd frontend && make install_rust && make install_cargo_make && cargo make install_targets
       - name: Run frontend tests
         run: cd frontend/rust-lib && cargo test
       - name: Run shared-lib tests
         run: cd shared-lib && cargo test
-    
-
-    
- 
+  build-linux:
+    runs-on: linux-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Packages
+        run: sudo apt-get install -y curl build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
+      - name: Rust
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+          source $HOME/.cargo/env
+          rustup toolchain install nightly
+          rustup default nightly
+      - name: Flutter
+        run: |
+          git clone https://github.com/flutter/flutter.git
+          cd flutter
+          echo "export PATH=\$PATH:"`pwd`"/bin" >> ~/.profile
+          export PATH="$PATH:`pwd`/bin"
+          flutter channel dev
+          flutter config --enable-linux-desktop
+          flutter doctor
+      - name: Deps
+        run: cargo install --force cargo-make && cargo install --force duckscript_cli && cargo make flowy_dev && cargo make -p development-linux-x86 pb && cargo make -p development-linux-x86 appflowy-linux-dev
