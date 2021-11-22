@@ -80,7 +80,6 @@ use backend_service::config::HEADER_TOKEN;
 use futures::future::{ready, Ready};
 
 impl FromRequest for Token {
-    //type Config = ();
     type Error = ServerError;
     type Future = Ready<Result<Self, Self::Error>>;
 
