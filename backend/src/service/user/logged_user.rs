@@ -41,7 +41,6 @@ use actix_web::{dev::Payload, FromRequest, HttpRequest};
 use futures::future::{ready, Ready};
 
 impl FromRequest for LoggedUser {
-    type Config = ();
     type Error = ServerError;
     type Future = Ready<Result<Self, Self::Error>>;
 
