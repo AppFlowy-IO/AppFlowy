@@ -57,7 +57,10 @@ cargo make --profile production-desktop-windows-x86 flowy-sdk-release
 ```
 11. Build app_flowy
 ```shell
-# TODO: for development
+#for development
+cd appflowy/frontend/app_flowy
+flutter run -d windows (OR use "run and debug" in your IDE/Editor)
+
 # for production
 cargo make -p production-desktop-windows-x86 appflowy-windows
 ```
