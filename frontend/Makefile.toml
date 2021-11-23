@@ -99,6 +99,7 @@ LINUX_ARCH = "arm64"
 [tasks.echo_env]
 script = [
     '''
+    echo "-------- Env Parameters --------"
     echo CRATE_TYPE: ${CRATE_TYPE}
     echo BUILD_FLAG: ${BUILD_FLAG}
     echo TARGET_OS: ${TARGET_OS}
@@ -106,9 +107,15 @@ script = [
     echo FEATURES: ${FEATURES}
     echo PRODUCT_EXT: ${PRODUCT_EXT}
     echo ${platforms}
+
+    echo "-------- Flutter --------"
+    flutter doctor
+
+    echo "-------- Rust --------"
+    rustup show
     '''
 ]
-script_runner = "@duckscript"
+script_runner = "@shell"
 
 [env.production-ios]
 BUILD_FLAG = "release"
