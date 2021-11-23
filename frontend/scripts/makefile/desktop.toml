@@ -2,7 +2,7 @@
 
 # Run the task with profile, e.g.
 # cargo make --profile development-mac flowy-sdk-dev
-# cargo make --profile production-desktop-windows-x86 flowy-sdk-dev
+# cargo make --profile production-windows-x86 flowy-sdk-dev
 
 [tasks.env_check]
 dependencies = ["echo_env"]

@@ -17,6 +17,7 @@ use std::{
 
 #[derive(Clone, Debug, Derivative)]
 pub struct EventRequest {
+    #[allow(dead_code)]
     pub(crate) id: String,
     pub(crate) event: Event,
     #[derivative(Debug = "ignore")]
