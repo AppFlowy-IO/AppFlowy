@@ -56,3 +56,6 @@ windows/flutter/dart_ffi/
 **/**/*.lib
 **/**/*.dll
 **/**/*.so
+flutter/generated_plugin_registrant.cc
+flutter/generated_plugin_registrant.h
+flutter/generated_plugins.cmake
