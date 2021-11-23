@@ -168,8 +168,8 @@ class PasswordTextField extends StatelessWidget {
         return RoundedInputField(
           obscureText: true,
           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-          obscureIcon: svg("home/Hide"),
-          obscureHideIcon: svg("home/Show"),
+          obscureIcon: svg("home/hide"),
+          obscureHideIcon: svg("home/show"),
           hintText: 'Password',
           normalBorderColor: theme.shader4,
           highlightBorderColor: theme.red,

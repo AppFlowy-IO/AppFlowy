@@ -36,6 +36,9 @@ By default, Docker images do not expose their ports to the underlying host machi
 
 ### Sqlx
 
+**sqlx-cli**
+*  [install sqlx-cli](https://github.com/launchbadge/sqlx/tree/master/sqlx-cli)
+
 **Sqlx and Diesel commands** 
 * create migration
     * sqlx: sqlx migrate add $(table)
