@@ -42,7 +42,7 @@ FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "app"
 
 
-[env.development-windows]
+[env.development-desktop-windows-x86]
 TARGET_OS = "windows"
 RUST_COMPILE_TARGET = "x86_64-pc-windows-msvc"
 BUILD_FLAG = "debug"
