@@ -5,17 +5,47 @@ on:
   pull_request:
     branches: [main]
 jobs:
+  sdk-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Rust
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          source $HOME/.cargo/env
+          rustup toolchain install nightly
+          rustup default nightly
+      - name: Frontend tests
+        run: cd frontend/rust-lib && cargo test
+      - name: Shared-lib tests
+        run: cd shared-lib && cargo test
   build-macos:
     runs-on: macOS-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Env install
-        run: cd frontend && make install_rust && make install_cargo_make && cargo make install_targets
-      - name: Run frontend tests
-        run: cd frontend/rust-lib && cargo test
-      - name: Run shared-lib tests
-        run: cd shared-lib && cargo test
+        run: cd frontend && make install_rust
+      - name: Flutter
+        run: |
+          git clone --depth 1 -b dev https://github.com/flutter/flutter.git
+          cd flutter
+          echo `pwd`"/bin" >> $GITHUB_PATH
+          export PATH="$PATH:`pwd`/bin"
+          flutter channel dev
+          flutter config --enable-macos-desktop
+          flutter doctor
+      - name: Deps
+        run: |
+          cd frontend
+          cargo install --force cargo-make
+          cargo install --force duckscript_cli
+          cargo make flowy_dev
+      - name: Build
+        run: |
+          cd frontend
+          cargo make --profile production-mac-x86 appflowy
   build-ubuntu:
     runs-on: ubuntu-latest
     steps:
@@ -35,7 +65,7 @@ jobs:
           rustup default nightly
       - name: Flutter
         run: |
-          git clone https://github.com/flutter/flutter.git
+          git clone --depth 1 -b dev https://github.com/flutter/flutter.git
           cd flutter
           echo `pwd`"/bin" >> $GITHUB_PATH
           export PATH="$PATH:`pwd`/bin"
@@ -48,4 +78,7 @@ jobs:
           cargo install --force cargo-make
           cargo install --force duckscript_cli
           cargo make flowy_dev
-          cargo make -p development-linux-x86 appflowy-linux-dev
+      - name: Build
+        run: |
+          cd frontend
+          cargo make --profile production-linux-x86 appflowy

@@ -52,16 +52,16 @@ cargo make -p development-windows pb
 10. Build flowy-sdk (dart-ffi)
 ```shell
 # for development
-cargo make --profile development-desktop-windows-x86 flowy-sdk-dev
+cargo make --profile development-windows-x86 flowy-sdk-dev
 # for production
-cargo make --profile production-desktop-windows-x86 flowy-sdk-release
+cargo make --profile production-windows-x86 flowy-sdk-release
 ```
 11. Build app_flowy
 ```shell
 # for development
-cargo make -p development-desktop-windows-x86 appflowy-windows-dev
+cargo make -p development-windows-x86 appflowy-windows-dev
 # for production
-cargo make -p production-desktop-windows-x86 appflowy-windows
+cargo make -p production-windows-x86 appflowy-windows
 ```
 
 ## Step 3: Build Server side application (optional if you don't need to host web service locally)
