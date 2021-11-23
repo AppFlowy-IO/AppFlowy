@@ -45,7 +45,7 @@ jobs:
           rustup default nightly
       - name: Flutter
         run: |
-          git clone --depth 1 https://github.com/flutter/flutter.git
+          git clone --depth 1 -b dev https://github.com/flutter/flutter.git
           cd flutter
           echo `pwd`"/bin" >> $GITHUB_PATH
           export PATH="$PATH:`pwd`/bin"
