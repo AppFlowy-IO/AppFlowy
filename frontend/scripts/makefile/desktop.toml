@@ -41,6 +41,18 @@ script = [
 ]
 script_runner = "@shell"
 
+[tasks.sdk-build.windows]
+private = true
+script = [
+  """
+    cd rust-lib
+    echo cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features=${FEATURES}
+    exec cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features=${FEATURES}
+    cd ..
+  """,
+]
+script_runner = "@duckscript"
+
 #
 [tasks.flowy-sdk-release]
 description = "Build flowy sdk in release mode"
