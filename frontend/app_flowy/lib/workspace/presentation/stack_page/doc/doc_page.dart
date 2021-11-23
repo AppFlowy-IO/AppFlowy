@@ -99,6 +99,7 @@ class _DocPageState extends State<DocPage> {
       focusNode: _focusNode,
       scrollable: true,
       autoFocus: controller.document.isEmpty(),
+      paintCursorAboveText: true,
       expands: false,
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       readOnly: false,
