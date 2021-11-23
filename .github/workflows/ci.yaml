@@ -11,17 +11,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Env install
-        run: cd frontend && make install_rust && make install_cargo_make && cargo make install_targets
-      - name: Run frontend tests
-        run: cd frontend/rust-lib && cargo test
-      - name: Run shared-lib tests
-        run: cd shared-lib && cargo test
+        run: cd frontend && make install_rust
       - name: Deps
         run: |
           cd frontend
           cargo install --force cargo-make
           cargo install --force duckscript_cli
           cargo make flowy_dev
+      - name: Run frontend tests
+        run: cd frontend/rust-lib && cargo test
+      - name: Run shared-lib tests
+        run: cd shared-lib && cargo test
       - name: Build
         run: |
           cd frontend
@@ -61,4 +61,4 @@ jobs:
       - name: Build
         run: |
           cd frontend
-          cargo make --profile production-desktop-linux-x86 appflowy
+          cargo make --profile production-linux-x86 appflowy
