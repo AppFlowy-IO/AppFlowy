@@ -6,12 +6,16 @@ on:
     branches: [main]
 jobs:
   sdk-tests:
-    runs-on: macOS-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Env install
-        run: cd frontend && make install_rust
+      - name: Install Rust
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          source $HOME/.cargo/env
+          rustup toolchain install nightly
+          rustup default nightly
       - name: Frontend tests
         run: cd frontend/rust-lib && cargo test
       - name: Shared-lib tests
