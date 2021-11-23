@@ -41,7 +41,7 @@ jobs:
       - name: Build
         run: |
           cd frontend
-          cargo make --profile production-desktop-mac-x86 appflowy
+          cargo make --profile production-mac-x86 appflowy
   build-ubuntu:
     runs-on: ubuntu-latest
     steps:

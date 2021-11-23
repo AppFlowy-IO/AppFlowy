@@ -59,6 +59,7 @@ fn crate_log_filter(level: Option<String>) -> String {
 
 #[derive(Clone)]
 pub struct FlowySDK {
+    #[allow(dead_code)]
     config: FlowySDKConfig,
     pub user_session: Arc<UserSession>,
     pub flowy_document: Arc<FlowyDocument>,

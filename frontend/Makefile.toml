@@ -27,14 +27,14 @@ BUILD_FLAG = "debug"
 FLUTTER_OUTPUT_DIR = "Debug"
 PRODUCT_EXT = "app"
 
-[env.production-desktop-mac-aarch64]
+[env.production-mac-aarch64]
 BUILD_FLAG = "release"
 TARGET_OS = "macos"
 RUST_COMPILE_TARGET = "aarch64-apple-darwin"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "app"
 
-[env.production-desktop-mac-x86]
+[env.production-mac-x86]
 BUILD_FLAG = "release"
 TARGET_OS = "macos"
 RUST_COMPILE_TARGET = "x86_64-apple-darwin"
@@ -42,7 +42,7 @@ FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "app"
 
 
-[env.development-desktop-windows-x86]
+[env.development-windows-x86]
 TARGET_OS = "windows"
 RUST_COMPILE_TARGET = "x86_64-pc-windows-msvc"
 BUILD_FLAG = "debug"
@@ -51,7 +51,7 @@ PRODUCT_EXT = "exe"
 CRATE_TYPE = "cdylib"
 SDK_EXT = "dll"
 
-[env.production-desktop-windows-x86]
+[env.production-windows-x86]
 BUILD_FLAG = "release"
 TARGET_OS = "windows"
 RUST_COMPILE_TARGET = "x86_64-pc-windows-msvc"
