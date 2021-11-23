@@ -24,6 +24,7 @@ jobs:
           cargo make flowy_dev
       - name: Build
         run: |
+          cd frontend
           cargo make --profile production-desktop-mac-x86 appflowy
   build-ubuntu:
     runs-on: ubuntu-latest
@@ -59,4 +60,5 @@ jobs:
           cargo make flowy_dev
       - name: Build
         run: |
+          cd frontend
           cargo make --profile production-desktop-linux-x86 appflowy
