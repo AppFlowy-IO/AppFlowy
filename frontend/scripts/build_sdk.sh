@@ -17,7 +17,8 @@ rustup show
 # TODO: Automatically exec the script base on the current system
 
 # for macos
-cargo make --profile development-mac flowy-sdk-dev
+# cargo make --profile development-mac flowy-sdk-dev
+rustup run nightly cargo make --profile development-mac flowy-sdk-dev
 
 # for window
 #cargo make --profile development-windows flowy-sdk-dev
