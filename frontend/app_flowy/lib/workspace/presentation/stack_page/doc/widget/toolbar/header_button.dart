@@ -51,6 +51,7 @@ class _FlowyHeaderStyleButtonState extends State<FlowyHeaderStyleButton> {
         // final child =
         //     _valueToText[_value] == _valueString[index] ? svg('editor/H1', color: Colors.white) : svg('editor/H1');
 
+        final headerTitle = 'Header ${index + 1}';
         final _isToggled = _valueToText[_value] == _valueString[index];
         return ToolbarIconButton(
           onPressed: () {
@@ -63,6 +64,7 @@ class _FlowyHeaderStyleButtonState extends State<FlowyHeaderStyleButton> {
           width: widget.iconSize * kIconButtonFactor,
           iconName: _attributeImageName[index],
           isToggled: _isToggled,
+          tooltipText: headerTitle,
         );
       }),
     );

@@ -12,6 +12,7 @@ class FlowyIconButton extends StatelessWidget {
   final Color? hoverColor;
   final EdgeInsets iconPadding;
   final BorderRadius? radius;
+  final String? tooltipText;
 
   const FlowyIconButton({
     Key? key,
@@ -22,6 +23,7 @@ class FlowyIconButton extends StatelessWidget {
     this.hoverColor = Colors.transparent,
     this.iconPadding = EdgeInsets.zero,
     this.radius,
+    this.tooltipText,
     required this.icon,
   }) : super(key: key);
 
@@ -48,21 +50,25 @@ class FlowyIconButton extends StatelessWidget {
 
     return ConstrainedBox(
       constraints: BoxConstraints.tightFor(width: size.width, height: size.height),
-      child: RawMaterialButton(
-        visualDensity: VisualDensity.compact,
-        hoverElevation: 0,
-        highlightElevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: radius ?? BorderRadius.circular(2)),
-        fillColor: fillColor,
-        hoverColor: hoverColor,
-        focusColor: Colors.transparent,
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        elevation: 0,
-        onPressed: onPressed,
-        child: Padding(
-          padding: iconPadding,
-          child: SizedBox.fromSize(child: child, size: childSize),
+      child: Tooltip(
+        message: tooltipText ?? '',
+        showDuration: Duration.zero,
+        child: RawMaterialButton(
+          visualDensity: VisualDensity.compact,
+          hoverElevation: 0,
+          highlightElevation: 0,
+          shape: RoundedRectangleBorder(borderRadius: radius ?? BorderRadius.circular(2)),
+          fillColor: fillColor,
+          hoverColor: hoverColor,
+          focusColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          elevation: 0,
+          onPressed: onPressed,
+          child: Padding(
+            padding: iconPadding,
+            child: SizedBox.fromSize(child: child, size: childSize),
+          ),
         ),
       ),
     );
