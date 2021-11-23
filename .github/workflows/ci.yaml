@@ -4,7 +4,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
-jobs:
+jobs:    
   build-macos:
     runs-on: macOS-latest
     steps:
@@ -16,6 +16,15 @@ jobs:
         run: cd frontend/rust-lib && cargo test
       - name: Run shared-lib tests
         run: cd shared-lib && cargo test
+      - name: Deps
+        run: |
+          cd frontend
+          cargo install --force cargo-make
+          cargo install --force duckscript_cli
+          cargo make flowy_dev
+      - name: Build
+        run: |
+          cargo make --profile production-desktop-mac-x86 appflowy
   build-ubuntu:
     runs-on: ubuntu-latest
     steps:
@@ -48,4 +57,6 @@ jobs:
           cargo install --force cargo-make
           cargo install --force duckscript_cli
           cargo make flowy_dev
-          cargo make -p development-linux-x86 appflowy-linux-dev
+      - name: Build
+        run: |
+          cargo make --profile production-desktop-linux-x86 appflowy
