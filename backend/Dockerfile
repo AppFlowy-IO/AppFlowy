@@ -6,6 +6,8 @@ WORKDIR /app
 
 COPY . .
 
+RUN [ -f "./prepare-build.sh" ] && chmod +x ./prepare-build.sh && ./prepare-build.sh || exit 0
+
 WORKDIR /app/backend
 ENV SQLX_OFFLINE true
 ENV APP_ENVIRONMENT production
