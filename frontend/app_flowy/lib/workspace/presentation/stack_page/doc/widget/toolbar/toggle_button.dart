@@ -9,11 +9,13 @@ class FlowyToggleStyleButton extends StatefulWidget {
   final String normalIcon;
   final double iconSize;
   final QuillController controller;
+  final String tooltipText;
 
   const FlowyToggleStyleButton({
     required this.attribute,
     required this.normalIcon,
     required this.controller,
+    required this.tooltipText,
     this.iconSize = defaultIconSize,
     Key? key,
   }) : super(key: key);
@@ -39,6 +41,7 @@ class _ToggleStyleButtonState extends State<FlowyToggleStyleButton> {
       width: widget.iconSize * kIconButtonFactor,
       isToggled: _isToggled ?? false,
       iconName: widget.normalIcon,
+      tooltipText: widget.tooltipText,
     );
   }
 

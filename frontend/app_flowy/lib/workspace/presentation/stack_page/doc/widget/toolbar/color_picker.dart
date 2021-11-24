@@ -33,6 +33,7 @@ class _FlowyColorButtonState extends State<FlowyColorButton> {
   late bool _isWhitebackground;
 
   Style get _selectionStyle => widget.controller.getSelectionStyle();
+  final tooltipText = 'Highlight';
 
   void _didChangeEditingValue() {
     setState(() {
@@ -91,13 +92,17 @@ class _FlowyColorButtonState extends State<FlowyColorButton> {
         ? stringToColor('#ffffff')
         : (widget.iconTheme?.iconUnselectedFillColor ?? theme.canvasColor);
 
-    return QuillIconButton(
-      highlightElevation: 0,
-      hoverElevation: 0,
-      size: widget.iconSize * kIconButtonFactor,
-      icon: Icon(widget.icon, size: widget.iconSize, color: theme.iconTheme.color),
-      fillColor: widget.background ? fillColorBackground : fillColor,
-      onPressed: _showColorPicker,
+    return Tooltip(
+      message: tooltipText,
+      showDuration: Duration.zero,
+      child: QuillIconButton(
+        highlightElevation: 0,
+        hoverElevation: 0,
+        size: widget.iconSize * kIconButtonFactor,
+        icon: Icon(widget.icon, size: widget.iconSize, color: theme.iconTheme.color),
+        fillColor: widget.background ? fillColorBackground : fillColor,
+        onPressed: _showColorPicker,
+      ),
     );
   }
 
