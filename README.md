@@ -101,8 +101,13 @@ flutter config --enable-linux-desktop
 ```
 
 * Open the `app_flowy` folder located at xx/appflowy/frontend with Visual Studio Code or other IDEs at your disposal.
-* Go to the Run and Debug tab and then click the run button.
-![Run the project](https://github.com/AppFlowy-IO/appflowy/blob/main/doc/imgs/run.png)
+* Go to the Run and Debug tab and then click the run button. 
+![Run the project](https://github.com/AppFlowy-IO/appflowy/blob/main/doc/imgs/run.png) 
+
+* If you want to build for the other platform, you should modify the build_sdk.sh before running.
+![build_sdk](https://user-images.githubusercontent.com/86001920/143262377-bb49e913-10ca-4198-80ec-bd814a13ee1d.png)
+
+
   
 ## Roadmap
 
