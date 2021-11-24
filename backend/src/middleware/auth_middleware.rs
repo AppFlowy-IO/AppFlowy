@@ -87,7 +87,7 @@ where
             let fut = self.service.call(req);
             return Box::pin(async move {
                 let res = fut.await?;
-                Ok(res.map_body(|_, body| AnyBody::from_message(body)))
+                Ok(res.map_body(|_, body| AnyBody::new_boxed(body)))
             });
         } else {
             Box::pin(async move { Ok(req.into_response(unauthorized_response())) })
