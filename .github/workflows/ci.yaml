@@ -17,35 +17,42 @@ jobs:
           rustup toolchain install nightly
           rustup default nightly
       - name: Frontend tests
-        run: cd frontend/rust-lib && cargo test
+        working-directory: frontend/rust-lib
+        run: cargo test
       - name: Shared-lib tests
-        run: cd shared-lib && cargo test
+        working-directory: shared-lib
+        run: cargo test
+        
   build-macos:
     runs-on: macOS-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Env install
-        run: cd frontend && make install_rust
+        working-directory: frontend
+        run: make install_rust
+      - name: Checkou Flutter
+        uses: actions/checkout@v2
+        with:
+          repository: flutter/flutter
+          path: flutter
       - name: Flutter
+        working-directory: flutter
         run: |
-          git clone --depth 1 -b dev https://github.com/flutter/flutter.git
-          cd flutter
-          echo `pwd`"/bin" >> $GITHUB_PATH
-          export PATH="$PATH:`pwd`/bin"
+          echo "$(pwd)/bin" >> $GITHUB_PATH
+          export PATH="$PATH:$(pwd)/bin"
           flutter channel dev
           flutter config --enable-macos-desktop
           flutter doctor
       - name: Deps
+        working-directory: frontend
         run: |
-          cd frontend
           cargo install --force cargo-make
           cargo install --force duckscript_cli
           cargo make flowy_dev
       - name: Build
-        run: |
-          cd frontend
-          cargo make --profile production-mac-x86 appflowy
+        working-directory: frontend
+        run: cargo make --profile production-mac-x86 appflowy
   build-ubuntu:
     runs-on: ubuntu-latest
     steps:
@@ -73,8 +80,8 @@ jobs:
           flutter config --enable-linux-desktop
           flutter doctor
       - name: Deps
+        working-directory: frontend
         run: |
-          cd frontend
           cargo install --force cargo-make
           cargo install --force duckscript_cli
           cargo make flowy_dev
