@@ -23,7 +23,7 @@ Note:
 ### Detail steps
 1. Install prerequisites 
 ```shell
-sudo apt-get install curl build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
+sudo apt-get install curl build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev unzip
 # optional, for generating protobuf in step 8 only
 sudo apt-get install protobuf-compiler
 ```
