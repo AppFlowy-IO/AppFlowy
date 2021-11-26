@@ -34,7 +34,15 @@ source $HOME/.cargo/env
 rustup toolchain install nightly
 rustup default nightly
 ```
-3. Install flutter according to https://docs.flutter.dev/get-started/install/linux
+
+3. env settings 
+``` shell
+cp backend/configuration/base.example.yaml backend/configuration/base.yaml
+cp backend/configuration/.env.example backend/configuration/.env
+```
+modify  those file
+
+4. Install flutter according to https://docs.flutter.dev/get-started/install/linux
 ```shell
 git clone https://github.com/flutter/flutter.git
 cd flutter
@@ -43,28 +51,30 @@ export PATH="$PATH:`pwd`/bin"
 flutter channel dev
 flutter config --enable-linux-desktop
 ```
-4. Fix problem reported by flutter doctor
+5. Fix problem reported by flutter doctor
 ```shell
 flutter doctor
 ```
-5. Install cargo make
+6. Install cargo make
 ```shell
 cd appflowy/frontend
 cargo install --force cargo-make
 ```
-6. Install duckscript
+7. Install duckscript
 ```shell
 cargo install --force duckscript_cli
 ```
-7. Check pre-request
+8. Check pre-request
 ```shell
 cargo make flowy_dev
 ```
-8. [Optional] Generate protobuf for dart (optional, if you modify the shared-lib's entities)
+
+9. [Optional] Generate protobuf for dart (optional, if you modify the shared-lib's entities)
 ```shell
 cargo make -p development-linux-x86 pb
 ```
-9. [Optional] Build flowy-sdk-dev (dart-ffi), step 10 covers this step
+10. [Optional] Build flowy-sdk-dev (dart-ffi), step 10 covers this step
+
 ```shell
 # for development
 cargo make --profile development-linux-x86 flowy-sdk-dev
@@ -72,7 +82,8 @@ cargo make --profile development-linux-x86 flowy-sdk-dev
 # for production
 cargo make --profile production-linux-x86 flowy-sdk-release
 ```
-10. Build app_flowy
+
+11. Build app_flowy
 ```shell
 # for development
 cargo make -p development-linux-x86 appflowy-linux-dev
