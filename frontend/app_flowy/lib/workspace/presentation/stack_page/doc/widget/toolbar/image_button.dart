@@ -5,6 +5,7 @@ import 'toolbar_icon_button.dart';
 class FlowyImageButton extends StatelessWidget {
   const FlowyImageButton({
     required this.controller,
+    required this.tooltipText,
     this.iconSize = defaultIconSize,
     this.onImagePickCallback,
     this.fillColor,
@@ -28,6 +29,8 @@ class FlowyImageButton extends StatelessWidget {
 
   final MediaPickSettingSelector? mediaPickSettingSelector;
 
+  final String tooltipText;
+
   @override
   Widget build(BuildContext context) {
     return ToolbarIconButton(
@@ -35,6 +38,7 @@ class FlowyImageButton extends StatelessWidget {
       width: iconSize * 1.77,
       onPressed: () => _onPressedHandler(context),
       isToggled: false,
+      tooltipText: tooltipText,
     );
   }
 

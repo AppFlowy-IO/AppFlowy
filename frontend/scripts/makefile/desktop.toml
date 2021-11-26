@@ -2,7 +2,7 @@
 
 # Run the task with profile, e.g.
 # cargo make --profile development-mac flowy-sdk-dev
-# cargo make --profile production-desktop-windows-x86 flowy-sdk-dev
+# cargo make --profile production-windows-x86 flowy-sdk-dev
 
 [tasks.env_check]
 dependencies = ["echo_env"]
@@ -40,6 +40,18 @@ script = [
   """,
 ]
 script_runner = "@shell"
+
+[tasks.sdk-build.windows]
+private = true
+script = [
+  """
+    cd rust-lib
+    echo cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features=${FEATURES}
+    exec cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features=${FEATURES}
+    cd ..
+  """,
+]
+script_runner = "@duckscript"
 
 #
 [tasks.flowy-sdk-release]

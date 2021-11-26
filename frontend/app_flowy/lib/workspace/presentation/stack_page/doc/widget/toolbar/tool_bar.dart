@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:app_flowy/workspace/presentation/stack_page/doc/widget/toolbar/history_button.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter/material.dart';
 import 'package:styled_widget/styled_widget.dart';
@@ -50,41 +51,47 @@ class EditorToolbar extends StatelessWidget implements PreferredSizeWidget {
       key: key,
       toolBarHeight: toolbarIconSize * 2,
       children: [
-        HistoryButton(
+        FlowyHistoryButton(
           icon: Icons.undo_outlined,
           iconSize: toolbarIconSize,
           controller: controller,
           undo: true,
+          tooltipText: 'Undo',
         ),
-        HistoryButton(
+        FlowyHistoryButton(
           icon: Icons.redo_outlined,
           iconSize: toolbarIconSize,
           controller: controller,
           undo: false,
+          tooltipText: 'Redo',
         ),
         FlowyToggleStyleButton(
           attribute: Attribute.bold,
           normalIcon: 'editor/bold',
           iconSize: toolbarIconSize,
           controller: controller,
+          tooltipText: 'Bold',
         ),
         FlowyToggleStyleButton(
           attribute: Attribute.italic,
           normalIcon: 'editor/italic',
           iconSize: toolbarIconSize,
           controller: controller,
+          tooltipText: 'Italic',
         ),
         FlowyToggleStyleButton(
           attribute: Attribute.underline,
           normalIcon: 'editor/underline',
           iconSize: toolbarIconSize,
           controller: controller,
+          tooltipText: 'Underline',
         ),
         FlowyToggleStyleButton(
           attribute: Attribute.strikeThrough,
           normalIcon: 'editor/strikethrough',
           iconSize: toolbarIconSize,
           controller: controller,
+          tooltipText: 'Strikethrough',
         ),
         FlowyColorButton(
           icon: Icons.format_color_fill,
@@ -109,29 +116,34 @@ class EditorToolbar extends StatelessWidget implements PreferredSizeWidget {
           controller: controller,
           normalIcon: 'editor/numbers',
           iconSize: toolbarIconSize,
+          tooltipText: 'Numbered List',
         ),
         FlowyToggleStyleButton(
           attribute: Attribute.ul,
           controller: controller,
           normalIcon: 'editor/bullet_list',
           iconSize: toolbarIconSize,
+          tooltipText: 'Bulleted List',
         ),
         FlowyCheckListButton(
           attribute: Attribute.unchecked,
           controller: controller,
           iconSize: toolbarIconSize,
+          tooltipText: 'Check List',
         ),
         FlowyToggleStyleButton(
           attribute: Attribute.inlineCode,
           controller: controller,
           normalIcon: 'editor/inline_block',
           iconSize: toolbarIconSize,
+          tooltipText: 'Inline Code',
         ),
         FlowyToggleStyleButton(
           attribute: Attribute.blockQuote,
           controller: controller,
           normalIcon: 'editor/quote',
           iconSize: toolbarIconSize,
+          tooltipText: 'Quote Block',
         ),
         FlowyLinkStyleButton(
           controller: controller,

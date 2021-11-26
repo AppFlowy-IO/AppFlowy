@@ -18,12 +18,12 @@ Note:
     - [ ] Arch Linux - X86_64
     - [ ] Deepin - X86_64
     - [ ] Raspberry Pi OS - aarch64
-* You may need to disable hardware 3D acceleration if you are running in a VM. Otherwise certain GL failures will prevent app from launching
+* You may need to disable hardware 3D acceleration if you are running it on a VM. Otherwise, certain GL failures will prevent app from launching
 
 ### Detail steps
-1. Install pre-requests
+1. Install prerequisites 
 ```shell
-sudo apt-get install curl build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
+sudo apt-get install curl build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev unzip
 # optional, for generating protobuf in step 8 only
 sudo apt-get install protobuf-compiler
 ```
@@ -54,8 +54,6 @@ flutter config --enable-linux-desktop
 5. Fix problem reported by flutter doctor
 ```shell
 flutter doctor
-# install Android toolchain (optional)
-# install Chrome (optional)
 ```
 6. Install cargo make
 ```shell
@@ -70,11 +68,13 @@ cargo install --force duckscript_cli
 ```shell
 cargo make flowy_dev
 ```
-9. Generate protobuf for dart (optional, if you modify the shared-lib's entities)
+
+9. [Optional] Generate protobuf for dart (optional, if you modify the shared-lib's entities)
 ```shell
 cargo make -p development-linux-x86 pb
 ```
-10. Build flowy-sdk-dev (dart-ffi) (optional), step 10 covers this step
+10. [Optional] Build flowy-sdk-dev (dart-ffi), step 10 covers this step
+
 ```shell
 # for development
 cargo make --profile development-linux-x86 flowy-sdk-dev
@@ -82,6 +82,7 @@ cargo make --profile development-linux-x86 flowy-sdk-dev
 # for production
 cargo make --profile production-linux-x86 flowy-sdk-release
 ```
+
 11. Build app_flowy
 ```shell
 # for development
@@ -98,7 +99,7 @@ cargo make -p production-linux-x86 appflowy-linux
 # ./app_flowy
 ```
 
-## Step 3: Build Server side application (optional if you don't need to host web service locally)
+## [Optional] Step 3: Build Server side application (optional if you don't need to host web service locally)
 ------------------------------
 
 Note: You can launch postgresql server by using docker container

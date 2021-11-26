@@ -4,7 +4,10 @@ const MAX_UNDOS: usize = 20;
 
 #[derive(Debug, Clone)]
 pub struct UndoResult {
+    #[allow(dead_code)]
     success: bool,
+
+    #[allow(dead_code)]
     len: usize,
 }
 
@@ -16,6 +19,7 @@ impl UndoResult {
 
 #[derive(Debug, Clone)]
 pub struct History {
+    #[allow(dead_code)]
     cur_undo: usize,
     undos: Vec<Delta>,
     redoes: Vec<Delta>,
