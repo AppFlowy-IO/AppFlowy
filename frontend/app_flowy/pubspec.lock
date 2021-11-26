@@ -260,13 +260,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
-  flowy_editor:
-    dependency: "direct main"
-    description:
-      path: "packages/flowy_editor"
-      relative: true
-    source: path
-    version: "0.0.1"
   flowy_infra:
     dependency: "direct main"
     description:
@@ -802,13 +795,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.1+1"
-  quiver_hashcode:
-    dependency: transitive
-    description:
-      name: quiver_hashcode
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.0"
   shelf:
     dependency: transitive
     description:

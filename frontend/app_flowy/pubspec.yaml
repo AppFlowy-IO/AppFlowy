@@ -31,8 +31,6 @@ dependencies:
     sdk: flutter
   flowy_sdk:
     path: packages/flowy_sdk
-  flowy_editor:
-    path: packages/flowy_editor
   flowy_infra_ui:
     path: packages/flowy_infra_ui
   flowy_infra:
