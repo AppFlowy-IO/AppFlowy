@@ -5,7 +5,20 @@ on:
   pull_request:
     branches: [main]
 jobs:
-  lint:
+  rust-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: nightly
+            components: clippy
+            override: true
+      - uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-features
+  flutter-lint:
     name: flutter analyze
     runs-on: ubuntu-latest
     steps:
