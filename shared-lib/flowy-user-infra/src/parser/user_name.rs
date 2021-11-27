@@ -68,7 +68,7 @@ mod tests {
 
     #[test]
     fn names_containing_an_invalid_character_are_rejected() {
-        for name in vec!['/', '(', ')', '"', '<', '>', '\\', '{', '}'] {
+        for name in &['/', '(', ')', '"', '<', '>', '\\', '{', '}'] {
             let name = name.to_string();
             assert_err!(UserName::parse(name));
         }

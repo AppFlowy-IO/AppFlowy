@@ -54,7 +54,7 @@ impl InsertExt for PreserveBlockFormatOnInsert {
                     new_delta.retain(offset, plain_attributes());
                     let len = newline_op.get_data().find(NEW_LINE).unwrap();
                     new_delta.retain(len, plain_attributes());
-                    new_delta.retain(1, reset_attribute.clone());
+                    new_delta.retain(1, reset_attribute);
                 }
 
                 return Some(new_delta);

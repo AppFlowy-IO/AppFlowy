@@ -1,3 +1,4 @@
+#![allow(clippy::all)]
 use crate::{
     errors::{internal_error, WsError},
     MsgReceiver,
@@ -20,14 +21,14 @@ use tokio_tungstenite::{
     WebSocketStream,
 };
 
+type WsConnectResult = Result<(WebSocketStream<MaybeTlsStream<TcpStream>>, Response), Error>;
+
 #[pin_project]
 pub struct WsConnectionFuture {
     msg_tx: Option<MsgSender>,
     ws_rx: Option<MsgReceiver>,
     #[pin]
-    fut: Pin<
-        Box<dyn Future<Output = Result<(WebSocketStream<MaybeTlsStream<TcpStream>>, Response), Error>> + Send + Sync>,
-    >,
+    fut: Pin<Box<dyn Future<Output = WsConnectResult> + Send + Sync>>,
 }
 
 impl WsConnectionFuture {
@@ -121,9 +122,9 @@ impl WsStream {
                     };
                     futures::pin_mut!(ret);
                     futures::pin_mut!(read);
-                    tokio::select! {
-                        result = read => {return result},
-                        result = ret => {return result},
+                    return tokio::select! {
+                        result = read => result,
+                        result = ret => result,
                     };
                 }),
                 Box::pin(async move {

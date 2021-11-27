@@ -28,9 +28,7 @@ where
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         let this = self.as_mut().project();
-        loop {
-            return Poll::Ready(ready!(this.fut.poll(cx)));
-        }
+        Poll::Ready(ready!(this.fut.poll(cx)))
     }
 }
 
@@ -60,9 +58,7 @@ where
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         let this = self.as_mut().project();
-        loop {
-            let result = ready!(this.fut.poll(cx));
-            return Poll::Ready(result);
-        }
+        let result = ready!(this.fut.poll(cx));
+        Poll::Ready(result)
     }
 }

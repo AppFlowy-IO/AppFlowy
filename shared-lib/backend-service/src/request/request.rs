@@ -23,8 +23,8 @@ pub struct HttpRequestBuilder {
     middleware: Vec<Arc<dyn ResponseMiddleware + Send + Sync>>,
 }
 
-impl HttpRequestBuilder {
-    pub fn new() -> Self {
+impl std::default::Default for HttpRequestBuilder {
+    fn default() -> Self {
         Self {
             url: "".to_owned(),
             body: None,
@@ -34,6 +34,10 @@ impl HttpRequestBuilder {
             middleware: Vec::new(),
         }
     }
+}
+
+impl HttpRequestBuilder {
+    pub fn new() -> Self { HttpRequestBuilder::default() }
 
     pub fn middleware<T>(mut self, middleware: Arc<T>) -> Self
     where

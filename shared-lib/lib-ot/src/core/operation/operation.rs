@@ -45,12 +45,11 @@ impl Operation {
     }
 
     pub fn len(&self) -> usize {
-        let len = match self {
+        match self {
             Operation::Delete(n) => *n,
             Operation::Retain(r) => r.n,
             Operation::Insert(i) => i.count_of_code_units(),
-        };
-        len
+        }
     }
 
     pub fn is_empty(&self) -> bool { self.len() == 0 }
@@ -233,7 +232,7 @@ pub struct Insert {
 impl fmt::Display for Insert {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut s = self.s.clone();
-        if s.ends_with("\n") {
+        if s.ends_with('\n') {
             s.pop();
             if s.is_empty() {
                 s = "new_line".into();

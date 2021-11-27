@@ -38,8 +38,7 @@ pub fn make_de_token_steam(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStrea
                 Ok(o)
             }
         }
-    }
-    .into();
+    };
 
     Some(de_token_stream)
     // None

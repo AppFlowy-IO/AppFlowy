@@ -1,3 +1,4 @@
+#![allow(clippy::module_inception)]
 mod attribute;
 mod attributes;
 mod attributes_serde;

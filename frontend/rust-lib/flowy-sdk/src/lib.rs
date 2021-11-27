@@ -43,7 +43,7 @@ impl FlowySDKConfig {
 }
 
 fn crate_log_filter(level: Option<String>) -> String {
-    let level = level.unwrap_or(std::env::var("RUST_LOG").unwrap_or("info".to_owned()));
+    let level = level.unwrap_or_else(|| std::env::var("RUST_LOG").unwrap_or_else(|_| "info".to_owned()));
     let mut filters = vec![];
     filters.push(format!("flowy_sdk={}", level));
     filters.push(format!("flowy_workspace={}", level));
@@ -110,33 +110,30 @@ async fn _listen_user_status(
     workspace_controller: Arc<WorkspaceController>,
 ) {
     loop {
-        match subscribe.recv().await {
-            Ok(status) => {
-                let result = || async {
-                    match status {
-                        UserStatus::Login { token } => {
-                            let _ = workspace_controller.user_did_sign_in(&token).await?;
-                        },
-                        UserStatus::Logout { .. } => {
-                            workspace_controller.user_did_logout().await;
-                        },
-                        UserStatus::Expired { .. } => {
-                            workspace_controller.user_session_expired().await;
-                        },
-                        UserStatus::SignUp { profile, ret } => {
-                            let _ = workspace_controller.user_did_sign_up(&profile.token).await?;
-                            let _ = ret.send(());
-                        },
-                    }
-                    Ok::<(), WorkspaceError>(())
-                };
-
-                match result().await {
-                    Ok(_) => {},
-                    Err(e) => log::error!("{}", e),
+        if let Ok(status) = subscribe.recv().await {
+            let result = || async {
+                match status {
+                    UserStatus::Login { token } => {
+                        let _ = workspace_controller.user_did_sign_in(&token).await?;
+                    },
+                    UserStatus::Logout { .. } => {
+                        workspace_controller.user_did_logout().await;
+                    },
+                    UserStatus::Expired { .. } => {
+                        workspace_controller.user_session_expired().await;
+                    },
+                    UserStatus::SignUp { profile, ret } => {
+                        let _ = workspace_controller.user_did_sign_up(&profile.token).await?;
+                        let _ = ret.send(());
+                    },
                 }
-            },
-            Err(_) => {},
+                Ok::<(), WorkspaceError>(())
+            };
+
+            match result().await {
+                Ok(_) => {},
+                Err(e) => log::error!("{}", e),
+            }
         }
     }
 }
@@ -163,8 +160,7 @@ fn mk_workspace(
     flowy_document: Arc<FlowyDocument>,
     server_config: &ServerConfig,
 ) -> Arc<WorkspaceController> {
-    let workspace_deps = WorkspaceDepsResolver::new(user_session.clone());
+    let workspace_deps = WorkspaceDepsResolver::new(user_session);
     let (user, database) = workspace_deps.split_into();
-    let workspace_controller = flowy_workspace::module::mk_workspace(user, database, flowy_document, server_config);
-    workspace_controller
+    flowy_workspace::module::mk_workspace(user, database, flowy_document, server_config)
 }

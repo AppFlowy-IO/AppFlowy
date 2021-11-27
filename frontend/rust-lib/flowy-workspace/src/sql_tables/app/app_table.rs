@@ -47,13 +47,13 @@ impl AppTable {
     }
 }
 
-impl std::convert::Into<Trash> for AppTable {
-    fn into(self) -> Trash {
+impl std::convert::From<AppTable> for Trash {
+    fn from(table: AppTable) -> Self {
         Trash {
-            id: self.id,
-            name: self.name,
-            modified_time: self.modified_time,
-            create_time: self.create_time,
+            id: table.id,
+            name: table.name,
+            modified_time: table.modified_time,
+            create_time: table.create_time,
             ty: TrashType::App,
         }
     }
@@ -117,18 +117,17 @@ impl AppTableChangeset {
         }
     }
 }
-
-impl std::convert::Into<App> for AppTable {
-    fn into(self) -> App {
+impl std::convert::From<AppTable> for App {
+    fn from(table: AppTable) -> Self {
         App {
-            id: self.id,
-            workspace_id: self.workspace_id,
-            name: self.name,
-            desc: self.desc,
+            id: table.id,
+            workspace_id: table.workspace_id,
+            name: table.name,
+            desc: table.desc,
             belongings: RepeatedView::default(),
-            version: self.version,
-            modified_time: self.modified_time,
-            create_time: self.create_time,
+            version: table.version,
+            modified_time: table.modified_time,
+            create_time: table.create_time,
         }
     }
 }

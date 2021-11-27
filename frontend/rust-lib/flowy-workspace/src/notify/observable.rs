@@ -1,6 +1,6 @@
 use dart_notify::DartNotifyBuilder;
 use flowy_derive::ProtoBuf_Enum;
-const OBSERVABLE_CATEGORY: &'static str = "Workspace";
+const OBSERVABLE_CATEGORY: &str = "Workspace";
 
 // Opti: Using the Rust macro to generate the serde code automatically that can
 // be use directly in flutter
@@ -25,8 +25,8 @@ impl std::default::Default for WorkspaceNotification {
     fn default() -> Self { WorkspaceNotification::Unknown }
 }
 
-impl std::convert::Into<i32> for WorkspaceNotification {
-    fn into(self) -> i32 { self as i32 }
+impl std::convert::From<WorkspaceNotification> for i32 {
+    fn from(notification: WorkspaceNotification) -> Self { notification as i32 }
 }
 
 #[tracing::instrument(level = "debug")]

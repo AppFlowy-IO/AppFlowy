@@ -25,9 +25,8 @@ impl DartEventCodeGen {
         for (index, render_ctx) in event_render_ctx.into_iter().enumerate() {
             let mut event_template = EventTemplate::new();
 
-            match event_template.render(render_ctx, index) {
-                Some(content) => render_result.push_str(content.as_ref()),
-                None => {}
+            if let Some(content) = event_template.render(render_ctx, index) {
+                render_result.push_str(content.as_ref())
             }
         }
 
@@ -89,7 +88,7 @@ pub fn parse_event_crate(event_crate: &DartEventCrate) -> Vec<EventASTContext> {
                         ctxt.check().unwrap();
                         attrs
                             .iter()
-                            .filter(|attr| attr.attrs.event_attrs.ignore == false)
+                            .filter(|attr| !attr.attrs.event_attrs.ignore)
                             .enumerate()
                             .map(|(_index, attr)| EventASTContext::from(&attr.attrs))
                             .collect::<Vec<_>>()
@@ -103,30 +102,30 @@ pub fn parse_event_crate(event_crate: &DartEventCrate) -> Vec<EventASTContext> {
         .collect::<Vec<EventASTContext>>()
 }
 
-pub fn ast_to_event_render_ctx(ast: &Vec<EventASTContext>) -> Vec<EventRenderContext> {
+pub fn ast_to_event_render_ctx(ast: &[EventASTContext]) -> Vec<EventRenderContext> {
     ast.iter()
         .map(|event_ast| {
-            let input_deserializer = match event_ast.event_input {
-                Some(ref event_input) => Some(event_input.get_ident().unwrap().to_string()),
-                None => None,
-            };
+            let input_deserializer = event_ast
+                .event_input
+                .as_ref()
+                .map(|event_input| event_input.get_ident().unwrap().to_string());
 
-            let output_deserializer = match event_ast.event_output {
-                Some(ref event_output) => Some(event_output.get_ident().unwrap().to_string()),
-                None => None,
-            };
+            let output_deserializer = event_ast
+                .event_output
+                .as_ref()
+                .map(|event_output| event_output.get_ident().unwrap().to_string());
             // eprintln!(
             //     "😁 {:?} / {:?}",
             //     event_ast.event_input, event_ast.event_output
             // );
 
-            return EventRenderContext {
+            EventRenderContext {
                 input_deserializer,
                 output_deserializer,
                 error_deserializer: event_ast.event_error.clone(),
                 event: event_ast.event.to_string(),
                 event_ty: event_ast.event_ty.to_string(),
-            };
+            }
         })
         .collect::<Vec<EventRenderContext>>()
 }

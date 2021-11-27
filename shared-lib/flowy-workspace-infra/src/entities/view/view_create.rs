@@ -146,13 +146,13 @@ pub struct RepeatedView {
 
 impl_def_and_def_mut!(RepeatedView, View);
 
-impl std::convert::Into<Trash> for View {
-    fn into(self) -> Trash {
+impl std::convert::From<View> for Trash {
+    fn from(view: View) -> Self {
         Trash {
-            id: self.id,
-            name: self.name,
-            modified_time: self.modified_time,
-            create_time: self.create_time,
+            id: view.id,
+            name: view.name,
+            modified_time: view.modified_time,
+            create_time: view.create_time,
             ty: TrashType::View,
         }
     }

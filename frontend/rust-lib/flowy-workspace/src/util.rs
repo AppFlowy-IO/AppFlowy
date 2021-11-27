@@ -1,3 +1,4 @@
+#![allow(clippy::type_complexity)]
 use crate::{module::WorkspaceUser, services::server::Server};
 use lib_infra::retry::Action;
 use pin_project::pin_project;
@@ -27,7 +28,7 @@ impl<Fut, T, E> RetryAction<Fut, T, E> {
         Fut: Future<Output = Result<T, E>> + Send + Sync + 'static,
         F: Fn(String, Server) -> Fut + Send + Sync + 'static,
     {
-        let token = user.token().unwrap_or("".to_owned());
+        let token = user.token().unwrap_or_else(|_| "".to_owned());
         Self {
             token,
             server,

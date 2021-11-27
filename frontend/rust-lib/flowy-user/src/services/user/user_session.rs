@@ -74,23 +74,19 @@ impl UserSession {
         let server = construct_user_server(&config.server_config);
         let ws_controller = Arc::new(WsController::new());
         let (status_notifier, _) = broadcast::channel(10);
-        let user_session = Self {
+        Self {
             database: db,
             config,
             server,
             session: RwLock::new(None),
             ws_controller,
             status_notifier,
-        };
-        user_session
+        }
     }
 
     pub fn init(&self) {
-        match self.get_session() {
-            Ok(session) => {
-                let _ = self.status_notifier.send(UserStatus::Login { token: session.token });
-            },
-            Err(_) => {},
+        if let Ok(session) = self.get_session() {
+            let _ = self.status_notifier.send(UserStatus::Login { token: session.token });
         }
     }
 
@@ -397,10 +393,9 @@ impl std::convert::From<String> for Session {
         }
     }
 }
-
-impl std::convert::Into<String> for Session {
-    fn into(self) -> String {
-        match serde_json::to_string(&self) {
+impl std::convert::From<Session> for String {
+    fn from(session: Session) -> Self {
+        match serde_json::to_string(&session) {
             Ok(s) => s,
             Err(e) => {
                 log::error!("Serialize session to string failed: {:?}", e);

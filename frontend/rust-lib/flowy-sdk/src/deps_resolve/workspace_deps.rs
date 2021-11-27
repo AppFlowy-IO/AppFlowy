@@ -23,7 +23,7 @@ impl WorkspaceDepsResolver {
 
     pub fn split_into(self) -> (Arc<dyn WorkspaceUser>, Arc<dyn WorkspaceDatabase>) {
         let user: Arc<dyn WorkspaceUser> = self.inner.clone();
-        let database: Arc<dyn WorkspaceDatabase> = self.inner.clone();
+        let database: Arc<dyn WorkspaceDatabase> = self.inner;
         (user, database)
     }
 }

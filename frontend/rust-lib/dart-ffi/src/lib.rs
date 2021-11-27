@@ -1,3 +1,4 @@
+#![allow(clippy::not_unsafe_ptr_arg_deref)]
 mod c;
 mod model;
 mod protobuf;
@@ -28,7 +29,7 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
     let config = FlowySDKConfig::new(path, server_config, "appflowy").log_filter("debug");
     *FLOWY_SDK.write() = Some(Arc::new(FlowySDK::new(config)));
 
-    return 1;
+    0
 }
 
 #[no_mangle]
@@ -62,7 +63,7 @@ pub extern "C" fn sync_command(input: *const u8, len: usize) -> *const u8 {
 #[no_mangle]
 pub extern "C" fn set_stream_port(port: i64) -> i32 {
     dart_notify::dart::DartStreamSender::set_port(port);
-    return 0;
+    0
 }
 
 #[inline(never)]

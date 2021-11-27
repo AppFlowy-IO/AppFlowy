@@ -37,7 +37,7 @@ impl<'a> DeltaIter<'a> {
         }
     }
 
-    pub fn next_op(&mut self) -> Option<Operation> { self.cursor.next() }
+    pub fn next_op(&mut self) -> Option<Operation> { self.cursor.next_op() }
 
     pub fn next_op_with_len(&mut self, len: usize) -> Option<Operation> { self.cursor.next_with_len(Some(len)) }
 
@@ -145,9 +145,7 @@ impl<'a> Iterator for AttributesIter<'a> {
     type Item = (usize, Attributes);
     fn next(&mut self) -> Option<Self::Item> {
         let next_op = self.delta_iter.next_op();
-        if next_op.is_none() {
-            return None;
-        }
+        next_op.as_ref()?;
         let mut length: usize = 0;
         let mut attributes = Attributes::new();
 

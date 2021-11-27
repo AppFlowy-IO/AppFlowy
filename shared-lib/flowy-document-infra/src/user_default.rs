@@ -9,8 +9,7 @@ pub fn doc_initial_string() -> String { doc_initial_delta().to_json() }
 #[inline]
 pub fn initial_read_me() -> Delta {
     let json = include_str!("READ_ME.json");
-    let delta = Delta::from_json(json).unwrap();
-    delta
+    Delta::from_json(json).unwrap()
 }
 
 #[cfg(test)]

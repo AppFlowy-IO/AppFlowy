@@ -68,5 +68,5 @@ impl ErrorBuilder {
         self
     }
 
-    pub fn build(mut self) -> OTError { OTError::new(self.code, &self.msg.take().unwrap_or("".to_owned())) }
+    pub fn build(mut self) -> OTError { OTError::new(self.code, &self.msg.take().unwrap_or_else(|| "".to_owned())) }
 }

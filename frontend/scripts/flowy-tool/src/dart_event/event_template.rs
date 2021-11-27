@@ -5,7 +5,7 @@ pub struct EventTemplate {
     tera_context: Context,
 }
 
-pub const DART_IMPORTED: &'static str = r#"
+pub const DART_IMPORTED: &str = r#"
 /// Auto gen code from rust ast, do not edit
 part of 'dispatch.dart';
 "#;
@@ -21,9 +21,9 @@ pub struct EventRenderContext {
 #[allow(dead_code)]
 impl EventTemplate {
     pub fn new() -> Self {
-        return EventTemplate {
+        EventTemplate {
             tera_context: Context::new(),
-        };
+        }
     }
 
     pub fn render(&mut self, ctx: EventRenderContext, index: usize) -> Option<String> {

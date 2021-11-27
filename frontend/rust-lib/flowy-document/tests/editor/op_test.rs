@@ -1,3 +1,4 @@
+#![allow(clippy::all)]
 use crate::editor::{Rng, TestBuilder, TestOp::*};
 use flowy_document_infra::core::{FlowyDoc, PlainDoc};
 use lib_ot::core::*;
@@ -229,8 +230,8 @@ fn delta_seek_4() {
 fn delta_seek_5() {
     let mut delta = Delta::default();
     let attributes = AttributeBuilder::new()
-        .add(Attribute::Bold(true))
-        .add(Attribute::Italic(true))
+        .add_attr(Attribute::Bold(true))
+        .add_attr(Attribute::Italic(true))
         .build();
 
     delta.add(OpBuilder::insert("1234").attributes(attributes.clone()).build());
@@ -474,7 +475,7 @@ fn transform_random_delta() {
 fn transform_with_two_delta_test() {
     let mut a = Delta::default();
     let mut a_s = String::new();
-    a.insert("123", AttributeBuilder::new().add(Attribute::Bold(true)).build());
+    a.insert("123", AttributeBuilder::new().add_attr(Attribute::Bold(true)).build());
     a_s = a.apply(&a_s).unwrap();
     assert_eq!(&a_s, "123");
 

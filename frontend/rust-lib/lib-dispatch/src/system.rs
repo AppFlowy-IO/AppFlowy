@@ -40,12 +40,11 @@ impl FlowySystem {
         });
 
         let module_map = as_module_map(module_factory());
-        sender_factory(module_map.clone(), &runtime);
+        sender_factory(module_map, &runtime);
 
         let system = Self { sys_cmd_tx };
         FlowySystem::set_current(system);
-        let runner = SystemRunner { rt: runtime, stop_rx };
-        runner
+        SystemRunner { rt: runtime, stop_rx }
     }
 
     #[allow(dead_code)]

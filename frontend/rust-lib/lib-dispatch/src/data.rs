@@ -76,7 +76,7 @@ where
     T: FromBytes,
 {
     match payload {
-        Payload::None => Err(InternalError::UnexpectedNone(format!("Parse fail, expected payload")).into()),
+        Payload::None => Err(InternalError::UnexpectedNone("Parse fail, expected payload".to_string()).into()),
         Payload::Bytes(bytes) => {
             let data = T::parse_from_bytes(bytes.clone())?;
             Ok(Data(data))

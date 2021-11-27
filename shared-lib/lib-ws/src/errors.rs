@@ -77,7 +77,7 @@ impl std::convert::From<futures_channel::mpsc::TrySendError<Message>> for WsErro
 
 impl std::convert::From<tokio_tungstenite::tungstenite::Error> for WsError {
     fn from(error: tokio_tungstenite::tungstenite::Error) -> Self {
-        let error = match error {
+        match error {
             tokio_tungstenite::tungstenite::Error::Http(response) => {
                 if response.status() == StatusCode::UNAUTHORIZED {
                     WsError::unauthorized()
@@ -86,8 +86,6 @@ impl std::convert::From<tokio_tungstenite::tungstenite::Error> for WsError {
                 }
             },
             _ => WsError::internal().context(error),
-        };
-
-        error
+        }
     }
 }

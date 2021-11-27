@@ -40,7 +40,7 @@ impl WorkspaceTableSql {
             .into_boxed();
 
         if let Some(workspace_id) = workspace_id {
-            filter = filter.filter(workspace_table::id.eq(workspace_id.to_owned()));
+            filter = filter.filter(workspace_table::id.eq(workspace_id));
         };
 
         let workspaces = filter.load::<WorkspaceTable>(conn)?;

@@ -1,3 +1,4 @@
+#![allow(clippy::module_inception)]
 pub(crate) use crud::*;
 pub use router::*;
 

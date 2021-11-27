@@ -35,8 +35,7 @@ pub fn make_se_token_stream(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStre
                 Ok(pb)
             }
         }
-    }
-    .into();
+    };
 
     Some(se_token_stream)
 }

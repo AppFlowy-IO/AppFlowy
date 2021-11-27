@@ -4,8 +4,12 @@ pub struct DeltaBuilder {
     delta: Delta,
 }
 
+impl std::default::Default for DeltaBuilder {
+    fn default() -> Self { Self { delta: Delta::new() } }
+}
+
 impl DeltaBuilder {
-    pub fn new() -> Self { Self { delta: Delta::new() } }
+    pub fn new() -> Self { DeltaBuilder::default() }
 
     pub fn retain_with_attributes(mut self, n: usize, attrs: Attributes) -> Self {
         self.delta.retain(n, attrs);

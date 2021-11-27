@@ -46,23 +46,23 @@ impl RevState {
 }
 impl_sql_integer_expression!(RevState);
 
-impl std::convert::Into<Revision> for RevTable {
-    fn into(self) -> Revision {
-        let md5 = md5(&self.data);
+impl std::convert::From<RevTable> for Revision {
+    fn from(table: RevTable) -> Self {
+        let md5 = md5(&table.data);
         Revision {
-            base_rev_id: self.base_rev_id,
-            rev_id: self.rev_id,
-            delta_data: self.data,
+            base_rev_id: table.base_rev_id,
+            rev_id: table.rev_id,
+            delta_data: table.data,
             md5,
-            doc_id: self.doc_id,
-            ty: self.ty.into(),
+            doc_id: table.doc_id,
+            ty: table.ty.into(),
         }
     }
 }
 
-impl std::convert::Into<RevTableType> for RevType {
-    fn into(self) -> RevTableType {
-        match self {
+impl std::convert::From<RevType> for RevTableType {
+    fn from(ty: RevType) -> Self {
+        match ty {
             RevType::Local => RevTableType::Local,
             RevType::Remote => RevTableType::Remote,
         }

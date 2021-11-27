@@ -53,15 +53,14 @@ pub fn mk_workspace(
         server.clone(),
     ));
 
-    let workspace_controller = Arc::new(WorkspaceController::new(
-        user.clone(),
-        database.clone(),
-        app_controller.clone(),
-        view_controller.clone(),
-        trash_can.clone(),
-        server.clone(),
-    ));
-    workspace_controller
+    Arc::new(WorkspaceController::new(
+        user,
+        database,
+        app_controller,
+        view_controller,
+        trash_can,
+        server,
+    ))
 }
 
 pub fn create(workspace: Arc<WorkspaceController>) -> Module {

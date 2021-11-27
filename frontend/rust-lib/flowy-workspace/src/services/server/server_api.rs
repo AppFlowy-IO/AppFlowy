@@ -25,16 +25,11 @@ impl WorkspaceServerAPI for WorkspaceServer {
     fn init(&self) {
         let mut rx = BACKEND_API_MIDDLEWARE.invalid_token_subscribe();
         tokio::spawn(async move {
-            loop {
-                match rx.recv().await {
-                    Ok(invalid_token) => {
-                        let error = WorkspaceError::new(ErrorCode::UserUnauthorized, "");
-                        send_dart_notification(&invalid_token, WorkspaceNotification::UserUnauthorized)
-                            .error(error)
-                            .send()
-                    },
-                    Err(_) => {},
-                }
+            while let Ok(invalid_token) = rx.recv().await {
+                let error = WorkspaceError::new(ErrorCode::UserUnauthorized, "");
+                send_dart_notification(&invalid_token, WorkspaceNotification::UserUnauthorized)
+                    .error(error)
+                    .send()
             }
         });
     }

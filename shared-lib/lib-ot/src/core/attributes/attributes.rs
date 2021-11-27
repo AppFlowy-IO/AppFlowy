@@ -131,7 +131,7 @@ impl OperationTransformable for Attributes {
             attributes
         });
 
-        return inverted;
+        inverted
     }
 }
 

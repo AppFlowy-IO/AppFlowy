@@ -32,9 +32,9 @@ impl<'a> OpCursor<'a> {
     }
 
     // get the next operation interval
-    pub fn next_iv(&self) -> Interval { self.next_iv_before(None).unwrap_or(Interval::new(0, 0)) }
+    pub fn next_iv(&self) -> Interval { self.next_iv_before(None).unwrap_or_else(|| Interval::new(0, 0)) }
 
-    pub fn next(&mut self) -> Option<Operation> { self.next_with_len(None) }
+    pub fn next_op(&mut self) -> Option<Operation> { self.next_with_len(None) }
 
     // get the last operation before the end.
     // checkout the delta_next_op_with_len_cross_op_return_last test for more detail
@@ -50,7 +50,7 @@ impl<'a> OpCursor<'a> {
         let mut consume_len = 0;
         while find_op.is_none() && next_op.is_some() {
             let op = next_op.take().unwrap();
-            let interval = self.next_iv_before(force_end).unwrap_or(Interval::new(0, 0));
+            let interval = self.next_iv_before(force_end).unwrap_or_else(|| Interval::new(0, 0));
 
             // cache the op if the interval is empty. e.g. last_op_before(Some(0))
             if interval.is_empty() {
@@ -75,14 +75,15 @@ impl<'a> OpCursor<'a> {
             }
         }
 
-        if find_op.is_some() && force_end.is_some() {
-            // try to find the next op before the index if consume_len less than index
-            let end = force_end.unwrap();
-            if end > consume_len && self.has_next() {
-                return self.next_with_len(Some(end - consume_len));
+        if find_op.is_some() {
+            if let Some(end) = force_end {
+                // try to find the next op before the index if consume_len less than index
+                if end > consume_len && self.has_next() {
+                    return self.next_with_len(Some(end - consume_len));
+                }
             }
         }
-        return find_op;
+        find_op
     }
 
     pub fn has_next(&self) -> bool { self.next_iter_op().is_some() }

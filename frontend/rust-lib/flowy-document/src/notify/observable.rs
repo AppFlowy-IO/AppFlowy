@@ -1,13 +1,13 @@
 use dart_notify::DartNotifyBuilder;
 use flowy_derive::ProtoBuf_Enum;
-const OBSERVABLE_CATEGORY: &'static str = "Doc";
+const OBSERVABLE_CATEGORY: &str = "Doc";
 #[derive(ProtoBuf_Enum, Debug)]
 pub(crate) enum DocObservable {
     UserCreateDoc = 0,
 }
 
-impl std::convert::Into<i32> for DocObservable {
-    fn into(self) -> i32 { self as i32 }
+impl std::convert::From<DocObservable> for i32 {
+    fn from(o: DocObservable) -> Self { o as i32 }
 }
 
 #[allow(dead_code)]

@@ -12,14 +12,14 @@ pub(crate) struct TrashTable {
     pub create_time: i64,
     pub ty: SqlTrashType,
 }
-impl std::convert::Into<Trash> for TrashTable {
-    fn into(self) -> Trash {
+impl std::convert::From<TrashTable> for Trash {
+    fn from(table: TrashTable) -> Self {
         Trash {
-            id: self.id,
-            name: self.name,
-            modified_time: self.modified_time,
-            create_time: self.create_time,
-            ty: self.ty.into(),
+            id: table.id,
+            name: table.name,
+            modified_time: table.modified_time,
+            create_time: table.create_time,
+            ty: table.ty.into(),
         }
     }
 }
@@ -77,9 +77,9 @@ impl std::convert::From<i32> for SqlTrashType {
 
 impl_sql_integer_expression!(SqlTrashType);
 
-impl std::convert::Into<TrashType> for SqlTrashType {
-    fn into(self) -> TrashType {
-        match self {
+impl std::convert::From<SqlTrashType> for TrashType {
+    fn from(ty: SqlTrashType) -> Self {
+        match ty {
             SqlTrashType::Unknown => TrashType::Unknown,
             SqlTrashType::View => TrashType::View,
             SqlTrashType::App => TrashType::App,

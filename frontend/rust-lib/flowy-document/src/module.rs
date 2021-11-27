@@ -30,7 +30,7 @@ impl FlowyDocument {
         server_config: &ServerConfig,
     ) -> FlowyDocument {
         let server = construct_doc_server(server_config);
-        let doc_ctrl = Arc::new(DocController::new(server.clone(), user.clone(), ws_manager.clone()));
+        let doc_ctrl = Arc::new(DocController::new(server, user.clone(), ws_manager));
         Self { doc_ctrl, user }
     }
 

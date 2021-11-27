@@ -1,3 +1,5 @@
+#![allow(clippy::large_enum_variant)]
+#![allow(clippy::type_complexity)]
 use crate::retry::FixedInterval;
 use pin_project::pin_project;
 use std::{

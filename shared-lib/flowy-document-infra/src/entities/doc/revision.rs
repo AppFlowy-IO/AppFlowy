@@ -45,8 +45,8 @@ impl AsRef<i64> for RevId {
     fn as_ref(&self) -> &i64 { &self.value }
 }
 
-impl std::convert::Into<i64> for RevId {
-    fn into(self) -> i64 { self.value }
+impl std::convert::From<RevId> for i64 {
+    fn from(rev_id: RevId) -> Self { rev_id.value }
 }
 
 impl std::convert::From<i64> for RevId {
@@ -129,14 +129,7 @@ impl Revision {
 
 pub fn revision_from_doc(doc: Doc, ty: RevType) -> Revision {
     let delta_data = doc.data.as_bytes();
-    let revision = Revision::new(
-        doc.base_rev_id.clone(),
-        doc.rev_id.clone(),
-        delta_data.to_owned(),
-        &doc.id,
-        ty,
-    );
-    revision
+    Revision::new(doc.base_rev_id, doc.rev_id, delta_data.to_owned(), &doc.id, ty)
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -160,6 +153,8 @@ impl RevisionRange {
             0
         }
     }
+
+    pub fn is_empty(&self) -> bool { self.end == self.start }
 
     pub fn iter(&self) -> RangeInclusive<i64> {
         debug_assert!(self.start != self.end);

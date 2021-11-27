@@ -2,12 +2,7 @@ use lib_ot::core::{NEW_LINE, WHITESPACE};
 use std::sync::atomic::{AtomicI64, Ordering::SeqCst};
 
 #[inline]
-pub fn find_newline(s: &str) -> Option<usize> {
-    match s.find(NEW_LINE) {
-        None => None,
-        Some(line_break) => Some(line_break),
-    }
-}
+pub fn find_newline(s: &str) -> Option<usize> { s.find(NEW_LINE) }
 
 #[inline]
 pub fn is_newline(s: &str) -> bool { s == NEW_LINE }

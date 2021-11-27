@@ -30,9 +30,9 @@ impl ToString for WsModule {
     }
 }
 
-impl std::convert::Into<TokioMessage> for WsMessage {
-    fn into(self) -> TokioMessage {
-        let result: Result<Bytes, ::protobuf::ProtobufError> = self.try_into();
+impl std::convert::From<WsMessage> for TokioMessage {
+    fn from(msg: WsMessage) -> Self {
+        let result: Result<Bytes, ::protobuf::ProtobufError> = msg.try_into();
         match result {
             Ok(bytes) => TokioMessage::Binary(bytes.to_vec()),
             Err(e) => {

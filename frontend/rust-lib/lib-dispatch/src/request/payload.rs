@@ -25,26 +25,25 @@ fn format_payload_print(payload: &Payload, f: &mut Formatter<'_>) -> fmt::Result
     }
 }
 
-impl std::convert::Into<Payload> for String {
-    fn into(self) -> Payload { Payload::Bytes(Bytes::from(self)) }
+impl std::convert::From<String> for Payload {
+    fn from(s: String) -> Self { Payload::Bytes(Bytes::from(s)) }
 }
 
-impl std::convert::Into<Payload> for &'_ String {
-    fn into(self) -> Payload { Payload::Bytes(Bytes::from(self.to_owned())) }
+impl std::convert::From<&'_ String> for Payload {
+    fn from(s: &String) -> Self { Payload::Bytes(Bytes::from(s.to_owned())) }
 }
 
-impl std::convert::Into<Payload> for Bytes {
-    fn into(self) -> Payload { Payload::Bytes(self) }
+impl std::convert::From<Bytes> for Payload {
+    fn from(bytes: Bytes) -> Self { Payload::Bytes(bytes) }
 }
 
-impl std::convert::Into<Payload> for () {
-    fn into(self) -> Payload { Payload::None }
+impl std::convert::From<()> for Payload {
+    fn from(_: ()) -> Self { Payload::None }
+}
+impl std::convert::From<Vec<u8>> for Payload {
+    fn from(bytes: Vec<u8>) -> Self { Payload::Bytes(Bytes::from(bytes)) }
 }
 
-impl std::convert::Into<Payload> for Vec<u8> {
-    fn into(self) -> Payload { Payload::Bytes(Bytes::from(self)) }
-}
-
-impl std::convert::Into<Payload> for &str {
-    fn into(self) -> Payload { self.to_string().into() }
+impl std::convert::From<&str> for Payload {
+    fn from(s: &str) -> Self { s.to_string().into() }
 }

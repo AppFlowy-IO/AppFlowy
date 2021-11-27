@@ -33,7 +33,7 @@ impl UserDB {
         })?;
 
         match DB_MAP.try_write_for(Duration::from_millis(300)) {
-            None => Err(UserError::internal().context(format!("Acquire write lock to save user db failed"))),
+            None => Err(UserError::internal().context("Acquire write lock to save user db failed")),
             Some(mut write_guard) => {
                 write_guard.insert(user_id.to_owned(), db);
                 Ok(())
@@ -43,7 +43,7 @@ impl UserDB {
 
     pub(crate) fn close_user_db(&self, user_id: &str) -> Result<(), UserError> {
         match DB_MAP.try_write_for(Duration::from_millis(300)) {
-            None => Err(UserError::internal().context(format!("Acquire write lock to close user db failed"))),
+            None => Err(UserError::internal().context("Acquire write lock to close user db failed")),
             Some(mut write_guard) => {
                 set_user_db_init(false, user_id);
                 write_guard.remove(user_id);
@@ -71,7 +71,7 @@ impl UserDB {
         }
 
         match DB_MAP.try_read_for(Duration::from_millis(300)) {
-            None => Err(UserError::internal().context(format!("Acquire read lock to read user db failed"))),
+            None => Err(UserError::internal().context("Acquire read lock to read user db failed")),
             Some(read_guard) => match read_guard.get(user_id) {
                 None => Err(UserError::internal().context("Get connection failed. The database is not initialization")),
                 Some(database) => Ok(database.get_pool()),
@@ -94,7 +94,7 @@ fn set_user_db_init(is_init: bool, user_id: &str) {
 fn is_user_db_init(user_id: &str) -> bool {
     match INIT_RECORD.lock().get(user_id) {
         None => false,
-        Some(flag) => flag.clone(),
+        Some(flag) => *flag,
     }
 }
 

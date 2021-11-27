@@ -50,33 +50,33 @@ impl ViewTable {
     }
 }
 
-impl std::convert::Into<View> for ViewTable {
-    fn into(self) -> View {
-        let view_type = match self.view_type {
+impl std::convert::From<ViewTable> for View {
+    fn from(table: ViewTable) -> Self {
+        let view_type = match table.view_type {
             ViewTableType::Docs => ViewType::Doc,
         };
 
         View {
-            id: self.id,
-            belong_to_id: self.belong_to_id,
-            name: self.name,
-            desc: self.desc,
+            id: table.id,
+            belong_to_id: table.belong_to_id,
+            name: table.name,
+            desc: table.desc,
             view_type,
             belongings: RepeatedView::default(),
-            modified_time: self.modified_time,
-            version: self.version,
-            create_time: self.create_time,
+            modified_time: table.modified_time,
+            version: table.version,
+            create_time: table.create_time,
         }
     }
 }
 
-impl std::convert::Into<Trash> for ViewTable {
-    fn into(self) -> Trash {
+impl std::convert::From<ViewTable> for Trash {
+    fn from(table: ViewTable) -> Self {
         Trash {
-            id: self.id,
-            name: self.name,
-            modified_time: self.modified_time,
-            create_time: self.create_time,
+            id: table.id,
+            name: table.name,
+            modified_time: table.modified_time,
+            create_time: table.create_time,
             ty: TrashType::View,
         }
     }

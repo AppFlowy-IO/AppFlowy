@@ -72,7 +72,7 @@ pub fn parse_ty<'a>(ctxt: &Ctxt, ty: &'a syn::Type) -> Option<TyInfo<'a>> {
             });
         };
     }
-    ctxt.error_spanned_by(ty, format!("Unsupported inner type, get inner type fail"));
+    ctxt.error_spanned_by(ty, "Unsupported inner type, get inner type fail".to_string());
     None
 }
 
@@ -104,12 +104,12 @@ pub fn generate_hashmap_ty_info<'a>(
     let key = parse_ty(ctxt, types[0]).unwrap().ident.to_string();
     let value = parse_ty(ctxt, types[1]).unwrap().ident.to_string();
     let bracket_ty_info = Box::new(parse_ty(ctxt, &types[1]));
-    return Some(TyInfo {
+    Some(TyInfo {
         ident: &path_segment.ident,
         ty,
         primitive_ty: PrimitiveTy::Map(MapInfo::new(key, value)),
         bracket_ty_info,
-    });
+    })
 }
 
 fn generate_option_ty_info<'a>(
@@ -121,12 +121,12 @@ fn generate_option_ty_info<'a>(
     assert_eq!(path_segment.ident.to_string(), "Option".to_string());
     let types = parse_bracketed(bracketed);
     let bracket_ty_info = Box::new(parse_ty(ctxt, &types[0]));
-    return Some(TyInfo {
+    Some(TyInfo {
         ident: &path_segment.ident,
         ty,
         primitive_ty: PrimitiveTy::Opt,
         bracket_ty_info,
-    });
+    })
 }
 
 fn generate_vec_ty_info<'a>(
@@ -146,5 +146,5 @@ fn generate_vec_ty_info<'a>(
             bracket_ty_info: bracketed_ty_info,
         });
     }
-    return None;
+    None
 }

@@ -283,11 +283,9 @@ impl ViewController {
                         Err(_e) => None,
                     }
                 }));
-                match stream.next().await {
-                    Some(event) => {
-                        handle_trash_event(database.clone(), document.clone(), trash_can.clone(), event).await
-                    },
-                    None => {},
+
+                if let Some(event) = stream.next().await {
+                    handle_trash_event(database.clone(), document.clone(), trash_can.clone(), event).await
                 }
             }
         });

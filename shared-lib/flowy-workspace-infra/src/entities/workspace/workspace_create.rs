@@ -61,7 +61,7 @@ pub struct Workspace {
 }
 
 impl Workspace {
-    pub fn take_apps(&mut self) -> RepeatedApp { ::std::mem::replace(&mut self.apps, RepeatedApp::default()) }
+    pub fn take_apps(&mut self) -> RepeatedApp { std::mem::take(&mut self.apps) }
 }
 #[derive(PartialEq, Debug, Default, ProtoBuf)]
 pub struct RepeatedWorkspace {

@@ -83,7 +83,7 @@ impl<'de> Deserialize<'de> for Operation {
                     None => Err(de::Error::missing_field("operation")),
                     Some(mut operation) => {
                         if !operation.is_delete() {
-                            operation.set_attributes(attributes.unwrap_or(Attributes::default()));
+                            operation.set_attributes(attributes.unwrap_or_default());
                         }
                         Ok(operation)
                     },

@@ -26,8 +26,7 @@ impl EventDispatch {
         tracing::trace!("{}", module_info(&modules));
         let module_map = as_module_map(modules);
 
-        let dispatch = EventDispatch { module_map, runtime };
-        dispatch
+        EventDispatch { module_map, runtime }
     }
 
     pub fn async_send<Req>(dispatch: Arc<EventDispatch>, request: Req) -> DispatchFuture<EventResponse>
@@ -99,9 +98,7 @@ where
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         let this = self.as_mut().project();
-        loop {
-            return Poll::Ready(futures_core::ready!(this.fut.poll(cx)));
-        }
+        Poll::Ready(futures_core::ready!(this.fut.poll(cx)))
     }
 }
 
@@ -168,7 +165,7 @@ impl Service<DispatchContext> for DispatchService {
 }
 
 #[allow(dead_code)]
-fn module_info(modules: &Vec<Module>) -> String {
+fn module_info(modules: &[Module]) -> String {
     let mut info = format!("{} modules loaded\n", modules.len());
     for module in modules {
         info.push_str(&format!("-> {} loaded \n", module.name));

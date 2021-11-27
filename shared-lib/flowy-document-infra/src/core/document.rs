@@ -125,7 +125,7 @@ impl Document {
     pub fn format(&mut self, interval: Interval, attribute: Attribute) -> Result<Delta, DocumentError> {
         let _ = validate_interval(&self.delta, &interval)?;
         tracing::trace!("format with {} at {}", attribute, interval);
-        let format_delta = self.view.format(&self.delta, attribute.clone(), interval).unwrap();
+        let format_delta = self.view.format(&self.delta, attribute, interval).unwrap();
 
         tracing::trace!("👉 receive change: {}", format_delta);
         self.compose_delta(format_delta.clone())?;

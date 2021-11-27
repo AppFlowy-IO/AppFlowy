@@ -2,10 +2,10 @@ use chrono::Utc;
 use flowy_workspace_infra::protobuf::{App, RepeatedView, Trash, TrashType, View, ViewType, Workspace};
 use protobuf::ProtobufEnum;
 
-pub(crate) const WORKSPACE_TABLE: &'static str = "workspace_table";
-pub(crate) const APP_TABLE: &'static str = "app_table";
-pub(crate) const VIEW_TABLE: &'static str = "view_table";
-pub(crate) const TRASH_TABLE: &'static str = "trash_table";
+pub(crate) const WORKSPACE_TABLE: &str = "workspace_table";
+pub(crate) const APP_TABLE: &str = "app_table";
+pub(crate) const VIEW_TABLE: &str = "view_table";
+pub(crate) const TRASH_TABLE: &str = "trash_table";
 
 #[derive(Debug, Clone, sqlx::FromRow)]
 pub struct WorkspaceTable {

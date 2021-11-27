@@ -79,7 +79,7 @@ impl TryInto<UpdateAppParams> for UpdateAppRequest {
 
         let color_style = match self.color_style {
             None => None,
-            Some(color_style) => Some(AppColorStyle::parse(color_style.theme_color.clone())?.into()),
+            Some(color_style) => Some(AppColorStyle::parse(color_style.theme_color)?.into()),
         };
 
         Ok(UpdateAppParams {

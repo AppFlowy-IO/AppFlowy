@@ -33,7 +33,7 @@ fn parse_files_protobuf(proto_crate_path: &str, proto_output_dir: &str) -> Vec<P
         .into_iter()
         .filter_entry(|e| !is_hidden(e))
         .filter_map(|e| e.ok())
-        .filter(|e| e.file_type().is_dir() == false)
+        .filter(|e| !e.file_type().is_dir())
         .map(|e| {
             let path = e.path().to_str().unwrap().to_string();
             let file_name = e.path().file_stem().unwrap().to_str().unwrap().to_string();
@@ -64,7 +64,7 @@ fn parse_files_protobuf(proto_crate_path: &str, proto_output_dir: &str) -> Vec<P
 
             let s = struct_template.render().unwrap();
             proto_file_content.push_str(s.as_ref());
-            proto_file_content.push_str("\n");
+            proto_file_content.push('\n');
         });
 
         let enums = get_ast_enums(&ast);
@@ -73,7 +73,7 @@ fn parse_files_protobuf(proto_crate_path: &str, proto_output_dir: &str) -> Vec<P
             enum_template.set_message_enum(&e);
             let s = enum_template.render().unwrap();
             proto_file_content.push_str(s.as_ref());
-            proto_file_content.push_str("\n");
+            proto_file_content.push('\n');
         });
 
         if !enums.is_empty() || !structs.is_empty() {
@@ -95,7 +95,7 @@ pub fn parse_or_init_proto_file(path: &str) -> String {
     let mut proto_file_content = String::new();
     let imported_content = find_proto_file_import(path);
     proto_file_content.push_str(imported_content.as_ref());
-    proto_file_content.push_str("\n");
+    proto_file_content.push('\n');
     proto_file_content
 }
 
@@ -105,8 +105,8 @@ pub fn get_ast_structs(ast: &syn::File) -> Vec<Struct> {
     // file.write_all(content.as_bytes()).unwrap();
     let ctxt = Ctxt::new();
     let mut proto_structs: Vec<Struct> = vec![];
-    ast.items.iter().for_each(|item| match item {
-        Item::Struct(item_struct) => {
+    ast.items.iter().for_each(|item| {
+        if let Item::Struct(item_struct) = item {
             let (_, fields) = struct_from_ast(&ctxt, &item_struct.fields);
 
             if fields
@@ -121,7 +121,6 @@ pub fn get_ast_structs(ast: &syn::File) -> Vec<Struct> {
                 });
             }
         }
-        _ => {}
     });
     ctxt.check().unwrap();
     proto_structs
@@ -133,20 +132,13 @@ pub fn get_ast_enums(ast: &syn::File) -> Vec<FlowyEnum> {
 
     ast.items.iter().for_each(|item| {
         // https://docs.rs/syn/1.0.54/syn/enum.Item.html
-        match item {
-            Item::Enum(item_enum) => {
-                let attrs = flowy_ast::enum_from_ast(
-                    &ctxt,
-                    &item_enum.ident,
-                    &item_enum.variants,
-                    &ast.attrs,
-                );
-                flowy_enums.push(FlowyEnum {
-                    name: item_enum.ident.to_string(),
-                    attrs,
-                });
-            }
-            _ => {}
+        if let Item::Enum(item_enum) = item {
+            let attrs =
+                flowy_ast::enum_from_ast(&ctxt, &item_enum.ident, &item_enum.variants, &ast.attrs);
+            flowy_enums.push(FlowyEnum {
+                name: item_enum.ident.to_string(),
+                attrs,
+            });
         }
     });
     ctxt.check().unwrap();
@@ -182,18 +174,14 @@ fn find_proto_file_import(path: &str) -> String {
 
     content.lines().for_each(|line| {
         ////Result<Option<Match<'t>>>
-        if let Ok(some_line) = SYNTAX_REGEX.find(line) {
-            if let Some(m) = some_line {
-                result.push_str(m.as_str());
-                result.push_str("\n");
-            }
+        if let Ok(Some(m)) = SYNTAX_REGEX.find(line) {
+            result.push_str(m.as_str());
+            result.push('\n');
         }
 
-        if let Ok(some_line) = IMPORT_REGEX.find(line) {
-            if let Some(m) = some_line {
-                result.push_str(m.as_str());
-                result.push_str("\n");
-            }
+        if let Ok(Some(m)) = IMPORT_REGEX.find(line) {
+            result.push_str(m.as_str());
+            result.push('\n');
         }
     });
 

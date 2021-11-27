@@ -24,10 +24,10 @@ pub struct StructTemplate {
 #[allow(dead_code)]
 impl StructTemplate {
     pub fn new() -> Self {
-        return StructTemplate {
+        StructTemplate {
             context: Context::new(),
             fields: vec![],
-        };
+        }
     }
 
     pub fn set_message_struct_name(&mut self, name: &str) {
@@ -46,8 +46,8 @@ impl StructTemplate {
             mapped_ty = RUST_TYPE_MAP[ty];
         }
 
-        match field.bracket_category {
-            Some(ref category) => match category {
+        if let Some(ref category) = field.bracket_category {
+            match category {
                 BracketCategory::Opt => match &field.bracket_inner_ty {
                     None => {}
                     Some(inner_ty) => match inner_ty.to_string().as_str() {
@@ -93,8 +93,7 @@ impl StructTemplate {
                 BracketCategory::Other => self
                     .fields
                     .push(format!("{} {} = {};", mapped_ty, name, index)),
-            },
-            None => {}
+            }
         }
     }
 

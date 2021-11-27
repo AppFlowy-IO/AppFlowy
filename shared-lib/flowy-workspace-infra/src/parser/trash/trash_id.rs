@@ -4,7 +4,7 @@ pub struct TrashId(pub String);
 impl TrashId {
     pub fn parse(s: String) -> Result<TrashId, String> {
         if s.trim().is_empty() {
-            return Err(format!("Trash id can not be empty or whitespace"));
+            return Err("Trash id can not be empty or whitespace".to_string());
         }
 
         Ok(Self(s))

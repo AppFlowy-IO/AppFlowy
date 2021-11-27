@@ -1,3 +1,4 @@
+#![allow(clippy::type_complexity)]
 use crate::{
     connect::{WsConnectionFuture, WsStream},
     errors::WsError,
@@ -64,17 +65,20 @@ pub struct WsController {
     addr: Arc<RwLock<Option<String>>>,
 }
 
-impl WsController {
-    pub fn new() -> Self {
+impl std::default::Default for WsController {
+    fn default() -> Self {
         let (state_notify, _) = broadcast::channel(16);
-        let controller = Self {
+        Self {
             handlers: DashMap::new(),
             sender: Arc::new(RwLock::new(None)),
             state_notify: Arc::new(state_notify),
             addr: Arc::new(RwLock::new(None)),
-        };
-        controller
+        }
     }
+}
+
+impl WsController {
+    pub fn new() -> Self { WsController::default() }
 
     pub fn add_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), WsError> {
         let source = handler.source();
@@ -187,9 +191,8 @@ impl WsHandlerFuture {
     fn new(handlers: Handlers, msg_rx: MsgReceiver) -> Self { Self { msg_rx, handlers } }
 
     fn handler_ws_message(&self, message: Message) {
-        match message {
-            Message::Binary(bytes) => self.handle_binary_message(bytes),
-            _ => {},
+        if let Message::Binary(bytes) = message {
+            self.handle_binary_message(bytes)
         }
     }
 
@@ -332,6 +335,7 @@ impl Future for WsConnectActionFut {
 }
 
 impl Action for WsConnectAction {
+    // noinspection RsExternalLinter
     type Future = Pin<Box<dyn Future<Output = Result<Self::Item, Self::Error>> + Send + Sync>>;
     type Item = WsConnectResult;
     type Error = WsError;

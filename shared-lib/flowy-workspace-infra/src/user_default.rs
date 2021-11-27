@@ -11,19 +11,17 @@ pub fn create_default_workspace(time: chrono::DateTime<Utc>) -> Workspace {
     let desc = "".to_string();
 
     let apps = RepeatedApp {
-        items: vec![create_default_app(workspace_id.to_string(), time.clone())],
+        items: vec![create_default_app(workspace_id.to_string(), time)],
     };
 
-    let workspace = Workspace {
+    Workspace {
         id: workspace_id.to_string(),
         name,
         desc,
         apps,
         modified_time: time.timestamp(),
         create_time: time.timestamp(),
-    };
-
-    workspace
+    }
 }
 
 fn create_default_app(workspace_id: String, time: chrono::DateTime<Utc>) -> App {
@@ -32,7 +30,7 @@ fn create_default_app(workspace_id: String, time: chrono::DateTime<Utc>) -> App 
     let desc = "".to_string();
 
     let views = RepeatedView {
-        items: vec![create_default_view(app_id.to_string(), time.clone())],
+        items: vec![create_default_view(app_id.to_string(), time)],
     };
 
     App {

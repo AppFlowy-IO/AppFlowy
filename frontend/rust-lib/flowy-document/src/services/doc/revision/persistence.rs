@@ -64,12 +64,11 @@ impl RevisionStore {
         let revs_map = self.revs_map.clone();
         let mut rx = sender.subscribe();
         tokio::spawn(async move {
-            match rx.recv().await {
-                Ok(rev_id) => match revs_map.get_mut(&rev_id) {
+            if let Ok(rev_id) = rx.recv().await {
+                match revs_map.get_mut(&rev_id) {
                     None => {},
                     Some(mut rev) => rev.value_mut().state = RevState::Acked,
-                },
-                Err(_) => {},
+                }
             }
         });
 
@@ -107,7 +106,7 @@ impl RevisionStore {
 
         *self.defer_save.write().await = Some(tokio::spawn(async move {
             tokio::time::sleep(Duration::from_millis(300)).await;
-            let ids = revs_map.iter().map(|kv| kv.key().clone()).collect::<Vec<i64>>();
+            let ids = revs_map.iter().map(|kv| *kv.key()).collect::<Vec<i64>>();
             let revisions_state = revs_map
                 .iter()
                 .map(|kv| (kv.revision.clone(), kv.state))
@@ -208,7 +207,7 @@ async fn fetch_from_local(doc_id: &str, persistence: Arc<Persistence>) -> DocRes
             None => {},
             Some(op) => {
                 let data = op.get_data();
-                if !data.ends_with("\n") {
+                if !data.ends_with('\n') {
                     delta.ops.push(Operation::Insert("\n".into()))
                 }
             },
@@ -232,7 +231,7 @@ fn validate_delta(doc_id: &str, persistence: Arc<Persistence>, conn: &SqliteConn
     }
 
     let data = delta.ops.last().as_ref().unwrap().get_data();
-    if !data.ends_with("\n") {
+    if !data.ends_with('\n') {
         log::error!("The op must end with newline");
         let result = || {
             let revisions = persistence.rev_sql.read_rev_tables(&doc_id, conn)?;

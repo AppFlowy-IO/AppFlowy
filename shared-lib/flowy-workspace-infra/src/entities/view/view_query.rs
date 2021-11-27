@@ -19,8 +19,12 @@ impl std::convert::From<String> for ViewIdentifier {
     fn from(view_id: String) -> Self { ViewIdentifier { view_id } }
 }
 
-impl std::convert::Into<DocIdentifier> for ViewIdentifier {
-    fn into(self) -> DocIdentifier { DocIdentifier { doc_id: self.view_id } }
+impl std::convert::From<ViewIdentifier> for DocIdentifier {
+    fn from(identifier: ViewIdentifier) -> Self {
+        DocIdentifier {
+            doc_id: identifier.view_id,
+        }
+    }
 }
 
 impl TryInto<ViewIdentifier> for QueryViewRequest {

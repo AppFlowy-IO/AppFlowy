@@ -31,15 +31,15 @@ impl WorkspaceTable {
     }
 }
 
-impl std::convert::Into<Workspace> for WorkspaceTable {
-    fn into(self) -> Workspace {
+impl std::convert::From<WorkspaceTable> for Workspace {
+    fn from(table: WorkspaceTable) -> Self {
         Workspace {
-            id: self.id,
-            name: self.name,
-            desc: self.desc,
+            id: table.id,
+            name: table.name,
+            desc: table.desc,
             apps: RepeatedApp::default(),
-            modified_time: self.modified_time,
-            create_time: self.create_time,
+            modified_time: table.modified_time,
+            create_time: table.create_time,
         }
     }
 }

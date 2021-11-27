@@ -48,9 +48,9 @@ impl WorkspaceController {
         Self {
             user,
             workspace_sql,
+            view_controller,
             database,
             app_controller,
-            view_controller,
             trash_can,
             server,
         }
@@ -211,7 +211,7 @@ impl WorkspaceController {
     pub(crate) async fn open_workspace(&self, params: WorkspaceIdentifier) -> Result<Workspace, WorkspaceError> {
         let user_id = self.user.user_id()?;
         let conn = self.database.db_connection()?;
-        if let Some(workspace_id) = params.workspace_id.clone() {
+        if let Some(workspace_id) = params.workspace_id {
             let workspace = self.read_local_workspace(workspace_id, &user_id, &*conn)?;
             set_current_workspace(&workspace.id);
             Ok(workspace)
@@ -227,7 +227,7 @@ impl WorkspaceController {
         let user_id = self.user.user_id()?;
         let workspaces =
             self.read_local_workspaces(params.workspace_id.clone(), &user_id, &*self.database.db_connection()?)?;
-        let _ = self.read_workspaces_on_server(user_id.clone(), params.clone());
+        let _ = self.read_workspaces_on_server(user_id, params);
         Ok(workspaces)
     }
 
@@ -239,13 +239,9 @@ impl WorkspaceController {
         };
         let workspace = self.read_local_workspace(workspace_id, &user_id, &*self.database.db_connection()?)?;
 
-        let mut latest_view: Option<View> = None;
-        match self.view_controller.latest_visit_view() {
-            Ok(view) => latest_view = view,
-            Err(_) => {},
-        }
+        let latest_view: Option<View> = self.view_controller.latest_visit_view().unwrap_or(None);
         let setting = CurrentWorkspaceSetting { workspace, latest_view };
-        let _ = self.read_workspaces_on_server(user_id.clone(), params)?;
+        let _ = self.read_workspaces_on_server(user_id, params)?;
         Ok(setting)
     }
 
@@ -361,14 +357,14 @@ impl WorkspaceController {
             let _ = (&*conn).immediate_transaction::<_, WorkspaceError, _>(|| {
                 tracing::debug!("Save {} workspace", workspaces.len());
                 for workspace in &workspaces.items {
-                    let mut m_workspace = workspace.clone();
-                    let apps = m_workspace.apps.into_inner();
+                    let m_workspace = workspace.clone();
+                    let apps = m_workspace.apps.clone().into_inner();
                     let workspace_table = WorkspaceTable::new(m_workspace, &user_id);
 
                     let _ = workspace_sql.create_workspace(workspace_table, &*conn)?;
                     tracing::debug!("Save {} apps", apps.len());
-                    for mut app in apps {
-                        let views = app.belongings.into_inner();
+                    for app in apps {
+                        let views = app.belongings.clone().into_inner();
                         match app_ctrl.save_app(app, &*conn) {
                             Ok(_) => {},
                             Err(e) => log::error!("create app failed: {:?}", e),

@@ -114,6 +114,6 @@ pub(crate) async fn export_handler(
     controller: Unit<Arc<ViewController>>,
 ) -> DataResult<ExportData, WorkspaceError> {
     let params: ExportParams = data.into_inner().try_into()?;
-    let data = controller.export_doc(params.into()).await?;
+    let data = controller.export_doc(params).await?;
     data_result(data)
 }

@@ -16,7 +16,7 @@ use std::{fs, path::PathBuf, sync::Arc};
 
 pub fn root_dir() -> String {
     // https://doc.rust-lang.org/cargo/reference/environment-variables.html
-    let manifest_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap_or("./".to_owned());
+    let manifest_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap_or_else(|_| "./".to_owned());
     let mut path_buf = fs::canonicalize(&PathBuf::from(&manifest_dir)).unwrap();
     path_buf.pop(); // rust-lib
     path_buf.push("flowy-test");
@@ -36,9 +36,9 @@ pub fn login_email() -> String { "annie2@appflowy.io".to_string() }
 
 pub fn login_password() -> String { "HelloWorld!123".to_string() }
 
-const DEFAULT_WORKSPACE_NAME: &'static str = "My workspace";
-const DEFAULT_WORKSPACE_DESC: &'static str = "This is your first workspace";
-const DEFAULT_WORKSPACE: &'static str = "Default_Workspace";
+const DEFAULT_WORKSPACE_NAME: &str = "My workspace";
+const DEFAULT_WORKSPACE_DESC: &str = "This is your first workspace";
+const DEFAULT_WORKSPACE: &str = "Default_Workspace";
 
 #[allow(dead_code)]
 pub(crate) fn create_default_workspace_if_need(dispatch: Arc<EventDispatch>, user_id: &str) -> Result<(), UserError> {
@@ -62,13 +62,13 @@ pub(crate) fn create_default_workspace_if_need(dispatch: Arc<EventDispatch>, use
 
     let workspace = result.map_err(|e| UserError::internal().context(e))?;
     let query: Bytes = QueryWorkspaceRequest {
-        workspace_id: Some(workspace.id.clone()),
+        workspace_id: Some(workspace.id),
     }
     .into_bytes()
     .unwrap();
 
     let request = ModuleRequest::new(OpenWorkspace).payload(query);
-    let _result = EventDispatch::sync_send(dispatch.clone(), request)
+    let _result = EventDispatch::sync_send(dispatch, request)
         .parse::<Workspace, WorkspaceError>()
         .unwrap()
         .unwrap();
@@ -92,7 +92,7 @@ pub fn sign_up(dispatch: Arc<EventDispatch>) -> SignUpContext {
     .unwrap();
 
     let request = ModuleRequest::new(SignUp).payload(payload);
-    let user_profile = EventDispatch::sync_send(dispatch.clone(), request)
+    let user_profile = EventDispatch::sync_send(dispatch, request)
         .parse::<UserProfile, UserError>()
         .unwrap()
         .unwrap();
@@ -132,12 +132,10 @@ fn sign_in(dispatch: Arc<EventDispatch>) -> UserProfile {
     .unwrap();
 
     let request = ModuleRequest::new(SignIn).payload(payload);
-    let user_profile = EventDispatch::sync_send(dispatch, request)
+    EventDispatch::sync_send(dispatch, request)
         .parse::<UserProfile, UserError>()
         .unwrap()
-        .unwrap();
-
-    user_profile
+        .unwrap()
 }
 
 #[allow(dead_code)]

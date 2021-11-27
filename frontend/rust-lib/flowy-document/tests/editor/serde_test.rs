@@ -4,8 +4,8 @@ use lib_ot::core::*;
 #[test]
 fn operation_insert_serialize_test() {
     let attributes = AttributeBuilder::new()
-        .add(Attribute::Bold(true))
-        .add(Attribute::Italic(true))
+        .add_attr(Attribute::Bold(true))
+        .add_attr(Attribute::Italic(true))
         .build();
     let operation = OpBuilder::insert("123").attributes(attributes).build();
     let json = serde_json::to_string(&operation).unwrap();
@@ -35,8 +35,8 @@ fn operation_delete_serialize_test() {
 #[test]
 fn attributes_serialize_test() {
     let attributes = AttributeBuilder::new()
-        .add(Attribute::Bold(true))
-        .add(Attribute::Italic(true))
+        .add_attr(Attribute::Bold(true))
+        .add_attr(Attribute::Italic(true))
         .build();
     let retain = OpBuilder::insert("123").attributes(attributes).build();
 
@@ -49,8 +49,8 @@ fn delta_serialize_multi_attribute_test() {
     let mut delta = Delta::default();
 
     let attributes = AttributeBuilder::new()
-        .add(Attribute::Bold(true))
-        .add(Attribute::Italic(true))
+        .add_attr(Attribute::Bold(true))
+        .add_attr(Attribute::Italic(true))
         .build();
     let retain = OpBuilder::insert("123").attributes(attributes).build();
 

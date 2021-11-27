@@ -37,13 +37,13 @@ impl std::convert::From<SignInResponse> for UserTable {
     fn from(resp: SignInResponse) -> Self { UserTable::new(resp.user_id, resp.name, resp.email, resp.token) }
 }
 
-impl std::convert::Into<UserProfile> for UserTable {
-    fn into(self) -> UserProfile {
+impl std::convert::From<UserTable> for UserProfile {
+    fn from(table: UserTable) -> Self {
         UserProfile {
-            id: self.id,
-            email: self.email,
-            name: self.name,
-            token: self.token,
+            id: table.id,
+            email: table.email,
+            name: table.name,
+            token: table.token,
         }
     }
 }

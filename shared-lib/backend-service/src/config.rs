@@ -1,7 +1,7 @@
-pub const HOST: &'static str = "localhost:8000";
-pub const HTTP_SCHEMA: &'static str = "http";
-pub const WS_SCHEMA: &'static str = "ws";
-pub const HEADER_TOKEN: &'static str = "token";
+pub const HOST: &str = "localhost:8000";
+pub const HTTP_SCHEMA: &str = "http";
+pub const WS_SCHEMA: &str = "ws";
+pub const HEADER_TOKEN: &str = "token";
 
 #[derive(Debug, Clone)]
 pub struct ServerConfig {

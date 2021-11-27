@@ -44,7 +44,7 @@ impl InsertExt for PreserveInlineFormat {
             .insert_with_attributes(text, attributes)
             .build();
 
-        return Some(new_delta);
+        Some(new_delta)
     }
 }
 
@@ -73,7 +73,7 @@ impl InsertExt for PreserveLineFormatOnSplit {
         new_delta.retain(index + replace_len, plain_attributes());
 
         if newline_status.is_contain() {
-            debug_assert!(next.has_attribute() == false);
+            debug_assert!(!next.has_attribute());
             new_delta.insert(NEW_LINE, plain_attributes());
             return Some(new_delta);
         }

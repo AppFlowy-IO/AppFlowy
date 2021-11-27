@@ -1,3 +1,4 @@
+#![allow(clippy::module_inception)]
 mod attribute_test;
 mod op_test;
 mod serde_test;
@@ -9,7 +10,7 @@ use lib_ot::core::*;
 use rand::{prelude::*, Rng as WrappedRng};
 use std::{sync::Once, time::Duration};
 
-const LEVEL: &'static str = "debug";
+const LEVEL: &str = "debug";
 
 #[derive(Clone, Debug, Display)]
 pub enum TestOp {

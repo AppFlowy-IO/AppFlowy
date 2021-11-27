@@ -58,15 +58,10 @@ impl WsDocumentManager {
 fn listen_ws_state_changed(ws: Arc<dyn DocumentWebSocket>, handlers: Arc<DashMap<String, Arc<dyn WsDocumentHandler>>>) {
     let mut notify = ws.state_notify();
     tokio::spawn(async move {
-        loop {
-            match notify.recv().await {
-                Ok(state) => {
-                    handlers.iter().for_each(|handle| {
-                        handle.value().state_changed(&state);
-                    });
-                },
-                Err(_) => break,
-            }
+        while let Ok(state) = notify.recv().await {
+            handlers.iter().for_each(|handle| {
+                handle.value().state_changed(&state);
+            });
         }
     });
 }

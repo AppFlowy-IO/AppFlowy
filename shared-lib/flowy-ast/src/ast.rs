@@ -118,7 +118,7 @@ impl<'a> ASTField<'a> {
             Some(inner) => {
                 match inner.primitive_ty {
                     PrimitiveTy::Map(map_info) => {
-                        bracket_category = Some(BracketCategory::Map((map_info.key.clone(), map_info.value.clone())))
+                        bracket_category = Some(BracketCategory::Map((map_info.key.clone(), map_info.value)))
                     },
                     PrimitiveTy::Vec => {
                         bracket_category = Some(BracketCategory::Vec);
@@ -170,7 +170,7 @@ impl<'a> ASTField<'a> {
     #[allow(dead_code)]
     pub fn name(&self) -> Option<syn::Ident> {
         if let syn::Member::Named(ident) = &self.member {
-            return Some(ident.clone());
+            Some(ident.clone())
         } else {
             None
         }
@@ -205,7 +205,7 @@ pub fn enum_from_ast<'a>(
     cx: &Ctxt,
     ident: &syn::Ident,
     variants: &'a Punctuated<syn::Variant, Token![,]>,
-    enum_attrs: &Vec<syn::Attribute>,
+    enum_attrs: &[syn::Attribute],
 ) -> Vec<ASTEnumVariant<'a>> {
     variants
         .iter()

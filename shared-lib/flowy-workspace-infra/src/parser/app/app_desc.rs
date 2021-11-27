@@ -5,7 +5,7 @@ pub struct AppDesc(pub String);
 impl AppDesc {
     pub fn parse(s: String) -> Result<AppDesc, String> {
         if s.graphemes(true).count() > 1024 {
-            return Err(format!("Workspace description too long"));
+            return Err("Workspace description too long".to_string());
         }
 
         Ok(Self(s))

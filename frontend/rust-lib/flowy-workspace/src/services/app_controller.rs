@@ -61,7 +61,7 @@ impl AppController {
     }
 
     pub(crate) fn save_app(&self, app: App, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
-        let app_table = AppTable::new(app.clone());
+        let app_table = AppTable::new(app);
         let _ = AppTableSql::create_app(app_table, &*conn)?;
         Ok(())
     }
@@ -176,9 +176,8 @@ impl AppController {
                         Err(_e) => None,
                     }
                 }));
-                match stream.next().await {
-                    Some(event) => handle_trash_event(database.clone(), trash_can.clone(), event).await,
-                    None => {},
+                if let Some(event) = stream.next().await {
+                    handle_trash_event(database.clone(), trash_can.clone(), event).await
                 }
             }
         });

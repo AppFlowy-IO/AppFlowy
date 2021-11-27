@@ -4,14 +4,18 @@ pub struct AttributeBuilder {
     inner: Attributes,
 }
 
-impl AttributeBuilder {
-    pub fn new() -> Self {
+impl std::default::Default for AttributeBuilder {
+    fn default() -> Self {
         Self {
             inner: Attributes::default(),
         }
     }
+}
 
-    pub fn add(mut self, attribute: Attribute) -> Self {
+impl AttributeBuilder {
+    pub fn new() -> Self { AttributeBuilder::default() }
+
+    pub fn add_attr(mut self, attribute: Attribute) -> Self {
         self.inner.add(attribute);
         self
     }

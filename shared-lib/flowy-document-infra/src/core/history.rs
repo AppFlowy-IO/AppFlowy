@@ -26,8 +26,8 @@ pub struct History {
     capacity: usize,
 }
 
-impl History {
-    pub fn new() -> Self {
+impl std::default::Default for History {
+    fn default() -> Self {
         History {
             cur_undo: 1,
             undos: Vec::new(),
@@ -35,6 +35,10 @@ impl History {
             capacity: MAX_UNDOS,
         }
     }
+}
+
+impl History {
+    pub fn new() -> Self { History::default() }
 
     pub fn can_undo(&self) -> bool { !self.undos.is_empty() }
 

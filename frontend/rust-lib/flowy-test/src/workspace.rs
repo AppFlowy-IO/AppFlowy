@@ -133,7 +133,7 @@ async fn open_workspace(sdk: &FlowyTestSDK, workspace_id: &str) {
 }
 
 pub async fn read_workspace(sdk: &FlowyTestSDK, request: QueryWorkspaceRequest) -> Vec<Workspace> {
-    let mut repeated_workspace = FlowyWorkspaceTest::new(sdk.clone())
+    let repeated_workspace = FlowyWorkspaceTest::new(sdk.clone())
         .event(ReadWorkspaces)
         .request(request.clone())
         .async_send()

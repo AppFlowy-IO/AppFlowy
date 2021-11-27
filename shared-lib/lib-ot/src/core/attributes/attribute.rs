@@ -62,10 +62,10 @@ impl fmt::Display for Attribute {
     }
 }
 
-impl std::convert::Into<Attributes> for Attribute {
-    fn into(self) -> Attributes {
+impl std::convert::From<Attribute> for Attributes {
+    fn from(attr: Attribute) -> Self {
         let mut attributes = Attributes::new();
-        attributes.add(self);
+        attributes.add(attr);
         attributes
     }
 }
@@ -122,7 +122,7 @@ impl std::convert::From<&usize> for AttributeValue {
 
 impl std::convert::From<usize> for AttributeValue {
     fn from(val: usize) -> Self {
-        if val > (0 as usize) {
+        if val > 0_usize {
             AttributeValue(Some(format!("{}", val)))
         } else {
             AttributeValue(None)

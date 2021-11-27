@@ -28,13 +28,12 @@ pub(crate) struct DocController {
 impl DocController {
     pub(crate) fn new(server: Server, user: Arc<dyn DocumentUser>, ws: Arc<WsDocumentManager>) -> Self {
         let cache = Arc::new(DocCache::new());
-        let controller = Self {
+        Self {
             server,
             user,
             ws_manager: ws,
-            cache: cache.clone(),
-        };
-        controller
+            cache,
+        }
     }
 
     pub(crate) fn init(&self) -> DocResult<()> {
@@ -47,7 +46,7 @@ impl DocController {
         params: DocIdentifier,
         pool: Arc<ConnectionPool>,
     ) -> Result<Arc<ClientEditDoc>, DocError> {
-        if self.cache.contains(&params.doc_id) == false {
+        if !self.cache.contains(&params.doc_id) {
             let edit_ctx = self.make_edit_context(&params.doc_id, pool.clone()).await?;
             return Ok(edit_ctx);
         }

@@ -84,7 +84,7 @@ impl Delta {
         Ok(delta)
     }
 
-    pub fn to_json(&self) -> String { serde_json::to_string(self).unwrap_or("".to_owned()) }
+    pub fn to_json(&self) -> String { serde_json::to_string(self).unwrap_or_else(|_| "".to_owned()) }
 
     pub fn from_bytes<T: AsRef<[u8]>>(bytes: T) -> Result<Self, OTError> {
         let json = str::from_utf8(bytes.as_ref())?;
@@ -227,13 +227,7 @@ impl Delta {
 
     /// Checks if this operation has no effect.
     #[inline]
-    pub fn is_noop(&self) -> bool {
-        match self.ops.as_slice() {
-            [] => true,
-            [Operation::Retain(_)] => true,
-            _ => false,
-        }
-    }
+    pub fn is_noop(&self) -> bool { matches!(self.ops.as_slice(), [] | [Operation::Retain(_)]) }
 
     pub fn is_empty(&self) -> bool { self.ops.is_empty() }
 
@@ -267,10 +261,10 @@ impl OperationTransformable for Delta {
 
             let op = iter
                 .next_op_with_len(length)
-                .unwrap_or(OpBuilder::retain(length).build());
+                .unwrap_or_else(|| OpBuilder::retain(length).build());
             let other_op = other_iter
                 .next_op_with_len(length)
-                .unwrap_or(OpBuilder::retain(length).build());
+                .unwrap_or_else(|| OpBuilder::retain(length).build());
 
             debug_assert_eq!(op.len(), other_op.len());
 
