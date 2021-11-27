@@ -10,6 +10,7 @@ flowy-workspace-infra = { path = "../../../shared-lib/flowy-workspace-infra" }
 flowy-document-infra = { path = "../../../shared-lib/flowy-document-infra" }
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
+lib-sqlite = { path = "../../../shared-lib/lib-sqlite" }
 backend-service = { path = "../../../shared-lib/backend-service" }
 
 
@@ -18,7 +19,6 @@ flowy-database = { path = "../flowy-database" }
 dart-notify = { path = "../dart-notify" }
 lib-dispatch = { path = "../lib-dispatch" }
 lib-infra = { path = "../lib-infra" }
-lib-sqlite = { path = "../lib-sqlite" }
 
 
 parking_lot = "0.11"

@@ -5,6 +5,7 @@ members = [
   "flowy-document-infra",
   "lib-ot",
   "lib-ws",
+  "lib-sqlite",
   "backend-service",
   "flowy-derive",
   "flowy-ast",

@@ -10,13 +10,13 @@ flowy-user-infra = { path = "../../../shared-lib/flowy-user-infra" }
 backend-service = { path = "../../../shared-lib/backend-service" }
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 lib-ws = { path = "../../../shared-lib/lib-ws" }
+lib-sqlite = { path = "../../../shared-lib/lib-sqlite" }
 
 derive_more = {version = "0.99", features = ["display"]}
 flowy-database = { path = "../flowy-database" }
 dart-notify = { path = "../dart-notify" }
 lib-dispatch = { path = "../lib-dispatch" }
 lib-infra = { path = "../lib-infra" }
-lib-sqlite = { path = "../lib-sqlite" }
 
 tracing = { version = "0.1", features = ["log"] }
 bytes = "1.0"
