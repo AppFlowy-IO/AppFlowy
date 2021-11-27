@@ -8,7 +8,7 @@ jobs:
   rust-lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - id: component
         uses: actions-rs/components-nightly@v1
         with:
@@ -19,10 +19,9 @@ jobs:
             override: true
       - run: rustup component add clippy
         working-directory: frontend/rust-lib
-      - uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features
+      - run: cargo clippy
+        working-directory: frontend/rust-lib
+
 
   flutter-lint:
     name: flutter analyze
