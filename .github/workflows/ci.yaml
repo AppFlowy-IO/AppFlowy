@@ -16,8 +16,10 @@ jobs:
             override: true
       - uses: actions-rs/clippy-check@v1
         with:
+          working-directory: frontend/rust-lib
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --all-features
+
   flutter-lint:
     name: flutter analyze
     runs-on: ubuntu-latest
