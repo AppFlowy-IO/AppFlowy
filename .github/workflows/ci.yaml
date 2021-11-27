@@ -8,15 +8,19 @@ jobs:
   rust-lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v1
+      - id: component
+        uses: actions-rs/components-nightly@v1
+        with:
+          component: clippy
       - uses: actions-rs/toolchain@v1
         with:
-            toolchain: nightly
-            components: clippy
+            toolchain: ${{ steps.component.outputs.toolchain }}
             override: true
+      - run: rustup component add clippy
+        working-directory: frontend/rust-lib
       - uses: actions-rs/clippy-check@v1
         with:
-          working-directory: frontend/rust-lib
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --all-features
 
