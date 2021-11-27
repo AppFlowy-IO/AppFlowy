@@ -5,6 +5,22 @@ on:
   pull_request:
     branches: [main]
 jobs:
+  lint:
+    name: flutter analyze
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: "dev"
+      - name: flutter pub get
+        working-directory: frontend/app_flowy
+        run: flutter pub get
+      - name: flutter analyze
+        working-directory: frontend/app_flowy
+        run: flutter analyze
+
   sdk-tests:
     runs-on: ubuntu-latest
     steps:
