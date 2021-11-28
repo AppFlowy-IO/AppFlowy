@@ -21,7 +21,7 @@ Note:
 * You may need to disable hardware 3D acceleration if you are running it on a VM. Otherwise, certain GL failures will prevent app from launching
 
 ### Detail steps
-1. Install prerequisites 
+1. Install prerequisites
 ```shell
 sudo apt-get install curl build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev unzip
 # optional, for generating protobuf in step 8 only
@@ -35,7 +35,7 @@ rustup toolchain install nightly
 rustup default nightly
 ```
 
-3. env settings 
+3. env settings
 ``` shell
 cp backend/configuration/base.example.yaml backend/configuration/base.yaml
 cp backend/configuration/.env.example backend/configuration/.env
@@ -64,13 +64,14 @@ cargo install --force cargo-make
 ```shell
 cargo install --force duckscript_cli
 ```
-8. Check pre-request
+8. Check prerequisites
 ```shell
 cargo make flowy_dev
 ```
 
 9. [Optional] Generate protobuf for dart (optional, if you modify the shared-lib's entities)
 ```shell
+# Make sure to install protobuf-compiler at first. See step 1
 cargo make -p development-linux-x86 pb
 ```
 10. [Optional] Build flowy-sdk-dev (dart-ffi), step 10 covers this step
