@@ -29,7 +29,8 @@ class HomeStack extends StatelessWidget {
         getIt<HomeStackManager>().stackTopBar(),
         Expanded(
           child: Container(
-            color: Colors.white,
+            //Rewrote to change with light and dark mode
+            color: Theme.of(context).colorScheme.surface,
             child: FocusTraversalGroup(
               child: getIt<HomeStackManager>().stackWidget(),
             ),
