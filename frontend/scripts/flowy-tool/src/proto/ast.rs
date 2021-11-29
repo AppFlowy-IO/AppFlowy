@@ -8,8 +8,8 @@ use std::{fs::File, io::Read, path::Path};
 use syn::Item;
 use walkdir::WalkDir;
 
-pub fn parse_crate_protobuf(root: &str) -> Vec<CrateProtoInfo> {
-    let crate_infos = parse_crate_info_from_path(root);
+pub fn parse_crate_protobuf(roots: Vec<String>) -> Vec<CrateProtoInfo> {
+    let crate_infos = parse_crate_info_from_path(roots);
     crate_infos
         .into_iter()
         .map(|crate_info| {

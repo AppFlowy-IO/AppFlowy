@@ -95,15 +95,20 @@ pub struct ProtoFile {
     pub generated_content: String,
 }
 
-pub fn parse_crate_info_from_path(root: &str) -> Vec<ProtobufCrate> {
-    WalkDir::new(root)
-        .into_iter()
-        .filter_entry(|e| !is_hidden(e))
-        .filter_map(|e| e.ok())
-        .filter(|e| is_crate_dir(e))
-        .flat_map(|e| parse_crate_config_from(&e))
-        .map(ProtobufCrate::from_config)
-        .collect::<Vec<ProtobufCrate>>()
+pub fn parse_crate_info_from_path(roots: Vec<String>) -> Vec<ProtobufCrate> {
+    let mut protobuf_crates: Vec<ProtobufCrate> = vec![];
+    roots.iter().for_each(|root| {
+        let crates = WalkDir::new(root)
+            .into_iter()
+            .filter_entry(|e| !is_hidden(e))
+            .filter_map(|e| e.ok())
+            .filter(|e| is_crate_dir(e))
+            .flat_map(|e| parse_crate_config_from(&e))
+            .map(ProtobufCrate::from_config)
+            .collect::<Vec<ProtobufCrate>>();
+        protobuf_crates.extend(crates);
+    });
+    protobuf_crates
 }
 
 pub struct FlutterProtobufInfo {

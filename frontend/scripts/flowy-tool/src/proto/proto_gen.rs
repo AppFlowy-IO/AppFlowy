@@ -5,14 +5,14 @@ use std::path::Path;
 use std::{fs::OpenOptions, io::Write};
 
 pub struct ProtoGen {
-    pub(crate) rust_source_dir: String,
+    pub(crate) rust_source_dirs: Vec<String>,
     pub(crate) flutter_package_lib: String,
     pub(crate) derive_meta_dir: String,
 }
 
 impl ProtoGen {
     pub fn gen(&self) {
-        let crate_proto_infos = parse_crate_protobuf(self.rust_source_dir.as_ref());
+        let crate_proto_infos = parse_crate_protobuf(self.rust_source_dirs.clone());
         write_proto_files(&crate_proto_infos);
 
         // FIXME: ignore unchanged file to reduce time cost

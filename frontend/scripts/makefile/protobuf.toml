@@ -19,8 +19,7 @@ script_runner = "@duckscript"
 script = [
     """
     flowy_tool=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/scripts/flowy-tool/Cargo.toml
-    rust_source=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/
-    # rust_lib=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib
+    rust_lib=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/
     shared_lib=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/../shared-lib
     flutter_lib=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/packages
 
@@ -29,12 +28,13 @@ script = [
 
     cargo run \
      --manifest-path ${flowy_tool} pb-gen \
-     --rust_source=${rust_source} \
+     --rust_sources ${rust_lib},${shared_lib} \
      --derive_meta=${derive_meta} \
      --flutter_package_lib=${flutter_package_lib}
     """,
 ]
 script_runner = "@shell"
+
 
 
 [tasks.gen_pb_file.windows]
@@ -70,7 +70,7 @@ script = [
 
     cargo run \
      --manifest-path ${flowy_tool} dart-event \
-     --rust_source=${rust_source} \
+     --rust_sources=${rust_source} \
      --output=${output}
     """,
 ]
