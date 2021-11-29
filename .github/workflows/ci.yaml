@@ -5,40 +5,6 @@ on:
   pull_request:
     branches: [main]
 jobs:
-  rust-lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - id: component
-        uses: actions-rs/components-nightly@v1
-        with:
-          component: clippy
-      - uses: actions-rs/toolchain@v1
-        with:
-            toolchain: ${{ steps.component.outputs.toolchain }}
-            override: true
-      - run: rustup component add clippy
-        working-directory: frontend/rust-lib
-      - run: cargo clippy
-        working-directory: frontend/rust-lib
-
-
-  flutter-lint:
-    name: flutter analyze
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v1
-        with:
-          channel: "dev"
-      - name: flutter pub get
-        working-directory: frontend/app_flowy
-        run: flutter pub get
-      - name: flutter analyze
-        working-directory: frontend/app_flowy
-        run: flutter analyze
-
   sdk-tests:
     runs-on: ubuntu-latest
     steps:
