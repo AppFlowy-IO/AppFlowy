@@ -41,19 +41,4 @@ jobs:
         working-directory: frontend/rust-lib
       - run: cargo clippy
         working-directory: frontend/rust-lib
-        
-  flutter-analyze:
-    name: flutter analyze
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v1
-        with:
-          channel: "dev"
-      - name: flutter pub get
-        working-directory: frontend/app_flowy
-        run: flutter pub get
-      - name: flutter analyze
-        working-directory: frontend/app_flowy
-        run: flutter analyze
+      
