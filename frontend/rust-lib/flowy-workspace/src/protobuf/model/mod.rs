@@ -1,10 +1,10 @@
-// Auto-generated, do not edit 
+// Auto-generated, do not edit
 
-mod observable; 
-pub use observable::*; 
+mod observable;
+pub use observable::*;
 
-mod errors; 
-pub use errors::*; 
+mod errors;
+pub use errors::*;
 
-mod event; 
-pub use event::*; 
+mod event;
+pub use event::*;

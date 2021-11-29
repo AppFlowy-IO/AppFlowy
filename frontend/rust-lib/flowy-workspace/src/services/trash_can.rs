@@ -245,8 +245,6 @@ impl TrashCan {
 
                             match result {
                                 Ok(repeated_trash) => {
-                                    // FIXME: User may modify the trash(add/putback) before the flying request comes
-                                    // back that will cause the trash list to be outdated.
                                     notify_trash_changed(repeated_trash);
                                 },
                                 Err(e) => log::error!("Save trash failed: {:?}", e),

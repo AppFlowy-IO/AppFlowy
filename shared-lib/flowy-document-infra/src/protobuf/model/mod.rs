@@ -1,10 +1,10 @@
-// Auto-generated, do not edit 
+// Auto-generated, do not edit
 
-mod ws; 
-pub use ws::*; 
+mod ws;
+pub use ws::*;
 
-mod revision; 
-pub use revision::*; 
+mod revision;
+pub use revision::*;
 
-mod doc; 
-pub use doc::*; 
+mod doc;
+pub use doc::*;
