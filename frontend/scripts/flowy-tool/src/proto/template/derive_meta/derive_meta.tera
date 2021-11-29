@@ -1,3 +1,4 @@
+#[rustfmt::skip]
 pub enum TypeCategory {
     Array,
     Map,

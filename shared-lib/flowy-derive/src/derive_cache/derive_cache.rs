@@ -1,3 +1,4 @@
+#[rustfmt::skip]
 pub enum TypeCategory {
     Array,
     Map,
@@ -76,8 +77,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "UserToken"
         | "UserProfile"
         | "UpdateUserRequest"
-        | "UpdateUserParams"
-        => TypeCategory::Protobuf,
+        | "UpdateUserParams" => TypeCategory::Protobuf,
         "WorkspaceEvent"
         | "WorkspaceNotification"
         | "ErrorCode"
@@ -90,8 +90,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "ExportType"
         | "RevType"
         | "WsDataType"
-        | "WsModule"
-        => TypeCategory::Enum,
+        | "WsModule" => TypeCategory::Enum,
 
         "Option" => TypeCategory::Opt,
         _ => TypeCategory::Primitive,

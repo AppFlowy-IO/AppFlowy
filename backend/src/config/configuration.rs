@@ -64,8 +64,7 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
         .try_into()
         .expect("Failed to parse APP_ENVIRONMENT.");
 
-    settings
-        .merge(config::File::from(configuration_dir.join(environment.as_str())).required(true))?;
+    settings.merge(config::File::from(configuration_dir.join(environment.as_str())).required(true))?;
 
     // Add in settings from environment variables (with a prefix of APP and '__' as
     // separator) E.g. `APP_APPLICATION__PORT=5001 would set
