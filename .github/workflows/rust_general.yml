@@ -17,15 +17,11 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: nightly
           override: true
           components: rustfmt
-
-      - uses: actions-rs/cargo@v1
-        with:
-          path: frontend/rust-lib
-          command: fmt
-          args: --all -- --check
+      - run: cargo fmt --all -- --check
+        working-directory: frontend/rust-lib
 
   rust-clippy:
     runs-on: ubuntu-latest
