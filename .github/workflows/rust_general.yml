@@ -14,12 +14,14 @@ jobs:
     name: Rustfmt
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          override: true
-          components: rustfmt
+      - name: Install Rust
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          source $HOME/.cargo/env
+          rustup toolchain install nightly
+          rustup default nightly
+      - run: rustup component add rustfmt
+        working-directory: frontend/rust-lib
       - run: cargo fmt --all -- --check
         working-directory: frontend/rust-lib
 
