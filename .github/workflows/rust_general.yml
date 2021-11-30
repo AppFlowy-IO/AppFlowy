@@ -20,10 +20,13 @@ jobs:
           toolchain: stable
           override: true
           components: rustfmt
+
       - uses: actions-rs/cargo@v1
-      - run: cargo fmt --all -- --check
-        working-directory: frontend/rust-lib
-        
+        with:
+          path: frontend/rust-lib
+          command: fmt
+          args: --all -- --check
+
   rust-clippy:
     runs-on: ubuntu-latest
     name: Clippy
