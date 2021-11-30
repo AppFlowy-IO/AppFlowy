@@ -18,7 +18,7 @@ impl std::convert::Into<AnyBody> for FlowyResponse {
     fn into(self) -> AnyBody {
         match serde_json::to_string(&self) {
             Ok(body) => AnyBody::from(body),
-            Err(_) => AnyBody::empty(),
+            Err(_) => AnyBody::Empty,
         }
     }
 }
