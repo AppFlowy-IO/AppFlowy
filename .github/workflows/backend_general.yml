@@ -66,21 +66,21 @@ jobs:
             --no-default-features
             --locked
 
-        - name: Migrate database
-          working-directory: backend/
-          run: |
-            sudo apt-get install libpq-dev -y
-            SKIP_DOCKER=true ./backend/scripts/init_database.sh
+      - name: Migrate database
+        working-directory: backend/
+        run: |
+          sudo apt-get install libpq-dev -y
+          SKIP_DOCKER=true ./backend/scripts/init_database.sh
 
-        - name: Check sqlx-data.json is up-to-date
-          working-directory: backend/
-          run: |
-            cargo sqlx prepare --check -- --bin backend
+      - name: Check sqlx-data.json is up-to-date
+        working-directory: backend/
+        run: |
+          cargo sqlx prepare --check -- --bin backend
 
-        - name: Run cargo test
-          working-directory: backend/
-          uses: actions-rs/cargo@v1
-          with:
-            command: test
+      - name: Run cargo test
+        uses: actions-rs/cargo@v1
+        with:
+           path: "backend/"
+           command: test
 
 
