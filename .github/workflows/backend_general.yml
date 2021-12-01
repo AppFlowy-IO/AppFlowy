@@ -1,0 +1,20 @@
+name: Backend
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'backend'
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
