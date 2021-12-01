@@ -70,7 +70,7 @@ jobs:
         working-directory: backend/
         run: |
           sudo apt-get install libpq-dev -y
-          SKIP_DOCKER=true ./backend/scripts/init_database.sh
+          SKIP_DOCKER=true ./scripts/init_database.sh
 
       - name: Check sqlx-data.json is up-to-date
         working-directory: backend/
