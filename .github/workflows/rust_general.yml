@@ -31,9 +31,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
-      with:
-        toolchain: nightly
-        override: true
+        with:
+          toolchain: nightly
+          override: true
       - run: rustup component add clippy
         working-directory: frontend/rust-lib
       - run: cargo clippy
