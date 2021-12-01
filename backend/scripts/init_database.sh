@@ -18,11 +18,7 @@ if ! [ -x "$(command -v sqlx)" ]; then
   exit 1
 fi
 
-DB_USER="${POSTGRES_USER:=postgres}"
-DB_PASSWORD="${POSTGRES_PASSWORD:=password}"
-DB_PORT="${POSTGRES_PORT:=5433}"
-DB_HOST="${POSTGRES_HOST:=localhost}"
-DB_NAME="${POSTGRES_DB:=flowy}"
+source ./env.sh
 
 if [[ -z "${SKIP_DOCKER}" ]]
 then

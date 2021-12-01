@@ -3,9 +3,6 @@ name: Backend
 on:
   push:
     branches: [ main ]
-    paths: 
-      - 'backend'
-      - 'shared-lib'
   pull_request:
     branches: [ main ]
 
@@ -155,5 +152,18 @@ jobs:
       - run: cargo clippy -- -D warnings
         working-directory: backend/
 
+  fmt:
+    name: Rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly
+        override: true
+      - run: rustup component add rustfmt
+        working-directory: backend/
+      - run: cargo fmt --all -- --check
+        working-directory: backend/
 
 

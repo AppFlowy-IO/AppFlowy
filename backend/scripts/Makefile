@@ -1,13 +1,10 @@
-#.EXPORT_ALL_VARIABLES:
-#export DB_USER=postgres
-#export DB_PASSWORD=password
-#export DB_NAME=flowy
-#export DB_PORT=5433
-#export DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@localhost:${DB_PORT}/${DB_NAME}
-#export DB_HOST = "localhost"
+.PHONY:  init_database  add_migrations run_migrations reset_db
 
 init_database:
 	${ROOT}/init_database.sh
+
+run_docker:
+	source $(shell pwd)/env.sh && docker-compose up -d db && docker-compose up -d backend
 
 reset_db:
 	#diesel database reset
@@ -22,6 +19,4 @@ run_migrations:
 	# diesel migration run
 	sqlx migrate run
 
-echo_db_url:
-	echo ${DATABASE_URL}
 
