@@ -2,8 +2,14 @@ name: CI
 on:
   push:
     branches: [main]
+    paths:
+      - 'frontend'
+      - 'shared-lib'
   pull_request:
     branches: [main]
+    paths:
+      - 'frontend'
+      - 'shared-lib'
 jobs:
   build-macos:
     runs-on: macOS-latest
