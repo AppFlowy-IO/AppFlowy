@@ -5,11 +5,9 @@ export DB_NAME=flowy
 export DB_PORT=5433
 export DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@localhost:${DB_PORT}/${DB_NAME}
 export ROOT = "./scripts/database"
+export DB_HOST = "localhost"
 
-init_postgres:
-	${ROOT}/init_postgres.sh
-
-init_database: init_postgres
+init_database:
 	${ROOT}/init_database.sh
 
 reset_db:
