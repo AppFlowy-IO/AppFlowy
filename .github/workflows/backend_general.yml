@@ -19,7 +19,7 @@ jobs:
           POSTGRES_PASSWORD: password
           POSTGRES_DB: postgres
         ports:
-          - 5433:5433
+          - 5433:5432
     env:
       SQLX_VERSION: 0.5.7
       SQLX_FEATURES: postgres
