@@ -3,11 +3,13 @@ name: Backend
 on:
   push:
     branches: [ main ]
+    paths: 
+      - 'backend'
+      - 'shared-lib'
   pull_request:
     branches: [ main ]
 
 jobs:
-
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -80,6 +82,78 @@ jobs:
       - name: Run cargo test
         working-directory: backend/
         run: cargo test
+        
+  fmt:
+    name: Rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - run: rustup component add rustfmt
+        working-directory: backend/
+      - run: cargo fmt --all -- --check
+        working-directory: backend/
+        
+        
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: postgres
+        ports:
+          - 5433:5432
+    env:
+      SQLX_VERSION: 0.5.7
+      SQLX_FEATURES: postgres
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: clippy
+          override: true
+
+      - name: Cache sqlx-cli
+        uses: actions/cache@v2
+        id: cache-sqlx
+        with:
+          path: |
+            ~/.cargo/bin/sqlx
+          key: ${{ runner.os }}-sqlx-${{ env.SQLX_VERSION }}-${{ env.SQLX_FEATURES }}
+
+      - name: Install sqlx-cli 
+        uses: actions-rs/cargo@v1
+        if: steps.cache-sqlx.outputs.cache-hit == false
+        with:
+          command: install 
+          args: >
+            sqlx-cli
+            --force
+            --version=${{ env.SQLX_VERSION }}
+            --features=${{ env.SQLX_FEATURES }}
+            --no-default-features
+            --locked
+
+      - name: Migrate database
+        run: |
+          sudo apt-get install libpq-dev -y
+          SKIP_DOCKER=true ./scripts/init_database.sh
+          
+      - run: rustup component add clippy
+        working-directory: backend/
+      - run: cargo clippy -- -D warnings
+        working-directory: backend/
 
 
 
