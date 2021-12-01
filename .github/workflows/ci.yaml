@@ -5,24 +5,6 @@ on:
   pull_request:
     branches: [main]
 jobs:
-  sdk-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Install Rust
-        run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-          source $HOME/.cargo/env
-          rustup toolchain install nightly
-          rustup default nightly
-      - name: Frontend tests
-        working-directory: frontend/rust-lib
-        run: cargo test
-      - name: Shared-lib tests
-        working-directory: shared-lib
-        run: cargo test
-        
   build-macos:
     runs-on: macOS-latest
     steps:
