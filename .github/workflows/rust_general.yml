@@ -1,4 +1,4 @@
-name: Rust
+name: Frontend_Rust
 
 on:
   push:
