@@ -78,9 +78,8 @@ jobs:
           cargo sqlx prepare --check -- --bin backend
 
       - name: Run cargo test
-        uses: actions-rs/cargo@v1
-        with:
-           path: "backend/"
-           command: test
+        working-directory: backend/
+        run: cargo test
+
 
 
