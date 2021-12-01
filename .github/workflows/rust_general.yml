@@ -14,31 +14,26 @@ jobs:
     name: Rustfmt
     runs-on: ubuntu-latest
     steps:
-      - name: Install Rust
-        run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-          source $HOME/.cargo/env
-          rustup toolchain install nightly
-          rustup default nightly
-      - name: Install rustfmt
-        run: rustup component add rustfmt
-      - name: Rustfmt check
-        run: cargo fmt --all -- --check
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+      - run: rustup component add rustfmt
         working-directory: frontend/rust-lib
+      - run: cargo fmt --all -- --check
+        working-directory: frontend/rust-lib/
+
 
   rust-clippy:
     runs-on: ubuntu-latest
     name: Clippy
     steps:
       - uses: actions/checkout@v2
-      - id: component
-        uses: actions-rs/components-nightly@v1
-        with:
-          component: clippy
       - uses: actions-rs/toolchain@v1
-        with:
-            toolchain: ${{ steps.component.outputs.toolchain }}
-            override: true
+      with:
+        toolchain: nightly
+        override: true
       - run: rustup component add clippy
         working-directory: frontend/rust-lib
       - run: cargo clippy
