@@ -18,7 +18,7 @@ if ! [ -x "$(command -v sqlx)" ]; then
   exit 1
 fi
 
-source ./env.sh
+source env.sh
 
 if [[ -z "${SKIP_DOCKER}" ]]
 then

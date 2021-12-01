@@ -4,10 +4,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      APP_ENVIRONMENT: "production"
     depends_on:
       - db
     ports:
-      - "8000:8000"
+      - 8000:8000
   db:
     image: 'postgres:14'
     environment:
@@ -15,4 +17,4 @@ services:
       POSTGRES_DB: "${POSTGRES_DB}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
     ports:
-      - '${DB_PORT}:5432'
+      - 5433:5432
