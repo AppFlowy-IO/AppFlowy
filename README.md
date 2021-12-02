@@ -33,7 +33,13 @@ You are in charge of your data and customizations.
 
 <p align="center"><img src="https://github.com/AppFlowy-IO/appflowy/blob/main/doc/imgs/welcome.png" alt="The Open Source Notion Alternative." width="1000px" /></p>
 
+## Install
 
+### macOS
+
+```sh
+brew install appflowy
+```
 
 ## Built With
 
