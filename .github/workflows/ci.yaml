@@ -19,7 +19,7 @@ jobs:
       - name: Env install
         working-directory: frontend
         run: make install_rust
-      - name: Checkou Flutter
+      - name: Checkout Flutter
         uses: actions/checkout@v2
         with:
           repository: flutter/flutter
@@ -50,20 +50,26 @@ jobs:
         run: |
           sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
           sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
-          sudo apt-get update
-          sudo apt-get install -y dart curl build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
+          apt-get update
+          apt-get install -y dart curl build-essential libsqlite3-dev \
+            libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
       - name: Rust
         run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          curl \
+            --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
           source $HOME/.cargo/env
           rustup toolchain install nightly
           rustup default nightly
+      - name: Checkout Flutter
+        uses: actions/checkout@v2
+        with:
+          repository: flutter/flutter
+          path: flutter
       - name: Flutter
+        working-directory: flutter
         run: |
-          git clone --depth 1 -b dev https://github.com/flutter/flutter.git
-          cd flutter
-          echo `pwd`"/bin" >> $GITHUB_PATH
-          export PATH="$PATH:`pwd`/bin"
+          echo "$(pwd)/bin" >> $GITHUB_PATH
+          export PATH="$PATH:$(pwd)/bin"
           flutter channel dev
           flutter config --enable-linux-desktop
           flutter doctor
@@ -74,6 +80,5 @@ jobs:
           cargo install --force duckscript_cli
           cargo make flowy_dev
       - name: Build
-        run: |
-          cd frontend
-          cargo make --profile production-linux-x86 appflowy
+        working-directory: frontend
+        run: cargo make --profile production-linux-x86 appflowy
