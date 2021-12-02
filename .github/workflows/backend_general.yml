@@ -69,7 +69,7 @@ jobs:
         working-directory: backend/
         run: |
           sudo apt-get install libpq-dev -y
-          SKIP_DOCKER=true ./scripts/init_database.sh
+          SKIP_DOCKER=true POSTGRES_PORT=5433 ./scripts/init_database.sh
 
       - name: Check sqlx-data.json is up-to-date
         working-directory: backend/
@@ -146,7 +146,7 @@ jobs:
         working-directory: backend/
         run: |
           sudo apt-get install libpq-dev -y
-          SKIP_DOCKER=true ./scripts/init_database.sh
+          SKIP_DOCKER=true POSTGRES_PORT=5433 ./scripts/init_database.sh
           
       - run: rustup component add clippy
         working-directory: backend/
