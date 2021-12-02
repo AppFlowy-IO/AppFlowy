@@ -32,6 +32,7 @@ pub struct Application {
 
 impl Application {
     pub async fn build(configuration: Settings, app_ctx: AppContext) -> Result<Self, std::io::Error> {
+        println!("🚀🚀🚀 {:?}", configuration);
         let address = format!("{}:{}", configuration.application.host, configuration.application.port);
         let listener = TcpListener::bind(&address)?;
         let port = listener.local_addr().unwrap().port();

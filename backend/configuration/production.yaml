@@ -1,4 +1,5 @@
 application:
   host: 0.0.0.0
 database:
+  host: "db"
   require_ssl: false

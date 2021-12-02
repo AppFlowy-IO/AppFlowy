@@ -1,20 +1,23 @@
 version: '3'
 services:
-  backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
+  db:
+    image: 'postgres:9.6-alpine'
     environment:
-      APP_ENVIRONMENT: "production"
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+#    network_mode: "host"
+    ports:
+      - 5433:5432
+  backend:
+    environment:
+      - APP_ENVIRONMENT=production
+      - DATABASE_URL="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}"
+    build:
+      context: ../
+      dockerfile: ./backend/Dockerfile
+    image: flowy_backend:${BACKEND_VERSION}
     depends_on:
       - db
     ports:
       - 8000:8000
-  db:
-    image: 'postgres:14'
-    environment:
-      POSTGRES_USER: "${POSTGRES_USER}"
-      POSTGRES_DB: "${POSTGRES_DB}"
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
-    ports:
-      - 5433:5432
