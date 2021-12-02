@@ -143,6 +143,7 @@ jobs:
             --locked
 
       - name: Migrate database
+        working-directory: backend/
         run: |
           sudo apt-get install libpq-dev -y
           SKIP_DOCKER=true ./scripts/init_database.sh
