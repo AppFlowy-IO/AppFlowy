@@ -23,11 +23,11 @@ pub async fn establish_ws_connection(
     tracing::info!("establish_ws_connection");
     match LoggedUser::from_token(token.clone()) {
         Ok(user) => {
-            let ws_user = WsUser::new(user.clone());
+            let ws_user = WsUser::new(user);
             let client = WsClient::new(ws_user, server.get_ref().clone(), biz_handlers);
             let result = ws::start(client, &request, payload);
             match result {
-                Ok(response) => Ok(response.into()),
+                Ok(response) => Ok(response),
                 Err(e) => {
                     log::error!("ws connection error: {:?}", e);
                     Err(e)

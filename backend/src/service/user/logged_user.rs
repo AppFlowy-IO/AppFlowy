@@ -75,8 +75,11 @@ enum AuthStatus {
 pub const EXPIRED_DURATION_DAYS: i64 = 30;
 
 pub struct AuthorizedUsers(DashMap<LoggedUser, AuthStatus>);
+impl std::default::Default for AuthorizedUsers {
+    fn default() -> Self { Self(DashMap::new()) }
+}
 impl AuthorizedUsers {
-    pub fn new() -> Self { Self(DashMap::new()) }
+    pub fn new() -> Self { AuthorizedUsers::default() }
 
     pub fn is_authorized(&self, user: &LoggedUser) -> bool {
         match self.0.get(user) {

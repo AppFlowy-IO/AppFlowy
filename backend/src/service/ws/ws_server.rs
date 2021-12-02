@@ -10,12 +10,15 @@ pub struct WsServer {
     sessions: DashMap<SessionId, Session>,
 }
 
-impl WsServer {
-    pub fn new() -> Self {
+impl std::default::Default for WsServer {
+    fn default() -> Self {
         Self {
             sessions: DashMap::new(),
         }
     }
+}
+impl WsServer {
+    pub fn new() -> Self { WsServer::default() }
 
     pub fn send(&self, _msg: WsMessageAdaptor) { unimplemented!() }
 }

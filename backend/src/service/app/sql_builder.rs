@@ -73,7 +73,7 @@ impl NewAppSqlBuilder {
     }
 
     pub fn color_style(mut self, color_style: ColorStyle) -> Self {
-        self.table.color_style = color_style.write_to_bytes().unwrap_or(default_color_style());
+        self.table.color_style = color_style.write_to_bytes().unwrap_or_else(|_| default_color_style());
         self
     }
 

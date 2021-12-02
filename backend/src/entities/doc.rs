@@ -9,12 +9,12 @@ pub struct DocTable {
     pub(crate) rev_id: i64,
 }
 
-impl std::convert::Into<Doc> for DocTable {
-    fn into(self) -> Doc {
+impl std::convert::From<DocTable> for Doc {
+    fn from(table: DocTable) -> Self {
         let mut doc = Doc::new();
-        doc.set_id(self.id.to_string());
-        doc.set_data(self.data);
-        doc.set_rev_id(self.rev_id);
+        doc.set_id(table.id.to_string());
+        doc.set_data(table.data);
+        doc.set_rev_id(table.rev_id);
         doc
     }
 }

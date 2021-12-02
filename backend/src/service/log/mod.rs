@@ -35,7 +35,7 @@ impl Builder {
             .finish()
             .with(env_filter);
 
-        let formatting_layer = BunyanFormattingLayer::new(self.name.clone(), std::io::stdout);
+        let formatting_layer = BunyanFormattingLayer::new(self.name, std::io::stdout);
         let _ = set_global_default(subscriber.with(JsonStorageLayer).with(formatting_layer))
             .map_err(|e| format!("{:?}", e))?;
 

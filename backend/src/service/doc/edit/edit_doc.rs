@@ -146,7 +146,7 @@ impl ServerEditDoc {
     fn mk_revision(&self, base_rev_id: i64, delta: Delta) -> Revision {
         let delta_data = delta.to_bytes().to_vec();
         let md5 = md5(&delta_data);
-        let revision = Revision {
+        Revision {
             base_rev_id,
             rev_id: self.rev_id.load(SeqCst),
             delta_data,
@@ -154,8 +154,7 @@ impl ServerEditDoc {
             doc_id: self.doc_id.to_string(),
             ty: RevType::Remote,
             ..Default::default()
-        };
-        revision
+        }
     }
 
     #[tracing::instrument(

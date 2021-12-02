@@ -85,10 +85,10 @@ where
 
         if authenticate_pass {
             let fut = self.service.call(req);
-            return Box::pin(async move {
+            Box::pin(async move {
                 let res = fut.await?;
                 Ok(res.map_body(|_, body| AnyBody::from_message(body)))
-            });
+            })
         } else {
             Box::pin(async move { Ok(req.into_response(unauthorized_response())) })
         }

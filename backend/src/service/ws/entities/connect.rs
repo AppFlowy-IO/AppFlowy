@@ -15,7 +15,7 @@ impl<T: AsRef<str>> std::convert::From<T> for SessionId {
 
 impl std::fmt::Display for SessionId {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let desc = format!("{}", &self.0);
+        let desc = &self.0.to_string();
         f.write_str(&desc)
     }
 }

@@ -197,7 +197,7 @@ pub struct TestServer {
 }
 
 pub async fn spawn_server() -> TestServer {
-    let database_name = format!("{}", Uuid::new_v4().to_string());
+    let database_name = Uuid::new_v4().to_string();
     let configuration = {
         let mut c = get_configuration().expect("Failed to read configuration.");
         c.database.database_name = database_name.clone();

@@ -134,10 +134,9 @@ pub async fn init_app_context(configuration: &Settings) -> AppContext {
     let _ = crate::service::log::Builder::new("flowy-server")
         .env_filter("Trace")
         .build();
-    let pg_pool = get_connection_pool(&configuration.database).await.expect(&format!(
-        "Failed to connect to Postgres at {:?}.",
-        configuration.database
-    ));
+    let pg_pool = get_connection_pool(&configuration.database)
+        .await
+        .unwrap_or_else(|_| panic!("Failed to connect to Postgres at {:?}.", configuration.database));
 
     let ws_server = WsServer::new().start();
     AppContext::new(ws_server, pg_pool)

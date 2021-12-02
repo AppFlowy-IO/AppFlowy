@@ -61,12 +61,16 @@ pub struct DocManager {
     docs_map: DashMap<String, Arc<DocHandle>>,
 }
 
-impl DocManager {
-    pub fn new() -> Self {
+impl std::default::Default for DocManager {
+    fn default() -> Self {
         Self {
             docs_map: DashMap::new(),
         }
     }
+}
+
+impl DocManager {
+    pub fn new() -> Self { DocManager::default() }
 
     pub async fn get(&self, doc_id: &str, pg_pool: Data<PgPool>) -> Result<Option<Arc<DocHandle>>, ServerError> {
         match self.docs_map.get(doc_id) {

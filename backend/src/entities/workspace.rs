@@ -16,15 +16,14 @@ pub struct WorkspaceTable {
     pub(crate) create_time: chrono::DateTime<Utc>,
     pub(crate) user_id: String,
 }
-
-impl std::convert::Into<Workspace> for WorkspaceTable {
-    fn into(self) -> Workspace {
+impl std::convert::From<WorkspaceTable> for Workspace {
+    fn from(table: WorkspaceTable) -> Self {
         let mut workspace = Workspace::default();
-        workspace.set_id(self.id.to_string());
-        workspace.set_name(self.name.clone());
-        workspace.set_desc(self.description.clone());
-        workspace.set_modified_time(self.modified_time.timestamp());
-        workspace.set_create_time(self.create_time.timestamp());
+        workspace.set_id(table.id.to_string());
+        workspace.set_name(table.name.clone());
+        workspace.set_desc(table.description.clone());
+        workspace.set_modified_time(table.modified_time.timestamp());
+        workspace.set_create_time(table.create_time.timestamp());
         workspace
     }
 }
@@ -41,29 +40,28 @@ pub struct AppTable {
     pub(crate) create_time: chrono::DateTime<Utc>,
     pub(crate) user_id: String,
 }
-
-impl std::convert::Into<App> for AppTable {
-    fn into(self) -> App {
+impl std::convert::From<AppTable> for App {
+    fn from(table: AppTable) -> Self {
         let mut app = App::default();
-        app.set_id(self.id.to_string());
-        app.set_workspace_id(self.workspace_id.to_string());
-        app.set_name(self.name.clone());
-        app.set_desc(self.description.clone());
+        app.set_id(table.id.to_string());
+        app.set_workspace_id(table.workspace_id.to_string());
+        app.set_name(table.name.clone());
+        app.set_desc(table.description.clone());
         app.set_belongings(RepeatedView::default());
-        app.set_modified_time(self.modified_time.timestamp());
-        app.set_create_time(self.create_time.timestamp());
+        app.set_modified_time(table.modified_time.timestamp());
+        app.set_create_time(table.create_time.timestamp());
 
         app
     }
 }
 
-impl std::convert::Into<Trash> for AppTable {
-    fn into(self) -> Trash {
+impl std::convert::From<AppTable> for Trash {
+    fn from(table: AppTable) -> Self {
         Trash {
-            id: self.id.to_string(),
-            name: self.name,
-            modified_time: self.modified_time.timestamp(),
-            create_time: self.create_time.timestamp(),
+            id: table.id.to_string(),
+            name: table.name,
+            modified_time: table.modified_time.timestamp(),
+            create_time: table.create_time.timestamp(),
             ty: TrashType::App,
             unknown_fields: Default::default(),
             cached_size: Default::default(),
@@ -82,32 +80,31 @@ pub struct ViewTable {
     pub(crate) thumbnail: String,
     pub(crate) view_type: i32,
 }
-
-impl std::convert::Into<View> for ViewTable {
-    fn into(self) -> View {
-        let view_type = ViewType::from_i32(self.view_type).unwrap_or(ViewType::Doc);
+impl std::convert::From<ViewTable> for View {
+    fn from(table: ViewTable) -> Self {
+        let view_type = ViewType::from_i32(table.view_type).unwrap_or(ViewType::Doc);
 
         let mut view = View::default();
-        view.set_id(self.id.to_string());
-        view.set_belong_to_id(self.belong_to_id);
-        view.set_name(self.name);
-        view.set_desc(self.description);
+        view.set_id(table.id.to_string());
+        view.set_belong_to_id(table.belong_to_id);
+        view.set_name(table.name);
+        view.set_desc(table.description);
         view.set_view_type(view_type);
         view.set_belongings(RepeatedView::default());
-        view.set_create_time(self.create_time.timestamp());
-        view.set_modified_time(self.modified_time.timestamp());
+        view.set_create_time(table.create_time.timestamp());
+        view.set_modified_time(table.modified_time.timestamp());
 
         view
     }
 }
 
-impl std::convert::Into<Trash> for ViewTable {
-    fn into(self) -> Trash {
+impl std::convert::From<ViewTable> for Trash {
+    fn from(table: ViewTable) -> Self {
         Trash {
-            id: self.id.to_string(),
-            name: self.name,
-            modified_time: self.modified_time.timestamp(),
-            create_time: self.create_time.timestamp(),
+            id: table.id.to_string(),
+            name: table.name,
+            modified_time: table.modified_time.timestamp(),
+            create_time: table.create_time.timestamp(),
             ty: TrashType::View,
             unknown_fields: Default::default(),
             cached_size: Default::default(),

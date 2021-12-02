@@ -8,7 +8,6 @@ use backend_service::{
     errors::{invalid_params, ErrorCode, ServerError},
     response::FlowyResponse,
 };
-#[allow(dead_code)]
 use chrono::Utc;
 use flowy_user_infra::{
     parser::{UserEmail, UserName, UserPassword},
@@ -42,7 +41,7 @@ pub async fn sign_in(pool: &PgPool, params: SignInParams) -> Result<SignInRespon
     response_data.set_user_id(user.id.to_string());
     response_data.set_name(user.name);
     response_data.set_email(user.email);
-    response_data.set_token(token.clone().into());
+    response_data.set_token(token.into());
 
     Ok(response_data)
 }

@@ -100,7 +100,7 @@ pub async fn read_workspaces(
         )
         .await
         .context("Get workspace app")
-        .unwrap_or(RepeatedApp::default());
+        .unwrap_or_default();
 
         let mut workspace: Workspace = table.into();
         workspace.set_apps(apps);

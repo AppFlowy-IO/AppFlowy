@@ -86,7 +86,7 @@ pub(crate) async fn delete_trash(
 
         let _ = delete_trash_targets(
             transaction as &mut DBTransaction<'_>,
-            vec![(trash_table.id.clone(), trash_table.ty)],
+            vec![(trash_table.id, trash_table.ty)],
         )
         .await?;
 

@@ -159,8 +159,7 @@ fn assert_eq(expect: &str, receive: &str) {
 
 async fn create_doc(flowy_test: &FlowyTest) -> String {
     let view_test = ViewTest::new(flowy_test).await;
-    let doc_id = view_test.view.id.clone();
-    doc_id
+    view_test.view.id
 }
 
 async fn save_doc(doc_id: &str, json: String, rev_id: i64, pool: Data<PgPool>) {

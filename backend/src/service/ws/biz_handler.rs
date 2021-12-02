@@ -12,15 +12,14 @@ pub struct WsBizHandlers {
     inner: HashMap<WsModule, BizHandler>,
 }
 
+impl std::default::Default for WsBizHandlers {
+    fn default() -> Self { Self { inner: HashMap::new() } }
+}
+
 impl WsBizHandlers {
-    pub fn new() -> Self { Self { inner: HashMap::new() } }
+    pub fn new() -> Self { WsBizHandlers::default() }
 
     pub fn register(&mut self, source: WsModule, handler: BizHandler) { self.inner.insert(source, handler); }
 
-    pub fn get(&self, source: &WsModule) -> Option<BizHandler> {
-        match self.inner.get(source) {
-            None => None,
-            Some(handler) => Some(handler.clone()),
-        }
-    }
+    pub fn get(&self, source: &WsModule) -> Option<BizHandler> { self.inner.get(source).cloned() }
 }
