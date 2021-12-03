@@ -52,7 +52,8 @@ jobs:
         uses: actions/checkout@v2
       - name: Install Rust
         run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          curl \
+            --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
           source $HOME/.cargo/env
           rustup toolchain install nightly
           rustup default nightly
@@ -62,4 +63,3 @@ jobs:
       - name: Shared-lib tests
         working-directory: shared-lib
         run: cargo test
-      
