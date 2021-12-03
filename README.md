@@ -112,6 +112,9 @@ flutter config --enable-linux-desktop
 
 * If you want to build for the other platform, you should modify the build_sdk.sh before running.
 ![build_sdk](https://user-images.githubusercontent.com/86001920/143262377-bb49e913-10ca-4198-80ec-bd814a13ee1d.png)
+Please also check the device selection, AppFlowy only supports Desktop by now:
+![device](https://user-images.githubusercontent.com/86001920/144546864-cebbf0c0-4eef-424e-93c7-e1e6b3a59669.png)
+
 
 * If you encounter any issues, have a look at [Troubleshooting](https://github.com/AppFlowy-IO/appflowy/wiki/Troubleshooting) first. If your issue is not included in the page, please create an [issue](https://github.com/AppFlowy-IO/appflowy/issues/new/choose) or ask on [Discord](https://discord.gg/9Q2xaN37tV).
   
