@@ -1,4 +1,5 @@
 ROOT = "./scripts"
+SEMVER_VERSION=$(shell grep version Cargo.toml | awk -F"\"" '{print $$2}' | head -n 1)
 
 .PHONY: init_database run_docker run_test
 

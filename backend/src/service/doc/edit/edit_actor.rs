@@ -110,6 +110,7 @@ impl EditDocActor {
                 rev_id,
                 ret,
             } => {
+                log::debug!("Receive new doc user: {:?}, rev_id: {}", user, rev_id);
                 let user = EditUser {
                     user: user.clone(),
                     socket: socket.clone(),

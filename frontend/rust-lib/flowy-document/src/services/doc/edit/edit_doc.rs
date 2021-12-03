@@ -185,15 +185,20 @@ impl ClientEditDoc {
     #[tracing::instrument(level = "debug", skip(self))]
     fn notify_open_doc(&self) {
         let rev_id: RevId = self.rev_manager.rev_id().into();
-
         if let Ok(user_id) = self.user.user_id() {
             let action = OpenDocAction::new(&user_id, &self.doc_id, &rev_id, &self.ws);
             let strategy = ExponentialBackoff::from_millis(50).take(3);
             let retry = Retry::spawn(strategy, action);
             tokio::spawn(async move {
                 match retry.await {
-                    Ok(_) => {},
-                    Err(e) => log::error!("Notify open doc failed: {}", e),
+                    Ok(_) => {
+                        //
+                        log::debug!("Notify open doc success");
+                    },
+                    Err(e) => {
+                        //
+                        log::error!("Notify open doc failed: {}", e);
+                    },
                 }
             });
         }

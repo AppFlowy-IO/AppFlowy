@@ -174,7 +174,7 @@ async fn delta_sync_while_local_rev_less_than_server_rev() {
 //                                     │                 │   └──────────────────────────────────┘
 //                                     ◀─────────────────┤   start ws connection
 //                                     │                 │
-//                                     ◀─────────────────┤   notify with rev: 3
+//                                     ◀─────────────────┤   call notify_open_doc with rev: 3
 //                                     │                 │
 //                                     ├────Pull Rev─────▶
 //                                     │                 │ ┌──────────────────────────────────┐
@@ -197,7 +197,7 @@ async fn delta_sync_while_local_rev_greater_than_server_rev() {
         DocScript::ClientInsertText(6, "efg"),
         DocScript::ClientConnectWs,
         DocScript::AssertClient(r#"[{"insert":"123abcefg\n"}]"#),
-        // DocScript::AssertServer(r#"[{"insert":"123abcefg\n"}]"#, 3),
+        DocScript::AssertServer(r#"[{"insert":"123abcefg\n"}]"#, 3),
     ])
     .await;
 }

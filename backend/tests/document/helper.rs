@@ -27,6 +27,7 @@ pub enum DocScript {
     AssertClient(&'static str),
     AssertServer(&'static str, i64),
     ServerSaveDocument(String, i64), // delta_json, rev_id
+    Sleep(u64),
 }
 
 impl DocumentTest {
@@ -125,13 +126,16 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
                     let pg_pool = context.read().server_pg_pool.clone();
                     let doc_manager = context.read().server_doc_manager.clone();
                     let edit_doc = doc_manager.get(&doc_id, pg_pool).await.unwrap().unwrap();
-                    assert_eq!(edit_doc.rev_id().await.unwrap(), rev_id);
                     let json = edit_doc.document_json().await.unwrap();
                     assert_eq(s, &json);
+                    assert_eq!(edit_doc.rev_id().await.unwrap(), rev_id);
                 },
                 DocScript::ServerSaveDocument(json, rev_id) => {
                     let pg_pool = context.read().server_pg_pool.clone();
                     save_doc(&doc_id, json, rev_id, pg_pool).await;
+                },
+                DocScript::Sleep(sec) => {
+                    sleep(Duration::from_secs(sec)).await;
                 },
             }
         };
