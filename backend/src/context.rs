@@ -1,5 +1,5 @@
 use crate::service::{
-    doc::doc::DocBiz,
+    doc::manager::DocBiz,
     ws::{WsBizHandlers, WsServer},
 };
 use actix::Addr;

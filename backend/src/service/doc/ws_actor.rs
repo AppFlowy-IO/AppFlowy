@@ -1,5 +1,5 @@
 use crate::service::{
-    doc::{doc::DocManager, edit::DocHandle},
+    doc::manager::{DocManager, DocOpenHandle},
     util::{md5, parse_from_bytes},
     ws::{entities::Socket, WsClientData, WsUser},
 };
@@ -73,14 +73,14 @@ impl DocWsActor {
 
         match document_data.ty {
             WsDataType::Acked => Ok(()),
-            WsDataType::PushRev => self.handle_push_rev(user, socket, data, pool).await,
-            WsDataType::NewDocUser => self.handle_new_doc_user(user, socket, data, pool).await,
+            WsDataType::PushRev => self.apply_pushed_rev(user, socket, data, pool).await,
+            WsDataType::NewDocUser => self.add_doc_user(user, socket, data, pool).await,
             WsDataType::PullRev => Ok(()),
             WsDataType::Conflict => Ok(()),
         }
     }
 
-    async fn handle_new_doc_user(
+    async fn add_doc_user(
         &self,
         user: Arc<WsUser>,
         socket: Socket,
@@ -93,13 +93,13 @@ impl DocWsActor {
         })
         .await
         .map_err(internal_error)??;
-        if let Some(handle) = self.doc_handle(&doc_user.doc_id, pool).await {
-            handle.handle_new_user(user, doc_user.rev_id, socket).await?;
+        if let Some(handle) = self.find_doc_handle(&doc_user.doc_id, pool).await {
+            handle.add_user(user, doc_user.rev_id, socket).await?;
         }
         Ok(())
     }
 
-    async fn handle_push_rev(
+    async fn apply_pushed_rev(
         &self,
         user: Arc<WsUser>,
         socket: Socket,
@@ -113,13 +113,13 @@ impl DocWsActor {
         })
         .await
         .map_err(internal_error)??;
-        if let Some(handle) = self.doc_handle(&revision.doc_id, pool).await {
+        if let Some(handle) = self.find_doc_handle(&revision.doc_id, pool).await {
             handle.apply_revision(user, socket, revision).await?;
         }
         Ok(())
     }
 
-    async fn doc_handle(&self, doc_id: &str, pool: Data<PgPool>) -> Option<Arc<DocHandle>> {
+    async fn find_doc_handle(&self, doc_id: &str, pool: Data<PgPool>) -> Option<Arc<DocOpenHandle>> {
         match self.doc_manager.get(doc_id, pool).await {
             Ok(Some(edit_doc)) => Some(edit_doc),
             Ok(None) => {

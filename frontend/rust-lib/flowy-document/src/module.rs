@@ -1,7 +1,7 @@
 use crate::{
     errors::DocError,
     services::{
-        doc::{doc_controller::DocController, ClientEditDoc},
+        doc::{doc_controller::DocController, ClientDocEditor},
         server::construct_doc_server,
         ws::WsDocumentManager,
     },
@@ -44,7 +44,7 @@ impl FlowyDocument {
         Ok(())
     }
 
-    pub async fn open(&self, params: DocIdentifier) -> Result<Arc<ClientEditDoc>, DocError> {
+    pub async fn open(&self, params: DocIdentifier) -> Result<Arc<ClientDocEditor>, DocError> {
         let edit_context = self.doc_ctrl.open(params, self.user.db_pool()?).await?;
         Ok(edit_context)
     }

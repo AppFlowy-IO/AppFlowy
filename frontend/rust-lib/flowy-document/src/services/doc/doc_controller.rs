@@ -4,7 +4,7 @@ use crate::{
     services::{
         cache::DocCache,
         doc::{
-            edit::{ClientEditDoc, EditDocWsHandler},
+            edit::{ClientDocEditor, EditDocWsHandler},
             revision::RevisionServer,
         },
         server::Server,
@@ -45,7 +45,7 @@ impl DocController {
         &self,
         params: DocIdentifier,
         pool: Arc<ConnectionPool>,
-    ) -> Result<Arc<ClientEditDoc>, DocError> {
+    ) -> Result<Arc<ClientDocEditor>, DocError> {
         if !self.cache.contains(&params.doc_id) {
             let edit_ctx = self.make_edit_context(&params.doc_id, pool.clone()).await?;
             return Ok(edit_ctx);
@@ -91,7 +91,11 @@ impl DocController {
 }
 
 impl DocController {
-    async fn make_edit_context(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<Arc<ClientEditDoc>, DocError> {
+    async fn make_edit_context(
+        &self,
+        doc_id: &str,
+        pool: Arc<ConnectionPool>,
+    ) -> Result<Arc<ClientDocEditor>, DocError> {
         // Opti: require upgradable_read lock and then upgrade to write lock using
         // RwLockUpgradableReadGuard::upgrade(xx) of ws
         // let doc = self.read_doc(doc_id, pool.clone()).await?;
@@ -103,7 +107,7 @@ impl DocController {
             server: self.server.clone(),
         });
 
-        let edit_ctx = Arc::new(ClientEditDoc::new(doc_id, pool, ws, server, user).await?);
+        let edit_ctx = Arc::new(ClientDocEditor::new(doc_id, pool, ws, server, user).await?);
         let ws_handler = Arc::new(EditDocWsHandler(edit_ctx.clone()));
         self.ws_manager.register_handler(doc_id, ws_handler);
         self.cache.set(edit_ctx.clone());

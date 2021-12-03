@@ -1,5 +1,5 @@
 use crate::service::{
-    doc::edit::ServerEditDoc,
+    doc::edit::ServerDocEditor,
     ws::{entities::Socket, WsUser},
 };
 use actix_web::web::Data;
@@ -48,13 +48,13 @@ pub enum EditMsg {
 
 pub struct EditDocActor {
     receiver: Option<mpsc::Receiver<EditMsg>>,
-    edit_doc: Arc<ServerEditDoc>,
+    edit_doc: Arc<ServerDocEditor>,
     pg_pool: Data<PgPool>,
 }
 
 impl EditDocActor {
     pub fn new(receiver: mpsc::Receiver<EditMsg>, doc: Doc, pg_pool: Data<PgPool>) -> Result<Self, ServerError> {
-        let edit_doc = Arc::new(ServerEditDoc::new(doc)?);
+        let edit_doc = Arc::new(ServerDocEditor::new(doc)?);
         Ok(Self {
             receiver: Some(receiver),
             edit_doc,

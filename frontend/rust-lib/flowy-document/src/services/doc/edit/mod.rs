@@ -1,7 +1,7 @@
 mod doc_actor;
-mod edit_doc;
+mod editor;
 mod model;
 
 pub(crate) use doc_actor::*;
-pub use edit_doc::*;
+pub use editor::*;
 pub(crate) use model::*;

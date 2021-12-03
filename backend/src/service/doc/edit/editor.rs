@@ -24,14 +24,14 @@ use std::{
     time::Duration,
 };
 
-pub struct ServerEditDoc {
+pub struct ServerDocEditor {
     pub doc_id: String,
     pub rev_id: AtomicI64,
     document: Arc<RwLock<Document>>,
     users: DashMap<String, EditUser>,
 }
 
-impl ServerEditDoc {
+impl ServerDocEditor {
     pub fn new(doc: Doc) -> Result<Self, ServerError> {
         let delta = Delta::from_bytes(&doc.data).map_err(internal_error)?;
         let document = Arc::new(RwLock::new(Document::from_delta(delta)));

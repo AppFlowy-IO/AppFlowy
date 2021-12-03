@@ -1,5 +1,5 @@
 use crate::service::{
-    doc::doc::DocBiz,
+    doc::manager::DocBiz,
     user::LoggedUser,
     util::parse_from_payload,
     view::{create_view, delete_view, read_view, sql_builder::check_view_ids, update_view},

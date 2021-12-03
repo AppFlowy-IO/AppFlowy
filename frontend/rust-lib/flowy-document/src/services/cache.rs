@@ -4,25 +4,25 @@ use dashmap::DashMap;
 
 use crate::{
     errors::DocError,
-    services::doc::{ClientEditDoc, DocId},
+    services::doc::{ClientDocEditor, DocId},
 };
 
 pub(crate) struct DocCache {
-    inner: DashMap<DocId, Arc<ClientEditDoc>>,
+    inner: DashMap<DocId, Arc<ClientDocEditor>>,
 }
 
 impl DocCache {
     pub(crate) fn new() -> Self { Self { inner: DashMap::new() } }
 
     #[allow(dead_code)]
-    pub(crate) fn all_docs(&self) -> Vec<Arc<ClientEditDoc>> {
+    pub(crate) fn all_docs(&self) -> Vec<Arc<ClientDocEditor>> {
         self.inner
             .iter()
             .map(|kv| kv.value().clone())
-            .collect::<Vec<Arc<ClientEditDoc>>>()
+            .collect::<Vec<Arc<ClientDocEditor>>>()
     }
 
-    pub(crate) fn set(&self, doc: Arc<ClientEditDoc>) {
+    pub(crate) fn set(&self, doc: Arc<ClientDocEditor>) {
         let doc_id = doc.doc_id.clone();
         if self.inner.contains_key(&doc_id) {
             log::warn!("Doc:{} already exists in cache", &doc_id);
@@ -32,7 +32,7 @@ impl DocCache {
 
     pub(crate) fn contains(&self, doc_id: &str) -> bool { self.inner.get(doc_id).is_some() }
 
-    pub(crate) fn get(&self, doc_id: &str) -> Result<Arc<ClientEditDoc>, DocError> {
+    pub(crate) fn get(&self, doc_id: &str) -> Result<Arc<ClientDocEditor>, DocError> {
         if !self.contains(&doc_id) {
             return Err(doc_not_found());
         }

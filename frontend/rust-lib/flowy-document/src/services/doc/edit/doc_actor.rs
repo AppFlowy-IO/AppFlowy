@@ -10,14 +10,14 @@ use lib_ot::core::{Attribute, Delta, Interval, OperationTransformable};
 use std::{convert::TryFrom, sync::Arc};
 use tokio::sync::{mpsc, oneshot, RwLock};
 
-pub struct DocumentActor {
+pub(crate) struct EditCommandQueue {
     doc_id: String,
     document: Arc<RwLock<Document>>,
-    receiver: Option<mpsc::UnboundedReceiver<DocumentMsg>>,
+    receiver: Option<mpsc::UnboundedReceiver<EditCommand>>,
 }
 
-impl DocumentActor {
-    pub fn new(doc_id: &str, delta: Delta, receiver: mpsc::UnboundedReceiver<DocumentMsg>) -> Self {
+impl EditCommandQueue {
+    pub(crate) fn new(doc_id: &str, delta: Delta, receiver: mpsc::UnboundedReceiver<EditCommand>) -> Self {
         let document = Arc::new(RwLock::new(Document::from_delta(delta)));
         Self {
             doc_id: doc_id.to_owned(),
@@ -26,7 +26,7 @@ impl DocumentActor {
         }
     }
 
-    pub async fn run(mut self) {
+    pub(crate) async fn run(mut self) {
         let mut receiver = self.receiver.take().expect("Should only call once");
         let stream = stream! {
             loop {
@@ -46,13 +46,13 @@ impl DocumentActor {
             .await;
     }
 
-    async fn handle_message(&self, msg: DocumentMsg) -> Result<(), DocumentError> {
+    async fn handle_message(&self, msg: EditCommand) -> Result<(), DocumentError> {
         match msg {
-            DocumentMsg::Delta { delta, ret } => {
+            EditCommand::ComposeDelta { delta, ret } => {
                 let result = self.composed_delta(delta).await;
                 let _ = ret.send(result);
             },
-            DocumentMsg::RemoteRevision { bytes, ret } => {
+            EditCommand::RemoteRevision { bytes, ret } => {
                 let revision = Revision::try_from(bytes)?;
                 let delta = Delta::from_bytes(&revision.delta_data)?;
                 let rev_id: RevId = revision.rev_id.into();
@@ -64,15 +64,15 @@ impl DocumentActor {
                 };
                 let _ = ret.send(Ok(transform_delta));
             },
-            DocumentMsg::Insert { index, data, ret } => {
+            EditCommand::Insert { index, data, ret } => {
                 let delta = self.document.write().await.insert(index, data);
                 let _ = ret.send(delta);
             },
-            DocumentMsg::Delete { interval, ret } => {
+            EditCommand::Delete { interval, ret } => {
                 let result = self.document.write().await.delete(interval);
                 let _ = ret.send(result);
             },
-            DocumentMsg::Format {
+            EditCommand::Format {
                 interval,
                 attribute,
                 ret,
@@ -80,25 +80,25 @@ impl DocumentActor {
                 let result = self.document.write().await.format(interval, attribute);
                 let _ = ret.send(result);
             },
-            DocumentMsg::Replace { interval, data, ret } => {
+            EditCommand::Replace { interval, data, ret } => {
                 let result = self.document.write().await.replace(interval, data);
                 let _ = ret.send(result);
             },
-            DocumentMsg::CanUndo { ret } => {
+            EditCommand::CanUndo { ret } => {
                 let _ = ret.send(self.document.read().await.can_undo());
             },
-            DocumentMsg::CanRedo { ret } => {
+            EditCommand::CanRedo { ret } => {
                 let _ = ret.send(self.document.read().await.can_redo());
             },
-            DocumentMsg::Undo { ret } => {
+            EditCommand::Undo { ret } => {
                 let result = self.document.write().await.undo();
                 let _ = ret.send(result);
             },
-            DocumentMsg::Redo { ret } => {
+            EditCommand::Redo { ret } => {
                 let result = self.document.write().await.redo();
                 let _ = ret.send(result);
             },
-            DocumentMsg::Doc { ret } => {
+            EditCommand::ReadDoc { ret } => {
                 let data = self.document.read().await.to_json();
                 let _ = ret.send(Ok(data));
             },
@@ -122,9 +122,9 @@ impl DocumentActor {
     }
 }
 
-pub type Ret<T> = oneshot::Sender<Result<T, DocumentError>>;
-pub enum DocumentMsg {
-    Delta {
+pub(crate) type Ret<T> = oneshot::Sender<Result<T, DocumentError>>;
+pub(crate) enum EditCommand {
+    ComposeDelta {
         delta: Delta,
         ret: Ret<()>,
     },
@@ -164,12 +164,12 @@ pub enum DocumentMsg {
     Redo {
         ret: Ret<UndoResult>,
     },
-    Doc {
+    ReadDoc {
         ret: Ret<String>,
     },
 }
 
-pub struct TransformDeltas {
+pub(crate) struct TransformDeltas {
     pub client_prime: Delta,
     pub server_prime: Delta,
     pub server_rev_id: RevId,

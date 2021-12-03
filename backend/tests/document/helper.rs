@@ -1,7 +1,7 @@
 use actix_web::web::Data;
 use backend::service::doc::{crud::update_doc, doc::DocManager};
 use backend_service::config::ServerConfig;
-use flowy_document::services::doc::ClientEditDoc as ClientEditDocContext;
+use flowy_document::services::doc::ClientDocEditor as ClientEditDocContext;
 use flowy_test::{workspace::ViewTest, FlowyTest};
 use flowy_user::services::user::UserSession;
 use futures_util::{stream, stream::StreamExt};
