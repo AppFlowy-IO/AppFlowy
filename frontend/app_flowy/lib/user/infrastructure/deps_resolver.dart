@@ -13,6 +13,8 @@ import 'package:app_flowy/workspace/domain/i_user.dart';
 import 'package:app_flowy/workspace/infrastructure/i_user_impl.dart';
 import 'package:get_it/get_it.dart';
 
+import 'network_monitor.dart';
+
 class UserDepsResolver {
   static Future<void> resolve(GetIt getIt) async {
     getIt.registerFactory<AuthRepository>(() => AuthRepository());
@@ -36,5 +38,7 @@ class UserDepsResolver {
         getIt<IUserListener>(param1: user),
       ),
     );
+
+    getIt.registerLazySingleton<NetworkMonitor>(() => NetworkMonitor());
   }
 }

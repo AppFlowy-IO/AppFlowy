@@ -1,9 +1,18 @@
 syntax = "proto3";
 
+message NetworkState {
+    NetworkType ty = 1;
+}
 enum UserNotification {
     Unknown = 0;
     UserAuthChanged = 1;
     UserProfileUpdated = 2;
     UserUnauthorized = 3;
     UserWsConnectStateChanged = 4;
+}
+enum NetworkType {
+    UnknownNetworkType = 0;
+    Wifi = 1;
+    Cell = 2;
+    Ethernet = 3;
 }

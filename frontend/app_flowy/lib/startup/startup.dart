@@ -6,6 +6,8 @@ import 'package:app_flowy/workspace/infrastructure/deps_resolver.dart';
 import 'package:app_flowy/user/infrastructure/deps_resolver.dart';
 import 'package:flowy_sdk/flowy_sdk.dart';
 
+import 'tasks/init_platform_service.dart';
+
 // [[diagram: flowy startup flow]]
 //                   ┌──────────┐
 //                   │ FlowyApp │
@@ -44,8 +46,9 @@ class System {
     resolveDependencies(env);
 
     // add task
-    getIt<AppLauncher>().addTask(RustSDKInitTask());
+    getIt<AppLauncher>().addTask(InitRustSDKTask());
     getIt<AppLauncher>().addTask(AppWidgetTask());
+    getIt<AppLauncher>().addTask(InitPlatformService());
 
     // execute the tasks
     getIt<AppLauncher>().launch();

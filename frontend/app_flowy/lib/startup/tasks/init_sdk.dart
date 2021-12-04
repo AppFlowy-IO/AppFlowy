@@ -5,7 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flowy_sdk/flowy_sdk.dart';
 import 'package:flutter/material.dart';
 
-class RustSDKInitTask extends LaunchTask {
+class InitRustSDKTask extends LaunchTask {
   @override
   LaunchTaskType get type => LaunchTaskType.dataProcessing;
 

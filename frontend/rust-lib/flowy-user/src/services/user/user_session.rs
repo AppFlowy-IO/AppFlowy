@@ -211,6 +211,10 @@ impl UserSession {
     pub fn add_ws_handler(&self, handler: Arc<dyn WsMessageHandler>) {
         let _ = self.ws_controller.add_handler(handler);
     }
+
+    pub fn update_network_state(&self, state: NetworkState) {
+        log::info!("{:?}", state);
+    }
 }
 
 impl UserSession {

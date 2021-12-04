@@ -1,6 +1,7 @@
 use crate::{entities::*, errors::UserError, services::user::UserSession};
 use lib_dispatch::prelude::*;
 
+use crate::notify::NetworkState;
 use std::{convert::TryInto, sync::Arc};
 
 #[tracing::instrument(skip(session))]
@@ -34,5 +35,12 @@ pub async fn update_user_handler(
 ) -> Result<(), UserError> {
     let params: UpdateUserParams = data.into_inner().try_into()?;
     session.update_user(params).await?;
+    Ok(())
+}
+
+#[tracing::instrument(name = "update_user", skip(data, session))]
+pub async fn update_network_ty(data: Data<NetworkState>, session: Unit<Arc<UserSession>>) -> Result<(), UserError> {
+    let network_state = data.into_inner();
+    session.update_network_state(network_state);
     Ok(())
 }

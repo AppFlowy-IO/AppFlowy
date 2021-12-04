@@ -519,3 +519,20 @@ class UserEventCheckUser {
     }
 }
 
+class UserEventUpdateNetworkType {
+     NetworkState request;
+     UserEventUpdateNetworkType(this.request);
+
+    Future<Either<Unit, UserError>> send() {
+    final request = FFIRequest.create()
+          ..event = UserEvent.UpdateNetworkType.toString()
+          ..payload = requestToBytes(this.request);
+
+    return Dispatch.asyncRequest(request)
+        .then((bytesResult) => bytesResult.fold(
+           (bytes) => left(unit),
+           (errBytes) => right(UserError.fromBuffer(errBytes)),
+        ));
+    }
+}
+

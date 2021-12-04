@@ -8,4 +8,5 @@ enum UserEvent {
     UpdateUser = 4;
     GetUserProfile = 5;
     CheckUser = 6;
+    UpdateNetworkType = 10;
 }

@@ -7,7 +7,7 @@ import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:app_flowy/startup/tasks/application_task.dart';
+import 'package:app_flowy/startup/tasks/application_widget.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text_input.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';

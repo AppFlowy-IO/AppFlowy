@@ -1,4 +1,4 @@
-use flowy_derive::ProtoBuf_Enum;
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
 use dart_notify::DartNotifyBuilder;
 
@@ -23,4 +23,22 @@ impl std::convert::From<UserNotification> for i32 {
 
 pub(crate) fn dart_notify(id: &str, ty: UserNotification) -> DartNotifyBuilder {
     DartNotifyBuilder::new(id, ty, OBSERVABLE_CATEGORY)
+}
+
+#[derive(ProtoBuf_Enum, Debug)]
+pub enum NetworkType {
+    UnknownNetworkType = 0,
+    Wifi               = 1,
+    Cell               = 2,
+    Ethernet           = 3,
+}
+
+impl std::default::Default for NetworkType {
+    fn default() -> Self { NetworkType::UnknownNetworkType }
+}
+
+#[derive(ProtoBuf, Debug, Default)]
+pub struct NetworkState {
+    #[pb(index = 1)]
+    pub ty: NetworkType,
 }
