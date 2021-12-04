@@ -53,6 +53,8 @@ fn write_rust_crate_mod_file(crate_infos: &[CrateProtoInfo]) {
         {
             Ok(ref mut file) => {
                 let mut mod_file_content = String::new();
+
+                mod_file_content.push_str("#![cfg_attr(rustfmt, rustfmt::skip)]\n");
                 mod_file_content.push_str("// Auto-generated, do not edit\n");
                 walk_dir(
                     crate_info.inner.proto_file_output_dir().as_ref(),

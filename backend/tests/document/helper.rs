@@ -1,5 +1,7 @@
+#![allow(clippy::all)]
+#![cfg_attr(rustfmt, rustfmt::skip)]
 use actix_web::web::Data;
-use backend::service::doc::{crud::update_doc, doc::DocManager};
+use backend::service::doc::{crud::update_doc, manager::DocManager};
 use backend_service::config::ServerConfig;
 use flowy_document::services::doc::ClientDocEditor as ClientEditDocContext;
 use flowy_test::{workspace::ViewTest, FlowyTest};

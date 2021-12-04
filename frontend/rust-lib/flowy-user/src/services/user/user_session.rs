@@ -7,7 +7,10 @@ use crate::{
 
 use crate::{
     notify::*,
-    services::server::{construct_user_server, Server},
+    services::{
+        server::{construct_user_server, Server},
+        user::notifier::UserNotifier,
+    },
 };
 use backend_service::config::ServerConfig;
 use flowy_database::{
@@ -23,24 +26,7 @@ use lib_ws::{WsController, WsMessageHandler, WsState};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use tokio::sync::{broadcast, mpsc};
-
-#[derive(Clone)]
-pub enum UserStatus {
-    Login {
-        token: String,
-    },
-    Logout {
-        token: String,
-    },
-    Expired {
-        token: String,
-    },
-    SignUp {
-        profile: UserProfile,
-        ret: mpsc::Sender<()>,
-    },
-}
+use tokio::sync::mpsc;
 
 pub struct UserSessionConfig {
     root_dir: String,
@@ -65,7 +51,7 @@ pub struct UserSession {
     server: Server,
     session: RwLock<Option<Session>>,
     pub ws_controller: Arc<WsController>,
-    status_notifier: broadcast::Sender<UserStatus>,
+    pub notifier: UserNotifier,
 }
 
 impl UserSession {
@@ -73,24 +59,22 @@ impl UserSession {
         let db = UserDB::new(&config.root_dir);
         let server = construct_user_server(&config.server_config);
         let ws_controller = Arc::new(WsController::new());
-        let (status_notifier, _) = broadcast::channel(10);
+        let notifier = UserNotifier::new();
         Self {
             database: db,
             config,
             server,
             session: RwLock::new(None),
             ws_controller,
-            status_notifier,
+            notifier,
         }
     }
 
     pub fn init(&self) {
         if let Ok(session) = self.get_session() {
-            let _ = self.status_notifier.send(UserStatus::Login { token: session.token });
+            self.notifier.notify_login(&session.token);
         }
     }
-
-    pub fn status_subscribe(&self) -> broadcast::Receiver<UserStatus> { self.status_notifier.subscribe() }
 
     pub fn db_connection(&self) -> Result<DBConnection, UserError> {
         let user_id = self.get_session()?.user_id;
@@ -118,9 +102,7 @@ impl UserSession {
             let _ = self.set_session(Some(session))?;
             let user_table = self.save_user(resp.into()).await?;
             let user_profile: UserProfile = user_table.into();
-            let _ = self.status_notifier.send(UserStatus::Login {
-                token: user_profile.token.clone(),
-            });
+            self.notifier.notify_login(&user_profile.token);
             Ok(user_profile)
         }
     }
@@ -136,10 +118,7 @@ impl UserSession {
             let user_table = self.save_user(resp.into()).await?;
             let user_profile: UserProfile = user_table.into();
             let (ret, mut tx) = mpsc::channel(1);
-            let _ = self.status_notifier.send(UserStatus::SignUp {
-                profile: user_profile.clone(),
-                ret,
-            });
+            self.notifier.notify_sign_up(ret, &user_profile);
 
             let _ = tx.recv().await;
             Ok(user_profile)
@@ -153,9 +132,7 @@ impl UserSession {
             diesel::delete(dsl::user_table.filter(dsl::id.eq(&session.user_id))).execute(&*(self.db_connection()?))?;
         let _ = self.database.close_user_db(&session.user_id)?;
         let _ = self.set_session(None)?;
-        let _ = self.status_notifier.send(UserStatus::Logout {
-            token: session.token.clone(),
-        });
+        self.notifier.notify_logout(&session.token);
         let _ = self.sign_out_on_server(&session.token).await?;
 
         Ok(())

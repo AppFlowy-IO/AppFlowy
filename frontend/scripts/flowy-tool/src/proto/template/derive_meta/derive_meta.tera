@@ -1,4 +1,4 @@
-#[rustfmt::skip]
+#![cfg_attr(rustfmt, rustfmt::skip)]
 pub enum TypeCategory {
     Array,
     Map,

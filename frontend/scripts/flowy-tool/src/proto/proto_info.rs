@@ -17,7 +17,8 @@ impl CrateProtoInfo {
         // mod model;
         // pub use model::*;
         let mod_file_path = format!("{}/mod.rs", self.inner.protobuf_crate_name());
-        let mut content = format!("// Auto-generated, do not edit\n");
+        let mut content = "#![cfg_attr(rustfmt, rustfmt::skip)]\n".to_owned();
+        content.push_str("// Auto-generated, do not edit\n");
         content.push_str("mod model;\npub use model::*;");
         match OpenOptions::new()
             .create(true)

@@ -1,6 +1,5 @@
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-
 use dart_notify::DartNotifyBuilder;
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
 const OBSERVABLE_CATEGORY: &str = "User";
 
@@ -25,7 +24,7 @@ pub(crate) fn dart_notify(id: &str, ty: UserNotification) -> DartNotifyBuilder {
     DartNotifyBuilder::new(id, ty, OBSERVABLE_CATEGORY)
 }
 
-#[derive(ProtoBuf_Enum, Debug)]
+#[derive(ProtoBuf_Enum, Debug, Clone)]
 pub enum NetworkType {
     UnknownNetworkType = 0,
     Wifi               = 1,
@@ -37,7 +36,7 @@ impl std::default::Default for NetworkType {
     fn default() -> Self { NetworkType::UnknownNetworkType }
 }
 
-#[derive(ProtoBuf, Debug, Default)]
+#[derive(ProtoBuf, Debug, Default, Clone)]
 pub struct NetworkState {
     #[pb(index = 1)]
     pub ty: NetworkType,

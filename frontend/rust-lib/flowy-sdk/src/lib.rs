@@ -4,7 +4,11 @@ pub mod module;
 use crate::deps_resolve::WorkspaceDepsResolver;
 use backend_service::config::ServerConfig;
 use flowy_document::module::FlowyDocument;
-use flowy_user::services::user::{UserSession, UserSessionBuilder, UserStatus};
+use flowy_user::{
+    notify::{NetworkState, NetworkType},
+    prelude::UserStatus,
+    services::user::{UserSession, UserSessionConfig},
+};
 use flowy_workspace::{errors::WorkspaceError, prelude::WorkspaceController};
 use lib_dispatch::prelude::*;
 use module::mk_modules;
@@ -73,11 +77,9 @@ impl FlowySDK {
         tracing::debug!("🔥 {:?}", config);
 
         let session_cache_key = format!("{}_session_cache", &config.name);
-        let user_session = Arc::new(
-            UserSessionBuilder::new()
-                .root_dir(&config.root, &config.server_config, &session_cache_key)
-                .build(),
-        );
+
+        let user_config = UserSessionConfig::new(&config.root, &config.server_config, &session_cache_key);
+        let user_session = Arc::new(UserSession::new(user_config));
         let flowy_document = mk_document_module(user_session.clone(), &config.server_config);
         let workspace_ctrl =
             mk_workspace_controller(user_session.clone(), flowy_document.clone(), &config.server_config);
@@ -98,10 +100,12 @@ impl FlowySDK {
 }
 
 fn _init(dispatch: &EventDispatcher, user_session: Arc<UserSession>, workspace_controller: Arc<WorkspaceController>) {
-    let subscribe = user_session.status_subscribe();
+    let user_status_subscribe = user_session.notifier.user_status_subscribe();
+    let network_status_subscribe = user_session.notifier.network_status_subscribe();
     dispatch.spawn(async move {
         user_session.init();
-        _listen_user_status(subscribe, workspace_controller).await;
+        _listen_user_status(user_status_subscribe, workspace_controller.clone()).await;
+        _listen_network_status(network_status_subscribe, workspace_controller).await;
     });
 }
 
@@ -109,31 +113,51 @@ async fn _listen_user_status(
     mut subscribe: broadcast::Receiver<UserStatus>,
     workspace_controller: Arc<WorkspaceController>,
 ) {
-    loop {
-        if let Ok(status) = subscribe.recv().await {
-            let result = || async {
-                match status {
-                    UserStatus::Login { token } => {
-                        let _ = workspace_controller.user_did_sign_in(&token).await?;
-                    },
-                    UserStatus::Logout { .. } => {
-                        workspace_controller.user_did_logout().await;
-                    },
-                    UserStatus::Expired { .. } => {
-                        workspace_controller.user_session_expired().await;
-                    },
-                    UserStatus::SignUp { profile, ret } => {
-                        let _ = workspace_controller.user_did_sign_up(&profile.token).await?;
-                        let _ = ret.send(());
-                    },
-                }
-                Ok::<(), WorkspaceError>(())
-            };
-
-            match result().await {
-                Ok(_) => {},
-                Err(e) => log::error!("{}", e),
+    while let Ok(status) = subscribe.recv().await {
+        let result = || async {
+            match status {
+                UserStatus::Login { token } => {
+                    let _ = workspace_controller.user_did_sign_in(&token).await?;
+                },
+                UserStatus::Logout { .. } => {
+                    workspace_controller.user_did_logout().await;
+                },
+                UserStatus::Expired { .. } => {
+                    workspace_controller.user_session_expired().await;
+                },
+                UserStatus::SignUp { profile, ret } => {
+                    let _ = workspace_controller.user_did_sign_up(&profile.token).await?;
+                    let _ = ret.send(());
+                },
             }
+            Ok::<(), WorkspaceError>(())
+        };
+
+        match result().await {
+            Ok(_) => {},
+            Err(e) => log::error!("{}", e),
+        }
+    }
+}
+
+async fn _listen_network_status(
+    mut subscribe: broadcast::Receiver<NetworkState>,
+    _workspace_controller: Arc<WorkspaceController>,
+) {
+    while let Ok(status) = subscribe.recv().await {
+        let result = || async {
+            match status.ty {
+                NetworkType::UnknownNetworkType => {},
+                NetworkType::Wifi => {},
+                NetworkType::Cell => {},
+                NetworkType::Ethernet => {},
+            }
+            Ok::<(), WorkspaceError>(())
+        };
+
+        match result().await {
+            Ok(_) => {},
+            Err(e) => log::error!("{}", e),
         }
     }
 }
