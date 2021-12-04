@@ -20,8 +20,8 @@ DynamicLibrary _open() {
   throw UnsupportedError('This platform is not supported.');
 }
 
-/// C function `async_command`.
-void async_command(
+/// C function `async_event`.
+void async_event(
   int port,
   Pointer<Uint8> input,
   int len,
@@ -29,7 +29,7 @@ void async_command(
   _invoke_async(port, input, len);
 }
 
-final _invoke_async_Dart _invoke_async = _dl.lookupFunction<_invoke_async_C, _invoke_async_Dart>('async_command');
+final _invoke_async_Dart _invoke_async = _dl.lookupFunction<_invoke_async_C, _invoke_async_Dart>('async_event');
 typedef _invoke_async_C = Void Function(
   Int64 port,
   Pointer<Uint8> input,
@@ -41,15 +41,15 @@ typedef _invoke_async_Dart = void Function(
   int len,
 );
 
-/// C function `command_sync`.
-Pointer<Uint8> sync_command(
+/// C function `sync_event`.
+Pointer<Uint8> sync_event(
   Pointer<Uint8> input,
   int len,
 ) {
   return _invoke_sync(input, len);
 }
 
-final _invoke_sync_Dart _invoke_sync = _dl.lookupFunction<_invoke_sync_C, _invoke_sync_Dart>('sync_command');
+final _invoke_sync_Dart _invoke_sync = _dl.lookupFunction<_invoke_sync_C, _invoke_sync_Dart>('sync_event');
 typedef _invoke_sync_C = Pointer<Uint8> Function(
   Pointer<Uint8> input,
   Uint64 len,

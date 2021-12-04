@@ -33,7 +33,7 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
 }
 
 #[no_mangle]
-pub extern "C" fn async_command(port: i64, input: *const u8, len: usize) {
+pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
     let request: ModuleRequest = FFIRequest::from_u8_pointer(input, len).into();
     log::trace!(
         "[FFI]: {} Async Event: {:?} with {} port",
@@ -49,7 +49,7 @@ pub extern "C" fn async_command(port: i64, input: *const u8, len: usize) {
 }
 
 #[no_mangle]
-pub extern "C" fn sync_command(input: *const u8, len: usize) -> *const u8 {
+pub extern "C" fn sync_event(input: *const u8, len: usize) -> *const u8 {
     let request: ModuleRequest = FFIRequest::from_u8_pointer(input, len).into();
     log::trace!("[FFI]: {} Sync Event: {:?}", &request.id, &request.event,);
     let _response = EventDispatch::sync_send(dispatch(), request);

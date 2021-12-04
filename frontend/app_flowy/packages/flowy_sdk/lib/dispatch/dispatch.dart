@@ -101,7 +101,7 @@ Completer<Uint8List> _sendToRust(FFIRequest request) {
 
   final completer = Completer<Uint8List>();
   final port = singleCompletePort(completer);
-  ffi.async_command(port.nativePort, input, bytes.length);
+  ffi.async_event(port.nativePort, input, bytes.length);
   calloc.free(input);
 
   return completer;
