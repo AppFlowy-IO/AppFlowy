@@ -28,7 +28,7 @@ async fn workspace_read() {
 #[tokio::test]
 async fn workspace_create_with_apps() {
     let test = WorkspaceTest::new().await;
-    let app = create_app(&test.sdk, "App A", "AppFlowy Github Project", &test.workspace.id).await;
+    let app = create_app(&test.sdk, "App A", "AppFlowy GitHub Project", &test.workspace.id).await;
     let request = QueryWorkspaceRequest::new(Some(test.workspace.id.clone()));
     let workspace_from_db = read_workspace(&test.sdk, request)
         .await
