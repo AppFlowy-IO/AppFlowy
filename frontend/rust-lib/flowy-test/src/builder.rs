@@ -1,5 +1,5 @@
 use flowy_user::entities::UserProfile;
-use lib_dispatch::prelude::{EventDispatch, EventResponse, FromBytes, ModuleRequest, StatusCode, ToBytes};
+use lib_dispatch::prelude::{EventDispatcher, EventResponse, FromBytes, ModuleRequest, StatusCode, ToBytes};
 use std::{
     fmt::{Debug, Display},
     hash::Hash,
@@ -69,14 +69,14 @@ where
 
     pub fn sync_send(mut self) -> Self {
         let request = self.get_request();
-        let resp = EventDispatch::sync_send(self.dispatch(), request);
+        let resp = EventDispatcher::sync_send(self.dispatch(), request);
         self.context.response = Some(resp);
         self
     }
 
     pub async fn async_send(mut self) -> Self {
         let request = self.get_request();
-        let resp = EventDispatch::async_send(self.dispatch(), request).await;
+        let resp = EventDispatcher::async_send(self.dispatch(), request).await;
         self.context.response = Some(resp);
         self
     }
@@ -113,7 +113,7 @@ where
 
     pub fn sdk(&self) -> FlowySDK { self.context.sdk.clone() }
 
-    fn dispatch(&self) -> Arc<EventDispatch> { self.context.sdk.dispatch() }
+    fn dispatch(&self) -> Arc<EventDispatcher> { self.context.sdk.dispatcher() }
 
     fn get_response(&self) -> EventResponse {
         self.context

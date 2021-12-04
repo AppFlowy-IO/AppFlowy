@@ -64,7 +64,7 @@ pub struct FlowySDK {
     pub user_session: Arc<UserSession>,
     pub flowy_document: Arc<FlowyDocument>,
     pub workspace: Arc<WorkspaceController>,
-    pub dispatch: Arc<EventDispatch>,
+    pub dispatcher: Arc<EventDispatcher>,
 }
 
 impl FlowySDK {
@@ -82,22 +82,22 @@ impl FlowySDK {
         let flowy_document = mk_document_module(user_session.clone(), &config.server_config);
         let workspace = mk_workspace(user_session.clone(), flowy_document.clone(), &config.server_config);
         let modules = mk_modules(workspace.clone(), user_session.clone());
-        let dispatch = Arc::new(EventDispatch::construct(|| modules));
-        _init(&dispatch, user_session.clone(), workspace.clone());
+        let dispatcher = Arc::new(EventDispatcher::construct(|| modules));
+        _init(&dispatcher, user_session.clone(), workspace.clone());
 
         Self {
             config,
             user_session,
             flowy_document,
             workspace,
-            dispatch,
+            dispatcher,
         }
     }
 
-    pub fn dispatch(&self) -> Arc<EventDispatch> { self.dispatch.clone() }
+    pub fn dispatcher(&self) -> Arc<EventDispatcher> { self.dispatcher.clone() }
 }
 
-fn _init(dispatch: &EventDispatch, user_session: Arc<UserSession>, workspace_controller: Arc<WorkspaceController>) {
+fn _init(dispatch: &EventDispatcher, user_session: Arc<UserSession>, workspace_controller: Arc<WorkspaceController>) {
     let subscribe = user_session.status_subscribe();
     dispatch.spawn(async move {
         user_session.init();

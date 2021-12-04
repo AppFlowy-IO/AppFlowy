@@ -8,9 +8,9 @@ async fn test() {
     env_logger::init();
 
     let event = "1";
-    let dispatch = Arc::new(EventDispatch::construct(|| vec![Module::new().event(event, hello)]));
+    let dispatch = Arc::new(EventDispatcher::construct(|| vec![Module::new().event(event, hello)]));
     let request = ModuleRequest::new(event);
-    let _ = EventDispatch::async_send_with_callback(dispatch.clone(), request, |resp| {
+    let _ = EventDispatcher::async_send_with_callback(dispatch.clone(), request, |resp| {
         Box::pin(async move {
             dbg!(&resp);
         })

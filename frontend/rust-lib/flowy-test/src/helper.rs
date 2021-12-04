@@ -1,5 +1,5 @@
 use bytes::Bytes;
-use lib_dispatch::prelude::{EventDispatch, ModuleRequest, ToBytes};
+use lib_dispatch::prelude::{EventDispatcher, ModuleRequest, ToBytes};
 use lib_infra::{kv::KV, uuid};
 
 use flowy_user::{
@@ -41,7 +41,7 @@ const DEFAULT_WORKSPACE_DESC: &str = "This is your first workspace";
 const DEFAULT_WORKSPACE: &str = "Default_Workspace";
 
 #[allow(dead_code)]
-pub(crate) fn create_default_workspace_if_need(dispatch: Arc<EventDispatch>, user_id: &str) -> Result<(), UserError> {
+pub(crate) fn create_default_workspace_if_need(dispatch: Arc<EventDispatcher>, user_id: &str) -> Result<(), UserError> {
     let key = format!("{}{}", user_id, DEFAULT_WORKSPACE);
     if KV::get_bool(&key).unwrap_or(false) {
         return Err(UserError::internal());
@@ -56,7 +56,7 @@ pub(crate) fn create_default_workspace_if_need(dispatch: Arc<EventDispatch>, use
     .unwrap();
 
     let request = ModuleRequest::new(CreateWorkspace).payload(payload);
-    let result = EventDispatch::sync_send(dispatch.clone(), request)
+    let result = EventDispatcher::sync_send(dispatch.clone(), request)
         .parse::<Workspace, WorkspaceError>()
         .map_err(|e| UserError::internal().context(e))?;
 
@@ -68,7 +68,7 @@ pub(crate) fn create_default_workspace_if_need(dispatch: Arc<EventDispatch>, use
     .unwrap();
 
     let request = ModuleRequest::new(OpenWorkspace).payload(query);
-    let _result = EventDispatch::sync_send(dispatch, request)
+    let _result = EventDispatcher::sync_send(dispatch, request)
         .parse::<Workspace, WorkspaceError>()
         .unwrap()
         .unwrap();
@@ -81,7 +81,7 @@ pub struct SignUpContext {
     pub password: String,
 }
 
-pub fn sign_up(dispatch: Arc<EventDispatch>) -> SignUpContext {
+pub fn sign_up(dispatch: Arc<EventDispatcher>) -> SignUpContext {
     let password = login_password();
     let payload = SignUpRequest {
         email: random_email(),
@@ -92,7 +92,7 @@ pub fn sign_up(dispatch: Arc<EventDispatch>) -> SignUpContext {
     .unwrap();
 
     let request = ModuleRequest::new(SignUp).payload(payload);
-    let user_profile = EventDispatch::sync_send(dispatch, request)
+    let user_profile = EventDispatcher::sync_send(dispatch, request)
         .parse::<UserProfile, UserError>()
         .unwrap()
         .unwrap();
@@ -100,7 +100,7 @@ pub fn sign_up(dispatch: Arc<EventDispatch>) -> SignUpContext {
     SignUpContext { user_profile, password }
 }
 
-pub async fn async_sign_up(dispatch: Arc<EventDispatch>) -> SignUpContext {
+pub async fn async_sign_up(dispatch: Arc<EventDispatcher>) -> SignUpContext {
     let password = login_password();
     let payload = SignUpRequest {
         email: random_email(),
@@ -111,7 +111,7 @@ pub async fn async_sign_up(dispatch: Arc<EventDispatch>) -> SignUpContext {
     .unwrap();
 
     let request = ModuleRequest::new(SignUp).payload(payload);
-    let user_profile = EventDispatch::async_send(dispatch.clone(), request)
+    let user_profile = EventDispatcher::async_send(dispatch.clone(), request)
         .await
         .parse::<UserProfile, UserError>()
         .unwrap()
@@ -122,7 +122,7 @@ pub async fn async_sign_up(dispatch: Arc<EventDispatch>) -> SignUpContext {
 }
 
 #[allow(dead_code)]
-fn sign_in(dispatch: Arc<EventDispatch>) -> UserProfile {
+fn sign_in(dispatch: Arc<EventDispatcher>) -> UserProfile {
     let payload = SignInRequest {
         email: login_email(),
         password: login_password(),
@@ -132,11 +132,11 @@ fn sign_in(dispatch: Arc<EventDispatch>) -> UserProfile {
     .unwrap();
 
     let request = ModuleRequest::new(SignIn).payload(payload);
-    EventDispatch::sync_send(dispatch, request)
+    EventDispatcher::sync_send(dispatch, request)
         .parse::<UserProfile, UserError>()
         .unwrap()
         .unwrap()
 }
 
 #[allow(dead_code)]
-fn logout(dispatch: Arc<EventDispatch>) { let _ = EventDispatch::sync_send(dispatch, ModuleRequest::new(SignOut)); }
+fn logout(dispatch: Arc<EventDispatcher>) { let _ = EventDispatcher::sync_send(dispatch, ModuleRequest::new(SignOut)); }

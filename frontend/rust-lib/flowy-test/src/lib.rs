@@ -24,17 +24,17 @@ impl FlowyTest {
     pub fn setup() -> Self {
         let server_config = ServerConfig::default();
         let test = Self::setup_with(server_config);
-        std::mem::forget(test.sdk.dispatch());
+        std::mem::forget(test.sdk.dispatcher());
         test
     }
 
     pub async fn sign_up(&self) -> SignUpContext {
-        let context = async_sign_up(self.sdk.dispatch()).await;
+        let context = async_sign_up(self.sdk.dispatcher()).await;
         context
     }
 
     pub async fn init_user(&self) -> UserProfile {
-        let context = async_sign_up(self.sdk.dispatch()).await;
+        let context = async_sign_up(self.sdk.dispatcher()).await;
         context.user_profile
     }
 

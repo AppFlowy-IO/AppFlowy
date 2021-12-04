@@ -11,13 +11,13 @@ use futures_util::task::Context;
 use pin_project::pin_project;
 use std::{future::Future, sync::Arc};
 use tokio::macros::support::{Pin, Poll};
-pub struct EventDispatch {
+pub struct EventDispatcher {
     module_map: ModuleMap,
     runtime: tokio::runtime::Runtime,
 }
 
-impl EventDispatch {
-    pub fn construct<F>(module_factory: F) -> EventDispatch
+impl EventDispatcher {
+    pub fn construct<F>(module_factory: F) -> EventDispatcher
     where
         F: FnOnce() -> Vec<Module>,
     {
@@ -26,18 +26,18 @@ impl EventDispatch {
         tracing::trace!("{}", module_info(&modules));
         let module_map = as_module_map(modules);
 
-        EventDispatch { module_map, runtime }
+        EventDispatcher { module_map, runtime }
     }
 
-    pub fn async_send<Req>(dispatch: Arc<EventDispatch>, request: Req) -> DispatchFuture<EventResponse>
+    pub fn async_send<Req>(dispatch: Arc<EventDispatcher>, request: Req) -> DispatchFuture<EventResponse>
     where
         Req: std::convert::Into<ModuleRequest>,
     {
-        EventDispatch::async_send_with_callback(dispatch, request, |_| Box::pin(async {}))
+        EventDispatcher::async_send_with_callback(dispatch, request, |_| Box::pin(async {}))
     }
 
     pub fn async_send_with_callback<Req, Callback>(
-        dispatch: Arc<EventDispatch>,
+        dispatch: Arc<EventDispatcher>,
         request: Req,
         callback: Callback,
     ) -> DispatchFuture<EventResponse>
@@ -70,9 +70,9 @@ impl EventDispatch {
         }
     }
 
-    pub fn sync_send(dispatch: Arc<EventDispatch>, request: ModuleRequest) -> EventResponse {
+    pub fn sync_send(dispatch: Arc<EventDispatcher>, request: ModuleRequest) -> EventResponse {
         futures::executor::block_on(async {
-            EventDispatch::async_send_with_callback(dispatch, request, |_| Box::pin(async {})).await
+            EventDispatcher::async_send_with_callback(dispatch, request, |_| Box::pin(async {})).await
         })
     }
 
