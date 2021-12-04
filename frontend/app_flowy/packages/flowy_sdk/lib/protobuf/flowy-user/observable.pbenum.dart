@@ -14,12 +14,14 @@ class UserNotification extends $pb.ProtobufEnum {
   static const UserNotification UserAuthChanged = UserNotification._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserAuthChanged');
   static const UserNotification UserProfileUpdated = UserNotification._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserProfileUpdated');
   static const UserNotification UserUnauthorized = UserNotification._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserUnauthorized');
+  static const UserNotification UserWsConnectStateChanged = UserNotification._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserWsConnectStateChanged');
 
   static const $core.List<UserNotification> values = <UserNotification> [
     Unknown,
     UserAuthChanged,
     UserProfileUpdated,
     UserUnauthorized,
+    UserWsConnectStateChanged,
   ];
 
   static final $core.Map<$core.int, UserNotification> _byValue = $pb.ProtobufEnum.initByValue(values);

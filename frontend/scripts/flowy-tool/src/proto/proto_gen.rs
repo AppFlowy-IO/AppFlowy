@@ -53,12 +53,12 @@ fn write_rust_crate_mod_file(crate_infos: &[CrateProtoInfo]) {
         {
             Ok(ref mut file) => {
                 let mut mod_file_content = String::new();
-                mod_file_content.push_str("// Auto-generated, do not edit \n");
+                mod_file_content.push_str("// Auto-generated, do not edit\n");
                 walk_dir(
                     crate_info.inner.proto_file_output_dir().as_ref(),
                     |e| !e.file_type().is_dir(),
                     |_, name| {
-                        let c = format!("\nmod {}; \npub use {}::*; \n", &name, &name);
+                        let c = format!("\nmod {};\npub use {}::*;\n", &name, &name);
                         mod_file_content.push_str(c.as_ref());
                     },
                 );

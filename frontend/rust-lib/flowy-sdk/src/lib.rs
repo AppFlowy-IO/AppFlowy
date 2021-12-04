@@ -1,7 +1,6 @@
 mod deps_resolve;
 // mod flowy_server;
 pub mod module;
-
 use crate::deps_resolve::WorkspaceDepsResolver;
 use backend_service::config::ServerConfig;
 use flowy_document::module::FlowyDocument;
@@ -63,7 +62,7 @@ pub struct FlowySDK {
     config: FlowySDKConfig,
     pub user_session: Arc<UserSession>,
     pub flowy_document: Arc<FlowyDocument>,
-    pub workspace: Arc<WorkspaceController>,
+    pub workspace_ctrl: Arc<WorkspaceController>,
     pub dispatcher: Arc<EventDispatcher>,
 }
 
@@ -80,16 +79,17 @@ impl FlowySDK {
                 .build(),
         );
         let flowy_document = mk_document_module(user_session.clone(), &config.server_config);
-        let workspace = mk_workspace(user_session.clone(), flowy_document.clone(), &config.server_config);
-        let modules = mk_modules(workspace.clone(), user_session.clone());
+        let workspace_ctrl =
+            mk_workspace_controller(user_session.clone(), flowy_document.clone(), &config.server_config);
+        let modules = mk_modules(workspace_ctrl.clone(), user_session.clone());
         let dispatcher = Arc::new(EventDispatcher::construct(|| modules));
-        _init(&dispatcher, user_session.clone(), workspace.clone());
+        _init(&dispatcher, user_session.clone(), workspace_ctrl.clone());
 
         Self {
             config,
             user_session,
             flowy_document,
-            workspace,
+            workspace_ctrl,
             dispatcher,
         }
     }
@@ -155,12 +155,12 @@ fn init_log(config: &FlowySDKConfig) {
     }
 }
 
-fn mk_workspace(
+fn mk_workspace_controller(
     user_session: Arc<UserSession>,
     flowy_document: Arc<FlowyDocument>,
     server_config: &ServerConfig,
 ) -> Arc<WorkspaceController> {
     let workspace_deps = WorkspaceDepsResolver::new(user_session);
     let (user, database) = workspace_deps.split_into();
-    flowy_workspace::module::mk_workspace(user, database, flowy_document, server_config)
+    flowy_workspace::module::init_workspace_controller(user, database, flowy_document, server_config)
 }

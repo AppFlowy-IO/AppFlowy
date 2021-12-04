@@ -5,4 +5,5 @@ enum UserNotification {
     UserAuthChanged = 1;
     UserProfileUpdated = 2;
     UserUnauthorized = 3;
+    UserWsConnectStateChanged = 4;
 }

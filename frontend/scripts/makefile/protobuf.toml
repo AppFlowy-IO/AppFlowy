@@ -28,7 +28,7 @@ script = [
 
     cargo run \
      --manifest-path ${flowy_tool} pb-gen \
-     --rust_sources ${rust_lib},${shared_lib} \
+     --rust_sources ${rust_lib} ${shared_lib} \
      --derive_meta=${derive_meta} \
      --flutter_package_lib=${flutter_package_lib}
     """,

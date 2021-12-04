@@ -191,14 +191,8 @@ impl ClientDocEditor {
             let retry = Retry::spawn(strategy, action);
             tokio::spawn(async move {
                 match retry.await {
-                    Ok(_) => {
-                        //
-                        log::debug!("Notify open doc success");
-                    },
-                    Err(e) => {
-                        //
-                        log::error!("Notify open doc failed: {}", e);
-                    },
+                    Ok(_) => log::debug!("Notify open doc success"),
+                    Err(e) => log::error!("Notify open doc failed: {}", e),
                 }
             });
         }
@@ -280,6 +274,12 @@ impl ClientDocEditor {
 
 pub struct EditDocWsHandler(pub Arc<ClientDocEditor>);
 
+impl std::ops::Deref for EditDocWsHandler {
+    type Target = Arc<ClientDocEditor>;
+
+    fn deref(&self) -> &Self::Target { &self.0 }
+}
+
 impl WsDocumentHandler for EditDocWsHandler {
     fn receive(&self, doc_data: WsDocumentData) {
         let edit_doc = self.0.clone();
@@ -293,7 +293,7 @@ impl WsDocumentHandler for EditDocWsHandler {
     fn state_changed(&self, state: &WsState) {
         match state {
             WsState::Init => {},
-            WsState::Connected(_) => self.0.notify_open_doc(),
+            WsState::Connected(_) => self.notify_open_doc(),
             WsState::Disconnected(_e) => {},
         }
     }

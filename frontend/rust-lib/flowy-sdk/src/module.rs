@@ -7,7 +7,9 @@ use lib_dispatch::prelude::Module;
 use std::sync::Arc;
 
 pub fn mk_modules(workspace_controller: Arc<WorkspaceController>, user_session: Arc<UserSession>) -> Vec<Module> {
-    vec![mk_user_module(user_session), mk_workspace_module(workspace_controller)]
+    let user_module = mk_user_module(user_session);
+    let workspace_module = mk_workspace_module(workspace_controller);
+    vec![user_module, workspace_module]
 }
 
 fn mk_user_module(user_session: Arc<UserSession>) -> Module { flowy_user::module::create(user_session) }

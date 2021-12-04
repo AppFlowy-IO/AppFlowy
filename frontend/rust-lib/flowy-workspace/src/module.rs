@@ -28,7 +28,7 @@ pub trait WorkspaceDatabase: Send + Sync {
     }
 }
 
-pub fn mk_workspace(
+pub fn init_workspace_controller(
     user: Arc<dyn WorkspaceUser>,
     database: Arc<dyn WorkspaceDatabase>,
     flowy_document: Arc<FlowyDocument>,

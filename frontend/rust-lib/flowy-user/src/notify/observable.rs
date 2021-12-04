@@ -10,6 +10,7 @@ pub(crate) enum UserNotification {
     UserAuthChanged    = 1,
     UserProfileUpdated = 2,
     UserUnauthorized   = 3,
+    UserWsConnectStateChanged = 4,
 }
 
 impl std::default::Default for UserNotification {
