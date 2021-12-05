@@ -1,7 +1,5 @@
-use crate::{
-    entities::{UserProfile, UserStatus},
-    notify::NetworkState,
-};
+use crate::entities::{UserProfile, UserStatus};
+use lib_infra::entities::network_state::NetworkState;
 use tokio::sync::{broadcast, mpsc};
 
 pub struct UserNotifier {

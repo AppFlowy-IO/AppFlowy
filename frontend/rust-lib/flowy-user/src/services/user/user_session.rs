@@ -20,7 +20,7 @@ use flowy_database::{
     ExpressionMethods,
     UserDatabaseConnection,
 };
-use lib_infra::kv::KV;
+use lib_infra::{entities::network_state::NetworkState, kv::KV};
 use lib_sqlite::ConnectionPool;
 use lib_ws::{WsController, WsMessageHandler, WsState};
 use parking_lot::RwLock;
@@ -189,9 +189,7 @@ impl UserSession {
         let _ = self.ws_controller.add_handler(handler);
     }
 
-    pub fn update_network_state(&self, state: NetworkState) {
-        log::info!("{:?}", state);
-    }
+    pub fn update_network_state(&self, state: NetworkState) { self.notifier.update_network_state(state); }
 }
 
 impl UserSession {

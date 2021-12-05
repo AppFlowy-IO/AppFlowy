@@ -30,22 +30,3 @@ class UserNotification extends $pb.ProtobufEnum {
   const UserNotification._($core.int v, $core.String n) : super(v, n);
 }
 
-class NetworkType extends $pb.ProtobufEnum {
-  static const NetworkType UnknownNetworkType = NetworkType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UnknownNetworkType');
-  static const NetworkType Wifi = NetworkType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Wifi');
-  static const NetworkType Cell = NetworkType._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Cell');
-  static const NetworkType Ethernet = NetworkType._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Ethernet');
-
-  static const $core.List<NetworkType> values = <NetworkType> [
-    UnknownNetworkType,
-    Wifi,
-    Cell,
-    Ethernet,
-  ];
-
-  static final $core.Map<$core.int, NetworkType> _byValue = $pb.ProtobufEnum.initByValue(values);
-  static NetworkType? valueOf($core.int value) => _byValue[value];
-
-  const NetworkType._($core.int v, $core.String n) : super(v, n);
-}
-

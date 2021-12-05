@@ -4,6 +4,7 @@ extern crate diesel;
 #[macro_use]
 extern crate diesel_derives;
 
+pub mod entities;
 pub mod future;
 pub mod kv;
 mod protobuf;

@@ -1,2 +1,2 @@
-proto_crates = ["src/kv"]
+proto_crates = ["src/kv", "src/entities"]
 event_files = []

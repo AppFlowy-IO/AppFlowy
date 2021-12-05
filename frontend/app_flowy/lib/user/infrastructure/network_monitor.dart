@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/observable.pb.dart';
+import 'package:flowy_sdk/protobuf/lib-infra/protobuf.dart';
 import 'package:flutter/services.dart';
 
 class NetworkMonitor {

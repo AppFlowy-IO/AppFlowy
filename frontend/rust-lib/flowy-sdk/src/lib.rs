@@ -5,12 +5,12 @@ use crate::deps_resolve::WorkspaceDepsResolver;
 use backend_service::config::ServerConfig;
 use flowy_document::module::FlowyDocument;
 use flowy_user::{
-    notify::{NetworkState, NetworkType},
     prelude::UserStatus,
     services::user::{UserSession, UserSessionConfig},
 };
 use flowy_workspace::{errors::WorkspaceError, prelude::WorkspaceController};
 use lib_dispatch::prelude::*;
+use lib_infra::entities::network_state::NetworkState;
 use module::mk_modules;
 pub use module::*;
 use std::sync::{
@@ -102,10 +102,14 @@ impl FlowySDK {
 fn _init(dispatch: &EventDispatcher, user_session: Arc<UserSession>, workspace_controller: Arc<WorkspaceController>) {
     let user_status_subscribe = user_session.notifier.user_status_subscribe();
     let network_status_subscribe = user_session.notifier.network_status_subscribe();
+    let cloned_workspace_controller = workspace_controller.clone();
+
     dispatch.spawn(async move {
         user_session.init();
         _listen_user_status(user_status_subscribe, workspace_controller.clone()).await;
-        _listen_network_status(network_status_subscribe, workspace_controller).await;
+    });
+    dispatch.spawn(async move {
+        _listen_network_status(network_status_subscribe, cloned_workspace_controller).await;
     });
 }
 
@@ -142,23 +146,10 @@ async fn _listen_user_status(
 
 async fn _listen_network_status(
     mut subscribe: broadcast::Receiver<NetworkState>,
-    _workspace_controller: Arc<WorkspaceController>,
+    workspace_controller: Arc<WorkspaceController>,
 ) {
-    while let Ok(status) = subscribe.recv().await {
-        let result = || async {
-            match status.ty {
-                NetworkType::UnknownNetworkType => {},
-                NetworkType::Wifi => {},
-                NetworkType::Cell => {},
-                NetworkType::Ethernet => {},
-            }
-            Ok::<(), WorkspaceError>(())
-        };
-
-        match result().await {
-            Ok(_) => {},
-            Err(e) => log::error!("{}", e),
-        }
+    while let Ok(state) = subscribe.recv().await {
+        workspace_controller.network_state_changed(state);
     }
 }
 
