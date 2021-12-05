@@ -42,7 +42,7 @@ impl AppTest {
         let _ = test.init_user().await;
         let workspace = create_workspace(&test.sdk, "Workspace", "").await;
         open_workspace(&test.sdk, &workspace.id).await;
-        let app = create_app(&test.sdk, "App", "AppFlowy Github Project", &workspace.id).await;
+        let app = create_app(&test.sdk, "App", "AppFlowy GitHub Project", &workspace.id).await;
         Self {
             sdk: test.sdk,
             workspace,
@@ -73,7 +73,7 @@ impl ViewTest {
     pub async fn new(test: &FlowyTest) -> Self {
         let workspace = create_workspace(&test.sdk, "Workspace", "").await;
         open_workspace(&test.sdk, &workspace.id).await;
-        let app = create_app(&test.sdk, "App", "AppFlowy Github Project", &workspace.id).await;
+        let app = create_app(&test.sdk, "App", "AppFlowy GitHub Project", &workspace.id).await;
         let view = create_view(&test.sdk, &app.id).await;
         Self {
             sdk: test.sdk.clone(),
