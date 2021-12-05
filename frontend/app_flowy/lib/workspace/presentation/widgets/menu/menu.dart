@@ -3,7 +3,7 @@ import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user-infra/protobuf.dart' show UserProfile;
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_setting.pb.dart';
 import 'package:flutter/material.dart';

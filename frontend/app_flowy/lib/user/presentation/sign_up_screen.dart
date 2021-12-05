@@ -7,7 +7,7 @@ import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user-infra/protobuf.dart' show UserProfile;
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

@@ -40,6 +40,6 @@ pub async fn update_user_handler(
 #[tracing::instrument(skip(data, session))]
 pub async fn update_network_ty(data: Data<NetworkState>, session: Unit<Arc<UserSession>>) -> Result<(), UserError> {
     let network_state = data.into_inner();
-    session.update_network_state(network_state);
+    session.set_network_state(network_state);
     Ok(())
 }

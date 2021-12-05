@@ -10,7 +10,7 @@ use flowy_user::{
 };
 use flowy_workspace::{errors::WorkspaceError, prelude::WorkspaceController};
 use lib_dispatch::prelude::*;
-use lib_infra::entities::network_state::NetworkState;
+use lib_infra::entities::network_state::NetworkType;
 use module::mk_modules;
 pub use module::*;
 use std::sync::{
@@ -101,7 +101,7 @@ impl FlowySDK {
 
 fn _init(dispatch: &EventDispatcher, user_session: Arc<UserSession>, workspace_controller: Arc<WorkspaceController>) {
     let user_status_subscribe = user_session.notifier.user_status_subscribe();
-    let network_status_subscribe = user_session.notifier.network_status_subscribe();
+    let network_status_subscribe = user_session.notifier.network_type_subscribe();
     let cloned_workspace_controller = workspace_controller.clone();
 
     dispatch.spawn(async move {
@@ -145,11 +145,11 @@ async fn _listen_user_status(
 }
 
 async fn _listen_network_status(
-    mut subscribe: broadcast::Receiver<NetworkState>,
+    mut subscribe: broadcast::Receiver<NetworkType>,
     workspace_controller: Arc<WorkspaceController>,
 ) {
-    while let Ok(state) = subscribe.recv().await {
-        workspace_controller.network_state_changed(state);
+    while let Ok(new_type) = subscribe.recv().await {
+        workspace_controller.network_state_changed(new_type);
     }
 }
 

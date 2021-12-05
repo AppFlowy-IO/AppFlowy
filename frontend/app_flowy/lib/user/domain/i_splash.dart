@@ -1,4 +1,4 @@
-import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-user-infra/protobuf.dart' show UserProfile;
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/protobuf.dart';
 import 'package:flutter/widgets.dart';
 

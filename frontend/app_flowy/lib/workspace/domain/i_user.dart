@@ -1,11 +1,11 @@
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user-infra/protobuf.dart' show UserProfile;
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 export 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
-export 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
+export 'package:flowy_sdk/protobuf/flowy-user-infra/protobuf.dart' show UserProfile;
 
 abstract class IUser {
   UserProfile get user;

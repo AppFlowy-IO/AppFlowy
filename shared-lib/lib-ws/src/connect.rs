@@ -93,11 +93,11 @@ impl WsStream {
             msg_tx: msg_tx.clone(),
             inner: Some((
                 Box::pin(async move {
-                    let (tx, mut rx) = tokio::sync::mpsc::channel(100);
+                    let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
                     let read = async {
                         ws_read
                             .for_each(|message| async {
-                                match tx.send(post_message(msg_tx.clone(), message)).await {
+                                match tx.send(send_message(msg_tx.clone(), message)) {
                                     Ok(_) => {},
                                     Err(e) => log::error!("WsStream tx closed unexpectedly: {} ", e),
                                 }
@@ -106,7 +106,7 @@ impl WsStream {
                         Ok(())
                     };
 
-                    let ret = async {
+                    let read_ret = async {
                         loop {
                             match rx.recv().await {
                                 None => {
@@ -120,11 +120,11 @@ impl WsStream {
                             }
                         }
                     };
-                    futures::pin_mut!(ret);
                     futures::pin_mut!(read);
+                    futures::pin_mut!(read_ret);
                     return tokio::select! {
                         result = read => result,
-                        result = ret => result,
+                        result = read_ret => result,
                     };
                 }),
                 Box::pin(async move {
@@ -161,9 +161,9 @@ impl Future for WsStream {
     }
 }
 
-fn post_message(tx: MsgSender, message: Result<Message, Error>) -> Result<(), WsError> {
+fn send_message(msg_tx: MsgSender, message: Result<Message, Error>) -> Result<(), WsError> {
     match message {
-        Ok(Message::Binary(bytes)) => tx.unbounded_send(Message::Binary(bytes)).map_err(internal_error),
+        Ok(Message::Binary(bytes)) => msg_tx.unbounded_send(Message::Binary(bytes)).map_err(internal_error),
         Ok(_) => Ok(()),
         Err(e) => Err(WsError::internal().context(e)),
     }

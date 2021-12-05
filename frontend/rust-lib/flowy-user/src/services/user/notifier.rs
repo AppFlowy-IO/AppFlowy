@@ -1,10 +1,10 @@
 use crate::entities::{UserProfile, UserStatus};
-use lib_infra::entities::network_state::NetworkState;
+use lib_infra::entities::network_state::NetworkType;
 use tokio::sync::{broadcast, mpsc};
 
 pub struct UserNotifier {
     user_status_notifier: broadcast::Sender<UserStatus>,
-    network_status_notifier: broadcast::Sender<NetworkState>,
+    network_status_notifier: broadcast::Sender<NetworkType>,
 }
 
 impl std::default::Default for UserNotifier {
@@ -40,11 +40,11 @@ impl UserNotifier {
         });
     }
 
-    pub fn update_network_state(&self, state: NetworkState) { let _ = self.network_status_notifier.send(state); }
+    pub fn update_network_type(&self, ty: &NetworkType) { let _ = self.network_status_notifier.send(ty.clone()); }
 
     pub fn user_status_subscribe(&self) -> broadcast::Receiver<UserStatus> { self.user_status_notifier.subscribe() }
 
-    pub fn network_status_subscribe(&self) -> broadcast::Receiver<NetworkState> {
+    pub fn network_type_subscribe(&self) -> broadcast::Receiver<NetworkType> {
         self.network_status_notifier.subscribe()
     }
 }

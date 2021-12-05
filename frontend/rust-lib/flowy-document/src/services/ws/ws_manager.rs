@@ -2,15 +2,15 @@ use crate::errors::DocError;
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_document_infra::entities::ws::WsDocumentData;
-use lib_ws::WsState;
+use lib_ws::WsConnectState;
 use std::{convert::TryInto, sync::Arc};
 
 pub(crate) trait WsDocumentHandler: Send + Sync {
     fn receive(&self, data: WsDocumentData);
-    fn state_changed(&self, state: &WsState);
+    fn state_changed(&self, state: &WsConnectState);
 }
 
-pub type WsStateReceiver = tokio::sync::broadcast::Receiver<WsState>;
+pub type WsStateReceiver = tokio::sync::broadcast::Receiver<WsConnectState>;
 pub trait DocumentWebSocket: Send + Sync {
     fn send(&self, data: WsDocumentData) -> Result<(), DocError>;
     fn state_notify(&self) -> WsStateReceiver;

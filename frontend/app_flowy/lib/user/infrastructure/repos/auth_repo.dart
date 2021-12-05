@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-user-infra/protobuf.dart' show SignInRequest, SignUpRequest, UserProfile;
+import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
 
 class AuthRepository {
   Future<Either<UserProfile, UserError>> signIn({required String? email, required String? password}) {

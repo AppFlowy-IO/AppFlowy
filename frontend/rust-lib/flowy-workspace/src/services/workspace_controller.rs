@@ -13,10 +13,7 @@ use flowy_workspace_infra::{
     user_default,
 };
 use lazy_static::lazy_static;
-use lib_infra::{
-    entities::network_state::{NetworkState, NetworkType},
-    kv::KV,
-};
+use lib_infra::{entities::network_state::NetworkType, kv::KV};
 use parking_lot::RwLock;
 use std::{collections::HashMap, sync::Arc};
 
@@ -76,8 +73,8 @@ impl WorkspaceController {
         Ok(())
     }
 
-    pub fn network_state_changed(&self, network_state: NetworkState) {
-        match network_state.ty {
+    pub fn network_state_changed(&self, new_type: NetworkType) {
+        match new_type {
             NetworkType::UnknownNetworkType => {},
             NetworkType::Wifi => {},
             NetworkType::Cell => {},

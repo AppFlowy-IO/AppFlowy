@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-user-infra/protobuf.dart' show UserProfile;
 import 'package:flutter/material.dart';
 
 class NewUser {

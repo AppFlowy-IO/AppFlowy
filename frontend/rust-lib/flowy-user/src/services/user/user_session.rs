@@ -9,7 +9,7 @@ use crate::{
     notify::*,
     services::{
         server::{construct_user_server, Server},
-        user::notifier::UserNotifier,
+        user::{notifier::UserNotifier, ws_manager::WsManager},
     },
 };
 use backend_service::config::ServerConfig;
@@ -22,11 +22,11 @@ use flowy_database::{
 };
 use lib_infra::{entities::network_state::NetworkState, kv::KV};
 use lib_sqlite::ConnectionPool;
-use lib_ws::{WsController, WsMessageHandler, WsState};
+use lib_ws::{WsConnectState, WsMessageHandler, WsSender};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use tokio::sync::mpsc;
+use tokio::sync::{broadcast, mpsc};
 
 pub struct UserSessionConfig {
     root_dir: String,
@@ -50,7 +50,7 @@ pub struct UserSession {
     #[allow(dead_code)]
     server: Server,
     session: RwLock<Option<Session>>,
-    pub ws_controller: Arc<WsController>,
+    ws_manager: Arc<WsManager>,
     pub notifier: UserNotifier,
 }
 
@@ -58,14 +58,14 @@ impl UserSession {
     pub fn new(config: UserSessionConfig) -> Self {
         let db = UserDB::new(&config.root_dir);
         let server = construct_user_server(&config.server_config);
-        let ws_controller = Arc::new(WsController::new());
+        let ws_manager = Arc::new(WsManager::new());
         let notifier = UserNotifier::new();
         Self {
             database: db,
             config,
             server,
             session: RwLock::new(None),
-            ws_controller,
+            ws_manager,
             notifier,
         }
     }
@@ -185,11 +185,20 @@ impl UserSession {
 
     pub fn token(&self) -> Result<String, UserError> { Ok(self.get_session()?.token) }
 
-    pub fn add_ws_handler(&self, handler: Arc<dyn WsMessageHandler>) {
-        let _ = self.ws_controller.add_handler(handler);
+    pub fn add_ws_handler(&self, handler: Arc<dyn WsMessageHandler>) { let _ = self.ws_manager.add_handler(handler); }
+
+    pub fn set_network_state(&self, new_state: NetworkState) {
+        log::debug!("Network new state: {:?}", new_state);
+        self.ws_manager.update_network_type(&new_state.ty);
+        self.notifier.update_network_type(&new_state.ty);
     }
 
-    pub fn update_network_state(&self, state: NetworkState) { self.notifier.update_network_state(state); }
+    pub fn ws_sender(&self) -> Result<Arc<WsSender>, UserError> {
+        let sender = self.ws_manager.sender()?;
+        Ok(sender)
+    }
+
+    pub fn ws_state_notifier(&self) -> broadcast::Receiver<WsConnectState> { self.ws_manager.state_subscribe() }
 }
 
 impl UserSession {
@@ -291,39 +300,9 @@ impl UserSession {
     pub async fn start_ws_connection(&self, token: &str) -> Result<(), UserError> {
         if cfg!(feature = "http_server") {
             let addr = format!("{}/{}", self.server.ws_addr(), token);
-            self.listen_on_websocket();
-            let _ = self.ws_controller.start_connect(addr).await?;
+            let _ = self.ws_manager.start(addr).await?;
         }
         Ok(())
-    }
-
-    #[tracing::instrument(level = "debug", skip(self))]
-    fn listen_on_websocket(&self) {
-        let mut notify = self.ws_controller.state_subscribe();
-        let ws_controller = self.ws_controller.clone();
-        let _ = tokio::spawn(async move {
-            loop {
-                match notify.recv().await {
-                    Ok(state) => {
-                        tracing::info!("Websocket state changed: {}", state);
-                        match state {
-                            WsState::Init => {},
-                            WsState::Connected(_) => {},
-                            WsState::Disconnected(_) => match ws_controller.retry().await {
-                                Ok(_) => {},
-                                Err(e) => {
-                                    log::error!("websocket connect failed: {:?}", e);
-                                },
-                            },
-                        }
-                    },
-                    Err(e) => {
-                        log::error!("Websocket state notify error: {:?}", e);
-                        break;
-                    },
-                }
-            }
-        });
     }
 }
 

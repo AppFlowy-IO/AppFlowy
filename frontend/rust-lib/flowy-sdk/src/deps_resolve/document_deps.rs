@@ -80,14 +80,14 @@ impl DocumentWebSocket for WsSenderImpl {
                 module: WsModule::Doc,
                 data: bytes.to_vec(),
             };
-            let sender = self.user.ws_controller.sender().map_err(internal_error)?;
+            let sender = self.user.ws_sender().map_err(internal_error)?;
             sender.send_msg(msg).map_err(internal_error)?;
         }
 
         Ok(())
     }
 
-    fn state_notify(&self) -> WsStateReceiver { self.user.ws_controller.state_subscribe() }
+    fn state_notify(&self) -> WsStateReceiver { self.user.ws_state_notifier() }
 }
 
 struct WsDocumentReceiver {

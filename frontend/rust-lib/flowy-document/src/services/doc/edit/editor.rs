@@ -18,7 +18,7 @@ use flowy_document_infra::{
 };
 use lib_infra::retry::{ExponentialBackoff, Retry};
 use lib_ot::core::{Attribute, Delta, Interval};
-use lib_ws::WsState;
+use lib_ws::WsConnectState;
 use std::{convert::TryFrom, sync::Arc};
 use tokio::sync::{mpsc, mpsc::UnboundedSender, oneshot};
 
@@ -290,11 +290,12 @@ impl WsDocumentHandler for EditDocWsHandler {
         });
     }
 
-    fn state_changed(&self, state: &WsState) {
+    fn state_changed(&self, state: &WsConnectState) {
         match state {
-            WsState::Init => {},
-            WsState::Connected(_) => self.notify_open_doc(),
-            WsState::Disconnected(_e) => {},
+            WsConnectState::Init => {},
+            WsConnectState::Connecting => {},
+            WsConnectState::Connected => self.notify_open_doc(),
+            WsConnectState::Disconnected => {},
         }
     }
 }
