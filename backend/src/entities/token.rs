@@ -76,7 +76,7 @@ impl Token {
 
 use crate::service::user::EXPIRED_DURATION_DAYS;
 use actix_web::{dev::Payload, FromRequest, HttpRequest};
-use backend_service::config::HEADER_TOKEN;
+use backend_service::configuration::HEADER_TOKEN;
 use futures::future::{ready, Ready};
 
 impl FromRequest for Token {

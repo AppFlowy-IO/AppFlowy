@@ -9,7 +9,7 @@ use actix_web::{
 
 use crate::config::IGNORE_ROUTES;
 use actix_web::{body::AnyBody, dev::MessageBody};
-use backend_service::{config::HEADER_TOKEN, errors::ServerError};
+use backend_service::{configuration::HEADER_TOKEN, errors::ServerError};
 use futures::future::{ok, LocalBoxFuture, Ready};
 use std::{
     convert::TryInto,

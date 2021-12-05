@@ -9,16 +9,16 @@ use crate::{
     notify::{send_dart_notification, WorkspaceNotification},
     services::server::WorkspaceServerAPI,
 };
-use backend_service::{config::ServerConfig, middleware::*, workspace_request::*};
+use backend_service::{configuration::ClientServerConfiguration, middleware::*, workspace_request::*};
 use flowy_workspace_infra::errors::ErrorCode;
 use lib_infra::future::ResultFuture;
 
 pub struct WorkspaceServer {
-    config: ServerConfig,
+    config: ClientServerConfiguration,
 }
 
 impl WorkspaceServer {
-    pub fn new(config: ServerConfig) -> WorkspaceServer { Self { config } }
+    pub fn new(config: ClientServerConfiguration) -> WorkspaceServer { Self { config } }
 }
 
 impl WorkspaceServerAPI for WorkspaceServer {

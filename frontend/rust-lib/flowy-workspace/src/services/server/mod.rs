@@ -14,7 +14,7 @@ use crate::{
     },
     errors::WorkspaceError,
 };
-use backend_service::config::ServerConfig;
+use backend_service::configuration::ClientServerConfiguration;
 use lib_infra::future::ResultFuture;
 use std::sync::Arc;
 
@@ -62,7 +62,9 @@ pub trait WorkspaceServerAPI {
     fn read_trash(&self, token: &str) -> ResultFuture<RepeatedTrash, WorkspaceError>;
 }
 
-pub(crate) fn construct_workspace_server(config: &ServerConfig) -> Arc<dyn WorkspaceServerAPI + Send + Sync> {
+pub(crate) fn construct_workspace_server(
+    config: &ClientServerConfiguration,
+) -> Arc<dyn WorkspaceServerAPI + Send + Sync> {
     if cfg!(feature = "http_server") {
         Arc::new(WorkspaceServer::new(config.clone()))
     } else {

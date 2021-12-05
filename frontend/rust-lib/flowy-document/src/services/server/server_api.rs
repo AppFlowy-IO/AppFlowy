@@ -1,14 +1,14 @@
 use crate::{errors::DocError, services::server::DocumentServerAPI};
-use backend_service::{config::*, request::HttpRequestBuilder};
+use backend_service::{configuration::*, request::HttpRequestBuilder};
 use flowy_document_infra::entities::doc::{CreateDocParams, Doc, DocIdentifier, UpdateDocParams};
 use lib_infra::future::ResultFuture;
 
 pub struct DocServer {
-    config: ServerConfig,
+    config: ClientServerConfiguration,
 }
 
 impl DocServer {
-    pub fn new(config: ServerConfig) -> Self { Self { config } }
+    pub fn new(config: ClientServerConfiguration) -> Self { Self { config } }
 }
 
 impl DocumentServerAPI for DocServer {

@@ -6,7 +6,7 @@ use crate::{
         ws::WsDocumentManager,
     },
 };
-use backend_service::config::ServerConfig;
+use backend_service::configuration::ClientServerConfiguration;
 use flowy_database::ConnectionPool;
 use flowy_document_infra::entities::doc::{DocDelta, DocIdentifier};
 use std::sync::Arc;
@@ -27,7 +27,7 @@ impl FlowyDocument {
     pub fn new(
         user: Arc<dyn DocumentUser>,
         ws_manager: Arc<WsDocumentManager>,
-        server_config: &ServerConfig,
+        server_config: &ClientServerConfiguration,
     ) -> FlowyDocument {
         let server = construct_doc_server(server_config);
         let doc_ctrl = Arc::new(DocController::new(server, user.clone(), ws_manager));

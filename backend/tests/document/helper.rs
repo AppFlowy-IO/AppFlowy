@@ -2,7 +2,6 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
 use actix_web::web::Data;
 use backend::service::doc::{crud::update_doc, manager::DocManager};
-use backend_service::config::ServerConfig;
 use flowy_document::services::doc::ClientDocEditor as ClientEditDocContext;
 use flowy_test::{workspace::ViewTest, FlowyTest};
 use flowy_user::services::user::UserSession;
@@ -29,14 +28,12 @@ pub enum DocScript {
     AssertClient(&'static str),
     AssertServer(&'static str, i64),
     ServerSaveDocument(String, i64), // delta_json, rev_id
-    Sleep(u64),
 }
 
 impl DocumentTest {
     pub async fn new() -> Self {
         let server = spawn_server().await;
-        let server_config = ServerConfig::new(&server.host, "http", "ws");
-        let flowy_test = FlowyTest::setup_with(server_config);
+        let flowy_test = FlowyTest::setup_with(server.client_server_config.clone());
         Self { server, flowy_test }
     }
 
@@ -136,9 +133,9 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
                     let pg_pool = context.read().server_pg_pool.clone();
                     save_doc(&doc_id, json, rev_id, pg_pool).await;
                 },
-                DocScript::Sleep(sec) => {
-                    sleep(Duration::from_secs(sec)).await;
-                },
+                // DocScript::Sleep(sec) => {
+                //     sleep(Duration::from_secs(sec)).await;
+                // },
             }
         };
         fut_scripts.push(fut);

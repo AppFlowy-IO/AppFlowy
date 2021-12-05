@@ -21,12 +21,12 @@ impl WsManager {
 
     pub fn update_network_type(&self, new_type: &NetworkType) {
         let old_type = self.connect_type.read().clone();
-        if old_type != new_type {
+        if &old_type != new_type {
             log::debug!("Connect type switch from {:?} to {:?}", old_type, new_type);
             match (old_type.is_connect(), new_type.is_connect()) {
                 (false, true) => {
                     let ws_controller = self.inner.clone();
-                    tokio::spawn(async move { retry_connect(ws_controller, 3).await });
+                    tokio::spawn(async move { retry_connect(ws_controller, 100).await });
                 },
                 (true, false) => {
                     //

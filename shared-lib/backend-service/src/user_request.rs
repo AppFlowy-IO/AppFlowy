@@ -1,4 +1,4 @@
-use crate::{config::HEADER_TOKEN, errors::ServerError, request::HttpRequestBuilder};
+use crate::{configuration::HEADER_TOKEN, errors::ServerError, request::HttpRequestBuilder};
 use flowy_user_infra::entities::prelude::*;
 
 pub(crate) fn request_builder() -> HttpRequestBuilder {

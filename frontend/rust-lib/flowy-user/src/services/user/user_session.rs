@@ -12,7 +12,7 @@ use crate::{
         user::{notifier::UserNotifier, ws_manager::WsManager},
     },
 };
-use backend_service::config::ServerConfig;
+use backend_service::configuration::ClientServerConfiguration;
 use flowy_database::{
     query_dsl::*,
     schema::{user_table, user_table::dsl},
@@ -30,12 +30,12 @@ use tokio::sync::{broadcast, mpsc};
 
 pub struct UserSessionConfig {
     root_dir: String,
-    server_config: ServerConfig,
+    server_config: ClientServerConfiguration,
     session_cache_key: String,
 }
 
 impl UserSessionConfig {
-    pub fn new(root_dir: &str, server_config: &ServerConfig, session_cache_key: &str) -> Self {
+    pub fn new(root_dir: &str, server_config: &ClientServerConfiguration, session_cache_key: &str) -> Self {
         Self {
             root_dir: root_dir.to_owned(),
             server_config: server_config.clone(),

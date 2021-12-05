@@ -1,4 +1,4 @@
-use crate::{config::HEADER_TOKEN, errors::ServerError, response::FlowyResponse};
+use crate::{configuration::HEADER_TOKEN, errors::ServerError, response::FlowyResponse};
 use bytes::Bytes;
 use hyper::http;
 use protobuf::ProtobufError;

@@ -56,7 +56,6 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
     let mut settings = config::Config::default();
     let base_path = std::env::current_dir().expect("Failed to determine the current directory");
     let configuration_dir = base_path.join("configuration");
-
     settings.merge(config::File::from(configuration_dir.join("base")).required(true))?;
 
     let environment: Environment = std::env::var("APP_ENVIRONMENT")

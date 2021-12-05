@@ -4,7 +4,7 @@ use crate::{
     handlers::*,
     services::{server::construct_workspace_server, AppController, TrashCan, ViewController, WorkspaceController},
 };
-use backend_service::config::ServerConfig;
+use backend_service::configuration::ClientServerConfiguration;
 use flowy_database::DBConnection;
 use flowy_document::module::FlowyDocument;
 use lib_dispatch::prelude::*;
@@ -32,7 +32,7 @@ pub fn init_workspace_controller(
     user: Arc<dyn WorkspaceUser>,
     database: Arc<dyn WorkspaceDatabase>,
     flowy_document: Arc<FlowyDocument>,
-    server_config: &ServerConfig,
+    server_config: &ClientServerConfiguration,
 ) -> Arc<WorkspaceController> {
     let server = construct_workspace_server(server_config);
 

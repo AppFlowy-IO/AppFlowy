@@ -25,7 +25,7 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
     let c_str: &CStr = unsafe { CStr::from_ptr(path) };
     let path: &str = c_str.to_str().unwrap();
 
-    let server_config = ServerConfig::default();
+    let server_config = get_client_server_configuration().unwrap();
     let config = FlowySDKConfig::new(path, server_config, "appflowy").log_filter("debug");
     *FLOWY_SDK.write() = Some(Arc::new(FlowySDK::new(config)));
 
@@ -70,7 +70,7 @@ pub extern "C" fn set_stream_port(port: i64) -> i32 {
 #[no_mangle]
 pub extern "C" fn link_me_please() {}
 
-use backend_service::config::ServerConfig;
+use backend_service::configuration::get_client_server_configuration;
 use lib_dispatch::prelude::ToBytes;
 
 #[inline(always)]

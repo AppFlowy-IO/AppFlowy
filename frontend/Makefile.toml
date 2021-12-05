@@ -19,6 +19,7 @@ PRODUCT_NAME = "AppFlowy"
 #CRATE_TYPE: https://doc.rust-lang.org/reference/linkage.html
 CRATE_TYPE = "staticlib"
 SDK_EXT = "a"
+APP_ENVIRONMENT = "local"
 
 [env.development-mac]
 TARGET_OS = "macos"
@@ -33,6 +34,7 @@ TARGET_OS = "macos"
 RUST_COMPILE_TARGET = "aarch64-apple-darwin"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "app"
+APP_ENVIRONMENT = "production"
 
 [env.production-mac-x86]
 BUILD_FLAG = "release"
@@ -40,7 +42,7 @@ TARGET_OS = "macos"
 RUST_COMPILE_TARGET = "x86_64-apple-darwin"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "app"
-
+APP_ENVIRONMENT = "production"
 
 [env.development-windows-x86]
 TARGET_OS = "windows"
@@ -59,6 +61,7 @@ FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "exe"
 CRATE_TYPE = "cdylib"
 SDK_EXT = "dll"
+APP_ENVIRONMENT = "production"
 
 [env.development-linux-x86]
 TARGET_OS = "linux"
@@ -77,6 +80,7 @@ CRATE_TYPE = "cdylib"
 FLUTTER_OUTPUT_DIR = "Release"
 SDK_EXT = "so"
 LINUX_ARCH = "x64"
+APP_ENVIRONMENT = "production"
 
 [env.development-linux-aarch64]
 TARGET_OS = "linux"
@@ -95,6 +99,7 @@ CRATE_TYPE = "cdylib"
 FLUTTER_OUTPUT_DIR = "Release"
 SDK_EXT = "so"
 LINUX_ARCH = "arm64"
+APP_ENVIRONMENT = "production"
 
 [tasks.echo_env]
 script = [
@@ -106,6 +111,7 @@ script = [
     echo RUST_COMPILE_TARGET: ${RUST_COMPILE_TARGET}
     echo FEATURES: ${FEATURES}
     echo PRODUCT_EXT: ${PRODUCT_EXT}
+    echo APP_ENVIRONMENT: ${APP_ENVIRONMENT}
     echo ${platforms}
 
     echo "-------- Flutter --------"

@@ -9,7 +9,7 @@ use crate::{
     entities::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile},
     errors::UserError,
 };
-use backend_service::config::ServerConfig;
+use backend_service::configuration::ClientServerConfiguration;
 use lib_infra::future::ResultFuture;
 
 pub trait UserServerAPI {
@@ -21,7 +21,7 @@ pub trait UserServerAPI {
     fn ws_addr(&self) -> String;
 }
 
-pub(crate) fn construct_user_server(config: &ServerConfig) -> Arc<dyn UserServerAPI + Send + Sync> {
+pub(crate) fn construct_user_server(config: &ClientServerConfiguration) -> Arc<dyn UserServerAPI + Send + Sync> {
     if cfg!(feature = "http_server") {
         Arc::new(UserServer::new(config.clone()))
     } else {

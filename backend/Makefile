@@ -10,6 +10,9 @@ docker_image:
 	source $(ROOT)/docker_env.sh && docker-compose up -d db
 	source $(ROOT)/docker_env.sh && docker-compose up -d backend
 
+local_server:
+	cargo run
+
 docker_test:
 	sh $(ROOT)/docker_test.sh
 

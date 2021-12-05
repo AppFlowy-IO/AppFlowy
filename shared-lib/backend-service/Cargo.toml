@@ -25,6 +25,8 @@ protobuf = {version = "2.18.0"}
 derive_more = {version = "0.99", features = ["display"]}
 tracing = { version = "0.1", features = ["log"] }
 actix-web = {version = "4.0.0-beta.8", optional = true}
+config = { version = "0.10.1", default-features = false, features = ["yaml"] }
+serde-aux = "1.0.1"
 
 [features]
 http_server = ["actix-web"]

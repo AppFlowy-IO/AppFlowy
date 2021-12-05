@@ -3,14 +3,14 @@ use crate::{
     errors::UserError,
     services::server::UserServerAPI,
 };
-use backend_service::{config::*, user_request::*};
+use backend_service::{configuration::*, user_request::*};
 use lib_infra::future::ResultFuture;
 
 pub struct UserServer {
-    config: ServerConfig,
+    config: ClientServerConfiguration,
 }
 impl UserServer {
-    pub fn new(config: ServerConfig) -> Self { Self { config } }
+    pub fn new(config: ClientServerConfiguration) -> Self { Self { config } }
 }
 
 impl UserServerAPI for UserServer {

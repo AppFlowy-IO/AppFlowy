@@ -2,7 +2,7 @@ mod deps_resolve;
 // mod flowy_server;
 pub mod module;
 use crate::deps_resolve::WorkspaceDepsResolver;
-use backend_service::config::ServerConfig;
+use backend_service::configuration::ClientServerConfiguration;
 use flowy_document::module::FlowyDocument;
 use flowy_user::{
     prelude::UserStatus,
@@ -26,11 +26,11 @@ pub struct FlowySDKConfig {
     name: String,
     root: String,
     log_filter: String,
-    server_config: ServerConfig,
+    server_config: ClientServerConfiguration,
 }
 
 impl FlowySDKConfig {
-    pub fn new(root: &str, server_config: ServerConfig, name: &str) -> Self {
+    pub fn new(root: &str, server_config: ClientServerConfiguration, name: &str) -> Self {
         FlowySDKConfig {
             name: name.to_owned(),
             root: root.to_owned(),
@@ -173,7 +173,7 @@ fn init_log(config: &FlowySDKConfig) {
 fn mk_workspace_controller(
     user_session: Arc<UserSession>,
     flowy_document: Arc<FlowyDocument>,
-    server_config: &ServerConfig,
+    server_config: &ClientServerConfiguration,
 ) -> Arc<WorkspaceController> {
     let workspace_deps = WorkspaceDepsResolver::new(user_session);
     let (user, database) = workspace_deps.split_into();

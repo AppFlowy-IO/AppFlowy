@@ -1,0 +1,5 @@
+port: 8000
+host: 0.0.0.0
+http_scheme: http
+ws_scheme: ws
+
