@@ -2,15 +2,15 @@ use bytes::Bytes;
 use lib_dispatch::prelude::{EventDispatcher, ModuleRequest, ToBytes};
 use lib_infra::{kv::KV, uuid};
 
+use flowy_core::{
+    entities::workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest, Workspace},
+    errors::WorkspaceError,
+    event::WorkspaceEvent::{CreateWorkspace, OpenWorkspace},
+};
 use flowy_user::{
     entities::{SignInRequest, SignUpRequest, UserProfile},
     errors::UserError,
     event::UserEvent::{SignIn, SignOut, SignUp},
-};
-use flowy_workspace::{
-    entities::workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest, Workspace},
-    errors::WorkspaceError,
-    event::WorkspaceEvent::{CreateWorkspace, OpenWorkspace},
 };
 use std::{fs, path::PathBuf, sync::Arc};
 

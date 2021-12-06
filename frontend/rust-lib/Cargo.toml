@@ -8,7 +8,7 @@ members = [
   "flowy-user",
   "flowy-test",
   "flowy-database",
-  "flowy-workspace",
+  "flowy-core",
   "dart-notify",
   "flowy-document",
 ]

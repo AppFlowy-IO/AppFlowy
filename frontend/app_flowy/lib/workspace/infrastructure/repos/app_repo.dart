@@ -4,14 +4,14 @@ import 'package:app_flowy/workspace/domain/i_app.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-dart-notify/subject.pb.dart';
+import 'package:flowy_sdk/protobuf/dart-notify/subject.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/app_query.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/app_update.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pbenum.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/observable.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core/observable.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 import 'helper.dart';
 

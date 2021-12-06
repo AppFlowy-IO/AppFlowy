@@ -5,7 +5,7 @@ import 'package:dartz/dartz.dart';
 import 'package:app_flowy/workspace/domain/i_doc.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/doc_repo.dart';
 import 'package:flowy_sdk/protobuf/flowy-document-infra/doc.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
 
 class IDocImpl extends IDoc {
   DocRepository repo;

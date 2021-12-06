@@ -2,7 +2,7 @@ import 'package:flowy_sdk/protobuf/flowy-workspace-infra/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/protobuf.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
 
 typedef AppUpdatedCallback = void Function(App app);
 typedef AppViewsChangeCallback = void Function(Either<List<View>, WorkspaceError> viewsOrFailed);

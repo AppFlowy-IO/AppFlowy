@@ -1,6 +1,6 @@
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/protobuf.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
 
 typedef WorkspaceAppsChangedCallback = void Function(Either<List<App>, WorkspaceError> appsOrFail);
 

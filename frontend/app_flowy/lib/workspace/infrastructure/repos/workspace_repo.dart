@@ -5,13 +5,13 @@ import 'package:dartz/dartz.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-dart-notify/subject.pb.dart';
+import 'package:flowy_sdk/protobuf/dart-notify/subject.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-infra/protobuf.dart' show UserProfile;
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_query.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/observable.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core/observable.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 
 import 'package:app_flowy/generated/locale_keys.g.dart';

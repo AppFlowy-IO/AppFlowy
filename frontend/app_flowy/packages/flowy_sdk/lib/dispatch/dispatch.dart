@@ -4,8 +4,8 @@ import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/protobuf/dart-ffi/ffi_response.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/event.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/event.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core/event.pb.dart';
 import 'package:flowy_sdk/protobuf/lib-infra/network_state.pb.dart';
 import 'package:isolates/isolates.dart';
 import 'package:isolates/ports.dart';
@@ -21,7 +21,7 @@ import 'package:flowy_sdk/protobuf/flowy-workspace-infra/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-document-infra/protobuf.dart';
 
 // ignore: unused_import
-import 'package:flowy_sdk/protobuf/flowy-infra/protobuf.dart';
+import 'package:flowy_sdk/protobuf/lib-infra/protobuf.dart';
 import 'package:protobuf/protobuf.dart';
 import 'dart:convert' show utf8;
 import 'error.dart';

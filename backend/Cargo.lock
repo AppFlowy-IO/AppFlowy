@@ -1196,6 +1196,43 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-core"
+version = "0.1.0"
+dependencies = [
+ "backend-service",
+ "bincode",
+ "bytes",
+ "chrono",
+ "crossbeam",
+ "crossbeam-utils",
+ "dart-notify",
+ "derive_more",
+ "diesel",
+ "diesel_derives",
+ "flowy-database",
+ "flowy-derive",
+ "flowy-document",
+ "flowy-document-infra",
+ "flowy-workspace-infra",
+ "futures",
+ "futures-core",
+ "lazy_static",
+ "lib-dispatch",
+ "lib-infra",
+ "lib-ot",
+ "lib-sqlite",
+ "log",
+ "parking_lot",
+ "pin-project 1.0.8",
+ "protobuf",
+ "serde",
+ "strum",
+ "strum_macros",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "flowy-database"
 version = "0.1.0"
 dependencies = [
@@ -1280,11 +1317,11 @@ dependencies = [
  "backend-service",
  "bytes",
  "color-eyre",
+ "flowy-core",
  "flowy-database",
  "flowy-document",
  "flowy-document-infra",
  "flowy-user",
- "flowy-workspace",
  "futures-core",
  "lib-dispatch",
  "lib-infra",
@@ -1304,11 +1341,11 @@ dependencies = [
  "bincode",
  "bytes",
  "claim",
+ "flowy-core",
  "flowy-document",
  "flowy-document-infra",
  "flowy-sdk",
  "flowy-user",
- "flowy-workspace",
  "futures-util",
  "lib-dispatch",
  "lib-infra",
@@ -1367,43 +1404,6 @@ dependencies = [
  "protobuf",
  "unicode-segmentation",
  "validator",
-]
-
-[[package]]
-name = "flowy-workspace"
-version = "0.1.0"
-dependencies = [
- "backend-service",
- "bincode",
- "bytes",
- "chrono",
- "crossbeam",
- "crossbeam-utils",
- "dart-notify",
- "derive_more",
- "diesel",
- "diesel_derives",
- "flowy-database",
- "flowy-derive",
- "flowy-document",
- "flowy-document-infra",
- "flowy-workspace-infra",
- "futures",
- "futures-core",
- "lazy_static",
- "lib-dispatch",
- "lib-infra",
- "lib-ot",
- "lib-sqlite",
- "log",
- "parking_lot",
- "pin-project 1.0.8",
- "protobuf",
- "serde",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
 ]
 
 [[package]]

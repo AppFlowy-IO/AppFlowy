@@ -8,9 +8,9 @@ use std::{
 use crate::FlowyTestSDK;
 use lib_dispatch::prelude::*;
 
+use flowy_core::errors::WorkspaceError;
 use flowy_sdk::*;
 use flowy_user::errors::UserError;
-use flowy_workspace::errors::WorkspaceError;
 use std::{convert::TryFrom, marker::PhantomData, sync::Arc};
 
 pub type FlowyWorkspaceTest = Builder<WorkspaceError>;

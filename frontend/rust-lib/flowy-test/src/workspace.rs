@@ -1,6 +1,5 @@
 use crate::prelude::*;
-use flowy_document_infra::entities::doc::Doc;
-use flowy_workspace::{
+use flowy_core::{
     entities::{
         app::*,
         trash::{RepeatedTrash, TrashIdentifier},
@@ -10,6 +9,7 @@ use flowy_workspace::{
     errors::ErrorCode,
     event::WorkspaceEvent::*,
 };
+use flowy_document_infra::entities::doc::Doc;
 
 pub struct WorkspaceTest {
     pub sdk: FlowyTestSDK,

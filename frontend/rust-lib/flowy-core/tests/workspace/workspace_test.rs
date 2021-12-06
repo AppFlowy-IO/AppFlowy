@@ -1,9 +1,9 @@
-use flowy_test::{builder::*, workspace::*, FlowyTest};
-use flowy_workspace::{
+use flowy_core::{
     entities::workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest},
     event::WorkspaceEvent::*,
     prelude::*,
 };
+use flowy_test::{builder::*, workspace::*, FlowyTest};
 
 #[tokio::test]
 async fn workspace_read_all() {

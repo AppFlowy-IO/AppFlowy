@@ -1,9 +1,9 @@
-use flowy_database::ConnectionPool;
-use flowy_user::services::user::UserSession;
-use flowy_workspace::{
+use flowy_core::{
     errors::WorkspaceError,
     module::{WorkspaceDatabase, WorkspaceUser},
 };
+use flowy_database::ConnectionPool;
+use flowy_user::services::user::UserSession;
 use std::sync::Arc;
 
 pub struct WorkspaceDepsResolver {

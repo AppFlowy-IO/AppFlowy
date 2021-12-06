@@ -1,6 +1,6 @@
 import 'package:app_flowy/workspace/domain/i_share.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/protobuf.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
 import 'package:dartz/dartz.dart';
 
 import 'repos/share_repo.dart';

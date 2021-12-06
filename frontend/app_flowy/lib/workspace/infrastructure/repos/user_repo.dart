@@ -6,7 +6,7 @@ import 'package:flowy_sdk/protobuf/flowy-user-infra/protobuf.dart' show UserProf
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_query.pb.dart';
 import 'package:app_flowy/workspace/domain/i_user.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
 
 class UserRepo {
   final UserProfile user;

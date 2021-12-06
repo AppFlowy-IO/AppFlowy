@@ -1,8 +1,8 @@
 use crate::deps_resolve::DocumentDepsResolver;
 use backend_service::configuration::ClientServerConfiguration;
+use flowy_core::prelude::WorkspaceController;
 use flowy_document::module::FlowyDocument;
 use flowy_user::services::user::UserSession;
-use flowy_workspace::prelude::WorkspaceController;
 use lib_dispatch::prelude::Module;
 use std::sync::Arc;
 
@@ -15,7 +15,7 @@ pub fn mk_modules(workspace_controller: Arc<WorkspaceController>, user_session: 
 fn mk_user_module(user_session: Arc<UserSession>) -> Module { flowy_user::module::create(user_session) }
 
 fn mk_workspace_module(workspace_controller: Arc<WorkspaceController>) -> Module {
-    flowy_workspace::module::create(workspace_controller)
+    flowy_core::module::create(workspace_controller)
 }
 
 pub fn mk_document_module(

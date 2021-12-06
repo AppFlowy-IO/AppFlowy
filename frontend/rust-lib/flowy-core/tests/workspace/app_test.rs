@@ -1,9 +1,9 @@
-use flowy_test::workspace::*;
-use flowy_workspace::entities::{
+use flowy_core::entities::{
     app::QueryAppRequest,
     trash::{TrashIdentifier, TrashType},
     view::*,
 };
+use flowy_test::workspace::*;
 
 #[tokio::test]
 #[should_panic]

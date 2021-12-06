@@ -3,12 +3,12 @@ mod deps_resolve;
 pub mod module;
 use crate::deps_resolve::WorkspaceDepsResolver;
 use backend_service::configuration::ClientServerConfiguration;
+use flowy_core::{errors::WorkspaceError, prelude::WorkspaceController};
 use flowy_document::module::FlowyDocument;
 use flowy_user::{
     prelude::UserStatus,
     services::user::{UserSession, UserSessionConfig},
 };
-use flowy_workspace::{errors::WorkspaceError, prelude::WorkspaceController};
 use lib_dispatch::prelude::*;
 use lib_infra::entities::network_state::NetworkType;
 use module::mk_modules;
@@ -177,5 +177,5 @@ fn mk_workspace_controller(
 ) -> Arc<WorkspaceController> {
     let workspace_deps = WorkspaceDepsResolver::new(user_session);
     let (user, database) = workspace_deps.split_into();
-    flowy_workspace::module::init_workspace_controller(user, database, flowy_document, server_config)
+    flowy_core::module::init_workspace_controller(user, database, flowy_document, server_config)
 }
