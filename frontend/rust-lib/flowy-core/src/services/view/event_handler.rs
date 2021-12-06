@@ -13,7 +13,7 @@ use crate::{
         },
     },
     errors::WorkspaceError,
-    services::{TrashCan, ViewController},
+    services::{TrashController, ViewController},
 };
 use flowy_document_infra::entities::doc::DocDelta;
 use flowy_workspace_infra::entities::share::{ExportData, ExportParams, ExportRequest};
@@ -63,7 +63,7 @@ pub(crate) async fn apply_doc_delta_handler(
 pub(crate) async fn delete_view_handler(
     data: Data<QueryViewRequest>,
     controller: Unit<Arc<ViewController>>,
-    trash_can: Unit<Arc<TrashCan>>,
+    trash_can: Unit<Arc<TrashController>>,
 ) -> Result<(), WorkspaceError> {
     let params: ViewIdentifiers = data.into_inner().try_into()?;
     for view_id in &params.view_ids {

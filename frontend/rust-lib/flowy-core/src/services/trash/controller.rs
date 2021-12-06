@@ -1,27 +1,23 @@
-use std::{fmt::Formatter, sync::Arc};
-
-use crossbeam_utils::thread;
-use tokio::sync::{broadcast, mpsc};
-
-use flowy_database::SqliteConnection;
-
 use crate::{
     entities::trash::{RepeatedTrash, Trash, TrashIdentifier, TrashIdentifiers, TrashType},
     errors::{WorkspaceError, WorkspaceResult},
     module::{WorkspaceDatabase, WorkspaceUser},
     notify::{send_anonymous_dart_notification, WorkspaceNotification},
-    services::server::Server,
-    sql_tables::trash::TrashTableSql,
+    services::{server::Server, trash::sql::TrashTableSql},
 };
+use crossbeam_utils::thread;
+use flowy_database::SqliteConnection;
+use std::{fmt::Formatter, sync::Arc};
+use tokio::sync::{broadcast, mpsc};
 
-pub struct TrashCan {
+pub struct TrashController {
     pub database: Arc<dyn WorkspaceDatabase>,
     notify: broadcast::Sender<TrashEvent>,
     server: Server,
     user: Arc<dyn WorkspaceUser>,
 }
 
-impl TrashCan {
+impl TrashController {
     pub fn new(database: Arc<dyn WorkspaceDatabase>, server: Server, user: Arc<dyn WorkspaceUser>) -> Self {
         let (tx, _) = broadcast::channel(10);
 
@@ -196,7 +192,7 @@ impl TrashCan {
     }
 }
 
-impl TrashCan {
+impl TrashController {
     #[tracing::instrument(level = "debug", skip(self, trash), err)]
     fn create_trash_on_server<T: Into<TrashIdentifiers>>(&self, trash: T) -> WorkspaceResult<()> {
         let token = self.user.token()?;

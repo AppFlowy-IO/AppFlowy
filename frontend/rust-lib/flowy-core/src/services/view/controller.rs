@@ -11,8 +11,12 @@ use crate::{
     errors::{internal_error, WorkspaceError, WorkspaceResult},
     module::{WorkspaceDatabase, WorkspaceUser},
     notify::{send_dart_notification, WorkspaceNotification},
-    services::{server::Server, TrashCan, TrashEvent},
-    sql_tables::view::{ViewTable, ViewTableChangeset, ViewTableSql},
+    services::{
+        server::Server,
+        view::sql::{ViewTable, ViewTableChangeset, ViewTableSql},
+        TrashController,
+        TrashEvent,
+    },
 };
 use flowy_document::module::FlowyDocument;
 use flowy_workspace_infra::entities::share::{ExportData, ExportParams};
@@ -24,7 +28,7 @@ pub(crate) struct ViewController {
     user: Arc<dyn WorkspaceUser>,
     server: Server,
     database: Arc<dyn WorkspaceDatabase>,
-    trash_can: Arc<TrashCan>,
+    trash_can: Arc<TrashController>,
     document: Arc<FlowyDocument>,
 }
 
@@ -33,7 +37,7 @@ impl ViewController {
         user: Arc<dyn WorkspaceUser>,
         database: Arc<dyn WorkspaceDatabase>,
         server: Server,
-        trash_can: Arc<TrashCan>,
+        trash_can: Arc<TrashController>,
         document: Arc<FlowyDocument>,
     ) -> Self {
         Self {
@@ -296,7 +300,7 @@ impl ViewController {
 async fn handle_trash_event(
     database: Arc<dyn WorkspaceDatabase>,
     document: Arc<FlowyDocument>,
-    trash_can: Arc<TrashCan>,
+    trash_can: Arc<TrashController>,
     event: TrashEvent,
 ) {
     let db_result = database.db_connection();
@@ -372,7 +376,11 @@ fn notify_dart(view_table: ViewTable, notification: WorkspaceNotification) {
 }
 
 #[tracing::instrument(skip(belong_to_id, trash_can, conn), fields(view_count), err)]
-fn notify_views_changed(belong_to_id: &str, trash_can: Arc<TrashCan>, conn: &SqliteConnection) -> WorkspaceResult<()> {
+fn notify_views_changed(
+    belong_to_id: &str,
+    trash_can: Arc<TrashController>,
+    conn: &SqliteConnection,
+) -> WorkspaceResult<()> {
     let repeated_view = read_local_belonging_view(belong_to_id, trash_can.clone(), conn)?;
     tracing::Span::current().record("view_count", &format!("{}", repeated_view.len()).as_str());
     send_dart_notification(&belong_to_id, WorkspaceNotification::AppViewsChanged)
@@ -383,7 +391,7 @@ fn notify_views_changed(belong_to_id: &str, trash_can: Arc<TrashCan>, conn: &Sql
 
 fn read_local_belonging_view(
     belong_to_id: &str,
-    trash_can: Arc<TrashCan>,
+    trash_can: Arc<TrashController>,
     conn: &SqliteConnection,
 ) -> WorkspaceResult<RepeatedView> {
     let mut view_tables = ViewTableSql::read_views(belong_to_id, conn)?;

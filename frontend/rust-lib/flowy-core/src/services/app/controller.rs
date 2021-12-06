@@ -1,9 +1,3 @@
-use std::{collections::HashSet, sync::Arc};
-
-use futures::{FutureExt, StreamExt};
-
-use flowy_database::SqliteConnection;
-
 use crate::{
     entities::{
         app::{App, CreateAppParams, *},
@@ -12,14 +6,21 @@ use crate::{
     errors::*,
     module::{WorkspaceDatabase, WorkspaceUser},
     notify::*,
-    services::{server::Server, TrashCan, TrashEvent},
-    sql_tables::app::{AppTable, AppTableChangeset, AppTableSql},
+    services::{
+        app::sql::{AppTable, AppTableChangeset, AppTableSql},
+        server::Server,
+        TrashController,
+        TrashEvent,
+    },
 };
+use flowy_database::SqliteConnection;
+use futures::{FutureExt, StreamExt};
+use std::{collections::HashSet, sync::Arc};
 
 pub(crate) struct AppController {
     user: Arc<dyn WorkspaceUser>,
     database: Arc<dyn WorkspaceDatabase>,
-    trash_can: Arc<TrashCan>,
+    trash_can: Arc<TrashController>,
     server: Server,
 }
 
@@ -27,7 +28,7 @@ impl AppController {
     pub(crate) fn new(
         user: Arc<dyn WorkspaceUser>,
         database: Arc<dyn WorkspaceDatabase>,
-        trash_can: Arc<TrashCan>,
+        trash_can: Arc<TrashController>,
         server: Server,
     ) -> Self {
         Self {
@@ -185,7 +186,7 @@ impl AppController {
 }
 
 #[tracing::instrument(level = "trace", skip(database, trash_can))]
-async fn handle_trash_event(database: Arc<dyn WorkspaceDatabase>, trash_can: Arc<TrashCan>, event: TrashEvent) {
+async fn handle_trash_event(database: Arc<dyn WorkspaceDatabase>, trash_can: Arc<TrashController>, event: TrashEvent) {
     let db_result = database.db_connection();
     match event {
         TrashEvent::NewTrash(identifiers, ret) | TrashEvent::Putback(identifiers, ret) => {
@@ -226,7 +227,11 @@ async fn handle_trash_event(database: Arc<dyn WorkspaceDatabase>, trash_can: Arc
 }
 
 #[tracing::instrument(skip(workspace_id, trash_can, conn), err)]
-fn notify_apps_changed(workspace_id: &str, trash_can: Arc<TrashCan>, conn: &SqliteConnection) -> WorkspaceResult<()> {
+fn notify_apps_changed(
+    workspace_id: &str,
+    trash_can: Arc<TrashController>,
+    conn: &SqliteConnection,
+) -> WorkspaceResult<()> {
     let repeated_app = read_local_workspace_apps(workspace_id, trash_can, conn)?;
     send_dart_notification(workspace_id, WorkspaceNotification::WorkspaceAppsChanged)
         .payload(repeated_app)
@@ -236,7 +241,7 @@ fn notify_apps_changed(workspace_id: &str, trash_can: Arc<TrashCan>, conn: &Sqli
 
 pub fn read_local_workspace_apps(
     workspace_id: &str,
-    trash_can: Arc<TrashCan>,
+    trash_can: Arc<TrashController>,
     conn: &SqliteConnection,
 ) -> Result<RepeatedApp, WorkspaceError> {
     let mut app_tables = AppTableSql::read_workspace_apps(workspace_id, false, conn)?;

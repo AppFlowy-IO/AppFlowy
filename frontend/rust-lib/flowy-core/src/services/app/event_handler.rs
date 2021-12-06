@@ -12,7 +12,7 @@ use crate::{
         trash::Trash,
     },
     errors::WorkspaceError,
-    services::{AppController, TrashCan, ViewController},
+    services::{AppController, TrashController, ViewController},
 };
 use lib_dispatch::prelude::{data_result, Data, DataResult, Unit};
 use std::{convert::TryInto, sync::Arc};
@@ -30,7 +30,7 @@ pub(crate) async fn create_app_handler(
 pub(crate) async fn delete_app_handler(
     data: Data<QueryAppRequest>,
     controller: Unit<Arc<AppController>>,
-    trash_can: Unit<Arc<TrashCan>>,
+    trash_can: Unit<Arc<TrashController>>,
 ) -> Result<(), WorkspaceError> {
     let params: AppIdentifier = data.into_inner().try_into()?;
     let trash = controller

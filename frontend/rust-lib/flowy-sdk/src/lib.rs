@@ -3,7 +3,7 @@ mod deps_resolve;
 pub mod module;
 use crate::deps_resolve::WorkspaceDepsResolver;
 use backend_service::configuration::ClientServerConfiguration;
-use flowy_core::{errors::WorkspaceError, prelude::WorkspaceController};
+use flowy_core::{errors::WorkspaceError, module::init_core, prelude::FlowyCore};
 use flowy_document::module::FlowyDocument;
 use flowy_user::{
     prelude::UserStatus,
@@ -66,7 +66,7 @@ pub struct FlowySDK {
     config: FlowySDKConfig,
     pub user_session: Arc<UserSession>,
     pub flowy_document: Arc<FlowyDocument>,
-    pub workspace_ctrl: Arc<WorkspaceController>,
+    pub core: Arc<FlowyCore>,
     pub dispatcher: Arc<EventDispatcher>,
 }
 
@@ -81,17 +81,17 @@ impl FlowySDK {
         let user_config = UserSessionConfig::new(&config.root, &config.server_config, &session_cache_key);
         let user_session = Arc::new(UserSession::new(user_config));
         let flowy_document = mk_document_module(user_session.clone(), &config.server_config);
-        let workspace_ctrl =
-            mk_workspace_controller(user_session.clone(), flowy_document.clone(), &config.server_config);
-        let modules = mk_modules(workspace_ctrl.clone(), user_session.clone());
+        let core = mk_core(user_session.clone(), flowy_document.clone(), &config.server_config);
+
+        let modules = mk_modules(core.clone(), user_session.clone());
         let dispatcher = Arc::new(EventDispatcher::construct(|| modules));
-        _init(&dispatcher, user_session.clone(), workspace_ctrl.clone());
+        _init(&dispatcher, user_session.clone(), core.clone());
 
         Self {
             config,
             user_session,
             flowy_document,
-            workspace_ctrl,
+            core,
             dispatcher,
         }
     }
@@ -99,38 +99,35 @@ impl FlowySDK {
     pub fn dispatcher(&self) -> Arc<EventDispatcher> { self.dispatcher.clone() }
 }
 
-fn _init(dispatch: &EventDispatcher, user_session: Arc<UserSession>, workspace_controller: Arc<WorkspaceController>) {
+fn _init(dispatch: &EventDispatcher, user_session: Arc<UserSession>, core: Arc<FlowyCore>) {
     let user_status_subscribe = user_session.notifier.user_status_subscribe();
     let network_status_subscribe = user_session.notifier.network_type_subscribe();
-    let cloned_workspace_controller = workspace_controller.clone();
+    let cloned_core = core.clone();
 
     dispatch.spawn(async move {
         user_session.init();
-        _listen_user_status(user_status_subscribe, workspace_controller.clone()).await;
+        _listen_user_status(user_status_subscribe, core.clone()).await;
     });
     dispatch.spawn(async move {
-        _listen_network_status(network_status_subscribe, cloned_workspace_controller).await;
+        _listen_network_status(network_status_subscribe, cloned_core).await;
     });
 }
 
-async fn _listen_user_status(
-    mut subscribe: broadcast::Receiver<UserStatus>,
-    workspace_controller: Arc<WorkspaceController>,
-) {
+async fn _listen_user_status(mut subscribe: broadcast::Receiver<UserStatus>, core: Arc<FlowyCore>) {
     while let Ok(status) = subscribe.recv().await {
         let result = || async {
             match status {
                 UserStatus::Login { token } => {
-                    let _ = workspace_controller.user_did_sign_in(&token).await?;
+                    let _ = core.user_did_sign_in(&token).await?;
                 },
                 UserStatus::Logout { .. } => {
-                    workspace_controller.user_did_logout().await;
+                    core.user_did_logout().await;
                 },
                 UserStatus::Expired { .. } => {
-                    workspace_controller.user_session_expired().await;
+                    core.user_session_expired().await;
                 },
                 UserStatus::SignUp { profile, ret } => {
-                    let _ = workspace_controller.user_did_sign_up(&profile.token).await?;
+                    let _ = core.user_did_sign_up(&profile.token).await?;
                     let _ = ret.send(());
                 },
             }
@@ -144,12 +141,9 @@ async fn _listen_user_status(
     }
 }
 
-async fn _listen_network_status(
-    mut subscribe: broadcast::Receiver<NetworkType>,
-    workspace_controller: Arc<WorkspaceController>,
-) {
+async fn _listen_network_status(mut subscribe: broadcast::Receiver<NetworkType>, core: Arc<FlowyCore>) {
     while let Ok(new_type) = subscribe.recv().await {
-        workspace_controller.network_state_changed(new_type);
+        core.network_state_changed(new_type);
     }
 }
 
@@ -170,12 +164,12 @@ fn init_log(config: &FlowySDKConfig) {
     }
 }
 
-fn mk_workspace_controller(
+fn mk_core(
     user_session: Arc<UserSession>,
     flowy_document: Arc<FlowyDocument>,
     server_config: &ClientServerConfiguration,
-) -> Arc<WorkspaceController> {
+) -> Arc<FlowyCore> {
     let workspace_deps = WorkspaceDepsResolver::new(user_session);
     let (user, database) = workspace_deps.split_into();
-    flowy_core::module::init_workspace_controller(user, database, flowy_document, server_config)
+    init_core(user, database, flowy_document, server_config)
 }

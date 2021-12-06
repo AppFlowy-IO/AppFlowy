@@ -10,15 +10,14 @@ mod macros;
 #[macro_use]
 extern crate flowy_database;
 
+pub mod core;
 pub mod errors;
-pub mod handlers;
 mod notify;
 pub mod protobuf;
-mod sql_tables;
 mod util;
 
 pub mod prelude {
     pub use flowy_workspace_infra::entities::{app::*, trash::*, view::*, workspace::*};
 
-    pub use crate::{errors::*, module::*, services::*};
+    pub use crate::{core::*, errors::*, module::*};
 }

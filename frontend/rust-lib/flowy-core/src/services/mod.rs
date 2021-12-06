@@ -1,11 +1,10 @@
-pub(crate) use app_controller::*;
-pub(crate) use trash_can::*;
-pub(crate) use view_controller::*;
-pub use workspace_controller::*;
+pub(crate) use app::controller::*;
+pub(crate) use trash::controller::*;
+pub(crate) use view::controller::*;
+pub(crate) use workspace::controller::*;
 
-mod app_controller;
-mod database;
+pub(crate) mod app;
 pub(crate) mod server;
-mod trash_can;
-mod view_controller;
-mod workspace_controller;
+pub(crate) mod trash;
+pub(crate) mod view;
+pub(crate) mod workspace;

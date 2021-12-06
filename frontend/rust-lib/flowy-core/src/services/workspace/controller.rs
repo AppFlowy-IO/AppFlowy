@@ -2,24 +2,19 @@ use crate::{
     errors::*,
     module::{WorkspaceDatabase, WorkspaceUser},
     notify::*,
-    services::{read_local_workspace_apps, server::Server, AppController, TrashCan, ViewController},
-    sql_tables::workspace::{WorkspaceTable, WorkspaceTableChangeset, WorkspaceTableSql},
+    services::{
+        read_local_workspace_apps,
+        server::Server,
+        workspace::sql::{WorkspaceTable, WorkspaceTableChangeset, WorkspaceTableSql},
+        AppController,
+        TrashController,
+        ViewController,
+    },
 };
-use chrono::Utc;
 use flowy_database::SqliteConnection;
-use flowy_document_infra::{entities::doc::DocDelta, user_default::initial_read_me};
-use flowy_workspace_infra::{
-    entities::{app::RepeatedApp, view::View, workspace::*},
-    user_default,
-};
-use lazy_static::lazy_static;
-use lib_infra::{entities::network_state::NetworkType, kv::KV};
-use parking_lot::RwLock;
-use std::{collections::HashMap, sync::Arc};
-
-lazy_static! {
-    static ref INIT_WORKSPACE: RwLock<HashMap<String, bool>> = RwLock::new(HashMap::new());
-}
+use flowy_workspace_infra::entities::{app::RepeatedApp, view::View, workspace::*};
+use lib_infra::kv::KV;
+use std::sync::Arc;
 
 pub struct WorkspaceController {
     pub user: Arc<dyn WorkspaceUser>,
@@ -27,7 +22,7 @@ pub struct WorkspaceController {
     pub(crate) view_controller: Arc<ViewController>,
     pub(crate) database: Arc<dyn WorkspaceDatabase>,
     pub(crate) app_controller: Arc<AppController>,
-    pub(crate) trash_can: Arc<TrashCan>,
+    pub(crate) trash_controller: Arc<TrashController>,
     server: Server,
 }
 
@@ -37,13 +32,9 @@ impl WorkspaceController {
         database: Arc<dyn WorkspaceDatabase>,
         app_controller: Arc<AppController>,
         view_controller: Arc<ViewController>,
-        trash_can: Arc<TrashCan>,
+        trash_can: Arc<TrashController>,
         server: Server,
     ) -> Self {
-        if let Ok(token) = user.token() {
-            INIT_WORKSPACE.write().insert(token, false);
-        }
-
         let workspace_sql = Arc::new(WorkspaceTableSql {});
         Self {
             user,
@@ -51,92 +42,12 @@ impl WorkspaceController {
             view_controller,
             database,
             app_controller,
-            trash_can,
+            trash_controller: trash_can,
             server,
         }
     }
 
-    async fn init(&self, token: &str) -> Result<(), WorkspaceError> {
-        log::debug!("Start initializing workspace");
-        if let Some(is_init) = INIT_WORKSPACE.read().get(token) {
-            if *is_init {
-                return Ok(());
-            }
-        }
-        log::debug!("Finish initializing workspace");
-        INIT_WORKSPACE.write().insert(token.to_owned(), true);
-        let _ = self.server.init();
-        let _ = self.trash_can.init()?;
-        let _ = self.view_controller.init()?;
-        let _ = self.app_controller.init()?;
-
-        Ok(())
-    }
-
-    pub fn network_state_changed(&self, new_type: NetworkType) {
-        match new_type {
-            NetworkType::UnknownNetworkType => {},
-            NetworkType::Wifi => {},
-            NetworkType::Cell => {},
-            NetworkType::Ethernet => {},
-        }
-    }
-
-    pub async fn user_did_sign_in(&self, token: &str) -> WorkspaceResult<()> {
-        // TODO: (nathan) do something here
-
-        log::debug!("workspace initialize after sign in");
-        let _ = self.init(token).await?;
-        Ok(())
-    }
-
-    pub async fn user_did_logout(&self) {
-        // TODO: (nathan) do something here
-    }
-
-    pub async fn user_session_expired(&self) {
-        // TODO: (nathan) do something here
-    }
-
-    pub async fn user_did_sign_up(&self, _token: &str) -> WorkspaceResult<()> {
-        log::debug!("Create user default workspace");
-        let time = Utc::now();
-        let mut workspace = user_default::create_default_workspace(time);
-        let apps = workspace.take_apps().into_inner();
-        let cloned_workspace = workspace.clone();
-
-        let _ = self.create_workspace(workspace).await?;
-        for mut app in apps {
-            let views = app.take_belongings().into_inner();
-            let _ = self.app_controller.create_app(app).await?;
-            for (index, view) in views.into_iter().enumerate() {
-                if index == 0 {
-                    let delta = initial_read_me();
-                    let doc_delta = DocDelta {
-                        doc_id: view.id.clone(),
-                        data: delta.to_json(),
-                    };
-                    let _ = self.view_controller.apply_doc_delta(doc_delta).await?;
-
-                    self.view_controller.set_latest_view(&view);
-                }
-                let _ = self.view_controller.create_view(view).await?;
-            }
-        }
-
-        let token = self.user.token()?;
-        let repeated_workspace = RepeatedWorkspace {
-            items: vec![cloned_workspace],
-        };
-
-        send_dart_notification(&token, WorkspaceNotification::UserCreateWorkspace)
-            .payload(repeated_workspace)
-            .send();
-
-        log::debug!("workspace initialize after sign up");
-        let _ = self.init(&token).await?;
-        Ok(())
-    }
+    pub(crate) fn init(&self) -> Result<(), WorkspaceError> { Ok(()) }
 
     pub(crate) async fn create_workspace_from_params(
         &self,
@@ -263,7 +174,7 @@ impl WorkspaceController {
     }
 
     #[tracing::instrument(level = "debug", skip(self, conn), err)]
-    fn read_local_workspaces(
+    pub(crate) fn read_local_workspaces(
         &self,
         workspace_id: Option<String>,
         user_id: &str,
@@ -301,7 +212,7 @@ impl WorkspaceController {
 
     #[tracing::instrument(level = "debug", skip(self, conn), err)]
     fn read_local_apps(&self, workspace_id: &str, conn: &SqliteConnection) -> Result<RepeatedApp, WorkspaceError> {
-        let repeated_app = read_local_workspace_apps(workspace_id, self.trash_can.clone(), conn)?;
+        let repeated_app = read_local_workspace_apps(workspace_id, self.trash_controller.clone(), conn)?;
         Ok(repeated_app)
     }
 }
@@ -354,7 +265,11 @@ impl WorkspaceController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    fn read_workspaces_on_server(&self, user_id: String, params: WorkspaceIdentifier) -> Result<(), WorkspaceError> {
+    pub(crate) fn read_workspaces_on_server(
+        &self,
+        user_id: String,
+        params: WorkspaceIdentifier,
+    ) -> Result<(), WorkspaceError> {
         let (token, server) = self.token_with_server()?;
         let workspace_sql = self.workspace_sql.clone();
         let app_ctrl = self.app_controller.clone();

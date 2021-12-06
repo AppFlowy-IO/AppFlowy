@@ -1,15 +1,27 @@
-use crate::{
-    errors::WorkspaceError,
-    event::WorkspaceEvent,
-    handlers::*,
-    services::{server::construct_workspace_server, AppController, TrashCan, ViewController, WorkspaceController},
-};
+use std::sync::Arc;
+
 use backend_service::configuration::ClientServerConfiguration;
 use flowy_database::DBConnection;
 use flowy_document::module::FlowyDocument;
 use lib_dispatch::prelude::*;
 use lib_sqlite::ConnectionPool;
-use std::sync::Arc;
+
+use crate::{
+    core::FlowyCore,
+    errors::WorkspaceError,
+    event::WorkspaceEvent,
+    services::{
+        app::event_handler::*,
+        server::construct_workspace_server,
+        trash::event_handler::*,
+        view::event_handler::*,
+        workspace::event_handler::*,
+        AppController,
+        TrashController,
+        ViewController,
+        WorkspaceController,
+    },
+};
 
 pub trait WorkspaceDeps: WorkspaceUser + WorkspaceDatabase {}
 
@@ -28,48 +40,57 @@ pub trait WorkspaceDatabase: Send + Sync {
     }
 }
 
-pub fn init_workspace_controller(
+pub fn init_core(
     user: Arc<dyn WorkspaceUser>,
     database: Arc<dyn WorkspaceDatabase>,
     flowy_document: Arc<FlowyDocument>,
     server_config: &ClientServerConfiguration,
-) -> Arc<WorkspaceController> {
+) -> Arc<FlowyCore> {
     let server = construct_workspace_server(server_config);
 
-    let trash_can = Arc::new(TrashCan::new(database.clone(), server.clone(), user.clone()));
+    let trash_controller = Arc::new(TrashController::new(database.clone(), server.clone(), user.clone()));
 
     let view_controller = Arc::new(ViewController::new(
         user.clone(),
         database.clone(),
         server.clone(),
-        trash_can.clone(),
+        trash_controller.clone(),
         flowy_document,
     ));
 
     let app_controller = Arc::new(AppController::new(
         user.clone(),
         database.clone(),
-        trash_can.clone(),
+        trash_controller.clone(),
         server.clone(),
     ));
 
-    Arc::new(WorkspaceController::new(
+    let workspace_controller = Arc::new(WorkspaceController::new(
+        user.clone(),
+        database.clone(),
+        app_controller.clone(),
+        view_controller.clone(),
+        trash_controller.clone(),
+        server.clone(),
+    ));
+
+    Arc::new(FlowyCore::new(
         user,
-        database,
+        server,
+        workspace_controller,
         app_controller,
         view_controller,
-        trash_can,
-        server,
+        trash_controller,
     ))
 }
 
-pub fn create(workspace: Arc<WorkspaceController>) -> Module {
+pub fn create(core: Arc<FlowyCore>) -> Module {
     let mut module = Module::new()
         .name("Flowy-Workspace")
-        .data(workspace.clone())
-        .data(workspace.app_controller.clone())
-        .data(workspace.view_controller.clone())
-        .data(workspace.trash_can.clone());
+        .data(core.workspace_controller.clone())
+        .data(core.app_controller.clone())
+        .data(core.view_controller.clone())
+        .data(core.trash_controller.clone());
 
     module = module
         .event(WorkspaceEvent::CreateWorkspace, create_workspace_handler)

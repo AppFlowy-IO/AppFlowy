@@ -188,7 +188,7 @@ impl std::convert::From<TestServer> for TestUserServer {
             pg_pool: server.pg_pool,
             user_token: None,
             user_id: None,
-            client_server_config: server.client_server_config.clone(),
+            client_server_config: server.client_server_config,
         }
     }
 }
