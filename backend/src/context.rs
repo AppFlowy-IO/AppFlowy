@@ -1,6 +1,6 @@
-use crate::service::{
-    doc::manager::DocBiz,
-    ws::{WsBizHandlers, WsServer},
+use crate::{
+    services::doc::manager::DocBiz,
+    web_socket::{WsBizHandlers, WsServer},
 };
 use actix::Addr;
 use actix_web::web::Data;

@@ -6,14 +6,14 @@ use crate::{
 use backend_service::{configuration::*, user_request::*};
 use lib_infra::future::ResultFuture;
 
-pub struct UserServer {
+pub struct UserHttpServer {
     config: ClientServerConfiguration,
 }
-impl UserServer {
+impl UserHttpServer {
     pub fn new(config: ClientServerConfiguration) -> Self { Self { config } }
 }
 
-impl UserServerAPI for UserServer {
+impl UserServerAPI for UserHttpServer {
     fn sign_up(&self, params: SignUpParams) -> ResultFuture<SignUpResponse, UserError> {
         let url = self.config.sign_up_url();
         ResultFuture::new(async move {

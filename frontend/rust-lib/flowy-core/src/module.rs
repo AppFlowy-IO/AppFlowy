@@ -7,7 +7,7 @@ use lib_dispatch::prelude::*;
 use lib_sqlite::ConnectionPool;
 
 use crate::{
-    core::FlowyCore,
+    core::{event_handler::*, CoreContext},
     errors::WorkspaceError,
     event::WorkspaceEvent,
     services::{
@@ -45,7 +45,7 @@ pub fn init_core(
     database: Arc<dyn WorkspaceDatabase>,
     flowy_document: Arc<FlowyDocument>,
     server_config: &ClientServerConfiguration,
-) -> Arc<FlowyCore> {
+) -> Arc<CoreContext> {
     let server = construct_workspace_server(server_config);
 
     let trash_controller = Arc::new(TrashController::new(database.clone(), server.clone(), user.clone()));
@@ -68,15 +68,14 @@ pub fn init_core(
     let workspace_controller = Arc::new(WorkspaceController::new(
         user.clone(),
         database.clone(),
-        app_controller.clone(),
-        view_controller.clone(),
         trash_controller.clone(),
         server.clone(),
     ));
 
-    Arc::new(FlowyCore::new(
+    Arc::new(CoreContext::new(
         user,
         server,
+        database,
         workspace_controller,
         app_controller,
         view_controller,
@@ -84,13 +83,14 @@ pub fn init_core(
     ))
 }
 
-pub fn create(core: Arc<FlowyCore>) -> Module {
+pub fn create(core: Arc<CoreContext>) -> Module {
     let mut module = Module::new()
         .name("Flowy-Workspace")
         .data(core.workspace_controller.clone())
         .data(core.app_controller.clone())
         .data(core.view_controller.clone())
-        .data(core.trash_controller.clone());
+        .data(core.trash_controller.clone())
+        .data(core.clone());
 
     module = module
         .event(WorkspaceEvent::CreateWorkspace, create_workspace_handler)

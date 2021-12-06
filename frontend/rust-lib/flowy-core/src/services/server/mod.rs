@@ -66,7 +66,7 @@ pub(crate) fn construct_workspace_server(
     config: &ClientServerConfiguration,
 ) -> Arc<dyn WorkspaceServerAPI + Send + Sync> {
     if cfg!(feature = "http_server") {
-        Arc::new(WorkspaceServer::new(config.clone()))
+        Arc::new(WorkspaceHttpServer::new(config.clone()))
     } else {
         Arc::new(WorkspaceServerMock {})
     }

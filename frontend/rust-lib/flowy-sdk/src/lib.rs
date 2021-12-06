@@ -3,7 +3,7 @@ mod deps_resolve;
 pub mod module;
 use crate::deps_resolve::WorkspaceDepsResolver;
 use backend_service::configuration::ClientServerConfiguration;
-use flowy_core::{errors::WorkspaceError, module::init_core, prelude::FlowyCore};
+use flowy_core::{errors::WorkspaceError, module::init_core, prelude::CoreContext};
 use flowy_document::module::FlowyDocument;
 use flowy_user::{
     prelude::UserStatus,
@@ -66,7 +66,7 @@ pub struct FlowySDK {
     config: FlowySDKConfig,
     pub user_session: Arc<UserSession>,
     pub flowy_document: Arc<FlowyDocument>,
-    pub core: Arc<FlowyCore>,
+    pub core: Arc<CoreContext>,
     pub dispatcher: Arc<EventDispatcher>,
 }
 
@@ -99,7 +99,7 @@ impl FlowySDK {
     pub fn dispatcher(&self) -> Arc<EventDispatcher> { self.dispatcher.clone() }
 }
 
-fn _init(dispatch: &EventDispatcher, user_session: Arc<UserSession>, core: Arc<FlowyCore>) {
+fn _init(dispatch: &EventDispatcher, user_session: Arc<UserSession>, core: Arc<CoreContext>) {
     let user_status_subscribe = user_session.notifier.user_status_subscribe();
     let network_status_subscribe = user_session.notifier.network_type_subscribe();
     let cloned_core = core.clone();
@@ -113,7 +113,7 @@ fn _init(dispatch: &EventDispatcher, user_session: Arc<UserSession>, core: Arc<F
     });
 }
 
-async fn _listen_user_status(mut subscribe: broadcast::Receiver<UserStatus>, core: Arc<FlowyCore>) {
+async fn _listen_user_status(mut subscribe: broadcast::Receiver<UserStatus>, core: Arc<CoreContext>) {
     while let Ok(status) = subscribe.recv().await {
         let result = || async {
             match status {
@@ -141,7 +141,7 @@ async fn _listen_user_status(mut subscribe: broadcast::Receiver<UserStatus>, cor
     }
 }
 
-async fn _listen_network_status(mut subscribe: broadcast::Receiver<NetworkType>, core: Arc<FlowyCore>) {
+async fn _listen_network_status(mut subscribe: broadcast::Receiver<NetworkType>, core: Arc<CoreContext>) {
     while let Ok(new_type) = subscribe.recv().await {
         core.network_state_changed(new_type);
     }
@@ -168,7 +168,7 @@ fn mk_core(
     user_session: Arc<UserSession>,
     flowy_document: Arc<FlowyDocument>,
     server_config: &ClientServerConfiguration,
-) -> Arc<FlowyCore> {
+) -> Arc<CoreContext> {
     let workspace_deps = WorkspaceDepsResolver::new(user_session);
     let (user, database) = workspace_deps.split_into();
     init_core(user, database, flowy_document, server_config)

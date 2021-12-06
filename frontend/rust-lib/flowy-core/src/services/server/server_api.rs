@@ -13,15 +13,15 @@ use backend_service::{configuration::ClientServerConfiguration, middleware::*, w
 use flowy_workspace_infra::errors::ErrorCode;
 use lib_infra::future::ResultFuture;
 
-pub struct WorkspaceServer {
+pub struct WorkspaceHttpServer {
     config: ClientServerConfiguration,
 }
 
-impl WorkspaceServer {
-    pub fn new(config: ClientServerConfiguration) -> WorkspaceServer { Self { config } }
+impl WorkspaceHttpServer {
+    pub fn new(config: ClientServerConfiguration) -> WorkspaceHttpServer { Self { config } }
 }
 
-impl WorkspaceServerAPI for WorkspaceServer {
+impl WorkspaceServerAPI for WorkspaceHttpServer {
     fn init(&self) {
         let mut rx = BACKEND_API_MIDDLEWARE.invalid_token_subscribe();
         tokio::spawn(async move {

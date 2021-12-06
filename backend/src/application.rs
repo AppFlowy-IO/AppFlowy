@@ -1,9 +1,8 @@
-use std::{net::TcpListener, time::Duration};
-
 use actix::Actor;
 use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_web::{dev::Server, middleware, web, web::Data, App, HttpServer, Scope};
 use sqlx::{postgres::PgPoolOptions, PgPool};
+use std::{net::TcpListener, time::Duration};
 use tokio::time::interval;
 
 use crate::{
@@ -13,16 +12,15 @@ use crate::{
         Settings,
     },
     context::AppContext,
-    service::{
+    services::{
         app::router as app,
         doc::router as doc,
         trash::router as trash,
         user::router as user,
         view::router as view,
         workspace::router as workspace,
-        ws,
-        ws::WsServer,
     },
+    web_socket::WsServer,
 };
 
 pub struct Application {
@@ -75,7 +73,7 @@ async fn period_check(_pool: Data<PgPool>) {
     }
 }
 
-fn ws_scope() -> Scope { web::scope("/ws").service(ws::router::establish_ws_connection) }
+fn ws_scope() -> Scope { web::scope("/ws").service(crate::web_socket::router::establish_ws_connection) }
 
 fn user_scope() -> Scope {
     // https://developer.mozilla.org/en-US/docs/Web/HTTP
@@ -124,6 +122,9 @@ fn user_scope() -> Scope {
             .route(web::delete().to(trash::delete_handler))
             .route(web::get().to(trash::read_handler))
         )
+        .service(web::resource("/sync")
+            .route(web::post().to(trash::create_handler))
+        )
         // password
         .service(web::resource("/password_change")
             .route(web::post().to(user::change_password))
@@ -131,7 +132,7 @@ fn user_scope() -> Scope {
 }
 
 pub async fn init_app_context(configuration: &Settings) -> AppContext {
-    let _ = crate::service::log::Builder::new("flowy-server")
+    let _ = crate::services::log::Builder::new("flowy-server")
         .env_filter("Trace")
         .build();
     let pg_pool = get_connection_pool(&configuration.database)

@@ -241,11 +241,11 @@ fn notify_apps_changed(
 
 pub fn read_local_workspace_apps(
     workspace_id: &str,
-    trash_can: Arc<TrashController>,
+    trash_controller: Arc<TrashController>,
     conn: &SqliteConnection,
 ) -> Result<RepeatedApp, WorkspaceError> {
     let mut app_tables = AppTableSql::read_workspace_apps(workspace_id, false, conn)?;
-    let trash_ids = trash_can.trash_ids(conn)?;
+    let trash_ids = trash_controller.trash_ids(conn)?;
     app_tables.retain(|app_table| !trash_ids.contains(&app_table.id));
 
     let apps = app_tables.into_iter().map(|table| table.into()).collect::<Vec<App>>();

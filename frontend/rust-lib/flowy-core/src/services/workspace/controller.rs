@@ -6,22 +6,17 @@ use crate::{
         read_local_workspace_apps,
         server::Server,
         workspace::sql::{WorkspaceTable, WorkspaceTableChangeset, WorkspaceTableSql},
-        AppController,
         TrashController,
-        ViewController,
     },
 };
 use flowy_database::SqliteConnection;
-use flowy_workspace_infra::entities::{app::RepeatedApp, view::View, workspace::*};
+use flowy_workspace_infra::entities::{app::RepeatedApp, workspace::*};
 use lib_infra::kv::KV;
 use std::sync::Arc;
 
 pub struct WorkspaceController {
     pub user: Arc<dyn WorkspaceUser>,
-    pub(crate) workspace_sql: Arc<WorkspaceTableSql>,
-    pub(crate) view_controller: Arc<ViewController>,
     pub(crate) database: Arc<dyn WorkspaceDatabase>,
-    pub(crate) app_controller: Arc<AppController>,
     pub(crate) trash_controller: Arc<TrashController>,
     server: Server,
 }
@@ -30,18 +25,12 @@ impl WorkspaceController {
     pub(crate) fn new(
         user: Arc<dyn WorkspaceUser>,
         database: Arc<dyn WorkspaceDatabase>,
-        app_controller: Arc<AppController>,
-        view_controller: Arc<ViewController>,
         trash_can: Arc<TrashController>,
         server: Server,
     ) -> Self {
-        let workspace_sql = Arc::new(WorkspaceTableSql {});
         Self {
             user,
-            workspace_sql,
-            view_controller,
             database,
-            app_controller,
             trash_controller: trash_can,
             server,
         }
@@ -74,7 +63,7 @@ impl WorkspaceController {
         // other journaling modes, EXCLUSIVE prevents other database connections from
         // reading the database while the transaction is underway.
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
-            self.workspace_sql.create_workspace(workspace_table, conn)?;
+            WorkspaceTableSql::create_workspace(workspace_table, conn)?;
             let repeated_workspace = self.read_local_workspaces(None, &user_id, conn)?;
             send_dart_notification(&token, WorkspaceNotification::UserCreateWorkspace)
                 .payload(repeated_workspace)
@@ -94,7 +83,7 @@ impl WorkspaceController {
         let workspace_id = changeset.id.clone();
         let conn = &*self.database.db_connection()?;
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
-            let _ = self.workspace_sql.update_workspace(changeset, conn)?;
+            let _ = WorkspaceTableSql::update_workspace(changeset, conn)?;
             let user_id = self.user.user_id()?;
             let workspace = self.read_local_workspace(workspace_id.clone(), &user_id, conn)?;
             send_dart_notification(&workspace_id, WorkspaceNotification::WorkspaceUpdated)
@@ -115,7 +104,7 @@ impl WorkspaceController {
         let token = self.user.token()?;
         let conn = &*self.database.db_connection()?;
         conn.immediate_transaction::<_, WorkspaceError, _>(|| {
-            let _ = self.workspace_sql.delete_workspace(workspace_id, conn)?;
+            let _ = WorkspaceTableSql::delete_workspace(workspace_id, conn)?;
             let repeated_workspace = self.read_local_workspaces(None, &user_id, conn)?;
             send_dart_notification(&token, WorkspaceNotification::UserDeleteWorkspace)
                 .payload(repeated_workspace)
@@ -140,31 +129,6 @@ impl WorkspaceController {
         }
     }
 
-    pub(crate) async fn read_workspaces(
-        &self,
-        params: WorkspaceIdentifier,
-    ) -> Result<RepeatedWorkspace, WorkspaceError> {
-        let user_id = self.user.user_id()?;
-        let workspaces =
-            self.read_local_workspaces(params.workspace_id.clone(), &user_id, &*self.database.db_connection()?)?;
-        let _ = self.read_workspaces_on_server(user_id, params);
-        Ok(workspaces)
-    }
-
-    pub(crate) async fn read_current_workspace(&self) -> Result<CurrentWorkspaceSetting, WorkspaceError> {
-        let workspace_id = get_current_workspace()?;
-        let user_id = self.user.user_id()?;
-        let params = WorkspaceIdentifier {
-            workspace_id: Some(workspace_id.clone()),
-        };
-        let workspace = self.read_local_workspace(workspace_id, &user_id, &*self.database.db_connection()?)?;
-
-        let latest_view: Option<View> = self.view_controller.latest_visit_view().unwrap_or(None);
-        let setting = CurrentWorkspaceSetting { workspace, latest_view };
-        let _ = self.read_workspaces_on_server(user_id, params)?;
-        Ok(setting)
-    }
-
     pub(crate) async fn read_current_workspace_apps(&self) -> Result<RepeatedApp, WorkspaceError> {
         let workspace_id = get_current_workspace()?;
         let conn = self.database.db_connection()?;
@@ -181,19 +145,17 @@ impl WorkspaceController {
         conn: &SqliteConnection,
     ) -> Result<RepeatedWorkspace, WorkspaceError> {
         let workspace_id = workspace_id.to_owned();
-        let workspace_tables = self.workspace_sql.read_workspaces(workspace_id, user_id, conn)?;
+        let workspace_tables = WorkspaceTableSql::read_workspaces(workspace_id, user_id, conn)?;
 
         let mut workspaces = vec![];
         for table in workspace_tables {
-            let apps = self.read_local_apps(&table.id, conn)?.into_inner();
-            let mut workspace: Workspace = table.into();
-            workspace.apps.items = apps;
+            let workspace: Workspace = table.into();
             workspaces.push(workspace);
         }
         Ok(RepeatedWorkspace { items: workspaces })
     }
 
-    fn read_local_workspace(
+    pub(crate) fn read_local_workspace(
         &self,
         workspace_id: String,
         user_id: &str,
@@ -218,12 +180,6 @@ impl WorkspaceController {
 }
 
 impl WorkspaceController {
-    fn token_with_server(&self) -> Result<(String, Server), WorkspaceError> {
-        let token = self.user.token()?;
-        let server = self.server.clone();
-        Ok((token, server))
-    }
-
     #[tracing::instrument(level = "debug", skip(self), err)]
     async fn create_workspace_on_server(&self, params: CreateWorkspaceParams) -> Result<Workspace, WorkspaceError> {
         let token = self.user.token()?;
@@ -233,7 +189,7 @@ impl WorkspaceController {
 
     #[tracing::instrument(level = "debug", skip(self), err)]
     fn update_workspace_on_server(&self, params: UpdateWorkspaceParams) -> Result<(), WorkspaceError> {
-        let (token, server) = self.token_with_server()?;
+        let (token, server) = (self.user.token()?, self.server.clone());
         tokio::spawn(async move {
             match server.update_workspace(&token, params).await {
                 Ok(_) => {},
@@ -251,7 +207,7 @@ impl WorkspaceController {
         let params = WorkspaceIdentifier {
             workspace_id: Some(workspace_id.to_string()),
         };
-        let (token, server) = self.token_with_server()?;
+        let (token, server) = (self.user.token()?, self.server.clone());
         tokio::spawn(async move {
             match server.delete_workspace(&token, params).await {
                 Ok(_) => {},
@@ -263,64 +219,13 @@ impl WorkspaceController {
         });
         Ok(())
     }
-
-    #[tracing::instrument(level = "debug", skip(self), err)]
-    pub(crate) fn read_workspaces_on_server(
-        &self,
-        user_id: String,
-        params: WorkspaceIdentifier,
-    ) -> Result<(), WorkspaceError> {
-        let (token, server) = self.token_with_server()?;
-        let workspace_sql = self.workspace_sql.clone();
-        let app_ctrl = self.app_controller.clone();
-        let view_ctrl = self.view_controller.clone();
-        let conn = self.database.db_connection()?;
-        tokio::spawn(async move {
-            // Opti: handle the error and retry?
-            let workspaces = server.read_workspace(&token, params).await?;
-            let _ = (&*conn).immediate_transaction::<_, WorkspaceError, _>(|| {
-                tracing::debug!("Save {} workspace", workspaces.len());
-                for workspace in &workspaces.items {
-                    let m_workspace = workspace.clone();
-                    let apps = m_workspace.apps.clone().into_inner();
-                    let workspace_table = WorkspaceTable::new(m_workspace, &user_id);
-
-                    let _ = workspace_sql.create_workspace(workspace_table, &*conn)?;
-                    tracing::debug!("Save {} apps", apps.len());
-                    for app in apps {
-                        let views = app.belongings.clone().into_inner();
-                        match app_ctrl.save_app(app, &*conn) {
-                            Ok(_) => {},
-                            Err(e) => log::error!("create app failed: {:?}", e),
-                        }
-
-                        tracing::debug!("Save {} views", views.len());
-                        for view in views {
-                            match view_ctrl.save_view(view, &*conn) {
-                                Ok(_) => {},
-                                Err(e) => log::error!("create view failed: {:?}", e),
-                            }
-                        }
-                    }
-                }
-                Ok(())
-            })?;
-
-            send_dart_notification(&token, WorkspaceNotification::WorkspaceListUpdated)
-                .payload(workspaces)
-                .send();
-            Result::<(), WorkspaceError>::Ok(())
-        });
-
-        Ok(())
-    }
 }
 
 const CURRENT_WORKSPACE_ID: &str = "current_workspace_id";
 
 fn set_current_workspace(workspace_id: &str) { KV::set_str(CURRENT_WORKSPACE_ID, workspace_id.to_owned()); }
 
-fn get_current_workspace() -> Result<String, WorkspaceError> {
+pub fn get_current_workspace() -> Result<String, WorkspaceError> {
     match KV::get_str(CURRENT_WORKSPACE_ID) {
         None => Err(WorkspaceError::record_not_found()
             .context("Current workspace not found or should call open workspace first")),
