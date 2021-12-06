@@ -10,7 +10,7 @@
 <a href="https://discord.gg/9Q2xaN37tV"><img src="https://img.shields.io/badge/AppFlowy.IO-discord-orange"></a>
 <a href="https://github.com/AppFlowy-IO/appflowy"><img src="https://img.shields.io/github/stars/AppFlowy-IO/appflowy.svg?style=flat&logo=github&colorB=deeppink&label=stars"></a>
 <a href="https://github.com/AppFlowy-IO/appflowy"><img src="https://img.shields.io/github/forks/AppFlowy-IO/appflowy.svg"></a>
-<a href="https://opensource.org/licenses/AGPL-3.0"><img src="https://img.shields.io/badge/license-APGL-purple.svg" alt="License: AGPL"></a>
+<a href="https://opensource.org/licenses/AGPL-3.0"><img src="https://img.shields.io/badge/license-AGPL-purple.svg" alt="License: AGPL"></a>
 
 </p>
 
