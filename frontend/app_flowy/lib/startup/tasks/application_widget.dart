@@ -1,4 +1,5 @@
 import 'package:app_flowy/startup/startup.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,14 @@ class AppWidgetTask extends LaunchTask {
     final widget = context.getIt<EntryPoint>().create();
     final app = ApplicationWidget(child: widget);
     Bloc.observer = ApplicationBlocObserver();
-    runApp(app);
+
+    runApp(
+      EasyLocalization(
+          supportedLocales: const [Locale('en')],
+          path: 'assets/translations',
+          fallbackLocale: const Locale('en'),
+          child: app),
+    );
 
     return Future(() => {});
   }
@@ -45,6 +53,9 @@ class ApplicationWidget extends StatelessWidget {
         builder: overlayManagerBuilder(),
         debugShowCheckedModeBanner: false,
         theme: theme.themeData,
+        localizationsDelegates: context.localizationDelegates,
+        supportedLocales: context.supportedLocales,
+        locale: context.locale,
         navigatorKey: AppGlobals.rootNavKey,
         home: child,
       ),
