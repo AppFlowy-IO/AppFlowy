@@ -11,9 +11,13 @@ use dashmap::DashMap;
 use flowy_document_infra::{
     core::Document,
     entities::ws::{WsDataType, WsDocumentData},
-    protobuf::{Doc, RevId, RevType, Revision, RevisionRange, UpdateDocParams},
+    protobuf::{Doc, UpdateDocParams},
 };
-use lib_ot::{core::OperationTransformable, rich_text::RichTextDelta};
+use lib_ot::{
+    core::OperationTransformable,
+    protobuf::{RevId, RevType, Revision, RevisionRange},
+    rich_text::RichTextDelta,
+};
 use parking_lot::RwLock;
 use protobuf::Message;
 use sqlx::PgPool;

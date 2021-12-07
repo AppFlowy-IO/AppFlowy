@@ -1,7 +1,8 @@
 use crate::{errors::DocError, services::ws::DocumentWebSocket};
-use flowy_document_infra::entities::doc::{NewDocUser, RevId};
+use flowy_document_infra::entities::doc::NewDocUser;
 use futures::future::BoxFuture;
 use lib_infra::retry::Action;
+use lib_ot::revision::RevId;
 use std::{future, sync::Arc};
 
 pub(crate) struct OpenDocAction {

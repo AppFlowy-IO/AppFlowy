@@ -1,9 +1,25 @@
-use std::{error::Error, fmt, str::Utf8Error};
+use std::{error::Error, fmt, fmt::Debug, str::Utf8Error};
 
 #[derive(Clone, Debug)]
 pub struct OTError {
     pub code: OTErrorCode,
     pub msg: String,
+}
+
+macro_rules! static_ot_error {
+    ($name:ident, $code:expr) => {
+        #[allow(non_snake_case, missing_docs)]
+        pub fn $name() -> OTError { $code.into() }
+    };
+}
+
+impl std::convert::From<OTErrorCode> for OTError {
+    fn from(code: OTErrorCode) -> Self {
+        OTError {
+            code: code.clone(),
+            msg: format!("{:?}", code),
+        }
+    }
 }
 
 impl OTError {
@@ -13,6 +29,13 @@ impl OTError {
             msg: msg.to_owned(),
         }
     }
+
+    pub fn context<T: Debug>(mut self, error: T) -> Self {
+        self.msg = format!("{:?}", error);
+        self
+    }
+
+    static_ot_error!(duplicate_revision, OTErrorCode::DuplicatedRevision);
 }
 
 impl fmt::Display for OTError {
@@ -42,6 +65,7 @@ pub enum OTErrorCode {
     UndoFail,
     RedoFail,
     SerdeError,
+    DuplicatedRevision,
 }
 
 pub struct ErrorBuilder {

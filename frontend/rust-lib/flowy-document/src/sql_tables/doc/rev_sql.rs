@@ -1,17 +1,17 @@
 use crate::{
     errors::DocError,
-    sql_tables::{doc::RevTable, RevChangeset, RevState, RevTableType},
+    sql_tables::{doc::RevTable, RevChangeset, RevTableType, SqlRevState},
 };
 use diesel::update;
 use flowy_database::{insert_or_ignore_into, prelude::*, schema::rev_table::dsl, SqliteConnection};
-use flowy_document_infra::entities::doc::{Revision, RevisionRange};
+use lib_ot::revision::{Revision, RevisionRange};
 
 pub struct RevTableSql {}
 
 impl RevTableSql {
     pub(crate) fn create_rev_table(
         &self,
-        revisions: Vec<(Revision, RevState)>,
+        revisions: Vec<(Revision, SqlRevState)>,
         conn: &SqliteConnection,
     ) -> Result<(), DocError> {
         // Batch insert: https://diesel.rs/guides/all-about-inserts.html

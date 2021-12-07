@@ -1,16 +1,17 @@
 use crate::{
     errors::{internal_error, DocError, DocResult},
     services::doc::revision::{model::*, RevisionServer},
-    sql_tables::RevState,
+    sql_tables::SqlRevState,
 };
 use async_stream::stream;
 use dashmap::DashMap;
 use flowy_database::{ConnectionPool, SqliteConnection};
-use flowy_document_infra::entities::doc::{revision_from_doc, Doc, RevId, RevType, Revision, RevisionRange};
+use flowy_document_infra::entities::doc::Doc;
 use futures::stream::StreamExt;
 use lib_infra::future::ResultFuture;
 use lib_ot::{
     core::{Operation, OperationTransformable},
+    revision::{PendingRevId, RevId, RevIdReceiver, RevType, Revision, RevisionRange, RevisionRecord},
     rich_text::RichTextDelta,
 };
 use std::{collections::VecDeque, sync::Arc, time::Duration};
@@ -52,7 +53,7 @@ impl RevisionStore {
             server,
         });
 
-        tokio::spawn(RevisionStream::new(store.clone(), pending_rx, ws_revision_sender).run());
+        tokio::spawn(RevisionUploadStream::new(store.clone(), pending_rx, ws_revision_sender).run());
 
         store
     }
@@ -70,7 +71,7 @@ impl RevisionStore {
             if let Ok(rev_id) = rx.recv().await {
                 match revs_map.get_mut(&rev_id) {
                     None => {},
-                    Some(mut rev) => rev.value_mut().state = RevState::Acked,
+                    Some(mut rev) => rev.value_mut().state = SqlRevState::Acked.into(),
                 }
             }
         });
@@ -113,7 +114,7 @@ impl RevisionStore {
             let revisions_state = revs_map
                 .iter()
                 .map(|kv| (kv.revision.clone(), kv.state))
-                .collect::<Vec<(Revision, RevState)>>();
+                .collect::<Vec<(Revision, SqlRevState)>>();
 
             match persistence.create_revs(revisions_state.clone()) {
                 Ok(_) => {
@@ -157,9 +158,14 @@ impl RevisionStore {
 
         let doc = self.server.fetch_document_from_remote(&self.doc_id).await?;
         let revision = revision_from_doc(doc.clone(), RevType::Remote);
-        let _ = self.persistence.create_revs(vec![(revision, RevState::Acked)])?;
+        let _ = self.persistence.create_revs(vec![(revision, SqlRevState::Acked)])?;
         Ok(doc)
     }
+}
+
+pub fn revision_from_doc(doc: Doc, ty: RevType) -> Revision {
+    let delta_data = doc.data.as_bytes();
+    Revision::new(doc.base_rev_id, doc.rev_id, delta_data.to_owned(), &doc.id, ty)
 }
 
 impl RevisionIterator for RevisionStore {
@@ -316,13 +322,13 @@ pub(crate) enum PendingMsg {
 pub(crate) type PendingSender = mpsc::UnboundedSender<PendingMsg>;
 pub(crate) type PendingReceiver = mpsc::UnboundedReceiver<PendingMsg>;
 
-pub(crate) struct RevisionStream {
+pub(crate) struct RevisionUploadStream {
     revisions: Arc<dyn RevisionIterator>,
     receiver: Option<PendingReceiver>,
     ws_revision_sender: mpsc::UnboundedSender<Revision>,
 }
 
-impl RevisionStream {
+impl RevisionUploadStream {
     pub(crate) fn new(
         revisions: Arc<dyn RevisionIterator>,
         pending_rx: PendingReceiver,

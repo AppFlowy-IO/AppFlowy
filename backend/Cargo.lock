@@ -1972,13 +1972,18 @@ version = "0.1.0"
 dependencies = [
  "bytecount",
  "bytes",
+ "dashmap",
  "derive_more",
+ "flowy-derive",
  "lazy_static",
  "log",
+ "md5",
+ "protobuf",
  "serde",
  "serde_json",
  "strum",
  "strum_macros",
+ "tokio",
  "tracing",
 ]
 

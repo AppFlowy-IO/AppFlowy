@@ -3,12 +3,13 @@ use crate::{
     services::doc::revision::RevisionStore,
 };
 use flowy_database::ConnectionPool;
-use flowy_document_infra::{
-    entities::doc::{Doc, RevId, RevType, Revision, RevisionRange},
-    util::RevIdCounter,
-};
+use flowy_document_infra::{entities::doc::Doc, util::RevIdCounter};
 use lib_infra::future::ResultFuture;
-use lib_ot::{core::OperationTransformable, rich_text::RichTextDelta};
+use lib_ot::{
+    core::OperationTransformable,
+    revision::{RevId, RevType, Revision, RevisionRange},
+    rich_text::RichTextDelta,
+};
 use std::sync::Arc;
 use tokio::sync::mpsc;
 

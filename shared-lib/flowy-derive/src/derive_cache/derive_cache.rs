@@ -63,12 +63,12 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "DocDelta"
         | "NewDocUser"
         | "DocIdentifier"
-        | "RevId"
-        | "Revision"
-        | "RevisionRange"
         | "WsDocumentData"
         | "WsError"
         | "WsMessage"
+        | "Revision"
+        | "RevId"
+        | "RevisionRange"
         | "SignInRequest"
         | "SignInParams"
         | "SignInResponse"
@@ -91,9 +91,9 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "TrashType"
         | "ViewType"
         | "ExportType"
-        | "RevType"
         | "WsDataType"
         | "WsModule"
+        | "RevType"
         => TypeCategory::Enum,
 
         "Option" => TypeCategory::Opt,

@@ -11,7 +11,7 @@ use flowy_database::ConnectionPool;
 use flowy_document_infra::{
     core::history::UndoResult,
     entities::{
-        doc::{DocDelta, RevId, RevType, Revision, RevisionRange},
+        doc::DocDelta,
         ws::{WsDataType, WsDocumentData},
     },
     errors::DocumentResult,
@@ -19,6 +19,7 @@ use flowy_document_infra::{
 use lib_infra::retry::{ExponentialBackoff, Retry};
 use lib_ot::{
     core::Interval,
+    revision::{RevId, RevType, Revision, RevisionRange},
     rich_text::{RichTextAttribute, RichTextDelta},
 };
 use lib_ws::WsConnectState;

@@ -2,12 +2,12 @@ use async_stream::stream;
 use bytes::Bytes;
 use flowy_document_infra::{
     core::{history::UndoResult, Document},
-    entities::doc::{RevId, Revision},
     errors::DocumentError,
 };
 use futures::stream::StreamExt;
 use lib_ot::{
     core::{Interval, OperationTransformable},
+    revision::{RevId, Revision},
     rich_text::{RichTextAttribute, RichTextDelta},
 };
 use std::{convert::TryFrom, sync::Arc};

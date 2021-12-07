@@ -1,9 +1,7 @@
-use crate::{
-    entities::doc::{NewDocUser, Revision},
-    errors::DocumentError,
-};
+use crate::{entities::doc::NewDocUser, errors::DocumentError};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use lib_ot::revision::Revision;
 use std::convert::{TryFrom, TryInto};
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Eq, PartialEq, Hash)]

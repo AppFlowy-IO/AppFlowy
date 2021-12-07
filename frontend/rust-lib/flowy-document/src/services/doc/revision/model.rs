@@ -1,47 +1,12 @@
 use crate::{
     errors::{internal_error, DocError, DocResult},
-    sql_tables::{RevState, RevTableSql},
+    sql_tables::{RevTableSql, SqlRevState},
 };
 use flowy_database::ConnectionPool;
-use flowy_document_infra::entities::doc::{Revision, RevisionRange};
 use lib_infra::future::ResultFuture;
+use lib_ot::revision::{Revision, RevisionRange};
 use std::sync::Arc;
 use tokio::sync::broadcast;
-
-pub type RevIdReceiver = broadcast::Receiver<i64>;
-pub type RevIdSender = broadcast::Sender<i64>;
-
-pub struct RevisionRecord {
-    pub revision: Revision,
-    pub state: RevState,
-}
-
-impl RevisionRecord {
-    pub fn new(revision: Revision) -> Self {
-        Self {
-            revision,
-            state: RevState::Local,
-        }
-    }
-}
-
-pub(crate) struct PendingRevId {
-    pub rev_id: i64,
-    pub sender: RevIdSender,
-}
-
-impl PendingRevId {
-    pub(crate) fn new(rev_id: i64, sender: RevIdSender) -> Self { Self { rev_id, sender } }
-
-    pub(crate) fn finish(&self, rev_id: i64) -> bool {
-        if self.rev_id > rev_id {
-            false
-        } else {
-            let _ = self.sender.send(self.rev_id);
-            true
-        }
-    }
-}
 
 pub(crate) struct Persistence {
     pub(crate) rev_sql: Arc<RevTableSql>,
@@ -54,7 +19,7 @@ impl Persistence {
         Self { rev_sql, pool }
     }
 
-    pub(crate) fn create_revs(&self, revisions: Vec<(Revision, RevState)>) -> DocResult<()> {
+    pub(crate) fn create_revs(&self, revisions: Vec<(Revision, SqlRevState)>) -> DocResult<()> {
         let conn = &*self.pool.get().map_err(internal_error)?;
         conn.immediate_transaction::<_, DocError, _>(|| {
             let _ = self.rev_sql.create_rev_table(revisions, conn)?;

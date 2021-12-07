@@ -1,9 +1,7 @@
 use diesel::sql_types::Integer;
 use flowy_database::schema::rev_table;
-use flowy_document_infra::{
-    entities::doc::{RevId, RevType, Revision},
-    util::md5,
-};
+use flowy_document_infra::util::md5;
+use lib_ot::revision::{RevId, RevState, RevType, Revision};
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
 #[table_name = "rev_table"]
@@ -13,38 +11,48 @@ pub(crate) struct RevTable {
     pub(crate) base_rev_id: i64,
     pub(crate) rev_id: i64,
     pub(crate) data: Vec<u8>,
-    pub(crate) state: RevState,
+    pub(crate) state: SqlRevState,
     pub(crate) ty: RevTableType,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash, FromSqlRow, AsExpression)]
 #[repr(i32)]
 #[sql_type = "Integer"]
-pub enum RevState {
+pub enum SqlRevState {
     Local = 0,
     Acked = 1,
 }
 
-impl std::default::Default for RevState {
-    fn default() -> Self { RevState::Local }
+impl std::default::Default for SqlRevState {
+    fn default() -> Self { SqlRevState::Local }
 }
 
-impl std::convert::From<i32> for RevState {
+impl std::convert::From<i32> for SqlRevState {
     fn from(value: i32) -> Self {
         match value {
-            0 => RevState::Local,
-            1 => RevState::Acked,
+            0 => SqlRevState::Local,
+            1 => SqlRevState::Acked,
             o => {
                 log::error!("Unsupported rev state {}, fallback to RevState::Local", o);
-                RevState::Local
+                SqlRevState::Local
             },
         }
     }
 }
-impl RevState {
+
+impl SqlRevState {
     pub fn value(&self) -> i32 { *self as i32 }
 }
 impl_sql_integer_expression!(RevState);
+
+impl std::convert::From<SqlRevState> for RevState {
+    fn from(s: SqlRevState) -> Self {
+        match s {
+            SqlRevState::Local => RevState.Local,
+            SqlRevState::Acked => RevState.Acked,
+        }
+    }
+}
 
 impl std::convert::From<RevTable> for Revision {
     fn from(table: RevTable) -> Self {
@@ -111,5 +119,5 @@ impl_sql_integer_expression!(RevTableType);
 pub(crate) struct RevChangeset {
     pub(crate) doc_id: String,
     pub(crate) rev_id: RevId,
-    pub(crate) state: RevState,
+    pub(crate) state: SqlRevState,
 }
