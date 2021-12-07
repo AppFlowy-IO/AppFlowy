@@ -1,4 +1,4 @@
-import 'package:flowy_infra/strings.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -13,6 +13,7 @@ import 'package:flowy_infra_ui/style_widget/text_input.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:textstyle_extensions/textstyle_extensions.dart';
 export 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
+import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class TextFieldDialog extends StatefulWidget {
   final String value;
@@ -53,7 +54,7 @@ class _CreateTextFieldDialog extends State<TextFieldDialog> {
             VSpace(Insets.sm * 1.5),
           ],
           FlowyFormTextInput(
-            hintText: "Page name",
+            hintText: LocaleKeys.dialogCreatePageNameHint.tr(),
             initialValue: widget.value,
             textStyle: const TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
             autoFocus: true,
@@ -196,7 +197,7 @@ class OkCancelButton extends StatelessWidget {
         children: <Widget>[
           if (onCancelPressed != null)
             SecondaryTextButton(
-              cancelTitle ?? S.BTN_CANCEL,
+              cancelTitle ?? LocaleKeys.button_Cancel.tr(),
               onPressed: () {
                 onCancelPressed!();
                 AppGlobals.nav.pop();
@@ -206,7 +207,7 @@ class OkCancelButton extends StatelessWidget {
           HSpace(Insets.m),
           if (onOkPressed != null)
             PrimaryTextButton(
-              okTitle ?? S.BTN_OK,
+              okTitle ?? LocaleKeys.button_OK.tr(),
               onPressed: () {
                 onOkPressed!();
                 AppGlobals.nav.pop();

@@ -2,6 +2,7 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/application/sign_in_bloc.dart';
 import 'package:app_flowy/user/domain/i_auth.dart';
 import 'package:app_flowy/user/presentation/widgets/background.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
@@ -14,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class SignInScreen extends StatelessWidget {
   final IAuthRouter router;
@@ -58,9 +60,9 @@ class SignInForm extends StatelessWidget {
       alignment: Alignment.center,
       child: AuthFormContainer(
         children: [
-          const FlowyLogoTitle(
-            title: 'Login to Appflowy',
-            logoSize: Size(60, 60),
+          FlowyLogoTitle(
+            title: LocaleKeys.signIn_loginTitle.tr(),
+            logoSize: const Size(60, 60),
           ),
           const VSpace(30),
           const EmailTextField(),
@@ -93,14 +95,14 @@ class SignUpPrompt extends StatelessWidget {
     final theme = context.watch<AppTheme>();
     return Row(
       children: [
-        Text("Dont't have an account", style: TextStyle(color: theme.shader3, fontSize: 12)),
+        Text(LocaleKeys.signIn_dontHaveAnAccount.tr(), style: TextStyle(color: theme.shader3, fontSize: 12)),
         TextButton(
           style: TextButton.styleFrom(
             textStyle: const TextStyle(fontSize: 12),
           ),
           onPressed: () => router.pushSignUpScreen(context),
           child: Text(
-            'Sign Up',
+            LocaleKeys.signUp_buttonText.tr(),
             style: TextStyle(color: theme.main1),
           ),
         ),
@@ -119,7 +121,7 @@ class LoginButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return RoundedTextButton(
-      title: 'Login',
+      title: LocaleKeys.signIn_loginButtonText.tr(),
       height: 48,
       borderRadius: Corners.s10Border,
       color: theme.main1,
@@ -147,7 +149,7 @@ class ForgetPasswordButton extends StatelessWidget {
       ),
       onPressed: () => router.pushForgetPasswordScreen(context),
       child: Text(
-        'Forgot Password?',
+        LocaleKeys.signIn_forgotPassword.tr(),
         style: TextStyle(color: theme.main1),
       ),
     );
@@ -170,7 +172,7 @@ class PasswordTextField extends StatelessWidget {
           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
           obscureIcon: svg("home/hide"),
           obscureHideIcon: svg("home/show"),
-          hintText: 'Password',
+          hintText: LocaleKeys.signIn_passwordHint.tr(),
           normalBorderColor: theme.shader4,
           highlightBorderColor: theme.red,
           cursorColor: theme.main1,
@@ -194,7 +196,7 @@ class EmailTextField extends StatelessWidget {
       buildWhen: (previous, current) => previous.emailError != current.emailError,
       builder: (context, state) {
         return RoundedInputField(
-          hintText: 'Email',
+          hintText: LocaleKeys.signIn_emailHint.tr(),
           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
           normalBorderColor: theme.shader4,
           highlightBorderColor: theme.red,
