@@ -1,14 +1,14 @@
 use crate::{core::extensions::InsertExt, util::is_newline};
-use lib_ot::core::{
-    attributes_except_header,
-    plain_attributes,
-    DeltaBuilder,
-    DeltaIter,
-    RichTextAttribute,
-    RichTextAttributeKey,
-    RichTextAttributes,
-    RichTextDelta,
-    NEW_LINE,
+use lib_ot::{
+    core::{DeltaBuilder, DeltaIter, NEW_LINE},
+    rich_text::{
+        attributes_except_header,
+        plain_attributes,
+        RichTextAttribute,
+        RichTextAttributeKey,
+        RichTextAttributes,
+        RichTextDelta,
+    },
 };
 
 pub struct PreserveBlockFormatOnInsert {}

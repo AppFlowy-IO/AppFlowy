@@ -1,5 +1,8 @@
 use flowy_document_infra::core::{Document, PlainDoc};
-use lib_ot::core::*;
+use lib_ot::{
+    core::*,
+    rich_text::{AttributeBuilder, RichTextAttribute, RichTextAttributeValue, RichTextDelta},
+};
 
 #[test]
 fn operation_insert_serialize_test() {

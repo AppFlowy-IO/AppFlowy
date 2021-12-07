@@ -1,6 +1,6 @@
 use crate::document::helper::{DocScript, DocumentTest};
 use flowy_document_infra::core::{Document, FlowyDoc};
-use lib_ot::core::{Interval, RichTextAttribute};
+use lib_ot::{core::Interval, rich_text::RichTextAttribute};
 
 #[rustfmt::skip]
 //                         ┌─────────┐       ┌─────────┐

@@ -6,7 +6,10 @@ use crate::{
     errors::DocumentError,
     user_default::doc_initial_delta,
 };
-use lib_ot::core::*;
+use lib_ot::{
+    core::*,
+    rich_text::{RichTextAttribute, RichTextDelta},
+};
 use tokio::sync::mpsc;
 
 pub trait CustomDocument {

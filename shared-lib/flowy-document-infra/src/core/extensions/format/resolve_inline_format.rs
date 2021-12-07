@@ -2,7 +2,10 @@ use crate::{
     core::extensions::{format::helper::line_break, FormatExt},
     util::find_newline,
 };
-use lib_ot::core::{AttributeScope, DeltaBuilder, DeltaIter, Interval, RichTextAttribute, RichTextDelta};
+use lib_ot::{
+    core::{DeltaBuilder, DeltaIter, Interval},
+    rich_text::{AttributeScope, RichTextAttribute, RichTextDelta},
+};
 
 pub struct ResolveInlineFormat {}
 impl FormatExt for ResolveInlineFormat {

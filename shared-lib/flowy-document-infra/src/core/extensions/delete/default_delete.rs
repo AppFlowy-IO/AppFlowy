@@ -1,5 +1,8 @@
 use crate::core::extensions::DeleteExt;
-use lib_ot::core::{DeltaBuilder, Interval, RichTextDelta};
+use lib_ot::{
+    core::{DeltaBuilder, Interval},
+    rich_text::RichTextDelta,
+};
 
 pub struct DefaultDelete {}
 impl DeleteExt for DefaultDelete {

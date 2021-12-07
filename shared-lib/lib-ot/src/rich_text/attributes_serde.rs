@@ -1,6 +1,5 @@
 #[rustfmt::skip]
-use crate::core::RichTextAttributeValue;
-use crate::core::{RichTextAttribute, RichTextAttributeKey, RichTextAttributes};
+use crate::rich_text::{RichTextAttribute, RichTextAttributeKey, RichTextAttributes, RichTextAttributeValue};
 use serde::{
     de,
     de::{MapAccess, Visitor},

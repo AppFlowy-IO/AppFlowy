@@ -1,12 +1,7 @@
 use crate::{core::extensions::InsertExt, util::is_whitespace};
-use lib_ot::core::{
-    count_utf16_code_units,
-    plain_attributes,
-    DeltaBuilder,
-    DeltaIter,
-    RichTextAttribute,
-    RichTextAttributes,
-    RichTextDelta,
+use lib_ot::{
+    core::{count_utf16_code_units, DeltaBuilder, DeltaIter},
+    rich_text::{plain_attributes, RichTextAttribute, RichTextAttributes, RichTextDelta},
 };
 use std::cmp::min;
 use url::Url;

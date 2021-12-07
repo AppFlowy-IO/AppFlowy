@@ -2,14 +2,9 @@ use crate::{
     core::extensions::InsertExt,
     util::{contain_newline, is_newline},
 };
-use lib_ot::core::{
-    plain_attributes,
-    DeltaBuilder,
-    DeltaIter,
-    OpNewline,
-    RichTextAttributeKey,
-    RichTextDelta,
-    NEW_LINE,
+use lib_ot::{
+    core::{DeltaBuilder, DeltaIter, OpNewline, NEW_LINE},
+    rich_text::{plain_attributes, RichTextAttributeKey, RichTextDelta},
 };
 
 pub struct PreserveInlineFormat {}

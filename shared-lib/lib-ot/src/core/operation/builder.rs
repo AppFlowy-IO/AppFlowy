@@ -1,4 +1,7 @@
-use crate::core::{Attributes, Operation, RichTextAttributes};
+use crate::{
+    core::{Attributes, Operation},
+    rich_text::RichTextAttributes,
+};
 
 pub type RichTextOpBuilder = OpBuilder<RichTextAttributes>;
 

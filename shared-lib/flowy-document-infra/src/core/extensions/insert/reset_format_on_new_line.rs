@@ -1,12 +1,7 @@
 use crate::{core::extensions::InsertExt, util::is_newline};
-use lib_ot::core::{
-    CharMetric,
-    DeltaBuilder,
-    DeltaIter,
-    RichTextAttributeKey,
-    RichTextAttributes,
-    RichTextDelta,
-    NEW_LINE,
+use lib_ot::{
+    core::{CharMetric, DeltaBuilder, DeltaIter, NEW_LINE},
+    rich_text::{RichTextAttributeKey, RichTextAttributes, RichTextDelta},
 };
 
 pub struct ResetLineFormatOnNewLine {}

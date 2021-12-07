@@ -1,7 +1,8 @@
 use crate::core::extensions::*;
 use lib_ot::{
-    core::{trim, Interval, RichTextAttribute, RichTextDelta},
+    core::{trim, Interval},
     errors::{ErrorBuilder, OTError, OTErrorCode},
+    rich_text::{RichTextAttribute, RichTextDelta},
 };
 
 pub const RECORD_THRESHOLD: usize = 400; // in milliseconds

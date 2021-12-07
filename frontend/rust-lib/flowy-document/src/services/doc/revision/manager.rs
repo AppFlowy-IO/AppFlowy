@@ -8,7 +8,7 @@ use flowy_document_infra::{
     util::RevIdCounter,
 };
 use lib_infra::future::ResultFuture;
-use lib_ot::core::{OperationTransformable, RichTextDelta};
+use lib_ot::{core::OperationTransformable, rich_text::RichTextDelta};
 use std::sync::Arc;
 use tokio::sync::mpsc;
 

@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
-use crate::core::{RichTextAttribute, RichTextAttributes};
+use crate::rich_text::{RichTextAttribute, RichTextAttributes};
+
 pub struct AttributeBuilder {
     inner: RichTextAttributes,
 }

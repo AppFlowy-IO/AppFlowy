@@ -1,5 +1,8 @@
 use super::cursor::*;
-use crate::core::{Attributes, Delta, Interval, Operation, RichTextAttributes, NEW_LINE};
+use crate::{
+    core::{Attributes, Delta, Interval, Operation, NEW_LINE},
+    rich_text::RichTextAttributes,
+};
 use std::ops::{Deref, DerefMut};
 
 pub(crate) const MAX_IV_LEN: usize = i32::MAX as usize;

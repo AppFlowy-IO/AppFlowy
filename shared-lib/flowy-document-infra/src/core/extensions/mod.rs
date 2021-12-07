@@ -2,7 +2,10 @@ pub use delete::*;
 pub use format::*;
 pub use insert::*;
 
-use lib_ot::core::{Interval, RichTextAttribute, RichTextDelta};
+use lib_ot::{
+    core::Interval,
+    rich_text::{RichTextAttribute, RichTextDelta},
+};
 
 mod delete;
 mod format;

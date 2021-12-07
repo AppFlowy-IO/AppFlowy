@@ -2,7 +2,7 @@ use crate::core::extensions::InsertExt;
 pub use auto_exit_block::*;
 pub use auto_format::*;
 pub use default_insert::*;
-use lib_ot::core::RichTextDelta;
+use lib_ot::rich_text::RichTextDelta;
 pub use preserve_block_format::*;
 pub use preserve_inline_format::*;
 pub use reset_format_on_new_line::*;

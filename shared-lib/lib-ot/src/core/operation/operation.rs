@@ -1,4 +1,7 @@
-use crate::core::{FlowyStr, Interval, OpBuilder, OperationTransformable, RichTextAttribute, RichTextAttributes};
+use crate::{
+    core::{FlowyStr, Interval, OpBuilder, OperationTransformable},
+    rich_text::{RichTextAttribute, RichTextAttributes},
+};
 use serde::__private::Formatter;
 use std::{
     cmp::min,

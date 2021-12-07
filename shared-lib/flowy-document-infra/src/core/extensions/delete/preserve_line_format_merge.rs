@@ -1,13 +1,7 @@
 use crate::{core::extensions::DeleteExt, util::is_newline};
-use lib_ot::core::{
-    plain_attributes,
-    Attributes,
-    CharMetric,
-    DeltaBuilder,
-    DeltaIter,
-    Interval,
-    RichTextDelta,
-    NEW_LINE,
+use lib_ot::{
+    core::{Attributes, CharMetric, DeltaBuilder, DeltaIter, Interval, NEW_LINE},
+    rich_text::{plain_attributes, RichTextDelta},
 };
 
 pub struct PreserveLineFormatOnMerge {}

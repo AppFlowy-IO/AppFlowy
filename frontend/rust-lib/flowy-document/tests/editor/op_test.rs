@@ -1,7 +1,10 @@
 #![allow(clippy::all)]
 use crate::editor::{Rng, TestBuilder, TestOp::*};
 use flowy_document_infra::core::{FlowyDoc, PlainDoc};
-use lib_ot::core::*;
+use lib_ot::{
+    core::*,
+    rich_text::{AttributeBuilder, RichTextAttribute, RichTextAttributes, RichTextDelta},
+};
 
 #[test]
 fn attributes_insert_text() {

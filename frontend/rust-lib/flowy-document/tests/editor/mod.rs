@@ -6,7 +6,10 @@ mod undo_redo_test;
 
 use derive_more::Display;
 use flowy_document_infra::core::{CustomDocument, Document};
-use lib_ot::core::*;
+use lib_ot::{
+    core::*,
+    rich_text::{RichTextAttribute, RichTextAttributes, RichTextDelta},
+};
 use rand::{prelude::*, Rng as WrappedRng};
 use std::{sync::Once, time::Duration};
 

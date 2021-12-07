@@ -6,7 +6,10 @@ use flowy_document_infra::{
     errors::DocumentError,
 };
 use futures::stream::StreamExt;
-use lib_ot::core::{Interval, OperationTransformable, RichTextAttribute, RichTextDelta};
+use lib_ot::{
+    core::{Interval, OperationTransformable},
+    rich_text::{RichTextAttribute, RichTextDelta},
+};
 use std::{convert::TryFrom, sync::Arc};
 use tokio::sync::{mpsc, oneshot, RwLock};
 

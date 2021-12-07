@@ -1,4 +1,4 @@
-use lib_ot::core::{DeltaBuilder, RichTextDelta};
+use lib_ot::{core::DeltaBuilder, rich_text::RichTextDelta};
 
 #[inline]
 pub fn doc_initial_delta() -> RichTextDelta { DeltaBuilder::new().insert("\n").build() }

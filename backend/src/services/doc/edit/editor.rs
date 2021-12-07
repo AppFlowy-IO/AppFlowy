@@ -13,7 +13,7 @@ use flowy_document_infra::{
     entities::ws::{WsDataType, WsDocumentData},
     protobuf::{Doc, RevId, RevType, Revision, RevisionRange, UpdateDocParams},
 };
-use lib_ot::core::{OperationTransformable, RichTextDelta};
+use lib_ot::{core::OperationTransformable, rich_text::RichTextDelta};
 use parking_lot::RwLock;
 use protobuf::Message;
 use sqlx::PgPool;

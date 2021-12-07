@@ -17,7 +17,10 @@ use flowy_document_infra::{
     errors::DocumentResult,
 };
 use lib_infra::retry::{ExponentialBackoff, Retry};
-use lib_ot::core::{Interval, RichTextAttribute, RichTextDelta};
+use lib_ot::{
+    core::Interval,
+    rich_text::{RichTextAttribute, RichTextDelta},
+};
 use lib_ws::WsConnectState;
 use std::{convert::TryFrom, sync::Arc};
 use tokio::sync::{mpsc, mpsc::UnboundedSender, oneshot};

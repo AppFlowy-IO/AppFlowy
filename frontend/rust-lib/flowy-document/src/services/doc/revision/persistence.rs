@@ -9,7 +9,10 @@ use flowy_database::{ConnectionPool, SqliteConnection};
 use flowy_document_infra::entities::doc::{revision_from_doc, Doc, RevId, RevType, Revision, RevisionRange};
 use futures::stream::StreamExt;
 use lib_infra::future::ResultFuture;
-use lib_ot::core::{Operation, OperationTransformable, RichTextDelta};
+use lib_ot::{
+    core::{Operation, OperationTransformable},
+    rich_text::RichTextDelta,
+};
 use std::{collections::VecDeque, sync::Arc, time::Duration};
 use tokio::{
     sync::{broadcast, mpsc, RwLock},

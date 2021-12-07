@@ -1,12 +1,7 @@
 use crate::core::extensions::InsertExt;
-use lib_ot::core::{
-    Attributes,
-    DeltaBuilder,
-    DeltaIter,
-    RichTextAttributeKey,
-    RichTextAttributes,
-    RichTextDelta,
-    NEW_LINE,
+use lib_ot::{
+    core::{Attributes, DeltaBuilder, DeltaIter, NEW_LINE},
+    rich_text::{RichTextAttributeKey, RichTextAttributes, RichTextDelta},
 };
 
 pub struct DefaultInsertAttribute {}

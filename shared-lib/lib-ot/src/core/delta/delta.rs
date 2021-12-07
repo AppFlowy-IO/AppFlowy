@@ -1,5 +1,5 @@
 use crate::{
-    core::{attributes::*, operation::*, DeltaIter, FlowyStr, Interval, OperationTransformable, MAX_IV_LEN},
+    core::{operation::*, DeltaIter, FlowyStr, Interval, OperationTransformable, MAX_IV_LEN},
     errors::{ErrorBuilder, OTError, OTErrorCode},
 };
 use bytes::Bytes;
@@ -469,8 +469,6 @@ fn transform_op_attribute<T: Attributes>(left: &Option<Operation<T>>, right: &Op
     left.transform(&right).unwrap().0
 }
 
-pub type RichTextDelta = Delta<RichTextAttributes>;
-
 impl<T> Delta<T>
 where
     T: Attributes + DeserializeOwned,
@@ -503,22 +501,31 @@ where
     }
 }
 
-impl FromStr for RichTextDelta {
+impl<T> FromStr for Delta<T>
+where
+    T: Attributes,
+{
     type Err = ();
 
-    fn from_str(s: &str) -> Result<RichTextDelta, Self::Err> {
+    fn from_str(s: &str) -> Result<Delta<T>, Self::Err> {
         let mut delta = Delta::with_capacity(1);
         delta.add(Operation::Insert(s.into()));
         Ok(delta)
     }
 }
 
-impl std::convert::TryFrom<Vec<u8>> for RichTextDelta {
+impl<T> std::convert::TryFrom<Vec<u8>> for Delta<T>
+where
+    T: Attributes + DeserializeOwned,
+{
     type Error = OTError;
     fn try_from(bytes: Vec<u8>) -> Result<Self, Self::Error> { Delta::from_bytes(bytes) }
 }
 
-impl std::convert::TryFrom<Bytes> for RichTextDelta {
+impl<T> std::convert::TryFrom<Bytes> for Delta<T>
+where
+    T: Attributes + DeserializeOwned,
+{
     type Error = OTError;
 
     fn try_from(bytes: Bytes) -> Result<Self, Self::Error> { Delta::from_bytes(&bytes) }

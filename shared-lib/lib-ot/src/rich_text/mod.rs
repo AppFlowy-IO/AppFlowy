@@ -1,12 +1,11 @@
-#![allow(clippy::module_inception)]
-mod attribute;
 mod attributes;
 mod attributes_serde;
 mod builder;
 
 #[macro_use]
 mod macros;
+mod delta;
 
-pub use attribute::*;
 pub use attributes::*;
 pub use builder::*;
+pub use delta::*;

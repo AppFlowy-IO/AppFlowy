@@ -1,4 +1,4 @@
-use lib_ot::core::RichTextDelta;
+use lib_ot::rich_text::RichTextDelta;
 
 const MAX_UNDOS: usize = 20;
 
