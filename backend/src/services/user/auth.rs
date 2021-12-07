@@ -16,7 +16,6 @@ use flowy_user_infra::{
 use sqlx::{PgPool, Postgres};
 
 use super::AUTHORIZED_USERS;
-use crate::services::user::user_default::create_default_workspace;
 
 pub async fn sign_in(pool: &PgPool, params: SignInParams) -> Result<SignInResponse, ServerError> {
     let email = UserEmail::parse(params.email).map_err(|e| ServerError::params_invalid().context(e))?;

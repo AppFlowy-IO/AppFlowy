@@ -6,7 +6,7 @@ use flowy_document_infra::{
     errors::DocumentError,
 };
 use futures::stream::StreamExt;
-use lib_ot::core::{Attribute, Delta, Interval, OperationTransformable};
+use lib_ot::core::{Interval, OperationTransformable, RichTextAttribute, RichTextDelta};
 use std::{convert::TryFrom, sync::Arc};
 use tokio::sync::{mpsc, oneshot, RwLock};
 
@@ -17,7 +17,7 @@ pub(crate) struct EditCommandQueue {
 }
 
 impl EditCommandQueue {
-    pub(crate) fn new(doc_id: &str, delta: Delta, receiver: mpsc::UnboundedReceiver<EditCommand>) -> Self {
+    pub(crate) fn new(doc_id: &str, delta: RichTextDelta, receiver: mpsc::UnboundedReceiver<EditCommand>) -> Self {
         let document = Arc::new(RwLock::new(Document::from_delta(delta)));
         Self {
             doc_id: doc_id.to_owned(),
@@ -54,7 +54,7 @@ impl EditCommandQueue {
             },
             EditCommand::RemoteRevision { bytes, ret } => {
                 let revision = Revision::try_from(bytes)?;
-                let delta = Delta::from_bytes(&revision.delta_data)?;
+                let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
                 let rev_id: RevId = revision.rev_id.into();
                 let (server_prime, client_prime) = self.document.read().await.delta().transform(&delta)?;
                 let transform_delta = TransformDeltas {
@@ -107,7 +107,7 @@ impl EditCommandQueue {
     }
 
     #[tracing::instrument(level = "debug", skip(self, delta), fields(compose_result), err)]
-    async fn composed_delta(&self, delta: Delta) -> Result<(), DocumentError> {
+    async fn composed_delta(&self, delta: RichTextDelta) -> Result<(), DocumentError> {
         // tracing::debug!("{:?} thread handle_message", thread::current(),);
         let mut document = self.document.write().await;
         tracing::Span::current().record(
@@ -125,7 +125,7 @@ impl EditCommandQueue {
 pub(crate) type Ret<T> = oneshot::Sender<Result<T, DocumentError>>;
 pub(crate) enum EditCommand {
     ComposeDelta {
-        delta: Delta,
+        delta: RichTextDelta,
         ret: Ret<()>,
     },
     RemoteRevision {
@@ -135,22 +135,22 @@ pub(crate) enum EditCommand {
     Insert {
         index: usize,
         data: String,
-        ret: Ret<Delta>,
+        ret: Ret<RichTextDelta>,
     },
     Delete {
         interval: Interval,
-        ret: Ret<Delta>,
+        ret: Ret<RichTextDelta>,
     },
     Format {
         interval: Interval,
-        attribute: Attribute,
-        ret: Ret<Delta>,
+        attribute: RichTextAttribute,
+        ret: Ret<RichTextDelta>,
     },
 
     Replace {
         interval: Interval,
         data: String,
-        ret: Ret<Delta>,
+        ret: Ret<RichTextDelta>,
     },
     CanUndo {
         ret: oneshot::Sender<bool>,
@@ -170,7 +170,7 @@ pub(crate) enum EditCommand {
 }
 
 pub(crate) struct TransformDeltas {
-    pub client_prime: Delta,
-    pub server_prime: Delta,
+    pub client_prime: RichTextDelta,
+    pub server_prime: RichTextDelta,
     pub server_rev_id: RevId,
 }

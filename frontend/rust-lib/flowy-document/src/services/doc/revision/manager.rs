@@ -8,7 +8,7 @@ use flowy_document_infra::{
     util::RevIdCounter,
 };
 use lib_infra::future::ResultFuture;
-use lib_ot::core::{Delta, OperationTransformable};
+use lib_ot::core::{OperationTransformable, RichTextDelta};
 use std::sync::Arc;
 use tokio::sync::mpsc;
 
@@ -38,7 +38,7 @@ impl RevisionManager {
         }
     }
 
-    pub async fn load_document(&mut self) -> DocResult<Delta> {
+    pub async fn load_document(&mut self) -> DocResult<RichTextDelta> {
         let doc = self.rev_store.fetch_document().await?;
         self.update_rev_id_counter_value(doc.rev_id);
         Ok(doc.delta()?)
@@ -67,9 +67,9 @@ impl RevisionManager {
     pub async fn mk_revisions(&self, range: RevisionRange) -> Result<Revision, DocError> {
         debug_assert!(range.doc_id == self.doc_id);
         let revisions = self.rev_store.revs_in_range(range.clone()).await?;
-        let mut new_delta = Delta::new();
+        let mut new_delta = RichTextDelta::new();
         for revision in revisions {
-            match Delta::from_bytes(revision.delta_data) {
+            match RichTextDelta::from_bytes(revision.delta_data) {
                 Ok(delta) => {
                     new_delta = new_delta.compose(&delta)?;
                 },

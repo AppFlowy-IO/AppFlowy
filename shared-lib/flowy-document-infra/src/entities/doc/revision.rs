@@ -1,6 +1,6 @@
 use crate::{entities::doc::Doc, util::md5};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use lib_ot::core::Delta;
+use lib_ot::core::RichTextDelta;
 use std::{fmt::Formatter, ops::RangeInclusive};
 
 #[derive(Debug, ProtoBuf_Enum, Clone, Eq, PartialEq)]
@@ -87,7 +87,7 @@ impl std::fmt::Debug for Revision {
         let _ = f.write_fmt(format_args!("doc_id {}, ", self.doc_id))?;
         let _ = f.write_fmt(format_args!("base_rev_id {}, ", self.base_rev_id))?;
         let _ = f.write_fmt(format_args!("rev_id {}, ", self.rev_id))?;
-        match Delta::from_bytes(&self.delta_data) {
+        match RichTextDelta::from_bytes(&self.delta_data) {
             Ok(delta) => {
                 let _ = f.write_fmt(format_args!("delta {:?}", delta.to_json()))?;
             },

@@ -1,7 +1,7 @@
 #![allow(clippy::all)]
 #![cfg_attr(rustfmt, rustfmt::skip)]
 use actix_web::web::Data;
-use backend::service::doc::{crud::update_doc, manager::DocManager};
+use backend::services::doc::{crud::update_doc, manager::DocManager};
 use flowy_document::services::doc::ClientDocEditor as ClientEditDocContext;
 use flowy_test::{workspace::ViewTest, FlowyTest};
 use flowy_user::services::user::UserSession;
@@ -12,7 +12,7 @@ use tokio::time::{sleep, Duration};
 // use crate::helper::*;
 use crate::util::helper::{spawn_server, TestServer};
 use flowy_document_infra::{entities::doc::DocIdentifier, protobuf::UpdateDocParams};
-use lib_ot::core::{Attribute, Delta, Interval};
+use lib_ot::core::{RichTextAttribute, RichTextDelta, Interval};
 use parking_lot::RwLock;
 
 pub struct DocumentTest {
@@ -23,7 +23,7 @@ pub struct DocumentTest {
 pub enum DocScript {
     ClientConnectWs,
     ClientInsertText(usize, &'static str),
-    ClientFormatText(Interval, Attribute),
+    ClientFormatText(Interval, RichTextAttribute),
     ClientOpenDoc,
     AssertClient(&'static str),
     AssertServer(&'static str, i64),
@@ -150,8 +150,8 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
 }
 
 fn assert_eq(expect: &str, receive: &str) {
-    let expected_delta: Delta = serde_json::from_str(expect).unwrap();
-    let target_delta: Delta = serde_json::from_str(receive).unwrap();
+    let expected_delta: RichTextDelta = serde_json::from_str(expect).unwrap();
+    let target_delta: RichTextDelta = serde_json::from_str(receive).unwrap();
 
     if expected_delta != target_delta {
         log::error!("✅ expect: {}", expect,);

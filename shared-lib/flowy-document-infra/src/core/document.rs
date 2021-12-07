@@ -10,21 +10,21 @@ use lib_ot::core::*;
 use tokio::sync::mpsc;
 
 pub trait CustomDocument {
-    fn init_delta() -> Delta;
+    fn init_delta() -> RichTextDelta;
 }
 
 pub struct PlainDoc();
 impl CustomDocument for PlainDoc {
-    fn init_delta() -> Delta { Delta::new() }
+    fn init_delta() -> RichTextDelta { RichTextDelta::new() }
 }
 
 pub struct FlowyDoc();
 impl CustomDocument for FlowyDoc {
-    fn init_delta() -> Delta { doc_initial_delta() }
+    fn init_delta() -> RichTextDelta { doc_initial_delta() }
 }
 
 pub struct Document {
-    delta: Delta,
+    delta: RichTextDelta,
     history: History,
     view: View,
     last_edit_time: usize,
@@ -34,7 +34,7 @@ pub struct Document {
 impl Document {
     pub fn new<C: CustomDocument>() -> Self { Self::from_delta(C::init_delta()) }
 
-    pub fn from_delta(delta: Delta) -> Self {
+    pub fn from_delta(delta: RichTextDelta) -> Self {
         Document {
             delta,
             history: History::new(),
@@ -45,7 +45,7 @@ impl Document {
     }
 
     pub fn from_json(json: &str) -> Result<Self, DocumentError> {
-        let delta = Delta::from_json(json)?;
+        let delta = RichTextDelta::from_json(json)?;
         Ok(Self::from_delta(delta))
     }
 
@@ -55,11 +55,11 @@ impl Document {
 
     pub fn to_plain_string(&self) -> String { self.delta.apply("").unwrap() }
 
-    pub fn delta(&self) -> &Delta { &self.delta }
+    pub fn delta(&self) -> &RichTextDelta { &self.delta }
 
     pub fn set_notify(&mut self, notify: mpsc::UnboundedSender<()>) { self.notify = Some(notify); }
 
-    pub fn set_delta(&mut self, data: Delta) {
+    pub fn set_delta(&mut self, data: RichTextDelta) {
         self.delta = data;
 
         match &self.notify {
@@ -70,7 +70,7 @@ impl Document {
         }
     }
 
-    pub fn compose_delta(&mut self, mut delta: Delta) -> Result<(), DocumentError> {
+    pub fn compose_delta(&mut self, mut delta: RichTextDelta) -> Result<(), DocumentError> {
         trim(&mut delta);
         tracing::trace!("{} compose {}", &self.delta.to_json(), delta.to_json());
         let mut composed_delta = self.delta.compose(&delta)?;
@@ -100,7 +100,7 @@ impl Document {
         Ok(())
     }
 
-    pub fn insert<T: ToString>(&mut self, index: usize, data: T) -> Result<Delta, DocumentError> {
+    pub fn insert<T: ToString>(&mut self, index: usize, data: T) -> Result<RichTextDelta, DocumentError> {
         let interval = Interval::new(index, index);
         let _ = validate_interval(&self.delta, &interval)?;
 
@@ -111,7 +111,7 @@ impl Document {
         Ok(delta)
     }
 
-    pub fn delete(&mut self, interval: Interval) -> Result<Delta, DocumentError> {
+    pub fn delete(&mut self, interval: Interval) -> Result<RichTextDelta, DocumentError> {
         let _ = validate_interval(&self.delta, &interval)?;
         debug_assert_eq!(interval.is_empty(), false);
         let delete = self.view.delete(&self.delta, interval)?;
@@ -122,7 +122,7 @@ impl Document {
         Ok(delete)
     }
 
-    pub fn format(&mut self, interval: Interval, attribute: Attribute) -> Result<Delta, DocumentError> {
+    pub fn format(&mut self, interval: Interval, attribute: RichTextAttribute) -> Result<RichTextDelta, DocumentError> {
         let _ = validate_interval(&self.delta, &interval)?;
         tracing::trace!("format with {} at {}", attribute, interval);
         let format_delta = self.view.format(&self.delta, attribute, interval).unwrap();
@@ -132,9 +132,9 @@ impl Document {
         Ok(format_delta)
     }
 
-    pub fn replace<T: ToString>(&mut self, interval: Interval, data: T) -> Result<Delta, DocumentError> {
+    pub fn replace<T: ToString>(&mut self, interval: Interval, data: T) -> Result<RichTextDelta, DocumentError> {
         let _ = validate_interval(&self.delta, &interval)?;
-        let mut delta = Delta::default();
+        let mut delta = RichTextDelta::default();
         let text = data.to_string();
         if !text.is_empty() {
             delta = self.view.insert(&self.delta, &text, interval)?;
@@ -184,7 +184,7 @@ impl Document {
 }
 
 impl Document {
-    fn invert(&self, delta: &Delta) -> Result<(Delta, Delta), DocumentError> {
+    fn invert(&self, delta: &RichTextDelta) -> Result<(RichTextDelta, RichTextDelta), DocumentError> {
         // c = a.compose(b)
         // d = b.invert(a)
         // a = c.compose(d)
@@ -195,7 +195,7 @@ impl Document {
     }
 }
 
-fn validate_interval(delta: &Delta, interval: &Interval) -> Result<(), DocumentError> {
+fn validate_interval(delta: &RichTextDelta, interval: &Interval) -> Result<(), DocumentError> {
     if delta.target_len < interval.end {
         log::error!("{:?} out of bounds. should 0..{}", interval, delta.target_len);
         return Err(DocumentError::out_of_bound());
@@ -204,7 +204,7 @@ fn validate_interval(delta: &Delta, interval: &Interval) -> Result<(), DocumentE
 }
 
 /// Removes trailing retain operation with empty attributes, if present.
-pub fn trim(delta: &mut Delta) {
+pub fn trim(delta: &mut RichTextDelta) {
     if let Some(last) = delta.ops.last() {
         if last.is_retain() && last.is_plain() {
             delta.ops.pop();

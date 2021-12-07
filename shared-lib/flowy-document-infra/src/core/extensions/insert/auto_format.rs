@@ -1,5 +1,13 @@
 use crate::{core::extensions::InsertExt, util::is_whitespace};
-use lib_ot::core::{count_utf16_code_units, plain_attributes, Attribute, Attributes, Delta, DeltaBuilder, DeltaIter};
+use lib_ot::core::{
+    count_utf16_code_units,
+    plain_attributes,
+    DeltaBuilder,
+    DeltaIter,
+    RichTextAttribute,
+    RichTextAttributes,
+    RichTextDelta,
+};
 use std::cmp::min;
 use url::Url;
 
@@ -7,7 +15,7 @@ pub struct AutoFormatExt {}
 impl InsertExt for AutoFormatExt {
     fn ext_name(&self) -> &str { std::any::type_name::<AutoFormatExt>() }
 
-    fn apply(&self, delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta> {
+    fn apply(&self, delta: &RichTextDelta, replace_len: usize, text: &str, index: usize) -> Option<RichTextDelta> {
         // enter whitespace to trigger auto format
         if !is_whitespace(text) {
             return None;
@@ -55,9 +63,9 @@ pub enum AutoFormatter {
 }
 
 impl AutoFormatter {
-    pub fn to_attributes(&self) -> Attributes {
+    pub fn to_attributes(&self) -> RichTextAttributes {
         match self {
-            AutoFormatter::Url(url) => Attribute::Link(url.as_str()).into(),
+            AutoFormatter::Url(url) => RichTextAttribute::Link(url.as_str()).into(),
         }
     }
 

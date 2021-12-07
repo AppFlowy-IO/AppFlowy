@@ -1,15 +1,15 @@
-use lib_ot::core::{Delta, DeltaBuilder};
+use lib_ot::core::{DeltaBuilder, RichTextDelta};
 
 #[inline]
-pub fn doc_initial_delta() -> Delta { DeltaBuilder::new().insert("\n").build() }
+pub fn doc_initial_delta() -> RichTextDelta { DeltaBuilder::new().insert("\n").build() }
 
 #[inline]
 pub fn doc_initial_string() -> String { doc_initial_delta().to_json() }
 
 #[inline]
-pub fn initial_read_me() -> Delta {
+pub fn initial_read_me() -> RichTextDelta {
     let json = include_str!("READ_ME.json");
-    Delta::from_json(json).unwrap()
+    RichTextDelta::from_json(json).unwrap()
 }
 
 #[cfg(test)]

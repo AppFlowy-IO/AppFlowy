@@ -13,7 +13,7 @@ use flowy_document_infra::{
     entities::ws::{WsDataType, WsDocumentData},
     protobuf::{Doc, RevId, RevType, Revision, RevisionRange, UpdateDocParams},
 };
-use lib_ot::core::{Delta, OperationTransformable};
+use lib_ot::core::{OperationTransformable, RichTextDelta};
 use parking_lot::RwLock;
 use protobuf::Message;
 use sqlx::PgPool;
@@ -35,7 +35,7 @@ pub struct ServerDocEditor {
 
 impl ServerDocEditor {
     pub fn new(doc: Doc) -> Result<Self, ServerError> {
-        let delta = Delta::from_bytes(&doc.data).map_err(internal_error)?;
+        let delta = RichTextDelta::from_bytes(&doc.data).map_err(internal_error)?;
         let document = Arc::new(RwLock::new(Document::from_delta(delta)));
         let users = DashMap::new();
         Ok(Self {
@@ -123,7 +123,7 @@ impl ServerDocEditor {
     pub fn document_json(&self) -> String { self.document.read().to_json() }
 
     async fn compose_revision(&self, revision: &Revision, pg_pool: Data<PgPool>) -> Result<(), ServerError> {
-        let delta = Delta::from_bytes(&revision.delta_data).map_err(internal_error)?;
+        let delta = RichTextDelta::from_bytes(&revision.delta_data).map_err(internal_error)?;
         let _ = self.compose_delta(delta)?;
         let _ = self.rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(revision.rev_id));
         let _ = self.save_revision(&revision, pg_pool).await?;
@@ -132,7 +132,7 @@ impl ServerDocEditor {
 
     #[tracing::instrument(level = "debug", skip(self, revision))]
     fn transform_revision(&self, revision: &Revision) -> Result<Revision, ServerError> {
-        let cli_delta = Delta::from_bytes(&revision.delta_data).map_err(internal_error)?;
+        let cli_delta = RichTextDelta::from_bytes(&revision.delta_data).map_err(internal_error)?;
         let (cli_prime, server_prime) = self
             .document
             .read()
@@ -145,7 +145,7 @@ impl ServerDocEditor {
         Ok(cli_revision)
     }
 
-    fn mk_revision(&self, base_rev_id: i64, delta: Delta) -> Revision {
+    fn mk_revision(&self, base_rev_id: i64, delta: RichTextDelta) -> Revision {
         let delta_data = delta.to_bytes().to_vec();
         let md5 = md5(&delta_data);
         Revision {
@@ -167,7 +167,7 @@ impl ServerDocEditor {
             result,
         )
     )]
-    fn compose_delta(&self, delta: Delta) -> Result<(), ServerError> {
+    fn compose_delta(&self, delta: RichTextDelta) -> Result<(), ServerError> {
         if delta.is_empty() {
             log::warn!("Composed delta is empty");
         }

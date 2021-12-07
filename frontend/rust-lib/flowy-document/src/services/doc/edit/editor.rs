@@ -17,7 +17,7 @@ use flowy_document_infra::{
     errors::DocumentResult,
 };
 use lib_infra::retry::{ExponentialBackoff, Retry};
-use lib_ot::core::{Attribute, Delta, Interval};
+use lib_ot::core::{Interval, RichTextAttribute, RichTextDelta};
 use lib_ws::WsConnectState;
 use std::{convert::TryFrom, sync::Arc};
 use tokio::sync::{mpsc, mpsc::UnboundedSender, oneshot};
@@ -60,7 +60,7 @@ impl ClientDocEditor {
     }
 
     pub async fn insert<T: ToString>(&self, index: usize, data: T) -> Result<(), DocError> {
-        let (ret, rx) = oneshot::channel::<DocumentResult<Delta>>();
+        let (ret, rx) = oneshot::channel::<DocumentResult<RichTextDelta>>();
         let msg = EditCommand::Insert {
             index,
             data: data.to_string(),
@@ -73,7 +73,7 @@ impl ClientDocEditor {
     }
 
     pub async fn delete(&self, interval: Interval) -> Result<(), DocError> {
-        let (ret, rx) = oneshot::channel::<DocumentResult<Delta>>();
+        let (ret, rx) = oneshot::channel::<DocumentResult<RichTextDelta>>();
         let msg = EditCommand::Delete { interval, ret };
         let _ = self.edit_tx.send(msg);
         let delta = rx.await.map_err(internal_error)??;
@@ -81,8 +81,8 @@ impl ClientDocEditor {
         Ok(())
     }
 
-    pub async fn format(&self, interval: Interval, attribute: Attribute) -> Result<(), DocError> {
-        let (ret, rx) = oneshot::channel::<DocumentResult<Delta>>();
+    pub async fn format(&self, interval: Interval, attribute: RichTextAttribute) -> Result<(), DocError> {
+        let (ret, rx) = oneshot::channel::<DocumentResult<RichTextDelta>>();
         let msg = EditCommand::Format {
             interval,
             attribute,
@@ -95,7 +95,7 @@ impl ClientDocEditor {
     }
 
     pub async fn replace<T: ToString>(&mut self, interval: Interval, data: T) -> Result<(), DocError> {
-        let (ret, rx) = oneshot::channel::<DocumentResult<Delta>>();
+        let (ret, rx) = oneshot::channel::<DocumentResult<RichTextDelta>>();
         let msg = EditCommand::Replace {
             interval,
             data: data.to_string(),
@@ -149,7 +149,7 @@ impl ClientDocEditor {
         })
     }
 
-    async fn save_local_delta(&self, delta: Delta) -> Result<RevId, DocError> {
+    async fn save_local_delta(&self, delta: RichTextDelta) -> Result<RevId, DocError> {
         let delta_data = delta.to_bytes();
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id();
         let delta_data = delta_data.to_vec();
@@ -160,7 +160,7 @@ impl ClientDocEditor {
 
     #[tracing::instrument(level = "debug", skip(self, data), err)]
     pub(crate) async fn composing_local_delta(&self, data: Bytes) -> Result<(), DocError> {
-        let delta = Delta::from_bytes(&data)?;
+        let delta = RichTextDelta::from_bytes(&data)?;
         let (ret, rx) = oneshot::channel::<DocumentResult<()>>();
         let msg = EditCommand::ComposeDelta {
             delta: delta.clone(),
@@ -314,7 +314,7 @@ fn spawn_rev_receiver(mut receiver: mpsc::UnboundedReceiver<Revision>, ws: Arc<d
     });
 }
 
-fn spawn_edit_queue(doc_id: &str, delta: Delta, _pool: Arc<ConnectionPool>) -> UnboundedSender<EditCommand> {
+fn spawn_edit_queue(doc_id: &str, delta: RichTextDelta, _pool: Arc<ConnectionPool>) -> UnboundedSender<EditCommand> {
     let (sender, receiver) = mpsc::unbounded_channel::<EditCommand>();
     let actor = EditCommandQueue::new(doc_id, delta, receiver);
     tokio::spawn(actor.run());

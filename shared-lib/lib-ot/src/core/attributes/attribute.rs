@@ -1,19 +1,19 @@
 #![allow(non_snake_case)]
 
-use crate::{block_attribute, core::Attributes, ignore_attribute, inline_attribute, list_attribute};
+use crate::{block_attribute, core::RichTextAttributes, ignore_attribute, inline_attribute, list_attribute};
 use lazy_static::lazy_static;
 
 use std::{collections::HashSet, fmt, fmt::Formatter, iter::FromIterator};
 use strum_macros::Display;
 
 #[derive(Debug, Clone)]
-pub struct Attribute {
-    pub key: AttributeKey,
-    pub value: AttributeValue,
+pub struct RichTextAttribute {
+    pub key: RichTextAttributeKey,
+    pub value: RichTextAttributeValue,
     pub scope: AttributeScope,
 }
 
-impl Attribute {
+impl RichTextAttribute {
     // inline
     inline_attribute!(Bold, bool);
     inline_attribute!(Italic, bool);
@@ -55,16 +55,16 @@ impl Attribute {
     }
 }
 
-impl fmt::Display for Attribute {
+impl fmt::Display for RichTextAttribute {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let s = format!("{:?}:{:?} {:?}", self.key, self.value.0, self.scope);
         f.write_str(&s)
     }
 }
 
-impl std::convert::From<Attribute> for Attributes {
-    fn from(attr: Attribute) -> Self {
-        let mut attributes = Attributes::new();
+impl std::convert::From<RichTextAttribute> for RichTextAttributes {
+    fn from(attr: RichTextAttribute) -> Self {
+        let mut attributes = RichTextAttributes::new();
         attributes.add(attr);
         attributes
     }
@@ -73,7 +73,7 @@ impl std::convert::From<Attribute> for Attributes {
 #[derive(Clone, Debug, Display, Hash, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 // serde.rs/variant-attrs.html
 // #[serde(rename_all = "snake_case")]
-pub enum AttributeKey {
+pub enum RichTextAttributeKey {
     #[serde(rename = "bold")]
     Bold,
     #[serde(rename = "italic")]
@@ -114,80 +114,80 @@ pub enum AttributeKey {
 
 // pub trait AttributeValueData<'a>: Serialize + Deserialize<'a> {}
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct AttributeValue(pub Option<String>);
+pub struct RichTextAttributeValue(pub Option<String>);
 
-impl std::convert::From<&usize> for AttributeValue {
-    fn from(val: &usize) -> Self { AttributeValue::from(*val) }
+impl std::convert::From<&usize> for RichTextAttributeValue {
+    fn from(val: &usize) -> Self { RichTextAttributeValue::from(*val) }
 }
 
-impl std::convert::From<usize> for AttributeValue {
+impl std::convert::From<usize> for RichTextAttributeValue {
     fn from(val: usize) -> Self {
         if val > 0_usize {
-            AttributeValue(Some(format!("{}", val)))
+            RichTextAttributeValue(Some(format!("{}", val)))
         } else {
-            AttributeValue(None)
+            RichTextAttributeValue(None)
         }
     }
 }
 
-impl std::convert::From<&str> for AttributeValue {
+impl std::convert::From<&str> for RichTextAttributeValue {
     fn from(val: &str) -> Self { val.to_owned().into() }
 }
 
-impl std::convert::From<String> for AttributeValue {
+impl std::convert::From<String> for RichTextAttributeValue {
     fn from(val: String) -> Self {
         if val.is_empty() {
-            AttributeValue(None)
+            RichTextAttributeValue(None)
         } else {
-            AttributeValue(Some(val))
+            RichTextAttributeValue(Some(val))
         }
     }
 }
 
-impl std::convert::From<&bool> for AttributeValue {
-    fn from(val: &bool) -> Self { AttributeValue::from(*val) }
+impl std::convert::From<&bool> for RichTextAttributeValue {
+    fn from(val: &bool) -> Self { RichTextAttributeValue::from(*val) }
 }
 
-impl std::convert::From<bool> for AttributeValue {
+impl std::convert::From<bool> for RichTextAttributeValue {
     fn from(val: bool) -> Self {
         let val = match val {
             true => Some("true".to_owned()),
             false => None,
         };
-        AttributeValue(val)
+        RichTextAttributeValue(val)
     }
 }
 
-pub fn is_block_except_header(k: &AttributeKey) -> bool {
-    if k == &AttributeKey::Header {
+pub fn is_block_except_header(k: &RichTextAttributeKey) -> bool {
+    if k == &RichTextAttributeKey::Header {
         return false;
     }
     BLOCK_KEYS.contains(k)
 }
 
 lazy_static! {
-    static ref BLOCK_KEYS: HashSet<AttributeKey> = HashSet::from_iter(vec![
-        AttributeKey::Header,
-        AttributeKey::Indent,
-        AttributeKey::Align,
-        AttributeKey::CodeBlock,
-        AttributeKey::List,
-        AttributeKey::BlockQuote,
+    static ref BLOCK_KEYS: HashSet<RichTextAttributeKey> = HashSet::from_iter(vec![
+        RichTextAttributeKey::Header,
+        RichTextAttributeKey::Indent,
+        RichTextAttributeKey::Align,
+        RichTextAttributeKey::CodeBlock,
+        RichTextAttributeKey::List,
+        RichTextAttributeKey::BlockQuote,
     ]);
-    static ref INLINE_KEYS: HashSet<AttributeKey> = HashSet::from_iter(vec![
-        AttributeKey::Bold,
-        AttributeKey::Italic,
-        AttributeKey::Underline,
-        AttributeKey::StrikeThrough,
-        AttributeKey::Link,
-        AttributeKey::Color,
-        AttributeKey::Font,
-        AttributeKey::Size,
-        AttributeKey::Background,
-        AttributeKey::InlineCode,
+    static ref INLINE_KEYS: HashSet<RichTextAttributeKey> = HashSet::from_iter(vec![
+        RichTextAttributeKey::Bold,
+        RichTextAttributeKey::Italic,
+        RichTextAttributeKey::Underline,
+        RichTextAttributeKey::StrikeThrough,
+        RichTextAttributeKey::Link,
+        RichTextAttributeKey::Color,
+        RichTextAttributeKey::Font,
+        RichTextAttributeKey::Size,
+        RichTextAttributeKey::Background,
+        RichTextAttributeKey::InlineCode,
     ]);
-    static ref INGORE_KEYS: HashSet<AttributeKey> =
-        HashSet::from_iter(vec![AttributeKey::Width, AttributeKey::Height,]);
+    static ref INGORE_KEYS: HashSet<RichTextAttributeKey> =
+        HashSet::from_iter(vec![RichTextAttributeKey::Width, RichTextAttributeKey::Height,]);
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]

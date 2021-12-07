@@ -1,30 +1,35 @@
-use crate::core::{Attributes, Operation};
+use crate::core::{Attributes, Operation, RichTextAttributes};
 
-pub struct OpBuilder {
-    ty: Operation,
-    attrs: Attributes,
+pub type RichTextOpBuilder = OpBuilder<RichTextAttributes>;
+
+pub struct OpBuilder<T: Attributes> {
+    ty: Operation<T>,
+    attrs: T,
 }
 
-impl OpBuilder {
-    pub fn new(ty: Operation) -> OpBuilder {
+impl<T> OpBuilder<T>
+where
+    T: Attributes,
+{
+    pub fn new(ty: Operation<T>) -> OpBuilder<T> {
         OpBuilder {
             ty,
-            attrs: Attributes::default(),
+            attrs: T::default(),
         }
     }
 
-    pub fn retain(n: usize) -> OpBuilder { OpBuilder::new(Operation::Retain(n.into())) }
+    pub fn retain(n: usize) -> OpBuilder<T> { OpBuilder::new(Operation::Retain(n.into())) }
 
-    pub fn delete(n: usize) -> OpBuilder { OpBuilder::new(Operation::Delete(n)) }
+    pub fn delete(n: usize) -> OpBuilder<T> { OpBuilder::new(Operation::Delete(n)) }
 
-    pub fn insert(s: &str) -> OpBuilder { OpBuilder::new(Operation::Insert(s.into())) }
+    pub fn insert(s: &str) -> OpBuilder<T> { OpBuilder::new(Operation::Insert(s.into())) }
 
-    pub fn attributes(mut self, attrs: Attributes) -> OpBuilder {
+    pub fn attributes(mut self, attrs: T) -> OpBuilder<T> {
         self.attrs = attrs;
         self
     }
 
-    pub fn build(self) -> Operation {
+    pub fn build(self) -> Operation<T> {
         let mut operation = self.ty;
         match &mut operation {
             Operation::Delete(_) => {},

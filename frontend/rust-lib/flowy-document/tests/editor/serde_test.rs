@@ -4,14 +4,14 @@ use lib_ot::core::*;
 #[test]
 fn operation_insert_serialize_test() {
     let attributes = AttributeBuilder::new()
-        .add_attr(Attribute::Bold(true))
-        .add_attr(Attribute::Italic(true))
+        .add_attr(RichTextAttribute::Bold(true))
+        .add_attr(RichTextAttribute::Italic(true))
         .build();
     let operation = OpBuilder::insert("123").attributes(attributes).build();
     let json = serde_json::to_string(&operation).unwrap();
     eprintln!("{}", json);
 
-    let insert_op: Operation = serde_json::from_str(&json).unwrap();
+    let insert_op: RichTextOperation = serde_json::from_str(&json).unwrap();
     assert_eq!(insert_op, operation);
 }
 
@@ -20,23 +20,23 @@ fn operation_retain_serialize_test() {
     let operation = Operation::Retain(12.into());
     let json = serde_json::to_string(&operation).unwrap();
     eprintln!("{}", json);
-    let insert_op: Operation = serde_json::from_str(&json).unwrap();
+    let insert_op: RichTextOperation = serde_json::from_str(&json).unwrap();
     assert_eq!(insert_op, operation);
 }
 
 #[test]
 fn operation_delete_serialize_test() {
-    let operation = Operation::Delete(2);
+    let operation = RichTextOperation::Delete(2);
     let json = serde_json::to_string(&operation).unwrap();
-    let insert_op: Operation = serde_json::from_str(&json).unwrap();
+    let insert_op: RichTextOperation = serde_json::from_str(&json).unwrap();
     assert_eq!(insert_op, operation);
 }
 
 #[test]
 fn attributes_serialize_test() {
     let attributes = AttributeBuilder::new()
-        .add_attr(Attribute::Bold(true))
-        .add_attr(Attribute::Italic(true))
+        .add_attr(RichTextAttribute::Bold(true))
+        .add_attr(RichTextAttribute::Italic(true))
         .build();
     let retain = OpBuilder::insert("123").attributes(attributes).build();
 
@@ -49,8 +49,8 @@ fn delta_serialize_multi_attribute_test() {
     let mut delta = Delta::default();
 
     let attributes = AttributeBuilder::new()
-        .add_attr(Attribute::Bold(true))
-        .add_attr(Attribute::Italic(true))
+        .add_attr(RichTextAttribute::Bold(true))
+        .add_attr(RichTextAttribute::Italic(true))
         .build();
     let retain = OpBuilder::insert("123").attributes(attributes).build();
 
@@ -73,7 +73,7 @@ fn delta_deserialize_test() {
         {"retain":2,"attributes":{"italic":"true","bold":"true"}},
         {"retain":2,"attributes":{"italic":true,"bold":true}}
      ]"#;
-    let delta = Delta::from_json(json).unwrap();
+    let delta = RichTextDelta::from_json(json).unwrap();
     eprintln!("{}", delta);
 }
 
@@ -82,10 +82,10 @@ fn delta_deserialize_null_test() {
     let json = r#"[
         {"retain":7,"attributes":{"bold":null}}
      ]"#;
-    let delta1 = Delta::from_json(json).unwrap();
+    let delta1 = RichTextDelta::from_json(json).unwrap();
 
-    let mut attribute = Attribute::Bold(true);
-    attribute.value = AttributeValue(None);
+    let mut attribute = RichTextAttribute::Bold(true);
+    attribute.value = RichTextAttributeValue(None);
     let delta2 = DeltaBuilder::new().retain_with_attributes(7, attribute.into()).build();
 
     assert_eq!(delta2.to_json(), r#"[{"retain":7,"attributes":{"bold":""}}]"#);
@@ -94,8 +94,8 @@ fn delta_deserialize_null_test() {
 
 #[test]
 fn delta_serde_null_test() {
-    let mut attribute = Attribute::Bold(true);
-    attribute.value = AttributeValue(None);
+    let mut attribute = RichTextAttribute::Bold(true);
+    attribute.value = RichTextAttributeValue(None);
     assert_eq!(attribute.to_json(), r#"{"bold":""}"#);
 }
 

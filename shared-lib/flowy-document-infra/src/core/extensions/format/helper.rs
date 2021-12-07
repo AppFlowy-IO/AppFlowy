@@ -1,8 +1,12 @@
 use crate::util::find_newline;
-use lib_ot::core::{plain_attributes, Attribute, AttributeScope, Delta, Operation};
+use lib_ot::core::{plain_attributes, AttributeScope, RichTextAttribute, RichTextDelta, RichTextOperation};
 
-pub(crate) fn line_break(op: &Operation, attribute: &Attribute, scope: AttributeScope) -> Delta {
-    let mut new_delta = Delta::new();
+pub(crate) fn line_break(
+    op: &RichTextOperation,
+    attribute: &RichTextAttribute,
+    scope: AttributeScope,
+) -> RichTextDelta {
+    let mut new_delta = RichTextDelta::new();
     let mut start = 0;
     let end = op.len();
     let mut s = op.get_data();

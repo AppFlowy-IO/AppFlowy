@@ -1,13 +1,21 @@
 use crate::core::extensions::InsertExt;
-use lib_ot::core::{AttributeKey, Attributes, Delta, DeltaBuilder, DeltaIter, NEW_LINE};
+use lib_ot::core::{
+    Attributes,
+    DeltaBuilder,
+    DeltaIter,
+    RichTextAttributeKey,
+    RichTextAttributes,
+    RichTextDelta,
+    NEW_LINE,
+};
 
 pub struct DefaultInsertAttribute {}
 impl InsertExt for DefaultInsertAttribute {
     fn ext_name(&self) -> &str { std::any::type_name::<DefaultInsertAttribute>() }
 
-    fn apply(&self, delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta> {
+    fn apply(&self, delta: &RichTextDelta, replace_len: usize, text: &str, index: usize) -> Option<RichTextDelta> {
         let iter = DeltaIter::new(delta);
-        let mut attributes = Attributes::new();
+        let mut attributes = RichTextAttributes::new();
 
         // Enable each line split by "\n" remains the block attributes. for example:
         // insert "\n" to "123456" at index 3
@@ -18,8 +26,8 @@ impl InsertExt for DefaultInsertAttribute {
             match iter.last() {
                 None => {},
                 Some(op) => {
-                    if op.get_attributes().contains_key(&AttributeKey::Header) {
-                        attributes.extend(op.get_attributes());
+                    if op.get_attributes().contains_key(&RichTextAttributeKey::Header) {
+                        attributes.extend_other(op.get_attributes());
                     }
                 },
             }

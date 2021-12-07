@@ -1,5 +1,5 @@
 use flowy_derive::ProtoBuf;
-use lib_ot::{core::Delta, errors::OTError};
+use lib_ot::{core::RichTextDelta, errors::OTError};
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct CreateDocParams {
@@ -35,8 +35,8 @@ pub struct Doc {
 }
 
 impl Doc {
-    pub fn delta(&self) -> Result<Delta, OTError> {
-        let delta = Delta::from_bytes(&self.data)?;
+    pub fn delta(&self) -> Result<RichTextDelta, OTError> {
+        let delta = RichTextDelta::from_bytes(&self.data)?;
         Ok(delta)
     }
 }
@@ -59,7 +59,7 @@ pub struct DocDelta {
     pub doc_id: String,
 
     #[pb(index = 2)]
-    pub data: String, // Delta
+    pub data: String, // RichTextDelta
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]

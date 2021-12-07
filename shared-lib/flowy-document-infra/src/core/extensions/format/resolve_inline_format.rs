@@ -2,13 +2,13 @@ use crate::{
     core::extensions::{format::helper::line_break, FormatExt},
     util::find_newline,
 };
-use lib_ot::core::{Attribute, AttributeScope, Delta, DeltaBuilder, DeltaIter, Interval};
+use lib_ot::core::{AttributeScope, DeltaBuilder, DeltaIter, Interval, RichTextAttribute, RichTextDelta};
 
 pub struct ResolveInlineFormat {}
 impl FormatExt for ResolveInlineFormat {
     fn ext_name(&self) -> &str { std::any::type_name::<ResolveInlineFormat>() }
 
-    fn apply(&self, delta: &Delta, interval: Interval, attribute: &Attribute) -> Option<Delta> {
+    fn apply(&self, delta: &RichTextDelta, interval: Interval, attribute: &RichTextAttribute) -> Option<RichTextDelta> {
         if attribute.scope != AttributeScope::Inline {
             return None;
         }

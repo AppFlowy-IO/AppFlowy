@@ -1,12 +1,19 @@
 use crate::{core::extensions::InsertExt, util::is_newline};
-use lib_ot::core::{attributes_except_header, is_empty_line_at_index, AttributeKey, Delta, DeltaBuilder, DeltaIter};
+use lib_ot::core::{
+    attributes_except_header,
+    is_empty_line_at_index,
+    DeltaBuilder,
+    DeltaIter,
+    RichTextAttributeKey,
+    RichTextDelta,
+};
 
 pub struct AutoExitBlock {}
 
 impl InsertExt for AutoExitBlock {
     fn ext_name(&self) -> &str { std::any::type_name::<AutoExitBlock>() }
 
-    fn apply(&self, delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta> {
+    fn apply(&self, delta: &RichTextDelta, replace_len: usize, text: &str, index: usize) -> Option<RichTextDelta> {
         // Auto exit block will be triggered by enter two new lines
         if !is_newline(text) {
             return None;
@@ -39,7 +46,7 @@ impl InsertExt for AutoExitBlock {
             },
         }
 
-        attributes.mark_all_as_removed_except(Some(AttributeKey::Header));
+        attributes.mark_all_as_removed_except(Some(RichTextAttributeKey::Header));
 
         Some(
             DeltaBuilder::new()

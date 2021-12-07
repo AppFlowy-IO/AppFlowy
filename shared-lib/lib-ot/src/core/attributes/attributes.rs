@@ -1,15 +1,22 @@
 use crate::{
-    core::{Attribute, AttributeKey, AttributeValue, Operation, OperationTransformable},
+    core::{
+        Attributes,
+        OperationTransformable,
+        RichTextAttribute,
+        RichTextAttributeKey,
+        RichTextAttributeValue,
+        RichTextOperation,
+    },
     errors::OTError,
 };
 use std::{collections::HashMap, fmt};
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub struct Attributes {
-    pub(crate) inner: HashMap<AttributeKey, AttributeValue>,
+pub struct RichTextAttributes {
+    pub(crate) inner: HashMap<RichTextAttributeKey, RichTextAttributeValue>,
 }
 
-impl std::default::Default for Attributes {
+impl std::default::Default for RichTextAttributes {
     fn default() -> Self {
         Self {
             inner: HashMap::with_capacity(0),
@@ -17,27 +24,31 @@ impl std::default::Default for Attributes {
     }
 }
 
-impl fmt::Display for Attributes {
+impl fmt::Display for RichTextAttributes {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_fmt(format_args!("{:?}", self.inner)) }
 }
 
-pub fn plain_attributes() -> Attributes { Attributes::default() }
+pub fn plain_attributes() -> RichTextAttributes { RichTextAttributes::default() }
 
-impl Attributes {
-    pub fn new() -> Self { Attributes { inner: HashMap::new() } }
+impl RichTextAttributes {
+    pub fn new() -> Self { RichTextAttributes { inner: HashMap::new() } }
 
     pub fn is_empty(&self) -> bool { self.inner.is_empty() }
 
-    pub fn add(&mut self, attribute: Attribute) {
-        let Attribute { key, value, scope: _ } = attribute;
+    pub fn add(&mut self, attribute: RichTextAttribute) {
+        let RichTextAttribute { key, value, scope: _ } = attribute;
         self.inner.insert(key, value);
     }
 
-    pub fn add_kv(&mut self, key: AttributeKey, value: AttributeValue) { self.inner.insert(key, value); }
+    pub fn add_kv(&mut self, key: RichTextAttributeKey, value: RichTextAttributeValue) {
+        self.inner.insert(key, value);
+    }
 
-    pub fn delete(&mut self, key: &AttributeKey) { self.inner.insert(key.clone(), AttributeValue(None)); }
+    pub fn delete(&mut self, key: &RichTextAttributeKey) {
+        self.inner.insert(key.clone(), RichTextAttributeValue(None));
+    }
 
-    pub fn mark_all_as_removed_except(&mut self, attribute: Option<AttributeKey>) {
+    pub fn mark_all_as_removed_except(&mut self, attribute: Option<RichTextAttributeKey>) {
         match attribute {
             None => {
                 self.inner.iter_mut().for_each(|(_k, v)| v.0 = None);
@@ -52,7 +63,7 @@ impl Attributes {
         }
     }
 
-    pub fn remove(&mut self, key: AttributeKey) { self.inner.retain(|k, _| k != &key); }
+    pub fn remove(&mut self, key: RichTextAttributeKey) { self.inner.retain(|k, _| k != &key); }
 
     // pub fn block_attributes_except_header(attributes: &Attributes) -> Attributes
     // {     let mut new_attributes = Attributes::new();
@@ -65,14 +76,9 @@ impl Attributes {
     //     new_attributes
     // }
 
-    // Remove the empty attribute which value is None.
-    pub fn remove_empty(&mut self) { self.inner.retain(|_, v| v.0.is_some()); }
-
-    pub fn extend(&mut self, other: Attributes) { self.inner.extend(other.inner); }
-
     // Update inner by constructing new attributes from the other if it's
     // not None and replace the key/value with self key/value.
-    pub fn merge(&mut self, other: Option<Attributes>) {
+    pub fn merge(&mut self, other: Option<RichTextAttributes>) {
         if other.is_none() {
             return;
         }
@@ -85,13 +91,21 @@ impl Attributes {
     }
 }
 
-impl OperationTransformable for Attributes {
+impl Attributes for RichTextAttributes {
+    fn is_empty(&self) -> bool { self.inner.is_empty() }
+
+    fn remove_empty(&mut self) { self.inner.retain(|_, v| v.0.is_some()); }
+
+    fn extend_other(&mut self, other: Self) { self.inner.extend(other.inner); }
+}
+
+impl OperationTransformable for RichTextAttributes {
     fn compose(&self, other: &Self) -> Result<Self, OTError>
     where
         Self: Sized,
     {
         let mut attributes = self.clone();
-        attributes.extend(other.clone());
+        attributes.extend_other(other.clone());
         Ok(attributes)
     }
 
@@ -99,25 +113,29 @@ impl OperationTransformable for Attributes {
     where
         Self: Sized,
     {
-        let a = self.iter().fold(Attributes::new(), |mut new_attributes, (k, v)| {
-            if !other.contains_key(k) {
-                new_attributes.insert(k.clone(), v.clone());
-            }
-            new_attributes
-        });
+        let a = self
+            .iter()
+            .fold(RichTextAttributes::new(), |mut new_attributes, (k, v)| {
+                if !other.contains_key(k) {
+                    new_attributes.insert(k.clone(), v.clone());
+                }
+                new_attributes
+            });
 
-        let b = other.iter().fold(Attributes::new(), |mut new_attributes, (k, v)| {
-            if !self.contains_key(k) {
-                new_attributes.insert(k.clone(), v.clone());
-            }
-            new_attributes
-        });
+        let b = other
+            .iter()
+            .fold(RichTextAttributes::new(), |mut new_attributes, (k, v)| {
+                if !self.contains_key(k) {
+                    new_attributes.insert(k.clone(), v.clone());
+                }
+                new_attributes
+            });
 
         Ok((a, b))
     }
 
     fn invert(&self, other: &Self) -> Self {
-        let base_inverted = other.iter().fold(Attributes::new(), |mut attributes, (k, v)| {
+        let base_inverted = other.iter().fold(RichTextAttributes::new(), |mut attributes, (k, v)| {
             if other.get(k) != self.get(k) && self.contains_key(k) {
                 attributes.insert(k.clone(), v.clone());
             }
@@ -135,18 +153,18 @@ impl OperationTransformable for Attributes {
     }
 }
 
-impl std::ops::Deref for Attributes {
-    type Target = HashMap<AttributeKey, AttributeValue>;
+impl std::ops::Deref for RichTextAttributes {
+    type Target = HashMap<RichTextAttributeKey, RichTextAttributeValue>;
 
     fn deref(&self) -> &Self::Target { &self.inner }
 }
 
-impl std::ops::DerefMut for Attributes {
+impl std::ops::DerefMut for RichTextAttributes {
     fn deref_mut(&mut self) -> &mut Self::Target { &mut self.inner }
 }
 
-pub fn attributes_except_header(op: &Operation) -> Attributes {
+pub fn attributes_except_header(op: &RichTextOperation) -> RichTextAttributes {
     let mut attributes = op.get_attributes();
-    attributes.remove(AttributeKey::Header);
+    attributes.remove(RichTextAttributeKey::Header);
     attributes
 }

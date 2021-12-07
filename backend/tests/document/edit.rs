@@ -1,6 +1,6 @@
 use crate::document::helper::{DocScript, DocumentTest};
 use flowy_document_infra::core::{Document, FlowyDoc};
-use lib_ot::core::{Attribute, Interval};
+use lib_ot::core::{Interval, RichTextAttribute};
 
 #[rustfmt::skip]
 //                         ┌─────────┐       ┌─────────┐
@@ -51,11 +51,11 @@ async fn delta_sync_while_editing_with_attribute() {
         DocScript::ClientConnectWs,
         DocScript::ClientOpenDoc,
         DocScript::ClientInsertText(0, "abc"),
-        DocScript::ClientFormatText(Interval::new(0, 3), Attribute::Bold(true)),
+        DocScript::ClientFormatText(Interval::new(0, 3), RichTextAttribute::Bold(true)),
         DocScript::AssertClient(r#"[{"insert":"abc","attributes":{"bold":true}},{"insert":"\n"}]"#),
         DocScript::AssertServer(r#"[{"insert":"abc","attributes":{"bold":true}},{"insert":"\n"}]"#, 2),
         DocScript::ClientInsertText(3, "efg"),
-        DocScript::ClientFormatText(Interval::new(3, 5), Attribute::Italic(true)),
+        DocScript::ClientFormatText(Interval::new(3, 5), RichTextAttribute::Italic(true)),
         DocScript::AssertClient(r#"[{"insert":"abc","attributes":{"bold":true}},{"insert":"ef","attributes":{"bold":true,"italic":true}},{"insert":"g","attributes":{"bold":true}},{"insert":"\n"}]"#),
         DocScript::AssertServer(r#"[{"insert":"abc","attributes":{"bold":true}},{"insert":"ef","attributes":{"bold":true,"italic":true}},{"insert":"g","attributes":{"bold":true}},{"insert":"\n"}]"#, 4),
     ])

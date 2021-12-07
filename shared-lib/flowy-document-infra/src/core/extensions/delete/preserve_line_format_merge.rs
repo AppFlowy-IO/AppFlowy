@@ -1,11 +1,20 @@
 use crate::{core::extensions::DeleteExt, util::is_newline};
-use lib_ot::core::{plain_attributes, CharMetric, Delta, DeltaBuilder, DeltaIter, Interval, NEW_LINE};
+use lib_ot::core::{
+    plain_attributes,
+    Attributes,
+    CharMetric,
+    DeltaBuilder,
+    DeltaIter,
+    Interval,
+    RichTextDelta,
+    NEW_LINE,
+};
 
 pub struct PreserveLineFormatOnMerge {}
 impl DeleteExt for PreserveLineFormatOnMerge {
     fn ext_name(&self) -> &str { "PreserveLineFormatOnMerge" }
 
-    fn apply(&self, delta: &Delta, interval: Interval) -> Option<Delta> {
+    fn apply(&self, delta: &RichTextDelta, interval: Interval) -> Option<RichTextDelta> {
         if interval.is_empty() {
             return None;
         }
@@ -40,7 +49,7 @@ impl DeleteExt for PreserveLineFormatOnMerge {
                             attributes.mark_all_as_removed_except(None);
 
                             if newline_op.has_attribute() {
-                                attributes.extend(newline_op.get_attributes());
+                                attributes.extend_other(newline_op.get_attributes());
                             }
 
                             new_delta.retain(line_break, plain_attributes());

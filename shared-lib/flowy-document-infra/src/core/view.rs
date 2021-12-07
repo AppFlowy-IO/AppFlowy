@@ -1,6 +1,6 @@
 use crate::core::extensions::*;
 use lib_ot::{
-    core::{trim, Attribute, Delta, Interval},
+    core::{trim, Interval, RichTextAttribute, RichTextDelta},
     errors::{ErrorBuilder, OTError, OTErrorCode},
 };
 
@@ -21,7 +21,12 @@ impl View {
         }
     }
 
-    pub(crate) fn insert(&self, delta: &Delta, text: &str, interval: Interval) -> Result<Delta, OTError> {
+    pub(crate) fn insert(
+        &self,
+        delta: &RichTextDelta,
+        text: &str,
+        interval: Interval,
+    ) -> Result<RichTextDelta, OTError> {
         let mut new_delta = None;
         for ext in &self.insert_exts {
             if let Some(mut delta) = ext.apply(delta, interval.size(), text, interval.start) {
@@ -38,7 +43,7 @@ impl View {
         }
     }
 
-    pub(crate) fn delete(&self, delta: &Delta, interval: Interval) -> Result<Delta, OTError> {
+    pub(crate) fn delete(&self, delta: &RichTextDelta, interval: Interval) -> Result<RichTextDelta, OTError> {
         let mut new_delta = None;
         for ext in &self.delete_exts {
             if let Some(mut delta) = ext.apply(delta, interval) {
@@ -55,7 +60,12 @@ impl View {
         }
     }
 
-    pub(crate) fn format(&self, delta: &Delta, attribute: Attribute, interval: Interval) -> Result<Delta, OTError> {
+    pub(crate) fn format(
+        &self,
+        delta: &RichTextDelta,
+        attribute: RichTextAttribute,
+        interval: Interval,
+    ) -> Result<RichTextDelta, OTError> {
         let mut new_delta = None;
         for ext in &self.format_exts {
             if let Some(mut delta) = ext.apply(delta, interval, &attribute) {

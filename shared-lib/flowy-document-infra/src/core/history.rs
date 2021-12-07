@@ -1,4 +1,4 @@
-use lib_ot::core::Delta;
+use lib_ot::core::RichTextDelta;
 
 const MAX_UNDOS: usize = 20;
 
@@ -21,8 +21,8 @@ impl UndoResult {
 pub struct History {
     #[allow(dead_code)]
     cur_undo: usize,
-    undos: Vec<Delta>,
-    redoes: Vec<Delta>,
+    undos: Vec<RichTextDelta>,
+    redoes: Vec<RichTextDelta>,
     capacity: usize,
 }
 
@@ -44,11 +44,11 @@ impl History {
 
     pub fn can_redo(&self) -> bool { !self.redoes.is_empty() }
 
-    pub fn add_undo(&mut self, delta: Delta) { self.undos.push(delta); }
+    pub fn add_undo(&mut self, delta: RichTextDelta) { self.undos.push(delta); }
 
-    pub fn add_redo(&mut self, delta: Delta) { self.redoes.push(delta); }
+    pub fn add_redo(&mut self, delta: RichTextDelta) { self.redoes.push(delta); }
 
-    pub fn record(&mut self, delta: Delta) {
+    pub fn record(&mut self, delta: RichTextDelta) {
         if delta.ops.is_empty() {
             return;
         }
@@ -61,7 +61,7 @@ impl History {
         }
     }
 
-    pub fn undo(&mut self) -> Option<Delta> {
+    pub fn undo(&mut self) -> Option<RichTextDelta> {
         if !self.can_undo() {
             return None;
         }
@@ -69,7 +69,7 @@ impl History {
         Some(delta)
     }
 
-    pub fn redo(&mut self) -> Option<Delta> {
+    pub fn redo(&mut self) -> Option<RichTextDelta> {
         if !self.can_redo() {
             return None;
         }

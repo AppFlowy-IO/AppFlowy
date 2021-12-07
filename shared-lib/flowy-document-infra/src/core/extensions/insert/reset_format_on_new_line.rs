@@ -1,11 +1,19 @@
 use crate::{core::extensions::InsertExt, util::is_newline};
-use lib_ot::core::{AttributeKey, Attributes, CharMetric, Delta, DeltaBuilder, DeltaIter, NEW_LINE};
+use lib_ot::core::{
+    CharMetric,
+    DeltaBuilder,
+    DeltaIter,
+    RichTextAttributeKey,
+    RichTextAttributes,
+    RichTextDelta,
+    NEW_LINE,
+};
 
 pub struct ResetLineFormatOnNewLine {}
 impl InsertExt for ResetLineFormatOnNewLine {
     fn ext_name(&self) -> &str { std::any::type_name::<ResetLineFormatOnNewLine>() }
 
-    fn apply(&self, delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta> {
+    fn apply(&self, delta: &RichTextDelta, replace_len: usize, text: &str, index: usize) -> Option<RichTextDelta> {
         if !is_newline(text) {
             return None;
         }
@@ -17,9 +25,9 @@ impl InsertExt for ResetLineFormatOnNewLine {
             return None;
         }
 
-        let mut reset_attribute = Attributes::new();
-        if next_op.get_attributes().contains_key(&AttributeKey::Header) {
-            reset_attribute.delete(&AttributeKey::Header);
+        let mut reset_attribute = RichTextAttributes::new();
+        if next_op.get_attributes().contains_key(&RichTextAttributeKey::Header) {
+            reset_attribute.delete(&RichTextAttributeKey::Header);
         }
 
         let len = index + replace_len;

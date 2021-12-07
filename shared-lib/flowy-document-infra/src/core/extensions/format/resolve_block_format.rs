@@ -2,13 +2,21 @@ use crate::{
     core::extensions::{format::helper::line_break, FormatExt},
     util::find_newline,
 };
-use lib_ot::core::{plain_attributes, Attribute, AttributeScope, Delta, DeltaBuilder, DeltaIter, Interval};
+use lib_ot::core::{
+    plain_attributes,
+    AttributeScope,
+    DeltaBuilder,
+    DeltaIter,
+    Interval,
+    RichTextAttribute,
+    RichTextDelta,
+};
 
 pub struct ResolveBlockFormat {}
 impl FormatExt for ResolveBlockFormat {
     fn ext_name(&self) -> &str { std::any::type_name::<ResolveBlockFormat>() }
 
-    fn apply(&self, delta: &Delta, interval: Interval, attribute: &Attribute) -> Option<Delta> {
+    fn apply(&self, delta: &RichTextDelta, interval: Interval, attribute: &RichTextAttribute) -> Option<RichTextDelta> {
         if attribute.scope != AttributeScope::Block {
             return None;
         }

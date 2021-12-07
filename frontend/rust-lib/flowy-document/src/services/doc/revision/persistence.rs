@@ -9,7 +9,7 @@ use flowy_database::{ConnectionPool, SqliteConnection};
 use flowy_document_infra::entities::doc::{revision_from_doc, Doc, RevId, RevType, Revision, RevisionRange};
 use futures::stream::StreamExt;
 use lib_infra::future::ResultFuture;
-use lib_ot::core::{Delta, Operation, OperationTransformable};
+use lib_ot::core::{Operation, OperationTransformable, RichTextDelta};
 use std::{collections::VecDeque, sync::Arc, time::Duration};
 use tokio::{
     sync::{broadcast, mpsc, RwLock},
@@ -188,9 +188,9 @@ async fn fetch_from_local(doc_id: &str, persistence: Arc<Persistence>) -> DocRes
 
         let base_rev_id: RevId = revisions.last().unwrap().base_rev_id.into();
         let rev_id: RevId = revisions.last().unwrap().rev_id.into();
-        let mut delta = Delta::new();
+        let mut delta = RichTextDelta::new();
         for (_, revision) in revisions.into_iter().enumerate() {
-            match Delta::from_bytes(revision.delta_data) {
+            match RichTextDelta::from_bytes(revision.delta_data) {
                 Ok(local_delta) => {
                     delta = delta.compose(&local_delta)?;
                 },
@@ -225,7 +225,7 @@ async fn fetch_from_local(doc_id: &str, persistence: Arc<Persistence>) -> DocRes
 }
 
 #[cfg(debug_assertions)]
-fn validate_delta(doc_id: &str, persistence: Arc<Persistence>, conn: &SqliteConnection, delta: &Delta) {
+fn validate_delta(doc_id: &str, persistence: Arc<Persistence>, conn: &SqliteConnection, delta: &RichTextDelta) {
     if delta.ops.last().is_none() {
         return;
     }
@@ -236,7 +236,7 @@ fn validate_delta(doc_id: &str, persistence: Arc<Persistence>, conn: &SqliteConn
         let result = || {
             let revisions = persistence.rev_sql.read_rev_tables(&doc_id, conn)?;
             for revision in revisions {
-                let delta = Delta::from_bytes(revision.delta_data)?;
+                let delta = RichTextDelta::from_bytes(revision.delta_data)?;
                 log::error!("Invalid revision: {}:{}", revision.rev_id, delta.to_json());
             }
             Ok::<(), DocError>(())

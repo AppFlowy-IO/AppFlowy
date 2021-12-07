@@ -2,13 +2,21 @@ use crate::{
     core::extensions::InsertExt,
     util::{contain_newline, is_newline},
 };
-use lib_ot::core::{plain_attributes, AttributeKey, Delta, DeltaBuilder, DeltaIter, OpNewline, NEW_LINE};
+use lib_ot::core::{
+    plain_attributes,
+    DeltaBuilder,
+    DeltaIter,
+    OpNewline,
+    RichTextAttributeKey,
+    RichTextDelta,
+    NEW_LINE,
+};
 
 pub struct PreserveInlineFormat {}
 impl InsertExt for PreserveInlineFormat {
     fn ext_name(&self) -> &str { std::any::type_name::<PreserveInlineFormat>() }
 
-    fn apply(&self, delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta> {
+    fn apply(&self, delta: &RichTextDelta, replace_len: usize, text: &str, index: usize) -> Option<RichTextDelta> {
         if contain_newline(text) {
             return None;
         }
@@ -20,7 +28,7 @@ impl InsertExt for PreserveInlineFormat {
         }
 
         let mut attributes = prev.get_attributes();
-        if attributes.is_empty() || !attributes.contains_key(&AttributeKey::Link) {
+        if attributes.is_empty() || !attributes.contains_key(&RichTextAttributeKey::Link) {
             return Some(
                 DeltaBuilder::new()
                     .retain(index + replace_len)
@@ -52,7 +60,7 @@ pub struct PreserveLineFormatOnSplit {}
 impl InsertExt for PreserveLineFormatOnSplit {
     fn ext_name(&self) -> &str { std::any::type_name::<PreserveLineFormatOnSplit>() }
 
-    fn apply(&self, delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta> {
+    fn apply(&self, delta: &RichTextDelta, replace_len: usize, text: &str, index: usize) -> Option<RichTextDelta> {
         if !is_newline(text) {
             return None;
         }
@@ -69,7 +77,7 @@ impl InsertExt for PreserveLineFormatOnSplit {
             return None;
         }
 
-        let mut new_delta = Delta::new();
+        let mut new_delta = RichTextDelta::new();
         new_delta.retain(index + replace_len, plain_attributes());
 
         if newline_status.is_contain() {

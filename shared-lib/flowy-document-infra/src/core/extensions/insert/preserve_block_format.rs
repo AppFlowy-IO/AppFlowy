@@ -2,12 +2,12 @@ use crate::{core::extensions::InsertExt, util::is_newline};
 use lib_ot::core::{
     attributes_except_header,
     plain_attributes,
-    Attribute,
-    AttributeKey,
-    Attributes,
-    Delta,
     DeltaBuilder,
     DeltaIter,
+    RichTextAttribute,
+    RichTextAttributeKey,
+    RichTextAttributes,
+    RichTextDelta,
     NEW_LINE,
 };
 
@@ -15,7 +15,7 @@ pub struct PreserveBlockFormatOnInsert {}
 impl InsertExt for PreserveBlockFormatOnInsert {
     fn ext_name(&self) -> &str { std::any::type_name::<PreserveBlockFormatOnInsert>() }
 
-    fn apply(&self, delta: &Delta, replace_len: usize, text: &str, index: usize) -> Option<Delta> {
+    fn apply(&self, delta: &RichTextDelta, replace_len: usize, text: &str, index: usize) -> Option<RichTextDelta> {
         if !is_newline(text) {
             return None;
         }
@@ -30,9 +30,9 @@ impl InsertExt for PreserveBlockFormatOnInsert {
                     return None;
                 }
 
-                let mut reset_attribute = Attributes::new();
-                if newline_attributes.contains_key(&AttributeKey::Header) {
-                    reset_attribute.add(Attribute::Header(1));
+                let mut reset_attribute = RichTextAttributes::new();
+                if newline_attributes.contains_key(&RichTextAttributeKey::Header) {
+                    reset_attribute.add(RichTextAttribute::Header(1));
                 }
 
                 let lines: Vec<_> = text.split(NEW_LINE).collect();

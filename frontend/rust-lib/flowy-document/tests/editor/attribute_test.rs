@@ -1,7 +1,7 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
 use crate::editor::{TestBuilder, TestOp::*};
 use flowy_document_infra::core::{FlowyDoc, PlainDoc};
-use lib_ot::core::{Delta, Interval, OperationTransformable, NEW_LINE, WHITESPACE, FlowyStr};
+use lib_ot::core::{Interval, OperationTransformable, NEW_LINE, WHITESPACE, FlowyStr, RichTextDelta};
 use unicode_segmentation::UnicodeSegmentation;
 
 #[test]
@@ -760,12 +760,12 @@ fn attributes_preserve_list_format_on_merge() {
 
 #[test]
 fn delta_compose() {
-    let mut delta = Delta::from_json(r#"[{"insert":"\n"}]"#).unwrap();
+    let mut delta = RichTextDelta::from_json(r#"[{"insert":"\n"}]"#).unwrap();
     let deltas = vec![
-        Delta::from_json(r#"[{"retain":1,"attributes":{"list":"unchecked"}}]"#).unwrap(),
-        Delta::from_json(r#"[{"insert":"a"}]"#).unwrap(),
-        Delta::from_json(r#"[{"retain":1},{"insert":"\n","attributes":{"list":"unchecked"}}]"#).unwrap(),
-        Delta::from_json(r#"[{"retain":2},{"retain":1,"attributes":{"list":""}}]"#).unwrap(),
+        RichTextDelta::from_json(r#"[{"retain":1,"attributes":{"list":"unchecked"}}]"#).unwrap(),
+        RichTextDelta::from_json(r#"[{"insert":"a"}]"#).unwrap(),
+        RichTextDelta::from_json(r#"[{"retain":1},{"insert":"\n","attributes":{"list":"unchecked"}}]"#).unwrap(),
+        RichTextDelta::from_json(r#"[{"retain":2},{"retain":1,"attributes":{"list":""}}]"#).unwrap(),
     ];
 
     for d in deltas {
