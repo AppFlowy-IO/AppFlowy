@@ -1,15 +1,17 @@
 use crate::{
     errors::OTError,
-    revision::{RevId, Revision, RevisionRange},
+    revision::{Revision, RevisionRange},
 };
 use dashmap::{mapref::one::RefMut, DashMap};
-use std::{collections::VecDeque, sync::Arc};
+use std::{collections::VecDeque, fmt::Debug, sync::Arc};
 use tokio::sync::{broadcast, RwLock};
 
-pub trait RevisionDiskCache {
-    fn create_revision(&self, revision: &Revision) -> Result<(), OTError>;
-    fn revisions_in_range(&self, range: RevisionRange) -> Result<Option<Vec<Revision>>, OTError>;
-    fn read_revision(&self, rev_id: i64) -> Result<Option<Revision>, OTError>;
+pub trait RevisionDiskCache: Sync + Send {
+    type Error: Debug;
+    fn create_revisions(&self, revisions: Vec<RevisionRecord>) -> Result<(), Self::Error>;
+    fn revisions_in_range(&self, doc_id: &str, range: &RevisionRange) -> Result<Vec<Revision>, Self::Error>;
+    fn read_revision(&self, doc_id: &str, rev_id: i64) -> Result<Option<Revision>, Self::Error>;
+    fn read_revisions(&self, doc_id: &str) -> Result<Vec<Revision>, Self::Error>;
 }
 
 pub struct RevisionMemoryCache {
@@ -32,7 +34,7 @@ impl RevisionMemoryCache {
 
     pub async fn add_revision(&self, revision: Revision) -> Result<(), OTError> {
         if self.revs_map.contains_key(&revision.rev_id) {
-            return Err(OTError::duplicate_revision().context(format!("Duplicate revision id: {}", revision.rev_id)));
+            return Ok(());
         }
 
         self.pending_revs.write().await.push_back(revision.rev_id);
@@ -40,18 +42,20 @@ impl RevisionMemoryCache {
         Ok(())
     }
 
-    pub async fn mut_revision<F>(&self, rev_id: i64, f: F)
+    pub fn remove_revisions(&self, ids: Vec<i64>) { self.revs_map.retain(|k, _| !ids.contains(k)); }
+
+    pub fn mut_revision<F>(&self, rev_id: &i64, f: F)
     where
         F: Fn(RefMut<i64, RevisionRecord>),
     {
-        if let Some(m_revision) = self.revs_map.get_mut(&rev_id) {
+        if let Some(m_revision) = self.revs_map.get_mut(rev_id) {
             f(m_revision)
         } else {
             log::error!("Can't find revision with id {}", rev_id);
         }
     }
 
-    pub async fn revisions_in_range(&self, range: RevisionRange) -> Result<Option<Vec<Revision>>, OTError> {
+    pub async fn revisions_in_range(&self, range: &RevisionRange) -> Result<Vec<Revision>, OTError> {
         let revs = range
             .iter()
             .flat_map(|rev_id| match self.revs_map.get(&rev_id) {
@@ -61,21 +65,47 @@ impl RevisionMemoryCache {
             .collect::<Vec<Revision>>();
 
         if revs.len() == range.len() as usize {
-            Ok(Some(revs))
+            Ok(revs)
         } else {
-            Ok(None)
+            Ok(vec![])
         }
     }
+
+    pub fn contains(&self, rev_id: &i64) -> bool { self.revs_map.contains_key(rev_id) }
+
+    pub fn is_empty(&self) -> bool { self.revs_map.is_empty() }
+
+    pub fn revisions(&self) -> (Vec<i64>, Vec<RevisionRecord>) {
+        let mut records: Vec<RevisionRecord> = vec![];
+        let mut ids: Vec<i64> = vec![];
+
+        self.revs_map.iter().for_each(|kv| {
+            records.push(kv.value().clone());
+            ids.push(*kv.key());
+        });
+        (ids, records)
+    }
+
+    pub async fn front_revision(&self) -> Option<(i64, RevisionRecord)> {
+        match self.pending_revs.read().await.front() {
+            None => None,
+            Some(rev_id) => self.revs_map.get(rev_id).map(|r| (*r.key(), r.value().clone())),
+        }
+    }
+
+    pub async fn front_rev_id(&self) -> Option<i64> { self.pending_revs.read().await.front().copied() }
 }
 
 pub type RevIdReceiver = broadcast::Receiver<i64>;
 pub type RevIdSender = broadcast::Sender<i64>;
 
+#[derive(Clone, Eq, PartialEq)]
 pub enum RevState {
     Local = 0,
     Acked = 1,
 }
 
+#[derive(Clone)]
 pub struct RevisionRecord {
     pub revision: Revision,
     pub state: RevState,
@@ -88,6 +118,8 @@ impl RevisionRecord {
             state: RevState::Local,
         }
     }
+
+    pub fn ack(&mut self) { self.state = RevState::Acked; }
 }
 
 pub struct PendingRevId {

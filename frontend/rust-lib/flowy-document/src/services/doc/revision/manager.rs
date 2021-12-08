@@ -1,6 +1,6 @@
 use crate::{
     errors::{DocError, DocResult},
-    services::doc::revision::RevisionStore,
+    services::doc::revision::{RevisionCache, RevisionUploadStream},
 };
 use flowy_database::ConnectionPool;
 use flowy_document_infra::{entities::doc::Doc, util::RevIdCounter};
@@ -20,7 +20,7 @@ pub trait RevisionServer: Send + Sync {
 pub struct RevisionManager {
     doc_id: String,
     rev_id_counter: RevIdCounter,
-    rev_store: Arc<RevisionStore>,
+    cache: Arc<RevisionCache>,
 }
 
 impl RevisionManager {
@@ -28,30 +28,32 @@ impl RevisionManager {
         doc_id: &str,
         pool: Arc<ConnectionPool>,
         server: Arc<dyn RevisionServer>,
-        pending_rev_sender: mpsc::UnboundedSender<Revision>,
+        ws_sender: mpsc::UnboundedSender<Revision>,
     ) -> Self {
-        let rev_store = RevisionStore::new(doc_id, pool, server, pending_rev_sender);
+        let cache = Arc::new(RevisionCache::new(doc_id, pool, server));
+        spawn_upload_stream(cache.clone(), ws_sender);
         let rev_id_counter = RevIdCounter::new(0);
         Self {
             doc_id: doc_id.to_string(),
             rev_id_counter,
-            rev_store,
+            cache,
         }
     }
 
     pub async fn load_document(&mut self) -> DocResult<RichTextDelta> {
-        let doc = self.rev_store.fetch_document().await?;
+        let doc = self.cache.fetch_document().await?;
         self.update_rev_id_counter_value(doc.rev_id);
         Ok(doc.delta()?)
     }
 
     pub async fn add_revision(&self, revision: &Revision) -> Result<(), DocError> {
-        let _ = self.rev_store.add_revision(revision.clone()).await?;
+        let _ = self.cache.add_revision(revision.clone()).await?;
+
         Ok(())
     }
 
     pub async fn ack_revision(&self, rev_id: RevId) -> Result<(), DocError> {
-        self.rev_store.ack_revision(rev_id).await;
+        self.cache.ack_revision(rev_id).await;
         Ok(())
     }
 
@@ -67,7 +69,7 @@ impl RevisionManager {
 
     pub async fn mk_revisions(&self, range: RevisionRange) -> Result<Revision, DocError> {
         debug_assert!(range.doc_id == self.doc_id);
-        let revisions = self.rev_store.revs_in_range(range.clone()).await?;
+        let revisions = self.cache.revisions_in_range(range.clone()).await?;
         let mut new_delta = RichTextDelta::new();
         for revision in revisions {
             match RichTextDelta::from_bytes(revision.delta_data) {
@@ -89,4 +91,8 @@ impl RevisionManager {
 
         Ok(revision)
     }
+}
+
+fn spawn_upload_stream(cache: Arc<RevisionCache>, ws_sender: mpsc::UnboundedSender<Revision>) {
+    tokio::spawn(RevisionUploadStream::new(cache, ws_sender).run());
 }

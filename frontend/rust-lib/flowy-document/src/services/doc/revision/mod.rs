@@ -1,6 +1,7 @@
+mod cache;
 mod manager;
-mod model;
-mod persistence;
+mod sync;
 
+pub use cache::*;
 pub use manager::*;
-pub use persistence::*;
+pub(crate) use sync::*;

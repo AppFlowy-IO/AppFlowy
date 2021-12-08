@@ -2,7 +2,7 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
 use actix_web::web::Data;
 use backend::services::doc::{crud::update_doc, manager::DocManager};
-use flowy_document::services::doc::ClientDocEditor as ClientEditDocContext;
+use flowy_document::services::doc::edit::ClientDocEditor as ClientEditDocContext;
 use flowy_test::{workspace::ViewTest, FlowyTest};
 use flowy_user::services::user::UserSession;
 use futures_util::{stream, stream::StreamExt};

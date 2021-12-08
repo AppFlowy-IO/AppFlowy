@@ -1,30 +1,27 @@
 use crate::{
     errors::DocError,
-    sql_tables::{doc::RevTable, RevChangeset, RevTableType, SqlRevState},
+    sql_tables::{doc::RevTable, RevChangeset, RevTableState, RevTableType},
 };
 use diesel::update;
 use flowy_database::{insert_or_ignore_into, prelude::*, schema::rev_table::dsl, SqliteConnection};
-use lib_ot::revision::{Revision, RevisionRange};
+use lib_ot::revision::{Revision, RevisionRange, RevisionRecord};
 
 pub struct RevTableSql {}
 
 impl RevTableSql {
-    pub(crate) fn create_rev_table(
-        &self,
-        revisions: Vec<(Revision, SqlRevState)>,
-        conn: &SqliteConnection,
-    ) -> Result<(), DocError> {
+    pub(crate) fn create_rev_table(revisions: Vec<RevisionRecord>, conn: &SqliteConnection) -> Result<(), DocError> {
         // Batch insert: https://diesel.rs/guides/all-about-inserts.html
         let records = revisions
             .into_iter()
-            .map(|(revision, new_state)| {
-                let rev_ty: RevTableType = revision.ty.into();
+            .map(|record| {
+                let rev_ty: RevTableType = record.revision.ty.into();
+                let rev_state: RevTableState = record.state.into();
                 (
-                    dsl::doc_id.eq(revision.doc_id),
-                    dsl::base_rev_id.eq(revision.base_rev_id),
-                    dsl::rev_id.eq(revision.rev_id),
-                    dsl::data.eq(revision.delta_data),
-                    dsl::state.eq(new_state),
+                    dsl::doc_id.eq(record.revision.doc_id),
+                    dsl::base_rev_id.eq(record.revision.base_rev_id),
+                    dsl::rev_id.eq(record.revision.rev_id),
+                    dsl::data.eq(record.revision.delta_data),
+                    dsl::state.eq(rev_state),
                     dsl::ty.eq(rev_ty),
                 )
             })
@@ -35,7 +32,7 @@ impl RevTableSql {
     }
 
     #[allow(dead_code)]
-    pub(crate) fn update_rev_table(&self, changeset: RevChangeset, conn: &SqliteConnection) -> Result<(), DocError> {
+    pub(crate) fn update_rev_table(changeset: RevChangeset, conn: &SqliteConnection) -> Result<(), DocError> {
         let filter = dsl::rev_table
             .filter(dsl::rev_id.eq(changeset.rev_id.as_ref()))
             .filter(dsl::doc_id.eq(changeset.doc_id));
@@ -44,7 +41,7 @@ impl RevTableSql {
         Ok(())
     }
 
-    pub(crate) fn read_rev_tables(&self, doc_id: &str, conn: &SqliteConnection) -> Result<Vec<Revision>, DocError> {
+    pub(crate) fn read_rev_tables(doc_id: &str, conn: &SqliteConnection) -> Result<Vec<Revision>, DocError> {
         let filter = dsl::rev_table
             .filter(dsl::doc_id.eq(doc_id))
             .order(dsl::rev_id.asc())
@@ -58,7 +55,6 @@ impl RevTableSql {
     }
 
     pub(crate) fn read_rev_table(
-        &self,
         doc_id: &str,
         revision_id: &i64,
         conn: &SqliteConnection,
@@ -76,7 +72,6 @@ impl RevTableSql {
     }
 
     pub(crate) fn read_rev_tables_with_range(
-        &self,
         doc_id_s: &str,
         range: RevisionRange,
         conn: &SqliteConnection,
@@ -96,12 +91,7 @@ impl RevTableSql {
     }
 
     #[allow(dead_code)]
-    pub(crate) fn delete_rev_table(
-        &self,
-        doc_id_s: &str,
-        rev_id_s: i64,
-        conn: &SqliteConnection,
-    ) -> Result<(), DocError> {
+    pub(crate) fn delete_rev_table(doc_id_s: &str, rev_id_s: i64, conn: &SqliteConnection) -> Result<(), DocError> {
         let filter = dsl::rev_table
             .filter(dsl::rev_id.eq(rev_id_s))
             .filter(dsl::doc_id.eq(doc_id_s));

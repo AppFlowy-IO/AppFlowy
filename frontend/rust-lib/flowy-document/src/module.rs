@@ -1,7 +1,7 @@
 use crate::{
     errors::DocError,
     services::{
-        doc::{doc_controller::DocController, ClientDocEditor},
+        doc::{doc_controller::DocController, edit::ClientDocEditor},
         server::construct_doc_server,
         ws::WsDocumentManager,
     },

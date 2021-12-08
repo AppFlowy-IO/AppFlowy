@@ -11,45 +11,54 @@ pub(crate) struct RevTable {
     pub(crate) base_rev_id: i64,
     pub(crate) rev_id: i64,
     pub(crate) data: Vec<u8>,
-    pub(crate) state: SqlRevState,
+    pub(crate) state: RevTableState,
     pub(crate) ty: RevTableType,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash, FromSqlRow, AsExpression)]
 #[repr(i32)]
 #[sql_type = "Integer"]
-pub enum SqlRevState {
+pub enum RevTableState {
     Local = 0,
     Acked = 1,
 }
 
-impl std::default::Default for SqlRevState {
-    fn default() -> Self { SqlRevState::Local }
+impl std::default::Default for RevTableState {
+    fn default() -> Self { RevTableState::Local }
 }
 
-impl std::convert::From<i32> for SqlRevState {
+impl std::convert::From<i32> for RevTableState {
     fn from(value: i32) -> Self {
         match value {
-            0 => SqlRevState::Local,
-            1 => SqlRevState::Acked,
+            0 => RevTableState::Local,
+            1 => RevTableState::Acked,
             o => {
                 log::error!("Unsupported rev state {}, fallback to RevState::Local", o);
-                SqlRevState::Local
+                RevTableState::Local
             },
         }
     }
 }
 
-impl SqlRevState {
+impl RevTableState {
     pub fn value(&self) -> i32 { *self as i32 }
 }
-impl_sql_integer_expression!(RevState);
+impl_sql_integer_expression!(RevTableState);
 
-impl std::convert::From<SqlRevState> for RevState {
-    fn from(s: SqlRevState) -> Self {
+impl std::convert::From<RevTableState> for RevState {
+    fn from(s: RevTableState) -> Self {
         match s {
-            SqlRevState::Local => RevState.Local,
-            SqlRevState::Acked => RevState.Acked,
+            RevTableState::Local => RevState::Local,
+            RevTableState::Acked => RevState::Acked,
+        }
+    }
+}
+
+impl std::convert::From<RevState> for RevTableState {
+    fn from(s: RevState) -> Self {
+        match s {
+            RevState::Local => RevTableState::Local,
+            RevState::Acked => RevTableState::Acked,
         }
     }
 }
@@ -119,5 +128,5 @@ impl_sql_integer_expression!(RevTableType);
 pub(crate) struct RevChangeset {
     pub(crate) doc_id: String,
     pub(crate) rev_id: RevId,
-    pub(crate) state: SqlRevState,
+    pub(crate) state: RevTableState,
 }

@@ -2,7 +2,10 @@ use crate::{
     errors::{internal_error, DocError, DocResult},
     module::DocumentUser,
     services::{
-        doc::{EditCommand, EditCommandQueue, OpenDocAction, RevisionManager, RevisionServer, TransformDeltas},
+        doc::{
+            edit::{EditCommand, EditCommandQueue, OpenDocAction, TransformDeltas},
+            revision::{RevisionManager, RevisionServer},
+        },
         ws::{DocumentWebSocket, WsDocumentHandler},
     },
 };
