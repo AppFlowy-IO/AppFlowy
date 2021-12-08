@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-dart-notify/subject.pb.dart';
@@ -13,6 +14,7 @@ import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-workspace/observable.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 
+import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/workspace/domain/i_workspace.dart';
 
 import 'helper.dart';
@@ -41,7 +43,7 @@ class WorkspaceRepo {
           assert(workspaces.items.length == 1);
 
           if (workspaces.items.isEmpty) {
-            return right(WorkspaceError.create()..msg = "Workspace not found");
+            return right(WorkspaceError.create()..msg = LocaleKeys.workspace_notFoundError.tr());
           } else {
             return left(workspaces.items[0]);
           }

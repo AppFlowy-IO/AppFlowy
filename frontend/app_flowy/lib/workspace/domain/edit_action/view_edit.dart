@@ -1,5 +1,7 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flutter/material.dart';
+import 'package:app_flowy/generated/locale_keys.g.dart';
 
 enum ViewDisclosureAction {
   rename,
@@ -11,11 +13,11 @@ extension ViewDisclosureExtension on ViewDisclosureAction {
   String get name {
     switch (this) {
       case ViewDisclosureAction.rename:
-        return 'Rename';
+        return LocaleKeys.disclosureAction_rename.tr();
       case ViewDisclosureAction.delete:
-        return 'Delete';
+        return LocaleKeys.disclosureAction_delete.tr();
       case ViewDisclosureAction.duplicate:
-        return 'Duplicate';
+        return LocaleKeys.disclosureAction_duplicate.tr();
     }
   }
 

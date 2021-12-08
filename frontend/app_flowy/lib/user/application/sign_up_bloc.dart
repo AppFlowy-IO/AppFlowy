@@ -1,9 +1,11 @@
 import 'package:app_flowy/user/domain/i_auth.dart';
 import 'package:dartz/dartz.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-infra/protobuf.dart' show UserProfile, ErrorCode;
 import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:app_flowy/generated/locale_keys.g.dart';
 
 part 'sign_up_bloc.freezed.dart';
 
@@ -37,7 +39,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     if (password == null) {
       yield state.copyWith(
         isSubmitting: false,
-        passwordError: some("Password can't be empty"),
+        passwordError: some(LocaleKeys.signUp_emptyPasswordError.tr()),
       );
       return;
     }
@@ -45,7 +47,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     if (repeatedPassword == null) {
       yield state.copyWith(
         isSubmitting: false,
-        repeatPasswordError: some("Repeat password can't be empty"),
+        repeatPasswordError: some(LocaleKeys.signUp_repeatPasswordEmptyError.tr()),
       );
       return;
     }
@@ -53,7 +55,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     if (password != repeatedPassword) {
       yield state.copyWith(
         isSubmitting: false,
-        repeatPasswordError: some("Repeat password is not the same as password"),
+        repeatPasswordError: some(LocaleKeys.signUp_unmatchedPasswordError.tr()),
       );
       return;
     }

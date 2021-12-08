@@ -1,6 +1,8 @@
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
+import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class BlankStackContext extends HomeStackContext {
   final ValueNotifier<bool> _isUpdated = ValueNotifier<bool>(false);
@@ -9,7 +11,7 @@ class BlankStackContext extends HomeStackContext {
   String get identifier => "1";
 
   @override
-  Widget get leftBarItem => const FlowyText.medium('Blank page', fontSize: 12);
+  Widget get leftBarItem => FlowyText.medium(LocaleKeys.blankPageTitle.tr(), fontSize: 12);
 
   @override
   Widget? get rightBarItem => null;

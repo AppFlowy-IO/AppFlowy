@@ -3,6 +3,7 @@ import 'package:app_flowy/workspace/application/view/view_bloc.dart';
 import 'package:app_flowy/workspace/domain/edit_action/view_edit.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:dartz/dartz.dart' as dartz;
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -14,6 +15,7 @@ import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:app_flowy/workspace/domain/image.dart';
 import 'package:app_flowy/workspace/presentation/widgets/menu/widget/app/menu_app.dart';
+import 'package:app_flowy/generated/locale_keys.g.dart';
 
 import 'disclosure_action.dart';
 
@@ -85,7 +87,7 @@ class ViewSectionItem extends StatelessWidget {
       switch (action) {
         case ViewDisclosureAction.rename:
           TextFieldDialog(
-            title: 'Rename',
+            title: LocaleKeys.disclosureAction_rename.tr(),
             value: context.read<ViewBloc>().state.view.name,
             confirm: (newValue) {
               context.read<ViewBloc>().add(ViewEvent.rename(newValue));

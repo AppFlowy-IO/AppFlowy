@@ -3,6 +3,7 @@ import 'package:app_flowy/workspace/application/trash/trash_bloc.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/trash/widget/sizes.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/trash/widget/trash_cell.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
@@ -15,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
+import 'package:app_flowy/generated/locale_keys.g.dart';
 
 import 'widget/trash_header.dart';
 
@@ -25,7 +27,7 @@ class TrashStackContext extends HomeStackContext {
   String get identifier => "TrashStackContext";
 
   @override
-  Widget get leftBarItem => const FlowyText.medium('Trash', fontSize: 12);
+  Widget get leftBarItem => FlowyText.medium(LocaleKeys.trash_text.tr(), fontSize: 12);
 
   @override
   Widget? get rightBarItem => null;
@@ -117,12 +119,12 @@ class _TrashStackPageState extends State<TrashStackPage> {
       height: 36,
       child: Row(
         children: [
-          const FlowyText.semibold('Trash'),
+          FlowyText.semibold(LocaleKeys.trash_text.tr()),
           const Spacer(),
           SizedBox.fromSize(
             size: const Size(102, 30),
             child: FlowyButton(
-              text: const FlowyText.medium('Restore all', fontSize: 12),
+              text: FlowyText.medium(LocaleKeys.trash_restoreAll.tr(), fontSize: 12),
               icon: svg('editor/restore'),
               hoverColor: theme.hover,
               onTap: () => context.read<TrashBloc>().add(const TrashEvent.restoreAll()),
@@ -132,7 +134,7 @@ class _TrashStackPageState extends State<TrashStackPage> {
           SizedBox.fromSize(
             size: const Size(102, 30),
             child: FlowyButton(
-              text: const FlowyText.medium('Delete all', fontSize: 12),
+              text: FlowyText.medium(LocaleKeys.trash_deleteAll.tr(), fontSize: 12),
               icon: svg('editor/delete'),
               hoverColor: theme.hover,
               onTap: () => context.read<TrashBloc>().add(const TrashEvent.deleteAll()),
