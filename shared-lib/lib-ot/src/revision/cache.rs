@@ -125,3 +125,9 @@ impl RevisionRecord {
 
     pub fn ack(&mut self) { self.state = RevState::Acked; }
 }
+
+#[cfg(feature = "flowy_unit_test")]
+impl RevisionMemoryCache {
+    pub fn revs_map(&self) -> Arc<DashMap<i64, RevisionRecord>> { self.revs_map.clone() }
+    pub fn pending_revs(&self) -> Arc<RwLock<VecDeque<i64>>> { self.pending_revs.clone() }
+}

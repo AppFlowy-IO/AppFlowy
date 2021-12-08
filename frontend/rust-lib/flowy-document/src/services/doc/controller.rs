@@ -5,7 +5,7 @@ use crate::{
         cache::DocCache,
         doc::{
             edit::{ClientDocEditor, EditDocWsHandler},
-            revision::RevisionServer,
+            revision::{RevisionCache, RevisionManager, RevisionServer},
         },
         server::Server,
         ws::WsDocumentManager,
@@ -96,22 +96,27 @@ impl DocController {
         doc_id: &str,
         pool: Arc<ConnectionPool>,
     ) -> Result<Arc<ClientDocEditor>, DocError> {
-        // Opti: require upgradable_read lock and then upgrade to write lock using
-        // RwLockUpgradableReadGuard::upgrade(xx) of ws
-        // let doc = self.read_doc(doc_id, pool.clone()).await?;
-        let ws = self.ws_manager.ws();
-        let token = self.user.token()?;
         let user = self.user.clone();
-        let server = Arc::new(RevisionServerImpl {
-            token,
-            server: self.server.clone(),
-        });
-
-        let edit_ctx = Arc::new(ClientDocEditor::new(doc_id, pool, ws, server, user).await?);
+        let rev_manager = self.make_rev_manager(doc_id, pool.clone())?;
+        let edit_ctx = ClientDocEditor::new(doc_id, user, pool, rev_manager, self.ws_manager.ws()).await?;
         let ws_handler = Arc::new(EditDocWsHandler(edit_ctx.clone()));
         self.ws_manager.register_handler(doc_id, ws_handler);
         self.cache.set(edit_ctx.clone());
         Ok(edit_ctx)
+    }
+
+    fn make_rev_manager(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<RevisionManager, DocError> {
+        // Opti: require upgradable_read lock and then upgrade to write lock using
+        // RwLockUpgradableReadGuard::upgrade(xx) of ws
+        // let doc = self.read_doc(doc_id, pool.clone()).await?;
+        let ws_sender = self.ws_manager.ws();
+        let token = self.user.token()?;
+        let server = Arc::new(RevisionServerImpl {
+            token,
+            server: self.server.clone(),
+        });
+        let cache = Arc::new(RevisionCache::new(doc_id, pool, server));
+        Ok(RevisionManager::new(doc_id, cache, ws_sender))
     }
 }
 

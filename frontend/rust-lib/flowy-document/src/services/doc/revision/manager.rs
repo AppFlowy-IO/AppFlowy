@@ -1,8 +1,10 @@
 use crate::{
     errors::{DocError, DocResult},
-    services::doc::revision::{RevisionCache, RevisionUploadStream},
+    services::{
+        doc::revision::{RevisionCache, RevisionUpStream},
+        ws::DocumentWebSocket,
+    },
 };
-use flowy_database::ConnectionPool;
 use flowy_document_infra::{entities::doc::Doc, util::RevIdCounter};
 use lib_infra::future::ResultFuture;
 use lib_ot::{
@@ -11,7 +13,6 @@ use lib_ot::{
     rich_text::RichTextDelta,
 };
 use std::sync::Arc;
-use tokio::sync::mpsc;
 
 pub trait RevisionServer: Send + Sync {
     fn fetch_document(&self, doc_id: &str) -> ResultFuture<Doc, DocError>;
@@ -21,22 +22,17 @@ pub struct RevisionManager {
     doc_id: String,
     rev_id_counter: RevIdCounter,
     cache: Arc<RevisionCache>,
+    ws_sender: Arc<dyn DocumentWebSocket>,
 }
 
 impl RevisionManager {
-    pub fn new(
-        doc_id: &str,
-        pool: Arc<ConnectionPool>,
-        server: Arc<dyn RevisionServer>,
-        ws_sender: mpsc::UnboundedSender<Revision>,
-    ) -> Self {
-        let cache = Arc::new(RevisionCache::new(doc_id, pool, server));
-        spawn_upload_stream(cache.clone(), ws_sender);
+    pub fn new(doc_id: &str, cache: Arc<RevisionCache>, ws_sender: Arc<dyn DocumentWebSocket>) -> Self {
         let rev_id_counter = RevIdCounter::new(0);
         Self {
             doc_id: doc_id.to_string(),
             rev_id_counter,
             cache,
+            ws_sender,
         }
     }
 
@@ -91,8 +87,13 @@ impl RevisionManager {
 
         Ok(revision)
     }
+
+    pub(crate) fn make_up_stream(&self) -> RevisionUpStream {
+        RevisionUpStream::new(self.cache.clone(), self.ws_sender.clone())
+    }
 }
 
-fn spawn_upload_stream(cache: Arc<RevisionCache>, ws_sender: mpsc::UnboundedSender<Revision>) {
-    tokio::spawn(RevisionUploadStream::new(cache, ws_sender).run());
+#[cfg(feature = "flowy_unit_test")]
+impl RevisionManager {
+    pub fn revision_cache(&self) -> Arc<RevisionCache> { self.cache.clone() }
 }

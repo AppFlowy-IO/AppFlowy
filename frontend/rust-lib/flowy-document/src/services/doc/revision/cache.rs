@@ -257,3 +257,10 @@ impl RevisionDiskCache for Persistence {
 impl Persistence {
     pub(crate) fn new(pool: Arc<ConnectionPool>) -> Self { Self { pool } }
 }
+
+#[cfg(feature = "flowy_unit_test")]
+impl RevisionCache {
+    pub fn dish_cache(&self) -> Arc<DocRevisionDeskCache> { self.dish_cache.clone() }
+
+    pub fn memory_cache(&self) -> Arc<RevisionMemoryCache> { self.memory_cache.clone() }
+}

@@ -25,7 +25,7 @@ impl KV {
     }
 
     fn set(value: KeyValue) -> Result<(), String> {
-        log::debug!("set value: {:?}", value);
+        log::trace!("[KV]: set value: {:?}", value);
         update_cache(value.clone());
 
         let _ = diesel::replace_into(kv_table::table)
