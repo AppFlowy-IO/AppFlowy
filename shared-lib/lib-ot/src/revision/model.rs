@@ -25,6 +25,8 @@ pub struct Revision {
 
 impl Revision {
     pub fn is_empty(&self) -> bool { self.base_rev_id == self.rev_id }
+
+    pub fn pair_rev_id(&self) -> (i64, i64) { (self.base_rev_id, self.rev_id) }
 }
 
 impl std::fmt::Debug for Revision {

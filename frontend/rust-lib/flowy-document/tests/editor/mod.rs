@@ -1,6 +1,7 @@
 #![allow(clippy::module_inception)]
 mod attribute_test;
 mod op_test;
+mod revision_test;
 mod serde_test;
 mod undo_redo_test;
 

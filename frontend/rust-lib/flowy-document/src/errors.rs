@@ -46,7 +46,7 @@ impl DocError {
     static_doc_error!(ws, ErrorCode::WsConnectError);
     static_doc_error!(internal, ErrorCode::InternalError);
     static_doc_error!(unauthorized, ErrorCode::UserUnauthorized);
-    static_doc_error!(record_not_found, ErrorCode::DocNotfound);
+    static_doc_error!(doc_not_found, ErrorCode::DocNotfound);
     static_doc_error!(duplicate_rev, ErrorCode::DuplicateRevision);
 }
 
@@ -82,7 +82,7 @@ impl std::default::Default for ErrorCode {
 impl std::convert::From<flowy_database::Error> for DocError {
     fn from(error: flowy_database::Error) -> Self {
         match error {
-            flowy_database::Error::NotFound => DocError::record_not_found().context(error),
+            flowy_database::Error::NotFound => DocError::doc_not_found().context(error),
             _ => DocError::internal().context(error),
         }
     }

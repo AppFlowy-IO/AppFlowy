@@ -1272,6 +1272,7 @@ dependencies = [
  "flowy-document-infra",
  "futures",
  "futures-core",
+ "futures-util",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",

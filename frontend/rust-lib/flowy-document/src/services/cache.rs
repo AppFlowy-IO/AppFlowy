@@ -46,4 +46,4 @@ impl DocCache {
     }
 }
 
-fn doc_not_found() -> DocError { DocError::record_not_found().context("Doc is close or you should call open first") }
+fn doc_not_found() -> DocError { DocError::doc_not_found().context("Doc is close or you should call open first") }

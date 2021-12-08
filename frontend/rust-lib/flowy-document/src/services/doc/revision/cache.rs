@@ -22,7 +22,7 @@ use lib_ot::{
 };
 use std::{sync::Arc, time::Duration};
 use tokio::{
-    sync::RwLock,
+    sync::{mpsc, RwLock},
     task::{spawn_blocking, JoinHandle},
 };
 
@@ -107,13 +107,15 @@ impl RevisionCache {
         }
     }
 
-    pub async fn fetch_document(&self) -> DocResult<Doc> {
-        let result = fetch_from_local(&self.doc_id, self.dish_cache.clone()).await;
+    pub async fn load_document(&self) -> DocResult<Doc> {
+        // Loading the document from disk and it will be sync with server.
+        let result = load_from_disk(&self.doc_id, self.memory_cache.clone(), self.dish_cache.clone()).await;
         if result.is_ok() {
             return result;
         }
 
-        let doc = self.server.fetch_document_from_remote(&self.doc_id).await?;
+        // The document doesn't exist in local. Try load from server
+        let doc = self.server.fetch_document(&self.doc_id).await?;
         let delta_data = doc.data.as_bytes();
         let revision = Revision::new(
             doc.base_rev_id,
@@ -154,21 +156,30 @@ impl RevisionIterator for RevisionCache {
     }
 }
 
-async fn fetch_from_local(doc_id: &str, disk_cache: Arc<DocRevisionDeskCache>) -> DocResult<Doc> {
+async fn load_from_disk(
+    doc_id: &str,
+    memory_cache: Arc<RevisionMemoryCache>,
+    disk_cache: Arc<DocRevisionDeskCache>,
+) -> DocResult<Doc> {
     let doc_id = doc_id.to_owned();
-    spawn_blocking(move || {
+    let (tx, mut rx) = mpsc::channel(2);
+    let doc = spawn_blocking(move || {
         let revisions = disk_cache.read_revisions(&doc_id)?;
         if revisions.is_empty() {
-            return Err(DocError::record_not_found().context("Local doesn't have this document"));
+            return Err(DocError::doc_not_found().context("Local doesn't have this document"));
         }
 
-        let base_rev_id: RevId = revisions.last().unwrap().base_rev_id.into();
-        let rev_id: RevId = revisions.last().unwrap().rev_id.into();
+        let (base_rev_id, rev_id) = revisions.last().unwrap().pair_rev_id();
         let mut delta = RichTextDelta::new();
         for (_, revision) in revisions.into_iter().enumerate() {
-            match RichTextDelta::from_bytes(revision.delta_data) {
+            // Opti: revision's clone may cause memory issues
+            match RichTextDelta::from_bytes(revision.clone().delta_data) {
                 Ok(local_delta) => {
                     delta = delta.compose(&local_delta)?;
+                    match tx.blocking_send(revision) {
+                        Ok(_) => {},
+                        Err(e) => log::error!("Load document from disk error: {}", e),
+                    }
                 },
                 Err(e) => {
                     log::error!("Deserialize delta from revision failed: {}", e);
@@ -176,51 +187,36 @@ async fn fetch_from_local(doc_id: &str, disk_cache: Arc<DocRevisionDeskCache>) -
             }
         }
 
-        #[cfg(debug_assertions)]
-        validate_delta(&doc_id, disk_cache, &delta);
-
-        match delta.ops.last() {
-            None => {},
-            Some(op) => {
-                let data = op.get_data();
-                if !data.ends_with('\n') {
-                    delta.ops.push(Operation::Insert("\n".into()))
-                }
-            },
-        }
-
+        correct_delta_if_need(&mut delta);
         Result::<Doc, DocError>::Ok(Doc {
             id: doc_id,
             data: delta.to_json(),
-            rev_id: rev_id.into(),
-            base_rev_id: base_rev_id.into(),
+            rev_id,
+            base_rev_id,
         })
     })
     .await
-    .map_err(internal_error)?
+    .map_err(internal_error)?;
+
+    while let Some(revision) = rx.recv().await {
+        match memory_cache.add_revision(revision).await {
+            Ok(_) => {},
+            Err(e) => log::error!("{:?}", e),
+        }
+    }
+
+    doc
 }
 
-#[cfg(debug_assertions)]
-fn validate_delta(doc_id: &str, disk_cache: Arc<DocRevisionDeskCache>, delta: &RichTextDelta) {
+fn correct_delta_if_need(delta: &mut RichTextDelta) {
     if delta.ops.last().is_none() {
         return;
     }
 
     let data = delta.ops.last().as_ref().unwrap().get_data();
     if !data.ends_with('\n') {
-        log::error!("The op must end with newline");
-        let result = || {
-            let revisions = disk_cache.read_revisions(&doc_id)?;
-            for revision in revisions {
-                let delta = RichTextDelta::from_bytes(revision.delta_data)?;
-                log::error!("Invalid revision: {}:{}", revision.rev_id, delta.to_json());
-            }
-            Ok::<(), DocError>(())
-        };
-        match result() {
-            Ok(_) => {},
-            Err(e) => log::error!("{}", e),
-        }
+        log::error!("The op must end with newline. Correcting it by inserting newline op");
+        delta.ops.push(Operation::Insert("\n".into()));
     }
 }
 

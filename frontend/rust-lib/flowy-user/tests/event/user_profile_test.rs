@@ -1,13 +1,13 @@
 use crate::helper::*;
-use flowy_test::{builder::UserTest, FlowyTest};
+use flowy_test::{event_builder::UserModuleEventBuilder, FlowySDKTest};
 use flowy_user::{errors::ErrorCode, event::UserEvent::*, prelude::*};
 use lib_infra::uuid;
 use serial_test::*;
 
 #[tokio::test]
 async fn user_profile_get_failed() {
-    let test = FlowyTest::setup();
-    let result = UserTest::new(test.sdk)
+    let sdk = FlowySDKTest::setup();
+    let result = UserModuleEventBuilder::new(sdk)
         .event(GetUserProfile)
         .assert_error()
         .async_send()
@@ -18,9 +18,9 @@ async fn user_profile_get_failed() {
 #[tokio::test]
 #[serial]
 async fn user_profile_get() {
-    let test = FlowyTest::setup();
+    let test = FlowySDKTest::setup();
     let user_profile = test.init_user().await;
-    let user = UserTest::new(test.sdk.clone())
+    let user = UserModuleEventBuilder::new(test.clone())
         .event(GetUserProfile)
         .sync_send()
         .parse::<UserProfile>();
@@ -30,13 +30,16 @@ async fn user_profile_get() {
 #[tokio::test]
 #[serial]
 async fn user_update_with_name() {
-    let test = FlowyTest::setup();
-    let user = test.init_user().await;
+    let sdk = FlowySDKTest::setup();
+    let user = sdk.init_user().await;
     let new_name = "hello_world".to_owned();
     let request = UpdateUserRequest::new(&user.id).name(&new_name);
-    let _ = UserTest::new(test.sdk()).event(UpdateUser).request(request).sync_send();
+    let _ = UserModuleEventBuilder::new(sdk.clone())
+        .event(UpdateUser)
+        .request(request)
+        .sync_send();
 
-    let user_profile = UserTest::new(test.sdk())
+    let user_profile = UserModuleEventBuilder::new(sdk.clone())
         .event(GetUserProfile)
         .assert_error()
         .sync_send()
@@ -48,12 +51,15 @@ async fn user_update_with_name() {
 #[tokio::test]
 #[serial]
 async fn user_update_with_email() {
-    let test = FlowyTest::setup();
-    let user = test.init_user().await;
+    let sdk = FlowySDKTest::setup();
+    let user = sdk.init_user().await;
     let new_email = format!("{}@gmail.com", uuid());
     let request = UpdateUserRequest::new(&user.id).email(&new_email);
-    let _ = UserTest::new(test.sdk()).event(UpdateUser).request(request).sync_send();
-    let user_profile = UserTest::new(test.sdk())
+    let _ = UserModuleEventBuilder::new(sdk.clone())
+        .event(UpdateUser)
+        .request(request)
+        .sync_send();
+    let user_profile = UserModuleEventBuilder::new(sdk.clone())
         .event(GetUserProfile)
         .assert_error()
         .sync_send()
@@ -65,12 +71,12 @@ async fn user_update_with_email() {
 #[tokio::test]
 #[serial]
 async fn user_update_with_password() {
-    let test = FlowyTest::setup();
-    let user = test.init_user().await;
+    let sdk = FlowySDKTest::setup();
+    let user = sdk.init_user().await;
     let new_password = "H123world!".to_owned();
     let request = UpdateUserRequest::new(&user.id).password(&new_password);
 
-    let _ = UserTest::new(test.sdk())
+    let _ = UserModuleEventBuilder::new(sdk.clone())
         .event(UpdateUser)
         .request(request)
         .sync_send()
@@ -80,12 +86,12 @@ async fn user_update_with_password() {
 #[tokio::test]
 #[serial]
 async fn user_update_with_invalid_email() {
-    let test = FlowyTest::setup();
+    let test = FlowySDKTest::setup();
     let user = test.init_user().await;
     for email in invalid_email_test_case() {
         let request = UpdateUserRequest::new(&user.id).email(&email);
         assert_eq!(
-            UserTest::new(test.sdk())
+            UserModuleEventBuilder::new(test.clone())
                 .event(UpdateUser)
                 .request(request)
                 .sync_send()
@@ -99,12 +105,12 @@ async fn user_update_with_invalid_email() {
 #[tokio::test]
 #[serial]
 async fn user_update_with_invalid_password() {
-    let test = FlowyTest::setup();
+    let test = FlowySDKTest::setup();
     let user = test.init_user().await;
     for password in invalid_password_test_case() {
         let request = UpdateUserRequest::new(&user.id).password(&password);
 
-        UserTest::new(test.sdk())
+        UserModuleEventBuilder::new(test.clone())
             .event(UpdateUser)
             .request(request)
             .sync_send()
@@ -115,10 +121,10 @@ async fn user_update_with_invalid_password() {
 #[tokio::test]
 #[serial]
 async fn user_update_with_invalid_name() {
-    let test = FlowyTest::setup();
+    let test = FlowySDKTest::setup();
     let user = test.init_user().await;
     let request = UpdateUserRequest::new(&user.id).name("");
-    UserTest::new(test.sdk())
+    UserModuleEventBuilder::new(test.clone())
         .event(UpdateUser)
         .request(request)
         .sync_send()

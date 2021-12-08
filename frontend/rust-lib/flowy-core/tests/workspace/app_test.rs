@@ -3,7 +3,7 @@ use flowy_core::entities::{
     trash::{TrashIdentifier, TrashType},
     view::*,
 };
-use flowy_test::workspace::*;
+use flowy_test::helper::*;
 
 #[tokio::test]
 #[should_panic]

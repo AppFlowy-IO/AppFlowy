@@ -3,7 +3,7 @@
 use actix_web::web::Data;
 use backend::services::doc::{crud::update_doc, manager::DocManager};
 use flowy_document::services::doc::edit::ClientDocEditor as ClientEditDocContext;
-use flowy_test::{workspace::ViewTest, FlowyTest};
+use flowy_test::{helper::ViewTest, FlowySDKTest};
 use flowy_user::services::user::UserSession;
 use futures_util::{stream, stream::StreamExt};
 use sqlx::PgPool;
@@ -18,7 +18,7 @@ use lib_ot::core::Interval;
 
 pub struct DocumentTest {
     server: TestServer,
-    flowy_test: FlowyTest,
+    flowy_test: FlowySDKTest,
 }
 #[derive(Clone)]
 pub enum DocScript {
@@ -34,7 +34,7 @@ pub enum DocScript {
 impl DocumentTest {
     pub async fn new() -> Self {
         let server = spawn_server().await;
-        let flowy_test = FlowyTest::setup_with(server.client_server_config.clone());
+        let flowy_test = FlowySDKTest::setup_with(server.client_server_config.clone());
         Self { server, flowy_test }
     }
 
@@ -50,7 +50,7 @@ impl DocumentTest {
 #[derive(Clone)]
 struct ScriptContext {
     client_edit_context: Option<Arc<ClientEditDocContext>>,
-    flowy_test: FlowyTest,
+    client_sdk: FlowySDKTest,
     client_user_session: Arc<UserSession>,
     server_doc_manager: Arc<DocManager>,
     server_pg_pool: Data<PgPool>,
@@ -58,13 +58,13 @@ struct ScriptContext {
 }
 
 impl ScriptContext {
-    async fn new(flowy_test: FlowyTest, server: TestServer) -> Self {
-        let user_session = flowy_test.sdk.user_session.clone();
-        let doc_id = create_doc(&flowy_test).await;
+    async fn new(client_sdk: FlowySDKTest, server: TestServer) -> Self {
+        let user_session = client_sdk.user_session.clone();
+        let doc_id = create_doc(&client_sdk).await;
 
         Self {
             client_edit_context: None,
-            flowy_test,
+            client_sdk,
             client_user_session: user_session,
             server_doc_manager: server.app_ctx.doc_biz.manager.clone(),
             server_pg_pool: Data::new(server.pg_pool.clone()),
@@ -73,7 +73,7 @@ impl ScriptContext {
     }
 
     async fn open_doc(&mut self) {
-        let flowy_document = self.flowy_test.sdk.flowy_document.clone();
+        let flowy_document = self.client_sdk.flowy_document.clone();
         let doc_id = self.doc_id.clone();
 
         let edit_context = flowy_document.open(DocIdentifier { doc_id }).await.unwrap();
@@ -161,7 +161,7 @@ fn assert_eq(expect: &str, receive: &str) {
     assert_eq!(target_delta, expected_delta);
 }
 
-async fn create_doc(flowy_test: &FlowyTest) -> String {
+async fn create_doc(flowy_test: &FlowySDKTest) -> String {
     let view_test = ViewTest::new(flowy_test).await;
     view_test.view.id
 }

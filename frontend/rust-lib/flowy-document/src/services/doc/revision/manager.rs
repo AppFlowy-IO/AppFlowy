@@ -14,7 +14,7 @@ use std::sync::Arc;
 use tokio::sync::mpsc;
 
 pub trait RevisionServer: Send + Sync {
-    fn fetch_document_from_remote(&self, doc_id: &str) -> ResultFuture<Doc, DocError>;
+    fn fetch_document(&self, doc_id: &str) -> ResultFuture<Doc, DocError>;
 }
 
 pub struct RevisionManager {
@@ -41,7 +41,7 @@ impl RevisionManager {
     }
 
     pub async fn load_document(&mut self) -> DocResult<RichTextDelta> {
-        let doc = self.cache.fetch_document().await?;
+        let doc = self.cache.load_document().await?;
         self.update_rev_id_counter_value(doc.rev_id);
         Ok(doc.delta()?)
     }

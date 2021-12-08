@@ -33,8 +33,12 @@ impl RevisionMemoryCache {
     pub fn new() -> Self { RevisionMemoryCache::default() }
 
     pub async fn add_revision(&self, revision: Revision) -> Result<(), OTError> {
-        if self.revs_map.contains_key(&revision.rev_id) {
-            return Ok(());
+        // The last revision's rev_id must be greater than the new one.
+        if let Some(rev_id) = self.pending_revs.read().await.back() {
+            if *rev_id >= revision.rev_id {
+                return Err(OTError::revision_id_conflict()
+                    .context(format!("The new revision's id must be greater than {}", rev_id)));
+            }
         }
 
         self.pending_revs.write().await.push_back(revision.rev_id);
@@ -120,22 +124,4 @@ impl RevisionRecord {
     }
 
     pub fn ack(&mut self) { self.state = RevState::Acked; }
-}
-
-pub struct PendingRevId {
-    pub rev_id: i64,
-    pub sender: RevIdSender,
-}
-
-impl PendingRevId {
-    pub fn new(rev_id: i64, sender: RevIdSender) -> Self { Self { rev_id, sender } }
-
-    pub fn finish(&self, rev_id: i64) -> bool {
-        if self.rev_id > rev_id {
-            false
-        } else {
-            let _ = self.sender.send(self.rev_id);
-            true
-        }
-    }
 }

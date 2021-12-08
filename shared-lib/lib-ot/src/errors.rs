@@ -36,6 +36,7 @@ impl OTError {
     }
 
     static_ot_error!(duplicate_revision, OTErrorCode::DuplicatedRevision);
+    static_ot_error!(revision_id_conflict, OTErrorCode::RevisionIDConflict);
 }
 
 impl fmt::Display for OTError {
@@ -66,6 +67,7 @@ pub enum OTErrorCode {
     RedoFail,
     SerdeError,
     DuplicatedRevision,
+    RevisionIDConflict,
 }
 
 pub struct ErrorBuilder {

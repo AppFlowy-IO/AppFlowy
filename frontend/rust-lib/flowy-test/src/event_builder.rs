@@ -5,37 +5,36 @@ use std::{
     hash::Hash,
 };
 
-use crate::FlowyTestSDK;
-use lib_dispatch::prelude::*;
-
+use crate::FlowySDKTest;
 use flowy_core::errors::WorkspaceError;
-use flowy_sdk::*;
+
 use flowy_user::errors::UserError;
+use lib_dispatch::prelude::*;
 use std::{convert::TryFrom, marker::PhantomData, sync::Arc};
 
-pub type FlowyWorkspaceTest = Builder<WorkspaceError>;
-impl FlowyWorkspaceTest {
-    pub fn new(sdk: FlowyTestSDK) -> Self { Builder::test(TestContext::new(sdk)) }
+pub type CoreModuleEventBuilder = EventBuilder<WorkspaceError>;
+impl CoreModuleEventBuilder {
+    pub fn new(sdk: FlowySDKTest) -> Self { EventBuilder::test(TestContext::new(sdk)) }
 }
 
-pub type UserTest = Builder<UserError>;
-impl UserTest {
-    pub fn new(sdk: FlowyTestSDK) -> Self { Builder::test(TestContext::new(sdk)) }
+pub type UserModuleEventBuilder = EventBuilder<UserError>;
+impl UserModuleEventBuilder {
+    pub fn new(sdk: FlowySDKTest) -> Self { EventBuilder::test(TestContext::new(sdk)) }
     pub fn user_profile(&self) -> &Option<UserProfile> { &self.user_profile }
 }
 
 #[derive(Clone)]
-pub struct Builder<E> {
+pub struct EventBuilder<E> {
     context: TestContext,
     user_profile: Option<UserProfile>,
     err_phantom: PhantomData<E>,
 }
 
-impl<E> Builder<E>
+impl<E> EventBuilder<E>
 where
     E: FromBytes + Debug,
 {
-    pub(crate) fn test(context: TestContext) -> Self {
+    fn test(context: TestContext) -> Self {
         Self {
             context,
             user_profile: None,
@@ -111,8 +110,6 @@ where
         self
     }
 
-    pub fn sdk(&self) -> FlowySDK { self.context.sdk.clone() }
-
     fn dispatch(&self) -> Arc<EventDispatcher> { self.context.sdk.dispatcher() }
 
     fn get_response(&self) -> EventResponse {
@@ -128,13 +125,13 @@ where
 
 #[derive(Clone)]
 pub struct TestContext {
-    sdk: FlowyTestSDK,
+    pub sdk: FlowySDKTest,
     request: Option<ModuleRequest>,
     response: Option<EventResponse>,
 }
 
 impl TestContext {
-    pub fn new(sdk: FlowyTestSDK) -> Self {
+    pub fn new(sdk: FlowySDKTest) -> Self {
         Self {
             sdk,
             request: None,

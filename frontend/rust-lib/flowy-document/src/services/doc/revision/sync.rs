@@ -53,6 +53,7 @@ impl RevisionUploadStream {
     }
 
     async fn send_next_revision(&self) -> DocResult<()> {
+        log::debug!("😁Tick");
         match self.revisions.next().await? {
             None => Ok(()),
             Some(record) => {

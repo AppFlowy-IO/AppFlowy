@@ -209,7 +209,7 @@ impl ClientDocEditor {
     async fn handle_push_rev(&self, bytes: Bytes) -> DocResult<()> {
         // Transform the revision
         let (ret, rx) = oneshot::channel::<DocumentResult<TransformDeltas>>();
-        let _ = self.edit_tx.send(EditCommand::RemoteRevision { bytes, ret });
+        let _ = self.edit_tx.send(EditCommand::ProcessRemoteRevision { bytes, ret });
         let TransformDeltas {
             client_prime,
             server_prime,
@@ -268,12 +268,12 @@ impl ClientDocEditor {
                 let revision = self.rev_manager.mk_revisions(range).await?;
                 let _ = self.ws.send(revision.into());
             },
-            WsDataType::NewDocUser => {},
             WsDataType::Acked => {
                 let rev_id = RevId::try_from(bytes)?;
                 let _ = self.rev_manager.ack_revision(rev_id).await?;
             },
             WsDataType::Conflict => {},
+            WsDataType::NewDocUser => {},
         }
         Ok(())
     }

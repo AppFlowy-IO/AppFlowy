@@ -122,7 +122,7 @@ struct RevisionServerImpl {
 
 impl RevisionServer for RevisionServerImpl {
     #[tracing::instrument(level = "debug", skip(self))]
-    fn fetch_document_from_remote(&self, doc_id: &str) -> ResultFuture<Doc, DocError> {
+    fn fetch_document(&self, doc_id: &str) -> ResultFuture<Doc, DocError> {
         let params = DocIdentifier {
             doc_id: doc_id.to_string(),
         };
@@ -131,7 +131,7 @@ impl RevisionServer for RevisionServerImpl {
 
         ResultFuture::new(async move {
             match server.read_doc(&token, params).await? {
-                None => Err(DocError::record_not_found().context("Remote doesn't have this document")),
+                None => Err(DocError::doc_not_found().context("Remote doesn't have this document")),
                 Some(doc) => Ok(doc),
             }
         })

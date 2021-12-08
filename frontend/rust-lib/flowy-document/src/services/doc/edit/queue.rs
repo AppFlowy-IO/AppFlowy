@@ -55,7 +55,7 @@ impl EditCommandQueue {
                 let result = self.composed_delta(delta).await;
                 let _ = ret.send(result);
             },
-            EditCommand::RemoteRevision { bytes, ret } => {
+            EditCommand::ProcessRemoteRevision { bytes, ret } => {
                 let revision = Revision::try_from(bytes)?;
                 let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
                 let rev_id: RevId = revision.rev_id.into();
@@ -131,7 +131,7 @@ pub(crate) enum EditCommand {
         delta: RichTextDelta,
         ret: Ret<()>,
     },
-    RemoteRevision {
+    ProcessRemoteRevision {
         bytes: Bytes,
         ret: Ret<TransformDeltas>,
     },

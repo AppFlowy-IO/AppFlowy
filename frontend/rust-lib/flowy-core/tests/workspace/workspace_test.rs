@@ -3,7 +3,7 @@ use flowy_core::{
     event::WorkspaceEvent::*,
     prelude::*,
 };
-use flowy_test::{builder::*, workspace::*, FlowyTest};
+use flowy_test::{event_builder::*, helper::*, FlowySDKTest};
 
 #[tokio::test]
 async fn workspace_read_all() {
@@ -42,13 +42,13 @@ async fn workspace_create_with_apps() {
 #[tokio::test]
 async fn workspace_create_with_invalid_name() {
     for (name, code) in invalid_workspace_name_test_case() {
-        let sdk = FlowyTest::setup().sdk;
+        let sdk = FlowySDKTest::setup();
         let request = CreateWorkspaceRequest {
             name,
             desc: "".to_owned(),
         };
         assert_eq!(
-            FlowyWorkspaceTest::new(sdk)
+            CoreModuleEventBuilder::new(sdk)
                 .event(CreateWorkspace)
                 .request(request)
                 .async_send()
@@ -62,14 +62,14 @@ async fn workspace_create_with_invalid_name() {
 
 #[tokio::test]
 async fn workspace_update_with_invalid_name() {
-    let sdk = FlowyTest::setup().sdk;
+    let sdk = FlowySDKTest::setup();
     for (name, code) in invalid_workspace_name_test_case() {
         let request = CreateWorkspaceRequest {
             name,
             desc: "".to_owned(),
         };
         assert_eq!(
-            FlowyWorkspaceTest::new(sdk.clone())
+            CoreModuleEventBuilder::new(sdk.clone())
                 .event(CreateWorkspace)
                 .request(request)
                 .async_send()
