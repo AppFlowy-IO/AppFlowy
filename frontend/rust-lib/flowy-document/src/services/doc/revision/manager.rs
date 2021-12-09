@@ -49,7 +49,7 @@ impl RevisionManager {
     }
 
     pub async fn ack_revision(&self, rev_id: RevId) -> Result<(), DocError> {
-        self.cache.ack_revision(rev_id).await;
+        self.cache.ack_revision(rev_id.into()).await;
         Ok(())
     }
 
@@ -89,7 +89,7 @@ impl RevisionManager {
     }
 
     pub(crate) fn make_up_stream(&self, stop_rx: SteamStopRx) -> RevisionUpStream {
-        RevisionUpStream::new(self.cache.clone(), self.ws_sender.clone(), stop_rx)
+        RevisionUpStream::new(&self.doc_id, self.cache.clone(), self.ws_sender.clone(), stop_rx)
     }
 }
 

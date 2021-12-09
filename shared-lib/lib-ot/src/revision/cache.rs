@@ -2,7 +2,7 @@ use crate::{
     errors::OTError,
     revision::{Revision, RevisionRange},
 };
-use dashmap::{mapref::one::RefMut, DashMap};
+use dashmap::DashMap;
 use std::{collections::VecDeque, fmt::Debug, sync::Arc};
 use tokio::sync::{broadcast, RwLock};
 
@@ -48,12 +48,15 @@ impl RevisionMemoryCache {
 
     pub fn remove_revisions(&self, ids: Vec<i64>) { self.revs_map.retain(|k, _| !ids.contains(k)); }
 
-    pub fn mut_revision<F>(&self, rev_id: &i64, f: F)
-    where
-        F: Fn(RefMut<i64, RevisionRecord>),
-    {
-        if let Some(m_revision) = self.revs_map.get_mut(rev_id) {
-            f(m_revision)
+    pub async fn ack_revision(&self, rev_id: &i64) {
+        if let Some(mut m_revision) = self.revs_map.get_mut(rev_id) {
+            m_revision.value_mut().ack();
+            match self.pending_revs.write().await.pop_front() {
+                None => log::error!("The pending_revs should not be empty"),
+                Some(cache_rev_id) => {
+                    assert_eq!(&cache_rev_id, rev_id);
+                },
+            }
         } else {
             log::error!("Can't find revision with id {}", rev_id);
         }
@@ -90,6 +93,10 @@ impl RevisionMemoryCache {
         (ids, records)
     }
 
+    pub async fn query_revision(&self, rev_id: &i64) -> Option<RevisionRecord> {
+        self.revs_map.get(&rev_id).map(|r| r.value().clone())
+    }
+
     pub async fn front_revision(&self) -> Option<(i64, RevisionRecord)> {
         match self.pending_revs.read().await.front() {
             None => None,
@@ -103,7 +110,7 @@ impl RevisionMemoryCache {
 pub type RevIdReceiver = broadcast::Receiver<i64>;
 pub type RevIdSender = broadcast::Sender<i64>;
 
-#[derive(Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum RevState {
     Local = 0,
     Acked = 1,

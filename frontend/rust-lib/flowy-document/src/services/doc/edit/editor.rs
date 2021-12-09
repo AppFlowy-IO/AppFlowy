@@ -4,7 +4,7 @@ use crate::{
     services::{
         doc::{
             edit::{EditCommand, EditCommandQueue, OpenDocAction, TransformDeltas},
-            revision::{RevisionDownStream, RevisionManager, SteamStopRx, SteamStopTx},
+            revision::{RevisionDownStream, RevisionManager, SteamStopTx},
         },
         ws::{DocumentWebSocket, WsDocumentHandler},
     },
@@ -31,7 +31,7 @@ pub type DocId = String;
 pub struct ClientDocEditor {
     pub doc_id: DocId,
     rev_manager: Arc<RevisionManager>,
-    edit_tx: UnboundedSender<EditCommand>,
+    edit_cmd_tx: UnboundedSender<EditCommand>,
     ws_sender: Arc<dyn DocumentWebSocket>,
     user: Arc<dyn DocumentUser>,
     ws_msg_tx: UnboundedSender<WsDocumentData>,
@@ -47,7 +47,7 @@ impl ClientDocEditor {
         ws_sender: Arc<dyn DocumentWebSocket>,
     ) -> DocResult<Arc<Self>> {
         let delta = rev_manager.load_document().await?;
-        let edit_queue_tx = spawn_edit_queue(doc_id, delta, pool.clone());
+        let edit_cmd_tx = spawn_edit_queue(doc_id, delta, pool.clone());
         let doc_id = doc_id.to_string();
         let rev_manager = Arc::new(rev_manager);
         let (ws_msg_tx, ws_msg_rx) = mpsc::unbounded_channel();
@@ -56,12 +56,13 @@ impl ClientDocEditor {
         let edit_doc = Arc::new(Self {
             doc_id,
             rev_manager,
-            edit_tx: edit_queue_tx,
+            edit_cmd_tx,
+            ws_sender,
             user,
             ws_msg_tx,
-            ws_sender,
             stop_sync_tx,
         });
+
         edit_doc.notify_open_doc();
 
         start_sync(edit_doc.clone(), ws_msg_rx, cloned_stop_sync_tx);
@@ -75,7 +76,7 @@ impl ClientDocEditor {
             data: data.to_string(),
             ret,
         };
-        let _ = self.edit_tx.send(msg);
+        let _ = self.edit_cmd_tx.send(msg);
         let delta = rx.await.map_err(internal_error)??;
         let _ = self.save_local_delta(delta).await?;
         Ok(())
@@ -84,7 +85,7 @@ impl ClientDocEditor {
     pub async fn delete(&self, interval: Interval) -> Result<(), DocError> {
         let (ret, rx) = oneshot::channel::<DocumentResult<RichTextDelta>>();
         let msg = EditCommand::Delete { interval, ret };
-        let _ = self.edit_tx.send(msg);
+        let _ = self.edit_cmd_tx.send(msg);
         let delta = rx.await.map_err(internal_error)??;
         let _ = self.save_local_delta(delta).await?;
         Ok(())
@@ -97,7 +98,7 @@ impl ClientDocEditor {
             attribute,
             ret,
         };
-        let _ = self.edit_tx.send(msg);
+        let _ = self.edit_cmd_tx.send(msg);
         let delta = rx.await.map_err(internal_error)??;
         let _ = self.save_local_delta(delta).await?;
         Ok(())
@@ -110,7 +111,7 @@ impl ClientDocEditor {
             data: data.to_string(),
             ret,
         };
-        let _ = self.edit_tx.send(msg);
+        let _ = self.edit_cmd_tx.send(msg);
         let delta = rx.await.map_err(internal_error)??;
         let _ = self.save_local_delta(delta).await?;
         Ok(())
@@ -119,21 +120,21 @@ impl ClientDocEditor {
     pub async fn can_undo(&self) -> bool {
         let (ret, rx) = oneshot::channel::<bool>();
         let msg = EditCommand::CanUndo { ret };
-        let _ = self.edit_tx.send(msg);
+        let _ = self.edit_cmd_tx.send(msg);
         rx.await.unwrap_or(false)
     }
 
     pub async fn can_redo(&self) -> bool {
         let (ret, rx) = oneshot::channel::<bool>();
         let msg = EditCommand::CanRedo { ret };
-        let _ = self.edit_tx.send(msg);
+        let _ = self.edit_cmd_tx.send(msg);
         rx.await.unwrap_or(false)
     }
 
     pub async fn undo(&self) -> Result<UndoResult, DocError> {
         let (ret, rx) = oneshot::channel::<DocumentResult<UndoResult>>();
         let msg = EditCommand::Undo { ret };
-        let _ = self.edit_tx.send(msg);
+        let _ = self.edit_cmd_tx.send(msg);
         let r = rx.await.map_err(internal_error)??;
         Ok(r)
     }
@@ -141,7 +142,7 @@ impl ClientDocEditor {
     pub async fn redo(&self) -> Result<UndoResult, DocError> {
         let (ret, rx) = oneshot::channel::<DocumentResult<UndoResult>>();
         let msg = EditCommand::Redo { ret };
-        let _ = self.edit_tx.send(msg);
+        let _ = self.edit_cmd_tx.send(msg);
         let r = rx.await.map_err(internal_error)??;
         Ok(r)
     }
@@ -149,7 +150,7 @@ impl ClientDocEditor {
     pub async fn delta(&self) -> DocResult<DocDelta> {
         let (ret, rx) = oneshot::channel::<DocumentResult<String>>();
         let msg = EditCommand::ReadDoc { ret };
-        let _ = self.edit_tx.send(msg);
+        let _ = self.edit_cmd_tx.send(msg);
         let data = rx.await.map_err(internal_error)??;
 
         Ok(DocDelta {
@@ -175,16 +176,16 @@ impl ClientDocEditor {
             delta: delta.clone(),
             ret,
         };
-        let _ = self.edit_tx.send(msg);
+        let _ = self.edit_cmd_tx.send(msg);
         let _ = rx.await.map_err(internal_error)??;
 
         let _ = self.save_local_delta(delta).await?;
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self), fields(doc_id))]
+    #[tracing::instrument(level = "debug", skip(self))]
     pub fn stop_sync(&self) {
-        tracing::Span::current().record("doc_id", &self.doc_id.as_str());
+        tracing::debug!("{} stop sync", self.doc_id);
         let _ = self.stop_sync_tx.send(());
     }
 
@@ -208,7 +209,7 @@ impl ClientDocEditor {
     pub(crate) async fn handle_push_rev(&self, bytes: Bytes) -> DocResult<()> {
         // Transform the revision
         let (ret, rx) = oneshot::channel::<DocumentResult<TransformDeltas>>();
-        let _ = self.edit_tx.send(EditCommand::ProcessRemoteRevision { bytes, ret });
+        let _ = self.edit_cmd_tx.send(EditCommand::ProcessRemoteRevision { bytes, ret });
         let TransformDeltas {
             client_prime,
             server_prime,
@@ -226,7 +227,7 @@ impl ClientDocEditor {
             delta: client_prime.clone(),
             ret,
         };
-        let _ = self.edit_tx.send(msg);
+        let _ = self.edit_cmd_tx.send(msg);
         let _ = rx.await.map_err(internal_error)??;
 
         // update rev id
@@ -256,10 +257,12 @@ impl ClientDocEditor {
         Ok(())
     }
 
-    async fn handle_ws_message(&self, doc_data: WsDocumentData) -> DocResult<()> {
+    pub async fn handle_ws_message(&self, doc_data: WsDocumentData) -> DocResult<()> {
         match self.ws_msg_tx.send(doc_data) {
-            Ok(_) => {},
-            Err(e) => log::error!("Propagate ws message data failed. {}", e),
+            Ok(_) => {
+                tracing::debug!("Propagate ws message data success")
+            },
+            Err(e) => tracing::error!("Propagate ws message data failed. {}", e),
         }
         Ok(())
     }
@@ -320,7 +323,7 @@ impl ClientDocEditor {
     pub async fn doc_json(&self) -> DocResult<String> {
         let (ret, rx) = oneshot::channel::<DocumentResult<String>>();
         let msg = EditCommand::ReadDoc { ret };
-        let _ = self.edit_tx.send(msg);
+        let _ = self.edit_cmd_tx.send(msg);
         let s = rx.await.map_err(internal_error)??;
         Ok(s)
     }
@@ -328,7 +331,7 @@ impl ClientDocEditor {
     pub async fn doc_delta(&self) -> DocResult<RichTextDelta> {
         let (ret, rx) = oneshot::channel::<DocumentResult<RichTextDelta>>();
         let msg = EditCommand::ReadDocDelta { ret };
-        let _ = self.edit_tx.send(msg);
+        let _ = self.edit_cmd_tx.send(msg);
         let delta = rx.await.map_err(internal_error)??;
         Ok(delta)
     }

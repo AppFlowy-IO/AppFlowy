@@ -1,7 +1,11 @@
 use crate::{helper::ViewTest, FlowySDKTest};
-use flowy_document::services::doc::edit::ClientDocEditor;
-use flowy_document_infra::entities::doc::DocIdentifier;
-use lib_ot::{core::Interval, revision::RevState, rich_text::RichTextDelta};
+use flowy_document::services::doc::{edit::ClientDocEditor, revision::RevisionIterator};
+use flowy_document_infra::entities::{doc::DocIdentifier, ws::WsDocumentDataBuilder};
+use lib_ot::{
+    core::Interval,
+    revision::{RevState, Revision, RevisionRange},
+    rich_text::RichTextDelta,
+};
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
@@ -25,14 +29,15 @@ impl EditorTest {
             self.run_script(script).await;
         }
 
-        sleep(Duration::from_secs(10)).await;
+        sleep(Duration::from_secs(5)).await;
     }
 
     async fn run_script(&mut self, script: EditorScript) {
         let rev_manager = self.editor.rev_manager();
         let cache = rev_manager.revision_cache();
-        let memory_cache = cache.memory_cache();
-        let disk_cache = cache.dish_cache();
+        let _memory_cache = cache.memory_cache();
+        let _disk_cache = cache.dish_cache();
+        let doc_id = self.editor.doc_id.clone();
 
         match script {
             EditorScript::InsertText(s, offset) => {
@@ -50,10 +55,28 @@ impl EditorTest {
             EditorScript::Redo() => {
                 self.editor.redo().await.unwrap();
             },
-            EditorScript::AssertRevisionState(rev_id, state) => {},
-            EditorScript::AssertNextSentRevision(rev_id, state) => {},
-            EditorScript::AssertRevId(rev_id) => {
+            EditorScript::AssertRevisionState(rev_id, state) => {
+                let record = cache.query_revision(rev_id).await.unwrap();
+                assert_eq!(record.state, state);
+            },
+            EditorScript::AssertCurrentRevId(rev_id) => {
                 assert_eq!(self.editor.rev_manager().rev_id(), rev_id);
+            },
+            EditorScript::AssertNextSendingRevision(rev_id) => {
+                let next_revision = cache.next().await.unwrap();
+                if rev_id.is_none() {
+                    assert_eq!(next_revision.is_none(), true);
+                }
+
+                let next_revision = next_revision.unwrap();
+                assert_eq!(next_revision.revision.rev_id, rev_id.unwrap());
+            },
+            EditorScript::SimulatePushRevisionMessage(_revision) => {},
+            EditorScript::SimulatePullRevisionMessage(_range) => {},
+            EditorScript::SimulateAckedMessage(i64) => {
+                let data = WsDocumentDataBuilder::build_acked_message(&doc_id, i64);
+                self.editor.handle_ws_message(data).await.unwrap();
+                sleep(Duration::from_millis(200)).await;
             },
             EditorScript::AssertJson(expected) => {
                 let expected_delta: RichTextDelta = serde_json::from_str(expected).unwrap();
@@ -75,8 +98,11 @@ pub enum EditorScript {
     Replace(Interval, &'static str),
     Undo(),
     Redo(),
+    SimulatePushRevisionMessage(Revision),
+    SimulatePullRevisionMessage(RevisionRange),
+    SimulateAckedMessage(i64),
     AssertRevisionState(i64, RevState),
-    AssertNextSentRevision(i64, RevState),
-    AssertRevId(i64),
+    AssertNextSendingRevision(Option<i64>),
+    AssertCurrentRevId(i64),
     AssertJson(&'static str),
 }

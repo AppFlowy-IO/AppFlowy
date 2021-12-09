@@ -8,16 +8,7 @@ use flowy_document_infra::entities::doc::Doc;
 use lib_infra::future::ResultFuture;
 use lib_ot::{
     core::{Operation, OperationTransformable},
-    revision::{
-        RevId,
-        RevState,
-        RevType,
-        Revision,
-        RevisionDiskCache,
-        RevisionMemoryCache,
-        RevisionRange,
-        RevisionRecord,
-    },
+    revision::{RevState, RevType, Revision, RevisionDiskCache, RevisionMemoryCache, RevisionRange, RevisionRecord},
     rich_text::RichTextDelta,
 };
 use std::{sync::Arc, time::Duration};
@@ -64,11 +55,14 @@ impl RevisionCache {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, rev_id), fields(rev_id = %rev_id.as_ref()))]
-    pub async fn ack_revision(&self, rev_id: RevId) {
-        let rev_id = rev_id.value;
-        self.memory_cache.mut_revision(&rev_id, |mut rev| rev.value_mut().ack());
+    #[tracing::instrument(level = "debug", skip(self, rev_id), fields(rev_id = %rev_id))]
+    pub async fn ack_revision(&self, rev_id: i64) {
+        self.memory_cache.ack_revision(&rev_id).await;
         self.save_revisions().await;
+    }
+
+    pub async fn query_revision(&self, rev_id: i64) -> Option<RevisionRecord> {
+        self.memory_cache.query_revision(&rev_id).await
     }
 
     async fn save_revisions(&self) {

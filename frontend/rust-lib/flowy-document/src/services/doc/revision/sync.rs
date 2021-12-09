@@ -23,7 +23,7 @@ use tokio::{
 pub(crate) struct RevisionDownStream {
     editor: Arc<ClientDocEditor>,
     rev_manager: Arc<RevisionManager>,
-    receiver: Option<mpsc::UnboundedReceiver<WsDocumentData>>,
+    ws_msg_rx: Option<mpsc::UnboundedReceiver<WsDocumentData>>,
     ws_sender: Arc<dyn DocumentWebSocket>,
     stop_rx: Option<SteamStopRx>,
 }
@@ -32,36 +32,36 @@ impl RevisionDownStream {
     pub(crate) fn new(
         editor: Arc<ClientDocEditor>,
         rev_manager: Arc<RevisionManager>,
-        receiver: mpsc::UnboundedReceiver<WsDocumentData>,
+        ws_msg_rx: mpsc::UnboundedReceiver<WsDocumentData>,
         ws_sender: Arc<dyn DocumentWebSocket>,
         stop_rx: SteamStopRx,
     ) -> Self {
         RevisionDownStream {
             editor,
             rev_manager,
-            receiver: Some(receiver),
+            ws_msg_rx: Some(ws_msg_rx),
             ws_sender,
             stop_rx: Some(stop_rx),
         }
     }
 
     pub async fn run(mut self) {
-        let mut receiver = self.receiver.take().expect("Only take once");
+        let mut receiver = self.ws_msg_rx.take().expect("Only take once");
         let mut stop_rx = self.stop_rx.take().expect("Only take once");
+        let doc_id = self.editor.doc_id.clone();
         let stream = stream! {
             loop {
-                // match receiver.recv().await {
-                //     Some(msg) => yield msg,
-                //     None => break,
-                // }
                 tokio::select! {
                     result = receiver.recv() => {
                         match result {
                             Some(msg) => yield msg,
-                            None => break,
+                            None => {},
                         }
                     },
-                    _ = stop_rx.recv() => break,
+                    _ = stop_rx.recv() => {
+                        tracing::debug!("[RevisionDownStream:{}] loop exit", doc_id);
+                        break
+                    },
                 };
             }
         };
@@ -80,8 +80,8 @@ impl RevisionDownStream {
         let bytes = spawn_blocking(move || Bytes::from(data))
             .await
             .map_err(internal_error)?;
-        log::debug!("[RevisionDownStream]: receives new message: {:?}", ty);
 
+        log::debug!("[RevisionDownStream]: receives new message: {:?}", ty);
         match ty {
             WsDataType::PushRev => {
                 let _ = self.editor.handle_push_rev(bytes).await?;
@@ -115,10 +115,12 @@ pub(crate) struct RevisionUpStream {
     revisions: Arc<dyn RevisionIterator>,
     ws_sender: Arc<dyn DocumentWebSocket>,
     stop_rx: Option<SteamStopRx>,
+    doc_id: String,
 }
 
 impl RevisionUpStream {
     pub(crate) fn new(
+        doc_id: &str,
         revisions: Arc<dyn RevisionIterator>,
         ws_sender: Arc<dyn DocumentWebSocket>,
         stop_rx: SteamStopRx,
@@ -127,12 +129,14 @@ impl RevisionUpStream {
             revisions,
             ws_sender,
             stop_rx: Some(stop_rx),
+            doc_id: doc_id.to_owned(),
         }
     }
 
     pub async fn run(mut self) {
         let (tx, mut rx) = mpsc::unbounded_channel();
         let mut stop_rx = self.stop_rx.take().expect("Only take once");
+        let doc_id = self.doc_id.clone();
         tokio::spawn(tick(tx));
         let stream = stream! {
             loop {
@@ -140,10 +144,13 @@ impl RevisionUpStream {
                     result = rx.recv() => {
                         match result {
                             Some(msg) => yield msg,
-                            None => break,
+                            None => {},
                         }
                     },
-                    _ = stop_rx.recv() => break,
+                    _ = stop_rx.recv() => {
+                        tracing::debug!("[RevisionUpStream:{}] loop exit", doc_id);
+                        break
+                    },
                 };
             }
         };
@@ -167,7 +174,7 @@ impl RevisionUpStream {
         match self.revisions.next().await? {
             None => Ok(()),
             Some(record) => {
-                log::debug!(
+                tracing::debug!(
                     "[RevisionUpStream]: processes revision: {}:{:?}",
                     record.revision.doc_id,
                     record.revision.rev_id
