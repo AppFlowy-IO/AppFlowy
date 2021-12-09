@@ -29,6 +29,15 @@ impl std::default::Default for WsDataType {
     fn default() -> Self { WsDataType::Acked }
 }
 
+// #[derive(ProtoBuf, Default, Debug, Clone)]
+// pub struct WsDocumentUser {
+//     #[pb(index = 1)]
+//     pub user_id: String,
+//
+//     #[pb(index = 2)]
+//     pub name: String,
+// }
+
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct WsDocumentData {
     #[pb(index = 1)]
@@ -39,6 +48,8 @@ pub struct WsDocumentData {
 
     #[pb(index = 3)]
     pub data: Vec<u8>,
+    /* #[pb(index = 4)]
+     * pub user: WsDocumentUser, */
 }
 
 impl std::convert::From<Revision> for WsDocumentData {

@@ -41,31 +41,31 @@ impl EditCommandQueue {
         };
         stream
             .for_each(|msg| async {
-                match self.handle_message(msg).await {
-                    Ok(_) => {},
-                    Err(e) => log::error!("{:?}", e),
-                }
+                self.handle_message(msg).await;
             })
             .await;
     }
 
-    async fn handle_message(&self, msg: EditCommand) -> Result<(), DocumentError> {
+    async fn handle_message(&self, msg: EditCommand) {
         match msg {
             EditCommand::ComposeDelta { delta, ret } => {
                 let result = self.composed_delta(delta).await;
                 let _ = ret.send(result);
             },
             EditCommand::ProcessRemoteRevision { bytes, ret } => {
-                let revision = Revision::try_from(bytes)?;
-                let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
-                let rev_id: RevId = revision.rev_id.into();
-                let (server_prime, client_prime) = self.document.read().await.delta().transform(&delta)?;
-                let transform_delta = TransformDeltas {
-                    client_prime,
-                    server_prime,
-                    server_rev_id: rev_id,
+                let f = || async {
+                    let revision = Revision::try_from(bytes)?;
+                    let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
+                    let rev_id: RevId = revision.rev_id.into();
+                    let (server_prime, client_prime) = self.document.read().await.delta().transform(&delta)?;
+                    let transform_delta = TransformDeltas {
+                        client_prime,
+                        server_prime,
+                        server_rev_id: rev_id,
+                    };
+                    Ok::<TransformDeltas, DocumentError>(transform_delta)
                 };
-                let _ = ret.send(Ok(transform_delta));
+                let _ = ret.send(f().await);
             },
             EditCommand::Insert { index, data, ret } => {
                 let delta = self.document.write().await.insert(index, data);
@@ -110,7 +110,6 @@ impl EditCommandQueue {
                 let _ = ret.send(Ok(delta));
             },
         }
-        Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self, delta), fields(compose_result), err)]

@@ -103,7 +103,13 @@ fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream>
 
 fn token_stream_for_field(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_option: bool) -> Option<TokenStream> {
     let ident = get_member_ident(ctxt, member)?;
-    let ty_info = parse_ty(ctxt, ty)?;
+    let ty_info = match parse_ty(ctxt, ty) {
+        Ok(ty_info) => ty_info,
+        Err(e) => {
+            eprintln!("token_stream_for_field: {:?} with error: {}", member, e);
+            panic!()
+        },
+    }?;
     match ident_category(ty_info.ident) {
         TypeCategory::Array => {
             assert_bracket_ty_is_some(ctxt, &ty_info);

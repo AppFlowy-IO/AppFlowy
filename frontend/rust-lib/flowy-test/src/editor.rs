@@ -1,13 +1,31 @@
 use crate::{helper::ViewTest, FlowySDKTest};
 use flowy_document::services::doc::{edit::ClientDocEditor, revision::RevisionIterator};
-use flowy_document_infra::entities::{doc::DocIdentifier, ws::WsDocumentDataBuilder};
+use flowy_document_infra::entities::{
+    doc::DocIdentifier,
+    ws::{WsDocumentData, WsDocumentDataBuilder},
+};
 use lib_ot::{
     core::Interval,
-    revision::{RevState, Revision, RevisionRange},
+    revision::{RevState, RevType, Revision, RevisionRange},
     rich_text::RichTextDelta,
 };
-use std::sync::Arc;
+use std::{str::FromStr, sync::Arc};
 use tokio::time::{sleep, Duration};
+
+pub enum EditorScript {
+    InsertText(&'static str, usize),
+    Delete(Interval),
+    Replace(Interval, &'static str),
+    Undo(),
+    Redo(),
+    SimulatePushRevisionMessageWithDelta(RichTextDelta),
+    SimulatePullRevisionMessage(RevisionRange),
+    SimulateAckedMessage(i64),
+    AssertRevisionState(i64, RevState),
+    AssertNextSendingRevision(Option<i64>),
+    AssertCurrentRevId(i64),
+    AssertJson(&'static str),
+}
 
 pub struct EditorTest {
     pub sdk: FlowySDKTest,
@@ -71,12 +89,23 @@ impl EditorTest {
                 let next_revision = next_revision.unwrap();
                 assert_eq!(next_revision.revision.rev_id, rev_id.unwrap());
             },
-            EditorScript::SimulatePushRevisionMessage(_revision) => {},
+            EditorScript::SimulatePushRevisionMessageWithDelta(delta) => {
+                let local_base_rev_id = rev_manager.rev_id();
+                let local_rev_id = local_base_rev_id + 1;
+                let revision = Revision::new(
+                    local_base_rev_id,
+                    local_rev_id,
+                    delta.to_bytes().to_vec(),
+                    &doc_id,
+                    RevType::Remote,
+                );
+                let data = WsDocumentDataBuilder::build_push_rev_message(&doc_id, revision);
+                self.send_ws_message(data).await;
+            },
             EditorScript::SimulatePullRevisionMessage(_range) => {},
             EditorScript::SimulateAckedMessage(i64) => {
                 let data = WsDocumentDataBuilder::build_acked_message(&doc_id, i64);
-                self.editor.handle_ws_message(data).await.unwrap();
-                sleep(Duration::from_millis(200)).await;
+                self.send_ws_message(data).await;
             },
             EditorScript::AssertJson(expected) => {
                 let expected_delta: RichTextDelta = serde_json::from_str(expected).unwrap();
@@ -90,19 +119,9 @@ impl EditorTest {
             },
         }
     }
-}
 
-pub enum EditorScript {
-    InsertText(&'static str, usize),
-    Delete(Interval),
-    Replace(Interval, &'static str),
-    Undo(),
-    Redo(),
-    SimulatePushRevisionMessage(Revision),
-    SimulatePullRevisionMessage(RevisionRange),
-    SimulateAckedMessage(i64),
-    AssertRevisionState(i64, RevState),
-    AssertNextSendingRevision(Option<i64>),
-    AssertCurrentRevId(i64),
-    AssertJson(&'static str),
+    async fn send_ws_message(&self, data: WsDocumentData) {
+        self.editor.handle_ws_message(data).await.unwrap();
+        sleep(Duration::from_millis(200)).await;
+    }
 }

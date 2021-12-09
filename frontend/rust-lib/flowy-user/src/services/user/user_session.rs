@@ -20,6 +20,7 @@ use flowy_database::{
     ExpressionMethods,
     UserDatabaseConnection,
 };
+use flowy_user_infra::entities::{SignInResponse, SignUpResponse};
 use lib_infra::{entities::network_state::NetworkState, kv::KV};
 use lib_sqlite::ConnectionPool;
 use lib_ws::{WsConnectState, WsMessageHandler, WsSender};
@@ -98,7 +99,7 @@ impl UserSession {
             self.user_profile().await
         } else {
             let resp = self.server.sign_in(params).await?;
-            let session = Session::new(&resp.user_id, &resp.token, &resp.email);
+            let session: Session = resp.clone().into();
             let _ = self.set_session(Some(session))?;
             let user_table = self.save_user(resp.into()).await?;
             let user_profile: UserProfile = user_table.into();
@@ -113,7 +114,7 @@ impl UserSession {
             self.user_profile().await
         } else {
             let resp = self.server.sign_up(params).await?;
-            let session = Session::new(&resp.user_id, &resp.token, &resp.email);
+            let session: Session = resp.clone().into();
             let _ = self.set_session(Some(session))?;
             let user_table = self.save_user(resp.into()).await?;
             let user_profile: UserProfile = user_table.into();
@@ -326,17 +327,32 @@ struct Session {
     user_id: String,
     token: String,
     email: String,
+    name: String,
+}
+
+impl std::convert::From<SignInResponse> for Session {
+    fn from(resp: SignInResponse) -> Self {
+        Session {
+            user_id: resp.user_id,
+            token: resp.token,
+            email: resp.email,
+            name: resp.name,
+        }
+    }
+}
+
+impl std::convert::From<SignUpResponse> for Session {
+    fn from(resp: SignUpResponse) -> Self {
+        Session {
+            user_id: resp.user_id,
+            token: resp.token,
+            email: resp.email,
+            name: resp.name,
+        }
+    }
 }
 
 impl Session {
-    pub fn new(user_id: &str, token: &str, email: &str) -> Self {
-        Self {
-            user_id: user_id.to_owned(),
-            token: token.to_owned(),
-            email: email.to_owned(),
-        }
-    }
-
     pub fn into_part(self) -> (String, String) { (self.user_id, self.token) }
 }
 

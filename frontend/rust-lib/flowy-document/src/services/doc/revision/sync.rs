@@ -65,11 +65,12 @@ impl RevisionDownStream {
                 };
             }
         };
+
         stream
             .for_each(|msg| async {
                 match self.handle_message(msg).await {
                     Ok(_) => {},
-                    Err(e) => log::error!("RevisionDownStream error: {}", e),
+                    Err(e) => log::error!("[RevisionDownStream:{}] error: {}", self.editor.doc_id, e),
                 }
             })
             .await;
