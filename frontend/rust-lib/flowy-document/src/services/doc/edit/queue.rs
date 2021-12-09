@@ -105,6 +105,10 @@ impl EditCommandQueue {
                 let data = self.document.read().await.to_json();
                 let _ = ret.send(Ok(data));
             },
+            EditCommand::ReadDocDelta { ret } => {
+                let delta = self.document.read().await.delta().clone();
+                let _ = ret.send(Ok(delta));
+            },
         }
         Ok(())
     }
@@ -169,6 +173,9 @@ pub(crate) enum EditCommand {
     },
     ReadDoc {
         ret: Ret<String>,
+    },
+    ReadDocDelta {
+        ret: Ret<RichTextDelta>,
     },
 }
 

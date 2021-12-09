@@ -267,11 +267,11 @@ impl TestBuilder {
         }
     }
 
-    pub fn run_script<C: CustomDocument>(mut self, script: Vec<TestOp>) {
+    pub fn run_scripts<C: CustomDocument>(mut self, scripts: Vec<TestOp>) {
         self.documents = vec![Document::new::<C>(), Document::new::<C>()];
         self.primes = vec![None, None];
         self.deltas = vec![None, None];
-        for (_i, op) in script.iter().enumerate() {
+        for (_i, op) in scripts.iter().enumerate() {
             self.run_op(op);
         }
     }

@@ -15,7 +15,7 @@ use futures::stream::StreamExt;
 use lib_ot::revision::{RevId, RevisionRange};
 use std::{convert::TryFrom, sync::Arc};
 use tokio::{
-    sync::mpsc,
+    sync::{broadcast, mpsc},
     task::spawn_blocking,
     time::{interval, Duration},
 };
@@ -25,6 +25,7 @@ pub(crate) struct RevisionDownStream {
     rev_manager: Arc<RevisionManager>,
     receiver: Option<mpsc::UnboundedReceiver<WsDocumentData>>,
     ws_sender: Arc<dyn DocumentWebSocket>,
+    stop_rx: Option<SteamStopRx>,
 }
 
 impl RevisionDownStream {
@@ -33,23 +34,35 @@ impl RevisionDownStream {
         rev_manager: Arc<RevisionManager>,
         receiver: mpsc::UnboundedReceiver<WsDocumentData>,
         ws_sender: Arc<dyn DocumentWebSocket>,
+        stop_rx: SteamStopRx,
     ) -> Self {
         RevisionDownStream {
             editor,
             rev_manager,
             receiver: Some(receiver),
             ws_sender,
+            stop_rx: Some(stop_rx),
         }
     }
 
     pub async fn run(mut self) {
         let mut receiver = self.receiver.take().expect("Only take once");
+        let mut stop_rx = self.stop_rx.take().expect("Only take once");
         let stream = stream! {
             loop {
-                match receiver.recv().await {
-                    Some(msg) => yield msg,
-                    None => break,
-                }
+                // match receiver.recv().await {
+                //     Some(msg) => yield msg,
+                //     None => break,
+                // }
+                tokio::select! {
+                    result = receiver.recv() => {
+                        match result {
+                            Some(msg) => yield msg,
+                            None => break,
+                        }
+                    },
+                    _ = stop_rx.recv() => break,
+                };
             }
         };
         stream
@@ -95,25 +108,43 @@ pub(crate) enum UpStreamMsg {
     Tick,
 }
 
+pub type SteamStopRx = broadcast::Receiver<()>;
+pub type SteamStopTx = broadcast::Sender<()>;
+
 pub(crate) struct RevisionUpStream {
     revisions: Arc<dyn RevisionIterator>,
     ws_sender: Arc<dyn DocumentWebSocket>,
+    stop_rx: Option<SteamStopRx>,
 }
 
 impl RevisionUpStream {
-    pub(crate) fn new(revisions: Arc<dyn RevisionIterator>, ws_sender: Arc<dyn DocumentWebSocket>) -> Self {
-        Self { revisions, ws_sender }
+    pub(crate) fn new(
+        revisions: Arc<dyn RevisionIterator>,
+        ws_sender: Arc<dyn DocumentWebSocket>,
+        stop_rx: SteamStopRx,
+    ) -> Self {
+        Self {
+            revisions,
+            ws_sender,
+            stop_rx: Some(stop_rx),
+        }
     }
 
-    pub async fn run(self) {
+    pub async fn run(mut self) {
         let (tx, mut rx) = mpsc::unbounded_channel();
+        let mut stop_rx = self.stop_rx.take().expect("Only take once");
         tokio::spawn(tick(tx));
         let stream = stream! {
             loop {
-                match rx.recv().await {
-                    Some(msg) => yield msg,
-                    None => break,
-                }
+                tokio::select! {
+                    result = rx.recv() => {
+                        match result {
+                            Some(msg) => yield msg,
+                            None => break,
+                        }
+                    },
+                    _ = stop_rx.recv() => break,
+                };
             }
         };
         stream

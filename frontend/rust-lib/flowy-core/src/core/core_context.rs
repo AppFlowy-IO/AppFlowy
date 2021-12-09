@@ -93,8 +93,10 @@ impl CoreContext {
                         data: delta.to_json(),
                     };
                     let _ = self.view_controller.apply_doc_delta(doc_delta).await?;
-
                     self.view_controller.set_latest_view(&view);
+
+                    // Close the view after initialize
+                    self.view_controller.close_view(view.id.clone().into()).await?;
                 }
                 let _ = self.view_controller.create_view(view).await?;
             }

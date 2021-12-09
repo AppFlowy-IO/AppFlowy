@@ -1,7 +1,7 @@
 use crate::{
     errors::{DocError, DocResult},
     services::{
-        doc::revision::{RevisionCache, RevisionUpStream},
+        doc::revision::{RevisionCache, RevisionUpStream, SteamStopRx},
         ws::DocumentWebSocket,
     },
 };
@@ -88,8 +88,8 @@ impl RevisionManager {
         Ok(revision)
     }
 
-    pub(crate) fn make_up_stream(&self) -> RevisionUpStream {
-        RevisionUpStream::new(self.cache.clone(), self.ws_sender.clone())
+    pub(crate) fn make_up_stream(&self, stop_rx: SteamStopRx) -> RevisionUpStream {
+        RevisionUpStream::new(self.cache.clone(), self.ws_sender.clone(), stop_rx)
     }
 }
 

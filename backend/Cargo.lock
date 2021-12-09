@@ -1350,9 +1350,11 @@ dependencies = [
  "futures-util",
  "lib-dispatch",
  "lib-infra",
+ "lib-ot",
  "log",
  "protobuf",
  "serde",
+ "serde_json",
  "thread-id",
  "tokio",
 ]

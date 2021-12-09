@@ -42,6 +42,10 @@ impl DocCache {
 
     pub(crate) fn remove(&self, id: &str) {
         let doc_id: DocId = id.into();
+        match self.get(id) {
+            Ok(editor) => editor.stop_sync(),
+            Err(e) => log::error!("{}", e),
+        }
         self.inner.remove(&doc_id);
     }
 }

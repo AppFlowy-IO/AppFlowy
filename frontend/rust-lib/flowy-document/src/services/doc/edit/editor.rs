@@ -4,7 +4,7 @@ use crate::{
     services::{
         doc::{
             edit::{EditCommand, EditCommandQueue, OpenDocAction, TransformDeltas},
-            revision::{RevisionDownStream, RevisionManager},
+            revision::{RevisionDownStream, RevisionManager, SteamStopRx, SteamStopTx},
         },
         ws::{DocumentWebSocket, WsDocumentHandler},
     },
@@ -35,19 +35,7 @@ pub struct ClientDocEditor {
     ws_sender: Arc<dyn DocumentWebSocket>,
     user: Arc<dyn DocumentUser>,
     ws_msg_tx: UnboundedSender<WsDocumentData>,
-}
-
-#[cfg(feature = "flowy_unit_test")]
-impl ClientDocEditor {
-    pub async fn doc_json(&self) -> DocResult<String> {
-        let (ret, rx) = oneshot::channel::<DocumentResult<String>>();
-        let msg = EditCommand::ReadDoc { ret };
-        let _ = self.edit_tx.send(msg);
-        let s = rx.await.map_err(internal_error)??;
-        Ok(s)
-    }
-
-    pub fn rev_manager(&self) -> Arc<RevisionManager> { self.rev_manager.clone() }
+    stop_sync_tx: tokio::sync::broadcast::Sender<()>,
 }
 
 impl ClientDocEditor {
@@ -63,6 +51,8 @@ impl ClientDocEditor {
         let doc_id = doc_id.to_string();
         let rev_manager = Arc::new(rev_manager);
         let (ws_msg_tx, ws_msg_rx) = mpsc::unbounded_channel();
+        let (stop_sync_tx, _) = tokio::sync::broadcast::channel(2);
+        let cloned_stop_sync_tx = stop_sync_tx.clone();
         let edit_doc = Arc::new(Self {
             doc_id,
             rev_manager,
@@ -70,10 +60,11 @@ impl ClientDocEditor {
             user,
             ws_msg_tx,
             ws_sender,
+            stop_sync_tx,
         });
         edit_doc.notify_open_doc();
 
-        start_sync(edit_doc.clone(), ws_msg_rx);
+        start_sync(edit_doc.clone(), ws_msg_rx, cloned_stop_sync_tx);
         Ok(edit_doc)
     }
 
@@ -112,7 +103,7 @@ impl ClientDocEditor {
         Ok(())
     }
 
-    pub async fn replace<T: ToString>(&mut self, interval: Interval, data: T) -> Result<(), DocError> {
+    pub async fn replace<T: ToString>(&self, interval: Interval, data: T) -> Result<(), DocError> {
         let (ret, rx) = oneshot::channel::<DocumentResult<RichTextDelta>>();
         let msg = EditCommand::Replace {
             interval,
@@ -189,6 +180,12 @@ impl ClientDocEditor {
 
         let _ = self.save_local_delta(delta).await?;
         Ok(())
+    }
+
+    #[tracing::instrument(level = "debug", skip(self), fields(doc_id))]
+    pub fn stop_sync(&self) {
+        tracing::Span::current().record("doc_id", &self.doc_id.as_str());
+        let _ = self.stop_sync_tx.send(());
     }
 
     #[tracing::instrument(level = "debug", skip(self))]
@@ -303,13 +300,38 @@ fn spawn_edit_queue(doc_id: &str, delta: RichTextDelta, _pool: Arc<ConnectionPoo
     sender
 }
 
-fn start_sync(editor: Arc<ClientDocEditor>, ws_msg_rx: mpsc::UnboundedReceiver<WsDocumentData>) {
+fn start_sync(
+    editor: Arc<ClientDocEditor>,
+    ws_msg_rx: mpsc::UnboundedReceiver<WsDocumentData>,
+    stop_sync_tx: SteamStopTx,
+) {
     let rev_manager = editor.rev_manager.clone();
     let ws_sender = editor.ws_sender.clone();
 
-    let up_stream = editor.rev_manager.make_up_stream();
-    let down_stream = RevisionDownStream::new(editor, rev_manager, ws_msg_rx, ws_sender);
+    let up_stream = editor.rev_manager.make_up_stream(stop_sync_tx.subscribe());
+    let down_stream = RevisionDownStream::new(editor, rev_manager, ws_msg_rx, ws_sender, stop_sync_tx.subscribe());
 
     tokio::spawn(up_stream.run());
     tokio::spawn(down_stream.run());
+}
+
+#[cfg(feature = "flowy_unit_test")]
+impl ClientDocEditor {
+    pub async fn doc_json(&self) -> DocResult<String> {
+        let (ret, rx) = oneshot::channel::<DocumentResult<String>>();
+        let msg = EditCommand::ReadDoc { ret };
+        let _ = self.edit_tx.send(msg);
+        let s = rx.await.map_err(internal_error)??;
+        Ok(s)
+    }
+
+    pub async fn doc_delta(&self) -> DocResult<RichTextDelta> {
+        let (ret, rx) = oneshot::channel::<DocumentResult<RichTextDelta>>();
+        let msg = EditCommand::ReadDocDelta { ret };
+        let _ = self.edit_tx.send(msg);
+        let delta = rx.await.map_err(internal_error)??;
+        Ok(delta)
+    }
+
+    pub fn rev_manager(&self) -> Arc<RevisionManager> { self.rev_manager.clone() }
 }

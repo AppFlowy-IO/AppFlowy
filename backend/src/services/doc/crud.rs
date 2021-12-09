@@ -59,7 +59,7 @@ pub async fn update_doc(pool: &PgPool, mut params: UpdateDocParams) -> Result<()
 
     let data = Some(params.take_data());
 
-    tracing::Span::current().record("result", &data.as_ref().unwrap_or(&"".to_owned()).as_str());
+    tracing::Span::current().record("delta", &data.as_ref().unwrap_or(&"".to_owned()).as_str());
 
     let (sql, args) = SqlBuilder::update(DOC_TABLE)
         .add_some_arg("data", data)

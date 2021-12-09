@@ -56,6 +56,7 @@ impl DocController {
     }
 
     pub(crate) fn close(&self, doc_id: &str) -> Result<(), DocError> {
+        log::debug!("Close doc {}", doc_id);
         self.cache.remove(doc_id);
         self.ws_manager.remove_handler(doc_id);
         Ok(())
