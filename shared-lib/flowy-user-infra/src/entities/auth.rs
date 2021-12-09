@@ -28,7 +28,7 @@ pub struct SignInParams {
     pub name: String,
 }
 
-#[derive(Debug, Default, ProtoBuf)]
+#[derive(Debug, Default, ProtoBuf, Clone)]
 pub struct SignInResponse {
     #[pb(index = 1)]
     pub user_id: String,
@@ -97,7 +97,7 @@ pub struct SignUpParams {
     pub password: String,
 }
 
-#[derive(ProtoBuf, Debug, Default)]
+#[derive(ProtoBuf, Debug, Default, Clone)]
 pub struct SignUpResponse {
     #[pb(index = 1)]
     pub user_id: String,

@@ -1,5 +1,6 @@
 use diesel::sql_types::Integer;
 use flowy_database::schema::rev_table;
+
 use flowy_document_infra::util::md5;
 use lib_ot::revision::{RevId, RevState, RevType, Revision};
 
@@ -63,17 +64,16 @@ impl std::convert::From<RevState> for RevTableState {
     }
 }
 
-impl std::convert::From<RevTable> for Revision {
-    fn from(table: RevTable) -> Self {
-        let md5 = md5(&table.data);
-        Revision {
-            base_rev_id: table.base_rev_id,
-            rev_id: table.rev_id,
-            delta_data: table.data,
-            md5,
-            doc_id: table.doc_id,
-            ty: table.ty.into(),
-        }
+pub(crate) fn mk_revision_from_table(user_id: &str, table: RevTable) -> Revision {
+    let md5 = md5(&table.data);
+    Revision {
+        base_rev_id: table.base_rev_id,
+        rev_id: table.rev_id,
+        delta_data: table.data,
+        md5,
+        doc_id: table.doc_id,
+        ty: table.ty.into(),
+        user_id: user_id.to_owned(),
     }
 }
 

@@ -21,6 +21,9 @@ pub struct Revision {
 
     #[pb(index = 6)]
     pub ty: RevType,
+
+    #[pb(index = 7)]
+    pub user_id: String,
 }
 
 impl Revision {
@@ -47,7 +50,7 @@ impl std::fmt::Debug for Revision {
 }
 
 impl Revision {
-    pub fn new<T1, T2, D>(base_rev_id: T1, rev_id: T2, delta: D, doc_id: &str, ty: RevType) -> Revision
+    pub fn new<T1, T2, D>(base_rev_id: T1, rev_id: T2, delta: D, doc_id: &str, ty: RevType, user_id: String) -> Revision
     where
         T1: Into<i64>,
         T2: Into<i64>,
@@ -70,6 +73,7 @@ impl Revision {
             md5,
             doc_id,
             ty,
+            user_id,
         }
     }
 }

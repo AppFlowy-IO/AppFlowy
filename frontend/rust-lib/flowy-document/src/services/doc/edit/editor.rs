@@ -163,7 +163,8 @@ impl ClientDocEditor {
         let delta_data = delta.to_bytes();
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id();
         let delta_data = delta_data.to_vec();
-        let revision = Revision::new(base_rev_id, rev_id, delta_data, &self.doc_id, RevType::Local);
+        let user_id = self.user.user_id()?;
+        let revision = Revision::new(base_rev_id, rev_id, delta_data, &self.doc_id, RevType::Local, user_id);
         let _ = self.rev_manager.add_revision(&revision).await?;
         Ok(rev_id.into())
     }
@@ -236,22 +237,26 @@ impl ClientDocEditor {
         let (local_base_rev_id, local_rev_id) = self.rev_manager.next_rev_id();
 
         // save the revision
+        let user_id = self.user.user_id()?;
         let revision = Revision::new(
             local_base_rev_id,
             local_rev_id,
             client_prime.to_bytes().to_vec(),
             &self.doc_id,
             RevType::Remote,
+            user_id,
         );
         let _ = self.rev_manager.add_revision(&revision).await?;
 
         // send the server_prime delta
+        let user_id = self.user.user_id()?;
         let revision = Revision::new(
             local_base_rev_id,
             local_rev_id,
             server_prime.to_bytes().to_vec(),
             &self.doc_id,
             RevType::Remote,
+            user_id,
         );
         let _ = self.ws_sender.send(revision.into());
         Ok(())

@@ -184,6 +184,8 @@ impl UserSession {
 
     pub fn user_id(&self) -> Result<String, UserError> { Ok(self.get_session()?.user_id) }
 
+    pub fn user_name(&self) -> Result<String, UserError> { Ok(self.get_session()?.name) }
+
     pub fn token(&self) -> Result<String, UserError> { Ok(self.get_session()?.token) }
 
     pub fn add_ws_handler(&self, handler: Arc<dyn WsMessageHandler>) { let _ = self.ws_manager.add_handler(handler); }

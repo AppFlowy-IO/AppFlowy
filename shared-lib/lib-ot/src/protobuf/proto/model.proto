@@ -7,6 +7,7 @@ message Revision {
     string md5 = 4;
     string doc_id = 5;
     RevType ty = 6;
+    string user_id = 7;
 }
 message RevId {
     int64 value = 1;

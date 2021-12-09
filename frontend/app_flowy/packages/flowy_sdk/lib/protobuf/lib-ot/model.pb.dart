@@ -22,6 +22,7 @@ class Revision extends $pb.GeneratedMessage {
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'md5')
     ..aOS(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
     ..e<RevType>(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ty', $pb.PbFieldType.OE, defaultOrMaker: RevType.Local, valueOf: RevType.valueOf, enumValues: RevType.values)
+    ..aOS(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'userId')
     ..hasRequiredFields = false
   ;
 
@@ -33,6 +34,7 @@ class Revision extends $pb.GeneratedMessage {
     $core.String? md5,
     $core.String? docId,
     RevType? ty,
+    $core.String? userId,
   }) {
     final _result = create();
     if (baseRevId != null) {
@@ -52,6 +54,9 @@ class Revision extends $pb.GeneratedMessage {
     }
     if (ty != null) {
       _result.ty = ty;
+    }
+    if (userId != null) {
+      _result.userId = userId;
     }
     return _result;
   }
@@ -129,6 +134,15 @@ class Revision extends $pb.GeneratedMessage {
   $core.bool hasTy() => $_has(5);
   @$pb.TagNumber(6)
   void clearTy() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $core.String get userId => $_getSZ(6);
+  @$pb.TagNumber(7)
+  set userId($core.String v) { $_setString(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasUserId() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearUserId() => clearField(7);
 }
 
 class RevId extends $pb.GeneratedMessage {

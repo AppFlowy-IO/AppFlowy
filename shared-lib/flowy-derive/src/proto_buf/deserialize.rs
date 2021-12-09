@@ -47,7 +47,13 @@ pub fn make_de_token_steam(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStrea
 fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream> {
     let member = &field.member;
     let ident = get_member_ident(ctxt, member)?;
-    let ty_info = parse_ty(ctxt, &field.ty)?;
+    let ty_info = match parse_ty(ctxt, &field.ty) {
+        Ok(ty_info) => ty_info,
+        Err(e) => {
+            eprintln!("token_stream_for_one_of failed: {:?} with error: {}", member, e);
+            panic!();
+        }
+    }?;
     let bracketed_ty_info = ty_info.bracket_ty_info.as_ref().as_ref();
 
     let has_func = format_ident!("has_{}", ident.to_string());

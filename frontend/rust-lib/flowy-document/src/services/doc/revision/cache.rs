@@ -24,6 +24,7 @@ pub trait RevisionIterator: Send + Sync {
 type DocRevisionDeskCache = dyn RevisionDiskCache<Error = DocError>;
 
 pub struct RevisionCache {
+    user_id: String,
     doc_id: String,
     dish_cache: Arc<DocRevisionDeskCache>,
     memory_cache: Arc<RevisionMemoryCache>,
@@ -32,11 +33,17 @@ pub struct RevisionCache {
 }
 
 impl RevisionCache {
-    pub fn new(doc_id: &str, pool: Arc<ConnectionPool>, server: Arc<dyn RevisionServer>) -> RevisionCache {
+    pub fn new(
+        user_id: &str,
+        doc_id: &str,
+        pool: Arc<ConnectionPool>,
+        server: Arc<dyn RevisionServer>,
+    ) -> RevisionCache {
         let doc_id = doc_id.to_owned();
-        let dish_cache = Arc::new(Persistence::new(pool));
+        let dish_cache = Arc::new(Persistence::new(user_id, pool));
         let memory_cache = Arc::new(RevisionMemoryCache::new());
         Self {
+            user_id: user_id.to_owned(),
             doc_id,
             dish_cache,
             memory_cache,
@@ -117,6 +124,7 @@ impl RevisionCache {
             delta_data.to_owned(),
             &doc.id,
             RevType::Remote,
+            self.user_id.clone(),
         );
         let record = RevisionRecord {
             revision,
@@ -215,6 +223,7 @@ fn correct_delta_if_need(delta: &mut RichTextDelta) {
 }
 
 pub(crate) struct Persistence {
+    user_id: String,
     pub(crate) pool: Arc<ConnectionPool>,
 }
 
@@ -231,25 +240,30 @@ impl RevisionDiskCache for Persistence {
 
     fn revisions_in_range(&self, doc_id: &str, range: &RevisionRange) -> Result<Vec<Revision>, Self::Error> {
         let conn = &*self.pool.get().map_err(internal_error).unwrap();
-        let revisions = RevTableSql::read_rev_tables_with_range(doc_id, range.clone(), conn)?;
+        let revisions = RevTableSql::read_rev_tables_with_range(&self.user_id, doc_id, range.clone(), conn)?;
         Ok(revisions)
     }
 
     fn read_revision(&self, doc_id: &str, rev_id: i64) -> Result<Option<Revision>, Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
-        let some = RevTableSql::read_rev_table(doc_id, &rev_id, &*conn)?;
+        let some = RevTableSql::read_rev_table(&self.user_id, doc_id, &rev_id, &*conn)?;
         Ok(some)
     }
 
     fn read_revisions(&self, doc_id: &str) -> Result<Vec<Revision>, Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
-        let some = RevTableSql::read_rev_tables(doc_id, &*conn)?;
+        let some = RevTableSql::read_rev_tables(&self.user_id, doc_id, &*conn)?;
         Ok(some)
     }
 }
 
 impl Persistence {
-    pub(crate) fn new(pool: Arc<ConnectionPool>) -> Self { Self { pool } }
+    pub(crate) fn new(user_id: &str, pool: Arc<ConnectionPool>) -> Self {
+        Self {
+            user_id: user_id.to_owned(),
+            pool,
+        }
+    }
 }
 
 #[cfg(feature = "flowy_unit_test")]

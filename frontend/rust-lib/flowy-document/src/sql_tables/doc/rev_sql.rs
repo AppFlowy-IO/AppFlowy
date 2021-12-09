@@ -1,6 +1,6 @@
 use crate::{
     errors::DocError,
-    sql_tables::{doc::RevTable, RevChangeset, RevTableState, RevTableType},
+    sql_tables::{doc::RevTable, mk_revision_from_table, RevChangeset, RevTableState, RevTableType},
 };
 use diesel::update;
 use flowy_database::{insert_or_ignore_into, prelude::*, schema::rev_table::dsl, SqliteConnection};
@@ -41,7 +41,11 @@ impl RevTableSql {
         Ok(())
     }
 
-    pub(crate) fn read_rev_tables(doc_id: &str, conn: &SqliteConnection) -> Result<Vec<Revision>, DocError> {
+    pub(crate) fn read_rev_tables(
+        user_id: &str,
+        doc_id: &str,
+        conn: &SqliteConnection,
+    ) -> Result<Vec<Revision>, DocError> {
         let filter = dsl::rev_table
             .filter(dsl::doc_id.eq(doc_id))
             .order(dsl::rev_id.asc())
@@ -49,12 +53,13 @@ impl RevTableSql {
         let rev_tables = filter.load::<RevTable>(conn)?;
         let revisions = rev_tables
             .into_iter()
-            .map(|table| table.into())
+            .map(|table| mk_revision_from_table(user_id, table))
             .collect::<Vec<Revision>>();
         Ok(revisions)
     }
 
     pub(crate) fn read_rev_table(
+        user_id: &str,
         doc_id: &str,
         revision_id: &i64,
         conn: &SqliteConnection,
@@ -67,25 +72,26 @@ impl RevTableSql {
         if Err(diesel::NotFound) == result {
             Ok(None)
         } else {
-            Ok(Some(result?.into()))
+            Ok(Some(mk_revision_from_table(user_id, result?)))
         }
     }
 
     pub(crate) fn read_rev_tables_with_range(
-        doc_id_s: &str,
+        user_id: &str,
+        doc_id: &str,
         range: RevisionRange,
         conn: &SqliteConnection,
     ) -> Result<Vec<Revision>, DocError> {
         let rev_tables = dsl::rev_table
             .filter(dsl::rev_id.ge(range.start))
             .filter(dsl::rev_id.le(range.end))
-            .filter(dsl::doc_id.eq(doc_id_s))
+            .filter(dsl::doc_id.eq(doc_id))
             .order(dsl::rev_id.asc())
             .load::<RevTable>(conn)?;
 
         let revisions = rev_tables
             .into_iter()
-            .map(|table| table.into())
+            .map(|table| mk_revision_from_table(user_id, table))
             .collect::<Vec<Revision>>();
         Ok(revisions)
     }

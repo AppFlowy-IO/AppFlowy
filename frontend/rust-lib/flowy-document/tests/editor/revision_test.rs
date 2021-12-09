@@ -1,5 +1,5 @@
 use flowy_test::editor::{EditorScript::*, *};
-use lib_ot::{core::DeltaBuilder, revision::RevState, rich_text::RichTextDeltaBuilder};
+use lib_ot::{revision::RevState, rich_text::RichTextDeltaBuilder};
 
 #[tokio::test]
 async fn doc_rev_state_test1() {

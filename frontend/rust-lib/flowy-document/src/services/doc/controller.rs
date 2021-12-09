@@ -112,12 +112,13 @@ impl DocController {
         // let doc = self.read_doc(doc_id, pool.clone()).await?;
         let ws_sender = self.ws_manager.ws();
         let token = self.user.token()?;
+        let user_id = self.user.user_id()?;
         let server = Arc::new(RevisionServerImpl {
             token,
             server: self.server.clone(),
         });
-        let cache = Arc::new(RevisionCache::new(doc_id, pool, server));
-        Ok(RevisionManager::new(doc_id, cache, ws_sender))
+        let cache = Arc::new(RevisionCache::new(&user_id, doc_id, pool, server));
+        Ok(RevisionManager::new(&user_id, doc_id, cache, ws_sender))
     }
 }
 

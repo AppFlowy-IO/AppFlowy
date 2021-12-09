@@ -29,11 +29,12 @@ const Revision$json = const {
     const {'1': 'md5', '3': 4, '4': 1, '5': 9, '10': 'md5'},
     const {'1': 'doc_id', '3': 5, '4': 1, '5': 9, '10': 'docId'},
     const {'1': 'ty', '3': 6, '4': 1, '5': 14, '6': '.RevType', '10': 'ty'},
+    const {'1': 'user_id', '3': 7, '4': 1, '5': 9, '10': 'userId'},
   ],
 };
 
 /// Descriptor for `Revision`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List revisionDescriptor = $convert.base64Decode('CghSZXZpc2lvbhIeCgtiYXNlX3Jldl9pZBgBIAEoA1IJYmFzZVJldklkEhUKBnJldl9pZBgCIAEoA1IFcmV2SWQSHQoKZGVsdGFfZGF0YRgDIAEoDFIJZGVsdGFEYXRhEhAKA21kNRgEIAEoCVIDbWQ1EhUKBmRvY19pZBgFIAEoCVIFZG9jSWQSGAoCdHkYBiABKA4yCC5SZXZUeXBlUgJ0eQ==');
+final $typed_data.Uint8List revisionDescriptor = $convert.base64Decode('CghSZXZpc2lvbhIeCgtiYXNlX3Jldl9pZBgBIAEoA1IJYmFzZVJldklkEhUKBnJldl9pZBgCIAEoA1IFcmV2SWQSHQoKZGVsdGFfZGF0YRgDIAEoDFIJZGVsdGFEYXRhEhAKA21kNRgEIAEoCVIDbWQ1EhUKBmRvY19pZBgFIAEoCVIFZG9jSWQSGAoCdHkYBiABKA4yCC5SZXZUeXBlUgJ0eRIXCgd1c2VyX2lkGAcgASgJUgZ1c2VySWQ=');
 @$core.Deprecated('Use revIdDescriptor instead')
 const RevId$json = const {
   '1': 'RevId',

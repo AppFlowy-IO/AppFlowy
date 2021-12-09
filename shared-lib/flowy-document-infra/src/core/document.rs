@@ -109,7 +109,7 @@ impl Document {
 
         let text = data.to_string();
         let delta = self.view.insert(&self.delta, &text, interval)?;
-        tracing::trace!("👉 receive change: {}", delta);
+        tracing::debug!("👉 receive change: {}", delta);
         self.compose_delta(delta.clone())?;
         Ok(delta)
     }

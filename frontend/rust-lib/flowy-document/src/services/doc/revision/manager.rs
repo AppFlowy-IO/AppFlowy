@@ -20,16 +20,18 @@ pub trait RevisionServer: Send + Sync {
 
 pub struct RevisionManager {
     doc_id: String,
+    user_id: String,
     rev_id_counter: RevIdCounter,
     cache: Arc<RevisionCache>,
     ws_sender: Arc<dyn DocumentWebSocket>,
 }
 
 impl RevisionManager {
-    pub fn new(doc_id: &str, cache: Arc<RevisionCache>, ws_sender: Arc<dyn DocumentWebSocket>) -> Self {
+    pub fn new(user_id: &str, doc_id: &str, cache: Arc<RevisionCache>, ws_sender: Arc<dyn DocumentWebSocket>) -> Self {
         let rev_id_counter = RevIdCounter::new(0);
         Self {
             doc_id: doc_id.to_string(),
+            user_id: user_id.to_owned(),
             rev_id_counter,
             cache,
             ws_sender,
@@ -83,6 +85,7 @@ impl RevisionManager {
             delta_data.to_vec(),
             &self.doc_id,
             RevType::Remote,
+            self.user_id.clone(),
         );
 
         Ok(revision)

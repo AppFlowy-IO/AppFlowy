@@ -9,7 +9,7 @@ use lib_ot::{
     revision::{RevState, RevType, Revision, RevisionRange},
     rich_text::RichTextDelta,
 };
-use std::{str::FromStr, sync::Arc};
+use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
 pub enum EditorScript {
@@ -56,10 +56,12 @@ impl EditorTest {
         let _memory_cache = cache.memory_cache();
         let _disk_cache = cache.dish_cache();
         let doc_id = self.editor.doc_id.clone();
+        let user_id = self.sdk.user_session.user_id().unwrap();
 
         match script {
             EditorScript::InsertText(s, offset) => {
                 self.editor.insert(offset, s).await.unwrap();
+                sleep(Duration::from_millis(200)).await;
             },
             EditorScript::Delete(interval) => {
                 self.editor.delete(interval).await.unwrap();
@@ -98,6 +100,7 @@ impl EditorTest {
                     delta.to_bytes().to_vec(),
                     &doc_id,
                     RevType::Remote,
+                    user_id,
                 );
                 let data = WsDocumentDataBuilder::build_push_rev_message(&doc_id, revision);
                 self.send_ws_message(data).await;
