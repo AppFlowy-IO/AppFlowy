@@ -4,7 +4,7 @@ use crate::{
 };
 use backend_service::errors::{invalid_params, ServerError};
 use chrono::{DateTime, NaiveDateTime, Utc};
-use flowy_workspace_infra::{
+use flowy_core_infra::{
     parser::app::AppId,
     protobuf::{App, ColorStyle},
 };

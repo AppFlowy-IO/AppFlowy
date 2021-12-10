@@ -455,13 +455,13 @@ dependencies = [
  "config",
  "dashmap",
  "derive_more",
+ "flowy-core-infra",
  "flowy-document",
  "flowy-document-infra",
  "flowy-sdk",
  "flowy-test",
  "flowy-user",
  "flowy-user-infra",
- "flowy-workspace-infra",
  "futures",
  "futures-core",
  "futures-util",
@@ -505,8 +505,8 @@ dependencies = [
  "bytes",
  "config",
  "derive_more",
+ "flowy-core-infra",
  "flowy-user-infra",
- "flowy-workspace-infra",
  "hyper",
  "lazy_static",
  "log",
@@ -1209,11 +1209,11 @@ dependencies = [
  "derive_more",
  "diesel",
  "diesel_derives",
+ "flowy-core-infra",
  "flowy-database",
  "flowy-derive",
  "flowy-document",
  "flowy-document-infra",
- "flowy-workspace-infra",
  "futures",
  "futures-core",
  "lazy_static",
@@ -1230,6 +1230,23 @@ dependencies = [
  "strum_macros",
  "tokio",
  "tracing",
+]
+
+[[package]]
+name = "flowy-core-infra"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "chrono",
+ "derive_more",
+ "flowy-derive",
+ "flowy-document-infra",
+ "log",
+ "protobuf",
+ "strum",
+ "strum_macros",
+ "unicode-segmentation",
+ "uuid",
 ]
 
 [[package]]
@@ -1408,23 +1425,6 @@ dependencies = [
  "protobuf",
  "unicode-segmentation",
  "validator",
-]
-
-[[package]]
-name = "flowy-workspace-infra"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "chrono",
- "derive_more",
- "flowy-derive",
- "flowy-document-infra",
- "log",
- "protobuf",
- "strum",
- "strum_macros",
- "unicode-segmentation",
- "uuid",
 ]
 
 [[package]]

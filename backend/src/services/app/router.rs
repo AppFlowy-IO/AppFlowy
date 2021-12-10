@@ -3,7 +3,7 @@ use actix_web::{
     HttpResponse,
 };
 use backend_service::errors::{invalid_params, ServerError};
-use flowy_workspace_infra::protobuf::{AppIdentifier, CreateAppParams, UpdateAppParams};
+use flowy_core_infra::protobuf::{AppIdentifier, CreateAppParams, UpdateAppParams};
 use protobuf::Message;
 use sqlx::PgPool;
 
@@ -17,7 +17,7 @@ use crate::services::{
 };
 use anyhow::Context;
 use backend_service::response::FlowyResponse;
-use flowy_workspace_infra::parser::app::{AppDesc, AppName};
+use flowy_core_infra::parser::app::{AppDesc, AppName};
 
 pub async fn create_handler(
     payload: Payload,

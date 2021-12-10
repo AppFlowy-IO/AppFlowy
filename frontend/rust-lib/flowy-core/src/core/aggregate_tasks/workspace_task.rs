@@ -4,7 +4,7 @@ use crate::{
     notify::{send_dart_notification, WorkspaceNotification},
     services::workspace::sql::{WorkspaceTable, WorkspaceTableSql},
 };
-use flowy_workspace_infra::entities::workspace::WorkspaceIdentifier;
+use flowy_core_infra::entities::workspace::WorkspaceIdentifier;
 use lib_dispatch::prelude::Unit;
 use std::sync::Arc;
 

@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-document-infra/doc.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_query.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-infra/view_query.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
 
 class DocRepository {

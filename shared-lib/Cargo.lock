@@ -258,8 +258,8 @@ dependencies = [
  "bytes",
  "config",
  "derive_more",
+ "flowy-core-infra",
  "flowy-user-infra",
- "flowy-workspace-infra",
  "hyper",
  "lazy_static",
  "log",
@@ -658,6 +658,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-core-infra"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "chrono",
+ "derive_more",
+ "flowy-derive",
+ "flowy-document-infra",
+ "log",
+ "protobuf",
+ "strum",
+ "strum_macros",
+ "unicode-segmentation",
+ "uuid",
+]
+
+[[package]]
 name = "flowy-derive"
 version = "0.1.0"
 dependencies = [
@@ -708,23 +725,6 @@ dependencies = [
  "serial_test",
  "unicode-segmentation",
  "validator",
-]
-
-[[package]]
-name = "flowy-workspace-infra"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "chrono",
- "derive_more",
- "flowy-derive",
- "flowy-document-infra",
- "log",
- "protobuf",
- "strum",
- "strum_macros",
- "unicode-segmentation",
- "uuid",
 ]
 
 [[package]]

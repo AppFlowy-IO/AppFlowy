@@ -1,5 +1,5 @@
 [package]
-name = "flowy-workspace-infra"
+name = "flowy-core-infra"
 version = "0.1.0"
 edition = "2018"
 

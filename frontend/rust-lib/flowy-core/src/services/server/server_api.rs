@@ -10,7 +10,7 @@ use crate::{
     services::server::WorkspaceServerAPI,
 };
 use backend_service::{configuration::ClientServerConfiguration, middleware::*, workspace_request::*};
-use flowy_workspace_infra::errors::ErrorCode;
+use flowy_core_infra::errors::ErrorCode;
 use lib_infra::future::ResultFuture;
 
 pub struct WorkspaceHttpServer {

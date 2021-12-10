@@ -9,7 +9,7 @@ import 'package:flowy_sdk/protobuf/flowy-user-infra/protobuf.dart' show UserProf
 import 'package:app_flowy/user/domain/i_auth.dart';
 import 'package:app_flowy/user/infrastructure/repos/auth_repo.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-infra/protobuf.dart';
 import 'package:flutter/material.dart';
 
 class AuthImpl extends IAuth {

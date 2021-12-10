@@ -18,8 +18,8 @@ use crate::{
         TrashEvent,
     },
 };
+use flowy_core_infra::entities::share::{ExportData, ExportParams};
 use flowy_document::module::FlowyDocument;
-use flowy_workspace_infra::entities::share::{ExportData, ExportParams};
 use lib_infra::kv::KV;
 
 const LATEST_VIEW_ID: &str = "latest_view_id";

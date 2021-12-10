@@ -11,7 +11,7 @@ import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_infra_ui/widget/route/animation.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-infra/protobuf.dart' show UserProfile;
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-infra/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 

@@ -3,7 +3,7 @@ use crate::{
     errors::WorkspaceError,
     services::{get_current_workspace, read_local_workspace_apps},
 };
-use flowy_workspace_infra::entities::{
+use flowy_core_infra::entities::{
     view::View,
     workspace::{CurrentWorkspaceSetting, QueryWorkspaceRequest, RepeatedWorkspace, WorkspaceIdentifier},
 };

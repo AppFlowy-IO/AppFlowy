@@ -13,7 +13,7 @@ use backend_service::{
     errors::{invalid_params, ServerError},
     response::FlowyResponse,
 };
-use flowy_workspace_infra::{
+use flowy_core_infra::{
     parser::view::{ViewDesc, ViewName, ViewThumbnail},
     protobuf::{CreateViewParams, QueryViewRequest, UpdateViewParams, ViewIdentifier},
 };

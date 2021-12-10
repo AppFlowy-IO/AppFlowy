@@ -4,7 +4,7 @@ import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/blank/blank_page.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_log/flowy_log.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/app_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-infra/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';

@@ -1,7 +1,7 @@
 import 'package:app_flowy/workspace/infrastructure/repos/app_repo.dart';
 import 'package:dartz/dartz.dart';
 import 'package:app_flowy/workspace/domain/i_app.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-infra/view_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
 export 'package:app_flowy/workspace/domain/i_app.dart';
 

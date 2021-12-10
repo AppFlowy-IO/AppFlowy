@@ -1,6 +1,6 @@
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/app_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-infra/app_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-infra/view_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-infra/protobuf.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
 

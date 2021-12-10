@@ -9,7 +9,7 @@ import 'package:flowy_sdk/protobuf/dart-notify/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-infra/errors.pb.dart';
 // import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart' as user_error;
 import 'package:flowy_sdk/protobuf/flowy-user/observable.pb.dart' as user;
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-infra/workspace_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core/observable.pb.dart';
 export 'package:app_flowy/workspace/domain/i_user.dart';

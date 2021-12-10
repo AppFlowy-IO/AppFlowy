@@ -9,10 +9,10 @@ use backend_service::{
     user_request::*,
     workspace_request::*,
 };
+use flowy_core_infra::entities::prelude::*;
 use flowy_document::services::server::read_doc_request;
 use flowy_document_infra::entities::doc::{Doc, DocIdentifier};
 use flowy_user_infra::entities::*;
-use flowy_workspace_infra::entities::prelude::*;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
 

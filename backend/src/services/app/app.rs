@@ -7,7 +7,7 @@ use crate::{
 use crate::services::trash::read_trash_ids;
 use backend_service::errors::{invalid_params, ServerError};
 use chrono::Utc;
-use flowy_workspace_infra::{
+use flowy_core_infra::{
     parser::{
         app::{AppDesc, AppName},
         workspace::WorkspaceId,

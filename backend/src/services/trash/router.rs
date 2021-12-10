@@ -13,7 +13,7 @@ use backend_service::{
     errors::{invalid_params, ServerError},
     response::FlowyResponse,
 };
-use flowy_workspace_infra::{parser::trash::TrashId, protobuf::TrashIdentifiers};
+use flowy_core_infra::{parser::trash::TrashId, protobuf::TrashIdentifiers};
 use sqlx::PgPool;
 use uuid::Uuid;
 

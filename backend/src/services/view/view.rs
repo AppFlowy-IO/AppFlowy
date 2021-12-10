@@ -10,14 +10,14 @@ use crate::{
 };
 use backend_service::errors::{invalid_params, ServerError};
 use chrono::Utc;
-use flowy_document_infra::protobuf::CreateDocParams;
-use flowy_workspace_infra::{
+use flowy_core_infra::{
     parser::{
         app::AppId,
         view::{ViewDesc, ViewName, ViewThumbnail},
     },
     protobuf::{CreateViewParams, RepeatedView, View},
 };
+use flowy_document_infra::protobuf::CreateDocParams;
 use sqlx::{postgres::PgArguments, Postgres};
 use uuid::Uuid;
 

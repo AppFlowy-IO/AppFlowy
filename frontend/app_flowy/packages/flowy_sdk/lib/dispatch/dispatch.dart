@@ -1,6 +1,7 @@
 import 'dart:ffi';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_log/flowy_log.dart';
+// ignore: unnecessary_import
 import 'package:flowy_sdk/protobuf/dart-ffi/ffi_response.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/event.pb.dart';
@@ -17,7 +18,7 @@ import 'dart:typed_data';
 import 'package:flowy_sdk/ffi.dart' as ffi;
 import 'package:flowy_sdk/protobuf/flowy-user-infra/protobuf.dart';
 import 'package:flowy_sdk/protobuf/dart-ffi/protobuf.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-infra/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-document-infra/protobuf.dart';
 
 // ignore: unused_import

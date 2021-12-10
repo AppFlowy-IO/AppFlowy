@@ -1,9 +1,9 @@
 use bytes::Bytes;
 
 use backend_service::errors::ErrorCode as ServerErrorCode;
+pub use flowy_core_infra::errors::ErrorCode;
 use flowy_derive::ProtoBuf;
 use flowy_document::errors::DocError;
-pub use flowy_workspace_infra::errors::ErrorCode;
 use lib_dispatch::prelude::{EventResponse, ResponseBuilder};
 use std::{convert::TryInto, fmt, fmt::Debug};
 

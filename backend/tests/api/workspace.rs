@@ -1,6 +1,6 @@
 #![allow(clippy::all)]
 use crate::util::helper::*;
-use flowy_workspace_infra::entities::{
+use flowy_core_infra::entities::{
     app::{AppIdentifier, UpdateAppParams},
     trash::{TrashIdentifier, TrashIdentifiers, TrashType},
     view::{UpdateViewParams, ViewIdentifier},

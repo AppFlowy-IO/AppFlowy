@@ -9,8 +9,8 @@ use crate::{
 use crate::services::view::{create_view_with_args, sql_builder::NewViewSqlBuilder};
 use backend_service::errors::ServerError;
 use chrono::Utc;
+use flowy_core_infra::protobuf::Workspace;
 use flowy_document_infra::user_default::doc_initial_string;
-use flowy_workspace_infra::protobuf::Workspace;
 use std::convert::TryInto;
 
 #[allow(dead_code)]
@@ -19,7 +19,7 @@ pub async fn create_default_workspace(
     user_id: &str,
 ) -> Result<Workspace, ServerError> {
     let time = Utc::now();
-    let workspace: Workspace = flowy_workspace_infra::user_default::create_default_workspace(time)
+    let workspace: Workspace = flowy_core_infra::user_default::create_default_workspace(time)
         .try_into()
         .unwrap();
 

@@ -9,8 +9,8 @@ use crate::{
         TrashController,
     },
 };
+use flowy_core_infra::entities::{app::RepeatedApp, workspace::*};
 use flowy_database::SqliteConnection;
-use flowy_workspace_infra::entities::{app::RepeatedApp, workspace::*};
 use lib_infra::kv::KV;
 use std::sync::Arc;
 

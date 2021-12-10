@@ -1,7 +1,7 @@
 [workspace]
 members = [
   "flowy-user-infra",
-  "flowy-workspace-infra",
+  "flowy-core-infra",
   "flowy-document-infra",
   "lib-ot",
   "lib-ws",

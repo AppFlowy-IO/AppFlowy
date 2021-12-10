@@ -4,7 +4,7 @@ use crate::{
 };
 use backend_service::errors::{invalid_params, ServerError};
 use chrono::{DateTime, NaiveDateTime, Utc};
-use flowy_workspace_infra::{parser::workspace::WorkspaceId, protobuf::Workspace};
+use flowy_core_infra::{parser::workspace::WorkspaceId, protobuf::Workspace};
 use sqlx::postgres::PgArguments;
 use uuid::Uuid;
 

@@ -60,7 +60,7 @@ byteorder = {version = "1.3.4"}
 async-stream = "0.3.2"
 
 flowy-user-infra = { path = "../shared-lib/flowy-user-infra" }
-flowy-workspace-infra = { path = "../shared-lib/flowy-workspace-infra" }
+flowy-core-infra = { path = "../shared-lib/flowy-core-infra" }
 flowy-document-infra = { path = "../shared-lib/flowy-document-infra" }
 lib-ws = { path = "../shared-lib/lib-ws" }
 lib-ot = { path = "../shared-lib/lib-ot" }
