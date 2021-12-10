@@ -25,7 +25,7 @@ Note:
 2. Install vcpkg according to https://github.com/microsoft/vcpkg#quick-start-windows. Make sure to add vcpkg installation folder to PATH env var.
 3. Install flutter according to https://docs.flutter.dev/get-started/install/windows
 ```shell
-flutter channel dev
+flutter channel stable
 flutter doctor
 ```
 4. Install rust

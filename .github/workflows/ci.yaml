@@ -23,7 +23,7 @@ jobs:
         run: |
           echo "$(pwd)/bin" >> $GITHUB_PATH
           export PATH="$PATH:$(pwd)/bin"
-          flutter channel dev
+          flutter channel stable
           flutter config --enable-macos-desktop
           flutter doctor
       - name: Deps
@@ -63,7 +63,7 @@ jobs:
         run: |
           echo "$(pwd)/bin" >> $GITHUB_PATH
           export PATH="$PATH:$(pwd)/bin"
-          flutter channel dev
+          flutter channel stable
           flutter config --enable-linux-desktop
           flutter doctor
       - name: Deps

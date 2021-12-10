@@ -48,7 +48,7 @@ git clone https://github.com/flutter/flutter.git
 cd flutter
 echo "export PATH=\$PATH:"`pwd`"/bin" >> ~/.profile
 export PATH="$PATH:`pwd`/bin"
-flutter channel dev
+flutter channel stable
 flutter config --enable-linux-desktop
 ```
 5. Fix problem reported by flutter doctor

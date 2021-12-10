@@ -86,10 +86,10 @@ cargo make install_targets
 
 **Step 3:**
 
-Follow the instructions [here](https://flutter.dev/docs/get-started/install) to install Flutter. As AppFlowy uses the `dev` channel, you need to switch the channel. Just type:
+Follow the instructions [here](https://flutter.dev/docs/get-started/install) to install Flutter. As AppFlowy uses the `stable` channel, you need to switch the channel. Just type:
 
 ```shell
-flutter channel dev
+flutter channel stable
 ```
 
 **Step 4:**
