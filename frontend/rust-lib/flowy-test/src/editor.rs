@@ -47,7 +47,7 @@ impl EditorTest {
             self.run_script(script).await;
         }
 
-        sleep(Duration::from_secs(5)).await;
+        sleep(Duration::from_secs(10)).await;
     }
 
     async fn run_script(&mut self, script: EditorScript) {

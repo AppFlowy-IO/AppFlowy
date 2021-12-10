@@ -129,6 +129,7 @@ impl EditCommandQueue {
 }
 
 pub(crate) type Ret<T> = oneshot::Sender<Result<T, DocumentError>>;
+#[allow(dead_code)]
 pub(crate) enum EditCommand {
     ComposeDelta {
         delta: RichTextDelta,

@@ -18,30 +18,34 @@ use tokio::{
     task::spawn_blocking,
 };
 
-pub struct DocBiz {
+#[rustfmt::skip]
+// ┌──────────────┐     ┌────────────┐ 1  n ┌───────────────┐
+// │ DocumentCore │────▶│ DocManager │─────▶│ OpenDocHandle │
+// └──────────────┘     └────────────┘      └───────────────┘
+pub struct DocumentCore {
     pub manager: Arc<DocManager>,
-    sender: mpsc::Sender<DocWsMsg>,
+    ws_sender: mpsc::Sender<DocWsMsg>,
     pg_pool: Data<PgPool>,
 }
 
-impl DocBiz {
+impl DocumentCore {
     pub fn new(pg_pool: Data<PgPool>) -> Self {
         let manager = Arc::new(DocManager::new());
-        let (tx, rx) = mpsc::channel(100);
+        let (ws_sender, rx) = mpsc::channel(100);
         let actor = DocWsActor::new(rx, manager.clone());
         tokio::task::spawn(actor.run());
         Self {
             manager,
-            sender: tx,
+            ws_sender,
             pg_pool,
         }
     }
 }
 
-impl WsBizHandler for DocBiz {
+impl WsBizHandler for DocumentCore {
     fn receive_data(&self, client_data: WsClientData) {
         let (ret, rx) = oneshot::channel();
-        let sender = self.sender.clone();
+        let sender = self.ws_sender.clone();
         let pool = self.pg_pool.clone();
 
         actix_rt::spawn(async move {
@@ -58,14 +62,25 @@ impl WsBizHandler for DocBiz {
     }
 }
 
+#[rustfmt::skip]
+//                                              EditDocActor
+//                                             ┌────────────────────────────────────┐
+//                                             │  ServerDocEditor                   │
+//                                             │  ┌──────────────────────────────┐  │
+// ┌────────────┐ 1  n ┌───────────────┐       │  │ ┌──────────┐    ┌──────────┐ │  │
+// │ DocManager │─────▶│ OpenDocHandle │──────▶│  │ │ Document │    │  Users   │ │  │
+// └────────────┘      └───────────────┘       │  │ └──────────┘    └──────────┘ │  │
+//                                             │  └──────────────────────────────┘  │
+//                                             │                                    │
+//                                             └────────────────────────────────────┘
 pub struct DocManager {
-    docs_map: DashMap<String, Arc<DocOpenHandle>>,
+    open_doc_map: DashMap<String, Arc<OpenDocHandle>>,
 }
 
 impl std::default::Default for DocManager {
     fn default() -> Self {
         Self {
-            docs_map: DashMap::new(),
+            open_doc_map: DashMap::new(),
         }
     }
 }
@@ -73,19 +88,19 @@ impl std::default::Default for DocManager {
 impl DocManager {
     pub fn new() -> Self { DocManager::default() }
 
-    pub async fn get(&self, doc_id: &str, pg_pool: Data<PgPool>) -> Result<Option<Arc<DocOpenHandle>>, ServerError> {
-        match self.docs_map.get(doc_id) {
+    pub async fn get(&self, doc_id: &str, pg_pool: Data<PgPool>) -> Result<Option<Arc<OpenDocHandle>>, ServerError> {
+        match self.open_doc_map.get(doc_id) {
             None => {
                 let params = DocIdentifier {
                     doc_id: doc_id.to_string(),
                     ..Default::default()
                 };
                 let doc = read_doc(pg_pool.get_ref(), params).await?;
-                let handle = spawn_blocking(|| DocOpenHandle::new(doc, pg_pool))
+                let handle = spawn_blocking(|| OpenDocHandle::new(doc, pg_pool))
                     .await
                     .map_err(internal_error)?;
                 let handle = Arc::new(handle?);
-                self.docs_map.insert(doc_id.to_string(), handle.clone());
+                self.open_doc_map.insert(doc_id.to_string(), handle.clone());
                 Ok(Some(handle))
             },
             Some(ctx) => Ok(Some(ctx.clone())),
@@ -93,11 +108,11 @@ impl DocManager {
     }
 }
 
-pub struct DocOpenHandle {
+pub struct OpenDocHandle {
     pub sender: mpsc::Sender<EditMsg>,
 }
 
-impl DocOpenHandle {
+impl OpenDocHandle {
     pub fn new(doc: Doc, pg_pool: Data<PgPool>) -> Result<Self, ServerError> {
         let (sender, receiver) = mpsc::channel(100);
         let actor = EditDocActor::new(receiver, doc, pg_pool)?;

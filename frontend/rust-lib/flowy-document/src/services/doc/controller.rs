@@ -2,7 +2,6 @@ use crate::{
     errors::{DocError, DocResult},
     module::DocumentUser,
     services::{
-        cache::DocCache,
         doc::{
             edit::{ClientDocEditor, EditDocWsHandler},
             revision::{RevisionCache, RevisionManager, RevisionServer},
@@ -12,6 +11,7 @@ use crate::{
     },
 };
 use bytes::Bytes;
+use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_document_infra::entities::doc::{Doc, DocDelta, DocIdentifier};
 use lib_infra::future::{wrap_future, FnFuture, ResultFuture};
@@ -21,18 +21,18 @@ use tokio::time::{interval, Duration};
 pub(crate) struct DocController {
     server: Server,
     ws_manager: Arc<WsDocumentManager>,
-    cache: Arc<DocCache>,
+    open_cache: Arc<OpenDocCache>,
     user: Arc<dyn DocumentUser>,
 }
 
 impl DocController {
     pub(crate) fn new(server: Server, user: Arc<dyn DocumentUser>, ws: Arc<WsDocumentManager>) -> Self {
-        let cache = Arc::new(DocCache::new());
+        let open_cache = Arc::new(OpenDocCache::new());
         Self {
             server,
             user,
             ws_manager: ws,
-            cache,
+            open_cache,
         }
     }
 
@@ -46,18 +46,18 @@ impl DocController {
         params: DocIdentifier,
         pool: Arc<ConnectionPool>,
     ) -> Result<Arc<ClientDocEditor>, DocError> {
-        if !self.cache.contains(&params.doc_id) {
+        if !self.open_cache.contains(&params.doc_id) {
             let edit_ctx = self.make_edit_context(&params.doc_id, pool.clone()).await?;
             return Ok(edit_ctx);
         }
 
-        let edit_doc_ctx = self.cache.get(&params.doc_id)?;
+        let edit_doc_ctx = self.open_cache.get(&params.doc_id)?;
         Ok(edit_doc_ctx)
     }
 
     pub(crate) fn close(&self, doc_id: &str) -> Result<(), DocError> {
         log::debug!("Close doc {}", doc_id);
-        self.cache.remove(doc_id);
+        self.open_cache.remove(doc_id);
         self.ws_manager.remove_handler(doc_id);
         Ok(())
     }
@@ -65,7 +65,7 @@ impl DocController {
     #[tracing::instrument(level = "debug", skip(self), err)]
     pub(crate) fn delete(&self, params: DocIdentifier) -> Result<(), DocError> {
         let doc_id = &params.doc_id;
-        self.cache.remove(doc_id);
+        self.open_cache.remove(doc_id);
         self.ws_manager.remove_handler(doc_id);
         Ok(())
     }
@@ -80,12 +80,12 @@ impl DocController {
         delta: DocDelta,
         db_pool: Arc<ConnectionPool>,
     ) -> Result<DocDelta, DocError> {
-        if !self.cache.contains(&delta.doc_id) {
+        if !self.open_cache.contains(&delta.doc_id) {
             let doc_identifier: DocIdentifier = delta.doc_id.clone().into();
             let _ = self.open(doc_identifier, db_pool).await?;
         }
 
-        let edit_doc_ctx = self.cache.get(&delta.doc_id)?;
+        let edit_doc_ctx = self.open_cache.get(&delta.doc_id)?;
         let _ = edit_doc_ctx.composing_local_delta(Bytes::from(delta.data)).await?;
         Ok(edit_doc_ctx.delta().await?)
     }
@@ -102,7 +102,7 @@ impl DocController {
         let edit_ctx = ClientDocEditor::new(doc_id, user, pool, rev_manager, self.ws_manager.ws()).await?;
         let ws_handler = Arc::new(EditDocWsHandler(edit_ctx.clone()));
         self.ws_manager.register_handler(doc_id, ws_handler);
-        self.cache.set(edit_ctx.clone());
+        self.open_cache.set(edit_ctx.clone());
         Ok(edit_ctx)
     }
 
@@ -145,13 +145,39 @@ impl RevisionServer for RevisionServerImpl {
     }
 }
 
-#[allow(dead_code)]
-fn event_loop(_cache: Arc<DocCache>) -> FnFuture<()> {
-    let mut i = interval(Duration::from_secs(3));
-    wrap_future(async move {
-        loop {
-            // cache.all_docs().iter().for_each(|doc| doc.tick());
-            i.tick().await;
-        }
-    })
+pub struct OpenDocCache {
+    inner: DashMap<String, Arc<ClientDocEditor>>,
 }
+
+impl OpenDocCache {
+    fn new() -> Self { Self { inner: DashMap::new() } }
+
+    pub(crate) fn set(&self, doc: Arc<ClientDocEditor>) {
+        let doc_id = doc.doc_id.clone();
+        if self.inner.contains_key(&doc_id) {
+            log::warn!("Doc:{} already exists in cache", &doc_id);
+        }
+        self.inner.insert(doc_id, doc);
+    }
+
+    pub(crate) fn contains(&self, doc_id: &str) -> bool { self.inner.get(doc_id).is_some() }
+
+    pub(crate) fn get(&self, doc_id: &str) -> Result<Arc<ClientDocEditor>, DocError> {
+        if !self.contains(&doc_id) {
+            return Err(doc_not_found());
+        }
+        let opened_doc = self.inner.get(doc_id).unwrap();
+        Ok(opened_doc.clone())
+    }
+
+    pub(crate) fn remove(&self, id: &str) {
+        let doc_id = id.to_string();
+        match self.get(id) {
+            Ok(editor) => editor.stop_sync(),
+            Err(e) => log::error!("{}", e),
+        }
+        self.inner.remove(&doc_id);
+    }
+}
+
+fn doc_not_found() -> DocError { DocError::doc_not_found().context("Doc is close or you should call open first") }

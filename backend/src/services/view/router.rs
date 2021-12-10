@@ -1,5 +1,5 @@
 use crate::services::{
-    doc::manager::DocBiz,
+    doc::manager::DocumentCore,
     user::LoggedUser,
     util::parse_from_payload,
     view::{create_view, delete_view, read_view, sql_builder::check_view_ids, update_view},
@@ -23,7 +23,7 @@ use std::sync::Arc;
 pub async fn create_handler(
     payload: Payload,
     pool: Data<PgPool>,
-    _doc_biz: Data<Arc<DocBiz>>,
+    _doc_biz: Data<Arc<DocumentCore>>,
 ) -> Result<HttpResponse, ServerError> {
     let params: CreateViewParams = parse_from_payload(payload).await?;
     let mut transaction = pool

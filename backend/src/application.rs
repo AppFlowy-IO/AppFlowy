@@ -59,7 +59,7 @@ pub fn run(listener: TcpListener, app_ctx: AppContext) -> Result<Server, std::io
             .app_data(app_ctx.ws_server.clone())
             .app_data(app_ctx.pg_pool.clone())
             .app_data(app_ctx.ws_bizs.clone())
-            .app_data(app_ctx.doc_biz.clone())
+            .app_data(app_ctx.document_core.clone())
     })
     .listen(listener)?
     .run();

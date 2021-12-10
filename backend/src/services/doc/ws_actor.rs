@@ -1,6 +1,6 @@
 use crate::{
     services::{
-        doc::manager::{DocManager, DocOpenHandle},
+        doc::manager::{DocManager, OpenDocHandle},
         util::{md5, parse_from_bytes},
     },
     web_socket::{entities::Socket, WsClientData, WsUser},
@@ -122,7 +122,7 @@ impl DocWsActor {
         Ok(())
     }
 
-    async fn find_doc_handle(&self, doc_id: &str, pool: Data<PgPool>) -> Option<Arc<DocOpenHandle>> {
+    async fn find_doc_handle(&self, doc_id: &str, pool: Data<PgPool>) -> Option<Arc<OpenDocHandle>> {
         match self.doc_manager.get(doc_id, pool).await {
             Ok(Some(edit_doc)) => Some(edit_doc),
             Ok(None) => {
