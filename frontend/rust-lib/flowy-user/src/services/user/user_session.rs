@@ -9,7 +9,10 @@ use crate::{
     notify::*,
     services::{
         server::{construct_user_server, Server},
-        user::{notifier::UserNotifier, ws_manager::WsManager},
+        user::{
+            notifier::UserNotifier,
+            ws_manager::{FlowyWsSender, WsManager},
+        },
     },
 };
 use backend_service::configuration::ClientServerConfiguration;
@@ -23,7 +26,7 @@ use flowy_database::{
 use flowy_user_infra::entities::{SignInResponse, SignUpResponse};
 use lib_infra::{entities::network_state::NetworkState, kv::KV};
 use lib_sqlite::ConnectionPool;
-use lib_ws::{WsConnectState, WsMessageHandler, WsSender};
+use lib_ws::{WsConnectState, WsMessageHandler};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -196,8 +199,8 @@ impl UserSession {
         self.notifier.update_network_type(&new_state.ty);
     }
 
-    pub fn ws_sender(&self) -> Result<Arc<WsSender>, UserError> {
-        let sender = self.ws_manager.sender()?;
+    pub fn ws_sender(&self) -> Result<Arc<dyn FlowyWsSender>, UserError> {
+        let sender = self.ws_manager.ws_sender()?;
         Ok(sender)
     }
 
@@ -301,10 +304,8 @@ impl UserSession {
 
     #[tracing::instrument(level = "debug", skip(self, token))]
     pub async fn start_ws_connection(&self, token: &str) -> Result<(), UserError> {
-        if cfg!(feature = "http_server") {
-            let addr = format!("{}/{}", self.server.ws_addr(), token);
-            let _ = self.ws_manager.start(addr).await?;
-        }
+        let addr = format!("{}/{}", self.server.ws_addr(), token);
+        let _ = self.ws_manager.start(addr).await?;
         Ok(())
     }
 }

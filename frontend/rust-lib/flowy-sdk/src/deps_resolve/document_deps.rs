@@ -29,7 +29,7 @@ impl DocumentDepsResolver {
             user: self.user_session.clone(),
         });
         let ws_manager = Arc::new(WsDocumentManager::new(sender));
-        let ws_handler = Arc::new(WsDocumentReceiver {
+        let ws_handler = Arc::new(DocumentWsMessageReceiver {
             inner: ws_manager.clone(),
         });
         self.user_session.add_ws_handler(ws_handler);
@@ -74,15 +74,13 @@ struct WsSenderImpl {
 
 impl DocumentWebSocket for WsSenderImpl {
     fn send(&self, data: WsDocumentData) -> Result<(), DocError> {
-        if cfg!(feature = "http_server") {
-            let bytes: Bytes = data.try_into().unwrap();
-            let msg = WsMessage {
-                module: WsModule::Doc,
-                data: bytes.to_vec(),
-            };
-            let sender = self.user.ws_sender().map_err(internal_error)?;
-            sender.send_msg(msg).map_err(internal_error)?;
-        }
+        let bytes: Bytes = data.try_into().unwrap();
+        let msg = WsMessage {
+            module: WsModule::Doc,
+            data: bytes.to_vec(),
+        };
+        let sender = self.user.ws_sender().map_err(internal_error)?;
+        sender.send(msg).map_err(internal_error)?;
 
         Ok(())
     }
@@ -90,15 +88,15 @@ impl DocumentWebSocket for WsSenderImpl {
     fn state_notify(&self) -> WsStateReceiver { self.user.ws_state_notifier() }
 }
 
-struct WsDocumentReceiver {
+struct DocumentWsMessageReceiver {
     inner: Arc<WsDocumentManager>,
 }
 
-impl WsMessageHandler for WsDocumentReceiver {
+impl WsMessageHandler for DocumentWsMessageReceiver {
     fn source(&self) -> WsModule { WsModule::Doc }
 
     fn receive_message(&self, msg: WsMessage) {
         let data = Bytes::from(msg.data);
-        self.inner.handle_ws_data(data);
+        self.inner.did_receive_ws_data(data);
     }
 }

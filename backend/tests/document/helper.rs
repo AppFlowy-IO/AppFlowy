@@ -66,7 +66,7 @@ impl ScriptContext {
             client_edit_context: None,
             client_sdk,
             client_user_session: user_session,
-            server_doc_manager: server.app_ctx.doc_biz.manager.clone(),
+            server_doc_manager: server.app_ctx.document_core.manager.clone(),
             server_pg_pool: Data::new(server.pg_pool.clone()),
             doc_id,
         }

@@ -14,9 +14,8 @@ use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_document_infra::entities::doc::{Doc, DocDelta, DocIdentifier};
-use lib_infra::future::{wrap_future, FnFuture, ResultFuture};
+use lib_infra::future::ResultFuture;
 use std::sync::Arc;
-use tokio::time::{interval, Duration};
 
 pub(crate) struct DocController {
     server: Server,

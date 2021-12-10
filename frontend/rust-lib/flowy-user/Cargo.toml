@@ -37,6 +37,7 @@ tokio = { version = "1", features = ["rt"] }
 pin-project = "1.0.0"
 futures-core = { version = "0.3", default-features = false }
 r2d2 = "0.8.9"
+dashmap = "4.0"
 
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }

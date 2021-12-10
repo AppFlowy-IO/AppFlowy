@@ -39,7 +39,7 @@ impl WsDocumentManager {
 
     pub(crate) fn remove_handler(&self, id: &str) { self.handlers.remove(id); }
 
-    pub fn handle_ws_data(&self, data: Bytes) {
+    pub fn did_receive_ws_data(&self, data: Bytes) {
         let data: WsDocumentData = data.try_into().unwrap();
         match self.handlers.get(&data.doc_id) {
             None => {

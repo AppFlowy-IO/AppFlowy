@@ -46,7 +46,6 @@ impl RevisionManager {
 
     pub async fn add_revision(&self, revision: &Revision) -> Result<(), DocError> {
         let _ = self.cache.add_revision(revision.clone()).await?;
-
         Ok(())
     }
 

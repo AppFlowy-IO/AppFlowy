@@ -68,7 +68,7 @@ impl WsController {
         Ok(())
     }
 
-    pub async fn start_connect(&self, addr: String) -> Result<(), ServerError> {
+    pub async fn start(&self, addr: String) -> Result<(), ServerError> {
         *self.addr.write() = Some(addr.clone());
 
         let strategy = FixedInterval::from_millis(5000).take(3);

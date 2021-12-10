@@ -1,12 +1,25 @@
 use crate::errors::UserError;
-use lib_infra::entities::network_state::NetworkType;
-use lib_ws::{WsConnectState, WsController};
+
+use lib_infra::{entities::network_state::NetworkType, future::ResultFuture};
+use lib_ws::{WsConnectState, WsController, WsMessage, WsMessageHandler, WsSender};
 use parking_lot::RwLock;
 use std::sync::Arc;
-use tokio::sync::broadcast;
+use tokio::sync::{broadcast, broadcast::Receiver};
+
+pub trait FlowyWebSocket: Send + Sync {
+    fn start_connect(&self, addr: String) -> ResultFuture<(), UserError>;
+    fn conn_state_subscribe(&self) -> broadcast::Receiver<WsConnectState>;
+    fn reconnect(&self, count: usize) -> ResultFuture<(), UserError>;
+    fn add_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), UserError>;
+    fn ws_sender(&self) -> Result<Arc<dyn FlowyWsSender>, UserError>;
+}
+
+pub trait FlowyWsSender: Send + Sync {
+    fn send(&self, msg: WsMessage) -> Result<(), UserError>;
+}
 
 pub struct WsManager {
-    inner: Arc<WsController>,
+    inner: Arc<dyn FlowyWebSocket>,
     connect_type: RwLock<NetworkType>,
 }
 
@@ -38,12 +51,10 @@ impl WsManager {
         }
     }
 
-    pub fn state_subscribe(&self) -> broadcast::Receiver<WsConnectState> { self.inner.state_subscribe() }
-
     #[tracing::instrument(level = "debug", skip(self))]
     fn listen_on_websocket(&self) {
-        let mut notify = self.inner.state_subscribe();
-        let ws_controller = self.inner.clone();
+        let mut notify = self.inner.conn_state_subscribe();
+        let ws = self.inner.clone();
         let _ = tokio::spawn(async move {
             loop {
                 match notify.recv().await {
@@ -53,7 +64,7 @@ impl WsManager {
                             WsConnectState::Init => {},
                             WsConnectState::Connected => {},
                             WsConnectState::Connecting => {},
-                            WsConnectState::Disconnected => retry_connect(ws_controller.clone(), 100).await,
+                            WsConnectState::Disconnected => retry_connect(ws.clone(), 100).await,
                         }
                     },
                     Err(e) => {
@@ -64,10 +75,22 @@ impl WsManager {
             }
         });
     }
+
+    pub fn state_subscribe(&self) -> broadcast::Receiver<WsConnectState> { self.inner.conn_state_subscribe() }
+
+    pub fn add_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), UserError> {
+        let _ = self.inner.add_handler(handler)?;
+        Ok(())
+    }
+
+    pub fn ws_sender(&self) -> Result<Arc<dyn FlowyWsSender>, UserError> {
+        //
+        self.inner.ws_sender()
+    }
 }
 
-async fn retry_connect(ws_controller: Arc<WsController>, count: usize) {
-    match ws_controller.retry(count).await {
+async fn retry_connect(ws: Arc<dyn FlowyWebSocket>, count: usize) {
+    match ws.reconnect(count).await {
         Ok(_) => {},
         Err(e) => {
             log::error!("websocket connect failed: {:?}", e);
@@ -77,15 +100,126 @@ async fn retry_connect(ws_controller: Arc<WsController>, count: usize) {
 
 impl std::default::Default for WsManager {
     fn default() -> Self {
+        let ws: Arc<dyn FlowyWebSocket> = if cfg!(feature = "http_server") {
+            Arc::new(Arc::new(WsController::new()))
+        } else {
+            mock::MockWebSocket::new()
+        };
+
         WsManager {
-            inner: Arc::new(WsController::new()),
+            inner: ws,
             connect_type: RwLock::new(NetworkType::default()),
         }
     }
 }
 
-impl std::ops::Deref for WsManager {
-    type Target = WsController;
+impl FlowyWebSocket for Arc<WsController> {
+    fn start_connect(&self, addr: String) -> ResultFuture<(), UserError> {
+        let cloned_ws = self.clone();
+        ResultFuture::new(async move {
+            let _ = cloned_ws.start(addr).await?;
+            Ok(())
+        })
+    }
 
-    fn deref(&self) -> &Self::Target { &self.inner }
+    fn conn_state_subscribe(&self) -> Receiver<WsConnectState> { self.state_subscribe() }
+
+    fn reconnect(&self, count: usize) -> ResultFuture<(), UserError> {
+        let cloned_ws = self.clone();
+        ResultFuture::new(async move {
+            let _ = cloned_ws.retry(count).await?;
+            Ok(())
+        })
+    }
+
+    fn add_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), UserError> {
+        let _ = self.add_handler(handler)?;
+        Ok(())
+    }
+
+    fn ws_sender(&self) -> Result<Arc<dyn FlowyWsSender>, UserError> {
+        let sender = self.sender()?;
+        Ok(sender)
+    }
+}
+
+impl FlowyWsSender for WsSender {
+    fn send(&self, msg: WsMessage) -> Result<(), UserError> {
+        let _ = self.send_msg(msg)?;
+        Ok(())
+    }
+}
+
+// #[cfg(not(feature = "http_server"))]
+mod mock {
+    use crate::{
+        errors::UserError,
+        services::user::ws_manager::{FlowyWebSocket, FlowyWsSender},
+    };
+    use dashmap::DashMap;
+    use lib_infra::future::ResultFuture;
+    use lib_ws::{WsConnectState, WsMessage, WsMessageHandler, WsModule};
+    use std::sync::Arc;
+    use tokio::sync::{broadcast, broadcast::Receiver};
+
+    pub struct MockWebSocket {
+        handlers: DashMap<WsModule, Arc<dyn WsMessageHandler>>,
+        state_sender: broadcast::Sender<WsConnectState>,
+        ws_sender: broadcast::Sender<WsMessage>,
+    }
+
+    impl std::default::Default for MockWebSocket {
+        fn default() -> Self {
+            let (state_sender, _) = broadcast::channel(16);
+            let (ws_sender, _) = broadcast::channel(16);
+            MockWebSocket {
+                handlers: DashMap::new(),
+                state_sender,
+                ws_sender,
+            }
+        }
+    }
+
+    impl MockWebSocket {
+        pub fn new() -> Arc<MockWebSocket> {
+            let ws = Arc::new(MockWebSocket::default());
+            let mut ws_receiver = ws.ws_sender.subscribe();
+            let cloned_ws = ws.clone();
+            tokio::spawn(async move {
+                while let Ok(message) = ws_receiver.recv().await {
+                    match cloned_ws.handlers.get(&message.module) {
+                        None => log::error!("Can't find any handler for message: {:?}", message),
+                        Some(handler) => handler.receive_message(message.clone()),
+                    }
+                }
+            });
+            ws
+        }
+    }
+
+    impl FlowyWebSocket for MockWebSocket {
+        fn start_connect(&self, _addr: String) -> ResultFuture<(), UserError> { ResultFuture::new(async { Ok(()) }) }
+
+        fn conn_state_subscribe(&self) -> Receiver<WsConnectState> { self.state_sender.subscribe() }
+
+        fn reconnect(&self, _count: usize) -> ResultFuture<(), UserError> { ResultFuture::new(async { Ok(()) }) }
+
+        fn add_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), UserError> {
+            let source = handler.source();
+            if self.handlers.contains_key(&source) {
+                log::error!("WsSource's {:?} is already registered", source);
+            }
+            self.handlers.insert(source, handler);
+            Ok(())
+        }
+
+        fn ws_sender(&self) -> Result<Arc<dyn FlowyWsSender>, UserError> { Ok(Arc::new(self.ws_sender.clone())) }
+    }
+
+    impl FlowyWsSender for broadcast::Sender<WsMessage> {
+        fn send(&self, _msg: WsMessage) -> Result<(), UserError> {
+            // let _ = self.send(msg).unwrap();
+            Ok(())
+        }
+    }
 }
