@@ -3,7 +3,7 @@ use lib_ws::WsModule;
 use std::{collections::HashMap, sync::Arc};
 
 pub trait WsBizHandler: Send + Sync {
-    fn receive_data(&self, client_data: WsClientData);
+    fn receive(&self, data: WsClientData);
 }
 
 pub type BizHandler = Arc<dyn WsBizHandler>;

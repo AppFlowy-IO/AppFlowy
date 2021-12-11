@@ -37,6 +37,7 @@ impl OTError {
 
     static_ot_error!(duplicate_revision, OTErrorCode::DuplicatedRevision);
     static_ot_error!(revision_id_conflict, OTErrorCode::RevisionIDConflict);
+    static_ot_error!(internal, OTErrorCode::Internal);
 }
 
 impl fmt::Display for OTError {
@@ -68,6 +69,7 @@ pub enum OTErrorCode {
     SerdeError,
     DuplicatedRevision,
     RevisionIDConflict,
+    Internal,
 }
 
 pub struct ErrorBuilder {
@@ -95,4 +97,11 @@ impl ErrorBuilder {
     }
 
     pub fn build(mut self) -> OTError { OTError::new(self.code, &self.msg.take().unwrap_or_else(|| "".to_owned())) }
+}
+
+pub fn internal_error<T>(e: T) -> OTError
+where
+    T: std::fmt::Debug,
+{
+    OTError::internal().context(e)
 }

@@ -12,6 +12,24 @@ use actix_web::{
 };
 use actix_web_actors::ws;
 
+#[rustfmt::skip]
+//                   WsClient
+//                  ┌─────────────┐
+//                  │ ┌────────┐  │
+//  wss://xxx ─────▶│ │ WsUser │  │───┐
+//                  │ └────────┘  │   │
+//                  └─────────────┘   │
+//                                    │
+//                                    │    ┌───────────────┐   ┌─────────────┐    ┌────────────────┐
+//                                    ├───▶│ WsBizHandlers │──▶│WsBizHandler │───▶│  WsClientData  │
+//                                    │    └───────────────┘   └─────────────┘    └────────────────┘
+//                   WsClient         │                               △
+//                  ┌─────────────┐   │                               │
+//                  │ ┌────────┐  │   │                               │
+//  wss://xxx ─────▶│ │ WsUser │  │───┘                       ┌───────────────┐
+//                  │ └────────┘  │                           │ DocumentCore  │
+//                  └─────────────┘                           └───────────────┘
+
 #[get("/{token}")]
 pub async fn establish_ws_connection(
     request: HttpRequest,

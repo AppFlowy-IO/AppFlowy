@@ -658,14 +658,34 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-collaboration"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "chrono",
+ "flowy-derive",
+ "lib-ot",
+ "log",
+ "md5",
+ "parking_lot",
+ "protobuf",
+ "serde",
+ "strum",
+ "strum_macros",
+ "tokio",
+ "tracing",
+ "url",
+]
+
+[[package]]
 name = "flowy-core-infra"
 version = "0.1.0"
 dependencies = [
  "bytes",
  "chrono",
  "derive_more",
+ "flowy-collaboration",
  "flowy-derive",
- "flowy-ot",
  "log",
  "protobuf",
  "strum",
@@ -685,26 +705,6 @@ dependencies = [
  "syn",
  "tokio",
  "trybuild",
-]
-
-[[package]]
-name = "flowy-ot"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "chrono",
- "flowy-derive",
- "lib-ot",
- "log",
- "md5",
- "parking_lot",
- "protobuf",
- "serde",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
- "url",
 ]
 
 [[package]]

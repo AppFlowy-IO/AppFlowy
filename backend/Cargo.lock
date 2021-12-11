@@ -455,9 +455,9 @@ dependencies = [
  "config",
  "dashmap",
  "derive_more",
+ "flowy-collaboration",
  "flowy-core-infra",
  "flowy-document",
- "flowy-ot",
  "flowy-sdk",
  "flowy-test",
  "flowy-user",
@@ -1196,6 +1196,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-collaboration"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "chrono",
+ "flowy-derive",
+ "lib-ot",
+ "log",
+ "md5",
+ "parking_lot",
+ "protobuf",
+ "serde",
+ "strum",
+ "strum_macros",
+ "tokio",
+ "tracing",
+ "url",
+]
+
+[[package]]
 name = "flowy-core"
 version = "0.1.0"
 dependencies = [
@@ -1209,11 +1229,11 @@ dependencies = [
  "derive_more",
  "diesel",
  "diesel_derives",
+ "flowy-collaboration",
  "flowy-core-infra",
  "flowy-database",
  "flowy-derive",
  "flowy-document",
- "flowy-ot",
  "futures",
  "futures-core",
  "lazy_static",
@@ -1239,8 +1259,8 @@ dependencies = [
  "bytes",
  "chrono",
  "derive_more",
+ "flowy-collaboration",
  "flowy-derive",
- "flowy-ot",
  "log",
  "protobuf",
  "strum",
@@ -1284,9 +1304,9 @@ dependencies = [
  "derive_more",
  "diesel",
  "diesel_derives",
+ "flowy-collaboration",
  "flowy-database",
  "flowy-derive",
- "flowy-ot",
  "futures",
  "futures-core",
  "futures-util",
@@ -1310,36 +1330,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-ot"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "chrono",
- "flowy-derive",
- "lib-ot",
- "log",
- "md5",
- "parking_lot",
- "protobuf",
- "serde",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
- "url",
-]
-
-[[package]]
 name = "flowy-sdk"
 version = "0.1.0"
 dependencies = [
  "backend-service",
  "bytes",
  "color-eyre",
+ "flowy-collaboration",
  "flowy-core",
  "flowy-database",
  "flowy-document",
- "flowy-ot",
  "flowy-user",
  "futures-core",
  "lib-dispatch",
@@ -1360,9 +1360,9 @@ dependencies = [
  "bincode",
  "bytes",
  "claim",
+ "flowy-collaboration",
  "flowy-core",
  "flowy-document",
- "flowy-ot",
  "flowy-sdk",
  "flowy-user",
  "futures-util",

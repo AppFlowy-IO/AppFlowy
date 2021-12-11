@@ -15,7 +15,7 @@ use futures::stream::StreamExt;
 use lib_ot::revision::{RevId, RevisionRange};
 use std::{convert::TryFrom, sync::Arc};
 use tokio::{
-    sync::{broadcast, mpsc, mpsc::error::SendError},
+    sync::{broadcast, mpsc},
     task::spawn_blocking,
     time::{interval, Duration},
 };
@@ -175,7 +175,7 @@ impl RevisionUpStream {
         match self.revisions.next().await? {
             None => Ok(()),
             Some(record) => {
-                tracing::trace!(
+                tracing::debug!(
                     "[RevisionUpStream]: processes revision: {}:{:?}",
                     record.revision.doc_id,
                     record.revision.rev_id
@@ -190,13 +190,7 @@ impl RevisionUpStream {
 
 async fn tick(sender: mpsc::UnboundedSender<UpStreamMsg>) {
     let mut i = interval(Duration::from_secs(2));
-    loop {
-        match sender.send(UpStreamMsg::Tick) {
-            Ok(_) => {},
-            Err(_e) => {
-                break;
-            },
-        }
+    while sender.send(UpStreamMsg::Tick).is_ok() {
         i.tick().await;
     }
 }

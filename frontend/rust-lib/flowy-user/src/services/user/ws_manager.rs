@@ -218,7 +218,7 @@ mod mock {
 
     impl FlowyWsSender for broadcast::Sender<WsMessage> {
         fn send(&self, _msg: WsMessage) -> Result<(), UserError> {
-            // let _ = self.send(msg).unwrap();
+            let _ = self.send(msg).unwrap();
             Ok(())
         }
     }

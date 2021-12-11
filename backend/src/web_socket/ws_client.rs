@@ -75,7 +75,7 @@ impl WsClient {
                     socket,
                     data: Bytes::from(message.data),
                 };
-                handler.receive_data(client_data);
+                handler.receive(client_data);
             },
         }
     }

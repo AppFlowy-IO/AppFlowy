@@ -21,57 +21,59 @@ use std::{
     },
     time::Duration,
 };
-use tokio::sync::mpsc;
 
-pub enum SynchronizerCommand {
+pub trait RevisionUser {
+    fn recv(&self, resp: SyncResponse);
+}
+
+pub enum SyncResponse {
     Pull(WsDocumentData),
     Push(WsDocumentData),
     Ack(WsDocumentData),
-    SaveRevision(Revision),
+    NewRevision {
+        rev_id: i64,
+        doc_json: String,
+        doc_id: String,
+    },
 }
-
-pub type CommandReceiver = Arc<dyn Fn(SynchronizerCommand)>;
 
 pub struct RevisionSynchronizer {
     pub doc_id: String,
     pub rev_id: AtomicI64,
     document: Arc<RwLock<Document>>,
-    command_receiver: CommandReceiver,
 }
 
 impl RevisionSynchronizer {
-    pub fn new(
-        doc_id: &str,
-        rev_id: i64,
-        document: Arc<RwLock<Document>>,
-        command_receiver: CommandReceiver,
-    ) -> RevisionSynchronizer {
+    pub fn new(doc_id: &str, rev_id: i64, document: Document) -> RevisionSynchronizer {
+        let document = Arc::new(RwLock::new(document));
         RevisionSynchronizer {
             doc_id: doc_id.to_string(),
             rev_id: AtomicI64::new(rev_id),
             document,
-            command_receiver,
         }
     }
 
-    pub fn new_conn(&self, rev_id: i64) {
+    pub fn new_conn<T: RevisionUser>(&self, user: T, rev_id: i64) {
         let cur_rev_id = self.rev_id.load(SeqCst);
         match cur_rev_id.cmp(&rev_id) {
             Ordering::Less => {
                 let msg = mk_pull_message(&self.doc_id, next(cur_rev_id), rev_id);
-                self.send_command(SynchronizerCommand::Pull(msg));
+                user.recv(SyncResponse::Pull(msg));
             },
             Ordering::Equal => {},
             Ordering::Greater => {
                 let doc_delta = self.document.read().delta().clone();
                 let revision = self.mk_revision(rev_id, doc_delta);
                 let data = mk_push_message(&self.doc_id, revision);
-                self.send_command(SynchronizerCommand::Push(data));
+                user.recv(SyncResponse::Push(data));
             },
         }
     }
 
-    pub fn apply_revision(&self, revision: Revision) -> Result<(), OTError> {
+    pub fn apply_revision<T>(&self, user: T, revision: Revision) -> Result<(), OTError>
+    where
+        T: RevisionUser,
+    {
         let cur_rev_id = self.rev_id.load(SeqCst);
         match cur_rev_id.cmp(&revision.rev_id) {
             Ordering::Less => {
@@ -79,12 +81,19 @@ impl RevisionSynchronizer {
                 if cur_rev_id == revision.base_rev_id || next_rev_id == revision.base_rev_id {
                     // The rev is in the right order, just compose it.
                     let _ = self.compose_revision(&revision)?;
-                    self.send_command(SynchronizerCommand::Ack(mk_acked_message(&revision)));
-                    self.send_command(SynchronizerCommand::SaveRevision(revision));
+                    user.recv(SyncResponse::Ack(mk_acked_message(&revision)));
+                    let rev_id = revision.rev_id;
+                    let doc_id = self.doc_id.clone();
+                    let doc_json = self.doc_json();
+                    user.recv(SyncResponse::NewRevision {
+                        rev_id,
+                        doc_id,
+                        doc_json,
+                    });
                 } else {
                     // The server document is outdated, pull the missing revision from the client.
                     let msg = mk_pull_message(&self.doc_id, next_rev_id, revision.rev_id);
-                    self.send_command(SynchronizerCommand::Pull(msg));
+                    user.recv(SyncResponse::Pull(msg));
                 }
             },
             Ordering::Equal => {
@@ -97,11 +106,13 @@ impl RevisionSynchronizer {
                 // delta.
                 let cli_revision = self.transform_revision(&revision)?;
                 let data = mk_push_message(&self.doc_id, cli_revision);
-                self.send_command(SynchronizerCommand::Push(data));
+                user.recv(SyncResponse::Push(data));
             },
         }
         Ok(())
     }
+
+    pub fn doc_json(&self) -> String { self.document.read().to_json() }
 
     fn compose_revision(&self, revision: &Revision) -> Result<(), OTError> {
         let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
@@ -120,16 +131,6 @@ impl RevisionSynchronizer {
         Ok(cli_revision)
     }
 
-    fn send_command(&self, command: SynchronizerCommand) { (self.command_receiver)(command); }
-
-    #[tracing::instrument(
-        level = "debug",
-        skip(self, delta),
-        fields(
-        revision_delta = %delta.to_json(),
-        result,
-        )
-    )]
     fn compose_delta(&self, delta: RichTextDelta) -> Result<(), OTError> {
         if delta.is_empty() {
             log::warn!("Composed delta is empty");
@@ -139,7 +140,6 @@ impl RevisionSynchronizer {
             None => log::error!("Failed to acquire write lock of document"),
             Some(mut write_guard) => {
                 let _ = write_guard.compose_delta(delta);
-                tracing::Span::current().record("result", &write_guard.to_json().as_str());
             },
         }
         Ok(())
