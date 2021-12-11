@@ -1,5 +1,5 @@
 [package]
-name = "flowy-document-infra"
+name = "flowy-collaboration"
 version = "0.1.0"
 edition = "2018"
 
@@ -19,3 +19,4 @@ url = "2.2"
 strum = "0.21"
 strum_macros = "0.21"
 chrono = "0.4.19"
+parking_lot = "0.11"

@@ -1,6 +1,6 @@
 use crate::{errors::ErrorCode, parser::view::ViewId};
+use flowy_collaboration::entities::doc::DocIdentifier;
 use flowy_derive::ProtoBuf;
-use flowy_document_infra::entities::doc::DocIdentifier;
 use std::convert::TryInto;
 
 #[derive(Default, ProtoBuf)]

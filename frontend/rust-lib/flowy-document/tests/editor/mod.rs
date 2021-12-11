@@ -6,7 +6,7 @@ mod serde_test;
 mod undo_redo_test;
 
 use derive_more::Display;
-use flowy_document_infra::core::{CustomDocument, Document};
+use flowy_collaboration::core::document::{CustomDocument, Document};
 use lib_ot::{
     core::*,
     rich_text::{RichTextAttribute, RichTextAttributes, RichTextDelta},

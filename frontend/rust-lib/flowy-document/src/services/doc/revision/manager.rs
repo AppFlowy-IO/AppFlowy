@@ -5,7 +5,7 @@ use crate::{
         ws::DocumentWebSocket,
     },
 };
-use flowy_document_infra::{entities::doc::Doc, util::RevIdCounter};
+use flowy_collaboration::{entities::doc::Doc, util::RevIdCounter};
 use lib_infra::future::ResultFuture;
 use lib_ot::{
     core::OperationTransformable,

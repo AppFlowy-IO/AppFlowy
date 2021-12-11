@@ -665,7 +665,7 @@ dependencies = [
  "chrono",
  "derive_more",
  "flowy-derive",
- "flowy-document-infra",
+ "flowy-ot",
  "log",
  "protobuf",
  "strum",
@@ -688,7 +688,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-document-infra"
+name = "flowy-ot"
 version = "0.1.0"
 dependencies = [
  "bytes",
@@ -697,6 +697,7 @@ dependencies = [
  "lib-ot",
  "log",
  "md5",
+ "parking_lot",
  "protobuf",
  "serde",
  "strum",

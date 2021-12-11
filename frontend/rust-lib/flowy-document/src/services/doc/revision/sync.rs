@@ -10,12 +10,12 @@ use crate::{
 };
 use async_stream::stream;
 use bytes::Bytes;
-use flowy_document_infra::entities::ws::{WsDataType, WsDocumentData};
+use flowy_collaboration::entities::ws::{WsDataType, WsDocumentData};
 use futures::stream::StreamExt;
 use lib_ot::revision::{RevId, RevisionRange};
 use std::{convert::TryFrom, sync::Arc};
 use tokio::{
-    sync::{broadcast, mpsc},
+    sync::{broadcast, mpsc, mpsc::error::SendError},
     task::spawn_blocking,
     time::{interval, Duration},
 };
@@ -175,7 +175,7 @@ impl RevisionUpStream {
         match self.revisions.next().await? {
             None => Ok(()),
             Some(record) => {
-                tracing::debug!(
+                tracing::trace!(
                     "[RevisionUpStream]: processes revision: {}:{:?}",
                     record.revision.doc_id,
                     record.revision.rev_id
@@ -193,7 +193,9 @@ async fn tick(sender: mpsc::UnboundedSender<UpStreamMsg>) {
     loop {
         match sender.send(UpStreamMsg::Tick) {
             Ok(_) => {},
-            Err(e) => log::error!("RevisionUploadStream tick error: {}", e),
+            Err(_e) => {
+                break;
+            },
         }
         i.tick().await;
     }

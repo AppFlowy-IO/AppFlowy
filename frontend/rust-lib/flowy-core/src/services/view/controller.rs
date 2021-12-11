@@ -1,5 +1,5 @@
+use flowy_collaboration::entities::doc::{DocDelta, DocIdentifier};
 use flowy_database::SqliteConnection;
-use flowy_document_infra::entities::doc::{DocDelta, DocIdentifier};
 use futures::{FutureExt, StreamExt};
 use std::{collections::HashSet, sync::Arc};
 

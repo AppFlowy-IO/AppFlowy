@@ -9,7 +9,6 @@ import 'package:flowy_sdk/protobuf/flowy-core-infra/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-infra/app_query.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-infra/app_update.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-infra/view_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-infra/view_create.pbenum.dart';
 import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core/observable.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';

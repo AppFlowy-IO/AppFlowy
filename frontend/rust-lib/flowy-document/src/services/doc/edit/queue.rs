@@ -1,7 +1,7 @@
 use async_stream::stream;
 use bytes::Bytes;
-use flowy_document_infra::{
-    core::{history::UndoResult, Document},
+use flowy_collaboration::{
+    core::document::{history::UndoResult, Document},
     errors::DocumentError,
 };
 use futures::stream::StreamExt;

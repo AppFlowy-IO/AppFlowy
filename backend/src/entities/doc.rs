@@ -1,4 +1,4 @@
-use flowy_document_infra::protobuf::Doc;
+use flowy_collaboration::protobuf::Doc;
 
 pub(crate) const DOC_TABLE: &str = "doc_table";
 

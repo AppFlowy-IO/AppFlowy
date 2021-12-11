@@ -6,8 +6,8 @@ use crate::{
     services::{server::Server, AppController, TrashController, ViewController, WorkspaceController},
 };
 use chrono::Utc;
+use flowy_collaboration::{entities::doc::DocDelta, user_default::initial_read_me};
 use flowy_core_infra::user_default;
-use flowy_document_infra::{entities::doc::DocDelta, user_default::initial_read_me};
 use lazy_static::lazy_static;
 use lib_infra::entities::network_state::NetworkType;
 use parking_lot::RwLock;

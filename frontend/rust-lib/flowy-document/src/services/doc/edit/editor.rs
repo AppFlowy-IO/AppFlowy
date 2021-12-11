@@ -10,12 +10,12 @@ use crate::{
     },
 };
 use bytes::Bytes;
-use flowy_database::ConnectionPool;
-use flowy_document_infra::{
-    core::history::UndoResult,
+use flowy_collaboration::{
+    core::document::history::UndoResult,
     entities::{doc::DocDelta, ws::WsDocumentData},
     errors::DocumentResult,
 };
+use flowy_database::ConnectionPool;
 use lib_infra::retry::{ExponentialBackoff, Retry};
 use lib_ot::{
     core::Interval,

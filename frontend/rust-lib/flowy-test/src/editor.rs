@@ -1,9 +1,9 @@
 use crate::{helper::ViewTest, FlowySDKTest};
-use flowy_document::services::doc::{edit::ClientDocEditor, revision::RevisionIterator};
-use flowy_document_infra::entities::{
+use flowy_collaboration::entities::{
     doc::DocIdentifier,
     ws::{WsDocumentData, WsDocumentDataBuilder},
 };
+use flowy_document::services::doc::{edit::ClientDocEditor, revision::RevisionIterator};
 use lib_ot::{
     core::Interval,
     revision::{RevState, RevType, Revision, RevisionRange},

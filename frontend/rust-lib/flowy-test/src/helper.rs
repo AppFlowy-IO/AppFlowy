@@ -1,5 +1,6 @@
 use crate::prelude::*;
 use bytes::Bytes;
+use flowy_collaboration::entities::doc::Doc;
 use flowy_core::{
     entities::{
         app::*,
@@ -10,7 +11,6 @@ use flowy_core::{
     errors::{ErrorCode, WorkspaceError},
     event::WorkspaceEvent::{CreateWorkspace, OpenWorkspace, *},
 };
-use flowy_document_infra::entities::doc::Doc;
 use flowy_user::{
     entities::{SignInRequest, SignUpRequest, UserProfile},
     errors::UserError,

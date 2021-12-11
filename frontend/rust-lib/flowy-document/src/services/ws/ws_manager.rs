@@ -1,7 +1,7 @@
 use crate::errors::DocError;
 use bytes::Bytes;
 use dashmap::DashMap;
-use flowy_document_infra::entities::ws::WsDocumentData;
+use flowy_collaboration::entities::ws::WsDocumentData;
 use lib_ws::WsConnectState;
 use std::{convert::TryInto, sync::Arc};
 

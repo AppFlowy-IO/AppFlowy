@@ -8,8 +8,8 @@ use crate::{
 use actix_web::web::Data;
 use backend_service::errors::{internal_error, ServerError};
 use dashmap::DashMap;
-use flowy_document_infra::{
-    core::Document,
+use flowy_collaboration::{
+    core::document::Document,
     entities::ws::{WsDataType, WsDocumentData},
     protobuf::{Doc, UpdateDocParams},
 };
@@ -102,8 +102,9 @@ impl ServerDocEditor {
                 let next_rev_id = next(cur_rev_id);
                 if cur_rev_id == revision.base_rev_id || next_rev_id == revision.base_rev_id {
                     // The rev is in the right order, just compose it.
-                    let _ = self.compose_revision(&revision, pg_pool).await?;
+                    let _ = self.compose_revision(&revision).await?;
                     let _ = send_acked_msg(&user.socket, &revision)?;
+                    let _ = self.save_revision(&revision, pg_pool).await?;
                 } else {
                     // The server document is outdated, pull the missing revision from the client.
                     let _ = send_pull_message(&user.socket, &self.doc_id, next_rev_id, revision.rev_id)?;
@@ -126,11 +127,10 @@ impl ServerDocEditor {
 
     pub fn document_json(&self) -> String { self.document.read().to_json() }
 
-    async fn compose_revision(&self, revision: &Revision, pg_pool: Data<PgPool>) -> Result<(), ServerError> {
+    async fn compose_revision(&self, revision: &Revision) -> Result<(), ServerError> {
         let delta = RichTextDelta::from_bytes(&revision.delta_data).map_err(internal_error)?;
         let _ = self.compose_delta(delta)?;
         let _ = self.rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(revision.rev_id));
-        let _ = self.save_revision(&revision, pg_pool).await?;
         Ok(())
     }
 

@@ -4,7 +4,7 @@ use crate::{
 };
 use anyhow::Context;
 use backend_service::errors::ServerError;
-use flowy_document_infra::protobuf::{CreateDocParams, Doc, DocIdentifier, UpdateDocParams};
+use flowy_collaboration::protobuf::{CreateDocParams, Doc, DocIdentifier, UpdateDocParams};
 use sqlx::{postgres::PgArguments, PgPool, Postgres};
 use uuid::Uuid;
 

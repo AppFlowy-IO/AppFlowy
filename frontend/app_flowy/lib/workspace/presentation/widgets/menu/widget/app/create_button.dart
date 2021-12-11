@@ -5,7 +5,6 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flutter/material.dart';
-import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flowy_infra_ui/style_widget/extension.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 // ignore: implementation_imports

@@ -19,7 +19,7 @@ import 'package:flowy_sdk/ffi.dart' as ffi;
 import 'package:flowy_sdk/protobuf/flowy-user-infra/protobuf.dart';
 import 'package:flowy_sdk/protobuf/dart-ffi/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-infra/protobuf.dart';
-import 'package:flowy_sdk/protobuf/flowy-document-infra/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-collaboration/protobuf.dart';
 
 // ignore: unused_import
 import 'package:flowy_sdk/protobuf/lib-infra/protobuf.dart';

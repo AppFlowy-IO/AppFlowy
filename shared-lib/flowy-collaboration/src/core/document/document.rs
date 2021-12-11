@@ -1,5 +1,5 @@
 use crate::{
-    core::{
+    core::document::{
         history::{History, UndoResult},
         view::{View, RECORD_THRESHOLD},
     },

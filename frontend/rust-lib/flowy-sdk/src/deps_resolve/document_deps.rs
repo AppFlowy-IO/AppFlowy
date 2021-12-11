@@ -1,11 +1,11 @@
 use bytes::Bytes;
+use flowy_collaboration::entities::ws::WsDocumentData;
 use flowy_database::ConnectionPool;
 use flowy_document::{
     errors::{internal_error, DocError},
     module::DocumentUser,
     services::ws::{DocumentWebSocket, WsDocumentManager, WsStateReceiver},
 };
-use flowy_document_infra::entities::ws::WsDocumentData;
 use flowy_user::{
     errors::{ErrorCode, UserError},
     services::user::UserSession,

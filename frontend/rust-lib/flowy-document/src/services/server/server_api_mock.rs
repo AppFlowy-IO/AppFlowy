@@ -1,5 +1,5 @@
 use crate::{errors::DocError, services::server::DocumentServerAPI};
-use flowy_document_infra::{
+use flowy_collaboration::{
     entities::doc::{CreateDocParams, Doc, DocIdentifier, UpdateDocParams},
     user_default::doc_initial_string,
 };

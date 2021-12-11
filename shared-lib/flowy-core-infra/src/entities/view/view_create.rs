@@ -7,8 +7,8 @@ use crate::{
         view::{ViewName, ViewThumbnail},
     },
 };
+use flowy_collaboration::user_default::doc_initial_string;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_document_infra::user_default::doc_initial_string;
 use std::convert::TryInto;
 
 #[derive(PartialEq, Debug, ProtoBuf_Enum, Clone)]

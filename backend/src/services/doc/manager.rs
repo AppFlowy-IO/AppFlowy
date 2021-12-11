@@ -9,7 +9,7 @@ use crate::{
 use actix_web::web::Data;
 use backend_service::errors::{internal_error, Result as DocResult, ServerError};
 use dashmap::DashMap;
-use flowy_document_infra::protobuf::{Doc, DocIdentifier};
+use flowy_collaboration::protobuf::{Doc, DocIdentifier};
 use lib_ot::protobuf::Revision;
 use sqlx::PgPool;
 use std::sync::Arc;

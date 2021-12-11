@@ -1,4 +1,4 @@
-use crate::{core::extensions::DeleteExt, util::is_newline};
+use crate::{core::document::DeleteExt, util::is_newline};
 use lib_ot::{
     core::{Attributes, CharMetric, DeltaBuilder, DeltaIter, Interval, NEW_LINE},
     rich_text::{plain_attributes, RichTextDelta},

@@ -5,7 +5,7 @@ use crate::{
 use actix_web::web::Data;
 use async_stream::stream;
 use backend_service::errors::{internal_error, Result as DocResult, ServerError};
-use flowy_document_infra::protobuf::Doc;
+use flowy_collaboration::protobuf::Doc;
 use futures::stream::StreamExt;
 use lib_ot::protobuf::Revision;
 use sqlx::PgPool;

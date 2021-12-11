@@ -2,7 +2,7 @@
 members = [
   "flowy-user-infra",
   "flowy-core-infra",
-  "flowy-document-infra",
+  "flowy-collaboration",
   "lib-ot",
   "lib-ws",
   "lib-sqlite",

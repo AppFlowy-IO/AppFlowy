@@ -1,7 +1,7 @@
 use diesel::sql_types::Integer;
 use flowy_database::schema::rev_table;
 
-use flowy_document_infra::util::md5;
+use flowy_collaboration::util::md5;
 use lib_ot::revision::{RevId, RevState, RevType, Revision};
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]

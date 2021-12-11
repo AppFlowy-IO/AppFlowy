@@ -9,8 +9,8 @@ use crate::{
 use crate::services::view::{create_view_with_args, sql_builder::NewViewSqlBuilder};
 use backend_service::errors::ServerError;
 use chrono::Utc;
+use flowy_collaboration::user_default::doc_initial_string;
 use flowy_core_infra::protobuf::Workspace;
-use flowy_document_infra::user_default::doc_initial_string;
 use std::convert::TryInto;
 
 #[allow(dead_code)]

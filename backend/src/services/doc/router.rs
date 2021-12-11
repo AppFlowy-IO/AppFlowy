@@ -8,7 +8,7 @@ use actix_web::{
 };
 use anyhow::Context;
 use backend_service::{errors::ServerError, response::FlowyResponse};
-use flowy_document_infra::protobuf::{CreateDocParams, DocIdentifier, UpdateDocParams};
+use flowy_collaboration::protobuf::{CreateDocParams, DocIdentifier, UpdateDocParams};
 use sqlx::PgPool;
 
 pub async fn create_handler(payload: Payload, pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {

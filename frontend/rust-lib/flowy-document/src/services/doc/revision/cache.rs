@@ -3,8 +3,8 @@ use crate::{
     services::doc::revision::RevisionServer,
     sql_tables::RevTableSql,
 };
+use flowy_collaboration::entities::doc::Doc;
 use flowy_database::ConnectionPool;
-use flowy_document_infra::entities::doc::Doc;
 use lib_infra::future::ResultFuture;
 use lib_ot::{
     core::{Operation, OperationTransformable},

@@ -1,5 +1,5 @@
 use crate::{errors::DocError, services::ws::DocumentWebSocket};
-use flowy_document_infra::entities::doc::NewDocUser;
+use flowy_collaboration::entities::doc::NewDocUser;
 use futures::future::BoxFuture;
 use lib_infra::retry::Action;
 use lib_ot::revision::RevId;

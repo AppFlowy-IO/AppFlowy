@@ -1,4 +1,4 @@
-use crate::{core::extensions::InsertExt, util::is_newline};
+use crate::{core::document::InsertExt, util::is_newline};
 use lib_ot::{
     core::{CharMetric, DeltaBuilder, DeltaIter, NEW_LINE},
     rich_text::{RichTextAttributeKey, RichTextAttributes, RichTextDelta},

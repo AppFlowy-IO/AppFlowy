@@ -15,8 +15,8 @@ use crate::{
     errors::WorkspaceError,
     services::{TrashController, ViewController},
 };
+use flowy_collaboration::entities::doc::DocDelta;
 use flowy_core_infra::entities::share::{ExportData, ExportParams, ExportRequest};
-use flowy_document_infra::entities::doc::DocDelta;
 use lib_dispatch::prelude::{data_result, Data, DataResult, Unit};
 use std::{convert::TryInto, sync::Arc};
 

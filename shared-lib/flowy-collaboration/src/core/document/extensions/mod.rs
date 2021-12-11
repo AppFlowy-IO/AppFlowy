@@ -1,7 +1,6 @@
 pub use delete::*;
 pub use format::*;
 pub use insert::*;
-
 use lib_ot::{
     core::Interval,
     rich_text::{RichTextAttribute, RichTextDelta},
@@ -10,6 +9,7 @@ use lib_ot::{
 mod delete;
 mod format;
 mod insert;
+mod helper;
 
 pub type InsertExtension = Box<dyn InsertExt + Send + Sync>;
 pub type FormatExtension = Box<dyn FormatExt + Send + Sync>;

@@ -457,7 +457,7 @@ dependencies = [
  "derive_more",
  "flowy-core-infra",
  "flowy-document",
- "flowy-document-infra",
+ "flowy-ot",
  "flowy-sdk",
  "flowy-test",
  "flowy-user",
@@ -1213,7 +1213,7 @@ dependencies = [
  "flowy-database",
  "flowy-derive",
  "flowy-document",
- "flowy-document-infra",
+ "flowy-ot",
  "futures",
  "futures-core",
  "lazy_static",
@@ -1240,7 +1240,7 @@ dependencies = [
  "chrono",
  "derive_more",
  "flowy-derive",
- "flowy-document-infra",
+ "flowy-ot",
  "log",
  "protobuf",
  "strum",
@@ -1286,7 +1286,7 @@ dependencies = [
  "diesel_derives",
  "flowy-database",
  "flowy-derive",
- "flowy-document-infra",
+ "flowy-ot",
  "futures",
  "futures-core",
  "futures-util",
@@ -1310,7 +1310,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-document-infra"
+name = "flowy-ot"
 version = "0.1.0"
 dependencies = [
  "bytes",
@@ -1319,6 +1319,7 @@ dependencies = [
  "lib-ot",
  "log",
  "md5",
+ "parking_lot",
  "protobuf",
  "serde",
  "strum",
@@ -1338,7 +1339,7 @@ dependencies = [
  "flowy-core",
  "flowy-database",
  "flowy-document",
- "flowy-document-infra",
+ "flowy-ot",
  "flowy-user",
  "futures-core",
  "lib-dispatch",
@@ -1361,7 +1362,7 @@ dependencies = [
  "claim",
  "flowy-core",
  "flowy-document",
- "flowy-document-infra",
+ "flowy-ot",
  "flowy-sdk",
  "flowy-user",
  "futures-util",

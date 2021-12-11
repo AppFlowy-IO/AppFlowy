@@ -7,8 +7,8 @@ use crate::{
     },
 };
 use backend_service::configuration::ClientServerConfiguration;
+use flowy_collaboration::entities::doc::{DocDelta, DocIdentifier};
 use flowy_database::ConnectionPool;
-use flowy_document_infra::entities::doc::{DocDelta, DocIdentifier};
 use std::sync::Arc;
 
 pub trait DocumentUser: Send + Sync {

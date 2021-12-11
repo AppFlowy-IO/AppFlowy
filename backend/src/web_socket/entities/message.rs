@@ -1,6 +1,6 @@
 use actix::Message;
 use bytes::Bytes;
-use flowy_document_infra::entities::ws::WsDocumentData;
+use flowy_collaboration::entities::ws::WsDocumentData;
 use lib_ws::{WsMessage, WsModule};
 use std::convert::TryInto;
 

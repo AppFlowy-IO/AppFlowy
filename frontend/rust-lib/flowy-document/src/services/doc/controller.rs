@@ -12,8 +12,8 @@ use crate::{
 };
 use bytes::Bytes;
 use dashmap::DashMap;
+use flowy_collaboration::entities::doc::{Doc, DocDelta, DocIdentifier};
 use flowy_database::ConnectionPool;
-use flowy_document_infra::entities::doc::{Doc, DocDelta, DocIdentifier};
 use lib_infra::future::ResultFuture;
 use std::sync::Arc;
 

@@ -11,7 +11,7 @@ use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 // use crate::helper::*;
 use crate::util::helper::{spawn_server, TestServer};
-use flowy_document_infra::{entities::doc::DocIdentifier, protobuf::UpdateDocParams};
+use flowy_collaboration::{entities::doc::DocIdentifier, protobuf::UpdateDocParams};
 use lib_ot::rich_text::{RichTextAttribute, RichTextDelta};
 use parking_lot::RwLock;
 use lib_ot::core::Interval;

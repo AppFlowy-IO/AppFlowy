@@ -1,11 +1,13 @@
-use crate::{
-    core::extensions::{format::helper::line_break, FormatExt},
-    util::find_newline,
-};
 use lib_ot::{
     core::{DeltaBuilder, DeltaIter, Interval},
-    rich_text::{plain_attributes, AttributeScope, RichTextAttribute, RichTextDelta},
+    rich_text::{AttributeScope, plain_attributes, RichTextAttribute, RichTextDelta},
 };
+
+use crate::{
+    core::document::FormatExt,
+    util::find_newline,
+};
+use crate::core::document::extensions::helper::line_break;
 
 pub struct ResolveBlockFormat {}
 impl FormatExt for ResolveBlockFormat {

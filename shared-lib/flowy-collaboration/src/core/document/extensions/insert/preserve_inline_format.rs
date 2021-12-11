@@ -1,5 +1,5 @@
 use crate::{
-    core::extensions::InsertExt,
+    core::document::InsertExt,
     util::{contain_newline, is_newline},
 };
 use lib_ot::{

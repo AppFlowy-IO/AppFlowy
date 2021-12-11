@@ -103,7 +103,7 @@ impl std::default::Default for WsManager {
         let ws: Arc<dyn FlowyWebSocket> = if cfg!(feature = "http_server") {
             Arc::new(Arc::new(WsController::new()))
         } else {
-            mock::MockWebSocket::new()
+            Arc::new(Arc::new(mock::MockWebSocket::new()))
         };
 
         WsManager {
@@ -181,10 +181,13 @@ mod mock {
     }
 
     impl MockWebSocket {
-        pub fn new() -> Arc<MockWebSocket> {
-            let ws = Arc::new(MockWebSocket::default());
-            let mut ws_receiver = ws.ws_sender.subscribe();
-            let cloned_ws = ws.clone();
+        pub fn new() -> MockWebSocket { MockWebSocket::default() }
+    }
+
+    impl FlowyWebSocket for Arc<MockWebSocket> {
+        fn start_connect(&self, _addr: String) -> ResultFuture<(), UserError> {
+            let mut ws_receiver = self.ws_sender.subscribe();
+            let cloned_ws = self.clone();
             tokio::spawn(async move {
                 while let Ok(message) = ws_receiver.recv().await {
                     match cloned_ws.handlers.get(&message.module) {
@@ -193,12 +196,9 @@ mod mock {
                     }
                 }
             });
-            ws
-        }
-    }
 
-    impl FlowyWebSocket for MockWebSocket {
-        fn start_connect(&self, _addr: String) -> ResultFuture<(), UserError> { ResultFuture::new(async { Ok(()) }) }
+            ResultFuture::new(async { Ok(()) })
+        }
 
         fn conn_state_subscribe(&self) -> Receiver<WsConnectState> { self.state_sender.subscribe() }
 
