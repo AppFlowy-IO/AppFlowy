@@ -120,14 +120,6 @@ cd [frontend/]app_flowy/product/0.0.2/linux/Debug/AppFlowy/app_flowy
 ## [Optional] Step 5: Build Server side application (if you need to host web service locally)
 ------------------------------
 
-1. Environment settings
-
-Modify the following files to suite your environment.
-``` shell
-cp backend/configuration/base.example.yaml backend/configuration/base.yaml
-cp backend/configuration/.env.example backend/configuration/.env
-```
-
 Note: You can launch postgresql server by using docker container
 
 TBD
