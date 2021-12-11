@@ -11,18 +11,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class EditPannel extends StatelessWidget {
   late final EditPannelContext editContext;
   final VoidCallback onEndEdit;
-  EditPannel(
-      {Key? key,
-      required Option<EditPannelContext> context,
-      required this.onEndEdit})
-      : super(key: key) {
+  EditPannel({Key? key, required Option<EditPannelContext> context, required this.onEndEdit}) : super(key: key) {
     editContext = context.fold(() => const BlankEditPannelContext(), (c) => c);
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).colorScheme.primaryVariant,
+      color: Colors.black,
       child: BlocProvider(
         create: (context) => getIt<EditPannelBloc>(),
         child: BlocBuilder<EditPannelBloc, EditPannelState>(
