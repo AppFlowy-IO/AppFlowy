@@ -148,7 +148,7 @@ async fn _listen_network_status(mut subscribe: broadcast::Receiver<NetworkType>,
 }
 
 fn init_kv(root: &str) {
-    match lib_infra::kv::KV::init(root) {
+    match flowy_database::kv::KV::init(root) {
         Ok(_) => {},
         Err(e) => tracing::error!("Init kv store failedL: {}", e),
     }

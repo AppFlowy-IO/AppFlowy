@@ -19,8 +19,8 @@ use crate::{
     },
 };
 use flowy_core_infra::entities::share::{ExportData, ExportParams};
+use flowy_database::kv::KV;
 use flowy_document::module::FlowyDocument;
-use lib_infra::kv::KV;
 
 const LATEST_VIEW_ID: &str = "latest_view_id";
 

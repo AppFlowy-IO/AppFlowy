@@ -1,22 +1,12 @@
-use crate::{
-    entities::{SignInParams, SignUpParams, UpdateUserParams, UserProfile},
-    errors::{ErrorCode, UserError},
-    services::user::database::UserDB,
-    sql_tables::{UserTable, UserTableChangeset},
-};
+use std::sync::Arc;
 
-use crate::{
-    notify::*,
-    services::{
-        server::{construct_user_server, Server},
-        user::{
-            notifier::UserNotifier,
-            ws_manager::{FlowyWsSender, WsManager},
-        },
-    },
-};
+use parking_lot::RwLock;
+use serde::{Deserialize, Serialize};
+use tokio::sync::{broadcast, mpsc};
+
 use backend_service::configuration::ClientServerConfiguration;
 use flowy_database::{
+    kv::KV,
     query_dsl::*,
     schema::{user_table, user_table::dsl},
     DBConnection,
@@ -24,13 +14,24 @@ use flowy_database::{
     UserDatabaseConnection,
 };
 use flowy_user_infra::entities::{SignInResponse, SignUpResponse};
-use lib_infra::{entities::network_state::NetworkState, kv::KV};
+use lib_infra::entities::network_state::NetworkState;
 use lib_sqlite::ConnectionPool;
 use lib_ws::{WsConnectState, WsMessageHandler};
-use parking_lot::RwLock;
-use serde::{Deserialize, Serialize};
-use std::sync::Arc;
-use tokio::sync::{broadcast, mpsc};
+
+use crate::{
+    entities::{SignInParams, SignUpParams, UpdateUserParams, UserProfile},
+    errors::{ErrorCode, UserError},
+    notify::*,
+    services::{
+        server::{construct_user_server, Server},
+        user::{
+            database::UserDB,
+            notifier::UserNotifier,
+            ws_manager::{FlowyWsSender, WsManager},
+        },
+    },
+    sql_tables::{UserTable, UserTableChangeset},
+};
 
 pub struct UserSessionConfig {
     root_dir: String,

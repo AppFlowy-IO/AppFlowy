@@ -7,12 +7,7 @@ edition = "2018"
 
 [dependencies]
 uuid = { version = "0.8", features = ["serde", "v4"] }
-diesel = {version = "1.4.8", features = ["sqlite"]}
-diesel_derives = {version = "1.4.1", features = ["sqlite"]}
-diesel_migrations = {version = "1.4.0", features = ["sqlite"]}
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
-lib-sqlite = { path = "../../../shared-lib/lib-sqlite" }
-lazy_static = "1.4.0"
 protobuf = {version = "2.18.0"}
 log = "0.4.14"
 chrono = "0.4.19"

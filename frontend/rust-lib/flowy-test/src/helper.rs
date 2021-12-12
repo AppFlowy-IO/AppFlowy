@@ -1,5 +1,5 @@
-use crate::prelude::*;
-use bytes::Bytes;
+use std::{fs, path::PathBuf, sync::Arc};
+
 use flowy_collaboration::entities::doc::Doc;
 use flowy_core::{
     entities::{
@@ -8,7 +8,7 @@ use flowy_core::{
         view::*,
         workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest, Workspace, *},
     },
-    errors::{ErrorCode, WorkspaceError},
+    errors::ErrorCode,
     event::WorkspaceEvent::{CreateWorkspace, OpenWorkspace, *},
 };
 use flowy_user::{
@@ -17,8 +17,9 @@ use flowy_user::{
     event::UserEvent::{InitUser, SignIn, SignOut, SignUp},
 };
 use lib_dispatch::prelude::{EventDispatcher, ModuleRequest, ToBytes};
-use lib_infra::{kv::KV, uuid};
-use std::{fs, path::PathBuf, sync::Arc};
+use lib_infra::uuid;
+
+use crate::prelude::*;
 
 pub struct WorkspaceTest {
     pub sdk: FlowySDKTest,
@@ -297,46 +298,6 @@ pub fn random_email() -> String { format!("{}@appflowy.io", uuid()) }
 pub fn login_email() -> String { "annie2@appflowy.io".to_string() }
 
 pub fn login_password() -> String { "HelloWorld!123".to_string() }
-
-const DEFAULT_WORKSPACE_NAME: &str = "My workspace";
-const DEFAULT_WORKSPACE_DESC: &str = "This is your first workspace";
-const DEFAULT_WORKSPACE: &str = "Default_Workspace";
-
-#[allow(dead_code)]
-pub(crate) fn create_default_workspace_if_need(dispatch: Arc<EventDispatcher>, user_id: &str) -> Result<(), UserError> {
-    let key = format!("{}{}", user_id, DEFAULT_WORKSPACE);
-    if KV::get_bool(&key).unwrap_or(false) {
-        return Err(UserError::internal());
-    }
-    KV::set_bool(&key, true);
-
-    let payload: Bytes = CreateWorkspaceRequest {
-        name: DEFAULT_WORKSPACE_NAME.to_string(),
-        desc: DEFAULT_WORKSPACE_DESC.to_string(),
-    }
-    .into_bytes()
-    .unwrap();
-
-    let request = ModuleRequest::new(CreateWorkspace).payload(payload);
-    let result = EventDispatcher::sync_send(dispatch.clone(), request)
-        .parse::<Workspace, WorkspaceError>()
-        .map_err(|e| UserError::internal().context(e))?;
-
-    let workspace = result.map_err(|e| UserError::internal().context(e))?;
-    let query: Bytes = QueryWorkspaceRequest {
-        workspace_id: Some(workspace.id),
-    }
-    .into_bytes()
-    .unwrap();
-
-    let request = ModuleRequest::new(OpenWorkspace).payload(query);
-    let _result = EventDispatcher::sync_send(dispatch, request)
-        .parse::<Workspace, WorkspaceError>()
-        .unwrap()
-        .unwrap();
-
-    Ok(())
-}
 
 pub struct SignUpContext {
     pub user_profile: UserProfile,

@@ -1,7 +1,6 @@
 use crate::kv::schema::{kv_table, kv_table::dsl, KV_SQL};
 use ::diesel::{query_dsl::*, ExpressionMethods};
 use diesel::{Connection, SqliteConnection};
-use flowy_derive::ProtoBuf;
 use lazy_static::lazy_static;
 use lib_sqlite::{DBConnection, Database, PoolConfig};
 use std::{collections::HashMap, path::Path, sync::RwLock};
@@ -178,23 +177,14 @@ fn get_connection() -> Result<DBConnection, String> {
     }
 }
 
-#[derive(Clone, Debug, ProtoBuf, Default, Queryable, Identifiable, Insertable, AsChangeset)]
+#[derive(Clone, Debug, Default, Queryable, Identifiable, Insertable, AsChangeset)]
 #[table_name = "kv_table"]
 #[primary_key(key)]
 pub struct KeyValue {
-    #[pb(index = 1)]
     pub key: String,
-
-    #[pb(index = 2, one_of)]
     pub str_value: Option<String>,
-
-    #[pb(index = 3, one_of)]
     pub int_value: Option<i64>,
-
-    #[pb(index = 4, one_of)]
     pub float_value: Option<f64>,
-
-    #[pb(index = 5, one_of)]
     pub bool_value: Option<bool>,
 }
 

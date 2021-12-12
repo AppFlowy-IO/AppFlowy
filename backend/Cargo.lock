@@ -1279,7 +1279,9 @@ dependencies = [
  "diesel",
  "diesel_derives",
  "diesel_migrations",
+ "lazy_static",
  "lib-sqlite",
+ "log",
 ]
 
 [[package]]
@@ -1942,13 +1944,8 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "chrono",
- "diesel",
- "diesel_derives",
- "diesel_migrations",
  "flowy-derive",
  "futures-core",
- "lazy_static",
- "lib-sqlite",
  "log",
  "pin-project 1.0.8",
  "protobuf",

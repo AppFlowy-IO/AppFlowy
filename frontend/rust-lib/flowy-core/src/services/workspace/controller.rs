@@ -10,8 +10,7 @@ use crate::{
     },
 };
 use flowy_core_infra::entities::{app::RepeatedApp, workspace::*};
-use flowy_database::SqliteConnection;
-use lib_infra::kv::KV;
+use flowy_database::{kv::KV, SqliteConnection};
 use std::sync::Arc;
 
 pub struct WorkspaceController {
