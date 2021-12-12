@@ -30,7 +30,7 @@ yay -S curl base-devel sqlite openssl clang cmake ninja pkg-config gtk3 unzip
 #yay -S protobuf-compiler
 ```
 
-1. Install rust on Linux
+2. Install rust on Linux
 ```shell
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source $HOME/.cargo/env
@@ -38,7 +38,7 @@ rustup toolchain install nightly
 rustup default nightly
 ```
 
-1. Install flutter according to https://docs.flutter.dev/get-started/install/linux
+3. Install flutter according to https://docs.flutter.dev/get-started/install/linux
 ```shell
 git clone https://github.com/flutter/flutter.git
 cd flutter
@@ -46,11 +46,11 @@ echo "export PATH=\$PATH:"`pwd`"/bin" >> ~/.profile
 export PATH="$PATH:`pwd`/bin"
 flutter channel stable
 ```
-1. Enable linux desktop
+4. Enable linux desktop
 ```
 flutter config --enable-linux-desktop
 ```
-1. Fix any problems reported by flutter doctor
+5. Fix any problems reported by flutter doctor
 ```shell
 flutter doctor
 ```
@@ -71,25 +71,25 @@ However, you should fork the code instead if you wish to submit patches.
 ```shell
 cd [appflowy/]frontend
 ```
-1. Install cargo make
+2. Install cargo make
 ```shell
 cargo install --force cargo-make
 ```
-1. Install duckscript
+3. Install duckscript
 ```shell
 cargo install --force duckscript_cli
 ```
-1. Check prerequisites
+4. Check prerequisites
 ```shell
 cargo make flowy_dev
 ```
-1. [Optional] Generate protobuf for dart (if you wish to modify the shared-lib's entities)
+5. [Optional] Generate protobuf for dart (if you wish to modify the shared-lib's entities)
 ```shell
 # Caution : Not working on Arch Linux yet
 # Make sure to install protobuf-compiler at first. See step 1
 cargo make -p development-linux-x86 pb
 ```
-1. [Optional] Build flowy-sdk-dev (dart-ffi)
+6. [Optional] Build flowy-sdk-dev (dart-ffi)
 ```shell
 # for development
 cargo make --profile development-linux-x86 flowy-sdk-dev
@@ -98,7 +98,7 @@ cargo make --profile development-linux-x86 flowy-sdk-dev
 cargo make --profile production-linux-x86 flowy-sdk-release
 ```
 
-1. Build app_flowy
+7. Build app_flowy
 ```shell
 # for development
 cargo make -p development-linux-x86 appflowy-linux-dev
@@ -109,6 +109,7 @@ cargo make -p production-linux-x86 appflowy-linux
 
 ## Step 4: Run the application
 ------------------------------
+
 ```
 cd [frontend/]app_flowy/product/0.0.2/linux/Debug/AppFlowy/app_flowy
 ./app_flowy
@@ -117,7 +118,34 @@ cd [frontend/]app_flowy/product/0.0.2/linux/Debug/AppFlowy/app_flowy
 # for instance:
 # export DISPLAY=localhost:10
 
-## [Optional] Step 5: Build Server side application (if you need to host web service locally)
+## Step 5: Edit and run the application
+[VS Code]
+1. Open the app_flowy folder located at xx/appflowy/frontend/app_flowy with VS Code.
+
+2. Edit the frontend/scripts/build_sdk.sh file and select the correct script by commenting out the macos line and uncommenting the correct Linux line.
+
+```shell
+# for macOS
+#cargo make --profile development-mac flowy-sdk-dev
+
+# for Windows
+#cargo make --profile development-windows flowy-sdk-dev
+
+# for Linux x86
+cargo make --profile development-linux-x86 flowy-sdk-dev
+
+# for Linux aarch64
+#cargo make --profile development-linux-aarch64 flowy-sdk-dev
+```
+
+3. Go to the Run and Debug tab and then click the run button.
+![Run the project](https://github.com/AppFlowy-IO/appflowy/blob/main/doc/imgs/run.png)
+
+* If you encounter any issues, have a look at [Troubleshooting](https://github.com/AppFlowy-IO/appflowy/wiki/Troubleshooting) first. If your issue is not included in the page, please create an [issue](https://github.com/AppFlowy-IO/appflowy/issues/new/choose) or ask on [Discord](https://discord.gg/9Q2xaN37tV).
+
+------------------------------
+
+## [TBD] Step 6: Build Server side application (if you need to host web service locally)
 ------------------------------
 
 Note: You can launch postgresql server by using docker container
