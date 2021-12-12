@@ -14,7 +14,7 @@ use flowy_core::{
 use flowy_user::{
     entities::{SignInRequest, SignUpRequest, UserProfile},
     errors::UserError,
-    event::UserEvent::{SignIn, SignOut, SignUp},
+    event::UserEvent::{InitUser, SignIn, SignOut, SignUp},
 };
 use lib_dispatch::prelude::{EventDispatcher, ModuleRequest, ToBytes};
 use lib_infra::{kv::KV, uuid};
@@ -282,7 +282,6 @@ pub fn root_dir() -> String {
     let manifest_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap_or_else(|_| "./".to_owned());
     let mut path_buf = fs::canonicalize(&PathBuf::from(&manifest_dir)).unwrap();
     path_buf.pop(); // rust-lib
-    path_buf.push("flowy-test");
     path_buf.push("temp");
     path_buf.push("flowy");
 
@@ -382,6 +381,11 @@ pub async fn async_sign_up(dispatch: Arc<EventDispatcher>) -> SignUpContext {
 
     // let _ = create_default_workspace_if_need(dispatch.clone(), &user_profile.id);
     SignUpContext { user_profile, password }
+}
+
+pub async fn init_user_setting(dispatch: Arc<EventDispatcher>) {
+    let request = ModuleRequest::new(InitUser);
+    let _ = EventDispatcher::async_send(dispatch.clone(), request).await;
 }
 
 #[allow(dead_code)]

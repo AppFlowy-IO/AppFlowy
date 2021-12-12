@@ -1199,9 +1199,12 @@ dependencies = [
 name = "flowy-collaboration"
 version = "0.1.0"
 dependencies = [
+ "async-stream",
  "bytes",
  "chrono",
+ "dashmap",
  "flowy-derive",
+ "futures",
  "lib-ot",
  "log",
  "md5",
@@ -1388,6 +1391,7 @@ dependencies = [
  "derive_more",
  "diesel",
  "diesel_derives",
+ "flowy-collaboration",
  "flowy-database",
  "flowy-derive",
  "flowy-user-infra",

@@ -3,7 +3,7 @@ use crate::{
         history::{History, UndoResult},
         view::{View, RECORD_THRESHOLD},
     },
-    errors::DocumentError,
+    errors::CollaborateError,
     user_default::doc_initial_delta,
 };
 use lib_ot::{
@@ -47,7 +47,7 @@ impl Document {
         }
     }
 
-    pub fn from_json(json: &str) -> Result<Self, DocumentError> {
+    pub fn from_json(json: &str) -> Result<Self, CollaborateError> {
         let delta = RichTextDelta::from_json(json)?;
         Ok(Self::from_delta(delta))
     }
@@ -73,7 +73,7 @@ impl Document {
         }
     }
 
-    pub fn compose_delta(&mut self, mut delta: RichTextDelta) -> Result<(), DocumentError> {
+    pub fn compose_delta(&mut self, mut delta: RichTextDelta) -> Result<(), CollaborateError> {
         trim(&mut delta);
         tracing::trace!("{} compose {}", &self.delta.to_json(), delta.to_json());
         let mut composed_delta = self.delta.compose(&delta)?;
@@ -103,7 +103,7 @@ impl Document {
         Ok(())
     }
 
-    pub fn insert<T: ToString>(&mut self, index: usize, data: T) -> Result<RichTextDelta, DocumentError> {
+    pub fn insert<T: ToString>(&mut self, index: usize, data: T) -> Result<RichTextDelta, CollaborateError> {
         let interval = Interval::new(index, index);
         let _ = validate_interval(&self.delta, &interval)?;
 
@@ -114,7 +114,7 @@ impl Document {
         Ok(delta)
     }
 
-    pub fn delete(&mut self, interval: Interval) -> Result<RichTextDelta, DocumentError> {
+    pub fn delete(&mut self, interval: Interval) -> Result<RichTextDelta, CollaborateError> {
         let _ = validate_interval(&self.delta, &interval)?;
         debug_assert_eq!(interval.is_empty(), false);
         let delete = self.view.delete(&self.delta, interval)?;
@@ -125,7 +125,11 @@ impl Document {
         Ok(delete)
     }
 
-    pub fn format(&mut self, interval: Interval, attribute: RichTextAttribute) -> Result<RichTextDelta, DocumentError> {
+    pub fn format(
+        &mut self,
+        interval: Interval,
+        attribute: RichTextAttribute,
+    ) -> Result<RichTextDelta, CollaborateError> {
         let _ = validate_interval(&self.delta, &interval)?;
         tracing::trace!("format with {} at {}", attribute, interval);
         let format_delta = self.view.format(&self.delta, attribute, interval).unwrap();
@@ -135,7 +139,7 @@ impl Document {
         Ok(format_delta)
     }
 
-    pub fn replace<T: ToString>(&mut self, interval: Interval, data: T) -> Result<RichTextDelta, DocumentError> {
+    pub fn replace<T: ToString>(&mut self, interval: Interval, data: T) -> Result<RichTextDelta, CollaborateError> {
         let _ = validate_interval(&self.delta, &interval)?;
         let mut delta = RichTextDelta::default();
         let text = data.to_string();
@@ -157,9 +161,9 @@ impl Document {
 
     pub fn can_redo(&self) -> bool { self.history.can_redo() }
 
-    pub fn undo(&mut self) -> Result<UndoResult, DocumentError> {
+    pub fn undo(&mut self) -> Result<UndoResult, CollaborateError> {
         match self.history.undo() {
-            None => Err(DocumentError::undo().context("Undo stack is empty")),
+            None => Err(CollaborateError::undo().context("Undo stack is empty")),
             Some(undo_delta) => {
                 let (new_delta, inverted_delta) = self.invert(&undo_delta)?;
                 let result = UndoResult::success(new_delta.target_len as usize);
@@ -171,9 +175,9 @@ impl Document {
         }
     }
 
-    pub fn redo(&mut self) -> Result<UndoResult, DocumentError> {
+    pub fn redo(&mut self) -> Result<UndoResult, CollaborateError> {
         match self.history.redo() {
-            None => Err(DocumentError::redo()),
+            None => Err(CollaborateError::redo()),
             Some(redo_delta) => {
                 let (new_delta, inverted_delta) = self.invert(&redo_delta)?;
                 let result = UndoResult::success(new_delta.target_len as usize);
@@ -187,7 +191,7 @@ impl Document {
 }
 
 impl Document {
-    fn invert(&self, delta: &RichTextDelta) -> Result<(RichTextDelta, RichTextDelta), DocumentError> {
+    fn invert(&self, delta: &RichTextDelta) -> Result<(RichTextDelta, RichTextDelta), CollaborateError> {
         // c = a.compose(b)
         // d = b.invert(a)
         // a = c.compose(d)
@@ -198,10 +202,10 @@ impl Document {
     }
 }
 
-fn validate_interval(delta: &RichTextDelta, interval: &Interval) -> Result<(), DocumentError> {
+fn validate_interval(delta: &RichTextDelta, interval: &Interval) -> Result<(), CollaborateError> {
     if delta.target_len < interval.end {
         log::error!("{:?} out of bounds. should 0..{}", interval, delta.target_len);
-        return Err(DocumentError::out_of_bound());
+        return Err(CollaborateError::out_of_bound());
     }
     Ok(())
 }

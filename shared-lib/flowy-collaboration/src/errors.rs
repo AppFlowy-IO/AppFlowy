@@ -4,8 +4,8 @@ use strum_macros::Display;
 macro_rules! static_doc_error {
     ($name:ident, $status:expr) => {
         #[allow(non_snake_case, missing_docs)]
-        pub fn $name() -> DocumentError {
-            DocumentError {
+        pub fn $name() -> CollaborateError {
+            CollaborateError {
                 code: $status,
                 msg: format!("{}", $status),
             }
@@ -13,15 +13,15 @@ macro_rules! static_doc_error {
     };
 }
 
-pub type DocumentResult<T> = std::result::Result<T, DocumentError>;
+pub type CollaborateResult<T> = std::result::Result<T, CollaborateError>;
 
 #[derive(Debug, Clone)]
-pub struct DocumentError {
+pub struct CollaborateError {
     pub code: ErrorCode,
     pub msg: String,
 }
 
-impl DocumentError {
+impl CollaborateError {
     fn new(code: ErrorCode, msg: &str) -> Self {
         Self {
             code,
@@ -40,7 +40,7 @@ impl DocumentError {
     static_doc_error!(out_of_bound, ErrorCode::OutOfBound);
 }
 
-impl fmt::Display for DocumentError {
+impl fmt::Display for CollaborateError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { write!(f, "{:?}: {}", &self.code, &self.msg) }
 }
 
@@ -54,10 +54,19 @@ pub enum ErrorCode {
     InternalError = 1000,
 }
 
-impl std::convert::From<lib_ot::errors::OTError> for DocumentError {
-    fn from(error: lib_ot::errors::OTError) -> Self { DocumentError::new(ErrorCode::InternalError, "").context(error) }
+impl std::convert::From<lib_ot::errors::OTError> for CollaborateError {
+    fn from(error: lib_ot::errors::OTError) -> Self {
+        CollaborateError::new(ErrorCode::InternalError, "").context(error)
+    }
 }
 
-impl std::convert::From<protobuf::ProtobufError> for DocumentError {
-    fn from(e: protobuf::ProtobufError) -> Self { DocumentError::internal().context(e) }
+impl std::convert::From<protobuf::ProtobufError> for CollaborateError {
+    fn from(e: protobuf::ProtobufError) -> Self { CollaborateError::internal().context(e) }
+}
+
+pub fn internal_error<T>(e: T) -> CollaborateError
+where
+    T: std::fmt::Debug,
+{
+    CollaborateError::internal().context(e)
 }

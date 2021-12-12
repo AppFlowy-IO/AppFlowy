@@ -13,7 +13,7 @@ use bytes::Bytes;
 use flowy_collaboration::{
     core::document::history::UndoResult,
     entities::{doc::DocDelta, ws::WsDocumentData},
-    errors::DocumentResult,
+    errors::CollaborateResult,
 };
 use flowy_database::ConnectionPool;
 use lib_infra::retry::{ExponentialBackoff, Retry};
@@ -70,7 +70,7 @@ impl ClientDocEditor {
     }
 
     pub async fn insert<T: ToString>(&self, index: usize, data: T) -> Result<(), DocError> {
-        let (ret, rx) = oneshot::channel::<DocumentResult<RichTextDelta>>();
+        let (ret, rx) = oneshot::channel::<CollaborateResult<RichTextDelta>>();
         let msg = EditCommand::Insert {
             index,
             data: data.to_string(),
@@ -83,7 +83,7 @@ impl ClientDocEditor {
     }
 
     pub async fn delete(&self, interval: Interval) -> Result<(), DocError> {
-        let (ret, rx) = oneshot::channel::<DocumentResult<RichTextDelta>>();
+        let (ret, rx) = oneshot::channel::<CollaborateResult<RichTextDelta>>();
         let msg = EditCommand::Delete { interval, ret };
         let _ = self.edit_cmd_tx.send(msg);
         let delta = rx.await.map_err(internal_error)??;
@@ -92,7 +92,7 @@ impl ClientDocEditor {
     }
 
     pub async fn format(&self, interval: Interval, attribute: RichTextAttribute) -> Result<(), DocError> {
-        let (ret, rx) = oneshot::channel::<DocumentResult<RichTextDelta>>();
+        let (ret, rx) = oneshot::channel::<CollaborateResult<RichTextDelta>>();
         let msg = EditCommand::Format {
             interval,
             attribute,
@@ -105,7 +105,7 @@ impl ClientDocEditor {
     }
 
     pub async fn replace<T: ToString>(&self, interval: Interval, data: T) -> Result<(), DocError> {
-        let (ret, rx) = oneshot::channel::<DocumentResult<RichTextDelta>>();
+        let (ret, rx) = oneshot::channel::<CollaborateResult<RichTextDelta>>();
         let msg = EditCommand::Replace {
             interval,
             data: data.to_string(),
@@ -132,7 +132,7 @@ impl ClientDocEditor {
     }
 
     pub async fn undo(&self) -> Result<UndoResult, DocError> {
-        let (ret, rx) = oneshot::channel::<DocumentResult<UndoResult>>();
+        let (ret, rx) = oneshot::channel::<CollaborateResult<UndoResult>>();
         let msg = EditCommand::Undo { ret };
         let _ = self.edit_cmd_tx.send(msg);
         let r = rx.await.map_err(internal_error)??;
@@ -140,7 +140,7 @@ impl ClientDocEditor {
     }
 
     pub async fn redo(&self) -> Result<UndoResult, DocError> {
-        let (ret, rx) = oneshot::channel::<DocumentResult<UndoResult>>();
+        let (ret, rx) = oneshot::channel::<CollaborateResult<UndoResult>>();
         let msg = EditCommand::Redo { ret };
         let _ = self.edit_cmd_tx.send(msg);
         let r = rx.await.map_err(internal_error)??;
@@ -148,7 +148,7 @@ impl ClientDocEditor {
     }
 
     pub async fn delta(&self) -> DocResult<DocDelta> {
-        let (ret, rx) = oneshot::channel::<DocumentResult<String>>();
+        let (ret, rx) = oneshot::channel::<CollaborateResult<String>>();
         let msg = EditCommand::ReadDoc { ret };
         let _ = self.edit_cmd_tx.send(msg);
         let data = rx.await.map_err(internal_error)??;
@@ -172,7 +172,7 @@ impl ClientDocEditor {
     #[tracing::instrument(level = "debug", skip(self, data), err)]
     pub(crate) async fn composing_local_delta(&self, data: Bytes) -> Result<(), DocError> {
         let delta = RichTextDelta::from_bytes(&data)?;
-        let (ret, rx) = oneshot::channel::<DocumentResult<()>>();
+        let (ret, rx) = oneshot::channel::<CollaborateResult<()>>();
         let msg = EditCommand::ComposeDelta {
             delta: delta.clone(),
             ret,
@@ -209,7 +209,7 @@ impl ClientDocEditor {
     #[tracing::instrument(level = "debug", skip(self))]
     pub(crate) async fn handle_push_rev(&self, bytes: Bytes) -> DocResult<()> {
         // Transform the revision
-        let (ret, rx) = oneshot::channel::<DocumentResult<TransformDeltas>>();
+        let (ret, rx) = oneshot::channel::<CollaborateResult<TransformDeltas>>();
         let _ = self.edit_cmd_tx.send(EditCommand::ProcessRemoteRevision { bytes, ret });
         let TransformDeltas {
             client_prime,
@@ -223,7 +223,7 @@ impl ClientDocEditor {
         }
 
         // compose delta
-        let (ret, rx) = oneshot::channel::<DocumentResult<()>>();
+        let (ret, rx) = oneshot::channel::<CollaborateResult<()>>();
         let msg = EditCommand::ComposeDelta {
             delta: client_prime.clone(),
             ret,
@@ -326,7 +326,7 @@ fn start_sync(
 #[cfg(feature = "flowy_unit_test")]
 impl ClientDocEditor {
     pub async fn doc_json(&self) -> DocResult<String> {
-        let (ret, rx) = oneshot::channel::<DocumentResult<String>>();
+        let (ret, rx) = oneshot::channel::<CollaborateResult<String>>();
         let msg = EditCommand::ReadDoc { ret };
         let _ = self.edit_cmd_tx.send(msg);
         let s = rx.await.map_err(internal_error)??;
@@ -334,7 +334,7 @@ impl ClientDocEditor {
     }
 
     pub async fn doc_delta(&self) -> DocResult<RichTextDelta> {
-        let (ret, rx) = oneshot::channel::<DocumentResult<RichTextDelta>>();
+        let (ret, rx) = oneshot::channel::<CollaborateResult<RichTextDelta>>();
         let msg = EditCommand::ReadDocDelta { ret };
         let _ = self.edit_cmd_tx.send(msg);
         let delta = rx.await.map_err(internal_error)??;

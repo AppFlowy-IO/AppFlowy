@@ -43,6 +43,7 @@ impl FlowySDKTest {
 
     pub async fn init_user(&self) -> UserProfile {
         let context = async_sign_up(self.0.dispatcher()).await;
+        init_user_setting(self.0.dispatcher()).await;
         context.user_profile
     }
 }

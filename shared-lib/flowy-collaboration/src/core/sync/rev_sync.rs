@@ -15,6 +15,7 @@ use protobuf::Message;
 use std::{
     cmp::Ordering,
     convert::TryInto,
+    fmt::Debug,
     sync::{
         atomic::{AtomicI64, Ordering::SeqCst},
         Arc,
@@ -22,7 +23,8 @@ use std::{
     time::Duration,
 };
 
-pub trait RevisionUser {
+pub trait RevisionUser: Send + Sync + Debug {
+    fn user_id(&self) -> String;
     fn recv(&self, resp: SyncResponse);
 }
 
@@ -53,7 +55,7 @@ impl RevisionSynchronizer {
         }
     }
 
-    pub fn new_conn<T: RevisionUser>(&self, user: T, rev_id: i64) {
+    pub fn new_conn(&self, user: Arc<dyn RevisionUser>, rev_id: i64) {
         let cur_rev_id = self.rev_id.load(SeqCst);
         match cur_rev_id.cmp(&rev_id) {
             Ordering::Less => {
@@ -70,10 +72,7 @@ impl RevisionSynchronizer {
         }
     }
 
-    pub fn apply_revision<T>(&self, user: T, revision: Revision) -> Result<(), OTError>
-    where
-        T: RevisionUser,
-    {
+    pub fn apply_revision(&self, user: Arc<dyn RevisionUser>, revision: Revision) -> Result<(), OTError> {
         let cur_rev_id = self.rev_id.load(SeqCst);
         match cur_rev_id.cmp(&revision.rev_id) {
             Ordering::Less => {

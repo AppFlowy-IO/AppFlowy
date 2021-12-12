@@ -1,5 +1,9 @@
 mod server_api;
 mod server_api_mock;
+
+// #[cfg(feature = "http_server")]
+pub(crate) mod ws_mock;
+
 pub use server_api::*;
 pub use server_api_mock::*;
 
@@ -8,6 +12,7 @@ pub(crate) type Server = Arc<dyn UserServerAPI + Send + Sync>;
 use crate::{
     entities::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile},
     errors::UserError,
+    services::user::ws_manager::FlowyWebSocket,
 };
 use backend_service::configuration::ClientServerConfiguration;
 use lib_infra::future::ResultFuture;
@@ -26,5 +31,13 @@ pub(crate) fn construct_user_server(config: &ClientServerConfiguration) -> Arc<d
         Arc::new(UserHttpServer::new(config.clone()))
     } else {
         Arc::new(UserServerMock {})
+    }
+}
+
+pub(crate) fn local_web_socket() -> Arc<dyn FlowyWebSocket> {
+    if cfg!(debug_assertions) {
+        Arc::new(Arc::new(ws_mock::MockWebSocket::default()))
+    } else {
+        Arc::new(Arc::new(ws_mock::LocalWebSocket::default()))
     }
 }

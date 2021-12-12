@@ -1,6 +1,6 @@
 use crate::{
     services::{
-        doc::manager::{DocManager, OpenDocHandle},
+        doc::{editor::DocUser, read_doc},
         util::{md5, parse_from_bytes},
     },
     web_socket::{entities::Socket, WsClientData, WsUser},
@@ -9,11 +9,14 @@ use actix_rt::task::spawn_blocking;
 use actix_web::web::Data;
 use async_stream::stream;
 use backend_service::errors::{internal_error, Result as DocResult, ServerError};
-use flowy_collaboration::protobuf::{NewDocUser, WsDataType, WsDocumentData};
+use flowy_collaboration::{
+    core::sync::{DocManager, OpenDocHandle},
+    protobuf::{DocIdentifier, NewDocUser, WsDataType, WsDocumentData},
+};
 use futures::stream::StreamExt;
 use lib_ot::protobuf::Revision;
 use sqlx::PgPool;
-use std::sync::Arc;
+use std::{convert::TryInto, sync::Arc};
 use tokio::sync::{mpsc, oneshot};
 
 pub enum DocWsMsg {
@@ -88,7 +91,7 @@ impl DocWsActor {
         user: Arc<WsUser>,
         socket: Socket,
         data: Vec<u8>,
-        pool: Data<PgPool>,
+        pg_pool: Data<PgPool>,
     ) -> DocResult<()> {
         let doc_user = spawn_blocking(move || {
             let user: NewDocUser = parse_from_bytes(&data)?;
@@ -96,8 +99,9 @@ impl DocWsActor {
         })
         .await
         .map_err(internal_error)??;
-        if let Some(handle) = self.find_doc_handle(&doc_user.doc_id, pool).await {
-            handle.add_user(user, doc_user.rev_id, socket).await?;
+        if let Some(handle) = self.get_doc_handle(&doc_user.doc_id, pg_pool.clone()).await {
+            let user = Arc::new(DocUser { user, socket, pg_pool });
+            handle.add_user(user, doc_user.rev_id).await.map_err(internal_error)?;
         }
         Ok(())
     }
@@ -107,31 +111,47 @@ impl DocWsActor {
         user: Arc<WsUser>,
         socket: Socket,
         data: Vec<u8>,
-        pool: Data<PgPool>,
+        pg_pool: Data<PgPool>,
     ) -> DocResult<()> {
-        let revision = spawn_blocking(move || {
+        let mut revision = spawn_blocking(move || {
             let revision: Revision = parse_from_bytes(&data)?;
             let _ = verify_md5(&revision)?;
             DocResult::Ok(revision)
         })
         .await
         .map_err(internal_error)??;
-        if let Some(handle) = self.find_doc_handle(&revision.doc_id, pool).await {
-            handle.apply_revision(user, socket, revision).await?;
+        if let Some(handle) = self.get_doc_handle(&revision.doc_id, pg_pool.clone()).await {
+            let user = Arc::new(DocUser { user, socket, pg_pool });
+            let revision = (&mut revision).try_into().map_err(internal_error).unwrap();
+            handle.apply_revision(user, revision).await.map_err(internal_error)?;
         }
         Ok(())
     }
 
-    async fn find_doc_handle(&self, doc_id: &str, pool: Data<PgPool>) -> Option<Arc<OpenDocHandle>> {
-        match self.doc_manager.get(doc_id, pool).await {
-            Ok(Some(edit_doc)) => Some(edit_doc),
-            Ok(None) => {
-                log::error!("Document with id: {} not exist", doc_id);
-                None
-            },
-            Err(e) => {
-                log::error!("Get doc handle failed: {:?}", e);
-                None
+    async fn get_doc_handle(&self, doc_id: &str, pg_pool: Data<PgPool>) -> Option<Arc<OpenDocHandle>> {
+        match self.doc_manager.get(doc_id) {
+            Some(edit_doc) => Some(edit_doc),
+            None => {
+                let params = DocIdentifier {
+                    doc_id: doc_id.to_string(),
+                    ..Default::default()
+                };
+
+                let f = || async {
+                    let mut pb_doc = read_doc(pg_pool.get_ref(), params).await?;
+                    let doc = (&mut pb_doc).try_into().map_err(internal_error)?;
+                    self.doc_manager.cache(doc).await.map_err(internal_error)?;
+                    let handler = self.doc_manager.get(doc_id);
+                    Ok::<Option<Arc<OpenDocHandle>>, ServerError>(handler)
+                };
+
+                match f().await {
+                    Ok(handler) => handler,
+                    Err(e) => {
+                        log::error!("{}", e);
+                        None
+                    },
+                }
             },
         }
     }

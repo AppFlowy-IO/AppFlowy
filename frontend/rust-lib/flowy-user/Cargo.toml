@@ -8,6 +8,7 @@ edition = "2018"
 [dependencies]
 flowy-user-infra = { path = "../../../shared-lib/flowy-user-infra" }
 backend-service = { path = "../../../shared-lib/backend-service" }
+flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration" }
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 lib-ws = { path = "../../../shared-lib/lib-ws" }
 lib-sqlite = { path = "../../../shared-lib/lib-sqlite" }

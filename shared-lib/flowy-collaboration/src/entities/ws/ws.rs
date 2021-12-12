@@ -1,4 +1,4 @@
-use crate::{entities::doc::NewDocUser, errors::DocumentError};
+use crate::{entities::doc::NewDocUser, errors::CollaborateError};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use lib_ot::revision::{RevId, Revision, RevisionRange};
@@ -17,9 +17,9 @@ pub enum WsDataType {
 }
 
 impl WsDataType {
-    pub fn data<T>(&self, bytes: Bytes) -> Result<T, DocumentError>
+    pub fn data<T>(&self, bytes: Bytes) -> Result<T, CollaborateError>
     where
-        T: TryFrom<Bytes, Error = DocumentError>,
+        T: TryFrom<Bytes, Error = CollaborateError>,
     {
         T::try_from(bytes)
     }

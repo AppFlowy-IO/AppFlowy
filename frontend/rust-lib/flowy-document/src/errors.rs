@@ -92,8 +92,8 @@ impl std::convert::From<lib_ot::errors::OTError> for DocError {
     fn from(error: lib_ot::errors::OTError) -> Self { DocError::internal().context(error) }
 }
 
-impl std::convert::From<flowy_collaboration::errors::DocumentError> for DocError {
-    fn from(error: flowy_collaboration::errors::DocumentError) -> Self { DocError::internal().context(error) }
+impl std::convert::From<flowy_collaboration::errors::CollaborateError> for DocError {
+    fn from(error: flowy_collaboration::errors::CollaborateError) -> Self { DocError::internal().context(error) }
 }
 
 impl std::convert::From<std::io::Error> for DocError {

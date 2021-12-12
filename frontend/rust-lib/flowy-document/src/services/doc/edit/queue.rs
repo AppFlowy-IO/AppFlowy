@@ -2,7 +2,7 @@ use async_stream::stream;
 use bytes::Bytes;
 use flowy_collaboration::{
     core::document::{history::UndoResult, Document},
-    errors::DocumentError,
+    errors::CollaborateError,
 };
 use futures::stream::StreamExt;
 use lib_ot::{
@@ -63,7 +63,7 @@ impl EditCommandQueue {
                         server_prime,
                         server_rev_id: rev_id,
                     };
-                    Ok::<TransformDeltas, DocumentError>(transform_delta)
+                    Ok::<TransformDeltas, CollaborateError>(transform_delta)
                 };
                 let _ = ret.send(f().await);
             },
@@ -113,7 +113,7 @@ impl EditCommandQueue {
     }
 
     #[tracing::instrument(level = "debug", skip(self, delta), fields(compose_result), err)]
-    async fn composed_delta(&self, delta: RichTextDelta) -> Result<(), DocumentError> {
+    async fn composed_delta(&self, delta: RichTextDelta) -> Result<(), CollaborateError> {
         // tracing::debug!("{:?} thread handle_message", thread::current(),);
         let mut document = self.document.write().await;
         tracing::Span::current().record(
@@ -128,7 +128,7 @@ impl EditCommandQueue {
     }
 }
 
-pub(crate) type Ret<T> = oneshot::Sender<Result<T, DocumentError>>;
+pub(crate) type Ret<T> = oneshot::Sender<Result<T, CollaborateError>>;
 #[allow(dead_code)]
 pub(crate) enum EditCommand {
     ComposeDelta {

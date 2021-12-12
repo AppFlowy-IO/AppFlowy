@@ -50,3 +50,14 @@ async fn doc_push_test() {
     ];
     EditorTest::new().await.run_scripts(scripts).await;
 }
+
+#[tokio::test]
+async fn doc_sync_test() {
+    let scripts = vec![
+        InsertText("1", 0),
+        InsertText("2", 1),
+        InsertText("3", 2),
+        AssertJson(r#"[{"insert":"123\n"}]"#),
+    ];
+    EditorTest::new().await.run_scripts(scripts).await;
+}
