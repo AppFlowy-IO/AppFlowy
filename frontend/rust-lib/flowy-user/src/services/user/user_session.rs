@@ -14,7 +14,6 @@ use flowy_database::{
     UserDatabaseConnection,
 };
 use flowy_user_infra::entities::{SignInResponse, SignUpResponse};
-use lib_infra::entities::network_state::NetworkState;
 use lib_sqlite::ConnectionPool;
 use lib_ws::{WsConnectState, WsMessageHandler};
 
@@ -32,6 +31,7 @@ use crate::{
     },
     sql_tables::{UserTable, UserTableChangeset},
 };
+use flowy_net::entities::NetworkState;
 
 pub struct UserSessionConfig {
     root_dir: String,

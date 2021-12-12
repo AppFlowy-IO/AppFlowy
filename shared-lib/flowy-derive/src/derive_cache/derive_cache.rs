@@ -16,13 +16,12 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         "HashMap" => TypeCategory::Map,
         "u8" => TypeCategory::Bytes,
         "String" => TypeCategory::Str,
-        "KeyValue"
-        | "NetworkState"
-        | "WorkspaceError"
+        "WorkspaceError"
         | "DocError"
         | "FFIRequest"
         | "FFIResponse"
         | "SubscribeObject"
+        | "NetworkState"
         | "UserError"
         | "QueryAppRequest"
         | "AppIdentifier"
@@ -80,12 +79,12 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "UpdateUserRequest"
         | "UpdateUserParams"
         => TypeCategory::Protobuf,
-        "NetworkType"
-        | "WorkspaceEvent"
+        "WorkspaceEvent"
         | "WorkspaceNotification"
         | "ErrorCode"
         | "DocObservable"
         | "FFIStatusCode"
+        | "NetworkType"
         | "UserEvent"
         | "UserNotification"
         | "TrashType"

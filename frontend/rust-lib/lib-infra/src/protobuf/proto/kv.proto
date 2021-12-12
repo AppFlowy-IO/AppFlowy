@@ -1,9 +1,0 @@
-syntax = "proto3";
-
-message KeyValue {
-    string key = 1;
-    oneof one_of_str_value { string str_value = 2; };
-    oneof one_of_int_value { int64 int_value = 3; };
-    oneof one_of_float_value { double float_value = 4; };
-    oneof one_of_bool_value { bool bool_value = 5; };
-}

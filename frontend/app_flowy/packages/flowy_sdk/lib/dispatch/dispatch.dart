@@ -3,11 +3,11 @@ import 'package:dartz/dartz.dart';
 import 'package:flowy_log/flowy_log.dart';
 // ignore: unnecessary_import
 import 'package:flowy_sdk/protobuf/dart-ffi/ffi_response.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-net/network_state.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/event.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core/event.pb.dart';
-import 'package:flowy_sdk/protobuf/lib-infra/network_state.pb.dart';
 import 'package:isolates/isolates.dart';
 import 'package:isolates/ports.dart';
 import 'package:ffi/ffi.dart';

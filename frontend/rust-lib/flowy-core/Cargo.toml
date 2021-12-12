@@ -16,6 +16,7 @@ backend-service = { path = "../../../shared-lib/backend-service" }
 
 flowy-document = { path = "../flowy-document" }
 flowy-database = { path = "../flowy-database" }
+flowy-net = { path = "../flowy-net" }
 dart-notify = { path = "../dart-notify" }
 lib-dispatch = { path = "../lib-dispatch" }
 lib-infra = { path = "../lib-infra" }

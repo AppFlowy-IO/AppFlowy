@@ -1,0 +1,2 @@
+proto_crates = ["src/entities"]
+event_files = []

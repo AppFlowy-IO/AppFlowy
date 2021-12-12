@@ -1237,6 +1237,7 @@ dependencies = [
  "flowy-database",
  "flowy-derive",
  "flowy-document",
+ "flowy-net",
  "futures",
  "futures-core",
  "lazy_static",
@@ -1335,6 +1336,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-net"
+version = "0.1.0"
+dependencies = [
+ "flowy-derive",
+ "protobuf",
+]
+
+[[package]]
 name = "flowy-sdk"
 version = "0.1.0"
 dependencies = [
@@ -1396,6 +1405,7 @@ dependencies = [
  "flowy-collaboration",
  "flowy-database",
  "flowy-derive",
+ "flowy-net",
  "flowy-user-infra",
  "futures-core",
  "lazy_static",

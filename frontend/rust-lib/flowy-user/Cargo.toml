@@ -15,6 +15,7 @@ lib-sqlite = { path = "../../../shared-lib/lib-sqlite" }
 
 derive_more = {version = "0.99", features = ["display"]}
 flowy-database = { path = "../flowy-database" }
+flowy-net = { path = "../flowy-net" }
 dart-notify = { path = "../dart-notify" }
 lib-dispatch = { path = "../lib-dispatch" }
 lib-infra = { path = "../lib-infra" }

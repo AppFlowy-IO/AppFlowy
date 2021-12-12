@@ -1,6 +1,4 @@
-pub mod entities;
 pub mod future;
-mod protobuf;
 pub mod retry;
 
 #[allow(dead_code)]

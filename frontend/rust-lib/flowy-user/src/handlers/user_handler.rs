@@ -1,6 +1,6 @@
 use crate::{entities::*, errors::UserError, services::user::UserSession};
+use flowy_net::entities::NetworkState;
 use lib_dispatch::prelude::*;
-use lib_infra::entities::network_state::NetworkState;
 use std::{convert::TryInto, sync::Arc};
 
 #[tracing::instrument(skip(session))]

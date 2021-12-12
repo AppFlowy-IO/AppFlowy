@@ -10,7 +10,7 @@ use tera::Tera;
 use walkdir::WalkDir;
 
 pub fn read_file(path: &str) -> Option<String> {
-    let mut file = File::open(path).expect("Unable to open file");
+    let mut file = File::open(path).expect(&format!("Unable to open file at {}", path));
     let mut content = String::new();
     match file.read_to_string(&mut content) {
         Ok(_) => Some(content),

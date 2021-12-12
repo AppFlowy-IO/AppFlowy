@@ -1,6 +1,7 @@
 use crate::errors::UserError;
 
-use lib_infra::{entities::network_state::NetworkType, future::ResultFuture};
+use flowy_net::entities::NetworkType;
+use lib_infra::future::ResultFuture;
 use lib_ws::{WsConnectState, WsController, WsMessage, WsMessageHandler, WsSender};
 use parking_lot::RwLock;
 use std::sync::Arc;
