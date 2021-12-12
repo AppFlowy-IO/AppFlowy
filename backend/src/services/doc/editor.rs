@@ -14,13 +14,13 @@ use sqlx::PgPool;
 use std::sync::Arc;
 
 #[derive(Clone, Debug)]
-pub struct DocUser {
+pub struct ServerDocUser {
     pub user: Arc<WsUser>,
     pub(crate) socket: Socket,
     pub pg_pool: Data<PgPool>,
 }
 
-impl RevisionUser for DocUser {
+impl RevisionUser for ServerDocUser {
     fn user_id(&self) -> String { self.user.id().to_string() }
 
     fn recv(&self, resp: SyncResponse) {

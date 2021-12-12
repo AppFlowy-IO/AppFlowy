@@ -15,7 +15,7 @@ use flowy_collaboration::{entities::doc::DocIdentifier, protobuf::UpdateDocParam
 use lib_ot::rich_text::{RichTextAttribute, RichTextDelta};
 use parking_lot::RwLock;
 use lib_ot::core::Interval;
-use flowy_collaboration::core::sync::DocManager;
+use flowy_collaboration::core::sync::ServerDocManager;
 
 pub struct DocumentTest {
     server: TestServer,
@@ -53,7 +53,7 @@ struct ScriptContext {
     client_edit_context: Option<Arc<ClientEditDocContext>>,
     client_sdk: FlowySDKTest,
     client_user_session: Arc<UserSession>,
-    server_doc_manager: Arc<DocManager>,
+    server_doc_manager: Arc<ServerDocManager>,
     server_pg_pool: Data<PgPool>,
     doc_id: String,
 }

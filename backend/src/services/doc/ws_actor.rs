@@ -1,6 +1,6 @@
 use crate::{
     services::{
-        doc::{editor::DocUser, read_doc},
+        doc::{editor::ServerDocUser, read_doc},
         util::{md5, parse_from_bytes},
     },
     web_socket::{entities::Socket, WsClientData, WsUser},
@@ -10,7 +10,7 @@ use actix_web::web::Data;
 use async_stream::stream;
 use backend_service::errors::{internal_error, Result as DocResult, ServerError};
 use flowy_collaboration::{
-    core::sync::{DocManager, OpenDocHandle},
+    core::sync::{OpenDocHandle, ServerDocManager},
     protobuf::{DocIdentifier, NewDocUser, WsDataType, WsDocumentData},
 };
 use futures::stream::StreamExt;
@@ -29,11 +29,11 @@ pub enum DocWsMsg {
 
 pub struct DocWsActor {
     receiver: Option<mpsc::Receiver<DocWsMsg>>,
-    doc_manager: Arc<DocManager>,
+    doc_manager: Arc<ServerDocManager>,
 }
 
 impl DocWsActor {
-    pub fn new(receiver: mpsc::Receiver<DocWsMsg>, manager: Arc<DocManager>) -> Self {
+    pub fn new(receiver: mpsc::Receiver<DocWsMsg>, manager: Arc<ServerDocManager>) -> Self {
         Self {
             receiver: Some(receiver),
             doc_manager: manager,
@@ -100,7 +100,7 @@ impl DocWsActor {
         .await
         .map_err(internal_error)??;
         if let Some(handle) = self.get_doc_handle(&doc_user.doc_id, pg_pool.clone()).await {
-            let user = Arc::new(DocUser { user, socket, pg_pool });
+            let user = Arc::new(ServerDocUser { user, socket, pg_pool });
             handle.add_user(user, doc_user.rev_id).await.map_err(internal_error)?;
         }
         Ok(())
@@ -121,7 +121,7 @@ impl DocWsActor {
         .await
         .map_err(internal_error)??;
         if let Some(handle) = self.get_doc_handle(&revision.doc_id, pg_pool.clone()).await {
-            let user = Arc::new(DocUser { user, socket, pg_pool });
+            let user = Arc::new(ServerDocUser { user, socket, pg_pool });
             let revision = (&mut revision).try_into().map_err(internal_error).unwrap();
             handle.apply_revision(user, revision).await.map_err(internal_error)?;
         }

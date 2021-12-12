@@ -3,20 +3,25 @@ use crate::{
     web_socket::{WsBizHandler, WsClientData},
 };
 use actix_web::web::Data;
-use flowy_collaboration::core::sync::DocManager;
+use flowy_collaboration::{
+    core::sync::{ServerDocManager, ServerDocPersistence},
+    entities::doc::Doc,
+    errors::CollaborateResult,
+};
+use lib_ot::rich_text::RichTextDelta;
 use sqlx::PgPool;
 use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot};
 
 pub struct DocumentCore {
-    pub manager: Arc<DocManager>,
+    pub manager: Arc<ServerDocManager>,
     ws_sender: mpsc::Sender<DocWsMsg>,
     pg_pool: Data<PgPool>,
 }
 
 impl DocumentCore {
     pub fn new(pg_pool: Data<PgPool>) -> Self {
-        let manager = Arc::new(DocManager::new());
+        let manager = Arc::new(ServerDocManager::new(Arc::new(DocPersistenceImpl())));
         let (ws_sender, rx) = mpsc::channel(100);
         let actor = DocWsActor::new(rx, manager.clone());
         tokio::task::spawn(actor.run());
@@ -50,4 +55,13 @@ impl WsBizHandler for DocumentCore {
             };
         });
     }
+}
+
+struct DocPersistenceImpl();
+impl ServerDocPersistence for DocPersistenceImpl {
+    fn create_doc(&self, doc_id: &str, delta: RichTextDelta) -> CollaborateResult<()> { unimplemented!() }
+
+    fn update_doc(&self, doc_id: &str, delta: RichTextDelta) -> CollaborateResult<()> { unimplemented!() }
+
+    fn read_doc(&self, doc_id: &str) -> CollaborateResult<Doc> { unimplemented!() }
 }

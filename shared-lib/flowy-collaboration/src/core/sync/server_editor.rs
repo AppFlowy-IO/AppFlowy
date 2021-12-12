@@ -19,12 +19,17 @@ use tokio::{
     task::spawn_blocking,
 };
 
+pub trait ServerDocPersistence: Send + Sync {
+    fn create_doc(&self, doc_id: &str, delta: RichTextDelta) -> CollaborateResult<()>;
+    fn update_doc(&self, doc_id: &str, delta: RichTextDelta) -> CollaborateResult<()>;
+    fn read_doc(&self, doc_id: &str) -> CollaborateResult<Doc>;
+}
+
 #[rustfmt::skip]
-//    ┌────────────┐
-//    │ DocManager │
-//    └────────────┘
+//  ┌─────────────────┐
+//  │ServerDocManager │
+//  └─────────────────┘
 //           │ 1
-//           │
 //           ▼ n
 //   ┌───────────────┐
 //   │ OpenDocHandle │
@@ -33,29 +38,26 @@ use tokio::{
 //           ▼
 // ┌──────────────────┐
 // │ DocCommandQueue  │
-// └──────────────────┘          ┌──────────────────────┐     ┌────────────┐
-//           │             ┌────▶│ RevisionSynchronizer │────▶│  Document  │
-//           ▼             │     └──────────────────────┘     └────────────┘
-//  ┌────────────────┐     │
+// └──────────────────┘
+//           │                   ┌──────────────────────┐     ┌────────────┐
+//           ▼             ┌────▶│ RevisionSynchronizer │────▶│  Document  │
+//  ┌────────────────┐     │     └──────────────────────┘     └────────────┘
 //  │ServerDocEditor │─────┤
-//  └────────────────┘     │
-//                         │
-//                         │     ┌────────┐       ┌────────────┐
+//  └────────────────┘     │     ┌────────┐       ┌────────────┐
 //                         └────▶│ Users  │◆──────│RevisionUser│
 //                               └────────┘       └────────────┘
-pub struct DocManager {
+pub struct ServerDocManager {
     open_doc_map: DashMap<String, Arc<OpenDocHandle>>,
+    persistence: Arc<dyn ServerDocPersistence>,
 }
 
-impl std::default::Default for DocManager {
-    fn default() -> Self {
+impl ServerDocManager {
+    pub fn new(persistence: Arc<dyn ServerDocPersistence>) -> Self {
         Self {
             open_doc_map: DashMap::new(),
+            persistence,
         }
     }
-}
-impl DocManager {
-    pub fn new() -> Self { DocManager::default() }
 
     pub fn get(&self, doc_id: &str) -> Option<Arc<OpenDocHandle>> {
         self.open_doc_map.get(doc_id).map(|ctx| ctx.clone())

@@ -1,5 +1,5 @@
-mod rev_sync;
 mod server_editor;
+mod synchronizer;
 
-pub use rev_sync::*;
 pub use server_editor::*;
+pub use synchronizer::*;
