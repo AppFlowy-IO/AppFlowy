@@ -1,6 +1,6 @@
 use crate::{
     services::{
-        doc::{editor::ServerDocUser, read_doc},
+        doc::editor::ServerDocUser,
         util::{md5, parse_from_bytes},
     },
     web_socket::{entities::Socket, WsClientData, WsUser},
@@ -11,7 +11,7 @@ use async_stream::stream;
 use backend_service::errors::{internal_error, Result as DocResult, ServerError};
 use flowy_collaboration::{
     core::sync::{OpenDocHandle, ServerDocManager},
-    protobuf::{DocIdentifier, NewDocUser, WsDataType, WsDocumentData},
+    protobuf::{NewDocUser, WsDataType, WsDocumentData},
 };
 use futures::stream::StreamExt;
 use lib_ot::protobuf::Revision;
@@ -128,30 +128,13 @@ impl DocWsActor {
         Ok(())
     }
 
-    async fn get_doc_handle(&self, doc_id: &str, pg_pool: Data<PgPool>) -> Option<Arc<OpenDocHandle>> {
-        match self.doc_manager.get(doc_id) {
-            Some(edit_doc) => Some(edit_doc),
-            None => {
-                let params = DocIdentifier {
-                    doc_id: doc_id.to_string(),
-                    ..Default::default()
-                };
-
-                let f = || async {
-                    let mut pb_doc = read_doc(pg_pool.get_ref(), params).await?;
-                    let doc = (&mut pb_doc).try_into().map_err(internal_error)?;
-                    self.doc_manager.cache(doc).await.map_err(internal_error)?;
-                    let handler = self.doc_manager.get(doc_id);
-                    Ok::<Option<Arc<OpenDocHandle>>, ServerError>(handler)
-                };
-
-                match f().await {
-                    Ok(handler) => handler,
-                    Err(e) => {
-                        log::error!("{}", e);
-                        None
-                    },
-                }
+    async fn get_doc_handle(&self, doc_id: &str, _pg_pool: Data<PgPool>) -> Option<Arc<OpenDocHandle>> {
+        match self.doc_manager.get(doc_id).await {
+            Ok(Some(edit_doc)) => Some(edit_doc),
+            Ok(None) => None,
+            Err(e) => {
+                log::error!("{}", e);
+                None
             },
         }
     }

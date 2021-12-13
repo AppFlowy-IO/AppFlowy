@@ -11,11 +11,11 @@ flowy-user = { path = "../flowy-user"}
 flowy-core = { path = "../flowy-core", default-features = false}
 flowy-document = { path = "../flowy-document"}
 lib-dispatch = { path = "../lib-dispatch" }
-lib-infra = { path = "../lib-infra" }
 
 flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration" }
 backend-service = { path = "../../../shared-lib/backend-service" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
+lib-infra = { path = "../../../shared-lib/lib-infra" }
 
 serde = { version = "1.0", features = ["derive"] }
 serde_json = {version = "1.0"}

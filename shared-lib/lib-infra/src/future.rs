@@ -33,12 +33,12 @@ where
 }
 
 #[pin_project]
-pub struct ResultFuture<T, E> {
+pub struct FutureResult<T, E> {
     #[pin]
     pub fut: Pin<Box<dyn Future<Output = Result<T, E>> + Sync + Send>>,
 }
 
-impl<T, E> ResultFuture<T, E> {
+impl<T, E> FutureResult<T, E> {
     pub fn new<F>(f: F) -> Self
     where
         F: Future<Output = Result<T, E>> + Send + Sync + 'static,
@@ -49,9 +49,40 @@ impl<T, E> ResultFuture<T, E> {
     }
 }
 
-impl<T, E> Future for ResultFuture<T, E>
+impl<T, E> Future for FutureResult<T, E>
 where
     T: Send + Sync,
+    E: Debug,
+{
+    type Output = Result<T, E>;
+
+    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        let this = self.as_mut().project();
+        let result = ready!(this.fut.poll(cx));
+        Poll::Ready(result)
+    }
+}
+
+#[pin_project]
+pub struct FutureResultSend<T, E> {
+    #[pin]
+    pub fut: Pin<Box<dyn Future<Output = Result<T, E>> + Send>>,
+}
+
+impl<T, E> FutureResultSend<T, E> {
+    pub fn new<F>(f: F) -> Self
+    where
+        F: Future<Output = Result<T, E>> + Send + 'static,
+    {
+        Self {
+            fut: Box::pin(async { f.await }),
+        }
+    }
+}
+
+impl<T, E> Future for FutureResultSend<T, E>
+where
+    T: Send,
     E: Debug,
 {
     type Output = Result<T, E>;

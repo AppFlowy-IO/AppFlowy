@@ -9,7 +9,7 @@ use crate::{
 use crate::services::view::{create_view_with_args, sql_builder::NewViewSqlBuilder};
 use backend_service::errors::ServerError;
 use chrono::Utc;
-use flowy_collaboration::user_default::doc_initial_string;
+use flowy_collaboration::core::document::default::initial_string;
 use flowy_core_infra::protobuf::Workspace;
 use std::convert::TryInto;
 
@@ -42,7 +42,7 @@ pub async fn create_default_workspace(
 
         for view in views.take_items() {
             let (sql, args, view) = NewViewSqlBuilder::from_view(view)?.build()?;
-            let _ = create_view_with_args(transaction, sql, args, view, doc_initial_string()).await?;
+            let _ = create_view_with_args(transaction, sql, args, view, initial_string()).await?;
         }
     }
     Ok(workspace)

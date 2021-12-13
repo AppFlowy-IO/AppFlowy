@@ -7,7 +7,7 @@ use crate::{
         view::{ViewName, ViewThumbnail},
     },
 };
-use flowy_collaboration::user_default::doc_initial_string;
+use flowy_collaboration::core::document::default::initial_string;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use std::convert::TryInto;
 
@@ -81,7 +81,7 @@ impl CreateViewParams {
             desc,
             thumbnail,
             view_type,
-            data: doc_initial_string(),
+            data: initial_string(),
         }
     }
 }

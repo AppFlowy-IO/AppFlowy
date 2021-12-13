@@ -8,6 +8,7 @@ edition = "2018"
 [dependencies]
 flowy-core-infra = { path = "../flowy-core-infra" }
 flowy-user-infra = { path = "../flowy-user-infra" }
+flowy-collaboration = { path = "../flowy-collaboration" }
 
 log = "0.4.14"
 lazy_static = "1.4.0"

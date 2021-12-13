@@ -14,7 +14,7 @@ use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_collaboration::entities::doc::{Doc, DocDelta, DocIdentifier};
 use flowy_database::ConnectionPool;
-use lib_infra::future::ResultFuture;
+use lib_infra::future::FutureResult;
 use std::sync::Arc;
 
 pub(crate) struct DocController {
@@ -128,14 +128,14 @@ struct RevisionServerImpl {
 
 impl RevisionServer for RevisionServerImpl {
     #[tracing::instrument(level = "debug", skip(self))]
-    fn fetch_document(&self, doc_id: &str) -> ResultFuture<Doc, DocError> {
+    fn fetch_document(&self, doc_id: &str) -> FutureResult<Doc, DocError> {
         let params = DocIdentifier {
             doc_id: doc_id.to_string(),
         };
         let server = self.server.clone();
         let token = self.token.clone();
 
-        ResultFuture::new(async move {
+        FutureResult::new(async move {
             match server.read_doc(&token, params).await? {
                 None => Err(DocError::doc_not_found().context("Remote doesn't have this document")),
                 Some(doc) => Ok(doc),

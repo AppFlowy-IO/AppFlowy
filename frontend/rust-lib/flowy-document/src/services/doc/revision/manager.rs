@@ -6,7 +6,7 @@ use crate::{
     },
 };
 use flowy_collaboration::{entities::doc::Doc, util::RevIdCounter};
-use lib_infra::future::ResultFuture;
+use lib_infra::future::FutureResult;
 use lib_ot::{
     core::OperationTransformable,
     revision::{RevId, RevType, Revision, RevisionRange},
@@ -15,7 +15,7 @@ use lib_ot::{
 use std::sync::Arc;
 
 pub trait RevisionServer: Send + Sync {
-    fn fetch_document(&self, doc_id: &str) -> ResultFuture<Doc, DocError>;
+    fn fetch_document(&self, doc_id: &str) -> FutureResult<Doc, DocError>;
 }
 
 pub struct RevisionManager {

@@ -12,14 +12,13 @@ flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-sqlite = { path = "../../../shared-lib/lib-sqlite" }
 backend-service = { path = "../../../shared-lib/backend-service" }
-
+lib-infra = { path = "../../../shared-lib/lib-infra" }
 
 flowy-document = { path = "../flowy-document" }
 flowy-database = { path = "../flowy-database" }
 flowy-net = { path = "../flowy-net" }
 dart-notify = { path = "../dart-notify" }
 lib-dispatch = { path = "../lib-dispatch" }
-lib-infra = { path = "../lib-infra" }
 
 
 parking_lot = "0.11"
@@ -41,7 +40,7 @@ derive_more = {version = "0.99", features = ["display"]}
 bincode = { version = "1.3"}
 tracing = { version = "0.1", features = ["log"] }
 bytes = { version = "1.0" }
-crossbeam = "0.8.1"
+crossbeam = "0.8"
 crossbeam-utils = "0.8"
 chrono = "0.4"
 

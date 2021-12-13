@@ -5,7 +5,7 @@ use crate::{
 };
 use flowy_collaboration::entities::doc::Doc;
 use flowy_database::ConnectionPool;
-use lib_infra::future::ResultFuture;
+use lib_infra::future::FutureResult;
 use lib_ot::{
     core::{Operation, OperationTransformable},
     revision::{RevState, RevType, Revision, RevisionDiskCache, RevisionMemoryCache, RevisionRange, RevisionRecord},
@@ -18,7 +18,7 @@ use tokio::{
 };
 
 pub trait RevisionIterator: Send + Sync {
-    fn next(&self) -> ResultFuture<Option<RevisionRecord>, DocError>;
+    fn next(&self) -> FutureResult<Option<RevisionRecord>, DocError>;
 }
 
 type DocRevisionDeskCache = dyn RevisionDiskCache<Error = DocError>;
@@ -136,11 +136,11 @@ impl RevisionCache {
 }
 
 impl RevisionIterator for RevisionCache {
-    fn next(&self) -> ResultFuture<Option<RevisionRecord>, DocError> {
+    fn next(&self) -> FutureResult<Option<RevisionRecord>, DocError> {
         let memory_cache = self.memory_cache.clone();
         let disk_cache = self.dish_cache.clone();
         let doc_id = self.doc_id.clone();
-        ResultFuture::new(async move {
+        FutureResult::new(async move {
             match memory_cache.front_revision().await {
                 None => {
                     //

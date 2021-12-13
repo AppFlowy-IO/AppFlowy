@@ -64,6 +64,7 @@ flowy-core-infra = { path = "../shared-lib/flowy-core-infra" }
 flowy-collaboration = { path = "../shared-lib/flowy-collaboration" }
 lib-ws = { path = "../shared-lib/lib-ws" }
 lib-ot = { path = "../shared-lib/lib-ot" }
+lib-infra = { path = "../shared-lib/lib-infra" }
 backend-service = { path = "../shared-lib/backend-service", features = ["http_server"] }
 
 ormx = { version = "0.7", features = ["postgres"]}

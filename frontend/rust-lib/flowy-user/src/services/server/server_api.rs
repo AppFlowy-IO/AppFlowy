@@ -4,7 +4,7 @@ use crate::{
     services::server::UserServerAPI,
 };
 use backend_service::{configuration::*, user_request::*};
-use lib_infra::future::ResultFuture;
+use lib_infra::future::FutureResult;
 
 pub struct UserHttpServer {
     config: ClientServerConfiguration,
@@ -14,44 +14,44 @@ impl UserHttpServer {
 }
 
 impl UserServerAPI for UserHttpServer {
-    fn sign_up(&self, params: SignUpParams) -> ResultFuture<SignUpResponse, UserError> {
+    fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, UserError> {
         let url = self.config.sign_up_url();
-        ResultFuture::new(async move {
+        FutureResult::new(async move {
             let resp = user_sign_up_request(params, &url).await?;
             Ok(resp)
         })
     }
 
-    fn sign_in(&self, params: SignInParams) -> ResultFuture<SignInResponse, UserError> {
+    fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, UserError> {
         let url = self.config.sign_in_url();
-        ResultFuture::new(async move {
+        FutureResult::new(async move {
             let resp = user_sign_in_request(params, &url).await?;
             Ok(resp)
         })
     }
 
-    fn sign_out(&self, token: &str) -> ResultFuture<(), UserError> {
+    fn sign_out(&self, token: &str) -> FutureResult<(), UserError> {
         let token = token.to_owned();
         let url = self.config.sign_out_url();
-        ResultFuture::new(async move {
+        FutureResult::new(async move {
             let _ = user_sign_out_request(&token, &url).await;
             Ok(())
         })
     }
 
-    fn update_user(&self, token: &str, params: UpdateUserParams) -> ResultFuture<(), UserError> {
+    fn update_user(&self, token: &str, params: UpdateUserParams) -> FutureResult<(), UserError> {
         let token = token.to_owned();
         let url = self.config.user_profile_url();
-        ResultFuture::new(async move {
+        FutureResult::new(async move {
             let _ = update_user_profile_request(&token, params, &url).await?;
             Ok(())
         })
     }
 
-    fn get_user(&self, token: &str) -> ResultFuture<UserProfile, UserError> {
+    fn get_user(&self, token: &str) -> FutureResult<UserProfile, UserError> {
         let token = token.to_owned();
         let url = self.config.user_profile_url();
-        ResultFuture::new(async move {
+        FutureResult::new(async move {
             let profile = get_user_profile_request(&token, &url).await?;
             Ok(profile)
         })

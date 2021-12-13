@@ -8,3 +8,4 @@ edition = "2018"
 [dependencies]
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 protobuf = {version = "2.18.0"}
+bytes = { version = "1.0" }

@@ -15,7 +15,7 @@ use crate::{
     errors::WorkspaceError,
 };
 use backend_service::configuration::ClientServerConfiguration;
-use lib_infra::future::ResultFuture;
+use lib_infra::future::FutureResult;
 use std::sync::Arc;
 
 pub(crate) type Server = Arc<dyn WorkspaceServerAPI + Send + Sync>;
@@ -24,42 +24,42 @@ pub trait WorkspaceServerAPI {
     fn init(&self);
 
     // Workspace
-    fn create_workspace(&self, token: &str, params: CreateWorkspaceParams) -> ResultFuture<Workspace, WorkspaceError>;
+    fn create_workspace(&self, token: &str, params: CreateWorkspaceParams) -> FutureResult<Workspace, WorkspaceError>;
 
     fn read_workspace(
         &self,
         token: &str,
         params: WorkspaceIdentifier,
-    ) -> ResultFuture<RepeatedWorkspace, WorkspaceError>;
+    ) -> FutureResult<RepeatedWorkspace, WorkspaceError>;
 
-    fn update_workspace(&self, token: &str, params: UpdateWorkspaceParams) -> ResultFuture<(), WorkspaceError>;
+    fn update_workspace(&self, token: &str, params: UpdateWorkspaceParams) -> FutureResult<(), WorkspaceError>;
 
-    fn delete_workspace(&self, token: &str, params: WorkspaceIdentifier) -> ResultFuture<(), WorkspaceError>;
+    fn delete_workspace(&self, token: &str, params: WorkspaceIdentifier) -> FutureResult<(), WorkspaceError>;
 
     // View
-    fn create_view(&self, token: &str, params: CreateViewParams) -> ResultFuture<View, WorkspaceError>;
+    fn create_view(&self, token: &str, params: CreateViewParams) -> FutureResult<View, WorkspaceError>;
 
-    fn read_view(&self, token: &str, params: ViewIdentifier) -> ResultFuture<Option<View>, WorkspaceError>;
+    fn read_view(&self, token: &str, params: ViewIdentifier) -> FutureResult<Option<View>, WorkspaceError>;
 
-    fn delete_view(&self, token: &str, params: ViewIdentifiers) -> ResultFuture<(), WorkspaceError>;
+    fn delete_view(&self, token: &str, params: ViewIdentifiers) -> FutureResult<(), WorkspaceError>;
 
-    fn update_view(&self, token: &str, params: UpdateViewParams) -> ResultFuture<(), WorkspaceError>;
+    fn update_view(&self, token: &str, params: UpdateViewParams) -> FutureResult<(), WorkspaceError>;
 
     // App
-    fn create_app(&self, token: &str, params: CreateAppParams) -> ResultFuture<App, WorkspaceError>;
+    fn create_app(&self, token: &str, params: CreateAppParams) -> FutureResult<App, WorkspaceError>;
 
-    fn read_app(&self, token: &str, params: AppIdentifier) -> ResultFuture<Option<App>, WorkspaceError>;
+    fn read_app(&self, token: &str, params: AppIdentifier) -> FutureResult<Option<App>, WorkspaceError>;
 
-    fn update_app(&self, token: &str, params: UpdateAppParams) -> ResultFuture<(), WorkspaceError>;
+    fn update_app(&self, token: &str, params: UpdateAppParams) -> FutureResult<(), WorkspaceError>;
 
-    fn delete_app(&self, token: &str, params: AppIdentifier) -> ResultFuture<(), WorkspaceError>;
+    fn delete_app(&self, token: &str, params: AppIdentifier) -> FutureResult<(), WorkspaceError>;
 
     // Trash
-    fn create_trash(&self, token: &str, params: TrashIdentifiers) -> ResultFuture<(), WorkspaceError>;
+    fn create_trash(&self, token: &str, params: TrashIdentifiers) -> FutureResult<(), WorkspaceError>;
 
-    fn delete_trash(&self, token: &str, params: TrashIdentifiers) -> ResultFuture<(), WorkspaceError>;
+    fn delete_trash(&self, token: &str, params: TrashIdentifiers) -> FutureResult<(), WorkspaceError>;
 
-    fn read_trash(&self, token: &str) -> ResultFuture<RepeatedTrash, WorkspaceError>;
+    fn read_trash(&self, token: &str) -> FutureResult<RepeatedTrash, WorkspaceError>;
 }
 
 pub(crate) fn construct_workspace_server(

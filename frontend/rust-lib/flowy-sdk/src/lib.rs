@@ -5,12 +5,12 @@ use crate::deps_resolve::WorkspaceDepsResolver;
 use backend_service::configuration::ClientServerConfiguration;
 use flowy_core::{errors::WorkspaceError, module::init_core, prelude::CoreContext};
 use flowy_document::module::FlowyDocument;
+use flowy_net::entities::NetworkType;
 use flowy_user::{
     prelude::UserStatus,
     services::user::{UserSession, UserSessionConfig},
 };
 use lib_dispatch::prelude::*;
-use lib_infra::entities::network_state::NetworkType;
 use module::mk_modules;
 pub use module::*;
 use std::sync::{

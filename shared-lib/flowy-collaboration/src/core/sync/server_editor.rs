@@ -9,6 +9,7 @@ use crate::{
 use async_stream::stream;
 use dashmap::DashMap;
 use futures::stream::StreamExt;
+use lib_infra::future::FutureResultSend;
 use lib_ot::{errors::OTError, revision::Revision, rich_text::RichTextDelta};
 use std::sync::{
     atomic::{AtomicI64, Ordering::SeqCst},
@@ -20,9 +21,8 @@ use tokio::{
 };
 
 pub trait ServerDocPersistence: Send + Sync {
-    fn create_doc(&self, doc_id: &str, delta: RichTextDelta) -> CollaborateResult<()>;
-    fn update_doc(&self, doc_id: &str, delta: RichTextDelta) -> CollaborateResult<()>;
-    fn read_doc(&self, doc_id: &str) -> CollaborateResult<Doc>;
+    fn update_doc(&self, doc_id: &str, rev_id: i64, delta: RichTextDelta) -> FutureResultSend<(), CollaborateError>;
+    fn read_doc(&self, doc_id: &str) -> FutureResultSend<Doc, CollaborateError>;
 }
 
 #[rustfmt::skip]
@@ -59,18 +59,25 @@ impl ServerDocManager {
         }
     }
 
-    pub fn get(&self, doc_id: &str) -> Option<Arc<OpenDocHandle>> {
-        self.open_doc_map.get(doc_id).map(|ctx| ctx.clone())
+    pub async fn get(&self, doc_id: &str) -> Result<Option<Arc<OpenDocHandle>>, CollaborateError> {
+        match self.open_doc_map.get(doc_id).map(|ctx| ctx.clone()) {
+            Some(edit_doc) => Ok(Some(edit_doc)),
+            None => {
+                let doc = self.persistence.read_doc(doc_id).await?;
+                let handler = self.cache(doc).await.map_err(internal_error)?;
+                Ok(Some(handler))
+            },
+        }
     }
 
-    pub async fn cache(&self, doc: Doc) -> Result<(), CollaborateError> {
+    async fn cache(&self, doc: Doc) -> Result<Arc<OpenDocHandle>, CollaborateError> {
         let doc_id = doc.id.clone();
         let handle = spawn_blocking(|| OpenDocHandle::new(doc))
             .await
             .map_err(internal_error)?;
         let handle = Arc::new(handle?);
-        self.open_doc_map.insert(doc_id, handle);
-        Ok(())
+        self.open_doc_map.insert(doc_id, handle.clone());
+        Ok(handle)
     }
 }
 

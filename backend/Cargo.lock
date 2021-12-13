@@ -467,6 +467,7 @@ dependencies = [
  "futures-util",
  "jsonwebtoken",
  "lazy_static",
+ "lib-infra",
  "lib-ot",
  "lib-ws",
  "linkify",
@@ -505,6 +506,7 @@ dependencies = [
  "bytes",
  "config",
  "derive_more",
+ "flowy-collaboration",
  "flowy-core-infra",
  "flowy-user-infra",
  "hyper",
@@ -1205,6 +1207,7 @@ dependencies = [
  "dashmap",
  "flowy-derive",
  "futures",
+ "lib-infra",
  "lib-ot",
  "log",
  "md5",
@@ -1339,6 +1342,7 @@ dependencies = [
 name = "flowy-net"
 version = "0.1.0"
 dependencies = [
+ "bytes",
  "flowy-derive",
  "protobuf",
 ]
@@ -1354,6 +1358,7 @@ dependencies = [
  "flowy-core",
  "flowy-database",
  "flowy-document",
+ "flowy-net",
  "flowy-user",
  "futures-core",
  "lib-dispatch",
@@ -1402,7 +1407,6 @@ dependencies = [
  "derive_more",
  "diesel",
  "diesel_derives",
- "flowy-collaboration",
  "flowy-database",
  "flowy-derive",
  "flowy-net",
@@ -1954,11 +1958,9 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "chrono",
- "flowy-derive",
  "futures-core",
  "log",
  "pin-project 1.0.8",
- "protobuf",
  "rand",
  "tokio",
  "uuid",

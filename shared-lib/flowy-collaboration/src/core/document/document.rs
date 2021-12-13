@@ -1,16 +1,18 @@
-use crate::{
-    core::document::{
-        history::{History, UndoResult},
-        view::{View, RECORD_THRESHOLD},
-    },
-    errors::CollaborateError,
-    user_default::doc_initial_delta,
-};
+use tokio::sync::mpsc;
+
 use lib_ot::{
     core::*,
     rich_text::{RichTextAttribute, RichTextDelta},
 };
-use tokio::sync::mpsc;
+
+use crate::{
+    core::document::{
+        default::initial_delta,
+        history::{History, UndoResult},
+        view::{View, RECORD_THRESHOLD},
+    },
+    errors::CollaborateError,
+};
 
 pub trait CustomDocument {
     fn init_delta() -> RichTextDelta;
@@ -23,7 +25,7 @@ impl CustomDocument for PlainDoc {
 
 pub struct FlowyDoc();
 impl CustomDocument for FlowyDoc {
-    fn init_delta() -> RichTextDelta { doc_initial_delta() }
+    fn init_delta() -> RichTextDelta { initial_delta() }
 }
 
 pub struct Document {

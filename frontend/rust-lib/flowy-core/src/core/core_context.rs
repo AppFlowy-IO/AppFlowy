@@ -1,3 +1,13 @@
+use std::{collections::HashMap, sync::Arc};
+
+use chrono::Utc;
+use lazy_static::lazy_static;
+use parking_lot::RwLock;
+
+use flowy_collaboration::{core::document::default::initial_read_me, entities::doc::DocDelta};
+use flowy_core_infra::user_default;
+use flowy_net::entities::NetworkType;
+
 use crate::{
     entities::workspace::RepeatedWorkspace,
     errors::{WorkspaceError, WorkspaceResult},
@@ -5,13 +15,7 @@ use crate::{
     notify::{send_dart_notification, WorkspaceNotification},
     services::{server::Server, AppController, TrashController, ViewController, WorkspaceController},
 };
-use chrono::Utc;
-use flowy_collaboration::{entities::doc::DocDelta, user_default::initial_read_me};
-use flowy_core_infra::user_default;
-use flowy_net::entities::NetworkType;
-use lazy_static::lazy_static;
-use parking_lot::RwLock;
-use std::{collections::HashMap, sync::Arc};
+
 lazy_static! {
     static ref INIT_WORKSPACE: RwLock<HashMap<String, bool>> = RwLock::new(HashMap::new());
 }

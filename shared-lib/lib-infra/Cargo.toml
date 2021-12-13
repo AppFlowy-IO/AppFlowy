@@ -7,8 +7,6 @@ edition = "2018"
 
 [dependencies]
 uuid = { version = "0.8", features = ["serde", "v4"] }
-flowy-derive = { path = "../../../shared-lib/flowy-derive" }
-protobuf = {version = "2.18.0"}
 log = "0.4.14"
 chrono = "0.4.19"
 bytes = { version = "1.0" }

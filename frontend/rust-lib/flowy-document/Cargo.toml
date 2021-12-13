@@ -12,10 +12,10 @@ flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-ws = { path = "../../../shared-lib/lib-ws" }
 backend-service = { path = "../../../shared-lib/backend-service" }
+lib-infra = { path = "../../../shared-lib/lib-infra" }
 
 derive_more = {version = "0.99", features = ["display"]}
 lib-dispatch = { path = "../lib-dispatch" }
-lib-infra = { path = "../lib-infra" }
 flowy-database = { path = "../flowy-database" }
 dart-notify = { path = "../dart-notify" }
 
@@ -52,7 +52,7 @@ color-eyre = { version = "0.5", default-features = false }
 criterion = "0.3"
 rand = "0.7.3"
 env_logger = "0.8.2"
-
+flowy-user = { path = "../flowy-user", features = ["ws_mock"] }
 
 [features]
 http_server = []

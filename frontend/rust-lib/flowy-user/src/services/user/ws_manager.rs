@@ -1,16 +1,16 @@
 use crate::errors::UserError;
 
 use flowy_net::entities::NetworkType;
-use lib_infra::future::ResultFuture;
+use lib_infra::future::FutureResult;
 use lib_ws::{WsConnectState, WsController, WsMessage, WsMessageHandler, WsSender};
 use parking_lot::RwLock;
 use std::sync::Arc;
 use tokio::sync::{broadcast, broadcast::Receiver};
 
 pub trait FlowyWebSocket: Send + Sync {
-    fn start_connect(&self, addr: String) -> ResultFuture<(), UserError>;
+    fn start_connect(&self, addr: String) -> FutureResult<(), UserError>;
     fn conn_state_subscribe(&self) -> broadcast::Receiver<WsConnectState>;
-    fn reconnect(&self, count: usize) -> ResultFuture<(), UserError>;
+    fn reconnect(&self, count: usize) -> FutureResult<(), UserError>;
     fn add_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), UserError>;
     fn ws_sender(&self) -> Result<Arc<dyn FlowyWsSender>, UserError>;
 }
@@ -115,9 +115,9 @@ impl std::default::Default for WsManager {
 }
 
 impl FlowyWebSocket for Arc<WsController> {
-    fn start_connect(&self, addr: String) -> ResultFuture<(), UserError> {
+    fn start_connect(&self, addr: String) -> FutureResult<(), UserError> {
         let cloned_ws = self.clone();
-        ResultFuture::new(async move {
+        FutureResult::new(async move {
             let _ = cloned_ws.start(addr).await?;
             Ok(())
         })
@@ -125,9 +125,9 @@ impl FlowyWebSocket for Arc<WsController> {
 
     fn conn_state_subscribe(&self) -> Receiver<WsConnectState> { self.state_subscribe() }
 
-    fn reconnect(&self, count: usize) -> ResultFuture<(), UserError> {
+    fn reconnect(&self, count: usize) -> FutureResult<(), UserError> {
         let cloned_ws = self.clone();
-        ResultFuture::new(async move {
+        FutureResult::new(async move {
             let _ = cloned_ws.retry(count).await?;
             Ok(())
         })

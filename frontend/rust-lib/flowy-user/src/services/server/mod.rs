@@ -1,8 +1,6 @@
 mod server_api;
 mod server_api_mock;
-
-// #[cfg(feature = "http_server")]
-pub(crate) mod ws_mock;
+mod ws_local;
 
 pub use server_api::*;
 pub use server_api_mock::*;
@@ -15,14 +13,14 @@ use crate::{
     services::user::ws_manager::FlowyWebSocket,
 };
 use backend_service::configuration::ClientServerConfiguration;
-use lib_infra::future::ResultFuture;
+use lib_infra::future::FutureResult;
 
 pub trait UserServerAPI {
-    fn sign_up(&self, params: SignUpParams) -> ResultFuture<SignUpResponse, UserError>;
-    fn sign_in(&self, params: SignInParams) -> ResultFuture<SignInResponse, UserError>;
-    fn sign_out(&self, token: &str) -> ResultFuture<(), UserError>;
-    fn update_user(&self, token: &str, params: UpdateUserParams) -> ResultFuture<(), UserError>;
-    fn get_user(&self, token: &str) -> ResultFuture<UserProfile, UserError>;
+    fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, UserError>;
+    fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, UserError>;
+    fn sign_out(&self, token: &str) -> FutureResult<(), UserError>;
+    fn update_user(&self, token: &str, params: UpdateUserParams) -> FutureResult<(), UserError>;
+    fn get_user(&self, token: &str) -> FutureResult<UserProfile, UserError>;
     fn ws_addr(&self) -> String;
 }
 
@@ -34,10 +32,11 @@ pub(crate) fn construct_user_server(config: &ClientServerConfiguration) -> Arc<d
     }
 }
 
-pub(crate) fn local_web_socket() -> Arc<dyn FlowyWebSocket> {
-    if cfg!(debug_assertions) {
-        Arc::new(Arc::new(ws_mock::MockWebSocket::default()))
-    } else {
-        Arc::new(Arc::new(ws_mock::LocalWebSocket::default()))
-    }
-}
+#[cfg(feature = "ws_mock")]
+mod ws_mock;
+
+#[cfg(not(feature = "ws_mock"))]
+pub(crate) fn local_web_socket() -> Arc<dyn FlowyWebSocket> { Arc::new(Arc::new(ws_local::LocalWebSocket::default())) }
+
+#[cfg(feature = "ws_mock")]
+pub(crate) fn local_web_socket() -> Arc<dyn FlowyWebSocket> { Arc::new(Arc::new(ws_mock::MockWebSocket::default())) }

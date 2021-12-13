@@ -1,7 +1,7 @@
 use crate::{errors::DocError, services::server::DocumentServerAPI};
 use backend_service::{configuration::*, request::HttpRequestBuilder};
 use flowy_collaboration::entities::doc::{CreateDocParams, Doc, DocIdentifier, UpdateDocParams};
-use lib_infra::future::ResultFuture;
+use lib_infra::future::FutureResult;
 
 pub struct DocServer {
     config: ClientServerConfiguration,
@@ -12,22 +12,22 @@ impl DocServer {
 }
 
 impl DocumentServerAPI for DocServer {
-    fn create_doc(&self, token: &str, params: CreateDocParams) -> ResultFuture<(), DocError> {
+    fn create_doc(&self, token: &str, params: CreateDocParams) -> FutureResult<(), DocError> {
         let token = token.to_owned();
         let url = self.config.doc_url();
-        ResultFuture::new(async move { create_doc_request(&token, params, &url).await })
+        FutureResult::new(async move { create_doc_request(&token, params, &url).await })
     }
 
-    fn read_doc(&self, token: &str, params: DocIdentifier) -> ResultFuture<Option<Doc>, DocError> {
+    fn read_doc(&self, token: &str, params: DocIdentifier) -> FutureResult<Option<Doc>, DocError> {
         let token = token.to_owned();
         let url = self.config.doc_url();
-        ResultFuture::new(async move { read_doc_request(&token, params, &url).await })
+        FutureResult::new(async move { read_doc_request(&token, params, &url).await })
     }
 
-    fn update_doc(&self, token: &str, params: UpdateDocParams) -> ResultFuture<(), DocError> {
+    fn update_doc(&self, token: &str, params: UpdateDocParams) -> FutureResult<(), DocError> {
         let token = token.to_owned();
         let url = self.config.doc_url();
-        ResultFuture::new(async move { update_doc_request(&token, params, &url).await })
+        FutureResult::new(async move { update_doc_request(&token, params, &url).await })
     }
 }
 
