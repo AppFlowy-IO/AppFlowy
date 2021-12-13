@@ -1,0 +1,122 @@
+{
+  "appName": "Appflowy",
+  "defaultUsername": "我",
+  "welcomeText": "欢迎使用@:appName",
+  "githubStarText": "Star on GitHub",
+  "subscribeNewsletterText": "消息订阅",
+  "letsGoButtonText": "开始",
+  "title": "标题",
+  "signUp": {
+    "buttonText": "注册",
+    "title": "注册@:appName账户",
+    "getStartedText": "开始",
+    "emptyPasswordError": "密码不能为空",
+    "repeatPasswordEmptyError": "确认密码不能为空",
+    "unmatchedPasswordError": "两次密码输入不一致",
+    "alreadyHaveAnAccount": "已有账户?",
+    "emailHint": "邮箱",
+    "passwordHint": "密码",
+    "repeatPasswordHint": "确认密码"
+  },
+  "signIn": {
+    "loginTitle": "登录@:appName",
+    "loginButtonText": "登录",
+    "buttonText": "登录",
+    "forgotPassword": "忘记密码?",
+    "emailHint": "邮箱",
+    "passwordHint": "密码",
+    "dontHaveAnAccount": "没有已注册的账户?",
+    "repeatPasswordEmptyError": "确认密码不能为空",
+    "unmatchedPasswordError": "两次密码输入不一致"
+  },
+  "workspace": {
+    "create": "新建空间",
+    "hint": "空间",
+    "notFoundError": "未知的空间"
+  },
+  "shareAction": {
+    "buttonText": "分享",
+    "workInProgress": "进行中",
+    "markdown": "Markdown",
+    "copyLink": "复制链接"
+  },
+  "disclosureAction": {
+    "rename": "重命名",
+    "delete": "删除",
+    "duplicate": "复制"
+  },
+  "blankPageTitle": "空白页",
+  "newPageText": "新页面",
+  "trash": {
+    "text": "回收站",
+    "restoreAll": "全部恢复",
+    "deleteAll": "全部删除",
+    "pageHeader": {
+      "fileName": "文件名",
+      "lastModified": "最近修改",
+      "created": "创建"
+    }
+  },
+  "deletePagePrompt": {
+    "text": "此页面已被移动至回收站",
+    "restore": "恢复页面",
+    "deletePermanent": "彻底删除"
+  },
+  "dialogCreatePageNameHint": "页面名称",
+  "questionBubble": {
+    "whatsNew": "新功能?",
+    "help": "帮助 & 支持"
+  },
+  "menuAppHeader": {
+    "addPageTooltip": "在其中快速添加页面",
+    "defaultNewPageName": "未命名页面",
+    "renameDialog": "重命名"
+  },
+  "toolbar": {
+    "undo": "撤销",
+    "redo": "恢复",
+    "bold": "加粗",
+    "italic": "斜体",
+    "underline": "下划线",
+    "strike": "删除线",
+    "numList": "有序列表",
+    "bulletList": "无序列表",
+    "checkList": "任务列表",
+    "inlineCode": "内联代码",
+    "quote": "块引用"
+  },
+  "contactsPage": {
+    "title": "联系人",
+    "whatsHappening": "这周发生了哪些事?",
+    "addContact": "添加联系人",
+    "editContact": "编辑联系人"
+  },
+  "button": {
+    "OK": "确认",
+    "Cancel": "取消",
+    "signIn": "登录",
+    "signOut": "登出",
+    "complete": "完成",
+    "save": "保存"
+  },
+  "label": {
+    "welcome": "欢迎!",
+    "firstName": "名",
+    "middleName": "中间名",
+    "lastName": "姓",
+    "stepX": "第{X}步"
+  },
+  "oAuth": {
+    "err": {
+      "failedTitle": "无法连接到您的账户。",
+      "failedMsg": "请确认您已在浏览器中完成登录。"
+    },
+    "google": {
+      "title": "GOOGLE账号登录",
+      "instruction1": "为了导入您的Google联系人，您需要在浏览器中给予本程序授权。",
+      "instruction2": "单击图标或选择文本复制到剪贴板：",
+      "instruction3": "进入下面的链接，然后输入上面的代码：",
+      "instruction4": "完成注册后，点击下面的按钮："
+    }
+  }
+}

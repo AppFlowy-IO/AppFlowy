@@ -21,7 +21,7 @@ class AppWidgetTask extends LaunchTask {
 
     runApp(
       EasyLocalization(
-          supportedLocales: const [Locale('en')],
+          supportedLocales: const [Locale('en'), Locale('zh_CN')],
           path: 'assets/translations',
           fallbackLocale: const Locale('en'),
           child: app),
