@@ -63,7 +63,7 @@ impl ClientDocEditor {
             stop_sync_tx,
         });
 
-        edit_doc.notify_open_doc();
+        // edit_doc.notify_open_doc();
 
         start_sync(edit_doc.clone(), ws_msg_rx, cloned_stop_sync_tx);
         Ok(edit_doc)
@@ -165,7 +165,7 @@ impl ClientDocEditor {
         let delta_data = delta_data.to_vec();
         let user_id = self.user.user_id()?;
         let revision = Revision::new(base_rev_id, rev_id, delta_data, &self.doc_id, RevType::Local, user_id);
-        let _ = self.rev_manager.add_revision(&revision).await?;
+        let _ = self.rev_manager.add_local_revision(&revision).await?;
         Ok(rev_id.into())
     }
 
@@ -246,7 +246,7 @@ impl ClientDocEditor {
             RevType::Remote,
             user_id,
         );
-        let _ = self.rev_manager.add_revision(&revision).await?;
+        let _ = self.rev_manager.add_remote_revision(&revision).await?;
 
         // send the server_prime delta
         let user_id = self.user.user_id()?;
@@ -264,10 +264,8 @@ impl ClientDocEditor {
 
     pub async fn handle_ws_message(&self, doc_data: WsDocumentData) -> DocResult<()> {
         match self.ws_msg_tx.send(doc_data) {
-            Ok(_) => {
-                tracing::debug!("Propagate ws message data success")
-            },
-            Err(e) => tracing::error!("Propagate ws message data failed. {}", e),
+            Ok(_) => {},
+            Err(e) => tracing::error!("❌Propagate ws message failed. {}", e),
         }
         Ok(())
     }
@@ -286,7 +284,7 @@ impl WsDocumentHandler for EditDocWsHandler {
         let edit_doc = self.0.clone();
         tokio::spawn(async move {
             if let Err(e) = edit_doc.handle_ws_message(doc_data).await {
-                log::error!("{:?}", e);
+                tracing::error!("❌{:?}", e);
             }
         });
     }

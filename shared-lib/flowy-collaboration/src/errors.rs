@@ -38,6 +38,8 @@ impl CollaborateError {
     static_doc_error!(undo, ErrorCode::UndoFail);
     static_doc_error!(redo, ErrorCode::RedoFail);
     static_doc_error!(out_of_bound, ErrorCode::OutOfBound);
+    static_doc_error!(record_not_found, ErrorCode::RecordNotFound);
+    static_doc_error!(revision_conflict, ErrorCode::RevisionConflict);
 }
 
 impl fmt::Display for CollaborateError {
@@ -46,12 +48,14 @@ impl fmt::Display for CollaborateError {
 
 #[derive(Debug, Clone, Display, PartialEq, Eq)]
 pub enum ErrorCode {
-    DocIdInvalid  = 0,
-    DocNotfound   = 1,
-    UndoFail      = 200,
-    RedoFail      = 201,
-    OutOfBound    = 202,
-    InternalError = 1000,
+    DocIdInvalid     = 0,
+    DocNotfound      = 1,
+    UndoFail         = 200,
+    RedoFail         = 201,
+    OutOfBound       = 202,
+    RevisionConflict = 203,
+    RecordNotFound   = 300,
+    InternalError    = 1000,
 }
 
 impl std::convert::From<lib_ot::errors::OTError> for CollaborateError {

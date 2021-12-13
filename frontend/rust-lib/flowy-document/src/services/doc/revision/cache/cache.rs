@@ -1,6 +1,10 @@
 use crate::{
     errors::{internal_error, DocError, DocResult},
-    services::doc::revision::RevisionServer,
+    services::doc::revision::{
+        cache::{disk::RevisionDiskCache, memory::RevisionMemoryCache},
+        RevisionRecord,
+        RevisionServer,
+    },
     sql_tables::RevTableSql,
 };
 use flowy_collaboration::entities::doc::Doc;
@@ -8,7 +12,7 @@ use flowy_database::ConnectionPool;
 use lib_infra::future::FutureResult;
 use lib_ot::{
     core::{Operation, OperationTransformable},
-    revision::{RevState, RevType, Revision, RevisionDiskCache, RevisionMemoryCache, RevisionRange, RevisionRecord},
+    revision::{RevState, RevType, Revision, RevisionRange},
     rich_text::RichTextDelta,
 };
 use std::{sync::Arc, time::Duration};
@@ -53,11 +57,29 @@ impl RevisionCache {
     }
 
     #[tracing::instrument(level = "debug", skip(self, revision))]
-    pub async fn add_revision(&self, revision: Revision) -> DocResult<()> {
+    pub async fn add_local_revision(&self, revision: Revision) -> DocResult<()> {
         if self.memory_cache.contains(&revision.rev_id) {
             return Err(DocError::duplicate_rev().context(format!("Duplicate revision id: {}", revision.rev_id)));
         }
-        self.memory_cache.add_revision(revision.clone()).await?;
+        let record = RevisionRecord {
+            revision,
+            state: RevState::Local,
+        };
+        self.memory_cache.add_revision(record).await?;
+        self.save_revisions().await;
+        Ok(())
+    }
+
+    #[tracing::instrument(level = "debug", skip(self, revision))]
+    pub async fn add_remote_revision(&self, revision: Revision) -> DocResult<()> {
+        if self.memory_cache.contains(&revision.rev_id) {
+            return Err(DocError::duplicate_rev().context(format!("Duplicate revision id: {}", revision.rev_id)));
+        }
+        let record = RevisionRecord {
+            revision,
+            state: RevState::Local,
+        };
+        self.memory_cache.add_revision(record).await?;
         self.save_revisions().await;
         Ok(())
     }
@@ -68,8 +90,17 @@ impl RevisionCache {
         self.save_revisions().await;
     }
 
-    pub async fn query_revision(&self, rev_id: i64) -> Option<RevisionRecord> {
-        self.memory_cache.query_revision(&rev_id).await
+    pub async fn query_revision(&self, doc_id: &str, rev_id: i64) -> Option<RevisionRecord> {
+        match self.memory_cache.query_revision(&rev_id).await {
+            None => match self.dish_cache.read_revision(doc_id, rev_id) {
+                Ok(revision) => revision,
+                Err(e) => {
+                    log::error!("query_revision error: {:?}", e);
+                    None
+                },
+            },
+            Some(record) => Some(record),
+        }
     }
 
     async fn save_revisions(&self) {
@@ -102,9 +133,15 @@ impl RevisionCache {
         } else {
             let doc_id = self.doc_id.clone();
             let disk_cache = self.dish_cache.clone();
-            spawn_blocking(move || disk_cache.revisions_in_range(&doc_id, &range))
+            let records = spawn_blocking(move || disk_cache.revisions_in_range(&doc_id, &range))
                 .await
-                .map_err(internal_error)?
+                .map_err(internal_error)??;
+
+            let revisions = records
+                .into_iter()
+                .map(|record| record.revision)
+                .collect::<Vec<Revision>>();
+            Ok(revisions)
         }
     }
 
@@ -126,11 +163,8 @@ impl RevisionCache {
             RevType::Remote,
             self.user_id.clone(),
         );
-        let record = RevisionRecord {
-            revision,
-            state: RevState::Acked,
-        };
-        let _ = self.dish_cache.create_revisions(vec![record])?;
+
+        self.add_remote_revision(revision).await?;
         Ok(doc)
     }
 }
@@ -141,14 +175,14 @@ impl RevisionIterator for RevisionCache {
         let disk_cache = self.dish_cache.clone();
         let doc_id = self.doc_id.clone();
         FutureResult::new(async move {
-            match memory_cache.front_revision().await {
+            match memory_cache.front_local_revision().await {
                 None => {
                     //
-                    match memory_cache.front_rev_id().await {
+                    match memory_cache.front_local_rev_id().await {
                         None => Ok(None),
                         Some(rev_id) => match disk_cache.read_revision(&doc_id, rev_id)? {
                             None => Ok(None),
-                            Some(revision) => Ok(Some(RevisionRecord::new(revision))),
+                            Some(record) => Ok(Some(record)),
                         },
                     }
                 },
@@ -166,25 +200,25 @@ async fn load_from_disk(
     let doc_id = doc_id.to_owned();
     let (tx, mut rx) = mpsc::channel(2);
     let doc = spawn_blocking(move || {
-        let revisions = disk_cache.read_revisions(&doc_id)?;
-        if revisions.is_empty() {
+        let records = disk_cache.read_revisions(&doc_id)?;
+        if records.is_empty() {
             return Err(DocError::doc_not_found().context("Local doesn't have this document"));
         }
 
-        let (base_rev_id, rev_id) = revisions.last().unwrap().pair_rev_id();
+        let (base_rev_id, rev_id) = records.last().unwrap().revision.pair_rev_id();
         let mut delta = RichTextDelta::new();
-        for (_, revision) in revisions.into_iter().enumerate() {
+        for (_, record) in records.into_iter().enumerate() {
             // Opti: revision's clone may cause memory issues
-            match RichTextDelta::from_bytes(revision.clone().delta_data) {
+            match RichTextDelta::from_bytes(record.revision.clone().delta_data) {
                 Ok(local_delta) => {
                     delta = delta.compose(&local_delta)?;
-                    match tx.blocking_send(revision) {
+                    match tx.blocking_send(record) {
                         Ok(_) => {},
-                        Err(e) => log::error!("Load document from disk error: {}", e),
+                        Err(e) => tracing::error!("❌Load document from disk error: {}", e),
                     }
                 },
                 Err(e) => {
-                    log::error!("Deserialize delta from revision failed: {}", e);
+                    tracing::error!("Deserialize delta from revision failed: {}", e);
                 },
             }
         }
@@ -200,13 +234,12 @@ async fn load_from_disk(
     .await
     .map_err(internal_error)?;
 
-    while let Some(revision) = rx.recv().await {
-        match memory_cache.add_revision(revision).await {
+    while let Some(record) = rx.recv().await {
+        match memory_cache.add_revision(record).await {
             Ok(_) => {},
             Err(e) => log::error!("{:?}", e),
         }
     }
-
     doc
 }
 
@@ -217,7 +250,7 @@ fn correct_delta_if_need(delta: &mut RichTextDelta) {
 
     let data = delta.ops.last().as_ref().unwrap().get_data();
     if !data.ends_with('\n') {
-        log::error!("The op must end with newline. Correcting it by inserting newline op");
+        log::error!("❌The op must end with newline. Correcting it by inserting newline op");
         delta.ops.push(Operation::Insert("\n".into()));
     }
 }
@@ -238,19 +271,19 @@ impl RevisionDiskCache for Persistence {
         })
     }
 
-    fn revisions_in_range(&self, doc_id: &str, range: &RevisionRange) -> Result<Vec<Revision>, Self::Error> {
+    fn revisions_in_range(&self, doc_id: &str, range: &RevisionRange) -> Result<Vec<RevisionRecord>, Self::Error> {
         let conn = &*self.pool.get().map_err(internal_error).unwrap();
         let revisions = RevTableSql::read_rev_tables_with_range(&self.user_id, doc_id, range.clone(), conn)?;
         Ok(revisions)
     }
 
-    fn read_revision(&self, doc_id: &str, rev_id: i64) -> Result<Option<Revision>, Self::Error> {
+    fn read_revision(&self, doc_id: &str, rev_id: i64) -> Result<Option<RevisionRecord>, Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
         let some = RevTableSql::read_rev_table(&self.user_id, doc_id, &rev_id, &*conn)?;
         Ok(some)
     }
 
-    fn read_revisions(&self, doc_id: &str) -> Result<Vec<Revision>, Self::Error> {
+    fn read_revisions(&self, doc_id: &str) -> Result<Vec<RevisionRecord>, Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
         let some = RevTableSql::read_rev_tables(&self.user_id, doc_id, &*conn)?;
         Ok(some)

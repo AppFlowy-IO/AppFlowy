@@ -6,26 +6,14 @@ use actix_web::{
     web::{Data, Payload},
     HttpResponse,
 };
-use anyhow::Context;
+
 use backend_service::{errors::ServerError, response::FlowyResponse};
 use flowy_collaboration::protobuf::{CreateDocParams, DocIdentifier, UpdateDocParams};
 use sqlx::PgPool;
 
 pub async fn create_handler(payload: Payload, pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {
     let params: CreateDocParams = parse_from_payload(payload).await?;
-
-    let mut transaction = pool
-        .begin()
-        .await
-        .context("Failed to acquire a Postgres connection to create doc")?;
-
-    let _ = create_doc(&mut transaction, params).await?;
-
-    transaction
-        .commit()
-        .await
-        .context("Failed to commit SQL transaction to create doc.")?;
-
+    let _ = create_doc(&pool, params).await?;
     Ok(FlowyResponse::success().into())
 }
 

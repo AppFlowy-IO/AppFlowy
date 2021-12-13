@@ -44,8 +44,13 @@ impl RevisionManager {
         Ok(doc.delta()?)
     }
 
-    pub async fn add_revision(&self, revision: &Revision) -> Result<(), DocError> {
-        let _ = self.cache.add_revision(revision.clone()).await?;
+    pub async fn add_remote_revision(&self, revision: &Revision) -> Result<(), DocError> {
+        let _ = self.cache.add_remote_revision(revision.clone()).await?;
+        Ok(())
+    }
+
+    pub async fn add_local_revision(&self, revision: &Revision) -> Result<(), DocError> {
+        let _ = self.cache.add_local_revision(revision.clone()).await?;
         Ok(())
     }
 

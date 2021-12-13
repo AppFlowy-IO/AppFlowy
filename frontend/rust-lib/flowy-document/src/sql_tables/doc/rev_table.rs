@@ -1,7 +1,7 @@
+use crate::services::doc::revision::RevisionRecord;
 use diesel::sql_types::Integer;
-use flowy_database::schema::rev_table;
-
 use flowy_collaboration::util::md5;
+use flowy_database::schema::rev_table;
 use lib_ot::revision::{RevId, RevState, RevType, Revision};
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
@@ -64,9 +64,9 @@ impl std::convert::From<RevState> for RevTableState {
     }
 }
 
-pub(crate) fn mk_revision_from_table(user_id: &str, table: RevTable) -> Revision {
+pub(crate) fn mk_revision_record_from_table(user_id: &str, table: RevTable) -> RevisionRecord {
     let md5 = md5(&table.data);
-    Revision {
+    let revision = Revision {
         base_rev_id: table.base_rev_id,
         rev_id: table.rev_id,
         delta_data: table.data,
@@ -74,6 +74,10 @@ pub(crate) fn mk_revision_from_table(user_id: &str, table: RevTable) -> Revision
         doc_id: table.doc_id,
         ty: table.ty.into(),
         user_id: user_id.to_owned(),
+    };
+    RevisionRecord {
+        revision,
+        state: table.state.into(),
     }
 }
 

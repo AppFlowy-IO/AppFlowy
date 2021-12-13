@@ -23,6 +23,7 @@ use tokio::{
 pub trait ServerDocPersistence: Send + Sync {
     fn update_doc(&self, doc_id: &str, rev_id: i64, delta: RichTextDelta) -> FutureResultSend<(), CollaborateError>;
     fn read_doc(&self, doc_id: &str) -> FutureResultSend<Doc, CollaborateError>;
+    fn create_doc(&self, revision: Revision) -> FutureResultSend<Doc, CollaborateError>;
 }
 
 #[rustfmt::skip]
@@ -59,15 +60,36 @@ impl ServerDocManager {
         }
     }
 
-    pub async fn get(&self, doc_id: &str) -> Result<Option<Arc<OpenDocHandle>>, CollaborateError> {
+    pub async fn get(&self, doc_id: &str) -> Option<Arc<OpenDocHandle>> {
         match self.open_doc_map.get(doc_id).map(|ctx| ctx.clone()) {
-            Some(edit_doc) => Ok(Some(edit_doc)),
+            Some(edit_doc) => Some(edit_doc),
             None => {
-                let doc = self.persistence.read_doc(doc_id).await?;
-                let handler = self.cache(doc).await.map_err(internal_error)?;
-                Ok(Some(handler))
+                let f = || async {
+                    let doc = self.persistence.read_doc(doc_id).await?;
+                    let handler = self.cache(doc).await.map_err(internal_error)?;
+                    Ok::<Arc<OpenDocHandle>, CollaborateError>(handler)
+                };
+                match f().await {
+                    Ok(handler) => Some(handler),
+                    Err(e) => {
+                        log::error!("{}", e);
+                        None
+                    },
+                }
             },
         }
+    }
+
+    pub async fn create_doc(&self, revision: Revision) -> Result<Arc<OpenDocHandle>, CollaborateError> {
+        if !revision.is_initial() {
+            return Err(
+                CollaborateError::revision_conflict().context("Revision's rev_id should be 0 when creating the doc")
+            );
+        }
+
+        let doc = self.persistence.create_doc(revision).await?;
+        let handler = self.cache(doc).await?;
+        Ok(handler)
     }
 
     async fn cache(&self, doc: Doc) -> Result<Arc<OpenDocHandle>, CollaborateError> {
@@ -91,13 +113,6 @@ impl OpenDocHandle {
         let queue = DocCommandQueue::new(receiver, doc)?;
         tokio::task::spawn(queue.run());
         Ok(Self { sender })
-    }
-
-    pub async fn add_user(&self, user: Arc<dyn RevisionUser>, rev_id: i64) -> Result<(), CollaborateError> {
-        let (ret, rx) = oneshot::channel();
-        let msg = DocCommand::NewConnectedUser { user, rev_id, ret };
-        let _ = self.send(msg, rx).await?;
-        Ok(())
     }
 
     pub async fn apply_revision(
@@ -132,11 +147,6 @@ impl OpenDocHandle {
 
 #[derive(Debug)]
 enum DocCommand {
-    NewConnectedUser {
-        user: Arc<dyn RevisionUser>,
-        rev_id: i64,
-        ret: oneshot::Sender<CollaborateResult<()>>,
-    },
     ReceiveRevision {
         user: Arc<dyn RevisionUser>,
         revision: Revision,
@@ -183,10 +193,6 @@ impl DocCommandQueue {
 
     async fn handle_message(&self, msg: DocCommand) {
         match msg {
-            DocCommand::NewConnectedUser { user, rev_id, ret } => {
-                log::debug!("Receive new doc user: {:?}, rev_id: {}", user, rev_id);
-                let _ = ret.send(self.edit_doc.new_doc_user(user, rev_id).await.map_err(internal_error));
-            },
             DocCommand::ReceiveRevision { user, revision, ret } => {
                 // let revision = (&mut revision).try_into().map_err(internal_error).unwrap();
                 let _ = ret.send(
@@ -245,20 +251,6 @@ impl ServerDocEditor {
             synchronizer,
             users,
         })
-    }
-
-    #[tracing::instrument(
-        level = "debug",
-        skip(self, user),
-        fields(
-            user_id = %user.user_id(),
-            rev_id = %rev_id,
-        )
-    )]
-    pub async fn new_doc_user(&self, user: Arc<dyn RevisionUser>, rev_id: i64) -> Result<(), OTError> {
-        self.users.insert(user.user_id(), user.clone());
-        self.synchronizer.new_conn(user, rev_id);
-        Ok(())
     }
 
     #[tracing::instrument(

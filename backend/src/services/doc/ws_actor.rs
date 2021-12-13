@@ -10,8 +10,8 @@ use actix_web::web::Data;
 use async_stream::stream;
 use backend_service::errors::{internal_error, Result as DocResult, ServerError};
 use flowy_collaboration::{
-    core::sync::{OpenDocHandle, ServerDocManager},
-    protobuf::{NewDocUser, WsDataType, WsDocumentData},
+    core::sync::ServerDocManager,
+    protobuf::{WsDataType, WsDocumentData},
 };
 use futures::stream::StreamExt;
 use lib_ot::protobuf::Revision;
@@ -80,30 +80,9 @@ impl DocWsActor {
         match document_data.ty {
             WsDataType::Acked => Ok(()),
             WsDataType::PushRev => self.apply_pushed_rev(user, socket, data, pool).await,
-            WsDataType::NewDocUser => self.add_doc_user(user, socket, data, pool).await,
             WsDataType::PullRev => Ok(()),
             WsDataType::Conflict => Ok(()),
         }
-    }
-
-    async fn add_doc_user(
-        &self,
-        user: Arc<WsUser>,
-        socket: Socket,
-        data: Vec<u8>,
-        pg_pool: Data<PgPool>,
-    ) -> DocResult<()> {
-        let doc_user = spawn_blocking(move || {
-            let user: NewDocUser = parse_from_bytes(&data)?;
-            DocResult::Ok(user)
-        })
-        .await
-        .map_err(internal_error)??;
-        if let Some(handle) = self.get_doc_handle(&doc_user.doc_id, pg_pool.clone()).await {
-            let user = Arc::new(ServerDocUser { user, socket, pg_pool });
-            handle.add_user(user, doc_user.rev_id).await.map_err(internal_error)?;
-        }
-        Ok(())
     }
 
     async fn apply_pushed_rev(
@@ -113,30 +92,27 @@ impl DocWsActor {
         data: Vec<u8>,
         pg_pool: Data<PgPool>,
     ) -> DocResult<()> {
-        let mut revision = spawn_blocking(move || {
+        let mut revision_pb = spawn_blocking(move || {
             let revision: Revision = parse_from_bytes(&data)?;
             let _ = verify_md5(&revision)?;
             DocResult::Ok(revision)
         })
         .await
         .map_err(internal_error)??;
-        if let Some(handle) = self.get_doc_handle(&revision.doc_id, pg_pool.clone()).await {
-            let user = Arc::new(ServerDocUser { user, socket, pg_pool });
-            let revision = (&mut revision).try_into().map_err(internal_error).unwrap();
-            handle.apply_revision(user, revision).await.map_err(internal_error)?;
-        }
-        Ok(())
-    }
+        let revision: lib_ot::revision::Revision = (&mut revision_pb).try_into().map_err(internal_error)?;
+        // Create the doc if it doesn't exist
+        let handler = match self.doc_manager.get(&revision.doc_id).await {
+            None => self
+                .doc_manager
+                .create_doc(revision.clone())
+                .await
+                .map_err(internal_error)?,
+            Some(handler) => handler,
+        };
 
-    async fn get_doc_handle(&self, doc_id: &str, _pg_pool: Data<PgPool>) -> Option<Arc<OpenDocHandle>> {
-        match self.doc_manager.get(doc_id).await {
-            Ok(Some(edit_doc)) => Some(edit_doc),
-            Ok(None) => None,
-            Err(e) => {
-                log::error!("{}", e);
-                None
-            },
-        }
+        let user = Arc::new(ServerDocUser { user, socket, pg_pool });
+        handler.apply_revision(user, revision).await.map_err(internal_error)?;
+        Ok(())
     }
 }
 

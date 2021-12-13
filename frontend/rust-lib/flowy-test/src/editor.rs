@@ -76,7 +76,7 @@ impl EditorTest {
                 self.editor.redo().await.unwrap();
             },
             EditorScript::AssertRevisionState(rev_id, state) => {
-                let record = cache.query_revision(rev_id).await.unwrap();
+                let record = cache.query_revision(&doc_id, rev_id).await.unwrap();
                 assert_eq!(record.state, state);
             },
             EditorScript::AssertCurrentRevId(rev_id) => {

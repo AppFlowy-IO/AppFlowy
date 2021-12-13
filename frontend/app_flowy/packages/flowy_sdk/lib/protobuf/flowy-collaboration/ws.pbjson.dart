@@ -16,12 +16,11 @@ const WsDataType$json = const {
     const {'1': 'PushRev', '2': 1},
     const {'1': 'PullRev', '2': 2},
     const {'1': 'Conflict', '2': 3},
-    const {'1': 'NewDocUser', '2': 4},
   ],
 };
 
 /// Descriptor for `WsDataType`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List wsDataTypeDescriptor = $convert.base64Decode('CgpXc0RhdGFUeXBlEgkKBUFja2VkEAASCwoHUHVzaFJldhABEgsKB1B1bGxSZXYQAhIMCghDb25mbGljdBADEg4KCk5ld0RvY1VzZXIQBA==');
+final $typed_data.Uint8List wsDataTypeDescriptor = $convert.base64Decode('CgpXc0RhdGFUeXBlEgkKBUFja2VkEAASCwoHUHVzaFJldhABEgsKB1B1bGxSZXYQAhIMCghDb25mbGljdBAD');
 @$core.Deprecated('Use wsDocumentDataDescriptor instead')
 const WsDocumentData$json = const {
   '1': 'WsDocumentData',

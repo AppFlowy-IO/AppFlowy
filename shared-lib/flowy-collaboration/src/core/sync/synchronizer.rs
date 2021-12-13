@@ -55,29 +55,12 @@ impl RevisionSynchronizer {
         }
     }
 
-    pub fn new_conn(&self, user: Arc<dyn RevisionUser>, rev_id: i64) {
-        let cur_rev_id = self.rev_id.load(SeqCst);
-        match cur_rev_id.cmp(&rev_id) {
-            Ordering::Less => {
-                let msg = mk_pull_message(&self.doc_id, next(cur_rev_id), rev_id);
-                user.recv(SyncResponse::Pull(msg));
-            },
-            Ordering::Equal => {},
-            Ordering::Greater => {
-                let doc_delta = self.document.read().delta().clone();
-                let revision = self.mk_revision(rev_id, doc_delta);
-                let data = mk_push_message(&self.doc_id, revision);
-                user.recv(SyncResponse::Push(data));
-            },
-        }
-    }
-
     pub fn apply_revision(&self, user: Arc<dyn RevisionUser>, revision: Revision) -> Result<(), OTError> {
-        let cur_rev_id = self.rev_id.load(SeqCst);
-        match cur_rev_id.cmp(&revision.rev_id) {
+        let server_base_rev_id = self.rev_id.load(SeqCst);
+        match server_base_rev_id.cmp(&revision.rev_id) {
             Ordering::Less => {
-                let next_rev_id = next(cur_rev_id);
-                if cur_rev_id == revision.base_rev_id || next_rev_id == revision.base_rev_id {
+                let server_rev_id = next(server_base_rev_id);
+                if server_base_rev_id == revision.base_rev_id || server_rev_id == revision.rev_id {
                     // The rev is in the right order, just compose it.
                     let _ = self.compose_revision(&revision)?;
                     user.recv(SyncResponse::Ack(mk_acked_message(&revision)));
@@ -91,13 +74,14 @@ impl RevisionSynchronizer {
                     });
                 } else {
                     // The server document is outdated, pull the missing revision from the client.
-                    let msg = mk_pull_message(&self.doc_id, next_rev_id, revision.rev_id);
+                    let msg = mk_pull_message(&self.doc_id, server_rev_id, revision.rev_id);
                     user.recv(SyncResponse::Pull(msg));
                 }
             },
             Ordering::Equal => {
                 // Do nothing
                 log::warn!("Applied revision rev_id is the same as cur_rev_id");
+                user.recv(SyncResponse::Ack(mk_acked_message(&revision)));
             },
             Ordering::Greater => {
                 // The client document is outdated. Transform the client revision delta and then

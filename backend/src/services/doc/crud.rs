@@ -9,7 +9,7 @@ use sqlx::{postgres::PgArguments, PgPool, Postgres};
 use uuid::Uuid;
 
 #[tracing::instrument(level = "debug", skip(transaction), err)]
-pub(crate) async fn create_doc(
+pub(crate) async fn create_doc_with_transaction(
     transaction: &mut DBTransaction<'_>,
     params: CreateDocParams,
 ) -> Result<(), ServerError> {
@@ -19,6 +19,22 @@ pub(crate) async fn create_doc(
         .execute(transaction)
         .await
         .map_err(map_sqlx_error)?;
+
+    Ok(())
+}
+
+pub(crate) async fn create_doc(pool: &PgPool, params: CreateDocParams) -> Result<(), ServerError> {
+    let mut transaction = pool
+        .begin()
+        .await
+        .context("Failed to acquire a Postgres connection to create doc")?;
+
+    let _ = create_doc_with_transaction(&mut transaction, params).await?;
+
+    transaction
+        .commit()
+        .await
+        .context("Failed to commit SQL transaction to create doc.")?;
 
     Ok(())
 }

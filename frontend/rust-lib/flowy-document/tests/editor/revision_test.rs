@@ -1,5 +1,5 @@
 use flowy_test::editor::{EditorScript::*, *};
-use lib_ot::{revision::RevState, rich_text::RichTextDeltaBuilder};
+use lib_ot::revision::RevState;
 
 #[tokio::test]
 async fn doc_rev_state_test1() {
@@ -40,12 +40,11 @@ async fn doc_rev_state_test2() {
 
 #[tokio::test]
 async fn doc_push_test() {
-    let delta = RichTextDeltaBuilder::new().insert("abc\n").build();
+    // let delta = RichTextDeltaBuilder::new().insert("abc\n").build();
     let scripts = vec![
         InsertText("1", 0),
         InsertText("2", 1),
         InsertText("3", 2),
-        SimulatePushRevisionMessageWithDelta(delta),
         AssertJson(r#"[{"insert":"123\nabc\n"}]"#),
     ];
     EditorTest::new().await.run_scripts(scripts).await;

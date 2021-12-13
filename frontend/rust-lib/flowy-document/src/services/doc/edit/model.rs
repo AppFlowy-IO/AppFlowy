@@ -1,10 +1,13 @@
+#![allow(clippy::all)]
+#![cfg_attr(rustfmt, rustfmt::skip)]
 use crate::{errors::DocError, services::ws::DocumentWebSocket};
-use flowy_collaboration::entities::doc::NewDocUser;
+
 use futures::future::BoxFuture;
 use lib_infra::retry::Action;
 use lib_ot::revision::RevId;
 use std::{future, sync::Arc};
 
+#[allow(dead_code)]
 pub(crate) struct OpenDocAction {
     user_id: String,
     rev_id: RevId,
@@ -29,15 +32,16 @@ impl Action for OpenDocAction {
     type Error = DocError;
 
     fn run(&mut self) -> Self::Future {
-        let new_doc_user = NewDocUser {
-            user_id: self.user_id.clone(),
-            rev_id: self.rev_id.clone().into(),
-            doc_id: self.doc_id.clone(),
-        };
-
-        match self.ws.send(new_doc_user.into()) {
-            Ok(_) => Box::pin(future::ready(Ok::<(), DocError>(()))),
-            Err(e) => Box::pin(future::ready(Err::<(), DocError>(e))),
-        }
+        // let new_doc_user = NewDocUser {
+        //     user_id: self.user_id.clone(),
+        //     rev_id: self.rev_id.clone().into(),
+        //     doc_id: self.doc_id.clone(),
+        // };
+        //
+        // match self.ws.send(new_doc_user.into()) {
+        //     Ok(_) => Box::pin(future::ready(Ok::<(), DocError>(()))),
+        //     Err(e) => Box::pin(future::ready(Err::<(), DocError>(e))),
+        // }
+        Box::pin(future::ready(Ok::<(), DocError>(())))
     }
 }

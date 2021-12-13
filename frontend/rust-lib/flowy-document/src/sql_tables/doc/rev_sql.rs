@@ -1,10 +1,11 @@
 use crate::{
     errors::DocError,
-    sql_tables::{doc::RevTable, mk_revision_from_table, RevChangeset, RevTableState, RevTableType},
+    services::doc::revision::RevisionRecord,
+    sql_tables::{doc::RevTable, mk_revision_record_from_table, RevChangeset, RevTableState, RevTableType},
 };
 use diesel::update;
 use flowy_database::{insert_or_ignore_into, prelude::*, schema::rev_table::dsl, SqliteConnection};
-use lib_ot::revision::{Revision, RevisionRange, RevisionRecord};
+use lib_ot::revision::RevisionRange;
 
 pub struct RevTableSql {}
 
@@ -45,7 +46,7 @@ impl RevTableSql {
         user_id: &str,
         doc_id: &str,
         conn: &SqliteConnection,
-    ) -> Result<Vec<Revision>, DocError> {
+    ) -> Result<Vec<RevisionRecord>, DocError> {
         let filter = dsl::rev_table
             .filter(dsl::doc_id.eq(doc_id))
             .order(dsl::rev_id.asc())
@@ -53,8 +54,8 @@ impl RevTableSql {
         let rev_tables = filter.load::<RevTable>(conn)?;
         let revisions = rev_tables
             .into_iter()
-            .map(|table| mk_revision_from_table(user_id, table))
-            .collect::<Vec<Revision>>();
+            .map(|table| mk_revision_record_from_table(user_id, table))
+            .collect::<Vec<_>>();
         Ok(revisions)
     }
 
@@ -63,7 +64,7 @@ impl RevTableSql {
         doc_id: &str,
         revision_id: &i64,
         conn: &SqliteConnection,
-    ) -> Result<Option<Revision>, DocError> {
+    ) -> Result<Option<RevisionRecord>, DocError> {
         let filter = dsl::rev_table
             .filter(dsl::doc_id.eq(doc_id))
             .filter(dsl::rev_id.eq(revision_id));
@@ -72,7 +73,7 @@ impl RevTableSql {
         if Err(diesel::NotFound) == result {
             Ok(None)
         } else {
-            Ok(Some(mk_revision_from_table(user_id, result?)))
+            Ok(Some(mk_revision_record_from_table(user_id, result?)))
         }
     }
 
@@ -81,7 +82,7 @@ impl RevTableSql {
         doc_id: &str,
         range: RevisionRange,
         conn: &SqliteConnection,
-    ) -> Result<Vec<Revision>, DocError> {
+    ) -> Result<Vec<RevisionRecord>, DocError> {
         let rev_tables = dsl::rev_table
             .filter(dsl::rev_id.ge(range.start))
             .filter(dsl::rev_id.le(range.end))
@@ -91,8 +92,8 @@ impl RevTableSql {
 
         let revisions = rev_tables
             .into_iter()
-            .map(|table| mk_revision_from_table(user_id, table))
-            .collect::<Vec<Revision>>();
+            .map(|table| mk_revision_record_from_table(user_id, table))
+            .collect::<Vec<_>>();
         Ok(revisions)
     }
 

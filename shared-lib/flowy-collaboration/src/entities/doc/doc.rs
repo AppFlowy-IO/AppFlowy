@@ -1,5 +1,6 @@
+use crate::errors::CollaborateError;
 use flowy_derive::ProtoBuf;
-use lib_ot::{errors::OTError, rich_text::RichTextDelta};
+use lib_ot::{errors::OTError, revision::Revision, rich_text::RichTextDelta};
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct CreateDocParams {
@@ -38,6 +39,28 @@ impl Doc {
     pub fn delta(&self) -> Result<RichTextDelta, OTError> {
         let delta = RichTextDelta::from_bytes(&self.data)?;
         Ok(delta)
+    }
+}
+
+impl std::convert::TryFrom<Revision> for Doc {
+    type Error = CollaborateError;
+
+    fn try_from(revision: Revision) -> Result<Self, Self::Error> {
+        if !revision.is_initial() {
+            return Err(
+                CollaborateError::revision_conflict().context("Revision's rev_id should be 0 when creating the doc")
+            );
+        }
+
+        let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
+        let doc_json = delta.to_json();
+
+        Ok(Doc {
+            id: revision.doc_id,
+            data: doc_json,
+            rev_id: revision.rev_id,
+            base_rev_id: revision.base_rev_id,
+        })
     }
 }
 

@@ -31,6 +31,8 @@ impl Revision {
 
     pub fn pair_rev_id(&self) -> (i64, i64) { (self.base_rev_id, self.rev_id) }
 
+    pub fn is_initial(&self) -> bool { self.rev_id == 0 }
+
     // pub fn from_pb(pb: &mut crate::protobuf::Revision) -> Self {
     // pb.try_into().unwrap() }
 
@@ -154,4 +156,10 @@ impl RevisionRange {
 pub fn md5<T: AsRef<[u8]>>(data: T) -> String {
     let md5 = format!("{:x}", md5::compute(data));
     md5
+}
+
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub enum RevState {
+    Local = 0,
+    Acked = 1,
 }

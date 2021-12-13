@@ -1,4 +1,5 @@
 syntax = "proto3";
+
 message NetworkState {
     NetworkType ty = 1;
 }

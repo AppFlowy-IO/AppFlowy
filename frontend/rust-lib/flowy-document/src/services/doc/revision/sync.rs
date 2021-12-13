@@ -54,8 +54,13 @@ impl RevisionDownStream {
                 tokio::select! {
                     result = receiver.recv() => {
                         match result {
-                            Some(msg) => yield msg,
-                            None => {},
+                            Some(msg) => {
+                                yield msg
+                            },
+                            None => {
+                                tracing::debug!("[RevisionDownStream:{}] loop exit", doc_id);
+                                break;
+                            },
                         }
                     },
                     _ = stop_rx.recv() => {
@@ -82,7 +87,7 @@ impl RevisionDownStream {
             .await
             .map_err(internal_error)?;
 
-        log::debug!("[RevisionDownStream]: receives new message: {:?}", ty);
+        tracing::debug!("[RevisionDownStream]: receives new message: {:?}", ty);
         match ty {
             WsDataType::PushRev => {
                 let _ = self.editor.handle_push_rev(bytes).await?;
@@ -97,7 +102,6 @@ impl RevisionDownStream {
                 let _ = self.rev_manager.ack_revision(rev_id).await?;
             },
             WsDataType::Conflict => {},
-            WsDataType::NewDocUser => {},
         }
 
         Ok(())
@@ -145,7 +149,7 @@ impl RevisionUpStream {
                     result = rx.recv() => {
                         match result {
                             Some(msg) => yield msg,
-                            None => {},
+                            None => break,
                         }
                     },
                     _ = stop_rx.recv() => {

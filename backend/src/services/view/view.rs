@@ -1,7 +1,7 @@
 use crate::{
     entities::workspace::{ViewTable, VIEW_TABLE},
     services::{
-        doc::{create_doc, delete_doc},
+        doc::{create_doc_with_transaction, delete_doc},
         trash::read_trash_ids,
         user::LoggedUser,
         view::sql_builder::*,
@@ -94,7 +94,7 @@ pub(crate) async fn create_view_with_args(
     let mut create_doc_params = CreateDocParams::new();
     create_doc_params.set_data(view_data);
     create_doc_params.set_id(view.id.clone());
-    let _ = create_doc(transaction, create_doc_params).await?;
+    let _ = create_doc_with_transaction(transaction, create_doc_params).await?;
     Ok(view)
 }
 

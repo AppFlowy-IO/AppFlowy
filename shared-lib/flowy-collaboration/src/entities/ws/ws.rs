@@ -1,4 +1,4 @@
-use crate::{entities::doc::NewDocUser, errors::CollaborateError};
+use crate::errors::CollaborateError;
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use lib_ot::revision::{RevId, Revision, RevisionRange};
@@ -7,13 +7,12 @@ use std::convert::{TryFrom, TryInto};
 #[derive(Debug, Clone, ProtoBuf_Enum, Eq, PartialEq, Hash)]
 pub enum WsDataType {
     // The frontend receives the Acked means the backend has accepted the revision
-    Acked      = 0,
+    Acked    = 0,
     // The frontend receives the PushRev event means the backend is pushing the new revision to frontend
-    PushRev    = 1,
+    PushRev  = 1,
     // The fronted receives the PullRev event means the backend try to pull the revision from frontend
-    PullRev    = 2,
-    Conflict   = 3,
-    NewDocUser = 4,
+    PullRev  = 2,
+    Conflict = 3,
 }
 
 impl WsDataType {
@@ -48,18 +47,6 @@ impl std::convert::From<Revision> for WsDocumentData {
         Self {
             doc_id,
             ty: WsDataType::PushRev,
-            data: bytes.to_vec(),
-        }
-    }
-}
-
-impl std::convert::From<NewDocUser> for WsDocumentData {
-    fn from(user: NewDocUser) -> Self {
-        let doc_id = user.doc_id.clone();
-        let bytes: Bytes = user.try_into().unwrap();
-        Self {
-            doc_id,
-            ty: WsDataType::NewDocUser,
             data: bytes.to_vec(),
         }
     }

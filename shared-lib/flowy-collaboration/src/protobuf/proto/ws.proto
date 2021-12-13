@@ -10,5 +10,4 @@ enum WsDataType {
     PushRev = 1;
     PullRev = 2;
     Conflict = 3;
-    NewDocUser = 4;
 }
