@@ -65,8 +65,7 @@ class DeltaMarkdownEncoder extends Converter<String, String> {
     // First close any current styles if needed
     final markedForRemoval = <Attribute>[];
     // Close the styles in reverse order, e.g. **_ for _**Test**_.
-    for (final value
-        in currentInlineStyle.attributes.values.toList().reversed) {
+    for (final value in currentInlineStyle.attributes.values.toList().reversed) {
       // TODO(tillf): Is block correct?
       if (value.scope == AttributeScope.BLOCK) {
         continue;
@@ -123,10 +122,8 @@ class DeltaMarkdownEncoder extends Converter<String, String> {
         // Close any open inline styles.
         _handleInline(lineBuffer, '', null);
 
-        final lineBlock = Style.fromJson(attributes)
-            .attributes
-            .values
-            .singleWhereOrNull((a) => a.scope == AttributeScope.BLOCK);
+        final lineBlock =
+            Style.fromJson(attributes).attributes.values.singleWhereOrNull((a) => a.scope == AttributeScope.BLOCK);
 
         if (lineBlock == currentBlockStyle) {
           currentBlockLines.add(lineBuffer.toString());
@@ -220,6 +217,16 @@ class DeltaMarkdownEncoder extends Converter<String, String> {
       buffer.write(!close ? '[' : '](${attribute.value})');
     } else if (attribute == Attribute.codeBlock) {
       buffer.write(!close ? '```\n' : '\n```');
+    } else if (attribute.key == Attribute.background.key) {
+      buffer.write(!close ? '<mark>' : '</mark>');
+    } else if (attribute.key == Attribute.underline.key) {
+      buffer.write(!close ? '<u>' : '</u>');
+    } else if (attribute.key == Attribute.codeBlock.key) {
+      buffer.write(!close ? '```\n' : '\n```');
+    } else if (attribute.key == Attribute.inlineCode.key) {
+      buffer.write(!close ? '`' : '`');
+    } else if (attribute.key == Attribute.strikeThrough.key) {
+      buffer.write(!close ? '~~' : '~~');
     } else {
       throw ArgumentError('Cannot handle $attribute');
     }
@@ -246,6 +253,8 @@ class DeltaMarkdownEncoder extends Converter<String, String> {
       buffer.write('## ');
     } else if (block.key == Attribute.h3.key && block.value == 3) {
       buffer.write('### ');
+    } else if (block.key == Attribute.list.key) {
+      buffer.write('* ');
     } else {
       throw ArgumentError('Cannot handle block $block');
     }
