@@ -110,6 +110,12 @@ cargo make -p production-linux-x86 appflowy-linux
 ## Step 4: Run the application
 ------------------------------
 
+Arch Linux need install `xdg-user-dirs`:
+
+```shell
+sudo pacman -S xdg-user-dirs
+```
+
 ```
 cd [frontend/]app_flowy/product/0.0.2/linux/Debug/AppFlowy/app_flowy
 ./app_flowy
