@@ -23,8 +23,8 @@ impl WsManager {
         } else {
             local_web_socket()
         };
-
         let (status_notifier, _) = broadcast::channel(10);
+        listen_on_websocket(ws.clone());
         WsManager {
             inner: ws,
             connect_type: RwLock::new(NetworkType::default()),
@@ -35,10 +35,13 @@ impl WsManager {
 
     pub async fn start(&self, token: String) -> Result<(), FlowyError> {
         let addr = format!("{}/{}", self.addr, token);
-        self.listen_on_websocket();
+        self.inner.stop_connect().await;
+
         let _ = self.inner.start_connect(addr).await?;
         Ok(())
     }
+
+    pub async fn stop(&self) { self.inner.stop_connect().await; }
 
     pub fn update_network_type(&self, new_type: &NetworkType) {
         tracing::debug!("Network new state: {:?}", new_type);
@@ -62,32 +65,9 @@ impl WsManager {
         }
     }
 
-    #[tracing::instrument(level = "debug", skip(self))]
-    fn listen_on_websocket(&self) {
-        let mut notify = self.inner.conn_state_subscribe();
-        let ws = self.inner.clone();
-        let _ = tokio::spawn(async move {
-            loop {
-                match notify.recv().await {
-                    Ok(state) => {
-                        tracing::info!("Websocket state changed: {}", state);
-                        match state {
-                            WsConnectState::Init => {},
-                            WsConnectState::Connected => {},
-                            WsConnectState::Connecting => {},
-                            WsConnectState::Disconnected => retry_connect(ws.clone(), 100).await,
-                        }
-                    },
-                    Err(e) => {
-                        tracing::error!("Websocket state notify error: {:?}", e);
-                        break;
-                    },
-                }
-            }
-        });
+    pub fn subscribe_websocket_state(&self) -> broadcast::Receiver<WsConnectState> {
+        self.inner.subscribe_connect_state()
     }
-
-    pub fn subscribe_websocket_state(&self) -> broadcast::Receiver<WsConnectState> { self.inner.conn_state_subscribe() }
 
     pub fn subscribe_network_ty(&self) -> broadcast::Receiver<NetworkType> { self.status_notifier.subscribe() }
 
@@ -97,6 +77,30 @@ impl WsManager {
     }
 
     pub fn ws_sender(&self) -> Result<Arc<dyn FlowyWsSender>, FlowyError> { self.inner.ws_sender() }
+}
+
+#[tracing::instrument(level = "debug", skip(ws))]
+fn listen_on_websocket(ws: Arc<dyn FlowyWebSocket>) {
+    let mut notify = ws.subscribe_connect_state();
+    let _ = tokio::spawn(async move {
+        loop {
+            match notify.recv().await {
+                Ok(state) => {
+                    tracing::info!("Websocket state changed: {}", state);
+                    match state {
+                        WsConnectState::Init => {},
+                        WsConnectState::Connected => {},
+                        WsConnectState::Connecting => {},
+                        WsConnectState::Disconnected => retry_connect(ws.clone(), 100).await,
+                    }
+                },
+                Err(e) => {
+                    tracing::error!("Websocket state notify error: {:?}", e);
+                    break;
+                },
+            }
+        }
+    });
 }
 
 async fn retry_connect(ws: Arc<dyn FlowyWebSocket>, count: usize) {
@@ -117,7 +121,15 @@ impl FlowyWebSocket for Arc<WsController> {
         })
     }
 
-    fn conn_state_subscribe(&self) -> Receiver<WsConnectState> { self.state_subscribe() }
+    fn stop_connect(&self) -> FutureResult<(), FlowyError> {
+        let controller = self.clone();
+        FutureResult::new(async move {
+            controller.stop().await;
+            Ok(())
+        })
+    }
+
+    fn subscribe_connect_state(&self) -> Receiver<WsConnectState> { self.subscribe_state() }
 
     fn reconnect(&self, count: usize) -> FutureResult<(), FlowyError> {
         let cloned_ws = self.clone();

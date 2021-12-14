@@ -134,12 +134,15 @@ async fn _listen_user_status(
                 },
                 UserStatus::Logout { .. } => {
                     core.user_did_logout().await;
+                    let _ = ws_manager.stop().await;
                 },
                 UserStatus::Expired { .. } => {
                     core.user_session_expired().await;
+                    let _ = ws_manager.stop().await;
                 },
                 UserStatus::SignUp { profile, ret } => {
                     let _ = core.user_did_sign_up(&profile.token).await?;
+                    let _ = ws_manager.start(profile.token.clone()).await?;
                     let _ = ret.send(());
                 },
             }

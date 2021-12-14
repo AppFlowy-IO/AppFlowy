@@ -70,10 +70,11 @@ impl WsController {
 
     pub async fn start(&self, addr: String) -> Result<(), ServerError> {
         *self.addr.write() = Some(addr.clone());
-
         let strategy = FixedInterval::from_millis(5000).take(3);
         self.connect(addr, strategy).await
     }
+
+    pub async fn stop(&self) { self.sender_ctrl.write().set_state(WsConnectState::Disconnected); }
 
     async fn connect<T, I>(&self, addr: String, strategy: T) -> Result<(), ServerError>
     where
@@ -130,7 +131,7 @@ impl WsController {
         self.connect(addr, strategy).await
     }
 
-    pub fn state_subscribe(&self) -> broadcast::Receiver<WsConnectState> { self.state_notify.subscribe() }
+    pub fn subscribe_state(&self) -> broadcast::Receiver<WsConnectState> { self.state_notify.subscribe() }
 
     pub fn sender(&self) -> Result<Arc<WsSender>, WsError> {
         match self.sender_ctrl.read().sender() {
@@ -359,8 +360,8 @@ impl WsSenderController {
             self.sender = None;
         }
 
-        self.state = state.clone();
-        let _ = self.state_notify.send(state);
+        self.state = state;
+        let _ = self.state_notify.send(self.state.clone());
     }
 
     fn set_error(&mut self, error: WsError) {

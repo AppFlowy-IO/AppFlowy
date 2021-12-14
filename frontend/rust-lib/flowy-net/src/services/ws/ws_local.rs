@@ -22,7 +22,9 @@ impl std::default::Default for LocalWebSocket {
 impl FlowyWebSocket for Arc<LocalWebSocket> {
     fn start_connect(&self, _addr: String) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
 
-    fn conn_state_subscribe(&self) -> Receiver<WsConnectState> { self.state_sender.subscribe() }
+    fn stop_connect(&self) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
+
+    fn subscribe_connect_state(&self) -> Receiver<WsConnectState> { self.state_sender.subscribe() }
 
     fn reconnect(&self, _count: usize) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
 

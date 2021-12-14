@@ -7,7 +7,8 @@ pub use lib_ws::{WsConnectState, WsMessage, WsMessageHandler};
 
 pub trait FlowyWebSocket: Send + Sync {
     fn start_connect(&self, addr: String) -> FutureResult<(), FlowyError>;
-    fn conn_state_subscribe(&self) -> broadcast::Receiver<WsConnectState>;
+    fn stop_connect(&self) -> FutureResult<(), FlowyError>;
+    fn subscribe_connect_state(&self) -> broadcast::Receiver<WsConnectState>;
     fn reconnect(&self, count: usize) -> FutureResult<(), FlowyError>;
     fn add_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), FlowyError>;
     fn ws_sender(&self) -> Result<Arc<dyn FlowyWsSender>, FlowyError>;
