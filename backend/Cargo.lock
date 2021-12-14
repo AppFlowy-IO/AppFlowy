@@ -1152,6 +1152,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "error-code"
+version = "0.1.0"
+dependencies = [
+ "derive_more",
+ "flowy-derive",
+ "protobuf",
+]
+
+[[package]]
 name = "eyre"
 version = "0.6.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1241,6 +1250,7 @@ dependencies = [
  "flowy-database",
  "flowy-derive",
  "flowy-document",
+ "flowy-error",
  "flowy-net",
  "futures",
  "futures-core",
@@ -1267,6 +1277,7 @@ dependencies = [
  "bytes",
  "chrono",
  "derive_more",
+ "error-code",
  "flowy-collaboration",
  "flowy-derive",
  "log",
@@ -1317,6 +1328,7 @@ dependencies = [
  "flowy-collaboration",
  "flowy-database",
  "flowy-derive",
+ "flowy-error",
  "futures",
  "futures-core",
  "futures-util",
@@ -1343,11 +1355,18 @@ dependencies = [
 name = "flowy-error"
 version = "0.1.0"
 dependencies = [
+ "backend-service",
  "bytes",
- "derive_more",
+ "error-code",
+ "flowy-collaboration",
+ "flowy-database",
  "flowy-derive",
  "lib-dispatch",
+ "lib-ot",
+ "lib-sqlite",
  "protobuf",
+ "r2d2",
+ "serde_json",
 ]
 
 [[package]]
@@ -1431,6 +1450,7 @@ dependencies = [
  "diesel_derives",
  "flowy-database",
  "flowy-derive",
+ "flowy-error",
  "flowy-net",
  "flowy-user-infra",
  "futures-core",
@@ -1460,6 +1480,7 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "derive_more",
+ "error-code",
  "fancy-regex",
  "flowy-derive",
  "lazy_static",

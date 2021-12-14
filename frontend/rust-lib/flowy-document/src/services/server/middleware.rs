@@ -17,7 +17,7 @@ impl ResponseMiddleware for DocMiddleware {
                     None => {},
                     Some(_token) => {
                         // let error =
-                        // WorkspaceError::new(ErrorCode::UserUnauthorized, "");
+                        // FlowyError::new(ErrorCode::UserUnauthorized, "");
                         // observable(token,
                         // WorkspaceObservable::UserUnauthorized).error(error).
                         // build()

@@ -1,6 +1,6 @@
 use crate::{
     entities::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile},
-    errors::UserError,
+    errors::FlowyError,
     services::server::UserServerAPI,
 };
 use backend_service::{configuration::*, user_request::*};
@@ -14,7 +14,7 @@ impl UserHttpServer {
 }
 
 impl UserServerAPI for UserHttpServer {
-    fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, UserError> {
+    fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, FlowyError> {
         let url = self.config.sign_up_url();
         FutureResult::new(async move {
             let resp = user_sign_up_request(params, &url).await?;
@@ -22,7 +22,7 @@ impl UserServerAPI for UserHttpServer {
         })
     }
 
-    fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, UserError> {
+    fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, FlowyError> {
         let url = self.config.sign_in_url();
         FutureResult::new(async move {
             let resp = user_sign_in_request(params, &url).await?;
@@ -30,7 +30,7 @@ impl UserServerAPI for UserHttpServer {
         })
     }
 
-    fn sign_out(&self, token: &str) -> FutureResult<(), UserError> {
+    fn sign_out(&self, token: &str) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.sign_out_url();
         FutureResult::new(async move {
@@ -39,7 +39,7 @@ impl UserServerAPI for UserHttpServer {
         })
     }
 
-    fn update_user(&self, token: &str, params: UpdateUserParams) -> FutureResult<(), UserError> {
+    fn update_user(&self, token: &str, params: UpdateUserParams) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.user_profile_url();
         FutureResult::new(async move {
@@ -48,7 +48,7 @@ impl UserServerAPI for UserHttpServer {
         })
     }
 
-    fn get_user(&self, token: &str) -> FutureResult<UserProfile, UserError> {
+    fn get_user(&self, token: &str) -> FutureResult<UserProfile, FlowyError> {
         let token = token.to_owned();
         let url = self.config.user_profile_url();
         FutureResult::new(async move {
@@ -77,7 +77,7 @@ impl UserServerAPI for UserHttpServer {
 //                     None => {},
 //                     Some(token) => {
 //                         let error =
-// UserError::new(ErrorCode::UserUnauthorized, "");
+// FlowyError::new(ErrorCode::UserUnauthorized, "");
 // dart_notify(token, UserNotification::UserUnauthorized)
 // .error(error)                             .send()
 //                     },

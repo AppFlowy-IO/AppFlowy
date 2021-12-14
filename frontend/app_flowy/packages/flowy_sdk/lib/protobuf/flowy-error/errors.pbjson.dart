@@ -8,16 +8,6 @@
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
 import 'dart:typed_data' as $typed_data;
-@$core.Deprecated('Use errorCodeDescriptor instead')
-const ErrorCode$json = const {
-  '1': 'ErrorCode',
-  '2': const [
-    const {'1': 'Internal', '2': 0},
-  ],
-};
-
-/// Descriptor for `ErrorCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List errorCodeDescriptor = $convert.base64Decode('CglFcnJvckNvZGUSDAoISW50ZXJuYWwQAA==');
 @$core.Deprecated('Use flowyErrorDescriptor instead')
 const FlowyError$json = const {
   '1': 'FlowyError',

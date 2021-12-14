@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-infra/protobuf.dart' show SignInRequest, SignUpRequest, UserProfile;
-import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 
 class AuthRepository {
-  Future<Either<UserProfile, UserError>> signIn({required String? email, required String? password}) {
+  Future<Either<UserProfile, FlowyError>> signIn({required String? email, required String? password}) {
     //
     final request = SignInRequest.create()
       ..email = email ?? ''
@@ -13,7 +13,7 @@ class AuthRepository {
     return UserEventSignIn(request).send();
   }
 
-  Future<Either<UserProfile, UserError>> signUp(
+  Future<Either<UserProfile, FlowyError>> signUp(
       {required String? name, required String? password, required String? email}) {
     final request = SignUpRequest.create()
       ..email = email ?? ''
@@ -35,7 +35,7 @@ class AuthRepository {
     // });
   }
 
-  Future<Either<Unit, UserError>> signOut() {
+  Future<Either<Unit, FlowyError>> signOut() {
     return UserEventSignOut().send();
   }
 }

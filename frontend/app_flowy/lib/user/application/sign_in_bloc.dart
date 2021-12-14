@@ -1,7 +1,7 @@
 import 'package:app_flowy/user/domain/i_auth.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-infra/protobuf.dart' show UserProfile, ErrorCode;
-import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -40,7 +40,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     );
   }
 
-  SignInState stateFromCode(UserError error) {
+  SignInState stateFromCode(FlowyError error) {
     switch (ErrorCode.valueOf(error.code)!) {
       case ErrorCode.EmailFormatInvalid:
         return state.copyWith(isSubmitting: false, emailError: some(error.msg), passwordError: none());
@@ -67,7 +67,7 @@ abstract class SignInState with _$SignInState {
     required bool isSubmitting,
     required Option<String> passwordError,
     required Option<String> emailError,
-    required Option<Either<UserProfile, UserError>> successOrFail,
+    required Option<Either<UserProfile, FlowyError>> successOrFail,
   }) = _SignInState;
 
   factory SignInState.initial() => SignInState(

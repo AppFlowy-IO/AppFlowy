@@ -1,6 +1,6 @@
 use crate::{
     entities::trash::{RepeatedTrash, Trash, TrashIdentifier, TrashIdentifiers, TrashType},
-    errors::{WorkspaceError, WorkspaceResult},
+    errors::{FlowyError, FlowyResult},
     module::{WorkspaceDatabase, WorkspaceUser},
     notify::{send_anonymous_dart_notification, WorkspaceNotification},
     services::{server::Server, trash::sql::TrashTableSql},
@@ -29,21 +29,21 @@ impl TrashController {
         }
     }
 
-    pub(crate) fn init(&self) -> Result<(), WorkspaceError> { Ok(()) }
+    pub(crate) fn init(&self) -> Result<(), FlowyError> { Ok(()) }
 
     #[tracing::instrument(level = "debug", skip(self), fields(putback)  err)]
-    pub async fn putback(&self, trash_id: &str) -> WorkspaceResult<()> {
-        let (tx, mut rx) = mpsc::channel::<WorkspaceResult<()>>(1);
+    pub async fn putback(&self, trash_id: &str) -> FlowyResult<()> {
+        let (tx, mut rx) = mpsc::channel::<FlowyResult<()>>(1);
         let trash_table = TrashTableSql::read(trash_id, &*self.database.db_connection()?)?;
         let _ = thread::scope(|_s| {
             let conn = self.database.db_connection()?;
-            conn.immediate_transaction::<_, WorkspaceError, _>(|| {
+            conn.immediate_transaction::<_, FlowyError, _>(|| {
                 let _ = TrashTableSql::delete_trash(trash_id, &*conn)?;
                 notify_trash_changed(TrashTableSql::read_all(&conn)?);
                 Ok(())
             })?;
 
-            Ok::<(), WorkspaceError>(())
+            Ok::<(), FlowyError>(())
         })
         .unwrap()?;
 
@@ -64,10 +64,10 @@ impl TrashController {
     }
 
     #[tracing::instrument(level = "debug", skip(self)  err)]
-    pub async fn restore_all(&self) -> WorkspaceResult<()> {
+    pub async fn restore_all(&self) -> FlowyResult<()> {
         let repeated_trash = thread::scope(|_s| {
             let conn = self.database.db_connection()?;
-            conn.immediate_transaction::<_, WorkspaceError, _>(|| {
+            conn.immediate_transaction::<_, FlowyError, _>(|| {
                 let repeated_trash = TrashTableSql::read_all(&*conn)?;
                 let _ = TrashTableSql::delete_all(&*conn)?;
                 Ok(repeated_trash)
@@ -76,7 +76,7 @@ impl TrashController {
         .unwrap()?;
 
         let identifiers: TrashIdentifiers = repeated_trash.items.clone().into();
-        let (tx, mut rx) = mpsc::channel::<WorkspaceResult<()>>(1);
+        let (tx, mut rx) = mpsc::channel::<FlowyResult<()>>(1);
         let _ = self.notify.send(TrashEvent::Putback(identifiers, tx));
         let _ = rx.recv().await;
 
@@ -86,7 +86,7 @@ impl TrashController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    pub async fn delete_all(&self) -> WorkspaceResult<()> {
+    pub async fn delete_all(&self) -> FlowyResult<()> {
         let repeated_trash = TrashTableSql::read_all(&*(self.database.db_connection()?))?;
         let trash_identifiers: TrashIdentifiers = repeated_trash.items.clone().into();
         let _ = self.delete_with_identifiers(trash_identifiers.clone()).await?;
@@ -97,7 +97,7 @@ impl TrashController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    pub async fn delete(&self, trash_identifiers: TrashIdentifiers) -> WorkspaceResult<()> {
+    pub async fn delete(&self, trash_identifiers: TrashIdentifiers) -> FlowyResult<()> {
         let _ = self.delete_with_identifiers(trash_identifiers.clone()).await?;
         notify_trash_changed(TrashTableSql::read_all(&*(self.database.db_connection()?))?);
         let _ = self.delete_trash_on_server(trash_identifiers)?;
@@ -106,8 +106,8 @@ impl TrashController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), fields(delete_trash_ids), err)]
-    pub async fn delete_with_identifiers(&self, trash_identifiers: TrashIdentifiers) -> WorkspaceResult<()> {
-        let (tx, mut rx) = mpsc::channel::<WorkspaceResult<()>>(1);
+    pub async fn delete_with_identifiers(&self, trash_identifiers: TrashIdentifiers) -> FlowyResult<()> {
+        let (tx, mut rx) = mpsc::channel::<FlowyResult<()>>(1);
         tracing::Span::current().record("delete_trash_ids", &format!("{}", trash_identifiers).as_str());
         let _ = self.notify.send(TrashEvent::Delete(trash_identifiers.clone(), tx));
 
@@ -120,7 +120,7 @@ impl TrashController {
         }
 
         let conn = self.database.db_connection()?;
-        conn.immediate_transaction::<_, WorkspaceError, _>(|| {
+        conn.immediate_transaction::<_, FlowyError, _>(|| {
             for trash_identifier in &trash_identifiers.items {
                 let _ = TrashTableSql::delete_trash(&trash_identifier.id, &conn)?;
             }
@@ -136,8 +136,8 @@ impl TrashController {
     // CREATE and DROP tables operations because those are auto-commit in the
     // database.
     #[tracing::instrument(name = "add_trash", level = "debug", skip(self, trash), fields(trash_ids), err)]
-    pub async fn add<T: Into<Trash>>(&self, trash: Vec<T>) -> Result<(), WorkspaceError> {
-        let (tx, mut rx) = mpsc::channel::<WorkspaceResult<()>>(1);
+    pub async fn add<T: Into<Trash>>(&self, trash: Vec<T>) -> Result<(), FlowyError> {
+        let (tx, mut rx) = mpsc::channel::<FlowyResult<()>>(1);
         let repeated_trash = trash.into_iter().map(|t| t.into()).collect::<Vec<Trash>>();
         let identifiers = repeated_trash
             .iter()
@@ -157,14 +157,14 @@ impl TrashController {
         );
         let _ = thread::scope(|_s| {
             let conn = self.database.db_connection()?;
-            conn.immediate_transaction::<_, WorkspaceError, _>(|| {
+            conn.immediate_transaction::<_, FlowyError, _>(|| {
                 let _ = TrashTableSql::create_trash(repeated_trash.clone(), &*conn)?;
                 let _ = self.create_trash_on_server(repeated_trash);
 
                 notify_trash_changed(TrashTableSql::read_all(&conn)?);
                 Ok(())
             })?;
-            Ok::<(), WorkspaceError>(())
+            Ok::<(), FlowyError>(())
         })
         .unwrap()?;
 
@@ -176,13 +176,13 @@ impl TrashController {
 
     pub fn subscribe(&self) -> broadcast::Receiver<TrashEvent> { self.notify.subscribe() }
 
-    pub fn read_trash(&self, conn: &SqliteConnection) -> Result<RepeatedTrash, WorkspaceError> {
+    pub fn read_trash(&self, conn: &SqliteConnection) -> Result<RepeatedTrash, FlowyError> {
         let repeated_trash = TrashTableSql::read_all(&*conn)?;
         let _ = self.read_trash_on_server()?;
         Ok(repeated_trash)
     }
 
-    pub fn trash_ids(&self, conn: &SqliteConnection) -> Result<Vec<String>, WorkspaceError> {
+    pub fn trash_ids(&self, conn: &SqliteConnection) -> Result<Vec<String>, FlowyError> {
         let ids = TrashTableSql::read_all(&*conn)?
             .into_inner()
             .into_iter()
@@ -194,7 +194,7 @@ impl TrashController {
 
 impl TrashController {
     #[tracing::instrument(level = "debug", skip(self, trash), err)]
-    fn create_trash_on_server<T: Into<TrashIdentifiers>>(&self, trash: T) -> WorkspaceResult<()> {
+    fn create_trash_on_server<T: Into<TrashIdentifiers>>(&self, trash: T) -> FlowyResult<()> {
         let token = self.user.token()?;
         let trash_identifiers = trash.into();
         let server = self.server.clone();
@@ -209,7 +209,7 @@ impl TrashController {
     }
 
     #[tracing::instrument(level = "debug", skip(self, trash), err)]
-    fn delete_trash_on_server<T: Into<TrashIdentifiers>>(&self, trash: T) -> WorkspaceResult<()> {
+    fn delete_trash_on_server<T: Into<TrashIdentifiers>>(&self, trash: T) -> FlowyResult<()> {
         let token = self.user.token()?;
         let trash_identifiers = trash.into();
         let server = self.server.clone();
@@ -223,7 +223,7 @@ impl TrashController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    fn read_trash_on_server(&self) -> WorkspaceResult<()> {
+    fn read_trash_on_server(&self) -> FlowyResult<()> {
         let token = self.user.token()?;
         let server = self.server.clone();
         let pool = self.database.db_pool()?;
@@ -234,7 +234,7 @@ impl TrashController {
                     tracing::debug!("Remote trash count: {}", repeated_trash.items.len());
                     match pool.get() {
                         Ok(conn) => {
-                            let result = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
+                            let result = conn.immediate_transaction::<_, FlowyError, _>(|| {
                                 let _ = TrashTableSql::create_trash(repeated_trash.items.clone(), &*conn)?;
                                 TrashTableSql::read_all(&conn)
                             });
@@ -256,7 +256,7 @@ impl TrashController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    async fn delete_all_trash_on_server(&self) -> WorkspaceResult<()> {
+    async fn delete_all_trash_on_server(&self) -> FlowyResult<()> {
         let token = self.user.token()?;
         let server = self.server.clone();
         server.delete_trash(&token, TrashIdentifiers::all()).await
@@ -273,9 +273,9 @@ fn notify_trash_changed(repeated_trash: RepeatedTrash) {
 
 #[derive(Clone)]
 pub enum TrashEvent {
-    NewTrash(TrashIdentifiers, mpsc::Sender<WorkspaceResult<()>>),
-    Putback(TrashIdentifiers, mpsc::Sender<WorkspaceResult<()>>),
-    Delete(TrashIdentifiers, mpsc::Sender<WorkspaceResult<()>>),
+    NewTrash(TrashIdentifiers, mpsc::Sender<FlowyResult<()>>),
+    Putback(TrashIdentifiers, mpsc::Sender<FlowyResult<()>>),
+    Delete(TrashIdentifiers, mpsc::Sender<FlowyResult<()>>),
 }
 
 impl std::fmt::Debug for TrashEvent {

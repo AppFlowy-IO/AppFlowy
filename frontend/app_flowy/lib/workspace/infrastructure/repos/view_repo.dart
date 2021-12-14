@@ -6,7 +6,7 @@ import 'package:flowy_sdk/protobuf/dart-notify/subject.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-infra/view_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-infra/view_query.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-infra/view_update.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core/observable.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 
@@ -21,12 +21,12 @@ class ViewRepository {
     required this.view,
   });
 
-  Future<Either<View, WorkspaceError>> readView() {
+  Future<Either<View, FlowyError>> readView() {
     final request = QueryViewRequest(viewIds: [view.id]);
     return WorkspaceEventReadView(request).send();
   }
 
-  Future<Either<View, WorkspaceError>> updateView({String? name, String? desc}) {
+  Future<Either<View, FlowyError>> updateView({String? name, String? desc}) {
     final request = UpdateViewRequest.create()..viewId = view.id;
 
     if (name != null) {
@@ -40,12 +40,12 @@ class ViewRepository {
     return WorkspaceEventUpdateView(request).send();
   }
 
-  Future<Either<Unit, WorkspaceError>> delete() {
+  Future<Either<Unit, FlowyError>> delete() {
     final request = QueryViewRequest.create()..viewIds.add(view.id);
     return WorkspaceEventDeleteView(request).send();
   }
 
-  Future<Either<Unit, WorkspaceError>> duplicate() {
+  Future<Either<Unit, FlowyError>> duplicate() {
     final request = QueryViewRequest.create()..viewIds.add(view.id);
     return WorkspaceEventDuplicateView(request).send();
   }
@@ -74,7 +74,7 @@ class ViewListenerRepository {
     _subscription = RustStreamReceiver.listen((observable) => _parser.parse(observable));
   }
 
-  void _handleObservableType(WorkspaceNotification ty, Either<Uint8List, WorkspaceError> result) {
+  void _handleObservableType(WorkspaceNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
       case WorkspaceNotification.ViewUpdated:
         result.fold(

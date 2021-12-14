@@ -11,7 +11,7 @@ mod macros;
 extern crate flowy_database;
 
 pub mod core;
-pub mod errors;
+
 mod notify;
 pub mod protobuf;
 mod util;
@@ -20,4 +20,8 @@ pub mod prelude {
     pub use flowy_core_infra::entities::{app::*, trash::*, view::*, workspace::*};
 
     pub use crate::{core::*, errors::*, module::*};
+}
+
+pub mod errors {
+    pub use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 }

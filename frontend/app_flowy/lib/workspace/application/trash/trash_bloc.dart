@@ -2,7 +2,7 @@ import 'package:app_flowy/workspace/domain/i_trash.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-infra/trash_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 part 'trash_bloc.freezed.dart';
@@ -45,14 +45,14 @@ class TrashBloc extends Bloc<TrashEvent, TrashState> {
     );
   }
 
-  Stream<TrashState> _handleResult(Either<dynamic, WorkspaceError> result) async* {
+  Stream<TrashState> _handleResult(Either<dynamic, FlowyError> result) async* {
     yield result.fold(
       (l) => state.copyWith(successOrFailure: left(unit)),
       (error) => state.copyWith(successOrFailure: right(error)),
     );
   }
 
-  void _listenTrashUpdated(Either<List<Trash>, WorkspaceError> trashOrFailed) {
+  void _listenTrashUpdated(Either<List<Trash>, FlowyError> trashOrFailed) {
     trashOrFailed.fold(
       (trash) {
         add(TrashEvent.didReceiveTrash(trash));
@@ -84,7 +84,7 @@ class TrashEvent with _$TrashEvent {
 class TrashState with _$TrashState {
   const factory TrashState({
     required List<Trash> objects,
-    required Either<Unit, WorkspaceError> successOrFailure,
+    required Either<Unit, FlowyError> successOrFailure,
   }) = _TrashState;
 
   factory TrashState.init() => TrashState(

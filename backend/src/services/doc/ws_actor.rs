@@ -8,7 +8,7 @@ use crate::{
 use actix_rt::task::spawn_blocking;
 use actix_web::web::Data;
 use async_stream::stream;
-use backend_service::errors::{internal_error, Result as DocResult, ServerError};
+use backend_service::errors::{internal_error, Result, ServerError};
 use flowy_collaboration::{
     core::sync::ServerDocManager,
     protobuf::{WsDataType, WsDocumentData},
@@ -23,7 +23,7 @@ pub enum DocWsMsg {
     ClientData {
         client_data: WsClientData,
         pool: Data<PgPool>,
-        ret: oneshot::Sender<DocResult<()>>,
+        ret: oneshot::Sender<Result<()>>,
     },
 }
 
@@ -66,11 +66,11 @@ impl DocWsActor {
         }
     }
 
-    async fn handle_client_data(&self, client_data: WsClientData, pool: Data<PgPool>) -> DocResult<()> {
+    async fn handle_client_data(&self, client_data: WsClientData, pool: Data<PgPool>) -> Result<()> {
         let WsClientData { user, socket, data } = client_data;
         let document_data = spawn_blocking(move || {
             let document_data: WsDocumentData = parse_from_bytes(&data)?;
-            DocResult::Ok(document_data)
+            Result::Ok(document_data)
         })
         .await
         .map_err(internal_error)??;
@@ -91,11 +91,11 @@ impl DocWsActor {
         socket: Socket,
         data: Vec<u8>,
         pg_pool: Data<PgPool>,
-    ) -> DocResult<()> {
+    ) -> Result<()> {
         let mut revision_pb = spawn_blocking(move || {
             let revision: Revision = parse_from_bytes(&data)?;
             let _ = verify_md5(&revision)?;
-            DocResult::Ok(revision)
+            Result::Ok(revision)
         })
         .await
         .map_err(internal_error)??;
@@ -116,7 +116,7 @@ impl DocWsActor {
     }
 }
 
-fn verify_md5(revision: &Revision) -> DocResult<()> {
+fn verify_md5(revision: &Revision) -> Result<()> {
     if md5(&revision.delta_data) != revision.md5 {
         return Err(ServerError::internal().context("Revision md5 not match"));
     }

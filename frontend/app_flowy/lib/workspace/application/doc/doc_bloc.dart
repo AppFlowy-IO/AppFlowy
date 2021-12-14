@@ -4,7 +4,7 @@ import 'package:app_flowy/workspace/domain/i_trash.dart';
 import 'package:app_flowy/workspace/domain/i_view.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-infra/trash_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-infra/view_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -155,5 +155,5 @@ class DocState with _$DocState {
 @freezed
 class DocLoadState with _$DocLoadState {
   const factory DocLoadState.loading() = _Loading;
-  const factory DocLoadState.finish(Either<Unit, WorkspaceError> successOrFail) = _Finish;
+  const factory DocLoadState.finish(Either<Unit, FlowyError> successOrFail) = _Finish;
 }

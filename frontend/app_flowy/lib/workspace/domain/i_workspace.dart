@@ -1,15 +1,15 @@
 import 'package:flowy_sdk/protobuf/flowy-core-infra/protobuf.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 
-typedef WorkspaceAppsChangedCallback = void Function(Either<List<App>, WorkspaceError> appsOrFail);
+typedef WorkspaceAppsChangedCallback = void Function(Either<List<App>, FlowyError> appsOrFail);
 
 typedef WorkspaceUpdatedCallback = void Function(String name, String desc);
 
 abstract class IWorkspace {
-  Future<Either<App, WorkspaceError>> createApp({required String name, String? desc});
+  Future<Either<App, FlowyError>> createApp({required String name, String? desc});
 
-  Future<Either<List<App>, WorkspaceError>> getApps();
+  Future<Either<List<App>, FlowyError>> getApps();
 }
 
 abstract class IWorkspaceListener {

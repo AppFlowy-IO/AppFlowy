@@ -6,22 +6,22 @@ import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/dart-notify/subject.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-infra/trash_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core/observable.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 
 class TrashRepo {
-  Future<Either<RepeatedTrash, WorkspaceError>> readTrash() {
+  Future<Either<RepeatedTrash, FlowyError>> readTrash() {
     return WorkspaceEventReadTrash().send();
   }
 
-  Future<Either<Unit, WorkspaceError>> putback(String trashId) {
+  Future<Either<Unit, FlowyError>> putback(String trashId) {
     final id = TrashIdentifier.create()..id = trashId;
 
     return WorkspaceEventPutbackTrash(id).send();
   }
 
-  Future<Either<Unit, WorkspaceError>> deleteViews(List<Tuple2<String, TrashType>> trashList) {
+  Future<Either<Unit, FlowyError>> deleteViews(List<Tuple2<String, TrashType>> trashList) {
     final items = trashList.map((trash) {
       return TrashIdentifier.create()
         ..id = trash.value1
@@ -32,11 +32,11 @@ class TrashRepo {
     return WorkspaceEventDeleteTrash(trashIdentifiers).send();
   }
 
-  Future<Either<Unit, WorkspaceError>> restoreAll() {
+  Future<Either<Unit, FlowyError>> restoreAll() {
     return WorkspaceEventRestoreAll().send();
   }
 
-  Future<Either<Unit, WorkspaceError>> deleteAll() {
+  Future<Either<Unit, FlowyError>> deleteAll() {
     return WorkspaceEventDeleteAll().send();
   }
 }
@@ -52,7 +52,7 @@ class TrashListenerRepo {
     _subscription = RustStreamReceiver.listen((observable) => _parser.parse(observable));
   }
 
-  void _bservableCallback(WorkspaceNotification ty, Either<Uint8List, WorkspaceError> result) {
+  void _bservableCallback(WorkspaceNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
       case WorkspaceNotification.TrashUpdated:
         if (_trashUpdated != null) {

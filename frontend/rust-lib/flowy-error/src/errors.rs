@@ -1,13 +1,10 @@
-use crate::protobuf::ErrorCode as ProtoBufErrorCode;
 use bytes::Bytes;
-use derive_more::Display;
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use error_code::ErrorCode;
+use flowy_derive::ProtoBuf;
 use lib_dispatch::prelude::{EventResponse, ResponseBuilder};
-use protobuf::ProtobufEnum;
-use std::{
-    convert::{TryFrom, TryInto},
-    fmt::Debug,
-};
+use std::{convert::TryInto, fmt, fmt::Debug};
+
+pub type FlowyResult<T> = std::result::Result<T, FlowyError>;
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct FlowyError {
@@ -18,7 +15,7 @@ pub struct FlowyError {
     pub msg: String,
 }
 
-macro_rules! static_any_error {
+macro_rules! static_flowy_error {
     ($name:ident, $code:expr) => {
         #[allow(non_snake_case, missing_docs)]
         pub fn $name() -> FlowyError { $code.into() }
@@ -37,7 +34,34 @@ impl FlowyError {
         self
     }
 
-    static_any_error!(internal, ErrorCode::Internal);
+    static_flowy_error!(internal, ErrorCode::Internal);
+    static_flowy_error!(record_not_found, ErrorCode::RecordNotFound);
+    static_flowy_error!(workspace_name, ErrorCode::WorkspaceNameInvalid);
+    static_flowy_error!(workspace_id, ErrorCode::WorkspaceIdInvalid);
+    static_flowy_error!(color_style, ErrorCode::AppColorStyleInvalid);
+    static_flowy_error!(workspace_desc, ErrorCode::WorkspaceDescTooLong);
+    static_flowy_error!(app_name, ErrorCode::AppNameInvalid);
+    static_flowy_error!(invalid_app_id, ErrorCode::AppIdInvalid);
+    static_flowy_error!(view_name, ErrorCode::ViewNameInvalid);
+    static_flowy_error!(view_thumbnail, ErrorCode::ViewThumbnailInvalid);
+    static_flowy_error!(invalid_view_id, ErrorCode::ViewIdInvalid);
+    static_flowy_error!(view_desc, ErrorCode::ViewDescTooLong);
+    static_flowy_error!(view_data, ErrorCode::ViewDataInvalid);
+    static_flowy_error!(unauthorized, ErrorCode::UserUnauthorized);
+    static_flowy_error!(connection, ErrorCode::ConnectError);
+    static_flowy_error!(email_empty, ErrorCode::EmailIsEmpty);
+    static_flowy_error!(email_format, ErrorCode::EmailFormatInvalid);
+    static_flowy_error!(email_exist, ErrorCode::EmailAlreadyExists);
+    static_flowy_error!(password_empty, ErrorCode::PasswordIsEmpty);
+    static_flowy_error!(passworkd_too_long, ErrorCode::PasswordTooLong);
+    static_flowy_error!(password_forbid_char, ErrorCode::PasswordContainsForbidCharacters);
+    static_flowy_error!(password_format, ErrorCode::PasswordFormatInvalid);
+    static_flowy_error!(password_not_match, ErrorCode::PasswordNotMatch);
+    static_flowy_error!(name_too_long, ErrorCode::UserNameTooLong);
+    static_flowy_error!(name_forbid_char, ErrorCode::UserNameContainForbiddenCharacters);
+    static_flowy_error!(name_empty, ErrorCode::UserNameIsEmpty);
+    static_flowy_error!(user_id, ErrorCode::UserIdInvalid);
+    static_flowy_error!(user_not_exist, ErrorCode::UserNotExist);
 }
 
 impl std::convert::From<ErrorCode> for FlowyError {
@@ -49,26 +73,6 @@ impl std::convert::From<ErrorCode> for FlowyError {
     }
 }
 
-#[derive(Debug, Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
-pub enum ErrorCode {
-    #[display(fmt = "Internal error")]
-    Internal = 0,
-}
-
-impl ErrorCode {
-    pub fn value(&self) -> i32 {
-        let code: ProtoBufErrorCode = self.clone().try_into().unwrap();
-        code.value()
-    }
-
-    pub fn from_i32(value: i32) -> Self {
-        match ProtoBufErrorCode::from_i32(value) {
-            None => ErrorCode::Internal,
-            Some(code) => ErrorCode::try_from(&code).unwrap(),
-        }
-    }
-}
-
 pub fn internal_error<T>(e: T) -> FlowyError
 where
     T: std::fmt::Debug,
@@ -76,9 +80,21 @@ where
     FlowyError::internal().context(e)
 }
 
+impl fmt::Display for FlowyError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { write!(f, "{:?}: {}", &self.code, &self.msg) }
+}
+
 impl lib_dispatch::Error for FlowyError {
     fn as_response(&self) -> EventResponse {
         let bytes: Bytes = self.clone().try_into().unwrap();
         ResponseBuilder::Err().data(bytes).build()
     }
+}
+
+impl std::convert::From<std::io::Error> for FlowyError {
+    fn from(error: std::io::Error) -> Self { FlowyError::internal().context(error) }
+}
+
+impl std::convert::From<protobuf::ProtobufError> for FlowyError {
+    fn from(e: protobuf::ProtobufError) -> Self { FlowyError::internal().context(e) }
 }

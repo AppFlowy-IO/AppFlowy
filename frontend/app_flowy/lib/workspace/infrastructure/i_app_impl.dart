@@ -2,7 +2,7 @@ import 'package:app_flowy/workspace/infrastructure/repos/app_repo.dart';
 import 'package:dartz/dartz.dart';
 import 'package:app_flowy/workspace/domain/i_app.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-infra/view_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 export 'package:app_flowy/workspace/domain/i_app.dart';
 
 class IAppImpl extends IApp {
@@ -12,12 +12,12 @@ class IAppImpl extends IApp {
   });
 
   @override
-  Future<Either<List<View>, WorkspaceError>> getViews() {
+  Future<Either<List<View>, FlowyError>> getViews() {
     return repo.getViews();
   }
 
   @override
-  Future<Either<View, WorkspaceError>> createView({required String name, String? desc, required ViewType viewType}) {
+  Future<Either<View, FlowyError>> createView({required String name, String? desc, required ViewType viewType}) {
     return repo.createView(name, desc ?? "", viewType).then((result) {
       return result.fold(
         (view) => left(view),
@@ -27,12 +27,12 @@ class IAppImpl extends IApp {
   }
 
   @override
-  Future<Either<Unit, WorkspaceError>> delete() {
+  Future<Either<Unit, FlowyError>> delete() {
     return repo.delete();
   }
 
   @override
-  Future<Either<Unit, WorkspaceError>> rename(String newName) {
+  Future<Either<Unit, FlowyError>> rename(String newName) {
     return repo.updateApp(name: newName);
   }
 }

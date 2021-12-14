@@ -1,6 +1,6 @@
 #![allow(clippy::all)]
 #![cfg_attr(rustfmt, rustfmt::skip)]
-use crate::{errors::DocError, services::ws::DocumentWebSocket};
+use crate::{errors::FlowyError, services::ws::DocumentWebSocket};
 
 use futures::future::BoxFuture;
 use lib_infra::retry::Action;
@@ -29,7 +29,7 @@ impl OpenDocAction {
 impl Action for OpenDocAction {
     type Future = BoxFuture<'static, Result<Self::Item, Self::Error>>;
     type Item = ();
-    type Error = DocError;
+    type Error = FlowyError;
 
     fn run(&mut self) -> Self::Future {
         // let new_doc_user = NewDocUser {
@@ -42,6 +42,6 @@ impl Action for OpenDocAction {
         //     Ok(_) => Box::pin(future::ready(Ok::<(), DocError>(()))),
         //     Err(e) => Box::pin(future::ready(Err::<(), DocError>(e))),
         // }
-        Box::pin(future::ready(Ok::<(), DocError>(())))
+        Box::pin(future::ready(Ok::<(), FlowyError>(())))
     }
 }

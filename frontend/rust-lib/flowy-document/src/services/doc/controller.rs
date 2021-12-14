@@ -1,5 +1,5 @@
 use crate::{
-    errors::{DocError, DocResult},
+    errors::FlowyError,
     module::DocumentUser,
     services::{
         doc::{
@@ -14,6 +14,7 @@ use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_collaboration::entities::doc::{Doc, DocDelta, DocIdentifier};
 use flowy_database::ConnectionPool;
+use flowy_error::FlowyResult;
 use lib_infra::future::FutureResult;
 use std::sync::Arc;
 
@@ -35,7 +36,7 @@ impl DocController {
         }
     }
 
-    pub(crate) fn init(&self) -> DocResult<()> {
+    pub(crate) fn init(&self) -> FlowyResult<()> {
         self.ws_manager.init();
         Ok(())
     }
@@ -44,7 +45,7 @@ impl DocController {
         &self,
         params: DocIdentifier,
         pool: Arc<ConnectionPool>,
-    ) -> Result<Arc<ClientDocEditor>, DocError> {
+    ) -> Result<Arc<ClientDocEditor>, FlowyError> {
         if !self.open_cache.contains(&params.doc_id) {
             let edit_ctx = self.make_edit_context(&params.doc_id, pool.clone()).await?;
             return Ok(edit_ctx);
@@ -54,7 +55,7 @@ impl DocController {
         Ok(edit_doc_ctx)
     }
 
-    pub(crate) fn close(&self, doc_id: &str) -> Result<(), DocError> {
+    pub(crate) fn close(&self, doc_id: &str) -> Result<(), FlowyError> {
         tracing::debug!("Close doc {}", doc_id);
         self.open_cache.remove(doc_id);
         self.ws_manager.remove_handler(doc_id);
@@ -62,7 +63,7 @@ impl DocController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    pub(crate) fn delete(&self, params: DocIdentifier) -> Result<(), DocError> {
+    pub(crate) fn delete(&self, params: DocIdentifier) -> Result<(), FlowyError> {
         let doc_id = &params.doc_id;
         self.open_cache.remove(doc_id);
         self.ws_manager.remove_handler(doc_id);
@@ -78,7 +79,7 @@ impl DocController {
         &self,
         delta: DocDelta,
         db_pool: Arc<ConnectionPool>,
-    ) -> Result<DocDelta, DocError> {
+    ) -> Result<DocDelta, FlowyError> {
         if !self.open_cache.contains(&delta.doc_id) {
             let doc_identifier: DocIdentifier = delta.doc_id.clone().into();
             let _ = self.open(doc_identifier, db_pool).await?;
@@ -95,7 +96,7 @@ impl DocController {
         &self,
         doc_id: &str,
         pool: Arc<ConnectionPool>,
-    ) -> Result<Arc<ClientDocEditor>, DocError> {
+    ) -> Result<Arc<ClientDocEditor>, FlowyError> {
         let user = self.user.clone();
         let rev_manager = self.make_rev_manager(doc_id, pool.clone())?;
         let edit_ctx = ClientDocEditor::new(doc_id, user, pool, rev_manager, self.ws_manager.ws()).await?;
@@ -105,7 +106,7 @@ impl DocController {
         Ok(edit_ctx)
     }
 
-    fn make_rev_manager(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<RevisionManager, DocError> {
+    fn make_rev_manager(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<RevisionManager, FlowyError> {
         // Opti: require upgradable_read lock and then upgrade to write lock using
         // RwLockUpgradableReadGuard::upgrade(xx) of ws
         // let doc = self.read_doc(doc_id, pool.clone()).await?;
@@ -128,7 +129,7 @@ struct RevisionServerImpl {
 
 impl RevisionServer for RevisionServerImpl {
     #[tracing::instrument(level = "debug", skip(self))]
-    fn fetch_document(&self, doc_id: &str) -> FutureResult<Doc, DocError> {
+    fn fetch_document(&self, doc_id: &str) -> FutureResult<Doc, FlowyError> {
         let params = DocIdentifier {
             doc_id: doc_id.to_string(),
         };
@@ -137,7 +138,7 @@ impl RevisionServer for RevisionServerImpl {
 
         FutureResult::new(async move {
             match server.read_doc(&token, params).await? {
-                None => Err(DocError::doc_not_found().context("Remote doesn't have this document")),
+                None => Err(FlowyError::record_not_found().context("Remote doesn't have this document")),
                 Some(doc) => Ok(doc),
             }
         })
@@ -161,7 +162,7 @@ impl OpenDocCache {
 
     pub(crate) fn contains(&self, doc_id: &str) -> bool { self.inner.get(doc_id).is_some() }
 
-    pub(crate) fn get(&self, doc_id: &str) -> Result<Arc<ClientDocEditor>, DocError> {
+    pub(crate) fn get(&self, doc_id: &str) -> Result<Arc<ClientDocEditor>, FlowyError> {
         if !self.contains(&doc_id) {
             return Err(doc_not_found());
         }
@@ -179,4 +180,6 @@ impl OpenDocCache {
     }
 }
 
-fn doc_not_found() -> DocError { DocError::doc_not_found().context("Doc is close or you should call open first") }
+fn doc_not_found() -> FlowyError {
+    FlowyError::record_not_found().context("Doc is close or you should call open first")
+}

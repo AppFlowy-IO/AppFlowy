@@ -8,17 +8,17 @@ use std::sync::Arc;
 pub(crate) type Server = Arc<dyn UserServerAPI + Send + Sync>;
 use crate::{
     entities::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile},
-    errors::UserError,
+    errors::FlowyError,
 };
 use backend_service::configuration::ClientServerConfiguration;
 use lib_infra::future::FutureResult;
 
 pub trait UserServerAPI {
-    fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, UserError>;
-    fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, UserError>;
-    fn sign_out(&self, token: &str) -> FutureResult<(), UserError>;
-    fn update_user(&self, token: &str, params: UpdateUserParams) -> FutureResult<(), UserError>;
-    fn get_user(&self, token: &str) -> FutureResult<UserProfile, UserError>;
+    fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, FlowyError>;
+    fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, FlowyError>;
+    fn sign_out(&self, token: &str) -> FutureResult<(), FlowyError>;
+    fn update_user(&self, token: &str, params: UpdateUserParams) -> FutureResult<(), FlowyError>;
+    fn get_user(&self, token: &str) -> FutureResult<UserProfile, FlowyError>;
     fn ws_addr(&self) -> String;
 }
 

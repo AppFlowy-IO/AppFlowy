@@ -5,7 +5,7 @@ import 'package:dartz/dartz.dart';
 import 'package:app_flowy/workspace/domain/i_doc.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/doc_repo.dart';
 import 'package:flowy_sdk/protobuf/flowy-collaboration/doc.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 
 class IDocImpl extends IDoc {
   DocRepository repo;
@@ -13,18 +13,18 @@ class IDocImpl extends IDoc {
   IDocImpl({required this.repo});
 
   @override
-  Future<Either<Unit, WorkspaceError>> closeDoc() {
+  Future<Either<Unit, FlowyError>> closeDoc() {
     return repo.closeDoc();
   }
 
   @override
-  Future<Either<DocDelta, WorkspaceError>> readDoc() async {
+  Future<Either<DocDelta, FlowyError>> readDoc() async {
     final docOrFail = await repo.readDoc();
     return docOrFail;
   }
 
   @override
-  Future<Either<DocDelta, WorkspaceError>> composeDelta({required String json}) {
+  Future<Either<DocDelta, FlowyError>> composeDelta({required String json}) {
     return repo.composeDelta(data: json);
   }
 }

@@ -24,8 +24,8 @@ class SplashUserImpl implements ISplashUser {
         (userProfile) {
           return AuthState.authenticated(userProfile);
         },
-        (userError) {
-          return AuthState.unauthenticated(userError);
+        (FlowyError) {
+          return AuthState.unauthenticated(FlowyError);
         },
       );
     });

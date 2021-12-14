@@ -1,6 +1,6 @@
 use crate::{
     core::CoreContext,
-    errors::WorkspaceError,
+    errors::FlowyError,
     notify::{send_dart_notification, WorkspaceNotification},
     services::workspace::sql::{WorkspaceTable, WorkspaceTableSql},
 };
@@ -13,7 +13,7 @@ pub fn read_workspaces_on_server(
     core: Unit<Arc<CoreContext>>,
     user_id: String,
     params: WorkspaceIdentifier,
-) -> Result<(), WorkspaceError> {
+) -> Result<(), FlowyError> {
     let (token, server) = (core.user.token()?, core.server.clone());
     let app_ctrl = core.app_controller.clone();
     let view_ctrl = core.view_controller.clone();
@@ -22,7 +22,7 @@ pub fn read_workspaces_on_server(
     tokio::spawn(async move {
         // Opti: handle the error and retry?
         let workspaces = server.read_workspace(&token, params).await?;
-        let _ = (&*conn).immediate_transaction::<_, WorkspaceError, _>(|| {
+        let _ = (&*conn).immediate_transaction::<_, FlowyError, _>(|| {
             tracing::debug!("Save {} workspace", workspaces.len());
             for workspace in &workspaces.items {
                 let m_workspace = workspace.clone();
@@ -53,7 +53,7 @@ pub fn read_workspaces_on_server(
         send_dart_notification(&token, WorkspaceNotification::WorkspaceListUpdated)
             .payload(workspaces)
             .send();
-        Result::<(), WorkspaceError>::Ok(())
+        Result::<(), FlowyError>::Ok(())
     });
 
     Ok(())

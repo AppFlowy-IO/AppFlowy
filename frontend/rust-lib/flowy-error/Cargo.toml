@@ -7,7 +7,23 @@ edition = "2018"
 
 [dependencies]
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
-derive_more = {version = "0.99", features = ["display"]}
+error-code = { path = "../../../shared-lib/error-code" }
 lib-dispatch = { path = "../lib-dispatch" }
 protobuf = {version = "2.20.0"}
 bytes = "1.0"
+
+
+flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration", optional = true}
+lib-ot = { path = "../../../shared-lib/lib-ot", optional = true}
+serde_json = {version = "1.0", optional = true}
+backend-service = { path = "../../../shared-lib/backend-service", optional = true}
+flowy-database = { path = "../flowy-database", optional = true}
+lib-sqlite = { path = "../../../shared-lib/lib-sqlite", optional = true}
+r2d2 = { version = "0.8", optional = true}
+
+[features]
+collaboration = ["flowy-collaboration"]
+ot = ["lib-ot"]
+serde = ["serde_json"]
+backend = ["backend-service"]
+db = ["flowy-database", "lib-sqlite", "r2d2"]

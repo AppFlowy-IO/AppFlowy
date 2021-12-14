@@ -1,5 +1,5 @@
 use crate::{entities::NetworkState, services::ws::WsManager};
-use bytes::Bytes;
+
 use flowy_error::FlowyError;
 use lib_dispatch::prelude::{Data, Unit};
 use std::sync::Arc;

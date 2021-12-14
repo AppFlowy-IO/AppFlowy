@@ -10,6 +10,7 @@ members = [
   "backend-service",
   "flowy-derive",
   "flowy-ast",
+  "error-code",
 ]
 
 [profile.dev]

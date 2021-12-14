@@ -10,7 +10,7 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-infra/protobuf.dart';
-import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -113,7 +113,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
   void _openCurrentWorkspace(
     BuildContext context,
     UserProfile user,
-    dartz.Either<CurrentWorkspaceSetting, WorkspaceError> workspacesOrError,
+    dartz.Either<CurrentWorkspaceSetting, FlowyError> workspacesOrError,
   ) {
     workspacesOrError.fold(
       (workspaceSetting) {

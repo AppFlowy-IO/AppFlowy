@@ -7,6 +7,7 @@ edition = "2018"
 
 [dependencies]
 flowy-derive = { path = "../flowy-derive" }
+error-code = { path = "../error-code" }
 protobuf = {version = "2.18.0"}
 bytes = "1.0"
 unicode-segmentation = "1.8"

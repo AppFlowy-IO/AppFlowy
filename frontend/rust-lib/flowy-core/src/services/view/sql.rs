@@ -3,7 +3,7 @@ use crate::{
         trash::{Trash, TrashType},
         view::{RepeatedView, UpdateViewParams, View, ViewType},
     },
-    errors::WorkspaceError,
+    errors::FlowyError,
     services::app::sql::AppTable,
 };
 use diesel::sql_types::Integer;
@@ -17,7 +17,7 @@ use lib_infra::timestamp;
 pub struct ViewTableSql {}
 
 impl ViewTableSql {
-    pub(crate) fn create_view(view_table: ViewTable, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
+    pub(crate) fn create_view(view_table: ViewTable, conn: &SqliteConnection) -> Result<(), FlowyError> {
         match diesel_record_count!(view_table, &view_table.id, conn) {
             0 => diesel_insert_table!(view_table, &view_table, conn),
             _ => {
@@ -28,7 +28,7 @@ impl ViewTableSql {
         Ok(())
     }
 
-    pub(crate) fn read_view(view_id: &str, conn: &SqliteConnection) -> Result<ViewTable, WorkspaceError> {
+    pub(crate) fn read_view(view_id: &str, conn: &SqliteConnection) -> Result<ViewTable, FlowyError> {
         // https://docs.diesel.rs/diesel/query_builder/struct.UpdateStatement.html
         // let mut filter =
         // dsl::view_table.filter(view_table::id.eq(view_id)).into_boxed();
@@ -44,7 +44,7 @@ impl ViewTableSql {
     }
 
     // belong_to_id will be the app_id or view_id.
-    pub(crate) fn read_views(belong_to_id: &str, conn: &SqliteConnection) -> Result<Vec<ViewTable>, WorkspaceError> {
+    pub(crate) fn read_views(belong_to_id: &str, conn: &SqliteConnection) -> Result<Vec<ViewTable>, FlowyError> {
         let view_tables = dsl::view_table
             .filter(view_table::belong_to_id.eq(belong_to_id))
             .order(view_table::create_time.asc())
@@ -54,12 +54,12 @@ impl ViewTableSql {
         Ok(view_tables)
     }
 
-    pub(crate) fn update_view(changeset: ViewTableChangeset, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
+    pub(crate) fn update_view(changeset: ViewTableChangeset, conn: &SqliteConnection) -> Result<(), FlowyError> {
         diesel_update_table!(view_table, changeset, conn);
         Ok(())
     }
 
-    pub(crate) fn delete_view(view_id: &str, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
+    pub(crate) fn delete_view(view_id: &str, conn: &SqliteConnection) -> Result<(), FlowyError> {
         diesel_delete_table!(view_table, view_id, conn);
         Ok(())
     }
@@ -69,7 +69,7 @@ impl ViewTableSql {
 //     belong_to_id: &str,
 //     is_trash: Option<bool>,
 //     conn: &SqliteConnection,
-// ) -> Result<RepeatedView, WorkspaceError> {
+// ) -> Result<RepeatedView, FlowyError> {
 //     let views = dsl::view_table
 //         .inner_join(trash_table::dsl::trash_table.on(trash_id.ne(view_table::
 // id)))         .filter(view_table::belong_to_id.eq(belong_to_id))

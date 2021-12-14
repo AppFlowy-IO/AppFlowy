@@ -1,5 +1,5 @@
 use crate::{
-    errors::{internal_error, DocError, DocResult},
+    errors::FlowyError,
     services::doc::revision::{
         cache::{disk::RevisionDiskCache, memory::RevisionMemoryCache},
         RevisionRecord,
@@ -9,6 +9,7 @@ use crate::{
 };
 use flowy_collaboration::entities::doc::Doc;
 use flowy_database::ConnectionPool;
+use flowy_error::{internal_error, FlowyResult};
 use lib_infra::future::FutureResult;
 use lib_ot::{
     core::{Operation, OperationTransformable},
@@ -22,10 +23,10 @@ use tokio::{
 };
 
 pub trait RevisionIterator: Send + Sync {
-    fn next(&self) -> FutureResult<Option<RevisionRecord>, DocError>;
+    fn next(&self) -> FutureResult<Option<RevisionRecord>, FlowyError>;
 }
 
-type DocRevisionDeskCache = dyn RevisionDiskCache<Error = DocError>;
+type DocRevisionDeskCache = dyn RevisionDiskCache<Error = FlowyError>;
 
 pub struct RevisionCache {
     user_id: String,
@@ -57,9 +58,9 @@ impl RevisionCache {
     }
 
     #[tracing::instrument(level = "debug", skip(self, revision))]
-    pub async fn add_local_revision(&self, revision: Revision) -> DocResult<()> {
+    pub async fn add_local_revision(&self, revision: Revision) -> FlowyResult<()> {
         if self.memory_cache.contains(&revision.rev_id) {
-            return Err(DocError::duplicate_rev().context(format!("Duplicate revision id: {}", revision.rev_id)));
+            return Err(FlowyError::internal().context(format!("Duplicate revision id: {}", revision.rev_id)));
         }
         let record = RevisionRecord {
             revision,
@@ -71,9 +72,9 @@ impl RevisionCache {
     }
 
     #[tracing::instrument(level = "debug", skip(self, revision))]
-    pub async fn add_remote_revision(&self, revision: Revision) -> DocResult<()> {
+    pub async fn add_remote_revision(&self, revision: Revision) -> FlowyResult<()> {
         if self.memory_cache.contains(&revision.rev_id) {
-            return Err(DocError::duplicate_rev().context(format!("Duplicate revision id: {}", revision.rev_id)));
+            return Err(FlowyError::internal().context(format!("Duplicate revision id: {}", revision.rev_id)));
         }
         let record = RevisionRecord {
             revision,
@@ -126,7 +127,7 @@ impl RevisionCache {
         }));
     }
 
-    pub async fn revisions_in_range(&self, range: RevisionRange) -> DocResult<Vec<Revision>> {
+    pub async fn revisions_in_range(&self, range: RevisionRange) -> FlowyResult<Vec<Revision>> {
         let revs = self.memory_cache.revisions_in_range(&range).await?;
         if revs.len() == range.len() as usize {
             Ok(revs)
@@ -145,7 +146,7 @@ impl RevisionCache {
         }
     }
 
-    pub async fn load_document(&self) -> DocResult<Doc> {
+    pub async fn load_document(&self) -> FlowyResult<Doc> {
         // Loading the document from disk and it will be sync with server.
         let result = load_from_disk(&self.doc_id, self.memory_cache.clone(), self.dish_cache.clone()).await;
         if result.is_ok() {
@@ -170,7 +171,7 @@ impl RevisionCache {
 }
 
 impl RevisionIterator for RevisionCache {
-    fn next(&self) -> FutureResult<Option<RevisionRecord>, DocError> {
+    fn next(&self) -> FutureResult<Option<RevisionRecord>, FlowyError> {
         let memory_cache = self.memory_cache.clone();
         let disk_cache = self.dish_cache.clone();
         let doc_id = self.doc_id.clone();
@@ -196,13 +197,13 @@ async fn load_from_disk(
     doc_id: &str,
     memory_cache: Arc<RevisionMemoryCache>,
     disk_cache: Arc<DocRevisionDeskCache>,
-) -> DocResult<Doc> {
+) -> FlowyResult<Doc> {
     let doc_id = doc_id.to_owned();
     let (tx, mut rx) = mpsc::channel(2);
     let doc = spawn_blocking(move || {
         let records = disk_cache.read_revisions(&doc_id)?;
         if records.is_empty() {
-            return Err(DocError::doc_not_found().context("Local doesn't have this document"));
+            return Err(FlowyError::record_not_found().context("Local doesn't have this document"));
         }
 
         let (base_rev_id, rev_id) = records.last().unwrap().revision.pair_rev_id();
@@ -224,7 +225,7 @@ async fn load_from_disk(
         }
 
         correct_delta_if_need(&mut delta);
-        Result::<Doc, DocError>::Ok(Doc {
+        Result::<Doc, FlowyError>::Ok(Doc {
             id: doc_id,
             data: delta.to_json(),
             rev_id,
@@ -261,11 +262,11 @@ pub(crate) struct Persistence {
 }
 
 impl RevisionDiskCache for Persistence {
-    type Error = DocError;
+    type Error = FlowyError;
 
     fn create_revisions(&self, revisions: Vec<RevisionRecord>) -> Result<(), Self::Error> {
         let conn = &*self.pool.get().map_err(internal_error)?;
-        conn.immediate_transaction::<_, DocError, _>(|| {
+        conn.immediate_transaction::<_, FlowyError, _>(|| {
             let _ = RevTableSql::create_rev_table(revisions, conn)?;
             Ok(())
         })

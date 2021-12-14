@@ -1,6 +1,6 @@
 use crate::{
     entities::trash::{RepeatedTrash, Trash, TrashType},
-    errors::WorkspaceError,
+    errors::FlowyError,
 };
 use diesel::sql_types::Integer;
 use flowy_database::{
@@ -12,7 +12,7 @@ use flowy_database::{
 pub struct TrashTableSql {}
 
 impl TrashTableSql {
-    pub(crate) fn create_trash(repeated_trash: Vec<Trash>, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
+    pub(crate) fn create_trash(repeated_trash: Vec<Trash>, conn: &SqliteConnection) -> Result<(), FlowyError> {
         for trash in repeated_trash {
             let trash_table: TrashTable = trash.into();
             match diesel_record_count!(trash_table, &trash_table.id, conn) {
@@ -27,25 +27,25 @@ impl TrashTableSql {
         Ok(())
     }
 
-    pub(crate) fn read_all(conn: &SqliteConnection) -> Result<RepeatedTrash, WorkspaceError> {
+    pub(crate) fn read_all(conn: &SqliteConnection) -> Result<RepeatedTrash, FlowyError> {
         let trash_tables = dsl::trash_table.load::<TrashTable>(conn)?;
         let items = trash_tables.into_iter().map(|t| t.into()).collect::<Vec<Trash>>();
         Ok(RepeatedTrash { items })
     }
 
-    pub(crate) fn delete_all(conn: &SqliteConnection) -> Result<(), WorkspaceError> {
+    pub(crate) fn delete_all(conn: &SqliteConnection) -> Result<(), FlowyError> {
         let _ = diesel::delete(dsl::trash_table).execute(conn)?;
         Ok(())
     }
 
-    pub(crate) fn read(trash_id: &str, conn: &SqliteConnection) -> Result<TrashTable, WorkspaceError> {
+    pub(crate) fn read(trash_id: &str, conn: &SqliteConnection) -> Result<TrashTable, FlowyError> {
         let trash_table = dsl::trash_table
             .filter(trash_table::id.eq(trash_id))
             .first::<TrashTable>(conn)?;
         Ok(trash_table)
     }
 
-    pub(crate) fn delete_trash(trash_id: &str, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
+    pub(crate) fn delete_trash(trash_id: &str, conn: &SqliteConnection) -> Result<(), FlowyError> {
         diesel_delete_table!(trash_table, trash_id, conn);
         Ok(())
     }

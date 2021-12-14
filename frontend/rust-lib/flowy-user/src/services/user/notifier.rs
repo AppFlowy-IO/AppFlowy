@@ -1,5 +1,5 @@
 use crate::entities::{UserProfile, UserStatus};
-use flowy_net::entities::NetworkType;
+
 use tokio::sync::{broadcast, mpsc};
 
 pub struct UserNotifier {

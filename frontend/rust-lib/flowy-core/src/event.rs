@@ -2,7 +2,7 @@ use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use strum_macros::Display;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
-#[event_err = "WorkspaceError"]
+#[event_err = "FlowyError"]
 pub enum WorkspaceEvent {
     #[event(input = "CreateWorkspaceRequest", output = "Workspace")]
     CreateWorkspace   = 0,

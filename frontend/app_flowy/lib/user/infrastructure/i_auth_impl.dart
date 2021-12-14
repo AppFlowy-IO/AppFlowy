@@ -8,7 +8,7 @@ import 'package:flowy_infra_ui/widget/route/animation.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-infra/protobuf.dart' show UserProfile;
 import 'package:app_flowy/user/domain/i_auth.dart';
 import 'package:app_flowy/user/infrastructure/repos/auth_repo.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-infra/protobuf.dart';
 import 'package:flutter/material.dart';
 
@@ -19,17 +19,17 @@ class AuthImpl extends IAuth {
   });
 
   @override
-  Future<Either<UserProfile, UserError>> signIn(String? email, String? password) {
+  Future<Either<UserProfile, FlowyError>> signIn(String? email, String? password) {
     return repo.signIn(email: email, password: password);
   }
 
   @override
-  Future<Either<UserProfile, UserError>> signUp(String? name, String? password, String? email) {
+  Future<Either<UserProfile, FlowyError>> signUp(String? name, String? password, String? email) {
     return repo.signUp(name: name, password: password, email: email);
   }
 
   @override
-  Future<Either<Unit, UserError>> signOut() {
+  Future<Either<Unit, FlowyError>> signOut() {
     return repo.signOut();
   }
 }

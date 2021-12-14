@@ -1,16 +1,14 @@
-use crate::{
-    errors::{internal_error, DocResult},
-    services::{
-        doc::{
-            edit::ClientDocEditor,
-            revision::{RevisionIterator, RevisionManager},
-        },
-        ws::DocumentWebSocket,
+use crate::services::{
+    doc::{
+        edit::ClientDocEditor,
+        revision::{RevisionIterator, RevisionManager},
     },
+    ws::DocumentWebSocket,
 };
 use async_stream::stream;
 use bytes::Bytes;
 use flowy_collaboration::entities::ws::{WsDataType, WsDocumentData};
+use flowy_error::{internal_error, FlowyResult};
 use futures::stream::StreamExt;
 use lib_ot::revision::{RevId, RevisionRange};
 use std::{convert::TryFrom, sync::Arc};
@@ -81,7 +79,7 @@ impl RevisionDownStream {
             .await;
     }
 
-    async fn handle_message(&self, msg: WsDocumentData) -> DocResult<()> {
+    async fn handle_message(&self, msg: WsDocumentData) -> FlowyResult<()> {
         let WsDocumentData { doc_id: _, ty, data } = msg;
         let bytes = spawn_blocking(move || Bytes::from(data))
             .await
@@ -169,13 +167,13 @@ impl RevisionUpStream {
             .await;
     }
 
-    async fn handle_msg(&self, msg: UpStreamMsg) -> DocResult<()> {
+    async fn handle_msg(&self, msg: UpStreamMsg) -> FlowyResult<()> {
         match msg {
             UpStreamMsg::Tick => self.send_next_revision().await,
         }
     }
 
-    async fn send_next_revision(&self) -> DocResult<()> {
+    async fn send_next_revision(&self) -> FlowyResult<()> {
         match self.revisions.next().await? {
             None => Ok(()),
             Some(record) => {

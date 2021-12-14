@@ -93,11 +93,11 @@ impl TryInto<UpdateViewParams> for UpdateViewRequest {
 // }
 //
 // impl TryInto<DocDelta> for DocDeltaRequest {
-//     type Error = WorkspaceError;
+//     type Error = FlowyError;
 //
 //     fn try_into(self) -> Result<DocDelta, Self::Error> {
 //         let view_id = ViewId::parse(self.view_id)
-//             .map_err(|e| WorkspaceError::view_id().context(e))?
+//             .map_err(|e| FlowyError::view_id().context(e))?
 //             .0;
 //
 //         Ok(DocDelta { doc_id: view_id, data: self.data })

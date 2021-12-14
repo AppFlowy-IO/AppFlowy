@@ -9,16 +9,16 @@ edition = "2018"
 [dependencies]
 flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration" }
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
+backend-service = { path = "../../../shared-lib/backend-service" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-ws = { path = "../../../shared-lib/lib-ws" }
-backend-service = { path = "../../../shared-lib/backend-service" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 
 derive_more = {version = "0.99", features = ["display"]}
 lib-dispatch = { path = "../lib-dispatch" }
 flowy-database = { path = "../flowy-database" }
+flowy-error = { path = "../flowy-error", features = ["collaboration", "ot", "backend", "serde", "db"] }
 dart-notify = { path = "../dart-notify" }
-
 
 diesel = {version = "1.4.8", features = ["sqlite"]}
 diesel_derives = {version = "1.4.1", features = ["sqlite"]}

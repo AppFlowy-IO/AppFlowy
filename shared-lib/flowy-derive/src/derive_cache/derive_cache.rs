@@ -16,14 +16,11 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         "HashMap" => TypeCategory::Map,
         "u8" => TypeCategory::Bytes,
         "String" => TypeCategory::Str,
-        "WorkspaceError"
-        | "DocError"
-        | "FFIRequest"
+        "FFIRequest"
         | "FFIResponse"
         | "FlowyError"
         | "SubscribeObject"
         | "NetworkState"
-        | "UserError"
         | "QueryAppRequest"
         | "AppIdentifier"
         | "CreateAppRequest"
@@ -82,7 +79,6 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         => TypeCategory::Protobuf,
         "WorkspaceEvent"
         | "WorkspaceNotification"
-        | "ErrorCode"
         | "DocObservable"
         | "FFIStatusCode"
         | "NetworkEvent"
@@ -93,6 +89,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "ViewType"
         | "ExportType"
         | "WsDataType"
+        | "ErrorCode"
         | "WsModule"
         | "RevType"
         | "RevState"

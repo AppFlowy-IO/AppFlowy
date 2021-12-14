@@ -3,7 +3,7 @@ mod deps_resolve;
 pub mod module;
 use crate::deps_resolve::{DocumentDepsResolver, WorkspaceDepsResolver};
 use backend_service::configuration::ClientServerConfiguration;
-use flowy_core::{errors::WorkspaceError, module::init_core, prelude::CoreContext};
+use flowy_core::{errors::FlowyError, module::init_core, prelude::CoreContext};
 use flowy_document::module::FlowyDocument;
 use flowy_net::{entities::NetworkType, services::ws::WsManager};
 use flowy_user::{
@@ -130,7 +130,7 @@ async fn _listen_user_status(
             match status {
                 UserStatus::Login { token } => {
                     let _ = core.user_did_sign_in(&token).await?;
-                    let _ = ws_manager.start(token).await.unwrap();
+                    let _ = ws_manager.start(token).await?;
                 },
                 UserStatus::Logout { .. } => {
                     core.user_did_logout().await;
@@ -143,7 +143,7 @@ async fn _listen_user_status(
                     let _ = ret.send(());
                 },
             }
-            Ok::<(), WorkspaceError>(())
+            Ok::<(), FlowyError>(())
         };
 
         match result().await {

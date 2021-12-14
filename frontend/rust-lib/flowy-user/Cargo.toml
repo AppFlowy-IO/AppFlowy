@@ -19,6 +19,7 @@ flowy-database = { path = "../flowy-database" }
 flowy-net = { path = "../flowy-net" }
 dart-notify = { path = "../dart-notify" }
 lib-dispatch = { path = "../lib-dispatch" }
+flowy-error = { path = "../flowy-error", features = ["db", "backend"] }
 
 
 tracing = { version = "0.1", features = ["log"] }

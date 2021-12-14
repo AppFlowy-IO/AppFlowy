@@ -4,16 +4,16 @@ use flowy_collaboration::{
 };
 use lib_infra::future::FutureResult;
 
-use crate::{errors::DocError, services::server::DocumentServerAPI};
+use crate::{errors::FlowyError, services::server::DocumentServerAPI};
 
 pub struct DocServerMock {}
 
 impl DocumentServerAPI for DocServerMock {
-    fn create_doc(&self, _token: &str, _params: CreateDocParams) -> FutureResult<(), DocError> {
+    fn create_doc(&self, _token: &str, _params: CreateDocParams) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn read_doc(&self, _token: &str, params: DocIdentifier) -> FutureResult<Option<Doc>, DocError> {
+    fn read_doc(&self, _token: &str, params: DocIdentifier) -> FutureResult<Option<Doc>, FlowyError> {
         let doc = Doc {
             id: params.doc_id,
             data: initial_string(),
@@ -23,7 +23,7 @@ impl DocumentServerAPI for DocServerMock {
         FutureResult::new(async { Ok(Some(doc)) })
     }
 
-    fn update_doc(&self, _token: &str, _params: UpdateDocParams) -> FutureResult<(), DocError> {
+    fn update_doc(&self, _token: &str, _params: UpdateDocParams) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 }

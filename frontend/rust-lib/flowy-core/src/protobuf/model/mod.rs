@@ -4,8 +4,5 @@
 mod observable;
 pub use observable::*;
 
-mod errors;
-pub use errors::*;
-
 mod event;
 pub use event::*;

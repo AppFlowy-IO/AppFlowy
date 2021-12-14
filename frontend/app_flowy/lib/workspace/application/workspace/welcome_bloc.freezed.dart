@@ -35,7 +35,7 @@ class _$WelcomeEventTearOff {
   }
 
   WorkspacesReceived workspacesReveived(
-      Either<List<Workspace>, WorkspaceError> workspacesOrFail) {
+      Either<List<Workspace>, FlowyError> workspacesOrFail) {
     return WorkspacesReceived(
       workspacesOrFail,
     );
@@ -53,7 +53,7 @@ mixin _$WelcomeEvent {
     required TResult Function(String name, String desc) createWorkspace,
     required TResult Function(Workspace workspace) openWorkspace,
     required TResult Function(
-            Either<List<Workspace>, WorkspaceError> workspacesOrFail)
+            Either<List<Workspace>, FlowyError> workspacesOrFail)
         workspacesReveived,
   }) =>
       throw _privateConstructorUsedError;
@@ -62,7 +62,7 @@ mixin _$WelcomeEvent {
     TResult Function()? initial,
     TResult Function(String name, String desc)? createWorkspace,
     TResult Function(Workspace workspace)? openWorkspace,
-    TResult Function(Either<List<Workspace>, WorkspaceError> workspacesOrFail)?
+    TResult Function(Either<List<Workspace>, FlowyError> workspacesOrFail)?
         workspacesReveived,
   }) =>
       throw _privateConstructorUsedError;
@@ -71,7 +71,7 @@ mixin _$WelcomeEvent {
     TResult Function()? initial,
     TResult Function(String name, String desc)? createWorkspace,
     TResult Function(Workspace workspace)? openWorkspace,
-    TResult Function(Either<List<Workspace>, WorkspaceError> workspacesOrFail)?
+    TResult Function(Either<List<Workspace>, FlowyError> workspacesOrFail)?
         workspacesReveived,
     required TResult orElse(),
   }) =>
@@ -160,7 +160,7 @@ class _$Initial implements Initial {
     required TResult Function(String name, String desc) createWorkspace,
     required TResult Function(Workspace workspace) openWorkspace,
     required TResult Function(
-            Either<List<Workspace>, WorkspaceError> workspacesOrFail)
+            Either<List<Workspace>, FlowyError> workspacesOrFail)
         workspacesReveived,
   }) {
     return initial();
@@ -172,7 +172,7 @@ class _$Initial implements Initial {
     TResult Function()? initial,
     TResult Function(String name, String desc)? createWorkspace,
     TResult Function(Workspace workspace)? openWorkspace,
-    TResult Function(Either<List<Workspace>, WorkspaceError> workspacesOrFail)?
+    TResult Function(Either<List<Workspace>, FlowyError> workspacesOrFail)?
         workspacesReveived,
   }) {
     return initial?.call();
@@ -184,7 +184,7 @@ class _$Initial implements Initial {
     TResult Function()? initial,
     TResult Function(String name, String desc)? createWorkspace,
     TResult Function(Workspace workspace)? openWorkspace,
-    TResult Function(Either<List<Workspace>, WorkspaceError> workspacesOrFail)?
+    TResult Function(Either<List<Workspace>, FlowyError> workspacesOrFail)?
         workspacesReveived,
     required TResult orElse(),
   }) {
@@ -316,7 +316,7 @@ class _$CreateWorkspace implements CreateWorkspace {
     required TResult Function(String name, String desc) createWorkspace,
     required TResult Function(Workspace workspace) openWorkspace,
     required TResult Function(
-            Either<List<Workspace>, WorkspaceError> workspacesOrFail)
+            Either<List<Workspace>, FlowyError> workspacesOrFail)
         workspacesReveived,
   }) {
     return createWorkspace(name, desc);
@@ -328,7 +328,7 @@ class _$CreateWorkspace implements CreateWorkspace {
     TResult Function()? initial,
     TResult Function(String name, String desc)? createWorkspace,
     TResult Function(Workspace workspace)? openWorkspace,
-    TResult Function(Either<List<Workspace>, WorkspaceError> workspacesOrFail)?
+    TResult Function(Either<List<Workspace>, FlowyError> workspacesOrFail)?
         workspacesReveived,
   }) {
     return createWorkspace?.call(name, desc);
@@ -340,7 +340,7 @@ class _$CreateWorkspace implements CreateWorkspace {
     TResult Function()? initial,
     TResult Function(String name, String desc)? createWorkspace,
     TResult Function(Workspace workspace)? openWorkspace,
-    TResult Function(Either<List<Workspace>, WorkspaceError> workspacesOrFail)?
+    TResult Function(Either<List<Workspace>, FlowyError> workspacesOrFail)?
         workspacesReveived,
     required TResult orElse(),
   }) {
@@ -467,7 +467,7 @@ class _$OpenWorkspace implements OpenWorkspace {
     required TResult Function(String name, String desc) createWorkspace,
     required TResult Function(Workspace workspace) openWorkspace,
     required TResult Function(
-            Either<List<Workspace>, WorkspaceError> workspacesOrFail)
+            Either<List<Workspace>, FlowyError> workspacesOrFail)
         workspacesReveived,
   }) {
     return openWorkspace(workspace);
@@ -479,7 +479,7 @@ class _$OpenWorkspace implements OpenWorkspace {
     TResult Function()? initial,
     TResult Function(String name, String desc)? createWorkspace,
     TResult Function(Workspace workspace)? openWorkspace,
-    TResult Function(Either<List<Workspace>, WorkspaceError> workspacesOrFail)?
+    TResult Function(Either<List<Workspace>, FlowyError> workspacesOrFail)?
         workspacesReveived,
   }) {
     return openWorkspace?.call(workspace);
@@ -491,7 +491,7 @@ class _$OpenWorkspace implements OpenWorkspace {
     TResult Function()? initial,
     TResult Function(String name, String desc)? createWorkspace,
     TResult Function(Workspace workspace)? openWorkspace,
-    TResult Function(Either<List<Workspace>, WorkspaceError> workspacesOrFail)?
+    TResult Function(Either<List<Workspace>, FlowyError> workspacesOrFail)?
         workspacesReveived,
     required TResult orElse(),
   }) {
@@ -553,7 +553,7 @@ abstract class $WorkspacesReceivedCopyWith<$Res> {
   factory $WorkspacesReceivedCopyWith(
           WorkspacesReceived value, $Res Function(WorkspacesReceived) then) =
       _$WorkspacesReceivedCopyWithImpl<$Res>;
-  $Res call({Either<List<Workspace>, WorkspaceError> workspacesOrFail});
+  $Res call({Either<List<Workspace>, FlowyError> workspacesOrFail});
 }
 
 /// @nodoc
@@ -575,7 +575,7 @@ class _$WorkspacesReceivedCopyWithImpl<$Res>
       workspacesOrFail == freezed
           ? _value.workspacesOrFail
           : workspacesOrFail // ignore: cast_nullable_to_non_nullable
-              as Either<List<Workspace>, WorkspaceError>,
+              as Either<List<Workspace>, FlowyError>,
     ));
   }
 }
@@ -586,7 +586,7 @@ class _$WorkspacesReceived implements WorkspacesReceived {
   const _$WorkspacesReceived(this.workspacesOrFail);
 
   @override
-  final Either<List<Workspace>, WorkspaceError> workspacesOrFail;
+  final Either<List<Workspace>, FlowyError> workspacesOrFail;
 
   @override
   String toString() {
@@ -619,7 +619,7 @@ class _$WorkspacesReceived implements WorkspacesReceived {
     required TResult Function(String name, String desc) createWorkspace,
     required TResult Function(Workspace workspace) openWorkspace,
     required TResult Function(
-            Either<List<Workspace>, WorkspaceError> workspacesOrFail)
+            Either<List<Workspace>, FlowyError> workspacesOrFail)
         workspacesReveived,
   }) {
     return workspacesReveived(workspacesOrFail);
@@ -631,7 +631,7 @@ class _$WorkspacesReceived implements WorkspacesReceived {
     TResult Function()? initial,
     TResult Function(String name, String desc)? createWorkspace,
     TResult Function(Workspace workspace)? openWorkspace,
-    TResult Function(Either<List<Workspace>, WorkspaceError> workspacesOrFail)?
+    TResult Function(Either<List<Workspace>, FlowyError> workspacesOrFail)?
         workspacesReveived,
   }) {
     return workspacesReveived?.call(workspacesOrFail);
@@ -643,7 +643,7 @@ class _$WorkspacesReceived implements WorkspacesReceived {
     TResult Function()? initial,
     TResult Function(String name, String desc)? createWorkspace,
     TResult Function(Workspace workspace)? openWorkspace,
-    TResult Function(Either<List<Workspace>, WorkspaceError> workspacesOrFail)?
+    TResult Function(Either<List<Workspace>, FlowyError> workspacesOrFail)?
         workspacesReveived,
     required TResult orElse(),
   }) {
@@ -693,10 +693,10 @@ class _$WorkspacesReceived implements WorkspacesReceived {
 
 abstract class WorkspacesReceived implements WelcomeEvent {
   const factory WorkspacesReceived(
-          Either<List<Workspace>, WorkspaceError> workspacesOrFail) =
+          Either<List<Workspace>, FlowyError> workspacesOrFail) =
       _$WorkspacesReceived;
 
-  Either<List<Workspace>, WorkspaceError> get workspacesOrFail =>
+  Either<List<Workspace>, FlowyError> get workspacesOrFail =>
       throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $WorkspacesReceivedCopyWith<WorkspacesReceived> get copyWith =>
@@ -710,7 +710,7 @@ class _$WelcomeStateTearOff {
   _WelcomeState call(
       {required bool isLoading,
       required List<Workspace> workspaces,
-      required Either<Unit, WorkspaceError> successOrFailure}) {
+      required Either<Unit, FlowyError> successOrFailure}) {
     return _WelcomeState(
       isLoading: isLoading,
       workspaces: workspaces,
@@ -726,7 +726,7 @@ const $WelcomeState = _$WelcomeStateTearOff();
 mixin _$WelcomeState {
   bool get isLoading => throw _privateConstructorUsedError;
   List<Workspace> get workspaces => throw _privateConstructorUsedError;
-  Either<Unit, WorkspaceError> get successOrFailure =>
+  Either<Unit, FlowyError> get successOrFailure =>
       throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
@@ -742,7 +742,7 @@ abstract class $WelcomeStateCopyWith<$Res> {
   $Res call(
       {bool isLoading,
       List<Workspace> workspaces,
-      Either<Unit, WorkspaceError> successOrFailure});
+      Either<Unit, FlowyError> successOrFailure});
 }
 
 /// @nodoc
@@ -771,7 +771,7 @@ class _$WelcomeStateCopyWithImpl<$Res> implements $WelcomeStateCopyWith<$Res> {
       successOrFailure: successOrFailure == freezed
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
-              as Either<Unit, WorkspaceError>,
+              as Either<Unit, FlowyError>,
     ));
   }
 }
@@ -786,7 +786,7 @@ abstract class _$WelcomeStateCopyWith<$Res>
   $Res call(
       {bool isLoading,
       List<Workspace> workspaces,
-      Either<Unit, WorkspaceError> successOrFailure});
+      Either<Unit, FlowyError> successOrFailure});
 }
 
 /// @nodoc
@@ -817,7 +817,7 @@ class __$WelcomeStateCopyWithImpl<$Res> extends _$WelcomeStateCopyWithImpl<$Res>
       successOrFailure: successOrFailure == freezed
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
-              as Either<Unit, WorkspaceError>,
+              as Either<Unit, FlowyError>,
     ));
   }
 }
@@ -835,7 +835,7 @@ class _$_WelcomeState implements _WelcomeState {
   @override
   final List<Workspace> workspaces;
   @override
-  final Either<Unit, WorkspaceError> successOrFailure;
+  final Either<Unit, FlowyError> successOrFailure;
 
   @override
   String toString() {
@@ -874,7 +874,7 @@ abstract class _WelcomeState implements WelcomeState {
   const factory _WelcomeState(
           {required bool isLoading,
           required List<Workspace> workspaces,
-          required Either<Unit, WorkspaceError> successOrFailure}) =
+          required Either<Unit, FlowyError> successOrFailure}) =
       _$_WelcomeState;
 
   @override
@@ -882,7 +882,7 @@ abstract class _WelcomeState implements WelcomeState {
   @override
   List<Workspace> get workspaces => throw _privateConstructorUsedError;
   @override
-  Either<Unit, WorkspaceError> get successOrFailure =>
+  Either<Unit, FlowyError> get successOrFailure =>
       throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)

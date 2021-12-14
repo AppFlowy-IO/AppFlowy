@@ -1,11 +1,12 @@
 use crate::{
-    errors::{DocError, DocResult},
+    errors::FlowyError,
     services::{
         doc::revision::{RevisionCache, RevisionUpStream, SteamStopRx},
         ws::DocumentWebSocket,
     },
 };
 use flowy_collaboration::{entities::doc::Doc, util::RevIdCounter};
+use flowy_error::FlowyResult;
 use lib_infra::future::FutureResult;
 use lib_ot::{
     core::OperationTransformable,
@@ -15,7 +16,7 @@ use lib_ot::{
 use std::sync::Arc;
 
 pub trait RevisionServer: Send + Sync {
-    fn fetch_document(&self, doc_id: &str) -> FutureResult<Doc, DocError>;
+    fn fetch_document(&self, doc_id: &str) -> FutureResult<Doc, FlowyError>;
 }
 
 pub struct RevisionManager {
@@ -38,23 +39,23 @@ impl RevisionManager {
         }
     }
 
-    pub async fn load_document(&mut self) -> DocResult<RichTextDelta> {
+    pub async fn load_document(&mut self) -> FlowyResult<RichTextDelta> {
         let doc = self.cache.load_document().await?;
         self.update_rev_id_counter_value(doc.rev_id);
         Ok(doc.delta()?)
     }
 
-    pub async fn add_remote_revision(&self, revision: &Revision) -> Result<(), DocError> {
+    pub async fn add_remote_revision(&self, revision: &Revision) -> Result<(), FlowyError> {
         let _ = self.cache.add_remote_revision(revision.clone()).await?;
         Ok(())
     }
 
-    pub async fn add_local_revision(&self, revision: &Revision) -> Result<(), DocError> {
+    pub async fn add_local_revision(&self, revision: &Revision) -> Result<(), FlowyError> {
         let _ = self.cache.add_local_revision(revision.clone()).await?;
         Ok(())
     }
 
-    pub async fn ack_revision(&self, rev_id: RevId) -> Result<(), DocError> {
+    pub async fn ack_revision(&self, rev_id: RevId) -> Result<(), FlowyError> {
         self.cache.ack_revision(rev_id.into()).await;
         Ok(())
     }
@@ -69,7 +70,7 @@ impl RevisionManager {
 
     pub fn update_rev_id_counter_value(&self, rev_id: i64) { self.rev_id_counter.set(rev_id); }
 
-    pub async fn mk_revisions(&self, range: RevisionRange) -> Result<Revision, DocError> {
+    pub async fn mk_revisions(&self, range: RevisionRange) -> Result<Revision, FlowyError> {
         debug_assert!(range.doc_id == self.doc_id);
         let revisions = self.cache.revisions_in_range(range.clone()).await?;
         let mut new_delta = RichTextDelta::new();

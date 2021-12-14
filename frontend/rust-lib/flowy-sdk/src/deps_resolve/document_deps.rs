@@ -2,15 +2,12 @@ use bytes::Bytes;
 use flowy_collaboration::entities::ws::WsDocumentData;
 use flowy_database::ConnectionPool;
 use flowy_document::{
-    errors::{internal_error, DocError},
+    errors::{internal_error, FlowyError},
     module::DocumentUser,
     services::ws::{DocumentWebSocket, WsDocumentManager, WsStateReceiver},
 };
 use flowy_net::services::ws::WsManager;
-use flowy_user::{
-    errors::{ErrorCode, UserError},
-    services::user::UserSession,
-};
+use flowy_user::services::user::UserSession;
 use lib_ws::{WsMessage, WsMessageHandler, WsModule};
 use std::{convert::TryInto, path::Path, sync::Arc};
 
@@ -20,16 +17,14 @@ impl DocumentDepsResolver {
         ws_manager: Arc<WsManager>,
         user_session: Arc<UserSession>,
     ) -> (Arc<dyn DocumentUser>, Arc<WsDocumentManager>) {
-        let user = Arc::new(DocumentUserImpl {
-            user: user_session.clone(),
-        });
+        let user = Arc::new(DocumentUserImpl { user: user_session });
 
         let sender = Arc::new(WsSenderImpl {
             ws_manager: ws_manager.clone(),
         });
         let ws_doc = Arc::new(WsDocumentManager::new(sender));
         let ws_handler = Arc::new(DocumentWsMessageReceiver { inner: ws_doc.clone() });
-        ws_manager.add_handler(ws_handler);
+        ws_manager.add_handler(ws_handler).unwrap();
         (user, ws_doc)
     }
 }
@@ -40,16 +35,12 @@ struct DocumentUserImpl {
 
 impl DocumentUserImpl {}
 
-fn map_user_error(error: UserError) -> DocError {
-    match ErrorCode::from_i32(error.code) {
-        ErrorCode::InternalError => DocError::internal().context(error.msg),
-        _ => DocError::internal().context(error),
-    }
-}
-
 impl DocumentUser for DocumentUserImpl {
-    fn user_dir(&self) -> Result<String, DocError> {
-        let dir = self.user.user_dir().map_err(|e| DocError::unauthorized().context(e))?;
+    fn user_dir(&self) -> Result<String, FlowyError> {
+        let dir = self
+            .user
+            .user_dir()
+            .map_err(|e| FlowyError::unauthorized().context(e))?;
 
         let doc_dir = format!("{}/doc", dir);
         if !Path::new(&doc_dir).exists() {
@@ -58,11 +49,11 @@ impl DocumentUser for DocumentUserImpl {
         Ok(doc_dir)
     }
 
-    fn user_id(&self) -> Result<String, DocError> { self.user.user_id().map_err(map_user_error) }
+    fn user_id(&self) -> Result<String, FlowyError> { self.user.user_id() }
 
-    fn token(&self) -> Result<String, DocError> { self.user.token().map_err(map_user_error) }
+    fn token(&self) -> Result<String, FlowyError> { self.user.token() }
 
-    fn db_pool(&self) -> Result<Arc<ConnectionPool>, DocError> { self.user.db_pool().map_err(map_user_error) }
+    fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError> { self.user.db_pool() }
 }
 
 struct WsSenderImpl {
@@ -70,7 +61,7 @@ struct WsSenderImpl {
 }
 
 impl DocumentWebSocket for WsSenderImpl {
-    fn send(&self, data: WsDocumentData) -> Result<(), DocError> {
+    fn send(&self, data: WsDocumentData) -> Result<(), FlowyError> {
         let bytes: Bytes = data.try_into().unwrap();
         let msg = WsMessage {
             module: WsModule::Doc,

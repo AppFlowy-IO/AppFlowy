@@ -2,7 +2,7 @@ import 'package:app_flowy/workspace/domain/i_trash.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/trash_repo.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-infra/trash_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 
 class ITrashImpl implements ITrash {
   TrashRepo repo;
@@ -10,7 +10,7 @@ class ITrashImpl implements ITrash {
   ITrashImpl({required this.repo});
 
   @override
-  Future<Either<List<Trash>, WorkspaceError>> readTrash() {
+  Future<Either<List<Trash>, FlowyError>> readTrash() {
     return repo.readTrash().then((result) {
       return result.fold(
         (repeatedTrash) => left(repeatedTrash.items),
@@ -20,22 +20,22 @@ class ITrashImpl implements ITrash {
   }
 
   @override
-  Future<Either<Unit, WorkspaceError>> putback(String trashId) {
+  Future<Either<Unit, FlowyError>> putback(String trashId) {
     return repo.putback(trashId);
   }
 
   @override
-  Future<Either<Unit, WorkspaceError>> deleteAll() {
+  Future<Either<Unit, FlowyError>> deleteAll() {
     return repo.deleteAll();
   }
 
   @override
-  Future<Either<Unit, WorkspaceError>> restoreAll() {
+  Future<Either<Unit, FlowyError>> restoreAll() {
     return repo.restoreAll();
   }
 
   @override
-  Future<Either<Unit, WorkspaceError>> deleteViews(List<Tuple2<String, TrashType>> trashList) {
+  Future<Either<Unit, FlowyError>> deleteViews(List<Tuple2<String, TrashType>> trashList) {
     return repo.deleteViews(trashList);
   }
 }

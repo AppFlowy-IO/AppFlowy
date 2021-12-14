@@ -434,7 +434,7 @@ class _$DocShareStateTearOff {
     return const _Loading();
   }
 
-  _Finish finish(Either<ExportData, WorkspaceError> successOrFail) {
+  _Finish finish(Either<ExportData, FlowyError> successOrFail) {
     return _Finish(
       successOrFail,
     );
@@ -450,7 +450,7 @@ mixin _$DocShareState {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() loading,
-    required TResult Function(Either<ExportData, WorkspaceError> successOrFail)
+    required TResult Function(Either<ExportData, FlowyError> successOrFail)
         finish,
   }) =>
       throw _privateConstructorUsedError;
@@ -458,14 +458,14 @@ mixin _$DocShareState {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? loading,
-    TResult Function(Either<ExportData, WorkspaceError> successOrFail)? finish,
+    TResult Function(Either<ExportData, FlowyError> successOrFail)? finish,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? loading,
-    TResult Function(Either<ExportData, WorkspaceError> successOrFail)? finish,
+    TResult Function(Either<ExportData, FlowyError> successOrFail)? finish,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -549,7 +549,7 @@ class _$_Initial implements _Initial {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() loading,
-    required TResult Function(Either<ExportData, WorkspaceError> successOrFail)
+    required TResult Function(Either<ExportData, FlowyError> successOrFail)
         finish,
   }) {
     return initial();
@@ -560,7 +560,7 @@ class _$_Initial implements _Initial {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? loading,
-    TResult Function(Either<ExportData, WorkspaceError> successOrFail)? finish,
+    TResult Function(Either<ExportData, FlowyError> successOrFail)? finish,
   }) {
     return initial?.call();
   }
@@ -570,7 +570,7 @@ class _$_Initial implements _Initial {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? loading,
-    TResult Function(Either<ExportData, WorkspaceError> successOrFail)? finish,
+    TResult Function(Either<ExportData, FlowyError> successOrFail)? finish,
     required TResult orElse(),
   }) {
     if (initial != null) {
@@ -657,7 +657,7 @@ class _$_Loading implements _Loading {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() loading,
-    required TResult Function(Either<ExportData, WorkspaceError> successOrFail)
+    required TResult Function(Either<ExportData, FlowyError> successOrFail)
         finish,
   }) {
     return loading();
@@ -668,7 +668,7 @@ class _$_Loading implements _Loading {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? loading,
-    TResult Function(Either<ExportData, WorkspaceError> successOrFail)? finish,
+    TResult Function(Either<ExportData, FlowyError> successOrFail)? finish,
   }) {
     return loading?.call();
   }
@@ -678,7 +678,7 @@ class _$_Loading implements _Loading {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? loading,
-    TResult Function(Either<ExportData, WorkspaceError> successOrFail)? finish,
+    TResult Function(Either<ExportData, FlowyError> successOrFail)? finish,
     required TResult orElse(),
   }) {
     if (loading != null) {
@@ -730,7 +730,7 @@ abstract class _Loading implements DocShareState {
 abstract class _$FinishCopyWith<$Res> {
   factory _$FinishCopyWith(_Finish value, $Res Function(_Finish) then) =
       __$FinishCopyWithImpl<$Res>;
-  $Res call({Either<ExportData, WorkspaceError> successOrFail});
+  $Res call({Either<ExportData, FlowyError> successOrFail});
 }
 
 /// @nodoc
@@ -750,7 +750,7 @@ class __$FinishCopyWithImpl<$Res> extends _$DocShareStateCopyWithImpl<$Res>
       successOrFail == freezed
           ? _value.successOrFail
           : successOrFail // ignore: cast_nullable_to_non_nullable
-              as Either<ExportData, WorkspaceError>,
+              as Either<ExportData, FlowyError>,
     ));
   }
 }
@@ -761,7 +761,7 @@ class _$_Finish implements _Finish {
   const _$_Finish(this.successOrFail);
 
   @override
-  final Either<ExportData, WorkspaceError> successOrFail;
+  final Either<ExportData, FlowyError> successOrFail;
 
   @override
   String toString() {
@@ -791,7 +791,7 @@ class _$_Finish implements _Finish {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() loading,
-    required TResult Function(Either<ExportData, WorkspaceError> successOrFail)
+    required TResult Function(Either<ExportData, FlowyError> successOrFail)
         finish,
   }) {
     return finish(successOrFail);
@@ -802,7 +802,7 @@ class _$_Finish implements _Finish {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? loading,
-    TResult Function(Either<ExportData, WorkspaceError> successOrFail)? finish,
+    TResult Function(Either<ExportData, FlowyError> successOrFail)? finish,
   }) {
     return finish?.call(successOrFail);
   }
@@ -812,7 +812,7 @@ class _$_Finish implements _Finish {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? loading,
-    TResult Function(Either<ExportData, WorkspaceError> successOrFail)? finish,
+    TResult Function(Either<ExportData, FlowyError> successOrFail)? finish,
     required TResult orElse(),
   }) {
     if (finish != null) {
@@ -857,10 +857,10 @@ class _$_Finish implements _Finish {
 }
 
 abstract class _Finish implements DocShareState {
-  const factory _Finish(Either<ExportData, WorkspaceError> successOrFail) =
+  const factory _Finish(Either<ExportData, FlowyError> successOrFail) =
       _$_Finish;
 
-  Either<ExportData, WorkspaceError> get successOrFail =>
+  Either<ExportData, FlowyError> get successOrFail =>
       throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   _$FinishCopyWith<_Finish> get copyWith => throw _privateConstructorUsedError;

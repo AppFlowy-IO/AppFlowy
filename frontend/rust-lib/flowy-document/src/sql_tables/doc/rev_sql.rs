@@ -1,5 +1,5 @@
 use crate::{
-    errors::DocError,
+    errors::FlowyError,
     services::doc::revision::RevisionRecord,
     sql_tables::{doc::RevTable, mk_revision_record_from_table, RevChangeset, RevTableState, RevTableType},
 };
@@ -10,7 +10,7 @@ use lib_ot::revision::RevisionRange;
 pub struct RevTableSql {}
 
 impl RevTableSql {
-    pub(crate) fn create_rev_table(revisions: Vec<RevisionRecord>, conn: &SqliteConnection) -> Result<(), DocError> {
+    pub(crate) fn create_rev_table(revisions: Vec<RevisionRecord>, conn: &SqliteConnection) -> Result<(), FlowyError> {
         // Batch insert: https://diesel.rs/guides/all-about-inserts.html
         let records = revisions
             .into_iter()
@@ -33,7 +33,7 @@ impl RevTableSql {
     }
 
     #[allow(dead_code)]
-    pub(crate) fn update_rev_table(changeset: RevChangeset, conn: &SqliteConnection) -> Result<(), DocError> {
+    pub(crate) fn update_rev_table(changeset: RevChangeset, conn: &SqliteConnection) -> Result<(), FlowyError> {
         let filter = dsl::rev_table
             .filter(dsl::rev_id.eq(changeset.rev_id.as_ref()))
             .filter(dsl::doc_id.eq(changeset.doc_id));
@@ -46,7 +46,7 @@ impl RevTableSql {
         user_id: &str,
         doc_id: &str,
         conn: &SqliteConnection,
-    ) -> Result<Vec<RevisionRecord>, DocError> {
+    ) -> Result<Vec<RevisionRecord>, FlowyError> {
         let filter = dsl::rev_table
             .filter(dsl::doc_id.eq(doc_id))
             .order(dsl::rev_id.asc())
@@ -64,7 +64,7 @@ impl RevTableSql {
         doc_id: &str,
         revision_id: &i64,
         conn: &SqliteConnection,
-    ) -> Result<Option<RevisionRecord>, DocError> {
+    ) -> Result<Option<RevisionRecord>, FlowyError> {
         let filter = dsl::rev_table
             .filter(dsl::doc_id.eq(doc_id))
             .filter(dsl::rev_id.eq(revision_id));
@@ -82,7 +82,7 @@ impl RevTableSql {
         doc_id: &str,
         range: RevisionRange,
         conn: &SqliteConnection,
-    ) -> Result<Vec<RevisionRecord>, DocError> {
+    ) -> Result<Vec<RevisionRecord>, FlowyError> {
         let rev_tables = dsl::rev_table
             .filter(dsl::rev_id.ge(range.start))
             .filter(dsl::rev_id.le(range.end))
@@ -98,7 +98,7 @@ impl RevTableSql {
     }
 
     #[allow(dead_code)]
-    pub(crate) fn delete_rev_table(doc_id_s: &str, rev_id_s: i64, conn: &SqliteConnection) -> Result<(), DocError> {
+    pub(crate) fn delete_rev_table(doc_id_s: &str, rev_id_s: i64, conn: &SqliteConnection) -> Result<(), FlowyError> {
         let filter = dsl::rev_table
             .filter(dsl::rev_id.eq(rev_id_s))
             .filter(dsl::doc_id.eq(doc_id_s));

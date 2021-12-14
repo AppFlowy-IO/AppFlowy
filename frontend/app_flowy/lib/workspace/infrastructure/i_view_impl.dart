@@ -3,7 +3,7 @@ import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-infra/view_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 
 class IViewImpl extends IView {
   ViewRepository repo;
@@ -14,7 +14,7 @@ class IViewImpl extends IView {
   View get view => repo.view;
 
   @override
-  Future<Either<Unit, WorkspaceError>> delete() {
+  Future<Either<Unit, FlowyError>> delete() {
     return repo.delete().then((result) {
       return result.fold(
         (_) => left(unit),
@@ -24,12 +24,12 @@ class IViewImpl extends IView {
   }
 
   @override
-  Future<Either<View, WorkspaceError>> rename(String newName) {
+  Future<Either<View, FlowyError>> rename(String newName) {
     return repo.updateView(name: newName);
   }
 
   @override
-  Future<Either<Unit, WorkspaceError>> duplicate() {
+  Future<Either<Unit, FlowyError>> duplicate() {
     return repo.duplicate();
   }
 }

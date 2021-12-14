@@ -3,7 +3,7 @@ use crate::{
         app::RepeatedApp,
         workspace::{UpdateWorkspaceParams, Workspace},
     },
-    errors::WorkspaceError,
+    errors::FlowyError,
 };
 use diesel::SqliteConnection;
 use flowy_database::{
@@ -13,7 +13,7 @@ use flowy_database::{
 pub(crate) struct WorkspaceTableSql {}
 
 impl WorkspaceTableSql {
-    pub(crate) fn create_workspace(table: WorkspaceTable, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
+    pub(crate) fn create_workspace(table: WorkspaceTable, conn: &SqliteConnection) -> Result<(), FlowyError> {
         match diesel_record_count!(workspace_table, &table.id, conn) {
             0 => diesel_insert_table!(workspace_table, &table, conn),
             _ => {
@@ -28,7 +28,7 @@ impl WorkspaceTableSql {
         workspace_id: Option<String>,
         user_id: &str,
         conn: &SqliteConnection,
-    ) -> Result<Vec<WorkspaceTable>, WorkspaceError> {
+    ) -> Result<Vec<WorkspaceTable>, FlowyError> {
         let mut filter = dsl::workspace_table
             .filter(workspace_table::user_id.eq(user_id))
             .order(workspace_table::create_time.asc())
@@ -47,13 +47,13 @@ impl WorkspaceTableSql {
     pub(crate) fn update_workspace(
         changeset: WorkspaceTableChangeset,
         conn: &SqliteConnection,
-    ) -> Result<(), WorkspaceError> {
+    ) -> Result<(), FlowyError> {
         diesel_update_table!(workspace_table, changeset, conn);
         Ok(())
     }
 
     #[allow(dead_code)]
-    pub(crate) fn delete_workspace(workspace_id: &str, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
+    pub(crate) fn delete_workspace(workspace_id: &str, conn: &SqliteConnection) -> Result<(), FlowyError> {
         diesel_delete_table!(workspace_table, workspace_id, conn);
         Ok(())
     }

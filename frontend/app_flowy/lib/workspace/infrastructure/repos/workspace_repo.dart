@@ -10,7 +10,7 @@ import 'package:flowy_sdk/protobuf/flowy-user-infra/protobuf.dart' show UserProf
 import 'package:flowy_sdk/protobuf/flowy-core-infra/app_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-infra/workspace_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core-infra/workspace_query.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-core/observable.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 
@@ -27,7 +27,7 @@ class WorkspaceRepo {
     required this.workspaceId,
   });
 
-  Future<Either<App, WorkspaceError>> createApp(String appName, String desc) {
+  Future<Either<App, FlowyError>> createApp(String appName, String desc) {
     final request = CreateAppRequest.create()
       ..name = appName
       ..workspaceId = workspaceId
@@ -35,7 +35,7 @@ class WorkspaceRepo {
     return WorkspaceEventCreateApp(request).send();
   }
 
-  Future<Either<Workspace, WorkspaceError>> getWorkspace() {
+  Future<Either<Workspace, FlowyError>> getWorkspace() {
     final request = QueryWorkspaceRequest.create()..workspaceId = workspaceId;
     return WorkspaceEventReadWorkspaces(request).send().then((result) {
       return result.fold(
@@ -43,7 +43,7 @@ class WorkspaceRepo {
           assert(workspaces.items.length == 1);
 
           if (workspaces.items.isEmpty) {
-            return right(WorkspaceError.create()..msg = LocaleKeys.workspace_notFoundError.tr());
+            return right(FlowyError.create()..msg = LocaleKeys.workspace_notFoundError.tr());
           } else {
             return left(workspaces.items[0]);
           }
@@ -53,7 +53,7 @@ class WorkspaceRepo {
     });
   }
 
-  Future<Either<List<App>, WorkspaceError>> getApps() {
+  Future<Either<List<App>, FlowyError>> getApps() {
     final request = QueryWorkspaceRequest.create()..workspaceId = workspaceId;
     return WorkspaceEventReadWorkspaceApps(request).send().then((result) {
       return result.fold(
@@ -94,7 +94,7 @@ class WorkspaceListenerRepo {
     _subscription = RustStreamReceiver.listen((observable) => _parser.parse(observable));
   }
 
-  void _handleObservableType(WorkspaceNotification ty, Either<Uint8List, WorkspaceError> result) {
+  void _handleObservableType(WorkspaceNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
       case WorkspaceNotification.WorkspaceUpdated:
         if (_update != null) {

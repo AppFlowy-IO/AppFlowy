@@ -10,7 +10,7 @@ use flowy_net::entities::NetworkType;
 
 use crate::{
     entities::workspace::RepeatedWorkspace,
-    errors::{WorkspaceError, WorkspaceResult},
+    errors::{FlowyError, FlowyResult},
     module::{WorkspaceDatabase, WorkspaceUser},
     notify::{send_dart_notification, WorkspaceNotification},
     services::{server::Server, AppController, TrashController, ViewController, WorkspaceController},
@@ -64,7 +64,7 @@ impl CoreContext {
         }
     }
 
-    pub async fn user_did_sign_in(&self, token: &str) -> WorkspaceResult<()> {
+    pub async fn user_did_sign_in(&self, token: &str) -> FlowyResult<()> {
         log::debug!("workspace initialize after sign in");
         let _ = self.init(token).await?;
         Ok(())
@@ -78,7 +78,7 @@ impl CoreContext {
         // TODO: (nathan) do something here
     }
 
-    pub async fn user_did_sign_up(&self, _token: &str) -> WorkspaceResult<()> {
+    pub async fn user_did_sign_up(&self, _token: &str) -> FlowyResult<()> {
         log::debug!("Create user default workspace");
         let time = Utc::now();
         let mut workspace = user_default::create_default_workspace(time);
@@ -120,7 +120,7 @@ impl CoreContext {
         Ok(())
     }
 
-    async fn init(&self, token: &str) -> Result<(), WorkspaceError> {
+    async fn init(&self, token: &str) -> Result<(), FlowyError> {
         if let Some(is_init) = INIT_WORKSPACE.read().get(token) {
             if *is_init {
                 return Ok(());

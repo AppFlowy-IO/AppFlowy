@@ -1,4 +1,4 @@
-use crate::errors::DocError;
+use crate::errors::FlowyError;
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_collaboration::entities::ws::WsDocumentData;
@@ -12,7 +12,7 @@ pub(crate) trait WsDocumentHandler: Send + Sync {
 
 pub type WsStateReceiver = tokio::sync::broadcast::Receiver<WsConnectState>;
 pub trait DocumentWebSocket: Send + Sync {
-    fn send(&self, data: WsDocumentData) -> Result<(), DocError>;
+    fn send(&self, data: WsDocumentData) -> Result<(), FlowyError>;
     fn subscribe_state_changed(&self) -> WsStateReceiver;
 }
 

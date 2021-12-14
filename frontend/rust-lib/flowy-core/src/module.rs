@@ -8,7 +8,7 @@ use lib_sqlite::ConnectionPool;
 
 use crate::{
     core::{event_handler::*, CoreContext},
-    errors::WorkspaceError,
+    errors::FlowyError,
     event::WorkspaceEvent,
     services::{
         app::event_handler::*,
@@ -26,16 +26,16 @@ use crate::{
 pub trait WorkspaceDeps: WorkspaceUser + WorkspaceDatabase {}
 
 pub trait WorkspaceUser: Send + Sync {
-    fn user_id(&self) -> Result<String, WorkspaceError>;
-    fn token(&self) -> Result<String, WorkspaceError>;
+    fn user_id(&self) -> Result<String, FlowyError>;
+    fn token(&self) -> Result<String, FlowyError>;
 }
 
 pub trait WorkspaceDatabase: Send + Sync {
-    fn db_pool(&self) -> Result<Arc<ConnectionPool>, WorkspaceError>;
+    fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError>;
 
-    fn db_connection(&self) -> Result<DBConnection, WorkspaceError> {
+    fn db_connection(&self) -> Result<DBConnection, FlowyError> {
         let pool = self.db_pool()?;
-        let conn = pool.get().map_err(|e| WorkspaceError::internal().context(e))?;
+        let conn = pool.get().map_err(|e| FlowyError::internal().context(e))?;
         Ok(conn)
     }
 }

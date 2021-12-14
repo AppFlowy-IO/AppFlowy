@@ -15,12 +15,12 @@ use flowy_database::{
 use serde::{Deserialize, Serialize, __private::TryFrom};
 use std::convert::TryInto;
 
-use crate::errors::WorkspaceError;
+use crate::errors::FlowyError;
 
 pub struct AppTableSql {}
 
 impl AppTableSql {
-    pub(crate) fn create_app(app_table: AppTable, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
+    pub(crate) fn create_app(app_table: AppTable, conn: &SqliteConnection) -> Result<(), FlowyError> {
         match diesel_record_count!(app_table, &app_table.id, conn) {
             0 => diesel_insert_table!(app_table, &app_table, conn),
             _ => {
@@ -31,12 +31,12 @@ impl AppTableSql {
         Ok(())
     }
 
-    pub(crate) fn update_app(changeset: AppTableChangeset, conn: &SqliteConnection) -> Result<(), WorkspaceError> {
+    pub(crate) fn update_app(changeset: AppTableChangeset, conn: &SqliteConnection) -> Result<(), FlowyError> {
         diesel_update_table!(app_table, changeset, conn);
         Ok(())
     }
 
-    pub(crate) fn read_app(app_id: &str, conn: &SqliteConnection) -> Result<AppTable, WorkspaceError> {
+    pub(crate) fn read_app(app_id: &str, conn: &SqliteConnection) -> Result<AppTable, FlowyError> {
         let filter = dsl::app_table.filter(app_table::id.eq(app_id)).into_boxed();
         let app_table = filter.first::<AppTable>(conn)?;
         Ok(app_table)
@@ -46,7 +46,7 @@ impl AppTableSql {
         workspace_id: &str,
         is_trash: bool,
         conn: &SqliteConnection,
-    ) -> Result<Vec<AppTable>, WorkspaceError> {
+    ) -> Result<Vec<AppTable>, FlowyError> {
         let app_table = dsl::app_table
             .filter(app_table::workspace_id.eq(workspace_id))
             .filter(app_table::is_trash.eq(is_trash))
@@ -56,7 +56,7 @@ impl AppTableSql {
         Ok(app_table)
     }
 
-    pub(crate) fn delete_app(app_id: &str, conn: &SqliteConnection) -> Result<AppTable, WorkspaceError> {
+    pub(crate) fn delete_app(app_id: &str, conn: &SqliteConnection) -> Result<AppTable, FlowyError> {
         let app_table = dsl::app_table
             .filter(app_table::id.eq(app_id))
             .first::<AppTable>(conn)?;
@@ -67,10 +67,10 @@ impl AppTableSql {
     // pub(crate) fn read_views_belong_to_app(
     //     &self,
     //     app_id: &str,
-    // ) -> Result<Vec<ViewTable>, WorkspaceError> {
+    // ) -> Result<Vec<ViewTable>, FlowyError> {
     //     let conn = self.database.db_connection()?;
     //
-    //     let views = conn.immediate_transaction::<_, WorkspaceError, _>(|| {
+    //     let views = conn.immediate_transaction::<_, FlowyError, _>(|| {
     //         let app_table: AppTable = dsl::app_table
     //             .filter(app_table::id.eq(app_id))
     //             .first::<AppTable>(&*(conn))?;

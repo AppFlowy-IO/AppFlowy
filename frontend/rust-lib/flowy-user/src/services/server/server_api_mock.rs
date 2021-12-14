@@ -1,6 +1,6 @@
 use crate::{
     entities::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile},
-    errors::UserError,
+    errors::FlowyError,
 };
 
 use crate::services::server::UserServerAPI;
@@ -11,7 +11,7 @@ pub struct UserServerMock {}
 impl UserServerMock {}
 
 impl UserServerAPI for UserServerMock {
-    fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, UserError> {
+    fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, FlowyError> {
         let uid = uuid();
         FutureResult::new(async move {
             Ok(SignUpResponse {
@@ -23,7 +23,7 @@ impl UserServerAPI for UserServerMock {
         })
     }
 
-    fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, UserError> {
+    fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, FlowyError> {
         let user_id = uuid();
         FutureResult::new(async {
             Ok(SignInResponse {
@@ -35,13 +35,13 @@ impl UserServerAPI for UserServerMock {
         })
     }
 
-    fn sign_out(&self, _token: &str) -> FutureResult<(), UserError> { FutureResult::new(async { Ok(()) }) }
+    fn sign_out(&self, _token: &str) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
 
-    fn update_user(&self, _token: &str, _params: UpdateUserParams) -> FutureResult<(), UserError> {
+    fn update_user(&self, _token: &str, _params: UpdateUserParams) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn get_user(&self, _token: &str) -> FutureResult<UserProfile, UserError> {
+    fn get_user(&self, _token: &str) -> FutureResult<UserProfile, FlowyError> {
         FutureResult::new(async { Ok(UserProfile::default()) })
     }
 

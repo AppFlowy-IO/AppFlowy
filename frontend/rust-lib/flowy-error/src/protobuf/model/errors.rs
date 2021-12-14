@@ -217,67 +217,17 @@ impl ::protobuf::reflect::ProtobufValue for FlowyError {
     }
 }
 
-#[derive(Clone,PartialEq,Eq,Debug,Hash)]
-pub enum ErrorCode {
-    Internal = 0,
-}
-
-impl ::protobuf::ProtobufEnum for ErrorCode {
-    fn value(&self) -> i32 {
-        *self as i32
-    }
-
-    fn from_i32(value: i32) -> ::std::option::Option<ErrorCode> {
-        match value {
-            0 => ::std::option::Option::Some(ErrorCode::Internal),
-            _ => ::std::option::Option::None
-        }
-    }
-
-    fn values() -> &'static [Self] {
-        static values: &'static [ErrorCode] = &[
-            ErrorCode::Internal,
-        ];
-        values
-    }
-
-    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
-        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
-        descriptor.get(|| {
-            ::protobuf::reflect::EnumDescriptor::new_pb_name::<ErrorCode>("ErrorCode", file_descriptor_proto())
-        })
-    }
-}
-
-impl ::std::marker::Copy for ErrorCode {
-}
-
-impl ::std::default::Default for ErrorCode {
-    fn default() -> Self {
-        ErrorCode::Internal
-    }
-}
-
-impl ::protobuf::reflect::ProtobufValue for ErrorCode {
-    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
-        ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
-    }
-}
-
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x0cerrors.proto\"2\n\nFlowyError\x12\x12\n\x04code\x18\x01\x20\x01(\
-    \x05R\x04code\x12\x10\n\x03msg\x18\x02\x20\x01(\tR\x03msg*\x19\n\tErrorC\
-    ode\x12\x0c\n\x08Internal\x10\0J\xd9\x01\n\x06\x12\x04\0\0\x08\x01\n\x08\
-    \n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\n\
-    \x03\x04\0\x01\x12\x03\x02\x08\x12\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\
-    \x04\x13\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\x04\t\n\x0c\n\x05\x04\0\
-    \x02\0\x01\x12\x03\x03\n\x0e\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x11\
-    \x12\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x13\n\x0c\n\x05\x04\0\x02\
-    \x01\x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x0b\
-    \x0e\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x11\x12\n\n\n\x02\x05\0\
-    \x12\x04\x06\0\x08\x01\n\n\n\x03\x05\0\x01\x12\x03\x06\x05\x0e\n\x0b\n\
-    \x04\x05\0\x02\0\x12\x03\x07\x04\x11\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\
-    \x07\x04\x0c\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x07\x0f\x10b\x06proto3\
+    \x05R\x04code\x12\x10\n\x03msg\x18\x02\x20\x01(\tR\x03msgJ\x98\x01\n\x06\
+    \x12\x04\0\0\x05\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\
+    \x04\x02\0\x05\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x12\n\x0b\n\x04\
+    \x04\0\x02\0\x12\x03\x03\x04\x13\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\x03\
+    \x04\t\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\n\x0e\n\x0c\n\x05\x04\0\
+    \x02\0\x03\x12\x03\x03\x11\x12\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\
+    \x13\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\n\n\x0c\n\x05\x04\0\
+    \x02\x01\x01\x12\x03\x04\x0b\x0e\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\
+    \x04\x11\x12b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

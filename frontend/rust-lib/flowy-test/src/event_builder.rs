@@ -1,27 +1,21 @@
-use flowy_user::entities::UserProfile;
-use lib_dispatch::prelude::{EventDispatcher, EventResponse, FromBytes, ModuleRequest, StatusCode, ToBytes};
+use crate::FlowySDKTest;
+use flowy_user::{entities::UserProfile, errors::FlowyError};
+use lib_dispatch::prelude::{EventDispatcher, EventResponse, FromBytes, ModuleRequest, StatusCode, ToBytes, *};
 use std::{
+    convert::TryFrom,
     fmt::{Debug, Display},
     hash::Hash,
+    marker::PhantomData,
+    sync::Arc,
 };
 
-use crate::FlowySDKTest;
-use flowy_core::errors::WorkspaceError;
-
-use flowy_user::errors::UserError;
-use lib_dispatch::prelude::*;
-use std::{convert::TryFrom, marker::PhantomData, sync::Arc};
-
-pub type CoreModuleEventBuilder = EventBuilder<WorkspaceError>;
+pub type CoreModuleEventBuilder = EventBuilder<FlowyError>;
 impl CoreModuleEventBuilder {
-    pub fn new(sdk: FlowySDKTest) -> Self { EventBuilder::test(TestContext::new(sdk)) }
-}
-
-pub type UserModuleEventBuilder = EventBuilder<UserError>;
-impl UserModuleEventBuilder {
     pub fn new(sdk: FlowySDKTest) -> Self { EventBuilder::test(TestContext::new(sdk)) }
     pub fn user_profile(&self) -> &Option<UserProfile> { &self.user_profile }
 }
+
+pub type UserModuleEventBuilder = CoreModuleEventBuilder;
 
 #[derive(Clone)]
 pub struct EventBuilder<E> {

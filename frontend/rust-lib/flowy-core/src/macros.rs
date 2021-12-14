@@ -1,7 +1,7 @@
 // #[macro_export]
 // macro_rules! impl_save_func {
 //     ($func_name:ident, $target:ident, $table_name:expr, $conn:ident) => {
-//         fn $func_name(object: $target) -> Result<(), WorkspaceError> {
+//         fn $func_name(object: $target) -> Result<(), FlowyError> {
 //             let _ = diesel::insert_into($table_name)
 //                 .values($target)
 //                 .execute(&*($conn))?;

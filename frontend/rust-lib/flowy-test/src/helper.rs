@@ -13,7 +13,7 @@ use flowy_core::{
 };
 use flowy_user::{
     entities::{SignInRequest, SignUpRequest, UserProfile},
-    errors::UserError,
+    errors::FlowyError,
     event::UserEvent::{InitUser, SignIn, SignOut, SignUp},
 };
 use lib_dispatch::prelude::{EventDispatcher, ModuleRequest, ToBytes};
@@ -316,7 +316,7 @@ pub fn sign_up(dispatch: Arc<EventDispatcher>) -> SignUpContext {
 
     let request = ModuleRequest::new(SignUp).payload(payload);
     let user_profile = EventDispatcher::sync_send(dispatch, request)
-        .parse::<UserProfile, UserError>()
+        .parse::<UserProfile, FlowyError>()
         .unwrap()
         .unwrap();
 
@@ -336,7 +336,7 @@ pub async fn async_sign_up(dispatch: Arc<EventDispatcher>) -> SignUpContext {
     let request = ModuleRequest::new(SignUp).payload(payload);
     let user_profile = EventDispatcher::async_send(dispatch.clone(), request)
         .await
-        .parse::<UserProfile, UserError>()
+        .parse::<UserProfile, FlowyError>()
         .unwrap()
         .unwrap();
 
@@ -361,7 +361,7 @@ fn sign_in(dispatch: Arc<EventDispatcher>) -> UserProfile {
 
     let request = ModuleRequest::new(SignIn).payload(payload);
     EventDispatcher::sync_send(dispatch, request)
-        .parse::<UserProfile, UserError>()
+        .parse::<UserProfile, FlowyError>()
         .unwrap()
         .unwrap()
 }

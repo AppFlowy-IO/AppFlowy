@@ -634,6 +634,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "error-code"
+version = "0.1.0"
+dependencies = [
+ "derive_more",
+ "flowy-derive",
+ "protobuf",
+]
+
+[[package]]
 name = "fake"
 version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -710,6 +719,7 @@ dependencies = [
  "bytes",
  "chrono",
  "derive_more",
+ "error-code",
  "flowy-collaboration",
  "flowy-derive",
  "log",
@@ -740,6 +750,7 @@ dependencies = [
  "bytes",
  "claim",
  "derive_more",
+ "error-code",
  "fake",
  "fancy-regex",
  "flowy-derive",
