@@ -13,7 +13,7 @@ git clone https://github.com/AppFlowy-IO/appflowy.git
 Note:
 * Both Windows cmd and powershell can be used for running commands
 * Following steps are verified on
-    - [x] Windows 10 X86_64
+    - [ ] Windows 10 X86_64
     - [ ] Windows 10 arm64
     - [ ] Windows 11 X86_64
     - [ ] Windows 11 arm64
