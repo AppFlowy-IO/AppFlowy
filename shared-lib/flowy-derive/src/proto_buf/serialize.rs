@@ -109,7 +109,7 @@ fn gen_token_stream(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_option
     }
 }
 
-// e.g. pub cells: Vec<CellData>, the memeber will be cells, ty would be Vec
+// e.g. pub cells: Vec<CellData>, the member will be cells, ty would be Vec
 fn token_stream_for_vec(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type) -> Option<TokenStream> {
     let ty_info = parse_ty(ctxt, ty)?;
     match ident_category(ty_info.ident) {
