@@ -6,7 +6,7 @@ async fn doc_rev_state_test1() {
     let scripts = vec![
         InsertText("123", 0),
         AssertCurrentRevId(1),
-        AssertRevisionState(1, RevState::Local),
+        AssertRevisionState(1, RevState::StateLocal),
         SimulateAckedMessage(1),
         AssertRevisionState(1, RevState::Acked),
         AssertNextSendingRevision(None),
@@ -22,9 +22,9 @@ async fn doc_rev_state_test2() {
         InsertText("2", 1),
         InsertText("3", 2),
         AssertCurrentRevId(3),
-        AssertRevisionState(1, RevState::Local),
-        AssertRevisionState(2, RevState::Local),
-        AssertRevisionState(3, RevState::Local),
+        AssertRevisionState(1, RevState::StateLocal),
+        AssertRevisionState(2, RevState::StateLocal),
+        AssertRevisionState(3, RevState::StateLocal),
         SimulateAckedMessage(1),
         AssertRevisionState(1, RevState::Acked),
         AssertNextSendingRevision(Some(2)),
@@ -32,7 +32,7 @@ async fn doc_rev_state_test2() {
         AssertRevisionState(2, RevState::Acked),
         //
         AssertNextSendingRevision(Some(3)),
-        AssertRevisionState(3, RevState::Local),
+        AssertRevisionState(3, RevState::StateLocal),
         AssertJson(r#"[{"insert":"123\n"}]"#),
     ];
     EditorTest::new().await.run_scripts(scripts).await;

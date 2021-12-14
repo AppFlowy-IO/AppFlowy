@@ -21,3 +21,7 @@ enum RevType {
     Local = 0;
     Remote = 1;
 }
+enum RevState {
+    StateLocal = 0;
+    Acked = 1;
+}

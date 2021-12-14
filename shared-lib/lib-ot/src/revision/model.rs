@@ -32,12 +32,6 @@ impl Revision {
     pub fn pair_rev_id(&self) -> (i64, i64) { (self.base_rev_id, self.rev_id) }
 
     pub fn is_initial(&self) -> bool { self.rev_id == 0 }
-
-    // pub fn from_pb(pb: &mut crate::protobuf::Revision) -> Self {
-    // pb.try_into().unwrap() }
-
-    // pub fn from_pb(mut pb: crate::protobuf::Revision) -> Self {
-    // Revision::try_from(&mut pb).unwrap() }
 }
 
 impl std::fmt::Debug for Revision {
@@ -160,6 +154,6 @@ pub fn md5<T: AsRef<[u8]>>(data: T) -> String {
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum RevState {
-    Local = 0,
-    Acked = 1,
+    StateLocal = 0,
+    Acked      = 1,
 }

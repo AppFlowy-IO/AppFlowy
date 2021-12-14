@@ -4,17 +4,12 @@ use tokio::sync::{broadcast, mpsc};
 
 pub struct UserNotifier {
     user_status_notifier: broadcast::Sender<UserStatus>,
-    network_status_notifier: broadcast::Sender<NetworkType>,
 }
 
 impl std::default::Default for UserNotifier {
     fn default() -> Self {
         let (user_status_notifier, _) = broadcast::channel(10);
-        let (network_status_notifier, _) = broadcast::channel(10);
-        UserNotifier {
-            user_status_notifier,
-            network_status_notifier,
-        }
+        UserNotifier { user_status_notifier }
     }
 }
 
@@ -40,11 +35,5 @@ impl UserNotifier {
         });
     }
 
-    pub fn update_network_type(&self, ty: &NetworkType) { let _ = self.network_status_notifier.send(ty.clone()); }
-
-    pub fn user_status_subscribe(&self) -> broadcast::Receiver<UserStatus> { self.user_status_notifier.subscribe() }
-
-    pub fn network_type_subscribe(&self) -> broadcast::Receiver<NetworkType> {
-        self.network_status_notifier.subscribe()
-    }
+    pub fn subscribe_user_status(&self) -> broadcast::Receiver<UserStatus> { self.user_status_notifier.subscribe() }
 }

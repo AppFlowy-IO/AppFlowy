@@ -49,7 +49,7 @@ impl_sql_integer_expression!(RevTableState);
 impl std::convert::From<RevTableState> for RevState {
     fn from(s: RevTableState) -> Self {
         match s {
-            RevTableState::Local => RevState::Local,
+            RevTableState::Local => RevState::StateLocal,
             RevTableState::Acked => RevState::Acked,
         }
     }
@@ -58,7 +58,7 @@ impl std::convert::From<RevTableState> for RevState {
 impl std::convert::From<RevState> for RevTableState {
     fn from(s: RevState) -> Self {
         match s {
-            RevState::Local => RevTableState::Local,
+            RevState::StateLocal => RevTableState::Local,
             RevState::Acked => RevTableState::Acked,
         }
     }

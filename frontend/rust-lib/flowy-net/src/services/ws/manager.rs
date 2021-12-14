@@ -1,42 +1,52 @@
-use crate::errors::UserError;
-
-use flowy_net::entities::NetworkType;
+use crate::{
+    entities::NetworkType,
+    services::ws::{local_web_socket, FlowyWebSocket, FlowyWsSender},
+};
+use flowy_error::{internal_error, FlowyError};
 use lib_infra::future::FutureResult;
 use lib_ws::{WsConnectState, WsController, WsMessage, WsMessageHandler, WsSender};
 use parking_lot::RwLock;
 use std::sync::Arc;
 use tokio::sync::{broadcast, broadcast::Receiver};
 
-pub trait FlowyWebSocket: Send + Sync {
-    fn start_connect(&self, addr: String) -> FutureResult<(), UserError>;
-    fn conn_state_subscribe(&self) -> broadcast::Receiver<WsConnectState>;
-    fn reconnect(&self, count: usize) -> FutureResult<(), UserError>;
-    fn add_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), UserError>;
-    fn ws_sender(&self) -> Result<Arc<dyn FlowyWsSender>, UserError>;
-}
-
-pub trait FlowyWsSender: Send + Sync {
-    fn send(&self, msg: WsMessage) -> Result<(), UserError>;
-}
-
 pub struct WsManager {
     inner: Arc<dyn FlowyWebSocket>,
     connect_type: RwLock<NetworkType>,
+    status_notifier: broadcast::Sender<NetworkType>,
+    addr: String,
 }
 
 impl WsManager {
-    pub fn new() -> Self { WsManager::default() }
+    pub fn new(addr: String) -> Self {
+        let ws: Arc<dyn FlowyWebSocket> = if cfg!(feature = "http_server") {
+            Arc::new(Arc::new(WsController::new()))
+        } else {
+            local_web_socket()
+        };
 
-    pub async fn start(&self, addr: String) -> Result<(), UserError> {
+        let (status_notifier, _) = broadcast::channel(10);
+        WsManager {
+            inner: ws,
+            connect_type: RwLock::new(NetworkType::default()),
+            status_notifier,
+            addr,
+        }
+    }
+
+    pub async fn start(&self, token: String) -> Result<(), FlowyError> {
+        let addr = format!("{}/{}", self.addr, token);
         self.listen_on_websocket();
         let _ = self.inner.start_connect(addr).await?;
         Ok(())
     }
 
     pub fn update_network_type(&self, new_type: &NetworkType) {
+        tracing::debug!("Network new state: {:?}", new_type);
         let old_type = self.connect_type.read().clone();
+        let _ = self.status_notifier.send(new_type.clone());
+
         if &old_type != new_type {
-            log::debug!("Connect type switch from {:?} to {:?}", old_type, new_type);
+            tracing::debug!("Connect type switch from {:?} to {:?}", old_type, new_type);
             match (old_type.is_connect(), new_type.is_connect()) {
                 (false, true) => {
                     let ws_controller = self.inner.clone();
@@ -69,7 +79,7 @@ impl WsManager {
                         }
                     },
                     Err(e) => {
-                        log::error!("Websocket state notify error: {:?}", e);
+                        tracing::error!("Websocket state notify error: {:?}", e);
                         break;
                     },
                 }
@@ -77,76 +87,60 @@ impl WsManager {
         });
     }
 
-    pub fn state_subscribe(&self) -> broadcast::Receiver<WsConnectState> { self.inner.conn_state_subscribe() }
+    pub fn subscribe_websocket_state(&self) -> broadcast::Receiver<WsConnectState> { self.inner.conn_state_subscribe() }
 
-    pub fn add_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), UserError> {
+    pub fn subscribe_network_ty(&self) -> broadcast::Receiver<NetworkType> { self.status_notifier.subscribe() }
+
+    pub fn add_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), FlowyError> {
         let _ = self.inner.add_handler(handler)?;
         Ok(())
     }
 
-    pub fn ws_sender(&self) -> Result<Arc<dyn FlowyWsSender>, UserError> {
-        //
-        self.inner.ws_sender()
-    }
+    pub fn ws_sender(&self) -> Result<Arc<dyn FlowyWsSender>, FlowyError> { self.inner.ws_sender() }
 }
 
 async fn retry_connect(ws: Arc<dyn FlowyWebSocket>, count: usize) {
     match ws.reconnect(count).await {
         Ok(_) => {},
         Err(e) => {
-            log::error!("websocket connect failed: {:?}", e);
+            tracing::error!("websocket connect failed: {:?}", e);
         },
     }
 }
 
-impl std::default::Default for WsManager {
-    fn default() -> Self {
-        let ws: Arc<dyn FlowyWebSocket> = if cfg!(feature = "http_server") {
-            Arc::new(Arc::new(WsController::new()))
-        } else {
-            crate::services::server::local_web_socket()
-        };
-
-        WsManager {
-            inner: ws,
-            connect_type: RwLock::new(NetworkType::default()),
-        }
-    }
-}
-
 impl FlowyWebSocket for Arc<WsController> {
-    fn start_connect(&self, addr: String) -> FutureResult<(), UserError> {
+    fn start_connect(&self, addr: String) -> FutureResult<(), FlowyError> {
         let cloned_ws = self.clone();
         FutureResult::new(async move {
-            let _ = cloned_ws.start(addr).await?;
+            let _ = cloned_ws.start(addr).await.map_err(internal_error)?;
             Ok(())
         })
     }
 
     fn conn_state_subscribe(&self) -> Receiver<WsConnectState> { self.state_subscribe() }
 
-    fn reconnect(&self, count: usize) -> FutureResult<(), UserError> {
+    fn reconnect(&self, count: usize) -> FutureResult<(), FlowyError> {
         let cloned_ws = self.clone();
         FutureResult::new(async move {
-            let _ = cloned_ws.retry(count).await?;
+            let _ = cloned_ws.retry(count).await.map_err(internal_error)?;
             Ok(())
         })
     }
 
-    fn add_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), UserError> {
+    fn add_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), FlowyError> {
         let _ = self.add_handler(handler)?;
         Ok(())
     }
 
-    fn ws_sender(&self) -> Result<Arc<dyn FlowyWsSender>, UserError> {
-        let sender = self.sender()?;
+    fn ws_sender(&self) -> Result<Arc<dyn FlowyWsSender>, FlowyError> {
+        let sender = self.sender().map_err(internal_error)?;
         Ok(sender)
     }
 }
 
 impl FlowyWsSender for WsSender {
-    fn send(&self, msg: WsMessage) -> Result<(), UserError> {
-        let _ = self.send_msg(msg)?;
+    fn send(&self, msg: WsMessage) -> Result<(), FlowyError> {
+        let _ = self.send_msg(msg).map_err(internal_error)?;
         Ok(())
     }
 }

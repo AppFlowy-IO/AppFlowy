@@ -13,7 +13,7 @@ pub(crate) trait WsDocumentHandler: Send + Sync {
 pub type WsStateReceiver = tokio::sync::broadcast::Receiver<WsConnectState>;
 pub trait DocumentWebSocket: Send + Sync {
     fn send(&self, data: WsDocumentData) -> Result<(), DocError>;
-    fn state_notify(&self) -> WsStateReceiver;
+    fn subscribe_state_changed(&self) -> WsStateReceiver;
 }
 
 pub struct WsDocumentManager {
@@ -56,7 +56,7 @@ impl WsDocumentManager {
 
 #[tracing::instrument(level = "debug", skip(ws, handlers))]
 fn listen_ws_state_changed(ws: Arc<dyn DocumentWebSocket>, handlers: Arc<DashMap<String, Arc<dyn WsDocumentHandler>>>) {
-    let mut notify = ws.state_notify();
+    let mut notify = ws.subscribe_state_changed();
     tokio::spawn(async move {
         while let Ok(state) = notify.recv().await {
             handlers.iter().for_each(|handle| {

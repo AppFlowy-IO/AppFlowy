@@ -63,7 +63,7 @@ impl RevisionCache {
         }
         let record = RevisionRecord {
             revision,
-            state: RevState::Local,
+            state: RevState::StateLocal,
         };
         self.memory_cache.add_revision(record).await?;
         self.save_revisions().await;
@@ -77,7 +77,7 @@ impl RevisionCache {
         }
         let record = RevisionRecord {
             revision,
-            state: RevState::Local,
+            state: RevState::StateLocal,
         };
         self.memory_cache.add_revision(record).await?;
         self.save_revisions().await;

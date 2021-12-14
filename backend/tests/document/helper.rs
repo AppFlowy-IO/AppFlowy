@@ -16,6 +16,7 @@ use lib_ot::rich_text::{RichTextAttribute, RichTextDelta};
 use parking_lot::RwLock;
 use lib_ot::core::Interval;
 use flowy_collaboration::core::sync::ServerDocManager;
+use flowy_net::services::ws::WsManager;
 
 pub struct DocumentTest {
     server: TestServer,
@@ -53,6 +54,7 @@ struct ScriptContext {
     client_edit_context: Option<Arc<ClientEditDocContext>>,
     client_sdk: FlowySDKTest,
     client_user_session: Arc<UserSession>,
+    ws_manager: Arc<WsManager>,
     server_doc_manager: Arc<ServerDocManager>,
     server_pg_pool: Data<PgPool>,
     doc_id: String,
@@ -61,12 +63,14 @@ struct ScriptContext {
 impl ScriptContext {
     async fn new(client_sdk: FlowySDKTest, server: TestServer) -> Self {
         let user_session = client_sdk.user_session.clone();
+        let ws_manager = client_sdk.ws_manager.clone();
         let doc_id = create_doc(&client_sdk).await;
 
         Self {
             client_edit_context: None,
             client_sdk,
             client_user_session: user_session,
+            ws_manager,
             server_doc_manager: server.app_ctx.document_core.manager.clone(),
             server_pg_pool: Data::new(server.pg_pool.clone()),
             doc_id,
@@ -99,9 +103,10 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
             match script {
                 DocScript::ClientConnectWs => {
                     // sleep(Duration::from_millis(300)).await;
+                    let ws_manager = context.read().ws_manager.clone();
                     let user_session = context.read().client_user_session.clone();
                     let token = user_session.token().unwrap();
-                    let _ = user_session.start_ws_connection(&token).await.unwrap();
+                    let _ = ws_manager.start(token).await.unwrap();
                 },
                 DocScript::ClientOpenDoc => {
                     context.write().open_doc().await;

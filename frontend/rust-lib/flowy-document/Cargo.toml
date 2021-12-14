@@ -52,7 +52,7 @@ color-eyre = { version = "0.5", default-features = false }
 criterion = "0.3"
 rand = "0.7.3"
 env_logger = "0.8.2"
-flowy-user = { path = "../flowy-user", features = ["ws_mock"] }
+flowy-net = { path = "../flowy-net", features = ["ws_mock"] }
 
 [features]
 http_server = []

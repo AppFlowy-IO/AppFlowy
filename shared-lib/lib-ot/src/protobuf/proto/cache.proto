@@ -1,6 +1,0 @@
-syntax = "proto3";
-
-enum RevState {
-    Local = 0;
-    Acked = 1;
-}

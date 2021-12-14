@@ -6,6 +6,7 @@ use flowy_document::{
     module::DocumentUser,
     services::ws::{DocumentWebSocket, WsDocumentManager, WsStateReceiver},
 };
+use flowy_net::services::ws::WsManager;
 use flowy_user::{
     errors::{ErrorCode, UserError},
     services::user::UserSession,
@@ -13,27 +14,23 @@ use flowy_user::{
 use lib_ws::{WsMessage, WsMessageHandler, WsModule};
 use std::{convert::TryInto, path::Path, sync::Arc};
 
-pub struct DocumentDepsResolver {
-    user_session: Arc<UserSession>,
-}
-
+pub struct DocumentDepsResolver();
 impl DocumentDepsResolver {
-    pub fn new(user_session: Arc<UserSession>) -> Self { Self { user_session } }
-
-    pub fn split_into(self) -> (Arc<dyn DocumentUser>, Arc<WsDocumentManager>) {
+    pub fn resolve(
+        ws_manager: Arc<WsManager>,
+        user_session: Arc<UserSession>,
+    ) -> (Arc<dyn DocumentUser>, Arc<WsDocumentManager>) {
         let user = Arc::new(DocumentUserImpl {
-            user: self.user_session.clone(),
+            user: user_session.clone(),
         });
 
         let sender = Arc::new(WsSenderImpl {
-            user: self.user_session.clone(),
+            ws_manager: ws_manager.clone(),
         });
-        let ws_manager = Arc::new(WsDocumentManager::new(sender));
-        let ws_handler = Arc::new(DocumentWsMessageReceiver {
-            inner: ws_manager.clone(),
-        });
-        self.user_session.add_ws_handler(ws_handler);
-        (user, ws_manager)
+        let ws_doc = Arc::new(WsDocumentManager::new(sender));
+        let ws_handler = Arc::new(DocumentWsMessageReceiver { inner: ws_doc.clone() });
+        ws_manager.add_handler(ws_handler);
+        (user, ws_doc)
     }
 }
 
@@ -69,7 +66,7 @@ impl DocumentUser for DocumentUserImpl {
 }
 
 struct WsSenderImpl {
-    user: Arc<UserSession>,
+    ws_manager: Arc<WsManager>,
 }
 
 impl DocumentWebSocket for WsSenderImpl {
@@ -79,13 +76,13 @@ impl DocumentWebSocket for WsSenderImpl {
             module: WsModule::Doc,
             data: bytes.to_vec(),
         };
-        let sender = self.user.ws_sender().map_err(internal_error)?;
+        let sender = self.ws_manager.ws_sender().map_err(internal_error)?;
         sender.send(msg).map_err(internal_error)?;
 
         Ok(())
     }
 
-    fn state_notify(&self) -> WsStateReceiver { self.user.ws_state_notifier() }
+    fn subscribe_state_changed(&self) -> WsStateReceiver { self.ws_manager.subscribe_websocket_state() }
 }
 
 struct DocumentWsMessageReceiver {

@@ -17,35 +17,32 @@
 #![allow(trivial_casts)]
 #![allow(unused_imports)]
 #![allow(unused_results)]
-//! Generated file from `cache.proto`
+//! Generated file from `event.proto`
 
 /// Generated files are compatible only with the same version
 /// of protobuf runtime.
 // const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_22_1;
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
-pub enum RevState {
-    Local = 0,
-    Acked = 1,
+pub enum NetworkEvent {
+    UpdateNetworkType = 0,
 }
 
-impl ::protobuf::ProtobufEnum for RevState {
+impl ::protobuf::ProtobufEnum for NetworkEvent {
     fn value(&self) -> i32 {
         *self as i32
     }
 
-    fn from_i32(value: i32) -> ::std::option::Option<RevState> {
+    fn from_i32(value: i32) -> ::std::option::Option<NetworkEvent> {
         match value {
-            0 => ::std::option::Option::Some(RevState::Local),
-            1 => ::std::option::Option::Some(RevState::Acked),
+            0 => ::std::option::Option::Some(NetworkEvent::UpdateNetworkType),
             _ => ::std::option::Option::None
         }
     }
 
     fn values() -> &'static [Self] {
-        static values: &'static [RevState] = &[
-            RevState::Local,
-            RevState::Acked,
+        static values: &'static [NetworkEvent] = &[
+            NetworkEvent::UpdateNetworkType,
         ];
         values
     }
@@ -53,34 +50,32 @@ impl ::protobuf::ProtobufEnum for RevState {
     fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
-            ::protobuf::reflect::EnumDescriptor::new_pb_name::<RevState>("RevState", file_descriptor_proto())
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<NetworkEvent>("NetworkEvent", file_descriptor_proto())
         })
     }
 }
 
-impl ::std::marker::Copy for RevState {
+impl ::std::marker::Copy for NetworkEvent {
 }
 
-impl ::std::default::Default for RevState {
+impl ::std::default::Default for NetworkEvent {
     fn default() -> Self {
-        RevState::Local
+        NetworkEvent::UpdateNetworkType
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for RevState {
+impl ::protobuf::reflect::ProtobufValue for NetworkEvent {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
     }
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0bcache.proto*\x20\n\x08RevState\x12\t\n\x05Local\x10\0\x12\t\n\x05A\
-    cked\x10\x01J|\n\x06\x12\x04\0\0\x05\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\
-    \n\n\n\x02\x05\0\x12\x04\x02\0\x05\x01\n\n\n\x03\x05\0\x01\x12\x03\x02\
-    \x05\r\n\x0b\n\x04\x05\0\x02\0\x12\x03\x03\x04\x0e\n\x0c\n\x05\x05\0\x02\
-    \0\x01\x12\x03\x03\x04\t\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x03\x0c\r\n\
-    \x0b\n\x04\x05\0\x02\x01\x12\x03\x04\x04\x0e\n\x0c\n\x05\x05\0\x02\x01\
-    \x01\x12\x03\x04\x04\t\n\x0c\n\x05\x05\0\x02\x01\x02\x12\x03\x04\x0c\rb\
+    \n\x0bevent.proto*%\n\x0cNetworkEvent\x12\x15\n\x11UpdateNetworkType\x10\
+    \0JS\n\x06\x12\x04\0\0\x04\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\
+    \x05\0\x12\x04\x02\0\x04\x01\n\n\n\x03\x05\0\x01\x12\x03\x02\x05\x11\n\
+    \x0b\n\x04\x05\0\x02\0\x12\x03\x03\x04\x1a\n\x0c\n\x05\x05\0\x02\0\x01\
+    \x12\x03\x03\x04\x15\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x03\x18\x19b\
     \x06proto3\
 ";
 

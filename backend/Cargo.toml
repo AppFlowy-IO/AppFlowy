@@ -103,4 +103,5 @@ flowy-sdk = { path = "../frontend/rust-lib/flowy-sdk", features = ["http_server"
 flowy-user = { path = "../frontend/rust-lib/flowy-user", features = ["http_server"] }
 flowy-document = { path = "../frontend/rust-lib/flowy-document", features = ["flowy_unit_test", "http_server"] }
 flowy-test = { path = "../frontend/rust-lib/flowy-test" }
+flowy-net = { path = "../frontend/rust-lib/flowy-net" }
 

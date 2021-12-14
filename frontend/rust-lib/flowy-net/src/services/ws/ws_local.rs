@@ -1,9 +1,5 @@
-use crate::{
-    errors::UserError,
-    services::user::ws_manager::{FlowyWebSocket, FlowyWsSender},
-};
+use crate::services::ws::{FlowyError, FlowyWebSocket, FlowyWsSender, WsConnectState, WsMessage, WsMessageHandler};
 use lib_infra::future::FutureResult;
-use lib_ws::{WsConnectState, WsMessage, WsMessageHandler};
 use std::sync::Arc;
 use tokio::sync::{broadcast, broadcast::Receiver};
 
@@ -24,19 +20,19 @@ impl std::default::Default for LocalWebSocket {
 }
 
 impl FlowyWebSocket for Arc<LocalWebSocket> {
-    fn start_connect(&self, _addr: String) -> FutureResult<(), UserError> { FutureResult::new(async { Ok(()) }) }
+    fn start_connect(&self, _addr: String) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
 
     fn conn_state_subscribe(&self) -> Receiver<WsConnectState> { self.state_sender.subscribe() }
 
-    fn reconnect(&self, _count: usize) -> FutureResult<(), UserError> { FutureResult::new(async { Ok(()) }) }
+    fn reconnect(&self, _count: usize) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
 
-    fn add_handler(&self, _handler: Arc<dyn WsMessageHandler>) -> Result<(), UserError> { Ok(()) }
+    fn add_handler(&self, _handler: Arc<dyn WsMessageHandler>) -> Result<(), FlowyError> { Ok(()) }
 
-    fn ws_sender(&self) -> Result<Arc<dyn FlowyWsSender>, UserError> { Ok(Arc::new(self.ws_sender.clone())) }
+    fn ws_sender(&self) -> Result<Arc<dyn FlowyWsSender>, FlowyError> { Ok(Arc::new(self.ws_sender.clone())) }
 }
 
 impl FlowyWsSender for broadcast::Sender<WsMessage> {
-    fn send(&self, msg: WsMessage) -> Result<(), UserError> {
+    fn send(&self, msg: WsMessage) -> Result<(), FlowyError> {
         let _ = self.send(msg);
         Ok(())
     }

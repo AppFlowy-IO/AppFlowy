@@ -20,6 +20,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "DocError"
         | "FFIRequest"
         | "FFIResponse"
+        | "FlowyError"
         | "SubscribeObject"
         | "NetworkState"
         | "UserError"
@@ -84,6 +85,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "ErrorCode"
         | "DocObservable"
         | "FFIStatusCode"
+        | "NetworkEvent"
         | "NetworkType"
         | "UserEvent"
         | "UserNotification"
@@ -93,6 +95,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "WsDataType"
         | "WsModule"
         | "RevType"
+        | "RevState"
         => TypeCategory::Enum,
 
         "Option" => TypeCategory::Opt,

@@ -9,13 +9,10 @@ edition = "2018"
 flowy-user-infra = { path = "../../../shared-lib/flowy-user-infra" }
 backend-service = { path = "../../../shared-lib/backend-service" }
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
-lib-ws = { path = "../../../shared-lib/lib-ws" }
 lib-sqlite = { path = "../../../shared-lib/lib-sqlite" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 
-
 flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration", optional = true}
-lib-ot = { path = "../../../shared-lib/lib-ot", optional = true }
 
 derive_more = {version = "0.99", features = ["display"]}
 flowy-database = { path = "../flowy-database" }
@@ -52,4 +49,3 @@ serial_test = "0.5.1"
 
 [features]
 http_server = []
-ws_mock = ["flowy-collaboration", "lib-ot"]

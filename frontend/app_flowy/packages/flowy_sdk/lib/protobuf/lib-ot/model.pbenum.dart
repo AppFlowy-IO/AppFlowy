@@ -24,3 +24,18 @@ class RevType extends $pb.ProtobufEnum {
   const RevType._($core.int v, $core.String n) : super(v, n);
 }
 
+class RevState extends $pb.ProtobufEnum {
+  static const RevState StateLocal = RevState._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'StateLocal');
+  static const RevState Acked = RevState._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Acked');
+
+  static const $core.List<RevState> values = <RevState> [
+    StateLocal,
+    Acked,
+  ];
+
+  static final $core.Map<$core.int, RevState> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static RevState? valueOf($core.int value) => _byValue[value];
+
+  const RevState._($core.int v, $core.String n) : super(v, n);
+}
+

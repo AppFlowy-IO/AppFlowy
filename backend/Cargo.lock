@@ -458,6 +458,7 @@ dependencies = [
  "flowy-collaboration",
  "flowy-core-infra",
  "flowy-document",
+ "flowy-net",
  "flowy-sdk",
  "flowy-test",
  "flowy-user",
@@ -1339,12 +1340,33 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-net"
+name = "flowy-error"
 version = "0.1.0"
 dependencies = [
  "bytes",
+ "derive_more",
  "flowy-derive",
+ "lib-dispatch",
  "protobuf",
+]
+
+[[package]]
+name = "flowy-net"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bytes",
+ "flowy-derive",
+ "flowy-error",
+ "lib-dispatch",
+ "lib-infra",
+ "lib-ws",
+ "parking_lot",
+ "protobuf",
+ "strum",
+ "strum_macros",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -1416,7 +1438,6 @@ dependencies = [
  "lib-dispatch",
  "lib-infra",
  "lib-sqlite",
- "lib-ws",
  "log",
  "once_cell",
  "parking_lot",

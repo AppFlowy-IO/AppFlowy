@@ -1,23 +1,19 @@
-use crate::{
-    errors::UserError,
-    services::user::ws_manager::{FlowyWebSocket, FlowyWsSender},
-};
+use crate::services::ws::{FlowyError, FlowyWebSocket, FlowyWsSender, WsConnectState, WsMessage, WsMessageHandler};
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_collaboration::{
-    core::sync::{ServerDocManager, ServerDocPersistence},
+    core::sync::{RevisionUser, ServerDocManager, ServerDocPersistence, SyncResponse},
     entities::{
         doc::Doc,
         ws::{WsDataType, WsDocumentData},
     },
     errors::CollaborateError,
+    Revision,
+    RichTextDelta,
 };
 use lazy_static::lazy_static;
 use lib_infra::future::{FutureResult, FutureResultSend};
-use lib_ot::{revision::Revision, rich_text::RichTextDelta};
-use lib_ws::{WsConnectState, WsMessage, WsMessageHandler, WsModule};
-
-use flowy_collaboration::core::sync::{RevisionUser, SyncResponse};
+use lib_ws::WsModule;
 use std::{
     convert::{TryFrom, TryInto},
     sync::Arc,
@@ -47,7 +43,7 @@ impl MockWebSocket {
 }
 
 impl FlowyWebSocket for Arc<MockWebSocket> {
-    fn start_connect(&self, _addr: String) -> FutureResult<(), UserError> {
+    fn start_connect(&self, _addr: String) -> FutureResult<(), FlowyError> {
         let mut ws_receiver = self.ws_sender.subscribe();
         let cloned_ws = self.clone();
         tokio::spawn(async move {
@@ -56,7 +52,7 @@ impl FlowyWebSocket for Arc<MockWebSocket> {
                 let mut rx = DOC_SERVER.handle_ws_data(ws_data).await;
                 let new_ws_message = rx.recv().await.unwrap();
                 match cloned_ws.handlers.get(&new_ws_message.module) {
-                    None => log::error!("Can't find any handler for message: {:?}", new_ws_message),
+                    None => tracing::error!("Can't find any handler for message: {:?}", new_ws_message),
                     Some(handler) => handler.receive_message(new_ws_message.clone()),
                 }
             }
@@ -67,18 +63,18 @@ impl FlowyWebSocket for Arc<MockWebSocket> {
 
     fn conn_state_subscribe(&self) -> Receiver<WsConnectState> { self.state_sender.subscribe() }
 
-    fn reconnect(&self, _count: usize) -> FutureResult<(), UserError> { FutureResult::new(async { Ok(()) }) }
+    fn reconnect(&self, _count: usize) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
 
-    fn add_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), UserError> {
+    fn add_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), FlowyError> {
         let source = handler.source();
         if self.handlers.contains_key(&source) {
-            log::error!("WsSource's {:?} is already registered", source);
+            tracing::error!("WsSource's {:?} is already registered", source);
         }
         self.handlers.insert(source, handler);
         Ok(())
     }
 
-    fn ws_sender(&self) -> Result<Arc<dyn FlowyWsSender>, UserError> { Ok(Arc::new(self.ws_sender.clone())) }
+    fn ws_sender(&self) -> Result<Arc<dyn FlowyWsSender>, FlowyError> { Ok(Arc::new(self.ws_sender.clone())) }
 }
 
 lazy_static! {

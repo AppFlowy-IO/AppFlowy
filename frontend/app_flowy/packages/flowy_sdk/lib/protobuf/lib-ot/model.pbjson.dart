@@ -19,6 +19,17 @@ const RevType$json = const {
 
 /// Descriptor for `RevType`. Decode as a `google.protobuf.EnumDescriptorProto`.
 final $typed_data.Uint8List revTypeDescriptor = $convert.base64Decode('CgdSZXZUeXBlEgkKBUxvY2FsEAASCgoGUmVtb3RlEAE=');
+@$core.Deprecated('Use revStateDescriptor instead')
+const RevState$json = const {
+  '1': 'RevState',
+  '2': const [
+    const {'1': 'StateLocal', '2': 0},
+    const {'1': 'Acked', '2': 1},
+  ],
+};
+
+/// Descriptor for `RevState`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List revStateDescriptor = $convert.base64Decode('CghSZXZTdGF0ZRIOCgpTdGF0ZUxvY2FsEAASCQoFQWNrZWQQAQ==');
 @$core.Deprecated('Use revisionDescriptor instead')
 const Revision$json = const {
   '1': 'Revision',

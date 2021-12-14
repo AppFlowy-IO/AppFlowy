@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+message FlowyError {
+    int32 code = 1;
+    string msg = 2;
+}
+enum ErrorCode {
+    Internal = 0;
+}

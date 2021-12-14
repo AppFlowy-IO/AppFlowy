@@ -15,7 +15,6 @@ use flowy_database::{
 };
 use flowy_user_infra::entities::{SignInResponse, SignUpResponse};
 use lib_sqlite::ConnectionPool;
-use lib_ws::{WsConnectState, WsMessageHandler};
 
 use crate::{
     entities::{SignInParams, SignUpParams, UpdateUserParams, UserProfile},
@@ -23,11 +22,7 @@ use crate::{
     notify::*,
     services::{
         server::{construct_user_server, Server},
-        user::{
-            database::UserDB,
-            notifier::UserNotifier,
-            ws_manager::{FlowyWsSender, WsManager},
-        },
+        user::{database::UserDB, notifier::UserNotifier},
     },
     sql_tables::{UserTable, UserTableChangeset},
 };
@@ -55,7 +50,6 @@ pub struct UserSession {
     #[allow(dead_code)]
     server: Server,
     session: RwLock<Option<Session>>,
-    ws_manager: Arc<WsManager>,
     pub notifier: UserNotifier,
 }
 
@@ -63,14 +57,12 @@ impl UserSession {
     pub fn new(config: UserSessionConfig) -> Self {
         let db = UserDB::new(&config.root_dir);
         let server = construct_user_server(&config.server_config);
-        let ws_manager = Arc::new(WsManager::new());
         let notifier = UserNotifier::new();
         Self {
             database: db,
             config,
             server,
             session: RwLock::new(None),
-            ws_manager,
             notifier,
         }
     }
@@ -153,12 +145,7 @@ impl UserSession {
         Ok(())
     }
 
-    pub async fn init_user(&self) -> Result<(), UserError> {
-        let (_, token) = self.get_session()?.into_part();
-        let _ = self.start_ws_connection(&token).await?;
-
-        Ok(())
-    }
+    pub async fn init_user(&self) -> Result<(), UserError> { Ok(()) }
 
     pub async fn check_user(&self) -> Result<UserProfile, UserError> {
         let (user_id, token) = self.get_session()?.into_part();
@@ -191,21 +178,6 @@ impl UserSession {
     pub fn user_name(&self) -> Result<String, UserError> { Ok(self.get_session()?.name) }
 
     pub fn token(&self) -> Result<String, UserError> { Ok(self.get_session()?.token) }
-
-    pub fn add_ws_handler(&self, handler: Arc<dyn WsMessageHandler>) { let _ = self.ws_manager.add_handler(handler); }
-
-    pub fn set_network_state(&self, new_state: NetworkState) {
-        log::debug!("Network new state: {:?}", new_state);
-        self.ws_manager.update_network_type(&new_state.ty);
-        self.notifier.update_network_type(&new_state.ty);
-    }
-
-    pub fn ws_sender(&self) -> Result<Arc<dyn FlowyWsSender>, UserError> {
-        let sender = self.ws_manager.ws_sender()?;
-        Ok(sender)
-    }
-
-    pub fn ws_state_notifier(&self) -> broadcast::Receiver<WsConnectState> { self.ws_manager.state_subscribe() }
 }
 
 impl UserSession {
@@ -301,13 +273,6 @@ impl UserSession {
             Ok(session) => session.email == email,
             Err(_) => false,
         }
-    }
-
-    #[tracing::instrument(level = "debug", skip(self, token))]
-    pub async fn start_ws_connection(&self, token: &str) -> Result<(), UserError> {
-        let addr = format!("{}/{}", self.server.ws_addr(), token);
-        let _ = self.ws_manager.start(addr).await?;
-        Ok(())
     }
 }
 

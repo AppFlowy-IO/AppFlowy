@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/lib-infra/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-net/network_state.pb.dart';
 import 'package:flutter/services.dart';
 
 class NetworkMonitor {
@@ -45,7 +45,7 @@ class NetworkMonitor {
     }();
     Log.info("Network type: $networkType");
     final state = NetworkState.create()..ty = networkType;
-    UserEventUpdateNetworkType(state).send().then((result) {
+    NetworkEventUpdateNetworkType(state).send().then((result) {
       result.fold(
         (l) {},
         (e) => Log.error(e),

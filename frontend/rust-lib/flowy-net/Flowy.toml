@@ -1,2 +1,2 @@
-proto_crates = ["src/entities"]
-event_files = []
+proto_crates = ["src/event.rs", "src/entities"]
+event_files = ["src/event.rs"]

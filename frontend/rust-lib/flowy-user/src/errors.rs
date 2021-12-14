@@ -1,5 +1,4 @@
 use bytes::Bytes;
-
 use flowy_derive::ProtoBuf;
 pub use flowy_user_infra::errors::ErrorCode;
 use lib_dispatch::prelude::{EventResponse, ResponseBuilder};
@@ -75,15 +74,6 @@ impl std::convert::From<flowy_database::Error> for UserError {
 
 impl std::convert::From<::r2d2::Error> for UserError {
     fn from(error: r2d2::Error) -> Self { UserError::internal().context(error) }
-}
-
-impl std::convert::From<lib_ws::errors::WsError> for UserError {
-    fn from(error: lib_ws::errors::WsError) -> Self {
-        match error.code {
-            lib_ws::errors::ErrorCode::InternalError => UserError::internal().context(error.msg),
-            _ => UserError::internal().context(error),
-        }
-    }
 }
 
 // use diesel::result::{Error, DatabaseErrorKind};

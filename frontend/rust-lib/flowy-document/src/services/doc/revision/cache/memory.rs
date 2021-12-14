@@ -35,7 +35,7 @@ impl RevisionMemoryCache {
         }
 
         match record.state {
-            RevState::Local => {
+            RevState::StateLocal => {
                 tracing::debug!("{}:add revision {}", record.revision.doc_id, record.revision.rev_id);
                 self.local_revs.write().await.push_back(record.revision.rev_id);
             },

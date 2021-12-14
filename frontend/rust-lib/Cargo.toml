@@ -11,6 +11,7 @@ members = [
   "flowy-core",
   "dart-notify",
   "flowy-document",
+  "flowy-error",
 ]
 
 exclude = ["../backend"]
