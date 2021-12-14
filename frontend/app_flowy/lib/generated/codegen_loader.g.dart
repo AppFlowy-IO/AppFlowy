@@ -85,7 +85,7 @@ class CodegenLoader extends AssetLoader{
   },
   "menuAppHeader": {
     "addPageTooltip": "Quickly add a page inside",
-    "defaultNewPageName": "Untitles",
+    "defaultNewPageName": "Untitled",
     "renameDialog": "Rename"
   },
   "toolbar": {
