@@ -139,14 +139,14 @@ class CodegenLoader extends AssetLoader{
 static const Map<String,dynamic> zh_CN = {
   "appName": "Appflowy",
   "defaultUsername": "我",
-  "welcomeText": "欢迎使用@:appName",
+  "welcomeText": "欢迎使用 @:appName",
   "githubStarText": "Star on GitHub",
   "subscribeNewsletterText": "消息订阅",
   "letsGoButtonText": "开始",
   "title": "标题",
   "signUp": {
     "buttonText": "注册",
-    "title": "注册@:appName账户",
+    "title": "注册 @:appName 账户",
     "getStartedText": "开始",
     "emptyPasswordError": "密码不能为空",
     "repeatPasswordEmptyError": "确认密码不能为空",
@@ -157,7 +157,7 @@ static const Map<String,dynamic> zh_CN = {
     "repeatPasswordHint": "确认密码"
   },
   "signIn": {
-    "loginTitle": "登录@:appName",
+    "loginTitle": "登录 @:appName",
     "loginButtonText": "登录",
     "buttonText": "登录",
     "forgotPassword": "忘记密码?",
@@ -250,8 +250,8 @@ static const Map<String,dynamic> zh_CN = {
       "failedMsg": "请确认您已在浏览器中完成登录。"
     },
     "google": {
-      "title": "GOOGLE账号登录",
-      "instruction1": "为了导入您的Google联系人，您需要在浏览器中给予本程序授权。",
+      "title": "Google 账号登录",
+      "instruction1": "为了导入您的 Google 联系人，您需要在浏览器中给予本程序授权。",
       "instruction2": "单击图标或选择文本复制到剪贴板：",
       "instruction3": "进入下面的链接，然后输入上面的代码：",
       "instruction4": "完成注册后，点击下面的按钮："
