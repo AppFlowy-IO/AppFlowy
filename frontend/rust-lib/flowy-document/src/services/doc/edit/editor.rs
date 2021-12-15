@@ -1,12 +1,11 @@
 use crate::{
     errors::FlowyError,
     module::DocumentUser,
-    services::{
-        doc::{
-            edit::{EditCommand, EditCommandQueue, OpenDocAction, TransformDeltas},
-            revision::{RevisionDownStream, RevisionManager, SteamStopTx},
-        },
-        ws::{DocumentWebSocket, WsDocumentHandler},
+    services::doc::{
+        edit::{EditCommand, EditCommandQueue, OpenDocAction, TransformDeltas},
+        revision::{RevisionDownStream, RevisionManager, SteamStopTx},
+        DocumentWebSocket,
+        WsDocumentHandler,
     },
 };
 use bytes::Bytes;
@@ -64,7 +63,7 @@ impl ClientDocEditor {
             stop_sync_tx,
         });
 
-        // edit_doc.notify_open_doc();
+        edit_doc.connect_to_doc();
 
         start_sync(edit_doc.clone(), ws_msg_rx, cloned_stop_sync_tx);
         Ok(edit_doc)
@@ -192,7 +191,7 @@ impl ClientDocEditor {
     }
 
     #[tracing::instrument(level = "debug", skip(self))]
-    fn notify_open_doc(&self) {
+    fn connect_to_doc(&self) {
         let rev_id: RevId = self.rev_manager.rev_id().into();
         if let Ok(user_id) = self.user.user_id() {
             let action = OpenDocAction::new(&user_id, &self.doc_id, &rev_id, &self.ws_sender);
@@ -294,7 +293,7 @@ impl WsDocumentHandler for EditDocWsHandler {
         match state {
             WsConnectState::Init => {},
             WsConnectState::Connecting => {},
-            WsConnectState::Connected => self.notify_open_doc(),
+            WsConnectState::Connected => self.connect_to_doc(),
             WsConnectState::Disconnected => {},
         }
     }

@@ -56,7 +56,7 @@ impl RevisionMemoryCache {
         }
 
         match self.local_revs.write().await.pop_front() {
-            None => tracing::error!("❌The local_revs should not be empty"),
+            None => {},
             Some(pop_rev_id) => {
                 if &pop_rev_id != rev_id {
                     tracing::error!("The front rev_id:{} not equal to ack rev_id: {}", pop_rev_id, rev_id);

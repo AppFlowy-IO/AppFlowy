@@ -3,7 +3,8 @@ use flowy_collaboration::entities::{
     doc::DocIdentifier,
     ws::{WsDocumentData, WsDocumentDataBuilder},
 };
-use flowy_document::services::doc::{edit::ClientDocEditor, revision::RevisionIterator};
+use flowy_document::services::doc::{edit::ClientDocEditor, revision::RevisionIterator, SYNC_INTERVAL_IN_MILLIS};
+
 use lib_ot::{
     core::Interval,
     revision::{RevState, RevType, Revision, RevisionRange},
@@ -13,16 +14,19 @@ use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
 pub enum EditorScript {
+    StartWs,
+    StopWs,
     InsertText(&'static str, usize),
     Delete(Interval),
     Replace(Interval, &'static str),
     Undo(),
     Redo(),
+    WaitSyncFinished,
     SimulatePushRevisionMessageWithDelta(RichTextDelta),
     SimulatePullRevisionMessage(RevisionRange),
     SimulateAckedMessage(i64),
     AssertRevisionState(i64, RevState),
-    AssertNextSendingRevision(Option<i64>),
+    AssertNextRevId(Option<i64>),
     AssertCurrentRevId(i64),
     AssertJson(&'static str),
 }
@@ -47,7 +51,7 @@ impl EditorTest {
             self.run_script(script).await;
         }
 
-        sleep(Duration::from_secs(10)).await;
+        sleep(Duration::from_secs(5)).await;
     }
 
     async fn run_script(&mut self, script: EditorScript) {
@@ -57,11 +61,20 @@ impl EditorTest {
         let _disk_cache = cache.dish_cache();
         let doc_id = self.editor.doc_id.clone();
         let user_id = self.sdk.user_session.user_id().unwrap();
+        let ws_manager = self.sdk.ws_manager.clone();
+        let token = self.sdk.user_session.token().unwrap();
 
         match script {
+            EditorScript::StartWs => {
+                ws_manager.start(token.clone()).await.unwrap();
+            },
+            EditorScript::StopWs => {
+                sleep(Duration::from_millis(SYNC_INTERVAL_IN_MILLIS)).await;
+                ws_manager.stop().await;
+            },
             EditorScript::InsertText(s, offset) => {
                 self.editor.insert(offset, s).await.unwrap();
-                sleep(Duration::from_millis(200)).await;
+                sleep(Duration::from_millis(SYNC_INTERVAL_IN_MILLIS)).await;
             },
             EditorScript::Delete(interval) => {
                 self.editor.delete(interval).await.unwrap();
@@ -75,6 +88,9 @@ impl EditorTest {
             EditorScript::Redo() => {
                 self.editor.redo().await.unwrap();
             },
+            EditorScript::WaitSyncFinished => {
+                sleep(Duration::from_millis(1000)).await;
+            },
             EditorScript::AssertRevisionState(rev_id, state) => {
                 let record = cache.query_revision(&doc_id, rev_id).await.unwrap();
                 assert_eq!(record.state, state);
@@ -82,10 +98,11 @@ impl EditorTest {
             EditorScript::AssertCurrentRevId(rev_id) => {
                 assert_eq!(self.editor.rev_manager().rev_id(), rev_id);
             },
-            EditorScript::AssertNextSendingRevision(rev_id) => {
+            EditorScript::AssertNextRevId(rev_id) => {
                 let next_revision = cache.next().await.unwrap();
                 if rev_id.is_none() {
                     assert_eq!(next_revision.is_none(), true);
+                    return;
                 }
 
                 let next_revision = next_revision.unwrap();

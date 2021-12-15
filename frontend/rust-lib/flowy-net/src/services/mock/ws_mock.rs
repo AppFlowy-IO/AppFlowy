@@ -14,6 +14,7 @@ use flowy_collaboration::{
 use lazy_static::lazy_static;
 use lib_infra::future::{FutureResult, FutureResultSend};
 use lib_ws::WsModule;
+use parking_lot::RwLock;
 use std::{
     convert::{TryFrom, TryInto},
     sync::Arc,
@@ -24,6 +25,7 @@ pub struct MockWebSocket {
     handlers: DashMap<WsModule, Arc<dyn WsMessageHandler>>,
     state_sender: broadcast::Sender<WsConnectState>,
     ws_sender: broadcast::Sender<WsMessage>,
+    is_stop: RwLock<bool>,
 }
 
 impl std::default::Default for MockWebSocket {
@@ -34,6 +36,7 @@ impl std::default::Default for MockWebSocket {
             handlers: DashMap::new(),
             state_sender,
             ws_sender,
+            is_stop: RwLock::new(false),
         }
     }
 }
@@ -44,16 +47,22 @@ impl MockWebSocket {
 
 impl FlowyWebSocket for Arc<MockWebSocket> {
     fn start_connect(&self, _addr: String) -> FutureResult<(), FlowyError> {
+        *self.is_stop.write() = false;
+
         let mut ws_receiver = self.ws_sender.subscribe();
         let cloned_ws = self.clone();
         tokio::spawn(async move {
             while let Ok(message) = ws_receiver.recv().await {
-                let ws_data = WsDocumentData::try_from(Bytes::from(message.data.clone())).unwrap();
-                let mut rx = DOC_SERVER.handle_ws_data(ws_data).await;
-                let new_ws_message = rx.recv().await.unwrap();
-                match cloned_ws.handlers.get(&new_ws_message.module) {
-                    None => tracing::error!("Can't find any handler for message: {:?}", new_ws_message),
-                    Some(handler) => handler.receive_message(new_ws_message.clone()),
+                if *cloned_ws.is_stop.read() {
+                    // do nothing
+                } else {
+                    let ws_data = WsDocumentData::try_from(Bytes::from(message.data.clone())).unwrap();
+                    let mut rx = DOC_SERVER.handle_ws_data(ws_data).await;
+                    let new_ws_message = rx.recv().await.unwrap();
+                    match cloned_ws.handlers.get(&new_ws_message.module) {
+                        None => tracing::error!("Can't find any handler for message: {:?}", new_ws_message),
+                        Some(handler) => handler.receive_message(new_ws_message.clone()),
+                    }
                 }
             }
         });
@@ -61,13 +70,16 @@ impl FlowyWebSocket for Arc<MockWebSocket> {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn stop_connect(&self) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
+    fn stop_connect(&self) -> FutureResult<(), FlowyError> {
+        *self.is_stop.write() = true;
+        FutureResult::new(async { Ok(()) })
+    }
 
     fn subscribe_connect_state(&self) -> Receiver<WsConnectState> { self.state_sender.subscribe() }
 
     fn reconnect(&self, _count: usize) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
 
-    fn add_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), FlowyError> {
+    fn add_ws_message_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), FlowyError> {
         let source = handler.source();
         if self.handlers.contains_key(&source) {
             tracing::error!("WsSource's {:?} is already registered", source);

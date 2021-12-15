@@ -9,7 +9,7 @@ async fn doc_rev_state_test1() {
         AssertRevisionState(1, RevState::StateLocal),
         SimulateAckedMessage(1),
         AssertRevisionState(1, RevState::Acked),
-        AssertNextSendingRevision(None),
+        AssertNextRevId(None),
         AssertJson(r#"[{"insert":"123\n"}]"#),
     ];
     EditorTest::new().await.run_scripts(scripts).await;
@@ -27,11 +27,11 @@ async fn doc_rev_state_test2() {
         AssertRevisionState(3, RevState::StateLocal),
         SimulateAckedMessage(1),
         AssertRevisionState(1, RevState::Acked),
-        AssertNextSendingRevision(Some(2)),
+        AssertNextRevId(Some(2)),
         SimulateAckedMessage(2),
         AssertRevisionState(2, RevState::Acked),
         //
-        AssertNextSendingRevision(Some(3)),
+        AssertNextRevId(Some(3)),
         AssertRevisionState(3, RevState::StateLocal),
         AssertJson(r#"[{"insert":"123\n"}]"#),
     ];
@@ -56,6 +56,35 @@ async fn doc_sync_test() {
         InsertText("1", 0),
         InsertText("2", 1),
         InsertText("3", 2),
+        AssertJson(r#"[{"insert":"123\n"}]"#),
+        AssertNextRevId(None),
+    ];
+    EditorTest::new().await.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn doc_sync_lost_ws_conn() {
+    let scripts = vec![
+        InsertText("1", 0),
+        StopWs,
+        InsertText("2", 1),
+        AssertNextRevId(Some(2)),
+        InsertText("3", 2),
+        AssertJson(r#"[{"insert":"123\n"}]"#),
+    ];
+    EditorTest::new().await.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn doc_sync_retry_ws_conn() {
+    let scripts = vec![
+        InsertText("1", 0),
+        StopWs,
+        InsertText("2", 1),
+        InsertText("3", 2),
+        StartWs,
+        WaitSyncFinished,
+        AssertNextRevId(None),
         AssertJson(r#"[{"insert":"123\n"}]"#),
     ];
     EditorTest::new().await.run_scripts(scripts).await;

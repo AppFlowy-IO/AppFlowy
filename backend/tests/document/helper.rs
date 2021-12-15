@@ -123,7 +123,7 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
                         .unwrap();
                 },
                 DocScript::AssertClient(s) => {
-                    sleep(Duration::from_millis(100)).await;
+                    sleep(Duration::from_millis(2000)).await;
                     let json = context.read().client_edit_context().doc_json().await.unwrap();
                     assert_eq(s, &json);
                 },

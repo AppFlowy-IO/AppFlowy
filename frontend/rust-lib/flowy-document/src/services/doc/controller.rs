@@ -5,9 +5,9 @@ use crate::{
         doc::{
             edit::{ClientDocEditor, EditDocWsHandler},
             revision::{RevisionCache, RevisionManager, RevisionServer},
+            WsDocumentManager,
         },
         server::Server,
-        ws::WsDocumentManager,
     },
 };
 use bytes::Bytes;

@@ -1,9 +1,8 @@
 use crate::{
     errors::FlowyError,
     services::{
-        doc::{controller::DocController, edit::ClientDocEditor},
+        doc::{controller::DocController, edit::ClientDocEditor, WsDocumentManager},
         server::construct_doc_server,
-        ws::WsDocumentManager,
     },
 };
 use backend_service::configuration::ClientServerConfiguration;

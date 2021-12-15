@@ -177,15 +177,12 @@ impl RevisionIterator for RevisionCache {
         let doc_id = self.doc_id.clone();
         FutureResult::new(async move {
             match memory_cache.front_local_revision().await {
-                None => {
-                    //
-                    match memory_cache.front_local_rev_id().await {
+                None => match memory_cache.front_local_rev_id().await {
+                    None => Ok(None),
+                    Some(rev_id) => match disk_cache.read_revision(&doc_id, rev_id)? {
                         None => Ok(None),
-                        Some(rev_id) => match disk_cache.read_revision(&doc_id, rev_id)? {
-                            None => Ok(None),
-                            Some(record) => Ok(Some(record)),
-                        },
-                    }
+                        Some(record) => Ok(Some(record)),
+                    },
                 },
                 Some((_, record)) => Ok(Some(record)),
             }

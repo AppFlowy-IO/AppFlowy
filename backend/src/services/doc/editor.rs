@@ -59,7 +59,7 @@ impl RevisionUser for ServerDocUser {
 
         match result {
             Ok(_) => {},
-            Err(e) => log::error!("{}", e),
+            Err(e) => log::error!("[ServerDocUser]: {}", e),
         }
     }
 }

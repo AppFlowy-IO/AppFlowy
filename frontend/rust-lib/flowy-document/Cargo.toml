@@ -48,11 +48,12 @@ pin-project = "1.0.0"
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }
 flowy-document = { path = "../flowy-document", features = ["flowy_unit_test"]}
+flowy-net = { path = "../flowy-net", features = ["ws_mock"] }
 color-eyre = { version = "0.5", default-features = false }
 criterion = "0.3"
 rand = "0.7.3"
 env_logger = "0.8.2"
-flowy-net = { path = "../flowy-net", features = ["ws_mock"] }
+
 
 [features]
 http_server = []

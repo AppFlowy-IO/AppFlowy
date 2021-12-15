@@ -35,13 +35,13 @@ impl WsManager {
 
     pub async fn start(&self, token: String) -> Result<(), FlowyError> {
         let addr = format!("{}/{}", self.addr, token);
-        self.inner.stop_connect().await;
+        self.inner.stop_connect().await?;
 
         let _ = self.inner.start_connect(addr).await?;
         Ok(())
     }
 
-    pub async fn stop(&self) { self.inner.stop_connect().await; }
+    pub async fn stop(&self) { let _ = self.inner.stop_connect().await; }
 
     pub fn update_network_type(&self, new_type: &NetworkType) {
         tracing::debug!("Network new state: {:?}", new_type);
@@ -72,7 +72,7 @@ impl WsManager {
     pub fn subscribe_network_ty(&self) -> broadcast::Receiver<NetworkType> { self.status_notifier.subscribe() }
 
     pub fn add_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), FlowyError> {
-        let _ = self.inner.add_handler(handler)?;
+        let _ = self.inner.add_ws_message_handler(handler)?;
         Ok(())
     }
 
@@ -139,8 +139,8 @@ impl FlowyWebSocket for Arc<WsController> {
         })
     }
 
-    fn add_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), FlowyError> {
-        let _ = self.add_handler(handler)?;
+    fn add_ws_message_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), FlowyError> {
+        let _ = self.add_handler(handler).map_err(internal_error)?;
         Ok(())
     }
 

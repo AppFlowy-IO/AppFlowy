@@ -1,9 +1,8 @@
-use crate::services::{
-    doc::{
-        edit::ClientDocEditor,
-        revision::{RevisionIterator, RevisionManager},
-    },
-    ws::DocumentWebSocket,
+use crate::services::doc::{
+    edit::ClientDocEditor,
+    revision::{RevisionIterator, RevisionManager},
+    DocumentWebSocket,
+    SYNC_INTERVAL_IN_MILLIS,
 };
 use async_stream::stream;
 use bytes::Bytes;
@@ -161,7 +160,7 @@ impl RevisionUpStream {
             .for_each(|msg| async {
                 match self.handle_msg(msg).await {
                     Ok(_) => {},
-                    Err(e) => log::error!("{:?}", e),
+                    Err(e) => log::error!("[RevisionUpStream]: send msg failed, {:?}", e),
                 }
             })
             .await;
@@ -175,23 +174,26 @@ impl RevisionUpStream {
 
     async fn send_next_revision(&self) -> FlowyResult<()> {
         match self.revisions.next().await? {
-            None => Ok(()),
+            None => {
+                tracing::debug!("Finish synchronizing revisions");
+                Ok(())
+            },
             Some(record) => {
                 tracing::debug!(
                     "[RevisionUpStream]: processes revision: {}:{:?}",
                     record.revision.doc_id,
                     record.revision.rev_id
                 );
-                let _ = self.ws_sender.send(record.revision.into()).map_err(internal_error);
-                // let _ = tokio::time::timeout(Duration::from_millis(2000), ret.recv()).await;
-                Ok(())
+                self.ws_sender.send(record.revision.into()).map_err(internal_error)
+                // let _ = tokio::time::timeout(Duration::from_millis(2000),
+                // ret.recv()).await;
             },
         }
     }
 }
 
 async fn tick(sender: mpsc::UnboundedSender<UpStreamMsg>) {
-    let mut i = interval(Duration::from_secs(2));
+    let mut i = interval(Duration::from_millis(SYNC_INTERVAL_IN_MILLIS));
     while sender.send(UpStreamMsg::Tick).is_ok() {
         i.tick().await;
     }

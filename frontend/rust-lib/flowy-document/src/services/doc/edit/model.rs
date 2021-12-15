@@ -1,11 +1,11 @@
 #![allow(clippy::all)]
 #![cfg_attr(rustfmt, rustfmt::skip)]
-use crate::{errors::FlowyError, services::ws::DocumentWebSocket};
-
+use crate::{errors::FlowyError};
 use futures::future::BoxFuture;
 use lib_infra::retry::Action;
 use lib_ot::revision::RevId;
 use std::{future, sync::Arc};
+use crate::services::doc::DocumentWebSocket;
 
 #[allow(dead_code)]
 pub(crate) struct OpenDocAction {

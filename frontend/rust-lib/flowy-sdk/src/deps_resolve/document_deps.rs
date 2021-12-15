@@ -4,7 +4,7 @@ use flowy_database::ConnectionPool;
 use flowy_document::{
     errors::{internal_error, FlowyError},
     module::DocumentUser,
-    services::ws::{DocumentWebSocket, WsDocumentManager, WsStateReceiver},
+    services::doc::{DocumentWebSocket, WsDocumentManager, WsStateReceiver},
 };
 use flowy_net::services::ws::WsManager;
 use flowy_user::services::user::UserSession;

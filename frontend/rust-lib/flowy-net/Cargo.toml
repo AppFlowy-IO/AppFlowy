@@ -26,3 +26,4 @@ dashmap = {version = "4.0", optional = true}
 
 [features]
 ws_mock = ["flowy-collaboration", "lazy_static", "dashmap"]
+http_server = []

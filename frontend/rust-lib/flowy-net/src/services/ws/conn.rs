@@ -10,7 +10,7 @@ pub trait FlowyWebSocket: Send + Sync {
     fn stop_connect(&self) -> FutureResult<(), FlowyError>;
     fn subscribe_connect_state(&self) -> broadcast::Receiver<WsConnectState>;
     fn reconnect(&self, count: usize) -> FutureResult<(), FlowyError>;
-    fn add_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), FlowyError>;
+    fn add_ws_message_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), FlowyError>;
     fn ws_sender(&self) -> Result<Arc<dyn FlowyWsSender>, FlowyError>;
 }
 

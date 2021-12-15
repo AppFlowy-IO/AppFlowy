@@ -1,8 +1,8 @@
 use crate::{
     errors::FlowyError,
-    services::{
-        doc::revision::{RevisionCache, RevisionUpStream, SteamStopRx},
-        ws::DocumentWebSocket,
+    services::doc::{
+        revision::{RevisionCache, RevisionUpStream, SteamStopRx},
+        DocumentWebSocket,
     },
 };
 use flowy_collaboration::{entities::doc::Doc, util::RevIdCounter};
