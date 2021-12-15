@@ -7,7 +7,8 @@ use crate::{
     },
     sql_tables::RevTableSql,
 };
-use flowy_collaboration::entities::doc::Doc;
+use bytes::Bytes;
+use flowy_collaboration::{entities::doc::Doc, util::md5};
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyResult};
 use lib_infra::future::FutureResult;
@@ -155,14 +156,16 @@ impl RevisionCache {
 
         // The document doesn't exist in local. Try load from server
         let doc = self.server.fetch_document(&self.doc_id).await?;
-        let delta_data = doc.data.as_bytes();
+        let delta_data = Bytes::from(doc.data.clone());
+        let doc_md5 = md5(&delta_data);
         let revision = Revision::new(
+            &doc.id,
             doc.base_rev_id,
             doc.rev_id,
-            delta_data.to_owned(),
-            &doc.id,
+            delta_data,
             RevType::Remote,
-            self.user_id.clone(),
+            &self.user_id,
+            doc_md5,
         );
 
         self.add_remote_revision(revision).await?;

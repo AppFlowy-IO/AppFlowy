@@ -1,4 +1,4 @@
-pub mod editor;
+pub mod doc_script;
 pub mod event_builder;
 pub mod helper;
 

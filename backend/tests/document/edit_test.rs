@@ -1,4 +1,4 @@
-use crate::document::helper::{DocScript, DocumentTest};
+use crate::document::edit_script::{DocScript, DocumentTest};
 use flowy_collaboration::core::document::{Document, FlowyDoc};
 use lib_ot::{core::Interval, rich_text::RichTextAttribute};
 

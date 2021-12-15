@@ -5,7 +5,10 @@ use crate::{
         DocumentWebSocket,
     },
 };
-use flowy_collaboration::{entities::doc::Doc, util::RevIdCounter};
+use flowy_collaboration::{
+    entities::doc::Doc,
+    util::{md5, RevIdCounter},
+};
 use flowy_error::FlowyResult;
 use lib_infra::future::FutureResult;
 use lib_ot::{
@@ -84,13 +87,15 @@ impl RevisionManager {
         }
 
         let delta_data = new_delta.to_bytes();
+        let md5 = md5(&delta_data);
         let revision = Revision::new(
+            &self.doc_id,
             range.start,
             range.end,
-            delta_data.to_vec(),
-            &self.doc_id,
+            delta_data,
             RevType::Remote,
-            self.user_id.clone(),
+            &self.user_id,
+            md5,
         );
 
         Ok(revision)

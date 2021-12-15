@@ -4,6 +4,7 @@ use flowy_collaboration::{
     core::document::{history::UndoResult, Document},
     errors::CollaborateError,
 };
+use flowy_error::FlowyError;
 use futures::stream::StreamExt;
 use lib_ot::{
     core::{Interval, OperationTransformable},
@@ -41,12 +42,15 @@ impl EditCommandQueue {
         };
         stream
             .for_each(|msg| async {
-                self.handle_message(msg).await;
+                match self.handle_message(msg).await {
+                    Ok(_) => {},
+                    Err(e) => tracing::debug!("[EditCommandQueue]: {}", e),
+                }
             })
             .await;
     }
 
-    async fn handle_message(&self, msg: EditCommand) {
+    async fn handle_message(&self, msg: EditCommand) -> Result<(), FlowyError> {
         match msg {
             EditCommand::ComposeDelta { delta, ret } => {
                 let result = self.composed_delta(delta).await;
@@ -56,36 +60,48 @@ impl EditCommandQueue {
                 let f = || async {
                     let revision = Revision::try_from(bytes)?;
                     let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
-                    let rev_id: RevId = revision.rev_id.into();
-                    let (server_prime, client_prime) = self.document.read().await.delta().transform(&delta)?;
+                    let server_rev_id: RevId = revision.rev_id.into();
+                    let read_guard = self.document.read().await;
+                    let (server_prime, client_prime) = read_guard.delta().transform(&delta)?;
+                    drop(read_guard);
+
                     let transform_delta = TransformDeltas {
                         client_prime,
                         server_prime,
-                        server_rev_id: rev_id,
+                        server_rev_id,
                     };
+
                     Ok::<TransformDeltas, CollaborateError>(transform_delta)
                 };
                 let _ = ret.send(f().await);
             },
             EditCommand::Insert { index, data, ret } => {
-                let delta = self.document.write().await.insert(index, data);
-                let _ = ret.send(delta);
+                let mut write_guard = self.document.write().await;
+                let delta = write_guard.insert(index, data)?;
+                let md5 = write_guard.md5();
+                let _ = ret.send(Ok((delta, md5)));
             },
             EditCommand::Delete { interval, ret } => {
-                let result = self.document.write().await.delete(interval);
-                let _ = ret.send(result);
+                let mut write_guard = self.document.write().await;
+                let delta = write_guard.delete(interval)?;
+                let md5 = write_guard.md5();
+                let _ = ret.send(Ok((delta, md5)));
             },
             EditCommand::Format {
                 interval,
                 attribute,
                 ret,
             } => {
-                let result = self.document.write().await.format(interval, attribute);
-                let _ = ret.send(result);
+                let mut write_guard = self.document.write().await;
+                let delta = write_guard.format(interval, attribute)?;
+                let md5 = write_guard.md5();
+                let _ = ret.send(Ok((delta, md5)));
             },
             EditCommand::Replace { interval, data, ret } => {
-                let result = self.document.write().await.replace(interval, data);
-                let _ = ret.send(result);
+                let mut write_guard = self.document.write().await;
+                let delta = write_guard.replace(interval, data)?;
+                let md5 = write_guard.md5();
+                let _ = ret.send(Ok((delta, md5)));
             },
             EditCommand::CanUndo { ret } => {
                 let _ = ret.send(self.document.read().await.can_undo());
@@ -110,10 +126,11 @@ impl EditCommandQueue {
                 let _ = ret.send(Ok(delta));
             },
         }
+        Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self, delta), fields(compose_result), err)]
-    async fn composed_delta(&self, delta: RichTextDelta) -> Result<(), CollaborateError> {
+    async fn composed_delta(&self, delta: RichTextDelta) -> Result<String, CollaborateError> {
         // tracing::debug!("{:?} thread handle_message", thread::current(),);
         let mut document = self.document.write().await;
         tracing::Span::current().record(
@@ -121,19 +138,23 @@ impl EditCommandQueue {
             &format!("doc_id:{} - {}", &self.doc_id, delta.to_json()).as_str(),
         );
 
-        let result = document.compose_delta(delta);
+        let _ = document.compose_delta(delta)?;
+        let md5 = document.md5();
         drop(document);
 
-        result
+        Ok(md5)
     }
 }
 
 pub(crate) type Ret<T> = oneshot::Sender<Result<T, CollaborateError>>;
+pub(crate) type NewDelta = (RichTextDelta, String);
+pub(crate) type DocumentMD5 = String;
+
 #[allow(dead_code)]
 pub(crate) enum EditCommand {
     ComposeDelta {
         delta: RichTextDelta,
-        ret: Ret<()>,
+        ret: Ret<DocumentMD5>,
     },
     ProcessRemoteRevision {
         bytes: Bytes,
@@ -142,22 +163,22 @@ pub(crate) enum EditCommand {
     Insert {
         index: usize,
         data: String,
-        ret: Ret<RichTextDelta>,
+        ret: Ret<NewDelta>,
     },
     Delete {
         interval: Interval,
-        ret: Ret<RichTextDelta>,
+        ret: Ret<NewDelta>,
     },
     Format {
         interval: Interval,
         attribute: RichTextAttribute,
-        ret: Ret<RichTextDelta>,
+        ret: Ret<NewDelta>,
     },
 
     Replace {
         interval: Interval,
         data: String,
-        ret: Ret<RichTextDelta>,
+        ret: Ret<NewDelta>,
     },
     CanUndo {
         ret: oneshot::Sender<bool>,

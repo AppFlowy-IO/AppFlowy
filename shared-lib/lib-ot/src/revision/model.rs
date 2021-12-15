@@ -1,4 +1,5 @@
 use crate::rich_text::RichTextDelta;
+use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use std::{fmt::Formatter, ops::RangeInclusive};
 
@@ -52,17 +53,20 @@ impl std::fmt::Debug for Revision {
 }
 
 impl Revision {
-    pub fn new<T1, T2, D>(base_rev_id: T1, rev_id: T2, delta: D, doc_id: &str, ty: RevType, user_id: String) -> Revision
-    where
-        T1: Into<i64>,
-        T2: Into<i64>,
-        D: AsRef<[u8]>,
-    {
-        let md5 = md5(&delta);
+    pub fn new(
+        doc_id: &str,
+        base_rev_id: i64,
+        rev_id: i64,
+        delta_data: Bytes,
+        ty: RevType,
+        user_id: &str,
+        md5: String,
+    ) -> Revision {
         let doc_id = doc_id.to_owned();
-        let delta_data = delta.as_ref().to_vec();
-        let base_rev_id = base_rev_id.into();
-        let rev_id = rev_id.into();
+        let delta_data = delta_data.to_vec();
+        let base_rev_id = base_rev_id;
+        let rev_id = rev_id;
+        let user_id = user_id.to_owned();
 
         if base_rev_id != 0 {
             debug_assert!(base_rev_id != rev_id);

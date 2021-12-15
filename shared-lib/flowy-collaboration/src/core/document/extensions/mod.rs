@@ -8,8 +8,8 @@ use lib_ot::{
 
 mod delete;
 mod format;
-mod insert;
 mod helper;
+mod insert;
 
 pub type InsertExtension = Box<dyn InsertExt + Send + Sync>;
 pub type FormatExtension = Box<dyn FormatExt + Send + Sync>;

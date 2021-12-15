@@ -52,7 +52,7 @@ fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream>
         Err(e) => {
             eprintln!("token_stream_for_one_of failed: {:?} with error: {}", member, e);
             panic!();
-        }
+        },
     }?;
     let bracketed_ty_info = ty_info.bracket_ty_info.as_ref().as_ref();
 

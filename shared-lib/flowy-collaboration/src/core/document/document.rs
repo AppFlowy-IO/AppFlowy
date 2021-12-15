@@ -62,6 +62,12 @@ impl Document {
 
     pub fn delta(&self) -> &RichTextDelta { &self.delta }
 
+    pub fn md5(&self) -> String {
+        // Opti: calculate the md5 of delta would cause performance issues
+        let bytes = self.to_bytes();
+        format!("{:x}", md5::compute(bytes))
+    }
+
     pub fn set_notify(&mut self, notify: mpsc::UnboundedSender<()>) { self.notify = Some(notify); }
 
     pub fn set_delta(&mut self, data: RichTextDelta) {
