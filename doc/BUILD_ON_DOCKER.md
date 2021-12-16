@@ -7,12 +7,16 @@ Note:
 
 ## Step 1: cd into docker-buildfiles
 ------------------------------
-cd ./doc/docker-buildfiles && xhost local:root
+cd ./doc/docker-buildfiles 
 
-## Step 2: build the docker image
+## Step 2: Provide access of appflowy to X session
+------------------------------
+xhost local:root
+
+## Step 3: build the docker image
 ------------------------------
 docker-compose build
 
-## Step 3: run the docker container
+## Step 4: run the docker container
 ------------------------------
 docker-compose up
