@@ -1,94 +1,74 @@
-# Contributing to AppFlowy 
+<p align="center"><img src="imgs/appflowy_title_and_logo.png" alt="The Open Source Notion Alternative." width="500px" /></p>
 
-Hello, and welcome! Whether you are trying to report a bug, proposing a feature request,  thinking about getting involved in the project ,or submitting a patch, this document is for you! It intends to be both an entry point for newcomers to AppFlowy's community (with various backgrounds), and a guide/reference for contributors. 
+
+# Contributing to AppFlowy
+
+Hello, and welcome! Whether you are trying to report a bug, proposing a feature request,  thinking about getting involved in the project, or submitting a patch, this document is for you! It intends to be both an entry point for newcomers to AppFlowy's community (with various backgrounds), and a guide/reference for contributors.
 
 Consult the Table of Contents below, and jump to the desired section.
 
 ## Table of Contents
 - [Contributing](#contributing)
-  - [Non-coded Contributions](#non-coded-contributions)
+  - [Feedback](#feedback)
+  - [Non-coding Contributions](#non-coding-contributions)
   - [Coding Contributions](#coding-contributions)
-    - [Report a Bug](#report-a-bug)
-    - [Helping Others](#helping-others)
-    - [Submit a Patch](#submit-a-patch)
-    - [Tell Us Your Suggestions](#tell-us)
-  - [Sponsor](#sponsor)
+- [Sponsor](#sponsor)
 - [Contributor T-shirt](#contributor-t-shirt)
 - [Code of Conduct](#code-of-conduct)
 - [Sign the CLA Agreement](#sign-the-cla-agreement)
 
 
 ## Contributing
+There are many ways in which you can contribute to the project. You can be involved just a little, or a whole lot! Every lit bit helps and is very appreciated by everyone.
 
-### Non-coded Contributions
+### Feedback
 
-There can help in multiple ways - even if you don't write code, you can still give back your love to our community. Here are a few ideas:
+Not feeling quite up to working on the project yet? Tell us your suggestions!
+- Submit [feature requests](https://github.com/AppFlowy-IO/appflowy/issues). We'd love to hear your ideas!
+- Report [bugs](https://github.com/AppFlowy-IO/appflowy/issues). This really helps a lot!
+- Provide your suggestions on the [forum](https://github.com/AppFlowy-IO/appflowy/discussions)
+- Review [Pull Requests](https://github.com/AppFlowy-IO/appflowy/pulls)
+- Provide feedback to [proposed features](https://github.com/AppFlowy-IO/appflowy/issues)
 
-- Answer questions having ""General help wanted" labels on the [forum](https://github.com/AppFlowy-IO/appflowy/discussions)
-- Improve the documentation (WIP)
-- Submit feature requests on Github ([link](https://github.com/AppFlowy-IO/appflowy/issues))
-    - Submit an issue for feature requests. Please include the information listed below in the issue:
-        - 1~3 main use cases of the proposed feature
-        - what types of users can benefit from using your proposed feature
-    - Submit a patch to fix the issue [see this section](#submit-a-patch)
-- Report bugs on Github ([link](https://github.com/AppFlowy-IO/appflowy/issues)). Please include relevant information listed below in the ticket:
-    - A summary of the issue
-    - A list of steps to reproduce the issue
-    - The version of AppFlowy you encountered the issue with
-    - Your configs (OS, mobile device, network, etc) that are relevant to your issue
-- Be an AppFlowy's ambassador or evangelist! Proprietary software companies often have dedicated marketing teams to get more users, but luckily we have something better: you! Share your experience with AppFlowy! This can be anything:
-    - Write a life-hacks-style blog post on how you or your company use AppFlowy to get things done
-    - Spread the word on the media to get more people to join the community. To name a few channels, Product Hunt, Hacker Noon, Quora, Reddit, and Stack Overflow are good choices.
-    - Give a lightning talk at your local hackerspace on why you love AppFlowy
-    - Write a review of the pros and cons of similar open source apps
+[Back to TOC](#table-of-contents)
+
+### Non-coding Contributions
+
+You want to work on the project, but you're not a developer? You can help in multiple ways - even if you don't write code! You can still give back your love to our community. Here are a few ideas:
+
+- Answer questions having ""General help wanted" or "Technical help wanted" labels on the [forum](https://github.com/AppFlowy-IO/appflowy/discussions)
+- Improve the documentation.
+- Be an AppFlowy ambassador or evangelist! Proprietary software companies often have dedicated marketing teams to get more users, but luckily we have something better: you! Share your experience with AppFlowy! This can be anything:
+    - Write a life-hacks-style blog post on how you or your company use AppFlowy to get things done.
+    - Spread the word on all social media platforms to get more people to join the community. To name a few channels, Product Hunt, Hacker Noon, Quora, Reddit, and Stack Overflow are good choices.
+    - Give a lightning talk at your local hackerspace on why you love AppFlowy.
+    - Write a review of the pros and cons of similar open source apps.
+
+[Back to TOC](#table-of-contents)
 
 ### Coding Contributions
 
-Developers who consider participating in AppFlowy's development, please go here to start:
-
-#### Report a Bug
-
-Please include relevant information listed below in the ticket ([link](https://github.com/AppFlowy-IO/appflowy/issues)):
-- A summary of the issue
-- A list of steps to reproduce the issue
-- The version of AppFlowy you encountered the issue with
-- Your configs (OS, mobile device, network, etc) that are relevant to your issue
-   
-#### Helping Others
-
-Helping other members of the community by answering questions having "Technical help wanted" or "General help wanted" labels on the [forum](https://github.com/AppFlowy-IO/appflowy/discussions)
-
-#### Submit a Patch
-
-We love to receive Pull Requests.
-- If you are a beginner or a newcomer, here are some tasks for you to get ramped up:
-    - Fix a typo in code
-    - Fix a typo in the documentation (WIP)
-    - Awesome issues for beginners or newcomers (WIP)
-    - Provide feedback on the proposed features ([link](https://github.com/AppFlowy-IO/appflowy/issues))
-    - Review Pull Requests ([link](https://github.com/AppFlowy-IO/appflowy/pulls))
+So you want to submit code, documentation, or graphical expertise? Welcome to the club! We will try to give you all the help you need to get up and running.
+  - Join our [Discord](https://discord.com/invite/9Q2xaN37tV). Here you will be able to chat with all of our contributors and the heads of the project.
+  - Read the documentation. You should start at the main README.md where you will find information on how to setup your computer to develop with Flutter and Rust.
+  - Submit a Patch. We love to receive Pull Requests. If you are a beginner or a newcomer, here are some tasks for you to get ramped up:
+    - Fix a typo in the code.
+    - Fix a typo in the documentation.
+    - Awesome issues for [beginners or newcomers](https://github.com/AppFlowy-IO/appflowy/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue+for+devs%22).
+    - Provide feedback [proposed features](https://github.com/AppFlowy-IO/appflowy/issues)
+    - Review [Pull Requests](https://github.com/AppFlowy-IO/appflowy/pulls)
 - If you are ready to code (maybe a lot), please submit a [patch](https://github.com/AppFlowy-IO/appflowy/pulls)!
     - (WIP: guidelines)
     - (WIP: Code Style)
 
-#### Tell Us
-
-Not feeling quite up to contributing? Tell us your suggestions!
-- Submit feature requests ([see this section](#non-coded-contributions))
-- Provide your suggestions on the [forum](https://github.com/AppFlowy-IO/appflowy/discussions)
-- Review Pull Requests ([link](https://github.com/AppFlowy-IO/appflowy/pulls))
-- Provide feedback on the proposed features ([link](https://github.com/AppFlowy-IO/appflowy/issues))
-
 [Back to TOC](#table-of-contents)
 
+## Sponsor
 
-### Sponsor
-
-Sponsoring is another great way to contribute to the community. 
-- Buy us a coffee on [ko-fi](https://ko-fi.com/appflowy)
+Sponsoring is another great way to contribute to the community.
+  - Buy us a coffee on [ko-fi](https://ko-fi.com/appflowy)
 
 [Back to TOC](#table-of-contents)
-
 
 ## Contributor T-Shirt
 
@@ -98,6 +78,7 @@ Proudly wear your T-shirt and show it to us by tagging [@appflowy](https://twitt
 
 [Back to TOC](#table-of-contents)
 
+
 ## Code of Conduct
 
 Please report a code of conduct violation to annie@appflowy.io.
@@ -105,5 +86,11 @@ Let's encourage the behavior we want to see in the world and constantly foster a
 
 [Contributor Covenant](https://www.contributor-covenant.org/version/2/0/code_of_conduct/)
 
+
+[Back to TOC](#table-of-contents)
+
+## Sign the CLA Agreement
+
+TBD
 
 [Back to TOC](#table-of-contents)
