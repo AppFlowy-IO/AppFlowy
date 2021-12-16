@@ -1,4 +1,4 @@
-use crate::services::ws::{FlowyError, FlowyWebSocket, FlowyWsSender, WsConnectState, WsMessage, WsMessageHandler};
+use crate::services::ws::{FlowyError, FlowyWebSocket, FlowyWsSender, WsConnectState, WsMessage, WsMessageReceiver};
 use lib_infra::future::FutureResult;
 use std::sync::Arc;
 use tokio::sync::{broadcast, broadcast::Receiver};
@@ -28,7 +28,7 @@ impl FlowyWebSocket for Arc<LocalWebSocket> {
 
     fn reconnect(&self, _count: usize) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
 
-    fn add_ws_message_handler(&self, _handler: Arc<dyn WsMessageHandler>) -> Result<(), FlowyError> { Ok(()) }
+    fn add_message_receiver(&self, _handler: Arc<dyn WsMessageReceiver>) -> Result<(), FlowyError> { Ok(()) }
 
     fn ws_sender(&self) -> Result<Arc<dyn FlowyWsSender>, FlowyError> { Ok(Arc::new(self.ws_sender.clone())) }
 }

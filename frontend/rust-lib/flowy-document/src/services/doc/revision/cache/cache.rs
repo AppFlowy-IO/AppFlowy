@@ -23,10 +23,6 @@ use tokio::{
     task::{spawn_blocking, JoinHandle},
 };
 
-pub trait RevisionIterator: Send + Sync {
-    fn next(&self) -> FutureResult<Option<RevisionRecord>, FlowyError>;
-}
-
 type DocRevisionDeskCache = dyn RevisionDiskCache<Error = FlowyError>;
 
 pub struct RevisionCache {
@@ -171,10 +167,8 @@ impl RevisionCache {
         self.add_remote_revision(revision).await?;
         Ok(doc)
     }
-}
 
-impl RevisionIterator for RevisionCache {
-    fn next(&self) -> FutureResult<Option<RevisionRecord>, FlowyError> {
+    pub(crate) fn next_revision(&self) -> FutureResult<Option<Revision>, FlowyError> {
         let memory_cache = self.memory_cache.clone();
         let disk_cache = self.dish_cache.clone();
         let doc_id = self.doc_id.clone();
@@ -184,10 +178,10 @@ impl RevisionIterator for RevisionCache {
                     None => Ok(None),
                     Some(rev_id) => match disk_cache.read_revision(&doc_id, rev_id)? {
                         None => Ok(None),
-                        Some(record) => Ok(Some(record)),
+                        Some(record) => Ok(Some(record.revision)),
                     },
                 },
-                Some((_, record)) => Ok(Some(record)),
+                Some((_, record)) => Ok(Some(record.revision)),
             }
         })
     }

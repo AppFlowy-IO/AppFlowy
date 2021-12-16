@@ -30,9 +30,9 @@ use tokio_tungstenite::tungstenite::{
 
 pub type MsgReceiver = UnboundedReceiver<Message>;
 pub type MsgSender = UnboundedSender<Message>;
-type Handlers = DashMap<WsModule, Arc<dyn WsMessageHandler>>;
+type Handlers = DashMap<WsModule, Arc<dyn WsMessageReceiver>>;
 
-pub trait WsMessageHandler: Sync + Send + 'static {
+pub trait WsMessageReceiver: Sync + Send + 'static {
     fn source(&self) -> WsModule;
     fn receive_message(&self, msg: WsMessage);
 }
@@ -59,7 +59,7 @@ impl std::default::Default for WsController {
 impl WsController {
     pub fn new() -> Self { WsController::default() }
 
-    pub fn add_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), WsError> {
+    pub fn add_receiver(&self, handler: Arc<dyn WsMessageReceiver>) -> Result<(), WsError> {
         let source = handler.source();
         if self.handlers.contains_key(&source) {
             log::error!("WsSource's {:?} is already registered", source);

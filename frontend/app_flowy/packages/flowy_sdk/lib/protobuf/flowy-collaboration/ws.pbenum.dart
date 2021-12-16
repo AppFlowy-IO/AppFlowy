@@ -9,22 +9,22 @@
 import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
-class WsDataType extends $pb.ProtobufEnum {
-  static const WsDataType Acked = WsDataType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Acked');
-  static const WsDataType PushRev = WsDataType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'PushRev');
-  static const WsDataType PullRev = WsDataType._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'PullRev');
-  static const WsDataType Conflict = WsDataType._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Conflict');
+class WsDocumentDataType extends $pb.ProtobufEnum {
+  static const WsDocumentDataType Acked = WsDocumentDataType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Acked');
+  static const WsDocumentDataType PushRev = WsDocumentDataType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'PushRev');
+  static const WsDocumentDataType PullRev = WsDocumentDataType._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'PullRev');
+  static const WsDocumentDataType UserConnect = WsDocumentDataType._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserConnect');
 
-  static const $core.List<WsDataType> values = <WsDataType> [
+  static const $core.List<WsDocumentDataType> values = <WsDocumentDataType> [
     Acked,
     PushRev,
     PullRev,
-    Conflict,
+    UserConnect,
   ];
 
-  static final $core.Map<$core.int, WsDataType> _byValue = $pb.ProtobufEnum.initByValue(values);
-  static WsDataType? valueOf($core.int value) => _byValue[value];
+  static final $core.Map<$core.int, WsDocumentDataType> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static WsDocumentDataType? valueOf($core.int value) => _byValue[value];
 
-  const WsDataType._($core.int v, $core.String n) : super(v, n);
+  const WsDocumentDataType._($core.int v, $core.String n) : super(v, n);
 }
 

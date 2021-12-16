@@ -11,7 +11,7 @@ use async_stream::stream;
 use backend_service::errors::{internal_error, Result, ServerError};
 use flowy_collaboration::{
     core::sync::ServerDocManager,
-    protobuf::{WsDataType, WsDocumentData},
+    protobuf::{WsDocumentData, WsDocumentDataType},
 };
 use futures::stream::StreamExt;
 use lib_ot::protobuf::Revision;
@@ -78,10 +78,10 @@ impl DocWsActor {
         let data = document_data.data;
 
         match document_data.ty {
-            WsDataType::Acked => Ok(()),
-            WsDataType::PushRev => self.apply_pushed_rev(user, socket, data, pool).await,
-            WsDataType::PullRev => Ok(()),
-            WsDataType::Conflict => Ok(()),
+            WsDocumentDataType::Acked => Ok(()),
+            WsDocumentDataType::PushRev => self.apply_pushed_rev(user, socket, data, pool).await,
+            WsDocumentDataType::PullRev => Ok(()),
+            WsDocumentDataType::UserConnect => Ok(()),
         }
     }
 

@@ -7,6 +7,7 @@
 
 import 'dart:core' as $core;
 
+import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 import 'ws.pbenum.dart';
@@ -16,7 +17,7 @@ export 'ws.pbenum.dart';
 class WsDocumentData extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'WsDocumentData', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
-    ..e<WsDataType>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ty', $pb.PbFieldType.OE, defaultOrMaker: WsDataType.Acked, valueOf: WsDataType.valueOf, enumValues: WsDataType.values)
+    ..e<WsDocumentDataType>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ty', $pb.PbFieldType.OE, defaultOrMaker: WsDocumentDataType.Acked, valueOf: WsDocumentDataType.valueOf, enumValues: WsDocumentDataType.values)
     ..a<$core.List<$core.int>>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
     ..hasRequiredFields = false
   ;
@@ -24,7 +25,7 @@ class WsDocumentData extends $pb.GeneratedMessage {
   WsDocumentData._() : super();
   factory WsDocumentData({
     $core.String? docId,
-    WsDataType? ty,
+    WsDocumentDataType? ty,
     $core.List<$core.int>? data,
   }) {
     final _result = create();
@@ -70,9 +71,9 @@ class WsDocumentData extends $pb.GeneratedMessage {
   void clearDocId() => clearField(1);
 
   @$pb.TagNumber(2)
-  WsDataType get ty => $_getN(1);
+  WsDocumentDataType get ty => $_getN(1);
   @$pb.TagNumber(2)
-  set ty(WsDataType v) { setField(2, v); }
+  set ty(WsDocumentDataType v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasTy() => $_has(1);
   @$pb.TagNumber(2)
@@ -86,5 +87,80 @@ class WsDocumentData extends $pb.GeneratedMessage {
   $core.bool hasData() => $_has(2);
   @$pb.TagNumber(3)
   void clearData() => clearField(3);
+}
+
+class DocumentConnected extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DocumentConnected', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'userId')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
+    ..aInt64(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'revId')
+    ..hasRequiredFields = false
+  ;
+
+  DocumentConnected._() : super();
+  factory DocumentConnected({
+    $core.String? userId,
+    $core.String? docId,
+    $fixnum.Int64? revId,
+  }) {
+    final _result = create();
+    if (userId != null) {
+      _result.userId = userId;
+    }
+    if (docId != null) {
+      _result.docId = docId;
+    }
+    if (revId != null) {
+      _result.revId = revId;
+    }
+    return _result;
+  }
+  factory DocumentConnected.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory DocumentConnected.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  DocumentConnected clone() => DocumentConnected()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  DocumentConnected copyWith(void Function(DocumentConnected) updates) => super.copyWith((message) => updates(message as DocumentConnected)) as DocumentConnected; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static DocumentConnected create() => DocumentConnected._();
+  DocumentConnected createEmptyInstance() => create();
+  static $pb.PbList<DocumentConnected> createRepeated() => $pb.PbList<DocumentConnected>();
+  @$core.pragma('dart2js:noInline')
+  static DocumentConnected getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DocumentConnected>(create);
+  static DocumentConnected? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get userId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set userId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasUserId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearUserId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get docId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set docId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasDocId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearDocId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $fixnum.Int64 get revId => $_getI64(2);
+  @$pb.TagNumber(3)
+  set revId($fixnum.Int64 v) { $_setInt64(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasRevId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearRevId() => clearField(3);
 }
 

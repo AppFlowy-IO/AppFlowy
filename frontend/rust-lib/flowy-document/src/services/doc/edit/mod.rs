@@ -1,7 +1,8 @@
+mod edit_queue;
+mod edit_ws;
 mod editor;
 mod model;
-mod queue;
 
+pub(crate) use edit_queue::*;
+pub use edit_ws::*;
 pub use editor::*;
-pub(crate) use model::*;
-pub(crate) use queue::*;

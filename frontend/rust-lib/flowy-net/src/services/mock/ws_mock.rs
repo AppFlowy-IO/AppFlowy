@@ -1,11 +1,11 @@
-use crate::services::ws::{FlowyError, FlowyWebSocket, FlowyWsSender, WsConnectState, WsMessage, WsMessageHandler};
+use crate::services::ws::{FlowyError, FlowyWebSocket, FlowyWsSender, WsConnectState, WsMessage, WsMessageReceiver};
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_collaboration::{
     core::sync::{RevisionUser, ServerDocManager, ServerDocPersistence, SyncResponse},
     entities::{
         doc::Doc,
-        ws::{WsDataType, WsDocumentData},
+        ws::{WsDocumentData, WsDocumentDataType},
     },
     errors::CollaborateError,
     Revision,
@@ -22,7 +22,7 @@ use std::{
 use tokio::sync::{broadcast, broadcast::Receiver, mpsc};
 
 pub struct MockWebSocket {
-    handlers: DashMap<WsModule, Arc<dyn WsMessageHandler>>,
+    handlers: DashMap<WsModule, Arc<dyn WsMessageReceiver>>,
     state_sender: broadcast::Sender<WsConnectState>,
     ws_sender: broadcast::Sender<WsMessage>,
     is_stop: RwLock<bool>,
@@ -79,7 +79,7 @@ impl FlowyWebSocket for Arc<MockWebSocket> {
 
     fn reconnect(&self, _count: usize) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
 
-    fn add_ws_message_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), FlowyError> {
+    fn add_message_receiver(&self, handler: Arc<dyn WsMessageReceiver>) -> Result<(), FlowyError> {
         let source = handler.source();
         if self.handlers.contains_key(&source) {
             tracing::error!("WsSource's {:?} is already registered", source);
@@ -111,10 +111,10 @@ impl MockDocServer {
     async fn handle_ws_data(&self, ws_data: WsDocumentData) -> mpsc::Receiver<WsMessage> {
         let bytes = Bytes::from(ws_data.data);
         match ws_data.ty {
-            WsDataType::Acked => {
+            WsDocumentDataType::Acked => {
                 unimplemented!()
             },
-            WsDataType::PushRev => {
+            WsDocumentDataType::PushRev => {
                 let revision = Revision::try_from(bytes).unwrap();
                 let handler = match self.manager.get(&revision.doc_id).await {
                     None => self.manager.create_doc(revision.clone()).await.unwrap(),
@@ -129,10 +129,10 @@ impl MockDocServer {
                 handler.apply_revision(Arc::new(user), revision).await.unwrap();
                 rx
             },
-            WsDataType::PullRev => {
+            WsDocumentDataType::PullRev => {
                 unimplemented!()
             },
-            WsDataType::Conflict => {
+            WsDocumentDataType::UserConnect => {
                 unimplemented!()
             },
         }

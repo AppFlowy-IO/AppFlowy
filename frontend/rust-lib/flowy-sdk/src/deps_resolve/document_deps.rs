@@ -4,11 +4,11 @@ use flowy_database::ConnectionPool;
 use flowy_document::{
     errors::{internal_error, FlowyError},
     module::DocumentUser,
-    services::doc::{DocumentWebSocket, WsDocumentManager, WsStateReceiver},
+    services::doc::{DocumentWebSocket, DocumentWsHandlers, WsStateReceiver},
 };
 use flowy_net::services::ws::WsManager;
 use flowy_user::services::user::UserSession;
-use lib_ws::{WsMessage, WsMessageHandler, WsModule};
+use lib_ws::{WsMessage, WsMessageReceiver, WsModule};
 use std::{convert::TryInto, path::Path, sync::Arc};
 
 pub struct DocumentDepsResolver();
@@ -16,16 +16,16 @@ impl DocumentDepsResolver {
     pub fn resolve(
         ws_manager: Arc<WsManager>,
         user_session: Arc<UserSession>,
-    ) -> (Arc<dyn DocumentUser>, Arc<WsDocumentManager>) {
+    ) -> (Arc<dyn DocumentUser>, Arc<DocumentWsHandlers>) {
         let user = Arc::new(DocumentUserImpl { user: user_session });
 
         let sender = Arc::new(WsSenderImpl {
             ws_manager: ws_manager.clone(),
         });
-        let ws_doc = Arc::new(WsDocumentManager::new(sender));
-        let ws_handler = Arc::new(DocumentWsMessageReceiver { inner: ws_doc.clone() });
-        ws_manager.add_handler(ws_handler).unwrap();
-        (user, ws_doc)
+        let document_ws_handlers = Arc::new(DocumentWsHandlers::new(sender));
+        let receiver = Arc::new(WsMessageReceiverAdaptor(document_ws_handlers.clone()));
+        ws_manager.add_receiver(receiver).unwrap();
+        (user, document_ws_handlers)
     }
 }
 
@@ -76,15 +76,9 @@ impl DocumentWebSocket for WsSenderImpl {
     fn subscribe_state_changed(&self) -> WsStateReceiver { self.ws_manager.subscribe_websocket_state() }
 }
 
-struct DocumentWsMessageReceiver {
-    inner: Arc<WsDocumentManager>,
-}
+struct WsMessageReceiverAdaptor(Arc<DocumentWsHandlers>);
 
-impl WsMessageHandler for DocumentWsMessageReceiver {
+impl WsMessageReceiver for WsMessageReceiverAdaptor {
     fn source(&self) -> WsModule { WsModule::Doc }
-
-    fn receive_message(&self, msg: WsMessage) {
-        let data = Bytes::from(msg.data);
-        self.inner.did_receive_ws_data(data);
-    }
+    fn receive_message(&self, msg: WsMessage) { self.0.did_receive_data(Bytes::from(msg.data)); }
 }

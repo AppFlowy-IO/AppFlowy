@@ -1,6 +1,6 @@
 use crate::{helper::ViewTest, FlowySDKTest};
-use flowy_collaboration::entities::{doc::DocIdentifier, ws::WsDocumentData};
-use flowy_document::services::doc::{edit::ClientDocEditor, revision::RevisionIterator, SYNC_INTERVAL_IN_MILLIS};
+use flowy_collaboration::entities::doc::DocIdentifier;
+use flowy_document::services::doc::{edit::ClientDocEditor, SYNC_INTERVAL_IN_MILLIS};
 use lib_ot::{core::Interval, revision::RevState, rich_text::RichTextDelta};
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
@@ -78,14 +78,13 @@ impl EditorTest {
                 assert_eq!(self.editor.rev_manager().rev_id(), rev_id);
             },
             EditorScript::AssertNextRevId(rev_id) => {
-                let next_revision = cache.next().await.unwrap();
+                let next_revision = rev_manager.next_sync_revision().await.unwrap();
                 if rev_id.is_none() {
                     assert_eq!(next_revision.is_none(), true);
                     return;
                 }
-
                 let next_revision = next_revision.unwrap();
-                assert_eq!(next_revision.revision.rev_id, rev_id.unwrap());
+                assert_eq!(next_revision.rev_id, rev_id.unwrap());
             },
             EditorScript::AssertJson(expected) => {
                 let expected_delta: RichTextDelta = serde_json::from_str(expected).unwrap();

@@ -1,4 +1,4 @@
 pub mod ws;
 
-#[cfg(feature = "ws_mock")]
+#[cfg(feature = "flowy_unit_test")]
 mod mock;

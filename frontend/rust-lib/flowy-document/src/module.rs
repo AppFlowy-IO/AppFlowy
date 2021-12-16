@@ -1,7 +1,7 @@
 use crate::{
     errors::FlowyError,
     services::{
-        doc::{controller::DocController, edit::ClientDocEditor, WsDocumentManager},
+        doc::{controller::DocController, edit::ClientDocEditor, DocumentWsHandlers},
         server::construct_doc_server,
     },
 };
@@ -25,7 +25,7 @@ pub struct FlowyDocument {
 impl FlowyDocument {
     pub fn new(
         user: Arc<dyn DocumentUser>,
-        ws_manager: Arc<WsDocumentManager>,
+        ws_manager: Arc<DocumentWsHandlers>,
         server_config: &ClientServerConfiguration,
     ) -> FlowyDocument {
         let server = construct_doc_server(server_config);

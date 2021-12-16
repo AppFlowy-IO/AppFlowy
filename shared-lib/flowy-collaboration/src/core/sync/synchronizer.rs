@@ -1,6 +1,6 @@
 use crate::{
     core::document::Document,
-    entities::ws::{WsDataType, WsDocumentData},
+    entities::ws::{WsDocumentData, WsDocumentDataType},
 };
 use bytes::Bytes;
 use lib_ot::{
@@ -147,7 +147,7 @@ fn mk_push_message(doc_id: &str, revision: Revision) -> WsDocumentData {
     let bytes: Bytes = revision.try_into().unwrap();
     WsDocumentData {
         doc_id: doc_id.to_string(),
-        ty: WsDataType::PushRev,
+        ty: WsDocumentDataType::PushRev,
         data: bytes.to_vec(),
     }
 }
@@ -162,7 +162,7 @@ fn mk_pull_message(doc_id: &str, from_rev_id: i64, to_rev_id: i64) -> WsDocument
     let bytes: Bytes = range.try_into().unwrap();
     WsDocumentData {
         doc_id: doc_id.to_string(),
-        ty: WsDataType::PullRev,
+        ty: WsDocumentDataType::PullRev,
         data: bytes.to_vec(),
     }
 }
@@ -176,7 +176,7 @@ fn mk_acked_message(revision: &Revision) -> WsDocumentData {
 
     WsDocumentData {
         doc_id: revision.doc_id.clone(),
-        ty: WsDataType::Acked,
+        ty: WsDocumentDataType::Acked,
         data,
     }
 }

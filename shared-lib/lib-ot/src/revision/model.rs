@@ -1,7 +1,7 @@
 use crate::rich_text::RichTextDelta;
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use std::{fmt::Formatter, ops::RangeInclusive};
+use std::{convert::TryFrom, fmt::Formatter, ops::RangeInclusive};
 
 #[derive(PartialEq, Eq, Clone, Default, ProtoBuf)]
 pub struct Revision {
@@ -25,6 +25,13 @@ pub struct Revision {
 
     #[pb(index = 7)]
     pub user_id: String,
+}
+
+impl std::convert::From<Vec<u8>> for Revision {
+    fn from(data: Vec<u8>) -> Self {
+        let bytes = Bytes::from(data);
+        Revision::try_from(bytes).unwrap()
+    }
 }
 
 impl Revision {

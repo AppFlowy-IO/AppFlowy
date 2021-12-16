@@ -2,12 +2,17 @@ syntax = "proto3";
 
 message WsDocumentData {
     string doc_id = 1;
-    WsDataType ty = 2;
+    WsDocumentDataType ty = 2;
     bytes data = 3;
 }
-enum WsDataType {
+message DocumentConnected {
+    string user_id = 1;
+    string doc_id = 2;
+    int64 rev_id = 3;
+}
+enum WsDocumentDataType {
     Acked = 0;
     PushRev = 1;
     PullRev = 2;
-    Conflict = 3;
+    UserConnect = 3;
 }

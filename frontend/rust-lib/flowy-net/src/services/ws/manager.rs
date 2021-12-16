@@ -4,7 +4,7 @@ use crate::{
 };
 use flowy_error::{internal_error, FlowyError};
 use lib_infra::future::FutureResult;
-use lib_ws::{WsConnectState, WsController, WsMessage, WsMessageHandler, WsSender};
+use lib_ws::{WsConnectState, WsController, WsMessage, WsMessageReceiver, WsSender};
 use parking_lot::RwLock;
 use std::sync::Arc;
 use tokio::sync::{broadcast, broadcast::Receiver};
@@ -71,8 +71,8 @@ impl WsManager {
 
     pub fn subscribe_network_ty(&self) -> broadcast::Receiver<NetworkType> { self.status_notifier.subscribe() }
 
-    pub fn add_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), FlowyError> {
-        let _ = self.inner.add_ws_message_handler(handler)?;
+    pub fn add_receiver(&self, handler: Arc<dyn WsMessageReceiver>) -> Result<(), FlowyError> {
+        let _ = self.inner.add_message_receiver(handler)?;
         Ok(())
     }
 
@@ -139,8 +139,8 @@ impl FlowyWebSocket for Arc<WsController> {
         })
     }
 
-    fn add_ws_message_handler(&self, handler: Arc<dyn WsMessageHandler>) -> Result<(), FlowyError> {
-        let _ = self.add_handler(handler).map_err(internal_error)?;
+    fn add_message_receiver(&self, handler: Arc<dyn WsMessageReceiver>) -> Result<(), FlowyError> {
+        let _ = self.add_receiver(handler).map_err(internal_error)?;
         Ok(())
     }
 

@@ -1,10 +1,4 @@
-use crate::{
-    errors::FlowyError,
-    services::doc::{
-        revision::{RevisionCache, RevisionUpStream, SteamStopRx},
-        DocumentWebSocket,
-    },
-};
+use crate::{errors::FlowyError, services::doc::revision::RevisionCache};
 use flowy_collaboration::{
     entities::doc::Doc,
     util::{md5, RevIdCounter},
@@ -13,7 +7,7 @@ use flowy_error::FlowyResult;
 use lib_infra::future::FutureResult;
 use lib_ot::{
     core::OperationTransformable,
-    revision::{RevId, RevType, Revision, RevisionRange},
+    revision::{RevType, Revision, RevisionRange},
     rich_text::RichTextDelta,
 };
 use std::sync::Arc;
@@ -27,18 +21,16 @@ pub struct RevisionManager {
     user_id: String,
     rev_id_counter: RevIdCounter,
     cache: Arc<RevisionCache>,
-    ws_sender: Arc<dyn DocumentWebSocket>,
 }
 
 impl RevisionManager {
-    pub fn new(user_id: &str, doc_id: &str, cache: Arc<RevisionCache>, ws_sender: Arc<dyn DocumentWebSocket>) -> Self {
+    pub fn new(user_id: &str, doc_id: &str, cache: Arc<RevisionCache>) -> Self {
         let rev_id_counter = RevIdCounter::new(0);
         Self {
             doc_id: doc_id.to_string(),
             user_id: user_id.to_owned(),
             rev_id_counter,
             cache,
-            ws_sender,
         }
     }
 
@@ -58,8 +50,8 @@ impl RevisionManager {
         Ok(())
     }
 
-    pub async fn ack_revision(&self, rev_id: RevId) -> Result<(), FlowyError> {
-        self.cache.ack_revision(rev_id.into()).await;
+    pub async fn ack_revision(&self, rev_id: i64) -> Result<(), FlowyError> {
+        self.cache.ack_revision(rev_id).await;
         Ok(())
     }
 
@@ -101,9 +93,7 @@ impl RevisionManager {
         Ok(revision)
     }
 
-    pub(crate) fn make_up_stream(&self, stop_rx: SteamStopRx) -> RevisionUpStream {
-        RevisionUpStream::new(&self.doc_id, self.cache.clone(), self.ws_sender.clone(), stop_rx)
-    }
+    pub fn next_sync_revision(&self) -> FutureResult<Option<Revision>, FlowyError> { self.cache.next_revision() }
 }
 
 #[cfg(feature = "flowy_unit_test")]

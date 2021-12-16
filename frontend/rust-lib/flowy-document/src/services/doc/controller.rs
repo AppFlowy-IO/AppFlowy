@@ -3,9 +3,9 @@ use crate::{
     module::DocumentUser,
     services::{
         doc::{
-            edit::{ClientDocEditor, EditDocWsHandler},
+            edit::ClientDocEditor,
             revision::{RevisionCache, RevisionManager, RevisionServer},
-            WsDocumentManager,
+            DocumentWsHandlers,
         },
         server::Server,
     },
@@ -20,24 +20,19 @@ use std::sync::Arc;
 
 pub(crate) struct DocController {
     server: Server,
-    ws_manager: Arc<WsDocumentManager>,
+    ws_handlers: Arc<DocumentWsHandlers>,
     open_cache: Arc<OpenDocCache>,
     user: Arc<dyn DocumentUser>,
 }
 
 impl DocController {
-    pub(crate) fn new(server: Server, user: Arc<dyn DocumentUser>, ws: Arc<WsDocumentManager>) -> Self {
+    pub(crate) fn new(server: Server, user: Arc<dyn DocumentUser>, ws_handlers: Arc<DocumentWsHandlers>) -> Self {
         let open_cache = Arc::new(OpenDocCache::new());
-        Self {
-            server,
-            user,
-            ws_manager: ws,
-            open_cache,
-        }
+        Self { server, ws_handlers, open_cache, user }
     }
 
     pub(crate) fn init(&self) -> FlowyResult<()> {
-        self.ws_manager.init();
+        self.ws_handlers.init();
         Ok(())
     }
 
@@ -58,7 +53,7 @@ impl DocController {
     pub(crate) fn close(&self, doc_id: &str) -> Result<(), FlowyError> {
         tracing::debug!("Close doc {}", doc_id);
         self.open_cache.remove(doc_id);
-        self.ws_manager.remove_handler(doc_id);
+        self.ws_handlers.remove_handler(doc_id);
         Ok(())
     }
 
@@ -66,7 +61,7 @@ impl DocController {
     pub(crate) fn delete(&self, params: DocIdentifier) -> Result<(), FlowyError> {
         let doc_id = &params.doc_id;
         self.open_cache.remove(doc_id);
-        self.ws_manager.remove_handler(doc_id);
+        self.ws_handlers.remove_handler(doc_id);
         Ok(())
     }
 
@@ -99,18 +94,17 @@ impl DocController {
     ) -> Result<Arc<ClientDocEditor>, FlowyError> {
         let user = self.user.clone();
         let rev_manager = self.make_rev_manager(doc_id, pool.clone())?;
-        let edit_ctx = ClientDocEditor::new(doc_id, user, pool, rev_manager, self.ws_manager.ws()).await?;
-        let ws_handler = Arc::new(EditDocWsHandler(edit_ctx.clone()));
-        self.ws_manager.register_handler(doc_id, ws_handler);
-        self.open_cache.set(edit_ctx.clone());
-        Ok(edit_ctx)
+        let doc_editor = ClientDocEditor::new(doc_id, user, pool, rev_manager, self.ws_handlers.ws()).await?;
+        let ws_handler = doc_editor.ws_handler();
+        self.ws_handlers.register_handler(doc_id, ws_handler);
+        self.open_cache.insert(&doc_id, &doc_editor);
+        Ok(doc_editor)
     }
 
     fn make_rev_manager(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<RevisionManager, FlowyError> {
         // Opti: require upgradable_read lock and then upgrade to write lock using
         // RwLockUpgradableReadGuard::upgrade(xx) of ws
         // let doc = self.read_doc(doc_id, pool.clone()).await?;
-        let ws_sender = self.ws_manager.ws();
         let token = self.user.token()?;
         let user_id = self.user.user_id()?;
         let server = Arc::new(RevisionServerImpl {
@@ -118,7 +112,7 @@ impl DocController {
             server: self.server.clone(),
         });
         let cache = Arc::new(RevisionCache::new(&user_id, doc_id, pool, server));
-        Ok(RevisionManager::new(&user_id, doc_id, cache, ws_sender))
+        Ok(RevisionManager::new(&user_id, doc_id, cache))
     }
 }
 
@@ -152,12 +146,11 @@ pub struct OpenDocCache {
 impl OpenDocCache {
     fn new() -> Self { Self { inner: DashMap::new() } }
 
-    pub(crate) fn set(&self, doc: Arc<ClientDocEditor>) {
-        let doc_id = doc.doc_id.clone();
-        if self.inner.contains_key(&doc_id) {
-            log::warn!("Doc:{} already exists in cache", &doc_id);
+    pub(crate) fn insert(&self, doc_id: &str, doc: &Arc<ClientDocEditor>) {
+        if self.inner.contains_key(doc_id) {
+            log::warn!("Doc:{} already exists in cache", doc_id);
         }
-        self.inner.insert(doc_id, doc);
+        self.inner.insert(doc_id.to_string(), doc.clone());
     }
 
     pub(crate) fn contains(&self, doc_id: &str) -> bool { self.inner.get(doc_id).is_some() }

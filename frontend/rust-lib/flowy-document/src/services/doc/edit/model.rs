@@ -15,6 +15,7 @@ pub(crate) struct OpenDocAction {
     ws: Arc<dyn DocumentWebSocket>,
 }
 
+#[allow(dead_code)]
 impl OpenDocAction {
     pub(crate) fn new(user_id: &str, doc_id: &str, rev_id: &RevId, ws: &Arc<dyn DocumentWebSocket>) -> Self {
         Self {

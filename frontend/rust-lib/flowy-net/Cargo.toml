@@ -25,5 +25,5 @@ lazy_static = {version = "1.4.0", optional = true}
 dashmap = {version = "4.0", optional = true}
 
 [features]
-ws_mock = ["flowy-collaboration", "lazy_static", "dashmap"]
+flowy_unit_test = ["flowy-collaboration", "lazy_static", "dashmap"]
 http_server = []
