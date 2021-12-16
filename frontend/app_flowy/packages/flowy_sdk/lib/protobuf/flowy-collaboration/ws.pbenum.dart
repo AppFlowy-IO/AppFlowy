@@ -9,22 +9,22 @@
 import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
-class WsDocumentDataType extends $pb.ProtobufEnum {
-  static const WsDocumentDataType Acked = WsDocumentDataType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Acked');
-  static const WsDocumentDataType PushRev = WsDocumentDataType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'PushRev');
-  static const WsDocumentDataType PullRev = WsDocumentDataType._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'PullRev');
-  static const WsDocumentDataType UserConnect = WsDocumentDataType._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserConnect');
+class DocumentWSDataType extends $pb.ProtobufEnum {
+  static const DocumentWSDataType Acked = DocumentWSDataType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Acked');
+  static const DocumentWSDataType PushRev = DocumentWSDataType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'PushRev');
+  static const DocumentWSDataType PullRev = DocumentWSDataType._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'PullRev');
+  static const DocumentWSDataType UserConnect = DocumentWSDataType._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UserConnect');
 
-  static const $core.List<WsDocumentDataType> values = <WsDocumentDataType> [
+  static const $core.List<DocumentWSDataType> values = <DocumentWSDataType> [
     Acked,
     PushRev,
     PullRev,
     UserConnect,
   ];
 
-  static final $core.Map<$core.int, WsDocumentDataType> _byValue = $pb.ProtobufEnum.initByValue(values);
-  static WsDocumentDataType? valueOf($core.int value) => _byValue[value];
+  static final $core.Map<$core.int, DocumentWSDataType> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static DocumentWSDataType? valueOf($core.int value) => _byValue[value];
 
-  const WsDocumentDataType._($core.int v, $core.String n) : super(v, n);
+  const DocumentWSDataType._($core.int v, $core.String n) : super(v, n);
 }
 

@@ -8,9 +8,9 @@
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
 import 'dart:typed_data' as $typed_data;
-@$core.Deprecated('Use wsDocumentDataTypeDescriptor instead')
-const WsDocumentDataType$json = const {
-  '1': 'WsDocumentDataType',
+@$core.Deprecated('Use documentWSDataTypeDescriptor instead')
+const DocumentWSDataType$json = const {
+  '1': 'DocumentWSDataType',
   '2': const [
     const {'1': 'Acked', '2': 0},
     const {'1': 'PushRev', '2': 1},
@@ -19,20 +19,24 @@ const WsDocumentDataType$json = const {
   ],
 };
 
-/// Descriptor for `WsDocumentDataType`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List wsDocumentDataTypeDescriptor = $convert.base64Decode('ChJXc0RvY3VtZW50RGF0YVR5cGUSCQoFQWNrZWQQABILCgdQdXNoUmV2EAESCwoHUHVsbFJldhACEg8KC1VzZXJDb25uZWN0EAM=');
-@$core.Deprecated('Use wsDocumentDataDescriptor instead')
-const WsDocumentData$json = const {
-  '1': 'WsDocumentData',
+/// Descriptor for `DocumentWSDataType`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List documentWSDataTypeDescriptor = $convert.base64Decode('ChJEb2N1bWVudFdTRGF0YVR5cGUSCQoFQWNrZWQQABILCgdQdXNoUmV2EAESCwoHUHVsbFJldhACEg8KC1VzZXJDb25uZWN0EAM=');
+@$core.Deprecated('Use documentWSDataDescriptor instead')
+const DocumentWSData$json = const {
+  '1': 'DocumentWSData',
   '2': const [
     const {'1': 'doc_id', '3': 1, '4': 1, '5': 9, '10': 'docId'},
-    const {'1': 'ty', '3': 2, '4': 1, '5': 14, '6': '.WsDocumentDataType', '10': 'ty'},
+    const {'1': 'ty', '3': 2, '4': 1, '5': 14, '6': '.DocumentWSDataType', '10': 'ty'},
     const {'1': 'data', '3': 3, '4': 1, '5': 12, '10': 'data'},
+    const {'1': 'id', '3': 4, '4': 1, '5': 3, '9': 0, '10': 'id'},
+  ],
+  '8': const [
+    const {'1': 'one_of_id'},
   ],
 };
 
-/// Descriptor for `WsDocumentData`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List wsDocumentDataDescriptor = $convert.base64Decode('Cg5Xc0RvY3VtZW50RGF0YRIVCgZkb2NfaWQYASABKAlSBWRvY0lkEiMKAnR5GAIgASgOMhMuV3NEb2N1bWVudERhdGFUeXBlUgJ0eRISCgRkYXRhGAMgASgMUgRkYXRh');
+/// Descriptor for `DocumentWSData`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List documentWSDataDescriptor = $convert.base64Decode('Cg5Eb2N1bWVudFdTRGF0YRIVCgZkb2NfaWQYASABKAlSBWRvY0lkEiMKAnR5GAIgASgOMhMuRG9jdW1lbnRXU0RhdGFUeXBlUgJ0eRISCgRkYXRhGAMgASgMUgRkYXRhEhAKAmlkGAQgASgDSABSAmlkQgsKCW9uZV9vZl9pZA==');
 @$core.Deprecated('Use documentConnectedDescriptor instead')
 const DocumentConnected$json = const {
   '1': 'DocumentConnected',

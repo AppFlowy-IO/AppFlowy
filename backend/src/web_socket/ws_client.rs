@@ -12,7 +12,7 @@ use actix::*;
 use actix_web::web::Data;
 use actix_web_actors::{ws, ws::Message::Text};
 use bytes::Bytes;
-use lib_ws::WsMessage;
+use lib_ws::WSMessage;
 use std::{convert::TryFrom, sync::Arc, time::Instant};
 
 #[derive(Debug)]
@@ -64,7 +64,7 @@ impl WsClient {
 
     fn handle_binary_message(&self, bytes: Bytes, socket: Socket) {
         // TODO: ok to unwrap?
-        let message: WsMessage = WsMessage::try_from(bytes).unwrap();
+        let message: WSMessage = WSMessage::try_from(bytes).unwrap();
         match self.biz_handlers.get(&message.module) {
             None => {
                 log::error!("Can't find the handler for {:?}", message.module);

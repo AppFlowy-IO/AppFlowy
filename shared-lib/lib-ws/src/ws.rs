@@ -1,9 +1,9 @@
 #![allow(clippy::type_complexity)]
 use crate::{
-    connect::{WsConnectionFuture, WsStream},
-    errors::WsError,
-    WsMessage,
-    WsModule,
+    connect::{WSConnectionFuture, WSStream},
+    errors::WSError,
+    WSMessage,
+    WSModule,
 };
 use backend_service::errors::ServerError;
 use bytes::Bytes;
@@ -30,36 +30,36 @@ use tokio_tungstenite::tungstenite::{
 
 pub type MsgReceiver = UnboundedReceiver<Message>;
 pub type MsgSender = UnboundedSender<Message>;
-type Handlers = DashMap<WsModule, Arc<dyn WsMessageReceiver>>;
+type Handlers = DashMap<WSModule, Arc<dyn WSMessageReceiver>>;
 
-pub trait WsMessageReceiver: Sync + Send + 'static {
-    fn source(&self) -> WsModule;
-    fn receive_message(&self, msg: WsMessage);
+pub trait WSMessageReceiver: Sync + Send + 'static {
+    fn source(&self) -> WSModule;
+    fn receive_message(&self, msg: WSMessage);
 }
 
-pub struct WsController {
+pub struct WSController {
     handlers: Handlers,
-    state_notify: Arc<broadcast::Sender<WsConnectState>>,
-    sender_ctrl: Arc<RwLock<WsSenderController>>,
+    state_notify: Arc<broadcast::Sender<WSConnectState>>,
+    sender_ctrl: Arc<RwLock<WSSenderController>>,
     addr: Arc<RwLock<Option<String>>>,
 }
 
-impl std::default::Default for WsController {
+impl std::default::Default for WSController {
     fn default() -> Self {
         let (state_notify, _) = broadcast::channel(16);
         Self {
             handlers: DashMap::new(),
-            sender_ctrl: Arc::new(RwLock::new(WsSenderController::default())),
+            sender_ctrl: Arc::new(RwLock::new(WSSenderController::default())),
             state_notify: Arc::new(state_notify),
             addr: Arc::new(RwLock::new(None)),
         }
     }
 }
 
-impl WsController {
-    pub fn new() -> Self { WsController::default() }
+impl WSController {
+    pub fn new() -> Self { WSController::default() }
 
-    pub fn add_receiver(&self, handler: Arc<dyn WsMessageReceiver>) -> Result<(), WsError> {
+    pub fn add_receiver(&self, handler: Arc<dyn WSMessageReceiver>) -> Result<(), WSError> {
         let source = handler.source();
         if self.handlers.contains_key(&source) {
             log::error!("WsSource's {:?} is already registered", source);
@@ -74,7 +74,7 @@ impl WsController {
         self.connect(addr, strategy).await
     }
 
-    pub async fn stop(&self) { self.sender_ctrl.write().set_state(WsConnectState::Disconnected); }
+    pub async fn stop(&self) { self.sender_ctrl.write().set_state(WSConnectState::Disconnected); }
 
     async fn connect<T, I>(&self, addr: String, strategy: T) -> Result<(), ServerError>
     where
@@ -83,25 +83,25 @@ impl WsController {
     {
         let (ret, rx) = oneshot::channel::<Result<(), ServerError>>();
         *self.addr.write() = Some(addr.clone());
-        let action = WsConnectAction {
+        let action = WSConnectAction {
             addr,
             handlers: self.handlers.clone(),
         };
 
         let retry = Retry::spawn(strategy, action);
         let sender_ctrl = self.sender_ctrl.clone();
-        sender_ctrl.write().set_state(WsConnectState::Connecting);
+        sender_ctrl.write().set_state(WSConnectState::Connecting);
 
         tokio::spawn(async move {
             match retry.await {
                 Ok(result) => {
-                    let WsConnectResult {
+                    let WSConnectResult {
                         stream,
                         handlers_fut,
                         sender,
                     } = result;
                     sender_ctrl.write().set_sender(sender);
-                    sender_ctrl.write().set_state(WsConnectState::Connected);
+                    sender_ctrl.write().set_state(WSConnectState::Connected);
                     let _ = ret.send(Ok(()));
                     spawn_stream_and_handlers(stream, handlers_fut, sender_ctrl.clone()).await;
                 },
@@ -131,20 +131,20 @@ impl WsController {
         self.connect(addr, strategy).await
     }
 
-    pub fn subscribe_state(&self) -> broadcast::Receiver<WsConnectState> { self.state_notify.subscribe() }
+    pub fn subscribe_state(&self) -> broadcast::Receiver<WSConnectState> { self.state_notify.subscribe() }
 
-    pub fn sender(&self) -> Result<Arc<WsSender>, WsError> {
+    pub fn sender(&self) -> Result<Arc<WSSender>, WSError> {
         match self.sender_ctrl.read().sender() {
-            None => Err(WsError::internal().context("WsSender is not initialized, should call connect first")),
+            None => Err(WSError::internal().context("WsSender is not initialized, should call connect first")),
             Some(sender) => Ok(sender),
         }
     }
 }
 
 async fn spawn_stream_and_handlers(
-    stream: WsStream,
-    handlers: WsHandlerFuture,
-    sender_ctrl: Arc<RwLock<WsSenderController>>,
+    stream: WSStream,
+    handlers: WSHandlerFuture,
+    sender_ctrl: Arc<RwLock<WSSenderController>>,
 ) {
     tokio::select! {
         result = stream => {
@@ -157,14 +157,14 @@ async fn spawn_stream_and_handlers(
 }
 
 #[pin_project]
-pub struct WsHandlerFuture {
+pub struct WSHandlerFuture {
     #[pin]
     msg_rx: MsgReceiver,
     // Opti: Hashmap would be better
     handlers: Handlers,
 }
 
-impl WsHandlerFuture {
+impl WSHandlerFuture {
     fn new(handlers: Handlers, msg_rx: MsgReceiver) -> Self { Self { msg_rx, handlers } }
 
     fn handler_ws_message(&self, message: Message) {
@@ -175,7 +175,7 @@ impl WsHandlerFuture {
 
     fn handle_binary_message(&self, bytes: Vec<u8>) {
         let bytes = Bytes::from(bytes);
-        match WsMessage::try_from(bytes) {
+        match WSMessage::try_from(bytes) {
             Ok(message) => match self.handlers.get(&message.module) {
                 None => log::error!("Can't find any handler for message: {:?}", message),
                 Some(handler) => handler.receive_message(message.clone()),
@@ -187,7 +187,7 @@ impl WsHandlerFuture {
     }
 }
 
-impl Future for WsHandlerFuture {
+impl Future for WSHandlerFuture {
     type Output = ();
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         loop {
@@ -202,37 +202,37 @@ impl Future for WsHandlerFuture {
 }
 
 #[derive(Debug, Clone)]
-pub struct WsSender {
+pub struct WSSender {
     ws_tx: MsgSender,
 }
 
-impl WsSender {
-    pub fn send_msg<T: Into<WsMessage>>(&self, msg: T) -> Result<(), WsError> {
+impl WSSender {
+    pub fn send_msg<T: Into<WSMessage>>(&self, msg: T) -> Result<(), WSError> {
         let msg = msg.into();
         let _ = self
             .ws_tx
             .unbounded_send(msg.into())
-            .map_err(|e| WsError::internal().context(e))?;
+            .map_err(|e| WSError::internal().context(e))?;
         Ok(())
     }
 
-    pub fn send_text(&self, source: &WsModule, text: &str) -> Result<(), WsError> {
-        let msg = WsMessage {
+    pub fn send_text(&self, source: &WSModule, text: &str) -> Result<(), WSError> {
+        let msg = WSMessage {
             module: source.clone(),
             data: text.as_bytes().to_vec(),
         };
         self.send_msg(msg)
     }
 
-    pub fn send_binary(&self, source: &WsModule, bytes: Vec<u8>) -> Result<(), WsError> {
-        let msg = WsMessage {
+    pub fn send_binary(&self, source: &WSModule, bytes: Vec<u8>) -> Result<(), WSError> {
+        let msg = WSMessage {
             module: source.clone(),
             data: bytes,
         };
         self.send_msg(msg)
     }
 
-    pub fn send_disconnect(&self, reason: &str) -> Result<(), WsError> {
+    pub fn send_disconnect(&self, reason: &str) -> Result<(), WSError> {
         let frame = CloseFrame {
             code: CloseCode::Normal,
             reason: reason.to_owned().into(),
@@ -241,44 +241,44 @@ impl WsSender {
         let _ = self
             .ws_tx
             .unbounded_send(msg)
-            .map_err(|e| WsError::internal().context(e))?;
+            .map_err(|e| WSError::internal().context(e))?;
         Ok(())
     }
 }
 
-struct WsConnectAction {
+struct WSConnectAction {
     addr: String,
     handlers: Handlers,
 }
 
-impl Action for WsConnectAction {
+impl Action for WSConnectAction {
     type Future = Pin<Box<dyn Future<Output = Result<Self::Item, Self::Error>> + Send + Sync>>;
-    type Item = WsConnectResult;
-    type Error = WsError;
+    type Item = WSConnectResult;
+    type Error = WSError;
 
     fn run(&mut self) -> Self::Future {
         let addr = self.addr.clone();
         let handlers = self.handlers.clone();
-        Box::pin(WsConnectActionFut::new(addr, handlers))
+        Box::pin(WSConnectActionFut::new(addr, handlers))
     }
 }
 
-struct WsConnectResult {
-    stream: WsStream,
-    handlers_fut: WsHandlerFuture,
-    sender: WsSender,
+struct WSConnectResult {
+    stream: WSStream,
+    handlers_fut: WSHandlerFuture,
+    sender: WSSender,
 }
 
 #[pin_project]
-struct WsConnectActionFut {
+struct WSConnectActionFut {
     addr: String,
     #[pin]
-    conn: WsConnectionFuture,
-    handlers_fut: Option<WsHandlerFuture>,
-    sender: Option<WsSender>,
+    conn: WSConnectionFuture,
+    handlers_fut: Option<WSHandlerFuture>,
+    sender: Option<WSSender>,
 }
 
-impl WsConnectActionFut {
+impl WSConnectActionFut {
     fn new(addr: String, handlers: Handlers) -> Self {
         //                Stream                             User
         //               ┌───────────────┐                 ┌──────────────┐
@@ -292,9 +292,9 @@ impl WsConnectActionFut {
         //               └───────────────┘                 └──────────────┘
         let (msg_tx, msg_rx) = futures_channel::mpsc::unbounded();
         let (ws_tx, ws_rx) = futures_channel::mpsc::unbounded();
-        let sender = WsSender { ws_tx };
-        let handlers_fut = WsHandlerFuture::new(handlers, msg_rx);
-        let conn = WsConnectionFuture::new(msg_tx, ws_rx, addr.clone());
+        let sender = WSSender { ws_tx };
+        let handlers_fut = WSHandlerFuture::new(handlers, msg_rx);
+        let conn = WSConnectionFuture::new(msg_tx, ws_rx, addr.clone());
         Self {
             addr,
             conn,
@@ -304,15 +304,15 @@ impl WsConnectActionFut {
     }
 }
 
-impl Future for WsConnectActionFut {
-    type Output = Result<WsConnectResult, WsError>;
+impl Future for WSConnectActionFut {
+    type Output = Result<WSConnectResult, WSError>;
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         let mut this = self.project();
         match ready!(this.conn.as_mut().poll(cx)) {
             Ok(stream) => {
                 let handlers_fut = this.handlers_fut.take().expect("Only take once");
                 let sender = this.sender.take().expect("Only take once");
-                Poll::Ready(Ok(WsConnectResult {
+                Poll::Ready(Ok(WSConnectResult {
                     stream,
                     handlers_fut,
                     sender,
@@ -324,39 +324,39 @@ impl Future for WsConnectActionFut {
 }
 
 #[derive(Clone, Eq, PartialEq)]
-pub enum WsConnectState {
+pub enum WSConnectState {
     Init,
     Connecting,
     Connected,
     Disconnected,
 }
 
-impl std::fmt::Display for WsConnectState {
+impl std::fmt::Display for WSConnectState {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            WsConnectState::Init => f.write_str("Init"),
-            WsConnectState::Connected => f.write_str("Connecting"),
-            WsConnectState::Connecting => f.write_str("Connected"),
-            WsConnectState::Disconnected => f.write_str("Disconnected"),
+            WSConnectState::Init => f.write_str("Init"),
+            WSConnectState::Connected => f.write_str("Connecting"),
+            WSConnectState::Connecting => f.write_str("Connected"),
+            WSConnectState::Disconnected => f.write_str("Disconnected"),
         }
     }
 }
 
-impl std::fmt::Debug for WsConnectState {
+impl std::fmt::Debug for WSConnectState {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str(&format!("{}", self)) }
 }
 
-struct WsSenderController {
-    state: WsConnectState,
-    state_notify: Arc<broadcast::Sender<WsConnectState>>,
-    sender: Option<Arc<WsSender>>,
+struct WSSenderController {
+    state: WSConnectState,
+    state_notify: Arc<broadcast::Sender<WSConnectState>>,
+    sender: Option<Arc<WSSender>>,
 }
 
-impl WsSenderController {
-    fn set_sender(&mut self, sender: WsSender) { self.sender = Some(Arc::new(sender)); }
+impl WSSenderController {
+    fn set_sender(&mut self, sender: WSSender) { self.sender = Some(Arc::new(sender)); }
 
-    fn set_state(&mut self, state: WsConnectState) {
-        if state != WsConnectState::Connected {
+    fn set_state(&mut self, state: WSConnectState) {
+        if state != WSConnectState::Connected {
             self.sender = None;
         }
 
@@ -364,24 +364,24 @@ impl WsSenderController {
         let _ = self.state_notify.send(self.state.clone());
     }
 
-    fn set_error(&mut self, error: WsError) {
+    fn set_error(&mut self, error: WSError) {
         log::error!("{:?}", error);
-        self.set_state(WsConnectState::Disconnected);
+        self.set_state(WSConnectState::Disconnected);
     }
 
-    fn sender(&self) -> Option<Arc<WsSender>> { self.sender.clone() }
+    fn sender(&self) -> Option<Arc<WSSender>> { self.sender.clone() }
 
-    fn is_connecting(&self) -> bool { self.state == WsConnectState::Connecting }
+    fn is_connecting(&self) -> bool { self.state == WSConnectState::Connecting }
 
     #[allow(dead_code)]
-    fn is_connected(&self) -> bool { self.state == WsConnectState::Connected }
+    fn is_connected(&self) -> bool { self.state == WSConnectState::Connected }
 }
 
-impl std::default::Default for WsSenderController {
+impl std::default::Default for WSSenderController {
     fn default() -> Self {
         let (state_notify, _) = broadcast::channel(16);
-        WsSenderController {
-            state: WsConnectState::Init,
+        WSSenderController {
+            state: WSConnectState::Init,
             state_notify: Arc::new(state_notify),
             sender: None,
         }

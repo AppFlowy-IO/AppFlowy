@@ -13,15 +13,15 @@ import 'errors.pbenum.dart';
 
 export 'errors.pbenum.dart';
 
-class WsError extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'WsError', createEmptyInstance: create)
+class WSError extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'WSError', createEmptyInstance: create)
     ..e<ErrorCode>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'code', $pb.PbFieldType.OE, defaultOrMaker: ErrorCode.InternalError, valueOf: ErrorCode.valueOf, enumValues: ErrorCode.values)
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'msg')
     ..hasRequiredFields = false
   ;
 
-  WsError._() : super();
-  factory WsError({
+  WSError._() : super();
+  factory WSError({
     ErrorCode? code,
     $core.String? msg,
   }) {
@@ -34,26 +34,26 @@ class WsError extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory WsError.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory WsError.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory WSError.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory WSError.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  WsError clone() => WsError()..mergeFromMessage(this);
+  WSError clone() => WSError()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  WsError copyWith(void Function(WsError) updates) => super.copyWith((message) => updates(message as WsError)) as WsError; // ignore: deprecated_member_use
+  WSError copyWith(void Function(WSError) updates) => super.copyWith((message) => updates(message as WSError)) as WSError; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static WsError create() => WsError._();
-  WsError createEmptyInstance() => create();
-  static $pb.PbList<WsError> createRepeated() => $pb.PbList<WsError>();
+  static WSError create() => WSError._();
+  WSError createEmptyInstance() => create();
+  static $pb.PbList<WSError> createRepeated() => $pb.PbList<WSError>();
   @$core.pragma('dart2js:noInline')
-  static WsError getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<WsError>(create);
-  static WsError? _defaultInstance;
+  static WSError getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<WSError>(create);
+  static WSError? _defaultInstance;
 
   @$pb.TagNumber(1)
   ErrorCode get code => $_getN(0);

@@ -1,5 +1,5 @@
 use bytes::Bytes;
-use flowy_collaboration::entities::ws::WsDocumentData;
+use flowy_collaboration::entities::ws::DocumentWSData;
 use flowy_database::ConnectionPool;
 use flowy_document::{
     errors::{internal_error, FlowyError},
@@ -8,7 +8,7 @@ use flowy_document::{
 };
 use flowy_net::services::ws::WsManager;
 use flowy_user::services::user::UserSession;
-use lib_ws::{WsMessage, WsMessageReceiver, WsModule};
+use lib_ws::{WSMessage, WSMessageReceiver, WSModule};
 use std::{convert::TryInto, path::Path, sync::Arc};
 
 pub struct DocumentDepsResolver();
@@ -61,10 +61,10 @@ struct WsSenderImpl {
 }
 
 impl DocumentWebSocket for WsSenderImpl {
-    fn send(&self, data: WsDocumentData) -> Result<(), FlowyError> {
+    fn send(&self, data: DocumentWSData) -> Result<(), FlowyError> {
         let bytes: Bytes = data.try_into().unwrap();
-        let msg = WsMessage {
-            module: WsModule::Doc,
+        let msg = WSMessage {
+            module: WSModule::Doc,
             data: bytes.to_vec(),
         };
         let sender = self.ws_manager.ws_sender().map_err(internal_error)?;
@@ -78,7 +78,7 @@ impl DocumentWebSocket for WsSenderImpl {
 
 struct WsMessageReceiverAdaptor(Arc<DocumentWsHandlers>);
 
-impl WsMessageReceiver for WsMessageReceiverAdaptor {
-    fn source(&self) -> WsModule { WsModule::Doc }
-    fn receive_message(&self, msg: WsMessage) { self.0.did_receive_data(Bytes::from(msg.data)); }
+impl WSMessageReceiver for WsMessageReceiverAdaptor {
+    fn source(&self) -> WSModule { WSModule::Doc }
+    fn receive_message(&self, msg: WSMessage) { self.0.did_receive_data(Bytes::from(msg.data)); }
 }

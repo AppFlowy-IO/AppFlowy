@@ -1,11 +1,11 @@
-use crate::services::ws::{FlowyError, FlowyWebSocket, FlowyWsSender, WsConnectState, WsMessage, WsMessageReceiver};
+use crate::services::ws::{FlowyError, FlowyWebSocket, FlowyWsSender, WSConnectState, WSMessage, WSMessageReceiver};
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_collaboration::{
     core::sync::{RevisionUser, ServerDocManager, ServerDocPersistence, SyncResponse},
     entities::{
         doc::Doc,
-        ws::{WsDocumentData, WsDocumentDataType},
+        ws::{DocumentWSData, DocumentWSDataType},
     },
     errors::CollaborateError,
     Revision,
@@ -13,7 +13,7 @@ use flowy_collaboration::{
 };
 use lazy_static::lazy_static;
 use lib_infra::future::{FutureResult, FutureResultSend};
-use lib_ws::WsModule;
+use lib_ws::WSModule;
 use parking_lot::RwLock;
 use std::{
     convert::{TryFrom, TryInto},
@@ -22,9 +22,9 @@ use std::{
 use tokio::sync::{broadcast, broadcast::Receiver, mpsc};
 
 pub struct MockWebSocket {
-    handlers: DashMap<WsModule, Arc<dyn WsMessageReceiver>>,
-    state_sender: broadcast::Sender<WsConnectState>,
-    ws_sender: broadcast::Sender<WsMessage>,
+    handlers: DashMap<WSModule, Arc<dyn WSMessageReceiver>>,
+    state_sender: broadcast::Sender<WSConnectState>,
+    ws_sender: broadcast::Sender<WSMessage>,
     is_stop: RwLock<bool>,
 }
 
@@ -56,7 +56,7 @@ impl FlowyWebSocket for Arc<MockWebSocket> {
                 if *cloned_ws.is_stop.read() {
                     // do nothing
                 } else {
-                    let ws_data = WsDocumentData::try_from(Bytes::from(message.data.clone())).unwrap();
+                    let ws_data = DocumentWSData::try_from(Bytes::from(message.data.clone())).unwrap();
                     let mut rx = DOC_SERVER.handle_ws_data(ws_data).await;
                     let new_ws_message = rx.recv().await.unwrap();
                     match cloned_ws.handlers.get(&new_ws_message.module) {
@@ -75,11 +75,11 @@ impl FlowyWebSocket for Arc<MockWebSocket> {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn subscribe_connect_state(&self) -> Receiver<WsConnectState> { self.state_sender.subscribe() }
+    fn subscribe_connect_state(&self) -> Receiver<WSConnectState> { self.state_sender.subscribe() }
 
     fn reconnect(&self, _count: usize) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
 
-    fn add_message_receiver(&self, handler: Arc<dyn WsMessageReceiver>) -> Result<(), FlowyError> {
+    fn add_message_receiver(&self, handler: Arc<dyn WSMessageReceiver>) -> Result<(), FlowyError> {
         let source = handler.source();
         if self.handlers.contains_key(&source) {
             tracing::error!("WsSource's {:?} is already registered", source);
@@ -108,13 +108,13 @@ impl std::default::Default for MockDocServer {
 }
 
 impl MockDocServer {
-    async fn handle_ws_data(&self, ws_data: WsDocumentData) -> mpsc::Receiver<WsMessage> {
+    async fn handle_ws_data(&self, ws_data: DocumentWSData) -> mpsc::Receiver<WSMessage> {
         let bytes = Bytes::from(ws_data.data);
         match ws_data.ty {
-            WsDocumentDataType::Acked => {
+            DocumentWSDataType::Acked => {
                 unimplemented!()
             },
-            WsDocumentDataType::PushRev => {
+            DocumentWSDataType::PushRev => {
                 let revision = Revision::try_from(bytes).unwrap();
                 let handler = match self.manager.get(&revision.doc_id).await {
                     None => self.manager.create_doc(revision.clone()).await.unwrap(),
@@ -129,10 +129,10 @@ impl MockDocServer {
                 handler.apply_revision(Arc::new(user), revision).await.unwrap();
                 rx
             },
-            WsDocumentDataType::PullRev => {
+            DocumentWSDataType::PullRev => {
                 unimplemented!()
             },
-            WsDocumentDataType::UserConnect => {
+            DocumentWSDataType::UserConnect => {
                 unimplemented!()
             },
         }
@@ -184,7 +184,7 @@ impl ServerDocPersistence for MockDocServerPersistence {
 #[derive(Debug)]
 struct MockDocUser {
     user_id: String,
-    tx: mpsc::Sender<WsMessage>,
+    tx: mpsc::Sender<WSMessage>,
 }
 
 impl RevisionUser for MockDocUser {
@@ -196,24 +196,24 @@ impl RevisionUser for MockDocUser {
             match resp {
                 SyncResponse::Pull(data) => {
                     let bytes: Bytes = data.try_into().unwrap();
-                    let msg = WsMessage {
-                        module: WsModule::Doc,
+                    let msg = WSMessage {
+                        module: WSModule::Doc,
                         data: bytes.to_vec(),
                     };
                     sender.send(msg).await.unwrap();
                 },
                 SyncResponse::Push(data) => {
                     let bytes: Bytes = data.try_into().unwrap();
-                    let msg = WsMessage {
-                        module: WsModule::Doc,
+                    let msg = WSMessage {
+                        module: WSModule::Doc,
                         data: bytes.to_vec(),
                     };
                     sender.send(msg).await.unwrap();
                 },
                 SyncResponse::Ack(data) => {
                     let bytes: Bytes = data.try_into().unwrap();
-                    let msg = WsMessage {
-                        module: WsModule::Doc,
+                    let msg = WSMessage {
+                        module: WSModule::Doc,
                         data: bytes.to_vec(),
                     };
                     sender.send(msg).await.unwrap();

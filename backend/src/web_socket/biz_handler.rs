@@ -1,5 +1,5 @@
 use crate::web_socket::WsClientData;
-use lib_ws::WsModule;
+use lib_ws::WSModule;
 use std::{collections::HashMap, sync::Arc};
 
 pub trait WsBizHandler: Send + Sync {
@@ -8,7 +8,7 @@ pub trait WsBizHandler: Send + Sync {
 
 pub type BizHandler = Arc<dyn WsBizHandler>;
 pub struct WsBizHandlers {
-    inner: HashMap<WsModule, BizHandler>,
+    inner: HashMap<WSModule, BizHandler>,
 }
 
 impl std::default::Default for WsBizHandlers {
@@ -18,7 +18,7 @@ impl std::default::Default for WsBizHandlers {
 impl WsBizHandlers {
     pub fn new() -> Self { WsBizHandlers::default() }
 
-    pub fn register(&mut self, source: WsModule, handler: BizHandler) { self.inner.insert(source, handler); }
+    pub fn register(&mut self, source: WSModule, handler: BizHandler) { self.inner.insert(source, handler); }
 
-    pub fn get(&self, source: &WsModule) -> Option<BizHandler> { self.inner.get(source).cloned() }
+    pub fn get(&self, source: &WSModule) -> Option<BizHandler> { self.inner.get(source).cloned() }
 }

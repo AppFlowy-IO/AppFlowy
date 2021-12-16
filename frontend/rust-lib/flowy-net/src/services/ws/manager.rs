@@ -4,7 +4,7 @@ use crate::{
 };
 use flowy_error::{internal_error, FlowyError};
 use lib_infra::future::FutureResult;
-use lib_ws::{WsConnectState, WsController, WsMessage, WsMessageReceiver, WsSender};
+use lib_ws::{WSConnectState, WSController, WSMessage, WSMessageReceiver, WSSender};
 use parking_lot::RwLock;
 use std::sync::Arc;
 use tokio::sync::{broadcast, broadcast::Receiver};
@@ -19,7 +19,7 @@ pub struct WsManager {
 impl WsManager {
     pub fn new(addr: String) -> Self {
         let ws: Arc<dyn FlowyWebSocket> = if cfg!(feature = "http_server") {
-            Arc::new(Arc::new(WsController::new()))
+            Arc::new(Arc::new(WSController::new()))
         } else {
             local_web_socket()
         };
@@ -65,13 +65,13 @@ impl WsManager {
         }
     }
 
-    pub fn subscribe_websocket_state(&self) -> broadcast::Receiver<WsConnectState> {
+    pub fn subscribe_websocket_state(&self) -> broadcast::Receiver<WSConnectState> {
         self.inner.subscribe_connect_state()
     }
 
     pub fn subscribe_network_ty(&self) -> broadcast::Receiver<NetworkType> { self.status_notifier.subscribe() }
 
-    pub fn add_receiver(&self, handler: Arc<dyn WsMessageReceiver>) -> Result<(), FlowyError> {
+    pub fn add_receiver(&self, handler: Arc<dyn WSMessageReceiver>) -> Result<(), FlowyError> {
         let _ = self.inner.add_message_receiver(handler)?;
         Ok(())
     }
@@ -88,10 +88,10 @@ fn listen_on_websocket(ws: Arc<dyn FlowyWebSocket>) {
                 Ok(state) => {
                     tracing::info!("Websocket state changed: {}", state);
                     match state {
-                        WsConnectState::Init => {},
-                        WsConnectState::Connected => {},
-                        WsConnectState::Connecting => {},
-                        WsConnectState::Disconnected => retry_connect(ws.clone(), 100).await,
+                        WSConnectState::Init => {},
+                        WSConnectState::Connected => {},
+                        WSConnectState::Connecting => {},
+                        WSConnectState::Disconnected => retry_connect(ws.clone(), 100).await,
                     }
                 },
                 Err(e) => {
@@ -112,7 +112,7 @@ async fn retry_connect(ws: Arc<dyn FlowyWebSocket>, count: usize) {
     }
 }
 
-impl FlowyWebSocket for Arc<WsController> {
+impl FlowyWebSocket for Arc<WSController> {
     fn start_connect(&self, addr: String) -> FutureResult<(), FlowyError> {
         let cloned_ws = self.clone();
         FutureResult::new(async move {
@@ -129,7 +129,7 @@ impl FlowyWebSocket for Arc<WsController> {
         })
     }
 
-    fn subscribe_connect_state(&self) -> Receiver<WsConnectState> { self.subscribe_state() }
+    fn subscribe_connect_state(&self) -> Receiver<WSConnectState> { self.subscribe_state() }
 
     fn reconnect(&self, count: usize) -> FutureResult<(), FlowyError> {
         let cloned_ws = self.clone();
@@ -139,7 +139,7 @@ impl FlowyWebSocket for Arc<WsController> {
         })
     }
 
-    fn add_message_receiver(&self, handler: Arc<dyn WsMessageReceiver>) -> Result<(), FlowyError> {
+    fn add_message_receiver(&self, handler: Arc<dyn WSMessageReceiver>) -> Result<(), FlowyError> {
         let _ = self.add_receiver(handler).map_err(internal_error)?;
         Ok(())
     }
@@ -150,8 +150,8 @@ impl FlowyWebSocket for Arc<WsController> {
     }
 }
 
-impl FlowyWsSender for WsSender {
-    fn send(&self, msg: WsMessage) -> Result<(), FlowyError> {
+impl FlowyWsSender for WSSender {
+    fn send(&self, msg: WSMessage) -> Result<(), FlowyError> {
         let _ = self.send_msg(msg).map_err(internal_error)?;
         Ok(())
     }

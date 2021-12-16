@@ -4,7 +4,7 @@ use crate::{
 };
 use actix::Addr;
 use actix_web::web::Data;
-use lib_ws::WsModule;
+use lib_ws::WSModule;
 use sqlx::PgPool;
 use std::sync::Arc;
 
@@ -23,7 +23,7 @@ impl AppContext {
 
         let mut ws_bizs = WsBizHandlers::new();
         let document_core = Arc::new(DocumentCore::new(pg_pool.clone()));
-        ws_bizs.register(WsModule::Doc, document_core.clone());
+        ws_bizs.register(WSModule::Doc, document_core.clone());
 
         AppContext {
             ws_server,

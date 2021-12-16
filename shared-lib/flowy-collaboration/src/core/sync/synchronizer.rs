@@ -1,6 +1,6 @@
 use crate::{
     core::document::Document,
-    entities::ws::{WsDocumentData, WsDocumentDataType},
+    entities::ws::{DocumentWSData, DocumentWSDataType, WsDocumentDataBuilder},
 };
 use bytes::Bytes;
 use lib_ot::{
@@ -29,9 +29,9 @@ pub trait RevisionUser: Send + Sync + Debug {
 }
 
 pub enum SyncResponse {
-    Pull(WsDocumentData),
-    Push(WsDocumentData),
-    Ack(WsDocumentData),
+    Pull(DocumentWSData),
+    Push(DocumentWSData),
+    Ack(DocumentWSData),
     NewRevision {
         rev_id: i64,
         doc_json: String,
@@ -63,7 +63,10 @@ impl RevisionSynchronizer {
                 if server_base_rev_id == revision.base_rev_id || server_rev_id == revision.rev_id {
                     // The rev is in the right order, just compose it.
                     let _ = self.compose_revision(&revision)?;
-                    user.recv(SyncResponse::Ack(mk_acked_message(&revision)));
+                    user.recv(SyncResponse::Ack(WsDocumentDataBuilder::build_acked_message(
+                        &revision.doc_id,
+                        revision.rev_id,
+                    )));
                     let rev_id = revision.rev_id;
                     let doc_id = self.doc_id.clone();
                     let doc_json = self.doc_json();
@@ -74,21 +77,27 @@ impl RevisionSynchronizer {
                     });
                 } else {
                     // The server document is outdated, pull the missing revision from the client.
-                    let msg = mk_pull_message(&self.doc_id, server_rev_id, revision.rev_id);
+                    let range = RevisionRange {
+                        doc_id: self.doc_id.clone(),
+                        start: server_rev_id,
+                        end: revision.rev_id,
+                    };
+                    let msg = WsDocumentDataBuilder::build_push_pull_message(&self.doc_id, range);
                     user.recv(SyncResponse::Pull(msg));
                 }
             },
             Ordering::Equal => {
                 // Do nothing
                 log::warn!("Applied revision rev_id is the same as cur_rev_id");
-                user.recv(SyncResponse::Ack(mk_acked_message(&revision)));
+                let data = WsDocumentDataBuilder::build_acked_message(&revision.doc_id, revision.rev_id);
+                user.recv(SyncResponse::Ack(data));
             },
             Ordering::Greater => {
                 // The client document is outdated. Transform the client revision delta and then
                 // send the prime delta to the client. Client should compose the this prime
                 // delta.
                 let cli_revision = self.transform_revision(&revision)?;
-                let data = mk_push_message(&self.doc_id, cli_revision);
+                let data = WsDocumentDataBuilder::build_push_rev_message(&self.doc_id, cli_revision);
                 user.recv(SyncResponse::Push(data));
             },
         }
@@ -140,44 +149,6 @@ impl RevisionSynchronizer {
             ty: RevType::Remote,
             user_id: "".to_string(),
         }
-    }
-}
-
-fn mk_push_message(doc_id: &str, revision: Revision) -> WsDocumentData {
-    let bytes: Bytes = revision.try_into().unwrap();
-    WsDocumentData {
-        doc_id: doc_id.to_string(),
-        ty: WsDocumentDataType::PushRev,
-        data: bytes.to_vec(),
-    }
-}
-
-fn mk_pull_message(doc_id: &str, from_rev_id: i64, to_rev_id: i64) -> WsDocumentData {
-    let range = RevisionRange {
-        doc_id: doc_id.to_string(),
-        start: from_rev_id,
-        end: to_rev_id,
-    };
-
-    let bytes: Bytes = range.try_into().unwrap();
-    WsDocumentData {
-        doc_id: doc_id.to_string(),
-        ty: WsDocumentDataType::PullRev,
-        data: bytes.to_vec(),
-    }
-}
-
-fn mk_acked_message(revision: &Revision) -> WsDocumentData {
-    // let mut wtr = vec![];
-    // let _ = wtr.write_i64::<BigEndian>(revision.rev_id);
-    let mut rev_id = RevId::new();
-    rev_id.set_value(revision.rev_id);
-    let data = rev_id.write_to_bytes().unwrap();
-
-    WsDocumentData {
-        doc_id: revision.doc_id.clone(),
-        ty: WsDocumentDataType::Acked,
-        data,
     }
 }
 

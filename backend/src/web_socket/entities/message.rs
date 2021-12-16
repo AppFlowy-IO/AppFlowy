@@ -1,7 +1,7 @@
 use actix::Message;
 use bytes::Bytes;
-use flowy_collaboration::entities::ws::WsDocumentData;
-use lib_ws::{WsMessage, WsModule};
+use flowy_collaboration::entities::ws::DocumentWSData;
+use lib_ws::{WSMessage, WSModule};
 use std::convert::TryInto;
 
 #[derive(Debug, Message, Clone)]
@@ -14,11 +14,11 @@ impl std::ops::Deref for WsMessageAdaptor {
     fn deref(&self) -> &Self::Target { &self.0 }
 }
 
-impl std::convert::From<WsDocumentData> for WsMessageAdaptor {
-    fn from(data: WsDocumentData) -> Self {
+impl std::convert::From<DocumentWSData> for WsMessageAdaptor {
+    fn from(data: DocumentWSData) -> Self {
         let bytes: Bytes = data.try_into().unwrap();
-        let msg = WsMessage {
-            module: WsModule::Doc,
+        let msg = WSMessage {
+            module: WSModule::Doc,
             data: bytes.to_vec(),
         };
 
