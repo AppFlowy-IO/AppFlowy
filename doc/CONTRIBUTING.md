@@ -51,6 +51,7 @@ You want to work on the project, but you're not a developer? You can help in mul
 So you want to submit code, documentation, or graphical expertise? Welcome to the club! We will try to give you all the help you need to get up and running.
   - Join our [Discord](https://discord.com/invite/9Q2xaN37tV). Here you will be able to chat with all of our contributors and the heads of the project.
   - Read the documentation. You should start at the main README.md where you will find information on how to setup your computer to develop with Flutter and Rust.
+  - Read the technical wiki. This is where you will find all of our design documentation. (TBD)
   - Submit a Patch. We love to receive Pull Requests. If you are a beginner or a newcomer, here are some tasks for you to get ramped up:
     - Fix a typo in the code.
     - Fix a typo in the documentation.
