@@ -45,19 +45,20 @@ class AppTheme {
   late Color tint7;
   late Color tint8;
   late Color tint9;
+  late Color textColor;
 
   late Color main1;
   late Color main2;
 
   /// Default constructor
-  AppTheme({this.isDark = true});
+  AppTheme({this.isDark = false});
 
   /// fromType factory constructor
   factory AppTheme.fromType(ThemeType t) {
     switch (t) {
       case ThemeType.light:
         return AppTheme(isDark: false)
-          ..surface = Colors.white
+          ..surface = _white
           ..hover = const Color(0xFFe0f8ff) //
           ..selector = const Color(0xfff2fcff)
           ..red = const Color(0xfffb006d)
@@ -84,7 +85,8 @@ class AppTheme {
           ..tint8 = const Color(0xffdefff1)
           ..tint9 = const Color(0xffdefff1)
           ..main1 = const Color(0xff00bcf0)
-          ..main2 = const Color(0xff00b7ea);
+          ..main2 = const Color(0xff00b7ea)
+          ..textColor = _black;
 
       case ThemeType.dark:
         return AppTheme(isDark: true)
@@ -115,16 +117,18 @@ class AppTheme {
           ..tint8 = const Color(0xffdefff1)
           ..tint9 = const Color(0xffdefff1)
           ..main1 = const Color(0xff00bcf0)
-          ..main2 = const Color(0xff00b7ea);
+          ..main2 = const Color(0xff00b7ea)
+          ..textColor = _white;
     }
   }
 
   ThemeData get themeData {
     var t = ThemeData(
-      //Typography text theme
-      //This only allows the text to be white on light mode
-      // textTheme: (isDark ? Typography.blackCupertino : Typography.blackRedmond),
-      textTheme: (isDark ? ThemeData.dark() : ThemeData.light()).textTheme, //find fix for text Theme?
+      /*
+      *Old Code 
+      // textTheme: (isDark ? ThemeData.light() : ThemeData.dark()).textTheme, //Text Theme Cant adapt from white to black?
+      */
+      textTheme: TextTheme(bodyText1: TextStyle(), bodyText2: TextStyle().apply(color: textColor)),
       textSelectionTheme: TextSelectionThemeData(cursorColor: main2, selectionHandleColor: main2),
       primaryIconTheme: IconThemeData(color: hover),
       iconTheme: IconThemeData(color: shader1),
