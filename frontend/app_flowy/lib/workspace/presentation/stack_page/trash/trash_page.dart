@@ -122,9 +122,9 @@ class _TrashStackPageState extends State<TrashStackPage> {
           SizedBox.fromSize(
             size: const Size(102, 30),
             child: FlowyButton(
-              text: const FlowyText.medium('Restore all', fontSize: 12),
+              text: const FlowyText.medium('Restore all', fontSize: 12, color: Colors.black),
               icon: svg('editor/restore'),
-              hoverColor: theme.hover,
+              hoverColor: theme.main2,
               onTap: () => context.read<TrashBloc>().add(const TrashEvent.restoreAll()),
             ),
           ),
@@ -132,9 +132,9 @@ class _TrashStackPageState extends State<TrashStackPage> {
           SizedBox.fromSize(
             size: const Size(102, 30),
             child: FlowyButton(
-              text: const FlowyText.medium('Delete all', fontSize: 12),
+              text: const FlowyText.medium('Delete all', fontSize: 12, color: Colors.black),
               icon: svg('editor/delete'),
-              hoverColor: theme.hover,
+              hoverColor: theme.main2,
               onTap: () => context.read<TrashBloc>().add(const TrashEvent.deleteAll()),
             ),
           )
