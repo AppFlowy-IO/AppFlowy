@@ -122,7 +122,7 @@ class _DocLeftBarItemState extends State<DocLeftBarItem> {
           isDense: true,
         ),
         style: TextStyle(
-          color: theme.shader1,
+          color: theme.textColor,
           fontSize: 14,
           fontWeight: FontWeight.w500,
           overflow: TextOverflow.ellipsis,
