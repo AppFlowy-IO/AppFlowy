@@ -84,7 +84,7 @@ impl WsDocumentDataBuilder {
 
     // DocumentWSDataType::Acked -> RevId
     pub fn build_acked_message(doc_id: &str, rev_id: i64) -> DocumentWSData {
-        let cloned_rev_id = rev_id.clone();
+        let cloned_rev_id = rev_id;
         let rev_id: RevId = rev_id.into();
         let bytes: Bytes = rev_id.try_into().unwrap();
 

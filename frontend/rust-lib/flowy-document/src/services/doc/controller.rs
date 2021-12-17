@@ -28,7 +28,12 @@ pub(crate) struct DocController {
 impl DocController {
     pub(crate) fn new(server: Server, user: Arc<dyn DocumentUser>, ws_handlers: Arc<DocumentWsHandlers>) -> Self {
         let open_cache = Arc::new(OpenDocCache::new());
-        Self { server, ws_handlers, open_cache, user }
+        Self {
+            server,
+            ws_handlers,
+            open_cache,
+            user,
+        }
     }
 
     pub(crate) fn init(&self) -> FlowyResult<()> {
@@ -93,8 +98,13 @@ impl DocController {
         pool: Arc<ConnectionPool>,
     ) -> Result<Arc<ClientDocEditor>, FlowyError> {
         let user = self.user.clone();
+        let token = self.user.token()?;
         let rev_manager = self.make_rev_manager(doc_id, pool.clone())?;
-        let doc_editor = ClientDocEditor::new(doc_id, user, pool, rev_manager, self.ws_handlers.ws()).await?;
+        let server = Arc::new(RevisionServerImpl {
+            token,
+            server: self.server.clone(),
+        });
+        let doc_editor = ClientDocEditor::new(doc_id, user, pool, rev_manager, self.ws_handlers.ws(), server).await?;
         let ws_handler = doc_editor.ws_handler();
         self.ws_handlers.register_handler(doc_id, ws_handler);
         self.open_cache.insert(&doc_id, &doc_editor);
@@ -105,13 +115,8 @@ impl DocController {
         // Opti: require upgradable_read lock and then upgrade to write lock using
         // RwLockUpgradableReadGuard::upgrade(xx) of ws
         // let doc = self.read_doc(doc_id, pool.clone()).await?;
-        let token = self.user.token()?;
         let user_id = self.user.user_id()?;
-        let server = Arc::new(RevisionServerImpl {
-            token,
-            server: self.server.clone(),
-        });
-        let cache = Arc::new(RevisionCache::new(&user_id, doc_id, pool, server));
+        let cache = Arc::new(RevisionCache::new(&user_id, doc_id, pool));
         Ok(RevisionManager::new(&user_id, doc_id, cache))
     }
 }

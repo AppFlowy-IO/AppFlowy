@@ -1,20 +1,16 @@
 use crate::{
     core::document::Document,
-    entities::ws::{DocumentWSData, DocumentWSDataType, WsDocumentDataBuilder},
+    entities::ws::{DocumentWSData, WsDocumentDataBuilder},
 };
-use bytes::Bytes;
 use lib_ot::{
     core::OperationTransformable,
     errors::OTError,
-    protobuf::RevId,
     revision::{RevType, Revision, RevisionRange},
     rich_text::RichTextDelta,
 };
 use parking_lot::RwLock;
-use protobuf::Message;
 use std::{
     cmp::Ordering,
-    convert::TryInto,
     fmt::Debug,
     sync::{
         atomic::{AtomicI64, Ordering::SeqCst},

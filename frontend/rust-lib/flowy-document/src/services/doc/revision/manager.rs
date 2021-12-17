@@ -1,4 +1,5 @@
 use crate::{errors::FlowyError, services::doc::revision::RevisionCache};
+use bytes::Bytes;
 use flowy_collaboration::{
     entities::doc::Doc,
     util::{md5, RevIdCounter},
@@ -6,8 +7,8 @@ use flowy_collaboration::{
 use flowy_error::FlowyResult;
 use lib_infra::future::FutureResult;
 use lib_ot::{
-    core::OperationTransformable,
-    revision::{RevType, Revision, RevisionRange},
+    core::{Operation, OperationTransformable},
+    revision::{RevState, RevType, Revision, RevisionRange},
     rich_text::RichTextDelta,
 };
 use std::sync::Arc;
@@ -34,8 +35,16 @@ impl RevisionManager {
         }
     }
 
-    pub async fn load_document(&mut self) -> FlowyResult<RichTextDelta> {
-        let doc = self.cache.load_document().await?;
+    pub async fn load_document(&mut self, server: Arc<dyn RevisionServer>) -> FlowyResult<RichTextDelta> {
+        let revisions = RevisionLoader {
+            doc_id: self.doc_id.clone(),
+            user_id: self.user_id.clone(),
+            server,
+            cache: self.cache.clone(),
+        }
+        .load()
+        .await?;
+        let doc = mk_doc_from_revisions(&self.doc_id, revisions)?;
         self.update_rev_id_counter_value(doc.rev_id);
         Ok(doc.delta()?)
     }
@@ -99,4 +108,81 @@ impl RevisionManager {
 #[cfg(feature = "flowy_unit_test")]
 impl RevisionManager {
     pub fn revision_cache(&self) -> Arc<RevisionCache> { self.cache.clone() }
+}
+
+struct RevisionLoader {
+    doc_id: String,
+    user_id: String,
+    server: Arc<dyn RevisionServer>,
+    cache: Arc<RevisionCache>,
+}
+
+impl RevisionLoader {
+    async fn load(&self) -> Result<Vec<Revision>, FlowyError> {
+        let records = self.cache.disk_cache.read_revisions(&self.doc_id)?;
+        let revisions: Vec<Revision>;
+        if records.is_empty() {
+            let doc = self.server.fetch_document(&self.doc_id).await?;
+            let delta_data = Bytes::from(doc.data.clone());
+            let doc_md5 = md5(&delta_data);
+            let revision = Revision::new(
+                &doc.id,
+                doc.base_rev_id,
+                doc.rev_id,
+                delta_data,
+                RevType::Remote,
+                &self.user_id,
+                doc_md5,
+            );
+            let _ = self.cache.add_remote_revision(revision.clone()).await?;
+            revisions = vec![revision];
+        } else {
+            for record in &records {
+                match record.state {
+                    RevState::StateLocal => match self.cache.add_local_revision(record.revision.clone()).await {
+                        Ok(_) => {},
+                        Err(e) => tracing::error!("{}", e),
+                    },
+                    RevState::Acked => {},
+                }
+            }
+            revisions = records.into_iter().map(|record| record.revision).collect::<_>();
+        }
+
+        Ok(revisions)
+    }
+}
+
+fn mk_doc_from_revisions(doc_id: &str, revisions: Vec<Revision>) -> FlowyResult<Doc> {
+    let (base_rev_id, rev_id) = revisions.last().unwrap().pair_rev_id();
+    let mut delta = RichTextDelta::new();
+    for (_, revision) in revisions.into_iter().enumerate() {
+        match RichTextDelta::from_bytes(revision.delta_data) {
+            Ok(local_delta) => {
+                delta = delta.compose(&local_delta)?;
+            },
+            Err(e) => {
+                tracing::error!("Deserialize delta from revision failed: {}", e);
+            },
+        }
+    }
+    correct_delta_if_need(&mut delta);
+
+    Result::<Doc, FlowyError>::Ok(Doc {
+        id: doc_id.to_owned(),
+        data: delta.to_json(),
+        rev_id,
+        base_rev_id,
+    })
+}
+fn correct_delta_if_need(delta: &mut RichTextDelta) {
+    if delta.ops.last().is_none() {
+        return;
+    }
+
+    let data = delta.ops.last().as_ref().unwrap().get_data();
+    if !data.ends_with('\n') {
+        log::error!("❌The op must end with newline. Correcting it by inserting newline op");
+        delta.ops.push(Operation::Insert("\n".into()));
+    }
 }

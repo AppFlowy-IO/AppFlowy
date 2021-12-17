@@ -13,16 +13,15 @@ use lib_ot::{
     revision::{RevId, RevType, Revision, RevisionRange},
     rich_text::{RichTextAttribute, RichTextDelta},
 };
-use parking_lot::RwLock;
 use std::{collections::VecDeque, sync::Arc};
-use tokio::sync::{mpsc, mpsc::UnboundedSender, oneshot};
-type SinkVec = Arc<RwLock<VecDeque<DocumentWSData>>>;
+use tokio::sync::{mpsc, mpsc::UnboundedSender, oneshot, RwLock};
+
 pub struct ClientDocEditor {
     pub doc_id: String,
     rev_manager: Arc<RevisionManager>,
     ws_manager: Arc<WebSocketManager>,
     edit_cmd_tx: UnboundedSender<EditCommand>,
-    sink_vec: SinkVec,
+    sink_data_provider: SinkDataProvider,
     user: Arc<dyn DocumentUser>,
 }
 
@@ -33,22 +32,23 @@ impl ClientDocEditor {
         pool: Arc<ConnectionPool>,
         mut rev_manager: RevisionManager,
         ws: Arc<dyn DocumentWebSocket>,
+        server: Arc<dyn RevisionServer>,
     ) -> FlowyResult<Arc<Self>> {
-        let delta = rev_manager.load_document().await?;
+        let delta = rev_manager.load_document(server).await?;
         let edit_cmd_tx = spawn_edit_queue(doc_id, delta, pool.clone());
         let doc_id = doc_id.to_string();
         let rev_manager = Arc::new(rev_manager);
-        let sink_vec = Arc::new(RwLock::new(VecDeque::new()));
+        let sink_data_provider = Arc::new(RwLock::new(VecDeque::new()));
         let data_provider = Arc::new(DocumentSinkDataProviderAdapter {
             rev_manager: rev_manager.clone(),
-            sink_vec: sink_vec.clone(),
+            data_provider: sink_data_provider.clone(),
         });
         let stream_consumer = Arc::new(DocumentWebSocketSteamConsumerAdapter {
             doc_id: doc_id.clone(),
             edit_cmd_tx: edit_cmd_tx.clone(),
             rev_manager: rev_manager.clone(),
             user: user.clone(),
-            sink_vec: sink_vec.clone(),
+            sink_data_provider: sink_data_provider.clone(),
         });
         let ws_manager = Arc::new(WebSocketManager::new(&doc_id, ws, data_provider, stream_consumer));
         let editor = Arc::new(Self {
@@ -56,7 +56,7 @@ impl ClientDocEditor {
             rev_manager,
             ws_manager,
             edit_cmd_tx,
-            sink_vec,
+            sink_data_provider,
             user,
         });
         Ok(editor)
@@ -202,7 +202,7 @@ struct DocumentWebSocketSteamConsumerAdapter {
     edit_cmd_tx: UnboundedSender<EditCommand>,
     rev_manager: Arc<RevisionManager>,
     user: Arc<dyn DocumentUser>,
-    sink_vec: SinkVec,
+    sink_data_provider: SinkDataProvider,
 }
 
 impl DocumentWebSocketSteamConsumer for DocumentWebSocketSteamConsumerAdapter {
@@ -210,43 +210,50 @@ impl DocumentWebSocketSteamConsumer for DocumentWebSocketSteamConsumerAdapter {
         let user = self.user.clone();
         let rev_manager = self.rev_manager.clone();
         let edit_cmd_tx = self.edit_cmd_tx.clone();
+        let sink_data_provider = self.sink_data_provider.clone();
         let doc_id = self.doc_id.clone();
         FutureResult::new(async move {
             let user_id = user.user_id()?;
-            let _revision = handle_push_rev(&doc_id, &user_id, edit_cmd_tx, rev_manager, bytes).await?;
+            if let Some(revision) = handle_push_rev(&doc_id, &user_id, edit_cmd_tx, rev_manager, bytes).await? {
+                sink_data_provider.write().await.push_back(revision.into());
+            }
             Ok(())
         })
     }
 
-    fn make_revision_from_range(&self, range: RevisionRange) -> FutureResult<Revision, FlowyError> {
-        let rev_manager = self.rev_manager.clone();
-        FutureResult::new(async move {
-            let revision = rev_manager.mk_revisions(range).await?;
-            Ok(revision)
-        })
-    }
-
-    fn ack_revision(&self, rev_id: i64) -> FutureResult<(), FlowyError> {
+    fn receive_ack_revision(&self, rev_id: i64) -> FutureResult<(), FlowyError> {
         let rev_manager = self.rev_manager.clone();
         FutureResult::new(async move {
             let _ = rev_manager.ack_revision(rev_id).await?;
             Ok(())
         })
     }
+
+    fn send_revision_in_range(&self, range: RevisionRange) -> FutureResult<(), FlowyError> {
+        let rev_manager = self.rev_manager.clone();
+        let sink_data_provider = self.sink_data_provider.clone();
+        FutureResult::new(async move {
+            let revision = rev_manager.mk_revisions(range).await?;
+            sink_data_provider.write().await.push_back(revision.into());
+            Ok(())
+        })
+    }
 }
+
+type SinkDataProvider = Arc<RwLock<VecDeque<DocumentWSData>>>;
 
 struct DocumentSinkDataProviderAdapter {
     rev_manager: Arc<RevisionManager>,
-    sink_vec: SinkVec,
+    data_provider: SinkDataProvider,
 }
 
 impl DocumentSinkDataProvider for DocumentSinkDataProviderAdapter {
     fn next(&self) -> FutureResult<Option<DocumentWSData>, FlowyError> {
         let rev_manager = self.rev_manager.clone();
-        let sink_vec = self.sink_vec.clone();
+        let data_provider = self.data_provider.clone();
 
         FutureResult::new(async move {
-            if sink_vec.read().is_empty() {
+            if data_provider.read().await.is_empty() {
                 match rev_manager.next_sync_revision().await? {
                     Some(rev) => {
                         tracing::debug!("[DocumentSinkDataProvider]: revision: {}:{:?}", rev.doc_id, rev.rev_id);
@@ -255,9 +262,12 @@ impl DocumentSinkDataProvider for DocumentSinkDataProviderAdapter {
                     None => Ok(None),
                 }
             } else {
-                match sink_vec.read().front() {
+                match data_provider.read().await.front() {
                     None => Ok(None),
-                    Some(data) => Ok(Some(data.clone())),
+                    Some(data) => {
+                        tracing::debug!("[DocumentSinkDataProvider]: {}:{:?}", data.doc_id, data.ty);
+                        Ok(Some(data.clone()))
+                    },
                 }
             }
         })

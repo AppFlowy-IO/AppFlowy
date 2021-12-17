@@ -1,10 +1,7 @@
 use crate::services::doc::{DocumentWebSocket, DocumentWsHandler, SYNC_INTERVAL_IN_MILLIS};
 use async_stream::stream;
 use bytes::Bytes;
-use flowy_collaboration::{
-    entities::ws::{DocumentWSData, DocumentWSDataType},
-    Revision,
-};
+use flowy_collaboration::entities::ws::{DocumentWSData, DocumentWSDataType};
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use futures::stream::StreamExt;
 use lib_infra::future::FutureResult;
@@ -66,7 +63,6 @@ impl WebSocketManager {
             &self.doc_id,
             self.stream_consumer.clone(),
             ws_msg_rx,
-            self.ws.clone(),
             self.stop_sync_tx.subscribe(),
         );
         tokio::spawn(sink.run());
@@ -117,15 +113,14 @@ impl DocumentWsHandler for WebSocketManager {
 
 pub trait DocumentWebSocketSteamConsumer: Send + Sync {
     fn receive_push_revision(&self, bytes: Bytes) -> FutureResult<(), FlowyError>;
-    fn make_revision_from_range(&self, range: RevisionRange) -> FutureResult<Revision, FlowyError>;
-    fn ack_revision(&self, rev_id: i64) -> FutureResult<(), FlowyError>;
+    fn receive_ack_revision(&self, rev_id: i64) -> FutureResult<(), FlowyError>;
+    fn send_revision_in_range(&self, range: RevisionRange) -> FutureResult<(), FlowyError>;
 }
 
 pub(crate) struct DocumentWebSocketStream {
     doc_id: String,
     consumer: Arc<dyn DocumentWebSocketSteamConsumer>,
     ws_msg_rx: Option<mpsc::UnboundedReceiver<DocumentWSData>>,
-    ws_sender: Arc<dyn DocumentWebSocket>,
     stop_rx: Option<SinkStopRx>,
 }
 
@@ -134,14 +129,12 @@ impl DocumentWebSocketStream {
         doc_id: &str,
         consumer: Arc<dyn DocumentWebSocketSteamConsumer>,
         ws_msg_rx: mpsc::UnboundedReceiver<DocumentWSData>,
-        ws_sender: Arc<dyn DocumentWebSocket>,
         stop_rx: SinkStopRx,
     ) -> Self {
         DocumentWebSocketStream {
             doc_id: doc_id.to_owned(),
             consumer,
             ws_msg_rx: Some(ws_msg_rx),
-            ws_sender,
             stop_rx: Some(stop_rx),
         }
     }
@@ -200,12 +193,11 @@ impl DocumentWebSocketStream {
             },
             DocumentWSDataType::PullRev => {
                 let range = RevisionRange::try_from(bytes)?;
-                let revision = self.consumer.make_revision_from_range(range).await?;
-                let _ = self.ws_sender.send(revision.into());
+                let _ = self.consumer.send_revision_in_range(range).await?;
             },
             DocumentWSDataType::Acked => {
                 let rev_id = RevId::try_from(bytes)?;
-                let _ = self.consumer.ack_revision(rev_id.into()).await;
+                let _ = self.consumer.receive_ack_revision(rev_id.into()).await;
             },
             DocumentWSDataType::UserConnect => {},
         }
