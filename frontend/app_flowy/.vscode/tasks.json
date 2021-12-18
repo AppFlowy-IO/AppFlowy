@@ -15,6 +15,9 @@
 			"command": "sh ./scripts/build_sdk.sh",
 			"windows": {
 				"options": {
+					"env": {
+						"FLOWY_DEV_ENV": "Windows",
+					},
 					"shell": {
 						"executable": "cmd.exe",
 						"args": [
@@ -22,6 +25,20 @@
 						]
 					}
 				}
+			},
+			"linux": {
+				"options": {
+					"env": {
+						"FLOWY_DEV_ENV": "Linux-x86",
+					}
+				},
+			},
+			"osx": {
+				"options": {
+					"env": {
+						"FLOWY_DEV_ENV": "macOS",
+					}
+				},
 			},
 			"group": "build",
 			"options": {
@@ -31,6 +48,6 @@
             //     "$rustc"
             // ],
 			"label": "build_flowy_sdk"
-		},
+		}
 	]
 }
