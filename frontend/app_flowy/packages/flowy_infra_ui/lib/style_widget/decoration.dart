@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 class FlowyDecoration {
-  static Decoration decoration() {
-    return const BoxDecoration(
-      color: Colors.white,
+  static Decoration decoration(Color theme_color, Color box_shadow) {
+    return BoxDecoration(
+      color: theme_color,
       borderRadius: BorderRadius.all(Radius.circular(6)),
       boxShadow: [
-        BoxShadow(color: Color(0xfff2f2f2), spreadRadius: 1, blurRadius: 10.0),
+        BoxShadow(color: box_shadow, spreadRadius: 1, blurRadius: 10.0),
       ],
     );
   }
