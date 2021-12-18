@@ -127,7 +127,6 @@ script_runner = "@shell"
 BUILD_FLAG = "release"
 TARGET_OS = "ios"
 CRATE_TYPE = "staticlib"
-BUILD_FLAG = "release"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "ipa"
 
