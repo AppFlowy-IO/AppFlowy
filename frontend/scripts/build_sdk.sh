@@ -34,7 +34,7 @@ Windows)
 
 *)
  # All undefined cases
- echo "[ERROR] The FLOWY_DEV_ENV environment variable must be set. Please see the GitHub wiki for instructions."
+ echo "[ERROR] The FLOWY_DEV_ENV environment variable must be set. Please see the GitHub wiki for build instructions."
  exit 1
  ;;
 esac
