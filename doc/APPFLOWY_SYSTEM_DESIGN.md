@@ -1,17 +1,17 @@
-# 🥳 AppFlowy - Event Driven System 
+# 🥳 AppFlowy - Event Driven System
 
-* Goals of the System
-* Some Design Considerations
-* High Level Design
-* Component Design 
+* [Goals of the System](#goals-of-the-system)
+* [Some Design Considerations](#some-design-Considerations)
+* [High Level Design](#high-level-design)
+* [Component Design](#component-design)
 
 ## 🎯 Goals of the System
-The AppFlowy project is an attempt to build a high performance application. Here are the top-level requirements for out system.
+The AppFlowy project is an attempt to build a high performance application. Here are the top-level requirements for our system.
 
-1. **High Performance.** 
+1. **High Performance.**
 2. **Cross-platform.**
-3. **Reliability**
-4. **Safety**
+3. **Reliability.**
+4. **Safety.**
 
 
 ## 🤔 Some Design Considerations
@@ -41,7 +41,7 @@ The AppFlowy project is an attempt to build a high performance application. Here
                                                              │
                                                              │
 ```
-Here are the event flow: 
+Here is the event flow:
 1. User click on the `Widget`(The user interface) that invokes the `Bloc` actions
 2. `Bloc` calls the repositories to perform additional operations to handle the actions.
 3. `Repository` offers the functionalities by combining the event, defined in the `FlowySDK`.
@@ -69,5 +69,3 @@ The Frontend follows the DDD design pattern, you can recap from [**here**](DOMAI
                                   │ Repository C │────┘
                                   └──────────────┘
 ```
-
-

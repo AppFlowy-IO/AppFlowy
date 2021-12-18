@@ -50,11 +50,11 @@ specific role and responsibility.`DDD` consists of four layers.
 **Infrastructure Layer**:
 
 * Provides generic technical capabilities that support the higher layers. It deals with APIs, persistence and network, etc.
-* Implements the repository interface and hiding the complexity of the Domain layer.
+* Implements the repository interface and hides the complexity of the Domain layer.
 
-As you see, the `Complexity` and `Abstraction` of these layers are depicted in this diagram. Software system are composed in layers,
+As you see, the `Complexity` and `Abstraction` of these layers are depicted in the following diagram. Software system are composed in layers,
 where higher layers use the facilities provided by lower layers. Each layer provides a different abstraction from the layer above
-and below it. As a developer, we should pull the complexity downwards. Simple interface and powerful implementation(Think about the
+and below it. As developers, we should pull the complexity downwards. Simple interfaces and powerful implementations (Think about the
 [open](https://man7.org/linux/man-pages/man2/open.2.html) function). Another way of expressing this idea is that it is more important
 for a module to have a simple interface than a simple implementation.
 
@@ -76,25 +76,21 @@ for a module to have a simple interface than a simple implementation.
 
 
 ### Data Model
-DDD classifies data as referenceable objects, or entities, and non-referenceable objects, or value objects. Let's introduces
-some terminologies from DDD.
+DDD classifies data as referenceable objects, or entities, and non-referenceable objects, or value objects. Let's introduce some DDD terminology.
 
 **Entity**
 
-`Entities` are referenceable because they carry an identity which allows us to reference them. e.g. user, order, book, etc.
-You can use `entities` to express your business model and encapsulate them into Factory that provides simple API interface
-to create Entities.
-
+`Entities` are plain objects that carry an identity which allows us to reference them. e.g. user, order, book, etc.
+You use `entities` to express your business model and encapsulate them into Factory that provides a simple API to create Entities.
 
 **Value Object**
 
-`Value Object` can't be referenced. They can be only included into entities and serve as attributes. Value objects could be
-simple and treat as immutable. e.g. email, phone number, name, etc.
+`Value Object` can't be referenced. They can be only included into entities and serve as attributes. Value objects could be simple and treat as immutable. e.g. email, phone number, name, etc.
 
 **Aggregate**
 
-`Entity` or `Value object` can be grouped into aggregates. Aggregates can simplify the model by accessing the entire aggregate.
-For instance, Table has lots of row. Each row using the table_id to reference to the
+`Entities` and `Value objects` can be grouped into aggregates. Aggregates can simplify the model by accessing the entire aggregate.
+For instance, Table has lots of rows. Each row using the table_id to reference to the
 table. TableAggregate includes two entities: Table and the Row.
 
 ```
@@ -113,10 +109,7 @@ table. TableAggregate includes two entities: Table and the Row.
 
 **Service**
 
-When a significant process of transformation in the domain is not a natural responsibility of an `Entity` or `Value object`, add
-an operation to the model as standalone interface declared as a Service. For instance: The `Value object`, EmailAddress,
-uses the function `validateEmailAddress` to verify the email address is valid or not. `Service` exists in Application, Domain and
-Infrastructure.
+When a significant process of transformation in the domain is not a natural responsibility of an `Entity` or `Value object`, add an operation to the model as standalone interface declared as a Service. For instance: The `Value object`  EmailAddress uses the function `validateEmailAddress` to verify if the email address is valid or not. `Service` exists in Application, Domain and Infrastructure.
 
 ```
 class EmailAddress  {
@@ -127,7 +120,7 @@ class EmailAddress  {
       validateEmailAddress(input),
     );
   }
-  
+
   const EmailAddress._(this.value);
 }
 
@@ -139,9 +132,12 @@ Either<Failure<String>, String> validateEmailAddress(String? input) {
 
 **Repository**
 
-Repository offer an interface to retrieve and persist aggregates and entities. They hide the database or network details from the domain.
-The Repository interfaces are declared in the Domain Layer, but the repositories themselves are implemented in the Infrastructure Layer.
-You can replace the interface implementation without impacting the domain layer. For instance:
+Repositories offer an interface to retrieve and persist aggregates and entities. They hide the database or network details from the domain.
+
+Repository interfaces are declared in the Domain Layer, but the repositories themselves are implemented in the Infrastructure Layer.
+You can replace the interface implementation without impacting the domain layer.
+
+For instance:
 
 ```
 // Interface:
@@ -161,7 +157,7 @@ The diagram below is a navigational map. It shows the patterns that form the bui
 ![[image from here](http://uniknow.github.io/AgileDev/site/0.1.8-SNAPSHOT/parent/ddd/core/building_blocks_ddd.html)](imgs/domain_model_relation.png)
 
 
-## 🔥 Operation Flow
+## Operation Flow
 
 ```
 
@@ -194,9 +190,7 @@ interaction    │          │ └──────▲────────
 ```
 
 
-1.  Widget accepts user interaction and transfers the interactions into specific events. The events will be send to the Application layer,
-    handled by the specific `bloc`. The `bloc` send the states changed by the events back to the widget, and finally the `Widget` update
-    the UI according to the state. The pattern is depicted in this diagram. (More about the flutter [bloc](https://bloclibrary.dev/#/coreconcepts?id=bloc))
+1.  Widget accepts user interaction and translates the interactions into specific Events. The events will be sent to the Application layer, handled by the specific `bloc`. The `bloc` sends the states changed by the events back to the widget, and finally the `Widget` updates the UI according to the state. The pattern is depicted in this diagram. (More about the flutter [bloc](https://bloclibrary.dev/#/coreconcepts?id=bloc))
     ```
                        ┌────────────     State     ────────────┐
                        │                                       │
@@ -209,15 +203,17 @@ interaction    │          │ └──────▲────────
                        │                                     ▲
                        │                                     │
                        └──────────     Event     ────────────┘
-    
+
     ```
 
-2.  The `bloc` process the events using the services provided by the `Domain` layer.
+2.  The `bloc` processes the events using the services provided by the `Domain` layer.
     1. Convert DTO (Data Transfer Object) to domain model and Domain Model to DTO.
-    2. Domain model is the place where all your business logics, business validation and business behaviors will be implemented.
+    2. Domain model is the place where all your business logic, business validation and business behaviors will be implemented.
        The Aggregate Roots, Entities and Value Objects will help to achieve the business logic.
-3. Calling repositories to perform additional operations. The repositories interfaces are declared in `Domain`, implemented in `Infrastructure`.
-   You can reimplement the repository interface with different languages, such as `Rust`, `C++` or `Flutter`. etc.
+
+
+3. Calling repositories to perform additional operations. The repositories interfaces are declared in the `Domain` layer and are implemented in the `Infrastructure` layer.
+   You can reimplement the repository interface with different languages, such as `Rust`, `C++` or `Dart`. etc.
    ```
               Domain                       Infrastructure
 
@@ -234,8 +230,7 @@ interaction    │          │ └──────▲────────
     │ └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘  │  └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘ │
     └────────────────────────────┴────────────────────────────────┘
    ```
-4. Responsibility of [Unit of Work](https://martinfowler.com/eaaCatalog/unitOfWork.html) is to maintain a list of objects affected by a
-   business transaction and coordinates the writing out of changes and the resolution of concurrency problems((No intermediate state)).
+4. The responsibility of [Unit of Work](https://martinfowler.com/eaaCatalog/unitOfWork.html) is to maintain a list of objects affected by a business transaction and coordinates the writing out of changes and the resolution of concurrency problems((No intermediate state)).
    If any one persistence service fails, the whole transaction will be failed so, roll back operation will be called to put the object
    back in initial state.
 
