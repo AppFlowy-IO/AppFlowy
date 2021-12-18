@@ -102,7 +102,9 @@ impl RevisionManager {
         Ok(revision)
     }
 
-    pub fn next_sync_revision(&self) -> FutureResult<Option<Revision>, FlowyError> { self.cache.next_revision() }
+    pub fn next_sync_revision(&self) -> FutureResult<Option<Revision>, FlowyError> { self.cache.next_sync_revision() }
+
+    pub fn latest_rev_id(&self) -> i64 { self.cache.latest_rev_id() }
 }
 
 #[cfg(feature = "flowy_unit_test")]
@@ -134,7 +136,7 @@ impl RevisionLoader {
                 &self.user_id,
                 doc_md5,
             );
-            let _ = self.cache.add_remote_revision(revision.clone()).await?;
+            let _ = self.cache.add_local_revision(revision.clone()).await?;
             revisions = vec![revision];
         } else {
             for record in &records {

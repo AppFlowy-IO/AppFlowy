@@ -14,14 +14,14 @@ use lib_ot::{
 use std::{convert::TryFrom, sync::Arc};
 use tokio::sync::{mpsc, oneshot, RwLock};
 
-pub(crate) struct EditCommandQueue {
+pub(crate) struct EditorCommandQueue {
     doc_id: String,
     document: Arc<RwLock<Document>>,
-    receiver: Option<mpsc::UnboundedReceiver<EditCommand>>,
+    receiver: Option<mpsc::UnboundedReceiver<EditorCommand>>,
 }
 
-impl EditCommandQueue {
-    pub(crate) fn new(doc_id: &str, delta: RichTextDelta, receiver: mpsc::UnboundedReceiver<EditCommand>) -> Self {
+impl EditorCommandQueue {
+    pub(crate) fn new(doc_id: &str, delta: RichTextDelta, receiver: mpsc::UnboundedReceiver<EditorCommand>) -> Self {
         let document = Arc::new(RwLock::new(Document::from_delta(delta)));
         Self {
             doc_id: doc_id.to_owned(),
@@ -50,13 +50,13 @@ impl EditCommandQueue {
             .await;
     }
 
-    async fn handle_message(&self, msg: EditCommand) -> Result<(), FlowyError> {
+    async fn handle_message(&self, msg: EditorCommand) -> Result<(), FlowyError> {
         match msg {
-            EditCommand::ComposeDelta { delta, ret } => {
+            EditorCommand::ComposeDelta { delta, ret } => {
                 let result = self.composed_delta(delta).await;
                 let _ = ret.send(result);
             },
-            EditCommand::ProcessRemoteRevision { bytes, ret } => {
+            EditorCommand::ProcessRemoteRevision { bytes, ret } => {
                 let f = || async {
                     let revision = Revision::try_from(bytes)?;
                     let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
@@ -75,19 +75,19 @@ impl EditCommandQueue {
                 };
                 let _ = ret.send(f().await);
             },
-            EditCommand::Insert { index, data, ret } => {
+            EditorCommand::Insert { index, data, ret } => {
                 let mut write_guard = self.document.write().await;
                 let delta = write_guard.insert(index, data)?;
                 let md5 = write_guard.md5();
                 let _ = ret.send(Ok((delta, md5)));
             },
-            EditCommand::Delete { interval, ret } => {
+            EditorCommand::Delete { interval, ret } => {
                 let mut write_guard = self.document.write().await;
                 let delta = write_guard.delete(interval)?;
                 let md5 = write_guard.md5();
                 let _ = ret.send(Ok((delta, md5)));
             },
-            EditCommand::Format {
+            EditorCommand::Format {
                 interval,
                 attribute,
                 ret,
@@ -97,31 +97,31 @@ impl EditCommandQueue {
                 let md5 = write_guard.md5();
                 let _ = ret.send(Ok((delta, md5)));
             },
-            EditCommand::Replace { interval, data, ret } => {
+            EditorCommand::Replace { interval, data, ret } => {
                 let mut write_guard = self.document.write().await;
                 let delta = write_guard.replace(interval, data)?;
                 let md5 = write_guard.md5();
                 let _ = ret.send(Ok((delta, md5)));
             },
-            EditCommand::CanUndo { ret } => {
+            EditorCommand::CanUndo { ret } => {
                 let _ = ret.send(self.document.read().await.can_undo());
             },
-            EditCommand::CanRedo { ret } => {
+            EditorCommand::CanRedo { ret } => {
                 let _ = ret.send(self.document.read().await.can_redo());
             },
-            EditCommand::Undo { ret } => {
+            EditorCommand::Undo { ret } => {
                 let result = self.document.write().await.undo();
                 let _ = ret.send(result);
             },
-            EditCommand::Redo { ret } => {
+            EditorCommand::Redo { ret } => {
                 let result = self.document.write().await.redo();
                 let _ = ret.send(result);
             },
-            EditCommand::ReadDoc { ret } => {
+            EditorCommand::ReadDoc { ret } => {
                 let data = self.document.read().await.to_json();
                 let _ = ret.send(Ok(data));
             },
-            EditCommand::ReadDocDelta { ret } => {
+            EditorCommand::ReadDocDelta { ret } => {
                 let delta = self.document.read().await.delta().clone();
                 let _ = ret.send(Ok(delta));
             },
@@ -151,7 +151,7 @@ pub(crate) type NewDelta = (RichTextDelta, String);
 pub(crate) type DocumentMD5 = String;
 
 #[allow(dead_code)]
-pub(crate) enum EditCommand {
+pub(crate) enum EditorCommand {
     ComposeDelta {
         delta: RichTextDelta,
         ret: Ret<DocumentMD5>,

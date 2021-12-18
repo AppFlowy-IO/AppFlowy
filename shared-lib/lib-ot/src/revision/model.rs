@@ -39,6 +39,7 @@ impl Revision {
 
     pub fn pair_rev_id(&self) -> (i64, i64) { (self.base_rev_id, self.rev_id) }
 
+    #[allow(dead_code)]
     pub fn is_initial(&self) -> bool { self.rev_id == 0 }
 }
 

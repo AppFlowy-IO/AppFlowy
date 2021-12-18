@@ -1,7 +1,8 @@
 use crate::{
     errors::FlowyError,
     services::{
-        doc::{controller::DocController, edit::ClientDocEditor, DocumentWsHandlers},
+        controller::DocController,
+        doc::{edit::ClientDocEditor, DocumentWsHandlers},
         server::construct_doc_server,
     },
 };

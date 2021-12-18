@@ -81,12 +81,6 @@ impl ServerDocManager {
     }
 
     pub async fn create_doc(&self, revision: Revision) -> Result<Arc<OpenDocHandle>, CollaborateError> {
-        if !revision.is_initial() {
-            return Err(
-                CollaborateError::revision_conflict().context("Revision's rev_id should be 0 when creating the doc")
-            );
-        }
-
         let doc = self.persistence.create_doc(revision).await?;
         let handler = self.cache(doc).await?;
         Ok(handler)

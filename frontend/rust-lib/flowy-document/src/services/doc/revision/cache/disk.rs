@@ -1,8 +1,8 @@
 use crate::services::doc::revision::RevisionRecord;
 
-use crate::sql_tables::RevTableSql;
+use crate::sql_tables::{RevChangeset, RevTableSql};
 use flowy_database::ConnectionPool;
-use flowy_error::{internal_error, FlowyError};
+use flowy_error::{internal_error, FlowyError, FlowyResult};
 use lib_ot::revision::RevisionRange;
 use std::{fmt::Debug, sync::Arc};
 
@@ -12,6 +12,7 @@ pub trait RevisionDiskCache: Sync + Send {
     fn revisions_in_range(&self, doc_id: &str, range: &RevisionRange) -> Result<Vec<RevisionRecord>, Self::Error>;
     fn read_revision(&self, doc_id: &str, rev_id: i64) -> Result<Option<RevisionRecord>, Self::Error>;
     fn read_revisions(&self, doc_id: &str) -> Result<Vec<RevisionRecord>, Self::Error>;
+    fn update_revisions(&self, changesets: Vec<RevChangeset>) -> FlowyResult<()>;
 }
 
 pub(crate) struct Persistence {
@@ -46,6 +47,17 @@ impl RevisionDiskCache for Persistence {
         let conn = self.pool.get().map_err(internal_error)?;
         let some = RevTableSql::read_rev_tables(&self.user_id, doc_id, &*conn)?;
         Ok(some)
+    }
+
+    fn update_revisions(&self, changesets: Vec<RevChangeset>) -> FlowyResult<()> {
+        let conn = &*self.pool.get().map_err(internal_error)?;
+        let _ = conn.immediate_transaction::<_, FlowyError, _>(|| {
+            for changeset in changesets {
+                let _ = RevTableSql::update_rev_table(changeset, conn)?;
+            }
+            Ok(())
+        })?;
+        Ok(())
     }
 }
 

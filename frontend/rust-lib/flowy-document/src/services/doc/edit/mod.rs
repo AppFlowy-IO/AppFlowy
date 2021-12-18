@@ -1,8 +1,7 @@
-mod edit_queue;
 mod editor;
-mod model;
-mod web_socket;
+mod editor_edit_cmd_queue;
+mod editor_web_socket;
 
-pub(crate) use edit_queue::*;
 pub use editor::*;
-pub use web_socket::*;
+pub(crate) use editor_edit_cmd_queue::*;
+pub use editor_web_socket::*;

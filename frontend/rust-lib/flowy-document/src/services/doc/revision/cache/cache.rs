@@ -3,26 +3,22 @@ use crate::{
     services::doc::revision::{
         cache::{
             disk::{Persistence, RevisionDiskCache},
-            memory::{RevisionMemoryCache, RevisionMemoryCacheMissing},
+            memory::{RevisionMemoryCache, RevisionMemoryCacheDelegate},
             sync::RevisionSyncSeq,
         },
         RevisionRecord,
     },
+    sql_tables::{RevChangeset, RevTableState},
 };
-
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyResult};
 use lib_infra::future::FutureResult;
-use lib_ot::{
-    core::Operation,
-    revision::{RevState, Revision, RevisionRange},
-    rich_text::RichTextDelta,
+use lib_ot::revision::{RevState, Revision, RevisionRange};
+use std::sync::{
+    atomic::{AtomicI64, Ordering::SeqCst},
+    Arc,
 };
-use std::sync::Arc;
-use tokio::{
-    sync::RwLock,
-    task::{spawn_blocking, JoinHandle},
-};
+use tokio::task::spawn_blocking;
 
 type DocRevisionDiskCache = dyn RevisionDiskCache<Error = FlowyError>;
 
@@ -31,7 +27,7 @@ pub struct RevisionCache {
     pub disk_cache: Arc<DocRevisionDiskCache>,
     memory_cache: Arc<RevisionMemoryCache>,
     sync_seq: Arc<RevisionSyncSeq>,
-    defer_save: RwLock<Option<JoinHandle<()>>>,
+    latest_rev_id: AtomicI64,
 }
 
 impl RevisionCache {
@@ -45,7 +41,7 @@ impl RevisionCache {
             disk_cache,
             memory_cache,
             sync_seq,
-            defer_save: RwLock::new(None),
+            latest_rev_id: AtomicI64::new(0),
         }
     }
 
@@ -54,13 +50,14 @@ impl RevisionCache {
         if self.memory_cache.contains(&revision.rev_id) {
             return Err(FlowyError::internal().context(format!("Duplicate revision id: {}", revision.rev_id)));
         }
+        let rev_id = revision.rev_id;
         let record = RevisionRecord {
             revision,
             state: RevState::StateLocal,
         };
         let _ = self.memory_cache.add_revision(&record).await;
         self.sync_seq.add_revision(record).await?;
-        self.save_revisions().await;
+        let _ = self.latest_rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(rev_id));
         Ok(())
     }
 
@@ -69,58 +66,63 @@ impl RevisionCache {
         if self.memory_cache.contains(&revision.rev_id) {
             return Err(FlowyError::internal().context(format!("Duplicate revision id: {}", revision.rev_id)));
         }
+        let rev_id = revision.rev_id;
         let record = RevisionRecord {
             revision,
-            state: RevState::StateLocal,
+            state: RevState::Acked,
         };
         self.memory_cache.add_revision(&record).await;
-        self.save_revisions().await;
+        let _ = self.latest_rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(rev_id));
         Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self, rev_id), fields(rev_id = %rev_id))]
     pub async fn ack_revision(&self, rev_id: i64) {
-        self.sync_seq.ack_revision(&rev_id).await;
-        self.save_revisions().await;
-    }
-
-    pub async fn get_revision(&self, _doc_id: &str, rev_id: i64) -> Option<RevisionRecord> {
-        self.memory_cache.get_revision(&rev_id).await
-    }
-
-    async fn save_revisions(&self) {
-        // https://github.com/async-graphql/async-graphql/blob/ed8449beec3d9c54b94da39bab33cec809903953/src/dataloader/mod.rs#L362
-        if let Some(handler) = self.defer_save.write().await.take() {
-            handler.abort();
+        if self.sync_seq.ack_revision(&rev_id).await.is_ok() {
+            self.memory_cache.ack_revision(&rev_id).await;
         }
+    }
 
-        // if self.sync_seq.is_empty() {
-        //     return;
-        // }
+    pub fn latest_rev_id(&self) -> i64 { self.latest_rev_id.load(SeqCst) }
 
-        // let memory_cache = self.sync_seq.clone();
-        // let disk_cache = self.disk_cache.clone();
-        // *self.defer_save.write().await = Some(tokio::spawn(async move {
-        //     tokio::time::sleep(Duration::from_millis(300)).await;
-        //     let (ids, records) = memory_cache.revisions();
-        //     match disk_cache.create_revisions(records) {
-        //         Ok(_) => {
-        //             memory_cache.remove_revisions(ids);
-        //         },
-        //         Err(e) => log::error!("Save revision failed: {:?}", e),
-        //     }
-        // }));
+    pub async fn get_revision(&self, doc_id: &str, rev_id: i64) -> Option<RevisionRecord> {
+        match self.memory_cache.get_revision(&rev_id).await {
+            None => match self.disk_cache.read_revision(&self.doc_id, rev_id) {
+                Ok(Some(revision)) => Some(revision),
+                Ok(None) => {
+                    tracing::warn!("Can't find revision in {} with rev_id: {}", doc_id, rev_id);
+                    None
+                },
+                Err(e) => {
+                    tracing::error!("{}", e);
+                    None
+                },
+            },
+            Some(revision) => Some(revision),
+        }
     }
 
     pub async fn revisions_in_range(&self, range: RevisionRange) -> FlowyResult<Vec<Revision>> {
-        let records = self.memory_cache.get_revisions_in_range(&range).await?;
+        let mut records = self.memory_cache.get_revisions_in_range(&range).await?;
+        let range_len = range.len() as usize;
+        if records.len() != range_len {
+            let disk_cache = self.disk_cache.clone();
+            let doc_id = self.doc_id.clone();
+            records = spawn_blocking(move || disk_cache.revisions_in_range(&doc_id, &range))
+                .await
+                .map_err(internal_error)??;
+
+            if records.len() != range_len {
+                log::error!("Revisions len is not equal to range required");
+            }
+        }
         Ok(records
             .into_iter()
             .map(|record| record.revision)
             .collect::<Vec<Revision>>())
     }
 
-    pub(crate) fn next_revision(&self) -> FutureResult<Option<Revision>, FlowyError> {
+    pub(crate) fn next_sync_revision(&self) -> FutureResult<Option<Revision>, FlowyError> {
         let sync_seq = self.sync_seq.clone();
         let disk_cache = self.disk_cache.clone();
         let doc_id = self.doc_id.clone();
@@ -139,31 +141,19 @@ impl RevisionCache {
     }
 }
 
-impl RevisionMemoryCacheMissing for Arc<Persistence> {
-    fn get_revision_record(&self, doc_id: &str, rev_id: i64) -> Result<Option<RevisionRecord>, FlowyError> {
-        match self.read_revision(&doc_id, rev_id)? {
-            None => {
-                tracing::warn!("Can't find revision in {} with rev_id: {}", doc_id, rev_id);
-                Ok(None)
-            },
-            Some(record) => Ok(Some(record)),
+impl RevisionMemoryCacheDelegate for Arc<Persistence> {
+    fn receive_checkpoint(&self, records: Vec<RevisionRecord>) -> FlowyResult<()> { self.create_revisions(records) }
+
+    fn receive_ack(&self, doc_id: &str, rev_id: i64) {
+        let changeset = RevChangeset {
+            doc_id: doc_id.to_string(),
+            rev_id: rev_id.into(),
+            state: RevTableState::Acked,
+        };
+        match self.update_revisions(vec![changeset]) {
+            Ok(_) => {},
+            Err(e) => tracing::error!("{}", e),
         }
-    }
-
-    fn get_revision_records_with_range(
-        &self,
-        doc_id: &str,
-        range: RevisionRange,
-    ) -> FutureResult<Vec<RevisionRecord>, FlowyError> {
-        let disk_cache = self.clone();
-        let doc_id = doc_id.to_owned();
-        FutureResult::new(async move {
-            let records = spawn_blocking(move || disk_cache.revisions_in_range(&doc_id, &range))
-                .await
-                .map_err(internal_error)??;
-
-            Ok::<Vec<RevisionRecord>, FlowyError>(records)
-        })
     }
 }
 

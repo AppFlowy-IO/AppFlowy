@@ -95,6 +95,18 @@ impl WsDocumentDataBuilder {
             id: Some(cloned_rev_id),
         }
     }
+
+    // DocumentWSDataType::UserConnect -> DocumentConnected
+    pub fn build_document_conn_message(doc_id: &str, document_conn: DocumentConnected) -> DocumentWSData {
+        let rev_id = document_conn.rev_id;
+        let bytes: Bytes = document_conn.try_into().unwrap();
+        DocumentWSData {
+            doc_id: doc_id.to_string(),
+            ty: DocumentWSDataType::UserConnect,
+            data: bytes.to_vec(),
+            id: Some(rev_id),
+        }
+    }
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]

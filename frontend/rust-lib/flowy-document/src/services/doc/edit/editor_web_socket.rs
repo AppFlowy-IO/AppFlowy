@@ -18,7 +18,7 @@ use tokio::{
     time::{interval, Duration},
 };
 
-pub(crate) struct WebSocketManager {
+pub(crate) struct EditorWebSocket {
     doc_id: String,
     data_provider: Arc<dyn DocumentSinkDataProvider>,
     stream_consumer: Arc<dyn DocumentWebSocketSteamConsumer>,
@@ -26,9 +26,10 @@ pub(crate) struct WebSocketManager {
     ws_msg_tx: UnboundedSender<DocumentWSData>,
     ws_msg_rx: Option<UnboundedReceiver<DocumentWSData>>,
     stop_sync_tx: SinkStopTx,
+    state: broadcast::Sender<WSConnectState>,
 }
 
-impl WebSocketManager {
+impl EditorWebSocket {
     pub(crate) fn new(
         doc_id: &str,
         ws: Arc<dyn DocumentWebSocket>,
@@ -38,7 +39,8 @@ impl WebSocketManager {
         let (ws_msg_tx, ws_msg_rx) = mpsc::unbounded_channel();
         let (stop_sync_tx, _) = tokio::sync::broadcast::channel(2);
         let doc_id = doc_id.to_string();
-        let mut manager = WebSocketManager {
+        let (state, _) = broadcast::channel(2);
+        let mut manager = EditorWebSocket {
             doc_id,
             data_provider,
             stream_consumer,
@@ -46,6 +48,7 @@ impl WebSocketManager {
             ws_msg_tx,
             ws_msg_rx: Some(ws_msg_rx),
             stop_sync_tx,
+            state,
         };
         manager.start_sync();
         manager
@@ -67,7 +70,6 @@ impl WebSocketManager {
         );
         tokio::spawn(sink.run());
         tokio::spawn(stream.run());
-        self.notify_user_conn();
     }
 
     pub(crate) fn stop(&self) {
@@ -76,24 +78,10 @@ impl WebSocketManager {
         }
     }
 
-    #[tracing::instrument(level = "debug", skip(self))]
-    fn notify_user_conn(&self) {
-        // let rev_id: RevId = self.rev_manager.rev_id().into();
-        // if let Ok(user_id) = self.user.user_id() {
-        //     let action = OpenDocAction::new(&user_id, &self.doc_id, &rev_id,
-        // &self.ws_sender);     let strategy =
-        // ExponentialBackoff::from_millis(50).take(3);     let retry =
-        // Retry::spawn(strategy, action);     tokio::spawn(async move {
-        //         match retry.await {
-        //             Ok(_) => log::debug!("Notify open doc success"),
-        //             Err(e) => log::error!("Notify open doc failed: {}", e),
-        //         }
-        //     });
-        // }
-    }
+    pub(crate) fn scribe_state(&self) -> broadcast::Receiver<WSConnectState> { self.state.subscribe() }
 }
 
-impl DocumentWsHandler for WebSocketManager {
+impl DocumentWsHandler for EditorWebSocket {
     fn receive(&self, doc_data: DocumentWSData) {
         match self.ws_msg_tx.send(doc_data) {
             Ok(_) => {},
@@ -102,11 +90,9 @@ impl DocumentWsHandler for WebSocketManager {
     }
 
     fn connect_state_changed(&self, state: &WSConnectState) {
-        match state {
-            WSConnectState::Init => {},
-            WSConnectState::Connecting => {},
-            WSConnectState::Connected => self.notify_user_conn(),
-            WSConnectState::Disconnected => {},
+        match self.state.send(state.clone()) {
+            Ok(_) => {},
+            Err(e) => tracing::error!("{}", e),
         }
     }
 }
@@ -199,7 +185,9 @@ impl DocumentWebSocketStream {
                 let rev_id = RevId::try_from(bytes)?;
                 let _ = self.consumer.receive_ack_revision(rev_id.into()).await;
             },
-            DocumentWSDataType::UserConnect => {},
+            DocumentWSDataType::UserConnect => {
+                // Notify the user that someone has connected to this document
+            },
         }
 
         Ok(())
@@ -270,7 +258,7 @@ impl DocumentWebSocketSink {
     async fn send_next_revision(&self) -> FlowyResult<()> {
         match self.provider.next().await? {
             None => {
-                tracing::debug!("Finish synchronizing revisions");
+                tracing::trace!("Finish synchronizing revisions");
                 Ok(())
             },
             Some(data) => {
