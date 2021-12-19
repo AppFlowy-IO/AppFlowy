@@ -18,7 +18,9 @@ class AddButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
     return FlowyIconButton(
+      hoverColor: theme.main2,
       width: 22,
       onPressed: () {
         ActionList(
@@ -73,7 +75,7 @@ class CreateItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    final config = HoverDisplayConfig(hoverColor: theme.hover);
+    final config = HoverDisplayConfig(hoverColor: theme.main2);
 
     return FlowyHover(
       config: config,
@@ -82,6 +84,7 @@ class CreateItem extends StatelessWidget {
           onTap: () => onSelected(viewType),
           child: FlowyText.medium(
             viewType.name,
+            color: theme.textColor,
             fontSize: 12,
           ).padding(horizontal: 10, vertical: 6),
         );
