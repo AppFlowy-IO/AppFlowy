@@ -6,7 +6,7 @@ use crate::{
 };
 use anyhow::Context;
 use backend_service::errors::{invalid_params, ServerError};
-use flowy_core_infra::{
+use flowy_core_data_model::{
     parser::workspace::WorkspaceId,
     protobuf::{RepeatedApp, RepeatedWorkspace, Workspace},
 };

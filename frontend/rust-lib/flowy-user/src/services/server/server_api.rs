@@ -62,7 +62,7 @@ impl UserServerAPI for UserHttpServer {
 
 // use crate::notify::*;
 // use backend_service::response::FlowyResponse;
-// use flowy_user_infra::errors::ErrorCode;
+// use flowy_user_data_model::errors::ErrorCode;
 
 // struct Middleware {}
 //

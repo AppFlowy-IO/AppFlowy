@@ -1,6 +1,6 @@
 use crate::entities::{SignInResponse, SignUpResponse, UpdateUserParams};
 use flowy_database::schema::user_table;
-use flowy_user_infra::entities::UserProfile;
+use flowy_user_data_model::entities::UserProfile;
 
 #[derive(Clone, Default, Queryable, Identifiable, Insertable)]
 #[table_name = "user_table"]

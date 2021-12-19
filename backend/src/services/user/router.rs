@@ -7,7 +7,7 @@ use actix_web::{
 use sqlx::PgPool;
 
 use backend_service::{errors::ServerError, response::FlowyResponse};
-use flowy_user_infra::protobuf::{SignInParams, SignUpParams, UpdateUserParams};
+use flowy_user_data_model::protobuf::{SignInParams, SignUpParams, UpdateUserParams};
 
 use crate::{
     entities::token::Token,

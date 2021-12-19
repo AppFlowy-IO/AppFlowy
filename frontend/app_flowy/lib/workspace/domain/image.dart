@@ -1,4 +1,4 @@
-import 'package:flowy_sdk/protobuf/flowy-core-infra/view_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/view_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flowy_infra/image.dart';
 

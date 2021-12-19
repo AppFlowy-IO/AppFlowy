@@ -9,7 +9,7 @@ use backend_service::{
     response::FlowyResponse,
 };
 use chrono::Utc;
-use flowy_user_infra::{
+use flowy_user_data_model::{
     parser::{UserEmail, UserName, UserPassword},
     protobuf::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile},
 };

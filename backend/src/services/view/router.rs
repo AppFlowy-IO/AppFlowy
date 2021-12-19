@@ -13,7 +13,7 @@ use backend_service::{
     errors::{invalid_params, ServerError},
     response::FlowyResponse,
 };
-use flowy_core_infra::{
+use flowy_core_data_model::{
     parser::view::{ViewDesc, ViewName, ViewThumbnail},
     protobuf::{CreateViewParams, QueryViewRequest, UpdateViewParams, ViewIdentifier},
 };

@@ -18,7 +18,7 @@ use crate::{
         TrashEvent,
     },
 };
-use flowy_core_infra::entities::share::{ExportData, ExportParams};
+use flowy_core_data_model::entities::share::{ExportData, ExportParams};
 use flowy_database::kv::KV;
 use flowy_document::module::FlowyDocument;
 

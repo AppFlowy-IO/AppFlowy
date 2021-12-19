@@ -3,7 +3,7 @@ import 'package:app_flowy/user/application/splash_bloc.dart';
 import 'package:app_flowy/user/domain/auth_state.dart';
 import 'package:app_flowy/user/domain/i_splash.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-infra/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/errors.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

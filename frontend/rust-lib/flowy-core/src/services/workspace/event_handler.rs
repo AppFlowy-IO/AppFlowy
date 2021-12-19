@@ -1,6 +1,6 @@
 use crate::{errors::FlowyError, services::WorkspaceController};
 
-use flowy_core_infra::entities::{app::RepeatedApp, workspace::*};
+use flowy_core_data_model::entities::{app::RepeatedApp, workspace::*};
 use lib_dispatch::prelude::{data_result, Data, DataResult, Unit};
 use std::{convert::TryInto, sync::Arc};
 

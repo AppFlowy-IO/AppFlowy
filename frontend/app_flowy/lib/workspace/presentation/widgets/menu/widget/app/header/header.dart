@@ -6,7 +6,7 @@ import 'package:flowy_infra/flowy_icon_data_icons.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-infra/app_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/app_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

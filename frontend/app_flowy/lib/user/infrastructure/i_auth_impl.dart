@@ -5,11 +5,11 @@ import 'package:app_flowy/workspace/presentation/home/home_screen.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_infra_ui/widget/route/animation.dart';
-import 'package:flowy_sdk/protobuf/flowy-user-infra/protobuf.dart' show UserProfile;
+import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show UserProfile;
 import 'package:app_flowy/user/domain/i_auth.dart';
 import 'package:app_flowy/user/infrastructure/repos/auth_repo.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-infra/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/protobuf.dart';
 import 'package:flutter/material.dart';
 
 class AuthImpl extends IAuth {

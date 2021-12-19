@@ -6,8 +6,8 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-core-infra = { path = "../flowy-core-infra" }
-flowy-user-infra = { path = "../flowy-user-infra" }
+flowy-core-data-model = { path = "../flowy-core-data-model" }
+flowy-user-data-model = { path = "../flowy-user-data-model" }
 flowy-collaboration = { path = "../flowy-collaboration" }
 
 log = "0.4.14"

@@ -5,7 +5,7 @@ use lazy_static::lazy_static;
 use parking_lot::RwLock;
 
 use flowy_collaboration::{core::document::default::initial_read_me, entities::doc::DocDelta};
-use flowy_core_infra::user_default;
+use flowy_core_data_model::user_default;
 use flowy_net::entities::NetworkType;
 
 use crate::{

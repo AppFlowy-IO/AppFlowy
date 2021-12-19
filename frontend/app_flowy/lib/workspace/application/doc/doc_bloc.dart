@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:app_flowy/workspace/domain/i_trash.dart';
 import 'package:app_flowy/workspace/domain/i_view.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-infra/trash_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-infra/view_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/trash_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/view_create.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flowy_log/flowy_log.dart';

@@ -280,8 +280,8 @@ dependencies = [
  "config",
  "derive_more",
  "flowy-collaboration",
- "flowy-core-infra",
- "flowy-user-infra",
+ "flowy-core-data-model",
+ "flowy-user-data-model",
  "hyper",
  "lazy_static",
  "log",
@@ -713,7 +713,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-core-infra"
+name = "flowy-core-data-model"
 version = "0.1.0"
 dependencies = [
  "bytes",
@@ -744,7 +744,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-user-infra"
+name = "flowy-user-data-model"
 version = "0.1.0"
 dependencies = [
  "bytes",

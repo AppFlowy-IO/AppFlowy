@@ -16,9 +16,9 @@ import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:flowy_sdk/ffi.dart' as ffi;
-import 'package:flowy_sdk/protobuf/flowy-user-infra/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart';
 import 'package:flowy_sdk/protobuf/dart-ffi/protobuf.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-infra/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-collaboration/protobuf.dart';
 
 // ignore: unused_import

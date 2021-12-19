@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-infra/workspace_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-core-infra/workspace_query.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/workspace_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/workspace_query.pb.dart';
 import 'package:app_flowy/workspace/domain/i_user.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 

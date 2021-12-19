@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-user-infra/protobuf.dart' show SignInRequest, SignUpRequest, UserProfile;
+import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show SignInRequest, SignUpRequest, UserProfile;
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 
 class AuthRepository {

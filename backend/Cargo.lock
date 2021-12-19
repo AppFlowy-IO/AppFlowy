@@ -456,13 +456,13 @@ dependencies = [
  "dashmap",
  "derive_more",
  "flowy-collaboration",
- "flowy-core-infra",
+ "flowy-core-data-model",
  "flowy-document",
  "flowy-net",
  "flowy-sdk",
  "flowy-test",
  "flowy-user",
- "flowy-user-infra",
+ "flowy-user-data-model",
  "futures",
  "futures-core",
  "futures-util",
@@ -508,8 +508,8 @@ dependencies = [
  "config",
  "derive_more",
  "flowy-collaboration",
- "flowy-core-infra",
- "flowy-user-infra",
+ "flowy-core-data-model",
+ "flowy-user-data-model",
  "hyper",
  "lazy_static",
  "log",
@@ -1246,7 +1246,7 @@ dependencies = [
  "diesel",
  "diesel_derives",
  "flowy-collaboration",
- "flowy-core-infra",
+ "flowy-core-data-model",
  "flowy-database",
  "flowy-derive",
  "flowy-document",
@@ -1271,7 +1271,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-core-infra"
+name = "flowy-core-data-model"
 version = "0.1.0"
 dependencies = [
  "bytes",
@@ -1453,7 +1453,7 @@ dependencies = [
  "flowy-derive",
  "flowy-error",
  "flowy-net",
- "flowy-user-infra",
+ "flowy-user-data-model",
  "futures-core",
  "lazy_static",
  "lib-dispatch",
@@ -1476,7 +1476,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-user-infra"
+name = "flowy-user-data-model"
 version = "0.1.0"
 dependencies = [
  "bytes",

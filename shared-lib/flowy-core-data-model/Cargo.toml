@@ -1,5 +1,5 @@
 [package]
-name = "flowy-core-infra"
+name = "flowy-core-data-model"
 version = "0.1.0"
 edition = "2018"
 

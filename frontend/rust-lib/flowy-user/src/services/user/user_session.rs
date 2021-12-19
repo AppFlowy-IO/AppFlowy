@@ -13,7 +13,7 @@ use flowy_database::{
     ExpressionMethods,
     UserDatabaseConnection,
 };
-use flowy_user_infra::entities::{SignInResponse, SignUpResponse};
+use flowy_user_data_model::entities::{SignInResponse, SignUpResponse};
 use lib_sqlite::ConnectionPool;
 
 use crate::{
