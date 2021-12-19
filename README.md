@@ -67,7 +67,7 @@ There is currently no Linux installer. However, you can download and install the
 2. Download the current AppFlowy-Linux.tar.gz file.
 3. Create a directory in your /opt/ folder.
 ```shell
-md /opt/appflowy
+mkdir /opt/appflowy
 ```
 4. Change to that directory
 ```shell
