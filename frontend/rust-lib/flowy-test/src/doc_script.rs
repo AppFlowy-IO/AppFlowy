@@ -46,8 +46,6 @@ impl EditorTest {
     async fn run_script(&mut self, script: EditorScript) {
         let rev_manager = self.editor.rev_manager();
         let cache = rev_manager.revision_cache();
-        let _memory_cache = cache.memory_cache();
-        let _disk_cache = cache.disk_cache();
         let doc_id = self.editor.doc_id.clone();
         let _user_id = self.sdk.user_session.user_id().unwrap();
         let ws_manager = self.sdk.ws_manager.clone();

@@ -1,6 +1,6 @@
 use crate::{
     core::document::Document,
-    entities::ws::{DocumentWSData, WsDocumentDataBuilder},
+    entities::ws::{DocumentWSData, DocumentWSDataBuilder},
 };
 use lib_ot::{
     core::OperationTransformable,
@@ -59,9 +59,9 @@ impl RevisionSynchronizer {
                 if server_base_rev_id == revision.base_rev_id || server_rev_id == revision.rev_id {
                     // The rev is in the right order, just compose it.
                     let _ = self.compose_revision(&revision)?;
-                    user.recv(SyncResponse::Ack(WsDocumentDataBuilder::build_acked_message(
+                    user.recv(SyncResponse::Ack(DocumentWSDataBuilder::build_ack_message(
                         &revision.doc_id,
-                        revision.rev_id,
+                        &revision.rev_id.to_string(),
                     )));
                     let rev_id = revision.rev_id;
                     let doc_id = self.doc_id.clone();
@@ -78,14 +78,14 @@ impl RevisionSynchronizer {
                         start: server_rev_id,
                         end: revision.rev_id,
                     };
-                    let msg = WsDocumentDataBuilder::build_push_pull_message(&self.doc_id, range);
+                    let msg = DocumentWSDataBuilder::build_push_pull_message(&self.doc_id, range);
                     user.recv(SyncResponse::Pull(msg));
                 }
             },
             Ordering::Equal => {
                 // Do nothing
                 log::warn!("Applied revision rev_id is the same as cur_rev_id");
-                let data = WsDocumentDataBuilder::build_acked_message(&revision.doc_id, revision.rev_id);
+                let data = DocumentWSDataBuilder::build_ack_message(&revision.doc_id, &revision.rev_id.to_string());
                 user.recv(SyncResponse::Ack(data));
             },
             Ordering::Greater => {
@@ -93,7 +93,7 @@ impl RevisionSynchronizer {
                 // send the prime delta to the client. Client should compose the this prime
                 // delta.
                 let cli_revision = self.transform_revision(&revision)?;
-                let data = WsDocumentDataBuilder::build_push_rev_message(&self.doc_id, cli_revision);
+                let data = DocumentWSDataBuilder::build_push_rev_message(&self.doc_id, cli_revision);
                 user.recv(SyncResponse::Push(data));
             },
         }

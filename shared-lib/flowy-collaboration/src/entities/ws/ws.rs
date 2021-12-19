@@ -1,13 +1,14 @@
 use crate::errors::CollaborateError;
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use lib_ot::revision::{RevId, Revision, RevisionRange};
+use lib_infra::uuid;
+use lib_ot::revision::{Revision, RevisionRange};
 use std::convert::{TryFrom, TryInto};
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Eq, PartialEq, Hash)]
 pub enum DocumentWSDataType {
     // The frontend receives the Acked means the backend has accepted the revision
-    Acked       = 0,
+    Ack         = 0,
     // The frontend receives the PushRev event means the backend is pushing the new revision to frontend
     PushRev     = 1,
     // The fronted receives the PullRev event means the backend try to pull the revision from frontend
@@ -25,7 +26,7 @@ impl DocumentWSDataType {
 }
 
 impl std::default::Default for DocumentWSDataType {
-    fn default() -> Self { DocumentWSDataType::Acked }
+    fn default() -> Self { DocumentWSDataType::Ack }
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
@@ -39,8 +40,8 @@ pub struct DocumentWSData {
     #[pb(index = 3)]
     pub data: Vec<u8>,
 
-    #[pb(index = 4, one_of)]
-    pub id: Option<i64>,
+    #[pb(index = 4)]
+    pub id: String,
 }
 
 impl std::convert::From<Revision> for DocumentWSData {
@@ -52,13 +53,13 @@ impl std::convert::From<Revision> for DocumentWSData {
             doc_id,
             ty: DocumentWSDataType::PushRev,
             data: bytes.to_vec(),
-            id: Some(rev_id),
+            id: rev_id.to_string(),
         }
     }
 }
 
-pub struct WsDocumentDataBuilder();
-impl WsDocumentDataBuilder {
+pub struct DocumentWSDataBuilder();
+impl DocumentWSDataBuilder {
     // DocumentWSDataType::PushRev -> Revision
     pub fn build_push_rev_message(doc_id: &str, revision: Revision) -> DocumentWSData {
         let rev_id = revision.rev_id;
@@ -67,7 +68,7 @@ impl WsDocumentDataBuilder {
             doc_id: doc_id.to_string(),
             ty: DocumentWSDataType::PushRev,
             data: bytes.to_vec(),
-            id: Some(rev_id),
+            id: rev_id.to_string(),
         }
     }
 
@@ -78,39 +79,35 @@ impl WsDocumentDataBuilder {
             doc_id: doc_id.to_string(),
             ty: DocumentWSDataType::PullRev,
             data: bytes.to_vec(),
-            id: None,
+            id: uuid(),
         }
     }
 
-    // DocumentWSDataType::Acked -> RevId
-    pub fn build_acked_message(doc_id: &str, rev_id: i64) -> DocumentWSData {
-        let cloned_rev_id = rev_id;
-        let rev_id: RevId = rev_id.into();
-        let bytes: Bytes = rev_id.try_into().unwrap();
-
+    // DocumentWSDataType::Ack -> RevId
+    pub fn build_ack_message(doc_id: &str, id: &str) -> DocumentWSData {
         DocumentWSData {
             doc_id: doc_id.to_string(),
-            ty: DocumentWSDataType::Acked,
-            data: bytes.to_vec(),
-            id: Some(cloned_rev_id),
+            ty: DocumentWSDataType::Ack,
+            data: vec![],
+            id: id.to_string(),
         }
     }
 
     // DocumentWSDataType::UserConnect -> DocumentConnected
-    pub fn build_document_conn_message(doc_id: &str, document_conn: DocumentConnected) -> DocumentWSData {
-        let rev_id = document_conn.rev_id;
-        let bytes: Bytes = document_conn.try_into().unwrap();
+    pub fn build_new_document_user_message(doc_id: &str, new_document_user: NewDocumentUser) -> DocumentWSData {
+        let id = new_document_user.user_id.clone();
+        let bytes: Bytes = new_document_user.try_into().unwrap();
         DocumentWSData {
             doc_id: doc_id.to_string(),
             ty: DocumentWSDataType::UserConnect,
             data: bytes.to_vec(),
-            id: Some(rev_id),
+            id,
         }
     }
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct DocumentConnected {
+pub struct NewDocumentUser {
     #[pb(index = 1)]
     pub user_id: String,
 

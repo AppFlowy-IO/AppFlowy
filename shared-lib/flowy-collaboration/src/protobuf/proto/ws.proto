@@ -4,15 +4,15 @@ message DocumentWSData {
     string doc_id = 1;
     DocumentWSDataType ty = 2;
     bytes data = 3;
-    oneof one_of_id { int64 id = 4; };
+    string id = 4;
 }
-message DocumentConnected {
+message NewDocumentUser {
     string user_id = 1;
     string doc_id = 2;
     int64 rev_id = 3;
 }
 enum DocumentWSDataType {
-    Acked = 0;
+    Ack = 0;
     PushRev = 1;
     PullRev = 2;
     UserConnect = 3;

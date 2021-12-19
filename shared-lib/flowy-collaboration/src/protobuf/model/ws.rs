@@ -29,8 +29,7 @@ pub struct DocumentWSData {
     pub doc_id: ::std::string::String,
     pub ty: DocumentWSDataType,
     pub data: ::std::vec::Vec<u8>,
-    // message oneof groups
-    pub one_of_id: ::std::option::Option<DocumentWSData_oneof_one_of_id>,
+    pub id: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -40,11 +39,6 @@ impl<'a> ::std::default::Default for &'a DocumentWSData {
     fn default() -> &'a DocumentWSData {
         <DocumentWSData as ::protobuf::Message>::default_instance()
     }
-}
-
-#[derive(Clone,PartialEq,Debug)]
-pub enum DocumentWSData_oneof_one_of_id {
-    id(i64),
 }
 
 impl DocumentWSData {
@@ -85,7 +79,7 @@ impl DocumentWSData {
         self.ty
     }
     pub fn clear_ty(&mut self) {
-        self.ty = DocumentWSDataType::Acked;
+        self.ty = DocumentWSDataType::Ack;
     }
 
     // Param is passed by value, moved
@@ -119,29 +113,30 @@ impl DocumentWSData {
         ::std::mem::replace(&mut self.data, ::std::vec::Vec::new())
     }
 
-    // int64 id = 4;
+    // string id = 4;
 
 
-    pub fn get_id(&self) -> i64 {
-        match self.one_of_id {
-            ::std::option::Option::Some(DocumentWSData_oneof_one_of_id::id(v)) => v,
-            _ => 0,
-        }
+    pub fn get_id(&self) -> &str {
+        &self.id
     }
     pub fn clear_id(&mut self) {
-        self.one_of_id = ::std::option::Option::None;
-    }
-
-    pub fn has_id(&self) -> bool {
-        match self.one_of_id {
-            ::std::option::Option::Some(DocumentWSData_oneof_one_of_id::id(..)) => true,
-            _ => false,
-        }
+        self.id.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_id(&mut self, v: i64) {
-        self.one_of_id = ::std::option::Option::Some(DocumentWSData_oneof_one_of_id::id(v))
+    pub fn set_id(&mut self, v: ::std::string::String) {
+        self.id = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_id(&mut self) -> &mut ::std::string::String {
+        &mut self.id
+    }
+
+    // Take field
+    pub fn take_id(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.id, ::std::string::String::new())
     }
 }
 
@@ -164,10 +159,7 @@ impl ::protobuf::Message for DocumentWSData {
                     ::protobuf::rt::read_singular_proto3_bytes_into(wire_type, is, &mut self.data)?;
                 },
                 4 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    self.one_of_id = ::std::option::Option::Some(DocumentWSData_oneof_one_of_id::id(is.read_int64()?));
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.id)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -184,18 +176,14 @@ impl ::protobuf::Message for DocumentWSData {
         if !self.doc_id.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.doc_id);
         }
-        if self.ty != DocumentWSDataType::Acked {
+        if self.ty != DocumentWSDataType::Ack {
             my_size += ::protobuf::rt::enum_size(2, self.ty);
         }
         if !self.data.is_empty() {
             my_size += ::protobuf::rt::bytes_size(3, &self.data);
         }
-        if let ::std::option::Option::Some(ref v) = self.one_of_id {
-            match v {
-                &DocumentWSData_oneof_one_of_id::id(v) => {
-                    my_size += ::protobuf::rt::value_size(4, v, ::protobuf::wire_format::WireTypeVarint);
-                },
-            };
+        if !self.id.is_empty() {
+            my_size += ::protobuf::rt::string_size(4, &self.id);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -206,18 +194,14 @@ impl ::protobuf::Message for DocumentWSData {
         if !self.doc_id.is_empty() {
             os.write_string(1, &self.doc_id)?;
         }
-        if self.ty != DocumentWSDataType::Acked {
+        if self.ty != DocumentWSDataType::Ack {
             os.write_enum(2, ::protobuf::ProtobufEnum::value(&self.ty))?;
         }
         if !self.data.is_empty() {
             os.write_bytes(3, &self.data)?;
         }
-        if let ::std::option::Option::Some(ref v) = self.one_of_id {
-            match v {
-                &DocumentWSData_oneof_one_of_id::id(v) => {
-                    os.write_int64(4, v)?;
-                },
-            };
+        if !self.id.is_empty() {
+            os.write_string(4, &self.id)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -272,10 +256,10 @@ impl ::protobuf::Message for DocumentWSData {
                 |m: &DocumentWSData| { &m.data },
                 |m: &mut DocumentWSData| { &mut m.data },
             ));
-            fields.push(::protobuf::reflect::accessor::make_singular_i64_accessor::<_>(
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "id",
-                DocumentWSData::has_id,
-                DocumentWSData::get_id,
+                |m: &DocumentWSData| { &m.id },
+                |m: &mut DocumentWSData| { &mut m.id },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<DocumentWSData>(
                 "DocumentWSData",
@@ -294,9 +278,9 @@ impl ::protobuf::Message for DocumentWSData {
 impl ::protobuf::Clear for DocumentWSData {
     fn clear(&mut self) {
         self.doc_id.clear();
-        self.ty = DocumentWSDataType::Acked;
+        self.ty = DocumentWSDataType::Ack;
         self.data.clear();
-        self.one_of_id = ::std::option::Option::None;
+        self.id.clear();
         self.unknown_fields.clear();
     }
 }
@@ -314,7 +298,7 @@ impl ::protobuf::reflect::ProtobufValue for DocumentWSData {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct DocumentConnected {
+pub struct NewDocumentUser {
     // message fields
     pub user_id: ::std::string::String,
     pub doc_id: ::std::string::String,
@@ -324,14 +308,14 @@ pub struct DocumentConnected {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a DocumentConnected {
-    fn default() -> &'a DocumentConnected {
-        <DocumentConnected as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a NewDocumentUser {
+    fn default() -> &'a NewDocumentUser {
+        <NewDocumentUser as ::protobuf::Message>::default_instance()
     }
 }
 
-impl DocumentConnected {
-    pub fn new() -> DocumentConnected {
+impl NewDocumentUser {
+    pub fn new() -> NewDocumentUser {
         ::std::default::Default::default()
     }
 
@@ -403,7 +387,7 @@ impl DocumentConnected {
     }
 }
 
-impl ::protobuf::Message for DocumentConnected {
+impl ::protobuf::Message for NewDocumentUser {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -491,8 +475,8 @@ impl ::protobuf::Message for DocumentConnected {
         Self::descriptor_static()
     }
 
-    fn new() -> DocumentConnected {
-        DocumentConnected::new()
+    fn new() -> NewDocumentUser {
+        NewDocumentUser::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -501,34 +485,34 @@ impl ::protobuf::Message for DocumentConnected {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "user_id",
-                |m: &DocumentConnected| { &m.user_id },
-                |m: &mut DocumentConnected| { &mut m.user_id },
+                |m: &NewDocumentUser| { &m.user_id },
+                |m: &mut NewDocumentUser| { &mut m.user_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "doc_id",
-                |m: &DocumentConnected| { &m.doc_id },
-                |m: &mut DocumentConnected| { &mut m.doc_id },
+                |m: &NewDocumentUser| { &m.doc_id },
+                |m: &mut NewDocumentUser| { &mut m.doc_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt64>(
                 "rev_id",
-                |m: &DocumentConnected| { &m.rev_id },
-                |m: &mut DocumentConnected| { &mut m.rev_id },
+                |m: &NewDocumentUser| { &m.rev_id },
+                |m: &mut NewDocumentUser| { &mut m.rev_id },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<DocumentConnected>(
-                "DocumentConnected",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<NewDocumentUser>(
+                "NewDocumentUser",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static DocumentConnected {
-        static instance: ::protobuf::rt::LazyV2<DocumentConnected> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(DocumentConnected::new)
+    fn default_instance() -> &'static NewDocumentUser {
+        static instance: ::protobuf::rt::LazyV2<NewDocumentUser> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(NewDocumentUser::new)
     }
 }
 
-impl ::protobuf::Clear for DocumentConnected {
+impl ::protobuf::Clear for NewDocumentUser {
     fn clear(&mut self) {
         self.user_id.clear();
         self.doc_id.clear();
@@ -537,13 +521,13 @@ impl ::protobuf::Clear for DocumentConnected {
     }
 }
 
-impl ::std::fmt::Debug for DocumentConnected {
+impl ::std::fmt::Debug for NewDocumentUser {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for DocumentConnected {
+impl ::protobuf::reflect::ProtobufValue for NewDocumentUser {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -551,7 +535,7 @@ impl ::protobuf::reflect::ProtobufValue for DocumentConnected {
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 pub enum DocumentWSDataType {
-    Acked = 0,
+    Ack = 0,
     PushRev = 1,
     PullRev = 2,
     UserConnect = 3,
@@ -564,7 +548,7 @@ impl ::protobuf::ProtobufEnum for DocumentWSDataType {
 
     fn from_i32(value: i32) -> ::std::option::Option<DocumentWSDataType> {
         match value {
-            0 => ::std::option::Option::Some(DocumentWSDataType::Acked),
+            0 => ::std::option::Option::Some(DocumentWSDataType::Ack),
             1 => ::std::option::Option::Some(DocumentWSDataType::PushRev),
             2 => ::std::option::Option::Some(DocumentWSDataType::PullRev),
             3 => ::std::option::Option::Some(DocumentWSDataType::UserConnect),
@@ -574,7 +558,7 @@ impl ::protobuf::ProtobufEnum for DocumentWSDataType {
 
     fn values() -> &'static [Self] {
         static values: &'static [DocumentWSDataType] = &[
-            DocumentWSDataType::Acked,
+            DocumentWSDataType::Ack,
             DocumentWSDataType::PushRev,
             DocumentWSDataType::PullRev,
             DocumentWSDataType::UserConnect,
@@ -595,7 +579,7 @@ impl ::std::marker::Copy for DocumentWSDataType {
 
 impl ::std::default::Default for DocumentWSDataType {
     fn default() -> Self {
-        DocumentWSDataType::Acked
+        DocumentWSDataType::Ack
     }
 }
 
@@ -606,47 +590,46 @@ impl ::protobuf::reflect::ProtobufValue for DocumentWSDataType {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x08ws.proto\"\x7f\n\x0eDocumentWSData\x12\x15\n\x06doc_id\x18\x01\x20\
+    \n\x08ws.proto\"p\n\x0eDocumentWSData\x12\x15\n\x06doc_id\x18\x01\x20\
     \x01(\tR\x05docId\x12#\n\x02ty\x18\x02\x20\x01(\x0e2\x13.DocumentWSDataT\
-    ypeR\x02ty\x12\x12\n\x04data\x18\x03\x20\x01(\x0cR\x04data\x12\x10\n\x02\
-    id\x18\x04\x20\x01(\x03H\0R\x02idB\x0b\n\tone_of_id\"Z\n\x11DocumentConn\
-    ected\x12\x17\n\x07user_id\x18\x01\x20\x01(\tR\x06userId\x12\x15\n\x06do\
-    c_id\x18\x02\x20\x01(\tR\x05docId\x12\x15\n\x06rev_id\x18\x03\x20\x01(\
-    \x03R\x05revId*J\n\x12DocumentWSDataType\x12\t\n\x05Acked\x10\0\x12\x0b\
-    \n\x07PushRev\x10\x01\x12\x0b\n\x07PullRev\x10\x02\x12\x0f\n\x0bUserConn\
-    ect\x10\x03J\x9a\x05\n\x06\x12\x04\0\0\x12\x01\n\x08\n\x01\x0c\x12\x03\0\
-    \0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x07\x01\n\n\n\x03\x04\0\x01\x12\x03\
-    \x02\x08\x16\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x16\n\x0c\n\x05\x04\
-    \0\x02\0\x05\x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\
-    \x0b\x11\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x14\x15\n\x0b\n\x04\x04\
-    \0\x02\x01\x12\x03\x04\x04\x1e\n\x0c\n\x05\x04\0\x02\x01\x06\x12\x03\x04\
-    \x04\x16\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\x17\x19\n\x0c\n\x05\
-    \x04\0\x02\x01\x03\x12\x03\x04\x1c\x1d\n\x0b\n\x04\x04\0\x02\x02\x12\x03\
-    \x05\x04\x13\n\x0c\n\x05\x04\0\x02\x02\x05\x12\x03\x05\x04\t\n\x0c\n\x05\
-    \x04\0\x02\x02\x01\x12\x03\x05\n\x0e\n\x0c\n\x05\x04\0\x02\x02\x03\x12\
-    \x03\x05\x11\x12\n\x0b\n\x04\x04\0\x08\0\x12\x03\x06\x04%\n\x0c\n\x05\
-    \x04\0\x08\0\x01\x12\x03\x06\n\x13\n\x0b\n\x04\x04\0\x02\x03\x12\x03\x06\
-    \x16#\n\x0c\n\x05\x04\0\x02\x03\x05\x12\x03\x06\x16\x1b\n\x0c\n\x05\x04\
-    \0\x02\x03\x01\x12\x03\x06\x1c\x1e\n\x0c\n\x05\x04\0\x02\x03\x03\x12\x03\
-    \x06!\"\n\n\n\x02\x04\x01\x12\x04\x08\0\x0c\x01\n\n\n\x03\x04\x01\x01\
-    \x12\x03\x08\x08\x19\n\x0b\n\x04\x04\x01\x02\0\x12\x03\t\x04\x17\n\x0c\n\
-    \x05\x04\x01\x02\0\x05\x12\x03\t\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\
-    \x03\t\x0b\x12\n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\t\x15\x16\n\x0b\n\
-    \x04\x04\x01\x02\x01\x12\x03\n\x04\x16\n\x0c\n\x05\x04\x01\x02\x01\x05\
-    \x12\x03\n\x04\n\n\x0c\n\x05\x04\x01\x02\x01\x01\x12\x03\n\x0b\x11\n\x0c\
-    \n\x05\x04\x01\x02\x01\x03\x12\x03\n\x14\x15\n\x0b\n\x04\x04\x01\x02\x02\
-    \x12\x03\x0b\x04\x15\n\x0c\n\x05\x04\x01\x02\x02\x05\x12\x03\x0b\x04\t\n\
-    \x0c\n\x05\x04\x01\x02\x02\x01\x12\x03\x0b\n\x10\n\x0c\n\x05\x04\x01\x02\
-    \x02\x03\x12\x03\x0b\x13\x14\n\n\n\x02\x05\0\x12\x04\r\0\x12\x01\n\n\n\
-    \x03\x05\0\x01\x12\x03\r\x05\x17\n\x0b\n\x04\x05\0\x02\0\x12\x03\x0e\x04\
-    \x0e\n\x0c\n\x05\x05\0\x02\0\x01\x12\x03\x0e\x04\t\n\x0c\n\x05\x05\0\x02\
-    \0\x02\x12\x03\x0e\x0c\r\n\x0b\n\x04\x05\0\x02\x01\x12\x03\x0f\x04\x10\n\
-    \x0c\n\x05\x05\0\x02\x01\x01\x12\x03\x0f\x04\x0b\n\x0c\n\x05\x05\0\x02\
-    \x01\x02\x12\x03\x0f\x0e\x0f\n\x0b\n\x04\x05\0\x02\x02\x12\x03\x10\x04\
-    \x10\n\x0c\n\x05\x05\0\x02\x02\x01\x12\x03\x10\x04\x0b\n\x0c\n\x05\x05\0\
-    \x02\x02\x02\x12\x03\x10\x0e\x0f\n\x0b\n\x04\x05\0\x02\x03\x12\x03\x11\
-    \x04\x14\n\x0c\n\x05\x05\0\x02\x03\x01\x12\x03\x11\x04\x0f\n\x0c\n\x05\
-    \x05\0\x02\x03\x02\x12\x03\x11\x12\x13b\x06proto3\
+    ypeR\x02ty\x12\x12\n\x04data\x18\x03\x20\x01(\x0cR\x04data\x12\x0e\n\x02\
+    id\x18\x04\x20\x01(\tR\x02id\"X\n\x0fNewDocumentUser\x12\x17\n\x07user_i\
+    d\x18\x01\x20\x01(\tR\x06userId\x12\x15\n\x06doc_id\x18\x02\x20\x01(\tR\
+    \x05docId\x12\x15\n\x06rev_id\x18\x03\x20\x01(\x03R\x05revId*H\n\x12Docu\
+    mentWSDataType\x12\x07\n\x03Ack\x10\0\x12\x0b\n\x07PushRev\x10\x01\x12\
+    \x0b\n\x07PullRev\x10\x02\x12\x0f\n\x0bUserConnect\x10\x03J\xff\x04\n\
+    \x06\x12\x04\0\0\x12\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\
+    \x12\x04\x02\0\x07\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x16\n\x0b\n\
+    \x04\x04\0\x02\0\x12\x03\x03\x04\x16\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\
+    \x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\x11\n\x0c\n\x05\
+    \x04\0\x02\0\x03\x12\x03\x03\x14\x15\n\x0b\n\x04\x04\0\x02\x01\x12\x03\
+    \x04\x04\x1e\n\x0c\n\x05\x04\0\x02\x01\x06\x12\x03\x04\x04\x16\n\x0c\n\
+    \x05\x04\0\x02\x01\x01\x12\x03\x04\x17\x19\n\x0c\n\x05\x04\0\x02\x01\x03\
+    \x12\x03\x04\x1c\x1d\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x04\x13\n\x0c\
+    \n\x05\x04\0\x02\x02\x05\x12\x03\x05\x04\t\n\x0c\n\x05\x04\0\x02\x02\x01\
+    \x12\x03\x05\n\x0e\n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05\x11\x12\n\
+    \x0b\n\x04\x04\0\x02\x03\x12\x03\x06\x04\x12\n\x0c\n\x05\x04\0\x02\x03\
+    \x05\x12\x03\x06\x04\n\n\x0c\n\x05\x04\0\x02\x03\x01\x12\x03\x06\x0b\r\n\
+    \x0c\n\x05\x04\0\x02\x03\x03\x12\x03\x06\x10\x11\n\n\n\x02\x04\x01\x12\
+    \x04\x08\0\x0c\x01\n\n\n\x03\x04\x01\x01\x12\x03\x08\x08\x17\n\x0b\n\x04\
+    \x04\x01\x02\0\x12\x03\t\x04\x17\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\t\
+    \x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\t\x0b\x12\n\x0c\n\x05\x04\
+    \x01\x02\0\x03\x12\x03\t\x15\x16\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\n\
+    \x04\x16\n\x0c\n\x05\x04\x01\x02\x01\x05\x12\x03\n\x04\n\n\x0c\n\x05\x04\
+    \x01\x02\x01\x01\x12\x03\n\x0b\x11\n\x0c\n\x05\x04\x01\x02\x01\x03\x12\
+    \x03\n\x14\x15\n\x0b\n\x04\x04\x01\x02\x02\x12\x03\x0b\x04\x15\n\x0c\n\
+    \x05\x04\x01\x02\x02\x05\x12\x03\x0b\x04\t\n\x0c\n\x05\x04\x01\x02\x02\
+    \x01\x12\x03\x0b\n\x10\n\x0c\n\x05\x04\x01\x02\x02\x03\x12\x03\x0b\x13\
+    \x14\n\n\n\x02\x05\0\x12\x04\r\0\x12\x01\n\n\n\x03\x05\0\x01\x12\x03\r\
+    \x05\x17\n\x0b\n\x04\x05\0\x02\0\x12\x03\x0e\x04\x0c\n\x0c\n\x05\x05\0\
+    \x02\0\x01\x12\x03\x0e\x04\x07\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x0e\n\
+    \x0b\n\x0b\n\x04\x05\0\x02\x01\x12\x03\x0f\x04\x10\n\x0c\n\x05\x05\0\x02\
+    \x01\x01\x12\x03\x0f\x04\x0b\n\x0c\n\x05\x05\0\x02\x01\x02\x12\x03\x0f\
+    \x0e\x0f\n\x0b\n\x04\x05\0\x02\x02\x12\x03\x10\x04\x10\n\x0c\n\x05\x05\0\
+    \x02\x02\x01\x12\x03\x10\x04\x0b\n\x0c\n\x05\x05\0\x02\x02\x02\x12\x03\
+    \x10\x0e\x0f\n\x0b\n\x04\x05\0\x02\x03\x12\x03\x11\x04\x14\n\x0c\n\x05\
+    \x05\0\x02\x03\x01\x12\x03\x11\x04\x0f\n\x0c\n\x05\x05\0\x02\x03\x02\x12\
+    \x03\x11\x12\x13b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

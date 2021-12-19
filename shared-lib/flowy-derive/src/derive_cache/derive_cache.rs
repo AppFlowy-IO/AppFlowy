@@ -61,7 +61,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "NewDocUser"
         | "DocIdentifier"
         | "DocumentWSData"
-        | "DocumentConnected"
+        | "NewDocumentUser"
         | "WSError"
         | "WSMessage"
         | "Revision"

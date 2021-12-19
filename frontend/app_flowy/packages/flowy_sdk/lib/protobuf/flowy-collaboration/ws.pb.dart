@@ -14,22 +14,12 @@ import 'ws.pbenum.dart';
 
 export 'ws.pbenum.dart';
 
-enum DocumentWSData_OneOfId {
-  id, 
-  notSet
-}
-
 class DocumentWSData extends $pb.GeneratedMessage {
-  static const $core.Map<$core.int, DocumentWSData_OneOfId> _DocumentWSData_OneOfIdByTag = {
-    4 : DocumentWSData_OneOfId.id,
-    0 : DocumentWSData_OneOfId.notSet
-  };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DocumentWSData', createEmptyInstance: create)
-    ..oo(0, [4])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
-    ..e<DocumentWSDataType>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ty', $pb.PbFieldType.OE, defaultOrMaker: DocumentWSDataType.Acked, valueOf: DocumentWSDataType.valueOf, enumValues: DocumentWSDataType.values)
+    ..e<DocumentWSDataType>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ty', $pb.PbFieldType.OE, defaultOrMaker: DocumentWSDataType.Ack, valueOf: DocumentWSDataType.valueOf, enumValues: DocumentWSDataType.values)
     ..a<$core.List<$core.int>>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
-    ..aInt64(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..hasRequiredFields = false
   ;
 
@@ -38,7 +28,7 @@ class DocumentWSData extends $pb.GeneratedMessage {
     $core.String? docId,
     DocumentWSDataType? ty,
     $core.List<$core.int>? data,
-    $fixnum.Int64? id,
+    $core.String? id,
   }) {
     final _result = create();
     if (docId != null) {
@@ -76,9 +66,6 @@ class DocumentWSData extends $pb.GeneratedMessage {
   static DocumentWSData getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DocumentWSData>(create);
   static DocumentWSData? _defaultInstance;
 
-  DocumentWSData_OneOfId whichOneOfId() => _DocumentWSData_OneOfIdByTag[$_whichOneof(0)]!;
-  void clearOneOfId() => clearField($_whichOneof(0));
-
   @$pb.TagNumber(1)
   $core.String get docId => $_getSZ(0);
   @$pb.TagNumber(1)
@@ -107,25 +94,25 @@ class DocumentWSData extends $pb.GeneratedMessage {
   void clearData() => clearField(3);
 
   @$pb.TagNumber(4)
-  $fixnum.Int64 get id => $_getI64(3);
+  $core.String get id => $_getSZ(3);
   @$pb.TagNumber(4)
-  set id($fixnum.Int64 v) { $_setInt64(3, v); }
+  set id($core.String v) { $_setString(3, v); }
   @$pb.TagNumber(4)
   $core.bool hasId() => $_has(3);
   @$pb.TagNumber(4)
   void clearId() => clearField(4);
 }
 
-class DocumentConnected extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DocumentConnected', createEmptyInstance: create)
+class NewDocumentUser extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'NewDocumentUser', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'userId')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
     ..aInt64(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'revId')
     ..hasRequiredFields = false
   ;
 
-  DocumentConnected._() : super();
-  factory DocumentConnected({
+  NewDocumentUser._() : super();
+  factory NewDocumentUser({
     $core.String? userId,
     $core.String? docId,
     $fixnum.Int64? revId,
@@ -142,26 +129,26 @@ class DocumentConnected extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory DocumentConnected.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory DocumentConnected.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory NewDocumentUser.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory NewDocumentUser.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  DocumentConnected clone() => DocumentConnected()..mergeFromMessage(this);
+  NewDocumentUser clone() => NewDocumentUser()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  DocumentConnected copyWith(void Function(DocumentConnected) updates) => super.copyWith((message) => updates(message as DocumentConnected)) as DocumentConnected; // ignore: deprecated_member_use
+  NewDocumentUser copyWith(void Function(NewDocumentUser) updates) => super.copyWith((message) => updates(message as NewDocumentUser)) as NewDocumentUser; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static DocumentConnected create() => DocumentConnected._();
-  DocumentConnected createEmptyInstance() => create();
-  static $pb.PbList<DocumentConnected> createRepeated() => $pb.PbList<DocumentConnected>();
+  static NewDocumentUser create() => NewDocumentUser._();
+  NewDocumentUser createEmptyInstance() => create();
+  static $pb.PbList<NewDocumentUser> createRepeated() => $pb.PbList<NewDocumentUser>();
   @$core.pragma('dart2js:noInline')
-  static DocumentConnected getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DocumentConnected>(create);
-  static DocumentConnected? _defaultInstance;
+  static NewDocumentUser getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<NewDocumentUser>(create);
+  static NewDocumentUser? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get userId => $_getSZ(0);

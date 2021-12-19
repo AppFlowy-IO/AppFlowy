@@ -5,7 +5,7 @@ use flowy_collaboration::{
     core::sync::{RevisionUser, ServerDocManager, ServerDocPersistence, SyncResponse},
     entities::{
         doc::Doc,
-        ws::{DocumentWSData, DocumentWSDataType},
+        ws::{DocumentWSData, DocumentWSDataBuilder, DocumentWSDataType, NewDocumentUser},
     },
     errors::CollaborateError,
     Revision,
@@ -111,7 +111,7 @@ impl MockDocServer {
     async fn handle_ws_data(&self, ws_data: DocumentWSData) -> mpsc::Receiver<WSMessage> {
         let bytes = Bytes::from(ws_data.data);
         match ws_data.ty {
-            DocumentWSDataType::Acked => {
+            DocumentWSDataType::Ack => {
                 unimplemented!()
             },
             DocumentWSDataType::PushRev => {
@@ -133,7 +133,16 @@ impl MockDocServer {
                 unimplemented!()
             },
             DocumentWSDataType::UserConnect => {
-                unimplemented!()
+                let new_user = NewDocumentUser::try_from(bytes).unwrap();
+                let (tx, rx) = mpsc::channel(1);
+                let data = DocumentWSDataBuilder::build_ack_message(&new_user.doc_id, &ws_data.id);
+                let user = Arc::new(MockDocUser {
+                    user_id: new_user.user_id,
+                    tx,
+                }) as Arc<dyn RevisionUser>;
+
+                user.recv(SyncResponse::Ack(data));
+                rx
             },
         }
     }

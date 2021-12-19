@@ -1,11 +1,11 @@
 use crate::services::doc::{DocumentWebSocket, DocumentWsHandler, SYNC_INTERVAL_IN_MILLIS};
 use async_stream::stream;
 use bytes::Bytes;
-use flowy_collaboration::entities::ws::{DocumentWSData, DocumentWSDataType};
+use flowy_collaboration::entities::ws::{DocumentWSData, DocumentWSDataType, NewDocumentUser};
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use futures::stream::StreamExt;
 use lib_infra::future::FutureResult;
-use lib_ot::revision::{RevId, RevisionRange};
+use lib_ot::revision::RevisionRange;
 use lib_ws::WSConnectState;
 use std::{convert::TryFrom, sync::Arc};
 use tokio::{
@@ -20,8 +20,8 @@ use tokio::{
 
 pub(crate) struct EditorWebSocket {
     doc_id: String,
-    data_provider: Arc<dyn DocumentSinkDataProvider>,
-    stream_consumer: Arc<dyn DocumentWebSocketSteamConsumer>,
+    data_provider: Arc<dyn DocumentWSSinkDataProvider>,
+    stream_consumer: Arc<dyn DocumentWSSteamConsumer>,
     ws: Arc<dyn DocumentWebSocket>,
     ws_msg_tx: UnboundedSender<DocumentWSData>,
     ws_msg_rx: Option<UnboundedReceiver<DocumentWSData>>,
@@ -33,8 +33,8 @@ impl EditorWebSocket {
     pub(crate) fn new(
         doc_id: &str,
         ws: Arc<dyn DocumentWebSocket>,
-        data_provider: Arc<dyn DocumentSinkDataProvider>,
-        stream_consumer: Arc<dyn DocumentWebSocketSteamConsumer>,
+        data_provider: Arc<dyn DocumentWSSinkDataProvider>,
+        stream_consumer: Arc<dyn DocumentWSSteamConsumer>,
     ) -> Self {
         let (ws_msg_tx, ws_msg_rx) = mpsc::unbounded_channel();
         let (stop_sync_tx, _) = tokio::sync::broadcast::channel(2);
@@ -97,15 +97,16 @@ impl DocumentWsHandler for EditorWebSocket {
     }
 }
 
-pub trait DocumentWebSocketSteamConsumer: Send + Sync {
+pub trait DocumentWSSteamConsumer: Send + Sync {
     fn receive_push_revision(&self, bytes: Bytes) -> FutureResult<(), FlowyError>;
-    fn receive_ack_revision(&self, rev_id: i64) -> FutureResult<(), FlowyError>;
+    fn receive_ack(&self, id: String, ty: DocumentWSDataType) -> FutureResult<(), FlowyError>;
+    fn receive_new_user_connect(&self, new_user: NewDocumentUser) -> FutureResult<(), FlowyError>;
     fn send_revision_in_range(&self, range: RevisionRange) -> FutureResult<(), FlowyError>;
 }
 
 pub(crate) struct DocumentWebSocketStream {
     doc_id: String,
-    consumer: Arc<dyn DocumentWebSocketSteamConsumer>,
+    consumer: Arc<dyn DocumentWSSteamConsumer>,
     ws_msg_rx: Option<mpsc::UnboundedReceiver<DocumentWSData>>,
     stop_rx: Option<SinkStopRx>,
 }
@@ -113,7 +114,7 @@ pub(crate) struct DocumentWebSocketStream {
 impl DocumentWebSocketStream {
     pub(crate) fn new(
         doc_id: &str,
-        consumer: Arc<dyn DocumentWebSocketSteamConsumer>,
+        consumer: Arc<dyn DocumentWSSteamConsumer>,
         ws_msg_rx: mpsc::UnboundedReceiver<DocumentWSData>,
         stop_rx: SinkStopRx,
     ) -> Self {
@@ -166,7 +167,7 @@ impl DocumentWebSocketStream {
             doc_id: _,
             ty,
             data,
-            id: _,
+            id,
         } = msg;
         let bytes = spawn_blocking(move || Bytes::from(data))
             .await
@@ -181,11 +182,13 @@ impl DocumentWebSocketStream {
                 let range = RevisionRange::try_from(bytes)?;
                 let _ = self.consumer.send_revision_in_range(range).await?;
             },
-            DocumentWSDataType::Acked => {
-                let rev_id = RevId::try_from(bytes)?;
-                let _ = self.consumer.receive_ack_revision(rev_id.into()).await;
+            DocumentWSDataType::Ack => {
+                // let rev_id = RevId::try_from(bytes)?;
+                let _ = self.consumer.receive_ack(id, ty).await;
             },
             DocumentWSDataType::UserConnect => {
+                let new_user = NewDocumentUser::try_from(bytes)?;
+                let _ = self.consumer.receive_new_user_connect(new_user).await;
                 // Notify the user that someone has connected to this document
             },
         }
@@ -198,12 +201,12 @@ pub(crate) type Tick = ();
 pub(crate) type SinkStopRx = broadcast::Receiver<()>;
 pub(crate) type SinkStopTx = broadcast::Sender<()>;
 
-pub trait DocumentSinkDataProvider: Send + Sync {
+pub trait DocumentWSSinkDataProvider: Send + Sync {
     fn next(&self) -> FutureResult<Option<DocumentWSData>, FlowyError>;
 }
 
 pub(crate) struct DocumentWebSocketSink {
-    provider: Arc<dyn DocumentSinkDataProvider>,
+    provider: Arc<dyn DocumentWSSinkDataProvider>,
     ws_sender: Arc<dyn DocumentWebSocket>,
     stop_rx: Option<SinkStopRx>,
     doc_id: String,
@@ -212,7 +215,7 @@ pub(crate) struct DocumentWebSocketSink {
 impl DocumentWebSocketSink {
     pub(crate) fn new(
         doc_id: &str,
-        provider: Arc<dyn DocumentSinkDataProvider>,
+        provider: Arc<dyn DocumentWSSinkDataProvider>,
         ws_sender: Arc<dyn DocumentWebSocket>,
         stop_rx: SinkStopRx,
     ) -> Self {

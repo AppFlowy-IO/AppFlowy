@@ -3,16 +3,19 @@ use crate::{
         doc::editor::ServerDocUser,
         util::{md5, parse_from_bytes},
     },
-    web_socket::{entities::Socket, WsClientData, WsUser},
+    web_socket::WsClientData,
 };
 use actix_rt::task::spawn_blocking;
 use actix_web::web::Data;
 use async_stream::stream;
 use backend_service::errors::{internal_error, Result, ServerError};
 use flowy_collaboration::{
-    core::sync::ServerDocManager,
+    core::sync::{RevisionUser, ServerDocManager, SyncResponse},
+    entities::ws::DocumentWSDataBuilder,
     protobuf::{DocumentWSData, DocumentWSDataType},
 };
+
+use flowy_collaboration::protobuf::NewDocumentUser;
 use futures::stream::StreamExt;
 use lib_ot::protobuf::Revision;
 use sqlx::PgPool;
@@ -66,7 +69,7 @@ impl DocWsActor {
         }
     }
 
-    async fn handle_client_data(&self, client_data: WsClientData, pool: Data<PgPool>) -> Result<()> {
+    async fn handle_client_data(&self, client_data: WsClientData, pg_pool: Data<PgPool>) -> Result<()> {
         let WsClientData { user, socket, data } = client_data;
         let document_data = spawn_blocking(move || {
             let document_data: DocumentWSData = parse_from_bytes(&data)?;
@@ -75,23 +78,29 @@ impl DocWsActor {
         .await
         .map_err(internal_error)??;
 
-        let data = document_data.data;
-
-        match document_data.ty {
-            DocumentWSDataType::Acked => Ok(()),
-            DocumentWSDataType::PushRev => self.apply_pushed_rev(user, socket, data, pool).await,
+        let user = Arc::new(ServerDocUser { user, socket, pg_pool });
+        match &document_data.ty {
+            DocumentWSDataType::Ack => Ok(()),
+            DocumentWSDataType::PushRev => self.handle_pushed_rev(user, document_data.data).await,
             DocumentWSDataType::PullRev => Ok(()),
-            DocumentWSDataType::UserConnect => Ok(()),
+            DocumentWSDataType::UserConnect => self.handle_user_connect(user, document_data).await,
         }
     }
 
-    async fn apply_pushed_rev(
-        &self,
-        user: Arc<WsUser>,
-        socket: Socket,
-        data: Vec<u8>,
-        pg_pool: Data<PgPool>,
-    ) -> Result<()> {
+    async fn handle_user_connect(&self, user: Arc<ServerDocUser>, document_data: DocumentWSData) -> Result<()> {
+        let id = document_data.id.clone();
+        let new_user = spawn_blocking(move || parse_from_bytes::<NewDocumentUser>(&document_data.data))
+            .await
+            .map_err(internal_error)??;
+
+        user.recv(SyncResponse::Ack(DocumentWSDataBuilder::build_ack_message(
+            &new_user.doc_id,
+            &id,
+        )));
+        Ok(())
+    }
+
+    async fn handle_pushed_rev(&self, user: Arc<ServerDocUser>, data: Vec<u8>) -> Result<()> {
         let mut revision_pb = spawn_blocking(move || {
             let revision: Revision = parse_from_bytes(&data)?;
             let _ = verify_md5(&revision)?;
@@ -110,7 +119,6 @@ impl DocWsActor {
             Some(handler) => handler,
         };
 
-        let user = Arc::new(ServerDocUser { user, socket, pg_pool });
         handler.apply_revision(user, revision).await.map_err(internal_error)?;
         Ok(())
     }

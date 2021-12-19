@@ -1,24 +1,27 @@
 use crate::{
     errors::FlowyError,
-    services::doc::revision::{
-        cache::{
-            disk::{Persistence, RevisionDiskCache},
-            memory::{RevisionMemoryCache, RevisionMemoryCacheDelegate},
-            sync::RevisionSyncSeq,
-        },
-        RevisionRecord,
+    services::doc::revision::cache::{
+        disk::{Persistence, RevisionDiskCache},
+        memory::{RevisionMemoryCache, RevisionMemoryCacheDelegate},
     },
     sql_tables::{RevChangeset, RevTableState},
 };
+use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyResult};
 use lib_infra::future::FutureResult;
-use lib_ot::revision::{RevState, Revision, RevisionRange};
-use std::sync::{
-    atomic::{AtomicI64, Ordering::SeqCst},
-    Arc,
+use lib_ot::{
+    errors::OTError,
+    revision::{RevState, Revision, RevisionRange},
 };
-use tokio::task::spawn_blocking;
+use std::{
+    collections::VecDeque,
+    sync::{
+        atomic::{AtomicI64, Ordering::SeqCst},
+        Arc,
+    },
+};
+use tokio::{sync::RwLock, task::spawn_blocking};
 
 type DocRevisionDiskCache = dyn RevisionDiskCache<Error = FlowyError>;
 
@@ -157,9 +160,79 @@ impl RevisionMemoryCacheDelegate for Arc<Persistence> {
     }
 }
 
-#[cfg(feature = "flowy_unit_test")]
-impl RevisionCache {
-    pub fn disk_cache(&self) -> Arc<DocRevisionDiskCache> { self.disk_cache.clone() }
+#[derive(Clone)]
+pub struct RevisionRecord {
+    pub revision: Revision,
+    pub state: RevState,
+}
 
-    pub fn memory_cache(&self) -> Arc<RevisionSyncSeq> { self.sync_seq.clone() }
+impl RevisionRecord {
+    pub fn ack(&mut self) { self.state = RevState::Acked; }
+}
+
+struct RevisionSyncSeq {
+    revs_map: Arc<DashMap<i64, RevisionRecord>>,
+    local_revs: Arc<RwLock<VecDeque<i64>>>,
+}
+
+impl std::default::Default for RevisionSyncSeq {
+    fn default() -> Self {
+        let local_revs = Arc::new(RwLock::new(VecDeque::new()));
+        RevisionSyncSeq {
+            revs_map: Arc::new(DashMap::new()),
+            local_revs,
+        }
+    }
+}
+
+impl RevisionSyncSeq {
+    fn new() -> Self { RevisionSyncSeq::default() }
+
+    async fn add_revision(&self, record: RevisionRecord) -> Result<(), OTError> {
+        // The last revision's rev_id must be greater than the new one.
+        if let Some(rev_id) = self.local_revs.read().await.back() {
+            if *rev_id >= record.revision.rev_id {
+                return Err(OTError::revision_id_conflict()
+                    .context(format!("The new revision's id must be greater than {}", rev_id)));
+            }
+        }
+        self.local_revs.write().await.push_back(record.revision.rev_id);
+        self.revs_map.insert(record.revision.rev_id, record);
+        Ok(())
+    }
+
+    async fn ack_revision(&self, rev_id: &i64) -> FlowyResult<()> {
+        if let Some(pop_rev_id) = self.next_sync_rev_id().await {
+            if &pop_rev_id != rev_id {
+                let desc = format!(
+                    "The ack rev_id:{} is not equal to the current rev_id:{}",
+                    rev_id, pop_rev_id
+                );
+                // tracing::error!("{}", desc);
+                return Err(FlowyError::internal().context(desc));
+            }
+
+            tracing::debug!("pop revision {}", pop_rev_id);
+            self.revs_map.remove(&pop_rev_id);
+            let _ = self.local_revs.write().await.pop_front();
+        }
+        Ok(())
+    }
+
+    async fn next_sync_revision(&self) -> Option<(i64, RevisionRecord)> {
+        match self.local_revs.read().await.front() {
+            None => None,
+            Some(rev_id) => self.revs_map.get(rev_id).map(|r| (*r.key(), r.value().clone())),
+        }
+    }
+
+    async fn next_sync_rev_id(&self) -> Option<i64> { self.local_revs.read().await.front().copied() }
+}
+
+#[cfg(feature = "flowy_unit_test")]
+impl RevisionSyncSeq {
+    #[allow(dead_code)]
+    pub fn revs_map(&self) -> Arc<DashMap<i64, RevisionRecord>> { self.revs_map.clone() }
+    #[allow(dead_code)]
+    pub fn pending_revs(&self) -> Arc<RwLock<VecDeque<i64>>> { self.local_revs.clone() }
 }

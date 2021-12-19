@@ -3,7 +3,6 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use std::convert::TryInto;
 use tokio_tungstenite::tungstenite::Message as TokioMessage;
 
-// Opti: using four bytes of the data to represent the source
 #[derive(ProtoBuf, Debug, Clone, Default)]
 pub struct WSMessage {
     #[pb(index = 1)]
