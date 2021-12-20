@@ -141,7 +141,7 @@ impl MockDocServer {
                     tx,
                 }) as Arc<dyn RevisionUser>;
 
-                user.recv(SyncResponse::Ack(data));
+                user.receive(SyncResponse::Ack(data));
                 rx
             },
         }
@@ -199,7 +199,7 @@ struct MockDocUser {
 impl RevisionUser for MockDocUser {
     fn user_id(&self) -> String { self.user_id.clone() }
 
-    fn recv(&self, resp: SyncResponse) {
+    fn receive(&self, resp: SyncResponse) {
         let sender = self.tx.clone();
         tokio::spawn(async move {
             match resp {

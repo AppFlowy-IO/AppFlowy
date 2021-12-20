@@ -78,37 +78,55 @@ impl DocWsActor {
         .await
         .map_err(internal_error)??;
 
+        tracing::debug!(
+            "[HTTP_SERVER_WS]: receive client data: {}:{}, {:?}",
+            document_data.doc_id,
+            document_data.id,
+            document_data.ty
+        );
+
         let user = Arc::new(ServerDocUser { user, socket, pg_pool });
-        match &document_data.ty {
+        let result = match &document_data.ty {
             DocumentWSDataType::Ack => Ok(()),
             DocumentWSDataType::PushRev => self.handle_pushed_rev(user, document_data.data).await,
             DocumentWSDataType::PullRev => Ok(()),
             DocumentWSDataType::UserConnect => self.handle_user_connect(user, document_data).await,
+        };
+        match result {
+            Ok(_) => {},
+            Err(e) => {
+                tracing::error!("[HTTP_SERVER_WS]: process client data error {:?}", e);
+            },
         }
+
+        Ok(())
     }
 
     async fn handle_user_connect(&self, user: Arc<ServerDocUser>, document_data: DocumentWSData) -> Result<()> {
-        let id = document_data.id.clone();
-        let new_user = spawn_blocking(move || parse_from_bytes::<NewDocumentUser>(&document_data.data))
+        let mut new_user = spawn_blocking(move || parse_from_bytes::<NewDocumentUser>(&document_data.data))
             .await
             .map_err(internal_error)??;
 
-        user.recv(SyncResponse::Ack(DocumentWSDataBuilder::build_ack_message(
-            &new_user.doc_id,
-            &id,
-        )));
+        let revision_pb = spawn_blocking(move || parse_from_bytes::<Revision>(&new_user.take_revision_data()))
+            .await
+            .map_err(internal_error)??;
+        let _ = self.handle_revision(user, revision_pb).await?;
         Ok(())
     }
 
     async fn handle_pushed_rev(&self, user: Arc<ServerDocUser>, data: Vec<u8>) -> Result<()> {
-        let mut revision_pb = spawn_blocking(move || {
+        let revision_pb = spawn_blocking(move || {
             let revision: Revision = parse_from_bytes(&data)?;
-            let _ = verify_md5(&revision)?;
+            // let _ = verify_md5(&revision)?;
             Result::Ok(revision)
         })
         .await
         .map_err(internal_error)??;
-        let revision: lib_ot::revision::Revision = (&mut revision_pb).try_into().map_err(internal_error)?;
+        self.handle_revision(user, revision_pb).await
+    }
+
+    async fn handle_revision(&self, user: Arc<ServerDocUser>, mut revision: Revision) -> Result<()> {
+        let revision: lib_ot::revision::Revision = (&mut revision).try_into().map_err(internal_error)?;
         // Create the doc if it doesn't exist
         let handler = match self.doc_manager.get(&revision.doc_id).await {
             None => self
@@ -124,6 +142,7 @@ impl DocWsActor {
     }
 }
 
+#[allow(dead_code)]
 fn verify_md5(revision: &Revision) -> Result<()> {
     if md5(&revision.delta_data) != revision.md5 {
         return Err(ServerError::internal().context("Revision md5 not match"));

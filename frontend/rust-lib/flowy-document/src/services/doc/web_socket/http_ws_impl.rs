@@ -184,13 +184,13 @@ impl DocumentWebSocketStream {
         match ty {
             DocumentWSDataType::PushRev => {
                 let _ = self.consumer.receive_push_revision(bytes).await?;
+                let _ = self.consumer.receive_ack(id, ty).await;
             },
             DocumentWSDataType::PullRev => {
                 let range = RevisionRange::try_from(bytes)?;
                 let _ = self.consumer.send_revision_in_range(range).await?;
             },
             DocumentWSDataType::Ack => {
-                // let rev_id = RevId::try_from(bytes)?;
                 let _ = self.consumer.receive_ack(id, ty).await;
             },
             DocumentWSDataType::UserConnect => {

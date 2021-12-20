@@ -20,7 +20,7 @@ use lib_ot::{core::Interval, rich_text::RichTextAttribute};
 async fn delta_sync_while_editing() {
     let test = DocumentTest::new().await;
     test.run_scripts(vec![
-        DocScript::ClientConnectWs,
+        DocScript::ClientConnectWS,
         DocScript::ClientOpenDoc,
         DocScript::ClientInsertText(0, "abc"),
         DocScript::ClientInsertText(3, "123"),
@@ -34,7 +34,7 @@ async fn delta_sync_while_editing() {
 async fn delta_sync_multi_revs() {
     let test = DocumentTest::new().await;
     test.run_scripts(vec![
-        DocScript::ClientConnectWs,
+        DocScript::ClientConnectWS,
         DocScript::ClientOpenDoc,
         DocScript::ClientInsertText(0, "abc"),
         DocScript::ClientInsertText(3, "123"),
@@ -48,7 +48,7 @@ async fn delta_sync_multi_revs() {
 async fn delta_sync_while_editing_with_attribute() {
     let test = DocumentTest::new().await;
     test.run_scripts(vec![
-        DocScript::ClientConnectWs,
+        DocScript::ClientConnectWS,
         DocScript::ClientOpenDoc,
         DocScript::ClientInsertText(0, "abc"),
         DocScript::ClientFormatText(Interval::new(0, 3), RichTextAttribute::Bold(true)),
@@ -102,8 +102,9 @@ async fn delta_sync_with_server_push_delta() {
     test.run_scripts(vec![
         DocScript::ClientOpenDoc,
         DocScript::ServerSaveDocument(json, 3),
-        DocScript::ClientConnectWs,
-        DocScript::AssertClient(r#"[{"insert":"\n123\n"}]"#),
+        DocScript::ClientConnectWS,
+        DocScript::AssertClient(r#"[{"insert":"123\n\n"}]"#),
+        DocScript::AssertServer(r#"[{"insert":"123\n\n"}]"#, 3),
     ])
     .await;
 }
@@ -150,7 +151,7 @@ async fn delta_sync_while_local_rev_less_than_server_rev() {
         DocScript::ClientOpenDoc,
         DocScript::ServerSaveDocument(json, 3),
         DocScript::ClientInsertText(0, "abc"),
-        DocScript::ClientConnectWs,
+        DocScript::ClientConnectWS,
         DocScript::AssertClient(r#"[{"insert":"abc\n123\n"}]"#),
         DocScript::AssertServer(r#"[{"insert":"abc\n123\n"}]"#, 4),
     ])
@@ -195,7 +196,7 @@ async fn delta_sync_while_local_rev_greater_than_server_rev() {
         DocScript::AssertClient(r#"[{"insert":"123\n"}]"#),
         DocScript::ClientInsertText(3, "abc"),
         DocScript::ClientInsertText(6, "efg"),
-        DocScript::ClientConnectWs,
+        DocScript::ClientConnectWS,
         DocScript::AssertClient(r#"[{"insert":"123abcefg\n"}]"#),
         DocScript::AssertServer(r#"[{"insert":"123abcefg\n"}]"#, 3),
     ])

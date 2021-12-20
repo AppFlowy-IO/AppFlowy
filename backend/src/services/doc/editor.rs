@@ -23,7 +23,7 @@ pub struct ServerDocUser {
 impl RevisionUser for ServerDocUser {
     fn user_id(&self) -> String { self.user.id().to_string() }
 
-    fn recv(&self, resp: SyncResponse) {
+    fn receive(&self, resp: SyncResponse) {
         let result = match resp {
             SyncResponse::Pull(data) => {
                 let msg: WsMessageAdaptor = data.into();

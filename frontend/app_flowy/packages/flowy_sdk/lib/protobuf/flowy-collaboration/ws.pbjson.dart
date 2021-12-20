@@ -40,9 +40,9 @@ const NewDocumentUser$json = const {
   '2': const [
     const {'1': 'user_id', '3': 1, '4': 1, '5': 9, '10': 'userId'},
     const {'1': 'doc_id', '3': 2, '4': 1, '5': 9, '10': 'docId'},
-    const {'1': 'rev_id', '3': 3, '4': 1, '5': 3, '10': 'revId'},
+    const {'1': 'revision_data', '3': 3, '4': 1, '5': 12, '10': 'revisionData'},
   ],
 };
 
 /// Descriptor for `NewDocumentUser`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List newDocumentUserDescriptor = $convert.base64Decode('Cg9OZXdEb2N1bWVudFVzZXISFwoHdXNlcl9pZBgBIAEoCVIGdXNlcklkEhUKBmRvY19pZBgCIAEoCVIFZG9jSWQSFQoGcmV2X2lkGAMgASgDUgVyZXZJZA==');
+final $typed_data.Uint8List newDocumentUserDescriptor = $convert.base64Decode('Cg9OZXdEb2N1bWVudFVzZXISFwoHdXNlcl9pZBgBIAEoCVIGdXNlcklkEhUKBmRvY19pZBgCIAEoCVIFZG9jSWQSIwoNcmV2aXNpb25fZGF0YRgDIAEoDFIMcmV2aXNpb25EYXRh');

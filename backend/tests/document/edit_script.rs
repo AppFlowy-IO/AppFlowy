@@ -24,7 +24,7 @@ pub struct DocumentTest {
 }
 #[derive(Clone)]
 pub enum DocScript {
-    ClientConnectWs,
+    ClientConnectWS,
     ClientInsertText(usize, &'static str),
     ClientFormatText(Interval, RichTextAttribute),
     ClientOpenDoc,
@@ -88,12 +88,6 @@ impl ScriptContext {
     fn client_edit_context(&self) -> Arc<ClientEditDocContext> { self.client_edit_context.as_ref().unwrap().clone() }
 }
 
-impl Drop for ScriptContext {
-    fn drop(&mut self) {
-        // std::mem::forget(self.flowy_test);
-    }
-}
-
 async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript>) {
     let mut fut_scripts = vec![];
     for script in scripts {
@@ -101,7 +95,7 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
         let fut = async move {
             let doc_id = context.read().doc_id.clone();
             match script {
-                DocScript::ClientConnectWs => {
+                DocScript::ClientConnectWS => {
                     // sleep(Duration::from_millis(300)).await;
                     let ws_manager = context.read().ws_manager.clone();
                     let user_session = context.read().client_user_session.clone();
@@ -127,14 +121,14 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
                     let json = context.read().client_edit_context().doc_json().await.unwrap();
                     assert_eq(s, &json);
                 },
-                DocScript::AssertServer(_s, _rev_id) => {
+                DocScript::AssertServer(s, rev_id) => {
                     sleep(Duration::from_millis(100)).await;
                     // let pg_pool = context.read().server_pg_pool.clone();
-                    // let doc_manager = context.read().server_doc_manager.clone();
-                    // let edit_doc = doc_manager.get(&doc_id).unwrap();
-                    // let json = edit_doc.document_json().await.unwrap();
-                    // assert_eq(s, &json);
-                    // assert_eq!(edit_doc.rev_id().await.unwrap(), rev_id);
+                    let doc_manager = context.read().server_doc_manager.clone();
+                    let edit_doc = doc_manager.get(&doc_id).await.unwrap();
+                    let json = edit_doc.document_json().await.unwrap();
+                    assert_eq(s, &json);
+                    assert_eq!(edit_doc.rev_id().await.unwrap(), rev_id);
                 },
                 DocScript::ServerSaveDocument(json, rev_id) => {
                     let pg_pool = context.read().server_pg_pool.clone();

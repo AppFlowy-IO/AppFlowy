@@ -11,10 +11,7 @@ use dashmap::DashMap;
 use futures::stream::StreamExt;
 use lib_infra::future::FutureResultSend;
 use lib_ot::{errors::OTError, revision::Revision, rich_text::RichTextDelta};
-use std::sync::{
-    atomic::{AtomicI64, Ordering::SeqCst},
-    Arc,
-};
+use std::sync::{atomic::Ordering::SeqCst, Arc};
 use tokio::{
     sync::{mpsc, oneshot},
     task::spawn_blocking,
@@ -204,8 +201,7 @@ impl DocCommandQueue {
                 let _ = ret.send(json);
             },
             DocCommand::GetDocRevId { ret } => {
-                let rev_id = self.edit_doc.rev_id.load(SeqCst);
-                let _ = ret.send(Ok(rev_id));
+                let _ = ret.send(Ok(self.edit_doc.rev_id()));
             },
         }
     }
@@ -224,7 +220,6 @@ impl DocCommandQueue {
 //                                └────────┘       └────────────┘
 pub struct ServerDocEditor {
     pub doc_id: String,
-    pub rev_id: AtomicI64,
     synchronizer: Arc<RevisionSynchronizer>,
     users: DashMap<String, Arc<dyn RevisionUser>>,
 }
@@ -241,27 +236,21 @@ impl ServerDocEditor {
 
         Ok(Self {
             doc_id: doc.id.clone(),
-            rev_id: AtomicI64::new(doc.rev_id),
             synchronizer,
             users,
         })
     }
 
-    #[tracing::instrument(
-        level = "debug",
-        skip(self, user, revision),
-        fields(
-            cur_rev_id = %self.rev_id.load(SeqCst),
-            base_rev_id = %revision.base_rev_id,
-            rev_id = %revision.rev_id,
-            ),
-        err
-    )]
     pub async fn apply_revision(&self, user: Arc<dyn RevisionUser>, revision: Revision) -> Result<(), OTError> {
         self.users.insert(user.user_id(), user.clone());
         self.synchronizer.apply_revision(user, revision).unwrap();
         Ok(())
     }
 
-    pub fn document_json(&self) -> String { self.synchronizer.doc_json() }
+    pub fn document_json(&self) -> String {
+        let json = self.synchronizer.doc_json();
+        json
+    }
+
+    pub fn rev_id(&self) -> i64 { self.synchronizer.rev_id.load(SeqCst) }
 }

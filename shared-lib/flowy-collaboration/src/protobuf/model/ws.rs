@@ -302,7 +302,7 @@ pub struct NewDocumentUser {
     // message fields
     pub user_id: ::std::string::String,
     pub doc_id: ::std::string::String,
-    pub rev_id: i64,
+    pub revision_data: ::std::vec::Vec<u8>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -371,19 +371,30 @@ impl NewDocumentUser {
         ::std::mem::replace(&mut self.doc_id, ::std::string::String::new())
     }
 
-    // int64 rev_id = 3;
+    // bytes revision_data = 3;
 
 
-    pub fn get_rev_id(&self) -> i64 {
-        self.rev_id
+    pub fn get_revision_data(&self) -> &[u8] {
+        &self.revision_data
     }
-    pub fn clear_rev_id(&mut self) {
-        self.rev_id = 0;
+    pub fn clear_revision_data(&mut self) {
+        self.revision_data.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_rev_id(&mut self, v: i64) {
-        self.rev_id = v;
+    pub fn set_revision_data(&mut self, v: ::std::vec::Vec<u8>) {
+        self.revision_data = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_revision_data(&mut self) -> &mut ::std::vec::Vec<u8> {
+        &mut self.revision_data
+    }
+
+    // Take field
+    pub fn take_revision_data(&mut self) -> ::std::vec::Vec<u8> {
+        ::std::mem::replace(&mut self.revision_data, ::std::vec::Vec::new())
     }
 }
 
@@ -403,11 +414,7 @@ impl ::protobuf::Message for NewDocumentUser {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.doc_id)?;
                 },
                 3 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_int64()?;
-                    self.rev_id = tmp;
+                    ::protobuf::rt::read_singular_proto3_bytes_into(wire_type, is, &mut self.revision_data)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -427,8 +434,8 @@ impl ::protobuf::Message for NewDocumentUser {
         if !self.doc_id.is_empty() {
             my_size += ::protobuf::rt::string_size(2, &self.doc_id);
         }
-        if self.rev_id != 0 {
-            my_size += ::protobuf::rt::value_size(3, self.rev_id, ::protobuf::wire_format::WireTypeVarint);
+        if !self.revision_data.is_empty() {
+            my_size += ::protobuf::rt::bytes_size(3, &self.revision_data);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -442,8 +449,8 @@ impl ::protobuf::Message for NewDocumentUser {
         if !self.doc_id.is_empty() {
             os.write_string(2, &self.doc_id)?;
         }
-        if self.rev_id != 0 {
-            os.write_int64(3, self.rev_id)?;
+        if !self.revision_data.is_empty() {
+            os.write_bytes(3, &self.revision_data)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -493,10 +500,10 @@ impl ::protobuf::Message for NewDocumentUser {
                 |m: &NewDocumentUser| { &m.doc_id },
                 |m: &mut NewDocumentUser| { &mut m.doc_id },
             ));
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeInt64>(
-                "rev_id",
-                |m: &NewDocumentUser| { &m.rev_id },
-                |m: &mut NewDocumentUser| { &mut m.rev_id },
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBytes>(
+                "revision_data",
+                |m: &NewDocumentUser| { &m.revision_data },
+                |m: &mut NewDocumentUser| { &mut m.revision_data },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<NewDocumentUser>(
                 "NewDocumentUser",
@@ -516,7 +523,7 @@ impl ::protobuf::Clear for NewDocumentUser {
     fn clear(&mut self) {
         self.user_id.clear();
         self.doc_id.clear();
-        self.rev_id = 0;
+        self.revision_data.clear();
         self.unknown_fields.clear();
     }
 }
@@ -593,22 +600,22 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x08ws.proto\"p\n\x0eDocumentWSData\x12\x15\n\x06doc_id\x18\x01\x20\
     \x01(\tR\x05docId\x12#\n\x02ty\x18\x02\x20\x01(\x0e2\x13.DocumentWSDataT\
     ypeR\x02ty\x12\x12\n\x04data\x18\x03\x20\x01(\x0cR\x04data\x12\x0e\n\x02\
-    id\x18\x04\x20\x01(\tR\x02id\"X\n\x0fNewDocumentUser\x12\x17\n\x07user_i\
+    id\x18\x04\x20\x01(\tR\x02id\"f\n\x0fNewDocumentUser\x12\x17\n\x07user_i\
     d\x18\x01\x20\x01(\tR\x06userId\x12\x15\n\x06doc_id\x18\x02\x20\x01(\tR\
-    \x05docId\x12\x15\n\x06rev_id\x18\x03\x20\x01(\x03R\x05revId*H\n\x12Docu\
-    mentWSDataType\x12\x07\n\x03Ack\x10\0\x12\x0b\n\x07PushRev\x10\x01\x12\
-    \x0b\n\x07PullRev\x10\x02\x12\x0f\n\x0bUserConnect\x10\x03J\xff\x04\n\
-    \x06\x12\x04\0\0\x12\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\
-    \x12\x04\x02\0\x07\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x16\n\x0b\n\
-    \x04\x04\0\x02\0\x12\x03\x03\x04\x16\n\x0c\n\x05\x04\0\x02\0\x05\x12\x03\
-    \x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\x11\n\x0c\n\x05\
-    \x04\0\x02\0\x03\x12\x03\x03\x14\x15\n\x0b\n\x04\x04\0\x02\x01\x12\x03\
-    \x04\x04\x1e\n\x0c\n\x05\x04\0\x02\x01\x06\x12\x03\x04\x04\x16\n\x0c\n\
-    \x05\x04\0\x02\x01\x01\x12\x03\x04\x17\x19\n\x0c\n\x05\x04\0\x02\x01\x03\
-    \x12\x03\x04\x1c\x1d\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x04\x13\n\x0c\
-    \n\x05\x04\0\x02\x02\x05\x12\x03\x05\x04\t\n\x0c\n\x05\x04\0\x02\x02\x01\
-    \x12\x03\x05\n\x0e\n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05\x11\x12\n\
-    \x0b\n\x04\x04\0\x02\x03\x12\x03\x06\x04\x12\n\x0c\n\x05\x04\0\x02\x03\
+    \x05docId\x12#\n\rrevision_data\x18\x03\x20\x01(\x0cR\x0crevisionData*H\
+    \n\x12DocumentWSDataType\x12\x07\n\x03Ack\x10\0\x12\x0b\n\x07PushRev\x10\
+    \x01\x12\x0b\n\x07PullRev\x10\x02\x12\x0f\n\x0bUserConnect\x10\x03J\xff\
+    \x04\n\x06\x12\x04\0\0\x12\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\
+    \x04\0\x12\x04\x02\0\x07\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x16\n\
+    \x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x16\n\x0c\n\x05\x04\0\x02\0\x05\
+    \x12\x03\x03\x04\n\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x0b\x11\n\x0c\
+    \n\x05\x04\0\x02\0\x03\x12\x03\x03\x14\x15\n\x0b\n\x04\x04\0\x02\x01\x12\
+    \x03\x04\x04\x1e\n\x0c\n\x05\x04\0\x02\x01\x06\x12\x03\x04\x04\x16\n\x0c\
+    \n\x05\x04\0\x02\x01\x01\x12\x03\x04\x17\x19\n\x0c\n\x05\x04\0\x02\x01\
+    \x03\x12\x03\x04\x1c\x1d\n\x0b\n\x04\x04\0\x02\x02\x12\x03\x05\x04\x13\n\
+    \x0c\n\x05\x04\0\x02\x02\x05\x12\x03\x05\x04\t\n\x0c\n\x05\x04\0\x02\x02\
+    \x01\x12\x03\x05\n\x0e\n\x0c\n\x05\x04\0\x02\x02\x03\x12\x03\x05\x11\x12\
+    \n\x0b\n\x04\x04\0\x02\x03\x12\x03\x06\x04\x12\n\x0c\n\x05\x04\0\x02\x03\
     \x05\x12\x03\x06\x04\n\n\x0c\n\x05\x04\0\x02\x03\x01\x12\x03\x06\x0b\r\n\
     \x0c\n\x05\x04\0\x02\x03\x03\x12\x03\x06\x10\x11\n\n\n\x02\x04\x01\x12\
     \x04\x08\0\x0c\x01\n\n\n\x03\x04\x01\x01\x12\x03\x08\x08\x17\n\x0b\n\x04\
@@ -617,10 +624,10 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x01\x02\0\x03\x12\x03\t\x15\x16\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\n\
     \x04\x16\n\x0c\n\x05\x04\x01\x02\x01\x05\x12\x03\n\x04\n\n\x0c\n\x05\x04\
     \x01\x02\x01\x01\x12\x03\n\x0b\x11\n\x0c\n\x05\x04\x01\x02\x01\x03\x12\
-    \x03\n\x14\x15\n\x0b\n\x04\x04\x01\x02\x02\x12\x03\x0b\x04\x15\n\x0c\n\
+    \x03\n\x14\x15\n\x0b\n\x04\x04\x01\x02\x02\x12\x03\x0b\x04\x1c\n\x0c\n\
     \x05\x04\x01\x02\x02\x05\x12\x03\x0b\x04\t\n\x0c\n\x05\x04\x01\x02\x02\
-    \x01\x12\x03\x0b\n\x10\n\x0c\n\x05\x04\x01\x02\x02\x03\x12\x03\x0b\x13\
-    \x14\n\n\n\x02\x05\0\x12\x04\r\0\x12\x01\n\n\n\x03\x05\0\x01\x12\x03\r\
+    \x01\x12\x03\x0b\n\x17\n\x0c\n\x05\x04\x01\x02\x02\x03\x12\x03\x0b\x1a\
+    \x1b\n\n\n\x02\x05\0\x12\x04\r\0\x12\x01\n\n\n\x03\x05\0\x01\x12\x03\r\
     \x05\x17\n\x0b\n\x04\x05\0\x02\0\x12\x03\x0e\x04\x0c\n\x0c\n\x05\x05\0\
     \x02\0\x01\x12\x03\x0e\x04\x07\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x0e\n\
     \x0b\n\x0b\n\x04\x05\0\x02\x01\x12\x03\x0f\x04\x10\n\x0c\n\x05\x05\0\x02\

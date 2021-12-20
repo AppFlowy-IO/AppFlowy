@@ -82,6 +82,8 @@ impl Document {
     }
 
     pub fn compose_delta(&mut self, mut delta: RichTextDelta) -> Result<(), CollaborateError> {
+        tracing::trace!("👉 receive change: {}", delta);
+
         trim(&mut delta);
         tracing::trace!("{} compose {}", &self.delta.to_json(), delta.to_json());
         let mut composed_delta = self.delta.compose(&delta)?;
@@ -104,7 +106,7 @@ impl Document {
             self.history.record(undo_delta);
         }
 
-        tracing::trace!("compose result: {}", composed_delta.to_json());
+        tracing::debug!("compose result: {}", composed_delta.to_json());
         trim(&mut composed_delta);
 
         self.set_delta(composed_delta);
@@ -117,7 +119,6 @@ impl Document {
 
         let text = data.to_string();
         let delta = self.view.insert(&self.delta, &text, interval)?;
-        tracing::debug!("👉 receive change: {}", delta);
         self.compose_delta(delta.clone())?;
         Ok(delta)
     }
@@ -127,7 +128,6 @@ impl Document {
         debug_assert_eq!(interval.is_empty(), false);
         let delete = self.view.delete(&self.delta, interval)?;
         if !delete.is_empty() {
-            tracing::trace!("👉 receive change: {}", delete);
             let _ = self.compose_delta(delete.clone())?;
         }
         Ok(delete)
@@ -141,8 +141,6 @@ impl Document {
         let _ = validate_interval(&self.delta, &interval)?;
         tracing::trace!("format with {} at {}", attribute, interval);
         let format_delta = self.view.format(&self.delta, attribute, interval).unwrap();
-
-        tracing::trace!("👉 receive change: {}", format_delta);
         self.compose_delta(format_delta.clone())?;
         Ok(format_delta)
     }
@@ -153,7 +151,6 @@ impl Document {
         let text = data.to_string();
         if !text.is_empty() {
             delta = self.view.insert(&self.delta, &text, interval)?;
-            tracing::trace!("👉 receive change: {}", delta);
             self.compose_delta(delta.clone())?;
         }
 

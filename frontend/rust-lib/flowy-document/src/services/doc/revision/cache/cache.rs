@@ -51,7 +51,7 @@ impl RevisionCache {
     #[tracing::instrument(level = "debug", skip(self, revision))]
     pub async fn add_local_revision(&self, revision: Revision) -> FlowyResult<()> {
         if self.memory_cache.contains(&revision.rev_id) {
-            return Err(FlowyError::internal().context(format!("Duplicate revision id: {}", revision.rev_id)));
+            return Err(FlowyError::internal().context(format!("Duplicate local revision id: {}", revision.rev_id)));
         }
         let rev_id = revision.rev_id;
         let record = RevisionRecord {
@@ -67,7 +67,7 @@ impl RevisionCache {
     #[tracing::instrument(level = "debug", skip(self, revision))]
     pub async fn add_remote_revision(&self, revision: Revision) -> FlowyResult<()> {
         if self.memory_cache.contains(&revision.rev_id) {
-            return Err(FlowyError::internal().context(format!("Duplicate revision id: {}", revision.rev_id)));
+            return Err(FlowyError::internal().context(format!("Duplicate remote revision id: {}", revision.rev_id)));
         }
         let rev_id = revision.rev_id;
         let record = RevisionRecord {
@@ -86,7 +86,10 @@ impl RevisionCache {
         }
     }
 
-    pub fn latest_rev_id(&self) -> i64 { self.latest_rev_id.load(SeqCst) }
+    pub async fn latest_revision(&self) -> Revision {
+        let rev_id = self.latest_rev_id.load(SeqCst);
+        self.get_revision(&self.doc_id, rev_id).await.unwrap().revision
+    }
 
     pub async fn get_revision(&self, doc_id: &str, rev_id: i64) -> Option<RevisionRecord> {
         match self.memory_cache.get_revision(&rev_id).await {

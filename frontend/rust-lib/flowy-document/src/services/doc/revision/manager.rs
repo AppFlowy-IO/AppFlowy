@@ -104,7 +104,7 @@ impl RevisionManager {
 
     pub fn next_sync_revision(&self) -> FutureResult<Option<Revision>, FlowyError> { self.cache.next_sync_revision() }
 
-    pub fn latest_rev_id(&self) -> i64 { self.cache.latest_rev_id() }
+    pub async fn latest_revision(&self) -> Revision { self.cache.latest_revision().await }
 }
 
 #[cfg(feature = "flowy_unit_test")]

@@ -19,9 +19,16 @@ use flowy_collaboration::{
 };
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use lib_infra::future::FutureResult;
-use lib_ot::revision::{RevType, Revision, RevisionRange};
+use lib_ot::{
+    revision::{RevType, Revision, RevisionRange},
+    rich_text::RichTextDelta,
+};
 use lib_ws::WSConnectState;
-use std::{collections::VecDeque, sync::Arc};
+use std::{
+    collections::VecDeque,
+    convert::{TryFrom, TryInto},
+    sync::Arc,
+};
 use tokio::sync::{broadcast, mpsc::UnboundedSender, oneshot, RwLock};
 
 pub(crate) trait EditorWebSocket: Send + Sync {
@@ -89,10 +96,11 @@ async fn notify_user_conn(
     };
 
     if need_notify {
+        let revision_data: Bytes = rev_manager.latest_revision().await.try_into().unwrap();
         let new_connect = NewDocumentUser {
             user_id: user_id.to_owned(),
             doc_id: doc_id.to_owned(),
-            rev_id: rev_manager.latest_rev_id(),
+            revision_data: revision_data.to_vec(),
         };
 
         let data = DocumentWSDataBuilder::build_new_document_user_message(doc_id, new_connect);
@@ -154,6 +162,7 @@ impl DocumentWSSteamConsumer for DocumentWebSocketSteamConsumerAdapter {
     }
 
     fn receive_new_user_connect(&self, _new_user: NewDocumentUser) -> FutureResult<(), FlowyError> {
+        // the _new_user will be used later
         FutureResult::new(async move { Ok(()) })
     }
 
@@ -186,22 +195,25 @@ pub(crate) async fn handle_push_rev(
 ) -> FlowyResult<Option<Revision>> {
     // Transform the revision
     let (ret, rx) = oneshot::channel::<CollaborateResult<TransformDeltas>>();
-    let _ = edit_cmd_tx.send(EditorCommand::ProcessRemoteRevision { bytes, ret });
-    let TransformDeltas {
-        client_prime,
-        server_prime,
-        server_rev_id,
-    } = rx.await.map_err(internal_error)??;
-
-    if rev_manager.rev_id() >= server_rev_id.value {
-        // Ignore this push revision if local_rev_id >= server_rev_id
-        return Ok(None);
-    }
+    let revision = Revision::try_from(bytes)?;
+    let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
+    let server_rev_id = revision.rev_id;
+    // let _ = edit_cmd_tx.send(EditorCommand::ProcessRemoteRevision { bytes, ret
+    // }); let TransformDeltas {
+    //     client_prime,
+    //     server_prime,
+    //     server_rev_id,
+    // } = rx.await.map_err(internal_error)??;
+    //
+    // if rev_manager.rev_id() >= server_rev_id.value {
+    //     // Ignore this push revision if local_rev_id >= server_rev_id
+    //     return Ok(None);
+    // }
 
     // compose delta
     let (ret, rx) = oneshot::channel::<CollaborateResult<DocumentMD5>>();
     let msg = EditorCommand::ComposeDelta {
-        delta: client_prime.clone(),
+        delta: delta.clone(),
         ret,
     };
     let _ = edit_cmd_tx.send(msg);
@@ -209,32 +221,33 @@ pub(crate) async fn handle_push_rev(
 
     // update rev id
     rev_manager.update_rev_id_counter_value(server_rev_id.clone().into());
-    let (local_base_rev_id, local_rev_id) = rev_manager.next_rev_id();
-    let delta_data = client_prime.to_bytes();
-    // save the revision
-    let revision = Revision::new(
-        &doc_id,
-        local_base_rev_id,
-        local_rev_id,
-        delta_data,
-        RevType::Remote,
-        &user_id,
-        md5.clone(),
-    );
+    // let (local_base_rev_id, local_rev_id) = rev_manager.next_rev_id();
+    // let delta_data = client_prime.to_bytes();
+    // // save the revision
+    // let revision = Revision::new(
+    //     &doc_id,
+    //     local_base_rev_id,
+    //     local_rev_id,
+    //     delta_data,
+    //     RevType::Remote,
+    //     &user_id,
+    //     md5.clone(),
+    // );
 
     let _ = rev_manager.add_remote_revision(&revision).await?;
 
     // send the server_prime delta
-    let delta_data = server_prime.to_bytes();
-    Ok(Some(Revision::new(
-        &doc_id,
-        local_base_rev_id,
-        local_rev_id,
-        delta_data,
-        RevType::Remote,
-        &user_id,
-        md5,
-    )))
+    // let delta_data = server_prime.to_bytes();
+    // Ok(Some(Revision::new(
+    //     &doc_id,
+    //     local_base_rev_id,
+    //     local_rev_id,
+    //     delta_data,
+    //     RevType::Remote,
+    //     &user_id,
+    //     md5,
+    // )))
+    Ok(None)
 }
 
 #[derive(Clone)]

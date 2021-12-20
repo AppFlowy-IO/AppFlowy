@@ -7,7 +7,6 @@
 
 import 'dart:core' as $core;
 
-import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 import 'ws.pbenum.dart';
@@ -107,7 +106,7 @@ class NewDocumentUser extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'NewDocumentUser', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'userId')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
-    ..aInt64(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'revId')
+    ..a<$core.List<$core.int>>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'revisionData', $pb.PbFieldType.OY)
     ..hasRequiredFields = false
   ;
 
@@ -115,7 +114,7 @@ class NewDocumentUser extends $pb.GeneratedMessage {
   factory NewDocumentUser({
     $core.String? userId,
     $core.String? docId,
-    $fixnum.Int64? revId,
+    $core.List<$core.int>? revisionData,
   }) {
     final _result = create();
     if (userId != null) {
@@ -124,8 +123,8 @@ class NewDocumentUser extends $pb.GeneratedMessage {
     if (docId != null) {
       _result.docId = docId;
     }
-    if (revId != null) {
-      _result.revId = revId;
+    if (revisionData != null) {
+      _result.revisionData = revisionData;
     }
     return _result;
   }
@@ -169,12 +168,12 @@ class NewDocumentUser extends $pb.GeneratedMessage {
   void clearDocId() => clearField(2);
 
   @$pb.TagNumber(3)
-  $fixnum.Int64 get revId => $_getI64(2);
+  $core.List<$core.int> get revisionData => $_getN(2);
   @$pb.TagNumber(3)
-  set revId($fixnum.Int64 v) { $_setInt64(2, v); }
+  set revisionData($core.List<$core.int> v) { $_setBytes(2, v); }
   @$pb.TagNumber(3)
-  $core.bool hasRevId() => $_has(2);
+  $core.bool hasRevisionData() => $_has(2);
   @$pb.TagNumber(3)
-  void clearRevId() => clearField(3);
+  void clearRevisionData() => clearField(3);
 }
 

@@ -9,7 +9,7 @@ message DocumentWSData {
 message NewDocumentUser {
     string user_id = 1;
     string doc_id = 2;
-    int64 rev_id = 3;
+    bytes revision_data = 3;
 }
 enum DocumentWSDataType {
     Ack = 0;

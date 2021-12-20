@@ -213,5 +213,5 @@ async fn workspace_list_read() {
 
     let read_params = WorkspaceIdentifier::new(None);
     let workspaces = server.read_workspaces(read_params).await;
-    assert_eq!(workspaces.len(), 4);
+    assert_eq!(workspaces.len(), 3);
 }

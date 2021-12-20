@@ -61,25 +61,25 @@ impl std::convert::From<Revision> for DocumentWSData {
 pub struct DocumentWSDataBuilder();
 impl DocumentWSDataBuilder {
     // DocumentWSDataType::PushRev -> Revision
-    pub fn build_push_rev_message(doc_id: &str, revision: Revision) -> DocumentWSData {
+    pub fn build_push_message(doc_id: &str, revision: Revision, id: &str) -> DocumentWSData {
         let rev_id = revision.rev_id;
         let bytes: Bytes = revision.try_into().unwrap();
         DocumentWSData {
             doc_id: doc_id.to_string(),
             ty: DocumentWSDataType::PushRev,
             data: bytes.to_vec(),
-            id: rev_id.to_string(),
+            id: id.to_string(),
         }
     }
 
     // DocumentWSDataType::PullRev -> RevisionRange
-    pub fn build_push_pull_message(doc_id: &str, range: RevisionRange) -> DocumentWSData {
+    pub fn build_pull_message(doc_id: &str, range: RevisionRange, rev_id: i64) -> DocumentWSData {
         let bytes: Bytes = range.try_into().unwrap();
         DocumentWSData {
             doc_id: doc_id.to_string(),
             ty: DocumentWSDataType::PullRev,
             data: bytes.to_vec(),
-            id: uuid(),
+            id: rev_id.to_string(),
         }
     }
 
@@ -114,6 +114,7 @@ pub struct NewDocumentUser {
     #[pb(index = 2)]
     pub doc_id: String,
 
+    // revision_data: the latest rev_id of the document.
     #[pb(index = 3)]
-    pub rev_id: i64,
+    pub revision_data: Vec<u8>,
 }
