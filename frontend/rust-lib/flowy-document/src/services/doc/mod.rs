@@ -1,6 +1,6 @@
 pub mod edit;
 pub mod revision;
-
+mod web_socket;
 pub use crate::services::ws_handlers::*;
 pub use edit::*;
 pub use revision::*;

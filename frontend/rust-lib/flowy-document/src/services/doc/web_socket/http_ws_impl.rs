@@ -1,4 +1,7 @@
-use crate::services::doc::{DocumentWebSocket, DocumentWsHandler, SYNC_INTERVAL_IN_MILLIS};
+use crate::services::{
+    doc::{web_socket::web_socket::EditorWebSocket, SYNC_INTERVAL_IN_MILLIS},
+    ws_handlers::{DocumentWebSocket, DocumentWsHandler},
+};
 use async_stream::stream;
 use bytes::Bytes;
 use flowy_collaboration::entities::ws::{DocumentWSData, DocumentWSDataType, NewDocumentUser};
@@ -18,7 +21,7 @@ use tokio::{
     time::{interval, Duration},
 };
 
-pub(crate) struct EditorWebSocket {
+pub struct EditorHttpWebSocket {
     doc_id: String,
     data_provider: Arc<dyn DocumentWSSinkDataProvider>,
     stream_consumer: Arc<dyn DocumentWSSteamConsumer>,
@@ -29,8 +32,8 @@ pub(crate) struct EditorWebSocket {
     state: broadcast::Sender<WSConnectState>,
 }
 
-impl EditorWebSocket {
-    pub(crate) fn new(
+impl EditorHttpWebSocket {
+    pub fn new(
         doc_id: &str,
         ws: Arc<dyn DocumentWebSocket>,
         data_provider: Arc<dyn DocumentWSSinkDataProvider>,
@@ -40,7 +43,7 @@ impl EditorWebSocket {
         let (stop_sync_tx, _) = tokio::sync::broadcast::channel(2);
         let doc_id = doc_id.to_string();
         let (state, _) = broadcast::channel(2);
-        let mut manager = EditorWebSocket {
+        let mut manager = EditorHttpWebSocket {
             doc_id,
             data_provider,
             stream_consumer,
@@ -50,11 +53,11 @@ impl EditorWebSocket {
             stop_sync_tx,
             state,
         };
-        manager.start_sync();
+        manager.start_web_socket();
         manager
     }
 
-    fn start_sync(&mut self) {
+    fn start_web_socket(&mut self) {
         let ws_msg_rx = self.ws_msg_rx.take().expect("Only take once");
         let sink = DocumentWebSocketSink::new(
             &self.doc_id,
@@ -72,16 +75,20 @@ impl EditorWebSocket {
         tokio::spawn(stream.run());
     }
 
-    pub(crate) fn stop(&self) {
+    pub fn scribe_state(&self) -> broadcast::Receiver<WSConnectState> { self.state.subscribe() }
+}
+
+impl EditorWebSocket for Arc<EditorHttpWebSocket> {
+    fn stop_web_socket(&self) {
         if self.stop_sync_tx.send(()).is_ok() {
             tracing::debug!("{} stop sync", self.doc_id)
         }
     }
 
-    pub(crate) fn scribe_state(&self) -> broadcast::Receiver<WSConnectState> { self.state.subscribe() }
+    fn ws_handler(&self) -> Arc<dyn DocumentWsHandler> { self.clone() }
 }
 
-impl DocumentWsHandler for EditorWebSocket {
+impl DocumentWsHandler for EditorHttpWebSocket {
     fn receive(&self, doc_data: DocumentWSData) {
         match self.ws_msg_tx.send(doc_data) {
             Ok(_) => {},
@@ -104,7 +111,7 @@ pub trait DocumentWSSteamConsumer: Send + Sync {
     fn send_revision_in_range(&self, range: RevisionRange) -> FutureResult<(), FlowyError>;
 }
 
-pub(crate) struct DocumentWebSocketStream {
+pub struct DocumentWebSocketStream {
     doc_id: String,
     consumer: Arc<dyn DocumentWSSteamConsumer>,
     ws_msg_rx: Option<mpsc::UnboundedReceiver<DocumentWSData>>,
@@ -112,7 +119,7 @@ pub(crate) struct DocumentWebSocketStream {
 }
 
 impl DocumentWebSocketStream {
-    pub(crate) fn new(
+    pub fn new(
         doc_id: &str,
         consumer: Arc<dyn DocumentWSSteamConsumer>,
         ws_msg_rx: mpsc::UnboundedReceiver<DocumentWSData>,
@@ -197,15 +204,15 @@ impl DocumentWebSocketStream {
     }
 }
 
-pub(crate) type Tick = ();
-pub(crate) type SinkStopRx = broadcast::Receiver<()>;
-pub(crate) type SinkStopTx = broadcast::Sender<()>;
+pub type Tick = ();
+pub type SinkStopRx = broadcast::Receiver<()>;
+pub type SinkStopTx = broadcast::Sender<()>;
 
 pub trait DocumentWSSinkDataProvider: Send + Sync {
     fn next(&self) -> FutureResult<Option<DocumentWSData>, FlowyError>;
 }
 
-pub(crate) struct DocumentWebSocketSink {
+pub struct DocumentWebSocketSink {
     provider: Arc<dyn DocumentWSSinkDataProvider>,
     ws_sender: Arc<dyn DocumentWebSocket>,
     stop_rx: Option<SinkStopRx>,
@@ -213,7 +220,7 @@ pub(crate) struct DocumentWebSocketSink {
 }
 
 impl DocumentWebSocketSink {
-    pub(crate) fn new(
+    pub fn new(
         doc_id: &str,
         provider: Arc<dyn DocumentWSSinkDataProvider>,
         ws_sender: Arc<dyn DocumentWebSocket>,

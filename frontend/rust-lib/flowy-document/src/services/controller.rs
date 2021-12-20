@@ -171,7 +171,7 @@ impl OpenDocCache {
     pub(crate) fn remove(&self, id: &str) {
         let doc_id = id.to_string();
         match self.get(id) {
-            Ok(editor) => editor.stop_sync(),
+            Ok(editor) => editor.stop(),
             Err(e) => log::error!("{}", e),
         }
         self.inner.remove(&doc_id);
