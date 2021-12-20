@@ -5,7 +5,10 @@ use crate::deps_resolve::{DocumentDepsResolver, WorkspaceDepsResolver};
 use backend_service::configuration::ClientServerConfiguration;
 use flowy_core::{errors::FlowyError, module::init_core, prelude::CoreContext};
 use flowy_document::module::FlowyDocument;
-use flowy_net::{entities::NetworkType, services::ws::WsManager};
+use flowy_net::{
+    entities::NetworkType,
+    services::ws::{listen_on_websocket, WsManager},
+};
 use flowy_user::{
     prelude::UserStatus,
     services::user::{UserSession, UserSessionConfig},
@@ -113,8 +116,10 @@ fn _init(
 
     dispatch.spawn(async move {
         user_session.init();
-        _listen_user_status(ws_manager, subscribe_user_status, core.clone()).await;
+        listen_on_websocket(ws_manager.clone());
+        _listen_user_status(ws_manager.clone(), subscribe_user_status, core.clone()).await;
     });
+
     dispatch.spawn(async move {
         _listen_network_status(subscribe_network_type, cloned_core).await;
     });

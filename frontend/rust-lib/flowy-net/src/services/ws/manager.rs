@@ -24,7 +24,6 @@ impl WsManager {
             local_web_socket()
         };
         let (status_notifier, _) = broadcast::channel(10);
-        listen_on_websocket(ws.clone());
         WsManager {
             inner: ws,
             connect_type: RwLock::new(NetworkType::default()),
@@ -36,7 +35,6 @@ impl WsManager {
     pub async fn start(&self, token: String) -> Result<(), FlowyError> {
         let addr = format!("{}/{}", self.addr, token);
         self.inner.stop_connect().await?;
-
         let _ = self.inner.start_connect(addr).await?;
         Ok(())
     }
@@ -79,28 +77,33 @@ impl WsManager {
     pub fn ws_sender(&self) -> Result<Arc<dyn FlowyWsSender>, FlowyError> { self.inner.ws_sender() }
 }
 
-#[tracing::instrument(level = "debug", skip(ws))]
-fn listen_on_websocket(ws: Arc<dyn FlowyWebSocket>) {
-    let mut notify = ws.subscribe_connect_state();
-    let _ = tokio::spawn(async move {
-        loop {
-            match notify.recv().await {
-                Ok(state) => {
-                    tracing::info!("Websocket state changed: {}", state);
-                    match state {
-                        WSConnectState::Init => {},
-                        WSConnectState::Connected => {},
-                        WSConnectState::Connecting => {},
-                        WSConnectState::Disconnected => retry_connect(ws.clone(), 100).await,
-                    }
-                },
-                Err(e) => {
-                    tracing::error!("Websocket state notify error: {:?}", e);
-                    break;
-                },
+#[tracing::instrument(level = "debug", skip(manager))]
+pub fn listen_on_websocket(manager: Arc<WsManager>) {
+    if cfg!(feature = "http_server") {
+        let ws = manager.inner.clone();
+        let mut notify = manager.inner.subscribe_connect_state();
+        let _ = tokio::spawn(async move {
+            loop {
+                match notify.recv().await {
+                    Ok(state) => {
+                        tracing::info!("Websocket state changed: {}", state);
+                        match state {
+                            WSConnectState::Init => {},
+                            WSConnectState::Connected => {},
+                            WSConnectState::Connecting => {},
+                            WSConnectState::Disconnected => retry_connect(ws.clone(), 100).await,
+                        }
+                    },
+                    Err(e) => {
+                        tracing::error!("Websocket state notify error: {:?}", e);
+                        break;
+                    },
+                }
             }
-        }
-    });
+        });
+    } else {
+        // do nothing
+    };
 }
 
 async fn retry_connect(ws: Arc<dyn FlowyWebSocket>, count: usize) {
