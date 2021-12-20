@@ -2,6 +2,7 @@
 members = [
   "lib-dispatch",
   "lib-log",
+  "lib-sqlite",
   "flowy-net",
   "flowy-sdk",
   "dart-ffi",
@@ -13,8 +14,6 @@ members = [
   "flowy-document",
   "flowy-error",
 ]
-
-exclude = ["../backend"]
 
 [profile.dev]
 split-debuginfo = "unpacked"
