@@ -11,6 +11,7 @@ enum ThemeType {
 const _black = Color(0xff000000);
 const _grey = Color(0xff808080);
 const _white = Color(0xffffffff);
+const _gray_shade200 = Color(0xFFEEEEEE);
 
 class AppTheme {
   static ThemeType defaultTheme = ThemeType.light;
@@ -58,7 +59,7 @@ class AppTheme {
     switch (t) {
       case ThemeType.light:
         return AppTheme(isDark: false)
-          ..surface = _white
+          ..surface = _gray_shade200
           ..hover = const Color(0xFFe0f8ff) //
           ..selector = const Color(0xfff2fcff)
           ..red = const Color(0xfffb006d)
@@ -70,8 +71,10 @@ class AppTheme {
           ..shader4 = const Color(0xffbdbdbd)
           ..shader5 = const Color(0xffe0e0e0)
           ..shader6 = const Color(0xfff2f2f2)
-          ..shader7 = const Color(0xffffffff)
-          ..bg1 = const Color(0xfff7f8fc)
+          ..shader7 = _gray_shade200
+          // ..shader7 = const Color(0xffffffff)
+          // ..bg1 = const Color(0xfff7f8fc)
+          ..bg1 = _gray_shade200
           ..bg2 = const Color(0xffedeef2)
           ..bg3 = const Color(0xffe2e4eb)
           ..bg4 = const Color(0xff2c144b)
