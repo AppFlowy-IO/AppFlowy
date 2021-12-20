@@ -455,18 +455,20 @@ dependencies = [
  "config",
  "dashmap",
  "derive_more",
+ "flowy-collaboration",
+ "flowy-core-data-model",
  "flowy-document",
- "flowy-document-infra",
+ "flowy-net",
  "flowy-sdk",
  "flowy-test",
  "flowy-user",
- "flowy-user-infra",
- "flowy-workspace-infra",
+ "flowy-user-data-model",
  "futures",
  "futures-core",
  "futures-util",
  "jsonwebtoken",
  "lazy_static",
+ "lib-infra",
  "lib-ot",
  "lib-ws",
  "linkify",
@@ -505,8 +507,9 @@ dependencies = [
  "bytes",
  "config",
  "derive_more",
- "flowy-user-infra",
- "flowy-workspace-infra",
+ "flowy-collaboration",
+ "flowy-core-data-model",
+ "flowy-user-data-model",
  "hyper",
  "lazy_static",
  "log",
@@ -668,9 +671,9 @@ checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
 
 [[package]]
 name = "bytes"
-version = "1.0.1"
+version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b700ce4376041dcd0a327fd0097c41095743c4c8af8887265942faf1100bd040"
+checksum = "c4872d67bab6358e59559027aa3b9157c53d9358c51423c17554809a8858e0f8"
 dependencies = [
  "serde",
 ]
@@ -1149,6 +1152,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "error-code"
+version = "0.1.0"
+dependencies = [
+ "derive_more",
+ "flowy-derive",
+ "protobuf",
+]
+
+[[package]]
 name = "eyre"
 version = "0.6.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1196,13 +1208,96 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-collaboration"
+version = "0.1.0"
+dependencies = [
+ "async-stream",
+ "bytes",
+ "chrono",
+ "dashmap",
+ "flowy-derive",
+ "futures",
+ "lib-infra",
+ "lib-ot",
+ "log",
+ "md5",
+ "parking_lot",
+ "protobuf",
+ "serde",
+ "strum",
+ "strum_macros",
+ "tokio",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "flowy-core"
+version = "0.1.0"
+dependencies = [
+ "backend-service",
+ "bincode",
+ "bytes",
+ "chrono",
+ "crossbeam",
+ "crossbeam-utils",
+ "dart-notify",
+ "derive_more",
+ "diesel",
+ "diesel_derives",
+ "flowy-collaboration",
+ "flowy-core-data-model",
+ "flowy-database",
+ "flowy-derive",
+ "flowy-document",
+ "flowy-error",
+ "flowy-net",
+ "futures",
+ "futures-core",
+ "lazy_static",
+ "lib-dispatch",
+ "lib-infra",
+ "lib-ot",
+ "lib-sqlite",
+ "log",
+ "parking_lot",
+ "pin-project 1.0.8",
+ "protobuf",
+ "serde",
+ "strum",
+ "strum_macros",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "flowy-core-data-model"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "chrono",
+ "derive_more",
+ "error-code",
+ "flowy-collaboration",
+ "flowy-derive",
+ "log",
+ "protobuf",
+ "strum",
+ "strum_macros",
+ "unicode-segmentation",
+ "uuid",
+]
+
+[[package]]
 name = "flowy-database"
 version = "0.1.0"
 dependencies = [
  "diesel",
  "diesel_derives",
  "diesel_migrations",
+ "lazy_static",
  "lib-sqlite",
+ "log",
 ]
 
 [[package]]
@@ -1230,11 +1325,13 @@ dependencies = [
  "derive_more",
  "diesel",
  "diesel_derives",
+ "flowy-collaboration",
  "flowy-database",
  "flowy-derive",
- "flowy-document-infra",
+ "flowy-error",
  "futures",
  "futures-core",
+ "futures-util",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
@@ -1255,22 +1352,40 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-document-infra"
+name = "flowy-error"
 version = "0.1.0"
 dependencies = [
+ "backend-service",
  "bytes",
- "chrono",
+ "error-code",
+ "flowy-collaboration",
+ "flowy-database",
  "flowy-derive",
+ "lib-dispatch",
  "lib-ot",
- "log",
- "md5",
+ "lib-sqlite",
  "protobuf",
- "serde",
+ "r2d2",
+ "serde_json",
+]
+
+[[package]]
+name = "flowy-net"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bytes",
+ "flowy-derive",
+ "flowy-error",
+ "lib-dispatch",
+ "lib-infra",
+ "lib-ws",
+ "parking_lot",
+ "protobuf",
  "strum",
  "strum_macros",
  "tokio",
  "tracing",
- "url",
 ]
 
 [[package]]
@@ -1280,11 +1395,12 @@ dependencies = [
  "backend-service",
  "bytes",
  "color-eyre",
+ "flowy-collaboration",
+ "flowy-core",
  "flowy-database",
  "flowy-document",
- "flowy-document-infra",
+ "flowy-net",
  "flowy-user",
- "flowy-workspace",
  "futures-core",
  "lib-dispatch",
  "lib-infra",
@@ -1304,17 +1420,20 @@ dependencies = [
  "bincode",
  "bytes",
  "claim",
+ "flowy-collaboration",
+ "flowy-core",
  "flowy-document",
- "flowy-document-infra",
+ "flowy-net",
  "flowy-sdk",
  "flowy-user",
- "flowy-workspace",
  "futures-util",
  "lib-dispatch",
  "lib-infra",
+ "lib-ot",
  "log",
  "protobuf",
  "serde",
+ "serde_json",
  "thread-id",
  "tokio",
 ]
@@ -1326,18 +1445,20 @@ dependencies = [
  "backend-service",
  "bytes",
  "dart-notify",
+ "dashmap",
  "derive_more",
  "diesel",
  "diesel_derives",
  "flowy-database",
  "flowy-derive",
- "flowy-user-infra",
+ "flowy-error",
+ "flowy-net",
+ "flowy-user-data-model",
  "futures-core",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
  "lib-sqlite",
- "lib-ws",
  "log",
  "once_cell",
  "parking_lot",
@@ -1355,11 +1476,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-user-infra"
+name = "flowy-user-data-model"
 version = "0.1.0"
 dependencies = [
  "bytes",
  "derive_more",
+ "error-code",
  "fancy-regex",
  "flowy-derive",
  "lazy_static",
@@ -1367,60 +1489,6 @@ dependencies = [
  "protobuf",
  "unicode-segmentation",
  "validator",
-]
-
-[[package]]
-name = "flowy-workspace"
-version = "0.1.0"
-dependencies = [
- "backend-service",
- "bincode",
- "bytes",
- "chrono",
- "crossbeam",
- "crossbeam-utils",
- "dart-notify",
- "derive_more",
- "diesel",
- "diesel_derives",
- "flowy-database",
- "flowy-derive",
- "flowy-document",
- "flowy-document-infra",
- "flowy-workspace-infra",
- "futures",
- "futures-core",
- "lazy_static",
- "lib-dispatch",
- "lib-infra",
- "lib-ot",
- "lib-sqlite",
- "log",
- "parking_lot",
- "pin-project 1.0.8",
- "protobuf",
- "serde",
- "strum",
- "strum_macros",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "flowy-workspace-infra"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "chrono",
- "derive_more",
- "flowy-derive",
- "flowy-document-infra",
- "log",
- "protobuf",
- "strum",
- "strum_macros",
- "unicode-segmentation",
- "uuid",
 ]
 
 [[package]]
@@ -1933,16 +2001,9 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "chrono",
- "diesel",
- "diesel_derives",
- "diesel_migrations",
- "flowy-derive",
  "futures-core",
- "lazy_static",
- "lib-sqlite",
  "log",
  "pin-project 1.0.8",
- "protobuf",
  "rand",
  "tokio",
  "uuid",
@@ -1972,13 +2033,18 @@ version = "0.1.0"
 dependencies = [
  "bytecount",
  "bytes",
+ "dashmap",
  "derive_more",
+ "flowy-derive",
  "lazy_static",
  "log",
+ "md5",
+ "protobuf",
  "serde",
  "serde_json",
  "strum",
  "strum_macros",
+ "tokio",
  "tracing",
 ]
 

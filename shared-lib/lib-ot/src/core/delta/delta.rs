@@ -1,8 +1,9 @@
 use crate::{
-    core::{attributes::*, operation::*, DeltaIter, FlowyStr, Interval, OperationTransformable, MAX_IV_LEN},
+    core::{operation::*, DeltaIter, FlowyStr, Interval, OperationTransformable, MAX_IV_LEN},
     errors::{ErrorBuilder, OTError, OTErrorCode},
 };
 use bytes::Bytes;
+use serde::de::DeserializeOwned;
 use std::{
     cmp::{min, Ordering},
     fmt,
@@ -13,13 +14,16 @@ use std::{
 
 // Opti: optimize the memory usage with Arc_mut or Cow
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Delta {
-    pub ops: Vec<Operation>,
+pub struct Delta<T: Attributes> {
+    pub ops: Vec<Operation<T>>,
     pub base_len: usize,
     pub target_len: usize,
 }
 
-impl Default for Delta {
+impl<T> Default for Delta<T>
+where
+    T: Attributes,
+{
     fn default() -> Self {
         Self {
             ops: Vec::new(),
@@ -29,28 +33,10 @@ impl Default for Delta {
     }
 }
 
-impl FromStr for Delta {
-    type Err = ();
-
-    fn from_str(s: &str) -> Result<Delta, Self::Err> {
-        let mut delta = Delta::with_capacity(1);
-        delta.add(Operation::Insert(s.into()));
-        Ok(delta)
-    }
-}
-
-impl std::convert::TryFrom<Vec<u8>> for Delta {
-    type Error = OTError;
-    fn try_from(bytes: Vec<u8>) -> Result<Self, Self::Error> { Delta::from_bytes(bytes) }
-}
-
-impl std::convert::TryFrom<Bytes> for Delta {
-    type Error = OTError;
-
-    fn try_from(bytes: Bytes) -> Result<Self, Self::Error> { Delta::from_bytes(&bytes) }
-}
-
-impl fmt::Display for Delta {
+impl<T> fmt::Display for Delta<T>
+where
+    T: Attributes,
+{
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // f.write_str(&serde_json::to_string(self).unwrap_or("".to_owned()))?;
         f.write_str("[ ")?;
@@ -62,8 +48,11 @@ impl fmt::Display for Delta {
     }
 }
 
-impl FromIterator<Operation> for Delta {
-    fn from_iter<T: IntoIterator<Item = Operation>>(ops: T) -> Self {
+impl<T> FromIterator<Operation<T>> for Delta<T>
+where
+    T: Attributes,
+{
+    fn from_iter<I: IntoIterator<Item = Operation<T>>>(ops: I) -> Self {
         let mut operations = Delta::default();
         for op in ops {
             operations.add(op);
@@ -72,29 +61,11 @@ impl FromIterator<Operation> for Delta {
     }
 }
 
-impl Delta {
+impl<T> Delta<T>
+where
+    T: Attributes,
+{
     pub fn new() -> Self { Self::default() }
-
-    pub fn from_json(json: &str) -> Result<Self, OTError> {
-        let delta: Delta = serde_json::from_str(json).map_err(|e| {
-            tracing::trace!("Deserialize failed: {:?}", e);
-            tracing::trace!("{:?}", json);
-            e
-        })?;
-        Ok(delta)
-    }
-
-    pub fn to_json(&self) -> String { serde_json::to_string(self).unwrap_or_else(|_| "".to_owned()) }
-
-    pub fn from_bytes<T: AsRef<[u8]>>(bytes: T) -> Result<Self, OTError> {
-        let json = str::from_utf8(bytes.as_ref())?;
-        Self::from_json(json)
-    }
-
-    pub fn to_bytes(&self) -> Bytes {
-        let json = self.to_json();
-        Bytes::from(json.into_bytes())
-    }
 
     #[inline]
     pub fn with_capacity(capacity: usize) -> Self {
@@ -105,7 +76,7 @@ impl Delta {
         }
     }
 
-    pub fn add(&mut self, op: Operation) {
+    pub fn add(&mut self, op: Operation<T>) {
         match op {
             Operation::Delete(i) => self.delete(i),
             Operation::Insert(i) => self.insert(&i.s, i.attributes),
@@ -125,7 +96,7 @@ impl Delta {
         }
     }
 
-    pub fn insert(&mut self, s: &str, attributes: Attributes) {
+    pub fn insert(&mut self, s: &str, attributes: T) {
         let s: FlowyStr = s.into();
         if s.is_empty() {
             return;
@@ -133,20 +104,20 @@ impl Delta {
 
         self.target_len += s.count_utf16_code_units();
         let new_last = match self.ops.as_mut_slice() {
-            [.., Operation::Insert(insert)] => {
+            [.., Operation::<T>::Insert(insert)] => {
                 //
                 insert.merge_or_new_op(&s, attributes)
             },
-            [.., Operation::Insert(pre_insert), Operation::Delete(_)] => {
+            [.., Operation::<T>::Insert(pre_insert), Operation::Delete(_)] => {
                 //
                 pre_insert.merge_or_new_op(&s, attributes)
             },
-            [.., op_last @ Operation::Delete(_)] => {
+            [.., op_last @ Operation::<T>::Delete(_)] => {
                 let new_last = op_last.clone();
-                *op_last = OpBuilder::insert(&s).attributes(attributes).build();
+                *op_last = OpBuilder::<T>::insert(&s).attributes(attributes).build();
                 Some(new_last)
             },
-            _ => Some(OpBuilder::insert(&s).attributes(attributes).build()),
+            _ => Some(OpBuilder::<T>::insert(&s).attributes(attributes).build()),
         };
 
         match new_last {
@@ -155,19 +126,19 @@ impl Delta {
         }
     }
 
-    pub fn retain(&mut self, n: usize, attributes: Attributes) {
+    pub fn retain(&mut self, n: usize, attributes: T) {
         if n == 0 {
             return;
         }
         self.base_len += n as usize;
         self.target_len += n as usize;
 
-        if let Some(Operation::Retain(retain)) = self.ops.last_mut() {
+        if let Some(Operation::<T>::Retain(retain)) = self.ops.last_mut() {
             if let Some(new_op) = retain.merge_or_new(n, attributes) {
                 self.ops.push(new_op);
             }
         } else {
-            self.ops.push(OpBuilder::retain(n).attributes(attributes).build());
+            self.ops.push(OpBuilder::<T>::retain(n).attributes(attributes).build());
         }
     }
 
@@ -207,7 +178,7 @@ impl Delta {
         for op in &self.ops {
             match &op {
                 Operation::Retain(retain) => {
-                    inverted.retain(retain.n, Attributes::default());
+                    inverted.retain(retain.n, T::default());
                     // TODO: use advance_by instead, but it's unstable now
                     // chars.advance_by(retain.num)
                     for _ in 0..retain.n {
@@ -234,7 +205,10 @@ impl Delta {
     pub fn extend(&mut self, other: Self) { other.ops.into_iter().for_each(|op| self.add(op)); }
 }
 
-impl OperationTransformable for Delta {
+impl<T> OperationTransformable for Delta<T>
+where
+    T: Attributes,
+{
     fn compose(&self, other: &Self) -> Result<Self, OTError>
     where
         Self: Sized,
@@ -453,7 +427,13 @@ impl OperationTransformable for Delta {
     }
 }
 
-fn invert_from_other(base: &mut Delta, other: &Delta, operation: &Operation, start: usize, end: usize) {
+fn invert_from_other<T: Attributes>(
+    base: &mut Delta<T>,
+    other: &Delta<T>,
+    operation: &Operation<T>,
+    start: usize,
+    end: usize,
+) {
     tracing::trace!("invert op: {} [{}:{}]", operation, start, end);
     let other_ops = DeltaIter::from_interval(other, Interval::new(start, end)).ops();
     other_ops.into_iter().for_each(|other_op| match operation {
@@ -476,10 +456,10 @@ fn invert_from_other(base: &mut Delta, other: &Delta, operation: &Operation, sta
     });
 }
 
-fn transform_op_attribute(left: &Option<Operation>, right: &Option<Operation>) -> Attributes {
+fn transform_op_attribute<T: Attributes>(left: &Option<Operation<T>>, right: &Option<Operation<T>>) -> T {
     if left.is_none() {
         if right.is_none() {
-            return Attributes::default();
+            return T::default();
         }
         return right.as_ref().unwrap().get_attributes();
     }
@@ -487,4 +467,66 @@ fn transform_op_attribute(left: &Option<Operation>, right: &Option<Operation>) -
     let right = right.as_ref().unwrap().get_attributes();
     // TODO: It's ok to unwrap?
     left.transform(&right).unwrap().0
+}
+
+impl<T> Delta<T>
+where
+    T: Attributes + DeserializeOwned,
+{
+    pub fn from_json(json: &str) -> Result<Self, OTError> {
+        let delta = serde_json::from_str(json).map_err(|e| {
+            tracing::trace!("Deserialize failed: {:?}", e);
+            tracing::trace!("{:?}", json);
+            e
+        })?;
+        Ok(delta)
+    }
+
+    pub fn from_bytes<B: AsRef<[u8]>>(bytes: B) -> Result<Self, OTError> {
+        let json = str::from_utf8(bytes.as_ref())?.to_owned();
+        let val = Self::from_json(&json)?;
+        Ok(val)
+    }
+}
+
+impl<T> Delta<T>
+where
+    T: Attributes + serde::Serialize,
+{
+    pub fn to_json(&self) -> String { serde_json::to_string(self).unwrap_or_else(|_| "".to_owned()) }
+
+    pub fn to_bytes(&self) -> Bytes {
+        let json = self.to_json();
+        Bytes::from(json.into_bytes())
+    }
+}
+
+impl<T> FromStr for Delta<T>
+where
+    T: Attributes,
+{
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Delta<T>, Self::Err> {
+        let mut delta = Delta::with_capacity(1);
+        delta.add(Operation::Insert(s.into()));
+        Ok(delta)
+    }
+}
+
+impl<T> std::convert::TryFrom<Vec<u8>> for Delta<T>
+where
+    T: Attributes + DeserializeOwned,
+{
+    type Error = OTError;
+    fn try_from(bytes: Vec<u8>) -> Result<Self, Self::Error> { Delta::from_bytes(bytes) }
+}
+
+impl<T> std::convert::TryFrom<Bytes> for Delta<T>
+where
+    T: Attributes + DeserializeOwned,
+{
+    type Error = OTError;
+
+    fn try_from(bytes: Bytes) -> Result<Self, Self::Error> { Delta::from_bytes(&bytes) }
 }

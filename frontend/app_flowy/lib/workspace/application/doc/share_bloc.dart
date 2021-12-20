@@ -1,8 +1,8 @@
 import 'package:app_flowy/workspace/domain/i_share.dart';
 import 'package:app_flowy/workspace/infrastructure/markdown/delta_markdown.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/export.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/export.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/view_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
@@ -48,5 +48,5 @@ class DocShareEvent with _$DocShareEvent {
 class DocShareState with _$DocShareState {
   const factory DocShareState.initial() = _Initial;
   const factory DocShareState.loading() = _Loading;
-  const factory DocShareState.finish(Either<ExportData, WorkspaceError> successOrFail) = _Finish;
+  const factory DocShareState.finish(Either<ExportData, FlowyError> successOrFail) = _Finish;
 }

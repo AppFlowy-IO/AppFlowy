@@ -980,7 +980,7 @@ class _$TrashStateTearOff {
 
   _TrashState call(
       {required List<Trash> objects,
-      required Either<Unit, WorkspaceError> successOrFailure}) {
+      required Either<Unit, FlowyError> successOrFailure}) {
     return _TrashState(
       objects: objects,
       successOrFailure: successOrFailure,
@@ -994,7 +994,7 @@ const $TrashState = _$TrashStateTearOff();
 /// @nodoc
 mixin _$TrashState {
   List<Trash> get objects => throw _privateConstructorUsedError;
-  Either<Unit, WorkspaceError> get successOrFailure =>
+  Either<Unit, FlowyError> get successOrFailure =>
       throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
@@ -1008,7 +1008,7 @@ abstract class $TrashStateCopyWith<$Res> {
           TrashState value, $Res Function(TrashState) then) =
       _$TrashStateCopyWithImpl<$Res>;
   $Res call(
-      {List<Trash> objects, Either<Unit, WorkspaceError> successOrFailure});
+      {List<Trash> objects, Either<Unit, FlowyError> successOrFailure});
 }
 
 /// @nodoc
@@ -1032,7 +1032,7 @@ class _$TrashStateCopyWithImpl<$Res> implements $TrashStateCopyWith<$Res> {
       successOrFailure: successOrFailure == freezed
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
-              as Either<Unit, WorkspaceError>,
+              as Either<Unit, FlowyError>,
     ));
   }
 }
@@ -1044,7 +1044,7 @@ abstract class _$TrashStateCopyWith<$Res> implements $TrashStateCopyWith<$Res> {
       __$TrashStateCopyWithImpl<$Res>;
   @override
   $Res call(
-      {List<Trash> objects, Either<Unit, WorkspaceError> successOrFailure});
+      {List<Trash> objects, Either<Unit, FlowyError> successOrFailure});
 }
 
 /// @nodoc
@@ -1070,7 +1070,7 @@ class __$TrashStateCopyWithImpl<$Res> extends _$TrashStateCopyWithImpl<$Res>
       successOrFailure: successOrFailure == freezed
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
-              as Either<Unit, WorkspaceError>,
+              as Either<Unit, FlowyError>,
     ));
   }
 }
@@ -1083,7 +1083,7 @@ class _$_TrashState implements _TrashState {
   @override
   final List<Trash> objects;
   @override
-  final Either<Unit, WorkspaceError> successOrFailure;
+  final Either<Unit, FlowyError> successOrFailure;
 
   @override
   String toString() {
@@ -1117,12 +1117,12 @@ class _$_TrashState implements _TrashState {
 abstract class _TrashState implements TrashState {
   const factory _TrashState(
       {required List<Trash> objects,
-      required Either<Unit, WorkspaceError> successOrFailure}) = _$_TrashState;
+      required Either<Unit, FlowyError> successOrFailure}) = _$_TrashState;
 
   @override
   List<Trash> get objects => throw _privateConstructorUsedError;
   @override
-  Either<Unit, WorkspaceError> get successOrFailure =>
+  Either<Unit, FlowyError> get successOrFailure =>
       throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)

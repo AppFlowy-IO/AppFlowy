@@ -1,12 +1,10 @@
 import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-user-infra/protobuf.dart' show UserProfile;
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_query.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/workspace_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/workspace_query.pb.dart';
 import 'package:app_flowy/workspace/domain/i_user.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 
 class UserRepo {
   final UserProfile user;
@@ -14,23 +12,23 @@ class UserRepo {
     required this.user,
   });
 
-  Future<Either<UserProfile, UserError>> fetchUserProfile({required String userId}) {
+  Future<Either<UserProfile, FlowyError>> fetchUserProfile({required String userId}) {
     return UserEventGetUserProfile().send();
   }
 
-  Future<Either<Unit, WorkspaceError>> deleteWorkspace({required String workspaceId}) {
+  Future<Either<Unit, FlowyError>> deleteWorkspace({required String workspaceId}) {
     throw UnimplementedError();
   }
 
-  Future<Either<Unit, UserError>> signOut() {
+  Future<Either<Unit, FlowyError>> signOut() {
     return UserEventSignOut().send();
   }
 
-  Future<Either<Unit, UserError>> initUser() async {
+  Future<Either<Unit, FlowyError>> initUser() async {
     return UserEventInitUser().send();
   }
 
-  Future<Either<List<Workspace>, WorkspaceError>> getWorkspaces() {
+  Future<Either<List<Workspace>, FlowyError>> getWorkspaces() {
     final request = QueryWorkspaceRequest.create();
 
     return WorkspaceEventReadWorkspaces(request).send().then((result) {
@@ -41,7 +39,7 @@ class UserRepo {
     });
   }
 
-  Future<Either<Workspace, WorkspaceError>> openWorkspace(String workspaceId) {
+  Future<Either<Workspace, FlowyError>> openWorkspace(String workspaceId) {
     final request = QueryWorkspaceRequest.create()..workspaceId = workspaceId;
     return WorkspaceEventOpenWorkspace(request).send().then((result) {
       return result.fold(
@@ -51,7 +49,7 @@ class UserRepo {
     });
   }
 
-  Future<Either<Workspace, WorkspaceError>> createWorkspace(String name, String desc) {
+  Future<Either<Workspace, FlowyError>> createWorkspace(String name, String desc) {
     final request = CreateWorkspaceRequest.create()
       ..name = name
       ..desc = desc;

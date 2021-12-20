@@ -13,7 +13,7 @@ cargo test
 dependencies = ["rm_cache"]
 script = """
 cd rust-lib
-cargo test --features "flowy-workspace/http_server","flowy-user/http_server"
+cargo test --features "flowy-core/http_server","flowy-user/http_server"
 """
 
 

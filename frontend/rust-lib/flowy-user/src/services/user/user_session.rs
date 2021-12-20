@@ -1,32 +1,31 @@
-use crate::{
-    entities::{SignInParams, SignUpParams, UpdateUserParams, UserProfile},
-    errors::{ErrorCode, UserError},
-    services::user::database::UserDB,
-    sql_tables::{UserTable, UserTableChangeset},
-};
+use std::sync::Arc;
 
-use crate::{
-    notify::*,
-    services::{
-        server::{construct_user_server, Server},
-        user::{notifier::UserNotifier, ws_manager::WsManager},
-    },
-};
+use parking_lot::RwLock;
+use serde::{Deserialize, Serialize};
+use tokio::sync::mpsc;
+
 use backend_service::configuration::ClientServerConfiguration;
 use flowy_database::{
+    kv::KV,
     query_dsl::*,
     schema::{user_table, user_table::dsl},
     DBConnection,
     ExpressionMethods,
     UserDatabaseConnection,
 };
-use lib_infra::{entities::network_state::NetworkState, kv::KV};
+use flowy_user_data_model::entities::{SignInResponse, SignUpResponse};
 use lib_sqlite::ConnectionPool;
-use lib_ws::{WsConnectState, WsMessageHandler, WsSender};
-use parking_lot::RwLock;
-use serde::{Deserialize, Serialize};
-use std::sync::Arc;
-use tokio::sync::{broadcast, mpsc};
+
+use crate::{
+    entities::{SignInParams, SignUpParams, UpdateUserParams, UserProfile},
+    errors::{ErrorCode, FlowyError},
+    notify::*,
+    services::{
+        server::{construct_user_server, Server},
+        user::{database::UserDB, notifier::UserNotifier},
+    },
+    sql_tables::{UserTable, UserTableChangeset},
+};
 
 pub struct UserSessionConfig {
     root_dir: String,
@@ -50,7 +49,6 @@ pub struct UserSession {
     #[allow(dead_code)]
     server: Server,
     session: RwLock<Option<Session>>,
-    ws_manager: Arc<WsManager>,
     pub notifier: UserNotifier,
 }
 
@@ -58,14 +56,12 @@ impl UserSession {
     pub fn new(config: UserSessionConfig) -> Self {
         let db = UserDB::new(&config.root_dir);
         let server = construct_user_server(&config.server_config);
-        let ws_manager = Arc::new(WsManager::new());
         let notifier = UserNotifier::new();
         Self {
             database: db,
             config,
             server,
             session: RwLock::new(None),
-            ws_manager,
             notifier,
         }
     }
@@ -76,7 +72,7 @@ impl UserSession {
         }
     }
 
-    pub fn db_connection(&self) -> Result<DBConnection, UserError> {
+    pub fn db_connection(&self) -> Result<DBConnection, FlowyError> {
         let user_id = self.get_session()?.user_id;
         self.database.get_connection(&user_id)
     }
@@ -87,18 +83,18 @@ impl UserSession {
     //
     // let pool = self.db_connection_pool()?;
     // let conn: PooledConnection<ConnectionManager> = pool.get()?;
-    pub fn db_pool(&self) -> Result<Arc<ConnectionPool>, UserError> {
+    pub fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError> {
         let user_id = self.get_session()?.user_id;
         self.database.get_pool(&user_id)
     }
 
     #[tracing::instrument(level = "debug", skip(self))]
-    pub async fn sign_in(&self, params: SignInParams) -> Result<UserProfile, UserError> {
+    pub async fn sign_in(&self, params: SignInParams) -> Result<UserProfile, FlowyError> {
         if self.is_login(&params.email) {
             self.user_profile().await
         } else {
             let resp = self.server.sign_in(params).await?;
-            let session = Session::new(&resp.user_id, &resp.token, &resp.email);
+            let session: Session = resp.clone().into();
             let _ = self.set_session(Some(session))?;
             let user_table = self.save_user(resp.into()).await?;
             let user_profile: UserProfile = user_table.into();
@@ -108,12 +104,12 @@ impl UserSession {
     }
 
     #[tracing::instrument(level = "debug", skip(self))]
-    pub async fn sign_up(&self, params: SignUpParams) -> Result<UserProfile, UserError> {
+    pub async fn sign_up(&self, params: SignUpParams) -> Result<UserProfile, FlowyError> {
         if self.is_login(&params.email) {
             self.user_profile().await
         } else {
             let resp = self.server.sign_up(params).await?;
-            let session = Session::new(&resp.user_id, &resp.token, &resp.email);
+            let session: Session = resp.clone().into();
             let _ = self.set_session(Some(session))?;
             let user_table = self.save_user(resp.into()).await?;
             let user_profile: UserProfile = user_table.into();
@@ -126,7 +122,7 @@ impl UserSession {
     }
 
     #[tracing::instrument(level = "debug", skip(self))]
-    pub async fn sign_out(&self) -> Result<(), UserError> {
+    pub async fn sign_out(&self) -> Result<(), FlowyError> {
         let session = self.get_session()?;
         let _ =
             diesel::delete(dsl::user_table.filter(dsl::id.eq(&session.user_id))).execute(&*(self.db_connection()?))?;
@@ -139,7 +135,7 @@ impl UserSession {
     }
 
     #[tracing::instrument(level = "debug", skip(self))]
-    pub async fn update_user(&self, params: UpdateUserParams) -> Result<(), UserError> {
+    pub async fn update_user(&self, params: UpdateUserParams) -> Result<(), FlowyError> {
         let session = self.get_session()?;
         let changeset = UserTableChangeset::new(params.clone());
         diesel_update_table!(user_table, changeset, &*self.db_connection()?);
@@ -148,14 +144,9 @@ impl UserSession {
         Ok(())
     }
 
-    pub async fn init_user(&self) -> Result<(), UserError> {
-        let (_, token) = self.get_session()?.into_part();
-        let _ = self.start_ws_connection(&token).await?;
+    pub async fn init_user(&self) -> Result<(), FlowyError> { Ok(()) }
 
-        Ok(())
-    }
-
-    pub async fn check_user(&self) -> Result<UserProfile, UserError> {
+    pub async fn check_user(&self) -> Result<UserProfile, FlowyError> {
         let (user_id, token) = self.get_session()?.into_part();
 
         let user = dsl::user_table
@@ -166,7 +157,7 @@ impl UserSession {
         Ok(user.into())
     }
 
-    pub async fn user_profile(&self) -> Result<UserProfile, UserError> {
+    pub async fn user_profile(&self) -> Result<UserProfile, FlowyError> {
         let (user_id, token) = self.get_session()?.into_part();
         let user = dsl::user_table
             .filter(user_table::id.eq(&user_id))
@@ -176,33 +167,20 @@ impl UserSession {
         Ok(user.into())
     }
 
-    pub fn user_dir(&self) -> Result<String, UserError> {
+    pub fn user_dir(&self) -> Result<String, FlowyError> {
         let session = self.get_session()?;
         Ok(format!("{}/{}", self.config.root_dir, session.user_id))
     }
 
-    pub fn user_id(&self) -> Result<String, UserError> { Ok(self.get_session()?.user_id) }
+    pub fn user_id(&self) -> Result<String, FlowyError> { Ok(self.get_session()?.user_id) }
 
-    pub fn token(&self) -> Result<String, UserError> { Ok(self.get_session()?.token) }
+    pub fn user_name(&self) -> Result<String, FlowyError> { Ok(self.get_session()?.name) }
 
-    pub fn add_ws_handler(&self, handler: Arc<dyn WsMessageHandler>) { let _ = self.ws_manager.add_handler(handler); }
-
-    pub fn set_network_state(&self, new_state: NetworkState) {
-        log::debug!("Network new state: {:?}", new_state);
-        self.ws_manager.update_network_type(&new_state.ty);
-        self.notifier.update_network_type(&new_state.ty);
-    }
-
-    pub fn ws_sender(&self) -> Result<Arc<WsSender>, UserError> {
-        let sender = self.ws_manager.sender()?;
-        Ok(sender)
-    }
-
-    pub fn ws_state_notifier(&self) -> broadcast::Receiver<WsConnectState> { self.ws_manager.state_subscribe() }
+    pub fn token(&self) -> Result<String, FlowyError> { Ok(self.get_session()?.token) }
 }
 
 impl UserSession {
-    fn read_user_profile_on_server(&self, token: &str) -> Result<(), UserError> {
+    fn read_user_profile_on_server(&self, token: &str) -> Result<(), FlowyError> {
         let server = self.server.clone();
         let token = token.to_owned();
         tokio::spawn(async move {
@@ -222,7 +200,7 @@ impl UserSession {
         Ok(())
     }
 
-    async fn update_user_on_server(&self, token: &str, params: UpdateUserParams) -> Result<(), UserError> {
+    async fn update_user_on_server(&self, token: &str, params: UpdateUserParams) -> Result<(), FlowyError> {
         let server = self.server.clone();
         let token = token.to_owned();
         let _ = tokio::spawn(async move {
@@ -238,7 +216,7 @@ impl UserSession {
         Ok(())
     }
 
-    async fn sign_out_on_server(&self, token: &str) -> Result<(), UserError> {
+    async fn sign_out_on_server(&self, token: &str) -> Result<(), FlowyError> {
         let server = self.server.clone();
         let token = token.to_owned();
         let _ = tokio::spawn(async move {
@@ -251,7 +229,7 @@ impl UserSession {
         Ok(())
     }
 
-    async fn save_user(&self, user: UserTable) -> Result<UserTable, UserError> {
+    async fn save_user(&self, user: UserTable) -> Result<UserTable, FlowyError> {
         let conn = self.db_connection()?;
         let _ = diesel::insert_into(user_table::table)
             .values(user.clone())
@@ -259,19 +237,17 @@ impl UserSession {
         Ok(user)
     }
 
-    fn set_session(&self, session: Option<Session>) -> Result<(), UserError> {
+    fn set_session(&self, session: Option<Session>) -> Result<(), FlowyError> {
         tracing::debug!("Set user session: {:?}", session);
         match &session {
-            None => {
-                KV::remove(&self.config.session_cache_key).map_err(|e| UserError::new(ErrorCode::InternalError, &e))?
-            },
+            None => KV::remove(&self.config.session_cache_key).map_err(|e| FlowyError::new(ErrorCode::Internal, &e))?,
             Some(session) => KV::set_str(&self.config.session_cache_key, session.clone().into()),
         }
         *self.session.write() = session;
         Ok(())
     }
 
-    fn get_session(&self) -> Result<Session, UserError> {
+    fn get_session(&self) -> Result<Session, FlowyError> {
         let mut session = { (*self.session.read()).clone() };
         if session.is_none() {
             match KV::get_str(&self.config.session_cache_key) {
@@ -284,7 +260,7 @@ impl UserSession {
         }
 
         match session {
-            None => Err(UserError::unauthorized()),
+            None => Err(FlowyError::unauthorized()),
             Some(session) => Ok(session),
         }
     }
@@ -295,22 +271,13 @@ impl UserSession {
             Err(_) => false,
         }
     }
-
-    #[tracing::instrument(level = "debug", skip(self, token))]
-    pub async fn start_ws_connection(&self, token: &str) -> Result<(), UserError> {
-        if cfg!(feature = "http_server") {
-            let addr = format!("{}/{}", self.server.ws_addr(), token);
-            let _ = self.ws_manager.start(addr).await?;
-        }
-        Ok(())
-    }
 }
 
 pub async fn update_user(
     _server: Server,
     pool: Arc<ConnectionPool>,
     params: UpdateUserParams,
-) -> Result<(), UserError> {
+) -> Result<(), FlowyError> {
     let changeset = UserTableChangeset::new(params);
     let conn = pool.get()?;
     diesel_update_table!(user_table, changeset, &*conn);
@@ -326,17 +293,32 @@ struct Session {
     user_id: String,
     token: String,
     email: String,
+    name: String,
+}
+
+impl std::convert::From<SignInResponse> for Session {
+    fn from(resp: SignInResponse) -> Self {
+        Session {
+            user_id: resp.user_id,
+            token: resp.token,
+            email: resp.email,
+            name: resp.name,
+        }
+    }
+}
+
+impl std::convert::From<SignUpResponse> for Session {
+    fn from(resp: SignUpResponse) -> Self {
+        Session {
+            user_id: resp.user_id,
+            token: resp.token,
+            email: resp.email,
+            name: resp.name,
+        }
+    }
 }
 
 impl Session {
-    pub fn new(user_id: &str, token: &str, email: &str) -> Self {
-        Self {
-            user_id: user_id.to_owned(),
-            token: token.to_owned(),
-            email: email.to_owned(),
-        }
-    }
-
     pub fn into_part(self) -> (String, String) { (self.user_id, self.token) }
 }
 

@@ -1,12 +1,13 @@
 import 'dart:ffi';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_log/flowy_log.dart';
+// ignore: unnecessary_import
 import 'package:flowy_sdk/protobuf/dart-ffi/ffi_response.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-net/event.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-net/network_state.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/event.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/event.pb.dart';
-import 'package:flowy_sdk/protobuf/lib-infra/network_state.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core/event.pb.dart';
 import 'package:isolates/isolates.dart';
 import 'package:isolates/ports.dart';
 import 'package:ffi/ffi.dart';
@@ -15,13 +16,13 @@ import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:flowy_sdk/ffi.dart' as ffi;
-import 'package:flowy_sdk/protobuf/flowy-user-infra/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart';
 import 'package:flowy_sdk/protobuf/dart-ffi/protobuf.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/protobuf.dart';
-import 'package:flowy_sdk/protobuf/flowy-document-infra/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-collaboration/protobuf.dart';
 
 // ignore: unused_import
-import 'package:flowy_sdk/protobuf/flowy-infra/protobuf.dart';
+import 'package:flowy_sdk/protobuf/lib-infra/protobuf.dart';
 import 'package:protobuf/protobuf.dart';
 import 'dart:convert' show utf8;
 import 'error.dart';
@@ -52,7 +53,7 @@ class Dispatch {
   }
 }
 
-Future<Either<Uint8List, Uint8List>> _extractPayload(Future<Either<FFIResponse, FlowyError>> responseFuture) {
+Future<Either<Uint8List, Uint8List>> _extractPayload(Future<Either<FFIResponse, FlowyInternalError>> responseFuture) {
   return responseFuture.then((result) {
     return result.fold(
       (response) {
@@ -78,7 +79,7 @@ Future<Either<Uint8List, Uint8List>> _extractPayload(Future<Either<FFIResponse, 
   });
 }
 
-Future<Either<FFIResponse, FlowyError>> _extractResponse(Completer<Uint8List> bytesFuture) {
+Future<Either<FFIResponse, FlowyInternalError>> _extractResponse(Completer<Uint8List> bytesFuture) {
   return bytesFuture.future.then((bytes) {
     try {
       final response = FFIResponse.fromBuffer(bytes);

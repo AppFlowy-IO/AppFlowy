@@ -909,7 +909,7 @@ class _$DocLoadStateTearOff {
     return const _Loading();
   }
 
-  _Finish finish(Either<Unit, WorkspaceError> successOrFail) {
+  _Finish finish(Either<Unit, FlowyError> successOrFail) {
     return _Finish(
       successOrFail,
     );
@@ -924,20 +924,20 @@ mixin _$DocLoadState {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
-    required TResult Function(Either<Unit, WorkspaceError> successOrFail)
+    required TResult Function(Either<Unit, FlowyError> successOrFail)
         finish,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function()? loading,
-    TResult Function(Either<Unit, WorkspaceError> successOrFail)? finish,
+    TResult Function(Either<Unit, FlowyError> successOrFail)? finish,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
-    TResult Function(Either<Unit, WorkspaceError> successOrFail)? finish,
+    TResult Function(Either<Unit, FlowyError> successOrFail)? finish,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -1016,7 +1016,7 @@ class _$_Loading implements _Loading {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
-    required TResult Function(Either<Unit, WorkspaceError> successOrFail)
+    required TResult Function(Either<Unit, FlowyError> successOrFail)
         finish,
   }) {
     return loading();
@@ -1026,7 +1026,7 @@ class _$_Loading implements _Loading {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function()? loading,
-    TResult Function(Either<Unit, WorkspaceError> successOrFail)? finish,
+    TResult Function(Either<Unit, FlowyError> successOrFail)? finish,
   }) {
     return loading?.call();
   }
@@ -1035,7 +1035,7 @@ class _$_Loading implements _Loading {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
-    TResult Function(Either<Unit, WorkspaceError> successOrFail)? finish,
+    TResult Function(Either<Unit, FlowyError> successOrFail)? finish,
     required TResult orElse(),
   }) {
     if (loading != null) {
@@ -1084,7 +1084,7 @@ abstract class _Loading implements DocLoadState {
 abstract class _$FinishCopyWith<$Res> {
   factory _$FinishCopyWith(_Finish value, $Res Function(_Finish) then) =
       __$FinishCopyWithImpl<$Res>;
-  $Res call({Either<Unit, WorkspaceError> successOrFail});
+  $Res call({Either<Unit, FlowyError> successOrFail});
 }
 
 /// @nodoc
@@ -1104,7 +1104,7 @@ class __$FinishCopyWithImpl<$Res> extends _$DocLoadStateCopyWithImpl<$Res>
       successOrFail == freezed
           ? _value.successOrFail
           : successOrFail // ignore: cast_nullable_to_non_nullable
-              as Either<Unit, WorkspaceError>,
+              as Either<Unit, FlowyError>,
     ));
   }
 }
@@ -1115,7 +1115,7 @@ class _$_Finish implements _Finish {
   const _$_Finish(this.successOrFail);
 
   @override
-  final Either<Unit, WorkspaceError> successOrFail;
+  final Either<Unit, FlowyError> successOrFail;
 
   @override
   String toString() {
@@ -1144,7 +1144,7 @@ class _$_Finish implements _Finish {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
-    required TResult Function(Either<Unit, WorkspaceError> successOrFail)
+    required TResult Function(Either<Unit, FlowyError> successOrFail)
         finish,
   }) {
     return finish(successOrFail);
@@ -1154,7 +1154,7 @@ class _$_Finish implements _Finish {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function()? loading,
-    TResult Function(Either<Unit, WorkspaceError> successOrFail)? finish,
+    TResult Function(Either<Unit, FlowyError> successOrFail)? finish,
   }) {
     return finish?.call(successOrFail);
   }
@@ -1163,7 +1163,7 @@ class _$_Finish implements _Finish {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
-    TResult Function(Either<Unit, WorkspaceError> successOrFail)? finish,
+    TResult Function(Either<Unit, FlowyError> successOrFail)? finish,
     required TResult orElse(),
   }) {
     if (finish != null) {
@@ -1205,9 +1205,9 @@ class _$_Finish implements _Finish {
 }
 
 abstract class _Finish implements DocLoadState {
-  const factory _Finish(Either<Unit, WorkspaceError> successOrFail) = _$_Finish;
+  const factory _Finish(Either<Unit, FlowyError> successOrFail) = _$_Finish;
 
-  Either<Unit, WorkspaceError> get successOrFail =>
+  Either<Unit, FlowyError> get successOrFail =>
       throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   _$FinishCopyWith<_Finish> get copyWith => throw _privateConstructorUsedError;

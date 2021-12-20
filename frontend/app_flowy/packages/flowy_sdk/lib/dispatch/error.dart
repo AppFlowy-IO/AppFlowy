@@ -1,6 +1,6 @@
 import 'package:flowy_sdk/protobuf/dart-ffi/protobuf.dart';
 
-class FlowyError {
+class FlowyInternalError {
   late FFIStatusCode _statusCode;
   late String _error;
 
@@ -20,13 +20,13 @@ class FlowyError {
     return "$_statusCode: $_error";
   }
 
-  FlowyError({required FFIStatusCode statusCode, required String error}) {
+  FlowyInternalError({required FFIStatusCode statusCode, required String error}) {
     _statusCode = statusCode;
     _error = error;
   }
 
-  factory FlowyError.from(FFIResponse resp) {
-    return FlowyError(statusCode: resp.code, error: "");
+  factory FlowyInternalError.from(FFIResponse resp) {
+    return FlowyInternalError(statusCode: resp.code, error: "");
   }
 }
 
@@ -38,8 +38,8 @@ class StackTraceError {
     this.trace,
   );
 
-  FlowyError asFlowyError() {
-    return FlowyError(statusCode: FFIStatusCode.Err, error: this.toString());
+  FlowyInternalError asFlowyError() {
+    return FlowyInternalError(statusCode: FFIStatusCode.Err, error: this.toString());
   }
 
   String toString() {

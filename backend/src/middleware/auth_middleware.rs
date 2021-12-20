@@ -1,4 +1,4 @@
-use crate::service::user::{LoggedUser, AUTHORIZED_USERS};
+use crate::services::user::{LoggedUser, AUTHORIZED_USERS};
 use actix_service::{Service, Transform};
 use actix_web::{
     dev::{ServiceRequest, ServiceResponse},

@@ -9,10 +9,10 @@ use backend_service::{
     user_request::*,
     workspace_request::*,
 };
+use flowy_collaboration::entities::doc::{Doc, DocIdentifier};
+use flowy_core_data_model::entities::prelude::*;
 use flowy_document::services::server::read_doc_request;
-use flowy_document_infra::entities::doc::{Doc, DocIdentifier};
-use flowy_user_infra::entities::*;
-use flowy_workspace_infra::entities::prelude::*;
+use flowy_user_data_model::entities::*;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
 
@@ -188,7 +188,7 @@ impl std::convert::From<TestServer> for TestUserServer {
             pg_pool: server.pg_pool,
             user_token: None,
             user_id: None,
-            client_server_config: server.client_server_config.clone(),
+            client_server_config: server.client_server_config,
         }
     }
 }

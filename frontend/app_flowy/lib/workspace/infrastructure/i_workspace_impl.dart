@@ -1,8 +1,8 @@
 import 'package:app_flowy/workspace/domain/i_workspace.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/workspace_repo.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/app_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/app_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 
 export 'package:app_flowy/workspace/domain/i_workspace.dart';
 
@@ -13,12 +13,12 @@ class IWorkspaceImpl extends IWorkspace {
   });
 
   @override
-  Future<Either<App, WorkspaceError>> createApp({required String name, String? desc}) {
+  Future<Either<App, FlowyError>> createApp({required String name, String? desc}) {
     return repo.createApp(name, desc ?? "");
   }
 
   @override
-  Future<Either<List<App>, WorkspaceError>> getApps() {
+  Future<Either<List<App>, FlowyError>> getApps() {
     return repo.getApps().then((result) {
       return result.fold(
         (apps) => left(apps),

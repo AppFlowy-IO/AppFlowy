@@ -46,7 +46,7 @@ fn parse_files_protobuf(proto_crate_path: &str, proto_output_dir: &str) -> Vec<P
 
         // https://docs.rs/syn/1.0.54/syn/struct.File.html
         let ast =
-            syn::parse_file(read_file(&path).unwrap().as_ref()).expect("Unable to parse file");
+            syn::parse_file(read_file(&path).unwrap().as_ref()).expect(&format!("Unable to parse file at {}", path));
         let structs = get_ast_structs(&ast);
         let proto_file_path = format!("{}/{}.proto", &proto_output_dir, &file_name);
         let mut proto_file_content = parse_or_init_proto_file(proto_file_path.as_ref());

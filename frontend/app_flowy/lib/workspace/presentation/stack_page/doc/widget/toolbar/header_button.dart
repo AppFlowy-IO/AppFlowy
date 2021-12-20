@@ -1,5 +1,4 @@
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_quill/models/documents/style.dart';
 import 'package:flutter/material.dart';
 

@@ -2,7 +2,6 @@ import 'package:flowy_infra/notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/presentation/stack_page/blank/blank_page.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/prelude.dart';
 

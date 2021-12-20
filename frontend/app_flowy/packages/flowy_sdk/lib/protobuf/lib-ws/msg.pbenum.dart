@@ -9,16 +9,16 @@
 import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
-class WsModule extends $pb.ProtobufEnum {
-  static const WsModule Doc = WsModule._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Doc');
+class WSModule extends $pb.ProtobufEnum {
+  static const WSModule Doc = WSModule._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Doc');
 
-  static const $core.List<WsModule> values = <WsModule> [
+  static const $core.List<WSModule> values = <WSModule> [
     Doc,
   ];
 
-  static final $core.Map<$core.int, WsModule> _byValue = $pb.ProtobufEnum.initByValue(values);
-  static WsModule? valueOf($core.int value) => _byValue[value];
+  static final $core.Map<$core.int, WSModule> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static WSModule? valueOf($core.int value) => _byValue[value];
 
-  const WsModule._($core.int v, $core.String n) : super(v, n);
+  const WSModule._($core.int v, $core.String n) : super(v, n);
 }
 

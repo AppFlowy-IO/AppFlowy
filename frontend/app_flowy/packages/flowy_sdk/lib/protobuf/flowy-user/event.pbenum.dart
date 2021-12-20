@@ -17,7 +17,6 @@ class UserEvent extends $pb.ProtobufEnum {
   static const UserEvent UpdateUser = UserEvent._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UpdateUser');
   static const UserEvent GetUserProfile = UserEvent._(5, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GetUserProfile');
   static const UserEvent CheckUser = UserEvent._(6, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CheckUser');
-  static const UserEvent UpdateNetworkType = UserEvent._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UpdateNetworkType');
 
   static const $core.List<UserEvent> values = <UserEvent> [
     InitUser,
@@ -27,7 +26,6 @@ class UserEvent extends $pb.ProtobufEnum {
     UpdateUser,
     GetUserProfile,
     CheckUser,
-    UpdateNetworkType,
   ];
 
   static final $core.Map<$core.int, UserEvent> _byValue = $pb.ProtobufEnum.initByValue(values);

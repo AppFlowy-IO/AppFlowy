@@ -1,146 +1,147 @@
 use crate::{
-    errors::{internal_error, DocError, DocResult},
+    errors::FlowyError,
     module::DocumentUser,
-    services::{
-        doc::{EditCommand, EditCommandQueue, OpenDocAction, RevisionManager, RevisionServer, TransformDeltas},
-        ws::{DocumentWebSocket, WsDocumentHandler},
+    services::doc::{
+        web_socket::{initialize_document_web_socket, DocumentWebSocketContext, EditorWebSocket},
+        *,
     },
 };
 use bytes::Bytes;
+use flowy_collaboration::{core::document::history::UndoResult, entities::doc::DocDelta, errors::CollaborateResult};
 use flowy_database::ConnectionPool;
-use flowy_document_infra::{
-    core::history::UndoResult,
-    entities::{
-        doc::{DocDelta, RevId, RevType, Revision, RevisionRange},
-        ws::{WsDataType, WsDocumentData},
-    },
-    errors::DocumentResult,
+use flowy_error::{internal_error, FlowyResult};
+use lib_ot::{
+    core::Interval,
+    revision::{RevId, RevType, Revision},
+    rich_text::{RichTextAttribute, RichTextDelta},
 };
-use lib_infra::retry::{ExponentialBackoff, Retry};
-use lib_ot::core::{Attribute, Delta, Interval};
-use lib_ws::WsConnectState;
-use std::{convert::TryFrom, sync::Arc};
+use std::sync::Arc;
 use tokio::sync::{mpsc, mpsc::UnboundedSender, oneshot};
 
-pub type DocId = String;
-
 pub struct ClientDocEditor {
-    pub doc_id: DocId,
+    pub doc_id: String,
     rev_manager: Arc<RevisionManager>,
-    edit_tx: UnboundedSender<EditCommand>,
-    ws: Arc<dyn DocumentWebSocket>,
+    editor_ws: Arc<dyn EditorWebSocket>,
+    editor_cmd_sender: UnboundedSender<EditorCommand>,
     user: Arc<dyn DocumentUser>,
 }
 
 impl ClientDocEditor {
     pub(crate) async fn new(
         doc_id: &str,
+        user: Arc<dyn DocumentUser>,
         pool: Arc<ConnectionPool>,
+        mut rev_manager: RevisionManager,
         ws: Arc<dyn DocumentWebSocket>,
         server: Arc<dyn RevisionServer>,
-        user: Arc<dyn DocumentUser>,
-    ) -> DocResult<Self> {
-        let (sender, receiver) = mpsc::unbounded_channel();
-        let mut rev_manager = RevisionManager::new(doc_id, pool.clone(), server.clone(), sender);
-        spawn_rev_receiver(receiver, ws.clone());
-
-        let delta = rev_manager.load_document().await?;
-        let edit_queue_tx = spawn_edit_queue(doc_id, delta, pool.clone());
+    ) -> FlowyResult<Arc<Self>> {
+        let delta = rev_manager.load_document(server).await?;
+        let editor_cmd_sender = spawn_edit_queue(doc_id, delta, pool.clone());
         let doc_id = doc_id.to_string();
+        let user_id = user.user_id()?;
         let rev_manager = Arc::new(rev_manager);
-        let edit_doc = Self {
+
+        let context = DocumentWebSocketContext {
+            doc_id: doc_id.to_owned(),
+            user_id: user_id.clone(),
+            editor_cmd_sender: editor_cmd_sender.clone(),
+            rev_manager: rev_manager.clone(),
+            ws,
+        };
+
+        let editor_ws = initialize_document_web_socket(context).await;
+        let editor = Arc::new(Self {
             doc_id,
             rev_manager,
-            edit_tx: edit_queue_tx,
-            ws,
+            editor_ws,
+            editor_cmd_sender,
             user,
-        };
-        edit_doc.notify_open_doc();
-        Ok(edit_doc)
+        });
+        Ok(editor)
     }
 
-    pub async fn insert<T: ToString>(&self, index: usize, data: T) -> Result<(), DocError> {
-        let (ret, rx) = oneshot::channel::<DocumentResult<Delta>>();
-        let msg = EditCommand::Insert {
+    pub async fn insert<T: ToString>(&self, index: usize, data: T) -> Result<(), FlowyError> {
+        let (ret, rx) = oneshot::channel::<CollaborateResult<NewDelta>>();
+        let msg = EditorCommand::Insert {
             index,
             data: data.to_string(),
             ret,
         };
-        let _ = self.edit_tx.send(msg);
-        let delta = rx.await.map_err(internal_error)??;
-        let _ = self.save_local_delta(delta).await?;
+        let _ = self.editor_cmd_sender.send(msg);
+        let (delta, md5) = rx.await.map_err(internal_error)??;
+        let _ = self.save_local_delta(delta, md5).await?;
         Ok(())
     }
 
-    pub async fn delete(&self, interval: Interval) -> Result<(), DocError> {
-        let (ret, rx) = oneshot::channel::<DocumentResult<Delta>>();
-        let msg = EditCommand::Delete { interval, ret };
-        let _ = self.edit_tx.send(msg);
-        let delta = rx.await.map_err(internal_error)??;
-        let _ = self.save_local_delta(delta).await?;
+    pub async fn delete(&self, interval: Interval) -> Result<(), FlowyError> {
+        let (ret, rx) = oneshot::channel::<CollaborateResult<NewDelta>>();
+        let msg = EditorCommand::Delete { interval, ret };
+        let _ = self.editor_cmd_sender.send(msg);
+        let (delta, md5) = rx.await.map_err(internal_error)??;
+        let _ = self.save_local_delta(delta, md5).await?;
         Ok(())
     }
 
-    pub async fn format(&self, interval: Interval, attribute: Attribute) -> Result<(), DocError> {
-        let (ret, rx) = oneshot::channel::<DocumentResult<Delta>>();
-        let msg = EditCommand::Format {
+    pub async fn format(&self, interval: Interval, attribute: RichTextAttribute) -> Result<(), FlowyError> {
+        let (ret, rx) = oneshot::channel::<CollaborateResult<NewDelta>>();
+        let msg = EditorCommand::Format {
             interval,
             attribute,
             ret,
         };
-        let _ = self.edit_tx.send(msg);
-        let delta = rx.await.map_err(internal_error)??;
-        let _ = self.save_local_delta(delta).await?;
+        let _ = self.editor_cmd_sender.send(msg);
+        let (delta, md5) = rx.await.map_err(internal_error)??;
+        let _ = self.save_local_delta(delta, md5).await?;
         Ok(())
     }
 
-    pub async fn replace<T: ToString>(&mut self, interval: Interval, data: T) -> Result<(), DocError> {
-        let (ret, rx) = oneshot::channel::<DocumentResult<Delta>>();
-        let msg = EditCommand::Replace {
+    pub async fn replace<T: ToString>(&self, interval: Interval, data: T) -> Result<(), FlowyError> {
+        let (ret, rx) = oneshot::channel::<CollaborateResult<NewDelta>>();
+        let msg = EditorCommand::Replace {
             interval,
             data: data.to_string(),
             ret,
         };
-        let _ = self.edit_tx.send(msg);
-        let delta = rx.await.map_err(internal_error)??;
-        let _ = self.save_local_delta(delta).await?;
+        let _ = self.editor_cmd_sender.send(msg);
+        let (delta, md5) = rx.await.map_err(internal_error)??;
+        let _ = self.save_local_delta(delta, md5).await?;
         Ok(())
     }
 
     pub async fn can_undo(&self) -> bool {
         let (ret, rx) = oneshot::channel::<bool>();
-        let msg = EditCommand::CanUndo { ret };
-        let _ = self.edit_tx.send(msg);
+        let msg = EditorCommand::CanUndo { ret };
+        let _ = self.editor_cmd_sender.send(msg);
         rx.await.unwrap_or(false)
     }
 
     pub async fn can_redo(&self) -> bool {
         let (ret, rx) = oneshot::channel::<bool>();
-        let msg = EditCommand::CanRedo { ret };
-        let _ = self.edit_tx.send(msg);
+        let msg = EditorCommand::CanRedo { ret };
+        let _ = self.editor_cmd_sender.send(msg);
         rx.await.unwrap_or(false)
     }
 
-    pub async fn undo(&self) -> Result<UndoResult, DocError> {
-        let (ret, rx) = oneshot::channel::<DocumentResult<UndoResult>>();
-        let msg = EditCommand::Undo { ret };
-        let _ = self.edit_tx.send(msg);
+    pub async fn undo(&self) -> Result<UndoResult, FlowyError> {
+        let (ret, rx) = oneshot::channel::<CollaborateResult<UndoResult>>();
+        let msg = EditorCommand::Undo { ret };
+        let _ = self.editor_cmd_sender.send(msg);
         let r = rx.await.map_err(internal_error)??;
         Ok(r)
     }
 
-    pub async fn redo(&self) -> Result<UndoResult, DocError> {
-        let (ret, rx) = oneshot::channel::<DocumentResult<UndoResult>>();
-        let msg = EditCommand::Redo { ret };
-        let _ = self.edit_tx.send(msg);
+    pub async fn redo(&self) -> Result<UndoResult, FlowyError> {
+        let (ret, rx) = oneshot::channel::<CollaborateResult<UndoResult>>();
+        let msg = EditorCommand::Redo { ret };
+        let _ = self.editor_cmd_sender.send(msg);
         let r = rx.await.map_err(internal_error)??;
         Ok(r)
     }
 
-    pub async fn delta(&self) -> DocResult<DocDelta> {
-        let (ret, rx) = oneshot::channel::<DocumentResult<String>>();
-        let msg = EditCommand::ReadDoc { ret };
-        let _ = self.edit_tx.send(msg);
+    pub async fn delta(&self) -> FlowyResult<DocDelta> {
+        let (ret, rx) = oneshot::channel::<CollaborateResult<DocumentMD5>>();
+        let msg = EditorCommand::ReadDoc { ret };
+        let _ = self.editor_cmd_sender.send(msg);
         let data = rx.await.map_err(internal_error)??;
 
         Ok(DocDelta {
@@ -149,174 +150,68 @@ impl ClientDocEditor {
         })
     }
 
-    async fn save_local_delta(&self, delta: Delta) -> Result<RevId, DocError> {
+    async fn save_local_delta(&self, delta: RichTextDelta, md5: String) -> Result<RevId, FlowyError> {
         let delta_data = delta.to_bytes();
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id();
-        let delta_data = delta_data.to_vec();
-        let revision = Revision::new(base_rev_id, rev_id, delta_data, &self.doc_id, RevType::Local);
-        let _ = self.rev_manager.add_revision(&revision).await?;
+        let user_id = self.user.user_id()?;
+        let revision = Revision::new(
+            &self.doc_id,
+            base_rev_id,
+            rev_id,
+            delta_data,
+            RevType::Local,
+            &user_id,
+            md5,
+        );
+        let _ = self.rev_manager.add_local_revision(&revision).await?;
         Ok(rev_id.into())
     }
 
     #[tracing::instrument(level = "debug", skip(self, data), err)]
-    pub(crate) async fn composing_local_delta(&self, data: Bytes) -> Result<(), DocError> {
-        let delta = Delta::from_bytes(&data)?;
-        let (ret, rx) = oneshot::channel::<DocumentResult<()>>();
-        let msg = EditCommand::ComposeDelta {
+    pub(crate) async fn composing_local_delta(&self, data: Bytes) -> Result<(), FlowyError> {
+        let delta = RichTextDelta::from_bytes(&data)?;
+        let (ret, rx) = oneshot::channel::<CollaborateResult<DocumentMD5>>();
+        let msg = EditorCommand::ComposeDelta {
             delta: delta.clone(),
             ret,
         };
-        let _ = self.edit_tx.send(msg);
-        let _ = rx.await.map_err(internal_error)??;
+        let _ = self.editor_cmd_sender.send(msg);
+        let md5 = rx.await.map_err(internal_error)??;
 
-        let _ = self.save_local_delta(delta).await?;
+        let _ = self.save_local_delta(delta, md5).await?;
         Ok(())
     }
 
-    #[cfg(feature = "flowy_test")]
-    pub async fn doc_json(&self) -> DocResult<String> {
-        let (ret, rx) = oneshot::channel::<DocumentResult<String>>();
-        let msg = EditCommand::ReadDoc { ret };
-        let _ = self.edit_tx.send(msg);
+    #[tracing::instrument(level = "debug", skip(self))]
+    pub fn stop(&self) { self.editor_ws.stop_web_socket(); }
+
+    pub(crate) fn ws_handler(&self) -> Arc<dyn DocumentWsHandler> { self.editor_ws.ws_handler() }
+}
+
+fn spawn_edit_queue(doc_id: &str, delta: RichTextDelta, _pool: Arc<ConnectionPool>) -> UnboundedSender<EditorCommand> {
+    let (sender, receiver) = mpsc::unbounded_channel::<EditorCommand>();
+    let actor = EditorCommandQueue::new(doc_id, delta, receiver);
+    tokio::spawn(actor.run());
+    sender
+}
+
+#[cfg(feature = "flowy_unit_test")]
+impl ClientDocEditor {
+    pub async fn doc_json(&self) -> FlowyResult<String> {
+        let (ret, rx) = oneshot::channel::<CollaborateResult<DocumentMD5>>();
+        let msg = EditorCommand::ReadDoc { ret };
+        let _ = self.editor_cmd_sender.send(msg);
         let s = rx.await.map_err(internal_error)??;
         Ok(s)
     }
 
-    #[tracing::instrument(level = "debug", skip(self))]
-    fn notify_open_doc(&self) {
-        let rev_id: RevId = self.rev_manager.rev_id().into();
-        if let Ok(user_id) = self.user.user_id() {
-            let action = OpenDocAction::new(&user_id, &self.doc_id, &rev_id, &self.ws);
-            let strategy = ExponentialBackoff::from_millis(50).take(3);
-            let retry = Retry::spawn(strategy, action);
-            tokio::spawn(async move {
-                match retry.await {
-                    Ok(_) => log::debug!("Notify open doc success"),
-                    Err(e) => log::error!("Notify open doc failed: {}", e),
-                }
-            });
-        }
+    pub async fn doc_delta(&self) -> FlowyResult<RichTextDelta> {
+        let (ret, rx) = oneshot::channel::<CollaborateResult<RichTextDelta>>();
+        let msg = EditorCommand::ReadDocDelta { ret };
+        let _ = self.editor_cmd_sender.send(msg);
+        let delta = rx.await.map_err(internal_error)??;
+        Ok(delta)
     }
 
-    #[tracing::instrument(level = "debug", skip(self))]
-    async fn handle_push_rev(&self, bytes: Bytes) -> DocResult<()> {
-        // Transform the revision
-        let (ret, rx) = oneshot::channel::<DocumentResult<TransformDeltas>>();
-        let _ = self.edit_tx.send(EditCommand::RemoteRevision { bytes, ret });
-        let TransformDeltas {
-            client_prime,
-            server_prime,
-            server_rev_id,
-        } = rx.await.map_err(internal_error)??;
-
-        if self.rev_manager.rev_id() >= server_rev_id.value {
-            // Ignore this push revision if local_rev_id >= server_rev_id
-            return Ok(());
-        }
-
-        // compose delta
-        let (ret, rx) = oneshot::channel::<DocumentResult<()>>();
-        let msg = EditCommand::ComposeDelta {
-            delta: client_prime.clone(),
-            ret,
-        };
-        let _ = self.edit_tx.send(msg);
-        let _ = rx.await.map_err(internal_error)??;
-
-        // update rev id
-        self.rev_manager
-            .update_rev_id_counter_value(server_rev_id.clone().into());
-        let (local_base_rev_id, local_rev_id) = self.rev_manager.next_rev_id();
-
-        // save the revision
-        let revision = Revision::new(
-            local_base_rev_id,
-            local_rev_id,
-            client_prime.to_bytes().to_vec(),
-            &self.doc_id,
-            RevType::Remote,
-        );
-        let _ = self.rev_manager.add_revision(&revision).await?;
-
-        // send the server_prime delta
-        let revision = Revision::new(
-            local_base_rev_id,
-            local_rev_id,
-            server_prime.to_bytes().to_vec(),
-            &self.doc_id,
-            RevType::Remote,
-        );
-        let _ = self.ws.send(revision.into());
-        Ok(())
-    }
-
-    async fn handle_ws_message(&self, doc_data: WsDocumentData) -> DocResult<()> {
-        let bytes = Bytes::from(doc_data.data);
-        match doc_data.ty {
-            WsDataType::PushRev => {
-                let _ = self.handle_push_rev(bytes).await?;
-            },
-            WsDataType::PullRev => {
-                let range = RevisionRange::try_from(bytes)?;
-                let revision = self.rev_manager.mk_revisions(range).await?;
-                let _ = self.ws.send(revision.into());
-            },
-            WsDataType::NewDocUser => {},
-            WsDataType::Acked => {
-                let rev_id = RevId::try_from(bytes)?;
-                let _ = self.rev_manager.ack_revision(rev_id).await?;
-            },
-            WsDataType::Conflict => {},
-        }
-        Ok(())
-    }
-}
-
-pub struct EditDocWsHandler(pub Arc<ClientDocEditor>);
-
-impl std::ops::Deref for EditDocWsHandler {
-    type Target = Arc<ClientDocEditor>;
-
-    fn deref(&self) -> &Self::Target { &self.0 }
-}
-
-impl WsDocumentHandler for EditDocWsHandler {
-    fn receive(&self, doc_data: WsDocumentData) {
-        let edit_doc = self.0.clone();
-        tokio::spawn(async move {
-            if let Err(e) = edit_doc.handle_ws_message(doc_data).await {
-                log::error!("{:?}", e);
-            }
-        });
-    }
-
-    fn state_changed(&self, state: &WsConnectState) {
-        match state {
-            WsConnectState::Init => {},
-            WsConnectState::Connecting => {},
-            WsConnectState::Connected => self.notify_open_doc(),
-            WsConnectState::Disconnected => {},
-        }
-    }
-}
-
-fn spawn_rev_receiver(mut receiver: mpsc::UnboundedReceiver<Revision>, ws: Arc<dyn DocumentWebSocket>) {
-    tokio::spawn(async move {
-        loop {
-            while let Some(revision) = receiver.recv().await {
-                // tracing::debug!("Send revision:{} to server", revision.rev_id);
-                match ws.send(revision.into()) {
-                    Ok(_) => {},
-                    Err(e) => log::error!("Send revision failed: {:?}", e),
-                };
-            }
-        }
-    });
-}
-
-fn spawn_edit_queue(doc_id: &str, delta: Delta, _pool: Arc<ConnectionPool>) -> UnboundedSender<EditCommand> {
-    let (sender, receiver) = mpsc::unbounded_channel::<EditCommand>();
-    let actor = EditCommandQueue::new(doc_id, delta, receiver);
-    tokio::spawn(actor.run());
-    sender
+    pub fn rev_manager(&self) -> Arc<RevisionManager> { self.rev_manager.clone() }
 }

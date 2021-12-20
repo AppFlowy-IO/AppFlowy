@@ -1,7 +1,5 @@
 mod editor;
-mod model;
-mod queue;
+mod editor_cmd_queue;
 
 pub use editor::*;
-pub(crate) use model::*;
-pub(crate) use queue::*;
+pub(crate) use editor_cmd_queue::*;

@@ -1,19 +1,19 @@
 use crate::{
     entities::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile},
-    errors::UserError,
+    errors::FlowyError,
 };
 
 use crate::services::server::UserServerAPI;
-use lib_infra::{future::ResultFuture, uuid};
+use lib_infra::{future::FutureResult, uuid};
 
 pub struct UserServerMock {}
 
 impl UserServerMock {}
 
 impl UserServerAPI for UserServerMock {
-    fn sign_up(&self, params: SignUpParams) -> ResultFuture<SignUpResponse, UserError> {
+    fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, FlowyError> {
         let uid = uuid();
-        ResultFuture::new(async move {
+        FutureResult::new(async move {
             Ok(SignUpResponse {
                 user_id: uid.clone(),
                 name: params.name,
@@ -23,9 +23,9 @@ impl UserServerAPI for UserServerMock {
         })
     }
 
-    fn sign_in(&self, params: SignInParams) -> ResultFuture<SignInResponse, UserError> {
+    fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, FlowyError> {
         let user_id = uuid();
-        ResultFuture::new(async {
+        FutureResult::new(async {
             Ok(SignInResponse {
                 user_id: user_id.clone(),
                 name: params.name,
@@ -35,14 +35,14 @@ impl UserServerAPI for UserServerMock {
         })
     }
 
-    fn sign_out(&self, _token: &str) -> ResultFuture<(), UserError> { ResultFuture::new(async { Ok(()) }) }
+    fn sign_out(&self, _token: &str) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
 
-    fn update_user(&self, _token: &str, _params: UpdateUserParams) -> ResultFuture<(), UserError> {
-        ResultFuture::new(async { Ok(()) })
+    fn update_user(&self, _token: &str, _params: UpdateUserParams) -> FutureResult<(), FlowyError> {
+        FutureResult::new(async { Ok(()) })
     }
 
-    fn get_user(&self, _token: &str) -> ResultFuture<UserProfile, UserError> {
-        ResultFuture::new(async { Ok(UserProfile::default()) })
+    fn get_user(&self, _token: &str) -> FutureResult<UserProfile, FlowyError> {
+        FutureResult::new(async { Ok(UserProfile::default()) })
     }
 
     fn ws_addr(&self) -> String { "ws://localhost:8000/ws/".to_owned() }

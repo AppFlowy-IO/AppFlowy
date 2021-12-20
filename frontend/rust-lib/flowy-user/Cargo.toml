@@ -6,17 +6,20 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-user-infra = { path = "../../../shared-lib/flowy-user-infra" }
+flowy-user-data-model = { path = "../../../shared-lib/flowy-user-data-model" }
 backend-service = { path = "../../../shared-lib/backend-service" }
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
-lib-ws = { path = "../../../shared-lib/lib-ws" }
-lib-sqlite = { path = "../../../shared-lib/lib-sqlite" }
+lib-infra = { path = "../../../shared-lib/lib-infra" }
+flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration", optional = true}
 
 derive_more = {version = "0.99", features = ["display"]}
 flowy-database = { path = "../flowy-database" }
+flowy-net = { path = "../flowy-net" }
 dart-notify = { path = "../dart-notify" }
 lib-dispatch = { path = "../lib-dispatch" }
-lib-infra = { path = "../lib-infra" }
+flowy-error = { path = "../flowy-error", features = ["db", "backend"] }
+lib-sqlite = { path = "../lib-sqlite" }
+
 
 tracing = { version = "0.1", features = ["log"] }
 bytes = "1.0"
@@ -37,6 +40,7 @@ tokio = { version = "1", features = ["rt"] }
 pin-project = "1.0.0"
 futures-core = { version = "0.3", default-features = false }
 r2d2 = "0.8.9"
+dashmap = "4.0"
 
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }

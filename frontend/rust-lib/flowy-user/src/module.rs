@@ -14,5 +14,4 @@ pub fn create(user_session: Arc<UserSession>) -> Module {
         .event(UserEvent::SignOut, sign_out)
         .event(UserEvent::UpdateUser, update_user_handler)
         .event(UserEvent::CheckUser, check_user_handler)
-        .event(UserEvent::UpdateNetworkType, update_network_ty)
 }

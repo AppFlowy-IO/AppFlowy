@@ -4,14 +4,13 @@ import 'package:app_flowy/workspace/domain/i_app.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-dart-notify/subject.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/app_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/app_query.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/app_update.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pbenum.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/observable.pb.dart';
+import 'package:flowy_sdk/protobuf/dart-notify/subject.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/app_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/app_query.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/app_update.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/view_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core/observable.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 import 'helper.dart';
 
@@ -21,13 +20,13 @@ class AppRepository {
     required this.appId,
   });
 
-  Future<Either<App, WorkspaceError>> getAppDesc() {
+  Future<Either<App, FlowyError>> getAppDesc() {
     final request = QueryAppRequest.create()..appIds.add(appId);
 
     return WorkspaceEventReadApp(request).send();
   }
 
-  Future<Either<View, WorkspaceError>> createView(String name, String desc, ViewType viewType) {
+  Future<Either<View, FlowyError>> createView(String name, String desc, ViewType viewType) {
     final request = CreateViewRequest.create()
       ..belongToId = appId
       ..name = name
@@ -37,7 +36,7 @@ class AppRepository {
     return WorkspaceEventCreateView(request).send();
   }
 
-  Future<Either<List<View>, WorkspaceError>> getViews() {
+  Future<Either<List<View>, FlowyError>> getViews() {
     final request = QueryAppRequest.create()..appIds.add(appId);
 
     return WorkspaceEventReadApp(request).send().then((result) {
@@ -48,12 +47,12 @@ class AppRepository {
     });
   }
 
-  Future<Either<Unit, WorkspaceError>> delete() {
+  Future<Either<Unit, FlowyError>> delete() {
     final request = QueryAppRequest.create()..appIds.add(appId);
     return WorkspaceEventDeleteApp(request).send();
   }
 
-  Future<Either<Unit, WorkspaceError>> updateApp({String? name}) {
+  Future<Either<Unit, FlowyError>> updateApp({String? name}) {
     UpdateAppRequest request = UpdateAppRequest.create()..appId = appId;
 
     if (name != null) {
@@ -81,7 +80,7 @@ class AppListenerRepository {
     _subscription = RustStreamReceiver.listen((observable) => _parser.parse(observable));
   }
 
-  void _bservableCallback(WorkspaceNotification ty, Either<Uint8List, WorkspaceError> result) {
+  void _bservableCallback(WorkspaceNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
       case WorkspaceNotification.AppViewsChanged:
         if (_viewsChanged != null) {

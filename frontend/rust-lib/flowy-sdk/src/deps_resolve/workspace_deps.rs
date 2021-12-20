@@ -1,9 +1,9 @@
-use flowy_database::ConnectionPool;
-use flowy_user::services::user::UserSession;
-use flowy_workspace::{
-    errors::WorkspaceError,
+use flowy_core::{
+    errors::FlowyError,
     module::{WorkspaceDatabase, WorkspaceUser},
 };
+use flowy_database::ConnectionPool;
+use flowy_user::services::user::UserSession;
 use std::sync::Arc;
 
 pub struct WorkspaceDepsResolver {
@@ -29,23 +29,21 @@ impl WorkspaceDepsResolver {
 }
 
 impl WorkspaceDatabase for Resolver {
-    fn db_pool(&self) -> Result<Arc<ConnectionPool>, WorkspaceError> {
+    fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError> {
         self.user_session
             .db_pool()
-            .map_err(|e| WorkspaceError::internal().context(e))
+            .map_err(|e| FlowyError::internal().context(e))
     }
 }
 
 impl WorkspaceUser for Resolver {
-    fn user_id(&self) -> Result<String, WorkspaceError> {
+    fn user_id(&self) -> Result<String, FlowyError> {
         self.user_session
             .user_id()
-            .map_err(|e| WorkspaceError::internal().context(e))
+            .map_err(|e| FlowyError::internal().context(e))
     }
 
-    fn token(&self) -> Result<String, WorkspaceError> {
-        self.user_session
-            .token()
-            .map_err(|e| WorkspaceError::internal().context(e))
+    fn token(&self) -> Result<String, FlowyError> {
+        self.user_session.token().map_err(|e| FlowyError::internal().context(e))
     }
 }

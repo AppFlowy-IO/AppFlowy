@@ -1,39 +1,31 @@
 use bytes::Bytes;
+use flowy_collaboration::entities::ws::DocumentWSData;
 use flowy_database::ConnectionPool;
 use flowy_document::{
-    errors::{internal_error, DocError},
+    errors::{internal_error, FlowyError},
     module::DocumentUser,
-    services::ws::{DocumentWebSocket, WsDocumentManager, WsStateReceiver},
+    services::doc::{DocumentWebSocket, DocumentWsHandlers, WsStateReceiver},
 };
-use flowy_document_infra::entities::ws::WsDocumentData;
-use flowy_user::{
-    errors::{ErrorCode, UserError},
-    services::user::UserSession,
-};
-use lib_ws::{WsMessage, WsMessageHandler, WsModule};
+use flowy_net::services::ws::WsManager;
+use flowy_user::services::user::UserSession;
+use lib_ws::{WSMessage, WSMessageReceiver, WSModule};
 use std::{convert::TryInto, path::Path, sync::Arc};
 
-pub struct DocumentDepsResolver {
-    user_session: Arc<UserSession>,
-}
-
+pub struct DocumentDepsResolver();
 impl DocumentDepsResolver {
-    pub fn new(user_session: Arc<UserSession>) -> Self { Self { user_session } }
-
-    pub fn split_into(self) -> (Arc<dyn DocumentUser>, Arc<WsDocumentManager>) {
-        let user = Arc::new(DocumentUserImpl {
-            user: self.user_session.clone(),
-        });
+    pub fn resolve(
+        ws_manager: Arc<WsManager>,
+        user_session: Arc<UserSession>,
+    ) -> (Arc<dyn DocumentUser>, Arc<DocumentWsHandlers>) {
+        let user = Arc::new(DocumentUserImpl { user: user_session });
 
         let sender = Arc::new(WsSenderImpl {
-            user: self.user_session.clone(),
+            ws_manager: ws_manager.clone(),
         });
-        let ws_manager = Arc::new(WsDocumentManager::new(sender));
-        let ws_handler = Arc::new(WsDocumentReceiver {
-            inner: ws_manager.clone(),
-        });
-        self.user_session.add_ws_handler(ws_handler);
-        (user, ws_manager)
+        let document_ws_handlers = Arc::new(DocumentWsHandlers::new(sender));
+        let receiver = Arc::new(WsMessageReceiverAdaptor(document_ws_handlers.clone()));
+        ws_manager.add_receiver(receiver).unwrap();
+        (user, document_ws_handlers)
     }
 }
 
@@ -43,16 +35,12 @@ struct DocumentUserImpl {
 
 impl DocumentUserImpl {}
 
-fn map_user_error(error: UserError) -> DocError {
-    match ErrorCode::from_i32(error.code) {
-        ErrorCode::InternalError => DocError::internal().context(error.msg),
-        _ => DocError::internal().context(error),
-    }
-}
-
 impl DocumentUser for DocumentUserImpl {
-    fn user_dir(&self) -> Result<String, DocError> {
-        let dir = self.user.user_dir().map_err(|e| DocError::unauthorized().context(e))?;
+    fn user_dir(&self) -> Result<String, FlowyError> {
+        let dir = self
+            .user
+            .user_dir()
+            .map_err(|e| FlowyError::unauthorized().context(e))?;
 
         let doc_dir = format!("{}/doc", dir);
         if !Path::new(&doc_dir).exists() {
@@ -61,44 +49,36 @@ impl DocumentUser for DocumentUserImpl {
         Ok(doc_dir)
     }
 
-    fn user_id(&self) -> Result<String, DocError> { self.user.user_id().map_err(map_user_error) }
+    fn user_id(&self) -> Result<String, FlowyError> { self.user.user_id() }
 
-    fn token(&self) -> Result<String, DocError> { self.user.token().map_err(map_user_error) }
+    fn token(&self) -> Result<String, FlowyError> { self.user.token() }
 
-    fn db_pool(&self) -> Result<Arc<ConnectionPool>, DocError> { self.user.db_pool().map_err(map_user_error) }
+    fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError> { self.user.db_pool() }
 }
 
 struct WsSenderImpl {
-    user: Arc<UserSession>,
+    ws_manager: Arc<WsManager>,
 }
 
 impl DocumentWebSocket for WsSenderImpl {
-    fn send(&self, data: WsDocumentData) -> Result<(), DocError> {
-        if cfg!(feature = "http_server") {
-            let bytes: Bytes = data.try_into().unwrap();
-            let msg = WsMessage {
-                module: WsModule::Doc,
-                data: bytes.to_vec(),
-            };
-            let sender = self.user.ws_sender().map_err(internal_error)?;
-            sender.send_msg(msg).map_err(internal_error)?;
-        }
+    fn send(&self, data: DocumentWSData) -> Result<(), FlowyError> {
+        let bytes: Bytes = data.try_into().unwrap();
+        let msg = WSMessage {
+            module: WSModule::Doc,
+            data: bytes.to_vec(),
+        };
+        let sender = self.ws_manager.ws_sender().map_err(internal_error)?;
+        sender.send(msg).map_err(internal_error)?;
 
         Ok(())
     }
 
-    fn state_notify(&self) -> WsStateReceiver { self.user.ws_state_notifier() }
+    fn subscribe_state_changed(&self) -> WsStateReceiver { self.ws_manager.subscribe_websocket_state() }
 }
 
-struct WsDocumentReceiver {
-    inner: Arc<WsDocumentManager>,
-}
+struct WsMessageReceiverAdaptor(Arc<DocumentWsHandlers>);
 
-impl WsMessageHandler for WsDocumentReceiver {
-    fn source(&self) -> WsModule { WsModule::Doc }
-
-    fn receive_message(&self, msg: WsMessage) {
-        let data = Bytes::from(msg.data);
-        self.inner.handle_ws_data(data);
-    }
+impl WSMessageReceiver for WsMessageReceiverAdaptor {
+    fn source(&self) -> WSModule { WSModule::Doc }
+    fn receive_message(&self, msg: WSMessage) { self.0.did_receive_data(Bytes::from(msg.data)); }
 }

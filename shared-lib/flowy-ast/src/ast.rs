@@ -115,7 +115,7 @@ impl<'a> ASTField<'a> {
         let mut bracket_ty = None;
         let mut bracket_category = Some(BracketCategory::Other);
         match parse_ty(cx, &field.ty) {
-            Some(inner) => {
+            Ok(Some(inner)) => {
                 match inner.primitive_ty {
                     PrimitiveTy::Map(map_info) => {
                         bracket_category = Some(BracketCategory::Map((map_info.key.clone(), map_info.value)))
@@ -141,8 +141,12 @@ impl<'a> ASTField<'a> {
                     },
                 }
             },
-            None => {
+            Ok(None) => {
                 cx.error_spanned_by(&field.ty, "fail to get the ty inner type");
+            },
+            Err(e) => {
+                eprintln!("ASTField parser failed: {:?} with error: {}", field, e);
+                panic!()
             },
         }
 

@@ -1,4 +1,4 @@
-use crate::errors::UserError;
+use crate::errors::FlowyError;
 use flowy_database::{DBConnection, Database};
 use lazy_static::lazy_static;
 use lib_sqlite::ConnectionPool;
@@ -20,20 +20,20 @@ impl UserDB {
         }
     }
 
-    fn open_user_db(&self, user_id: &str) -> Result<(), UserError> {
+    fn open_user_db(&self, user_id: &str) -> Result<(), FlowyError> {
         if user_id.is_empty() {
-            return Err(UserError::internal().context("user id is empty"));
+            return Err(FlowyError::internal().context("user id is empty"));
         }
 
         tracing::info!("open user db {}", user_id);
         let dir = format!("{}/{}", self.db_dir, user_id);
         let db = flowy_database::init(&dir).map_err(|e| {
             log::error!("init user db failed, {:?}, user_id: {}", e, user_id);
-            UserError::internal().context(e)
+            FlowyError::internal().context(e)
         })?;
 
         match DB_MAP.try_write_for(Duration::from_millis(300)) {
-            None => Err(UserError::internal().context("Acquire write lock to save user db failed")),
+            None => Err(FlowyError::internal().context("Acquire write lock to save user db failed")),
             Some(mut write_guard) => {
                 write_guard.insert(user_id.to_owned(), db);
                 Ok(())
@@ -41,9 +41,9 @@ impl UserDB {
         }
     }
 
-    pub(crate) fn close_user_db(&self, user_id: &str) -> Result<(), UserError> {
+    pub(crate) fn close_user_db(&self, user_id: &str) -> Result<(), FlowyError> {
         match DB_MAP.try_write_for(Duration::from_millis(300)) {
-            None => Err(UserError::internal().context("Acquire write lock to close user db failed")),
+            None => Err(FlowyError::internal().context("Acquire write lock to close user db failed")),
             Some(mut write_guard) => {
                 set_user_db_init(false, user_id);
                 write_guard.remove(user_id);
@@ -52,12 +52,12 @@ impl UserDB {
         }
     }
 
-    pub(crate) fn get_connection(&self, user_id: &str) -> Result<DBConnection, UserError> {
+    pub(crate) fn get_connection(&self, user_id: &str) -> Result<DBConnection, FlowyError> {
         let conn = self.get_pool(user_id)?.get()?;
         Ok(conn)
     }
 
-    pub(crate) fn get_pool(&self, user_id: &str) -> Result<Arc<ConnectionPool>, UserError> {
+    pub(crate) fn get_pool(&self, user_id: &str) -> Result<Arc<ConnectionPool>, FlowyError> {
         // Opti: INIT_LOCK try to lock the INIT_RECORD accesses. Because the write guard
         // can not nested in the read guard that will cause the deadlock.
         match INIT_LOCK.try_lock_for(Duration::from_millis(300)) {
@@ -71,9 +71,11 @@ impl UserDB {
         }
 
         match DB_MAP.try_read_for(Duration::from_millis(300)) {
-            None => Err(UserError::internal().context("Acquire read lock to read user db failed")),
+            None => Err(FlowyError::internal().context("Acquire read lock to read user db failed")),
             Some(read_guard) => match read_guard.get(user_id) {
-                None => Err(UserError::internal().context("Get connection failed. The database is not initialization")),
+                None => {
+                    Err(FlowyError::internal().context("Get connection failed. The database is not initialization"))
+                },
                 Some(database) => Ok(database.get_pool()),
             },
         }

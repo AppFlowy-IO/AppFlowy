@@ -1,57 +1,57 @@
 use crate::{
     entities::{SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile},
-    errors::UserError,
+    errors::FlowyError,
     services::server::UserServerAPI,
 };
 use backend_service::{configuration::*, user_request::*};
-use lib_infra::future::ResultFuture;
+use lib_infra::future::FutureResult;
 
-pub struct UserServer {
+pub struct UserHttpServer {
     config: ClientServerConfiguration,
 }
-impl UserServer {
+impl UserHttpServer {
     pub fn new(config: ClientServerConfiguration) -> Self { Self { config } }
 }
 
-impl UserServerAPI for UserServer {
-    fn sign_up(&self, params: SignUpParams) -> ResultFuture<SignUpResponse, UserError> {
+impl UserServerAPI for UserHttpServer {
+    fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, FlowyError> {
         let url = self.config.sign_up_url();
-        ResultFuture::new(async move {
+        FutureResult::new(async move {
             let resp = user_sign_up_request(params, &url).await?;
             Ok(resp)
         })
     }
 
-    fn sign_in(&self, params: SignInParams) -> ResultFuture<SignInResponse, UserError> {
+    fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, FlowyError> {
         let url = self.config.sign_in_url();
-        ResultFuture::new(async move {
+        FutureResult::new(async move {
             let resp = user_sign_in_request(params, &url).await?;
             Ok(resp)
         })
     }
 
-    fn sign_out(&self, token: &str) -> ResultFuture<(), UserError> {
+    fn sign_out(&self, token: &str) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.sign_out_url();
-        ResultFuture::new(async move {
+        FutureResult::new(async move {
             let _ = user_sign_out_request(&token, &url).await;
             Ok(())
         })
     }
 
-    fn update_user(&self, token: &str, params: UpdateUserParams) -> ResultFuture<(), UserError> {
+    fn update_user(&self, token: &str, params: UpdateUserParams) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.user_profile_url();
-        ResultFuture::new(async move {
+        FutureResult::new(async move {
             let _ = update_user_profile_request(&token, params, &url).await?;
             Ok(())
         })
     }
 
-    fn get_user(&self, token: &str) -> ResultFuture<UserProfile, UserError> {
+    fn get_user(&self, token: &str) -> FutureResult<UserProfile, FlowyError> {
         let token = token.to_owned();
         let url = self.config.user_profile_url();
-        ResultFuture::new(async move {
+        FutureResult::new(async move {
             let profile = get_user_profile_request(&token, &url).await?;
             Ok(profile)
         })
@@ -62,7 +62,7 @@ impl UserServerAPI for UserServer {
 
 // use crate::notify::*;
 // use backend_service::response::FlowyResponse;
-// use flowy_user_infra::errors::ErrorCode;
+// use flowy_user_data_model::errors::ErrorCode;
 
 // struct Middleware {}
 //
@@ -77,7 +77,7 @@ impl UserServerAPI for UserServer {
 //                     None => {},
 //                     Some(token) => {
 //                         let error =
-// UserError::new(ErrorCode::UserUnauthorized, "");
+// FlowyError::new(ErrorCode::UserUnauthorized, "");
 // dart_notify(token, UserNotification::UserUnauthorized)
 // .error(error)                             .send()
 //                     },

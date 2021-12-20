@@ -1,4 +1,4 @@
-mod cache;
+pub(crate) mod controller;
 pub mod doc;
 pub mod server;
-pub mod ws;
+mod ws_handlers;

@@ -24,7 +24,7 @@
 // const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_22_1;
 
 #[derive(PartialEq,Clone,Default)]
-pub struct WsError {
+pub struct WSError {
     // message fields
     pub code: ErrorCode,
     pub msg: ::std::string::String,
@@ -33,14 +33,14 @@ pub struct WsError {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a WsError {
-    fn default() -> &'a WsError {
-        <WsError as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a WSError {
+    fn default() -> &'a WSError {
+        <WSError as ::protobuf::Message>::default_instance()
     }
 }
 
-impl WsError {
-    pub fn new() -> WsError {
+impl WSError {
+    pub fn new() -> WSError {
         ::std::default::Default::default()
     }
 
@@ -86,7 +86,7 @@ impl WsError {
     }
 }
 
-impl ::protobuf::Message for WsError {
+impl ::protobuf::Message for WSError {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -161,8 +161,8 @@ impl ::protobuf::Message for WsError {
         Self::descriptor_static()
     }
 
-    fn new() -> WsError {
-        WsError::new()
+    fn new() -> WSError {
+        WSError::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -171,29 +171,29 @@ impl ::protobuf::Message for WsError {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<ErrorCode>>(
                 "code",
-                |m: &WsError| { &m.code },
-                |m: &mut WsError| { &mut m.code },
+                |m: &WSError| { &m.code },
+                |m: &mut WSError| { &mut m.code },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "msg",
-                |m: &WsError| { &m.msg },
-                |m: &mut WsError| { &mut m.msg },
+                |m: &WSError| { &m.msg },
+                |m: &mut WSError| { &mut m.msg },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<WsError>(
-                "WsError",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<WSError>(
+                "WSError",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static WsError {
-        static instance: ::protobuf::rt::LazyV2<WsError> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(WsError::new)
+    fn default_instance() -> &'static WSError {
+        static instance: ::protobuf::rt::LazyV2<WSError> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(WSError::new)
     }
 }
 
-impl ::protobuf::Clear for WsError {
+impl ::protobuf::Clear for WSError {
     fn clear(&mut self) {
         self.code = ErrorCode::InternalError;
         self.msg.clear();
@@ -201,13 +201,13 @@ impl ::protobuf::Clear for WsError {
     }
 }
 
-impl ::std::fmt::Debug for WsError {
+impl ::std::fmt::Debug for WSError {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for WsError {
+impl ::protobuf::reflect::ProtobufValue for WSError {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -267,7 +267,7 @@ impl ::protobuf::reflect::ProtobufValue for ErrorCode {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0cerrors.proto\";\n\x07WsError\x12\x1e\n\x04code\x18\x01\x20\x01(\
+    \n\x0cerrors.proto\";\n\x07WSError\x12\x1e\n\x04code\x18\x01\x20\x01(\
     \x0e2\n.ErrorCodeR\x04code\x12\x10\n\x03msg\x18\x02\x20\x01(\tR\x03msg*H\
     \n\tErrorCode\x12\x11\n\rInternalError\x10\0\x12\x16\n\x12UnsupportedMes\
     sage\x10\x01\x12\x10\n\x0cUnauthorized\x10\x02J\xab\x02\n\x06\x12\x04\0\

@@ -13,5 +13,5 @@ Cargo.lock
 **/target/
 **/*.db
 .idea/
-/flowy-test/
+**/temp/**
 .ruby-version

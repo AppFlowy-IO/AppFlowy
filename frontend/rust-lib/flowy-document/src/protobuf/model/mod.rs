@@ -3,6 +3,3 @@
 
 mod observable;
 pub use observable::*;
-
-mod errors;
-pub use errors::*;

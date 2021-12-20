@@ -1,5 +1,5 @@
 use crate::{configuration::HEADER_TOKEN, errors::ServerError, request::HttpRequestBuilder};
-use flowy_workspace_infra::entities::prelude::*;
+use flowy_core_data_model::entities::prelude::*;
 
 pub(crate) fn request_builder() -> HttpRequestBuilder {
     HttpRequestBuilder::new().middleware(crate::middleware::BACKEND_API_MIDDLEWARE.clone())
