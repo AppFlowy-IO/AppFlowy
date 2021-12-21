@@ -70,7 +70,7 @@ async fn delta_sync_while_editing_with_attribute() {
 // │ops: ["123", "456"] rev: 2│ │                 │
 // └──────────────────────────┘ │                 │
 //                              │                 │
-//                              ◀── http request ─┤ Open document
+//                              ◀── http request ─┤ Open document_test
 //                              │                 │
 //                              │                 │  ┌──────────────────────────┐
 //                              ├──http response──┼─▶│ops: ["123", "456"] rev: 2│
@@ -115,7 +115,7 @@ async fn delta_sync_with_server_push_delta() {
 //                         └─────────┘       └─────────┘
 //                              │                 │
 //                              │                 │
-//                              ◀── http request ─┤ Open document
+//                              ◀── http request ─┤ Open document_test
 //                              │                 │
 //                              │                 │  ┌───────────────┐
 //                              ├──http response──┼─▶│ops: [] rev: 0 │
@@ -165,7 +165,7 @@ async fn delta_sync_while_local_rev_less_than_server_rev() {
 //               ┌───────────────────┐ │                 │
 //               │ops: ["123"] rev: 1│ │                 │
 //               └───────────────────┘ │                 │
-//                                     ◀── http request ─┤  Open document
+//                                     ◀── http request ─┤  Open document_test
 //                                     │                 │
 //                                     │                 │   ┌───────────────┐
 //                                     ├──http response──┼──▶│ops: [123] rev:│

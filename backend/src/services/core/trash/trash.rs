@@ -21,9 +21,9 @@ pub(crate) async fn create_trash(
 ) -> Result<(), ServerError> {
     for (trash_id, ty) in records {
         let (sql, args) = SqlBuilder::create(TRASH_TABLE)
-            .add_arg("id", trash_id)
-            .add_arg("user_id", &user.user_id)
-            .add_arg("ty", ty)
+            .add_field_with_arg("id", trash_id)
+            .add_field_with_arg("user_id", &user.user_id)
+            .add_field_with_arg("ty", ty)
             .build()?;
 
         let _ = sqlx::query_with(&sql, args)
@@ -52,7 +52,7 @@ pub(crate) async fn delete_all_trash(
         .collect::<Vec<(Uuid, i32)>>();
     tracing::Span::current().record("delete_rows", &format!("{:?}", rows).as_str());
     let affected_row_count = rows.len();
-    let _ = delete_trash_targets(transaction as &mut DBTransaction<'_>, rows).await?;
+    let _ = delete_trash_associate_targets(transaction as &mut DBTransaction<'_>, rows).await?;
 
     let (sql, args) = SqlBuilder::delete(TRASH_TABLE)
         .and_where_eq("user_id", &user.user_id)
@@ -84,7 +84,7 @@ pub(crate) async fn delete_trash(
             .await
             .map_err(map_sqlx_error)?;
 
-        let _ = delete_trash_targets(
+        let _ = delete_trash_associate_targets(
             transaction as &mut DBTransaction<'_>,
             vec![(trash_table.id, trash_table.ty)],
         )
@@ -101,7 +101,7 @@ pub(crate) async fn delete_trash(
 }
 
 #[tracing::instrument(skip(transaction, targets), err)]
-async fn delete_trash_targets(
+async fn delete_trash_associate_targets(
     transaction: &mut DBTransaction<'_>,
     targets: Vec<(Uuid, i32)>,
 ) -> Result<(), ServerError> {

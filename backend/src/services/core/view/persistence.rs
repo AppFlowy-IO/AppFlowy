@@ -77,14 +77,14 @@ impl NewViewSqlBuilder {
         let view: View = self.table.clone().into();
 
         let (sql, args) = SqlBuilder::create(VIEW_TABLE)
-            .add_arg("id", self.table.id)
-            .add_arg("belong_to_id", self.table.belong_to_id)
-            .add_arg("name", self.table.name)
-            .add_arg("description", self.table.description)
-            .add_arg("modified_time", self.table.modified_time)
-            .add_arg("create_time", self.table.create_time)
-            .add_arg("thumbnail", self.table.thumbnail)
-            .add_arg("view_type", self.table.view_type)
+            .add_field_with_arg("id", self.table.id)
+            .add_field_with_arg("belong_to_id", self.table.belong_to_id)
+            .add_field_with_arg("name", self.table.name)
+            .add_field_with_arg("description", self.table.description)
+            .add_field_with_arg("modified_time", self.table.modified_time)
+            .add_field_with_arg("create_time", self.table.create_time)
+            .add_field_with_arg("thumbnail", self.table.thumbnail)
+            .add_field_with_arg("view_type", self.table.view_type)
             .build()?;
 
         Ok((sql, args, view))

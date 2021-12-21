@@ -1,5 +1,6 @@
 use crate::services::{
     document::manager::DocumentManager,
+    kv_store::{KVStore, PostgresKV},
     web_socket::{WSServer, WebSocketReceivers},
 };
 use actix::Addr;
@@ -14,6 +15,7 @@ pub struct AppContext {
     pub pg_pool: Data<PgPool>,
     pub ws_receivers: Data<WebSocketReceivers>,
     pub document_mng: Data<Arc<DocumentManager>>,
+    pub kv_store: Data<Arc<dyn KVStore>>,
 }
 
 impl AppContext {
@@ -24,12 +26,16 @@ impl AppContext {
         let mut ws_receivers = WebSocketReceivers::new();
         let document_mng = Arc::new(DocumentManager::new(pg_pool.clone()));
         ws_receivers.set(WSModule::Doc, document_mng.clone());
+        let kv_store = Arc::new(PostgresKV {
+            pg_pool: pg_pool.clone(),
+        });
 
         AppContext {
             ws_server,
             pg_pool,
             ws_receivers: Data::new(ws_receivers),
             document_mng: Data::new(document_mng),
+            kv_store: Data::new(kv_store),
         }
     }
 }
