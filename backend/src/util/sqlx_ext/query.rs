@@ -52,7 +52,7 @@ impl SqlBuilder {
         builder
     }
 
-    pub fn add_arg<'a, T>(mut self, field: &str, arg: T) -> Self
+    pub fn add_field_with_arg<'a, T>(mut self, field: &str, arg: T) -> Self
     where
         T: 'a + Send + Encode<'a, Postgres> + Type<Postgres>,
     {
@@ -67,7 +67,7 @@ impl SqlBuilder {
         T: 'a + Send + Encode<'a, Postgres> + Type<Postgres>,
     {
         if add {
-            self.add_arg(field, arg)
+            self.add_field_with_arg(field, arg)
         } else {
             self
         }
@@ -78,7 +78,7 @@ impl SqlBuilder {
         T: 'a + Send + Encode<'a, Postgres> + Type<Postgres>,
     {
         if let Some(arg) = arg {
-            self.add_arg(field, arg)
+            self.add_field_with_arg(field, arg)
         } else {
             self
         }

@@ -79,7 +79,7 @@ pub async fn update_doc(pool: &PgPool, mut params: UpdateDocParams) -> Result<()
 
     let (sql, args) = SqlBuilder::update(DOC_TABLE)
         .add_some_arg("data", data)
-        .add_arg("rev_id", params.rev_id)
+        .add_field_with_arg("rev_id", params.rev_id)
         .and_where_eq("id", doc_id)
         .build()?;
 
@@ -128,9 +128,9 @@ impl NewDocSqlBuilder {
 
     pub fn build(self) -> Result<(String, PgArguments), ServerError> {
         let (sql, args) = SqlBuilder::create(DOC_TABLE)
-            .add_arg("id", self.table.id)
-            .add_arg("data", self.table.data)
-            .add_arg("rev_id", self.table.rev_id)
+            .add_field_with_arg("id", self.table.id)
+            .add_field_with_arg("data", self.table.data)
+            .add_field_with_arg("rev_id", self.table.rev_id)
             .build()?;
 
         Ok((sql, args))
