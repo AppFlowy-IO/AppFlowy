@@ -1,5 +1,4 @@
 syntax = "proto3";
-
 message DocumentWSData {
     string doc_id = 1;
     DocumentWSDataType ty = 2;

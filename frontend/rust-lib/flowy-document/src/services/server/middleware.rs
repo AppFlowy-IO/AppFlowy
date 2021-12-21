@@ -11,7 +11,7 @@ impl ResponseMiddleware for DocMiddleware {
     fn receive_response(&self, token: &Option<String>, response: &FlowyResponse) {
         if let Some(error) = &response.error {
             if error.is_unauthorized() {
-                log::error!("doc user is unauthorized");
+                log::error!("document user is unauthorized");
 
                 match token {
                     None => {},

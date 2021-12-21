@@ -1,21 +1,17 @@
+use crate::{
+    entities::{logged_user::LoggedUser, token::Token},
+    services::user::{get_user_profile, register_user, set_user_profile, sign_in, sign_out},
+    util::serde_ext::parse_from_payload,
+};
 use actix_identity::Identity;
 use actix_web::{
     web::{Data, Payload},
     HttpRequest,
     HttpResponse,
 };
-use sqlx::PgPool;
-
 use backend_service::{errors::ServerError, response::FlowyResponse};
 use flowy_user_data_model::protobuf::{SignInParams, SignUpParams, UpdateUserParams};
-
-use crate::{
-    entities::token::Token,
-    services::{
-        user::{get_user_profile, register_user, set_user_profile, sign_in, sign_out, LoggedUser},
-        util::parse_from_payload,
-    },
-};
+use sqlx::PgPool;
 
 pub async fn sign_in_handler(payload: Payload, id: Identity, pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {
     let params: SignInParams = parse_from_payload(payload).await?;

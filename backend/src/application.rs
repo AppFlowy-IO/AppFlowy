@@ -13,14 +13,11 @@ use crate::{
     },
     context::AppContext,
     services::{
-        app::router as app,
-        doc::router as doc,
-        trash::router as trash,
+        core::{app::router as app, trash::router as trash, view::router as view, workspace::router as workspace},
+        document::router as doc,
         user::router as user,
-        view::router as view,
-        workspace::router as workspace,
+        web_socket::WSServer,
     },
-    web_socket::WsServer,
 };
 
 pub struct Application {
@@ -58,8 +55,8 @@ pub fn run(listener: TcpListener, app_ctx: AppContext) -> Result<Server, std::io
             .service(user_scope())
             .app_data(app_ctx.ws_server.clone())
             .app_data(app_ctx.pg_pool.clone())
-            .app_data(app_ctx.ws_bizs.clone())
-            .app_data(app_ctx.document_core.clone())
+            .app_data(app_ctx.ws_receivers.clone())
+            .app_data(app_ctx.document_mng.clone())
     })
     .listen(listener)?
     .run();
@@ -73,7 +70,7 @@ async fn period_check(_pool: Data<PgPool>) {
     }
 }
 
-fn ws_scope() -> Scope { web::scope("/ws").service(crate::web_socket::router::establish_ws_connection) }
+fn ws_scope() -> Scope { web::scope("/ws").service(crate::services::web_socket::router::establish_ws_connection) }
 
 fn user_scope() -> Scope {
     // https://developer.mozilla.org/en-US/docs/Web/HTTP
@@ -112,7 +109,7 @@ fn user_scope() -> Scope {
             .route(web::get().to(view::read_handler))
             .route(web::patch().to(view::update_handler))
         )
-        .service(web::resource("/doc")
+        .service(web::resource("/document")
             .route(web::post().to(doc::create_handler))
             .route(web::get().to(doc::read_handler))
             .route(web::patch().to(doc::update_handler))
@@ -132,14 +129,14 @@ fn user_scope() -> Scope {
 }
 
 pub async fn init_app_context(configuration: &Settings) -> AppContext {
-    let _ = crate::services::log::Builder::new("flowy-server")
+    let _ = crate::services::core::log::Builder::new("flowy-server")
         .env_filter("Trace")
         .build();
     let pg_pool = get_connection_pool(&configuration.database)
         .await
         .unwrap_or_else(|_| panic!("Failed to connect to Postgres at {:?}.", configuration.database));
 
-    let ws_server = WsServer::new().start();
+    let ws_server = WSServer::new().start();
     AppContext::new(ws_server, pg_pool)
 }
 

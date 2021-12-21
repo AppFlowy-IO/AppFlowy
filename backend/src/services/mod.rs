@@ -1,8 +1,4 @@
-pub mod app;
-pub mod doc;
-pub(crate) mod log;
-pub mod trash;
+pub mod core;
+pub mod document;
 pub mod user;
-pub(crate) mod util;
-pub mod view;
-pub mod workspace;
+pub mod web_socket;

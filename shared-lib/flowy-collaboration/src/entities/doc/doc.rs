@@ -47,9 +47,8 @@ impl std::convert::TryFrom<Revision> for Doc {
 
     fn try_from(revision: Revision) -> Result<Self, Self::Error> {
         if !revision.is_initial() {
-            return Err(
-                CollaborateError::revision_conflict().context("Revision's rev_id should be 0 when creating the doc")
-            );
+            return Err(CollaborateError::revision_conflict()
+                .context("Revision's rev_id should be 0 when creating the document"));
         }
 
         let delta = RichTextDelta::from_bytes(&revision.delta_data)?;

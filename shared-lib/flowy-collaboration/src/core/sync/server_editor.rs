@@ -235,7 +235,7 @@ impl ServerDocEditor {
         ));
 
         Ok(Self {
-            doc_id: doc.id.clone(),
+            doc_id: doc.id,
             synchronizer,
             users,
         })
@@ -247,10 +247,7 @@ impl ServerDocEditor {
         Ok(())
     }
 
-    pub fn document_json(&self) -> String {
-        let json = self.synchronizer.doc_json();
-        json
-    }
+    pub fn document_json(&self) -> String { self.synchronizer.doc_json() }
 
     pub fn rev_id(&self) -> i64 { self.synchronizer.rev_id.load(SeqCst) }
 }

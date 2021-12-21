@@ -20,7 +20,7 @@ use flowy_collaboration::{
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use lib_infra::future::FutureResult;
 use lib_ot::{
-    revision::{RevType, Revision, RevisionRange},
+    revision::{Revision, RevisionRange},
     rich_text::RichTextDelta,
 };
 use lib_ws::WSConnectState;
@@ -194,7 +194,7 @@ pub(crate) async fn handle_push_rev(
     bytes: Bytes,
 ) -> FlowyResult<Option<Revision>> {
     // Transform the revision
-    let (ret, rx) = oneshot::channel::<CollaborateResult<TransformDeltas>>();
+    let (_ret, _rx) = oneshot::channel::<CollaborateResult<TransformDeltas>>();
     let revision = Revision::try_from(bytes)?;
     let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
     let server_rev_id = revision.rev_id;
@@ -217,10 +217,10 @@ pub(crate) async fn handle_push_rev(
         ret,
     };
     let _ = edit_cmd_tx.send(msg);
-    let md5 = rx.await.map_err(internal_error)??;
+    let _md5 = rx.await.map_err(internal_error)??;
 
     // update rev id
-    rev_manager.update_rev_id_counter_value(server_rev_id.clone().into());
+    rev_manager.update_rev_id_counter_value(server_rev_id);
     // let (local_base_rev_id, local_rev_id) = rev_manager.next_rev_id();
     // let delta_data = client_prime.to_bytes();
     // // save the revision

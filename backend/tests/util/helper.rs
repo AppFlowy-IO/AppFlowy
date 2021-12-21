@@ -150,7 +150,7 @@ impl TestUserServer {
     }
 
     pub async fn read_doc(&self, params: DocIdentifier) -> Option<Doc> {
-        let url = format!("{}/api/doc", self.http_addr());
+        let url = format!("{}/api/document", self.http_addr());
         let doc = read_doc_request(self.user_token(), params, &url).await.unwrap();
         doc
     }

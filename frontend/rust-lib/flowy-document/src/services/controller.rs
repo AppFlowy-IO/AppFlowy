@@ -56,7 +56,7 @@ impl DocController {
     }
 
     pub(crate) fn close(&self, doc_id: &str) -> Result<(), FlowyError> {
-        tracing::debug!("Close doc {}", doc_id);
+        tracing::debug!("Close document {}", doc_id);
         self.open_cache.remove(doc_id);
         self.ws_handlers.remove_handler(doc_id);
         Ok(())
@@ -114,7 +114,7 @@ impl DocController {
     fn make_rev_manager(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<RevisionManager, FlowyError> {
         // Opti: require upgradable_read lock and then upgrade to write lock using
         // RwLockUpgradableReadGuard::upgrade(xx) of ws
-        // let doc = self.read_doc(doc_id, pool.clone()).await?;
+        // let document = self.read_doc(doc_id, pool.clone()).await?;
         let user_id = self.user.user_id()?;
         let cache = Arc::new(RevisionCache::new(&user_id, doc_id, pool));
         Ok(RevisionManager::new(&user_id, doc_id, cache))

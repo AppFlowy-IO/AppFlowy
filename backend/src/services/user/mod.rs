@@ -1,9 +1,4 @@
-pub use auth::*;
-pub use logged_user::*;
-pub use utils::*;
+pub use controller::*;
 
-mod auth;
-mod logged_user;
+mod controller;
 pub mod router;
-pub mod user_default;
-mod utils;

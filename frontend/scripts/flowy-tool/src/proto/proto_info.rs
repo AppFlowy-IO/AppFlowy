@@ -16,7 +16,7 @@ impl CrateProtoInfo {
     pub fn create_crate_mod_file(&self) {
         // mod model;
         // pub use model::*;
-        let mod_file_path = format!("{}/mod.rs", self.inner.protobuf_crate_name());
+        let mod_file_path = format!("{}/document", self.inner.protobuf_crate_name());
         let mut content = "#![cfg_attr(rustfmt, rustfmt::skip)]\n".to_owned();
         content.push_str("// Auto-generated, do not edit\n");
         content.push_str("mod model;\npub use model::*;");
@@ -81,7 +81,7 @@ impl ProtobufCrate {
     }
 
     pub fn proto_model_mod_file(&self) -> String {
-        format!("{}/mod.rs", self.proto_struct_output_dir())
+        format!("{}/document", self.proto_struct_output_dir())
     }
 }
 

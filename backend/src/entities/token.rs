@@ -1,7 +1,12 @@
-use crate::config::env::{domain, jwt_secret};
-use backend_service::errors::ServerError;
+use crate::{
+    config::env::{domain, jwt_secret},
+    entities::logged_user::EXPIRED_DURATION_DAYS,
+};
+use actix_web::{dev::Payload, FromRequest, HttpRequest};
+use backend_service::{configuration::HEADER_TOKEN, errors::ServerError};
 use chrono::{Duration, Local};
 use derive_more::{From, Into};
+use futures::future::{ready, Ready};
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 
@@ -73,11 +78,6 @@ impl Token {
         }
     }
 }
-
-use crate::services::user::EXPIRED_DURATION_DAYS;
-use actix_web::{dev::Payload, FromRequest, HttpRequest};
-use backend_service::configuration::HEADER_TOKEN;
-use futures::future::{ready, Ready};
 
 impl FromRequest for Token {
     type Error = ServerError;

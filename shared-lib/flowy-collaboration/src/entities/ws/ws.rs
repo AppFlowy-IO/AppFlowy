@@ -1,7 +1,7 @@
 use crate::errors::CollaborateError;
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use lib_infra::uuid;
+
 use lib_ot::revision::{Revision, RevisionRange};
 use std::convert::{TryFrom, TryInto};
 
@@ -62,7 +62,7 @@ pub struct DocumentWSDataBuilder();
 impl DocumentWSDataBuilder {
     // DocumentWSDataType::PushRev -> Revision
     pub fn build_push_message(doc_id: &str, revision: Revision, id: &str) -> DocumentWSData {
-        let rev_id = revision.rev_id;
+        let _rev_id = revision.rev_id;
         let bytes: Bytes = revision.try_into().unwrap();
         DocumentWSData {
             doc_id: doc_id.to_string(),

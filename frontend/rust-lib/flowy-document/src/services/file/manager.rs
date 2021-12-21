@@ -64,7 +64,7 @@ impl FileManager {
     pub(crate) fn create_file(&mut self, id: &str, dir: &str, text: &str) -> Result<PathBuf, FileError> {
         let path = PathBuf::from(format!("{}/{}", dir, id));
         let file_id: FileId = id.to_owned().into();
-        tracing::info!("Create doc at: {:?}", path);
+        tracing::info!("Create document at: {:?}", path);
         let _ = self.save_new(&path, text, &file_id)?;
         Ok(path)
     }

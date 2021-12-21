@@ -42,7 +42,7 @@ impl DocumentUser for DocumentUserImpl {
             .user_dir()
             .map_err(|e| FlowyError::unauthorized().context(e))?;
 
-        let doc_dir = format!("{}/doc", dir);
+        let doc_dir = format!("{}/document", dir);
         if !Path::new(&doc_dir).exists() {
             let _ = std::fs::create_dir_all(&doc_dir)?;
         }

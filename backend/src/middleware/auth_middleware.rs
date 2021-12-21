@@ -1,4 +1,3 @@
-use crate::services::user::{LoggedUser, AUTHORIZED_USERS};
 use actix_service::{Service, Transform};
 use actix_web::{
     dev::{ServiceRequest, ServiceResponse},
@@ -7,7 +6,10 @@ use actix_web::{
     ResponseError,
 };
 
-use crate::config::IGNORE_ROUTES;
+use crate::{
+    config::IGNORE_ROUTES,
+    entities::logged_user::{LoggedUser, AUTHORIZED_USERS},
+};
 use actix_web::{body::AnyBody, dev::MessageBody};
 use backend_service::{configuration::HEADER_TOKEN, errors::ServerError};
 use futures::future::{ok, LocalBoxFuture, Ready};
