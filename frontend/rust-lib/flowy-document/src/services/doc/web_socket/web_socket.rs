@@ -272,7 +272,7 @@ impl CombinedSink {
         }
     }
 
-    // FIXME: return Option<&DocumentWSData> would be better
+    // TODO: return Option<&DocumentWSData> would be better
     pub(crate) async fn front(&self) -> Option<DocumentWSData> { self.shared.read().await.front().cloned() }
 
     pub(crate) async fn push_front(&self, data: DocumentWSData) { self.shared.write().await.push_front(data); }

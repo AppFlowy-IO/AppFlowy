@@ -39,7 +39,7 @@ impl RevisionMemoryCache {
                 return;
             }
         }
-        // FIXME: Remove outdated revisions to reduce memory usage
+        // TODO: Remove outdated revisions to reduce memory usage
         self.revs_map.insert(record.revision.rev_id, record.clone());
         self.pending_write_revs.write().await.push(record.revision.rev_id);
         self.make_checkpoint().await;
@@ -92,7 +92,7 @@ impl RevisionMemoryCache {
         *self.defer_save.write().await = Some(tokio::spawn(async move {
             tokio::time::sleep(Duration::from_millis(300)).await;
             let mut revs_write_guard = pending_write_revs.write().await;
-            // FIXME:
+            // TODO:
             // It may cause performance issues because we hold the write lock of the
             // rev_order and the lock will be released after the checkpoint has been written
             // to the disk.
