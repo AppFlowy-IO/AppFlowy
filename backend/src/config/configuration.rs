@@ -2,7 +2,7 @@ use serde_aux::field_attributes::deserialize_number_from_string;
 use sqlx::postgres::{PgConnectOptions, PgSslMode};
 use std::convert::{TryFrom, TryInto};
 
-#[derive(serde::Deserialize, Clone)]
+#[derive(serde::Deserialize, Clone, Debug)]
 pub struct Settings {
     pub database: DatabaseSettings,
     pub application: ApplicationSettings,
@@ -16,7 +16,7 @@ pub struct Settings {
 // any network interface. So using 127.0.0.1 for our local development and set
 // it to 0.0.0.0 in our Docker images.
 //
-#[derive(serde::Deserialize, Clone)]
+#[derive(serde::Deserialize, Clone, Debug)]
 pub struct ApplicationSettings {
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub port: u16,
@@ -56,7 +56,6 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
     let mut settings = config::Config::default();
     let base_path = std::env::current_dir().expect("Failed to determine the current directory");
     let configuration_dir = base_path.join("configuration");
-
     settings.merge(config::File::from(configuration_dir.join("base")).required(true))?;
 
     let environment: Environment = std::env::var("APP_ENVIRONMENT")
@@ -64,8 +63,7 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
         .try_into()
         .expect("Failed to parse APP_ENVIRONMENT.");
 
-    settings
-        .merge(config::File::from(configuration_dir.join(environment.as_str())).required(true))?;
+    settings.merge(config::File::from(configuration_dir.join(environment.as_str())).required(true))?;
 
     // Add in settings from environment variables (with a prefix of APP and '__' as
     // separator) E.g. `APP_APPLICATION__PORT=5001 would set

@@ -1051,7 +1051,7 @@ class _$AppStateTearOff {
       required bool isLoading,
       required List<View>? views,
       View? latestCreatedView,
-      required Either<Unit, WorkspaceError> successOrFailure}) {
+      required Either<Unit, FlowyError> successOrFailure}) {
     return _AppState(
       app: app,
       isLoading: isLoading,
@@ -1071,7 +1071,7 @@ mixin _$AppState {
   bool get isLoading => throw _privateConstructorUsedError;
   List<View>? get views => throw _privateConstructorUsedError;
   View? get latestCreatedView => throw _privateConstructorUsedError;
-  Either<Unit, WorkspaceError> get successOrFailure =>
+  Either<Unit, FlowyError> get successOrFailure =>
       throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
@@ -1088,7 +1088,7 @@ abstract class $AppStateCopyWith<$Res> {
       bool isLoading,
       List<View>? views,
       View? latestCreatedView,
-      Either<Unit, WorkspaceError> successOrFailure});
+      Either<Unit, FlowyError> successOrFailure});
 }
 
 /// @nodoc
@@ -1127,7 +1127,7 @@ class _$AppStateCopyWithImpl<$Res> implements $AppStateCopyWith<$Res> {
       successOrFailure: successOrFailure == freezed
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
-              as Either<Unit, WorkspaceError>,
+              as Either<Unit, FlowyError>,
     ));
   }
 }
@@ -1142,7 +1142,7 @@ abstract class _$AppStateCopyWith<$Res> implements $AppStateCopyWith<$Res> {
       bool isLoading,
       List<View>? views,
       View? latestCreatedView,
-      Either<Unit, WorkspaceError> successOrFailure});
+      Either<Unit, FlowyError> successOrFailure});
 }
 
 /// @nodoc
@@ -1182,7 +1182,7 @@ class __$AppStateCopyWithImpl<$Res> extends _$AppStateCopyWithImpl<$Res>
       successOrFailure: successOrFailure == freezed
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
-              as Either<Unit, WorkspaceError>,
+              as Either<Unit, FlowyError>,
     ));
   }
 }
@@ -1206,7 +1206,7 @@ class _$_AppState implements _AppState {
   @override
   final View? latestCreatedView;
   @override
-  final Either<Unit, WorkspaceError> successOrFailure;
+  final Either<Unit, FlowyError> successOrFailure;
 
   @override
   String toString() {
@@ -1253,7 +1253,7 @@ abstract class _AppState implements AppState {
       required bool isLoading,
       required List<View>? views,
       View? latestCreatedView,
-      required Either<Unit, WorkspaceError> successOrFailure}) = _$_AppState;
+      required Either<Unit, FlowyError> successOrFailure}) = _$_AppState;
 
   @override
   App get app => throw _privateConstructorUsedError;
@@ -1264,7 +1264,7 @@ abstract class _AppState implements AppState {
   @override
   View? get latestCreatedView => throw _privateConstructorUsedError;
   @override
-  Either<Unit, WorkspaceError> get successOrFailure =>
+  Either<Unit, FlowyError> get successOrFailure =>
       throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)

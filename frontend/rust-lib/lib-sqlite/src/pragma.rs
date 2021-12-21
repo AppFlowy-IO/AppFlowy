@@ -33,7 +33,7 @@ pub trait PragmaExtension: ConnectionExtension {
             None => format!("PRAGMA {} = '{}'", key, val),
         };
         log::trace!("SQLITE {}", query);
-        Ok(self.query::<ST, T>(&query)?)
+        self.query::<ST, T>(&query)
     }
 
     fn pragma_get<ST, T>(&self, key: &str, schema: Option<&str>) -> Result<T>
@@ -45,7 +45,7 @@ pub trait PragmaExtension: ConnectionExtension {
             None => format!("PRAGMA {}", key),
         };
         log::trace!("SQLITE {}", query);
-        Ok(self.query::<ST, T>(&query)?)
+        self.query::<ST, T>(&query)
     }
 
     fn pragma_set_busy_timeout(&self, timeout_ms: i32) -> Result<i32> {
@@ -59,7 +59,7 @@ pub trait PragmaExtension: ConnectionExtension {
     }
 
     fn pragma_get_journal_mode(&self, schema: Option<&str>) -> Result<SQLiteJournalMode> {
-        Ok(self.pragma_get::<Text, String>("journal_mode", schema)?.parse()?)
+        self.pragma_get::<Text, String>("journal_mode", schema)?.parse()
     }
 
     fn pragma_set_synchronous(&self, synchronous: SQLiteSynchronous, schema: Option<&str>) -> Result<()> {
@@ -67,7 +67,7 @@ pub trait PragmaExtension: ConnectionExtension {
     }
 
     fn pragma_get_synchronous(&self, schema: Option<&str>) -> Result<SQLiteSynchronous> {
-        Ok(self.pragma_get::<Integer, i32>("synchronous", schema)?.try_into()?)
+        self.pragma_get::<Integer, i32>("synchronous", schema)?.try_into()
     }
 }
 impl PragmaExtension for SqliteConnection {}

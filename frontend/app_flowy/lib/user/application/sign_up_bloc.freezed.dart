@@ -707,7 +707,7 @@ class _$SignUpStateTearOff {
       required Option<String> passwordError,
       required Option<String> repeatPasswordError,
       required Option<String> emailError,
-      required Option<Either<UserProfile, UserError>> successOrFail}) {
+      required Option<Either<UserProfile, FlowyError>> successOrFail}) {
     return _SignUpState(
       email: email,
       password: password,
@@ -733,7 +733,7 @@ mixin _$SignUpState {
   Option<String> get passwordError => throw _privateConstructorUsedError;
   Option<String> get repeatPasswordError => throw _privateConstructorUsedError;
   Option<String> get emailError => throw _privateConstructorUsedError;
-  Option<Either<UserProfile, UserError>> get successOrFail =>
+  Option<Either<UserProfile, FlowyError>> get successOrFail =>
       throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
@@ -754,7 +754,7 @@ abstract class $SignUpStateCopyWith<$Res> {
       Option<String> passwordError,
       Option<String> repeatPasswordError,
       Option<String> emailError,
-      Option<Either<UserProfile, UserError>> successOrFail});
+      Option<Either<UserProfile, FlowyError>> successOrFail});
 }
 
 /// @nodoc
@@ -808,7 +808,7 @@ class _$SignUpStateCopyWithImpl<$Res> implements $SignUpStateCopyWith<$Res> {
       successOrFail: successOrFail == freezed
           ? _value.successOrFail
           : successOrFail // ignore: cast_nullable_to_non_nullable
-              as Option<Either<UserProfile, UserError>>,
+              as Option<Either<UserProfile, FlowyError>>,
     ));
   }
 }
@@ -828,7 +828,7 @@ abstract class _$SignUpStateCopyWith<$Res>
       Option<String> passwordError,
       Option<String> repeatPasswordError,
       Option<String> emailError,
-      Option<Either<UserProfile, UserError>> successOrFail});
+      Option<Either<UserProfile, FlowyError>> successOrFail});
 }
 
 /// @nodoc
@@ -884,7 +884,7 @@ class __$SignUpStateCopyWithImpl<$Res> extends _$SignUpStateCopyWithImpl<$Res>
       successOrFail: successOrFail == freezed
           ? _value.successOrFail
           : successOrFail // ignore: cast_nullable_to_non_nullable
-              as Option<Either<UserProfile, UserError>>,
+              as Option<Either<UserProfile, FlowyError>>,
     ));
   }
 }
@@ -917,7 +917,7 @@ class _$_SignUpState implements _SignUpState {
   @override
   final Option<String> emailError;
   @override
-  final Option<Either<UserProfile, UserError>> successOrFail;
+  final Option<Either<UserProfile, FlowyError>> successOrFail;
 
   @override
   String toString() {
@@ -980,7 +980,7 @@ abstract class _SignUpState implements SignUpState {
           required Option<String> passwordError,
           required Option<String> repeatPasswordError,
           required Option<String> emailError,
-          required Option<Either<UserProfile, UserError>> successOrFail}) =
+          required Option<Either<UserProfile, FlowyError>> successOrFail}) =
       _$_SignUpState;
 
   @override
@@ -998,7 +998,7 @@ abstract class _SignUpState implements SignUpState {
   @override
   Option<String> get emailError => throw _privateConstructorUsedError;
   @override
-  Option<Either<UserProfile, UserError>> get successOrFail =>
+  Option<Either<UserProfile, FlowyError>> get successOrFail =>
       throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)

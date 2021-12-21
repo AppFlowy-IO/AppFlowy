@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+message DocumentWSData {
+    string doc_id = 1;
+    DocumentWSDataType ty = 2;
+    bytes data = 3;
+    string id = 4;
+}
+message NewDocumentUser {
+    string user_id = 1;
+    string doc_id = 2;
+    bytes revision_data = 3;
+}
+enum DocumentWSDataType {
+    Ack = 0;
+    PushRev = 1;
+    PullRev = 2;
+    UserConnect = 3;
+}

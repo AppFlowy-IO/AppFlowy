@@ -10,8 +10,8 @@ import 'package:app_flowy/workspace/presentation/home/home_screen.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_infra_ui/widget/route/animation.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show UserProfile;
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -24,8 +24,8 @@ class SplashUserImpl implements ISplashUser {
         (userProfile) {
           return AuthState.authenticated(userProfile);
         },
-        (userError) {
-          return AuthState.unauthenticated(userError);
+        (FlowyError) {
+          return AuthState.unauthenticated(FlowyError);
         },
       );
     });

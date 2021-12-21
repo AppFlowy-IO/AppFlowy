@@ -20,14 +20,14 @@ const ErrorCode$json = const {
 
 /// Descriptor for `ErrorCode`. Decode as a `google.protobuf.EnumDescriptorProto`.
 final $typed_data.Uint8List errorCodeDescriptor = $convert.base64Decode('CglFcnJvckNvZGUSEQoNSW50ZXJuYWxFcnJvchAAEhYKElVuc3VwcG9ydGVkTWVzc2FnZRABEhAKDFVuYXV0aG9yaXplZBAC');
-@$core.Deprecated('Use wsErrorDescriptor instead')
-const WsError$json = const {
-  '1': 'WsError',
+@$core.Deprecated('Use wSErrorDescriptor instead')
+const WSError$json = const {
+  '1': 'WSError',
   '2': const [
     const {'1': 'code', '3': 1, '4': 1, '5': 14, '6': '.ErrorCode', '10': 'code'},
     const {'1': 'msg', '3': 2, '4': 1, '5': 9, '10': 'msg'},
   ],
 };
 
-/// Descriptor for `WsError`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List wsErrorDescriptor = $convert.base64Decode('CgdXc0Vycm9yEh4KBGNvZGUYASABKA4yCi5FcnJvckNvZGVSBGNvZGUSEAoDbXNnGAIgASgJUgNtc2c=');
+/// Descriptor for `WSError`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List wSErrorDescriptor = $convert.base64Decode('CgdXU0Vycm9yEh4KBGNvZGUYASABKA4yCi5FcnJvckNvZGVSBGNvZGUSEAoDbXNnGAIgASgJUgNtc2c=');

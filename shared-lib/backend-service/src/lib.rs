@@ -1,4 +1,4 @@
-pub mod config;
+pub mod configuration;
 pub mod errors;
 pub mod middleware;
 pub mod request;

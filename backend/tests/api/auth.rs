@@ -1,6 +1,6 @@
 use crate::util::helper::{spawn_user_server, TestUserServer};
 use backend_service::errors::ErrorCode;
-use flowy_user_infra::entities::{SignInParams, SignUpParams, SignUpResponse, UpdateUserParams};
+use flowy_user_data_model::entities::{SignInParams, SignUpParams, SignUpResponse, UpdateUserParams};
 
 #[actix_rt::test]
 async fn user_register() {

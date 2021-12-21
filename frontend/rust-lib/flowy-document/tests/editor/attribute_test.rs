@@ -1,8 +1,9 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
 use crate::editor::{TestBuilder, TestOp::*};
-use flowy_document_infra::core::{FlowyDoc, PlainDoc};
-use lib_ot::core::{Delta, Interval, OperationTransformable, NEW_LINE, WHITESPACE, FlowyStr};
+use flowy_collaboration::core::document::{FlowyDoc, PlainDoc};
+use lib_ot::core::{Interval, OperationTransformable, NEW_LINE, WHITESPACE, FlowyStr};
 use unicode_segmentation::UnicodeSegmentation;
+use lib_ot::rich_text::RichTextDelta;
 
 #[test]
 fn attributes_bold_added() {
@@ -18,7 +19,7 @@ fn attributes_bold_added() {
             ]"#,
         ),
     ];
-    TestBuilder::new().run_script::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<PlainDoc>(ops);
 }
 
 #[test]
@@ -30,7 +31,7 @@ fn attributes_bold_added_and_invert_all() {
         Bold(0, Interval::new(0, 3), false),
         AssertDocJson(0, r#"[{"insert":"123"}]"#),
     ];
-    TestBuilder::new().run_script::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<PlainDoc>(ops);
 }
 
 #[test]
@@ -42,7 +43,7 @@ fn attributes_bold_added_and_invert_partial_suffix() {
         Bold(0, Interval::new(2, 4), false),
         AssertDocJson(0, r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34"}]"#),
     ];
-    TestBuilder::new().run_script::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<PlainDoc>(ops);
 }
 
 #[test]
@@ -56,7 +57,7 @@ fn attributes_bold_added_and_invert_partial_suffix2() {
         Bold(0, Interval::new(2, 4), true),
         AssertDocJson(0, r#"[{"insert":"1234","attributes":{"bold":"true"}}]"#),
     ];
-    TestBuilder::new().run_script::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<PlainDoc>(ops);
 }
 
 #[test]
@@ -84,7 +85,7 @@ fn attributes_bold_added_with_new_line() {
             r#"[{"insert":"123","attributes":{"bold":"true"}},{"insert":"\na\n"},{"insert":"456","attributes":{"bold":"true"}},{"insert":"\n"}]"#,
         ),
     ];
-    TestBuilder::new().run_script::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
 }
 
 #[test]
@@ -96,7 +97,7 @@ fn attributes_bold_added_and_invert_partial_prefix() {
         Bold(0, Interval::new(0, 2), false),
         AssertDocJson(0, r#"[{"insert":"12"},{"insert":"34","attributes":{"bold":"true"}}]"#),
     ];
-    TestBuilder::new().run_script::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<PlainDoc>(ops);
 }
 
 #[test]
@@ -108,7 +109,7 @@ fn attributes_bold_added_consecutive() {
         Bold(0, Interval::new(1, 2), true),
         AssertDocJson(0, r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34"}]"#),
     ];
-    TestBuilder::new().run_script::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<PlainDoc>(ops);
 }
 
 #[test]
@@ -127,7 +128,7 @@ fn attributes_bold_added_italic() {
             r#"[{"insert":"12345678","attributes":{"bold":"true","italic":"true"}},{"insert":"\n"}]"#,
         ),
     ];
-    TestBuilder::new().run_script::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
 }
 
 #[test]
@@ -155,7 +156,7 @@ fn attributes_bold_added_italic2() {
         ),
     ];
 
-    TestBuilder::new().run_script::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<PlainDoc>(ops);
 }
 
 #[test]
@@ -192,7 +193,7 @@ fn attributes_bold_added_italic3() {
         ),
     ];
 
-    TestBuilder::new().run_script::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<PlainDoc>(ops);
 }
 
 #[test]
@@ -228,7 +229,7 @@ fn attributes_bold_added_italic_delete() {
         AssertDocJson(0, r#"[{"insert":"67"},{"insert":"89","attributes":{"bold":"true"}}]"#),
     ];
 
-    TestBuilder::new().run_script::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<PlainDoc>(ops);
 }
 
 #[test]
@@ -239,7 +240,7 @@ fn attributes_merge_inserted_text_with_same_attribute() {
         InsertBold(0, "456", Interval::new(3, 6)),
         AssertDocJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
     ];
-    TestBuilder::new().run_script::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<PlainDoc>(ops);
 }
 
 #[test]
@@ -254,7 +255,7 @@ fn attributes_compose_attr_attributes_with_attr_attributes_test() {
         AssertDocJson(1, r#"[{"insert":"1234567","attributes":{"bold":"true"}}]"#),
     ];
 
-    TestBuilder::new().run_script::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<PlainDoc>(ops);
 }
 
 #[test]
@@ -295,7 +296,7 @@ fn attributes_compose_attr_attributes_with_attr_attributes_test2() {
         ),
     ];
 
-    TestBuilder::new().run_script::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<PlainDoc>(ops);
 }
 
 #[test]
@@ -311,7 +312,7 @@ fn attributes_compose_attr_attributes_with_no_attr_attributes_test() {
         AssertDocJson(0, expected),
         AssertDocJson(1, expected),
     ];
-    TestBuilder::new().run_script::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<PlainDoc>(ops);
 }
 
 #[test]
@@ -323,7 +324,7 @@ fn attributes_replace_heading() {
         AssertDocJson(0, r#"[{"insert":"3456","attributes":{"bold":"true"}}]"#),
     ];
 
-    TestBuilder::new().run_script::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<PlainDoc>(ops);
 }
 
 #[test]
@@ -335,7 +336,7 @@ fn attributes_replace_trailing() {
         AssertDocJson(0, r#"[{"insert":"12345","attributes":{"bold":"true"}}]"#),
     ];
 
-    TestBuilder::new().run_script::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<PlainDoc>(ops);
 }
 
 #[test]
@@ -349,7 +350,7 @@ fn attributes_replace_middle() {
         AssertDocJson(0, r#"[{"insert":"34","attributes":{"bold":"true"}}]"#),
     ];
 
-    TestBuilder::new().run_script::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<PlainDoc>(ops);
 }
 
 #[test]
@@ -361,7 +362,7 @@ fn attributes_replace_all() {
         AssertDocJson(0, r#"[]"#),
     ];
 
-    TestBuilder::new().run_script::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<PlainDoc>(ops);
 }
 
 #[test]
@@ -373,7 +374,7 @@ fn attributes_replace_with_text() {
         AssertDocJson(0, r#"[{"insert":"ab"},{"insert":"456","attributes":{"bold":"true"}}]"#),
     ];
 
-    TestBuilder::new().run_script::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<PlainDoc>(ops);
 }
 
 #[test]
@@ -389,7 +390,7 @@ fn attributes_header_insert_newline_at_middle() {
         ),
     ];
 
-    TestBuilder::new().run_script::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
 }
 
 #[test]
@@ -414,7 +415,7 @@ fn attributes_header_insert_double_newline_at_middle() {
         ),
     ];
 
-    TestBuilder::new().run_script::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
 }
 
 #[test]
@@ -429,7 +430,7 @@ fn attributes_header_insert_newline_at_trailing() {
         ),
     ];
 
-    TestBuilder::new().run_script::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
 }
 
 #[test]
@@ -445,7 +446,7 @@ fn attributes_header_insert_double_newline_at_trailing() {
         ),
     ];
 
-    TestBuilder::new().run_script::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
 }
 
 #[test]
@@ -459,7 +460,7 @@ fn attributes_link_added() {
         ),
     ];
 
-    TestBuilder::new().run_script::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
 }
 
 #[test]
@@ -478,7 +479,7 @@ fn attributes_link_format_with_bold() {
         ),
     ];
 
-    TestBuilder::new().run_script::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
 }
 
 #[test]
@@ -497,7 +498,7 @@ fn attributes_link_insert_char_at_head() {
         ),
     ];
 
-    TestBuilder::new().run_script::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
 }
 
 #[test]
@@ -512,7 +513,7 @@ fn attributes_link_insert_char_at_middle() {
         ),
     ];
 
-    TestBuilder::new().run_script::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
 }
 
 #[test]
@@ -531,7 +532,7 @@ fn attributes_link_insert_char_at_trailing() {
         ),
     ];
 
-    TestBuilder::new().run_script::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
 }
 
 #[test]
@@ -546,7 +547,7 @@ fn attributes_link_insert_newline_at_middle() {
         ),
     ];
 
-    TestBuilder::new().run_script::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
 }
 
 #[test]
@@ -562,7 +563,7 @@ fn attributes_link_auto_format() {
         ),
     ];
 
-    TestBuilder::new().run_script::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
 }
 
 #[test]
@@ -578,7 +579,7 @@ fn attributes_link_auto_format_exist() {
         ),
     ];
 
-    TestBuilder::new().run_script::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
 }
 
 #[test]
@@ -594,7 +595,7 @@ fn attributes_link_auto_format_exist2() {
         ),
     ];
 
-    TestBuilder::new().run_script::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
 }
 
 #[test]
@@ -605,7 +606,7 @@ fn attributes_bullet_added() {
         AssertDocJson(0, r#"[{"insert":"12"},{"insert":"\n","attributes":{"list":"bullet"}}]"#),
     ];
 
-    TestBuilder::new().run_script::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
 }
 
 #[test]
@@ -626,7 +627,7 @@ fn attributes_bullet_added_2() {
         ),
     ];
 
-    TestBuilder::new().run_script::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
 }
 
 #[test]
@@ -643,7 +644,7 @@ fn attributes_bullet_remove_partial() {
         ),
     ];
 
-    TestBuilder::new().run_script::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
 }
 
 #[test]
@@ -659,7 +660,7 @@ fn attributes_bullet_auto_exit() {
         ),
     ];
 
-    TestBuilder::new().run_script::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
 }
 
 #[test]
@@ -699,7 +700,7 @@ fn attributes_preserve_block_when_insert_newline_inside() {
         ),
     ];
 
-    TestBuilder::new().run_script::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
 }
 
 #[test]
@@ -716,7 +717,7 @@ fn attributes_preserve_header_format_on_merge() {
         AssertDocJson(0, r#"[{"insert":"123456"},{"insert":"\n","attributes":{"header":1}}]"#),
     ];
 
-    TestBuilder::new().run_script::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
 }
 
 #[test]
@@ -735,7 +736,7 @@ fn attributes_format_emoji() {
             r#"[{"insert":"👋 "},{"insert":"\n","attributes":{"header":1}}]"#,
         ),
     ];
-    TestBuilder::new().run_script::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
 }
 
 #[test]
@@ -755,17 +756,17 @@ fn attributes_preserve_list_format_on_merge() {
         ),
     ];
 
-    TestBuilder::new().run_script::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
 }
 
 #[test]
 fn delta_compose() {
-    let mut delta = Delta::from_json(r#"[{"insert":"\n"}]"#).unwrap();
+    let mut delta = RichTextDelta::from_json(r#"[{"insert":"\n"}]"#).unwrap();
     let deltas = vec![
-        Delta::from_json(r#"[{"retain":1,"attributes":{"list":"unchecked"}}]"#).unwrap(),
-        Delta::from_json(r#"[{"insert":"a"}]"#).unwrap(),
-        Delta::from_json(r#"[{"retain":1},{"insert":"\n","attributes":{"list":"unchecked"}}]"#).unwrap(),
-        Delta::from_json(r#"[{"retain":2},{"retain":1,"attributes":{"list":""}}]"#).unwrap(),
+        RichTextDelta::from_json(r#"[{"retain":1,"attributes":{"list":"unchecked"}}]"#).unwrap(),
+        RichTextDelta::from_json(r#"[{"insert":"a"}]"#).unwrap(),
+        RichTextDelta::from_json(r#"[{"retain":1},{"insert":"\n","attributes":{"list":"unchecked"}}]"#).unwrap(),
+        RichTextDelta::from_json(r#"[{"retain":2},{"retain":1,"attributes":{"list":""}}]"#).unwrap(),
     ];
 
     for d in deltas {
@@ -794,5 +795,5 @@ fn delta_compose() {
         ),
     ];
 
-    TestBuilder::new().run_script::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
 }

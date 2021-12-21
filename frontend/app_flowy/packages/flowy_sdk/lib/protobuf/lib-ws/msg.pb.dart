@@ -13,16 +13,16 @@ import 'msg.pbenum.dart';
 
 export 'msg.pbenum.dart';
 
-class WsMessage extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'WsMessage', createEmptyInstance: create)
-    ..e<WsModule>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'module', $pb.PbFieldType.OE, defaultOrMaker: WsModule.Doc, valueOf: WsModule.valueOf, enumValues: WsModule.values)
+class WSMessage extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'WSMessage', createEmptyInstance: create)
+    ..e<WSModule>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'module', $pb.PbFieldType.OE, defaultOrMaker: WSModule.Doc, valueOf: WSModule.valueOf, enumValues: WSModule.values)
     ..a<$core.List<$core.int>>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
     ..hasRequiredFields = false
   ;
 
-  WsMessage._() : super();
-  factory WsMessage({
-    WsModule? module,
+  WSMessage._() : super();
+  factory WSMessage({
+    WSModule? module,
     $core.List<$core.int>? data,
   }) {
     final _result = create();
@@ -34,31 +34,31 @@ class WsMessage extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory WsMessage.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory WsMessage.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory WSMessage.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory WSMessage.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  WsMessage clone() => WsMessage()..mergeFromMessage(this);
+  WSMessage clone() => WSMessage()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  WsMessage copyWith(void Function(WsMessage) updates) => super.copyWith((message) => updates(message as WsMessage)) as WsMessage; // ignore: deprecated_member_use
+  WSMessage copyWith(void Function(WSMessage) updates) => super.copyWith((message) => updates(message as WSMessage)) as WSMessage; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static WsMessage create() => WsMessage._();
-  WsMessage createEmptyInstance() => create();
-  static $pb.PbList<WsMessage> createRepeated() => $pb.PbList<WsMessage>();
+  static WSMessage create() => WSMessage._();
+  WSMessage createEmptyInstance() => create();
+  static $pb.PbList<WSMessage> createRepeated() => $pb.PbList<WSMessage>();
   @$core.pragma('dart2js:noInline')
-  static WsMessage getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<WsMessage>(create);
-  static WsMessage? _defaultInstance;
+  static WSMessage getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<WSMessage>(create);
+  static WSMessage? _defaultInstance;
 
   @$pb.TagNumber(1)
-  WsModule get module => $_getN(0);
+  WSModule get module => $_getN(0);
   @$pb.TagNumber(1)
-  set module(WsModule v) { setField(1, v); }
+  set module(WSModule v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasModule() => $_has(0);
   @$pb.TagNumber(1)

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-message WsError {
+message WSError {
     ErrorCode code = 1;
     string msg = 2;
 }

@@ -115,10 +115,10 @@ impl<'a> ASTField<'a> {
         let mut bracket_ty = None;
         let mut bracket_category = Some(BracketCategory::Other);
         match parse_ty(cx, &field.ty) {
-            Some(inner) => {
+            Ok(Some(inner)) => {
                 match inner.primitive_ty {
                     PrimitiveTy::Map(map_info) => {
-                        bracket_category = Some(BracketCategory::Map((map_info.key.clone(), map_info.value.clone())))
+                        bracket_category = Some(BracketCategory::Map((map_info.key.clone(), map_info.value)))
                     },
                     PrimitiveTy::Vec => {
                         bracket_category = Some(BracketCategory::Vec);
@@ -141,8 +141,12 @@ impl<'a> ASTField<'a> {
                     },
                 }
             },
-            None => {
+            Ok(None) => {
                 cx.error_spanned_by(&field.ty, "fail to get the ty inner type");
+            },
+            Err(e) => {
+                eprintln!("ASTField parser failed: {:?} with error: {}", field, e);
+                panic!()
             },
         }
 
@@ -170,7 +174,7 @@ impl<'a> ASTField<'a> {
     #[allow(dead_code)]
     pub fn name(&self) -> Option<syn::Ident> {
         if let syn::Member::Named(ident) = &self.member {
-            return Some(ident.clone());
+            Some(ident.clone())
         } else {
             None
         }
@@ -205,7 +209,7 @@ pub fn enum_from_ast<'a>(
     cx: &Ctxt,
     ident: &syn::Ident,
     variants: &'a Punctuated<syn::Variant, Token![,]>,
-    enum_attrs: &Vec<syn::Attribute>,
+    enum_attrs: &[syn::Attribute],
 ) -> Vec<ASTEnumVariant<'a>> {
     variants
         .iter()

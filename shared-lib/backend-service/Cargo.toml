@@ -6,8 +6,9 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-workspace-infra = { path = "../flowy-workspace-infra" }
-flowy-user-infra = { path = "../flowy-user-infra" }
+flowy-core-data-model = { path = "../flowy-core-data-model" }
+flowy-user-data-model = { path = "../flowy-user-data-model" }
+flowy-collaboration = { path = "../flowy-collaboration" }
 
 log = "0.4.14"
 lazy_static = "1.4.0"
@@ -25,6 +26,8 @@ protobuf = {version = "2.18.0"}
 derive_more = {version = "0.99", features = ["display"]}
 tracing = { version = "0.1", features = ["log"] }
 actix-web = {version = "4.0.0-beta.8", optional = true}
+config = { version = "0.10.1", default-features = false, features = ["yaml"] }
+serde-aux = "1.0.1"
 
 [features]
 http_server = ["actix-web"]

@@ -1,3 +1,0 @@
-
-proto_crates = ["src/entities", "src/errors.rs"]
-event_files = []

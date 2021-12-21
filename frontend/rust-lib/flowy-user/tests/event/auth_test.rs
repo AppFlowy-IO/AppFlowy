@@ -1,11 +1,11 @@
 use crate::helper::*;
-use flowy_test::{builder::UserTest, FlowyTest};
+use flowy_test::{event_builder::UserModuleEventBuilder, FlowySDKTest};
 use flowy_user::{errors::ErrorCode, event::UserEvent::*, prelude::*};
 
 #[tokio::test]
 async fn sign_up_with_invalid_email() {
     for email in invalid_email_test_case() {
-        let test = FlowyTest::setup();
+        let sdk = FlowySDKTest::setup();
         let request = SignUpRequest {
             email: email.to_string(),
             name: valid_name(),
@@ -13,7 +13,7 @@ async fn sign_up_with_invalid_email() {
         };
 
         assert_eq!(
-            UserTest::new(test.sdk)
+            UserModuleEventBuilder::new(sdk)
                 .event(SignUp)
                 .request(request)
                 .async_send()
@@ -27,14 +27,14 @@ async fn sign_up_with_invalid_email() {
 #[tokio::test]
 async fn sign_up_with_invalid_password() {
     for password in invalid_password_test_case() {
-        let test = FlowyTest::setup();
+        let sdk = FlowySDKTest::setup();
         let request = SignUpRequest {
             email: random_email(),
             name: valid_name(),
             password,
         };
 
-        UserTest::new(test.sdk)
+        UserModuleEventBuilder::new(sdk)
             .event(SignUp)
             .request(request)
             .async_send()
@@ -45,8 +45,8 @@ async fn sign_up_with_invalid_password() {
 
 #[tokio::test]
 async fn sign_in_success() {
-    let test = FlowyTest::setup();
-    let _ = UserTest::new(test.sdk()).event(SignOut).sync_send();
+    let test = FlowySDKTest::setup();
+    let _ = UserModuleEventBuilder::new(test.clone()).event(SignOut).sync_send();
     let sign_up_context = test.sign_up().await;
 
     let request = SignInRequest {
@@ -55,7 +55,7 @@ async fn sign_in_success() {
         name: "".to_string(),
     };
 
-    let response = UserTest::new(test.sdk())
+    let response = UserModuleEventBuilder::new(test.clone())
         .event(SignIn)
         .request(request)
         .async_send()
@@ -67,7 +67,7 @@ async fn sign_in_success() {
 #[tokio::test]
 async fn sign_in_with_invalid_email() {
     for email in invalid_email_test_case() {
-        let test = FlowyTest::setup();
+        let sdk = FlowySDKTest::setup();
         let request = SignInRequest {
             email: email.to_string(),
             password: login_password(),
@@ -75,7 +75,7 @@ async fn sign_in_with_invalid_email() {
         };
 
         assert_eq!(
-            UserTest::new(test.sdk)
+            UserModuleEventBuilder::new(sdk)
                 .event(SignIn)
                 .request(request)
                 .async_send()
@@ -90,7 +90,7 @@ async fn sign_in_with_invalid_email() {
 #[tokio::test]
 async fn sign_in_with_invalid_password() {
     for password in invalid_password_test_case() {
-        let test = FlowyTest::setup();
+        let sdk = FlowySDKTest::setup();
 
         let request = SignInRequest {
             email: random_email(),
@@ -98,7 +98,7 @@ async fn sign_in_with_invalid_password() {
             name: "".to_string(),
         };
 
-        UserTest::new(test.sdk)
+        UserModuleEventBuilder::new(sdk)
             .event(SignIn)
             .request(request)
             .async_send()

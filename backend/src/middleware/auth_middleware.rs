@@ -1,4 +1,3 @@
-use crate::service::user::{LoggedUser, AUTHORIZED_USERS};
 use actix_service::{Service, Transform};
 use actix_web::{
     dev::{ServiceRequest, ServiceResponse},
@@ -7,9 +6,12 @@ use actix_web::{
     ResponseError,
 };
 
-use crate::config::IGNORE_ROUTES;
+use crate::{
+    config::IGNORE_ROUTES,
+    entities::logged_user::{LoggedUser, AUTHORIZED_USERS},
+};
 use actix_web::{body::AnyBody, dev::MessageBody};
-use backend_service::{config::HEADER_TOKEN, errors::ServerError};
+use backend_service::{configuration::HEADER_TOKEN, errors::ServerError};
 use futures::future::{ok, LocalBoxFuture, Ready};
 use std::{
     convert::TryInto,
@@ -85,10 +87,10 @@ where
 
         if authenticate_pass {
             let fut = self.service.call(req);
-            return Box::pin(async move {
+            Box::pin(async move {
                 let res = fut.await?;
                 Ok(res.map_body(|_, body| AnyBody::from_message(body)))
-            });
+            })
         } else {
             Box::pin(async move { Ok(req.into_response(unauthorized_response())) })
         }

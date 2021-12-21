@@ -1,5 +1,6 @@
+#![allow(clippy::all)]
 use crate::util::helper::*;
-use flowy_workspace_infra::entities::{
+use flowy_core_data_model::entities::{
     app::{AppIdentifier, UpdateAppParams},
     trash::{TrashIdentifier, TrashIdentifiers, TrashType},
     view::{UpdateViewParams, ViewIdentifier},
@@ -212,5 +213,5 @@ async fn workspace_list_read() {
 
     let read_params = WorkspaceIdentifier::new(None);
     let workspaces = server.read_workspaces(read_params).await;
-    assert_eq!(workspaces.len(), 4);
+    assert_eq!(workspaces.len(), 3);
 }

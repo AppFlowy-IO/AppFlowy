@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show UserProfile;
 import 'package:flutter/material.dart';
 
 class NewUser {
@@ -13,9 +14,9 @@ class NewUser {
 }
 
 abstract class IAuth {
-  Future<Either<UserProfile, UserError>> signIn(String? email, String? password);
-  Future<Either<UserProfile, UserError>> signUp(String? name, String? password, String? email);
-  Future<Either<Unit, UserError>> signOut();
+  Future<Either<UserProfile, FlowyError>> signIn(String? email, String? password);
+  Future<Either<UserProfile, FlowyError>> signUp(String? name, String? password, String? email);
+  Future<Either<Unit, FlowyError>> signOut();
 }
 
 abstract class IAuthRouter {

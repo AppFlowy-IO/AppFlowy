@@ -5,13 +5,13 @@ import 'package:dartz/dartz.dart';
 import 'package:app_flowy/workspace/domain/i_user.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
 import 'package:flowy_infra/notifier.dart';
-import 'package:flowy_sdk/protobuf/flowy-dart-notify/protobuf.dart';
-import 'package:flowy_sdk/protobuf/flowy-user-infra/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/dart-notify/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-user-data-model/errors.pb.dart';
 // import 'package:flowy_sdk/protobuf/flowy-user/errors.pb.dart' as user_error;
 import 'package:flowy_sdk/protobuf/flowy-user/observable.pb.dart' as user;
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/observable.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/workspace_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core/observable.pb.dart';
 export 'package:app_flowy/workspace/domain/i_user.dart';
 export 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
 import 'package:flowy_sdk/rust_stream.dart';
@@ -24,17 +24,17 @@ class IUserImpl extends IUser {
   });
 
   @override
-  Future<Either<Unit, WorkspaceError>> deleteWorkspace(String workspaceId) {
+  Future<Either<Unit, FlowyError>> deleteWorkspace(String workspaceId) {
     return repo.deleteWorkspace(workspaceId: workspaceId);
   }
 
   @override
-  Future<Either<UserProfile, UserError>> fetchUserProfile(String userId) {
+  Future<Either<UserProfile, FlowyError>> fetchUserProfile(String userId) {
     return repo.fetchUserProfile(userId: userId);
   }
 
   @override
-  Future<Either<Unit, UserError>> signOut() {
+  Future<Either<Unit, FlowyError>> signOut() {
     return repo.signOut();
   }
 
@@ -42,12 +42,12 @@ class IUserImpl extends IUser {
   UserProfile get user => repo.user;
 
   @override
-  Future<Either<List<Workspace>, WorkspaceError>> fetchWorkspaces() {
+  Future<Either<List<Workspace>, FlowyError>> fetchWorkspaces() {
     return repo.getWorkspaces();
   }
 
   @override
-  Future<Either<Unit, UserError>> initUser() {
+  Future<Either<Unit, FlowyError>> initUser() {
     return repo.initUser();
   }
 }
@@ -88,7 +88,7 @@ class IUserListenerImpl extends IUserListener {
     await _subscription?.cancel();
   }
 
-  void _notificationCallback(WorkspaceNotification ty, Either<Uint8List, WorkspaceError> result) {
+  void _notificationCallback(WorkspaceNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
       case WorkspaceNotification.UserCreateWorkspace:
       case WorkspaceNotification.UserDeleteWorkspace:
@@ -101,7 +101,7 @@ class IUserListenerImpl extends IUserListener {
       case WorkspaceNotification.UserUnauthorized:
         result.fold(
           (_) {},
-          (error) => authDidChangedNotifier.value = right(UserError.create()..code = ErrorCode.UserUnauthorized.value),
+          (error) => authDidChangedNotifier.value = right(FlowyError.create()..code = ErrorCode.UserUnauthorized.value),
         );
         break;
       default:
@@ -109,7 +109,7 @@ class IUserListenerImpl extends IUserListener {
     }
   }
 
-  void _userNotificationCallback(user.UserNotification ty, Either<Uint8List, UserError> result) {
+  void _userNotificationCallback(user.UserNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
       case user.UserNotification.UserUnauthorized:
         result.fold(

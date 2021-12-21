@@ -9,10 +9,11 @@ edition = "2018"
 lib-dispatch = { path = "../lib-dispatch" }
 lib-log = { path = "../lib-log" }
 flowy-user = { path = "../flowy-user" }
-flowy-workspace = { path = "../flowy-workspace", default-features = false }
+flowy-net = { path = "../flowy-net" }
+flowy-core = { path = "../flowy-core", default-features = false }
 flowy-database = { path = "../flowy-database" }
 flowy-document = { path = "../flowy-document" }
-lib-infra = { path = "../lib-infra" }
+
 tracing = { version = "0.1" }
 log = "0.4.14"
 futures-core = { version = "0.3", default-features = false }
@@ -22,10 +23,10 @@ tokio = { version = "1", features = ["rt"] }
 parking_lot = "0.11"
 
 
-flowy-document-infra = { path = "../../../shared-lib/flowy-document-infra" }
+flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration" }
 lib-ws = { path = "../../../shared-lib/lib-ws" }
 backend-service = { path = "../../../shared-lib/backend-service" }
-
+lib-infra = { path = "../../../shared-lib/lib-infra" }
 
 [dev-dependencies]
 serde = { version = "1.0", features = ["derive"] }
@@ -36,5 +37,5 @@ tokio = { version = "1", features = ["full"]}
 futures-util = "0.3.15"
 
 [features]
-http_server = ["flowy-user/http_server", "flowy-workspace/http_server", "flowy-document/http_server"]
+http_server = ["flowy-user/http_server", "flowy-core/http_server", "flowy-document/http_server"]
 use_bunyan = ["lib-log/use_bunyan"]

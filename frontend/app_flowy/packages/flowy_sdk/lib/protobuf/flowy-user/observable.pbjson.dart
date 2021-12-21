@@ -16,8 +16,9 @@ const UserNotification$json = const {
     const {'1': 'UserAuthChanged', '2': 1},
     const {'1': 'UserProfileUpdated', '2': 2},
     const {'1': 'UserUnauthorized', '2': 3},
+    const {'1': 'UserWsConnectStateChanged', '2': 4},
   ],
 };
 
 /// Descriptor for `UserNotification`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List userNotificationDescriptor = $convert.base64Decode('ChBVc2VyTm90aWZpY2F0aW9uEgsKB1Vua25vd24QABITCg9Vc2VyQXV0aENoYW5nZWQQARIWChJVc2VyUHJvZmlsZVVwZGF0ZWQQAhIUChBVc2VyVW5hdXRob3JpemVkEAM=');
+final $typed_data.Uint8List userNotificationDescriptor = $convert.base64Decode('ChBVc2VyTm90aWZpY2F0aW9uEgsKB1Vua25vd24QABITCg9Vc2VyQXV0aENoYW5nZWQQARIWChJVc2VyUHJvZmlsZVVwZGF0ZWQQAhIUChBVc2VyVW5hdXRob3JpemVkEAMSHQoZVXNlcldzQ29ubmVjdFN0YXRlQ2hhbmdlZBAE');

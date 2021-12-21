@@ -1,22 +1,25 @@
 use crate::{
-    core::{Delta, Interval, Operation},
+    core::{Attributes, Delta, Interval, Operation},
     errors::{ErrorBuilder, OTError, OTErrorCode},
 };
 use std::{cmp::min, iter::Enumerate, slice::Iter};
 
 #[derive(Debug)]
-pub struct OpCursor<'a> {
-    pub(crate) delta: &'a Delta,
+pub struct OpCursor<'a, T: Attributes> {
+    pub(crate) delta: &'a Delta<T>,
     pub(crate) origin_iv: Interval,
     pub(crate) consume_iv: Interval,
     pub(crate) consume_count: usize,
     pub(crate) op_index: usize,
-    iter: Enumerate<Iter<'a, Operation>>,
-    next_op: Option<Operation>,
+    iter: Enumerate<Iter<'a, Operation<T>>>,
+    next_op: Option<Operation<T>>,
 }
 
-impl<'a> OpCursor<'a> {
-    pub fn new(delta: &'a Delta, interval: Interval) -> OpCursor<'a> {
+impl<'a, T> OpCursor<'a, T>
+where
+    T: Attributes,
+{
+    pub fn new(delta: &'a Delta<T>, interval: Interval) -> OpCursor<'a, T> {
         // debug_assert!(interval.start <= delta.target_len);
         let mut cursor = Self {
             delta,
@@ -32,13 +35,13 @@ impl<'a> OpCursor<'a> {
     }
 
     // get the next operation interval
-    pub fn next_iv(&self) -> Interval { self.next_iv_before(None).unwrap_or(Interval::new(0, 0)) }
+    pub fn next_iv(&self) -> Interval { self.next_iv_before(None).unwrap_or_else(|| Interval::new(0, 0)) }
 
-    pub fn next(&mut self) -> Option<Operation> { self.next_with_len(None) }
+    pub fn next_op(&mut self) -> Option<Operation<T>> { self.next_with_len(None) }
 
     // get the last operation before the end.
     // checkout the delta_next_op_with_len_cross_op_return_last test for more detail
-    pub fn next_with_len(&mut self, force_end: Option<usize>) -> Option<Operation> {
+    pub fn next_with_len(&mut self, force_end: Option<usize>) -> Option<Operation<T>> {
         let mut find_op = None;
         let holder = self.next_op.clone();
         let mut next_op = holder.as_ref();
@@ -50,7 +53,7 @@ impl<'a> OpCursor<'a> {
         let mut consume_len = 0;
         while find_op.is_none() && next_op.is_some() {
             let op = next_op.take().unwrap();
-            let interval = self.next_iv_before(force_end).unwrap_or(Interval::new(0, 0));
+            let interval = self.next_iv_before(force_end).unwrap_or_else(|| Interval::new(0, 0));
 
             // cache the op if the interval is empty. e.g. last_op_before(Some(0))
             if interval.is_empty() {
@@ -75,14 +78,15 @@ impl<'a> OpCursor<'a> {
             }
         }
 
-        if find_op.is_some() && force_end.is_some() {
-            // try to find the next op before the index if consume_len less than index
-            let end = force_end.unwrap();
-            if end > consume_len && self.has_next() {
-                return self.next_with_len(Some(end - consume_len));
+        if find_op.is_some() {
+            if let Some(end) = force_end {
+                // try to find the next op before the index if consume_len less than index
+                if end > consume_len && self.has_next() {
+                    return self.next_with_len(Some(end - consume_len));
+                }
             }
         }
-        return find_op;
+        find_op
     }
 
     pub fn has_next(&self) -> bool { self.next_iter_op().is_some() }
@@ -120,7 +124,7 @@ impl<'a> OpCursor<'a> {
         Some(interval)
     }
 
-    pub fn next_iter_op(&self) -> Option<&Operation> {
+    pub fn next_iter_op(&self) -> Option<&Operation<T>> {
         let mut next_op = self.next_op.as_ref();
         if next_op.is_none() {
             let mut offset = 0;
@@ -136,7 +140,10 @@ impl<'a> OpCursor<'a> {
     }
 }
 
-fn find_next<'a>(cursor: &mut OpCursor<'a>) -> Option<&'a Operation> {
+fn find_next<'a, T>(cursor: &mut OpCursor<'a, T>) -> Option<&'a Operation<T>>
+where
+    T: Attributes,
+{
     match cursor.iter.next() {
         None => None,
         Some((o_index, op)) => {
@@ -148,13 +155,13 @@ fn find_next<'a>(cursor: &mut OpCursor<'a>) -> Option<&'a Operation> {
 
 type SeekResult = Result<(), OTError>;
 pub trait Metric {
-    fn seek(cursor: &mut OpCursor, index: usize) -> SeekResult;
+    fn seek<T: Attributes>(cursor: &mut OpCursor<T>, index: usize) -> SeekResult;
 }
 
-pub struct OpMetric {}
+pub struct OpMetric();
 
 impl Metric for OpMetric {
-    fn seek(cursor: &mut OpCursor, index: usize) -> SeekResult {
+    fn seek<T: Attributes>(cursor: &mut OpCursor<T>, index: usize) -> SeekResult {
         let _ = check_bound(cursor.op_index, index)?;
         let mut seek_cursor = OpCursor::new(cursor.delta, cursor.origin_iv);
         let mut offset = 0;
@@ -169,10 +176,10 @@ impl Metric for OpMetric {
     }
 }
 
-pub struct CharMetric {}
+pub struct CharMetric();
 
 impl Metric for CharMetric {
-    fn seek(cursor: &mut OpCursor, index: usize) -> SeekResult {
+    fn seek<T: Attributes>(cursor: &mut OpCursor<T>, index: usize) -> SeekResult {
         if index > 0 {
             let _ = check_bound(cursor.consume_count, index)?;
             let _ = cursor.next_with_len(Some(index));

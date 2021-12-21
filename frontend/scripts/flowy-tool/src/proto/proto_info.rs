@@ -17,10 +17,9 @@ impl CrateProtoInfo {
         // mod model;
         // pub use model::*;
         let mod_file_path = format!("{}/mod.rs", self.inner.protobuf_crate_name());
-        let content = r#"
-mod model;
-pub use model::*;
-        "#;
+        let mut content = "#![cfg_attr(rustfmt, rustfmt::skip)]\n".to_owned();
+        content.push_str("// Auto-generated, do not edit\n");
+        content.push_str("mod model;\npub use model::*;");
         match OpenOptions::new()
             .create(true)
             .write(true)
@@ -95,15 +94,20 @@ pub struct ProtoFile {
     pub generated_content: String,
 }
 
-pub fn parse_crate_info_from_path(root: &str) -> Vec<ProtobufCrate> {
-    WalkDir::new(root)
-        .into_iter()
-        .filter_entry(|e| !is_hidden(e))
-        .filter_map(|e| e.ok())
-        .filter(|e| is_crate_dir(e))
-        .flat_map(|e| parse_crate_config_from(&e))
-        .map(|crate_config| ProtobufCrate::from_config(crate_config))
-        .collect::<Vec<ProtobufCrate>>()
+pub fn parse_crate_info_from_path(roots: Vec<String>) -> Vec<ProtobufCrate> {
+    let mut protobuf_crates: Vec<ProtobufCrate> = vec![];
+    roots.iter().for_each(|root| {
+        let crates = WalkDir::new(root)
+            .into_iter()
+            .filter_entry(|e| !is_hidden(e))
+            .filter_map(|e| e.ok())
+            .filter(|e| is_crate_dir(e))
+            .flat_map(|e| parse_crate_config_from(&e))
+            .map(ProtobufCrate::from_config)
+            .collect::<Vec<ProtobufCrate>>();
+        protobuf_crates.extend(crates);
+    });
+    protobuf_crates
 }
 
 pub struct FlutterProtobufInfo {

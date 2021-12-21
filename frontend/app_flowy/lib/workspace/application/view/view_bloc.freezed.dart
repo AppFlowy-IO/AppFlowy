@@ -41,7 +41,7 @@ class _$ViewEventTearOff {
     return const Duplicate();
   }
 
-  ViewDidUpdate viewDidUpdate(Either<View, WorkspaceError> result) {
+  ViewDidUpdate viewDidUpdate(Either<View, FlowyError> result) {
     return ViewDidUpdate(
       result,
     );
@@ -60,7 +60,7 @@ mixin _$ViewEvent {
     required TResult Function(String newName) rename,
     required TResult Function() delete,
     required TResult Function() duplicate,
-    required TResult Function(Either<View, WorkspaceError> result)
+    required TResult Function(Either<View, FlowyError> result)
         viewDidUpdate,
   }) =>
       throw _privateConstructorUsedError;
@@ -71,7 +71,7 @@ mixin _$ViewEvent {
     TResult Function(String newName)? rename,
     TResult Function()? delete,
     TResult Function()? duplicate,
-    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
+    TResult Function(Either<View, FlowyError> result)? viewDidUpdate,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -81,7 +81,7 @@ mixin _$ViewEvent {
     TResult Function(String newName)? rename,
     TResult Function()? delete,
     TResult Function()? duplicate,
-    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
+    TResult Function(Either<View, FlowyError> result)? viewDidUpdate,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -175,7 +175,7 @@ class _$Initial implements Initial {
     required TResult Function(String newName) rename,
     required TResult Function() delete,
     required TResult Function() duplicate,
-    required TResult Function(Either<View, WorkspaceError> result)
+    required TResult Function(Either<View, FlowyError> result)
         viewDidUpdate,
   }) {
     return initial();
@@ -189,7 +189,7 @@ class _$Initial implements Initial {
     TResult Function(String newName)? rename,
     TResult Function()? delete,
     TResult Function()? duplicate,
-    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
+    TResult Function(Either<View, FlowyError> result)? viewDidUpdate,
   }) {
     return initial?.call();
   }
@@ -202,7 +202,7 @@ class _$Initial implements Initial {
     TResult Function(String newName)? rename,
     TResult Function()? delete,
     TResult Function()? duplicate,
-    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
+    TResult Function(Either<View, FlowyError> result)? viewDidUpdate,
     required TResult orElse(),
   }) {
     if (initial != null) {
@@ -328,7 +328,7 @@ class _$SetEditing implements SetEditing {
     required TResult Function(String newName) rename,
     required TResult Function() delete,
     required TResult Function() duplicate,
-    required TResult Function(Either<View, WorkspaceError> result)
+    required TResult Function(Either<View, FlowyError> result)
         viewDidUpdate,
   }) {
     return setIsEditing(isEditing);
@@ -342,7 +342,7 @@ class _$SetEditing implements SetEditing {
     TResult Function(String newName)? rename,
     TResult Function()? delete,
     TResult Function()? duplicate,
-    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
+    TResult Function(Either<View, FlowyError> result)? viewDidUpdate,
   }) {
     return setIsEditing?.call(isEditing);
   }
@@ -355,7 +355,7 @@ class _$SetEditing implements SetEditing {
     TResult Function(String newName)? rename,
     TResult Function()? delete,
     TResult Function()? duplicate,
-    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
+    TResult Function(Either<View, FlowyError> result)? viewDidUpdate,
     required TResult orElse(),
   }) {
     if (setIsEditing != null) {
@@ -484,7 +484,7 @@ class _$Rename implements Rename {
     required TResult Function(String newName) rename,
     required TResult Function() delete,
     required TResult Function() duplicate,
-    required TResult Function(Either<View, WorkspaceError> result)
+    required TResult Function(Either<View, FlowyError> result)
         viewDidUpdate,
   }) {
     return rename(newName);
@@ -498,7 +498,7 @@ class _$Rename implements Rename {
     TResult Function(String newName)? rename,
     TResult Function()? delete,
     TResult Function()? duplicate,
-    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
+    TResult Function(Either<View, FlowyError> result)? viewDidUpdate,
   }) {
     return rename?.call(newName);
   }
@@ -511,7 +511,7 @@ class _$Rename implements Rename {
     TResult Function(String newName)? rename,
     TResult Function()? delete,
     TResult Function()? duplicate,
-    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
+    TResult Function(Either<View, FlowyError> result)? viewDidUpdate,
     required TResult orElse(),
   }) {
     if (rename != null) {
@@ -614,7 +614,7 @@ class _$Delete implements Delete {
     required TResult Function(String newName) rename,
     required TResult Function() delete,
     required TResult Function() duplicate,
-    required TResult Function(Either<View, WorkspaceError> result)
+    required TResult Function(Either<View, FlowyError> result)
         viewDidUpdate,
   }) {
     return delete();
@@ -628,7 +628,7 @@ class _$Delete implements Delete {
     TResult Function(String newName)? rename,
     TResult Function()? delete,
     TResult Function()? duplicate,
-    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
+    TResult Function(Either<View, FlowyError> result)? viewDidUpdate,
   }) {
     return delete?.call();
   }
@@ -641,7 +641,7 @@ class _$Delete implements Delete {
     TResult Function(String newName)? rename,
     TResult Function()? delete,
     TResult Function()? duplicate,
-    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
+    TResult Function(Either<View, FlowyError> result)? viewDidUpdate,
     required TResult orElse(),
   }) {
     if (delete != null) {
@@ -740,7 +740,7 @@ class _$Duplicate implements Duplicate {
     required TResult Function(String newName) rename,
     required TResult Function() delete,
     required TResult Function() duplicate,
-    required TResult Function(Either<View, WorkspaceError> result)
+    required TResult Function(Either<View, FlowyError> result)
         viewDidUpdate,
   }) {
     return duplicate();
@@ -754,7 +754,7 @@ class _$Duplicate implements Duplicate {
     TResult Function(String newName)? rename,
     TResult Function()? delete,
     TResult Function()? duplicate,
-    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
+    TResult Function(Either<View, FlowyError> result)? viewDidUpdate,
   }) {
     return duplicate?.call();
   }
@@ -767,7 +767,7 @@ class _$Duplicate implements Duplicate {
     TResult Function(String newName)? rename,
     TResult Function()? delete,
     TResult Function()? duplicate,
-    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
+    TResult Function(Either<View, FlowyError> result)? viewDidUpdate,
     required TResult orElse(),
   }) {
     if (duplicate != null) {
@@ -829,7 +829,7 @@ abstract class $ViewDidUpdateCopyWith<$Res> {
   factory $ViewDidUpdateCopyWith(
           ViewDidUpdate value, $Res Function(ViewDidUpdate) then) =
       _$ViewDidUpdateCopyWithImpl<$Res>;
-  $Res call({Either<View, WorkspaceError> result});
+  $Res call({Either<View, FlowyError> result});
 }
 
 /// @nodoc
@@ -850,7 +850,7 @@ class _$ViewDidUpdateCopyWithImpl<$Res> extends _$ViewEventCopyWithImpl<$Res>
       result == freezed
           ? _value.result
           : result // ignore: cast_nullable_to_non_nullable
-              as Either<View, WorkspaceError>,
+              as Either<View, FlowyError>,
     ));
   }
 }
@@ -861,7 +861,7 @@ class _$ViewDidUpdate implements ViewDidUpdate {
   const _$ViewDidUpdate(this.result);
 
   @override
-  final Either<View, WorkspaceError> result;
+  final Either<View, FlowyError> result;
 
   @override
   String toString() {
@@ -893,7 +893,7 @@ class _$ViewDidUpdate implements ViewDidUpdate {
     required TResult Function(String newName) rename,
     required TResult Function() delete,
     required TResult Function() duplicate,
-    required TResult Function(Either<View, WorkspaceError> result)
+    required TResult Function(Either<View, FlowyError> result)
         viewDidUpdate,
   }) {
     return viewDidUpdate(result);
@@ -907,7 +907,7 @@ class _$ViewDidUpdate implements ViewDidUpdate {
     TResult Function(String newName)? rename,
     TResult Function()? delete,
     TResult Function()? duplicate,
-    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
+    TResult Function(Either<View, FlowyError> result)? viewDidUpdate,
   }) {
     return viewDidUpdate?.call(result);
   }
@@ -920,7 +920,7 @@ class _$ViewDidUpdate implements ViewDidUpdate {
     TResult Function(String newName)? rename,
     TResult Function()? delete,
     TResult Function()? duplicate,
-    TResult Function(Either<View, WorkspaceError> result)? viewDidUpdate,
+    TResult Function(Either<View, FlowyError> result)? viewDidUpdate,
     required TResult orElse(),
   }) {
     if (viewDidUpdate != null) {
@@ -974,10 +974,10 @@ class _$ViewDidUpdate implements ViewDidUpdate {
 }
 
 abstract class ViewDidUpdate implements ViewEvent {
-  const factory ViewDidUpdate(Either<View, WorkspaceError> result) =
+  const factory ViewDidUpdate(Either<View, FlowyError> result) =
       _$ViewDidUpdate;
 
-  Either<View, WorkspaceError> get result => throw _privateConstructorUsedError;
+  Either<View, FlowyError> get result => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $ViewDidUpdateCopyWith<ViewDidUpdate> get copyWith =>
       throw _privateConstructorUsedError;
@@ -990,7 +990,7 @@ class _$ViewStateTearOff {
   _ViewState call(
       {required View view,
       required bool isEditing,
-      required Either<Unit, WorkspaceError> successOrFailure}) {
+      required Either<Unit, FlowyError> successOrFailure}) {
     return _ViewState(
       view: view,
       isEditing: isEditing,
@@ -1006,7 +1006,7 @@ const $ViewState = _$ViewStateTearOff();
 mixin _$ViewState {
   View get view => throw _privateConstructorUsedError;
   bool get isEditing => throw _privateConstructorUsedError;
-  Either<Unit, WorkspaceError> get successOrFailure =>
+  Either<Unit, FlowyError> get successOrFailure =>
       throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
@@ -1021,7 +1021,7 @@ abstract class $ViewStateCopyWith<$Res> {
   $Res call(
       {View view,
       bool isEditing,
-      Either<Unit, WorkspaceError> successOrFailure});
+      Either<Unit, FlowyError> successOrFailure});
 }
 
 /// @nodoc
@@ -1050,7 +1050,7 @@ class _$ViewStateCopyWithImpl<$Res> implements $ViewStateCopyWith<$Res> {
       successOrFailure: successOrFailure == freezed
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
-              as Either<Unit, WorkspaceError>,
+              as Either<Unit, FlowyError>,
     ));
   }
 }
@@ -1064,7 +1064,7 @@ abstract class _$ViewStateCopyWith<$Res> implements $ViewStateCopyWith<$Res> {
   $Res call(
       {View view,
       bool isEditing,
-      Either<Unit, WorkspaceError> successOrFailure});
+      Either<Unit, FlowyError> successOrFailure});
 }
 
 /// @nodoc
@@ -1094,7 +1094,7 @@ class __$ViewStateCopyWithImpl<$Res> extends _$ViewStateCopyWithImpl<$Res>
       successOrFailure: successOrFailure == freezed
           ? _value.successOrFailure
           : successOrFailure // ignore: cast_nullable_to_non_nullable
-              as Either<Unit, WorkspaceError>,
+              as Either<Unit, FlowyError>,
     ));
   }
 }
@@ -1112,7 +1112,7 @@ class _$_ViewState implements _ViewState {
   @override
   final bool isEditing;
   @override
-  final Either<Unit, WorkspaceError> successOrFailure;
+  final Either<Unit, FlowyError> successOrFailure;
 
   @override
   String toString() {
@@ -1150,14 +1150,14 @@ abstract class _ViewState implements ViewState {
   const factory _ViewState(
       {required View view,
       required bool isEditing,
-      required Either<Unit, WorkspaceError> successOrFailure}) = _$_ViewState;
+      required Either<Unit, FlowyError> successOrFailure}) = _$_ViewState;
 
   @override
   View get view => throw _privateConstructorUsedError;
   @override
   bool get isEditing => throw _privateConstructorUsedError;
   @override
-  Either<Unit, WorkspaceError> get successOrFailure =>
+  Either<Unit, FlowyError> get successOrFailure =>
       throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)

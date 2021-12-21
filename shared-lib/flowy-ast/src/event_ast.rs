@@ -17,7 +17,7 @@ impl EventASTContext {
         }
 
         let event = format_ident!("{}", &command_name);
-        let splits = command_name.split("_").collect::<Vec<&str>>();
+        let splits = command_name.split('_').collect::<Vec<&str>>();
 
         let event_ty = format_ident!("{}", variant.enum_name);
         let event_request_struct = format_ident!("{}Event", &splits.join(""));

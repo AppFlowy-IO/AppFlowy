@@ -11,13 +11,13 @@ impl ResponseMiddleware for DocMiddleware {
     fn receive_response(&self, token: &Option<String>, response: &FlowyResponse) {
         if let Some(error) = &response.error {
             if error.is_unauthorized() {
-                log::error!("doc user is unauthorized");
+                log::error!("document user is unauthorized");
 
                 match token {
                     None => {},
                     Some(_token) => {
                         // let error =
-                        // WorkspaceError::new(ErrorCode::UserUnauthorized, "");
+                        // FlowyError::new(ErrorCode::UserUnauthorized, "");
                         // observable(token,
                         // WorkspaceObservable::UserUnauthorized).error(error).
                         // build()

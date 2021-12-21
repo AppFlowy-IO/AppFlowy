@@ -10,7 +10,7 @@ use tera::Tera;
 use walkdir::WalkDir;
 
 pub fn read_file(path: &str) -> Option<String> {
-    let mut file = File::open(path).expect("Unable to open file");
+    let mut file = File::open(path).unwrap_or_else(|_| panic!("Unable to open file at {}", path));
     let mut content = String::new();
     match file.read_to_string(&mut content) {
         Ok(_) => Some(content),
@@ -40,7 +40,7 @@ pub fn save_content_to_file_with_diff_prompt(content: &str, output_file: &str, _
             }
         };
         if new_content != old_content {
-            print_diff(old_content.clone(), new_content.clone());
+            print_diff(old_content, new_content.clone());
             write_to_file()
             // if force_write {
             //     write_to_file()
@@ -98,8 +98,7 @@ pub fn get_tera(directory: &str) -> Tera {
         .display()
         .to_string();
     let mut template_path = format!("{}/**/*.tera", root_absolute_path);
-    if cfg!(windows)
-    {
+    if cfg!(windows) {
         // remove "\\?\" prefix on windows
         template_path = format!("{}/**/*.tera", &root_absolute_path[4..]);
     }
@@ -115,7 +114,7 @@ pub fn get_tera(directory: &str) -> Tera {
 
 pub fn is_crate_dir(e: &walkdir::DirEntry) -> bool {
     let cargo = e.path().file_stem().unwrap().to_str().unwrap().to_string();
-    cargo == "Cargo".to_string()
+    cargo == *"Cargo"
 }
 
 pub fn is_proto_file(e: &walkdir::DirEntry) -> bool {
@@ -123,14 +122,14 @@ pub fn is_proto_file(e: &walkdir::DirEntry) -> bool {
         return false;
     }
     let ext = e.path().extension().unwrap().to_str().unwrap().to_string();
-    ext == "proto".to_string()
+    ext == *"proto"
 }
 
 pub fn is_hidden(entry: &walkdir::DirEntry) -> bool {
     entry
         .file_name()
         .to_str()
-        .map(|s| s.starts_with("."))
+        .map(|s| s.starts_with('.'))
         .unwrap_or(false)
 }
 

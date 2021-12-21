@@ -6,18 +6,20 @@ import 'package:app_flowy/workspace/domain/view_ext.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/view_repo.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_log/flowy_log.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/export.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/export.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/view_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:clipboard/clipboard.dart';
+import 'package:app_flowy/generated/locale_keys.g.dart';
 
 import 'doc_page.dart';
 
@@ -170,7 +172,7 @@ class DocShareButton extends StatelessWidget {
         child: BlocBuilder<DocShareBloc, DocShareState>(
           builder: (context, state) {
             return RoundedTextButton(
-              title: 'Share',
+              title: 'shareAction.buttonText'.tr(),
               height: 30,
               width: buttonWidth,
               fontSize: 12,
@@ -198,7 +200,7 @@ class DocShareButton extends StatelessWidget {
     }
   }
 
-  void _handleExportError(WorkspaceError error) {}
+  void _handleExportError(FlowyError error) {}
 
   void _showActionList(BuildContext context, Offset offset) {
     final actionList = ShareActions(onSelected: (result) {
@@ -222,7 +224,7 @@ class DocShareButton extends StatelessWidget {
   }
 
   void showWorkInProgressDialog(BuildContext context) {
-    const FlowyAlertDialog(title: "Work in progress").show(context);
+    FlowyAlertDialog(title: LocaleKeys.shareAction_workInProgress.tr()).show(context);
   }
 }
 
@@ -279,9 +281,9 @@ extension QuestionBubbleExtension on ShareAction {
   String get name {
     switch (this) {
       case ShareAction.markdown:
-        return "Markdown";
+        return LocaleKeys.shareAction_markdown.tr();
       case ShareAction.copyLink:
-        return "Copy Link";
+        return LocaleKeys.shareAction_copyLink.tr();
     }
   }
 }

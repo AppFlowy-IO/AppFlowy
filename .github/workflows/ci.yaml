@@ -11,11 +11,30 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Env install
-        run: cd frontend && make install_rust && make install_cargo_make && cargo make install_targets
-      - name: Run frontend tests
-        run: cd frontend/rust-lib && cargo test
-      - name: Run shared-lib tests
-        run: cd shared-lib && cargo test
+        working-directory: frontend
+        run: make install_rust
+      - name: Checkout Flutter
+        uses: actions/checkout@v2
+        with:
+          repository: flutter/flutter
+          path: flutter
+      - name: Flutter
+        working-directory: flutter
+        run: |
+          echo "$(pwd)/bin" >> $GITHUB_PATH
+          export PATH="$PATH:$(pwd)/bin"
+          flutter channel stable
+          flutter config --enable-macos-desktop
+          flutter doctor
+      - name: Deps
+        working-directory: frontend
+        run: |
+          cargo install --force cargo-make
+          cargo install --force duckscript_cli
+          cargo make flowy_dev
+      - name: Build
+        working-directory: frontend
+        run: cargo make --profile production-mac-x86 appflowy
   build-ubuntu:
     runs-on: ubuntu-latest
     steps:
@@ -29,23 +48,30 @@ jobs:
           sudo apt-get install -y dart curl build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
       - name: Rust
         run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          curl \
+            --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
           source $HOME/.cargo/env
           rustup toolchain install nightly
           rustup default nightly
+      - name: Checkout Flutter
+        uses: actions/checkout@v2
+        with:
+          repository: flutter/flutter
+          path: flutter
       - name: Flutter
+        working-directory: flutter
         run: |
-          git clone https://github.com/flutter/flutter.git
-          cd flutter
-          echo `pwd`"/bin" >> $GITHUB_PATH
-          export PATH="$PATH:`pwd`/bin"
-          flutter channel dev
+          echo "$(pwd)/bin" >> $GITHUB_PATH
+          export PATH="$PATH:$(pwd)/bin"
+          flutter channel stable
           flutter config --enable-linux-desktop
           flutter doctor
       - name: Deps
+        working-directory: frontend
         run: |
-          cd frontend
           cargo install --force cargo-make
           cargo install --force duckscript_cli
           cargo make flowy_dev
-          cargo make -p development-linux-x86 appflowy-linux-dev
+      - name: Build
+        working-directory: frontend
+        run: cargo make --profile production-linux-x86 appflowy

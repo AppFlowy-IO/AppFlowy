@@ -1,6 +1,7 @@
 #!/bin/sh
 #!/usr/bin/env fish
 echo 'Start building rust sdk'
+
 rustup show
 
 #Env check
@@ -14,17 +15,26 @@ rustup show
 #   4. ~/.zshrc
 
 
-# TODO: Automatically exec the script base on the current system
+case "$FLOWY_DEV_ENV" in
+Linux-aarch64) 
+ cargo make --profile development-linux-aarch64 flowy-sdk-dev
+ ;;
 
-# for macos
-cargo make --profile development-mac flowy-sdk-dev
+Linux-x86)
+ cargo make --profile development-linux-x86 flowy-sdk-dev
+ ;;
 
-# for window
-#cargo make --profile development-windows flowy-sdk-dev
+macOS)
+ cargo make --profile development-mac flowy-sdk-dev
+ ;;
 
+Windows) 
+ cargo make --profile development-windows flowy-sdk-dev
+ ;;
 
-# for linux aarch64
-#cargo make --profile development-linux-x86 flowy-sdk-dev
-
-# for linux aarch64
-#cargo make --profile development-linux-aarch64 flowy-sdk-dev
+*)
+ # All undefined cases
+ echo "[ERROR] The FLOWY_DEV_ENV environment variable must be set. Please see the GitHub wiki for instructions."
+ exit 1
+ ;;
+esac

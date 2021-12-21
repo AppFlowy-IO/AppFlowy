@@ -59,14 +59,18 @@ pub struct Module {
     service_map: Arc<HashMap<Event, EventServiceFactory>>,
 }
 
-impl Module {
-    pub fn new() -> Self {
+impl std::default::Default for Module {
+    fn default() -> Self {
         Self {
             name: "".to_owned(),
             module_data: Arc::new(ModuleDataMap::new()),
             service_map: Arc::new(HashMap::new()),
         }
     }
+}
+
+impl Module {
+    pub fn new() -> Self { Module::default() }
 
     pub fn name(mut self, s: &str) -> Self {
         self.name = s.to_owned();
@@ -99,7 +103,7 @@ impl Module {
         self
     }
 
-    pub fn events(&self) -> Vec<Event> { self.service_map.keys().map(|key| key.clone()).collect::<Vec<_>>() }
+    pub fn events(&self) -> Vec<Event> { self.service_map.keys().cloned().collect::<Vec<_>>() }
 }
 
 #[derive(Debug, Clone)]
@@ -168,7 +172,7 @@ impl Service<ModuleRequest> for ModuleService {
     fn call(&self, request: ModuleRequest) -> Self::Future {
         let ModuleRequest { id, event, payload } = request;
         let module_data = self.module_data.clone();
-        let request = EventRequest::new(id.clone(), event, module_data);
+        let request = EventRequest::new(id, event, module_data);
 
         match self.service_map.get(&request.event) {
             Some(factory) => {
@@ -200,10 +204,8 @@ impl Future for ModuleServiceFuture {
     type Output = Result<EventResponse, DispatchError>;
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        loop {
-            let (_, response) = ready!(self.as_mut().project().fut.poll(cx))?.into_parts();
-            return Poll::Ready(Ok(response));
-        }
+        let (_, response) = ready!(self.as_mut().project().fut.poll(cx))?.into_parts();
+        Poll::Ready(Ok(response))
     }
 }
 

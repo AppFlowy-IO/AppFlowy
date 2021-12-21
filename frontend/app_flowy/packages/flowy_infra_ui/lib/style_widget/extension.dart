@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 export 'package:styled_widget/styled_widget.dart';
 
 extension FlowyStyledWidget on Widget {

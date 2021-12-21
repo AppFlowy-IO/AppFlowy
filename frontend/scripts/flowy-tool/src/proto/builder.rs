@@ -2,7 +2,7 @@ use crate::proto::ProtoGen;
 
 #[allow(dead_code)]
 pub struct ProtoGenBuilder {
-    rust_source_dir: Option<String>,
+    rust_source_dirs: Option<Vec<String>>,
     flutter_package_lib: Option<String>,
     derive_meta_dir: Option<String>,
 }
@@ -10,14 +10,14 @@ pub struct ProtoGenBuilder {
 impl ProtoGenBuilder {
     pub fn new() -> Self {
         ProtoGenBuilder {
-            rust_source_dir: None,
+            rust_source_dirs: None,
             flutter_package_lib: None,
             derive_meta_dir: None,
         }
     }
 
-    pub fn set_rust_source_dir(mut self, dir: &str) -> Self {
-        self.rust_source_dir = Some(dir.to_string());
+    pub fn set_rust_source_dirs(mut self, dirs: Vec<String>) -> Self {
+        self.rust_source_dirs = Some(dirs);
         self
     }
 
@@ -33,7 +33,7 @@ impl ProtoGenBuilder {
 
     pub fn build(self) -> ProtoGen {
         ProtoGen {
-            rust_source_dir: self.rust_source_dir.unwrap(),
+            rust_source_dirs: self.rust_source_dirs.unwrap(),
             flutter_package_lib: self.flutter_package_lib.unwrap(),
             derive_meta_dir: self.derive_meta_dir.unwrap(),
         }

@@ -54,15 +54,9 @@ impl DartNotifyBuilder {
     }
 
     pub fn send(self) {
-        let payload = match self.payload {
-            None => None,
-            Some(bytes) => Some(bytes.to_vec()),
-        };
+        let payload = self.payload.map(|bytes| bytes.to_vec());
 
-        let error = match self.error {
-            None => None,
-            Some(bytes) => Some(bytes.to_vec()),
-        };
+        let error = self.error.map(|bytes| bytes.to_vec());
 
         let subject = SubscribeObject {
             source: self.source,

@@ -1,5 +1,6 @@
+#![allow(clippy::all)]
 use crate::{
-    errors::{internal_error, WsError},
+    errors::{internal_error, WSError},
     MsgReceiver,
     MsgSender,
 };
@@ -20,19 +21,19 @@ use tokio_tungstenite::{
     WebSocketStream,
 };
 
+type WsConnectResult = Result<(WebSocketStream<MaybeTlsStream<TcpStream>>, Response), Error>;
+
 #[pin_project]
-pub struct WsConnectionFuture {
+pub struct WSConnectionFuture {
     msg_tx: Option<MsgSender>,
     ws_rx: Option<MsgReceiver>,
     #[pin]
-    fut: Pin<
-        Box<dyn Future<Output = Result<(WebSocketStream<MaybeTlsStream<TcpStream>>, Response), Error>> + Send + Sync>,
-    >,
+    fut: Pin<Box<dyn Future<Output = WsConnectResult> + Send + Sync>>,
 }
 
-impl WsConnectionFuture {
+impl WSConnectionFuture {
     pub fn new(msg_tx: MsgSender, ws_rx: MsgReceiver, addr: String) -> Self {
-        WsConnectionFuture {
+        WSConnectionFuture {
             msg_tx: Some(msg_tx),
             ws_rx: Some(ws_rx),
             fut: Box::pin(async move { connect_async(&addr).await }),
@@ -40,8 +41,8 @@ impl WsConnectionFuture {
     }
 }
 
-impl Future for WsConnectionFuture {
-    type Output = Result<WsStream, WsError>;
+impl Future for WSConnectionFuture {
+    type Output = Result<WSStream, WSError>;
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         // [[pin]]
         // poll async function.  The following methods not work.
@@ -65,7 +66,7 @@ impl Future for WsConnectionFuture {
                         self.msg_tx.take().expect("WsConnection should be call once "),
                         self.ws_rx.take().expect("WsConnection should be call once "),
                     );
-                    Poll::Ready(Ok(WsStream::new(msg_tx, ws_rx, stream)))
+                    Poll::Ready(Ok(WSStream::new(msg_tx, ws_rx, stream)))
                 },
                 Err(error) => {
                     tracing::debug!("🐴 ws connect failed: {:?}", error);
@@ -76,27 +77,27 @@ impl Future for WsConnectionFuture {
     }
 }
 
-type Fut = BoxFuture<'static, Result<(), WsError>>;
+type Fut = BoxFuture<'static, Result<(), WSError>>;
 #[pin_project]
-pub struct WsStream {
+pub struct WSStream {
     #[allow(dead_code)]
     msg_tx: MsgSender,
     #[pin]
     inner: Option<(Fut, Fut)>,
 }
 
-impl WsStream {
+impl WSStream {
     pub fn new(msg_tx: MsgSender, ws_rx: MsgReceiver, stream: WebSocketStream<MaybeTlsStream<TcpStream>>) -> Self {
         let (ws_write, ws_read) = stream.split();
         Self {
             msg_tx: msg_tx.clone(),
             inner: Some((
                 Box::pin(async move {
-                    let (tx, mut rx) = tokio::sync::mpsc::channel(100);
+                    let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
                     let read = async {
                         ws_read
                             .for_each(|message| async {
-                                match tx.send(post_message(msg_tx.clone(), message)).await {
+                                match tx.send(send_message(msg_tx.clone(), message)) {
                                     Ok(_) => {},
                                     Err(e) => log::error!("WsStream tx closed unexpectedly: {} ", e),
                                 }
@@ -105,11 +106,11 @@ impl WsStream {
                         Ok(())
                     };
 
-                    let ret = async {
+                    let read_ret = async {
                         loop {
                             match rx.recv().await {
                                 None => {
-                                    return Err(WsError::internal().context("WsStream rx closed unexpectedly"));
+                                    return Err(WSError::internal().context("WsStream rx closed unexpectedly"));
                                 },
                                 Some(result) => {
                                     if result.is_err() {
@@ -119,11 +120,11 @@ impl WsStream {
                             }
                         }
                     };
-                    futures::pin_mut!(ret);
                     futures::pin_mut!(read);
-                    tokio::select! {
-                        result = read => {return result},
-                        result = ret => {return result},
+                    futures::pin_mut!(read_ret);
+                    return tokio::select! {
+                        result = read => result,
+                        result = read_ret => result,
                     };
                 }),
                 Box::pin(async move {
@@ -135,12 +136,12 @@ impl WsStream {
     }
 }
 
-impl fmt::Debug for WsStream {
+impl fmt::Debug for WSStream {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.debug_struct("WsStream").finish() }
 }
 
-impl Future for WsStream {
-    type Output = Result<(), WsError>;
+impl Future for WSStream {
+    type Output = Result<(), WSError>;
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         let (mut ws_read, mut ws_write) = self.inner.take().unwrap();
@@ -160,11 +161,11 @@ impl Future for WsStream {
     }
 }
 
-fn post_message(tx: MsgSender, message: Result<Message, Error>) -> Result<(), WsError> {
+fn send_message(msg_tx: MsgSender, message: Result<Message, Error>) -> Result<(), WSError> {
     match message {
-        Ok(Message::Binary(bytes)) => tx.unbounded_send(Message::Binary(bytes)).map_err(internal_error),
+        Ok(Message::Binary(bytes)) => msg_tx.unbounded_send(Message::Binary(bytes)).map_err(internal_error),
         Ok(_) => Ok(()),
-        Err(e) => Err(WsError::internal().context(e)),
+        Err(e) => Err(WSError::internal().context(e)),
     }
 }
 #[allow(dead_code)]

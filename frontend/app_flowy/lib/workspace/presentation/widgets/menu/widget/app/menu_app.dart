@@ -1,8 +1,8 @@
 import 'package:app_flowy/workspace/presentation/widgets/menu/menu.dart';
 import 'package:app_flowy/workspace/presentation/widgets/menu/widget/app/header/header.dart';
 import 'package:expandable/expandable.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/app_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/app_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/view_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/startup/startup.dart';

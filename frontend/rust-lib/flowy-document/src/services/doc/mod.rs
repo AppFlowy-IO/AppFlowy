@@ -1,6 +1,8 @@
-mod edit;
-mod revision;
-
-pub(crate) mod doc_controller;
+pub mod edit;
+pub mod revision;
+mod web_socket;
+pub use crate::services::ws_handlers::*;
 pub use edit::*;
-pub(crate) use revision::*;
+pub use revision::*;
+
+pub const SYNC_INTERVAL_IN_MILLIS: u64 = 1000;

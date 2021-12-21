@@ -1,5 +1,5 @@
 pub use flowy_test::{
-    builder::*,
+    event_builder::*,
     prelude::{login_password, random_email},
 };
 

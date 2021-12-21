@@ -1,5 +1,5 @@
+#![allow(clippy::all)]
 use crate::{symbol::*, Ctxt};
-
 use quote::ToTokens;
 use syn::{
     self,
@@ -194,7 +194,7 @@ impl ASTAttrField {
         }
 
         ASTAttrField {
-            name: ident.to_string().clone(),
+            name: ident,
             pb_index: pb_index.get(),
             pb_one_of: pb_one_of.get(),
             skip_serializing: skip_serializing.get(),
@@ -205,12 +205,7 @@ impl ASTAttrField {
     }
 
     #[allow(dead_code)]
-    pub fn pb_index(&self) -> Option<String> {
-        match self.pb_index {
-            Some(ref lit) => Some(lit.base10_digits().to_string()),
-            None => None,
-        }
-    }
+    pub fn pb_index(&self) -> Option<String> { self.pb_index.as_ref().map(|lit| lit.base10_digits().to_string()) }
 
     pub fn is_one_of(&self) -> bool { self.pb_one_of }
 
@@ -249,21 +244,18 @@ pub struct ASTEnumAttrVariant {
 }
 
 impl ASTEnumAttrVariant {
-    pub fn from_ast(ctxt: &Ctxt, ident: &syn::Ident, variant: &syn::Variant, enum_attrs: &Vec<syn::Attribute>) -> Self {
+    pub fn from_ast(ctxt: &Ctxt, ident: &syn::Ident, variant: &syn::Variant, enum_attrs: &[syn::Attribute]) -> Self {
         let enum_item_name = variant.ident.to_string();
         let enum_name = ident.to_string();
         let mut value = String::new();
         if variant.discriminant.is_some() {
-            match variant.discriminant.as_ref().unwrap().1 {
-                syn::Expr::Lit(ref expr_list) => {
-                    let lit_int = if let syn::Lit::Int(ref int_value) = expr_list.lit {
-                        int_value
-                    } else {
-                        unimplemented!()
-                    };
-                    value = lit_int.base10_digits().to_string();
-                },
-                _ => {},
+            if let syn::Expr::Lit(ref expr_list) = variant.discriminant.as_ref().unwrap().1 {
+                let lit_int = if let syn::Lit::Int(ref int_value) = expr_list.lit {
+                    int_value
+                } else {
+                    unimplemented!()
+                };
+                value = lit_int.base10_digits().to_string();
             }
         }
         let event_attrs = get_event_attrs_from(ctxt, &variant.attrs, enum_attrs);
@@ -282,11 +274,7 @@ impl ASTEnumAttrVariant {
     pub fn event_error(&self) -> String { self.event_attrs.error_ty.as_ref().unwrap().clone() }
 }
 
-fn get_event_attrs_from(
-    ctxt: &Ctxt,
-    variant_attrs: &Vec<syn::Attribute>,
-    enum_attrs: &Vec<syn::Attribute>,
-) -> EventAttrs {
+fn get_event_attrs_from(ctxt: &Ctxt, variant_attrs: &[syn::Attribute], enum_attrs: &[syn::Attribute]) -> EventAttrs {
     let mut event_attrs = EventAttrs {
         input: None,
         output: None,
@@ -296,7 +284,7 @@ fn get_event_attrs_from(
 
     enum_attrs
         .iter()
-        .filter(|attr| attr.path.segments.iter().find(|s| s.ident == EVENT_ERR).is_some())
+        .filter(|attr| attr.path.segments.iter().any(|s| s.ident == EVENT_ERR))
         .for_each(|attr| {
             if let Ok(NameValue(named_value)) = attr.parse_meta() {
                 if let syn::Lit::Str(s) = named_value.lit {
@@ -357,13 +345,12 @@ fn get_event_attrs_from(
     }
 
     // eprintln!("😁{:#?}", event_attrs);
-
     event_attrs
 }
 
 pub fn get_meta_items(cx: &Ctxt, attr: &syn::Attribute) -> Result<Vec<syn::NestedMeta>, ()> {
     if attr.path != PB_ATTRS && attr.path != EVENT {
-        return Ok(Vec::new());
+        return Ok(vec![]);
     }
 
     // http://strymon.systems.ethz.ch/typename/syn/enum.Meta.html
@@ -438,7 +425,7 @@ fn respan_token_tree(mut token: TokenTree, span: Span) -> TokenTree {
 }
 
 fn default_pb_type(ctxt: &Ctxt, ident: &syn::Ident) -> syn::Type {
-    let take_ident = format!("{}", ident.to_string());
+    let take_ident = ident.to_string();
     let lit_str = syn::LitStr::new(&take_ident, ident.span());
     if let Ok(tokens) = spanned_tokens(&lit_str) {
         if let Ok(pb_struct_ty) = syn::parse2(tokens) {

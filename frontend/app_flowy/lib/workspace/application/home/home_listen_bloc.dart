@@ -1,5 +1,6 @@
 import 'package:app_flowy/workspace/domain/i_user.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
@@ -31,7 +32,7 @@ class HomeListenBloc extends Bloc<HomeListenEvent, HomeListenState> {
     super.close();
   }
 
-  void _authDidChanged(Either<Unit, UserError> errorOrNothing) {
+  void _authDidChanged(Either<Unit, FlowyError> errorOrNothing) {
     errorOrNothing.fold((_) {}, (error) {
       if (error.code == ErrorCode.UserUnauthorized.value) {
         add(HomeListenEvent.unauthorized(error.msg));

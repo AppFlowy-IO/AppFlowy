@@ -1,4 +1,4 @@
-use crate::core::Delta;
+use crate::core::{Attributes, Delta};
 use serde::{
     de::{SeqAccess, Visitor},
     ser::SerializeSeq,
@@ -7,9 +7,12 @@ use serde::{
     Serialize,
     Serializer,
 };
-use std::fmt;
+use std::{fmt, marker::PhantomData};
 
-impl Serialize for Delta {
+impl<T> Serialize for Delta<T>
+where
+    T: Attributes + Serialize,
+{
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -22,18 +25,25 @@ impl Serialize for Delta {
     }
 }
 
-impl<'de> Deserialize<'de> for Delta {
-    fn deserialize<D>(deserializer: D) -> Result<Delta, D::Error>
+impl<'de, T> Deserialize<'de> for Delta<T>
+where
+    T: Attributes + Deserialize<'de>,
+{
+    fn deserialize<D>(deserializer: D) -> Result<Delta<T>, D::Error>
     where
         D: Deserializer<'de>,
     {
-        struct OperationSeqVisitor;
+        struct OperationSeqVisitor<T>(PhantomData<fn() -> T>);
 
-        impl<'de> Visitor<'de> for OperationSeqVisitor {
-            type Value = Delta;
+        impl<'de, T> Visitor<'de> for OperationSeqVisitor<T>
+        where
+            T: Attributes + Deserialize<'de>,
+        {
+            type Value = Delta<T>;
 
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result { formatter.write_str("a sequence") }
 
+            #[inline]
             fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
             where
                 A: SeqAccess<'de>,
@@ -46,6 +56,6 @@ impl<'de> Deserialize<'de> for Delta {
             }
         }
 
-        deserializer.deserialize_seq(OperationSeqVisitor)
+        deserializer.deserialize_seq(OperationSeqVisitor(PhantomData))
     }
 }
