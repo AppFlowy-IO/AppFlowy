@@ -65,7 +65,8 @@
   "dialogCreatePageNameHint": "Nome pagina",
   "questionBubble": {
     "whatsNew": "Cosa c'è di nuovo?",
-    "help": "Aiuto & Supporto"
+    "help": "Aiuto & Supporto",
+    "debug": "Informazioni di debug"
   },
   "menuAppHeader": {
     "addPageTooltip": "Aggiungi velocemente una pagina all'interno",

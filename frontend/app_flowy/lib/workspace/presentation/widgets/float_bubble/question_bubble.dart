@@ -6,12 +6,17 @@ import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:styled_widget/styled_widget.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'dart:io';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:app_flowy/workspace/presentation/stack_page/home_stack.dart';
 
 class QuestionBubble extends StatelessWidget {
   const QuestionBubble({Key? key}) : super(key: key);
@@ -39,6 +44,50 @@ class QuestionBubble extends StatelessWidget {
                   break;
                 case BubbleAction.help:
                   _launchURL("https://discord.gg/9Q2xaN37tV");
+                  break;
+                case BubbleAction.debug:
+                  final deviceInfoPlugin = DeviceInfoPlugin();
+
+                  final dynamic deviceInfo;
+                  if(Platform.isLinux) {
+                    deviceInfo = deviceInfoPlugin.linuxInfo;
+                  } else if(Platform.isMacOS) {
+                    deviceInfo = deviceInfoPlugin.macOsInfo;
+                  } else if(Platform.isWindows) {
+                    deviceInfo = deviceInfoPlugin.windowsInfo;
+                  } else {
+                    throw Exception('Unsupported platform when getting debug info');
+                  }
+                  
+                  deviceInfo.then((info) {
+                    Clipboard.setData(ClipboardData( text: info.toMap().toString() ));
+
+                    Widget toast = Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(25.0),
+                        color: theme.main1,
+                      ),
+                      child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                          Icon(Icons.check),
+                          SizedBox(
+                          width: 12.0,
+                          ),
+                          Text("Copied debug info to clipboard!"),
+                        ],
+                      ),
+                    );
+
+
+                    fToast.showToast(
+                        child: toast,
+                        gravity: ToastGravity.BOTTOM,
+                        toastDuration: const Duration(seconds: 3),
+                    );
+                  });
+
                   break;
               }
             });
@@ -148,6 +197,7 @@ class FlowyVersionDescription extends StatelessWidget {
 enum BubbleAction {
   whatsNews,
   help,
+  debug
 }
 
 class BubbleActionWrapper extends ActionItem {
@@ -168,6 +218,8 @@ extension QuestionBubbleExtension on BubbleAction {
         return LocaleKeys.questionBubble_whatsNew.tr();
       case BubbleAction.help:
         return LocaleKeys.questionBubble_help.tr();
+      case BubbleAction.debug:
+        return LocaleKeys.questionBubble_debug.tr();
     }
   }
 
@@ -177,6 +229,8 @@ extension QuestionBubbleExtension on BubbleAction {
         return const Text('⭐️', style: TextStyle(fontSize: 12));
       case BubbleAction.help:
         return const Text('👥', style: TextStyle(fontSize: 12));
+      case BubbleAction.debug:
+        return const Text('🐛', style: TextStyle(fontSize: 12));
     }
   }
 }
