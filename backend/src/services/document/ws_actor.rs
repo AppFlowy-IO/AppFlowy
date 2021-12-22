@@ -1,16 +1,16 @@
 use crate::{
     services::{
-        document::update_doc,
+        document::persistence::update_doc,
         web_socket::{entities::Socket, WSClientData, WSMessageAdaptor, WSUser},
     },
     util::serde_ext::{md5, parse_from_bytes},
 };
 use actix_rt::task::spawn_blocking;
-use actix_web::web::Data;
+
 use async_stream::stream;
 use backend_service::errors::{internal_error, Result, ServerError};
 use flowy_collaboration::{
-    core::sync::{RevisionUser, ServerDocManager, SyncResponse},
+    core::sync::{RevisionUser, ServerDocumentManager, SyncResponse},
     protobuf::{DocumentWSData, DocumentWSDataType, NewDocumentUser, UpdateDocParams},
 };
 use futures::stream::StreamExt;
@@ -22,18 +22,18 @@ use tokio::sync::{mpsc, oneshot};
 pub enum WSActorMessage {
     ClientData {
         client_data: WSClientData,
-        pool: Data<PgPool>,
+        pool: PgPool,
         ret: oneshot::Sender<Result<()>>,
     },
 }
 
 pub struct DocumentWebSocketActor {
     receiver: Option<mpsc::Receiver<WSActorMessage>>,
-    doc_manager: Arc<ServerDocManager>,
+    doc_manager: Arc<ServerDocumentManager>,
 }
 
 impl DocumentWebSocketActor {
-    pub fn new(receiver: mpsc::Receiver<WSActorMessage>, manager: Arc<ServerDocManager>) -> Self {
+    pub fn new(receiver: mpsc::Receiver<WSActorMessage>, manager: Arc<ServerDocumentManager>) -> Self {
         Self {
             receiver: Some(receiver),
             doc_manager: manager,
@@ -66,7 +66,7 @@ impl DocumentWebSocketActor {
         }
     }
 
-    async fn handle_client_data(&self, client_data: WSClientData, pg_pool: Data<PgPool>) -> Result<()> {
+    async fn handle_client_data(&self, client_data: WSClientData, pg_pool: PgPool) -> Result<()> {
         let WSClientData { user, socket, data } = client_data;
         let document_data = spawn_blocking(move || {
             let document_data: DocumentWSData = parse_from_bytes(&data)?;
@@ -151,7 +151,7 @@ fn verify_md5(revision: &Revision) -> Result<()> {
 pub struct ServerDocUser {
     pub user: Arc<WSUser>,
     pub(crate) socket: Socket,
-    pub pg_pool: Data<PgPool>,
+    pub pg_pool: PgPool,
 }
 
 impl RevisionUser for ServerDocUser {
@@ -182,7 +182,7 @@ impl RevisionUser for ServerDocUser {
                     params.set_doc_id(doc_id);
                     params.set_data(doc_json);
                     params.set_rev_id(rev_id);
-                    match update_doc(pg_pool.get_ref(), params).await {
+                    match update_doc(&pg_pool, params).await {
                         Ok(_) => {},
                         Err(e) => log::error!("{}", e),
                     }

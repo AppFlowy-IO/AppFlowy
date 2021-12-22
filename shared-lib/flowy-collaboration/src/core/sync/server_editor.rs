@@ -17,40 +17,19 @@ use tokio::{
     task::spawn_blocking,
 };
 
-pub trait ServerDocPersistence: Send + Sync {
+pub trait DocumentPersistence: Send + Sync {
     fn update_doc(&self, doc_id: &str, rev_id: i64, delta: RichTextDelta) -> FutureResultSend<(), CollaborateError>;
     fn read_doc(&self, doc_id: &str) -> FutureResultSend<Doc, CollaborateError>;
     fn create_doc(&self, revision: Revision) -> FutureResultSend<Doc, CollaborateError>;
 }
 
-#[rustfmt::skip]
-//  ┌─────────────────┐
-//  │ServerDocManager │
-//  └─────────────────┘
-//           │ 1
-//           ▼ n
-//   ┌───────────────┐
-//   │ OpenDocHandle │
-//   └───────────────┘
-//           │
-//           ▼
-// ┌──────────────────┐
-// │ DocCommandQueue  │
-// └──────────────────┘
-//           │                   ┌──────────────────────┐     ┌────────────┐
-//           ▼             ┌────▶│ RevisionSynchronizer │────▶│  Document  │
-//  ┌────────────────┐     │     └──────────────────────┘     └────────────┘
-//  │ServerDocEditor │─────┤
-//  └────────────────┘     │     ┌────────┐       ┌────────────┐
-//                         └────▶│ Users  │◆──────│RevisionUser│
-//                               └────────┘       └────────────┘
-pub struct ServerDocManager {
+pub struct ServerDocumentManager {
     open_doc_map: DashMap<String, Arc<OpenDocHandle>>,
-    persistence: Arc<dyn ServerDocPersistence>,
+    persistence: Arc<dyn DocumentPersistence>,
 }
 
-impl ServerDocManager {
-    pub fn new(persistence: Arc<dyn ServerDocPersistence>) -> Self {
+impl ServerDocumentManager {
+    pub fn new(persistence: Arc<dyn DocumentPersistence>) -> Self {
         Self {
             open_doc_map: DashMap::new(),
             persistence,

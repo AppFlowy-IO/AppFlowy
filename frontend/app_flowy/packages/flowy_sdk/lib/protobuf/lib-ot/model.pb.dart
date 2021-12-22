@@ -145,6 +145,47 @@ class Revision extends $pb.GeneratedMessage {
   void clearUserId() => clearField(7);
 }
 
+class RepeatedRevision extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RepeatedRevision', createEmptyInstance: create)
+    ..pc<Revision>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'items', $pb.PbFieldType.PM, subBuilder: Revision.create)
+    ..hasRequiredFields = false
+  ;
+
+  RepeatedRevision._() : super();
+  factory RepeatedRevision({
+    $core.Iterable<Revision>? items,
+  }) {
+    final _result = create();
+    if (items != null) {
+      _result.items.addAll(items);
+    }
+    return _result;
+  }
+  factory RepeatedRevision.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RepeatedRevision.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  RepeatedRevision clone() => RepeatedRevision()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  RepeatedRevision copyWith(void Function(RepeatedRevision) updates) => super.copyWith((message) => updates(message as RepeatedRevision)) as RepeatedRevision; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static RepeatedRevision create() => RepeatedRevision._();
+  RepeatedRevision createEmptyInstance() => create();
+  static $pb.PbList<RepeatedRevision> createRepeated() => $pb.PbList<RepeatedRevision>();
+  @$core.pragma('dart2js:noInline')
+  static RepeatedRevision getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RepeatedRevision>(create);
+  static RepeatedRevision? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<Revision> get items => $_getList(0);
+}
+
 class RevId extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RevId', createEmptyInstance: create)
     ..aInt64(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'value')

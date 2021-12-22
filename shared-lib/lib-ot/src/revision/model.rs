@@ -92,6 +92,26 @@ impl Revision {
     }
 }
 
+#[derive(PartialEq, Debug, Default, ProtoBuf, Clone)]
+pub struct RepeatedRevision {
+    #[pb(index = 1)]
+    pub items: Vec<Revision>,
+}
+
+impl std::ops::Deref for RepeatedRevision {
+    type Target = Vec<Revision>;
+
+    fn deref(&self) -> &Self::Target { &self.items }
+}
+
+impl std::ops::DerefMut for RepeatedRevision {
+    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.items }
+}
+
+impl RepeatedRevision {
+    pub fn into_inner(self) -> Vec<Revision> { self.items }
+}
+
 #[derive(Clone, Debug, ProtoBuf, Default)]
 pub struct RevId {
     #[pb(index = 1)]
@@ -167,5 +187,5 @@ pub fn md5<T: AsRef<[u8]>>(data: T) -> String {
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum RevState {
     StateLocal = 0,
-    Acked      = 1,
+    Ack        = 1,
 }

@@ -1,20 +1,29 @@
 use crate::{
-    entities::doc::{DocTable, DOC_TABLE},
+    services::kv_store::KVStore,
     util::sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
 use anyhow::Context;
 use backend_service::errors::ServerError;
 use flowy_collaboration::protobuf::{CreateDocParams, Doc, DocIdentifier, UpdateDocParams};
+use protobuf::Message;
 use sqlx::{postgres::PgArguments, PgPool, Postgres};
 use uuid::Uuid;
+
+const DOC_TABLE: &str = "doc_table";
 
 #[tracing::instrument(level = "debug", skip(transaction), err)]
 pub(crate) async fn create_doc_with_transaction(
     transaction: &mut DBTransaction<'_>,
     params: CreateDocParams,
+    // kv_store: Data<Arc<dyn KVStore>>,
 ) -> Result<(), ServerError> {
     let uuid = Uuid::parse_str(&params.id)?;
-    let (sql, args) = NewDocSqlBuilder::new(uuid).data(params.data).build()?;
+    let (sql, args) = SqlBuilder::create(DOC_TABLE)
+        .add_field_with_arg("id", uuid)
+        .add_field_with_arg("rev_id", 0)
+        .build()?;
+
+    // TODO kv
     let _ = sqlx::query_with(&sql, args)
         .execute(transaction)
         .await
@@ -51,18 +60,20 @@ pub(crate) async fn read_doc(pool: &PgPool, params: DocIdentifier) -> Result<Doc
 
     let (sql, args) = builder.build()?;
     // TODO: benchmark the speed of different documents with different size
-    let doc: Doc = sqlx::query_as_with::<Postgres, DocTable, PgArguments>(&sql, args)
+    let _table = sqlx::query_as_with::<Postgres, DocTable, PgArguments>(&sql, args)
         .fetch_one(&mut transaction)
         .await
-        .map_err(map_sqlx_error)?
-        .into();
+        .map_err(map_sqlx_error)?;
 
-    transaction
-        .commit()
-        .await
-        .context("Failed to commit SQL transaction to read document.")?;
+    // TODO: kv
+    panic!("")
 
-    Ok(doc)
+    // transaction
+    //     .commit()
+    //     .await
+    //     .context("Failed to commit SQL transaction to read document.")?;
+    //
+    // Ok(doc)
 }
 
 #[tracing::instrument(level = "debug", skip(pool, params), fields(delta), err)]
@@ -107,32 +118,17 @@ pub(crate) async fn delete_doc(transaction: &mut DBTransaction<'_>, doc_id: Uuid
     Ok(())
 }
 
-pub struct NewDocSqlBuilder {
-    table: DocTable,
+#[derive(Debug, Clone, sqlx::FromRow)]
+struct DocTable {
+    id: uuid::Uuid,
+    rev_id: i64,
 }
 
-impl NewDocSqlBuilder {
-    pub fn new(id: Uuid) -> Self {
-        let table = DocTable {
-            id,
-            data: "".to_owned(),
-            rev_id: 0,
-        };
-        Self { table }
-    }
-
-    pub fn data(mut self, data: String) -> Self {
-        self.table.data = data;
-        self
-    }
-
-    pub fn build(self) -> Result<(String, PgArguments), ServerError> {
-        let (sql, args) = SqlBuilder::create(DOC_TABLE)
-            .add_field_with_arg("id", self.table.id)
-            .add_field_with_arg("data", self.table.data)
-            .add_field_with_arg("rev_id", self.table.rev_id)
-            .build()?;
-
-        Ok((sql, args))
-    }
-}
+// impl std::convert::From<DocTable> for Doc {
+//     fn from(table: DocTable) -> Self {
+//         let mut doc = Doc::new();
+//         doc.set_id(table.id.to_string());
+//         doc.set_rev_id(table.rev_id);
+//         doc
+//     }
+// }

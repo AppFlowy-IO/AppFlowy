@@ -29,7 +29,9 @@ impl std::default::Default for WebSocketReceivers {
 impl WebSocketReceivers {
     pub fn new() -> Self { WebSocketReceivers::default() }
 
-    pub fn set(&mut self, source: WSModule, handler: Arc<dyn WebSocketReceiver>) { self.inner.insert(source, handler); }
+    pub fn set(&mut self, source: WSModule, receiver: Arc<dyn WebSocketReceiver>) {
+        self.inner.insert(source, receiver);
+    }
 
     pub fn get(&self, source: &WSModule) -> Option<Arc<dyn WebSocketReceiver>> { self.inner.get(source).cloned() }
 }

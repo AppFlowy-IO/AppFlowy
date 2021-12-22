@@ -1,10 +1,11 @@
-use crate::services::document::{create_doc, read_doc, update_doc};
+use crate::{
+    services::document::persistence::{create_doc, read_doc, update_doc},
+    util::serde_ext::parse_from_payload,
+};
 use actix_web::{
     web::{Data, Payload},
     HttpResponse,
 };
-
-use crate::util::serde_ext::parse_from_payload;
 use backend_service::{errors::ServerError, response::FlowyResponse};
 use flowy_collaboration::protobuf::{CreateDocParams, DocIdentifier, UpdateDocParams};
 use sqlx::PgPool;

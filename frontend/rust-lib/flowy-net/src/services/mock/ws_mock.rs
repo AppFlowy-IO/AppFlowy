@@ -2,7 +2,7 @@ use crate::services::ws::{FlowyError, FlowyWebSocket, FlowyWsSender, WSConnectSt
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_collaboration::{
-    core::sync::{RevisionUser, ServerDocManager, ServerDocPersistence, SyncResponse},
+    core::sync::{DocumentPersistence, RevisionUser, ServerDocumentManager, SyncResponse},
     entities::{
         doc::Doc,
         ws::{DocumentWSData, DocumentWSDataBuilder, DocumentWSDataType, NewDocumentUser},
@@ -96,13 +96,13 @@ lazy_static! {
 }
 
 struct MockDocServer {
-    pub manager: Arc<ServerDocManager>,
+    pub manager: Arc<ServerDocumentManager>,
 }
 
 impl std::default::Default for MockDocServer {
     fn default() -> Self {
         let persistence = Arc::new(MockDocServerPersistence::default());
-        let manager = Arc::new(ServerDocManager::new(persistence));
+        let manager = Arc::new(ServerDocumentManager::new(persistence));
         MockDocServer { manager }
     }
 }
@@ -160,7 +160,7 @@ impl std::default::Default for MockDocServerPersistence {
     }
 }
 
-impl ServerDocPersistence for MockDocServerPersistence {
+impl DocumentPersistence for MockDocServerPersistence {
     fn update_doc(&self, _doc_id: &str, _rev_id: i64, _delta: RichTextDelta) -> FutureResultSend<(), CollaborateError> {
         unimplemented!()
     }
