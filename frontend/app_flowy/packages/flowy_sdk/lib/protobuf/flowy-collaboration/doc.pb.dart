@@ -10,17 +10,19 @@ import 'dart:core' as $core;
 import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
+import 'revision.pb.dart' as $0;
+
 class CreateDocParams extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateDocParams', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data')
+    ..aOM<$0.RepeatedRevision>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', subBuilder: $0.RepeatedRevision.create)
     ..hasRequiredFields = false
   ;
 
   CreateDocParams._() : super();
   factory CreateDocParams({
     $core.String? id,
-    $core.String? data,
+    $0.RepeatedRevision? data,
   }) {
     final _result = create();
     if (id != null) {
@@ -62,13 +64,15 @@ class CreateDocParams extends $pb.GeneratedMessage {
   void clearId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get data => $_getSZ(1);
+  $0.RepeatedRevision get data => $_getN(1);
   @$pb.TagNumber(2)
-  set data($core.String v) { $_setString(1, v); }
+  set data($0.RepeatedRevision v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasData() => $_has(1);
   @$pb.TagNumber(2)
   void clearData() => clearField(2);
+  @$pb.TagNumber(2)
+  $0.RepeatedRevision ensureData() => $_ensure(1);
 }
 
 class Doc extends $pb.GeneratedMessage {

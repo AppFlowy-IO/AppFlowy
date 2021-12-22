@@ -11,10 +11,9 @@ use async_stream::stream;
 use backend_service::errors::{internal_error, Result, ServerError};
 use flowy_collaboration::{
     core::sync::{RevisionUser, ServerDocumentManager, SyncResponse},
-    protobuf::{DocumentWSData, DocumentWSDataType, NewDocumentUser, UpdateDocParams},
+    protobuf::{DocumentWSData, DocumentWSDataType, NewDocumentUser, Revision, UpdateDocParams},
 };
 use futures::stream::StreamExt;
-use lib_ot::protobuf::Revision;
 use sqlx::PgPool;
 use std::{convert::TryInto, sync::Arc};
 use tokio::sync::{mpsc, oneshot};
@@ -123,7 +122,8 @@ impl DocumentWebSocketActor {
     }
 
     async fn handle_revision(&self, user: Arc<ServerDocUser>, mut revision: Revision) -> Result<()> {
-        let revision: lib_ot::revision::Revision = (&mut revision).try_into().map_err(internal_error)?;
+        let revision: flowy_collaboration::entities::revision::Revision =
+            (&mut revision).try_into().map_err(internal_error)?;
         // Create the document if it doesn't exist
         let handler = match self.doc_manager.get(&revision.doc_id).await {
             None => self

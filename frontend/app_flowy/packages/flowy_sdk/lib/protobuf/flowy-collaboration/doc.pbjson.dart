@@ -13,12 +13,12 @@ const CreateDocParams$json = const {
   '1': 'CreateDocParams',
   '2': const [
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
-    const {'1': 'data', '3': 2, '4': 1, '5': 9, '10': 'data'},
+    const {'1': 'data', '3': 2, '4': 1, '5': 11, '6': '.RepeatedRevision', '10': 'data'},
   ],
 };
 
 /// Descriptor for `CreateDocParams`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List createDocParamsDescriptor = $convert.base64Decode('Cg9DcmVhdGVEb2NQYXJhbXMSDgoCaWQYASABKAlSAmlkEhIKBGRhdGEYAiABKAlSBGRhdGE=');
+final $typed_data.Uint8List createDocParamsDescriptor = $convert.base64Decode('Cg9DcmVhdGVEb2NQYXJhbXMSDgoCaWQYASABKAlSAmlkEiUKBGRhdGEYAiABKAsyES5SZXBlYXRlZFJldmlzaW9uUgRkYXRh');
 @$core.Deprecated('Use docDescriptor instead')
 const Doc$json = const {
   '1': 'Doc',

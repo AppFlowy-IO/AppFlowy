@@ -4,8 +4,8 @@ use crate::{
     sql_tables::{doc::RevTable, mk_revision_record_from_table, RevChangeset, RevTableState, RevTableType},
 };
 use diesel::update;
+use flowy_collaboration::entities::revision::RevisionRange;
 use flowy_database::{insert_or_ignore_into, prelude::*, schema::rev_table::dsl, SqliteConnection};
-use lib_ot::revision::RevisionRange;
 
 pub struct RevTableSql {}
 

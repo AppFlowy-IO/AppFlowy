@@ -1,9 +1,9 @@
 use crate::services::doc::revision::RevisionRecord;
 
 use crate::sql_tables::{RevChangeset, RevTableSql};
+use flowy_collaboration::entities::revision::RevisionRange;
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use lib_ot::revision::RevisionRange;
 use std::{fmt::Debug, sync::Arc};
 
 pub trait RevisionDiskCache: Sync + Send {

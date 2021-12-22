@@ -1,4 +1,5 @@
 use crate::{
+    context::FlowyPersistence,
     entities::logged_user::LoggedUser,
     services::core::view::{create_view, delete_view, persistence::check_view_ids, read_view, update_view},
     util::serde_ext::parse_from_payload,
@@ -17,15 +18,21 @@ use flowy_core_data_model::{
     protobuf::{CreateViewParams, QueryViewRequest, UpdateViewParams, ViewIdentifier},
 };
 use sqlx::PgPool;
+use std::sync::Arc;
 
-pub async fn create_handler(payload: Payload, pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {
+pub async fn create_handler(
+    payload: Payload,
+    persistence: Data<Arc<FlowyPersistence>>,
+) -> Result<HttpResponse, ServerError> {
     let params: CreateViewParams = parse_from_payload(payload).await?;
+    let kv_store = persistence.kv_store();
+    let pool = persistence.pg_pool();
     let mut transaction = pool
         .begin()
         .await
         .context("Failed to acquire a Postgres connection to create view")?;
 
-    let view = create_view(&mut transaction, params).await?;
+    let view = create_view(&mut transaction, kv_store, params).await?;
     transaction
         .commit()
         .await

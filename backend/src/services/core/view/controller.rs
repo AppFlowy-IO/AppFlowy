@@ -2,7 +2,7 @@ use crate::{
     entities::logged_user::LoggedUser,
     services::{
         core::{trash::read_trash_ids, view::persistence::*},
-        document::persistence::{create_doc_with_transaction, delete_doc},
+        document::persistence::{create_doc_with_transaction, delete_doc, DocumentKVPersistence},
     },
     util::sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
@@ -17,6 +17,7 @@ use flowy_core_data_model::{
     protobuf::{CreateViewParams, RepeatedView, View},
 };
 use sqlx::{postgres::PgArguments, Postgres};
+use std::sync::Arc;
 use uuid::Uuid;
 
 pub(crate) async fn update_view(
@@ -56,9 +57,10 @@ pub(crate) async fn delete_view(transaction: &mut DBTransaction<'_>, view_ids: V
     Ok(())
 }
 
-#[tracing::instrument(name = "create_view", level = "debug", skip(transaction), err)]
+#[tracing::instrument(name = "create_view", level = "debug", skip(transaction, kv_store), err)]
 pub(crate) async fn create_view(
     transaction: &mut DBTransaction<'_>,
+    kv_store: Arc<DocumentKVPersistence>,
     params: CreateViewParams,
 ) -> Result<View, ServerError> {
     let name = ViewName::parse(params.name).map_err(invalid_params)?;
@@ -73,12 +75,13 @@ pub(crate) async fn create_view(
         .view_type(params.view_type)
         .build()?;
 
-    let view = create_view_with_args(transaction, sql, args, view, params.data).await?;
+    let view = create_view_with_args(transaction, kv_store, sql, args, view, params.data).await?;
     Ok(view)
 }
 
-pub(crate) async fn create_view_with_args(
+async fn create_view_with_args(
     transaction: &mut DBTransaction<'_>,
+    kv_store: Arc<DocumentKVPersistence>,
     sql: String,
     args: PgArguments,
     view: View,
@@ -92,7 +95,7 @@ pub(crate) async fn create_view_with_args(
     let mut create_doc_params = CreateDocParams::new();
     create_doc_params.set_data(view_data);
     create_doc_params.set_id(view.id.clone());
-    let _ = create_doc_with_transaction(transaction, create_doc_params).await?;
+    let _ = create_doc_with_transaction(transaction, kv_store, create_doc_params).await?;
     Ok(view)
 }
 

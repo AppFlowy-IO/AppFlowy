@@ -6,18 +6,16 @@ use crate::services::{
     web_socket::{WSClientData, WebSocketReceiver},
 };
 
-use backend_service::errors::ServerError;
-
 use crate::context::FlowyPersistence;
+use backend_service::errors::ServerError;
 use flowy_collaboration::{
     core::sync::{DocumentPersistence, ServerDocumentManager},
-    entities::doc::Doc,
+    entities::{doc::Doc, revision::Revision},
     errors::CollaborateError,
     protobuf::{CreateDocParams, DocIdentifier, UpdateDocParams},
 };
 use lib_infra::future::FutureResultSend;
-use lib_ot::{revision::Revision, rich_text::RichTextDelta};
-
+use lib_ot::rich_text::RichTextDelta;
 use std::{convert::TryInto, sync::Arc};
 use tokio::sync::{mpsc, oneshot};
 
@@ -90,9 +88,9 @@ impl DocumentPersistence for DocumentPersistenceImpl {
             doc_id: doc_id.to_string(),
             ..Default::default()
         };
-        let pg_pool = self.0.pg_pool();
+        let persistence = self.0.clone();
         FutureResultSend::new(async move {
-            let mut pb_doc = read_doc(&pg_pool, params)
+            let mut pb_doc = read_doc(&persistence, params)
                 .await
                 .map_err(server_error_to_collaborate_error)?;
             let doc = (&mut pb_doc)
@@ -103,7 +101,7 @@ impl DocumentPersistence for DocumentPersistenceImpl {
     }
 
     fn create_doc(&self, revision: Revision) -> FutureResultSend<Doc, CollaborateError> {
-        let pg_pool = self.0.pg_pool();
+        let persistence = self.0.clone();
         FutureResultSend::new(async move {
             let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
             let doc_json = delta.to_json();
@@ -115,7 +113,7 @@ impl DocumentPersistence for DocumentPersistenceImpl {
                 cached_size: Default::default(),
             };
 
-            let _ = create_doc(&pg_pool, params)
+            let _ = create_doc(&persistence, params)
                 .await
                 .map_err(server_error_to_collaborate_error)?;
             let doc: Doc = revision.try_into()?;

@@ -7,13 +7,11 @@ use crate::{
     sql_tables::{RevChangeset, RevTableState},
 };
 use dashmap::DashMap;
+use flowy_collaboration::entities::revision::{RevState, Revision, RevisionRange};
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyResult};
 use lib_infra::future::FutureResult;
-use lib_ot::{
-    errors::OTError,
-    revision::{RevState, Revision, RevisionRange},
-};
+use lib_ot::errors::OTError;
 use std::{
     collections::VecDeque,
     sync::{

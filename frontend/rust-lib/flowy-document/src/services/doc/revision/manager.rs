@@ -1,14 +1,16 @@
 use crate::{errors::FlowyError, services::doc::revision::RevisionCache};
 use bytes::Bytes;
 use flowy_collaboration::{
-    entities::doc::Doc,
+    entities::{
+        doc::Doc,
+        revision::{RevState, RevType, Revision, RevisionRange},
+    },
     util::{md5, RevIdCounter},
 };
 use flowy_error::FlowyResult;
 use lib_infra::future::FutureResult;
 use lib_ot::{
     core::{Operation, OperationTransformable},
-    revision::{RevState, RevType, Revision, RevisionRange},
     rich_text::RichTextDelta,
 };
 use std::sync::Arc;

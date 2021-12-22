@@ -1,8 +1,9 @@
-use crate::errors::CollaborateError;
+use crate::{
+    entities::revision::{Revision, RevisionRange},
+    errors::CollaborateError,
+};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-
-use lib_ot::revision::{Revision, RevisionRange};
 use std::convert::{TryFrom, TryInto};
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Eq, PartialEq, Hash)]

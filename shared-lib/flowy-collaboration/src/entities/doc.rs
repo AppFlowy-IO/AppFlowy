@@ -1,6 +1,9 @@
-use crate::errors::CollaborateError;
+use crate::{
+    entities::revision::{RepeatedRevision, Revision},
+    errors::CollaborateError,
+};
 use flowy_derive::ProtoBuf;
-use lib_ot::{errors::OTError, revision::Revision, rich_text::RichTextDelta};
+use lib_ot::{errors::OTError, rich_text::RichTextDelta};
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct CreateDocParams {
@@ -8,16 +11,7 @@ pub struct CreateDocParams {
     pub id: String,
 
     #[pb(index = 2)]
-    pub data: String,
-}
-
-impl CreateDocParams {
-    pub fn new(id: &str, data: String) -> Self {
-        Self {
-            id: id.to_owned(),
-            data,
-        }
-    }
+    pub data: RepeatedRevision,
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone, Eq, PartialEq)]

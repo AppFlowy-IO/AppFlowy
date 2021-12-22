@@ -1,5 +1,6 @@
 use crate::{
-    services::kv_store::KVStore,
+    context::FlowyPersistence,
+    services::{document::persistence::DocumentKVPersistence, kv_store::KVStore},
     util::sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
 use anyhow::Context;
@@ -7,15 +8,16 @@ use backend_service::errors::ServerError;
 use flowy_collaboration::protobuf::{CreateDocParams, Doc, DocIdentifier, UpdateDocParams};
 use protobuf::Message;
 use sqlx::{postgres::PgArguments, PgPool, Postgres};
+use std::sync::Arc;
 use uuid::Uuid;
 
 const DOC_TABLE: &str = "doc_table";
 
-#[tracing::instrument(level = "debug", skip(transaction), err)]
+#[tracing::instrument(level = "debug", skip(transaction, kv_store), err)]
 pub(crate) async fn create_doc_with_transaction(
     transaction: &mut DBTransaction<'_>,
+    kv_store: Arc<DocumentKVPersistence>,
     params: CreateDocParams,
-    // kv_store: Data<Arc<dyn KVStore>>,
 ) -> Result<(), ServerError> {
     let uuid = Uuid::parse_str(&params.id)?;
     let (sql, args) = SqlBuilder::create(DOC_TABLE)
@@ -24,6 +26,7 @@ pub(crate) async fn create_doc_with_transaction(
         .build()?;
 
     // TODO kv
+    // kv_store.set_revision()
     let _ = sqlx::query_with(&sql, args)
         .execute(transaction)
         .await
@@ -32,13 +35,18 @@ pub(crate) async fn create_doc_with_transaction(
     Ok(())
 }
 
-pub(crate) async fn create_doc(pool: &PgPool, params: CreateDocParams) -> Result<(), ServerError> {
+pub(crate) async fn create_doc(
+    persistence: &Arc<FlowyPersistence>,
+    params: CreateDocParams,
+) -> Result<(), ServerError> {
+    let pool = persistence.pg_pool();
+    let kv_store = persistence.kv_store();
     let mut transaction = pool
         .begin()
         .await
         .context("Failed to acquire a Postgres connection to create document")?;
 
-    let _ = create_doc_with_transaction(&mut transaction, params).await?;
+    let _ = create_doc_with_transaction(&mut transaction, kv_store, params).await?;
 
     transaction
         .commit()
@@ -48,8 +56,8 @@ pub(crate) async fn create_doc(pool: &PgPool, params: CreateDocParams) -> Result
     Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(pool), err)]
-pub(crate) async fn read_doc(pool: &PgPool, params: DocIdentifier) -> Result<Doc, ServerError> {
+#[tracing::instrument(level = "debug", skip(persistence), err)]
+pub(crate) async fn read_doc(persistence: &Arc<FlowyPersistence>, params: DocIdentifier) -> Result<Doc, ServerError> {
     let doc_id = Uuid::parse_str(&params.doc_id)?;
     let mut transaction = pool
         .begin()
