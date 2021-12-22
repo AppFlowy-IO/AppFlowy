@@ -65,7 +65,7 @@ abstract class ActionItem {
 
 class ActionListSizes {
   static double itemHPadding = 10;
-  static double itemHeight = 16;
+  static double itemHeight = 20;
   static double padding = 6;
 }
 
