@@ -80,7 +80,6 @@ class QuestionBubble extends StatelessWidget {
                       ),
                     );
 
-
                     fToast.showToast(
                         child: toast,
                         gravity: ToastGravity.BOTTOM,
