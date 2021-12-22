@@ -5,6 +5,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_log/flowy_log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -47,20 +48,15 @@ class QuestionBubble extends StatelessWidget {
                   break;
                 case BubbleAction.debug:
                   final deviceInfoPlugin = DeviceInfoPlugin();
-
-                  final dynamic deviceInfo;
-                  if(Platform.isLinux) {
-                    deviceInfo = deviceInfoPlugin.linuxInfo;
-                  } else if(Platform.isMacOS) {
-                    deviceInfo = deviceInfoPlugin.macOsInfo;
-                  } else if(Platform.isWindows) {
-                    deviceInfo = deviceInfoPlugin.windowsInfo;
-                  } else {
-                    throw Exception('Unsupported platform when getting debug info');
-                  }
+                  final deviceInfo = deviceInfoPlugin.deviceInfo;
                   
                   deviceInfo.then((info) {
-                    Clipboard.setData(ClipboardData( text: info.toMap().toString() ));
+                    var debugText = "";
+                    info.toMap().forEach((key, value) {
+                      debugText = debugText + "$key: $value\n";
+                    });
+
+                    Clipboard.setData(ClipboardData( text: debugText ));
 
                     Widget toast = Container(
                       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
@@ -85,8 +81,33 @@ class QuestionBubble extends StatelessWidget {
                         gravity: ToastGravity.BOTTOM,
                         toastDuration: const Duration(seconds: 3),
                     );
-                  });
+                  }).catchError((error) {
+                    Log.info("Debug info has not yet been implemented on this platform");
 
+                    Widget toast = Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(25.0),
+                        color: Colors.red,
+                      ),
+                      child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                          Icon(Icons.close),
+                          SizedBox(
+                            width: 12.0,
+                          ),
+                          Text("Unable to copy debug info to clipboard"),
+                        ],
+                      ),
+                    );
+
+                    fToast.showToast(
+                        child: toast,
+                        gravity: ToastGravity.BOTTOM,
+                        toastDuration: const Duration(seconds: 3),
+                    );
+                  }, test: (e) => e is UnimplementedError);
                   break;
               }
             });
