@@ -1,7 +1,7 @@
 use crate::{helper::ViewTest, FlowySDKTest};
-use flowy_collaboration::entities::doc::DocIdentifier;
+use flowy_collaboration::entities::{doc::DocIdentifier, revision::RevState};
 use flowy_document::services::doc::{edit::ClientDocEditor, SYNC_INTERVAL_IN_MILLIS};
-use lib_ot::{core::Interval, revision::RevState, rich_text::RichTextDelta};
+use lib_ot::{core::Interval, rich_text::RichTextDelta};
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 

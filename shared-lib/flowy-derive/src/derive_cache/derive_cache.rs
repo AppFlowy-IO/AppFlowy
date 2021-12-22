@@ -37,6 +37,10 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "DocDelta"
         | "NewDocUser"
         | "DocIdentifier"
+        | "Revision"
+        | "RepeatedRevision"
+        | "RevId"
+        | "RevisionRange"
         | "DocumentWSData"
         | "NewDocumentUser"
         | "QueryAppRequest"
@@ -74,10 +78,6 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "ExportData"
         | "WSError"
         | "WSMessage"
-        | "Revision"
-        | "RepeatedRevision"
-        | "RevId"
-        | "RevisionRange"
         => TypeCategory::Protobuf,
         "WorkspaceEvent"
         | "WorkspaceNotification"
@@ -87,14 +87,14 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "NetworkType"
         | "UserEvent"
         | "UserNotification"
+        | "RevType"
+        | "RevState"
         | "DocumentWSDataType"
         | "TrashType"
         | "ViewType"
         | "ExportType"
         | "ErrorCode"
         | "WSModule"
-        | "RevType"
-        | "RevState"
         => TypeCategory::Enum,
 
         "Option" => TypeCategory::Opt,

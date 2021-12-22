@@ -1,8 +1,9 @@
 syntax = "proto3";
+import "revision.proto";
 
 message CreateDocParams {
     string id = 1;
-    string data = 2;
+    RepeatedRevision data = 2;
 }
 message Doc {
     string id = 1;

@@ -1,6 +1,6 @@
-use crate::rich_text::RichTextDelta;
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use lib_ot::rich_text::RichTextDelta;
 use std::{convert::TryFrom, fmt::Formatter, ops::RangeInclusive};
 
 #[derive(PartialEq, Eq, Clone, Default, ProtoBuf)]

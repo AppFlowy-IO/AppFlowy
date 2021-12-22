@@ -7,12 +7,18 @@ use crate::{
     },
 };
 use bytes::Bytes;
-use flowy_collaboration::{core::document::history::UndoResult, entities::doc::DocDelta, errors::CollaborateResult};
+use flowy_collaboration::{
+    core::document::history::UndoResult,
+    entities::{
+        doc::DocDelta,
+        revision::{RevId, RevType, Revision},
+    },
+    errors::CollaborateResult,
+};
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyResult};
 use lib_ot::{
     core::Interval,
-    revision::{RevId, RevType, Revision},
     rich_text::{RichTextAttribute, RichTextDelta},
 };
 use std::sync::Arc;

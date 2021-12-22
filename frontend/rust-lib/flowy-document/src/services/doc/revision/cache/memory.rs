@@ -1,8 +1,7 @@
 use crate::services::doc::RevisionRecord;
 use dashmap::DashMap;
+use flowy_collaboration::entities::revision::RevisionRange;
 use flowy_error::{FlowyError, FlowyResult};
-
-use lib_ot::revision::RevisionRange;
 use std::{sync::Arc, time::Duration};
 use tokio::{sync::RwLock, task::JoinHandle};
 

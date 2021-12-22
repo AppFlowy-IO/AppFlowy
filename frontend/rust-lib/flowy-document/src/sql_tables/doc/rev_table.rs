@@ -1,8 +1,10 @@
 use crate::services::doc::revision::RevisionRecord;
 use diesel::sql_types::Integer;
-use flowy_collaboration::util::md5;
+use flowy_collaboration::{
+    entities::revision::{RevId, RevState, RevType, Revision},
+    util::md5,
+};
 use flowy_database::schema::rev_table;
-use lib_ot::revision::{RevId, RevState, RevType, Revision};
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
 #[table_name = "rev_table"]

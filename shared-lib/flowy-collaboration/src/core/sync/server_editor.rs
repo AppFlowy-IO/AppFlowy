@@ -3,14 +3,14 @@ use crate::{
         document::Document,
         sync::{RevisionSynchronizer, RevisionUser},
     },
-    entities::doc::Doc,
+    entities::{doc::Doc, revision::Revision},
     errors::{internal_error, CollaborateError, CollaborateResult},
 };
 use async_stream::stream;
 use dashmap::DashMap;
 use futures::stream::StreamExt;
 use lib_infra::future::FutureResultSend;
-use lib_ot::{errors::OTError, revision::Revision, rich_text::RichTextDelta};
+use lib_ot::{errors::OTError, rich_text::RichTextDelta};
 use std::sync::{atomic::Ordering::SeqCst, Arc};
 use tokio::{
     sync::{mpsc, oneshot},

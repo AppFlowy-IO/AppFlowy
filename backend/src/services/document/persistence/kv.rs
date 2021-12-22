@@ -1,7 +1,7 @@
 use crate::{services::kv_store::KVStore, util::serde_ext::parse_from_bytes};
 use backend_service::errors::ServerError;
 use bytes::Bytes;
-use lib_ot::protobuf::{RepeatedRevision, Revision};
+use flowy_collaboration::protobuf::{RepeatedRevision, Revision};
 use protobuf::Message;
 use std::sync::Arc;
 

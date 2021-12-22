@@ -1,13 +1,11 @@
 use crate::{
     core::document::Document,
-    entities::ws::{DocumentWSData, DocumentWSDataBuilder},
+    entities::{
+        revision::{RevType, Revision, RevisionRange},
+        ws::{DocumentWSData, DocumentWSDataBuilder},
+    },
 };
-use lib_ot::{
-    core::OperationTransformable,
-    errors::OTError,
-    revision::{RevType, Revision, RevisionRange},
-    rich_text::RichTextDelta,
-};
+use lib_ot::{core::OperationTransformable, errors::OTError, rich_text::RichTextDelta};
 use parking_lot::RwLock;
 use std::{
     cmp::Ordering,

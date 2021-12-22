@@ -5,10 +5,10 @@ use flowy_collaboration::{
     core::sync::{DocumentPersistence, RevisionUser, ServerDocumentManager, SyncResponse},
     entities::{
         doc::Doc,
+        revision::Revision,
         ws::{DocumentWSData, DocumentWSDataBuilder, DocumentWSDataType, NewDocumentUser},
     },
     errors::CollaborateError,
-    Revision,
     RichTextDelta,
 };
 use lazy_static::lazy_static;

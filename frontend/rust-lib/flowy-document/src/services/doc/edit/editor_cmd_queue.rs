@@ -2,13 +2,13 @@ use async_stream::stream;
 use bytes::Bytes;
 use flowy_collaboration::{
     core::document::{history::UndoResult, Document},
+    entities::revision::{RevId, Revision},
     errors::CollaborateError,
 };
 use flowy_error::FlowyError;
 use futures::stream::StreamExt;
 use lib_ot::{
     core::{Interval, OperationTransformable},
-    revision::{RevId, Revision},
     rich_text::{RichTextAttribute, RichTextDelta},
 };
 use std::{convert::TryFrom, sync::Arc};

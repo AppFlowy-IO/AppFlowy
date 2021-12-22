@@ -14,15 +14,15 @@ use crate::services::doc::{
 };
 use bytes::Bytes;
 use flowy_collaboration::{
-    entities::ws::{DocumentWSData, DocumentWSDataBuilder, DocumentWSDataType, NewDocumentUser},
+    entities::{
+        revision::{Revision, RevisionRange},
+        ws::{DocumentWSData, DocumentWSDataBuilder, DocumentWSDataType, NewDocumentUser},
+    },
     errors::CollaborateResult,
 };
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use lib_infra::future::FutureResult;
-use lib_ot::{
-    revision::{Revision, RevisionRange},
-    rich_text::RichTextDelta,
-};
+use lib_ot::rich_text::RichTextDelta;
 use lib_ws::WSConnectState;
 use std::{
     collections::VecDeque,
