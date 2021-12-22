@@ -145,7 +145,7 @@ impl RevisionLoader {
                         Ok(_) => {},
                         Err(e) => tracing::error!("{}", e),
                     },
-                    RevState::Acked => {},
+                    RevState::Ack => {},
                 }
             }
             revisions = records.into_iter().map(|record| record.revision).collect::<_>();

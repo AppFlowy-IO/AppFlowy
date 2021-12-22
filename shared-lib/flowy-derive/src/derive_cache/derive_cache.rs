@@ -75,6 +75,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "WSError"
         | "WSMessage"
         | "Revision"
+        | "RepeatedRevision"
         | "RevId"
         | "RevisionRange"
         => TypeCategory::Protobuf,

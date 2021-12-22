@@ -72,7 +72,7 @@ impl RevisionCache {
         let rev_id = revision.rev_id;
         let record = RevisionRecord {
             revision,
-            state: RevState::Acked,
+            state: RevState::Ack,
         };
         self.memory_cache.add_revision(&record).await;
         let _ = self.latest_rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(rev_id));
@@ -170,7 +170,7 @@ pub struct RevisionRecord {
 }
 
 impl RevisionRecord {
-    pub fn ack(&mut self) { self.state = RevState::Acked; }
+    pub fn ack(&mut self) { self.state = RevState::Ack; }
 }
 
 struct RevisionSyncSeq {

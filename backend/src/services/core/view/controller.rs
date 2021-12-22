@@ -1,8 +1,9 @@
-use crate::services::document::{create_doc_with_transaction, delete_doc};
-
 use crate::{
     entities::logged_user::LoggedUser,
-    services::core::{trash::read_trash_ids, view::persistence::*},
+    services::{
+        core::{trash::read_trash_ids, view::persistence::*},
+        document::persistence::{create_doc_with_transaction, delete_doc},
+    },
     util::sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
 use backend_service::errors::{invalid_params, ServerError};

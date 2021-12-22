@@ -2,7 +2,7 @@ use crate::{
     services::kv_store::{KVStore, KeyValue},
     util::sqlx_ext::{map_sqlx_error, SqlBuilder},
 };
-use actix_web::web::Data;
+
 use anyhow::Context;
 use backend_service::errors::ServerError;
 use bytes::Bytes;
@@ -13,7 +13,7 @@ use sqlx::{postgres::PgArguments, Error, PgPool, Postgres, Row};
 const KV_TABLE: &str = "kv_table";
 
 pub(crate) struct PostgresKV {
-    pub(crate) pg_pool: Data<PgPool>,
+    pub(crate) pg_pool: PgPool,
 }
 
 impl KVStore for PostgresKV {

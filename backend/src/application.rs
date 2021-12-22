@@ -42,7 +42,7 @@ impl Application {
 pub fn run(listener: TcpListener, app_ctx: AppContext) -> Result<Server, std::io::Error> {
     let domain = domain();
     let secret: String = secret();
-    actix_rt::spawn(period_check(app_ctx.pg_pool.clone()));
+    actix_rt::spawn(period_check(app_ctx.persistence.pg_pool()));
 
     let server = HttpServer::new(move || {
         App::new()
@@ -54,16 +54,17 @@ pub fn run(listener: TcpListener, app_ctx: AppContext) -> Result<Server, std::io
             .service(ws_scope())
             .service(user_scope())
             .app_data(app_ctx.ws_server.clone())
-            .app_data(app_ctx.pg_pool.clone())
+            .app_data(app_ctx.persistence.clone())
+            .app_data(Data::new(app_ctx.persistence.pg_pool()))
             .app_data(app_ctx.ws_receivers.clone())
-            .app_data(app_ctx.document_mng.clone())
     })
     .listen(listener)?
     .run();
     Ok(server)
 }
 
-async fn period_check(_pool: Data<PgPool>) {
+#[allow(dead_code)]
+async fn period_check(_pool: PgPool) {
     let mut i = interval(Duration::from_secs(60));
     loop {
         i.tick().await;

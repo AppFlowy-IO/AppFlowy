@@ -50,7 +50,7 @@ impl std::convert::From<RevTableState> for RevState {
     fn from(s: RevTableState) -> Self {
         match s {
             RevTableState::Local => RevState::StateLocal,
-            RevTableState::Acked => RevState::Acked,
+            RevTableState::Acked => RevState::Ack,
         }
     }
 }
@@ -59,7 +59,7 @@ impl std::convert::From<RevState> for RevTableState {
     fn from(s: RevState) -> Self {
         match s {
             RevState::StateLocal => RevTableState::Local,
-            RevState::Acked => RevTableState::Acked,
+            RevState::Ack => RevTableState::Acked,
         }
     }
 }

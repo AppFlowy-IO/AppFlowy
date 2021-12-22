@@ -24,12 +24,12 @@ const RevState$json = const {
   '1': 'RevState',
   '2': const [
     const {'1': 'StateLocal', '2': 0},
-    const {'1': 'Acked', '2': 1},
+    const {'1': 'Ack', '2': 1},
   ],
 };
 
 /// Descriptor for `RevState`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List revStateDescriptor = $convert.base64Decode('CghSZXZTdGF0ZRIOCgpTdGF0ZUxvY2FsEAASCQoFQWNrZWQQAQ==');
+final $typed_data.Uint8List revStateDescriptor = $convert.base64Decode('CghSZXZTdGF0ZRIOCgpTdGF0ZUxvY2FsEAASBwoDQWNrEAE=');
 @$core.Deprecated('Use revisionDescriptor instead')
 const Revision$json = const {
   '1': 'Revision',
@@ -46,6 +46,16 @@ const Revision$json = const {
 
 /// Descriptor for `Revision`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List revisionDescriptor = $convert.base64Decode('CghSZXZpc2lvbhIeCgtiYXNlX3Jldl9pZBgBIAEoA1IJYmFzZVJldklkEhUKBnJldl9pZBgCIAEoA1IFcmV2SWQSHQoKZGVsdGFfZGF0YRgDIAEoDFIJZGVsdGFEYXRhEhAKA21kNRgEIAEoCVIDbWQ1EhUKBmRvY19pZBgFIAEoCVIFZG9jSWQSGAoCdHkYBiABKA4yCC5SZXZUeXBlUgJ0eRIXCgd1c2VyX2lkGAcgASgJUgZ1c2VySWQ=');
+@$core.Deprecated('Use repeatedRevisionDescriptor instead')
+const RepeatedRevision$json = const {
+  '1': 'RepeatedRevision',
+  '2': const [
+    const {'1': 'items', '3': 1, '4': 3, '5': 11, '6': '.Revision', '10': 'items'},
+  ],
+};
+
+/// Descriptor for `RepeatedRevision`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List repeatedRevisionDescriptor = $convert.base64Decode('ChBSZXBlYXRlZFJldmlzaW9uEh8KBWl0ZW1zGAEgAygLMgkuUmV2aXNpb25SBWl0ZW1z');
 @$core.Deprecated('Use revIdDescriptor instead')
 const RevId$json = const {
   '1': 'RevId',

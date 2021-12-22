@@ -1,9 +1,6 @@
 use crate::{
     entities::logged_user::LoggedUser,
-    services::{
-        core::view::{create_view, delete_view, persistence::check_view_ids, read_view, update_view},
-        document::manager::DocumentManager,
-    },
+    services::core::view::{create_view, delete_view, persistence::check_view_ids, read_view, update_view},
     util::serde_ext::parse_from_payload,
 };
 use actix_web::{
@@ -20,13 +17,8 @@ use flowy_core_data_model::{
     protobuf::{CreateViewParams, QueryViewRequest, UpdateViewParams, ViewIdentifier},
 };
 use sqlx::PgPool;
-use std::sync::Arc;
 
-pub async fn create_handler(
-    payload: Payload,
-    pool: Data<PgPool>,
-    _doc_biz: Data<Arc<DocumentManager>>,
-) -> Result<HttpResponse, ServerError> {
+pub async fn create_handler(payload: Payload, pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {
     let params: CreateViewParams = parse_from_payload(payload).await?;
     let mut transaction = pool
         .begin()

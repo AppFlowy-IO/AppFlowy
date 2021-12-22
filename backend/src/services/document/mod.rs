@@ -1,9 +1,6 @@
 #![allow(clippy::module_inception)]
 
-pub(crate) use crud::*;
-pub use router::*;
-
-pub mod crud;
-pub mod manager;
-pub mod router;
-mod ws_actor;
+pub(crate) mod controller;
+pub(crate) mod persistence;
+pub(crate) mod router;
+pub(crate) mod ws_actor;

@@ -5,7 +5,7 @@ use std::str;
 #[actix_rt::test]
 async fn kv_set_test() {
     let server = spawn_server().await;
-    let kv = server.app_ctx.kv_store.clone();
+    let kv = server.app_ctx.persistence.kv_store();
     let s1 = "123".to_string();
     let key = "1";
 
@@ -18,7 +18,7 @@ async fn kv_set_test() {
 #[actix_rt::test]
 async fn kv_delete_test() {
     let server = spawn_server().await;
-    let kv = server.app_ctx.kv_store.clone();
+    let kv = server.app_ctx.persistence.kv_store();
     let s1 = "123".to_string();
     let key = "1";
 
@@ -30,7 +30,7 @@ async fn kv_delete_test() {
 #[actix_rt::test]
 async fn kv_batch_set_test() {
     let server = spawn_server().await;
-    let kv = server.app_ctx.kv_store.clone();
+    let kv = server.app_ctx.persistence.kv_store();
     let kvs = vec![
         KeyValue {
             key: "1".to_string(),

@@ -9,6 +9,9 @@ message Revision {
     RevType ty = 6;
     string user_id = 7;
 }
+message RepeatedRevision {
+    repeated Revision items = 1;
+}
 message RevId {
     int64 value = 1;
 }
@@ -23,5 +26,5 @@ enum RevType {
 }
 enum RevState {
     StateLocal = 0;
-    Acked = 1;
+    Ack = 1;
 }
