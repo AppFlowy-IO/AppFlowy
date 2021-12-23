@@ -15,7 +15,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'dart:io';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/home_stack.dart';
 
