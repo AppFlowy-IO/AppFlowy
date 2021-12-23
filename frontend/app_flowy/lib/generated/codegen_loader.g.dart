@@ -82,7 +82,11 @@ class CodegenLoader extends AssetLoader{
   "questionBubble": {
     "whatsNew": "Cosa c'è di nuovo?",
     "help": "Aiuto & Supporto",
-    "debug": "Informazioni di debug"
+    "debug": {
+      "name": "Informazioni di debug",
+      "success": "Informazioni di debug copiate negli appunti!",
+      "fail": "Impossibile copiare le informazioni di debug negli appunti"
+    }
   },
   "menuAppHeader": {
     "addPageTooltip": "Aggiungi velocemente una pagina all'interno",
@@ -205,7 +209,11 @@ static const Map<String,dynamic> en = {
   "questionBubble": {
     "whatsNew": "What's new?",
     "help": "Help & Support",
-    "debug": "Debug Info"
+    "debug": {
+      "name": "Debug Info",
+      "success": "Copied debug info to clipboard!",
+      "fail": "Unable to copy debug info to clipboard"
+    }
   },
   "menuAppHeader": {
     "addPageTooltip": "Quickly add a page inside",
@@ -328,7 +336,11 @@ static const Map<String,dynamic> zh_CN = {
   "questionBubble": {
     "whatsNew": "新功能?",
     "help": "帮助 & 支持",
-    "debug": "调试信息"
+    "debug": {
+      "name": "调试信息",
+      "success": "将调试信息复制到剪贴板！",
+      "fail": "无法将调试信息复制到剪贴板"
+    }
   },
   "menuAppHeader": {
     "addPageTooltip": "在其中快速添加页面",

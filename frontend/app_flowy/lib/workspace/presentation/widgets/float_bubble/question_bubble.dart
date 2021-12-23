@@ -65,12 +65,12 @@ class QuestionBubble extends StatelessWidget {
                       ),
                       child: Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
-                          Icon(Icons.check),
-                          SizedBox(
-                          width: 12.0,
+                      children: [
+                          const Icon(Icons.check),
+                          const SizedBox(
+                            width: 12.0,
                           ),
-                          Text("Copied debug info to clipboard!"),
+                          Text(LocaleKeys.questionBubble_debug_success.tr()),
                         ],
                       ),
                     );
@@ -91,12 +91,12 @@ class QuestionBubble extends StatelessWidget {
                       ),
                       child: Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
-                          Icon(Icons.close),
-                          SizedBox(
+                      children: [
+                          const Icon(Icons.close),
+                          const SizedBox(
                             width: 12.0,
                           ),
-                          Text("Unable to copy debug info to clipboard"),
+                          Text(LocaleKeys.questionBubble_debug_fail.tr()),
                         ],
                       ),
                     );
@@ -238,7 +238,7 @@ extension QuestionBubbleExtension on BubbleAction {
       case BubbleAction.help:
         return LocaleKeys.questionBubble_help.tr();
       case BubbleAction.debug:
-        return LocaleKeys.questionBubble_debug.tr();
+        return LocaleKeys.questionBubble_debug_name.tr();
     }
   }
 

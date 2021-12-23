@@ -66,7 +66,11 @@
   "questionBubble": {
     "whatsNew": "Cosa c'è di nuovo?",
     "help": "Aiuto & Supporto",
-    "debug": "Informazioni di debug"
+    "debug": {
+      "name": "Informazioni di debug",
+      "success": "Informazioni di debug copiate negli appunti!",
+      "fail": "Impossibile copiare le informazioni di debug negli appunti"
+    }
   },
   "menuAppHeader": {
     "addPageTooltip": "Aggiungi velocemente una pagina all'interno",

@@ -59,6 +59,9 @@ abstract class  LocaleKeys {
   static const dialogCreatePageNameHint = 'dialogCreatePageNameHint';
   static const questionBubble_whatsNew = 'questionBubble.whatsNew';
   static const questionBubble_help = 'questionBubble.help';
+  static const questionBubble_debug_name = 'questionBubble.debug.name';
+  static const questionBubble_debug_success = 'questionBubble.debug.success';
+  static const questionBubble_debug_fail = 'questionBubble.debug.fail';
   static const questionBubble_debug = 'questionBubble.debug';
   static const questionBubble = 'questionBubble';
   static const menuAppHeader_addPageTooltip = 'menuAppHeader.addPageTooltip';
