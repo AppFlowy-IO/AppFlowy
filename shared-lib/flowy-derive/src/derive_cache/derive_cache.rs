@@ -33,7 +33,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "UpdateUserParams"
         | "CreateDocParams"
         | "Doc"
-        | "UpdateDocParams"
+        | "ResetDocumentParams"
         | "DocDelta"
         | "NewDocUser"
         | "DocIdentifier"

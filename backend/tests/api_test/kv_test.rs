@@ -1,5 +1,5 @@
 use crate::util::helper::spawn_server;
-use backend::services::kv_store::KeyValue;
+use backend::services::kv::KeyValue;
 use std::str;
 
 #[actix_rt::test]

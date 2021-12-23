@@ -1,3 +1,4 @@
+use crate::core::document::default::initial_delta;
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use lib_ot::rich_text::RichTextDelta;
@@ -41,26 +42,13 @@ impl Revision {
 
     #[allow(dead_code)]
     pub fn is_initial(&self) -> bool { self.rev_id == 0 }
-}
 
-impl std::fmt::Debug for Revision {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        let _ = f.write_fmt(format_args!("doc_id {}, ", self.doc_id))?;
-        let _ = f.write_fmt(format_args!("base_rev_id {}, ", self.base_rev_id))?;
-        let _ = f.write_fmt(format_args!("rev_id {}, ", self.rev_id))?;
-        match RichTextDelta::from_bytes(&self.delta_data) {
-            Ok(delta) => {
-                let _ = f.write_fmt(format_args!("delta {:?}", delta.to_json()))?;
-            },
-            Err(e) => {
-                let _ = f.write_fmt(format_args!("delta {:?}", e))?;
-            },
-        }
-        Ok(())
+    pub fn initial_revision(user_id: &str, doc_id: &str, ty: RevType) -> Self {
+        let delta_data = initial_delta().to_bytes();
+        let md5 = format!("{:x}", md5::compute(&delta_data));
+        Revision::new(doc_id, 0, 0, delta_data, ty, user_id, md5)
     }
-}
 
-impl Revision {
     pub fn new(
         doc_id: &str,
         base_rev_id: i64,
@@ -89,6 +77,23 @@ impl Revision {
             ty,
             user_id,
         }
+    }
+}
+
+impl std::fmt::Debug for Revision {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        let _ = f.write_fmt(format_args!("doc_id {}, ", self.doc_id))?;
+        let _ = f.write_fmt(format_args!("base_rev_id {}, ", self.base_rev_id))?;
+        let _ = f.write_fmt(format_args!("rev_id {}, ", self.rev_id))?;
+        match RichTextDelta::from_bytes(&self.delta_data) {
+            Ok(delta) => {
+                let _ = f.write_fmt(format_args!("delta {:?}", delta.to_json()))?;
+            },
+            Err(e) => {
+                let _ = f.write_fmt(format_args!("delta {:?}", e))?;
+            },
+        }
+        Ok(())
     }
 }
 

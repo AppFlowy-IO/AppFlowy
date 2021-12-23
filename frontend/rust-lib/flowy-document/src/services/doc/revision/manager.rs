@@ -80,6 +80,7 @@ impl RevisionManager {
         debug_assert!(range.doc_id == self.doc_id);
         let revisions = self.cache.revisions_in_range(range.clone()).await?;
         let mut new_delta = RichTextDelta::new();
+        // TODO: generate delta from revision should be wrapped into function.
         for revision in revisions {
             match RichTextDelta::from_bytes(revision.delta_data) {
                 Ok(delta) => {
@@ -127,7 +128,7 @@ impl RevisionLoader {
         let revisions: Vec<Revision>;
         if records.is_empty() {
             let doc = self.server.fetch_document(&self.doc_id).await?;
-            let delta_data = Bytes::from(doc.data.clone());
+            let delta_data = Bytes::from(doc.text.clone());
             let doc_md5 = md5(&delta_data);
             let revision = Revision::new(
                 &doc.id,
@@ -174,7 +175,7 @@ fn mk_doc_from_revisions(doc_id: &str, revisions: Vec<Revision>) -> FlowyResult<
 
     Result::<Doc, FlowyError>::Ok(Doc {
         id: doc_id.to_owned(),
-        data: delta.to_json(),
+        text: delta.to_json(),
         rev_id,
         base_rev_id,
     })

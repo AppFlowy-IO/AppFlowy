@@ -11,7 +11,7 @@ use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 // use crate::helper::*;
 use crate::util::helper::{spawn_server, TestServer};
-use flowy_collaboration::{entities::doc::DocIdentifier, protobuf::UpdateDocParams};
+use flowy_collaboration::{entities::doc::DocIdentifier, protobuf::ResetDocumentParams};
 use lib_ot::rich_text::{RichTextAttribute, RichTextDelta};
 use parking_lot::RwLock;
 use lib_ot::core::Interval;
@@ -167,7 +167,7 @@ async fn create_doc(flowy_test: &FlowySDKTest) -> String {
 }
 
 async fn save_doc(doc_id: &str, json: String, rev_id: i64, pool: Data<PgPool>) {
-    let mut params = UpdateDocParams::new();
+    let mut params = ResetDocumentParams::new();
     params.set_doc_id(doc_id.to_owned());
     params.set_data(json);
     params.set_rev_id(rev_id);

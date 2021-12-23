@@ -2,13 +2,16 @@ use crate::{
     entities::logged_user::LoggedUser,
     services::{
         core::{trash::read_trash_ids, view::persistence::*},
-        document::persistence::{create_doc_with_transaction, delete_doc, DocumentKVPersistence},
+        document::persistence::{create_doc, delete_doc, DocumentKVPersistence},
     },
     util::sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
 use backend_service::errors::{invalid_params, ServerError};
 use chrono::Utc;
-use flowy_collaboration::protobuf::CreateDocParams;
+use flowy_collaboration::{
+    entities::revision::{RevType, Revision},
+    protobuf::{CreateDocParams, RepeatedRevision},
+};
 use flowy_core_data_model::{
     parser::{
         app::AppId,
@@ -17,7 +20,7 @@ use flowy_core_data_model::{
     protobuf::{CreateViewParams, RepeatedView, View},
 };
 use sqlx::{postgres::PgArguments, Postgres};
-use std::sync::Arc;
+use std::{convert::TryInto, sync::Arc};
 use uuid::Uuid;
 
 pub(crate) async fn update_view(
@@ -43,8 +46,12 @@ pub(crate) async fn update_view(
     Ok(())
 }
 
-#[tracing::instrument(skip(transaction), err)]
-pub(crate) async fn delete_view(transaction: &mut DBTransaction<'_>, view_ids: Vec<Uuid>) -> Result<(), ServerError> {
+#[tracing::instrument(skip(transaction, kv_store), err)]
+pub(crate) async fn delete_view(
+    transaction: &mut DBTransaction<'_>,
+    kv_store: &Arc<DocumentKVPersistence>,
+    view_ids: Vec<Uuid>,
+) -> Result<(), ServerError> {
     for view_id in view_ids {
         let (sql, args) = SqlBuilder::delete(VIEW_TABLE).and_where_eq("id", &view_id).build()?;
         let _ = sqlx::query_with(&sql, args)
@@ -52,7 +59,7 @@ pub(crate) async fn delete_view(transaction: &mut DBTransaction<'_>, view_ids: V
             .await
             .map_err(map_sqlx_error)?;
 
-        let _ = delete_doc(transaction, view_id).await?;
+        let _ = delete_doc(kv_store, view_id).await?;
     }
     Ok(())
 }
@@ -62,6 +69,7 @@ pub(crate) async fn create_view(
     transaction: &mut DBTransaction<'_>,
     kv_store: Arc<DocumentKVPersistence>,
     params: CreateViewParams,
+    user_id: &str,
 ) -> Result<View, ServerError> {
     let name = ViewName::parse(params.name).map_err(invalid_params)?;
     let belong_to_id = AppId::parse(params.belong_to_id).map_err(invalid_params)?;
@@ -75,27 +83,25 @@ pub(crate) async fn create_view(
         .view_type(params.view_type)
         .build()?;
 
-    let view = create_view_with_args(transaction, kv_store, sql, args, view, params.data).await?;
-    Ok(view)
-}
-
-async fn create_view_with_args(
-    transaction: &mut DBTransaction<'_>,
-    kv_store: Arc<DocumentKVPersistence>,
-    sql: String,
-    args: PgArguments,
-    view: View,
-    view_data: String,
-) -> Result<View, ServerError> {
     let _ = sqlx::query_with(&sql, args)
         .execute(transaction as &mut DBTransaction<'_>)
         .await
         .map_err(map_sqlx_error)?;
 
+    let doc_id = view.id.clone();
+    let revision: flowy_collaboration::protobuf::Revision =
+        Revision::initial_revision(user_id, &doc_id, RevType::Remote)
+            .try_into()
+            .unwrap();
+    let mut repeated_revision = RepeatedRevision::new();
+    repeated_revision.set_items(vec![revision].into());
+
     let mut create_doc_params = CreateDocParams::new();
-    create_doc_params.set_data(view_data);
+    create_doc_params.set_revisions(repeated_revision);
     create_doc_params.set_id(view.id.clone());
-    let _ = create_doc_with_transaction(transaction, kv_store, create_doc_params).await?;
+
+    let _ = create_doc(&kv_store, create_doc_params).await?;
+
     Ok(view)
 }
 

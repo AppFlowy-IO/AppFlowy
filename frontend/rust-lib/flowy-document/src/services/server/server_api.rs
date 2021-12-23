@@ -1,6 +1,6 @@
 use crate::{errors::FlowyError, services::server::DocumentServerAPI};
 use backend_service::{configuration::*, request::HttpRequestBuilder};
-use flowy_collaboration::entities::doc::{CreateDocParams, Doc, DocIdentifier, UpdateDocParams};
+use flowy_collaboration::entities::doc::{CreateDocParams, Doc, DocIdentifier, ResetDocumentParams};
 use lib_infra::future::FutureResult;
 
 pub struct DocServer {
@@ -24,7 +24,7 @@ impl DocumentServerAPI for DocServer {
         FutureResult::new(async move { read_doc_request(&token, params, &url).await })
     }
 
-    fn update_doc(&self, token: &str, params: UpdateDocParams) -> FutureResult<(), FlowyError> {
+    fn update_doc(&self, token: &str, params: ResetDocumentParams) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.doc_url();
         FutureResult::new(async move { update_doc_request(&token, params, &url).await })
@@ -56,7 +56,7 @@ pub async fn read_doc_request(token: &str, params: DocIdentifier, url: &str) -> 
     Ok(doc)
 }
 
-pub async fn update_doc_request(token: &str, params: UpdateDocParams, url: &str) -> Result<(), FlowyError> {
+pub async fn update_doc_request(token: &str, params: ResetDocumentParams, url: &str) -> Result<(), FlowyError> {
     let _ = request_builder()
         .patch(&url.to_owned())
         .header(HEADER_TOKEN, token)

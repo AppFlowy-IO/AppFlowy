@@ -63,7 +63,7 @@ impl Document {
     pub fn delta(&self) -> &RichTextDelta { &self.delta }
 
     pub fn md5(&self) -> String {
-        // Opti: calculate the md5 of delta would cause performance issues
+        // TODO: Optimize the cost of calculating the md5
         let bytes = self.to_bytes();
         format!("{:x}", md5::compute(bytes))
     }

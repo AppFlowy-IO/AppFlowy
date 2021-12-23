@@ -18,7 +18,8 @@ use tokio::{
 };
 
 pub trait DocumentPersistence: Send + Sync {
-    fn update_doc(&self, doc_id: &str, rev_id: i64, delta: RichTextDelta) -> FutureResultSend<(), CollaborateError>;
+    // fn update_doc(&self, doc_id: &str, rev_id: i64, delta: RichTextDelta) ->
+    // FutureResultSend<(), CollaborateError>;
     fn read_doc(&self, doc_id: &str) -> FutureResultSend<Doc, CollaborateError>;
     fn create_doc(&self, revision: Revision) -> FutureResultSend<Doc, CollaborateError>;
 }
@@ -205,7 +206,7 @@ pub struct ServerDocEditor {
 
 impl ServerDocEditor {
     pub fn new(doc: Doc) -> Result<Self, OTError> {
-        let delta = RichTextDelta::from_bytes(&doc.data)?;
+        let delta = RichTextDelta::from_bytes(&doc.text)?;
         let users = DashMap::new();
         let synchronizer = Arc::new(RevisionSynchronizer::new(
             &doc.id,

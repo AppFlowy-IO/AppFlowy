@@ -3,18 +3,17 @@ import "revision.proto";
 
 message CreateDocParams {
     string id = 1;
-    RepeatedRevision data = 2;
+    RepeatedRevision revisions = 2;
 }
 message Doc {
     string id = 1;
-    string data = 2;
+    string text = 2;
     int64 rev_id = 3;
     int64 base_rev_id = 4;
 }
-message UpdateDocParams {
+message ResetDocumentParams {
     string doc_id = 1;
-    string data = 2;
-    int64 rev_id = 3;
+    RepeatedRevision revisions = 2;
 }
 message DocDelta {
     string doc_id = 1;

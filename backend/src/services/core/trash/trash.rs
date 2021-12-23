@@ -1,9 +1,12 @@
 use crate::{
     entities::logged_user::LoggedUser,
-    services::core::{
-        app::controller::{delete_app, read_app_table},
-        trash::persistence::{TrashTable, TRASH_TABLE},
-        view::{delete_view, read_view_table},
+    services::{
+        core::{
+            app::controller::{delete_app, read_app_table},
+            trash::persistence::{TrashTable, TRASH_TABLE},
+            view::{delete_view, read_view_table},
+        },
+        document::persistence::DocumentKVPersistence,
     },
     util::sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
@@ -11,6 +14,7 @@ use ::protobuf::ProtobufEnum;
 use backend_service::errors::ServerError;
 use flowy_core_data_model::protobuf::{RepeatedTrash, Trash, TrashType};
 use sqlx::{postgres::PgArguments, Postgres, Row};
+use std::sync::Arc;
 use uuid::Uuid;
 
 #[tracing::instrument(skip(transaction, user), err)]
@@ -35,9 +39,10 @@ pub(crate) async fn create_trash(
     Ok(())
 }
 
-#[tracing::instrument(skip(transaction, user), fields(delete_rows), err)]
+#[tracing::instrument(skip(transaction, kv_store, user), fields(delete_rows), err)]
 pub(crate) async fn delete_all_trash(
     transaction: &mut DBTransaction<'_>,
+    kv_store: &Arc<DocumentKVPersistence>,
     user: &LoggedUser,
 ) -> Result<(), ServerError> {
     let (sql, args) = SqlBuilder::select(TRASH_TABLE)
@@ -52,7 +57,7 @@ pub(crate) async fn delete_all_trash(
         .collect::<Vec<(Uuid, i32)>>();
     tracing::Span::current().record("delete_rows", &format!("{:?}", rows).as_str());
     let affected_row_count = rows.len();
-    let _ = delete_trash_associate_targets(transaction as &mut DBTransaction<'_>, rows).await?;
+    let _ = delete_trash_associate_targets(transaction as &mut DBTransaction<'_>, kv_store, rows).await?;
 
     let (sql, args) = SqlBuilder::delete(TRASH_TABLE)
         .and_where_eq("user_id", &user.user_id)
@@ -67,9 +72,10 @@ pub(crate) async fn delete_all_trash(
     Ok(())
 }
 
-#[tracing::instrument(skip(transaction), err)]
+#[tracing::instrument(skip(transaction, kv_store), err)]
 pub(crate) async fn delete_trash(
     transaction: &mut DBTransaction<'_>,
+    kv_store: &Arc<DocumentKVPersistence>,
     records: Vec<(Uuid, i32)>,
 ) -> Result<(), ServerError> {
     for (trash_id, _) in records {
@@ -86,6 +92,7 @@ pub(crate) async fn delete_trash(
 
         let _ = delete_trash_associate_targets(
             transaction as &mut DBTransaction<'_>,
+            kv_store,
             vec![(trash_table.id, trash_table.ty)],
         )
         .await?;
@@ -100,9 +107,10 @@ pub(crate) async fn delete_trash(
     Ok(())
 }
 
-#[tracing::instrument(skip(transaction, targets), err)]
+#[tracing::instrument(skip(transaction, kv_store, targets), err)]
 async fn delete_trash_associate_targets(
     transaction: &mut DBTransaction<'_>,
+    kv_store: &Arc<DocumentKVPersistence>,
     targets: Vec<(Uuid, i32)>,
 ) -> Result<(), ServerError> {
     for (id, ty) in targets {
@@ -111,7 +119,7 @@ async fn delete_trash_associate_targets(
             Some(ty) => match ty {
                 TrashType::Unknown => {},
                 TrashType::View => {
-                    let _ = delete_view(transaction as &mut DBTransaction<'_>, vec![id]).await;
+                    let _ = delete_view(transaction as &mut DBTransaction<'_>, kv_store, vec![id]).await;
                 },
                 TrashType::App => {
                     let _ = delete_app(transaction as &mut DBTransaction<'_>, id).await;

@@ -1,4 +1,5 @@
 use crate::{
+    context::FlowyPersistence,
     entities::logged_user::LoggedUser,
     services::core::trash::{create_trash, delete_all_trash, delete_trash, read_trash},
     util::serde_ext::parse_from_payload,
@@ -15,6 +16,7 @@ use backend_service::{
 };
 use flowy_core_data_model::{parser::trash::TrashId, protobuf::TrashIdentifiers};
 use sqlx::PgPool;
+use std::sync::Arc;
 use uuid::Uuid;
 
 #[tracing::instrument(skip(payload, pool, logged_user), err)]
@@ -39,12 +41,14 @@ pub async fn create_handler(
     Ok(FlowyResponse::success().into())
 }
 
-#[tracing::instrument(skip(payload, pool, logged_user), fields(delete_trash), err)]
+#[tracing::instrument(skip(payload, persistence, logged_user), fields(delete_trash), err)]
 pub async fn delete_handler(
     payload: Payload,
-    pool: Data<PgPool>,
+    persistence: Data<Arc<FlowyPersistence>>,
     logged_user: LoggedUser,
 ) -> Result<HttpResponse, ServerError> {
+    let pool = persistence.pg_pool();
+    let kv_store = persistence.kv_store();
     let params: TrashIdentifiers = parse_from_payload(payload).await?;
     let mut transaction = pool
         .begin()
@@ -53,10 +57,10 @@ pub async fn delete_handler(
 
     if params.delete_all {
         tracing::Span::current().record("delete_trash", &"all");
-        let _ = delete_all_trash(&mut transaction, &logged_user).await?;
+        let _ = delete_all_trash(&mut transaction, &kv_store, &logged_user).await?;
     } else {
         let records = make_records(params)?;
-        let _ = delete_trash(&mut transaction, records).await?;
+        let _ = delete_trash(&mut transaction, &kv_store, records).await?;
     }
 
     transaction

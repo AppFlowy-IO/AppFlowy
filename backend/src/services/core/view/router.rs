@@ -23,6 +23,7 @@ use std::sync::Arc;
 pub async fn create_handler(
     payload: Payload,
     persistence: Data<Arc<FlowyPersistence>>,
+    user: LoggedUser,
 ) -> Result<HttpResponse, ServerError> {
     let params: CreateViewParams = parse_from_payload(payload).await?;
     let kv_store = persistence.kv_store();
@@ -32,7 +33,7 @@ pub async fn create_handler(
         .await
         .context("Failed to acquire a Postgres connection to create view")?;
 
-    let view = create_view(&mut transaction, kv_store, params).await?;
+    let view = create_view(&mut transaction, kv_store, params, &user.user_id).await?;
     transaction
         .commit()
         .await
@@ -96,15 +97,20 @@ pub async fn update_handler(payload: Payload, pool: Data<PgPool>) -> Result<Http
     Ok(FlowyResponse::success().into())
 }
 
-pub async fn delete_handler(payload: Payload, pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {
+pub async fn delete_handler(
+    payload: Payload,
+    persistence: Data<Arc<FlowyPersistence>>,
+) -> Result<HttpResponse, ServerError> {
     let params: QueryViewRequest = parse_from_payload(payload).await?;
+    let pool = persistence.pg_pool();
+    let kv_store = persistence.kv_store();
     let view_ids = check_view_ids(params.view_ids.to_vec())?;
     let mut transaction = pool
         .begin()
         .await
         .context("Failed to acquire a Postgres connection to delete view")?;
 
-    let _ = delete_view(&mut transaction, view_ids).await?;
+    let _ = delete_view(&mut transaction, &kv_store, view_ids).await?;
 
     transaction
         .commit()

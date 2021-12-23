@@ -1,27 +1,25 @@
 use crate::{
-    services::{
-        document::persistence::update_doc,
-        web_socket::{entities::Socket, WSClientData, WSMessageAdaptor, WSUser},
-    },
+    services::web_socket::{entities::Socket, WSClientData, WSMessageAdaptor, WSUser},
     util::serde_ext::{md5, parse_from_bytes},
 };
 use actix_rt::task::spawn_blocking;
 
+use crate::context::FlowyPersistence;
 use async_stream::stream;
 use backend_service::errors::{internal_error, Result, ServerError};
 use flowy_collaboration::{
     core::sync::{RevisionUser, ServerDocumentManager, SyncResponse},
-    protobuf::{DocumentWSData, DocumentWSDataType, NewDocumentUser, Revision, UpdateDocParams},
+    protobuf::{DocumentWSData, DocumentWSDataType, NewDocumentUser, Revision},
 };
 use futures::stream::StreamExt;
-use sqlx::PgPool;
+
 use std::{convert::TryInto, sync::Arc};
 use tokio::sync::{mpsc, oneshot};
 
 pub enum WSActorMessage {
     ClientData {
         client_data: WSClientData,
-        pool: PgPool,
+        persistence: Arc<FlowyPersistence>,
         ret: oneshot::Sender<Result<()>>,
     },
 }
@@ -59,13 +57,17 @@ impl DocumentWebSocketActor {
 
     async fn handle_message(&self, msg: WSActorMessage) {
         match msg {
-            WSActorMessage::ClientData { client_data, pool, ret } => {
-                let _ = ret.send(self.handle_client_data(client_data, pool).await);
+            WSActorMessage::ClientData {
+                client_data,
+                persistence,
+                ret,
+            } => {
+                let _ = ret.send(self.handle_client_data(client_data, persistence).await);
             },
         }
     }
 
-    async fn handle_client_data(&self, client_data: WSClientData, pg_pool: PgPool) -> Result<()> {
+    async fn handle_client_data(&self, client_data: WSClientData, persistence: Arc<FlowyPersistence>) -> Result<()> {
         let WSClientData { user, socket, data } = client_data;
         let document_data = spawn_blocking(move || {
             let document_data: DocumentWSData = parse_from_bytes(&data)?;
@@ -81,7 +83,11 @@ impl DocumentWebSocketActor {
             document_data.ty
         );
 
-        let user = Arc::new(ServerDocUser { user, socket, pg_pool });
+        let user = Arc::new(ServerDocUser {
+            user,
+            socket,
+            persistence,
+        });
         let result = match &document_data.ty {
             DocumentWSDataType::Ack => Ok(()),
             DocumentWSDataType::PushRev => self.handle_pushed_rev(user, document_data.data).await,
@@ -147,11 +153,20 @@ fn verify_md5(revision: &Revision) -> Result<()> {
     Ok(())
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct ServerDocUser {
     pub user: Arc<WSUser>,
     pub(crate) socket: Socket,
-    pub pg_pool: PgPool,
+    pub persistence: Arc<FlowyPersistence>,
+}
+
+impl std::fmt::Debug for ServerDocUser {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.debug_struct("ServerDocUser")
+            .field("user", &self.user)
+            .field("socket", &self.socket)
+            .finish()
+    }
 }
 
 impl RevisionUser for ServerDocUser {
@@ -171,18 +186,11 @@ impl RevisionUser for ServerDocUser {
                 let msg: WSMessageAdaptor = data.into();
                 self.socket.try_send(msg).map_err(internal_error)
             },
-            SyncResponse::NewRevision {
-                rev_id,
-                doc_id,
-                doc_json,
-            } => {
-                let pg_pool = self.pg_pool.clone();
+            SyncResponse::NewRevision(revision) => {
+                let kv_store = self.persistence.kv_store();
                 tokio::task::spawn(async move {
-                    let mut params = UpdateDocParams::new();
-                    params.set_doc_id(doc_id);
-                    params.set_data(doc_json);
-                    params.set_rev_id(rev_id);
-                    match update_doc(&pg_pool, params).await {
+                    let revision: flowy_collaboration::protobuf::Revision = revision.try_into().unwrap();
+                    match kv_store.batch_set_revision(vec![revision]).await {
                         Ok(_) => {},
                         Err(e) => log::error!("{}", e),
                     }
