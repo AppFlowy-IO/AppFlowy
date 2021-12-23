@@ -18,4 +18,8 @@ pub trait KVStore: Send + Sync {
     fn delete(&self, key: &str) -> FutureResultSend<(), ServerError>;
     fn batch_set(&self, kvs: Vec<KeyValue>) -> FutureResultSend<(), ServerError>;
     fn batch_get(&self, keys: Vec<String>) -> FutureResultSend<Vec<KeyValue>, ServerError>;
+    fn batch_get_key_start_with(&self, keyword: &str) -> FutureResultSend<Vec<KeyValue>, ServerError>;
+
+    fn batch_delete(&self, keys: Vec<String>) -> FutureResultSend<(), ServerError>;
+    fn batch_delete_key_start_with(&self, keyword: &str) -> FutureResultSend<(), ServerError>;
 }

@@ -1,6 +1,6 @@
 use crate::services::{
     document::{
-        persistence::{create_doc, read_doc, update_doc},
+        persistence::{create_doc, read_doc},
         ws_actor::{DocumentWebSocketActor, WSActorMessage},
     },
     web_socket::{WSClientData, WebSocketReceiver},
@@ -10,12 +10,15 @@ use crate::context::FlowyPersistence;
 use backend_service::errors::ServerError;
 use flowy_collaboration::{
     core::sync::{DocumentPersistence, ServerDocumentManager},
-    entities::{doc::Doc, revision::Revision},
+    entities::{
+        doc::{CreateDocParams, Doc},
+        revision::{RepeatedRevision, Revision},
+    },
     errors::CollaborateError,
-    protobuf::{CreateDocParams, DocIdentifier, UpdateDocParams},
+    protobuf::DocIdentifier,
 };
 use lib_infra::future::FutureResultSend;
-use lib_ot::rich_text::RichTextDelta;
+
 use std::{convert::TryInto, sync::Arc};
 use tokio::sync::{mpsc, oneshot};
 
@@ -45,13 +48,13 @@ impl WebSocketReceiver for DocumentWebSocketReceiver {
     fn receive(&self, data: WSClientData) {
         let (ret, rx) = oneshot::channel();
         let sender = self.ws_sender.clone();
-        let pool = self.persistence.pg_pool();
+        let persistence = self.persistence.clone();
 
         actix_rt::spawn(async move {
             let msg = WSActorMessage::ClientData {
                 client_data: data,
                 ret,
-                pool,
+                persistence,
             };
             match sender.send(msg).await {
                 Ok(_) => {},
@@ -67,21 +70,21 @@ impl WebSocketReceiver for DocumentWebSocketReceiver {
 
 struct DocumentPersistenceImpl(Arc<FlowyPersistence>);
 impl DocumentPersistence for DocumentPersistenceImpl {
-    fn update_doc(&self, doc_id: &str, rev_id: i64, delta: RichTextDelta) -> FutureResultSend<(), CollaborateError> {
-        let pg_pool = self.0.pg_pool();
-        let mut params = UpdateDocParams::new();
-        let doc_json = delta.to_json();
-        params.set_doc_id(doc_id.to_string());
-        params.set_data(doc_json);
-        params.set_rev_id(rev_id);
-
-        FutureResultSend::new(async move {
-            let _ = update_doc(&pg_pool, params)
-                .await
-                .map_err(server_error_to_collaborate_error)?;
-            Ok(())
-        })
-    }
+    // fn update_doc(&self, doc_id: &str, rev_id: i64, delta: RichTextDelta) ->
+    // FutureResultSend<(), CollaborateError> {     let pg_pool =
+    // self.0.pg_pool();     let mut params = ResetDocumentParams::new();
+    //     let doc_json = delta.to_json();
+    //     params.set_doc_id(doc_id.to_string());
+    //     params.set_data(doc_json);
+    //     params.set_rev_id(rev_id);
+    //
+    //     FutureResultSend::new(async move {
+    //         let _ = update_doc(&pg_pool, params)
+    //             .await
+    //             .map_err(server_error_to_collaborate_error)?;
+    //         Ok(())
+    //     })
+    // }
 
     fn read_doc(&self, doc_id: &str) -> FutureResultSend<Doc, CollaborateError> {
         let params = DocIdentifier {
@@ -101,22 +104,17 @@ impl DocumentPersistence for DocumentPersistenceImpl {
     }
 
     fn create_doc(&self, revision: Revision) -> FutureResultSend<Doc, CollaborateError> {
-        let persistence = self.0.clone();
+        let kv_store = self.0.kv_store();
         FutureResultSend::new(async move {
-            let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
-            let doc_json = delta.to_json();
+            let doc: Doc = revision.clone().try_into()?;
+            let doc_id = revision.doc_id.clone();
+            let revisions = RepeatedRevision { items: vec![revision] };
 
-            let params = CreateDocParams {
-                id: revision.doc_id.clone(),
-                data: doc_json.clone(),
-                unknown_fields: Default::default(),
-                cached_size: Default::default(),
-            };
-
-            let _ = create_doc(&persistence, params)
+            let params = CreateDocParams { id: doc_id, revisions };
+            let pb_params: flowy_collaboration::protobuf::CreateDocParams = params.try_into().unwrap();
+            let _ = create_doc(&kv_store, pb_params)
                 .await
                 .map_err(server_error_to_collaborate_error)?;
-            let doc: Doc = revision.try_into()?;
             Ok(doc)
         })
     }

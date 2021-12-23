@@ -11,7 +11,7 @@ pub struct CreateDocParams {
     pub id: String,
 
     #[pb(index = 2)]
-    pub data: RepeatedRevision,
+    pub revisions: RepeatedRevision,
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone, Eq, PartialEq)]
@@ -20,7 +20,7 @@ pub struct Doc {
     pub id: String,
 
     #[pb(index = 2)]
-    pub data: String,
+    pub text: String,
 
     #[pb(index = 3)]
     pub rev_id: i64,
@@ -31,7 +31,7 @@ pub struct Doc {
 
 impl Doc {
     pub fn delta(&self) -> Result<RichTextDelta, OTError> {
-        let delta = RichTextDelta::from_bytes(&self.data)?;
+        let delta = RichTextDelta::from_bytes(&self.text)?;
         Ok(delta)
     }
 }
@@ -50,7 +50,7 @@ impl std::convert::TryFrom<Revision> for Doc {
 
         Ok(Doc {
             id: revision.doc_id,
-            data: doc_json,
+            text: doc_json,
             rev_id: revision.rev_id,
             base_rev_id: revision.base_rev_id,
         })
@@ -58,15 +58,12 @@ impl std::convert::TryFrom<Revision> for Doc {
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct UpdateDocParams {
+pub struct ResetDocumentParams {
     #[pb(index = 1)]
     pub doc_id: String,
 
     #[pb(index = 2)]
-    pub data: String,
-
-    #[pb(index = 3)]
-    pub rev_id: i64,
+    pub revisions: RepeatedRevision,
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]

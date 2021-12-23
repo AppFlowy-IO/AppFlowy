@@ -45,7 +45,7 @@ impl WSError {
     static_ws_error!(unauthorized, ErrorCode::Unauthorized);
 }
 
-pub fn internal_error<T>(e: T) -> WSError
+pub(crate) fn internal_error<T>(e: T) -> WSError
 where
     T: std::fmt::Debug,
 {

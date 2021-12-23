@@ -1,5 +1,5 @@
 use crate::{
-    services::kv_store::{KVStore, KeyValue},
+    services::kv::{KVStore, KeyValue},
     util::sqlx_ext::{map_sqlx_error, SqlBuilder},
 };
 
@@ -8,7 +8,13 @@ use backend_service::errors::ServerError;
 use bytes::Bytes;
 use lib_infra::future::FutureResultSend;
 use sql_builder::{quote, SqlBuilder as RawSqlBuilder};
-use sqlx::{postgres::PgArguments, Error, PgPool, Postgres, Row};
+use sqlx::{
+    postgres::{PgArguments, PgRow},
+    Error,
+    PgPool,
+    Postgres,
+    Row,
+};
 
 const KV_TABLE: &str = "kv_table";
 
@@ -137,16 +143,7 @@ impl KVStore for PostgresKV {
                 .fetch_all(&mut transaction)
                 .await
                 .map_err(map_sqlx_error)?;
-            let kvs = rows
-                .into_iter()
-                .map(|row| {
-                    let bytes: Vec<u8> = row.get("blob");
-                    KeyValue {
-                        key: row.get("id"),
-                        value: Bytes::from(bytes),
-                    }
-                })
-                .collect::<Vec<KeyValue>>();
+            let kvs = rows_to_key_values(rows);
 
             transaction
                 .commit()
@@ -156,6 +153,100 @@ impl KVStore for PostgresKV {
             Ok::<Vec<KeyValue>, ServerError>(kvs)
         })
     }
+
+    fn batch_get_key_start_with(&self, prefix: &str) -> FutureResultSend<Vec<KeyValue>, ServerError> {
+        let pg_pool = self.pg_pool.clone();
+        let prefix = prefix.to_owned();
+        FutureResultSend::new(async move {
+            let mut transaction = pg_pool
+                .begin()
+                .await
+                .context("[KV]:Failed to acquire a Postgres connection")?;
+
+            let sql = RawSqlBuilder::select_from(KV_TABLE)
+                .field("id")
+                .field("blob")
+                .and_where_like_left("id", &prefix)
+                .sql()?;
+
+            let rows = sqlx::query(&sql)
+                .fetch_all(&mut transaction)
+                .await
+                .map_err(map_sqlx_error)?;
+
+            let kvs = rows_to_key_values(rows);
+
+            transaction
+                .commit()
+                .await
+                .context("[KV]:Failed to commit SQL transaction.")?;
+
+            Ok::<Vec<KeyValue>, ServerError>(kvs)
+        })
+    }
+
+    fn batch_delete(&self, keys: Vec<String>) -> FutureResultSend<(), ServerError> {
+        let pg_pool = self.pg_pool.clone();
+        FutureResultSend::new(async move {
+            let mut transaction = pg_pool
+                .begin()
+                .await
+                .context("[KV]:Failed to acquire a Postgres connection")?;
+
+            let sql = RawSqlBuilder::delete_from(KV_TABLE).and_where_in("id", &keys).sql()?;
+
+            let _ = sqlx::query(&sql)
+                .execute(&mut transaction)
+                .await
+                .map_err(map_sqlx_error)?;
+
+            transaction
+                .commit()
+                .await
+                .context("[KV]:Failed to commit SQL transaction.")?;
+
+            Ok::<(), ServerError>(())
+        })
+    }
+
+    fn batch_delete_key_start_with(&self, keyword: &str) -> FutureResultSend<(), ServerError> {
+        let pg_pool = self.pg_pool.clone();
+        let keyword = keyword.to_owned();
+        FutureResultSend::new(async move {
+            let mut transaction = pg_pool
+                .begin()
+                .await
+                .context("[KV]:Failed to acquire a Postgres connection")?;
+
+            let sql = RawSqlBuilder::delete_from(KV_TABLE)
+                .and_where_like_left("id", &keyword)
+                .sql()?;
+
+            let _ = sqlx::query(&sql)
+                .execute(&mut transaction)
+                .await
+                .map_err(map_sqlx_error)?;
+
+            transaction
+                .commit()
+                .await
+                .context("[KV]:Failed to commit SQL transaction.")?;
+
+            Ok::<(), ServerError>(())
+        })
+    }
+}
+
+fn rows_to_key_values(rows: Vec<PgRow>) -> Vec<KeyValue> {
+    rows.into_iter()
+        .map(|row| {
+            let bytes: Vec<u8> = row.get("blob");
+            KeyValue {
+                key: row.get("id"),
+                value: Bytes::from(bytes),
+            }
+        })
+        .collect::<Vec<KeyValue>>()
 }
 
 #[derive(Debug, Clone, sqlx::FromRow)]

@@ -26,11 +26,7 @@ pub enum SyncResponse {
     Pull(DocumentWSData),
     Push(DocumentWSData),
     Ack(DocumentWSData),
-    NewRevision {
-        rev_id: i64,
-        doc_json: String,
-        doc_id: String,
-    },
+    NewRevision(Revision),
 }
 
 pub struct RevisionSynchronizer {
@@ -71,14 +67,7 @@ impl RevisionSynchronizer {
                         &revision.doc_id,
                         &revision.rev_id.to_string(),
                     )));
-                    let rev_id = revision.rev_id;
-                    let doc_id = self.doc_id.clone();
-                    let doc_json = self.doc_json();
-                    user.receive(SyncResponse::NewRevision {
-                        rev_id,
-                        doc_id,
-                        doc_json,
-                    });
+                    user.receive(SyncResponse::NewRevision(revision));
                 } else {
                     // The server document is outdated, pull the missing revision from the client.
                     let range = RevisionRange {
@@ -105,13 +94,13 @@ impl RevisionSynchronizer {
                 let _ = self.compose_delta(server_delta)?;
 
                 //
-                let doc_id = self.doc_id.clone();
-                let doc_json = self.doc_json();
-                user.receive(SyncResponse::NewRevision {
-                    rev_id: self.rev_id(),
-                    doc_json,
-                    doc_id,
-                });
+                let _doc_id = self.doc_id.clone();
+                let _doc_json = self.doc_json();
+                // user.receive(SyncResponse::NewRevision {
+                //     rev_id: self.rev_id(),
+                //     doc_json,
+                //     doc_id,
+                // });
 
                 let cli_revision = self.mk_revision(revision.rev_id, cli_delta);
                 let data = DocumentWSDataBuilder::build_push_message(&self.doc_id, cli_revision, &id);

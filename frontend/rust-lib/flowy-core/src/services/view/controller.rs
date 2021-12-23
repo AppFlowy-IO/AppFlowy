@@ -138,7 +138,7 @@ impl ViewController {
     #[tracing::instrument(level = "debug", skip(self, params), fields(doc_id = %params.doc_id), err)]
     pub(crate) async fn duplicate_view(&self, params: DocIdentifier) -> Result<(), FlowyError> {
         let view: View = ViewTableSql::read_view(&params.doc_id, &*self.database.db_connection()?)?.into();
-        let delta_data = self
+        let _delta_data = self
             .document
             .read_document_data(params, self.database.db_pool()?)
             .await?;
@@ -149,7 +149,6 @@ impl ViewController {
             desc: view.desc.clone(),
             thumbnail: "".to_owned(),
             view_type: view.view_type.clone(),
-            data: delta_data.data,
         };
 
         let _ = self.create_view_from_params(duplicate_params).await?;

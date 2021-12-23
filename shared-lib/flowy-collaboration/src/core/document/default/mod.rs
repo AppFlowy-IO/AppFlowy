@@ -4,7 +4,7 @@ use lib_ot::{core::DeltaBuilder, rich_text::RichTextDelta};
 pub fn initial_delta() -> RichTextDelta { DeltaBuilder::new().insert("\n").build() }
 
 #[inline]
-pub fn initial_string() -> String { initial_delta().to_json() }
+pub fn initial_delta_string() -> String { initial_delta().to_json() }
 
 #[inline]
 pub fn initial_read_me() -> RichTextDelta {

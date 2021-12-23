@@ -9,7 +9,6 @@ use flowy_collaboration::{
         ws::{DocumentWSData, DocumentWSDataBuilder, DocumentWSDataType, NewDocumentUser},
     },
     errors::CollaborateError,
-    RichTextDelta,
 };
 use lazy_static::lazy_static;
 use lib_infra::future::{FutureResult, FutureResultSend};
@@ -161,9 +160,9 @@ impl std::default::Default for MockDocServerPersistence {
 }
 
 impl DocumentPersistence for MockDocServerPersistence {
-    fn update_doc(&self, _doc_id: &str, _rev_id: i64, _delta: RichTextDelta) -> FutureResultSend<(), CollaborateError> {
-        unimplemented!()
-    }
+    // fn update_doc(&self, _doc_id: &str, _rev_id: i64, _delta: RichTextDelta) ->
+    // FutureResultSend<(), CollaborateError> {     unimplemented!()
+    // }
 
     fn read_doc(&self, doc_id: &str) -> FutureResultSend<Doc, CollaborateError> {
         let inner = self.inner.clone();
@@ -227,11 +226,7 @@ impl RevisionUser for MockDocUser {
                     };
                     sender.send(msg).await.unwrap();
                 },
-                SyncResponse::NewRevision {
-                    rev_id: _,
-                    doc_id: _,
-                    doc_json: _,
-                } => {
+                SyncResponse::NewRevision(_) => {
                     // unimplemented!()
                 },
             }
