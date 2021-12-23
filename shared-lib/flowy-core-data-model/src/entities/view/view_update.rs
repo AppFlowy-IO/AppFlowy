@@ -92,14 +92,14 @@ impl TryInto<UpdateViewParams> for UpdateViewRequest {
 //     pub data: String,
 // }
 //
-// impl TryInto<DocDelta> for DocDeltaRequest {
+// impl TryInto<DocumentDelta> for DocDeltaRequest {
 //     type Error = FlowyError;
 //
-//     fn try_into(self) -> Result<DocDelta, Self::Error> {
+//     fn try_into(self) -> Result<DocumentDelta, Self::Error> {
 //         let view_id = ViewId::parse(self.view_id)
 //             .map_err(|e| FlowyError::view_id().context(e))?
 //             .0;
 //
-//         Ok(DocDelta { doc_id: view_id, data: self.data })
+//         Ok(DocumentDelta { doc_id: view_id, data: self.data })
 //     }
 // }

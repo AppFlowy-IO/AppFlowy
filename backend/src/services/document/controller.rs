@@ -11,7 +11,7 @@ use backend_service::errors::ServerError;
 use flowy_collaboration::{
     core::sync::{DocumentPersistence, ServerDocumentManager},
     entities::{
-        doc::{CreateDocParams, Doc},
+        doc::{CreateDocParams, DocumentInfo},
         revision::{RepeatedRevision, Revision},
     },
     errors::CollaborateError,
@@ -86,7 +86,7 @@ impl DocumentPersistence for DocumentPersistenceImpl {
     //     })
     // }
 
-    fn read_doc(&self, doc_id: &str) -> FutureResultSend<Doc, CollaborateError> {
+    fn read_doc(&self, doc_id: &str) -> FutureResultSend<DocumentInfo, CollaborateError> {
         let params = DocIdentifier {
             doc_id: doc_id.to_string(),
             ..Default::default()
@@ -103,10 +103,10 @@ impl DocumentPersistence for DocumentPersistenceImpl {
         })
     }
 
-    fn create_doc(&self, revision: Revision) -> FutureResultSend<Doc, CollaborateError> {
+    fn create_doc(&self, revision: Revision) -> FutureResultSend<DocumentInfo, CollaborateError> {
         let kv_store = self.0.kv_store();
         FutureResultSend::new(async move {
-            let doc: Doc = revision.clone().try_into()?;
+            let doc: DocumentInfo = revision.clone().try_into()?;
             let doc_id = revision.doc_id.clone();
             let revisions = RepeatedRevision { items: vec![revision] };
 

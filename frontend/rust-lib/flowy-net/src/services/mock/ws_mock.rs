@@ -4,7 +4,7 @@ use dashmap::DashMap;
 use flowy_collaboration::{
     core::sync::{DocumentPersistence, RevisionUser, ServerDocumentManager, SyncResponse},
     entities::{
-        doc::Doc,
+        doc::DocumentInfo,
         revision::Revision,
         ws::{DocumentWSData, DocumentWSDataBuilder, DocumentWSDataType, NewDocumentUser},
     },
@@ -148,7 +148,7 @@ impl MockDocServer {
 }
 
 struct MockDocServerPersistence {
-    inner: Arc<DashMap<String, Doc>>,
+    inner: Arc<DashMap<String, DocumentInfo>>,
 }
 
 impl std::default::Default for MockDocServerPersistence {
@@ -160,11 +160,7 @@ impl std::default::Default for MockDocServerPersistence {
 }
 
 impl DocumentPersistence for MockDocServerPersistence {
-    // fn update_doc(&self, _doc_id: &str, _rev_id: i64, _delta: RichTextDelta) ->
-    // FutureResultSend<(), CollaborateError> {     unimplemented!()
-    // }
-
-    fn read_doc(&self, doc_id: &str) -> FutureResultSend<Doc, CollaborateError> {
+    fn read_doc(&self, doc_id: &str) -> FutureResultSend<DocumentInfo, CollaborateError> {
         let inner = self.inner.clone();
         let doc_id = doc_id.to_owned();
         FutureResultSend::new(async move {
@@ -181,10 +177,10 @@ impl DocumentPersistence for MockDocServerPersistence {
         })
     }
 
-    fn create_doc(&self, revision: Revision) -> FutureResultSend<Doc, CollaborateError> {
+    fn create_doc(&self, revision: Revision) -> FutureResultSend<DocumentInfo, CollaborateError> {
         FutureResultSend::new(async move {
-            let doc: Doc = revision.try_into().unwrap();
-            Ok(doc)
+            let document_info: DocumentInfo = revision.try_into().unwrap();
+            Ok(document_info)
         })
     }
 }

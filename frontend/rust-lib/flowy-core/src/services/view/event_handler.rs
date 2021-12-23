@@ -15,7 +15,7 @@ use crate::{
     errors::FlowyError,
     services::{TrashController, ViewController},
 };
-use flowy_collaboration::entities::doc::DocDelta;
+use flowy_collaboration::entities::doc::DocumentDelta;
 use flowy_core_data_model::entities::share::{ExportData, ExportParams, ExportRequest};
 use lib_dispatch::prelude::{data_result, Data, DataResult, Unit};
 use std::{convert::TryInto, sync::Arc};
@@ -52,10 +52,10 @@ pub(crate) async fn update_view_handler(
 }
 
 pub(crate) async fn apply_doc_delta_handler(
-    data: Data<DocDelta>,
+    data: Data<DocumentDelta>,
     controller: Unit<Arc<ViewController>>,
-) -> DataResult<DocDelta, FlowyError> {
-    // let params: DocDelta = data.into_inner().try_into()?;
+) -> DataResult<DocumentDelta, FlowyError> {
+    // let params: DocumentDelta = data.into_inner().try_into()?;
     let doc = controller.apply_doc_delta(data.into_inner()).await?;
     data_result(doc)
 }
@@ -83,7 +83,7 @@ pub(crate) async fn delete_view_handler(
 pub(crate) async fn open_view_handler(
     data: Data<QueryViewRequest>,
     controller: Unit<Arc<ViewController>>,
-) -> DataResult<DocDelta, FlowyError> {
+) -> DataResult<DocumentDelta, FlowyError> {
     let params: ViewIdentifier = data.into_inner().try_into()?;
     let doc = controller.open_view(params.into()).await?;
     data_result(doc)

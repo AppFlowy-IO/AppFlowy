@@ -1,6 +1,6 @@
 use flowy_collaboration::{
     core::document::default::initial_delta_string,
-    entities::doc::{CreateDocParams, Doc, DocIdentifier, ResetDocumentParams},
+    entities::doc::{CreateDocParams, DocIdentifier, DocumentInfo, ResetDocumentParams},
 };
 use lib_infra::future::FutureResult;
 
@@ -13,8 +13,8 @@ impl DocumentServerAPI for DocServerMock {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn read_doc(&self, _token: &str, params: DocIdentifier) -> FutureResult<Option<Doc>, FlowyError> {
-        let doc = Doc {
+    fn read_doc(&self, _token: &str, params: DocIdentifier) -> FutureResult<Option<DocumentInfo>, FlowyError> {
+        let doc = DocumentInfo {
             id: params.doc_id,
             text: initial_delta_string(),
             rev_id: 0,

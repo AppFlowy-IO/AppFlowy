@@ -12,7 +12,7 @@ use crate::{
 };
 use bytes::Bytes;
 use dashmap::DashMap;
-use flowy_collaboration::entities::doc::{Doc, DocDelta, DocIdentifier};
+use flowy_collaboration::entities::doc::{DocIdentifier, DocumentDelta, DocumentInfo};
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use lib_infra::future::FutureResult;
@@ -77,16 +77,16 @@ impl DocController {
     #[tracing::instrument(level = "debug", skip(self, delta, db_pool), fields(doc_id = %delta.doc_id), err)]
     pub(crate) async fn apply_local_delta(
         &self,
-        delta: DocDelta,
+        delta: DocumentDelta,
         db_pool: Arc<ConnectionPool>,
-    ) -> Result<DocDelta, FlowyError> {
+    ) -> Result<DocumentDelta, FlowyError> {
         if !self.open_cache.contains(&delta.doc_id) {
             let doc_identifier: DocIdentifier = delta.doc_id.clone().into();
             let _ = self.open(doc_identifier, db_pool).await?;
         }
 
         let edit_doc_ctx = self.open_cache.get(&delta.doc_id)?;
-        let _ = edit_doc_ctx.composing_local_delta(Bytes::from(delta.data)).await?;
+        let _ = edit_doc_ctx.composing_local_delta(Bytes::from(delta.text)).await?;
         Ok(edit_doc_ctx.delta().await?)
     }
 }
@@ -128,7 +128,7 @@ struct RevisionServerImpl {
 
 impl RevisionServer for RevisionServerImpl {
     #[tracing::instrument(level = "debug", skip(self))]
-    fn fetch_document(&self, doc_id: &str) -> FutureResult<Doc, FlowyError> {
+    fn fetch_document(&self, doc_id: &str) -> FutureResult<DocumentInfo, FlowyError> {
         let params = DocIdentifier {
             doc_id: doc_id.to_string(),
         };

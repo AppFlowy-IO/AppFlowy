@@ -3,7 +3,7 @@ use crate::{
         document::Document,
         sync::{RevisionSynchronizer, RevisionUser},
     },
-    entities::{doc::Doc, revision::Revision},
+    entities::{doc::DocumentInfo, revision::Revision},
     errors::{internal_error, CollaborateError, CollaborateResult},
 };
 use async_stream::stream;
@@ -20,8 +20,8 @@ use tokio::{
 pub trait DocumentPersistence: Send + Sync {
     // fn update_doc(&self, doc_id: &str, rev_id: i64, delta: RichTextDelta) ->
     // FutureResultSend<(), CollaborateError>;
-    fn read_doc(&self, doc_id: &str) -> FutureResultSend<Doc, CollaborateError>;
-    fn create_doc(&self, revision: Revision) -> FutureResultSend<Doc, CollaborateError>;
+    fn read_doc(&self, doc_id: &str) -> FutureResultSend<DocumentInfo, CollaborateError>;
+    fn create_doc(&self, revision: Revision) -> FutureResultSend<DocumentInfo, CollaborateError>;
 }
 
 pub struct ServerDocumentManager {
@@ -63,7 +63,7 @@ impl ServerDocumentManager {
         Ok(handler)
     }
 
-    async fn cache(&self, doc: Doc) -> Result<Arc<OpenDocHandle>, CollaborateError> {
+    async fn cache(&self, doc: DocumentInfo) -> Result<Arc<OpenDocHandle>, CollaborateError> {
         let doc_id = doc.id.clone();
         let handle = spawn_blocking(|| OpenDocHandle::new(doc))
             .await
@@ -79,7 +79,7 @@ pub struct OpenDocHandle {
 }
 
 impl OpenDocHandle {
-    pub fn new(doc: Doc) -> Result<Self, CollaborateError> {
+    pub fn new(doc: DocumentInfo) -> Result<Self, CollaborateError> {
         let (sender, receiver) = mpsc::channel(100);
         let queue = DocCommandQueue::new(receiver, doc)?;
         tokio::task::spawn(queue.run());
@@ -137,7 +137,7 @@ struct DocCommandQueue {
 }
 
 impl DocCommandQueue {
-    fn new(receiver: mpsc::Receiver<DocCommand>, doc: Doc) -> Result<Self, CollaborateError> {
+    fn new(receiver: mpsc::Receiver<DocCommand>, doc: DocumentInfo) -> Result<Self, CollaborateError> {
         let edit_doc = Arc::new(ServerDocEditor::new(doc).map_err(internal_error)?);
         Ok(Self {
             receiver: Some(receiver),
@@ -205,7 +205,7 @@ pub struct ServerDocEditor {
 }
 
 impl ServerDocEditor {
-    pub fn new(doc: Doc) -> Result<Self, OTError> {
+    pub fn new(doc: DocumentInfo) -> Result<Self, OTError> {
         let delta = RichTextDelta::from_bytes(&doc.text)?;
         let users = DashMap::new();
         let synchronizer = Arc::new(RevisionSynchronizer::new(

@@ -4,7 +4,7 @@ use chrono::Utc;
 use lazy_static::lazy_static;
 use parking_lot::RwLock;
 
-use flowy_collaboration::{core::document::default::initial_read_me, entities::doc::DocDelta};
+use flowy_collaboration::{core::document::default::initial_read_me, entities::doc::DocumentDelta};
 use flowy_core_data_model::user_default;
 use flowy_net::entities::NetworkType;
 
@@ -92,9 +92,9 @@ impl CoreContext {
             for (index, view) in views.into_iter().enumerate() {
                 if index == 0 {
                     let delta = initial_read_me();
-                    let doc_delta = DocDelta {
+                    let doc_delta = DocumentDelta {
                         doc_id: view.id.clone(),
-                        data: delta.to_json(),
+                        text: delta.to_json(),
                     };
                     let _ = self.view_controller.apply_doc_delta(doc_delta).await?;
                     self.view_controller.set_latest_view(&view);

@@ -9,7 +9,7 @@ use backend_service::{
     user_request::*,
     workspace_request::*,
 };
-use flowy_collaboration::entities::doc::{Doc, DocIdentifier};
+use flowy_collaboration::entities::doc::{DocIdentifier, DocumentInfo};
 use flowy_core_data_model::entities::prelude::*;
 use flowy_document::services::server::read_doc_request;
 use flowy_user_data_model::entities::*;
@@ -149,8 +149,8 @@ impl TestUserServer {
         read_trash_request(self.user_token(), &url).await.unwrap()
     }
 
-    pub async fn read_doc(&self, params: DocIdentifier) -> Option<Doc> {
-        let url = format!("{}/api/document_test", self.http_addr());
+    pub async fn read_doc(&self, params: DocIdentifier) -> Option<DocumentInfo> {
+        let url = format!("{}/api/doc", self.http_addr());
         let doc = read_doc_request(self.user_token(), params, &url).await.unwrap();
         doc
     }

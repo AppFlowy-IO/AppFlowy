@@ -15,7 +15,7 @@ pub struct CreateDocParams {
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone, Eq, PartialEq)]
-pub struct Doc {
+pub struct DocumentInfo {
     #[pb(index = 1)]
     pub id: String,
 
@@ -29,14 +29,14 @@ pub struct Doc {
     pub base_rev_id: i64,
 }
 
-impl Doc {
+impl DocumentInfo {
     pub fn delta(&self) -> Result<RichTextDelta, OTError> {
         let delta = RichTextDelta::from_bytes(&self.text)?;
         Ok(delta)
     }
 }
 
-impl std::convert::TryFrom<Revision> for Doc {
+impl std::convert::TryFrom<Revision> for DocumentInfo {
     type Error = CollaborateError;
 
     fn try_from(revision: Revision) -> Result<Self, Self::Error> {
@@ -48,7 +48,7 @@ impl std::convert::TryFrom<Revision> for Doc {
         let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
         let doc_json = delta.to_json();
 
-        Ok(Doc {
+        Ok(DocumentInfo {
             id: revision.doc_id,
             text: doc_json,
             rev_id: revision.rev_id,
@@ -67,12 +67,12 @@ pub struct ResetDocumentParams {
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct DocDelta {
+pub struct DocumentDelta {
     #[pb(index = 1)]
     pub doc_id: String,
 
     #[pb(index = 2)]
-    pub data: String, // RichTextDelta
+    pub text: String, // RichTextDelta
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]

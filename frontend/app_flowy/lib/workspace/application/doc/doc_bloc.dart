@@ -86,7 +86,7 @@ class DocBloc extends Bloc<DocEvent, DocState> {
     final result = await docManager.readDoc();
     yield result.fold(
       (doc) {
-        document = _decodeJsonToDocument(doc.data);
+        document = _decodeJsonToDocument(doc.text);
         _subscription = document.changes.listen((event) {
           final delta = event.item2;
           final documentDelta = document.toDelta();
@@ -113,7 +113,7 @@ class DocBloc extends Bloc<DocEvent, DocState> {
 
     result.fold((rustDoc) {
       // final json = utf8.decode(doc.data);
-      final rustDelta = Delta.fromJson(jsonDecode(rustDoc.data));
+      final rustDelta = Delta.fromJson(jsonDecode(rustDoc.text));
       if (documentDelta != rustDelta) {
         Log.error("Receive : $rustDelta");
         Log.error("Expected : $documentDelta");

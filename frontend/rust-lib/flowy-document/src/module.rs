@@ -7,7 +7,7 @@ use crate::{
     },
 };
 use backend_service::configuration::ClientServerConfiguration;
-use flowy_collaboration::entities::doc::{DocDelta, DocIdentifier};
+use flowy_collaboration::entities::doc::{DocIdentifier, DocumentDelta};
 use flowy_database::ConnectionPool;
 use std::sync::Arc;
 
@@ -58,13 +58,13 @@ impl FlowyDocument {
         &self,
         params: DocIdentifier,
         pool: Arc<ConnectionPool>,
-    ) -> Result<DocDelta, FlowyError> {
+    ) -> Result<DocumentDelta, FlowyError> {
         let edit_context = self.doc_ctrl.open(params, pool).await?;
         let delta = edit_context.delta().await?;
         Ok(delta)
     }
 
-    pub async fn apply_doc_delta(&self, params: DocDelta) -> Result<DocDelta, FlowyError> {
+    pub async fn apply_doc_delta(&self, params: DocumentDelta) -> Result<DocumentDelta, FlowyError> {
         // workaround: compare the rust's delta with flutter's delta. Will be removed
         // very soon
         let doc = self

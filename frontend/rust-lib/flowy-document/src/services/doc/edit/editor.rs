@@ -10,7 +10,7 @@ use bytes::Bytes;
 use flowy_collaboration::{
     core::document::history::UndoResult,
     entities::{
-        doc::DocDelta,
+        doc::DocumentDelta,
         revision::{RevId, RevType, Revision},
     },
     errors::CollaborateResult,
@@ -144,15 +144,15 @@ impl ClientDocEditor {
         Ok(r)
     }
 
-    pub async fn delta(&self) -> FlowyResult<DocDelta> {
+    pub async fn delta(&self) -> FlowyResult<DocumentDelta> {
         let (ret, rx) = oneshot::channel::<CollaborateResult<DocumentMD5>>();
         let msg = EditorCommand::ReadDoc { ret };
         let _ = self.editor_cmd_sender.send(msg);
         let data = rx.await.map_err(internal_error)??;
 
-        Ok(DocDelta {
+        Ok(DocumentDelta {
             doc_id: self.doc_id.clone(),
-            data,
+            text: data,
         })
     }
 

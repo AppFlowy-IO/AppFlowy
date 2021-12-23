@@ -5,7 +5,7 @@ message CreateDocParams {
     string id = 1;
     RepeatedRevision revisions = 2;
 }
-message Doc {
+message DocumentInfo {
     string id = 1;
     string text = 2;
     int64 rev_id = 3;
@@ -15,9 +15,9 @@ message ResetDocumentParams {
     string doc_id = 1;
     RepeatedRevision revisions = 2;
 }
-message DocDelta {
+message DocumentDelta {
     string doc_id = 1;
-    string data = 2;
+    string text = 2;
 }
 message NewDocUser {
     string user_id = 1;

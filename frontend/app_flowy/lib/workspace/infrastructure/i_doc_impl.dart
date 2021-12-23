@@ -18,13 +18,13 @@ class IDocImpl extends IDoc {
   }
 
   @override
-  Future<Either<DocDelta, FlowyError>> readDoc() async {
+  Future<Either<DocumentDelta, FlowyError>> readDoc() async {
     final docOrFail = await repo.readDoc();
     return docOrFail;
   }
 
   @override
-  Future<Either<DocDelta, FlowyError>> composeDelta({required String json}) {
+  Future<Either<DocumentDelta, FlowyError>> composeDelta({required String json}) {
     return repo.composeDelta(data: json);
   }
 }
