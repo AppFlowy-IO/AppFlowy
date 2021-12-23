@@ -2,7 +2,7 @@ use crate::{errors::FlowyError, services::doc::revision::RevisionCache};
 use bytes::Bytes;
 use flowy_collaboration::{
     entities::{
-        doc::Doc,
+        doc::DocumentInfo,
         revision::{RevState, RevType, Revision, RevisionRange},
     },
     util::{md5, RevIdCounter},
@@ -16,7 +16,7 @@ use lib_ot::{
 use std::sync::Arc;
 
 pub trait RevisionServer: Send + Sync {
-    fn fetch_document(&self, doc_id: &str) -> FutureResult<Doc, FlowyError>;
+    fn fetch_document(&self, doc_id: &str) -> FutureResult<DocumentInfo, FlowyError>;
 }
 
 pub struct RevisionManager {
@@ -158,7 +158,7 @@ impl RevisionLoader {
     }
 }
 
-fn mk_doc_from_revisions(doc_id: &str, revisions: Vec<Revision>) -> FlowyResult<Doc> {
+fn mk_doc_from_revisions(doc_id: &str, revisions: Vec<Revision>) -> FlowyResult<DocumentInfo> {
     let (base_rev_id, rev_id) = revisions.last().unwrap().pair_rev_id();
     let mut delta = RichTextDelta::new();
     for (_, revision) in revisions.into_iter().enumerate() {
@@ -173,7 +173,7 @@ fn mk_doc_from_revisions(doc_id: &str, revisions: Vec<Revision>) -> FlowyResult<
     }
     correct_delta_if_need(&mut delta);
 
-    Result::<Doc, FlowyError>::Ok(Doc {
+    Result::<DocumentInfo, FlowyError>::Ok(DocumentInfo {
         id: doc_id.to_owned(),
         text: delta.to_json(),
         rev_id,

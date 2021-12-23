@@ -1,6 +1,6 @@
 use std::{fs, path::PathBuf, sync::Arc};
 
-use flowy_collaboration::entities::doc::Doc;
+use flowy_collaboration::entities::doc::DocumentInfo;
 use flowy_core::{
     entities::{
         app::*,
@@ -269,13 +269,13 @@ pub async fn putback_trash(sdk: &FlowySDKTest, id: TrashIdentifier) {
         .await;
 }
 
-pub async fn open_view(sdk: &FlowySDKTest, request: QueryViewRequest) -> Doc {
+pub async fn open_view(sdk: &FlowySDKTest, request: QueryViewRequest) -> DocumentInfo {
     CoreModuleEventBuilder::new(sdk.clone())
         .event(OpenView)
         .request(request)
         .async_send()
         .await
-        .parse::<Doc>()
+        .parse::<DocumentInfo>()
 }
 
 pub fn root_dir() -> String {

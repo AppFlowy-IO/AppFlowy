@@ -5,11 +5,9 @@ use flowy_core_data_model::entities::view::ViewIdentifiers;
 #[actix_rt::test]
 async fn doc_read() {
     let test = ViewTest::new().await;
-
     let params = DocIdentifier {
         doc_id: test.view.id.clone(),
     };
-
     let doc = test.server.read_doc(params).await;
     assert_eq!(doc.is_some(), true);
 }

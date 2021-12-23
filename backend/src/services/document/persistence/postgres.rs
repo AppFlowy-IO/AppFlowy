@@ -1,14 +1,16 @@
 use crate::{context::FlowyPersistence, services::document::persistence::DocumentKVPersistence};
-
 use backend_service::errors::{internal_error, ServerError};
-use flowy_collaboration::protobuf::{CreateDocParams, Doc, DocIdentifier, RepeatedRevision, ResetDocumentParams};
+use flowy_collaboration::protobuf::{
+    CreateDocParams,
+    DocIdentifier,
+    DocumentInfo,
+    RepeatedRevision,
+    ResetDocumentParams,
+};
 use lib_ot::{core::OperationTransformable, rich_text::RichTextDelta};
-use protobuf::Message;
 use sqlx::PgPool;
 use std::sync::Arc;
 use uuid::Uuid;
-
-const DOC_TABLE: &str = "doc_table";
 
 #[tracing::instrument(level = "debug", skip(kv_store), err)]
 pub(crate) async fn create_doc(
@@ -21,7 +23,10 @@ pub(crate) async fn create_doc(
 }
 
 #[tracing::instrument(level = "debug", skip(persistence), err)]
-pub(crate) async fn read_doc(persistence: &Arc<FlowyPersistence>, params: DocIdentifier) -> Result<Doc, ServerError> {
+pub(crate) async fn read_doc(
+    persistence: &Arc<FlowyPersistence>,
+    params: DocIdentifier,
+) -> Result<DocumentInfo, ServerError> {
     let _ = Uuid::parse_str(&params.doc_id)?;
 
     let kv_store = persistence.kv_store();
@@ -37,7 +42,6 @@ pub async fn reset_document(_pool: &PgPool, _params: ResetDocumentParams) -> Res
 #[tracing::instrument(level = "debug", skip(kv_store), err)]
 pub(crate) async fn delete_doc(kv_store: &Arc<DocumentKVPersistence>, doc_id: Uuid) -> Result<(), ServerError> {
     let _ = kv_store.batch_delete_revisions(&doc_id.to_string(), None).await?;
-
     Ok(())
 }
 
@@ -47,7 +51,7 @@ struct DocTable {
     rev_id: i64,
 }
 
-fn make_doc_from_revisions(doc_id: &str, mut revisions: RepeatedRevision) -> Result<Doc, ServerError> {
+fn make_doc_from_revisions(doc_id: &str, mut revisions: RepeatedRevision) -> Result<DocumentInfo, ServerError> {
     let revisions = revisions.take_items();
     let mut document_delta = RichTextDelta::new();
     let mut base_rev_id = 0;
@@ -60,10 +64,10 @@ fn make_doc_from_revisions(doc_id: &str, mut revisions: RepeatedRevision) -> Res
         document_delta = document_delta.compose(&delta).map_err(internal_error)?;
     }
     let text = document_delta.to_json();
-    let mut doc = Doc::new();
-    doc.set_id(doc_id.to_owned());
-    doc.set_text(text);
-    doc.set_base_rev_id(base_rev_id);
-    doc.set_rev_id(rev_id);
-    Ok(doc)
+    let mut document_info = DocumentInfo::new();
+    document_info.set_id(doc_id.to_owned());
+    document_info.set_text(text);
+    document_info.set_base_rev_id(base_rev_id);
+    document_info.set_rev_id(rev_id);
+    Ok(document_info)
 }

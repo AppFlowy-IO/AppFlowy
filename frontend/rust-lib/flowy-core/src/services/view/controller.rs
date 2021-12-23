@@ -1,4 +1,4 @@
-use flowy_collaboration::entities::doc::{DocDelta, DocIdentifier};
+use flowy_collaboration::entities::doc::{DocIdentifier, DocumentDelta};
 use flowy_database::SqliteConnection;
 use futures::{FutureExt, StreamExt};
 use std::{collections::HashSet, sync::Arc};
@@ -110,7 +110,7 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self, params), fields(doc_id = %params.doc_id), err)]
-    pub(crate) async fn open_view(&self, params: DocIdentifier) -> Result<DocDelta, FlowyError> {
+    pub(crate) async fn open_view(&self, params: DocIdentifier) -> Result<DocumentDelta, FlowyError> {
         let doc_id = params.doc_id.clone();
         let edit_context = self.document.open(params).await?;
 
@@ -164,7 +164,7 @@ impl ViewController {
             .await?;
 
         Ok(ExportData {
-            data: doc.data,
+            data: doc.text,
             export_type: params.export_type,
         })
     }
@@ -200,7 +200,7 @@ impl ViewController {
         Ok(updated_view)
     }
 
-    pub(crate) async fn apply_doc_delta(&self, params: DocDelta) -> Result<DocDelta, FlowyError> {
+    pub(crate) async fn apply_doc_delta(&self, params: DocumentDelta) -> Result<DocumentDelta, FlowyError> {
         let doc = self.document.apply_doc_delta(params).await?;
         Ok(doc)
     }
