@@ -10,10 +10,10 @@ pub struct EnumTemplate {
 #[allow(dead_code)]
 impl EnumTemplate {
     pub fn new() -> Self {
-        return EnumTemplate {
+        EnumTemplate {
             context: Context::new(),
             items: vec![],
-        };
+        }
     }
 
     pub fn set_message_enum(&mut self, flowy_enum: &FlowyEnum) {

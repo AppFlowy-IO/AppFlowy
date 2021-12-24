@@ -9,7 +9,7 @@
 3. run `make init_postgres` if you have not run before. You can find out the running container by run `docker ps`
 ```
 CONTAINER ID   IMAGE      COMMAND                  CREATED          STATUS          PORTS                                       NAMES
-bfcdd6369e89   postgres   "docker-entrypoint.s…"   19 minutes ago   Up 19 minutes   0.0.0.0:5433->5432/tcp, :::5433->5432/tcp   brave_bassi
+bfcdd6369e89   postgres   "docker-entrypoint.s…"   19 minutes ago   Up 19 minutes   0.0.0.0:5432->5432/tcp, :::5432->5432/tcp   brave_bassi
 ```
 
 4. run `make init_database`. It will create the database scheme on remote specified by DATABASE_URL. You can connect you database using 
@@ -22,7 +22,7 @@ The information you enter must be the same as the `make init_postgres`. e.g.
 export DB_USER=postgres
 export DB_PASSWORD=password
 export DB_NAME=flowy
-export DB_PORT=5433
+export DB_PORT=5432
 ```
 
 ![img_1.png](img_1.png)

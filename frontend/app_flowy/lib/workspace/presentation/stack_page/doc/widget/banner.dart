@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -5,6 +6,7 @@ import 'package:flowy_infra_ui/widget/buttons/base_styled_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class DocBanner extends StatelessWidget {
   final void Function() onRestore;
@@ -22,7 +24,7 @@ class DocBanner extends StatelessWidget {
         color: theme.main1,
         child: Row(
           children: [
-            const FlowyText.medium('This page is in Trash', color: Colors.white),
+            FlowyText.medium(LocaleKeys.deletePagePrompt_text.tr(), color: Colors.white),
             const HSpace(20),
             BaseStyledButton(
                 minWidth: 160,
@@ -33,7 +35,7 @@ class DocBanner extends StatelessWidget {
                 downColor: theme.main1,
                 outlineColor: Colors.white,
                 borderRadius: Corners.s8Border,
-                child: const FlowyText.medium('Restore page', color: Colors.white, fontSize: 14),
+                child: FlowyText.medium(LocaleKeys.deletePagePrompt_restore.tr(), color: Colors.white, fontSize: 14),
                 onPressed: onRestore),
             const HSpace(20),
             BaseStyledButton(
@@ -45,7 +47,8 @@ class DocBanner extends StatelessWidget {
                 downColor: theme.main1,
                 outlineColor: Colors.white,
                 borderRadius: Corners.s8Border,
-                child: const FlowyText.medium('Delete permanently', color: Colors.white, fontSize: 14),
+                child: FlowyText.medium(LocaleKeys.deletePagePrompt_deletePermanent.tr(),
+                    color: Colors.white, fontSize: 14),
                 onPressed: onDelete),
           ],
           crossAxisAlignment: CrossAxisAlignment.center,

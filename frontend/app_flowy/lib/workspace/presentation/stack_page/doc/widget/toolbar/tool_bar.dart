@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:app_flowy/workspace/presentation/stack_page/doc/widget/toolbar/history_button.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter/material.dart';
 import 'package:styled_widget/styled_widget.dart';
@@ -10,6 +12,7 @@ import 'header_button.dart';
 import 'link_button.dart';
 import 'toggle_button.dart';
 import 'toolbar_icon_button.dart';
+import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class EditorToolbar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget> children;
@@ -50,41 +53,47 @@ class EditorToolbar extends StatelessWidget implements PreferredSizeWidget {
       key: key,
       toolBarHeight: toolbarIconSize * 2,
       children: [
-        HistoryButton(
+        FlowyHistoryButton(
           icon: Icons.undo_outlined,
           iconSize: toolbarIconSize,
           controller: controller,
           undo: true,
+          tooltipText: LocaleKeys.toolbar_undo.tr(),
         ),
-        HistoryButton(
+        FlowyHistoryButton(
           icon: Icons.redo_outlined,
           iconSize: toolbarIconSize,
           controller: controller,
           undo: false,
+          tooltipText: LocaleKeys.toolbar_redo.tr(),
         ),
         FlowyToggleStyleButton(
           attribute: Attribute.bold,
           normalIcon: 'editor/bold',
           iconSize: toolbarIconSize,
           controller: controller,
+          tooltipText: LocaleKeys.toolbar_bold.tr(),
         ),
         FlowyToggleStyleButton(
           attribute: Attribute.italic,
           normalIcon: 'editor/italic',
           iconSize: toolbarIconSize,
           controller: controller,
+          tooltipText: LocaleKeys.toolbar_italic.tr(),
         ),
         FlowyToggleStyleButton(
           attribute: Attribute.underline,
           normalIcon: 'editor/underline',
           iconSize: toolbarIconSize,
           controller: controller,
+          tooltipText: LocaleKeys.toolbar_underline.tr(),
         ),
         FlowyToggleStyleButton(
           attribute: Attribute.strikeThrough,
           normalIcon: 'editor/strikethrough',
           iconSize: toolbarIconSize,
           controller: controller,
+          tooltipText: LocaleKeys.toolbar_strike.tr(),
         ),
         FlowyColorButton(
           icon: Icons.format_color_fill,
@@ -109,29 +118,34 @@ class EditorToolbar extends StatelessWidget implements PreferredSizeWidget {
           controller: controller,
           normalIcon: 'editor/numbers',
           iconSize: toolbarIconSize,
+          tooltipText: LocaleKeys.toolbar_numList.tr(),
         ),
         FlowyToggleStyleButton(
           attribute: Attribute.ul,
           controller: controller,
           normalIcon: 'editor/bullet_list',
           iconSize: toolbarIconSize,
+          tooltipText: LocaleKeys.toolbar_bulletList.tr(),
         ),
         FlowyCheckListButton(
           attribute: Attribute.unchecked,
           controller: controller,
           iconSize: toolbarIconSize,
+          tooltipText: LocaleKeys.toolbar_checkList.tr(),
         ),
         FlowyToggleStyleButton(
           attribute: Attribute.inlineCode,
           controller: controller,
           normalIcon: 'editor/inline_block',
           iconSize: toolbarIconSize,
+          tooltipText: LocaleKeys.toolbar_inlineCode.tr(),
         ),
         FlowyToggleStyleButton(
           attribute: Attribute.blockQuote,
           controller: controller,
           normalIcon: 'editor/quote',
           iconSize: toolbarIconSize,
+          tooltipText: LocaleKeys.toolbar_quote.tr(),
         ),
         FlowyLinkStyleButton(
           controller: controller,

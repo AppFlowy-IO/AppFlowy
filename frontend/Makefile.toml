@@ -19,6 +19,7 @@ PRODUCT_NAME = "AppFlowy"
 #CRATE_TYPE: https://doc.rust-lang.org/reference/linkage.html
 CRATE_TYPE = "staticlib"
 SDK_EXT = "a"
+APP_ENVIRONMENT = "local"
 
 [env.development-mac]
 TARGET_OS = "macos"
@@ -27,22 +28,23 @@ BUILD_FLAG = "debug"
 FLUTTER_OUTPUT_DIR = "Debug"
 PRODUCT_EXT = "app"
 
-[env.production-desktop-mac-aarch64]
+[env.production-mac-aarch64]
 BUILD_FLAG = "release"
 TARGET_OS = "macos"
 RUST_COMPILE_TARGET = "aarch64-apple-darwin"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "app"
+APP_ENVIRONMENT = "production"
 
-[env.production-desktop-mac-x86]
+[env.production-mac-x86]
 BUILD_FLAG = "release"
 TARGET_OS = "macos"
 RUST_COMPILE_TARGET = "x86_64-apple-darwin"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "app"
+APP_ENVIRONMENT = "production"
 
-
-[env.development-windows]
+[env.development-windows-x86]
 TARGET_OS = "windows"
 RUST_COMPILE_TARGET = "x86_64-pc-windows-msvc"
 BUILD_FLAG = "debug"
@@ -51,7 +53,7 @@ PRODUCT_EXT = "exe"
 CRATE_TYPE = "cdylib"
 SDK_EXT = "dll"
 
-[env.production-desktop-windows-x86]
+[env.production-windows-x86]
 BUILD_FLAG = "release"
 TARGET_OS = "windows"
 RUST_COMPILE_TARGET = "x86_64-pc-windows-msvc"
@@ -59,6 +61,7 @@ FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "exe"
 CRATE_TYPE = "cdylib"
 SDK_EXT = "dll"
+APP_ENVIRONMENT = "production"
 
 [env.development-linux-x86]
 TARGET_OS = "linux"
@@ -77,6 +80,7 @@ CRATE_TYPE = "cdylib"
 FLUTTER_OUTPUT_DIR = "Release"
 SDK_EXT = "so"
 LINUX_ARCH = "x64"
+APP_ENVIRONMENT = "production"
 
 [env.development-linux-aarch64]
 TARGET_OS = "linux"
@@ -95,26 +99,34 @@ CRATE_TYPE = "cdylib"
 FLUTTER_OUTPUT_DIR = "Release"
 SDK_EXT = "so"
 LINUX_ARCH = "arm64"
+APP_ENVIRONMENT = "production"
 
 [tasks.echo_env]
 script = [
     '''
+    echo "-------- Env Parameters --------"
     echo CRATE_TYPE: ${CRATE_TYPE}
     echo BUILD_FLAG: ${BUILD_FLAG}
     echo TARGET_OS: ${TARGET_OS}
     echo RUST_COMPILE_TARGET: ${RUST_COMPILE_TARGET}
     echo FEATURES: ${FEATURES}
     echo PRODUCT_EXT: ${PRODUCT_EXT}
+    echo APP_ENVIRONMENT: ${APP_ENVIRONMENT}
     echo ${platforms}
+
+    echo "-------- Flutter --------"
+    flutter doctor
+
+    echo "-------- Rust --------"
+    rustup show
     '''
 ]
-script_runner = "@duckscript"
+script_runner = "@shell"
 
 [env.production-ios]
 BUILD_FLAG = "release"
 TARGET_OS = "ios"
 CRATE_TYPE = "staticlib"
-BUILD_FLAG = "release"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "ipa"
 

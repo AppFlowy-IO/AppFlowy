@@ -33,6 +33,7 @@ class _FlowyColorButtonState extends State<FlowyColorButton> {
   late bool _isWhitebackground;
 
   Style get _selectionStyle => widget.controller.getSelectionStyle();
+  final tooltipText = 'Highlight';
 
   void _didChangeEditingValue() {
     setState(() {
@@ -91,13 +92,17 @@ class _FlowyColorButtonState extends State<FlowyColorButton> {
         ? stringToColor('#ffffff')
         : (widget.iconTheme?.iconUnselectedFillColor ?? theme.canvasColor);
 
-    return QuillIconButton(
-      highlightElevation: 0,
-      hoverElevation: 0,
-      size: widget.iconSize * kIconButtonFactor,
-      icon: Icon(widget.icon, size: widget.iconSize, color: theme.iconTheme.color),
-      fillColor: widget.background ? fillColorBackground : fillColor,
-      onPressed: _showColorPicker,
+    return Tooltip(
+      message: tooltipText,
+      showDuration: Duration.zero,
+      child: QuillIconButton(
+        highlightElevation: 0,
+        hoverElevation: 0,
+        size: widget.iconSize * kIconButtonFactor,
+        icon: Icon(widget.icon, size: widget.iconSize, color: theme.iconTheme.color),
+        fillColor: widget.background ? fillColorBackground : fillColor,
+        onPressed: _showColorPicker,
+      ),
     );
   }
 
@@ -123,10 +128,10 @@ class _FlowyColorButtonState extends State<FlowyColorButton> {
 
     final style = widget.controller.getSelectionStyle();
     final values = style.values.where((v) => v.key == Attribute.background.key).map((v) => v.value);
-    int initailColor = 0;
+    int initialColor = 0;
     if (values.isNotEmpty) {
       assert(values.length == 1);
-      initailColor = stringToHex(values.first);
+      initialColor = stringToHex(values.first);
     }
 
     StyledDialog(
@@ -140,7 +145,7 @@ class _FlowyColorButtonState extends State<FlowyColorButton> {
               _changeColor(context, color);
             }
           },
-          initailColor: initailColor,
+          initialColor: initialColor,
         ),
       ),
     ).show(context);
@@ -163,8 +168,8 @@ class FlowyColorPicker extends StatefulWidget {
     0xffdefff1,
   ];
   final Function(Color?) onColorChanged;
-  final int initailColor;
-  FlowyColorPicker({Key? key, required this.onColorChanged, this.initailColor = 0}) : super(key: key);
+  final int initialColor;
+  FlowyColorPicker({Key? key, required this.onColorChanged, this.initialColor = 0}) : super(key: key);
 
   @override
   State<FlowyColorPicker> createState() => _FlowyColorPickerState();
@@ -202,7 +207,7 @@ class _FlowyColorPickerState extends State<FlowyColorPicker> {
             delegate: SliverChildBuilderDelegate(
               (BuildContext context, int index) {
                 if (widget.colors.length > index) {
-                  final isSelected = widget.colors[index] == widget.initailColor;
+                  final isSelected = widget.colors[index] == widget.initialColor;
                   return ColorItem(
                     color: Color(widget.colors[index]),
                     onPressed: widget.onColorChanged,

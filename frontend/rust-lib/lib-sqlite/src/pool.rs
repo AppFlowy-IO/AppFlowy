@@ -101,6 +101,7 @@ pub struct DatabaseCustomizerConfig {
     pub(crate) journal_mode: SQLiteJournalMode,
     pub(crate) synchronous: SQLiteSynchronous,
     pub(crate) busy_timeout: i32,
+    #[allow(dead_code)]
     pub(crate) secure_delete: bool,
 }
 

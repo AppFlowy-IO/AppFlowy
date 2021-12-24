@@ -1,7 +1,5 @@
-mod doc_actor;
-mod edit_doc;
-mod model;
+mod editor;
+mod editor_cmd_queue;
 
-pub(crate) use doc_actor::*;
-pub use edit_doc::*;
-pub(crate) use model::*;
+pub use editor::*;
+pub(crate) use editor_cmd_queue::*;

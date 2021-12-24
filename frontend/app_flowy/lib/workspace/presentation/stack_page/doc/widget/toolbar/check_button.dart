@@ -8,6 +8,7 @@ class FlowyCheckListButton extends StatefulWidget {
   const FlowyCheckListButton({
     required this.controller,
     required this.attribute,
+    required this.tooltipText,
     this.iconSize = defaultIconSize,
     this.fillColor,
     this.childBuilder = defaultToggleStyleButtonBuilder,
@@ -24,6 +25,8 @@ class FlowyCheckListButton extends StatefulWidget {
 
   final Attribute attribute;
 
+  final String tooltipText;
+
   @override
   _FlowyCheckListButtonState createState() => _FlowyCheckListButtonState();
 }
@@ -35,7 +38,8 @@ class _FlowyCheckListButtonState extends State<FlowyCheckListButton> {
 
   void _didChangeEditingValue() {
     setState(() {
-      _isToggled = _getIsToggled(widget.controller.getSelectionStyle().attributes);
+      _isToggled =
+          _getIsToggled(widget.controller.getSelectionStyle().attributes);
     });
   }
 
@@ -52,7 +56,8 @@ class _FlowyCheckListButtonState extends State<FlowyCheckListButton> {
       if (attribute == null) {
         return false;
       }
-      return attribute.value == widget.attribute.value || attribute.value == Attribute.checked.value;
+      return attribute.value == widget.attribute.value ||
+          attribute.value == Attribute.checked.value;
     }
     return attrs.containsKey(widget.attribute.key);
   }
@@ -80,10 +85,13 @@ class _FlowyCheckListButtonState extends State<FlowyCheckListButton> {
       width: widget.iconSize * kIconButtonFactor,
       iconName: 'editor/checkbox',
       isToggled: _isToggled ?? false,
+      tooltipText: widget.tooltipText,
     );
   }
 
   void _toggleAttribute() {
-    widget.controller.formatSelection(_isToggled! ? Attribute.clone(Attribute.unchecked, null) : Attribute.unchecked);
+    widget.controller.formatSelection(_isToggled!
+        ? Attribute.clone(Attribute.unchecked, null)
+        : Attribute.unchecked);
   }
 }

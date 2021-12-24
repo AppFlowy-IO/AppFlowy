@@ -20,14 +20,12 @@ pub fn expand_derive(input: &syn::DeriveInput) -> Result<TokenStream, Vec<syn::E
 
     let mut token_stream: TokenStream = TokenStream::default();
 
-    let de_token_stream = make_de_token_steam(&ctxt, &cont);
-    if de_token_stream.is_some() {
-        token_stream.extend(de_token_stream.unwrap());
+    if let Some(de_token_stream) = make_de_token_steam(&ctxt, &cont) {
+        token_stream.extend(de_token_stream);
     }
 
-    let se_token_stream = make_se_token_stream(&ctxt, &cont);
-    if se_token_stream.is_some() {
-        token_stream.extend(se_token_stream.unwrap());
+    if let Some(se_token_stream) = make_se_token_stream(&ctxt, &cont) {
+        token_stream.extend(se_token_stream);
     }
 
     ctxt.check()?;
@@ -43,9 +41,8 @@ pub fn expand_enum_derive(input: &syn::DeriveInput) -> Result<TokenStream, Vec<s
 
     let mut token_stream: TokenStream = TokenStream::default();
 
-    let enum_token_stream = make_enum_token_stream(&ctxt, &cont);
-    if enum_token_stream.is_some() {
-        token_stream.extend(enum_token_stream.unwrap());
+    if let Some(enum_token_stream) = make_enum_token_stream(&ctxt, &cont) {
+        token_stream.extend(enum_token_stream);
     }
 
     ctxt.check()?;

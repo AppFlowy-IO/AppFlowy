@@ -3,7 +3,7 @@ import 'package:app_flowy/user/application/splash_bloc.dart';
 import 'package:app_flowy/user/domain/auth_state.dart';
 import 'package:app_flowy/user/domain/i_splash.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/errors.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -57,7 +57,6 @@ class SplashScreen extends StatelessWidget {
   }
 
   void _handleUnauthenticated(BuildContext context, Unauthenticated result) {
-    // Log.error(result.error);
     // getIt<ISplashRoute>().pushSignInScreen(context);
     getIt<ISplashRoute>().pushSkipLoginScreen(context);
   }

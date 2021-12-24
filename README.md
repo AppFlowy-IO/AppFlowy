@@ -10,7 +10,7 @@
 <a href="https://discord.gg/9Q2xaN37tV"><img src="https://img.shields.io/badge/AppFlowy.IO-discord-orange"></a>
 <a href="https://github.com/AppFlowy-IO/appflowy"><img src="https://img.shields.io/github/stars/AppFlowy-IO/appflowy.svg?style=flat&logo=github&colorB=deeppink&label=stars"></a>
 <a href="https://github.com/AppFlowy-IO/appflowy"><img src="https://img.shields.io/github/forks/AppFlowy-IO/appflowy.svg"></a>
-<a href="https://opensource.org/licenses/AGPL-3.0"><img src="https://img.shields.io/badge/license-APGL-purple.svg" alt="License: AGPL"></a>
+<a href="https://opensource.org/licenses/AGPL-3.0"><img src="https://img.shields.io/badge/license-AGPL-purple.svg" alt="License: AGPL"></a>
 
 </p>
 
@@ -25,15 +25,62 @@ You are in charge of your data and customizations.
     <a href="http://www.appflowy.io"><b>Website</b></a> •
     <a href="https://discord.gg/9Q2xaN37tV"><b>Discord</b></a> •
     <a href="https://twitter.com/appflowy"><b>Twitter</b></a> •
-    
-    
 
-    
+
+
+
 </p>  
 
 <p align="center"><img src="https://github.com/AppFlowy-IO/appflowy/blob/main/doc/imgs/welcome.png" alt="The Open Source Notion Alternative." width="1000px" /></p>
 
+## Install
 
+### macOS
+
+```sh
+brew install appflowy
+```
+
+### Windows
+
+There is currently no Windows installer. However, you can download and install the app from the GitHub Releases section.
+1. Go to AppFlowy's [Releases](https://github.com/AppFlowy-IO/appflowy/releases/) page on GitHub.
+2. Download the current AppFlowy-Windows.zip file
+3. Create a directory in your %userprofile%\documents folder
+```shell
+md %userprofile%\documents\appflowy
+```
+4. Change to that directory
+```shell
+cd %userprofile%\documents\appflowy
+```
+5. Extract the downloaded zip file into the directory you just created.
+6. Run the application :
+```shell
+./app_flowy.exe
+```
+
+### Linux
+
+There is currently no Linux installer. However, you can download and install the app from the GitHub Releases section.
+1. Go to AppFlowy's [Releases](https://github.com/AppFlowy-IO/appflowy/releases/) page on GitHub.
+2. Download the current AppFlowy-Linux.tar.gz file.
+3. Create a directory in your /opt/ folder.
+```shell
+mkdir /opt/appflowy
+```
+4. Change to that directory
+```shell
+cd /opt/appflowy
+```
+5. Extract the downloaded compressed file into the directory you just created.
+```shell
+tar -xvf AppFlowy-Linux.tar.gz
+```
+6. Run the application :
+```shell
+./app_flowy
+```
 
 ## Built With
 
@@ -46,6 +93,14 @@ You are in charge of your data and customizations.
 <p align="center"><img src="https://github.com/AppFlowy-IO/appflowy/blob/main/doc/imgs/howtostar.gif" alt="AppFlowy Github" width="1000px" /></p>
 
 ## Getting Started
+
+### Linux
+Please follow these instructions to build on [Linux](doc/BUILD_ON_LINUX.md).
+
+### Windows
+Please follow these instructions to build on [Windows](doc/BUILD_ON_WINDOWS.md).
+
+### macOS
 
 How to build on MacOS, please follow these simple steps.
 
@@ -75,15 +130,15 @@ cargo make install_targets
 
 >
 >
-> 🚀 Skip install_rust or install_cargo_make if you already installed it. 
+> 🚀 Skip install_rust or install_cargo_make if you already installed it.
 > FYI, AppFlowy uses [https://github.com/sagiegurari/cargo-make](https://github.com/sagiegurari/cargo-make) to construct the build scripts
 
 **Step 3:**
 
-Follow the instructions [here](https://flutter.dev/docs/get-started/install) to install Flutter. As AppFlowy uses the `dev` channel, you need to switch the channel. Just type:
+Follow the instructions [here](https://flutter.dev/docs/get-started/install) to install Flutter. As AppFlowy uses the `stable` channel, you need to switch the channel. Just type:
 
 ```shell
-flutter channel dev
+flutter channel stable
 ```
 
 **Step 4:**
@@ -103,7 +158,15 @@ flutter config --enable-linux-desktop
 * Open the `app_flowy` folder located at xx/appflowy/frontend with Visual Studio Code or other IDEs at your disposal.
 * Go to the Run and Debug tab and then click the run button.
 ![Run the project](https://github.com/AppFlowy-IO/appflowy/blob/main/doc/imgs/run.png)
-  
+
+* If you want to build for the other platform, you should modify the build_sdk.sh before running.
+![build_sdk](https://user-images.githubusercontent.com/86001920/143262377-bb49e913-10ca-4198-80ec-bd814a13ee1d.png)
+Please also check the device selection, AppFlowy only supports Desktop by now:
+![device](https://user-images.githubusercontent.com/86001920/144546864-cebbf0c0-4eef-424e-93c7-e1e6b3a59669.png)
+
+
+* If you encounter any issues, have a look at [Troubleshooting](https://github.com/AppFlowy-IO/appflowy/wiki/Troubleshooting) first. If your issue is not included in the page, please create an [issue](https://github.com/AppFlowy-IO/appflowy/issues/new/choose) or ask on [Discord](https://discord.gg/9Q2xaN37tV).
+
 ## Roadmap
 
 [AppFlowy Roadmap](https://trello.com/b/NCyXCXXh/appflowy-roadmap)

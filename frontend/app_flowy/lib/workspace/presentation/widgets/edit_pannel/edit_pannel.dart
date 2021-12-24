@@ -3,10 +3,12 @@ import 'package:app_flowy/workspace/domain/edit_context.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:dartz/dartz.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/bar_title.dart';
 import 'package:flowy_infra_ui/style_widget/close_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class EditPannel extends StatelessWidget {
   late final EditPannelContext editContext;
@@ -50,8 +52,8 @@ class EditPannelTopBar extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Row(
           children: [
-            const FlowyBarTitle(
-              title: 'Title',
+            FlowyBarTitle(
+              title: LocaleKeys.title.tr(),
             ),
             const Spacer(),
             FlowyCloseButton(onPressed: onClose),

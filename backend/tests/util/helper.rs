@@ -3,20 +3,24 @@ use backend::{
     config::{get_configuration, DatabaseSettings},
     context::AppContext,
 };
-use backend_service::{errors::ServerError, user_request::*, workspace_request::*};
+use backend_service::{
+    configuration::{get_client_server_configuration, ClientServerConfiguration},
+    errors::ServerError,
+    user_request::*,
+    workspace_request::*,
+};
+use flowy_collaboration::entities::doc::{Doc, DocIdentifier};
+use flowy_core_data_model::entities::prelude::*;
 use flowy_document::services::server::read_doc_request;
-use flowy_document_infra::entities::doc::{Doc, DocIdentifier};
-use flowy_user_infra::entities::*;
-use flowy_workspace_infra::entities::prelude::*;
+use flowy_user_data_model::entities::*;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
 
 pub struct TestUserServer {
-    pub host: String,
-    pub port: u16,
     pub pg_pool: PgPool,
     pub user_token: Option<String>,
     pub user_id: Option<String>,
+    pub client_server_config: ClientServerConfiguration,
 }
 
 impl TestUserServer {
@@ -146,7 +150,7 @@ impl TestUserServer {
     }
 
     pub async fn read_doc(&self, params: DocIdentifier) -> Option<Doc> {
-        let url = format!("{}/api/doc", self.http_addr());
+        let url = format!("{}/api/document", self.http_addr());
         let doc = read_doc_request(self.user_token(), params, &url).await.unwrap();
         doc
     }
@@ -167,19 +171,24 @@ impl TestUserServer {
         response
     }
 
-    pub fn http_addr(&self) -> String { format!("http://{}", self.host) }
+    pub fn http_addr(&self) -> String { self.client_server_config.base_url() }
 
-    pub fn ws_addr(&self) -> String { format!("ws://{}/ws/{}", self.host, self.user_token.as_ref().unwrap()) }
+    pub fn ws_addr(&self) -> String {
+        format!(
+            "{}/{}",
+            self.client_server_config.ws_addr(),
+            self.user_token.as_ref().unwrap()
+        )
+    }
 }
 
 impl std::convert::From<TestServer> for TestUserServer {
     fn from(server: TestServer) -> Self {
         TestUserServer {
-            host: server.host,
-            port: server.port,
             pg_pool: server.pg_pool,
             user_token: None,
             user_id: None,
+            client_server_config: server.client_server_config,
         }
     }
 }
@@ -190,14 +199,13 @@ pub async fn spawn_user_server() -> TestUserServer {
 }
 
 pub struct TestServer {
-    pub host: String,
-    pub port: u16,
     pub pg_pool: PgPool,
     pub app_ctx: AppContext,
+    pub client_server_config: ClientServerConfiguration,
 }
 
 pub async fn spawn_server() -> TestServer {
-    let database_name = format!("{}", Uuid::new_v4().to_string());
+    let database_name = Uuid::new_v4().to_string();
     let configuration = {
         let mut c = get_configuration().expect("Failed to read configuration.");
         c.database.database_name = database_name.clone();
@@ -218,13 +226,15 @@ pub async fn spawn_server() -> TestServer {
         // drop_test_database(database_name).await;
     });
 
+    let mut client_server_config = get_client_server_configuration().expect("Failed to read configuration.");
+    client_server_config.reset_host_with_port("localhost", application_port);
+
     TestServer {
-        host: format!("localhost:{}", application_port),
-        port: application_port,
         pg_pool: get_connection_pool(&configuration.database)
             .await
             .expect("Failed to connect to the database"),
         app_ctx,
+        client_server_config,
     }
 }
 

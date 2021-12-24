@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 typedef HoverBuilder = Widget Function(BuildContext context, bool onHover);
 

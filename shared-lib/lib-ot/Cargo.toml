@@ -8,6 +8,12 @@ edition = "2018"
 [dependencies]
 bytecount = "0.6.0"
 serde = { version = "1.0", features = ["derive"] }
+protobuf = {version = "2.18.0"}
+flowy-derive = { path = "../flowy-derive" }
+tokio = {version = "1", features = ["sync"]}
+dashmap = "4.0"
+md5 = "0.7.0"
+
 serde_json = {version = "1.0"}
 derive_more = {version = "0.99", features = ["display"]}
 log = "0.4"
@@ -18,5 +24,7 @@ strum_macros = "0.21"
 bytes = "1.0"
 
 
+[features]
+flowy_unit_test = []
 
 

@@ -1,6 +1,6 @@
 use crate::util::helper::ViewTest;
-use flowy_document_infra::entities::doc::DocIdentifier;
-use flowy_workspace_infra::entities::view::ViewIdentifiers;
+use flowy_collaboration::entities::doc::DocIdentifier;
+use flowy_core_data_model::entities::view::ViewIdentifiers;
 
 #[actix_rt::test]
 async fn doc_read() {

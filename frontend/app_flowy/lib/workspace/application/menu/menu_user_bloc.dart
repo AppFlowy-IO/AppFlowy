@@ -1,8 +1,7 @@
 import 'package:app_flowy/workspace/domain/i_user.dart';
 import 'package:flowy_log/flowy_log.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/workspace_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:dartz/dartz.dart';
@@ -40,8 +39,8 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
     result.fold((l) => null, (error) => Log.error(error));
   }
 
-  void _profileUpdated(Either<UserProfile, UserError> userOrFailed) {}
-  void _workspacesUpdated(Either<List<Workspace>, WorkspaceError> workspacesOrFailed) {
+  void _profileUpdated(Either<UserProfile, FlowyError> userOrFailed) {}
+  void _workspacesUpdated(Either<List<Workspace>, FlowyError> workspacesOrFailed) {
     // fetch workspaces
     // iUserImpl.fetchWorkspaces().then((result) {
     //   result.fold(

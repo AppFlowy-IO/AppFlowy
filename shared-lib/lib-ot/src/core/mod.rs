@@ -1,11 +1,9 @@
-mod attributes;
 mod delta;
 mod flowy_str;
 mod interval;
 mod operation;
 
 use crate::errors::OTError;
-pub use attributes::*;
 pub use delta::*;
 pub use flowy_str::*;
 pub use interval::*;

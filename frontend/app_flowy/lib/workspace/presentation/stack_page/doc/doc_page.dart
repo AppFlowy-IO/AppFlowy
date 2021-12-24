@@ -4,7 +4,7 @@ import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/view_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
@@ -98,6 +98,7 @@ class _DocPageState extends State<DocPage> {
       controller: controller,
       focusNode: _focusNode,
       scrollable: true,
+      paintCursorAboveText: true,
       autoFocus: controller.document.isEmpty(),
       expands: false,
       padding: const EdgeInsets.symmetric(horizontal: 8.0),

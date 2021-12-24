@@ -1,48 +1,49 @@
-pub mod builder;
-mod helper;
-pub mod workspace;
+pub mod doc_script;
+pub mod event_builder;
+pub mod helper;
 
 use crate::helper::*;
-use backend_service::config::ServerConfig;
+use backend_service::configuration::{get_client_server_configuration, ClientServerConfiguration};
 use flowy_sdk::{FlowySDK, FlowySDKConfig};
 use flowy_user::entities::UserProfile;
 use lib_infra::uuid;
 
 pub mod prelude {
-    pub use crate::{builder::*, helper::*, *};
+    pub use crate::{event_builder::*, helper::*, *};
     pub use lib_dispatch::prelude::*;
 }
 
-pub type FlowyTestSDK = FlowySDK;
-
 #[derive(Clone)]
-pub struct FlowyTest {
-    pub sdk: FlowyTestSDK,
+pub struct FlowySDKTest(pub FlowySDK);
+
+impl std::ops::Deref for FlowySDKTest {
+    type Target = FlowySDK;
+
+    fn deref(&self) -> &Self::Target { &self.0 }
 }
 
-impl FlowyTest {
+impl FlowySDKTest {
     pub fn setup() -> Self {
-        let server_config = ServerConfig::default();
-        let test = Self::setup_with(server_config);
-        std::mem::forget(test.sdk.dispatch());
-        test
+        let server_config = get_client_server_configuration().unwrap();
+        let sdk = Self::setup_with(server_config);
+        std::mem::forget(sdk.dispatcher());
+        sdk
+    }
+
+    pub fn setup_with(server_config: ClientServerConfiguration) -> Self {
+        let config = FlowySDKConfig::new(&root_dir(), server_config, &uuid()).log_filter("debug");
+        let sdk = FlowySDK::new(config);
+        Self(sdk)
     }
 
     pub async fn sign_up(&self) -> SignUpContext {
-        let context = async_sign_up(self.sdk.dispatch()).await;
+        let context = async_sign_up(self.0.dispatcher()).await;
         context
     }
 
     pub async fn init_user(&self) -> UserProfile {
-        let context = async_sign_up(self.sdk.dispatch()).await;
+        let context = async_sign_up(self.0.dispatcher()).await;
+        init_user_setting(self.0.dispatcher()).await;
         context.user_profile
     }
-
-    pub fn setup_with(server_config: ServerConfig) -> Self {
-        let config = FlowySDKConfig::new(&root_dir(), server_config, &uuid().to_string()).log_filter("debug");
-        let sdk = FlowySDK::new(config);
-        Self { sdk }
-    }
-
-    pub fn sdk(&self) -> FlowyTestSDK { self.sdk.clone() }
 }

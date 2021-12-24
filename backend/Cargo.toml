@@ -59,16 +59,17 @@ pin-project = "1.0.0"
 byteorder = {version = "1.3.4"}
 async-stream = "0.3.2"
 
-flowy-user-infra = { path = "../shared-lib/flowy-user-infra" }
-flowy-workspace-infra = { path = "../shared-lib/flowy-workspace-infra" }
-flowy-document-infra = { path = "../shared-lib/flowy-document-infra" }
+flowy-user-data-model = { path = "../shared-lib/flowy-user-data-model" }
+flowy-core-data-model = { path = "../shared-lib/flowy-core-data-model" }
+flowy-collaboration = { path = "../shared-lib/flowy-collaboration" }
 lib-ws = { path = "../shared-lib/lib-ws" }
 lib-ot = { path = "../shared-lib/lib-ot" }
+lib-infra = { path = "../shared-lib/lib-infra" }
 backend-service = { path = "../shared-lib/backend-service", features = ["http_server"] }
 
 ormx = { version = "0.7", features = ["postgres"]}
 [dependencies.sqlx]
-version = "0.5.6"
+version = "0.5.7"
 default-features = false
 features = [
     "runtime-actix-rustls",
@@ -78,7 +79,6 @@ features = [
     "chrono",
     "migrate",
     "offline",
-    "any",
 ]
 
 
@@ -98,10 +98,10 @@ parking_lot = "0.11"
 once_cell = "1.7.2"
 linkify = "0.5.0"
 futures-util = "0.3.15"
-
 backend = { path = ".", features = ["flowy_test"]}
 flowy-sdk = { path = "../frontend/rust-lib/flowy-sdk", features = ["http_server"] }
 flowy-user = { path = "../frontend/rust-lib/flowy-user", features = ["http_server"] }
-flowy-document = { path = "../frontend/rust-lib/flowy-document", features = ["flowy_test", "http_server"] }
+flowy-document = { path = "../frontend/rust-lib/flowy-document", features = ["flowy_unit_test", "http_server"] }
 flowy-test = { path = "../frontend/rust-lib/flowy-test" }
+flowy-net = { path = "../frontend/rust-lib/flowy-net", features = ["http_server"] }
 

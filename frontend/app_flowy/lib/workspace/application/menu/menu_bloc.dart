@@ -4,9 +4,8 @@ import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
 import 'package:app_flowy/workspace/presentation/stack_page/blank/blank_page.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_log/flowy_log.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/app_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
-import 'package:flutter/material.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/app_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -78,7 +77,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
     );
   }
 
-  void _handleAppsOrFail(Either<List<App>, WorkspaceError> appsOrFail) {
+  void _handleAppsOrFail(Either<List<App>, FlowyError> appsOrFail) {
     appsOrFail.fold(
       (apps) => add(MenuEvent.didReceiveApps(left(apps))),
       (error) => add(MenuEvent.didReceiveApps(right(error))),
@@ -92,7 +91,7 @@ class MenuEvent with _$MenuEvent {
   const factory MenuEvent.collapse() = Collapse;
   const factory MenuEvent.openPage(HomeStackContext context) = OpenPage;
   const factory MenuEvent.createApp(String name, {String? desc}) = CreateApp;
-  const factory MenuEvent.didReceiveApps(Either<List<App>, WorkspaceError> appsOrFail) = ReceiveApps;
+  const factory MenuEvent.didReceiveApps(Either<List<App>, FlowyError> appsOrFail) = ReceiveApps;
 }
 
 @freezed
@@ -100,7 +99,7 @@ class MenuState with _$MenuState {
   const factory MenuState({
     required bool isCollapse,
     required Option<List<App>> apps,
-    required Either<Unit, WorkspaceError> successOrFailure,
+    required Either<Unit, FlowyError> successOrFailure,
     required HomeStackContext stackContext,
   }) = _MenuState;
 

@@ -1,3 +1,4 @@
+#![allow(clippy::not_unsafe_ptr_arg_deref)]
 mod c;
 mod model;
 mod protobuf;
@@ -17,22 +18,22 @@ lazy_static! {
     static ref FLOWY_SDK: RwLock<Option<Arc<FlowySDK>>> = RwLock::new(None);
 }
 
-fn dispatch() -> Arc<EventDispatch> { FLOWY_SDK.read().as_ref().unwrap().dispatch() }
+fn dispatch() -> Arc<EventDispatcher> { FLOWY_SDK.read().as_ref().unwrap().dispatcher() }
 
 #[no_mangle]
 pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
     let c_str: &CStr = unsafe { CStr::from_ptr(path) };
     let path: &str = c_str.to_str().unwrap();
 
-    let server_config = ServerConfig::default();
+    let server_config = get_client_server_configuration().unwrap();
     let config = FlowySDKConfig::new(path, server_config, "appflowy").log_filter("debug");
     *FLOWY_SDK.write() = Some(Arc::new(FlowySDK::new(config)));
 
-    return 1;
+    0
 }
 
 #[no_mangle]
-pub extern "C" fn async_command(port: i64, input: *const u8, len: usize) {
+pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
     let request: ModuleRequest = FFIRequest::from_u8_pointer(input, len).into();
     log::trace!(
         "[FFI]: {} Async Event: {:?} with {} port",
@@ -41,17 +42,17 @@ pub extern "C" fn async_command(port: i64, input: *const u8, len: usize) {
         port
     );
 
-    let _ = EventDispatch::async_send_with_callback(dispatch(), request, move |resp: EventResponse| {
+    let _ = EventDispatcher::async_send_with_callback(dispatch(), request, move |resp: EventResponse| {
         log::trace!("[FFI]: Post data to dart through {} port", port);
         Box::pin(post_to_flutter(resp, port))
     });
 }
 
 #[no_mangle]
-pub extern "C" fn sync_command(input: *const u8, len: usize) -> *const u8 {
+pub extern "C" fn sync_event(input: *const u8, len: usize) -> *const u8 {
     let request: ModuleRequest = FFIRequest::from_u8_pointer(input, len).into();
     log::trace!("[FFI]: {} Sync Event: {:?}", &request.id, &request.event,);
-    let _response = EventDispatch::sync_send(dispatch(), request);
+    let _response = EventDispatcher::sync_send(dispatch(), request);
 
     // FFIResponse {  }
     let response_bytes = vec![];
@@ -62,14 +63,14 @@ pub extern "C" fn sync_command(input: *const u8, len: usize) -> *const u8 {
 #[no_mangle]
 pub extern "C" fn set_stream_port(port: i64) -> i32 {
     dart_notify::dart::DartStreamSender::set_port(port);
-    return 0;
+    0
 }
 
 #[inline(never)]
 #[no_mangle]
 pub extern "C" fn link_me_please() {}
 
-use backend_service::config::ServerConfig;
+use backend_service::configuration::get_client_server_configuration;
 use lib_dispatch::prelude::ToBytes;
 
 #[inline(always)]

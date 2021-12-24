@@ -2,17 +2,19 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-dart-notify/subject.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/app_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_query.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/observable.pb.dart';
+import 'package:flowy_sdk/protobuf/dart-notify/subject.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show UserProfile;
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/app_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/workspace_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/workspace_query.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core/observable.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 
+import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/workspace/domain/i_workspace.dart';
 
 import 'helper.dart';
@@ -25,7 +27,7 @@ class WorkspaceRepo {
     required this.workspaceId,
   });
 
-  Future<Either<App, WorkspaceError>> createApp(String appName, String desc) {
+  Future<Either<App, FlowyError>> createApp(String appName, String desc) {
     final request = CreateAppRequest.create()
       ..name = appName
       ..workspaceId = workspaceId
@@ -33,7 +35,7 @@ class WorkspaceRepo {
     return WorkspaceEventCreateApp(request).send();
   }
 
-  Future<Either<Workspace, WorkspaceError>> getWorkspace() {
+  Future<Either<Workspace, FlowyError>> getWorkspace() {
     final request = QueryWorkspaceRequest.create()..workspaceId = workspaceId;
     return WorkspaceEventReadWorkspaces(request).send().then((result) {
       return result.fold(
@@ -41,7 +43,7 @@ class WorkspaceRepo {
           assert(workspaces.items.length == 1);
 
           if (workspaces.items.isEmpty) {
-            return right(WorkspaceError.create()..msg = "Workspace not found");
+            return right(FlowyError.create()..msg = LocaleKeys.workspace_notFoundError.tr());
           } else {
             return left(workspaces.items[0]);
           }
@@ -51,7 +53,7 @@ class WorkspaceRepo {
     });
   }
 
-  Future<Either<List<App>, WorkspaceError>> getApps() {
+  Future<Either<List<App>, FlowyError>> getApps() {
     final request = QueryWorkspaceRequest.create()..workspaceId = workspaceId;
     return WorkspaceEventReadWorkspaceApps(request).send().then((result) {
       return result.fold(
@@ -92,7 +94,7 @@ class WorkspaceListenerRepo {
     _subscription = RustStreamReceiver.listen((observable) => _parser.parse(observable));
   }
 
-  void _handleObservableType(WorkspaceNotification ty, Either<Uint8List, WorkspaceError> result) {
+  void _handleObservableType(WorkspaceNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
       case WorkspaceNotification.WorkspaceUpdated:
         if (_update != null) {

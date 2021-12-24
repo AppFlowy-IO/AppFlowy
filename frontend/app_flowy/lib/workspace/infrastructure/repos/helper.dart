@@ -1,31 +1,31 @@
 import 'dart:typed_data';
-import 'package:flowy_sdk/protobuf/flowy-dart-notify/protobuf.dart';
+import 'package:flowy_sdk/protobuf/dart-notify/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/observable.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core/observable.pb.dart';
 
-typedef UserNotificationCallback = void Function(UserNotification, Either<Uint8List, UserError>);
+typedef UserNotificationCallback = void Function(UserNotification, Either<Uint8List, FlowyError>);
 
-class UserNotificationParser extends NotificationParser<UserNotification, UserError> {
+class UserNotificationParser extends NotificationParser<UserNotification, FlowyError> {
   UserNotificationParser({required String id, required UserNotificationCallback callback})
       : super(
           id: id,
           callback: callback,
           tyParser: (ty) => UserNotification.valueOf(ty),
-          errorParser: (bytes) => UserError.fromBuffer(bytes),
+          errorParser: (bytes) => FlowyError.fromBuffer(bytes),
         );
 }
 
-typedef NotificationCallback = void Function(WorkspaceNotification, Either<Uint8List, WorkspaceError>);
+typedef NotificationCallback = void Function(WorkspaceNotification, Either<Uint8List, FlowyError>);
 
-class WorkspaceNotificationParser extends NotificationParser<WorkspaceNotification, WorkspaceError> {
+class WorkspaceNotificationParser extends NotificationParser<WorkspaceNotification, FlowyError> {
   WorkspaceNotificationParser({String? id, required NotificationCallback callback})
       : super(
           id: id,
           callback: callback,
           tyParser: (ty) => WorkspaceNotification.valueOf(ty),
-          errorParser: (bytes) => WorkspaceError.fromBuffer(bytes),
+          errorParser: (bytes) => FlowyError.fromBuffer(bytes),
         );
 }
 

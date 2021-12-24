@@ -24,38 +24,38 @@
 // const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_22_1;
 
 #[derive(PartialEq,Clone,Default)]
-pub struct WsMessage {
+pub struct WSMessage {
     // message fields
-    pub module: WsModule,
+    pub module: WSModule,
     pub data: ::std::vec::Vec<u8>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a WsMessage {
-    fn default() -> &'a WsMessage {
-        <WsMessage as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a WSMessage {
+    fn default() -> &'a WSMessage {
+        <WSMessage as ::protobuf::Message>::default_instance()
     }
 }
 
-impl WsMessage {
-    pub fn new() -> WsMessage {
+impl WSMessage {
+    pub fn new() -> WSMessage {
         ::std::default::Default::default()
     }
 
-    // .WsModule module = 1;
+    // .WSModule module = 1;
 
 
-    pub fn get_module(&self) -> WsModule {
+    pub fn get_module(&self) -> WSModule {
         self.module
     }
     pub fn clear_module(&mut self) {
-        self.module = WsModule::Doc;
+        self.module = WSModule::Doc;
     }
 
     // Param is passed by value, moved
-    pub fn set_module(&mut self, v: WsModule) {
+    pub fn set_module(&mut self, v: WSModule) {
         self.module = v;
     }
 
@@ -86,7 +86,7 @@ impl WsMessage {
     }
 }
 
-impl ::protobuf::Message for WsMessage {
+impl ::protobuf::Message for WSMessage {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -113,7 +113,7 @@ impl ::protobuf::Message for WsMessage {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if self.module != WsModule::Doc {
+        if self.module != WSModule::Doc {
             my_size += ::protobuf::rt::enum_size(1, self.module);
         }
         if !self.data.is_empty() {
@@ -125,7 +125,7 @@ impl ::protobuf::Message for WsMessage {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if self.module != WsModule::Doc {
+        if self.module != WSModule::Doc {
             os.write_enum(1, ::protobuf::ProtobufEnum::value(&self.module))?;
         }
         if !self.data.is_empty() {
@@ -161,78 +161,78 @@ impl ::protobuf::Message for WsMessage {
         Self::descriptor_static()
     }
 
-    fn new() -> WsMessage {
-        WsMessage::new()
+    fn new() -> WSMessage {
+        WSMessage::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<WsModule>>(
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<WSModule>>(
                 "module",
-                |m: &WsMessage| { &m.module },
-                |m: &mut WsMessage| { &mut m.module },
+                |m: &WSMessage| { &m.module },
+                |m: &mut WSMessage| { &mut m.module },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBytes>(
                 "data",
-                |m: &WsMessage| { &m.data },
-                |m: &mut WsMessage| { &mut m.data },
+                |m: &WSMessage| { &m.data },
+                |m: &mut WSMessage| { &mut m.data },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<WsMessage>(
-                "WsMessage",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<WSMessage>(
+                "WSMessage",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static WsMessage {
-        static instance: ::protobuf::rt::LazyV2<WsMessage> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(WsMessage::new)
+    fn default_instance() -> &'static WSMessage {
+        static instance: ::protobuf::rt::LazyV2<WSMessage> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(WSMessage::new)
     }
 }
 
-impl ::protobuf::Clear for WsMessage {
+impl ::protobuf::Clear for WSMessage {
     fn clear(&mut self) {
-        self.module = WsModule::Doc;
+        self.module = WSModule::Doc;
         self.data.clear();
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for WsMessage {
+impl ::std::fmt::Debug for WSMessage {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for WsMessage {
+impl ::protobuf::reflect::ProtobufValue for WSMessage {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
 }
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
-pub enum WsModule {
+pub enum WSModule {
     Doc = 0,
 }
 
-impl ::protobuf::ProtobufEnum for WsModule {
+impl ::protobuf::ProtobufEnum for WSModule {
     fn value(&self) -> i32 {
         *self as i32
     }
 
-    fn from_i32(value: i32) -> ::std::option::Option<WsModule> {
+    fn from_i32(value: i32) -> ::std::option::Option<WSModule> {
         match value {
-            0 => ::std::option::Option::Some(WsModule::Doc),
+            0 => ::std::option::Option::Some(WSModule::Doc),
             _ => ::std::option::Option::None
         }
     }
 
     fn values() -> &'static [Self] {
-        static values: &'static [WsModule] = &[
-            WsModule::Doc,
+        static values: &'static [WSModule] = &[
+            WSModule::Doc,
         ];
         values
     }
@@ -240,30 +240,30 @@ impl ::protobuf::ProtobufEnum for WsModule {
     fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
-            ::protobuf::reflect::EnumDescriptor::new_pb_name::<WsModule>("WsModule", file_descriptor_proto())
+            ::protobuf::reflect::EnumDescriptor::new_pb_name::<WSModule>("WSModule", file_descriptor_proto())
         })
     }
 }
 
-impl ::std::marker::Copy for WsModule {
+impl ::std::marker::Copy for WSModule {
 }
 
-impl ::std::default::Default for WsModule {
+impl ::std::default::Default for WSModule {
     fn default() -> Self {
-        WsModule::Doc
+        WSModule::Doc
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for WsModule {
+impl ::protobuf::reflect::ProtobufValue for WSModule {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Enum(::protobuf::ProtobufEnum::descriptor(self))
     }
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\tmsg.proto\"B\n\tWsMessage\x12!\n\x06module\x18\x01\x20\x01(\x0e2\t.W\
-    sModuleR\x06module\x12\x12\n\x04data\x18\x02\x20\x01(\x0cR\x04data*\x13\
-    \n\x08WsModule\x12\x07\n\x03Doc\x10\0J\xd9\x01\n\x06\x12\x04\0\0\x08\x01\
+    \n\tmsg.proto\"B\n\tWSMessage\x12!\n\x06module\x18\x01\x20\x01(\x0e2\t.W\
+    SModuleR\x06module\x12\x12\n\x04data\x18\x02\x20\x01(\x0cR\x04data*\x13\
+    \n\x08WSModule\x12\x07\n\x03Doc\x10\0J\xd9\x01\n\x06\x12\x04\0\0\x08\x01\
     \n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\
     \n\n\x03\x04\0\x01\x12\x03\x02\x08\x11\n\x0b\n\x04\x04\0\x02\0\x12\x03\
     \x03\x04\x18\n\x0c\n\x05\x04\0\x02\0\x06\x12\x03\x03\x04\x0c\n\x0c\n\x05\

@@ -1,18 +1,19 @@
-mod handlers;
-mod sql_tables;
-
-pub use flowy_user_infra::entities;
-pub mod errors;
-
+pub mod entities;
 pub mod event;
+mod handlers;
 pub mod module;
-mod notify;
+pub mod notify;
 pub mod protobuf;
 pub mod services;
+mod sql_tables;
 
 #[macro_use]
 extern crate flowy_database;
 
 pub mod prelude {
     pub use crate::{entities::*, services::server::*};
+}
+
+pub mod errors {
+    pub use flowy_error::{internal_error, ErrorCode, FlowyError};
 }

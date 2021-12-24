@@ -35,8 +35,7 @@ pub fn make_se_token_stream(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStre
                 Ok(pb)
             }
         }
-    }
-    .into();
+    };
 
     Some(se_token_stream)
 }
@@ -55,7 +54,14 @@ fn se_token_stream_for_field(ctxt: &Ctxt, field: &ASTField, _take: bool) -> Opti
 fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream> {
     let member = &field.member;
     let ident = get_member_ident(ctxt, member)?;
-    let ty_info = parse_ty(ctxt, &field.ty)?;
+    let ty_info = match parse_ty(ctxt, &field.ty) {
+        Ok(ty_info) => ty_info,
+        Err(e) => {
+            eprintln!("token_stream_for_one_of failed: {:?} with error: {}", member, e);
+            panic!();
+        },
+    }?;
+
     let bracketed_ty_info = ty_info.bracket_ty_info.as_ref().as_ref();
 
     let set_func = format_ident!("set_{}", ident.to_string());
@@ -77,7 +83,13 @@ fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream>
 }
 
 fn gen_token_stream(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_option: bool) -> Option<TokenStream> {
-    let ty_info = parse_ty(ctxt, ty)?;
+    let ty_info = match parse_ty(ctxt, ty) {
+        Ok(ty_info) => ty_info,
+        Err(e) => {
+            eprintln!("gen_token_stream failed: {:?} with error: {}", member, e);
+            panic!();
+        },
+    }?;
     match ident_category(ty_info.ident) {
         TypeCategory::Array => token_stream_for_vec(ctxt, &member, &ty_info.ty),
         TypeCategory::Map => token_stream_for_map(ctxt, &member, &ty_info.bracket_ty_info.unwrap().ty),
@@ -110,9 +122,16 @@ fn gen_token_stream(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_option
     }
 }
 
-// e.g. pub cells: Vec<CellData>, the memeber will be cells, ty would be Vec
+// e.g. pub cells: Vec<CellData>, the member will be cells, ty would be Vec
 fn token_stream_for_vec(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type) -> Option<TokenStream> {
-    let ty_info = parse_ty(ctxt, ty)?;
+    let ty_info = match parse_ty(ctxt, ty) {
+        Ok(ty_info) => ty_info,
+        Err(e) => {
+            eprintln!("token_stream_for_vec failed: {:?} with error: {}", member, e);
+            panic!();
+        },
+    }?;
+
     match ident_category(ty_info.ident) {
         TypeCategory::Protobuf => Some(quote! {
             pb.#member = ::protobuf::RepeatedField::from_vec(
@@ -133,7 +152,13 @@ fn token_stream_for_vec(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type) -> Op
 fn token_stream_for_map(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type) -> Option<TokenStream> {
     // The key of the hashmap must be string
     let flowy_protobuf = format_ident!("flowy_protobuf");
-    let ty_info = parse_ty(ctxt, ty)?;
+    let ty_info = match parse_ty(ctxt, ty) {
+        Ok(ty_info) => ty_info,
+        Err(e) => {
+            eprintln!("token_stream_for_map failed: {:?} with error: {}", member, e);
+            panic!();
+        },
+    }?;
     match ident_category(ty_info.ident) {
         TypeCategory::Protobuf => {
             let value_type = ty_info.ident;

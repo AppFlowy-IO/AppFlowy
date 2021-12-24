@@ -1,8 +1,8 @@
 import 'package:app_flowy/workspace/domain/i_user.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
 import 'package:flowy_log/flowy_log.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/workspace_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
@@ -76,7 +76,7 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
     );
   }
 
-  void _workspacesUpdated(Either<List<Workspace>, WorkspaceError> workspacesOrFail) {
+  void _workspacesUpdated(Either<List<Workspace>, FlowyError> workspacesOrFail) {
     add(WelcomeEvent.workspacesReveived(workspacesOrFail));
   }
 }
@@ -87,7 +87,7 @@ class WelcomeEvent with _$WelcomeEvent {
   // const factory WelcomeEvent.fetchWorkspaces() = FetchWorkspace;
   const factory WelcomeEvent.createWorkspace(String name, String desc) = CreateWorkspace;
   const factory WelcomeEvent.openWorkspace(Workspace workspace) = OpenWorkspace;
-  const factory WelcomeEvent.workspacesReveived(Either<List<Workspace>, WorkspaceError> workspacesOrFail) =
+  const factory WelcomeEvent.workspacesReveived(Either<List<Workspace>, FlowyError> workspacesOrFail) =
       WorkspacesReceived;
 }
 
@@ -96,7 +96,7 @@ class WelcomeState with _$WelcomeState {
   const factory WelcomeState({
     required bool isLoading,
     required List<Workspace> workspaces,
-    required Either<Unit, WorkspaceError> successOrFailure,
+    required Either<Unit, FlowyError> successOrFailure,
   }) = _WelcomeState;
 
   factory WelcomeState.initial() => WelcomeState(

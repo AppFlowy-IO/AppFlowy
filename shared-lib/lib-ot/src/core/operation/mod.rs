@@ -1,3 +1,4 @@
+#![allow(clippy::module_inception)]
 mod builder;
 mod operation;
 mod operation_serde;

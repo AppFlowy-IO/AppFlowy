@@ -1,6 +1,5 @@
 use quote::ToTokens;
 use std::{cell::RefCell, fmt::Display, thread};
-use syn;
 
 #[derive(Default)]
 pub struct Ctxt {

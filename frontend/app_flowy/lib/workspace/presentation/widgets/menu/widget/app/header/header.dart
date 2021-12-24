@@ -1,17 +1,19 @@
 import 'package:app_flowy/workspace/domain/edit_action/app_edit.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_infra/flowy_icon_data_icons.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/app_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/app_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:dartz/dartz.dart';
+import 'package:app_flowy/generated/locale_keys.g.dart';
 
 import '../menu_app.dart';
 import 'add_button.dart';
@@ -100,10 +102,12 @@ class MenuAppHeader extends StatelessWidget {
 
   Widget _renderAddButton(BuildContext context) {
     return Tooltip(
-      message: "Quickly add a page inside",
+      message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
       child: AddButton(
         onSelected: (viewType) {
-          context.read<AppBloc>().add(AppEvent.createView("Untitled", "", viewType));
+          context
+              .read<AppBloc>()
+              .add(AppEvent.createView(LocaleKeys.menuAppHeader_defaultNewPageName.tr(), "", viewType));
         },
       ).padding(right: MenuAppSizes.headerPadding),
     );
@@ -114,7 +118,7 @@ class MenuAppHeader extends StatelessWidget {
       switch (action) {
         case AppDisclosureAction.rename:
           TextFieldDialog(
-            title: 'Rename',
+            title: LocaleKeys.menuAppHeader_renameDialog.tr(),
             value: context.read<AppBloc>().state.app.name,
             confirm: (newValue) {
               context.read<AppBloc>().add(AppEvent.rename(newValue));

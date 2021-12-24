@@ -1,13 +1,15 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/workspace/welcome_bloc.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/workspace_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/workspace_create.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/workspace/infrastructure/repos/user_repo.dart';
+import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class WelcomeScreen extends StatelessWidget {
   final UserRepo repo;
@@ -53,11 +55,11 @@ class WelcomeScreen extends StatelessWidget {
       width: 200,
       height: 40,
       child: FlowyTextButton(
-        "Create workspace",
+        LocaleKeys.workspace_create.tr(),
         fontSize: 14,
         hoverColor: theme.bg3,
         onPressed: () {
-          context.read<WelcomeBloc>().add(const WelcomeEvent.createWorkspace("workspace", ""));
+          context.read<WelcomeBloc>().add(WelcomeEvent.createWorkspace(LocaleKeys.workspace_hint.tr(), ""));
         },
       ),
     );

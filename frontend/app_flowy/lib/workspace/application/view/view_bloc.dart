@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/view_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:app_flowy/workspace/domain/i_view.dart';
@@ -56,7 +56,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
     );
   }
 
-  Stream<ViewState> _handleViewDidUpdate(Either<View, WorkspaceError> result) async* {
+  Stream<ViewState> _handleViewDidUpdate(Either<View, FlowyError> result) async* {
     yield result.fold(
       (view) => state.copyWith(view: view, successOrFailure: left(unit)),
       (error) => state.copyWith(successOrFailure: right(error)),
@@ -77,7 +77,7 @@ class ViewEvent with _$ViewEvent {
   const factory ViewEvent.rename(String newName) = Rename;
   const factory ViewEvent.delete() = Delete;
   const factory ViewEvent.duplicate() = Duplicate;
-  const factory ViewEvent.viewDidUpdate(Either<View, WorkspaceError> result) = ViewDidUpdate;
+  const factory ViewEvent.viewDidUpdate(Either<View, FlowyError> result) = ViewDidUpdate;
 }
 
 @freezed
@@ -85,7 +85,7 @@ class ViewState with _$ViewState {
   const factory ViewState({
     required View view,
     required bool isEditing,
-    required Either<Unit, WorkspaceError> successOrFailure,
+    required Either<Unit, FlowyError> successOrFailure,
   }) = _ViewState;
 
   factory ViewState.init(View view) => ViewState(

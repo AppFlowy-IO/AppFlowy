@@ -15,11 +15,11 @@ pub struct ProtobufDeriveMeta {
 impl ProtobufDeriveMeta {
     pub fn new(structs: Vec<String>, enums: Vec<String>) -> Self {
         let enums: Vec<_> = enums.into_iter().unique().collect();
-        return ProtobufDeriveMeta {
+        ProtobufDeriveMeta {
             context: Context::new(),
             structs,
             enums,
-        };
+        }
     }
 
     pub fn render(&mut self) -> Option<String> {
@@ -37,7 +37,7 @@ impl ProtobufDeriveMeta {
     }
 }
 
-pub fn write_derive_meta(crate_infos: &Vec<CrateProtoInfo>, derive_meta_dir: &str) {
+pub fn write_derive_meta(crate_infos: &[CrateProtoInfo], derive_meta_dir: &str) {
     let file_proto_infos = crate_infos
         .iter()
         .map(|ref crate_info| &crate_info.files)
@@ -58,7 +58,7 @@ pub fn write_derive_meta(crate_infos: &Vec<CrateProtoInfo>, derive_meta_dir: &st
     let mut derive_template = ProtobufDeriveMeta::new(structs, enums);
     let new_content = derive_template.render().unwrap();
     let old_content = read_file(derive_meta_dir).unwrap();
-    if new_content.clone() == old_content {
+    if new_content == old_content {
         return;
     }
     // println!("{}", diff_lines(&old_content, &new_content));

@@ -6,7 +6,7 @@ use tokio_tungstenite::tungstenite::{http::StatusCode, Message};
 use url::ParseError;
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
-pub struct WsError {
+pub struct WSError {
     #[pb(index = 1)]
     pub code: ErrorCode,
 
@@ -14,11 +14,11 @@ pub struct WsError {
     pub msg: String,
 }
 
-macro_rules! static_user_error {
+macro_rules! static_ws_error {
     ($name:ident, $status:expr) => {
         #[allow(non_snake_case, missing_docs)]
-        pub fn $name() -> WsError {
-            WsError {
+        pub fn $name() -> WSError {
+            WSError {
                 code: $status,
                 msg: format!("{}", $status),
             }
@@ -26,10 +26,10 @@ macro_rules! static_user_error {
     };
 }
 
-impl WsError {
+impl WSError {
     #[allow(dead_code)]
-    pub(crate) fn new(code: ErrorCode) -> WsError {
-        WsError {
+    pub(crate) fn new(code: ErrorCode) -> WSError {
+        WSError {
             code,
             msg: "".to_string(),
         }
@@ -40,16 +40,16 @@ impl WsError {
         self
     }
 
-    static_user_error!(internal, ErrorCode::InternalError);
-    static_user_error!(unsupported_message, ErrorCode::UnsupportedMessage);
-    static_user_error!(unauthorized, ErrorCode::Unauthorized);
+    static_ws_error!(internal, ErrorCode::InternalError);
+    static_ws_error!(unsupported_message, ErrorCode::UnsupportedMessage);
+    static_ws_error!(unauthorized, ErrorCode::Unauthorized);
 }
 
-pub fn internal_error<T>(e: T) -> WsError
+pub fn internal_error<T>(e: T) -> WSError
 where
     T: std::fmt::Debug,
 {
-    WsError::internal().context(e)
+    WSError::internal().context(e)
 }
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Display, PartialEq, Eq)]
@@ -63,31 +63,29 @@ impl std::default::Default for ErrorCode {
     fn default() -> Self { ErrorCode::InternalError }
 }
 
-impl std::convert::From<url::ParseError> for WsError {
-    fn from(error: ParseError) -> Self { WsError::internal().context(error) }
+impl std::convert::From<url::ParseError> for WSError {
+    fn from(error: ParseError) -> Self { WSError::internal().context(error) }
 }
 
-impl std::convert::From<protobuf::ProtobufError> for WsError {
-    fn from(error: protobuf::ProtobufError) -> Self { WsError::internal().context(error) }
+impl std::convert::From<protobuf::ProtobufError> for WSError {
+    fn from(error: protobuf::ProtobufError) -> Self { WSError::internal().context(error) }
 }
 
-impl std::convert::From<futures_channel::mpsc::TrySendError<Message>> for WsError {
-    fn from(error: TrySendError<Message>) -> Self { WsError::internal().context(error) }
+impl std::convert::From<futures_channel::mpsc::TrySendError<Message>> for WSError {
+    fn from(error: TrySendError<Message>) -> Self { WSError::internal().context(error) }
 }
 
-impl std::convert::From<tokio_tungstenite::tungstenite::Error> for WsError {
+impl std::convert::From<tokio_tungstenite::tungstenite::Error> for WSError {
     fn from(error: tokio_tungstenite::tungstenite::Error) -> Self {
-        let error = match error {
+        match error {
             tokio_tungstenite::tungstenite::Error::Http(response) => {
                 if response.status() == StatusCode::UNAUTHORIZED {
-                    WsError::unauthorized()
+                    WSError::unauthorized()
                 } else {
-                    WsError::internal().context(response)
+                    WSError::internal().context(response)
                 }
             },
-            _ => WsError::internal().context(error),
-        };
-
-        error
+            _ => WSError::internal().context(error),
+        }
     }
 }

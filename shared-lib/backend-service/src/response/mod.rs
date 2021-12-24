@@ -1,3 +1,4 @@
+#![allow(clippy::module_inception)]
 mod response;
 
 #[cfg(feature = "http_server")]

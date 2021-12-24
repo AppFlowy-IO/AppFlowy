@@ -14,7 +14,7 @@ run_task = { name = ["flutter-build", "copy-to-product"] }
 
 [tasks.appflowy-linux]
 dependencies = ["flowy-sdk-release"]
-run_task = { name = ["flutter-build", "copy-to-product"] }
+run_task = { name = ["flutter-build", "copy-to-product", "create-release-archive"] }
 script_runner = "@shell"
 
 [tasks.appflowy-dev]
@@ -71,6 +71,9 @@ script = [
   product=${PRODUCT_NAME}
   cp -R ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/build/${TARGET_OS}/${LINUX_ARCH}/${BUILD_FLAG}/bundle \
   ${output_path}/${product}
+
+  cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/linux/appflowy.desktop.temp ${output_path}/${product}
+  cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/assets/images/flowy_logo.svg ${output_path}/${product}
   """,
 ]
 script_runner = "@shell"
@@ -92,6 +95,33 @@ script = [
 ]
 script_runner = "@duckscript"
 
+# The following tasks will create an archive that will be used on the GitHub Releases section
+# The archives are created using different compression programs depending on the target OS
+# The archive will be composed of all files that are located in the /Release/AppFlowy directory
+[tasks.create-release-archive]
+mac_alias = "create-release-archive-macos"
+windows_alias = "create-release-archive-windows"
+linux_alias = "create-release-archive-linux"
+
+[tasks.create-release-archive-linux]
+script = [
+  "cd ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/product/${VERSION}/${TARGET_OS}/Release",
+  "tar -czf ${PRODUCT_NAME}-${TARGET_OS}-x86.tar.gz *"
+]
+
+[tasks.create-release-archive-windows]
+script = [
+  # TODO
+  # "cd ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/product/${VERSION}/${TARGET_OS}/Release/${PRODUCT_NAME}",
+  # "tar -czf ${PRODUCT_NAME}-${TARGET_OS}-x86.tar.gz *"
+]
+
+[tasks.create-release-archive-macos]
+script = [
+  # TODO 
+  # "cd ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/product/${VERSION}/${TARGET_OS}/Release/${PRODUCT_NAME}",
+  # "tar -czf ${PRODUCT_NAME}-${TARGET_OS}-x86.tar.gz *"
+]
 
 [tasks.flutter-build]
 script = [

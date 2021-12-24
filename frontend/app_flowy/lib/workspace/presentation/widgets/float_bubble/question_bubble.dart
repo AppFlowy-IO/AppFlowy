@@ -1,4 +1,5 @@
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -10,6 +11,7 @@ import 'package:dartz/dartz.dart' as dartz;
 import 'package:styled_widget/styled_widget.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class QuestionBubble extends StatelessWidget {
   const QuestionBubble({Key? key}) : super(key: key);
@@ -22,7 +24,7 @@ class QuestionBubble extends StatelessWidget {
       height: 30,
       child: FlowyTextButton(
         '?',
-        tooltip: 'Help and Support',
+        tooltip: LocaleKeys.questionBubble_help.tr(),
         fontSize: 12,
         fontWeight: FontWeight.w600,
         fillColor: theme.selector,
@@ -163,9 +165,9 @@ extension QuestionBubbleExtension on BubbleAction {
   String get name {
     switch (this) {
       case BubbleAction.whatsNews:
-        return "What's new?";
+        return LocaleKeys.questionBubble_whatsNew.tr();
       case BubbleAction.help:
-        return "Help & Support";
+        return LocaleKeys.questionBubble_help.tr();
     }
   }
 

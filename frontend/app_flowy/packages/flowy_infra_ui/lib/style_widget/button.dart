@@ -3,7 +3,6 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class FlowyButton extends StatelessWidget {
   final Widget text;

@@ -1,21 +1,21 @@
 import 'dart:async';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/trash_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/trash_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 
 abstract class ITrash {
-  Future<Either<List<Trash>, WorkspaceError>> readTrash();
+  Future<Either<List<Trash>, FlowyError>> readTrash();
 
-  Future<Either<Unit, WorkspaceError>> putback(String trashId);
+  Future<Either<Unit, FlowyError>> putback(String trashId);
 
-  Future<Either<Unit, WorkspaceError>> deleteViews(List<Tuple2<String, TrashType>> trashList);
+  Future<Either<Unit, FlowyError>> deleteViews(List<Tuple2<String, TrashType>> trashList);
 
-  Future<Either<Unit, WorkspaceError>> restoreAll();
+  Future<Either<Unit, FlowyError>> restoreAll();
 
-  Future<Either<Unit, WorkspaceError>> deleteAll();
+  Future<Either<Unit, FlowyError>> deleteAll();
 }
 
-typedef TrashUpdatedCallback = void Function(Either<List<Trash>, WorkspaceError> trashOrFailed);
+typedef TrashUpdatedCallback = void Function(Either<List<Trash>, FlowyError> trashOrFailed);
 
 abstract class ITrashListener {
   void start(TrashUpdatedCallback updateCallback);

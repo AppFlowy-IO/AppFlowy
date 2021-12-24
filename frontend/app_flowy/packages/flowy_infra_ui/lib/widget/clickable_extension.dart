@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 extension ClickableExtensions on Widget {
   Widget clickable(void Function() action, {bool opaque = true}) {

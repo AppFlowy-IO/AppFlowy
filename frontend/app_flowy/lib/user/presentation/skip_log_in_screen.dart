@@ -1,6 +1,7 @@
 import 'package:app_flowy/user/domain/i_auth.dart';
 import 'package:app_flowy/user/presentation/widgets/background.dart';
 import 'package:app_flowy/workspace/domain/i_user.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra/uuid.dart';
@@ -8,12 +9,13 @@ import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/protobuf.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:dartz/dartz.dart' as dartz;
+import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class SkipLogInScreen extends StatefulWidget {
   final IAuthRouter router;
@@ -49,9 +51,9 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const FlowyLogoTitle(
-          title: 'Welcome to AppFlowy',
-          logoSize: Size.square(60),
+        FlowyLogoTitle(
+          title: LocaleKeys.welcomeText.tr(),
+          logoSize: const Size.square(60),
         ),
         const VSpace(80),
         GoButton(onPressed: () => _autoRegister(context)),
@@ -60,18 +62,18 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             InkWell(
-              child: const Text(
-                'Star on Github',
-                style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue),
+              child: Text(
+                LocaleKeys.githubStarText.tr(),
+                style: const TextStyle(decoration: TextDecoration.underline, color: Colors.blue),
               ),
               onTap: () {
                 _launchURL('https://github.com/AppFlowy-IO/appflowy');
               },
             ),
             InkWell(
-              child: const Text(
-                'Subscribe to Newsletter',
-                style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue),
+              child: Text(
+                LocaleKeys.subscribeNewsletterText.tr(),
+                style: const TextStyle(decoration: TextDecoration.underline, color: Colors.blue),
               ),
               onTap: () {
                 _launchURL('https://www.appflowy.io/blog');
@@ -95,7 +97,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
     const password = "AppFlowy123@";
     final uid = uuid();
     final userEmail = "$uid@appflowy.io";
-    final result = await widget.authManager.signUp("Me", password, userEmail);
+    final result = await widget.authManager.signUp(LocaleKeys.defaultUsername.tr(), password, userEmail);
     result.fold(
       (user) {
         WorkspaceEventReadCurWorkspace().send().then((result) {
@@ -111,7 +113,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
   void _openCurrentWorkspace(
     BuildContext context,
     UserProfile user,
-    dartz.Either<CurrentWorkspaceSetting, WorkspaceError> workspacesOrError,
+    dartz.Either<CurrentWorkspaceSetting, FlowyError> workspacesOrError,
   ) {
     workspacesOrError.fold(
       (workspaceSetting) {
@@ -135,7 +137,7 @@ class GoButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return RoundedTextButton(
-      title: 'Let\'s Go',
+      title: LocaleKeys.letsGoButtonText.tr(),
       height: 50,
       borderRadius: Corners.s10Border,
       color: theme.main1,

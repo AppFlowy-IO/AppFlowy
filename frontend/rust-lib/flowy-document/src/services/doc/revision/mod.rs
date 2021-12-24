@@ -1,6 +1,5 @@
+mod cache;
 mod manager;
-mod model;
-mod persistence;
 
+pub use cache::*;
 pub use manager::*;
-pub use persistence::*;

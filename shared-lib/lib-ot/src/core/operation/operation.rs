@@ -1,19 +1,42 @@
-use crate::core::{Attribute, Attributes, FlowyStr, Interval, OpBuilder};
+use crate::{
+    core::{FlowyStr, Interval, OpBuilder, OperationTransformable},
+    rich_text::{RichTextAttribute, RichTextAttributes},
+};
 use serde::__private::Formatter;
 use std::{
     cmp::min,
     fmt,
+    fmt::Debug,
     ops::{Deref, DerefMut},
 };
 
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub enum Operation {
-    Delete(usize),
-    Retain(Retain),
-    Insert(Insert),
+pub trait Attributes: fmt::Display + Eq + PartialEq + Default + Clone + Debug + OperationTransformable {
+    fn is_empty(&self) -> bool;
+
+    // Remove the empty attribute which value is None.
+    fn remove_empty(&mut self);
+
+    fn extend_other(&mut self, other: Self);
 }
 
-impl Operation {
+pub type RichTextOperation = Operation<RichTextAttributes>;
+impl RichTextOperation {
+    pub fn contain_attribute(&self, attribute: &RichTextAttribute) -> bool {
+        self.get_attributes().contains_key(&attribute.key)
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub enum Operation<T: Attributes> {
+    Delete(usize),
+    Retain(Retain<T>),
+    Insert(Insert<T>),
+}
+
+impl<T> Operation<T>
+where
+    T: Attributes,
+{
     pub fn get_data(&self) -> &str {
         match self {
             Operation::Delete(_) => "",
@@ -22,15 +45,15 @@ impl Operation {
         }
     }
 
-    pub fn get_attributes(&self) -> Attributes {
+    pub fn get_attributes(&self) -> T {
         match self {
-            Operation::Delete(_) => Attributes::default(),
+            Operation::Delete(_) => T::default(),
             Operation::Retain(retain) => retain.attributes.clone(),
             Operation::Insert(insert) => insert.attributes.clone(),
         }
     }
 
-    pub fn set_attributes(&mut self, attributes: Attributes) {
+    pub fn set_attributes(&mut self, attributes: T) {
         match self {
             Operation::Delete(_) => log::error!("Delete should not contains attributes"),
             Operation::Retain(retain) => retain.attributes = attributes,
@@ -40,44 +63,39 @@ impl Operation {
 
     pub fn has_attribute(&self) -> bool { !self.get_attributes().is_empty() }
 
-    pub fn contain_attribute(&self, attribute: &Attribute) -> bool {
-        self.get_attributes().contains_key(&attribute.key)
-    }
-
     pub fn len(&self) -> usize {
-        let len = match self {
+        match self {
             Operation::Delete(n) => *n,
             Operation::Retain(r) => r.n,
             Operation::Insert(i) => i.count_of_code_units(),
-        };
-        len
+        }
     }
 
     pub fn is_empty(&self) -> bool { self.len() == 0 }
 
     #[allow(dead_code)]
-    pub fn split(&self, index: usize) -> (Option<Operation>, Option<Operation>) {
+    pub fn split(&self, index: usize) -> (Option<Operation<T>>, Option<Operation<T>>) {
         debug_assert!(index < self.len());
         let left;
         let right;
         match self {
             Operation::Delete(n) => {
-                left = Some(OpBuilder::delete(index).build());
-                right = Some(OpBuilder::delete(*n - index).build());
+                left = Some(OpBuilder::<T>::delete(index).build());
+                right = Some(OpBuilder::<T>::delete(*n - index).build());
             },
             Operation::Retain(retain) => {
-                left = Some(OpBuilder::delete(index).build());
-                right = Some(OpBuilder::delete(retain.n - index).build());
+                left = Some(OpBuilder::<T>::delete(index).build());
+                right = Some(OpBuilder::<T>::delete(retain.n - index).build());
             },
             Operation::Insert(insert) => {
                 let attributes = self.get_attributes();
                 left = Some(
-                    OpBuilder::insert(&insert.s[0..index])
+                    OpBuilder::<T>::insert(&insert.s[0..index])
                         .attributes(attributes.clone())
                         .build(),
                 );
                 right = Some(
-                    OpBuilder::insert(&insert.s[index..insert.count_of_code_units()])
+                    OpBuilder::<T>::insert(&insert.s[index..insert.count_of_code_units()])
                         .attributes(attributes)
                         .build(),
                 );
@@ -87,7 +105,7 @@ impl Operation {
         (left, right)
     }
 
-    pub fn shrink(&self, interval: Interval) -> Option<Operation> {
+    pub fn shrink(&self, interval: Interval) -> Option<Operation<T>> {
         let op = match self {
             Operation::Delete(n) => OpBuilder::delete(min(*n, interval.size())).build(),
             Operation::Retain(retain) => OpBuilder::retain(min(retain.n, interval.size()))
@@ -146,7 +164,10 @@ impl Operation {
     }
 }
 
-impl fmt::Display for Operation {
+impl<T> fmt::Display for Operation<T>
+where
+    T: Attributes,
+{
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str("{")?;
         match self {
@@ -165,15 +186,18 @@ impl fmt::Display for Operation {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct Retain {
-    #[serde(rename(serialize = "retain", deserialize = "retain"))]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Retain<T: Attributes> {
+    // #[serde(rename(serialize = "retain", deserialize = "retain"))]
     pub n: usize,
-    #[serde(skip_serializing_if = "is_empty")]
-    pub attributes: Attributes,
+    // #[serde(skip_serializing_if = "is_empty")]
+    pub attributes: T,
 }
 
-impl fmt::Display for Retain {
+impl<T> fmt::Display for Retain<T>
+where
+    T: Attributes,
+{
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         if self.attributes.is_empty() {
             f.write_fmt(format_args!("retain: {}", self.n))
@@ -183,8 +207,11 @@ impl fmt::Display for Retain {
     }
 }
 
-impl Retain {
-    pub fn merge_or_new(&mut self, n: usize, attributes: Attributes) -> Option<Operation> {
+impl<T> Retain<T>
+where
+    T: Attributes,
+{
+    pub fn merge_or_new(&mut self, n: usize, attributes: T) -> Option<Operation<T>> {
         tracing::trace!(
             "merge_retain_or_new_op: len: {:?}, l: {} - r: {}",
             n,
@@ -202,38 +229,50 @@ impl Retain {
     pub fn is_plain(&self) -> bool { self.attributes.is_empty() }
 }
 
-impl std::convert::From<usize> for Retain {
+impl<T> std::convert::From<usize> for Retain<T>
+where
+    T: Attributes,
+{
     fn from(n: usize) -> Self {
         Retain {
             n,
-            attributes: Attributes::default(),
+            attributes: T::default(),
         }
     }
 }
 
-impl Deref for Retain {
+impl<T> Deref for Retain<T>
+where
+    T: Attributes,
+{
     type Target = usize;
 
     fn deref(&self) -> &Self::Target { &self.n }
 }
 
-impl DerefMut for Retain {
+impl<T> DerefMut for Retain<T>
+where
+    T: Attributes,
+{
     fn deref_mut(&mut self) -> &mut Self::Target { &mut self.n }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct Insert {
-    #[serde(rename(serialize = "insert", deserialize = "insert"))]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Insert<T: Attributes> {
+    // #[serde(rename(serialize = "insert", deserialize = "insert"))]
     pub s: FlowyStr,
 
-    #[serde(skip_serializing_if = "is_empty")]
-    pub attributes: Attributes,
+    // #[serde(skip_serializing_if = "is_empty")]
+    pub attributes: T,
 }
 
-impl fmt::Display for Insert {
+impl<T> fmt::Display for Insert<T>
+where
+    T: Attributes,
+{
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut s = self.s.clone();
-        if s.ends_with("\n") {
+        if s.ends_with('\n') {
             s.pop();
             if s.is_empty() {
                 s = "new_line".into();
@@ -248,41 +287,51 @@ impl fmt::Display for Insert {
     }
 }
 
-impl Insert {
+impl<T> Insert<T>
+where
+    T: Attributes,
+{
     pub fn count_of_code_units(&self) -> usize { self.s.count_utf16_code_units() }
 
-    pub fn merge_or_new_op(&mut self, s: &str, attributes: Attributes) -> Option<Operation> {
+    pub fn merge_or_new_op(&mut self, s: &str, attributes: T) -> Option<Operation<T>> {
         if self.attributes == attributes {
             self.s += s;
             None
         } else {
-            Some(OpBuilder::insert(s).attributes(attributes).build())
+            Some(OpBuilder::<T>::insert(s).attributes(attributes).build())
         }
     }
 
     pub fn is_plain(&self) -> bool { self.attributes.is_empty() }
 }
 
-impl std::convert::From<String> for Insert {
+impl<T> std::convert::From<String> for Insert<T>
+where
+    T: Attributes,
+{
     fn from(s: String) -> Self {
         Insert {
             s: s.into(),
-            attributes: Attributes::default(),
+            attributes: T::default(),
         }
     }
 }
 
-impl std::convert::From<&str> for Insert {
+impl<T> std::convert::From<&str> for Insert<T>
+where
+    T: Attributes,
+{
     fn from(s: &str) -> Self { Insert::from(s.to_owned()) }
 }
 
-impl std::convert::From<FlowyStr> for Insert {
+impl<T> std::convert::From<FlowyStr> for Insert<T>
+where
+    T: Attributes,
+{
     fn from(s: FlowyStr) -> Self {
         Insert {
             s,
-            attributes: Attributes::default(),
+            attributes: T::default(),
         }
     }
 }
-
-fn is_empty(attributes: &Attributes) -> bool { attributes.is_empty() }

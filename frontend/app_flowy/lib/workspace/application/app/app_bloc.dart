@@ -1,8 +1,8 @@
 import 'package:app_flowy/workspace/domain/i_app.dart';
 import 'package:flowy_log/flowy_log.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/app_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace-infra/view_create.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-workspace/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/app_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-core-data-model/view_create.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
@@ -61,7 +61,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     return super.close();
   }
 
-  void _handleViewsChanged(Either<List<View>, WorkspaceError> result) {
+  void _handleViewsChanged(Either<List<View>, FlowyError> result) {
     result.fold(
       (views) => add(AppEvent.didReceiveViews(views)),
       (error) {
@@ -112,7 +112,7 @@ class AppState with _$AppState {
     required bool isLoading,
     required List<View>? views,
     View? latestCreatedView,
-    required Either<Unit, WorkspaceError> successOrFailure,
+    required Either<Unit, FlowyError> successOrFailure,
   }) = _AppState;
 
   factory AppState.initial(App app) => AppState(

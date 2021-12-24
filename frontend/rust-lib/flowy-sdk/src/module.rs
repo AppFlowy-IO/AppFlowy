@@ -1,24 +1,19 @@
-use crate::deps_resolve::DocumentDepsResolver;
-use backend_service::config::ServerConfig;
-use flowy_document::module::FlowyDocument;
+use flowy_core::prelude::CoreContext;
+
+use flowy_net::services::ws::WsManager;
 use flowy_user::services::user::UserSession;
-use flowy_workspace::prelude::WorkspaceController;
 use lib_dispatch::prelude::Module;
 use std::sync::Arc;
 
-pub fn mk_modules(workspace_controller: Arc<WorkspaceController>, user_session: Arc<UserSession>) -> Vec<Module> {
-    vec![mk_user_module(user_session), mk_workspace_module(workspace_controller)]
+pub fn mk_modules(ws_manager: Arc<WsManager>, core: Arc<CoreContext>, user_session: Arc<UserSession>) -> Vec<Module> {
+    let user_module = mk_user_module(user_session);
+    let core_module = mk_core_module(core);
+    let network_module = mk_network_module(ws_manager);
+    vec![user_module, core_module, network_module]
 }
 
-fn mk_user_module(user_session: Arc<UserSession>) -> Module { flowy_user::module::create(user_session.clone()) }
+fn mk_user_module(user_session: Arc<UserSession>) -> Module { flowy_user::module::create(user_session) }
 
-fn mk_workspace_module(workspace_controller: Arc<WorkspaceController>) -> Module {
-    flowy_workspace::module::create(workspace_controller)
-}
+fn mk_core_module(core: Arc<CoreContext>) -> Module { flowy_core::module::create(core) }
 
-pub fn mk_document_module(user_session: Arc<UserSession>, server_config: &ServerConfig) -> Arc<FlowyDocument> {
-    let document_deps = DocumentDepsResolver::new(user_session.clone());
-    let (user, ws_manager) = document_deps.split_into();
-    let document = Arc::new(FlowyDocument::new(user, ws_manager, server_config));
-    document
-}
+fn mk_network_module(ws_manager: Arc<WsManager>) -> Module { flowy_net::module::create(ws_manager) }
