@@ -4,7 +4,6 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-    
         {
             "name": "app_flowy",
             "request": "launch",
@@ -18,6 +17,14 @@
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
+        },
+        {
+            "name": "Generate Language Files",
+            "request": "launch",
+            "program": "${workspaceRoot}/lib/main.dart",
+            "type": "dart",
+            "preLaunchTask": "Generate Language Files",
+            "cwd": "${workspaceRoot}"
         },
     ]
 }
