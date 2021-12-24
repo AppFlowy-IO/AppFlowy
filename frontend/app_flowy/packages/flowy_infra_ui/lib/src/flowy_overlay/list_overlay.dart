@@ -55,12 +55,9 @@ class ListOverlay extends StatelessWidget {
                 controller: controller,
               ),
               if (footer != null)
-                SizedBox(
-                  height: footer!.height,
-                  child: Padding(
-                    padding: footer!.padding,
-                    child: SizedBox.expand(child: footer!.widget),
-                  ),
+                Padding(
+                  padding: footer!.padding,
+                  child: footer!.widget,
                 ),
             ],
           ),
