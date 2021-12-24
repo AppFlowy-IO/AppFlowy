@@ -1,5 +1,5 @@
 use crate::services::{
-    kv::{KVStore, PostgresKV},
+    kv::PostgresKV,
     web_socket::{WSServer, WebSocketReceivers},
 };
 use actix::Addr;

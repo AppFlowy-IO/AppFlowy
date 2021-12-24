@@ -1,4 +1,5 @@
 use crate::{context::FlowyPersistence, services::document::persistence::DocumentKVPersistence};
+use anyhow::Context;
 use backend_service::errors::{internal_error, ServerError};
 use flowy_collaboration::protobuf::{
     CreateDocParams,
@@ -27,7 +28,7 @@ pub(crate) async fn read_doc(
     persistence: &Arc<FlowyPersistence>,
     params: DocIdentifier,
 ) -> Result<DocumentInfo, ServerError> {
-    let _ = Uuid::parse_str(&params.doc_id)?;
+    let _ = Uuid::parse_str(&params.doc_id).context("Parse document id to uuid failed")?;
 
     let kv_store = persistence.kv_store();
     let revisions = kv_store.batch_get_revisions(&params.doc_id, None).await?;
@@ -53,6 +54,10 @@ struct DocTable {
 
 fn make_doc_from_revisions(doc_id: &str, mut revisions: RepeatedRevision) -> Result<DocumentInfo, ServerError> {
     let revisions = revisions.take_items();
+    if revisions.is_empty() {
+        return Err(ServerError::record_not_found().context(format!("{} not exist", doc_id)));
+    }
+
     let mut document_delta = RichTextDelta::new();
     let mut base_rev_id = 0;
     let mut rev_id = 0;

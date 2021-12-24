@@ -27,7 +27,7 @@ impl DocumentServerAPI for DocServer {
     fn update_doc(&self, token: &str, params: ResetDocumentParams) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.doc_url();
-        FutureResult::new(async move { update_doc_request(&token, params, &url).await })
+        FutureResult::new(async move { reset_doc_request(&token, params, &url).await })
     }
 }
 
@@ -60,7 +60,7 @@ pub async fn read_doc_request(
     Ok(doc)
 }
 
-pub async fn update_doc_request(token: &str, params: ResetDocumentParams, url: &str) -> Result<(), FlowyError> {
+pub async fn reset_doc_request(token: &str, params: ResetDocumentParams, url: &str) -> Result<(), FlowyError> {
     let _ = request_builder()
         .patch(&url.to_owned())
         .header(HEADER_TOKEN, token)

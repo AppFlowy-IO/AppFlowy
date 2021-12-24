@@ -110,7 +110,7 @@ fn user_scope() -> Scope {
             .route(web::get().to(view::read_handler))
             .route(web::patch().to(view::update_handler))
         )
-        .service(web::resource("/document")
+        .service(web::resource("/doc")
             .route(web::post().to(doc::create_document_handler))
             .route(web::get().to(doc::read_document_handler))
             .route(web::patch().to(doc::reset_document_handler))

@@ -1,9 +1,17 @@
 #![allow(clippy::all)]
-use crate::util::helper::*;
+
+use crate::util::helper::{ViewTest, *};
+use flowy_collaboration::{
+    core::document::{Document, PlainDoc},
+    entities::{
+        doc::{CreateDocParams, DocIdentifier},
+        revision::{md5, RepeatedRevision, RevType, Revision},
+    },
+};
 use flowy_core_data_model::entities::{
     app::{AppIdentifier, UpdateAppParams},
     trash::{TrashIdentifier, TrashIdentifiers, TrashType},
-    view::{UpdateViewParams, ViewIdentifier},
+    view::{UpdateViewParams, ViewIdentifier, ViewIdentifiers},
     workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceIdentifier},
 };
 
@@ -214,4 +222,61 @@ async fn workspace_list_read() {
     let read_params = WorkspaceIdentifier::new(None);
     let workspaces = server.read_workspaces(read_params).await;
     assert_eq!(workspaces.len(), 3);
+}
+
+#[actix_rt::test]
+async fn doc_read() {
+    let test = ViewTest::new().await;
+    let params = DocIdentifier {
+        doc_id: test.view.id.clone(),
+    };
+    let doc = test.server.read_doc(params).await;
+    assert_eq!(doc.is_some(), true);
+}
+
+#[actix_rt::test]
+async fn doc_create() {
+    let mut revisions: Vec<Revision> = vec![];
+    let server = TestUserServer::new().await;
+    let doc_id = uuid::Uuid::new_v4().to_string();
+    let user_id = "a".to_owned();
+    let mut document = Document::new::<PlainDoc>();
+    let mut offset = 0;
+    for i in 0..1000 {
+        let content = i.to_string();
+        let delta = document.insert(offset, content.clone()).unwrap();
+        offset += content.len();
+        let bytes = delta.to_bytes();
+        let md5 = md5(&bytes);
+        let revision = if i == 0 {
+            Revision::new(&doc_id, i, i, bytes, RevType::Remote, &user_id, md5)
+        } else {
+            Revision::new(&doc_id, i - 1, i, bytes, RevType::Remote, &user_id, md5)
+        };
+        revisions.push(revision);
+    }
+
+    let params = CreateDocParams {
+        id: doc_id.clone(),
+        revisions: RepeatedRevision { items: revisions },
+    };
+    server.create_doc(params).await;
+
+    let doc = server.read_doc(DocIdentifier { doc_id }).await;
+    assert_eq!(doc.unwrap().text, document.to_json());
+}
+
+#[actix_rt::test]
+async fn doc_delete() {
+    let test = ViewTest::new().await;
+    let delete_params = ViewIdentifiers {
+        view_ids: vec![test.view.id.clone()],
+    };
+    test.server.delete_view(delete_params).await;
+
+    let params = DocIdentifier {
+        doc_id: test.view.id.clone(),
+    };
+    let doc = test.server.read_doc(params).await;
+    assert_eq!(doc.is_none(), true);
 }
