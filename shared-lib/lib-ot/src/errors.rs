@@ -98,10 +98,3 @@ impl ErrorBuilder {
 
     pub fn build(mut self) -> OTError { OTError::new(self.code, &self.msg.take().unwrap_or_else(|| "".to_owned())) }
 }
-
-pub(crate) fn internal_error<T>(e: T) -> OTError
-where
-    T: std::fmt::Debug,
-{
-    OTError::internal().context(e)
-}

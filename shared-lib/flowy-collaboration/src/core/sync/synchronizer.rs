@@ -154,6 +154,7 @@ impl RevisionSynchronizer {
         }
     }
 
+    #[allow(dead_code)]
     fn rev_id(&self) -> i64 { self.rev_id.load(SeqCst) }
 }
 

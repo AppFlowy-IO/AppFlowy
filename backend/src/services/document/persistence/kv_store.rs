@@ -1,8 +1,10 @@
-use crate::{services::kv::KVStore, util::serde_ext::parse_from_bytes};
+use crate::{
+    services::kv::{KVStore, KeyValue},
+    util::serde_ext::parse_from_bytes,
+};
 use backend_service::errors::ServerError;
 use bytes::Bytes;
 use flowy_collaboration::protobuf::{RepeatedRevision, Revision};
-use futures::stream::{self, StreamExt};
 use protobuf::Message;
 use std::sync::Arc;
 
@@ -25,16 +27,25 @@ impl DocumentKVPersistence {
 
     pub(crate) async fn batch_set_revision(&self, revisions: Vec<Revision>) -> Result<(), ServerError> {
         let kv_store = self.inner.clone();
-
-        let f = |revision: Revision, kv_store: Arc<dyn KVStore>| async move {
-            let key = make_revision_key(&revision.doc_id, revision.rev_id);
-            let bytes = revision.write_to_bytes().unwrap();
-            let _ = kv_store.set(&key, Bytes::from(bytes)).await;
-        };
-
-        stream::iter(revisions)
-            .for_each_concurrent(None, |revision| f(revision, kv_store.clone()))
-            .await;
+        let items = revisions
+            .into_iter()
+            .map(|revision| {
+                let key = make_revision_key(&revision.doc_id, revision.rev_id);
+                let value = Bytes::from(revision.write_to_bytes().unwrap());
+                KeyValue { key, value }
+            })
+            .collect::<Vec<KeyValue>>();
+        let _ = kv_store.batch_set(items).await?;
+        // use futures::stream::{self, StreamExt};
+        // let f = |revision: Revision, kv_store: Arc<dyn KVStore>| async move {
+        //     let key = make_revision_key(&revision.doc_id, revision.rev_id);
+        //     let bytes = revision.write_to_bytes().unwrap();
+        //     let _ = kv_store.set(&key, Bytes::from(bytes)).await.unwrap();
+        // };
+        //
+        // stream::iter(revisions)
+        //     .for_each_concurrent(None, |revision| f(revision, kv_store.clone()))
+        //     .await;
         Ok(())
     }
 
@@ -55,10 +66,13 @@ impl DocumentKVPersistence {
             },
         };
 
-        let revisions = items
+        let mut revisions = items
             .into_iter()
             .filter_map(|kv| parse_from_bytes::<Revision>(&kv.value).ok())
             .collect::<Vec<Revision>>();
+
+        // TODO: optimize sort
+        revisions.sort_by(|a, b| a.rev_id.cmp(&b.rev_id));
 
         let mut repeated_revision = RepeatedRevision::new();
         repeated_revision.set_items(revisions.into());

@@ -106,7 +106,7 @@ impl Document {
             self.history.record(undo_delta);
         }
 
-        tracing::debug!("compose result: {}", composed_delta.to_json());
+        tracing::trace!("compose result: {}", composed_delta.to_json());
         trim(&mut composed_delta);
 
         self.set_delta(composed_delta);

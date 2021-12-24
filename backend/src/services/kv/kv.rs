@@ -7,9 +7,10 @@ use anyhow::Context;
 use backend_service::errors::ServerError;
 use bytes::Bytes;
 use lib_infra::future::FutureResultSend;
-use sql_builder::{quote, SqlBuilder as RawSqlBuilder};
+use sql_builder::SqlBuilder as RawSqlBuilder;
 use sqlx::{
     postgres::{PgArguments, PgRow},
+    Arguments,
     Error,
     PgPool,
     Postgres,
@@ -98,20 +99,23 @@ impl KVStore for PostgresKV {
                 .await
                 .context("[KV]:Failed to acquire a Postgres connection")?;
 
+            SqlBuilder::create(KV_TABLE).add_field("id").add_field("blob");
             let mut builder = RawSqlBuilder::insert_into(KV_TABLE);
-            let mut m_builder = builder.field("id").field("blob");
+            let m_builder = builder.field("id").field("blob");
+
+            let mut args = PgArguments::default();
+            kvs.iter().enumerate().for_each(|(index, _)| {
+                let index = index * 2 + 1;
+                m_builder.values(&[format!("${}", index), format!("${}", index + 1)]);
+            });
+
             for kv in kvs {
-                let s = match std::str::from_utf8(&kv.value) {
-                    Ok(v) => v,
-                    Err(e) => {
-                        log::error!("[KV]: {}", e);
-                        ""
-                    },
-                };
-                m_builder = m_builder.values(&[quote(kv.key), quote(s)]);
+                args.add(kv.key);
+                args.add(kv.value.to_vec());
             }
+
             let sql = m_builder.sql()?;
-            let _ = sqlx::query(&sql)
+            let _ = sqlx::query_with(&sql, args)
                 .execute(&mut transaction)
                 .await
                 .map_err(map_sqlx_error)?;
