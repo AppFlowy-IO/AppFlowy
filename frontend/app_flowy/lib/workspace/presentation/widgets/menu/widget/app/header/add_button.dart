@@ -20,7 +20,7 @@ class AddButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return FlowyIconButton(
-      hoverColor: theme.main2,
+      hoverColor: theme.hover,
       width: 22,
       onPressed: () {
         ActionList(

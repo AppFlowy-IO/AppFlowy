@@ -9,7 +9,7 @@ import 'package:styled_widget/styled_widget.dart';
 import 'package:dartz/dartz.dart' as dartz;
 
 abstract class ActionList<T extends ActionItem> {
-  var colors = Colors.black;
+  var colors = "";
 
   List<T> get items;
 
@@ -91,7 +91,7 @@ class ActionCell<T extends ActionItem> extends StatelessWidget {
     final theme = context.watch<AppTheme>();
 
     return FlowyHover(
-      config: HoverDisplayConfig(hoverColor: theme.main2, borderColor: theme.main1),
+      config: HoverDisplayConfig(hoverColor: theme.hover, borderColor: theme.shader2),
       builder: (context, onHover) {
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
@@ -103,7 +103,7 @@ class ActionCell<T extends ActionItem> extends StatelessWidget {
               children: [
                 if (action.icon != null) action.icon!,
                 HSpace(ActionListSizes.itemHPadding),
-                FlowyText.medium(action.name, fontSize: 12, color: Colors.black),
+                FlowyText.medium(action.name, fontSize: 12),
               ],
             ),
           ).padding(
