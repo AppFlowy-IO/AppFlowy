@@ -84,11 +84,9 @@ DefaultStyles customStyles(BuildContext context) {
           TextStyle(color: baseStyle.color!.withOpacity(0.6)),
           baseSpacing,
           const Tuple2(6, 2),
-          const BoxDecoration(
-            //color needs a constant
-            // color: (theme.isDark ? theme.shader1 : theme.shader7), //Fix color for block qoute dark theme
+          BoxDecoration(
             border: Border(
-              left: BorderSide(width: 4, color: Colors.blueAccent),
+              left: BorderSide(width: 4, color: theme.main1),
             ),
           )),
       code: DefaultTextBlockStyle(
