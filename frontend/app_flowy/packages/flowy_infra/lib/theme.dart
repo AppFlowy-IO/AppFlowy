@@ -1,3 +1,4 @@
+//
 import 'package:flowy_infra/color.dart';
 import 'package:flutter/material.dart';
 
@@ -9,8 +10,9 @@ enum ThemeType {
 //Color Pallettes
 const _black = Color(0xff000000);
 const _grey = Color(0xff808080);
-const _white = Color(0xffffffff);
+const _white = Color(0xFFFFFFFF);
 const _gray_shade200 = Color(0xFFEEEEEE);
+const _main2 = const Color(0xff00b7ea);
 
 class AppTheme {
   static ThemeType defaultTheme = ThemeType.light;
@@ -71,8 +73,6 @@ class AppTheme {
           ..shader5 = const Color(0xffe0e0e0)
           ..shader6 = const Color(0xfff2f2f2)
           ..shader7 = _gray_shade200
-          // ..shader7 = const Color(0xffffffff)
-          // ..bg1 = const Color(0xfff7f8fc)
           ..bg1 = _gray_shade200
           ..bg2 = const Color(0xffedeef2)
           ..bg3 = const Color(0xffe2e4eb)
@@ -93,21 +93,21 @@ class AppTheme {
       case ThemeType.dark:
         return AppTheme(isDark: true)
           ..surface = _black
-          ..hover = _white //
-          ..selector = _black //support icon
+          ..hover = _main2
+          ..selector = _black
           ..red = const Color(0xfffb006d)
           ..yellow = const Color(0xffffd667)
           ..green = const Color(0xff66cf80)
-          ..shader1 = _white //text and icons
+          ..shader1 = _white
           ..shader2 = const Color(0xffffffff)
           ..shader3 = const Color(0xff828282)
           ..shader4 = const Color(0xffbdbdbd)
-          ..shader5 = _black
+          ..shader5 = _white
           ..shader6 = _black
           ..shader7 = _black
           ..bg1 = _black
           ..bg2 = _black
-          ..bg3 = _grey //highlighted selected Items
+          ..bg3 = _grey
           ..bg4 = const Color(0xff2c144b)
           ..tint1 = const Color(0xffe8e0ff)
           ..tint2 = const Color(0xffffe7fd)
@@ -126,10 +126,6 @@ class AppTheme {
 
   ThemeData get themeData {
     var t = ThemeData(
-      /*
-      *Old Code 
-      // textTheme: (isDark ? ThemeData.light() : ThemeData.dark()).textTheme, //Text Theme Cant adapt from white to black?
-      */
       textTheme: TextTheme(bodyText1: TextStyle(), bodyText2: TextStyle().apply(color: textColor)),
       textSelectionTheme: TextSelectionThemeData(cursorColor: main2, selectionHandleColor: main2),
       primaryIconTheme: IconThemeData(color: hover),
