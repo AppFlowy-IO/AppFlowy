@@ -37,7 +37,7 @@ class MenuAppHeader extends StatelessWidget {
         children: [
           _renderExpandedIcon(context, theme),
           // HSpace(MenuAppSizes.iconPadding),
-          _renderTitle(context),
+          _renderTitle(context, theme),
           _renderAddButton(context),
         ],
       ),
@@ -56,7 +56,7 @@ class MenuAppHeader extends StatelessWidget {
           theme: ExpandableThemeData(
             expandIcon: FlowyIconData.drop_down_show,
             collapseIcon: FlowyIconData.drop_down_hide,
-            iconColor: theme.shader1,
+            iconColor: theme.main1,
             iconSize: MenuAppSizes.iconSize,
             iconPadding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
             hasIcon: false,
@@ -66,7 +66,7 @@ class MenuAppHeader extends StatelessWidget {
     );
   }
 
-  Widget _renderTitle(BuildContext context) {
+  Widget _renderTitle(BuildContext context, AppTheme theme) {
     return Expanded(
       child: BlocListener<AppBloc, AppState>(
         listenWhen: (p, c) => (p.latestCreatedView == null && c.latestCreatedView != null),
@@ -92,6 +92,7 @@ class MenuAppHeader extends StatelessWidget {
             builder: (context, app) => FlowyText.medium(
               app.name,
               fontSize: 12,
+              color: theme.textColor,
             ),
           ),
         ),

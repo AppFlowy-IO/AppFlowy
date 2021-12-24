@@ -68,6 +68,7 @@ DefaultStyles customStyles(BuildContext context) {
         color: themeData.colorScheme.secondary,
         decoration: TextDecoration.underline,
       ),
+      color: (theme.isDark ? theme.shader1 : theme.shader7),
       placeHolder: DefaultTextBlockStyle(
           defaultTextStyle.style.copyWith(
             fontSize: 20,
@@ -85,7 +86,7 @@ DefaultStyles customStyles(BuildContext context) {
           const Tuple2(6, 2),
           BoxDecoration(
             border: Border(
-              left: BorderSide(width: 4, color: Colors.grey.shade300),
+              left: BorderSide(width: 4, color: theme.main1),
             ),
           )),
       code: DefaultTextBlockStyle(

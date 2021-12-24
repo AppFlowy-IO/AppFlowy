@@ -50,7 +50,7 @@ class FlowyLogoTitle extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              color: theme.shader1,
+              color: theme.textColor,
               fontWeight: FontWeight.w600,
               fontSize: 24,
             ),

@@ -39,12 +39,11 @@ class FlowyText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    final textColor = color ?? theme.shader1;
     return Text(title,
         overflow: overflow,
         softWrap: false,
         style: TextStyle(
-          color: textColor,
+          color: theme.textColor,
           fontWeight: fontWeight,
           fontSize: fontSize + 2,
           fontFamily: 'Mulish',

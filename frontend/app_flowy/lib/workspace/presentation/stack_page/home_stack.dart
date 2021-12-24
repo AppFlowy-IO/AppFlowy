@@ -29,7 +29,7 @@ class HomeStack extends StatelessWidget {
         getIt<HomeStackManager>().stackTopBar(),
         Expanded(
           child: Container(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.background,
             child: FocusTraversalGroup(
               child: getIt<HomeStackManager>().stackWidget(),
             ),
