@@ -1,4 +1,3 @@
-//
 import 'package:flowy_infra/color.dart';
 import 'package:flutter/material.dart';
 
@@ -12,7 +11,7 @@ const _black = Color(0xff000000);
 const _grey = Color(0xff808080);
 const _white = Color(0xFFFFFFFF);
 const _gray_shade200 = Color(0xFFEEEEEE);
-const _main2 = const Color(0xff00b7ea);
+const _main2 = Color(0xff00b7ea);
 
 class AppTheme {
   static ThemeType defaultTheme = ThemeType.light;

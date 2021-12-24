@@ -46,9 +46,7 @@ class ApplicationWidget extends StatelessWidget {
     // const launchWidth = 1310.0;
     // setWindowFrame(const Rect.fromLTWH(0, 0, launchWidth, launchWidth / ratio));
 
-    var _dark = ThemeType.dark;
-    var _light = ThemeType.light;
-    final theme = AppTheme.fromType(ThemeType.light);
+    final theme = AppTheme.fromType(ThemeType.dark);
     theme.isDark = true;
     return Provider.value(
       value: theme,
