@@ -540,14 +540,6 @@ impl ::protobuf::reflect::ProtobufValue for NewDocumentUser {
     }
 }
 
-#[derive(Clone,PartialEq,Eq,Debug,Hash)]
-pub enum DocumentWSDataType {
-    Ack = 0,
-    PushRev = 1,
-    PullRev = 2,
-    UserConnect = 3,
-}
-
 impl ::protobuf::ProtobufEnum for DocumentWSDataType {
     fn value(&self) -> i32 {
         *self as i32
@@ -579,6 +571,14 @@ impl ::protobuf::ProtobufEnum for DocumentWSDataType {
             ::protobuf::reflect::EnumDescriptor::new_pb_name::<DocumentWSDataType>("DocumentWSDataType", file_descriptor_proto())
         })
     }
+}
+
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
+pub enum DocumentWSDataType {
+    Ack = 0,
+    PushRev = 1,
+    PullRev = 2,
+    UserConnect = 3,
 }
 
 impl ::std::marker::Copy for DocumentWSDataType {

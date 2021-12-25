@@ -1,9 +1,10 @@
 use crate::{
-    core::{document::Document, sync::DocumentPersistence},
+    document::Document,
     entities::{
         revision::{Revision, RevisionRange},
         ws::{DocumentWSData, DocumentWSDataBuilder},
     },
+    sync::DocumentPersistence,
 };
 use lib_ot::{core::OperationTransformable, errors::OTError, rich_text::RichTextDelta};
 use parking_lot::RwLock;

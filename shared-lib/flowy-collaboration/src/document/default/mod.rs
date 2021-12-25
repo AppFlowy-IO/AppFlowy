@@ -8,13 +8,13 @@ pub fn initial_delta_string() -> String { initial_delta().to_json() }
 
 #[inline]
 pub fn initial_read_me() -> RichTextDelta {
-    let json = include_str!("./READ_ME.json");
+    let json = include_str!("READ_ME.json");
     RichTextDelta::from_json(json).unwrap()
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::core::document::default::initial_read_me;
+    use crate::document::default::initial_read_me;
 
     #[test]
     fn load_read_me() {

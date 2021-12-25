@@ -1,4 +1,4 @@
-use crate::core::document::*;
+use crate::document::*;
 use lib_ot::{
     core::{trim, Interval},
     errors::{ErrorBuilder, OTError, OTErrorCode},

@@ -8,7 +8,7 @@ use std::convert::{TryFrom, TryInto};
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Eq, PartialEq, Hash)]
 pub enum DocumentWSDataType {
-    // The frontend receives the Acked means the backend has accepted the revision
+    // The frontend receives the Ack means the backend has received the revision
     Ack         = 0,
     // The frontend receives the PushRev event means the backend is pushing the new revision to frontend
     PushRev     = 1,

@@ -2,7 +2,7 @@
 
 use crate::util::helper::{ViewTest, *};
 use flowy_collaboration::{
-    core::document::{Document, PlainDoc},
+    document::{Document, PlainDoc},
     entities::{
         doc::{CreateDocParams, DocIdentifier},
         revision::{md5, RepeatedRevision, RevType, Revision},

@@ -6,7 +6,7 @@ use lib_ot::{
 };
 
 use crate::{
-    core::document::{
+    document::{
         default::initial_delta,
         history::{History, UndoResult},
         view::{View, RECORD_THRESHOLD},

@@ -1,4 +1,4 @@
-use crate::core::document::InsertExt;
+use crate::document::InsertExt;
 pub use auto_exit_block::*;
 pub use auto_format::*;
 pub use default_insert::*;

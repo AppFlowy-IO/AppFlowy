@@ -4,7 +4,7 @@ use lib_ot::{
 };
 
 use crate::{
-    core::document::{extensions::helper::line_break, FormatExt},
+    document::{extensions::helper::line_break, FormatExt},
     util::find_newline,
 };
 
