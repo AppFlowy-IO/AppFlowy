@@ -5,13 +5,18 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_log/flowy_log.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:styled_widget/styled_widget.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:app_flowy/workspace/presentation/stack_page/home_stack.dart';
 
 class QuestionBubble extends StatelessWidget {
   const QuestionBubble({Key? key}) : super(key: key);
@@ -39,6 +44,69 @@ class QuestionBubble extends StatelessWidget {
                   break;
                 case BubbleAction.help:
                   _launchURL("https://discord.gg/9Q2xaN37tV");
+                  break;
+                case BubbleAction.debug:
+                  final deviceInfoPlugin = DeviceInfoPlugin();
+                  final deviceInfo = deviceInfoPlugin.deviceInfo;
+                  
+                  deviceInfo.then((info) {
+                    var debugText = "";
+                    info.toMap().forEach((key, value) {
+                      debugText = debugText + "$key: $value\n";
+                    });
+
+                    Clipboard.setData(ClipboardData( text: debugText ));
+
+                    Widget toast = Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(25.0),
+                        color: theme.main1,
+                      ),
+                      child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                          const Icon(Icons.check),
+                          const SizedBox(
+                            width: 12.0,
+                          ),
+                          Text(LocaleKeys.questionBubble_debug_success.tr()),
+                        ],
+                      ),
+                    );
+
+                    fToast.showToast(
+                        child: toast,
+                        gravity: ToastGravity.BOTTOM,
+                        toastDuration: const Duration(seconds: 3),
+                    );
+                  }).catchError((error) {
+                    Log.info("Debug info has not yet been implemented on this platform");
+
+                    Widget toast = Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(25.0),
+                        color: Colors.red,
+                      ),
+                      child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                          const Icon(Icons.close),
+                          const SizedBox(
+                            width: 12.0,
+                          ),
+                          Text(LocaleKeys.questionBubble_debug_fail.tr()),
+                        ],
+                      ),
+                    );
+
+                    fToast.showToast(
+                        child: toast,
+                        gravity: ToastGravity.BOTTOM,
+                        toastDuration: const Duration(seconds: 3),
+                    );
+                  }, test: (e) => e is UnimplementedError);
                   break;
               }
             });
@@ -148,6 +216,7 @@ class FlowyVersionDescription extends StatelessWidget {
 enum BubbleAction {
   whatsNews,
   help,
+  debug
 }
 
 class BubbleActionWrapper extends ActionItem {
@@ -168,6 +237,8 @@ extension QuestionBubbleExtension on BubbleAction {
         return LocaleKeys.questionBubble_whatsNew.tr();
       case BubbleAction.help:
         return LocaleKeys.questionBubble_help.tr();
+      case BubbleAction.debug:
+        return LocaleKeys.questionBubble_debug_name.tr();
     }
   }
 
@@ -177,6 +248,8 @@ extension QuestionBubbleExtension on BubbleAction {
         return const Text('⭐️', style: TextStyle(fontSize: 12));
       case BubbleAction.help:
         return const Text('👥', style: TextStyle(fontSize: 12));
+      case BubbleAction.debug:
+        return const Text('🐛', style: TextStyle(fontSize: 12));
     }
   }
 }

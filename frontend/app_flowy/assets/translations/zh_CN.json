@@ -65,7 +65,12 @@
   "dialogCreatePageNameHint": "页面名称",
   "questionBubble": {
     "whatsNew": "新功能?",
-    "help": "帮助 & 支持"
+    "help": "帮助 & 支持",
+    "debug": {
+      "name": "调试信息",
+      "success": "将调试信息复制到剪贴板！",
+      "fail": "无法将调试信息复制到剪贴板"
+    }
   },
   "menuAppHeader": {
     "addPageTooltip": "在其中快速添加页面",

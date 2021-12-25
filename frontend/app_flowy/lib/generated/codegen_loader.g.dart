@@ -14,8 +14,135 @@ class CodegenLoader extends AssetLoader{
     return Future.value(mapLocales[locale.toString()]);
   }
 
-  static const Map<String,dynamic> en = {
-  "appName": "Appflowy",
+  static const Map<String,dynamic> it_IT = {
+  "appName": "AppFlowy",
+  "defaultUsername": "Me",
+  "welcomeText": "Benvenuto in @:appName",
+  "githubStarText": "Vota su GitHub",
+  "subscribeNewsletterText": "Sottoscrivi la Newsletter",
+  "letsGoButtonText": "Andiamo",
+  "title": "Titolo",
+  "signUp": {
+    "buttonText": "Registrati",
+    "title": "Registrati per @:appName",
+    "getStartedText": "Iniziamo",
+    "emptyPasswordError": "La password non può essere vuota",
+    "repeatPasswordEmptyError": "La password ripetuta non può essere vuota",
+    "unmatchedPasswordError": "La password ripetuta non è uguale alla password",
+    "alreadyHaveAnAccount": "Hai già un account?",
+    "emailHint": "Email",
+    "passwordHint": "Password",
+    "repeatPasswordHint": "Ripeti password"
+  },
+  "signIn": {
+    "loginTitle": "Accedi a @:appName",
+    "loginButtonText": "Login",
+    "buttonText": "Accedi",
+    "forgotPassword": "Password Dimentica?",
+    "emailHint": "Email",
+    "passwordHint": "Password",
+    "dontHaveAnAccount": "Non hai un account?",
+    "repeatPasswordEmptyError": "La password ripetuta non può essere vuota",
+    "unmatchedPasswordError": "La password ripetuta non è uguale alla password"
+  },
+  "workspace": {
+    "create": "Crea spazio di lavoro",
+    "hint": "spazio di lavoro",
+    "notFoundError": "Spazio di lavoro non trovato"
+  },
+  "shareAction": {
+    "buttonText": "Condividi",
+    "workInProgress": "In corso",
+    "markdown": "Markdown",
+    "copyLink": "Copia Link"
+  },
+  "disclosureAction": {
+    "rename": "Rinomina",
+    "delete": "Cancella",
+    "duplicate": "Duplica"
+  },
+  "blankPageTitle": "Pagina vuota",
+  "newPageText": "Nuova pagina",
+  "trash": {
+    "text": "Cestino",
+    "restoreAll": "Ripristina Tutto",
+    "deleteAll": "Elimina Tutto",
+    "pageHeader": {
+      "fileName": "Nome file",
+      "lastModified": "Ultima Modifica",
+      "created": "Creato"
+    }
+  },
+  "deletePagePrompt": {
+    "text": "Questa pagina è nel Cestino",
+    "restore": "Ripristina pagina",
+    "deletePermanent": "Elimina definitivamente"
+  },
+  "dialogCreatePageNameHint": "Nome pagina",
+  "questionBubble": {
+    "whatsNew": "Cosa c'è di nuovo?",
+    "help": "Aiuto & Supporto",
+    "debug": {
+      "name": "Informazioni di debug",
+      "success": "Informazioni di debug copiate negli appunti!",
+      "fail": "Impossibile copiare le informazioni di debug negli appunti"
+    }
+  },
+  "menuAppHeader": {
+    "addPageTooltip": "Aggiungi velocemente una pagina all'interno",
+    "defaultNewPageName": "Senza titolo",
+    "renameDialog": "Rinomina"
+  },
+  "toolbar": {
+    "undo": "Undo",
+    "redo": "Redo",
+    "bold": "Grassetto",
+    "italic": "Italico",
+    "underline": "Sottolineato",
+    "strike": "Barrato",
+    "numList": "Lista numerata",
+    "bulletList": "Lista a punti",
+    "checkList": "Lista Controllo",
+    "inlineCode": "Codice in linea",
+    "quote": "Cita Blocco"
+  },
+  "contactsPage": {
+    "title": "Contatti",
+    "whatsHappening": "Cosa accadrà la prossima settimana?",
+    "addContact": "Aggiungi Contatti",
+    "editContact": "Modifica Contatti"
+  },
+  "button": {
+    "OK": "OK",
+    "Cancel": "Annulla",
+    "signIn": "Accedi",
+    "signOut": "Esci",
+    "complete": "Completa",
+    "save": "Salva"
+  },
+  "label": {
+    "welcome": "Benvenuto!",
+    "firstName": "Name",
+    "middleName": "Secondo Name",
+    "lastName": "Cognome",
+    "stepX": "Passo {X}"
+  },
+  "oAuth": {
+    "err": {
+      "failedTitle": "Impossibile collegarsi al tuo account.",
+      "failedMsg": "Si prega di verificare di aver completato il processo di iscrizione nel tuo browser."
+    },
+    "google": {
+      "title": "GOOGLE SIGN-IN",
+      "instruction1": "Al fine di importare i tuoi Contatti Google è necessario autorizzare questa applicaizone ad utilizzare il tuo beowser web.",
+      "instruction2": "Copia questo codice nella tua clipboard premendo l'icona o selezionando il testo:",
+      "instruction3": "Naviga sul seguente link con il tuo browser web e inserisci il codice seguente:",
+      "instruction4": "Premi il bottono qui sotto quando hai completato l'iscrizione:"
+    }
+  }
+};
+static const Map<String,dynamic> en = {
+  "appName": "AppFlowy",
   "defaultUsername": "Me",
   "welcomeText": "Welcome to @:appName",
   "githubStarText": "Star on GitHub",
@@ -81,7 +208,12 @@ class CodegenLoader extends AssetLoader{
   "dialogCreatePageNameHint": "Page name",
   "questionBubble": {
     "whatsNew": "What's new?",
-    "help": "Help & Support"
+    "help": "Help & Support",
+    "debug": {
+      "name": "Debug Info",
+      "success": "Copied debug info to clipboard!",
+      "fail": "Unable to copy debug info to clipboard"
+    }
   },
   "menuAppHeader": {
     "addPageTooltip": "Quickly add a page inside",
@@ -203,7 +335,12 @@ static const Map<String,dynamic> zh_CN = {
   "dialogCreatePageNameHint": "页面名称",
   "questionBubble": {
     "whatsNew": "新功能?",
-    "help": "帮助 & 支持"
+    "help": "帮助 & 支持",
+    "debug": {
+      "name": "调试信息",
+      "success": "将调试信息复制到剪贴板！",
+      "fail": "无法将调试信息复制到剪贴板"
+    }
   },
   "menuAppHeader": {
     "addPageTooltip": "在其中快速添加页面",
@@ -258,5 +395,5 @@ static const Map<String,dynamic> zh_CN = {
     }
   }
 };
-static const Map<String, Map<String,dynamic>> mapLocales = {"en": en, "zh_CN": zh_CN};
+static const Map<String, Map<String,dynamic>> mapLocales = {"it_IT": it_IT, "en": en, "zh_CN": zh_CN};
 }
