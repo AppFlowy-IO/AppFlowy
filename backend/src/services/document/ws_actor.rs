@@ -7,13 +7,13 @@ use actix_rt::task::spawn_blocking;
 use crate::context::FlowyPersistence;
 use async_stream::stream;
 use backend_service::errors::{internal_error, Result, ServerError};
-use flowy_collaboration::{
-    core::sync::{RevisionUser, ServerDocumentManager, SyncResponse},
-    protobuf::{DocumentWSData, DocumentWSDataType, NewDocumentUser, Revision},
-};
+use flowy_collaboration::protobuf::{DocumentWSData, DocumentWSDataType, NewDocumentUser, Revision};
 use futures::stream::StreamExt;
 
-use flowy_collaboration::protobuf::RepeatedRevision;
+use flowy_collaboration::{
+    protobuf::RepeatedRevision,
+    sync::{RevisionUser, ServerDocumentManager, SyncResponse},
+};
 use std::{convert::TryInto, sync::Arc};
 use tokio::sync::{mpsc, oneshot};
 
@@ -93,7 +93,7 @@ impl DocumentWebSocketActor {
             DocumentWSDataType::Ack => Ok(()),
             DocumentWSDataType::PushRev => self.handle_pushed_rev(user, document_data.data).await,
             DocumentWSDataType::PullRev => Ok(()),
-            DocumentWSDataType::UserConnect => self.handle_user_connect(user, document_data).await,
+            DocumentWSDataType::UserConnect => Ok(()),
         };
         match result {
             Ok(_) => {},
@@ -102,18 +102,6 @@ impl DocumentWebSocketActor {
             },
         }
 
-        Ok(())
-    }
-
-    async fn handle_user_connect(&self, user: Arc<ServerDocUser>, document_data: DocumentWSData) -> Result<()> {
-        let mut new_user = spawn_blocking(move || parse_from_bytes::<NewDocumentUser>(&document_data.data))
-            .await
-            .map_err(internal_error)??;
-        let repeated_revisions =
-            spawn_blocking(move || parse_from_bytes::<RepeatedRevision>(&new_user.take_revision_data()))
-                .await
-                .map_err(internal_error)??;
-        let _ = self.handle_revision(user, repeated_revisions).await?;
         Ok(())
     }
 

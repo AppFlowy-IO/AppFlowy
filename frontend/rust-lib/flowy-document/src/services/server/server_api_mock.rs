@@ -1,5 +1,5 @@
 use flowy_collaboration::{
-    core::document::default::initial_delta_string,
+    document::default::initial_delta_string,
     entities::doc::{CreateDocParams, DocIdentifier, DocumentInfo, ResetDocumentParams},
 };
 use lib_infra::future::FutureResult;

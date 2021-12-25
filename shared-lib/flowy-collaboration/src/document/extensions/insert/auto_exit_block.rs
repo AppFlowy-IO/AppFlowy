@@ -1,4 +1,4 @@
-use crate::{core::document::InsertExt, util::is_newline};
+use crate::{document::InsertExt, util::is_newline};
 use lib_ot::{
     core::{is_empty_line_at_index, DeltaBuilder, DeltaIter},
     rich_text::{attributes_except_header, RichTextAttributeKey, RichTextDelta},

@@ -1,4 +1,4 @@
-use crate::core::document::default::initial_delta;
+use crate::document::default::initial_delta;
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use lib_ot::rich_text::RichTextDelta;

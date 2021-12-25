@@ -1,8 +1,9 @@
-use crate::{core::document::InsertExt, util::is_newline};
+use crate::util::is_newline;
 use lib_ot::{
     core::{CharMetric, DeltaBuilder, DeltaIter, NEW_LINE},
     rich_text::{RichTextAttributeKey, RichTextAttributes, RichTextDelta},
 };
+use crate::document::InsertExt;
 
 pub struct ResetLineFormatOnNewLine {}
 impl InsertExt for ResetLineFormatOnNewLine {

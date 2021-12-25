@@ -3,13 +3,12 @@ use crate::services::{
         persistence::{create_doc, read_doc},
         ws_actor::{DocumentWebSocketActor, WSActorMessage},
     },
-    web_socket::{WSClientData, WebSocketReceiver},
+    web_socket::{WebSocketReceiver, WSClientData},
 };
 
 use crate::context::FlowyPersistence;
 use backend_service::errors::ServerError;
 use flowy_collaboration::{
-    core::sync::{DocumentPersistence, ServerDocumentManager},
     entities::{
         doc::{CreateDocParams, DocumentInfo},
         revision::{RepeatedRevision, Revision},
@@ -25,6 +24,7 @@ use std::{
     sync::Arc,
 };
 use tokio::sync::{mpsc, oneshot};
+use flowy_collaboration::sync::{DocumentPersistence, ServerDocumentManager};
 
 pub fn make_document_ws_receiver(persistence: Arc<FlowyPersistence>) -> Arc<DocumentWebSocketReceiver> {
     let document_persistence = Arc::new(DocumentPersistenceImpl(persistence.clone()));

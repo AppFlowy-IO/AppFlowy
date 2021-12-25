@@ -8,7 +8,7 @@ use crate::{
 };
 use bytes::Bytes;
 use flowy_collaboration::{
-    core::document::history::UndoResult,
+    document::history::UndoResult,
     entities::{
         doc::DocumentDelta,
         revision::{RevId, RevType, Revision},

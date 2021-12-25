@@ -1,4 +1,4 @@
-use crate::{core::document::InsertExt, util::is_newline};
+use crate::util::is_newline;
 use lib_ot::{
     core::{DeltaBuilder, DeltaIter, NEW_LINE},
     rich_text::{
@@ -10,6 +10,7 @@ use lib_ot::{
         RichTextDelta,
     },
 };
+use crate::document::InsertExt;
 
 pub struct PreserveBlockFormatOnInsert {}
 impl InsertExt for PreserveBlockFormatOnInsert {

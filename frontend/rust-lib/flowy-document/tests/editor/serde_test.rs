@@ -1,4 +1,4 @@
-use flowy_collaboration::core::document::{Document, PlainDoc};
+use flowy_collaboration::document::{Document, PlainDoc};
 use lib_ot::{
     core::*,
     rich_text::{AttributeBuilder, RichTextAttribute, RichTextAttributeValue, RichTextDelta},

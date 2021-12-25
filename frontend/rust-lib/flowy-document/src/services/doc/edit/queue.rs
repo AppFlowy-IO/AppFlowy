@@ -1,7 +1,6 @@
 use async_stream::stream;
 
 use flowy_collaboration::{
-    core::document::{history::UndoResult, Document},
     entities::revision::Revision,
     errors::CollaborateError,
 };
@@ -13,6 +12,7 @@ use lib_ot::{
 };
 use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot, RwLock};
+use flowy_collaboration::document::{Document, history::UndoResult};
 
 pub(crate) struct EditorCommandQueue {
     doc_id: String,
