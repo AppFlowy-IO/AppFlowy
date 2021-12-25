@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use backend_service::configuration::ClientServerConfiguration;
 use flowy_database::DBConnection;
-use flowy_document::module::FlowyDocument;
+use flowy_document::context::DocumentContext;
 use lib_dispatch::prelude::*;
 use lib_sqlite::ConnectionPool;
 
@@ -43,7 +43,7 @@ pub trait WorkspaceDatabase: Send + Sync {
 pub fn init_core(
     user: Arc<dyn WorkspaceUser>,
     database: Arc<dyn WorkspaceDatabase>,
-    flowy_document: Arc<FlowyDocument>,
+    flowy_document: Arc<DocumentContext>,
     server_config: &ClientServerConfiguration,
 ) -> Arc<CoreContext> {
     let server = construct_workspace_server(server_config);

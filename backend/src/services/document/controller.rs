@@ -19,7 +19,11 @@ use flowy_collaboration::{
 };
 use lib_infra::future::FutureResultSend;
 
-use std::{convert::TryInto, sync::Arc};
+use std::{
+    convert::TryInto,
+    fmt::{Debug, Formatter},
+    sync::Arc,
+};
 use tokio::sync::{mpsc, oneshot};
 
 pub fn make_document_ws_receiver(persistence: Arc<FlowyPersistence>) -> Arc<DocumentWebSocketReceiver> {
@@ -69,23 +73,11 @@ impl WebSocketReceiver for DocumentWebSocketReceiver {
 }
 
 struct DocumentPersistenceImpl(Arc<FlowyPersistence>);
-impl DocumentPersistence for DocumentPersistenceImpl {
-    // fn update_doc(&self, doc_id: &str, rev_id: i64, delta: RichTextDelta) ->
-    // FutureResultSend<(), CollaborateError> {     let pg_pool =
-    // self.0.pg_pool();     let mut params = ResetDocumentParams::new();
-    //     let doc_json = delta.to_json();
-    //     params.set_doc_id(doc_id.to_string());
-    //     params.set_data(doc_json);
-    //     params.set_rev_id(rev_id);
-    //
-    //     FutureResultSend::new(async move {
-    //         let _ = update_doc(&pg_pool, params)
-    //             .await
-    //             .map_err(server_error_to_collaborate_error)?;
-    //         Ok(())
-    //     })
-    // }
+impl Debug for DocumentPersistenceImpl {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str("DocumentPersistenceImpl") }
+}
 
+impl DocumentPersistence for DocumentPersistenceImpl {
     fn read_doc(&self, doc_id: &str) -> FutureResultSend<DocumentInfo, CollaborateError> {
         let params = DocIdentifier {
             doc_id: doc_id.to_string(),
@@ -117,6 +109,21 @@ impl DocumentPersistence for DocumentPersistenceImpl {
                 .map_err(server_error_to_collaborate_error)?;
             Ok(doc)
         })
+    }
+
+    fn get_revisions(&self, doc_id: &str, rev_ids: Vec<i64>) -> FutureResultSend<Vec<Revision>, CollaborateError> {
+        let kv_store = self.0.kv_store();
+        let doc_id = doc_id.to_owned();
+        let f = || async move {
+            let expected_len = rev_ids.len();
+            let mut pb = kv_store.batch_get_revisions(&doc_id, rev_ids).await?;
+            let repeated_revision: RepeatedRevision = (&mut pb).try_into()?;
+            let revisions = repeated_revision.into_inner();
+            assert_eq!(expected_len, revisions.len());
+            Ok(revisions)
+        };
+
+        FutureResultSend::new(async move { f().await.map_err(server_error_to_collaborate_error) })
     }
 }
 

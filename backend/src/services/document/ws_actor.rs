@@ -13,6 +13,7 @@ use flowy_collaboration::{
 };
 use futures::stream::StreamExt;
 
+use flowy_collaboration::protobuf::RepeatedRevision;
 use std::{convert::TryInto, sync::Arc};
 use tokio::sync::{mpsc, oneshot};
 
@@ -108,39 +109,30 @@ impl DocumentWebSocketActor {
         let mut new_user = spawn_blocking(move || parse_from_bytes::<NewDocumentUser>(&document_data.data))
             .await
             .map_err(internal_error)??;
-
-        let revision_pb = spawn_blocking(move || parse_from_bytes::<Revision>(&new_user.take_revision_data()))
-            .await
-            .map_err(internal_error)??;
-        let _ = self.handle_revision(user, revision_pb).await?;
+        let repeated_revisions =
+            spawn_blocking(move || parse_from_bytes::<RepeatedRevision>(&new_user.take_revision_data()))
+                .await
+                .map_err(internal_error)??;
+        let _ = self.handle_revision(user, repeated_revisions).await?;
         Ok(())
     }
 
     async fn handle_pushed_rev(&self, user: Arc<ServerDocUser>, data: Vec<u8>) -> Result<()> {
-        let revision_pb = spawn_blocking(move || {
-            let revision: Revision = parse_from_bytes(&data)?;
-            // let _ = verify_md5(&revision)?;
-            Result::Ok(revision)
-        })
-        .await
-        .map_err(internal_error)??;
-        self.handle_revision(user, revision_pb).await
+        let repeated_revision = spawn_blocking(move || parse_from_bytes::<RepeatedRevision>(&data))
+            .await
+            .map_err(internal_error)??;
+        self.handle_revision(user, repeated_revision).await
     }
 
-    async fn handle_revision(&self, user: Arc<ServerDocUser>, mut revision: Revision) -> Result<()> {
-        let revision: flowy_collaboration::entities::revision::Revision =
-            (&mut revision).try_into().map_err(internal_error)?;
-        // Create the document if it doesn't exist
-        let handler = match self.doc_manager.get(&revision.doc_id).await {
-            None => self
-                .doc_manager
-                .create_doc(revision.clone())
-                .await
-                .map_err(internal_error)?,
-            Some(handler) => handler,
-        };
-
-        handler.apply_revision(user, revision).await.map_err(internal_error)?;
+    async fn handle_revision(&self, user: Arc<ServerDocUser>, mut revisions: RepeatedRevision) -> Result<()> {
+        let repeated_revision: flowy_collaboration::entities::revision::RepeatedRevision =
+            (&mut revisions).try_into().map_err(internal_error)?;
+        let revisions = repeated_revision.into_inner();
+        let _ = self
+            .doc_manager
+            .apply_revisions(user, revisions)
+            .await
+            .map_err(internal_error)?;
         Ok(())
     }
 }
@@ -186,11 +178,14 @@ impl RevisionUser for ServerDocUser {
                 let msg: WSMessageAdaptor = data.into();
                 self.socket.try_send(msg).map_err(internal_error)
             },
-            SyncResponse::NewRevision(revision) => {
+            SyncResponse::NewRevision(revisions) => {
                 let kv_store = self.persistence.kv_store();
                 tokio::task::spawn(async move {
-                    let revision: flowy_collaboration::protobuf::Revision = revision.try_into().unwrap();
-                    match kv_store.batch_set_revision(vec![revision]).await {
+                    let revisions = revisions
+                        .into_iter()
+                        .map(|revision| revision.try_into().unwrap())
+                        .collect::<Vec<_>>();
+                    match kv_store.batch_set_revision(revisions).await {
                         Ok(_) => {},
                         Err(e) => log::error!("{}", e),
                     }

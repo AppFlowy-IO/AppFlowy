@@ -1,7 +1,7 @@
 use crate::{
-    core::document::Document,
+    core::{document::Document, sync::DocumentPersistence},
     entities::{
-        revision::{RevType, Revision, RevisionRange},
+        revision::{Revision, RevisionRange},
         ws::{DocumentWSData, DocumentWSDataBuilder},
     },
 };
@@ -26,7 +26,7 @@ pub enum SyncResponse {
     Pull(DocumentWSData),
     Push(DocumentWSData),
     Ack(DocumentWSData),
-    NewRevision(Revision),
+    NewRevision(Vec<Revision>),
 }
 
 pub struct RevisionSynchronizer {
@@ -45,68 +45,79 @@ impl RevisionSynchronizer {
         }
     }
 
-    #[tracing::instrument(
-        level = "debug",
-        skip(self, user, revision),
-        fields(
-            cur_rev_id = %self.rev_id.load(SeqCst),
-            base_rev_id = %revision.base_rev_id,
-            rev_id = %revision.rev_id,
-        ),
-        err
-    )]
-    pub fn apply_revision(&self, user: Arc<dyn RevisionUser>, revision: Revision) -> Result<(), OTError> {
+    #[tracing::instrument(level = "debug", skip(self, user, revisions, persistence), err)]
+    pub async fn apply_revisions(
+        &self,
+        user: Arc<dyn RevisionUser>,
+        revisions: Vec<Revision>,
+        persistence: Arc<dyn DocumentPersistence>,
+    ) -> Result<(), OTError> {
+        if revisions.is_empty() {
+            tracing::warn!("Receive empty revisions");
+            return Ok(());
+        }
+
         let server_base_rev_id = self.rev_id.load(SeqCst);
-        match server_base_rev_id.cmp(&revision.rev_id) {
+        let first_revision = revisions.first().unwrap().clone();
+        if self.is_applied_before(&first_revision, &persistence).await {
+            // Server has received this revision before, so ignore the following revisions
+            return Ok(());
+        }
+
+        match server_base_rev_id.cmp(&first_revision.rev_id) {
             Ordering::Less => {
                 let server_rev_id = next(server_base_rev_id);
-                if server_base_rev_id == revision.base_rev_id || server_rev_id == revision.rev_id {
+                if server_base_rev_id == first_revision.base_rev_id || server_rev_id == first_revision.rev_id {
                     // The rev is in the right order, just compose it.
-                    let _ = self.compose_revision(&revision)?;
-                    user.receive(SyncResponse::Ack(DocumentWSDataBuilder::build_ack_message(
-                        &revision.doc_id,
-                        &revision.rev_id.to_string(),
-                    )));
-                    user.receive(SyncResponse::NewRevision(revision));
+                    {
+                        for revision in &revisions {
+                            let _ = self.compose_revision(revision)?;
+                        }
+                    }
+                    user.receive(SyncResponse::NewRevision(revisions));
                 } else {
                     // The server document is outdated, pull the missing revision from the client.
                     let range = RevisionRange {
                         doc_id: self.doc_id.clone(),
                         start: server_rev_id,
-                        end: revision.rev_id,
+                        end: first_revision.rev_id,
                     };
-                    let msg = DocumentWSDataBuilder::build_pull_message(&self.doc_id, range, revision.rev_id);
+                    let msg = DocumentWSDataBuilder::build_pull_message(&self.doc_id, range, first_revision.rev_id);
                     user.receive(SyncResponse::Pull(msg));
                 }
             },
             Ordering::Equal => {
                 // Do nothing
                 log::warn!("Applied revision rev_id is the same as cur_rev_id");
-                let data = DocumentWSDataBuilder::build_ack_message(&revision.doc_id, &revision.rev_id.to_string());
-                user.receive(SyncResponse::Ack(data));
             },
             Ordering::Greater => {
                 // The client document is outdated. Transform the client revision delta and then
                 // send the prime delta to the client. Client should compose the this prime
                 // delta.
-                let id = revision.rev_id.to_string();
-                let (cli_delta, server_delta) = self.transform_revision(&revision)?;
-                let _ = self.compose_delta(server_delta)?;
+                let id = first_revision.rev_id.to_string();
+                let from_rev_id = first_revision.rev_id;
+                let to_rev_id = server_base_rev_id;
+                let rev_ids: Vec<i64> = (from_rev_id..=to_rev_id).collect();
+                let revisions = match persistence.get_revisions(&self.doc_id, rev_ids).await {
+                    Ok(revisions) => {
+                        assert_eq!(revisions.is_empty(), false);
+                        revisions
+                    },
+                    Err(e) => {
+                        tracing::error!("{}", e);
+                        vec![]
+                    },
+                };
 
-                //
-                let _doc_id = self.doc_id.clone();
-                let _doc_json = self.doc_json();
-                // user.receive(SyncResponse::NewRevision {
-                //     rev_id: self.rev_id(),
-                //     doc_json,
-                //     doc_id,
-                // });
-
-                let cli_revision = self.mk_revision(revision.rev_id, cli_delta);
-                let data = DocumentWSDataBuilder::build_push_message(&self.doc_id, cli_revision, &id);
+                let data = DocumentWSDataBuilder::build_push_message(&self.doc_id, revisions, &id);
                 user.receive(SyncResponse::Push(data));
             },
         }
+
+        user.receive(SyncResponse::Ack(DocumentWSDataBuilder::build_ack_message(
+            &first_revision.doc_id,
+            &first_revision.rev_id.to_string(),
+        )));
         Ok(())
     }
 
@@ -140,29 +151,40 @@ impl RevisionSynchronizer {
         Ok(())
     }
 
-    fn mk_revision(&self, base_rev_id: i64, delta: RichTextDelta) -> Revision {
-        let delta_data = delta.to_bytes().to_vec();
-        let md5 = md5(&delta_data);
-        Revision {
-            base_rev_id,
-            rev_id: self.rev_id.load(SeqCst),
-            delta_data,
-            md5,
-            doc_id: self.doc_id.to_string(),
-            ty: RevType::Remote,
-            user_id: "".to_string(),
-        }
-    }
+    // fn mk_revision(&self, base_rev_id: i64, delta: RichTextDelta) -> Revision {
+    //     let delta_data = delta.to_bytes().to_vec();
+    //     let md5 = md5(&delta_data);
+    //     Revision {
+    //         base_rev_id,
+    //         rev_id: self.rev_id.load(SeqCst),
+    //         delta_data,
+    //         md5,
+    //         doc_id: self.doc_id.to_string(),
+    //         ty: RevType::Remote,
+    //         user_id: "".to_string(),
+    //     }
+    // }
 
     #[allow(dead_code)]
-    fn rev_id(&self) -> i64 { self.rev_id.load(SeqCst) }
+    pub(crate) fn rev_id(&self) -> i64 { self.rev_id.load(SeqCst) }
+
+    async fn is_applied_before(&self, new_revision: &Revision, persistence: &Arc<dyn DocumentPersistence>) -> bool {
+        if let Ok(revisions) = persistence.get_revisions(&self.doc_id, vec![new_revision.rev_id]).await {
+            if let Some(revision) = revisions.first() {
+                if revision.md5 == new_revision.md5 {
+                    return true;
+                }
+            }
+        };
+
+        false
+    }
 }
 
 #[inline]
 fn next(rev_id: i64) -> i64 { rev_id + 1 }
-
-#[inline]
-fn md5<T: AsRef<[u8]>>(data: T) -> String {
-    let md5 = format!("{:x}", md5::compute(data));
-    md5
-}
+// #[inline]
+// fn md5<T: AsRef<[u8]>>(data: T) -> String {
+//     let md5 = format!("{:x}", md5::compute(data));
+//     md5
+// }

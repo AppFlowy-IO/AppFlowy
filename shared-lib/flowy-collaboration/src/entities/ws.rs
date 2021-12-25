@@ -1,5 +1,5 @@
 use crate::{
-    entities::revision::{Revision, RevisionRange},
+    entities::revision::{RepeatedRevision, Revision, RevisionRange},
     errors::CollaborateError,
 };
 use bytes::Bytes;
@@ -62,9 +62,9 @@ impl std::convert::From<Revision> for DocumentWSData {
 pub struct DocumentWSDataBuilder();
 impl DocumentWSDataBuilder {
     // DocumentWSDataType::PushRev -> Revision
-    pub fn build_push_message(doc_id: &str, revision: Revision, id: &str) -> DocumentWSData {
-        let _rev_id = revision.rev_id;
-        let bytes: Bytes = revision.try_into().unwrap();
+    pub fn build_push_message(doc_id: &str, revisions: Vec<Revision>, id: &str) -> DocumentWSData {
+        let repeated_revision = RepeatedRevision { items: revisions };
+        let bytes: Bytes = repeated_revision.try_into().unwrap();
         DocumentWSData {
             doc_id: doc_id.to_string(),
             ty: DocumentWSDataType::PushRev,

@@ -1,11 +1,13 @@
 use crate::{
+    context::DocumentUser,
     errors::FlowyError,
-    module::DocumentUser,
     services::{
         doc::{
             edit::ClientDocEditor,
             revision::{RevisionCache, RevisionManager, RevisionServer},
-            DocumentWsHandlers,
+            DocumentWSReceivers,
+            DocumentWebSocket,
+            WSStateReceiver,
         },
         server::Server,
     },
@@ -20,24 +22,33 @@ use std::sync::Arc;
 
 pub(crate) struct DocController {
     server: Server,
-    ws_handlers: Arc<DocumentWsHandlers>,
+    ws_receivers: Arc<DocumentWSReceivers>,
+    ws_sender: Arc<dyn DocumentWebSocket>,
     open_cache: Arc<OpenDocCache>,
     user: Arc<dyn DocumentUser>,
 }
 
 impl DocController {
-    pub(crate) fn new(server: Server, user: Arc<dyn DocumentUser>, ws_handlers: Arc<DocumentWsHandlers>) -> Self {
+    pub(crate) fn new(
+        server: Server,
+        user: Arc<dyn DocumentUser>,
+        ws_receivers: Arc<DocumentWSReceivers>,
+        ws_sender: Arc<dyn DocumentWebSocket>,
+    ) -> Self {
         let open_cache = Arc::new(OpenDocCache::new());
         Self {
             server,
-            ws_handlers,
+            ws_receivers,
+            ws_sender,
             open_cache,
             user,
         }
     }
 
     pub(crate) fn init(&self) -> FlowyResult<()> {
-        self.ws_handlers.init();
+        let notify = self.ws_sender.subscribe_state_changed();
+        listen_ws_state_changed(notify, self.ws_receivers.clone());
+
         Ok(())
     }
 
@@ -47,7 +58,7 @@ impl DocController {
         pool: Arc<ConnectionPool>,
     ) -> Result<Arc<ClientDocEditor>, FlowyError> {
         if !self.open_cache.contains(&params.doc_id) {
-            let edit_ctx = self.make_edit_context(&params.doc_id, pool.clone()).await?;
+            let edit_ctx = self.make_editor(&params.doc_id, pool.clone()).await?;
             return Ok(edit_ctx);
         }
 
@@ -58,7 +69,7 @@ impl DocController {
     pub(crate) fn close(&self, doc_id: &str) -> Result<(), FlowyError> {
         tracing::debug!("Close document {}", doc_id);
         self.open_cache.remove(doc_id);
-        self.ws_handlers.remove_handler(doc_id);
+        self.ws_receivers.remove_receiver(doc_id);
         Ok(())
     }
 
@@ -66,7 +77,7 @@ impl DocController {
     pub(crate) fn delete(&self, params: DocIdentifier) -> Result<(), FlowyError> {
         let doc_id = &params.doc_id;
         self.open_cache.remove(doc_id);
-        self.ws_handlers.remove_handler(doc_id);
+        self.ws_receivers.remove_receiver(doc_id);
         Ok(())
     }
 
@@ -92,11 +103,7 @@ impl DocController {
 }
 
 impl DocController {
-    async fn make_edit_context(
-        &self,
-        doc_id: &str,
-        pool: Arc<ConnectionPool>,
-    ) -> Result<Arc<ClientDocEditor>, FlowyError> {
+    async fn make_editor(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<Arc<ClientDocEditor>, FlowyError> {
         let user = self.user.clone();
         let token = self.user.token()?;
         let rev_manager = self.make_rev_manager(doc_id, pool.clone())?;
@@ -104,17 +111,13 @@ impl DocController {
             token,
             server: self.server.clone(),
         });
-        let doc_editor = ClientDocEditor::new(doc_id, user, pool, rev_manager, self.ws_handlers.ws(), server).await?;
-        let ws_handler = doc_editor.ws_handler();
-        self.ws_handlers.register_handler(doc_id, ws_handler);
+        let doc_editor = ClientDocEditor::new(doc_id, user, pool, rev_manager, self.ws_sender.clone(), server).await?;
+        self.ws_receivers.register_receiver(doc_id, doc_editor.ws_handler());
         self.open_cache.insert(&doc_id, &doc_editor);
         Ok(doc_editor)
     }
 
     fn make_rev_manager(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<RevisionManager, FlowyError> {
-        // Opti: require upgradable_read lock and then upgrade to write lock using
-        // RwLockUpgradableReadGuard::upgrade(xx) of ws
-        // let document = self.read_doc(doc_id, pool.clone()).await?;
         let user_id = self.user.user_id()?;
         let cache = Arc::new(RevisionCache::new(&user_id, doc_id, pool));
         Ok(RevisionManager::new(&user_id, doc_id, cache))
@@ -180,4 +183,13 @@ impl OpenDocCache {
 
 fn doc_not_found() -> FlowyError {
     FlowyError::record_not_found().context("Doc is close or you should call open first")
+}
+
+#[tracing::instrument(level = "debug", skip(state_receiver, receivers))]
+fn listen_ws_state_changed(mut state_receiver: WSStateReceiver, receivers: Arc<DocumentWSReceivers>) {
+    tokio::spawn(async move {
+        while let Ok(state) = state_receiver.recv().await {
+            receivers.ws_connect_state_changed(&state);
+        }
+    });
 }

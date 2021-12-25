@@ -2,7 +2,7 @@ use crate::{
     errors::FlowyError,
     services::{
         controller::DocController,
-        doc::{edit::ClientDocEditor, DocumentWsHandlers},
+        doc::{edit::ClientDocEditor, DocumentWSReceivers, DocumentWebSocket},
         server::construct_doc_server,
     },
 };
@@ -18,19 +18,20 @@ pub trait DocumentUser: Send + Sync {
     fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError>;
 }
 
-pub struct FlowyDocument {
+pub struct DocumentContext {
     doc_ctrl: Arc<DocController>,
     user: Arc<dyn DocumentUser>,
 }
 
-impl FlowyDocument {
+impl DocumentContext {
     pub fn new(
         user: Arc<dyn DocumentUser>,
-        ws_manager: Arc<DocumentWsHandlers>,
+        ws_receivers: Arc<DocumentWSReceivers>,
+        ws_sender: Arc<dyn DocumentWebSocket>,
         server_config: &ClientServerConfiguration,
-    ) -> FlowyDocument {
+    ) -> DocumentContext {
         let server = construct_doc_server(server_config);
-        let doc_ctrl = Arc::new(DocController::new(server, user.clone(), ws_manager));
+        let doc_ctrl = Arc::new(DocController::new(server, user.clone(), ws_receivers, ws_sender));
         Self { doc_ctrl, user }
     }
 

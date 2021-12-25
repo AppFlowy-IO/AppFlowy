@@ -1,8 +1,8 @@
 use async_stream::stream;
-use bytes::Bytes;
+
 use flowy_collaboration::{
     core::document::{history::UndoResult, Document},
-    entities::revision::{RevId, Revision},
+    entities::revision::Revision,
     errors::CollaborateError,
 };
 use flowy_error::FlowyError;
@@ -11,7 +11,7 @@ use lib_ot::{
     core::{Interval, OperationTransformable},
     rich_text::{RichTextAttribute, RichTextDelta},
 };
-use std::{convert::TryFrom, sync::Arc};
+use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot, RwLock};
 
 pub(crate) struct EditorCommandQueue {
@@ -56,19 +56,29 @@ impl EditorCommandQueue {
                 let result = self.composed_delta(delta).await;
                 let _ = ret.send(result);
             },
-            EditorCommand::ProcessRemoteRevision { bytes, ret } => {
+            EditorCommand::ProcessRemoteRevision { revisions, ret } => {
                 let f = || async {
-                    let revision = Revision::try_from(bytes)?;
-                    let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
-                    let server_rev_id: RevId = revision.rev_id.into();
+                    let mut new_delta = RichTextDelta::new();
+                    for revision in revisions {
+                        match RichTextDelta::from_bytes(revision.delta_data) {
+                            Ok(delta) => {
+                                new_delta = new_delta.compose(&delta)?;
+                            },
+                            Err(e) => {
+                                let err_msg = format!("Deserialize remote revision failed: {:?}", e);
+                                log::error!("{}", err_msg);
+                                return Err(CollaborateError::internal().context(err_msg));
+                            },
+                        }
+                    }
+
                     let read_guard = self.document.read().await;
-                    let (server_prime, client_prime) = read_guard.delta().transform(&delta)?;
+                    let (server_prime, client_prime) = read_guard.delta().transform(&new_delta)?;
                     drop(read_guard);
 
                     let transform_delta = TransformDeltas {
                         client_prime,
                         server_prime,
-                        server_rev_id,
                     };
 
                     Ok::<TransformDeltas, CollaborateError>(transform_delta)
@@ -157,7 +167,7 @@ pub(crate) enum EditorCommand {
         ret: Ret<DocumentMD5>,
     },
     ProcessRemoteRevision {
-        bytes: Bytes,
+        revisions: Vec<Revision>,
         ret: Ret<TransformDeltas>,
     },
     Insert {
@@ -203,5 +213,4 @@ pub(crate) enum EditorCommand {
 pub(crate) struct TransformDeltas {
     pub client_prime: RichTextDelta,
     pub server_prime: RichTextDelta,
-    pub server_rev_id: RevId,
 }
