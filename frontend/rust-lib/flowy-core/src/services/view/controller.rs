@@ -20,7 +20,7 @@ use crate::{
 };
 use flowy_core_data_model::entities::share::{ExportData, ExportParams};
 use flowy_database::kv::KV;
-use flowy_document::module::FlowyDocument;
+use flowy_document::context::DocumentContext;
 
 const LATEST_VIEW_ID: &str = "latest_view_id";
 
@@ -29,7 +29,7 @@ pub(crate) struct ViewController {
     server: Server,
     database: Arc<dyn WorkspaceDatabase>,
     trash_can: Arc<TrashController>,
-    document: Arc<FlowyDocument>,
+    document_ctx: Arc<DocumentContext>,
 }
 
 impl ViewController {
@@ -38,19 +38,19 @@ impl ViewController {
         database: Arc<dyn WorkspaceDatabase>,
         server: Server,
         trash_can: Arc<TrashController>,
-        document: Arc<FlowyDocument>,
+        document_ctx: Arc<DocumentContext>,
     ) -> Self {
         Self {
             user,
             server,
             database,
             trash_can,
-            document,
+            document_ctx,
         }
     }
 
     pub(crate) fn init(&self) -> Result<(), FlowyError> {
-        let _ = self.document.init()?;
+        let _ = self.document_ctx.init()?;
         self.listen_trash_can_event();
         Ok(())
     }
@@ -112,7 +112,7 @@ impl ViewController {
     #[tracing::instrument(level = "debug", skip(self, params), fields(doc_id = %params.doc_id), err)]
     pub(crate) async fn open_view(&self, params: DocIdentifier) -> Result<DocumentDelta, FlowyError> {
         let doc_id = params.doc_id.clone();
-        let edit_context = self.document.open(params).await?;
+        let edit_context = self.document_ctx.open(params).await?;
 
         KV::set_str(LATEST_VIEW_ID, doc_id);
         Ok(edit_context.delta().await.map_err(internal_error)?)
@@ -120,7 +120,7 @@ impl ViewController {
 
     #[tracing::instrument(level = "debug", skip(self,params), fields(doc_id = %params.doc_id), err)]
     pub(crate) async fn close_view(&self, params: DocIdentifier) -> Result<(), FlowyError> {
-        let _ = self.document.close(params).await?;
+        let _ = self.document_ctx.close(params).await?;
         Ok(())
     }
 
@@ -131,7 +131,7 @@ impl ViewController {
                 let _ = KV::remove(LATEST_VIEW_ID);
             }
         }
-        let _ = self.document.close(params).await?;
+        let _ = self.document_ctx.close(params).await?;
         Ok(())
     }
 
@@ -139,7 +139,7 @@ impl ViewController {
     pub(crate) async fn duplicate_view(&self, params: DocIdentifier) -> Result<(), FlowyError> {
         let view: View = ViewTableSql::read_view(&params.doc_id, &*self.database.db_connection()?)?.into();
         let _delta_data = self
-            .document
+            .document_ctx
             .read_document_data(params, self.database.db_pool()?)
             .await?;
 
@@ -159,7 +159,7 @@ impl ViewController {
     pub(crate) async fn export_doc(&self, params: ExportParams) -> Result<ExportData, FlowyError> {
         let doc_identifier: DocIdentifier = params.doc_id.into();
         let doc = self
-            .document
+            .document_ctx
             .read_document_data(doc_identifier, self.database.db_pool()?)
             .await?;
 
@@ -201,7 +201,7 @@ impl ViewController {
     }
 
     pub(crate) async fn apply_doc_delta(&self, params: DocumentDelta) -> Result<DocumentDelta, FlowyError> {
-        let doc = self.document.apply_doc_delta(params).await?;
+        let doc = self.document_ctx.apply_doc_delta(params).await?;
         Ok(doc)
     }
 
@@ -276,7 +276,7 @@ impl ViewController {
     fn listen_trash_can_event(&self) {
         let mut rx = self.trash_can.subscribe();
         let database = self.database.clone();
-        let document = self.document.clone();
+        let document = self.document_ctx.clone();
         let trash_can = self.trash_can.clone();
         let _ = tokio::spawn(async move {
             loop {
@@ -295,10 +295,10 @@ impl ViewController {
     }
 }
 
-#[tracing::instrument(level = "trace", skip(database, document, trash_can))]
+#[tracing::instrument(level = "trace", skip(database, context, trash_can))]
 async fn handle_trash_event(
     database: Arc<dyn WorkspaceDatabase>,
-    document: Arc<FlowyDocument>,
+    context: Arc<DocumentContext>,
     trash_can: Arc<TrashController>,
     event: TrashEvent,
 ) {
@@ -337,7 +337,7 @@ async fn handle_trash_event(
                     for identifier in identifiers.items {
                         let view_table = ViewTableSql::read_view(&identifier.id, conn)?;
                         let _ = ViewTableSql::delete_view(&identifier.id, conn)?;
-                        let _ = document.delete(identifier.id.clone().into())?;
+                        let _ = context.delete(identifier.id.clone().into())?;
                         notify_ids.insert(view_table.belong_to_id);
                     }
 

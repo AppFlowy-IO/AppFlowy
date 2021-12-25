@@ -2,9 +2,9 @@ use bytes::Bytes;
 use flowy_collaboration::entities::ws::DocumentWSData;
 use flowy_database::ConnectionPool;
 use flowy_document::{
+    context::DocumentUser,
     errors::{internal_error, FlowyError},
-    module::DocumentUser,
-    services::doc::{DocumentWebSocket, DocumentWsHandlers, WsStateReceiver},
+    services::doc::{DocumentWSReceivers, DocumentWebSocket, WSStateReceiver},
 };
 use flowy_net::services::ws::WsManager;
 use flowy_user::services::user::UserSession;
@@ -16,16 +16,20 @@ impl DocumentDepsResolver {
     pub fn resolve(
         ws_manager: Arc<WsManager>,
         user_session: Arc<UserSession>,
-    ) -> (Arc<dyn DocumentUser>, Arc<DocumentWsHandlers>) {
+    ) -> (
+        Arc<dyn DocumentUser>,
+        Arc<DocumentWSReceivers>,
+        Arc<dyn DocumentWebSocket>,
+    ) {
         let user = Arc::new(DocumentUserImpl { user: user_session });
 
-        let sender = Arc::new(WsSenderImpl {
+        let ws_sender = Arc::new(DocumentWebSocketAdapter {
             ws_manager: ws_manager.clone(),
         });
-        let document_ws_handlers = Arc::new(DocumentWsHandlers::new(sender));
-        let receiver = Arc::new(WsMessageReceiverAdaptor(document_ws_handlers.clone()));
+        let ws_receivers = Arc::new(DocumentWSReceivers::new());
+        let receiver = Arc::new(WSMessageReceiverAdaptor(ws_receivers.clone()));
         ws_manager.add_receiver(receiver).unwrap();
-        (user, document_ws_handlers)
+        (user, ws_receivers, ws_sender)
     }
 }
 
@@ -56,11 +60,11 @@ impl DocumentUser for DocumentUserImpl {
     fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError> { self.user.db_pool() }
 }
 
-struct WsSenderImpl {
+struct DocumentWebSocketAdapter {
     ws_manager: Arc<WsManager>,
 }
 
-impl DocumentWebSocket for WsSenderImpl {
+impl DocumentWebSocket for DocumentWebSocketAdapter {
     fn send(&self, data: DocumentWSData) -> Result<(), FlowyError> {
         let bytes: Bytes = data.try_into().unwrap();
         let msg = WSMessage {
@@ -73,12 +77,12 @@ impl DocumentWebSocket for WsSenderImpl {
         Ok(())
     }
 
-    fn subscribe_state_changed(&self) -> WsStateReceiver { self.ws_manager.subscribe_websocket_state() }
+    fn subscribe_state_changed(&self) -> WSStateReceiver { self.ws_manager.subscribe_websocket_state() }
 }
 
-struct WsMessageReceiverAdaptor(Arc<DocumentWsHandlers>);
+struct WSMessageReceiverAdaptor(Arc<DocumentWSReceivers>);
 
-impl WSMessageReceiver for WsMessageReceiverAdaptor {
+impl WSMessageReceiver for WSMessageReceiverAdaptor {
     fn source(&self) -> WSModule { WSModule::Doc }
     fn receive_message(&self, msg: WSMessage) { self.0.did_receive_data(Bytes::from(msg.data)); }
 }

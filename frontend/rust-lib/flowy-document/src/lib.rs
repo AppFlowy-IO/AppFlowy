@@ -1,4 +1,4 @@
-pub mod module;
+pub mod context;
 mod notify;
 pub mod protobuf;
 pub mod services;

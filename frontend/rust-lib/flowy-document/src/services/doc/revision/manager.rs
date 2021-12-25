@@ -47,16 +47,19 @@ impl RevisionManager {
         .load()
         .await?;
         let doc = mk_doc_from_revisions(&self.doc_id, revisions)?;
-        self.update_rev_id_counter_value(doc.rev_id);
+        self.rev_id_counter.set(doc.rev_id);
         Ok(doc.delta()?)
     }
 
     pub async fn add_remote_revision(&self, revision: &Revision) -> Result<(), FlowyError> {
+        assert_eq!(revision.ty, RevType::Remote);
+        self.rev_id_counter.set(revision.rev_id);
         let _ = self.cache.add_remote_revision(revision.clone()).await?;
         Ok(())
     }
 
     pub async fn add_local_revision(&self, revision: &Revision) -> Result<(), FlowyError> {
+        assert_eq!(revision.ty, RevType::Local);
         let _ = self.cache.add_local_revision(revision.clone()).await?;
         Ok(())
     }
@@ -76,38 +79,19 @@ impl RevisionManager {
 
     pub fn update_rev_id_counter_value(&self, rev_id: i64) { self.rev_id_counter.set(rev_id); }
 
-    pub async fn mk_revisions(&self, range: RevisionRange) -> Result<Revision, FlowyError> {
+    pub async fn get_revisions_in_range(&self, range: RevisionRange) -> Result<Vec<Revision>, FlowyError> {
         debug_assert!(range.doc_id == self.doc_id);
         let revisions = self.cache.revisions_in_range(range.clone()).await?;
-        let mut new_delta = RichTextDelta::new();
-        // TODO: generate delta from revision should be wrapped into function.
-        for revision in revisions {
-            match RichTextDelta::from_bytes(revision.delta_data) {
-                Ok(delta) => {
-                    new_delta = new_delta.compose(&delta)?;
-                },
-                Err(e) => log::error!("{}", e),
-            }
-        }
-
-        let delta_data = new_delta.to_bytes();
-        let md5 = md5(&delta_data);
-        let revision = Revision::new(
-            &self.doc_id,
-            range.start,
-            range.end,
-            delta_data,
-            RevType::Remote,
-            &self.user_id,
-            md5,
-        );
-
-        Ok(revision)
+        Ok(revisions)
     }
 
     pub fn next_sync_revision(&self) -> FutureResult<Option<Revision>, FlowyError> { self.cache.next_sync_revision() }
 
     pub async fn latest_revision(&self) -> Revision { self.cache.latest_revision().await }
+
+    pub async fn get_revision(&self, rev_id: i64) -> Option<Revision> {
+        self.cache.get_revision(rev_id).await.map(|record| record.revision)
+    }
 }
 
 #[cfg(feature = "flowy_unit_test")]

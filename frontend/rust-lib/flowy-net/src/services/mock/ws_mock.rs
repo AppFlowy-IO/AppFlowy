@@ -5,7 +5,7 @@ use flowy_collaboration::{
     core::sync::{DocumentPersistence, RevisionUser, ServerDocumentManager, SyncResponse},
     entities::{
         doc::DocumentInfo,
-        revision::Revision,
+        revision::{RepeatedRevision, Revision},
         ws::{DocumentWSData, DocumentWSDataBuilder, DocumentWSDataType, NewDocumentUser},
     },
     errors::CollaborateError,
@@ -16,6 +16,7 @@ use lib_ws::WSModule;
 use parking_lot::RwLock;
 use std::{
     convert::{TryFrom, TryInto},
+    fmt::{Debug, Formatter},
     sync::Arc,
 };
 use tokio::sync::{broadcast, broadcast::Receiver, mpsc};
@@ -114,18 +115,14 @@ impl MockDocServer {
                 unimplemented!()
             },
             DocumentWSDataType::PushRev => {
-                let revision = Revision::try_from(bytes).unwrap();
-                let handler = match self.manager.get(&revision.doc_id).await {
-                    None => self.manager.create_doc(revision.clone()).await.unwrap(),
-                    Some(handler) => handler,
-                };
-
+                let revisions = RepeatedRevision::try_from(bytes).unwrap().into_inner();
                 let (tx, rx) = mpsc::channel(1);
                 let user = MockDocUser {
                     user_id: revision.user_id.clone(),
                     tx,
                 };
-                handler.apply_revision(Arc::new(user), revision).await.unwrap();
+                self.manager.apply_revisions(user, revisions).await.unwrap();
+
                 rx
             },
             DocumentWSDataType::PullRev => {
@@ -149,6 +146,10 @@ impl MockDocServer {
 
 struct MockDocServerPersistence {
     inner: Arc<DashMap<String, DocumentInfo>>,
+}
+
+impl Debug for MockDocServerPersistence {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str("MockDocServerPersistence") }
 }
 
 impl std::default::Default for MockDocServerPersistence {
@@ -182,6 +183,10 @@ impl DocumentPersistence for MockDocServerPersistence {
             let document_info: DocumentInfo = revision.try_into().unwrap();
             Ok(document_info)
         })
+    }
+
+    fn get_revisions(&self, _doc_id: &str, _rev_ids: Vec<i64>) -> FutureResultSend<Vec<Revision>, CollaborateError> {
+        unimplemented!()
     }
 }
 

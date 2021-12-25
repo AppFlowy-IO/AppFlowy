@@ -86,15 +86,15 @@ impl RevisionCache {
 
     pub async fn latest_revision(&self) -> Revision {
         let rev_id = self.latest_rev_id.load(SeqCst);
-        self.get_revision(&self.doc_id, rev_id).await.unwrap().revision
+        self.get_revision(rev_id).await.unwrap().revision
     }
 
-    pub async fn get_revision(&self, doc_id: &str, rev_id: i64) -> Option<RevisionRecord> {
+    pub async fn get_revision(&self, rev_id: i64) -> Option<RevisionRecord> {
         match self.memory_cache.get_revision(&rev_id).await {
             None => match self.disk_cache.read_revision(&self.doc_id, rev_id) {
                 Ok(Some(revision)) => Some(revision),
                 Ok(None) => {
-                    tracing::warn!("Can't find revision in {} with rev_id: {}", doc_id, rev_id);
+                    tracing::warn!("Can't find revision in {} with rev_id: {}", &self.doc_id, rev_id);
                     None
                 },
                 Err(e) => {

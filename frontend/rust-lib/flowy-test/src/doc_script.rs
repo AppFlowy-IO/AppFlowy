@@ -46,7 +46,6 @@ impl EditorTest {
     async fn run_script(&mut self, script: EditorScript) {
         let rev_manager = self.editor.rev_manager();
         let cache = rev_manager.revision_cache();
-        let doc_id = self.editor.doc_id.clone();
         let _user_id = self.sdk.user_session.user_id().unwrap();
         let ws_manager = self.sdk.ws_manager.clone();
         let token = self.sdk.user_session.token().unwrap();
@@ -69,7 +68,7 @@ impl EditorTest {
                 self.editor.replace(interval, s).await.unwrap();
             },
             EditorScript::AssertRevisionState(rev_id, state) => {
-                let record = cache.get_revision(&doc_id, rev_id).await.unwrap();
+                let record = cache.get_revision(rev_id).await.unwrap();
                 assert_eq!(record.state, state);
             },
             EditorScript::AssertCurrentRevId(rev_id) => {
