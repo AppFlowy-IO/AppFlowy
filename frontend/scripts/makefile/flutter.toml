@@ -118,7 +118,7 @@ script = [
 
 [tasks.create-release-archive-macos]
 script = [
-  # TODO 
+  # TODO
   # "cd ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/app_flowy/product/${VERSION}/${TARGET_OS}/Release/${PRODUCT_NAME}",
   # "tar -czf ${PRODUCT_NAME}-${TARGET_OS}-x86.tar.gz *"
 ]
@@ -178,9 +178,10 @@ script_runner = "@shell"
 script = [
   """
   cd app_flowy/
+  flutter clean
+  flutter pub get
   flutter pub run easy_localization:generate -S assets/translations/
-  flutter pub run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations  
+  flutter pub run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations
   """,
 ]
 script_runner = "@shell"
-
