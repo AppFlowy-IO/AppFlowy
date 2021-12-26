@@ -1,11 +1,18 @@
-use crate::services::ws::{FlowyError, FlowyWebSocket, FlowyWsSender, WSConnectState, WSMessage, WSMessageReceiver};
+use crate::services::ws::{
+    FlowyError,
+    FlowyWebSocket,
+    FlowyWsSender,
+    WSConnectState,
+    WSMessageReceiver,
+    WebScoketRawMessage,
+};
 use lib_infra::future::FutureResult;
 use std::sync::Arc;
 use tokio::sync::{broadcast, broadcast::Receiver};
 
 pub(crate) struct LocalWebSocket {
     state_sender: broadcast::Sender<WSConnectState>,
-    ws_sender: broadcast::Sender<WSMessage>,
+    ws_sender: broadcast::Sender<WebScoketRawMessage>,
 }
 
 impl std::default::Default for LocalWebSocket {
@@ -33,8 +40,8 @@ impl FlowyWebSocket for Arc<LocalWebSocket> {
     fn ws_sender(&self) -> Result<Arc<dyn FlowyWsSender>, FlowyError> { Ok(Arc::new(self.ws_sender.clone())) }
 }
 
-impl FlowyWsSender for broadcast::Sender<WSMessage> {
-    fn send(&self, msg: WSMessage) -> Result<(), FlowyError> {
+impl FlowyWsSender for broadcast::Sender<WebScoketRawMessage> {
+    fn send(&self, msg: WebScoketRawMessage) -> Result<(), FlowyError> {
         let _ = self.send(msg);
         Ok(())
     }

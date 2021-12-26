@@ -3,15 +3,15 @@ use crate::{
     entities::logged_user::LoggedUser,
     services::web_socket::{
         entities::{Connect, Disconnect, Socket},
-        WSMessageAdaptor,
         WSServer,
+        WebSocketMessage,
     },
 };
 use actix::*;
 use actix_web::web::Data;
 use actix_web_actors::{ws, ws::Message::Text};
 use bytes::Bytes;
-use lib_ws::{WSMessage, WSModule};
+use lib_ws::{WSModule, WebScoketRawMessage};
 use std::{collections::HashMap, convert::TryFrom, sync::Arc, time::Instant};
 
 pub trait WebSocketReceiver: Send + Sync {
@@ -85,7 +85,7 @@ impl WSClient {
 
     fn handle_binary_message(&self, bytes: Bytes, socket: Socket) {
         // TODO: ok to unwrap?
-        let message: WSMessage = WSMessage::try_from(bytes).unwrap();
+        let message: WebScoketRawMessage = WebScoketRawMessage::try_from(bytes).unwrap();
         match self.ws_receivers.get(&message.module) {
             None => {
                 log::error!("Can't find the receiver for {:?}", message.module);
@@ -134,10 +134,10 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSClient {
     }
 }
 
-impl Handler<WSMessageAdaptor> for WSClient {
+impl Handler<WebSocketMessage> for WSClient {
     type Result = ();
 
-    fn handle(&mut self, msg: WSMessageAdaptor, ctx: &mut Self::Context) { ctx.binary(msg.0); }
+    fn handle(&mut self, msg: WebSocketMessage, ctx: &mut Self::Context) { ctx.binary(msg.0); }
 }
 
 impl Actor for WSClient {

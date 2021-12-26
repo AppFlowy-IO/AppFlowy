@@ -1,6 +1,6 @@
 use crate::services::web_socket::{
     entities::{Connect, Disconnect, Session, SessionId},
-    WSMessageAdaptor,
+    WebSocketMessage,
 };
 use actix::{Actor, Context, Handler};
 use backend_service::errors::ServerError;
@@ -20,7 +20,7 @@ impl std::default::Default for WSServer {
 impl WSServer {
     pub fn new() -> Self { WSServer::default() }
 
-    pub fn send(&self, _msg: WSMessageAdaptor) { unimplemented!() }
+    pub fn send(&self, _msg: WebSocketMessage) { unimplemented!() }
 }
 
 impl Actor for WSServer {
@@ -46,10 +46,10 @@ impl Handler<Disconnect> for WSServer {
     }
 }
 
-impl Handler<WSMessageAdaptor> for WSServer {
+impl Handler<WebSocketMessage> for WSServer {
     type Result = ();
 
-    fn handle(&mut self, _msg: WSMessageAdaptor, _ctx: &mut Context<Self>) -> Self::Result { unimplemented!() }
+    fn handle(&mut self, _msg: WebSocketMessage, _ctx: &mut Context<Self>) -> Self::Result { unimplemented!() }
 }
 
 impl actix::Supervised for WSServer {

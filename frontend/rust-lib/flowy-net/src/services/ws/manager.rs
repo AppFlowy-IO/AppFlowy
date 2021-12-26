@@ -4,7 +4,7 @@ use crate::{
 };
 use flowy_error::{internal_error, FlowyError};
 use lib_infra::future::FutureResult;
-use lib_ws::{WSConnectState, WSController, WSMessage, WSMessageReceiver, WSSender};
+use lib_ws::{WSConnectState, WSController, WSMessageReceiver, WSSender, WebScoketRawMessage};
 use parking_lot::RwLock;
 use std::sync::Arc;
 use tokio::sync::{broadcast, broadcast::Receiver};
@@ -154,7 +154,7 @@ impl FlowyWebSocket for Arc<WSController> {
 }
 
 impl FlowyWsSender for WSSender {
-    fn send(&self, msg: WSMessage) -> Result<(), FlowyError> {
+    fn send(&self, msg: WebScoketRawMessage) -> Result<(), FlowyError> {
         let _ = self.send_msg(msg).map_err(internal_error)?;
         Ok(())
     }

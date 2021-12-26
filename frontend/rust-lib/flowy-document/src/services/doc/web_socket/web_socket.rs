@@ -16,13 +16,14 @@ use bytes::Bytes;
 use flowy_collaboration::{
     entities::{
         revision::{RepeatedRevision, RevType, Revision, RevisionRange},
-        ws::{DocumentWSData, DocumentWSDataBuilder, DocumentWSDataType, NewDocumentUser},
+        ws::{DocumentClientWSData, DocumentClientWSDataType, DocumentServerWSDataBuilder, NewDocumentUser},
     },
     errors::CollaborateResult,
 };
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use lib_infra::future::FutureResult;
 
+use flowy_collaboration::entities::ws::DocumentServerWSDataType;
 use lib_ws::WSConnectState;
 use std::{
     collections::VecDeque,
@@ -74,22 +75,24 @@ async fn notify_user_has_connected(
     rev_manager: Arc<RevisionManager>,
     shared_sink: Arc<SharedWSSinkDataProvider>,
 ) {
-    let need_notify = match shared_sink.front().await {
-        None => true,
-        Some(data) => data.ty != DocumentWSDataType::UserConnect,
-    };
-
-    if need_notify {
-        let revision_data: Bytes = rev_manager.latest_revision().await.try_into().unwrap();
-        let new_connect = NewDocumentUser {
-            user_id: user_id.to_owned(),
-            doc_id: doc_id.to_owned(),
-            revision_data: revision_data.to_vec(),
-        };
-
-        let data = DocumentWSDataBuilder::build_new_document_user_message(doc_id, new_connect);
-        shared_sink.push_front(data).await;
-    }
+    // let need_notify = match shared_sink.front().await {
+    //     None => true,
+    //     Some(data) => data.ty != DocumentClientWSDataType::UserConnect,
+    // };
+    //
+    // if need_notify {
+    //     let revision_data: Bytes =
+    // rev_manager.latest_revision().await.try_into().unwrap();
+    //     let new_connect = NewDocumentUser {
+    //         user_id: user_id.to_owned(),
+    //         doc_id: doc_id.to_owned(),
+    //         revision_data: revision_data.to_vec(),
+    //     };
+    //
+    //     let data =
+    // DocumentWSDataBuilder::build_new_document_user_message(doc_id,
+    // new_connect);     shared_sink.push_front(data).await;
+    // }
 }
 
 fn listen_document_ws_state(
@@ -135,7 +138,7 @@ impl DocumentWSSteamConsumer for DocumentWebSocketSteamConsumerAdapter {
         })
     }
 
-    fn receive_ack(&self, id: String, ty: DocumentWSDataType) -> FutureResult<(), FlowyError> {
+    fn receive_ack(&self, id: String, ty: DocumentServerWSDataType) -> FutureResult<(), FlowyError> {
         let shared_sink = self.shared_sink.clone();
         FutureResult::new(async move { shared_sink.ack(id, ty).await })
     }
@@ -154,7 +157,7 @@ impl DocumentWSSteamConsumer for DocumentWebSocketSteamConsumerAdapter {
                 .await?
                 .into_iter()
                 .map(|revision| revision.into())
-                .collect::<Vec<DocumentWSData>>();
+                .collect::<Vec<DocumentClientWSData>>();
 
             shared_sink.append(data).await;
             Ok(())
@@ -164,7 +167,7 @@ impl DocumentWSSteamConsumer for DocumentWebSocketSteamConsumerAdapter {
 
 pub(crate) struct DocumentWSSinkDataProviderAdapter(pub(crate) Arc<SharedWSSinkDataProvider>);
 impl DocumentWSSinkDataProvider for DocumentWSSinkDataProviderAdapter {
-    fn next(&self) -> FutureResult<Option<DocumentWSData>, FlowyError> {
+    fn next(&self) -> FutureResult<Option<DocumentClientWSData>, FlowyError> {
         let shared_sink = self.0.clone();
         FutureResult::new(async move { shared_sink.next().await })
     }
@@ -251,7 +254,7 @@ enum SourceType {
 
 #[derive(Clone)]
 pub(crate) struct SharedWSSinkDataProvider {
-    shared: Arc<RwLock<VecDeque<DocumentWSData>>>,
+    shared: Arc<RwLock<VecDeque<DocumentClientWSData>>>,
     rev_manager: Arc<RevisionManager>,
     source_ty: Arc<RwLock<SourceType>>,
 }
@@ -266,18 +269,18 @@ impl SharedWSSinkDataProvider {
     }
 
     // TODO: return Option<&DocumentWSData> would be better
-    pub(crate) async fn front(&self) -> Option<DocumentWSData> { self.shared.read().await.front().cloned() }
+    pub(crate) async fn front(&self) -> Option<DocumentClientWSData> { self.shared.read().await.front().cloned() }
 
-    pub(crate) async fn push_front(&self, data: DocumentWSData) { self.shared.write().await.push_front(data); }
+    pub(crate) async fn push_front(&self, data: DocumentClientWSData) { self.shared.write().await.push_front(data); }
 
-    async fn push_back(&self, data: DocumentWSData) { self.shared.write().await.push_back(data); }
+    async fn push_back(&self, data: DocumentClientWSData) { self.shared.write().await.push_back(data); }
 
-    async fn append(&self, data: Vec<DocumentWSData>) {
+    async fn append(&self, data: Vec<DocumentClientWSData>) {
         let mut buf: VecDeque<_> = data.into_iter().collect();
         self.shared.write().await.append(&mut buf);
     }
 
-    async fn next(&self) -> FlowyResult<Option<DocumentWSData>> {
+    async fn next(&self) -> FlowyResult<Option<DocumentClientWSData>> {
         let source_ty = self.source_ty.read().await.clone();
         match source_ty {
             SourceType::Shared => match self.shared.read().await.front() {
@@ -307,7 +310,7 @@ impl SharedWSSinkDataProvider {
         }
     }
 
-    async fn ack(&self, id: String, _ty: DocumentWSDataType) -> FlowyResult<()> {
+    async fn ack(&self, id: String, _ty: DocumentServerWSDataType) -> FlowyResult<()> {
         // let _ = self.rev_manager.ack_revision(id).await?;
         let source_ty = self.source_ty.read().await.clone();
         match source_ty {

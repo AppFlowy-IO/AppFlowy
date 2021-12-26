@@ -1,19 +1,16 @@
 use crate::{
-    services::web_socket::{entities::Socket, WSClientData, WSMessageAdaptor, WSUser},
+    context::FlowyPersistence,
+    services::web_socket::{entities::Socket, WSClientData, WSUser, WebSocketMessage},
     util::serde_ext::{md5, parse_from_bytes},
 };
 use actix_rt::task::spawn_blocking;
-
-use crate::context::FlowyPersistence;
 use async_stream::stream;
 use backend_service::errors::{internal_error, Result, ServerError};
-use flowy_collaboration::protobuf::{DocumentWSData, DocumentWSDataType, NewDocumentUser, Revision};
-use futures::stream::StreamExt;
-
 use flowy_collaboration::{
-    protobuf::RepeatedRevision,
+    protobuf::{DocumentClientWSData, DocumentClientWSDataType, RepeatedRevision, Revision},
     sync::{RevisionUser, ServerDocumentManager, SyncResponse},
 };
+use futures::stream::StreamExt;
 use std::{convert::TryInto, sync::Arc};
 use tokio::sync::{mpsc, oneshot};
 
@@ -71,7 +68,7 @@ impl DocumentWebSocketActor {
     async fn handle_client_data(&self, client_data: WSClientData, persistence: Arc<FlowyPersistence>) -> Result<()> {
         let WSClientData { user, socket, data } = client_data;
         let document_data = spawn_blocking(move || {
-            let document_data: DocumentWSData = parse_from_bytes(&data)?;
+            let document_data: DocumentClientWSData = parse_from_bytes(&data)?;
             Result::Ok(document_data)
         })
         .await
@@ -89,19 +86,15 @@ impl DocumentWebSocketActor {
             socket,
             persistence,
         });
-        let result = match &document_data.ty {
-            DocumentWSDataType::Ack => Ok(()),
-            DocumentWSDataType::PushRev => self.handle_pushed_rev(user, document_data.data).await,
-            DocumentWSDataType::PullRev => Ok(()),
-            DocumentWSDataType::UserConnect => Ok(()),
-        };
-        match result {
+
+        match match &document_data.ty {
+            DocumentClientWSDataType::ClientPushRev => self.handle_pushed_rev(user, document_data.data).await,
+        } {
             Ok(_) => {},
             Err(e) => {
                 tracing::error!("[HTTP_SERVER_WS]: process client data error {:?}", e);
             },
         }
-
         Ok(())
     }
 
@@ -155,15 +148,15 @@ impl RevisionUser for ServerDocUser {
     fn receive(&self, resp: SyncResponse) {
         let result = match resp {
             SyncResponse::Pull(data) => {
-                let msg: WSMessageAdaptor = data.into();
+                let msg: WebSocketMessage = data.into();
                 self.socket.try_send(msg).map_err(internal_error)
             },
             SyncResponse::Push(data) => {
-                let msg: WSMessageAdaptor = data.into();
+                let msg: WebSocketMessage = data.into();
                 self.socket.try_send(msg).map_err(internal_error)
             },
             SyncResponse::Ack(data) => {
-                let msg: WSMessageAdaptor = data.into();
+                let msg: WebSocketMessage = data.into();
                 self.socket.try_send(msg).map_err(internal_error)
             },
             SyncResponse::NewRevision(revisions) => {

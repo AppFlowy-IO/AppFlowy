@@ -7,17 +7,11 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use std::convert::{TryFrom, TryInto};
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Eq, PartialEq, Hash)]
-pub enum DocumentWSDataType {
-    // The frontend receives the Ack means the backend has received the revision
-    Ack         = 0,
-    // The frontend receives the PushRev event means the backend is pushing the new revision to frontend
-    PushRev     = 1,
-    // The fronted receives the PullRev event means the backend try to pull the revision from frontend
-    PullRev     = 2,
-    UserConnect = 3,
+pub enum DocumentClientWSDataType {
+    ClientPushRev = 0,
 }
 
-impl DocumentWSDataType {
+impl DocumentClientWSDataType {
     pub fn data<T>(&self, bytes: Bytes) -> Result<T, CollaborateError>
     where
         T: TryFrom<Bytes, Error = CollaborateError>,
@@ -26,17 +20,17 @@ impl DocumentWSDataType {
     }
 }
 
-impl std::default::Default for DocumentWSDataType {
-    fn default() -> Self { DocumentWSDataType::Ack }
+impl std::default::Default for DocumentClientWSDataType {
+    fn default() -> Self { DocumentClientWSDataType::ClientPushRev }
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct DocumentWSData {
+pub struct DocumentClientWSData {
     #[pb(index = 1)]
     pub doc_id: String,
 
     #[pb(index = 2)]
-    pub ty: DocumentWSDataType,
+    pub ty: DocumentClientWSDataType,
 
     #[pb(index = 3)]
     pub data: Vec<u8>,
@@ -45,66 +39,93 @@ pub struct DocumentWSData {
     pub id: String,
 }
 
-impl std::convert::From<Revision> for DocumentWSData {
+impl std::convert::From<Revision> for DocumentClientWSData {
     fn from(revision: Revision) -> Self {
         let doc_id = revision.doc_id.clone();
         let rev_id = revision.rev_id;
         let bytes: Bytes = revision.try_into().unwrap();
         Self {
             doc_id,
-            ty: DocumentWSDataType::PushRev,
+            ty: DocumentClientWSDataType::ClientPushRev,
             data: bytes.to_vec(),
             id: rev_id.to_string(),
         }
     }
 }
 
-pub struct DocumentWSDataBuilder();
-impl DocumentWSDataBuilder {
+#[derive(Debug, Clone, ProtoBuf_Enum, Eq, PartialEq, Hash)]
+pub enum DocumentServerWSDataType {
+    ServerAck     = 0,
+    ServerPushRev = 1,
+    ServerPullRev = 2,
+    UserConnect   = 3,
+}
+
+impl std::default::Default for DocumentServerWSDataType {
+    fn default() -> Self { DocumentServerWSDataType::ServerPushRev }
+}
+
+#[derive(ProtoBuf, Default, Debug, Clone)]
+pub struct DocumentServerWSData {
+    #[pb(index = 1)]
+    pub doc_id: String,
+
+    #[pb(index = 2)]
+    pub ty: DocumentServerWSDataType,
+
+    #[pb(index = 3)]
+    pub data: Vec<u8>,
+
+    #[pb(index = 4)]
+    pub id: String,
+}
+
+pub struct DocumentServerWSDataBuilder();
+impl DocumentServerWSDataBuilder {
     // DocumentWSDataType::PushRev -> Revision
-    pub fn build_push_message(doc_id: &str, revisions: Vec<Revision>, id: &str) -> DocumentWSData {
+    pub fn build_push_message(doc_id: &str, revisions: Vec<Revision>, id: &str) -> DocumentServerWSData {
         let repeated_revision = RepeatedRevision { items: revisions };
         let bytes: Bytes = repeated_revision.try_into().unwrap();
-        DocumentWSData {
+        DocumentServerWSData {
             doc_id: doc_id.to_string(),
-            ty: DocumentWSDataType::PushRev,
+            ty: DocumentServerWSDataType::ServerPushRev,
             data: bytes.to_vec(),
             id: id.to_string(),
         }
     }
 
     // DocumentWSDataType::PullRev -> RevisionRange
-    pub fn build_pull_message(doc_id: &str, range: RevisionRange, rev_id: i64) -> DocumentWSData {
+    pub fn build_pull_message(doc_id: &str, range: RevisionRange, rev_id: i64) -> DocumentServerWSData {
         let bytes: Bytes = range.try_into().unwrap();
-        DocumentWSData {
+        DocumentServerWSData {
             doc_id: doc_id.to_string(),
-            ty: DocumentWSDataType::PullRev,
+            ty: DocumentServerWSDataType::ServerPullRev,
             data: bytes.to_vec(),
             id: rev_id.to_string(),
         }
     }
 
     // DocumentWSDataType::Ack -> RevId
-    pub fn build_ack_message(doc_id: &str, id: &str) -> DocumentWSData {
-        DocumentWSData {
+    pub fn build_ack_message(doc_id: &str, id: &str) -> DocumentServerWSData {
+        DocumentServerWSData {
             doc_id: doc_id.to_string(),
-            ty: DocumentWSDataType::Ack,
+            ty: DocumentServerWSDataType::ServerAck,
             data: vec![],
             id: id.to_string(),
         }
     }
 
     // DocumentWSDataType::UserConnect -> DocumentConnected
-    pub fn build_new_document_user_message(doc_id: &str, new_document_user: NewDocumentUser) -> DocumentWSData {
-        let id = new_document_user.user_id.clone();
-        let bytes: Bytes = new_document_user.try_into().unwrap();
-        DocumentWSData {
-            doc_id: doc_id.to_string(),
-            ty: DocumentWSDataType::UserConnect,
-            data: bytes.to_vec(),
-            id,
-        }
-    }
+    // pub fn build_new_document_user_message(doc_id: &str, new_document_user:
+    // NewDocumentUser) -> DocumentServerWSData {     let id =
+    // new_document_user.user_id.clone();     let bytes: Bytes =
+    // new_document_user.try_into().unwrap();     DocumentServerWSData {
+    //         doc_id: doc_id.to_string(),
+    //         ty: DocumentServerWSDataType::UserConnect,
+    //         data: bytes.to_vec(),
+    //         id,
+    //     }
+    // }
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]

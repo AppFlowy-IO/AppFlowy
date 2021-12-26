@@ -24,7 +24,7 @@
 // const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_22_1;
 
 #[derive(PartialEq,Clone,Default)]
-pub struct WSMessage {
+pub struct WebScoketRawMessage {
     // message fields
     pub module: WSModule,
     pub data: ::std::vec::Vec<u8>,
@@ -33,14 +33,14 @@ pub struct WSMessage {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a WSMessage {
-    fn default() -> &'a WSMessage {
-        <WSMessage as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a WebScoketRawMessage {
+    fn default() -> &'a WebScoketRawMessage {
+        <WebScoketRawMessage as ::protobuf::Message>::default_instance()
     }
 }
 
-impl WSMessage {
-    pub fn new() -> WSMessage {
+impl WebScoketRawMessage {
+    pub fn new() -> WebScoketRawMessage {
         ::std::default::Default::default()
     }
 
@@ -86,7 +86,7 @@ impl WSMessage {
     }
 }
 
-impl ::protobuf::Message for WSMessage {
+impl ::protobuf::Message for WebScoketRawMessage {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -161,8 +161,8 @@ impl ::protobuf::Message for WSMessage {
         Self::descriptor_static()
     }
 
-    fn new() -> WSMessage {
-        WSMessage::new()
+    fn new() -> WebScoketRawMessage {
+        WebScoketRawMessage::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -171,29 +171,29 @@ impl ::protobuf::Message for WSMessage {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<WSModule>>(
                 "module",
-                |m: &WSMessage| { &m.module },
-                |m: &mut WSMessage| { &mut m.module },
+                |m: &WebScoketRawMessage| { &m.module },
+                |m: &mut WebScoketRawMessage| { &mut m.module },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBytes>(
                 "data",
-                |m: &WSMessage| { &m.data },
-                |m: &mut WSMessage| { &mut m.data },
+                |m: &WebScoketRawMessage| { &m.data },
+                |m: &mut WebScoketRawMessage| { &mut m.data },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<WSMessage>(
-                "WSMessage",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<WebScoketRawMessage>(
+                "WebScoketRawMessage",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static WSMessage {
-        static instance: ::protobuf::rt::LazyV2<WSMessage> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(WSMessage::new)
+    fn default_instance() -> &'static WebScoketRawMessage {
+        static instance: ::protobuf::rt::LazyV2<WebScoketRawMessage> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(WebScoketRawMessage::new)
     }
 }
 
-impl ::protobuf::Clear for WSMessage {
+impl ::protobuf::Clear for WebScoketRawMessage {
     fn clear(&mut self) {
         self.module = WSModule::Doc;
         self.data.clear();
@@ -201,13 +201,13 @@ impl ::protobuf::Clear for WSMessage {
     }
 }
 
-impl ::std::fmt::Debug for WSMessage {
+impl ::std::fmt::Debug for WebScoketRawMessage {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for WSMessage {
+impl ::protobuf::reflect::ProtobufValue for WebScoketRawMessage {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -261,20 +261,20 @@ impl ::protobuf::reflect::ProtobufValue for WSModule {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\tmsg.proto\"B\n\tWSMessage\x12!\n\x06module\x18\x01\x20\x01(\x0e2\t.W\
-    SModuleR\x06module\x12\x12\n\x04data\x18\x02\x20\x01(\x0cR\x04data*\x13\
-    \n\x08WSModule\x12\x07\n\x03Doc\x10\0J\xd9\x01\n\x06\x12\x04\0\0\x08\x01\
-    \n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\
-    \n\n\x03\x04\0\x01\x12\x03\x02\x08\x11\n\x0b\n\x04\x04\0\x02\0\x12\x03\
-    \x03\x04\x18\n\x0c\n\x05\x04\0\x02\0\x06\x12\x03\x03\x04\x0c\n\x0c\n\x05\
-    \x04\0\x02\0\x01\x12\x03\x03\r\x13\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\
-    \x03\x16\x17\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x13\n\x0c\n\x05\
-    \x04\0\x02\x01\x05\x12\x03\x04\x04\t\n\x0c\n\x05\x04\0\x02\x01\x01\x12\
-    \x03\x04\n\x0e\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x11\x12\n\n\n\
-    \x02\x05\0\x12\x04\x06\0\x08\x01\n\n\n\x03\x05\0\x01\x12\x03\x06\x05\r\n\
-    \x0b\n\x04\x05\0\x02\0\x12\x03\x07\x04\x0c\n\x0c\n\x05\x05\0\x02\0\x01\
-    \x12\x03\x07\x04\x07\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x07\n\x0bb\x06p\
-    roto3\
+    \n\tmsg.proto\"L\n\x13WebScoketRawMessage\x12!\n\x06module\x18\x01\x20\
+    \x01(\x0e2\t.WSModuleR\x06module\x12\x12\n\x04data\x18\x02\x20\x01(\x0cR\
+    \x04data*\x13\n\x08WSModule\x12\x07\n\x03Doc\x10\0J\xd9\x01\n\x06\x12\
+    \x04\0\0\x08\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\
+    \x02\0\x05\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x1b\n\x0b\n\x04\x04\0\
+    \x02\0\x12\x03\x03\x04\x18\n\x0c\n\x05\x04\0\x02\0\x06\x12\x03\x03\x04\
+    \x0c\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\r\x13\n\x0c\n\x05\x04\0\x02\
+    \0\x03\x12\x03\x03\x16\x17\n\x0b\n\x04\x04\0\x02\x01\x12\x03\x04\x04\x13\
+    \n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\x04\t\n\x0c\n\x05\x04\0\x02\
+    \x01\x01\x12\x03\x04\n\x0e\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x04\x11\
+    \x12\n\n\n\x02\x05\0\x12\x04\x06\0\x08\x01\n\n\n\x03\x05\0\x01\x12\x03\
+    \x06\x05\r\n\x0b\n\x04\x05\0\x02\0\x12\x03\x07\x04\x0c\n\x0c\n\x05\x05\0\
+    \x02\0\x01\x12\x03\x07\x04\x07\n\x0c\n\x05\x05\0\x02\0\x02\x12\x03\x07\n\
+    \x0bb\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;
