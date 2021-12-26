@@ -3,7 +3,7 @@ use std::sync::Arc;
 use tokio::sync::broadcast;
 
 pub use flowy_error::FlowyError;
-pub use lib_ws::{WSConnectState, WSMessage, WSMessageReceiver};
+pub use lib_ws::{WSConnectState, WSMessageReceiver, WebScoketRawMessage};
 
 pub trait FlowyWebSocket: Send + Sync {
     fn start_connect(&self, addr: String) -> FutureResult<(), FlowyError>;
@@ -15,5 +15,5 @@ pub trait FlowyWebSocket: Send + Sync {
 }
 
 pub trait FlowyWsSender: Send + Sync {
-    fn send(&self, msg: WSMessage) -> Result<(), FlowyError>;
+    fn send(&self, msg: WebScoketRawMessage) -> Result<(), FlowyError>;
 }

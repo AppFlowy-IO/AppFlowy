@@ -1,5 +1,5 @@
 use crate::services::doc::{web_socket::DocumentWebSocketManager, DocumentWSReceiver};
-use flowy_collaboration::entities::ws::DocumentWSData;
+use flowy_collaboration::entities::ws::DocumentServerWSData;
 use lib_ws::WSConnectState;
 use std::sync::Arc;
 
@@ -12,7 +12,7 @@ impl DocumentWebSocketManager for Arc<LocalWebSocketManager> {
 }
 
 impl DocumentWSReceiver for LocalWebSocketManager {
-    fn receive_ws_data(&self, _doc_data: DocumentWSData) {}
+    fn receive_ws_data(&self, _doc_data: DocumentServerWSData) {}
 
     fn connect_state_changed(&self, _state: &WSConnectState) {}
 }

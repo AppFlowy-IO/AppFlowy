@@ -6,7 +6,7 @@ use async_stream::stream;
 use bytes::Bytes;
 use flowy_collaboration::entities::{
     revision::RevisionRange,
-    ws::{DocumentWSData, DocumentWSDataType, NewDocumentUser},
+    ws::{DocumentClientWSData, DocumentServerWSData, DocumentServerWSDataType, NewDocumentUser},
 };
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use futures::stream::StreamExt;
@@ -28,8 +28,8 @@ pub(crate) struct HttpWebSocketManager {
     data_provider: Arc<dyn DocumentWSSinkDataProvider>,
     stream_consumer: Arc<dyn DocumentWSSteamConsumer>,
     ws: Arc<dyn DocumentWebSocket>,
-    ws_msg_tx: UnboundedSender<DocumentWSData>,
-    ws_msg_rx: Option<UnboundedReceiver<DocumentWSData>>,
+    ws_msg_tx: UnboundedSender<DocumentServerWSData>,
+    ws_msg_rx: Option<UnboundedReceiver<DocumentServerWSData>>,
     stop_sync_tx: SinkStopTx,
     state: broadcast::Sender<WSConnectState>,
 }
@@ -91,7 +91,7 @@ impl DocumentWebSocketManager for Arc<HttpWebSocketManager> {
 }
 
 impl DocumentWSReceiver for HttpWebSocketManager {
-    fn receive_ws_data(&self, doc_data: DocumentWSData) {
+    fn receive_ws_data(&self, doc_data: DocumentServerWSData) {
         match self.ws_msg_tx.send(doc_data) {
             Ok(_) => {},
             Err(e) => tracing::error!("❌Propagate ws message failed. {}", e),
@@ -108,7 +108,7 @@ impl DocumentWSReceiver for HttpWebSocketManager {
 
 pub trait DocumentWSSteamConsumer: Send + Sync {
     fn receive_push_revision(&self, bytes: Bytes) -> FutureResult<(), FlowyError>;
-    fn receive_ack(&self, id: String, ty: DocumentWSDataType) -> FutureResult<(), FlowyError>;
+    fn receive_ack(&self, id: String, ty: DocumentServerWSDataType) -> FutureResult<(), FlowyError>;
     fn receive_new_user_connect(&self, new_user: NewDocumentUser) -> FutureResult<(), FlowyError>;
     fn pull_revisions_in_range(&self, range: RevisionRange) -> FutureResult<(), FlowyError>;
 }
@@ -116,7 +116,7 @@ pub trait DocumentWSSteamConsumer: Send + Sync {
 pub struct DocumentWSStream {
     doc_id: String,
     consumer: Arc<dyn DocumentWSSteamConsumer>,
-    ws_msg_rx: Option<mpsc::UnboundedReceiver<DocumentWSData>>,
+    ws_msg_rx: Option<mpsc::UnboundedReceiver<DocumentServerWSData>>,
     stop_rx: Option<SinkStopRx>,
 }
 
@@ -124,7 +124,7 @@ impl DocumentWSStream {
     pub fn new(
         doc_id: &str,
         consumer: Arc<dyn DocumentWSSteamConsumer>,
-        ws_msg_rx: mpsc::UnboundedReceiver<DocumentWSData>,
+        ws_msg_rx: mpsc::UnboundedReceiver<DocumentServerWSData>,
         stop_rx: SinkStopRx,
     ) -> Self {
         DocumentWSStream {
@@ -171,8 +171,8 @@ impl DocumentWSStream {
             .await;
     }
 
-    async fn handle_message(&self, msg: DocumentWSData) -> FlowyResult<()> {
-        let DocumentWSData {
+    async fn handle_message(&self, msg: DocumentServerWSData) -> FlowyResult<()> {
+        let DocumentServerWSData {
             doc_id: _,
             ty,
             data,
@@ -184,18 +184,18 @@ impl DocumentWSStream {
 
         tracing::debug!("[DocumentStream]: receives new message: {:?}", ty);
         match ty {
-            DocumentWSDataType::PushRev => {
+            DocumentServerWSDataType::ServerPushRev => {
                 let _ = self.consumer.receive_push_revision(bytes).await?;
                 let _ = self.consumer.receive_ack(id, ty).await;
             },
-            DocumentWSDataType::PullRev => {
+            DocumentServerWSDataType::ServerPullRev => {
                 let range = RevisionRange::try_from(bytes)?;
                 let _ = self.consumer.pull_revisions_in_range(range).await?;
             },
-            DocumentWSDataType::Ack => {
+            DocumentServerWSDataType::ServerAck => {
                 let _ = self.consumer.receive_ack(id, ty).await;
             },
-            DocumentWSDataType::UserConnect => {
+            DocumentServerWSDataType::UserConnect => {
                 let new_user = NewDocumentUser::try_from(bytes)?;
                 let _ = self.consumer.receive_new_user_connect(new_user).await;
                 // Notify the user that someone has connected to this document
@@ -211,7 +211,7 @@ pub type SinkStopRx = broadcast::Receiver<()>;
 pub type SinkStopTx = broadcast::Sender<()>;
 
 pub trait DocumentWSSinkDataProvider: Send + Sync {
-    fn next(&self) -> FutureResult<Option<DocumentWSData>, FlowyError>;
+    fn next(&self) -> FutureResult<Option<DocumentClientWSData>, FlowyError>;
 }
 
 pub struct DocumentWSSink {

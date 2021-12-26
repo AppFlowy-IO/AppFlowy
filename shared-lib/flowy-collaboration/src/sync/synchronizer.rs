@@ -2,7 +2,7 @@ use crate::{
     document::Document,
     entities::{
         revision::{Revision, RevisionRange},
-        ws::{DocumentWSData, DocumentWSDataBuilder},
+        ws::{DocumentServerWSData, DocumentServerWSDataBuilder},
     },
     sync::DocumentPersistence,
 };
@@ -24,9 +24,9 @@ pub trait RevisionUser: Send + Sync + Debug {
 }
 
 pub enum SyncResponse {
-    Pull(DocumentWSData),
-    Push(DocumentWSData),
-    Ack(DocumentWSData),
+    Pull(DocumentServerWSData),
+    Push(DocumentServerWSData),
+    Ack(DocumentServerWSData),
     NewRevision(Vec<Revision>),
 }
 
@@ -83,7 +83,8 @@ impl RevisionSynchronizer {
                         start: server_rev_id,
                         end: first_revision.rev_id,
                     };
-                    let msg = DocumentWSDataBuilder::build_pull_message(&self.doc_id, range, first_revision.rev_id);
+                    let msg =
+                        DocumentServerWSDataBuilder::build_pull_message(&self.doc_id, range, first_revision.rev_id);
                     user.receive(SyncResponse::Pull(msg));
                 }
             },
@@ -110,12 +111,12 @@ impl RevisionSynchronizer {
                     },
                 };
 
-                let data = DocumentWSDataBuilder::build_push_message(&self.doc_id, revisions, &id);
+                let data = DocumentServerWSDataBuilder::build_push_message(&self.doc_id, revisions, &id);
                 user.receive(SyncResponse::Push(data));
             },
         }
 
-        user.receive(SyncResponse::Ack(DocumentWSDataBuilder::build_ack_message(
+        user.receive(SyncResponse::Ack(DocumentServerWSDataBuilder::build_ack_message(
             &first_revision.doc_id,
             &first_revision.rev_id.to_string(),
         )));
