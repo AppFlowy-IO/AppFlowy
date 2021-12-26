@@ -5,7 +5,7 @@ use crate::services::{
 use async_stream::stream;
 use bytes::Bytes;
 use flowy_collaboration::entities::{
-    revision::RevisionRange,
+    revision::{RevId, RevisionRange},
     ws::{DocumentClientWSData, DocumentServerWSData, DocumentServerWSDataType, NewDocumentUser},
 };
 use flowy_error::{internal_error, FlowyError, FlowyResult};
@@ -172,12 +172,7 @@ impl DocumentWSStream {
     }
 
     async fn handle_message(&self, msg: DocumentServerWSData) -> FlowyResult<()> {
-        let DocumentServerWSData {
-            doc_id: _,
-            ty,
-            data,
-            id,
-        } = msg;
+        let DocumentServerWSData { doc_id: _, ty, data } = msg;
         let bytes = spawn_blocking(move || Bytes::from(data))
             .await
             .map_err(internal_error)?;
@@ -186,14 +181,14 @@ impl DocumentWSStream {
         match ty {
             DocumentServerWSDataType::ServerPushRev => {
                 let _ = self.consumer.receive_push_revision(bytes).await?;
-                let _ = self.consumer.receive_ack(id, ty).await;
             },
             DocumentServerWSDataType::ServerPullRev => {
                 let range = RevisionRange::try_from(bytes)?;
                 let _ = self.consumer.pull_revisions_in_range(range).await?;
             },
             DocumentServerWSDataType::ServerAck => {
-                let _ = self.consumer.receive_ack(id, ty).await;
+                let rev_id = RevId::try_from(bytes).unwrap().value;
+                let _ = self.consumer.receive_ack(rev_id.to_string(), ty).await;
             },
             DocumentServerWSDataType::UserConnect => {
                 let new_user = NewDocumentUser::try_from(bytes)?;

@@ -100,7 +100,7 @@ impl std::fmt::Debug for Revision {
 #[derive(PartialEq, Debug, Default, ProtoBuf, Clone)]
 pub struct RepeatedRevision {
     #[pb(index = 1)]
-    pub items: Vec<Revision>,
+    items: Vec<Revision>,
 }
 
 impl std::ops::Deref for RepeatedRevision {
@@ -114,6 +114,16 @@ impl std::ops::DerefMut for RepeatedRevision {
 }
 
 impl RepeatedRevision {
+    pub fn new(items: Vec<Revision>) -> Self {
+        if cfg!(debug_assertions) {
+            let mut sorted_items = items.clone();
+            sorted_items.sort_by(|a, b| a.rev_id.cmp(&b.rev_id));
+            assert_eq!(sorted_items, items, "The items passed in should be sorted")
+        }
+
+        Self { items }
+    }
+
     pub fn into_inner(self) -> Vec<Revision> { self.items }
 }
 

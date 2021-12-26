@@ -57,7 +57,7 @@ fn make_doc_from_revisions(doc_id: &str, mut revisions: RepeatedRevision) -> Res
     if revisions.is_empty() {
         return Err(ServerError::record_not_found().context(format!("{} not exist", doc_id)));
     }
-
+    
     let mut document_delta = RichTextDelta::new();
     let mut base_rev_id = 0;
     let mut rev_id = 0;
@@ -70,7 +70,7 @@ fn make_doc_from_revisions(doc_id: &str, mut revisions: RepeatedRevision) -> Res
     }
     let text = document_delta.to_json();
     let mut document_info = DocumentInfo::new();
-    document_info.set_id(doc_id.to_owned());
+    document_info.set_doc_id(doc_id.to_owned());
     document_info.set_text(text);
     document_info.set_base_rev_id(base_rev_id);
     document_info.set_rev_id(rev_id);

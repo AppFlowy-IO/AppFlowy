@@ -115,7 +115,7 @@ impl RevisionLoader {
             let delta_data = Bytes::from(doc.text.clone());
             let doc_md5 = md5(&delta_data);
             let revision = Revision::new(
-                &doc.id,
+                &doc.doc_id,
                 doc.base_rev_id,
                 doc.rev_id,
                 delta_data,
@@ -158,7 +158,7 @@ fn mk_doc_from_revisions(doc_id: &str, revisions: Vec<Revision>) -> FlowyResult<
     correct_delta_if_need(&mut delta);
 
     Result::<DocumentInfo, FlowyError>::Ok(DocumentInfo {
-        id: doc_id.to_owned(),
+        doc_id: doc_id.to_owned(),
         text: delta.to_json(),
         rev_id,
         base_rev_id,

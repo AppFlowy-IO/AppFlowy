@@ -158,9 +158,9 @@ impl KVStore for PostgresKV {
         })
     }
 
-    fn batch_get_key_start_with(&self, prefix: &str) -> FutureResultSend<Vec<KeyValue>, ServerError> {
+    fn batch_get_start_with(&self, key: &str) -> FutureResultSend<Vec<KeyValue>, ServerError> {
         let pg_pool = self.pg_pool.clone();
-        let prefix = prefix.to_owned();
+        let prefix = key.to_owned();
         FutureResultSend::new(async move {
             let mut transaction = pg_pool
                 .begin()

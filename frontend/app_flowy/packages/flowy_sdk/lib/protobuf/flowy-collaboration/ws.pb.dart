@@ -9,6 +9,8 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
+import 'revision.pb.dart' as $0;
+
 import 'ws.pbenum.dart';
 
 export 'ws.pbenum.dart';
@@ -17,7 +19,7 @@ class DocumentClientWSData extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DocumentClientWSData', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
     ..e<DocumentClientWSDataType>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ty', $pb.PbFieldType.OE, defaultOrMaker: DocumentClientWSDataType.ClientPushRev, valueOf: DocumentClientWSDataType.valueOf, enumValues: DocumentClientWSDataType.values)
-    ..a<$core.List<$core.int>>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
+    ..aOM<$0.RepeatedRevision>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'revisions', subBuilder: $0.RepeatedRevision.create)
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..hasRequiredFields = false
   ;
@@ -26,7 +28,7 @@ class DocumentClientWSData extends $pb.GeneratedMessage {
   factory DocumentClientWSData({
     $core.String? docId,
     DocumentClientWSDataType? ty,
-    $core.List<$core.int>? data,
+    $0.RepeatedRevision? revisions,
     $core.String? id,
   }) {
     final _result = create();
@@ -36,8 +38,8 @@ class DocumentClientWSData extends $pb.GeneratedMessage {
     if (ty != null) {
       _result.ty = ty;
     }
-    if (data != null) {
-      _result.data = data;
+    if (revisions != null) {
+      _result.revisions = revisions;
     }
     if (id != null) {
       _result.id = id;
@@ -84,13 +86,15 @@ class DocumentClientWSData extends $pb.GeneratedMessage {
   void clearTy() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.List<$core.int> get data => $_getN(2);
+  $0.RepeatedRevision get revisions => $_getN(2);
   @$pb.TagNumber(3)
-  set data($core.List<$core.int> v) { $_setBytes(2, v); }
+  set revisions($0.RepeatedRevision v) { setField(3, v); }
   @$pb.TagNumber(3)
-  $core.bool hasData() => $_has(2);
+  $core.bool hasRevisions() => $_has(2);
   @$pb.TagNumber(3)
-  void clearData() => clearField(3);
+  void clearRevisions() => clearField(3);
+  @$pb.TagNumber(3)
+  $0.RepeatedRevision ensureRevisions() => $_ensure(2);
 
   @$pb.TagNumber(4)
   $core.String get id => $_getSZ(3);
@@ -107,7 +111,6 @@ class DocumentServerWSData extends $pb.GeneratedMessage {
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
     ..e<DocumentServerWSDataType>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ty', $pb.PbFieldType.OE, defaultOrMaker: DocumentServerWSDataType.ServerAck, valueOf: DocumentServerWSDataType.valueOf, enumValues: DocumentServerWSDataType.values)
     ..a<$core.List<$core.int>>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
-    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..hasRequiredFields = false
   ;
 
@@ -116,7 +119,6 @@ class DocumentServerWSData extends $pb.GeneratedMessage {
     $core.String? docId,
     DocumentServerWSDataType? ty,
     $core.List<$core.int>? data,
-    $core.String? id,
   }) {
     final _result = create();
     if (docId != null) {
@@ -127,9 +129,6 @@ class DocumentServerWSData extends $pb.GeneratedMessage {
     }
     if (data != null) {
       _result.data = data;
-    }
-    if (id != null) {
-      _result.id = id;
     }
     return _result;
   }
@@ -180,15 +179,6 @@ class DocumentServerWSData extends $pb.GeneratedMessage {
   $core.bool hasData() => $_has(2);
   @$pb.TagNumber(3)
   void clearData() => clearField(3);
-
-  @$pb.TagNumber(4)
-  $core.String get id => $_getSZ(3);
-  @$pb.TagNumber(4)
-  set id($core.String v) { $_setString(3, v); }
-  @$pb.TagNumber(4)
-  $core.bool hasId() => $_has(3);
-  @$pb.TagNumber(4)
-  void clearId() => clearField(4);
 }
 
 class NewDocumentUser extends $pb.GeneratedMessage {

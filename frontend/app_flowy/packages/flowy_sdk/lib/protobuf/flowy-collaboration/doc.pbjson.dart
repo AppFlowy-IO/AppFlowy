@@ -23,7 +23,7 @@ final $typed_data.Uint8List createDocParamsDescriptor = $convert.base64Decode('C
 const DocumentInfo$json = const {
   '1': 'DocumentInfo',
   '2': const [
-    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+    const {'1': 'doc_id', '3': 1, '4': 1, '5': 9, '10': 'docId'},
     const {'1': 'text', '3': 2, '4': 1, '5': 9, '10': 'text'},
     const {'1': 'rev_id', '3': 3, '4': 1, '5': 3, '10': 'revId'},
     const {'1': 'base_rev_id', '3': 4, '4': 1, '5': 3, '10': 'baseRevId'},
@@ -31,7 +31,7 @@ const DocumentInfo$json = const {
 };
 
 /// Descriptor for `DocumentInfo`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List documentInfoDescriptor = $convert.base64Decode('CgxEb2N1bWVudEluZm8SDgoCaWQYASABKAlSAmlkEhIKBHRleHQYAiABKAlSBHRleHQSFQoGcmV2X2lkGAMgASgDUgVyZXZJZBIeCgtiYXNlX3Jldl9pZBgEIAEoA1IJYmFzZVJldklk');
+final $typed_data.Uint8List documentInfoDescriptor = $convert.base64Decode('CgxEb2N1bWVudEluZm8SFQoGZG9jX2lkGAEgASgJUgVkb2NJZBISCgR0ZXh0GAIgASgJUgR0ZXh0EhUKBnJldl9pZBgDIAEoA1IFcmV2SWQSHgoLYmFzZV9yZXZfaWQYBCABKANSCWJhc2VSZXZJZA==');
 @$core.Deprecated('Use resetDocumentParamsDescriptor instead')
 const ResetDocumentParams$json = const {
   '1': 'ResetDocumentParams',

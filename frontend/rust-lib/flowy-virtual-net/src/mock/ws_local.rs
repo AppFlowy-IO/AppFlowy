@@ -47,7 +47,7 @@ impl FlowyWebSocket for MockWebSocket {
                 } else {
                     let ws_data = DocumentClientWSData::try_from(Bytes::from(message.data.clone())).unwrap();
 
-                    if let Some(mut rx) = server.handle_ws_data(ws_data).await {
+                    if let Some(mut rx) = server.handle_client_data(ws_data).await {
                         let new_ws_message = rx.recv().await.unwrap();
                         match receivers.get(&new_ws_message.module) {
                             None => tracing::error!("Can't find any handler for message: {:?}", new_ws_message),

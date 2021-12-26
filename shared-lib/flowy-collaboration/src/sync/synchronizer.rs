@@ -6,6 +6,7 @@ use crate::{
     },
     sync::DocumentPersistence,
 };
+use futures::TryFutureExt;
 use lib_ot::{core::OperationTransformable, errors::OTError, rich_text::RichTextDelta};
 use parking_lot::RwLock;
 use std::{
@@ -49,12 +50,19 @@ impl RevisionSynchronizer {
     #[tracing::instrument(level = "debug", skip(self, user, revisions, persistence), err)]
     pub async fn apply_revisions(
         &self,
+        doc_id: String,
         user: Arc<dyn RevisionUser>,
         revisions: Vec<Revision>,
         persistence: Arc<dyn DocumentPersistence>,
     ) -> Result<(), OTError> {
         if revisions.is_empty() {
-            tracing::warn!("Receive empty revisions");
+            // Return all the revisions to client
+            let revisions = persistence
+                .get_doc_revisions(&doc_id)
+                .map_err(|e| OTError::internal().context(e))
+                .await?;
+            let data = DocumentServerWSDataBuilder::build_push_message(&doc_id, revisions);
+            user.receive(SyncResponse::Push(data));
             return Ok(());
         }
 
@@ -83,8 +91,7 @@ impl RevisionSynchronizer {
                         start: server_rev_id,
                         end: first_revision.rev_id,
                     };
-                    let msg =
-                        DocumentServerWSDataBuilder::build_pull_message(&self.doc_id, range, first_revision.rev_id);
+                    let msg = DocumentServerWSDataBuilder::build_pull_message(&self.doc_id, range);
                     user.receive(SyncResponse::Pull(msg));
                 }
             },
@@ -96,7 +103,6 @@ impl RevisionSynchronizer {
                 // The client document is outdated. Transform the client revision delta and then
                 // send the prime delta to the client. Client should compose the this prime
                 // delta.
-                let id = first_revision.rev_id.to_string();
                 let from_rev_id = first_revision.rev_id;
                 let to_rev_id = server_base_rev_id;
                 let rev_ids: Vec<i64> = (from_rev_id..=to_rev_id).collect();
@@ -111,15 +117,10 @@ impl RevisionSynchronizer {
                     },
                 };
 
-                let data = DocumentServerWSDataBuilder::build_push_message(&self.doc_id, revisions, &id);
+                let data = DocumentServerWSDataBuilder::build_push_message(&self.doc_id, revisions);
                 user.receive(SyncResponse::Push(data));
             },
         }
-
-        user.receive(SyncResponse::Ack(DocumentServerWSDataBuilder::build_ack_message(
-            &first_revision.doc_id,
-            &first_revision.rev_id.to_string(),
-        )));
         Ok(())
     }
 

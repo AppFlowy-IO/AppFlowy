@@ -1,16 +1,16 @@
 syntax = "proto3";
+import "revision.proto";
 
 message DocumentClientWSData {
     string doc_id = 1;
     DocumentClientWSDataType ty = 2;
-    bytes data = 3;
+    RepeatedRevision revisions = 3;
     string id = 4;
 }
 message DocumentServerWSData {
     string doc_id = 1;
     DocumentServerWSDataType ty = 2;
     bytes data = 3;
-    string id = 4;
 }
 message NewDocumentUser {
     string user_id = 1;

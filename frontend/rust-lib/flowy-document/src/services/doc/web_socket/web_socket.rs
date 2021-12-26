@@ -1,10 +1,5 @@
 use crate::services::doc::{
-    web_socket::{
-        local_ws_impl::LocalWebSocketManager,
-        DocumentWSSinkDataProvider,
-        DocumentWSSteamConsumer,
-        HttpWebSocketManager,
-    },
+    web_socket::{DocumentWSSinkDataProvider, DocumentWSSteamConsumer, HttpWebSocketManager},
     DocumentMD5,
     DocumentWSReceiver,
     DocumentWebSocket,
@@ -40,6 +35,33 @@ pub(crate) async fn make_document_ws_manager(
     rev_manager: Arc<RevisionManager>,
     ws: Arc<dyn DocumentWebSocket>,
 ) -> Arc<dyn DocumentWebSocketManager> {
+    // if cfg!(feature = "http_server") {
+    //     let shared_sink =
+    // Arc::new(SharedWSSinkDataProvider::new(rev_manager.clone()));
+    //     let ws_stream_consumer = Arc::new(DocumentWebSocketSteamConsumerAdapter {
+    //         doc_id: doc_id.clone(),
+    //         user_id: user_id.clone(),
+    //         editor_edit_queue: editor_edit_queue.clone(),
+    //         rev_manager: rev_manager.clone(),
+    //         shared_sink: shared_sink.clone(),
+    //     });
+    //     let ws_stream_provider =
+    // DocumentWSSinkDataProviderAdapter(shared_sink.clone());
+    //     let ws_manager = Arc::new(HttpWebSocketManager::new(
+    //         &doc_id,
+    //         ws.clone(),
+    //         Arc::new(ws_stream_provider),
+    //         ws_stream_consumer,
+    //     ));
+    //     notify_user_has_connected(&user_id, &doc_id, rev_manager.clone(),
+    // shared_sink).await;     listen_document_ws_state(&user_id, &doc_id,
+    // ws_manager.scribe_state(), rev_manager.clone());
+    //
+    //     Arc::new(ws_manager)
+    // } else {
+    //     Arc::new(Arc::new(LocalWebSocketManager {}))
+    // }
+
     let shared_sink = Arc::new(SharedWSSinkDataProvider::new(rev_manager.clone()));
     let ws_stream_consumer = Arc::new(DocumentWebSocketSteamConsumerAdapter {
         doc_id: doc_id.clone(),
@@ -124,7 +146,8 @@ impl DocumentWSSteamConsumer for DocumentWebSocketSteamConsumerAdapter {
             if let Some(server_composed_revision) =
                 handle_push_rev(&doc_id, &user_id, edit_cmd_tx, rev_manager, bytes).await?
             {
-                shared_sink.push_back(server_composed_revision.into()).await;
+                let data = DocumentClientWSData::from_revisions(&doc_id, vec![server_composed_revision]);
+                shared_sink.push_back(data).await;
             }
             Ok(())
         })
@@ -143,15 +166,11 @@ impl DocumentWSSteamConsumer for DocumentWebSocketSteamConsumerAdapter {
     fn pull_revisions_in_range(&self, range: RevisionRange) -> FutureResult<(), FlowyError> {
         let rev_manager = self.rev_manager.clone();
         let shared_sink = self.shared_sink.clone();
+        let doc_id = self.doc_id.clone();
         FutureResult::new(async move {
-            let data = rev_manager
-                .get_revisions_in_range(range)
-                .await?
-                .into_iter()
-                .map(|revision| revision.into())
-                .collect::<Vec<DocumentClientWSData>>();
-
-            shared_sink.append(data).await;
+            let revisions = rev_manager.get_revisions_in_range(range).await?;
+            let data = DocumentClientWSData::from_revisions(&doc_id, revisions);
+            shared_sink.push_back(data).await;
             Ok(())
         })
     }
@@ -260,17 +279,10 @@ impl SharedWSSinkDataProvider {
         }
     }
 
-    // TODO: return Option<&DocumentWSData> would be better
-    pub(crate) async fn front(&self) -> Option<DocumentClientWSData> { self.shared.read().await.front().cloned() }
-
+    #[allow(dead_code)]
     pub(crate) async fn push_front(&self, data: DocumentClientWSData) { self.shared.write().await.push_front(data); }
 
     async fn push_back(&self, data: DocumentClientWSData) { self.shared.write().await.push_back(data); }
-
-    async fn append(&self, data: Vec<DocumentClientWSData>) {
-        let mut buf: VecDeque<_> = data.into_iter().collect();
-        self.shared.write().await.append(&mut buf);
-    }
 
     async fn next(&self) -> FlowyResult<Option<DocumentClientWSData>> {
         let source_ty = self.source_ty.read().await.clone();
@@ -281,7 +293,7 @@ impl SharedWSSinkDataProvider {
                     Ok(None)
                 },
                 Some(data) => {
-                    tracing::debug!("[DocumentSinkDataProvider]: {}:{:?}", data.doc_id, data.ty);
+                    tracing::debug!("[SharedWSSinkDataProvider]: {}:{:?}", data.doc_id, data.ty);
                     Ok(Some(data.clone()))
                 },
             },
@@ -293,8 +305,9 @@ impl SharedWSSinkDataProvider {
 
                 match self.rev_manager.next_sync_revision().await? {
                     Some(rev) => {
-                        tracing::debug!("[DocumentSinkDataProvider]: {}:{:?}", rev.doc_id, rev.rev_id);
-                        Ok(Some(rev.into()))
+                        tracing::debug!("[SharedWSSinkDataProvider]: {}:{:?}", rev.doc_id, rev.rev_id);
+                        let doc_id = rev.doc_id.clone();
+                        Ok(Some(DocumentClientWSData::from_revisions(&doc_id, vec![rev])))
                     },
                     None => Ok(None),
                 }
@@ -310,10 +323,11 @@ impl SharedWSSinkDataProvider {
                 let should_pop = match self.shared.read().await.front() {
                     None => false,
                     Some(val) => {
-                        if val.id == id {
+                        let expected_id = val.id();
+                        if expected_id == id {
                             true
                         } else {
-                            tracing::error!("The front element's {} is not equal to the {}", val.id, id);
+                            tracing::error!("The front element's {} is not equal to the {}", expected_id, id);
                             false
                         }
                     },

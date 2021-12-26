@@ -49,6 +49,11 @@ impl DocumentKVPersistence {
         Ok(())
     }
 
+    pub(crate) async fn get_doc_revisions(&self, doc_id: &str) -> Result<RepeatedRevision, ServerError> {
+        let items = self.inner.batch_get_start_with(doc_id).await?;
+        Ok(key_value_items_to_revisions(items))
+    }
+
     pub(crate) async fn batch_get_revisions<T: Into<Option<Vec<i64>>>>(
         &self,
         doc_id: &str,
@@ -56,7 +61,7 @@ impl DocumentKVPersistence {
     ) -> Result<RepeatedRevision, ServerError> {
         let rev_ids = rev_ids.into();
         let items = match rev_ids {
-            None => self.inner.batch_get_key_start_with(doc_id).await?,
+            None => self.inner.batch_get_start_with(doc_id).await?,
             Some(rev_ids) => {
                 let keys = rev_ids
                     .into_iter()
@@ -66,17 +71,7 @@ impl DocumentKVPersistence {
             },
         };
 
-        let mut revisions = items
-            .into_iter()
-            .filter_map(|kv| parse_from_bytes::<Revision>(&kv.value).ok())
-            .collect::<Vec<Revision>>();
-
-        // TODO: optimize sort
-        revisions.sort_by(|a, b| a.rev_id.cmp(&b.rev_id));
-
-        let mut repeated_revision = RepeatedRevision::new();
-        repeated_revision.set_items(revisions.into());
-        Ok(repeated_revision)
+        Ok(key_value_items_to_revisions(items))
     }
 
     pub(crate) async fn batch_delete_revisions<T: Into<Option<Vec<i64>>>>(
@@ -99,6 +94,19 @@ impl DocumentKVPersistence {
             },
         }
     }
+}
+
+#[inline]
+fn key_value_items_to_revisions(items: Vec<KeyValue>) -> RepeatedRevision {
+    let mut revisions = items
+        .into_iter()
+        .filter_map(|kv| parse_from_bytes::<Revision>(&kv.value).ok())
+        .collect::<Vec<Revision>>();
+
+    revisions.sort_by(|a, b| a.rev_id.cmp(&b.rev_id));
+    let mut repeated_revision = RepeatedRevision::new();
+    repeated_revision.set_items(revisions.into());
+    repeated_revision
 }
 
 #[inline]

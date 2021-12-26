@@ -15,7 +15,7 @@ impl DocumentServerAPI for DocServerMock {
 
     fn read_doc(&self, _token: &str, params: DocIdentifier) -> FutureResult<Option<DocumentInfo>, FlowyError> {
         let doc = DocumentInfo {
-            id: params.doc_id,
+            doc_id: params.doc_id,
             text: initial_delta_string(),
             rev_id: 0,
             base_rev_id: 0,
