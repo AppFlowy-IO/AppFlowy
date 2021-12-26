@@ -6,15 +6,15 @@ use flowy_document::{
     errors::{internal_error, FlowyError},
     services::doc::{DocumentWSReceivers, DocumentWebSocket, WSStateReceiver},
 };
-use flowy_net::services::ws::WsManager;
+use flowy_net::services::ws::FlowyWSConnect;
 use flowy_user::services::user::UserSession;
-use lib_ws::{WSMessageReceiver, WSModule, WebScoketRawMessage};
+use lib_ws::{WSMessageReceiver, WSModule, WebSocketRawMessage};
 use std::{convert::TryInto, path::Path, sync::Arc};
 
 pub struct DocumentDepsResolver();
 impl DocumentDepsResolver {
     pub fn resolve(
-        ws_manager: Arc<WsManager>,
+        ws_manager: Arc<FlowyWSConnect>,
         user_session: Arc<UserSession>,
     ) -> (
         Arc<dyn DocumentUser>,
@@ -61,13 +61,13 @@ impl DocumentUser for DocumentUserImpl {
 }
 
 struct DocumentWebSocketAdapter {
-    ws_manager: Arc<WsManager>,
+    ws_manager: Arc<FlowyWSConnect>,
 }
 
 impl DocumentWebSocket for DocumentWebSocketAdapter {
     fn send(&self, data: DocumentClientWSData) -> Result<(), FlowyError> {
         let bytes: Bytes = data.try_into().unwrap();
-        let msg = WebScoketRawMessage {
+        let msg = WebSocketRawMessage {
             module: WSModule::Doc,
             data: bytes.to_vec(),
         };
@@ -84,5 +84,5 @@ struct WSMessageReceiverAdaptor(Arc<DocumentWSReceivers>);
 
 impl WSMessageReceiver for WSMessageReceiverAdaptor {
     fn source(&self) -> WSModule { WSModule::Doc }
-    fn receive_message(&self, msg: WebScoketRawMessage) { self.0.did_receive_data(Bytes::from(msg.data)); }
+    fn receive_message(&self, msg: WebSocketRawMessage) { self.0.did_receive_data(Bytes::from(msg.data)); }
 }

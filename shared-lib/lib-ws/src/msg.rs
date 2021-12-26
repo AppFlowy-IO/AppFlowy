@@ -4,7 +4,7 @@ use std::convert::TryInto;
 use tokio_tungstenite::tungstenite::Message as TokioMessage;
 
 #[derive(ProtoBuf, Debug, Clone, Default)]
-pub struct WebScoketRawMessage {
+pub struct WebSocketRawMessage {
     #[pb(index = 1)]
     pub module: WSModule,
 
@@ -29,8 +29,8 @@ impl ToString for WSModule {
     }
 }
 
-impl std::convert::From<WebScoketRawMessage> for TokioMessage {
-    fn from(msg: WebScoketRawMessage) -> Self {
+impl std::convert::From<WebSocketRawMessage> for TokioMessage {
+    fn from(msg: WebSocketRawMessage) -> Self {
         let result: Result<Bytes, ::protobuf::ProtobufError> = msg.try_into();
         match result {
             Ok(bytes) => TokioMessage::Binary(bytes.to_vec()),

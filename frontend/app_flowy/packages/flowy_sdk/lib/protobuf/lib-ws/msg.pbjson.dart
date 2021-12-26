@@ -18,14 +18,14 @@ const WSModule$json = const {
 
 /// Descriptor for `WSModule`. Decode as a `google.protobuf.EnumDescriptorProto`.
 final $typed_data.Uint8List wSModuleDescriptor = $convert.base64Decode('CghXU01vZHVsZRIHCgNEb2MQAA==');
-@$core.Deprecated('Use webScoketRawMessageDescriptor instead')
-const WebScoketRawMessage$json = const {
-  '1': 'WebScoketRawMessage',
+@$core.Deprecated('Use webSocketRawMessageDescriptor instead')
+const WebSocketRawMessage$json = const {
+  '1': 'WebSocketRawMessage',
   '2': const [
     const {'1': 'module', '3': 1, '4': 1, '5': 14, '6': '.WSModule', '10': 'module'},
     const {'1': 'data', '3': 2, '4': 1, '5': 12, '10': 'data'},
   ],
 };
 
-/// Descriptor for `WebScoketRawMessage`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List webScoketRawMessageDescriptor = $convert.base64Decode('ChNXZWJTY29rZXRSYXdNZXNzYWdlEiEKBm1vZHVsZRgBIAEoDjIJLldTTW9kdWxlUgZtb2R1bGUSEgoEZGF0YRgCIAEoDFIEZGF0YQ==');
+/// Descriptor for `WebSocketRawMessage`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List webSocketRawMessageDescriptor = $convert.base64Decode('ChNXZWJTb2NrZXRSYXdNZXNzYWdlEiEKBm1vZHVsZRgBIAEoDjIJLldTTW9kdWxlUgZtb2R1bGUSEgoEZGF0YRgCIAEoDFIEZGF0YQ==');

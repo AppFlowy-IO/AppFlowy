@@ -77,7 +77,7 @@ impl EditorTest {
             EditorScript::AssertNextRevId(rev_id) => {
                 let next_revision = rev_manager.next_sync_revision().await.unwrap();
                 if rev_id.is_none() {
-                    assert_eq!(next_revision.is_none(), true);
+                    assert_eq!(next_revision.is_none(), true, "Next revision should be None");
                     return;
                 }
                 let next_revision = next_revision.unwrap();

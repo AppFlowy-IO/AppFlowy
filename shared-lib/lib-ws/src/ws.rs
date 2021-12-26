@@ -3,7 +3,7 @@ use crate::{
     connect::{WSConnectionFuture, WSStream},
     errors::WSError,
     WSModule,
-    WebScoketRawMessage,
+    WebSocketRawMessage,
 };
 use backend_service::errors::ServerError;
 use bytes::Bytes;
@@ -34,7 +34,7 @@ type Handlers = DashMap<WSModule, Arc<dyn WSMessageReceiver>>;
 
 pub trait WSMessageReceiver: Sync + Send + 'static {
     fn source(&self) -> WSModule;
-    fn receive_message(&self, msg: WebScoketRawMessage);
+    fn receive_message(&self, msg: WebSocketRawMessage);
 }
 
 pub struct WSController {
@@ -175,7 +175,7 @@ impl WSHandlerFuture {
 
     fn handle_binary_message(&self, bytes: Vec<u8>) {
         let bytes = Bytes::from(bytes);
-        match WebScoketRawMessage::try_from(bytes) {
+        match WebSocketRawMessage::try_from(bytes) {
             Ok(message) => match self.handlers.get(&message.module) {
                 None => log::error!("Can't find any handler for message: {:?}", message),
                 Some(handler) => handler.receive_message(message.clone()),
@@ -207,7 +207,7 @@ pub struct WSSender {
 }
 
 impl WSSender {
-    pub fn send_msg<T: Into<WebScoketRawMessage>>(&self, msg: T) -> Result<(), WSError> {
+    pub fn send_msg<T: Into<WebSocketRawMessage>>(&self, msg: T) -> Result<(), WSError> {
         let msg = msg.into();
         let _ = self
             .ws_tx
@@ -217,7 +217,7 @@ impl WSSender {
     }
 
     pub fn send_text(&self, source: &WSModule, text: &str) -> Result<(), WSError> {
-        let msg = WebScoketRawMessage {
+        let msg = WebSocketRawMessage {
             module: source.clone(),
             data: text.as_bytes().to_vec(),
         };
@@ -225,7 +225,7 @@ impl WSSender {
     }
 
     pub fn send_binary(&self, source: &WSModule, bytes: Vec<u8>) -> Result<(), WSError> {
-        let msg = WebScoketRawMessage {
+        let msg = WebSocketRawMessage {
             module: source.clone(),
             data: bytes,
         };

@@ -1,10 +1,10 @@
-use crate::services::ws::{
+use flowy_net::services::ws::{
     FlowyError,
+    FlowyWSSender,
     FlowyWebSocket,
-    FlowyWsSender,
     WSConnectState,
     WSMessageReceiver,
-    WebScoketRawMessage,
+    WebSocketRawMessage,
 };
 use lib_infra::future::FutureResult;
 use std::sync::Arc;
@@ -12,7 +12,7 @@ use tokio::sync::{broadcast, broadcast::Receiver};
 
 pub(crate) struct LocalWebSocket {
     state_sender: broadcast::Sender<WSConnectState>,
-    ws_sender: broadcast::Sender<WebScoketRawMessage>,
+    ws_sender: LocalWSSender,
 }
 
 impl std::default::Default for LocalWebSocket {
@@ -21,12 +21,12 @@ impl std::default::Default for LocalWebSocket {
         let (ws_sender, _) = broadcast::channel(16);
         LocalWebSocket {
             state_sender,
-            ws_sender,
+            ws_sender: LocalWSSender(ws_sender),
         }
     }
 }
 
-impl FlowyWebSocket for Arc<LocalWebSocket> {
+impl FlowyWebSocket for LocalWebSocket {
     fn start_connect(&self, _addr: String) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
 
     fn stop_connect(&self) -> FutureResult<(), FlowyError> { FutureResult::new(async { Ok(()) }) }
@@ -37,12 +37,19 @@ impl FlowyWebSocket for Arc<LocalWebSocket> {
 
     fn add_message_receiver(&self, _handler: Arc<dyn WSMessageReceiver>) -> Result<(), FlowyError> { Ok(()) }
 
-    fn ws_sender(&self) -> Result<Arc<dyn FlowyWsSender>, FlowyError> { Ok(Arc::new(self.ws_sender.clone())) }
+    fn ws_sender(&self) -> Result<Arc<dyn FlowyWSSender>, FlowyError> { Ok(Arc::new(self.ws_sender.clone())) }
 }
 
-impl FlowyWsSender for broadcast::Sender<WebScoketRawMessage> {
-    fn send(&self, msg: WebScoketRawMessage) -> Result<(), FlowyError> {
-        let _ = self.send(msg);
+#[derive(Clone)]
+pub struct LocalWSSender(broadcast::Sender<WebSocketRawMessage>);
+impl FlowyWSSender for LocalWSSender {
+    fn send(&self, msg: WebSocketRawMessage) -> Result<(), FlowyError> {
+        let _ = self.0.send(msg);
         Ok(())
     }
+}
+
+impl std::ops::Deref for LocalWSSender {
+    type Target = broadcast::Sender<WebSocketRawMessage>;
+    fn deref(&self) -> &Self::Target { &self.0 }
 }

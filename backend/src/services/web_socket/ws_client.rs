@@ -11,7 +11,7 @@ use actix::*;
 use actix_web::web::Data;
 use actix_web_actors::{ws, ws::Message::Text};
 use bytes::Bytes;
-use lib_ws::{WSModule, WebScoketRawMessage};
+use lib_ws::{WSModule, WebSocketRawMessage};
 use std::{collections::HashMap, convert::TryFrom, sync::Arc, time::Instant};
 
 pub trait WebSocketReceiver: Send + Sync {
@@ -85,7 +85,7 @@ impl WSClient {
 
     fn handle_binary_message(&self, bytes: Bytes, socket: Socket) {
         // TODO: ok to unwrap?
-        let message: WebScoketRawMessage = WebScoketRawMessage::try_from(bytes).unwrap();
+        let message: WebSocketRawMessage = WebSocketRawMessage::try_from(bytes).unwrap();
         match self.ws_receivers.get(&message.module) {
             None => {
                 log::error!("Can't find the receiver for {:?}", message.module);
