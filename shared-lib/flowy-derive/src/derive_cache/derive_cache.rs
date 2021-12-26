@@ -78,7 +78,7 @@ pub fn category_from_str(type_str: &str) -> TypeCategory {
         | "ExportRequest"
         | "ExportData"
         | "WSError"
-        | "WebScoketRawMessage"
+        | "WebSocketRawMessage"
         => TypeCategory::Protobuf,
         "WorkspaceEvent"
         | "WorkspaceNotification"

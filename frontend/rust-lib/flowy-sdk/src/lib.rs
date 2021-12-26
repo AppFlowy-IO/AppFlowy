@@ -1,5 +1,4 @@
 mod deps_resolve;
-// mod flowy_server;
 pub mod module;
 use crate::deps_resolve::{DocumentDepsResolver, WorkspaceDepsResolver};
 use backend_service::configuration::ClientServerConfiguration;
@@ -7,13 +6,15 @@ use flowy_core::{errors::FlowyError, module::init_core, prelude::CoreContext};
 use flowy_document::context::DocumentContext;
 use flowy_net::{
     entities::NetworkType,
-    services::ws::{listen_on_websocket, WsManager},
+    services::ws::{listen_on_websocket, FlowyWSConnect, FlowyWebSocket},
 };
 use flowy_user::{
     prelude::UserStatus,
     services::user::{UserSession, UserSessionConfig},
 };
+use flowy_virtual_net::local_web_socket;
 use lib_dispatch::prelude::*;
+use lib_ws::WSController;
 use module::mk_modules;
 pub use module::*;
 use std::sync::{
@@ -72,7 +73,7 @@ pub struct FlowySDK {
     pub flowy_document: Arc<DocumentContext>,
     pub core: Arc<CoreContext>,
     pub dispatcher: Arc<EventDispatcher>,
-    pub ws_manager: Arc<WsManager>,
+    pub ws_manager: Arc<FlowyWSConnect>,
 }
 
 impl FlowySDK {
@@ -81,7 +82,13 @@ impl FlowySDK {
         init_kv(&config.root);
         tracing::debug!("🔥 {:?}", config);
 
-        let ws_manager = Arc::new(WsManager::new(config.server_config.ws_addr()));
+        let ws: Arc<dyn FlowyWebSocket> = if cfg!(feature = "http_server") {
+            Arc::new(Arc::new(WSController::new()))
+        } else {
+            local_web_socket()
+        };
+
+        let ws_manager = Arc::new(FlowyWSConnect::new(config.server_config.ws_addr(), ws));
         let user_session = mk_user_session(&config);
         let flowy_document = mk_document(ws_manager.clone(), user_session.clone(), &config.server_config);
         let core_ctx = mk_core_context(user_session.clone(), flowy_document.clone(), &config.server_config);
@@ -106,7 +113,7 @@ impl FlowySDK {
 
 fn _init(
     dispatch: &EventDispatcher,
-    ws_manager: Arc<WsManager>,
+    ws_manager: Arc<FlowyWSConnect>,
     user_session: Arc<UserSession>,
     core: Arc<CoreContext>,
 ) {
@@ -126,7 +133,7 @@ fn _init(
 }
 
 async fn _listen_user_status(
-    ws_manager: Arc<WsManager>,
+    ws_manager: Arc<FlowyWSConnect>,
     mut subscribe: broadcast::Receiver<UserStatus>,
     core: Arc<CoreContext>,
 ) {
@@ -201,7 +208,7 @@ fn mk_core_context(
 }
 
 pub fn mk_document(
-    ws_manager: Arc<WsManager>,
+    ws_manager: Arc<FlowyWSConnect>,
     user_session: Arc<UserSession>,
     server_config: &ClientServerConfiguration,
 ) -> Arc<DocumentContext> {

@@ -24,7 +24,7 @@
 // const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_22_1;
 
 #[derive(PartialEq,Clone,Default)]
-pub struct WebScoketRawMessage {
+pub struct WebSocketRawMessage {
     // message fields
     pub module: WSModule,
     pub data: ::std::vec::Vec<u8>,
@@ -33,14 +33,14 @@ pub struct WebScoketRawMessage {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a WebScoketRawMessage {
-    fn default() -> &'a WebScoketRawMessage {
-        <WebScoketRawMessage as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a WebSocketRawMessage {
+    fn default() -> &'a WebSocketRawMessage {
+        <WebSocketRawMessage as ::protobuf::Message>::default_instance()
     }
 }
 
-impl WebScoketRawMessage {
-    pub fn new() -> WebScoketRawMessage {
+impl WebSocketRawMessage {
+    pub fn new() -> WebSocketRawMessage {
         ::std::default::Default::default()
     }
 
@@ -86,7 +86,7 @@ impl WebScoketRawMessage {
     }
 }
 
-impl ::protobuf::Message for WebScoketRawMessage {
+impl ::protobuf::Message for WebSocketRawMessage {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -161,8 +161,8 @@ impl ::protobuf::Message for WebScoketRawMessage {
         Self::descriptor_static()
     }
 
-    fn new() -> WebScoketRawMessage {
-        WebScoketRawMessage::new()
+    fn new() -> WebSocketRawMessage {
+        WebSocketRawMessage::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -171,29 +171,29 @@ impl ::protobuf::Message for WebScoketRawMessage {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<WSModule>>(
                 "module",
-                |m: &WebScoketRawMessage| { &m.module },
-                |m: &mut WebScoketRawMessage| { &mut m.module },
+                |m: &WebSocketRawMessage| { &m.module },
+                |m: &mut WebSocketRawMessage| { &mut m.module },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBytes>(
                 "data",
-                |m: &WebScoketRawMessage| { &m.data },
-                |m: &mut WebScoketRawMessage| { &mut m.data },
+                |m: &WebSocketRawMessage| { &m.data },
+                |m: &mut WebSocketRawMessage| { &mut m.data },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<WebScoketRawMessage>(
-                "WebScoketRawMessage",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<WebSocketRawMessage>(
+                "WebSocketRawMessage",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static WebScoketRawMessage {
-        static instance: ::protobuf::rt::LazyV2<WebScoketRawMessage> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(WebScoketRawMessage::new)
+    fn default_instance() -> &'static WebSocketRawMessage {
+        static instance: ::protobuf::rt::LazyV2<WebSocketRawMessage> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(WebSocketRawMessage::new)
     }
 }
 
-impl ::protobuf::Clear for WebScoketRawMessage {
+impl ::protobuf::Clear for WebSocketRawMessage {
     fn clear(&mut self) {
         self.module = WSModule::Doc;
         self.data.clear();
@@ -201,13 +201,13 @@ impl ::protobuf::Clear for WebScoketRawMessage {
     }
 }
 
-impl ::std::fmt::Debug for WebScoketRawMessage {
+impl ::std::fmt::Debug for WebSocketRawMessage {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for WebScoketRawMessage {
+impl ::protobuf::reflect::ProtobufValue for WebSocketRawMessage {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -261,7 +261,7 @@ impl ::protobuf::reflect::ProtobufValue for WSModule {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\tmsg.proto\"L\n\x13WebScoketRawMessage\x12!\n\x06module\x18\x01\x20\
+    \n\tmsg.proto\"L\n\x13WebSocketRawMessage\x12!\n\x06module\x18\x01\x20\
     \x01(\x0e2\t.WSModuleR\x06module\x12\x12\n\x04data\x18\x02\x20\x01(\x0cR\
     \x04data*\x13\n\x08WSModule\x12\x07\n\x03Doc\x10\0J\xd9\x01\n\x06\x12\
     \x04\0\0\x08\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\

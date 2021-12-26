@@ -10,8 +10,8 @@ lib-dispatch = { path = "../lib-dispatch" }
 flowy-error = { path = "../flowy-error" }
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
-lib-ws = { path = "../../../shared-lib/lib-ws" }
 protobuf = {version = "2.18.0"}
+lib-ws = { path = "../../../shared-lib/lib-ws" }
 bytes = { version = "1.0" }
 anyhow = "1.0"
 tokio = {version = "1", features = ["sync"]}
@@ -20,10 +20,5 @@ strum = "0.21"
 strum_macros = "0.21"
 tracing = { version = "0.1", features = ["log"] }
 
-flowy-collaboration = { path = "../../../shared-lib/flowy-collaboration", optional = true}
-lazy_static = {version = "1.4.0", optional = true}
-dashmap = {version = "4.0", optional = true}
-
 [features]
-flowy_unit_test = ["flowy-collaboration", "lazy_static", "dashmap"]
 http_server = []
