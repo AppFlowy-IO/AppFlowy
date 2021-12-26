@@ -1,15 +1,20 @@
 use crate::{
     document::Document,
-    entities::{doc::DocumentInfo, revision::Revision},
+    entities::{
+        doc::DocumentInfo,
+        revision::{RepeatedRevision, Revision},
+        ws::DocumentServerWSDataBuilder,
+    },
     errors::{internal_error, CollaborateError, CollaborateResult},
-    sync::{RevisionSynchronizer, RevisionUser},
+    protobuf::DocumentClientWSData,
+    sync::{RevisionSynchronizer, RevisionUser, SyncResponse},
 };
 use async_stream::stream;
 use dashmap::DashMap;
 use futures::stream::StreamExt;
 use lib_infra::future::FutureResultSend;
 use lib_ot::rich_text::RichTextDelta;
-use std::{fmt::Debug, sync::Arc};
+use std::{convert::TryFrom, fmt::Debug, sync::Arc};
 use tokio::{
     sync::{mpsc, oneshot},
     task::spawn_blocking,
@@ -17,8 +22,9 @@ use tokio::{
 
 pub trait DocumentPersistence: Send + Sync + Debug {
     fn read_doc(&self, doc_id: &str) -> FutureResultSend<DocumentInfo, CollaborateError>;
-    fn create_doc(&self, revision: Revision) -> FutureResultSend<DocumentInfo, CollaborateError>;
+    fn create_doc(&self, doc_id: &str, revisions: Vec<Revision>) -> FutureResultSend<DocumentInfo, CollaborateError>;
     fn get_revisions(&self, doc_id: &str, rev_ids: Vec<i64>) -> FutureResultSend<Vec<Revision>, CollaborateError>;
+    fn get_doc_revisions(&self, doc_id: &str) -> FutureResultSend<Vec<Revision>, CollaborateError>;
 }
 
 pub struct ServerDocumentManager {
@@ -37,22 +43,43 @@ impl ServerDocumentManager {
     pub async fn apply_revisions(
         &self,
         user: Arc<dyn RevisionUser>,
-        revisions: Vec<Revision>,
+        mut client_data: DocumentClientWSData,
     ) -> Result<(), CollaborateError> {
-        if revisions.is_empty() {
-            return Ok(());
-        }
-        let revision = revisions.first().unwrap();
-        let handler = match self.get_document_handler(&revision.doc_id).await {
+        let mut pb = client_data.take_revisions();
+        let cloned_user = user.clone();
+        let ack_id = client_data.id.clone().parse::<i64>().map_err(|e| {
+            CollaborateError::internal().context(format!("Parse rev_id from {} failed. {}", &client_data.id, e))
+        })?;
+        let doc_id = client_data.doc_id;
+
+        let revisions = spawn_blocking(move || {
+            let repeated_revision = RepeatedRevision::try_from(&mut pb)?;
+            let revisions = repeated_revision.into_inner();
+            Ok::<Vec<Revision>, CollaborateError>(revisions)
+        })
+        .await
+        .map_err(internal_error)??;
+
+        let result = match self.get_document_handler(&doc_id).await {
             None => {
-                // Create the document if it doesn't exist
-                self.create_document(revision.clone()).await.map_err(internal_error)?
+                let _ = self.create_document(&doc_id, revisions).await.map_err(internal_error)?;
+                Ok(())
             },
-            Some(handler) => handler,
+            Some(handler) => {
+                let _ = handler
+                    .apply_revisions(doc_id.clone(), user, revisions)
+                    .await
+                    .map_err(internal_error)?;
+                Ok(())
+            },
         };
 
-        handler.apply_revisions(user, revisions).await.map_err(internal_error)?;
-        Ok(())
+        if result.is_ok() {
+            cloned_user.receive(SyncResponse::Ack(DocumentServerWSDataBuilder::build_ack_message(
+                &doc_id, ack_id,
+            )));
+        }
+        result
     }
 
     async fn get_document_handler(&self, doc_id: &str) -> Option<Arc<OpenDocHandle>> {
@@ -75,14 +102,18 @@ impl ServerDocumentManager {
         }
     }
 
-    async fn create_document(&self, revision: Revision) -> Result<Arc<OpenDocHandle>, CollaborateError> {
-        let doc = self.persistence.create_doc(revision).await?;
+    async fn create_document(
+        &self,
+        doc_id: &str,
+        revisions: Vec<Revision>,
+    ) -> Result<Arc<OpenDocHandle>, CollaborateError> {
+        let doc = self.persistence.create_doc(doc_id, revisions).await?;
         let handler = self.cache_document(doc).await?;
         Ok(handler)
     }
 
     async fn cache_document(&self, doc: DocumentInfo) -> Result<Arc<OpenDocHandle>, CollaborateError> {
-        let doc_id = doc.id.clone();
+        let doc_id = doc.doc_id.clone();
         let persistence = self.persistence.clone();
         let handle = spawn_blocking(|| OpenDocHandle::new(doc, persistence))
             .await
@@ -114,6 +145,7 @@ impl OpenDocHandle {
 
     async fn apply_revisions(
         &self,
+        doc_id: String,
         user: Arc<dyn RevisionUser>,
         revisions: Vec<Revision>,
     ) -> Result<(), CollaborateError> {
@@ -121,6 +153,7 @@ impl OpenDocHandle {
         let persistence = self.persistence.clone();
         self.users.insert(user.user_id(), user.clone());
         let msg = DocumentCommand::ApplyRevisions {
+            doc_id,
             user,
             revisions,
             persistence,
@@ -128,12 +161,6 @@ impl OpenDocHandle {
         };
         let _ = self.send(msg, rx).await?;
         Ok(())
-    }
-
-    pub async fn document_json(&self) -> CollaborateResult<String> {
-        let (ret, rx) = oneshot::channel();
-        let msg = DocumentCommand::GetDocumentJson { ret };
-        self.send(msg, rx).await?
     }
 
     async fn send<T>(&self, msg: DocumentCommand, rx: oneshot::Receiver<T>) -> CollaborateResult<T> {
@@ -146,13 +173,11 @@ impl OpenDocHandle {
 #[derive(Debug)]
 enum DocumentCommand {
     ApplyRevisions {
+        doc_id: String,
         user: Arc<dyn RevisionUser>,
         revisions: Vec<Revision>,
         persistence: Arc<dyn DocumentPersistence>,
         ret: oneshot::Sender<CollaborateResult<()>>,
-    },
-    GetDocumentJson {
-        ret: oneshot::Sender<CollaborateResult<String>>,
     },
 }
 
@@ -166,13 +191,13 @@ impl DocumentCommandQueue {
     fn new(receiver: mpsc::Receiver<DocumentCommand>, doc: DocumentInfo) -> Result<Self, CollaborateError> {
         let delta = RichTextDelta::from_bytes(&doc.text)?;
         let synchronizer = Arc::new(RevisionSynchronizer::new(
-            &doc.id,
+            &doc.doc_id,
             doc.rev_id,
             Document::from_delta(delta),
         ));
 
         Ok(Self {
-            doc_id: doc.id,
+            doc_id: doc.doc_id,
             receiver: Some(receiver),
             synchronizer,
         })
@@ -198,23 +223,17 @@ impl DocumentCommandQueue {
     async fn handle_message(&self, msg: DocumentCommand) {
         match msg {
             DocumentCommand::ApplyRevisions {
+                doc_id,
                 user,
                 revisions,
                 persistence,
                 ret,
             } => {
                 self.synchronizer
-                    .apply_revisions(user, revisions, persistence)
+                    .apply_revisions(doc_id, user, revisions, persistence)
                     .await
                     .unwrap();
                 let _ = ret.send(Ok(()));
-            },
-            DocumentCommand::GetDocumentJson { ret } => {
-                let synchronizer = self.synchronizer.clone();
-                let json = spawn_blocking(move || synchronizer.doc_json())
-                    .await
-                    .map_err(internal_error);
-                let _ = ret.send(json);
             },
         }
     }

@@ -77,7 +77,7 @@ class CreateDocParams extends $pb.GeneratedMessage {
 
 class DocumentInfo extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DocumentInfo', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'text')
     ..aInt64(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'revId')
     ..aInt64(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'baseRevId')
@@ -86,14 +86,14 @@ class DocumentInfo extends $pb.GeneratedMessage {
 
   DocumentInfo._() : super();
   factory DocumentInfo({
-    $core.String? id,
+    $core.String? docId,
     $core.String? text,
     $fixnum.Int64? revId,
     $fixnum.Int64? baseRevId,
   }) {
     final _result = create();
-    if (id != null) {
-      _result.id = id;
+    if (docId != null) {
+      _result.docId = docId;
     }
     if (text != null) {
       _result.text = text;
@@ -128,13 +128,13 @@ class DocumentInfo extends $pb.GeneratedMessage {
   static DocumentInfo? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get id => $_getSZ(0);
+  $core.String get docId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.String v) { $_setString(0, v); }
+  set docId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasId() => $_has(0);
+  $core.bool hasDocId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearId() => clearField(1);
+  void clearDocId() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.String get text => $_getSZ(1);

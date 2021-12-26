@@ -6,8 +6,9 @@ use crate::{
 use actix_rt::task::spawn_blocking;
 use async_stream::stream;
 use backend_service::errors::{internal_error, Result, ServerError};
+
 use flowy_collaboration::{
-    protobuf::{DocumentClientWSData, DocumentClientWSDataType, RepeatedRevision, Revision},
+    protobuf::{DocumentClientWSData, DocumentClientWSDataType, Revision},
     sync::{RevisionUser, ServerDocumentManager, SyncResponse},
 };
 use futures::stream::StreamExt;
@@ -67,18 +68,15 @@ impl DocumentWebSocketActor {
 
     async fn handle_client_data(&self, client_data: WSClientData, persistence: Arc<FlowyPersistence>) -> Result<()> {
         let WSClientData { user, socket, data } = client_data;
-        let document_data = spawn_blocking(move || {
-            let document_data: DocumentClientWSData = parse_from_bytes(&data)?;
-            Result::Ok(document_data)
-        })
-        .await
-        .map_err(internal_error)??;
+        let document_client_data = spawn_blocking(move || parse_from_bytes::<DocumentClientWSData>(&data))
+            .await
+            .map_err(internal_error)??;
 
         tracing::debug!(
-            "[HTTP_SERVER_WS]: receive client data: {}:{}, {:?}",
-            document_data.doc_id,
-            document_data.id,
-            document_data.ty
+            "[DocumentWebSocketActor]: receive client data: {}:{}, {:?}",
+            document_client_data.doc_id,
+            document_client_data.id,
+            document_client_data.ty
         );
 
         let user = Arc::new(ServerDocUser {
@@ -87,33 +85,26 @@ impl DocumentWebSocketActor {
             persistence,
         });
 
-        match match &document_data.ty {
-            DocumentClientWSDataType::ClientPushRev => self.handle_pushed_rev(user, document_data.data).await,
-        } {
+        match self.handle_revision(user, document_client_data).await {
             Ok(_) => {},
             Err(e) => {
-                tracing::error!("[HTTP_SERVER_WS]: process client data error {:?}", e);
+                tracing::error!("[DocumentWebSocketActor]: process client data error {:?}", e);
             },
         }
         Ok(())
     }
 
-    async fn handle_pushed_rev(&self, user: Arc<ServerDocUser>, data: Vec<u8>) -> Result<()> {
-        let repeated_revision = spawn_blocking(move || parse_from_bytes::<RepeatedRevision>(&data))
-            .await
-            .map_err(internal_error)??;
-        self.handle_revision(user, repeated_revision).await
-    }
+    async fn handle_revision(&self, user: Arc<ServerDocUser>, client_data: DocumentClientWSData) -> Result<()> {
+        match &client_data.ty {
+            DocumentClientWSDataType::ClientPushRev => {
+                let _ = self
+                    .doc_manager
+                    .apply_revisions(user, client_data)
+                    .await
+                    .map_err(internal_error)?;
+            },
+        }
 
-    async fn handle_revision(&self, user: Arc<ServerDocUser>, mut revisions: RepeatedRevision) -> Result<()> {
-        let repeated_revision: flowy_collaboration::entities::revision::RepeatedRevision =
-            (&mut revisions).try_into().map_err(internal_error)?;
-        let revisions = repeated_revision.into_inner();
-        let _ = self
-            .doc_manager
-            .apply_revisions(user, revisions)
-            .await
-            .map_err(internal_error)?;
         Ok(())
     }
 }

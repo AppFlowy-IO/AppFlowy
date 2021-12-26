@@ -137,7 +137,7 @@ impl WSStream {
 }
 
 impl fmt::Debug for WSStream {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.debug_struct("WsStream").finish() }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.debug_struct("WSStream").finish() }
 }
 
 impl Future for WSStream {

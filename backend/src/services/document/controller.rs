@@ -3,7 +3,7 @@ use crate::services::{
         persistence::{create_doc, read_doc},
         ws_actor::{DocumentWebSocketActor, WSActorMessage},
     },
-    web_socket::{WebSocketReceiver, WSClientData},
+    web_socket::{WSClientData, WebSocketReceiver},
 };
 
 use crate::context::FlowyPersistence;
@@ -18,13 +18,13 @@ use flowy_collaboration::{
 };
 use lib_infra::future::FutureResultSend;
 
+use flowy_collaboration::sync::{DocumentPersistence, ServerDocumentManager};
 use std::{
     convert::TryInto,
     fmt::{Debug, Formatter},
     sync::Arc,
 };
 use tokio::sync::{mpsc, oneshot};
-use flowy_collaboration::sync::{DocumentPersistence, ServerDocumentManager};
 
 pub fn make_document_ws_receiver(persistence: Arc<FlowyPersistence>) -> Arc<DocumentWebSocketReceiver> {
     let document_persistence = Arc::new(DocumentPersistenceImpl(persistence.clone()));
@@ -95,13 +95,13 @@ impl DocumentPersistence for DocumentPersistenceImpl {
         })
     }
 
-    fn create_doc(&self, revision: Revision) -> FutureResultSend<DocumentInfo, CollaborateError> {
+    fn create_doc(&self, doc_id: &str, revisions: Vec<Revision>) -> FutureResultSend<DocumentInfo, CollaborateError> {
         let kv_store = self.0.kv_store();
+        let doc_id = doc_id.to_owned();
         FutureResultSend::new(async move {
-            let doc: DocumentInfo = revision.clone().try_into()?;
-            let doc_id = revision.doc_id.clone();
-            let revisions = RepeatedRevision { items: vec![revision] };
-
+            let doc = DocumentInfo::from_revisions(&doc_id, revisions.clone())?;
+            let doc_id = doc_id.to_owned();
+            let revisions = RepeatedRevision::new(revisions);
             let params = CreateDocParams { id: doc_id, revisions };
             let pb_params: flowy_collaboration::protobuf::CreateDocParams = params.try_into().unwrap();
             let _ = create_doc(&kv_store, pb_params)
@@ -120,6 +120,19 @@ impl DocumentPersistence for DocumentPersistenceImpl {
             let repeated_revision: RepeatedRevision = (&mut pb).try_into()?;
             let revisions = repeated_revision.into_inner();
             assert_eq!(expected_len, revisions.len());
+            Ok(revisions)
+        };
+
+        FutureResultSend::new(async move { f().await.map_err(server_error_to_collaborate_error) })
+    }
+
+    fn get_doc_revisions(&self, doc_id: &str) -> FutureResultSend<Vec<Revision>, CollaborateError> {
+        let kv_store = self.0.kv_store();
+        let doc_id = doc_id.to_owned();
+        let f = || async move {
+            let mut pb = kv_store.get_doc_revisions(&doc_id).await?;
+            let repeated_revision: RepeatedRevision = (&mut pb).try_into()?;
+            let revisions = repeated_revision.into_inner();
             Ok(revisions)
         };
 

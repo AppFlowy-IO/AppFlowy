@@ -258,7 +258,7 @@ async fn doc_create() {
 
     let params = CreateDocParams {
         id: doc_id.clone(),
-        revisions: RepeatedRevision { items: revisions },
+        revisions: RepeatedRevision::new(revisions),
     };
     server.create_doc(params).await;
 

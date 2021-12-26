@@ -1,11 +1,11 @@
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_collaboration::{entities::prelude::*, errors::CollaborateError, sync::*};
-use flowy_net::services::ws::*;
+// use flowy_net::services::ws::*;
 use lib_infra::future::FutureResultSend;
 use lib_ws::{WSModule, WebSocketRawMessage};
 use std::{
-    convert::{TryFrom, TryInto},
+    convert::TryInto,
     fmt::{Debug, Formatter},
     sync::Arc,
 };
@@ -24,21 +24,20 @@ impl std::default::Default for MockDocServer {
 }
 
 impl MockDocServer {
-    pub async fn handle_ws_data(&self, ws_data: DocumentClientWSData) -> Option<mpsc::Receiver<WebSocketRawMessage>> {
-        let bytes = Bytes::from(ws_data.data);
-        match ws_data.ty {
+    pub async fn handle_client_data(
+        &self,
+        client_data: DocumentClientWSData,
+    ) -> Option<mpsc::Receiver<WebSocketRawMessage>> {
+        match client_data.ty {
             DocumentClientWSDataType::ClientPushRev => {
-                let revisions = RepeatedRevision::try_from(bytes).unwrap().into_inner();
-                if revisions.is_empty() {
-                    return None;
-                }
-                let first_revision = revisions.first().unwrap();
                 let (tx, rx) = mpsc::channel(1);
                 let user = Arc::new(MockDocUser {
-                    user_id: first_revision.user_id.clone(),
+                    user_id: "fake_user_id".to_owned(),
                     tx,
                 });
-                self.manager.apply_revisions(user, revisions).await.unwrap();
+                let pb_client_data: flowy_collaboration::protobuf::DocumentClientWSData =
+                    client_data.try_into().unwrap();
+                self.manager.apply_revisions(user, pb_client_data).await.unwrap();
                 Some(rx)
             },
         }
@@ -79,16 +78,16 @@ impl DocumentPersistence for MockDocServerPersistence {
         })
     }
 
-    fn create_doc(&self, revision: Revision) -> FutureResultSend<DocumentInfo, CollaborateError> {
-        FutureResultSend::new(async move {
-            let document_info: DocumentInfo = revision.try_into().unwrap();
-            Ok(document_info)
-        })
+    fn create_doc(&self, doc_id: &str, revisions: Vec<Revision>) -> FutureResultSend<DocumentInfo, CollaborateError> {
+        let doc_id = doc_id.to_owned();
+        FutureResultSend::new(async move { DocumentInfo::from_revisions(&doc_id, revisions) })
     }
 
     fn get_revisions(&self, _doc_id: &str, _rev_ids: Vec<i64>) -> FutureResultSend<Vec<Revision>, CollaborateError> {
-        unimplemented!()
+        FutureResultSend::new(async move { Ok(vec![]) })
     }
+
+    fn get_doc_revisions(&self, _doc_id: &str) -> FutureResultSend<Vec<Revision>, CollaborateError> { unimplemented!() }
 }
 
 #[derive(Debug)]

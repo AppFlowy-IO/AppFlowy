@@ -6,7 +6,7 @@ message CreateDocParams {
     RepeatedRevision revisions = 2;
 }
 message DocumentInfo {
-    string id = 1;
+    string doc_id = 1;
     string text = 2;
     int64 rev_id = 3;
     int64 base_rev_id = 4;

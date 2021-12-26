@@ -37,13 +37,13 @@ const DocumentClientWSData$json = const {
   '2': const [
     const {'1': 'doc_id', '3': 1, '4': 1, '5': 9, '10': 'docId'},
     const {'1': 'ty', '3': 2, '4': 1, '5': 14, '6': '.DocumentClientWSDataType', '10': 'ty'},
-    const {'1': 'data', '3': 3, '4': 1, '5': 12, '10': 'data'},
+    const {'1': 'revisions', '3': 3, '4': 1, '5': 11, '6': '.RepeatedRevision', '10': 'revisions'},
     const {'1': 'id', '3': 4, '4': 1, '5': 9, '10': 'id'},
   ],
 };
 
 /// Descriptor for `DocumentClientWSData`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List documentClientWSDataDescriptor = $convert.base64Decode('ChREb2N1bWVudENsaWVudFdTRGF0YRIVCgZkb2NfaWQYASABKAlSBWRvY0lkEikKAnR5GAIgASgOMhkuRG9jdW1lbnRDbGllbnRXU0RhdGFUeXBlUgJ0eRISCgRkYXRhGAMgASgMUgRkYXRhEg4KAmlkGAQgASgJUgJpZA==');
+final $typed_data.Uint8List documentClientWSDataDescriptor = $convert.base64Decode('ChREb2N1bWVudENsaWVudFdTRGF0YRIVCgZkb2NfaWQYASABKAlSBWRvY0lkEikKAnR5GAIgASgOMhkuRG9jdW1lbnRDbGllbnRXU0RhdGFUeXBlUgJ0eRIvCglyZXZpc2lvbnMYAyABKAsyES5SZXBlYXRlZFJldmlzaW9uUglyZXZpc2lvbnMSDgoCaWQYBCABKAlSAmlk');
 @$core.Deprecated('Use documentServerWSDataDescriptor instead')
 const DocumentServerWSData$json = const {
   '1': 'DocumentServerWSData',
@@ -51,12 +51,11 @@ const DocumentServerWSData$json = const {
     const {'1': 'doc_id', '3': 1, '4': 1, '5': 9, '10': 'docId'},
     const {'1': 'ty', '3': 2, '4': 1, '5': 14, '6': '.DocumentServerWSDataType', '10': 'ty'},
     const {'1': 'data', '3': 3, '4': 1, '5': 12, '10': 'data'},
-    const {'1': 'id', '3': 4, '4': 1, '5': 9, '10': 'id'},
   ],
 };
 
 /// Descriptor for `DocumentServerWSData`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List documentServerWSDataDescriptor = $convert.base64Decode('ChREb2N1bWVudFNlcnZlcldTRGF0YRIVCgZkb2NfaWQYASABKAlSBWRvY0lkEikKAnR5GAIgASgOMhkuRG9jdW1lbnRTZXJ2ZXJXU0RhdGFUeXBlUgJ0eRISCgRkYXRhGAMgASgMUgRkYXRhEg4KAmlkGAQgASgJUgJpZA==');
+final $typed_data.Uint8List documentServerWSDataDescriptor = $convert.base64Decode('ChREb2N1bWVudFNlcnZlcldTRGF0YRIVCgZkb2NfaWQYASABKAlSBWRvY0lkEikKAnR5GAIgASgOMhkuRG9jdW1lbnRTZXJ2ZXJXU0RhdGFUeXBlUgJ0eRISCgRkYXRhGAMgASgMUgRkYXRh');
 @$core.Deprecated('Use newDocumentUserDescriptor instead')
 const NewDocumentUser$json = const {
   '1': 'NewDocumentUser',
