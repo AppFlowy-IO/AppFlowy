@@ -65,7 +65,12 @@
   "dialogCreatePageNameHint": "Nome pagina",
   "questionBubble": {
     "whatsNew": "Cosa c'è di nuovo?",
-    "help": "Aiuto & Supporto"
+    "help": "Aiuto & Supporto",
+    "debug": {
+      "name": "Informazioni di debug",
+      "success": "Informazioni di debug copiate negli appunti!",
+      "fail": "Impossibile copiare le informazioni di debug negli appunti"
+    }
   },
   "menuAppHeader": {
     "addPageTooltip": "Aggiungi velocemente una pagina all'interno",

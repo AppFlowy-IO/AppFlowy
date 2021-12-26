@@ -1,8 +1,12 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/domain/page_stack/page_stack.dart';
+import 'package:app_flowy/workspace/presentation/home/home_screen.dart';
 import 'package:flowy_log/flowy_log.dart';
 import 'package:flutter/material.dart';
 import 'package:time/time.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+late FToast fToast;
 
 // [[diagram: HomeStack's widget structure]]
 //
@@ -29,7 +33,6 @@ class HomeStack extends StatelessWidget {
         getIt<HomeStackManager>().stackTopBar(),
         Expanded(
           child: Container(
-            //Rewrote to change with light and dark mode
             color: Theme.of(context).colorScheme.background,
             child: FocusTraversalGroup(
               child: getIt<HomeStackManager>().stackWidget(),
@@ -61,6 +64,13 @@ class FadingIndexedStack extends StatefulWidget {
 
 class _FadingIndexedStackState extends State<FadingIndexedStack> {
   double _targetOpacity = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    fToast = FToast();
+    fToast.init(HomeScreen.scaffoldKey.currentState!.context);
+  }
 
   @override
   void didUpdateWidget(FadingIndexedStack oldWidget) {

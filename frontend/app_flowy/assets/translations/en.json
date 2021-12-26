@@ -65,7 +65,12 @@
   "dialogCreatePageNameHint": "Page name",
   "questionBubble": {
     "whatsNew": "What's new?",
-    "help": "Help & Support"
+    "help": "Help & Support",
+    "debug": {
+      "name": "Debug Info",
+      "success": "Copied debug info to clipboard!",
+      "fail": "Unable to copy debug info to clipboard"
+    }
   },
   "menuAppHeader": {
     "addPageTooltip": "Quickly add a page inside",

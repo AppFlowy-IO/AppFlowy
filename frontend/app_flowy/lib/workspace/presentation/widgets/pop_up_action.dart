@@ -9,8 +9,6 @@ import 'package:styled_widget/styled_widget.dart';
 import 'package:dartz/dartz.dart' as dartz;
 
 abstract class ActionList<T extends ActionItem> {
-  var colors = Colors.black;
-
   List<T> get items;
 
   String get identifier => toString();
@@ -35,7 +33,6 @@ abstract class ActionList<T extends ActionItem> {
         .map(
           (action) => ActionCell<T>(
             action: action,
-            color: colors,
             itemHeight: itemHeight,
             onSelected: (action) {
               FlowyOverlay.of(buildContext).remove(identifier);
@@ -76,14 +73,11 @@ class ActionCell<T extends ActionItem> extends StatelessWidget {
   final T action;
   final Function(T) onSelected;
   final double itemHeight;
-  final color;
   const ActionCell({
     Key? key,
     required this.action,
     required this.onSelected,
     required this.itemHeight,
-    required this.color,
-    // required this.color,
   }) : super(key: key);
 
   @override
@@ -91,7 +85,7 @@ class ActionCell<T extends ActionItem> extends StatelessWidget {
     final theme = context.watch<AppTheme>();
 
     return FlowyHover(
-      config: HoverDisplayConfig(hoverColor: theme.main2, borderColor: theme.main1),
+      config: HoverDisplayConfig(hoverColor: theme.hover, borderColor: theme.shader2),
       builder: (context, onHover) {
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
@@ -103,7 +97,10 @@ class ActionCell<T extends ActionItem> extends StatelessWidget {
               children: [
                 if (action.icon != null) action.icon!,
                 HSpace(ActionListSizes.itemHPadding),
-                FlowyText.medium(action.name, fontSize: 12, color: Colors.black),
+                FlowyText.medium(
+                  action.name,
+                  fontSize: 12,
+                ),
               ],
             ),
           ).padding(

@@ -34,6 +34,9 @@
 # Web related
 lib/generated_plugin_registrant.dart
 
+# Language related generated files
+lib/generated/
+
 # Symbolication related
 app.*.symbols
 
