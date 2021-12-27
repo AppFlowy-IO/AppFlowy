@@ -2,7 +2,7 @@ use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_collaboration::{entities::prelude::*, errors::CollaborateError, sync::*};
 // use flowy_net::services::ws::*;
-use lib_infra::future::FutureResultSend;
+use lib_infra::future::{BoxResultFuture, FutureResultSend};
 use lib_ws::{WSModule, WebSocketRawMessage};
 use std::{
     convert::TryInto,
@@ -61,10 +61,10 @@ impl std::default::Default for MockDocServerPersistence {
 }
 
 impl DocumentPersistence for MockDocServerPersistence {
-    fn read_doc(&self, doc_id: &str) -> FutureResultSend<DocumentInfo, CollaborateError> {
+    fn read_doc(&self, doc_id: &str) -> BoxResultFuture<DocumentInfo, CollaborateError> {
         let inner = self.inner.clone();
         let doc_id = doc_id.to_owned();
-        FutureResultSend::new(async move {
+        Box::pin(async move {
             match inner.get(&doc_id) {
                 None => {
                     //
@@ -78,16 +78,16 @@ impl DocumentPersistence for MockDocServerPersistence {
         })
     }
 
-    fn create_doc(&self, doc_id: &str, revisions: Vec<Revision>) -> FutureResultSend<DocumentInfo, CollaborateError> {
+    fn create_doc(&self, doc_id: &str, revisions: Vec<Revision>) -> BoxResultFuture<DocumentInfo, CollaborateError> {
         let doc_id = doc_id.to_owned();
-        FutureResultSend::new(async move { DocumentInfo::from_revisions(&doc_id, revisions) })
+        Box::pin(async move { DocumentInfo::from_revisions(&doc_id, revisions) })
     }
 
-    fn get_revisions(&self, _doc_id: &str, _rev_ids: Vec<i64>) -> FutureResultSend<Vec<Revision>, CollaborateError> {
-        FutureResultSend::new(async move { Ok(vec![]) })
+    fn get_revisions(&self, _doc_id: &str, _rev_ids: Vec<i64>) -> BoxResultFuture<Vec<Revision>, CollaborateError> {
+        Box::pin(async move { Ok(vec![]) })
     }
 
-    fn get_doc_revisions(&self, _doc_id: &str) -> FutureResultSend<Vec<Revision>, CollaborateError> { unimplemented!() }
+    fn get_doc_revisions(&self, _doc_id: &str) -> BoxResultFuture<Vec<Revision>, CollaborateError> { unimplemented!() }
 }
 
 #[derive(Debug)]

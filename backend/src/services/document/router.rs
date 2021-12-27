@@ -1,6 +1,6 @@
 use crate::{
     context::FlowyPersistence,
-    services::document::persistence::{create_doc, read_doc},
+    services::document::persistence::{create_document, read_document, reset_document},
     util::serde_ext::parse_from_payload,
 };
 use actix_web::{
@@ -18,7 +18,7 @@ pub async fn create_document_handler(
 ) -> Result<HttpResponse, ServerError> {
     let params: CreateDocParams = parse_from_payload(payload).await?;
     let kv_store = persistence.kv_store();
-    let _ = create_doc(&kv_store, params).await?;
+    let _ = create_document(&kv_store, params).await?;
     Ok(FlowyResponse::success().into())
 }
 
@@ -28,13 +28,17 @@ pub async fn read_document_handler(
     persistence: Data<Arc<FlowyPersistence>>,
 ) -> Result<HttpResponse, ServerError> {
     let params: DocIdentifier = parse_from_payload(payload).await?;
-    let doc = read_doc(persistence.get_ref(), params).await?;
+    let doc = read_document(persistence.get_ref(), params).await?;
     let response = FlowyResponse::success().pb(doc)?;
     Ok(response.into())
 }
 
-pub async fn reset_document_handler(payload: Payload, _pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {
-    let _params: ResetDocumentParams = parse_from_payload(payload).await?;
-    // Ok(FlowyResponse::success().into())
-    unimplemented!()
+pub async fn reset_document_handler(
+    payload: Payload,
+    persistence: Data<Arc<FlowyPersistence>>,
+) -> Result<HttpResponse, ServerError> {
+    let params: ResetDocumentParams = parse_from_payload(payload).await?;
+    let kv_store = persistence.kv_store();
+    let _ = reset_document(&kv_store, params).await?;
+    Ok(FlowyResponse::success().into())
 }

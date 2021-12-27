@@ -17,10 +17,9 @@ use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
 
 pub struct TestUserServer {
-    pub pg_pool: PgPool,
+    pub inner: TestServer,
     pub user_token: Option<String>,
     pub user_id: Option<String>,
-    pub client_server_config: ClientServerConfiguration,
 }
 
 impl TestUserServer {
@@ -176,12 +175,12 @@ impl TestUserServer {
         response
     }
 
-    pub fn http_addr(&self) -> String { self.client_server_config.base_url() }
+    pub fn http_addr(&self) -> String { self.inner.client_server_config.base_url() }
 
     pub fn ws_addr(&self) -> String {
         format!(
             "{}/{}",
-            self.client_server_config.ws_addr(),
+            self.inner.client_server_config.ws_addr(),
             self.user_token.as_ref().unwrap()
         )
     }
@@ -190,10 +189,9 @@ impl TestUserServer {
 impl std::convert::From<TestServer> for TestUserServer {
     fn from(server: TestServer) -> Self {
         TestUserServer {
-            pg_pool: server.pg_pool,
+            inner: server,
             user_token: None,
             user_id: None,
-            client_server_config: server.client_server_config,
         }
     }
 }
@@ -203,6 +201,7 @@ pub async fn spawn_user_server() -> TestUserServer {
     server
 }
 
+#[derive(Clone)]
 pub struct TestServer {
     pub pg_pool: PgPool,
     pub app_ctx: AppContext,
