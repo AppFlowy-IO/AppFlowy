@@ -1,12 +1,13 @@
 use crate::{
-    services::kv::{KVStore, KeyValue},
-    util::sqlx_ext::{map_sqlx_error, SqlBuilder},
+    services::kv::{KVAction, KVStore, KeyValue},
+    util::sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
-
 use anyhow::Context;
+use async_trait::async_trait;
 use backend_service::errors::ServerError;
 use bytes::Bytes;
-use lib_infra::future::FutureResultSend;
+use futures_core::future::BoxFuture;
+use lib_infra::future::{BoxResultFuture, FutureResultSend};
 use sql_builder::SqlBuilder as RawSqlBuilder;
 use sqlx::{
     postgres::{PgArguments, PgRow},
@@ -16,6 +17,7 @@ use sqlx::{
     Postgres,
     Row,
 };
+use std::{future::Future, pin::Pin};
 
 const KV_TABLE: &str = "kv_table";
 
@@ -23,221 +25,178 @@ pub(crate) struct PostgresKV {
     pub(crate) pg_pool: PgPool,
 }
 
-impl KVStore for PostgresKV {
-    fn get(&self, key: &str) -> FutureResultSend<Option<Bytes>, ServerError> {
-        let pg_pool = self.pg_pool.clone();
+impl PostgresKV {
+    async fn transaction<F, O>(&self, f: F) -> Result<O, ServerError>
+    where
+        F: for<'a> FnOnce(&'a mut DBTransaction<'_>) -> BoxFuture<'a, Result<O, ServerError>>,
+    {
+        let mut transaction = self
+            .pg_pool
+            .begin()
+            .await
+            .context("[KV]:Failed to acquire a Postgres connection")?;
+
+        let result = f(&mut transaction).await;
+
+        transaction
+            .commit()
+            .await
+            .context("[KV]:Failed to commit SQL transaction.")?;
+
+        result
+    }
+}
+
+impl KVStore for PostgresKV {}
+
+pub(crate) struct PostgresTransaction<'a> {
+    pub(crate) transaction: DBTransaction<'a>,
+}
+
+impl<'a> PostgresTransaction<'a> {}
+
+#[async_trait]
+impl KVAction for PostgresKV {
+    async fn get(&self, key: &str) -> Result<Option<Bytes>, ServerError> {
         let id = key.to_string();
-        FutureResultSend::new(async move {
-            let mut transaction = pg_pool
-                .begin()
-                .await
-                .context("[KV]:Failed to acquire a Postgres connection")?;
+        self.transaction(|transaction| {
+            Box::pin(async move {
+                let (sql, args) = SqlBuilder::select(KV_TABLE)
+                    .add_field("*")
+                    .and_where_eq("id", &id)
+                    .build()?;
 
-            let (sql, args) = SqlBuilder::select(KV_TABLE)
-                .add_field("*")
-                .and_where_eq("id", &id)
-                .build()?;
+                let result = sqlx::query_as_with::<Postgres, KVTable, PgArguments>(&sql, args)
+                    .fetch_one(transaction)
+                    .await;
 
-            let result = sqlx::query_as_with::<Postgres, KVTable, PgArguments>(&sql, args)
-                .fetch_one(&mut transaction)
-                .await;
-
-            let result = match result {
-                Ok(val) => Ok(Some(Bytes::from(val.blob))),
-                Err(error) => match error {
-                    Error::RowNotFound => Ok(None),
-                    _ => Err(map_sqlx_error(error)),
-                },
-            };
-
-            transaction
-                .commit()
-                .await
-                .context("[KV]:Failed to commit SQL transaction.")?;
-
-            result
+                let result = match result {
+                    Ok(val) => Ok(Some(Bytes::from(val.blob))),
+                    Err(error) => match error {
+                        Error::RowNotFound => Ok(None),
+                        _ => Err(map_sqlx_error(error)),
+                    },
+                };
+                result
+            })
         })
+        .await
     }
 
-    fn set(&self, key: &str, bytes: Bytes) -> FutureResultSend<(), ServerError> {
+    async fn set(&self, key: &str, bytes: Bytes) -> Result<(), ServerError> {
         self.batch_set(vec![KeyValue {
             key: key.to_string(),
             value: bytes,
         }])
+        .await
     }
 
-    fn delete(&self, key: &str) -> FutureResultSend<(), ServerError> {
-        let pg_pool = self.pg_pool.clone();
+    async fn remove(&self, key: &str) -> Result<(), ServerError> {
         let id = key.to_string();
-
-        FutureResultSend::new(async move {
-            let mut transaction = pg_pool
-                .begin()
-                .await
-                .context("[KV]:Failed to acquire a Postgres connection")?;
-
-            let (sql, args) = SqlBuilder::delete(KV_TABLE).and_where_eq("id", &id).build()?;
-            let _ = sqlx::query_with(&sql, args)
-                .execute(&mut transaction)
-                .await
-                .map_err(map_sqlx_error)?;
-
-            transaction
-                .commit()
-                .await
-                .context("[KV]:Failed to commit SQL transaction.")?;
-
-            Ok(())
+        self.transaction(|transaction| {
+            Box::pin(async move {
+                let (sql, args) = SqlBuilder::delete(KV_TABLE).and_where_eq("id", &id).build()?;
+                let _ = sqlx::query_with(&sql, args)
+                    .execute(transaction)
+                    .await
+                    .map_err(map_sqlx_error)?;
+                Ok(())
+            })
         })
+        .await
     }
 
-    fn batch_set(&self, kvs: Vec<KeyValue>) -> FutureResultSend<(), ServerError> {
-        let pg_pool = self.pg_pool.clone();
-        FutureResultSend::new(async move {
-            let mut transaction = pg_pool
-                .begin()
-                .await
-                .context("[KV]:Failed to acquire a Postgres connection")?;
+    async fn batch_set(&self, kvs: Vec<KeyValue>) -> Result<(), ServerError> {
+        self.transaction(|transaction| {
+            Box::pin(async move {
+                let mut builder = RawSqlBuilder::insert_into(KV_TABLE);
+                let m_builder = builder.field("id").field("blob");
 
-            SqlBuilder::create(KV_TABLE).add_field("id").add_field("blob");
-            let mut builder = RawSqlBuilder::insert_into(KV_TABLE);
-            let m_builder = builder.field("id").field("blob");
+                let mut args = PgArguments::default();
+                kvs.iter().enumerate().for_each(|(index, _)| {
+                    let index = index * 2 + 1;
+                    m_builder.values(&[format!("${}", index), format!("${}", index + 1)]);
+                });
 
-            let mut args = PgArguments::default();
-            kvs.iter().enumerate().for_each(|(index, _)| {
-                let index = index * 2 + 1;
-                m_builder.values(&[format!("${}", index), format!("${}", index + 1)]);
-            });
+                for kv in kvs {
+                    args.add(kv.key);
+                    args.add(kv.value.to_vec());
+                }
 
-            for kv in kvs {
-                args.add(kv.key);
-                args.add(kv.value.to_vec());
-            }
+                let sql = m_builder.sql()?;
+                let _ = sqlx::query_with(&sql, args)
+                    .execute(transaction)
+                    .await
+                    .map_err(map_sqlx_error)?;
 
-            let sql = m_builder.sql()?;
-            let _ = sqlx::query_with(&sql, args)
-                .execute(&mut transaction)
-                .await
-                .map_err(map_sqlx_error)?;
-
-            transaction
-                .commit()
-                .await
-                .context("[KV]:Failed to commit SQL transaction.")?;
-
-            Ok::<(), ServerError>(())
+                Ok::<(), ServerError>(())
+            })
         })
+        .await
     }
 
-    fn batch_get(&self, keys: Vec<String>) -> FutureResultSend<Vec<KeyValue>, ServerError> {
-        let pg_pool = self.pg_pool.clone();
-        FutureResultSend::new(async move {
-            let mut transaction = pg_pool
-                .begin()
-                .await
-                .context("[KV]:Failed to acquire a Postgres connection")?;
+    async fn batch_get(&self, keys: Vec<String>) -> Result<Vec<KeyValue>, ServerError> {
+        self.transaction(|transaction| {
+            Box::pin(async move {
+                let sql = RawSqlBuilder::select_from(KV_TABLE)
+                    .field("id")
+                    .field("blob")
+                    .and_where_in_quoted("id", &keys)
+                    .sql()?;
 
-            let sql = RawSqlBuilder::select_from(KV_TABLE)
-                .field("id")
-                .field("blob")
-                .and_where_in_quoted("id", &keys)
-                .sql()?;
-
-            let rows = sqlx::query(&sql)
-                .fetch_all(&mut transaction)
-                .await
-                .map_err(map_sqlx_error)?;
-            let kvs = rows_to_key_values(rows);
-
-            transaction
-                .commit()
-                .await
-                .context("[KV]:Failed to commit SQL transaction.")?;
-
-            Ok::<Vec<KeyValue>, ServerError>(kvs)
+                let rows = sqlx::query(&sql).fetch_all(transaction).await.map_err(map_sqlx_error)?;
+                let kvs = rows_to_key_values(rows);
+                Ok::<Vec<KeyValue>, ServerError>(kvs)
+            })
         })
+        .await
     }
 
-    fn batch_get_start_with(&self, key: &str) -> FutureResultSend<Vec<KeyValue>, ServerError> {
-        let pg_pool = self.pg_pool.clone();
+    async fn batch_delete(&self, keys: Vec<String>) -> Result<(), ServerError> {
+        self.transaction(|transaction| {
+            Box::pin(async move {
+                let sql = RawSqlBuilder::delete_from(KV_TABLE).and_where_in("id", &keys).sql()?;
+                let _ = sqlx::query(&sql).execute(transaction).await.map_err(map_sqlx_error)?;
+
+                Ok::<(), ServerError>(())
+            })
+        })
+        .await
+    }
+
+    async fn batch_get_start_with(&self, key: &str) -> Result<Vec<KeyValue>, ServerError> {
         let prefix = key.to_owned();
-        FutureResultSend::new(async move {
-            let mut transaction = pg_pool
-                .begin()
-                .await
-                .context("[KV]:Failed to acquire a Postgres connection")?;
+        self.transaction(|transaction| {
+            Box::pin(async move {
+                let sql = RawSqlBuilder::select_from(KV_TABLE)
+                    .field("id")
+                    .field("blob")
+                    .and_where_like_left("id", &prefix)
+                    .sql()?;
 
-            let sql = RawSqlBuilder::select_from(KV_TABLE)
-                .field("id")
-                .field("blob")
-                .and_where_like_left("id", &prefix)
-                .sql()?;
+                let rows = sqlx::query(&sql).fetch_all(transaction).await.map_err(map_sqlx_error)?;
 
-            let rows = sqlx::query(&sql)
-                .fetch_all(&mut transaction)
-                .await
-                .map_err(map_sqlx_error)?;
+                let kvs = rows_to_key_values(rows);
 
-            let kvs = rows_to_key_values(rows);
-
-            transaction
-                .commit()
-                .await
-                .context("[KV]:Failed to commit SQL transaction.")?;
-
-            Ok::<Vec<KeyValue>, ServerError>(kvs)
+                Ok::<Vec<KeyValue>, ServerError>(kvs)
+            })
         })
+        .await
     }
 
-    fn batch_delete(&self, keys: Vec<String>) -> FutureResultSend<(), ServerError> {
-        let pg_pool = self.pg_pool.clone();
-        FutureResultSend::new(async move {
-            let mut transaction = pg_pool
-                .begin()
-                .await
-                .context("[KV]:Failed to acquire a Postgres connection")?;
-
-            let sql = RawSqlBuilder::delete_from(KV_TABLE).and_where_in("id", &keys).sql()?;
-
-            let _ = sqlx::query(&sql)
-                .execute(&mut transaction)
-                .await
-                .map_err(map_sqlx_error)?;
-
-            transaction
-                .commit()
-                .await
-                .context("[KV]:Failed to commit SQL transaction.")?;
-
-            Ok::<(), ServerError>(())
-        })
-    }
-
-    fn batch_delete_key_start_with(&self, keyword: &str) -> FutureResultSend<(), ServerError> {
-        let pg_pool = self.pg_pool.clone();
+    async fn batch_delete_key_start_with(&self, keyword: &str) -> Result<(), ServerError> {
         let keyword = keyword.to_owned();
-        FutureResultSend::new(async move {
-            let mut transaction = pg_pool
-                .begin()
-                .await
-                .context("[KV]:Failed to acquire a Postgres connection")?;
+        self.transaction(|transaction| {
+            Box::pin(async move {
+                let sql = RawSqlBuilder::delete_from(KV_TABLE)
+                    .and_where_like_left("id", &keyword)
+                    .sql()?;
 
-            let sql = RawSqlBuilder::delete_from(KV_TABLE)
-                .and_where_like_left("id", &keyword)
-                .sql()?;
-
-            let _ = sqlx::query(&sql)
-                .execute(&mut transaction)
-                .await
-                .map_err(map_sqlx_error)?;
-
-            transaction
-                .commit()
-                .await
-                .context("[KV]:Failed to commit SQL transaction.")?;
-
-            Ok::<(), ServerError>(())
+                let _ = sqlx::query(&sql).execute(transaction).await.map_err(map_sqlx_error)?;
+                Ok::<(), ServerError>(())
+            })
         })
+        .await
     }
 }
 

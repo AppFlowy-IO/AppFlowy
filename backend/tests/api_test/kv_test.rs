@@ -23,7 +23,7 @@ async fn kv_delete_test() {
     let key = "1";
 
     let _ = kv.set(key, s1.clone().into()).await.unwrap();
-    let _ = kv.delete(key).await.unwrap();
+    let _ = kv.remove(key).await.unwrap();
     assert_eq!(kv.get(key).await.unwrap(), None);
 }
 

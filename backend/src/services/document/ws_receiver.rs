@@ -1,6 +1,6 @@
 use crate::services::{
     document::{
-        persistence::{create_doc, read_doc},
+        persistence::{create_document, read_document},
         ws_actor::{DocumentWebSocketActor, WSActorMessage},
     },
     web_socket::{WSClientData, WebSocketReceiver},
@@ -16,7 +16,7 @@ use flowy_collaboration::{
     errors::CollaborateError,
     protobuf::DocIdentifier,
 };
-use lib_infra::future::FutureResultSend;
+use lib_infra::future::{BoxResultFuture, FutureResultSend};
 
 use flowy_collaboration::sync::{DocumentPersistence, ServerDocumentManager};
 use std::{
@@ -78,14 +78,14 @@ impl Debug for DocumentPersistenceImpl {
 }
 
 impl DocumentPersistence for DocumentPersistenceImpl {
-    fn read_doc(&self, doc_id: &str) -> FutureResultSend<DocumentInfo, CollaborateError> {
+    fn read_doc(&self, doc_id: &str) -> BoxResultFuture<DocumentInfo, CollaborateError> {
         let params = DocIdentifier {
             doc_id: doc_id.to_string(),
             ..Default::default()
         };
         let persistence = self.0.clone();
-        FutureResultSend::new(async move {
-            let mut pb_doc = read_doc(&persistence, params)
+        Box::pin(async move {
+            let mut pb_doc = read_document(&persistence, params)
                 .await
                 .map_err(server_error_to_collaborate_error)?;
             let doc = (&mut pb_doc)
@@ -95,23 +95,23 @@ impl DocumentPersistence for DocumentPersistenceImpl {
         })
     }
 
-    fn create_doc(&self, doc_id: &str, revisions: Vec<Revision>) -> FutureResultSend<DocumentInfo, CollaborateError> {
+    fn create_doc(&self, doc_id: &str, revisions: Vec<Revision>) -> BoxResultFuture<DocumentInfo, CollaborateError> {
         let kv_store = self.0.kv_store();
         let doc_id = doc_id.to_owned();
-        FutureResultSend::new(async move {
+        Box::pin(async move {
             let doc = DocumentInfo::from_revisions(&doc_id, revisions.clone())?;
             let doc_id = doc_id.to_owned();
             let revisions = RepeatedRevision::new(revisions);
             let params = CreateDocParams { id: doc_id, revisions };
             let pb_params: flowy_collaboration::protobuf::CreateDocParams = params.try_into().unwrap();
-            let _ = create_doc(&kv_store, pb_params)
+            let _ = create_document(&kv_store, pb_params)
                 .await
                 .map_err(server_error_to_collaborate_error)?;
             Ok(doc)
         })
     }
 
-    fn get_revisions(&self, doc_id: &str, rev_ids: Vec<i64>) -> FutureResultSend<Vec<Revision>, CollaborateError> {
+    fn get_revisions(&self, doc_id: &str, rev_ids: Vec<i64>) -> BoxResultFuture<Vec<Revision>, CollaborateError> {
         let kv_store = self.0.kv_store();
         let doc_id = doc_id.to_owned();
         let f = || async move {
@@ -123,10 +123,10 @@ impl DocumentPersistence for DocumentPersistenceImpl {
             Ok(revisions)
         };
 
-        FutureResultSend::new(async move { f().await.map_err(server_error_to_collaborate_error) })
+        Box::pin(async move { f().await.map_err(server_error_to_collaborate_error) })
     }
 
-    fn get_doc_revisions(&self, doc_id: &str) -> FutureResultSend<Vec<Revision>, CollaborateError> {
+    fn get_doc_revisions(&self, doc_id: &str) -> BoxResultFuture<Vec<Revision>, CollaborateError> {
         let kv_store = self.0.kv_store();
         let doc_id = doc_id.to_owned();
         let f = || async move {
@@ -136,7 +136,7 @@ impl DocumentPersistence for DocumentPersistenceImpl {
             Ok(revisions)
         };
 
-        FutureResultSend::new(async move { f().await.map_err(server_error_to_collaborate_error) })
+        Box::pin(async move { f().await.map_err(server_error_to_collaborate_error) })
     }
 }
 

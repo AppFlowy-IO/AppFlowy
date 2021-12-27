@@ -1,4 +1,4 @@
-use futures_core::ready;
+use futures_core::{future::BoxFuture, ready};
 use pin_project::pin_project;
 use std::{
     fmt::Debug,
@@ -62,6 +62,8 @@ where
         Poll::Ready(result)
     }
 }
+
+pub type BoxResultFuture<'a, T, E> = BoxFuture<'a, Result<T, E>>;
 
 #[pin_project]
 pub struct FutureResultSend<T, E> {

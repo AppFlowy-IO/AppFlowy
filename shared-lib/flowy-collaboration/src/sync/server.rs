@@ -12,7 +12,7 @@ use crate::{
 use async_stream::stream;
 use dashmap::DashMap;
 use futures::stream::StreamExt;
-use lib_infra::future::FutureResultSend;
+use lib_infra::future::{BoxResultFuture, FutureResultSend};
 use lib_ot::rich_text::RichTextDelta;
 use std::{convert::TryFrom, fmt::Debug, sync::Arc};
 use tokio::{
@@ -21,10 +21,10 @@ use tokio::{
 };
 
 pub trait DocumentPersistence: Send + Sync + Debug {
-    fn read_doc(&self, doc_id: &str) -> FutureResultSend<DocumentInfo, CollaborateError>;
-    fn create_doc(&self, doc_id: &str, revisions: Vec<Revision>) -> FutureResultSend<DocumentInfo, CollaborateError>;
-    fn get_revisions(&self, doc_id: &str, rev_ids: Vec<i64>) -> FutureResultSend<Vec<Revision>, CollaborateError>;
-    fn get_doc_revisions(&self, doc_id: &str) -> FutureResultSend<Vec<Revision>, CollaborateError>;
+    fn read_doc(&self, doc_id: &str) -> BoxResultFuture<DocumentInfo, CollaborateError>;
+    fn create_doc(&self, doc_id: &str, revisions: Vec<Revision>) -> BoxResultFuture<DocumentInfo, CollaborateError>;
+    fn get_revisions(&self, doc_id: &str, rev_ids: Vec<i64>) -> BoxResultFuture<Vec<Revision>, CollaborateError>;
+    fn get_doc_revisions(&self, doc_id: &str) -> BoxResultFuture<Vec<Revision>, CollaborateError>;
 }
 
 pub struct ServerDocumentManager {

@@ -2,7 +2,7 @@ use crate::{
     entities::logged_user::LoggedUser,
     services::{
         core::{trash::read_trash_ids, view::persistence::*},
-        document::persistence::{create_doc, delete_doc, DocumentKVPersistence},
+        document::persistence::{create_document, delete_document, DocumentKVPersistence},
     },
     util::sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
@@ -59,7 +59,7 @@ pub(crate) async fn delete_view(
             .await
             .map_err(map_sqlx_error)?;
 
-        let _ = delete_doc(kv_store, view_id).await?;
+        let _ = delete_document(kv_store, view_id).await?;
     }
     Ok(())
 }
@@ -100,7 +100,7 @@ pub(crate) async fn create_view(
     create_doc_params.set_revisions(repeated_revision);
     create_doc_params.set_id(view.id.clone());
 
-    let _ = create_doc(&kv_store, create_doc_params).await?;
+    let _ = create_document(&kv_store, create_doc_params).await?;
 
     Ok(view)
 }

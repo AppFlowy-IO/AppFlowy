@@ -5,7 +5,7 @@ use crate::services::{
 use actix::Addr;
 use actix_web::web::Data;
 
-use crate::services::document::{controller::make_document_ws_receiver, persistence::DocumentKVPersistence};
+use crate::services::document::{persistence::DocumentKVPersistence, ws_receiver::make_document_ws_receiver};
 use lib_ws::WSModule;
 use sqlx::PgPool;
 use std::sync::Arc;
