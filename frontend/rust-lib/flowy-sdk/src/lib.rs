@@ -70,7 +70,7 @@ pub struct FlowySDK {
     #[allow(dead_code)]
     config: FlowySDKConfig,
     pub user_session: Arc<UserSession>,
-    pub flowy_document: Arc<DocumentContext>,
+    pub document_ctx: Arc<DocumentContext>,
     pub core: Arc<CoreContext>,
     pub dispatcher: Arc<EventDispatcher>,
     pub ws_manager: Arc<FlowyWSConnect>,
@@ -101,7 +101,7 @@ impl FlowySDK {
         Self {
             config,
             user_session,
-            flowy_document,
+            document_ctx: flowy_document,
             core: core_ctx,
             dispatcher,
             ws_manager,

@@ -4,7 +4,7 @@ use crate::{
 };
 
 use crate::services::server::UserServerAPI;
-use lib_infra::{future::FutureResult, uuid};
+use lib_infra::{future::FutureResult, uuid_string};
 
 pub struct UserServerMock {}
 
@@ -12,7 +12,7 @@ impl UserServerMock {}
 
 impl UserServerAPI for UserServerMock {
     fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, FlowyError> {
-        let uid = uuid();
+        let uid = uuid_string();
         FutureResult::new(async move {
             Ok(SignUpResponse {
                 user_id: uid.clone(),
@@ -24,7 +24,7 @@ impl UserServerAPI for UserServerMock {
     }
 
     fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, FlowyError> {
-        let user_id = uuid();
+        let user_id = uuid_string();
         FutureResult::new(async {
             Ok(SignInResponse {
                 user_id: user_id.clone(),

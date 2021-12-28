@@ -3,12 +3,10 @@ mod kv;
 
 use async_trait::async_trait;
 use bytes::Bytes;
-use futures_core::future::BoxFuture;
+
 pub(crate) use kv::*;
-use std::sync::Arc;
 
 use backend_service::errors::ServerError;
-use lib_infra::future::{BoxResultFuture, FutureResultSend};
 
 // TODO: Generic the KVStore that enable switching KVStore to another
 // implementation

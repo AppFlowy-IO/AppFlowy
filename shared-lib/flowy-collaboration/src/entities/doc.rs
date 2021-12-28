@@ -1,6 +1,6 @@
 use crate::{
     entities::revision::{RepeatedRevision, Revision},
-    errors::{internal_error, CollaborateError},
+    errors::CollaborateError,
 };
 use flowy_derive::ProtoBuf;
 use lib_ot::{core::OperationTransformable, errors::OTError, rich_text::RichTextDelta};
@@ -43,8 +43,11 @@ impl DocumentInfo {
         for revision in revisions {
             base_rev_id = revision.base_rev_id;
             rev_id = revision.rev_id;
-            let delta = RichTextDelta::from_bytes(revision.delta_data).map_err(internal_error)?;
-            document_delta = document_delta.compose(&delta).map_err(internal_error)?;
+            let delta = RichTextDelta::from_bytes(revision.delta_data)
+                .map_err(|e| CollaborateError::internal().context(format!("Parser revision failed. {:?}", e)))?;
+            document_delta = document_delta
+                .compose(&delta)
+                .map_err(|e| CollaborateError::internal().context(format!("Compose delta failed. {:?}", e)))?;
         }
         let text = document_delta.to_json();
 

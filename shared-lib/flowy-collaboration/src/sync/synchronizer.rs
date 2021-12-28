@@ -4,10 +4,11 @@ use crate::{
         revision::{Revision, RevisionRange},
         ws::{DocumentServerWSData, DocumentServerWSDataBuilder},
     },
+    errors::CollaborateError,
     sync::DocumentPersistence,
 };
-use futures::TryFutureExt;
-use lib_ot::{core::OperationTransformable, errors::OTError, rich_text::RichTextDelta};
+
+use lib_ot::{core::OperationTransformable, rich_text::RichTextDelta};
 use parking_lot::RwLock;
 use std::{
     cmp::Ordering,
@@ -48,19 +49,16 @@ impl RevisionSynchronizer {
     }
 
     #[tracing::instrument(level = "debug", skip(self, user, revisions, persistence), err)]
-    pub async fn apply_revisions(
+    pub async fn sync_revisions(
         &self,
         doc_id: String,
         user: Arc<dyn RevisionUser>,
         revisions: Vec<Revision>,
         persistence: Arc<dyn DocumentPersistence>,
-    ) -> Result<(), OTError> {
+    ) -> Result<(), CollaborateError> {
         if revisions.is_empty() {
             // Return all the revisions to client
-            let revisions = persistence
-                .get_doc_revisions(&doc_id)
-                .map_err(|e| OTError::internal().context(e))
-                .await?;
+            let revisions = persistence.get_doc_revisions(&doc_id).await?;
             let data = DocumentServerWSDataBuilder::build_push_message(&doc_id, revisions);
             user.receive(SyncResponse::Push(data));
             return Ok(());
@@ -78,10 +76,8 @@ impl RevisionSynchronizer {
                 let server_rev_id = next(server_base_rev_id);
                 if server_base_rev_id == first_revision.base_rev_id || server_rev_id == first_revision.rev_id {
                     // The rev is in the right order, just compose it.
-                    {
-                        for revision in &revisions {
-                            let _ = self.compose_revision(revision)?;
-                        }
+                    for revision in &revisions {
+                        let _ = self.compose_revision(revision)?;
                     }
                     user.receive(SyncResponse::NewRevision(revisions));
                 } else {
@@ -108,7 +104,11 @@ impl RevisionSynchronizer {
                 let rev_ids: Vec<i64> = (from_rev_id..=to_rev_id).collect();
                 let revisions = match persistence.get_revisions(&self.doc_id, rev_ids).await {
                     Ok(revisions) => {
-                        assert_eq!(revisions.is_empty(), false);
+                        assert_eq!(
+                            revisions.is_empty(),
+                            false,
+                            "revisions should not be empty if the doc exists"
+                        );
                         revisions
                     },
                     Err(e) => {
@@ -126,7 +126,7 @@ impl RevisionSynchronizer {
 
     pub fn doc_json(&self) -> String { self.document.read().to_json() }
 
-    fn compose_revision(&self, revision: &Revision) -> Result<(), OTError> {
+    fn compose_revision(&self, revision: &Revision) -> Result<(), CollaborateError> {
         let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
         let _ = self.compose_delta(delta)?;
         let _ = self.rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(revision.rev_id));
@@ -134,13 +134,13 @@ impl RevisionSynchronizer {
     }
 
     #[tracing::instrument(level = "debug", skip(self, revision))]
-    fn transform_revision(&self, revision: &Revision) -> Result<(RichTextDelta, RichTextDelta), OTError> {
+    fn transform_revision(&self, revision: &Revision) -> Result<(RichTextDelta, RichTextDelta), CollaborateError> {
         let cli_delta = RichTextDelta::from_bytes(&revision.delta_data)?;
         let result = self.document.read().delta().transform(&cli_delta)?;
         Ok(result)
     }
 
-    fn compose_delta(&self, delta: RichTextDelta) -> Result<(), OTError> {
+    fn compose_delta(&self, delta: RichTextDelta) -> Result<(), CollaborateError> {
         if delta.is_empty() {
             log::warn!("Composed delta is empty");
         }

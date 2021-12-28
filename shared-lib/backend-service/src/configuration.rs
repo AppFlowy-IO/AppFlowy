@@ -54,7 +54,7 @@ impl ClientServerConfiguration {
 
     pub fn view_url(&self) -> String { format!("{}/api/view", self.base_url()) }
 
-    pub fn doc_url(&self) -> String { format!("{}/api/document", self.base_url()) }
+    pub fn doc_url(&self) -> String { format!("{}/api/doc", self.base_url()) }
 
     pub fn trash_url(&self) -> String { format!("{}/api/trash", self.base_url()) }
 

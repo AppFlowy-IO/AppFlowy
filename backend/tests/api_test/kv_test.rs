@@ -50,3 +50,30 @@ async fn kv_batch_set_test() {
 
     assert_eq!(kvs, kvs_from_db);
 }
+
+#[actix_rt::test]
+async fn kv_batch_get_start_with_test() {
+    let server = spawn_server().await;
+    let kv = server.app_ctx.persistence.kv_store();
+    let kvs = vec![
+        KeyValue {
+            key: "abc:1".to_string(),
+            value: "a".to_string().into(),
+        },
+        KeyValue {
+            key: "abc:2".to_string(),
+            value: "b".to_string().into(),
+        },
+    ];
+
+    kv.batch_set(kvs.clone()).await.unwrap();
+    kv.transaction(|mut transaction| {
+        Box::pin(async move {
+            let kvs_from_db = transaction.batch_get_start_with("abc").await.unwrap();
+            assert_eq!(kvs, kvs_from_db);
+            Ok(())
+        })
+    })
+    .await
+    .unwrap();
+}

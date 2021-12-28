@@ -7,10 +7,11 @@ use crate::{
     util::sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
 use backend_service::errors::{invalid_params, ServerError};
+use bytes::Bytes;
 use chrono::Utc;
 use flowy_collaboration::{
-    entities::revision::{RevType, Revision},
-    protobuf::{CreateDocParams, RepeatedRevision},
+    entities::revision::{RepeatedRevision, RevType, Revision},
+    protobuf::CreateDocParams,
 };
 use flowy_core_data_model::{
     parser::{
@@ -71,12 +72,13 @@ pub(crate) async fn create_view(
     params: CreateViewParams,
     user_id: &str,
 ) -> Result<View, ServerError> {
+    let view_id = check_view_id(params.view_id.clone())?;
     let name = ViewName::parse(params.name).map_err(invalid_params)?;
     let belong_to_id = AppId::parse(params.belong_to_id).map_err(invalid_params)?;
     let thumbnail = ViewThumbnail::parse(params.thumbnail).map_err(invalid_params)?;
     let desc = ViewDesc::parse(params.desc).map_err(invalid_params)?;
 
-    let (sql, args, view) = NewViewSqlBuilder::new(belong_to_id.as_ref())
+    let (sql, args, view) = NewViewSqlBuilder::new(view_id, belong_to_id.as_ref())
         .name(name.as_ref())
         .desc(desc.as_ref())
         .thumbnail(thumbnail.as_ref())
@@ -88,18 +90,13 @@ pub(crate) async fn create_view(
         .await
         .map_err(map_sqlx_error)?;
 
-    let doc_id = view.id.clone();
-    let revision: flowy_collaboration::protobuf::Revision =
-        Revision::initial_revision(user_id, &doc_id, RevType::Remote)
-            .try_into()
-            .unwrap();
-    let mut repeated_revision = RepeatedRevision::new();
-    repeated_revision.set_items(vec![revision].into());
-
+    let delta_data = Bytes::from(params.view_data);
+    let md5 = format!("{:x}", md5::compute(&delta_data));
+    let revision = Revision::new(&view.id, 0, 0, delta_data, RevType::Remote, user_id, md5);
+    let repeated_revision = RepeatedRevision::new(vec![revision]);
     let mut create_doc_params = CreateDocParams::new();
-    create_doc_params.set_revisions(repeated_revision);
+    create_doc_params.set_revisions(repeated_revision.try_into().unwrap());
     create_doc_params.set_id(view.id.clone());
-
     let _ = create_document(&kv_store, create_doc_params).await?;
 
     Ok(view)

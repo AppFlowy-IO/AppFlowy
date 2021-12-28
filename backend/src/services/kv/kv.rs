@@ -1,13 +1,13 @@
 use crate::{
-    services::kv::{KVStore, KVTransaction, KeyValue},
+    services::kv::{KVTransaction, KeyValue},
     util::sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
 use anyhow::Context;
 use async_trait::async_trait;
 use backend_service::errors::ServerError;
 use bytes::Bytes;
-use futures_core::future::BoxFuture;
-use lib_infra::future::{BoxResultFuture, FutureResultSend};
+
+use lib_infra::future::BoxResultFuture;
 use sql_builder::SqlBuilder as RawSqlBuilder;
 use sqlx::{
     postgres::{PgArguments, PgRow},
@@ -17,7 +17,6 @@ use sqlx::{
     Postgres,
     Row,
 };
-use std::{future::Future, pin::Pin, sync::Arc};
 
 const KV_TABLE: &str = "kv_table";
 
@@ -26,6 +25,33 @@ pub struct PostgresKV {
 }
 
 impl PostgresKV {
+    pub async fn get(&self, key: &str) -> Result<Option<Bytes>, ServerError> {
+        let key = key.to_owned();
+        self.transaction(|mut transaction| Box::pin(async move { transaction.get(&key).await }))
+            .await
+    }
+    pub async fn set(&self, key: &str, value: Bytes) -> Result<(), ServerError> {
+        let key = key.to_owned();
+        self.transaction(|mut transaction| Box::pin(async move { transaction.set(&key, value).await }))
+            .await
+    }
+
+    pub async fn remove(&self, key: &str) -> Result<(), ServerError> {
+        let key = key.to_owned();
+        self.transaction(|mut transaction| Box::pin(async move { transaction.remove(&key).await }))
+            .await
+    }
+
+    pub async fn batch_set(&self, kvs: Vec<KeyValue>) -> Result<(), ServerError> {
+        self.transaction(|mut transaction| Box::pin(async move { transaction.batch_set(kvs).await }))
+            .await
+    }
+
+    pub async fn batch_get(&self, keys: Vec<String>) -> Result<Vec<KeyValue>, ServerError> {
+        self.transaction(|mut transaction| Box::pin(async move { transaction.batch_get(keys).await }))
+            .await
+    }
+
     pub async fn transaction<F, O>(&self, f: F) -> Result<O, ServerError>
     where
         F: for<'a> FnOnce(Box<dyn KVTransaction + 'a>) -> BoxResultFuture<O, ServerError>,
@@ -61,14 +87,13 @@ impl<'a, 'b> KVTransaction for PostgresTransaction<'a, 'b> {
             .fetch_one(self.0 as &mut DBTransaction<'b>)
             .await;
 
-        let result = match result {
+        match result {
             Ok(val) => Ok(Some(Bytes::from(val.blob))),
             Err(error) => match error {
                 Error::RowNotFound => Ok(None),
                 _ => Err(map_sqlx_error(error)),
             },
-        };
-        result
+        }
     }
 
     async fn set(&mut self, key: &str, bytes: Bytes) -> Result<(), ServerError> {

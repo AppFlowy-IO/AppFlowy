@@ -1,5 +1,5 @@
 use backend::{
-    application::{get_connection_pool, init_app_context, Application},
+    application::{init_app_context, Application},
     config::{get_configuration, DatabaseSettings},
     context::AppContext,
 };
@@ -9,10 +9,14 @@ use backend_service::{
     user_request::*,
     workspace_request::*,
 };
-use flowy_collaboration::entities::doc::{CreateDocParams, DocIdentifier, DocumentInfo};
+use flowy_collaboration::{
+    document::default::initial_delta_string,
+    entities::doc::{CreateDocParams, DocIdentifier, DocumentInfo},
+};
 use flowy_core_data_model::entities::prelude::*;
 use flowy_document::services::server::{create_doc_request, read_doc_request};
 use flowy_user_data_model::entities::*;
+use lib_infra::uuid_string;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
 
@@ -203,7 +207,6 @@ pub async fn spawn_user_server() -> TestUserServer {
 
 #[derive(Clone)]
 pub struct TestServer {
-    pub pg_pool: PgPool,
     pub app_ctx: AppContext,
     pub client_server_config: ClientServerConfiguration,
 }
@@ -234,9 +237,6 @@ pub async fn spawn_server() -> TestServer {
     client_server_config.reset_host_with_port("localhost", application_port);
 
     TestServer {
-        pg_pool: get_connection_pool(&configuration.database)
-            .await
-            .expect("Failed to connect to the database"),
         app_ctx,
         client_server_config,
     }
@@ -312,7 +312,15 @@ pub async fn create_test_view(application: &TestUserServer, app_id: &str) -> Vie
     let desc = "This is my first view".to_string();
     let thumbnail = "http://1.png".to_string();
 
-    let params = CreateViewParams::new(app_id.to_owned(), name, desc, ViewType::Doc, thumbnail);
+    let params = CreateViewParams::new(
+        app_id.to_owned(),
+        name,
+        desc,
+        ViewType::Doc,
+        thumbnail,
+        initial_delta_string(),
+        uuid_string(),
+    );
     let app = application.create_view(params).await;
     app
 }

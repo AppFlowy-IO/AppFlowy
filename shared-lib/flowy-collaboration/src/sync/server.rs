@@ -12,7 +12,7 @@ use crate::{
 use async_stream::stream;
 use dashmap::DashMap;
 use futures::stream::StreamExt;
-use lib_infra::future::{BoxResultFuture, FutureResultSend};
+use lib_infra::future::BoxResultFuture;
 use lib_ot::rich_text::RichTextDelta;
 use std::{convert::TryFrom, fmt::Debug, sync::Arc};
 use tokio::{
@@ -62,14 +62,13 @@ impl ServerDocumentManager {
 
         let result = match self.get_document_handler(&doc_id).await {
             None => {
-                let _ = self.create_document(&doc_id, revisions).await.map_err(internal_error)?;
+                let _ = self.create_document(&doc_id, revisions).await.map_err(|e| {
+                    CollaborateError::internal().context(format!("Server crate document failed: {}", e))
+                })?;
                 Ok(())
             },
             Some(handler) => {
-                let _ = handler
-                    .apply_revisions(doc_id.clone(), user, revisions)
-                    .await
-                    .map_err(internal_error)?;
+                let _ = handler.apply_revisions(doc_id.clone(), user, revisions).await?;
                 Ok(())
             },
         };
@@ -102,6 +101,7 @@ impl ServerDocumentManager {
         }
     }
 
+    #[tracing::instrument(level = "debug", skip(self, revisions), err)]
     async fn create_document(
         &self,
         doc_id: &str,
@@ -117,7 +117,7 @@ impl ServerDocumentManager {
         let persistence = self.persistence.clone();
         let handle = spawn_blocking(|| OpenDocHandle::new(doc, persistence))
             .await
-            .map_err(internal_error)?;
+            .map_err(|e| CollaborateError::internal().context(format!("Create open doc handler failed: {}", e)))?;
         let handle = Arc::new(handle?);
         self.open_doc_map.insert(doc_id, handle.clone());
         Ok(handle)
@@ -125,6 +125,7 @@ impl ServerDocumentManager {
 }
 
 struct OpenDocHandle {
+    doc_id: String,
     sender: mpsc::Sender<DocumentCommand>,
     persistence: Arc<dyn DocumentPersistence>,
     users: DashMap<String, Arc<dyn RevisionUser>>,
@@ -132,17 +133,20 @@ struct OpenDocHandle {
 
 impl OpenDocHandle {
     fn new(doc: DocumentInfo, persistence: Arc<dyn DocumentPersistence>) -> Result<Self, CollaborateError> {
+        let doc_id = doc.doc_id.clone();
         let (sender, receiver) = mpsc::channel(100);
         let users = DashMap::new();
         let queue = DocumentCommandQueue::new(receiver, doc)?;
         tokio::task::spawn(queue.run());
         Ok(Self {
+            doc_id,
             sender,
             persistence,
             users,
         })
     }
 
+    #[tracing::instrument(level = "debug", skip(self, user, revisions), err)]
     async fn apply_revisions(
         &self,
         doc_id: String,
@@ -159,18 +163,28 @@ impl OpenDocHandle {
             persistence,
             ret,
         };
+
         let _ = self.send(msg, rx).await?;
         Ok(())
     }
 
     async fn send<T>(&self, msg: DocumentCommand, rx: oneshot::Receiver<T>) -> CollaborateResult<T> {
-        let _ = self.sender.send(msg).await.map_err(internal_error)?;
-        let result = rx.await.map_err(internal_error)?;
-        Ok(result)
+        let _ = self
+            .sender
+            .send(msg)
+            .await
+            .map_err(|e| CollaborateError::internal().context(format!("Send document command failed: {}", e)))?;
+        Ok(rx.await.map_err(internal_error)?)
     }
 }
 
-#[derive(Debug)]
+impl std::ops::Drop for OpenDocHandle {
+    fn drop(&mut self) {
+        log::debug!("{} OpenDocHandle drop", self.doc_id);
+    }
+}
+
+// #[derive(Debug)]
 enum DocumentCommand {
     ApplyRevisions {
         doc_id: String,
@@ -229,12 +243,20 @@ impl DocumentCommandQueue {
                 persistence,
                 ret,
             } => {
-                self.synchronizer
-                    .apply_revisions(doc_id, user, revisions, persistence)
+                let result = self
+                    .synchronizer
+                    .sync_revisions(doc_id, user, revisions, persistence)
                     .await
-                    .unwrap();
-                let _ = ret.send(Ok(()));
+                    .map_err(internal_error);
+                log::debug!("handle message {:?}", result);
+                let _ = ret.send(result);
             },
         }
+    }
+}
+
+impl std::ops::Drop for DocumentCommandQueue {
+    fn drop(&mut self) {
+        log::debug!("{} DocumentCommandQueue drop", self.doc_id);
     }
 }

@@ -85,23 +85,19 @@ impl DocumentWebSocketActor {
             persistence,
         });
 
-        match self.handle_revision(user, document_client_data).await {
-            Ok(_) => {},
-            Err(e) => {
-                tracing::error!("[DocumentWebSocketActor]: process client data error {:?}", e);
-            },
-        }
-        Ok(())
-    }
-
-    async fn handle_revision(&self, user: Arc<ServerDocUser>, client_data: DocumentClientWSData) -> Result<()> {
-        match &client_data.ty {
+        match &document_client_data.ty {
             DocumentClientWSDataType::ClientPushRev => {
-                let _ = self
+                match self
                     .doc_manager
-                    .apply_revisions(user, client_data)
+                    .apply_revisions(user, document_client_data)
                     .await
-                    .map_err(internal_error)?;
+                    .map_err(internal_error)
+                {
+                    Ok(_) => {},
+                    Err(e) => {
+                        tracing::error!("[DocumentWebSocketActor]: process client data failed: {:?}", e);
+                    },
+                }
             },
         }
 

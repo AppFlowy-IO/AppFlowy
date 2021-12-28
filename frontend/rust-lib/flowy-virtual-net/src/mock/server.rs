@@ -2,7 +2,7 @@ use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_collaboration::{entities::prelude::*, errors::CollaborateError, sync::*};
 // use flowy_net::services::ws::*;
-use lib_infra::future::{BoxResultFuture, FutureResultSend};
+use lib_infra::future::BoxResultFuture;
 use lib_ws::{WSModule, WebSocketRawMessage};
 use std::{
     convert::TryInto,

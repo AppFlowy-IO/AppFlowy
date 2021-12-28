@@ -182,7 +182,7 @@ impl TrashController {
         Ok(repeated_trash)
     }
 
-    pub fn trash_ids(&self, conn: &SqliteConnection) -> Result<Vec<String>, FlowyError> {
+    pub fn read_trash_ids(&self, conn: &SqliteConnection) -> Result<Vec<String>, FlowyError> {
         let ids = TrashTableSql::read_all(&*conn)?
             .into_inner()
             .into_iter()

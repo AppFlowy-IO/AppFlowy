@@ -17,7 +17,7 @@ use flowy_user::{
     event::UserEvent::{InitUser, SignIn, SignOut, SignUp},
 };
 use lib_dispatch::prelude::{EventDispatcher, ModuleRequest, ToBytes};
-use lib_infra::uuid;
+use lib_infra::uuid_string;
 
 use crate::prelude::*;
 
@@ -293,7 +293,7 @@ pub fn root_dir() -> String {
     root_dir
 }
 
-pub fn random_email() -> String { format!("{}@appflowy.io", uuid()) }
+pub fn random_email() -> String { format!("{}@appflowy.io", uuid_string()) }
 
 pub fn login_email() -> String { "annie2@appflowy.io".to_string() }
 

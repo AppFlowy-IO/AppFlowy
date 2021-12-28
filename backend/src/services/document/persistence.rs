@@ -1,6 +1,5 @@
 use crate::{
-    context::FlowyPersistence,
-    services::kv::{KVStore, KVTransaction, KeyValue},
+    services::kv::{KVStore, KeyValue},
     util::serde_ext::parse_from_bytes,
 };
 use anyhow::Context;
@@ -16,7 +15,7 @@ use flowy_collaboration::protobuf::{
 };
 use lib_ot::{core::OperationTransformable, rich_text::RichTextDelta};
 use protobuf::Message;
-use sqlx::PgPool;
+
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -30,14 +29,12 @@ pub(crate) async fn create_document(
     Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(persistence), err)]
-pub(crate) async fn read_document(
-    persistence: &Arc<FlowyPersistence>,
+#[tracing::instrument(level = "debug", skip(kv_store), err)]
+pub async fn read_document(
+    kv_store: &Arc<DocumentKVPersistence>,
     params: DocIdentifier,
 ) -> Result<DocumentInfo, ServerError> {
     let _ = Uuid::parse_str(&params.doc_id).context("Parse document id to uuid failed")?;
-
-    let kv_store = persistence.kv_store();
     let revisions = kv_store.batch_get_revisions(&params.doc_id, None).await?;
     make_doc_from_revisions(&params.doc_id, revisions)
 }
