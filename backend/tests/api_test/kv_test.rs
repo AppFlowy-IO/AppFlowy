@@ -41,6 +41,7 @@ async fn kv_batch_set_test() {
             value: "b".to_string().into(),
         },
     ];
+
     kv.batch_set(kvs.clone()).await.unwrap();
     let kvs_from_db = kv
         .batch_get(kvs.clone().into_iter().map(|value| value.key).collect::<Vec<String>>())

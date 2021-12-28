@@ -1,6 +1,6 @@
 use crate::{
     context::FlowyPersistence,
-    services::kv::{KVStore, KeyValue},
+    services::kv::{KVStore, KVTransaction, KeyValue},
     util::serde_ext::parse_from_bytes,
 };
 use anyhow::Context;
@@ -45,11 +45,20 @@ pub(crate) async fn read_document(
 #[tracing::instrument(level = "debug", skip(kv_store, params), fields(delta), err)]
 pub async fn reset_document(
     kv_store: &Arc<DocumentKVPersistence>,
-    params: ResetDocumentParams,
+    mut params: ResetDocumentParams,
 ) -> Result<(), ServerError> {
-    // TODO: Reset document requires atomic operation
-    // let _ = kv_store.batch_delete_revisions(&doc_id.to_string(), None).await?;
-    todo!()
+    let revisions = params.take_revisions().take_items();
+    let doc_id = params.take_doc_id();
+    kv_store
+        .transaction(|mut transaction| {
+            Box::pin(async move {
+                let _ = transaction.batch_delete_key_start_with(&doc_id).await?;
+                let items = revisions_to_key_value_items(revisions.into());
+                let _ = transaction.batch_set(items).await?;
+                Ok(())
+            })
+        })
+        .await
 }
 
 #[tracing::instrument(level = "debug", skip(kv_store), err)]
@@ -59,11 +68,11 @@ pub(crate) async fn delete_document(kv_store: &Arc<DocumentKVPersistence>, doc_i
 }
 
 pub struct DocumentKVPersistence {
-    inner: Arc<dyn KVStore>,
+    inner: Arc<KVStore>,
 }
 
 impl std::ops::Deref for DocumentKVPersistence {
-    type Target = Arc<dyn KVStore>;
+    type Target = Arc<KVStore>;
 
     fn deref(&self) -> &Self::Target { &self.inner }
 }
@@ -73,34 +82,21 @@ impl std::ops::DerefMut for DocumentKVPersistence {
 }
 
 impl DocumentKVPersistence {
-    pub(crate) fn new(kv_store: Arc<dyn KVStore>) -> Self { DocumentKVPersistence { inner: kv_store } }
+    pub(crate) fn new(kv_store: Arc<KVStore>) -> Self { DocumentKVPersistence { inner: kv_store } }
 
     pub(crate) async fn batch_set_revision(&self, revisions: Vec<Revision>) -> Result<(), ServerError> {
-        let kv_store = self.inner.clone();
-        let items = revisions
-            .into_iter()
-            .map(|revision| {
-                let key = make_revision_key(&revision.doc_id, revision.rev_id);
-                let value = Bytes::from(revision.write_to_bytes().unwrap());
-                KeyValue { key, value }
-            })
-            .collect::<Vec<KeyValue>>();
-        let _ = kv_store.batch_set(items).await?;
-        // use futures::stream::{self, StreamExt};
-        // let f = |revision: Revision, kv_store: Arc<dyn KVStore>| async move {
-        //     let key = make_revision_key(&revision.doc_id, revision.rev_id);
-        //     let bytes = revision.write_to_bytes().unwrap();
-        //     let _ = kv_store.set(&key, Bytes::from(bytes)).await.unwrap();
-        // };
-        //
-        // stream::iter(revisions)
-        //     .for_each_concurrent(None, |revision| f(revision, kv_store.clone()))
-        //     .await;
-        Ok(())
+        let items = revisions_to_key_value_items(revisions);
+        self.inner
+            .transaction(|mut t| Box::pin(async move { t.batch_set(items).await }))
+            .await
     }
 
     pub(crate) async fn get_doc_revisions(&self, doc_id: &str) -> Result<RepeatedRevision, ServerError> {
-        let items = self.inner.batch_get_start_with(doc_id).await?;
+        let doc_id = doc_id.to_owned();
+        let items = self
+            .inner
+            .transaction(|mut t| Box::pin(async move { t.batch_get_start_with(&doc_id).await }))
+            .await?;
         Ok(key_value_items_to_revisions(items))
     }
 
@@ -111,13 +107,21 @@ impl DocumentKVPersistence {
     ) -> Result<RepeatedRevision, ServerError> {
         let rev_ids = rev_ids.into();
         let items = match rev_ids {
-            None => self.inner.batch_get_start_with(doc_id).await?,
+            None => {
+                let doc_id = doc_id.to_owned();
+                self.inner
+                    .transaction(|mut t| Box::pin(async move { t.batch_get_start_with(&doc_id).await }))
+                    .await?
+            },
             Some(rev_ids) => {
                 let keys = rev_ids
                     .into_iter()
                     .map(|rev_id| make_revision_key(doc_id, rev_id))
                     .collect::<Vec<String>>();
-                self.inner.batch_get(keys).await?
+
+                self.inner
+                    .transaction(|mut t| Box::pin(async move { t.batch_get(keys).await }))
+                    .await?
             },
         };
 
@@ -131,19 +135,35 @@ impl DocumentKVPersistence {
     ) -> Result<(), ServerError> {
         match rev_ids.into() {
             None => {
-                let _ = self.inner.batch_delete_key_start_with(doc_id).await?;
-                Ok(())
+                let doc_id = doc_id.to_owned();
+                self.inner
+                    .transaction(|mut t| Box::pin(async move { t.batch_delete_key_start_with(&doc_id).await }))
+                    .await
             },
             Some(rev_ids) => {
                 let keys = rev_ids
                     .into_iter()
                     .map(|rev_id| make_revision_key(doc_id, rev_id))
                     .collect::<Vec<String>>();
-                let _ = self.inner.batch_delete(keys).await?;
-                Ok(())
+
+                self.inner
+                    .transaction(|mut t| Box::pin(async move { t.batch_delete(keys).await }))
+                    .await
             },
         }
     }
+}
+
+#[inline]
+fn revisions_to_key_value_items(revisions: Vec<Revision>) -> Vec<KeyValue> {
+    revisions
+        .into_iter()
+        .map(|revision| {
+            let key = make_revision_key(&revision.doc_id, revision.rev_id);
+            let value = Bytes::from(revision.write_to_bytes().unwrap());
+            KeyValue { key, value }
+        })
+        .collect::<Vec<KeyValue>>()
 }
 
 #[inline]
