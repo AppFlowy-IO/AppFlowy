@@ -8,7 +8,7 @@ use crate::{
     errors::FlowyError,
     services::server::WorkspaceServerAPI,
 };
-use lib_infra::{future::FutureResult, timestamp, uuid};
+use lib_infra::{future::FutureResult, timestamp, uuid_string};
 
 pub struct WorkspaceServerMock {}
 
@@ -18,7 +18,7 @@ impl WorkspaceServerAPI for WorkspaceServerMock {
     fn create_workspace(&self, _token: &str, params: CreateWorkspaceParams) -> FutureResult<Workspace, FlowyError> {
         let time = timestamp();
         let workspace = Workspace {
-            id: uuid(),
+            id: uuid_string(),
             name: params.name,
             desc: params.desc,
             apps: RepeatedApp::default(),
@@ -51,7 +51,7 @@ impl WorkspaceServerAPI for WorkspaceServerMock {
     fn create_view(&self, _token: &str, params: CreateViewParams) -> FutureResult<View, FlowyError> {
         let time = timestamp();
         let view = View {
-            id: uuid(),
+            id: uuid_string(),
             belong_to_id: params.belong_to_id,
             name: params.name,
             desc: params.desc,
@@ -79,7 +79,7 @@ impl WorkspaceServerAPI for WorkspaceServerMock {
     fn create_app(&self, _token: &str, params: CreateAppParams) -> FutureResult<App, FlowyError> {
         let time = timestamp();
         let app = App {
-            id: uuid(),
+            id: uuid_string(),
             workspace_id: params.workspace_id,
             name: params.name,
             desc: params.desc,

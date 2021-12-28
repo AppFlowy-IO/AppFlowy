@@ -19,8 +19,8 @@ pub trait DocumentUser: Send + Sync {
 }
 
 pub struct DocumentContext {
-    doc_ctrl: Arc<DocController>,
-    user: Arc<dyn DocumentUser>,
+    pub doc_ctrl: Arc<DocController>,
+    pub user: Arc<dyn DocumentUser>,
 }
 
 impl DocumentContext {
@@ -40,19 +40,9 @@ impl DocumentContext {
         Ok(())
     }
 
-    pub fn delete(&self, params: DocIdentifier) -> Result<(), FlowyError> {
-        let _ = self.doc_ctrl.delete(params)?;
-        Ok(())
-    }
-
     pub async fn open(&self, params: DocIdentifier) -> Result<Arc<ClientDocEditor>, FlowyError> {
         let edit_context = self.doc_ctrl.open(params, self.user.db_pool()?).await?;
         Ok(edit_context)
-    }
-
-    pub async fn close(&self, params: DocIdentifier) -> Result<(), FlowyError> {
-        let _ = self.doc_ctrl.close(&params.doc_id)?;
-        Ok(())
     }
 
     pub async fn read_document_data(
@@ -63,15 +53,5 @@ impl DocumentContext {
         let edit_context = self.doc_ctrl.open(params, pool).await?;
         let delta = edit_context.delta().await?;
         Ok(delta)
-    }
-
-    pub async fn apply_doc_delta(&self, params: DocumentDelta) -> Result<DocumentDelta, FlowyError> {
-        // workaround: compare the rust's delta with flutter's delta. Will be removed
-        // very soon
-        let doc = self
-            .doc_ctrl
-            .apply_local_delta(params.clone(), self.user.db_pool()?)
-            .await?;
-        Ok(doc)
     }
 }

@@ -62,21 +62,21 @@ pub(crate) async fn apply_doc_delta_handler(
 
 pub(crate) async fn delete_view_handler(
     data: Data<QueryViewRequest>,
-    controller: Unit<Arc<ViewController>>,
-    trash_can: Unit<Arc<TrashController>>,
+    view_controller: Unit<Arc<ViewController>>,
+    trash_controller: Unit<Arc<TrashController>>,
 ) -> Result<(), FlowyError> {
     let params: ViewIdentifiers = data.into_inner().try_into()?;
     for view_id in &params.view_ids {
-        let _ = controller.delete_view(view_id.into()).await;
+        let _ = view_controller.delete_view(view_id.into()).await;
     }
 
-    let trash = controller
+    let trash = view_controller
         .read_view_tables(params.view_ids)?
         .into_iter()
         .map(|view_table| view_table.into())
         .collect::<Vec<Trash>>();
 
-    let _ = trash_can.add(trash).await?;
+    let _ = trash_controller.add(trash).await?;
     Ok(())
 }
 

@@ -20,7 +20,6 @@ use lib_ot::{core::Interval, rich_text::RichTextAttribute};
 async fn delta_sync_while_editing() {
     let test = DocumentTest::new().await;
     test.run_scripts(vec![
-        DocScript::ClientConnectWS,
         DocScript::ClientOpenDoc,
         DocScript::ClientInsertText(0, "abc"),
         DocScript::ClientInsertText(3, "123"),
@@ -34,7 +33,6 @@ async fn delta_sync_while_editing() {
 async fn delta_sync_multi_revs() {
     let test = DocumentTest::new().await;
     test.run_scripts(vec![
-        DocScript::ClientConnectWS,
         DocScript::ClientOpenDoc,
         DocScript::ClientInsertText(0, "abc"),
         DocScript::ClientInsertText(3, "123"),
@@ -81,6 +79,7 @@ async fn delta_sync_with_http_request() {
     let mut document = Document::new::<FlowyDoc>();
     document.insert(0, "123").unwrap();
     document.insert(3, "456").unwrap();
+    
     let json = document.to_json();
 
     test.run_scripts(vec![

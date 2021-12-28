@@ -1,7 +1,13 @@
 use crate::{
     context::FlowyPersistence,
     entities::logged_user::LoggedUser,
-    services::core::view::{create_view, delete_view, persistence::check_view_ids, read_view, update_view},
+    services::core::view::{
+        create_view,
+        delete_view,
+        persistence::{check_view_id, check_view_ids},
+        read_view,
+        update_view,
+    },
     util::serde_ext::parse_from_payload,
 };
 use actix_web::{
@@ -62,7 +68,7 @@ pub async fn read_handler(payload: Payload, pool: Data<PgPool>, user: LoggedUser
 
 pub async fn update_handler(payload: Payload, pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {
     let params: UpdateViewParams = parse_from_payload(payload).await?;
-    let view_id = check_view_ids(vec![params.view_id.clone()])?.pop().unwrap();
+    let view_id = check_view_id(params.view_id.clone())?;
     let name = match params.has_name() {
         false => None,
         true => Some(ViewName::parse(params.get_name().to_owned()).map_err(invalid_params)?.0),

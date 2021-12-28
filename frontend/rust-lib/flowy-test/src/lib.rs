@@ -6,7 +6,7 @@ use crate::helper::*;
 use backend_service::configuration::{get_client_server_configuration, ClientServerConfiguration};
 use flowy_sdk::{FlowySDK, FlowySDKConfig};
 use flowy_user::entities::UserProfile;
-use lib_infra::uuid;
+use lib_infra::uuid_string;
 
 pub mod prelude {
     pub use crate::{event_builder::*, helper::*, *};
@@ -31,7 +31,7 @@ impl FlowySDKTest {
     }
 
     pub fn setup_with(server_config: ClientServerConfiguration) -> Self {
-        let config = FlowySDKConfig::new(&root_dir(), server_config, &uuid()).log_filter("debug");
+        let config = FlowySDKConfig::new(&root_dir(), server_config, &uuid_string()).log_filter("debug");
         let sdk = FlowySDK::new(config);
         Self(sdk)
     }

@@ -42,10 +42,10 @@ impl WorkspaceController {
         params: CreateWorkspaceParams,
     ) -> Result<Workspace, FlowyError> {
         let workspace = self.create_workspace_on_server(params.clone()).await?;
-        self.create_workspace(workspace).await
+        self.create_workspace_on_local(workspace).await
     }
 
-    pub(crate) async fn create_workspace(&self, workspace: Workspace) -> Result<Workspace, FlowyError> {
+    pub(crate) async fn create_workspace_on_local(&self, workspace: Workspace) -> Result<Workspace, FlowyError> {
         let user_id = self.user.user_id()?;
         let token = self.user.token()?;
         let workspace_table = WorkspaceTable::new(workspace.clone(), &user_id);

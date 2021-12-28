@@ -20,7 +20,7 @@ use flowy_error::FlowyResult;
 use lib_infra::future::FutureResult;
 use std::sync::Arc;
 
-pub(crate) struct DocController {
+pub struct DocController {
     server: Server,
     ws_receivers: Arc<DocumentWSReceivers>,
     ws_sender: Arc<dyn DocumentWebSocket>,
@@ -52,7 +52,7 @@ impl DocController {
         Ok(())
     }
 
-    pub(crate) async fn open(
+    pub async fn open(
         &self,
         params: DocIdentifier,
         pool: Arc<ConnectionPool>,
@@ -66,7 +66,7 @@ impl DocController {
         Ok(edit_doc_ctx)
     }
 
-    pub(crate) fn close(&self, doc_id: &str) -> Result<(), FlowyError> {
+    pub fn close(&self, doc_id: &str) -> Result<(), FlowyError> {
         tracing::debug!("Close document {}", doc_id);
         self.open_cache.remove(doc_id);
         self.ws_receivers.remove_receiver(doc_id);
@@ -74,7 +74,7 @@ impl DocController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    pub(crate) fn delete(&self, params: DocIdentifier) -> Result<(), FlowyError> {
+    pub fn delete(&self, params: DocIdentifier) -> Result<(), FlowyError> {
         let doc_id = &params.doc_id;
         self.open_cache.remove(doc_id);
         self.ws_receivers.remove_receiver(doc_id);
@@ -86,7 +86,7 @@ impl DocController {
     // json : {"retain":7,"attributes":{"bold":null}}
     // deserialize delta: [ {retain: 7, attributes: {Bold: AttributeValue(None)}} ]
     #[tracing::instrument(level = "debug", skip(self, delta, db_pool), fields(doc_id = %delta.doc_id), err)]
-    pub(crate) async fn apply_local_delta(
+    pub async fn apply_local_delta(
         &self,
         delta: DocumentDelta,
         db_pool: Arc<ConnectionPool>,

@@ -16,12 +16,11 @@ pub struct NewViewSqlBuilder {
 }
 
 impl NewViewSqlBuilder {
-    pub fn new(belong_to_id: &str) -> Self {
-        let uuid = uuid::Uuid::new_v4();
+    pub fn new(view_id: Uuid, belong_to_id: &str) -> Self {
         let time = Utc::now();
 
         let table = ViewTable {
-            id: uuid,
+            id: view_id,
             belong_to_id: belong_to_id.to_string(),
             name: "".to_string(),
             description: "".to_string(),
@@ -94,11 +93,15 @@ impl NewViewSqlBuilder {
 pub(crate) fn check_view_ids(ids: Vec<String>) -> Result<Vec<Uuid>, ServerError> {
     let mut view_ids = vec![];
     for id in ids {
-        let view_id = ViewId::parse(id).map_err(invalid_params)?;
-        let view_id = Uuid::parse_str(view_id.as_ref())?;
-        view_ids.push(view_id);
+        view_ids.push(check_view_id(id)?);
     }
     Ok(view_ids)
+}
+
+pub(crate) fn check_view_id(id: String) -> Result<Uuid, ServerError> {
+    let view_id = ViewId::parse(id).map_err(invalid_params)?;
+    let view_id = Uuid::parse_str(view_id.as_ref())?;
+    Ok(view_id)
 }
 
 #[derive(Debug, Clone, sqlx::FromRow)]

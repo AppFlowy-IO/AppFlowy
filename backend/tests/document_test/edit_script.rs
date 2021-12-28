@@ -6,19 +6,22 @@ use flowy_document::services::doc::edit::ClientDocEditor as ClientEditDocContext
 use flowy_test::{helper::ViewTest, FlowySDKTest};
 use flowy_user::services::user::UserSession;
 use futures_util::{stream, stream::StreamExt};
-use sqlx::PgPool;
+
 use std::sync::Arc;
+use bytes::Bytes;
 use tokio::time::{sleep, Duration};
 // use crate::helper::*;
 use crate::util::helper::{spawn_server, TestServer};
 use flowy_collaboration::{entities::doc::DocIdentifier, protobuf::ResetDocumentParams};
 use lib_ot::rich_text::{RichTextAttribute, RichTextDelta};
 use parking_lot::RwLock;
-use flowy_collaboration::entities::revision::RepeatedRevision;
+use backend::services::document::persistence::{DocumentKVPersistence, read_document, reset_document};
+
+use flowy_collaboration::entities::revision::{RepeatedRevision, Revision, RevType};
 use lib_ot::core::Interval;
 
 use flowy_net::services::ws::FlowyWSConnect;
-use crate::util::helper::*;
+
 
 pub struct DocumentTest {
     server: TestServer,
@@ -32,7 +35,7 @@ pub enum DocScript {
     ClientOpenDoc,
     AssertClient(&'static str),
     AssertServer(&'static str, i64),
-    ServerSaveDocument(RepeatedRevision), // delta_json, rev_id
+    ServerSaveDocument(String, i64), // delta_json, rev_id
 }
 
 impl DocumentTest {
@@ -78,10 +81,8 @@ impl ScriptContext {
     }
 
     async fn open_doc(&mut self) {
-        let flowy_document = self.client_sdk.flowy_document.clone();
         let doc_id = self.doc_id.clone();
-
-        let edit_context = flowy_document.open(DocIdentifier { doc_id }).await.unwrap();
+        let edit_context = self.client_sdk.document_ctx.open(DocIdentifier { doc_id }).await.unwrap();
         self.client_edit_context = Some(edit_context);
     }
 
@@ -106,6 +107,7 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
                     context.write().open_doc().await;
                 },
                 DocScript::ClientInsertText(index, s) => {
+                    sleep(Duration::from_millis(2000)).await;
                     context.read().client_edit_context().insert(index, s).await.unwrap();
                 },
                 DocScript::ClientFormatText(interval, attribute) => {
@@ -123,24 +125,32 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
                 },
                 DocScript::AssertServer(s, rev_id) => {
                     sleep(Duration::from_millis(100)).await;
+                    let persistence = Data::new(context.read().server.app_ctx.persistence.kv_store());
+                    let doc_identifier: flowy_collaboration::protobuf::DocIdentifier = DocIdentifier {
+                        doc_id
+                    }.try_into().unwrap();
                     
-                    // let doc_identifier = DocIdentifier {
-                    //     doc_id
-                    // };
-                    // 
-                    // let doc = context.read().server.read_doc()
-                    
-                    
-                    // let pg_pool = context.read().server_pg_pool.clone();
-                    // let doc_manager = context.read().server_doc_manager.clone();
-                    // let edit_doc = doc_manager.get(&doc_id).await.unwrap();
-                    // let json = edit_doc.document_json().await.unwrap();
-                    // assert_eq(s, &json);
-                    // assert_eq!(edit_doc.rev_id().await.unwrap(), rev_id);
+                    let document_info = read_document(persistence.get_ref(), doc_identifier).await.unwrap();
+                    assert_eq(s, &document_info.text);
+                    assert_eq!(document_info.rev_id, rev_id);
                 },
-                DocScript::ServerSaveDocument(repeated_revision) => {
-                    let pg_pool = Data::new(context.read().server.pg_pool.clone());
-                    reset_doc(&doc_id, repeated_revision, pg_pool).await;
+                DocScript::ServerSaveDocument(document_json, rev_id) => {
+                    let delta_data = Bytes::from(document_json);
+                    let user_id = context.read().client_user_session.user_id().unwrap();
+                    let md5 = format!("{:x}", md5::compute(&delta_data));
+                    let base_rev_id = if rev_id == 0 { rev_id } else { rev_id - 1 };
+                    let revision = Revision::new(
+                        &doc_id,
+                        base_rev_id,
+                        rev_id,
+                        delta_data,
+                        RevType::Remote,
+                        &user_id,
+                        md5,
+                    );
+                    
+                    let kv_store = Data::new(context.read().server.app_ctx.persistence.kv_store());
+                    reset_doc(&doc_id, RepeatedRevision::new(vec![revision]), kv_store.get_ref()).await;
                 },
                 // DocScript::Sleep(sec) => {
                 //     sleep(Duration::from_secs(sec)).await;
@@ -174,10 +184,10 @@ async fn create_doc(flowy_test: &FlowySDKTest) -> String {
     view_test.view.id
 }
 
-async fn reset_doc(doc_id: &str, repeated_revision: RepeatedRevision, pool: Data<PgPool>) {
+async fn reset_doc(doc_id: &str, repeated_revision: RepeatedRevision, kv_store: &Arc<DocumentKVPersistence>) {
     let pb: flowy_collaboration::protobuf::RepeatedRevision = repeated_revision.try_into().unwrap();
     let mut params = ResetDocumentParams::new();
     params.set_doc_id(doc_id.to_owned());
     params.set_revisions(pb);
-    // let _ = reset_document_handler(pool.get_ref(), params).await.unwrap();
+    let _ = reset_document(kv_store, params).await.unwrap();
 }

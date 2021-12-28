@@ -4,8 +4,8 @@ use chrono::Utc;
 use lazy_static::lazy_static;
 use parking_lot::RwLock;
 
-use flowy_collaboration::{document::default::initial_read_me, entities::doc::DocumentDelta};
-use flowy_core_data_model::user_default;
+use flowy_collaboration::document::default::{initial_delta, initial_read_me};
+use flowy_core_data_model::{entities::view::CreateViewParams, user_default};
 use flowy_net::entities::NetworkType;
 
 use crate::{
@@ -85,24 +85,28 @@ impl CoreContext {
         let apps = workspace.take_apps().into_inner();
         let cloned_workspace = workspace.clone();
 
-        let _ = self.workspace_controller.create_workspace(workspace).await?;
+        let _ = self.workspace_controller.create_workspace_on_local(workspace).await?;
         for mut app in apps {
+            let app_id = app.id.clone();
             let views = app.take_belongings().into_inner();
-            let _ = self.app_controller.create_app(app).await?;
+            let _ = self.app_controller.create_app_on_local(app).await?;
             for (index, view) in views.into_iter().enumerate() {
-                if index == 0 {
-                    let delta = initial_read_me();
-                    let doc_delta = DocumentDelta {
-                        doc_id: view.id.clone(),
-                        text: delta.to_json(),
-                    };
-                    let _ = self.view_controller.apply_doc_delta(doc_delta).await?;
-                    self.view_controller.set_latest_view(&view);
-
-                    // Close the view after initialize
-                    self.view_controller.close_view(view.id.clone().into()).await?;
-                }
-                let _ = self.view_controller.create_view(view).await?;
+                let view_data = if index == 0 {
+                    initial_read_me().to_json()
+                } else {
+                    initial_delta().to_json()
+                };
+                self.view_controller.set_latest_view(&view);
+                let params = CreateViewParams {
+                    belong_to_id: app_id.clone(),
+                    name: view.name,
+                    desc: view.desc,
+                    thumbnail: "".to_string(),
+                    view_type: view.view_type,
+                    view_data,
+                    view_id: view.id.clone(),
+                };
+                let _ = self.view_controller.create_view_from_params(params).await?;
             }
         }
 

@@ -1,4 +1,3 @@
-use crate::document::default::initial_delta;
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use lib_ot::rich_text::RichTextDelta;
@@ -42,12 +41,6 @@ impl Revision {
 
     #[allow(dead_code)]
     pub fn is_initial(&self) -> bool { self.rev_id == 0 }
-
-    pub fn initial_revision(user_id: &str, doc_id: &str, ty: RevType) -> Self {
-        let delta_data = initial_delta().to_bytes();
-        let md5 = format!("{:x}", md5::compute(&delta_data));
-        Revision::new(doc_id, 0, 0, delta_data, ty, user_id, md5)
-    }
 
     pub fn new(
         doc_id: &str,

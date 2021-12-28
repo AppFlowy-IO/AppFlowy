@@ -137,6 +137,8 @@ class CreateViewParams extends $pb.GeneratedMessage {
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'desc')
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'thumbnail')
     ..e<ViewType>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewType', $pb.PbFieldType.OE, defaultOrMaker: ViewType.Blank, valueOf: ViewType.valueOf, enumValues: ViewType.values)
+    ..aOS(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewData')
+    ..aOS(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewId')
     ..hasRequiredFields = false
   ;
 
@@ -147,6 +149,8 @@ class CreateViewParams extends $pb.GeneratedMessage {
     $core.String? desc,
     $core.String? thumbnail,
     ViewType? viewType,
+    $core.String? viewData,
+    $core.String? viewId,
   }) {
     final _result = create();
     if (belongToId != null) {
@@ -163,6 +167,12 @@ class CreateViewParams extends $pb.GeneratedMessage {
     }
     if (viewType != null) {
       _result.viewType = viewType;
+    }
+    if (viewData != null) {
+      _result.viewData = viewData;
+    }
+    if (viewId != null) {
+      _result.viewId = viewId;
     }
     return _result;
   }
@@ -231,6 +241,24 @@ class CreateViewParams extends $pb.GeneratedMessage {
   $core.bool hasViewType() => $_has(4);
   @$pb.TagNumber(5)
   void clearViewType() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.String get viewData => $_getSZ(5);
+  @$pb.TagNumber(6)
+  set viewData($core.String v) { $_setString(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasViewData() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearViewData() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $core.String get viewId => $_getSZ(6);
+  @$pb.TagNumber(7)
+  set viewId($core.String v) { $_setString(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasViewId() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearViewId() => clearField(7);
 }
 
 class View extends $pb.GeneratedMessage {

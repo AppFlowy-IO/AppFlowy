@@ -16,7 +16,7 @@ use flowy_collaboration::{
     errors::CollaborateError,
     protobuf::DocIdentifier,
 };
-use lib_infra::future::{BoxResultFuture, FutureResultSend};
+use lib_infra::future::BoxResultFuture;
 
 use flowy_collaboration::sync::{DocumentPersistence, ServerDocumentManager};
 use std::{
@@ -83,7 +83,7 @@ impl DocumentPersistence for DocumentPersistenceImpl {
             doc_id: doc_id.to_string(),
             ..Default::default()
         };
-        let persistence = self.0.clone();
+        let persistence = self.0.kv_store();
         Box::pin(async move {
             let mut pb_doc = read_document(&persistence, params)
                 .await
@@ -115,11 +115,9 @@ impl DocumentPersistence for DocumentPersistenceImpl {
         let kv_store = self.0.kv_store();
         let doc_id = doc_id.to_owned();
         let f = || async move {
-            let expected_len = rev_ids.len();
             let mut pb = kv_store.batch_get_revisions(&doc_id, rev_ids).await?;
             let repeated_revision: RepeatedRevision = (&mut pb).try_into()?;
             let revisions = repeated_revision.into_inner();
-            assert_eq!(expected_len, revisions.len());
             Ok(revisions)
         };
 
