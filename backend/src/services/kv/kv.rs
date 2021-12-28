@@ -1,5 +1,5 @@
 use crate::{
-    services::kv::{KVAction, KVStore, KeyValue},
+    services::kv::{KVStore, KVTransaction, KeyValue},
     util::sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
 use anyhow::Context;
@@ -17,27 +17,26 @@ use sqlx::{
     Postgres,
     Row,
 };
-use std::{future::Future, pin::Pin};
+use std::{future::Future, pin::Pin, sync::Arc};
 
 const KV_TABLE: &str = "kv_table";
 
-pub(crate) struct PostgresKV {
+pub struct PostgresKV {
     pub(crate) pg_pool: PgPool,
 }
 
 impl PostgresKV {
-    async fn transaction<F, O>(&self, f: F) -> Result<O, ServerError>
+    pub async fn transaction<F, O>(&self, f: F) -> Result<O, ServerError>
     where
-        F: for<'a> FnOnce(&'a mut DBTransaction<'_>) -> BoxFuture<'a, Result<O, ServerError>>,
+        F: for<'a> FnOnce(Box<dyn KVTransaction + 'a>) -> BoxResultFuture<O, ServerError>,
     {
         let mut transaction = self
             .pg_pool
             .begin()
             .await
             .context("[KV]:Failed to acquire a Postgres connection")?;
-
-        let result = f(&mut transaction).await;
-
+        let postgres_transaction = PostgresTransaction(&mut transaction);
+        let result = f(Box::new(postgres_transaction)).await;
         transaction
             .commit()
             .await
@@ -47,43 +46,32 @@ impl PostgresKV {
     }
 }
 
-impl KVStore for PostgresKV {}
-
-pub(crate) struct PostgresTransaction<'a> {
-    pub(crate) transaction: DBTransaction<'a>,
-}
-
-impl<'a> PostgresTransaction<'a> {}
+pub(crate) struct PostgresTransaction<'a, 'b>(&'a mut DBTransaction<'b>);
 
 #[async_trait]
-impl KVAction for PostgresKV {
-    async fn get(&self, key: &str) -> Result<Option<Bytes>, ServerError> {
+impl<'a, 'b> KVTransaction for PostgresTransaction<'a, 'b> {
+    async fn get(&mut self, key: &str) -> Result<Option<Bytes>, ServerError> {
         let id = key.to_string();
-        self.transaction(|transaction| {
-            Box::pin(async move {
-                let (sql, args) = SqlBuilder::select(KV_TABLE)
-                    .add_field("*")
-                    .and_where_eq("id", &id)
-                    .build()?;
+        let (sql, args) = SqlBuilder::select(KV_TABLE)
+            .add_field("*")
+            .and_where_eq("id", &id)
+            .build()?;
 
-                let result = sqlx::query_as_with::<Postgres, KVTable, PgArguments>(&sql, args)
-                    .fetch_one(transaction)
-                    .await;
+        let result = sqlx::query_as_with::<Postgres, KVTable, PgArguments>(&sql, args)
+            .fetch_one(self.0 as &mut DBTransaction<'b>)
+            .await;
 
-                let result = match result {
-                    Ok(val) => Ok(Some(Bytes::from(val.blob))),
-                    Err(error) => match error {
-                        Error::RowNotFound => Ok(None),
-                        _ => Err(map_sqlx_error(error)),
-                    },
-                };
-                result
-            })
-        })
-        .await
+        let result = match result {
+            Ok(val) => Ok(Some(Bytes::from(val.blob))),
+            Err(error) => match error {
+                Error::RowNotFound => Ok(None),
+                _ => Err(map_sqlx_error(error)),
+            },
+        };
+        result
     }
 
-    async fn set(&self, key: &str, bytes: Bytes) -> Result<(), ServerError> {
+    async fn set(&mut self, key: &str, bytes: Bytes) -> Result<(), ServerError> {
         self.batch_set(vec![KeyValue {
             key: key.to_string(),
             value: bytes,
@@ -91,115 +79,96 @@ impl KVAction for PostgresKV {
         .await
     }
 
-    async fn remove(&self, key: &str) -> Result<(), ServerError> {
+    async fn remove(&mut self, key: &str) -> Result<(), ServerError> {
         let id = key.to_string();
-        self.transaction(|transaction| {
-            Box::pin(async move {
-                let (sql, args) = SqlBuilder::delete(KV_TABLE).and_where_eq("id", &id).build()?;
-                let _ = sqlx::query_with(&sql, args)
-                    .execute(transaction)
-                    .await
-                    .map_err(map_sqlx_error)?;
-                Ok(())
-            })
-        })
-        .await
+        let (sql, args) = SqlBuilder::delete(KV_TABLE).and_where_eq("id", &id).build()?;
+        let _ = sqlx::query_with(&sql, args)
+            .execute(self.0 as &mut DBTransaction<'_>)
+            .await
+            .map_err(map_sqlx_error)?;
+        Ok(())
     }
 
-    async fn batch_set(&self, kvs: Vec<KeyValue>) -> Result<(), ServerError> {
-        self.transaction(|transaction| {
-            Box::pin(async move {
-                let mut builder = RawSqlBuilder::insert_into(KV_TABLE);
-                let m_builder = builder.field("id").field("blob");
+    async fn batch_set(&mut self, kvs: Vec<KeyValue>) -> Result<(), ServerError> {
+        let mut builder = RawSqlBuilder::insert_into(KV_TABLE);
+        let m_builder = builder.field("id").field("blob");
 
-                let mut args = PgArguments::default();
-                kvs.iter().enumerate().for_each(|(index, _)| {
-                    let index = index * 2 + 1;
-                    m_builder.values(&[format!("${}", index), format!("${}", index + 1)]);
-                });
+        let mut args = PgArguments::default();
+        kvs.iter().enumerate().for_each(|(index, _)| {
+            let index = index * 2 + 1;
+            m_builder.values(&[format!("${}", index), format!("${}", index + 1)]);
+        });
 
-                for kv in kvs {
-                    args.add(kv.key);
-                    args.add(kv.value.to_vec());
-                }
+        for kv in kvs {
+            args.add(kv.key);
+            args.add(kv.value.to_vec());
+        }
 
-                let sql = m_builder.sql()?;
-                let _ = sqlx::query_with(&sql, args)
-                    .execute(transaction)
-                    .await
-                    .map_err(map_sqlx_error)?;
+        let sql = m_builder.sql()?;
+        let _ = sqlx::query_with(&sql, args)
+            .execute(self.0 as &mut DBTransaction<'_>)
+            .await
+            .map_err(map_sqlx_error)?;
 
-                Ok::<(), ServerError>(())
-            })
-        })
-        .await
+        Ok::<(), ServerError>(())
     }
 
-    async fn batch_get(&self, keys: Vec<String>) -> Result<Vec<KeyValue>, ServerError> {
-        self.transaction(|transaction| {
-            Box::pin(async move {
-                let sql = RawSqlBuilder::select_from(KV_TABLE)
-                    .field("id")
-                    .field("blob")
-                    .and_where_in_quoted("id", &keys)
-                    .sql()?;
+    async fn batch_get(&mut self, keys: Vec<String>) -> Result<Vec<KeyValue>, ServerError> {
+        let sql = RawSqlBuilder::select_from(KV_TABLE)
+            .field("id")
+            .field("blob")
+            .and_where_in_quoted("id", &keys)
+            .sql()?;
 
-                let rows = sqlx::query(&sql).fetch_all(transaction).await.map_err(map_sqlx_error)?;
-                let kvs = rows_to_key_values(rows);
-                Ok::<Vec<KeyValue>, ServerError>(kvs)
-            })
-        })
-        .await
+        let rows = sqlx::query(&sql)
+            .fetch_all(self.0 as &mut DBTransaction<'_>)
+            .await
+            .map_err(map_sqlx_error)?;
+        let kvs = rows_to_key_values(rows);
+        Ok::<Vec<KeyValue>, ServerError>(kvs)
     }
 
-    async fn batch_delete(&self, keys: Vec<String>) -> Result<(), ServerError> {
-        self.transaction(|transaction| {
-            Box::pin(async move {
-                let sql = RawSqlBuilder::delete_from(KV_TABLE).and_where_in("id", &keys).sql()?;
-                let _ = sqlx::query(&sql).execute(transaction).await.map_err(map_sqlx_error)?;
+    async fn batch_delete(&mut self, keys: Vec<String>) -> Result<(), ServerError> {
+        let sql = RawSqlBuilder::delete_from(KV_TABLE).and_where_in("id", &keys).sql()?;
+        let _ = sqlx::query(&sql)
+            .execute(self.0 as &mut DBTransaction<'_>)
+            .await
+            .map_err(map_sqlx_error)?;
 
-                Ok::<(), ServerError>(())
-            })
-        })
-        .await
+        Ok::<(), ServerError>(())
     }
 
-    async fn batch_get_start_with(&self, key: &str) -> Result<Vec<KeyValue>, ServerError> {
+    async fn batch_get_start_with(&mut self, key: &str) -> Result<Vec<KeyValue>, ServerError> {
         let prefix = key.to_owned();
-        self.transaction(|transaction| {
-            Box::pin(async move {
-                let sql = RawSqlBuilder::select_from(KV_TABLE)
-                    .field("id")
-                    .field("blob")
-                    .and_where_like_left("id", &prefix)
-                    .sql()?;
+        let sql = RawSqlBuilder::select_from(KV_TABLE)
+            .field("id")
+            .field("blob")
+            .and_where_like_left("id", &prefix)
+            .sql()?;
 
-                let rows = sqlx::query(&sql).fetch_all(transaction).await.map_err(map_sqlx_error)?;
+        let rows = sqlx::query(&sql)
+            .fetch_all(self.0 as &mut DBTransaction<'_>)
+            .await
+            .map_err(map_sqlx_error)?;
 
-                let kvs = rows_to_key_values(rows);
+        let kvs = rows_to_key_values(rows);
 
-                Ok::<Vec<KeyValue>, ServerError>(kvs)
-            })
-        })
-        .await
+        Ok::<Vec<KeyValue>, ServerError>(kvs)
     }
 
-    async fn batch_delete_key_start_with(&self, keyword: &str) -> Result<(), ServerError> {
+    async fn batch_delete_key_start_with(&mut self, keyword: &str) -> Result<(), ServerError> {
         let keyword = keyword.to_owned();
-        self.transaction(|transaction| {
-            Box::pin(async move {
-                let sql = RawSqlBuilder::delete_from(KV_TABLE)
-                    .and_where_like_left("id", &keyword)
-                    .sql()?;
+        let sql = RawSqlBuilder::delete_from(KV_TABLE)
+            .and_where_like_left("id", &keyword)
+            .sql()?;
 
-                let _ = sqlx::query(&sql).execute(transaction).await.map_err(map_sqlx_error)?;
-                Ok::<(), ServerError>(())
-            })
-        })
-        .await
+        let _ = sqlx::query(&sql)
+            .execute(self.0 as &mut DBTransaction<'_>)
+            .await
+            .map_err(map_sqlx_error)?;
+        Ok::<(), ServerError>(())
     }
 }
-
 fn rows_to_key_values(rows: Vec<PgRow>) -> Vec<KeyValue> {
     rows.into_iter()
         .map(|row| {
