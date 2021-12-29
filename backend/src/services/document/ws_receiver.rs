@@ -15,10 +15,9 @@ use flowy_collaboration::{
     },
     errors::CollaborateError,
     protobuf::DocIdentifier,
+    sync::{DocumentPersistence, ServerDocumentManager},
 };
 use lib_infra::future::BoxResultFuture;
-
-use flowy_collaboration::sync::{DocumentPersistence, ServerDocumentManager};
 use std::{
     convert::TryInto,
     fmt::{Debug, Formatter},
@@ -57,9 +56,10 @@ impl WebSocketReceiver for DocumentWebSocketReceiver {
         actix_rt::spawn(async move {
             let msg = WSActorMessage::ClientData {
                 client_data: data,
-                ret,
                 persistence,
+                ret,
             };
+
             match sender.send(msg).await {
                 Ok(_) => {},
                 Err(e) => log::error!("{}", e),
