@@ -51,7 +51,7 @@ impl WorkspaceServerAPI for WorkspaceServerMock {
     fn create_view(&self, _token: &str, params: CreateViewParams) -> FutureResult<View, FlowyError> {
         let time = timestamp();
         let view = View {
-            id: uuid_string(),
+            id: params.view_id,
             belong_to_id: params.belong_to_id,
             name: params.name,
             desc: params.desc,

@@ -18,6 +18,7 @@ use flowy_collaboration::{
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use lib_infra::future::FutureResult;
 
+use crate::services::doc::web_socket::local_ws_impl::LocalWebSocketManager;
 use flowy_collaboration::entities::ws::DocumentServerWSDataType;
 use lib_ws::WSConnectState;
 use std::{collections::VecDeque, convert::TryFrom, sync::Arc};
@@ -35,52 +36,29 @@ pub(crate) async fn make_document_ws_manager(
     rev_manager: Arc<RevisionManager>,
     ws: Arc<dyn DocumentWebSocket>,
 ) -> Arc<dyn DocumentWebSocketManager> {
-    // if cfg!(feature = "http_server") {
-    //     let shared_sink =
-    // Arc::new(SharedWSSinkDataProvider::new(rev_manager.clone()));
-    //     let ws_stream_consumer = Arc::new(DocumentWebSocketSteamConsumerAdapter {
-    //         doc_id: doc_id.clone(),
-    //         user_id: user_id.clone(),
-    //         editor_edit_queue: editor_edit_queue.clone(),
-    //         rev_manager: rev_manager.clone(),
-    //         shared_sink: shared_sink.clone(),
-    //     });
-    //     let ws_stream_provider =
-    // DocumentWSSinkDataProviderAdapter(shared_sink.clone());
-    //     let ws_manager = Arc::new(HttpWebSocketManager::new(
-    //         &doc_id,
-    //         ws.clone(),
-    //         Arc::new(ws_stream_provider),
-    //         ws_stream_consumer,
-    //     ));
-    //     notify_user_has_connected(&user_id, &doc_id, rev_manager.clone(),
-    // shared_sink).await;     listen_document_ws_state(&user_id, &doc_id,
-    // ws_manager.scribe_state(), rev_manager.clone());
-    //
-    //     Arc::new(ws_manager)
-    // } else {
-    //     Arc::new(Arc::new(LocalWebSocketManager {}))
-    // }
+    if cfg!(feature = "http_server") {
+        let shared_sink = Arc::new(SharedWSSinkDataProvider::new(rev_manager.clone()));
+        let ws_stream_consumer = Arc::new(DocumentWebSocketSteamConsumerAdapter {
+            doc_id: doc_id.clone(),
+            user_id: user_id.clone(),
+            editor_edit_queue: editor_edit_queue.clone(),
+            rev_manager: rev_manager.clone(),
+            shared_sink: shared_sink.clone(),
+        });
+        let ws_stream_provider = DocumentWSSinkDataProviderAdapter(shared_sink.clone());
+        let ws_manager = Arc::new(HttpWebSocketManager::new(
+            &doc_id,
+            ws.clone(),
+            Arc::new(ws_stream_provider),
+            ws_stream_consumer,
+        ));
+        notify_user_has_connected(&user_id, &doc_id, rev_manager.clone(), shared_sink).await;
+        listen_document_ws_state(&user_id, &doc_id, ws_manager.scribe_state(), rev_manager.clone());
 
-    let shared_sink = Arc::new(SharedWSSinkDataProvider::new(rev_manager.clone()));
-    let ws_stream_consumer = Arc::new(DocumentWebSocketSteamConsumerAdapter {
-        doc_id: doc_id.clone(),
-        user_id: user_id.clone(),
-        editor_edit_queue: editor_edit_queue.clone(),
-        rev_manager: rev_manager.clone(),
-        shared_sink: shared_sink.clone(),
-    });
-    let ws_stream_provider = DocumentWSSinkDataProviderAdapter(shared_sink.clone());
-    let ws_manager = Arc::new(HttpWebSocketManager::new(
-        &doc_id,
-        ws.clone(),
-        Arc::new(ws_stream_provider),
-        ws_stream_consumer,
-    ));
-    notify_user_has_connected(&user_id, &doc_id, rev_manager.clone(), shared_sink).await;
-    listen_document_ws_state(&user_id, &doc_id, ws_manager.scribe_state(), rev_manager.clone());
-
-    Arc::new(ws_manager)
+        Arc::new(ws_manager)
+    } else {
+        Arc::new(Arc::new(LocalWebSocketManager {}))
+    }
 }
 
 async fn notify_user_has_connected(

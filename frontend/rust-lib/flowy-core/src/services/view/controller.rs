@@ -29,7 +29,7 @@ pub(crate) struct ViewController {
     user: Arc<dyn WorkspaceUser>,
     server: Server,
     database: Arc<dyn WorkspaceDatabase>,
-    trash_can: Arc<TrashController>,
+    trash_controller: Arc<TrashController>,
     document_ctx: Arc<DocumentContext>,
 }
 
@@ -45,7 +45,7 @@ impl ViewController {
             user,
             server,
             database,
-            trash_can,
+            trash_controller: trash_can,
             document_ctx,
         }
     }
@@ -64,7 +64,7 @@ impl ViewController {
 
     pub(crate) async fn create_view_on_local(&self, view: View) -> Result<View, FlowyError> {
         let conn = &*self.database.db_connection()?;
-        let trash_can = self.trash_can.clone();
+        let trash_can = self.trash_controller.clone();
 
         conn.immediate_transaction::<_, FlowyError, _>(|| {
             let _ = self.save_view(view.clone(), conn)?;
@@ -87,7 +87,7 @@ impl ViewController {
         let conn = self.database.db_connection()?;
         let view_table = ViewTableSql::read_view(&params.view_id, &*conn)?;
 
-        let trash_ids = self.trash_can.read_trash_ids(&conn)?;
+        let trash_ids = self.trash_controller.read_trash_ids(&conn)?;
         if trash_ids.contains(&view_table.id) {
             return Err(FlowyError::record_not_found());
         }
@@ -177,7 +177,7 @@ impl ViewController {
     pub(crate) async fn read_views_belong_to(&self, belong_to_id: &str) -> Result<RepeatedView, FlowyError> {
         // TODO: read from server
         let conn = self.database.db_connection()?;
-        let repeated_view = read_belonging_views_on_local(belong_to_id, self.trash_can.clone(), &conn)?;
+        let repeated_view = read_belonging_views_on_local(belong_to_id, self.trash_controller.clone(), &conn)?;
         Ok(repeated_view)
     }
 
@@ -197,7 +197,7 @@ impl ViewController {
             .send();
 
         //
-        let _ = notify_views_changed(&updated_view.belong_to_id, self.trash_can.clone(), conn)?;
+        let _ = notify_views_changed(&updated_view.belong_to_id, self.trash_controller.clone(), conn)?;
         let _ = self.update_view_on_server(params);
         Ok(updated_view)
     }
@@ -277,10 +277,10 @@ impl ViewController {
     }
 
     fn listen_trash_can_event(&self) {
-        let mut rx = self.trash_can.subscribe();
+        let mut rx = self.trash_controller.subscribe();
         let database = self.database.clone();
         let document = self.document_ctx.clone();
-        let trash_can = self.trash_can.clone();
+        let trash_can = self.trash_controller.clone();
         let _ = tokio::spawn(async move {
             loop {
                 let mut stream = Box::pin(rx.recv().into_stream().filter_map(|result| async move {
@@ -377,10 +377,10 @@ fn notify_dart(view_table: ViewTable, notification: WorkspaceNotification) {
 #[tracing::instrument(skip(belong_to_id, trash_can, conn), fields(view_count), err)]
 fn notify_views_changed(
     belong_to_id: &str,
-    trash_can: Arc<TrashController>,
+    trash_controller: Arc<TrashController>,
     conn: &SqliteConnection,
 ) -> FlowyResult<()> {
-    let repeated_view = read_belonging_views_on_local(belong_to_id, trash_can.clone(), conn)?;
+    let repeated_view = read_belonging_views_on_local(belong_to_id, trash_controller.clone(), conn)?;
     tracing::Span::current().record("view_count", &format!("{}", repeated_view.len()).as_str());
     send_dart_notification(&belong_to_id, WorkspaceNotification::AppViewsChanged)
         .payload(repeated_view)
