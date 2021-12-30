@@ -113,7 +113,7 @@ pub fn create(core: Arc<CoreContext>) -> Module {
         .event(WorkspaceEvent::DuplicateView, duplicate_view_handler)
         .event(WorkspaceEvent::OpenView, open_view_handler)
         .event(WorkspaceEvent::CloseView, close_view_handler)
-        .event(WorkspaceEvent::ApplyDocDelta, apply_doc_delta_handler);
+        .event(WorkspaceEvent::ApplyDocDelta, document_delta_handler);
 
     module = module
         .event(WorkspaceEvent::ReadTrash, read_trash_handler)

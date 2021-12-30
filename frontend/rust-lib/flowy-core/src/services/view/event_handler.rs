@@ -51,12 +51,11 @@ pub(crate) async fn update_view_handler(
     Ok(())
 }
 
-pub(crate) async fn apply_doc_delta_handler(
+pub(crate) async fn document_delta_handler(
     data: Data<DocumentDelta>,
     controller: Unit<Arc<ViewController>>,
 ) -> DataResult<DocumentDelta, FlowyError> {
-    // let params: DocumentDelta = data.into_inner().try_into()?;
-    let doc = controller.apply_doc_delta(data.into_inner()).await?;
+    let doc = controller.receive_document_delta(data.into_inner()).await?;
     data_result(doc)
 }
 

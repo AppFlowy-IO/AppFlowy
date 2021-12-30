@@ -59,7 +59,9 @@ impl ViewController {
     #[tracing::instrument(level = "debug", skip(self, params), fields(name = %params.name), err)]
     pub(crate) async fn create_view_from_params(&self, params: CreateViewParams) -> Result<View, FlowyError> {
         let view = self.create_view_on_server(params).await?;
-        self.create_view_on_local(view).await
+        let view = self.create_view_on_local(view).await?;
+
+        Ok(view)
     }
 
     pub(crate) async fn create_view_on_local(&self, view: View) -> Result<View, FlowyError> {
@@ -113,15 +115,16 @@ impl ViewController {
     #[tracing::instrument(level = "debug", skip(self, params), fields(doc_id = %params.doc_id), err)]
     pub(crate) async fn open_view(&self, params: DocIdentifier) -> Result<DocumentDelta, FlowyError> {
         let doc_id = params.doc_id.clone();
-        let edit_context = self.document_ctx.open(params).await?;
+        let db_pool = self.database.db_pool()?;
+        let editor = self.document_ctx.controller.open(params, db_pool).await?;
 
         KV::set_str(LATEST_VIEW_ID, doc_id);
-        Ok(edit_context.delta().await.map_err(internal_error)?)
+        Ok(editor.delta().await.map_err(internal_error)?)
     }
 
     #[tracing::instrument(level = "debug", skip(self,params), fields(doc_id = %params.doc_id), err)]
     pub(crate) async fn close_view(&self, params: DocIdentifier) -> Result<(), FlowyError> {
-        let _ = self.document_ctx.doc_ctrl.close(&params.doc_id)?;
+        let _ = self.document_ctx.controller.close(&params.doc_id)?;
         Ok(())
     }
 
@@ -132,17 +135,19 @@ impl ViewController {
                 let _ = KV::remove(LATEST_VIEW_ID);
             }
         }
-        let _ = self.document_ctx.doc_ctrl.close(&params.doc_id)?;
+        let _ = self.document_ctx.controller.close(&params.doc_id)?;
         Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self, params), fields(doc_id = %params.doc_id), err)]
     pub(crate) async fn duplicate_view(&self, params: DocIdentifier) -> Result<(), FlowyError> {
         let view: View = ViewTableSql::read_view(&params.doc_id, &*self.database.db_connection()?)?.into();
-        let delta_data = self
+        let editor = self
             .document_ctx
-            .read_document_data(params, self.database.db_pool()?)
+            .controller
+            .open(params, self.database.db_pool()?)
             .await?;
+        let delta_data = editor.delta().await?.text;
 
         let duplicate_params = CreateViewParams {
             belong_to_id: view.belong_to_id.clone(),
@@ -150,7 +155,7 @@ impl ViewController {
             desc: view.desc.clone(),
             thumbnail: "".to_owned(),
             view_type: view.view_type.clone(),
-            view_data: delta_data.text,
+            view_data: delta_data,
             view_id: uuid_string(),
         };
 
@@ -161,13 +166,15 @@ impl ViewController {
     #[tracing::instrument(level = "debug", skip(self, params), err)]
     pub(crate) async fn export_doc(&self, params: ExportParams) -> Result<ExportData, FlowyError> {
         let doc_identifier: DocIdentifier = params.doc_id.into();
-        let doc = self
+        let editor = self
             .document_ctx
-            .read_document_data(doc_identifier, self.database.db_pool()?)
+            .controller
+            .open(doc_identifier, self.database.db_pool()?)
             .await?;
+        let data = editor.delta().await?.text;
 
         Ok(ExportData {
-            data: doc.text,
+            data,
             export_type: params.export_type,
         })
     }
@@ -202,9 +209,9 @@ impl ViewController {
         Ok(updated_view)
     }
 
-    pub(crate) async fn apply_doc_delta(&self, params: DocumentDelta) -> Result<DocumentDelta, FlowyError> {
+    pub(crate) async fn receive_document_delta(&self, params: DocumentDelta) -> Result<DocumentDelta, FlowyError> {
         let db_pool = self.document_ctx.user.db_pool()?;
-        let doc = self.document_ctx.doc_ctrl.apply_local_delta(params, db_pool).await?;
+        let doc = self.document_ctx.controller.apply_local_delta(params, db_pool).await?;
         Ok(doc)
     }
 
@@ -340,7 +347,7 @@ async fn handle_trash_event(
                     for identifier in identifiers.items {
                         let view_table = ViewTableSql::read_view(&identifier.id, conn)?;
                         let _ = ViewTableSql::delete_view(&identifier.id, conn)?;
-                        let _ = context.doc_ctrl.delete(identifier.id.clone().into())?;
+                        let _ = context.controller.delete(identifier.id.clone().into())?;
                         notify_ids.insert(view_table.belong_to_id);
                     }
 
@@ -374,7 +381,7 @@ fn notify_dart(view_table: ViewTable, notification: WorkspaceNotification) {
     send_dart_notification(&view.id, notification).payload(view).send();
 }
 
-#[tracing::instrument(skip(belong_to_id, trash_can, conn), fields(view_count), err)]
+#[tracing::instrument(skip(belong_to_id, trash_controller, conn), fields(view_count), err)]
 fn notify_views_changed(
     belong_to_id: &str,
     trash_controller: Arc<TrashController>,
