@@ -31,14 +31,14 @@ impl std::default::Default for DocumentWSReceivers {
 impl DocumentWSReceivers {
     pub fn new() -> Self { DocumentWSReceivers::default() }
 
-    pub(crate) fn register_receiver(&self, doc_id: &str, receiver: Arc<dyn DocumentWSReceiver>) {
+    pub(crate) fn add(&self, doc_id: &str, receiver: Arc<dyn DocumentWSReceiver>) {
         if self.receivers.contains_key(doc_id) {
             log::error!("Duplicate handler registered for {:?}", doc_id);
         }
         self.receivers.insert(doc_id.to_string(), receiver);
     }
 
-    pub(crate) fn remove_receiver(&self, id: &str) { self.receivers.remove(id); }
+    pub(crate) fn remove(&self, id: &str) { self.receivers.remove(id); }
 
     pub fn did_receive_data(&self, data: Bytes) {
         let data: DocumentServerWSData = data.try_into().unwrap();

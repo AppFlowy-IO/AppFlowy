@@ -19,7 +19,7 @@ pub trait DocumentUser: Send + Sync {
 }
 
 pub struct DocumentContext {
-    pub doc_ctrl: Arc<DocController>,
+    pub controller: Arc<DocController>,
     pub user: Arc<dyn DocumentUser>,
 }
 
@@ -32,26 +32,14 @@ impl DocumentContext {
     ) -> DocumentContext {
         let server = construct_doc_server(server_config);
         let doc_ctrl = Arc::new(DocController::new(server, user.clone(), ws_receivers, ws_sender));
-        Self { doc_ctrl, user }
+        Self {
+            controller: doc_ctrl,
+            user,
+        }
     }
 
     pub fn init(&self) -> Result<(), FlowyError> {
-        let _ = self.doc_ctrl.init()?;
+        let _ = self.controller.init()?;
         Ok(())
-    }
-
-    pub async fn open(&self, params: DocIdentifier) -> Result<Arc<ClientDocEditor>, FlowyError> {
-        let edit_context = self.doc_ctrl.open(params, self.user.db_pool()?).await?;
-        Ok(edit_context)
-    }
-
-    pub async fn read_document_data(
-        &self,
-        params: DocIdentifier,
-        pool: Arc<ConnectionPool>,
-    ) -> Result<DocumentDelta, FlowyError> {
-        let edit_context = self.doc_ctrl.open(params, pool).await?;
-        let delta = edit_context.delta().await?;
-        Ok(delta)
     }
 }

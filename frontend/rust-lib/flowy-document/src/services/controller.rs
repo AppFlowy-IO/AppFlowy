@@ -58,18 +58,16 @@ impl DocController {
         pool: Arc<ConnectionPool>,
     ) -> Result<Arc<ClientDocEditor>, FlowyError> {
         if !self.open_cache.contains(&params.doc_id) {
-            let edit_ctx = self.make_editor(&params.doc_id, pool.clone()).await?;
-            return Ok(edit_ctx);
+            let editor = self.make_editor(&params.doc_id, pool.clone()).await?;
+            return Ok(editor);
         }
-
-        let edit_doc_ctx = self.open_cache.get(&params.doc_id)?;
-        Ok(edit_doc_ctx)
+        self.open_cache.get(&params.doc_id)
     }
 
     pub fn close(&self, doc_id: &str) -> Result<(), FlowyError> {
         tracing::debug!("Close document {}", doc_id);
         self.open_cache.remove(doc_id);
-        self.ws_receivers.remove_receiver(doc_id);
+        self.ws_receivers.remove(doc_id);
         Ok(())
     }
 
@@ -77,7 +75,7 @@ impl DocController {
     pub fn delete(&self, params: DocIdentifier) -> Result<(), FlowyError> {
         let doc_id = &params.doc_id;
         self.open_cache.remove(doc_id);
-        self.ws_receivers.remove_receiver(doc_id);
+        self.ws_receivers.remove(doc_id);
         Ok(())
     }
 
@@ -112,7 +110,7 @@ impl DocController {
             server: self.server.clone(),
         });
         let doc_editor = ClientDocEditor::new(doc_id, user, pool, rev_manager, self.ws_sender.clone(), server).await?;
-        self.ws_receivers.register_receiver(doc_id, doc_editor.ws_handler());
+        self.ws_receivers.add(doc_id, doc_editor.ws_handler());
         self.open_cache.insert(&doc_id, &doc_editor);
         Ok(doc_editor)
     }

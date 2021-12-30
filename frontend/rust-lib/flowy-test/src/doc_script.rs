@@ -31,7 +31,9 @@ impl EditorTest {
         let _ = sdk.init_user().await;
         let test = ViewTest::new(&sdk).await;
         let doc_identifier: DocIdentifier = test.view.id.clone().into();
-        let editor = sdk.document_ctx.open(doc_identifier).await.unwrap();
+
+        let db_pool = sdk.user_session.db_pool().unwrap();
+        let editor = sdk.document_ctx.controller.open(doc_identifier, db_pool).await.unwrap();
         Self { sdk, editor }
     }
 
