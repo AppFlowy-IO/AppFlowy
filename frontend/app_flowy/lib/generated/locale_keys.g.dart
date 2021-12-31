@@ -76,6 +76,9 @@ abstract class  LocaleKeys {
   static const toolbar_inlineCode = 'toolbar.inlineCode';
   static const toolbar_quote = 'toolbar.quote';
   static const toolbar = 'toolbar';
+  static const tooltip_lightMode = 'tooltip.lightMode';
+  static const tooltip_darkMode = 'tooltip.darkMode';
+  static const tooltip = 'tooltip';
   static const contactsPage_title = 'contactsPage.title';
   static const contactsPage_whatsHappening = 'contactsPage.whatsHappening';
   static const contactsPage_addContact = 'contactsPage.addContact';

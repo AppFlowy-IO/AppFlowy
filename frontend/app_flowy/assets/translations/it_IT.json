@@ -85,6 +85,10 @@
     "inlineCode": "Codice in linea",
     "quote": "Cita Blocco"
   },
+  "tooltip":{
+    "lightMode" : "Passa alla modalità Luce",
+    "darkMode" : "Passa alla modalità Buio"
+  },
   "contactsPage": {
     "title": "Contatti",
     "whatsHappening": "Cosa accadrà la prossima settimana?",
