@@ -4,15 +4,15 @@ use crate::util::helper::{ViewTest, *};
 use flowy_collaboration::{
     document::{Document, PlainDoc},
     entities::{
-        doc::{CreateDocParams, DocIdentifier},
+        doc::{CreateDocParams, DocumentId},
         revision::{md5, RepeatedRevision, RevType, Revision},
     },
 };
 use flowy_core_data_model::entities::{
-    app::{AppIdentifier, UpdateAppParams},
-    trash::{TrashIdentifier, TrashIdentifiers, TrashType},
-    view::{UpdateViewParams, ViewIdentifier, ViewIdentifiers},
-    workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceIdentifier},
+    app::{AppId, UpdateAppParams},
+    trash::{RepeatedTrashId, TrashId, TrashType},
+    view::{RepeatedViewId, UpdateViewParams, ViewId},
+    workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceId},
 };
 
 #[actix_rt::test]
@@ -24,7 +24,7 @@ async fn workspace_create() {
 #[actix_rt::test]
 async fn workspace_read() {
     let test = WorkspaceTest::new().await;
-    let read_params = WorkspaceIdentifier::new(Some(test.workspace.id.clone()));
+    let read_params = WorkspaceId::new(Some(test.workspace.id.clone()));
     let repeated_workspace = test.server.read_workspaces(read_params).await;
     tracing::info!("{:?}", repeated_workspace);
 }
@@ -37,7 +37,7 @@ async fn workspace_read_with_belongs() {
     let _ = test.create_app().await;
     let _ = test.create_app().await;
 
-    let read_params = WorkspaceIdentifier::new(Some(test.workspace.id.clone()));
+    let read_params = WorkspaceId::new(Some(test.workspace.id.clone()));
     let workspaces = test.server.read_workspaces(read_params).await;
     let workspace = workspaces.items.first().unwrap();
     assert_eq!(workspace.apps.len(), 3);
@@ -55,7 +55,7 @@ async fn workspace_update() {
         desc: Some(new_desc.to_string()),
     };
     test.server.update_workspace(update_params).await;
-    let read_params = WorkspaceIdentifier::new(Some(test.workspace.id.clone()));
+    let read_params = WorkspaceId::new(Some(test.workspace.id.clone()));
     let repeated_workspace = test.server.read_workspaces(read_params).await;
 
     let workspace = repeated_workspace.first().unwrap();
@@ -66,12 +66,12 @@ async fn workspace_update() {
 #[actix_rt::test]
 async fn workspace_delete() {
     let test = WorkspaceTest::new().await;
-    let delete_params = WorkspaceIdentifier {
+    let delete_params = WorkspaceId {
         workspace_id: Some(test.workspace.id.clone()),
     };
 
     let _ = test.server.delete_workspace(delete_params).await;
-    let read_params = WorkspaceIdentifier::new(Some(test.workspace.id.clone()));
+    let read_params = WorkspaceId::new(Some(test.workspace.id.clone()));
     let repeated_workspace = test.server.read_workspaces(read_params).await;
     assert_eq!(repeated_workspace.len(), 0);
 }
@@ -85,7 +85,7 @@ async fn app_create() {
 #[actix_rt::test]
 async fn app_read() {
     let test = AppTest::new().await;
-    let read_params = AppIdentifier::new(&test.app.id);
+    let read_params = AppId::new(&test.app.id);
     assert_eq!(test.server.read_app(read_params).await.is_some(), true);
 }
 
@@ -96,7 +96,7 @@ async fn app_read_with_belongs() {
     let _ = create_test_view(&test.server, &test.app.id).await;
     let _ = create_test_view(&test.server, &test.app.id).await;
 
-    let read_params = AppIdentifier::new(&test.app.id);
+    let read_params = AppId::new(&test.app.id);
     let app = test.server.read_app(read_params).await.unwrap();
     assert_eq!(app.belongings.len(), 2);
 }
@@ -110,7 +110,7 @@ async fn app_read_with_belongs_in_trash() {
 
     test.server.create_view_trash(&view.id).await;
 
-    let read_params = AppIdentifier::new(&test.app.id);
+    let read_params = AppId::new(&test.app.id);
     let app = test.server.read_app(read_params).await.unwrap();
     assert_eq!(app.belongings.len(), 1);
 }
@@ -124,7 +124,7 @@ async fn app_update() {
     let update_params = UpdateAppParams::new(&test.app.id).name(new_name);
     test.server.update_app(update_params).await;
 
-    let read_params = AppIdentifier::new(&test.app.id);
+    let read_params = AppId::new(&test.app.id);
     let app = test.server.read_app(read_params).await.unwrap();
     assert_eq!(&app.name, new_name);
 }
@@ -133,11 +133,11 @@ async fn app_update() {
 async fn app_delete() {
     let test = AppTest::new().await;
 
-    let delete_params = AppIdentifier {
+    let delete_params = AppId {
         app_id: test.app.id.clone(),
     };
     test.server.delete_app(delete_params).await;
-    let read_params = AppIdentifier::new(&test.app.id);
+    let read_params = AppId::new(&test.app.id);
     assert_eq!(test.server.read_app(read_params).await.is_none(), true);
 }
 
@@ -157,7 +157,7 @@ async fn view_update() {
     test.server.update_view(update_params).await;
 
     // read
-    let read_params: ViewIdentifier = test.view.id.clone().into();
+    let read_params: ViewId = test.view.id.clone().into();
     let view = test.server.read_view(read_params).await.unwrap();
     assert_eq!(&view.name, new_name);
 }
@@ -176,7 +176,7 @@ async fn view_delete() {
         .map(|item| item.id)
         .collect::<Vec<String>>();
     // read
-    let read_params: ViewIdentifier = test.view.id.clone().into();
+    let read_params: ViewId = test.view.id.clone().into();
 
     // the view can't read from the server. it should be in the trash
     assert_eq!(test.server.read_view(read_params).await.is_none(), true);
@@ -188,7 +188,7 @@ async fn trash_delete() {
     let test = ViewTest::new().await;
     test.server.create_view_trash(&test.view.id).await;
 
-    let identifier = TrashIdentifier {
+    let identifier = TrashId {
         id: test.view.id.clone(),
         ty: TrashType::View,
     };
@@ -202,7 +202,7 @@ async fn trash_delete_all() {
     let test = ViewTest::new().await;
     test.server.create_view_trash(&test.view.id).await;
 
-    test.server.delete_view_trash(TrashIdentifiers::all()).await;
+    test.server.delete_view_trash(RepeatedTrashId::all()).await;
     assert_eq!(test.server.read_trash().await.is_empty(), true);
 }
 
@@ -219,7 +219,7 @@ async fn workspace_list_read() {
         let _ = server.create_workspace(params).await;
     }
 
-    let read_params = WorkspaceIdentifier::new(None);
+    let read_params = WorkspaceId::new(None);
     let workspaces = server.read_workspaces(read_params).await;
     assert_eq!(workspaces.len(), 3);
 }
@@ -227,7 +227,7 @@ async fn workspace_list_read() {
 #[actix_rt::test]
 async fn doc_read() {
     let test = ViewTest::new().await;
-    let params = DocIdentifier {
+    let params = DocumentId {
         doc_id: test.view.id.clone(),
     };
     let doc = test.server.read_doc(params).await;
@@ -262,19 +262,19 @@ async fn doc_create() {
     };
     server.create_doc(params).await;
 
-    let doc = server.read_doc(DocIdentifier { doc_id }).await;
+    let doc = server.read_doc(DocumentId { doc_id }).await;
     assert_eq!(doc.unwrap().text, document.to_json());
 }
 
 #[actix_rt::test]
 async fn doc_delete() {
     let test = ViewTest::new().await;
-    let delete_params = ViewIdentifiers {
-        view_ids: vec![test.view.id.clone()],
+    let delete_params = RepeatedViewId {
+        items: vec![test.view.id.clone()],
     };
     test.server.delete_view(delete_params).await;
 
-    let params = DocIdentifier {
+    let params = DocumentId {
         doc_id: test.view.id.clone(),
     };
     let doc = test.server.read_doc(params).await;

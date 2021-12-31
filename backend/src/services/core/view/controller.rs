@@ -15,7 +15,7 @@ use flowy_collaboration::{
 };
 use flowy_core_data_model::{
     parser::{
-        app::AppId,
+        app::AppIdentify,
         view::{ViewDesc, ViewName, ViewThumbnail},
     },
     protobuf::{CreateViewParams, RepeatedView, View},
@@ -74,7 +74,7 @@ pub(crate) async fn create_view(
 ) -> Result<View, ServerError> {
     let view_id = check_view_id(params.view_id.clone())?;
     let name = ViewName::parse(params.name).map_err(invalid_params)?;
-    let belong_to_id = AppId::parse(params.belong_to_id).map_err(invalid_params)?;
+    let belong_to_id = AppIdentify::parse(params.belong_to_id).map_err(invalid_params)?;
     let thumbnail = ViewThumbnail::parse(params.thumbnail).map_err(invalid_params)?;
     let desc = ViewDesc::parse(params.desc).map_err(invalid_params)?;
 

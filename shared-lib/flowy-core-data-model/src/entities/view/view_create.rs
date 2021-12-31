@@ -3,7 +3,7 @@ use crate::{
     errors::ErrorCode,
     impl_def_and_def_mut,
     parser::{
-        app::AppId,
+        app::AppIdentify,
         view::{ViewName, ViewThumbnail},
     },
 };
@@ -103,7 +103,7 @@ impl TryInto<CreateViewParams> for CreateViewRequest {
 
     fn try_into(self) -> Result<CreateViewParams, Self::Error> {
         let name = ViewName::parse(self.name)?.0;
-        let belong_to_id = AppId::parse(self.belong_to_id)?.0;
+        let belong_to_id = AppIdentify::parse(self.belong_to_id)?.0;
         let view_data = initial_delta_string();
         let view_id = uuid::Uuid::new_v4().to_string();
         let thumbnail = match self.thumbnail {

@@ -96,7 +96,7 @@ pub struct DocumentDelta {
     pub doc_id: String,
 
     #[pb(index = 2)]
-    pub text: String, // RichTextDelta
+    pub delta_json: String,
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
@@ -112,18 +112,18 @@ pub struct NewDocUser {
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct DocIdentifier {
+pub struct DocumentId {
     #[pb(index = 1)]
     pub doc_id: String,
 }
 
-impl std::convert::From<String> for DocIdentifier {
-    fn from(doc_id: String) -> Self { DocIdentifier { doc_id } }
+impl std::convert::From<String> for DocumentId {
+    fn from(doc_id: String) -> Self { DocumentId { doc_id } }
 }
 
-impl std::convert::From<&String> for DocIdentifier {
+impl std::convert::From<&String> for DocumentId {
     fn from(doc_id: &String) -> Self {
-        DocIdentifier {
+        DocumentId {
             doc_id: doc_id.to_owned(),
         }
     }

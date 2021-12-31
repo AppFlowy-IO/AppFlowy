@@ -14,7 +14,7 @@ use backend_service::{
     errors::{invalid_params, ServerError},
     response::FlowyResponse,
 };
-use flowy_core_data_model::{parser::trash::TrashId, protobuf::TrashIdentifiers};
+use flowy_core_data_model::{parser::trash::TrashIdentify, protobuf::RepeatedTrashId};
 use sqlx::PgPool;
 use std::sync::Arc;
 use uuid::Uuid;
@@ -25,7 +25,7 @@ pub async fn create_handler(
     pool: Data<PgPool>,
     logged_user: LoggedUser,
 ) -> Result<HttpResponse, ServerError> {
-    let params: TrashIdentifiers = parse_from_payload(payload).await?;
+    let params: RepeatedTrashId = parse_from_payload(payload).await?;
     let mut transaction = pool
         .begin()
         .await
@@ -49,7 +49,7 @@ pub async fn delete_handler(
 ) -> Result<HttpResponse, ServerError> {
     let pool = persistence.pg_pool();
     let kv_store = persistence.kv_store();
-    let params: TrashIdentifiers = parse_from_payload(payload).await?;
+    let params: RepeatedTrashId = parse_from_payload(payload).await?;
     let mut transaction = pool
         .begin()
         .await
@@ -88,12 +88,12 @@ pub async fn read_handler(pool: Data<PgPool>, logged_user: LoggedUser) -> Result
 }
 
 fn check_trash_id(id: String) -> Result<Uuid, ServerError> {
-    let trash_id = TrashId::parse(id).map_err(invalid_params)?;
+    let trash_id = TrashIdentify::parse(id).map_err(invalid_params)?;
     let trash_id = Uuid::parse_str(trash_id.as_ref())?;
     Ok(trash_id)
 }
 
-fn make_records(identifiers: TrashIdentifiers) -> Result<Vec<(Uuid, i32)>, ServerError> {
+fn make_records(identifiers: RepeatedTrashId) -> Result<Vec<(Uuid, i32)>, ServerError> {
     let mut records = vec![];
     for identifier in identifiers.items {
         // match TrashType::from_i32(identifier.ty.value()) {

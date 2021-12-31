@@ -20,28 +20,28 @@ const TrashType$json = const {
 
 /// Descriptor for `TrashType`. Decode as a `google.protobuf.EnumDescriptorProto`.
 final $typed_data.Uint8List trashTypeDescriptor = $convert.base64Decode('CglUcmFzaFR5cGUSCwoHVW5rbm93bhAAEggKBFZpZXcQARIHCgNBcHAQAg==');
-@$core.Deprecated('Use trashIdentifiersDescriptor instead')
-const TrashIdentifiers$json = const {
-  '1': 'TrashIdentifiers',
+@$core.Deprecated('Use repeatedTrashIdDescriptor instead')
+const RepeatedTrashId$json = const {
+  '1': 'RepeatedTrashId',
   '2': const [
-    const {'1': 'items', '3': 1, '4': 3, '5': 11, '6': '.TrashIdentifier', '10': 'items'},
+    const {'1': 'items', '3': 1, '4': 3, '5': 11, '6': '.TrashId', '10': 'items'},
     const {'1': 'delete_all', '3': 2, '4': 1, '5': 8, '10': 'deleteAll'},
   ],
 };
 
-/// Descriptor for `TrashIdentifiers`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List trashIdentifiersDescriptor = $convert.base64Decode('ChBUcmFzaElkZW50aWZpZXJzEiYKBWl0ZW1zGAEgAygLMhAuVHJhc2hJZGVudGlmaWVyUgVpdGVtcxIdCgpkZWxldGVfYWxsGAIgASgIUglkZWxldGVBbGw=');
-@$core.Deprecated('Use trashIdentifierDescriptor instead')
-const TrashIdentifier$json = const {
-  '1': 'TrashIdentifier',
+/// Descriptor for `RepeatedTrashId`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List repeatedTrashIdDescriptor = $convert.base64Decode('Cg9SZXBlYXRlZFRyYXNoSWQSHgoFaXRlbXMYASADKAsyCC5UcmFzaElkUgVpdGVtcxIdCgpkZWxldGVfYWxsGAIgASgIUglkZWxldGVBbGw=');
+@$core.Deprecated('Use trashIdDescriptor instead')
+const TrashId$json = const {
+  '1': 'TrashId',
   '2': const [
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'ty', '3': 2, '4': 1, '5': 14, '6': '.TrashType', '10': 'ty'},
   ],
 };
 
-/// Descriptor for `TrashIdentifier`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List trashIdentifierDescriptor = $convert.base64Decode('Cg9UcmFzaElkZW50aWZpZXISDgoCaWQYASABKAlSAmlkEhoKAnR5GAIgASgOMgouVHJhc2hUeXBlUgJ0eQ==');
+/// Descriptor for `TrashId`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List trashIdDescriptor = $convert.base64Decode('CgdUcmFzaElkEg4KAmlkGAEgASgJUgJpZBIaCgJ0eRgCIAEoDjIKLlRyYXNoVHlwZVICdHk=');
 @$core.Deprecated('Use trashDescriptor instead')
 const Trash$json = const {
   '1': 'Trash',

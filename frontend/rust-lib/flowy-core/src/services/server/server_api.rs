@@ -1,9 +1,9 @@
 use crate::{
     entities::{
-        app::{App, AppIdentifier, CreateAppParams, UpdateAppParams},
-        trash::{RepeatedTrash, TrashIdentifiers},
-        view::{CreateViewParams, UpdateViewParams, View, ViewIdentifier, ViewIdentifiers},
-        workspace::{CreateWorkspaceParams, RepeatedWorkspace, UpdateWorkspaceParams, Workspace, WorkspaceIdentifier},
+        app::{App, AppId, CreateAppParams, UpdateAppParams},
+        trash::{RepeatedTrash, RepeatedTrashId},
+        view::{CreateViewParams, RepeatedViewId, UpdateViewParams, View, ViewId},
+        workspace::{CreateWorkspaceParams, RepeatedWorkspace, UpdateWorkspaceParams, Workspace, WorkspaceId},
     },
     errors::{ErrorCode, FlowyError},
     notify::{send_dart_notification, WorkspaceNotification},
@@ -42,7 +42,7 @@ impl WorkspaceServerAPI for WorkspaceHttpServer {
         })
     }
 
-    fn read_workspace(&self, token: &str, params: WorkspaceIdentifier) -> FutureResult<RepeatedWorkspace, FlowyError> {
+    fn read_workspace(&self, token: &str, params: WorkspaceId) -> FutureResult<RepeatedWorkspace, FlowyError> {
         let token = token.to_owned();
         let url = self.config.workspace_url();
         FutureResult::new(async move {
@@ -60,7 +60,7 @@ impl WorkspaceServerAPI for WorkspaceHttpServer {
         })
     }
 
-    fn delete_workspace(&self, token: &str, params: WorkspaceIdentifier) -> FutureResult<(), FlowyError> {
+    fn delete_workspace(&self, token: &str, params: WorkspaceId) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.workspace_url();
         FutureResult::new(async move {
@@ -78,7 +78,7 @@ impl WorkspaceServerAPI for WorkspaceHttpServer {
         })
     }
 
-    fn read_view(&self, token: &str, params: ViewIdentifier) -> FutureResult<Option<View>, FlowyError> {
+    fn read_view(&self, token: &str, params: ViewId) -> FutureResult<Option<View>, FlowyError> {
         let token = token.to_owned();
         let url = self.config.view_url();
         FutureResult::new(async move {
@@ -87,7 +87,7 @@ impl WorkspaceServerAPI for WorkspaceHttpServer {
         })
     }
 
-    fn delete_view(&self, token: &str, params: ViewIdentifiers) -> FutureResult<(), FlowyError> {
+    fn delete_view(&self, token: &str, params: RepeatedViewId) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.view_url();
         FutureResult::new(async move {
@@ -114,7 +114,7 @@ impl WorkspaceServerAPI for WorkspaceHttpServer {
         })
     }
 
-    fn read_app(&self, token: &str, params: AppIdentifier) -> FutureResult<Option<App>, FlowyError> {
+    fn read_app(&self, token: &str, params: AppId) -> FutureResult<Option<App>, FlowyError> {
         let token = token.to_owned();
         let url = self.config.app_url();
         FutureResult::new(async move {
@@ -132,7 +132,7 @@ impl WorkspaceServerAPI for WorkspaceHttpServer {
         })
     }
 
-    fn delete_app(&self, token: &str, params: AppIdentifier) -> FutureResult<(), FlowyError> {
+    fn delete_app(&self, token: &str, params: AppId) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.app_url();
         FutureResult::new(async move {
@@ -141,7 +141,7 @@ impl WorkspaceServerAPI for WorkspaceHttpServer {
         })
     }
 
-    fn create_trash(&self, token: &str, params: TrashIdentifiers) -> FutureResult<(), FlowyError> {
+    fn create_trash(&self, token: &str, params: RepeatedTrashId) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.trash_url();
         FutureResult::new(async move {
@@ -150,7 +150,7 @@ impl WorkspaceServerAPI for WorkspaceHttpServer {
         })
     }
 
-    fn delete_trash(&self, token: &str, params: TrashIdentifiers) -> FutureResult<(), FlowyError> {
+    fn delete_trash(&self, token: &str, params: RepeatedTrashId) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.trash_url();
         FutureResult::new(async move {

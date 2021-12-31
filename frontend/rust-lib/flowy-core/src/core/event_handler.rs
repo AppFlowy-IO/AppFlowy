@@ -5,7 +5,7 @@ use crate::{
 };
 use flowy_core_data_model::entities::{
     view::View,
-    workspace::{CurrentWorkspaceSetting, QueryWorkspaceRequest, RepeatedWorkspace, WorkspaceIdentifier},
+    workspace::{CurrentWorkspaceSetting, QueryWorkspaceRequest, RepeatedWorkspace, WorkspaceId},
 };
 use lib_dispatch::prelude::{data_result, Data, DataResult, Unit};
 use std::{convert::TryInto, sync::Arc};
@@ -15,7 +15,7 @@ pub(crate) async fn read_workspaces_handler(
     data: Data<QueryWorkspaceRequest>,
     core: Unit<Arc<CoreContext>>,
 ) -> DataResult<RepeatedWorkspace, FlowyError> {
-    let params: WorkspaceIdentifier = data.into_inner().try_into()?;
+    let params: WorkspaceId = data.into_inner().try_into()?;
     let user_id = core.user.user_id()?;
     let conn = &*core.database.db_connection()?;
     let workspace_controller = core.workspace_controller.clone();
@@ -41,7 +41,7 @@ pub async fn read_cur_workspace_handler(
 ) -> DataResult<CurrentWorkspaceSetting, FlowyError> {
     let workspace_id = get_current_workspace()?;
     let user_id = core.user.user_id()?;
-    let params = WorkspaceIdentifier {
+    let params = WorkspaceId {
         workspace_id: Some(workspace_id.clone()),
     };
     let conn = &*core.database.db_connection()?;

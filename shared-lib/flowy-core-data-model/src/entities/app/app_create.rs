@@ -4,7 +4,7 @@ use crate::{
     impl_def_and_def_mut,
     parser::{
         app::{AppColorStyle, AppName},
-        workspace::WorkspaceId,
+        workspace::WorkspaceIdentify,
     },
 };
 use flowy_derive::ProtoBuf;
@@ -51,7 +51,7 @@ impl TryInto<CreateAppParams> for CreateAppRequest {
 
     fn try_into(self) -> Result<CreateAppParams, Self::Error> {
         let name = AppName::parse(self.name)?;
-        let id = WorkspaceId::parse(self.workspace_id)?;
+        let id = WorkspaceIdentify::parse(self.workspace_id)?;
         let color_style = AppColorStyle::parse(self.color_style.theme_color.clone())?;
 
         Ok(CreateAppParams {

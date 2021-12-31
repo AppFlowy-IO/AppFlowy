@@ -50,14 +50,14 @@ class QueryAppRequest extends $pb.GeneratedMessage {
   $core.List<$core.String> get appIds => $_getList(0);
 }
 
-class AppIdentifier extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'AppIdentifier', createEmptyInstance: create)
+class AppId extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'AppId', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'appId')
     ..hasRequiredFields = false
   ;
 
-  AppIdentifier._() : super();
-  factory AppIdentifier({
+  AppId._() : super();
+  factory AppId({
     $core.String? appId,
   }) {
     final _result = create();
@@ -66,26 +66,26 @@ class AppIdentifier extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory AppIdentifier.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory AppIdentifier.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory AppId.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory AppId.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  AppIdentifier clone() => AppIdentifier()..mergeFromMessage(this);
+  AppId clone() => AppId()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  AppIdentifier copyWith(void Function(AppIdentifier) updates) => super.copyWith((message) => updates(message as AppIdentifier)) as AppIdentifier; // ignore: deprecated_member_use
+  AppId copyWith(void Function(AppId) updates) => super.copyWith((message) => updates(message as AppId)) as AppId; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static AppIdentifier create() => AppIdentifier._();
-  AppIdentifier createEmptyInstance() => create();
-  static $pb.PbList<AppIdentifier> createRepeated() => $pb.PbList<AppIdentifier>();
+  static AppId create() => AppId._();
+  AppId createEmptyInstance() => create();
+  static $pb.PbList<AppId> createRepeated() => $pb.PbList<AppId>();
   @$core.pragma('dart2js:noInline')
-  static AppIdentifier getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AppIdentifier>(create);
-  static AppIdentifier? _defaultInstance;
+  static AppId getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AppId>(create);
+  static AppId? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get appId => $_getSZ(0);

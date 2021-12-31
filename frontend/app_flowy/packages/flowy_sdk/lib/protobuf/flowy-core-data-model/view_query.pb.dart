@@ -50,14 +50,14 @@ class QueryViewRequest extends $pb.GeneratedMessage {
   $core.List<$core.String> get viewIds => $_getList(0);
 }
 
-class ViewIdentifier extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ViewIdentifier', createEmptyInstance: create)
+class ViewId extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ViewId', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewId')
     ..hasRequiredFields = false
   ;
 
-  ViewIdentifier._() : super();
-  factory ViewIdentifier({
+  ViewId._() : super();
+  factory ViewId({
     $core.String? viewId,
   }) {
     final _result = create();
@@ -66,26 +66,26 @@ class ViewIdentifier extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory ViewIdentifier.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ViewIdentifier.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory ViewId.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ViewId.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  ViewIdentifier clone() => ViewIdentifier()..mergeFromMessage(this);
+  ViewId clone() => ViewId()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  ViewIdentifier copyWith(void Function(ViewIdentifier) updates) => super.copyWith((message) => updates(message as ViewIdentifier)) as ViewIdentifier; // ignore: deprecated_member_use
+  ViewId copyWith(void Function(ViewId) updates) => super.copyWith((message) => updates(message as ViewId)) as ViewId; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static ViewIdentifier create() => ViewIdentifier._();
-  ViewIdentifier createEmptyInstance() => create();
-  static $pb.PbList<ViewIdentifier> createRepeated() => $pb.PbList<ViewIdentifier>();
+  static ViewId create() => ViewId._();
+  ViewId createEmptyInstance() => create();
+  static $pb.PbList<ViewId> createRepeated() => $pb.PbList<ViewId>();
   @$core.pragma('dart2js:noInline')
-  static ViewIdentifier getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ViewIdentifier>(create);
-  static ViewIdentifier? _defaultInstance;
+  static ViewId getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ViewId>(create);
+  static ViewId? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get viewId => $_getSZ(0);
@@ -97,44 +97,44 @@ class ViewIdentifier extends $pb.GeneratedMessage {
   void clearViewId() => clearField(1);
 }
 
-class ViewIdentifiers extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ViewIdentifiers', createEmptyInstance: create)
-    ..pPS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'viewIds')
+class RepeatedViewId extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RepeatedViewId', createEmptyInstance: create)
+    ..pPS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'items')
     ..hasRequiredFields = false
   ;
 
-  ViewIdentifiers._() : super();
-  factory ViewIdentifiers({
-    $core.Iterable<$core.String>? viewIds,
+  RepeatedViewId._() : super();
+  factory RepeatedViewId({
+    $core.Iterable<$core.String>? items,
   }) {
     final _result = create();
-    if (viewIds != null) {
-      _result.viewIds.addAll(viewIds);
+    if (items != null) {
+      _result.items.addAll(items);
     }
     return _result;
   }
-  factory ViewIdentifiers.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory ViewIdentifiers.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory RepeatedViewId.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RepeatedViewId.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  ViewIdentifiers clone() => ViewIdentifiers()..mergeFromMessage(this);
+  RepeatedViewId clone() => RepeatedViewId()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  ViewIdentifiers copyWith(void Function(ViewIdentifiers) updates) => super.copyWith((message) => updates(message as ViewIdentifiers)) as ViewIdentifiers; // ignore: deprecated_member_use
+  RepeatedViewId copyWith(void Function(RepeatedViewId) updates) => super.copyWith((message) => updates(message as RepeatedViewId)) as RepeatedViewId; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static ViewIdentifiers create() => ViewIdentifiers._();
-  ViewIdentifiers createEmptyInstance() => create();
-  static $pb.PbList<ViewIdentifiers> createRepeated() => $pb.PbList<ViewIdentifiers>();
+  static RepeatedViewId create() => RepeatedViewId._();
+  RepeatedViewId createEmptyInstance() => create();
+  static $pb.PbList<RepeatedViewId> createRepeated() => $pb.PbList<RepeatedViewId>();
   @$core.pragma('dart2js:noInline')
-  static ViewIdentifiers getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ViewIdentifiers>(create);
-  static ViewIdentifiers? _defaultInstance;
+  static RepeatedViewId getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RepeatedViewId>(create);
+  static RepeatedViewId? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.List<$core.String> get viewIds => $_getList(0);
+  $core.List<$core.String> get items => $_getList(0);
 }
 

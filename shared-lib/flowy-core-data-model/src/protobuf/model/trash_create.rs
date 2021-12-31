@@ -24,30 +24,30 @@
 // const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_22_1;
 
 #[derive(PartialEq,Clone,Default)]
-pub struct TrashIdentifiers {
+pub struct RepeatedTrashId {
     // message fields
-    pub items: ::protobuf::RepeatedField<TrashIdentifier>,
+    pub items: ::protobuf::RepeatedField<TrashId>,
     pub delete_all: bool,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a TrashIdentifiers {
-    fn default() -> &'a TrashIdentifiers {
-        <TrashIdentifiers as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a RepeatedTrashId {
+    fn default() -> &'a RepeatedTrashId {
+        <RepeatedTrashId as ::protobuf::Message>::default_instance()
     }
 }
 
-impl TrashIdentifiers {
-    pub fn new() -> TrashIdentifiers {
+impl RepeatedTrashId {
+    pub fn new() -> RepeatedTrashId {
         ::std::default::Default::default()
     }
 
-    // repeated .TrashIdentifier items = 1;
+    // repeated .TrashId items = 1;
 
 
-    pub fn get_items(&self) -> &[TrashIdentifier] {
+    pub fn get_items(&self) -> &[TrashId] {
         &self.items
     }
     pub fn clear_items(&mut self) {
@@ -55,17 +55,17 @@ impl TrashIdentifiers {
     }
 
     // Param is passed by value, moved
-    pub fn set_items(&mut self, v: ::protobuf::RepeatedField<TrashIdentifier>) {
+    pub fn set_items(&mut self, v: ::protobuf::RepeatedField<TrashId>) {
         self.items = v;
     }
 
     // Mutable pointer to the field.
-    pub fn mut_items(&mut self) -> &mut ::protobuf::RepeatedField<TrashIdentifier> {
+    pub fn mut_items(&mut self) -> &mut ::protobuf::RepeatedField<TrashId> {
         &mut self.items
     }
 
     // Take field
-    pub fn take_items(&mut self) -> ::protobuf::RepeatedField<TrashIdentifier> {
+    pub fn take_items(&mut self) -> ::protobuf::RepeatedField<TrashId> {
         ::std::mem::replace(&mut self.items, ::protobuf::RepeatedField::new())
     }
 
@@ -85,7 +85,7 @@ impl TrashIdentifiers {
     }
 }
 
-impl ::protobuf::Message for TrashIdentifiers {
+impl ::protobuf::Message for RepeatedTrashId {
     fn is_initialized(&self) -> bool {
         for v in &self.items {
             if !v.is_initialized() {
@@ -172,39 +172,39 @@ impl ::protobuf::Message for TrashIdentifiers {
         Self::descriptor_static()
     }
 
-    fn new() -> TrashIdentifiers {
-        TrashIdentifiers::new()
+    fn new() -> RepeatedTrashId {
+        RepeatedTrashId::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<TrashIdentifier>>(
+            fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<TrashId>>(
                 "items",
-                |m: &TrashIdentifiers| { &m.items },
-                |m: &mut TrashIdentifiers| { &mut m.items },
+                |m: &RepeatedTrashId| { &m.items },
+                |m: &mut RepeatedTrashId| { &mut m.items },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBool>(
                 "delete_all",
-                |m: &TrashIdentifiers| { &m.delete_all },
-                |m: &mut TrashIdentifiers| { &mut m.delete_all },
+                |m: &RepeatedTrashId| { &m.delete_all },
+                |m: &mut RepeatedTrashId| { &mut m.delete_all },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<TrashIdentifiers>(
-                "TrashIdentifiers",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<RepeatedTrashId>(
+                "RepeatedTrashId",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static TrashIdentifiers {
-        static instance: ::protobuf::rt::LazyV2<TrashIdentifiers> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(TrashIdentifiers::new)
+    fn default_instance() -> &'static RepeatedTrashId {
+        static instance: ::protobuf::rt::LazyV2<RepeatedTrashId> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(RepeatedTrashId::new)
     }
 }
 
-impl ::protobuf::Clear for TrashIdentifiers {
+impl ::protobuf::Clear for RepeatedTrashId {
     fn clear(&mut self) {
         self.items.clear();
         self.delete_all = false;
@@ -212,20 +212,20 @@ impl ::protobuf::Clear for TrashIdentifiers {
     }
 }
 
-impl ::std::fmt::Debug for TrashIdentifiers {
+impl ::std::fmt::Debug for RepeatedTrashId {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for TrashIdentifiers {
+impl ::protobuf::reflect::ProtobufValue for RepeatedTrashId {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct TrashIdentifier {
+pub struct TrashId {
     // message fields
     pub id: ::std::string::String,
     pub ty: TrashType,
@@ -234,14 +234,14 @@ pub struct TrashIdentifier {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a TrashIdentifier {
-    fn default() -> &'a TrashIdentifier {
-        <TrashIdentifier as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a TrashId {
+    fn default() -> &'a TrashId {
+        <TrashId as ::protobuf::Message>::default_instance()
     }
 }
 
-impl TrashIdentifier {
-    pub fn new() -> TrashIdentifier {
+impl TrashId {
+    pub fn new() -> TrashId {
         ::std::default::Default::default()
     }
 
@@ -287,7 +287,7 @@ impl TrashIdentifier {
     }
 }
 
-impl ::protobuf::Message for TrashIdentifier {
+impl ::protobuf::Message for TrashId {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -362,8 +362,8 @@ impl ::protobuf::Message for TrashIdentifier {
         Self::descriptor_static()
     }
 
-    fn new() -> TrashIdentifier {
-        TrashIdentifier::new()
+    fn new() -> TrashId {
+        TrashId::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -372,29 +372,29 @@ impl ::protobuf::Message for TrashIdentifier {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "id",
-                |m: &TrashIdentifier| { &m.id },
-                |m: &mut TrashIdentifier| { &mut m.id },
+                |m: &TrashId| { &m.id },
+                |m: &mut TrashId| { &mut m.id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<TrashType>>(
                 "ty",
-                |m: &TrashIdentifier| { &m.ty },
-                |m: &mut TrashIdentifier| { &mut m.ty },
+                |m: &TrashId| { &m.ty },
+                |m: &mut TrashId| { &mut m.ty },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<TrashIdentifier>(
-                "TrashIdentifier",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<TrashId>(
+                "TrashId",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static TrashIdentifier {
-        static instance: ::protobuf::rt::LazyV2<TrashIdentifier> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(TrashIdentifier::new)
+    fn default_instance() -> &'static TrashId {
+        static instance: ::protobuf::rt::LazyV2<TrashId> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(TrashId::new)
     }
 }
 
-impl ::protobuf::Clear for TrashIdentifier {
+impl ::protobuf::Clear for TrashId {
     fn clear(&mut self) {
         self.id.clear();
         self.ty = TrashType::Unknown;
@@ -402,13 +402,13 @@ impl ::protobuf::Clear for TrashIdentifier {
     }
 }
 
-impl ::std::fmt::Debug for TrashIdentifier {
+impl ::std::fmt::Debug for TrashId {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for TrashIdentifier {
+impl ::protobuf::reflect::ProtobufValue for TrashId {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -936,26 +936,26 @@ impl ::protobuf::reflect::ProtobufValue for TrashType {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x12trash_create.proto\"Y\n\x10TrashIdentifiers\x12&\n\x05items\x18\
-    \x01\x20\x03(\x0b2\x10.TrashIdentifierR\x05items\x12\x1d\n\ndelete_all\
-    \x18\x02\x20\x01(\x08R\tdeleteAll\"=\n\x0fTrashIdentifier\x12\x0e\n\x02i\
-    d\x18\x01\x20\x01(\tR\x02id\x12\x1a\n\x02ty\x18\x02\x20\x01(\x0e2\n.Tras\
-    hTypeR\x02ty\"\x8d\x01\n\x05Trash\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\
-    \x02id\x12\x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12#\n\rmodified_ti\
-    me\x18\x03\x20\x01(\x03R\x0cmodifiedTime\x12\x1f\n\x0bcreate_time\x18\
-    \x04\x20\x01(\x03R\ncreateTime\x12\x1a\n\x02ty\x18\x05\x20\x01(\x0e2\n.T\
-    rashTypeR\x02ty\"-\n\rRepeatedTrash\x12\x1c\n\x05items\x18\x01\x20\x03(\
-    \x0b2\x06.TrashR\x05items*+\n\tTrashType\x12\x0b\n\x07Unknown\x10\0\x12\
-    \x08\n\x04View\x10\x01\x12\x07\n\x03App\x10\x02J\xc7\x06\n\x06\x12\x04\0\
-    \0\x18\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\
-    \x05\x01\n\n\n\x03\x04\0\x01\x12\x03\x02\x08\x18\n\x0b\n\x04\x04\0\x02\0\
-    \x12\x03\x03\x04'\n\x0c\n\x05\x04\0\x02\0\x04\x12\x03\x03\x04\x0c\n\x0c\
-    \n\x05\x04\0\x02\0\x06\x12\x03\x03\r\x1c\n\x0c\n\x05\x04\0\x02\0\x01\x12\
-    \x03\x03\x1d\"\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03%&\n\x0b\n\x04\x04\
+    \n\x12trash_create.proto\"P\n\x0fRepeatedTrashId\x12\x1e\n\x05items\x18\
+    \x01\x20\x03(\x0b2\x08.TrashIdR\x05items\x12\x1d\n\ndelete_all\x18\x02\
+    \x20\x01(\x08R\tdeleteAll\"5\n\x07TrashId\x12\x0e\n\x02id\x18\x01\x20\
+    \x01(\tR\x02id\x12\x1a\n\x02ty\x18\x02\x20\x01(\x0e2\n.TrashTypeR\x02ty\
+    \"\x8d\x01\n\x05Trash\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\x12\x12\
+    \n\x04name\x18\x02\x20\x01(\tR\x04name\x12#\n\rmodified_time\x18\x03\x20\
+    \x01(\x03R\x0cmodifiedTime\x12\x1f\n\x0bcreate_time\x18\x04\x20\x01(\x03\
+    R\ncreateTime\x12\x1a\n\x02ty\x18\x05\x20\x01(\x0e2\n.TrashTypeR\x02ty\"\
+    -\n\rRepeatedTrash\x12\x1c\n\x05items\x18\x01\x20\x03(\x0b2\x06.TrashR\
+    \x05items*+\n\tTrashType\x12\x0b\n\x07Unknown\x10\0\x12\x08\n\x04View\
+    \x10\x01\x12\x07\n\x03App\x10\x02J\xc7\x06\n\x06\x12\x04\0\0\x18\x01\n\
+    \x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x05\x01\n\n\
+    \n\x03\x04\0\x01\x12\x03\x02\x08\x17\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\
+    \x04\x1f\n\x0c\n\x05\x04\0\x02\0\x04\x12\x03\x03\x04\x0c\n\x0c\n\x05\x04\
+    \0\x02\0\x06\x12\x03\x03\r\x14\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\
+    \x15\x1a\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x1d\x1e\n\x0b\n\x04\x04\
     \0\x02\x01\x12\x03\x04\x04\x18\n\x0c\n\x05\x04\0\x02\x01\x05\x12\x03\x04\
     \x04\x08\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\x04\t\x13\n\x0c\n\x05\x04\
     \0\x02\x01\x03\x12\x03\x04\x16\x17\n\n\n\x02\x04\x01\x12\x04\x06\0\t\x01\
-    \n\n\n\x03\x04\x01\x01\x12\x03\x06\x08\x17\n\x0b\n\x04\x04\x01\x02\0\x12\
+    \n\n\n\x03\x04\x01\x01\x12\x03\x06\x08\x0f\n\x0b\n\x04\x04\x01\x02\0\x12\
     \x03\x07\x04\x12\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x07\x04\n\n\x0c\n\
     \x05\x04\x01\x02\0\x01\x12\x03\x07\x0b\r\n\x0c\n\x05\x04\x01\x02\0\x03\
     \x12\x03\x07\x10\x11\n\x0b\n\x04\x04\x01\x02\x01\x12\x03\x08\x04\x15\n\

@@ -1,7 +1,7 @@
 use crate::{
     entities::app::ColorStyle,
     errors::ErrorCode,
-    parser::app::{AppColorStyle, AppId, AppName},
+    parser::app::{AppColorStyle, AppIdentify, AppName},
 };
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
@@ -70,7 +70,7 @@ impl TryInto<UpdateAppParams> for UpdateAppRequest {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<UpdateAppParams, Self::Error> {
-        let app_id = AppId::parse(self.app_id)?.0;
+        let app_id = AppIdentify::parse(self.app_id)?.0;
 
         let name = match self.name {
             None => None,

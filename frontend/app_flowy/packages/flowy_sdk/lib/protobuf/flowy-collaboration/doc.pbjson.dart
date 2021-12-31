@@ -48,12 +48,12 @@ const DocumentDelta$json = const {
   '1': 'DocumentDelta',
   '2': const [
     const {'1': 'doc_id', '3': 1, '4': 1, '5': 9, '10': 'docId'},
-    const {'1': 'text', '3': 2, '4': 1, '5': 9, '10': 'text'},
+    const {'1': 'delta_json', '3': 2, '4': 1, '5': 9, '10': 'deltaJson'},
   ],
 };
 
 /// Descriptor for `DocumentDelta`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List documentDeltaDescriptor = $convert.base64Decode('Cg1Eb2N1bWVudERlbHRhEhUKBmRvY19pZBgBIAEoCVIFZG9jSWQSEgoEdGV4dBgCIAEoCVIEdGV4dA==');
+final $typed_data.Uint8List documentDeltaDescriptor = $convert.base64Decode('Cg1Eb2N1bWVudERlbHRhEhUKBmRvY19pZBgBIAEoCVIFZG9jSWQSHQoKZGVsdGFfanNvbhgCIAEoCVIJZGVsdGFKc29u');
 @$core.Deprecated('Use newDocUserDescriptor instead')
 const NewDocUser$json = const {
   '1': 'NewDocUser',
@@ -66,13 +66,13 @@ const NewDocUser$json = const {
 
 /// Descriptor for `NewDocUser`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List newDocUserDescriptor = $convert.base64Decode('CgpOZXdEb2NVc2VyEhcKB3VzZXJfaWQYASABKAlSBnVzZXJJZBIVCgZyZXZfaWQYAiABKANSBXJldklkEhUKBmRvY19pZBgDIAEoCVIFZG9jSWQ=');
-@$core.Deprecated('Use docIdentifierDescriptor instead')
-const DocIdentifier$json = const {
-  '1': 'DocIdentifier',
+@$core.Deprecated('Use documentIdDescriptor instead')
+const DocumentId$json = const {
+  '1': 'DocumentId',
   '2': const [
     const {'1': 'doc_id', '3': 1, '4': 1, '5': 9, '10': 'docId'},
   ],
 };
 
-/// Descriptor for `DocIdentifier`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List docIdentifierDescriptor = $convert.base64Decode('Cg1Eb2NJZGVudGlmaWVyEhUKBmRvY19pZBgBIAEoCVIFZG9jSWQ=');
+/// Descriptor for `DocumentId`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List documentIdDescriptor = $convert.base64Decode('CgpEb2N1bWVudElkEhUKBmRvY19pZBgBIAEoCVIFZG9jSWQ=');

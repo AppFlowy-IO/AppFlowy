@@ -1,6 +1,6 @@
 use crate::{helper::ViewTest, FlowySDKTest};
-use flowy_collaboration::entities::{doc::DocIdentifier, revision::RevState};
-use flowy_document::services::doc::{edit::ClientDocEditor, SYNC_INTERVAL_IN_MILLIS};
+use flowy_collaboration::entities::revision::RevState;
+use flowy_document::services::doc::{edit::ClientDocumentEditor, SYNC_INTERVAL_IN_MILLIS};
 use lib_ot::{core::Interval, rich_text::RichTextDelta};
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
@@ -22,7 +22,7 @@ pub enum EditorScript {
 
 pub struct EditorTest {
     pub sdk: FlowySDKTest,
-    pub editor: Arc<ClientDocEditor>,
+    pub editor: Arc<ClientDocumentEditor>,
 }
 
 impl EditorTest {
@@ -30,10 +30,8 @@ impl EditorTest {
         let sdk = FlowySDKTest::setup();
         let _ = sdk.init_user().await;
         let test = ViewTest::new(&sdk).await;
-        let doc_identifier: DocIdentifier = test.view.id.clone().into();
-
         let db_pool = sdk.user_session.db_pool().unwrap();
-        let editor = sdk.document_ctx.controller.open(doc_identifier, db_pool).await.unwrap();
+        let editor = sdk.document_ctx.controller.open(&test.view.id, db_pool).await.unwrap();
         Self { sdk, editor }
     }
 

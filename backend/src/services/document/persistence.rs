@@ -7,7 +7,7 @@ use backend_service::errors::{internal_error, ServerError};
 use bytes::Bytes;
 use flowy_collaboration::protobuf::{
     CreateDocParams,
-    DocIdentifier,
+    DocumentId,
     DocumentInfo,
     RepeatedRevision,
     ResetDocumentParams,
@@ -32,7 +32,7 @@ pub(crate) async fn create_document(
 #[tracing::instrument(level = "debug", skip(kv_store), err)]
 pub async fn read_document(
     kv_store: &Arc<DocumentKVPersistence>,
-    params: DocIdentifier,
+    params: DocumentId,
 ) -> Result<DocumentInfo, ServerError> {
     let _ = Uuid::parse_str(&params.doc_id).context("Parse document id to uuid failed")?;
     let revisions = kv_store.batch_get_revisions(&params.doc_id, None).await?;

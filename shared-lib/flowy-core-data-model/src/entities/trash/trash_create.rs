@@ -27,15 +27,15 @@ impl std::default::Default for TrashType {
 }
 
 #[derive(PartialEq, ProtoBuf, Default, Debug, Clone)]
-pub struct TrashIdentifiers {
+pub struct RepeatedTrashId {
     #[pb(index = 1)]
-    pub items: Vec<TrashIdentifier>,
+    pub items: Vec<TrashId>,
 
     #[pb(index = 2)]
     pub delete_all: bool,
 }
 
-impl std::fmt::Display for TrashIdentifiers {
+impl std::fmt::Display for RepeatedTrashId {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.write_str(&format!(
             "{:?}",
@@ -44,32 +44,32 @@ impl std::fmt::Display for TrashIdentifiers {
     }
 }
 
-impl TrashIdentifiers {
-    pub fn all() -> TrashIdentifiers {
-        TrashIdentifiers {
+impl RepeatedTrashId {
+    pub fn all() -> RepeatedTrashId {
+        RepeatedTrashId {
             items: vec![],
             delete_all: true,
         }
     }
 }
 
-impl std::convert::From<Vec<TrashIdentifier>> for TrashIdentifiers {
-    fn from(items: Vec<TrashIdentifier>) -> Self {
-        TrashIdentifiers {
+impl std::convert::From<Vec<TrashId>> for RepeatedTrashId {
+    fn from(items: Vec<TrashId>) -> Self {
+        RepeatedTrashId {
             items,
             delete_all: false,
         }
     }
 }
 
-impl std::convert::From<Vec<Trash>> for TrashIdentifiers {
+impl std::convert::From<Vec<Trash>> for RepeatedTrashId {
     fn from(trash: Vec<Trash>) -> Self {
         let items = trash
             .into_iter()
-            .map(|t| TrashIdentifier { id: t.id, ty: t.ty })
+            .map(|t| TrashId { id: t.id, ty: t.ty })
             .collect::<Vec<_>>();
 
-        TrashIdentifiers {
+        RepeatedTrashId {
             items,
             delete_all: false,
         }
@@ -77,7 +77,7 @@ impl std::convert::From<Vec<Trash>> for TrashIdentifiers {
 }
 
 #[derive(PartialEq, ProtoBuf, Default, Debug, Clone)]
-pub struct TrashIdentifier {
+pub struct TrashId {
     #[pb(index = 1)]
     pub id: String,
 
@@ -85,16 +85,16 @@ pub struct TrashIdentifier {
     pub ty: TrashType,
 }
 
-impl std::convert::From<&Trash> for TrashIdentifier {
+impl std::convert::From<&Trash> for TrashId {
     fn from(trash: &Trash) -> Self {
-        TrashIdentifier {
+        TrashId {
             id: trash.id.clone(),
             ty: trash.ty.clone(),
         }
     }
 }
 
-impl std::fmt::Display for TrashIdentifier {
+impl std::fmt::Display for TrashId {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str(&format!("{:?}:{}", self.ty, self.id)) }
 }
 

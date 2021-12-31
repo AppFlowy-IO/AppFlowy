@@ -3,7 +3,7 @@ use crate::{
     errors::FlowyError,
     services::{
         doc::{
-            edit::ClientDocEditor,
+            edit::ClientDocumentEditor,
             revision::{RevisionCache, RevisionManager, RevisionServer},
             DocumentWSReceivers,
             DocumentWebSocket,
@@ -14,13 +14,13 @@ use crate::{
 };
 use bytes::Bytes;
 use dashmap::DashMap;
-use flowy_collaboration::entities::doc::{DocIdentifier, DocumentDelta, DocumentInfo};
+use flowy_collaboration::entities::doc::{DocumentDelta, DocumentId, DocumentInfo};
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use lib_infra::future::FutureResult;
 use std::sync::Arc;
 
-pub struct DocController {
+pub struct DocumentController {
     server: Server,
     ws_receivers: Arc<DocumentWSReceivers>,
     ws_sender: Arc<dyn DocumentWebSocket>,
@@ -28,7 +28,7 @@ pub struct DocController {
     user: Arc<dyn DocumentUser>,
 }
 
-impl DocController {
+impl DocumentController {
     pub(crate) fn new(
         server: Server,
         user: Arc<dyn DocumentUser>,
@@ -52,56 +52,67 @@ impl DocController {
         Ok(())
     }
 
-    pub async fn open(
+    #[tracing::instrument(level = "debug", skip(self, doc_id, pool), fields(doc_id), err)]
+    pub async fn open<T: AsRef<str>>(
         &self,
-        params: DocIdentifier,
+        doc_id: T,
         pool: Arc<ConnectionPool>,
-    ) -> Result<Arc<ClientDocEditor>, FlowyError> {
-        if !self.open_cache.contains(&params.doc_id) {
-            let editor = self.make_editor(&params.doc_id, pool.clone()).await?;
+    ) -> Result<Arc<ClientDocumentEditor>, FlowyError> {
+        let doc_id = doc_id.as_ref();
+        tracing::Span::current().record("doc_id", &doc_id);
+        if !self.open_cache.contains(doc_id) {
+            let editor = self.make_editor(doc_id, pool.clone()).await?;
             return Ok(editor);
         }
-        self.open_cache.get(&params.doc_id)
+        self.open_cache.get(doc_id)
     }
 
-    pub fn close(&self, doc_id: &str) -> Result<(), FlowyError> {
-        tracing::debug!("Close document {}", doc_id);
+    #[tracing::instrument(level = "debug", skip(self, doc_id), fields(doc_id), err)]
+    pub fn close<T: AsRef<str>>(&self, doc_id: T) -> Result<(), FlowyError> {
+        let doc_id = doc_id.as_ref();
+        tracing::Span::current().record("doc_id", &doc_id);
         self.open_cache.remove(doc_id);
         self.ws_receivers.remove(doc_id);
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self), err)]
-    pub fn delete(&self, params: DocIdentifier) -> Result<(), FlowyError> {
-        let doc_id = &params.doc_id;
+    #[tracing::instrument(level = "debug", skip(self, doc_id), fields(doc_id), err)]
+    pub fn delete<T: AsRef<str>>(&self, doc_id: T) -> Result<(), FlowyError> {
+        let doc_id = doc_id.as_ref();
+        tracing::Span::current().record("doc_id", &doc_id);
         self.open_cache.remove(doc_id);
         self.ws_receivers.remove(doc_id);
         Ok(())
     }
 
-    // the delta's data that contains attributes with null value will be considered
-    // as None e.g.
-    // json : {"retain":7,"attributes":{"bold":null}}
-    // deserialize delta: [ {retain: 7, attributes: {Bold: AttributeValue(None)}} ]
     #[tracing::instrument(level = "debug", skip(self, delta, db_pool), fields(doc_id = %delta.doc_id), err)]
-    pub async fn apply_local_delta(
+    pub async fn apply_document_delta(
         &self,
         delta: DocumentDelta,
         db_pool: Arc<ConnectionPool>,
     ) -> Result<DocumentDelta, FlowyError> {
         if !self.open_cache.contains(&delta.doc_id) {
-            let doc_identifier: DocIdentifier = delta.doc_id.clone().into();
-            let _ = self.open(doc_identifier, db_pool).await?;
+            let _ = self.open(&delta.doc_id, db_pool).await?;
         }
 
-        let edit_doc_ctx = self.open_cache.get(&delta.doc_id)?;
-        let _ = edit_doc_ctx.composing_local_delta(Bytes::from(delta.text)).await?;
-        Ok(edit_doc_ctx.delta().await?)
+        let editor = self.open_cache.get(&delta.doc_id)?;
+        let _ = editor.compose_local_delta(Bytes::from(delta.delta_json)).await?;
+        let document_json = editor.document_json().await?;
+        Ok(DocumentDelta {
+            doc_id: delta.doc_id.clone(),
+            delta_json: document_json,
+        })
     }
+
+    pub async fn save_document_delta(&self, delta: DocumentDelta) {}
 }
 
-impl DocController {
-    async fn make_editor(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<Arc<ClientDocEditor>, FlowyError> {
+impl DocumentController {
+    async fn make_editor(
+        &self,
+        doc_id: &str,
+        pool: Arc<ConnectionPool>,
+    ) -> Result<Arc<ClientDocumentEditor>, FlowyError> {
         let user = self.user.clone();
         let token = self.user.token()?;
         let rev_manager = self.make_rev_manager(doc_id, pool.clone())?;
@@ -109,7 +120,8 @@ impl DocController {
             token,
             server: self.server.clone(),
         });
-        let doc_editor = ClientDocEditor::new(doc_id, user, pool, rev_manager, self.ws_sender.clone(), server).await?;
+        let doc_editor =
+            ClientDocumentEditor::new(doc_id, user, pool, rev_manager, self.ws_sender.clone(), server).await?;
         self.ws_receivers.add(doc_id, doc_editor.ws_handler());
         self.open_cache.insert(&doc_id, &doc_editor);
         Ok(doc_editor)
@@ -130,7 +142,7 @@ struct RevisionServerImpl {
 impl RevisionServer for RevisionServerImpl {
     #[tracing::instrument(level = "debug", skip(self))]
     fn fetch_document(&self, doc_id: &str) -> FutureResult<DocumentInfo, FlowyError> {
-        let params = DocIdentifier {
+        let params = DocumentId {
             doc_id: doc_id.to_string(),
         };
         let server = self.server.clone();
@@ -146,13 +158,13 @@ impl RevisionServer for RevisionServerImpl {
 }
 
 pub struct OpenDocCache {
-    inner: DashMap<String, Arc<ClientDocEditor>>,
+    inner: DashMap<String, Arc<ClientDocumentEditor>>,
 }
 
 impl OpenDocCache {
     fn new() -> Self { Self { inner: DashMap::new() } }
 
-    pub(crate) fn insert(&self, doc_id: &str, doc: &Arc<ClientDocEditor>) {
+    pub(crate) fn insert(&self, doc_id: &str, doc: &Arc<ClientDocumentEditor>) {
         if self.inner.contains_key(doc_id) {
             log::warn!("Doc:{} already exists in cache", doc_id);
         }
@@ -161,7 +173,7 @@ impl OpenDocCache {
 
     pub(crate) fn contains(&self, doc_id: &str) -> bool { self.inner.get(doc_id).is_some() }
 
-    pub(crate) fn get(&self, doc_id: &str) -> Result<Arc<ClientDocEditor>, FlowyError> {
+    pub(crate) fn get(&self, doc_id: &str) -> Result<Arc<ClientDocumentEditor>, FlowyError> {
         if !self.contains(&doc_id) {
             return Err(doc_not_found());
         }

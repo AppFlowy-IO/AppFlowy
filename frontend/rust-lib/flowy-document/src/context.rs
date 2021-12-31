@@ -1,13 +1,13 @@
 use crate::{
     errors::FlowyError,
     services::{
-        controller::DocController,
-        doc::{edit::ClientDocEditor, DocumentWSReceivers, DocumentWebSocket},
+        controller::DocumentController,
+        doc::{DocumentWSReceivers, DocumentWebSocket},
         server::construct_doc_server,
     },
 };
 use backend_service::configuration::ClientServerConfiguration;
-use flowy_collaboration::entities::doc::{DocIdentifier, DocumentDelta};
+
 use flowy_database::ConnectionPool;
 use std::sync::Arc;
 
@@ -19,7 +19,7 @@ pub trait DocumentUser: Send + Sync {
 }
 
 pub struct DocumentContext {
-    pub controller: Arc<DocController>,
+    pub controller: Arc<DocumentController>,
     pub user: Arc<dyn DocumentUser>,
 }
 
@@ -31,7 +31,7 @@ impl DocumentContext {
         server_config: &ClientServerConfiguration,
     ) -> DocumentContext {
         let server = construct_doc_server(server_config);
-        let doc_ctrl = Arc::new(DocController::new(server, user.clone(), ws_receivers, ws_sender));
+        let doc_ctrl = Arc::new(DocumentController::new(server, user.clone(), ws_receivers, ws_sender));
         Self {
             controller: doc_ctrl,
             user,

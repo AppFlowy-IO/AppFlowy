@@ -2,7 +2,7 @@ use crate::util::sqlx_ext::SqlBuilder;
 use backend_service::errors::{invalid_params, ServerError};
 use chrono::{DateTime, NaiveDateTime, Utc};
 use flowy_core_data_model::{
-    parser::app::AppId,
+    parser::app::AppIdentify,
     protobuf::{App, ColorStyle, RepeatedView},
 };
 use protobuf::Message;
@@ -106,7 +106,7 @@ fn default_color_style() -> Vec<u8> {
 }
 
 pub(crate) fn check_app_id(id: String) -> Result<Uuid, ServerError> {
-    let app_id = AppId::parse(id).map_err(invalid_params)?;
+    let app_id = AppIdentify::parse(id).map_err(invalid_params)?;
     let app_id = Uuid::parse_str(app_id.as_ref())?;
     Ok(app_id)
 }

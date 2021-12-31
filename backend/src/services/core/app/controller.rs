@@ -10,7 +10,7 @@ use chrono::Utc;
 use flowy_core_data_model::{
     parser::{
         app::{AppDesc, AppName},
-        workspace::WorkspaceId,
+        workspace::WorkspaceIdentify,
     },
     protobuf::{App, CreateAppParams, RepeatedView},
 };
@@ -23,7 +23,7 @@ pub(crate) async fn create_app(
     logged_user: LoggedUser,
 ) -> Result<App, ServerError> {
     let name = AppName::parse(params.take_name()).map_err(invalid_params)?;
-    let workspace_id = WorkspaceId::parse(params.take_workspace_id()).map_err(invalid_params)?;
+    let workspace_id = WorkspaceIdentify::parse(params.take_workspace_id()).map_err(invalid_params)?;
     let user_id = logged_user.as_uuid()?.to_string();
     let desc = AppDesc::parse(params.take_desc()).map_err(invalid_params)?;
 

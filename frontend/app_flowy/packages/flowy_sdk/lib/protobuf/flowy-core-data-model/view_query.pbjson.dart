@@ -18,23 +18,23 @@ const QueryViewRequest$json = const {
 
 /// Descriptor for `QueryViewRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List queryViewRequestDescriptor = $convert.base64Decode('ChBRdWVyeVZpZXdSZXF1ZXN0EhkKCHZpZXdfaWRzGAEgAygJUgd2aWV3SWRz');
-@$core.Deprecated('Use viewIdentifierDescriptor instead')
-const ViewIdentifier$json = const {
-  '1': 'ViewIdentifier',
+@$core.Deprecated('Use viewIdDescriptor instead')
+const ViewId$json = const {
+  '1': 'ViewId',
   '2': const [
     const {'1': 'view_id', '3': 1, '4': 1, '5': 9, '10': 'viewId'},
   ],
 };
 
-/// Descriptor for `ViewIdentifier`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List viewIdentifierDescriptor = $convert.base64Decode('Cg5WaWV3SWRlbnRpZmllchIXCgd2aWV3X2lkGAEgASgJUgZ2aWV3SWQ=');
-@$core.Deprecated('Use viewIdentifiersDescriptor instead')
-const ViewIdentifiers$json = const {
-  '1': 'ViewIdentifiers',
+/// Descriptor for `ViewId`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List viewIdDescriptor = $convert.base64Decode('CgZWaWV3SWQSFwoHdmlld19pZBgBIAEoCVIGdmlld0lk');
+@$core.Deprecated('Use repeatedViewIdDescriptor instead')
+const RepeatedViewId$json = const {
+  '1': 'RepeatedViewId',
   '2': const [
-    const {'1': 'view_ids', '3': 1, '4': 3, '5': 9, '10': 'viewIds'},
+    const {'1': 'items', '3': 1, '4': 3, '5': 9, '10': 'items'},
   ],
 };
 
-/// Descriptor for `ViewIdentifiers`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List viewIdentifiersDescriptor = $convert.base64Decode('Cg9WaWV3SWRlbnRpZmllcnMSGQoIdmlld19pZHMYASADKAlSB3ZpZXdJZHM=');
+/// Descriptor for `RepeatedViewId`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List repeatedViewIdDescriptor = $convert.base64Decode('Cg5SZXBlYXRlZFZpZXdJZBIUCgVpdGVtcxgBIAMoCVIFaXRlbXM=');

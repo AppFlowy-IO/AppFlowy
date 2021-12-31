@@ -11,7 +11,7 @@ use backend_service::{
 };
 use flowy_collaboration::{
     document::default::initial_delta_string,
-    entities::doc::{CreateDocParams, DocIdentifier, DocumentInfo},
+    entities::doc::{CreateDocParams, DocumentId, DocumentInfo},
 };
 use flowy_core_data_model::entities::prelude::*;
 use flowy_document::services::server::{create_doc_request, read_doc_request};
@@ -68,7 +68,7 @@ impl TestUserServer {
         workspace
     }
 
-    pub async fn read_workspaces(&self, params: WorkspaceIdentifier) -> RepeatedWorkspace {
+    pub async fn read_workspaces(&self, params: WorkspaceId) -> RepeatedWorkspace {
         let url = format!("{}/api/workspace", self.http_addr());
         let workspaces = read_workspaces_request(self.user_token(), params, &url).await.unwrap();
         workspaces
@@ -79,7 +79,7 @@ impl TestUserServer {
         update_workspace_request(self.user_token(), params, &url).await.unwrap();
     }
 
-    pub async fn delete_workspace(&self, params: WorkspaceIdentifier) {
+    pub async fn delete_workspace(&self, params: WorkspaceId) {
         let url = format!("{}/api/workspace", self.http_addr());
         delete_workspace_request(self.user_token(), params, &url).await.unwrap();
     }
@@ -90,7 +90,7 @@ impl TestUserServer {
         app
     }
 
-    pub async fn read_app(&self, params: AppIdentifier) -> Option<App> {
+    pub async fn read_app(&self, params: AppId) -> Option<App> {
         let url = format!("{}/api/app", self.http_addr());
         let app = read_app_request(self.user_token(), params, &url).await.unwrap();
         app
@@ -101,7 +101,7 @@ impl TestUserServer {
         update_app_request(self.user_token(), params, &url).await.unwrap();
     }
 
-    pub async fn delete_app(&self, params: AppIdentifier) {
+    pub async fn delete_app(&self, params: AppId) {
         let url = format!("{}/api/app", self.http_addr());
         delete_app_request(self.user_token(), params, &url).await.unwrap();
     }
@@ -112,7 +112,7 @@ impl TestUserServer {
         view
     }
 
-    pub async fn read_view(&self, params: ViewIdentifier) -> Option<View> {
+    pub async fn read_view(&self, params: ViewId) -> Option<View> {
         let url = format!("{}/api/view", self.http_addr());
         let view = read_view_request(self.user_token(), params, &url).await.unwrap();
         view
@@ -123,13 +123,13 @@ impl TestUserServer {
         update_view_request(self.user_token(), params, &url).await.unwrap();
     }
 
-    pub async fn delete_view(&self, params: ViewIdentifiers) {
+    pub async fn delete_view(&self, params: RepeatedViewId) {
         let url = format!("{}/api/view", self.http_addr());
         delete_view_request(self.user_token(), params, &url).await.unwrap();
     }
 
     pub async fn create_view_trash(&self, view_id: &str) {
-        let identifier = TrashIdentifier {
+        let identifier = TrashId {
             id: view_id.to_string(),
             ty: TrashType::View,
         };
@@ -139,7 +139,7 @@ impl TestUserServer {
             .unwrap();
     }
 
-    pub async fn delete_view_trash(&self, trash_identifiers: TrashIdentifiers) {
+    pub async fn delete_view_trash(&self, trash_identifiers: RepeatedTrashId) {
         let url = format!("{}/api/trash", self.http_addr());
 
         delete_trash_request(self.user_token(), trash_identifiers, &url)
@@ -152,7 +152,7 @@ impl TestUserServer {
         read_trash_request(self.user_token(), &url).await.unwrap()
     }
 
-    pub async fn read_doc(&self, params: DocIdentifier) -> Option<DocumentInfo> {
+    pub async fn read_doc(&self, params: DocumentId) -> Option<DocumentInfo> {
         let url = format!("{}/api/doc", self.http_addr());
         let doc = read_doc_request(self.user_token(), params, &url).await.unwrap();
         doc

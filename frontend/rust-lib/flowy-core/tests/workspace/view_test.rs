@@ -1,6 +1,6 @@
 use flowy_core::entities::{
     app::QueryAppRequest,
-    trash::{TrashIdentifier, TrashType},
+    trash::{TrashId, TrashType},
     view::*,
 };
 use flowy_test::{helper::*, FlowySDKTest};
@@ -28,7 +28,7 @@ async fn view_delete_then_putback() {
     test.delete_views(vec![test.view.id.clone()]).await;
     putback_trash(
         &test.sdk,
-        TrashIdentifier {
+        TrashId {
             id: test.view.id.clone(),
             ty: TrashType::View,
         },
