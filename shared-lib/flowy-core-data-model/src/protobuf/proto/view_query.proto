@@ -3,9 +3,9 @@ syntax = "proto3";
 message QueryViewRequest {
     repeated string view_ids = 1;
 }
-message ViewIdentifier {
+message ViewId {
     string view_id = 1;
 }
-message ViewIdentifiers {
-    repeated string view_ids = 1;
+message RepeatedViewId {
+    repeated string items = 1;
 }

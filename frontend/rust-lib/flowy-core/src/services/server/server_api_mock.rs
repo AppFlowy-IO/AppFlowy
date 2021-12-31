@@ -1,9 +1,9 @@
 use crate::{
     entities::{
-        app::{App, AppIdentifier, CreateAppParams, RepeatedApp, UpdateAppParams},
-        trash::{RepeatedTrash, TrashIdentifiers},
-        view::{CreateViewParams, RepeatedView, UpdateViewParams, View, ViewIdentifier, ViewIdentifiers},
-        workspace::{CreateWorkspaceParams, RepeatedWorkspace, UpdateWorkspaceParams, Workspace, WorkspaceIdentifier},
+        app::{App, AppId, CreateAppParams, RepeatedApp, UpdateAppParams},
+        trash::{RepeatedTrash, RepeatedTrashId},
+        view::{CreateViewParams, RepeatedView, RepeatedViewId, UpdateViewParams, View, ViewId},
+        workspace::{CreateWorkspaceParams, RepeatedWorkspace, UpdateWorkspaceParams, Workspace, WorkspaceId},
     },
     errors::FlowyError,
     services::server::WorkspaceServerAPI,
@@ -29,11 +29,7 @@ impl WorkspaceServerAPI for WorkspaceServerMock {
         FutureResult::new(async { Ok(workspace) })
     }
 
-    fn read_workspace(
-        &self,
-        _token: &str,
-        _params: WorkspaceIdentifier,
-    ) -> FutureResult<RepeatedWorkspace, FlowyError> {
+    fn read_workspace(&self, _token: &str, _params: WorkspaceId) -> FutureResult<RepeatedWorkspace, FlowyError> {
         FutureResult::new(async {
             let repeated_workspace = RepeatedWorkspace { items: vec![] };
             Ok(repeated_workspace)
@@ -44,7 +40,7 @@ impl WorkspaceServerAPI for WorkspaceServerMock {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn delete_workspace(&self, _token: &str, _params: WorkspaceIdentifier) -> FutureResult<(), FlowyError> {
+    fn delete_workspace(&self, _token: &str, _params: WorkspaceId) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 
@@ -64,11 +60,11 @@ impl WorkspaceServerAPI for WorkspaceServerMock {
         FutureResult::new(async { Ok(view) })
     }
 
-    fn read_view(&self, _token: &str, _params: ViewIdentifier) -> FutureResult<Option<View>, FlowyError> {
+    fn read_view(&self, _token: &str, _params: ViewId) -> FutureResult<Option<View>, FlowyError> {
         FutureResult::new(async { Ok(None) })
     }
 
-    fn delete_view(&self, _token: &str, _params: ViewIdentifiers) -> FutureResult<(), FlowyError> {
+    fn delete_view(&self, _token: &str, _params: RepeatedViewId) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 
@@ -91,7 +87,7 @@ impl WorkspaceServerAPI for WorkspaceServerMock {
         FutureResult::new(async { Ok(app) })
     }
 
-    fn read_app(&self, _token: &str, _params: AppIdentifier) -> FutureResult<Option<App>, FlowyError> {
+    fn read_app(&self, _token: &str, _params: AppId) -> FutureResult<Option<App>, FlowyError> {
         FutureResult::new(async { Ok(None) })
     }
 
@@ -99,15 +95,15 @@ impl WorkspaceServerAPI for WorkspaceServerMock {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn delete_app(&self, _token: &str, _params: AppIdentifier) -> FutureResult<(), FlowyError> {
+    fn delete_app(&self, _token: &str, _params: AppId) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn create_trash(&self, _token: &str, _params: TrashIdentifiers) -> FutureResult<(), FlowyError> {
+    fn create_trash(&self, _token: &str, _params: RepeatedTrashId) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn delete_trash(&self, _token: &str, _params: TrashIdentifiers) -> FutureResult<(), FlowyError> {
+    fn delete_trash(&self, _token: &str, _params: RepeatedTrashId) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 

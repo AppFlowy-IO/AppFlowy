@@ -67,7 +67,7 @@ impl AppController {
         Ok(())
     }
 
-    pub(crate) async fn read_app(&self, params: AppIdentifier) -> Result<App, FlowyError> {
+    pub(crate) async fn read_app(&self, params: AppId) -> Result<App, FlowyError> {
         let conn = self.database.db_connection()?;
         let app_table = AppTableSql::read_app(&params.app_id, &*conn)?;
 
@@ -136,7 +136,7 @@ impl AppController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    fn read_app_on_server(&self, params: AppIdentifier) -> Result<(), FlowyError> {
+    fn read_app_on_server(&self, params: AppId) -> Result<(), FlowyError> {
         let token = self.user.token()?;
         let server = self.server.clone();
         let pool = self.database.db_pool()?;

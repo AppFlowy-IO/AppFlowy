@@ -182,7 +182,7 @@ impl ::protobuf::reflect::ProtobufValue for QueryAppRequest {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct AppIdentifier {
+pub struct AppId {
     // message fields
     pub app_id: ::std::string::String,
     // special fields
@@ -190,14 +190,14 @@ pub struct AppIdentifier {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a AppIdentifier {
-    fn default() -> &'a AppIdentifier {
-        <AppIdentifier as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a AppId {
+    fn default() -> &'a AppId {
+        <AppId as ::protobuf::Message>::default_instance()
     }
 }
 
-impl AppIdentifier {
-    pub fn new() -> AppIdentifier {
+impl AppId {
+    pub fn new() -> AppId {
         ::std::default::Default::default()
     }
 
@@ -228,7 +228,7 @@ impl AppIdentifier {
     }
 }
 
-impl ::protobuf::Message for AppIdentifier {
+impl ::protobuf::Message for AppId {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -294,8 +294,8 @@ impl ::protobuf::Message for AppIdentifier {
         Self::descriptor_static()
     }
 
-    fn new() -> AppIdentifier {
-        AppIdentifier::new()
+    fn new() -> AppId {
+        AppId::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -304,37 +304,37 @@ impl ::protobuf::Message for AppIdentifier {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "app_id",
-                |m: &AppIdentifier| { &m.app_id },
-                |m: &mut AppIdentifier| { &mut m.app_id },
+                |m: &AppId| { &m.app_id },
+                |m: &mut AppId| { &mut m.app_id },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<AppIdentifier>(
-                "AppIdentifier",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<AppId>(
+                "AppId",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static AppIdentifier {
-        static instance: ::protobuf::rt::LazyV2<AppIdentifier> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(AppIdentifier::new)
+    fn default_instance() -> &'static AppId {
+        static instance: ::protobuf::rt::LazyV2<AppId> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(AppId::new)
     }
 }
 
-impl ::protobuf::Clear for AppIdentifier {
+impl ::protobuf::Clear for AppId {
     fn clear(&mut self) {
         self.app_id.clear();
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for AppIdentifier {
+impl ::std::fmt::Debug for AppId {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for AppIdentifier {
+impl ::protobuf::reflect::ProtobufValue for AppId {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -342,14 +342,14 @@ impl ::protobuf::reflect::ProtobufValue for AppIdentifier {
 
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x0fapp_query.proto\"*\n\x0fQueryAppRequest\x12\x17\n\x07app_ids\x18\
-    \x01\x20\x03(\tR\x06appIds\"&\n\rAppIdentifier\x12\x15\n\x06app_id\x18\
-    \x01\x20\x01(\tR\x05appIdJ\xbe\x01\n\x06\x12\x04\0\0\x07\x01\n\x08\n\x01\
-    \x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x04\x01\n\n\n\x03\x04\
-    \0\x01\x12\x03\x02\x08\x17\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x20\n\
+    \x01\x20\x03(\tR\x06appIds\"\x1e\n\x05AppId\x12\x15\n\x06app_id\x18\x01\
+    \x20\x01(\tR\x05appIdJ\xbe\x01\n\x06\x12\x04\0\0\x07\x01\n\x08\n\x01\x0c\
+    \x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x04\x01\n\n\n\x03\x04\0\
+    \x01\x12\x03\x02\x08\x17\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04\x20\n\
     \x0c\n\x05\x04\0\x02\0\x04\x12\x03\x03\x04\x0c\n\x0c\n\x05\x04\0\x02\0\
     \x05\x12\x03\x03\r\x13\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x14\x1b\n\
     \x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x1e\x1f\n\n\n\x02\x04\x01\x12\x04\
-    \x05\0\x07\x01\n\n\n\x03\x04\x01\x01\x12\x03\x05\x08\x15\n\x0b\n\x04\x04\
+    \x05\0\x07\x01\n\n\n\x03\x04\x01\x01\x12\x03\x05\x08\r\n\x0b\n\x04\x04\
     \x01\x02\0\x12\x03\x06\x04\x16\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x06\
     \x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x06\x0b\x11\n\x0c\n\x05\x04\
     \x01\x02\0\x03\x12\x03\x06\x14\x15b\x06proto3\

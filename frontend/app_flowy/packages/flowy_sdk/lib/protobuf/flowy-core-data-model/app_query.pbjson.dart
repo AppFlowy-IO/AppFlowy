@@ -18,13 +18,13 @@ const QueryAppRequest$json = const {
 
 /// Descriptor for `QueryAppRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List queryAppRequestDescriptor = $convert.base64Decode('Cg9RdWVyeUFwcFJlcXVlc3QSFwoHYXBwX2lkcxgBIAMoCVIGYXBwSWRz');
-@$core.Deprecated('Use appIdentifierDescriptor instead')
-const AppIdentifier$json = const {
-  '1': 'AppIdentifier',
+@$core.Deprecated('Use appIdDescriptor instead')
+const AppId$json = const {
+  '1': 'AppId',
   '2': const [
     const {'1': 'app_id', '3': 1, '4': 1, '5': 9, '10': 'appId'},
   ],
 };
 
-/// Descriptor for `AppIdentifier`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List appIdentifierDescriptor = $convert.base64Decode('Cg1BcHBJZGVudGlmaWVyEhUKBmFwcF9pZBgBIAEoCVIFYXBwSWQ=');
+/// Descriptor for `AppId`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List appIdDescriptor = $convert.base64Decode('CgVBcHBJZBIVCgZhcHBfaWQYASABKAlSBWFwcElk');

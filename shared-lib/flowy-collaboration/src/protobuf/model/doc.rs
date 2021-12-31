@@ -730,7 +730,7 @@ impl ::protobuf::reflect::ProtobufValue for ResetDocumentParams {
 pub struct DocumentDelta {
     // message fields
     pub doc_id: ::std::string::String,
-    pub text: ::std::string::String,
+    pub delta_json: ::std::string::String,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -773,30 +773,30 @@ impl DocumentDelta {
         ::std::mem::replace(&mut self.doc_id, ::std::string::String::new())
     }
 
-    // string text = 2;
+    // string delta_json = 2;
 
 
-    pub fn get_text(&self) -> &str {
-        &self.text
+    pub fn get_delta_json(&self) -> &str {
+        &self.delta_json
     }
-    pub fn clear_text(&mut self) {
-        self.text.clear();
+    pub fn clear_delta_json(&mut self) {
+        self.delta_json.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_text(&mut self, v: ::std::string::String) {
-        self.text = v;
+    pub fn set_delta_json(&mut self, v: ::std::string::String) {
+        self.delta_json = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_text(&mut self) -> &mut ::std::string::String {
-        &mut self.text
+    pub fn mut_delta_json(&mut self) -> &mut ::std::string::String {
+        &mut self.delta_json
     }
 
     // Take field
-    pub fn take_text(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.text, ::std::string::String::new())
+    pub fn take_delta_json(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.delta_json, ::std::string::String::new())
     }
 }
 
@@ -813,7 +813,7 @@ impl ::protobuf::Message for DocumentDelta {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.doc_id)?;
                 },
                 2 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.text)?;
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.delta_json)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -830,8 +830,8 @@ impl ::protobuf::Message for DocumentDelta {
         if !self.doc_id.is_empty() {
             my_size += ::protobuf::rt::string_size(1, &self.doc_id);
         }
-        if !self.text.is_empty() {
-            my_size += ::protobuf::rt::string_size(2, &self.text);
+        if !self.delta_json.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.delta_json);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -842,8 +842,8 @@ impl ::protobuf::Message for DocumentDelta {
         if !self.doc_id.is_empty() {
             os.write_string(1, &self.doc_id)?;
         }
-        if !self.text.is_empty() {
-            os.write_string(2, &self.text)?;
+        if !self.delta_json.is_empty() {
+            os.write_string(2, &self.delta_json)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -889,9 +889,9 @@ impl ::protobuf::Message for DocumentDelta {
                 |m: &mut DocumentDelta| { &mut m.doc_id },
             ));
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "text",
-                |m: &DocumentDelta| { &m.text },
-                |m: &mut DocumentDelta| { &mut m.text },
+                "delta_json",
+                |m: &DocumentDelta| { &m.delta_json },
+                |m: &mut DocumentDelta| { &mut m.delta_json },
             ));
             ::protobuf::reflect::MessageDescriptor::new_pb_name::<DocumentDelta>(
                 "DocumentDelta",
@@ -910,7 +910,7 @@ impl ::protobuf::Message for DocumentDelta {
 impl ::protobuf::Clear for DocumentDelta {
     fn clear(&mut self) {
         self.doc_id.clear();
-        self.text.clear();
+        self.delta_json.clear();
         self.unknown_fields.clear();
     }
 }
@@ -1164,7 +1164,7 @@ impl ::protobuf::reflect::ProtobufValue for NewDocUser {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct DocIdentifier {
+pub struct DocumentId {
     // message fields
     pub doc_id: ::std::string::String,
     // special fields
@@ -1172,14 +1172,14 @@ pub struct DocIdentifier {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a DocIdentifier {
-    fn default() -> &'a DocIdentifier {
-        <DocIdentifier as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a DocumentId {
+    fn default() -> &'a DocumentId {
+        <DocumentId as ::protobuf::Message>::default_instance()
     }
 }
 
-impl DocIdentifier {
-    pub fn new() -> DocIdentifier {
+impl DocumentId {
+    pub fn new() -> DocumentId {
         ::std::default::Default::default()
     }
 
@@ -1210,7 +1210,7 @@ impl DocIdentifier {
     }
 }
 
-impl ::protobuf::Message for DocIdentifier {
+impl ::protobuf::Message for DocumentId {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -1276,8 +1276,8 @@ impl ::protobuf::Message for DocIdentifier {
         Self::descriptor_static()
     }
 
-    fn new() -> DocIdentifier {
-        DocIdentifier::new()
+    fn new() -> DocumentId {
+        DocumentId::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -1286,37 +1286,37 @@ impl ::protobuf::Message for DocIdentifier {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "doc_id",
-                |m: &DocIdentifier| { &m.doc_id },
-                |m: &mut DocIdentifier| { &mut m.doc_id },
+                |m: &DocumentId| { &m.doc_id },
+                |m: &mut DocumentId| { &mut m.doc_id },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<DocIdentifier>(
-                "DocIdentifier",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<DocumentId>(
+                "DocumentId",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static DocIdentifier {
-        static instance: ::protobuf::rt::LazyV2<DocIdentifier> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(DocIdentifier::new)
+    fn default_instance() -> &'static DocumentId {
+        static instance: ::protobuf::rt::LazyV2<DocumentId> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(DocumentId::new)
     }
 }
 
-impl ::protobuf::Clear for DocIdentifier {
+impl ::protobuf::Clear for DocumentId {
     fn clear(&mut self) {
         self.doc_id.clear();
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for DocIdentifier {
+impl ::std::fmt::Debug for DocumentId {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for DocIdentifier {
+impl ::protobuf::reflect::ProtobufValue for DocumentId {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -1330,12 +1330,12 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x04text\x12\x15\n\x06rev_id\x18\x03\x20\x01(\x03R\x05revId\x12\x1e\n\
     \x0bbase_rev_id\x18\x04\x20\x01(\x03R\tbaseRevId\"]\n\x13ResetDocumentPa\
     rams\x12\x15\n\x06doc_id\x18\x01\x20\x01(\tR\x05docId\x12/\n\trevisions\
-    \x18\x02\x20\x01(\x0b2\x11.RepeatedRevisionR\trevisions\":\n\rDocumentDe\
-    lta\x12\x15\n\x06doc_id\x18\x01\x20\x01(\tR\x05docId\x12\x12\n\x04text\
-    \x18\x02\x20\x01(\tR\x04text\"S\n\nNewDocUser\x12\x17\n\x07user_id\x18\
-    \x01\x20\x01(\tR\x06userId\x12\x15\n\x06rev_id\x18\x02\x20\x01(\x03R\x05\
-    revId\x12\x15\n\x06doc_id\x18\x03\x20\x01(\tR\x05docId\"&\n\rDocIdentifi\
-    er\x12\x15\n\x06doc_id\x18\x01\x20\x01(\tR\x05docIdJ\xaf\x07\n\x06\x12\
+    \x18\x02\x20\x01(\x0b2\x11.RepeatedRevisionR\trevisions\"E\n\rDocumentDe\
+    lta\x12\x15\n\x06doc_id\x18\x01\x20\x01(\tR\x05docId\x12\x1d\n\ndelta_js\
+    on\x18\x02\x20\x01(\tR\tdeltaJson\"S\n\nNewDocUser\x12\x17\n\x07user_id\
+    \x18\x01\x20\x01(\tR\x06userId\x12\x15\n\x06rev_id\x18\x02\x20\x01(\x03R\
+    \x05revId\x12\x15\n\x06doc_id\x18\x03\x20\x01(\tR\x05docId\"#\n\nDocumen\
+    tId\x12\x15\n\x06doc_id\x18\x01\x20\x01(\tR\x05docIdJ\xaf\x07\n\x06\x12\
     \x04\0\0\x1c\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\t\n\x02\x03\0\x12\x03\
     \x01\0\x18\n\n\n\x02\x04\0\x12\x04\x03\0\x06\x01\n\n\n\x03\x04\0\x01\x12\
     \x03\x03\x08\x17\n\x0b\n\x04\x04\0\x02\0\x12\x03\x04\x04\x12\n\x0c\n\x05\
@@ -1366,9 +1366,9 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x03\x01\x12\x03\x11\x08\x15\n\x0b\n\x04\x04\x03\x02\0\x12\x03\x12\x04\
     \x16\n\x0c\n\x05\x04\x03\x02\0\x05\x12\x03\x12\x04\n\n\x0c\n\x05\x04\x03\
     \x02\0\x01\x12\x03\x12\x0b\x11\n\x0c\n\x05\x04\x03\x02\0\x03\x12\x03\x12\
-    \x14\x15\n\x0b\n\x04\x04\x03\x02\x01\x12\x03\x13\x04\x14\n\x0c\n\x05\x04\
+    \x14\x15\n\x0b\n\x04\x04\x03\x02\x01\x12\x03\x13\x04\x1a\n\x0c\n\x05\x04\
     \x03\x02\x01\x05\x12\x03\x13\x04\n\n\x0c\n\x05\x04\x03\x02\x01\x01\x12\
-    \x03\x13\x0b\x0f\n\x0c\n\x05\x04\x03\x02\x01\x03\x12\x03\x13\x12\x13\n\n\
+    \x03\x13\x0b\x15\n\x0c\n\x05\x04\x03\x02\x01\x03\x12\x03\x13\x18\x19\n\n\
     \n\x02\x04\x04\x12\x04\x15\0\x19\x01\n\n\n\x03\x04\x04\x01\x12\x03\x15\
     \x08\x12\n\x0b\n\x04\x04\x04\x02\0\x12\x03\x16\x04\x17\n\x0c\n\x05\x04\
     \x04\x02\0\x05\x12\x03\x16\x04\n\n\x0c\n\x05\x04\x04\x02\0\x01\x12\x03\
@@ -1379,7 +1379,7 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x02\x02\x12\x03\x18\x04\x16\n\x0c\n\x05\x04\x04\x02\x02\x05\x12\x03\x18\
     \x04\n\n\x0c\n\x05\x04\x04\x02\x02\x01\x12\x03\x18\x0b\x11\n\x0c\n\x05\
     \x04\x04\x02\x02\x03\x12\x03\x18\x14\x15\n\n\n\x02\x04\x05\x12\x04\x1a\0\
-    \x1c\x01\n\n\n\x03\x04\x05\x01\x12\x03\x1a\x08\x15\n\x0b\n\x04\x04\x05\
+    \x1c\x01\n\n\n\x03\x04\x05\x01\x12\x03\x1a\x08\x12\n\x0b\n\x04\x04\x05\
     \x02\0\x12\x03\x1b\x04\x16\n\x0c\n\x05\x04\x05\x02\0\x05\x12\x03\x1b\x04\
     \n\n\x0c\n\x05\x04\x05\x02\0\x01\x12\x03\x1b\x0b\x11\n\x0c\n\x05\x04\x05\
     \x02\0\x03\x12\x03\x1b\x14\x15b\x06proto3\

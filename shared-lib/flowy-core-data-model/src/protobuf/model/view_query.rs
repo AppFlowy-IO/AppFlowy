@@ -182,7 +182,7 @@ impl ::protobuf::reflect::ProtobufValue for QueryViewRequest {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct ViewIdentifier {
+pub struct ViewId {
     // message fields
     pub view_id: ::std::string::String,
     // special fields
@@ -190,14 +190,14 @@ pub struct ViewIdentifier {
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a ViewIdentifier {
-    fn default() -> &'a ViewIdentifier {
-        <ViewIdentifier as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a ViewId {
+    fn default() -> &'a ViewId {
+        <ViewId as ::protobuf::Message>::default_instance()
     }
 }
 
-impl ViewIdentifier {
-    pub fn new() -> ViewIdentifier {
+impl ViewId {
+    pub fn new() -> ViewId {
         ::std::default::Default::default()
     }
 
@@ -228,7 +228,7 @@ impl ViewIdentifier {
     }
 }
 
-impl ::protobuf::Message for ViewIdentifier {
+impl ::protobuf::Message for ViewId {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -294,8 +294,8 @@ impl ::protobuf::Message for ViewIdentifier {
         Self::descriptor_static()
     }
 
-    fn new() -> ViewIdentifier {
-        ViewIdentifier::new()
+    fn new() -> ViewId {
+        ViewId::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -304,89 +304,89 @@ impl ::protobuf::Message for ViewIdentifier {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                 "view_id",
-                |m: &ViewIdentifier| { &m.view_id },
-                |m: &mut ViewIdentifier| { &mut m.view_id },
+                |m: &ViewId| { &m.view_id },
+                |m: &mut ViewId| { &mut m.view_id },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<ViewIdentifier>(
-                "ViewIdentifier",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<ViewId>(
+                "ViewId",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static ViewIdentifier {
-        static instance: ::protobuf::rt::LazyV2<ViewIdentifier> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(ViewIdentifier::new)
+    fn default_instance() -> &'static ViewId {
+        static instance: ::protobuf::rt::LazyV2<ViewId> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(ViewId::new)
     }
 }
 
-impl ::protobuf::Clear for ViewIdentifier {
+impl ::protobuf::Clear for ViewId {
     fn clear(&mut self) {
         self.view_id.clear();
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for ViewIdentifier {
+impl ::std::fmt::Debug for ViewId {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for ViewIdentifier {
+impl ::protobuf::reflect::ProtobufValue for ViewId {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct ViewIdentifiers {
+pub struct RepeatedViewId {
     // message fields
-    pub view_ids: ::protobuf::RepeatedField<::std::string::String>,
+    pub items: ::protobuf::RepeatedField<::std::string::String>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
 }
 
-impl<'a> ::std::default::Default for &'a ViewIdentifiers {
-    fn default() -> &'a ViewIdentifiers {
-        <ViewIdentifiers as ::protobuf::Message>::default_instance()
+impl<'a> ::std::default::Default for &'a RepeatedViewId {
+    fn default() -> &'a RepeatedViewId {
+        <RepeatedViewId as ::protobuf::Message>::default_instance()
     }
 }
 
-impl ViewIdentifiers {
-    pub fn new() -> ViewIdentifiers {
+impl RepeatedViewId {
+    pub fn new() -> RepeatedViewId {
         ::std::default::Default::default()
     }
 
-    // repeated string view_ids = 1;
+    // repeated string items = 1;
 
 
-    pub fn get_view_ids(&self) -> &[::std::string::String] {
-        &self.view_ids
+    pub fn get_items(&self) -> &[::std::string::String] {
+        &self.items
     }
-    pub fn clear_view_ids(&mut self) {
-        self.view_ids.clear();
+    pub fn clear_items(&mut self) {
+        self.items.clear();
     }
 
     // Param is passed by value, moved
-    pub fn set_view_ids(&mut self, v: ::protobuf::RepeatedField<::std::string::String>) {
-        self.view_ids = v;
+    pub fn set_items(&mut self, v: ::protobuf::RepeatedField<::std::string::String>) {
+        self.items = v;
     }
 
     // Mutable pointer to the field.
-    pub fn mut_view_ids(&mut self) -> &mut ::protobuf::RepeatedField<::std::string::String> {
-        &mut self.view_ids
+    pub fn mut_items(&mut self) -> &mut ::protobuf::RepeatedField<::std::string::String> {
+        &mut self.items
     }
 
     // Take field
-    pub fn take_view_ids(&mut self) -> ::protobuf::RepeatedField<::std::string::String> {
-        ::std::mem::replace(&mut self.view_ids, ::protobuf::RepeatedField::new())
+    pub fn take_items(&mut self) -> ::protobuf::RepeatedField<::std::string::String> {
+        ::std::mem::replace(&mut self.items, ::protobuf::RepeatedField::new())
     }
 }
 
-impl ::protobuf::Message for ViewIdentifiers {
+impl ::protobuf::Message for RepeatedViewId {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -396,7 +396,7 @@ impl ::protobuf::Message for ViewIdentifiers {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_repeated_string_into(wire_type, is, &mut self.view_ids)?;
+                    ::protobuf::rt::read_repeated_string_into(wire_type, is, &mut self.items)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -410,7 +410,7 @@ impl ::protobuf::Message for ViewIdentifiers {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        for value in &self.view_ids {
+        for value in &self.items {
             my_size += ::protobuf::rt::string_size(1, &value);
         };
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
@@ -419,7 +419,7 @@ impl ::protobuf::Message for ViewIdentifiers {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        for v in &self.view_ids {
+        for v in &self.items {
             os.write_string(1, &v)?;
         };
         os.write_unknown_fields(self.get_unknown_fields())?;
@@ -452,8 +452,8 @@ impl ::protobuf::Message for ViewIdentifiers {
         Self::descriptor_static()
     }
 
-    fn new() -> ViewIdentifiers {
-        ViewIdentifiers::new()
+    fn new() -> RepeatedViewId {
+        RepeatedViewId::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -461,38 +461,38 @@ impl ::protobuf::Message for ViewIdentifiers {
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
             fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "view_ids",
-                |m: &ViewIdentifiers| { &m.view_ids },
-                |m: &mut ViewIdentifiers| { &mut m.view_ids },
+                "items",
+                |m: &RepeatedViewId| { &m.items },
+                |m: &mut RepeatedViewId| { &mut m.items },
             ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<ViewIdentifiers>(
-                "ViewIdentifiers",
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<RepeatedViewId>(
+                "RepeatedViewId",
                 fields,
                 file_descriptor_proto()
             )
         })
     }
 
-    fn default_instance() -> &'static ViewIdentifiers {
-        static instance: ::protobuf::rt::LazyV2<ViewIdentifiers> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(ViewIdentifiers::new)
+    fn default_instance() -> &'static RepeatedViewId {
+        static instance: ::protobuf::rt::LazyV2<RepeatedViewId> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(RepeatedViewId::new)
     }
 }
 
-impl ::protobuf::Clear for ViewIdentifiers {
+impl ::protobuf::Clear for RepeatedViewId {
     fn clear(&mut self) {
-        self.view_ids.clear();
+        self.items.clear();
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for ViewIdentifiers {
+impl ::std::fmt::Debug for RepeatedViewId {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for ViewIdentifiers {
+impl ::protobuf::reflect::ProtobufValue for RepeatedViewId {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Message(self)
     }
@@ -500,23 +500,23 @@ impl ::protobuf::reflect::ProtobufValue for ViewIdentifiers {
 
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x10view_query.proto\"-\n\x10QueryViewRequest\x12\x19\n\x08view_ids\
-    \x18\x01\x20\x03(\tR\x07viewIds\")\n\x0eViewIdentifier\x12\x17\n\x07view\
-    _id\x18\x01\x20\x01(\tR\x06viewId\",\n\x0fViewIdentifiers\x12\x19\n\x08v\
-    iew_ids\x18\x01\x20\x03(\tR\x07viewIdsJ\x9b\x02\n\x06\x12\x04\0\0\n\x01\
-    \n\x08\n\x01\x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x04\x01\n\
-    \n\n\x03\x04\0\x01\x12\x03\x02\x08\x18\n\x0b\n\x04\x04\0\x02\0\x12\x03\
-    \x03\x04!\n\x0c\n\x05\x04\0\x02\0\x04\x12\x03\x03\x04\x0c\n\x0c\n\x05\
-    \x04\0\x02\0\x05\x12\x03\x03\r\x13\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\
-    \x03\x14\x1c\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x1f\x20\n\n\n\x02\
-    \x04\x01\x12\x04\x05\0\x07\x01\n\n\n\x03\x04\x01\x01\x12\x03\x05\x08\x16\
-    \n\x0b\n\x04\x04\x01\x02\0\x12\x03\x06\x04\x17\n\x0c\n\x05\x04\x01\x02\0\
-    \x05\x12\x03\x06\x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x06\x0b\x12\
-    \n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03\x06\x15\x16\n\n\n\x02\x04\x02\x12\
-    \x04\x08\0\n\x01\n\n\n\x03\x04\x02\x01\x12\x03\x08\x08\x17\n\x0b\n\x04\
-    \x04\x02\x02\0\x12\x03\t\x04!\n\x0c\n\x05\x04\x02\x02\0\x04\x12\x03\t\
-    \x04\x0c\n\x0c\n\x05\x04\x02\x02\0\x05\x12\x03\t\r\x13\n\x0c\n\x05\x04\
-    \x02\x02\0\x01\x12\x03\t\x14\x1c\n\x0c\n\x05\x04\x02\x02\0\x03\x12\x03\t\
-    \x1f\x20b\x06proto3\
+    \x18\x01\x20\x03(\tR\x07viewIds\"!\n\x06ViewId\x12\x17\n\x07view_id\x18\
+    \x01\x20\x01(\tR\x06viewId\"&\n\x0eRepeatedViewId\x12\x14\n\x05items\x18\
+    \x01\x20\x03(\tR\x05itemsJ\x9b\x02\n\x06\x12\x04\0\0\n\x01\n\x08\n\x01\
+    \x0c\x12\x03\0\0\x12\n\n\n\x02\x04\0\x12\x04\x02\0\x04\x01\n\n\n\x03\x04\
+    \0\x01\x12\x03\x02\x08\x18\n\x0b\n\x04\x04\0\x02\0\x12\x03\x03\x04!\n\
+    \x0c\n\x05\x04\0\x02\0\x04\x12\x03\x03\x04\x0c\n\x0c\n\x05\x04\0\x02\0\
+    \x05\x12\x03\x03\r\x13\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x03\x14\x1c\n\
+    \x0c\n\x05\x04\0\x02\0\x03\x12\x03\x03\x1f\x20\n\n\n\x02\x04\x01\x12\x04\
+    \x05\0\x07\x01\n\n\n\x03\x04\x01\x01\x12\x03\x05\x08\x0e\n\x0b\n\x04\x04\
+    \x01\x02\0\x12\x03\x06\x04\x17\n\x0c\n\x05\x04\x01\x02\0\x05\x12\x03\x06\
+    \x04\n\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x06\x0b\x12\n\x0c\n\x05\x04\
+    \x01\x02\0\x03\x12\x03\x06\x15\x16\n\n\n\x02\x04\x02\x12\x04\x08\0\n\x01\
+    \n\n\n\x03\x04\x02\x01\x12\x03\x08\x08\x16\n\x0b\n\x04\x04\x02\x02\0\x12\
+    \x03\t\x04\x1e\n\x0c\n\x05\x04\x02\x02\0\x04\x12\x03\t\x04\x0c\n\x0c\n\
+    \x05\x04\x02\x02\0\x05\x12\x03\t\r\x13\n\x0c\n\x05\x04\x02\x02\0\x01\x12\
+    \x03\t\x14\x19\n\x0c\n\x05\x04\x02\x02\0\x03\x12\x03\t\x1c\x1db\x06proto\
+    3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

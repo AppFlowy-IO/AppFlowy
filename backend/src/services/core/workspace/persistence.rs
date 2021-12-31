@@ -1,7 +1,7 @@
 use crate::util::sqlx_ext::SqlBuilder;
 use backend_service::errors::{invalid_params, ServerError};
 use chrono::{DateTime, NaiveDateTime, Utc};
-use flowy_core_data_model::{parser::workspace::WorkspaceId, protobuf::Workspace};
+use flowy_core_data_model::{parser::workspace::WorkspaceIdentify, protobuf::Workspace};
 use sqlx::postgres::PgArguments;
 use uuid::Uuid;
 
@@ -69,7 +69,7 @@ impl NewWorkspaceBuilder {
 }
 
 pub(crate) fn check_workspace_id(id: String) -> Result<Uuid, ServerError> {
-    let workspace_id = WorkspaceId::parse(id).map_err(invalid_params)?;
+    let workspace_id = WorkspaceIdentify::parse(id).map_err(invalid_params)?;
     let workspace_id = Uuid::parse_str(workspace_id.as_ref())?;
     Ok(workspace_id)
 }

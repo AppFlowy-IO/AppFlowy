@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-message TrashIdentifiers {
-    repeated TrashIdentifier items = 1;
+message RepeatedTrashId {
+    repeated TrashId items = 1;
     bool delete_all = 2;
 }
-message TrashIdentifier {
+message TrashId {
     string id = 1;
     TrashType ty = 2;
 }

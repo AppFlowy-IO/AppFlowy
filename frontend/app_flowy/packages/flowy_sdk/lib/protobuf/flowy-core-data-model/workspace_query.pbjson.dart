@@ -21,9 +21,9 @@ const QueryWorkspaceRequest$json = const {
 
 /// Descriptor for `QueryWorkspaceRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List queryWorkspaceRequestDescriptor = $convert.base64Decode('ChVRdWVyeVdvcmtzcGFjZVJlcXVlc3QSIwoMd29ya3NwYWNlX2lkGAEgASgJSABSC3dvcmtzcGFjZUlkQhUKE29uZV9vZl93b3Jrc3BhY2VfaWQ=');
-@$core.Deprecated('Use workspaceIdentifierDescriptor instead')
-const WorkspaceIdentifier$json = const {
-  '1': 'WorkspaceIdentifier',
+@$core.Deprecated('Use workspaceIdDescriptor instead')
+const WorkspaceId$json = const {
+  '1': 'WorkspaceId',
   '2': const [
     const {'1': 'workspace_id', '3': 1, '4': 1, '5': 9, '9': 0, '10': 'workspaceId'},
   ],
@@ -32,5 +32,5 @@ const WorkspaceIdentifier$json = const {
   ],
 };
 
-/// Descriptor for `WorkspaceIdentifier`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List workspaceIdentifierDescriptor = $convert.base64Decode('ChNXb3Jrc3BhY2VJZGVudGlmaWVyEiMKDHdvcmtzcGFjZV9pZBgBIAEoCUgAUgt3b3Jrc3BhY2VJZEIVChNvbmVfb2Zfd29ya3NwYWNlX2lk');
+/// Descriptor for `WorkspaceId`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List workspaceIdDescriptor = $convert.base64Decode('CgtXb3Jrc3BhY2VJZBIjCgx3b3Jrc3BhY2VfaWQYASABKAlIAFILd29ya3NwYWNlSWRCFQoTb25lX29mX3dvcmtzcGFjZV9pZA==');

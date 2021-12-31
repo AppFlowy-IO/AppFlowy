@@ -9,10 +9,7 @@ use crate::{
 use bytes::Bytes;
 use flowy_collaboration::{
     document::history::UndoResult,
-    entities::{
-        doc::DocumentDelta,
-        revision::{RevId, RevType, Revision},
-    },
+    entities::revision::{RevId, RevType, Revision},
     errors::CollaborateResult,
 };
 use flowy_database::ConnectionPool;
@@ -24,7 +21,7 @@ use lib_ot::{
 use std::sync::Arc;
 use tokio::sync::{mpsc, mpsc::UnboundedSender, oneshot};
 
-pub struct ClientDocEditor {
+pub struct ClientDocumentEditor {
     pub doc_id: String,
     rev_manager: Arc<RevisionManager>,
     ws_manager: Arc<dyn DocumentWebSocketManager>,
@@ -32,7 +29,7 @@ pub struct ClientDocEditor {
     user: Arc<dyn DocumentUser>,
 }
 
-impl ClientDocEditor {
+impl ClientDocumentEditor {
     pub(crate) async fn new(
         doc_id: &str,
         user: Arc<dyn DocumentUser>,
@@ -143,16 +140,12 @@ impl ClientDocEditor {
         Ok(r)
     }
 
-    pub async fn delta(&self) -> FlowyResult<DocumentDelta> {
-        let (ret, rx) = oneshot::channel::<CollaborateResult<DocumentMD5>>();
+    pub async fn document_json(&self) -> FlowyResult<String> {
+        let (ret, rx) = oneshot::channel::<CollaborateResult<String>>();
         let msg = EditorCommand::ReadDoc { ret };
         let _ = self.edit_queue.send(msg);
-        let data = rx.await.map_err(internal_error)??;
-
-        Ok(DocumentDelta {
-            doc_id: self.doc_id.clone(),
-            text: data,
-        })
+        let json = rx.await.map_err(internal_error)??;
+        Ok(json)
     }
 
     async fn save_local_delta(&self, delta: RichTextDelta, md5: String) -> Result<RevId, FlowyError> {
@@ -173,7 +166,7 @@ impl ClientDocEditor {
     }
 
     #[tracing::instrument(level = "debug", skip(self, data), err)]
-    pub(crate) async fn composing_local_delta(&self, data: Bytes) -> Result<(), FlowyError> {
+    pub(crate) async fn compose_local_delta(&self, data: Bytes) -> Result<(), FlowyError> {
         let delta = RichTextDelta::from_bytes(&data)?;
         let (ret, rx) = oneshot::channel::<CollaborateResult<DocumentMD5>>();
         let msg = EditorCommand::ComposeDelta {
@@ -201,7 +194,7 @@ fn spawn_edit_queue(doc_id: &str, delta: RichTextDelta, _pool: Arc<ConnectionPoo
 }
 
 #[cfg(feature = "flowy_unit_test")]
-impl ClientDocEditor {
+impl ClientDocumentEditor {
     pub async fn doc_json(&self) -> FlowyResult<String> {
         let (ret, rx) = oneshot::channel::<CollaborateResult<DocumentMD5>>();
         let msg = EditorCommand::ReadDoc { ret };

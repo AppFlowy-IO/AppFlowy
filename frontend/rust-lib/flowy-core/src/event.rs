@@ -61,10 +61,10 @@ pub enum WorkspaceEvent {
     #[event(output = "RepeatedTrash")]
     ReadTrash         = 300,
 
-    #[event(input = "TrashIdentifier")]
+    #[event(input = "TrashId")]
     PutbackTrash      = 301,
 
-    #[event(input = "TrashIdentifiers")]
+    #[event(input = "RepeatedTrashId")]
     DeleteTrash       = 302,
 
     #[event()]

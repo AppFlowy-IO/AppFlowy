@@ -1,4 +1,4 @@
-use crate::{errors::ErrorCode, parser::app::AppId};
+use crate::{errors::ErrorCode, parser::app::AppIdentify};
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
 
@@ -9,12 +9,12 @@ pub struct QueryAppRequest {
 }
 
 #[derive(ProtoBuf, Default, Clone, Debug)]
-pub struct AppIdentifier {
+pub struct AppId {
     #[pb(index = 1)]
     pub app_id: String,
 }
 
-impl AppIdentifier {
+impl AppId {
     pub fn new(app_id: &str) -> Self {
         Self {
             app_id: app_id.to_string(),
@@ -22,10 +22,10 @@ impl AppIdentifier {
     }
 }
 
-impl TryInto<AppIdentifier> for QueryAppRequest {
+impl TryInto<AppId> for QueryAppRequest {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<AppIdentifier, Self::Error> {
+    fn try_into(self) -> Result<AppId, Self::Error> {
         debug_assert!(self.app_ids.len() == 1);
         if self.app_ids.len() != 1 {
             log::error!("The len of app_ids should be equal to 1");
@@ -33,7 +33,7 @@ impl TryInto<AppIdentifier> for QueryAppRequest {
         }
 
         let app_id = self.app_ids.first().unwrap().clone();
-        let app_id = AppId::parse(app_id)?.0;
-        Ok(AppIdentifier { app_id })
+        let app_id = AppIdentify::parse(app_id)?.0;
+        Ok(AppId { app_id })
     }
 }

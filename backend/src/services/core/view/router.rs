@@ -21,7 +21,7 @@ use backend_service::{
 };
 use flowy_core_data_model::{
     parser::view::{ViewDesc, ViewName, ViewThumbnail},
-    protobuf::{CreateViewParams, QueryViewRequest, UpdateViewParams, ViewIdentifier},
+    protobuf::{CreateViewParams, QueryViewRequest, UpdateViewParams, ViewId},
 };
 use sqlx::PgPool;
 use std::sync::Arc;
@@ -50,7 +50,7 @@ pub async fn create_handler(
 }
 
 pub async fn read_handler(payload: Payload, pool: Data<PgPool>, user: LoggedUser) -> Result<HttpResponse, ServerError> {
-    let params: ViewIdentifier = parse_from_payload(payload).await?;
+    let params: ViewId = parse_from_payload(payload).await?;
     let view_id = check_view_ids(vec![params.view_id])?.pop().unwrap();
     let mut transaction = pool
         .begin()

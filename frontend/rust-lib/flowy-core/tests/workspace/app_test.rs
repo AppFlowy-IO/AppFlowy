@@ -1,6 +1,6 @@
 use flowy_core::entities::{
     app::QueryAppRequest,
-    trash::{TrashIdentifier, TrashType},
+    trash::{TrashId, TrashType},
     view::*,
 };
 use flowy_test::helper::*;
@@ -22,7 +22,7 @@ async fn app_delete_then_putback() {
     delete_app(&test.sdk, &test.app.id).await;
     putback_trash(
         &test.sdk,
-        TrashIdentifier {
+        TrashId {
             id: test.app.id.clone(),
             ty: TrashType::App,
         },

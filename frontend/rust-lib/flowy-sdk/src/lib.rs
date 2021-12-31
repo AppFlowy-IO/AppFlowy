@@ -53,10 +53,10 @@ fn crate_log_filter(level: Option<String>) -> String {
     let level = level.unwrap_or_else(|| std::env::var("RUST_LOG").unwrap_or_else(|_| "info".to_owned()));
     let mut filters = vec![];
     filters.push(format!("flowy_sdk={}", level));
-    filters.push(format!("flowy_workspace={}", level));
+    filters.push(format!("flowy_core={}", level));
     filters.push(format!("flowy_user={}", level));
     filters.push(format!("flowy_document={}", level));
-    filters.push(format!("flowy_document_infra={}", level));
+    filters.push(format!("flowy_collaboration={}", level));
     filters.push(format!("flowy_net={}", level));
     filters.push(format!("dart_notify={}", level));
     filters.push(format!("lib_ot={}", level));

@@ -4,7 +4,7 @@ use flowy_collaboration::entities::doc::DocumentInfo;
 use flowy_core::{
     entities::{
         app::*,
-        trash::{RepeatedTrash, TrashIdentifier},
+        trash::{RepeatedTrash, TrashId},
         view::*,
         workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest, Workspace, *},
     },
@@ -176,7 +176,7 @@ pub async fn create_app(sdk: &FlowySDKTest, name: &str, desc: &str, workspace_id
 }
 
 pub async fn delete_app(sdk: &FlowySDKTest, app_id: &str) {
-    let delete_app_request = AppIdentifier {
+    let delete_app_request = AppId {
         app_id: app_id.to_string(),
     };
 
@@ -261,7 +261,7 @@ pub async fn read_trash(sdk: &FlowySDKTest) -> RepeatedTrash {
         .parse::<RepeatedTrash>()
 }
 
-pub async fn putback_trash(sdk: &FlowySDKTest, id: TrashIdentifier) {
+pub async fn putback_trash(sdk: &FlowySDKTest, id: TrashId) {
     CoreModuleEventBuilder::new(sdk.clone())
         .event(PutbackTrash)
         .request(id)

@@ -18,7 +18,7 @@ class DocRepository {
   Future<Either<DocumentDelta, FlowyError>> composeDelta({required String data}) {
     final request = DocumentDelta.create()
       ..docId = docId
-      ..text = data;
+      ..deltaJson = data;
     return WorkspaceEventApplyDocDelta(request).send();
   }
 

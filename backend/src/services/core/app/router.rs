@@ -17,7 +17,7 @@ use backend_service::{
 };
 use flowy_core_data_model::{
     parser::app::{AppDesc, AppName},
-    protobuf::{AppIdentifier, CreateAppParams, UpdateAppParams},
+    protobuf::{AppId, CreateAppParams, UpdateAppParams},
 };
 use protobuf::Message;
 use sqlx::PgPool;
@@ -44,7 +44,7 @@ pub async fn create_handler(
 }
 
 pub async fn read_handler(payload: Payload, pool: Data<PgPool>, user: LoggedUser) -> Result<HttpResponse, ServerError> {
-    let params: AppIdentifier = parse_from_payload(payload).await?;
+    let params: AppId = parse_from_payload(payload).await?;
     let app_id = check_app_id(params.app_id)?;
 
     let mut transaction = pool
@@ -96,7 +96,7 @@ pub async fn update_handler(payload: Payload, pool: Data<PgPool>) -> Result<Http
 }
 
 pub async fn delete_handler(payload: Payload, pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {
-    let params: AppIdentifier = parse_from_payload(payload).await?;
+    let params: AppId = parse_from_payload(payload).await?;
     let app_id = check_app_id(params.app_id.to_owned())?;
     let mut transaction = pool
         .begin()

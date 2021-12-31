@@ -317,7 +317,7 @@ class WorkspaceEventReadTrash {
 }
 
 class WorkspaceEventPutbackTrash {
-     TrashIdentifier request;
+     TrashId request;
      WorkspaceEventPutbackTrash(this.request);
 
     Future<Either<Unit, FlowyError>> send() {
@@ -334,7 +334,7 @@ class WorkspaceEventPutbackTrash {
 }
 
 class WorkspaceEventDeleteTrash {
-     TrashIdentifiers request;
+     RepeatedTrashId request;
      WorkspaceEventDeleteTrash(this.request);
 
     Future<Either<Unit, FlowyError>> send() {

@@ -2,7 +2,7 @@ use crate::util::sqlx_ext::SqlBuilder;
 use backend_service::errors::{invalid_params, ServerError};
 use chrono::{DateTime, NaiveDateTime, Utc};
 use flowy_core_data_model::{
-    parser::view::ViewId,
+    parser::view::ViewIdentify,
     protobuf::{RepeatedView, View, ViewType},
 };
 use protobuf::ProtobufEnum;
@@ -34,7 +34,7 @@ impl NewViewSqlBuilder {
     }
 
     pub fn from_view(view: View) -> Result<Self, ServerError> {
-        let view_id = ViewId::parse(view.id).map_err(invalid_params)?;
+        let view_id = ViewIdentify::parse(view.id).map_err(invalid_params)?;
         let view_id = Uuid::parse_str(view_id.as_ref())?;
         let create_time = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(view.create_time, 0), Utc);
         let modified_time = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(view.modified_time, 0), Utc);
@@ -99,7 +99,7 @@ pub(crate) fn check_view_ids(ids: Vec<String>) -> Result<Vec<Uuid>, ServerError>
 }
 
 pub(crate) fn check_view_id(id: String) -> Result<Uuid, ServerError> {
-    let view_id = ViewId::parse(id).map_err(invalid_params)?;
+    let view_id = ViewIdentify::parse(id).map_err(invalid_params)?;
     let view_id = Uuid::parse_str(view_id.as_ref())?;
     Ok(view_id)
 }

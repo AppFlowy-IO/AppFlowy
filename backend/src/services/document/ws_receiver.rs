@@ -14,7 +14,7 @@ use flowy_collaboration::{
         revision::{RepeatedRevision, Revision},
     },
     errors::CollaborateError,
-    protobuf::DocIdentifier,
+    protobuf::DocumentId,
     sync::{DocumentPersistence, ServerDocumentManager},
 };
 use lib_infra::future::BoxResultFuture;
@@ -79,7 +79,7 @@ impl Debug for DocumentPersistenceImpl {
 
 impl DocumentPersistence for DocumentPersistenceImpl {
     fn read_doc(&self, doc_id: &str) -> BoxResultFuture<DocumentInfo, CollaborateError> {
-        let params = DocIdentifier {
+        let params = DocumentId {
             doc_id: doc_id.to_string(),
             ..Default::default()
         };

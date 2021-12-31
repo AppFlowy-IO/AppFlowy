@@ -1,6 +1,6 @@
 use crate::{
     errors::ErrorCode,
-    parser::view::{ViewDesc, ViewId, ViewName, ViewThumbnail},
+    parser::view::{ViewDesc, ViewIdentify, ViewName, ViewThumbnail},
 };
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
@@ -58,7 +58,7 @@ impl TryInto<UpdateViewParams> for UpdateViewRequest {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<UpdateViewParams, Self::Error> {
-        let view_id = ViewId::parse(self.view_id)?.0;
+        let view_id = ViewIdentify::parse(self.view_id)?.0;
 
         let name = match self.name {
             None => None,

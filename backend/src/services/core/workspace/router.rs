@@ -20,7 +20,7 @@ use backend_service::{
 };
 use flowy_core_data_model::{
     parser::workspace::{WorkspaceDesc, WorkspaceName},
-    protobuf::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceIdentifier},
+    protobuf::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceId},
 };
 use sqlx::PgPool;
 
@@ -50,7 +50,7 @@ pub async fn read_handler(
     pool: Data<PgPool>,
     logged_user: LoggedUser,
 ) -> Result<HttpResponse, ServerError> {
-    let params: WorkspaceIdentifier = parse_from_payload(payload).await?;
+    let params: WorkspaceId = parse_from_payload(payload).await?;
     let mut transaction = pool
         .begin()
         .await
@@ -76,7 +76,7 @@ pub async fn delete_handler(
     pool: Data<PgPool>,
     _logged_user: LoggedUser,
 ) -> Result<HttpResponse, ServerError> {
-    let params: WorkspaceIdentifier = parse_from_payload(payload).await?;
+    let params: WorkspaceId = parse_from_payload(payload).await?;
     let workspace_id = check_workspace_id(params.get_workspace_id().to_owned())?;
     let mut transaction = pool
         .begin()

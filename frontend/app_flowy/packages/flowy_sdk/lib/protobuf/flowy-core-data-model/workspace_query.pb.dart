@@ -69,24 +69,24 @@ class QueryWorkspaceRequest extends $pb.GeneratedMessage {
   void clearWorkspaceId() => clearField(1);
 }
 
-enum WorkspaceIdentifier_OneOfWorkspaceId {
+enum WorkspaceId_OneOfWorkspaceId {
   workspaceId, 
   notSet
 }
 
-class WorkspaceIdentifier extends $pb.GeneratedMessage {
-  static const $core.Map<$core.int, WorkspaceIdentifier_OneOfWorkspaceId> _WorkspaceIdentifier_OneOfWorkspaceIdByTag = {
-    1 : WorkspaceIdentifier_OneOfWorkspaceId.workspaceId,
-    0 : WorkspaceIdentifier_OneOfWorkspaceId.notSet
+class WorkspaceId extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, WorkspaceId_OneOfWorkspaceId> _WorkspaceId_OneOfWorkspaceIdByTag = {
+    1 : WorkspaceId_OneOfWorkspaceId.workspaceId,
+    0 : WorkspaceId_OneOfWorkspaceId.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'WorkspaceIdentifier', createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'WorkspaceId', createEmptyInstance: create)
     ..oo(0, [1])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'workspaceId')
     ..hasRequiredFields = false
   ;
 
-  WorkspaceIdentifier._() : super();
-  factory WorkspaceIdentifier({
+  WorkspaceId._() : super();
+  factory WorkspaceId({
     $core.String? workspaceId,
   }) {
     final _result = create();
@@ -95,28 +95,28 @@ class WorkspaceIdentifier extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory WorkspaceIdentifier.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory WorkspaceIdentifier.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory WorkspaceId.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory WorkspaceId.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  WorkspaceIdentifier clone() => WorkspaceIdentifier()..mergeFromMessage(this);
+  WorkspaceId clone() => WorkspaceId()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  WorkspaceIdentifier copyWith(void Function(WorkspaceIdentifier) updates) => super.copyWith((message) => updates(message as WorkspaceIdentifier)) as WorkspaceIdentifier; // ignore: deprecated_member_use
+  WorkspaceId copyWith(void Function(WorkspaceId) updates) => super.copyWith((message) => updates(message as WorkspaceId)) as WorkspaceId; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static WorkspaceIdentifier create() => WorkspaceIdentifier._();
-  WorkspaceIdentifier createEmptyInstance() => create();
-  static $pb.PbList<WorkspaceIdentifier> createRepeated() => $pb.PbList<WorkspaceIdentifier>();
+  static WorkspaceId create() => WorkspaceId._();
+  WorkspaceId createEmptyInstance() => create();
+  static $pb.PbList<WorkspaceId> createRepeated() => $pb.PbList<WorkspaceId>();
   @$core.pragma('dart2js:noInline')
-  static WorkspaceIdentifier getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<WorkspaceIdentifier>(create);
-  static WorkspaceIdentifier? _defaultInstance;
+  static WorkspaceId getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<WorkspaceId>(create);
+  static WorkspaceId? _defaultInstance;
 
-  WorkspaceIdentifier_OneOfWorkspaceId whichOneOfWorkspaceId() => _WorkspaceIdentifier_OneOfWorkspaceIdByTag[$_whichOneof(0)]!;
+  WorkspaceId_OneOfWorkspaceId whichOneOfWorkspaceId() => _WorkspaceId_OneOfWorkspaceIdByTag[$_whichOneof(0)]!;
   void clearOneOfWorkspaceId() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)

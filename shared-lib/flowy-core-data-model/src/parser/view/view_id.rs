@@ -1,10 +1,10 @@
 use crate::errors::ErrorCode;
 
 #[derive(Debug)]
-pub struct ViewId(pub String);
+pub struct ViewIdentify(pub String);
 
-impl ViewId {
-    pub fn parse(s: String) -> Result<ViewId, ErrorCode> {
+impl ViewIdentify {
+    pub fn parse(s: String) -> Result<ViewIdentify, ErrorCode> {
         if s.trim().is_empty() {
             return Err(ErrorCode::ViewIdInvalid);
         }
@@ -13,6 +13,6 @@ impl ViewId {
     }
 }
 
-impl AsRef<str> for ViewId {
+impl AsRef<str> for ViewIdentify {
     fn as_ref(&self) -> &str { &self.0 }
 }
