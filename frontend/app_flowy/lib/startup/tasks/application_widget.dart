@@ -1,5 +1,5 @@
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/presentation/theme/themeProvider.dart';
+import 'package:app_flowy/workspace/presentation/theme/theme_model.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -31,6 +31,7 @@ class AppWidgetTask extends LaunchTask {
     return Future(() => {});
   }
 }
+
 class ApplicationWidget extends StatelessWidget {
   final Widget child;
   const ApplicationWidget({
@@ -40,27 +41,21 @@ class ApplicationWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ChangeNotifierProvider(
-      create: (context) => ThemeProvider(),
+      create: (context) => ThemeModel(),
       builder: (context, _) {
         const ratio = 1.73;
         const minWidth = 800.0;
         setWindowMinSize(const Size(minWidth, minWidth / ratio));
-        // const launchWidth = 1310.0;
-        // setWindowFrame(const Rect.fromLTWH(0, 0, launchWidth, launchWidth / ratio));
 
-        AppTheme theme = AppTheme.fromType(ThemeType.light);
-
-        final themeProvider = Provider.of<ThemeProvider>(context);
+        ThemeType themeType = context.select<ThemeModel, ThemeType>((value) => value.theme);
+        AppTheme theme = AppTheme.fromType(themeType);
 
         return Provider.value(
           value: theme,
           child: MaterialApp(
             builder: overlayManagerBuilder(),
             debugShowCheckedModeBanner: false,
-            themeMode: themeProvider.themeMode,
-            theme: ThemeSwitch.light,
-            // theme: themeProvider.isDarkMode ? ThemeSwitch.dark : ThemeSwitch.light,
-            darkTheme: ThemeSwitch.dark,
+            theme: theme.themeData,
             localizationsDelegates: context.localizationDelegates,
             supportedLocales: context.supportedLocales,
             locale: context.locale,
@@ -69,18 +64,6 @@ class ApplicationWidget extends StatelessWidget {
           ),
         );
       });
-}
-
-class App_Theme extends ChangeNotifier {
-  ThemeType get theme => _theme;
-  ThemeType _theme = ThemeType.light;
-
-  set theme(ThemeType value) {
-    _theme = value;
-    notifyListeners();
-  }
-
-  // return _theme;
 }
 
 class AppGlobals {
