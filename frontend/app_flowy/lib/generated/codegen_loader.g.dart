@@ -15,7 +15,7 @@ class CodegenLoader extends AssetLoader{
   }
 
   static const Map<String,dynamic> en = {
-  "appName": "AppFlowy",
+  "appName": "Appflowy",
   "defaultUsername": "Me",
   "welcomeText": "Welcome to @:appName",
   "githubStarText": "Star on GitHub",
@@ -100,10 +100,6 @@ class CodegenLoader extends AssetLoader{
     "checkList": "Check List",
     "inlineCode": "Inline Code",
     "quote": "Quote Block"
-  },
-  "tooltip": {
-    "lightMode": "Switch to Light mode",
-    "darkMode": "Switch to Dark mode"
   },
   "contactsPage": {
     "title": "Contacts",
@@ -227,10 +223,6 @@ static const Map<String,dynamic> zh_CN = {
     "inlineCode": "内联代码",
     "quote": "块引用"
   },
-  "tooltip": {
-    "lightMode": "切换到灯光模式",
-    "darkMode": "切换到暗模式"
-  },
   "contactsPage": {
     "title": "联系人",
     "whatsHappening": "这周发生了哪些事?",
@@ -266,131 +258,5 @@ static const Map<String,dynamic> zh_CN = {
     }
   }
 };
-static const Map<String,dynamic> it_IT = {
-  "appName": "AppFlowy",
-  "defaultUsername": "Me",
-  "welcomeText": "Benvenuto in @:appName",
-  "githubStarText": "Vota su GitHub",
-  "subscribeNewsletterText": "Sottoscrivi la Newsletter",
-  "letsGoButtonText": "Andiamo",
-  "title": "Titolo",
-  "signUp": {
-    "buttonText": "Registrati",
-    "title": "Registrati per @:appName",
-    "getStartedText": "Iniziamo",
-    "emptyPasswordError": "La password non può essere vuota",
-    "repeatPasswordEmptyError": "La password ripetuta non può essere vuota",
-    "unmatchedPasswordError": "La password ripetuta non è uguale alla password",
-    "alreadyHaveAnAccount": "Hai già un account?",
-    "emailHint": "Email",
-    "passwordHint": "Password",
-    "repeatPasswordHint": "Ripeti password"
-  },
-  "signIn": {
-    "loginTitle": "Accedi a @:appName",
-    "loginButtonText": "Login",
-    "buttonText": "Accedi",
-    "forgotPassword": "Password Dimentica?",
-    "emailHint": "Email",
-    "passwordHint": "Password",
-    "dontHaveAnAccount": "Non hai un account?",
-    "repeatPasswordEmptyError": "La password ripetuta non può essere vuota",
-    "unmatchedPasswordError": "La password ripetuta non è uguale alla password"
-  },
-  "workspace": {
-    "create": "Crea spazio di lavoro",
-    "hint": "spazio di lavoro",
-    "notFoundError": "Spazio di lavoro non trovato"
-  },
-  "shareAction": {
-    "buttonText": "Condividi",
-    "workInProgress": "In corso",
-    "markdown": "Markdown",
-    "copyLink": "Copia Link"
-  },
-  "disclosureAction": {
-    "rename": "Rinomina",
-    "delete": "Cancella",
-    "duplicate": "Duplica"
-  },
-  "blankPageTitle": "Pagina vuota",
-  "newPageText": "Nuova pagina",
-  "trash": {
-    "text": "Cestino",
-    "restoreAll": "Ripristina Tutto",
-    "deleteAll": "Elimina Tutto",
-    "pageHeader": {
-      "fileName": "Nome file",
-      "lastModified": "Ultima Modifica",
-      "created": "Creato"
-    }
-  },
-  "deletePagePrompt": {
-    "text": "Questa pagina è nel Cestino",
-    "restore": "Ripristina pagina",
-    "deletePermanent": "Elimina definitivamente"
-  },
-  "dialogCreatePageNameHint": "Nome pagina",
-  "questionBubble": {
-    "whatsNew": "Cosa c'è di nuovo?",
-    "help": "Aiuto & Supporto"
-  },
-  "menuAppHeader": {
-    "addPageTooltip": "Aggiungi velocemente una pagina all'interno",
-    "defaultNewPageName": "Senza titolo",
-    "renameDialog": "Rinomina"
-  },
-  "toolbar": {
-    "undo": "Undo",
-    "redo": "Redo",
-    "bold": "Grassetto",
-    "italic": "Italico",
-    "underline": "Sottolineato",
-    "strike": "Barrato",
-    "numList": "Lista numerata",
-    "bulletList": "Lista a punti",
-    "checkList": "Lista Controllo",
-    "inlineCode": "Codice in linea",
-    "quote": "Cita Blocco"
-  },
-  "tooltip": {
-    "lightMode": "Passa alla modalità Luce",
-    "darkMode": "Passa alla modalità Buio"
-  },
-  "contactsPage": {
-    "title": "Contatti",
-    "whatsHappening": "Cosa accadrà la prossima settimana?",
-    "addContact": "Aggiungi Contatti",
-    "editContact": "Modifica Contatti"
-  },
-  "button": {
-    "OK": "OK",
-    "Cancel": "Annulla",
-    "signIn": "Accedi",
-    "signOut": "Esci",
-    "complete": "Completa",
-    "save": "Salva"
-  },
-  "label": {
-    "welcome": "Benvenuto!",
-    "firstName": "Name",
-    "middleName": "Secondo Name",
-    "lastName": "Cognome",
-    "stepX": "Passo {X}"
-  },
-  "oAuth": {
-    "err": {
-      "failedTitle": "Impossibile collegarsi al tuo account.",
-      "failedMsg": "Si prega di verificare di aver completato il processo di iscrizione nel tuo browser."
-    },
-    "google": {
-      "title": "GOOGLE SIGN-IN",
-      "instruction1": "Al fine di importare i tuoi Contatti Google è necessario autorizzare questa applicaizone ad utilizzare il tuo beowser web.",
-      "instruction2": "Copia questo codice nella tua clipboard premendo l'icona o selezionando il testo:",
-      "instruction3": "Naviga sul seguente link con il tuo browser web e inserisci il codice seguente:",
-      "instruction4": "Premi il bottono qui sotto quando hai completato l'iscrizione:"
-    }
-  }
-};
-static const Map<String, Map<String,dynamic>> mapLocales = {"en": en, "zh_CN": zh_CN, "it_IT": it_IT};
+static const Map<String, Map<String,dynamic>> mapLocales = {"en": en, "zh_CN": zh_CN};
 }
