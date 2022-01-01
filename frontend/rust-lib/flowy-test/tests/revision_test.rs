@@ -1,4 +1,4 @@
-use flowy_collaboration::entities::revision::RevState;
+use flowy_collaboration::entities::revision::RevisionState;
 use flowy_test::doc_script::{EditorScript::*, *};
 
 #[tokio::test]
@@ -22,8 +22,8 @@ async fn doc_sync_retry_ws_conn() {
         InsertText("3", 2),
         StartWs,
         WaitSyncFinished,
-        AssertRevisionState(2, RevState::Ack),
-        AssertRevisionState(3, RevState::Ack),
+        AssertRevisionState(2, RevisionState::Ack),
+        AssertRevisionState(3, RevisionState::Ack),
         AssertNextRevId(None),
         AssertJson(r#"[{"insert":"123\n"}]"#),
     ];

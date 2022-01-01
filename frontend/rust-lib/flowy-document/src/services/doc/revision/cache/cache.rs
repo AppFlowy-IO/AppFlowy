@@ -4,10 +4,10 @@ use crate::{
         disk::{Persistence, RevisionDiskCache},
         memory::{RevisionMemoryCache, RevisionMemoryCacheDelegate},
     },
-    sql_tables::{RevChangeset, RevTableState},
+    sql_tables::{RevTableState, RevisionChangeset},
 };
 use dashmap::DashMap;
-use flowy_collaboration::entities::revision::{RevState, Revision, RevisionRange};
+use flowy_collaboration::entities::revision::{Revision, RevisionRange, RevisionState};
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyResult};
 use lib_infra::future::FutureResult;
@@ -21,11 +21,9 @@ use std::{
 };
 use tokio::{sync::RwLock, task::spawn_blocking};
 
-type DocRevisionDiskCache = dyn RevisionDiskCache<Error = FlowyError>;
-
 pub struct RevisionCache {
     doc_id: String,
-    pub disk_cache: Arc<DocRevisionDiskCache>,
+    disk_cache: Arc<dyn RevisionDiskCache<Error = FlowyError>>,
     memory_cache: Arc<RevisionMemoryCache>,
     sync_seq: Arc<RevisionSyncSeq>,
     latest_rev_id: AtomicI64,
@@ -46,6 +44,29 @@ impl RevisionCache {
         }
     }
 
+    pub fn read_revisions(&self, doc_id: &str) -> FlowyResult<Vec<RevisionRecord>> {
+        self.disk_cache.read_revisions(doc_id, None)
+    }
+
+    #[tracing::instrument(level = "debug", skip(self, doc_id, revisions))]
+    pub fn reset_document(&self, doc_id: &str, revisions: Vec<Revision>) -> FlowyResult<()> {
+        let disk_cache = self.disk_cache.clone();
+        let conn = disk_cache.db_pool().get().map_err(internal_error)?;
+        let records = revisions
+            .into_iter()
+            .map(|revision| RevisionRecord {
+                revision,
+                state: RevisionState::StateLocal,
+            })
+            .collect::<Vec<_>>();
+
+        conn.immediate_transaction::<_, FlowyError, _>(|| {
+            let _ = disk_cache.delete_revisions(doc_id, None, &*conn)?;
+            let _ = disk_cache.write_revisions(records, &*conn)?;
+            Ok(())
+        })
+    }
+
     #[tracing::instrument(level = "debug", skip(self, revision))]
     pub async fn add_local_revision(&self, revision: Revision) -> FlowyResult<()> {
         if self.memory_cache.contains(&revision.rev_id) {
@@ -54,7 +75,7 @@ impl RevisionCache {
         let rev_id = revision.rev_id;
         let record = RevisionRecord {
             revision,
-            state: RevState::StateLocal,
+            state: RevisionState::StateLocal,
         };
         let _ = self.memory_cache.add_revision(&record).await;
         self.sync_seq.add_revision(record).await?;
@@ -70,7 +91,7 @@ impl RevisionCache {
         let rev_id = revision.rev_id;
         let record = RevisionRecord {
             revision,
-            state: RevState::Ack,
+            state: RevisionState::Ack,
         };
         self.memory_cache.add_revision(&record).await;
         let _ = self.latest_rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(rev_id));
@@ -91,11 +112,13 @@ impl RevisionCache {
 
     pub async fn get_revision(&self, rev_id: i64) -> Option<RevisionRecord> {
         match self.memory_cache.get_revision(&rev_id).await {
-            None => match self.disk_cache.read_revision(&self.doc_id, rev_id) {
-                Ok(Some(revision)) => Some(revision),
-                Ok(None) => {
-                    tracing::warn!("Can't find revision in {} with rev_id: {}", &self.doc_id, rev_id);
-                    None
+            None => match self.disk_cache.read_revisions(&self.doc_id, Some(vec![rev_id])) {
+                Ok(mut records) => {
+                    if records.is_empty() {
+                        tracing::warn!("Can't find revision in {} with rev_id: {}", &self.doc_id, rev_id);
+                    }
+                    assert_eq!(records.len(), 1);
+                    records.pop()
                 },
                 Err(e) => {
                     tracing::error!("{}", e);
@@ -112,7 +135,7 @@ impl RevisionCache {
         if records.len() != range_len {
             let disk_cache = self.disk_cache.clone();
             let doc_id = self.doc_id.clone();
-            records = spawn_blocking(move || disk_cache.revisions_in_range(&doc_id, &range))
+            records = spawn_blocking(move || disk_cache.read_revisions_with_range(&doc_id, &range))
                 .await
                 .map_err(internal_error)??;
 
@@ -134,9 +157,13 @@ impl RevisionCache {
             match sync_seq.next_sync_revision().await {
                 None => match sync_seq.next_sync_rev_id().await {
                     None => Ok(None),
-                    Some(rev_id) => match disk_cache.read_revision(&doc_id, rev_id)? {
-                        None => Ok(None),
-                        Some(record) => Ok(Some(record.revision)),
+                    Some(rev_id) => {
+                        let records = disk_cache.read_revisions(&doc_id, Some(vec![rev_id]))?;
+                        let mut revisions = records
+                            .into_iter()
+                            .map(|record| record.revision)
+                            .collect::<Vec<Revision>>();
+                        Ok(revisions.pop())
                     },
                 },
                 Some((_, record)) => Ok(Some(record.revision)),
@@ -146,10 +173,13 @@ impl RevisionCache {
 }
 
 impl RevisionMemoryCacheDelegate for Arc<Persistence> {
-    fn receive_checkpoint(&self, records: Vec<RevisionRecord>) -> FlowyResult<()> { self.create_revisions(records) }
+    fn receive_checkpoint(&self, records: Vec<RevisionRecord>) -> FlowyResult<()> {
+        let conn = &*self.pool.get().map_err(internal_error)?;
+        self.write_revisions(records, &conn)
+    }
 
     fn receive_ack(&self, doc_id: &str, rev_id: i64) {
-        let changeset = RevChangeset {
+        let changeset = RevisionChangeset {
             doc_id: doc_id.to_string(),
             rev_id: rev_id.into(),
             state: RevTableState::Acked,
@@ -164,11 +194,11 @@ impl RevisionMemoryCacheDelegate for Arc<Persistence> {
 #[derive(Clone)]
 pub struct RevisionRecord {
     pub revision: Revision,
-    pub state: RevState,
+    pub state: RevisionState,
 }
 
 impl RevisionRecord {
-    pub fn ack(&mut self) { self.state = RevState::Ack; }
+    pub fn ack(&mut self) { self.state = RevisionState::Ack; }
 }
 
 struct RevisionSyncSeq {

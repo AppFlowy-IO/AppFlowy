@@ -1,5 +1,5 @@
 use crate::{helper::ViewTest, FlowySDKTest};
-use flowy_collaboration::entities::revision::RevState;
+use flowy_collaboration::entities::revision::RevisionState;
 use flowy_document::services::doc::{edit::ClientDocumentEditor, SYNC_INTERVAL_IN_MILLIS};
 use lib_ot::{core::Interval, rich_text::RichTextDelta};
 use std::sync::Arc;
@@ -12,7 +12,7 @@ pub enum EditorScript {
     Delete(Interval),
     Replace(Interval, &'static str),
 
-    AssertRevisionState(i64, RevState),
+    AssertRevisionState(i64, RevisionState),
     AssertNextRevId(Option<i64>),
     AssertCurrentRevId(i64),
     AssertJson(&'static str),
@@ -30,8 +30,7 @@ impl EditorTest {
         let sdk = FlowySDKTest::setup();
         let _ = sdk.init_user().await;
         let test = ViewTest::new(&sdk).await;
-        let db_pool = sdk.user_session.db_pool().unwrap();
-        let editor = sdk.document_ctx.controller.open(&test.view.id, db_pool).await.unwrap();
+        let editor = sdk.document_ctx.controller.open(&test.view.id).await.unwrap();
         Self { sdk, editor }
     }
 

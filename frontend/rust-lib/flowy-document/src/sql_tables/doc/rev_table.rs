@@ -1,7 +1,7 @@
 use crate::services::doc::revision::RevisionRecord;
 use diesel::sql_types::Integer;
 use flowy_collaboration::{
-    entities::revision::{RevId, RevState, RevType, Revision},
+    entities::revision::{RevId, RevType, Revision, RevisionState},
     util::md5,
 };
 use flowy_database::schema::rev_table;
@@ -48,20 +48,20 @@ impl RevTableState {
 }
 impl_sql_integer_expression!(RevTableState);
 
-impl std::convert::From<RevTableState> for RevState {
+impl std::convert::From<RevTableState> for RevisionState {
     fn from(s: RevTableState) -> Self {
         match s {
-            RevTableState::Local => RevState::StateLocal,
-            RevTableState::Acked => RevState::Ack,
+            RevTableState::Local => RevisionState::StateLocal,
+            RevTableState::Acked => RevisionState::Ack,
         }
     }
 }
 
-impl std::convert::From<RevState> for RevTableState {
-    fn from(s: RevState) -> Self {
+impl std::convert::From<RevisionState> for RevTableState {
+    fn from(s: RevisionState) -> Self {
         match s {
-            RevState::StateLocal => RevTableState::Local,
-            RevState::Ack => RevTableState::Acked,
+            RevisionState::StateLocal => RevTableState::Local,
+            RevisionState::Ack => RevTableState::Acked,
         }
     }
 }
@@ -130,7 +130,7 @@ impl RevTableType {
 }
 impl_sql_integer_expression!(RevTableType);
 
-pub struct RevChangeset {
+pub struct RevisionChangeset {
     pub(crate) doc_id: String,
     pub(crate) rev_id: RevId,
     pub(crate) state: RevTableState,
