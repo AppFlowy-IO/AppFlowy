@@ -9,7 +9,7 @@ use crate::{
 use bytes::Bytes;
 use flowy_collaboration::{
     document::history::UndoResult,
-    entities::revision::{RevId, RevType, Revision},
+    entities::revision::{RevId, Revision},
     errors::CollaborateResult,
 };
 use flowy_database::ConnectionPool;

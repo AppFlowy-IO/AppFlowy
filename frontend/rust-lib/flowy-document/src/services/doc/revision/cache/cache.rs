@@ -6,20 +6,16 @@ use crate::{
     },
     sql_tables::{RevisionChangeset, RevisionTableState},
 };
-use dashmap::DashMap;
+
 use flowy_collaboration::entities::revision::{Revision, RevisionRange, RevisionState};
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyResult};
-use lib_infra::future::FutureResult;
-use lib_ot::errors::OTError;
-use std::{
-    collections::VecDeque,
-    sync::{
-        atomic::{AtomicI64, Ordering::SeqCst},
-        Arc,
-    },
+
+use std::sync::{
+    atomic::{AtomicI64, Ordering::SeqCst},
+    Arc,
 };
-use tokio::{sync::RwLock, task::spawn_blocking};
+use tokio::task::spawn_blocking;
 
 pub struct RevisionCache {
     doc_id: String,
@@ -41,12 +37,21 @@ impl RevisionCache {
         }
     }
 
-    pub async fn add(&self, revision: Revision, state: RevisionState) -> FlowyResult<RevisionRecord> {
+    pub async fn add(
+        &self,
+        revision: Revision,
+        state: RevisionState,
+        write_to_disk: bool,
+    ) -> FlowyResult<RevisionRecord> {
         if self.memory_cache.contains(&revision.rev_id) {
             return Err(FlowyError::internal().context(format!("Duplicate remote revision id: {}", revision.rev_id)));
         }
         let rev_id = revision.rev_id;
-        let record = RevisionRecord { revision, state };
+        let record = RevisionRecord {
+            revision,
+            state,
+            write_to_disk,
+        };
         self.memory_cache.add(&record).await;
         self.set_latest_rev_id(rev_id);
         Ok(record)
@@ -111,6 +116,7 @@ impl RevisionCache {
             .map(|revision| RevisionRecord {
                 revision,
                 state: RevisionState::Local,
+                write_to_disk: true,
             })
             .collect::<Vec<_>>();
 
@@ -128,9 +134,13 @@ impl RevisionCache {
 }
 
 impl RevisionMemoryCacheDelegate for Arc<Persistence> {
-    fn checkpoint_tick(&self, records: Vec<RevisionRecord>) -> FlowyResult<()> {
+    fn checkpoint_tick(&self, mut records: Vec<RevisionRecord>) -> FlowyResult<()> {
         let conn = &*self.pool.get().map_err(internal_error)?;
-        self.write_revision_records(records, &conn)
+        records.retain(|record| record.write_to_disk);
+        if !records.is_empty() {
+            let _ = self.write_revision_records(records, &conn)?;
+        }
+        Ok(())
     }
 
     fn receive_ack(&self, doc_id: &str, rev_id: i64) {
@@ -150,6 +160,7 @@ impl RevisionMemoryCacheDelegate for Arc<Persistence> {
 pub struct RevisionRecord {
     pub revision: Revision,
     pub state: RevisionState,
+    pub write_to_disk: bool,
 }
 
 impl RevisionRecord {
