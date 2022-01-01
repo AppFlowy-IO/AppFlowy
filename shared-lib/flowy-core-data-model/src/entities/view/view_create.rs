@@ -97,8 +97,6 @@ impl CreateViewParams {
             view_id,
         }
     }
-
-    pub fn take_view_data(&mut self) -> String { std::mem::take(&mut self.view_data) }
 }
 
 impl TryInto<CreateViewParams> for CreateViewRequest {

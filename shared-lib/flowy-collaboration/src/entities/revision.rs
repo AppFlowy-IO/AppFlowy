@@ -117,6 +117,8 @@ impl RepeatedRevision {
         Self { items }
     }
 
+    pub fn empty() -> Self { RepeatedRevision { items: vec![] } }
+
     pub fn into_inner(self) -> Vec<Revision> { self.items }
 }
 

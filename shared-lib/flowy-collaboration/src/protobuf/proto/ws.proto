@@ -19,6 +19,7 @@ message NewDocumentUser {
 }
 enum DocumentClientWSDataType {
     ClientPushRev = 0;
+    ClientPing = 1;
 }
 enum DocumentServerWSDataType {
     ServerAck = 0;

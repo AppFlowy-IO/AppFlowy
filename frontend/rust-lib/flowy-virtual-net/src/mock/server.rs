@@ -37,8 +37,14 @@ impl MockDocServer {
                 });
                 let pb_client_data: flowy_collaboration::protobuf::DocumentClientWSData =
                     client_data.try_into().unwrap();
-                self.manager.apply_revisions(user, pb_client_data).await.unwrap();
+                self.manager
+                    .handle_client_revisions(user, pb_client_data)
+                    .await
+                    .unwrap();
                 Some(rx)
+            },
+            DocumentClientWSDataType::ClientPing => {
+                todo!()
             },
         }
     }

@@ -26,7 +26,7 @@ pub trait RevisionServer: Send + Sync {
 }
 
 pub struct RevisionManager {
-    doc_id: String,
+    pub(crate) doc_id: String,
     user_id: String,
     rev_id_counter: RevIdCounter,
     cache: Arc<RevisionCache>,
@@ -67,6 +67,9 @@ impl RevisionManager {
 
     #[tracing::instrument(level = "debug", skip(self, revision))]
     pub async fn add_remote_revision(&self, revision: &Revision) -> Result<(), FlowyError> {
+        if revision.delta_data.is_empty() {
+            return Err(FlowyError::internal().context("Delta data should be empty"));
+        }
         self.rev_id_counter.set(revision.rev_id);
         let _ = self.cache.add(revision.clone(), RevisionState::Ack, true).await?;
         Ok(())
@@ -74,6 +77,10 @@ impl RevisionManager {
 
     #[tracing::instrument(level = "debug", skip(self, revision))]
     pub async fn add_local_revision(&self, revision: &Revision) -> Result<(), FlowyError> {
+        if revision.delta_data.is_empty() {
+            return Err(FlowyError::internal().context("Delta data should be empty"));
+        }
+
         let record = self.cache.add(revision.clone(), RevisionState::Local, true).await?;
         self.sync_seq.add_revision(record).await?;
         Ok(())

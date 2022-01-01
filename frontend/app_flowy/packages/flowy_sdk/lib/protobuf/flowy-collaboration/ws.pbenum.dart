@@ -11,9 +11,11 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 class DocumentClientWSDataType extends $pb.ProtobufEnum {
   static const DocumentClientWSDataType ClientPushRev = DocumentClientWSDataType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ClientPushRev');
+  static const DocumentClientWSDataType ClientPing = DocumentClientWSDataType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'ClientPing');
 
   static const $core.List<DocumentClientWSDataType> values = <DocumentClientWSDataType> [
     ClientPushRev,
+    ClientPing,
   ];
 
   static final $core.Map<$core.int, DocumentClientWSDataType> _byValue = $pb.ProtobufEnum.initByValue(values);

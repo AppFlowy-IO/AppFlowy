@@ -87,17 +87,18 @@ impl DocumentWebSocketActor {
 
         match &document_client_data.ty {
             DocumentClientWSDataType::ClientPushRev => {
-                match self
+                let _ = self
                     .doc_manager
-                    .apply_revisions(user, document_client_data)
+                    .handle_client_revisions(user, document_client_data)
                     .await
-                    .map_err(internal_error)
-                {
-                    Ok(_) => {},
-                    Err(e) => {
-                        tracing::error!("[DocumentWebSocketActor]: process client data failed: {:?}", e);
-                    },
-                }
+                    .map_err(internal_error)?;
+            },
+            DocumentClientWSDataType::ClientPing => {
+                let _ = self
+                    .doc_manager
+                    .handle_client_ping(user, document_client_data)
+                    .await
+                    .map_err(internal_error)?;
             },
         }
 

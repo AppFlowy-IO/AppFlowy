@@ -62,8 +62,8 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self, params), fields(name = %params.name), err)]
-    pub(crate) async fn create_view_from_params(&self, mut params: CreateViewParams) -> Result<View, FlowyError> {
-        let delta_data = Bytes::from(params.take_view_data());
+    pub(crate) async fn create_view_from_params(&self, params: CreateViewParams) -> Result<View, FlowyError> {
+        let delta_data = Bytes::from(params.view_data.clone());
         let user_id = self.user.user_id()?;
         let repeated_revision: RepeatedRevision =
             Revision::initial_revision(&user_id, &params.view_id, delta_data).into();
