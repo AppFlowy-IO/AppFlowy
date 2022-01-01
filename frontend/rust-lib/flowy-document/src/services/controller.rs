@@ -14,7 +14,10 @@ use crate::{
 };
 use bytes::Bytes;
 use dashmap::DashMap;
-use flowy_collaboration::entities::doc::{DocumentDelta, DocumentId, DocumentInfo};
+use flowy_collaboration::entities::{
+    doc::{DocumentDelta, DocumentId, DocumentInfo},
+    revision::RepeatedRevision,
+};
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use lib_infra::future::FutureResult;
@@ -52,19 +55,11 @@ impl DocumentController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, doc_id, pool), fields(doc_id), err)]
-    pub async fn open<T: AsRef<str>>(
-        &self,
-        doc_id: T,
-        pool: Arc<ConnectionPool>,
-    ) -> Result<Arc<ClientDocumentEditor>, FlowyError> {
+    #[tracing::instrument(level = "debug", skip(self, doc_id), fields(doc_id), err)]
+    pub async fn open<T: AsRef<str>>(&self, doc_id: T) -> Result<Arc<ClientDocumentEditor>, FlowyError> {
         let doc_id = doc_id.as_ref();
         tracing::Span::current().record("doc_id", &doc_id);
-        if !self.open_cache.contains(doc_id) {
-            let editor = self.make_editor(doc_id, pool.clone()).await?;
-            return Ok(editor);
-        }
-        self.open_cache.get(doc_id)
+        self.get_editor(doc_id).await
     }
 
     #[tracing::instrument(level = "debug", skip(self, doc_id), fields(doc_id), err)]
@@ -85,17 +80,9 @@ impl DocumentController {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, delta, db_pool), fields(doc_id = %delta.doc_id), err)]
-    pub async fn apply_document_delta(
-        &self,
-        delta: DocumentDelta,
-        db_pool: Arc<ConnectionPool>,
-    ) -> Result<DocumentDelta, FlowyError> {
-        if !self.open_cache.contains(&delta.doc_id) {
-            let _ = self.open(&delta.doc_id, db_pool).await?;
-        }
-
-        let editor = self.open_cache.get(&delta.doc_id)?;
+    #[tracing::instrument(level = "debug", skip(self, delta), fields(doc_id = %delta.doc_id), err)]
+    pub async fn apply_document_delta(&self, delta: DocumentDelta) -> Result<DocumentDelta, FlowyError> {
+        let editor = self.get_editor(&delta.doc_id).await?;
         let _ = editor.compose_local_delta(Bytes::from(delta.delta_json)).await?;
         let document_json = editor.document_json().await?;
         Ok(DocumentDelta {
@@ -104,7 +91,23 @@ impl DocumentController {
         })
     }
 
-    pub async fn save_document_delta(&self, delta: DocumentDelta) {}
+    pub async fn save_document<T: AsRef<str>>(&self, doc_id: T, revisions: RepeatedRevision) -> FlowyResult<()> {
+        let doc_id = doc_id.as_ref().to_owned();
+        let db_pool = self.user.db_pool()?;
+        let rev_manager = self.make_rev_manager(&doc_id, db_pool)?;
+        let _ = rev_manager.reset_document(revisions).await?;
+        Ok(())
+    }
+
+    async fn get_editor(&self, doc_id: &str) -> FlowyResult<Arc<ClientDocumentEditor>> {
+        match self.open_cache.get(doc_id) {
+            None => {
+                let db_pool = self.user.db_pool()?;
+                self.make_editor(&doc_id, db_pool).await
+            },
+            Some(editor) => Ok(editor),
+        }
+    }
 }
 
 impl DocumentController {
@@ -173,26 +176,21 @@ impl OpenDocCache {
 
     pub(crate) fn contains(&self, doc_id: &str) -> bool { self.inner.get(doc_id).is_some() }
 
-    pub(crate) fn get(&self, doc_id: &str) -> Result<Arc<ClientDocumentEditor>, FlowyError> {
+    pub(crate) fn get(&self, doc_id: &str) -> Option<Arc<ClientDocumentEditor>> {
         if !self.contains(&doc_id) {
-            return Err(doc_not_found());
+            return None;
         }
         let opened_doc = self.inner.get(doc_id).unwrap();
-        Ok(opened_doc.clone())
+        Some(opened_doc.clone())
     }
 
     pub(crate) fn remove(&self, id: &str) {
         let doc_id = id.to_string();
-        match self.get(id) {
-            Ok(editor) => editor.stop(),
-            Err(e) => log::error!("{}", e),
+        if let Some(editor) = self.get(id) {
+            editor.stop()
         }
         self.inner.remove(&doc_id);
     }
-}
-
-fn doc_not_found() -> FlowyError {
-    FlowyError::record_not_found().context("Doc is close or you should call open first")
 }
 
 #[tracing::instrument(level = "debug", skip(state_receiver, receivers))]

@@ -3,7 +3,7 @@ use bytes::Bytes;
 use flowy_collaboration::{
     entities::{
         doc::DocumentInfo,
-        revision::{RevState, RevType, Revision, RevisionRange},
+        revision::{RepeatedRevision, RevType, Revision, RevisionRange, RevisionState},
     },
     util::{md5, RevIdCounter},
 };
@@ -49,6 +49,11 @@ impl RevisionManager {
         let doc = mk_doc_from_revisions(&self.doc_id, revisions)?;
         self.rev_id_counter.set(doc.rev_id);
         Ok(doc.delta()?)
+    }
+
+    #[tracing::instrument(level = "debug", skip(self, revisions), err)]
+    pub async fn reset_document(&self, revisions: RepeatedRevision) -> FlowyResult<()> {
+        self.cache.reset_document(&self.doc_id, revisions.into_inner())
     }
 
     pub async fn add_remote_revision(&self, revision: &Revision) -> Result<(), FlowyError> {
@@ -108,7 +113,7 @@ struct RevisionLoader {
 
 impl RevisionLoader {
     async fn load(&self) -> Result<Vec<Revision>, FlowyError> {
-        let records = self.cache.disk_cache.read_revisions(&self.doc_id)?;
+        let records = self.cache.read_revisions(&self.doc_id)?;
         let revisions: Vec<Revision>;
         if records.is_empty() {
             let doc = self.server.fetch_document(&self.doc_id).await?;
@@ -128,11 +133,11 @@ impl RevisionLoader {
         } else {
             for record in &records {
                 match record.state {
-                    RevState::StateLocal => match self.cache.add_local_revision(record.revision.clone()).await {
+                    RevisionState::StateLocal => match self.cache.add_local_revision(record.revision.clone()).await {
                         Ok(_) => {},
                         Err(e) => tracing::error!("{}", e),
                     },
-                    RevState::Ack => {},
+                    RevisionState::Ack => {},
                 }
             }
             revisions = records.into_iter().map(|record| record.revision).collect::<_>();

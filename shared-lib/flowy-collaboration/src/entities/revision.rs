@@ -39,8 +39,22 @@ impl Revision {
 
     pub fn pair_rev_id(&self) -> (i64, i64) { (self.base_rev_id, self.rev_id) }
 
-    #[allow(dead_code)]
     pub fn is_initial(&self) -> bool { self.rev_id == 0 }
+
+    pub fn initial_revision(user_id: &str, doc_id: &str, delta_data: Bytes) -> Self {
+        let user_id = user_id.to_owned();
+        let doc_id = doc_id.to_owned();
+        let md5 = md5(&delta_data);
+        Self {
+            base_rev_id: 0,
+            rev_id: 0,
+            delta_data: delta_data.to_vec(),
+            md5,
+            doc_id,
+            ty: RevType::Local,
+            user_id,
+        }
+    }
 
     pub fn new(
         doc_id: &str,
@@ -51,11 +65,11 @@ impl Revision {
         user_id: &str,
         md5: String,
     ) -> Revision {
+        let user_id = user_id.to_owned();
         let doc_id = doc_id.to_owned();
         let delta_data = delta_data.to_vec();
         let base_rev_id = base_rev_id;
         let rev_id = rev_id;
-        let user_id = user_id.to_owned();
 
         if base_rev_id != 0 {
             debug_assert!(base_rev_id != rev_id);
@@ -71,6 +85,10 @@ impl Revision {
             user_id,
         }
     }
+}
+
+impl std::convert::From<Revision> for RepeatedRevision {
+    fn from(revision: Revision) -> Self { RepeatedRevision { items: vec![revision] } }
 }
 
 impl std::fmt::Debug for Revision {
@@ -142,6 +160,8 @@ impl std::fmt::Display for RevId {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_fmt(format_args!("{}", self.value)) }
 }
 
+// Deprecated
+// TODO: remove RevType
 #[derive(Debug, ProtoBuf_Enum, Clone, Eq, PartialEq)]
 pub enum RevType {
     Local  = 0,
@@ -193,7 +213,7 @@ pub fn md5<T: AsRef<[u8]>>(data: T) -> String {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub enum RevState {
+pub enum RevisionState {
     StateLocal = 0,
     Ack        = 1,
 }

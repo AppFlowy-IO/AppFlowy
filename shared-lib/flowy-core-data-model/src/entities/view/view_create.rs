@@ -69,6 +69,7 @@ pub struct CreateViewParams {
     #[pb(index = 5)]
     pub view_type: ViewType,
 
+    // ViewType::Doc -> Delta string
     #[pb(index = 6)]
     pub view_data: String,
 
@@ -96,6 +97,8 @@ impl CreateViewParams {
             view_id,
         }
     }
+
+    pub fn take_view_data(&mut self) -> String { ::std::mem::replace(&mut self.view_data, String::new()) }
 }
 
 impl TryInto<CreateViewParams> for CreateViewRequest {

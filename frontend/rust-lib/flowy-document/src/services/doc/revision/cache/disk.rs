@@ -1,6 +1,7 @@
 use crate::services::doc::revision::RevisionRecord;
 
-use crate::sql_tables::{RevChangeset, RevTableSql};
+use crate::sql_tables::{RevTableSql, RevisionChangeset};
+use diesel::SqliteConnection;
 use flowy_collaboration::entities::revision::RevisionRange;
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
@@ -8,11 +9,22 @@ use std::{fmt::Debug, sync::Arc};
 
 pub trait RevisionDiskCache: Sync + Send {
     type Error: Debug;
-    fn create_revisions(&self, revisions: Vec<RevisionRecord>) -> Result<(), Self::Error>;
-    fn revisions_in_range(&self, doc_id: &str, range: &RevisionRange) -> Result<Vec<RevisionRecord>, Self::Error>;
-    fn read_revision(&self, doc_id: &str, rev_id: i64) -> Result<Option<RevisionRecord>, Self::Error>;
-    fn read_revisions(&self, doc_id: &str) -> Result<Vec<RevisionRecord>, Self::Error>;
-    fn update_revisions(&self, changesets: Vec<RevChangeset>) -> FlowyResult<()>;
+    fn write_revisions(&self, revisions: Vec<RevisionRecord>, conn: &SqliteConnection) -> Result<(), Self::Error>;
+    fn read_revisions(&self, doc_id: &str, rev_ids: Option<Vec<i64>>) -> Result<Vec<RevisionRecord>, Self::Error>;
+    fn read_revisions_with_range(
+        &self,
+        doc_id: &str,
+        range: &RevisionRange,
+    ) -> Result<Vec<RevisionRecord>, Self::Error>;
+    fn update_revisions(&self, changesets: Vec<RevisionChangeset>) -> FlowyResult<()>;
+    fn delete_revisions(
+        &self,
+        doc_id: &str,
+        rev_ids: Option<Vec<i64>>,
+        conn: &SqliteConnection,
+    ) -> Result<(), Self::Error>;
+
+    fn db_pool(&self) -> Arc<ConnectionPool>;
 }
 
 pub(crate) struct Persistence {
@@ -23,33 +35,28 @@ pub(crate) struct Persistence {
 impl RevisionDiskCache for Persistence {
     type Error = FlowyError;
 
-    fn create_revisions(&self, revisions: Vec<RevisionRecord>) -> Result<(), Self::Error> {
-        let conn = &*self.pool.get().map_err(internal_error)?;
-        conn.immediate_transaction::<_, FlowyError, _>(|| {
-            let _ = RevTableSql::create_rev_table(revisions, conn)?;
-            Ok(())
-        })
+    fn write_revisions(&self, revisions: Vec<RevisionRecord>, conn: &SqliteConnection) -> Result<(), Self::Error> {
+        let _ = RevTableSql::create_rev_table(revisions, conn)?;
+        Ok(())
     }
 
-    fn revisions_in_range(&self, doc_id: &str, range: &RevisionRange) -> Result<Vec<RevisionRecord>, Self::Error> {
-        let conn = &*self.pool.get().map_err(internal_error).unwrap();
+    fn read_revisions(&self, doc_id: &str, rev_ids: Option<Vec<i64>>) -> Result<Vec<RevisionRecord>, Self::Error> {
+        let conn = self.pool.get().map_err(internal_error)?;
+        let records = RevTableSql::read_rev_tables(&self.user_id, doc_id, rev_ids, &*conn)?;
+        Ok(records)
+    }
+
+    fn read_revisions_with_range(
+        &self,
+        doc_id: &str,
+        range: &RevisionRange,
+    ) -> Result<Vec<RevisionRecord>, Self::Error> {
+        let conn = &*self.pool.get().map_err(internal_error)?;
         let revisions = RevTableSql::read_rev_tables_with_range(&self.user_id, doc_id, range.clone(), conn)?;
         Ok(revisions)
     }
 
-    fn read_revision(&self, doc_id: &str, rev_id: i64) -> Result<Option<RevisionRecord>, Self::Error> {
-        let conn = self.pool.get().map_err(internal_error)?;
-        let some = RevTableSql::read_rev_table(&self.user_id, doc_id, &rev_id, &*conn)?;
-        Ok(some)
-    }
-
-    fn read_revisions(&self, doc_id: &str) -> Result<Vec<RevisionRecord>, Self::Error> {
-        let conn = self.pool.get().map_err(internal_error)?;
-        let some = RevTableSql::read_rev_tables(&self.user_id, doc_id, &*conn)?;
-        Ok(some)
-    }
-
-    fn update_revisions(&self, changesets: Vec<RevChangeset>) -> FlowyResult<()> {
+    fn update_revisions(&self, changesets: Vec<RevisionChangeset>) -> FlowyResult<()> {
         let conn = &*self.pool.get().map_err(internal_error)?;
         let _ = conn.immediate_transaction::<_, FlowyError, _>(|| {
             for changeset in changesets {
@@ -59,6 +66,18 @@ impl RevisionDiskCache for Persistence {
         })?;
         Ok(())
     }
+
+    fn delete_revisions(
+        &self,
+        doc_id: &str,
+        rev_ids: Option<Vec<i64>>,
+        conn: &SqliteConnection,
+    ) -> Result<(), Self::Error> {
+        let _ = RevTableSql::delete_rev_tables(doc_id, rev_ids, conn)?;
+        Ok(())
+    }
+
+    fn db_pool(&self) -> Arc<ConnectionPool> { self.pool.clone() }
 }
 
 impl Persistence {

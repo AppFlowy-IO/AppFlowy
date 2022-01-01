@@ -1,4 +1,9 @@
-use flowy_collaboration::entities::doc::{DocumentDelta, DocumentId};
+use bytes::Bytes;
+use flowy_collaboration::entities::{
+    doc::{DocumentDelta, DocumentId},
+    prelude::Revision,
+    revision::RepeatedRevision,
+};
 use flowy_database::SqliteConnection;
 use futures::{FutureExt, StreamExt};
 use std::{collections::HashSet, sync::Arc};
@@ -57,25 +62,35 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self, params), fields(name = %params.name), err)]
-    pub(crate) async fn create_view_from_params(&self, params: CreateViewParams) -> Result<View, FlowyError> {
+    pub(crate) async fn create_view_from_params(&self, mut params: CreateViewParams) -> Result<View, FlowyError> {
+        let delta_data = Bytes::from(params.take_view_data());
+        let user_id = self.user.user_id()?;
+        let repeated_revision: RepeatedRevision =
+            Revision::initial_revision(&user_id, &params.view_id, delta_data).into();
+        let _ = self
+            .document_ctx
+            .controller
+            .save_document(&params.view_id, repeated_revision)
+            .await?;
         let view = self.create_view_on_server(params).await?;
-        let view = self.create_view_on_local(view).await?;
+        let _ = self.create_view_on_local(view.clone()).await?;
 
         Ok(view)
     }
 
-    pub(crate) async fn create_view_on_local(&self, view: View) -> Result<View, FlowyError> {
+    pub(crate) async fn create_view_on_local(&self, view: View) -> Result<(), FlowyError> {
         let conn = &*self.database.db_connection()?;
         let trash_can = self.trash_controller.clone();
 
         conn.immediate_transaction::<_, FlowyError, _>(|| {
-            let _ = self.save_view(view.clone(), conn)?;
-            let _ = notify_views_changed(&view.belong_to_id, trash_can, &conn)?;
+            let belong_to_id = view.belong_to_id.clone();
+            let _ = self.save_view(view, conn)?;
+            let _ = notify_views_changed(&belong_to_id, trash_can, &conn)?;
 
             Ok(())
         })?;
 
-        Ok(view)
+        Ok(())
     }
 
     pub(crate) fn save_view(&self, view: View, conn: &SqliteConnection) -> Result<(), FlowyError> {
@@ -115,8 +130,7 @@ impl ViewController {
     #[tracing::instrument(level = "debug", skip(self, params), fields(doc_id = %params.doc_id), err)]
     pub(crate) async fn open_view(&self, params: DocumentId) -> Result<DocumentDelta, FlowyError> {
         let doc_id = params.doc_id.clone();
-        let db_pool = self.database.db_pool()?;
-        let editor = self.document_ctx.controller.open(&params.doc_id, db_pool).await?;
+        let editor = self.document_ctx.controller.open(&params.doc_id).await?;
 
         KV::set_str(LATEST_VIEW_ID, doc_id.clone());
         let document_json = editor.document_json().await?;
@@ -146,11 +160,7 @@ impl ViewController {
     #[tracing::instrument(level = "debug", skip(self, params), fields(doc_id = %params.doc_id), err)]
     pub(crate) async fn duplicate_view(&self, params: DocumentId) -> Result<(), FlowyError> {
         let view: View = ViewTableSql::read_view(&params.doc_id, &*self.database.db_connection()?)?.into();
-        let editor = self
-            .document_ctx
-            .controller
-            .open(&params.doc_id, self.database.db_pool()?)
-            .await?;
+        let editor = self.document_ctx.controller.open(&params.doc_id).await?;
         let document_json = editor.document_json().await?;
         let duplicate_params = CreateViewParams {
             belong_to_id: view.belong_to_id.clone(),
@@ -168,11 +178,7 @@ impl ViewController {
 
     #[tracing::instrument(level = "debug", skip(self, params), err)]
     pub(crate) async fn export_doc(&self, params: ExportParams) -> Result<ExportData, FlowyError> {
-        let editor = self
-            .document_ctx
-            .controller
-            .open(&params.doc_id, self.database.db_pool()?)
-            .await?;
+        let editor = self.document_ctx.controller.open(&params.doc_id).await?;
         let delta_json = editor.document_json().await?;
         Ok(ExportData {
             data: delta_json,
@@ -211,12 +217,7 @@ impl ViewController {
     }
 
     pub(crate) async fn receive_document_delta(&self, params: DocumentDelta) -> Result<DocumentDelta, FlowyError> {
-        let db_pool = self.document_ctx.user.db_pool()?;
-        let doc = self
-            .document_ctx
-            .controller
-            .apply_document_delta(params, db_pool)
-            .await?;
+        let doc = self.document_ctx.controller.apply_document_delta(params).await?;
         Ok(doc)
     }
 
@@ -263,7 +264,7 @@ impl ViewController {
         let token = self.user.token()?;
         let server = self.server.clone();
         let pool = self.database.db_pool()?;
-        // Opti: retry?
+        // TODO: Retry with RetryAction?
         tokio::spawn(async move {
             match server.read_view(&token, params).await {
                 Ok(Some(view)) => match pool.get() {
