@@ -249,9 +249,9 @@ async fn doc_create() {
         let bytes = delta.to_bytes();
         let md5 = md5(&bytes);
         let revision = if i == 0 {
-            Revision::new(&doc_id, i, i, bytes, RevType::Remote, &user_id, md5)
+            Revision::new(&doc_id, i, i, bytes, &user_id, md5)
         } else {
-            Revision::new(&doc_id, i - 1, i, bytes, RevType::Remote, &user_id, md5)
+            Revision::new(&doc_id, i - 1, i, bytes, &user_id, md5)
         };
         revisions.push(revision);
     }

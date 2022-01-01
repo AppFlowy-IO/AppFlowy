@@ -217,7 +217,6 @@ pub(crate) async fn handle_push_rev(
         local_base_rev_id,
         local_rev_id,
         client_prime.to_bytes(),
-        RevType::Remote,
         &user_id,
         md5.clone(),
     );
@@ -229,7 +228,6 @@ pub(crate) async fn handle_push_rev(
         local_base_rev_id,
         local_rev_id,
         server_prime.to_bytes(),
-        RevType::Local,
         &user_id,
         md5,
     )))

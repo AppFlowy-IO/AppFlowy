@@ -21,7 +21,7 @@ pub struct Revision {
     pub doc_id: String,
 
     #[pb(index = 6)]
-    pub ty: RevType,
+    ty: RevType, // Deprecated
 
     #[pb(index = 7)]
     pub user_id: String,
@@ -42,29 +42,11 @@ impl Revision {
     pub fn is_initial(&self) -> bool { self.rev_id == 0 }
 
     pub fn initial_revision(user_id: &str, doc_id: &str, delta_data: Bytes) -> Self {
-        let user_id = user_id.to_owned();
-        let doc_id = doc_id.to_owned();
         let md5 = md5(&delta_data);
-        Self {
-            base_rev_id: 0,
-            rev_id: 0,
-            delta_data: delta_data.to_vec(),
-            md5,
-            doc_id,
-            ty: RevType::Local,
-            user_id,
-        }
+        Self::new(doc_id, 0, 0, delta_data, user_id, md5)
     }
 
-    pub fn new(
-        doc_id: &str,
-        base_rev_id: i64,
-        rev_id: i64,
-        delta_data: Bytes,
-        ty: RevType,
-        user_id: &str,
-        md5: String,
-    ) -> Revision {
+    pub fn new(doc_id: &str, base_rev_id: i64, rev_id: i64, delta_data: Bytes, user_id: &str, md5: String) -> Revision {
         let user_id = user_id.to_owned();
         let doc_id = doc_id.to_owned();
         let delta_data = delta_data.to_vec();
@@ -81,7 +63,7 @@ impl Revision {
             delta_data,
             md5,
             doc_id,
-            ty,
+            ty: RevType::DeprecatedLocal,
             user_id,
         }
     }
@@ -160,22 +142,6 @@ impl std::fmt::Display for RevId {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_fmt(format_args!("{}", self.value)) }
 }
 
-// Deprecated
-// TODO: remove RevType
-#[derive(Debug, ProtoBuf_Enum, Clone, Eq, PartialEq)]
-pub enum RevType {
-    Local  = 0,
-    Remote = 1,
-}
-
-impl RevType {
-    pub fn is_local(&self) -> bool { self == &RevType::Local }
-}
-
-impl std::default::Default for RevType {
-    fn default() -> Self { RevType::Local }
-}
-
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct RevisionRange {
     #[pb(index = 1)]
@@ -214,6 +180,16 @@ pub fn md5<T: AsRef<[u8]>>(data: T) -> String {
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum RevisionState {
-    StateLocal = 0,
-    Ack        = 1,
+    Local = 0,
+    Ack   = 1,
+}
+
+#[derive(Debug, ProtoBuf_Enum, Clone, Eq, PartialEq)]
+pub enum RevType {
+    DeprecatedLocal  = 0,
+    DeprecatedRemote = 1,
+}
+
+impl std::default::Default for RevType {
+    fn default() -> Self { RevType::DeprecatedLocal }
 }
