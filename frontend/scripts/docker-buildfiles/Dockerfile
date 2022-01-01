@@ -1,5 +1,7 @@
 FROM archlinux/archlinux:base-devel
 
+RUN pacman -Syy 
+
 RUN pacman -Syu --needed --noconfirm git xdg-user-dirs
 
 # makepkg user and workdir
