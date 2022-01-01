@@ -10,7 +10,7 @@ use crate::services::doc::{
 use bytes::Bytes;
 use flowy_collaboration::{
     entities::{
-        revision::{RepeatedRevision, RevType, Revision, RevisionRange},
+        revision::{RepeatedRevision, Revision, RevisionRange},
         ws::{DocumentClientWSData, NewDocumentUser},
     },
     errors::CollaborateResult,

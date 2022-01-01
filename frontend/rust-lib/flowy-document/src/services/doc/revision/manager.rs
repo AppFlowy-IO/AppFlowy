@@ -7,7 +7,7 @@ use dashmap::DashMap;
 use flowy_collaboration::{
     entities::{
         doc::DocumentInfo,
-        revision::{RepeatedRevision, RevType, Revision, RevisionRange, RevisionState},
+        revision::{RepeatedRevision, Revision, RevisionRange, RevisionState},
     },
     util::{md5, RevIdCounter},
 };
@@ -68,13 +68,13 @@ impl RevisionManager {
     #[tracing::instrument(level = "debug", skip(self, revision))]
     pub async fn add_remote_revision(&self, revision: &Revision) -> Result<(), FlowyError> {
         self.rev_id_counter.set(revision.rev_id);
-        let _ = self.cache.add(revision.clone(), RevisionState::Ack).await?;
+        let _ = self.cache.add(revision.clone(), RevisionState::Ack, true).await?;
         Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self, revision))]
     pub async fn add_local_revision(&self, revision: &Revision) -> Result<(), FlowyError> {
-        let record = self.cache.add(revision.clone(), RevisionState::Local).await?;
+        let record = self.cache.add(revision.clone(), RevisionState::Local, true).await?;
         self.sync_seq.add_revision(record).await?;
         Ok(())
     }
@@ -206,14 +206,18 @@ impl RevisionLoader {
                 &self.user_id,
                 doc_md5,
             );
-            let _ = self.cache.add(revision.clone(), RevisionState::Ack).await?;
+            let _ = self.cache.add(revision.clone(), RevisionState::Ack, true).await?;
             revisions = vec![revision];
         } else {
             for record in &records {
                 match record.state {
                     RevisionState::Local => {
                         //
-                        match self.cache.add(record.revision.clone(), RevisionState::Local).await {
+                        match self
+                            .cache
+                            .add(record.revision.clone(), RevisionState::Local, false)
+                            .await
+                        {
                             Ok(_) => {},
                             Err(e) => tracing::error!("{}", e),
                         }

@@ -80,6 +80,7 @@ pub(crate) fn mk_revision_record_from_table(user_id: &str, table: RevisionTable)
     RevisionRecord {
         revision,
         state: table.state.into(),
+        write_to_disk: false,
     }
 }
 

@@ -5,7 +5,7 @@ use flowy_collaboration::{
     document::{Document, PlainDoc},
     entities::{
         doc::{CreateDocParams, DocumentId},
-        revision::{md5, RepeatedRevision, RevType, Revision},
+        revision::{md5, RepeatedRevision, Revision},
     },
 };
 use flowy_core_data_model::entities::{

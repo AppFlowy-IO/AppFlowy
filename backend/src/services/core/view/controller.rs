@@ -10,7 +10,7 @@ use backend_service::errors::{invalid_params, ServerError};
 use bytes::Bytes;
 use chrono::Utc;
 use flowy_collaboration::{
-    entities::revision::{RepeatedRevision, RevType, Revision},
+    entities::revision::{RepeatedRevision, Revision},
     protobuf::CreateDocParams,
 };
 use flowy_core_data_model::{
