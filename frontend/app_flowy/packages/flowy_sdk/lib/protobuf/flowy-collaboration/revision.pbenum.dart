@@ -9,33 +9,33 @@
 import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
+class RevisionState extends $pb.ProtobufEnum {
+  static const RevisionState StateLocal = RevisionState._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'StateLocal');
+  static const RevisionState Ack = RevisionState._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Ack');
+
+  static const $core.List<RevisionState> values = <RevisionState> [
+    StateLocal,
+    Ack,
+  ];
+
+  static final $core.Map<$core.int, RevisionState> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static RevisionState? valueOf($core.int value) => _byValue[value];
+
+  const RevisionState._($core.int v, $core.String n) : super(v, n);
+}
+
 class RevType extends $pb.ProtobufEnum {
-  static const RevType Local = RevType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Local');
-  static const RevType Remote = RevType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Remote');
+  static const RevType DeprecatedLocal = RevType._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DeprecatedLocal');
+  static const RevType DeprecatedRemote = RevType._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DeprecatedRemote');
 
   static const $core.List<RevType> values = <RevType> [
-    Local,
-    Remote,
+    DeprecatedLocal,
+    DeprecatedRemote,
   ];
 
   static final $core.Map<$core.int, RevType> _byValue = $pb.ProtobufEnum.initByValue(values);
   static RevType? valueOf($core.int value) => _byValue[value];
 
   const RevType._($core.int v, $core.String n) : super(v, n);
-}
-
-class RevState extends $pb.ProtobufEnum {
-  static const RevState StateLocal = RevState._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'StateLocal');
-  static const RevState Ack = RevState._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Ack');
-
-  static const $core.List<RevState> values = <RevState> [
-    StateLocal,
-    Ack,
-  ];
-
-  static final $core.Map<$core.int, RevState> _byValue = $pb.ProtobufEnum.initByValue(values);
-  static RevState? valueOf($core.int value) => _byValue[value];
-
-  const RevState._($core.int v, $core.String n) : super(v, n);
 }
 

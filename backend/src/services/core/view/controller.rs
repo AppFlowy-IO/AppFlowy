@@ -92,7 +92,7 @@ pub(crate) async fn create_view(
 
     let delta_data = Bytes::from(params.view_data);
     let md5 = format!("{:x}", md5::compute(&delta_data));
-    let revision = Revision::new(&view.id, 0, 0, delta_data, RevType::Remote, user_id, md5);
+    let revision = Revision::new(&view.id, 0, 0, delta_data, user_id, md5);
     let repeated_revision = RepeatedRevision::new(vec![revision]);
     let mut create_doc_params = CreateDocParams::new();
     create_doc_params.set_revisions(repeated_revision.try_into().unwrap());

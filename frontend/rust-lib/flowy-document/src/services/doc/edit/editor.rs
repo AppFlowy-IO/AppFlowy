@@ -152,15 +152,7 @@ impl ClientDocumentEditor {
         let delta_data = delta.to_bytes();
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id();
         let user_id = self.user.user_id()?;
-        let revision = Revision::new(
-            &self.doc_id,
-            base_rev_id,
-            rev_id,
-            delta_data,
-            RevType::Local,
-            &user_id,
-            md5,
-        );
+        let revision = Revision::new(&self.doc_id, base_rev_id, rev_id, delta_data, &user_id, md5);
         let _ = self.rev_manager.add_local_revision(&revision).await?;
         Ok(rev_id.into())
     }

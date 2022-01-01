@@ -8,28 +8,28 @@
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
 import 'dart:typed_data' as $typed_data;
-@$core.Deprecated('Use revTypeDescriptor instead')
-const RevType$json = const {
-  '1': 'RevType',
-  '2': const [
-    const {'1': 'Local', '2': 0},
-    const {'1': 'Remote', '2': 1},
-  ],
-};
-
-/// Descriptor for `RevType`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List revTypeDescriptor = $convert.base64Decode('CgdSZXZUeXBlEgkKBUxvY2FsEAASCgoGUmVtb3RlEAE=');
-@$core.Deprecated('Use revStateDescriptor instead')
-const RevState$json = const {
-  '1': 'RevState',
+@$core.Deprecated('Use revisionStateDescriptor instead')
+const RevisionState$json = const {
+  '1': 'RevisionState',
   '2': const [
     const {'1': 'StateLocal', '2': 0},
     const {'1': 'Ack', '2': 1},
   ],
 };
 
-/// Descriptor for `RevState`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List revStateDescriptor = $convert.base64Decode('CghSZXZTdGF0ZRIOCgpTdGF0ZUxvY2FsEAASBwoDQWNrEAE=');
+/// Descriptor for `RevisionState`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List revisionStateDescriptor = $convert.base64Decode('Cg1SZXZpc2lvblN0YXRlEg4KClN0YXRlTG9jYWwQABIHCgNBY2sQAQ==');
+@$core.Deprecated('Use revTypeDescriptor instead')
+const RevType$json = const {
+  '1': 'RevType',
+  '2': const [
+    const {'1': 'DeprecatedLocal', '2': 0},
+    const {'1': 'DeprecatedRemote', '2': 1},
+  ],
+};
+
+/// Descriptor for `RevType`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List revTypeDescriptor = $convert.base64Decode('CgdSZXZUeXBlEhMKD0RlcHJlY2F0ZWRMb2NhbBAAEhQKEERlcHJlY2F0ZWRSZW1vdGUQAQ==');
 @$core.Deprecated('Use revisionDescriptor instead')
 const Revision$json = const {
   '1': 'Revision',

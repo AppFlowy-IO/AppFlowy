@@ -1,6 +1,6 @@
 use crate::services::doc::revision::RevisionRecord;
 
-use crate::sql_tables::{RevTableSql, RevisionChangeset};
+use crate::sql_tables::{RevisionChangeset, RevisionTableSql};
 use diesel::SqliteConnection;
 use flowy_collaboration::entities::revision::RevisionRange;
 use flowy_database::ConnectionPool;
@@ -9,15 +9,29 @@ use std::{fmt::Debug, sync::Arc};
 
 pub trait RevisionDiskCache: Sync + Send {
     type Error: Debug;
-    fn write_revisions(&self, revisions: Vec<RevisionRecord>, conn: &SqliteConnection) -> Result<(), Self::Error>;
-    fn read_revisions(&self, doc_id: &str, rev_ids: Option<Vec<i64>>) -> Result<Vec<RevisionRecord>, Self::Error>;
-    fn read_revisions_with_range(
+    fn write_revision_records(
+        &self,
+        revisions: Vec<RevisionRecord>,
+        conn: &SqliteConnection,
+    ) -> Result<(), Self::Error>;
+
+    // Read all the records if the rev_ids is None
+    fn read_revision_records(
+        &self,
+        doc_id: &str,
+        rev_ids: Option<Vec<i64>>,
+    ) -> Result<Vec<RevisionRecord>, Self::Error>;
+
+    fn read_revision_records_with_range(
         &self,
         doc_id: &str,
         range: &RevisionRange,
     ) -> Result<Vec<RevisionRecord>, Self::Error>;
-    fn update_revisions(&self, changesets: Vec<RevisionChangeset>) -> FlowyResult<()>;
-    fn delete_revisions(
+
+    fn update_revision_record(&self, changesets: Vec<RevisionChangeset>) -> FlowyResult<()>;
+
+    // Delete all the records if the rev_ids is None
+    fn delete_revision_records(
         &self,
         doc_id: &str,
         rev_ids: Option<Vec<i64>>,
@@ -35,45 +49,53 @@ pub(crate) struct Persistence {
 impl RevisionDiskCache for Persistence {
     type Error = FlowyError;
 
-    fn write_revisions(&self, revisions: Vec<RevisionRecord>, conn: &SqliteConnection) -> Result<(), Self::Error> {
-        let _ = RevTableSql::create_rev_table(revisions, conn)?;
+    fn write_revision_records(
+        &self,
+        revisions: Vec<RevisionRecord>,
+        conn: &SqliteConnection,
+    ) -> Result<(), Self::Error> {
+        let _ = RevisionTableSql::create(revisions, conn)?;
         Ok(())
     }
 
-    fn read_revisions(&self, doc_id: &str, rev_ids: Option<Vec<i64>>) -> Result<Vec<RevisionRecord>, Self::Error> {
+    fn read_revision_records(
+        &self,
+        doc_id: &str,
+        rev_ids: Option<Vec<i64>>,
+    ) -> Result<Vec<RevisionRecord>, Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
-        let records = RevTableSql::read_rev_tables(&self.user_id, doc_id, rev_ids, &*conn)?;
+        let records = RevisionTableSql::read(&self.user_id, doc_id, rev_ids, &*conn)?;
         Ok(records)
     }
 
-    fn read_revisions_with_range(
+    fn read_revision_records_with_range(
         &self,
         doc_id: &str,
         range: &RevisionRange,
     ) -> Result<Vec<RevisionRecord>, Self::Error> {
         let conn = &*self.pool.get().map_err(internal_error)?;
-        let revisions = RevTableSql::read_rev_tables_with_range(&self.user_id, doc_id, range.clone(), conn)?;
+        let revisions = RevisionTableSql::read_with_range(&self.user_id, doc_id, range.clone(), conn)?;
         Ok(revisions)
     }
 
-    fn update_revisions(&self, changesets: Vec<RevisionChangeset>) -> FlowyResult<()> {
+    fn update_revision_record(&self, changesets: Vec<RevisionChangeset>) -> FlowyResult<()> {
         let conn = &*self.pool.get().map_err(internal_error)?;
         let _ = conn.immediate_transaction::<_, FlowyError, _>(|| {
             for changeset in changesets {
-                let _ = RevTableSql::update_rev_table(changeset, conn)?;
+                let _ = RevisionTableSql::update(changeset, conn)?;
             }
             Ok(())
         })?;
         Ok(())
     }
 
-    fn delete_revisions(
+    fn delete_revision_records(
         &self,
         doc_id: &str,
         rev_ids: Option<Vec<i64>>,
         conn: &SqliteConnection,
     ) -> Result<(), Self::Error> {
-        let _ = RevTableSql::delete_rev_tables(doc_id, rev_ids, conn)?;
+        let _ = RevisionTableSql::delete(doc_id, rev_ids, conn)?;
         Ok(())
     }
 

@@ -1,4 +1,5 @@
 use crate::services::doc::revision::RevisionRecord;
+use bytes::Bytes;
 use diesel::sql_types::Integer;
 use flowy_collaboration::{
     entities::revision::{RevId, RevType, Revision, RevisionState},
@@ -8,96 +9,77 @@ use flowy_database::schema::rev_table;
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
 #[table_name = "rev_table"]
-pub(crate) struct RevTable {
+pub(crate) struct RevisionTable {
     id: i32,
     pub(crate) doc_id: String,
     pub(crate) base_rev_id: i64,
     pub(crate) rev_id: i64,
     pub(crate) data: Vec<u8>,
-    pub(crate) state: RevTableState,
-    pub(crate) ty: RevTableType,
+    pub(crate) state: RevisionTableState,
+    pub(crate) ty: RevTableType, // Deprecated
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash, FromSqlRow, AsExpression)]
 #[repr(i32)]
 #[sql_type = "Integer"]
-pub enum RevTableState {
+pub enum RevisionTableState {
     Local = 0,
-    Acked = 1,
+    Ack   = 1,
 }
 
-impl std::default::Default for RevTableState {
-    fn default() -> Self { RevTableState::Local }
+impl std::default::Default for RevisionTableState {
+    fn default() -> Self { RevisionTableState::Local }
 }
 
-impl std::convert::From<i32> for RevTableState {
+impl std::convert::From<i32> for RevisionTableState {
     fn from(value: i32) -> Self {
         match value {
-            0 => RevTableState::Local,
-            1 => RevTableState::Acked,
+            0 => RevisionTableState::Local,
+            1 => RevisionTableState::Ack,
             o => {
                 log::error!("Unsupported rev state {}, fallback to RevState::Local", o);
-                RevTableState::Local
+                RevisionTableState::Local
             },
         }
     }
 }
 
-impl RevTableState {
+impl RevisionTableState {
     pub fn value(&self) -> i32 { *self as i32 }
 }
-impl_sql_integer_expression!(RevTableState);
+impl_sql_integer_expression!(RevisionTableState);
 
-impl std::convert::From<RevTableState> for RevisionState {
-    fn from(s: RevTableState) -> Self {
+impl std::convert::From<RevisionTableState> for RevisionState {
+    fn from(s: RevisionTableState) -> Self {
         match s {
-            RevTableState::Local => RevisionState::StateLocal,
-            RevTableState::Acked => RevisionState::Ack,
+            RevisionTableState::Local => RevisionState::Local,
+            RevisionTableState::Ack => RevisionState::Ack,
         }
     }
 }
 
-impl std::convert::From<RevisionState> for RevTableState {
+impl std::convert::From<RevisionState> for RevisionTableState {
     fn from(s: RevisionState) -> Self {
         match s {
-            RevisionState::StateLocal => RevTableState::Local,
-            RevisionState::Ack => RevTableState::Acked,
+            RevisionState::Local => RevisionTableState::Local,
+            RevisionState::Ack => RevisionTableState::Ack,
         }
     }
 }
 
-pub(crate) fn mk_revision_record_from_table(user_id: &str, table: RevTable) -> RevisionRecord {
+pub(crate) fn mk_revision_record_from_table(user_id: &str, table: RevisionTable) -> RevisionRecord {
     let md5 = md5(&table.data);
-    let revision = Revision {
-        base_rev_id: table.base_rev_id,
-        rev_id: table.rev_id,
-        delta_data: table.data,
+    let revision = Revision::new(
+        &table.doc_id,
+        table.base_rev_id,
+        table.rev_id,
+        Bytes::from(table.data),
+        &user_id,
         md5,
-        doc_id: table.doc_id,
-        ty: table.ty.into(),
-        user_id: user_id.to_owned(),
-    };
+    );
     RevisionRecord {
         revision,
         state: table.state.into(),
-    }
-}
-
-impl std::convert::From<RevType> for RevTableType {
-    fn from(ty: RevType) -> Self {
-        match ty {
-            RevType::Local => RevTableType::Local,
-            RevType::Remote => RevTableType::Remote,
-        }
-    }
-}
-
-impl std::convert::From<RevTableType> for RevType {
-    fn from(ty: RevTableType) -> Self {
-        match ty {
-            RevTableType::Local => RevType::Local,
-            RevTableType::Remote => RevType::Remote,
-        }
     }
 }
 
@@ -130,8 +112,26 @@ impl RevTableType {
 }
 impl_sql_integer_expression!(RevTableType);
 
+impl std::convert::From<RevType> for RevTableType {
+    fn from(ty: RevType) -> Self {
+        match ty {
+            RevType::DeprecatedLocal => RevTableType::Local,
+            RevType::DeprecatedRemote => RevTableType::Remote,
+        }
+    }
+}
+
+impl std::convert::From<RevTableType> for RevType {
+    fn from(ty: RevTableType) -> Self {
+        match ty {
+            RevTableType::Local => RevType::DeprecatedLocal,
+            RevTableType::Remote => RevType::DeprecatedRemote,
+        }
+    }
+}
+
 pub struct RevisionChangeset {
     pub(crate) doc_id: String,
     pub(crate) rev_id: RevId,
-    pub(crate) state: RevTableState,
+    pub(crate) state: RevisionTableState,
 }
