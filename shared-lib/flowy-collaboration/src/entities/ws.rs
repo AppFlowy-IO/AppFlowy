@@ -9,6 +9,7 @@ use std::convert::{TryFrom, TryInto};
 #[derive(Debug, Clone, ProtoBuf_Enum, Eq, PartialEq, Hash)]
 pub enum DocumentClientWSDataType {
     ClientPushRev = 0,
+    ClientPing    = 1,
 }
 
 impl DocumentClientWSDataType {
@@ -50,6 +51,15 @@ impl DocumentClientWSData {
             doc_id: doc_id.to_owned(),
             ty: DocumentClientWSDataType::ClientPushRev,
             revisions: RepeatedRevision::new(revisions),
+            id: rev_id.to_string(),
+        }
+    }
+
+    pub fn ping(doc_id: &str, rev_id: i64) -> Self {
+        Self {
+            doc_id: doc_id.to_owned(),
+            ty: DocumentClientWSDataType::ClientPing,
+            revisions: RepeatedRevision::empty(),
             id: rev_id.to_string(),
         }
     }

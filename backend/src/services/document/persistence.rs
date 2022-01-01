@@ -19,7 +19,7 @@ use protobuf::Message;
 use std::sync::Arc;
 use uuid::Uuid;
 
-#[tracing::instrument(level = "debug", skip(kv_store), err)]
+#[tracing::instrument(level = "debug", skip(kv_store, params), err)]
 pub(crate) async fn create_document(
     kv_store: &Arc<DocumentKVPersistence>,
     mut params: CreateDocParams,
@@ -50,7 +50,7 @@ pub async fn reset_document(
         .transaction(|mut transaction| {
             Box::pin(async move {
                 let _ = transaction.batch_delete_key_start_with(&doc_id).await?;
-                let items = revisions_to_key_value_items(revisions.into());
+                let items = revisions_to_key_value_items(revisions.into())?;
                 let _ = transaction.batch_set(items).await?;
                 Ok(())
             })
@@ -82,7 +82,7 @@ impl DocumentKVPersistence {
     pub(crate) fn new(kv_store: Arc<KVStore>) -> Self { DocumentKVPersistence { inner: kv_store } }
 
     pub(crate) async fn batch_set_revision(&self, revisions: Vec<Revision>) -> Result<(), ServerError> {
-        let items = revisions_to_key_value_items(revisions);
+        let items = revisions_to_key_value_items(revisions)?;
         self.inner
             .transaction(|mut t| Box::pin(async move { t.batch_set(items).await }))
             .await
@@ -152,15 +152,19 @@ impl DocumentKVPersistence {
 }
 
 #[inline]
-fn revisions_to_key_value_items(revisions: Vec<Revision>) -> Vec<KeyValue> {
-    revisions
-        .into_iter()
-        .map(|revision| {
-            let key = make_revision_key(&revision.doc_id, revision.rev_id);
-            let value = Bytes::from(revision.write_to_bytes().unwrap());
-            KeyValue { key, value }
-        })
-        .collect::<Vec<KeyValue>>()
+fn revisions_to_key_value_items(revisions: Vec<Revision>) -> Result<Vec<KeyValue>, ServerError> {
+    let mut items = vec![];
+    for revision in revisions {
+        let key = make_revision_key(&revision.doc_id, revision.rev_id);
+
+        if revision.delta_data.is_empty() {
+            return Err(ServerError::internal().context("The delta_data of Revision should not be empty"));
+        }
+
+        let value = Bytes::from(revision.write_to_bytes().unwrap());
+        items.push(KeyValue { key, value });
+    }
+    Ok(items)
 }
 
 #[inline]
@@ -193,6 +197,11 @@ fn make_doc_from_revisions(doc_id: &str, mut revisions: RepeatedRevision) -> Res
     for revision in revisions {
         base_rev_id = revision.base_rev_id;
         rev_id = revision.rev_id;
+
+        if revision.delta_data.is_empty() {
+            tracing::warn!("revision delta_data is empty");
+        }
+
         let delta = RichTextDelta::from_bytes(revision.delta_data).map_err(internal_error)?;
         document_delta = document_delta.compose(&delta).map_err(internal_error)?;
     }

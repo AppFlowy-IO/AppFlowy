@@ -285,7 +285,12 @@ impl SharedWSSinkDataProvider {
                         let doc_id = rev.doc_id.clone();
                         Ok(Some(DocumentClientWSData::from_revisions(&doc_id, vec![rev])))
                     },
-                    None => Ok(None),
+                    None => {
+                        //
+                        let doc_id = self.rev_manager.doc_id.clone();
+                        let latest_rev_id = self.rev_manager.rev_id();
+                        Ok(Some(DocumentClientWSData::ping(&doc_id, latest_rev_id)))
+                    },
                 }
             },
         }

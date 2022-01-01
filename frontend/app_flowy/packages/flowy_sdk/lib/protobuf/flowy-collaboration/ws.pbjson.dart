@@ -13,11 +13,12 @@ const DocumentClientWSDataType$json = const {
   '1': 'DocumentClientWSDataType',
   '2': const [
     const {'1': 'ClientPushRev', '2': 0},
+    const {'1': 'ClientPing', '2': 1},
   ],
 };
 
 /// Descriptor for `DocumentClientWSDataType`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List documentClientWSDataTypeDescriptor = $convert.base64Decode('ChhEb2N1bWVudENsaWVudFdTRGF0YVR5cGUSEQoNQ2xpZW50UHVzaFJldhAA');
+final $typed_data.Uint8List documentClientWSDataTypeDescriptor = $convert.base64Decode('ChhEb2N1bWVudENsaWVudFdTRGF0YVR5cGUSEQoNQ2xpZW50UHVzaFJldhAAEg4KCkNsaWVudFBpbmcQAQ==');
 @$core.Deprecated('Use documentServerWSDataTypeDescriptor instead')
 const DocumentServerWSDataType$json = const {
   '1': 'DocumentServerWSDataType',

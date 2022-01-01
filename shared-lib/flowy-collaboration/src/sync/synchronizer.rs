@@ -101,24 +101,33 @@ impl RevisionSynchronizer {
                 // delta.
                 let from_rev_id = first_revision.rev_id;
                 let to_rev_id = server_base_rev_id;
-                let rev_ids: Vec<i64> = (from_rev_id..=to_rev_id).collect();
-                let revisions = match persistence.get_revisions(&self.doc_id, rev_ids).await {
-                    Ok(revisions) => {
-                        assert_eq!(
-                            revisions.is_empty(),
-                            false,
-                            "revisions should not be empty if the doc exists"
-                        );
-                        revisions
-                    },
-                    Err(e) => {
-                        tracing::error!("{}", e);
-                        vec![]
-                    },
-                };
+                let _ = self.push_revisions_to_user(user, persistence, from_rev_id, to_rev_id);
+            },
+        }
+        Ok(())
+    }
 
-                let data = DocumentServerWSDataBuilder::build_push_message(&self.doc_id, revisions);
-                user.receive(SyncResponse::Push(data));
+    pub async fn pong(
+        &self,
+        doc_id: String,
+        user: Arc<dyn RevisionUser>,
+        persistence: Arc<dyn DocumentPersistence>,
+        rev_id: i64,
+    ) -> Result<(), CollaborateError> {
+        let server_base_rev_id = self.rev_id.load(SeqCst);
+        match server_base_rev_id.cmp(&rev_id) {
+            Ordering::Less => tracing::error!(
+                "[Pong] Client should not send ping and the server should pull the revisions from the client"
+            ),
+            Ordering::Equal => tracing::debug!("[Pong]: The document:{} is up to date.", doc_id),
+            Ordering::Greater => {
+                // The client document is outdated. Transform the client revision delta and then
+                // send the prime delta to the client. Client should compose the this prime
+                // delta.
+                let from_rev_id = rev_id;
+                let to_rev_id = server_base_rev_id;
+                tracing::trace!("[Pong]: Push revisions to user");
+                let _ = self.push_revisions_to_user(user, persistence, from_rev_id, to_rev_id);
             },
         }
         Ok(())
@@ -154,20 +163,6 @@ impl RevisionSynchronizer {
         Ok(())
     }
 
-    // fn mk_revision(&self, base_rev_id: i64, delta: RichTextDelta) -> Revision {
-    //     let delta_data = delta.to_bytes().to_vec();
-    //     let md5 = md5(&delta_data);
-    //     Revision {
-    //         base_rev_id,
-    //         rev_id: self.rev_id.load(SeqCst),
-    //         delta_data,
-    //         md5,
-    //         doc_id: self.doc_id.to_string(),
-    //         ty: RevType::Remote,
-    //         user_id: "".to_string(),
-    //     }
-    // }
-
     #[allow(dead_code)]
     pub(crate) fn rev_id(&self) -> i64 { self.rev_id.load(SeqCst) }
 
@@ -181,6 +176,33 @@ impl RevisionSynchronizer {
         };
 
         false
+    }
+
+    async fn push_revisions_to_user(
+        &self,
+        user: Arc<dyn RevisionUser>,
+        persistence: Arc<dyn DocumentPersistence>,
+        from: i64,
+        to: i64,
+    ) {
+        let rev_ids: Vec<i64> = (from..=to).collect();
+        let revisions = match persistence.get_revisions(&self.doc_id, rev_ids).await {
+            Ok(revisions) => {
+                assert_eq!(
+                    revisions.is_empty(),
+                    false,
+                    "revisions should not be empty if the doc exists"
+                );
+                revisions
+            },
+            Err(e) => {
+                tracing::error!("{}", e);
+                vec![]
+            },
+        };
+
+        let data = DocumentServerWSDataBuilder::build_push_message(&self.doc_id, revisions);
+        user.receive(SyncResponse::Push(data));
     }
 }
 

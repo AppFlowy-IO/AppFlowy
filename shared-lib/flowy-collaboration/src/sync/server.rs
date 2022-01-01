@@ -40,16 +40,14 @@ impl ServerDocumentManager {
         }
     }
 
-    pub async fn apply_revisions(
+    pub async fn handle_client_revisions(
         &self,
         user: Arc<dyn RevisionUser>,
         mut client_data: DocumentClientWSData,
     ) -> Result<(), CollaborateError> {
         let mut pb = client_data.take_revisions();
         let cloned_user = user.clone();
-        let ack_id = client_data.id.clone().parse::<i64>().map_err(|e| {
-            CollaborateError::internal().context(format!("Parse rev_id from {} failed. {}", &client_data.id, e))
-        })?;
+        let ack_id = rev_id_from_str(&client_data.id)?;
         let doc_id = client_data.doc_id;
 
         let revisions = spawn_blocking(move || {
@@ -79,6 +77,23 @@ impl ServerDocumentManager {
             )));
         }
         result
+    }
+
+    pub async fn handle_client_ping(
+        &self,
+        user: Arc<dyn RevisionUser>,
+        client_data: DocumentClientWSData,
+    ) -> Result<(), CollaborateError> {
+        let rev_id = rev_id_from_str(&client_data.id)?;
+        let doc_id = client_data.doc_id.clone();
+
+        match self.get_document_handler(&doc_id).await {
+            None => Ok(()),
+            Some(handler) => {
+                let _ = handler.apply_ping(doc_id.clone(), rev_id, user).await?;
+                Ok(())
+            },
+        }
     }
 
     async fn get_document_handler(&self, doc_id: &str) -> Option<Arc<OpenDocHandle>> {
@@ -168,6 +183,27 @@ impl OpenDocHandle {
         Ok(())
     }
 
+    #[tracing::instrument(level = "debug", skip(self, user), err)]
+    async fn apply_ping(
+        &self,
+        doc_id: String,
+        rev_id: i64,
+        user: Arc<dyn RevisionUser>,
+    ) -> Result<(), CollaborateError> {
+        let (ret, rx) = oneshot::channel();
+        self.users.insert(user.user_id(), user.clone());
+        let persistence = self.persistence.clone();
+        let msg = DocumentCommand::Ping {
+            doc_id,
+            user,
+            persistence,
+            rev_id,
+            ret,
+        };
+        let _ = self.send(msg, rx).await?;
+        Ok(())
+    }
+
     async fn send<T>(&self, msg: DocumentCommand, rx: oneshot::Receiver<T>) -> CollaborateResult<T> {
         let _ = self
             .sender
@@ -191,6 +227,13 @@ enum DocumentCommand {
         user: Arc<dyn RevisionUser>,
         revisions: Vec<Revision>,
         persistence: Arc<dyn DocumentPersistence>,
+        ret: oneshot::Sender<CollaborateResult<()>>,
+    },
+    Ping {
+        doc_id: String,
+        user: Arc<dyn RevisionUser>,
+        persistence: Arc<dyn DocumentPersistence>,
+        rev_id: i64,
         ret: oneshot::Sender<CollaborateResult<()>>,
     },
 }
@@ -248,7 +291,20 @@ impl DocumentCommandQueue {
                     .sync_revisions(doc_id, user, revisions, persistence)
                     .await
                     .map_err(internal_error);
-                log::debug!("handle message {:?}", result);
+                let _ = ret.send(result);
+            },
+            DocumentCommand::Ping {
+                doc_id,
+                user,
+                persistence,
+                rev_id,
+                ret,
+            } => {
+                let result = self
+                    .synchronizer
+                    .pong(doc_id, user, persistence, rev_id)
+                    .await
+                    .map_err(internal_error);
                 let _ = ret.send(result);
             },
         }
@@ -259,4 +315,12 @@ impl std::ops::Drop for DocumentCommandQueue {
     fn drop(&mut self) {
         log::debug!("{} DocumentCommandQueue drop", self.doc_id);
     }
+}
+
+fn rev_id_from_str(s: &str) -> Result<i64, CollaborateError> {
+    let rev_id = s
+        .to_owned()
+        .parse::<i64>()
+        .map_err(|e| CollaborateError::internal().context(format!("Parse rev_id from {} failed. {}", s, e)))?;
+    Ok(rev_id)
 }

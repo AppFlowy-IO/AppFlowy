@@ -2,22 +2,20 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
 use std::convert::TryInto;
 use actix_web::web::Data;
-use flowy_document::services::doc::edit::ClientDocEditor as ClientEditDocContext;
+use flowy_document::services::doc::edit::ClientDocumentEditor;
 use flowy_test::{helper::ViewTest, FlowySDKTest};
 use flowy_user::services::user::UserSession;
 use futures_util::{stream, stream::StreamExt};
-
 use std::sync::Arc;
 use bytes::Bytes;
 use tokio::time::{sleep, Duration};
 // use crate::helper::*;
 use crate::util::helper::{spawn_server, TestServer};
-use flowy_collaboration::{entities::doc::DocIdentifier, protobuf::ResetDocumentParams};
+use flowy_collaboration::{entities::doc::DocumentId, protobuf::ResetDocumentParams};
 use lib_ot::rich_text::{RichTextAttribute, RichTextDelta};
 use parking_lot::RwLock;
 use backend::services::document::persistence::{DocumentKVPersistence, read_document, reset_document};
-
-use flowy_collaboration::entities::revision::{RepeatedRevision, Revision, RevType};
+use flowy_collaboration::entities::revision::{RepeatedRevision, Revision};
 use lib_ot::core::Interval;
 
 use flowy_net::services::ws::FlowyWSConnect;
@@ -56,7 +54,7 @@ impl DocumentTest {
 
 #[derive(Clone)]
 struct ScriptContext {
-    client_edit_context: Option<Arc<ClientEditDocContext>>,
+    client_edit_context: Option<Arc<ClientDocumentEditor>>,
     client_sdk: FlowySDKTest,
     client_user_session: Arc<UserSession>,
     ws_conn: Arc<FlowyWSConnect>,
@@ -82,11 +80,11 @@ impl ScriptContext {
 
     async fn open_doc(&mut self) {
         let doc_id = self.doc_id.clone();
-        let edit_context = self.client_sdk.document_ctx.open(DocIdentifier { doc_id }).await.unwrap();
+        let edit_context = self.client_sdk.document_ctx.controller.open(doc_id).await.unwrap();
         self.client_edit_context = Some(edit_context);
     }
 
-    fn client_edit_context(&self) -> Arc<ClientEditDocContext> { self.client_edit_context.as_ref().unwrap().clone() }
+    fn client_edit_context(&self) -> Arc<ClientDocumentEditor> { self.client_edit_context.as_ref().unwrap().clone() }
 }
 
 async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript>) {
@@ -126,7 +124,7 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
                 DocScript::AssertServer(s, rev_id) => {
                     sleep(Duration::from_millis(100)).await;
                     let persistence = Data::new(context.read().server.app_ctx.persistence.kv_store());
-                    let doc_identifier: flowy_collaboration::protobuf::DocIdentifier = DocIdentifier {
+                    let doc_identifier: flowy_collaboration::protobuf::DocumentId = DocumentId {
                         doc_id
                     }.try_into().unwrap();
                     
@@ -144,7 +142,6 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
                         base_rev_id,
                         rev_id,
                         delta_data,
-                        RevType::Remote,
                         &user_id,
                         md5,
                     );

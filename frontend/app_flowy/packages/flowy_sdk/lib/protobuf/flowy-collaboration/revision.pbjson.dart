@@ -12,13 +12,13 @@ import 'dart:typed_data' as $typed_data;
 const RevisionState$json = const {
   '1': 'RevisionState',
   '2': const [
-    const {'1': 'StateLocal', '2': 0},
+    const {'1': 'Local', '2': 0},
     const {'1': 'Ack', '2': 1},
   ],
 };
 
 /// Descriptor for `RevisionState`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List revisionStateDescriptor = $convert.base64Decode('Cg1SZXZpc2lvblN0YXRlEg4KClN0YXRlTG9jYWwQABIHCgNBY2sQAQ==');
+final $typed_data.Uint8List revisionStateDescriptor = $convert.base64Decode('Cg1SZXZpc2lvblN0YXRlEgkKBUxvY2FsEAASBwoDQWNrEAE=');
 @$core.Deprecated('Use revTypeDescriptor instead')
 const RevType$json = const {
   '1': 'RevType',
