@@ -8,6 +8,7 @@ use crate::{
     sync::DocumentPersistence,
 };
 
+use crate::util::make_delta_from_revisions;
 use lib_ot::{core::OperationTransformable, rich_text::RichTextDelta};
 use parking_lot::RwLock;
 use std::{
@@ -51,11 +52,11 @@ impl RevisionSynchronizer {
     #[tracing::instrument(level = "debug", skip(self, user, revisions, persistence), err)]
     pub async fn sync_revisions(
         &self,
-        doc_id: String,
         user: Arc<dyn RevisionUser>,
         revisions: Vec<Revision>,
         persistence: Arc<dyn DocumentPersistence>,
     ) -> Result<(), CollaborateError> {
+        let doc_id = self.doc_id.clone();
         if revisions.is_empty() {
             // Return all the revisions to client
             let revisions = persistence.get_doc_revisions(&doc_id).await?;
@@ -112,11 +113,11 @@ impl RevisionSynchronizer {
     #[tracing::instrument(level = "debug", skip(self, user, persistence), err)]
     pub async fn pong(
         &self,
-        doc_id: String,
         user: Arc<dyn RevisionUser>,
         persistence: Arc<dyn DocumentPersistence>,
         rev_id: i64,
     ) -> Result<(), CollaborateError> {
+        let doc_id = self.doc_id.clone();
         let server_base_rev_id = self.rev_id.load(SeqCst);
         match server_base_rev_id.cmp(&rev_id) {
             Ordering::Less => tracing::error!(
@@ -135,6 +136,21 @@ impl RevisionSynchronizer {
                     .await;
             },
         }
+        Ok(())
+    }
+
+    #[tracing::instrument(level = "debug", skip(self, revisions), err)]
+    pub async fn reset(
+        &self,
+        persistence: Arc<dyn DocumentPersistence>,
+        revisions: Vec<Revision>,
+    ) -> Result<(), CollaborateError> {
+        let doc_id = self.doc_id.clone();
+        let _ = persistence.reset_document(&doc_id, revisions.clone()).await?;
+        let delta = make_delta_from_revisions(revisions)?;
+        let new_document = Document::from_delta(delta);
+        *self.document.write() = new_document;
+
         Ok(())
     }
 

@@ -10,6 +10,7 @@ use actix_web::{
 use backend_service::{errors::ServerError, response::FlowyResponse};
 use flowy_collaboration::protobuf::{CreateDocParams, DocumentId, ResetDocumentParams};
 
+use flowy_collaboration::sync::ServerDocumentManager;
 use std::sync::Arc;
 
 pub async fn create_document_handler(
@@ -36,10 +37,9 @@ pub async fn read_document_handler(
 
 pub async fn reset_document_handler(
     payload: Payload,
-    persistence: Data<Arc<FlowyPersistence>>,
+    document_manager: Data<Arc<ServerDocumentManager>>,
 ) -> Result<HttpResponse, ServerError> {
     let params: ResetDocumentParams = parse_from_payload(payload).await?;
-    let kv_store = persistence.kv_store();
-    let _ = reset_document(&kv_store, params).await?;
+    let _ = reset_document(document_manager.get_ref(), params).await?;
     Ok(FlowyResponse::success().into())
 }

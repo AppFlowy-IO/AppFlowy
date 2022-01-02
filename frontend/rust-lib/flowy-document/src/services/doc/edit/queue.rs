@@ -4,6 +4,7 @@ use flowy_collaboration::{
     document::{history::UndoResult, Document, NewlineDoc},
     entities::revision::Revision,
     errors::CollaborateError,
+    util::make_delta_from_revisions,
 };
 use flowy_error::FlowyError;
 use futures::stream::StreamExt;
@@ -77,20 +78,7 @@ impl EditorCommandQueue {
             },
             EditorCommand::TransformRevision { revisions, ret } => {
                 let f = || async {
-                    let mut new_delta = RichTextDelta::new();
-                    for revision in revisions {
-                        match RichTextDelta::from_bytes(revision.delta_data) {
-                            Ok(delta) => {
-                                new_delta = new_delta.compose(&delta)?;
-                            },
-                            Err(e) => {
-                                let err_msg = format!("Deserialize remote revision failed: {:?}", e);
-                                log::error!("{}", err_msg);
-                                return Err(CollaborateError::internal().context(err_msg));
-                            },
-                        }
-                    }
-
+                    let new_delta = make_delta_from_revisions(revisions)?;
                     let read_guard = self.document.read().await;
                     let mut server_prime: Option<RichTextDelta> = None;
                     let client_prime: RichTextDelta;

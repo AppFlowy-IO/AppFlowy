@@ -25,6 +25,7 @@ pub trait DocumentPersistence: Send + Sync + Debug {
     fn create_doc(&self, doc_id: &str, revisions: Vec<Revision>) -> BoxResultFuture<DocumentInfo, CollaborateError>;
     fn get_revisions(&self, doc_id: &str, rev_ids: Vec<i64>) -> BoxResultFuture<Vec<Revision>, CollaborateError>;
     fn get_doc_revisions(&self, doc_id: &str) -> BoxResultFuture<Vec<Revision>, CollaborateError>;
+    fn reset_document(&self, doc_id: &str, revisions: Vec<Revision>) -> BoxResultFuture<(), CollaborateError>;
 }
 
 pub struct ServerDocumentManager {
@@ -66,7 +67,7 @@ impl ServerDocumentManager {
                 Ok(())
             },
             Some(handler) => {
-                let _ = handler.apply_revisions(doc_id.clone(), user, revisions).await?;
+                let _ = handler.apply_revisions(user, revisions).await?;
                 Ok(())
             },
         };
@@ -86,14 +87,26 @@ impl ServerDocumentManager {
     ) -> Result<(), CollaborateError> {
         let rev_id = rev_id_from_str(&client_data.id)?;
         let doc_id = client_data.doc_id.clone();
-
         match self.get_document_handler(&doc_id).await {
             None => {
                 tracing::warn!("Document:{} doesn't exist, ignore pinging", doc_id);
                 Ok(())
             },
             Some(handler) => {
-                let _ = handler.apply_ping(doc_id.clone(), rev_id, user).await?;
+                let _ = handler.apply_ping(rev_id, user).await?;
+                Ok(())
+            },
+        }
+    }
+
+    pub async fn handle_document_reset(&self, doc_id: &str, revisions: Vec<Revision>) -> Result<(), CollaborateError> {
+        match self.get_document_handler(doc_id).await {
+            None => {
+                tracing::warn!("Document:{} doesn't exist, ignore document reset", doc_id);
+                Ok(())
+            },
+            Some(handler) => {
+                let _ = handler.apply_document_reset(revisions).await?;
                 Ok(())
             },
         }
@@ -167,7 +180,6 @@ impl OpenDocHandle {
     #[tracing::instrument(level = "debug", skip(self, user, revisions), err)]
     async fn apply_revisions(
         &self,
-        doc_id: String,
         user: Arc<dyn RevisionUser>,
         revisions: Vec<Revision>,
     ) -> Result<(), CollaborateError> {
@@ -175,7 +187,6 @@ impl OpenDocHandle {
         let persistence = self.persistence.clone();
         self.users.insert(user.user_id(), user.clone());
         let msg = DocumentCommand::ApplyRevisions {
-            doc_id,
             user,
             revisions,
             persistence,
@@ -187,20 +198,27 @@ impl OpenDocHandle {
     }
 
     #[tracing::instrument(level = "debug", skip(self, user), err)]
-    async fn apply_ping(
-        &self,
-        doc_id: String,
-        rev_id: i64,
-        user: Arc<dyn RevisionUser>,
-    ) -> Result<(), CollaborateError> {
+    async fn apply_ping(&self, rev_id: i64, user: Arc<dyn RevisionUser>) -> Result<(), CollaborateError> {
         let (ret, rx) = oneshot::channel();
         self.users.insert(user.user_id(), user.clone());
         let persistence = self.persistence.clone();
         let msg = DocumentCommand::Ping {
-            doc_id,
             user,
             persistence,
             rev_id,
+            ret,
+        };
+        let _ = self.send(msg, rx).await?;
+        Ok(())
+    }
+
+    #[tracing::instrument(level = "debug", skip(self, revisions), err)]
+    async fn apply_document_reset(&self, revisions: Vec<Revision>) -> Result<(), CollaborateError> {
+        let (ret, rx) = oneshot::channel();
+        let persistence = self.persistence.clone();
+        let msg = DocumentCommand::Reset {
+            persistence,
+            revisions,
             ret,
         };
         let _ = self.send(msg, rx).await?;
@@ -226,17 +244,20 @@ impl std::ops::Drop for OpenDocHandle {
 // #[derive(Debug)]
 enum DocumentCommand {
     ApplyRevisions {
-        doc_id: String,
         user: Arc<dyn RevisionUser>,
         revisions: Vec<Revision>,
         persistence: Arc<dyn DocumentPersistence>,
         ret: oneshot::Sender<CollaborateResult<()>>,
     },
     Ping {
-        doc_id: String,
         user: Arc<dyn RevisionUser>,
         persistence: Arc<dyn DocumentPersistence>,
         rev_id: i64,
+        ret: oneshot::Sender<CollaborateResult<()>>,
+    },
+    Reset {
+        persistence: Arc<dyn DocumentPersistence>,
+        revisions: Vec<Revision>,
         ret: oneshot::Sender<CollaborateResult<()>>,
     },
 }
@@ -283,7 +304,6 @@ impl DocumentCommandQueue {
     async fn handle_message(&self, msg: DocumentCommand) {
         match msg {
             DocumentCommand::ApplyRevisions {
-                doc_id,
                 user,
                 revisions,
                 persistence,
@@ -291,13 +311,12 @@ impl DocumentCommandQueue {
             } => {
                 let result = self
                     .synchronizer
-                    .sync_revisions(doc_id, user, revisions, persistence)
+                    .sync_revisions(user, revisions, persistence)
                     .await
                     .map_err(internal_error);
                 let _ = ret.send(result);
             },
             DocumentCommand::Ping {
-                doc_id,
                 user,
                 persistence,
                 rev_id,
@@ -305,7 +324,19 @@ impl DocumentCommandQueue {
             } => {
                 let result = self
                     .synchronizer
-                    .pong(doc_id, user, persistence, rev_id)
+                    .pong(user, persistence, rev_id)
+                    .await
+                    .map_err(internal_error);
+                let _ = ret.send(result);
+            },
+            DocumentCommand::Reset {
+                persistence,
+                revisions,
+                ret,
+            } => {
+                let result = self
+                    .synchronizer
+                    .reset(persistence, revisions)
                     .await
                     .map_err(internal_error);
                 let _ = ret.send(result);

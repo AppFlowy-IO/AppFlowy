@@ -94,6 +94,10 @@ impl DocumentPersistence for MockDocServerPersistence {
     }
 
     fn get_doc_revisions(&self, _doc_id: &str) -> BoxResultFuture<Vec<Revision>, CollaborateError> { unimplemented!() }
+
+    fn reset_document(&self, _doc_id: &str, _revisions: Vec<Revision>) -> BoxResultFuture<(), CollaborateError> {
+        unimplemented!()
+    }
 }
 
 #[derive(Debug)]

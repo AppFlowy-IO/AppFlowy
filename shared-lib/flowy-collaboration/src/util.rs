@@ -1,4 +1,11 @@
-use lib_ot::core::{NEW_LINE, WHITESPACE};
+use crate::{
+    entities::revision::Revision,
+    errors::{CollaborateError, CollaborateResult},
+};
+use lib_ot::{
+    core::{OperationTransformable, NEW_LINE, WHITESPACE},
+    rich_text::RichTextDelta,
+};
 use std::sync::atomic::{AtomicI64, Ordering::SeqCst};
 
 #[inline]
@@ -31,4 +38,16 @@ impl RevIdCounter {
     pub fn value(&self) -> i64 { self.0.load(SeqCst) }
 
     pub fn set(&self, n: i64) { let _ = self.0.fetch_update(SeqCst, SeqCst, |_| Some(n)); }
+}
+
+pub fn make_delta_from_revisions(revisions: Vec<Revision>) -> CollaborateResult<RichTextDelta> {
+    let mut new_delta = RichTextDelta::new();
+    for revision in revisions {
+        let delta = RichTextDelta::from_bytes(revision.delta_data).map_err(|e| {
+            let err_msg = format!("Deserialize remote revision failed: {:?}", e);
+            CollaborateError::internal().context(err_msg)
+        })?;
+        new_delta = new_delta.compose(&delta)?;
+    }
+    Ok(new_delta)
 }

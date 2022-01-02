@@ -14,8 +14,9 @@ use crate::util::helper::{spawn_server, TestServer};
 use flowy_collaboration::{entities::doc::DocumentId, protobuf::ResetDocumentParams};
 use lib_ot::rich_text::{RichTextAttribute, RichTextDelta};
 use parking_lot::RwLock;
-use backend::services::document::persistence::{DocumentKVPersistence, read_document, reset_document};
+use backend::services::document::persistence::{read_document, reset_document};
 use flowy_collaboration::entities::revision::{RepeatedRevision, Revision};
+use flowy_collaboration::sync::ServerDocumentManager;
 use lib_ot::core::Interval;
 
 use flowy_net::services::ws::FlowyWSConnect;
@@ -146,8 +147,8 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
                         md5,
                     );
                     
-                    let kv_store = Data::new(context.read().server.app_ctx.persistence.kv_store());
-                    reset_doc(&doc_id, RepeatedRevision::new(vec![revision]), kv_store.get_ref()).await;
+                    let document_manager = context.read().server.app_ctx.document_manager.clone();
+                    reset_doc(&doc_id, RepeatedRevision::new(vec![revision]), document_manager.get_ref()).await;
                     sleep(Duration::from_millis(2000)).await;
                 },
                 // DocScript::Sleep(sec) => {
@@ -182,10 +183,10 @@ async fn create_doc(flowy_test: &FlowySDKTest) -> String {
     view_test.view.id
 }
 
-async fn reset_doc(doc_id: &str, repeated_revision: RepeatedRevision, kv_store: &Arc<DocumentKVPersistence>) {
+async fn reset_doc(doc_id: &str, repeated_revision: RepeatedRevision, document_manager: &Arc<ServerDocumentManager>) {
     let pb: flowy_collaboration::protobuf::RepeatedRevision = repeated_revision.try_into().unwrap();
     let mut params = ResetDocumentParams::new();
     params.set_doc_id(doc_id.to_owned());
     params.set_revisions(pb);
-    let _ = reset_document(kv_store, params).await.unwrap();
+    let _ = reset_document(document_manager, params).await.unwrap();
 }

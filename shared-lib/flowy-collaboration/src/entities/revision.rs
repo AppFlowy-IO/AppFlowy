@@ -107,10 +107,9 @@ impl std::ops::DerefMut for RepeatedRevision {
 }
 
 impl RepeatedRevision {
-    pub fn new(items: Vec<Revision>) -> Self {
-        let mut sorted_items = items.clone();
-        sorted_items.sort_by(|a, b| a.rev_id.cmp(&b.rev_id));
-        Self { items: sorted_items }
+    pub fn new(mut items: Vec<Revision>) -> Self {
+        items.sort_by(|a, b| a.rev_id.cmp(&b.rev_id));
+        Self { items }
     }
 
     pub fn empty() -> Self { RepeatedRevision { items: vec![] } }

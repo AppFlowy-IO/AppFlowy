@@ -15,7 +15,9 @@ use flowy_collaboration::protobuf::{
 };
 use lib_ot::{core::OperationTransformable, rich_text::RichTextDelta};
 use protobuf::Message;
+use std::convert::TryInto;
 
+use flowy_collaboration::sync::ServerDocumentManager;
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -39,23 +41,23 @@ pub async fn read_document(
     make_doc_from_revisions(&params.doc_id, revisions)
 }
 
-#[tracing::instrument(level = "debug", skip(kv_store, params), fields(delta), err)]
+#[tracing::instrument(level = "debug", skip(document_manager, params), fields(delta), err)]
 pub async fn reset_document(
-    kv_store: &Arc<DocumentKVPersistence>,
+    document_manager: &Arc<ServerDocumentManager>,
     mut params: ResetDocumentParams,
 ) -> Result<(), ServerError> {
-    let revisions = params.take_revisions().take_items();
-    let doc_id = params.take_doc_id();
-    kv_store
-        .transaction(|mut transaction| {
-            Box::pin(async move {
-                let _ = transaction.batch_delete_key_start_with(&doc_id).await?;
-                let items = revisions_to_key_value_items(revisions.into())?;
-                let _ = transaction.batch_set(items).await?;
-                Ok(())
-            })
-        })
+    let params: flowy_collaboration::entities::doc::ResetDocumentParams = (&mut params).try_into().unwrap();
+    let mut revisions = params.revisions.into_inner();
+    if revisions.is_empty() {
+        return Err(ServerError::payload_none().context("Revisions should not be empty when reset the document"));
+    }
+    let doc_id = params.doc_id.clone();
+    revisions.sort_by(|a, b| a.rev_id.cmp(&b.rev_id));
+    let _ = document_manager
+        .handle_document_reset(&doc_id, revisions)
         .await
+        .map_err(internal_error)?;
+    Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip(kv_store), err)]
@@ -152,7 +154,7 @@ impl DocumentKVPersistence {
 }
 
 #[inline]
-fn revisions_to_key_value_items(revisions: Vec<Revision>) -> Result<Vec<KeyValue>, ServerError> {
+pub fn revisions_to_key_value_items(revisions: Vec<Revision>) -> Result<Vec<KeyValue>, ServerError> {
     let mut items = vec![];
     for revision in revisions {
         let key = make_revision_key(&revision.doc_id, revision.rev_id);
@@ -193,7 +195,7 @@ fn make_doc_from_revisions(doc_id: &str, mut revisions: RepeatedRevision) -> Res
     let mut document_delta = RichTextDelta::new();
     let mut base_rev_id = 0;
     let mut rev_id = 0;
-    // TODO: generate delta from revision should be wrapped into function.
+    // TODO: replace with make_delta_from_revisions
     for revision in revisions {
         base_rev_id = revision.base_rev_id;
         rev_id = revision.rev_id;

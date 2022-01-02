@@ -6,7 +6,7 @@ use crate::services::{
     web_socket::{WSClientData, WebSocketReceiver},
 };
 
-use crate::context::FlowyPersistence;
+use crate::{context::FlowyPersistence, services::document::persistence::revisions_to_key_value_items};
 use backend_service::errors::ServerError;
 use flowy_collaboration::{
     entities::{
@@ -25,10 +25,10 @@ use std::{
 };
 use tokio::sync::{mpsc, oneshot};
 
-pub fn make_document_ws_receiver(persistence: Arc<FlowyPersistence>) -> Arc<DocumentWebSocketReceiver> {
-    let document_persistence = Arc::new(DocumentPersistenceImpl(persistence.clone()));
-    let document_manager = Arc::new(ServerDocumentManager::new(document_persistence));
-
+pub fn make_document_ws_receiver(
+    persistence: Arc<FlowyPersistence>,
+    document_manager: Arc<ServerDocumentManager>,
+) -> Arc<DocumentWebSocketReceiver> {
     let (ws_sender, rx) = tokio::sync::mpsc::channel(100);
     let actor = DocumentWebSocketActor::new(rx, document_manager);
     tokio::task::spawn(actor.run());
@@ -72,7 +72,7 @@ impl WebSocketReceiver for DocumentWebSocketReceiver {
     }
 }
 
-struct DocumentPersistenceImpl(Arc<FlowyPersistence>);
+pub struct DocumentPersistenceImpl(pub Arc<FlowyPersistence>);
 impl Debug for DocumentPersistenceImpl {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result { f.write_str("DocumentPersistenceImpl") }
 }
@@ -83,9 +83,9 @@ impl DocumentPersistence for DocumentPersistenceImpl {
             doc_id: doc_id.to_string(),
             ..Default::default()
         };
-        let persistence = self.0.kv_store();
+        let kv_store = self.0.kv_store();
         Box::pin(async move {
-            let mut pb_doc = read_document(&persistence, params)
+            let mut pb_doc = read_document(&kv_store, params)
                 .await
                 .map_err(server_error_to_collaborate_error)?;
             let doc = (&mut pb_doc)
@@ -134,6 +134,24 @@ impl DocumentPersistence for DocumentPersistenceImpl {
             Ok(revisions)
         };
 
+        Box::pin(async move { f().await.map_err(server_error_to_collaborate_error) })
+    }
+
+    fn reset_document(&self, doc_id: &str, revisions: Vec<Revision>) -> BoxResultFuture<(), CollaborateError> {
+        let kv_store = self.0.kv_store();
+        let doc_id = doc_id.to_owned();
+        let f = || async move {
+            kv_store
+                .transaction(|mut transaction| {
+                    Box::pin(async move {
+                        let _ = transaction.batch_delete_key_start_with(&doc_id).await?;
+                        // let items = revisions_to_key_value_items(vec![])?;
+                        let _ = transaction.batch_set(vec![]).await?;
+                        Ok(())
+                    })
+                })
+                .await
+        };
         Box::pin(async move { f().await.map_err(server_error_to_collaborate_error) })
     }
 }
