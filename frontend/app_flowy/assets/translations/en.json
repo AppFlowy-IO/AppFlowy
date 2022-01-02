@@ -90,6 +90,10 @@
     "inlineCode": "Inline Code",
     "quote": "Quote Block"
   },
+  "tooltip":{
+    "lightMode": "Switch to Light mode",
+    "darkMode": "Switch to Dark mode"
+  },
   "contactsPage": {
     "title": "Contacts",
     "whatsHappening": "What's happening this week?",
