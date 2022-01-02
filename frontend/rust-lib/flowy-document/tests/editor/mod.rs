@@ -5,7 +5,7 @@ mod serde_test;
 mod undo_redo_test;
 
 use derive_more::Display;
-use flowy_collaboration::document::{CustomDocument, Document};
+use flowy_collaboration::document::{Document, InitialDocumentText};
 use lib_ot::{
     core::*,
     rich_text::{RichTextAttribute, RichTextAttributes, RichTextDelta},
@@ -266,7 +266,7 @@ impl TestBuilder {
         }
     }
 
-    pub fn run_scripts<C: CustomDocument>(mut self, scripts: Vec<TestOp>) {
+    pub fn run_scripts<C: InitialDocumentText>(mut self, scripts: Vec<TestOp>) {
         self.documents = vec![Document::new::<C>(), Document::new::<C>()];
         self.primes = vec![None, None];
         self.deltas = vec![None, None];

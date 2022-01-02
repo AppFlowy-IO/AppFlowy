@@ -14,18 +14,18 @@ use crate::{
     errors::CollaborateError,
 };
 
-pub trait CustomDocument {
-    fn init_delta() -> RichTextDelta;
+pub trait InitialDocumentText {
+    fn initial_delta() -> RichTextDelta;
 }
 
 pub struct PlainDoc();
-impl CustomDocument for PlainDoc {
-    fn init_delta() -> RichTextDelta { RichTextDelta::new() }
+impl InitialDocumentText for PlainDoc {
+    fn initial_delta() -> RichTextDelta { RichTextDelta::new() }
 }
 
-pub struct FlowyDoc();
-impl CustomDocument for FlowyDoc {
-    fn init_delta() -> RichTextDelta { initial_delta() }
+pub struct NewlineDoc();
+impl InitialDocumentText for NewlineDoc {
+    fn initial_delta() -> RichTextDelta { initial_delta() }
 }
 
 pub struct Document {
@@ -37,7 +37,7 @@ pub struct Document {
 }
 
 impl Document {
-    pub fn new<C: CustomDocument>() -> Self { Self::from_delta(C::init_delta()) }
+    pub fn new<C: InitialDocumentText>() -> Self { Self::from_delta(C::initial_delta()) }
 
     pub fn from_delta(delta: RichTextDelta) -> Self {
         Document {
@@ -193,6 +193,8 @@ impl Document {
             },
         }
     }
+
+    pub fn is_empty<C: InitialDocumentText>(&self) -> bool { self.delta == C::initial_delta() }
 }
 
 impl Document {

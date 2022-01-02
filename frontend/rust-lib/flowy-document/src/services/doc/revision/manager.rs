@@ -7,11 +7,13 @@ use dashmap::DashMap;
 use flowy_collaboration::{
     entities::{
         doc::DocumentInfo,
+        prelude::pair_rev_id_from_revisions,
         revision::{RepeatedRevision, Revision, RevisionRange, RevisionState},
     },
     util::{md5, RevIdCounter},
 };
 use flowy_error::FlowyResult;
+use futures_util::{future, stream, stream::StreamExt};
 use lib_infra::future::FutureResult;
 use lib_ot::{
     core::{Operation, OperationTransformable},
@@ -30,13 +32,13 @@ pub struct RevisionManager {
     user_id: String,
     rev_id_counter: RevIdCounter,
     cache: Arc<RevisionCache>,
-    sync_seq: Arc<RevisionSyncSeq>,
+    sync_seq: Arc<RevisionSyncSequence>,
 }
 
 impl RevisionManager {
     pub fn new(user_id: &str, doc_id: &str, cache: Arc<RevisionCache>) -> Self {
         let rev_id_counter = RevIdCounter::new(0);
-        let sync_seq = Arc::new(RevisionSyncSeq::new());
+        let sync_seq = Arc::new(RevisionSyncSequence::new());
         Self {
             doc_id: doc_id.to_string(),
             user_id: user_id.to_owned(),
@@ -62,10 +64,13 @@ impl RevisionManager {
 
     #[tracing::instrument(level = "debug", skip(self, revisions), err)]
     pub async fn reset_document(&self, revisions: RepeatedRevision) -> FlowyResult<()> {
-        self.cache.reset_document(&self.doc_id, revisions.into_inner())
+        let rev_id = pair_rev_id_from_revisions(&revisions).1;
+        let _ = self.cache.reset_document(&self.doc_id, revisions.into_inner()).await?;
+        self.rev_id_counter.set(rev_id);
+        Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, revision))]
+    #[tracing::instrument(level = "debug", skip(self, revision), err)]
     pub async fn add_remote_revision(&self, revision: &Revision) -> Result<(), FlowyError> {
         if revision.delta_data.is_empty() {
             return Err(FlowyError::internal().context("Delta data should be empty"));
@@ -98,7 +103,7 @@ impl RevisionManager {
 
     pub fn set_rev_id(&self, rev_id: i64) { self.rev_id_counter.set(rev_id); }
 
-    pub fn next_rev_id(&self) -> (i64, i64) {
+    pub fn next_rev_id_pair(&self) -> (i64, i64) {
         let cur = self.rev_id_counter.value();
         let next = self.rev_id_counter.next();
         (cur, next)
@@ -131,23 +136,23 @@ impl RevisionManager {
     }
 }
 
-struct RevisionSyncSeq {
+struct RevisionSyncSequence {
     revs_map: Arc<DashMap<i64, RevisionRecord>>,
     local_revs: Arc<RwLock<VecDeque<i64>>>,
 }
 
-impl std::default::Default for RevisionSyncSeq {
+impl std::default::Default for RevisionSyncSequence {
     fn default() -> Self {
         let local_revs = Arc::new(RwLock::new(VecDeque::new()));
-        RevisionSyncSeq {
+        RevisionSyncSequence {
             revs_map: Arc::new(DashMap::new()),
             local_revs,
         }
     }
 }
 
-impl RevisionSyncSeq {
-    fn new() -> Self { RevisionSyncSeq::default() }
+impl RevisionSyncSequence {
+    fn new() -> Self { RevisionSyncSequence::default() }
 
     async fn add_revision(&self, record: RevisionRecord) -> Result<(), OTError> {
         // The last revision's rev_id must be greater than the new one.
@@ -216,22 +221,16 @@ impl RevisionLoader {
             let _ = self.cache.add(revision.clone(), RevisionState::Ack, true).await?;
             revisions = vec![revision];
         } else {
-            for record in &records {
-                match record.state {
-                    RevisionState::Local => {
-                        //
-                        match self
-                            .cache
-                            .add(record.revision.clone(), RevisionState::Local, false)
-                            .await
-                        {
-                            Ok(_) => {},
-                            Err(e) => tracing::error!("{}", e),
-                        }
-                    },
-                    RevisionState::Ack => {},
-                }
-            }
+            // Sync the records if their state is RevisionState::Local.
+            stream::iter(records.clone())
+                .filter(|record| future::ready(record.state == RevisionState::Local))
+                .for_each(|record| async move {
+                    match self.cache.add(record.revision, record.state, false).await {
+                        Ok(_) => {},
+                        Err(e) => tracing::error!("{}", e),
+                    }
+                })
+                .await;
             revisions = records.into_iter().map(|record| record.revision).collect::<_>();
         }
 
@@ -274,7 +273,7 @@ fn correct_delta_if_need(delta: &mut RichTextDelta) {
 }
 
 #[cfg(feature = "flowy_unit_test")]
-impl RevisionSyncSeq {
+impl RevisionSyncSequence {
     #[allow(dead_code)]
     pub fn revs_map(&self) -> Arc<DashMap<i64, RevisionRecord>> { self.revs_map.clone() }
     #[allow(dead_code)]

@@ -73,7 +73,7 @@ impl DocumentWebSocketActor {
             .map_err(internal_error)??;
 
         tracing::debug!(
-            "[DocumentWebSocketActor]: receive client data: {}:{}, {:?}",
+            "[DocumentWebSocketActor]: client data: {}:{}, {:?}",
             document_client_data.doc_id,
             document_client_data.id,
             document_client_data.ty

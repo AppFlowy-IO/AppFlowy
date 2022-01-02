@@ -1,5 +1,5 @@
 use crate::document_test::edit_script::{DocScript, DocumentTest};
-use flowy_collaboration::document::{Document, FlowyDoc};
+use flowy_collaboration::document::{Document, NewlineDoc};
 use lib_ot::{core::Interval, rich_text::RichTextAttribute};
 
 #[rustfmt::skip]
@@ -76,7 +76,7 @@ async fn delta_sync_while_editing_with_attribute() {
 #[actix_rt::test]
 async fn delta_sync_with_http_request() {
     let test = DocumentTest::new().await;
-    let mut document = Document::new::<FlowyDoc>();
+    let mut document = Document::new::<NewlineDoc>();
     document.insert(0, "123").unwrap();
     document.insert(3, "456").unwrap();
     
@@ -94,14 +94,13 @@ async fn delta_sync_with_http_request() {
 #[actix_rt::test]
 async fn delta_sync_with_server_push_delta() {
     let test = DocumentTest::new().await;
-    let mut document = Document::new::<FlowyDoc>();
+    let mut document = Document::new::<NewlineDoc>();
     document.insert(0, "123").unwrap();
     let json = document.to_json();
 
     test.run_scripts(vec![
         DocScript::ClientOpenDoc,
         DocScript::ServerSaveDocument(json, 3),
-        DocScript::ClientConnectWS,
         DocScript::AssertClient(r#"[{"insert":"123\n\n"}]"#),
         DocScript::AssertServer(r#"[{"insert":"123\n\n"}]"#, 3),
     ])
@@ -142,7 +141,7 @@ async fn delta_sync_with_server_push_delta() {
 #[actix_rt::test]
 async fn delta_sync_while_local_rev_less_than_server_rev() {
     let test = DocumentTest::new().await;
-    let mut document = Document::new::<FlowyDoc>();
+    let mut document = Document::new::<NewlineDoc>();
     document.insert(0, "123").unwrap();
     let json = document.to_json();
 
@@ -150,7 +149,7 @@ async fn delta_sync_while_local_rev_less_than_server_rev() {
         DocScript::ClientOpenDoc,
         DocScript::ServerSaveDocument(json, 3),
         DocScript::ClientInsertText(0, "abc"),
-        DocScript::ClientConnectWS,
+        // DocScript::ClientConnectWS,
         DocScript::AssertClient(r#"[{"insert":"abc\n123\n"}]"#),
         DocScript::AssertServer(r#"[{"insert":"abc\n123\n"}]"#, 4),
     ])
@@ -185,7 +184,7 @@ async fn delta_sync_while_local_rev_less_than_server_rev() {
 #[actix_rt::test]
 async fn delta_sync_while_local_rev_greater_than_server_rev() {
     let test = DocumentTest::new().await;
-    let mut document = Document::new::<FlowyDoc>();
+    let mut document = Document::new::<NewlineDoc>();
     document.insert(0, "123").unwrap();
     let json = document.to_json();
 

@@ -88,7 +88,10 @@ impl ServerDocumentManager {
         let doc_id = client_data.doc_id.clone();
 
         match self.get_document_handler(&doc_id).await {
-            None => Ok(()),
+            None => {
+                tracing::warn!("Document:{} doesn't exist, ignore pinging", doc_id);
+                Ok(())
+            },
             Some(handler) => {
                 let _ = handler.apply_ping(doc_id.clone(), rev_id, user).await?;
                 Ok(())
@@ -216,7 +219,7 @@ impl OpenDocHandle {
 
 impl std::ops::Drop for OpenDocHandle {
     fn drop(&mut self) {
-        log::debug!("{} OpenDocHandle drop", self.doc_id);
+        log::debug!("{} OpenDocHandle was drop", self.doc_id);
     }
 }
 
@@ -313,7 +316,7 @@ impl DocumentCommandQueue {
 
 impl std::ops::Drop for DocumentCommandQueue {
     fn drop(&mut self) {
-        log::debug!("{} DocumentCommandQueue drop", self.doc_id);
+        log::debug!("{} DocumentCommandQueue was drop", self.doc_id);
     }
 }
 

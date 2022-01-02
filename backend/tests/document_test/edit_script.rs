@@ -54,7 +54,7 @@ impl DocumentTest {
 
 #[derive(Clone)]
 struct ScriptContext {
-    client_edit_context: Option<Arc<ClientDocumentEditor>>,
+    client_editor: Option<Arc<ClientDocumentEditor>>,
     client_sdk: FlowySDKTest,
     client_user_session: Arc<UserSession>,
     ws_conn: Arc<FlowyWSConnect>,
@@ -69,7 +69,7 @@ impl ScriptContext {
         let doc_id = create_doc(&client_sdk).await;
 
         Self {
-            client_edit_context: None,
+            client_editor: None,
             client_sdk,
             client_user_session: user_session,
             ws_conn: ws_manager,
@@ -81,10 +81,10 @@ impl ScriptContext {
     async fn open_doc(&mut self) {
         let doc_id = self.doc_id.clone();
         let edit_context = self.client_sdk.document_ctx.controller.open(doc_id).await.unwrap();
-        self.client_edit_context = Some(edit_context);
+        self.client_editor = Some(edit_context);
     }
 
-    fn client_edit_context(&self) -> Arc<ClientDocumentEditor> { self.client_edit_context.as_ref().unwrap().clone() }
+    fn client_editor(&self) -> Arc<ClientDocumentEditor> { self.client_editor.as_ref().unwrap().clone() }
 }
 
 async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript>) {
@@ -106,23 +106,23 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
                 },
                 DocScript::ClientInsertText(index, s) => {
                     sleep(Duration::from_millis(2000)).await;
-                    context.read().client_edit_context().insert(index, s).await.unwrap();
+                    context.read().client_editor().insert(index, s).await.unwrap();
                 },
                 DocScript::ClientFormatText(interval, attribute) => {
                     context
                         .read()
-                        .client_edit_context()
+                        .client_editor()
                         .format(interval, attribute)
                         .await
                         .unwrap();
                 },
                 DocScript::AssertClient(s) => {
                     sleep(Duration::from_millis(2000)).await;
-                    let json = context.read().client_edit_context().doc_json().await.unwrap();
+                    let json = context.read().client_editor().doc_json().await.unwrap();
                     assert_eq(s, &json);
                 },
                 DocScript::AssertServer(s, rev_id) => {
-                    sleep(Duration::from_millis(100)).await;
+                    sleep(Duration::from_millis(2000)).await;
                     let persistence = Data::new(context.read().server.app_ctx.persistence.kv_store());
                     let doc_identifier: flowy_collaboration::protobuf::DocumentId = DocumentId {
                         doc_id
@@ -148,6 +148,7 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
                     
                     let kv_store = Data::new(context.read().server.app_ctx.persistence.kv_store());
                     reset_doc(&doc_id, RepeatedRevision::new(vec![revision]), kv_store.get_ref()).await;
+                    sleep(Duration::from_millis(2000)).await;
                 },
                 // DocScript::Sleep(sec) => {
                 //     sleep(Duration::from_secs(sec)).await;

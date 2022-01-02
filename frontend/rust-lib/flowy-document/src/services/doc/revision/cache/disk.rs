@@ -38,6 +38,8 @@ pub trait RevisionDiskCache: Sync + Send {
         conn: &SqliteConnection,
     ) -> Result<(), Self::Error>;
 
+    fn reset_with_revisions(&self, doc_id: &str, revision_records: Vec<RevisionRecord>) -> Result<(), Self::Error>;
+
     fn db_pool(&self) -> Arc<ConnectionPool>;
 }
 
@@ -97,6 +99,15 @@ impl RevisionDiskCache for Persistence {
     ) -> Result<(), Self::Error> {
         let _ = RevisionTableSql::delete(doc_id, rev_ids, conn)?;
         Ok(())
+    }
+
+    fn reset_with_revisions(&self, doc_id: &str, revision_records: Vec<RevisionRecord>) -> Result<(), Self::Error> {
+        let conn = self.db_pool().get().map_err(internal_error)?;
+        conn.immediate_transaction::<_, FlowyError, _>(|| {
+            let _ = self.delete_revision_records(doc_id, None, &*conn)?;
+            let _ = self.write_revision_records(revision_records, &*conn)?;
+            Ok(())
+        })
     }
 
     fn db_pool(&self) -> Arc<ConnectionPool> { self.pool.clone() }

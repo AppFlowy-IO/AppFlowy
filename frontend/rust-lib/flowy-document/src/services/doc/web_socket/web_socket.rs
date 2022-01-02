@@ -19,7 +19,8 @@ use flowy_error::{internal_error, FlowyError, FlowyResult};
 use lib_infra::future::FutureResult;
 
 use crate::services::doc::web_socket::local_ws_impl::LocalWebSocketManager;
-use flowy_collaboration::entities::ws::DocumentServerWSDataType;
+use flowy_collaboration::entities::{revision::pair_rev_id_from_revisions, ws::DocumentServerWSDataType};
+use lib_ot::rich_text::RichTextDelta;
 use lib_ws::WSConnectState;
 use std::{collections::VecDeque, convert::TryFrom, sync::Arc};
 use tokio::sync::{broadcast, mpsc::UnboundedSender, oneshot, RwLock};
@@ -162,6 +163,68 @@ impl DocumentWSSinkDataProvider for DocumentWSSinkDataProviderAdapter {
     }
 }
 
+async fn transform_pushed_revisions(
+    revisions: &[Revision],
+    edit_cmd: &UnboundedSender<EditorCommand>,
+) -> FlowyResult<TransformDeltas> {
+    let (ret, rx) = oneshot::channel::<CollaborateResult<TransformDeltas>>();
+    // Transform the revision
+    let _ = edit_cmd.send(EditorCommand::TransformRevision {
+        revisions: revisions.to_vec(),
+        ret,
+    });
+    let transformed_delta = rx.await.map_err(internal_error)??;
+    Ok(transformed_delta)
+}
+
+async fn compose_pushed_delta(
+    delta: RichTextDelta,
+    edit_cmd: &UnboundedSender<EditorCommand>,
+) -> FlowyResult<DocumentMD5> {
+    // compose delta
+    let (ret, rx) = oneshot::channel::<CollaborateResult<DocumentMD5>>();
+    let _ = edit_cmd.send(EditorCommand::ComposeDelta { delta, ret });
+    let md5 = rx.await.map_err(internal_error)??;
+    Ok(md5)
+}
+
+async fn override_client_delta(
+    delta: RichTextDelta,
+    edit_cmd: &UnboundedSender<EditorCommand>,
+) -> FlowyResult<DocumentMD5> {
+    let (ret, rx) = oneshot::channel::<CollaborateResult<DocumentMD5>>();
+    let _ = edit_cmd.send(EditorCommand::OverrideDelta { delta, ret });
+    let md5 = rx.await.map_err(internal_error)??;
+    Ok(md5)
+}
+
+async fn make_client_and_server_revision(
+    doc_id: &str,
+    user_id: &str,
+    base_rev_id: i64,
+    rev_id: i64,
+    client_delta: RichTextDelta,
+    server_delta: Option<RichTextDelta>,
+    md5: DocumentMD5,
+) -> (Revision, Option<Revision>) {
+    let client_revision = Revision::new(
+        &doc_id,
+        base_rev_id,
+        rev_id,
+        client_delta.to_bytes(),
+        &user_id,
+        md5.clone(),
+    );
+
+    match server_delta {
+        None => (client_revision, None),
+        Some(server_delta) => {
+            let server_revision = Revision::new(&doc_id, base_rev_id, rev_id, server_delta.to_bytes(), &user_id, md5);
+            (client_revision, Some(server_revision))
+        },
+    }
+}
+
 #[tracing::instrument(level = "debug", skip(edit_cmd_tx, rev_manager, bytes))]
 pub(crate) async fn handle_push_rev(
     doc_id: &str,
@@ -170,67 +233,60 @@ pub(crate) async fn handle_push_rev(
     rev_manager: Arc<RevisionManager>,
     bytes: Bytes,
 ) -> FlowyResult<Option<Revision>> {
-    // Transform the revision
-    let (ret, rx) = oneshot::channel::<CollaborateResult<TransformDeltas>>();
     let mut revisions = RepeatedRevision::try_from(bytes)?.into_inner();
     if revisions.is_empty() {
         return Ok(None);
     }
+
     let first_revision = revisions.first().unwrap();
     if let Some(local_revision) = rev_manager.get_revision(first_revision.rev_id).await {
-        if local_revision.md5 != first_revision.md5 {
+        if local_revision.md5 == first_revision.md5 {
             // The local revision is equal to the pushed revision. Just ignore it.
+            revisions = revisions.split_off(1);
+            if revisions.is_empty() {
+                return Ok(None);
+            }
+        } else {
             return Ok(None);
         }
     }
 
-    let revisions = revisions.split_off(1);
-    if revisions.is_empty() {
-        return Ok(None);
-    }
-
-    let _ = edit_cmd_tx.send(EditorCommand::ProcessRemoteRevision {
-        revisions: revisions.clone(),
-        ret,
-    });
     let TransformDeltas {
         client_prime,
         server_prime,
-    } = rx.await.map_err(internal_error)??;
+    } = transform_pushed_revisions(&revisions, &edit_cmd_tx).await?;
+    match server_prime {
+        None => {
+            // The server_prime is None means the client local revisions conflict with the
+            // server, and it needs to override the client delta.
+            let md5 = override_client_delta(client_prime.clone(), &edit_cmd_tx).await?;
+            let repeated_revision = RepeatedRevision::new(revisions);
+            assert_eq!(repeated_revision.last().unwrap().md5, md5);
+            let _ = rev_manager.reset_document(repeated_revision).await?;
+            Ok(None)
+        },
+        Some(server_prime) => {
+            let md5 = compose_pushed_delta(client_prime.clone(), &edit_cmd_tx).await?;
+            for revision in &revisions {
+                let _ = rev_manager.add_remote_revision(revision).await?;
+            }
+            let (base_rev_id, rev_id) = rev_manager.next_rev_id_pair();
+            let (client_revision, server_revision) = make_client_and_server_revision(
+                doc_id,
+                user_id,
+                base_rev_id,
+                rev_id,
+                client_prime,
+                Some(server_prime),
+                md5,
+            )
+            .await;
 
-    for revision in &revisions {
-        let _ = rev_manager.add_remote_revision(revision).await?;
+            // save the client revision
+            let _ = rev_manager.add_remote_revision(&client_revision).await?;
+            Ok(server_revision)
+        },
     }
-
-    // compose delta
-    let (ret, rx) = oneshot::channel::<CollaborateResult<DocumentMD5>>();
-    let _ = edit_cmd_tx.send(EditorCommand::ComposeDelta {
-        delta: client_prime.clone(),
-        ret,
-    });
-    let md5 = rx.await.map_err(internal_error)??;
-    let (local_base_rev_id, local_rev_id) = rev_manager.next_rev_id();
-
-    // save the revision
-    let revision = Revision::new(
-        &doc_id,
-        local_base_rev_id,
-        local_rev_id,
-        client_prime.to_bytes(),
-        &user_id,
-        md5.clone(),
-    );
-    let _ = rev_manager.add_remote_revision(&revision).await?;
-
-    // send the server_prime delta
-    Ok(Some(Revision::new(
-        &doc_id,
-        local_base_rev_id,
-        local_rev_id,
-        server_prime.to_bytes(),
-        &user_id,
-        md5,
-    )))
 }
 
 #[derive(Clone)]

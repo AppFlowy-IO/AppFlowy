@@ -108,18 +108,29 @@ impl std::ops::DerefMut for RepeatedRevision {
 
 impl RepeatedRevision {
     pub fn new(items: Vec<Revision>) -> Self {
-        if cfg!(debug_assertions) {
-            let mut sorted_items = items.clone();
-            sorted_items.sort_by(|a, b| a.rev_id.cmp(&b.rev_id));
-            assert_eq!(sorted_items, items, "The items passed in should be sorted")
-        }
-
-        Self { items }
+        let mut sorted_items = items.clone();
+        sorted_items.sort_by(|a, b| a.rev_id.cmp(&b.rev_id));
+        Self { items: sorted_items }
     }
 
     pub fn empty() -> Self { RepeatedRevision { items: vec![] } }
 
     pub fn into_inner(self) -> Vec<Revision> { self.items }
+}
+
+pub fn pair_rev_id_from_revisions(revisions: &[Revision]) -> (i64, i64) {
+    let mut rev_id = 0;
+    revisions.iter().for_each(|revision| {
+        if rev_id < revision.rev_id {
+            rev_id = revision.rev_id;
+        }
+    });
+
+    if rev_id > 0 {
+        (rev_id - 1, rev_id)
+    } else {
+        (0, rev_id)
+    }
 }
 
 #[derive(Clone, Debug, ProtoBuf, Default)]
@@ -184,6 +195,10 @@ pub fn md5<T: AsRef<[u8]>>(data: T) -> String {
 pub enum RevisionState {
     Local = 0,
     Ack   = 1,
+}
+
+impl AsRef<RevisionState> for RevisionState {
+    fn as_ref(&self) -> &RevisionState { &self }
 }
 
 #[derive(Debug, ProtoBuf_Enum, Clone, Eq, PartialEq)]

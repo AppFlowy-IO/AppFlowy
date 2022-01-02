@@ -101,12 +101,15 @@ impl RevisionSynchronizer {
                 // delta.
                 let from_rev_id = first_revision.rev_id;
                 let to_rev_id = server_base_rev_id;
-                let _ = self.push_revisions_to_user(user, persistence, from_rev_id, to_rev_id);
+                let _ = self
+                    .push_revisions_to_user(user, persistence, from_rev_id, to_rev_id)
+                    .await;
             },
         }
         Ok(())
     }
 
+    #[tracing::instrument(level = "debug", skip(self, user, persistence), err)]
     pub async fn pong(
         &self,
         doc_id: String,
@@ -127,7 +130,9 @@ impl RevisionSynchronizer {
                 let from_rev_id = rev_id;
                 let to_rev_id = server_base_rev_id;
                 tracing::trace!("[Pong]: Push revisions to user");
-                let _ = self.push_revisions_to_user(user, persistence, from_rev_id, to_rev_id);
+                let _ = self
+                    .push_revisions_to_user(user, persistence, from_rev_id, to_rev_id)
+                    .await;
             },
         }
         Ok(())
@@ -201,6 +206,7 @@ impl RevisionSynchronizer {
             },
         };
 
+        tracing::debug!("Push revision: {} -> {} to client", from, to);
         let data = DocumentServerWSDataBuilder::build_push_message(&self.doc_id, revisions);
         user.receive(SyncResponse::Push(data));
     }

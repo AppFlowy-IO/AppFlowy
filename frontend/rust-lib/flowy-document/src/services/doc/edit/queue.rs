@@ -1,6 +1,7 @@
 use async_stream::stream;
 
 use flowy_collaboration::{
+    document::{history::UndoResult, Document, NewlineDoc},
     entities::revision::Revision,
     errors::CollaborateError,
 };
@@ -12,7 +13,6 @@ use lib_ot::{
 };
 use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot, RwLock};
-use flowy_collaboration::document::{Document, history::UndoResult};
 
 pub(crate) struct EditorCommandQueue {
     doc_id: String,
@@ -53,10 +53,29 @@ impl EditorCommandQueue {
     async fn handle_message(&self, msg: EditorCommand) -> Result<(), FlowyError> {
         match msg {
             EditorCommand::ComposeDelta { delta, ret } => {
-                let result = self.composed_delta(delta).await;
-                let _ = ret.send(result);
+                let fut = || async {
+                    let mut document = self.document.write().await;
+                    let _ = document.compose_delta(delta)?;
+                    let md5 = document.md5();
+                    drop(document);
+
+                    Ok::<String, CollaborateError>(md5)
+                };
+
+                let _ = ret.send(fut().await);
             },
-            EditorCommand::ProcessRemoteRevision { revisions, ret } => {
+            EditorCommand::OverrideDelta { delta, ret } => {
+                let fut = || async {
+                    let mut document = self.document.write().await;
+                    let _ = document.set_delta(delta);
+                    let md5 = document.md5();
+                    drop(document);
+                    Ok::<String, CollaborateError>(md5)
+                };
+
+                let _ = ret.send(fut().await);
+            },
+            EditorCommand::TransformRevision { revisions, ret } => {
                 let f = || async {
                     let mut new_delta = RichTextDelta::new();
                     for revision in revisions {
@@ -73,15 +92,22 @@ impl EditorCommandQueue {
                     }
 
                     let read_guard = self.document.read().await;
-                    let (server_prime, client_prime) = read_guard.delta().transform(&new_delta)?;
-                    drop(read_guard);
+                    let mut server_prime: Option<RichTextDelta> = None;
+                    let client_prime: RichTextDelta;
+                    if read_guard.is_empty::<NewlineDoc>() {
+                        // Do nothing
+                        client_prime = new_delta;
+                    } else {
+                        let (s_prime, c_prime) = read_guard.delta().transform(&new_delta)?;
+                        client_prime = c_prime;
+                        server_prime = Some(s_prime);
+                    }
 
-                    let transform_delta = TransformDeltas {
+                    drop(read_guard);
+                    Ok::<TransformDeltas, CollaborateError>(TransformDeltas {
                         client_prime,
                         server_prime,
-                    };
-
-                    Ok::<TransformDeltas, CollaborateError>(transform_delta)
+                    })
                 };
                 let _ = ret.send(f().await);
             },
@@ -138,22 +164,6 @@ impl EditorCommandQueue {
         }
         Ok(())
     }
-
-    #[tracing::instrument(level = "debug", skip(self, delta), fields(compose_result), err)]
-    async fn composed_delta(&self, delta: RichTextDelta) -> Result<String, CollaborateError> {
-        // tracing::debug!("{:?} thread handle_message", thread::current(),);
-        let mut document = self.document.write().await;
-        tracing::Span::current().record(
-            "composed_delta",
-            &format!("doc_id:{} - {}", &self.doc_id, delta.to_json()).as_str(),
-        );
-
-        let _ = document.compose_delta(delta)?;
-        let md5 = document.md5();
-        drop(document);
-
-        Ok(md5)
-    }
 }
 
 pub(crate) type Ret<T> = oneshot::Sender<Result<T, CollaborateError>>;
@@ -166,7 +176,11 @@ pub(crate) enum EditorCommand {
         delta: RichTextDelta,
         ret: Ret<DocumentMD5>,
     },
-    ProcessRemoteRevision {
+    OverrideDelta {
+        delta: RichTextDelta,
+        ret: Ret<DocumentMD5>,
+    },
+    TransformRevision {
         revisions: Vec<Revision>,
         ret: Ret<TransformDeltas>,
     },
@@ -212,5 +226,5 @@ pub(crate) enum EditorCommand {
 
 pub(crate) struct TransformDeltas {
     pub client_prime: RichTextDelta,
-    pub server_prime: RichTextDelta,
+    pub server_prime: Option<RichTextDelta>,
 }

@@ -1,6 +1,6 @@
 #![allow(clippy::all)]
 use crate::editor::{Rng, TestBuilder, TestOp::*};
-use flowy_collaboration::document::{FlowyDoc, PlainDoc};
+use flowy_collaboration::document::{NewlineDoc, PlainDoc};
 use lib_ot::{
     core::*,
     rich_text::{AttributeBuilder, RichTextAttribute, RichTextAttributes, RichTextDelta},
@@ -731,5 +731,5 @@ fn delta_compose_with_missing_delta() {
         AssertDocJson(0, r#"[{"insert":"1234\n"}]"#),
         AssertStr(1, r#"4\n"#),
     ];
-    TestBuilder::new().run_scripts::<FlowyDoc>(ops);
+    TestBuilder::new().run_scripts::<NewlineDoc>(ops);
 }

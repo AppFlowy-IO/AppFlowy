@@ -6,6 +6,7 @@ use crate::{
     },
     sql_tables::{RevisionChangeset, RevisionTableState},
 };
+use std::borrow::Cow;
 
 use flowy_collaboration::entities::revision::{Revision, RevisionRange, RevisionState};
 use flowy_database::ConnectionPool;
@@ -46,13 +47,14 @@ impl RevisionCache {
         if self.memory_cache.contains(&revision.rev_id) {
             return Err(FlowyError::internal().context(format!("Duplicate remote revision id: {}", revision.rev_id)));
         }
+        let state = state.as_ref().clone();
         let rev_id = revision.rev_id;
         let record = RevisionRecord {
             revision,
             state,
             write_to_disk,
         };
-        self.memory_cache.add(&record).await;
+        self.memory_cache.add(Cow::Borrowed(&record)).await;
         self.set_latest_rev_id(rev_id);
         Ok(record)
     }
@@ -63,10 +65,9 @@ impl RevisionCache {
         match self.memory_cache.get(&rev_id).await {
             None => match self.disk_cache.read_revision_records(&self.doc_id, Some(vec![rev_id])) {
                 Ok(mut records) => {
-                    if records.is_empty() {
-                        tracing::warn!("Can't find revision in {} with rev_id: {}", &self.doc_id, rev_id);
+                    if !records.is_empty() {
+                        assert_eq!(records.len(), 1);
                     }
-                    assert_eq!(records.len(), 1);
                     records.pop()
                 },
                 Err(e) => {
@@ -108,23 +109,20 @@ impl RevisionCache {
     }
 
     #[tracing::instrument(level = "debug", skip(self, doc_id, revisions))]
-    pub fn reset_document(&self, doc_id: &str, revisions: Vec<Revision>) -> FlowyResult<()> {
-        let disk_cache = self.disk_cache.clone();
-        let conn = disk_cache.db_pool().get().map_err(internal_error)?;
-        let records = revisions
+    pub async fn reset_document(&self, doc_id: &str, revisions: Vec<Revision>) -> FlowyResult<()> {
+        let revision_records = revisions
+            .to_vec()
             .into_iter()
             .map(|revision| RevisionRecord {
                 revision,
                 state: RevisionState::Local,
-                write_to_disk: true,
+                write_to_disk: false,
             })
             .collect::<Vec<_>>();
 
-        conn.immediate_transaction::<_, FlowyError, _>(|| {
-            let _ = disk_cache.delete_revision_records(doc_id, None, &*conn)?;
-            let _ = disk_cache.write_revision_records(records, &*conn)?;
-            Ok(())
-        })
+        let _ = self.memory_cache.reset_with_revisions(&revision_records).await?;
+        let _ = self.disk_cache.reset_with_revisions(doc_id, revision_records)?;
+        Ok(())
     }
 
     #[inline]
