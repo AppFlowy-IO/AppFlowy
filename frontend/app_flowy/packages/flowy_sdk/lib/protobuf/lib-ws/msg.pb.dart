@@ -13,15 +13,15 @@ import 'msg.pbenum.dart';
 
 export 'msg.pbenum.dart';
 
-class WSMessage extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'WSMessage', createEmptyInstance: create)
+class WebSocketRawMessage extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'WebSocketRawMessage', createEmptyInstance: create)
     ..e<WSModule>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'module', $pb.PbFieldType.OE, defaultOrMaker: WSModule.Doc, valueOf: WSModule.valueOf, enumValues: WSModule.values)
     ..a<$core.List<$core.int>>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
     ..hasRequiredFields = false
   ;
 
-  WSMessage._() : super();
-  factory WSMessage({
+  WebSocketRawMessage._() : super();
+  factory WebSocketRawMessage({
     WSModule? module,
     $core.List<$core.int>? data,
   }) {
@@ -34,26 +34,26 @@ class WSMessage extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory WSMessage.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory WSMessage.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory WebSocketRawMessage.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory WebSocketRawMessage.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  WSMessage clone() => WSMessage()..mergeFromMessage(this);
+  WebSocketRawMessage clone() => WebSocketRawMessage()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  WSMessage copyWith(void Function(WSMessage) updates) => super.copyWith((message) => updates(message as WSMessage)) as WSMessage; // ignore: deprecated_member_use
+  WebSocketRawMessage copyWith(void Function(WebSocketRawMessage) updates) => super.copyWith((message) => updates(message as WebSocketRawMessage)) as WebSocketRawMessage; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static WSMessage create() => WSMessage._();
-  WSMessage createEmptyInstance() => create();
-  static $pb.PbList<WSMessage> createRepeated() => $pb.PbList<WSMessage>();
+  static WebSocketRawMessage create() => WebSocketRawMessage._();
+  WebSocketRawMessage createEmptyInstance() => create();
+  static $pb.PbList<WebSocketRawMessage> createRepeated() => $pb.PbList<WebSocketRawMessage>();
   @$core.pragma('dart2js:noInline')
-  static WSMessage getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<WSMessage>(create);
-  static WSMessage? _defaultInstance;
+  static WebSocketRawMessage getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<WebSocketRawMessage>(create);
+  static WebSocketRawMessage? _defaultInstance;
 
   @$pb.TagNumber(1)
   WSModule get module => $_getN(0);

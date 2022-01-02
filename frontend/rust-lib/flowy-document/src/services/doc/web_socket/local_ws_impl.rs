@@ -1,18 +1,18 @@
-use crate::services::doc::{web_socket::EditorWebSocket, DocumentWsHandler};
-use flowy_collaboration::entities::ws::DocumentWSData;
+use crate::services::doc::{web_socket::DocumentWebSocketManager, DocumentWSReceiver};
+use flowy_collaboration::entities::ws::DocumentServerWSData;
 use lib_ws::WSConnectState;
 use std::sync::Arc;
 
-pub(crate) struct EditorLocalWebSocket {}
+pub(crate) struct LocalWebSocketManager {}
 
-impl EditorWebSocket for Arc<EditorLocalWebSocket> {
-    fn stop_web_socket(&self) {}
+impl DocumentWebSocketManager for Arc<LocalWebSocketManager> {
+    fn stop(&self) {}
 
-    fn ws_handler(&self) -> Arc<dyn DocumentWsHandler> { self.clone() }
+    fn receiver(&self) -> Arc<dyn DocumentWSReceiver> { self.clone() }
 }
 
-impl DocumentWsHandler for EditorLocalWebSocket {
-    fn receive(&self, _doc_data: DocumentWSData) {}
+impl DocumentWSReceiver for LocalWebSocketManager {
+    fn receive_ws_data(&self, _doc_data: DocumentServerWSData) {}
 
     fn connect_state_changed(&self, _state: &WSConnectState) {}
 }

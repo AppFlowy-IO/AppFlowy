@@ -1,7 +1,7 @@
 use crate::util::sqlx_ext::SqlBuilder;
 use backend_service::errors::{invalid_params, ServerError};
 use chrono::{DateTime, NaiveDateTime, Utc};
-use flowy_core_data_model::{parser::workspace::WorkspaceId, protobuf::Workspace};
+use flowy_core_data_model::{parser::workspace::WorkspaceIdentify, protobuf::Workspace};
 use sqlx::postgres::PgArguments;
 use uuid::Uuid;
 
@@ -56,12 +56,12 @@ impl NewWorkspaceBuilder {
         let workspace: Workspace = self.table.clone().into();
         // TODO: use macro to fetch each field from struct
         let (sql, args) = SqlBuilder::create(WORKSPACE_TABLE)
-            .add_arg("id", self.table.id)
-            .add_arg("name", self.table.name)
-            .add_arg("description", self.table.description)
-            .add_arg("modified_time", self.table.modified_time)
-            .add_arg("create_time", self.table.create_time)
-            .add_arg("user_id", self.table.user_id)
+            .add_field_with_arg("id", self.table.id)
+            .add_field_with_arg("name", self.table.name)
+            .add_field_with_arg("description", self.table.description)
+            .add_field_with_arg("modified_time", self.table.modified_time)
+            .add_field_with_arg("create_time", self.table.create_time)
+            .add_field_with_arg("user_id", self.table.user_id)
             .build()?;
 
         Ok((sql, args, workspace))
@@ -69,7 +69,7 @@ impl NewWorkspaceBuilder {
 }
 
 pub(crate) fn check_workspace_id(id: String) -> Result<Uuid, ServerError> {
-    let workspace_id = WorkspaceId::parse(id).map_err(invalid_params)?;
+    let workspace_id = WorkspaceIdentify::parse(id).map_err(invalid_params)?;
     let workspace_id = Uuid::parse_str(workspace_id.as_ref())?;
     Ok(workspace_id)
 }

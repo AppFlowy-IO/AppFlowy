@@ -68,7 +68,7 @@ impl std::convert::From<protobuf::ProtobufError> for CollaborateError {
     fn from(e: protobuf::ProtobufError) -> Self { CollaborateError::internal().context(e) }
 }
 
-pub fn internal_error<T>(e: T) -> CollaborateError
+pub(crate) fn internal_error<T>(e: T) -> CollaborateError
 where
     T: std::fmt::Debug,
 {

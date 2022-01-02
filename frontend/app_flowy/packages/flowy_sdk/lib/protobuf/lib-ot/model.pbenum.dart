@@ -26,11 +26,11 @@ class RevType extends $pb.ProtobufEnum {
 
 class RevState extends $pb.ProtobufEnum {
   static const RevState StateLocal = RevState._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'StateLocal');
-  static const RevState Acked = RevState._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Acked');
+  static const RevState Ack = RevState._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'Ack');
 
   static const $core.List<RevState> values = <RevState> [
     StateLocal,
-    Acked,
+    Ack,
   ];
 
   static final $core.Map<$core.int, RevState> _byValue = $pb.ProtobufEnum.initByValue(values);

@@ -1,21 +1,27 @@
-use crate::services::document::{create_doc_with_transaction, delete_doc};
-
 use crate::{
     entities::logged_user::LoggedUser,
-    services::core::{trash::read_trash_ids, view::persistence::*},
+    services::{
+        core::{trash::read_trash_ids, view::persistence::*},
+        document::persistence::{create_document, delete_document, DocumentKVPersistence},
+    },
     util::sqlx_ext::{map_sqlx_error, DBTransaction, SqlBuilder},
 };
 use backend_service::errors::{invalid_params, ServerError};
+use bytes::Bytes;
 use chrono::Utc;
-use flowy_collaboration::protobuf::CreateDocParams;
+use flowy_collaboration::{
+    entities::revision::{RepeatedRevision, Revision},
+    protobuf::CreateDocParams,
+};
 use flowy_core_data_model::{
     parser::{
-        app::AppId,
+        app::AppIdentify,
         view::{ViewDesc, ViewName, ViewThumbnail},
     },
     protobuf::{CreateViewParams, RepeatedView, View},
 };
 use sqlx::{postgres::PgArguments, Postgres};
+use std::{convert::TryInto, sync::Arc};
 use uuid::Uuid;
 
 pub(crate) async fn update_view(
@@ -41,8 +47,12 @@ pub(crate) async fn update_view(
     Ok(())
 }
 
-#[tracing::instrument(skip(transaction), err)]
-pub(crate) async fn delete_view(transaction: &mut DBTransaction<'_>, view_ids: Vec<Uuid>) -> Result<(), ServerError> {
+#[tracing::instrument(skip(transaction, kv_store), err)]
+pub(crate) async fn delete_view(
+    transaction: &mut DBTransaction<'_>,
+    kv_store: &Arc<DocumentKVPersistence>,
+    view_ids: Vec<Uuid>,
+) -> Result<(), ServerError> {
     for view_id in view_ids {
         let (sql, args) = SqlBuilder::delete(VIEW_TABLE).and_where_eq("id", &view_id).build()?;
         let _ = sqlx::query_with(&sql, args)
@@ -50,48 +60,45 @@ pub(crate) async fn delete_view(transaction: &mut DBTransaction<'_>, view_ids: V
             .await
             .map_err(map_sqlx_error)?;
 
-        let _ = delete_doc(transaction, view_id).await?;
+        let _ = delete_document(kv_store, view_id).await?;
     }
     Ok(())
 }
 
-#[tracing::instrument(name = "create_view", level = "debug", skip(transaction), err)]
+#[tracing::instrument(name = "create_view", level = "debug", skip(transaction, kv_store), err)]
 pub(crate) async fn create_view(
     transaction: &mut DBTransaction<'_>,
+    kv_store: Arc<DocumentKVPersistence>,
     params: CreateViewParams,
+    user_id: &str,
 ) -> Result<View, ServerError> {
+    let view_id = check_view_id(params.view_id.clone())?;
     let name = ViewName::parse(params.name).map_err(invalid_params)?;
-    let belong_to_id = AppId::parse(params.belong_to_id).map_err(invalid_params)?;
+    let belong_to_id = AppIdentify::parse(params.belong_to_id).map_err(invalid_params)?;
     let thumbnail = ViewThumbnail::parse(params.thumbnail).map_err(invalid_params)?;
     let desc = ViewDesc::parse(params.desc).map_err(invalid_params)?;
 
-    let (sql, args, view) = NewViewSqlBuilder::new(belong_to_id.as_ref())
+    let (sql, args, view) = NewViewSqlBuilder::new(view_id, belong_to_id.as_ref())
         .name(name.as_ref())
         .desc(desc.as_ref())
         .thumbnail(thumbnail.as_ref())
         .view_type(params.view_type)
         .build()?;
 
-    let view = create_view_with_args(transaction, sql, args, view, params.data).await?;
-    Ok(view)
-}
-
-pub(crate) async fn create_view_with_args(
-    transaction: &mut DBTransaction<'_>,
-    sql: String,
-    args: PgArguments,
-    view: View,
-    view_data: String,
-) -> Result<View, ServerError> {
     let _ = sqlx::query_with(&sql, args)
         .execute(transaction as &mut DBTransaction<'_>)
         .await
         .map_err(map_sqlx_error)?;
 
+    let delta_data = Bytes::from(params.view_data);
+    let md5 = format!("{:x}", md5::compute(&delta_data));
+    let revision = Revision::new(&view.id, 0, 0, delta_data, user_id, md5);
+    let repeated_revision = RepeatedRevision::new(vec![revision]);
     let mut create_doc_params = CreateDocParams::new();
-    create_doc_params.set_data(view_data);
+    create_doc_params.set_revisions(repeated_revision.try_into().unwrap());
     create_doc_params.set_id(view.id.clone());
-    let _ = create_doc_with_transaction(transaction, create_doc_params).await?;
+    let _ = create_document(&kv_store, create_doc_params).await?;
+
     Ok(view)
 }
 

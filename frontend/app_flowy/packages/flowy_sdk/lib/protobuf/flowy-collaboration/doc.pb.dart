@@ -10,24 +10,26 @@ import 'dart:core' as $core;
 import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
+import 'revision.pb.dart' as $0;
+
 class CreateDocParams extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CreateDocParams', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data')
+    ..aOM<$0.RepeatedRevision>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'revisions', subBuilder: $0.RepeatedRevision.create)
     ..hasRequiredFields = false
   ;
 
   CreateDocParams._() : super();
   factory CreateDocParams({
     $core.String? id,
-    $core.String? data,
+    $0.RepeatedRevision? revisions,
   }) {
     final _result = create();
     if (id != null) {
       _result.id = id;
     }
-    if (data != null) {
-      _result.data = data;
+    if (revisions != null) {
+      _result.revisions = revisions;
     }
     return _result;
   }
@@ -62,37 +64,39 @@ class CreateDocParams extends $pb.GeneratedMessage {
   void clearId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get data => $_getSZ(1);
+  $0.RepeatedRevision get revisions => $_getN(1);
   @$pb.TagNumber(2)
-  set data($core.String v) { $_setString(1, v); }
+  set revisions($0.RepeatedRevision v) { setField(2, v); }
   @$pb.TagNumber(2)
-  $core.bool hasData() => $_has(1);
+  $core.bool hasRevisions() => $_has(1);
   @$pb.TagNumber(2)
-  void clearData() => clearField(2);
+  void clearRevisions() => clearField(2);
+  @$pb.TagNumber(2)
+  $0.RepeatedRevision ensureRevisions() => $_ensure(1);
 }
 
-class Doc extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Doc', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data')
+class DocumentInfo extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DocumentInfo', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'text')
     ..aInt64(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'revId')
     ..aInt64(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'baseRevId')
     ..hasRequiredFields = false
   ;
 
-  Doc._() : super();
-  factory Doc({
-    $core.String? id,
-    $core.String? data,
+  DocumentInfo._() : super();
+  factory DocumentInfo({
+    $core.String? docId,
+    $core.String? text,
     $fixnum.Int64? revId,
     $fixnum.Int64? baseRevId,
   }) {
     final _result = create();
-    if (id != null) {
-      _result.id = id;
+    if (docId != null) {
+      _result.docId = docId;
     }
-    if (data != null) {
-      _result.data = data;
+    if (text != null) {
+      _result.text = text;
     }
     if (revId != null) {
       _result.revId = revId;
@@ -102,44 +106,44 @@ class Doc extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory Doc.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Doc.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory DocumentInfo.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory DocumentInfo.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  Doc clone() => Doc()..mergeFromMessage(this);
+  DocumentInfo clone() => DocumentInfo()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  Doc copyWith(void Function(Doc) updates) => super.copyWith((message) => updates(message as Doc)) as Doc; // ignore: deprecated_member_use
+  DocumentInfo copyWith(void Function(DocumentInfo) updates) => super.copyWith((message) => updates(message as DocumentInfo)) as DocumentInfo; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static Doc create() => Doc._();
-  Doc createEmptyInstance() => create();
-  static $pb.PbList<Doc> createRepeated() => $pb.PbList<Doc>();
+  static DocumentInfo create() => DocumentInfo._();
+  DocumentInfo createEmptyInstance() => create();
+  static $pb.PbList<DocumentInfo> createRepeated() => $pb.PbList<DocumentInfo>();
   @$core.pragma('dart2js:noInline')
-  static Doc getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Doc>(create);
-  static Doc? _defaultInstance;
+  static DocumentInfo getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DocumentInfo>(create);
+  static DocumentInfo? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get id => $_getSZ(0);
+  $core.String get docId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.String v) { $_setString(0, v); }
+  set docId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasId() => $_has(0);
+  $core.bool hasDocId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearId() => clearField(1);
+  void clearDocId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get data => $_getSZ(1);
+  $core.String get text => $_getSZ(1);
   @$pb.TagNumber(2)
-  set data($core.String v) { $_setString(1, v); }
+  set text($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasData() => $_has(1);
+  $core.bool hasText() => $_has(1);
   @$pb.TagNumber(2)
-  void clearData() => clearField(2);
+  void clearText() => clearField(2);
 
   @$pb.TagNumber(3)
   $fixnum.Int64 get revId => $_getI64(2);
@@ -160,52 +164,47 @@ class Doc extends $pb.GeneratedMessage {
   void clearBaseRevId() => clearField(4);
 }
 
-class UpdateDocParams extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UpdateDocParams', createEmptyInstance: create)
+class ResetDocumentParams extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ResetDocumentParams', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data')
-    ..aInt64(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'revId')
+    ..aOM<$0.RepeatedRevision>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'revisions', subBuilder: $0.RepeatedRevision.create)
     ..hasRequiredFields = false
   ;
 
-  UpdateDocParams._() : super();
-  factory UpdateDocParams({
+  ResetDocumentParams._() : super();
+  factory ResetDocumentParams({
     $core.String? docId,
-    $core.String? data,
-    $fixnum.Int64? revId,
+    $0.RepeatedRevision? revisions,
   }) {
     final _result = create();
     if (docId != null) {
       _result.docId = docId;
     }
-    if (data != null) {
-      _result.data = data;
-    }
-    if (revId != null) {
-      _result.revId = revId;
+    if (revisions != null) {
+      _result.revisions = revisions;
     }
     return _result;
   }
-  factory UpdateDocParams.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory UpdateDocParams.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory ResetDocumentParams.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ResetDocumentParams.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  UpdateDocParams clone() => UpdateDocParams()..mergeFromMessage(this);
+  ResetDocumentParams clone() => ResetDocumentParams()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  UpdateDocParams copyWith(void Function(UpdateDocParams) updates) => super.copyWith((message) => updates(message as UpdateDocParams)) as UpdateDocParams; // ignore: deprecated_member_use
+  ResetDocumentParams copyWith(void Function(ResetDocumentParams) updates) => super.copyWith((message) => updates(message as ResetDocumentParams)) as ResetDocumentParams; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static UpdateDocParams create() => UpdateDocParams._();
-  UpdateDocParams createEmptyInstance() => create();
-  static $pb.PbList<UpdateDocParams> createRepeated() => $pb.PbList<UpdateDocParams>();
+  static ResetDocumentParams create() => ResetDocumentParams._();
+  ResetDocumentParams createEmptyInstance() => create();
+  static $pb.PbList<ResetDocumentParams> createRepeated() => $pb.PbList<ResetDocumentParams>();
   @$core.pragma('dart2js:noInline')
-  static UpdateDocParams getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UpdateDocParams>(create);
-  static UpdateDocParams? _defaultInstance;
+  static ResetDocumentParams getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ResetDocumentParams>(create);
+  static ResetDocumentParams? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get docId => $_getSZ(0);
@@ -217,65 +216,58 @@ class UpdateDocParams extends $pb.GeneratedMessage {
   void clearDocId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get data => $_getSZ(1);
+  $0.RepeatedRevision get revisions => $_getN(1);
   @$pb.TagNumber(2)
-  set data($core.String v) { $_setString(1, v); }
+  set revisions($0.RepeatedRevision v) { setField(2, v); }
   @$pb.TagNumber(2)
-  $core.bool hasData() => $_has(1);
+  $core.bool hasRevisions() => $_has(1);
   @$pb.TagNumber(2)
-  void clearData() => clearField(2);
-
-  @$pb.TagNumber(3)
-  $fixnum.Int64 get revId => $_getI64(2);
-  @$pb.TagNumber(3)
-  set revId($fixnum.Int64 v) { $_setInt64(2, v); }
-  @$pb.TagNumber(3)
-  $core.bool hasRevId() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearRevId() => clearField(3);
+  void clearRevisions() => clearField(2);
+  @$pb.TagNumber(2)
+  $0.RepeatedRevision ensureRevisions() => $_ensure(1);
 }
 
-class DocDelta extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DocDelta', createEmptyInstance: create)
+class DocumentDelta extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DocumentDelta', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'deltaJson')
     ..hasRequiredFields = false
   ;
 
-  DocDelta._() : super();
-  factory DocDelta({
+  DocumentDelta._() : super();
+  factory DocumentDelta({
     $core.String? docId,
-    $core.String? data,
+    $core.String? deltaJson,
   }) {
     final _result = create();
     if (docId != null) {
       _result.docId = docId;
     }
-    if (data != null) {
-      _result.data = data;
+    if (deltaJson != null) {
+      _result.deltaJson = deltaJson;
     }
     return _result;
   }
-  factory DocDelta.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory DocDelta.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory DocumentDelta.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory DocumentDelta.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  DocDelta clone() => DocDelta()..mergeFromMessage(this);
+  DocumentDelta clone() => DocumentDelta()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  DocDelta copyWith(void Function(DocDelta) updates) => super.copyWith((message) => updates(message as DocDelta)) as DocDelta; // ignore: deprecated_member_use
+  DocumentDelta copyWith(void Function(DocumentDelta) updates) => super.copyWith((message) => updates(message as DocumentDelta)) as DocumentDelta; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static DocDelta create() => DocDelta._();
-  DocDelta createEmptyInstance() => create();
-  static $pb.PbList<DocDelta> createRepeated() => $pb.PbList<DocDelta>();
+  static DocumentDelta create() => DocumentDelta._();
+  DocumentDelta createEmptyInstance() => create();
+  static $pb.PbList<DocumentDelta> createRepeated() => $pb.PbList<DocumentDelta>();
   @$core.pragma('dart2js:noInline')
-  static DocDelta getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DocDelta>(create);
-  static DocDelta? _defaultInstance;
+  static DocumentDelta getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DocumentDelta>(create);
+  static DocumentDelta? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get docId => $_getSZ(0);
@@ -287,13 +279,13 @@ class DocDelta extends $pb.GeneratedMessage {
   void clearDocId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get data => $_getSZ(1);
+  $core.String get deltaJson => $_getSZ(1);
   @$pb.TagNumber(2)
-  set data($core.String v) { $_setString(1, v); }
+  set deltaJson($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasData() => $_has(1);
+  $core.bool hasDeltaJson() => $_has(1);
   @$pb.TagNumber(2)
-  void clearData() => clearField(2);
+  void clearDeltaJson() => clearField(2);
 }
 
 class NewDocUser extends $pb.GeneratedMessage {
@@ -371,14 +363,14 @@ class NewDocUser extends $pb.GeneratedMessage {
   void clearDocId() => clearField(3);
 }
 
-class DocIdentifier extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DocIdentifier', createEmptyInstance: create)
+class DocumentId extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DocumentId', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'docId')
     ..hasRequiredFields = false
   ;
 
-  DocIdentifier._() : super();
-  factory DocIdentifier({
+  DocumentId._() : super();
+  factory DocumentId({
     $core.String? docId,
   }) {
     final _result = create();
@@ -387,26 +379,26 @@ class DocIdentifier extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory DocIdentifier.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory DocIdentifier.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory DocumentId.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory DocumentId.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  DocIdentifier clone() => DocIdentifier()..mergeFromMessage(this);
+  DocumentId clone() => DocumentId()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  DocIdentifier copyWith(void Function(DocIdentifier) updates) => super.copyWith((message) => updates(message as DocIdentifier)) as DocIdentifier; // ignore: deprecated_member_use
+  DocumentId copyWith(void Function(DocumentId) updates) => super.copyWith((message) => updates(message as DocumentId)) as DocumentId; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static DocIdentifier create() => DocIdentifier._();
-  DocIdentifier createEmptyInstance() => create();
-  static $pb.PbList<DocIdentifier> createRepeated() => $pb.PbList<DocIdentifier>();
+  static DocumentId create() => DocumentId._();
+  DocumentId createEmptyInstance() => create();
+  static $pb.PbList<DocumentId> createRepeated() => $pb.PbList<DocumentId>();
   @$core.pragma('dart2js:noInline')
-  static DocIdentifier getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DocIdentifier>(create);
-  static DocIdentifier? _defaultInstance;
+  static DocumentId getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DocumentId>(create);
+  static DocumentId? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get docId => $_getSZ(0);

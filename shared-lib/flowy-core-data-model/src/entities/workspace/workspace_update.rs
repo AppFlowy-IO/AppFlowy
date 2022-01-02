@@ -1,6 +1,6 @@
 use crate::{
     errors::*,
-    parser::workspace::{WorkspaceId, WorkspaceName},
+    parser::workspace::{WorkspaceIdentify, WorkspaceName},
 };
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
@@ -37,7 +37,7 @@ impl TryInto<UpdateWorkspaceParams> for UpdateWorkspaceRequest {
             None => None,
             Some(name) => Some(WorkspaceName::parse(name)?.0),
         };
-        let id = WorkspaceId::parse(self.id)?;
+        let id = WorkspaceIdentify::parse(self.id)?;
 
         Ok(UpdateWorkspaceParams {
             id: id.0,

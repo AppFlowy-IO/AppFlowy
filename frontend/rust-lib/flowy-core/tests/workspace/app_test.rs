@@ -1,6 +1,6 @@
 use flowy_core::entities::{
     app::QueryAppRequest,
-    trash::{TrashIdentifier, TrashType},
+    trash::{TrashId, TrashType},
     view::*,
 };
 use flowy_test::helper::*;
@@ -22,7 +22,7 @@ async fn app_delete_then_putback() {
     delete_app(&test.sdk, &test.app.id).await;
     putback_trash(
         &test.sdk,
-        TrashIdentifier {
+        TrashId {
             id: test.app.id.clone(),
             ty: TrashType::App,
         },
@@ -76,21 +76,3 @@ async fn app_create_with_view() {
     assert_eq!(view_from_db.belongings[0], view_a);
     assert_eq!(view_from_db.belongings[1], view_b);
 }
-
-// #[tokio::test]
-// async fn app_set_trash_flag() {
-//     let test = AppTest::new().await;
-//     test.delete().await;
-//
-//     let query = QueryAppRequest::new(&test.app.id).trash();
-//     let _ = read_app(&test.sdk, query);
-// }
-//
-// #[tokio::test]
-// #[should_panic]
-// async fn app_set_trash_flag_2() {
-//     let test = AppTest::new().await;
-//     test.move_app_to_trash().await;
-//     let query = QueryAppRequest::new(&test.app.id);
-//     let _ = read_app(&test.sdk, query);
-// }

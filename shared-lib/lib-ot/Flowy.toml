@@ -1,3 +1,0 @@
-
-proto_crates = ["src/revision/model.rs"]
-event_files = []

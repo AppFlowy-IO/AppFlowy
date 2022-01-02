@@ -42,10 +42,10 @@ impl WorkspaceController {
         params: CreateWorkspaceParams,
     ) -> Result<Workspace, FlowyError> {
         let workspace = self.create_workspace_on_server(params.clone()).await?;
-        self.create_workspace(workspace).await
+        self.create_workspace_on_local(workspace).await
     }
 
-    pub(crate) async fn create_workspace(&self, workspace: Workspace) -> Result<Workspace, FlowyError> {
+    pub(crate) async fn create_workspace_on_local(&self, workspace: Workspace) -> Result<Workspace, FlowyError> {
         let user_id = self.user.user_id()?;
         let token = self.user.token()?;
         let workspace_table = WorkspaceTable::new(workspace.clone(), &user_id);
@@ -116,7 +116,7 @@ impl WorkspaceController {
         Ok(())
     }
 
-    pub(crate) async fn open_workspace(&self, params: WorkspaceIdentifier) -> Result<Workspace, FlowyError> {
+    pub(crate) async fn open_workspace(&self, params: WorkspaceId) -> Result<Workspace, FlowyError> {
         let user_id = self.user.user_id()?;
         let conn = self.database.db_connection()?;
         if let Some(workspace_id) = params.workspace_id {
@@ -203,7 +203,7 @@ impl WorkspaceController {
 
     #[tracing::instrument(level = "debug", skip(self), err)]
     fn delete_workspace_on_server(&self, workspace_id: &str) -> Result<(), FlowyError> {
-        let params = WorkspaceIdentifier {
+        let params = WorkspaceId {
             workspace_id: Some(workspace_id.to_string()),
         };
         let (token, server) = (self.user.token()?, self.server.clone());

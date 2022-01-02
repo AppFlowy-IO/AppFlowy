@@ -28,7 +28,7 @@ pub(crate) async fn open_workspace_handler(
     data: Data<QueryWorkspaceRequest>,
     controller: Unit<Arc<WorkspaceController>>,
 ) -> DataResult<Workspace, FlowyError> {
-    let params: WorkspaceIdentifier = data.into_inner().try_into()?;
+    let params: WorkspaceId = data.into_inner().try_into()?;
     let workspaces = controller.open_workspace(params).await?;
     data_result(workspaces)
 }

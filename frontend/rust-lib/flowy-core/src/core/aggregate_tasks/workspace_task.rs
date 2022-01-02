@@ -4,7 +4,7 @@ use crate::{
     notify::{send_dart_notification, WorkspaceNotification},
     services::workspace::sql::{WorkspaceTable, WorkspaceTableSql},
 };
-use flowy_core_data_model::entities::workspace::WorkspaceIdentifier;
+use flowy_core_data_model::entities::workspace::WorkspaceId;
 use lib_dispatch::prelude::Unit;
 use std::sync::Arc;
 
@@ -12,7 +12,7 @@ use std::sync::Arc;
 pub fn read_workspaces_on_server(
     core: Unit<Arc<CoreContext>>,
     user_id: String,
-    params: WorkspaceIdentifier,
+    params: WorkspaceId,
 ) -> Result<(), FlowyError> {
     let (token, server) = (core.user.token()?, core.server.clone());
     let app_ctrl = core.app_controller.clone();

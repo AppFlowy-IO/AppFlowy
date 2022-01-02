@@ -2,7 +2,7 @@ use crate::util::sqlx_ext::SqlBuilder;
 use backend_service::errors::{invalid_params, ServerError};
 use chrono::{DateTime, NaiveDateTime, Utc};
 use flowy_core_data_model::{
-    parser::view::ViewId,
+    parser::view::ViewIdentify,
     protobuf::{RepeatedView, View, ViewType},
 };
 use protobuf::ProtobufEnum;
@@ -16,12 +16,11 @@ pub struct NewViewSqlBuilder {
 }
 
 impl NewViewSqlBuilder {
-    pub fn new(belong_to_id: &str) -> Self {
-        let uuid = uuid::Uuid::new_v4();
+    pub fn new(view_id: Uuid, belong_to_id: &str) -> Self {
         let time = Utc::now();
 
         let table = ViewTable {
-            id: uuid,
+            id: view_id,
             belong_to_id: belong_to_id.to_string(),
             name: "".to_string(),
             description: "".to_string(),
@@ -35,7 +34,7 @@ impl NewViewSqlBuilder {
     }
 
     pub fn from_view(view: View) -> Result<Self, ServerError> {
-        let view_id = ViewId::parse(view.id).map_err(invalid_params)?;
+        let view_id = ViewIdentify::parse(view.id).map_err(invalid_params)?;
         let view_id = Uuid::parse_str(view_id.as_ref())?;
         let create_time = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(view.create_time, 0), Utc);
         let modified_time = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(view.modified_time, 0), Utc);
@@ -77,14 +76,14 @@ impl NewViewSqlBuilder {
         let view: View = self.table.clone().into();
 
         let (sql, args) = SqlBuilder::create(VIEW_TABLE)
-            .add_arg("id", self.table.id)
-            .add_arg("belong_to_id", self.table.belong_to_id)
-            .add_arg("name", self.table.name)
-            .add_arg("description", self.table.description)
-            .add_arg("modified_time", self.table.modified_time)
-            .add_arg("create_time", self.table.create_time)
-            .add_arg("thumbnail", self.table.thumbnail)
-            .add_arg("view_type", self.table.view_type)
+            .add_field_with_arg("id", self.table.id)
+            .add_field_with_arg("belong_to_id", self.table.belong_to_id)
+            .add_field_with_arg("name", self.table.name)
+            .add_field_with_arg("description", self.table.description)
+            .add_field_with_arg("modified_time", self.table.modified_time)
+            .add_field_with_arg("create_time", self.table.create_time)
+            .add_field_with_arg("thumbnail", self.table.thumbnail)
+            .add_field_with_arg("view_type", self.table.view_type)
             .build()?;
 
         Ok((sql, args, view))
@@ -94,11 +93,15 @@ impl NewViewSqlBuilder {
 pub(crate) fn check_view_ids(ids: Vec<String>) -> Result<Vec<Uuid>, ServerError> {
     let mut view_ids = vec![];
     for id in ids {
-        let view_id = ViewId::parse(id).map_err(invalid_params)?;
-        let view_id = Uuid::parse_str(view_id.as_ref())?;
-        view_ids.push(view_id);
+        view_ids.push(check_view_id(id)?);
     }
     Ok(view_ids)
+}
+
+pub(crate) fn check_view_id(id: String) -> Result<Uuid, ServerError> {
+    let view_id = ViewIdentify::parse(id).map_err(invalid_params)?;
+    let view_id = Uuid::parse_str(view_id.as_ref())?;
+    Ok(view_id)
 }
 
 #[derive(Debug, Clone, sqlx::FromRow)]

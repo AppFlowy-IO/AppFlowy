@@ -1,6 +1,6 @@
 use crate::{
     errors::ErrorCode,
-    parser::view::{ViewDesc, ViewId, ViewName, ViewThumbnail},
+    parser::view::{ViewDesc, ViewIdentify, ViewName, ViewThumbnail},
 };
 use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
@@ -58,7 +58,7 @@ impl TryInto<UpdateViewParams> for UpdateViewRequest {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<UpdateViewParams, Self::Error> {
-        let view_id = ViewId::parse(self.view_id)?.0;
+        let view_id = ViewIdentify::parse(self.view_id)?.0;
 
         let name = match self.name {
             None => None,
@@ -92,14 +92,14 @@ impl TryInto<UpdateViewParams> for UpdateViewRequest {
 //     pub data: String,
 // }
 //
-// impl TryInto<DocDelta> for DocDeltaRequest {
+// impl TryInto<DocumentDelta> for DocDeltaRequest {
 //     type Error = FlowyError;
 //
-//     fn try_into(self) -> Result<DocDelta, Self::Error> {
+//     fn try_into(self) -> Result<DocumentDelta, Self::Error> {
 //         let view_id = ViewId::parse(self.view_id)
 //             .map_err(|e| FlowyError::view_id().context(e))?
 //             .0;
 //
-//         Ok(DocDelta { doc_id: view_id, data: self.data })
+//         Ok(DocumentDelta { doc_id: view_id, data: self.data })
 //     }
 // }

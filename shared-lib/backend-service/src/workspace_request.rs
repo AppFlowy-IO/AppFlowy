@@ -21,7 +21,7 @@ pub async fn create_workspace_request(
 
 pub async fn read_workspaces_request(
     token: &str,
-    params: WorkspaceIdentifier,
+    params: WorkspaceId,
     url: &str,
 ) -> Result<RepeatedWorkspace, ServerError> {
     let repeated_workspace = request_builder()
@@ -48,7 +48,7 @@ pub async fn update_workspace_request(
     Ok(())
 }
 
-pub async fn delete_workspace_request(token: &str, params: WorkspaceIdentifier, url: &str) -> Result<(), ServerError> {
+pub async fn delete_workspace_request(token: &str, params: WorkspaceId, url: &str) -> Result<(), ServerError> {
     let _ = request_builder()
         .delete(url)
         .header(HEADER_TOKEN, token)
@@ -69,7 +69,7 @@ pub async fn create_app_request(token: &str, params: CreateAppParams, url: &str)
     Ok(app)
 }
 
-pub async fn read_app_request(token: &str, params: AppIdentifier, url: &str) -> Result<Option<App>, ServerError> {
+pub async fn read_app_request(token: &str, params: AppId, url: &str) -> Result<Option<App>, ServerError> {
     let app = request_builder()
         .get(&url.to_owned())
         .header(HEADER_TOKEN, token)
@@ -90,7 +90,7 @@ pub async fn update_app_request(token: &str, params: UpdateAppParams, url: &str)
     Ok(())
 }
 
-pub async fn delete_app_request(token: &str, params: AppIdentifier, url: &str) -> Result<(), ServerError> {
+pub async fn delete_app_request(token: &str, params: AppId, url: &str) -> Result<(), ServerError> {
     let _ = request_builder()
         .delete(&url.to_owned())
         .header(HEADER_TOKEN, token)
@@ -111,7 +111,7 @@ pub async fn create_view_request(token: &str, params: CreateViewParams, url: &st
     Ok(view)
 }
 
-pub async fn read_view_request(token: &str, params: ViewIdentifier, url: &str) -> Result<Option<View>, ServerError> {
+pub async fn read_view_request(token: &str, params: ViewId, url: &str) -> Result<Option<View>, ServerError> {
     let view = request_builder()
         .get(&url.to_owned())
         .header(HEADER_TOKEN, token)
@@ -132,7 +132,7 @@ pub async fn update_view_request(token: &str, params: UpdateViewParams, url: &st
     Ok(())
 }
 
-pub async fn delete_view_request(token: &str, params: ViewIdentifiers, url: &str) -> Result<(), ServerError> {
+pub async fn delete_view_request(token: &str, params: RepeatedViewId, url: &str) -> Result<(), ServerError> {
     let _ = request_builder()
         .delete(&url.to_owned())
         .header(HEADER_TOKEN, token)
@@ -142,7 +142,7 @@ pub async fn delete_view_request(token: &str, params: ViewIdentifiers, url: &str
     Ok(())
 }
 
-pub async fn create_trash_request(token: &str, params: TrashIdentifiers, url: &str) -> Result<(), ServerError> {
+pub async fn create_trash_request(token: &str, params: RepeatedTrashId, url: &str) -> Result<(), ServerError> {
     let _ = request_builder()
         .post(&url.to_owned())
         .header(HEADER_TOKEN, token)
@@ -152,7 +152,7 @@ pub async fn create_trash_request(token: &str, params: TrashIdentifiers, url: &s
     Ok(())
 }
 
-pub async fn delete_trash_request(token: &str, params: TrashIdentifiers, url: &str) -> Result<(), ServerError> {
+pub async fn delete_trash_request(token: &str, params: RepeatedTrashId, url: &str) -> Result<(), ServerError> {
     let _ = request_builder()
         .delete(&url.to_owned())
         .header(HEADER_TOKEN, token)

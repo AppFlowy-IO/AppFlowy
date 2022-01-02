@@ -1,5 +1,5 @@
 use backend::{
-    application::{get_connection_pool, init_app_context, Application},
+    application::{init_app_context, Application},
     config::{get_configuration, DatabaseSettings},
     context::AppContext,
 };
@@ -9,18 +9,21 @@ use backend_service::{
     user_request::*,
     workspace_request::*,
 };
-use flowy_collaboration::entities::doc::{Doc, DocIdentifier};
+use flowy_collaboration::{
+    document::default::initial_delta_string,
+    entities::doc::{CreateDocParams, DocumentId, DocumentInfo},
+};
 use flowy_core_data_model::entities::prelude::*;
-use flowy_document::services::server::read_doc_request;
+use flowy_document::services::server::{create_doc_request, read_doc_request};
 use flowy_user_data_model::entities::*;
+use lib_infra::uuid_string;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
 
 pub struct TestUserServer {
-    pub pg_pool: PgPool,
+    pub inner: TestServer,
     pub user_token: Option<String>,
     pub user_id: Option<String>,
-    pub client_server_config: ClientServerConfiguration,
 }
 
 impl TestUserServer {
@@ -65,7 +68,7 @@ impl TestUserServer {
         workspace
     }
 
-    pub async fn read_workspaces(&self, params: WorkspaceIdentifier) -> RepeatedWorkspace {
+    pub async fn read_workspaces(&self, params: WorkspaceId) -> RepeatedWorkspace {
         let url = format!("{}/api/workspace", self.http_addr());
         let workspaces = read_workspaces_request(self.user_token(), params, &url).await.unwrap();
         workspaces
@@ -76,7 +79,7 @@ impl TestUserServer {
         update_workspace_request(self.user_token(), params, &url).await.unwrap();
     }
 
-    pub async fn delete_workspace(&self, params: WorkspaceIdentifier) {
+    pub async fn delete_workspace(&self, params: WorkspaceId) {
         let url = format!("{}/api/workspace", self.http_addr());
         delete_workspace_request(self.user_token(), params, &url).await.unwrap();
     }
@@ -87,7 +90,7 @@ impl TestUserServer {
         app
     }
 
-    pub async fn read_app(&self, params: AppIdentifier) -> Option<App> {
+    pub async fn read_app(&self, params: AppId) -> Option<App> {
         let url = format!("{}/api/app", self.http_addr());
         let app = read_app_request(self.user_token(), params, &url).await.unwrap();
         app
@@ -98,7 +101,7 @@ impl TestUserServer {
         update_app_request(self.user_token(), params, &url).await.unwrap();
     }
 
-    pub async fn delete_app(&self, params: AppIdentifier) {
+    pub async fn delete_app(&self, params: AppId) {
         let url = format!("{}/api/app", self.http_addr());
         delete_app_request(self.user_token(), params, &url).await.unwrap();
     }
@@ -109,7 +112,7 @@ impl TestUserServer {
         view
     }
 
-    pub async fn read_view(&self, params: ViewIdentifier) -> Option<View> {
+    pub async fn read_view(&self, params: ViewId) -> Option<View> {
         let url = format!("{}/api/view", self.http_addr());
         let view = read_view_request(self.user_token(), params, &url).await.unwrap();
         view
@@ -120,13 +123,13 @@ impl TestUserServer {
         update_view_request(self.user_token(), params, &url).await.unwrap();
     }
 
-    pub async fn delete_view(&self, params: ViewIdentifiers) {
+    pub async fn delete_view(&self, params: RepeatedViewId) {
         let url = format!("{}/api/view", self.http_addr());
         delete_view_request(self.user_token(), params, &url).await.unwrap();
     }
 
     pub async fn create_view_trash(&self, view_id: &str) {
-        let identifier = TrashIdentifier {
+        let identifier = TrashId {
             id: view_id.to_string(),
             ty: TrashType::View,
         };
@@ -136,7 +139,7 @@ impl TestUserServer {
             .unwrap();
     }
 
-    pub async fn delete_view_trash(&self, trash_identifiers: TrashIdentifiers) {
+    pub async fn delete_view_trash(&self, trash_identifiers: RepeatedTrashId) {
         let url = format!("{}/api/trash", self.http_addr());
 
         delete_trash_request(self.user_token(), trash_identifiers, &url)
@@ -149,10 +152,15 @@ impl TestUserServer {
         read_trash_request(self.user_token(), &url).await.unwrap()
     }
 
-    pub async fn read_doc(&self, params: DocIdentifier) -> Option<Doc> {
-        let url = format!("{}/api/document", self.http_addr());
+    pub async fn read_doc(&self, params: DocumentId) -> Option<DocumentInfo> {
+        let url = format!("{}/api/doc", self.http_addr());
         let doc = read_doc_request(self.user_token(), params, &url).await.unwrap();
         doc
+    }
+
+    pub async fn create_doc(&self, params: CreateDocParams) {
+        let url = format!("{}/api/doc", self.http_addr());
+        let _ = create_doc_request(self.user_token(), params, &url).await.unwrap();
     }
 
     pub async fn register_user(&self) -> SignUpResponse {
@@ -171,12 +179,12 @@ impl TestUserServer {
         response
     }
 
-    pub fn http_addr(&self) -> String { self.client_server_config.base_url() }
+    pub fn http_addr(&self) -> String { self.inner.client_server_config.base_url() }
 
     pub fn ws_addr(&self) -> String {
         format!(
             "{}/{}",
-            self.client_server_config.ws_addr(),
+            self.inner.client_server_config.ws_addr(),
             self.user_token.as_ref().unwrap()
         )
     }
@@ -185,10 +193,9 @@ impl TestUserServer {
 impl std::convert::From<TestServer> for TestUserServer {
     fn from(server: TestServer) -> Self {
         TestUserServer {
-            pg_pool: server.pg_pool,
+            inner: server,
             user_token: None,
             user_id: None,
-            client_server_config: server.client_server_config,
         }
     }
 }
@@ -198,8 +205,8 @@ pub async fn spawn_user_server() -> TestUserServer {
     server
 }
 
+#[derive(Clone)]
 pub struct TestServer {
-    pub pg_pool: PgPool,
     pub app_ctx: AppContext,
     pub client_server_config: ClientServerConfiguration,
 }
@@ -230,9 +237,6 @@ pub async fn spawn_server() -> TestServer {
     client_server_config.reset_host_with_port("localhost", application_port);
 
     TestServer {
-        pg_pool: get_connection_pool(&configuration.database)
-            .await
-            .expect("Failed to connect to the database"),
         app_ctx,
         client_server_config,
     }
@@ -308,7 +312,15 @@ pub async fn create_test_view(application: &TestUserServer, app_id: &str) -> Vie
     let desc = "This is my first view".to_string();
     let thumbnail = "http://1.png".to_string();
 
-    let params = CreateViewParams::new(app_id.to_owned(), name, desc, ViewType::Doc, thumbnail);
+    let params = CreateViewParams::new(
+        app_id.to_owned(),
+        name,
+        desc,
+        ViewType::Doc,
+        thumbnail,
+        initial_delta_string(),
+        uuid_string(),
+    );
     let app = application.create_view(params).await;
     app
 }

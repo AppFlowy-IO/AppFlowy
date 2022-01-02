@@ -1,19 +1,20 @@
 mod deps_resolve;
-// mod flowy_server;
 pub mod module;
 use crate::deps_resolve::{DocumentDepsResolver, WorkspaceDepsResolver};
 use backend_service::configuration::ClientServerConfiguration;
 use flowy_core::{errors::FlowyError, module::init_core, prelude::CoreContext};
-use flowy_document::module::FlowyDocument;
+use flowy_document::context::DocumentContext;
 use flowy_net::{
     entities::NetworkType,
-    services::ws::{listen_on_websocket, WsManager},
+    services::ws::{listen_on_websocket, FlowyWSConnect, FlowyWebSocket},
 };
 use flowy_user::{
     prelude::UserStatus,
     services::user::{UserSession, UserSessionConfig},
 };
+use flowy_virtual_net::local_web_socket;
 use lib_dispatch::prelude::*;
+use lib_ws::WSController;
 use module::mk_modules;
 pub use module::*;
 use std::sync::{
@@ -52,10 +53,10 @@ fn crate_log_filter(level: Option<String>) -> String {
     let level = level.unwrap_or_else(|| std::env::var("RUST_LOG").unwrap_or_else(|_| "info".to_owned()));
     let mut filters = vec![];
     filters.push(format!("flowy_sdk={}", level));
-    filters.push(format!("flowy_workspace={}", level));
+    filters.push(format!("flowy_core={}", level));
     filters.push(format!("flowy_user={}", level));
     filters.push(format!("flowy_document={}", level));
-    filters.push(format!("flowy_document_infra={}", level));
+    filters.push(format!("flowy_collaboration={}", level));
     filters.push(format!("flowy_net={}", level));
     filters.push(format!("dart_notify={}", level));
     filters.push(format!("lib_ot={}", level));
@@ -69,10 +70,10 @@ pub struct FlowySDK {
     #[allow(dead_code)]
     config: FlowySDKConfig,
     pub user_session: Arc<UserSession>,
-    pub flowy_document: Arc<FlowyDocument>,
+    pub document_ctx: Arc<DocumentContext>,
     pub core: Arc<CoreContext>,
     pub dispatcher: Arc<EventDispatcher>,
-    pub ws_manager: Arc<WsManager>,
+    pub ws_manager: Arc<FlowyWSConnect>,
 }
 
 impl FlowySDK {
@@ -81,7 +82,13 @@ impl FlowySDK {
         init_kv(&config.root);
         tracing::debug!("🔥 {:?}", config);
 
-        let ws_manager = Arc::new(WsManager::new(config.server_config.ws_addr()));
+        let ws: Arc<dyn FlowyWebSocket> = if cfg!(feature = "http_server") {
+            Arc::new(Arc::new(WSController::new()))
+        } else {
+            local_web_socket()
+        };
+
+        let ws_manager = Arc::new(FlowyWSConnect::new(config.server_config.ws_addr(), ws));
         let user_session = mk_user_session(&config);
         let flowy_document = mk_document(ws_manager.clone(), user_session.clone(), &config.server_config);
         let core_ctx = mk_core_context(user_session.clone(), flowy_document.clone(), &config.server_config);
@@ -94,7 +101,7 @@ impl FlowySDK {
         Self {
             config,
             user_session,
-            flowy_document,
+            document_ctx: flowy_document,
             core: core_ctx,
             dispatcher,
             ws_manager,
@@ -106,7 +113,7 @@ impl FlowySDK {
 
 fn _init(
     dispatch: &EventDispatcher,
-    ws_manager: Arc<WsManager>,
+    ws_manager: Arc<FlowyWSConnect>,
     user_session: Arc<UserSession>,
     core: Arc<CoreContext>,
 ) {
@@ -126,7 +133,7 @@ fn _init(
 }
 
 async fn _listen_user_status(
-    ws_manager: Arc<WsManager>,
+    ws_manager: Arc<FlowyWSConnect>,
     mut subscribe: broadcast::Receiver<UserStatus>,
     core: Arc<CoreContext>,
 ) {
@@ -192,7 +199,7 @@ fn mk_user_session(config: &FlowySDKConfig) -> Arc<UserSession> {
 
 fn mk_core_context(
     user_session: Arc<UserSession>,
-    flowy_document: Arc<FlowyDocument>,
+    flowy_document: Arc<DocumentContext>,
     server_config: &ClientServerConfiguration,
 ) -> Arc<CoreContext> {
     let workspace_deps = WorkspaceDepsResolver::new(user_session);
@@ -201,10 +208,10 @@ fn mk_core_context(
 }
 
 pub fn mk_document(
-    ws_manager: Arc<WsManager>,
+    ws_manager: Arc<FlowyWSConnect>,
     user_session: Arc<UserSession>,
     server_config: &ClientServerConfiguration,
-) -> Arc<FlowyDocument> {
-    let (user, ws_doc) = DocumentDepsResolver::resolve(ws_manager, user_session);
-    Arc::new(FlowyDocument::new(user, ws_doc, server_config))
+) -> Arc<DocumentContext> {
+    let (user, ws_receivers, ws_sender) = DocumentDepsResolver::resolve(ws_manager, user_session);
+    Arc::new(DocumentContext::new(user, ws_receivers, ws_sender, server_config))
 }

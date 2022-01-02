@@ -40,17 +40,17 @@ impl AppController {
     }
 
     pub fn init(&self) -> Result<(), FlowyError> {
-        self.listen_trash_can_event();
+        self.listen_trash_controller_event();
         Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self, params), fields(name = %params.name) err)]
     pub(crate) async fn create_app_from_params(&self, params: CreateAppParams) -> Result<App, FlowyError> {
         let app = self.create_app_on_server(params).await?;
-        self.create_app(app).await
+        self.create_app_on_local(app).await
     }
 
-    pub(crate) async fn create_app(&self, app: App) -> Result<App, FlowyError> {
+    pub(crate) async fn create_app_on_local(&self, app: App) -> Result<App, FlowyError> {
         let conn = &*self.database.db_connection()?;
         conn.immediate_transaction::<_, FlowyError, _>(|| {
             let _ = self.save_app(app.clone(), &*conn)?;
@@ -67,11 +67,11 @@ impl AppController {
         Ok(())
     }
 
-    pub(crate) async fn read_app(&self, params: AppIdentifier) -> Result<App, FlowyError> {
+    pub(crate) async fn read_app(&self, params: AppId) -> Result<App, FlowyError> {
         let conn = self.database.db_connection()?;
         let app_table = AppTableSql::read_app(&params.app_id, &*conn)?;
 
-        let trash_ids = self.trash_can.trash_ids(&conn)?;
+        let trash_ids = self.trash_can.read_trash_ids(&conn)?;
         if trash_ids.contains(&app_table.id) {
             return Err(FlowyError::record_not_found());
         }
@@ -136,7 +136,7 @@ impl AppController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    fn read_app_on_server(&self, params: AppIdentifier) -> Result<(), FlowyError> {
+    fn read_app_on_server(&self, params: AppId) -> Result<(), FlowyError> {
         let token = self.user.token()?;
         let server = self.server.clone();
         let pool = self.database.db_pool()?;
@@ -165,7 +165,7 @@ impl AppController {
         Ok(())
     }
 
-    fn listen_trash_can_event(&self) {
+    fn listen_trash_controller_event(&self) {
         let mut rx = self.trash_can.subscribe();
         let database = self.database.clone();
         let trash_can = self.trash_can.clone();
@@ -245,56 +245,9 @@ pub fn read_local_workspace_apps(
     conn: &SqliteConnection,
 ) -> Result<RepeatedApp, FlowyError> {
     let mut app_tables = AppTableSql::read_workspace_apps(workspace_id, false, conn)?;
-    let trash_ids = trash_controller.trash_ids(conn)?;
+    let trash_ids = trash_controller.read_trash_ids(conn)?;
     app_tables.retain(|app_table| !trash_ids.contains(&app_table.id));
 
     let apps = app_tables.into_iter().map(|table| table.into()).collect::<Vec<App>>();
     Ok(RepeatedApp { items: apps })
 }
-
-// #[tracing::instrument(level = "debug", skip(self), err)]
-// pub(crate) async fn delete_app(&self, app_id: &str) -> Result<(),
-// FlowyError> {     let conn = &*self.database.db_connection()?;
-//     conn.immediate_transaction::<_, FlowyError, _>(|| {
-//         let app = AppTableSql::delete_app(app_id, &*conn)?;
-//         let apps = self.read_local_apps(&app.workspace_id, &*conn)?;
-//         send_dart_notification(&app.workspace_id,
-// WorkspaceNotification::WorkspaceDeleteApp)             .payload(apps)
-//             .send();
-//         Ok(())
-//     })?;
-//
-//     let _ = self.delete_app_on_server(app_id);
-//     Ok(())
-// }
-//
-// #[tracing::instrument(level = "debug", skip(self), err)]
-// fn delete_app_on_server(&self, app_id: &str) -> Result<(), FlowyError> {
-//     let token = self.user.token()?;
-//     let server = self.server.clone();
-//     let params = DeleteAppParams {
-//         app_id: app_id.to_string(),
-//     };
-//     spawn(async move {
-//         match server.delete_app(&token, params).await {
-//             Ok(_) => {},
-//             Err(e) => {
-//                 // TODO: retry?
-//                 log::error!("Delete app failed: {:?}", e);
-//             },
-//         }
-//     });
-//     // let action = RetryAction::new(self.server.clone(), self.user.clone(),
-// move     // |token, server| {     let params = params.clone();
-//     //     async move {
-//     //         match server.delete_app(&token, params).await {
-//     //             Ok(_) => {},
-//     //             Err(e) => log::error!("Delete app failed: {:?}", e),
-//     //         }
-//     //         Ok::<(), FlowyError>(())
-//     //     }
-//     // });
-//     //
-//     // spawn_retry(500, 3, action);
-//     Ok(())
-// }

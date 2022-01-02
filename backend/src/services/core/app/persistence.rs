@@ -2,7 +2,7 @@ use crate::util::sqlx_ext::SqlBuilder;
 use backend_service::errors::{invalid_params, ServerError};
 use chrono::{DateTime, NaiveDateTime, Utc};
 use flowy_core_data_model::{
-    parser::app::AppId,
+    parser::app::AppIdentify,
     protobuf::{App, ColorStyle, RepeatedView},
 };
 use protobuf::Message;
@@ -80,14 +80,14 @@ impl NewAppSqlBuilder {
         let app: App = self.table.clone().into();
 
         let (sql, args) = SqlBuilder::create(APP_TABLE)
-            .add_arg("id", self.table.id)
-            .add_arg("workspace_id", self.table.workspace_id)
-            .add_arg("name", self.table.name)
-            .add_arg("description", self.table.description)
-            .add_arg("color_style", self.table.color_style)
-            .add_arg("modified_time", self.table.modified_time)
-            .add_arg("create_time", self.table.create_time)
-            .add_arg("user_id", self.table.user_id)
+            .add_field_with_arg("id", self.table.id)
+            .add_field_with_arg("workspace_id", self.table.workspace_id)
+            .add_field_with_arg("name", self.table.name)
+            .add_field_with_arg("description", self.table.description)
+            .add_field_with_arg("color_style", self.table.color_style)
+            .add_field_with_arg("modified_time", self.table.modified_time)
+            .add_field_with_arg("create_time", self.table.create_time)
+            .add_field_with_arg("user_id", self.table.user_id)
             .build()?;
 
         Ok((sql, args, app))
@@ -106,7 +106,7 @@ fn default_color_style() -> Vec<u8> {
 }
 
 pub(crate) fn check_app_id(id: String) -> Result<Uuid, ServerError> {
-    let app_id = AppId::parse(id).map_err(invalid_params)?;
+    let app_id = AppIdentify::parse(id).map_err(invalid_params)?;
     let app_id = Uuid::parse_str(app_id.as_ref())?;
     Ok(app_id)
 }

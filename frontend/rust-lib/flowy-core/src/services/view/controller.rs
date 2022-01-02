@@ -1,14 +1,19 @@
-use flowy_collaboration::entities::doc::{DocDelta, DocIdentifier};
+use bytes::Bytes;
+use flowy_collaboration::entities::{
+    doc::{DocumentDelta, DocumentId},
+    prelude::Revision,
+    revision::RepeatedRevision,
+};
 use flowy_database::SqliteConnection;
 use futures::{FutureExt, StreamExt};
 use std::{collections::HashSet, sync::Arc};
 
 use crate::{
     entities::{
-        trash::{TrashIdentifiers, TrashType},
-        view::{CreateViewParams, RepeatedView, UpdateViewParams, View, ViewIdentifier},
+        trash::{RepeatedTrashId, TrashType},
+        view::{CreateViewParams, RepeatedView, UpdateViewParams, View, ViewId},
     },
-    errors::{internal_error, FlowyError, FlowyResult},
+    errors::{FlowyError, FlowyResult},
     module::{WorkspaceDatabase, WorkspaceUser},
     notify::{send_dart_notification, WorkspaceNotification},
     services::{
@@ -20,7 +25,8 @@ use crate::{
 };
 use flowy_core_data_model::entities::share::{ExportData, ExportParams};
 use flowy_database::kv::KV;
-use flowy_document::module::FlowyDocument;
+use flowy_document::context::DocumentContext;
+use lib_infra::uuid_string;
 
 const LATEST_VIEW_ID: &str = "latest_view_id";
 
@@ -28,8 +34,8 @@ pub(crate) struct ViewController {
     user: Arc<dyn WorkspaceUser>,
     server: Server,
     database: Arc<dyn WorkspaceDatabase>,
-    trash_can: Arc<TrashController>,
-    document: Arc<FlowyDocument>,
+    trash_controller: Arc<TrashController>,
+    document_ctx: Arc<DocumentContext>,
 }
 
 impl ViewController {
@@ -38,41 +44,53 @@ impl ViewController {
         database: Arc<dyn WorkspaceDatabase>,
         server: Server,
         trash_can: Arc<TrashController>,
-        document: Arc<FlowyDocument>,
+        document_ctx: Arc<DocumentContext>,
     ) -> Self {
         Self {
             user,
             server,
             database,
-            trash_can,
-            document,
+            trash_controller: trash_can,
+            document_ctx,
         }
     }
 
     pub(crate) fn init(&self) -> Result<(), FlowyError> {
-        let _ = self.document.init()?;
+        let _ = self.document_ctx.init()?;
         self.listen_trash_can_event();
         Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self, params), fields(name = %params.name), err)]
     pub(crate) async fn create_view_from_params(&self, params: CreateViewParams) -> Result<View, FlowyError> {
-        let view = self.create_view_on_server(params.clone()).await?;
-        self.create_view(view).await
+        let delta_data = Bytes::from(params.view_data.clone());
+        let user_id = self.user.user_id()?;
+        let repeated_revision: RepeatedRevision =
+            Revision::initial_revision(&user_id, &params.view_id, delta_data).into();
+        let _ = self
+            .document_ctx
+            .controller
+            .save_document(&params.view_id, repeated_revision)
+            .await?;
+        let view = self.create_view_on_server(params).await?;
+        let _ = self.create_view_on_local(view.clone()).await?;
+
+        Ok(view)
     }
 
-    pub(crate) async fn create_view(&self, view: View) -> Result<View, FlowyError> {
+    pub(crate) async fn create_view_on_local(&self, view: View) -> Result<(), FlowyError> {
         let conn = &*self.database.db_connection()?;
-        let trash_can = self.trash_can.clone();
+        let trash_can = self.trash_controller.clone();
 
         conn.immediate_transaction::<_, FlowyError, _>(|| {
-            let _ = self.save_view(view.clone(), conn)?;
-            let _ = notify_views_changed(&view.belong_to_id, trash_can, &conn)?;
+            let belong_to_id = view.belong_to_id.clone();
+            let _ = self.save_view(view, conn)?;
+            let _ = notify_views_changed(&belong_to_id, trash_can, &conn)?;
 
             Ok(())
         })?;
 
-        Ok(view)
+        Ok(())
     }
 
     pub(crate) fn save_view(&self, view: View, conn: &SqliteConnection) -> Result<(), FlowyError> {
@@ -82,11 +100,11 @@ impl ViewController {
     }
 
     #[tracing::instrument(skip(self, params), fields(view_id = %params.view_id), err)]
-    pub(crate) async fn read_view(&self, params: ViewIdentifier) -> Result<View, FlowyError> {
+    pub(crate) async fn read_view(&self, params: ViewId) -> Result<View, FlowyError> {
         let conn = self.database.db_connection()?;
         let view_table = ViewTableSql::read_view(&params.view_id, &*conn)?;
 
-        let trash_ids = self.trash_can.trash_ids(&conn)?;
+        let trash_ids = self.trash_controller.read_trash_ids(&conn)?;
         if trash_ids.contains(&view_table.id) {
             return Err(FlowyError::record_not_found());
         }
@@ -110,46 +128,48 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self, params), fields(doc_id = %params.doc_id), err)]
-    pub(crate) async fn open_view(&self, params: DocIdentifier) -> Result<DocDelta, FlowyError> {
+    pub(crate) async fn open_view(&self, params: DocumentId) -> Result<DocumentDelta, FlowyError> {
         let doc_id = params.doc_id.clone();
-        let edit_context = self.document.open(params).await?;
+        let editor = self.document_ctx.controller.open(&params.doc_id).await?;
 
-        KV::set_str(LATEST_VIEW_ID, doc_id);
-        Ok(edit_context.delta().await.map_err(internal_error)?)
+        KV::set_str(LATEST_VIEW_ID, doc_id.clone());
+        let document_json = editor.document_json().await?;
+        Ok(DocumentDelta {
+            doc_id,
+            delta_json: document_json,
+        })
     }
 
     #[tracing::instrument(level = "debug", skip(self,params), fields(doc_id = %params.doc_id), err)]
-    pub(crate) async fn close_view(&self, params: DocIdentifier) -> Result<(), FlowyError> {
-        let _ = self.document.close(params).await?;
+    pub(crate) async fn close_view(&self, params: DocumentId) -> Result<(), FlowyError> {
+        let _ = self.document_ctx.controller.close(&params.doc_id)?;
         Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self,params), fields(doc_id = %params.doc_id), err)]
-    pub(crate) async fn delete_view(&self, params: DocIdentifier) -> Result<(), FlowyError> {
+    pub(crate) async fn delete_view(&self, params: DocumentId) -> Result<(), FlowyError> {
         if let Some(view_id) = KV::get_str(LATEST_VIEW_ID) {
             if view_id == params.doc_id {
                 let _ = KV::remove(LATEST_VIEW_ID);
             }
         }
-        let _ = self.document.close(params).await?;
+        let _ = self.document_ctx.controller.close(&params.doc_id)?;
         Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self, params), fields(doc_id = %params.doc_id), err)]
-    pub(crate) async fn duplicate_view(&self, params: DocIdentifier) -> Result<(), FlowyError> {
+    pub(crate) async fn duplicate_view(&self, params: DocumentId) -> Result<(), FlowyError> {
         let view: View = ViewTableSql::read_view(&params.doc_id, &*self.database.db_connection()?)?.into();
-        let delta_data = self
-            .document
-            .read_document_data(params, self.database.db_pool()?)
-            .await?;
-
+        let editor = self.document_ctx.controller.open(&params.doc_id).await?;
+        let document_json = editor.document_json().await?;
         let duplicate_params = CreateViewParams {
             belong_to_id: view.belong_to_id.clone(),
             name: format!("{} (copy)", &view.name),
             desc: view.desc.clone(),
             thumbnail: "".to_owned(),
             view_type: view.view_type.clone(),
-            data: delta_data.data,
+            view_data: document_json,
+            view_id: uuid_string(),
         };
 
         let _ = self.create_view_from_params(duplicate_params).await?;
@@ -158,14 +178,10 @@ impl ViewController {
 
     #[tracing::instrument(level = "debug", skip(self, params), err)]
     pub(crate) async fn export_doc(&self, params: ExportParams) -> Result<ExportData, FlowyError> {
-        let doc_identifier: DocIdentifier = params.doc_id.into();
-        let doc = self
-            .document
-            .read_document_data(doc_identifier, self.database.db_pool()?)
-            .await?;
-
+        let editor = self.document_ctx.controller.open(&params.doc_id).await?;
+        let delta_json = editor.document_json().await?;
         Ok(ExportData {
-            data: doc.data,
+            data: delta_json,
             export_type: params.export_type,
         })
     }
@@ -175,7 +191,7 @@ impl ViewController {
     pub(crate) async fn read_views_belong_to(&self, belong_to_id: &str) -> Result<RepeatedView, FlowyError> {
         // TODO: read from server
         let conn = self.database.db_connection()?;
-        let repeated_view = read_local_belonging_view(belong_to_id, self.trash_can.clone(), &conn)?;
+        let repeated_view = read_belonging_views_on_local(belong_to_id, self.trash_controller.clone(), &conn)?;
         Ok(repeated_view)
     }
 
@@ -195,14 +211,13 @@ impl ViewController {
             .send();
 
         //
-        let _ = notify_views_changed(&updated_view.belong_to_id, self.trash_can.clone(), conn)?;
-
+        let _ = notify_views_changed(&updated_view.belong_to_id, self.trash_controller.clone(), conn)?;
         let _ = self.update_view_on_server(params);
         Ok(updated_view)
     }
 
-    pub(crate) async fn apply_doc_delta(&self, params: DocDelta) -> Result<DocDelta, FlowyError> {
-        let doc = self.document.apply_doc_delta(params).await?;
+    pub(crate) async fn receive_document_delta(&self, params: DocumentDelta) -> Result<DocumentDelta, FlowyError> {
+        let doc = self.document_ctx.controller.apply_document_delta(params).await?;
         Ok(doc)
     }
 
@@ -245,11 +260,11 @@ impl ViewController {
     }
 
     #[tracing::instrument(skip(self), err)]
-    fn read_view_on_server(&self, params: ViewIdentifier) -> Result<(), FlowyError> {
+    fn read_view_on_server(&self, params: ViewId) -> Result<(), FlowyError> {
         let token = self.user.token()?;
         let server = self.server.clone();
         let pool = self.database.db_pool()?;
-        // Opti: retry?
+        // TODO: Retry with RetryAction?
         tokio::spawn(async move {
             match server.read_view(&token, params).await {
                 Ok(Some(view)) => match pool.get() {
@@ -275,10 +290,10 @@ impl ViewController {
     }
 
     fn listen_trash_can_event(&self) {
-        let mut rx = self.trash_can.subscribe();
+        let mut rx = self.trash_controller.subscribe();
         let database = self.database.clone();
-        let document = self.document.clone();
-        let trash_can = self.trash_can.clone();
+        let document = self.document_ctx.clone();
+        let trash_can = self.trash_controller.clone();
         let _ = tokio::spawn(async move {
             loop {
                 let mut stream = Box::pin(rx.recv().into_stream().filter_map(|result| async move {
@@ -296,10 +311,10 @@ impl ViewController {
     }
 }
 
-#[tracing::instrument(level = "trace", skip(database, document, trash_can))]
+#[tracing::instrument(level = "trace", skip(database, context, trash_can))]
 async fn handle_trash_event(
     database: Arc<dyn WorkspaceDatabase>,
-    document: Arc<FlowyDocument>,
+    context: Arc<DocumentContext>,
     trash_can: Arc<TrashController>,
     event: TrashEvent,
 ) {
@@ -309,7 +324,7 @@ async fn handle_trash_event(
         TrashEvent::NewTrash(identifiers, ret) => {
             let result = || {
                 let conn = &*db_result?;
-                let view_tables = get_view_table_from(identifiers, conn)?;
+                let view_tables = read_view_tables(identifiers, conn)?;
                 for view_table in view_tables {
                     let _ = notify_views_changed(&view_table.belong_to_id, trash_can.clone(), conn)?;
                     notify_dart(view_table, WorkspaceNotification::ViewDeleted);
@@ -321,7 +336,7 @@ async fn handle_trash_event(
         TrashEvent::Putback(identifiers, ret) => {
             let result = || {
                 let conn = &*db_result?;
-                let view_tables = get_view_table_from(identifiers, conn)?;
+                let view_tables = read_view_tables(identifiers, conn)?;
                 for view_table in view_tables {
                     let _ = notify_views_changed(&view_table.belong_to_id, trash_can.clone(), conn)?;
                     notify_dart(view_table, WorkspaceNotification::ViewRestored);
@@ -338,7 +353,7 @@ async fn handle_trash_event(
                     for identifier in identifiers.items {
                         let view_table = ViewTableSql::read_view(&identifier.id, conn)?;
                         let _ = ViewTableSql::delete_view(&identifier.id, conn)?;
-                        let _ = document.delete(identifier.id.clone().into())?;
+                        let _ = context.controller.delete(&identifier.id)?;
                         notify_ids.insert(view_table.belong_to_id);
                     }
 
@@ -355,7 +370,7 @@ async fn handle_trash_event(
     }
 }
 
-fn get_view_table_from(identifiers: TrashIdentifiers, conn: &SqliteConnection) -> Result<Vec<ViewTable>, FlowyError> {
+fn read_view_tables(identifiers: RepeatedTrashId, conn: &SqliteConnection) -> Result<Vec<ViewTable>, FlowyError> {
     let mut view_tables = vec![];
     let _ = conn.immediate_transaction::<_, FlowyError, _>(|| {
         for identifier in identifiers.items {
@@ -372,13 +387,13 @@ fn notify_dart(view_table: ViewTable, notification: WorkspaceNotification) {
     send_dart_notification(&view.id, notification).payload(view).send();
 }
 
-#[tracing::instrument(skip(belong_to_id, trash_can, conn), fields(view_count), err)]
+#[tracing::instrument(skip(belong_to_id, trash_controller, conn), fields(view_count), err)]
 fn notify_views_changed(
     belong_to_id: &str,
-    trash_can: Arc<TrashController>,
+    trash_controller: Arc<TrashController>,
     conn: &SqliteConnection,
 ) -> FlowyResult<()> {
-    let repeated_view = read_local_belonging_view(belong_to_id, trash_can.clone(), conn)?;
+    let repeated_view = read_belonging_views_on_local(belong_to_id, trash_controller.clone(), conn)?;
     tracing::Span::current().record("view_count", &format!("{}", repeated_view.len()).as_str());
     send_dart_notification(&belong_to_id, WorkspaceNotification::AppViewsChanged)
         .payload(repeated_view)
@@ -386,13 +401,13 @@ fn notify_views_changed(
     Ok(())
 }
 
-fn read_local_belonging_view(
+fn read_belonging_views_on_local(
     belong_to_id: &str,
-    trash_can: Arc<TrashController>,
+    trash_controller: Arc<TrashController>,
     conn: &SqliteConnection,
 ) -> FlowyResult<RepeatedView> {
     let mut view_tables = ViewTableSql::read_views(belong_to_id, conn)?;
-    let trash_ids = trash_can.trash_ids(conn)?;
+    let trash_ids = trash_controller.read_trash_ids(conn)?;
     view_tables.retain(|view_table| !trash_ids.contains(&view_table.id));
 
     let views = view_tables

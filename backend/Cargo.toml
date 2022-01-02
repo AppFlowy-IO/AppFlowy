@@ -24,6 +24,7 @@ bytes = "1"
 toml = "0.5.8"
 dashmap = "4.0"
 log = "0.4.14"
+async-trait = "0.1.52"
 
 # tracing
 tracing = { version = "0.1", features = ["log"] }
@@ -33,6 +34,7 @@ tracing-bunyan-formatter = "0.2.2"
 tracing-appender = "0.1"
 tracing-core = "0.1"
 tracing-log = { version = "0.1.1"}
+
 
 # serde
 serde_json = "1.0"

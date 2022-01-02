@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-message WSMessage {
+message WebSocketRawMessage {
     WSModule module = 1;
     bytes data = 2;
 }

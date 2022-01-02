@@ -5,17 +5,17 @@ use crate::{
             CreateViewParams,
             CreateViewRequest,
             QueryViewRequest,
+            RepeatedViewId,
             UpdateViewParams,
             UpdateViewRequest,
             View,
-            ViewIdentifier,
-            ViewIdentifiers,
+            ViewId,
         },
     },
     errors::FlowyError,
     services::{TrashController, ViewController},
 };
-use flowy_collaboration::entities::doc::DocDelta;
+use flowy_collaboration::entities::doc::DocumentDelta;
 use flowy_core_data_model::entities::share::{ExportData, ExportParams, ExportRequest};
 use lib_dispatch::prelude::{data_result, Data, DataResult, Unit};
 use std::{convert::TryInto, sync::Arc};
@@ -33,7 +33,7 @@ pub(crate) async fn read_view_handler(
     data: Data<QueryViewRequest>,
     controller: Unit<Arc<ViewController>>,
 ) -> DataResult<View, FlowyError> {
-    let params: ViewIdentifier = data.into_inner().try_into()?;
+    let params: ViewId = data.into_inner().try_into()?;
     let mut view = controller.read_view(params.clone()).await?;
     view.belongings = controller.read_views_belong_to(&params.view_id).await?;
 
@@ -51,40 +51,39 @@ pub(crate) async fn update_view_handler(
     Ok(())
 }
 
-pub(crate) async fn apply_doc_delta_handler(
-    data: Data<DocDelta>,
+pub(crate) async fn document_delta_handler(
+    data: Data<DocumentDelta>,
     controller: Unit<Arc<ViewController>>,
-) -> DataResult<DocDelta, FlowyError> {
-    // let params: DocDelta = data.into_inner().try_into()?;
-    let doc = controller.apply_doc_delta(data.into_inner()).await?;
+) -> DataResult<DocumentDelta, FlowyError> {
+    let doc = controller.receive_document_delta(data.into_inner()).await?;
     data_result(doc)
 }
 
 pub(crate) async fn delete_view_handler(
     data: Data<QueryViewRequest>,
-    controller: Unit<Arc<ViewController>>,
-    trash_can: Unit<Arc<TrashController>>,
+    view_controller: Unit<Arc<ViewController>>,
+    trash_controller: Unit<Arc<TrashController>>,
 ) -> Result<(), FlowyError> {
-    let params: ViewIdentifiers = data.into_inner().try_into()?;
-    for view_id in &params.view_ids {
-        let _ = controller.delete_view(view_id.into()).await;
+    let params: RepeatedViewId = data.into_inner().try_into()?;
+    for view_id in &params.items {
+        let _ = view_controller.delete_view(view_id.into()).await;
     }
 
-    let trash = controller
-        .read_view_tables(params.view_ids)?
+    let trash = view_controller
+        .read_view_tables(params.items)?
         .into_iter()
         .map(|view_table| view_table.into())
         .collect::<Vec<Trash>>();
 
-    let _ = trash_can.add(trash).await?;
+    let _ = trash_controller.add(trash).await?;
     Ok(())
 }
 
 pub(crate) async fn open_view_handler(
     data: Data<QueryViewRequest>,
     controller: Unit<Arc<ViewController>>,
-) -> DataResult<DocDelta, FlowyError> {
-    let params: ViewIdentifier = data.into_inner().try_into()?;
+) -> DataResult<DocumentDelta, FlowyError> {
+    let params: ViewId = data.into_inner().try_into()?;
     let doc = controller.open_view(params.into()).await?;
     data_result(doc)
 }
@@ -93,7 +92,7 @@ pub(crate) async fn close_view_handler(
     data: Data<QueryViewRequest>,
     controller: Unit<Arc<ViewController>>,
 ) -> Result<(), FlowyError> {
-    let params: ViewIdentifier = data.into_inner().try_into()?;
+    let params: ViewId = data.into_inner().try_into()?;
     let _ = controller.close_view(params.into()).await?;
     Ok(())
 }
@@ -103,7 +102,7 @@ pub(crate) async fn duplicate_view_handler(
     data: Data<QueryViewRequest>,
     controller: Unit<Arc<ViewController>>,
 ) -> Result<(), FlowyError> {
-    let params: ViewIdentifier = data.into_inner().try_into()?;
+    let params: ViewId = data.into_inner().try_into()?;
     let _ = controller.duplicate_view(params.into()).await?;
     Ok(())
 }

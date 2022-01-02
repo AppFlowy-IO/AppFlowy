@@ -10,7 +10,7 @@ use crate::{
 use anyhow::Context;
 use backend_service::errors::{invalid_params, ServerError};
 use flowy_core_data_model::{
-    parser::workspace::WorkspaceId,
+    parser::workspace::WorkspaceIdentify,
     protobuf::{RepeatedApp, RepeatedWorkspace, Workspace},
 };
 use sqlx::{postgres::PgArguments, Postgres};
@@ -120,7 +120,7 @@ async fn read_workspace_apps<'c>(
     transaction: &mut DBTransaction<'_>,
     workspace_id: &str,
 ) -> Result<RepeatedApp, ServerError> {
-    let workspace_id = WorkspaceId::parse(workspace_id.to_owned()).map_err(invalid_params)?;
+    let workspace_id = WorkspaceIdentify::parse(workspace_id.to_owned()).map_err(invalid_params)?;
     let (sql, args) = SqlBuilder::select("app_table")
         .add_field("*")
         .and_where_eq("workspace_id", workspace_id.0)

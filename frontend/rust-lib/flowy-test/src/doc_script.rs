@@ -1,7 +1,7 @@
 use crate::{helper::ViewTest, FlowySDKTest};
-use flowy_collaboration::entities::doc::DocIdentifier;
-use flowy_document::services::doc::{edit::ClientDocEditor, SYNC_INTERVAL_IN_MILLIS};
-use lib_ot::{core::Interval, revision::RevState, rich_text::RichTextDelta};
+use flowy_collaboration::entities::revision::RevisionState;
+use flowy_document::services::doc::{edit::ClientDocumentEditor, SYNC_INTERVAL_IN_MILLIS};
+use lib_ot::{core::Interval, rich_text::RichTextDelta};
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
@@ -12,7 +12,7 @@ pub enum EditorScript {
     Delete(Interval),
     Replace(Interval, &'static str),
 
-    AssertRevisionState(i64, RevState),
+    AssertRevisionState(i64, RevisionState),
     AssertNextRevId(Option<i64>),
     AssertCurrentRevId(i64),
     AssertJson(&'static str),
@@ -22,7 +22,7 @@ pub enum EditorScript {
 
 pub struct EditorTest {
     pub sdk: FlowySDKTest,
-    pub editor: Arc<ClientDocEditor>,
+    pub editor: Arc<ClientDocumentEditor>,
 }
 
 impl EditorTest {
@@ -30,8 +30,7 @@ impl EditorTest {
         let sdk = FlowySDKTest::setup();
         let _ = sdk.init_user().await;
         let test = ViewTest::new(&sdk).await;
-        let doc_identifier: DocIdentifier = test.view.id.clone().into();
-        let editor = sdk.flowy_document.open(doc_identifier).await.unwrap();
+        let editor = sdk.document_ctx.controller.open(&test.view.id).await.unwrap();
         Self { sdk, editor }
     }
 
@@ -46,7 +45,6 @@ impl EditorTest {
     async fn run_script(&mut self, script: EditorScript) {
         let rev_manager = self.editor.rev_manager();
         let cache = rev_manager.revision_cache();
-        let doc_id = self.editor.doc_id.clone();
         let _user_id = self.sdk.user_session.user_id().unwrap();
         let ws_manager = self.sdk.ws_manager.clone();
         let token = self.sdk.user_session.token().unwrap();
@@ -69,7 +67,7 @@ impl EditorTest {
                 self.editor.replace(interval, s).await.unwrap();
             },
             EditorScript::AssertRevisionState(rev_id, state) => {
-                let record = cache.get_revision(&doc_id, rev_id).await.unwrap();
+                let record = cache.get(rev_id).await.unwrap();
                 assert_eq!(record.state, state);
             },
             EditorScript::AssertCurrentRevId(rev_id) => {
@@ -78,7 +76,7 @@ impl EditorTest {
             EditorScript::AssertNextRevId(rev_id) => {
                 let next_revision = rev_manager.next_sync_revision().await.unwrap();
                 if rev_id.is_none() {
-                    assert_eq!(next_revision.is_none(), true);
+                    assert_eq!(next_revision.is_none(), true, "Next revision should be None");
                     return;
                 }
                 let next_revision = next_revision.unwrap();

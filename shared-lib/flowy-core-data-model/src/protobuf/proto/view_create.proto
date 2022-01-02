@@ -13,7 +13,8 @@ message CreateViewParams {
     string desc = 3;
     string thumbnail = 4;
     ViewType view_type = 5;
-    string data = 6;
+    string view_data = 6;
+    string view_id = 7;
 }
 message View {
     string id = 1;

@@ -1,14 +1,6 @@
 use crate::{
     entities::{
-        app::{
-            App,
-            AppIdentifier,
-            CreateAppParams,
-            CreateAppRequest,
-            QueryAppRequest,
-            UpdateAppParams,
-            UpdateAppRequest,
-        },
+        app::{App, AppId, CreateAppParams, CreateAppRequest, QueryAppRequest, UpdateAppParams, UpdateAppRequest},
         trash::Trash,
     },
     errors::FlowyError,
@@ -29,17 +21,17 @@ pub(crate) async fn create_app_handler(
 
 pub(crate) async fn delete_app_handler(
     data: Data<QueryAppRequest>,
-    controller: Unit<Arc<AppController>>,
-    trash_can: Unit<Arc<TrashController>>,
+    view_controller: Unit<Arc<AppController>>,
+    trash_controller: Unit<Arc<TrashController>>,
 ) -> Result<(), FlowyError> {
-    let params: AppIdentifier = data.into_inner().try_into()?;
-    let trash = controller
+    let params: AppId = data.into_inner().try_into()?;
+    let trash = view_controller
         .read_app_tables(vec![params.app_id])?
         .into_iter()
         .map(|view_table| view_table.into())
         .collect::<Vec<Trash>>();
 
-    let _ = trash_can.add(trash).await?;
+    let _ = trash_controller.add(trash).await?;
     Ok(())
 }
 
@@ -59,7 +51,7 @@ pub(crate) async fn read_app_handler(
     app_controller: Unit<Arc<AppController>>,
     view_controller: Unit<Arc<ViewController>>,
 ) -> DataResult<App, FlowyError> {
-    let params: AppIdentifier = data.into_inner().try_into()?;
+    let params: AppId = data.into_inner().try_into()?;
     let mut app = app_controller.read_app(params.clone()).await?;
     app.belongings = view_controller.read_views_belong_to(&params.app_id).await?;
 

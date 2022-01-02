@@ -1,13 +1,12 @@
 use crate::services::doc::RevisionRecord;
 use dashmap::DashMap;
+use flowy_collaboration::entities::revision::RevisionRange;
 use flowy_error::{FlowyError, FlowyResult};
-
-use lib_ot::revision::RevisionRange;
 use std::{sync::Arc, time::Duration};
 use tokio::{sync::RwLock, task::JoinHandle};
 
 pub(crate) trait RevisionMemoryCacheDelegate: Send + Sync {
-    fn receive_checkpoint(&self, records: Vec<RevisionRecord>) -> FlowyResult<()>;
+    fn checkpoint_tick(&self, records: Vec<RevisionRecord>) -> FlowyResult<()>;
     fn receive_ack(&self, doc_id: &str, rev_id: i64);
 }
 
@@ -32,7 +31,7 @@ impl RevisionMemoryCache {
 
     pub(crate) fn contains(&self, rev_id: &i64) -> bool { self.revs_map.contains_key(rev_id) }
 
-    pub(crate) async fn add_revision(&self, record: &RevisionRecord) {
+    pub(crate) async fn add(&self, record: &RevisionRecord) {
         if let Some(rev_id) = self.pending_write_revs.read().await.last() {
             if *rev_id >= record.revision.rev_id {
                 tracing::error!("Duplicated revision added to memory_cache");
@@ -45,7 +44,7 @@ impl RevisionMemoryCache {
         self.make_checkpoint().await;
     }
 
-    pub(crate) async fn ack_revision(&self, rev_id: &i64) {
+    pub(crate) async fn ack(&self, rev_id: &i64) {
         match self.revs_map.get_mut(rev_id) {
             None => {},
             Some(mut record) => record.ack(),
@@ -60,14 +59,11 @@ impl RevisionMemoryCache {
         }
     }
 
-    pub(crate) async fn get_revision(&self, rev_id: &i64) -> Option<RevisionRecord> {
+    pub(crate) async fn get(&self, rev_id: &i64) -> Option<RevisionRecord> {
         self.revs_map.get(&rev_id).map(|r| r.value().clone())
     }
 
-    pub(crate) async fn get_revisions_in_range(
-        &self,
-        range: &RevisionRange,
-    ) -> Result<Vec<RevisionRecord>, FlowyError> {
+    pub(crate) async fn get_with_range(&self, range: &RevisionRange) -> Result<Vec<RevisionRecord>, FlowyError> {
         let revs = range
             .iter()
             .flat_map(|rev_id| self.revs_map.get(&rev_id).map(|record| record.clone()))
@@ -107,7 +103,7 @@ impl RevisionMemoryCache {
                 },
             });
 
-            if delegate.receive_checkpoint(save_records).is_ok() {
+            if delegate.checkpoint_tick(save_records).is_ok() {
                 revs_write_guard.clear();
                 drop(revs_write_guard);
             }

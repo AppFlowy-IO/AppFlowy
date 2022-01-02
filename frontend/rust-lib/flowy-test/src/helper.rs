@@ -1,10 +1,10 @@
 use std::{fs, path::PathBuf, sync::Arc};
 
-use flowy_collaboration::entities::doc::Doc;
+use flowy_collaboration::entities::doc::DocumentInfo;
 use flowy_core::{
     entities::{
         app::*,
-        trash::{RepeatedTrash, TrashIdentifier},
+        trash::{RepeatedTrash, TrashId},
         view::*,
         workspace::{CreateWorkspaceRequest, QueryWorkspaceRequest, Workspace, *},
     },
@@ -17,7 +17,7 @@ use flowy_user::{
     event::UserEvent::{InitUser, SignIn, SignOut, SignUp},
 };
 use lib_dispatch::prelude::{EventDispatcher, ModuleRequest, ToBytes};
-use lib_infra::uuid;
+use lib_infra::uuid_string;
 
 use crate::prelude::*;
 
@@ -176,7 +176,7 @@ pub async fn create_app(sdk: &FlowySDKTest, name: &str, desc: &str, workspace_id
 }
 
 pub async fn delete_app(sdk: &FlowySDKTest, app_id: &str) {
-    let delete_app_request = AppIdentifier {
+    let delete_app_request = AppId {
         app_id: app_id.to_string(),
     };
 
@@ -261,7 +261,7 @@ pub async fn read_trash(sdk: &FlowySDKTest) -> RepeatedTrash {
         .parse::<RepeatedTrash>()
 }
 
-pub async fn putback_trash(sdk: &FlowySDKTest, id: TrashIdentifier) {
+pub async fn putback_trash(sdk: &FlowySDKTest, id: TrashId) {
     CoreModuleEventBuilder::new(sdk.clone())
         .event(PutbackTrash)
         .request(id)
@@ -269,13 +269,13 @@ pub async fn putback_trash(sdk: &FlowySDKTest, id: TrashIdentifier) {
         .await;
 }
 
-pub async fn open_view(sdk: &FlowySDKTest, request: QueryViewRequest) -> Doc {
+pub async fn open_view(sdk: &FlowySDKTest, request: QueryViewRequest) -> DocumentInfo {
     CoreModuleEventBuilder::new(sdk.clone())
         .event(OpenView)
         .request(request)
         .async_send()
         .await
-        .parse::<Doc>()
+        .parse::<DocumentInfo>()
 }
 
 pub fn root_dir() -> String {
@@ -293,7 +293,7 @@ pub fn root_dir() -> String {
     root_dir
 }
 
-pub fn random_email() -> String { format!("{}@appflowy.io", uuid()) }
+pub fn random_email() -> String { format!("{}@appflowy.io", uuid_string()) }
 
 pub fn login_email() -> String { "annie2@appflowy.io".to_string() }
 

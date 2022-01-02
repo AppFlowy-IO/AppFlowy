@@ -272,14 +272,14 @@ class WorkspaceEventOpenView {
      QueryViewRequest request;
      WorkspaceEventOpenView(this.request);
 
-    Future<Either<DocDelta, FlowyError>> send() {
+    Future<Either<DocumentDelta, FlowyError>> send() {
     final request = FFIRequest.create()
           ..event = WorkspaceEvent.OpenView.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-           (okBytes) => left(DocDelta.fromBuffer(okBytes)),
+           (okBytes) => left(DocumentDelta.fromBuffer(okBytes)),
            (errBytes) => right(FlowyError.fromBuffer(errBytes)),
         ));
     }
@@ -317,7 +317,7 @@ class WorkspaceEventReadTrash {
 }
 
 class WorkspaceEventPutbackTrash {
-     TrashIdentifier request;
+     TrashId request;
      WorkspaceEventPutbackTrash(this.request);
 
     Future<Either<Unit, FlowyError>> send() {
@@ -334,7 +334,7 @@ class WorkspaceEventPutbackTrash {
 }
 
 class WorkspaceEventDeleteTrash {
-     TrashIdentifiers request;
+     RepeatedTrashId request;
      WorkspaceEventDeleteTrash(this.request);
 
     Future<Either<Unit, FlowyError>> send() {
@@ -379,17 +379,17 @@ class WorkspaceEventDeleteAll {
 }
 
 class WorkspaceEventApplyDocDelta {
-     DocDelta request;
+     DocumentDelta request;
      WorkspaceEventApplyDocDelta(this.request);
 
-    Future<Either<DocDelta, FlowyError>> send() {
+    Future<Either<DocumentDelta, FlowyError>> send() {
     final request = FFIRequest.create()
           ..event = WorkspaceEvent.ApplyDocDelta.toString()
           ..payload = requestToBytes(this.request);
 
     return Dispatch.asyncRequest(request)
         .then((bytesResult) => bytesResult.fold(
-           (okBytes) => left(DocDelta.fromBuffer(okBytes)),
+           (okBytes) => left(DocumentDelta.fromBuffer(okBytes)),
            (errBytes) => right(FlowyError.fromBuffer(errBytes)),
         ));
     }

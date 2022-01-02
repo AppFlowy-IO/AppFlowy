@@ -1,9 +1,11 @@
 use crate::services::{
-    document::manager::DocumentManager,
+    kv::PostgresKV,
     web_socket::{WSServer, WebSocketReceivers},
 };
 use actix::Addr;
 use actix_web::web::Data;
+
+use crate::services::document::{persistence::DocumentKVPersistence, ws_receiver::make_document_ws_receiver};
 use lib_ws::WSModule;
 use sqlx::PgPool;
 use std::sync::Arc;
@@ -11,25 +13,41 @@ use std::sync::Arc;
 #[derive(Clone)]
 pub struct AppContext {
     pub ws_server: Data<Addr<WSServer>>,
-    pub pg_pool: Data<PgPool>,
+    pub persistence: Data<Arc<FlowyPersistence>>,
     pub ws_receivers: Data<WebSocketReceivers>,
-    pub document_mng: Data<Arc<DocumentManager>>,
 }
 
 impl AppContext {
-    pub fn new(ws_server: Addr<WSServer>, db_pool: PgPool) -> Self {
+    pub fn new(ws_server: Addr<WSServer>, pg_pool: PgPool) -> Self {
         let ws_server = Data::new(ws_server);
-        let pg_pool = Data::new(db_pool);
-
         let mut ws_receivers = WebSocketReceivers::new();
-        let document_mng = Arc::new(DocumentManager::new(pg_pool.clone()));
-        ws_receivers.set(WSModule::Doc, document_mng.clone());
 
+        let kv_store = make_document_kv_store(pg_pool.clone());
+        let persistence = Arc::new(FlowyPersistence { pg_pool, kv_store });
+
+        let document_ws_receiver = make_document_ws_receiver(persistence.clone());
+        ws_receivers.set(WSModule::Doc, document_ws_receiver);
         AppContext {
             ws_server,
-            pg_pool,
+            persistence: Data::new(persistence),
             ws_receivers: Data::new(ws_receivers),
-            document_mng: Data::new(document_mng),
         }
     }
+}
+
+fn make_document_kv_store(pg_pool: PgPool) -> Arc<DocumentKVPersistence> {
+    let kv_impl = Arc::new(PostgresKV { pg_pool });
+    Arc::new(DocumentKVPersistence::new(kv_impl))
+}
+
+#[derive(Clone)]
+pub struct FlowyPersistence {
+    pg_pool: PgPool,
+    kv_store: Arc<DocumentKVPersistence>,
+}
+
+impl FlowyPersistence {
+    pub fn pg_pool(&self) -> PgPool { self.pg_pool.clone() }
+
+    pub fn kv_store(&self) -> Arc<DocumentKVPersistence> { self.kv_store.clone() }
 }

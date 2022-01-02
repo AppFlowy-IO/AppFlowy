@@ -52,7 +52,7 @@ pub enum WorkspaceEvent {
     #[event()]
     CopyLink          = 206,
 
-    #[event(input = "QueryViewRequest", output = "DocDelta")]
+    #[event(input = "QueryViewRequest", output = "DocumentDelta")]
     OpenView          = 207,
 
     #[event(input = "QueryViewRequest")]
@@ -61,10 +61,10 @@ pub enum WorkspaceEvent {
     #[event(output = "RepeatedTrash")]
     ReadTrash         = 300,
 
-    #[event(input = "TrashIdentifier")]
+    #[event(input = "TrashId")]
     PutbackTrash      = 301,
 
-    #[event(input = "TrashIdentifiers")]
+    #[event(input = "RepeatedTrashId")]
     DeleteTrash       = 302,
 
     #[event()]
@@ -73,7 +73,7 @@ pub enum WorkspaceEvent {
     #[event()]
     DeleteAll         = 304,
 
-    #[event(input = "DocDelta", output = "DocDelta")]
+    #[event(input = "DocumentDelta", output = "DocumentDelta")]
     ApplyDocDelta     = 400,
 
     #[event(input = "ExportRequest", output = "ExportData")]

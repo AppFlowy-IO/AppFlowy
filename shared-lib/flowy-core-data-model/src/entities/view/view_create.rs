@@ -3,11 +3,11 @@ use crate::{
     errors::ErrorCode,
     impl_def_and_def_mut,
     parser::{
-        app::AppId,
+        app::AppIdentify,
         view::{ViewName, ViewThumbnail},
     },
 };
-use flowy_collaboration::core::document::default::initial_string;
+use flowy_collaboration::document::default::initial_delta_string;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use std::convert::TryInto;
 
@@ -69,19 +69,32 @@ pub struct CreateViewParams {
     #[pb(index = 5)]
     pub view_type: ViewType,
 
+    // ViewType::Doc -> Delta string
     #[pb(index = 6)]
-    pub data: String,
+    pub view_data: String,
+
+    #[pb(index = 7)]
+    pub view_id: String,
 }
 
 impl CreateViewParams {
-    pub fn new(belong_to_id: String, name: String, desc: String, view_type: ViewType, thumbnail: String) -> Self {
+    pub fn new(
+        belong_to_id: String,
+        name: String,
+        desc: String,
+        view_type: ViewType,
+        thumbnail: String,
+        view_data: String,
+        view_id: String,
+    ) -> Self {
         Self {
             belong_to_id,
             name,
             desc,
             thumbnail,
             view_type,
-            data: initial_string(),
+            view_data,
+            view_id,
         }
     }
 }
@@ -91,8 +104,9 @@ impl TryInto<CreateViewParams> for CreateViewRequest {
 
     fn try_into(self) -> Result<CreateViewParams, Self::Error> {
         let name = ViewName::parse(self.name)?.0;
-        let belong_to_id = AppId::parse(self.belong_to_id)?.0;
-
+        let belong_to_id = AppIdentify::parse(self.belong_to_id)?.0;
+        let view_data = initial_delta_string();
+        let view_id = uuid::Uuid::new_v4().to_string();
         let thumbnail = match self.thumbnail {
             None => "".to_string(),
             Some(thumbnail) => ViewThumbnail::parse(thumbnail)?.0,
@@ -104,6 +118,8 @@ impl TryInto<CreateViewParams> for CreateViewRequest {
             self.desc,
             self.view_type,
             thumbnail,
+            view_data,
+            view_id,
         ))
     }
 }

@@ -3,6 +3,6 @@ syntax = "proto3";
 message QueryWorkspaceRequest {
     oneof one_of_workspace_id { string workspace_id = 1; };
 }
-message WorkspaceIdentifier {
+message WorkspaceId {
     oneof one_of_workspace_id { string workspace_id = 1; };
 }
