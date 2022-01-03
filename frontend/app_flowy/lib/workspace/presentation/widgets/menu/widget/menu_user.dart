@@ -1,12 +1,15 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show UserProfile;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-//import 'package:flowy_infra_ui/style_widget/icon_button.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:app_flowy/workspace/presentation/theme/theme_model.dart';
+import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class MenuUser extends StatelessWidget {
   final UserProfile user;
@@ -14,15 +17,18 @@ class MenuUser extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
     return BlocProvider<MenuUserBloc>(
       create: (context) => getIt<MenuUserBloc>(param1: user)..add(const MenuUserEvent.initial()),
       child: BlocBuilder<MenuUserBloc, MenuUserState>(
         builder: (context, state) => Row(
           children: [
             _renderAvatar(context),
-            const HSpace(12),
+            const HSpace(10),
             _renderUserName(context),
-            const HSpace(4),
+            const HSpace(80),
+            (theme.isDark ? _renderLightMode(context) : _renderDarkMode(context)),
+
             //ToDo: when the user is allowed to create another workspace,
             //we get the below block back
             //_renderDropButton(context),
@@ -47,10 +53,36 @@ class MenuUser extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w300,
-                color: Colors.white,
               ),
             ),
           )),
+    );
+  }
+
+  Widget _renderThemeToggle(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    return CircleAvatar(
+      backgroundColor: theme.surface,
+      child: IconButton(
+          icon: Icon(theme.isDark ? Icons.dark_mode : Icons.light_mode),
+          color: (theme.textColor),
+          onPressed: () {
+            context.read<ThemeModel>().swapTheme();
+          }),
+    );
+  }
+
+  Widget _renderDarkMode(BuildContext context) {
+    return Tooltip(
+      message: LocaleKeys.tooltip_darkMode.tr(),
+      child: _renderThemeToggle(context),
+    );
+  }
+
+  Widget _renderLightMode(BuildContext context) {
+    return Tooltip(
+      message: LocaleKeys.tooltip_lightMode.tr(),
+      child: _renderThemeToggle(context),
     );
   }
 

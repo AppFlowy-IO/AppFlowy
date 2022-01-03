@@ -90,6 +90,10 @@
     "inlineCode": "内联代码",
     "quote": "块引用"
   },
+  "tooltip":{
+    "lightMode" : "切换到灯光模式",
+    "darkMode" : "切换到暗模式"
+  },
   "contactsPage": {
     "title": "联系人",
     "whatsHappening": "这周发生了哪些事?",

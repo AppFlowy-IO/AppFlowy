@@ -1,4 +1,5 @@
 import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/workspace/presentation/theme/theme_model.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -39,31 +40,30 @@ class ApplicationWidget extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    const ratio = 1.73;
-    const minWidth = 800.0;
-    setWindowMinSize(const Size(minWidth, minWidth / ratio));
-    // const launchWidth = 1310.0;
-    // setWindowFrame(const Rect.fromLTWH(0, 0, launchWidth, launchWidth / ratio));
+  Widget build(BuildContext context) => ChangeNotifierProvider(
+      create: (context) => ThemeModel(),
+      builder: (context, _) {
+        const ratio = 1.73;
+        const minWidth = 800.0;
+        setWindowMinSize(const Size(minWidth, minWidth / ratio));
 
-    var _dark = ThemeType.dark;
-    var _light = ThemeType.light;
-    final theme = AppTheme.fromType(ThemeType.light);
-    theme.isDark = true;
-    return Provider.value(
-      value: theme,
-      child: MaterialApp(
-        builder: overlayManagerBuilder(),
-        debugShowCheckedModeBanner: false,
-        theme: theme.themeData,
-        localizationsDelegates: context.localizationDelegates,
-        supportedLocales: context.supportedLocales,
-        locale: context.locale,
-        navigatorKey: AppGlobals.rootNavKey,
-        home: child,
-      ),
-    );
-  }
+        ThemeType themeType = context.select<ThemeModel, ThemeType>((value) => value.theme);
+        AppTheme theme = AppTheme.fromType(themeType);
+
+        return Provider.value(
+          value: theme,
+          child: MaterialApp(
+            builder: overlayManagerBuilder(),
+            debugShowCheckedModeBanner: false,
+            theme: theme.themeData,
+            localizationsDelegates: context.localizationDelegates,
+            supportedLocales: context.supportedLocales,
+            locale: context.locale,
+            navigatorKey: AppGlobals.rootNavKey,
+            home: child,
+          ),
+        );
+      });
 }
 
 class AppGlobals {
