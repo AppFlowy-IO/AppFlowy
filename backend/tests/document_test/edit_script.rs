@@ -9,7 +9,6 @@ use futures_util::{stream, stream::StreamExt};
 use std::sync::Arc;
 use bytes::Bytes;
 use tokio::time::{sleep, Duration};
-// use crate::helper::*;
 use crate::util::helper::{spawn_server, TestServer};
 use flowy_collaboration::{entities::doc::DocumentId, protobuf::ResetDocumentParams};
 use lib_ot::rich_text::{RichTextAttribute, RichTextDelta};
@@ -28,13 +27,12 @@ pub struct DocumentTest {
 }
 #[derive(Clone)]
 pub enum DocScript {
-    ClientConnectWS,
     ClientInsertText(usize, &'static str),
     ClientFormatText(Interval, RichTextAttribute),
     ClientOpenDoc,
     AssertClient(&'static str),
     AssertServer(&'static str, i64),
-    ServerSaveDocument(String, i64), // delta_json, rev_id
+    ServerResetDocument(String, i64), // delta_json, rev_id
 }
 
 impl DocumentTest {
@@ -95,18 +93,10 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
         let fut = async move {
             let doc_id = context.read().doc_id.clone();
             match script {
-                DocScript::ClientConnectWS => {
-                    // sleep(Duration::from_millis(300)).await;
-                    let ws_manager = context.read().ws_conn.clone();
-                    let user_session = context.read().client_user_session.clone();
-                    let token = user_session.token().unwrap();
-                    let _ = ws_manager.start(token).await.unwrap();
-                },
                 DocScript::ClientOpenDoc => {
                     context.write().open_doc().await;
                 },
                 DocScript::ClientInsertText(index, s) => {
-                    sleep(Duration::from_millis(2000)).await;
                     context.read().client_editor().insert(index, s).await.unwrap();
                 },
                 DocScript::ClientFormatText(interval, attribute) => {
@@ -133,7 +123,7 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
                     assert_eq(s, &document_info.text);
                     assert_eq!(document_info.rev_id, rev_id);
                 },
-                DocScript::ServerSaveDocument(document_json, rev_id) => {
+                DocScript::ServerResetDocument(document_json, rev_id) => {
                     let delta_data = Bytes::from(document_json);
                     let user_id = context.read().client_user_session.user_id().unwrap();
                     let md5 = format!("{:x}", md5::compute(&delta_data));
@@ -151,9 +141,6 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
                     reset_doc(&doc_id, RepeatedRevision::new(vec![revision]), document_manager.get_ref()).await;
                     sleep(Duration::from_millis(2000)).await;
                 },
-                // DocScript::Sleep(sec) => {
-                //     sleep(Duration::from_secs(sec)).await;
-                // },
             }
         };
         fut_scripts.push(fut);

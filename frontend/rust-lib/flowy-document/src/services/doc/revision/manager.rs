@@ -7,10 +7,9 @@ use dashmap::DashMap;
 use flowy_collaboration::{
     entities::{
         doc::DocumentInfo,
-        prelude::pair_rev_id_from_revisions,
         revision::{RepeatedRevision, Revision, RevisionRange, RevisionState},
     },
-    util::{md5, RevIdCounter},
+    util::{md5, pair_rev_id_from_revisions, RevIdCounter},
 };
 use flowy_error::FlowyResult;
 use futures_util::{future, stream, stream::StreamExt};

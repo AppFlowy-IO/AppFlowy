@@ -1,9 +1,8 @@
+use crate::response::FlowyResponse;
 use bytes::Bytes;
 use serde::{Deserialize, Serialize, __private::Formatter};
 use serde_repr::*;
 use std::{fmt, fmt::Debug};
-
-use crate::response::FlowyResponse;
 
 pub type Result<T> = std::result::Result<T, ServerError>;
 

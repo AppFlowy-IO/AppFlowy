@@ -12,7 +12,7 @@ use flowy_collaboration::{
     sync::{RevisionUser, ServerDocumentManager, SyncResponse},
 };
 use futures::stream::StreamExt;
-use std::{convert::TryInto, sync::Arc};
+use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot};
 
 pub enum WSActorMessage {
@@ -147,13 +147,10 @@ impl RevisionUser for ServerDocUser {
                 let msg: WebSocketMessage = data.into();
                 self.socket.try_send(msg).map_err(internal_error)
             },
-            SyncResponse::NewRevision(revisions) => {
+            SyncResponse::NewRevision(mut repeated_revision) => {
                 let kv_store = self.persistence.kv_store();
                 tokio::task::spawn(async move {
-                    let revisions = revisions
-                        .into_iter()
-                        .map(|revision| revision.try_into().unwrap())
-                        .collect::<Vec<_>>();
+                    let revisions = repeated_revision.take_items().into();
                     match kv_store.batch_set_revision(revisions).await {
                         Ok(_) => {},
                         Err(e) => log::error!("{}", e),

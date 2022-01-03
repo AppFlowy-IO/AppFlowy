@@ -1,6 +1,6 @@
-use std::{error::Error, fmt, fmt::Debug, str::Utf8Error};
+use std::{fmt, fmt::Debug, str::Utf8Error};
 
-#[derive(Clone, Debug)]
+#[derive(thiserror::Error, Clone, Debug)]
 pub struct OTError {
     pub code: OTErrorCode,
     pub msg: String,
@@ -42,10 +42,6 @@ impl OTError {
 
 impl fmt::Display for OTError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { write!(f, "incompatible lengths") }
-}
-
-impl Error for OTError {
-    fn source(&self) -> Option<&(dyn Error + 'static)> { None }
 }
 
 impl std::convert::From<serde_json::Error> for OTError {

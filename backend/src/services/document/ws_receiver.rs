@@ -1,21 +1,25 @@
-use crate::services::{
-    document::{
-        persistence::{create_document, read_document},
-        ws_actor::{DocumentWebSocketActor, WSActorMessage},
+use crate::{
+    context::FlowyPersistence,
+    services::{
+        document::{
+            persistence::{create_document, read_document, revisions_to_key_value_items},
+            ws_actor::{DocumentWebSocketActor, WSActorMessage},
+        },
+        web_socket::{WSClientData, WebSocketReceiver},
     },
-    web_socket::{WSClientData, WebSocketReceiver},
 };
-
-use crate::{context::FlowyPersistence, services::document::persistence::revisions_to_key_value_items};
 use backend_service::errors::ServerError;
 use flowy_collaboration::{
-    entities::{
-        doc::{CreateDocParams, DocumentInfo},
-        revision::{RepeatedRevision, Revision},
-    },
+    entities::doc::DocumentInfo,
     errors::CollaborateError,
-    protobuf::DocumentId,
+    protobuf::{
+        CreateDocParams as CreateDocParamsPB,
+        DocumentId,
+        RepeatedRevision as RepeatedRevisionPB,
+        Revision as RevisionPB,
+    },
     sync::{DocumentPersistence, ServerDocumentManager},
+    util::repeated_revision_from_repeated_revision_pb,
 };
 use lib_infra::future::BoxResultFuture;
 use std::{
@@ -95,49 +99,54 @@ impl DocumentPersistence for DocumentPersistenceImpl {
         })
     }
 
-    fn create_doc(&self, doc_id: &str, revisions: Vec<Revision>) -> BoxResultFuture<DocumentInfo, CollaborateError> {
+    fn create_doc(
+        &self,
+        doc_id: &str,
+        repeated_revision: RepeatedRevisionPB,
+    ) -> BoxResultFuture<DocumentInfo, CollaborateError> {
         let kv_store = self.0.kv_store();
         let doc_id = doc_id.to_owned();
         Box::pin(async move {
-            let doc = DocumentInfo::from_revisions(&doc_id, revisions.clone())?;
+            let revisions = repeated_revision_from_repeated_revision_pb(repeated_revision.clone())?.into_inner();
+            let doc = DocumentInfo::from_revisions(&doc_id, revisions)?;
             let doc_id = doc_id.to_owned();
-            let revisions = RepeatedRevision::new(revisions);
-            let params = CreateDocParams { id: doc_id, revisions };
-            let pb_params: flowy_collaboration::protobuf::CreateDocParams = params.try_into().unwrap();
-            let _ = create_document(&kv_store, pb_params)
+            let mut params = CreateDocParamsPB::new();
+            params.set_id(doc_id);
+            params.set_revisions(repeated_revision);
+            let _ = create_document(&kv_store, params)
                 .await
                 .map_err(server_error_to_collaborate_error)?;
             Ok(doc)
         })
     }
 
-    fn get_revisions(&self, doc_id: &str, rev_ids: Vec<i64>) -> BoxResultFuture<Vec<Revision>, CollaborateError> {
+    fn get_revisions(&self, doc_id: &str, rev_ids: Vec<i64>) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError> {
         let kv_store = self.0.kv_store();
         let doc_id = doc_id.to_owned();
         let f = || async move {
-            let mut pb = kv_store.batch_get_revisions(&doc_id, rev_ids).await?;
-            let repeated_revision: RepeatedRevision = (&mut pb).try_into()?;
-            let revisions = repeated_revision.into_inner();
-            Ok(revisions)
+            let mut repeated_revision = kv_store.batch_get_revisions(&doc_id, rev_ids).await?;
+            Ok(repeated_revision.take_items().into())
         };
 
         Box::pin(async move { f().await.map_err(server_error_to_collaborate_error) })
     }
 
-    fn get_doc_revisions(&self, doc_id: &str) -> BoxResultFuture<Vec<Revision>, CollaborateError> {
+    fn get_doc_revisions(&self, doc_id: &str) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError> {
         let kv_store = self.0.kv_store();
         let doc_id = doc_id.to_owned();
         let f = || async move {
-            let mut pb = kv_store.get_doc_revisions(&doc_id).await?;
-            let repeated_revision: RepeatedRevision = (&mut pb).try_into()?;
-            let revisions = repeated_revision.into_inner();
-            Ok(revisions)
+            let mut repeated_revision = kv_store.get_doc_revisions(&doc_id).await?;
+            Ok(repeated_revision.take_items().into())
         };
 
         Box::pin(async move { f().await.map_err(server_error_to_collaborate_error) })
     }
 
-    fn reset_document(&self, doc_id: &str, revisions: Vec<Revision>) -> BoxResultFuture<(), CollaborateError> {
+    fn reset_document(
+        &self,
+        doc_id: &str,
+        mut repeated_revision: RepeatedRevisionPB,
+    ) -> BoxResultFuture<(), CollaborateError> {
         let kv_store = self.0.kv_store();
         let doc_id = doc_id.to_owned();
         let f = || async move {
@@ -145,8 +154,8 @@ impl DocumentPersistence for DocumentPersistenceImpl {
                 .transaction(|mut transaction| {
                     Box::pin(async move {
                         let _ = transaction.batch_delete_key_start_with(&doc_id).await?;
-                        // let items = revisions_to_key_value_items(vec![])?;
-                        let _ = transaction.batch_set(vec![]).await?;
+                        let items = revisions_to_key_value_items(repeated_revision.take_items().into())?;
+                        let _ = transaction.batch_set(items).await?;
                         Ok(())
                     })
                 })

@@ -9,13 +9,12 @@ use flowy_collaboration::protobuf::{
     CreateDocParams,
     DocumentId,
     DocumentInfo,
-    RepeatedRevision,
+    RepeatedRevision as RepeatedRevisionPB,
     ResetDocumentParams,
-    Revision,
+    Revision as RevisionPB,
 };
 use lib_ot::{core::OperationTransformable, rich_text::RichTextDelta};
 use protobuf::Message;
-use std::convert::TryInto;
 
 use flowy_collaboration::sync::ServerDocumentManager;
 use std::sync::Arc;
@@ -46,15 +45,13 @@ pub async fn reset_document(
     document_manager: &Arc<ServerDocumentManager>,
     mut params: ResetDocumentParams,
 ) -> Result<(), ServerError> {
-    let params: flowy_collaboration::entities::doc::ResetDocumentParams = (&mut params).try_into().unwrap();
-    let mut revisions = params.revisions.into_inner();
-    if revisions.is_empty() {
+    let repeated_revision = params.take_revisions();
+    if repeated_revision.get_items().is_empty() {
         return Err(ServerError::payload_none().context("Revisions should not be empty when reset the document"));
     }
     let doc_id = params.doc_id.clone();
-    revisions.sort_by(|a, b| a.rev_id.cmp(&b.rev_id));
     let _ = document_manager
-        .handle_document_reset(&doc_id, revisions)
+        .handle_document_reset(&doc_id, repeated_revision)
         .await
         .map_err(internal_error)?;
     Ok(())
@@ -83,14 +80,14 @@ impl std::ops::DerefMut for DocumentKVPersistence {
 impl DocumentKVPersistence {
     pub(crate) fn new(kv_store: Arc<KVStore>) -> Self { DocumentKVPersistence { inner: kv_store } }
 
-    pub(crate) async fn batch_set_revision(&self, revisions: Vec<Revision>) -> Result<(), ServerError> {
+    pub(crate) async fn batch_set_revision(&self, revisions: Vec<RevisionPB>) -> Result<(), ServerError> {
         let items = revisions_to_key_value_items(revisions)?;
         self.inner
             .transaction(|mut t| Box::pin(async move { t.batch_set(items).await }))
             .await
     }
 
-    pub(crate) async fn get_doc_revisions(&self, doc_id: &str) -> Result<RepeatedRevision, ServerError> {
+    pub(crate) async fn get_doc_revisions(&self, doc_id: &str) -> Result<RepeatedRevisionPB, ServerError> {
         let doc_id = doc_id.to_owned();
         let items = self
             .inner
@@ -103,7 +100,7 @@ impl DocumentKVPersistence {
         &self,
         doc_id: &str,
         rev_ids: T,
-    ) -> Result<RepeatedRevision, ServerError> {
+    ) -> Result<RepeatedRevisionPB, ServerError> {
         let rev_ids = rev_ids.into();
         let items = match rev_ids {
             None => {
@@ -154,13 +151,13 @@ impl DocumentKVPersistence {
 }
 
 #[inline]
-pub fn revisions_to_key_value_items(revisions: Vec<Revision>) -> Result<Vec<KeyValue>, ServerError> {
+pub fn revisions_to_key_value_items(revisions: Vec<RevisionPB>) -> Result<Vec<KeyValue>, ServerError> {
     let mut items = vec![];
     for revision in revisions {
         let key = make_revision_key(&revision.doc_id, revision.rev_id);
 
         if revision.delta_data.is_empty() {
-            return Err(ServerError::internal().context("The delta_data of Revision should not be empty"));
+            return Err(ServerError::internal().context("The delta_data of RevisionPB should not be empty"));
         }
 
         let value = Bytes::from(revision.write_to_bytes().unwrap());
@@ -170,14 +167,14 @@ pub fn revisions_to_key_value_items(revisions: Vec<Revision>) -> Result<Vec<KeyV
 }
 
 #[inline]
-fn key_value_items_to_revisions(items: Vec<KeyValue>) -> RepeatedRevision {
+fn key_value_items_to_revisions(items: Vec<KeyValue>) -> RepeatedRevisionPB {
     let mut revisions = items
         .into_iter()
-        .filter_map(|kv| parse_from_bytes::<Revision>(&kv.value).ok())
-        .collect::<Vec<Revision>>();
+        .filter_map(|kv| parse_from_bytes::<RevisionPB>(&kv.value).ok())
+        .collect::<Vec<RevisionPB>>();
 
     revisions.sort_by(|a, b| a.rev_id.cmp(&b.rev_id));
-    let mut repeated_revision = RepeatedRevision::new();
+    let mut repeated_revision = RepeatedRevisionPB::new();
     repeated_revision.set_items(revisions.into());
     repeated_revision
 }
@@ -186,7 +183,7 @@ fn key_value_items_to_revisions(items: Vec<KeyValue>) -> RepeatedRevision {
 fn make_revision_key(doc_id: &str, rev_id: i64) -> String { format!("{}:{}", doc_id, rev_id) }
 
 #[inline]
-fn make_doc_from_revisions(doc_id: &str, mut revisions: RepeatedRevision) -> Result<DocumentInfo, ServerError> {
+fn make_doc_from_revisions(doc_id: &str, mut revisions: RepeatedRevisionPB) -> Result<DocumentInfo, ServerError> {
     let revisions = revisions.take_items();
     if revisions.is_empty() {
         return Err(ServerError::record_not_found().context(format!("{} not exist", doc_id)));

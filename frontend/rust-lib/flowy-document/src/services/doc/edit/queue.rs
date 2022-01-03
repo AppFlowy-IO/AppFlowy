@@ -16,6 +16,7 @@ use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot, RwLock};
 
 pub(crate) struct EditorCommandQueue {
+    #[allow(dead_code)]
     doc_id: String,
     document: Arc<RwLock<Document>>,
     receiver: Option<mpsc::UnboundedReceiver<EditorCommand>>,
