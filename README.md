@@ -143,24 +143,15 @@ flutter channel stable
 
 **Step 4:**
 
-You should enable the specified platform first if you don't enable it before and then select the desktop device.
-```shell
-# for windows
-flutter config --enable-windows-desktop
-
-# for macos
-flutter config --enable-macos-desktop
-
-# for linux
-flutter config --enable-linux-desktop
-```
-
 * Open the `app_flowy` folder located at xx/appflowy/frontend with Visual Studio Code or other IDEs at your disposal.
-* Go to the Run and Debug tab and then click the run button.
-![Run the project](https://github.com/AppFlowy-IO/appflowy/blob/main/doc/imgs/run.png)
+* Generate Language Files
+Run the Generate Language Files command if you don't run it before or you have updated the localization files. Read more at [](https://github.com/AppFlowy-IO/docs/blob/main/welcome-to-the-appflowy-wiki/translation.md)
+![Generate Language Files](https://user-images.githubusercontent.com/86001920/148005536-6b311b85-9335-43be-a908-5be0663be8d2.png)
 
-* If you want to build for the other platform, you should modify the build_sdk.sh before running.
-![build_sdk](https://user-images.githubusercontent.com/86001920/143262377-bb49e913-10ca-4198-80ec-bd814a13ee1d.png)
+* Click the run button.
+![Run the project](https://user-images.githubusercontent.com/86001920/148005558-425b248a-a5dc-4db9-a260-7b8dc32a9dc2.png)
+
+
 Please also check the device selection, AppFlowy only supports Desktop by now:
 ![device](https://user-images.githubusercontent.com/86001920/144546864-cebbf0c0-4eef-424e-93c7-e1e6b3a59669.png)
 
