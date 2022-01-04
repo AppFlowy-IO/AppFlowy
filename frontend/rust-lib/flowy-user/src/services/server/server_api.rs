@@ -3,7 +3,7 @@ use crate::{
     errors::FlowyError,
     services::server::UserServerAPI,
 };
-use backend_service::{configuration::*, user_request::*};
+use backend_service::{configuration::*, http_request::*};
 use lib_infra::future::FutureResult;
 
 pub struct UserHttpServer {

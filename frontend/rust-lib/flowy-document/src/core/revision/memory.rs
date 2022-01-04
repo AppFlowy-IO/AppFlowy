@@ -1,4 +1,4 @@
-use crate::services::doc::RevisionRecord;
+use crate::core::RevisionRecord;
 use dashmap::DashMap;
 use flowy_collaboration::entities::revision::RevisionRange;
 use flowy_error::{FlowyError, FlowyResult};

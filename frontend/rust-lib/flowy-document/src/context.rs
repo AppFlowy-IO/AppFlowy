@@ -1,13 +1,11 @@
-use crate::{
-    errors::FlowyError,
-    services::{
-        controller::DocumentController,
-        doc::{DocumentWSReceivers, DocumentWebSocket},
-        server::construct_doc_server,
-    },
-};
+use crate::errors::FlowyError;
 use backend_service::configuration::ClientServerConfiguration;
 
+use crate::{
+    controller::DocumentController,
+    core::{DocumentWSReceivers, DocumentWebSocket},
+    server::construct_doc_server,
+};
 use flowy_database::ConnectionPool;
 use std::sync::Arc;
 

@@ -5,11 +5,11 @@ use flowy_database::DBConnection;
 use flowy_document::context::DocumentContext;
 use lib_dispatch::prelude::*;
 use lib_sqlite::ConnectionPool;
-
 use crate::{
-    core::{event_handler::*, CoreContext},
+    context::CoreContext,
     errors::FlowyError,
     event::WorkspaceEvent,
+    event_handler::*,
     services::{
         app::event_handler::*,
         server::construct_workspace_server,

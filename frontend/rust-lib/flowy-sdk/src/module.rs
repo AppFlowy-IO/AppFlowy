@@ -1,5 +1,4 @@
-use flowy_core::prelude::CoreContext;
-
+use flowy_core::context::CoreContext;
 use flowy_net::services::ws::FlowyWSConnect;
 use flowy_user::services::user::UserSession;
 use lib_dispatch::prelude::Module;

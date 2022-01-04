@@ -1,16 +1,14 @@
 use crate::{
     context::DocumentUser,
-    errors::FlowyError,
-    services::{
-        doc::{
-            edit::ClientDocumentEditor,
-            revision::{RevisionCache, RevisionManager, RevisionServer},
-            DocumentWSReceivers,
-            DocumentWebSocket,
-            WSStateReceiver,
-        },
-        server::Server,
+    core::{
+        edit::ClientDocumentEditor,
+        revision::{RevisionCache, RevisionManager, RevisionServer},
+        DocumentWSReceivers,
+        DocumentWebSocket,
+        WSStateReceiver,
     },
+    errors::FlowyError,
+    server::Server,
 };
 use bytes::Bytes;
 use dashmap::DashMap;

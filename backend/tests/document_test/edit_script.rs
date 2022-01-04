@@ -2,7 +2,7 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
 use std::convert::TryInto;
 use actix_web::web::Data;
-use flowy_document::services::doc::edit::ClientDocumentEditor;
+use flowy_document::core::edit::ClientDocumentEditor;
 use flowy_test::{helper::ViewTest, FlowySDKTest};
 use flowy_user::services::user::UserSession;
 use futures_util::{stream, stream::StreamExt};

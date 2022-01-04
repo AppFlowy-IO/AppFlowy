@@ -1,4 +1,4 @@
-use crate::services::doc::{
+use crate::core::{
     web_socket::{DocumentWSSinkDataProvider, DocumentWSSteamConsumer, HttpWebSocketManager},
     DocumentMD5,
     DocumentWSReceiver,
@@ -18,7 +18,7 @@ use flowy_collaboration::{
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use lib_infra::future::FutureResult;
 
-use crate::services::doc::web_socket::local_ws_impl::LocalWebSocketManager;
+use crate::core::web_socket::local_ws_impl::LocalWebSocketManager;
 use flowy_collaboration::entities::ws::DocumentServerWSDataType;
 use lib_ot::rich_text::RichTextDelta;
 use lib_ws::WSConnectState;

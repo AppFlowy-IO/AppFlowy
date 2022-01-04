@@ -1,10 +1,10 @@
 use crate::{
     context::DocumentUser,
-    errors::FlowyError,
-    services::doc::{
+    core::{
         web_socket::{make_document_ws_manager, DocumentWebSocketManager},
         *,
     },
+    errors::FlowyError,
 };
 use bytes::Bytes;
 use flowy_collaboration::{

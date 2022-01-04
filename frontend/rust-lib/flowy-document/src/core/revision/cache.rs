@@ -1,33 +1,32 @@
 use crate::{
-    errors::FlowyError,
-    services::doc::revision::cache::{
-        disk::{Persistence, RevisionDiskCache},
+    core::revision::{
+        disk::{DocumentRevisionDiskCache, RevisionChangeset, RevisionTableState, SQLitePersistence},
         memory::{RevisionMemoryCache, RevisionMemoryCacheDelegate},
     },
-    sql_tables::{RevisionChangeset, RevisionTableState},
+    errors::FlowyError,
 };
-use std::borrow::Cow;
-
 use flowy_collaboration::entities::revision::{Revision, RevisionRange, RevisionState};
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyResult};
-
-use std::sync::{
-    atomic::{AtomicI64, Ordering::SeqCst},
-    Arc,
+use std::{
+    borrow::Cow,
+    sync::{
+        atomic::{AtomicI64, Ordering::SeqCst},
+        Arc,
+    },
 };
 use tokio::task::spawn_blocking;
 
 pub struct RevisionCache {
     doc_id: String,
-    disk_cache: Arc<dyn RevisionDiskCache<Error = FlowyError>>,
+    disk_cache: Arc<dyn DocumentRevisionDiskCache<Error = FlowyError>>,
     memory_cache: Arc<RevisionMemoryCache>,
     latest_rev_id: AtomicI64,
 }
 
 impl RevisionCache {
     pub fn new(user_id: &str, doc_id: &str, pool: Arc<ConnectionPool>) -> RevisionCache {
-        let disk_cache = Arc::new(Persistence::new(user_id, pool));
+        let disk_cache = Arc::new(SQLitePersistence::new(user_id, pool));
         let memory_cache = Arc::new(RevisionMemoryCache::new(doc_id, Arc::new(disk_cache.clone())));
         let doc_id = doc_id.to_owned();
         Self {
@@ -121,7 +120,7 @@ impl RevisionCache {
             .collect::<Vec<_>>();
 
         let _ = self.memory_cache.reset_with_revisions(&revision_records).await?;
-        let _ = self.disk_cache.reset_with_revisions(doc_id, revision_records)?;
+        let _ = self.disk_cache.reset_document(doc_id, revision_records)?;
         Ok(())
     }
 
@@ -131,7 +130,7 @@ impl RevisionCache {
     }
 }
 
-impl RevisionMemoryCacheDelegate for Arc<Persistence> {
+impl RevisionMemoryCacheDelegate for Arc<SQLitePersistence> {
     fn checkpoint_tick(&self, mut records: Vec<RevisionRecord>) -> FlowyResult<()> {
         let conn = &*self.pool.get().map_err(internal_error)?;
         records.retain(|record| record.write_to_disk);

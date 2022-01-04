@@ -10,8 +10,8 @@ mod macros;
 #[macro_use]
 extern crate flowy_database;
 
-pub mod core;
-
+pub mod context;
+pub mod event_handler;
 mod notify;
 pub mod protobuf;
 mod util;
@@ -19,7 +19,7 @@ mod util;
 pub mod prelude {
     pub use flowy_core_data_model::entities::{app::*, trash::*, view::*, workspace::*};
 
-    pub use crate::{core::*, errors::*, module::*};
+    pub use crate::{errors::*, module::*};
 }
 
 pub mod errors {

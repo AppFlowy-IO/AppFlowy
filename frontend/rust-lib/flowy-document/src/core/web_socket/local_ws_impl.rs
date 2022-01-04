@@ -1,4 +1,4 @@
-use crate::services::doc::{web_socket::DocumentWebSocketManager, DocumentWSReceiver};
+use crate::core::{web_socket::DocumentWebSocketManager, DocumentWSReceiver};
 use flowy_collaboration::entities::ws::DocumentServerWSData;
 use lib_ws::WSConnectState;
 use std::sync::Arc;

@@ -1,7 +1,7 @@
 pub mod edit;
 pub mod revision;
 mod web_socket;
-pub use crate::services::ws_receivers::*;
+pub use crate::ws_receivers::*;
 pub use edit::*;
 pub use revision::*;
 

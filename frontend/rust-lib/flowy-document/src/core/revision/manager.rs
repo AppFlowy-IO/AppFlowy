@@ -1,6 +1,6 @@
 use crate::{
+    core::{revision::RevisionCache, RevisionRecord},
     errors::FlowyError,
-    services::doc::{revision::RevisionCache, RevisionRecord},
 };
 use bytes::Bytes;
 use dashmap::DashMap;

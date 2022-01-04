@@ -3,8 +3,8 @@ use flowy_collaboration::entities::ws::DocumentClientWSData;
 use flowy_database::ConnectionPool;
 use flowy_document::{
     context::DocumentUser,
+    core::{DocumentWSReceivers, DocumentWebSocket, WSStateReceiver},
     errors::{internal_error, FlowyError},
-    services::doc::{DocumentWSReceivers, DocumentWebSocket, WSStateReceiver},
 };
 use flowy_net::services::ws::FlowyWSConnect;
 use flowy_user::services::user::UserSession;

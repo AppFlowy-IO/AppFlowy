@@ -1,7 +1,8 @@
-use crate::{errors::FlowyError, services::server::DocumentServerAPI};
+use crate::errors::FlowyError;
 use backend_service::{configuration::*, request::HttpRequestBuilder};
 use flowy_collaboration::entities::doc::{CreateDocParams, DocumentId, DocumentInfo, ResetDocumentParams};
 use lib_infra::future::FutureResult;
+use crate::server::DocumentServerAPI;
 
 pub struct DocServer {
     config: ClientServerConfiguration,

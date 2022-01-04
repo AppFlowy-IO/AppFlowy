@@ -1,5 +1,5 @@
-use crate::services::{
-    doc::{web_socket::web_socket::DocumentWebSocketManager, SYNC_INTERVAL_IN_MILLIS},
+use crate::{
+    core::{web_socket::web_socket::DocumentWebSocketManager, SYNC_INTERVAL_IN_MILLIS},
     ws_receivers::{DocumentWSReceiver, DocumentWebSocket},
 };
 use async_stream::stream;
