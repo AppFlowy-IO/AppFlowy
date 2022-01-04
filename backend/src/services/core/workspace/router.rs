@@ -20,7 +20,11 @@ use backend_service::{
 };
 use flowy_core_data_model::{
     parser::workspace::{WorkspaceDesc, WorkspaceName},
-    protobuf::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceId},
+    protobuf::{
+        CreateWorkspaceParams as CreateWorkspaceParamsPB,
+        UpdateWorkspaceParams as UpdateWorkspaceParamsPB,
+        WorkspaceId as WorkspaceIdPB,
+    },
 };
 use sqlx::PgPool;
 
@@ -29,7 +33,7 @@ pub async fn create_handler(
     pool: Data<PgPool>,
     logged_user: LoggedUser,
 ) -> Result<HttpResponse, ServerError> {
-    let params: CreateWorkspaceParams = parse_from_payload(payload).await?;
+    let params: CreateWorkspaceParamsPB = parse_from_payload(payload).await?;
     let name = WorkspaceName::parse(params.get_name().to_owned()).map_err(invalid_params)?;
     let desc = WorkspaceDesc::parse(params.get_desc().to_owned()).map_err(invalid_params)?;
     let mut transaction = pool
@@ -50,7 +54,7 @@ pub async fn read_handler(
     pool: Data<PgPool>,
     logged_user: LoggedUser,
 ) -> Result<HttpResponse, ServerError> {
-    let params: WorkspaceId = parse_from_payload(payload).await?;
+    let params: WorkspaceIdPB = parse_from_payload(payload).await?;
     let mut transaction = pool
         .begin()
         .await
@@ -76,7 +80,7 @@ pub async fn delete_handler(
     pool: Data<PgPool>,
     _logged_user: LoggedUser,
 ) -> Result<HttpResponse, ServerError> {
-    let params: WorkspaceId = parse_from_payload(payload).await?;
+    let params: WorkspaceIdPB = parse_from_payload(payload).await?;
     let workspace_id = check_workspace_id(params.get_workspace_id().to_owned())?;
     let mut transaction = pool
         .begin()
@@ -97,7 +101,7 @@ pub async fn update_handler(
     pool: Data<PgPool>,
     _logged_user: LoggedUser,
 ) -> Result<HttpResponse, ServerError> {
-    let params: UpdateWorkspaceParams = parse_from_payload(payload).await?;
+    let params: UpdateWorkspaceParamsPB = parse_from_payload(payload).await?;
     let workspace_id = check_workspace_id(params.get_id().to_owned())?;
     let name = match params.has_name() {
         false => None,

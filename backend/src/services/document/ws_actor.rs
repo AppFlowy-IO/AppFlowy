@@ -8,7 +8,11 @@ use async_stream::stream;
 use backend_service::errors::{internal_error, Result, ServerError};
 
 use flowy_collaboration::{
-    protobuf::{DocumentClientWSData, DocumentClientWSDataType, Revision},
+    protobuf::{
+        DocumentClientWSData as DocumentClientWSDataPB,
+        DocumentClientWSDataType as DocumentClientWSDataTypePB,
+        Revision as RevisionPB,
+    },
     sync::{RevisionUser, ServerDocumentManager, SyncResponse},
 };
 use futures::stream::StreamExt;
@@ -68,7 +72,7 @@ impl DocumentWebSocketActor {
 
     async fn handle_client_data(&self, client_data: WSClientData, persistence: Arc<FlowyPersistence>) -> Result<()> {
         let WSClientData { user, socket, data } = client_data;
-        let document_client_data = spawn_blocking(move || parse_from_bytes::<DocumentClientWSData>(&data))
+        let document_client_data = spawn_blocking(move || parse_from_bytes::<DocumentClientWSDataPB>(&data))
             .await
             .map_err(internal_error)??;
 
@@ -86,14 +90,14 @@ impl DocumentWebSocketActor {
         });
 
         match &document_client_data.ty {
-            DocumentClientWSDataType::ClientPushRev => {
+            DocumentClientWSDataTypePB::ClientPushRev => {
                 let _ = self
                     .doc_manager
                     .handle_client_revisions(user, document_client_data)
                     .await
                     .map_err(internal_error)?;
             },
-            DocumentClientWSDataType::ClientPing => {
+            DocumentClientWSDataTypePB::ClientPing => {
                 let _ = self
                     .doc_manager
                     .handle_client_ping(user, document_client_data)
@@ -107,9 +111,9 @@ impl DocumentWebSocketActor {
 }
 
 #[allow(dead_code)]
-fn verify_md5(revision: &Revision) -> Result<()> {
+fn verify_md5(revision: &RevisionPB) -> Result<()> {
     if md5(&revision.delta_data) != revision.md5 {
-        return Err(ServerError::internal().context("Revision md5 not match"));
+        return Err(ServerError::internal().context("RevisionPB md5 not match"));
     }
     Ok(())
 }

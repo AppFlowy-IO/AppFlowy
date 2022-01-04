@@ -12,16 +12,16 @@ use flowy_core_data_model::{
         app::{AppDesc, AppName},
         workspace::WorkspaceIdentify,
     },
-    protobuf::{App, CreateAppParams, RepeatedView},
+    protobuf::{App as AppPB, CreateAppParams as CreateAppParamsPB, RepeatedView as RepeatedViewPB},
 };
 use sqlx::{postgres::PgArguments, Postgres};
 use uuid::Uuid;
 
 pub(crate) async fn create_app(
     transaction: &mut DBTransaction<'_>,
-    mut params: CreateAppParams,
+    mut params: CreateAppParamsPB,
     logged_user: LoggedUser,
-) -> Result<App, ServerError> {
+) -> Result<AppPB, ServerError> {
     let name = AppName::parse(params.take_name()).map_err(invalid_params)?;
     let workspace_id = WorkspaceIdentify::parse(params.take_workspace_id()).map_err(invalid_params)?;
     let user_id = logged_user.as_uuid()?.to_string();
@@ -44,7 +44,7 @@ pub(crate) async fn read_app(
     transaction: &mut DBTransaction<'_>,
     app_id: Uuid,
     user: &LoggedUser,
-) -> Result<App, ServerError> {
+) -> Result<AppPB, ServerError> {
     let table = read_app_table(app_id, transaction).await?;
 
     let read_trash_ids = read_trash_ids(user, transaction).await?;
@@ -52,14 +52,14 @@ pub(crate) async fn read_app(
         return Err(ServerError::record_not_found());
     }
 
-    let mut views = RepeatedView::default();
+    let mut views = RepeatedViewPB::default();
     views.set_items(
         read_view_belong_to_id(&table.id.to_string(), user, transaction as &mut DBTransaction<'_>)
             .await?
             .into(),
     );
 
-    let mut app: App = table.into();
+    let mut app: AppPB = table.into();
     app.set_belongings(views);
     Ok(app)
 }

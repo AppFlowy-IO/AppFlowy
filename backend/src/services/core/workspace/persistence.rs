@@ -1,7 +1,7 @@
 use crate::util::sqlx_ext::SqlBuilder;
 use backend_service::errors::{invalid_params, ServerError};
 use chrono::{DateTime, NaiveDateTime, Utc};
-use flowy_core_data_model::{parser::workspace::WorkspaceIdentify, protobuf::Workspace};
+use flowy_core_data_model::{parser::workspace::WorkspaceIdentify, protobuf::Workspace as WorkspacePB};
 use sqlx::postgres::PgArguments;
 use uuid::Uuid;
 
@@ -25,7 +25,7 @@ impl NewWorkspaceBuilder {
         Self { table }
     }
 
-    pub fn from_workspace(user_id: &str, workspace: Workspace) -> Result<Self, ServerError> {
+    pub fn from_workspace(user_id: &str, workspace: WorkspacePB) -> Result<Self, ServerError> {
         let workspace_id = check_workspace_id(workspace.id)?;
         let create_time = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(workspace.create_time, 0), Utc);
         let modified_time = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(workspace.modified_time, 0), Utc);
@@ -52,8 +52,8 @@ impl NewWorkspaceBuilder {
         self
     }
 
-    pub fn build(self) -> Result<(String, PgArguments, Workspace), ServerError> {
-        let workspace: Workspace = self.table.clone().into();
+    pub fn build(self) -> Result<(String, PgArguments, WorkspacePB), ServerError> {
+        let workspace: WorkspacePB = self.table.clone().into();
         // TODO: use macro to fetch each field from struct
         let (sql, args) = SqlBuilder::create(WORKSPACE_TABLE)
             .add_field_with_arg("id", self.table.id)
@@ -85,9 +85,9 @@ pub struct WorkspaceTable {
     pub(crate) create_time: chrono::DateTime<Utc>,
     pub(crate) user_id: String,
 }
-impl std::convert::From<WorkspaceTable> for Workspace {
+impl std::convert::From<WorkspaceTable> for WorkspacePB {
     fn from(table: WorkspaceTable) -> Self {
-        let mut workspace = Workspace::default();
+        let mut workspace = WorkspacePB::default();
         workspace.set_id(table.id.to_string());
         workspace.set_name(table.name.clone());
         workspace.set_desc(table.description.clone());

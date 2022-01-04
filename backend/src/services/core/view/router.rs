@@ -21,7 +21,12 @@ use backend_service::{
 };
 use flowy_core_data_model::{
     parser::view::{ViewDesc, ViewName, ViewThumbnail},
-    protobuf::{CreateViewParams, QueryViewRequest, UpdateViewParams, ViewId},
+    protobuf::{
+        CreateViewParams as CreateViewParamsPB,
+        QueryViewRequest as QueryViewRequestPB,
+        UpdateViewParams as UpdateViewParamsPB,
+        ViewId as ViewIdPB,
+    },
 };
 use sqlx::PgPool;
 use std::sync::Arc;
@@ -31,7 +36,7 @@ pub async fn create_handler(
     persistence: Data<Arc<FlowyPersistence>>,
     user: LoggedUser,
 ) -> Result<HttpResponse, ServerError> {
-    let params: CreateViewParams = parse_from_payload(payload).await?;
+    let params: CreateViewParamsPB = parse_from_payload(payload).await?;
     let kv_store = persistence.kv_store();
     let pool = persistence.pg_pool();
     let mut transaction = pool
@@ -50,7 +55,7 @@ pub async fn create_handler(
 }
 
 pub async fn read_handler(payload: Payload, pool: Data<PgPool>, user: LoggedUser) -> Result<HttpResponse, ServerError> {
-    let params: ViewId = parse_from_payload(payload).await?;
+    let params: ViewIdPB = parse_from_payload(payload).await?;
     let view_id = check_view_ids(vec![params.view_id])?.pop().unwrap();
     let mut transaction = pool
         .begin()
@@ -67,7 +72,7 @@ pub async fn read_handler(payload: Payload, pool: Data<PgPool>, user: LoggedUser
 }
 
 pub async fn update_handler(payload: Payload, pool: Data<PgPool>) -> Result<HttpResponse, ServerError> {
-    let params: UpdateViewParams = parse_from_payload(payload).await?;
+    let params: UpdateViewParamsPB = parse_from_payload(payload).await?;
     let view_id = check_view_id(params.view_id.clone())?;
     let name = match params.has_name() {
         false => None,
@@ -107,7 +112,7 @@ pub async fn delete_handler(
     payload: Payload,
     persistence: Data<Arc<FlowyPersistence>>,
 ) -> Result<HttpResponse, ServerError> {
-    let params: QueryViewRequest = parse_from_payload(payload).await?;
+    let params: QueryViewRequestPB = parse_from_payload(payload).await?;
     let pool = persistence.pg_pool();
     let kv_store = persistence.kv_store();
     let view_ids = check_view_ids(params.view_ids.to_vec())?;

@@ -3,7 +3,7 @@ use backend_service::errors::{invalid_params, ServerError};
 use chrono::{DateTime, NaiveDateTime, Utc};
 use flowy_core_data_model::{
     parser::view::ViewIdentify,
-    protobuf::{RepeatedView, View, ViewType},
+    protobuf::{RepeatedView as RepeatedViewPB, View as ViewPB, ViewType as ViewTypePB},
 };
 use protobuf::ProtobufEnum;
 use sqlx::postgres::PgArguments;
@@ -27,13 +27,13 @@ impl NewViewSqlBuilder {
             modified_time: time,
             create_time: time,
             thumbnail: "".to_string(),
-            view_type: ViewType::Doc.value(),
+            view_type: ViewTypePB::Doc.value(),
         };
 
         Self { table }
     }
 
-    pub fn from_view(view: View) -> Result<Self, ServerError> {
+    pub fn from_view(view: ViewPB) -> Result<Self, ServerError> {
         let view_id = ViewIdentify::parse(view.id).map_err(invalid_params)?;
         let view_id = Uuid::parse_str(view_id.as_ref())?;
         let create_time = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(view.create_time, 0), Utc);
@@ -67,13 +67,13 @@ impl NewViewSqlBuilder {
         self
     }
 
-    pub fn view_type(mut self, view_type: ViewType) -> Self {
+    pub fn view_type(mut self, view_type: ViewTypePB) -> Self {
         self.table.view_type = view_type.value();
         self
     }
 
-    pub fn build(self) -> Result<(String, PgArguments, View), ServerError> {
-        let view: View = self.table.clone().into();
+    pub fn build(self) -> Result<(String, PgArguments, ViewPB), ServerError> {
+        let view: ViewPB = self.table.clone().into();
 
         let (sql, args) = SqlBuilder::create(VIEW_TABLE)
             .add_field_with_arg("id", self.table.id)
@@ -115,17 +115,17 @@ pub struct ViewTable {
     pub(crate) thumbnail: String,
     pub(crate) view_type: i32,
 }
-impl std::convert::From<ViewTable> for View {
+impl std::convert::From<ViewTable> for ViewPB {
     fn from(table: ViewTable) -> Self {
-        let view_type = ViewType::from_i32(table.view_type).unwrap_or(ViewType::Doc);
+        let view_type = ViewTypePB::from_i32(table.view_type).unwrap_or(ViewTypePB::Doc);
 
-        let mut view = View::default();
+        let mut view = ViewPB::default();
         view.set_id(table.id.to_string());
         view.set_belong_to_id(table.belong_to_id);
         view.set_name(table.name);
         view.set_desc(table.description);
         view.set_view_type(view_type);
-        view.set_belongings(RepeatedView::default());
+        view.set_belongings(RepeatedViewPB::default());
         view.set_create_time(table.create_time.timestamp());
         view.set_modified_time(table.modified_time.timestamp());
 

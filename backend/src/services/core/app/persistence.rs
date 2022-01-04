@@ -3,7 +3,7 @@ use backend_service::errors::{invalid_params, ServerError};
 use chrono::{DateTime, NaiveDateTime, Utc};
 use flowy_core_data_model::{
     parser::app::AppIdentify,
-    protobuf::{App, ColorStyle, RepeatedView},
+    protobuf::{App as AppPB, ColorStyle as ColorStylePB, RepeatedView as RepeatedViewPB},
 };
 use protobuf::Message;
 use sqlx::postgres::PgArguments;
@@ -35,7 +35,7 @@ impl NewAppSqlBuilder {
         Self { table }
     }
 
-    pub fn from_app(user_id: &str, app: App) -> Result<Self, ServerError> {
+    pub fn from_app(user_id: &str, app: AppPB) -> Result<Self, ServerError> {
         let app_id = check_app_id(app.id)?;
         let create_time = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(app.create_time, 0), Utc);
         let modified_time = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(app.modified_time, 0), Utc);
@@ -71,13 +71,13 @@ impl NewAppSqlBuilder {
         self
     }
 
-    pub fn color_style(mut self, color_style: ColorStyle) -> Self {
+    pub fn color_style(mut self, color_style: ColorStylePB) -> Self {
         self.table.color_style = color_style.write_to_bytes().unwrap_or_else(|_| default_color_style());
         self
     }
 
-    pub fn build(self) -> Result<(String, PgArguments, App), ServerError> {
-        let app: App = self.table.clone().into();
+    pub fn build(self) -> Result<(String, PgArguments, AppPB), ServerError> {
+        let app: AppPB = self.table.clone().into();
 
         let (sql, args) = SqlBuilder::create(APP_TABLE)
             .add_field_with_arg("id", self.table.id)
@@ -95,7 +95,7 @@ impl NewAppSqlBuilder {
 }
 
 fn default_color_style() -> Vec<u8> {
-    let style = ColorStyle::default();
+    let style = ColorStylePB::default();
     match style.write_to_bytes() {
         Ok(bytes) => bytes,
         Err(e) => {
@@ -123,14 +123,14 @@ pub struct AppTable {
     pub(crate) create_time: chrono::DateTime<Utc>,
     pub(crate) user_id: String,
 }
-impl std::convert::From<AppTable> for App {
+impl std::convert::From<AppTable> for AppPB {
     fn from(table: AppTable) -> Self {
-        let mut app = App::default();
+        let mut app = AppPB::default();
         app.set_id(table.id.to_string());
         app.set_workspace_id(table.workspace_id.to_string());
         app.set_name(table.name.clone());
         app.set_desc(table.description.clone());
-        app.set_belongings(RepeatedView::default());
+        app.set_belongings(RepeatedViewPB::default());
         app.set_modified_time(table.modified_time.timestamp());
         app.set_create_time(table.create_time.timestamp());
 

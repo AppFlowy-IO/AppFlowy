@@ -10,11 +10,12 @@ use std::sync::Arc;
 use bytes::Bytes;
 use tokio::time::{sleep, Duration};
 use crate::util::helper::{spawn_server, TestServer};
-use flowy_collaboration::{entities::doc::DocumentId, protobuf::ResetDocumentParams};
+use flowy_collaboration::{entities::doc::DocumentId, protobuf::ResetDocumentParams as ResetDocumentParamsPB};
 use lib_ot::rich_text::{RichTextAttribute, RichTextDelta};
 use parking_lot::RwLock;
 use backend::services::document::persistence::{read_document, reset_document};
 use flowy_collaboration::entities::revision::{RepeatedRevision, Revision};
+use flowy_collaboration::protobuf::{RepeatedRevision as RepeatedRevisionPB, DocumentId as DocumentIdPB};
 use flowy_collaboration::sync::ServerDocumentManager;
 use lib_ot::core::Interval;
 
@@ -115,7 +116,7 @@ async fn run_scripts(context: Arc<RwLock<ScriptContext>>, scripts: Vec<DocScript
                 DocScript::AssertServer(s, rev_id) => {
                     sleep(Duration::from_millis(2000)).await;
                     let persistence = Data::new(context.read().server.app_ctx.persistence.kv_store());
-                    let doc_identifier: flowy_collaboration::protobuf::DocumentId = DocumentId {
+                    let doc_identifier: DocumentIdPB = DocumentId {
                         doc_id
                     }.try_into().unwrap();
                     
@@ -171,8 +172,8 @@ async fn create_doc(flowy_test: &FlowySDKTest) -> String {
 }
 
 async fn reset_doc(doc_id: &str, repeated_revision: RepeatedRevision, document_manager: &Arc<ServerDocumentManager>) {
-    let pb: flowy_collaboration::protobuf::RepeatedRevision = repeated_revision.try_into().unwrap();
-    let mut params = ResetDocumentParams::new();
+    let pb: RepeatedRevisionPB = repeated_revision.try_into().unwrap();
+    let mut params = ResetDocumentParamsPB::new();
     params.set_doc_id(doc_id.to_owned());
     params.set_revisions(pb);
     let _ = reset_document(document_manager, params).await.unwrap();
