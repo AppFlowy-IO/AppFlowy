@@ -11,62 +11,59 @@ part 'sign_up_bloc.freezed.dart';
 
 class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
   final IAuth authManager;
-  SignUpBloc(this.authManager) : super(SignUpState.initial());
-
-  @override
-  Stream<SignUpState> mapEventToState(
-    SignUpEvent event,
-  ) async* {
-    yield* event.map(signUpWithUserEmailAndPassword: (e) async* {
-      yield* _performActionOnSignUp();
-    }, emailChanged: (EmailChanged value) async* {
-      yield state.copyWith(email: value.email, emailError: none(), successOrFail: none());
-    }, passwordChanged: (PasswordChanged value) async* {
-      yield state.copyWith(password: value.password, passwordError: none(), successOrFail: none());
-    }, repeatPasswordChanged: (RepeatPasswordChanged value) async* {
-      yield state.copyWith(repeatedPassword: value.password, repeatPasswordError: none(), successOrFail: none());
+  SignUpBloc(this.authManager) : super(SignUpState.initial()) {
+    on<SignUpEvent>((event, emit) async {
+      await event.map(signUpWithUserEmailAndPassword: (e) async {
+        await _performActionOnSignUp(emit);
+      }, emailChanged: (EmailChanged value) async {
+        emit(state.copyWith(email: value.email, emailError: none(), successOrFail: none()));
+      }, passwordChanged: (PasswordChanged value) async {
+        emit(state.copyWith(password: value.password, passwordError: none(), successOrFail: none()));
+      }, repeatPasswordChanged: (RepeatPasswordChanged value) async {
+        emit(state.copyWith(repeatedPassword: value.password, repeatPasswordError: none(), successOrFail: none()));
+      });
     });
   }
 
-  Stream<SignUpState> _performActionOnSignUp() async* {
-    yield state.copyWith(
+  Future<void> _performActionOnSignUp(Emitter<SignUpState> emit) async {
+    emit(state.copyWith(
       isSubmitting: true,
       successOrFail: none(),
-    );
+    ));
 
     final password = state.password;
     final repeatedPassword = state.repeatedPassword;
     if (password == null) {
-      yield state.copyWith(
+      emit(state.copyWith(
         isSubmitting: false,
         passwordError: some(LocaleKeys.signUp_emptyPasswordError.tr()),
-      );
+      ));
       return;
     }
 
     if (repeatedPassword == null) {
-      yield state.copyWith(
+      emit(state.copyWith(
         isSubmitting: false,
         repeatPasswordError: some(LocaleKeys.signUp_repeatPasswordEmptyError.tr()),
-      );
+      ));
       return;
     }
 
     if (password != repeatedPassword) {
-      yield state.copyWith(
+      emit(state.copyWith(
         isSubmitting: false,
         repeatPasswordError: some(LocaleKeys.signUp_unmatchedPasswordError.tr()),
-      );
+      ));
       return;
     }
 
-    yield state.copyWith(
+    emit(state.copyWith(
       passwordError: none(),
       repeatPasswordError: none(),
-    );
+    ));
 
     final result = await authManager.signUp(state.email, state.password, state.email);
-    yield result.fold(
+    emit(result.fold(
       (profile) => state.copyWith(
         isSubmitting: false,
         successOrFail: some(left(profile)),
@@ -75,7 +72,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
         repeatPasswordError: none(),
       ),
       (error) => stateFromCode(error),
-    );
+    ));
   }
 
   SignUpState stateFromCode(FlowyError error) {

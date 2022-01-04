@@ -7,20 +7,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'edit_pannel_bloc.freezed.dart';
 
 class EditPannelBloc extends Bloc<EditPannelEvent, EditPannelState> {
-  EditPannelBloc() : super(EditPannelState.initial());
-
-  @override
-  Stream<EditPannelState> mapEventToState(
-    EditPannelEvent event,
-  ) async* {
-    yield* event.map(
-      startEdit: (e) async* {
-        yield state.copyWith(isEditing: true, editContext: some(e.context));
-      },
-      endEdit: (value) async* {
-        yield state.copyWith(isEditing: false, editContext: none());
-      },
-    );
+  EditPannelBloc() : super(EditPannelState.initial()) {
+    on<EditPannelEvent>((event, emit) async {
+      await event.map(
+        startEdit: (e) async {
+          emit(state.copyWith(isEditing: true, editContext: some(e.context)));
+        },
+        endEdit: (value) async {
+          emit(state.copyWith(isEditing: false, editContext: none()));
+        },
+      );
+    });
   }
 }
 

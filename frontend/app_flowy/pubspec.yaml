@@ -50,7 +50,7 @@ dependencies:
   equatable: '^2.0.3'
   freezed_annotation:
   get_it: '^7.1.3'
-  flutter_bloc: '^7.3.1'
+  flutter_bloc: '8.0.0'
   provider: ^6.0.1
   path_provider: ^2.0.1
   window_size:

@@ -18,14 +18,17 @@ class AppWidgetTask extends LaunchTask {
   Future<void> initialize(LaunchContext context) {
     final widget = context.getIt<EntryPoint>().create();
     final app = ApplicationWidget(child: widget);
-    Bloc.observer = ApplicationBlocObserver();
-
-    runApp(
-      EasyLocalization(
-          supportedLocales: const [Locale('en'), Locale('zh_CN'), Locale('it_IT')],
-          path: 'assets/translations',
-          fallbackLocale: const Locale('en'),
-          child: app),
+    BlocOverrides.runZoned(
+      () {
+        runApp(
+          EasyLocalization(
+              supportedLocales: const [Locale('en'), Locale('zh_CN'), Locale('it_IT')],
+              path: 'assets/translations',
+              fallbackLocale: const Locale('en'),
+              child: app),
+        );
+      },
+      blocObserver: ApplicationBlocObserver(),
     );
 
     return Future(() => {});

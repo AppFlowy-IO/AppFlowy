@@ -42,7 +42,7 @@ packages:
       name: bloc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "7.2.1"
+    version: "8.0.2"
   boolean_selector:
     dependency: transitive
     description:
@@ -418,7 +418,7 @@ packages:
       name: flutter_bloc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "7.3.3"
+    version: "8.0.0"
   flutter_colorpicker:
     dependency: "direct main"
     description:

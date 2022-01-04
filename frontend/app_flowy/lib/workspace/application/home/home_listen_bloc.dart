@@ -8,22 +8,21 @@ part 'home_listen_bloc.freezed.dart';
 
 class HomeListenBloc extends Bloc<HomeListenEvent, HomeListenState> {
   final IUserListener listener;
-  HomeListenBloc(this.listener) : super(const HomeListenState.loading());
-
-  @override
-  Stream<HomeListenState> mapEventToState(
-    HomeListenEvent event,
-  ) async* {
-    yield* event.map(
-      started: (_) async* {
-        listener.authDidChangedNotifier.addPublishListener(_authDidChanged);
-        listener.start();
-      },
-      stop: (_) async* {},
-      unauthorized: (e) async* {
-        yield HomeListenState.unauthorized(e.msg);
-      },
-    );
+  HomeListenBloc(this.listener) : super(const HomeListenState.loading()) {
+    on<HomeListenEvent>((event, emit) async {
+      await event.map(
+        started: (_) async {
+          listener.authDidChangedNotifier.addPublishListener((result) {
+            _authDidChanged(result);
+          });
+          listener.start();
+        },
+        stop: (_) async {},
+        unauthorized: (e) async {
+          emit(HomeListenState.unauthorized(e.msg));
+        },
+      );
+    });
   }
 
   @override
