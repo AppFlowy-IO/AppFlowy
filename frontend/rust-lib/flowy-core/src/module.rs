@@ -1,10 +1,5 @@
 use std::sync::Arc;
 
-use backend_service::configuration::ClientServerConfiguration;
-use flowy_database::DBConnection;
-use flowy_document::context::DocumentContext;
-use lib_dispatch::prelude::*;
-use lib_sqlite::ConnectionPool;
 use crate::{
     context::CoreContext,
     errors::FlowyError,
@@ -22,6 +17,11 @@ use crate::{
         WorkspaceController,
     },
 };
+use backend_service::configuration::ClientServerConfiguration;
+use flowy_database::DBConnection;
+use flowy_document::context::DocumentContext;
+use lib_dispatch::prelude::*;
+use lib_sqlite::ConnectionPool;
 
 pub trait WorkspaceDeps: WorkspaceUser + WorkspaceDatabase {}
 

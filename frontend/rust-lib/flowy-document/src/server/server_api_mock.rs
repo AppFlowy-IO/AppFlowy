@@ -4,8 +4,7 @@ use flowy_collaboration::{
 };
 use lib_infra::future::FutureResult;
 
-use crate::errors::FlowyError;
-use crate::server::DocumentServerAPI;
+use crate::{errors::FlowyError, server::DocumentServerAPI};
 
 pub struct DocServerMock {}
 
