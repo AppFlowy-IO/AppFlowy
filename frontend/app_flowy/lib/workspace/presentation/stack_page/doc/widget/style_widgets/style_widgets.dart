@@ -16,7 +16,7 @@ class EditorCheckboxBuilder extends QuillCheckboxBuilder {
   EditorCheckboxBuilder(this.theme);
 
   @override
-  Widget build({required BuildContext context, required bool isChecked, required void Function(bool? p1) onChanged}) {
+  Widget build({required BuildContext context, required bool isChecked, required ValueChanged<bool> onChanged}) {
     return FlowyEditorCheckbox(
       theme: theme,
       isChecked: isChecked,
@@ -27,7 +27,7 @@ class EditorCheckboxBuilder extends QuillCheckboxBuilder {
 
 class FlowyEditorCheckbox extends StatefulWidget {
   final bool isChecked;
-  final void Function(bool? value) onChanged;
+  final ValueChanged<bool> onChanged;
   final AppTheme theme;
   const FlowyEditorCheckbox({
     required this.theme,
