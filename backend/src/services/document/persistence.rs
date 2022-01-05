@@ -17,6 +17,7 @@ use lib_ot::{core::OperationTransformable, rich_text::RichTextDelta};
 use protobuf::Message;
 
 use flowy_collaboration::sync::ServerDocumentManager;
+use lib_ot::core::trim;
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -204,6 +205,7 @@ fn make_doc_from_revisions(doc_id: &str, mut revisions: RepeatedRevisionPB) -> R
         let delta = RichTextDelta::from_bytes(revision.delta_data).map_err(internal_error)?;
         document_delta = document_delta.compose(&delta).map_err(internal_error)?;
     }
+
     let text = document_delta.to_json();
     let mut document_info = DocumentInfo::new();
     document_info.set_doc_id(doc_id.to_owned());
